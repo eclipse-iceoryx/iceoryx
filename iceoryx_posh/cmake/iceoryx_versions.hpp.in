@@ -1,0 +1,11 @@
+#ifndef __ICEORYXVERSIONS__
+#define __ICEORYXVERSIONS__
+
+#define ICEORYX_LATEST_RELEASE_VERSION    "@PROJECT_VERSION@"
+#define ICEORYX_BUILDDATE                 "@ICEORYX_BUILDDATE@"
+
+
+#define ICEORYX_PRINT_BUILDINFO()     INFO_PRINTF("Built: %s\n",ICEORYX_BUILDDATE); 
+                                 
+
+#endif

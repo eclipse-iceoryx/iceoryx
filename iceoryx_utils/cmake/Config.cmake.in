@@ -1,0 +1,7 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+include("${CMAKE_CURRENT_LIST_DIR}/@TARGETS_EXPORT_NAME@.cmake")
+list(APPEND CMAKE_MODULE_PATH "@CMAKE_INSTALL_PREFIX@/@DESTINATION_CONFIGDIR@")
+check_required_components("@PROJECT_NAME@")

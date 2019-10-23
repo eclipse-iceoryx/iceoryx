@@ -1,0 +1,94 @@
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
+
+namespace iox
+{
+namespace mepoo
+{
+const MePooConfig::MePooConfigContainerType* MePooConfig::getMemPoolConfig() const noexcept
+{
+    return &m_mempoolConfig;
+}
+
+void MePooConfig::addMemPool(MePooConfig::Entry f_entry) noexcept
+{
+    if (m_mempoolConfig.size() < m_mempoolConfig.capacity())
+    {
+        m_mempoolConfig.push_back(f_entry);
+    }
+    else
+    {
+        LogFatal() << "MAX_NUMBER_OF_MEMPOOLS_REACHED";
+        std::terminate();
+    }
+}
+
+/// this is the default memory pool configuration if no one is provided by the user
+MePooConfig& MePooConfig::setDefaults() noexcept
+{
+    m_mempoolConfig.push_back({32, 10000});
+    m_mempoolConfig.push_back({128, 10000});
+    m_mempoolConfig.push_back({1024, 2000});
+    m_mempoolConfig.push_back({1024 * 16, 500});
+    m_mempoolConfig.push_back({1024 * 128, 200});
+    m_mempoolConfig.push_back({1024 * 1024, 50});
+    m_mempoolConfig.push_back({1024 * 1024 * 2, 20});
+    m_mempoolConfig.push_back({1024 * 1024 * 4, 10});
+    m_mempoolConfig.push_back({1024 * 1024 * 8, 10});
+    m_mempoolConfig.push_back({1024 * 1024 * 16, 5});
+    m_mempoolConfig.push_back({1024 * 1024 * 32, 2});
+
+    return *this;
+}
+
+MePooConfig& MePooConfig::optimize() noexcept
+{
+    auto config = m_mempoolConfig;
+    m_mempoolConfig.clear();
+
+    std::sort(config.begin(), config.end(), [](const Entry& lhs, const Entry& rhs) { return lhs.m_size < rhs.m_size; });
+
+    MePooConfig::Entry newEntry{0, 0};
+
+    for (const auto& entry : config)
+    {
+        if (entry.m_size != newEntry.m_size)
+        {
+            if (newEntry.m_size != 0)
+            {
+                m_mempoolConfig.push_back(newEntry);
+            }
+            newEntry.m_size = entry.m_size;
+            newEntry.m_chunkCount = entry.m_chunkCount;
+        }
+        else
+        {
+            newEntry.m_chunkCount += entry.m_chunkCount;
+        }
+    }
+
+    if (newEntry.m_size != 0)
+    {
+        m_mempoolConfig.push_back(newEntry);
+    }
+
+    return *this;
+}
+
+} // namespace mepoo
+} // namespace iox
