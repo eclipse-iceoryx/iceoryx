@@ -35,7 +35,7 @@ struct RunnableData
 
 
     iox::cxx::CString100 m_process;
-    iox::cxx::CString100 m_runnable;    
+    iox::cxx::CString100 m_runnable;
     uint64_t m_runnableDeviceIdentifier;
 };
 } // namespace runtime

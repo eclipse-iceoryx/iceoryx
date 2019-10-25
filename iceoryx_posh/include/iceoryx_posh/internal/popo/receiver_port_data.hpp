@@ -50,7 +50,7 @@ struct ReceiverPortData : public BasePortData
     mutable std::atomic_bool m_chunkSendCallbackActive{false};
     mutable cxx::optional<mutex_t> m_chunkSendCallbackMutex = mutex_t::CreateMutex(false);
     posix::Semaphore* m_chunkSendSemaphore{nullptr};
-    
+
     // offer semaphore that is stored in shared memory
     sem_t m_shmSemaphoreHandle;
     posix::Semaphore::result_t m_shmSemaphore = posix::Semaphore::create();

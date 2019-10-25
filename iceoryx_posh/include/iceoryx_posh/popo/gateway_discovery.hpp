@@ -27,7 +27,7 @@ namespace popo
 {
 class InterfacePort;
 
- /// @brief Discover the gateway 
+/// @brief Discover the gateway
 template <typename Impl_T = GatewayGeneric>
 class GatewayDiscovery
 {

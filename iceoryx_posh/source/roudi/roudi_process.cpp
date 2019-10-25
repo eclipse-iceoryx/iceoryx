@@ -461,7 +461,6 @@ void ProcessManager::addSenderForProcess(const std::string& f_name,
             l_process->sendToMQ(l_sendBuffer);
             ERR_PRINTF("Could not create SenderPortImpl for application %s\n", f_name.c_str());
         }
-        
     }
     else
     {

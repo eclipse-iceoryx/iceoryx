@@ -35,7 +35,7 @@ void sending()
 
     // Create a publisher
     iox::popo::Publisher myPublisher({"Radar", "FrontLeft", "Counter"});
-    
+
     // With offer() the publisher gets visible to potential subscribers
     myPublisher.offer();
 
@@ -53,7 +53,7 @@ void sending()
 
         // Send the sample
         myPublisher.sendChunk(sample);
-    
+
         ct++;
 
         // Sleep some time

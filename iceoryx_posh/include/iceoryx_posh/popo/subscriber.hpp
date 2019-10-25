@@ -42,7 +42,7 @@ class Subscriber
     using mutex_t = std::mutex;
     using ReceiveHandler_t = std::function<void(void)>;
 
-    /// @brief Constructor 
+    /// @brief Constructor
     /// @param[in] service Information on service , service, instance, event Id
     /// @param[in] runnableName optional name of the runnable the subscriber belongs to
     explicit Subscriber(const capro::ServiceDescription& service, const cxx::CString100& runnableName = "") noexcept;

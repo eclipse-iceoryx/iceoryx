@@ -116,7 +116,7 @@ for folder in $component_folder; do
         echo "xml:"$folder"_ComponenttestTestResults.xml not found!"
 		exit 1
     fi
-    
+
 	if [ ! -f testresults/"$folder"_IntegrationTestResults.xml ]; then
         echo "xml:"$folder"_IntegrationTestResults.xml not found!"
 		exit 1

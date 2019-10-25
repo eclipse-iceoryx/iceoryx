@@ -161,6 +161,5 @@ class UsedChunkList
     std::array<mepoo::ChunkManagement*, Size> m_data;
 };
 
-
 } // namespace popo
 } // namespace iox

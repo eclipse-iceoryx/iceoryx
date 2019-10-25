@@ -5,7 +5,7 @@
 #define ICEORYX_BUILDDATE                 "@ICEORYX_BUILDDATE@"
 
 
-#define ICEORYX_PRINT_BUILDINFO()     INFO_PRINTF("Built: %s\n",ICEORYX_BUILDDATE); 
-                                 
+#define ICEORYX_PRINT_BUILDINFO()     INFO_PRINTF("Built: %s\n",ICEORYX_BUILDDATE);
+
 
 #endif

@@ -21,7 +21,7 @@ namespace popo
 std::atomic<uint64_t> BasePort::MemberType_t::s_uniqueIdCounter{1};
 
 BasePort::BasePort(BasePortData* const f_basePortDataPtr) noexcept
-    : m_basePortDataPtr(f_basePortDataPtr) 
+    : m_basePortDataPtr(f_basePortDataPtr)
 {
 }
 
