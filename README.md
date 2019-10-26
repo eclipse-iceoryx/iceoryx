@@ -53,6 +53,7 @@ so he can stream his favorite [video](https://www.youtube.com/watch?v=g5NkgZXWl0
 
 ## Download
 
+<!--
 Either download our pre-built daemon (called RouDi) and our runtime lib or build everything yourself.
 
 ### Release
@@ -61,6 +62,7 @@ Either download our pre-built daemon (called RouDi) and our runtime lib or build
     dpkg -i iceoryx.deb
 
 You've sucessfully installed iceoryx! Continue with the section examples to see how to get started developing applications using iceoryx.
+-->
 
 ### Development
 
@@ -81,7 +83,7 @@ iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh 
 For the first start we advise to use our build-test script for building everything.
 
     git clone https://github.com/eclipse/iceoryx.git
-    ./tools/iceoryx_build-test.sh
+    ./tools/iceoryx_build_test.sh
 
 In default-mode the script is not building the provided test. For a clean build just add "clean" as first argument to the script.
 
@@ -89,7 +91,7 @@ In default-mode the script is not building the provided test. For a clean build 
 
 To build iceoryx with tests, just add "test" as first argument to the script.
 
-    ./tools/iceoryx_build-test.sh test
+    ./tools/iceoryx_build_test.sh test
 
 The Googletest-Framework will be automatically fetched from github and the test will be executed and the end of the script.
 
@@ -97,13 +99,13 @@ Congrats! You've build all the necessary things to continue playing around with 
 
 ## Examples
 
-Great that your still here, time for code! The following examples give you a quick and easy introduction into the inner
+Great that you're still here, time for code! The following examples give you a quick and easy introduction into the inner
 workings of iceoryx. We hope you enjoy our sightseeing tour!
 
 |Name | Description | Technologies |
 |---|---|---|
-| [icedelivery](./examples/icedelivery) | Transfer data between POSIX applications | [SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture), service description |
-| [ros-on-ice](http://link.to.ros.implementation) | See how iceoryx can be used inside the robot operating system (will come) | ROS, RMW |
+| [icedelivery](./iceoryx_examples/icedelivery) | Transfer data between POSIX applications | [SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture), service description |
+| [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx) | See how iceoryx can be used inside the robot operating system | ROS, RMW |
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
 
