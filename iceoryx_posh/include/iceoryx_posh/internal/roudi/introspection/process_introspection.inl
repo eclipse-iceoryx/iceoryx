@@ -224,6 +224,5 @@ void ProcessIntrospection<SenderPort>::setSendInterval(unsigned int interval_ms)
     }
 }
 
-
 } // namespace roudi
 } // namespace iox

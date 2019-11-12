@@ -534,6 +534,5 @@ bool PortIntrospection<SenderPort>::removeReceiver(const std::string& name, cons
     return m_portData.removeReceiver(name, service);
 }
 
-
 } // namespace roudi
 } // namespace iox

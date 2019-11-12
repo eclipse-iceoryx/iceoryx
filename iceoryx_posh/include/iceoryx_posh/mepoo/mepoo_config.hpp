@@ -44,7 +44,7 @@ struct MePooConfig
 
     using MePooConfigContainerType = cxx::vector<Entry, MAX_NUMBER_OF_MEMPOOLS>;
     MePooConfigContainerType m_mempoolConfig;
-     
+
     /// @brief Default constructor to set the configuration for memory pools
     MePooConfig() = default;
 
@@ -55,7 +55,7 @@ struct MePooConfig
     /// @brief Function for adding new entry
     /// @param[in] Entry structure of mempool configuration
     void addMemPool(Entry f_entry) noexcept;
-    
+
     /// @brief Function for creating default memory pools
     MePooConfig& setDefaults() noexcept;
 

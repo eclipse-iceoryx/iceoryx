@@ -29,7 +29,7 @@ using SamplePtr = std::unique_ptr<TopicType, SampleDeleter<TopicType>>;
 /// @brief A typed publisher that takes the topic type as template argument
 /// A RAII pattern is used with offering the the publisher in c'tor and stop offering in d'tor
 /// This class has the limitation that the topic type is a fixed size data structure.
-/// I.e. we can get the size of memory to allcoate with the sizeof() operation. 
+/// I.e. we can get the size of memory to allocate with the sizeof() operation.
 /// So the topic type is not allowed to use heap-based members like a std::vector with default allocator
 /// allocate() returns a unique_ptr to a sample. This must be moved to the publish call for sending
 /// If the unique_ptr goes out of scope without publishing, the provided custom deleter frees the memory chunk
@@ -121,8 +121,8 @@ class TypedSubscriber
         while (m_subscriber.getChunk(&chunk))
         {
             auto sample = static_cast<const CounterTopic*>(chunk);
-            
-            // call the provided callback 
+
+            // call the provided callback
             m_callback(*sample);
 
             // release the chunk

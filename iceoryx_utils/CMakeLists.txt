@@ -90,12 +90,12 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
     endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
 
     # install_target_directories_and_header(
-    # TARGETS iceoryx_utils_testing 
+    # TARGETS iceoryx_utils_testing
     # INCLUDE_DIRECTORY testutils/
     # )
 
     setup_install_directories_and_export_package(
-    TARGETS iceoryx_utils_testing 
+    TARGETS iceoryx_utils_testing
     INCLUDE_DIRECTORY testutils/
     )
 
@@ -112,7 +112,7 @@ endif(GTest_FOUND)
 
 setup_package_name_and_create_files(
     NAME ${PROJECT_NAME}
-    NAMESPACE iceoryx_utils 
+    NAMESPACE iceoryx_utils
     PROJECT_PREFIX ${PREFIX}
 )
 
@@ -189,7 +189,7 @@ endif(PERFORM_CLANG_TIDY)
 ########## exporting library ##########
 #
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_utils 
+    TARGETS iceoryx_utils
     INCLUDE_DIRECTORY include/
 )
 

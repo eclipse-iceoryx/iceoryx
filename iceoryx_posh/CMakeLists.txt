@@ -25,8 +25,8 @@ endif( clang-tidy )
 ########## set variables for library export ##########
 #
 setup_package_name_and_create_files(
-    NAME ${PROJECT_NAME} 
-    NAMESPACE iceoryx_posh 
+    NAME ${PROJECT_NAME}
+    NAMESPACE iceoryx_posh
     PROJECT_PREFIX ${PREFIX}
 )
 
@@ -182,7 +182,7 @@ if(PERFORM_CLANG_TIDY)
     )
 endif(PERFORM_CLANG_TIDY)
 target_link_libraries(RouDi
-    PRIVATE 
+    PRIVATE
     ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
 )
 
@@ -214,7 +214,7 @@ endif(roudi_environment)
 ########## exporting library ##########
 #
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_posh iceoryx_posh_roudi RouDi 
+    TARGETS iceoryx_posh iceoryx_posh_roudi RouDi
     INCLUDE_DIRECTORY include/
 )
 

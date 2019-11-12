@@ -174,6 +174,5 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::copyMemPoo
     }
 }
 
-
 } // namespace roudi
 } // namespace iox

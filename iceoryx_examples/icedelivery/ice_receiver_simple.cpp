@@ -45,7 +45,7 @@ void receiving()
     TypedSubscriber<CounterTopic> myTypedSubscriber({"Radar", "FrontRight", "Counter"}, myCallback);
 
     while (!killswitch)
-    {        
+    {
         // sleep
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }

@@ -12,7 +12,7 @@ communication setup but does not actually participate in the communication betwe
 of RouDi as the switchboard operator of iceoryx. One of his other major tasks is the setup of the shared memory,
 which the applications are using to talk to each other. We currently use memory pools with different chunk sizes,
 called in literature a segregated free-list approach. RouDi is delivered pre-built in the Debian package
-with a default memory config. We don't support the memory pool configuration with a config file yet, so it has to be 
+with a default memory config. We don't support the memory pool configuration with a config file yet, so it has to be
 changed in the source file [mepoo_config.cpp](../../iceoryx_posh/source/mepoo/mepoo_config.cpp).
 To view the available command line options call `RouDi --help`.
 
@@ -42,9 +42,9 @@ The counter can differ depending on startup of the applications.
 ### RouDi
 
     Reserving 99683360 bytes in the shared memory [/iceoryx_mgmt]
-    [ Reserving shared memory successful ] 
+    [ Reserving shared memory successful ]
     Reserving 410709312 bytes in the shared memory [/username]
-    [ Reserving shared memory successful ] 
+    [ Reserving shared memory successful ]
 
 ### Sender
 
@@ -108,12 +108,12 @@ to everyone:
 The strings inside the first parameter of the constructor of `iox::popo::Publisher` are of the type
 `capro::ServiceDescription`. `capro` stands for **ca**nionical **pro**tocol and is used to abstract different
 SoA protocols. `Radar` is the service name, `FrontLeft` an instance of the service `Radar` and the third string the
-specific event `Counter` of the instance. This service model comes from AUTOSAR. It is maybe not the best fit for 
-typical publish/subscribe APIs but it allows us a matching to different technologies. The event can be compared to 
+specific event `Counter` of the instance. This service model comes from AUTOSAR. It is maybe not the best fit for
+typical publish/subscribe APIs but it allows us a matching to different technologies. The event can be compared to
 a topic in other publish/subscribe approaches. The service is not a single request/response thing but an element
-for grouping of events and/or methods that can be discovered as a service. Service and instance are like classes and 
+for grouping of events and/or methods that can be discovered as a service. Service and instance are like classes and
 objects in C++. So you always have a specific instance of a service during runtime. In iceoryx a publisher and
-a subscriber only match if all the three IDs match. 
+a subscriber only match if all the three IDs match.
 
 Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a chunk of
 shared memory:
@@ -239,7 +239,7 @@ Another difference to the prior sender is the simpler `allocate()` call with the
     myTypedPublisher.publish(std::move(sample));
 
 Now `allocate()` returns a `std::unique_ptr<TopicType, SampleDeleter<TopicType>>` instead of a `void*` , which
-automatically frees the memory when going out of scope. For sening the sample the ownership must be transferred 
+automatically frees the memory when going out of scope. For sening the sample the ownership must be transferred
 to the middleware with a move operation.
 
 ### Receiver (simple)

@@ -27,7 +27,7 @@
 #include <thread>
 #include <vector>
 
-#include <map> 
+#include <map>
 
 namespace iox
 {

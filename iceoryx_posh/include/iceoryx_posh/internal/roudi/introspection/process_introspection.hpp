@@ -136,7 +136,6 @@ class ProcessIntrospection
  */
 using ProcessIntrospectionType = ProcessIntrospection<SenderPortType>;
 
-
 } // namespace roudi
 } // namespace iox
 

@@ -52,7 +52,7 @@ void sending()
 
         // pass the ownership to the middleware for sending the sample
         myTypedPublisher.publish(std::move(sample));
-    
+
         ct++;
 
         // Sleep some time
