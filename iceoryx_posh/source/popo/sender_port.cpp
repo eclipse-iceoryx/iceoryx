@@ -138,10 +138,15 @@ mepoo::ChunkInfo* SenderPort::reserveChunk(const uint32_t payloadSize, bool useD
 
     // if it is no field and we have a last chunk which is only owned by us, then use this chunk again
     if (!getMembers()->m_receiverHandler.doesDeliverOnSubscribe() && getMembers()->m_lastChunk
-        && getMembers()->m_lastChunk.hasNoOtherOwners())
+        && getMembers()->m_lastChunk.hasNoOtherOwners()
+        && getMembers()->m_lastChunk.getChunkInfo()->m_usedSizeOfChunk
+               >= getMembers()->m_memoryMgr->sizeWithChunkInfoStruct(payloadSize))
     {
         if (pushToAllocatedChunkContainer(getMembers()->m_lastChunk))
         {
+            getMembers()->m_lastChunk.getChunkInfo()->m_payloadSize = payloadSize;
+            getMembers()->m_lastChunk.getChunkInfo()->m_usedSizeOfChunk =
+                getMembers()->m_memoryMgr->sizeWithChunkInfoStruct(payloadSize);
             return getMembers()->m_lastChunk.getChunkInfo();
         }
         else
