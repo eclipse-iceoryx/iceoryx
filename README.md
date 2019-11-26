@@ -80,6 +80,7 @@ You will need to install the following packages:
 
 iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh is using some functions from utils and is depending on it. You are able to build posh and utils and integrate in into existong cmake projects.
 
+##### Build Script
 For the first start we advise to use our build-test script for building everything.
 
     git clone https://github.com/eclipse/iceoryx.git
@@ -87,13 +88,27 @@ For the first start we advise to use our build-test script for building everythi
 
 In default-mode the script is not building the provided test. For a clean build just add "clean" as first argument to the script.
 
-#### Build with tests
+##### Build with tests
 
 To build iceoryx with tests, just add "test" as first argument to the script.
 
     ./tools/iceoryx_build_test.sh test
 
 The Googletest-Framework will be automatically fetched from github and the test will be executed and the end of the script.
+
+##### Build with colcon
+
+Alternatively, iceoryx can be built with [colcon](https://colcon.readthedocs.io/en/released/user/installation.html) to provide a smooth integration for ROS2 developers.
+
+```
+mkdir -p iceoryx_ws/src
+cd $_
+git clone https://github.com/eclipse/iceoryx.git
+cd ..
+colcon build
+```
+
+This build method makes the most sense in combination with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git)
 
 Congrats! You've build all the necessary things to continue playing around with the examples.
 
