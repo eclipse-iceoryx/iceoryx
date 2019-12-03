@@ -41,6 +41,7 @@ class SenderPort_testBase : public Test
         ActivateSender(m_sender);
 
         mempoolconf.addMemPool({128, 20});
+        mempoolconf.addMemPool({256, 20});
         m_memPoolHandler.configureMemoryManager(mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
         SubscribeReceiverToSender(m_receiver, m_sender);
     }
@@ -112,8 +113,17 @@ class SenderPort_testBase : public Test
         }
     }
 
+    void ReceiveDummyData()
+    {
+        // Be sure to receive the chunk we just sent to be able to recycle it
+        const iox::mepoo::ChunkInfo* receivedSample1;
+        m_receiver->getChunk(receivedSample1);
+        m_receiver->releaseChunk(receivedSample1);
+    }
+
     bool m_hasLatchedTopic;
     char m_memory[1024 * 1024];
+    bool m_useDynamicPayloadSizes = true;
     std::vector<BasePortData*> m_portData;
     std::vector<BasePort*> m_ports;
     iox::posix::Allocator m_memoryAllocator;
@@ -167,6 +177,48 @@ TEST_F(SenderPort_test, reserveSample_MultipleSamples)
     EXPECT_THAT(sample2, Ne(nullptr));
     EXPECT_THAT(sample1, Ne(sample2));
     EXPECT_THAT(m_memPoolHandler.getMemPoolInfo(0).m_usedChunks, Eq(2u));
+}
+
+TEST_F(SenderPort_test, reserveSample_DynamicSamplesSameSizeReturningValidLastChunk)
+{
+    auto sentSample1 = m_sender->reserveChunk(sizeof(DummySample), m_useDynamicPayloadSizes);
+    m_sender->deliverChunk(sentSample1);
+
+    ReceiveDummyData();
+
+    // Do it again to see whether the same chunk is returned
+    auto sentSample2 = m_sender->reserveChunk(sizeof(DummySample), m_useDynamicPayloadSizes);
+    m_sender->deliverChunk(sentSample2);
+    EXPECT_THAT(sentSample2->m_payloadSize, Eq(sizeof(DummySample)));
+    EXPECT_THAT(sentSample2->m_payload, Eq(sentSample1->m_payload));
+}
+
+TEST_F(SenderPort_test, reserveSample_DynamicSamplesSmallerSizeReturningValidLastChunk)
+{
+    auto sentSample1 = m_sender->reserveChunk(sizeof(DummySample), m_useDynamicPayloadSizes);
+    m_sender->deliverChunk(sentSample1);
+
+    ReceiveDummyData();
+
+    // Reserve a smaller chunk to see whether the same chunk is returned
+    auto sentSample2 = m_sender->reserveChunk(sizeof(DummySample) - 7, m_useDynamicPayloadSizes);
+    m_sender->deliverChunk(sentSample2);
+    EXPECT_THAT(sentSample2->m_payloadSize, Eq(sizeof(DummySample) - 7));
+    EXPECT_THAT(sentSample2->m_payload, Eq(sentSample1->m_payload));
+}
+
+TEST_F(SenderPort_test, reserveSample_DynamicSamplesLargerSizeReturningNotLastChunk)
+{
+    auto sentSample1 = m_sender->reserveChunk(sizeof(DummySample), m_useDynamicPayloadSizes);
+    m_sender->deliverChunk(sentSample1);
+
+    ReceiveDummyData();
+
+    // Reserve a larger chunk to see whether a chunk of the larger mempool is supplied
+    auto sentSample2 = m_sender->reserveChunk(sizeof(DummySample) + 200, m_useDynamicPayloadSizes);
+    m_sender->deliverChunk(sentSample2);
+    EXPECT_THAT(sentSample2->m_payloadSize, Eq(sizeof(DummySample) + 200));
+    EXPECT_THAT(sentSample2->m_payload, Ne(sentSample1->m_payload));
 }
 
 TEST_F(SenderPort_test, reserveSample_Overflow)
