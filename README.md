@@ -112,6 +112,12 @@ This build method makes the most sense in combination with [rmw_iceoryx](https:/
 
 Congrats! You've build all the necessary things to continue playing around with the examples.
 
+##### Build and run in a Docker environment
+
+If you want to avoid installing anything on your host machine but you have Docker installed, it is possible to use it to build and run iceoryx applications.
+
+Please see the dedicated [README.md](tools/docker/README.md) for information on how to do this.
+
 ## Examples
 
 Great that you're still here, time for code! The following examples give you a quick and easy introduction into the inner
