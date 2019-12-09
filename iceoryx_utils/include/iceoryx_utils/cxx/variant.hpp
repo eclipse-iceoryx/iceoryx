@@ -66,6 +66,7 @@ static constexpr uint64_t INVALID_VARIANT_INDEX = -1U;
 ///         interface is inspired by the C++17 standard but it has changes in
 ///         get and emplace since we are not allowed to throw exceptions.
 /// @param Types... variadic list of types which the variant should be able to store
+///
 /// @code
 ///     #include "iceoryx_utils/cxx/variant.hpp"
 ///     #include <iostream>

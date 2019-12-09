@@ -1,5 +1,9 @@
 # iceoryx - an IPC middleware for POSIX-based systems
 
+<p align="center">
+<img src="https://user-images.githubusercontent.com/8661268/70233652-4aa6d180-175f-11ea-8524-2344e0d3935c.png" height="200">
+</p>
+
 ## Introduction
 
 Great that you've made it to this little Eclipse project! Let's get yout started by providing a quick background
@@ -43,11 +47,11 @@ and does avoid copies to the utmost? "I'll definitely try iceoryx in my new proj
 performance with my low cost engine" she thinks while wandering home at night after the meetup with her friend.
 
 **Robby, the lonely robot**
-Robby is autonmous robot built during a research project at a university. He has a great set of features and can
+Robby is autonomous robot built during a research project at a university. He has a great set of features and can
 astonish the crowds by creating a detailed map of the university building in under an hour. However they made him use
 that slow self-made IPC to communicate with his sensors, because his parents wanted to get started fast. Though that
 makes it hard for him to react in real-time to dangerous incidents like flying coffee cups. When strolling through
-the interwebs on a lonely evening, he finds out about iceoryx: Free-to-use, high-performace data transfer with low
+the interwebs on a lonely evening, he finds out about iceoryx: Free-to-use, high-performance data transfer with low
 runtime overhead, real-time support! Brilliant! Maybe even Robbys biggest wish for a network binding will come true,
 so he can stream his favorite [video](https://www.youtube.com/watch?v=g5NkgZXWl0w) even faster!
 
@@ -120,6 +124,7 @@ workings of iceoryx. We hope you enjoy our sightseeing tour!
 |Name | Description | Technologies |
 |---|---|---|
 | [icedelivery](./iceoryx_examples/icedelivery) | Transfer data between POSIX applications | [SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture), service description |
+| [iceperf](./iceoryx_examples/iceperf) | Measure the latency from publisher to subscriber | Latency |
 | [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx) | See how iceoryx can be used inside the robot operating system | ROS, RMW |
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!

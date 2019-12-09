@@ -117,7 +117,7 @@ void SenderPort::setThroughput(const uint32_t payloadSize)
     getMembers()->m_throughput.chunkSize = getMembers()->m_memoryMgr->getMempoolChunkSizeForPayloadSize(payloadSize);
 }
 
-mepoo::ChunkInfo* SenderPort::reserveChunk(const uint32_t payloadSize, bool useDynamicPayloadSizes)
+mepoo::ChunkHeader* SenderPort::reserveChunk(const uint32_t payloadSize, bool useDynamicPayloadSizes)
 {
     if (!getMembers()->m_memoryMgr)
     {
@@ -139,15 +139,15 @@ mepoo::ChunkInfo* SenderPort::reserveChunk(const uint32_t payloadSize, bool useD
     // if it is no field and we have a last chunk which is only owned by us, then use this chunk again
     if (!getMembers()->m_receiverHandler.doesDeliverOnSubscribe() && getMembers()->m_lastChunk
         && getMembers()->m_lastChunk.hasNoOtherOwners()
-        && getMembers()->m_lastChunk.getChunkInfo()->m_usedSizeOfChunk
-               >= getMembers()->m_memoryMgr->sizeWithChunkInfoStruct(payloadSize))
+        && getMembers()->m_lastChunk.getChunkHeader()->m_info.m_usedSizeOfChunk
+               >= getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize))
     {
         if (pushToAllocatedChunkContainer(getMembers()->m_lastChunk))
         {
-            getMembers()->m_lastChunk.getChunkInfo()->m_payloadSize = payloadSize;
-            getMembers()->m_lastChunk.getChunkInfo()->m_usedSizeOfChunk =
-                getMembers()->m_memoryMgr->sizeWithChunkInfoStruct(payloadSize);
-            return getMembers()->m_lastChunk.getChunkInfo();
+            getMembers()->m_lastChunk.getChunkHeader()->m_info.m_payloadSize = payloadSize;
+            getMembers()->m_lastChunk.getChunkHeader()->m_info.m_usedSizeOfChunk =
+                getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
+            return getMembers()->m_lastChunk.getChunkHeader();
         }
         else
         {
@@ -165,8 +165,8 @@ mepoo::ChunkInfo* SenderPort::reserveChunk(const uint32_t payloadSize, bool useD
             // if the application allocated too much chunks, return no more chunks
             if (pushToAllocatedChunkContainer(l_chunk))
             {
-                l_chunk.getChunkInfo()->m_payloadSize = payloadSize;
-                return l_chunk.getChunkInfo();
+                l_chunk.getChunkHeader()->m_info.m_payloadSize = payloadSize;
+                return l_chunk.getChunkHeader();
             }
             else
             {
@@ -194,20 +194,20 @@ mepoo::ChunkInfo* SenderPort::reserveChunk(const uint32_t payloadSize, bool useD
     }
 }
 
-void SenderPort::setThroughputDeliveryData(mepoo::ChunkInfo* const chunkInfo, bool updateTimeInChunk)
+void SenderPort::setThroughputDeliveryData(mepoo::ChunkInfo& chunkInfo, bool updateTimeInChunk)
 {
     getMembers()->m_throughput.lastDeliveryTimestamp = getMembers()->m_throughput.currentDeliveryTimestamp;
     getMembers()->m_throughput.currentDeliveryTimestamp = mepoo::BaseClock::now();
     if (updateTimeInChunk)
     {
-        chunkInfo->m_txTimestamp = getMembers()->m_throughput.currentDeliveryTimestamp;
+        chunkInfo.m_txTimestamp = getMembers()->m_throughput.currentDeliveryTimestamp;
     }
 
     getMembers()->m_throughput.sequenceNumber = getMembers()->m_sequenceNumber;
     getMembers()->m_throughputExchange.store(getMembers()->m_throughput, MemberType_t::ThreadContext::Application);
 }
 
-void SenderPort::deliverChunk(mepoo::ChunkInfo* const chunkInfo)
+void SenderPort::deliverChunk(mepoo::ChunkHeader* const chunkHeader)
 {
     bool l_isOffered = getMembers()->m_activateRequested.load(std::memory_order_relaxed);
     bool l_isField = getMembers()->m_receiverHandler.doesDeliverOnSubscribe();
@@ -215,7 +215,7 @@ void SenderPort::deliverChunk(mepoo::ChunkInfo* const chunkInfo)
     if (!l_isOffered && !l_isField)
     {
         // if not offered and no field, drop the chunk
-        if (!deleteFromAllocatedChunkContainer(chunkInfo))
+        if (!deleteFromAllocatedChunkContainer(chunkHeader))
         {
             assert(false && "Application provided invalid chunk pointer to free");
         }
@@ -227,18 +227,19 @@ void SenderPort::deliverChunk(mepoo::ChunkInfo* const chunkInfo)
         // get chunk from allocated List
         mepoo::SharedChunk l_chunk(nullptr);
 
-        if (popFromAllocatedChunkContainer(chunkInfo, l_chunk))
+        if (popFromAllocatedChunkContainer(chunkHeader, l_chunk))
         {
-            if (!l_chunk.getChunkInfo()->m_externalSequenceNumber_bl)
+            auto& chunkInfo = l_chunk.getChunkHeader()->m_info;
+            if (!chunkInfo.m_externalSequenceNumber_bl)
             {
-                l_chunk.getChunkInfo()->m_sequenceNumber = getMembers()->m_sequenceNumber;
+                chunkInfo.m_sequenceNumber = getMembers()->m_sequenceNumber;
                 getMembers()->m_sequenceNumber++;
             }
             else
             {
                 getMembers()->m_sequenceNumber++; // for Introspection, else nobody updates.
             }
-            setThroughputDeliveryData(l_chunk.getChunkInfo());
+            setThroughputDeliveryData(chunkInfo);
         }
         else
         {
@@ -265,9 +266,9 @@ void SenderPort::deliverChunk(mepoo::ChunkInfo* const chunkInfo)
     }
 }
 
-void SenderPort::freeChunk(mepoo::ChunkInfo* const chunkInfo)
+void SenderPort::freeChunk(mepoo::ChunkHeader* const chunkHeader)
 {
-    if (!deleteFromAllocatedChunkContainer(chunkInfo))
+    if (!deleteFromAllocatedChunkContainer(chunkHeader))
     {
         assert(false && "Application provided invalid chunk pointer to free");
     }
@@ -309,8 +310,8 @@ void SenderPort::forwardChunk(mepoo::SharedChunk chunk)
     // getMembers().m_receiverHandler.doesDeliverOnSubscribe()) since we are a shadow port a normal send is not done! ->
     // we have to inc. seq.Nr. for introspection
     getMembers()->m_sequenceNumber++;
-    setThroughputDeliveryData(chunk.getChunkInfo(), false);
-    setThroughput(chunk.getChunkInfo()->m_payloadSize);
+    setThroughputDeliveryData(chunk.getChunkHeader()->m_info, false);
+    setThroughput(chunk.getChunkHeader()->m_info.m_payloadSize);
     getMembers()->m_receiverHandler.appContext().deliverChunk(chunk);
 }
 
@@ -371,20 +372,25 @@ bool SenderPort::pushToAllocatedChunkContainer(mepoo::SharedChunk chunk)
     return getMembers()->m_allocatedChunksList.insert(chunk);
 }
 
-bool SenderPort::popFromAllocatedChunkContainer(mepoo::ChunkInfo* chunkInfo, mepoo::SharedChunk& chunk)
+bool SenderPort::popFromAllocatedChunkContainer(mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk)
 {
-    return getMembers()->m_allocatedChunksList.remove(chunkInfo, chunk);
+    return getMembers()->m_allocatedChunksList.remove(chunkHeader, chunk);
 }
 
-bool SenderPort::deleteFromAllocatedChunkContainer(mepoo::ChunkInfo* chunkInfo)
+bool SenderPort::deleteFromAllocatedChunkContainer(mepoo::ChunkHeader* chunkHeader)
 {
     mepoo::SharedChunk l_chunk(nullptr);
-    return getMembers()->m_allocatedChunksList.remove(chunkInfo, l_chunk);
+    return getMembers()->m_allocatedChunksList.remove(chunkHeader, l_chunk);
 }
 
 void SenderPort::clearAllocatedChunkContainer()
 {
     getMembers()->m_allocatedChunksList.cleanup();
+}
+
+uint32_t SenderPort::getMaxDeliveryFiFoCapacity()
+{
+    return getMembers()->m_receiverHandler.getMaxDeliveryFiFoCapacity();
 }
 
 const SenderPort::MemberType_t* SenderPort::getMembers() const

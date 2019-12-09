@@ -29,8 +29,8 @@ template <typename T>
 template <typename... Targs>
 inline cxx::expected<SharedPointer<T>, TypedMemPoolError> TypedMemPool<T>::createObject(Targs&&... args)
 {
-    ChunkInfo* chunkInfo = static_cast<ChunkInfo*>(m_memPool.getChunk());
-    if (chunkInfo == nullptr)
+    ChunkHeader* chunkHeader = static_cast<ChunkHeader*>(m_memPool.getChunk());
+    if (chunkHeader == nullptr)
     {
         return cxx::error<TypedMemPoolError>(TypedMemPoolError::OutOfChunks);
     }
@@ -42,11 +42,11 @@ inline cxx::expected<SharedPointer<T>, TypedMemPoolError> TypedMemPool<T>::creat
         return cxx::error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
-    new (chunkInfo) ChunkInfo();
-    chunkInfo->m_payloadSize = sizeof(T);
-    chunkInfo->m_usedSizeOfChunk = MemoryManager::sizeWithChunkInfoStruct(sizeof(T));
+    new (chunkHeader) ChunkHeader();
+    chunkHeader->m_info.m_payloadSize = sizeof(T);
+    chunkHeader->m_info.m_usedSizeOfChunk = MemoryManager::sizeWithChunkHeaderStruct(sizeof(T));
 
-    new (chunkManagement) ChunkManagement(chunkInfo, &m_memPool, &m_chunkManagementPool);
+    new (chunkManagement) ChunkManagement(chunkHeader, &m_memPool, &m_chunkManagementPool);
     auto newObject = SharedPointer<T>::create(SharedChunk(chunkManagement), std::forward<Targs>(args)...);
 
     if (newObject.has_error())
@@ -73,7 +73,7 @@ uint32_t TypedMemPool<T>::getUsedChunks() const
 template <typename T>
 uint64_t TypedMemPool<T>::getAdjustedPayloadSize()
 {
-    return cxx::align(std::max(static_cast<uint64_t>(MemoryManager::sizeWithChunkInfoStruct(sizeof(T))),
+    return cxx::align(std::max(static_cast<uint64_t>(MemoryManager::sizeWithChunkHeaderStruct(sizeof(T))),
                                posix::Allocator::MEMORY_ALIGNMENT),
                       MemPool::MEMORY_ALIGNMENT);
 }

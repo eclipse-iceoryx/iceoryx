@@ -60,7 +60,7 @@ class ProcessIntrospection_test : public Test
     {
         std::unique_ptr<ChunkMock<Topic>> chunk{new ChunkMock<Topic>};
 
-        m_senderPortImpl_mock->reserveSampleReturn = chunk->chunkInfo();
+        m_senderPortImpl_mock->reserveSampleReturn = chunk->chunkHeader();
         m_senderPortImpl_mock->deliverChunk = 0;
 
         introspection.send();
@@ -153,7 +153,7 @@ TEST_F(ProcessIntrospection_test, thread)
 
         m_introspection.registerSenderPort(std::move(m_senderPortImpl));
 
-        m_senderPortImpl_mock->reserveSampleReturn = chunk.chunkInfo();
+        m_senderPortImpl_mock->reserveSampleReturn = chunk.chunkHeader();
         // we use the deliverChunk call to check how often the thread calls the send method
 
         std::chrono::milliseconds& sendIntervalSleep =

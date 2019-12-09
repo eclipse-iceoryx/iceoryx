@@ -138,7 +138,7 @@ TEST_F(ReceiverPort_test, newdata)
     EXPECT_THAT(m_receiver->newData(), Eq(false));
     int l_data = 100;
     auto l_delivery = m_sender->reserveChunk(sizeof(l_data));
-    l_delivery->m_payloadSize = sizeof(l_data);
+    l_delivery->m_info.m_payloadSize = sizeof(l_data);
     m_sender->deliverChunk(l_delivery);
     EXPECT_THAT(m_receiver->newData(), Eq(true));
 }
@@ -149,17 +149,17 @@ TEST_F(ReceiverPort_test, releaseChunk)
 
     int l_data = 100;
     auto l_delivery = m_sender->reserveChunk(sizeof(l_data));
-    l_delivery->m_payloadSize = sizeof(l_data);
+    l_delivery->m_info.m_payloadSize = sizeof(l_data);
     m_sender->deliverChunk(l_delivery);
     EXPECT_THAT(m_receiver->newData(), Eq(true));
 
     iox::mepoo::SharedChunk receivedSample;
-    const iox::mepoo::ChunkInfo* chunkInfo;
-    ASSERT_THAT(m_receiver->getChunk(chunkInfo), true);
+    const iox::mepoo::ChunkHeader* chunkHeader;
+    ASSERT_THAT(m_receiver->getChunk(chunkHeader), true);
 
-    EXPECT_THAT(chunkInfo->m_payloadSize, Eq(sizeof(l_data)));
+    EXPECT_THAT(chunkHeader->m_info.m_payloadSize, Eq(sizeof(l_data)));
 
-    EXPECT_THAT(m_receiver->releaseChunk(chunkInfo), true);
+    EXPECT_THAT(m_receiver->releaseChunk(chunkHeader), true);
     EXPECT_THAT(m_receiver->newData(), Eq(false));
 }
 

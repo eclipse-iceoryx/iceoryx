@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "a_typed_api.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
-#include "a_typed_api.hpp"
 
 #include <chrono>
 #include <csignal>
@@ -23,7 +23,7 @@
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig[[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
     killswitch = true;
@@ -33,7 +33,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 void sending()
 {
     // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::getInstance("/publisher_simple");
+    iox::runtime::PoshRuntime::getInstance("/publisher-simple");
 
     // create the templateized publisher
     TypedPublisher<CounterTopic> myTypedPublisher({"Radar", "FrontRight", "Counter"});
@@ -48,14 +48,14 @@ void sending()
         // write the data
         sample->counter = ct;
 
-        std::cout<< "Sending: " << ct << std::endl;
+        std::cout << "Sending: " << ct << std::endl;
 
         // pass the ownership to the middleware for sending the sample
         myTypedPublisher.publish(std::move(sample));
 
         ct++;
 
-        // Sleep some time
+        // Give the subscriber some time to process the data
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }

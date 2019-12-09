@@ -14,10 +14,10 @@
 
 #pragma once
 
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/concurrent/sofi.hpp"
 
 namespace iox
@@ -32,6 +32,8 @@ class DeliveryFiFo
 
     bool empty() const;
     bool resize(const uint32_t f_size);
+    uint64_t getCapacity() const;
+    uint64_t getSize() const;
 
   private:
     concurrent::SoFi<mepoo::ChunkManagement*, MAX_RECEIVER_QUEUE_SIZE> m_fifo;

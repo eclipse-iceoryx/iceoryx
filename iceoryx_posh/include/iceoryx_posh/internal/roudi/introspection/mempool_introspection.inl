@@ -130,27 +130,27 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::send()
     {
         uint32_t id = 0;
 
-        auto chunkInfo = m_senderPort.reserveChunk(sizeof(Topic));
-        auto sample = static_cast<Topic*>(chunkInfo->m_payload);
+        auto chunkHeader = m_senderPort.reserveChunk(sizeof(Topic));
+        auto sample = static_cast<Topic*>(chunkHeader->m_payload);
         new (sample) Topic;
 
         prepareIntrospectionSample(
             sample, posix::PosixGroup::getGroupOfCurrentProcess(), posix::PosixGroup::getGroupOfCurrentProcess(), id);
         copyMemPoolInfo(*m_rouDiInternalMemoryManager, sample->m_mempoolInfo);
 
-        m_senderPort.deliverChunk(chunkInfo);
+        m_senderPort.deliverChunk(chunkHeader);
 
         for (auto& segment : m_segmentManager->m_segmentContainer)
         {
             ++id;
-            auto chunkInfo = m_senderPort.reserveChunk(sizeof(Topic));
-            auto sample = static_cast<Topic*>(chunkInfo->m_payload);
+            auto chunkHeader = m_senderPort.reserveChunk(sizeof(Topic));
+            auto sample = static_cast<Topic*>(chunkHeader->m_payload);
             new (sample) Topic;
 
             prepareIntrospectionSample(sample, segment.getReaderGroup(), segment.getWriterGroup(), id);
             copyMemPoolInfo(segment.getMemoryManager(), sample->m_mempoolInfo);
 
-            m_senderPort.deliverChunk(chunkInfo);
+            m_senderPort.deliverChunk(chunkHeader);
         }
     }
 }
@@ -170,7 +170,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::copyMemPoo
         dst.m_minFreeChunks = src.m_minFreeChunks;
         dst.m_numChunks = src.m_numChunks;
         dst.m_chunkSize = src.m_chunkSize;
-        dst.m_payloadSize = src.m_chunkSize - static_cast<uint32_t>(sizeof(mepoo::ChunkInfo));
+        dst.m_payloadSize = src.m_chunkSize - static_cast<uint32_t>(sizeof(mepoo::ChunkHeader));
     }
 }
 

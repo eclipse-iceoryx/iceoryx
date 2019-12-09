@@ -23,9 +23,24 @@ SoFi<ValueType, CapacityValue>::SoFi() noexcept
 }
 
 template <class ValueType, uint32_t CapacityValue>
-uint32_t SoFi<ValueType, CapacityValue>::size() const noexcept
+uint64_t SoFi<ValueType, CapacityValue>::capacity() const noexcept
 {
     return m_size - INTERNAL_SIZE_ADD_ON;
+}
+
+template <class ValueType, uint32_t CapacityValue>
+uint64_t SoFi<ValueType, CapacityValue>::size() const noexcept
+{
+    uint64_t readPosition;
+    uint64_t writePosition;
+    do
+    {
+        readPosition = m_readPosition.load(std::memory_order_relaxed);
+        writePosition = m_writePosition.load(std::memory_order_relaxed);
+    } while (m_writePosition.load(std::memory_order_relaxed) != writePosition
+             || m_readPosition.load(std::memory_order_relaxed) != readPosition);
+
+    return writePosition - readPosition;
 }
 
 template <class ValueType, uint32_t CapacityValue>

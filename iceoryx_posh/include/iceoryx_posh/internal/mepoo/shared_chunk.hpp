@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 namespace iox
 {
@@ -40,7 +40,7 @@ class SharedChunk
     SharedChunk& operator=(const SharedChunk& rhs);
     SharedChunk& operator=(SharedChunk&& rhs);
 
-    ChunkInfo* getChunkInfo() const;
+    ChunkHeader* getChunkHeader() const;
     void* getPayload() const;
 
     ChunkManagement* release();

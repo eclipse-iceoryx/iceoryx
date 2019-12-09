@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
 #include <cstring>
@@ -27,20 +27,20 @@ class ChunkMock
     {
         memset(m_rawMemory, 0xFF, Size);
 
-        m_chunkInfo = new (m_rawMemory) iox::mepoo::ChunkInfo();
-        m_topic = static_cast<Topic*>(m_chunkInfo->m_payload);
+        m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader();
+        m_topic = static_cast<Topic*>(m_chunkHeader->m_payload);
     }
     ~ChunkMock()
     {
-        if (m_chunkInfo != nullptr)
+        if (m_chunkHeader != nullptr)
         {
-            m_chunkInfo->~ChunkInfo();
+            m_chunkHeader->~ChunkHeader();
         }
     }
 
-    iox::mepoo::ChunkInfo* chunkInfo()
+    iox::mepoo::ChunkHeader* chunkHeader()
     {
-        return m_chunkInfo;
+        return m_chunkHeader;
     }
 
     Topic* sample()
@@ -54,9 +54,9 @@ class ChunkMock
     ChunkMock& operator=(ChunkMock&&) = delete;
 
   private:
-    static constexpr size_t Size = sizeof(iox::mepoo::ChunkInfo) + sizeof(Topic);
-    alignas(iox::cxx::maxAlignment<iox::mepoo::ChunkInfo, Topic>()) uint8_t m_rawMemory[Size];
-    iox::mepoo::ChunkInfo* m_chunkInfo = nullptr;
+    static constexpr size_t Size = sizeof(iox::mepoo::ChunkHeader) + sizeof(Topic);
+    alignas(iox::cxx::maxAlignment<iox::mepoo::ChunkHeader, Topic>()) uint8_t m_rawMemory[Size];
+    iox::mepoo::ChunkHeader* m_chunkHeader = nullptr;
     Topic* m_topic = nullptr;
 };
 

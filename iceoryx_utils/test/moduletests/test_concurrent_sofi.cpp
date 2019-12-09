@@ -260,8 +260,8 @@ TEST_F(CUnitTestContainerSoFi, Capacity)
 {
     SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
 
-    // check if SoFi sets the right size
-    EXPECT_EQ(static_cast<uint32_t>(TEST_SOFI_CAPACITY), m_sofi.size());
+    // check if SoFi sets the right capacity
+    EXPECT_EQ(static_cast<uint32_t>(TEST_SOFI_CAPACITY), m_sofi.capacity());
 
     // check if SoFi doesn't lie to us
 
@@ -271,6 +271,52 @@ TEST_F(CUnitTestContainerSoFi, Capacity)
     // repeat the thest with a non zero initial read and write position
     serNumStart = 2000;
     checkCapacity("second", serNumStart);
+}
+
+TEST_F(CUnitTestContainerSoFi, NewlyCreatedSoFiIsEmpty)
+{
+    EXPECT_TRUE(m_sofi.empty());
+}
+
+TEST_F(CUnitTestContainerSoFi, NewlyCreatedSoFiHasSizeZero)
+{
+    EXPECT_EQ(m_sofi.size(), 0);
+}
+
+TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushes)
+{
+    SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
+
+    // check if a new instace of the SoFi is empty
+    EXPECT_TRUE(m_sofi.empty());
+
+    int ret;
+
+    // Push 10 items till SoFi is full and check size
+    for (uint32_t i = 0; i < TEST_SOFI_CAPACITY; i++)
+    {
+        EXPECT_EQ(m_sofi.size(), i);
+        m_sofi.push(i, ret);
+        EXPECT_EQ(m_sofi.size(), i+1);
+    }
+}
+
+TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushesOverflow)
+{
+    SCOPED_TRACE(testId()); // just a helper to trace the failure when subroutines are used
+
+    // check if a new instace of the SoFi is empty
+    EXPECT_TRUE(m_sofi.empty());
+
+    int ret;
+
+    // Push 11 items to provoke overflow and check size
+    for (uint32_t i = 0; i < TEST_SOFI_FULL; i++)
+    {
+        EXPECT_EQ(m_sofi.size(), i);
+        m_sofi.push(i, ret);
+        EXPECT_EQ(m_sofi.size(), i+1);
+    }
 }
 
 TEST_F(CUnitTestContainerSoFi, Overflow)
@@ -341,7 +387,7 @@ TEST_F(CUnitTestContainerSoFi, ResizeAndSizeCheck)
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY; ++i)
     {
         EXPECT_EQ(m_sofi.resize(i), true);
-        EXPECT_EQ(m_sofi.size(), i);
+        EXPECT_EQ(m_sofi.capacity(), i);
     }
 }
 
@@ -402,7 +448,7 @@ TEST_F(CUnitTestContainerSoFi, PopIfOnEmpty)
 TEST_F(CUnitTestContainerSoFi, PopIfFullWithValidCondition)
 {
     int output;
-    for (int i = 0; i < static_cast<int>(m_sofi.size()) + 2; i++)
+    for (int i = 0; i < static_cast<int>(m_sofi.capacity()) + 2; i++)
         m_sofi.push(i + 100, output);
 
     bool result = m_sofi.popIf(output, [](const int& peek) { return peek < 150; });
@@ -414,7 +460,7 @@ TEST_F(CUnitTestContainerSoFi, PopIfFullWithValidCondition)
 TEST_F(CUnitTestContainerSoFi, PopIfFullWithInvalidCondition)
 {
     int output;
-    for (int i = 0; i < static_cast<int>(m_sofi.size()) + 2; i++)
+    for (int i = 0; i < static_cast<int>(m_sofi.capacity()) + 2; i++)
         m_sofi.push(i + 100, output);
 
     bool result = m_sofi.popIf(output, [](const int& peek) { return peek < 50; });

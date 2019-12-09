@@ -171,7 +171,8 @@ bool vector<T, Capacity>::push_back(T&& value)
 template <typename T, uint64_t Capacity>
 void vector<T, Capacity>::pop_back()
 {
-    if (m_size > 0) {
+    if (m_size > 0)
+    {
         back().~T();
         m_size--;
     }
@@ -203,7 +204,7 @@ inline const T& vector<T, Capacity>::at(const uint64_t index) const
         fprintf(stderr, "out of bounds access, current size is %lu but given index is %lu\n", m_size, index);
         std::terminate();
     }
-    return *reinterpret_cast<const T*>(&(m_data[index]));
+    return reinterpret_cast<const T*>(m_data)[index];
 }
 
 template <typename T, uint64_t Capacity>
@@ -221,9 +222,9 @@ inline const T& vector<T, Capacity>::operator[](const uint64_t index) const
 template <typename T, uint64_t Capacity>
 T& vector<T, Capacity>::front() noexcept
 {
-    if (size() == 0)
+    if (empty())
     {
-        std::cerr << "Attemting to acces the front of an empty vector!" << std::endl;
+        std::cerr << "Attempting to access the front of an empty vector!" << std::endl;
         std::terminate();
     }
     return at(0);
@@ -232,9 +233,9 @@ T& vector<T, Capacity>::front() noexcept
 template <typename T, uint64_t Capacity>
 const T& vector<T, Capacity>::front() const noexcept
 {
-    if (size() == 0)
+    if (empty())
     {
-        std::cerr << "Attemting to acces the front of an empty vector!" << std::endl;
+        std::cerr << "Attempting to access the front of an empty vector!" << std::endl;
         std::terminate();
     }
     return at(0);
@@ -243,9 +244,9 @@ const T& vector<T, Capacity>::front() const noexcept
 template <typename T, uint64_t Capacity>
 T& vector<T, Capacity>::back() noexcept
 {
-    if (size() == 0)
+    if (empty())
     {
-        std::cerr << "Attemting to acces the back of an empty vector!" << std::endl;
+        std::cerr << "Attempting to access the back of an empty vector!" << std::endl;
         std::terminate();
     }
     return at(size() - 1);
@@ -254,9 +255,9 @@ T& vector<T, Capacity>::back() noexcept
 template <typename T, uint64_t Capacity>
 const T& vector<T, Capacity>::back() const noexcept
 {
-    if (size() == 0)
+    if (empty())
     {
-        std::cerr << "Attemting to acces the back of an empty vector!" << std::endl;
+        std::cerr << "Attempting to access the back of an empty vector!" << std::endl;
         std::terminate();
     }
     return at(size() - 1);

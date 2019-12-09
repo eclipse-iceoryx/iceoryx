@@ -79,12 +79,30 @@ cmake --build . --target install
 cd $WORKSPACE/build
 echo ">>>>>> finished building iceoryx posh package <<<<<<"
 
+# Build iceoryx_introspection
+mkdir -p iceoryx_introspection
+cd iceoryx_introspection
+
+echo ">>>>>> Start building iceoryx introspection <<<<<<"
+cmake -DCMAKE_PREFIX_PATH=$WORKSPACE/build/install/prefix -DCMAKE_INSTALL_PREFIX=$WORKSPACE/build/install/prefix/ $test_flag -Droudi_environment=on $WORKSPACE/tools/introspection
+cmake --build . --target install
+cd $WORKSPACE/build
+echo ">>>>>> finished building iceoryx introspection package <<<<<<"
+
 echo ">>>>>> Start building iceoryx examples <<<<<<"
 mkdir -p iceoryx_examples
-cd iceoryx_examples
+echo ">>>>>>>> icedelivery"
+cd $WORKSPACE/build/iceoryx_examples
+mkdir -p icedelivery
+cd icedelivery
 cmake -DCMAKE_PREFIX_PATH=$WORKSPACE/build/install/prefix $WORKSPACE/iceoryx_examples/icedelivery
 cmake --build .
-cd $WORKSPACE/build
+echo ">>>>>>>> iceperf"
+cd $WORKSPACE/build/iceoryx_examples
+mkdir -p iceperf
+cd iceperf
+cmake -DCMAKE_PREFIX_PATH=$WORKSPACE/build/install/prefix $WORKSPACE/iceoryx_examples/iceperf
+cmake --build .
 echo ">>>>>> finished building iceoryx examples <<<<<<"
 
 #====================================================================================================
@@ -109,17 +127,17 @@ for folder in $component_folder; do
 
     if [ ! -f testresults/"$folder"_ModuleTestResults.xml ]; then
         echo "xml:"$folder"_ModuletestTestResults.xml not found!"
-		exit 1
+        exit 1
     fi
 
     if [ ! -f testresults/"$folder"_ComponenttestTestResults.xml ]; then
         echo "xml:"$folder"_ComponenttestTestResults.xml not found!"
-		exit 1
+        exit 1
     fi
 
-	if [ ! -f testresults/"$folder"_IntegrationTestResults.xml ]; then
+    if [ ! -f testresults/"$folder"_IntegrationTestResults.xml ]; then
         echo "xml:"$folder"_IntegrationTestResults.xml not found!"
-		exit 1
+        exit 1
     fi
 
 done

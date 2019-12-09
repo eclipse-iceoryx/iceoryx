@@ -21,7 +21,7 @@
 #include "iceoryx_posh/internal/popo/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/receiver_handler.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/concurrent/taco.hpp"

@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 #include <array>
 #include <atomic>
@@ -64,7 +64,7 @@ class UsedChunkList
     }
 
     // only from runtime context
-    bool remove(const mepoo::ChunkInfo* f_chunkInfo, mepoo::SharedChunk& f_chunk)
+    bool remove(const mepoo::ChunkHeader* f_chunkHeader, mepoo::SharedChunk& f_chunk)
     {
         uint32_t previous = InvalidIndex;
 
@@ -72,7 +72,7 @@ class UsedChunkList
         for (uint32_t current = m_usedListHead; current != InvalidIndex; current = m_list[current])
         {
             // does the entry match the one we want to remove?
-            if (m_data[current] != nullptr && m_data[current]->m_chunkInfo == f_chunkInfo)
+            if (m_data[current] != nullptr && m_data[current]->m_chunkHeader == f_chunkHeader)
             {
                 // return the chunk mgmt entry as SharedChunk object
                 f_chunk = mepoo::SharedChunk(m_data[current]);

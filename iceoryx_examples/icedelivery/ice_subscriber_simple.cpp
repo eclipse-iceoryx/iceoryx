@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "a_typed_api.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
-#include "a_typed_api.hpp"
 
 #include <chrono>
 #include <csignal>
@@ -23,7 +23,7 @@
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig[[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
     killswitch = true;
@@ -39,7 +39,7 @@ void myCallback(const CounterTopic& sample)
 void receiving()
 {
     // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::getInstance("/subscriber_simple");
+    iox::runtime::PoshRuntime::getInstance("/subscriber-simple");
 
     // Create the typed subscriber and provide the callback, the rest will be executed in middleware context
     TypedSubscriber<CounterTopic> myTypedSubscriber({"Radar", "FrontRight", "Counter"}, myCallback);

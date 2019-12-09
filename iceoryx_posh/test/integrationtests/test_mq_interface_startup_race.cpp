@@ -113,7 +113,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         std::lock_guard<std::mutex> lock(m_roudiQueueMutex);
         // ensure that the application already opened the roudi mqueue by waiting until a REG request is sent to the
         // roudi mqueue
-        auto request = m_roudiQueue->timedReceive(5_s);
+        auto request = m_roudiQueue->timedReceive(15_s);
         ASSERT_FALSE(request.has_error());
         auto msg = getMqMessage(request.get_value());
         checkRegRequest(msg);
@@ -123,7 +123,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         auto m_roudiQueue2 = MQueue::create(MqRouDiName, MessageQueueMode::Blocking, MessageQueueOwnership::CreateNew);
 
         // check if the app retries to register at RouDi
-        request = m_roudiQueue2->timedReceive(5_s);
+        request = m_roudiQueue2->timedReceive(15_s);
         ASSERT_FALSE(request.has_error());
         msg = getMqMessage(request.get_value());
         checkRegRequest(msg);
@@ -131,7 +131,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         sendRegAck(msg);
     });
 
-    MqRuntimeInterface dut(MqRouDiName, MqAppName, 10000_ms);
+    MqRuntimeInterface dut(MqRouDiName, MqAppName, 35_s);
 
     roudi.join();
 }

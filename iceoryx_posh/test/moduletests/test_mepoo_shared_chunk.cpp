@@ -14,7 +14,7 @@
 
 #include "test.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
@@ -35,8 +35,8 @@ class SharedChunk_Test : public Test
     ChunkManagement* GetChunkManagement(void* memoryChunk)
     {
         ChunkManagement* v = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
-        ChunkInfo* chunkInfo = new (memoryChunk) ChunkInfo();
-        new (v) ChunkManagement{chunkInfo, &mempool, &chunkMgmtPool};
+        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader();
+        new (v) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         return v;
     }
 
@@ -109,18 +109,18 @@ TEST_F(SharedChunk_Test, DestructorDefaultCTor)
     EXPECT_THAT(mempool.getUsedChunks(), Eq(1));
 }
 
-TEST_F(SharedChunk_Test, getChunkInfoWhenInvalid)
+TEST_F(SharedChunk_Test, getChunkHeaderWhenInvalid)
 {
     SharedChunk sut2(nullptr);
-    EXPECT_THAT(sut2.getChunkInfo(), Eq(nullptr));
+    EXPECT_THAT(sut2.getChunkHeader(), Eq(nullptr));
 }
 
-TEST_F(SharedChunk_Test, getChunkInfoWhenValid)
+TEST_F(SharedChunk_Test, getChunkHeaderWhenValid)
 {
     void* newChunk = mempool.getChunk();
 
     iox::mepoo::SharedChunk sut2(GetChunkManagement(newChunk));
-    EXPECT_THAT(sut2.getChunkInfo(), Eq(newChunk));
+    EXPECT_THAT(sut2.getChunkHeader(), Eq(newChunk));
 }
 
 TEST_F(SharedChunk_Test, CompareWithSameSharedChunk)
@@ -186,8 +186,8 @@ TEST_F(SharedChunk_Test, getPayloadWhenInvalid)
 
 TEST_F(SharedChunk_Test, getPayloadWhenValid)
 {
-    ChunkInfo* newChunk = static_cast<ChunkInfo*>(mempool.getChunk());
-    new (newChunk) ChunkInfo();
+    ChunkHeader* newChunk = static_cast<ChunkHeader*>(mempool.getChunk());
+    new (newChunk) ChunkHeader();
     new (static_cast<int*>(newChunk->m_payload)) int{1337};
 
     iox::mepoo::SharedChunk sut2(GetChunkManagement(newChunk));

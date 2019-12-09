@@ -19,6 +19,7 @@ file(GLOB_RECURSE MOCKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/mocks/*.cpp")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
 set(TEST_LINK_LIBS
+    ${CODE_COVERAGE_LIBS}
     GTest::gtest
     GTest::gmock
     iceoryx_utils::iceoryx_utils

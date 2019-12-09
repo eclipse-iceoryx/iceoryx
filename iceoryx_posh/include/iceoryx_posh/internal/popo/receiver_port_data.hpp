@@ -15,13 +15,13 @@
 #pragma once
 
 #include "iceoryx_posh/internal/popo/base_port_data.hpp"
+
+#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/delivery_fifo.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
-
-#include <cstdint>
 
 namespace iox
 {

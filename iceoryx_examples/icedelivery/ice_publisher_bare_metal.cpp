@@ -22,7 +22,7 @@
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig[[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
     killswitch = true;
@@ -31,7 +31,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 void sending()
 {
     // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::getInstance("/publisher");
+    iox::runtime::PoshRuntime::getInstance("/publisher-bare-metal");
 
     // Create a publisher
     iox::popo::Publisher myPublisher({"Radar", "FrontLeft", "Counter"});
@@ -49,7 +49,7 @@ void sending()
         // Write sample data
         sample->counter = ct;
 
-        std::cout<< "Sending: " << ct << std::endl;
+        std::cout << "Sending: " << ct << std::endl;
 
         // Send the sample
         myPublisher.sendChunk(sample);

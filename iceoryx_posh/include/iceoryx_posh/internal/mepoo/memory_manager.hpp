@@ -31,7 +31,7 @@ struct MePooConfig;
 
 class MemoryManager
 {
-    using MaxSize_t = cxx::range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkInfo)>;
+    using MaxSize_t = cxx::range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkHeader)>;
 
   public:
     MemoryManager() = default;
@@ -53,7 +53,7 @@ class MemoryManager
 
     MemPoolInfo getMemPoolInfo(uint32_t f_index) const;
 
-    static uint32_t sizeWithChunkInfoStruct(const MaxSize_t f_size);
+    static uint32_t sizeWithChunkHeaderStruct(const MaxSize_t f_size);
 
     static uint64_t requiredChunkMemorySize(const MePooConfig& f_mePooConfig);
     static uint64_t requiredManagementMemorySize(const MePooConfig& f_mePooConfig);

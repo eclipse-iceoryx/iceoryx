@@ -3,12 +3,12 @@
 ## Introduction
 
 This example showcases a one-way data transmission setup with zero-copy inter-process communication (IPC) on iceoryx.
-It provides sender and receiver applications. They come in two API flavours (Bare-metal and simplified).
+It provides publisher and subscriber applications. They come in two API flavours (Bare-metal and simplified).
 
 ### RouDi, the daemon
 
 RouDi is an abbrevation for **Rou**ting and **Di**scovery. This perfectly describes RouDi's tasks. He takes care of the
-communication setup but does not actually participate in the communication between the sender and the receiver. Think
+communication setup but does not actually participate in the communication between the publisher and the subscriber. Think
 of RouDi as the switchboard operator of iceoryx. One of his other major tasks is the setup of the shared memory,
 which the applications are using to talk to each other. We currently use memory pools with different chunk sizes,
 called in literature a segregated free-list approach. RouDi is delivered pre-built in the Debian package
@@ -26,27 +26,27 @@ Create three terminals and run one command in each of them. Either choose to run
     $ICEORYX_ROOT/build/bin/RouDi
 
 
-    ./ice_sender
-    # The simplified sender is an alternative
-    ./ice_sender_simple
+    ./build/icedelivery/ice-publisher-bare-metal
+    # The simplified publisher is an alternative
+    ./build/icedelivery/ice-publisher-simple
 
 
-    ./ice_receiver
-    # The simplified receiver is an alternative
-    ./ice_receiver_simple
+    ./build/icedelivery/ice-subscriber-bare-metal
+    # The simplified subscriber is an alternative
+    ./build/icedelivery/ice-subscriber-simple
 
 ## Expected output
 
 The counter can differ depending on startup of the applications.
 
-### RouDi
+### RouDi application
 
     Reserving 99683360 bytes in the shared memory [/iceoryx_mgmt]
     [ Reserving shared memory successful ]
     Reserving 410709312 bytes in the shared memory [/username]
     [ Reserving shared memory successful ]
 
-### Sender
+### Publisher application
 
     Sending: 0
     Sending: 1
@@ -55,14 +55,14 @@ The counter can differ depending on startup of the applications.
     Sending: 4
     Sending: 5
 
-### Receiver
+### Subscriber application (bare-metal)
 
     Not subscribed
     Receiving: 3
     Receiving: 4
     Receiving: 5
 
-### Receiver (simple)
+### Subscriber application (simple)
 
     Callback: 4
     Callback: 5
@@ -76,14 +76,14 @@ to put higher level APIs with different look and feel on top of iceoryx. E.g. th
 It is not meant to be used by developers in daily life, we assume there will always be a higher abstraction. A simple example
 how such an abstraction could look like is given in the second step with the simplified example.
 
-### Sender (bare-metal)
+### Publisher application (bare-metal)
 
 First off let's include the publisher and the runtime:
 
     #include "iceoryx_posh/popo/publisher.hpp"
     #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-You might be wondering what the sender is sending? It's this struct.
+You might be wondering what the publisher application is sending? It's this struct.
 
     struct CounterTopic
     {
@@ -95,11 +95,11 @@ It is included by:
     #include "topic_data.hpp"
 
 For the communication with RouDi a runtime object is created. The parameter of the method `getInstance()` contains a
-unique string identifier for this sender.
+unique string identifier for this publisher.
 
-    iox::runtime::PoshRuntime::getInstance("/publisher");
+    iox::runtime::PoshRuntime::getInstance("/publisher-bare-metal");
 
-Now that RouDi knows our sender is exisiting, let's create a sender publisher instance and offer our charming struct
+Now that RouDi knows our publisher application is exisiting, let's create a publisher instance and offer our charming struct
 to everyone:
 
     iox::popo::Publisher myPublisher({"Radar", "FrontLeft", "Counter"});
@@ -121,7 +121,7 @@ shared memory:
     auto sample = static_cast<CounterTopic*>(myPublisher.allocateChunk(sizeof(CounterTopic)));
 
 Yep, it's bare-metal! `allocateChunk()` returns a `void*` , that needs to be casted to `CounterTopic`.
-Then we can assign the value of `ct` to our counter in the shared memory and send the chunk out to all the receivers.
+Then we can assign the value of `ct` to our counter in the shared memory and send the chunk out to all the subscribers.
 
     sample->counter = ct;
     myPublisher.sendChunk(sample);
@@ -131,39 +131,39 @@ captured with the signal handler and stops the loop. At the very end
 
     myPublisher.stopOffer();
 
-is called to say goodbye to all receivers who have subscribed so far.
+is called to say goodbye to all subscribers who have subscribed so far.
 
-### Receiver (bare-metal)
+### Subscriber application (bare-metal)
 
-How can the receiver get the data the sender just transmitted?
+How can the subscriber application get the data the publisher application just transmitted?
 
-Similar to the sender we need to include the runtime and the subscriber as well as the topic data header:
+Similar to the publisher we need to include the runtime and the subscriber as well as the topic data header:
 
     #include "iceoryx_posh/popo/subscriber.hpp"
     #include "iceoryx_posh/runtime/posh_runtime.hpp"
     #include "topic_data.hpp"
 
-To make RouDi aware of the receiver an runtime object is created, once again with a unique identifier string:
+To make RouDi aware of the subscriber an runtime object is created, once again with a unique identifier string:
 
-    iox::runtime::PoshRuntime::getInstance("/subscriber");
+    iox::runtime::PoshRuntime::getInstance("/subscriber-bare-metal");
 
-In the next step a subscriber object is created, matching exactly the `capro::ServiceDescription` that the sender
+In the next step a subscriber object is created, matching exactly the `capro::ServiceDescription` that the publisher
 offered:
 
     iox::popo::Subscriber mySubscriber({"Radar", "FrontLeft", "Counter"});
 
 After the creation the subscriber object subscribes to the offered data. The cache size is given as a parameter.
-Cache size in this case means how many samples the FiFo can hold that is present in the subscriber.
+Cache size in this case means how many samples the FiFo can hold that is present in the subscriber object.
 If the FiFo has an overflow, we release the oldest sample and store the newest one.
 
     mySubscriber.subscribe(10);
 
-Again in a while-loop we do the following: First check whether our subscriber has already been subscribed:
+Again in a while-loop we do the following: First check whether our subscriber object has already been subscribed:
 
     if (iox::popo::SubscriptionState::SUBSCRIBED == mySubscriber.getSubscriptionState())
     {
 
-Let's jump to the else-case beforehand. In case the receiver is not subscribed, this information is printed to the
+Let's jump to the else-case beforehand. In case the subscriber is not subscribed, this information is printed to the
 terminal:
 
     else
@@ -188,16 +188,17 @@ A nested while-loop is used to pop up to the chunks from the internal FiFo.
         mySubscriber.releaseChunk(chunk);
     }
 
-After popping the chunks from the internal FiFo the receiver sleeps for a second.
+After popping the chunks from the internal FiFo the subscriber application sleeps for a second.
 
-Once the signal handler receives a `Ctrl-C` the outer while loop is exited and the subscriber is disconnected by:
+Once the signal handler receives a `Ctrl-C` the outer while loop is exited and the subscriber object is disconnected
+by:
 
     mySubscriber.unsubscribe();
 
-### Sender (simple)
+### Publisher application (simple)
 
-The simplified sender application is an example for a high-level user API and does the same thing as the sender
-described before. In this summary just the differences to the prior sender application are described.
+The simplified publisher application is an example for a high-level user API and does the same thing as the publisher
+described before. In this summary just the differences to the prior publisher application are described.
 
 Starting again with the includes, there is now an additional one:
 
@@ -225,7 +226,7 @@ Instead of instantiating an `iox::popo::Publisher` an object of the `TypedPublis
 
 The trasmitted struct `CounterTopic` has to be given as a template parameter.
 
-Another difference to the prior sender is the simpler `allocate()` call with the casting wrapped inside
+Another difference to the prior publisher application is the simpler `allocate()` call with the casting wrapped inside
 `TypedPublisher`. Reserving shared memory becomes much simplier:
 
     // allocate a sample
@@ -242,9 +243,9 @@ Now `allocate()` returns a `std::unique_ptr<TopicType, SampleDeleter<TopicType>>
 automatically frees the memory when going out of scope. For sening the sample the ownership must be transferred
 to the middleware with a move operation.
 
-### Receiver (simple)
+### Subscriber application (simple)
 
-As with the simplified sender there is an additional include:
+As with the simplified publisher application there is an additional include:
 
     #include "a_typed_api.hpp"
 

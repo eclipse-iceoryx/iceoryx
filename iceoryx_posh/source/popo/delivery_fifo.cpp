@@ -50,5 +50,15 @@ bool DeliveryFiFo::resize(const uint32_t f_size)
     return m_fifo.resize(f_size);
 }
 
+uint64_t DeliveryFiFo::getCapacity() const
+{
+    return m_fifo.capacity();
+}
+
+uint64_t DeliveryFiFo::getSize() const
+{
+    return m_fifo.size();
+}
+
 } // namespace popo
 } // namespace iox

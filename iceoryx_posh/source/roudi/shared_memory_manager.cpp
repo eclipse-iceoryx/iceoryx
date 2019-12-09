@@ -52,7 +52,12 @@ SharedMemoryManager::SharedMemoryManager(const RouDiConfig_t& f_config)
                                                 PORT_INTROSPECTION_MQ_APP_NAME,
                                                 &m_ShmInterface.getShmInterface()->m_roudiMemoryManager);
 
-    m_portIntrospection.registerSenderPort(portGeneric, portThroughput);
+    auto receiverPortsData = acquireSenderPortData(CarmaIntrospectionReceiverPortChangingDataService,
+                                                   Interfaces::INTERNAL,
+                                                   PORT_INTROSPECTION_MQ_APP_NAME,
+                                                   &m_ShmInterface.getShmInterface()->m_roudiMemoryManager);
+
+    m_portIntrospection.registerSenderPort(portGeneric, portThroughput, receiverPortsData);
     m_portIntrospection.run();
 }
 
@@ -514,7 +519,7 @@ ReceiverPortType::MemberType_t* SharedMemoryManager::acquireReceiverPortData(con
         //  we don't use the runnable reference in the ports yet. So set it to nullptr
         auto port = l_shm->m_receiverPortMembers.insert(*service, f_processName, f_interface, nullptr);
 
-        m_portIntrospection.addReceiver(f_processName, *service, f_runnable);
+        m_portIntrospection.addReceiver(port, f_processName, *service, f_runnable);
 
         return port;
     }

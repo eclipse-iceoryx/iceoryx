@@ -137,9 +137,13 @@ class SoFi
     /// @concurrent not thread safe
     bool resize(const uint32_t newSize) noexcept;
 
+    /// @brief returns the capacity of sofi
+    /// @concurrent unrestricted thread safe
+    uint64_t capacity() const noexcept;
+
     /// @brief returns the current size of sofi
     /// @concurrent unrestricted thread safe
-    uint32_t size() const noexcept;
+    uint64_t size() const noexcept;
 
   private:
     ValueType m_data[INTERNAL_SOFI_SIZE];

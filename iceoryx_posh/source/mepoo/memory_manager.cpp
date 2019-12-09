@@ -14,7 +14,7 @@
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -31,7 +31,7 @@ void MemoryManager::printMemPoolVector() const
     for (auto& l_mempool : m_memPoolVector)
     {
         std::cerr << "  MemPool [ ChunkSize = " << l_mempool.getChunkSize()
-                  << ", PayloadSize = " << l_mempool.getChunkSize() - sizeof(ChunkInfo)
+                  << ", PayloadSize = " << l_mempool.getChunkSize() - sizeof(ChunkHeader)
                   << ", ChunkCount = " << l_mempool.getChunkCount() << " ]" << std::endl;
     }
 }
@@ -41,7 +41,7 @@ void MemoryManager::addMemPool(posix::Allocator* f_managementAllocator,
                                const cxx::greater_or_equal<uint32_t, MemPool::MEMORY_ALIGNMENT> f_payloadSize,
                                const cxx::greater_or_equal<uint32_t, 1> f_numberOfChunks)
 {
-    uint32_t adjustedChunkSize = sizeWithChunkInfoStruct(static_cast<uint32_t>(f_payloadSize));
+    uint32_t adjustedChunkSize = sizeWithChunkHeaderStruct(static_cast<uint32_t>(f_payloadSize));
     if (m_denyAddMemPool)
     {
         std::cerr
@@ -88,7 +88,7 @@ MemPoolInfo MemoryManager::getMemPoolInfo(uint32_t index) const
 
 uint32_t MemoryManager::getMempoolChunkSizeForPayloadSize(const uint32_t f_size) const
 {
-    uint32_t adjustedSize = MemoryManager::sizeWithChunkInfoStruct(f_size);
+    uint32_t adjustedSize = MemoryManager::sizeWithChunkHeaderStruct(f_size);
     for (auto& memPool : m_memPoolVector)
     {
         const auto chunkSize = memPool.getChunkSize();
@@ -101,9 +101,9 @@ uint32_t MemoryManager::getMempoolChunkSizeForPayloadSize(const uint32_t f_size)
     return 0;
 }
 
-uint32_t MemoryManager::sizeWithChunkInfoStruct(const MaxSize_t f_size)
+uint32_t MemoryManager::sizeWithChunkHeaderStruct(const MaxSize_t f_size)
 {
-    return f_size + static_cast<uint32_t>(sizeof(ChunkInfo));
+    return f_size + static_cast<uint32_t>(sizeof(ChunkHeader));
 }
 
 uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& f_mePooConfig)
@@ -112,7 +112,7 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& f_mePooConfig
     for (const auto& mempool : f_mePooConfig.m_mempoolConfig)
     {
         memorySize +=
-            static_cast<uint64_t>(mempool.m_chunkCount) * MemoryManager::sizeWithChunkInfoStruct(mempool.m_size);
+            static_cast<uint64_t>(mempool.m_chunkCount) * MemoryManager::sizeWithChunkHeaderStruct(mempool.m_size);
     }
     return memorySize;
 }
@@ -154,7 +154,7 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
 {
     void* chunk{nullptr};
     MemPool* memPoolPointer{nullptr};
-    uint32_t adjustedSize = MemoryManager::sizeWithChunkInfoStruct(f_size);
+    uint32_t adjustedSize = MemoryManager::sizeWithChunkHeaderStruct(f_size);
 
     for (auto& memPool : m_memPoolVector)
     {
@@ -184,12 +184,12 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
     }
     else
     {
-        new (chunk) ChunkInfo();
-        static_cast<ChunkInfo*>(chunk)->m_payloadSize = f_size;
-        static_cast<ChunkInfo*>(chunk)->m_usedSizeOfChunk = adjustedSize;
+        new (chunk) ChunkHeader();
+        static_cast<ChunkHeader*>(chunk)->m_info.m_payloadSize = f_size;
+        static_cast<ChunkHeader*>(chunk)->m_info.m_usedSizeOfChunk = adjustedSize;
         ChunkManagement* chunkManagement = static_cast<ChunkManagement*>(m_chunkManagementPool[0].getChunk());
         new (chunkManagement)
-            ChunkManagement(static_cast<ChunkInfo*>(chunk), memPoolPointer, &m_chunkManagementPool[0]);
+            ChunkManagement(static_cast<ChunkHeader*>(chunk), memPoolPointer, &m_chunkManagementPool[0]);
         return SharedChunk(chunkManagement);
     }
 }

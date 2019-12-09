@@ -57,7 +57,7 @@ void SharedChunk::decrementReferenceCounter()
 
 void SharedChunk::freeChunk()
 {
-    m_chunkManagement->m_mempool->freeChunk(m_chunkManagement->m_chunkInfo);
+    m_chunkManagement->m_mempool->freeChunk(m_chunkManagement->m_chunkHeader);
     m_chunkManagement->m_chunkManagementPool->freeChunk(m_chunkManagement);
 }
 
@@ -91,7 +91,7 @@ void* SharedChunk::getPayload() const
     }
     else
     {
-        return m_chunkManagement->m_chunkInfo->m_payload;
+        return m_chunkManagement->m_chunkHeader->m_payload;
     }
 }
 
@@ -130,11 +130,11 @@ SharedChunk::operator bool() const
     return m_chunkManagement != nullptr;
 }
 
-ChunkInfo* SharedChunk::getChunkInfo() const
+ChunkHeader* SharedChunk::getChunkHeader() const
 {
     if (m_chunkManagement != nullptr)
     {
-        return m_chunkManagement->m_chunkInfo;
+        return m_chunkManagement->m_chunkHeader;
     }
     else
     {

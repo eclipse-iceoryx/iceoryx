@@ -131,8 +131,6 @@ class PoshRuntime
     bool sendMessageToRouDi(const MqMessage& msg) noexcept;
 
   public:
-    ~PoshRuntime();
-
     PoshRuntime(const PoshRuntime&) = delete;
     PoshRuntime& operator=(const PoshRuntime&) = delete;
     PoshRuntime(PoshRuntime&&) = delete;
@@ -155,15 +153,17 @@ class PoshRuntime
 
     const std::string m_appName;
     mutable std::mutex m_appMqRequestMutex;
-    std::atomic_bool m_kaThread_run;
-    std::thread m_kaThread;
 
     // Message queue interface for POSIX IPC from RouDi
     MqRuntimeInterface m_MqInterface;
     // Shared memory interface for POSIX IPC from RouDi
     SharedMemoryUser m_ShmInterface;
     popo::ApplicationPort m_applicationPort;
-    void threadKeepaliveMain() noexcept;
+
+    void sendKeepAlive() noexcept;
+    static_assert(PROCESS_KEEP_ALIVE_INTERVAL > DISCOVERY_INTERVAL, "Keep alive interval too small");
+    /// @note the m_keepAliveTimer should always be the last member, so that it will be the first member to be detroyed
+    iox::posix::Timer m_keepAliveTimer{PROCESS_KEEP_ALIVE_INTERVAL, [&]() { this->sendKeepAlive(); }};
 };
 
 } // namespace runtime

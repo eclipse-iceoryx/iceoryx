@@ -21,6 +21,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif()
 
 set(TEST_LINK_LIBS
+    ${CODE_COVERAGE_LIBS}
     GTest::gtest
     ${OTHER_LIBS}
     iceoryx_utils::iceoryx_utils

@@ -16,33 +16,34 @@ namespace iox
 {
 namespace roudi
 {
-template <typename SenderPort>
-PortIntrospection<SenderPort>::PortIntrospection()
+template <typename SenderPort, typename ReceiverPort>
+PortIntrospection<SenderPort, ReceiverPort>::PortIntrospection()
     : m_runThread(false)
 {
 }
 
-template <typename SenderPort>
-PortIntrospection<SenderPort>::PortData::PortData()
+template <typename SenderPort, typename ReceiverPort>
+PortIntrospection<SenderPort, ReceiverPort>::PortData::PortData()
     : m_newData(true)
 {
 }
 
-template <typename SenderPort>
-PortIntrospection<SenderPort>::~PortIntrospection()
+template <typename SenderPort, typename ReceiverPort>
+PortIntrospection<SenderPort, ReceiverPort>::~PortIntrospection()
 {
     stop();
 }
 
-template <typename SenderPort>
-void PortIntrospection<SenderPort>::reportMessage(const capro::CaproMessage& message)
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::reportMessage(const capro::CaproMessage& message)
 {
     m_portData.updateConnectionState(message);
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::registerSenderPort(SenderPort&& f_senderPortGeneric,
-                                                       SenderPort&& f_senderPortThroughput)
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::registerSenderPort(SenderPort&& f_senderPortGeneric,
+                                                                     SenderPort&& f_senderPortThroughput,
+                                                                     SenderPort&& f_senderPortReceiverPortsData)
 {
     if (m_senderPort || m_senderPortThroughput)
     {
@@ -54,11 +55,15 @@ bool PortIntrospection<SenderPort>::registerSenderPort(SenderPort&& f_senderPort
 
     m_senderPortThroughput = std::move(f_senderPortThroughput);
     m_senderPortThroughput.enableDoDeliverOnSubscription();
+
+    m_senderPortReceiverPortsData = std::move(f_senderPortReceiverPortsData);
+    m_senderPortReceiverPortsData.enableDoDeliverOnSubscription();
+
     return true;
 }
 
-template <typename SenderPort>
-void PortIntrospection<SenderPort>::run()
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::run()
 {
     cxx::Expects(m_senderPort);
     cxx::Expects(m_senderPortThroughput);
@@ -66,8 +71,10 @@ void PortIntrospection<SenderPort>::run()
     // this is a field, there needs to be a sample before activate is called
     sendPortData();
     sendThroughputData();
+    sendReceiverPortsData();
     m_senderPort.activate();
     m_senderPortThroughput.activate();
+    m_senderPortReceiverPortsData.activate();
 
     /// @todo the thread sleep mechanism needs to be redone with a trigger queue with a try_pop with timeout
     /// functionality
@@ -83,6 +90,7 @@ void PortIntrospection<SenderPort>::run()
                     sendPortData();
                 }
                 sendThroughputData();
+                sendReceiverPortsData();
             }
 
             ++ct;
@@ -95,32 +103,45 @@ void PortIntrospection<SenderPort>::run()
     pthread_setname_np(m_thread.native_handle(), "PortIntr");
 }
 
-template <typename SenderPort>
-void PortIntrospection<SenderPort>::sendPortData()
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::sendPortData()
 {
-    auto chunkInfo = m_senderPort.reserveChunk(sizeof(PortIntrospectionFieldTopic));
-    auto sample = static_cast<PortIntrospectionFieldTopic*>(chunkInfo->m_payload);
+    auto chunkHeader = m_senderPort.reserveChunk(sizeof(PortIntrospectionFieldTopic));
+    auto sample = static_cast<PortIntrospectionFieldTopic*>(chunkHeader->m_payload);
     new (sample) PortIntrospectionFieldTopic();
 
     m_portData.prepareTopic(*sample); // requires internal mutex (blocks
                                       // further introspection events)
-    m_senderPort.deliverChunk(chunkInfo);
+    m_senderPort.deliverChunk(chunkHeader);
 }
 
-template <typename SenderPort>
-void PortIntrospection<SenderPort>::sendThroughputData()
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::sendThroughputData()
 {
-    auto chunkInfo = m_senderPortThroughput.reserveChunk(sizeof(PortThroughputIntrospectionFieldTopic));
-    auto throughputSample = static_cast<PortThroughputIntrospectionFieldTopic*>(chunkInfo->m_payload);
+    auto chunkHeader = m_senderPortThroughput.reserveChunk(sizeof(PortThroughputIntrospectionFieldTopic));
+    auto throughputSample = static_cast<PortThroughputIntrospectionFieldTopic*>(chunkHeader->m_payload);
     new (throughputSample) PortThroughputIntrospectionFieldTopic();
 
     m_portData.prepareTopic(*throughputSample); // requires internal mutex (blocks
     // further introspection events)
-    m_senderPortThroughput.deliverChunk(chunkInfo);
+    m_senderPortThroughput.deliverChunk(chunkHeader);
 }
 
-template <typename SenderPort>
-void PortIntrospection<SenderPort>::setSendInterval(unsigned int interval_ms)
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::sendReceiverPortsData()
+{
+    auto chunkInfo = m_senderPortReceiverPortsData.reserveChunk(sizeof(ReceiverPortChangingIntrospectionFieldTopic));
+    auto receiverPortChangingDataSample =
+        static_cast<ReceiverPortChangingIntrospectionFieldTopic*>(chunkInfo->m_payload);
+    new (receiverPortChangingDataSample) ReceiverPortChangingIntrospectionFieldTopic();
+
+    m_portData.prepareTopic(*receiverPortChangingDataSample); // requires internal mutex (blocks
+    // further introspection events)
+    m_senderPortReceiverPortsData.deliverChunk(chunkInfo);
+}
+
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::setSendInterval(unsigned int interval_ms)
 {
     if (std::chrono::milliseconds(interval_ms) >= m_sendIntervalSleep)
     {
@@ -132,8 +153,8 @@ void PortIntrospection<SenderPort>::setSendInterval(unsigned int interval_ms)
     }
 }
 
-template <typename SenderPort>
-void PortIntrospection<SenderPort>::stop()
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::stop()
 {
     m_runThread.store(false, std::memory_order_relaxed);
     if (m_thread.joinable())
@@ -142,8 +163,8 @@ void PortIntrospection<SenderPort>::stop()
     }
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::PortData::updateConnectionState(const capro::CaproMessage& message)
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::PortData::updateConnectionState(const capro::CaproMessage& message)
 {
     const capro::ServiceDescription& service = message.m_serviceDescription;
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
@@ -174,11 +195,11 @@ bool PortIntrospection<SenderPort>::PortData::updateConnectionState(const capro:
     return true;
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::PortData::addSender(typename SenderPort::MemberType_t* port,
-                                                        const std::string& name,
-                                                        const capro::ServiceDescription& service,
-                                                        const std::string& runnable)
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addSender(typename SenderPort::MemberType_t* port,
+                                                                      const std::string& name,
+                                                                      const capro::ServiceDescription& service,
+                                                                      const std::string& runnable)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
@@ -218,16 +239,17 @@ bool PortIntrospection<SenderPort>::PortData::addSender(typename SenderPort::Mem
     return true;
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::PortData::addReceiver(const std::string& name,
-                                                          const capro::ServiceDescription& service,
-                                                          const std::string& runnable)
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addReceiver(typename ReceiverPort::MemberType_t* portData,
+                                                                        const std::string& name,
+                                                                        const capro::ServiceDescription& service,
+                                                                        const std::string& runnable)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto index = m_connectionContainer.add(ConnectionInfo(name, service, runnable));
+    auto index = m_connectionContainer.add(ConnectionInfo(portData, name, service, runnable));
     if (index < 0)
     {
         return false;
@@ -262,9 +284,9 @@ bool PortIntrospection<SenderPort>::PortData::addReceiver(const std::string& nam
     return true;
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::PortData::removeSender(const std::string& name[[gnu::unused]],
-                                                           const capro::ServiceDescription& service)
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeSender(const std::string& name[[gnu::unused]],
+                                                                         const capro::ServiceDescription& service)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
@@ -292,9 +314,9 @@ bool PortIntrospection<SenderPort>::PortData::removeSender(const std::string& na
     return true;
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::PortData::removeReceiver(const std::string& name,
-                                                             const capro::ServiceDescription& service)
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeReceiver(const std::string& name,
+                                                                           const capro::ServiceDescription& service)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
@@ -335,9 +357,10 @@ bool PortIntrospection<SenderPort>::PortData::removeReceiver(const std::string& 
     return true;
 }
 
-template <typename SenderPort>
-typename PortIntrospection<SenderPort>::ConnectionState
-PortIntrospection<SenderPort>::PortData::getNextState(ConnectionState currentState, capro::CaproMessageType messageType)
+template <typename SenderPort, typename ReceiverPort>
+typename PortIntrospection<SenderPort, ReceiverPort>::ConnectionState
+PortIntrospection<SenderPort, ReceiverPort>::PortData::getNextState(ConnectionState currentState,
+                                                                    capro::CaproMessageType messageType)
 {
     ConnectionState nextState = currentState; // stay in currentState as default transition
 
@@ -390,8 +413,8 @@ PortIntrospection<SenderPort>::PortData::getNextState(ConnectionState currentSta
     return nextState;
 }
 
-template <typename SenderPort>
-void PortIntrospection<SenderPort>::PortData::prepareTopic(PortIntrospectionTopic& topic)
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortIntrospectionTopic& topic)
 {
     auto& m_senderList = topic.m_senderList;
 
@@ -452,8 +475,8 @@ void PortIntrospection<SenderPort>::PortData::prepareTopic(PortIntrospectionTopi
     setNew(false);
 }
 
-template <typename SenderPort>
-void PortIntrospection<SenderPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic)
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic)
 {
     auto& m_throughputList = topic.m_throughputList;
 
@@ -493,46 +516,88 @@ void PortIntrospection<SenderPort>::PortData::prepareTopic(PortThroughputIntrosp
     }
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::PortData::isNew()
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(
+    ReceiverPortChangingIntrospectionFieldTopic& topic)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    for (auto& connPair : m_connectionMap)
+    {
+        for (auto& pair : connPair.second)
+        {
+            auto connectionIndex = pair.second;
+            if (connectionIndex >= 0)
+            {
+                auto& connection = m_connectionContainer[connectionIndex];
+                auto& receiverInfo = connection.receiverInfo;
+                ReceiverPortChangingData receiverData;
+                if (receiverInfo.portData != nullptr)
+                {
+                    ReceiverPort port(receiverInfo.portData);
+                    receiverData.fifoCapacity = port.getDeliveryFiFoCapacity();
+                    receiverData.fifoSize = port.getDeliveryFiFoSize();
+                    receiverData.subscriptionState = port.getSubscribeState();
+                    receiverData.sampleSendCallbackActive = port.AreCallbackReferencesSet();
+                    receiverData.propagationScope = port.getCaProServiceDescription().getScope();
+                }
+                else
+                {
+                    receiverData.fifoCapacity = 0;
+                    receiverData.fifoSize = 0;
+                    receiverData.subscriptionState = iox::SubscribeState::NOT_SUBSCRIBED;
+                    receiverData.sampleSendCallbackActive = false;
+                    receiverData.propagationScope = capro::Scope::INVALID;
+                }
+                topic.receiverPortChangingDataList.push_back(receiverData);
+            }
+        }
+    }
+}
+
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::PortData::isNew()
 {
     return m_newData.load(std::memory_order_acquire);
 }
 
-template <typename SenderPort>
-void PortIntrospection<SenderPort>::PortData::setNew(bool value)
+template <typename SenderPort, typename ReceiverPort>
+void PortIntrospection<SenderPort, ReceiverPort>::PortData::setNew(bool value)
 {
     m_newData.store(value, std::memory_order_release);
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::addSender(typename SenderPort::MemberType_t* port,
-                                              const std::string& name,
-                                              const capro::ServiceDescription& service,
-                                              const std::string& runnable)
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::addSender(typename SenderPort::MemberType_t* port,
+                                                            const std::string& name,
+                                                            const capro::ServiceDescription& service,
+                                                            const std::string& runnable)
 {
     return m_portData.addSender(port, name, service, runnable);
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::addReceiver(const std::string& name,
-                                                const capro::ServiceDescription& service,
-                                                const std::string& runnable)
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::addReceiver(typename ReceiverPort::MemberType_t* portData,
+                                                              const std::string& name,
+                                                              const capro::ServiceDescription& service,
+                                                              const std::string& runnable)
 {
-    return m_portData.addReceiver(name, service, runnable);
+    return m_portData.addReceiver(portData, name, service, runnable);
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::removeSender(const std::string& name, const capro::ServiceDescription& service)
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::removeSender(const std::string& name,
+                                                               const capro::ServiceDescription& service)
 {
     return m_portData.removeSender(name, service);
 }
 
-template <typename SenderPort>
-bool PortIntrospection<SenderPort>::removeReceiver(const std::string& name, const capro::ServiceDescription& service)
+template <typename SenderPort, typename ReceiverPort>
+bool PortIntrospection<SenderPort, ReceiverPort>::removeReceiver(const std::string& name,
+                                                                 const capro::ServiceDescription& service)
 {
     return m_portData.removeReceiver(name, service);
 }
+
 
 } // namespace roudi
 } // namespace iox

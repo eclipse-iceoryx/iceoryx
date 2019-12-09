@@ -20,7 +20,7 @@
 #include "iceoryx_posh/internal/popo/base_port.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port_data.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/concurrent/sofi.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
@@ -68,8 +68,8 @@ class ReceiverPort : public BasePort
     SubscribeState getSubscribeState() const;
 
     // (only) from delivery FiFo to Cache
-    virtual bool getChunk(const mepoo::ChunkInfo*& f_chunkInfo) noexcept;
-    bool releaseChunk(const mepoo::ChunkInfo* f_chunkInfo);
+    virtual bool getChunk(const mepoo::ChunkHeader*& f_chunkHeader) noexcept;
+    bool releaseChunk(const mepoo::ChunkHeader* f_chunkHeader);
 
     bool getSharedChunk(mepoo::SharedChunk& f_chunk);
     virtual bool newData() noexcept;
@@ -87,6 +87,11 @@ class ReceiverPort : public BasePort
     posix::Semaphore* GetShmSemaphore();
 
     virtual bool deliver(mepoo::SharedChunk f_chunk_p) noexcept;
+
+    bool isInternal() const;
+
+    uint64_t getDeliveryFiFoCapacity() const;
+    uint64_t getDeliveryFiFoSize() const;
 
   private:
     const MemberType_t* getMembers() const;

@@ -201,7 +201,7 @@ TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
     auto mock = m_senderPortImpl_mock.details;
     ChunkMock<Topic> chunk;
     mock->hasSubscribersReturn = true;
-    mock->reserveSampleReturn = chunk.chunkInfo();
+    mock->reserveSampleReturn = chunk.chunkHeader();
 
     m_introspection.send(); /// @todo expect call to MemPoolHandler::getMemPoolInfo
 

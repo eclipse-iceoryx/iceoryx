@@ -19,7 +19,7 @@
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
 
 #include <csignal>
