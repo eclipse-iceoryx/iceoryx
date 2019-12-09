@@ -54,7 +54,7 @@ using namespace iox::units::duration_literals;
 /// @concurrent not thread safe
 ///
 /// @code
-///     posix::Timer& TiborTheTimer = posix::Timer::getInstance(100_ms, [&]() { fooBar++; });
+///     posix::Timer TiborTheTimer{100_ms, [&]() { fooBar++; }};
 ///
 ///     // Start a periodic timer
 ///     TiborTheTimer.start(true);
