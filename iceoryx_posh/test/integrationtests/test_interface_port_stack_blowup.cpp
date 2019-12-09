@@ -31,7 +31,6 @@ class InterfacePortRequestStackBlowup_test : public RouDi_GTest
     void TearDown(){};
 };
 
-// test for BUG AOS-8907
 TEST_F(InterfacePortRequestStackBlowup_test, RouDiMustContinue)
 {
     iox::runtime::PoshRuntime::getInstance("/inteface_port_request_stack_blowup");
