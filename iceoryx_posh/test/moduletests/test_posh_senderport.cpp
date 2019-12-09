@@ -116,7 +116,7 @@ class SenderPort_testBase : public Test
     void ReceiveDummyData()
     {
         // Be sure to receive the chunk we just sent to be able to recycle it
-        const iox::mepoo::ChunkInfo* receivedSample1;
+        const iox::mepoo::ChunkHeader* receivedSample1;
         m_receiver->getChunk(receivedSample1);
         m_receiver->releaseChunk(receivedSample1);
     }
@@ -189,7 +189,7 @@ TEST_F(SenderPort_test, reserveSample_DynamicSamplesSameSizeReturningValidLastCh
     // Do it again to see whether the same chunk is returned
     auto sentSample2 = m_sender->reserveChunk(sizeof(DummySample), m_useDynamicPayloadSizes);
     m_sender->deliverChunk(sentSample2);
-    EXPECT_THAT(sentSample2->m_payloadSize, Eq(sizeof(DummySample)));
+    EXPECT_THAT(sentSample2->m_info.m_payloadSize, Eq(sizeof(DummySample)));
     EXPECT_THAT(sentSample2->m_payload, Eq(sentSample1->m_payload));
 }
 
@@ -203,7 +203,7 @@ TEST_F(SenderPort_test, reserveSample_DynamicSamplesSmallerSizeReturningValidLas
     // Reserve a smaller chunk to see whether the same chunk is returned
     auto sentSample2 = m_sender->reserveChunk(sizeof(DummySample) - 7, m_useDynamicPayloadSizes);
     m_sender->deliverChunk(sentSample2);
-    EXPECT_THAT(sentSample2->m_payloadSize, Eq(sizeof(DummySample) - 7));
+    EXPECT_THAT(sentSample2->m_info.m_payloadSize, Eq(sizeof(DummySample) - 7));
     EXPECT_THAT(sentSample2->m_payload, Eq(sentSample1->m_payload));
 }
 
@@ -217,7 +217,7 @@ TEST_F(SenderPort_test, reserveSample_DynamicSamplesLargerSizeReturningNotLastCh
     // Reserve a larger chunk to see whether a chunk of the larger mempool is supplied
     auto sentSample2 = m_sender->reserveChunk(sizeof(DummySample) + 200, m_useDynamicPayloadSizes);
     m_sender->deliverChunk(sentSample2);
-    EXPECT_THAT(sentSample2->m_payloadSize, Eq(sizeof(DummySample) + 200));
+    EXPECT_THAT(sentSample2->m_info.m_payloadSize, Eq(sizeof(DummySample) + 200));
     EXPECT_THAT(sentSample2->m_payload, Ne(sentSample1->m_payload));
 }
 
