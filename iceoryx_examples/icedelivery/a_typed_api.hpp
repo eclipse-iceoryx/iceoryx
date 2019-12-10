@@ -123,7 +123,7 @@ class TypedSubscriber
         // subscriber can process
         while (m_subscriber.getChunk(&chunk))
         {
-            auto sample = static_cast<const CounterTopic*>(chunk);
+            auto sample = static_cast<const TopicType*>(chunk);
 
             // call the provided callback
             m_callback(*sample);
