@@ -109,7 +109,7 @@ struct PortThroughputIntrospectionFieldTopic
 };
 
 const capro::ServiceDescription
-    CarmaIntrospectionReceiverPortChangingDataService("CARMA", "Introspection", "ReceiverPortsData");
+    IntrospectionReceiverPortChangingDataService("Introspection", "RouDi_ID", "ReceiverPortsData");
 
 struct ReceiverPortChangingData
 {

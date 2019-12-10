@@ -52,7 +52,7 @@ SharedMemoryManager::SharedMemoryManager(const RouDiConfig_t& f_config)
                                                 PORT_INTROSPECTION_MQ_APP_NAME,
                                                 &m_ShmInterface.getShmInterface()->m_roudiMemoryManager);
 
-    auto receiverPortsData = acquireSenderPortData(CarmaIntrospectionReceiverPortChangingDataService,
+    auto receiverPortsData = acquireSenderPortData(IntrospectionReceiverPortChangingDataService,
                                                    Interfaces::INTERNAL,
                                                    PORT_INTROSPECTION_MQ_APP_NAME,
                                                    &m_ShmInterface.getShmInterface()->m_roudiMemoryManager);
