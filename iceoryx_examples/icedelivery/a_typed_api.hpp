@@ -17,6 +17,8 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 
+#include "topic_data.hpp"
+
 #include <functional>
 #include <memory>
 
@@ -59,12 +61,12 @@ class TypedPublisher
             sample = new (sample) TopicType;
 
             // return a unique_ptr which holds the sample
-            return SamplePtr<TopicType>(sample, [this](TopicType* chunk){ this->m_publisher.freeChunk(chunk);});
+            return SamplePtr<TopicType>(sample, [this](TopicType* chunk) { this->m_publisher.freeChunk(chunk); });
         }
         else
         {
             // no more memory in the middleware :-(
-            return SamplePtr<TopicType>(nullptr, [this](TopicType* chunk){ this->m_publisher.freeChunk(chunk);});
+            return SamplePtr<TopicType>(nullptr, [this](TopicType* chunk) { this->m_publisher.freeChunk(chunk); });
         }
     }
 
@@ -115,12 +117,13 @@ class TypedSubscriber
   private:
     void receiveHandler()
     {
-        const void * chunk = nullptr;
+        const void* chunk = nullptr;
 
-        // get all the chunks the FiFo holds. Maybe there are several ones if the publisher produces faster than the subscriber can process
+        // get all the chunks the FiFo holds. Maybe there are several ones if the publisher produces faster than the
+        // subscriber can process
         while (m_subscriber.getChunk(&chunk))
         {
-            auto sample = static_cast<const CounterTopic*>(chunk);
+            auto sample = static_cast<const TopicType*>(chunk);
 
             // call the provided callback
             m_callback(*sample);

@@ -27,7 +27,7 @@
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_data.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_creator.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"

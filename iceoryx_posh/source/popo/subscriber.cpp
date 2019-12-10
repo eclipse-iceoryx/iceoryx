@@ -160,17 +160,17 @@ bool Subscriber::tryWaitForChunk() noexcept
     return semaphore->tryWait();
 }
 
-bool Subscriber::getChunkWithInfo(const mepoo::ChunkInfo** chunkInfo) noexcept
+bool Subscriber::getChunk(const mepoo::ChunkHeader** chunkHeader) noexcept
 {
-    return (m_receiver.getChunk(*chunkInfo));
+    return (m_receiver.getChunk(*chunkHeader));
 }
 
 bool Subscriber::getChunk(const void** payload) noexcept
 {
-    const mepoo::ChunkInfo* chunkInfo = nullptr;
-    if (m_receiver.getChunk(chunkInfo))
+    const mepoo::ChunkHeader* chunkHeader = nullptr;
+    if (m_receiver.getChunk(chunkHeader))
     {
-        *payload = chunkInfo->m_payload;
+        *payload = chunkHeader->m_payload;
         return true;
     }
     else
@@ -185,15 +185,15 @@ void Subscriber::deleteNewChunks() noexcept
     m_receiver.clearDeliveryFiFo();
 }
 
-bool Subscriber::releaseChunkWithInfo(const mepoo::ChunkInfo* const chunkInfo) noexcept
+bool Subscriber::releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
-    return m_receiver.releaseChunk(chunkInfo);
+    return m_receiver.releaseChunk(chunkHeader);
 }
 
 bool Subscriber::releaseChunk(const void* const payload) noexcept
 {
-    auto chunkInfo = iox::mepoo::convertPayloadPointerToChunkInfo(const_cast<void* const>(payload));
-    return m_receiver.releaseChunk(chunkInfo);
+    auto chunkHeader = iox::mepoo::convertPayloadPointerToChunkHeader(const_cast<void* const>(payload));
+    return m_receiver.releaseChunk(chunkHeader);
 }
 
 bool Subscriber::hasNewChunks() const noexcept

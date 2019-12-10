@@ -27,7 +27,7 @@ if [ -z "$TEST_RESULT_FOLDER" ]
 then
     TEST_RESULT_FOLDER="$(pwd)/testresults"
 fi
-cd build
+
 mkdir -p "$TEST_RESULT_FOLDER"
 
 echo ">>>>>> Running Ice0ryx Tests <<<<<<"

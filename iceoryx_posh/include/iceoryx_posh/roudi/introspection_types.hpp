@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
@@ -106,6 +106,24 @@ struct PortThroughputData
 struct PortThroughputIntrospectionFieldTopic
 {
     cxx::vector<PortThroughputData, MAX_PORT_NUMBER> m_throughputList;
+};
+
+const capro::ServiceDescription
+    IntrospectionReceiverPortChangingDataService("Introspection", "RouDi_ID", "ReceiverPortsData");
+
+struct ReceiverPortChangingData
+{
+    // index used to identify receiver is same as in PortIntrospectionFieldTopic->receiverList
+    uint64_t fifoSize{0};
+    uint64_t fifoCapacity{0};
+    iox::SubscribeState subscriptionState{iox::SubscribeState::NOT_SUBSCRIBED};
+    bool sampleSendCallbackActive{false};
+    capro::Scope propagationScope{capro::Scope::INVALID};
+};
+
+struct ReceiverPortChangingIntrospectionFieldTopic
+{
+    cxx::vector<ReceiverPortChangingData, MAX_PORT_NUMBER> receiverPortChangingDataList;
 };
 
 constexpr char PROCESS_INTROSPECTION_MQ_APP_NAME[] = "/process_introspection";

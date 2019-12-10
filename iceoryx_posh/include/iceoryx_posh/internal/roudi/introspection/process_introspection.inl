@@ -187,8 +187,8 @@ void ProcessIntrospection<SenderPort>::send()
     std::lock_guard<std::mutex> guard(m_mutex);
     if (m_processListNewData)
     {
-        auto chunkInfo = m_senderPort.reserveChunk(sizeof(ProcessIntrospectionFieldTopic));
-        auto sample = static_cast<ProcessIntrospectionFieldTopic*>(chunkInfo->m_payload);
+        auto chunkHeader = m_senderPort.reserveChunk(sizeof(ProcessIntrospectionFieldTopic));
+        auto sample = static_cast<ProcessIntrospectionFieldTopic*>(chunkHeader->m_payload);
         new (sample) ProcessIntrospectionFieldTopic;
 
         for (auto& intrData : m_processList)
@@ -197,7 +197,7 @@ void ProcessIntrospection<SenderPort>::send()
         }
         m_processListNewData = false;
 
-        m_senderPort.deliverChunk(chunkInfo);
+        m_senderPort.deliverChunk(chunkHeader);
     }
 }
 
@@ -223,6 +223,7 @@ void ProcessIntrospection<SenderPort>::setSendInterval(unsigned int interval_ms)
         m_sendIntervalCount = 1;
     }
 }
+
 
 } // namespace roudi
 } // namespace iox

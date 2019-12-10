@@ -79,6 +79,7 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
     )
 
     target_link_libraries(iceoryx_utils_testing PRIVATE
+        ${CODE_COVERAGE_LIBS}
         iceoryx_utils
         GTest::gtest
         GTest::gmock
@@ -166,7 +167,7 @@ target_compile_options(iceoryx_utils PUBLIC -std=c++11)
 target_compile_options(iceoryx_utils PUBLIC -fPIC)
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_utils PRIVATE acl)
+    target_link_libraries(iceoryx_utils PRIVATE acl ${CODE_COVERAGE_LIBS})
 endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)

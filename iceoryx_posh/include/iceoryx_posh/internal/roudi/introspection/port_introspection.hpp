@@ -18,7 +18,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port_data.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
@@ -41,7 +41,7 @@ namespace roudi
  *        The class manages a thread that periodically updates a field with port
  *        introspection data to which clients may subscribe.
  */
-template <typename SenderPort>
+template <typename SenderPort, typename ReceiverPort>
 class PortIntrospection
 {
   private:
@@ -98,13 +98,18 @@ class PortIntrospection
             {
             }
 
-            ReceiverInfo(const std::string& name, const capro::ServiceDescription& service, const std::string& runnable)
-                : name(name)
+            ReceiverInfo(typename ReceiverPort::MemberType_t* const portData,
+                         const std::string& name,
+                         const capro::ServiceDescription& service,
+                         const std::string& runnable)
+                : portData(portData)
+                , name(name)
                 , service(service)
                 , runnable(runnable)
             {
             }
 
+            typename ReceiverPort::MemberType_t* portData{nullptr};
             std::string name;
             capro::ServiceDescription service;
             std::string runnable;
@@ -116,10 +121,11 @@ class PortIntrospection
             {
             }
 
-            ConnectionInfo(const std::string& name,
+            ConnectionInfo(typename ReceiverPort::MemberType_t* const portData,
+                           const std::string& name,
                            const capro::ServiceDescription& service,
                            const std::string& runnable)
-                : receiverInfo(name, service, runnable)
+                : receiverInfo(portData, name, service, runnable)
                 , state(ConnectionState::DEFAULT)
             {
             }
@@ -164,14 +170,17 @@ class PortIntrospection
          * @brief add a receiver port to be tracked by introspection
          * multiple receivers with the same capro id are possible as long as the names are different
          *
+         * @param[in] portData to be added
          * @param[in] name name of the port to be added
          * @param[in] service capro service description of the port to be added
          * @param[in] name of the runnable the port belongs to
          *
          * @return returns false if the port could not be added and true otherwise
          */
-        bool
-        addReceiver(const std::string& name, const capro::ServiceDescription& service, const std::string& runnable);
+        bool addReceiver(typename ReceiverPort::MemberType_t* const portData,
+                         const std::string& name,
+                         const capro::ServiceDescription& service,
+                         const std::string& runnable);
 
         /*!
          * @brief remove a sender port from introspection
@@ -214,6 +223,8 @@ class PortIntrospection
         void prepareTopic(PortIntrospectionTopic& topic);
 
         void prepareTopic(PortThroughputIntrospectionTopic& topic);
+
+        void prepareTopic(ReceiverPortChangingIntrospectionFieldTopic& topic);
 
         /*!
          * @brief compute the next connection state based on the current connection state and a capro message type
@@ -297,13 +308,17 @@ class PortIntrospection
      * @brief add a receiver port to be tracked by introspection
      * multiple receivers with the same capro id are possible as long as the names are different
      *
+     * @param[in] portData to be added
      * @param[in] name name of the port to be added
      * @param[in] service capro service description of the port to be added
      * @param[in] name of the runnable the port belongs to
      *
      * @return returns false if the port could not be added and true otherwise
      */
-    bool addReceiver(const std::string& name, const capro::ServiceDescription& service, const std::string& runnable);
+    bool addReceiver(typename ReceiverPort::MemberType_t* const portData,
+                     const std::string& name,
+                     const capro::ServiceDescription& service,
+                     const std::string& runnable);
 
 
     /*!
@@ -343,7 +358,9 @@ class PortIntrospection
      *
      * @return true if registration was successful, false otherwise
      */
-    bool registerSenderPort(SenderPort&& f_senderPortGeneric, SenderPort&& f_senderPortThroughput);
+    bool registerSenderPort(SenderPort&& f_senderPortGeneric,
+                            SenderPort&& f_senderPortThroughput,
+                            SenderPort&& f_senderPortReceiverPortsData);
 
     /*!
      * @brief set the time interval used to send new introspection data
@@ -376,10 +393,16 @@ class PortIntrospection
      *
      */
     void sendThroughputData();
+    /*!
+     * @brief sends the receiverport changing data, this is used from the unittests
+     *
+     */
+    void sendReceiverPortsData();
 
   private:
     SenderPort m_senderPort{nullptr};
     SenderPort m_senderPortThroughput{nullptr};
+    SenderPort m_senderPortReceiverPortsData{nullptr};
     PortData m_portData;
 
     std::atomic<bool> m_runThread;
@@ -393,7 +416,7 @@ class PortIntrospection
  * @brief typedef for the templated port introspection class that is used by RouDi for the
  * actual port introspection functionality.
  */
-using PortIntrospectionType = PortIntrospection<SenderPortType>;
+using PortIntrospectionType = PortIntrospection<SenderPortType, ReceiverPortType>;
 
 
 } // namespace roudi

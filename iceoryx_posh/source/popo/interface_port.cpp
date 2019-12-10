@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/interface_port.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -25,7 +26,12 @@ InterfacePort::InterfacePort(InterfacePortData* const f_member)
 
 bool InterfacePort::dispatchCaProMessage(const capro::CaproMessage& f_message)
 {
-    return getMembers()->m_caproMessageFiFo.push(f_message);
+    bool returner = getMembers()->m_caproMessageFiFo.push(f_message);
+    if (!returner)
+    {
+        errorHandler(Error::kPOSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, nullptr, iox::ErrorLevel::SEVERE);
+    }
+    return returner;
 }
 
 bool InterfacePort::getCaProMessage(capro::CaproMessage& f_message)

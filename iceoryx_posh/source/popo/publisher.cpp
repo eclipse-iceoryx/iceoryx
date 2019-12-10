@@ -35,37 +35,37 @@ const void* Publisher::getLastChunk() const noexcept
     return nullptr;
 }
 
-mepoo::ChunkInfo* Publisher::allocateChunkWithInfo(uint32_t payloadSize, bool useDynamicPayloadSizes) noexcept
+mepoo::ChunkHeader* Publisher::allocateChunkWithHeader(uint32_t payloadSize, bool useDynamicPayloadSizes) noexcept
 {
     return m_sender.reserveChunk(payloadSize, useDynamicPayloadSizes);
 }
 
 void* Publisher::allocateChunk(uint32_t payloadSize, bool useDynamicPayloadSizes) noexcept
 {
-    auto chunkInfo = m_sender.reserveChunk(payloadSize, useDynamicPayloadSizes);
-    return chunkInfo->m_payload;
+    auto chunkHeader = m_sender.reserveChunk(payloadSize, useDynamicPayloadSizes);
+    return chunkHeader->m_payload;
 }
 
-void Publisher::sendChunkWithInfo(mepoo::ChunkInfo* const chunkInfo) noexcept
+void Publisher::sendChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
-    m_sender.deliverChunk(chunkInfo);
+    m_sender.deliverChunk(chunkHeader);
 }
 
 void Publisher::sendChunk(const void* const payload) noexcept
 {
-    auto chunkInfo = iox::mepoo::convertPayloadPointerToChunkInfo(const_cast<void* const>(payload));
-    m_sender.deliverChunk(chunkInfo);
+    auto chunkHeader = iox::mepoo::convertPayloadPointerToChunkHeader(const_cast<void* const>(payload));
+    m_sender.deliverChunk(chunkHeader);
 }
 
-void Publisher::freeChunkWithInfo(mepoo::ChunkInfo* const chunkInfo) noexcept
+void Publisher::freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
-    m_sender.freeChunk(chunkInfo);
+    m_sender.freeChunk(chunkHeader);
 }
 
 void Publisher::freeChunk(void* const payload) noexcept
 {
-    auto chunkInfo = iox::mepoo::convertPayloadPointerToChunkInfo(payload);
-    m_sender.freeChunk(chunkInfo);
+    auto chunkHeader = iox::mepoo::convertPayloadPointerToChunkHeader(payload);
+    m_sender.freeChunk(chunkHeader);
 }
 
 void Publisher::offer() noexcept

@@ -33,15 +33,8 @@ using SamplesCounterType = std::uint8_t;       // AGR counter for send and recei
 using DurationNs = std::chrono::duration<std::int64_t, std::nano>;
 using TimePointNs = std::chrono::time_point<BaseClock, DurationNs>;
 
-/// @brief IMPORTANT the alignment MUST be 32 or less since all mempools are
-///         32 byte aligned otherwise we get alignment problems!
-struct alignas(32) ChunkInfo
+struct ChunkInfo
 {
-    /// @brief ALlocates memory to store the information about the chunks.
-    ChunkInfo() noexcept;
-
-    std::uint32_t m_mtaHeader[2];
-
     bool m_externalSequenceNumber_bl{false};
     SequenceNumberType m_sequenceNumber{0};
 
@@ -52,11 +45,7 @@ struct alignas(32) ChunkInfo
     std::uint32_t m_usedSizeOfChunk{0};
 
     TimePointNs m_txTimestamp;
-
-    void* m_payload{nullptr};
 };
-
-ChunkInfo* convertPayloadPointerToChunkInfo(void* const payload) noexcept;
 
 } // namespace mepoo
 } // namespace iox

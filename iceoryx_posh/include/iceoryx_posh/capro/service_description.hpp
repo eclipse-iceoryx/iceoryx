@@ -34,9 +34,17 @@ static constexpr uint16_t AnyEvent = 0xFFFF;
 static constexpr char AnyServiceString[]{"65535"};
 static constexpr char AnyInstanceString[]{"65535"};
 static constexpr char AnyEventString[]{"65535"};
+static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 
-/// @brief prefix for all shadow event instances, to sort out shadow channels most easily
-constexpr char INTERNAL_PORT_PREFIX[] = "&";
+/// @brief Scope of a service description
+enum class Scope : unsigned int
+{
+    WORLDWIDE,
+    INTERNAL,
+    INVALID
+};
+
+constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = {{"WORLDWIDE"}, {"INTERNAL"}, {"INVALID"}};
 
 /// @brief class for the identification of a communication event including information on the service, the service
 /// instance and the event id.
@@ -110,6 +118,8 @@ class ServiceDescription
     bool isInternal() const noexcept;
     // @brief Set this service description to be is used for an RouDi-internal channel
     void setInternal() noexcept;
+    /// @brief Returns the scope of a ServiceDescription
+    Scope getScope() noexcept;
 
     ///@{
     /// Getters for the integer and string IDs
@@ -144,15 +154,7 @@ class ServiceDescription
     /// @brief 128-Bit class hash (32-Bit * 4)
     ClassHash m_classHash{0, 0, 0, 0};
 
-
-    enum class Scope : unsigned int
-    {
-        WORLDWIDE,
-        INTERNAL,
-        INVALILD
-    };
-
-    /// @brief How far this Service should be propagated
+    /// @brief How far this service should be propagated
     Scope m_scope{Scope::WORLDWIDE};
 };
 

@@ -122,7 +122,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///
     /// sem_timedwait() is the same as sem_wait(), except that abs_timeout
     /// specifies a limit on the amount of time that the call should block if
-    /// the decrement cannot be immediately performed.  The abs_time‐ out
+    /// the decrement cannot be immediately performed.  The abs_time_out
     /// argument points to a structure that specifies an absolute timeout in
     /// seconds and nanoseconds since the Epoch, 1970-01-01 00:00:00 +0000
     /// (UTC).  This structure is defined as follows:

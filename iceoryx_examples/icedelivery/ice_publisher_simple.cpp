@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/subscriber.hpp"
+#include "a_typed_api.hpp"
+#include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
-#include "a_typed_api.hpp"
 
 #include <chrono>
 #include <csignal>
@@ -23,41 +23,50 @@
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig[[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
     killswitch = true;
 }
 
 
-// the callback for processing the samples
-void myCallback(const CounterTopic& sample)
-{
-    std::cout << "Callback: " << sample.counter << std::endl;
-}
-
-void receiving()
+void sending()
 {
     // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::getInstance("/subscriber_simple");
+    iox::runtime::PoshRuntime::getInstance("/publisher-simple");
 
-    // Create the typed subscriber and provide the callback, the rest will be executed in middleware context
-    TypedSubscriber<CounterTopic> myTypedSubscriber({"Radar", "FrontRight", "Counter"}, myCallback);
+    // create the templateized publisher
+    TypedPublisher<CounterTopic> myTypedPublisher({"Radar", "FrontRight", "Counter"});
+
+    uint32_t ct = 0;
 
     while (!killswitch)
     {
-        // sleep
+        // allocate a sample
+        auto sample = myTypedPublisher.allocate();
+
+        // write the data
+        sample->counter = ct;
+
+        std::cout << "Sending: " << ct << std::endl;
+
+        // pass the ownership to the middleware for sending the sample
+        myTypedPublisher.publish(std::move(sample));
+
+        ct++;
+
+        // Sleep some time to avoid flooding the system with messages as there's basically no delay in transfer
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
 int main()
 {
-    // register sigHandler for SIGINT
+    // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    std::thread rx(receiving);
-    rx.join();
+    std::thread tx(sending);
+    tx.join();
 
     return (EXIT_SUCCESS);
 }

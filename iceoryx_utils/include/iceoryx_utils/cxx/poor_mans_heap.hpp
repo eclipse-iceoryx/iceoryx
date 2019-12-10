@@ -32,6 +32,7 @@ class PoorMansHeapType
 /// @param Interface base type of all classes which should be stored in here
 /// @param TypeSize maximum size of a child of Interface
 /// @param TypeAlignment alignment which is required for the types
+///
 /// @code
 /// #include "iceoryx_utils/cxx/poor_mans_heap.hpp"
 ///
@@ -128,7 +129,6 @@ class PoorMansHeap
     /// Create a new instance of the Type
     /// @param [in] Type the type to instantiate, wrapped in PoorMansHeapType
     /// @param [in] ctorArgs ctor arguments for the type to instantiate
-    /// @note if there is already a valid instance, the dtor will be called before the new one is created
     template <typename Type, typename... CTorArgs>
     void newInstance(CTorArgs&&... ctorArgs) noexcept;
 

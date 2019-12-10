@@ -19,7 +19,7 @@ namespace iox
 /// @brief Mepoo Component Description
 namespace mepoo
 {
-struct ChunkInfo;
+struct ChunkHeader;
 struct ChunkManagement;
 struct MePooConfig;
 struct SegmentConfig;

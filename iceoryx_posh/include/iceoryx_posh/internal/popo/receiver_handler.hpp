@@ -25,7 +25,6 @@ namespace iox
 {
 namespace popo
 {
-
 class ThreadSafe
 {
     using mutex_t = posix::mutex; // std::mutex
@@ -35,7 +34,7 @@ class ThreadSafe
     void unlock();
 
   private:
-    cxx::optional<mutex_t> m_mutex = mutex_t::CreateMutex(false);
+    cxx::optional<mutex_t> m_mutex = mutex_t::CreateMutex(true); // recursive lock
 };
 
 class SingleThreaded
@@ -53,6 +52,7 @@ class ReceiverHandler : public LockingPolicy
     using this_type = ReceiverHandler_t;
 
   public:
+    using ReceiverVector_t = cxx::vector<ReceiverPortType::MemberType_t*, MaxReceivers>;
     class AppContext
     {
         friend ReceiverHandler_t;
@@ -63,6 +63,7 @@ class ReceiverHandler : public LockingPolicy
         void updateLastChunk(const mepoo::SharedChunk f_chunk);
         bool hasReceivers();
         void enableDoDeliverOnSubscription();
+        ReceiverVector_t& getReceiverList() noexcept;
 
       private:
         AppContext(ReceiverHandler_t& f_receiverHandler);
@@ -112,10 +113,11 @@ class ReceiverHandler : public LockingPolicy
     /// checks if delivering on subscription in enabled
     /// @return true if delivering on subscription is enabled
     bool doesDeliverOnSubscribe() const;
+    uint32_t getMaxDeliveryFiFoCapacity();
+    /// Returns the list of receivers
+    ReceiverVector_t& getReceiverList() noexcept;
 
   private:
-    using ReceiverVector_t = cxx::vector<ReceiverPortType::MemberType_t*, MaxReceivers>;
-
     std::atomic_bool m_doDeliverOnSubscription{false};
     ReceiverVector_t m_receiverVector;
     mepoo::SharedChunk m_lastChunk{nullptr};

@@ -189,7 +189,7 @@ SubscribeState ReceiverPort::getSubscribeState() const
     return getMembers()->m_subscriptionState.load(std::memory_order_relaxed);
 }
 
-bool ReceiverPort::getChunk(const mepoo::ChunkInfo*& f_chunkInfo) noexcept
+bool ReceiverPort::getChunk(const mepoo::ChunkHeader*& f_chunkHeader) noexcept
 {
     mepoo::SharedChunk l_chunk;
 
@@ -198,7 +198,7 @@ bool ReceiverPort::getChunk(const mepoo::ChunkInfo*& f_chunkInfo) noexcept
         // store the chunk that is provided to the user side
         if (getMembers()->m_deliveredChunkList.insert(l_chunk))
         {
-            f_chunkInfo = l_chunk.getChunkInfo();
+            f_chunkHeader = l_chunk.getChunkHeader();
             return true;
         }
         else
@@ -227,11 +227,11 @@ bool ReceiverPort::newData() noexcept
     return !getMembers()->m_deliveryFiFo.empty();
 }
 
-bool ReceiverPort::releaseChunk(const mepoo::ChunkInfo* f_chunkInfo)
+bool ReceiverPort::releaseChunk(const mepoo::ChunkHeader* f_chunkHeader)
 {
     mepoo::SharedChunk l_chunk(nullptr);
 
-    if (getMembers()->m_deliveredChunkList.remove(f_chunkInfo, l_chunk))
+    if (getMembers()->m_deliveredChunkList.remove(f_chunkHeader, l_chunk))
     {
         return true;
     }
@@ -331,6 +331,16 @@ bool ReceiverPort::deliver(mepoo::SharedChunk f_chunk_p) noexcept
     }
 
     return true;
+}
+
+uint64_t ReceiverPort::getDeliveryFiFoCapacity() const
+{
+    return getMembers()->m_deliveryFiFo.getCapacity();
+}
+
+uint64_t ReceiverPort::getDeliveryFiFoSize() const
+{
+    return getMembers()->m_deliveryFiFo.getSize();
 }
 
 const ReceiverPort::MemberType_t* ReceiverPort::getMembers() const

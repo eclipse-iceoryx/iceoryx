@@ -43,6 +43,7 @@ namespace iox
     error(POSH__SHM_APP_MAPP_ERR) \
     error(POSH__SHM_APP_SEGMENT_MAPP_ERR) \
     error(POSH__SHM_APP_SEGMENT_COUNT_OVERFLOW) \
+    error(POSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED) \
     error(MEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE) \
     error(MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE) \
     error(MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_LARGER_32_AND_MULTIPLE_OF_32) \
@@ -70,7 +71,10 @@ namespace iox
     error(MQ_INTERFACE__REG_ACK_NO_RESPONSE) \
     error(MQ_INTERFACE__CHECK_MQ_MAPS_TO_FILE) \
     error(POSIX_WRAPPER__FAILED_TO_CREATE_SEMAPHORE) \
-    error(POSIX_TIMER__FIRED_TIMER_BUT_STATE_IS_INVALID)
+    error(POSIX_TIMER__FIRED_TIMER_BUT_STATE_IS_INVALID) \
+    error(POSIX_TIMER__TIMERPOOL_OVERFLOW) \
+    error(EVENT_NOTIFIER__SEMAPHORE_UNINITIALIZED) \
+    error(EVENT_NOTIFIER__UNABLE_TO_POST_SEMAPHORE)
 
 // clang-format on
 
@@ -109,17 +113,14 @@ enum class ErrorLevel : uint32_t
     MODERATE
 };
 
-using HandlerFunction =
-    std::function<void(const Error error, const std::function<void()>, const ErrorLevel)>;
+using HandlerFunction = std::function<void(const Error error, const std::function<void()>, const ErrorLevel)>;
 
 /// @brief This handler is needed for unit testing, special debugging cases and
 ///         other corner cases where we'd like to explicitly suppress the
 ///         error handling.
 class ErrorHandler
 {
-    friend void errorHandler(const Error error,
-                             const std::function<void()> errorCallBack,
-                             const ErrorLevel level);
+    friend void errorHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level);
 
   public:
     static cxx::GenericRAII SetTemporaryErrorHandler(const HandlerFunction& newHandler);
@@ -129,7 +130,7 @@ class ErrorHandler
   protected:
     static void ReactOnErrorLevel(const ErrorLevel level, const char* errorText);
 
-private:
+  private:
     static void DefaultHandler(const Error error,
                                const std::function<void()> errorCallBack,
                                const ErrorLevel level = ErrorLevel::FATAL);

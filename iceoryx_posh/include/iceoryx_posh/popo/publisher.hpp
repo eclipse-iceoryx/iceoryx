@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
 
 #include <memory>
@@ -44,7 +44,7 @@ class Publisher
     /// @param[in] payloadSize size of shared memory to be allocated
     /// @param[in] useDynamicPayloadSizes bool value of using dynamic payload size
     /// @return Information about the chunk reserved
-    virtual mepoo::ChunkInfo* allocateChunkWithInfo(uint32_t payloadSize, bool useDynamicPayloadSizes = false) noexcept;
+    virtual mepoo::ChunkHeader* allocateChunkWithHeader(uint32_t payloadSize, bool useDynamicPayloadSizes = false) noexcept;
 
     /// @brief Allocate memory for chunk to be sent
     /// @param[in] payloadSize size of shared memory to be allocated
@@ -53,18 +53,18 @@ class Publisher
     virtual void* allocateChunk(uint32_t payloadSize, bool useDynamicPayloadSizes = false) noexcept;
 
     /// @brief Send the chunk and deliver it on subscription
-    /// @param[in] chunkInfo Information about the chunk to be sent
-    virtual void sendChunkWithInfo(mepoo::ChunkInfo* const chunkInfo) noexcept;
+    /// @param[in] chunkHeader Information about the chunk to be sent
+    virtual void sendChunk(mepoo::ChunkHeader* const chunkHeader) noexcept;
 
-    /// @brief Converts payload to chunkinfo and send the chunk, deliver it on subscription
+    /// @brief Converts payload to ChunkHeader and send the chunk, deliver it on subscription
     /// @param[in] payload payload of the chunk
     virtual void sendChunk(const void* const payload) noexcept;
 
     /// @brief Function for deleting particular chunk from chunkcontainer
-    /// @param[in] chunkInfo Information of the chunk to be removed.
-    virtual void freeChunkWithInfo(mepoo::ChunkInfo* const chunkInfo) noexcept;
+    /// @param[in] chunkHeader Information of the chunk to be removed.
+    virtual void freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept;
 
-    /// @brief Function for converting payload information to chunkinfo , deleting particular chunk from chunkcontainer
+    /// @brief Function for converting payload information to ChunkHeader , deleting particular chunk from chunkcontainer
     /// @param[in] payload payload of the chunk to be removed.
     virtual void freeChunk(void* const payload) noexcept;
 

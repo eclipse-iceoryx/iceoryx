@@ -200,7 +200,7 @@ class Mepoo_IntegrationTest : public Test
         {
             if (mempool.m_chunkSize != 0)
             {
-                mempool.m_chunkSize = mempool.m_chunkSize - sizeof(iox::mepoo::ChunkInfo);
+                mempool.m_chunkSize = mempool.m_chunkSize - sizeof(iox::mepoo::ChunkHeader);
             }
         }
     }
@@ -247,7 +247,7 @@ class Mepoo_IntegrationTest : public Test
         {
             auto sample = senderPort.reserveChunk(topicSize);
             new (sample->m_payload) Topic;
-            sample->m_payloadSize = topicSize;
+            sample->m_info.m_payloadSize = topicSize;
             senderPort.deliverChunk(sample);
             m_roudiEnv->InterOpWait();
         }

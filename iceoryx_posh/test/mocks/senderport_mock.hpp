@@ -18,7 +18,7 @@
 
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -35,7 +35,7 @@ class SenderPort_MOCK
         uint64_t enableDoDeliverOnSubscription{0};
         uint64_t reserveChunk{0};
         uint64_t deliverChunk{0};
-        iox::mepoo::ChunkInfo* reserveSampleReturn{nullptr};
+        iox::mepoo::ChunkHeader* reserveSampleReturn{nullptr};
         uint64_t doesDeliverOnSubscribe{0};
         bool doesDeliverOnSubscribeReturn{false};
         uint64_t getUniqueID{0};
@@ -96,7 +96,7 @@ class SenderPort_MOCK
         }
         details->enableDoDeliverOnSubscription++;
     }
-    iox::mepoo::ChunkInfo* reserveChunk(uint32_t)
+    iox::mepoo::ChunkHeader* reserveChunk(uint32_t)
     {
         details->reserveChunk++;
         if (globalDetails)
@@ -106,7 +106,7 @@ class SenderPort_MOCK
         }
         return details->reserveSampleReturn;
     }
-    void deliverChunk(iox::mepoo::ChunkInfo* const)
+    void deliverChunk(iox::mepoo::ChunkHeader* const)
     {
         if (globalDetails)
         {

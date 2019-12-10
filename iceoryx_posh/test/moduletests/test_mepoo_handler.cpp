@@ -38,7 +38,7 @@ class MemoryManager_test : public Test
     uint32_t adjustedChunkSize(uint32_t chunkSize)
     {
         // internally, the chunks are adjusted to the additional management information
-        return chunkSize + sizeof(iox::mepoo::ChunkInfo);
+        return chunkSize + sizeof(iox::mepoo::ChunkHeader);
     }
 
     iox::posix::Allocator* allocator;

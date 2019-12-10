@@ -22,22 +22,22 @@
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int f_sig[[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
     killswitch = true;
 }
 
-
 void receiving()
 {
     // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::getInstance("/subscriber");
+    iox::runtime::PoshRuntime::getInstance("/subscriber-bare-metal");
 
     // Create a subscriber
     iox::popo::Subscriber mySubscriber({"Radar", "FrontLeft", "Counter"});
 
-    // The subscriber will not do the subscription before we call subscribe(). The queue size of the subscriber is provided as parameter
+    // The subscriber will not do the subscription before we call subscribe(). The queue size of the subscriber is
+    // provided as parameter
     mySubscriber.subscribe(10);
 
     while (!killswitch)
@@ -45,7 +45,7 @@ void receiving()
         // check if we are subscribed
         if (iox::popo::SubscriptionState::SUBSCRIBED == mySubscriber.getSubscriptionState())
         {
-            const void * chunk = nullptr;
+            const void* chunk = nullptr;
 
             // polling based access to the subscriber
             // this will return true and the oldest chunk in the queue (FiFo) or false if the queue is empty
@@ -65,7 +65,7 @@ void receiving()
             std::cout << "Not subscribed" << std::endl;
         }
 
-        // sleep
+        // Sleep some time to avoid flooding the system with messages as there's basically no delay in transfer
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 

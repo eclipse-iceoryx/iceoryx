@@ -183,5 +183,5 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
     auto config = sut.getMemoryManager().getMemPoolInfo(0);
     ASSERT_THAT(config.m_numChunks, Eq(100u));
     auto chunk = sut.getMemoryManager().getChunk(128);
-    EXPECT_THAT(chunk.getChunkInfo()->m_payloadSize, Eq(128u));
+    EXPECT_THAT(chunk.getChunkHeader()->m_info.m_payloadSize, Eq(128u));
 }

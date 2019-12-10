@@ -57,7 +57,7 @@ bool ServiceDescription::ClassHash::operator==(const ClassHash& rhs) const noexc
 
 ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexcept
 {
-    std::underlying_type<ServiceDescription::Scope>::type scope;
+    std::underlying_type<Scope>::type scope;
     f_serial.extract(m_serviceString,
                      m_instanceString,
                      m_eventString,
@@ -70,13 +70,13 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexc
                      m_classHash[3],
                      m_hasServiceOnlyDescription,
                      scope);
-    if (scope > static_cast<std::underlying_type<ServiceDescription::Scope>::type>(Scope::INVALILD))
+    if (scope > static_cast<std::underlying_type<Scope>::type>(Scope::INVALID))
     {
-        m_scope = Scope::INVALILD;
+        m_scope = Scope::INVALID;
     }
     else
     {
-        m_scope = static_cast<ServiceDescription::Scope>(scope);
+        m_scope = static_cast<Scope>(scope);
     }
 }
 
@@ -217,8 +217,7 @@ ServiceDescription& ServiceDescription::operator=(const ServiceDescription& othe
 
 ServiceDescription::operator cxx::Serialization() const
 {
-    std::underlying_type<ServiceDescription::Scope>::type scope =
-        static_cast<std::underlying_type<ServiceDescription::Scope>::type>(m_scope);
+    std::underlying_type<Scope>::type scope = static_cast<std::underlying_type<Scope>::type>(m_scope);
     return cxx::Serialization::create(m_serviceString,
                                       m_instanceString,
                                       m_eventString,
@@ -286,6 +285,11 @@ bool ServiceDescription::isInternal() const noexcept
 void ServiceDescription::setInternal() noexcept
 {
     m_scope = Scope::INTERNAL;
+}
+
+Scope ServiceDescription::getScope() noexcept
+{
+    return m_scope;
 }
 
 ServiceDescription::ClassHash ServiceDescription::getClassHash() const noexcept

@@ -104,6 +104,7 @@ class expected;
 ///         is inspired by the proposal but it has changes since we are not allowed to
 ///         throw an exception.
 /// @param ErrorType type of the error which can be stored in the expected
+///
 /// @code
 ///     cxx::expected<int, float> callMe() {
 ///         bool l_errorOccured;

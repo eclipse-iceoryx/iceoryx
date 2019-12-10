@@ -14,7 +14,7 @@
 
 #include "test.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
@@ -107,8 +107,8 @@ class SharedPointer_Test : public Test
     ChunkManagement* GetChunkManagement(void* memoryChunk)
     {
         ChunkManagement* v = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
-        ChunkInfo* chunkInfo = new (memoryChunk) ChunkInfo();
-        new (v) ChunkManagement{chunkInfo, &mempool, &chunkMgmtPool};
+        ChunkHeader* chunkHeader = new (memoryChunk) ChunkHeader();
+        new (v) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
         return v;
     }
 

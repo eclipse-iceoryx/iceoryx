@@ -40,9 +40,9 @@ class SenderPort : public BasePort
     cxx::optional<capro::CaproMessage> dispatchCaProMessage(capro::CaproMessage caProMessage);
 
     void cleanup();
-    mepoo::ChunkInfo* reserveChunk(const uint32_t payloadSize, bool useDynamicPayloadSizes = false);
-    void deliverChunk(mepoo::ChunkInfo* const chunkInfo);
-    void freeChunk(mepoo::ChunkInfo* const chunkInfo);
+    mepoo::ChunkHeader* reserveChunk(const uint32_t payloadSize, bool useDynamicPayloadSizes = false);
+    virtual void deliverChunk(mepoo::ChunkHeader* const chunkHeader);
+    void freeChunk(mepoo::ChunkHeader* const chunkHeader);
     void activate();
     void deactivate();
     bool hasSubscribers();
@@ -51,19 +51,20 @@ class SenderPort : public BasePort
     void enableDoDeliverOnSubscription();
     bool doesDeliverOnSubscribe() const;
     bool isPortActive() const;
+    uint32_t getMaxDeliveryFiFoCapacity();
 
   private:
     bool hasValidService(const capro::CaproMessage& caproMessage);
     void disconnectAllReceiver();
     void setThroughput(const uint32_t payloadSize);
-    void setThroughputDeliveryData(mepoo::ChunkInfo* const chunk, bool updateTimeInChunk = true);
+    void setThroughputDeliveryData(mepoo::ChunkInfo& chunk, bool updateTimeInChunk = true);
 
     bool connectReceiverPort(ReceiverPortType::MemberType_t* const receiver);
     void disconnectReceiverPort(ReceiverPortType::MemberType_t* const receiver);
 
     bool pushToAllocatedChunkContainer(mepoo::SharedChunk chunk);
-    bool popFromAllocatedChunkContainer(mepoo::ChunkInfo* chunkInfo, mepoo::SharedChunk& chunk);
-    bool deleteFromAllocatedChunkContainer(mepoo::ChunkInfo* chunkInfo);
+    bool popFromAllocatedChunkContainer(mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk);
+    bool deleteFromAllocatedChunkContainer(mepoo::ChunkHeader* chunkHeader);
     void clearAllocatedChunkContainer();
 
   private:

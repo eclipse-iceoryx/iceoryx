@@ -25,24 +25,24 @@ namespace iox
 namespace mepoo
 {
 class MemPool;
-struct ChunkInfo;
+struct ChunkHeader;
 
 struct alignas(32) ChunkManagement
 {
-    using base_t = ChunkInfo;
+    using base_t = ChunkHeader;
     using referenceCounterBase_t = uint64_t;
     using referenceCounter_t = std::atomic<referenceCounterBase_t>;
 
-    ChunkManagement(const cxx::not_null<base_t*> f_chunkInfo,
+    ChunkManagement(const cxx::not_null<base_t*> f_chunkHeader,
                     const cxx::not_null<MemPool*> f_mempool,
                     const cxx::not_null<MemPool*> f_chunkManagementPool)
-        : m_chunkInfo(f_chunkInfo)
+        : m_chunkHeader(f_chunkHeader)
         , m_mempool(f_mempool)
         , m_chunkManagementPool(f_chunkManagementPool)
     {
     }
 
-    base_t* m_chunkInfo;
+    base_t* m_chunkHeader;
     referenceCounter_t m_referenceCounter{1};
     MemPool* m_mempool;
     MemPool* m_chunkManagementPool;
