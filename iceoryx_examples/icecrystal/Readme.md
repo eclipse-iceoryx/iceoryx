@@ -3,21 +3,21 @@
 ## Introduction
 
 This example teaches you how to make use of the introspection for debugging purposes. With the introspection you can
-have look into the machine room of iceoryx. It shows live information about the memory usage and all registered
-processes. Additionally it shows the sender and receiver ports that are created inside the shared memory.
+have look into the machine room of RouDi. The introspection shows live information about the memory usage and all
+registered processes. Additionally it shows the sender and receiver ports that are created inside the shared memory.
 
 ## Run icecrystal
 
-Create three terminals and run one command in each of them. Either choose to run the normal or simplified version.
+We reuse the binaries from [icedelivery](../icedelivery/). Create four terminals and run one command in each of them.
 
     # If installed and available in PATH environment variable
     RouDi
     # If build from scratch with script in tools
     $ICEORYX_ROOT/build/bin/RouDi
 
-    ./build/icedelivery/ice-publisher-simple
+    ./build/icedelivery/ice-publisher-bare-metal
 
-    ./build/icedelivery/ice-subscriber-simple
+    ./build/icedelivery/ice-subscriber-bare-metal
 
     ./build/iceoryx_introspection/iceoryx_introspection_client --all
 
@@ -25,7 +25,7 @@ Create three terminals and run one command in each of them. Either choose to run
 
 The counter can differ depending on startup of the applications.
 
-### RouDi appliction
+### RouDi application
 
     Reserving 99683360 bytes in the shared memory [/iceoryx_mgmt]
     [ Reserving shared memory successful ] 
@@ -43,16 +43,54 @@ The counter can differ depending on startup of the applications.
 
 ### Subscriber application
 
-    Callback: 4
-    Callback: 5
-    Callback: 6
-    Callback: 7
+    Receiving: 4
+    Receiving: 5
+    Receiving: 6
+    Receiving: 7
 
-### Iceoryx introspection
+### Iceoryx introspection application
 
-<!-- Add introspection screenshot here -->
+![introspection_screenshot](https://user-images.githubusercontent.com/8661268/70729509-a515d400-1d03-11ea-877d-69d29efe58c0.png)
 
 ## Feature walkthrough
 
-The introspection can be started with several command line arguments:
+This example does not contain any additional code. The code of the `iceoryx_introspection_client` can be found under
+[tools/introspection/](../../tools/introspection/).
 
+The introspection can be started with several command line arguments.
+
+    --mempool         Subscribe to mempool introspection data.
+
+The memory pool view will show all available shared memory segments and its owner. Additionally the total and currently
+used chunks are visible as well as the minimal value of free chunks. This can be handy for stress tests to find out if
+your memory configuration is valid.
+
+    --process         Subscribe to process introspection data.
+
+The process view will show you the processes, which are currently registered with RouDi and its PID.
+
+    --port            Subscribe to port introspection data.
+
+The port view shows both sender and receiver ports that are created by RouDi in the shared memory. Their respective
+service description (service, instance, event) is shown to identify them uniquely. The columns `Process` and
+`used by process` display to which process the ports belongs and how they are currently connected. Size in bytes of
+both sample size and chunk size (sample size + meta data) and statistical data of `Chunks [/Minute]` is provided as
+well. When a sender port instantly provides data to a subscriber with the `subscribe()` call, the `Field` column is
+ticked. The service discovery protocol allows one to define the `Propagation scope` of the data. This makes it possible
+to forward data onwards to other machines e.g. over network or just consume them internally. When a `Callback` is
+registered on subscriber side, the box is ticked accordingly. `FiFo size / capacity` shows the consumption of chunks
+on the subscriber side and is a useful column to debug potential memleaks.
+
+    --all             Subscribe to all available introspection data.
+
+`--all` will enable all three views at once.
+
+    -t, --time <ms>   Update period (in milliseconds) for the display of introspection data
+                      [min: 500, max: 10000, default: 1000]
+
+If you want to change the default update rate of 1s, you can do that with `-t`.
+
+    -v, --version     Display latest official iceoryx release version and exit.
+
+Make sure that the version number of the introspection exactly matches the version number of RouDi. Currently
+we don't guarantee binary compatibility between different versions. With different version numbers things might break.
