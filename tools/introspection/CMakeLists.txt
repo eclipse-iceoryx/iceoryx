@@ -34,16 +34,14 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     FORCE
 )
 
-# Only build a lib in the first step
-#add_executable(iceoryx_introspection introspection_main_base.cpp introspection_print.cpp)
-
-add_library(iceoryx_introspection
+add_library(iceoryx_introspection_lib
             source/introspection_print.cpp
-)
+            source/introspection_run.cpp
+    )
 
-add_library(${PROJECT_NAMESPACE}::iceoryx_introspection ALIAS iceoryx_introspection)
+add_library(${PROJECT_NAMESPACE}::iceoryx_introspection_lib ALIAS iceoryx_introspection_lib)
 
-target_include_directories(iceoryx_introspection
+target_include_directories(iceoryx_introspection_lib
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
@@ -51,15 +49,23 @@ target_include_directories(iceoryx_introspection
     ${CURSES_INCLUDE_DIR}
 )
 
-target_link_libraries(iceoryx_introspection
+target_link_libraries(iceoryx_introspection_lib
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
     ncurses
 )
 
-set_target_properties(iceoryx_introspection
+set_target_properties(iceoryx_introspection_lib
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
+
+add_executable(iceoryx_introspection source/introspection_main.cpp)
+
+target_link_libraries(iceoryx_introspection
+    PRIVATE
+    ${PROJECT_NAMESPACE}::iceoryx_introspection_lib
+)
+
 
 #
 ########## exporting library ##########
