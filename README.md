@@ -131,6 +131,7 @@ workings of iceoryx. We hope you enjoy our sightseeing tour!
 |---|---|---|
 | [icedelivery](./iceoryx_examples/icedelivery) | Transfer data between POSIX applications | [SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture), service description |
 | [iceperf](./iceoryx_examples/iceperf) | Measure the latency from publisher to subscriber | Latency |
+| [icecrystal](./iceoryx_examples/icecrystal) | Learn how to use the introspection | Debugging |
 | [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx) | See how iceoryx can be used inside the robot operating system | ROS, RMW |
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
