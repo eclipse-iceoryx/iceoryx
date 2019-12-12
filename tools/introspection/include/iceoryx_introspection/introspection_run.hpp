@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef INTROSPECTION_RUN_HPP_INCLUDED
-#define INTROSPECTION_RUN_HPP_INCLUDED
+#pragma once
 
 #include "iceoryx_introspection/introspection_types.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
@@ -40,5 +39,3 @@ void runIntrospection(const int updatePeriodMs, const IntrospectionSelection int
 } // namespace introspection
 } // namespace client
 } // namespace iox
-
-#endif // INTROSPECTION_RUN_HPP_INCLUDED
