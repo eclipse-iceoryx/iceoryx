@@ -1,12 +1,12 @@
 # iceoryx - an IPC middleware for POSIX-based systems
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/8661268/70233652-4aa6d180-175f-11ea-8524-2344e0d3935c.png" height="200">
+<img src="https://user-images.githubusercontent.com/8661268/70233652-4aa6d180-175f-11ea-8524-2344e0d3935c.png" width="50%">
 </p>
 
 ## Introduction
 
-Great that you've made it to this little Eclipse project! Let's get yout started by providing a quick background
+Great that you've made it to this little Eclipse project! Let's get you started by providing a quick background
 tour, introducing the project scope and guide you through the examples.
 
 So first off: What is iceoryx?

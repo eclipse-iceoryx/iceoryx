@@ -41,7 +41,7 @@ class Timer_test : public Test
     std::atomic<int> numberOfCalls{0};
 };
 
-TEST_F(Timer_test, CreateAndFireOnce)
+TEST_F(Timer_test, DISABLED_CreateAndFireOnce_PERFORMANCETEST42)
 {
     Timer osTimer(second, [&]() { numberOfCalls++; });
 
@@ -66,7 +66,7 @@ TEST_F(Timer_test, CreateAndFireOnce)
     osTimer.stop();
 }
 
-TEST_F(Timer_test, CreateAndStop)
+TEST_F(Timer_test, DISABLED_CreateAndStop_PERFORMANCETEST42)
 {
     Timer osTimer(second, [&]() { numberOfCalls++; });
 
@@ -81,7 +81,7 @@ TEST_F(Timer_test, CreateAndStop)
 
     EXPECT_THAT(numberOfCalls, Eq(0));
 }
-TEST_F(Timer_test, CreateAndFirePeriodically)
+TEST_F(Timer_test, DISABLED_CreateAndFirePeriodically_PERFORMANCETEST42)
 {
     Timer osTimer(second, [&]() { numberOfCalls++; });
 
@@ -104,7 +104,7 @@ TEST_F(Timer_test, CreateAndFirePeriodically)
 
     EXPECT_THAT(numberOfCalls, Eq(3));
 }
-TEST_F(Timer_test, CreateAndGetTimeUntilExpiration)
+TEST_F(Timer_test, DISABLED_CreateAndGetTimeUntilExpiration_PERFORMANCETEST42)
 {
     Timer osTimer(second, [&]() { numberOfCalls++; });
 
@@ -123,7 +123,7 @@ TEST_F(Timer_test, CreateAndGetTimeUntilExpiration)
     osTimer.stop();
 }
 
-TEST_F(Timer_test, CreateFirePeriodicallyAndGetoverruns)
+TEST_F(Timer_test, DISABLED_CreateFirePeriodicallyAndGetoverruns_PERFORMANCETEST42)
 {
     Timer osTimer(50_ms, [&]() { numberOfCalls++; });
 
@@ -138,7 +138,7 @@ TEST_F(Timer_test, CreateFirePeriodicallyAndGetoverruns)
     // See if an overruns occurred between time and actual callback from the operating system
     EXPECT_THAT(overruns.get_value(), Eq(0u));
 }
-TEST_F(Timer_test, CreateAndCallExpired)
+TEST_F(Timer_test, CreateAndCallExpired_PERFORMANCETEST42)
 {
     Timer osTimer(second);
 
@@ -148,7 +148,7 @@ TEST_F(Timer_test, CreateAndCallExpired)
     std::this_thread::sleep_for(std::chrono::milliseconds(600));
     EXPECT_THAT(osTimer.hasExpiredComparedToCreationTime(), Eq(true));
 }
-TEST_F(Timer_test, CreateAndRestart)
+TEST_F(Timer_test, DISABLED_CreateAndRestart_PERFORMANCETEST42)
 {
     Timer osTimer(second, [&]() { numberOfCalls++; });
 

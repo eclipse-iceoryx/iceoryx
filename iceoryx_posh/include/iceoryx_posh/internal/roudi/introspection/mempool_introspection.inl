@@ -131,7 +131,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::send()
         uint32_t id = 0;
 
         auto chunkHeader = m_senderPort.reserveChunk(sizeof(Topic));
-        auto sample = static_cast<Topic*>(chunkHeader->m_payload);
+        auto sample = static_cast<Topic*>(chunkHeader->payload());
         new (sample) Topic;
 
         prepareIntrospectionSample(
@@ -144,7 +144,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::send()
         {
             ++id;
             auto chunkHeader = m_senderPort.reserveChunk(sizeof(Topic));
-            auto sample = static_cast<Topic*>(chunkHeader->m_payload);
+            auto sample = static_cast<Topic*>(chunkHeader->payload());
             new (sample) Topic;
 
             prepareIntrospectionSample(sample, segment.getReaderGroup(), segment.getWriterGroup(), id);

@@ -226,7 +226,7 @@ inline uint32_t ReceiverHandler<MaxReceivers, LockingPolicy>::getMaxDeliveryFiFo
         }
     }
 
-    return maxDeliveryFiFoCapacity;
+    return static_cast<uint32_t>(maxDeliveryFiFoCapacity);
 }
 
 } // namespace popo

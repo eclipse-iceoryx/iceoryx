@@ -23,6 +23,7 @@
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <cstdint>
 #include <string>
@@ -59,6 +60,10 @@ class SharedMemoryCreator
     /// @brief Get function for the shared memory object
     /// @return pointer to the object created in the shared memory
     ShmType* getShmInterface() const noexcept;
+
+    /// @brief Get the segment id of the shared memory object
+    /// @return segment id of the shared memory object
+    uint64_t getSegmentId() const noexcept;
 
   private:
     cxx::optional<posix::SharedMemoryObject> m_shmObject;

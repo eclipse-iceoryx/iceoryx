@@ -53,13 +53,15 @@ class SenderPort : public BasePort
     bool isPortActive() const;
     uint32_t getMaxDeliveryFiFoCapacity();
 
+  protected:
+    virtual bool connectReceiverPort(ReceiverPortType::MemberType_t* const receiver);
+
   private:
     bool hasValidService(const capro::CaproMessage& caproMessage);
     void disconnectAllReceiver();
     void setThroughput(const uint32_t payloadSize);
     void setThroughputDeliveryData(mepoo::ChunkInfo& chunk, bool updateTimeInChunk = true);
 
-    bool connectReceiverPort(ReceiverPortType::MemberType_t* const receiver);
     void disconnectReceiverPort(ReceiverPortType::MemberType_t* const receiver);
 
     bool pushToAllocatedChunkContainer(mepoo::SharedChunk chunk);
@@ -67,7 +69,6 @@ class SenderPort : public BasePort
     bool deleteFromAllocatedChunkContainer(mepoo::ChunkHeader* chunkHeader);
     void clearAllocatedChunkContainer();
 
-  private:
     const MemberType_t* getMembers() const;
     MemberType_t* getMembers();
 };

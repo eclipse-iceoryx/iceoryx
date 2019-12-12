@@ -133,7 +133,9 @@ inline constexpr T Duration::days() const
 
 inline constexpr Duration::operator timeval() const
 {
-    return {this->seconds<long>(), this->microSeconds<long>() - this->seconds<long>() * 1000000};
+    using SEC_TYPE = decltype(timeval::tv_sec);
+    using USEC_TYPE = decltype(timeval::tv_usec);
+    return {this->seconds<SEC_TYPE>(), this->microSeconds<USEC_TYPE>() - this->seconds<USEC_TYPE>() * 1000000};
 }
 
 inline constexpr bool Duration::operator<(const Duration& right) const
@@ -156,34 +158,34 @@ inline constexpr bool Duration::operator<=(const Duration& right) const
     return durationInSeconds <= right.durationInSeconds;
 }
 
-inline constexpr Duration Duration::operator+(const Duration& right)
+inline constexpr Duration Duration::operator+(const Duration& right) const
 {
     return Duration{durationInSeconds + right.durationInSeconds};
 }
 
-inline constexpr Duration Duration::operator-(const Duration& right)
+inline constexpr Duration Duration::operator-(const Duration& right) const
 {
     return Duration{durationInSeconds - right.durationInSeconds};
 }
 
-inline constexpr Duration Duration::operator*(const Duration& right)
+inline constexpr Duration Duration::operator*(const Duration& right) const
 {
     return Duration{durationInSeconds * right.durationInSeconds};
 }
 
-inline constexpr Duration Duration::operator/(const Duration& right)
+inline constexpr Duration Duration::operator/(const Duration& right) const
 {
     return Duration{durationInSeconds / right.durationInSeconds};
 }
 
 template <typename T>
-inline constexpr Duration Duration::operator*(const T& right)
+inline constexpr Duration Duration::operator*(const T& right) const
 {
     return Duration{durationInSeconds * static_cast<long double>(right)};
 }
 
 template <typename T>
-inline constexpr Duration Duration::operator/(const T& right)
+inline constexpr Duration Duration::operator/(const T& right) const
 {
     return Duration{durationInSeconds / static_cast<long double>(right)};
 }

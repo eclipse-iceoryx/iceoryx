@@ -17,6 +17,7 @@
 #include "iceoryx_posh/internal/popo/receiver_port_data.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <chrono>
 #include <thread>
@@ -28,12 +29,14 @@ namespace roudi
 RouDiProcess::RouDiProcess(std::string f_name,
                            int f_pid,
                            mepoo::MemoryManager* f_payloadMemoryManager,
-                           bool isMonitored)
+                           bool isMonitored,
+                           const uint64_t f_payloadSegmentId)
     : m_pid(f_pid)
     , m_mq(f_name)
     , m_timestamp(mepoo::BaseClock::now())
     , m_payloadMemoryManager(f_payloadMemoryManager)
     , m_isMonitored(isMonitored)
+    , m_payloadSegmentId(f_payloadSegmentId)
 {
 }
 
@@ -67,6 +70,11 @@ mepoo::MemoryManager* RouDiProcess::getPayloadMemoryManager() const
     return m_payloadMemoryManager;
 }
 
+uint64_t RouDiProcess::getPayloadSegmentId() const
+{
+    return m_payloadSegmentId;
+}
+
 bool RouDiProcess::isMonitored() const
 {
     return m_isMonitored;
@@ -78,8 +86,10 @@ ProcessManager::ProcessManager(SharedMemoryManager& f_shmMgr)
     : m_shmMgr(f_shmMgr)
 {
     auto currentUser = posix::PosixUser::getUserOfCurrentProcess();
-    m_memoryManagerOfCurrentProcess =
-        m_shmMgr.getShmInterface().getShmInterface()->m_segmentManager.getMemoryManagerForUser(currentUser);
+    auto m_segmentInfo =
+        m_shmMgr.getShmInterface().getShmInterface()->m_segmentManager.getSegmentInformationForUser(currentUser);
+    m_memoryManagerOfCurrentProcess = m_segmentInfo.m_memoryManager;
+    m_segmentIdOfCurrentProcess = m_segmentInfo.m_segmentID;
 }
 
 void ProcessManager::killAllProcesses()
@@ -119,13 +129,15 @@ bool ProcessManager::registerProcess(
     }
     // lock is not required anymore
 
-    auto l_memoryManager =
-        m_shmMgr.getShmInterface().getShmInterface()->m_segmentManager.getMemoryManagerForUser(f_user);
+
+    auto segmentInfo =
+        m_shmMgr.getShmInterface().getShmInterface()->m_segmentManager.getSegmentInformationForUser(f_user);
 
     if (!processExists)
     {
         // process does not exist in list and can be added
-        return addProcess(f_name, f_pid, l_memoryManager, f_isMonitored, transmissionTimestamp);
+        return addProcess(
+            f_name, f_pid, segmentInfo.m_memoryManager, f_isMonitored, transmissionTimestamp, segmentInfo.m_segmentID);
     }
 
     // process is already in list (i.e. registered)
@@ -157,8 +169,12 @@ bool ProcessManager::registerProcess(
         DEBUG_PRINTF("Registering already existing application %s - removed existing application\n", f_name.c_str());
 
         // try registration again, should succeed since removal was successful
-        return addProcess(
-            f_name, f_pid, l_memoryManager, f_isMonitored, transmissionTimestamp); // call will acquire lock
+        return addProcess(f_name,
+                          f_pid,
+                          segmentInfo.m_memoryManager,
+                          f_isMonitored,
+                          transmissionTimestamp,
+                          segmentInfo.m_segmentID); // call will acquire lock
     }
 
     return false;
@@ -168,7 +184,8 @@ bool ProcessManager::addProcess(const std::string& f_name,
                                 int f_pid,
                                 mepoo::MemoryManager* f_payloadMemoryManager,
                                 bool f_isMonitored,
-                                int64_t transmissionTimestamp)
+                                int64_t transmissionTimestamp,
+                                const uint64_t f_segmentId)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     // overflow check
@@ -178,14 +195,17 @@ bool ProcessManager::addProcess(const std::string& f_name,
         return false;
     }
 
-    m_processList.emplace_back(f_name, f_pid, f_payloadMemoryManager, f_isMonitored);
+    m_processList.emplace_back(f_name, f_pid, f_payloadMemoryManager, f_isMonitored, f_segmentId);
 
     // send REG_ACK and BaseAddrString
     runtime::MqMessage l_sendBuffer;
-    auto segmentManagerPtr =
-        reinterpret_cast<uint64_t>(&m_shmMgr.getShmInterface().getShmInterface()->m_segmentManager);
+
+    auto segmentId = m_shmMgr.getShmInterface().getShmInterface()->m_segmentId;
+    auto offset =
+        RelativePointer::getOffset(segmentId, &m_shmMgr.getShmInterface().getShmInterface()->m_segmentManager);
     l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::REG_ACK) << m_shmMgr.GetShmAddrString()
-                 << m_shmMgr.getShmSizeInBytes() << segmentManagerPtr << transmissionTimestamp;
+                 << m_shmMgr.getShmSizeInBytes() << offset << transmissionTimestamp << segmentId;
+
     m_processList.back().sendToMQ(l_sendBuffer);
 
     // set current timestamp again (already done in RouDiProcess's constructor
@@ -285,12 +305,13 @@ void ProcessManager::addInterfaceForProcess(const std::string& f_name,
         // create a ReceiverPort
         popo::InterfacePortData* l_port = m_shmMgr.acquireInterfacePortData(f_interface, f_name, f_runnable);
 
-        // send ReceiverPort to app
-        size_t l_ptr = reinterpret_cast<size_t>(l_port);
+        // send ReceiverPort to app as a serialized relative pointer
+        RelativePointer::id_t segmentId = m_shmMgr.getShmInterface().getSegmentId();
+        auto offset = RelativePointer::getOffset(segmentId, l_port);
 
         runtime::MqMessage l_sendBuffer;
         l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_INTERFACE_ACK)
-                     << std::to_string(l_ptr);
+                     << std::to_string(offset) << std::to_string(segmentId);
         l_process->sendToMQ(l_sendBuffer);
 
         DEBUG_PRINTF("Created new interface for application %s\n", f_name.c_str());
@@ -309,8 +330,12 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const std::string
     {
         std::atomic<uint64_t>* counter = &m_shmMgr.getShmInterface().getShmInterface()->m_serviceRegistryChangeCounter;
 
+        // send counter to app as a serialized relative pointer
+        RelativePointer::id_t segmentId = m_shmMgr.getShmInterface().getSegmentId();
+        auto offset = RelativePointer::getOffset(segmentId, counter);
+
         runtime::MqMessage l_sendBuffer;
-        l_sendBuffer << std::to_string(reinterpret_cast<uint64_t>(counter));
+        l_sendBuffer << std::to_string(offset) << std::to_string(segmentId);
         l_process->sendToMQ(l_sendBuffer);
     }
     else
@@ -327,11 +352,13 @@ void ProcessManager::addApplicationForProcess(const std::string& f_name, Interfa
     if (nullptr != l_process)
     {
         popo::ApplicationPortData* l_port = m_shmMgr.acquireApplicationPortData(f_interface, f_name);
-        size_t l_ptr = reinterpret_cast<size_t>(l_port);
+
+        RelativePointer::id_t segmentId = m_shmMgr.getShmInterface().getSegmentId();
+        auto offset = RelativePointer::getOffset(segmentId, l_port);
 
         runtime::MqMessage l_sendBuffer;
         l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_APPLICATION_ACK)
-                     << std::to_string(l_ptr);
+                     << std::to_string(offset) << std::to_string(segmentId);
         l_process->sendToMQ(l_sendBuffer);
 
         DEBUG_PRINTF("Created new ApplicationPort for application %s\n", f_name.c_str());
@@ -412,12 +439,13 @@ void ProcessManager::addReceiverForProcess(const std::string& f_name,
         ReceiverPortType::MemberType_t* l_receiver =
             m_shmMgr.acquireReceiverPortData(f_service, f_interface, f_name, f_runnable);
 
-        // send ReceiverPort to app
-        size_t l_ptr = reinterpret_cast<size_t>(l_receiver);
+        // send ReceiverPort to app as a serialized relative pointer
+        RelativePointer::id_t segmentId = m_shmMgr.getShmInterface().getSegmentId();
+        auto offset = RelativePointer::getOffset(segmentId, l_receiver);
 
         runtime::MqMessage l_sendBuffer;
         l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_RECEIVER_ACK)
-                     << std::to_string(l_ptr);
+                     << std::to_string(offset) << std::to_string(segmentId);
         l_process->sendToMQ(l_sendBuffer);
 
         DEBUG_PRINTF("Created new ReceiverPortImpl for application %s\n", f_name.c_str());
@@ -444,12 +472,13 @@ void ProcessManager::addSenderForProcess(const std::string& f_name,
 
         if (nullptr != l_sender)
         {
-            // send SenderPort to app
-            size_t l_ptr = reinterpret_cast<size_t>(l_sender);
+            // send SenderPort to app as a serialized relative pointer
+            RelativePointer::id_t segmentId = m_shmMgr.getShmInterface().getSegmentId();
+            auto offset = RelativePointer::getOffset(segmentId, l_sender);
 
             runtime::MqMessage l_sendBuffer;
             l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_SENDER_ACK)
-                        << std::to_string(l_ptr);
+                         << std::to_string(offset) << std::to_string(segmentId);
             l_process->sendToMQ(l_sendBuffer);
 
             DEBUG_PRINTF("Created new SenderPortImpl for application %s\n", f_name.c_str());

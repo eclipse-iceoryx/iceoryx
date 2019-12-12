@@ -150,6 +150,7 @@ add_library(iceoryx_utils
     source/posix_wrapper/system_configuration.cpp
     source/posix_wrapper/posix_access_rights.cpp
     source/units/duration.cpp
+    source/relocatable_pointer/relative_ptr.cpp
 )
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)

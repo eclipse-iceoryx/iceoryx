@@ -43,7 +43,7 @@ mepoo::ChunkHeader* Publisher::allocateChunkWithHeader(uint32_t payloadSize, boo
 void* Publisher::allocateChunk(uint32_t payloadSize, bool useDynamicPayloadSizes) noexcept
 {
     auto chunkHeader = m_sender.reserveChunk(payloadSize, useDynamicPayloadSizes);
-    return chunkHeader->m_payload;
+    return chunkHeader->payload();
 }
 
 void Publisher::sendChunk(mepoo::ChunkHeader* const chunkHeader) noexcept

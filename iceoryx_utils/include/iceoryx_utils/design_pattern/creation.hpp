@@ -24,21 +24,24 @@ struct Creation
     using result_t = iox::cxx::expected<DerivedClass, ErrorType>;
 
     template <typename... Targs>
-    static result_t create(Targs&&... args)
+    static result_t create(Targs&&... args) noexcept
     {
-        DerivedClass newClass(std::forward<Targs>(args)...);
+        return verify(DerivedClass(std::forward<Targs>(args)...));
+    }
 
-        if (!newClass.m_isInitialized)
+    static result_t verify(DerivedClass&& newObject) noexcept
+    {
+        if (!newObject.m_isInitialized)
         {
-            return iox::cxx::error<ErrorType>(newClass.m_errorValue);
+            return iox::cxx::error<ErrorType>(newObject.m_errorValue);
         }
         else
         {
-            return iox::cxx::success<DerivedClass>(std::move(newClass));
+            return iox::cxx::success<DerivedClass>(std::move(newObject));
         }
     }
 
-    bool isInitialized() const
+    bool isInitialized() const noexcept
     {
         return m_isInitialized;
     }

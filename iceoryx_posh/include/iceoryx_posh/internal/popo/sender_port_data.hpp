@@ -25,6 +25,7 @@
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/concurrent/taco.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -75,7 +76,7 @@ struct SenderPortData : public BasePortData
     mutable concurrent::TACO<Throughput, ThreadContext> m_throughputExchange{
         concurrent::TACOMode::DenyDataFromSameContext};
 
-    mepoo::MemoryManager* m_memoryMgr{nullptr};
+    iox::relative_ptr<mepoo::MemoryManager> m_memoryMgr;
     mepoo::SharedChunk m_lastChunk{nullptr};
 };
 

@@ -35,7 +35,11 @@ namespace roudi
 class RouDiProcess
 {
   public:
-    RouDiProcess(std::string f_name, int f_pid, mepoo::MemoryManager* f_payloadMemoryManager, bool isMonitored);
+    RouDiProcess(std::string f_name,
+                 int f_pid,
+                 mepoo::MemoryManager* f_payloadMemoryManager,
+                 bool isMonitored,
+                 const uint64_t payloadSegmentId);
 
     RouDiProcess(const RouDiProcess& other) = delete;
     RouDiProcess& operator=(const RouDiProcess& other) = delete;
@@ -54,6 +58,7 @@ class RouDiProcess
     mepoo::TimePointNs getTimestamp();
 
     mepoo::MemoryManager* getPayloadMemoryManager() const;
+    uint64_t getPayloadSegmentId() const;
 
     bool isMonitored() const;
 
@@ -63,6 +68,7 @@ class RouDiProcess
     mepoo::TimePointNs m_timestamp;
     mepoo::MemoryManager* m_payloadMemoryManager{nullptr};
     bool m_isMonitored{true};
+    uint64_t m_payloadSegmentId;
 };
 
 class ProcessManagerInterface
@@ -158,7 +164,8 @@ class ProcessManager : public ProcessManagerInterface
                     int f_pid,
                     mepoo::MemoryManager* f_payloadMemoryManager,
                     bool f_isMonitored,
-                    int64_t transmissionTimestamp);
+                    int64_t transmissionTimestamp,
+                    const uint64_t segmentId);
 
     bool removeProcess(const std::string& f_name);
 
@@ -173,6 +180,7 @@ class ProcessManager : public ProcessManagerInterface
 
     // this is currently used for the internal sender/receiver ports
     mepoo::MemoryManager* m_memoryManagerOfCurrentProcess{nullptr};
+    uint64_t m_segmentIdOfCurrentProcess{0};
 };
 
 } // namespace roudi

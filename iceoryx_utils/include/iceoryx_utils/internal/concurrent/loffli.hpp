@@ -15,6 +15,7 @@
 #pragma once
 
 #include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -59,7 +60,7 @@ class LoFFLi
     uint32_t m_size{0u};
     uint32_t m_invalidIndex{0u};
     std::atomic<Node> m_head{{0u, 1u}};
-    uint32_t* m_nextFreeIndex{nullptr};
+    iox::relative_ptr<uint32_t> m_nextFreeIndex;
 
   public:
     LoFFLi() = default;
@@ -92,4 +93,3 @@ class LoFFLi
 
 } // namespace concurrent
 } // namespace iox
-

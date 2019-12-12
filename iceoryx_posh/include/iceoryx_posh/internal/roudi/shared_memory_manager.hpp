@@ -140,6 +140,8 @@ class MiddlewareShm
     FixedPositionContainer<popo::ApplicationPortData, MAX_PROCESS_NUMBER> m_applicationPortMembers;
     FixedPositionContainer<runtime::RunnableData, MAX_RUNNABLE_NUMBER> m_runnableMembers;
 
+    uint64_t m_segmentId;
+
     // required to be atomic since a service can be offered or stopOffered while reading
     // this variable in a user application
     std::atomic<uint64_t> m_serviceRegistryChangeCounter{0};
@@ -164,6 +166,7 @@ class SharedMemoryManager
                                                         const std::string& processName,
                                                         mepoo::MemoryManager* payloadMemoryManager,
                                                         const std::string& runnable = "");
+
     ReceiverPortType::MemberType_t* acquireReceiverPortData(const capro::ServiceDescription& service,
                                                             Interfaces interface,
                                                             const std::string& processName,

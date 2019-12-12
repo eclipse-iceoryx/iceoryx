@@ -170,7 +170,7 @@ bool Subscriber::getChunk(const void** payload) noexcept
     const mepoo::ChunkHeader* chunkHeader = nullptr;
     if (m_receiver.getChunk(chunkHeader))
     {
-        *payload = chunkHeader->m_payload;
+        *payload = chunkHeader->payload();
         return true;
     }
     else

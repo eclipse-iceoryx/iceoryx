@@ -15,6 +15,7 @@
 #pragma once
 
 #include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -42,11 +43,11 @@ struct alignas(32) ChunkManagement
     {
     }
 
-    base_t* m_chunkHeader;
+    iox::relative_ptr<base_t> m_chunkHeader;
     referenceCounter_t m_referenceCounter{1};
-    MemPool* m_mempool;
-    MemPool* m_chunkManagementPool;
+    /// @todo optimization: check if this can be replaced by an offset relative to the this pointer
+    iox::relative_ptr<MemPool> m_mempool;
+    iox::relative_ptr<MemPool> m_chunkManagementPool;
 };
 } // namespace mepoo
 } // namespace iox
-

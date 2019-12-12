@@ -84,9 +84,14 @@ class mutex
     ///         function fails it will return false, otherwise true.
     bool try_lock();
 
+    /// @brief  Returns the native handle which then can be used in
+    ///         pthread_mutex_** calls. Required when a pthread_mutex_**
+    ///         call is not abstracted with this wrapper.
+    pthread_mutex_t get_native_handle() const noexcept;
+
     friend class cxx::optional<mutex>;
 
-  private:
+  protected:
     /// @brief The constructor needs to be private since the construction of the
     ///         mutex can fail.
     mutex(const bool f_isRecursive);
@@ -94,9 +99,8 @@ class mutex
     ///         it is the factory and no lock/unlock can happen before the factory
     ///         returned, this place is the only exception where a mutex is allowed
     ///         to be moved.
-    mutex(mutex&&) = default;
+    mutex(mutex&&) noexcept;
 
-  private:
     pthread_mutex_t m_handle;
     bool m_isInitialized = true;
 };

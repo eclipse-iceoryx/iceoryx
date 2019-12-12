@@ -17,6 +17,7 @@
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/internal/concurrent/loffli.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -70,7 +71,7 @@ class MemPool
     void adjustMinFree();
     bool isMultipleOf32(const uint32_t value) const;
 
-    uint8_t* m_rawMemory{nullptr};
+    relative_ptr<uint8_t> m_rawMemory;
 
     uint32_t m_chunkSize{0};
     /// needs to be 32 bit since loffli supports only 32 bit numbers
@@ -87,4 +88,3 @@ class MemPool
 
 } // namespace mepoo
 } // namespace iox
-

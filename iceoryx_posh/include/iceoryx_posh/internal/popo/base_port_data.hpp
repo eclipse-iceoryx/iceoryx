@@ -17,6 +17,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <atomic>
 
@@ -48,7 +49,6 @@ constexpr char BasePortTypeString[][MAX_PORT_TYPE_STRING_SIZE] = {
 struct BasePortData
 {
   public:
-
     /// @brief Constructor for base port data members
     BasePortData() noexcept;
 
@@ -77,7 +77,7 @@ struct BasePortData
     static std::atomic<uint64_t> s_uniqueIdCounter;
     std::atomic<uint64_t> m_uniqueId{0};
 
-    runtime::RunnableData* m_runnable{nullptr};
+    iox::relative_ptr<runtime::RunnableData> m_runnable;
 };
 
 } // namespace popo

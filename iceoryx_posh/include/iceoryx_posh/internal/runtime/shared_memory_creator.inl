@@ -36,20 +36,13 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
                                      + mepoo::MemoryManager::requiredFullMemorySize(mempoolConfig);
 
     auto pageSize = posix::pageSize().value_or(posix::MaxPageSize);
-    auto alignedBaseAddressHint = cxx::align(config.roudi.m_sharedMemoryBaseAddressOffset, pageSize);
-    if (alignedBaseAddressHint != config.roudi.m_sharedMemoryBaseAddressOffset)
-    {
-        LogWarn() << "The SHM start address hint (" << log::HexFormat(config.roudi.m_sharedMemoryBaseAddressOffset)
-                  << ") is not aligned to the page size (" << log::HexFormat(pageSize) << ") hint will be set to "
-                  << log::HexFormat(alignedBaseAddressHint);
-    }
+
+    // we let the OS decide where to map the shm segments
+    constexpr void* BASE_ADDRESS_HINT{nullptr};
 
     // create and map a shared memory region
-    m_shmObject = posix::SharedMemoryObject::create(SHM_NAME,
-                                                    totalSharedMemorySize,
-                                                    posix::AccessMode::readWrite,
-                                                    posix::OwnerShip::mine,
-                                                    reinterpret_cast<void*>(alignedBaseAddressHint));
+    m_shmObject = posix::SharedMemoryObject::create(
+        SHM_NAME, totalSharedMemorySize, posix::AccessMode::readWrite, posix::OwnerShip::mine, BASE_ADDRESS_HINT);
 
     if (!m_shmObject.has_value())
     {
@@ -61,13 +54,12 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
         errorHandler(Error::kPOSH__SHM_ROUDI_MAPP_ERR);
     }
 
-    if (config.roudi.m_verifySharedMemoryPlacement
-        && reinterpret_cast<uintptr_t>(m_shmObject->getBaseAddress()) != alignedBaseAddressHint)
-    {
-        LogWarn() << "RouDi mapped the shared memory on a different position then requested. This can cause "
-                  << "problems on application side! If you are using the address sanitizer this behavior "
-                  << "is expected but we currently do not support the address sanitizer";
-    }
+    auto managementSegmentId =
+        RelativePointer::registerPtr(m_shmObject->getBaseAddress(), m_shmObject->getSizeInBytes());
+
+    LogInfo() << "Roudi registered management segment "
+              << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_shmObject->getBaseAddress())) << " with size "
+              << m_shmObject->getSizeInBytes() << " to id " << managementSegmentId;
 
     // now construct our POSH shared memory object
     m_shmTypePtr = static_cast<ShmType*>(m_shmObject->allocate(sizeof(ShmType)));
@@ -76,6 +68,8 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
         config,
         cxx::align(reinterpret_cast<uintptr_t>(m_shmObject->getBaseAddress()) + totalSharedMemorySize, pageSize),
         config.roudi.m_verifySharedMemoryPlacement);
+
+    m_shmTypePtr->m_segmentId = managementSegmentId;
 
     m_shmTypePtr->m_roudiMemoryManager.configureMemoryManager(
         mempoolConfig, m_shmObject->getAllocator(), m_shmObject->getAllocator());
@@ -108,6 +102,12 @@ template <typename ShmType>
 inline ShmType* SharedMemoryCreator<ShmType>::getShmInterface() const noexcept
 {
     return m_shmTypePtr;
+}
+
+template <typename ShmType>
+inline uint64_t SharedMemoryCreator<ShmType>::getSegmentId() const noexcept
+{
+    return m_shmTypePtr->m_segmentId;
 }
 
 } // namespace runtime

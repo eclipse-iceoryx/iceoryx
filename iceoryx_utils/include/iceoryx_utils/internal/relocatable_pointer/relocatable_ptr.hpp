@@ -20,6 +20,7 @@
 
 namespace iox
 {
+///@todo restructure and split into multiple files along with an implementation cpp for non-template code
 class RelocatablePointer
 {
   public:
@@ -29,7 +30,7 @@ class RelocatablePointer
     {
     }
 
-    RelocatablePointer(const void* ptr)
+    explicit RelocatablePointer(const void* ptr)
         : m_offset(computeOffset(ptr))
     {
     }
@@ -151,7 +152,7 @@ class relocatable_ptr : public RelocatablePointer
         m_offset = computeOffset(other.computeRawPtr());
     }
 
-    relocatable_ptr(const void* rawPtr)
+    relocatable_ptr(T* rawPtr)
     {
         m_offset = computeOffset(rawPtr);
     }
@@ -182,7 +183,12 @@ class relocatable_ptr : public RelocatablePointer
     {
         return static_cast<T*>(computeRawPtr());
     }
+
+    T& operator[](uint64_t index)
+    {
+        auto ptr = static_cast<T*>(computeRawPtr());
+        return *(ptr + index);
+    }
 };
 
 } // namespace iox
-

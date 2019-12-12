@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
+#include "test.hpp"
 
 #include <thread>
 
@@ -24,6 +24,25 @@ using namespace iox::units::duration_literals;
 class Mutex_test : public Test
 {
   public:
+    class MutexMock : public iox::posix::mutex
+    {
+      public:
+        MutexMock(const bool isRecursive)
+            : iox::posix::mutex(isRecursive)
+        {
+        }
+
+        MutexMock(MutexMock&& rhs)
+            : iox::posix::mutex(std::forward<iox::posix::mutex>(rhs))
+        {
+        }
+
+        bool isInitialized() const noexcept
+        {
+            return m_isInitialized;
+        }
+    };
+
     void SetUp() override
     {
         ASSERT_THAT(sut.has_value(), Eq(true));
@@ -59,6 +78,14 @@ TEST_F(Mutex_test, LockAndUnlock)
 {
     EXPECT_THAT(sut->lock(), Eq(true));
     EXPECT_THAT(sut->unlock(), Eq(true));
+}
+
+TEST_F(Mutex_test, MoveConstructorInvalidatesOrigin)
+{
+    MutexMock mutexOrigin(true);
+    MutexMock sut(std::move(mutexOrigin));
+
+    EXPECT_THAT(mutexOrigin.isInitialized(), Eq(false));
 }
 
 // in qnx you can destroy a locked mutex, without error if the thread holding the lock is destructing it.

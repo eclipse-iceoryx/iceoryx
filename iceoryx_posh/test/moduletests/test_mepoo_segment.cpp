@@ -115,7 +115,7 @@ class MePooSegment_test : public Test
         return config;
     }
 
-    static constexpr uint64_t RawMemorySize{10000};
+    static constexpr uint64_t RawMemorySize{20000};
     uint8_t m_rawMemory[RawMemorySize];
     iox::posix::Allocator m_managementAllocator{iox::posix::Allocator(m_rawMemory, RawMemorySize)};
 

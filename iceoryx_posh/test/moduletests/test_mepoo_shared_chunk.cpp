@@ -188,7 +188,7 @@ TEST_F(SharedChunk_Test, getPayloadWhenValid)
 {
     ChunkHeader* newChunk = static_cast<ChunkHeader*>(mempool.getChunk());
     new (newChunk) ChunkHeader();
-    new (static_cast<int*>(newChunk->m_payload)) int{1337};
+    new (static_cast<int*>(newChunk->payload())) int{1337};
 
     iox::mepoo::SharedChunk sut2(GetChunkManagement(newChunk));
     EXPECT_THAT(*static_cast<int*>(sut2.getPayload()), Eq(1337));

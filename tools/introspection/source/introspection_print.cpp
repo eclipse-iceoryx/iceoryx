@@ -154,7 +154,7 @@ void printMemPoolInfo(const MemPoolIntrospectionTopic& topic)
     wprintw(pad, "%*s\n", payloadSizeWidth, "Payload Size");
     wprintw(pad, "--------------------------------------------------------------------------\n");
 
-    for (int i = 0; i < topic.m_mempoolInfo.size(); ++i)
+    for (size_t i = 0; i < topic.m_mempoolInfo.size(); ++i)
     {
         auto& info = topic.m_mempoolInfo[i];
         if (info.m_numChunks > 0)

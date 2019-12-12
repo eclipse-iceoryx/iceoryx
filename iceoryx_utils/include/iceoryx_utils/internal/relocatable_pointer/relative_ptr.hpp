@@ -25,12 +25,24 @@ namespace iox
 class RelativePointer
 {
   public:
-    using id_t = size_t;
+    using id_t = uint64_t;
     using ptr_t = void*;
-    using offset_t = std::ptrdiff_t;
+    using offset_t = std::uintptr_t;
 
-    RelativePointer(ptr_t ptr = nullptr, id_t id = 0)
+    RelativePointer(ptr_t ptr, id_t id)
         : m_id(id)
+        , m_offset(computeOffset(ptr))
+    {
+    }
+
+    RelativePointer(offset_t offset, id_t id)
+        : m_id(id)
+        , m_offset(offset)
+    {
+    }
+
+    RelativePointer(ptr_t ptr = nullptr)
+        : m_id(searchId(ptr))
         , m_offset(computeOffset(ptr))
     {
     }
@@ -58,10 +70,10 @@ class RelativePointer
         return *this;
     }
 
-    RelativePointer& operator=(void* rawPtr)
+    RelativePointer& operator=(void* ptr)
     {
-        m_id = NULL_POINTER_ID;
-        m_offset = computeOffset(rawPtr);
+        m_id = searchId(ptr);
+        m_offset = computeOffset(ptr);
 
         return *this;
     }
@@ -75,16 +87,6 @@ class RelativePointer
         }
         // invalidating other would be an option but not required
         return *this;
-    }
-
-    operator bool() const
-    {
-        return this->get() != nullptr;
-    }
-
-    bool operator!() const
-    {
-        return this->get() == nullptr;
     }
 
     ptr_t get() const
@@ -109,113 +111,145 @@ class RelativePointer
         return getBasePtr(m_id);
     }
 
-    //***************************************debug***********************************************
-
-    void setId(id_t id)
-    {
-        m_id = id;
-    }
-
     void print() const
     {
-        std::cout << "m_id = " << m_id << std::endl;
-        std::cout << "m_offset = " << m_offset << std::endl;
-        std::cout << "base = " << getBasePtr() << std::endl;
-        std::cout << "raw = " << get() << std::endl;
-    }
-
-    static void printRepository()
-    {
-        s_repository.print();
+        std::cout << "RP: offset " << m_offset << " id " << m_id << " ptr " << get() << std::endl;
     }
 
     //*********************************id operations********************************************
 
-    id_t registerPtr(const ptr_t ptr)
+    ///@brief registers a memory segment at ptr with size of a new id
+    ///@return id id it was registered to
+    static id_t registerPtr(const ptr_t ptr, uint64_t size = 0)
     {
-        return s_repository.registerPtr(ptr);
+        return s_repository.registerPtr(ptr, size);
     }
 
-    static bool registerPtr(const id_t id, const ptr_t ptr)
+    ///@brief registers a memory segment at ptr with size of given id
+    ///@return true if successful (id not occupied), false otherwise
+    static bool registerPtr(const id_t id, const ptr_t ptr, uint64_t size = 0)
     {
-        return s_repository.registerPtr(id, ptr);
+        return s_repository.registerPtr(id, ptr, size);
     }
 
+    ///@brief unregister ptr with given id
+    ///@return true if successful (ptr was registered with this id before), false otherwise
     static bool unregisterPtr(const id_t id)
     {
         return s_repository.unregisterPtr(id);
     }
 
+    ///@brief get the base ptr associated with the given id
+    ///@return ptr registered at the given id, nullptr if none was registered
     static ptr_t getBasePtr(const id_t id)
     {
         return s_repository.getBasePtr(id);
     }
 
+    ///@brief unregister all ptr id pairs (leads to initial state)
     static void unregisterAll()
     {
         s_repository.unregisterAll();
     }
-    //*****************************************************************************************
 
-  protected:
-    static constexpr id_t NULL_POINTER_ID = std::numeric_limits<id_t>::max();
-    static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
-
-    id_t m_id{NULL_POINTER_ID};
-    offset_t m_offset{NULL_POINTER_OFFSET};
-
-    inline offset_t computeOffset(ptr_t ptr)
+    ///@brief get the offset from id and ptr
+    ///@return offset
+    static offset_t getOffset(const id_t id, const ptr_t ptr)
     {
-        if (m_id == NULL_POINTER_ID)
+        if (id == NULL_POINTER_ID)
         {
             return NULL_POINTER_OFFSET;
         }
-        auto basePtr = getBasePtr(m_id);
+        auto basePtr = getBasePtr(id);
         return reinterpret_cast<offset_t>(ptr) - reinterpret_cast<offset_t>(basePtr);
     }
 
-    inline ptr_t computeRawPtr() const
+
+    ///@brief get the pointer from id and offset ("inverse" to getOffset)
+    ///@return ptr
+    static ptr_t getPtr(const id_t id, const offset_t offset)
     {
-        // note: ideally this function needs to be fast, i.e. not much overhead
-        if (m_offset == NULL_POINTER_OFFSET)
+        if (offset == NULL_POINTER_OFFSET)
         {
             return nullptr;
         }
-        auto basePtr = getBasePtr(m_id);
-        ///@todo: check types, ranges and casts
-        return reinterpret_cast<ptr_t>(m_offset + reinterpret_cast<offset_t>(basePtr));
+        auto basePtr = getBasePtr(id);
+        return reinterpret_cast<ptr_t>(offset + reinterpret_cast<offset_t>(basePtr));
     }
+
+    static id_t searchId(ptr_t ptr)
+    {
+        if (ptr == nullptr)
+        {
+            return NULL_POINTER_ID;
+        }
+        return s_repository.searchId(ptr);
+    }
+
+    static bool isValid(id_t id)
+    {
+        return s_repository.isValid(id);
+    }
+
+
+    //*****************************************************************************************
+
+    offset_t computeOffset(ptr_t ptr)
+    {
+        return getOffset(m_id, ptr);
+    }
+
+    ptr_t computeRawPtr() const
+    {
+        return getPtr(m_id, m_offset);
+    }
+
+    static constexpr id_t NULL_POINTER_ID = std::numeric_limits<id_t>::max();
+    static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
+
+  protected:
+    id_t m_id{NULL_POINTER_ID};
+    offset_t m_offset{NULL_POINTER_OFFSET};
 
     static PointerRepository<id_t, ptr_t> s_repository;
 };
-
-PointerRepository<RelativePointer::id_t, RelativePointer::ptr_t> RelativePointer::s_repository;
 
 template <typename T>
 class relative_ptr : public RelativePointer
 {
   public:
-    ///@todo: size check: whether we are in the segment, if not logical nullptr pendant or assertion
-    relative_ptr(ptr_t ptr = nullptr, id_t id = 0)
+    relative_ptr(ptr_t ptr, id_t id)
         : RelativePointer(ptr, id)
     {
     }
 
+    relative_ptr(offset_t offset, id_t id)
+        : RelativePointer(offset, id)
+    {
+    }
+
+    relative_ptr(ptr_t ptr = nullptr)
+        : RelativePointer(ptr)
+    {
+    }
+
+
     relative_ptr(const RelativePointer& other)
     {
         m_offset = computeOffset(other.computeRawPtr());
-        print();
-    }
-
-    relative_ptr(void* rawPtr)
-    {
-        m_offset = computeOffset(rawPtr);
-        print();
     }
 
     relative_ptr& operator=(const RelativePointer& other)
     {
         m_offset = computeOffset(other.computeRawPtr());
+
+        return *this;
+    }
+
+    relative_ptr& operator=(ptr_t ptr)
+    {
+        m_id = searchId(ptr);
+        m_offset = computeOffset(ptr);
 
         return *this;
     }
@@ -235,17 +269,84 @@ class relative_ptr : public RelativePointer
         return *(static_cast<T*>(computeRawPtr()));
     }
 
-    const T* operator->() const
+    T* operator->() const
     {
         return static_cast<T*>(computeRawPtr());
     }
 
-    //*********************************debug****************
-
-    void print() const
+    T* get() const
     {
-        RelativePointer::print();
-        std::cout << "value " << operator*() << std::endl;
+        return reinterpret_cast<T*>(RelativePointer::get());
+    }
+
+    operator T*() const
+    {
+        return reinterpret_cast<T*>(RelativePointer::get());
+    }
+
+    bool operator==(T* const ptr) const
+    {
+        return ptr == get();
+    }
+
+    bool operator!=(T* const ptr) const
+    {
+        return ptr != get();
     }
 };
+
+template <>
+class relative_ptr<void> : public RelativePointer
+{
+  public:
+    relative_ptr(ptr_t ptr, id_t id)
+        : RelativePointer(ptr, id)
+    {
+    }
+
+    relative_ptr(ptr_t ptr = nullptr)
+        : RelativePointer(ptr)
+    {
+    }
+
+    relative_ptr(const RelativePointer& other)
+    {
+        m_offset = computeOffset(other.computeRawPtr());
+    }
+
+    relative_ptr& operator=(const RelativePointer& other)
+    {
+        m_offset = computeOffset(other.computeRawPtr());
+
+        return *this;
+    }
+
+    relative_ptr& operator=(ptr_t ptr)
+    {
+        m_id = searchId(ptr);
+        m_offset = computeOffset(ptr);
+        return *this;
+    }
+
+    void* get() const
+    {
+        return RelativePointer::get();
+    }
+
+    operator void*() const
+    {
+        return RelativePointer::get();
+    }
+
+    bool operator==(void* const ptr) const
+    {
+        return ptr == get();
+    }
+
+    bool operator!=(void* const ptr) const
+    {
+        return ptr != get();
+    }
+};
+
 } // namespace iox

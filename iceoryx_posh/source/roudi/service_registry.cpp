@@ -49,5 +49,10 @@ void ServiceRegistry::find(InstanceSet_t& instances,
         }
     }
 }
+
+const ServiceRegistry::serviceMap_t& ServiceRegistry::getServiceMap() const
+{
+    return m_serviceMap;
+}
 } // namespace roudi
 } // namespace iox

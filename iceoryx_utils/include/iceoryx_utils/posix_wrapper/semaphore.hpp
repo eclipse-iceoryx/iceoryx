@@ -17,6 +17,7 @@
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <cstring>
 #include <fcntl.h>
@@ -156,7 +157,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     bool m_isShared = false;
 
     mutable sem_t m_handle;
-    mutable sem_t* m_handlePtr = &m_handle;
+    mutable iox::relative_ptr<sem_t> m_handlePtr = &m_handle;
 
   private:
     friend class DesignPattern::Creation<Semaphore, SemaphoreError>;

@@ -107,7 +107,7 @@ template <typename SenderPort, typename ReceiverPort>
 void PortIntrospection<SenderPort, ReceiverPort>::sendPortData()
 {
     auto chunkHeader = m_senderPort.reserveChunk(sizeof(PortIntrospectionFieldTopic));
-    auto sample = static_cast<PortIntrospectionFieldTopic*>(chunkHeader->m_payload);
+    auto sample = static_cast<PortIntrospectionFieldTopic*>(chunkHeader->payload());
     new (sample) PortIntrospectionFieldTopic();
 
     m_portData.prepareTopic(*sample); // requires internal mutex (blocks
@@ -119,7 +119,7 @@ template <typename SenderPort, typename ReceiverPort>
 void PortIntrospection<SenderPort, ReceiverPort>::sendThroughputData()
 {
     auto chunkHeader = m_senderPortThroughput.reserveChunk(sizeof(PortThroughputIntrospectionFieldTopic));
-    auto throughputSample = static_cast<PortThroughputIntrospectionFieldTopic*>(chunkHeader->m_payload);
+    auto throughputSample = static_cast<PortThroughputIntrospectionFieldTopic*>(chunkHeader->payload());
     new (throughputSample) PortThroughputIntrospectionFieldTopic();
 
     m_portData.prepareTopic(*throughputSample); // requires internal mutex (blocks
@@ -132,7 +132,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::sendReceiverPortsData()
 {
     auto chunkInfo = m_senderPortReceiverPortsData.reserveChunk(sizeof(ReceiverPortChangingIntrospectionFieldTopic));
     auto receiverPortChangingDataSample =
-        static_cast<ReceiverPortChangingIntrospectionFieldTopic*>(chunkInfo->m_payload);
+    static_cast<ReceiverPortChangingIntrospectionFieldTopic*>(chunkInfo->payload());
     new (receiverPortChangingDataSample) ReceiverPortChangingIntrospectionFieldTopic();
 
     m_portData.prepareTopic(*receiverPortChangingDataSample); // requires internal mutex (blocks

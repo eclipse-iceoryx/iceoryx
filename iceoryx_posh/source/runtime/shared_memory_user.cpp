@@ -17,41 +17,41 @@
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 namespace iox
 {
 namespace runtime
 {
-SharedMemoryUser::SharedMemoryUser(std::string baseAddrString,
+SharedMemoryUser::SharedMemoryUser(std::string baseAddrString[[gnu::unused]],
                                    const bool doMapSharedMemoryIntoThread,
                                    const size_t topicSize,
-                                   std::string segmentManagerAddr)
+                                   std::string segmentManagerAddr,
+                                   const uint64_t segmentId)
 {
     if (doMapSharedMemoryIntoThread)
     {
-        void* baseAddr = reinterpret_cast<void*>(std::stoull(baseAddrString));
+        // we let the OS decide where to map the shm segments
+        constexpr void* BASE_ADDRESS_HINT{nullptr};
 
         // create and map the already existing shared memory region
         m_shmObject = posix::SharedMemoryObject::create(
-            SHM_NAME, topicSize, posix::AccessMode::readWrite, posix::OwnerShip::openExisting, baseAddr);
+            SHM_NAME, topicSize, posix::AccessMode::readWrite, posix::OwnerShip::openExisting, BASE_ADDRESS_HINT);
 
         if (!m_shmObject.has_value())
         {
             errorHandler(Error::kPOSH__SHM_APP_MAPP_ERR);
         }
 
-        if (m_shmObject->getBaseAddress() != baseAddr)
-        {
-            LogError()
-                << "Application didn't map the shm segment to the same address as RouDi. Currently this is a hard "
-                << "error! RouDi has the option -b to set a custom base address hint for your system. Base address "
-                << "of RouDi: " << log::HexFormat(reinterpret_cast<uintptr_t>(baseAddr))
-                << " Address assigned to the application: "
-                << log::HexFormat(reinterpret_cast<uintptr_t>(m_shmObject->getBaseAddress()));
-            errorHandler(Error::kPOSH__SHM_APP_BASEADDRESS_VIOLATES_SPECIFICATION);
-        }
+        RelativePointer::registerPtr(segmentId, m_shmObject->getBaseAddress(), m_shmObject->getSizeInBytes());
 
-        auto segmentManager = reinterpret_cast<mepoo::SegmentManager<>*>(std::stoull(segmentManagerAddr));
+        LogInfo() << "Application registered management segment "
+                  << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_shmObject->getBaseAddress())) << " with size "
+                  << m_shmObject->getSizeInBytes() << " to id " << segmentId;
+
+        auto ptr = RelativePointer::getPtr(segmentId, std::stoll(segmentManagerAddr));
+        auto segmentManager = reinterpret_cast<mepoo::SegmentManager<>*>(ptr);
+
         auto segmentMapping = segmentManager->getSegmentMappings(posix::PosixUser::getUserOfCurrentProcess());
         for (const auto& segment : segmentMapping)
         {
@@ -60,25 +60,22 @@ SharedMemoryUser::SharedMemoryUser(std::string baseAddrString,
                                                                segment.m_size,
                                                                accessMode,
                                                                posix::OwnerShip::openExisting,
-                                                               segment.m_startAddress);
+                                                               BASE_ADDRESS_HINT);
             if (shmObject.has_value())
             {
                 if (static_cast<uint32_t>(m_payloadShmObjects.size()) >= MAX_SHM_SEGMENTS)
                 {
                     errorHandler(Error::kPOSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
-                if (shmObject->getBaseAddress() != segment.m_startAddress)
-                {
-                    LogError()
-                        << "Application didn't map the shm segment to the same address as RouDi. Currently this is "
-                        << "a hard error! RouDi has the option -b to set a custom start address hint for your "
-                        << "system. Base address of RouDi: " << log::HexFormat(reinterpret_cast<uintptr_t>(baseAddr))
-                        << ". Segment address requested by RouDi: "
-                        << log::HexFormat(reinterpret_cast<uintptr_t>(segment.m_startAddress))
-                        << ". Segment address assigned to the application: "
-                        << log::HexFormat(reinterpret_cast<uintptr_t>(shmObject->getBaseAddress()));
-                    errorHandler(Error::kPOSH__SHM_APP_SEGMENT_BASEADDRESS_VIOLATES_SPECIFICATION);
-                }
+
+                RelativePointer::registerPtr(
+                    segment.m_segmentId, shmObject->getBaseAddress(), shmObject->getSizeInBytes());
+
+
+                LogInfo() << "Application registered payload segment "
+                          << iox::log::HexFormat(reinterpret_cast<uint64_t>(shmObject->getBaseAddress()))
+                          << " with size " << shmObject->getSizeInBytes() << " to id " << segment.m_segmentId;
+
                 m_payloadShmObjects.emplace_back(std::move(*shmObject));
             }
             else

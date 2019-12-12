@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "roudi_gtest.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "roudi_gtest.hpp"
 
 using IdString = iox::capro::ServiceDescription::IdString;
 
@@ -28,13 +28,13 @@ class RoudiFindService_test : public RouDi_GTest
     {
     }
 
-   iox::runtime::PoshRuntime* senderRuntime{&iox::runtime::PoshRuntime::getInstance("/sender")};
+    iox::runtime::PoshRuntime* senderRuntime{&iox::runtime::PoshRuntime::getInstance("/sender")};
     iox::runtime::PoshRuntime* receiverRuntime{&iox::runtime::PoshRuntime::getInstance("/receiver")};
 };
 
 TEST_F(RoudiFindService_test, OfferSingleMethodServiceSingleInstance)
 {
-    senderRuntime->offerService({"service1","instance1"});
+    senderRuntime->offerService({"service1", "instance1"});
     this->InterOpWait();
     iox::runtime::InstanceContainer instanceContainer;
     receiverRuntime->findService({"service1", "instance1"}, instanceContainer);
@@ -43,14 +43,14 @@ TEST_F(RoudiFindService_test, OfferSingleMethodServiceSingleInstance)
     ASSERT_THAT(*instanceContainer.begin(), Eq(IdString("instance1")));
 }
 
-TEST_F(RoudiFindService_test, OfferMultiMethodServiceSingleInstance)
+TEST_F(RoudiFindService_test, DISABLED_OfferMultiMethodServiceSingleInstance_PERFORMANCETEST42)
 {
-    senderRuntime->offerService({"service1","instance1"});
-    senderRuntime->offerService({"service2","instance1"});
-    senderRuntime->offerService({"service3","instance1"});
+    senderRuntime->offerService({"service1", "instance1"});
+    senderRuntime->offerService({"service2", "instance1"});
+    senderRuntime->offerService({"service3", "instance1"});
 
     this->InterOpWait();
-   iox::runtime::InstanceContainer instanceContainer;
+    iox::runtime::InstanceContainer instanceContainer;
 
     receiverRuntime->findService({"service1", "instance1"}, instanceContainer);
     ASSERT_THAT(instanceContainer.size(), Eq(1u));
@@ -69,12 +69,12 @@ TEST_F(RoudiFindService_test, OfferMultiMethodServiceSingleInstance)
 
 TEST_F(RoudiFindService_test, OfferSingleMethodServiceMultiInstance)
 {
-    senderRuntime->offerService({"service1","instance1"});
+    senderRuntime->offerService({"service1", "instance1"});
     senderRuntime->offerService({"service1", "instance2"});
     senderRuntime->offerService({"service1", "instance3"});
     this->InterOpWait();
 
-   iox::runtime::InstanceContainer instanceContainer;
+    iox::runtime::InstanceContainer instanceContainer;
     receiverRuntime->findService({"service1", "instance1"}, instanceContainer);
     ASSERT_THAT(instanceContainer.size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.begin(), Eq(IdString("instance1")));
@@ -138,7 +138,7 @@ TEST_F(RoudiFindService_test, StopOfferSingleMethodServiceSingleInstance)
     senderRuntime->stopOfferService({"service1", "instance1"});
     this->InterOpWait();
 
-   iox::runtime::InstanceContainer instanceContainer;
+    iox::runtime::InstanceContainer instanceContainer;
     receiverRuntime->findService({"service1", "instance1"}, instanceContainer);
     ASSERT_THAT(instanceContainer.size(), Eq(0u));
 }
@@ -153,17 +153,17 @@ TEST_F(RoudiFindService_test, StopOfferMultiMethodServiceSingleInstance)
     senderRuntime->stopOfferService({"service3", "instance1"});
     this->InterOpWait();
 
-   iox::runtime::InstanceContainer instanceContainer;
+    iox::runtime::InstanceContainer instanceContainer;
     receiverRuntime->findService({"service1", "instance1"}, instanceContainer);
     ASSERT_THAT(instanceContainer.size(), Eq(0u));
 
     instanceContainer.clear();
-    receiverRuntime->findService({"service2","instance1"}, instanceContainer);
+    receiverRuntime->findService({"service2", "instance1"}, instanceContainer);
     ASSERT_THAT(instanceContainer.size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.begin(), Eq(IdString("instance1")));
 
     instanceContainer.clear();
-    receiverRuntime->findService({"service3","instance1"}, instanceContainer);
+    receiverRuntime->findService({"service3", "instance1"}, instanceContainer);
     ASSERT_THAT(instanceContainer.size(), Eq(0u));
 }
 TEST_F(RoudiFindService_test, FindNonExistingServices)
@@ -173,8 +173,8 @@ TEST_F(RoudiFindService_test, FindNonExistingServices)
     senderRuntime->offerService({"service3", "instance1"});
     this->InterOpWait();
 
-   iox::runtime::InstanceContainer instanceContainer;
-    receiverRuntime->findService({"service1","schlomo"}, instanceContainer);
+    iox::runtime::InstanceContainer instanceContainer;
+    receiverRuntime->findService({"service1", "schlomo"}, instanceContainer);
     ASSERT_THAT(instanceContainer.size(), Eq(0u));
 
     receiverRuntime->findService({"ignatz", "instance1"}, instanceContainer);
@@ -182,4 +182,29 @@ TEST_F(RoudiFindService_test, FindNonExistingServices)
 
     receiverRuntime->findService({"ignatz", "schlomo"}, instanceContainer);
     ASSERT_THAT(instanceContainer.size(), Eq(0u));
+}
+TEST_F(RoudiFindService_test, InterfacePort)
+{
+    senderRuntime->offerService({"service1", "instance1"});
+    this->InterOpWait();
+
+    auto interfacePortData = receiverRuntime->getMiddlewareInterface(iox::Interfaces::SOMEIP);
+    iox::popo::InterfacePort interfacePort(interfacePortData);
+
+    iox::capro::CaproMessage caproMessage;
+    this->InterOpWait();
+
+    bool serviceFound = false;
+
+    while (interfacePort.getCaProMessage(caproMessage))
+    {
+        if ((caproMessage.m_serviceDescription.getServiceIDString() == "service1")
+            && (caproMessage.m_serviceDescription.getInstanceIDString() == "instance1")
+            && ((caproMessage.m_serviceDescription.getEventIDString() == iox::capro::AnyEventString)))
+        {
+            serviceFound = true;
+            break;
+        }
+    }
+    EXPECT_THAT(serviceFound, Eq(true));
 }

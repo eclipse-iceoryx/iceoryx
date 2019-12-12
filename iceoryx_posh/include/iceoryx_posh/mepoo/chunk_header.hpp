@@ -34,11 +34,18 @@ struct alignas(32) ChunkHeader
     std::uint32_t m_mtaHeader[2];
     ChunkInfo m_info;
 
-    void* m_payload{nullptr};
+    void* payload() const
+    {
+        // payload is always located relative to "this" in this way
+        return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(this) + sizeof(ChunkHeader));
+    }
+
+    /// @todo this is a temporary dummy variable to keep the size of the ChunkHeader at 64 byte for compatibility
+    /// reasons
+    void* m_payloadDummy{nullptr};
 };
 
 ChunkHeader* convertPayloadPointerToChunkHeader(void* const payload) noexcept;
 
 } // namespace mepoo
 } // namespace iox
-

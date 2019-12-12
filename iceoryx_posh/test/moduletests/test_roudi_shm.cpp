@@ -24,6 +24,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp" // MAX_PORT_NUMBER
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <cstdint>
 #include <limits> // std::numeric_limits
@@ -70,6 +71,7 @@ class SharedMemoryManager_test : public Test
 
     void TearDown() override
     {
+        iox::RelativePointer::unregisterAll();
         delete m_shmManager;
 
         if (Test::HasFailure())
@@ -466,11 +468,8 @@ TEST_F(SharedMemoryManager_test, InterfaceAndApplicationsOverflow)
     // test if overflow errors get hit
     {
         auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-            [&errorHandlerCalled](
-                const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-                errorHandlerCalled = true;
-            });
+        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
+            const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
         errorHandlerCalled = false;
         auto interp = m_shmManager->acquireInterfacePortData(iox::Interfaces::INTERNAL, "/itfPenguin");
