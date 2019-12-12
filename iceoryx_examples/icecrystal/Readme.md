@@ -19,7 +19,7 @@ Create three terminals and run one command in each of them. Either choose to run
 
     ./build/icedelivery/ice-subscriber-simple
 
-    ./build/iceoryx_introspection/iceoryx_introspection --all
+    ./build/iceoryx_introspection/iceoryx_introspection_client --all
 
 ## Expected output
 
