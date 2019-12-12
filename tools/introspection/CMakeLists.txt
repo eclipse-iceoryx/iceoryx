@@ -34,7 +34,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     FORCE
 )
 
-add_library(iceoryx_introspection_lib
+add_library(iceoryx_introspection
             source/iceoryx_introspection_app.cpp
             source/introspection_app.cpp
             source/introspection_print.cpp
@@ -42,9 +42,9 @@ add_library(iceoryx_introspection_lib
             source/introspection_app.cpp
     )
 
-add_library(${PROJECT_NAMESPACE}::iceoryx_introspection_lib ALIAS iceoryx_introspection_lib)
+add_library(${PROJECT_NAMESPACE}::iceoryx_introspection ALIAS iceoryx_introspection)
 
-target_include_directories(iceoryx_introspection_lib
+target_include_directories(iceoryx_introspection
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
@@ -52,21 +52,21 @@ target_include_directories(iceoryx_introspection_lib
     ${CURSES_INCLUDE_DIR}
 )
 
-target_link_libraries(iceoryx_introspection_lib
+target_link_libraries(iceoryx_introspection
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
     ncurses
 )
 
-set_target_properties(iceoryx_introspection_lib
+set_target_properties(iceoryx_introspection
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
-add_executable(iceoryx_introspection source/introspection_main.cpp)
+add_executable(iceoryx_introspection_client source/introspection_main.cpp)
 
-target_link_libraries(iceoryx_introspection
+target_link_libraries(iceoryx_introspection_client
     PRIVATE
-    ${PROJECT_NAMESPACE}::iceoryx_introspection_lib
+    ${PROJECT_NAMESPACE}::iceoryx_introspection
 )
 
 
