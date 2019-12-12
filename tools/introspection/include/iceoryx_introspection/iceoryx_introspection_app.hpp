@@ -12,13 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_introspection/iceoryx_introspection_app.hpp"
+#include "iceoryx_introspection/introspection_app.hpp"
 
-int main(int argc, char** argv)
+namespace iox
 {
-    using iox::client::introspection::IceOryxIntrospectionApp;
-    IceOryxIntrospectionApp introspection(argc, argv);
-    introspection.run();
+namespace client
+{
+namespace introspection
+{
 
-    return 0;
+class IceOryxIntrospectionApp : public IntrospectionApp
+{
+  public:
+    /// @brief contructor to create the introspection
+    /// @param[in] argc forwarding of command line arguments
+    /// @param[in] argv forwarding of command line arguments
+    /// @param[in] config the configuration to use
+    IceOryxIntrospectionApp(int argc, char* argv[]) noexcept;
+
+    /// @brief starts the execution of introspection
+    void run() noexcept override;
+};
+
+} // namespace client
+} // namespace iox
 }

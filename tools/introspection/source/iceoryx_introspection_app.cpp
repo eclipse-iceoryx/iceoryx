@@ -13,12 +13,27 @@
 // limitations under the License.
 
 #include "iceoryx_introspection/iceoryx_introspection_app.hpp"
+#include "iceoryx_introspection/introspection_run.hpp"
 
-int main(int argc, char** argv)
+namespace iox
 {
-    using iox::client::introspection::IceOryxIntrospectionApp;
-    IceOryxIntrospectionApp introspection(argc, argv);
-    introspection.run();
-
-    return 0;
+namespace client
+{
+namespace introspection
+{
+IceOryxIntrospectionApp::IceOryxIntrospectionApp(int argc, char* argv[]) noexcept
+    : IntrospectionApp(argc, argv)
+{
 }
+
+void IceOryxIntrospectionApp::run() noexcept
+{
+    if (doIntrospection)
+    {
+        runIntrospection(updatePeriodMs, introspectionSelection);
+    }
+}
+
+} // namespace introspection
+} // namespace client
+} // namespace iox
