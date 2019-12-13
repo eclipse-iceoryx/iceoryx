@@ -37,8 +37,6 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 add_library(iceoryx_introspection
             source/iceoryx_introspection_app.cpp
             source/introspection_app.cpp
-            source/introspection_print.cpp
-            source/introspection_run.cpp
             source/introspection_app.cpp
     )
 
