@@ -74,7 +74,7 @@ void IntrospectionApp::printShortInfo(const std::string& binaryName) noexcept
 
 void IntrospectionApp::parseCmdLineArguments(int argc,
                                              char** argv,
-                                             CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
+                                             CmdLineArgumentParsingMode /*cmdLineParsingMode*/) noexcept
 {
     int opt;
     int index;
