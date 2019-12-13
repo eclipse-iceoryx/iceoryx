@@ -60,6 +60,7 @@ static const std::map<PrettyOptions, uint32_t> prettyMap = {
 
 
 /// @brief base class for introspection
+/// @todo Wrap all C calls with SmartC
 class IntrospectionApp
 {
   public:
@@ -155,7 +156,8 @@ class IntrospectionApp
     T bounded(T input, T min, T max) noexcept
     {
         return ((input >= min) ? ((input <= max) ? input : max) : min);
-    };
+    }
+
     /// @brief Update rate of the terminal
     iox::units::Duration updatePeriodMs = DEFAULT_UPDATE_PERIOD;
 
