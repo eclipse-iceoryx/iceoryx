@@ -51,7 +51,6 @@ class IntrospectionApp
     /// @brief contructor to create a introspection
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
-    /// @param[in] config the configuration to use
     IntrospectionApp(int argc, char* argv[]) noexcept;
 
     virtual ~IntrospectionApp() noexcept {};
