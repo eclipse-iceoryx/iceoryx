@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
-#include "test_definitions.hpp"
-#include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "test.hpp"
+#include "test_definitions.hpp"
 
 
 using namespace ::testing;
@@ -50,7 +51,10 @@ class SegmentManager_test : public Test
     }
 
     void SetUp(){};
-    void TearDown(){};
+    void TearDown()
+    {
+        iox::RelativePointer::unregisterAll();
+    };
 
     MePooConfig getMempoolConfig()
     {
@@ -114,22 +118,22 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsEmpt
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserWithWriteUser))
 {
-    auto mapping = sut.getMemoryManagerForUser({"roudi_test2"});
-    ASSERT_THAT(mapping, Ne(nullptr));
-    ASSERT_THAT(mapping->getNumberOfMemPools(), Eq(2));
+    auto memoryManager = sut.getSegmentInformationForUser({"roudi_test2"}).m_memoryManager;
+    ASSERT_THAT(memoryManager, Ne(nullptr));
+    ASSERT_THAT(memoryManager->getNumberOfMemPools(), Eq(2));
 
-    auto poolInfo1 = mapping->getMemPoolInfo(0);
-    auto poolInfo2 = mapping->getMemPoolInfo(1);
+    auto poolInfo1 = memoryManager->getMemPoolInfo(0);
+    auto poolInfo2 = memoryManager->getMemPoolInfo(1);
     EXPECT_THAT(poolInfo1.m_numChunks, Eq(5u));
     EXPECT_THAT(poolInfo2.m_numChunks, Eq(7u));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithReadOnlyUser))
 {
-    EXPECT_THAT(sut.getMemoryManagerForUser({"roudi_test1"}), Eq(nullptr));
+    EXPECT_THAT(sut.getSegmentInformationForUser({"roudi_test1"}).m_memoryManager, Eq(nullptr));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithNonExistingUser))
 {
-    EXPECT_THAT(sut.getMemoryManagerForUser({"no_user"}), Eq(nullptr));
+    EXPECT_THAT(sut.getSegmentInformationForUser({"no_user"}).m_memoryManager, Eq(nullptr));
 }

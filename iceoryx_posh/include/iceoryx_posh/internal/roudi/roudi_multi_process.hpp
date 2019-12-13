@@ -18,15 +18,17 @@
 #include <sys/file.h>
 #include <thread>
 
+#include "iceoryx_posh/internal/capro/capro_message.hpp"
+#include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
+#include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
+#include "iceoryx_posh/internal/roudi/roudi_process.hpp"
+#include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
+#include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
-#include "iceoryx_posh/internal/roudi/roudi_process.hpp"
-#include "iceoryx_posh/internal/capro/capro_message.hpp"
-#include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
-#include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
-#include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
-#include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include "ac3log/simplelogger.hpp"
 
@@ -76,6 +78,7 @@ class RouDiMultiProcess
 
     //----member
 
+    cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { RelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runThreads;
 
@@ -105,4 +108,3 @@ class RouDiMultiProcess
 
 } // namespace roudi
 } // namespace iox
-

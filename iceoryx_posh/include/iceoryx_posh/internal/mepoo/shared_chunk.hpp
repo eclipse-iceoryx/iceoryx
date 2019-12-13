@@ -17,6 +17,7 @@
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 namespace iox
 {
@@ -32,6 +33,7 @@ class SharedChunk
   public:
     SharedChunk() = default;
     SharedChunk(ChunkManagement* const f_resource);
+    SharedChunk(const relative_ptr<ChunkManagement>& f_resource);
     ~SharedChunk();
 
     SharedChunk(const SharedChunk& rhs);
@@ -44,6 +46,7 @@ class SharedChunk
     void* getPayload() const;
 
     ChunkManagement* release();
+    iox::relative_ptr<ChunkManagement> releaseWithRelativePtr();
 
     bool operator==(const SharedChunk& rhs) const;
     /// @todo use the newtype pattern to avoid the void pointer
@@ -65,7 +68,7 @@ class SharedChunk
     void freeChunk();
 
   private:
-    ChunkManagement* m_chunkManagement{nullptr};
+    iox::relative_ptr<ChunkManagement> m_chunkManagement;
 };
 } // namespace mepoo
 } // namespace iox

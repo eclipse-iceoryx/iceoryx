@@ -39,7 +39,8 @@ class SharedMemoryUser
     SharedMemoryUser(std::string baseAddrString,
                      const bool doMapSharedMemoryIntoThread,
                      const size_t topicSize,
-                     std::string segmentManagerAddr);
+                     std::string segmentManagerAddr,
+                     const uint64_t segmentId);
 
   private:
     cxx::optional<posix::SharedMemoryObject> m_shmObject;

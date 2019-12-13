@@ -102,9 +102,10 @@ RouDiConfig_t RouDiApp::generateConfigFromMePooConfig(const mepoo::MePooConfig* 
         }
     }
 
-    // @todo the best guess mapping address as long as we do not have introduced relative pointers
+    /// @todo the best guess mapping address as long as we do not have introduced relative pointers
     defaultConfig.roudi.m_sharedMemoryBaseAddressOffset = 0x3E80000000ull;
-    defaultConfig.roudi.m_verifySharedMemoryPlacement = true;
+    // the payload segments are now relocatable, therefore placement check can be omitted
+    defaultConfig.roudi.m_verifySharedMemoryPlacement = false;
 
     return defaultConfig;
 }

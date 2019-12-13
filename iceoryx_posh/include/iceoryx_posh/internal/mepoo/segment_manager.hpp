@@ -14,11 +14,11 @@
 
 #pragma once
 
-#include "iceoryx_posh/mepoo/segment_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
+#include "iceoryx_posh/mepoo/segment_config.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -52,24 +52,39 @@ class SegmentManager
     struct SegmentMapping
     {
       public:
-        SegmentMapping(const std::string f_sharedMemoryName, void* f_startAddress, uint64_t f_size, bool f_isWritable)
+        SegmentMapping(const std::string f_sharedMemoryName,
+                       void* f_startAddress,
+                       uint64_t f_size,
+                       bool f_isWritable,
+                       uint64_t f_segmentId)
             : m_sharedMemoryName(f_sharedMemoryName)
             , m_startAddress(f_startAddress)
             , m_size(f_size)
             , m_isWritable(f_isWritable)
+
+            , m_segmentId(f_segmentId)
+
         {
         }
 
-        std::string m_sharedMemoryName;
+        std::string m_sharedMemoryName{""};
         void* m_startAddress{nullptr};
         uint64_t m_size{0};
         bool m_isWritable{false};
+        uint64_t m_segmentId{0};
+    };
+
+    struct SegmentUserInformation
+    {
+        MemoryManager* m_memoryManager;
+        uint64_t m_segmentID;
     };
 
     using SegmentMappingContainer = cxx::vector<SegmentMapping, MAX_SHM_SEGMENTS>;
 
     SegmentMappingContainer getSegmentMappings(posix::PosixUser f_user);
-    MemoryManager* getMemoryManagerForUser(posix::PosixUser f_user);
+    SegmentUserInformation getSegmentInformationForUser(posix::PosixUser f_user);
+
     static uint64_t requiredManagementMemorySize(const RouDiConfig_t& f_config);
     static uint64_t requiredChunkMemorySize(const RouDiConfig_t& f_config);
     static uint64_t requiredFullMemorySize(const RouDiConfig_t& f_config);
@@ -93,4 +108,3 @@ class SegmentManager
 } // namespace iox
 
 #include "iceoryx_posh/internal/mepoo/segment_manager.inl"
-

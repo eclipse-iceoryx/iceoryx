@@ -28,9 +28,9 @@ using namespace iox;
 using namespace iox::units;
 using namespace iox::posix;
 
-using iox::runtime::MqMessageType;
 using iox::runtime::MqBase;
 using iox::runtime::MqMessage;
+using iox::runtime::MqMessageType;
 using iox::runtime::MqRuntimeInterface;
 
 using MQueue = iox::posix::MessageQueue;
@@ -84,7 +84,13 @@ class CMqInterfaceStartupRace_test : public Test
     {
         std::lock_guard<std::mutex> lock(m_appQueueMutex);
         MqMessage regAck;
-        regAck << mqMessageTypeToString(MqMessageType::REG_ACK) << 42 << 37 << 73 << oldMsg.getElementAtIndex(4);
+        constexpr uint32_t DUMMY_SHM_ADDRESS{42};
+        constexpr uint32_t DUMMY_SHM_SIZE{37};
+        constexpr uint32_t DUMMY_SHM_OFFSET{73};
+        constexpr uint32_t DUMMY_SEGMENT_ID{13};
+        constexpr uint32_t INDEX_OF_TIMESTAMP{4};
+        regAck << mqMessageTypeToString(MqMessageType::REG_ACK) << DUMMY_SHM_ADDRESS << DUMMY_SHM_SIZE
+               << DUMMY_SHM_OFFSET << oldMsg.getElementAtIndex(INDEX_OF_TIMESTAMP) << DUMMY_SEGMENT_ID;
 
         if (m_appQueue.has_error())
         {
@@ -103,7 +109,7 @@ class CMqInterfaceStartupRace_test : public Test
     MQueue::result_t m_appQueue;
 };
 
-TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
+TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq_PERFORMANCETEST42)
 {
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new

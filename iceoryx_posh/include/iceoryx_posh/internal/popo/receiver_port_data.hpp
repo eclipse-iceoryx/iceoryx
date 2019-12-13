@@ -21,6 +21,7 @@
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 namespace iox
@@ -49,7 +50,7 @@ struct ReceiverPortData : public BasePortData
     // event callback related
     mutable std::atomic_bool m_chunkSendCallbackActive{false};
     mutable cxx::optional<mutex_t> m_chunkSendCallbackMutex = mutex_t::CreateMutex(false);
-    posix::Semaphore* m_chunkSendSemaphore{nullptr};
+    iox::relative_ptr<posix::Semaphore> m_chunkSendSemaphore{nullptr};
 
     // offer semaphore that is stored in shared memory
     sem_t m_shmSemaphoreHandle;

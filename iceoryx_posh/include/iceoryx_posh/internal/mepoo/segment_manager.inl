@@ -94,7 +94,8 @@ SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser f_user)
                     l_mappingContainer.emplace_back("/" + segment.getWriterGroup().getName(),
                                                     segment.getSharedMemoryObject().getBaseAddress(),
                                                     segment.getSharedMemoryObject().getSizeInBytes(),
-                                                    true);
+                                                    true,
+                                                    segment.getSegmentId());
                     l_foundInWriterGroup = true;
                 }
                 else
@@ -121,7 +122,8 @@ SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser f_user)
                 l_mappingContainer.emplace_back("/" + segment.getWriterGroup().getName(),
                                                 segment.getSharedMemoryObject().getBaseAddress(),
                                                 segment.getSharedMemoryObject().getSizeInBytes(),
-                                                false);
+                                                false,
+                                                segment.getSegmentId());
             }
         }
     }
@@ -130,11 +132,12 @@ SegmentManager<SegmentType>::getSegmentMappings(posix::PosixUser f_user)
 }
 
 template <typename SegmentType>
-inline MemoryManager* SegmentManager<SegmentType>::getMemoryManagerForUser(posix::PosixUser f_user)
+inline typename SegmentManager<SegmentType>::SegmentUserInformation
+SegmentManager<SegmentType>::getSegmentInformationForUser(posix::PosixUser f_user)
 {
-    /// @todo store memory manager in a process context? Do not look up with each creation of a sender port
-    /// get all the groups the user is in
     auto l_groupContainer = f_user.getGroups();
+
+    SegmentUserInformation segmentInfo{nullptr, 0u};
 
     // with the groups we can search for the writable segment of this user
     for (const auto& groupID : l_groupContainer)
@@ -143,12 +146,14 @@ inline MemoryManager* SegmentManager<SegmentType>::getMemoryManagerForUser(posix
         {
             if (segment.getWriterGroup() == groupID)
             {
-                return &segment.getMemoryManager();
+                segmentInfo.m_memoryManager = &segment.getMemoryManager();
+                segmentInfo.m_segmentID = segment.getSegmentId();
+                return segmentInfo;
             }
         }
     }
 
-    return nullptr;
+    return segmentInfo;
 }
 
 template <typename SegmentType>

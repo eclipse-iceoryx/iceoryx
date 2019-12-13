@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
@@ -40,6 +40,8 @@ class MePooSegment
     const SharedMemoryObjectType& getSharedMemoryObject() const;
     MemoryManagerType& getMemoryManager();
 
+    uint64_t getSegmentId() const;
+
   protected:
     SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& f_mempoolConfig,
                                                     const posix::PosixGroup& f_writerGroup,
@@ -50,9 +52,12 @@ class MePooSegment
     MemoryManagerType m_memoryManager;
     posix::PosixGroup m_readerGroup;
     posix::PosixGroup m_writerGroup;
+    uint64_t m_segmentId;
+
+  private:
+    void setSegmentId(const uint64_t segmentId);
 };
 } // namespace mepoo
 } // namespace iox
 
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.inl"
-

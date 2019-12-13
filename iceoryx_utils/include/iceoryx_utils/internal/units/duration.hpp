@@ -139,24 +139,24 @@ class Duration
     constexpr bool operator<=(const Duration& right) const;
 
     /// @brief creates Duration object by adding right and durationInSeconds
-    constexpr Duration operator+(const Duration& right);
+    constexpr Duration operator+(const Duration& right) const;
 
     /// @brief creates Duration object by subtracting right and durationInSeconds
-    constexpr Duration operator-(const Duration& right);
+    constexpr Duration operator-(const Duration& right) const;
 
     /// @brief creates Duration object by multiplying right and durationInSeconds
-    constexpr Duration operator*(const Duration& right);
+    constexpr Duration operator*(const Duration& right) const;
 
     /// @brief creates Duration object by dividing right and durationInSeconds
-    constexpr Duration operator/(const Duration& right);
+    constexpr Duration operator/(const Duration& right) const;
 
     /// @brief creates Duration object multplying durationInSeconds with T
     template <typename T>
-    constexpr Duration operator*(const T& right);
+    constexpr Duration operator*(const T& right) const;
 
     /// @brief creates Duration object dividing durationInSeconds through T
     template <typename T>
-    constexpr Duration operator/(const T& right);
+    constexpr Duration operator/(const T& right) const;
 
     /// @brief returns the duration in nanoseconds
     template <typename T>

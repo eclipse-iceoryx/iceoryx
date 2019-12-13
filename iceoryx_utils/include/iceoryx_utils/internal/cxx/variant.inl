@@ -137,7 +137,8 @@ variant<Types...>::operator=(T&& f_rhs) noexcept
 
     if (!has_bad_variant_element_access<T>())
     {
-        *reinterpret_cast<T*>(m_storage) = (std::forward<T>(f_rhs));
+        auto storage = static_cast<T*>(static_cast<void*>(m_storage));
+        *storage = (std::forward<T>(f_rhs));
     }
     else
     {
@@ -198,7 +199,7 @@ inline typename internal::get_type_at_index<0, TypeIndex, Types...>::type* varia
 
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
 
-    return reinterpret_cast<T*>(m_storage);
+    return static_cast<T*>(static_cast<void*>(m_storage));
 }
 
 template <typename... Types>
@@ -220,7 +221,7 @@ inline const T* variant<Types...>::get() const noexcept
     }
     else
     {
-        return reinterpret_cast<const T*>(m_storage);
+        return static_cast<const T*>(static_cast<const void*>(m_storage));
     }
 }
 

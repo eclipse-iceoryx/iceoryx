@@ -64,11 +64,11 @@ After using `./build_and_run.sh`, you can launch the RouDi daemon in the provide
 ```
 $ ./build_and_run.sh
 ...
-root@03043f96ae10:/iceoryx# ./build/install/prefix/bin/RouDi 
+root@03043f96ae10:/iceoryx# ./build/install/prefix/bin/RouDi
 Reserving 95306080 bytes in the shared memory [/iceoryx_mgmt]
-[ Reserving shared memory successful ] 
+[ Reserving shared memory successful ]
 Reserving 595259200 bytes in the shared memory [/root]
-[ Reserving shared memory successful ] 
+[ Reserving shared memory successful ]
 ```
 
 then, in a new terminal, issue `docker ps` to see running containers:
@@ -123,7 +123,7 @@ Inside the virtual screen shell, you can then launch the RouDi daemon as follows
 ```
 root@3b93f0d3eda2:/iceoryx# ./build/install/prefix/bin/RouDi
 Reserving 95306080 bytes in the shared memory [/iceoryx_mgmt]
-[ Reserving shared memory successful ] 
+[ Reserving shared memory successful ]
 Reserving 595259200 bytes in the shared memory [/root]
 [ Reserving shared memory successful ]
 ```

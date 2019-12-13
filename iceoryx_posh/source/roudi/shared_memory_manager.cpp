@@ -42,6 +42,7 @@ SharedMemoryManager::SharedMemoryManager(const RouDiConfig_t& f_config)
 {
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active senderport)
     // are there used instances of RouDiBase?
+
     auto portGeneric = acquireSenderPortData(IntrospectionPortService,
                                              Interfaces::INTERNAL,
                                              PORT_INTROSPECTION_MQ_APP_NAME,
@@ -162,7 +163,7 @@ void SharedMemoryManager::handleInterfaces()
         l_caproMessage.m_type = capro::CaproMessageType::OFFER;
         for (auto l_senderPortData : m_ShmInterface.getShmInterface()->m_senderPortMembers.content())
         {
-            iox::popo::SenderPort l_senderPort(l_senderPortData);
+            SenderPortType l_senderPort(l_senderPortData);
             if (l_senderPort.isPortActive())
             {
                 if (l_senderPort.doesDeliverOnSubscribe())
@@ -185,7 +186,26 @@ void SharedMemoryManager::handleInterfaces()
                 }
             }
         }
-        /// @todo also forward services from service registry
+        // also forward services from service registry
+
+        auto serviceMap = m_serviceRegistry.getServiceMap();
+
+        l_caproMessage.m_subType = capro::CaproMessageSubType::SERVICE;
+
+        for (auto const& x : serviceMap)
+        {
+            for (auto& instance : x.second.instanceSet)
+            {
+                l_caproMessage.m_serviceDescription =
+                    capro::ServiceDescription(x.first, instance, capro::AnyEventString);
+
+                for (auto& interfacePortData : l_interfacePortsForInitialForwarding)
+                {
+                    auto interfacePort = popo::InterfacePort(interfacePortData);
+                    interfacePort.dispatchCaProMessage(l_caproMessage);
+                }
+            }
+        }
     }
 }
 
@@ -233,7 +253,7 @@ bool SharedMemoryManager::sendToAllMatchingSenderPorts(const capro::CaproMessage
     bool l_senderFound = false;
     for (auto l_senderPortData : m_ShmInterface.getShmInterface()->m_senderPortMembers.content())
     {
-        iox::popo::SenderPort l_senderPort(l_senderPortData);
+        SenderPortType l_senderPort(l_senderPortData);
         if (f_receiverSource.getCaProServiceDescription() == l_senderPort.getCaProServiceDescription())
         {
             auto senderResponse = l_senderPort.dispatchCaProMessage(f_message);
@@ -253,7 +273,7 @@ void SharedMemoryManager::sendToAllMatchingReceiverPorts(const capro::CaproMessa
 {
     for (auto l_receiverPortData : m_ShmInterface.getShmInterface()->m_receiverPortMembers.content())
     {
-        iox::popo::ReceiverPort l_receiverPort(l_receiverPortData);
+        ReceiverPortType l_receiverPort(l_receiverPortData);
         if (l_receiverPort.getCaProServiceDescription() == f_senderSource.getCaProServiceDescription())
         {
             auto receiverResponse = l_receiverPort.dispatchCaProMessage(f_message);
@@ -301,7 +321,7 @@ bool SharedMemoryManager::areAllReceiverPortsSubscribed(std::string f_appName)
     int numberOfConnectedReceiverPorts{0};
     for (auto l_receiverPortData : m_ShmInterface.getShmInterface()->m_receiverPortMembers.content())
     {
-        iox::popo::ReceiverPort receiver(l_receiverPortData);
+        ReceiverPortType receiver(l_receiverPortData);
         if (receiver.getApplicationName() == f_appName)
         {
             numberOfReceiverPorts++;
@@ -466,7 +486,7 @@ SenderPortType::MemberType_t* SharedMemoryManager::acquireSenderPortData(const c
     // check if already in list, we currently do not support multi publisher for one CaPro ID
     for (auto l_senderPortData : l_shm->m_senderPortMembers.content())
     {
-        iox::popo::SenderPort l_senderPort(l_senderPortData);
+        SenderPortType l_senderPort(l_senderPortData);
         if (f_service == l_senderPort.getCaProServiceDescription())
         {
             /// @todo report an error but not one that leads to termination of RouDi

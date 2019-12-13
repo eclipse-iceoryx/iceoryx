@@ -46,7 +46,7 @@ void receiving()
 
     while (!killswitch)
     {
-        // sleep
+        // Sleep some time to avoid flooding the system with messages as there's basically no delay in transfer
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }

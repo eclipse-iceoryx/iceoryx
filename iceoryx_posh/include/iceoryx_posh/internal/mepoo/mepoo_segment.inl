@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 namespace iox
 {
@@ -53,20 +55,29 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(con
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
-    const MePooConfig& f_mempoolConfig, const posix::PosixGroup& f_writerGroup, const uintptr_t f_baseAddressOffset)
+    const MePooConfig& f_mempoolConfig, const posix::PosixGroup& f_writerGroup, const uintptr_t f_baseAddressOffset[[gnu::unused]])
 {
+    // we let the OS decide where to map the shm segments
+    constexpr void* BASE_ADDRESS_HINT{nullptr};
+
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
     auto shmName = "/" + f_writerGroup.getName();
     auto retVal = SharedMemoryObjectType::create(shmName.c_str(),
                                                  MemoryManager::requiredChunkMemorySize(f_mempoolConfig),
                                                  posix::AccessMode::readWrite,
                                                  posix::OwnerShip::mine,
-                                                 reinterpret_cast<void*>(f_baseAddressOffset),
+                                                 BASE_ADDRESS_HINT,
                                                  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (!retVal.has_value())
     {
         errorHandler(Error::kMEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT);
     }
+
+    setSegmentId(iox::RelativePointer::registerPtr(retVal->getBaseAddress(), retVal->getSizeInBytes()));
+
+    LogInfo() << "Roudi registered payload segment "
+              << iox::log::HexFormat(reinterpret_cast<uint64_t>(retVal->getBaseAddress())) << " with size "
+              << retVal->getSizeInBytes() << " to id " << m_segmentId;
 
     return std::move(retVal.value());
 }
@@ -94,6 +105,18 @@ inline const SharedMemoryObjectType&
 MePooSegment<SharedMemoryObjectType, MemoryManagerType>::getSharedMemoryObject() const
 {
     return m_sharedMemoryObject;
+}
+
+template <typename SharedMemoryObjectType, typename MemoryManagerType>
+inline uint64_t MePooSegment<SharedMemoryObjectType, MemoryManagerType>::getSegmentId() const
+{
+    return m_segmentId;
+}
+
+template <typename SharedMemoryObjectType, typename MemoryManagerType>
+inline void MePooSegment<SharedMemoryObjectType, MemoryManagerType>::setSegmentId(const uint64_t segmentId)
+{
+    m_segmentId = segmentId;
 }
 
 } // namespace mepoo

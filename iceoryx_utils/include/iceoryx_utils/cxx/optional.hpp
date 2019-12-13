@@ -182,7 +182,7 @@ class optional
     ///         value the behavior is undefined. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return const reference to the underlying type
-    const T& value() const& noexcept;
+    const T& value() const & noexcept;
 
     /// @brief Returns a rvalue reference to the underlying value. If the optional has no
     ///         value the behavior is undefined. You need to verify that the
@@ -194,7 +194,7 @@ class optional
     ///         value the behavior is undefined. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return const rvalue reference to the underlying type
-    const T&& value() const&& noexcept;
+    const T&& value() const && noexcept;
 
     /// @brief If the optional contains a value a copy of that value is returned,
     ///         otherwise the default_value is returned.
@@ -205,7 +205,7 @@ class optional
 
   private:
     alignas(alignof(T)) byte_t m_data[sizeof(T)];
-    T* m_value{nullptr};
+    bool m_hasValue{false};
 
   private:
     template <typename... Targs>

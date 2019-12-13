@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <mutex>
 
@@ -52,7 +53,7 @@ class ReceiverHandler : public LockingPolicy
     using this_type = ReceiverHandler_t;
 
   public:
-    using ReceiverVector_t = cxx::vector<ReceiverPortType::MemberType_t*, MaxReceivers>;
+    using ReceiverVector_t = cxx::vector<relative_ptr<ReceiverPortType::MemberType_t>, MaxReceivers>;
     class AppContext
     {
         friend ReceiverHandler_t;

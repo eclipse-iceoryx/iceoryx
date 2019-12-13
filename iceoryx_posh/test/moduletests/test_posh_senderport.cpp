@@ -190,7 +190,7 @@ TEST_F(SenderPort_test, reserveSample_DynamicSamplesSameSizeReturningValidLastCh
     auto sentSample2 = m_sender->reserveChunk(sizeof(DummySample), m_useDynamicPayloadSizes);
     m_sender->deliverChunk(sentSample2);
     EXPECT_THAT(sentSample2->m_info.m_payloadSize, Eq(sizeof(DummySample)));
-    EXPECT_THAT(sentSample2->m_payload, Eq(sentSample1->m_payload));
+    EXPECT_THAT(sentSample2->payload(), Eq(sentSample1->payload()));
 }
 
 TEST_F(SenderPort_test, reserveSample_DynamicSamplesSmallerSizeReturningValidLastChunk)
@@ -204,7 +204,7 @@ TEST_F(SenderPort_test, reserveSample_DynamicSamplesSmallerSizeReturningValidLas
     auto sentSample2 = m_sender->reserveChunk(sizeof(DummySample) - 7, m_useDynamicPayloadSizes);
     m_sender->deliverChunk(sentSample2);
     EXPECT_THAT(sentSample2->m_info.m_payloadSize, Eq(sizeof(DummySample) - 7));
-    EXPECT_THAT(sentSample2->m_payload, Eq(sentSample1->m_payload));
+    EXPECT_THAT(sentSample2->payload(), Eq(sentSample1->payload()));
 }
 
 TEST_F(SenderPort_test, reserveSample_DynamicSamplesLargerSizeReturningNotLastChunk)
@@ -218,7 +218,7 @@ TEST_F(SenderPort_test, reserveSample_DynamicSamplesLargerSizeReturningNotLastCh
     auto sentSample2 = m_sender->reserveChunk(sizeof(DummySample) + 200, m_useDynamicPayloadSizes);
     m_sender->deliverChunk(sentSample2);
     EXPECT_THAT(sentSample2->m_info.m_payloadSize, Eq(sizeof(DummySample) + 200));
-    EXPECT_THAT(sentSample2->m_payload, Ne(sentSample1->m_payload));
+    EXPECT_THAT(sentSample2->payload(), Ne(sentSample1->payload()));
 }
 
 TEST_F(SenderPort_test, reserveSample_Overflow)
@@ -284,14 +284,14 @@ TEST_F(SenderPort_test, deliverSample_OneSample)
 TEST_F(SenderPort_test, deliverSample_MultipleSample)
 {
     auto sample1 = m_sender->reserveChunk(sizeof(DummySample));
-    new (sample1->m_payload) DummySample();
+    new (sample1->payload()) DummySample();
     sample1->m_info.m_payloadSize = sizeof(DummySample);
     sample1->m_info.m_externalSequenceNumber_bl = true;
     sample1->m_info.m_sequenceNumber = 14337;
     m_sender->deliverChunk(sample1);
 
     auto sample2 = m_sender->reserveChunk(sizeof(DummySample));
-    new (sample2->m_payload) DummySample();
+    new (sample2->payload()) DummySample();
     sample2->m_info.m_payloadSize = sizeof(DummySample);
     sample2->m_info.m_externalSequenceNumber_bl = true;
     sample2->m_info.m_sequenceNumber = 42u;

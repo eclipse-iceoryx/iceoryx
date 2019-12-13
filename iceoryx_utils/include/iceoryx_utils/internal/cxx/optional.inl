@@ -36,18 +36,18 @@ inline optional<T>::optional(T&& value) noexcept
 template <typename T>
 inline optional<T>::optional(const optional& rhs) noexcept
 {
-    if (rhs.m_value)
+    if (rhs.m_hasValue)
     {
-        construct_value(*rhs.m_value);
+        construct_value(rhs.value());
     }
 }
 
 template <typename T>
 inline optional<T>::optional(optional&& rhs) noexcept
 {
-    if (rhs.m_value)
+    if (rhs.m_hasValue)
     {
-        construct_value(std::move(*rhs.m_value));
+        construct_value(std::move(rhs.value()));
         rhs.destruct_value();
     }
 }
@@ -57,17 +57,17 @@ inline optional<T>& optional<T>::operator=(const optional& rhs) noexcept
 {
     if (this != &rhs)
     {
-        if (!rhs.m_value && m_value)
+        if (!rhs.m_hasValue && m_hasValue)
         {
             destruct_value();
         }
-        else if (rhs.m_value && m_value)
+        else if (rhs.m_hasValue && m_hasValue)
         {
-            *m_value = *rhs.m_value;
+            value() = rhs.value();
         }
-        else if (rhs.m_value && !m_value)
+        else if (rhs.m_hasValue && !m_hasValue)
         {
-            construct_value(*rhs.m_value);
+            construct_value(rhs.value());
         }
     }
     return *this;
@@ -78,19 +78,19 @@ inline optional<T>& optional<T>::operator=(optional&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        if (!rhs.m_value && m_value)
+        if (!rhs.m_hasValue && m_hasValue)
         {
             destruct_value();
         }
-        else if (rhs.m_value && m_value)
+        else if (rhs.m_hasValue && m_hasValue)
         {
-            *m_value = std::move(*rhs.m_value);
+            value() = std::move(rhs.value());
         }
-        else if (rhs.m_value && !m_value)
+        else if (rhs.m_hasValue && !m_hasValue)
         {
-            construct_value(std::move(*rhs.m_value));
+            construct_value(std::move(rhs.value()));
         }
-        if (rhs.m_value)
+        if (rhs.m_hasValue)
         {
             rhs.destruct_value();
         }
@@ -101,7 +101,7 @@ inline optional<T>& optional<T>::operator=(optional&& rhs) noexcept
 template <typename T>
 inline optional<T>::~optional() noexcept
 {
-    if (m_value)
+    if (m_hasValue)
     {
         destruct_value();
     }
@@ -110,15 +110,15 @@ inline optional<T>::~optional() noexcept
 template <typename T>
 template <typename U>
 inline typename std::enable_if<!std::is_same<U, optional<T>&>::value, optional<T>>::type& optional<T>::
-operator=(U&& value) noexcept
+operator=(U&& newValue) noexcept
 {
-    if (m_value)
+    if (m_hasValue)
     {
-        *m_value = std::forward<T>(value);
+        value() = std::forward<T>(newValue);
     }
     else
     {
-        construct_value(std::forward<T>(value));
+        construct_value(std::forward<T>(newValue));
     }
     return *this;
 }
@@ -126,13 +126,13 @@ operator=(U&& value) noexcept
 template <typename T>
 constexpr inline bool optional<T>::operator==(const optional<T>& rhs) const noexcept
 {
-    return (!m_value && !rhs.m_value) || ((m_value && rhs.m_value) && (*m_value == *rhs.m_value));
+    return (!m_hasValue && !rhs.m_hasValue) || ((m_hasValue && rhs.m_hasValue) && (value() == rhs.value()));
 }
 
 template <typename T>
 constexpr inline bool optional<T>::operator==(const nullopt_t&) const noexcept
 {
-    return !m_value;
+    return !m_hasValue;
 }
 
 template <typename T>
@@ -150,13 +150,13 @@ constexpr inline bool optional<T>::operator!=(const nullopt_t& rhs) const noexce
 template <typename T>
 inline const T* optional<T>::operator->() const noexcept
 {
-    return m_value;
+    return &value();
 }
 
 template <typename T>
 inline const T& optional<T>::operator*() const noexcept
 {
-    return *m_value;
+    return value();
 }
 
 template <typename T>
@@ -174,32 +174,32 @@ inline T& optional<T>::operator*() noexcept
 template <typename T>
 inline constexpr optional<T>::operator bool() const noexcept
 {
-    return m_value;
+    return m_hasValue;
 }
 
 template <typename T>
 template <typename... Targs>
 inline T& optional<T>::emplace(Targs&&... args) noexcept
 {
-    if (m_value)
+    if (m_hasValue)
     {
         destruct_value();
     }
 
     construct_value(std::forward<Targs>(args)...);
-    return *m_value;
+    return value();
 }
 
 template <typename T>
 inline constexpr bool optional<T>::has_value() const noexcept
 {
-    return m_value;
+    return m_hasValue;
 }
 
 template <typename T>
 inline void optional<T>::reset() noexcept
 {
-    if (m_value)
+    if (m_hasValue)
     {
         destruct_value();
     }
@@ -208,25 +208,29 @@ inline void optional<T>::reset() noexcept
 template <typename T>
     inline T& optional<T>::value() & noexcept
 {
-    return this->operator*();
+    auto data = static_cast<T*>(static_cast<void*>(m_data));
+    return *data;
 }
 
 template <typename T>
-inline const T& optional<T>::value() const& noexcept
+inline const T& optional<T>::value() const & noexcept
 {
-    return this->operator*();
+    auto data = static_cast<const T*>(static_cast<const void*>(m_data));
+    return *data;
 }
 
 template <typename T>
     inline T&& optional<T>::value() && noexcept
 {
-    return std::move(*m_value);
+    auto data = static_cast<T*>(static_cast<void*>(m_data));
+    return std::move(*data);
 }
 
 template <typename T>
-inline const T&& optional<T>::value() const&& noexcept
+inline const T&& optional<T>::value() const && noexcept
 {
-    return std::move(*m_value);
+    auto data = static_cast<const T*>(static_cast<const void*>(m_data));
+    return std::move(*data);
 }
 
 
@@ -234,21 +238,22 @@ template <typename T>
 template <typename U>
 inline constexpr T optional<T>::value_or(U&& default_value) const noexcept
 {
-    return (m_value) ? *m_value : std::forward<U>(default_value);
+    return (m_hasValue) ? value() : std::forward<U>(default_value);
 }
 
 template <typename T>
 template <typename... Targs>
 inline void optional<T>::construct_value(Targs&&... args) noexcept
 {
-    m_value = new (m_data) T(std::forward<Targs>(args)...);
+    new (&value()) T(std::forward<Targs>(args)...);
+    m_hasValue = true;
 }
 
 template <typename T>
 inline void optional<T>::destruct_value() noexcept
 {
-    m_value->~T();
-    m_value = nullptr;
+    value().~T();
+    m_hasValue = false;
 }
 
 template <typename OptionalBaseType, typename... Targs>

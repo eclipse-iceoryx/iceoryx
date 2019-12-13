@@ -29,27 +29,23 @@ class ServiceRegistry
 {
   public:
     static constexpr uint32_t MAX_INSTANCES_PER_SERVICE = 100;
-    static constexpr uint32_t MAX_EVENTS_PER_SERVICE = 100;
     using CaproIdString_t = capro::ServiceDescription::IdString;
-    using EventSet_t = cxx::vector<CaproIdString_t, MAX_EVENTS_PER_SERVICE>;
     using InstanceSet_t = cxx::vector<CaproIdString_t, MAX_INSTANCES_PER_SERVICE>;
+    struct instance_t
+    {
+        InstanceSet_t instanceSet;
+    };
+    using serviceMap_t = std::map<CaproIdString_t, instance_t>;
 
-  public:
     void add(const CaproIdString_t& service, const CaproIdString_t& instance);
     void remove(const CaproIdString_t& service, const CaproIdString_t& instance);
     void find(InstanceSet_t& instances,
               const CaproIdString_t& service,
               const CaproIdString_t& instance = capro::AnyInstanceString) const;
+    const serviceMap_t& getServiceMap() const;
 
   private:
-    struct instance_t
-    {
-        InstanceSet_t instanceSet;
-    };
-
-    using serviceMap_t = std::map<CaproIdString_t, instance_t>;
     mutable serviceMap_t m_serviceMap;
 };
 } // namespace roudi
 } // namespace iox
-

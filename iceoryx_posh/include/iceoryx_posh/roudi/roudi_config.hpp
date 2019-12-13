@@ -26,6 +26,7 @@ struct RouDiConfig
 {
     struct
     {
+        /// @todo since we are now fully relocatable, this can be removed
         uintptr_t m_sharedMemoryBaseAddressOffset = 0;
         bool m_verifySharedMemoryPlacement = false;
     } roudi;

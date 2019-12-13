@@ -188,7 +188,7 @@ void ProcessIntrospection<SenderPort>::send()
     if (m_processListNewData)
     {
         auto chunkHeader = m_senderPort.reserveChunk(sizeof(ProcessIntrospectionFieldTopic));
-        auto sample = static_cast<ProcessIntrospectionFieldTopic*>(chunkHeader->m_payload);
+        auto sample = static_cast<ProcessIntrospectionFieldTopic*>(chunkHeader->payload());
         new (sample) ProcessIntrospectionFieldTopic;
 
         for (auto& intrData : m_processList)

@@ -64,18 +64,33 @@ mutex::mutex(bool f_isRecursive)
              .hasErrors();
 }
 
+mutex::mutex(mutex&& rhs) noexcept
+{
+    m_handle = rhs.m_handle;
+    m_isInitialized = rhs.m_isInitialized;
+    rhs.m_isInitialized = false;
+}
+
 mutex::~mutex()
 {
-    auto destroyCall =
-        cxx::makeSmartC(pthread_mutex_destroy, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle);
-
-    if (destroyCall.hasErrors())
+    if (m_isInitialized)
     {
-        std::cerr << "could not destroy mutex ::: pthread_mutex_destroy returned " << destroyCall.getReturnValue()
-                  << " "
-                  << "( " << strerror(destroyCall.getReturnValue()) << ") " << std::endl;
-        std::terminate();
+        auto destroyCall =
+            cxx::makeSmartC(pthread_mutex_destroy, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle);
+
+        if (destroyCall.hasErrors())
+        {
+            std::cerr << "could not destroy mutex ::: pthread_mutex_destroy returned " << destroyCall.getReturnValue()
+                      << " "
+                      << "( " << strerror(destroyCall.getReturnValue()) << ") " << std::endl;
+            std::terminate();
+        }
     }
+}
+
+pthread_mutex_t mutex::get_native_handle() const noexcept
+{
+    return m_handle;
 }
 
 bool mutex::lock()

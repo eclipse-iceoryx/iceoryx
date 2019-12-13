@@ -255,6 +255,6 @@ class DirectedGraph
 
     bool isValid(Index_t index)
     {
-        return index >= 0 && index < m_vertices.size();
+        return index >= 0 && index < static_cast<Index_t>(m_vertices.size());
     }
 };

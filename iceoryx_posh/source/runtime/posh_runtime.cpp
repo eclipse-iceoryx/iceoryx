@@ -18,6 +18,8 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
 #include "iceoryx_posh/runtime/runnable.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 #include <cstdint>
@@ -48,7 +50,8 @@ PoshRuntime::PoshRuntime(const std::string& name, const bool doMapSharedMemoryIn
     , m_ShmInterface(m_MqInterface.getShmBaseAddr(),
                      doMapSharedMemoryIntoThread,
                      m_MqInterface.getShmTopicSize(),
-                     m_MqInterface.getSegmentManagerAddr())
+                     m_MqInterface.getSegmentManagerAddr(),
+                     m_MqInterface.getSegmentId())
     , m_applicationPort(getMiddlewareApplication(Interfaces::INTERNAL))
 {
     m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC);
@@ -87,11 +90,15 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::SERVICE_REGISTRY_CHANGE_COUNTER) << m_appName;
     MqMessage receiveBuffer;
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (1 == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (2 == receiveBuffer.getNumberOfElements()))
     {
-        const std::atomic<uint64_t>* counter = const_cast<const std::atomic<uint64_t>*>(
-            reinterpret_cast<std::atomic<uint64_t>*>(std::stoul(receiveBuffer.getElementAtIndex(0))));
-        return counter;
+        RelativePointer::offset_t offset;
+        cxx::convert::fromString(receiveBuffer.getElementAtIndex(0).c_str(), offset);
+        RelativePointer::id_t segmentId;
+        cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), segmentId);
+        auto ptr = RelativePointer::getPtr(segmentId, offset);
+
+        return reinterpret_cast<std::atomic<uint64_t>*>(ptr);
     }
     else
     {
@@ -116,16 +123,19 @@ SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::Serv
 SenderPortType::MemberType_t* PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
 {
     MqMessage receiveBuffer;
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (2 == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3 == receiveBuffer.getNumberOfElements()))
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
         if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::IMPL_SENDER_ACK)
 
         {
-            SenderPortType::MemberType_t* sender =
-                reinterpret_cast<SenderPortType::MemberType_t*>(std::stoll(receiveBuffer.getElementAtIndex(1)));
-            return sender;
+            RelativePointer::id_t segmentId;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
+            RelativePointer::offset_t offset;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
+            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            return reinterpret_cast<SenderPortType::MemberType_t*>(ptr);
         }
         else
         {
@@ -157,15 +167,18 @@ ReceiverPortType::MemberType_t* PoshRuntime::getMiddlewareReceiver(const capro::
 ReceiverPortType::MemberType_t* PoshRuntime::requestReceiverFromRoudi(const MqMessage& sendBuffer) noexcept
 {
     MqMessage receiveBuffer;
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (2 == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3 == receiveBuffer.getNumberOfElements()))
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
         if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::IMPL_RECEIVER_ACK)
         {
-            ReceiverPortType::MemberType_t* receiver =
-                reinterpret_cast<ReceiverPortType::MemberType_t*>(std::stoll(receiveBuffer.getElementAtIndex(1)));
-            return receiver;
+            RelativePointer::id_t segmentId;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
+            RelativePointer::offset_t offset;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
+            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            return reinterpret_cast<ReceiverPortType::MemberType_t*>(ptr);
         }
         else
         {
@@ -191,15 +204,18 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const Interfaces in
 
     MqMessage receiveBuffer;
 
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (2 == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3 == receiveBuffer.getNumberOfElements()))
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
         if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::IMPL_INTERFACE_ACK)
         {
-            popo::InterfacePortData* port =
-                reinterpret_cast<popo::InterfacePortData*>(std::stoll(receiveBuffer.getElementAtIndex(1)));
-            return port;
+            RelativePointer::id_t segmentId;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
+            RelativePointer::offset_t offset;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
+            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            return reinterpret_cast<popo::InterfacePortData*>(ptr);
         }
         else
         {
@@ -224,14 +240,18 @@ RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProper
 
     MqMessage receiveBuffer;
 
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (2 == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3 == receiveBuffer.getNumberOfElements()))
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
         if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_RUNNABLE_ACK)
         {
-            RunnableData* port = reinterpret_cast<RunnableData*>(std::stoll(receiveBuffer.getElementAtIndex(1)));
-            return port;
+            RelativePointer::id_t segmentId;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
+            RelativePointer::offset_t offset;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
+            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            return reinterpret_cast<RunnableData*>(ptr);
         }
         else
         {
@@ -308,15 +328,18 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication(Interfaces inte
 
     MqMessage receiveBuffer;
 
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (2 == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3 == receiveBuffer.getNumberOfElements()))
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
         if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::IMPL_APPLICATION_ACK)
         {
-            popo::ApplicationPortData* port =
-                reinterpret_cast<popo::ApplicationPortData*>(std::stoll(receiveBuffer.getElementAtIndex(1)));
-            return port;
+            RelativePointer::id_t segmentId;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
+            RelativePointer::offset_t offset;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
+            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            return reinterpret_cast<popo::ApplicationPortData*>(ptr);
         }
         else
         {

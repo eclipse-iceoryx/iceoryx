@@ -599,52 +599,68 @@ TEST_F(vector_test, BeginConstIteratorComesBeforeEndConstIteratorWhenFull)
 
 TEST_F(vector_test, IteratorIteratesThroughNonEmptyVector)
 {
-    sut.emplace_back(42);
-    sut.emplace_back(43);
-    sut.emplace_back(44);
+    constexpr int INITIAL_VALUE{42};
+    sut.emplace_back(INITIAL_VALUE);
+    sut.emplace_back(INITIAL_VALUE + 1);
+    sut.emplace_back(INITIAL_VALUE + 2);
+    const int EXPECTED_END_INDEX = sut.size();
 
-    int i = 42;
+    int count = 0;
     for (auto& v : sut)
     {
-        EXPECT_THAT(v, Eq(i++));
+        EXPECT_THAT(v, Eq(INITIAL_VALUE + count));
+        ++count;
     }
+    EXPECT_THAT(count, Eq(EXPECTED_END_INDEX));
 }
 
 TEST_F(vector_test, ConstIteratorIteratesThroughNonEmptyVector)
 {
-    sut.emplace_back(142);
-    sut.emplace_back(143);
-    sut.emplace_back(144);
+    constexpr int INITIAL_VALUE{142};
+    sut.emplace_back(INITIAL_VALUE);
+    sut.emplace_back(INITIAL_VALUE + 1);
+    sut.emplace_back(INITIAL_VALUE + 2);
+    const int EXPECTED_END_COUNT = sut.size();
 
-    int i = 142;
+    int count = 0;
     for (auto& v : *const_cast<const decltype(sut)*>(&sut))
     {
-        EXPECT_THAT(v, Eq(i++));
+        EXPECT_THAT(v, Eq(INITIAL_VALUE + count));
+        ++count;
     }
+    EXPECT_THAT(count, Eq(EXPECTED_END_COUNT));
 }
 
 TEST_F(vector_test, IteratorIteratesThroughFullVector)
 {
     for (uint64_t k = 0; k < sut.capacity(); ++k)
+    {
         sut.emplace_back(42 * k);
+    }
+    const int EXPECTED_END_COUNT = sut.size();
 
     int i = 0;
     for (auto& v : sut)
     {
         EXPECT_THAT(v, Eq(42 * (i++)));
     }
+    EXPECT_THAT(i, Eq(EXPECTED_END_COUNT));
 }
 
 TEST_F(vector_test, ConstIteratorIteratesThroughFullVector)
 {
     for (uint64_t k = 0; k < sut.capacity(); ++k)
+    {
         sut.emplace_back(142 * k);
+    }
+    const int EXPECTED_END_COUNT = sut.size();
 
     int i = 0;
     for (const auto& v : *const_cast<const decltype(sut)*>(&sut))
     {
         EXPECT_THAT(v, Eq(142 * (i++)));
     }
+    EXPECT_THAT(i, Eq(EXPECTED_END_COUNT));
 }
 
 TEST_F(vector_test, IterateUsingData)

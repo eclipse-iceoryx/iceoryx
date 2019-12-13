@@ -345,6 +345,10 @@ class MqRuntimeInterface
     /// @return size in bytes
     size_t getShmTopicSize() noexcept;
 
+    /// @brief get the segment id of the shared memory object
+    /// @return segment id
+    uint64_t getSegmentId() const noexcept;
+
   private:
     enum class RegAckResult
     {
@@ -367,6 +371,7 @@ class MqRuntimeInterface
     MqInterfaceCreator m_AppMqInterface;
     MqInterfaceUser m_RoudiMqInterface;
     size_t m_shmTopicSize{0};
+    uint64_t m_segmentId{0};
 };
 } // namespace runtime
 } // namespace iox

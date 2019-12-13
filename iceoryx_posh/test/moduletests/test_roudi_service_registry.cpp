@@ -42,6 +42,7 @@ class ServiceRegistry_test : public Test
     }
     iox::roudi::ServiceRegistry registry;
     iox::roudi::ServiceRegistry::InstanceSet_t searchResults;
+
     std::string AnyInstanceString = iox::capro::AnyInstanceString;
 };
 
@@ -152,4 +153,38 @@ TEST_F(ServiceRegistry_test, RemoveAll)
 
     registry.find(searchResults, "a", AnyInstanceString);
     EXPECT_THAT(searchResults.size(), Eq(0));
+}
+
+TEST_F(ServiceRegistry_test, GetServiceMap)
+{
+    iox::roudi::ServiceRegistry::serviceMap_t serviceMap;
+
+    registry.add("a", "b");
+    // add same service a, instance c to check if in registry only one entry is created
+    registry.add("a", "c");
+    registry.add("a", "c");
+    registry.add("a", "d");
+    registry.add("e", "f");
+
+    serviceMap = registry.getServiceMap();
+
+    bool mapA = false;
+    bool mapE = false;
+
+    for (auto const& x : serviceMap)
+    {
+        if (x.first == "a")
+        {
+            ASSERT_THAT(x.second.instanceSet.size(), Eq(3));
+            mapA = true;
+            EXPECT_THAT(x.second.instanceSet[0], Eq("b"));
+            EXPECT_THAT(x.second.instanceSet[1], Eq("c"));
+            EXPECT_THAT(x.second.instanceSet[2], Eq("d"));
+        }
+
+        if (x.first == "e")
+            mapE = true;
+    }
+
+    EXPECT_THAT(mapA && mapE, Eq(true));
 }

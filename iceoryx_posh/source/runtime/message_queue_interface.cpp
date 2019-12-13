@@ -553,7 +553,7 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
 
             if (stringToMqMessageType(cmd.c_str()) == MqMessageType::REG_ACK)
             {
-                constexpr uint32_t REGISTER_ACK_PARAMETERS = 5;
+                constexpr uint32_t REGISTER_ACK_PARAMETERS = 6;
                 if (receiveBuffer.getNumberOfElements() != REGISTER_ACK_PARAMETERS)
                 {
                     errorHandler(Error::kMQ_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
@@ -566,6 +566,7 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
 
                 int64_t receivedTimestamp;
                 cxx::convert::fromString(receiveBuffer.getElementAtIndex(4).c_str(), receivedTimestamp);
+                cxx::convert::fromString(receiveBuffer.getElementAtIndex(5).c_str(), m_segmentId);
                 if (transmissionTimestamp == receivedTimestamp)
                 {
                     return RegAckResult::SUCCESS;
@@ -583,6 +584,11 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
     }
 
     return RegAckResult::TIMEOUT;
+}
+
+uint64_t MqRuntimeInterface::getSegmentId() const noexcept
+{
+    return m_segmentId;
 }
 
 } // namespace runtime

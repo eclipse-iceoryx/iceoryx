@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relocatable_ptr.hpp"
+
+#include "test.hpp"
 
 #include <cstring>
 
@@ -56,7 +57,7 @@ class RelocatablePointer_test : public Test
     int m_fileDescriptor;
 };
 
-//@todo: extend test cases, but the relocatable is not used currently
+//@todo: extend test cases, but the relocatable is not used currently so this is postponed
 // the relocatable will be useful later, so we need to keep it
 
 // central use case of relocatable pointers
