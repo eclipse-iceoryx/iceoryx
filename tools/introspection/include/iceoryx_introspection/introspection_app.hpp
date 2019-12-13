@@ -16,12 +16,10 @@
 
 #include "iceoryx_introspection/introspection_types.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
-#include "iceoryx_posh/roudi/introspection_types.hpp"
 
 #include <getopt.h>
 #include <map>
 #include <ncurses.h>
-#include <unistd.h>
 #include <vector>
 
 namespace iox
@@ -67,11 +65,6 @@ class IntrospectionApp
   public:
     using SubscriberType = iox::popo::Subscriber;
 
-    int updatePeriodMs = DEFAULT_UPDATE_PERIOD.milliSeconds<int>();
-    bool doIntrospection = false;
-
-    IntrospectionSelection introspectionSelection;
-
     /// @brief contructor to create a introspection
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
@@ -82,19 +75,6 @@ class IntrospectionApp
     /// @brief interface to start the execution of the introspection
     virtual void run() noexcept = 0;
 
-    template <typename T>
-    T bounded(T input, T min, T max) noexcept
-    {
-        return ((input >= min) ? ((input <= max) ? input : max) : min);
-    };
-
-    /// @brief Prints help to the command line
-    void printHelp() noexcept;
-
-    void printShortInfo(const std::string& binaryName) noexcept;
-
-    void processArgs(int argc, char** argv) noexcept;
-
   protected:
     enum class CmdLineArgumentParsingMode
     {
@@ -102,10 +82,20 @@ class IntrospectionApp
         ONE
     };
 
+    IntrospectionSelection introspectionSelection;
+
+    bool doIntrospection = false;
+
     /// @brief this is needed for the child classes to extend the parseCmdLineArguments function
     IntrospectionApp() noexcept;
 
-    void runIntrospection(const int updatePeriodMs, const IntrospectionSelection introspectionSelection);
+    void
+    parseCmdLineArguments(int argc,
+                          char** argv,
+                          CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
+
+    void runIntrospection(const iox::units::Duration updatePeriodMs,
+                          const IntrospectionSelection introspectionSelection);
 
   private:
     /// @brief initializes ncurses terminal
@@ -127,6 +117,9 @@ class IntrospectionApp
     /// @param[in] timeoutMs timeout in milliseconds (-1 to wait forever)
     void waitForUserInput(int32_t timeoutMs);
 
+    /// @brief Prints hint in case of wrong cmd line args
+    void printShortInfo(const std::string& binaryName) noexcept;
+
     /// @brief prints to the terminal
     /// @param[in] str string to print
     /// @param[in] pr formatting options
@@ -138,23 +131,40 @@ class IntrospectionApp
     /// @brief prints table showing current mempool usage
     void printMemPoolInfo(const MemPoolIntrospectionTopic& topic);
 
-    void printPortIntrospectionData(const std::vector<ComposedSenderPortData>& senderPortData,
-                                    const std::vector<ComposedReceiverPortData>& receiverPortData);
-
+    /// @brief Waits till port is subscribed
     bool waitForSubscription(SubscriberType& port);
 
+    /// @brief Prepares the sender port data before printing
     std::vector<ComposedSenderPortData>
     composeSenderPortData(const PortIntrospectionFieldTopic* portData,
                           const PortThroughputIntrospectionFieldTopic* throughputData);
 
+    /// @brief Prepares the receiver port data before printing
     std::vector<ComposedReceiverPortData>
     composeReceiverPortData(const PortIntrospectionFieldTopic* portData,
                             const ReceiverPortChangingIntrospectionFieldTopic* receiverPortChangingData);
 
+    /// @brief Print the prepared sender and receiver port data
+    void printPortIntrospectionData(const std::vector<ComposedSenderPortData>& senderPortData,
+                                    const std::vector<ComposedReceiverPortData>& receiverPortData);
+
+    /// @brief Prints help to the command line
+    void printHelp() noexcept;
+
+    template <typename T>
+    T bounded(T input, T min, T max) noexcept
+    {
+        return ((input >= min) ? ((input <= max) ? input : max) : min);
+    };
+    /// @brief Update rate of the terminal
+    iox::units::Duration updatePeriodMs = DEFAULT_UPDATE_PERIOD;
+
     /// @brief ncurses pad
     WINDOW* pad;
+
     /// @brief first pad row to show on the ncurses window
     int32_t yPad{0};
+
     /// @brief first pad column to show on the ncurses window
     int32_t xPad{0};
 };

@@ -15,15 +15,12 @@
 #include "iceoryx_introspection/introspection_app.hpp"
 #include "iceoryx_introspection/introspection_types.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_versions.hpp"
 
 #include <chrono>
-#include <ctime>
 #include <deque>
 #include <iomanip>
-#include <iostream>
 #include <poll.h>
 #include <thread>
 
@@ -44,7 +41,7 @@ IntrospectionApp::IntrospectionApp(int argc, char* argv[]) noexcept
         exit(EXIT_FAILURE);
     }
 
-    processArgs(argc, argv);
+    parseCmdLineArguments(argc, argv);
 }
 
 void IntrospectionApp::printHelp() noexcept
@@ -75,7 +72,9 @@ void IntrospectionApp::printShortInfo(const std::string& binaryName) noexcept
     std::cout << "Run '" << binaryName << " --help' for more information." << std::endl;
 }
 
-void IntrospectionApp::processArgs(int argc, char** argv) noexcept
+void IntrospectionApp::parseCmdLineArguments(int argc,
+                                             char** argv,
+                                             CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {
     int opt;
     int index;
@@ -97,9 +96,9 @@ void IntrospectionApp::processArgs(int argc, char** argv) noexcept
 
         case 't':
         {
-            int l_rate = std::atoi(optarg);
-            updatePeriodMs =
-                bounded(l_rate, MIN_UPDATE_PERIOD.milliSeconds<int>(), MAX_UPDATE_PERIOD.milliSeconds<int>());
+            /// @todo Calling milliseconds() should not be ambiguous, extend units::Duration?
+            iox::units::Duration l_rate = iox::units::Duration::milliseconds(static_cast<long double>(std::atoi(optarg)));
+            updatePeriodMs = bounded(l_rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
             break;
         }
 
@@ -180,7 +179,6 @@ void IntrospectionApp::refreshTerminal()
     wmove(pad, titleLines, 0);
 }
 
-/// @brief updates the first pad coordinates to display
 void IntrospectionApp::updateDisplayYX()
 {
     constexpr int32_t yIncrement = 1;
@@ -218,6 +216,7 @@ void IntrospectionApp::waitForUserInput(int32_t timeoutMs)
     fileDesc.fd = STDIN_FILENO;
     fileDesc.events = POLLIN;
     constexpr size_t nFileDesc = 1;
+    /// @todo Wrap kernel calls with SmartC
     int32_t eventCount = poll(&fileDesc, nFileDesc, timeoutMs);
 
     // Event detected
@@ -592,7 +591,8 @@ IntrospectionApp::composeReceiverPortData(const PortIntrospectionFieldTopic* por
     return receiverPortData;
 }
 
-void IntrospectionApp::runIntrospection(const int updatePeriodMs, const IntrospectionSelection introspectionSelection)
+void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodMs,
+                                        const IntrospectionSelection introspectionSelection)
 {
     iox::runtime::PoshRuntime::getInstance(iox::roudi::INTROSPECTION_MQ_APP_NAME);
 
@@ -814,13 +814,13 @@ void IntrospectionApp::runIntrospection(const int updatePeriodMs, const Introspe
         refreshTerminal();
 
         // Watch user input for updatePeriodMs
-        auto tWaitRemaining = std::chrono::milliseconds(updatePeriodMs);
+        auto tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds<uint64_t>());
         auto tWaitBegin = std::chrono::system_clock::now();
         while (tWaitRemaining.count() >= 0)
         {
             waitForUserInput(static_cast<int32_t>(tWaitRemaining.count()));
             auto tWaitElapsed = std::chrono::system_clock::now() - tWaitBegin;
-            tWaitRemaining = std::chrono::milliseconds(updatePeriodMs)
+            tWaitRemaining = std::chrono::milliseconds(updatePeriodMs.milliSeconds<uint64_t>())
                              - std::chrono::duration_cast<std::chrono::milliseconds>(tWaitElapsed);
         }
     }
