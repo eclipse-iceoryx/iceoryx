@@ -377,11 +377,14 @@ void ProcessManager::addRunnableForProcess(const std::string& f_process, const s
     if (nullptr != l_process)
     {
         runtime::RunnableData* l_runnable = m_shmMgr.acquireRunnableData(f_process, f_runnable);
-        size_t l_ptr = reinterpret_cast<size_t>(l_runnable);
+
+        RelativePointer::id_t segmentId = m_shmMgr.getShmInterface().getSegmentId();
+        auto offset = RelativePointer::getOffset(segmentId, l_runnable);
 
         runtime::MqMessage l_sendBuffer;
         l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_RUNNABLE_ACK)
-                     << std::to_string(l_ptr);
+                        << std::to_string(offset) << std::to_string(segmentId);
+
         l_process->sendToMQ(l_sendBuffer);
         m_processIntrospection->addRunnable(cxx::CString100(f_process.c_str()), cxx::CString100(f_runnable.c_str()));
         DEBUG_PRINTF("Created new runnable %s for application %s\n", f_runnable.c_str(), f_process.c_str());
