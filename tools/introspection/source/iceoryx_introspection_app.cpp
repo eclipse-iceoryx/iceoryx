@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "iceoryx_introspection/iceoryx_introspection_app.hpp"
-#include "iceoryx_introspection/introspection_run.hpp"
 
 namespace iox
 {
@@ -30,7 +29,7 @@ void IceOryxIntrospectionApp::run() noexcept
 {
     if (doIntrospection)
     {
-        runIntrospection(updatePeriodMs, introspectionSelection);
+        runIntrospection(DEFAULT_UPDATE_PERIOD, introspectionSelection);
     }
 }
 
