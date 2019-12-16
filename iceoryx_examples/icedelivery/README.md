@@ -23,17 +23,17 @@ Create three terminals and run one command in each of them. Either choose to run
     # If installed and available in PATH environment variable
     RouDi
     # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/bin/RouDi
+    $ICEORYX_ROOT/build/posh/RouDi
 
 
-    ./build/icedelivery/ice-publisher-bare-metal
+    ./build/iceoryx_examples/icedelivery/ice-publisher-bare-metal
     # The simplified publisher is an alternative
-    ./build/icedelivery/ice-publisher-simple
+    ./build/iceoryx_examples/icedelivery/ice-publisher-simple
 
 
-    ./build/icedelivery/ice-subscriber-bare-metal
+    ./build/iceoryx_examples/icedelivery/ice-subscriber-bare-metal
     # The simplified subscriber is an alternative
-    ./build/icedelivery/ice-subscriber-simple
+    ./build/iceoryx_examples/icedelivery/ice-subscriber-simple
 
 ## Expected output
 

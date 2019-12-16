@@ -34,12 +34,10 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     FORCE
 )
 
-# Only build a lib in the first step
-#add_executable(iceoryx_introspection introspection_main_base.cpp introspection_print.cpp)
-
 add_library(iceoryx_introspection
-            source/introspection_print.cpp
-)
+            source/iceoryx_introspection_app.cpp
+            source/introspection_app.cpp
+    )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_introspection ALIAS iceoryx_introspection)
 
@@ -60,6 +58,14 @@ target_link_libraries(iceoryx_introspection
 set_target_properties(iceoryx_introspection
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
+
+add_executable(iceoryx_introspection_client source/introspection_main.cpp)
+
+target_link_libraries(iceoryx_introspection_client
+    PRIVATE
+    ${PROJECT_NAMESPACE}::iceoryx_introspection
+)
+
 
 #
 ########## exporting library ##########

@@ -14,9 +14,6 @@ target_link_libraries(iceperf-hardy
     iceoryx_posh::iceoryx_posh
 )
 
-set_target_properties(iceperf-laurel iceperf-hardy
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/iceperf")
-
 install(
     TARGETS iceperf-laurel iceperf-hardy
     RUNTIME DESTINATION bin
