@@ -26,9 +26,6 @@ target_link_libraries(ice-subscriber-simple
     iceoryx_posh::iceoryx_posh
 )
 
-set_target_properties(ice-publisher-bare-metal ice-subscriber-bare-metal ice-publisher-simple ice-subscriber-simple
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/icedelivery")
-
 install(
     TARGETS ice-publisher-bare-metal ice-subscriber-bare-metal ice-publisher-simple ice-subscriber-simple
     RUNTIME DESTINATION bin

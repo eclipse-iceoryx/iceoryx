@@ -13,11 +13,11 @@ We reuse the binaries from [icedelivery](../icedelivery/). Create four terminals
     # If installed and available in PATH environment variable
     RouDi
     # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/bin/RouDi
+    $ICEORYX_ROOT/build/posh/RouDi
 
-    ./build/icedelivery/ice-publisher-bare-metal
+    ./build/iceoryx_examples/icedelivery/ice-publisher-bare-metal
 
-    ./build/icedelivery/ice-subscriber-bare-metal
+    ./build/iceoryx_examples/icedelivery/ice-subscriber-bare-metal
 
     ./build/iceoryx_introspection/iceoryx_introspection_client --all
 

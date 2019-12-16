@@ -14,10 +14,10 @@ Create three terminals and run one command in each of them.
     $ICEORYX_ROOT/build/install/prefix/bin/RouDi
 
 
-    build/iceperf/iceperf-laurel
+    build/iceoryx_examples/iceperf/iceperf-laurel
 
 
-    build/iceperf/iceperf-hardy
+    build/iceoryx_examples/iceperf/iceperf-hardy
 
 ## Expected output
 
