@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(iceoryx_utils_VERSION 0.15.0)
+set(iceoryx_utils_VERSION 0.16.0)
 project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 
 add_compile_options(-fPIC)
