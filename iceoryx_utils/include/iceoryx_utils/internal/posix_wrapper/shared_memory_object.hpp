@@ -43,7 +43,7 @@ class SharedMemoryObject
     SharedMemoryObject& operator=(const SharedMemoryObject&) = delete;
     SharedMemoryObject(SharedMemoryObject&&) = default;
     SharedMemoryObject& operator=(SharedMemoryObject&&) = default;
-    ~SharedMemoryObject();
+    ~SharedMemoryObject() = default;
 
     void* allocate(const uint64_t f_size, const uint64_t f_alignment = Allocator::MEMORY_ALIGNMENT);
     void finalizeAllocation();

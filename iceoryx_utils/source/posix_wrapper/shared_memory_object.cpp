@@ -94,11 +94,6 @@ SharedMemoryObject::SharedMemoryObject(const char* f_name,
     }
 }
 
-SharedMemoryObject::~SharedMemoryObject()
-{
-}
-
-
 void* SharedMemoryObject::allocate(const uint64_t f_size, const uint64_t f_alignment)
 {
     return m_allocator->allocate(f_size, f_alignment);

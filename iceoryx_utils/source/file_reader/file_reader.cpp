@@ -56,10 +56,6 @@ FileReader::FileReader(const std::string& f_fileName, const std::string& f_fileP
     }
 }
 
-FileReader::~FileReader()
-{
-}
-
 bool FileReader::IsOpen() const
 {
     return m_fileStream.is_open();
