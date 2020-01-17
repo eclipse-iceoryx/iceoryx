@@ -142,20 +142,22 @@ your code as portable as possible. Currently our focus is [QNX](https://blackber
 
 * [ncurses](https://www.gnu.org/software/ncurses/)
 
-### Safety
+### Safety & security
 
 We aim for [ASIL-D](https://en.wikipedia.org/wiki/Automotive_Safety_Integrity_Level#ASIL_D) compliance. The
 [ISO262](https://en.wikipedia.org/wiki/ISO_26262) is also a good read-up if you want to learn more about automotive
-safety. As of now we don't have any continous integration checks implemented but will rely on reviews during the pull
-requests.
+safety. A nice introduction [video](https://www.youtube.com/watch?v=F4GzsA00s5I) was presented on CppCon 2019.
+Github [labels](https://github.com/eclipse/iceoryx/labels) are used to group issues into the rulesets:
 
-### Security
+| Ruleset name | Github issue label |
+|---|---|
+| [MISRA](https://www.misra.org.uk/) C++ 2008 | MISRA |
+| [Adaptive AUTOSAR](https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-03/AUTOSAR_RS_CPP14Guidelines.pdf) C++14 | AUTOSAR |
+| [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682) 2016 Coding Standard | CERT |
 
-A good read-up on security topics with C++ is the
-[SEI CERT C++ Coding Standard](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682). If you are
-unsure you can always read-up there and use it as best practise. It is possible that not the whole codebase follows
-these rules, things are work in progress. But this is where we want go. As of now we don't have any continous
-integration checks implemented but will rely on reviews during the pull requests.
+It is possible that not the whole codebase follows these rules, things are work in progress. But this is where we want
+go. As of now we don't have any continous integration checks implemented but will rely on reviews during the pull
+requests. We're planning to introduce continous integration checks in the near future.
 
 ### Header
 
