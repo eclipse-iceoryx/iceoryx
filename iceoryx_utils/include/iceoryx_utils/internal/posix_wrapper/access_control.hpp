@@ -44,7 +44,7 @@ class AccessController
     static constexpr int32_t MaxNumOfPermissions = 20;
 
     /// @brief identifier for a permission entry (user, group, others, ...)
-    enum class Category
+    enum class Category : acl_tag_t
     {
         USER = ACL_USER_OBJ,
         /// a specific user must be identified by a name
@@ -56,11 +56,11 @@ class AccessController
     };
 
     /// @brief access right for a permission entry
-    enum class Permission
+    enum class Permission : acl_perm_t
     {
         READ = ACL_READ,
         WRITE = ACL_WRITE,
-        READWRITE = ACL_READ | ACL_WRITE,
+        READWRITE = Permission::READ | Permission::WRITE,
         NONE = 0
     };
 
@@ -84,7 +84,7 @@ class AccessController
     bool writePermissionsToFile(const int f_fileDescriptor) const;
 
   private:
-    using smartAclPointer_t = std::unique_ptr<struct __acl_ext, std::function<void(struct __acl_ext*)>>;
+    using smartAclPointer_t = std::unique_ptr<std::remove_pointer<acl_t>::type, std::function<void(acl_t)>>;
 
     struct PermissionEntry
     {

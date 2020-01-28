@@ -50,11 +50,6 @@ smart_lock<T, MutexType>::smart_lock(smart_lock&& rhs)
 }
 
 template <typename T, typename MutexType>
-smart_lock<T, MutexType>::~smart_lock()
-{
-}
-
-template <typename T, typename MutexType>
 smart_lock<T, MutexType>& smart_lock<T, MutexType>::operator=(const smart_lock& rhs)
 {
     std::lock(lock, rhs.lock);

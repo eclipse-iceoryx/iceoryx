@@ -58,7 +58,7 @@ class FileReader
     FileReader& operator=(const FileReader&) = delete;
     FileReader& operator=(FileReader&&) = delete;
 
-    ~FileReader();
+    ~FileReader() = default;
 
     /// Check if the associated file is open.
     bool IsOpen() const;

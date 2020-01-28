@@ -103,8 +103,8 @@ void Subscriber::setReceiveHandler(ReceiveHandler_t cbHandler) noexcept
 // name thread if possible
 #ifdef __unix__
     char threadname[16];
-    static ushort thread_index = 0;
-    snprintf(threadname, sizeof(threadname), "receiver-cb_%d", ++thread_index);
+    static uint16_t thread_index = 0;
+    snprintf(threadname, sizeof(threadname), "Receive_%d", ++thread_index);
     auto thread_handle = m_callbackThread.native_handle();
     pthread_setname_np(thread_handle, threadname); // thread name restricted to 16 chars
 // (incl. '0') but name buffer needs to be at least 16 chars

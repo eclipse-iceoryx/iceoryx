@@ -78,7 +78,7 @@ Altough we strive to be fully POSIX-compliant, we recommend to use Ubuntu 18.04 
 
 You will need to install the following packages:
 
-    sudo apt-get install cmake libacl1-dev libncurses5-dev pkg-config
+    sudo apt install cmake libacl1-dev libncurses5-dev pkg-config
 
 #### Build from sources
 

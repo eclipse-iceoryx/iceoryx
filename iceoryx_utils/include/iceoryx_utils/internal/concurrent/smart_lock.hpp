@@ -69,7 +69,7 @@ class smart_lock
     smart_lock(smart_lock&& rhs);
     smart_lock& operator=(const smart_lock& rhs);
     smart_lock& operator=(smart_lock&& rhs);
-    ~smart_lock();
+    ~smart_lock() = default;
 
     /// @brief The arrow operator returns a proxy object which locks the mutex
     ///         of smart_lock and has another arrow operator defined which
