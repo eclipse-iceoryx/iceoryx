@@ -14,6 +14,9 @@
 #pragma once
 
 
+#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 
 #include <cstdint>
@@ -64,6 +67,12 @@ constexpr long APP_MESSAGE_SIZE = 512;
 
 // Processes
 constexpr uint32_t MAX_PROCESS_NUMBER = 300;
+/// Maximum number of instances of a given service, which can be found.
+/// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
+/// instances)
+constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50;
+/// Maximum number of callbacks that can be registered with PoshRuntime::startFindService
+constexpr uint32_t MAX_START_FIND_SERVICE_CALLBACKS = 50;
 
 // Runnables
 constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000;
@@ -94,4 +103,20 @@ enum class SubscribeState : uint32_t
     UNSUBSCRIBE_REQUESTED,
     WAIT_FOR_OFFER
 };
+
+// alias for cxx::string
+using ConfigFilePathString_t = cxx::string<1024>;
+
+namespace runtime
+{
+// alias for IdString
+using IdString = iox::capro::ServiceDescription::IdString;
+using InstanceContainer = iox::cxx::vector<IdString, MAX_NUMBER_OF_INSTANCES>;
+
+// Return type of StartFindService() method
+using FindServiceHandle = uint32_t;
+// Signature for service discovery callback function
+using FindServiceHandler = std::function<void(InstanceContainer&, FindServiceHandle)>;
+} // namespace runtime
+
 } // namespace iox

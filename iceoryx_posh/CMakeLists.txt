@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.5)
-set(iceoryx_posh_VERSION 0.16.0)
+set(iceoryx_posh_VERSION 0.16.0.1)
 project(iceoryx_posh VERSION ${iceoryx_posh_VERSION})
 
 find_package(Threads REQUIRED)
 find_package(iceoryx_utils REQUIRED)
+
+if(TOML_CONFIG)
+find_package(cpptoml REQUIRED)
+message("-- Build with TOML config file support.")
+endif(TOML_CONFIG)
 
 include(cmake/iceoryxversions.cmake)
 include(IceoryxPackageHelper)
@@ -72,6 +77,7 @@ add_library(iceoryx_posh
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/posh_runtime.cpp
+    source/runtime/service_discovery_notifier.cpp
     source/runtime/runnable.cpp
     source/runtime/runnable_data.cpp
     source/runtime/runnable_property.cpp
@@ -184,7 +190,13 @@ endif(PERFORM_CLANG_TIDY)
 target_link_libraries(RouDi
     PRIVATE
     ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
+    iceoryx_utils::iceoryx_utils
 )
+
+if(TOML_CONFIG)
+    target_link_libraries(RouDi PRIVATE cpptoml)
+    target_compile_definitions(RouDi PRIVATE -DTOML_CONFIG_FILE)
+endif(TOML_CONFIG)
 
 if(roudi_environment)
     add_library(iceoryx_posh_roudi_environment

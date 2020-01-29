@@ -19,17 +19,17 @@
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 
-#include <cstdint>
 #include <errno.h>
 #include <fcntl.h>
 #include <mqueue.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#include <cstdint>
+#include <string>
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
 #include <process.h>
@@ -68,6 +68,18 @@ enum class MqMessageType : int32_t
     END,
 };
 
+/// If MqMessageType::ERROR, this is the sub type for details about the error
+enum class MqMessageErrorType : int32_t
+{
+    BEGIN = -1,
+    NOTYPE = 0,
+    /// A sender could not be created unique
+    NO_UNIQUE_CREATED,
+    /// Not enough space to create another one
+    SENDERLIST_FULL,
+    END,
+};
+
 
 /// @brief Converts a string to the message type enumeration
 /// @param[in] str string to convert
@@ -76,6 +88,13 @@ MqMessageType stringToMqMessageType(const char* str) noexcept;
 /// @brief Converts a message type enumeration value into a string
 /// @param[in] msg enum value to convert
 std::string mqMessageTypeToString(const MqMessageType msg) noexcept;
+
+/// @brief Converts a string to the message error type enumeration
+/// @param[in] str string to convert
+MqMessageErrorType stringToMqMessageErrorType(const char* str) noexcept;
+/// @brief Converts a message error type enumeration value into a string
+/// @param[in] msg enum value to convert
+std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept;
 
 class MqInterfaceUser;
 class MqInterfaceCreator;

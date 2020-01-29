@@ -37,7 +37,7 @@ static constexpr char AnyEventString[]{"65535"};
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 
 /// @brief Scope of a service description
-enum class Scope : unsigned int
+enum class Scope : uint16_t
 {
     WORLDWIDE,
     INTERNAL,

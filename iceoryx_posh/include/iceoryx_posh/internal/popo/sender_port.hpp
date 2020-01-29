@@ -51,6 +51,7 @@ class SenderPort : public BasePort
     void enableDoDeliverOnSubscription();
     bool doesDeliverOnSubscribe() const;
     bool isPortActive() const;
+    bool isUnique() const;
     uint32_t getMaxDeliveryFiFoCapacity();
 
   protected:

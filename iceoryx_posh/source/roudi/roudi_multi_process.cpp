@@ -33,17 +33,19 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiApp::MonitoringMode monitoringMode,
     , m_cleanupBeforeStart(cleanupBeforeStart())
     , m_shmMgr(config)
     , m_prcMgr(m_shmMgr)
-    , m_mempoolIntrospection(
-          m_shmMgr.getShmInterface().getShmInterface()->m_roudiMemoryManager,
-          m_shmMgr.getShmInterface().getShmInterface()->m_segmentManager,
-          m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MEMPOOL_INTROSPECTION_MQ_APP_NAME))
+    , m_mempoolIntrospection(m_shmMgr.getShmInterface().getShmInterface()->m_roudiMemoryManager,
+                             m_shmMgr.getShmInterface().getShmInterface()->m_segmentManager,
+                             m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MQ_ROUDI_NAME))
     , m_monitoringMode(monitoringMode)
 {
     m_processIntrospection.registerSenderPort(
-        m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, PROCESS_INTROSPECTION_MQ_APP_NAME));
+        m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, MQ_ROUDI_NAME));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
     m_mempoolIntrospection.start();
+
+    // since RouDi offers the introspection services, also add it to the list of processes
+    m_processIntrospection.addProcess(getpid(), MQ_ROUDI_NAME);
 
     // run the threads
     m_processManagementThread = std::thread(&RouDiMultiProcess::processThread, this);
@@ -168,7 +170,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
 
             parseRegisterMessage(message, pid, userId, transmissionTimestamp);
 
-            registerProcess(processName, pid, {userId}, transmissionTimestamp);
+            registerProcess(processName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess());
         }
         break;
     }
@@ -291,14 +293,18 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     }
 }
 
-bool RouDiMultiProcess::registerProcess(const std::string& name,
-                                        int pid,
-                                        posix::PosixUser user,
-                                        int64_t transmissionTimestamp)
+bool RouDiMultiProcess::registerProcess(
+    const std::string& name, int pid, posix::PosixUser user, int64_t transmissionTimestamp, const uint64_t sessionId)
 {
     bool monitorProcess = (m_monitoringMode == RouDiApp::MonitoringMode::ON);
 
-    return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp);
+    return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId);
+}
+
+uint64_t RouDiMultiProcess::getUniqueSessionIdForProcess()
+{
+    static uint64_t sessionId = 0;
+    return ++sessionId;
 }
 
 bool RouDiMultiProcess::cleanupBeforeStart()

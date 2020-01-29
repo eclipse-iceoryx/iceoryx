@@ -36,7 +36,7 @@ class SharedMemoryUser
     /// @param[in] topicSize size of the shared memory management segment
     /// @param[in] segmentManagerAddr adress of the segment manager that does the final mapping of memory in the process
     /// address space
-    SharedMemoryUser(std::string baseAddrString,
+    SharedMemoryUser(std::string baseAddrString[[gnu::unused]],
                      const bool doMapSharedMemoryIntoThread,
                      const size_t topicSize,
                      std::string segmentManagerAddr,

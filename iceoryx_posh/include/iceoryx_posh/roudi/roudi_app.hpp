@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_posh/roudi/roudi_config_file_parser.hpp"
 #include "iceoryx_utils/log/logcommon.hpp"
 
 #include <cstdint>
@@ -24,7 +25,6 @@ namespace iox
 {
 namespace roudi
 {
-
 /// @brief base class for RouDi daemons
 class RouDiApp
 {
@@ -49,11 +49,17 @@ class RouDiApp
     /// @todo use the [[gnu::deprecated]] attribute in the next release
     RouDiApp(int argc, char* argv[], const mepoo::MePooConfig* mePooConfig = nullptr) noexcept;
 
-    /// @brief contructor to create a RouDi daemon with a given config
+    /// @brief constructor to create a RouDi daemon with a given config
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
     /// @param[in] config the configuration to use
     RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept;
+
+    /// @brief constructor to create a RouDi daemon with a given config
+    /// @param[in] argc forwarding of command line arguments
+    /// @param[in] argv forwarding of command line arguments
+    /// @param[in] configFileParser the configuration file parser for the RouDi config
+    RouDiApp(int argc, char* argv[], RouDiConfigFileParser* configFileParser) noexcept;
 
     virtual ~RouDiApp() noexcept {};
 
@@ -90,6 +96,7 @@ class RouDiApp
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
     MonitoringMode m_monitoringMode{MonitoringMode::ON};
     RouDiConfig_t m_config;
+    RouDiConfigFileParser* m_configFileParser{nullptr};
 };
 
 } // namespace roudi
