@@ -6,8 +6,8 @@ find_package(Threads REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
 if(TOML_CONFIG)
-find_package(cpptoml REQUIRED)
-message("-- Build with TOML config file support.")
+    find_package(cpptoml REQUIRED)
+    message("-- Build with TOML config file support.")
 endif(TOML_CONFIG)
 
 include(cmake/iceoryxversions.cmake)
@@ -77,10 +77,10 @@ add_library(iceoryx_posh
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/posh_runtime.cpp
-    source/runtime/service_discovery_notifier.cpp
     source/runtime/runnable.cpp
     source/runtime/runnable_data.cpp
     source/runtime/runnable_property.cpp
+    source/runtime/service_discovery_notifier.cpp
     source/runtime/shared_memory_user.cpp
 )
 

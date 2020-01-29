@@ -14,7 +14,6 @@
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"

@@ -26,7 +26,6 @@
 #include "iceoryx_posh/runtime/service_discovery_notifier.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
 
-
 #include <atomic>
 #include <map>
 #include <mutex>

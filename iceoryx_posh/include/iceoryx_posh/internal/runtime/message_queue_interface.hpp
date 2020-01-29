@@ -19,17 +19,17 @@
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 
+#include <cstdint>
 #include <errno.h>
 #include <fcntl.h>
 #include <mqueue.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include <cstdint>
-#include <string>
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
 #include <process.h>

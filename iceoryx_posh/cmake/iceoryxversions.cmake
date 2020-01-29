@@ -17,5 +17,5 @@ install(FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_versions.hpp
   COMPONENT dev)
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/FAQ.md
-	DESTINATION share/doc/iceoryx
-	COMPONENT dev)
+  DESTINATION share/doc/iceoryx
+  COMPONENT dev)

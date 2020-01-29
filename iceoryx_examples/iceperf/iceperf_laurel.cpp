@@ -30,7 +30,7 @@ double measureLatency(iox::popo::Publisher& publisher, iox::popo::Subscriber& su
 {
     auto start = std::chrono::high_resolution_clock::now();
     // run the performance test
-    for (int64_t i = 0; i < NUMBER_OF_ROUNDTRIPS; ++i)
+    for (auto i = 0; i < NUMBER_OF_ROUNDTRIPS; ++i)
     {
         const void* receivedChunk;
         while (!subscriber.getChunk(&receivedChunk))
