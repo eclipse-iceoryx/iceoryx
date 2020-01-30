@@ -53,6 +53,7 @@ PoshRuntime::PoshRuntime(const std::string& name, const bool doMapSharedMemoryIn
                      m_MqInterface.getSegmentManagerAddr(),
                      m_MqInterface.getSegmentId())
     , m_applicationPort(getMiddlewareApplication(Interfaces::INTERNAL))
+    , m_serviceDiscoveryNotifier(name, getServiceRegistryChangeCounter())
 {
     m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC);
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
@@ -117,10 +118,34 @@ SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::Serv
                << static_cast<cxx::Serialization>(service).toString() << static_cast<uint32_t>(interface)
                << runnableName;
 
-    return requestSenderFromRoudi(sendBuffer);
+    auto requestedSenderPort = requestSenderFromRoudi(sendBuffer);
+    if (requestedSenderPort.has_error())
+    {
+        switch (requestedSenderPort.get_error())
+        {
+        case MqMessageErrorType::NO_UNIQUE_CREATED:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' already in use by another process.";
+            errorHandler(Error::kPOSH__SENDERPORT_NOT_UNIQUE);
+            break;
+        case MqMessageErrorType::SENDERLIST_FULL:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created since we are out of memory.";
+            errorHandler(Error::kPOSH__SENDERPORT_ROUDI_MIDDLEWARESENDERLIST_FULL);
+            break;
+        default:
+            LogWarn() << "Undefined behavior occurred while creating service '"
+                      << service.operator cxx::Serialization().toString() << "'.";
+            errorHandler(Error::kPOSH__SENDERPORT_CREATION_UNDEFINED_BEHAVIOR);
+            break;
+        }
+        return nullptr;
+    }
+    return requestedSenderPort.get_value();
 }
 
-SenderPortType::MemberType_t* PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
+cxx::expected<SenderPortType::MemberType_t*, MqMessageErrorType>
+PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
 {
     MqMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3 == receiveBuffer.getNumberOfElements()))
@@ -135,20 +160,31 @@ SenderPortType::MemberType_t* PoshRuntime::requestSenderFromRoudi(const MqMessag
             RelativePointer::offset_t offset;
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
             auto ptr = RelativePointer::getPtr(segmentId, offset);
-            return reinterpret_cast<SenderPortType::MemberType_t*>(ptr);
+            return cxx::success<SenderPortType::MemberType_t*>(reinterpret_cast<SenderPortType::MemberType_t*>(ptr));
         }
         else
         {
             LogError() << "Wrong response from message queue" << mqMessage;
             assert(false);
-            return nullptr;
+            return cxx::success<SenderPortType::MemberType_t*>(nullptr);
         }
     }
     else
     {
-        LogError() << "Wrong response from message queue";
+        if (receiveBuffer.getNumberOfElements() == 2)
+        {
+            std::string mqMessage1 = receiveBuffer.getElementAtIndex(0);
+            std::string mqMessage2 = receiveBuffer.getElementAtIndex(1);
+            if (stringToMqMessageType(mqMessage1.c_str()) == MqMessageType::ERROR)
+            {
+                LogError() << "No valid sender port received from RouDi.";
+                return cxx::error<MqMessageErrorType>(stringToMqMessageErrorType(mqMessage2.c_str()));
+            }
+        }
+
+        LogError() << "Wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
         assert(false);
-        return nullptr;
+        return cxx::success<SenderPortType::MemberType_t*>(nullptr);
     }
 }
 
@@ -283,8 +319,8 @@ void PoshRuntime::removeRunnable(const Runnable& runnable) noexcept
     }
 }
 
-void PoshRuntime::findService(const capro::ServiceDescription& serviceDescription,
-                              InstanceContainer& instanceContainer) noexcept
+cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& serviceDescription,
+                                              InstanceContainer& instanceContainer) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::FIND_SERVICE) << m_appName
@@ -295,16 +331,40 @@ void PoshRuntime::findService(const capro::ServiceDescription& serviceDescriptio
     if (!sendRequestToRouDi(sendBuffer, requestResponse))
     {
         LogError() << "Could not send FIND_SERVICE request to RouDi\n";
+        errorHandler(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ, nullptr, ErrorLevel::MODERATE);
+        cxx::error<Error>(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ);
     }
-    else
+
+    uint32_t numberOfElements = requestResponse.getNumberOfElements();
+    uint32_t capacity = static_cast<uint32_t>(instanceContainer.capacity());
+
+    // Limit the instances (max value is the capacity of instanceContainer)
+    uint32_t numberOfInstances = ((numberOfElements > capacity) ? capacity : numberOfElements);
+    for (uint32_t i = 0; i < numberOfInstances; ++i)
     {
-        uint32_t numberOfElements = requestResponse.getNumberOfElements();
-        for (uint32_t i = 0; i < numberOfElements; ++i)
-        {
-            IdString instance(requestResponse.getElementAtIndex(i).c_str());
-            instanceContainer.push_back(instance);
-        }
+        IdString instance(requestResponse.getElementAtIndex(i).c_str());
+        instanceContainer.push_back(instance);
     }
+
+    if (numberOfElements > capacity)
+    {
+        LogWarn() << numberOfElements << " instances found for service \"" << serviceDescription.getServiceIDString()
+                  << "\" which is more than supported number of instances(" << MAX_NUMBER_OF_INSTANCES << "\n";
+        errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<Error>(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW);
+    }
+    return {cxx::success<>()};
+}
+
+cxx::expected<FindServiceHandle, Error> PoshRuntime::startFindService(const FindServiceHandler& handler,
+                                                                      const IdString& serviceId) noexcept
+{
+    return m_serviceDiscoveryNotifier.startFindService(handler, serviceId);
+}
+
+void PoshRuntime::stopFindService(const FindServiceHandle handle) noexcept
+{
+    m_serviceDiscoveryNotifier.stopFindService(handle);
 }
 
 void PoshRuntime::offerService(const capro::ServiceDescription& serviceDescription) noexcept

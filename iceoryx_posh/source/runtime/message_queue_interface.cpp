@@ -27,22 +27,38 @@ namespace iox
 {
 namespace runtime
 {
-std::string mqMessageTypeToString(const MqMessageType msg) noexcept
-{
-    return std::to_string(static_cast<uint16_t>(msg));
-}
-
 MqMessageType stringToMqMessageType(const char* str) noexcept
 {
-    auto msg = std::strtoll(str, nullptr, 10);
-    if (static_cast<int32_t>(MqMessageType::BEGIN) >= msg || static_cast<int32_t>(MqMessageType::END) <= msg)
-    {
-        return MqMessageType::NOTYPE;
-    }
-    else
-    {
-        return static_cast<MqMessageType>(msg);
-    }
+    std::underlying_type<MqMessageType>::type msg;
+    bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
+    noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
+    noError &= noError
+                   ? !(static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::BEGIN) >= msg
+                       || static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::END) <= msg)
+                   : false;
+    return noError ? (static_cast<MqMessageType>(msg)) : MqMessageType::NOTYPE;
+}
+
+std::string mqMessageTypeToString(const MqMessageType msg) noexcept
+{
+    return std::to_string(static_cast<std::underlying_type<MqMessageType>::type>(msg));
+}
+
+MqMessageErrorType stringToMqMessageErrorType(const char* str) noexcept
+{
+    std::underlying_type<MqMessageErrorType>::type msg;
+    bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
+    noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
+    noError &= noError
+                   ? !(static_cast<std::underlying_type<MqMessageErrorType>::type>(MqMessageErrorType::BEGIN) >= msg
+                       || static_cast<std::underlying_type<MqMessageErrorType>::type>(MqMessageErrorType::END) <= msg)
+                   : false;
+    return noError ? (static_cast<MqMessageErrorType>(msg)) : MqMessageErrorType::NOTYPE;
+}
+
+std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept
+{
+    return std::to_string(static_cast<std::underlying_type<MqMessageErrorType>::type>(msg));
 }
 
 MqBase::MqBase(const std::string& InterfaceName, const long maxMessages, const long messageSize) noexcept
@@ -424,12 +440,20 @@ MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
             {
                 regState = RegState::WAIT_FOR_REGISTER_ACK;
             }
+            else
+            {
+                regState = RegState::WAIT_FOR_ROUDI;
+            }
             break;
         }
         case RegState::WAIT_FOR_REGISTER_ACK:
             if (waitForRegAck(transmissionTimestamp) == RegAckResult::SUCCESS)
             {
                 regState = RegState::FINISHED;
+            }
+            else
+            {
+                regState = RegState::WAIT_FOR_ROUDI;
             }
             break;
         case RegState::FINISHED:

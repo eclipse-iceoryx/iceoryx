@@ -21,7 +21,7 @@
 #include <iomanip>
 #include <iostream>
 
-constexpr uint64_t NUMBER_OF_ROUNDTRIPS{1000000};
+constexpr int64_t NUMBER_OF_ROUNDTRIPS{1000000};
 constexpr char APP_NAME[] = "/laurel";
 constexpr char PUBLISHER[] = "Laurel";
 constexpr char SUBSCRIBER[] = "Hardy";
@@ -30,7 +30,7 @@ double measureLatency(iox::popo::Publisher& publisher, iox::popo::Subscriber& su
 {
     auto start = std::chrono::high_resolution_clock::now();
     // run the performance test
-    for (uint64_t i = 0; i < NUMBER_OF_ROUNDTRIPS; ++i)
+    for (auto i = 0; i < NUMBER_OF_ROUNDTRIPS; ++i)
     {
         const void* receivedChunk;
         while (!subscriber.getChunk(&receivedChunk))
@@ -51,10 +51,10 @@ double measureLatency(iox::popo::Publisher& publisher, iox::popo::Subscriber& su
 
     auto finish = std::chrono::high_resolution_clock::now();
 
-    constexpr uint64_t TRANSMISSIONS_PER_ROUNDTRIP{2};
+    constexpr int64_t TRANSMISSIONS_PER_ROUNDTRIP{2};
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
     auto latencyInNanoSeconds = (duration.count() / (NUMBER_OF_ROUNDTRIPS * TRANSMISSIONS_PER_ROUNDTRIP));
-    auto latencyInMicroSeconds = latencyInNanoSeconds / 1000.;
+    auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000;
     return latencyInMicroSeconds;
 }
 
@@ -86,7 +86,7 @@ int main()
     std::cout << "done" << std::endl;
 
     std::vector<double> latencyInMicroSeconds;
-    const std::vector<int64_t> payloadSizesInKB{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
+    const std::vector<uint32_t> payloadSizesInKB{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
     for (const auto payloadSizeInKB : payloadSizesInKB)
     {
         std::cout << "Measurement for " << payloadSizeInKB << " kB payload ... " << std::flush;

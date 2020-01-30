@@ -83,6 +83,16 @@ RouDiApp::RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept
     init();
 }
 
+RouDiApp::RouDiApp(int argc, char* argv[], RouDiConfigFileParser* configFileParser) noexcept
+    : m_configFileParser(configFileParser)
+{
+    m_config.setDefaults();
+
+    parseCmdLineArguments(argc, argv);
+
+    init();
+}
+
 RouDiApp::RouDiApp(const RouDiConfig_t& config) noexcept
     : m_config(config)
 {
@@ -131,10 +141,11 @@ void RouDiApp::parseCmdLineArguments(int argc, char* argv[], CmdLineArgumentPars
                                       {"version", no_argument, nullptr, 'v'},
                                       {"monitoring-mode", required_argument, nullptr, 'm'},
                                       {"log-level", required_argument, nullptr, 'l'},
+                                      {"config-file", required_argument, nullptr, 'c'},
                                       {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* shortOptions = "hvm:l:b:";
+    constexpr const char* shortOptions = "hvm:l:b:c:";
     int index;
     int opt{-1};
     while (opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1)
@@ -154,10 +165,9 @@ void RouDiApp::parseCmdLineArguments(int argc, char* argv[], CmdLineArgumentPars
             std::cout << "-l, --log-level <LEVEL>           Set log level." << std::endl;
             std::cout << "                                  <LEVEL> {off, fatal, error, warning, info, debug, verbose}"
                       << std::endl;
-            std::cout << "-b,                               Start address hint of the shared memory segments"
-                         "                                  e.g. 0x1f4000000"
+            std::cout << "-c, --config-file                 Path to the RouDi Config File."
+                         "                                  Have a look at the documentation for the format."
                       << std::endl;
-
             m_run = false;
             break;
         case 'v':
@@ -181,24 +191,6 @@ void RouDiApp::parseCmdLineArguments(int argc, char* argv[], CmdLineArgumentPars
                 m_run = false;
                 LogError() << "Options for monitoring-mode are 'on' and 'off'!";
             }
-            break;
-        }
-
-        case 'b':
-        {
-            auto call = cxx::makeSmartC(
-                strtoull, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, optarg, nullptr, 16);
-            if (call.hasErrors())
-            {
-                LogFatal() << optarg
-                           << " is not a valid base address in hexadecimal form for option (-b), use it like -b 0xabc";
-                std::terminate();
-            }
-            else
-            {
-                m_config.roudi.m_sharedMemoryBaseAddressOffset = static_cast<uintptr_t>(call.getReturnValue());
-            }
-
             break;
         }
 
@@ -237,6 +229,28 @@ void RouDiApp::parseCmdLineArguments(int argc, char* argv[], CmdLineArgumentPars
                 m_run = false;
                 LogError()
                     << "Options for log-level are 'off', 'fatal', 'error', 'waring', 'info', 'debug' and 'verbose'!";
+            }
+            break;
+        }
+
+        case 'c':
+        {
+            if (!m_configFileParser)
+            {
+                LogFatal() << "Config File Parsing is not implemented!";
+                exit(EXIT_FAILURE);
+            }
+            else
+            {
+                using ParseResult = cxx::expected<RouDiConfig_t, RouDiConfigFileParseError>;
+                m_configFileParser->parse(ConfigFilePathString_t(cxx::UnsafeCheckPreconditions, optarg))
+                    .on_success([this](ParseResult& parseResult) { this->m_config = *parseResult; })
+                    .on_error([](ParseResult& parseResult) {
+                        iox::LogFatal() << "Couldn't parse config file. Error: "
+                                        << cxx::convertEnumToString(ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
+                                                                    parseResult.get_error());
+                        exit(EXIT_FAILURE);
+                    });
             }
             break;
         }

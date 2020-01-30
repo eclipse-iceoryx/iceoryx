@@ -150,6 +150,7 @@ Timer::OsTimer::OsTimer(units::Duration timeToWait, std::function<void()> callba
     // Set the function pointer to our sigevent
     asyncCallNotification.sigev_notify_function = &callbackHelper;
     // Save the pointer to self in order to execute the callback
+    asyncCallNotification.sigev_value.sival_ptr = nullptr; // initialize all bits of the sigval union for mem check
     asyncCallNotification.sigev_value.sival_int =
         Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(m_callbackHandleIndex, callbackHandleDescriptor)
             .sival_int;

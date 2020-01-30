@@ -12,10 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <cstdlib>
+#include <cstring>
+#include <signal.h>
+#include <unistd.h>
+
 namespace iox
 {
 namespace runtime
 {
+namespace
+{
+void sigbusHandler(int) noexcept
+{
+    char msg[] =
+        "\033[0;1;97;41mFatal error:\033[m the available memory is insufficient. Cannot allocate mempools in shared "
+        "memory. Please make sure that enough memory is available. For this, consider also the memory which is "
+        "required for the [/iceoryx_mgmt] segment. Please refer to share/doc/iceoryx/FAQ.md in your release delivery.";
+    size_t len = strlen(msg);
+    write(STDERR_FILENO, msg, len);
+    _exit(EXIT_FAILURE);
+}
+} // namespace
 template <typename ShmType>
 inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& config) noexcept
 {
@@ -37,6 +55,14 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
 
     auto pageSize = posix::pageSize().value_or(posix::MaxPageSize);
 
+    // register signal handler for SIGBUS
+    struct sigaction oldAct;
+    struct sigaction newAct;
+    sigemptyset(&newAct.sa_mask);
+    newAct.sa_handler = sigbusHandler;
+    newAct.sa_flags = 0;
+    sigaction(SIGBUS, &newAct, &oldAct);
+    
     // we let the OS decide where to map the shm segments
     constexpr void* BASE_ADDRESS_HINT{nullptr};
 
@@ -74,6 +100,9 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
     m_shmTypePtr->m_roudiMemoryManager.configureMemoryManager(
         mempoolConfig, m_shmObject->getAllocator(), m_shmObject->getAllocator());
     m_shmObject->finalizeAllocation();
+
+    // unregister signal handler
+    sigaction(SIGBUS, &oldAct, nullptr);
 }
 
 template <typename ShmType>

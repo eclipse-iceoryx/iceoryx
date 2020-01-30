@@ -140,7 +140,7 @@ class MiddlewareShm
     FixedPositionContainer<popo::ApplicationPortData, MAX_PROCESS_NUMBER> m_applicationPortMembers;
     FixedPositionContainer<runtime::RunnableData, MAX_RUNNABLE_NUMBER> m_runnableMembers;
 
-    uint64_t m_segmentId;
+    uint64_t m_segmentId{0};
 
     // required to be atomic since a service can be offered or stopOffered while reading
     // this variable in a user application
@@ -161,11 +161,22 @@ class SharedMemoryManager
 
     void doDiscovery();
 
-    SenderPortType::MemberType_t* acquireSenderPortData(const capro::ServiceDescription& service,
-                                                        Interfaces interface,
-                                                        const std::string& processName,
-                                                        mepoo::MemoryManager* payloadMemoryManager,
-                                                        const std::string& runnable = "");
+    enum class AcquireSenderPortDataError
+    {
+        /// No error happened
+        NONE,
+        /// A sender could not be created unique
+        NO_UNIQUE_CREATED,
+        /// The fixedList with SenderPorts in Roudi is full
+        SENDERLIST_FULL
+    };
+
+    cxx::expected<SenderPortType::MemberType_t*, AcquireSenderPortDataError>
+    acquireSenderPortData(const capro::ServiceDescription& service,
+                          Interfaces interface,
+                          const std::string& processName,
+                          mepoo::MemoryManager* payloadMemoryManager,
+                          const std::string& runnable = "");
 
     ReceiverPortType::MemberType_t* acquireReceiverPortData(const capro::ServiceDescription& service,
                                                             Interfaces interface,

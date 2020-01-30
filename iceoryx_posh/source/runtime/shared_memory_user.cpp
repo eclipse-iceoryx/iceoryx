@@ -15,6 +15,7 @@
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
@@ -49,7 +50,9 @@ SharedMemoryUser::SharedMemoryUser(std::string baseAddrString[[gnu::unused]],
                   << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_shmObject->getBaseAddress())) << " with size "
                   << m_shmObject->getSizeInBytes() << " to id " << segmentId;
 
-        auto ptr = RelativePointer::getPtr(segmentId, std::stoll(segmentManagerAddr));
+        RelativePointer::offset_t offset;
+        iox::cxx::convert::fromString(segmentManagerAddr.c_str(), offset);
+        auto ptr = RelativePointer::getPtr(segmentId, offset);
         auto segmentManager = reinterpret_cast<mepoo::SegmentManager<>*>(ptr);
 
         auto segmentMapping = segmentManager->getSegmentMappings(posix::PosixUser::getUserOfCurrentProcess());

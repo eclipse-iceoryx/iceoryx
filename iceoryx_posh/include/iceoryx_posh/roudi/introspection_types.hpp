@@ -24,7 +24,6 @@ namespace iox
 namespace roudi
 {
 constexpr char INTROSPECTION_MQ_APP_NAME[] = "/introspection";
-constexpr char MEMPOOL_INTROSPECTION_MQ_APP_NAME[] = "/mempool_introspection";
 const capro::ServiceDescription IntrospectionMempoolService("Introspection", "RouDi_ID", "MemPool");
 constexpr int MAX_GROUP_NAME_LENGTH = 32;
 
@@ -52,7 +51,6 @@ struct MemPoolIntrospectionTopic
     MemPoolInfoContainer m_mempoolInfo;
 };
 
-constexpr char PORT_INTROSPECTION_MQ_APP_NAME[] = "/port_introspection";
 const capro::ServiceDescription IntrospectionPortService("Introspection", "RouDi_ID", "Port");
 
 /// @brief sender/receiver port information consisting of a process name,a capro service description string
@@ -89,7 +87,6 @@ struct PortIntrospectionFieldTopic
     cxx::vector<SenderPortData, MAX_PORT_NUMBER> m_senderList;
 };
 
-constexpr char PORT_THROUGHPUT_INTROSPECTION_MQ_APP_NAME[] = "/portThroughput_introspection";
 const capro::ServiceDescription IntrospectionPortThroughputService("Introspection", "RouDi_ID", "PortThroughput");
 
 struct PortThroughputData
@@ -126,7 +123,6 @@ struct ReceiverPortChangingIntrospectionFieldTopic
     cxx::vector<ReceiverPortChangingData, MAX_PORT_NUMBER> receiverPortChangingDataList;
 };
 
-constexpr char PROCESS_INTROSPECTION_MQ_APP_NAME[] = "/process_introspection";
 const capro::ServiceDescription IntrospectionProcessService("Introspection", "RouDi_ID", "Process");
 
 struct ProcessIntrospectionData

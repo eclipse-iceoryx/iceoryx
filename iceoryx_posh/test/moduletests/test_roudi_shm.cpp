@@ -66,7 +66,7 @@ class SharedMemoryManager_test : public Test
         m_shmManager = new CShmMangerTester(config);
         // clearing the introspection, is not in d'tor -> SEGFAULT in delete sporadically
         m_shmManager->stopPortIntrospection();
-        m_shmManager->deletePortsOfProcess(iox::roudi::PORT_INTROSPECTION_MQ_APP_NAME);
+        m_shmManager->deletePortsOfProcess(iox::MQ_ROUDI_NAME);
     }
 
     void TearDown() override
@@ -108,10 +108,12 @@ class SharedMemoryManager_test : public Test
 TEST_F(SharedMemoryManager_test, doDiscovery_singleShotSenderFirst)
 {
     SenderPort sender(
-        m_shmManager->acquireSenderPortData({1, 1, 1},
-                                            iox::Interfaces::INTERNAL,
-                                            "/guiseppe",
-                                            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager));
+        m_shmManager
+            ->acquireSenderPortData({1, 1, 1},
+                                    iox::Interfaces::INTERNAL,
+                                    "/guiseppe",
+                                    &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
+            .get_value());
     ASSERT_TRUE(sender);
     sender.activate();
     // no doDiscovery() at this position is intentional
@@ -140,10 +142,12 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirst)
     // no doDiscovery() at this position is intentional
 
     SenderPort sender(
-        m_shmManager->acquireSenderPortData({1, 1, 1},
-                                            iox::Interfaces::INTERNAL,
-                                            "/guiseppe",
-                                            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager));
+        m_shmManager
+            ->acquireSenderPortData({1, 1, 1},
+                                    iox::Interfaces::INTERNAL,
+                                    "/guiseppe",
+                                    &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
+            .get_value());
     ASSERT_TRUE(sender);
     sender.activate();
 
@@ -167,10 +171,12 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirstWithDiscover
     m_shmManager->doDiscovery();
 
     SenderPort sender(
-        m_shmManager->acquireSenderPortData({1, 1, 1},
-                                            iox::Interfaces::INTERNAL,
-                                            "/guiseppe",
-                                            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager));
+        m_shmManager
+            ->acquireSenderPortData({1, 1, 1},
+                                    iox::Interfaces::INTERNAL,
+                                    "/guiseppe",
+                                    &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
+            .get_value());
     ASSERT_TRUE(sender);
     sender.activate();
 
@@ -194,10 +200,12 @@ TEST_F(SharedMemoryManager_test, doDiscovery_rightOrdering)
     m_shmManager->doDiscovery();
 
     SenderPort sender(
-        m_shmManager->acquireSenderPortData({1, 1, 1},
-                                            iox::Interfaces::INTERNAL,
-                                            "/guiseppe",
-                                            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager));
+        m_shmManager
+            ->acquireSenderPortData({1, 1, 1},
+                                    iox::Interfaces::INTERNAL,
+                                    "/guiseppe",
+                                    &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
+            .get_value());
     ASSERT_TRUE(sender);
     sender.activate();
 

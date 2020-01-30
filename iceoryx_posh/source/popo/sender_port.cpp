@@ -393,6 +393,11 @@ uint32_t SenderPort::getMaxDeliveryFiFoCapacity()
     return getMembers()->m_receiverHandler.getMaxDeliveryFiFoCapacity();
 }
 
+bool SenderPort::isUnique() const
+{
+    return getMembers()->m_isUnique;
+}
+
 const SenderPort::MemberType_t* SenderPort::getMembers() const
 {
     return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());

@@ -45,18 +45,21 @@ SharedMemoryManager::SharedMemoryManager(const RouDiConfig_t& f_config)
 
     auto portGeneric = acquireSenderPortData(IntrospectionPortService,
                                              Interfaces::INTERNAL,
-                                             PORT_INTROSPECTION_MQ_APP_NAME,
-                                             &m_ShmInterface.getShmInterface()->m_roudiMemoryManager);
+                                             MQ_ROUDI_NAME,
+                                             &m_ShmInterface.getShmInterface()->m_roudiMemoryManager)
+                           .get_value();
 
     auto portThroughput = acquireSenderPortData(IntrospectionPortThroughputService,
                                                 Interfaces::INTERNAL,
-                                                PORT_INTROSPECTION_MQ_APP_NAME,
-                                                &m_ShmInterface.getShmInterface()->m_roudiMemoryManager);
+                                                MQ_ROUDI_NAME,
+                                                &m_ShmInterface.getShmInterface()->m_roudiMemoryManager)
+                              .get_value();
 
     auto receiverPortsData = acquireSenderPortData(IntrospectionReceiverPortChangingDataService,
                                                    Interfaces::INTERNAL,
-                                                   PORT_INTROSPECTION_MQ_APP_NAME,
-                                                   &m_ShmInterface.getShmInterface()->m_roudiMemoryManager);
+                                                   MQ_ROUDI_NAME,
+                                                   &m_ShmInterface.getShmInterface()->m_roudiMemoryManager)
+                                 .get_value();
 
     m_portIntrospection.registerSenderPort(portGeneric, portThroughput, receiverPortsData);
     m_portIntrospection.run();
@@ -475,11 +478,12 @@ const runtime::SharedMemoryCreator<MiddlewareShm>& SharedMemoryManager::getShmIn
     return m_ShmInterface;
 }
 
-SenderPortType::MemberType_t* SharedMemoryManager::acquireSenderPortData(const capro::ServiceDescription& f_service,
-                                                                         Interfaces f_interface,
-                                                                         const std::string& f_processName,
-                                                                         mepoo::MemoryManager* f_payloadMemoryManager,
-                                                                         const std::string& f_runnable)
+cxx::expected<SenderPortType::MemberType_t*, SharedMemoryManager::AcquireSenderPortDataError>
+SharedMemoryManager::acquireSenderPortData(const capro::ServiceDescription& f_service,
+                                           Interfaces f_interface,
+                                           const std::string& f_processName,
+                                           mepoo::MemoryManager* f_payloadMemoryManager,
+                                           const std::string& f_runnable)
 {
     MiddlewareShm* const l_shm = m_ShmInterface.getShmInterface();
 
@@ -489,15 +493,23 @@ SenderPortType::MemberType_t* SharedMemoryManager::acquireSenderPortData(const c
         SenderPortType l_senderPort(l_senderPortData);
         if (f_service == l_senderPort.getCaProServiceDescription())
         {
-            /// @todo report an error but not one that leads to termination of RouDi
-            WARN_PRINTF("Multiple sender ports with same CaPro ID currently not supported\n %s %s %s",
-                        f_service.getServiceIDString().to_cstring(),
-                        f_service.getInstanceIDString().to_cstring(),
-                        f_service.getEventIDString().to_cstring());
-            /// @todo we have to tolerate it currently for ROS2 support. Needs multiple sender feature
-            // return nullptr;
+            std::stringstream ss;
+            ss << "Process '" << f_processName << "' tried to register an unique SenderPort which is already used by '"
+               << l_senderPortData->m_processName << "' with service '"
+               << f_service.operator cxx::Serialization().toString() << "'.";
+            LOG_WARN(ss.str().c_str());
+            if (l_senderPort.isUnique())
+            {
+                errorHandler(Error::kPOSH__SENDERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+                return cxx::error<AcquireSenderPortDataError>(AcquireSenderPortDataError::NO_UNIQUE_CREATED);
+            }
+            else
+            {
+                break;
+            }
         }
     }
+    // we can create a new port
 
     if (l_shm->m_senderPortMembers.hasFreeSpace())
     {
@@ -505,12 +517,12 @@ SenderPortType::MemberType_t* SharedMemoryManager::acquireSenderPortData(const c
         auto senderPortData =
             l_shm->m_senderPortMembers.insert(f_service, f_payloadMemoryManager, f_processName, f_interface, nullptr);
         m_portIntrospection.addSender(senderPortData, f_processName, f_service, f_runnable);
-        return senderPortData;
+        return cxx::success<SenderPortType::MemberType_t*>(senderPortData);
     }
     else
     {
-        errorHandler(Error::kROUDI_SHM__MIDDLEWARESENDERLIST_OVERFLOW);
-        return nullptr;
+        errorHandler(Error::kROUDI_SHM__MIDDLEWARESENDERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<AcquireSenderPortDataError>(AcquireSenderPortDataError::SENDERLIST_FULL);
     }
 }
 
