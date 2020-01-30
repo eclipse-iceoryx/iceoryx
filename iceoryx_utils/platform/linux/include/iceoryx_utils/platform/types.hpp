@@ -14,4 +14,4 @@
 
 #pragma once
 
-#include <semaphore.h>
+#include <sys/types.h>

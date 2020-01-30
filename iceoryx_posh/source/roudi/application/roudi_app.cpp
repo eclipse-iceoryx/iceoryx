@@ -28,7 +28,7 @@
 #include "stdio.h"
 #include <getopt.h>
 #include <pthread.h>
-#include <semaphore.h> // @todo: use semaphore wrapper
+#include "iceoryx_utils/platform/semaphore.hpp" // @todo: use semaphore wrapper
 #include <signal.h>
 #include <sys/resource.h>
 
