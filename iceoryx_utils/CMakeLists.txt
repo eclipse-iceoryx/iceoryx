@@ -163,38 +163,30 @@ add_library(iceoryx_utils
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)
 
+if(LINUX)
+    set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/include/)
+    target_link_libraries(iceoryx_utils PRIVATE rt acl ${CODE_COVERAGE_LIBS})
+elseif(QNX)
+    set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/qnx/include/)
+elseif(APPLE)
+    set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/mac/include/)
+elseif(WIN32)
+    set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/win/include/)
+else()
+    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
+endif()
+
 set_target_properties(iceoryx_utils PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # TODO: Make ICEORYX::UTILS private???
 target_include_directories(iceoryx_utils
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/include>
+    $<BUILD_INTERFACE:${ICEORYX_PLATFORM_INCLUDES}>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
-if(LINUX)
-    message(STATUS "Linux detected")
-elseif(QNX)
-    message(STATUS "QNX detected")
-elseif(APPLE)
-    message(STATUS "APPLE detected")
-elseif(WIN32)
-    message(STATUS "Windows detected")
-else()
-    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
-endif()
-
 target_compile_options(iceoryx_utils PUBLIC -std=c++11)
 target_compile_options(iceoryx_utils PUBLIC -fPIC)
-
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_utils PRIVATE acl ${CODE_COVERAGE_LIBS})
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_utils PRIVATE rt)
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-
 
 set_target_properties(iceoryx_utils
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
@@ -210,6 +202,13 @@ endif(PERFORM_CLANG_TIDY)
 #
 ########## exporting library ##########
 #
+
+#TODO add support for multiple include directories to setup_install_directories_and_export_package
+install(
+    DIRECTORY ${ICEORYX_PLATFORM_INCLUDES}
+    DESTINATION include/${PREFIX}
+    COMPONENT dev
+)
 setup_install_directories_and_export_package(
     TARGETS iceoryx_utils
     INCLUDE_DIRECTORY include/
