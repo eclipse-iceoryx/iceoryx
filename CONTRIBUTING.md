@@ -50,10 +50,11 @@ Contact the project developers via the project's "dev" list.
 We love pull requests! The next sections try to cover most of the relevant questions. For larger contributions or
 architectural changes we'd kindly ask you to get in touch with one of the maintainers beforehand. If you would like to
 report a bug or propose a new feature, please raise an issue before raising a pull request. This makes it easier to
-track. Beforehand, please make sure you have:
+track. Please make sure you have:
 
 1. Signed the [ECA](http://www.eclipse.org/legal/ECA.php)
 2. All commits have been commited with `git commit -s`
+3. You open your pull request towards the base branch `staging`
 
 ## Coding style
 
