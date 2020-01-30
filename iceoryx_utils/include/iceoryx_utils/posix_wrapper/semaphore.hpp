@@ -21,7 +21,7 @@
 
 #include <cstring>
 #include <fcntl.h>
-#include "iceoryx_platform/semaphore.hpp"
+#include "iceoryx_utils/platform/semaphore.hpp"
 #include <sys/stat.h>
 
 namespace iox
