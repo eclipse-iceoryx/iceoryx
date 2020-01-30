@@ -54,12 +54,12 @@ struct ComposedSenderPortData
 
 struct ComposedReceiverPortData
 {
-    ComposedReceiverPortData(const ReceiverPortData& f_portData,
-                             const SenderPortData* f_correspondingSenderPortData,
-                             const ReceiverPortChangingData& f_receiverPortChangingData)
-        : portData(&f_portData)
-        , correspondingSenderPort(f_correspondingSenderPortData)
-        , receiverPortChangingData(&f_receiverPortChangingData)
+    ComposedReceiverPortData(const ReceiverPortData& portData,
+                             const SenderPortData* correspondingSenderPortData,
+                             const ReceiverPortChangingData& receiverPortChangingData)
+        : portData(&portData)
+        , correspondingSenderPort(correspondingSenderPortData)
+        , receiverPortChangingData(&receiverPortChangingData)
     {
     }
     const ReceiverPortData* portData;

@@ -109,12 +109,14 @@ class CMqInterfaceStartupRace_test : public Test
     MQueue::result_t m_appQueue;
 };
 
-TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq_PERFORMANCETEST42)
+TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 {
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
     /// mqueue
 
+    std::atomic<bool> shutdown;
+    shutdown = false;
     auto roudi = std::thread([&] {
         std::lock_guard<std::mutex> lock(m_roudiQueueMutex);
         // ensure that the application already opened the roudi mqueue by waiting until a REG request is sent to the
@@ -135,10 +137,16 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq_PERFORMANCETEST42)
         checkRegRequest(msg);
 
         sendRegAck(msg);
+
+        while (!shutdown)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
     });
 
     MqRuntimeInterface dut(MqRouDiName, MqAppName, 35_s);
 
+    shutdown = true;
     roudi.join();
 }
 
@@ -148,26 +156,28 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
     /// mqueue, the obsolete mqueue was filled up to the max message size, e.g. by the KEEP_ALIVE messages
 
+    std::atomic<bool> shutdown;
+    shutdown = false;
     auto roudi = std::thread([&] {
         // fill the roudi mqueue
         std::lock_guard<std::mutex> lock(m_roudiQueueMutex);
-        while (!m_roudiQueue->timedSend("dummy", 10_ms).has_error())
+        while (!m_roudiQueue->timedSend("dummy", 1_s).has_error())
         {
         }
 
         // wait some time for Runtime::GetInstance to send a REQ request with the full mqueue
-        std::this_thread::sleep_for(std::chrono::milliseconds(666));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
         auto newRoudi = MQueue::create(MqRouDiName, MessageQueueMode::Blocking, MessageQueueOwnership::CreateNew);
 
         // check if the app retries to register at RouDi
-        auto request = newRoudi->timedReceive(5_s);
+        auto request = newRoudi->timedReceive(15_s);
         if (request.has_error())
         {
             // clear the old mqueue to prevent a deadlock in mq_send to the old roudi mqueue in the app
-            while (!m_roudiQueue->timedReceive(10_ms).has_error())
+            while (!m_roudiQueue->timedReceive(1_s).has_error())
             {
             }
         }
@@ -176,10 +186,16 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
         checkRegRequest(msg);
 
         sendRegAck(msg);
+
+        while (!shutdown)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
     });
 
-    MqRuntimeInterface dut(MqRouDiName, MqAppName, 10000_ms);
+    MqRuntimeInterface dut(MqRouDiName, MqAppName, 35_s);
 
+    shutdown = true;
     roudi.join();
 }
 
@@ -190,6 +206,8 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
     /// this results in a message in the application mqueue which will be read with the next command and results in a
     /// wrong response
 
+    std::atomic<bool> shutdown;
+    shutdown = false;
     auto roudi = std::thread([&] {
         std::lock_guard<std::mutex> lock(m_roudiQueueMutex);
         // wait for the REG request
@@ -199,7 +217,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
         checkRegRequest(msg);
 
         MqMessage obsoleteMsg;
-        for (int i = 0; i < 4; ++i)
+        for (uint32_t i = 0; i < 4; ++i)
         {
             obsoleteMsg << msg.getElementAtIndex(i);
         }
@@ -207,10 +225,16 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
         obsoleteMsg << 0;
         sendRegAck(obsoleteMsg);
         sendRegAck(msg);
+
+        while (!shutdown)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
     });
 
-    MqRuntimeInterface dut(MqRouDiName, MqAppName, 10000_ms);
+    MqRuntimeInterface dut(MqRouDiName, MqAppName, 35_s);
 
+    shutdown = true;
     roudi.join();
 
     std::lock_guard<std::mutex> lock(m_appQueueMutex);

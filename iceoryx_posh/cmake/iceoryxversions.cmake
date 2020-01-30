@@ -15,3 +15,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_versions.hpp.in"
 install(FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_versions.hpp
   DESTINATION include/${PREFIX}
   COMPONENT dev)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/FAQ.md
+  DESTINATION share/doc/iceoryx
+  COMPONENT dev)

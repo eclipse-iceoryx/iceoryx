@@ -57,12 +57,13 @@ struct SenderPortData : public BasePortData
 
     // Written by application, read by RouDi
     std::atomic_bool m_activateRequested{false};
+    std::atomic_bool m_active{false};
+    bool m_isUnique{false};
 
 
     UsedChunkList<MAX_SAMPLE_ALLOCATE_PER_SENDER> m_allocatedChunksList;
 
     mepoo::SequenceNumberType m_sequenceNumber{0};
-    std::atomic_bool m_active{false};
     // throughput related members
     std::atomic<uint32_t> m_activePayloadSize{0};
     Throughput m_throughput{};

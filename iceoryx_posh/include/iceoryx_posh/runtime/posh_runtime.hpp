@@ -23,6 +23,7 @@
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
+#include "iceoryx_posh/runtime/service_discovery_notifier.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
 
 #include <atomic>
@@ -45,8 +46,6 @@ class RunnableData;
 
 constexpr char DEFAULT_RUNTIME_INSTANCE_NAME[] = "dummy";
 
-using IdString = iox::capro::ServiceDescription::IdString;
-using InstanceContainer = std::vector<IdString>;
 
 /// @brief The runtime that is needed for each application to communicate with the RouDi daemon
 class PoshRuntime
@@ -63,8 +62,26 @@ class PoshRuntime
     /// @brief find all services that match the provided service description
     /// @param[in] serviceDescription service to search for
     /// @param[out] instanceContainer container that is filled with all matching instances
-    void findService(const capro::ServiceDescription& serviceDescription,
-                     InstanceContainer& instanceContainer) noexcept;
+    /// @return cxx::expected<Error> Error, if any, encountered during the operation
+    /// Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW : Number of instances can't fit in instanceContainer
+    /// Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ : Find Service Request could not be sent to RouDi
+    cxx::expected<Error> findService(const capro::ServiceDescription& serviceDescription,
+                                     InstanceContainer& instanceContainer) noexcept;
+
+    /// @brief register handler, which will be called when the service availability, as specified by
+    /// serviceDescription, changes
+    /// @param[in] handler to be called when the service availability changes
+    /// @param[in] IdString service id
+    /// @return cxx::expected<FindServiceHandle, Error>
+    /// FindServiceHandle -> a handle for this search/find request, which shall be used to stop the availability
+    /// monitoring and related firing of the given handler, in case of success
+    /// Error             -> corresponding Error code, in case of error
+    cxx::expected<FindServiceHandle, Error> startFindService(const FindServiceHandler& handler,
+                                                             const IdString& serviceId) noexcept;
+
+    /// @brief Method to stop finding service request (see above)
+    /// @param[in] handle identifier for the startFindService request
+    void stopFindService(const FindServiceHandle handle) noexcept;
 
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
     /// @param[in] serviceDescription service to offer
@@ -72,7 +89,7 @@ class PoshRuntime
 
     /// @brief stop offering the provided service
     /// @param[in] serviceDescription of the service that shall be no more offered
-    void stopOfferService(const capro::ServiceDescription& f_serviceDescription) noexcept;
+    void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief request the RouDi daemon to create a sender port
     /// @param[in] serviceDescription service description for the new sender port
@@ -146,7 +163,9 @@ class PoshRuntime
     static PoshRuntime& defaultRuntimeFactory(const std::string& name) noexcept;
 
   private:
-    SenderPortType::MemberType_t* requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept;
+    cxx::expected<SenderPortType::MemberType_t*, MqMessageErrorType>
+    requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept;
+
     ReceiverPortType::MemberType_t* requestReceiverFromRoudi(const MqMessage& sendBuffer) noexcept;
 
     const std::string& verifyInstanceName(const std::string& name) noexcept;
@@ -162,6 +181,9 @@ class PoshRuntime
 
     void sendKeepAlive() noexcept;
     static_assert(PROCESS_KEEP_ALIVE_INTERVAL > DISCOVERY_INTERVAL, "Keep alive interval too small");
+
+    ServiceDiscoveryNotifier m_serviceDiscoveryNotifier;
+
     /// @note the m_keepAliveTimer should always be the last member, so that it will be the first member to be detroyed
     iox::posix::Timer m_keepAliveTimer{PROCESS_KEEP_ALIVE_INTERVAL, [&]() { this->sendKeepAlive(); }};
 };

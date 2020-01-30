@@ -45,7 +45,7 @@ class MePooSegment
   protected:
     SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& f_mempoolConfig,
                                                     const posix::PosixGroup& f_writerGroup,
-                                                    const uintptr_t f_baseAddressOffset);
+                                                    const uintptr_t f_baseAddressOffset[[gnu::unused]]);
 
   protected:
     SharedMemoryObjectType m_sharedMemoryObject;

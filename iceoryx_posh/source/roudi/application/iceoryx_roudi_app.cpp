@@ -14,9 +14,9 @@
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 
+#include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
 
 namespace iox
 {
@@ -24,6 +24,11 @@ namespace roudi
 {
 IceOryxRouDiApp::IceOryxRouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept
     : RouDiApp(argc, argv, config)
+{
+}
+
+IceOryxRouDiApp::IceOryxRouDiApp(int argc, char* argv[], RouDiConfigFileParser* configFileParser) noexcept
+    : RouDiApp(argc, argv, configFileParser)
 {
 }
 

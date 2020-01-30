@@ -111,11 +111,6 @@ class RelativePointer
         return getBasePtr(m_id);
     }
 
-    void print() const
-    {
-        std::cout << "RP: offset " << m_offset << " id " << m_id << " ptr " << get() << std::endl;
-    }
-
     //*********************************id operations********************************************
 
     ///@brief registers a memory segment at ptr with size of a new id
