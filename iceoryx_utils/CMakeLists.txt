@@ -160,8 +160,7 @@ set_target_properties(iceoryx_utils PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_
 target_include_directories(iceoryx_utils
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/message_queue>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 target_compile_options(iceoryx_utils PUBLIC -std=c++11)
