@@ -17,7 +17,7 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include <pthread.h>
 
-#if defined(__QNX__)
+#if defined(__QNX__) || defined(__APPLE__)
 #define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
 #define PTHREAD_MUTEX_FAST_NP PTHREAD_MUTEX_NORMAL
 #endif
