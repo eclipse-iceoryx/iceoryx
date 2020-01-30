@@ -5,6 +5,14 @@ project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 add_compile_options(-fPIC)
 add_compile_options(-std=c++11)
 
+if(UNIX AND NOT APPLE)
+    if(CMAKE_SYSTEM_NAME MATCHES Linux)
+        set(LINUX true)
+    elseif(CMAKE_SYSTEM_NAME MATCHES QNX)
+        set(QNX true)
+    endif()
+endif(UNIX AND NOT APPLE)
+
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 
 if( clang-tidy )
@@ -163,6 +171,19 @@ target_include_directories(iceoryx_utils
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
+
+if(LINUX)
+    message(STATUS "Linux detected")
+elseif(QNX)
+    message(STATUS "QNX detected")
+elseif(APPLE)
+    message(STATUS "APPLE detected")
+elseif(WIN32)
+    message(STATUS "Windows detected")
+else()
+    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
+endif()
+
 target_compile_options(iceoryx_utils PUBLIC -std=c++11)
 target_compile_options(iceoryx_utils PUBLIC -fPIC)
 
