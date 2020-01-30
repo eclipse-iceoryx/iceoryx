@@ -18,11 +18,11 @@
 #include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/platform/mqueue.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
 
 #include <fcntl.h>
 #include <iostream>
-#include <mqueue.h>
-#include <sys/stat.h>
 
 namespace iox
 {
@@ -136,4 +136,3 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, MessageQueueEr
 };
 } // namespace posix
 } // namespace iox
-

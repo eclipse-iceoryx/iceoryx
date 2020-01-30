@@ -13,13 +13,13 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/platform/mman.hpp"
+#include "iceoryx_utils/platform/stat.hpp" /* For mode constants */
 
 #include "test.hpp"
 
 #include <cstring>
 #include <fcntl.h> /* For O_* constants */
-#include <sys/mman.h>
-#include <sys/stat.h> /* For mode constants */
 using namespace ::testing;
 
 namespace

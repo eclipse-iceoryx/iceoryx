@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_utils/platform/unistd.hpp"
+
 #include <cstdlib>
 #include <cstring>
 #include <signal.h>
-#include <unistd.h>
 
 namespace iox
 {

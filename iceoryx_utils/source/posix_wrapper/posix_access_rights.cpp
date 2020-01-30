@@ -14,12 +14,12 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/platform/grp.hpp"
+#include "iceoryx_utils/platform/pwd.hpp"
 #include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
 
-#include <grp.h>
 #include <limits>
-#include <pwd.h>
-#include <unistd.h>
 
 namespace iox
 {

@@ -15,7 +15,7 @@
 #pragma once
 
 #include "iceoryx_utils/cxx/optional.hpp"
-#include <pthread.h>
+#include "iceoryx_utils/platform/pthread.hpp"
 
 #if defined(__QNX__) || defined(__APPLE__)
 #define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
@@ -106,4 +106,3 @@ class mutex
 };
 } // namespace posix
 } // namespace iox
-

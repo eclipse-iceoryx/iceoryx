@@ -15,8 +15,9 @@
 #ifndef MQUEUE_MOCK_HPP_INCLUDED
 #define MQUEUE_MOCK_HPP_INCLUDED
 
+#include "iceoryx_utils/platform/mqueue.hpp"
+
 #include "test.hpp"
-#include <mqueue.h>
 #include <mutex>
 
 using namespace ::testing;

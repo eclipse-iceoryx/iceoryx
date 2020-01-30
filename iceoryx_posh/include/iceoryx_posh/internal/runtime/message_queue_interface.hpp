@@ -17,19 +17,19 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/platform/mqueue.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 #include <cstdint>
 #include <errno.h>
 #include <fcntl.h>
-#include <mqueue.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-#include <sys/stat.h>
 #include <time.h>
-#include <unistd.h>
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
 #include <process.h>

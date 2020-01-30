@@ -14,10 +14,11 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
+
 #include <assert.h>
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 namespace iox
 {

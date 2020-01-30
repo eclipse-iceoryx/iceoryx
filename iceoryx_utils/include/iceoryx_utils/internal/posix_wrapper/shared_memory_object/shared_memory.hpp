@@ -14,10 +14,10 @@
 
 #pragma once
 
-#include <cstdint>
-#include <sys/mman.h>
-
+#include "iceoryx_utils/platform/mman.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+
+#include <cstdint>
 
 namespace iox
 {

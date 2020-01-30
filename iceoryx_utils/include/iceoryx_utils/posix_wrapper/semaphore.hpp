@@ -19,10 +19,10 @@
 #include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/platform/semaphore.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
 
 #include <cstring>
 #include <fcntl.h>
-#include <sys/stat.h>
 
 namespace iox
 {

@@ -14,13 +14,13 @@
 
 #pragma once
 
-#include <cstdint>
-#include <sys/stat.h>
-
+#include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+
+#include <cstdint>
 
 namespace iox
 {

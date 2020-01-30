@@ -16,10 +16,10 @@
 
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/platform/time.hpp" // required for QNX
 
 #include <chrono>
 #include <iostream>
-#include <sys/time.h> // required for QNX
 #include <time.h>
 
 namespace iox

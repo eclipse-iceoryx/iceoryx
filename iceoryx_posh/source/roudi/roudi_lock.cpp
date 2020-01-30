@@ -13,11 +13,10 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
+#include "iceoryx_utils/platform/socket.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
 
-#include <arpa/inet.h>
 #include <stdlib.h>
-#include <sys/socket.h>
-#include <unistd.h>
 
 namespace iox
 {
@@ -27,7 +26,7 @@ RouDiLock::RouDiLock()
 {
     if (m_socket_fd == -1)
     {
-        LogError()<<"Could not create socket";
+        LogError() << "Could not create socket";
         std::terminate();
     }
 
@@ -47,7 +46,7 @@ RouDiLock::RouDiLock()
 
     if (l_bindcall.hasErrors())
     {
-        LogError()<<"Cannot lock socket, is RouDi already running? \n";
+        LogError() << "Cannot lock socket, is RouDi already running? \n";
         exit(EXIT_FAILURE);
     }
 }
@@ -59,7 +58,7 @@ RouDiLock::~RouDiLock()
 
     if (l_socket_close.hasErrors())
     {
-        LogError()<< "Could not close socket";
+        LogError() << "Could not close socket";
     }
 }
 
