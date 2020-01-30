@@ -23,12 +23,12 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_utils/log/logging.hpp"
 #include "iceoryx_utils/log/logmanager.hpp"
+#include "iceoryx_utils/platform/getopt.hpp"
 #include "iceoryx_versions.hpp"
 
-#include "stdio.h"
-#include <getopt.h>
-#include <pthread.h>
 #include "iceoryx_utils/platform/semaphore.hpp" // @todo: use semaphore wrapper
+#include "stdio.h"
+#include <pthread.h>
 #include <signal.h>
 #include <sys/resource.h>
 
