@@ -56,6 +56,7 @@ constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PORT_NUMBER;
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128;
 
 // Memory
+constexpr uint64_t SHARED_MEMORY_ALIGNMENT = 32;
 constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32;
 constexpr uint32_t MAX_SHM_SEGMENTS = 100;
 
