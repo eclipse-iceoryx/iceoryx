@@ -16,23 +16,16 @@ file(GLOB_RECURSE TESTUTILS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/testutils/*.cpp")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    set(OTHER_LIBS "-lpthread -lrt")
-endif()
-
 set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
     GTest::gtest
-    ${OTHER_LIBS}
     iceoryx_utils::iceoryx_utils
     iceoryx_utils_testing::iceoryx_utils_testing
 )
 
-
-
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl)
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+if(LINUX)
+    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} acl dl pthread rt)
+endif()
 
 # set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_BINARY_DIR}/test)
 

@@ -94,9 +94,9 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
         ${CMAKE_DL_LIBS}
     )
 
-    if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+    if(LINUX)
         target_link_libraries(iceoryx_utils_testing PRIVATE rt)
-    endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+    endif()
 
     # install_target_directories_and_header(
     # TARGETS iceoryx_utils_testing
