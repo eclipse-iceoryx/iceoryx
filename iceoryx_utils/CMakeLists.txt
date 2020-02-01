@@ -168,13 +168,8 @@ target_compile_options(iceoryx_utils PUBLIC -std=c++11)
 target_compile_options(iceoryx_utils PUBLIC -fPIC)
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_utils PRIVATE acl ${CODE_COVERAGE_LIBS})
+    target_link_libraries(iceoryx_utils PRIVATE acl atomic rt ${CODE_COVERAGE_LIBS})
 endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_utils PRIVATE rt)
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-
 
 set_target_properties(iceoryx_utils
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
