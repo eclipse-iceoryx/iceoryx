@@ -14,4 +14,31 @@
 
 #pragma once
 
-#include <sys/mman.h> 
+#include <sys/stat.h>
+
+#include "iceoryx_utils/platform/types.hpp"
+
+#define MAP_SHARED 0
+#define MAP_FAILED 1
+#define PROT_READ 3
+#define PROT_WRITE 4
+
+inline void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
+{
+    return nullptr;
+}
+
+inline int munmap(void* addr, size_t length)
+{
+    return 0;
+}
+
+inline int shm_open(const char* name, int oflag, mode_t mode)
+{
+    return 0;
+}
+
+inline int shm_unlink(const char* name)
+{
+    return 0;
+}

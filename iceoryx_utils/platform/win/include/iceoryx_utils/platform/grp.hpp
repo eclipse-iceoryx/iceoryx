@@ -14,4 +14,32 @@
 
 #pragma once
 
-#include <grp.h>
+#include "iceoryx_utils/platform/grp.hpp"
+
+struct group
+{
+    char* gr_name;
+    char* gr_passwd;
+    gid_t gr_gid;
+    char** gr_mem;
+};
+
+inline gid_t getegid(void)
+{
+    return 0;
+}
+
+inline struct group* getgrnam(const char* name)
+{
+    return nullptr;
+}
+
+inline struct group* getgrgid(gid_t gid)
+{
+    return nullptr;
+}
+
+inline int getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
+{
+    return 0;
+}

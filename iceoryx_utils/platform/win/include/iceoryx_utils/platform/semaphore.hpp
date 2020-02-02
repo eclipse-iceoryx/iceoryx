@@ -14,4 +14,63 @@
 
 #pragma once
 
-#include <semaphore.h>
+#include "iceoryx_utils/platform/types.hpp"
+
+#define SEM_FAILED 0
+
+using sem_t = int;
+
+inline int sem_getvalue(sem_t* sem, int* sval)
+{
+    return 0;
+}
+
+inline int sem_post(sem_t* sem)
+{
+    return 0;
+}
+
+inline int sem_wait(sem_t* sem)
+{
+    return 0;
+}
+
+inline int sem_trywait(sem_t* sem)
+{
+    return 0;
+}
+
+inline int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout)
+{
+    return 0;
+}
+
+inline int sem_close(sem_t* sem)
+{
+    return 0;
+}
+
+inline int sem_destroy(sem_t* sem)
+{
+    return 0;
+}
+
+inline int sem_init(sem_t* sem, int pshared, unsigned int value)
+{
+    return 0;
+}
+
+// sem_t *
+// sem_open( const char *name, int oflag )
+//{
+//}
+
+inline sem_t* sem_open(const char* name, int oflag, mode_t mode, unsigned int value)
+{
+    return 0;
+}
+
+inline int sem_unlink(const char* name)
+{
+    return 0;
+}

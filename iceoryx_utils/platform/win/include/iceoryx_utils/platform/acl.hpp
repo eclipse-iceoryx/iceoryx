@@ -14,4 +14,14 @@
 
 #pragma once
 
-#include <sys/acl.h>
+#define ACL_USER_OBJ 0
+#define ACL_USER 1
+#define ACL_GROUP_OBJ 2
+#define ACL_GROUP 3
+#define ACL_OTHER 4
+#define ACL_READ 5
+#define ACL_WRITE 6
+
+using acl_t = int;
+using acl_permset_t = int;
+using acl_perm_t = int;

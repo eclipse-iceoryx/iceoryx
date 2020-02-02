@@ -14,4 +14,18 @@
 
 #pragma once
 
-#include <unistd.h>
+#include "iceoryx_utils/platform/types.hpp"
+
+#include <io.h>
+
+#define _SC_PAGESIZE 1
+
+inline int ftruncate(int fildes, off_t length)
+{
+    return 0;
+}
+
+inline long sysconf(int name)
+{
+    return 0;
+}

@@ -14,4 +14,13 @@
 
 #pragma once
 
-#include <pthread.h>
+#include <thread>
+
+using pthread_mutex_t = int;
+using pthread_mutexattr_t = int;
+using pthread_t = std::thread::native_handle_type;
+
+inline int pthread_setname_np(pthread_t thread, const char* name)
+{
+    return 0;
+}

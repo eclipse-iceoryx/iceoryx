@@ -14,4 +14,58 @@
 
 #pragma once
 
-#include <mqueue.h>
+#include "iceoryx_utils/platform/types.hpp"
+
+#include <sys/stat.h>
+
+using mqd_t = int;
+
+struct mq_attr
+{
+    long mq_flags;
+    long mq_maxmsg;
+    long mq_msgsize;
+    long mq_curmsgs;
+};
+
+inline int mq_send(mqd_t mqdes, const char* msg_ptr, size_t msg_len, unsigned int msg_prio)
+{
+    return 0;
+}
+
+inline int mq_timedsend(
+    mqd_t mqdes, const char* msg_ptr, size_t msg_len, unsigned int msg_prio, const struct timespec* abs_timeout)
+{
+    return 0;
+}
+
+inline int mq_close(mqd_t mqdes)
+{
+    return 0;
+}
+
+// mqd_t
+// mq_open( const char *name, int oflag )
+//{
+//}
+
+inline mqd_t mq_open(const char* name, int oflag, mode_t mode, struct mq_attr* attr)
+{
+    return 0;
+}
+
+inline ssize_t mq_receive(mqd_t mqdes, char* msg_ptr, size_t msg_len, unsigned int* msg_prio)
+{
+    return 0;
+}
+
+inline ssize_t
+mq_timedreceive(mqd_t mqdes, char* msg_ptr, size_t msg_len, unsigned int* msg_prio, const struct timespec* abs_timeout)
+{
+    return 0;
+}
+
+inline int mq_unlink(const char* name)
+{
+    return 0;
+}

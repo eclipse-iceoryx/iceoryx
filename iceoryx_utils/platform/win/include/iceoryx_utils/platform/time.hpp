@@ -14,4 +14,59 @@
 
 #pragma once
 
-#include <sys/time.h>
+#define CLOCK_REALTIME 0
+#define CLOCK_MONOTONIC 01
+
+// using time_t      = int;
+using suseconds_t = int;
+using timer_t = void*;
+using clockid_t = int;
+
+struct timeval
+{
+    time_t tv_sec;
+    suseconds_t tv_usec;
+};
+
+// struct timespec
+//{
+//    time_t tv_sec;
+//    long   tv_nsec;
+//};
+
+struct itimerspec
+{
+    timespec it_interval;
+    timespec it_value;
+};
+
+
+inline int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid)
+{
+    return 0;
+}
+
+inline int timer_delete(timer_t timerid)
+{
+    return 0;
+}
+
+inline int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value)
+{
+    return 0;
+}
+
+inline int timer_gettime(timer_t timerid, struct itimerspec* curr_value)
+{
+    return 0;
+}
+
+inline int timer_getoverrun(timer_t timerid)
+{
+    return 0;
+}
+
+inline int clock_gettime(clockid_t clk_id, struct timespec* tp)
+{
+    return 0;
+}

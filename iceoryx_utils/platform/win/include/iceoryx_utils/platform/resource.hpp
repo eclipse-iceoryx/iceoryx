@@ -13,5 +13,3 @@
 // limitations under the License.
 
 #pragma once
-
-#include <sys/resource.h>
