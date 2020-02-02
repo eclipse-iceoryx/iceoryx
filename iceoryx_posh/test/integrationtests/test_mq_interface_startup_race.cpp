@@ -94,7 +94,7 @@ class CMqInterfaceStartupRace_test : public Test
 
         if (m_appQueue.has_error())
         {
-            m_appQueue = MQueue::create(MqAppName, MessageQueueMode::Blocking, MessageQueueOwnership::CreateNew);
+            m_appQueue = MQueue::create(MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
         }
         ASSERT_THAT(m_appQueue.has_error(), false);
 
@@ -104,7 +104,7 @@ class CMqInterfaceStartupRace_test : public Test
     /// @note smart_lock in combination with optional is currently not really usable
     std::mutex m_roudiQueueMutex;
     MQueue::result_t m_roudiQueue{
-        MQueue::create(MqRouDiName, MessageQueueMode::Blocking, MessageQueueOwnership::CreateNew)};
+        MQueue::create(MqRouDiName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
     std::mutex m_appQueueMutex;
     MQueue::result_t m_appQueue;
 };
@@ -128,7 +128,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
-        auto m_roudiQueue2 = MQueue::create(MqRouDiName, MessageQueueMode::Blocking, MessageQueueOwnership::CreateNew);
+        auto m_roudiQueue2 = MQueue::create(MqRouDiName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         request = m_roudiQueue2->timedReceive(15_s);
@@ -170,7 +170,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
-        auto newRoudi = MQueue::create(MqRouDiName, MessageQueueMode::Blocking, MessageQueueOwnership::CreateNew);
+        auto newRoudi = MQueue::create(MqRouDiName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         auto request = newRoudi->timedReceive(15_s);

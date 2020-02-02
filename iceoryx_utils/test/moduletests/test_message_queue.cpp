@@ -14,12 +14,15 @@
 
 #include "test.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
+#include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
 
 #include <chrono>
 
 using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
+
+using IpcChannel = MessageQueue;
 
 
 class MessageQueue_test : public Test
@@ -28,7 +31,7 @@ class MessageQueue_test : public Test
     void SetUp()
     {
         auto mqResult =
-            MessageQueue::create("/testQueue", MessageQueueMode::Blocking, MessageQueueOwnership::CreateNew);
+            IpcChannel::create("/testQueue", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
         ASSERT_THAT(mqResult.has_error(), Eq(false));
         sut = std::move(mqResult.get_value());
         internal::CaptureStderr();
@@ -47,12 +50,12 @@ class MessageQueue_test : public Test
     {
     }
 
-    MessageQueue sut;
+    IpcChannel sut;
 };
 
 TEST_F(MessageQueue_test, create)
 {
-    auto mq2 = MessageQueue::create("Silly name", MessageQueueMode::Blocking, MessageQueueOwnership::CreateNew);
+    auto mq2 = IpcChannel::create("Silly name", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_TRUE(mq2.has_error());
 }
 
@@ -101,7 +104,7 @@ TEST_F(MessageQueue_test, sendMoreThanAllowed)
     std::string shortMessage = "Iceoryx rules.";
     ASSERT_THAT(sut.send(shortMessage).has_error(), Eq(false));
 
-    std::string longMessage(sut.MaxMsgSize + 8, 'x');
+    std::string longMessage(sut.MAX_MESSAGE_SIZE + 8, 'x');
     ASSERT_THAT(sut.send(longMessage).has_error(), Eq(true));
 
     auto receivedMessage = sut.receive();
@@ -112,10 +115,10 @@ TEST_F(MessageQueue_test, sendMoreThanAllowed)
 TEST_F(MessageQueue_test, wildCreate)
 {
     return;
-    auto mqResult = MessageQueue::create();
+    auto mqResult = IpcChannel::create();
     ASSERT_THAT(mqResult.has_error(), Eq(true));
-    mqResult = MessageQueue::create(
-        std::string("/blafu").c_str(), MessageQueueMode::Blocking, MessageQueueOwnership::CreateNew);
+    mqResult = IpcChannel::create(
+        std::string("/blafu").c_str(), IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 }
 
 TEST_F(MessageQueue_test, timedSend)
@@ -131,7 +134,7 @@ TEST_F(MessageQueue_test, timedSend)
     bool sent = false;
 
     // make sure message queue is full
-    for (long i = 0; i < sut.MaxMsgNumber; ++i)
+    for (long i = 0; i < sut.MAX_MSG_NUMBER; ++i)
     {
         ASSERT_THAT(sut.timedSend(msg, maxTimeout).has_error(), Eq(false));
     }
@@ -139,7 +142,7 @@ TEST_F(MessageQueue_test, timedSend)
     auto before = system_clock::now();
     auto result = sut.timedSend(msg, maxTimeout);
     ASSERT_THAT(result.has_error(), Eq(true));
-    ASSERT_THAT(result.get_error(), Eq(MessageQueueError::Timeout));
+    ASSERT_THAT(result.get_error(), Eq(IpcChannelError::TIMEOUT));
     auto after = system_clock::now();
 
     EXPECT_FALSE(sent);

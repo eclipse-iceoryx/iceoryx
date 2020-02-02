@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
+#include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 
 #include <chrono>
@@ -22,13 +22,13 @@ namespace iox
 {
 namespace posix
 {
-MessageQueue::MessageQueue()
+UnixDomainSocket::UnixDomainSocket()
 {
     this->m_isInitialized = false;
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-MessageQueue::MessageQueue(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
+UnixDomainSocket::UnixDomainSocket(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
     : m_name{name}
     , m_channelSide(channelSide)
 {
@@ -57,12 +57,12 @@ MessageQueue::MessageQueue(const std::string& name, const IpcChannelMode mode, c
     }
 }
 
-MessageQueue::MessageQueue(MessageQueue&& other)
+UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other)
 {
     *this = std::move(other);
 }
 
-MessageQueue::~MessageQueue()
+UnixDomainSocket::~UnixDomainSocket()
 {
     if (destroy().has_error())
     {
@@ -70,7 +70,7 @@ MessageQueue::~MessageQueue()
     }
 }
 
-MessageQueue& MessageQueue::operator=(MessageQueue&& other)
+UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other)
 {
     if (this != &other)
     {
@@ -90,7 +90,7 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other)
     return *this;
 }
 
-cxx::expected<IpcChannelError> MessageQueue::destroy()
+cxx::expected<IpcChannelError> UnixDomainSocket::destroy()
 {
     if (m_mqDescriptor != INVALID_DESCRIPTOR)
     {
@@ -112,7 +112,7 @@ cxx::expected<IpcChannelError> MessageQueue::destroy()
     return cxx::success<void>();
 }
 
-cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg)
+cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg)
 {
     if (msg.size() > MAX_MESSAGE_SIZE)
     {
@@ -136,7 +136,7 @@ cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg)
     return cxx::success<void>();
 }
 
-cxx::expected<std::string, IpcChannelError> MessageQueue::receive()
+cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive()
 {
     char message[MAX_MESSAGE_SIZE];
     auto mqCall = cxx::makeSmartC(mq_receive,
@@ -157,7 +157,7 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive()
 }
 
 cxx::expected<int32_t, IpcChannelError>
-MessageQueue::open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
+UnixDomainSocket::open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
 {
     if (name.empty() || name.at(0) != '/')
     {
@@ -195,7 +195,7 @@ MessageQueue::open(const std::string& name, const IpcChannelMode mode, const Ipc
     }
 }
 
-cxx::expected<IpcChannelError> MessageQueue::close()
+cxx::expected<IpcChannelError> UnixDomainSocket::close()
 {
     auto mqCall = cxx::makeSmartC(mq_close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_mqDescriptor);
 
@@ -207,7 +207,7 @@ cxx::expected<IpcChannelError> MessageQueue::close()
     return cxx::success<void>();
 }
 
-cxx::expected<IpcChannelError> MessageQueue::unlink()
+cxx::expected<IpcChannelError> UnixDomainSocket::unlink()
 {
     if (m_channelSide == IpcChannelSide::CLIENT)
     {
@@ -226,7 +226,7 @@ cxx::expected<IpcChannelError> MessageQueue::unlink()
     }
 }
 
-cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::Duration& timeout)
+cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout)
 {
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
     char message[MAX_MESSAGE_SIZE];
@@ -253,7 +253,7 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
     return cxx::success<std::string>(std::string(&(message[0])));
 }
 
-cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, const units::Duration& timeout)
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout)
 {
     if (msg.size() > MAX_MESSAGE_SIZE)
     {
@@ -286,7 +286,7 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
     return cxx::success<void>();
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int errnum)
+cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int errnum)
 {
     switch (errnum)
     {

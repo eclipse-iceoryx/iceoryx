@@ -36,7 +36,7 @@ namespace posix
 /// send/receive call if the queue is full/empty. A blocking message has member functions timedSend and timedReceive
 /// which allow to specify a maximum timeout duration.
 /// @code
-///     auto mq = posix::MessageQueue<true>::CreateMessageQueue("/MqName123");
+///     auto mq = posix::UnixDomainSocket<true>::CreateUnixDomainSocket("/MqName123");
 ///     if (mq.has_value())
 ///     {
 ///         mq->send("important message, bla.");
@@ -45,7 +45,7 @@ namespace posix
 ///         mq->receive(str);
 ///     }
 /// @endcode
-class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelError>
+class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcChannelError>
 {
   public:
     static constexpr mqd_t INVALID_DESCRIPTOR = -1;
@@ -54,18 +54,18 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     static constexpr int64_t MAX_MSG_NUMBER = 10;
 
     /// for calling private constructor in create method
-    friend class DesignPattern::Creation<MessageQueue, IpcChannelError>;
+    friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
 
-    /// default constructor. The result is an invalid MessageQueue object which can be reassigned later by using the
+    /// default constructor. The result is an invalid UnixDomainSocket object which can be reassigned later by using the
     /// move constructor.
-    MessageQueue();
+    UnixDomainSocket();
 
-    MessageQueue(const MessageQueue& other) = delete;
-    MessageQueue(MessageQueue&& other);
-    MessageQueue& operator=(const MessageQueue& other) = delete;
-    MessageQueue& operator=(MessageQueue&& other);
+    UnixDomainSocket(const UnixDomainSocket& other) = delete;
+    UnixDomainSocket(UnixDomainSocket&& other);
+    UnixDomainSocket& operator=(const UnixDomainSocket& other) = delete;
+    UnixDomainSocket& operator=(UnixDomainSocket&& other);
 
-    ~MessageQueue();
+    ~UnixDomainSocket();
 
     /// close and remove message queue.
     cxx::expected<IpcChannelError> destroy();
@@ -87,7 +87,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout);
 
   private:
-    MessageQueue(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
+    UnixDomainSocket(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
     cxx::expected<int32_t, IpcChannelError>
     open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
 
