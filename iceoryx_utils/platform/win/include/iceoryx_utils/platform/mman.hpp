@@ -25,20 +25,27 @@
 
 inline void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
+    // MapViewOfFile
     return nullptr;
 }
 
 inline int munmap(void* addr, size_t length)
 {
+    // UnmapViewOfFile(addr);
     return 0;
 }
 
 inline int shm_open(const char* name, int oflag, mode_t mode)
 {
+    // CreateFileMapping , when creating
+    // OpenFileMapping, when open existing
+
     return 0;
 }
 
 inline int shm_unlink(const char* name)
 {
+    // shared memory is removed in windows when the last process which is
+    // has acquired the shared memory calls CloseHandle
     return 0;
 }
