@@ -30,26 +30,38 @@ UnixDomainSocket::UnixDomainSocket()
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-UnixDomainSocket::UnixDomainSocket(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
+UnixDomainSocket::UnixDomainSocket(const std::string& name,
+                                   const IpcChannelMode mode,
+                                   const IpcChannelSide channelSide,
+                                   const size_t maxMsgSize,
+                                   const uint64_t /*maxMsgNumber*/)
     : m_name(name)
     , m_channelSide(channelSide)
 {
-    memset(&m_sockAddr, 0, sizeof(m_sockAddr));
-    m_sockAddr.sun_family = AF_LOCAL;
-    strcpy(m_sockAddr.sun_path, name.c_str());
-
-    auto createResult = createSocket(mode);
-
-    if (!createResult.has_error())
+    if (maxMsgSize > MAX_MESSAGE_SIZE)
     {
-        this->m_isInitialized = true;
-        this->m_errorValue = IpcChannelError::UNDEFINED;
-        this->m_sockfd = createResult.get_value();
+        this->m_isInitialized = false;
+        this->m_errorValue = IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED;
     }
     else
     {
-        this->m_isInitialized = false;
-        this->m_errorValue = createResult.get_error();
+        memset(&m_sockAddr, 0, sizeof(m_sockAddr));
+        m_sockAddr.sun_family = AF_LOCAL;
+        strcpy(m_sockAddr.sun_path, name.c_str());
+
+        auto createResult = createSocket(mode);
+
+        if (!createResult.has_error())
+        {
+            this->m_isInitialized = true;
+            this->m_errorValue = IpcChannelError::UNDEFINED;
+            this->m_sockfd = createResult.get_value();
+        }
+        else
+        {
+            this->m_isInitialized = false;
+            this->m_errorValue = createResult.get_error();
+        }
     }
 }
 
@@ -80,6 +92,11 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other)
     return *this;
 }
 
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::exists(const std::string& name)
+{
+    return cxx::success<bool>(true);
+}
+
 cxx::expected<IpcChannelError> UnixDomainSocket::destroy()
 {
     if (m_sockfd != INVALID_FD)
@@ -94,7 +111,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::destroy()
             }
 
             m_sockfd = INVALID_FD;
-            
+
             return cxx::success<void>();
         }
         else
@@ -108,6 +125,17 @@ cxx::expected<IpcChannelError> UnixDomainSocket::destroy()
 
 cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg)
 {
+    // we also support timedSend. The setsockopt call sets the timeout for all further sendto calls, so we must set
+    // it to 0 to turn the timeout off
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    return timedSend(msg, units::Duration(tv));
+}
+
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout)
+{
     if (msg.size() > MAX_MESSAGE_SIZE)
     {
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
@@ -119,27 +147,60 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg)
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    /// @todo extend createErrorFromErrnum with possible sendto errors
-    auto sendCall = cxx::makeSmartC(sendto,
-                                    cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                    {ERROR_CODE},
-                                    {},
-                                    m_sockfd,
-                                    msg.c_str(),
-                                    msg.size() + 1, // +1 for the \0 at the end
-                                    0,
-                                    (struct sockaddr*)&m_sockAddr,
-                                    sizeof(m_sockAddr));
+    struct timeval tv = timeout;
 
-    if (sendCall.hasErrors())
+    auto setsockoptCall = cxx::makeSmartC(setsockopt,
+                                          cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                          {static_cast<ssize_t>(ERROR_CODE)},
+                                          {EWOULDBLOCK},
+                                          m_sockfd,
+                                          SOL_SOCKET,
+                                          SO_SNDTIMEO,
+                                          (const char*)&tv,
+                                          sizeof(tv));
+
+    if (setsockoptCall.hasErrors())
     {
-        return createErrorFromErrnum(sendCall.getErrNum());
+        return createErrorFromErrnum(setsockoptCall.getErrNum());
     }
+    else
+    {
+        /// @todo extend createErrorFromErrnum with possible sendto errors
+        auto sendCall = cxx::makeSmartC(sendto,
+                                        cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                        {ERROR_CODE},
+                                        {},
+                                        m_sockfd,
+                                        msg.c_str(),
+                                        msg.size() + 1, // +1 for the \0 at the end
+                                        0,
+                                        (struct sockaddr*)&m_sockAddr,
+                                        sizeof(m_sockAddr));
 
-    return cxx::success<void>();
+        if (sendCall.hasErrors())
+        {
+            return createErrorFromErrnum(sendCall.getErrNum());
+        }
+        else
+        {
+            return cxx::success<void>();
+        }
+    }
 }
 
 cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive()
+{
+    // we also support timedReceive. The setsockopt call sets the timeout for all further recvfrom calls, so we must set
+    // it to 0 to turn the timeout off
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+
+    return timedReceive(units::Duration(tv));
+}
+
+
+cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout)
 {
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
@@ -147,56 +208,54 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive()
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    char message[MAX_MESSAGE_SIZE];
+    struct timeval tv = timeout;
 
-    /// @todo extend createErrorFromErrnum with possible recvfrom errors
-    auto recvCall = cxx::makeSmartC(recvfrom,
-                                    cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                    {static_cast<ssize_t>(ERROR_CODE)},
-                                    {},
-                                    m_sockfd,
-                                    &(message[0]),
-                                    MAX_MESSAGE_SIZE,
-                                    0,
-                                    nullptr,
-                                    nullptr);
+    auto setsockoptCall = cxx::makeSmartC(setsockopt,
+                                          cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                          {static_cast<ssize_t>(ERROR_CODE)},
+                                          {EWOULDBLOCK},
+                                          m_sockfd,
+                                          SOL_SOCKET,
+                                          SO_RCVTIMEO,
+                                          (const char*)&tv,
+                                          sizeof(tv));
 
-    if (recvCall.hasErrors())
+    if (setsockoptCall.hasErrors())
     {
-        return createErrorFromErrnum(recvCall.getErrNum());
+        return createErrorFromErrnum(setsockoptCall.getErrNum());
     }
-
-    return cxx::success<std::string>(std::string(&(message[0])));
-}
-
-
-cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout)
-{
-    timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
-    char message[MAX_MESSAGE_SIZE];
-
-
-    return cxx::success<std::string>(std::string(&(message[0])));
-}
-
-cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout)
-{
-    if (msg.size() > MAX_MESSAGE_SIZE)
+    else
     {
-        // std::cerr << "the message \"" << msg << "\" which should be sent to the message queue \"" << m_name
-        //           << "\" is too long" << std::endl;
-        return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
+        char message[MAX_MESSAGE_SIZE + 1]; // +1 for the \0 at the end
+
+        /// @todo extend createErrorFromErrnum with possible recvfrom errors
+        auto recvCall = cxx::makeSmartC(recvfrom,
+                                        cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                        {static_cast<ssize_t>(ERROR_CODE)},
+                                        {},
+                                        m_sockfd,
+                                        &(message[0]),
+                                        MAX_MESSAGE_SIZE,
+                                        0,
+                                        nullptr,
+                                        nullptr);
+
+        if (recvCall.hasErrors())
+        {
+            // timeout is also an error and would return here
+            return createErrorFromErrnum(recvCall.getErrNum());
+        }
+        else
+        {
+            return cxx::success<std::string>(std::string(&(message[0])));
+        }
     }
-
-    timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
-
-
-    return cxx::success<void>();
 }
 
 
-cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChannelMode mode)
+cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChannelMode /*mode*/)
 {
+    /// @todo mode handling
     if (m_name.empty())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
@@ -240,6 +299,21 @@ cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChan
         return createErrorFromErrnum(socketCall.getErrNum());
     }
 }
+
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated()
+{
+    /// @todo check if this can be used for unix domain sockets too
+
+    struct stat sb;
+    /// @todo extend createErrorFromErrnum with possible fstat errors
+    auto fstatCall = cxx::makeSmartC(fstat, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_sockfd, &sb);
+    if (fstatCall.hasErrors())
+    {
+        return createErrorFromErrnum(fstatCall.getErrNum());
+    }
+    return cxx::success<bool>(sb.st_nlink == 0);
+}
+
 
 cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int errnum)
 {
@@ -340,13 +414,12 @@ cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int er
         std::cerr << "I/O for unix domain socket \"" << m_name << "\"" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::I_O_ERROR);
     }
-
-    case EAGAIN:
+    case ENOPROTOOPT:
     {
-        std::cerr << "the message queue \"" << m_name << "\" is full" << std::endl;
-        return cxx::error<IpcChannelError>(IpcChannelError::CHANNEL_FULL);
+        std::cerr << "invalid option for unix domain socket \"" << m_name << "\"" << std::endl;
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_ARGUMENTS);
     }
-    case ETIMEDOUT:
+    case EWOULDBLOCK:
     {
         // no error message needed since this is a normal use case
         return cxx::error<IpcChannelError>(IpcChannelError::TIMEOUT);

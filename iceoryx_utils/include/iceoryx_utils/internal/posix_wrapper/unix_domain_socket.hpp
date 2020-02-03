@@ -34,10 +34,8 @@ namespace posix
 class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcChannelError>
 {
   public:
-
     /// @ todo in ipc_channel.hpp? The same for all channels?
-    static constexpr size_t MAX_MESSAGE_SIZE = 512;
-    static constexpr int64_t MAX_MSG_NUMBER = 10;
+    static constexpr size_t MAX_MESSAGE_SIZE = 4096;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
 
@@ -55,12 +53,17 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
     ~UnixDomainSocket();
 
+    static cxx::expected<bool, IpcChannelError> exists(const std::string& name);
+
     /// close the unix domain socket.
     cxx::expected<IpcChannelError> destroy();
 
     /// @brief send a message using std::string.
     /// @return true if sent without errors, false otherwise
     cxx::expected<IpcChannelError> send(const std::string& msg);
+
+    /// @brief try to send a message for a given timeout duration using std::string
+    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout);
 
     /// @brief receive message using std::string.
     /// @return number of characters received. In case of an error, returns -1 and msg is empty.
@@ -71,24 +74,25 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @return optional containing the received string. In case of an error, nullopt type is returned.
     cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout);
 
-    /// @brief try to send a message for a given timeout duration using std::string
-    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout);
+
+    cxx::expected<bool, IpcChannelError> isOutdated();
 
   private:
-    UnixDomainSocket(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
+    UnixDomainSocket(const std::string& name,
+                     const IpcChannelMode mode,
+                     const IpcChannelSide channelSide,
+                     const size_t maxMsgSize = 512u,
+                     const uint64_t maxMsgNumber = 10u);
 
-    cxx::expected<int, IpcChannelError>
-    createSocket(const IpcChannelMode mode);
+    cxx::expected<int, IpcChannelError> createSocket(const IpcChannelMode mode);
 
     cxx::error<IpcChannelError> createErrorFromErrnum(const int errnum);
 
   private:
-
     std::string m_name;
     IpcChannelSide m_channelSide;
     int m_sockfd{INVALID_FD};
     struct sockaddr_un m_sockAddr;
-
 };
 } // namespace posix
 } // namespace iox

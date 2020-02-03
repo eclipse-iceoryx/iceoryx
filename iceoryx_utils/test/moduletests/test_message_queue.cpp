@@ -31,14 +31,13 @@ class MessageQueue_test : public Test
   public:
     void SetUp()
     {
-        auto serverResult =
-            IpcChannel::create("/channel_test", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
+        auto serverResult = IpcChannel::create(
+            "/channel_test", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.get_value());
         internal::CaptureStderr();
 
-        auto clientResult =
-            IpcChannel::create("/channel_test", IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);         
+        auto clientResult = IpcChannel::create("/channel_test", IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
         client = std::move(clientResult.get_value());
     }
@@ -129,8 +128,7 @@ TEST_F(MessageQueue_test, wildCreate)
     return;
     auto result = IpcChannel::create();
     ASSERT_THAT(result.has_error(), Eq(true));
-    result = IpcChannel::create(
-        std::string("/blafu").c_str(), IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    result = IpcChannel::create(std::string("/blafu").c_str(), IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 }
 
 TEST_F(MessageQueue_test, timedSend)
@@ -138,33 +136,33 @@ TEST_F(MessageQueue_test, timedSend)
     using namespace iox::units;
     using namespace std::chrono;
 
-    std::string msg = "ISG rules.";
+    std::string msg = "ISG rules. And some more                                                                        "
+                      "data to have a bit                                                                              "
+                      "longer message";
+
     Duration maxTimeout = 100_ms;
     Duration minTimeoutTolerance = 10_ms;
     Duration maxTimeoutTolerance = 20_ms;
 
-    bool sent = false;
-
-    // make sure message queue is full
-    for (long i = 0; i < MaxMsgNumber; ++i)
+    // send till it breaks
+    for (;;)
     {
-        ASSERT_THAT(client.timedSend(msg, maxTimeout).has_error(), Eq(false));
+        auto before = system_clock::now();
+        auto result = client.timedSend(msg, maxTimeout);
+        auto after = system_clock::now();
+        if (result.has_error())
+        {
+            ASSERT_THAT(result.get_error(), Eq(IpcChannelError::TIMEOUT));
+            // Do not exceed timeout
+            auto timeDiff_ms = duration_cast<milliseconds>(after - before);
+            EXPECT_LT(timeDiff_ms.count(), (maxTimeout + maxTimeoutTolerance).milliSeconds<int64_t>());
+
+            // Check if timedSend has blocked for ~maxTimeout and has not returned immediately
+            EXPECT_GT(timeDiff_ms.count(), (maxTimeout - minTimeoutTolerance).milliSeconds<int64_t>());
+
+            break;
+        }
     }
-
-    auto before = system_clock::now();
-    auto result = client.timedSend(msg, maxTimeout);
-    ASSERT_THAT(result.has_error(), Eq(true));
-    ASSERT_THAT(result.get_error(), Eq(IpcChannelError::TIMEOUT));
-    auto after = system_clock::now();
-
-    EXPECT_FALSE(sent);
-
-    // Do not exceed timeout
-    auto timeDiff_ms = duration_cast<milliseconds>(after - before);
-    EXPECT_LT(timeDiff_ms.count(), (maxTimeout + maxTimeoutTolerance).milliSeconds<int64_t>());
-
-    // Check if timedSend has blocked for ~maxTimeout and has not returned immediately
-    EXPECT_GT(timeDiff_ms.count(), (maxTimeout - minTimeoutTolerance).milliSeconds<int64_t>());
 }
 
 TEST_F(MessageQueue_test, timedReceive)
@@ -189,6 +187,7 @@ TEST_F(MessageQueue_test, timedReceive)
     auto after = system_clock::now();
 
     ASSERT_TRUE(received.has_error());
+    ASSERT_THAT(received.get_error(), Eq(IpcChannelError::TIMEOUT));
 
     // Do not exceed timeout
     auto timeDiff_ms = duration_cast<milliseconds>(after - before);
