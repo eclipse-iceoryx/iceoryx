@@ -30,6 +30,11 @@ enum class IpcChannelError : uint8_t
     CHANNEL_FULL,
     INVALID_CHANNEL_NAME,
     TIMEOUT,
+    PROCESS_LIMIT,
+    SYSTEM_LIMIT,
+    OUT_OF_MEMORY,
+    INVALID_FILE_DESCRIPTOR, 
+    I_O_ERROR,
     UNDEFINED
 };
 

@@ -30,11 +30,16 @@ class MessageQueue_test : public Test
   public:
     void SetUp()
     {
-        auto mqResult =
-            IpcChannel::create("/testQueue", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
-        ASSERT_THAT(mqResult.has_error(), Eq(false));
-        sut = std::move(mqResult.get_value());
+        auto serverResult =
+            IpcChannel::create("/channel_test", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        ASSERT_THAT(serverResult.has_error(), Eq(false));
+        server = std::move(serverResult.get_value());
         internal::CaptureStderr();
+
+        auto clientResult =
+            IpcChannel::create("/channel_test", IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);         
+        ASSERT_THAT(clientResult.has_error(), Eq(false));
+        client = std::move(clientResult.get_value());
     }
 
     void TearDown()
@@ -50,7 +55,8 @@ class MessageQueue_test : public Test
     {
     }
 
-    IpcChannel sut;
+    IpcChannel server;
+    IpcChannel client;
 };
 
 TEST_F(MessageQueue_test, create)
@@ -62,52 +68,52 @@ TEST_F(MessageQueue_test, create)
 TEST_F(MessageQueue_test, sendAndReceive)
 {
     std::string message = "Hey, I'm talking to you";
-    bool sent = sut.send(message).has_error();
+    bool sent = client.send(message).has_error();
     EXPECT_FALSE(sent);
 
     std::string anotherMessage = "This is a message";
-    sent = sut.send(anotherMessage).has_error();
+    sent = client.send(anotherMessage).has_error();
     EXPECT_FALSE(sent);
 
-    auto receivedMessage = sut.receive();
+    auto receivedMessage = server.receive();
     ASSERT_THAT(receivedMessage.has_error(), Eq(false));
     EXPECT_EQ(message, *receivedMessage);
 
-    receivedMessage = sut.receive();
+    receivedMessage = server.receive();
     ASSERT_THAT(receivedMessage.has_error(), Eq(false));
     EXPECT_EQ(anotherMessage, *receivedMessage);
 }
 
 TEST_F(MessageQueue_test, sendAfterDestroy)
 {
-    sut.destroy();
+    client.destroy();
 
     std::string message = "Should never be sent";
-    bool sent = sut.send(message).has_error();
-    EXPECT_TRUE(sent);
+    bool sendError = client.send(message).has_error();
+    EXPECT_TRUE(sendError);
 }
 
 TEST_F(MessageQueue_test, receiveAfterDestroy)
 {
     std::string message = "hello world!";
-    bool sent = sut.send(message).has_error();
-    EXPECT_FALSE(sent);
+    bool sendError = client.send(message).has_error();
+    EXPECT_FALSE(sendError);
 
-    sut.destroy();
+    server.destroy();
 
-    bool receivedMessage = sut.receive().has_error();
-    EXPECT_THAT(receivedMessage, Eq(true));
+    bool receiveError = server.receive().has_error();
+    EXPECT_THAT(receiveError, Eq(true));
 }
 
 TEST_F(MessageQueue_test, sendMoreThanAllowed)
 {
     std::string shortMessage = "Iceoryx rules.";
-    ASSERT_THAT(sut.send(shortMessage).has_error(), Eq(false));
+    ASSERT_THAT(client.send(shortMessage).has_error(), Eq(false));
 
-    std::string longMessage(sut.MAX_MESSAGE_SIZE + 8, 'x');
-    ASSERT_THAT(sut.send(longMessage).has_error(), Eq(true));
+    std::string longMessage(server.MAX_MESSAGE_SIZE + 8, 'x');
+    ASSERT_THAT(client.send(longMessage).has_error(), Eq(true));
 
-    auto receivedMessage = sut.receive();
+    auto receivedMessage = server.receive();
     ASSERT_THAT(receivedMessage.has_error(), Eq(false));
     EXPECT_EQ(shortMessage, receivedMessage.get_value());
 }
@@ -115,9 +121,9 @@ TEST_F(MessageQueue_test, sendMoreThanAllowed)
 TEST_F(MessageQueue_test, wildCreate)
 {
     return;
-    auto mqResult = IpcChannel::create();
-    ASSERT_THAT(mqResult.has_error(), Eq(true));
-    mqResult = IpcChannel::create(
+    auto result = IpcChannel::create();
+    ASSERT_THAT(result.has_error(), Eq(true));
+    result = IpcChannel::create(
         std::string("/blafu").c_str(), IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 }
 
@@ -134,13 +140,13 @@ TEST_F(MessageQueue_test, timedSend)
     bool sent = false;
 
     // make sure message queue is full
-    for (long i = 0; i < sut.MAX_MSG_NUMBER; ++i)
+    for (long i = 0; i < server.MAX_MSG_NUMBER; ++i)
     {
-        ASSERT_THAT(sut.timedSend(msg, maxTimeout).has_error(), Eq(false));
+        ASSERT_THAT(client.timedSend(msg, maxTimeout).has_error(), Eq(false));
     }
 
     auto before = system_clock::now();
-    auto result = sut.timedSend(msg, maxTimeout);
+    auto result = client.timedSend(msg, maxTimeout);
     ASSERT_THAT(result.has_error(), Eq(true));
     ASSERT_THAT(result.get_error(), Eq(IpcChannelError::TIMEOUT));
     auto after = system_clock::now();
@@ -165,15 +171,15 @@ TEST_F(MessageQueue_test, timedReceive)
     Duration minTimeoutTolerance = 10_ms;
     Duration maxTimeoutTolerance = 20_ms;
 
-    sut.send(msg);
+    client.send(msg);
 
-    auto received = sut.timedReceive(timeout);
+    auto received = server.timedReceive(timeout);
     ASSERT_FALSE(received.has_error());
 
     EXPECT_EQ(received.get_value(), msg);
 
     auto before = system_clock::now();
-    received = sut.timedReceive(timeout);
+    received = server.timedReceive(timeout);
     auto after = system_clock::now();
 
     ASSERT_TRUE(received.has_error());

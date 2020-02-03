@@ -24,34 +24,22 @@
 
 #include <fcntl.h>
 #include <iostream>
+#include <sys/un.h>
 
 namespace iox
 {
 namespace posix
 {
-/// @brief Wrapper class for posix message queue
-///
-/// @tparam NON_BLOCKING specifies the type of message queue. A non-blocking message queue will immediately return from
-/// a
-/// send/receive call if the queue is full/empty. A blocking message has member functions timedSend and timedReceive
-/// which allow to specify a maximum timeout duration.
-/// @code
-///     auto mq = posix::UnixDomainSocket<true>::CreateUnixDomainSocket("/MqName123");
-///     if (mq.has_value())
-///     {
-///         mq->send("important message, bla.");
-///         // ...
-///         std::string str;
-///         mq->receive(str);
-///     }
-/// @endcode
+/// @brief Wrapper class for unix domain socket
 class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcChannelError>
 {
   public:
-    static constexpr mqd_t INVALID_DESCRIPTOR = -1;
-    static constexpr int32_t ERROR_CODE = -1;
+
+    /// @ todo in ipc_channel.hpp? The same for all channels?
     static constexpr size_t MAX_MESSAGE_SIZE = 512;
     static constexpr int64_t MAX_MSG_NUMBER = 10;
+    static constexpr int32_t ERROR_CODE = -1;
+    static constexpr int32_t INVALID_FD = -1;
 
     /// for calling private constructor in create method
     friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
@@ -67,47 +55,40 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
     ~UnixDomainSocket();
 
-    /// close and remove message queue.
+    /// close the unix domain socket.
     cxx::expected<IpcChannelError> destroy();
 
-    /// @brief send a message to queue using std::string.
+    /// @brief send a message using std::string.
     /// @return true if sent without errors, false otherwise
     cxx::expected<IpcChannelError> send(const std::string& msg);
 
-    /// @brief receive message from queue using std::string.
+    /// @brief receive message using std::string.
     /// @return number of characters received. In case of an error, returns -1 and msg is empty.
     cxx::expected<std::string, IpcChannelError> receive();
 
-    /// @brief try to receive message from queue for a given timeout duration using std::string. Only defined
+    /// @brief try to receive message for a given timeout duration using std::string. Only defined
     /// for NON_BLOCKING == false.
     /// @return optional containing the received string. In case of an error, nullopt type is returned.
     cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout);
 
-    /// @brief try to send a message to the queue for a given timeout duration using std::string
+    /// @brief try to send a message for a given timeout duration using std::string
     cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout);
 
   private:
     UnixDomainSocket(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
-    cxx::expected<int32_t, IpcChannelError>
-    open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
 
-    cxx::expected<IpcChannelError> close();
-    cxx::expected<IpcChannelError> unlink();
+    cxx::expected<int, IpcChannelError>
+    createSocket(const IpcChannelMode mode);
+
     cxx::error<IpcChannelError> createErrorFromErrnum(const int errnum);
 
   private:
-    std::string m_name;
-    struct mq_attr m_attributes;
-    mqd_t m_mqDescriptor = INVALID_DESCRIPTOR;
-    IpcChannelSide m_channelSide;
 
-#ifdef __QNX__
-    static constexpr int TIMEOUT_ERRNO = EINTR;
-#else
-    static constexpr int TIMEOUT_ERRNO = ETIMEDOUT;
-#endif
-    // read/write permissions
-    static constexpr mode_t m_filemode{S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH};
+    std::string m_name;
+    IpcChannelSide m_channelSide;
+    int m_sockfd{INVALID_FD};
+    struct sockaddr_un m_sockAddr;
+
 };
 } // namespace posix
 } // namespace iox
