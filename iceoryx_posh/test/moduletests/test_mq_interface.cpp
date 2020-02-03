@@ -35,6 +35,7 @@ using iox::runtime::MqBase;
 using iox::runtime::MqInterfaceCreator;
 using iox::runtime::MqInterfaceUser;
 using iox::runtime::MqMessage;
+using namespace iox::units::duration_literals;
 
 class CMqInterface_test : public Test
 {
@@ -108,23 +109,23 @@ void CMqInterface_TimedReceive(T& base)
 
     // clock_gettime fails, return false
     EXPECT_CALL(*time_MOCK::mock, clock_gettime(_, _)).WillOnce(Return(-1)).WillOnce(Return(0));
-    EXPECT_THAT(base.timedReceive(1, result), Eq(false));
+    EXPECT_THAT(base.timedReceive(1_ms, result), Eq(false));
     EXPECT_CALL(*time_MOCK::mock, clock_gettime(_, _)).WillRepeatedly(Return(0));
 
     // mq_timedreceive failse, return false
     EXPECT_CALL(*mqueue_MOCK::mock, mq_timedreceive(_, _, _, _, _)).WillOnce(Return(-1));
-    EXPECT_THAT(base.timedReceive(1, result), Eq(false));
+    EXPECT_THAT(base.timedReceive(1_ms, result), Eq(false));
 
     // valid message received, return true
     EXPECT_CALL(*mqueue_MOCK::mock, mq_timedreceive(_, _, _, _, _))
         .WillOnce(DoAll(SetArrayArgument<1>(std::begin(msg1), std::end(msg1)), Return(0)));
-    EXPECT_THAT(base.timedReceive(1, result), Eq(true));
+    EXPECT_THAT(base.timedReceive(1_ms, result), Eq(true));
     EXPECT_THAT(result.getMessage(), Eq(msg1));
 
     // invalid message received, return false
     EXPECT_CALL(*mqueue_MOCK::mock, mq_timedreceive(_, _, _, _, _))
         .WillOnce(DoAll(SetArrayArgument<1>(std::begin(invalidMsg2), std::end(invalidMsg2)), Return(0)));
-    EXPECT_THAT(base.timedReceive(1, result), Eq(false));
+    EXPECT_THAT(base.timedReceive(1_ms, result), Eq(false));
 }
 
 template <typename T>
@@ -217,35 +218,10 @@ void CMqInterface_StringCTor()
 }
 
 template <typename T>
-void CMqInterface_CopyCTor()
-{
-    T* base = new T(ifName, maxMessages, messageSize);
-    T destination(*base);
-
-    CMqInterface_RunAllMqBaseTests(*base);
-    delete base;
-
-    CMqInterface_RunAllMqBaseTests(destination);
-}
-
-template <typename T>
 void CMqInterface_MoveCTor()
 {
     T* base = new T(ifName, maxMessages, messageSize);
     T destination(std::move(*base));
-    delete base;
-
-    CMqInterface_RunAllMqBaseTests(destination);
-}
-
-template <typename T>
-void CMqInterface_CopyOperator()
-{
-    T* base = new T(ifName, maxMessages, messageSize);
-    T destination("crap", maxMessages, messageSize);
-    destination = *base;
-
-    CMqInterface_RunAllMqBaseTests(*base);
     delete base;
 
     CMqInterface_RunAllMqBaseTests(destination);
@@ -271,19 +247,9 @@ TEST_F(CMqInterface_test, MqBase_StringCTor)
     CMqInterface_StringCTor<MqBase>();
 }
 
-TEST_F(CMqInterface_test, MqBase_CopyCTor)
-{
-    CMqInterface_CopyCTor<MqBase>();
-}
-
 TEST_F(CMqInterface_test, MqBase_MoveCTor)
 {
     CMqInterface_MoveCTor<MqBase>();
-}
-
-TEST_F(CMqInterface_test, MqBase_CopyOperator)
-{
-    CMqInterface_CopyOperator<MqBase>();
 }
 
 TEST_F(CMqInterface_test, MqBase_MoveOperator)

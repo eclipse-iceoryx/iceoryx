@@ -28,32 +28,44 @@ MessageQueue::MessageQueue()
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-MessageQueue::MessageQueue(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
+MessageQueue::MessageQueue(const std::string& name,
+                           const IpcChannelMode mode,
+                           const IpcChannelSide channelSide,
+                           const size_t maxMsgSize,
+                           const uint64_t maxMsgNumber)
     : m_name{name}
     , m_channelSide(channelSide)
 {
-    // fields have a different order in QNX,
-    // so we need to initialize by name
-    m_attributes.mq_flags = (mode == IpcChannelMode::NON_BLOCKING) ? O_NONBLOCK : 0;
-    m_attributes.mq_maxmsg = MAX_MSG_NUMBER;
-    m_attributes.mq_msgsize = MAX_MESSAGE_SIZE;
-    m_attributes.mq_curmsgs = 0;
-#ifdef __QNX__
-    m_attributes.mq_recvwait = 0;
-    m_attributes.mq_sendwait = 0;
-#endif
-    auto openResult = open(name, mode, channelSide);
-
-    if (!openResult.has_error())
+    if (maxMsgSize > MAX_MESSAGE_SIZE)
     {
-        this->m_isInitialized = true;
-        this->m_errorValue = IpcChannelError::UNDEFINED;
-        this->m_mqDescriptor = openResult.get_value();
+        this->m_isInitialized = false;
+        this->m_errorValue = IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED;
     }
     else
     {
-        this->m_isInitialized = false;
-        this->m_errorValue = openResult.get_error();
+        // fields have a different order in QNX,
+        // so we need to initialize by name
+        m_attributes.mq_flags = (mode == IpcChannelMode::NON_BLOCKING) ? O_NONBLOCK : 0;
+        m_attributes.mq_maxmsg = maxMsgNumber;
+        m_attributes.mq_msgsize = maxMsgSize;
+        m_attributes.mq_curmsgs = 0;
+#ifdef __QNX__
+        m_attributes.mq_recvwait = 0;
+        m_attributes.mq_sendwait = 0;
+#endif
+        auto openResult = open(name, mode, channelSide);
+
+        if (!openResult.has_error())
+        {
+            this->m_isInitialized = true;
+            this->m_errorValue = IpcChannelError::UNDEFINED;
+            this->m_mqDescriptor = openResult.get_value();
+        }
+        else
+        {
+            this->m_isInitialized = false;
+            this->m_errorValue = openResult.get_error();
+        }
     }
 }
 
@@ -85,9 +97,46 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other)
         m_mqDescriptor = std::move(other.m_mqDescriptor);
         m_channelSide = std::move(other.m_channelSide);
         other.m_mqDescriptor = INVALID_DESCRIPTOR;
+        moveCreationPatternValues(std::move(other));
     }
 
     return *this;
+}
+
+cxx::expected<bool, IpcChannelError> MessageQueue::exists(const std::string& name)
+{
+    if (name.empty() || name.at(0) != '/')
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
+
+    int32_t openFlags = O_RDWR;
+
+    // the mask will be applied to the permissions, therefore we need to set it to 0
+    mode_t umaskSaved = umask(0);
+
+    struct mq_attr attributes;
+
+    auto mqCall = cxx::makeSmartC(mq_open,
+                                  cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                  {ERROR_CODE},
+                                  {ENOENT},
+                                  name.c_str(),
+                                  openFlags,
+                                  MessageQueue::m_filemode,
+                                  &attributes);
+
+    umask(umaskSaved);
+
+    if (!mqCall.hasErrors())
+    {
+        // ENOENT is set if the message queue could not be opened
+        return cxx::success<bool>(mqCall.getErrNum() != ENOENT);
+    }
+    else
+    {
+        return createErrorFromErrnum(name, mqCall.getErrNum());
+    }
 }
 
 cxx::expected<IpcChannelError> MessageQueue::destroy()
@@ -112,7 +161,7 @@ cxx::expected<IpcChannelError> MessageQueue::destroy()
     return cxx::success<void>();
 }
 
-cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg)
+cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const
 {
     if (msg.size() > MAX_MESSAGE_SIZE)
     {
@@ -136,15 +185,15 @@ cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg)
     return cxx::success<void>();
 }
 
-cxx::expected<std::string, IpcChannelError> MessageQueue::receive()
+cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
 {
-    char message[MAX_MESSAGE_SIZE];
+    char message[MAX_MESSAGE_SIZE + 1]; // +1 for the \0 at the end
     auto mqCall = cxx::makeSmartC(mq_receive,
                                   cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                   {static_cast<ssize_t>(ERROR_CODE)},
                                   {},
                                   m_mqDescriptor,
-                                  &(message[0]),
+                                  message,
                                   MAX_MESSAGE_SIZE,
                                   nullptr);
 
@@ -226,17 +275,17 @@ cxx::expected<IpcChannelError> MessageQueue::unlink()
     }
 }
 
-cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::Duration& timeout)
+cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::Duration& timeout) const
 {
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
-    char message[MAX_MESSAGE_SIZE];
+    char message[MAX_MESSAGE_SIZE + 1]; // +1 for the \0 at the end
 
     auto mqCall = cxx::makeSmartC(mq_timedreceive,
                                   cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                   {static_cast<ssize_t>(ERROR_CODE)},
                                   {TIMEOUT_ERRNO},
                                   m_mqDescriptor,
-                                  &(message[0]),
+                                  message,
                                   MAX_MESSAGE_SIZE,
                                   nullptr,
                                   &timeOut);
@@ -253,7 +302,7 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
     return cxx::success<std::string>(std::string(&(message[0])));
 }
 
-cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, const units::Duration& timeout)
+cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, const units::Duration& timeout) const
 {
     if (msg.size() > MAX_MESSAGE_SIZE)
     {
@@ -270,7 +319,7 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
                                   {TIMEOUT_ERRNO},
                                   m_mqDescriptor,
                                   msg.c_str(),
-                                  msg.size(),
+                                  msg.size() + 1, // +1 for the \0 at the end
                                   1,
                                   &timeOut);
 
@@ -286,18 +335,34 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
     return cxx::success<void>();
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int errnum)
+cxx::expected<bool, IpcChannelError> MessageQueue::isOutdated()
+{
+    struct stat sb;
+    auto fstatCall = cxx::makeSmartC(fstat, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_mqDescriptor, &sb);
+    if (fstatCall.hasErrors())
+    {
+        return createErrorFromErrnum(fstatCall.getErrNum());
+    }
+    return cxx::success<bool>(sb.st_nlink == 0);
+}
+
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int errnum) const
+{
+    return createErrorFromErrnum(m_name, errnum);
+}
+
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const std::string& name, const int errnum)
 {
     switch (errnum)
     {
     case EACCES:
     {
-        std::cerr << "access denied to message queue \"" << m_name << "\"" << std::endl;
+        std::cerr << "access denied to message queue \"" << name << "\"" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::ACCESS_DENIED);
     }
     case EAGAIN:
     {
-        std::cerr << "the message queue \"" << m_name << "\" is full" << std::endl;
+        std::cerr << "the message queue \"" << name << "\" is full" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::CHANNEL_FULL);
     }
     case ETIMEDOUT:
@@ -307,22 +372,23 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int errnum
     }
     case EEXIST:
     {
-        std::cerr << "message queue \"" << m_name << "\" already exists" << std::endl;
+        std::cerr << "message queue \"" << name << "\" already exists" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::CHANNEL_ALREADY_EXISTS);
     }
     case EINVAL:
     {
-        std::cerr << "provided invalid arguments for message queue \"" << m_name << "\"" << std::endl;
+        std::cerr << "provided invalid arguments for message queue \"" << name << "\"" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_ARGUMENTS);
     }
     case ENOENT:
     {
-        std::cerr << "message queue \"" << m_name << "\" does not exist" << std::endl;
+        std::cerr << "message queue \"" << name << "\" does not exist" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::NO_SUCH_CHANNEL);
     }
     default:
     {
-        std::cerr << "internal logic error in message queue \"" << m_name << "\" occurred" << std::endl;
+        std::cerr << "internal logic error in message queue \"" << name << "\" occurred [errno: " << errnum << ": "
+                  << strerror(errnum) << "]" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
     }

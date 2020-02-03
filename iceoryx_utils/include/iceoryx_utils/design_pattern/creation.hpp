@@ -47,6 +47,13 @@ struct Creation
     }
 
   protected:
+    void moveCreationPatternValues(Creation&& other)
+    {
+        m_isInitialized = other.m_isInitialized;
+        m_errorValue = other.m_errorValue;
+        other.m_isInitialized = false;
+    }
+
     bool m_isInitialized{false};
     ErrorType m_errorValue;
 };

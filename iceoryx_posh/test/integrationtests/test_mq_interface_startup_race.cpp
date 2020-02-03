@@ -94,7 +94,7 @@ class CMqInterfaceStartupRace_test : public Test
 
         if (m_appQueue.has_error())
         {
-            m_appQueue = MQueue::create(MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+            m_appQueue = MQueue::create(MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
         }
         ASSERT_THAT(m_appQueue.has_error(), false);
 

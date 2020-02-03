@@ -97,7 +97,7 @@ class RouDiMultiProcess
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runThreads;
 
-    const uint32_t m_MessageQueueTimeoutMilliseconds = 100;
+    const units::Duration m_messageQueueTimeout{units::Duration::milliseconds(static_cast<unsigned long long>(100))};
 
     /// locks the socket for preventing multiple start of RouDi
     RouDiLock m_roudilock;

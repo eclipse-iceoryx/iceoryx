@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
+
+#include "test.hpp"
 
 #include <chrono>
 
@@ -31,7 +32,7 @@ class MessageQueue_test : public Test
     void SetUp()
     {
         auto serverResult =
-            IpcChannel::create("/channel_test", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+            IpcChannel::create("/channel_test", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.get_value());
         internal::CaptureStderr();
@@ -55,9 +56,14 @@ class MessageQueue_test : public Test
     {
     }
 
+    static constexpr size_t MaxMsgSize = 512;
+    static constexpr uint64_t MaxMsgNumber = 10;
     IpcChannel server;
     IpcChannel client;
 };
+
+constexpr size_t MessageQueue_test::MaxMsgSize;
+constexpr uint64_t MessageQueue_test::MaxMsgNumber;
 
 TEST_F(MessageQueue_test, create)
 {
@@ -140,7 +146,7 @@ TEST_F(MessageQueue_test, timedSend)
     bool sent = false;
 
     // make sure message queue is full
-    for (long i = 0; i < server.MAX_MSG_NUMBER; ++i)
+    for (long i = 0; i < MaxMsgNumber; ++i)
     {
         ASSERT_THAT(client.timedSend(msg, maxTimeout).has_error(), Eq(false));
     }
