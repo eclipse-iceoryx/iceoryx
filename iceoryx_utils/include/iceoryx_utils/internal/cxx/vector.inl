@@ -201,7 +201,7 @@ inline const T& vector<T, Capacity>::at(const uint64_t index) const
 {
     if (index + 1 > m_size)
     {
-        fprintf(stderr, "out of bounds access, current size is %lu but given index is %lu\n", m_size, index);
+        std::cerr << "out of bounds access, current size is " << m_size <<  " but given index is " << index << std::endl;
         std::terminate();
     }
     return reinterpret_cast<const T*>(m_data)[index];
