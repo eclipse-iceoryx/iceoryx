@@ -224,9 +224,6 @@ class MqBase
     bool hasClosableMessageQueue() const noexcept;
 
   protected:
-    static constexpr long MAX_MESSAGE_LENGTH = 4096;
-    static constexpr int NULL_TERMINATOR_SIZE = 1;
-
     std::string m_interfaceName;
     long m_maxMessageSize{0};
     long m_maxMessages{0};

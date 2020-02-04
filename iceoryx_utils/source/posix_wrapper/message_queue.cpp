@@ -163,7 +163,8 @@ cxx::expected<IpcChannelError> MessageQueue::destroy()
 
 cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const
 {
-    if (msg.size() > MAX_MESSAGE_SIZE)
+    const size_t messageSize = static_cast<size_t>(msg.size()) + NULL_TERMINATOR_SIZE;
+    if (messageSize > m_attributes.mq_msgsize)
     {
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
@@ -174,7 +175,7 @@ cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const
                                   {},
                                   m_mqDescriptor,
                                   msg.c_str(),
-                                  msg.size() + 1, // +1 for the \0 at the end
+                                  messageSize,
                                   1);
 
     if (mqCall.hasErrors())
@@ -187,7 +188,7 @@ cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const
 
 cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
 {
-    char message[MAX_MESSAGE_SIZE + 1]; // +1 for the \0 at the end
+    char message[MAX_MESSAGE_SIZE];
     auto mqCall = cxx::makeSmartC(mq_receive,
                                   cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                   {static_cast<ssize_t>(ERROR_CODE)},
@@ -278,7 +279,7 @@ cxx::expected<IpcChannelError> MessageQueue::unlink()
 cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::Duration& timeout) const
 {
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
-    char message[MAX_MESSAGE_SIZE + 1]; // +1 for the \0 at the end
+    char message[MAX_MESSAGE_SIZE];
 
     auto mqCall = cxx::makeSmartC(mq_timedreceive,
                                   cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
@@ -304,7 +305,8 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
 
 cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, const units::Duration& timeout) const
 {
-    if (msg.size() > MAX_MESSAGE_SIZE)
+    const size_t messageSize = static_cast<size_t>(msg.size()) + NULL_TERMINATOR_SIZE;
+    if (messageSize > m_attributes.mq_msgsize)
     {
         std::cerr << "the message \"" << msg << "\" which should be sent to the message queue \"" << m_name
                   << "\" is too long" << std::endl;
@@ -319,7 +321,7 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, c
                                   {TIMEOUT_ERRNO},
                                   m_mqDescriptor,
                                   msg.c_str(),
-                                  msg.size() + 1, // +1 for the \0 at the end
+                                  messageSize,
                                   1,
                                   &timeOut);
 

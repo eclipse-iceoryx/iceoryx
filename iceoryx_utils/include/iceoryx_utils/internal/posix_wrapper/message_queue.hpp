@@ -50,6 +50,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
   public:
     static constexpr mqd_t INVALID_DESCRIPTOR = -1;
     static constexpr int32_t ERROR_CODE = -1;
+    static constexpr size_t NULL_TERMINATOR_SIZE = 1;
     static constexpr size_t MAX_MESSAGE_SIZE = 4096;
 
     /// for calling private constructor in create method
