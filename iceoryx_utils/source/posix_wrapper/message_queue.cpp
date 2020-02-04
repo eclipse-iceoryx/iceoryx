@@ -43,6 +43,18 @@ MessageQueue::MessageQueue(const std::string& name,
     }
     else
     {
+        if (channelSide == IpcChannelSide::SERVER)
+        {
+            auto mqCall = cxx::makeSmartC(
+                mq_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, m_name.c_str());
+            if (!mqCall.hasErrors())
+            {
+                if (mqCall.getErrNum() != ENOENT)
+                {
+                    std::cout << "MQ still there, doing an unlink of " << name << std::endl;
+                }
+            }
+        }
         // fields have a different order in QNX,
         // so we need to initialize by name
         m_attributes.mq_flags = (mode == IpcChannelMode::NON_BLOCKING) ? O_NONBLOCK : 0;
@@ -103,34 +115,19 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other)
     return *this;
 }
 
-cxx::expected<bool, IpcChannelError> MessageQueue::exists(const std::string& name)
+cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const std::string& name)
 {
-    if (name.empty() || name.at(0) != '/')
+    if (name.size() < SHORTEST_VALID_QUEUE_NAME || name.at(0) != '/')
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
-    int32_t openFlags = O_RDWR;
-
-    // the mask will be applied to the permissions, therefore we need to set it to 0
-    mode_t umaskSaved = umask(0);
-
-    struct mq_attr attributes;
-
-    auto mqCall = cxx::makeSmartC(mq_open,
-                                  cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                  {ERROR_CODE},
-                                  {ENOENT},
-                                  name.c_str(),
-                                  openFlags,
-                                  MessageQueue::m_filemode,
-                                  &attributes);
-
-    umask(umaskSaved);
+    auto mqCall =
+        cxx::makeSmartC(mq_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, name.c_str());
 
     if (!mqCall.hasErrors())
     {
-        // ENOENT is set if the message queue could not be opened
+        // ENOENT is set if the message queue could not be unlinked
         return cxx::success<bool>(mqCall.getErrNum() != ENOENT);
     }
     else
@@ -209,7 +206,7 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
 cxx::expected<int32_t, IpcChannelError>
 MessageQueue::open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
 {
-    if (name.empty() || name.at(0) != '/')
+    if (name.size() < SHORTEST_VALID_QUEUE_NAME || name.at(0) != '/')
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -227,7 +224,7 @@ MessageQueue::open(const std::string& name, const IpcChannelMode mode, const Ipc
     auto mqCall = cxx::makeSmartC(mq_open,
                                   cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                   {ERROR_CODE},
-                                  {},
+                                  {ENOENT},
                                   name.c_str(),
                                   openFlags,
                                   m_filemode,
@@ -237,7 +234,18 @@ MessageQueue::open(const std::string& name, const IpcChannelMode mode, const Ipc
 
     if (!mqCall.hasErrors())
     {
-        return cxx::success<int32_t>(mqCall.getReturnValue());
+        if (mqCall.getErrNum() == 0)
+        {
+            return cxx::success<int32_t>(mqCall.getReturnValue());
+        }
+        else if (mqCall.getErrNum() == ENOENT)
+        {
+            return cxx::error<IpcChannelError>(IpcChannelError::NO_SUCH_CHANNEL);
+        }
+        else
+        {
+            return createErrorFromErrnum(mqCall.getErrNum());
+        }
     }
     else
     {

@@ -175,14 +175,7 @@ bool MqBase::closeMessageQueue() noexcept
 
 bool MqBase::reopen() noexcept
 {
-    if (posix::MessageQueue::exists(m_interfaceName).get_value_or(false))
-    {
-        return openMessageQueue(m_channelSide);
-    }
-    else
-    {
-        return false;
-    }
+    return openMessageQueue(m_channelSide);
 }
 
 bool MqBase::mqMapsToFile() noexcept
@@ -197,21 +190,16 @@ bool MqBase::hasClosableMessageQueue() const noexcept
 
 void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
 {
-    // if the message queue already exists, take ownership and use RAII for cleanup
-    if (posix::MessageQueue::exists(name).get_value_or(false))
+    if (posix::MessageQueue::unlinkIfExists(name).get_value_or(false))
     {
         LogWarn() << "MQ still there, doing an unlink of " << name;
-        posix::MessageQueue::create(name, posix::IpcChannelMode::BLOCKING, posix::IpcChannelSide::SERVER);
     }
 }
 
 MqInterfaceUser::MqInterfaceUser(const std::string& name, const long maxMessages, const long messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
-    if (posix::MessageQueue::exists(name).get_value_or(false))
-    {
-        openMessageQueue(posix::IpcChannelSide::CLIENT);
-    }
+    openMessageQueue(posix::IpcChannelSide::CLIENT);
 }
 
 MqInterfaceCreator::MqInterfaceCreator(const std::string& name, const long maxMessages, const long messageSize) noexcept
