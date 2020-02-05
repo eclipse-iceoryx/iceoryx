@@ -24,7 +24,7 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const
     switch (reference)
     {
     case TimeSpecReference::None:
-        return {this->seconds<long>(), this->nanoSeconds<long>() - this->seconds<long>() * 1000000000};
+        return {this->seconds<int>(), static_cast<int>(this->nanoSeconds<int64_t>() - this->seconds<int64_t>() * 1000000000)};
     default:
     {
         struct timespec referenceTime;

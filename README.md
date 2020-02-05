@@ -26,6 +26,13 @@ Examples for a "porcelain" API would be e.g.
 [Adaptive Autosar Foundation](https://www.autosar.org/fileadmin/Releases_TEMP/Adaptive_Platform_19-03/AdaptiveFoundation.zip)
 (see AUTOSAR_EXP_ARAComAPI.pdf) or [ROS](https://www.ros.org).
 
+### Supported Platforms
+
+ * Linux
+ * QNX
+ * macOS (not yet - currently in progress with high priority)
+ * Windows 10 (not yet - currently in progress)
+
 ### Scope
 
 Who can benefit of using iceoryx? What's in for those folks?

@@ -189,6 +189,13 @@ target_include_directories(iceoryx_utils
 target_compile_options(iceoryx_utils PUBLIC -std=c++11)
 target_compile_options(iceoryx_utils PUBLIC -fPIC)
 
+<<<<<<< HEAD
+=======
+if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+    target_link_libraries(iceoryx_utils PRIVATE acl atomic rt ${CODE_COVERAGE_LIBS})
+endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+
+>>>>>>> iox-#12-compilation-error-in-utils-with-32-bit
 set_target_properties(iceoryx_utils
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )

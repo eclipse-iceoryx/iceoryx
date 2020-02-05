@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
+#include "test.hpp"
 
 
 #include <cstdint>
@@ -211,7 +211,7 @@ TEST_F(convert_test, fromString_UNSIGNED_Int_Fail)
 TEST_F(convert_test, fromString_UNSIGNED_LongInt_Success)
 {
     std::string source = "123";
-    unsigned long int destination;
+    uint64_t destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     EXPECT_THAT(destination, Eq(123lu));
 }
@@ -219,22 +219,7 @@ TEST_F(convert_test, fromString_UNSIGNED_LongInt_Success)
 TEST_F(convert_test, fromString_UNSIGNED_LongInt_Fail)
 {
     std::string source = "-a123";
-    unsigned long int destination;
-    EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
-}
-
-TEST_F(convert_test, fromString_UNSIGNED_LongLongInt_Success)
-{
-    std::string source = "123";
-    unsigned long long int destination;
-    EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(123llu));
-}
-
-TEST_F(convert_test, fromString_UNSIGNED_LongLongInt_Fail)
-{
-    std::string source = "-a123";
-    unsigned long long int destination;
+    uint64_t destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -301,7 +286,7 @@ TEST_F(convert_test, fromString_UShortInt_Fail)
 TEST_F(convert_test, fromString_LongInt_Success)
 {
     std::string source = "-1123";
-    long int destination;
+    int64_t destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     EXPECT_THAT(destination, Eq(-1123l));
 }
@@ -309,22 +294,7 @@ TEST_F(convert_test, fromString_LongInt_Success)
 TEST_F(convert_test, fromString_LongInt_Fail)
 {
     std::string source = "-a123";
-    long int destination;
-    EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
-}
-
-TEST_F(convert_test, fromString_LongLongInt_Success)
-{
-    std::string source = "-123";
-    long long int destination;
-    EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(-123ll));
-}
-
-TEST_F(convert_test, fromString_LongLongInt_Fail)
-{
-    std::string source = "-a123";
-    long long int destination;
+    int64_t destination;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
