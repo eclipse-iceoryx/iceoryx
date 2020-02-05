@@ -233,8 +233,12 @@ bool Semaphore::init(sem_t* handle, const int pshared, const unsigned int value)
 
 bool Semaphore::open(const int oflag) noexcept
 {
-    bool success = setHandleFromCall(cxx::makeSmartC(
-        sem_open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {static_cast<sem_t*>(SEM_FAILED)}, {}, m_name, oflag));
+    bool success = setHandleFromCall(cxx::makeSmartC(static_cast<sem_t* (*)(const char*, int)>(sem_open),
+                                                     cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                                     {static_cast<sem_t*>(SEM_FAILED)},
+                                                     {},
+                                                     m_name,
+                                                     oflag));
 
     if (!success)
     {
@@ -245,14 +249,15 @@ bool Semaphore::open(const int oflag) noexcept
 
 bool Semaphore::open(const int oflag, const mode_t mode, const unsigned int value) noexcept
 {
-    bool success = setHandleFromCall(cxx::makeSmartC(sem_open,
-                                                     cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                                     {static_cast<sem_t*>(SEM_FAILED)},
-                                                     {},
-                                                     m_name,
-                                                     oflag,
-                                                     mode,
-                                                     value));
+    bool success =
+        setHandleFromCall(cxx::makeSmartC(static_cast<sem_t* (*)(const char*, int, mode_t, unsigned int)>(sem_open),
+                                          cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                          {static_cast<sem_t*>(SEM_FAILED)},
+                                          {},
+                                          m_name,
+                                          oflag,
+                                          mode,
+                                          value));
     if (!success)
     {
         m_errorValue = SemaphoreError::CREATION_FAILED;

@@ -82,10 +82,10 @@ inline int sem_init(sem_t* sem, int pshared, unsigned int value)
     return -1;
 }
 
-// sem_t *
-// sem_open( const char *name, int oflag )
-//{
-//}
+inline sem_t* sem_open(const char* name, int oflag)
+{
+    return nullptr;
+}
 
 inline sem_t* sem_open(const char* name, int oflag, mode_t mode, unsigned int value)
 {
