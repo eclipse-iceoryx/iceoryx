@@ -14,14 +14,25 @@
 
 #pragma once
 
-#define S_IRUSR 0
-#define S_IWUSR 1
-#define S_IRGRP 2
-#define S_IWGRP 3
-#define S_IROTH 4
-#define S_IWOTH 5
-#define O_NONBLOCK 6
+#include "iceoryx_utils/platform/types.hpp"
 
-#include <io.h>
-#include <sys/stat.h>
+#include <signal.h>
 
+#define SIGEV_THREAD 0
+
+union sigval
+{
+    int sival_int;
+    void* sival_ptr;
+};
+
+struct sigevent
+{
+    int sigev_notify;
+    int sigev_signo;
+    union sigval sigev_value;
+
+    void (*sigev_notify_function)(union sigval);
+    void* sigev_notify_attributes;
+    pid_t sigev_notify_thread_id;
+};

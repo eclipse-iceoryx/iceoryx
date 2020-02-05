@@ -15,3 +15,4 @@
 #pragma once
 
 #define __PRETTY_FUNCTION__ __FUNCSIG__
+#undef CreateMutexA
