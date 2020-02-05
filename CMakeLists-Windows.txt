@@ -4,6 +4,7 @@ set(iceoryx_VERSION 0.16.0.1)
 project(iceoryx VERSION ${iceoryx_VERSION})
 include(FetchContent)
 
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 if(test)
 FetchContent_Declare(
     GOOGLETEST

@@ -14,9 +14,7 @@
 
 #include "test.hpp"
 
-#define private public
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
-#undef private
 #include "iceoryx_utils/platform/stat.hpp"
 
 using namespace testing;
@@ -93,23 +91,23 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 {
     int handle;
 
-    iox::posix::SharedMemory sut("/ignatz",
+    auto sut = iox::posix::SharedMemory::create("/ignatz",
                                  iox::posix::AccessMode::readWrite,
                                  iox::posix::OwnerShip::mine,
                                  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                  128);
-    handle = sut.getHandle();
+    handle = sut->getHandle();
     {
-        iox::posix::SharedMemory sut2(std::move(sut));
+        iox::posix::SharedMemory sut2(std::move(*sut));
         EXPECT_THAT(handle, Eq(sut2.getHandle()));
-        EXPECT_THAT(sut.isInitialized(), Eq(false));
+        EXPECT_THAT(sut->isInitialized(), Eq(false));
     }
 }
 
 TEST_F(SharedMemory_Test, MoveCTorWithInvalidValues)
 {
     internal::CaptureStderr();
-    iox::posix::SharedMemory sut("/fuu11",
+    auto sut = iox::posix::SharedMemory::create("/fuu11",
                                  iox::posix::AccessMode::readWrite,
                                  iox::posix::OwnerShip::openExisting,
                                  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
@@ -117,9 +115,9 @@ TEST_F(SharedMemory_Test, MoveCTorWithInvalidValues)
     std::string output = internal::GetCapturedStderr();
     EXPECT_THAT(output.empty(), Eq(false));
     {
-        iox::posix::SharedMemory sut2(std::move(sut));
+        iox::posix::SharedMemory sut2(std::move(*sut));
         EXPECT_THAT(sut2.isInitialized(), Eq(false));
-        EXPECT_THAT(sut.isInitialized(), Eq(false));
+        EXPECT_THAT(sut->isInitialized(), Eq(false));
     }
 }
 
@@ -136,12 +134,12 @@ TEST_F(SharedMemory_Test, getHandleOfValidObject)
 TEST_F(SharedMemory_Test, getHandleOfInvalidObject)
 {
     internal::CaptureStderr();
-    iox::posix::SharedMemory sut("/fuu11",
+    auto sut = iox::posix::SharedMemory::create("/fuu11",
                                  iox::posix::AccessMode::readWrite,
                                  iox::posix::OwnerShip::openExisting,
                                  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                  128);
     std::string output = internal::GetCapturedStderr();
     EXPECT_THAT(output.empty(), Eq(false));
-    EXPECT_THAT(sut.getHandle(), Eq(-1));
+    EXPECT_THAT(sut->getHandle(), Eq(-1));
 }
