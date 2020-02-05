@@ -19,6 +19,7 @@
 #include <io.h>
 
 #define _SC_PAGESIZE 1
+#define STDERR_FILENO 2
 
 inline int ftruncate(int fildes, off_t length)
 {

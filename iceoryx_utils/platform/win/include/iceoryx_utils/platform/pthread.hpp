@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <thread>
+
 #define PTHREAD_PROCESS_SHARED 0
 #define PTHREAD_MUTEX_RECURSIVE_NP 1
 #define PTHREAD_MUTEX_FAST_NP 2
@@ -21,7 +23,7 @@
 
 using pthread_mutex_t = int;
 using pthread_mutexattr_t = int;
-using pthread_t = int;
+using pthread_t = std::thread::native_handle_type;
 
 inline int pthread_setname_np(pthread_t thread, const char* name)
 {

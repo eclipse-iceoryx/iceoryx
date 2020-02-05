@@ -23,6 +23,8 @@ namespace iox
 namespace roudi
 {
 RouDiLock::RouDiLock()
+    : m_socket_fd(cxx::makeSmartC(socket, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, AF_INET, SOCK_STREAM, 0)
+                      .getReturnValue())
 {
     if (m_socket_fd == -1)
     {

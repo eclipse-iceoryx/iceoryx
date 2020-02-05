@@ -19,6 +19,10 @@
 #include <cstdlib>
 #include <stdio.h>
 #include <type_traits>
+
+#define _WINSOCKAPI_
+#define WIN32_LEAN_AND_MEAN
+
 #include <windows.h>
 
 #define SEM_FAILED 0

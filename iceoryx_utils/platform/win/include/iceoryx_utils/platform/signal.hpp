@@ -19,6 +19,10 @@
 #include <signal.h>
 
 #define SIGEV_THREAD 0
+#define SIGBUS 1
+
+using sigset_t = int;
+using siginfo_t = int;
 
 union sigval
 {
@@ -36,3 +40,28 @@ struct sigevent
     void* sigev_notify_attributes;
     pid_t sigev_notify_thread_id;
 };
+
+struct sigaction
+{
+    void (*sa_handler)(int);
+    void (*sa_sigaction)(int, siginfo_t*, void*);
+    sigset_t sa_mask;
+    int sa_flags;
+    void (*sa_restorer)(void);
+};
+
+
+inline int sigemptyset(sigset_t* set)
+{
+    return 0;
+}
+
+inline int sigaction(int signum, const struct sigaction* act, struct sigaction* oldact)
+{
+    return 0;
+}
+
+inline int kill(pid_t pid, int sig)
+{
+    return 0;
+}

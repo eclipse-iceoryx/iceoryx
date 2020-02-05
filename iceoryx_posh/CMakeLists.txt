@@ -117,9 +117,17 @@ target_link_libraries(iceoryx_posh
     PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
 )
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_posh PRIVATE rt)
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+
+if(LINUX)
+    target_link_libraries(iceoryx_posh PRIVATE rt )
+elseif(QNX)
+elseif(APPLE)
+elseif(WIN32)
+else()
+    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
+endif()
+
+
 
 #
 ########## build roudi lib ##########
