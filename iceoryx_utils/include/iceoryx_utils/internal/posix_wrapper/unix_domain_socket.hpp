@@ -21,10 +21,10 @@
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/mqueue.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
+#include "iceoryx_utils/platform/un.hpp"
 
 #include <fcntl.h>
 #include <iostream>
-#include <sys/un.h>
 
 namespace iox
 {

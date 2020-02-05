@@ -16,6 +16,11 @@
 
 #define AF_INET 0
 #define SOCK_STREAM 1
+#define SOL_SOCKET 2
+#define SO_SNDTIMEO 3
+#define SO_RCVTIMEO 4
+#define AF_LOCAL 5
+#define SOCK_DGRAM 6
 
 using in_port_t = int;
 using sa_family_t = int;
@@ -56,6 +61,22 @@ inline int bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
 }
 
 inline int socket(int domain, int type, int protocol)
+{
+    return 0;
+}
+
+inline int setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen)
+{
+    return 0;
+}
+
+inline ssize_t
+sendto(int sockfd, const void* buf, size_t len, int flags, const struct sockaddr* dest_addr, socklen_t addrlen)
+{
+    return 0;
+}
+
+inline ssize_t recvfrom(int sockfd, void* buf, size_t len, int flags, struct sockaddr* src_addr, socklen_t* addrlen)
 {
     return 0;
 }

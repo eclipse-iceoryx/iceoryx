@@ -14,11 +14,11 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/platform/socket.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
 
 #include <chrono>
 #include <cstdlib>
-#include <sys/socket.h>
-#include <unistd.h>
 
 namespace iox
 {
