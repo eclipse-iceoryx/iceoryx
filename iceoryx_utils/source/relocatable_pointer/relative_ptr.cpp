@@ -13,5 +13,3 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
-
-iox::PointerRepository<iox::RelativePointer::id_t, iox::RelativePointer::ptr_t> iox::RelativePointer::s_repository;
