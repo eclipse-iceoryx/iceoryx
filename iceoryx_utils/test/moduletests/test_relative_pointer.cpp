@@ -15,9 +15,11 @@
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/platform/mman.hpp"
 #include "iceoryx_utils/platform/stat.hpp" /* For mode constants */
+#include "iceoryx_utils/platform/unistd.hpp"
 
 #include "test.hpp"
 
+#include <cstdint>
 #include <cstring>
 #include <fcntl.h> /* For O_* constants */
 using namespace ::testing;
@@ -123,7 +125,8 @@ TYPED_TEST(relativeptrtests, ConstrTests)
 
     {
         auto offset = ShmSize / 2;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -140,7 +143,8 @@ TYPED_TEST(relativeptrtests, ConstrTests)
 
     {
         auto offset = ShmSize / 2;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -149,7 +153,8 @@ TYPED_TEST(relativeptrtests, ConstrTests)
 
     {
         auto offset = ShmSize - 1;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -165,7 +170,8 @@ TYPED_TEST(relativeptrtests, ConstrTests)
 
     {
         auto offset = ShmSize / 2;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap1.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2);
@@ -174,7 +180,8 @@ TYPED_TEST(relativeptrtests, ConstrTests)
 
     {
         auto offset = ShmSize - 1;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap1.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2);
@@ -188,7 +195,8 @@ TYPED_TEST(relativeptrtests, ConstrTests)
 
     {
         auto offset = ShmSize + 1;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap1.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp(adr);
         EXPECT_NE(rp, nullptr);
     }
@@ -214,7 +222,8 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
 
     {
         auto offset = ShmSize / 2;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -224,7 +233,8 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
 
     {
         auto offset = ShmSize - 1;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -242,7 +252,8 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
 
     {
         auto offset = ShmSize / 2;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap1.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -252,7 +263,8 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
 
     {
         auto offset = ShmSize - 1;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap1.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -268,7 +280,8 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
 
     {
         auto offset = ShmSize + 1;
-        void* adr = reinterpret_cast<void*>(reinterpret_cast<size_t>(memMap1.getMappedAddress() + offset));
+        void* adr = reinterpret_cast<void*>(
+            reinterpret_cast<size_t>(static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset));
         iox::relative_ptr<TypeParam> rp;
         rp = adr;
         EXPECT_NE(rp, nullptr);
@@ -286,7 +299,7 @@ TYPED_TEST(relativeptrtests, IdAndOffset)
     EXPECT_EQ(rp1.getId(), 1);
 
     int offset = ShmSize / 2;
-    auto offsetAddr1 = reinterpret_cast<TypeParam*>(memMap.getMappedAddress() + offset);
+    auto offsetAddr1 = reinterpret_cast<TypeParam*>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset);
     iox::relative_ptr<TypeParam> rp2(offsetAddr1, 1);
     EXPECT_EQ(rp2.getOffset(), offset);
     EXPECT_EQ(rp2.getId(), 1);
@@ -303,7 +316,7 @@ TYPED_TEST(relativeptrtests, getOffset)
     EXPECT_EQ(iox::RelativePointer::getOffset(1, memMap.getMappedAddress()), 0);
 
     int offset = ShmSize / 2;
-    auto offsetAddr1 = reinterpret_cast<int*>(memMap.getMappedAddress() + offset);
+    auto offsetAddr1 = reinterpret_cast<int*>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset);
     iox::relative_ptr<TypeParam> rp2(offsetAddr1, 1);
     EXPECT_EQ(iox::RelativePointer::getOffset(1, offsetAddr1), offset);
 }
@@ -318,7 +331,7 @@ TYPED_TEST(relativeptrtests, getPtr)
     EXPECT_EQ(iox::RelativePointer::getPtr(1, 0), memMap.getMappedAddress());
 
     int offset = ShmSize / 2;
-    auto offsetAddr1 = reinterpret_cast<int*>(memMap.getMappedAddress() + offset);
+    auto offsetAddr1 = reinterpret_cast<int*>(static_cast<uint8_t*>(memMap.getMappedAddress()) + offset);
     iox::relative_ptr<TypeParam> rp2(offsetAddr1, 1);
     EXPECT_EQ(iox::RelativePointer::getPtr(1, offset), offsetAddr1);
 }
@@ -507,8 +520,8 @@ TEST_F(RelativePointer_test, MemoryReMapping_SharedMemory)
     EXPECT_EQ(dataPointer1->Data1, reinterpret_cast<Data*>(BaseAddress2)->Data1);
 
     int offset = ShmSize / 2;
-    auto offsetAddr1 = reinterpret_cast<int*>(memMapWriter.getMappedAddress() + offset);
-    auto offsetAddr2 = reinterpret_cast<int*>(memMapReader.getMappedAddress() + offset);
+    auto offsetAddr1 = reinterpret_cast<int*>(static_cast<uint8_t*>(memMapWriter.getMappedAddress()) + offset);
+    auto offsetAddr2 = reinterpret_cast<int*>(static_cast<uint8_t*>(memMapReader.getMappedAddress()) + offset);
     *offsetAddr1 = 37;
 
     EXPECT_EQ(*offsetAddr2, *offsetAddr1);

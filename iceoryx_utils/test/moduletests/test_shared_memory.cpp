@@ -17,6 +17,7 @@
 #define private public
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #undef private
+#include "iceoryx_utils/platform/stat.hpp"
 
 using namespace testing;
 

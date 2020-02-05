@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef _WIN32
 #include "test.hpp"
 #include "mocks/time_mock.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
@@ -429,3 +430,4 @@ TEST_F(MqMessage_test, setMessage)
     message1.setMessage("1,2,3,4");
     EXPECT_THAT(message1.isValid(), Eq(false));
 }
+#endif

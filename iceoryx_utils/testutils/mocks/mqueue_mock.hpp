@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef _WIN32
 #ifndef MQUEUE_MOCK_HPP_INCLUDED
 #define MQUEUE_MOCK_HPP_INCLUDED
 
@@ -63,4 +64,5 @@ int mq_send(int mqdes, const char* msg_ptr, size_t msg_len, unsigned int msg_pri
 int mq_timedsend(
     int mqdes, const char* msg_ptr, size_t msg_len, unsigned int msg_prio, const struct timespec* abs_timeout);
 
+#endif
 #endif

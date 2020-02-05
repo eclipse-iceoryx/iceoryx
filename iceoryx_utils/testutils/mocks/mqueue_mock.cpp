@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef _WIN32
 #include "mqueue_mock.hpp"
 #include "mocks.hpp"
 #include <iostream>
@@ -93,3 +94,4 @@ int mq_timedsend(
     return (mqueue_MOCK::doUseMock) ? mqueue_MOCK::mock->mq_timedsend(mqdes, msg_ptr, msg_len, msg_prio, abs_timeout)
                                     : mqueue_orig::mq_timedsend(mqdes, msg_ptr, msg_len, msg_prio, abs_timeout);
 }
+#endif

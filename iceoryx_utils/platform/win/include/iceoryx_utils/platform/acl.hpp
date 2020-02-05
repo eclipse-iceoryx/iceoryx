@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "iceoryx_utils/platform/types.hpp"
+
 #define ACL_USER_OBJ 0
 #define ACL_USER 1
 #define ACL_GROUP_OBJ 2
@@ -77,4 +79,19 @@ inline int acl_get_permset(acl_entry_t entry_d, acl_permset_t* permset_p)
 int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm)
 {
     return 0;
+}
+
+char* acl_to_text(acl_t acl, ssize_t* len_p)
+{
+    return nullptr;
+}
+
+acl_t acl_from_text(const char* buf_p)
+{
+    return acl_t();
+}
+
+acl_t acl_get_fd(int fd)
+{
+    return acl_t();
 }

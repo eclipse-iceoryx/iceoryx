@@ -29,25 +29,32 @@ set(TEST_LINK_LIBS
     iceoryx_posh::iceoryx_posh_roudi_environment
 )
 
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl)
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+if(LINUX)
+    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl )
+    set(TEST_CXX_FLAGS -std=c++11 -fPIC PRIVATE -Wno-pedantic -Wno-conversion)  # -Wpedantic results in errors at the time mocks
+elseif(QNX)
+    set(TEST_CXX_FLAGS -std=c++11 -fPIC PRIVATE -Wno-pedantic -Wno-conversion)
+elseif(APPLE)
+    set(TEST_CXX_FLAGS -std=c++11 -fPIC PRIVATE -Wno-pedantic -Wno-conversion)
+elseif(WIN32)
+    set(TEST_CXX_FLAGS )
+endif()
 
 # unittests
 add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
 target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
 # TODO: fix conversion warnings
-target_compile_options(${PROJECT_PREFIX}_moduletests PUBLIC -std=c++11 -fPIC PRIVATE -Wno-pedantic -Wno-conversion) # -Wpedantic results in errors at the time mocks
-
+target_compile_options(${PROJECT_PREFIX}_moduletests PUBLIC ${TEST_CXX_FLAGS})
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
 
 # integration tests
 add_executable( ${PROJECT_PREFIX}_integrationtests ${INTEGRATIONTESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
-target_include_directories(${PROJECT_PREFIX}_integrationtests PUBLIC -std=c++11 -fPIC PRIVATE .)
+target_compile_options(${PROJECT_PREFIX}_integrationtests PUBLIC ${TEST_CXX_FLAGS})
+target_include_directories(${PROJECT_PREFIX}_integrationtests PRIVATE .)
 target_link_libraries(${PROJECT_PREFIX}_integrationtests ${TEST_LINK_LIBS})
 
 # component tests
 add_executable( ${PROJECT_PREFIX}_componenttests ${COMPONENTTESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
-target_compile_options(${PROJECT_PREFIX}_componenttests PUBLIC -std=c++11 -fPIC PRIVATE -Wno-pedantic -Wno-conversion) # -Wpedantic results in errors at the time mocks
+target_compile_options(${PROJECT_PREFIX}_componenttests PUBLIC ${TEST_CXX_FLAGS}) 
 target_include_directories(${PROJECT_PREFIX}_componenttests PRIVATE .)
 target_link_libraries(${PROJECT_PREFIX}_componenttests ${TEST_LINK_LIBS})

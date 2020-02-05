@@ -13,15 +13,3 @@
 // limitations under the License.
 
 #pragma once
-
-#define S_IRUSR 0
-#define S_IWUSR 1
-#define S_IRGRP 2
-#define S_IWGRP 3
-#define S_IROTH 4
-#define S_IWOTH 5
-#define S_IRWXU 6
-#define O_NONBLOCK 7
-
-#include <io.h>
-#include <sys/stat.h>
