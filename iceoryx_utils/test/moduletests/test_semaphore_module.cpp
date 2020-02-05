@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_utils/platform/time.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "test.hpp"
-
-#if not(defined(QNX) || defined(QNX__) || defined(__QNX__))
 
 using namespace ::testing;
 
@@ -225,5 +224,3 @@ TEST_F(Semaphore_test, MoveCTorUnnamed)
     EXPECT_THAT(b.post(), Eq(true));
     EXPECT_THAT(semaphore->post(), Eq(false));
 }
-
-#endif // not defined QNX
