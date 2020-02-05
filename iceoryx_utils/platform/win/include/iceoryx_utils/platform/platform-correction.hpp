@@ -12,7 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+// !NO PRAGMA ONE HERE! we want that these macros are always executed and
+// not just once, otherwise the windows macros are kicking in and nothing
+// compiles
+//#pragma once
 
+#ifndef __PRETTY_FUNCTION__
 #define __PRETTY_FUNCTION__ __FUNCSIG__
-#undef CreateMutexA
+#endif
+
+#undef CreateMutex
+#undef max
+#undef min
+#undef ERROR

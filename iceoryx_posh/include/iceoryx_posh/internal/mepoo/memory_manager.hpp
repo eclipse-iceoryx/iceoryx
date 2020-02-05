@@ -23,6 +23,10 @@
 #include <cstdint>
 #include <limits>
 
+// this header must always be the last one, otherwise windows macros
+// are kicking in and nothing compiles
+#include "iceoryx_utils/platform/platform-correction.hpp"
+
 namespace iox
 {
 namespace mepoo
@@ -77,4 +81,3 @@ class MemoryManager
 
 } // namespace mepoo
 } // namespace iox
-

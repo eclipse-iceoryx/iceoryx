@@ -77,7 +77,7 @@ struct SenderPortData : public BasePortData
     mutable concurrent::TACO<Throughput, ThreadContext> m_throughputExchange{
         concurrent::TACOMode::DenyDataFromSameContext};
 
-    iox::relative_ptr<mepoo::MemoryManager> m_memoryMgr;
+    relative_ptr<mepoo::MemoryManager> m_memoryMgr;
     mepoo::SharedChunk m_lastChunk{nullptr};
 };
 
