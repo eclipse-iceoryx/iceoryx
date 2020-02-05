@@ -21,7 +21,60 @@
 #define ACL_OTHER 4
 #define ACL_READ 5
 #define ACL_WRITE 6
+#define ACL_MASK 7
 
-using acl_t = int;
+struct __acl_ext
+{
+};
+
+using acl_t = struct __acl_ext*;
 using acl_permset_t = int;
 using acl_perm_t = int;
+using acl_entry_t = int;
+using acl_tag_t = int;
+
+inline int acl_valid(acl_t acl)
+{
+    return 0;
+}
+
+inline int acl_set_fd(int fd, acl_t acl)
+{
+    return 0;
+}
+
+inline acl_t acl_init(int count)
+{
+    static struct __acl_ext stub;
+    return &stub;
+}
+
+inline int acl_free(void*)
+{
+    return 0;
+}
+
+inline int acl_create_entry(acl_t* acl_p, acl_entry_t* entry_p)
+{
+    return 0;
+}
+
+inline int acl_set_tag_type(acl_entry_t entry_d, acl_tag_t tag_type)
+{
+    return 0;
+}
+
+inline int acl_set_qualifier(acl_entry_t entry_d, const void* qualifier_p)
+{
+    return 0;
+}
+
+inline int acl_get_permset(acl_entry_t entry_d, acl_permset_t* permset_p)
+{
+    return 0;
+}
+
+int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm)
+{
+    return 0;
+}

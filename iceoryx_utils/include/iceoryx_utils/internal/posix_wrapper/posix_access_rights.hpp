@@ -17,6 +17,8 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
+#include "iceoryx_utils/platform/types.hpp"
+
 #include <string>
 
 namespace iox

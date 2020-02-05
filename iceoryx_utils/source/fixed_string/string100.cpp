@@ -100,7 +100,7 @@ int32_t CString100::compare(const CString100& str2) const
     return strncmp(m_string_vector.data(), str2.m_string_vector.data(), MaxStringSize);
 }
 
-uint CString100::capacity() const
+unsigned int CString100::capacity() const
 {
     return MaxStringSize;
 }

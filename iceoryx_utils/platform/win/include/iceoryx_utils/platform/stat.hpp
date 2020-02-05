@@ -20,3 +20,4 @@
 #define S_IWGRP 3
 #define S_IROTH 4
 #define S_IWOTH 5
+#define O_NONBLOCK 6

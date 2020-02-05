@@ -14,6 +14,8 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
+
 #include <iostream>
 
 namespace iox

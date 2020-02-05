@@ -16,18 +16,20 @@
 
 #include "iceoryx_utils/platform/types.hpp"
 
+#include <cstdlib>
 #include <stdio.h>
+#include <type_traits>
 #include <windows.h>
 
 #define SEM_FAILED 0
 
-using sem_t = HANDLE;
+using sem_t = PVOID;
 static constexpr LONG MAX_SEMAPHORE_VALUE = LONG_MAX;
+static constexpr int MAX_SEMAPHORE_NAME_LENGTH = 128;
 
 inline int sem_getvalue(sem_t* sem, int* sval)
 {
-    static_assert(false, "Not available for Windows");
-    return 0;
+    return -1;
 }
 
 inline int sem_post(sem_t* sem)
@@ -87,7 +89,9 @@ inline int sem_init(sem_t* sem, int pshared, unsigned int value)
 
 inline sem_t* sem_open(const char* name, int oflag, mode_t mode, unsigned int value)
 {
-    return OpenSemaphoreW(0, false, name);
+    wchar_t semaphoreName[MAX_SEMAPHORE_NAME_LENGTH];
+    mbstowcs(semaphoreName, name, MAX_SEMAPHORE_NAME_LENGTH);
+    return static_cast<sem_t*>(OpenSemaphoreW(0, false, semaphoreName));
 }
 
 inline int sem_unlink(const char* name)

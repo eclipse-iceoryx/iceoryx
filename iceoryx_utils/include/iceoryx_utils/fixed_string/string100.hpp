@@ -57,7 +57,7 @@ class CString100
     // >0  the first character that does not match has a greater value in str1 than in str2
     int32_t compare(const CString100& str2) const;
 
-    uint capacity() const;
+    unsigned int capacity() const;
 
     const char* to_cstring() const;
 
@@ -87,4 +87,3 @@ inline std::ostream& operator<<(std::ostream& stream, const iox::cxx::CString100
     stream << string.to_cstring();
     return stream;
 }
-

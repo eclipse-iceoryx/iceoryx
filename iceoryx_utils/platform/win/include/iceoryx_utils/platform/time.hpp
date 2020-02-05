@@ -14,10 +14,11 @@
 
 #pragma once
 
+#include <time.h>
+
 #define CLOCK_REALTIME 0
 #define CLOCK_MONOTONIC 01
 
-// using time_t      = int;
 using suseconds_t = int;
 using timer_t = void*;
 using clockid_t = int;
@@ -27,12 +28,6 @@ struct timeval
     time_t tv_sec;
     suseconds_t tv_usec;
 };
-
-// struct timespec
-//{
-//    time_t tv_sec;
-//    long   tv_nsec;
-//};
 
 struct itimerspec
 {
