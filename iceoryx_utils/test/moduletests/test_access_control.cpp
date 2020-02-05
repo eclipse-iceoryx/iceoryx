@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef _WIN32
 #include "iceoryx_utils/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_utils/platform/pwd.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
@@ -255,3 +256,4 @@ TEST_F(AccessController_test, addStrangeNames)
     // non-existing group name specified
     EXPECT_FALSE(entryAdded);
 }
+#endif
