@@ -25,3 +25,5 @@
 #undef max
 #undef min
 #undef ERROR
+#undef interface
+#undef NO_ERROR

@@ -28,8 +28,7 @@ namespace iox
 {
 namespace runtime
 {
-std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory =
-    PoshRuntime::defaultRuntimeFactory;
+std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
 
 
 PoshRuntime& PoshRuntime::defaultRuntimeFactory(const std::string& name) noexcept
@@ -332,7 +331,7 @@ cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& s
     {
         LogError() << "Could not send FIND_SERVICE request to RouDi\n";
         errorHandler(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ, nullptr, ErrorLevel::MODERATE);
-        cxx::error<Error>(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ);
+        return cxx::error<Error>(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ);
     }
 
     uint32_t numberOfElements = requestResponse.getNumberOfElements();
