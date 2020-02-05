@@ -162,7 +162,7 @@ uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const RouDiCo
     uint64_t memorySize{0};
     for (auto segment : f_config.m_sharedMemorySegments)
     {
-        memorySize += cxx::align(MemoryManager::requiredManagementMemorySize(segment.m_mempoolConfig), 32ul);
+        memorySize += cxx::align(MemoryManager::requiredManagementMemorySize(segment.m_mempoolConfig), SHARED_MEMORY_ALIGNMENT);
     }
     return memorySize;
 }
@@ -173,7 +173,7 @@ uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const RouDiConfig_
     uint64_t memorySize{0};
     for (auto segment : f_config.m_sharedMemorySegments)
     {
-        memorySize += cxx::align(MemoryManager::requiredChunkMemorySize(segment.m_mempoolConfig), 32ul);
+        memorySize += cxx::align(MemoryManager::requiredChunkMemorySize(segment.m_mempoolConfig), SHARED_MEMORY_ALIGNMENT);
     }
     return memorySize;
 }
@@ -181,7 +181,7 @@ uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const RouDiConfig_
 template <typename SegmentType>
 uint64_t SegmentManager<SegmentType>::requiredFullMemorySize(const RouDiConfig_t& f_config)
 {
-    return cxx::align(requiredManagementMemorySize(f_config) + requiredChunkMemorySize(f_config), 32ul);
+    return cxx::align(requiredManagementMemorySize(f_config) + requiredChunkMemorySize(f_config), SHARED_MEMORY_ALIGNMENT);
 }
 
 } // namespace mepoo
