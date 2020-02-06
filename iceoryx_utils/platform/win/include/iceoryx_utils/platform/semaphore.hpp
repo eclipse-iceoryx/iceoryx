@@ -88,14 +88,14 @@ inline int sem_init(sem_t* sem, int pshared, unsigned int value)
 
 inline sem_t* sem_open(const char* name, int oflag)
 {
-    return nullptr;
+    return static_cast<sem_t*>(CreateSemaphore(nullptr, 0, MAX_SEMAPHORE_VALUE, name));
 }
 
 inline sem_t* sem_open(const char* name, int oflag, mode_t mode, unsigned int value)
 {
-    wchar_t semaphoreName[MAX_SEMAPHORE_NAME_LENGTH];
-    mbstowcs(semaphoreName, name, MAX_SEMAPHORE_NAME_LENGTH);
-    return static_cast<sem_t*>(OpenSemaphoreW(0, false, semaphoreName));
+    // GetLastError returns ERROR_ALREADY_EXISTS ... when specific O_FLAG is set use
+    // this
+    return static_cast<sem_t*>(CreateSemaphore(nullptr, value, MAX_SEMAPHORE_VALUE, name));
 }
 
 inline int sem_unlink(const char* name)
