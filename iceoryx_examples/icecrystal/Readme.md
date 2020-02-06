@@ -85,11 +85,6 @@ on the subscriber side and is a useful column to debug potential memleaks.
 
 `--all` will enable all three views at once.
 
-    -t, --time <ms>   Update period (in milliseconds) for the display of introspection data
-                      [min: 500, max: 10000, default: 1000]
-
-If you want to change the default update rate of 1s, you can do that with `-t`.
-
     -v, --version     Display latest official iceoryx release version and exit.
 
 Make sure that the version number of the introspection exactly matches the version number of RouDi. Currently,
