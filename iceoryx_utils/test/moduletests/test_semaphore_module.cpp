@@ -16,6 +16,11 @@
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "test.hpp"
 
+#include <atomic>
+#include <chrono>
+#include <thread>
+
+
 using namespace ::testing;
 
 class Semaphore_test : public Test
@@ -223,4 +228,25 @@ TEST_F(Semaphore_test, MoveCTorUnnamed)
 
     EXPECT_THAT(b.post(), Eq(true));
     EXPECT_THAT(semaphore->post(), Eq(false));
+}
+
+TEST_F(Semaphore_test, TimedWaitWithTimeout)
+{
+    auto semaphore = iox::posix::Semaphore::create(0);
+    std::atomic<bool> timedWaitFinish{false};
+
+    std::thread t([&] {
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        ts.tv_nsec += 2000;
+        semaphore->timedWait(&ts, false);
+        timedWaitFinish.store(true);
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    EXPECT_THAT(timedWaitFinish.load(), Eq(false));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    EXPECT_THAT(timedWaitFinish.load(), Eq(true));
+
+    t.join();
 }

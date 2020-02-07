@@ -15,10 +15,15 @@
 #pragma once
 
 #include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/platform/win32-error.hpp"
 
 #include <cstdlib>
+#include <fcntl.h>
+#include <sddl.h>
 #include <stdio.h>
+#include <time.h>
 #include <type_traits>
+
 
 #define _WINSOCKAPI_
 #define WIN32_LEAN_AND_MEAN
@@ -27,47 +32,70 @@
 
 #define SEM_FAILED 0
 
-using sem_t = PVOID;
+struct sem_t
+{
+    HANDLE handle;
+};
 static constexpr LONG MAX_SEMAPHORE_VALUE = LONG_MAX;
 static constexpr int MAX_SEMAPHORE_NAME_LENGTH = 128;
 
 inline int sem_getvalue(sem_t* sem, int* sval)
 {
-    return -1;
+    LONG previousValue;
+    switch (WaitForSingleObject(sem->handle, 0))
+    {
+    case WAIT_OBJECT_0:
+        if (ReleaseSemaphore(sem->handle, 1, &previousValue))
+        {
+            PrintLastErrorToConsole();
+            *sval = previousValue + 1;
+            return 0;
+        }
+        return 0;
+    case WAIT_TIMEOUT:
+        *sval = 0;
+        return 0;
+    default:
+        return -1;
+    }
 }
 
 inline int sem_post(sem_t* sem)
 {
-    int retVal = (ReleaseSemaphore(sem, 1, nullptr) == 0) ? -1 : 0;
+    int retVal = (ReleaseSemaphore(sem->handle, 1, nullptr) == 0) ? -1 : 0;
+    PrintLastErrorToConsole();
     return retVal;
 }
 
 inline int sem_wait(sem_t* sem)
 {
-    int retVal = (WaitForSingleObject(sem, INFINITE) == WAIT_FAILED) ? -1 : 0;
+    int retVal = (WaitForSingleObject(sem->handle, INFINITE) == WAIT_OBJECT_0) ? 0 : -1;
+    PrintLastErrorToConsole();
     return retVal;
 }
 
 inline int sem_trywait(sem_t* sem)
 {
-    if (WaitForSingleObject(sem, 0) == WAIT_FAILED)
-    {
-        return -1;
-    }
-    return 0;
+    int retVal = (WaitForSingleObject(sem->handle, 0) == WAIT_OBJECT_0) ? 0 : -1;
+    PrintLastErrorToConsole();
+    return retVal;
 }
 
 inline int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout)
 {
-    DWORD timeoutInMilliseconds = static_cast<DWORD>(1);
-    int retVal = (WaitForSingleObject(sem, timeoutInMilliseconds) == WAIT_FAILED) ? -1 : 0;
+    DWORD timeoutInMilliseconds = 0;
+
+    int retVal = (WaitForSingleObject(sem->handle, timeoutInMilliseconds) == WAIT_FAILED) ? -1 : 0;
+    PrintLastErrorToConsole();
 
     return retVal;
 }
 
 inline int sem_close(sem_t* sem)
 {
-    int retVal = CloseHandle(sem) ? 0 : -1;
+    int retVal = CloseHandle(sem->handle) ? 0 : -1;
+    PrintLastErrorToConsole();
+    free(sem);
     return retVal;
 }
 
@@ -78,24 +106,67 @@ inline int sem_destroy(sem_t* sem)
     return 0;
 }
 
+inline HANDLE __sem_create_win32_semaphore(LONG value, LPCSTR name)
+{
+    SECURITY_ATTRIBUTES securityAttribute;
+    SECURITY_DESCRIPTOR securityDescriptor;
+    InitializeSecurityDescriptor(&securityDescriptor, SECURITY_DESCRIPTOR_REVISION);
+    PrintLastErrorToConsole();
+
+    TCHAR* permissions = TEXT("D:") TEXT("(A;OICI;GA;;;BG)") // access to built-in guests
+        TEXT("(A;OICI;GA;;;AN)")                             // access to anonymous logon
+        TEXT("(A;OICI;GRGWGX;;;AU)")                         // access to authenticated users
+        TEXT("(A;OICI;GA;;;BA)");                            // access to administrators
+
+    ConvertStringSecurityDescriptorToSecurityDescriptor(
+        permissions, SDDL_REVISION_1, &(securityAttribute.lpSecurityDescriptor), NULL);
+    PrintLastErrorToConsole();
+    securityAttribute.nLength = sizeof(SECURITY_ATTRIBUTES);
+    securityAttribute.lpSecurityDescriptor = &securityDescriptor;
+    securityAttribute.bInheritHandle = FALSE;
+
+    HANDLE returnValue = CreateSemaphore(&securityAttribute, value, MAX_SEMAPHORE_VALUE, name);
+    PrintLastErrorToConsole();
+    return returnValue;
+}
+
+
 inline int sem_init(sem_t* sem, int pshared, unsigned int value)
 {
-    *sem = CreateSemaphore(nullptr, static_cast<LONG>(value), MAX_SEMAPHORE_VALUE, nullptr);
+    sem->handle = __sem_create_win32_semaphore(value, nullptr);
     if (sem != nullptr)
         return 0;
     return -1;
 }
 
-inline sem_t* sem_open(const char* name, int oflag)
-{
-    return static_cast<sem_t*>(CreateSemaphore(nullptr, 0, MAX_SEMAPHORE_VALUE, name));
-}
-
 inline sem_t* sem_open(const char* name, int oflag, mode_t mode, unsigned int value)
 {
-    // GetLastError returns ERROR_ALREADY_EXISTS ... when specific O_FLAG is set use
-    // this
-    return static_cast<sem_t*>(CreateSemaphore(nullptr, value, MAX_SEMAPHORE_VALUE, name));
+    sem_t* sem = static_cast<sem_t*>(malloc(sizeof(sem_t)));
+    if (oflag == (O_CREAT | O_EXCL) || oflag == O_CREAT)
+    {
+        sem->handle = __sem_create_win32_semaphore(value, name);
+        if (oflag == (O_CREAT | O_EXCL) && GetLastError() == ERROR_ALREADY_EXISTS)
+        {
+            sem_close(sem);
+            return SEM_FAILED;
+        }
+    }
+    else
+    {
+        sem->handle = OpenSemaphoreA(SEMAPHORE_ALL_ACCESS, false, name);
+        PrintLastErrorToConsole();
+        if (sem->handle == NULL)
+        {
+            free(sem);
+            return SEM_FAILED;
+        }
+    }
+    return sem;
+}
+
+inline sem_t* sem_open(const char* name, int oflag)
+{
+    return sem_open(name, oflag, mode_t(), 0);
 }
 
 inline int sem_unlink(const char* name)
