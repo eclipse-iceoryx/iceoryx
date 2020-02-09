@@ -24,4 +24,4 @@
 #define O_RDONLY _O_RDONLY
 #define O_RDWR _O_RDWR
 #define O_WRONLY _O_WRONLY
-#define O_NONBLOCK _O_NONBLOCK
+#define O_NONBLOCK 0x0
