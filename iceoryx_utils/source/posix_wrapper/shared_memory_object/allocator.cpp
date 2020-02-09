@@ -47,10 +47,8 @@ void* Allocator::allocate(const uint64_t f_size, const uint64_t f_alignment)
     uintptr_t l_alignedPosition = cxx::align(l_currentAddress, static_cast<uintptr_t>(f_alignment));
     l_alignedPosition -= reinterpret_cast<uintptr_t>(m_startAddress);
 
-    printf("%llu %llu - %llu %llu\n", f_size, f_alignment, l_currentAddress, l_alignedPosition);
     byte_t* l_returnValue = nullptr;
 
-    printf("%llu >= %llu + %llu\n", m_length, l_alignedPosition, f_size);
     if (m_length >= l_alignedPosition + f_size)
     {
         l_returnValue = m_startAddress + l_alignedPosition;

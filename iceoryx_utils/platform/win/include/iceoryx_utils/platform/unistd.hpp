@@ -26,36 +26,10 @@
 class HandleTranslator
 {
   public:
-    static HandleTranslator& getInstance() noexcept
-    {
-        static HandleTranslator globalHandleTranslator;
-        return globalHandleTranslator;
-    }
-
-    HANDLE get(const int handle) const noexcept
-    {
-        return m_handleList[static_cast<size_t>(handle)].windowsHandle;
-    }
-
-    int add(HANDLE handle) noexcept
-    {
-        for (int64_t limit = m_handleList.size(), k = 0; k < limit; ++k)
-        {
-            if (m_handleList[k].windowsHandle == nullptr)
-            {
-                m_handleList[k].windowsHandle = handle;
-                return k;
-            }
-        }
-
-        m_handleList.emplace_back(handle_t{handle});
-        return m_handleList.size() - 1;
-    }
-
-    void remove(int handle) noexcept
-    {
-        m_handleList[static_cast<uint64_t>(handle)].windowsHandle = nullptr;
-    }
+    static HandleTranslator& getInstance() noexcept;
+    HANDLE get(const int handle) const noexcept;
+    int add(HANDLE handle) noexcept;
+    void remove(int handle) noexcept;
 
   private:
     struct handle_t
@@ -66,23 +40,6 @@ class HandleTranslator
 };
 
 
-inline int ftruncate(int fildes, off_t length)
-{
-    return 0;
-}
-
-inline long sysconf(int name)
-{
-    return 0;
-}
-
-inline int closePlatformFileHandle(int fd)
-{
-    auto success = CloseHandle(HandleTranslator::getInstance().get(fd));
-    HandleTranslator::getInstance().remove(fd);
-    if (success == 0)
-    {
-        return -1;
-    }
-    return 0;
-}
+int ftruncate(int fildes, off_t length);
+long sysconf(int name);
+int closePlatformFileHandle(int fd);

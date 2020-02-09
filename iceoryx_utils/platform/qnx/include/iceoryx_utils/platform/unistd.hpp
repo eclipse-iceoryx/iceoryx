@@ -16,7 +16,4 @@
 
 #include <unistd.h>
 
-inline int closePlatformFileHandle(int fd)
-{
-    return close(fd);
-}
+int closePlatformFileHandle(int fd);

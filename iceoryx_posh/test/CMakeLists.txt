@@ -23,6 +23,7 @@ set(TEST_LINK_LIBS
     GTest::gtest
     GTest::gmock
     iceoryx_utils::iceoryx_utils
+    iceoryx_utils::iceoryx_platform
     iceoryx_utils_testing::iceoryx_utils_testing
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_roudi

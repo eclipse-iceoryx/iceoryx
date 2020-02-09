@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include "iceoryx_utils/platform/unistd.hpp"
 
-#include <unistd.h>
-
-int closePlatformFileHandle(int fd);
+int closePlatformFileHandle(int fd)
+{
+    return close(fd);
+}
