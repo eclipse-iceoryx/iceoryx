@@ -24,16 +24,16 @@ class SharedMemory_Test : public Test
   public:
     void SetUp() override
     {
-        // internal::CaptureStderr();
+        internal::CaptureStderr();
     }
 
     void TearDown() override
     {
-        // std::string output = internal::GetCapturedStderr();
-        // if (Test::HasFailure())
-        //{
-        //    std::cout << output << std::endl;
-        //}
+        std::string output = internal::GetCapturedStderr();
+        if (Test::HasFailure())
+        {
+            std::cout << output << std::endl;
+        }
     }
 };
 
@@ -49,35 +49,29 @@ TEST_F(SharedMemory_Test, CTorWithValidArguments)
 
 TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
 {
-    EXPECT_DEATH(
-        {
-            iox::posix::SharedMemory::create(nullptr,
-                                             iox::posix::AccessMode::readWrite,
-                                             iox::posix::OwnerShip::mine,
-                                             S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                             128);
-        },
-        ".*");
+    EXPECT_THAT(iox::posix::SharedMemory::create(nullptr,
+                                                 iox::posix::AccessMode::readWrite,
+                                                 iox::posix::OwnerShip::mine,
+                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
+                                                 128)
+                    .has_value(),
+                Eq(false));
 
-    EXPECT_DEATH(
-        {
-            iox::posix::SharedMemory::create("",
-                                             iox::posix::AccessMode::readWrite,
-                                             iox::posix::OwnerShip::mine,
-                                             S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                             128);
-        },
-        ".*");
+    EXPECT_THAT(iox::posix::SharedMemory::create("",
+                                                 iox::posix::AccessMode::readWrite,
+                                                 iox::posix::OwnerShip::mine,
+                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
+                                                 128)
+                    .has_value(),
+                Eq(false));
 
-    EXPECT_DEATH(
-        {
-            iox::posix::SharedMemory::create("ignatz",
-                                             iox::posix::AccessMode::readWrite,
-                                             iox::posix::OwnerShip::mine,
-                                             S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                             128);
-        },
-        ".*");
+    EXPECT_THAT(iox::posix::SharedMemory::create("ignatz",
+                                                 iox::posix::AccessMode::readWrite,
+                                                 iox::posix::OwnerShip::mine,
+                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
+                                                 128)
+                    .has_value(),
+                Eq(false));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
@@ -115,14 +109,4 @@ TEST_F(SharedMemory_Test, getHandleOfValidObject)
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
     EXPECT_THAT(sut->getHandle(), Ne(-1));
-}
-
-TEST_F(SharedMemory_Test, getHandleOfInvalidObject)
-{
-    auto sut = iox::posix::SharedMemory::create("/fuu11",
-                                                iox::posix::AccessMode::readWrite,
-                                                iox::posix::OwnerShip::openExisting,
-                                                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                                128);
-    EXPECT_THAT(sut->getHandle(), Eq(-1));
 }

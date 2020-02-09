@@ -58,12 +58,14 @@ SharedMemory::SharedMemory(const char* f_name,
     if (f_name == nullptr || strlen(f_name) == 0)
     {
         std::cerr << "No shared memory name specified!" << std::endl;
-        std::terminate();
+        m_isInitialized = false;
+        return;
     }
     else if (f_name[0] != '/')
     {
         std::cerr << "Shared memory name must start with a leading slash!" << std::endl;
-        std::terminate();
+        m_isInitialized = false;
+        return;
     }
 
     if (strlen(f_name) >= NAME_SIZE)

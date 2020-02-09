@@ -52,16 +52,9 @@ class HandleTranslator
         return m_handleList.size() - 1;
     }
 
-    void remove(HANDLE handle) noexcept
+    void remove(int handle) noexcept
     {
-        for (auto& handle : m_handleList)
-        {
-            if (RtlCompareMemory(&handle.windowsHandle, &handle, sizeof(void*)) == sizeof(void*))
-            {
-                handle.windowsHandle = nullptr;
-                break;
-            }
-        }
+        m_handleList[static_cast<uint64_t>(handle)].windowsHandle = nullptr;
     }
 
   private:
@@ -85,8 +78,9 @@ inline long sysconf(int name)
 
 inline int closePlatformFileHandle(int fd)
 {
-    printf("closing :: %d\n", fd);
-    if (CloseHandle(HandleTranslator::getInstance().get(fd)) == 0)
+    auto success = CloseHandle(HandleTranslator::getInstance().get(fd));
+    HandleTranslator::getInstance().remove(fd);
+    if (success == 0)
     {
         return -1;
     }

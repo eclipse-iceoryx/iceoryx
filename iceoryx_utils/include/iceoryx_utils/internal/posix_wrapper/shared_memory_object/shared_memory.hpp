@@ -51,9 +51,6 @@ class SharedMemory
     ~SharedMemory();
 
     int getHandle() const;
-    bool open();
-    bool unlink();
-    bool close();
     bool isInitialized() const;
 
     friend class posix::SharedMemoryObject;
@@ -65,6 +62,10 @@ class SharedMemory
                  const OwnerShip f_ownerShip,
                  const mode_t f_permissions,
                  const uint64_t f_size);
+
+    bool open();
+    bool unlink();
+    bool close();
 
     static constexpr uint64_t NAME_SIZE = 128;
 
