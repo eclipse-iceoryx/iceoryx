@@ -14,12 +14,16 @@
 
 #pragma once
 
-#include <time.h>
+#include "iceoryx_utils/platform/windows.hpp"
+
+#include <cstdint>
+#include <cstdio>
+#include <ctime>
 
 #define CLOCK_REALTIME 0
-#define CLOCK_MONOTONIC 01
+#define CLOCK_MONOTONIC 1
 
-using suseconds_t = int;
+using suseconds_t = uint64_t;
 using timer_t = void*;
 using clockid_t = int;
 
@@ -63,5 +67,27 @@ inline int timer_getoverrun(timer_t timerid)
 
 inline int clock_gettime(clockid_t clk_id, struct timespec* tp)
 {
+    if (clk_id != CLOCK_REALTIME)
+    {
+        fprintf(stderr, "Windows Version of clock_gettime supports only CLOCK_REALTIME clockID\n");
+    }
+    return timespec_get(tp, TIME_UTC);
+}
+
+inline int gettimeofday(struct timeval* tp, struct timezone* tzp)
+{
+    // difference in nano seconds between 01.01.1601 (UTC) and 01.01.1970 (EPOCH, unix time)
+    static constexpr uint64_t UTC_EPOCH_DIFF{116444736000000000};
+
+    SYSTEMTIME systemTime;
+    FILETIME fileTime;
+
+    GetSystemTime(&systemTime);
+    SystemTimeToFileTime(&systemTime, &fileTime);
+    uint64_t time =
+        static_cast<uint64_t>(fileTime.dwLowDateTime) + (static_cast<uint64_t>(fileTime.dwHighDateTime) << 32);
+
+    tp->tv_sec = static_cast<time_t>((time - UTC_EPOCH_DIFF) / uint64_t(10000000));
+    tp->tv_usec = static_cast<suseconds_t>(systemTime.wMilliseconds * 1000);
     return 0;
 }

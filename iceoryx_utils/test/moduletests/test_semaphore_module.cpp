@@ -238,7 +238,7 @@ TEST_F(Semaphore_test, TimedWaitWithTimeout)
     std::thread t([&] {
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
-        ts.tv_nsec += 2000;
+        ts.tv_nsec += 2000000; // wait 2 ms
         semaphore->timedWait(&ts, false);
         timedWaitFinish.store(true);
     });

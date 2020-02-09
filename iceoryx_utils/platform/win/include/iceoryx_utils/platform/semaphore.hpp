@@ -14,8 +14,10 @@
 
 #pragma once
 
+#include "iceoryx_utils/platform/time.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/win32-error.hpp"
+#include "iceoryx_utils/platform/windows.hpp"
 
 #include <cstdlib>
 #include <fcntl.h>
@@ -23,12 +25,6 @@
 #include <stdio.h>
 #include <time.h>
 #include <type_traits>
-
-
-#define _WINSOCKAPI_
-#define WIN32_LEAN_AND_MEAN
-
-#include <windows.h>
 
 #define SEM_FAILED 0
 
@@ -83,9 +79,14 @@ inline int sem_trywait(sem_t* sem)
 
 inline int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout)
 {
-    DWORD timeoutInMilliseconds = 0;
+    struct timeval tv;
+    gettimeofday(&tv, nullptr);
+    time_t seconds = abs_timeout->tv_sec - tv.tv_sec;
+    long milliseconds = seconds * 1000;
+    long microseconds = (abs_timeout->tv_nsec / 1000) - tv.tv_usec;
+    milliseconds += (microseconds / 1000);
 
-    int retVal = (WaitForSingleObject(sem->handle, timeoutInMilliseconds) == WAIT_FAILED) ? -1 : 0;
+    int retVal = (WaitForSingleObject(sem->handle, milliseconds) == WAIT_FAILED) ? -1 : 0;
     PrintLastErrorToConsole();
 
     return retVal;
