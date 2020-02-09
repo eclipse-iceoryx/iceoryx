@@ -220,29 +220,27 @@ inline void optional<T>::reset() noexcept
 template <typename T>
     inline T& optional<T>::value() & noexcept
 {
-    auto data = static_cast<T*>(static_cast<void*>(m_data));
+    auto data = (has_value()) ? static_cast<T*>(static_cast<void*>(m_data)) : nullptr;
     return *data;
 }
 
 template <typename T>
 inline const T& optional<T>::value() const& noexcept
 {
-    auto data = static_cast<const T*>(static_cast<const void*>(m_data));
-    return *data;
+    return const_cast<optional<T>*>(this)->value();
 }
 
 template <typename T>
     inline T&& optional<T>::value() && noexcept
 {
-    auto data = static_cast<T*>(static_cast<void*>(m_data));
+    auto data = (has_value()) ? static_cast<T*>(static_cast<void*>(m_data)) : nullptr;
     return std::move(*data);
 }
 
 template <typename T>
 inline const T&& optional<T>::value() const&& noexcept
 {
-    auto data = static_cast<const T*>(static_cast<const void*>(m_data));
-    return std::move(*data);
+    return std::move(*const_cast<optional<T>*>(this)->value());
 }
 
 
@@ -257,7 +255,7 @@ template <typename T>
 template <typename... Targs>
 inline void optional<T>::construct_value(Targs&&... args) noexcept
 {
-    new (&value()) T(std::forward<Targs>(args)...);
+    new (static_cast<T*>(static_cast<void*>(m_data))) T(std::forward<Targs>(args)...);
     m_hasValue = true;
 }
 
