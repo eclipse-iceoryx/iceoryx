@@ -19,10 +19,11 @@
 #include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/mqueue.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 
-#include <fcntl.h>
+
 #include <iostream>
 
 namespace iox

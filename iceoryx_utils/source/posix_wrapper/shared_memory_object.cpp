@@ -13,11 +13,12 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
+#include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
+
 
 #include <cstdlib>
 #include <cstring>
-#include <fcntl.h>
 #include <iostream>
 
 
