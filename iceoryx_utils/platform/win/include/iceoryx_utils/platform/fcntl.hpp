@@ -15,3 +15,13 @@
 #pragma once
 
 #include <fcntl.h>
+
+#define O_CREAT _O_CREAT
+#define O_EXCL _O_EXCL
+#define O_TRUN _O_TRUNC
+#define O_APPEND _O_APPEND
+#define O_SYNC _O_SYNC
+#define O_RDONLY _O_RDONLY
+#define O_RDWR _O_RDWR
+#define O_WRONLY _O_WRONLY
+#define O_NONBLOCK _O_NONBLOCK
