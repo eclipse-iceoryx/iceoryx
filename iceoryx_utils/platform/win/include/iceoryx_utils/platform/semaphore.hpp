@@ -81,10 +81,8 @@ inline int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout)
 {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
-    time_t seconds = abs_timeout->tv_sec - tv.tv_sec;
-    long milliseconds = seconds * 1000;
-    long microseconds = (abs_timeout->tv_nsec / 1000) - tv.tv_usec;
-    milliseconds += (microseconds / 1000);
+    time_t epochCurrentTimeDiffInSeconds = abs_timeout->tv_sec - tv.tv_sec;
+    long milliseconds = epochCurrentTimeDiffInSeconds * 1000 + ((abs_timeout->tv_nsec / 1000) - tv.tv_usec) / 1000;
 
     int retVal = (WaitForSingleObject(sem->handle, milliseconds) == WAIT_FAILED) ? -1 : 0;
     PrintLastErrorToConsole();
