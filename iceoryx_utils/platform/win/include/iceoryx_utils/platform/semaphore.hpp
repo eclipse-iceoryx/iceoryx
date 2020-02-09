@@ -142,10 +142,10 @@ inline int sem_init(sem_t* sem, int pshared, unsigned int value)
 inline sem_t* sem_open(const char* name, int oflag, mode_t mode, unsigned int value)
 {
     sem_t* sem = static_cast<sem_t*>(malloc(sizeof(sem_t)));
-    if (oflag == (O_CREAT | O_EXCL) || oflag == O_CREAT)
+    if (oflag & (O_CREAT | O_EXCL))
     {
         sem->handle = __sem_create_win32_semaphore(value, name);
-        if (oflag == (O_CREAT | O_EXCL) && GetLastError() == ERROR_ALREADY_EXISTS)
+        if (oflag & O_EXCL && GetLastError() == ERROR_ALREADY_EXISTS)
         {
             sem_close(sem);
             return SEM_FAILED;
