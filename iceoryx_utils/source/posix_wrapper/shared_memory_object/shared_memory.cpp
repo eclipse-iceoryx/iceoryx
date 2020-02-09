@@ -20,7 +20,6 @@
 #include "iceoryx_utils/platform/unistd.hpp"
 
 
-
 #include <assert.h>
 
 namespace iox
@@ -173,7 +172,8 @@ bool SharedMemory::close()
 {
     if (m_isInitialized)
     {
-        auto closeCall = cxx::makeSmartC(::close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle);
+        auto closeCall =
+            cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle);
         if (closeCall.hasErrors())
         {
             std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << closeCall.getErrorString()

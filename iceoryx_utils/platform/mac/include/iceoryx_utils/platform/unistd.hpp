@@ -15,3 +15,8 @@
 #pragma once
 
 #include <unistd.h>
+
+inline int closePlatformFileHandle(int fd)
+{
+    return close(fd);
+}

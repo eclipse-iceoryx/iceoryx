@@ -24,10 +24,16 @@ class SharedMemory_Test : public Test
   public:
     void SetUp() override
     {
+        // internal::CaptureStderr();
     }
 
     void TearDown() override
     {
+        // std::string output = internal::GetCapturedStderr();
+        // if (Test::HasFailure())
+        //{
+        //    std::cout << output << std::endl;
+        //}
     }
 };
 
@@ -76,14 +82,11 @@ TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
 
 TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
 {
-    internal::CaptureStderr();
     auto sut = iox::posix::SharedMemory::create("/schlomo",
                                                 iox::posix::AccessMode::readWrite,
                                                 iox::posix::OwnerShip::openExisting,
                                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
                                                 128);
-    std::string output = internal::GetCapturedStderr();
-    EXPECT_THAT(output.empty(), Eq(false));
     EXPECT_THAT(sut.has_value(), Eq(false));
 }
 
@@ -92,31 +95,14 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
     int handle;
 
     auto sut = iox::posix::SharedMemory::create("/ignatz",
-                                 iox::posix::AccessMode::readWrite,
-                                 iox::posix::OwnerShip::mine,
-                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                 128);
+                                                iox::posix::AccessMode::readWrite,
+                                                iox::posix::OwnerShip::mine,
+                                                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
+                                                128);
     handle = sut->getHandle();
     {
         iox::posix::SharedMemory sut2(std::move(*sut));
         EXPECT_THAT(handle, Eq(sut2.getHandle()));
-        EXPECT_THAT(sut->isInitialized(), Eq(false));
-    }
-}
-
-TEST_F(SharedMemory_Test, MoveCTorWithInvalidValues)
-{
-    internal::CaptureStderr();
-    auto sut = iox::posix::SharedMemory::create("/fuu11",
-                                 iox::posix::AccessMode::readWrite,
-                                 iox::posix::OwnerShip::openExisting,
-                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                 128);
-    std::string output = internal::GetCapturedStderr();
-    EXPECT_THAT(output.empty(), Eq(false));
-    {
-        iox::posix::SharedMemory sut2(std::move(*sut));
-        EXPECT_THAT(sut2.isInitialized(), Eq(false));
         EXPECT_THAT(sut->isInitialized(), Eq(false));
     }
 }
@@ -133,13 +119,10 @@ TEST_F(SharedMemory_Test, getHandleOfValidObject)
 
 TEST_F(SharedMemory_Test, getHandleOfInvalidObject)
 {
-    internal::CaptureStderr();
     auto sut = iox::posix::SharedMemory::create("/fuu11",
-                                 iox::posix::AccessMode::readWrite,
-                                 iox::posix::OwnerShip::openExisting,
-                                 S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
-                                 128);
-    std::string output = internal::GetCapturedStderr();
-    EXPECT_THAT(output.empty(), Eq(false));
+                                                iox::posix::AccessMode::readWrite,
+                                                iox::posix::OwnerShip::openExisting,
+                                                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH,
+                                                128);
     EXPECT_THAT(sut->getHandle(), Eq(-1));
 }

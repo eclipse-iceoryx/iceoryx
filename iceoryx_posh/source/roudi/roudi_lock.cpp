@@ -56,7 +56,8 @@ RouDiLock::RouDiLock()
 RouDiLock::~RouDiLock()
 {
     // Close socket
-    auto l_socket_close = cxx::makeSmartC(close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_socket_fd);
+    auto l_socket_close =
+        cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_socket_fd);
 
     if (l_socket_close.hasErrors())
     {

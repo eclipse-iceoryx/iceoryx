@@ -20,22 +20,21 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-inline void PrintLastErrorToConsole() noexcept
+inline int PrintLastErrorToConsole() noexcept
 {
-    auto lastError = GetLastError();
-    if (lastError == 0)
+    int lastError = GetLastError();
+    if (lastError != 0)
     {
-        return;
+        char buffer[2048];
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                      NULL,
+                      lastError,
+                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                      buffer,
+                      2048,
+                      NULL);
+
+        std::cerr << "error ( " << lastError << " ) :: " << buffer << std::endl;
     }
-
-    char buffer[2048];
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                  NULL,
-                  lastError,
-                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                  buffer,
-                  2048,
-                  NULL);
-
-    std::cerr << "error ( " << lastError << " ) :: " << buffer << std::endl;
+    return lastError;
 }

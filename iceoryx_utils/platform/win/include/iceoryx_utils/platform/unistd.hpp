@@ -15,11 +15,63 @@
 #pragma once
 
 #include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/platform/windows.hpp"
 
 #include <io.h>
+#include <vector>
 
 #define _SC_PAGESIZE 1
 #define STDERR_FILENO 2
+
+class HandleTranslator
+{
+  public:
+    static HandleTranslator& getInstance() noexcept
+    {
+        static HandleTranslator globalHandleTranslator;
+        return globalHandleTranslator;
+    }
+
+    HANDLE get(const int handle) const noexcept
+    {
+        return m_handleList[static_cast<size_t>(handle)].windowsHandle;
+    }
+
+    int add(HANDLE handle) noexcept
+    {
+        for (int64_t limit = m_handleList.size(), k = 0; k < limit; ++k)
+        {
+            if (m_handleList[k].windowsHandle == nullptr)
+            {
+                m_handleList[k].windowsHandle = handle;
+                return k;
+            }
+        }
+
+        m_handleList.emplace_back(handle_t{handle});
+        return m_handleList.size() - 1;
+    }
+
+    void remove(HANDLE handle) noexcept
+    {
+        for (auto& handle : m_handleList)
+        {
+            if (RtlCompareMemory(&handle.windowsHandle, &handle, sizeof(void*)) == sizeof(void*))
+            {
+                handle.windowsHandle = nullptr;
+                break;
+            }
+        }
+    }
+
+  private:
+    struct handle_t
+    {
+        HANDLE windowsHandle;
+    };
+    std::vector<handle_t> m_handleList;
+};
+
 
 inline int ftruncate(int fildes, off_t length)
 {
@@ -28,5 +80,15 @@ inline int ftruncate(int fildes, off_t length)
 
 inline long sysconf(int name)
 {
+    return 0;
+}
+
+inline int closePlatformFileHandle(int fd)
+{
+    printf("closing :: %d\n", fd);
+    if (CloseHandle(HandleTranslator::getInstance().get(fd)) == 0)
+    {
+        return -1;
+    }
     return 0;
 }

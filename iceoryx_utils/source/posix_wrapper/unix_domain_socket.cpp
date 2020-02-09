@@ -101,7 +101,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::destroy()
 {
     if (m_sockfd != INVALID_FD)
     {
-        auto closeCall = cxx::makeSmartC(close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfd);
+        auto closeCall = cxx::makeSmartC(
+            closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockfd);
 
         if (!closeCall.hasErrors())
         {
