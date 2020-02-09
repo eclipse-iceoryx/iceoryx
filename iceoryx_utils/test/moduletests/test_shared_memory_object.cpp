@@ -24,10 +24,16 @@ class SharedMemoryObject_Test : public Test
   public:
     void SetUp() override
     {
+        // internal::CaptureStderr();
     }
 
     void TearDown() override
     {
+        // std::string output = internal::GetCapturedStderr();
+        // if (Test::HasFailure())
+        //{
+        //    std::cout << output << std::endl;
+        //}
     }
 };
 
@@ -40,11 +46,8 @@ TEST_F(SharedMemoryObject_Test, CTorWithValidArguments)
 
 TEST_F(SharedMemoryObject_Test, CTorOpenNonExistingSharedMemoryObject)
 {
-    internal::CaptureStderr();
     auto sut = iox::posix::SharedMemoryObject::create(
         "/pummeluff", 100, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::openExisting, nullptr);
-    std::string output = internal::GetCapturedStderr();
-    EXPECT_THAT(output.empty(), Eq(false));
     EXPECT_THAT(sut.has_value(), Eq(false));
 }
 
@@ -86,14 +89,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
-    EXPECT_DEATH(
-        {
-            internal::CaptureStderr();
-            sut->allocate(9, 1);
-            std::string output = internal::GetCapturedStderr();
-            EXPECT_THAT(output.empty(), Eq(false));
-        },
-        ".*");
+    EXPECT_DEATH({ sut->allocate(9, 1); }, ".*");
 }
 
 TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
@@ -108,14 +104,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
     }
 
     std::set_terminate([]() { std::cout << "", std::abort(); });
-    EXPECT_DEATH(
-        {
-            internal::CaptureStderr();
-            sut->allocate(1, 1);
-            std::string output = internal::GetCapturedStderr();
-            EXPECT_THAT(output.empty(), Eq(false));
-        },
-        ".*");
+    EXPECT_DEATH({ sut->allocate(1, 1); }, ".*");
 }
 
 TEST_F(SharedMemoryObject_Test, AllocateAfterFinalizeAllocation)

@@ -14,11 +14,12 @@
 
 #pragma once
 
-#include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
+
 
 #include <cstdint>
 
@@ -67,12 +68,11 @@ class SharedMemoryObject
 
   private:
     SharedMemory m_sharedMemory;
-    MemoryMap m_memoryMap;
-    Allocator m_allocator;
+    cxx::optional<MemoryMap> m_memoryMap;
+    cxx::optional<Allocator> m_allocator;
     uint64_t m_memorySizeInBytes;
 
     bool m_isInitialized;
 };
 } // namespace posix
 } // namespace iox
-
