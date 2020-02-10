@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,10 +21,7 @@
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/mqueue.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
-
-#include <fcntl.h>
-#include <iostream>
-#include <sys/un.h>
+#include "iceoryx_utils/platform/un.hpp"
 
 namespace iox
 {
@@ -44,49 +41,49 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
     /// default constructor. The result is an invalid UnixDomainSocket object which can be reassigned later by using the
     /// move constructor.
-    UnixDomainSocket();
+    UnixDomainSocket() noexcept;
 
     UnixDomainSocket(const UnixDomainSocket& other) = delete;
-    UnixDomainSocket(UnixDomainSocket&& other);
+    UnixDomainSocket(UnixDomainSocket&& other) noexcept;
     UnixDomainSocket& operator=(const UnixDomainSocket& other) = delete;
-    UnixDomainSocket& operator=(UnixDomainSocket&& other);
+    UnixDomainSocket& operator=(UnixDomainSocket&& other) noexcept;
 
-    ~UnixDomainSocket();
+    ~UnixDomainSocket() noexcept;
 
-    static cxx::expected<bool, IpcChannelError> exists(const std::string& name);
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const std::string& name) noexcept;
 
     /// close the unix domain socket.
-    cxx::expected<IpcChannelError> destroy();
+    cxx::expected<IpcChannelError> destroy() noexcept;
 
     /// @brief send a message using std::string.
     /// @return true if sent without errors, false otherwise
-    cxx::expected<IpcChannelError> send(const std::string& msg);
+    cxx::expected<IpcChannelError> send(const std::string& msg) noexcept;
 
     /// @brief try to send a message for a given timeout duration using std::string
-    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout);
+    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) noexcept;
 
     /// @brief receive message using std::string.
     /// @return number of characters received. In case of an error, returns -1 and msg is empty.
-    cxx::expected<std::string, IpcChannelError> receive();
+    cxx::expected<std::string, IpcChannelError> receive() noexcept;
 
     /// @brief try to receive message for a given timeout duration using std::string. Only defined
     /// for NON_BLOCKING == false.
     /// @return optional containing the received string. In case of an error, nullopt type is returned.
-    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout);
+    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) noexcept;
 
 
-    cxx::expected<bool, IpcChannelError> isOutdated();
+    cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
   private:
     UnixDomainSocket(const std::string& name,
                      const IpcChannelMode mode,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = 512u,
-                     const uint64_t maxMsgNumber = 10u);
+                     const uint64_t maxMsgNumber = 10u) noexcept;
 
-    cxx::expected<int, IpcChannelError> createSocket(const IpcChannelMode mode);
+    cxx::expected<int, IpcChannelError> createSocket(const IpcChannelMode mode) noexcept;
 
-    cxx::error<IpcChannelError> createErrorFromErrnum(const int errnum);
+    cxx::error<IpcChannelError> createErrorFromErrnum(const int errnum) noexcept;
 
   private:
     std::string m_name;

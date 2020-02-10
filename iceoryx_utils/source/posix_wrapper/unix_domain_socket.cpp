@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,17 +14,15 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/platform/socket.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
 
-#include <chrono>
-#include <cstdlib>
-#include <sys/socket.h>
-#include <unistd.h>
 
 namespace iox
 {
 namespace posix
 {
-UnixDomainSocket::UnixDomainSocket()
+UnixDomainSocket::UnixDomainSocket() noexcept
 {
     this->m_isInitialized = false;
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
@@ -34,7 +32,7 @@ UnixDomainSocket::UnixDomainSocket(const std::string& name,
                                    const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
-                                   const uint64_t /*maxMsgNumber*/)
+                                   const uint64_t /*maxMsgNumber*/) noexcept
     : m_name(name)
     , m_channelSide(channelSide)
 {
@@ -65,12 +63,12 @@ UnixDomainSocket::UnixDomainSocket(const std::string& name,
     }
 }
 
-UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other)
+UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
 {
     *this = std::move(other);
 }
 
-UnixDomainSocket::~UnixDomainSocket()
+UnixDomainSocket::~UnixDomainSocket() noexcept
 {
     if (destroy().has_error())
     {
@@ -78,7 +76,7 @@ UnixDomainSocket::~UnixDomainSocket()
     }
 }
 
-UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other)
+UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 {
     if (this != &other)
     {
@@ -92,12 +90,23 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other)
     return *this;
 }
 
-cxx::expected<bool, IpcChannelError> UnixDomainSocket::exists(const std::string& name)
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const std::string& name) noexcept
 {
-    return cxx::success<bool>(true);
+    auto unlinkCall =
+        cxx::makeSmartC(unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, name.c_str());
+
+    if (!unlinkCall.hasErrors())
+    {
+        // ENOENT is set if this socket is not known
+        return cxx::success<bool>(unlinkCall.getErrNum() != ENOENT);
+    }
+    else
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    }
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::destroy()
+cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
 {
     if (m_sockfd != INVALID_FD)
     {
@@ -123,7 +132,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::destroy()
     return cxx::success<void>();
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg)
+cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) noexcept
 {
     // we also support timedSend. The setsockopt call sets the timeout for all further sendto calls, so we must set
     // it to 0 to turn the timeout off
@@ -134,7 +143,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg)
     return timedSend(msg, units::Duration(tv));
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout)
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
+                                                           const units::Duration& timeout) noexcept
 {
     if (msg.size() > MAX_MESSAGE_SIZE)
     {
@@ -188,7 +198,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
 }
 
-cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive()
+cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() noexcept
 {
     // we also support timedReceive. The setsockopt call sets the timeout for all further recvfrom calls, so we must set
     // it to 0 to turn the timeout off
@@ -200,7 +210,7 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive()
 }
 
 
-cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout)
+cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout) noexcept
 {
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
@@ -253,7 +263,7 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
 }
 
 
-cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChannelMode /*mode*/)
+cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChannelMode /*mode*/) noexcept
 {
     /// @todo mode handling
     if (m_name.empty())
@@ -300,22 +310,15 @@ cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChan
     }
 }
 
-cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated()
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated() noexcept
 {
-    /// @todo check if this can be used for unix domain sockets too
+    /// @todo this is not possible for a DGRAM unix domain socket we are using
 
-    struct stat sb;
-    /// @todo extend createErrorFromErrnum with possible fstat errors
-    auto fstatCall = cxx::makeSmartC(fstat, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_sockfd, &sb);
-    if (fstatCall.hasErrors())
-    {
-        return createErrorFromErrnum(fstatCall.getErrNum());
-    }
-    return cxx::success<bool>(sb.st_nlink == 0);
+    return cxx::success<bool>(false);
 }
 
 
-cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int errnum)
+cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int errnum) noexcept
 {
     switch (errnum)
     {
