@@ -30,7 +30,7 @@ if(result)
     message(FATAL_ERROR "CMake step [create build dir] for cpptoml failed: ${result}")
 endif()
 
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${SOURCE_DIR}"
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DENABLE_LIBCXX=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${SOURCE_DIR}"
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${BUILD_DIR} )
 if(result)
