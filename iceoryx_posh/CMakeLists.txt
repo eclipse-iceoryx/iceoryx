@@ -12,6 +12,7 @@ endif(TOML_CONFIG)
 
 include(cmake/iceoryxversions.cmake)
 include(IceoryxPackageHelper)
+include(IceoryxPlatformDetection)
 
 if( clang-tidy )
     find_program(

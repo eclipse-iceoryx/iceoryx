@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 project(googletest-build CXX)
 
 if(test)
+    if(WIN32)
+        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    endif(WIN32)
+
     # set download confi, source and build paths
     set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/googletest-download)
     set(SOURCE_DIR ${CMAKE_BINARY_DIR}/googletest-src)

@@ -5,15 +5,8 @@ project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 add_compile_options(-fPIC)
 add_compile_options(-std=c++11)
 
-if(UNIX AND NOT APPLE)
-    if(CMAKE_SYSTEM_NAME MATCHES Linux)
-        set(LINUX true)
-    elseif(CMAKE_SYSTEM_NAME MATCHES QNX)
-        set(QNX true)
-    endif()
-endif(UNIX AND NOT APPLE)
-
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatformDetection.cmake")
 
 if( clang-tidy )
     find_program(
@@ -227,12 +220,11 @@ setup_install_directories_and_export_package(
     INCLUDE_DIRECTORY include/
 )
 
-# package file
-set (SETUP_PACKAGE_FILE "cmake/IceoryxPackageHelper.cmake")
-
 # header
 install(
     FILES ${SETUP_PACKAGE_FILE}
+        cmake/IceoryxPackageHelper.cmake
+        cmake/IceoryxPlatformDetection.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
