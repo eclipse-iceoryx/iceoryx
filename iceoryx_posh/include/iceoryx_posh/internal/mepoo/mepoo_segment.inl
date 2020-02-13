@@ -32,22 +32,22 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(con
     , m_writerGroup(f_writerGroup)
 {
     using namespace posix;
-    // AccessController f_accessController;
-    // if (!(f_readerGroup == f_writerGroup))
-    // {
-    //     f_accessController.addPermissionEntry(
-    //         AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READ, f_readerGroup.getName());
-    // }
-    // f_accessController.addPermissionEntry(
-    //     AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READWRITE, f_writerGroup.getName());
-    // f_accessController.addPermissionEntry(AccessController::Category::USER, AccessController::Permission::READWRITE);
-    // f_accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READWRITE);
-    // f_accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);
+    AccessController f_accessController;
+    if (!(f_readerGroup == f_writerGroup))
+    {
+        f_accessController.addPermissionEntry(
+            AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READ, f_readerGroup.getName());
+    }
+    f_accessController.addPermissionEntry(
+        AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READWRITE, f_writerGroup.getName());
+    f_accessController.addPermissionEntry(AccessController::Category::USER, AccessController::Permission::READWRITE);
+    f_accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READWRITE);
+    f_accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);
 
-    // if (!f_accessController.writePermissionsToFile(m_sharedMemoryObject.getFileHandle()))
-    // {
-    //     errorHandler(Error::kMEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
-    // }
+    if (!f_accessController.writePermissionsToFile(m_sharedMemoryObject.getFileHandle()))
+    {
+        errorHandler(Error::kMEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
+    }
 
     m_memoryManager.configureMemoryManager(f_mempoolConfig, f_managementAllocator, m_sharedMemoryObject.getAllocator());
     m_sharedMemoryObject.finalizeAllocation();
@@ -57,7 +57,7 @@ template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
     const MePooConfig& f_mempoolConfig,
     const posix::PosixGroup& f_writerGroup,
-    const uintptr_t f_baseAddressOffset[[gnu::unused]])
+    const uintptr_t f_baseAddressOffset [[gnu::unused]])
 {
     // we let the OS decide where to map the shm segments
     constexpr void* BASE_ADDRESS_HINT{nullptr};

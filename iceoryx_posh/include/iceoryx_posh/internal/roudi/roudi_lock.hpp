@@ -35,7 +35,16 @@ class RouDiLock
     ~RouDiLock();
 
   private:
-    int m_socket_fd;
+    int m_socket_fd = [] {
+        auto socketCall =
+            cxx::makeSmartC(socket, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, AF_INET, SOCK_STREAM, 0);
+        if (socketCall.hasErrors())
+        {
+            std::cerr << "unable to acquire RouDi locking socket\n";
+            std::terminate();
+        }
+        return socketCall.getReturnValue();
+    }();
     struct sockaddr_in m_sockserv;
 };
 

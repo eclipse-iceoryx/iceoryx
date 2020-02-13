@@ -76,22 +76,22 @@ inline int acl_get_permset(acl_entry_t entry_d, acl_permset_t* permset_p)
     return 0;
 }
 
-int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm)
+inline int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm)
 {
     return 0;
 }
 
-char* acl_to_text(acl_t acl, ssize_t* len_p)
+inline char* acl_to_text(acl_t acl, ssize_t* len_p)
 {
     return nullptr;
 }
 
-acl_t acl_from_text(const char* buf_p)
+inline acl_t acl_from_text(const char* buf_p)
 {
     return acl_t();
 }
 
-acl_t acl_get_fd(int fd)
+inline acl_t acl_get_fd(int fd)
 {
     return acl_t();
 }
