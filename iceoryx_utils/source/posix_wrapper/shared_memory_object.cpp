@@ -22,7 +22,9 @@
 #include <iostream>
 
 
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+
 
 namespace iox
 {
@@ -35,12 +37,8 @@ cxx::optional<SharedMemoryObject> SharedMemoryObject::create(const char* f_name,
                                                              const void* f_baseAddressHint,
                                                              const mode_t f_permissions)
 {
-    auto l_alignment = Allocator::MEMORY_ALIGNMENT;
-    uint64_t l_alignedMemorySize = (f_memorySizeInBytes % l_alignment == 0)
-                                       ? f_memorySizeInBytes
-                                       : (f_memorySizeInBytes / l_alignment + 1) * l_alignment;
     cxx::optional<SharedMemoryObject> returnValue;
-    returnValue.emplace(f_name, l_alignedMemorySize, f_accessMode, f_ownerShip, f_baseAddressHint, f_permissions);
+    returnValue.emplace(f_name, f_memorySizeInBytes, f_accessMode, f_ownerShip, f_baseAddressHint, f_permissions);
 
     if (returnValue->isInitialized())
     {
@@ -58,7 +56,8 @@ SharedMemoryObject::SharedMemoryObject(const char* f_name,
                                        const OwnerShip f_ownerShip,
                                        const void* f_baseAddressHint,
                                        const mode_t f_permissions)
-    : m_sharedMemory(f_name, f_accessMode, f_ownerShip, f_permissions, f_memorySizeInBytes)
+    : m_sharedMemory(
+        f_name, f_accessMode, f_ownerShip, f_permissions, cxx::align(f_memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
     , m_memorySizeInBytes(f_memorySizeInBytes)
 {
     if (!m_sharedMemory.isInitialized())
@@ -69,8 +68,12 @@ SharedMemoryObject::SharedMemoryObject(const char* f_name,
         return;
     }
 
-    m_memoryMap = MemoryMap::create(
-        f_baseAddressHint, f_memorySizeInBytes, m_sharedMemory.getHandle(), f_accessMode, MAP_SHARED, 0);
+    m_memoryMap = MemoryMap::create(f_baseAddressHint,
+                                    cxx::align(m_memorySizeInBytes, Allocator::MEMORY_ALIGNMENT),
+                                    m_sharedMemory.getHandle(),
+                                    f_accessMode,
+                                    MAP_SHARED,
+                                    0);
 
     if (!m_memoryMap.has_value())
     {
