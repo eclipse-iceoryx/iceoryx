@@ -124,15 +124,16 @@ TEST_F(SharedMemoryObject_Test, AllocateAfterFinalizeAllocation)
 
 TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
 {
+    uint64_t memorySize = 128;
     auto shmMemory = iox::posix::SharedMemoryObject::create(
-        "/shmSut", 32, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+        "/shmSut", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
     int* test = static_cast<int*>(shmMemory->allocate(sizeof(int), 1));
     *test = 4557;
     int* test2 = static_cast<int*>(shmMemory->allocate(sizeof(int), 1));
     *test2 = 8912;
 
     auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmSut", 100, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::openExisting, nullptr);
+        "/shmSut", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::openExisting, nullptr);
     int* sutValue1 = static_cast<int*>(sut->allocate(sizeof(int), 1));
     int* sutValue2 = static_cast<int*>(sut->allocate(sizeof(int), 1));
 

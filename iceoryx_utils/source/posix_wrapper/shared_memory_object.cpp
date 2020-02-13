@@ -83,6 +83,7 @@ SharedMemoryObject::SharedMemoryObject(const char* f_name,
         return;
     }
     m_allocator.emplace(m_memoryMap->getBaseAddress(), f_memorySizeInBytes);
+    m_isInitialized = true;
 
     if (f_ownerShip == OwnerShip::mine && m_isInitialized)
     {
