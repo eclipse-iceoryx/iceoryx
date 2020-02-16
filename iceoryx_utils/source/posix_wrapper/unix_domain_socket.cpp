@@ -43,10 +43,7 @@ UnixDomainSocket::UnixDomainSocket(const std::string& name,
     }
     else
     {
-        memset(&m_sockAddr, 0, sizeof(m_sockAddr));
-        m_sockAddr.sun_family = AF_LOCAL;
-        strcpy(m_sockAddr.sun_path, name.c_str());
-
+        m_maxMessageSize = maxMsgSize;
         auto createResult = createSocket(mode);
 
         if (!createResult.has_error())
@@ -85,6 +82,7 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
         m_sockfd = std::move(other.m_sockfd);
         m_sockAddr = std::move(other.m_sockAddr);
         other.m_sockfd = INVALID_FD;
+        m_maxMessageSize = std::move(other.m_maxMessageSize);
     }
 
     return *this;
@@ -92,8 +90,15 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const std::string& name) noexcept
 {
+    if (name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME || name.at(0) != '/')
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
+    auto nameCStr = name.c_str();
+    nameCStr++; // don't use the leading '/' for the unix domain socket name
+
     auto unlinkCall =
-        cxx::makeSmartC(unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, name.c_str());
+        cxx::makeSmartC(unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, nameCStr);
 
     if (!unlinkCall.hasErrors())
     {
@@ -116,7 +121,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
         {
             if (IpcChannelSide::SERVER == m_channelSide)
             {
-                unlink(m_name.c_str());
+                unlink(m_sockAddr.sun_path);
             }
 
             m_sockfd = INVALID_FD;
@@ -146,7 +151,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) no
 cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
                                                            const units::Duration& timeout) noexcept
 {
-    if (msg.size() > MAX_MESSAGE_SIZE)
+    if (msg.size() >= m_maxMessageSize) // message sizes with null termination must be smaller than m_maxMessageSize
     {
         return cxx::error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
     }
@@ -175,7 +180,6 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
     else
     {
-        /// @todo extend createErrorFromErrnum with possible sendto errors
         auto sendCall = cxx::makeSmartC(sendto,
                                         cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                         {ERROR_CODE},
@@ -184,8 +188,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
                                         msg.c_str(),
                                         msg.size() + 1, // +1 for the \0 at the end
                                         0,
-                                        (struct sockaddr*)&m_sockAddr,
-                                        sizeof(m_sockAddr));
+                                        nullptr, // socket address not used for a connected SOCK_DGRAM
+                                        0);
 
         if (sendCall.hasErrors())
         {
@@ -236,9 +240,8 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
     }
     else
     {
-        char message[MAX_MESSAGE_SIZE + 1]; // +1 for the \0 at the end
+        char message[MAX_MESSAGE_SIZE];
 
-        /// @todo extend createErrorFromErrnum with possible recvfrom errors
         auto recvCall = cxx::makeSmartC(recvfrom,
                                         cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                         {static_cast<ssize_t>(ERROR_CODE)},
@@ -263,12 +266,26 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
 }
 
 
-cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChannelMode /*mode*/) noexcept
+cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChannelMode mode) noexcept
 {
-    /// @todo mode handling
-    if (m_name.empty())
+    if (m_name.empty() || m_name.size() < SHORTEST_VALID_NAME || m_name.size() > LONGEST_VALID_NAME
+        || m_name.at(0) != '/')
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
+    auto nameCStr = m_name.c_str();
+    nameCStr++; // don't use the leading '/' for the unix domain socket name
+
+    // initialize the sockAddr data structure with the provided name
+    memset(&m_sockAddr, 0, sizeof(m_sockAddr));
+    m_sockAddr.sun_family = AF_LOCAL;
+    strcpy(m_sockAddr.sun_path, nameCStr);
+
+    // we currently don't support a IpcChannelMode::NON_BLOCKING, for send and receive timouts can be used, the other
+    // calls are blocking
+    if (IpcChannelMode::NON_BLOCKING == mode)
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_ARGUMENTS);
     }
 
     auto socketCall =
@@ -280,7 +297,7 @@ cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChan
 
         if (IpcChannelSide::SERVER == m_channelSide)
         {
-            unlink(m_name.c_str());
+            unlink(m_sockAddr.sun_path);
 
             auto bindCall = cxx::makeSmartC(bind,
                                             cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
@@ -301,7 +318,24 @@ cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChan
         }
         else
         {
-            return cxx::success<int>(sockfd);
+            // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client is
+            // created and server not present)
+            auto connectCall = cxx::makeSmartC(connect,
+                                               cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                               {ERROR_CODE},
+                                               {},
+                                               sockfd,
+                                               (struct sockaddr*)&m_sockAddr,
+                                               sizeof(m_sockAddr));
+
+            if (!connectCall.hasErrors())
+            {
+                return cxx::success<int>(sockfd);
+            }
+            else
+            {
+                return createErrorFromErrnum(connectCall.getErrNum());
+            }
         }
     }
     else
@@ -312,7 +346,9 @@ cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChan
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated() noexcept
 {
-    /// @todo this is not possible for a DGRAM unix domain socket we are using
+    // This is for being API compatible with the message queue, but has no equivalent for socket.
+    // We return false to say that the socket is not outdated. If there is a problem,
+    // we rely on the other calls and their error returns
 
     return cxx::success<bool>(false);
 }
@@ -405,7 +441,7 @@ cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int er
     case ENOENT:
     {
         std::cerr << "directory prefix error for unix domain socket \"" << m_name << "\"" << std::endl;
-        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+        return cxx::error<IpcChannelError>(IpcChannelError::NO_SUCH_CHANNEL);
     }
     case EROFS:
     {
@@ -421,6 +457,11 @@ cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int er
     {
         std::cerr << "invalid option for unix domain socket \"" << m_name << "\"" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_ARGUMENTS);
+    }
+    case ECONNREFUSED:
+    {
+        std::cerr << "No server for unix domain socket \"" << m_name << "\"" << std::endl;
+        return cxx::error<IpcChannelError>(IpcChannelError::NO_SUCH_CHANNEL);
     }
     case EWOULDBLOCK:
     {

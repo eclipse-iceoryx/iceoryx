@@ -23,6 +23,7 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
 
+//using IpcChannel = UnixDomainSocket;
 using IpcChannel = MessageQueue;
 
 constexpr char goodName[] = "/channel_test";
@@ -41,7 +42,7 @@ class MessageQueue_test : public Test
         server = std::move(serverResult.get_value());
         internal::CaptureStderr();
 
-        auto clientResult = IpcChannel::create(goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+        auto clientResult = IpcChannel::create(goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
         client = std::move(clientResult.get_value());
     }
@@ -59,7 +60,7 @@ class MessageQueue_test : public Test
     {
     }
 
-    static constexpr size_t MaxMsgSize = 512;
+    static constexpr size_t MaxMsgSize = IpcChannel::MAX_MESSAGE_SIZE;
     static constexpr uint64_t MaxMsgNumber = 10;
     IpcChannel server;
     IpcChannel client;
@@ -68,12 +69,18 @@ class MessageQueue_test : public Test
 constexpr size_t MessageQueue_test::MaxMsgSize;
 constexpr uint64_t MessageQueue_test::MaxMsgNumber;
 
+TEST_F(MessageQueue_test, createNoName)
+{
+    auto mq2 = IpcChannel::create("", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    EXPECT_TRUE(mq2.has_error());
+    ASSERT_THAT(mq2.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
+}
+
 TEST_F(MessageQueue_test, createBadName)
 {
     auto mq2 = IpcChannel::create(badName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_TRUE(mq2.has_error());
 }
-
 
 TEST_F(MessageQueue_test, createAgain)
 {
@@ -122,6 +129,14 @@ TEST_F(MessageQueue_test, createAgainAndEmpty)
     ASSERT_THAT(received.get_error(), Eq(IpcChannelError::TIMEOUT));
 }
 
+TEST_F(MessageQueue_test, clientWithoutServerFails)
+{
+    auto clientResult = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+    EXPECT_TRUE(clientResult.has_error());
+    ASSERT_THAT(clientResult.get_error(), Eq(IpcChannelError::NO_SUCH_CHANNEL));
+}
+
+
 TEST_F(MessageQueue_test, NotOutdatedOne)
 {
     auto serverResult = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
@@ -140,6 +155,12 @@ TEST_F(MessageQueue_test, NotOutdatedOne)
 
 TEST_F(MessageQueue_test, OutdatedOne)
 {
+    if (std::is_same<IpcChannel, UnixDomainSocket>::value)
+    {
+        // isOutdated cannot be realized for unix domain sockets
+        return;
+    }
+
     auto serverResult = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
     auto server = std::move(serverResult.get_value());
@@ -192,7 +213,7 @@ TEST_F(MessageQueue_test, sendAndReceive)
     EXPECT_EQ(anotherMessage, *receivedMessage);
 }
 
-TEST_F(MessageQueue_test, sendAfterDestroy)
+TEST_F(MessageQueue_test, sendAfterClientDestroy)
 {
     auto dest = client.destroy();
     ASSERT_FALSE(dest.has_error());
@@ -202,7 +223,26 @@ TEST_F(MessageQueue_test, sendAfterDestroy)
     EXPECT_TRUE(sendError);
 }
 
-TEST_F(MessageQueue_test, receiveAfterDestroy)
+TEST_F(MessageQueue_test, sendAfterServerDestroy)
+{
+    if (std::is_same<IpcChannel, MessageQueue>::value)
+    {
+        // We still can send to the message queue is we destroy the server
+        // it would be outdated, this is checked in another test
+        return;
+    }
+
+    auto dest = server.destroy();
+    ASSERT_FALSE(dest.has_error());
+
+    std::string message = "Try to send me";
+    auto sendResult = client.send(message);
+    EXPECT_TRUE(sendResult.has_error());
+    EXPECT_THAT(sendResult.get_error(), Eq(IpcChannelError::NO_SUCH_CHANNEL));
+}
+
+
+TEST_F(MessageQueue_test, receiveAfterServerDestroy)
 {
     std::string message = "hello world!";
     bool sendError = client.send(message).has_error();
@@ -226,6 +266,17 @@ TEST_F(MessageQueue_test, sendMoreThanAllowed)
     auto receivedMessage = server.receive();
     ASSERT_THAT(receivedMessage.has_error(), Eq(false));
     EXPECT_EQ(shortMessage, receivedMessage.get_value());
+}
+
+TEST_F(MessageQueue_test, sendMaxMessageSize)
+{
+    std::string message(MaxMsgSize-1, 'x');
+    auto clientReturn = client.send(message);
+    ASSERT_THAT(clientReturn.has_error(), Eq(false));
+
+    auto receivedMessage = server.receive();
+    ASSERT_THAT(receivedMessage.has_error(), Eq(false));
+    EXPECT_EQ(message, receivedMessage.get_value());
 }
 
 TEST_F(MessageQueue_test, wildCreate)

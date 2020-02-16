@@ -31,15 +31,17 @@ namespace posix
 class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcChannelError>
 {
   public:
-    /// @ todo in ipc_channel.hpp? The same for all channels?
     static constexpr size_t MAX_MESSAGE_SIZE = 4096;
+    static constexpr size_t SHORTEST_VALID_NAME = 2;
+    static constexpr size_t LONGEST_VALID_NAME = 100;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
 
-    /// for calling private constructor in create method
+    /// @brief for calling private constructor in create method
     friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
 
-    /// default constructor. The result is an invalid UnixDomainSocket object which can be reassigned later by using the
+    /// @brief default constructor. The result is an invalid UnixDomainSocket object which can be reassigned later by
+    /// using the
     /// move constructor.
     UnixDomainSocket() noexcept;
 
@@ -50,39 +52,58 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
     ~UnixDomainSocket() noexcept;
 
+    /// @brief unlink the provided unix domain socket
+    /// @param name of the unix domain socket to unlink
+    /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
     static cxx::expected<bool, IpcChannelError> unlinkIfExists(const std::string& name) noexcept;
 
-    /// close the unix domain socket.
+    /// @brief close the unix domain socket.
     cxx::expected<IpcChannelError> destroy() noexcept;
 
     /// @brief send a message using std::string.
-    /// @return true if sent without errors, false otherwise
+    /// @param msg to send
+    /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> send(const std::string& msg) noexcept;
 
     /// @brief try to send a message for a given timeout duration using std::string
+    /// @param msg to send
+    /// @param timout for the send operation
+    /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) noexcept;
 
     /// @brief receive message using std::string.
-    /// @return number of characters received. In case of an error, returns -1 and msg is empty.
+    /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
     cxx::expected<std::string, IpcChannelError> receive() noexcept;
 
-    /// @brief try to receive message for a given timeout duration using std::string. Only defined
-    /// for NON_BLOCKING == false.
-    /// @return optional containing the received string. In case of an error, nullopt type is returned.
+    /// @brief try to receive message for a given timeout duration using std::string.
+    /// @param timout for the receive operation 
+    /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
     cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) noexcept;
 
-
+    /// @brief checks whether the unix domain socket is outdated
+    /// @return true if the unix domain socket is outdated, false otherwise, IpcChannelError if error occured
     cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
   private:
+    /// @brief c'tor
+    /// @param name for the unix domain socket
+    /// @param mode blocking or non_blocking
+    /// @param channel side client or server
+    /// @param maxMsgSize max message size that can be transmitted
+    /// @param maxMsgNumber max messages that can be queued    
     UnixDomainSocket(const std::string& name,
                      const IpcChannelMode mode,
                      const IpcChannelSide channelSide,
-                     const size_t maxMsgSize = 512u,
+                     const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10u) noexcept;
 
+    /// @brief creates the unix domain socket
+        /// @param mode blocking or non_blocking
+    /// @return int with the socket file descriptor, IpcChannelError if error occured
     cxx::expected<int, IpcChannelError> createSocket(const IpcChannelMode mode) noexcept;
 
+    /// @brief create an IpcChannelError from the provides error code
+    /// @return IpcChannelError if error occured
     cxx::error<IpcChannelError> createErrorFromErrnum(const int errnum) noexcept;
 
   private:
@@ -90,6 +111,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     IpcChannelSide m_channelSide;
     int m_sockfd{INVALID_FD};
     struct sockaddr_un m_sockAddr;
+    size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
 };
 } // namespace posix
 } // namespace iox
