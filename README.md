@@ -11,6 +11,10 @@ tour, introducing the project scope and guide you through the examples.
 
 So first off: What is iceoryx?
 
+<p align="center">
+<img src="https://user-images.githubusercontent.com/8661268/74612998-b962bc80-510a-11ea-97f0-62f41c5d287b.gif" width="100%">
+</p>
+
 Iceoryx is an inter-process communication (IPC) middleware for [POSIX](https://en.wikipedia.org/wiki/POSIX) based
 operating systems. It features shared memory capabilities that allow a true zero-copy data transfer. For more information have a look at the [1000 words iceoryx introduction in the eclipse newsletter.](https://www.eclipse.org/community/eclipse_newsletter/2019/december/4.php)
 
