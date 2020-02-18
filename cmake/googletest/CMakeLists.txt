@@ -10,7 +10,7 @@ if(test)
     set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/googletest-download)
     set(SOURCE_DIR ${CMAKE_BINARY_DIR}/googletest-src)
     set(BUILD_DIR ${CMAKE_BINARY_DIR}/googletest-build)
-    set(INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
+    set(INSTALL_DIR ${CMAKE_BINARY_DIR}/build_dependencies)
 
     # Download and unpack googletest at configure time
     configure_file(googletest.cmake.in ${DOWNLOAD_CONFIG_DIR}/CMakeLists.txt)

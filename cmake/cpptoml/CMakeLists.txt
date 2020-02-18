@@ -5,7 +5,7 @@ project(cpptoml-build CXX)
 set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/cpptoml-download)
 set(SOURCE_DIR ${CMAKE_BINARY_DIR}/cpptoml-src)
 set(BUILD_DIR ${CMAKE_BINARY_DIR}/cpptoml-build)
-set(INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
+set(INSTALL_DIR ${CMAKE_BINARY_DIR}/build_dependencies)
 
 # Download and unpack cpptoml at configure time
 configure_file(cpptoml.cmake.in ${DOWNLOAD_CONFIG_DIR}/CMakeLists.txt)
