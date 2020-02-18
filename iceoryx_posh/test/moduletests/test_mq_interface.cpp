@@ -226,29 +226,6 @@ void CMqInterface_StringCTor()
     EXPECT_THAT(base.getInterfaceName(), Eq(ifName));
 }
 
-template <typename T>
-void CMqInterface_MoveCTor()
-{
-    T* base = new T(ifName, maxMessages, messageSize);
-    CMqInterface_Open(*base);
-    T destination(std::move(*base));
-    delete base;
-
-    CMqInterface_RunAllMqBaseTests(destination);
-}
-
-template <typename T>
-void CMqInterface_MoveOperator()
-{
-    T* base = new T(ifName, maxMessages, messageSize);
-    CMqInterface_Open(*base);
-    T destination("/crap", maxMessages, messageSize);
-    destination = std::move(*base);
-    delete base;
-
-    CMqInterface_RunAllMqBaseTests(destination);
-}
-
 ////////////////////////////////
 // UnitTests: MqBase
 ////////////////////////////////
@@ -256,16 +233,6 @@ void CMqInterface_MoveOperator()
 TEST_F(CMqInterface_test, MqBase_StringCTor)
 {
     CMqInterface_StringCTor<MqBase>();
-}
-
-TEST_F(CMqInterface_test, MqBase_MoveCTor)
-{
-    CMqInterface_MoveCTor<MqBase>();
-}
-
-TEST_F(CMqInterface_test, MqBase_MoveOperator)
-{
-    CMqInterface_MoveOperator<MqBase>();
 }
 
 TEST_F(CMqInterface_test, MqBase_Receive)
@@ -319,16 +286,6 @@ TEST_F(CMqInterface_test, MqInterfaceUser_StringCTor)
     CMqInterface_StringCTor<MqInterfaceUser>();
 }
 
-TEST_F(CMqInterface_test, MqInterfaceUser_MoveCTor)
-{
-    CMqInterface_MoveCTor<MqInterfaceUser>();
-}
-
-TEST_F(CMqInterface_test, MqInterfaceUser_MoveOperator)
-{
-    CMqInterface_MoveOperator<MqInterfaceUser>();
-}
-
 TEST_F(CMqInterface_test, MqInterfaceUser_Receive)
 {
     MqInterfaceUser base(ifName);
@@ -378,16 +335,6 @@ TEST_F(CMqInterface_test, MqInterfaceUser_IsInitialized)
 TEST_F(CMqInterface_test, MqInterfaceCreator_StringCTor)
 {
     CMqInterface_StringCTor<MqInterfaceCreator>();
-}
-
-TEST_F(CMqInterface_test, MqInterfaceCreator_MoveCTor)
-{
-    CMqInterface_MoveCTor<MqInterfaceCreator>();
-}
-
-TEST_F(CMqInterface_test, MqInterfaceCreator_MoveOperator)
-{
-    CMqInterface_MoveOperator<MqInterfaceCreator>();
 }
 
 TEST_F(CMqInterface_test, MqInterfaceCreator_Receive)
