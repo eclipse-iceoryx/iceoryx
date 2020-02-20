@@ -11,6 +11,10 @@ tour, introducing the project scope and guide you through the examples.
 
 So first off: What is iceoryx?
 
+<p align="center">
+<img src="https://user-images.githubusercontent.com/8661268/74612998-b962bc80-510a-11ea-97f0-62f41c5d287b.gif" width="100%">
+</p>
+
 Iceoryx is an inter-process communication (IPC) middleware for [POSIX](https://en.wikipedia.org/wiki/POSIX) based
 operating systems. It features shared memory capabilities that allow a true zero-copy data transfer. For more information have a look at the [1000 words iceoryx introduction in the eclipse newsletter.](https://www.eclipse.org/community/eclipse_newsletter/2019/december/4.php)
 
@@ -25,6 +29,13 @@ Don't get too frighten of the API when strolling through the codebase. Think of 
 Examples for a "porcelain" API would be e.g.
 [Adaptive Autosar Foundation](https://www.autosar.org/fileadmin/Releases_TEMP/Adaptive_Platform_19-03/AdaptiveFoundation.zip)
 (see AUTOSAR_EXP_ARAComAPI.pdf) or [ROS](https://www.ros.org).
+
+### Supported Platforms
+
+ * Linux
+ * QNX
+ * macOS (not yet - currently in progress with high priority)
+ * Windows 10 (not yet - currently in progress)
 
 ### Scope
 
@@ -78,7 +89,7 @@ Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 18.04 
 
 You will need to install the following packages:
 
-    sudo apt-get install cmake libacl1-dev libncurses5-dev pkg-config
+    sudo apt install cmake libacl1-dev libncurses5-dev pkg-config
 
 Additionally, there is an optional dependency to the MIT licensed cpptoml library, which is used to parse a RouDi config file for the mempool config.
 [cpptoml](https://github.com/skystrife/cpptoml)

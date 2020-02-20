@@ -106,6 +106,10 @@ class ObjectPool_test : public Test
     }
 
     FooPool pool;
+    int data;
+    int data1;
+    int data2;
+    int data3;
 };
 
 
@@ -219,7 +223,7 @@ TEST_F(ObjectPool_test, add)
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
 
-    int data = 0;
+    data = 0;
     for (int i = 1; i <= CAPACITY; ++i)
     {
         Foo foo(data);
@@ -248,14 +252,14 @@ TEST_F(ObjectPool_test, size_and_remove)
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
     EXPECT_THAT(pool.size(), Eq(0U));
 
-    int data1 = 0;
+    data1 = 0;
     auto index1 = pool.construct(data1);
     EXPECT_THAT(data1, Eq(1));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(1));
     EXPECT_THAT(Foo::getDestructionCounter(), Eq(0));
     EXPECT_THAT(pool.size(), Eq(1U));
 
-    int data2 = 0;
+    data2 = 0;
     Foo foo(data2);
     auto index2 = pool.add(foo);
     EXPECT_THAT(data2, Eq(2));
@@ -284,7 +288,7 @@ TEST_F(ObjectPool_test, bracket_operator)
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
     EXPECT_THAT(pool.size(), Eq(0U));
 
-    int data1 = 0;
+    data1 = 0;
     auto index1 = pool.construct(data1);
     EXPECT_THAT(data1, Eq(1));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(1));
@@ -292,7 +296,7 @@ TEST_F(ObjectPool_test, bracket_operator)
     EXPECT_THAT(pool.size(), Eq(1U));
     ASSERT_THAT(pool.get(index1), Ne(nullptr));
 
-    int data2 = 0;
+    data2 = 0;
     Foo foo(data2);
     auto index2 = pool.add(foo);
     EXPECT_THAT(data2, Eq(2));
@@ -353,7 +357,7 @@ TEST_F(ObjectPool_test, parameter_create)
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
 
-    int data = 0;
+    data = 0;
     for (int i = 1; i <= CAPACITY; ++i)
     {
         auto ptr = pool.create(data);
@@ -378,14 +382,14 @@ TEST_F(ObjectPool_test, destruct_free)
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
     EXPECT_THAT(pool.size(), Eq(0U));
 
-    int data1 = 0;
+    data1 = 0;
     auto ptr1 = pool.create(data1);
     EXPECT_THAT(data1, Eq(1));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(1));
     EXPECT_THAT(Foo::getDestructionCounter(), Eq(0));
     EXPECT_THAT(pool.size(), Eq(1U));
 
-    int data2 = 0;
+    data2 = 0;
     Foo foo(data2);
     auto ptr2 = pool.insert(foo);
     EXPECT_THAT(data2, Eq(2));
@@ -414,14 +418,14 @@ TEST_F(ObjectPool_test, default_free)
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
     EXPECT_THAT(pool.size(), Eq(0U));
 
-    int data1 = 0;
+    data1 = 0;
     auto ptr1 = pool.create(data1);
     EXPECT_THAT(data1, Eq(1));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(1));
     EXPECT_THAT(Foo::getDestructionCounter(), Eq(0));
     EXPECT_THAT(pool.size(), Eq(1U));
 
-    int data2 = 0;
+    data2 = 0;
     Foo foo(data2);
     auto ptr2 = pool.insert(foo);
     EXPECT_THAT(data2, Eq(2));
@@ -460,7 +464,7 @@ TEST_F(ObjectPool_test, insert)
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
 
-    int data = 0;
+    data = 0;
     for (int i = 1; i <= CAPACITY; ++i)
     {
         Foo foo(data);
@@ -487,14 +491,14 @@ TEST_F(ObjectPool_test, get)
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
     EXPECT_THAT(pool.size(), Eq(0U));
 
-    int data1 = 0;
+    data1 = 0;
     auto index1 = pool.construct(data1);
     EXPECT_THAT(data1, Eq(1));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(1));
     EXPECT_THAT(Foo::getDestructionCounter(), Eq(0));
     EXPECT_THAT(pool.size(), Eq(1U));
 
-    int data2 = 0;
+    data2 = 0;
     Foo foo(data2);
     auto ptr2 = pool.insert(foo);
     EXPECT_THAT(data2, Eq(2));
@@ -532,7 +536,7 @@ TEST_F(ObjectPool_test, pointerToIndexConversion)
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
     EXPECT_THAT(pool.size(), Eq(0U));
 
-    int data1 = 0;
+    data1 = 0;
     auto index1 = pool.construct(data1);
     EXPECT_THAT(data1, Eq(1));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(1));
@@ -666,7 +670,7 @@ TEST_F(ObjectPool_test, destructor)
 
     Foo::resetConstructionCounter();
     Foo::resetDestructionCounter();
-    int data = 0;
+    data = 0;
 
     // default construction of Foo objects by pool
     {
@@ -705,7 +709,7 @@ TEST_F(ObjectPool_test, iterator)
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
     EXPECT_THAT(pool.size(), Eq(0U));
 
-    int data1 = 0;
+    data1 = 0;
     auto index1 = pool.construct(data1);
     EXPECT_THAT(index1, Ne(NO_INDEX));
     EXPECT_THAT(data1, Eq(1));
@@ -713,7 +717,7 @@ TEST_F(ObjectPool_test, iterator)
     EXPECT_THAT(Foo::getDestructionCounter(), Eq(0));
     EXPECT_THAT(pool.size(), Eq(1U));
 
-    int data2 = 0;
+    data2 = 0;
     auto index2 = pool.construct(data2);
     EXPECT_THAT(index2, Ne(NO_INDEX));
     EXPECT_THAT(data2, Eq(2));
@@ -721,7 +725,7 @@ TEST_F(ObjectPool_test, iterator)
     EXPECT_THAT(Foo::getDestructionCounter(), Eq(0));
     EXPECT_THAT(pool.size(), Eq(2U));
 
-    int data3 = 0;
+    data3 = 0;
     auto index3 = pool.construct(data3);
     EXPECT_THAT(index3, Ne(NO_INDEX));
     EXPECT_THAT(data3, Eq(3));

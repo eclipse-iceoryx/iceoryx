@@ -44,7 +44,7 @@ class CString100
     CString100(const char* const cstring, const uint64_t length);
 
     CString100(const std::string& str);
-    ~CString100();
+    ~CString100() = default;
 
     //! Assignment operator.
     CString100& operator=(const CString100& str2);
@@ -57,7 +57,7 @@ class CString100
     // >0  the first character that does not match has a greater value in str1 than in str2
     int32_t compare(const CString100& str2) const;
 
-    uint capacity() const;
+    uint64_t capacity() const;
 
     const char* to_cstring() const;
 

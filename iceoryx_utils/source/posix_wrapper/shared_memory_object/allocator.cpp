@@ -41,7 +41,7 @@ void* Allocator::allocate(const uint64_t f_size, const uint64_t f_alignment)
     }
 
     uintptr_t l_currentAddress = reinterpret_cast<uintptr_t>(m_startAddress) + m_currentPosition;
-    uintptr_t l_alignedPosition = cxx::align(l_currentAddress, f_alignment);
+    uintptr_t l_alignedPosition = cxx::align(l_currentAddress, static_cast<uintptr_t>(f_alignment));
     l_alignedPosition -= reinterpret_cast<uintptr_t>(m_startAddress);
 
     byte_t* l_returnValue = nullptr;

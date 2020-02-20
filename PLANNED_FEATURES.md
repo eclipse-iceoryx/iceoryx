@@ -2,9 +2,7 @@
 
 This list contains rather high-prio features that will most likely be implemented in the near future.
 
-* Relocatable pointer
-  * Allow shared memory segments to be mmap'ed to different addresses in each application
-* Config file for RouDi, provide the mempool config and not during compile time
+* Windows and Mac support
 * Man page for RouDi and the runtime
 * Request-response communication
 * Support for multiple publishers on the same topic

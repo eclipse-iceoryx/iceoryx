@@ -23,6 +23,9 @@ namespace iox
 ///@todo restructure and split into multiple files along with an implementation cpp for non-template code
 class RelocatablePointer
 {
+    template <typename T>
+    friend class relocatable_ptr;
+
   public:
     using offset_t = std::ptrdiff_t;
 
