@@ -15,3 +15,12 @@
 #pragma once
 
 #include <grp.h>
+#include <unistd.h>
+
+inline int getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
+{
+    int groupsApple;
+    int returnValue = getgrouplist(user, group, groups, ngroups);
+    *groups = groupsApple;
+    return returnValue;
+}

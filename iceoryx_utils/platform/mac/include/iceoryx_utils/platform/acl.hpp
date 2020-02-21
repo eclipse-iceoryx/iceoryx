@@ -78,3 +78,18 @@ inline int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm)
 {
     return 0;
 }
+
+inline char* acl_to_text(acl_t acl, ssize_t* len_p)
+{
+    return nullptr;
+}
+
+inline acl_t acl_from_text(const char* buf_p)
+{
+    return acl_t();
+}
+
+inline acl_t acl_get_fd(int fd)
+{
+    return acl_t();
+}

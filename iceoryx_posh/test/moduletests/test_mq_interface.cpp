@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__APPLE__)
 #include "mocks/mqueue_mock.hpp"
 #include "mocks/time_mock.hpp"
 
@@ -115,7 +115,7 @@ void CMqInterface_TimedReceive(T& base)
     MqMessage result;
 
     char msg1[] = "msg1,msg2,";
-    char invalidMsg2[] = "msg1,msg2";   
+    char invalidMsg2[] = "msg1,msg2";
 
     // clock_gettime fails, return false
     EXPECT_CALL(*time_MOCK::mock, clock_gettime(_, _)).WillOnce(Return(-1)).WillOnce(Return(0));
@@ -203,7 +203,7 @@ void CMqInterface_GetInterfaceName(T& base)
 }
 
 template <typename T>
-void CMqInterface_IsInitialized(T& base[[gnu::unused]])
+void CMqInterface_IsInitialized(T& base [[gnu::unused]])
 {
     // TODO: add correct mock settings with return
     EXPECT_THAT(base.isInitialized(), Eq(true));

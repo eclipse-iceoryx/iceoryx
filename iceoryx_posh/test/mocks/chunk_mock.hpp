@@ -14,10 +14,12 @@
 
 #pragma once
 
+#if !defined(__APPLE__) // since aligned_alloc is not implemented in libc
+
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
-#include <cstring>
+#include <stdlib.h>
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
 #include <malloc.h>
@@ -78,3 +80,4 @@ class ChunkMock
     iox::mepoo::ChunkHeader* m_chunkHeader = nullptr;
     Topic* m_topic = nullptr;
 };
+#endif

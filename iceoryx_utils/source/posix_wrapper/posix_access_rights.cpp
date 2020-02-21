@@ -166,7 +166,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const
     gid_t groups[MaxNumberOfGroups];
     int numGroups = MaxNumberOfGroups;
 
-    auto getgrouplistCall = cxx::makeSmartC(getgrouplist,
+    auto getgrouplistCall = cxx::makeSmartC(static_cast<int (*)(const char*, gid_t, gid_t*, int*)>(getgrouplist),
                                             cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                             {-1},
                                             {},

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if !defined(__APPLE__) // since aligned_alloc is not implemented in libc
 #include "test.hpp"
 
 using namespace ::testing;
@@ -251,3 +252,4 @@ TEST_F(ProcessIntrospection_test, addRemoveRunnable)
     }
     EXPECT_THAT(m_senderPortImpl_mock->deactivate, Eq(1));
 }
+#endif

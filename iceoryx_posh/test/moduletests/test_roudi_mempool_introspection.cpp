@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if !defined(__APPLE__) // since aligned_alloc is not implemented in libc
 #include "mocks/chunk_mock.hpp"
 #include "mocks/mepoo_memory_manager_mock.hpp"
 #include "mocks/senderport_mock.hpp"
@@ -235,3 +236,4 @@ TEST_F(MemPoolIntrospection_test, thread)
 
     EXPECT_THAT(4 <= mock->hasSubscribers && mock->hasSubscribers <= 8, Ge(true));
 }
+#endif

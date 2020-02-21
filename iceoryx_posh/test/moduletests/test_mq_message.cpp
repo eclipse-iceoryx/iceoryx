@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _WIN32
-#include "test.hpp"
-#include "mocks/time_mock.hpp"
+#if !defined(_WIN32) && !defined(__APPLE__)
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "mocks/time_mock.hpp"
+#include "test.hpp"
 
 using namespace ::testing;
 

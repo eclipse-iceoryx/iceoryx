@@ -15,7 +15,8 @@
 #ifndef TIME_MOCK_HPP_INCLUDED
 #define TIME_MOCK_HPP_INCLUDED
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__APPLE__)
+
 #include "test.hpp"
 #include <time.h>
 
@@ -48,5 +49,4 @@ int clock_gettime(clockid_t clk_id, struct timespec* res) noexcept;
 int clock_settime(clockid_t clk_id, const struct timespec* res) noexcept;
 #endif
 #endif
-
 #endif

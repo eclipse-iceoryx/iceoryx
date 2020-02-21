@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if !defined(__APPLE__) // since aligned_alloc is not implemented in libc
+
 #include "mocks/chunk_mock.hpp"
 #include "mocks/receiverport_mock.hpp"
 #include "mocks/senderport_mock.hpp"
@@ -47,7 +49,7 @@ class PortIntrospection_test : public Test
   public:
     PortIntrospection_test()
         : m_introspectionAccess(
-              static_cast<PortIntrospectionAccess<SenderPort_MOCK, ReceiverPort_MOCK>&>(*m_introspection))
+            static_cast<PortIntrospectionAccess<SenderPort_MOCK, ReceiverPort_MOCK>&>(*m_introspection))
     {
     }
 
@@ -742,3 +744,5 @@ TEST_F(PortIntrospection_test, thread)
     EXPECT_TRUE(4 <= m_portThroughput_mock->deliverChunk && m_portThroughput_mock->deliverChunk <= 8);
     EXPECT_TRUE(4 <= m_receiverPortData_mock->deliverChunk && m_receiverPortData_mock->deliverChunk <= 8);
 }
+
+#endif
