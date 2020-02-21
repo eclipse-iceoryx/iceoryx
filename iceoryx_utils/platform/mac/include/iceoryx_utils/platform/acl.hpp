@@ -74,7 +74,7 @@ inline int acl_get_permset(acl_entry_t entry_d, acl_permset_t* permset_p)
     return 0;
 }
 
-int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm)
+inline int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm)
 {
     return 0;
 }
