@@ -24,7 +24,10 @@ set(TEST_LINK_LIBS
 )
 
 if(LINUX)
-    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} acl dl pthread rt)
+    set(TEST_LINK_LIBS${TEST_LINK_LIBS} dl pthread)
+    if(NOT APPLE)
+        set(TEST_LINK_LIBS ${TEST_LINK_LIBS} acl rt)
+    endif()
 endif()
 
 # set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_BINARY_DIR}/test)

@@ -11,7 +11,7 @@ if(UNIX AND NOT APPLE)
     elseif(CMAKE_SYSTEM_NAME MATCHES QNX)
         set(QNX true)
     endif()
-endif(UNIX AND NOT APPLE)
+endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 
@@ -94,7 +94,7 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
         ${CMAKE_DL_LIBS}
     )
 
-    if(LINUX)
+    if(LINUX AND NOT APPLE)
         target_link_libraries(iceoryx_utils_testing PRIVATE rt)
     endif()
 
@@ -164,15 +164,15 @@ add_library(iceoryx_utils
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)
 
-if(LINUX)
-    set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/include/)
-    target_link_libraries(iceoryx_utils PRIVATE rt acl ${CODE_COVERAGE_LIBS})
-elseif(QNX)
+if(QNX)
     set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/qnx/include/)
 elseif(APPLE)
     set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/mac/include/)
 elseif(WIN32)
     set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/win/include/)
+elseif(LINUX)
+    set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/include/)
+    target_link_libraries(iceoryx_utils PRIVATE rt acl ${CODE_COVERAGE_LIBS})
 else()
     message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
 endif()

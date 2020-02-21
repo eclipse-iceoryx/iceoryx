@@ -117,9 +117,9 @@ target_link_libraries(iceoryx_posh
     PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
 )
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+if(NOT CMAKE_SYSTEM_NAME MATCHES QNX AND NOT APPLE)
     target_link_libraries(iceoryx_posh PRIVATE rt)
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+endif()
 
 #
 ########## build roudi lib ##########
