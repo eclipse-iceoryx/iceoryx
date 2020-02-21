@@ -503,7 +503,7 @@ TEST_F(RelativePointer_test, MemoryReMapping_SharedMemory)
 
     Data* dataPointer1 = new (reinterpret_cast<void*>(BaseAddress1)) Data(12, 21);
 
-    EXPECT_EQ(reinterpret_cast<uintptr_t>(dataPointer1), BaseAddress1);
+    EXPECT_EQ(reinterpret_cast<uint64_t>(dataPointer1), BaseAddress1);
     EXPECT_EQ(dataPointer1->Data1, reinterpret_cast<Data*>(BaseAddress2)->Data1);
 
     int offset = ShmSize / 2;

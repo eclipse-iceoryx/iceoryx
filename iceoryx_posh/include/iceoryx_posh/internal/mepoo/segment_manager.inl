@@ -24,7 +24,7 @@ namespace mepoo
 template <typename SegmentType>
 inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& f_segmentConfig,
                                                    posix::Allocator* f_managementAllocator,
-                                                   const uintptr_t f_sharedMemoryBaseAddressOffset,
+                                                   const uint64_t f_sharedMemoryBaseAddressOffset,
                                                    const bool f_verifySharedMemoryPlacement)
     : m_nextSegmentBaseAddressOffset(f_sharedMemoryBaseAddressOffset)
     , m_managementAllocator(f_managementAllocator)
@@ -52,7 +52,7 @@ inline bool SegmentManager<SegmentType>::createSegment(const SegmentConfig::Segm
         const auto& segment = m_segmentContainer.back();
 
         if (m_verifySharedMemoryPlacement
-            && reinterpret_cast<uintptr_t>(segment.getSharedMemoryObject().getBaseAddress())
+            && reinterpret_cast<uint64_t>(segment.getSharedMemoryObject().getBaseAddress())
                    != m_nextSegmentBaseAddressOffset)
         {
             errorHandler(Error::kMEPOO__SEGMENT_BASEADDRESS_VIOLATES_SPECIFICATION);

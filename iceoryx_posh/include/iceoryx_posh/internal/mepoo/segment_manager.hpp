@@ -39,7 +39,7 @@ class SegmentManager
   public:
     SegmentManager(const SegmentConfig& f_segmentConfig,
                    posix::Allocator* f_managementAllocator,
-                   const uintptr_t f_sharedMemoryBaseAddressOffset,
+                   const uint64_t f_sharedMemoryBaseAddressOffset,
                    const bool f_skipShmPlacementVerification = false);
     ~SegmentManager() = default;
 
@@ -96,7 +96,7 @@ class SegmentManager
     template <typename MemoryManger, typename SegmentManager, typename SenderPort>
     friend class roudi::MemPoolIntrospection;
 
-    uintptr_t m_nextSegmentBaseAddressOffset{0};
+    uint64_t m_nextSegmentBaseAddressOffset{0};
     posix::Allocator* m_managementAllocator;
     cxx::vector<SegmentType, MAX_SHM_SEGMENTS> m_segmentContainer;
     bool m_createInterfaceEnabled{true};

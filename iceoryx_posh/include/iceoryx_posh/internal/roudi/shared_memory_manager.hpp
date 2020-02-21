@@ -121,7 +121,7 @@ class MiddlewareShm
   public:
     MiddlewareShm(posix::Allocator* allocator,
                   const mepoo::SegmentConfig& segmentConfig,
-                  const uintptr_t m_sharedMemoryBaseAddressOffset,
+                  const uint64_t m_sharedMemoryBaseAddressOffset,
                   const bool m_verifySharedMemoryPlacement)
         : m_managementAllocator(allocator)
         , m_segmentManager(segmentConfig, allocator, m_sharedMemoryBaseAddressOffset, m_verifySharedMemoryPlacement)

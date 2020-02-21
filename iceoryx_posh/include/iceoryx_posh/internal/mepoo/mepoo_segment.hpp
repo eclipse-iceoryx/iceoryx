@@ -33,7 +33,7 @@ class MePooSegment
                  posix::Allocator* f_managementAllocator,
                  const posix::PosixGroup& f_readerGroup,
                  const posix::PosixGroup& f_writerGroup,
-                 const uintptr_t f_baseAddressOffset);
+                 const uint64_t f_baseAddressOffset);
 
     posix::PosixGroup getWriterGroup() const;
     posix::PosixGroup getReaderGroup() const;
@@ -45,7 +45,7 @@ class MePooSegment
   protected:
     SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& f_mempoolConfig,
                                                     const posix::PosixGroup& f_writerGroup,
-                                                    const uintptr_t f_baseAddressOffset[[gnu::unused]]);
+                                                    const uint64_t f_baseAddressOffset[[gnu::unused]]);
 
   protected:
     SharedMemoryObjectType m_sharedMemoryObject;

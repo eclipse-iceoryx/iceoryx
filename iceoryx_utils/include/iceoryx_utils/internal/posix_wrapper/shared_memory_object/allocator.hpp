@@ -45,7 +45,7 @@ class Allocator
   private:
     byte_t* m_startAddress;
     uint64_t m_length;
-    uintptr_t m_currentPosition = 0;
+    uint64_t m_currentPosition = 0;
     bool m_allocationFinalized = false;
 };
 } // namespace posix

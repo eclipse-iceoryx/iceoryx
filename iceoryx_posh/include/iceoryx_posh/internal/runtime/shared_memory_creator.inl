@@ -93,7 +93,7 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
     m_shmTypePtr = new (m_shmTypePtr) ShmType(
         m_shmObject->getAllocator(),
         config,
-        cxx::align(reinterpret_cast<uintptr_t>(m_shmObject->getBaseAddress()) + totalSharedMemorySize, pageSize),
+        cxx::align(reinterpret_cast<uint64_t>(m_shmObject->getBaseAddress()) + totalSharedMemorySize, pageSize),
         config.roudi.m_verifySharedMemoryPlacement);
 
     m_shmTypePtr->m_segmentId = managementSegmentId;

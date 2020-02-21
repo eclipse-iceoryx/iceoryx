@@ -27,7 +27,7 @@ class RelativePointer
   public:
     using id_t = uint64_t;
     using ptr_t = void*;
-    using offset_t = std::uintptr_t;
+    using offset_t = uint64_t;
 
     RelativePointer(ptr_t ptr, id_t id)
         : m_id(id)
