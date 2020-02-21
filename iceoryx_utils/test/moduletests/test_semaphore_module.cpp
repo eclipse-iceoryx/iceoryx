@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
+
 #include "iceoryx_utils/platform/time.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "test.hpp"
@@ -238,7 +240,8 @@ TEST_F(Semaphore_test, TimedWaitWithTimeout)
     std::thread t([&] {
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
-        ts.tv_nsec += 2000000; // wait 2 ms
+        constexpr long TWO_MILLISECONDS{2000000};
+        ts.tv_nsec += TWO_MILLISECONDS;
         semaphore->timedWait(&ts, false);
         timedWaitFinish.store(true);
     });
@@ -250,3 +253,5 @@ TEST_F(Semaphore_test, TimedWaitWithTimeout)
 
     t.join();
 }
+
+#endif

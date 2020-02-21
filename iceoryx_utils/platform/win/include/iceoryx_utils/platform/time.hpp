@@ -87,7 +87,8 @@ inline int gettimeofday(struct timeval* tp, struct timezone* tzp)
     uint64_t time =
         static_cast<uint64_t>(fileTime.dwLowDateTime) + (static_cast<uint64_t>(fileTime.dwHighDateTime) << 32);
 
-    tp->tv_sec = static_cast<time_t>((time - UTC_EPOCH_DIFF) / uint64_t(10000000));
+    constexpr uint64_t TEN_MILLISECONDS_IN_NANOSECONDS = 10000000;
+    tp->tv_sec = static_cast<time_t>((time - UTC_EPOCH_DIFF) / TEN_MILLISECONDS_IN_NANOSECONDS);
     tp->tv_usec = static_cast<suseconds_t>(systemTime.wMilliseconds * 1000);
     return 0;
 }

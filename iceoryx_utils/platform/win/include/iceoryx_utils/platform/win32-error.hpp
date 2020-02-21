@@ -16,22 +16,21 @@
 
 #include <iostream>
 
-#define _WINSOCKAPI_
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "iceoryx_utils/platform/windows.hpp"
 
 inline int PrintLastErrorToConsole() noexcept
 {
+    constexpr uint64_t BUFFER_SIZE{2048};
     int lastError = GetLastError();
     if (lastError != 0)
     {
-        char buffer[2048];
+        char buffer[BUFFER_SIZE];
         FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                       NULL,
                       lastError,
                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                       buffer,
-                      2048,
+                      BUFFER_SIZE - 1,
                       NULL);
 
         std::cerr << "error ( " << lastError << " ) :: " << buffer << std::endl;

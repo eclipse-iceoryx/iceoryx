@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ enum class IpcChannelError : uint8_t
     PROCESS_LIMIT,
     SYSTEM_LIMIT,
     OUT_OF_MEMORY,
-    INVALID_FILE_DESCRIPTOR, 
+    INVALID_FILE_DESCRIPTOR,
     I_O_ERROR,
     UNDEFINED
 };

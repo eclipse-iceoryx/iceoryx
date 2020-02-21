@@ -56,9 +56,8 @@ SharedMemoryObject::SharedMemoryObject(const char* f_name,
                                        const OwnerShip f_ownerShip,
                                        const void* f_baseAddressHint,
                                        const mode_t f_permissions)
-    : m_sharedMemory(
-        f_name, f_accessMode, f_ownerShip, f_permissions, cxx::align(f_memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
-    , m_memorySizeInBytes(f_memorySizeInBytes)
+    : m_memorySizeInBytes(cxx::align(f_memorySizeInBytes, Allocator::MEMORY_ALIGNMENT))
+    , m_sharedMemory(f_name, f_accessMode, f_ownerShip, f_permissions, m_memorySizeInBytes)
 {
     if (!m_sharedMemory.isInitialized())
     {
@@ -68,12 +67,8 @@ SharedMemoryObject::SharedMemoryObject(const char* f_name,
         return;
     }
 
-    m_memoryMap = MemoryMap::create(f_baseAddressHint,
-                                    cxx::align(m_memorySizeInBytes, Allocator::MEMORY_ALIGNMENT),
-                                    m_sharedMemory.getHandle(),
-                                    f_accessMode,
-                                    MAP_SHARED,
-                                    0);
+    m_memoryMap = MemoryMap::create(
+        f_baseAddressHint, m_memorySizeInBytes, m_sharedMemory.getHandle(), f_accessMode, MAP_SHARED, 0);
 
     if (!m_memoryMap.has_value())
     {
@@ -82,14 +77,14 @@ SharedMemoryObject::SharedMemoryObject(const char* f_name,
         m_isInitialized = false;
         return;
     }
-    m_allocator.emplace(m_memoryMap->getBaseAddress(), f_memorySizeInBytes);
+    m_allocator.emplace(m_memoryMap->getBaseAddress(), m_memorySizeInBytes);
     m_isInitialized = true;
 
     if (f_ownerShip == OwnerShip::mine && m_isInitialized)
     {
-        std::clog << "Reserving " << f_memorySizeInBytes << " bytes in the shared memory [" << f_name << "]"
+        std::clog << "Reserving " << m_memorySizeInBytes << " bytes in the shared memory [" << f_name << "]"
                   << std::endl;
-        memset(m_memoryMap->getBaseAddress(), 0, f_memorySizeInBytes);
+        memset(m_memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         std::clog << "[ Reserving shared memory successful ] " << std::endl;
     }
 }

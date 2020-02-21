@@ -23,15 +23,7 @@ namespace iox
 namespace roudi
 {
 RouDiLock::RouDiLock()
-    : m_socket_fd(cxx::makeSmartC(socket, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, AF_INET, SOCK_STREAM, 0)
-                      .getReturnValue())
 {
-    if (m_socket_fd == -1)
-    {
-        LogError() << "Could not create socket";
-        std::terminate();
-    }
-
     m_sockserv.sin_family = AF_INET;
     m_sockserv.sin_addr.s_addr = inet_addr("127.0.0.1");
     m_sockserv.sin_port = htons(37777);

@@ -67,10 +67,10 @@ class SharedMemoryObject
     bool isInitialized() const;
 
   private:
+    uint64_t m_memorySizeInBytes;
     SharedMemory m_sharedMemory;
     cxx::optional<MemoryMap> m_memoryMap;
     cxx::optional<Allocator> m_allocator;
-    uint64_t m_memorySizeInBytes;
 
     bool m_isInitialized;
 };

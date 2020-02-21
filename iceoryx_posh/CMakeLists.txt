@@ -207,12 +207,7 @@ if(TOML_CONFIG)
     target_compile_definitions(RouDi PRIVATE -DTOML_CONFIG_FILE)
 endif(TOML_CONFIG)
 
-if(test)
-    # since the unit tests have the roudi environment as dependency
-    set(roudi_environment ON) 
-endif(test)
-
-if(roudi_environment)
+if(roudi_environment OR test)
     add_library(iceoryx_posh_roudi_environment
         source/roudi_environment/runtime_test_interface.cpp
         source/roudi_environment/roudi_environment.cpp
