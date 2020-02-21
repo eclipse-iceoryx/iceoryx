@@ -78,38 +78,3 @@ int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm)
 {
     return 0;
 }
-
-// #define ACL_USER_OBJ 0
-// #define ACL_USER 1
-// #define ACL_GROUP_OBJ 2
-// #define ACL_GROUP 3
-// #define ACL_OTHER 4
-// #define ACL_READ 5
-// #define ACL_WRITE 6
-// #define ACL_MASK 7
-
-// using acl_t = int;
-// using acl_permset_t = int;
-// using acl_perm_t = int;
-
-// struct __acl_ext;
-// struct __acl_entry_ext;
-// struct __acl_permset_ext;
-
-// typedef unsigned int		acl_type_t;
-// typedef int			acl_tag_t;
-// //typedef unsigned int		acl_perm_t;
-
-// //typedef struct __acl_ext	*acl_t;
-// typedef struct __acl_entry_ext	*acl_entry_t;
-// //typedef struct __acl_permset_ext *acl_permset_t;
-
-// int acl_valid(int acl) {return 0;};
-// int acl_set_fd(int fd, acl_t acl) {return 0;};
-// acl_t acl_init(int count) {};
-// int acl_free(void *obj_p) {return 0;};
-// int acl_create_entry(acl_t *acl_p, acl_entry_t *entry_p) {return 0;};
-// int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm) {return 0;};
-// int acl_get_permset(acl_entry_t entry_d, acl_permset_t *permset_p) {return 0;};
-// int acl_set_qualifier(acl_entry_t entry_d, const void *tag_qualifier_p) {return 0;};
-// int acl_set_tag_type(acl_entry_t entry_d, acl_tag_t tag_type) {return 0;};
