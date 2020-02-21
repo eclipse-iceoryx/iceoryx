@@ -5,15 +5,8 @@ project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 add_compile_options(-fPIC)
 add_compile_options(-std=c++11)
 
-if(UNIX AND NOT APPLE)
-    if(CMAKE_SYSTEM_NAME MATCHES Linux)
-        set(LINUX true)
-    elseif(CMAKE_SYSTEM_NAME MATCHES QNX)
-        set(QNX true)
-    endif()
-endif()
-
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatformDetection.cmake")
 
 if( clang-tidy )
     find_program(
@@ -164,25 +157,37 @@ add_library(iceoryx_utils
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)
 
-if(QNX)
-    set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/qnx/include/)
+if(LINUX)
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/)
+    target_link_libraries(iceoryx_utils PRIVATE rt acl atomic ${CODE_COVERAGE_LIBS})
+elseif(QNX)
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/qnx/)
 elseif(APPLE)
-    set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/mac/include/)
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/mac/)
 elseif(WIN32)
-    set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/win/include/)
-elseif(LINUX)
-    set(ICEORYX_PLATFORM_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/include/)
-    target_link_libraries(iceoryx_utils PRIVATE rt acl ${CODE_COVERAGE_LIBS})
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/win/)
 else()
     message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
 endif()
+
+# this must be recurse since every platform has potentially different cpp files
+file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
+    ${ICEORYX_PLATFORM}/source/*.cpp
+)
+add_library(iceoryx_platform ${ICEORYX_PLATFORM_FILES})
+target_include_directories(iceoryx_platform 
+    PUBLIC
+    $<BUILD_INTERFACE:${ICEORYX_PLATFORM}/include/>
+)
+add_library(iceoryx_utils::iceoryx_platform ALIAS iceoryx_platform)
+
+target_link_libraries(iceoryx_utils PUBLIC iceoryx_utils::iceoryx_platform)
 
 set_target_properties(iceoryx_utils PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # TODO: Make ICEORYX::UTILS private???
 target_include_directories(iceoryx_utils
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${ICEORYX_PLATFORM_INCLUDES}>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
@@ -211,16 +216,15 @@ install(
     COMPONENT dev
 )
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_utils
+    TARGETS iceoryx_utils iceoryx_platform
     INCLUDE_DIRECTORY include/
 )
-
-# package file
-set (SETUP_PACKAGE_FILE "cmake/IceoryxPackageHelper.cmake")
 
 # header
 install(
     FILES ${SETUP_PACKAGE_FILE}
+        cmake/IceoryxPackageHelper.cmake
+        cmake/IceoryxPlatformDetection.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 

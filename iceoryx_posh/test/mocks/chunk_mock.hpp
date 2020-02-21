@@ -31,6 +31,8 @@ class ChunkMock
     {
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
         m_rawMemory = static_cast<uint8_t*>(memalign(Alignment, Size));
+#elif defined(_WIN32)
+        m_rawMemory = static_cast<uint8_t*>(_aligned_malloc(Alignment, Size));
 #else
         m_rawMemory = static_cast<uint8_t*>(aligned_alloc(Alignment, Size));
 #endif

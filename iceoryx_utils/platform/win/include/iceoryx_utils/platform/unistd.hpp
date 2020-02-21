@@ -15,17 +15,31 @@
 #pragma once
 
 #include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/platform/windows.hpp"
 
 #include <io.h>
+#include <vector>
 
 #define _SC_PAGESIZE 1
+#define STDERR_FILENO 2
 
-inline int ftruncate(int fildes, off_t length)
+class HandleTranslator
 {
-    return 0;
-}
+  public:
+    static HandleTranslator& getInstance() noexcept;
+    HANDLE get(const int handle) const noexcept;
+    int add(HANDLE handle) noexcept;
+    void remove(int handle) noexcept;
 
-inline long sysconf(int name)
-{
-    return 0;
-}
+  private:
+    struct handle_t
+    {
+        HANDLE windowsHandle;
+    };
+    std::vector<handle_t> m_handleList;
+};
+
+
+int ftruncate(int fildes, off_t length);
+long sysconf(int name);
+int closePlatformFileHandle(int fd);

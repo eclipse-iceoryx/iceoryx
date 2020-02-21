@@ -398,14 +398,5 @@ bool SenderPort::isUnique() const
     return getMembers()->m_isUnique;
 }
 
-const SenderPort::MemberType_t* SenderPort::getMembers() const
-{
-    return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
-}
-SenderPort::MemberType_t* SenderPort::getMembers()
-{
-    return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
-}
-
 } // namespace popo
 } // namespace iox

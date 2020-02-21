@@ -14,4 +14,10 @@
 
 #pragma once
 
-#include <sys/un.h>
+#include "iceoryx_utils/platform/socket.hpp"
+
+struct sockaddr_un
+{
+    sa_family_t sun_family;
+    char sun_path[108];
+};

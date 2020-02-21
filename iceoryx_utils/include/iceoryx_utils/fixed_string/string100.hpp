@@ -87,4 +87,3 @@ inline std::ostream& operator<<(std::ostream& stream, const iox::cxx::CString100
     stream << string.to_cstring();
     return stream;
 }
-

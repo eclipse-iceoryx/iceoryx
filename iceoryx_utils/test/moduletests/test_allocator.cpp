@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "test.hpp"
+
 
 using namespace testing;
 
@@ -65,14 +66,7 @@ TEST_F(Allocator_Test, allocateTooMuchSingleElement)
 {
     iox::posix::Allocator sut(memory, memorySize);
     std::set_terminate([]() { std::cout << "", std::abort(); });
-    EXPECT_DEATH(
-        {
-            internal::CaptureStderr();
-            sut.allocate(memorySize + 1);
-            std::string output = internal::GetCapturedStderr();
-            EXPECT_THAT(output.empty(), Eq(false));
-        },
-        ".*");
+    EXPECT_DEATH({ sut.allocate(memorySize + 1); }, ".*");
 }
 
 TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
@@ -84,14 +78,7 @@ TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
     }
 
     std::set_terminate([]() { std::cout << "", std::abort(); });
-    EXPECT_DEATH(
-        {
-            internal::CaptureStderr();
-            sut.allocate(1);
-            std::string output = internal::GetCapturedStderr();
-            EXPECT_THAT(output.empty(), Eq(false));
-        },
-        ".*");
+    EXPECT_DEATH({ sut.allocate(1); }, ".*");
 }
 
 TEST_F(Allocator_Test, allocateAndAlignment)

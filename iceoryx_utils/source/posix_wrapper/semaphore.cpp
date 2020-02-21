@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
 
 namespace iox
 {

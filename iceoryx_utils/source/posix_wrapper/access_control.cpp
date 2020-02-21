@@ -15,6 +15,7 @@
 #include "iceoryx_utils/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
 
 #include <iostream>
 
@@ -100,7 +101,8 @@ bool AccessController::addPermissionEntry(const Category f_category,
 {
     switch (f_category)
     {
-    case Category::SPECIFIC_USER: {
+    case Category::SPECIFIC_USER:
+    {
         if (f_name.empty())
         {
             std::cerr << "Error: specific users must have an explicit name." << std::endl;
@@ -119,7 +121,8 @@ bool AccessController::addPermissionEntry(const Category f_category,
 
         break;
     }
-    case Category::SPECIFIC_GROUP: {
+    case Category::SPECIFIC_GROUP:
+    {
         if (f_name.empty())
         {
             std::cerr << "Error: specific groups must have an explicit name." << std::endl;
@@ -138,7 +141,8 @@ bool AccessController::addPermissionEntry(const Category f_category,
 
         break;
     }
-    default: {
+    default:
+    {
         std::cerr << "Error: Cannot add a name to a default file owner" << std::endl;
     }
     }
@@ -157,7 +161,8 @@ bool AccessController::addPermissionEntry(const Category f_category,
 
     switch (f_category)
     {
-    case Category::SPECIFIC_USER: {
+    case Category::SPECIFIC_USER:
+    {
         if (!posix::PosixUser::getUserName(f_id).has_value())
         {
             std::cerr << "Error: No such user" << std::endl;
@@ -167,7 +172,8 @@ bool AccessController::addPermissionEntry(const Category f_category,
         m_useACLMask = true;
         break;
     }
-    case Category::SPECIFIC_GROUP: {
+    case Category::SPECIFIC_GROUP:
+    {
         if (!posix::PosixGroup::getGroupName(f_id).has_value())
         {
             std::cerr << "Error: No such group" << std::endl;
@@ -177,7 +183,8 @@ bool AccessController::addPermissionEntry(const Category f_category,
         m_useACLMask = true;
         break;
     }
-    default: {
+    default:
+    {
     }
     }
 
@@ -214,7 +221,8 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     // set qualifier for new entry (names of specific users or groups)
     switch (f_entry.m_category)
     {
-    case ACL_USER: {
+    case ACL_USER:
+    {
         auto aclSetQualifierCall = cxx::makeSmartC(
             acl_set_qualifier, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, newEntry, &(f_entry.m_id));
 
@@ -226,7 +234,8 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
 
         break;
     }
-    case ACL_GROUP: {
+    case ACL_GROUP:
+    {
         auto aclSetQualifierCall = cxx::makeSmartC(
             acl_set_qualifier, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, newEntry, &(f_entry.m_id));
 
@@ -256,15 +265,18 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
 
     switch (f_entry.m_permission)
     {
-    case Permission::READ: {
+    case Permission::READ:
+    {
         return addAclPermission(entryPermissionSet, ACL_READ);
         break;
     }
-    case Permission::WRITE: {
+    case Permission::WRITE:
+    {
         return addAclPermission(entryPermissionSet, ACL_WRITE);
         break;
     }
-    case Permission::READWRITE: {
+    case Permission::READWRITE:
+    {
         if (addAclPermission(entryPermissionSet, ACL_READ) == false)
         {
             return false;
@@ -272,11 +284,13 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
         return addAclPermission(entryPermissionSet, ACL_WRITE);
         break;
     }
-    case Permission::NONE: { // don't add any permission
+    case Permission::NONE:
+    { // don't add any permission
         return true;
         break;
     }
-    default: {
+    default:
+    {
         return false;
         break;
     }

@@ -53,6 +53,7 @@ target_link_libraries(iceoryx_introspection
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
     ncurses
+    tinfo
 )
 
 set_target_properties(iceoryx_introspection

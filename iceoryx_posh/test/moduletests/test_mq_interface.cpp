@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef _WIN32
 #include "mocks/mqueue_mock.hpp"
 #include "mocks/time_mock.hpp"
 
@@ -378,3 +379,4 @@ TEST_F(CMqInterface_test, MqInterfaceCreator_IsInitialized)
     CMqInterface_Open(base);
     CMqInterface_IsInitialized<MqInterfaceCreator>(base);
 }
+#endif

@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/platform/unistd.hpp"
-
-#include <cstdlib>
-#include <cstring>
-#include <signal.h>
 
 namespace iox
 {
@@ -41,13 +36,21 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
     /// @todo these are internal mempool for the introspection, move to a better place
     mepoo::MePooConfig mempoolConfig;
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(cxx::align(static_cast<uint64_t>(sizeof(roudi::MemPoolIntrospectionTopic)), SHARED_MEMORY_ALIGNMENT)), 250});
+        {static_cast<uint32_t>(
+             cxx::align(static_cast<uint64_t>(sizeof(roudi::MemPoolIntrospectionTopic)), SHARED_MEMORY_ALIGNMENT)),
+         250});
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(cxx::align(static_cast<uint64_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), SHARED_MEMORY_ALIGNMENT)), 10});
+        {static_cast<uint32_t>(
+             cxx::align(static_cast<uint64_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), SHARED_MEMORY_ALIGNMENT)),
+         10});
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(cxx::align(static_cast<uint64_t>(sizeof(roudi::PortIntrospectionFieldTopic)), SHARED_MEMORY_ALIGNMENT)), 10});
+        {static_cast<uint32_t>(
+             cxx::align(static_cast<uint64_t>(sizeof(roudi::PortIntrospectionFieldTopic)), SHARED_MEMORY_ALIGNMENT)),
+         10});
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(cxx::align(static_cast<uint64_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)), SHARED_MEMORY_ALIGNMENT)), 10});
+        {static_cast<uint32_t>(cxx::align(static_cast<uint64_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)),
+                                          SHARED_MEMORY_ALIGNMENT)),
+         10});
     mempoolConfig.optimize();
 
     uint64_t totalSharedMemorySize = ShmType::getRequiredSharedMemory()
@@ -63,7 +66,7 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
     newAct.sa_handler = sigbusHandler;
     newAct.sa_flags = 0;
     sigaction(SIGBUS, &newAct, &oldAct);
-    
+
     // we let the OS decide where to map the shm segments
     constexpr void* BASE_ADDRESS_HINT{nullptr};
 

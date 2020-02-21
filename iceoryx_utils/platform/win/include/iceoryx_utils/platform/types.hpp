@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <sys/types.h>
+
 using gid_t = int;
 using uid_t = int;
 using mode_t = int;
@@ -22,4 +24,9 @@ using pid_t = int;
 using nlink_t = int;
 using blksize_t = int;
 using blkcnt_t = int;
-// using off_t   = int;
+// using off_t = int;
+
+// mode_t umask(mode_t mask)
+//{
+//    return mode_t();
+//}

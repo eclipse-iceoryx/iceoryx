@@ -24,12 +24,6 @@ namespace roudi
 {
 RouDiLock::RouDiLock()
 {
-    if (m_socket_fd == -1)
-    {
-        LogError() << "Could not create socket";
-        std::terminate();
-    }
-
     m_sockserv.sin_family = AF_INET;
     m_sockserv.sin_addr.s_addr = inet_addr("127.0.0.1");
     m_sockserv.sin_port = htons(37777);
@@ -54,7 +48,8 @@ RouDiLock::RouDiLock()
 RouDiLock::~RouDiLock()
 {
     // Close socket
-    auto l_socket_close = cxx::makeSmartC(close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_socket_fd);
+    auto l_socket_close =
+        cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_socket_fd);
 
     if (l_socket_close.hasErrors())
     {

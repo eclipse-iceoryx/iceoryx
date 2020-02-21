@@ -318,7 +318,7 @@ TEST_F(RoudiStartFindService_test, LargeNumberOfServices)
 {
     std::vector<iox::capro::ServiceDescription> testServiceDescriptors;
 
-    for (uint i = 0; i < MAX_NUMBER_OF_SERVICES; i++)
+    for (auto i = 0; i < MAX_NUMBER_OF_SERVICES; i++)
     {
         std::string service = "service" + std::to_string(i);
         std::string instance = "instance" + std::to_string(i);
@@ -388,7 +388,7 @@ TEST_F(RoudiStartFindService_test, LargeNumberOfInstance)
 {
     std::vector<iox::capro::ServiceDescription> testServiceDescriptors;
 
-    for (uint i = 0; i < MAX_NUMBER_OF_SERVICES; i++)
+    for (auto i = 0; i < MAX_NUMBER_OF_SERVICES; i++)
     {
         std::string service = "service";
         std::string instance = "i" + std::to_string(i);

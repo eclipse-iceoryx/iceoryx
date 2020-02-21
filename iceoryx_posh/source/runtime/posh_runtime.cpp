@@ -28,8 +28,7 @@ namespace iox
 {
 namespace runtime
 {
-std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory =
-    PoshRuntime::defaultRuntimeFactory;
+std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
 
 
 PoshRuntime& PoshRuntime::defaultRuntimeFactory(const std::string& name) noexcept

@@ -49,7 +49,6 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(con
         errorHandler(Error::kMEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
     }
 
-
     m_memoryManager.configureMemoryManager(f_mempoolConfig, f_managementAllocator, m_sharedMemoryObject.getAllocator());
     m_sharedMemoryObject.finalizeAllocation();
 }
@@ -58,7 +57,7 @@ template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
     const MePooConfig& f_mempoolConfig,
     const posix::PosixGroup& f_writerGroup,
-    const uint64_t f_baseAddressOffset[[gnu::unused]])
+    const uint64_t f_baseAddressOffset [[gnu::unused]])
 {
     // we let the OS decide where to map the shm segments
     constexpr void* BASE_ADDRESS_HINT{nullptr};

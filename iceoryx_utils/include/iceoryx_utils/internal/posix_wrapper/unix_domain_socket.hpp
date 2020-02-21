@@ -19,6 +19,7 @@
 #include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/mqueue.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/un.hpp"
@@ -76,7 +77,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     cxx::expected<std::string, IpcChannelError> receive() noexcept;
 
     /// @brief try to receive message for a given timeout duration using std::string.
-    /// @param timout for the receive operation 
+    /// @param timout for the receive operation
     /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
     cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) noexcept;
 
@@ -90,7 +91,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @param mode blocking or non_blocking
     /// @param channel side client or server
     /// @param maxMsgSize max message size that can be transmitted
-    /// @param maxMsgNumber max messages that can be queued    
+    /// @param maxMsgNumber max messages that can be queued
     UnixDomainSocket(const std::string& name,
                      const IpcChannelMode mode,
                      const IpcChannelSide channelSide,
@@ -98,7 +99,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const uint64_t maxMsgNumber = 10u) noexcept;
 
     /// @brief creates the unix domain socket
-        /// @param mode blocking or non_blocking
+    /// @param mode blocking or non_blocking
     /// @return int with the socket file descriptor, IpcChannelError if error occured
     cxx::expected<int, IpcChannelError> createSocket(const IpcChannelMode mode) noexcept;
 

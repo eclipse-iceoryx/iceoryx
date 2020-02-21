@@ -14,11 +14,13 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
+#include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
 
+
 #include <assert.h>
-#include <fcntl.h>
 
 namespace iox
 {
@@ -56,12 +58,14 @@ SharedMemory::SharedMemory(const char* f_name,
     if (f_name == nullptr || strlen(f_name) == 0)
     {
         std::cerr << "No shared memory name specified!" << std::endl;
-        std::terminate();
+        m_isInitialized = false;
+        return;
     }
     else if (f_name[0] != '/')
     {
         std::cerr << "Shared memory name must start with a leading slash!" << std::endl;
-        std::terminate();
+        m_isInitialized = false;
+        return;
     }
 
     if (strlen(f_name) >= NAME_SIZE)
@@ -170,7 +174,8 @@ bool SharedMemory::close()
 {
     if (m_isInitialized)
     {
-        auto closeCall = cxx::makeSmartC(::close, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle);
+        auto closeCall =
+            cxx::makeSmartC(closePlatformFileHandle, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle);
         if (closeCall.hasErrors())
         {
             std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << closeCall.getErrorString()

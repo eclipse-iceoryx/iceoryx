@@ -19,10 +19,11 @@
 #include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/mqueue.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 
-#include <fcntl.h>
+
 #include <iostream>
 
 namespace iox
@@ -32,8 +33,7 @@ namespace posix
 /// @brief Wrapper class for posix message queue
 ///
 /// @tparam NON_BLOCKING specifies the type of message queue. A non-blocking message queue will immediately return from
-/// a
-/// send/receive call if the queue is full/empty. A blocking message has member functions timedSend and timedReceive
+/// a send/receive call if the queue is full/empty. A blocking message has member functions timedSend and timedReceive
 /// which allow to specify a maximum timeout duration.
 /// @code
 ///     auto mq = posix::MessageQueue<true>::CreateMessageQueue("/MqName123");

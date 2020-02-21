@@ -145,6 +145,16 @@ class expected<ErrorType>
     ///         or the error value - depending on what is stored in the expected
     expected(expected&&) = default;
 
+    /// @brief copy conversion constructor to convert an expected which contains value and
+    ///        error type to an expected which contains only an error
+    template <typename ValueType>
+    expected(const expected<ValueType, ErrorType>& rhs) noexcept;
+
+    /// @brief move conversion constructor to convert an expected which contains value and
+    ///        error type to an expected which contains only an error
+    template <typename ValueType>
+    expected(expected<ValueType, ErrorType>&& rhs) noexcept;
+
     /// @brief calls the destructor of the success value or error value - depending on what
     ///         is stored in the expected
     ~expected() = default;
@@ -156,6 +166,16 @@ class expected<ErrorType>
     /// @brief  calls the move assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
     expected& operator=(expected&&) = default;
+
+    /// @brief  calls the copy assignment operator of the contained success value
+    ///         or the error value - depending on what is stored in the expected
+    template <typename ValueType>
+    expected& operator=(const expected<ValueType, ErrorType>& rhs) noexcept;
+
+    /// @brief  calls the move assignment operator of the contained success value
+    ///         or the error value - depending on what is stored in the expected
+    template <typename ValueType>
+    expected& operator=(expected<ValueType, ErrorType>&& rhs) noexcept;
 
     /// @brief  constructs an expected which is signaling success
     /// @param[in] successValue value which will be stored in the expected

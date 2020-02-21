@@ -12,6 +12,7 @@ endif(TOML_CONFIG)
 
 include(cmake/iceoryxversions.cmake)
 include(IceoryxPackageHelper)
+include(IceoryxPlatformDetection)
 
 if( clang-tidy )
     find_program(
@@ -117,9 +118,16 @@ target_link_libraries(iceoryx_posh
     PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
 )
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX AND NOT APPLE)
-    target_link_libraries(iceoryx_posh PRIVATE rt)
+
+if(LINUX)
+    target_link_libraries(iceoryx_posh PRIVATE rt )
+elseif(QNX)
+elseif(APPLE)
+elseif(WIN32)
+else()
+    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
 endif()
+
 
 #
 ########## build roudi lib ##########
@@ -198,7 +206,7 @@ if(TOML_CONFIG)
     target_compile_definitions(RouDi PRIVATE -DTOML_CONFIG_FILE)
 endif(TOML_CONFIG)
 
-if(roudi_environment)
+if(roudi_environment OR test)
     add_library(iceoryx_posh_roudi_environment
         source/roudi_environment/runtime_test_interface.cpp
         source/roudi_environment/roudi_environment.cpp

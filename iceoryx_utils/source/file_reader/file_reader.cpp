@@ -14,6 +14,8 @@
 
 #include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 
+#include <string>
+
 namespace iox
 {
 namespace cxx

@@ -14,9 +14,16 @@
 
 #pragma once
 
+#include "iceoryx_utils/platform/fcntl.hpp"
+#include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/platform/win32-error.hpp"
+
+
+#include <cstdio>
+#include <string>
 #include <sys/stat.h>
 
-#include "iceoryx_utils/platform/types.hpp"
 
 #define MAP_SHARED 0
 #define MAP_FAILED 1
@@ -25,27 +32,74 @@
 
 inline void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
-    // MapViewOfFile
-    return nullptr;
+    DWORD desiredAccess = FILE_MAP_ALL_ACCESS;
+    DWORD fileOffsetHigh = 0;
+    DWORD fileOffsetLow = 0;
+    DWORD numberOfBytesToMap = length;
+
+    void* mappedObject = MapViewOfFile(
+        HandleTranslator::getInstance().get(fd), desiredAccess, fileOffsetHigh, fileOffsetLow, numberOfBytesToMap);
+
+    if (mappedObject == nullptr)
+    {
+        PrintLastErrorToConsole();
+        return nullptr;
+    }
+
+    return mappedObject;
 }
 
 inline int munmap(void* addr, size_t length)
 {
-    // UnmapViewOfFile(addr);
-    return 0;
+    if (UnmapViewOfFile(addr))
+    {
+        return 0;
+    }
+
+    PrintLastErrorToConsole();
+    return -1;
 }
 
 inline int shm_open(const char* name, int oflag, mode_t mode)
 {
-    // CreateFileMapping , when creating
-    // OpenFileMapping, when open existing
+    static constexpr DWORD MAXIMUM_SIZE_HIGH = 0;
+    static constexpr DWORD MAXIMUM_SIZE_LOW = 256;
 
-    return 0;
+    HANDLE sharedMemoryHandle{nullptr};
+    DWORD access = (oflag & O_RDWR) ? PAGE_READWRITE : PAGE_READONLY;
+
+    if (oflag & O_CREAT) // O_EXCL
+    {
+        sharedMemoryHandle =
+            CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, access, MAXIMUM_SIZE_HIGH, MAXIMUM_SIZE_LOW, name);
+
+        if (oflag & O_EXCL && PrintLastErrorToConsole() == ERROR_ALREADY_EXISTS)
+        {
+            if (sharedMemoryHandle != nullptr)
+            {
+                CloseHandle(sharedMemoryHandle);
+            }
+            return -1;
+        }
+    }
+    else
+    {
+        sharedMemoryHandle = OpenFileMapping(FILE_MAP_ALL_ACCESS, false, name);
+
+        if (PrintLastErrorToConsole() != 0)
+        {
+            if (sharedMemoryHandle != nullptr)
+            {
+                CloseHandle(sharedMemoryHandle);
+            }
+            return -1;
+        }
+    }
+
+    return HandleTranslator::getInstance().add(sharedMemoryHandle);
 }
 
 inline int shm_unlink(const char* name)
 {
-    // shared memory is removed in windows when the last process which is
-    // has acquired the shared memory calls CloseHandle
     return 0;
 }

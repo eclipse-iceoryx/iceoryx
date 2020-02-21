@@ -1,0 +1,7 @@
+if(UNIX AND NOT APPLE)
+    if(CMAKE_SYSTEM_NAME MATCHES Linux)
+        set(LINUX true)
+    elseif(CMAKE_SYSTEM_NAME MATCHES QNX)
+        set(QNX true)
+    endif()
+endif(UNIX AND NOT APPLE)

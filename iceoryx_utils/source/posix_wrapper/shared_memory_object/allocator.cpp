@@ -14,6 +14,8 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
+
 #include <iostream>
 
 namespace iox
@@ -31,6 +33,7 @@ Allocator::Allocator(const void* f_startAddress, const uint64_t f_length)
 void* Allocator::allocate(const uint64_t f_size, const uint64_t f_alignment)
 {
     cxx::Expects(f_size > 0);
+
 
     if (m_allocationFinalized)
     {

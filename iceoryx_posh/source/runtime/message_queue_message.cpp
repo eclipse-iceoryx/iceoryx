@@ -84,14 +84,14 @@ void MqMessage::setMessage(const std::string& msg) noexcept
     clearMessage();
 
     m_msg = msg;
-    if (m_msg.back() != m_separator && m_msg.size() > 0) /// @todo shouldn't this be "if (m_msg.size() == 0 || m_msg.back() != m_separator)"???
+    if (!m_msg.empty() && m_msg.back() != m_separator)
     {
         m_isValid = false;
     }
     else
     {
-        m_numberOfElements = static_cast<uint32_t>(
-            std::count_if(m_msg.begin(), m_msg.end(), [&](char c) { return c == m_separator; }));
+        m_numberOfElements =
+            static_cast<uint32_t>(std::count_if(m_msg.begin(), m_msg.end(), [&](char c) { return c == m_separator; }));
     }
 }
 

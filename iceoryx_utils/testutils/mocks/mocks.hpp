@@ -19,8 +19,9 @@
 #define _GNU_SOURCE
 #endif
 
+#include "iceoryx_utils/platform/dlfcn.hpp"
+
 #include <cassert>
-#include <dlfcn.h>
 #include <string>
 
 namespace mocks
