@@ -229,7 +229,7 @@ if(roudi_environment OR test)
         iceoryx_utils::iceoryx_utils
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
     )
-endif(roudi_environment)
+endif(roudi_environment OR test)
 
 #
 ########## exporting library ##########
