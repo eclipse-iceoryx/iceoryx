@@ -16,6 +16,8 @@
 
 #include <semaphore.h>
 
+// mach/semaphore.h for unnamed semaphores, named semaphores work as usual
+
 inline int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout)
 {
     return 0;

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
-#define private public
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
-#undef private
+#include "test.hpp"
 
 using namespace testing;
+using namespace iox;
 
 class SharedMemoryObject_Test : public Test
 {
@@ -93,18 +93,20 @@ TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithMultipleChunks)
 
 TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 {
+    uint64_t memorySize{8u};
     auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+        "/shmAllocate", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
 
-    PerformDeathTest([&] { sut->allocate(9, 1); });
+    PerformDeathTest([&] { sut->allocate(cxx::align(memorySize, posix::Allocator::MEMORY_ALIGNMENT) + 1, 1); });
 }
 
 TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
 {
+    uint64_t memorySize{8u};
     auto sut = iox::posix::SharedMemoryObject::create(
-        "/shmAllocate", 8, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
+        "/shmAllocate", memorySize, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, 0);
 
-    for (uint64_t i = 0; i < 8; ++i)
+    for (uint64_t i = 0; i < cxx::align(memorySize, posix::Allocator::MEMORY_ALIGNMENT); ++i)
     {
         void* test = sut->allocate(1, 1);
         ASSERT_THAT(test, Ne(nullptr));
