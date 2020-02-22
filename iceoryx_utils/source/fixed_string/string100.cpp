@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/fixed_string/string100.hpp"
+#include <algorithm>
 
 namespace iox
 {
@@ -85,7 +86,7 @@ bool CString100::operator!=(const CString100& other) const
 
 bool CString100::operator<(const CString100& rhs) const
 {
-    return strncmp(m_string_vector.data(), rhs.m_string_vector.data(), MaxStringSize) < 0;
+    return compare(rhs) < 0;
 }
 
 //! <0  the first character that does not match has a lower value in str1 than in str2
@@ -93,7 +94,8 @@ bool CString100::operator<(const CString100& rhs) const
 // >0  the first character that does not match has a greater value in str1 than in str2
 int32_t CString100::compare(const CString100& str2) const
 {
-    return strncmp(m_string_vector.data(), str2.m_string_vector.data(), MaxStringSize);
+    return std::lexicographical_compare(
+        m_string_vector.begin(), m_string_vector.end(), str2.m_string_vector.begin(), str2.m_string_vector.end());
 }
 
 uint64_t CString100::capacity() const
