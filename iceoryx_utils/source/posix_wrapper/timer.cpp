@@ -25,7 +25,6 @@ Timer::OsTimerCallbackHandle Timer::OsTimer::s_callbackHandlePool[MAX_NUMBER_OF_
 
 sigval Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor)
 {
-    // the max value of descriptor is 2^24 - 1;
     assert(descriptor < MAX_DESCRIPTOR_VALUE);
     uint32_t temp = (descriptor << 8) | static_cast<uint32_t>(index);
     sigval sigvalData;
