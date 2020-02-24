@@ -241,7 +241,7 @@ void IntrospectionApp::printProcessIntrospectionData(const ProcessIntrospectionF
 
     for (auto& data : processIntrospectionField->m_processList)
     {
-        wprintw(pad, "PID: %*d Process: %*s\n", pidWidth, data.m_pid, processWidth, data.m_name);
+        wprintw(pad, "PID: %*d Process: %*s\n", pidWidth, data.m_pid, processWidth, data.m_name.to_cstring());
     }
     wprintw(pad, "\n");
 }
