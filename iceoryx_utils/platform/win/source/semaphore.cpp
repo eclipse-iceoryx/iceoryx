@@ -126,7 +126,7 @@ int iox_sem_unlink(const char* name)
     return 0;
 }
 
-iox_sem_t* iox_sem_open(const char* name, int oflag, ...) // mode_t mode, unsigned int value
+iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, unsigned int value
 {
     iox_sem_t* sem = static_cast<iox_sem_t*>(malloc(sizeof(iox_sem_t)));
     if (oflag & (O_CREAT | O_EXCL))
