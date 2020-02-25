@@ -15,3 +15,56 @@
 #pragma once
 
 #include <semaphore.h>
+
+using iox_sem_t = sem_t;
+
+inline int iox_sem_getvalue(iox_sem_t* sem, int* sval)
+{
+    return sem_getvalue(sem, sval);
+}
+
+inline int iox_sem_post(iox_sem_t* sem)
+{
+    return sem_post(sem);
+}
+
+inline int iox_sem_wait(iox_sem_t* sem)
+{
+    return sem_wait(sem);
+}
+
+inline int iox_sem_trywait(iox_sem_t* sem)
+{
+    return sem_trywait(sem);
+}
+
+inline int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
+{
+    return sem_timedwait(sem, abs_timeout);
+}
+
+inline int iox_sem_close(iox_sem_t* sem)
+{
+    return sem_close(sem);
+}
+
+inline int iox_sem_destroy(iox_sem_t* sem)
+{
+    return sem_destroy(sem);
+}
+
+inline int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
+{
+    return sem_init(sem, pshared, value);
+}
+
+template <typename... Targs>
+inline iox_sem_t* iox_sem_open(const char* name, int oflag, Targs... args)
+{
+    return sem_open(name, oflag, args...);
+}
+
+inline int iox_sem_unlink(const char* name)
+{
+    return sem_unlink(name);
+}

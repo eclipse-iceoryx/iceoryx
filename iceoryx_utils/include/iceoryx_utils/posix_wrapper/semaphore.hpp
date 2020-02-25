@@ -99,7 +99,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// @param[in] abs_timeout timeout of the wait
     /// @param[in] doContinueOnInterrupt implements the feature described in the
     ///                sem_wait manpage:
-    ///      while ((s = sem_timedwait(&sem, &ts)) == -1 && errno == EINTR)
+    ///      while ((s = iox_sem_timedwait(&sem, &ts)) == -1 && errno == EINTR)
     ///      continue; /* Restart if interrupted by handler */
     ///             true = restart till we aren't interrupted anymore
     ///             false = return on any error
@@ -118,11 +118,11 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// becomes possible to perform the decrement (i.e., the semaphore value
     /// rises above zero), or a signal handler interrupts the call.
     ///
-    /// sem_trywait() is the same as sem_wait(), except that if the decrement
+    /// iox_sem_trywait() is the same as sem_wait(), except that if the decrement
     /// cannot be immediately performed, then call returns an error (errno set
     /// to EAGAIN) instead of blocking.
     ///
-    /// sem_timedwait() is the same as sem_wait(), except that abs_timeout
+    /// iox_sem_timedwait() is the same as sem_wait(), except that abs_timeout
     /// specifies a limit on the amount of time that the call should block if
     /// the decrement cannot be immediately performed.  The abs_time_out
     /// argument points to a structure that specifies an absolute timeout in
@@ -135,10 +135,10 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///     };
     ///
     /// If the timeout has already expired by the time of the call, and the
-    /// semaphore could not be locked immediately, then sem_timedwait() fails
+    /// semaphore could not be locked immediately, then iox_sem_timedwait() fails
     /// with a timeout error (errno set to ETIMEDOUT).
     ///
-    /// If the operation can be performed immediately, then sem_timedwait()
+    /// If the operation can be performed immediately, then iox_sem_timedwait()
     /// never fails with a timeout error, regardless of the value of
     /// abs_timeout.  Furthermore, the validity of abs_timeout is not checked in
     /// this case.
@@ -148,7 +148,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
 
     /// @brief returns the pointer to the managed semaphore. You can use this
     ///         pointer with all the sem_** functions.
-    sem_t* getHandle() noexcept;
+    iox_sem_t* getHandle() noexcept;
 
   private:
     static constexpr int m_nameSize = 128;
@@ -157,8 +157,8 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     bool m_isNamedSemaphore = true;
     bool m_isShared = false;
 
-    mutable sem_t m_handle;
-    mutable iox::relative_ptr<sem_t> m_handlePtr = &m_handle;
+    mutable iox_sem_t m_handle;
+    mutable iox::relative_ptr<iox_sem_t> m_handlePtr = &m_handle;
 
   private:
     friend class DesignPattern::Creation<Semaphore, SemaphoreError>;
@@ -180,7 +180,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///         For details see man sem_init.
     /// @param[in] handle pointer to a handle which is in the shared memory
     /// @param[in] value initial value of the semaphore
-    Semaphore(sem_t* handle, const unsigned int value) noexcept;
+    Semaphore(iox_sem_t* handle, const unsigned int value) noexcept;
 
     /// @brief Opens an already existing named semaphore. If a semaphore with
     ///         name does not exist an uninitialized Semaphore is returned
@@ -255,7 +255,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// undefined behavior.
     ///
     /// @return returns false when sem_init fails otherwise true
-    bool init(sem_t* handle, const int pshared, const unsigned int value) noexcept;
+    bool init(iox_sem_t* handle, const int pshared, const unsigned int value) noexcept;
 
     /// @brief calls sem_open which initializes and opens a named semaphore
     /// From the sem_open manpage: sem_open() creates a new POSIX semaphore or
