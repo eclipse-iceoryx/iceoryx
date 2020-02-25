@@ -18,7 +18,21 @@
 
 // mach/semaphore.h for unnamed semaphores, named semaphores work as usual
 
-inline int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout)
+using iox_sem_t = sem_t;
+
+int iox_sem_getvalue(iox_sem_t* sem, int* sval);
+int iox_sem_post(iox_sem_t* sem);
+int iox_sem_wait(iox_sem_t* sem);
+int iox_sem_trywait(iox_sem_t* sem);
+int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout);
+int iox_sem_close(iox_sem_t* sem);
+int iox_sem_destroy(iox_sem_t* sem);
+int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value);
+int iox_sem_unlink(const char* name);
+iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...);
+
+template <typename... Targs>
+inline iox_sem_t* iox_sem_open(const char* name, int oflag, Targs... args)
 {
-    return 0;
+    return iox_sem_open_impl(name, oflag, args...);
 }
