@@ -16,7 +16,7 @@
 
 #include <cstdarg>
 
-int sem_getvalue(sem_t* sem, int* sval)
+int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
     LONG previousValue;
     switch (WaitForSingleObject(sem->handle, 0))
@@ -37,28 +37,28 @@ int sem_getvalue(sem_t* sem, int* sval)
     }
 }
 
-int sem_post(sem_t* sem)
+int iox_sem_post(iox_sem_t* sem)
 {
     int retVal = (ReleaseSemaphore(sem->handle, 1, nullptr) == 0) ? -1 : 0;
     PrintLastErrorToConsole();
     return retVal;
 }
 
-int sem_wait(sem_t* sem)
+int iox_sem_wait(iox_sem_t* sem)
 {
     int retVal = (WaitForSingleObject(sem->handle, INFINITE) == WAIT_OBJECT_0) ? 0 : -1;
     PrintLastErrorToConsole();
     return retVal;
 }
 
-int sem_trywait(sem_t* sem)
+int iox_sem_trywait(iox_sem_t* sem)
 {
     int retVal = (WaitForSingleObject(sem->handle, 0) == WAIT_OBJECT_0) ? 0 : -1;
     PrintLastErrorToConsole();
     return retVal;
 }
 
-int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout)
+int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
@@ -71,7 +71,7 @@ int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout)
     return retVal;
 }
 
-int sem_close(sem_t* sem)
+int iox_sem_close(iox_sem_t* sem)
 {
     int retVal = CloseHandle(sem->handle) ? 0 : -1;
     PrintLastErrorToConsole();
@@ -79,7 +79,7 @@ int sem_close(sem_t* sem)
     return retVal;
 }
 
-int sem_destroy(sem_t* sem)
+int iox_sem_destroy(iox_sem_t* sem)
 {
     // semaphores are closed in windows when the last process which is
     // holding a semaphore calls CloseHandle
@@ -111,7 +111,7 @@ HANDLE __sem_create_win32_semaphore(LONG value, LPCSTR name)
 }
 
 
-int sem_init(sem_t* sem, int pshared, unsigned int value)
+int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
 {
     sem->handle = __sem_create_win32_semaphore(value, nullptr);
     if (sem != nullptr)
@@ -119,16 +119,16 @@ int sem_init(sem_t* sem, int pshared, unsigned int value)
     return -1;
 }
 
-int sem_unlink(const char* name)
+int iox_sem_unlink(const char* name)
 {
     // semaphores are closed in windows when the last process which is
     // holding a semaphore calls CloseHandle
     return 0;
 }
 
-sem_t* sem_open(const char* name, int oflag, ...) // mode_t mode, unsigned int value
+iox_sem_t* iox_sem_open(const char* name, int oflag, ...) // mode_t mode, unsigned int value
 {
-    sem_t* sem = static_cast<sem_t*>(malloc(sizeof(sem_t)));
+    iox_sem_t* sem = static_cast<iox_sem_t*>(malloc(sizeof(iox_sem_t)));
     if (oflag & (O_CREAT | O_EXCL))
     {
         va_list va;
