@@ -140,7 +140,7 @@ iox_sem_t* iox_sem_open(const char* name, int oflag, ...) // mode_t mode, unsign
         sem->handle = __sem_create_win32_semaphore(value, name);
         if (oflag & O_EXCL && GetLastError() == ERROR_ALREADY_EXISTS)
         {
-            sem_close(sem);
+            iox_sem_close(sem);
             return SEM_FAILED;
         }
     }
@@ -148,7 +148,7 @@ iox_sem_t* iox_sem_open(const char* name, int oflag, ...) // mode_t mode, unsign
     {
         sem->handle = OpenSemaphoreA(SEMAPHORE_ALL_ACCESS, false, name);
         PrintLastErrorToConsole();
-        if (sem->handle == NULL)
+        if (sem->handle == nullptr)
         {
             free(sem);
             return SEM_FAILED;

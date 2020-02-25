@@ -44,5 +44,11 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout);
 int iox_sem_close(iox_sem_t* sem);
 int iox_sem_destroy(iox_sem_t* sem);
 int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value);
-iox_sem_t* iox_sem_open(const char* name, int oflag, ...);
+iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...);
 int iox_sem_unlink(const char* name);
+
+template <typename... Targs>
+inline iox_sem_t* iox_sem_open(const char* name, int oflag, Targs... args)
+{
+    return iox_sem_open_impl(name, oflag, args...);
+}
