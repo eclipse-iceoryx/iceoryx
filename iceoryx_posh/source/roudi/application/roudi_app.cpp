@@ -27,6 +27,7 @@
 #include "iceoryx_utils/platform/pthread.hpp"
 #include "iceoryx_utils/platform/resource.hpp"
 #include "iceoryx_utils/platform/semaphore.hpp"
+#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "iceoryx_versions.hpp"
 
 #include "stdio.h"
@@ -39,11 +40,22 @@ namespace roudi
 // using unnamed namespace to keep the functions in this translation unit
 namespace
 {
-sem_t g_runSemaphore;
+static posix::Semaphore g_runSemaphore{[] {
+    auto runSemaphore = posix::Semaphore::create(ROUDI_SEMAPHORE_NAME, O_CREAT | O_EXCL, 0);
+    if (runSemaphore.has_error())
+    {
+        std::cerr << "Unable to create runSemaphore \"" << ROUDI_SEMAPHORE_NAME
+                  << "\", either RouDi is already running or someone else has already created this semaphore."
+                  << std::endl;
+        std::terminate();
+    }
+
+    return std::move(*runSemaphore);
+}()};
 
 void roudiSigHandler(int /* sig */) noexcept
 {
-    sem_post(&g_runSemaphore); // post semaphore to exit the application
+    g_runSemaphore.post(); // post semaphore to exit the application
 }
 
 void registerSigHandler() noexcept
@@ -64,8 +76,6 @@ void registerSigHandler() noexcept
         LogError() << "Calling sigaction() failed";
         exit(EXIT_FAILURE);
     }
-
-    sem_init(&g_runSemaphore, 1, 0); // we sync processes since signal handler runs in kernel context
 }
 
 } // unnamed namespace
@@ -83,6 +93,12 @@ RouDiApp::RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept
     init();
 }
 
+RouDiApp::RouDiApp(const RouDiConfig_t& config) noexcept
+    : m_config(config)
+{
+    m_config.optimize();
+}
+
 RouDiApp::RouDiApp(int argc, char* argv[], RouDiConfigFileParser* configFileParser) noexcept
     : m_configFileParser(configFileParser)
 {
@@ -91,12 +107,6 @@ RouDiApp::RouDiApp(int argc, char* argv[], RouDiConfigFileParser* configFilePars
     parseCmdLineArguments(argc, argv);
 
     init();
-}
-
-RouDiApp::RouDiApp(const RouDiConfig_t& config) noexcept
-    : m_config(config)
-{
-    m_config.optimize();
 }
 
 RouDiConfig_t RouDiApp::generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept
@@ -129,10 +139,7 @@ void RouDiApp::init() noexcept
 
 void RouDiApp::waitToFinish() noexcept
 {
-    while ((sem_wait(&g_runSemaphore) != 0) && (errno == EINTR))
-    {
-        // wait further
-    }
+    g_runSemaphore.wait();
 }
 
 void RouDiApp::parseCmdLineArguments(int argc, char* argv[], CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
@@ -176,8 +183,7 @@ void RouDiApp::parseCmdLineArguments(int argc, char* argv[], CmdLineArgumentPars
             m_run = false;
             break;
 
-        case 'm':
-        {
+        case 'm': {
             if (strcmp(optarg, "on") == 0)
             {
                 m_monitoringMode = MonitoringMode::ON;
@@ -194,8 +200,7 @@ void RouDiApp::parseCmdLineArguments(int argc, char* argv[], CmdLineArgumentPars
             break;
         }
 
-        case 'l':
-        {
+        case 'l': {
             if (strcmp(optarg, "off") == 0)
             {
                 m_logLevel = iox::log::LogLevel::kOff;
@@ -233,8 +238,7 @@ void RouDiApp::parseCmdLineArguments(int argc, char* argv[], CmdLineArgumentPars
             break;
         }
 
-        case 'c':
-        {
+        case 'c': {
             if (!m_configFileParser)
             {
                 LogFatal() << "Config File Parsing is not implemented!";
@@ -255,8 +259,7 @@ void RouDiApp::parseCmdLineArguments(int argc, char* argv[], CmdLineArgumentPars
             break;
         }
 
-        default:
-        {
+        default: {
             m_run = false;
         }
         };
