@@ -217,7 +217,7 @@ count = 1000
 With this configuration, only applications from the `bar` group have write access and can allocate chunks. Applications from the `foo` group have only read access.
 
 This is an example with multiple segments:
-```
+```TOML
 [general]
 version = 1
 
@@ -239,7 +239,7 @@ count = 100
 ```
 
 When no config file is specified, this config will be used:
-```
+```TOML
 [general]
 version = 1
 
