@@ -189,6 +189,17 @@ SubscribeState ReceiverPort::getSubscribeState() const
     return getMembers()->m_subscriptionState.load(std::memory_order_relaxed);
 }
 
+void ReceiverPort::destroy()
+{
+    getMembers()->m_tobeDestroyed.store(true, std::memory_order_relaxed);
+}
+
+bool ReceiverPort::tobeDestroyed() const
+{
+    return getMembers()->m_tobeDestroyed.load(std::memory_order_relaxed);
+}
+
+
 bool ReceiverPort::getChunk(const mepoo::ChunkHeader*& f_chunkHeader) noexcept
 {
     mepoo::SharedChunk l_chunk;

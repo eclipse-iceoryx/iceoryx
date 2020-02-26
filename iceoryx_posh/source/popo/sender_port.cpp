@@ -298,6 +298,16 @@ void SenderPort::deactivate()
     }
 }
 
+void SenderPort::destroy()
+{
+    getMembers()->m_tobeDestroyed.store(true, std::memory_order_relaxed);
+}
+
+bool SenderPort::tobeDestroyed() const
+{
+    return getMembers()->m_tobeDestroyed.load(std::memory_order_relaxed);
+}
+
 bool SenderPort::hasSubscribers()
 {
     return getMembers()->m_receiverHandler.appContext().hasReceivers();

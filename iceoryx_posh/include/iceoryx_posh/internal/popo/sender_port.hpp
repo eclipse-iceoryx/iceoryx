@@ -45,6 +45,8 @@ class SenderPort : public BasePort
     void freeChunk(mepoo::ChunkHeader* const chunkHeader);
     void activate();
     void deactivate();
+    void destroy();
+    bool tobeDestroyed() const;
     bool hasSubscribers();
     void forwardChunk(mepoo::SharedChunk chunk);
     MemberType_t::Throughput getThroughput() const;

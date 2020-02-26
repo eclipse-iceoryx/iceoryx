@@ -117,6 +117,11 @@ void SharedMemoryManager::handleSenderPorts()
             // forward to interfaces
             sendToAllMatchingInterfacePorts(caproMessage, l_senderPort.getInterface());
         }
+        // check if we have to destroy this sender port
+        if (l_senderPort.tobeDestroyed())
+        {
+            destroySenderPort(l_senderPortData);
+        }
     }
 }
 
@@ -140,6 +145,11 @@ void SharedMemoryManager::handleReceiverPorts()
                                                 l_receiverPort.getCaProServiceDescription());
                 l_receiverPort.dispatchCaProMessage(nackMessage);
             }
+        }
+        // check if we have to destroy this sender port
+        if (l_receiverPort.tobeDestroyed())
+        {
+            destroyReceiverPort(l_receiverPortData);
         }
     }
 }
@@ -344,21 +354,7 @@ void SharedMemoryManager::deletePortsOfProcess(std::string f_processName)
         SenderPortType l_sender(port);
         if (f_processName == l_sender.getApplicationName())
         {
-            const auto& serviceDescription = l_sender.getCaProServiceDescription();
-            removeEntryFromServiceRegistry(serviceDescription.getServiceIDString(),
-                                           serviceDescription.getInstanceIDString());
-            l_sender.cleanup();
-
-            capro::CaproMessage message(capro::CaproMessageType::STOP_OFFER, serviceDescription);
-            m_portIntrospection.reportMessage(message);
-
-            sendToAllMatchingReceiverPorts(message, l_sender);
-
-            m_portIntrospection.removeSender(f_processName, serviceDescription);
-
-            // delete sender impl from list after StopOffer was processed
-            l_shm->m_senderPortMembers.erase(port);
-            DEBUG_PRINTF("Deleted SenderPortImpl of application %s\n", f_processName.c_str());
+            destroySenderPort(port);
         }
     }
 
@@ -367,21 +363,7 @@ void SharedMemoryManager::deletePortsOfProcess(std::string f_processName)
         ReceiverPortType l_receiver(port);
         if (f_processName == l_receiver.getApplicationName())
         {
-            // do the complete cleanup for the receiver port for being able to erase it
-            l_receiver.cleanup();
-
-            const auto& serviceDescription = l_receiver.getCaProServiceDescription();
-            capro::CaproMessage message(capro::CaproMessageType::UNSUB, serviceDescription);
-            message.m_requestPort = port;
-            m_portIntrospection.reportMessage(message);
-
-            sendToAllMatchingSenderPorts(message, l_receiver);
-
-            m_portIntrospection.removeReceiver(f_processName, serviceDescription);
-
-            // delete receiver impl from list after unsubscribe was processed
-            l_shm->m_receiverPortMembers.erase(port);
-            DEBUG_PRINTF("Deleted ReceiverPortImpl of application %s\n", f_processName.c_str());
+            destroyReceiverPort(port);
         }
     }
 
@@ -433,6 +415,49 @@ void SharedMemoryManager::deleteRunnableAndItsPorts(std::string f_runnableName)
             DEBUG_PRINTF("Deleted runnable %s\n", f_runnableName.c_str());
         }
     }
+}
+
+void SharedMemoryManager::destroySenderPort(SenderPortType::MemberType_t* const senderPortData)
+{
+    SenderPortType senderPort(senderPortData);
+
+    const auto& serviceDescription = senderPort.getCaProServiceDescription();
+    removeEntryFromServiceRegistry(serviceDescription.getServiceIDString(), serviceDescription.getInstanceIDString());
+    senderPort.cleanup();
+
+    capro::CaproMessage message(capro::CaproMessageType::STOP_OFFER, serviceDescription);
+    m_portIntrospection.reportMessage(message);
+
+    sendToAllMatchingReceiverPorts(message, senderPort);
+    sendToAllMatchingInterfacePorts(message, senderPort.getInterface());
+
+    m_portIntrospection.removeSender(senderPort.getApplicationName(), serviceDescription);
+
+    // delete sender impl from list after StopOffer was processed
+    MiddlewareShm* const shm = m_ShmInterface.getShmInterface();
+    shm->m_senderPortMembers.erase(senderPortData);
+    DEBUG_PRINTF("Destroyed SenderPortImpl\n");
+}
+
+void SharedMemoryManager::destroyReceiverPort(ReceiverPortType::MemberType_t* const receiverPortData)
+{
+    ReceiverPortType receiverPort(receiverPortData);
+
+    receiverPort.cleanup();
+
+    const auto& serviceDescription = receiverPort.getCaProServiceDescription();
+    capro::CaproMessage message(capro::CaproMessageType::UNSUB, serviceDescription);
+    message.m_requestPort = receiverPortData;
+    m_portIntrospection.reportMessage(message);
+
+    sendToAllMatchingSenderPorts(message, receiverPort);
+
+    m_portIntrospection.removeReceiver(receiverPort.getApplicationName(), serviceDescription);
+
+    // delete receiver impl from list after unsubscribe was processed
+    MiddlewareShm* const shm = m_ShmInterface.getShmInterface();
+    shm->m_receiverPortMembers.erase(receiverPortData);
+    DEBUG_PRINTF("Destroyed ReceiverPortImpl\n");
 }
 
 std::string SharedMemoryManager::GetShmAddrString()

@@ -66,6 +66,8 @@ class ReceiverPort : public BasePort
     void unsubscribe();
     bool isSubscribed() const;
     SubscribeState getSubscribeState() const;
+    void destroy();
+    bool tobeDestroyed() const;
 
     // (only) from delivery FiFo to Cache
     virtual bool getChunk(const mepoo::ChunkHeader*& f_chunkHeader) noexcept;
