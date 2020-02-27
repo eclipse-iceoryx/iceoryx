@@ -60,18 +60,18 @@ echo ">>>>>> Running Ice0ryx Tests <<<<<<"
 
 set -e
 
+BASE_DIRECTORY=$PWD
+
 for folder in $component_folder; do
     echo ""
     echo "######################## processing moduletests & componenttests in $folder ########################"
     echo $PWD
 
-    cd $folder/test
+    cd $BASE_DIRECTORY/$folder/test
 
     ./"$folder"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ModuleTestResults.xml"
     ./"$folder"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ComponenttestTestResults.xml"
     ./"$folder"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_IntegrationTestResults.xml"
-
-    cd ../../..
 
 done
 

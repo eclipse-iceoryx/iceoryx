@@ -31,7 +31,7 @@ CLEAN_BUILD=false
 BUILD_TYPE=""
 TEST_FLAG="off"
 RUN_TEST=false
-BUILD_INTROSPECTION=true
+INTROSPECTION_FLAG="on"
 
 for arg in "$@"
 do
@@ -54,7 +54,7 @@ do
             TEST_FLAG="on"
             ;;            
         "skip-introspection")
-            BUILD_INTROSPECTION=false
+            INTROSPECTION_FLAG="off"
             ;;
         "help")
             echo "Build script for iceoryx."
@@ -102,7 +102,7 @@ echo " [i] Current working directory:"
 pwd
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install
 echo ">>>>>> finished building iceoryx package <<<<<<"
 
