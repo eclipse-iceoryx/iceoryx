@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.5)
 project(cpptoml-build CXX)
 
 # set download config, source and build paths
-set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/cpptoml-download)
-set(SOURCE_DIR ${CMAKE_BINARY_DIR}/cpptoml-src)
-set(BUILD_DIR ${CMAKE_BINARY_DIR}/cpptoml-build)
-set(INSTALL_DIR ${CMAKE_BINARY_DIR}/build_dependencies)
+set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/download)
+set(SOURCE_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/src)
+set(BUILD_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/build)
+set(INSTALL_DIR ${CMAKE_BINARY_DIR}/dependencies/install)
 
 # Download and unpack cpptoml at configure time
 configure_file(cpptoml.cmake.in ${DOWNLOAD_CONFIG_DIR}/CMakeLists.txt)

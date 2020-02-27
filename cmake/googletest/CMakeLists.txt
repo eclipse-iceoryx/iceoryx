@@ -7,10 +7,10 @@ if(test)
     endif(WIN32)
 
     # set download confi, source and build paths
-    set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/googletest-download)
-    set(SOURCE_DIR ${CMAKE_BINARY_DIR}/googletest-src)
-    set(BUILD_DIR ${CMAKE_BINARY_DIR}/googletest-build)
-    set(INSTALL_DIR ${CMAKE_BINARY_DIR}/build_dependencies)
+    set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/dependencies/googletest/download)
+    set(SOURCE_DIR ${CMAKE_BINARY_DIR}/dependencies/googletest/src)
+    set(BUILD_DIR ${CMAKE_BINARY_DIR}/dependencies/googletest/build)
+    set(INSTALL_DIR ${CMAKE_BINARY_DIR}/dependencies/install)
 
     # Download and unpack googletest at configure time
     configure_file(googletest.cmake.in ${DOWNLOAD_CONFIG_DIR}/CMakeLists.txt)

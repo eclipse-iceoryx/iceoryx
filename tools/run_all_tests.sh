@@ -16,7 +16,7 @@
 
 # This file runs all tests for Ice0ryx
 
-component_folder="posh utils"
+component_folder="iceoryx_utils iceoryx_posh"
 
 GTEST_FILTER="*"
 
@@ -65,7 +65,7 @@ for folder in $component_folder; do
     echo "######################## processing moduletests & componenttests in $folder ########################"
     echo $PWD
 
-    cd $folder/$folder/test
+    cd $folder/test
 
     ./"$folder"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ModuleTestResults.xml"
     ./"$folder"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ComponenttestTestResults.xml"
