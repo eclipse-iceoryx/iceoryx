@@ -34,7 +34,7 @@ UnixDomainSocket::UnixDomainSocket(const std::string& name,
                                    const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
-                                   const uint64_t /*maxMsgNumber*/) noexcept
+                                   const uint64_t maxMsgNumber [[gnu::unused]]) noexcept
     : m_name(name)
     , m_channelSide(channelSide)
 {
@@ -174,7 +174,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
                                           m_sockfd,
                                           SOL_SOCKET,
                                           SO_SNDTIMEO,
-                                          (const char*)&tv,
+                                          reinterpret_cast<const char*>(&tv),
                                           sizeof(tv));
 
     if (setsockoptCall.hasErrors())
@@ -234,7 +234,7 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
                                           m_sockfd,
                                           SOL_SOCKET,
                                           SO_RCVTIMEO,
-                                          (const char*)&tv,
+                                          reinterpret_cast<const char*>(&tv),
                                           sizeof(tv));
 
     if (setsockoptCall.hasErrors())
@@ -243,7 +243,7 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
     }
     else
     {
-        char message[MAX_MESSAGE_SIZE];
+        char message[MAX_MESSAGE_SIZE + 1];
 
         auto recvCall = cxx::makeSmartC(recvfrom,
                                         cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
@@ -255,6 +255,7 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
                                         0,
                                         nullptr,
                                         nullptr);
+        message[MAX_MESSAGE_SIZE] = 0;
 
         if (recvCall.hasErrors())
         {
@@ -263,7 +264,7 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
         }
         else
         {
-            return cxx::success<std::string>(std::string(&(message[0])));
+            return cxx::success<std::string>(std::string(message));
         }
     }
 }
@@ -282,7 +283,7 @@ cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChan
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddr, 0, sizeof(m_sockAddr));
     m_sockAddr.sun_family = AF_LOCAL;
-    strcpy(m_sockAddr.sun_path, nameCStr);
+    strncpy(m_sockAddr.sun_path, nameCStr, m_name.size() - 1); // since we don't use the leading '/'
 
     // we currently don't support a IpcChannelMode::NON_BLOCKING, for send and receive timouts can be used, the other
     // calls are blocking
@@ -294,56 +295,54 @@ cxx::expected<int, IpcChannelError> UnixDomainSocket::createSocket(const IpcChan
     auto socketCall =
         cxx::makeSmartC(socket, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, AF_LOCAL, SOCK_DGRAM, 0);
 
-    if (!socketCall.hasErrors())
+    if (socketCall.hasErrors())
     {
-        int sockfd = socketCall.getReturnValue();
+        return createErrorFromErrnum(socketCall.getErrNum());
+    }
 
-        if (IpcChannelSide::SERVER == m_channelSide)
+    int sockfd = socketCall.getReturnValue();
+
+    if (IpcChannelSide::SERVER == m_channelSide)
+    {
+        unlink(m_sockAddr.sun_path);
+
+        auto bindCall = cxx::makeSmartC(bind,
+                                        cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                        {ERROR_CODE},
+                                        {},
+                                        sockfd,
+                                        reinterpret_cast<struct sockaddr*>(&m_sockAddr),
+                                        sizeof(m_sockAddr));
+
+        if (!bindCall.hasErrors())
         {
-            unlink(m_sockAddr.sun_path);
-
-            auto bindCall = cxx::makeSmartC(bind,
-                                            cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                            {ERROR_CODE},
-                                            {},
-                                            sockfd,
-                                            (struct sockaddr*)&m_sockAddr,
-                                            sizeof(m_sockAddr));
-
-            if (!bindCall.hasErrors())
-            {
-                return cxx::success<int>(sockfd);
-            }
-            else
-            {
-                return createErrorFromErrnum(bindCall.getErrNum());
-            }
+            return cxx::success<int>(sockfd);
         }
         else
         {
-            // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client is
-            // created and server not present)
-            auto connectCall = cxx::makeSmartC(connect,
-                                               cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                               {ERROR_CODE},
-                                               {},
-                                               sockfd,
-                                               (struct sockaddr*)&m_sockAddr,
-                                               sizeof(m_sockAddr));
-
-            if (!connectCall.hasErrors())
-            {
-                return cxx::success<int>(sockfd);
-            }
-            else
-            {
-                return createErrorFromErrnum(connectCall.getErrNum());
-            }
+            return createErrorFromErrnum(bindCall.getErrNum());
         }
     }
     else
     {
-        return createErrorFromErrnum(socketCall.getErrNum());
+        // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client is
+        // created and server not present)
+        auto connectCall = cxx::makeSmartC(connect,
+                                           cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                           {ERROR_CODE},
+                                           {},
+                                           sockfd,
+                                           (struct sockaddr*)&m_sockAddr,
+                                           sizeof(m_sockAddr));
+
+        if (!connectCall.hasErrors())
+        {
+            return cxx::success<int>(sockfd);
+        }
+        else
+        {
+            return createErrorFromErrnum(connectCall.getErrNum());
+        }
     }
 }
 
