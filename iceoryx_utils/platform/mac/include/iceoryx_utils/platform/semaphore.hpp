@@ -14,11 +14,20 @@
 
 #pragma once
 
+#include <dispatch/dispatch.h>
 #include <semaphore.h>
 
 // mach/semaphore.h for unnamed semaphores, named semaphores work as usual
 
-using iox_sem_t = sem_t;
+struct iox_sem_t
+{
+    union
+    {
+        sem_t* posix;
+        dispatch_object_t dispatch;
+    } handle;
+    bool hasPosixHandle{true};
+};
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval);
 int iox_sem_post(iox_sem_t* sem);

@@ -241,7 +241,7 @@ bool Semaphore::open(const int oflag) noexcept
 {
     bool success = setHandleFromCall(cxx::makeSmartC(iox_sem_open<>,
                                                      cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                                     {static_cast<iox_sem_t*>(SEM_FAILED)},
+                                                     {reinterpret_cast<iox_sem_t*>(SEM_FAILED)},
                                                      {},
                                                      m_name,
                                                      oflag));
@@ -257,7 +257,7 @@ bool Semaphore::open(const int oflag, const mode_t mode, const unsigned int valu
 {
     bool success = setHandleFromCall(cxx::makeSmartC(iox_sem_open<mode_t, unsigned int>,
                                                      cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                                     {static_cast<iox_sem_t*>(SEM_FAILED)},
+                                                     {reinterpret_cast<iox_sem_t*>(SEM_FAILED)},
                                                      {},
                                                      m_name,
                                                      oflag,

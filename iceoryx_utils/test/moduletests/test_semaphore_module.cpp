@@ -76,6 +76,7 @@ TEST_F(Semaphore_test, OpenNonExistingNamedSemaphore)
     EXPECT_THAT(semaphore2.has_error(), Eq(true));
 }
 
+#if !defined(__APPLE__)
 TEST_F(Semaphore_test, GetValueValidUnnamedSemaphore)
 {
     auto semaphore = iox::posix::Semaphore::create(1234);
@@ -91,6 +92,7 @@ TEST_F(Semaphore_test, GetValueValidNamedSemaphore)
     EXPECT_THAT(semaphore->getValue(i), Eq(true));
     EXPECT_THAT(i, Eq(4337));
 }
+#endif
 
 TEST_F(Semaphore_test, PostValidUnnamedSemaphore)
 {
@@ -232,7 +234,7 @@ TEST_F(Semaphore_test, MoveCTorUnnamed)
     EXPECT_THAT(semaphore->post(), Eq(false));
 }
 
-TEST_F(Semaphore_test, TimedWaitWithTimeout)
+TEST_F(Semaphore_test, UnnamedSemaphoreTimedWaitWithTimeout)
 {
     auto semaphore = iox::posix::Semaphore::create(0);
     std::atomic<bool> timedWaitFinish{false};
@@ -253,5 +255,28 @@ TEST_F(Semaphore_test, TimedWaitWithTimeout)
 
     t.join();
 }
+
+TEST_F(Semaphore_test, NamedSemaphoreTimedWaitWithTimeout)
+{
+    auto semaphore = iox::posix::Semaphore::create("/fuuSa1", S_IRUSR | S_IWUSR, 0);
+    std::atomic<bool> timedWaitFinish{false};
+
+    std::thread t([&] {
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        constexpr long TWO_MILLISECONDS{2000000};
+        ts.tv_nsec += TWO_MILLISECONDS;
+        semaphore->timedWait(&ts, false);
+        timedWaitFinish.store(true);
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    EXPECT_THAT(timedWaitFinish.load(), Eq(false));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    EXPECT_THAT(timedWaitFinish.load(), Eq(true));
+
+    t.join();
+}
+
 
 #endif
