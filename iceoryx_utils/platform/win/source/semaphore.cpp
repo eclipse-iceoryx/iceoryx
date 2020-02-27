@@ -39,7 +39,7 @@ int sem_getvalue(sem_t* sem, int* sval)
 
 int sem_post(sem_t* sem)
 {
-    int retVal = (ReleaseSemaphore(sem->handle, 1, nullptr) == 0) ? -1 : 0;
+    int retVal = (ReleaseSemaphore(sem->handle, 1, nullptr) != 0) ? 0 : -1;
     PrintLastErrorToConsole();
     return retVal;
 }
@@ -62,13 +62,22 @@ int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout)
 {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
+    if (abs_timeout->tv_sec < tv.tv_sec)
+    {
+        return 0;
+    }
+
     time_t epochCurrentTimeDiffInSeconds = abs_timeout->tv_sec - tv.tv_sec;
     long milliseconds = epochCurrentTimeDiffInSeconds * 1000 + ((abs_timeout->tv_nsec / 1000) - tv.tv_usec) / 1000;
 
-    int retVal = (WaitForSingleObject(sem->handle, milliseconds) == WAIT_FAILED) ? -1 : 0;
+    auto state = WaitForSingleObject(sem->handle, milliseconds);
+    if (state == WAIT_TIMEOUT)
+    {
+        errno = ETIMEDOUT;
+    }
     PrintLastErrorToConsole();
 
-    return retVal;
+    return (state == WAIT_OBJECT_0) ? 0 : -1;
 }
 
 int sem_close(sem_t* sem)
@@ -81,7 +90,7 @@ int sem_close(sem_t* sem)
 
 int sem_destroy(sem_t* sem)
 {
-    // semaphores are closed in windows when the last process which is
+    // semaphores are destroyed in windows when the last process which is
     // holding a semaphore calls CloseHandle
     return 0;
 }
@@ -115,13 +124,15 @@ int sem_init(sem_t* sem, int pshared, unsigned int value)
 {
     sem->handle = __sem_create_win32_semaphore(value, nullptr);
     if (sem != nullptr)
+    {
         return 0;
+    }
     return -1;
 }
 
 int sem_unlink(const char* name)
 {
-    // semaphores are closed in windows when the last process which is
+    // semaphores are unlinked in windows when the last process which is
     // holding a semaphore calls CloseHandle
     return 0;
 }
