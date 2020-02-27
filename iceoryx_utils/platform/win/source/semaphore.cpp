@@ -64,7 +64,7 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
     gettimeofday(&tv, nullptr);
     if (abs_timeout->tv_sec < tv.tv_sec)
     {
-        return 0;
+        return iox_sem_trywait(sem);
     }
 
     time_t epochCurrentTimeDiffInSeconds = abs_timeout->tv_sec - tv.tv_sec;

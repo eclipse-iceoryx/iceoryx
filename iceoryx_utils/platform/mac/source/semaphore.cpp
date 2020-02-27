@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/platform/semaphore.hpp"
+#include "iceoryx_utils/platform/time.hpp"
 
 #include <chrono>
 #include <cstdarg>
@@ -76,7 +77,18 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
             return -1;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        struct timeval tv;
+        gettimeofday(&tv, nullptr);
+        if (abs_timeout->tv_sec < tv.tv_sec)
+        {
+            return iox_sem_trywait(sem);
+        }
+
+        time_t epochCurrentTimeDiffInSeconds = abs_timeout->tv_sec - tv.tv_sec;
+        long milliseconds = epochCurrentTimeDiffInSeconds * 1000 + ((abs_timeout->tv_nsec / 1000) - tv.tv_usec) / 1000;
+
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 
         tryWaitCall = sem_trywait(sem->handle.posix);
         if (tryWaitCall == 0)
