@@ -188,13 +188,13 @@ class MqBase
     // TODO: unique identifier problem, multiple MqBase objects with the
     //        same InterfaceName are using the same message queue
     MqBase(const std::string& InterfaceName, const long maxMessages, const long messageSize) noexcept;
-
-    MqBase(const MqBase&) = delete;
-    MqBase(MqBase&&) = default;
     virtual ~MqBase() = default;
 
+    /// @brief delete copy and move ctor and assignment since they are not needed
+    MqBase(const MqBase&) = delete;
+    MqBase(MqBase&&) = delete;
     MqBase& operator=(const MqBase&) = delete;
-    MqBase& operator=(MqBase&&) = default;
+    MqBase& operator=(MqBase&&) = delete;
 
     /// @brief Set the content of answer from buffer.
     /// @param[in] buffer Raw message as char pointer
@@ -257,11 +257,9 @@ class MqInterfaceUser : public MqBase
     MqInterfaceUser(const MqInterfaceUser&) = delete;
     MqInterfaceUser& operator=(const MqInterfaceUser&) = delete;
 
-    /// @brief Since this object manages a system resource (message queue)
-    ///         only the move constructor and assignment operator is
-    ///         defined.
-    MqInterfaceUser(MqInterfaceUser&&) = default;
-    MqInterfaceUser& operator=(MqInterfaceUser&&) = default;
+    /// @brief Not needed therefore deleted
+    MqInterfaceUser(MqInterfaceUser&&) = delete;
+    MqInterfaceUser& operator=(MqInterfaceUser&&) = delete;
 };
 
 /// @brief Class for handling a message queue via mq_open and mq_unlink
@@ -291,11 +289,9 @@ class MqInterfaceCreator : public MqBase
     MqInterfaceCreator(const MqInterfaceCreator&) = delete;
     MqInterfaceCreator& operator=(const MqInterfaceCreator&) = delete;
 
-    /// @brief Since this object manages a system resource (message queue)
-    ///         only the move constructor and assignment operator is
-    ///         defined.
-    MqInterfaceCreator(MqInterfaceCreator&&) = default;
-    MqInterfaceCreator& operator=(MqInterfaceCreator&&) = default;
+    /// @brief Not needed therefore deleted
+    MqInterfaceCreator(MqInterfaceCreator&&) = delete;
+    MqInterfaceCreator& operator=(MqInterfaceCreator&&) = delete;
 
   private:
     friend class MqRuntimeInterface;
@@ -312,12 +308,13 @@ class MqRuntimeInterface
     MqRuntimeInterface(const std::string& roudiName,
                        const std::string& appName,
                        const units::Duration roudiWaitingTimeout) noexcept;
+    ~MqRuntimeInterface() = default;
 
+    /// @brief Not needed therefore deleted
     MqRuntimeInterface(const MqRuntimeInterface&) = delete;
     MqRuntimeInterface& operator=(const MqRuntimeInterface&) = delete;
-    MqRuntimeInterface(MqRuntimeInterface&&) = default;
-    MqRuntimeInterface& operator=(MqRuntimeInterface&&) = default;
-    ~MqRuntimeInterface() = default;
+    MqRuntimeInterface(MqRuntimeInterface&&) = delete;
+    MqRuntimeInterface& operator=(MqRuntimeInterface&&) = delete;
 
     /// @brief sends the keep alive trigger to the RouDi daemon
     /// @return true if sending was successful, false if not
