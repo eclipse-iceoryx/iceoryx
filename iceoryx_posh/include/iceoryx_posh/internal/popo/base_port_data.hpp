@@ -76,7 +76,7 @@ struct BasePortData
 
     static std::atomic<uint64_t> s_uniqueIdCounter;
     std::atomic<uint64_t> m_uniqueId{0};
-    std::atomic_bool m_tobeDestroyed{false};
+    std::atomic_bool m_toBeDestroyed{false};
 
     iox::relative_ptr<runtime::RunnableData> m_runnable;
 };

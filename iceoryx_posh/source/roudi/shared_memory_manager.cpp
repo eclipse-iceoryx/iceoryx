@@ -118,7 +118,7 @@ void SharedMemoryManager::handleSenderPorts()
             sendToAllMatchingInterfacePorts(caproMessage, l_senderPort.getInterface());
         }
         // check if we have to destroy this sender port
-        if (l_senderPort.tobeDestroyed())
+        if (l_senderPort.toBeDestroyed())
         {
             destroySenderPort(l_senderPortData);
         }
@@ -147,7 +147,7 @@ void SharedMemoryManager::handleReceiverPorts()
             }
         }
         // check if we have to destroy this sender port
-        if (l_receiverPort.tobeDestroyed())
+        if (l_receiverPort.toBeDestroyed())
         {
             destroyReceiverPort(l_receiverPortData);
         }
@@ -425,7 +425,7 @@ void SharedMemoryManager::destroySenderPort(SenderPortType::MemberType_t* const 
     removeEntryFromServiceRegistry(serviceDescription.getServiceIDString(), serviceDescription.getInstanceIDString());
     senderPort.cleanup();
 
-    capro::CaproMessage message(capro::CaproMessageType::STOP_OFFER, serviceDescription);
+    const capro::CaproMessage message(capro::CaproMessageType::STOP_OFFER, serviceDescription);
     m_portIntrospection.reportMessage(message);
 
     sendToAllMatchingReceiverPorts(message, senderPort);
@@ -434,7 +434,7 @@ void SharedMemoryManager::destroySenderPort(SenderPortType::MemberType_t* const 
     m_portIntrospection.removeSender(senderPort.getApplicationName(), serviceDescription);
 
     // delete sender impl from list after StopOffer was processed
-    MiddlewareShm* const shm = m_ShmInterface.getShmInterface();
+    const auto shm = m_ShmInterface.getShmInterface();
     shm->m_senderPortMembers.erase(senderPortData);
     DEBUG_PRINTF("Destroyed SenderPortImpl\n");
 }
@@ -455,7 +455,7 @@ void SharedMemoryManager::destroyReceiverPort(ReceiverPortType::MemberType_t* co
     m_portIntrospection.removeReceiver(receiverPort.getApplicationName(), serviceDescription);
 
     // delete receiver impl from list after unsubscribe was processed
-    MiddlewareShm* const shm = m_ShmInterface.getShmInterface();
+    const auto shm = m_ShmInterface.getShmInterface();
     shm->m_receiverPortMembers.erase(receiverPortData);
     DEBUG_PRINTF("Destroyed ReceiverPortImpl\n");
 }
