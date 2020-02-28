@@ -25,30 +25,52 @@
 
 using namespace ::testing;
 
-class Semaphore_test : public Test
+typedef iox::posix::Semaphore* CreateSemaphore();
+
+iox::posix::Semaphore* CreateNamedSemaphore()
+{
+    static int i = 10;
+    auto semaphore =
+        iox::posix::Semaphore::create(std::string("/fuuSem" + std::to_string(i++)).c_str(), S_IRUSR | S_IWUSR, 0);
+    return (semaphore.has_error()) ? nullptr : new iox::posix::Semaphore(std::move(*semaphore));
+}
+
+iox::posix::Semaphore* CreateUnnamedSemaphore()
+{
+    auto semaphore = iox::posix::Semaphore::create(0);
+    return (semaphore.has_error()) ? nullptr : new iox::posix::Semaphore(std::move(*semaphore));
+}
+
+class Semaphore_test : public TestWithParam<CreateSemaphore*>
 {
   public:
+    Semaphore_test()
+        : sut((*GetParam())())
+    {
+    }
+
+    ~Semaphore_test()
+    {
+        delete sut;
+    }
+
     void SetUp()
     {
-        internal::CaptureStderr();
+        ASSERT_THAT(sut, Ne(nullptr));
     }
-    virtual void TearDown()
-    {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
-    }
+
+    iox::posix::Semaphore* sut;
 };
 
-TEST_F(Semaphore_test, CreateNamedSemaphore)
+INSTANTIATE_TEST_CASE_P(SemaphoreTests, Semaphore_test, Values(&CreateNamedSemaphore, &CreateUnnamedSemaphore));
+
+TEST(Semaphore_test, CreateNamedSemaphore)
 {
     auto semaphore = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR, 10);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
 }
 
-TEST_F(Semaphore_test, CreateExistingNamedSemaphore)
+TEST(Semaphore_test, CreateExistingNamedSemaphore)
 {
     auto semaphore = iox::posix::Semaphore::create("/fuuSem1", S_IRUSR | S_IWUSR, 10);
     auto semaphore2 = iox::posix::Semaphore::create("/fuuSem1", S_IRUSR | S_IWUSR, 10);
@@ -56,13 +78,13 @@ TEST_F(Semaphore_test, CreateExistingNamedSemaphore)
     ASSERT_EQ(semaphore2.has_error(), true);
 }
 
-TEST_F(Semaphore_test, CreateLocalUnnamedSemaphore)
+TEST(Semaphore_test, CreateLocalUnnamedSemaphore)
 {
     auto semaphore = iox::posix::Semaphore::create(10);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
 }
 
-TEST_F(Semaphore_test, OpenNamedSemaphore)
+TEST(Semaphore_test, OpenNamedSemaphore)
 {
     auto semaphore = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR, 10);
     auto semaphore2 = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR);
@@ -70,7 +92,7 @@ TEST_F(Semaphore_test, OpenNamedSemaphore)
     EXPECT_THAT(semaphore2.has_error(), Eq(false));
 }
 
-TEST_F(Semaphore_test, OpenNonExistingNamedSemaphore)
+TEST(Semaphore_test, OpenNonExistingNamedSemaphore)
 {
     auto semaphore2 = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR);
     EXPECT_THAT(semaphore2.has_error(), Eq(true));
@@ -94,171 +116,63 @@ TEST_F(Semaphore_test, GetValueValidNamedSemaphore)
 }
 #endif
 
-TEST_F(Semaphore_test, PostValidUnnamedSemaphore)
+TEST_P(Semaphore_test, TryWaitAfterPostIsSuccessful)
 {
-    auto semaphore = iox::posix::Semaphore::create(1234);
-    EXPECT_THAT(semaphore->post(), Eq(true));
-    EXPECT_THAT(semaphore->post(), Eq(true));
-    EXPECT_THAT(semaphore->post(), Eq(true));
-
-    int i;
-    EXPECT_THAT(semaphore->getValue(i), Eq(true));
-    EXPECT_THAT(i, Eq(1237));
+    sut->post();
+    EXPECT_THAT(sut->tryWait(), Eq(true));
 }
 
-TEST_F(Semaphore_test, PostValidNamedSemaphore)
+TEST_P(Semaphore_test, TryWaitWithNoPostIsNotSuccessful)
 {
-    auto semaphore = iox::posix::Semaphore::create("/fuuSa", S_IRUSR | S_IWUSR, 42);
-    EXPECT_THAT(semaphore->post(), Eq(true));
-    EXPECT_THAT(semaphore->post(), Eq(true));
-    EXPECT_THAT(semaphore->post(), Eq(true));
-
-    int i;
-    EXPECT_THAT(semaphore->getValue(i), Eq(true));
-    EXPECT_THAT(i, Eq(45));
+    sut->post();
+    EXPECT_THAT(sut->tryWait(), Eq(true));
 }
 
-TEST_F(Semaphore_test, TimedWaitValidUnnamedSemaphore)
+TEST_P(Semaphore_test, WaitValidAfterPostIsNonBlocking)
 {
-    auto semaphore = iox::posix::Semaphore::create(12);
-
-    struct timespec ts;
-    clock_gettime(CLOCK_REALTIME, &ts);
-    ts.tv_nsec += 20000;
-
-    EXPECT_THAT(semaphore->timedWait(&ts, false), Eq(true));
-
-    int i;
-    EXPECT_THAT(semaphore->getValue(i), Eq(true));
-    EXPECT_THAT(i, Eq(11));
+    sut->post();
+    // this call should not block and should be successful
+    EXPECT_THAT(sut->wait(), Eq(true));
 }
 
-TEST_F(Semaphore_test, TimedWaitValidNamedSemaphore)
+TEST_P(Semaphore_test, WaitIsBlocking)
 {
-    auto semaphore = iox::posix::Semaphore::create("/fuuSa", S_IRUSR | S_IWUSR, 42);
-
-    struct timespec ts;
-    clock_gettime(CLOCK_REALTIME, &ts);
-    ts.tv_nsec += 20000;
-
-    EXPECT_THAT(semaphore->timedWait(&ts, false), Eq(true));
-
-    int i;
-    EXPECT_THAT(semaphore->getValue(i), Eq(true));
-    EXPECT_THAT(i, Eq(41));
-}
-
-TEST_F(Semaphore_test, TryWaitValidUnnamedSemaphore)
-{
-    auto semaphore = iox::posix::Semaphore::create(12);
-
-    EXPECT_THAT(semaphore->tryWait(), Eq(true));
-
-    int i;
-    EXPECT_THAT(semaphore->getValue(i), Eq(true));
-    EXPECT_THAT(i, Eq(11));
-}
-
-TEST_F(Semaphore_test, TryWaitValidNamedSemaphore)
-{
-    auto semaphore = iox::posix::Semaphore::create("/fuuSa", S_IRUSR | S_IWUSR, 42);
-
-    EXPECT_THAT(semaphore->tryWait(), Eq(true));
-
-    int i;
-    EXPECT_THAT(semaphore->getValue(i), Eq(true));
-    EXPECT_THAT(i, Eq(41));
-}
-
-TEST_F(Semaphore_test, WaitValidUnnamedSemaphore)
-{
-    auto semaphore = iox::posix::Semaphore::create(12);
-
-    EXPECT_THAT(semaphore->wait(), Eq(true));
-
-    int i;
-    EXPECT_THAT(semaphore->getValue(i), Eq(true));
-    EXPECT_THAT(i, Eq(11));
-}
-
-TEST_F(Semaphore_test, WaitValidNamedSemaphore)
-{
-    auto semaphore = iox::posix::Semaphore::create("/fuuSa", S_IRUSR | S_IWUSR, 42);
-
-    EXPECT_THAT(semaphore->wait(), Eq(true));
-
-    int i;
-    EXPECT_THAT(semaphore->getValue(i), Eq(true));
-    EXPECT_THAT(i, Eq(41));
-}
-
-TEST_F(Semaphore_test, MoveAssignmentNamed)
-{
-    iox::posix::Semaphore b;
-    {
-        auto semaphore = iox::posix::Semaphore::create("/fuuSa1", S_IRUSR | S_IWUSR, 42);
-        b = std::move(*semaphore);
-        EXPECT_THAT(semaphore->post(), Eq(false));
-    }
-
-    EXPECT_THAT(b.post(), Eq(true));
-}
-
-TEST_F(Semaphore_test, MoveAssignmentUnnamed)
-{
-    iox::posix::Semaphore b;
-    {
-        auto semaphore = iox::posix::Semaphore::create(12);
-        b = std::move(*semaphore);
-        EXPECT_THAT(semaphore->post(), Eq(false));
-    }
-
-    EXPECT_THAT(b.post(), Eq(true));
-}
-
-TEST_F(Semaphore_test, MoveCTorNamed)
-{
-    auto semaphore = iox::posix::Semaphore::create("/fuuSa1", S_IRUSR | S_IWUSR, 42);
-    iox::posix::Semaphore b(std::move(*semaphore));
-
-    EXPECT_THAT(b.post(), Eq(true));
-    EXPECT_THAT(semaphore->post(), Eq(false));
-}
-
-TEST_F(Semaphore_test, MoveCTorUnnamed)
-{
-    auto semaphore = iox::posix::Semaphore::create(42);
-    iox::posix::Semaphore b(std::move(*semaphore));
-
-    EXPECT_THAT(b.post(), Eq(true));
-    EXPECT_THAT(semaphore->post(), Eq(false));
-}
-
-TEST_F(Semaphore_test, UnnamedSemaphoreTimedWaitWithTimeout)
-{
-    auto semaphore = iox::posix::Semaphore::create(0);
-    std::atomic<bool> timedWaitFinish{false};
-
-    std::thread t([&] {
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        constexpr long TWO_MILLISECONDS{2000000};
-        ts.tv_nsec += TWO_MILLISECONDS;
-        semaphore->timedWait(&ts, false);
-        timedWaitFinish.store(true);
+    std::atomic<int> counter{0};
+    std::thread t1([&] {
+        sut->wait();
+        counter++;
+        sut->post();
     });
-
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    EXPECT_THAT(timedWaitFinish.load(), Eq(false));
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
-    EXPECT_THAT(timedWaitFinish.load(), Eq(true));
 
-    t.join();
+    EXPECT_THAT(counter, Eq(0));
+    sut->post(), Eq(true);
+    sut->wait();
+    EXPECT_THAT(counter, Eq(1));
+    t1.join();
 }
 
-TEST_F(Semaphore_test, NamedSemaphoreTimedWaitWithTimeout)
+TEST_P(Semaphore_test, MoveAssignment)
 {
-    auto semaphore = iox::posix::Semaphore::create("/fuuSa1", S_IRUSR | S_IWUSR, 0);
+    iox::posix::Semaphore b;
+    {
+        b = std::move(*sut);
+        EXPECT_THAT(sut->post(), Eq(false));
+    }
+
+    EXPECT_THAT(b.post(), Eq(true));
+}
+
+TEST_P(Semaphore_test, MoveCTor)
+{
+    iox::posix::Semaphore b(std::move(*sut));
+
+    EXPECT_THAT(b.post(), Eq(true));
+    EXPECT_THAT(sut->post(), Eq(false));
+}
+
+TEST_P(Semaphore_test, TimedWaitWithTimeout)
+{
     std::atomic<bool> timedWaitFinish{false};
 
     std::thread t([&] {
@@ -266,7 +180,7 @@ TEST_F(Semaphore_test, NamedSemaphoreTimedWaitWithTimeout)
         clock_gettime(CLOCK_REALTIME, &ts);
         constexpr long TWO_MILLISECONDS{2000000};
         ts.tv_nsec += TWO_MILLISECONDS;
-        semaphore->timedWait(&ts, false);
+        EXPECT_THAT(sut->timedWait(&ts, false), Eq(true));
         timedWaitFinish.store(true);
     });
 

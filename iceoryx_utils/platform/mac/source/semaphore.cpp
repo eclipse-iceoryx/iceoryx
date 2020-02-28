@@ -35,7 +35,9 @@ int iox_sem_post(iox_sem_t* sem)
     }
     else
     {
-        dispatch_semaphore_signal(nullptr);
+        dispatch_semaphore_signal(sem->handle.dispatch);
+        // dispatch semaphore always succeed
+        return 0;
     }
 }
 
@@ -47,8 +49,9 @@ int iox_sem_wait(iox_sem_t* sem)
     }
     else
     {
-        dispatch_time_t timeout;
-        dispatch_semaphore_wait(nullptr, timeout);
+        dispatch_semaphore_wait(sem->handle.dispatch, DISPATCH_TIME_FOREVER);
+        // dispatch semaphore always succeed
+        return 0;
     }
 }
 
@@ -60,6 +63,12 @@ int iox_sem_trywait(iox_sem_t* sem)
     }
     else
     {
+        if (dispatch_semaphore_wait(sem->handle.dispatch, 0) != 0)
+        {
+            errno = EAGAIN;
+            return -1;
+        }
+        return 0;
     }
 }
 
@@ -101,21 +110,42 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         return -1;
     }
+    else
+    {
+        dispatch_time_t timeout;
+        if (dispatch_semaphore_wait(sem->handle.dispatch, timeout) != 0)
+        {
+            errno = ETIMEDOUT;
+            return -1;
+        }
+        return 0;
+    }
 }
 
 int iox_sem_close(iox_sem_t* sem)
 {
+    // will only be called by named semaphores which are in our case
+    // posix semaphores
     return sem_close(sem->handle.posix);
 }
 
 int iox_sem_destroy(iox_sem_t* sem)
 {
-    // dispatch_release(nullptr);
+    // will only be called by unnamed semaphores which are in our
+    // case dispatch semaphores
+    dispatch_release(sem->handle.dispatch);
 }
 
 int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
 {
-    // dispatch_semaphore_t handle = dispatch_semaphore_create(value);
+    sem->hasPosixHandle = false;
+    sem->handle.dispatch = dispatch_semaphore_create(value);
+    if (sem->handle.dispatch == nullptr)
+    {
+        free(sem);
+        return -1;
+    }
+    return 0;
 }
 
 int iox_sem_unlink(const char* name)

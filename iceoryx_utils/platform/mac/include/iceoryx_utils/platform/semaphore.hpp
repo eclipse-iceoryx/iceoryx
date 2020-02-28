@@ -24,7 +24,7 @@ struct iox_sem_t
     union
     {
         sem_t* posix;
-        dispatch_object_t dispatch;
+        dispatch_semaphore_t dispatch;
     } handle;
     bool hasPosixHandle{true};
 };
