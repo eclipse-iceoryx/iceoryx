@@ -14,10 +14,11 @@
 
 #pragma once
 
-#include <cstdint>
-#include <sys/mman.h>
-
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/platform/mman.hpp"
+
+
+#include <cstdint>
 
 namespace iox
 {
@@ -50,6 +51,7 @@ class SharedMemory
     ~SharedMemory();
 
     int getHandle() const;
+    bool isInitialized() const;
 
     friend class posix::SharedMemoryObject;
     friend class cxx::optional<SharedMemory>;
@@ -64,7 +66,6 @@ class SharedMemory
     bool open();
     bool unlink();
     bool close();
-    bool isInitialized() const;
 
     static constexpr uint64_t NAME_SIZE = 128;
 
@@ -78,4 +79,3 @@ class SharedMemory
 };
 } // namespace posix
 } // namespace iox
-

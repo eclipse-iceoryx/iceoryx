@@ -343,15 +343,5 @@ uint64_t ReceiverPort::getDeliveryFiFoSize() const
     return getMembers()->m_deliveryFiFo.getSize();
 }
 
-const ReceiverPort::MemberType_t* ReceiverPort::getMembers() const
-{
-    return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
-}
-
-ReceiverPort::MemberType_t* ReceiverPort::getMembers()
-{
-    return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
-}
-
 } // namespace popo
 } // namespace iox

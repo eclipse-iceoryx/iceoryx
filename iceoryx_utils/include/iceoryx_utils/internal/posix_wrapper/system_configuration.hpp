@@ -15,9 +15,9 @@
 #pragma once
 
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
 
 #include <cstdint>
-#include <unistd.h>
 
 namespace iox
 {
@@ -29,4 +29,3 @@ cxx::optional<uint64_t> pageSize();
 
 } // namespace posix
 } // namespace iox
-

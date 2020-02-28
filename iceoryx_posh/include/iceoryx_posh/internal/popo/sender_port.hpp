@@ -70,9 +70,11 @@ class SenderPort : public BasePort
     bool deleteFromAllocatedChunkContainer(mepoo::ChunkHeader* chunkHeader);
     void clearAllocatedChunkContainer();
 
-    const MemberType_t* getMembers() const;
-    MemberType_t* getMembers();
+    const MemberType_t* getMembers() const noexcept;
+    MemberType_t* getMembers() noexcept;
 };
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/sender_port.inl"

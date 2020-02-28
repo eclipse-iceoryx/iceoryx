@@ -16,8 +16,8 @@
 
 #include "iceoryx_introspection/introspection_types.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_utils/platform/getopt.hpp"
 
-#include <getopt.h>
 #include <map>
 #include <ncurses.h>
 #include <vector>

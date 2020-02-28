@@ -32,10 +32,9 @@ MqMessageType stringToMqMessageType(const char* str) noexcept
     std::underlying_type<MqMessageType>::type msg;
     bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
     noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
-    noError &= noError
-                   ? !(static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::BEGIN) >= msg
-                       || static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::END) <= msg)
-                   : false;
+    noError &= noError ? !(static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::BEGIN) >= msg
+                           || static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::END) <= msg)
+                       : false;
     return noError ? (static_cast<MqMessageType>(msg)) : MqMessageType::NOTYPE;
 }
 
@@ -64,65 +63,35 @@ std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept
 MqBase::MqBase(const std::string& InterfaceName, const long maxMessages, const long messageSize) noexcept
     : m_interfaceName(InterfaceName)
 {
-    auto maxMessageSize = messageSize;
-    if (messageSize > MAX_MESSAGE_LENGTH)
+    m_maxMessages = maxMessages;
+    m_maxMessageSize = messageSize;
+    if (m_maxMessageSize > posix::MessageQueue::MAX_MESSAGE_SIZE)
     {
-        LogWarn() << "Message size too large, reducing from " << messageSize << " to " << MAX_MESSAGE_LENGTH;
-        maxMessageSize = MAX_MESSAGE_LENGTH;
+        LogWarn() << "Message size too large, reducing from " << messageSize << " to "
+                  << posix::MessageQueue::MAX_MESSAGE_SIZE;
+        m_maxMessageSize = posix::MessageQueue::MAX_MESSAGE_SIZE;
     }
-    // initialize m_attr fields by name (in QNX they have a different order)
-    m_attr.mq_flags = MQ_FLAGS;
-    m_attr.mq_maxmsg = maxMessages;
-    m_attr.mq_msgsize = maxMessageSize;
-    m_attr.mq_curmsgs = MQ_CUR_MSGS;
-#ifdef __QNX__
-    m_attr.mq_recvwait = 0;
-    m_attr.mq_sendwait = 0;
-#endif
 }
 
 bool MqBase::receive(MqMessage& answer) const noexcept
 {
-    char buffer[MAX_MESSAGE_LENGTH];
-    if (-1 == mq_receive(m_roudiMq, buffer, static_cast<size_t>(m_attr.mq_msgsize), NULL))
+    auto message = m_mq.receive();
+    if (message.has_error())
     {
-        LogError() << "Calling mq_receive() failed : " << strerror(errno);
         return false;
     }
-    else
-    {
-        return MqBase::setMessageFromString(buffer, answer);
-    }
+
+    return MqBase::setMessageFromString(message.get_value().c_str(), answer);
 }
 
-bool MqBase::timedReceive(const uint32_t timeout_ms, MqMessage& answer) const noexcept
+bool MqBase::timedReceive(const units::Duration timeout, MqMessage& answer) const noexcept
 {
-    timespec timeout;
-    // get current system time
-    if (-1 == (clock_gettime(CLOCK_REALTIME, &timeout)))
-    {
-        LogError() << "Calling clock_gettime() failed : " << strerror(errno);
-        return false;
-    }
-    timeout = posix::addTimeMs(timeout, timeout_ms);
-
-    char buffer[MAX_MESSAGE_LENGTH];
-    if (-1 == mq_timedreceive(m_roudiMq, buffer, static_cast<size_t>(m_attr.mq_msgsize), NULL, &timeout))
-    {
-        if (errno == ETIMEDOUT || errno == EINTR) // if errno have ETIMEDOUT or EINTR the message queue
-                                                  // has only timed out, no message needed
-        {
-        }
-        else // if another errorcode happens, print message
-        {
-            LogError() << "Calling mq_timedReceive() failed : " << strerror(errno);
-        }
-        return false;
-    }
-    else
-    {
-        return MqBase::setMessageFromString(buffer, answer);
-    }
+    return !m_mq.timedReceive(timeout)
+                .on_success([&answer](cxx::expected<std::string, posix::IpcChannelError>& message) {
+                    MqBase::setMessageFromString(message.get_value().c_str(), answer);
+                })
+                .has_error()
+           && answer.isValid();
 }
 
 bool MqBase::setMessageFromString(const char* buffer, MqMessage& answer) noexcept
@@ -145,24 +114,15 @@ bool MqBase::send(const MqMessage& msg) const noexcept
         return false;
     }
 
-    const size_t messageSize = static_cast<size_t>(msg.getMessage().size()) + NULL_TERMINATOR_SIZE;
-    if (messageSize > static_cast<size_t>(m_attr.mq_msgsize))
-    {
-        LogError() << "msg size of " << messageSize << "bigger than " << m_attr.mq_msgsize
-                   << ", maybe change MQ_MSG_SIZE";
-        return false;
-    }
-
-    unsigned int prio = 1;
-    if (-1 == mq_send(m_roudiMq, msg.getMessage().c_str(), messageSize, prio))
-    {
-        LogError() << "Calling mq_send() failed : " << strerror(errno);
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    auto logLengthError = [&msg](cxx::expected<posix::IpcChannelError>& error) {
+        if (error.get_error() == posix::IpcChannelError::MESSAGE_TOO_LONG)
+        {
+            const size_t messageSize =
+                static_cast<size_t>(msg.getMessage().size()) + posix::MessageQueue::NULL_TERMINATOR_SIZE;
+            LogError() << "msg size of " << messageSize << "bigger than configured max message size";
+        }
+    };
+    return !m_mq.send(msg.getMessage()).on_error(logLengthError).has_error();
 }
 
 bool MqBase::timedSend(const MqMessage& msg, units::Duration timeout) const noexcept
@@ -174,37 +134,15 @@ bool MqBase::timedSend(const MqMessage& msg, units::Duration timeout) const noex
         return false;
     }
 
-    const size_t messageSize = msg.getMessage().size() + NULL_TERMINATOR_SIZE;
-    if (messageSize > static_cast<size_t>(m_attr.mq_msgsize))
-    {
-        LogError() << "msg size of " << messageSize << "bigger than " << m_attr.mq_msgsize
-                   << ", maybe change MQ_MSG_SIZE";
-        return false;
-    }
-
-    timespec l_timeout = timeout.timespec(units::TimeSpecReference::Epoch);
-    unsigned int l_prio = 1;
-    auto sendRetVal = cxx::makeSmartC(mq_timedsend,
-                                      cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                      {-1},
-                                      {ETIMEDOUT, EINTR},
-                                      m_roudiMq,
-                                      msg.getMessage().c_str(),
-                                      messageSize,
-                                      l_prio,
-                                      &l_timeout);
-
-    if (sendRetVal.hasErrors())
-    {
-        LogError() << "Calling mq_timedsend() failed : " << strerror(errno);
-        return false;
-    }
-    else if (errno == ETIMEDOUT || errno == EINTR) // send timed out
-    {
-        return false;
-    }
-
-    return true;
+    auto logLengthError = [&msg](cxx::expected<posix::IpcChannelError>& error) {
+        if (error.get_error() == posix::IpcChannelError::MESSAGE_TOO_LONG)
+        {
+            const size_t messageSize =
+                static_cast<size_t>(msg.getMessage().size()) + posix::MessageQueue::NULL_TERMINATOR_SIZE;
+            LogError() << "msg size of " << messageSize << "bigger than configured max message size";
+        }
+    };
+    return !m_mq.timedSend(msg.getMessage(), timeout).on_error(logLengthError).has_error();
 }
 
 const std::string& MqBase::getInterfaceName() const noexcept
@@ -214,167 +152,69 @@ const std::string& MqBase::getInterfaceName() const noexcept
 
 bool MqBase::isInitialized() const noexcept
 {
-    return m_isInitialized;
+    return m_mq.isInitialized();
 }
 
-bool MqBase::openMessageQueue(const std::string& name, const int oflag) noexcept
+bool MqBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
 {
-    m_oflag = oflag;
-    m_roudiMq = mq_open(name.c_str(), m_oflag, m_perms, &m_attr);
-    if (-1 == m_roudiMq)
-    {
-        // error if create fails, open only is also used for checking....
-        if (m_oflag & O_CREAT)
-        {
-            LogWarn() << name << " " << oflag << " " << m_perms;
-            LogError() << "Calling mq_open() failed : " << strerror(errno);
-        }
-        return false;
-    }
-    return true;
+    m_mq.destroy();
+
+    m_channelSide = channelSide;
+    posix::MessageQueue::create(
+        m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
+        .on_success(
+            [this](cxx::expected<posix::MessageQueue, posix::IpcChannelError>& mq) { this->m_mq = std::move(*mq); });
+
+    return m_mq.isInitialized();
 }
 
-bool MqBase::closeMessageQueue() const noexcept
+bool MqBase::closeMessageQueue() noexcept
 {
-    // m_interfaceName is only empty when the object was moved
-    if (-1 == mq_close(m_roudiMq))
-    {
-        LogError() << "Calling mq_close() failed : " << strerror(errno);
-        return false;
-    }
-    return true;
+    return !m_mq.destroy().has_error();
 }
 
 bool MqBase::reopen() noexcept
 {
-    if (m_isInitialized)
-    {
-        closeMessageQueue();
-    }
-    m_isInitialized = openMessageQueue(m_interfaceName, m_oflag);
-    return m_isInitialized;
+    return openMessageQueue(m_channelSide);
 }
 
 bool MqBase::mqMapsToFile() noexcept
 {
-    if (!m_isInitialized)
-    {
-        return false;
-    }
-    struct stat sb;
-    if (cxx::makeSmartC(fstat, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_roudiMq, &sb).hasErrors())
-    {
-        errorHandler(Error::kMQ_INTERFACE__CHECK_MQ_MAPS_TO_FILE);
-    }
-    return sb.st_nlink > 0;
-}
-
-bool MqBase::unlinkMessageQueue() const noexcept
-{
-    if (-1 == mq_unlink(m_interfaceName.c_str()))
-    {
-        LogError() << "Calling mq_unlink() failed : " << strerror(errno);
-        return false;
-    }
-    return true;
+    return !m_mq.isOutdated().get_value_or(true);
 }
 
 bool MqBase::hasClosableMessageQueue() const noexcept
 {
-    /// m_interfaceName is empty when the MqBase object was moved
-    return !m_interfaceName.empty();
+    return m_mq.isInitialized();
 }
 
 void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
 {
-    MqBase mqueue(name, 1, 1);
-    if (mqueue.openMessageQueue(name, O_RDWR))
+    if (posix::MessageQueue::unlinkIfExists(name).get_value_or(false))
     {
         LogWarn() << "MQ still there, doing an unlink of " << name;
-        mqueue.unlinkMessageQueue();
     }
 }
 
 MqInterfaceUser::MqInterfaceUser(const std::string& name, const long maxMessages, const long messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
-    m_isInitialized = openMessageQueue(name, O_RDWR);
-}
-
-MqInterfaceUser::MqInterfaceUser(MqInterfaceUser&& rhs) noexcept
-    : MqBase(rhs)
-{
-    rhs.m_interfaceName.clear();
-}
-
-MqInterfaceUser& MqInterfaceUser::operator=(MqInterfaceUser&& rhs) noexcept
-{
-    if (&rhs != this)
-    {
-        if (hasClosableMessageQueue() && m_isInitialized)
-        {
-            closeMessageQueue();
-        }
-        *static_cast<MqBase*>(this) = static_cast<MqBase>(rhs);
-
-        rhs.m_interfaceName.clear();
-    }
-
-    return *this;
-}
-
-MqInterfaceUser::~MqInterfaceUser() noexcept
-{
-    if (hasClosableMessageQueue() && m_isInitialized)
-    {
-        closeMessageQueue();
-    }
+    openMessageQueue(posix::IpcChannelSide::CLIENT);
 }
 
 MqInterfaceCreator::MqInterfaceCreator(const std::string& name, const long maxMessages, const long messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
-    // @todo set umask to 0 to get 0666 permissions, create extra users for
-    // daemon and applications later
-    umask(0);
-
     // check if the mq is still there (e.g. because of no proper termination
     // of the process)
     cleanupOutdatedMessageQueue(name);
 
-    m_isInitialized = openMessageQueue(name, O_CREAT | O_RDWR);
+    openMessageQueue(posix::IpcChannelSide::SERVER);
 }
 
-MqInterfaceCreator::MqInterfaceCreator(MqInterfaceCreator&& rhs) noexcept
-    : MqBase(rhs)
+void MqInterfaceCreator::cleanupResource()
 {
-    rhs.m_interfaceName.clear();
-}
-
-MqInterfaceCreator& MqInterfaceCreator::operator=(MqInterfaceCreator&& rhs) noexcept
-{
-    if (&rhs != this)
-    {
-        if (hasClosableMessageQueue())
-        {
-            closeMessageQueue();
-            unlinkMessageQueue();
-        }
-        *static_cast<MqBase*>(this) = static_cast<MqBase>(rhs);
-
-        rhs.m_interfaceName.clear();
-    }
-
-    return *this;
-}
-
-MqInterfaceCreator::~MqInterfaceCreator() noexcept
-{
-    if (hasClosableMessageQueue())
-    {
-        closeMessageQueue();
-        unlinkMessageQueue();
-    }
+    m_mq.destroy();
 }
 
 MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
@@ -398,7 +238,7 @@ MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
     auto regState = RegState::WAIT_FOR_ROUDI;
     while (!timer.hasExpiredComparedToCreationTime() && regState != RegState::FINISHED)
     {
-        if (!m_RoudiMqInterface.mqMapsToFile() || !m_RoudiMqInterface.isInitialized())
+        if (!m_RoudiMqInterface.isInitialized() || !m_RoudiMqInterface.mqMapsToFile())
         {
             LogDebug() << "reopen RouDi mqueue!";
             m_RoudiMqInterface.reopen();
@@ -464,8 +304,7 @@ MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
 
     if (regState != RegState::FINISHED)
     {
-        /// @todo: a temporary mechanism to allow a cleanup of the app message queue
-        m_AppMqInterface.~MqInterfaceCreator();
+        m_AppMqInterface.cleanupResource();
     }
     switch (regState)
     {
@@ -547,7 +386,7 @@ void MqRuntimeInterface::waitForRoudi(posix::Timer& timer) noexcept
 
         if (printWaitingWarning)
         {
-            LogDebug() << "RouDi not found - waiting ...";
+            LogWarn() << "RouDi not found - waiting ...";
             printWaitingWarning = false;
             printFoundMessage = true;
         }
@@ -571,7 +410,7 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
     {
         MqMessage receiveBuffer;
         // wait for MqMessageType::REG_ACK from RouDi for 1 seconds
-        if (m_AppMqInterface.timedReceive(1000, receiveBuffer))
+        if (m_AppMqInterface.timedReceive(1_s, receiveBuffer))
         {
             std::string cmd = receiveBuffer.getElementAtIndex(0);
 

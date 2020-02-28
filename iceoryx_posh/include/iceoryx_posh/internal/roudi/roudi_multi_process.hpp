@@ -15,7 +15,6 @@
 #pragma once
 
 #include <cstdio>
-#include <sys/file.h>
 #include <thread>
 
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
@@ -29,6 +28,7 @@
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/platform/file.hpp"
 
 #include "ac3log/simplelogger.hpp"
 
@@ -97,7 +97,7 @@ class RouDiMultiProcess
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runThreads;
 
-    const uint32_t m_MessageQueueTimeoutMilliseconds = 100;
+    const units::Duration m_messageQueueTimeout{units::Duration::milliseconds(static_cast<unsigned long long>(100))};
 
     /// locks the socket for preventing multiple start of RouDi
     RouDiLock m_roudilock;

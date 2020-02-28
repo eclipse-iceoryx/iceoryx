@@ -16,12 +16,12 @@
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/platform/inet.hpp"
+#include "iceoryx_utils/platform/socket.hpp"
+#include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
 
-#include <arpa/inet.h>
 #include <stdlib.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 namespace iox
 {
@@ -35,9 +35,16 @@ class RouDiLock
     ~RouDiLock();
 
   private:
-    int m_socket_fd =
-        cxx::makeSmartC(socket, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, AF_INET, SOCK_STREAM, 0)
-            .getReturnValue();
+    int m_socket_fd = [] {
+        auto socketCall =
+            cxx::makeSmartC(socket, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, AF_INET, SOCK_STREAM, 0);
+        if (socketCall.hasErrors())
+        {
+            std::cerr << "unable to acquire RouDi locking socket\n";
+            std::terminate();
+        }
+        return socketCall.getReturnValue();
+    }();
     struct sockaddr_in m_sockserv;
 };
 

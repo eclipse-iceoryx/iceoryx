@@ -16,13 +16,12 @@
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/platform/acl.hpp"
 
 #include <cstdint>
 #include <functional>
 #include <iostream>
 #include <memory>
-
-#include <sys/acl.h>
 
 namespace iox
 {

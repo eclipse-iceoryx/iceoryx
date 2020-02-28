@@ -21,6 +21,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_utils/platform/pthread.hpp"
 
 #include <atomic>
 #include <mutex>

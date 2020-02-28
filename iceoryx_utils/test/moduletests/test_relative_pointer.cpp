@@ -13,13 +13,16 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/platform/fcntl.hpp"
+#include "iceoryx_utils/platform/mman.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
+
 
 #include "test.hpp"
 
+#include <cstdint>
 #include <cstring>
-#include <fcntl.h> /* For O_* constants */
-#include <sys/mman.h>
-#include <sys/stat.h> /* For mode constants */
 using namespace ::testing;
 
 namespace
@@ -508,7 +511,7 @@ TEST_F(RelativePointer_test, MemoryReMapping_SharedMemory)
 
     int offset = ShmSize / 2;
     auto offsetAddr1 = reinterpret_cast<int*>(static_cast<uint8_t*>(memMapWriter.getMappedAddress()) + offset);
-    auto offsetAddr2 = reinterpret_cast<int*>(static_cast<uint8_t*>(memMapWriter.getMappedAddress()) + offset);
+    auto offsetAddr2 = reinterpret_cast<int*>(static_cast<uint8_t*>(memMapReader.getMappedAddress()) + offset);
     *offsetAddr1 = 37;
 
     EXPECT_EQ(*offsetAddr2, *offsetAddr1);

@@ -119,7 +119,7 @@ void RouDiMultiProcess::mqThread()
         runtime::MqMessage message;
         /// @todo do we really need timedReceive? an alternative solution would be to close the message queue,
         /// which also results in a return from mq_receive, and check the relevant errno and shutdown RouDi
-        if (!roudiMqInterface.timedReceive(m_MessageQueueTimeoutMilliseconds, message))
+        if (!roudiMqInterface.timedReceive(m_messageQueueTimeout, message))
         {
             // TODO: errorHandling
         }

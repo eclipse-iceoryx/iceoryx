@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef _WIN32
+#include "mocks/mqueue_mock.hpp"
+#include "mocks/time_mock.hpp"
+
 #include "test.hpp"
 
 #define private public
@@ -24,8 +28,6 @@
 #undef private
 #undef protected
 
-#include "mocks/mqueue_mock.hpp"
-#include "mocks/time_mock.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 
 using namespace ::testing;
@@ -35,6 +37,7 @@ using iox::runtime::MqBase;
 using iox::runtime::MqInterfaceCreator;
 using iox::runtime::MqInterfaceUser;
 using iox::runtime::MqMessage;
+using namespace iox::units::duration_literals;
 
 class CMqInterface_test : public Test
 {
@@ -67,13 +70,21 @@ class CMqInterface_test : public Test
     }
 };
 
-const std::string ifName = "ifName";
+const std::string ifName = "/ifName";
 constexpr long maxMessages = 10;
 constexpr long messageSize = 512;
 
 //////////////////////////////
 // UnitTest Implementations
 //////////////////////////////
+template <typename T>
+void CMqInterface_Open(T& base)
+{
+    /// @todo for whatever reason the mock is not called, check why the dlopen trick doesn't work here
+    // EXPECT_CALL(*mqueue_MOCK::mock, mq_open(_, _, _, _)).WillOnce(Return(0));
+    EXPECT_THAT(base.openMessageQueue(iox::posix::IpcChannelSide::SERVER), Eq(true));
+}
+
 template <typename T>
 void CMqInterface_Receive(T& base)
 {
@@ -108,23 +119,23 @@ void CMqInterface_TimedReceive(T& base)
 
     // clock_gettime fails, return false
     EXPECT_CALL(*time_MOCK::mock, clock_gettime(_, _)).WillOnce(Return(-1)).WillOnce(Return(0));
-    EXPECT_THAT(base.timedReceive(1, result), Eq(false));
+    EXPECT_THAT(base.timedReceive(1_ms, result), Eq(false));
     EXPECT_CALL(*time_MOCK::mock, clock_gettime(_, _)).WillRepeatedly(Return(0));
 
     // mq_timedreceive failse, return false
     EXPECT_CALL(*mqueue_MOCK::mock, mq_timedreceive(_, _, _, _, _)).WillOnce(Return(-1));
-    EXPECT_THAT(base.timedReceive(1, result), Eq(false));
+    EXPECT_THAT(base.timedReceive(1_ms, result), Eq(false));
 
     // valid message received, return true
     EXPECT_CALL(*mqueue_MOCK::mock, mq_timedreceive(_, _, _, _, _))
         .WillOnce(DoAll(SetArrayArgument<1>(std::begin(msg1), std::end(msg1)), Return(0)));
-    EXPECT_THAT(base.timedReceive(1, result), Eq(true));
+    EXPECT_THAT(base.timedReceive(1_ms, result), Eq(true));
     EXPECT_THAT(result.getMessage(), Eq(msg1));
 
     // invalid message received, return false
     EXPECT_CALL(*mqueue_MOCK::mock, mq_timedreceive(_, _, _, _, _))
         .WillOnce(DoAll(SetArrayArgument<1>(std::begin(invalidMsg2), std::end(invalidMsg2)), Return(0)));
-    EXPECT_THAT(base.timedReceive(1, result), Eq(false));
+    EXPECT_THAT(base.timedReceive(1_ms, result), Eq(false));
 }
 
 template <typename T>
@@ -195,7 +206,7 @@ template <typename T>
 void CMqInterface_IsInitialized(T& base[[gnu::unused]])
 {
     // TODO: add correct mock settings with return
-    ////    EXPECT_THAT(base.isInitialized(), Eq(true));
+    EXPECT_THAT(base.isInitialized(), Eq(true));
 }
 
 template <typename T>
@@ -217,35 +228,11 @@ void CMqInterface_StringCTor()
 }
 
 template <typename T>
-void CMqInterface_CopyCTor()
-{
-    T* base = new T(ifName, maxMessages, messageSize);
-    T destination(*base);
-
-    CMqInterface_RunAllMqBaseTests(*base);
-    delete base;
-
-    CMqInterface_RunAllMqBaseTests(destination);
-}
-
-template <typename T>
 void CMqInterface_MoveCTor()
 {
     T* base = new T(ifName, maxMessages, messageSize);
+    CMqInterface_Open(*base);
     T destination(std::move(*base));
-    delete base;
-
-    CMqInterface_RunAllMqBaseTests(destination);
-}
-
-template <typename T>
-void CMqInterface_CopyOperator()
-{
-    T* base = new T(ifName, maxMessages, messageSize);
-    T destination("crap", maxMessages, messageSize);
-    destination = *base;
-
-    CMqInterface_RunAllMqBaseTests(*base);
     delete base;
 
     CMqInterface_RunAllMqBaseTests(destination);
@@ -255,7 +242,8 @@ template <typename T>
 void CMqInterface_MoveOperator()
 {
     T* base = new T(ifName, maxMessages, messageSize);
-    T destination("crap", maxMessages, messageSize);
+    CMqInterface_Open(*base);
+    T destination("/crap", maxMessages, messageSize);
     destination = std::move(*base);
     delete base;
 
@@ -271,19 +259,9 @@ TEST_F(CMqInterface_test, MqBase_StringCTor)
     CMqInterface_StringCTor<MqBase>();
 }
 
-TEST_F(CMqInterface_test, MqBase_CopyCTor)
-{
-    CMqInterface_CopyCTor<MqBase>();
-}
-
 TEST_F(CMqInterface_test, MqBase_MoveCTor)
 {
     CMqInterface_MoveCTor<MqBase>();
-}
-
-TEST_F(CMqInterface_test, MqBase_CopyOperator)
-{
-    CMqInterface_CopyOperator<MqBase>();
 }
 
 TEST_F(CMqInterface_test, MqBase_MoveOperator)
@@ -294,36 +272,42 @@ TEST_F(CMqInterface_test, MqBase_MoveOperator)
 TEST_F(CMqInterface_test, MqBase_Receive)
 {
     MqBase base(ifName, maxMessages, messageSize);
+    CMqInterface_Open(base);
     CMqInterface_Receive<MqBase>(base);
 }
 
 TEST_F(CMqInterface_test, MqBase_TimedReceive)
 {
     MqBase base(ifName, maxMessages, messageSize);
+    CMqInterface_Open(base);
     CMqInterface_TimedReceive<MqBase>(base);
 }
 
 TEST_F(CMqInterface_test, MqBase_Send)
 {
     MqBase base(ifName, maxMessages, messageSize);
+    CMqInterface_Open(base);
     CMqInterface_Send<MqBase>(base);
 }
 
 TEST_F(CMqInterface_test, MqBase_TimedSend)
 {
     MqBase base(ifName, maxMessages, messageSize);
+    CMqInterface_Open(base);
     CMqInterface_TimedSend<MqBase>(base);
 }
 
 TEST_F(CMqInterface_test, MqBase_GetInterfaceName)
 {
     MqBase base(ifName, maxMessages, messageSize);
+    CMqInterface_Open(base);
     CMqInterface_GetInterfaceName<MqBase>(base);
 }
 
 TEST_F(CMqInterface_test, MqBase_IsInitialized)
 {
     MqBase base(ifName, maxMessages, messageSize);
+    CMqInterface_Open(base);
     CMqInterface_IsInitialized<MqBase>(base);
 }
 
@@ -349,36 +333,42 @@ TEST_F(CMqInterface_test, MqInterfaceUser_MoveOperator)
 TEST_F(CMqInterface_test, MqInterfaceUser_Receive)
 {
     MqInterfaceUser base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_Receive<MqInterfaceUser>(base);
 }
 
 TEST_F(CMqInterface_test, MqInterfaceUser_TimedReceive)
 {
     MqInterfaceUser base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_TimedReceive<MqInterfaceUser>(base);
 }
 
 TEST_F(CMqInterface_test, MqInterfaceUser_Send)
 {
     MqInterfaceUser base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_Send<MqInterfaceUser>(base);
 }
 
 TEST_F(CMqInterface_test, MqInterfaceUser_TimedSend)
 {
     MqInterfaceUser base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_TimedSend<MqInterfaceUser>(base);
 }
 
 TEST_F(CMqInterface_test, MqInterfaceUser_GetInterfaceName)
 {
     MqInterfaceUser base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_GetInterfaceName<MqInterfaceUser>(base);
 }
 
 TEST_F(CMqInterface_test, MqInterfaceUser_IsInitialized)
 {
     MqInterfaceUser base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_IsInitialized<MqInterfaceUser>(base);
 }
 
@@ -404,35 +394,42 @@ TEST_F(CMqInterface_test, MqInterfaceCreator_MoveOperator)
 TEST_F(CMqInterface_test, MqInterfaceCreator_Receive)
 {
     MqInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_Receive<MqInterfaceCreator>(base);
 }
 
 TEST_F(CMqInterface_test, MqInterfaceCreator_TimedReceive)
 {
     MqInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_TimedReceive<MqInterfaceCreator>(base);
 }
 
 TEST_F(CMqInterface_test, MqInterfaceCreator_Send)
 {
     MqInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_Send<MqInterfaceCreator>(base);
 }
 
 TEST_F(CMqInterface_test, MqInterfaceCreator_TimedSend)
 {
     MqInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_TimedSend<MqInterfaceCreator>(base);
 }
 
 TEST_F(CMqInterface_test, MqInterfaceCreator_GetInterfaceName)
 {
     MqInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_GetInterfaceName<MqInterfaceCreator>(base);
 }
 
 TEST_F(CMqInterface_test, MqInterfaceCreator_IsInitialized)
 {
     MqInterfaceCreator base(ifName);
+    CMqInterface_Open(base);
     CMqInterface_IsInitialized<MqInterfaceCreator>(base);
 }
+#endif

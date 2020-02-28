@@ -94,9 +94,11 @@ class ReceiverPort : public BasePort
     uint64_t getDeliveryFiFoSize() const;
 
   private:
-    const MemberType_t* getMembers() const;
-    MemberType_t* getMembers();
+    const MemberType_t* getMembers() const noexcept;
+    MemberType_t* getMembers() noexcept;
 };
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/receiver_port.inl"

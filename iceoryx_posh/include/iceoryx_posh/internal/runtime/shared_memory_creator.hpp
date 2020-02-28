@@ -24,9 +24,14 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/platform/signal.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
 
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
 #include <string>
+
 
 namespace iox
 {

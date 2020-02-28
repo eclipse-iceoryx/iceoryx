@@ -18,14 +18,16 @@
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/platform/signal.hpp"
+#include "iceoryx_utils/platform/time.hpp"
+
 
 #include <atomic>
 #include <condition_variable>
 #include <cstdint>
+#include <ctime>
 #include <limits>
-#include <signal.h>
-#include <sys/time.h>
-#include <time.h>
+
 
 namespace iox
 {

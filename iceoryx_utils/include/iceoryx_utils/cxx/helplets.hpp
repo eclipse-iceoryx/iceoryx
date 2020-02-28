@@ -15,6 +15,7 @@
 #pragma once
 
 #include "iceoryx_utils/cxx/generic_raii.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
 
 #include <assert.h>
 #include <iostream>
@@ -152,7 +153,7 @@ GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs)
     memory.emplace(std::forward<CTorArgs>(ctorArgs)...);
     return GenericRAII([] {}, [&memory] { memory.reset(); });
 }
-/// Convert Enum class type to string 
+/// Convert Enum class type to string
 template <typename T, typename Enumeration>
 const char* convertEnumToString(T port, const Enumeration source)
 {
