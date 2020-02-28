@@ -178,6 +178,7 @@ add_library(iceoryx_platform ${ICEORYX_PLATFORM_FILES})
 target_include_directories(iceoryx_platform 
     PUBLIC
     $<BUILD_INTERFACE:${ICEORYX_PLATFORM}/include/>
+    $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 add_library(iceoryx_utils::iceoryx_platform ALIAS iceoryx_platform)
 
@@ -211,7 +212,7 @@ endif(PERFORM_CLANG_TIDY)
 
 #TODO add support for multiple include directories to setup_install_directories_and_export_package
 install(
-    DIRECTORY ${ICEORYX_PLATFORM_INCLUDES}
+    DIRECTORY ${ICEORYX_PLATFORM}/include/
     DESTINATION include/${PREFIX}
     COMPONENT dev
 )
