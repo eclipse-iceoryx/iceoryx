@@ -119,7 +119,7 @@ void CMqInterface_TimedReceive(T& base)
 
     // clock_gettime fails, return false
     EXPECT_CALL(*time_MOCK::mock, clock_gettime(_, _)).WillOnce(Return(-1)).WillOnce(Return(0));
-    EXPECT_THAT(base.timedReceive(0_ms, result), Eq(false));
+    EXPECT_THAT(base.timedReceive(1_ms, result), Eq(false));
     EXPECT_CALL(*time_MOCK::mock, clock_gettime(_, _)).WillRepeatedly(Return(0));
 
     // mq_timedreceive failse, return false
