@@ -19,43 +19,47 @@
 int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
     LONG previousValue;
-    switch (WaitForSingleObject(sem->handle, 0))
+    auto waitResult = Win32Call(WaitForSingleObject(sem->handle, 0));
+    switch (waitResult)
     {
     case WAIT_OBJECT_0:
-        if (ReleaseSemaphore(sem->handle, 1, &previousValue))
+    {
+        auto releaseResult = Win32Call(ReleaseSemaphore(sem->handle, 1, &previousValue));
+        if (releaseResult)
         {
-            PrintLastErrorToConsole();
             *sval = previousValue + 1;
             return 0;
         }
         return 0;
+    }
     case WAIT_TIMEOUT:
+    {
         *sval = 0;
         return 0;
+    }
     default:
+    {
         return -1;
+    }
     }
 }
 
 int iox_sem_post(iox_sem_t* sem)
 {
-    int retVal = (ReleaseSemaphore(sem->handle, 1, nullptr) != 0) ? 0 : -1;
-    PrintLastErrorToConsole();
-    return retVal;
+    int retVal = Win32Call(ReleaseSemaphore(sem->handle, 1, nullptr));
+    return (retVal != 0) ? 0 : -1;
 }
 
 int iox_sem_wait(iox_sem_t* sem)
 {
-    int retVal = (WaitForSingleObject(sem->handle, INFINITE) == WAIT_OBJECT_0) ? 0 : -1;
-    PrintLastErrorToConsole();
-    return retVal;
+    int retVal = Win32Call(WaitForSingleObject(sem->handle, INFINITE));
+    return (retVal == WAIT_OBJECT_0) ? 0 : -1;
 }
 
 int iox_sem_trywait(iox_sem_t* sem)
 {
-    int retVal = (WaitForSingleObject(sem->handle, 0) == WAIT_OBJECT_0) ? 0 : -1;
-    PrintLastErrorToConsole();
-    return retVal;
+    int retVal = Win32Call(WaitForSingleObject(sem->handle, 0));
+    return (retVal == WAIT_OBJECT_0) ? 0 : -1;
 }
 
 int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
@@ -71,22 +75,20 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
     time_t epochCurrentTimeDiffInSeconds = abs_timeout->tv_sec - tv.tv_sec;
     long milliseconds = epochCurrentTimeDiffInSeconds * 1000 + ((abs_timeout->tv_nsec / 1000) - tv.tv_usec) / 1000;
 
-    auto state = WaitForSingleObject(sem->handle, milliseconds);
+    auto state = Win32Call(WaitForSingleObject(sem->handle, milliseconds));
     if (state == WAIT_TIMEOUT)
     {
         errno = ETIMEDOUT;
     }
-    PrintLastErrorToConsole();
 
     return (state == WAIT_OBJECT_0) ? 0 : -1;
 }
 
 int iox_sem_close(iox_sem_t* sem)
 {
-    int retVal = CloseHandle(sem->handle) ? 0 : -1;
-    PrintLastErrorToConsole();
+    int retVal = Win32Call(CloseHandle(sem->handle)) ? 0 : -1;
     delete sem;
-    return retVal;
+    return (retVal) ? 0 : -1;
 }
 
 int iox_sem_destroy(iox_sem_t* sem)
@@ -100,23 +102,20 @@ HANDLE __sem_create_win32_semaphore(LONG value, LPCSTR name)
 {
     SECURITY_ATTRIBUTES securityAttribute;
     SECURITY_DESCRIPTOR securityDescriptor;
-    InitializeSecurityDescriptor(&securityDescriptor, SECURITY_DESCRIPTOR_REVISION);
-    PrintLastErrorToConsole();
+    Win32Call(InitializeSecurityDescriptor(&securityDescriptor, SECURITY_DESCRIPTOR_REVISION));
 
     TCHAR* permissions = TEXT("D:") TEXT("(A;OICI;GA;;;BG)") // access to built-in guests
         TEXT("(A;OICI;GA;;;AN)")                             // access to anonymous logon
         TEXT("(A;OICI;GRGWGX;;;AU)")                         // access to authenticated users
         TEXT("(A;OICI;GA;;;BA)");                            // access to administrators
 
-    ConvertStringSecurityDescriptorToSecurityDescriptor(
-        permissions, SDDL_REVISION_1, &(securityAttribute.lpSecurityDescriptor), NULL);
-    PrintLastErrorToConsole();
+    Win32Call(ConvertStringSecurityDescriptorToSecurityDescriptor(
+        permissions, SDDL_REVISION_1, &(securityAttribute.lpSecurityDescriptor), NULL));
     securityAttribute.nLength = sizeof(SECURITY_ATTRIBUTES);
     securityAttribute.lpSecurityDescriptor = &securityDescriptor;
     securityAttribute.bInheritHandle = FALSE;
 
-    HANDLE returnValue = CreateSemaphoreA(&securityAttribute, value, MAX_SEMAPHORE_VALUE, name);
-    PrintLastErrorToConsole();
+    HANDLE returnValue = Win32Call(CreateSemaphoreA(&securityAttribute, value, MAX_SEMAPHORE_VALUE, name));
     return returnValue;
 }
 
@@ -163,8 +162,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
     }
     else
     {
-        sem->handle = OpenSemaphoreA(SEMAPHORE_ALL_ACCESS, false, name);
-        PrintLastErrorToConsole();
+        sem->handle = Win32Call(OpenSemaphoreA(SEMAPHORE_ALL_ACCESS, false, name));
         if (sem->handle == nullptr)
         {
             delete sem;

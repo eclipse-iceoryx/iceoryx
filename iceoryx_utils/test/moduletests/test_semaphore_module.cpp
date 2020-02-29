@@ -59,6 +59,7 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
     {
         internal::CaptureStderr();
         ASSERT_THAT(sut, Ne(nullptr));
+        ASSERT_THAT(syncSemaphore, Ne(nullptr));
     }
 
     void TearDown()
@@ -279,9 +280,9 @@ TEST_P(Semaphore_test, TimedWaitWithTimeout)
 
     std::thread t([&] {
         struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        constexpr long TWO_MILLISECONDS{2000000};
-        ts.tv_nsec += TWO_MILLISECONDS;
+        Win32Call(clock_gettime(CLOCK_REALTIME, &ts));
+        constexpr long TEN_MILLISECONDS{10000000};
+        ts.tv_nsec += TEN_MILLISECONDS;
         syncSemaphore->post();
         sut->wait();
         EXPECT_THAT(sut->timedWait(&ts, false), Eq(false));
@@ -295,7 +296,7 @@ TEST_P(Semaphore_test, TimedWaitWithTimeout)
     EXPECT_THAT(timedWaitFinish.load(), Eq(false));
 
     std::this_thread::yield();
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
     EXPECT_THAT(timedWaitFinish.load(), Eq(true));
 
     t.join();
@@ -306,10 +307,11 @@ TEST_P(Semaphore_test, TimedWaitWithoutTimeout)
     std::atomic<bool> timedWaitFinish{false};
 
     std::thread t([&] {
+        SetLastError(0);
         struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        constexpr long TWO_MILLISECONDS{2000000};
-        ts.tv_nsec += TWO_MILLISECONDS;
+        Win32Call(clock_gettime(CLOCK_REALTIME, &ts));
+        constexpr long TEN_MILLISECONDS{10000000};
+        ts.tv_nsec += TEN_MILLISECONDS;
         syncSemaphore->post();
         sut->wait();
         EXPECT_THAT(sut->timedWait(&ts, false), Eq(true));

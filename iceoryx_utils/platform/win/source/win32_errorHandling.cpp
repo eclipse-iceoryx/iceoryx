@@ -14,7 +14,12 @@
 
 #include "iceoryx_utils/platform/win32_errorHandling.hpp"
 
-int __PrintLastErrorToConsole(const char* file, const int line) noexcept
+#include "iceoryx_utils/platform/windows.hpp"
+
+#include <iostream>
+#include <mutex>
+
+int __PrintLastErrorToConsole(const char* functionName, const char* file, const int line) noexcept
 {
     static std::mutex coutMutex;
     constexpr uint64_t BUFFER_SIZE{2048};
@@ -31,7 +36,8 @@ int __PrintLastErrorToConsole(const char* file, const int line) noexcept
                       NULL);
 
         coutMutex.lock();
-        std::cerr << file << ":" << line << " [ " << lastError << " ] ::: " << buffer;
+        std::cerr << "< Win32API Error > " << file << ":" << line << " { " << functionName << " } [ " << lastError
+                  << " ] ::: " << buffer;
         coutMutex.unlock();
     }
     return lastError;

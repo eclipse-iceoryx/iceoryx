@@ -14,7 +14,9 @@
 
 #pragma once
 
+#include "iceoryx_utils/platform/win32_errorHandling.hpp"
 #include "iceoryx_utils/platform/windows.hpp"
+
 
 #include <cstdint>
 #include <cstdio>
@@ -71,7 +73,8 @@ inline int clock_gettime(clockid_t clk_id, struct timespec* tp)
     {
         fprintf(stderr, "Windows Version of clock_gettime supports only CLOCK_REALTIME clockID\n");
     }
-    return timespec_get(tp, TIME_UTC);
+    int retVal = Win32Call(timespec_get(tp, TIME_UTC));
+    return retVal;
 }
 
 inline int gettimeofday(struct timeval* tp, struct timezone* tzp)
@@ -82,8 +85,8 @@ inline int gettimeofday(struct timeval* tp, struct timezone* tzp)
     SYSTEMTIME systemTime;
     FILETIME fileTime;
 
-    GetSystemTime(&systemTime);
-    SystemTimeToFileTime(&systemTime, &fileTime);
+    Win32Call(GetSystemTime(&systemTime));
+    Win32Call(SystemTimeToFileTime(&systemTime, &fileTime));
     uint64_t time =
         static_cast<uint64_t>(fileTime.dwLowDateTime) + (static_cast<uint64_t>(fileTime.dwHighDateTime) << 32);
 

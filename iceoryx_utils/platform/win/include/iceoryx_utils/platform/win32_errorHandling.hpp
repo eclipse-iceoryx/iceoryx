@@ -14,10 +14,13 @@
 
 #pragma once
 
-#include <iostream>
-#include <mutex>
 
-#include "iceoryx_utils/platform/windows.hpp"
+#define PrintLastErrorToConsole() __PrintLastErrorToConsole("", __FILE__, __LINE__)
+int __PrintLastErrorToConsole(const char* functionName, const char* file, const int line) noexcept;
 
-#define PrintLastErrorToConsole() __PrintLastErrorToConsole(__FILE__, __LINE__)
-int __PrintLastErrorToConsole(const char* file, const int line) noexcept;
+#define Win32Call(function)                                                                                            \
+    [&] {                                                                                                              \
+        SetLastError(0);                                                                                               \
+        return function;                                                                                               \
+    }();                                                                                                               \
+    __PrintLastErrorToConsole(#function, __FILE__, __LINE__)
