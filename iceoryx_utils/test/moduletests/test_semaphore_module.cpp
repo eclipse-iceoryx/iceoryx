@@ -52,6 +52,7 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
     ~Semaphore_test()
     {
         delete sut;
+        delete syncSemaphore;
     }
 
     void SetUp()
@@ -70,6 +71,10 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
     }
 
     iox::posix::Semaphore* sut{nullptr};
+    iox::posix::Semaphore* syncSemaphore = [] {
+        auto semaphore = iox::posix::Semaphore::create(0);
+        return (semaphore.has_error()) ? nullptr : new iox::posix::Semaphore(std::move(*semaphore));
+    }();
 };
 
 class SemaphoreCreate_test : public Test
@@ -229,18 +234,23 @@ TEST_P(Semaphore_test, WaitIsBlocking)
 {
     std::atomic<int> counter{0};
     std::thread t1([&] {
-        sut->wait();
+        syncSemaphore->wait();
+        sut->post();
+        syncSemaphore->wait();
         counter++;
         sut->post();
     });
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-    ASSERT_THAT(counter, Eq(0));
-    sut->post();
-    std::this_thread::yield();
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    EXPECT_THAT(counter.load(), Eq(0));
+
+    syncSemaphore->post();
     sut->wait();
-    EXPECT_THAT(counter, Eq(1));
+    EXPECT_THAT(counter.load(), Eq(0));
+
+    syncSemaphore->post();
+    sut->wait();
+    EXPECT_THAT(counter.load(), Eq(1));
+
     t1.join();
 }
 
@@ -272,13 +282,19 @@ TEST_P(Semaphore_test, TimedWaitWithTimeout)
         clock_gettime(CLOCK_REALTIME, &ts);
         constexpr long TWO_MILLISECONDS{2000000};
         ts.tv_nsec += TWO_MILLISECONDS;
-        sut->post();
+        syncSemaphore->post();
+        sut->wait();
         EXPECT_THAT(sut->timedWait(&ts, false), Eq(false));
         timedWaitFinish.store(true);
     });
 
-    sut->wait();
+    syncSemaphore->wait();
+    sut->post();
+    std::this_thread::yield();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     EXPECT_THAT(timedWaitFinish.load(), Eq(false));
+
+    std::this_thread::yield();
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
     EXPECT_THAT(timedWaitFinish.load(), Eq(true));
 
@@ -294,15 +310,21 @@ TEST_P(Semaphore_test, TimedWaitWithoutTimeout)
         clock_gettime(CLOCK_REALTIME, &ts);
         constexpr long TWO_MILLISECONDS{2000000};
         ts.tv_nsec += TWO_MILLISECONDS;
+        syncSemaphore->post();
+        sut->wait();
         EXPECT_THAT(sut->timedWait(&ts, false), Eq(true));
         timedWaitFinish.store(true);
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    EXPECT_THAT(timedWaitFinish.load(), Eq(false));
+    syncSemaphore->wait();
     sut->post();
     std::this_thread::yield();
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    EXPECT_THAT(timedWaitFinish.load(), Eq(false));
+
+    sut->post();
+    std::this_thread::yield();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
     EXPECT_THAT(timedWaitFinish.load(), Eq(true));
 
     t.join();
