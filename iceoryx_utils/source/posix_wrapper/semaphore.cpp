@@ -32,6 +32,7 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
 {
     if (this != &rhs)
     {
+        closeHandle();
         strncpy(m_name, rhs.m_name, m_nameSize);
         m_isInitialized = std::move(rhs.m_isInitialized);
         m_isCreated = std::move(rhs.m_isCreated);
@@ -55,6 +56,11 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
 
 Semaphore::~Semaphore() noexcept
 {
+    closeHandle();
+}
+
+void Semaphore::closeHandle() noexcept
+{
     if (m_isInitialized)
     {
         if (isNamedSemaphore())
@@ -69,6 +75,7 @@ Semaphore::~Semaphore() noexcept
         {
             destroy();
         }
+        m_isInitialized = false;
     }
 }
 

@@ -300,6 +300,8 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///         OpenNamed otherwise it returns false.
     bool isNamedSemaphore() noexcept;
 
+    void closeHandle() noexcept;
+
     template <typename SmartC>
     bool setHandleFromCall(const SmartC& call) noexcept;
 };
