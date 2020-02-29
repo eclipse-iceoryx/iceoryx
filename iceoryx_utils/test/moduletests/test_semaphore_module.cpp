@@ -90,7 +90,7 @@ class SemaphoreCreate_test : public Test
     }
 };
 
-INSTANTIATE_TEST_CASE_P(SemaphoreTests, Semaphore_test, Values(&CreateNamedSemaphore, &CreateUnnamedSemaphore));
+INSTANTIATE_TEST_CASE_P(Semaphore_test, Semaphore_test, Values(&CreateNamedSemaphore, &CreateUnnamedSemaphore));
 
 TEST_F(SemaphoreCreate_test, CreateNamedSemaphore)
 {
@@ -126,17 +126,85 @@ TEST_F(SemaphoreCreate_test, OpenNonExistingNamedSemaphore)
     EXPECT_THAT(semaphore2.has_error(), Eq(true));
 }
 
-#if !defined(__APPLE__)
-TEST_P(Semaphore_test, GetValueValid)
+TEST_P(Semaphore_test, PostIncreasesSemaphoreValue)
 {
-    for (int i = 0; i < 1234; ++i)
+    for (int i = 0; i < 12; ++i)
         sut->post();
 
     int value;
     ASSERT_THAT(sut->getValue(value), Eq(true));
-    EXPECT_THAT(value, Eq(1234));
+    EXPECT_THAT(value, Eq(12));
 }
-#endif
+
+TEST_P(Semaphore_test, WaitDecreasesSemaphoreValue)
+{
+    for (int i = 0; i < 18; ++i)
+        sut->post();
+    for (int i = 0; i < 7; ++i)
+        sut->wait();
+
+    int value;
+    ASSERT_THAT(sut->getValue(value), Eq(true));
+    EXPECT_THAT(value, Eq(11));
+}
+
+TEST_P(Semaphore_test, SuccessfulTryWaitDecreasesSemaphoreValue)
+{
+    for (int i = 0; i < 15; ++i)
+        sut->post();
+    for (int i = 0; i < 9; ++i)
+        ASSERT_THAT(sut->tryWait(), Eq(true));
+
+    int value;
+    ASSERT_THAT(sut->getValue(value), Eq(true));
+    EXPECT_THAT(value, Eq(6));
+}
+
+TEST_P(Semaphore_test, FailingTryWaitDoesNotChangeSemaphoreValue)
+{
+    for (int i = 0; i < 4; ++i)
+        ASSERT_THAT(sut->tryWait(), Eq(false));
+
+    int value;
+    ASSERT_THAT(sut->getValue(value), Eq(true));
+    EXPECT_THAT(value, Eq(0));
+}
+
+TEST_P(Semaphore_test, SuccessfulTimedWaitDecreasesSemaphoreValue)
+{
+    for (int i = 0; i < 19; ++i)
+        sut->post();
+
+    for (int i = 0; i < 12; ++i)
+    {
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        constexpr long TWO_MILLISECONDS{2000000};
+        ts.tv_nsec += TWO_MILLISECONDS;
+        ASSERT_THAT(sut->timedWait(&ts, false), Eq(true));
+    }
+
+    int value;
+    ASSERT_THAT(sut->getValue(value), Eq(true));
+    EXPECT_THAT(value, Eq(7));
+}
+
+TEST_P(Semaphore_test, FailingTimedWaitDoesNotChangeSemaphoreValue)
+{
+    for (int i = 0; i < 4; ++i)
+    {
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        constexpr long TWO_MICROSECONDS{2000};
+        ts.tv_nsec += TWO_MICROSECONDS;
+        ASSERT_THAT(sut->timedWait(&ts, false), Eq(false));
+    }
+
+    int value;
+    ASSERT_THAT(sut->getValue(value), Eq(true));
+    EXPECT_THAT(value, Eq(0));
+}
+
 
 TEST_P(Semaphore_test, TryWaitAfterPostIsSuccessful)
 {
@@ -204,11 +272,12 @@ TEST_P(Semaphore_test, TimedWaitWithTimeout)
         clock_gettime(CLOCK_REALTIME, &ts);
         constexpr long TWO_MILLISECONDS{2000000};
         ts.tv_nsec += TWO_MILLISECONDS;
+        sut->post();
         EXPECT_THAT(sut->timedWait(&ts, false), Eq(false));
         timedWaitFinish.store(true);
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    sut->wait();
     EXPECT_THAT(timedWaitFinish.load(), Eq(false));
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
     EXPECT_THAT(timedWaitFinish.load(), Eq(true));

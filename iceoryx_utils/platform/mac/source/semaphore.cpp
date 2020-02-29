@@ -21,67 +21,108 @@
 #include <iostream>
 #include <thread>
 
+static void deleteValue(std::atomic<int>*& value) noexcept
+{
+    if (value != nullptr)
+    {
+        delete value;
+        value = nullptr;
+    }
+}
+
+iox_sem_t::iox_sem_t() noexcept
+    : m_value{new std::atomic<int>}
+{
+}
+
+iox_sem_t::iox_sem_t(iox_sem_t&& rhs) noexcept
+{
+    *this = std::move(rhs);
+}
+
+iox_sem_t::~iox_sem_t()
+{
+    deleteValue(m_value);
+}
+
+iox_sem_t& iox_sem_t::operator=(iox_sem_t&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        deleteValue(m_value);
+        m_handle = rhs.m_handle;
+        m_hasPosixHandle = rhs.m_hasPosixHandle;
+        m_value = rhs.m_value;
+        rhs.m_value = nullptr;
+    }
+    return *this;
+}
+
 int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
-    std::cerr << "sem_getvalue is not available on mac OS\n";
-    return -1;
+    *sval = sem->m_value->load();
+    return 0;
 }
 
 int iox_sem_post(iox_sem_t* sem)
 {
-    if (sem->hasPosixHandle)
+    int retVal{0};
+    if (sem->m_hasPosixHandle)
     {
-        return sem_post(sem->handle.posix);
+        retVal = sem_post(sem->m_handle.posix);
     }
     else
     {
-        dispatch_semaphore_signal(sem->handle.dispatch);
         // dispatch semaphore always succeed
-        return 0;
+        dispatch_semaphore_signal(sem->m_handle.dispatch);
     }
+    sem->m_value->fetch_add((retVal == 0) ? 1 : 0);
+    return retVal;
 }
 
 int iox_sem_wait(iox_sem_t* sem)
 {
-    if (sem->hasPosixHandle)
+    int retVal{0};
+    if (sem->m_hasPosixHandle)
     {
-        return sem_wait(sem->handle.posix);
+        retVal = sem_wait(sem->m_handle.posix);
     }
     else
     {
-        dispatch_semaphore_wait(sem->handle.dispatch, DISPATCH_TIME_FOREVER);
         // dispatch semaphore always succeed
-        return 0;
+        dispatch_semaphore_wait(sem->m_handle.dispatch, DISPATCH_TIME_FOREVER);
     }
+
+    sem->m_value->fetch_sub((retVal == 0) ? 1 : 0);
+    return retVal;
 }
 
 int iox_sem_trywait(iox_sem_t* sem)
 {
-    if (sem->hasPosixHandle)
+    int retVal{0};
+    if (sem->m_hasPosixHandle)
     {
-        return sem_trywait(sem->handle.posix);
+        retVal = sem_trywait(sem->m_handle.posix);
     }
     else
     {
-        if (dispatch_semaphore_wait(sem->handle.dispatch, 0) != 0)
+        if (dispatch_semaphore_wait(sem->m_handle.dispatch, 0) != 0)
         {
             errno = EAGAIN;
-            return -1;
+            retVal = -1;
         }
-        return 0;
     }
+
+    sem->m_value->fetch_sub((retVal == 0) ? 1 : 0);
+    return retVal;
 }
 
 int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 {
-    if (sem->hasPosixHandle)
+    if (sem->m_hasPosixHandle)
     {
-        int tryWaitCall = sem_trywait(sem->handle.posix);
-        if (tryWaitCall == 0)
-        {
-            return 0;
-        }
-        else if (tryWaitCall == -1 && errno != EAGAIN)
+        int tryWaitCall = sem_trywait(sem->m_handle.posix);
+        if (tryWaitCall == -1 && errno != EAGAIN)
         {
             return -1;
         }
@@ -90,7 +131,10 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         gettimeofday(&tv, nullptr);
         if (abs_timeout->tv_sec < tv.tv_sec)
         {
-            return iox_sem_trywait(sem);
+            if (sem_trywait(sem->m_handle.posix) == -1)
+            {
+                return -1;
+            }
         }
 
         time_t epochCurrentTimeDiffInSeconds = abs_timeout->tv_sec - tv.tv_sec;
@@ -99,50 +143,53 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 
         std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 
-        tryWaitCall = sem_trywait(sem->handle.posix);
-        if (tryWaitCall == 0)
-        {
-            return 0;
-        }
-        else if (tryWaitCall == -1 && errno == EAGAIN)
-        {
-            errno = ETIMEDOUT;
-        }
-        return -1;
-    }
-    else
-    {
-        dispatch_time_t timeout;
-        if (dispatch_semaphore_wait(sem->handle.dispatch, timeout) != 0)
+        tryWaitCall = sem_trywait(sem->m_handle.posix);
+        if (tryWaitCall == -1 && errno == EAGAIN)
         {
             errno = ETIMEDOUT;
             return -1;
         }
-        return 0;
     }
+    else
+    {
+        dispatch_time_t timeout;
+        if (dispatch_semaphore_wait(sem->m_handle.dispatch, timeout) != 0)
+        {
+            errno = ETIMEDOUT;
+            return -1;
+        }
+    }
+
+    (*sem->m_value)--;
+    return 0;
 }
 
 int iox_sem_close(iox_sem_t* sem)
 {
     // will only be called by named semaphores which are in our case
     // posix semaphores
-    return sem_close(sem->handle.posix);
+    int retVal = sem_close(sem->m_handle.posix);
+    delete sem;
+    return retVal;
 }
 
 int iox_sem_destroy(iox_sem_t* sem)
 {
     // will only be called by unnamed semaphores which are in our
     // case dispatch semaphores
-    dispatch_release(sem->handle.dispatch);
+    dispatch_release(sem->m_handle.dispatch);
+    return 0;
 }
 
 int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
 {
-    sem->hasPosixHandle = false;
-    sem->handle.dispatch = dispatch_semaphore_create(value);
-    if (sem->handle.dispatch == nullptr)
+    sem->m_hasPosixHandle = false;
+    sem->m_handle.dispatch = dispatch_semaphore_create(value);
+    sem->m_value->store(value);
+
+    if (sem->m_handle.dispatch == nullptr)
     {
-        free(sem);
+        delete sem;
         return -1;
     }
     return 0;
@@ -155,8 +202,7 @@ int iox_sem_unlink(const char* name)
 
 iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
 {
-    iox_sem_t* sem = static_cast<iox_sem_t*>(malloc(sizeof(iox_sem_t)));
-    sem->hasPosixHandle = true;
+    iox_sem_t* sem = new iox_sem_t;
 
     if (oflag & (O_CREAT | O_EXCL))
     {
@@ -166,16 +212,17 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
         unsigned int value = va_arg(va, unsigned int);
         va_end(va);
 
-        sem->handle.posix = sem_open(name, oflag, mode, value);
+        sem->m_handle.posix = sem_open(name, oflag, mode, value);
+        sem->m_value->store(value);
     }
     else
     {
-        sem->handle.posix = sem_open(name, oflag);
+        sem->m_handle.posix = sem_open(name, oflag);
     }
 
-    if (sem->handle.posix == SEM_FAILED)
+    if (sem->m_handle.posix == SEM_FAILED)
     {
-        free(sem);
+        delete sem;
         return reinterpret_cast<iox_sem_t*>(SEM_FAILED);
     }
 

@@ -14,19 +14,28 @@
 
 #pragma once
 
+#include <atomic>
 #include <dispatch/dispatch.h>
 #include <semaphore.h>
 
-// mach/semaphore.h for unnamed semaphores, named semaphores work as usual
-
 struct iox_sem_t
 {
+    iox_sem_t() noexcept;
+    iox_sem_t(iox_sem_t&& rhs) noexcept;
+    iox_sem_t(const iox_sem_t& rhs) = delete;
+    ~iox_sem_t();
+
+    iox_sem_t& operator=(iox_sem_t&& rhs) noexcept;
+    iox_sem_t& operator=(const iox_sem_t& rhs) = delete;
+
     union
     {
         sem_t* posix;
         dispatch_semaphore_t dispatch;
-    } handle;
-    bool hasPosixHandle{true};
+    } m_handle;
+
+    bool m_hasPosixHandle{true};
+    std::atomic<int>* m_value{nullptr};
 };
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval);
