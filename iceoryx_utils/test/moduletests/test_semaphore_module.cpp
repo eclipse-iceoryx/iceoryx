@@ -280,7 +280,7 @@ TEST_P(Semaphore_test, TimedWaitWithTimeout)
 
     std::thread t([&] {
         struct timespec ts;
-        Win32Call(clock_gettime(CLOCK_REALTIME, &ts));
+        clock_gettime(CLOCK_REALTIME, &ts);
         constexpr long TEN_MILLISECONDS{10000000};
         ts.tv_nsec += TEN_MILLISECONDS;
         syncSemaphore->post();
@@ -307,9 +307,8 @@ TEST_P(Semaphore_test, TimedWaitWithoutTimeout)
     std::atomic<bool> timedWaitFinish{false};
 
     std::thread t([&] {
-        SetLastError(0);
         struct timespec ts;
-        Win32Call(clock_gettime(CLOCK_REALTIME, &ts));
+        clock_gettime(CLOCK_REALTIME, &ts);
         constexpr long TEN_MILLISECONDS{10000000};
         ts.tv_nsec += TEN_MILLISECONDS;
         syncSemaphore->post();
