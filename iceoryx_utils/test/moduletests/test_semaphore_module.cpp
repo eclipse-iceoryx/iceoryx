@@ -291,12 +291,10 @@ TEST_P(Semaphore_test, TimedWaitWithTimeout)
 
     syncSemaphore->wait();
     sut->post();
-    std::this_thread::yield();
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     EXPECT_THAT(timedWaitFinish.load(), Eq(false));
 
-    std::this_thread::yield();
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(timedWaitFinish.load(), Eq(true));
 
     t.join();
@@ -319,13 +317,11 @@ TEST_P(Semaphore_test, TimedWaitWithoutTimeout)
 
     syncSemaphore->wait();
     sut->post();
-    std::this_thread::yield();
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     EXPECT_THAT(timedWaitFinish.load(), Eq(false));
 
     sut->post();
-    std::this_thread::yield();
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(timedWaitFinish.load(), Eq(true));
 
     t.join();

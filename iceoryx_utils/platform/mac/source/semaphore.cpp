@@ -178,6 +178,8 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
             return 0;
         }
     }
+
+    return -1;
 }
 
 int iox_sem_close(iox_sem_t* sem)
