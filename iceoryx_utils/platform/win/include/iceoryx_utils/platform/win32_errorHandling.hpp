@@ -15,25 +15,9 @@
 #pragma once
 
 #include <iostream>
+#include <mutex>
 
 #include "iceoryx_utils/platform/windows.hpp"
 
-inline int PrintLastErrorToConsole() noexcept
-{
-    constexpr uint64_t BUFFER_SIZE{2048};
-    int lastError = GetLastError();
-    if (lastError != 0)
-    {
-        char buffer[BUFFER_SIZE];
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                      NULL,
-                      lastError,
-                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                      buffer,
-                      BUFFER_SIZE - 1,
-                      NULL);
-
-        std::cerr << "error ( " << lastError << " ) :: " << buffer << std::endl;
-    }
-    return lastError;
-}
+#define PrintLastErrorToConsole() __PrintLastErrorToConsole(__FILE__, __LINE__)
+int __PrintLastErrorToConsole(const char* file, const int line) noexcept;

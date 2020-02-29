@@ -17,7 +17,7 @@
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
-#include "iceoryx_utils/platform/win32-error.hpp"
+#include "iceoryx_utils/platform/win32_errorHandling.hpp"
 
 
 #include <cstdio>

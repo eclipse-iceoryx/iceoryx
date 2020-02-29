@@ -17,7 +17,7 @@
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/time.hpp"
 #include "iceoryx_utils/platform/types.hpp"
-#include "iceoryx_utils/platform/win32-error.hpp"
+#include "iceoryx_utils/platform/win32_errorHandling.hpp"
 #include "iceoryx_utils/platform/windows.hpp"
 
 
