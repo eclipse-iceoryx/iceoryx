@@ -31,7 +31,7 @@
 
 struct iox_sem_t
 {
-    HANDLE handle;
+    HANDLE handle{nullptr};
 };
 static constexpr LONG MAX_SEMAPHORE_VALUE = LONG_MAX;
 static constexpr int MAX_SEMAPHORE_NAME_LENGTH = 128;

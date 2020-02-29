@@ -31,4 +31,5 @@
 #undef min
 #undef ERROR
 #undef interface
+#undef CreateSemaphore
 #undef NO_ERROR

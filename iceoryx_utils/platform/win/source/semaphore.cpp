@@ -85,7 +85,7 @@ int iox_sem_close(iox_sem_t* sem)
 {
     int retVal = CloseHandle(sem->handle) ? 0 : -1;
     PrintLastErrorToConsole();
-    free(sem);
+    delete sem;
     return retVal;
 }
 
@@ -115,7 +115,7 @@ HANDLE __sem_create_win32_semaphore(LONG value, LPCSTR name)
     securityAttribute.lpSecurityDescriptor = &securityDescriptor;
     securityAttribute.bInheritHandle = FALSE;
 
-    HANDLE returnValue = CreateSemaphore(&securityAttribute, value, MAX_SEMAPHORE_VALUE, name);
+    HANDLE returnValue = CreateSemaphoreA(&securityAttribute, value, MAX_SEMAPHORE_VALUE, name);
     PrintLastErrorToConsole();
     return returnValue;
 }
@@ -124,7 +124,7 @@ HANDLE __sem_create_win32_semaphore(LONG value, LPCSTR name)
 int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
 {
     sem->handle = __sem_create_win32_semaphore(value, nullptr);
-    if (sem != nullptr)
+    if (sem->handle != nullptr)
     {
         return 0;
     }
@@ -140,7 +140,7 @@ int iox_sem_unlink(const char* name)
 
 iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, unsigned int value
 {
-    iox_sem_t* sem = static_cast<iox_sem_t*>(malloc(sizeof(iox_sem_t)));
+    iox_sem_t* sem = new iox_sem_t;
     if (oflag & (O_CREAT | O_EXCL))
     {
         va_list va;
@@ -155,6 +155,11 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
             iox_sem_close(sem);
             return SEM_FAILED;
         }
+        else if (sem->handle == nullptr)
+        {
+            delete sem;
+            return SEM_FAILED;
+        }
     }
     else
     {
@@ -162,7 +167,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, u
         PrintLastErrorToConsole();
         if (sem->handle == nullptr)
         {
-            free(sem);
+            delete sem;
             return SEM_FAILED;
         }
     }
