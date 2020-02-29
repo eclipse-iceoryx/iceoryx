@@ -86,7 +86,7 @@ class Timer
     class OsTimer;
     struct OsTimerCallbackHandle
     {
-        static constexpr uint32_t MAX_DESCRIPTOR_VALUE{(2 ^ 24) - 1};
+        static constexpr uint32_t MAX_DESCRIPTOR_VALUE{(1 << 24) - 1};
         static sigval indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor);
         static uint8_t sigvalToIndex(sigval intVal);
         static uint32_t sigvalToDescriptor(sigval intVal);

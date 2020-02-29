@@ -188,10 +188,9 @@ class MqBase
     // TODO: unique identifier problem, multiple MqBase objects with the
     //        same InterfaceName are using the same message queue
     MqBase(const std::string& InterfaceName, const long maxMessages, const long messageSize) noexcept;
-
     virtual ~MqBase() = default;
 
-    /// @brief delete copy and move cTor/assignment since they are not needed.
+    /// @brief delete copy and move ctor and assignment since they are not needed
     MqBase(const MqBase&) = delete;
     MqBase(MqBase&&) = delete;
     MqBase& operator=(const MqBase&) = delete;
@@ -255,6 +254,8 @@ class MqInterfaceUser : public MqBase
     ///         since it is not needed
     MqInterfaceUser(const MqInterfaceUser&) = delete;
     MqInterfaceUser& operator=(const MqInterfaceUser&) = delete;
+
+    /// @brief Not needed therefore deleted
     MqInterfaceUser(MqInterfaceUser&&) = delete;
     MqInterfaceUser& operator=(MqInterfaceUser&&) = delete;
 };
@@ -283,6 +284,8 @@ class MqInterfaceCreator : public MqBase
     ///         since it is not needed
     MqInterfaceCreator(const MqInterfaceCreator&) = delete;
     MqInterfaceCreator& operator=(const MqInterfaceCreator&) = delete;
+
+    /// @brief Not needed therefore deleted
     MqInterfaceCreator(MqInterfaceCreator&&) = delete;
     MqInterfaceCreator& operator=(MqInterfaceCreator&&) = delete;
 
@@ -301,12 +304,13 @@ class MqRuntimeInterface
     MqRuntimeInterface(const std::string& roudiName,
                        const std::string& appName,
                        const units::Duration roudiWaitingTimeout) noexcept;
+    ~MqRuntimeInterface() = default;
 
+    /// @brief Not needed therefore deleted
     MqRuntimeInterface(const MqRuntimeInterface&) = delete;
     MqRuntimeInterface& operator=(const MqRuntimeInterface&) = delete;
     MqRuntimeInterface(MqRuntimeInterface&&) = delete;
     MqRuntimeInterface& operator=(MqRuntimeInterface&&) = delete;
-    ~MqRuntimeInterface() = default;
 
     /// @brief sends the keep alive trigger to the RouDi daemon
     /// @return true if sending was successful, false if not
