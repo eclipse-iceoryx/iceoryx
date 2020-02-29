@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if !defined(_WIN32) && !defined(__APPLE__)
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
 
@@ -23,7 +24,7 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
 
-//using IpcChannel = UnixDomainSocket;
+// using IpcChannel = UnixDomainSocket;
 using IpcChannel = MessageQueue;
 
 constexpr char goodName[] = "/channel_test";
@@ -42,7 +43,8 @@ class MessageQueue_test : public Test
         server = std::move(serverResult.get_value());
         internal::CaptureStderr();
 
-        auto clientResult = IpcChannel::create(goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
+        auto clientResult =
+            IpcChannel::create(goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
         client = std::move(clientResult.get_value());
     }
@@ -270,7 +272,7 @@ TEST_F(MessageQueue_test, sendMoreThanAllowed)
 
 TEST_F(MessageQueue_test, sendMaxMessageSize)
 {
-    std::string message(MaxMsgSize-1, 'x');
+    std::string message(MaxMsgSize - 1, 'x');
     auto clientReturn = client.send(message);
     ASSERT_THAT(clientReturn.has_error(), Eq(false));
 
@@ -350,3 +352,4 @@ TEST_F(MessageQueue_test, timedReceive)
     // Check if timedReceive has blocked for ~timeout and has not returned immediately
     EXPECT_GT(timeDiff_ms.count(), (timeout - minTimeoutTolerance).milliSeconds<int64_t>());
 }
+#endif
