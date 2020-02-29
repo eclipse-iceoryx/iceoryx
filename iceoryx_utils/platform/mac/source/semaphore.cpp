@@ -119,6 +119,15 @@ int iox_sem_trywait(iox_sem_t* sem)
 
 int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 {
+    struct timeval tv;
+    gettimeofday(&tv, nullptr);
+
+    int64_t timeoutInNanoSeconds =
+        (abs_timeout->tv_sec < tv.tv_sec
+         || (abs_timeout->tv_sec == tv.tv_sec && abs_timeout->tv_nsec < tv.tv_usec * NSEC_PER_USEC))
+            ? 0
+            : (abs_timeout->tv_sec - tv.tv_sec) * NSEC_PER_SEC + abs_timeout->tv_nsec - tv.tv_usec * NSEC_PER_USEC;
+
     if (sem->m_hasPosixHandle)
     {
         int tryWaitCall = sem_trywait(sem->m_handle.posix);
@@ -126,22 +135,18 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         {
             return -1;
         }
-
-        struct timeval tv;
-        gettimeofday(&tv, nullptr);
-        if (abs_timeout->tv_sec < tv.tv_sec)
+        else if (tryWaitCall == -1 && errno == EAGAIN && timeoutInNanoSeconds == 0)
         {
-            if (sem_trywait(sem->m_handle.posix) == -1)
-            {
-                return -1;
-            }
+            errno = ETIMEDOUT;
+            return -1;
+        }
+        else if (tryWaitCall == 0)
+        {
+            (*sem->m_value)--;
+            return 0;
         }
 
-        time_t epochCurrentTimeDiffInSeconds = abs_timeout->tv_sec - tv.tv_sec;
-        long milliseconds = epochCurrentTimeDiffInSeconds * 1000 + ((abs_timeout->tv_nsec / 1000) - tv.tv_usec) / 1000;
-
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+        std::this_thread::sleep_for(std::chrono::nanoseconds(timeoutInNanoSeconds));
 
         tryWaitCall = sem_trywait(sem->m_handle.posix);
         if (tryWaitCall == -1 && errno == EAGAIN)
@@ -149,19 +154,30 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
             errno = ETIMEDOUT;
             return -1;
         }
+        else if (tryWaitCall == -1 && errno != EAGAIN)
+        {
+            return -1;
+        }
+        else if (tryWaitCall == 0)
+        {
+            (*sem->m_value)--;
+            return 0;
+        }
     }
     else
     {
-        dispatch_time_t timeout;
+        dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, timeoutInNanoSeconds);
         if (dispatch_semaphore_wait(sem->m_handle.dispatch, timeout) != 0)
         {
             errno = ETIMEDOUT;
             return -1;
         }
+        else
+        {
+            (*sem->m_value)--;
+            return 0;
+        }
     }
-
-    (*sem->m_value)--;
-    return 0;
 }
 
 int iox_sem_close(iox_sem_t* sem)
