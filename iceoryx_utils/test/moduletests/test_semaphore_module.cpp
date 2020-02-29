@@ -71,6 +71,8 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
         }
     }
 
+    static constexpr uint64_t TIMING_TEST_REPETITIONS{5};
+
     iox::posix::Semaphore* sut{nullptr};
     iox::posix::Semaphore* syncSemaphore = [] {
         auto semaphore = iox::posix::Semaphore::create(0);
@@ -276,55 +278,77 @@ TEST_P(Semaphore_test, MoveCTor)
 
 TEST_P(Semaphore_test, TimedWaitWithTimeout)
 {
-    std::atomic<bool> timedWaitFinish{false};
+    for (uint64_t repetition = 0; repetition < TIMING_TEST_REPETITIONS; ++repetition)
+    {
+        std::atomic<bool> timedWaitFinish{false};
+        bool isTestSuccessful{true};
 
-    std::thread t([&] {
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        constexpr long TEN_MILLISECONDS{10000000};
-        ts.tv_nsec += TEN_MILLISECONDS;
-        syncSemaphore->post();
-        sut->wait();
-        EXPECT_THAT(sut->timedWait(&ts, false), Eq(false));
-        timedWaitFinish.store(true);
-    });
+        std::thread t([&] {
+            struct timespec ts;
+            clock_gettime(CLOCK_REALTIME, &ts);
+            constexpr long TEN_MILLISECONDS{10000000};
+            ts.tv_nsec += TEN_MILLISECONDS;
+            syncSemaphore->post();
+            sut->wait();
+            sut->timedWait(&ts, false);
+            timedWaitFinish.store(true);
+        });
 
-    syncSemaphore->wait();
-    sut->post();
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    EXPECT_THAT(timedWaitFinish.load(), Eq(false));
+        syncSemaphore->wait();
+        sut->post();
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        isTestSuccessful &= !timedWaitFinish.load();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    EXPECT_THAT(timedWaitFinish.load(), Eq(true));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        isTestSuccessful &= timedWaitFinish.load();
 
-    t.join();
+        t.join();
+
+        if (isTestSuccessful)
+        {
+            return;
+        }
+    }
+
+    EXPECT_TRUE(false);
 }
 
 TEST_P(Semaphore_test, TimedWaitWithoutTimeout)
 {
-    std::atomic<bool> timedWaitFinish{false};
+    for (uint64_t repetition = 0; repetition < TIMING_TEST_REPETITIONS; ++repetition)
+    {
+        std::atomic_bool timedWaitFinish{false};
+        bool isTestSuccessful{true};
 
-    std::thread t([&] {
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        constexpr long TEN_MILLISECONDS{10000000};
-        ts.tv_nsec += TEN_MILLISECONDS;
-        syncSemaphore->post();
-        sut->wait();
-        EXPECT_THAT(sut->timedWait(&ts, false), Eq(true));
-        timedWaitFinish.store(true);
-    });
+        std::thread t([&] {
+            struct timespec ts;
+            clock_gettime(CLOCK_REALTIME, &ts);
+            constexpr long TEN_MILLISECONDS{10000000};
+            ts.tv_nsec += TEN_MILLISECONDS;
+            syncSemaphore->post();
+            sut->wait();
+            sut->timedWait(&ts, false);
+            timedWaitFinish.store(true);
+        });
 
-    syncSemaphore->wait();
-    sut->post();
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    EXPECT_THAT(timedWaitFinish.load(), Eq(false));
+        syncSemaphore->wait();
+        sut->post();
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        isTestSuccessful &= !timedWaitFinish.load();
 
-    sut->post();
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    EXPECT_THAT(timedWaitFinish.load(), Eq(true));
+        sut->post();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        isTestSuccessful &= timedWaitFinish.load();
 
-    t.join();
+        t.join();
+
+        if (isTestSuccessful)
+        {
+            return;
+        }
+    }
+
+    EXPECT_TRUE(false);
 }
 
 
