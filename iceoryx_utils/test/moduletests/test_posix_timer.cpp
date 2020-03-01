@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 #include "test.hpp"
+#include "testutils/timing_test.hpp"
 
 #include <atomic>
+#include <chrono>
 #include <thread>
 
 using namespace ::testing;
@@ -40,6 +44,57 @@ class Timer_test : public Test
 
     std::atomic<int> numberOfCalls{0};
 };
+
+class TimerStopWatch_test : public Test
+{
+  public:
+    iox::units::Duration timeout{4_ms};
+};
+
+TEST_F(TimerStopWatch_test, DurationOfZeroIsImmediatelyExpired)
+{
+    Timer sut(0_s);
+    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(true));
+}
+
+TIMING_TEST_F(TimerStopWatch_test, DurationOfNonZeroIsExpiresAfterTimeout, Repeat(3), [&] {
+    Timer sut(timeout);
+
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * timeout.milliSeconds<int>() / 3));
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * timeout.milliSeconds<int>() / 3));
+    TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
+
+
+    TIMING_TEST_END();
+});
+
+TEST_F(TimerStopWatch_test, ResetWithDurationZeroIsExpired)
+{
+    Timer sut(0_s);
+    sut.resetCreationTime();
+    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(true));
+}
+
+TEST_F(TimerStopWatch_test, ResetWhenNotExpiredIsStillNotExpired)
+{
+    Timer sut(1_s);
+    sut.resetCreationTime();
+    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(false));
+}
+
+TIMING_TEST_F(TimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(3), [&] {
+    Timer sut(timeout);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * timeout.milliSeconds<int>()));
+
+    TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
+    sut.resetCreationTime();
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
+    TIMING_TEST_ASSERT_TRUE(true);
+
+    TIMING_TEST_END();
+});
 
 TEST_F(Timer_test, DISABLED_CreateAndFireOnce_PERFORMANCETEST42)
 {
@@ -138,7 +193,7 @@ TEST_F(Timer_test, DISABLED_CreateFirePeriodicallyAndGetoverruns_PERFORMANCETEST
     // See if an overruns occurred between time and actual callback from the operating system
     EXPECT_THAT(overruns.get_value(), Eq(0u));
 }
-TEST_F(Timer_test, CreateAndCallExpired_PERFORMANCETEST42)
+TEST_F(Timer_test, DISABLED_CreateAndCallExpired_PERFORMANCETEST42)
 {
     Timer osTimer(second);
 
