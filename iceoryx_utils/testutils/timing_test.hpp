@@ -20,7 +20,12 @@
 
 /// @brief This headers provides TIMING_TEST unit test infrastructure. The idea
 ///         is that a timing test is running multiple times and if in one of the
-///         repetitions all results are successful the timing test is successful.
+///         repetitions all results of the test are successful then the timing
+///         test itself is successful.
+///
+///        You can get to know them in praxis in the test_posix_timer.cpp unit test
+///        for instance.
+///
 /// @code
 /// class MyClass_test : public Test {};
 ///
@@ -49,6 +54,14 @@
 ///     Available test types
 ///         TIMING_TEST_F -> maps to TEST_F
 ///         TIMING_TEST_P -> maps to TEST_P
+///
+///     If you would like to disable timing tests you can start your unit
+///     test like:
+///      # ./myUnitTest --gtest_filter="-*TimingTest*"
+///
+///     Or if you would like only timing test you can use the following
+///     approach:
+///      # ./myUnitTest --gtest_filter="*TimingTest*"
 
 #define TIMING_TEST_CONSTRUCT(Name, Case, Repetitions, Test, GTestType)                                                \
     GTestType(Name, TimingTest_##Case)                                                                                 \
