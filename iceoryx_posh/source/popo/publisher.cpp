@@ -29,6 +29,11 @@ Publisher::Publisher(const capro::ServiceDescription& service, const cxx::CStrin
 {
 }
 
+Publisher::~Publisher() noexcept
+{
+    m_sender.destroy();
+}
+
 const void* Publisher::getLastChunk() const noexcept
 {
     assert(false && "Not yet supported");

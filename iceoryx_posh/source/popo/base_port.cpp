@@ -74,5 +74,15 @@ BasePort::operator bool() const
     return m_basePortDataPtr != nullptr;
 }
 
+void BasePort::destroy() noexcept
+{
+    getMembers()->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+}
+
+bool BasePort::toBeDestroyed() const noexcept
+{
+    return getMembers()->m_toBeDestroyed.load(std::memory_order_relaxed);
+}
+
 } // namespace popo
 } // namespace iox

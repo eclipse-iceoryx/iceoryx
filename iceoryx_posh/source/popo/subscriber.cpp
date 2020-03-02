@@ -30,8 +30,7 @@ Subscriber::Subscriber() noexcept
 }
 
 Subscriber::Subscriber(const capro::ServiceDescription& service, const cxx::CString100& runnableName) noexcept
-    : m_receiver(
-        runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, Interfaces::INTERNAL, runnableName))
+    : m_receiver(runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, Interfaces::INTERNAL, runnableName))
 {
 }
 
@@ -40,6 +39,7 @@ Subscriber::~Subscriber() noexcept
     unsetReceiveHandler();
     // TODO: Find an alternative like an RAII receive handler which
     //          is called in the dtor. You cannot expect the user to call it before destruction
+    m_receiver.destroy();
 }
 
 void Subscriber::subscribe(const uint32_t cacheSize) noexcept
@@ -219,6 +219,12 @@ bool Subscriber::isChunkReceiveSemaphoreSet() noexcept
 {
     return m_receiver.AreCallbackReferencesSet();
 }
+
+void Subscriber::unsetChunkReceiveSemaphore() noexcept
+{
+    m_receiver.UnsetCallbackReferences();
+}
+
 
 void Subscriber::eventCallbackMain() noexcept
 {

@@ -192,6 +192,10 @@ class SharedMemoryManager
     void deletePortsOfProcess(std::string processName);
     void deleteRunnableAndItsPorts(std::string runnableName);
 
+    void destroySenderPort(SenderPortType::MemberType_t* const senderPortData);
+
+    void destroyReceiverPort(ReceiverPortType::MemberType_t* const receiverPortData);
+
     void printmempool();
     std::string GetShmAddrString();
     uint64_t getShmSizeInBytes() const;
