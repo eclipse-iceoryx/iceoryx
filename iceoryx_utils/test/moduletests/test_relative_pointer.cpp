@@ -16,15 +16,10 @@
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/mman.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
-#include "iceoryx_utils/platform/unistd.hpp"
 
 #include "test.hpp"
 
-#include <cstdint>
 #include <cstring>
-#include <fcntl.h> /* For O_* constants */
-#include <sys/mman.h>
-#include <sys/stat.h> /* For mode constants */
 using namespace ::testing;
 
 namespace
