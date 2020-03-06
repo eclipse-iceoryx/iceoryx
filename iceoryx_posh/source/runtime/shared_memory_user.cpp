@@ -17,7 +17,7 @@
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 namespace iox

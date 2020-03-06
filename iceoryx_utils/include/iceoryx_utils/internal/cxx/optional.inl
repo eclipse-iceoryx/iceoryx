@@ -109,7 +109,7 @@ inline optional<T>::~optional() noexcept
 
 template <typename T>
 template <typename U>
-inline typename ::std::enable_if<!::std::is_same<U, optional<T>&>::value, optional<T>>::type& optional<T>::
+inline typename std::enable_if<!std::is_same<U, optional<T>&>::value, optional<T>>::type& optional<T>::
 operator=(U&& newValue) noexcept
 {
     if (m_hasValue)

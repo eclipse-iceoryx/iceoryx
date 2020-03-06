@@ -17,8 +17,11 @@
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/internal/units/duration.hpp"
 
 #include <algorithm>
+#include <chrono>
+#include <iostream>
 
 #define private public
 #define protected public
@@ -32,10 +35,15 @@
 #include "test.hpp"
 
 using namespace ::testing;
-using ::testing::Return;
-
+using namespace iox::units::duration_literals;
 using iox::mepoo::MePooConfig;
 using iox::roudi::RouDiEnvironment;
+using ::testing::Return;
+
+
+using TimePointNs = iox::mepoo::TimePointNs;
+using BaseClock = iox::mepoo::BaseClock;
+using Timer = iox::posix::Timer;
 
 class Mepoo_IntegrationTest : public Test
 {
@@ -66,35 +74,55 @@ class Mepoo_IntegrationTest : public Test
     {
     }
 
-    iox::RouDiConfig_t createRouDiConfig(MemPoolInfoContainer& memPoolTestContainer,
-                                         std::vector<TestMemPoolConfig>& testMempoolConfig)
+    enum class configType
     {
-        iox::mepoo::MePooConfig mempoolConfig;
+        /// Default RouDi Config
+        DEFAULT,
+        /// Custom defined Mempool Config
+        CUSTOM,
+    };
 
-        uint64_t mempoolSize{0};
-        // create actual config
-        for (size_t i = 0; i < testMempoolConfig.size() && i < memPoolTestContainer.capacity(); ++i)
+    iox::RouDiConfig_t createRouDiConfig(MemPoolInfoContainer& memPoolTestContainer,
+                                         std::vector<TestMemPoolConfig>& testMempoolConfig,
+                                         const configType defaultconf = configType::DEFAULT)
+    {
+        if (defaultconf == configType::CUSTOM)
         {
-            iox::roudi::MemPoolInfo mempoolInfo;
-            mempoolInfo.m_minFreeChunks = testMempoolConfig[i].chunkCount;
-            mempoolInfo.m_usedChunks = 0;
-            mempoolInfo.m_chunkSize = testMempoolConfig[i].chunkSize;
-            mempoolInfo.m_numChunks = testMempoolConfig[i].chunkCount;
-            memPoolTestContainer.push_back(mempoolInfo);
+            iox::mepoo::MePooConfig mempoolConfig;
 
-            mempoolConfig.m_mempoolConfig.push_back({testMempoolConfig[i].chunkSize, testMempoolConfig[i].chunkCount});
-            mempoolSize += static_cast<uint64_t>(testMempoolConfig[i].chunkSize) * testMempoolConfig[i].chunkCount;
+            uint64_t mempoolSize{0};
+            // create actual config
+            for (size_t i = 0; i < testMempoolConfig.size() && i < memPoolTestContainer.capacity(); ++i)
+            {
+                iox::roudi::MemPoolInfo mempoolInfo;
+                mempoolInfo.m_minFreeChunks = testMempoolConfig[i].chunkCount;
+                mempoolInfo.m_usedChunks = 0;
+                mempoolInfo.m_chunkSize = testMempoolConfig[i].chunkSize;
+                mempoolInfo.m_numChunks = testMempoolConfig[i].chunkCount;
+                memPoolTestContainer.push_back(mempoolInfo);
+
+                mempoolConfig.m_mempoolConfig.push_back(
+                    {testMempoolConfig[i].chunkSize, testMempoolConfig[i].chunkCount});
+                mempoolSize += static_cast<uint64_t>(testMempoolConfig[i].chunkSize) * testMempoolConfig[i].chunkCount;
+            }
+
+            auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
+            iox::RouDiConfig_t roudiConfig;
+            roudiConfig.m_sharedMemorySegments.push_back(
+                {currentGroup.getName(), currentGroup.getName(), mempoolConfig});
+            return roudiConfig;
         }
-
-        auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
-        iox::RouDiConfig_t roudiConfig;
-        roudiConfig.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mempoolConfig});
-        return roudiConfig;
+        else
+        {
+            return iox::RouDiConfig_t().setDefaults();
+        }
     }
 
-    void SetUp(MemPoolInfoContainer& memPoolTestContainer, std::vector<TestMemPoolConfig>& testMempoolConfig)
+    void SetUp(MemPoolInfoContainer& memPoolTestContainer,
+               std::vector<TestMemPoolConfig>& testMempoolConfig,
+               const configType defaultconf = configType::DEFAULT)
     {
-        auto config = createRouDiConfig(memPoolTestContainer, testMempoolConfig);
+        auto config = createRouDiConfig(memPoolTestContainer, testMempoolConfig, defaultconf);
         m_roudiEnv = iox::cxx::optional<RouDiEnvironment>(config);
 
         ASSERT_THAT(m_roudiEnv.has_value(), Eq(true));
@@ -106,6 +134,23 @@ class Mepoo_IntegrationTest : public Test
 
         auto& receiverRuntime = iox::runtime::PoshRuntime::getInstance("/receiver");
         receiverPort = iox::popo::ReceiverPort(receiverRuntime.getMiddlewareReceiver(m_service_description));
+    }
+
+    void SetUpRouDiOnly(MemPoolInfoContainer& memPoolTestContainer,
+                        std::vector<TestMemPoolConfig>& testMempoolConfig,
+                        const configType defaultconf = configType::DEFAULT)
+    {
+        auto config = createRouDiConfig(memPoolTestContainer, testMempoolConfig, defaultconf);
+        m_roudiEnv = iox::cxx::optional<RouDiEnvironment>(config);
+
+        ASSERT_THAT(m_roudiEnv.has_value(), Eq(true));
+    }
+
+    void PrintTiming(iox::units::Duration start)
+    {
+        std::cout << "RouDi startup took " << start.milliSeconds<int>() << " milliseconds, "
+                  << "(which is " << start.seconds<int>() << " seconds)"
+                  << "(which is " << start.minutes<int>() << " minutes)" << std::endl;
     }
 
     virtual void TearDown()
@@ -290,7 +335,7 @@ TEST_F(Mepoo_IntegrationTest, MempoolConfigCheck)
 
     auto testMempoolConfig = defaultMemPoolConfig();
 
-    SetUp(memPoolTestContainer, testMempoolConfig);
+    SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
 
     constexpr int samplesize1 = 200;
     const int repetition1 = 1;
@@ -321,7 +366,7 @@ TEST_F(Mepoo_IntegrationTest, MempoolConfigCheck)
     EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, memPoolTestContainer), Eq(true));
 }
 
-/// @todo jenkins doesn't have enough RAM for this test; needs to be moved to a nightly test on a powerfull machine
+/// @todo jenkins doesn't have enough RAM for this test; needs to be moved to a nightly test on a powerful machine
 TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolOver4GB)
 {
     constexpr uint32_t chunkSize = 16777216;
@@ -332,7 +377,7 @@ TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolOver4GB)
     std::vector<TestMemPoolConfig> testMempoolConfig;
     testMempoolConfig.push_back({chunkSize, m_numChunks});
     auto mempoolSize = 1234; // TODO get from createRouDiConfig();
-    SetUp(memPoolTestContainer, testMempoolConfig);
+    SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
 
     uint64_t size = 666; // this->m_roudiEnv->m_roudiApp->m_shmMgr.m_mePooConfig.getSharedMemorySize();
     EXPECT_THAT(size, Eq(mempoolSize));
@@ -361,7 +406,7 @@ TEST_F(Mepoo_IntegrationTest, DISABLED_WrongSampleSize)
     MemPoolInfoContainer memPoolTestContainer;
 
     auto testMempoolConfig = defaultMemPoolConfig();
-    SetUp(memPoolTestContainer, testMempoolConfig);
+    SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
 
     constexpr int samplesize3 = 2048;
     const int repetition3 = 1;
@@ -374,9 +419,54 @@ TEST_F(Mepoo_IntegrationTest, DISABLED_SampleOverflow)
     MemPoolInfoContainer memPoolTestContainer;
 
     auto testMempoolConfig = defaultMemPoolConfig();
-    SetUp(memPoolTestContainer, testMempoolConfig);
+    SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
 
     constexpr int samplesize1 = 200;
     const int repetition1 = DefaultNumChunks;
     EXPECT_DEATH({ sendreceivesample<samplesize1>(repetition1); }, ".*");
+}
+
+TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig)
+{
+    MemPoolInfoContainer memPoolTestContainer;
+    auto testMempoolConfig = defaultMemPoolConfig();
+
+    auto start = Timer::now();
+
+    SetUp(memPoolTestContainer, testMempoolConfig, configType::DEFAULT);
+
+    auto stop = Timer::now();
+
+    // Calc the difference
+    iox::units::Duration timediff = stop.get_value() - start.get_value();
+
+    PrintTiming(timediff);
+
+    /// Currently we expect that the RouDi is ready at least after 2 seconds
+    auto maxtime = 2000_ms;
+    EXPECT_THAT(timediff, Le(maxtime));
+}
+
+TEST_F(Mepoo_IntegrationTest, MempoolCreationTime4GBConfig)
+{
+    constexpr uint32_t chunkSize = 1024 * 1024 * 512;
+    constexpr uint32_t m_numChunks = 8;
+
+    MemPoolInfoContainer memPoolTestContainer;
+    std::vector<TestMemPoolConfig> testMempoolConfig;
+    testMempoolConfig.push_back({chunkSize, m_numChunks});
+
+    auto start = Timer::now();
+
+    SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
+
+    auto stop = Timer::now();
+
+    // Calc the difference
+    iox::units::Duration timediff = stop.get_value() - start.get_value();
+
+    PrintTiming(timediff);
+
+    auto maxtime = 5000_ms;
+    EXPECT_THAT(timediff, Le(maxtime));
 }

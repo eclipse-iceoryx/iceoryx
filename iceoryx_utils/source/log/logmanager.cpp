@@ -14,8 +14,9 @@
 
 #include "iceoryx_utils/log/logmanager.hpp"
 
-#include "logging_internal.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/log/logger.hpp"
+#include "logging_internal.hpp"
 
 #include <mutex>
 
@@ -58,13 +59,19 @@ LogLevel LogManager::DefaultLogLevel() const noexcept
     return m_defaultLogLevel.load(std::memory_order_relaxed);
 }
 
-void LogManager::SetDefaultLogLevel(const LogLevel logLevel) noexcept
+void LogManager::SetDefaultLogLevel(const LogLevel logLevel, const LogLevelOutput logLevelOutput) noexcept
 {
     m_defaultLogLevel.store(logLevel, std::memory_order_relaxed);
 
     for (auto& logger : m_loggers)
     {
         logger.second.SetLogLevel(logLevel);
+    }
+
+    if (logLevelOutput == LogLevelOutput::kDisplayLogLevel)
+    {
+        std::clog << "Log level set to: " << LogLevelColor[cxx::enumTypeAsUnderlyingType(logLevel)]
+                  << LogLevelText[cxx::enumTypeAsUnderlyingType(logLevel)] << "\033[m" << std::endl;
     }
 
     /// @todo remove this once we get rid of the ac3log compatibility layer

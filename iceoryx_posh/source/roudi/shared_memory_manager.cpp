@@ -25,16 +25,16 @@ namespace iox
 {
 namespace roudi
 {
-Interfaces StringToEInterfaces(std::string f_str)
+capro::Interfaces StringToEInterfaces(std::string f_str)
 {
     int32_t i;
     cxx::convert::fromString(f_str.c_str(), i);
-    if (i >= static_cast<int32_t>(Interfaces::INTERFACE_END))
+    if (i >= static_cast<int32_t>(capro::Interfaces::INTERFACE_END))
     {
         WARN_PRINTF("invalid enum (out of range: %d) \n", i);
-        return Interfaces::INTERNAL;
+        return capro::Interfaces::INTERNAL;
     }
-    return static_cast<Interfaces>(i);
+    return static_cast<capro::Interfaces>(i);
 }
 
 SharedMemoryManager::SharedMemoryManager(const RouDiConfig_t& f_config)
@@ -44,19 +44,16 @@ SharedMemoryManager::SharedMemoryManager(const RouDiConfig_t& f_config)
     // are there used instances of RouDiBase?
 
     auto portGeneric = acquireSenderPortData(IntrospectionPortService,
-                                             Interfaces::INTERNAL,
                                              MQ_ROUDI_NAME,
                                              &m_ShmInterface.getShmInterface()->m_roudiMemoryManager)
                            .get_value();
 
     auto portThroughput = acquireSenderPortData(IntrospectionPortThroughputService,
-                                                Interfaces::INTERNAL,
                                                 MQ_ROUDI_NAME,
                                                 &m_ShmInterface.getShmInterface()->m_roudiMemoryManager)
                               .get_value();
 
     auto receiverPortsData = acquireSenderPortData(IntrospectionReceiverPortChangingDataService,
-                                                   Interfaces::INTERNAL,
                                                    MQ_ROUDI_NAME,
                                                    &m_ShmInterface.getShmInterface()->m_roudiMemoryManager)
                                  .get_value();
@@ -115,7 +112,7 @@ void SharedMemoryManager::handleSenderPorts()
             }
 
             // forward to interfaces
-            sendToAllMatchingInterfacePorts(caproMessage, l_senderPort.getInterface());
+            sendToAllMatchingInterfacePorts(caproMessage);
         }
         // check if we have to destroy this sender port
         if (l_senderPort.toBeDestroyed())
@@ -192,7 +189,8 @@ void SharedMemoryManager::handleInterfaces()
                 {
                     auto interfacePort = popo::InterfacePort(interfacePortData);
                     // do not offer on same interface
-                    if (l_senderPort.getInterface() != interfacePort.getInterface())
+                    if (l_senderPort.getCaProServiceDescription().getSourceInterface()
+                        != interfacePort.getCaProServiceDescription().getSourceInterface())
                     {
                         interfacePort.dispatchCaProMessage(l_caproMessage);
                     }
@@ -255,7 +253,7 @@ void SharedMemoryManager::handleApplications()
             }
 
             // forward to interfaces
-            sendToAllMatchingInterfacePorts(l_caproMessage, l_applicationPort.getInterface());
+            sendToAllMatchingInterfacePorts(l_caproMessage);
         }
     }
 }
@@ -311,14 +309,14 @@ void SharedMemoryManager::sendToAllMatchingReceiverPorts(const capro::CaproMessa
     }
 }
 
-void SharedMemoryManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& f_message,
-                                                          const iox::Interfaces& f_interfaceSource)
+void SharedMemoryManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& f_message)
 {
     for (auto l_interfacePortData : m_ShmInterface.getShmInterface()->m_interfacePortMembers.content())
     {
         iox::popo::InterfacePort l_interfacePort(l_interfacePortData);
         // not to the interface the port is located
-        if (f_interfaceSource != l_interfacePort.getInterface())
+        if (f_message.m_serviceDescription.getSourceInterface()
+            != l_interfacePort.getCaProServiceDescription().getSourceInterface())
         {
             if (!l_interfacePort.dispatchCaProMessage(f_message))
             {
@@ -422,14 +420,15 @@ void SharedMemoryManager::destroySenderPort(SenderPortType::MemberType_t* const 
     SenderPortType senderPort(senderPortData);
 
     const auto& serviceDescription = senderPort.getCaProServiceDescription();
-    removeEntryFromServiceRegistry(serviceDescription.getServiceIDString(), serviceDescription.getInstanceIDString());
+    removeEntryFromServiceRegistry(serviceDescription.getServiceIDString(),
+                                   serviceDescription.getInstanceIDString());
     senderPort.cleanup();
 
     const capro::CaproMessage message(capro::CaproMessageType::STOP_OFFER, serviceDescription);
     m_portIntrospection.reportMessage(message);
 
     sendToAllMatchingReceiverPorts(message, senderPort);
-    sendToAllMatchingInterfacePorts(message, senderPort.getInterface());
+    sendToAllMatchingInterfacePorts(message);
 
     m_portIntrospection.removeSender(senderPort.getApplicationName(), serviceDescription);
 
@@ -505,7 +504,6 @@ const runtime::SharedMemoryCreator<MiddlewareShm>& SharedMemoryManager::getShmIn
 
 cxx::expected<SenderPortType::MemberType_t*, SharedMemoryManager::AcquireSenderPortDataError>
 SharedMemoryManager::acquireSenderPortData(const capro::ServiceDescription& f_service,
-                                           Interfaces f_interface,
                                            const std::string& f_processName,
                                            mepoo::MemoryManager* f_payloadMemoryManager,
                                            const std::string& f_runnable)
@@ -540,7 +538,7 @@ SharedMemoryManager::acquireSenderPortData(const capro::ServiceDescription& f_se
     {
         //  we don't use the runnable reference in the ports yet. So set it to nullptr
         auto senderPortData =
-            l_shm->m_senderPortMembers.insert(f_service, f_payloadMemoryManager, f_processName, f_interface, nullptr);
+            l_shm->m_senderPortMembers.insert(f_service, f_payloadMemoryManager, f_processName, nullptr);
         m_portIntrospection.addSender(senderPortData, f_processName, f_service, f_runnable);
         return cxx::success<SenderPortType::MemberType_t*>(senderPortData);
     }
@@ -552,7 +550,6 @@ SharedMemoryManager::acquireSenderPortData(const capro::ServiceDescription& f_se
 }
 
 ReceiverPortType::MemberType_t* SharedMemoryManager::acquireReceiverPortData(const capro::ServiceDescription& f_service,
-                                                                             Interfaces f_interface,
                                                                              const std::string& f_processName,
                                                                              const std::string& f_runnable)
 {
@@ -574,7 +571,7 @@ ReceiverPortType::MemberType_t* SharedMemoryManager::acquireReceiverPortData(con
     if (l_shm->m_receiverPortMembers.hasFreeSpace())
     {
         //  we don't use the runnable reference in the ports yet. So set it to nullptr
-        auto port = l_shm->m_receiverPortMembers.insert(*service, f_processName, f_interface, nullptr);
+        auto port = l_shm->m_receiverPortMembers.insert(*service, f_processName, nullptr);
 
         m_portIntrospection.addReceiver(port, f_processName, *service, f_runnable);
 
@@ -587,7 +584,7 @@ ReceiverPortType::MemberType_t* SharedMemoryManager::acquireReceiverPortData(con
     }
 }
 
-popo::InterfacePortData* SharedMemoryManager::acquireInterfacePortData(Interfaces f_interface,
+popo::InterfacePortData* SharedMemoryManager::acquireInterfacePortData(capro::Interfaces f_interface,
                                                                        const std::string& f_processName,
                                                                        const std::string& /*f_runnable*/)
 {
@@ -604,13 +601,12 @@ popo::InterfacePortData* SharedMemoryManager::acquireInterfacePortData(Interface
     }
 }
 
-popo::ApplicationPortData* SharedMemoryManager::acquireApplicationPortData(Interfaces f_interface,
-                                                                           const std::string& f_processName)
+popo::ApplicationPortData* SharedMemoryManager::acquireApplicationPortData(const std::string& f_processName)
 {
     MiddlewareShm* const l_shm = m_ShmInterface.getShmInterface();
     if (l_shm->m_applicationPortMembers.hasFreeSpace())
     {
-        return l_shm->m_applicationPortMembers.insert(f_processName, f_interface);
+        return l_shm->m_applicationPortMembers.insert(f_processName);
     }
     else
     {

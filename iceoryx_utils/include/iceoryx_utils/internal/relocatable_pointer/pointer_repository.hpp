@@ -59,7 +59,7 @@ class PointerRepository
         if (m_info[id].basePtr == nullptr)
         {
             m_info[id].basePtr = ptr;
-            m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uint64_t>(ptr) + size);
+            m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uint64_t>(ptr) + size - 1);
             if (id > m_maxRegistered)
             {
                 m_maxRegistered = id;
@@ -76,7 +76,7 @@ class PointerRepository
             if (m_info[id].basePtr == nullptr)
             {
                 m_info[id].basePtr = ptr;
-                m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uint64_t>(ptr) + size);
+                m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uint64_t>(ptr) + size - 1);
                 if (id > m_maxRegistered)
                 {
                     m_maxRegistered = id;

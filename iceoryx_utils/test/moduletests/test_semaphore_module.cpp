@@ -254,4 +254,4 @@ TEST_F(Semaphore_test, TimedWaitWithTimeout)
     t.join();
 }
 
-#endif
+#endif // not defined QNX

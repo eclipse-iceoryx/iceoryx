@@ -59,11 +59,6 @@ cxx::CString100 BasePort::getApplicationName() const noexcept
     return getMembers()->m_processName;
 }
 
-Interfaces BasePort::getInterface() const noexcept
-{
-    return getMembers()->m_interface;
-}
-
 uint64_t BasePort::getUniqueID() const noexcept
 {
     return getMembers()->m_uniqueId.load(std::memory_order_relaxed);

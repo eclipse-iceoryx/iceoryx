@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "iceoryx_posh/internal/popo/base_port_data.hpp"
+#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-
+#include "iceoryx_posh/internal/popo/base_port_data.hpp"
 #include "iceoryx_utils/internal/concurrent/fifo.hpp"
 
 namespace iox
@@ -27,7 +27,7 @@ struct InterfacePortData : public BasePortData
 {
     InterfacePortData() = default;
     InterfacePortData(const std::string& applicationName,
-                      const Interfaces interface,
+                      const capro::Interfaces interface,
                       runtime::RunnableData* const runnable) noexcept;
     concurrent::FiFo<capro::CaproMessage, MAX_INTERFACE_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
     bool m_doInitialOfferForward{true};

@@ -80,8 +80,7 @@ class SenderPort_testBase : public Test
 
     iox::ReceiverPortType* CreateReceiver(const ServiceDescription& f_service)
     {
-        iox::ReceiverPortType::MemberType_t* data =
-            new iox::ReceiverPortType::MemberType_t(f_service, "", iox::Interfaces::INTERNAL, nullptr);
+        iox::ReceiverPortType::MemberType_t* data = new iox::ReceiverPortType::MemberType_t(f_service, "", nullptr);
         m_portData.emplace_back(data);
         iox::ReceiverPortType* l_receiver = new iox::ReceiverPortType(data);
         m_ports.emplace_back(l_receiver);
@@ -91,7 +90,7 @@ class SenderPort_testBase : public Test
     iox::SenderPortType* CreateSender(const ServiceDescription& f_service)
     {
         iox::SenderPortType::MemberType_t* data =
-            new iox::SenderPortType::MemberType_t(f_service, &m_memPoolHandler, "", iox::Interfaces::INTERNAL, nullptr);
+            new iox::SenderPortType::MemberType_t(f_service, &m_memPoolHandler, "", nullptr);
         m_portData.emplace_back(data);
         iox::SenderPortType* l_sender = new iox::SenderPortType(data);
         m_ports.emplace_back(l_sender);

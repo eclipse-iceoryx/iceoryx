@@ -57,6 +57,7 @@ class MemoryMap
     bool isInitialized() const;
 
     bool m_isInitialized;
+    bool m_isLocked;
     void* m_baseAddress;
     uint64_t m_length;
 };

@@ -208,7 +208,7 @@ TEST_F(RoudiStartFindService_test, MultiServiceSingleInstanceSimultaneousOfferSt
                 findServiceHandlerCallCount++;
                 serviceDetails details = {InstanceContainer(instanceContainer), handle};
                 currentInstance[element.getServiceIDString()] = details;
-                /// @todo pbt2kor : Assert handle here
+                /// @todo: Assert handle here
             },
             element.getServiceIDString());
     }

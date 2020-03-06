@@ -25,10 +25,8 @@ namespace popo
 struct ApplicationPortData : public BasePortData
 {
     ApplicationPortData() = default;
-    ApplicationPortData(const std::string& f_applicationName, Interfaces f_interface);
+    ApplicationPortData(const std::string& f_applicationName);
     concurrent::FiFo<capro::CaproMessage, MAX_APPLICATION_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
 };
 } // namespace popo
 } // namespace iox
-
-

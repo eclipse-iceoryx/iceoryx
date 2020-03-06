@@ -16,9 +16,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-
 #include "iceoryx_utils/cxx/expected.hpp"
-
 #include "iceoryx_utils/cxx/string.hpp"
 
 namespace iox
@@ -55,17 +53,17 @@ constexpr const char* ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[] = {"NO_GENERAL_SEC
                                                                  "MEMPOOL_WITHOUT_CHUNK_SIZE",
                                                                  "MEMPOOL_WITHOUT_CHUNK_COUNT"};
 
-/// @brief Base class for a config file parser.
-class RouDiConfigFileParser
+/// @brief Base class for a config file provider.
+class RouDiConfigFileProvider
 {
   public:
-    virtual ~RouDiConfigFileParser() = default;
-
     /// @brief interface to parse a config file which needs to be implemented for a custom parser
     /// @param[in] configFilePath to the custom RouDi config file
     /// @return a cxx::expected with either the parsed RouDiConfig_t if the parsing was successful or a parsing error
-    virtual cxx::expected<RouDiConfig_t, RouDiConfigFileParseError>
-    parse(const ConfigFilePathString_t& configFilePath) = 0;
+    virtual cxx::expected<RouDiConfig_t, RouDiConfigFileParseError> parse() = 0;
+
+  protected:
+    ConfigFilePathString_t m_customConfigFilePath;
 };
 
 } // namespace roudi

@@ -16,6 +16,7 @@
 
 #include "iceoryx_utils/cxx/types.hpp"
 
+#include <new> // needed for placement new in the construct_value member function
 #include <utility>
 
 namespace iox
@@ -124,7 +125,7 @@ class optional
     /// @param[in] value value to assign to the underlying optional value
     /// @return reference to the current optional
     template <typename U = T>
-    typename ::std::enable_if<!::std::is_same<U, optional<T>&>::value, optional>::type& operator=(U&& value) noexcept;
+    typename std::enable_if<!std::is_same<U, optional<T>&>::value, optional>::type& operator=(U&& value) noexcept;
 
     /// @brief Returns a pointer to the underlying value. If the optional has no
     ///         value the behavior is undefined. You need to verify that the

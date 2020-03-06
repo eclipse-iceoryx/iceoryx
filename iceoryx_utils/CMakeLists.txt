@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(iceoryx_utils_VERSION 0.16.0.1)
+set(iceoryx_utils_VERSION 0.16.0.3)
 project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 
 add_compile_options(-fPIC)
@@ -145,7 +145,7 @@ add_library(iceoryx_utils
     source/posix_wrapper/timespec.cpp
     source/posix_wrapper/shared_memory_object.cpp
     source/posix_wrapper/message_queue.cpp
-    source/posix_wrapper/unix_domain_socket.cpp    
+    source/posix_wrapper/unix_domain_socket.cpp
     source/posix_wrapper/shared_memory_object/allocator.cpp
     source/posix_wrapper/shared_memory_object/memory_map.cpp
     source/posix_wrapper/shared_memory_object/shared_memory.cpp

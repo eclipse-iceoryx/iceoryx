@@ -34,7 +34,6 @@ void* Allocator::allocate(const uint64_t f_size, const uint64_t f_alignment)
 {
     cxx::Expects(f_size > 0);
 
-
     if (m_allocationFinalized)
     {
         std::cerr << "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory chunks "

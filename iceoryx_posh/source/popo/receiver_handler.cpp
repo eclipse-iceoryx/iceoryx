@@ -20,15 +20,14 @@ namespace popo
 {
 ThreadSafe::ThreadSafe()
 {
-    cxx::Expects(m_mutex.has_value());
 }
 void ThreadSafe::lock()
 {
-    m_mutex->lock();
+    m_mutex.lock();
 }
 void ThreadSafe::unlock()
 {
-    m_mutex->unlock();
+    m_mutex.unlock();
 }
 
 void SingleThreaded::lock()

@@ -35,11 +35,13 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
 {
     // try a config with high memory requirements, expect failure
     auto badconfig = createRouDiConfig(1 << 30, 100);
+
     EXPECT_DEATH(iox::runtime::SharedMemoryCreator<iox::roudi::MiddlewareShm> sut(badconfig),
                  "\033\\[0;1;97;41mFatal error:\033\\[m the available memory is insufficient. Cannot allocate mempools "
                  "in shared memory. Please make sure that enough memory is available. For this, consider also the "
                  "memory which is required for the \\[/iceoryx_mgmt\\] segment. Please refer to "
                  "share\\/doc\\/iceoryx\\/FAQ.md in your release delivery.");
+
     auto goodconfig = createRouDiConfig(1024, 1);
 
     // try again with a config with low memory requirements; success clears shared memory allocated by the OS in e.g.

@@ -25,7 +25,6 @@
 #include "iceoryx_utils/platform/unistd.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 
-
 #include <cstdint>
 #include <errno.h>
 #include <stdio.h>
