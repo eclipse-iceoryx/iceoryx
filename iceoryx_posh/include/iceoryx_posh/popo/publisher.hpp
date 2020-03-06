@@ -39,7 +39,7 @@ class Publisher
     Publisher& operator=(Publisher&&) = default;
     Publisher(Publisher&& other) = default;
 
-    virtual ~Publisher() noexcept = default;
+    virtual ~Publisher() noexcept;
 
     /// @brief Allocate memory for the chunk to be sent
     /// @param[in] payloadSize size of shared memory to be allocated
