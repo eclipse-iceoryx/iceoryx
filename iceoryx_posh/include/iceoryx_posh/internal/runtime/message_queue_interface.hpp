@@ -280,8 +280,7 @@ class MqInterfaceCreator : public MqBase
 
     /// @brief The copy constructor and assignment operator is deleted since
     ///         this class manages a resource (message queue) which cannot
-    ///         be copied. Move is also not needed, it is also deleted,
-    ///         since it is not needed
+    ///         be copied. Move is also not needed, it is also deleted.
     MqInterfaceCreator(const MqInterfaceCreator&) = delete;
     MqInterfaceCreator& operator=(const MqInterfaceCreator&) = delete;
 

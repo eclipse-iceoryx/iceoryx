@@ -41,13 +41,13 @@ namespace roudi
 namespace
 {
 static posix::Semaphore g_runSemaphore{[] {
-    auto runSemaphore = posix::Semaphore::create(ROUDI_SEMAPHORE_NAME, O_CREAT | O_EXCL, 0);
+    auto runSemaphore = posix::Semaphore::create(ROUDI_APP_SEMAPHORE_NAME, O_CREAT | O_EXCL, 0);
     if (runSemaphore.has_error())
     {
-        std::cerr << "Unable to create runSemaphore \"" << ROUDI_SEMAPHORE_NAME
+        std::cerr << "Unable to create runSemaphore \"" << ROUDI_APP_SEMAPHORE_NAME
                   << "\", either RouDi is already running or someone else has already created this semaphore."
                   << std::endl;
-        std::terminate();
+        errorHandler(Error::kROUDI_APPLICATION__SEMAPHORE_PRESENT_ROUDI_ALREADY_RUNNING);
     }
 
     return std::move(*runSemaphore);

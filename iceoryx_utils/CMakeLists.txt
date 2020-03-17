@@ -87,7 +87,7 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
         ${CMAKE_DL_LIBS}
     )
 
-    if(LINUX AND NOT APPLE)
+    if(LINUX)
         target_link_libraries(iceoryx_utils_testing PRIVATE rt)
     endif()
 
