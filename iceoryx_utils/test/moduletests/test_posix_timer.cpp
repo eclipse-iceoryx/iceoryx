@@ -88,10 +88,9 @@ TIMING_TEST_F(TimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(3)
     Timer sut(timeout);
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * timeout.milliSeconds<int>()));
 
-    TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
+    TIMING_TEST_ASSERT_TRUE(sut.hasExpiredComparedToCreationTime());
     sut.resetCreationTime();
     TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
-    TIMING_TEST_ASSERT_TRUE(true);
 
     TIMING_TEST_END();
 });
