@@ -365,13 +365,13 @@ cxx::expected<units::Duration, TimerError> Timer::now() noexcept
     return cxx::success<units::Duration>(value);
 }
 
-Timer::Timer(units::Duration timeToWait) noexcept
+Timer::Timer(const units::Duration timeToWait) noexcept
     : m_timeToWait(timeToWait)
     , m_creationTime(now().get_value())
 {
 }
 
-Timer::Timer(units::Duration timeToWait, std::function<void()> callback) noexcept
+Timer::Timer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
     : m_timeToWait(timeToWait)
     , m_creationTime(now().get_value())
 {
@@ -471,33 +471,27 @@ cxx::error<TimerError> Timer::createErrorFromErrno(const int errnum) noexcept
 {
     switch (errnum)
     {
-    case EAGAIN:
-    {
+    case EAGAIN: {
         std::cerr << "Kernel failed to allocate timer structures" << std::endl;
         return cxx::error<TimerError>(TimerError::KERNEL_ALLOC_FAILED);
     }
-    case EINVAL:
-    {
+    case EINVAL: {
         std::cerr << "Provided invalid arguments for posix::Timer" << std::endl;
         return cxx::error<TimerError>(TimerError::INVALID_ARGUMENTS);
     }
-    case ENOMEM:
-    {
+    case ENOMEM: {
         std::cerr << "Could not allocate memory for posix::Timer" << std::endl;
         return cxx::error<TimerError>(TimerError::ALLOC_MEM_FAILED);
     }
-    case EPERM:
-    {
+    case EPERM: {
         std::cerr << "No permissions to set the clock" << std::endl;
         return cxx::error<TimerError>(TimerError::NO_PERMISSION);
     }
-    case EFAULT:
-    {
+    case EFAULT: {
         std::cerr << "An invalid pointer was provided" << std::endl;
         return cxx::error<TimerError>(TimerError::INVALID_POINTER);
     }
-    default:
-    {
+    default: {
         std::cerr << "Internal logic error in posix::Timer occurred" << std::endl;
         return cxx::error<TimerError>(TimerError::INTERNAL_LOGIC_ERROR);
     }

@@ -197,7 +197,7 @@ class Timer
     /// @param[in] timeToWait - How long should be waited?
     /// @note Does not set up an operating system timer, but uses CLOCK_REALTIME instead
     /// @todo refactor this cTor and its functionality to a class called StopWatch
-    Timer(units::Duration timeToWait) noexcept;
+    Timer(const units::Duration timeToWait) noexcept;
 
     /// @brief Creates a timer with an operating system callback
     ///
@@ -207,7 +207,7 @@ class Timer
     /// @param[in] callback - Function called after timeToWait (User needs to ensure lifetime of function till stop()
     ///                       call)
     /// @note Operating systems needs a valid reference to this object, hence DesignPattern::Creation can't be used
-    Timer(units::Duration timeToWait, std::function<void()> callback) noexcept;
+    Timer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept;
 
     /// @brief creates Duration from the result of clock_gettime(CLOCK_REALTIME, ...)
     /// @return if the clock_gettime call failed TimerError is returned otherwise Duration
