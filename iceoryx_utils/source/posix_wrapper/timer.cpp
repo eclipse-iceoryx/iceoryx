@@ -365,13 +365,13 @@ cxx::expected<units::Duration, TimerError> Timer::now() noexcept
     return cxx::success<units::Duration>(value);
 }
 
-Timer::Timer(units::Duration timeToWait) noexcept
+Timer::Timer(const units::Duration timeToWait) noexcept
     : m_timeToWait(timeToWait)
     , m_creationTime(now().get_value())
 {
 }
 
-Timer::Timer(units::Duration timeToWait, std::function<void()> callback) noexcept
+Timer::Timer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
     : m_timeToWait(timeToWait)
     , m_creationTime(now().get_value())
 {

@@ -18,7 +18,6 @@
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 namespace iox
 {
@@ -150,13 +149,11 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
 {
     switch (cmd)
     {
-    case runtime::MqMessageType::SERVICE_REGISTRY_CHANGE_COUNTER:
-    {
+    case runtime::MqMessageType::SERVICE_REGISTRY_CHANGE_COUNTER: {
         m_prcMgr.sendServiceRegistryChangeCounterToProcess(processName);
         break;
     }
-    case runtime::MqMessageType::REG:
-    {
+    case runtime::MqMessageType::REG: {
         if (message.getNumberOfElements() != 5)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::REG\" from \"%s\"received!\n",
@@ -174,8 +171,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-    case runtime::MqMessageType::IMPL_SENDER:
-    {
+    case runtime::MqMessageType::IMPL_SENDER: {
         if (message.getNumberOfElements() != 5)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_SENDER\" from \"%s\"received!\n",
@@ -190,8 +186,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-    case runtime::MqMessageType::IMPL_RECEIVER:
-    {
+    case runtime::MqMessageType::IMPL_RECEIVER: {
         if (message.getNumberOfElements() != 5)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_RECEIVER\" from \"%s\"received!\n",
@@ -206,8 +201,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-    case runtime::MqMessageType::IMPL_INTERFACE:
-    {
+    case runtime::MqMessageType::IMPL_INTERFACE: {
         if (message.getNumberOfElements() != 4)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_INTERFACE\" from \"%s\"received!\n",
@@ -221,8 +215,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-    case runtime::MqMessageType::IMPL_APPLICATION:
-    {
+    case runtime::MqMessageType::IMPL_APPLICATION: {
         if (message.getNumberOfElements() != 3)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_APPLICATION\" from \"%s\"received!\n",
@@ -236,8 +229,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-    case runtime::MqMessageType::CREATE_RUNNABLE:
-    {
+    case runtime::MqMessageType::CREATE_RUNNABLE: {
         if (message.getNumberOfElements() != 3)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::CREATE_RUNNABLE\" from \"%s\"received!\n",
@@ -250,8 +242,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-    case runtime::MqMessageType::REMOVE_RUNNABLE:
-    {
+    case runtime::MqMessageType::REMOVE_RUNNABLE: {
         if (message.getNumberOfElements() != 3)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::REMOVE_RUNNABLE\" from \"%s\"received!\n",
@@ -263,8 +254,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-    case runtime::MqMessageType::FIND_SERVICE:
-    {
+    case runtime::MqMessageType::FIND_SERVICE: {
         if (message.getNumberOfElements() != 3)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::FIND_SERVICE\" from \"%s\"received!\n",
@@ -278,13 +268,11 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-    case runtime::MqMessageType::KEEPALIVE:
-    {
+    case runtime::MqMessageType::KEEPALIVE: {
         m_prcMgr.updateLivlinessOfProcess(processName);
         break;
     }
-    default:
-    {
+    default: {
         ERR_PRINTF("Unknown MQ Command [%s]\n", runtime::mqMessageTypeToString(cmd).c_str());
 
         m_prcMgr.sendMessageNotSupportedToRuntime(processName);
