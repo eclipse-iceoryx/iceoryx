@@ -130,7 +130,8 @@ class Timer
         ///
         /// The callback is called by the operating system after the time has expired.
         ///
-        /// @param[in] periodic - can be a periodic timer if set to true, default false
+        /// @param[in] periodic - can be a periodic timer if set to RunMode::PERIODIC or
+        ///                     once when in RunMode::ONCE
         /// @note Shall only be called when callback is given
         cxx::expected<TimerError> start(const RunMode runMode) noexcept;
 
@@ -156,7 +157,7 @@ class Timer
         bool hasError() const noexcept;
 
         /// @brief Returns the error that occured on constructing the object
-        cxx::error<TimerError> getError() const noexcept;
+        TimerError getError() const noexcept;
 
       private:
         /// @brief Call the user-defined callback
@@ -267,7 +268,7 @@ class Timer
     bool hasError() const noexcept;
 
     /// @brief Returns the error that occured on constructing the object
-    cxx::error<TimerError> getError() const noexcept;
+    TimerError getError() const noexcept;
 
   private:
     cxx::optional<OsTimer> m_osTimer;

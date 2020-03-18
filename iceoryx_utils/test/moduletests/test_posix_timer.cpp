@@ -27,6 +27,7 @@ using namespace ::testing;
 using namespace iox::units::duration_literals;
 
 using Timer = iox::posix::Timer;
+using TimerError = iox::posix::TimerError;
 
 class Timer_test : public Test
 {
@@ -94,6 +95,43 @@ TIMING_TEST_F(TimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(3)
 
     TIMING_TEST_END();
 });
+
+TEST_F(Timer_test, EmptyCallbackInCtorLeadsToError)
+{
+    Timer sut(0_s, std::function<void()>());
+    EXPECT_THAT(sut.hasError(), Eq(true));
+    EXPECT_THAT(sut.getError(), Eq(iox::posix::TimerError::NO_VALID_CALLBACK));
+}
+
+TEST_F(Timer_test, NonEmptyCallbackInCtorIsAllowed)
+{
+    Timer sut(0_s, [] {});
+    EXPECT_THAT(sut.hasError(), Eq(false));
+}
+
+TIMING_TEST_F(Timer_test, CallbackNotExecutedWhenNotStarted, Repeat(3), [&] {
+    bool callbackExecuted{false};
+    Timer sut(0_s, [&] { callbackExecuted = true; });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+    TIMING_TEST_EXPECT_ALWAYS_FALSE(callbackExecuted);
+
+    TIMING_TEST_END();
+});
+
+
+TIMING_TEST_F(Timer_test, CallbackInstantlyExecutedOnceWithNoTimeout, Repeat(3), [&] {
+    std::atomic_int counter{0};
+    Timer sut(1_ns, [&] { counter++; });
+    EXPECT_THAT(sut.hasError(), Eq(false));
+    sut.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 1);
+    printf("%d \n", counter.load());
+    TIMING_TEST_END();
+});
+
 
 TEST_F(Timer_test, DISABLED_CreateAndFireOnce_PERFORMANCETEST42)
 {

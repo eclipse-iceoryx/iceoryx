@@ -346,7 +346,7 @@ bool Timer::OsTimer::hasError() const noexcept
     return !m_isInitialized;
 }
 
-cxx::error<TimerError> Timer::OsTimer::getError() const noexcept
+TimerError Timer::OsTimer::getError() const noexcept
 {
     return m_errorValue;
 }
@@ -378,7 +378,7 @@ Timer::Timer(units::Duration timeToWait, std::function<void()> callback) noexcep
     m_osTimer.emplace(timeToWait, callback);
     if (m_osTimer->hasError())
     {
-        m_errorValue = m_osTimer->getError().value;
+        m_errorValue = m_osTimer->getError();
         m_osTimer.reset();
     }
 }
@@ -462,7 +462,7 @@ bool Timer::hasError() const noexcept
 }
 
 
-cxx::error<TimerError> Timer::getError() const noexcept
+TimerError Timer::getError() const noexcept
 {
     return m_errorValue;
 }
@@ -471,33 +471,27 @@ cxx::error<TimerError> Timer::createErrorFromErrno(const int errnum) noexcept
 {
     switch (errnum)
     {
-    case EAGAIN:
-    {
+    case EAGAIN: {
         std::cerr << "Kernel failed to allocate timer structures" << std::endl;
         return cxx::error<TimerError>(TimerError::KERNEL_ALLOC_FAILED);
     }
-    case EINVAL:
-    {
+    case EINVAL: {
         std::cerr << "Provided invalid arguments for posix::Timer" << std::endl;
         return cxx::error<TimerError>(TimerError::INVALID_ARGUMENTS);
     }
-    case ENOMEM:
-    {
+    case ENOMEM: {
         std::cerr << "Could not allocate memory for posix::Timer" << std::endl;
         return cxx::error<TimerError>(TimerError::ALLOC_MEM_FAILED);
     }
-    case EPERM:
-    {
+    case EPERM: {
         std::cerr << "No permissions to set the clock" << std::endl;
         return cxx::error<TimerError>(TimerError::NO_PERMISSION);
     }
-    case EFAULT:
-    {
+    case EFAULT: {
         std::cerr << "An invalid pointer was provided" << std::endl;
         return cxx::error<TimerError>(TimerError::INVALID_POINTER);
     }
-    default:
-    {
+    default: {
         std::cerr << "Internal logic error in posix::Timer occurred" << std::endl;
         return cxx::error<TimerError>(TimerError::INTERNAL_LOGIC_ERROR);
     }

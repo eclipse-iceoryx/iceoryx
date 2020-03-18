@@ -81,6 +81,8 @@
 
 #define TIMING_TEST_END() return __timingTestResult__.load();
 
+#define TIMING_TEST_EXPECT_ALWAYS_TRUE(value) EXPECT_TRUE(value)
+#define TIMING_TEST_EXPECT_ALWAYS_FALSE(value) EXPECT_FALSE(value)
 #define TIMING_TEST_EXPECT_TRUE(value)                                                                                 \
     __errorMessages__ += __VerifyTimingTestResult__(__FILE__, __LINE__, #value, value, true, __timingTestResult__)
 #define TIMING_TEST_EXPECT_FALSE(value)                                                                                \
