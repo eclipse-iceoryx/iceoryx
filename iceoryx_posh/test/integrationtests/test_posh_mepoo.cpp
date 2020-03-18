@@ -447,10 +447,10 @@ TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig)
     EXPECT_THAT(timediff, Le(maxtime));
 }
 
-TEST_F(Mepoo_IntegrationTest, MempoolCreationTime4GBConfig)
+TEST_F(Mepoo_IntegrationTest, MempoolCreationTime2GBConfig)
 {
     constexpr uint32_t chunkSize = 1024 * 1024 * 512;
-    constexpr uint32_t m_numChunks = 8;
+    constexpr uint32_t m_numChunks = 4;
 
     MemPoolInfoContainer memPoolTestContainer;
     std::vector<TestMemPoolConfig> testMempoolConfig;
