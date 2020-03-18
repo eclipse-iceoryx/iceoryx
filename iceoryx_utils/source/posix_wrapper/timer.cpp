@@ -100,7 +100,7 @@ void Timer::OsTimer::callbackHelper(sigval data)
     }
 }
 
-Timer::OsTimer::OsTimer(units::Duration timeToWait, std::function<void()> callback) noexcept
+Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
     : m_timeToWait(timeToWait)
     , m_callback(callback)
 {
@@ -369,12 +369,22 @@ Timer::Timer(const units::Duration timeToWait) noexcept
     : m_timeToWait(timeToWait)
     , m_creationTime(now().get_value())
 {
+    if (m_timeToWait.nanoSeconds<uint64_t>() == 0u)
+    {
+        m_errorValue = TimerError::TIMEOUT_IS_ZERO;
+    }
 }
 
 Timer::Timer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
     : m_timeToWait(timeToWait)
     , m_creationTime(now().get_value())
 {
+    if (m_timeToWait.nanoSeconds<uint64_t>() == 0u)
+    {
+        m_errorValue = TimerError::TIMEOUT_IS_ZERO;
+        return;
+    }
+
     m_osTimer.emplace(timeToWait, callback);
     if (m_osTimer->hasError())
     {
@@ -405,6 +415,11 @@ cxx::expected<TimerError> Timer::stop() noexcept
 
 cxx::expected<TimerError> Timer::restart(const units::Duration timeToWait, const RunMode runMode) noexcept
 {
+    if (timeToWait.nanoSeconds<uint64_t>() == 0u)
+    {
+        return cxx::error<TimerError>(TimerError::TIMEOUT_IS_ZERO);
+    }
+
     if (!m_osTimer.has_value())
     {
         return cxx::error<TimerError>(TimerError::TIMER_NOT_INITIALIZED);
@@ -458,9 +473,8 @@ bool Timer::hasExpiredComparedToCreationTime() noexcept
 
 bool Timer::hasError() const noexcept
 {
-    return !m_osTimer.has_value();
+    return m_errorValue != TimerError::NO_ERROR;
 }
-
 
 TimerError Timer::getError() const noexcept
 {

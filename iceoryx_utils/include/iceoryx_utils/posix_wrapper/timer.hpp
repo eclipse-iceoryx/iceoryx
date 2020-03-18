@@ -44,6 +44,7 @@ enum class TimerError
     NO_PERMISSION,
     INVALID_POINTER,
     NO_TIMER_TO_DELETE,
+    TIMEOUT_IS_ZERO,
     INTERNAL_LOGIC_ERROR
 };
 
@@ -116,7 +117,7 @@ class Timer
         /// @brief Wrapper that can be registered with the operating system
         static void callbackHelper(sigval data);
 
-        OsTimer(units::Duration timeToWait, std::function<void()> callback) noexcept;
+        OsTimer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept;
 
         OsTimer(const OsTimer&) = delete;
         OsTimer(OsTimer&&) = delete;
