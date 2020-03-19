@@ -178,7 +178,6 @@ if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
-#
 ########## build roudi ##########
 if(TOML_CONFIG)
     if ( NOT cpptoml_FOUND )
