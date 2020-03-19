@@ -86,14 +86,13 @@ add_library(iceoryx_posh
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh ALIAS iceoryx_posh)
-
-target_compile_options(iceoryx_posh PUBLIC -std=c++11)
-target_compile_options(iceoryx_posh PUBLIC -fPIC)
-
-
-set_target_properties(iceoryx_posh
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+set_target_properties(iceoryx_posh PROPERTIES 
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
+
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
         iceoryx_posh PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
@@ -144,25 +143,25 @@ add_library(iceoryx_posh_roudi
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi ALIAS iceoryx_posh_roudi)
-set_target_properties(iceoryx_posh_roudi PROPERTIES OUTPUT_NAME "iceoryx_posh_roudi")
+set_target_properties(iceoryx_posh_roudi PROPERTIES 
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+    OUTPUT_NAME "iceoryx_posh_roudi"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
+
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
         iceoryx_posh_roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
     )
 endif(PERFORM_CLANG_TIDY)
 
-target_compile_options(iceoryx_posh_roudi PUBLIC -std=c++11)
-target_compile_options(iceoryx_posh_roudi PUBLIC -fPIC)
-
 target_include_directories(iceoryx_posh_roudi PRIVATE
     source/runtime
     source/popo
     source/capro
     source/roudi
-)
-
-set_target_properties(iceoryx_posh_roudi
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
 target_link_libraries(iceoryx_posh_roudi
@@ -183,13 +182,13 @@ endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 add_executable(RouDi
     source/roudi/application/roudi_main.cpp
 )
-
-target_compile_options(RouDi PUBLIC -std=c++11)
-target_compile_options(RouDi PUBLIC -fPIC)
-
-set_target_properties(RouDi
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+set_target_properties(RouDi PROPERTIES 
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
+
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
         RouDi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
@@ -213,9 +212,11 @@ if(roudi_environment OR test)
     )
 
     add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi_environment ALIAS iceoryx_posh_roudi_environment)
-
-    target_compile_options(iceoryx_posh_roudi_environment PUBLIC -std=c++11)
-    target_compile_options(iceoryx_posh_roudi_environment PUBLIC -fPIC)
+    set_target_properties(iceoryx_posh_roudi_environment PROPERTIES 
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        POSITION_INDEPENDENT_CODE ON
+    )
 
     target_include_directories(iceoryx_posh_roudi_environment PUBLIC
         source/roudi_environment
