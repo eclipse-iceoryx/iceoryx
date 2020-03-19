@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include <dispatch/dispatch.h>
+#include <mutex>
 #include <sys/time.h>
-
+#include <thread>
 
 struct itimerspec
 {
@@ -26,7 +26,11 @@ struct itimerspec
 
 struct appleTimer_t
 {
-    dispatch_source_t timer;
+    std::thread thread;
+    void (*callback)(union sigval);
+    sigval callbackParameter;
+    itimerspec timeParameters;
+    std::atomic_bool keepRunning;
 };
 
 using timer_t = appleTimer_t*;

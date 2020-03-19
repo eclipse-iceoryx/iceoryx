@@ -146,6 +146,24 @@ TIMING_TEST_F(Timer_test, CallbackExecutedPeriodicallyAfterStart, Repeat(3), [&]
     TIMING_TEST_END();
 });
 
+TIMING_TEST_F(Timer_test, PeriodicCallbackNotExecutedPrematurely, Repeat(3), [&] {
+    std::atomic_int counter{0};
+    Timer sut(10_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::PERIODIC);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
+    TIMING_TEST_END();
+});
+
+TIMING_TEST_F(Timer_test, OneTimeCallbackNotExecutedPrematurely, Repeat(3), [&] {
+    std::atomic_int counter{0};
+    Timer sut(10_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
+    TIMING_TEST_END();
+});
+
 TEST_F(Timer_test, StartFailsWhenNoCallbackIsSet)
 {
     Timer sut(1_ms);
