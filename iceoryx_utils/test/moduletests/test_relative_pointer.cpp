@@ -18,7 +18,6 @@
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
 
-
 #include "test.hpp"
 
 #include <cstdint>
@@ -30,8 +29,6 @@ namespace
 constexpr mode_t ShmMode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 constexpr int OFlags = O_CREAT | O_RDWR;
 constexpr size_t ShmSize = 4096 * 32;
-constexpr uint32_t BaseAddress1 = 0x1F400000;
-constexpr uint32_t BaseAddress2 = 0x3E800000;
 
 struct Data
 {
@@ -90,10 +87,9 @@ class relativeptrtests : public RelativePointer_test
 class MemMap
 {
   public:
-    MemMap(void* addr, int fileDescriptor)
+    MemMap(int fileDescriptor)
     {
-        m_mapAddr = mmap(addr, ShmSize, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
-        EXPECT_EQ(addr, m_mapAddr);
+        m_mapAddr = mmap(nullptr, ShmSize, PROT_READ | PROT_WRITE, MAP_SHARED, fileDescriptor, 0);
     }
     ~MemMap()
     {
@@ -116,17 +112,15 @@ TYPED_TEST_CASE(relativeptrtests, Types);
 
 TYPED_TEST(relativeptrtests, ConstrTests)
 {
-    void* basePtr1 = reinterpret_cast<void*>(BaseAddress1);
-    MemMap memMap(basePtr1, this->m_fileDescriptor);
-    void* basePtr2 = reinterpret_cast<void*>(BaseAddress2);
-    MemMap memMap1(basePtr2, this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
+    MemMap memMap1(this->m_fileDescriptor);
 
     EXPECT_EQ(iox::RelativePointer::registerPtr(1, memMap.getMappedAddress(), ShmSize), true);
     EXPECT_EQ(iox::RelativePointer::registerPtr(2, memMap1.getMappedAddress(), ShmSize), true);
 
     {
         auto offset = ShmSize / 2;
-        void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
+        void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
         iox::relative_ptr<TypeParam> rp;
         rp = adr;
         EXPECT_EQ(rp.getOffset(), offset);
@@ -143,7 +137,7 @@ TYPED_TEST(relativeptrtests, ConstrTests)
 
     {
         auto offset = ShmSize / 2;
-        void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
+        void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
         iox::relative_ptr<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -152,7 +146,7 @@ TYPED_TEST(relativeptrtests, ConstrTests)
 
     {
         auto offset = ShmSize - 1;
-        void* adr = static_cast<uint8_t*>(memMap1.getMappedAddress()) + offset;
+        void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
         iox::relative_ptr<TypeParam> rp(adr);
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1);
@@ -199,10 +193,8 @@ TYPED_TEST(relativeptrtests, ConstrTests)
 
 TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
 {
-    void* basePtr1 = reinterpret_cast<void*>(BaseAddress1);
-    MemMap memMap(basePtr1, this->m_fileDescriptor);
-    void* basePtr2 = reinterpret_cast<void*>(BaseAddress2);
-    MemMap memMap1(basePtr2, this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
+    MemMap memMap1(this->m_fileDescriptor);
 
     EXPECT_EQ(iox::RelativePointer::registerPtr(1, memMap.getMappedAddress(), ShmSize), true);
     EXPECT_EQ(iox::RelativePointer::registerPtr(2, memMap1.getMappedAddress(), ShmSize), true);
@@ -280,8 +272,8 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
 
 TYPED_TEST(relativeptrtests, IdAndOffset)
 {
-    void* basePtr1 = reinterpret_cast<void*>(BaseAddress1);
-    MemMap memMap(basePtr1, this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
+    void* basePtr1 = memMap.getMappedAddress();
 
     iox::relative_ptr<TypeParam> rp1(memMap.getMappedAddress(), 1);
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
@@ -298,8 +290,7 @@ TYPED_TEST(relativeptrtests, IdAndOffset)
 
 TYPED_TEST(relativeptrtests, getOffset)
 {
-    void* basePtr = reinterpret_cast<void*>(BaseAddress1);
-    MemMap memMap(basePtr, this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
 
     iox::relative_ptr<TypeParam> rp1(memMap.getMappedAddress(), 1);
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
@@ -313,8 +304,7 @@ TYPED_TEST(relativeptrtests, getOffset)
 
 TYPED_TEST(relativeptrtests, getPtr)
 {
-    void* basePtr = reinterpret_cast<void*>(BaseAddress1);
-    MemMap memMap(basePtr, this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
 
     iox::relative_ptr<TypeParam> rp1(memMap.getMappedAddress(), 1);
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
@@ -328,7 +318,7 @@ TYPED_TEST(relativeptrtests, getPtr)
 
 TYPED_TEST(relativeptrtests, registerPtr)
 {
-    MemMap memMap(reinterpret_cast<void*>(BaseAddress1), this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
     iox::relative_ptr<TypeParam> rp1(memMap.getMappedAddress(), 1);
 
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
@@ -339,7 +329,7 @@ TYPED_TEST(relativeptrtests, registerPtr)
 
 TYPED_TEST(relativeptrtests, unRegisterPointerTest_Valid)
 {
-    MemMap memMap(reinterpret_cast<void*>(BaseAddress1), this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
     iox::relative_ptr<TypeParam> rp1(memMap.getMappedAddress(), 1);
 
     rp1.registerPtr(1, memMap.getMappedAddress());
@@ -349,8 +339,8 @@ TYPED_TEST(relativeptrtests, unRegisterPointerTest_Valid)
 
 TYPED_TEST(relativeptrtests, unregisterPointerAll)
 {
-    MemMap memMap(reinterpret_cast<void*>(BaseAddress1), this->m_fileDescriptor);
-    MemMap memMap1(reinterpret_cast<void*>(BaseAddress2), this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
+    MemMap memMap1(this->m_fileDescriptor);
 
     iox::relative_ptr<TypeParam> rp1(memMap.getMappedAddress(), 1);
     iox::relative_ptr<TypeParam> rp2(memMap1.getMappedAddress(), 9999);
@@ -364,34 +354,30 @@ TYPED_TEST(relativeptrtests, unregisterPointerAll)
 
 TYPED_TEST(relativeptrtests, registerPtrWithId)
 {
-    MemMap memMap(reinterpret_cast<void*>(BaseAddress1), this->m_fileDescriptor);
-    MemMap memMap1(reinterpret_cast<void*>(BaseAddress2), this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
+    MemMap memMap1(this->m_fileDescriptor);
 
     iox::relative_ptr<TypeParam> rp1(memMap.getMappedAddress(), 1);
     iox::relative_ptr<TypeParam> rp2(memMap1.getMappedAddress(), 10000);
 
     EXPECT_EQ(rp1.registerPtr(1, memMap.getMappedAddress()), true);
     EXPECT_EQ(rp2.registerPtr(10000, memMap1.getMappedAddress()), false);
-
-    // ToCheck can same memory be registered to different id?
-    // EXPECT_EQ(rp1.registerPtr(2, memMap.getMappedAddress()), false);
-    EXPECT_EQ(rp2.registerPtr(10000, memMap1.getMappedAddress()), false);
 }
 
 TYPED_TEST(relativeptrtests, basePointerValid)
 {
-    void* basePtr1 = reinterpret_cast<void*>(BaseAddress1);
-    MemMap memMap(basePtr1, this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
+    void* basePtr1 = memMap.getMappedAddress();
 
     iox::relative_ptr<TypeParam> rp1(memMap.getMappedAddress(), 1);
-    EXPECT_EQ(nullptr, rp1.getBasePtr(1));
+    EXPECT_EQ(rp1.getBasePtr(1), nullptr);
     rp1.registerPtr(1, memMap.getMappedAddress());
     EXPECT_EQ(basePtr1, rp1.getBasePtr(1));
 }
 
 TYPED_TEST(relativeptrtests, assignmentOperator)
 {
-    MemMap memMap(reinterpret_cast<void*>(BaseAddress1), this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
 
     iox::relative_ptr<TypeParam> rp1(memMap.getMappedAddress(), 1);
     iox::relative_ptr<TypeParam> rp2 = rp1;
@@ -403,7 +389,7 @@ TYPED_TEST(relativeptrtests, assignmentOperator)
 
 TYPED_TEST(relativeptrtests, pointerOperator)
 {
-    MemMap memMap(reinterpret_cast<void*>(BaseAddress1), this->m_fileDescriptor);
+    MemMap memMap(this->m_fileDescriptor);
 
     auto baseAddr = reinterpret_cast<TypeParam*>(memMap.getMappedAddress());
     *baseAddr = static_cast<TypeParam>(88);
@@ -426,9 +412,6 @@ TEST_F(RelativePointer_test, memoryRemapping)
 
     uint8_t* base1 = block1[0];
     uint8_t* base2 = block2[0];
-
-    // compiler may rearrange data on stack so this can fail (but does not matter)
-    // EXPECT_EQ(base2 - base1, BLOCK_SIZE);
 
     // uint8 write
     *base1 = 37U;
@@ -501,13 +484,12 @@ TEST_F(RelativePointer_test, memoryRemapping)
 
 TEST_F(RelativePointer_test, MemoryReMapping_SharedMemory)
 {
-    MemMap memMapWriter(reinterpret_cast<void*>(BaseAddress1), this->m_fileDescriptor);
-    MemMap memMapReader(reinterpret_cast<void*>(BaseAddress2), this->m_fileDescriptor);
+    MemMap memMapWriter(this->m_fileDescriptor);
+    MemMap memMapReader(this->m_fileDescriptor);
 
-    Data* dataPointer1 = new (reinterpret_cast<void*>(BaseAddress1)) Data(12, 21);
+    Data* dataPointer1 = new (memMapWriter.getMappedAddress()) Data(12, 21);
 
-    EXPECT_EQ(reinterpret_cast<uintptr_t>(dataPointer1), BaseAddress1);
-    EXPECT_EQ(dataPointer1->Data1, reinterpret_cast<Data*>(BaseAddress2)->Data1);
+    EXPECT_EQ(dataPointer1->Data1, reinterpret_cast<Data*>(memMapReader.getMappedAddress())->Data1);
 
     int offset = ShmSize / 2;
     auto offsetAddr1 = reinterpret_cast<int*>(static_cast<uint8_t*>(memMapWriter.getMappedAddress()) + offset);

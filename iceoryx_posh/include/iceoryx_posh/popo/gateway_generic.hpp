@@ -38,7 +38,7 @@ class GatewayGeneric
 
     /// @brief Constructor for creating generic gateway based on type of interface
     /// @param[in] f_interface Type of interface
-    GatewayGeneric(const Interfaces f_interface) noexcept;
+    GatewayGeneric(const capro::Interfaces f_interface) noexcept;
 
     GatewayGeneric& operator=(const GatewayGeneric& other) = delete;
     GatewayGeneric(const GatewayGeneric& other) = delete;

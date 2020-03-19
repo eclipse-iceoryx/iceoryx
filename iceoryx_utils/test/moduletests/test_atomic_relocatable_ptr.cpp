@@ -24,7 +24,7 @@ namespace
 {
 using byte_t = std::uint8_t;
 
-template <size_t n>
+template <size_t n, size_t alignment>
 class Memory
 {
   public:
@@ -54,7 +54,7 @@ class Memory
     }
 
   private:
-    byte_t buf[n];
+    alignas(alignment) byte_t buf[n];
 };
 
 class Foo
@@ -156,19 +156,21 @@ TEST_F(AtomicRelocatablePointer_test, dereferenceOperator)
 // copied location
 TEST_F(AtomicRelocatablePointer_test, memoryRelocation)
 {
-    Memory<1024> memory;
+    constexpr uint64_t ALIGNMENT_OF_PTR {alignof(Ptr<byte_t>)};
+    constexpr size_t INDEX_OF_PTR {ALIGNMENT_OF_PTR};
+    Memory<1024, ALIGNMENT_OF_PTR> memory;
     memory[1000] = 37;
     // EXPECT_EQ(memory[1000], 37);
 
-    Ptr<byte_t>* rp = new (memory.ptr(10)) Ptr<byte_t>(memory.ptr(1000));
+    Ptr<byte_t>* rp = new (memory.ptr(INDEX_OF_PTR)) Ptr<byte_t>(memory.ptr(1000));
 
-    // we have constructed a relocatable pointer at adress 10 in memory which points
+    // we have constructed a relocatable pointer at adress "INDEX_OF_PTR" in memory which points
     // to address at memory location 1000 which holds value 37
     EXPECT_EQ(*rp, memory.ptr(1000));
     EXPECT_EQ(**rp, 37);
 
     // copy this memory to a new destination which we then set to 0
-    Memory<1024> dest;
+    Memory<1024, ALIGNMENT_OF_PTR> dest;
     EXPECT_EQ(dest[1000], 0);
     dest.set(memory);
     memory.set(0);
@@ -178,7 +180,7 @@ TEST_F(AtomicRelocatablePointer_test, memoryRelocation)
 
     // reinterpret the memory where the relocatable was at destination, it now should point to
     // byte 1000 in dest which holds value 37 after memory was copied to dest
-    rp = reinterpret_cast<Ptr<byte_t>*>(dest.ptr(10));
+    rp = reinterpret_cast<Ptr<byte_t>*>(dest.ptr(INDEX_OF_PTR));
     EXPECT_EQ(*rp, dest.ptr(1000));
     EXPECT_EQ(**rp, 37);
 }

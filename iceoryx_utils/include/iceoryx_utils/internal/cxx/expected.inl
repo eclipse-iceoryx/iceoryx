@@ -117,7 +117,7 @@ inline bool expected<ValueType, ErrorType>::has_error() const noexcept
 }
 
 template <typename ValueType, typename ErrorType>
-inline const ErrorType&& expected<ValueType, ErrorType>::get_error() const&& noexcept
+inline const ErrorType&& expected<ValueType, ErrorType>::get_error() const && noexcept
 {
     return std::move(*m_store.template get_at_index<1>());
 }
@@ -135,7 +135,7 @@ template <typename ValueType, typename ErrorType>
 }
 
 template <typename ValueType, typename ErrorType>
-inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexcept
+inline const ErrorType& expected<ValueType, ErrorType>::get_error() const & noexcept
 {
     return *m_store.template get_at_index<1>();
 }
@@ -147,13 +147,13 @@ template <typename ValueType, typename ErrorType>
 }
 
 template <typename ValueType, typename ErrorType>
-inline const ValueType& expected<ValueType, ErrorType>::get_value() const& noexcept
+inline const ValueType& expected<ValueType, ErrorType>::get_value() const & noexcept
 {
     return *m_store.template get_at_index<0>();
 }
 
 template <typename ValueType, typename ErrorType>
-inline const ValueType&& expected<ValueType, ErrorType>::get_value() const&& noexcept
+inline const ValueType&& expected<ValueType, ErrorType>::get_value() const && noexcept
 {
     return std::move(*m_store.template get_at_index<0>());
 }
@@ -327,6 +327,7 @@ inline expected<ErrorType>::expected(error<ErrorType>&& errorValue) noexcept
 {
 }
 
+#if defined(_WIN32)
 template <typename ErrorType>
 template <typename ValueType>
 inline expected<ErrorType>::expected(const expected<ValueType, ErrorType>& rhs) noexcept
@@ -378,6 +379,7 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ValueType, E
     }
     m_hasError = rhs.has_error();
 }
+#endif
 
 template <typename ErrorType>
 inline expected<ErrorType> expected<ErrorType>::create_value() noexcept
@@ -409,13 +411,13 @@ template <typename ErrorType>
 }
 
 template <typename ErrorType>
-inline const ErrorType& expected<ErrorType>::get_error() const& noexcept
+inline const ErrorType& expected<ErrorType>::get_error() const & noexcept
 {
     return *m_store.template get_at_index<0>();
 }
 
 template <typename ErrorType>
-inline const ErrorType&& expected<ErrorType>::get_error() const&& noexcept
+inline const ErrorType&& expected<ErrorType>::get_error() const && noexcept
 {
     return std::move(*m_store.template get_at_index<0>());
 }

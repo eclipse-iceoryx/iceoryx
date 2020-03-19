@@ -35,7 +35,6 @@ struct ReceiverPortData : public BasePortData
     ReceiverPortData() noexcept;
     ReceiverPortData(const capro::ServiceDescription& serviceDescription,
                      const std::string& applicationName,
-                     const Interfaces interface,
                      runtime::RunnableData* const runnable) noexcept;
 
     using mutex_t = posix::mutex; // std::mutex
@@ -51,7 +50,7 @@ struct ReceiverPortData : public BasePortData
 
     // event callback related
     mutable std::atomic_bool m_chunkSendCallbackActive{false};
-    mutable cxx::optional<mutex_t> m_chunkSendCallbackMutex = mutex_t::CreateMutex(false);
+    mutable mutex_t m_chunkSendCallbackMutex{false};
     iox::relative_ptr<posix::Semaphore> m_chunkSendSemaphore{nullptr};
 
     // offer semaphore that is stored in shared memory

@@ -25,6 +25,12 @@ namespace iox
 {
 namespace log
 {
+enum class LogLevelOutput : uint8_t
+{
+    kDisplayLogLevel = 0,
+    kHideLogLevel
+};
+
 class LogManager
 {
   public:
@@ -39,7 +45,8 @@ class LogManager
     LogManager& operator=(LogManager&&) = delete;
 
     LogLevel DefaultLogLevel() const noexcept;
-    void SetDefaultLogLevel(const LogLevel logLevel) noexcept;
+    void SetDefaultLogLevel(const LogLevel logLevel,
+                            const LogLevelOutput logLevelOutput = LogLevelOutput::kDisplayLogLevel) noexcept;
 
     LogMode DefaultLogMode() const noexcept;
     void SetDefaultLogMode(const LogMode logMode) noexcept;
@@ -56,4 +63,3 @@ class LogManager
 
 } // namespace log
 } // namespace iox
-

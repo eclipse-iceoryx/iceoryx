@@ -93,33 +93,28 @@ class PoshRuntime
 
     /// @brief request the RouDi daemon to create a sender port
     /// @param[in] serviceDescription service description for the new sender port
-    /// @param[in] interface interface to which the sender port shall belong
     /// @param[in] runnableName name of the runnable where the sender should belong to
     /// @return poiner to a created sender port data
     SenderPortType::MemberType_t* getMiddlewareSender(const capro::ServiceDescription& service,
-                                                      const Interfaces interface = Interfaces::INTERNAL,
                                                       const cxx::CString100& runnableName = "") noexcept;
 
     /// @brief request the RouDi daemon to create a receiver port
     /// @param[in] serviceDescription service description for the new receiver port
-    /// @param[in] interface interface to which the receiver port shall belong
     /// @param[in] runnableName name of the runnable where the receiver should belong to
     /// @return poiner to a created receiver port data
     ReceiverPortType::MemberType_t* getMiddlewareReceiver(const capro::ServiceDescription& service,
-                                                          const Interfaces interface = Interfaces::INTERNAL,
                                                           const cxx::CString100& runnableName = "") noexcept;
 
     /// @brief request the RouDi daemon to create an interface port
     /// @param[in] interface interface to create
     /// @param[in] runnableName name of the runnable where the interface should belong to
     /// @return poiner to a created interface port data
-    popo::InterfacePortData* getMiddlewareInterface(const Interfaces interface,
+    popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
                                                     const cxx::CString100& runnableName = "") noexcept;
 
     /// @brief request the RouDi daemon to create an application port
-    /// @param[in] interface to which the application port shall belong
     /// @return poiner to a created application port data
-    popo::ApplicationPortData* getMiddlewareApplication(const Interfaces interface) noexcept;
+    popo::ApplicationPortData* getMiddlewareApplication() noexcept;
 
     /// @brief request the RouDi daemon to create a runnable
     /// @param[in] runnableProperty class which contains all properties which the runnable should have
@@ -168,6 +163,8 @@ class PoshRuntime
 
     ReceiverPortType::MemberType_t* requestReceiverFromRoudi(const MqMessage& sendBuffer) noexcept;
 
+    /// @brief checks the given application name for certain constraints like length(100 chars) or leading slash
+    /// @todo replace length check with fixedstring when its integrated
     const std::string& verifyInstanceName(const std::string& name) noexcept;
 
     const std::string m_appName;

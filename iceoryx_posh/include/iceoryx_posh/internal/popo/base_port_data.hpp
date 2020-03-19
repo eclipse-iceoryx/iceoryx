@@ -56,11 +56,10 @@ struct BasePortData
     /// @param[in] serviceDescription creates the service service description
     /// @param[in] portType Type of port to be created
     /// @param[in] processName Name of the process
-    /// @param[in] interface Type of interface
+    /// @param[in] runnable The runnable where this port is attached to
     BasePortData(const capro::ServiceDescription& serviceDescription,
                  const BasePortType& portType,
                  const cxx::CString100& processName,
-                 const Interfaces interface,
                  runtime::RunnableData* const runnable) noexcept;
 
     BasePortData(const BasePortData&) = delete;
@@ -72,7 +71,6 @@ struct BasePortData
     BasePortType m_portType{BasePortType::NO_PORT};
     capro::ServiceDescription m_serviceDescription;
     cxx::CString100 m_processName;
-    Interfaces m_interface{Interfaces::INTERNAL};
 
     static std::atomic<uint64_t> s_uniqueIdCounter;
     std::atomic<uint64_t> m_uniqueId{0};

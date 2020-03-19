@@ -22,7 +22,6 @@
 #include "iceoryx_utils/platform/semaphore.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 
-
 #include <cstring>
 
 namespace iox

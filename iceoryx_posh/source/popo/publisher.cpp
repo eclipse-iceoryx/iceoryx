@@ -25,7 +25,7 @@ Publisher::Publisher() noexcept
 }
 
 Publisher::Publisher(const capro::ServiceDescription& service, const cxx::CString100& runnableName) noexcept
-    : m_sender(runtime::PoshRuntime::getInstance().getMiddlewareSender(service, Interfaces::INTERNAL, runnableName))
+    : m_sender(runtime::PoshRuntime::getInstance().getMiddlewareSender(service, runnableName))
 {
 }
 

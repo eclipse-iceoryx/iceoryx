@@ -68,10 +68,6 @@ class BasePort
     /// @return             Application name as String
     cxx::CString100 getApplicationName() const noexcept;
 
-    /// @brief Gets Interface Name for the active port
-    /// @return             Interface name as enum value
-    Interfaces getInterface() const noexcept;
-
     /// @brief Gets Id of thethe active port
     /// @return             UniqueId name as Integer
     uint64_t getUniqueID() const noexcept;

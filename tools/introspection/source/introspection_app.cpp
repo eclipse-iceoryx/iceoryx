@@ -305,6 +305,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     constexpr int32_t fifoWidth{17};
     constexpr int32_t callbackActiveWidth{8};
     constexpr int32_t scopeWidth{12};
+    constexpr int32_t interfaceSourceWidth{8};
 
     prettyPrint("Sender Ports\n", PrettyOptions::bold);
 
@@ -316,7 +317,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     wprintw(pad, " %*s |", chunkSizeWidth, "Chunk Size");
     wprintw(pad, " %*s |", chunksWidth, "Chunks");
     wprintw(pad, " %*s |", intervalWidth, "Last Send Interval");
-    wprintw(pad, " %*s\n", isFieldWidth, "Field");
+    wprintw(pad, " %*s |", isFieldWidth, "Field");
+    wprintw(pad, " %*s\n", interfaceSourceWidth, "Src. Itf.");
 
     wprintw(pad, " %*s |", serviceWidth, "");
     wprintw(pad, " %*s |", instanceWidth, "");
@@ -326,10 +328,11 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     wprintw(pad, " %*s |", chunkSizeWidth, "[Byte]");
     wprintw(pad, " %*s |", chunksWidth, "[/Minute]");
     wprintw(pad, " %*s |", intervalWidth, "[Milliseconds]");
-    wprintw(pad, " %*s\n", isFieldWidth, "");
+    wprintw(pad, " %*s |", isFieldWidth, "");
+    wprintw(pad, " %*s\n", interfaceSourceWidth, "");
 
     wprintw(pad, "---------------------------------------------------------------------------------------------------");
-    wprintw(pad, "---------------------------------------------------------------\n");
+    wprintw(pad, "----------------------------------------------------------------------------\n");
 
     bool needsLineBreak{false};
     int currentLine{0};
@@ -380,7 +383,16 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
             wprintw(pad, " %s |", printEntry(chunkSizeWidth, m_chunkSize).c_str());
             wprintw(pad, " %s |", printEntry(chunksWidth, m_chunksPerMinute).c_str());
             wprintw(pad, " %s |", printEntry(intervalWidth, sendInterval).c_str());
-            wprintw(pad, " %s\n", printEntry(isFieldWidth, (sender.throughputData->m_isField ? "X" : "")).c_str());
+            wprintw(pad, " %s |", printEntry(isFieldWidth, (sender.throughputData->m_isField ? "X" : "")).c_str());
+            wprintw(
+                pad,
+                " %s\n",
+                printEntry(interfaceSourceWidth,
+                           (iox::capro::INTERFACE_NAMES[static_cast<std::underlying_type<iox::capro::Interfaces>::type>(
+                               sender.portData->m_sourceInterface)]))
+                    .c_str());
+
+
             currentLine++;
         } while (needsLineBreak);
     }

@@ -145,6 +145,7 @@ class expected<ErrorType>
     ///         or the error value - depending on what is stored in the expected
     expected(expected&&) = default;
 
+#if defined(_WIN32)
     /// @brief copy conversion constructor to convert an expected which contains value and
     ///        error type to an expected which contains only an error
     template <typename ValueType>
@@ -154,6 +155,7 @@ class expected<ErrorType>
     ///        error type to an expected which contains only an error
     template <typename ValueType>
     expected(expected<ValueType, ErrorType>&& rhs) noexcept;
+#endif
 
     /// @brief calls the destructor of the success value or error value - depending on what
     ///         is stored in the expected
@@ -167,6 +169,7 @@ class expected<ErrorType>
     ///         or the error value - depending on what is stored in the expected
     expected& operator=(expected&&) = default;
 
+#if defined(_WIN32)
     /// @brief  calls the copy assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
     template <typename ValueType>
@@ -176,6 +179,7 @@ class expected<ErrorType>
     ///         or the error value - depending on what is stored in the expected
     template <typename ValueType>
     expected& operator=(expected<ValueType, ErrorType>&& rhs) noexcept;
+#endif
 
     /// @brief  constructs an expected which is signaling success
     /// @param[in] successValue value which will be stored in the expected
@@ -214,7 +218,7 @@ class expected<ErrorType>
     /// @brief  returns a const reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return const reference to the internally contained error
-    const ErrorType& get_error() const& noexcept;
+    const ErrorType& get_error() const & noexcept;
 
     /// @brief  returns a rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
@@ -224,7 +228,7 @@ class expected<ErrorType>
     /// @brief  returns a const rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return rvalue reference to the internally contained error
-    const ErrorType&& get_error() const&& noexcept;
+    const ErrorType&& get_error() const && noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -397,7 +401,7 @@ class expected<ValueType, ErrorType>
     /// @brief  returns a const reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return const reference to the internally contained error
-    const ErrorType& get_error() const& noexcept;
+    const ErrorType& get_error() const & noexcept;
 
     /// @brief  returns a rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
@@ -407,7 +411,7 @@ class expected<ValueType, ErrorType>
     /// @brief  returns a const rvalue reference to the contained error value, if the expected
     ///         does not contain an error this is undefined behavior
     /// @return rvalue reference to the internally contained error
-    const ErrorType&& get_error() const&& noexcept;
+    const ErrorType&& get_error() const && noexcept;
 
     /// @brief  returns a reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
@@ -417,7 +421,7 @@ class expected<ValueType, ErrorType>
     /// @brief  returns a const reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
     /// @return const reference to the internally contained value
-    const ValueType& get_value() const& noexcept;
+    const ValueType& get_value() const & noexcept;
 
     /// @brief  returns a reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
@@ -427,7 +431,7 @@ class expected<ValueType, ErrorType>
     /// @brief  returns a const rvalue reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
     /// @return const rvalue reference to the internally contained value
-    const ValueType&& get_value() const&& noexcept;
+    const ValueType&& get_value() const && noexcept;
 
     /// @brief  returns a copy of the contained success value if the expected does
     ///         contain a success value, otherwise it returns a copy of value

@@ -30,7 +30,7 @@ Subscriber::Subscriber() noexcept
 }
 
 Subscriber::Subscriber(const capro::ServiceDescription& service, const cxx::CString100& runnableName) noexcept
-    : m_receiver(runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, Interfaces::INTERNAL, runnableName))
+    : m_receiver(runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, runnableName))
 {
 }
 

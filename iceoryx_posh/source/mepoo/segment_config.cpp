@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/mepoo/segment_config.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 namespace iox
 {

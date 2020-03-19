@@ -160,5 +160,12 @@ const char* convertEnumToString(T port, const Enumeration source)
     return port[static_cast<size_t>(source)];
 }
 
+/// cast an enum to its underlying type
+template <typename enum_type>
+auto enumTypeAsUnderlyingType(enum_type const value) -> typename std::underlying_type<enum_type>::type
+{
+    return static_cast<typename std::underlying_type<enum_type>::type>(value);
+}
+
 } // namespace cxx
 } // namespace iox

@@ -16,7 +16,6 @@
 
 #include "iceoryx_utils/cxx/smart_c.hpp"
 
-
 namespace iox
 {
 namespace posix

@@ -35,7 +35,7 @@ class ThreadSafe
     void unlock();
 
   private:
-    cxx::optional<mutex_t> m_mutex = mutex_t::CreateMutex(true); // recursive lock
+    mutex_t m_mutex{true}; // recursive lock
 };
 
 class SingleThreaded

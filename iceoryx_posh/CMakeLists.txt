@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(iceoryx_posh_VERSION 0.16.0.1)
+set(iceoryx_posh_VERSION 0.16.1)
 project(iceoryx_posh VERSION ${iceoryx_posh_VERSION})
 
 find_package(Threads REQUIRED)
@@ -11,6 +11,7 @@ if(TOML_CONFIG)
 endif(TOML_CONFIG)
 
 include(cmake/iceoryxversions.cmake)
+include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
 include(IceoryxPlatformDetection)
 
@@ -136,7 +137,12 @@ endif()
 add_library(iceoryx_posh_roudi
     source/roudi/application/iceoryx_roudi_app.cpp
     source/roudi/application/roudi_app.cpp
+    source/roudi/memory/memory_block.cpp
+    source/roudi/memory/memory_provider.cpp
+    source/roudi/memory/posix_shm_memory_provider.cpp
     source/roudi/roudi_config.cpp
+    source/roudi/roudi_cmd_line_parser.cpp
+    source/roudi/roudi_cmd_line_parser_config_file_option.cpp
     source/roudi/roudi_multi_process.cpp
     source/roudi/roudi_lock.cpp
     source/roudi/roudi_process.cpp
@@ -173,6 +179,12 @@ target_link_libraries(iceoryx_posh_roudi
     iceoryx_utils::iceoryx_utils
 )
 
+if(TOML_CONFIG)
+    add_library(iceoryx_posh_roudi_toml
+        source/roudi/roudi_config_toml_file_provider.cpp
+    )
+    target_link_libraries(iceoryx_posh_roudi_toml PRIVATE cpptoml iceoryx_posh_roudi)
+endif(TOML_CONFIG)
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
@@ -180,31 +192,31 @@ endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
 #
 ########## build roudi ##########
-
-add_executable(RouDi
-    source/roudi/application/roudi_main.cpp
-)
-
-target_compile_options(RouDi PUBLIC -std=c++11)
-target_compile_options(RouDi PUBLIC -fPIC)
-
-set_target_properties(RouDi
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-if(PERFORM_CLANG_TIDY)
-    set_target_properties(
-        RouDi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-    )
-endif(PERFORM_CLANG_TIDY)
-target_link_libraries(RouDi
-    PRIVATE
-    ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
-    iceoryx_utils::iceoryx_utils
-)
-
 if(TOML_CONFIG)
-    target_link_libraries(RouDi PRIVATE cpptoml)
-    target_compile_definitions(RouDi PRIVATE -DTOML_CONFIG_FILE)
+
+    add_executable(RouDi
+        source/roudi/application/roudi_main.cpp
+    )
+
+    target_compile_options(RouDi PUBLIC -std=c++11)
+    target_compile_options(RouDi PUBLIC -fPIC)
+
+    set_target_properties(RouDi
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    )
+    if(PERFORM_CLANG_TIDY)
+        set_target_properties(
+            RouDi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
+        )
+    endif(PERFORM_CLANG_TIDY)
+    target_link_libraries(RouDi
+        PRIVATE
+        ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
+        iceoryx_utils::iceoryx_utils
+    )
+
+    target_link_libraries(RouDi PRIVATE cpptoml iceoryx_posh_roudi_toml)
+
 endif(TOML_CONFIG)
 
 if(roudi_environment OR test)
@@ -235,9 +247,15 @@ endif(roudi_environment OR test)
 ########## exporting library ##########
 #
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_posh iceoryx_posh_roudi RouDi
+    TARGETS iceoryx_posh iceoryx_posh_roudi
     INCLUDE_DIRECTORY include/
 )
+if(TOML_CONFIG)
+    setup_install_directories_and_export_package(
+        TARGETS RouDi
+        INCLUDE_DIRECTORY include/
+    )
+endif(TOML_CONFIG)
 
 if(test)
     add_subdirectory(test)
