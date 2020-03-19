@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <condition_variable>
 #include <mutex>
 #include <sys/time.h>
 #include <thread>
@@ -30,7 +31,11 @@ struct appleTimer_t
     void (*callback)(union sigval);
     sigval callbackParameter;
     itimerspec timeParameters;
-    std::atomic_bool keepRunning;
+
+    std::mutex keepRunningMutex;
+    bool keepRunning{false};
+    std::mutex wakeupMutex;
+    std::condition_variable wakeup;
 };
 
 using timer_t = appleTimer_t*;

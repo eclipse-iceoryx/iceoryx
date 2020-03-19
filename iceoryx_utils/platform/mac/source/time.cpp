@@ -14,6 +14,36 @@
 
 #include "iceoryx_utils/platform/time.hpp"
 
+static std::chrono::nanoseconds getNanoSeconds(const timespec& value)
+{
+    static constexpr uint64_t NANOSECONDS = 1000000000;
+    return std::chrono::nanoseconds(static_cast<uint64_t>(value.tv_sec) * NANOSECONDS
+                                    + static_cast<uint64_t>(value.tv_nsec));
+}
+
+static void stopTimer(timer_t timerid)
+{
+    {
+        std::lock_guard<std::mutex> lock(timerid->keepRunningMutex);
+        timerid->keepRunning = false;
+    }
+    timerid->wakeup.notify_one();
+
+    if (timerid->thread.joinable())
+    {
+        timerid->thread.join();
+    }
+}
+
+static bool waitForExecution(timer_t timerid)
+{
+    std::unique_lock<std::mutex> ulock(timerid->wakeupMutex);
+    timerid->wakeup.wait_for(ulock, getNanoSeconds(timerid->timeParameters.it_value));
+
+    std::lock_guard<std::mutex> lock(timerid->keepRunningMutex);
+    return timerid->keepRunning;
+}
+
 int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid)
 {
     timer_t timer = new appleTimer_t();
@@ -25,15 +55,12 @@ int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid)
 
 int timer_delete(timer_t timerid)
 {
-    if (timerid->thread.joinable())
-    {
-        timerid->thread.join();
-    }
+    stopTimer(timerid);
     delete timerid;
     return 0;
 }
 
-#include <iostream>
+#include <cstdio>
 
 int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value)
 {
@@ -41,35 +68,32 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value
     // disarm timer
     if (new_value->it_value.tv_sec == 0 && new_value->it_value.tv_nsec == 0)
     {
-        timerid->keepRunning.store(false);
-        if (timerid->thread.joinable())
-        {
-            timerid->thread.join();
-        }
+        stopTimer(timerid);
     }
     // run once
     else if (new_value->it_interval.tv_sec == 0 && new_value->it_interval.tv_nsec == 0)
     {
+        // no mutex required since we are still in the sequential phase and did
+        // not start a thread
+        timerid->keepRunning = true;
+
         timerid->thread = std::thread([timerid] {
-            static constexpr uint64_t NANOSECONDS = 1000000000;
-            auto& timeout = timerid->timeParameters.it_value;
-            std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<uint64_t>(timeout.tv_sec) * NANOSECONDS
-                                                                 + static_cast<uint64_t>(timeout.tv_nsec)));
-            timerid->callback(timerid->callbackParameter);
+            if (waitForExecution(timerid))
+            {
+                timerid->callback(timerid->callbackParameter);
+            }
         });
     }
     // run periodically
     else
     {
-        timerid->keepRunning.store(true);
+        // no mutex required since we are still in the sequential phase and did
+        // not start a thread
+        timerid->keepRunning = true;
 
         timerid->thread = std::thread([timerid] {
-            static constexpr uint64_t NANOSECONDS = 1000000000;
-            auto& timeout = timerid->timeParameters.it_value;
-            while (timerid->keepRunning.load())
+            while (waitForExecution(timerid))
             {
-                std::this_thread::sleep_for(std::chrono::nanoseconds(static_cast<uint64_t>(timeout.tv_sec) * NANOSECONDS
-                                                                     + static_cast<uint64_t>(timeout.tv_nsec)));
                 timerid->callback(timerid->callbackParameter);
             }
         });
