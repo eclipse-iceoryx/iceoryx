@@ -35,8 +35,6 @@ constexpr char MQ_ROUDI_NAME[] = "/roudi";
 
 /// shared memmory segment for the iceoryx managment data
 constexpr char SHM_NAME[] = "/iceoryx_mgmt";
-/// semaphore which is created by roudi on startup
-constexpr char ROUDI_APP_SEMAPHORE_NAME[] = "roudiAppSemaphore";
 
 // Make the user-defined literal operators accessible
 using namespace units::duration_literals;
