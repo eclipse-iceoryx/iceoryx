@@ -20,7 +20,7 @@
 #include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <csignal>
 #include <cstdint>
@@ -115,6 +115,10 @@ class ProcessManagerInterface
 class ProcessManager : public ProcessManagerInterface
 {
   public:
+    /// @todo use a fixed, stack based list once available
+    // using ProcessList_t = cxx::list<RouDiProcess, MAX_PROCESS_NUMBER>;
+    using ProcessList_t = std::list<RouDiProcess>;
+
     ProcessManager(SharedMemoryManager& f_shmMgr);
     virtual ~ProcessManager() override
     {
@@ -143,9 +147,9 @@ class ProcessManager : public ProcessManagerInterface
 
     void findServiceForProcess(const std::string& f_name, const capro::ServiceDescription& f_service);
 
-    void addInterfaceForProcess(const std::string& f_name, Interfaces f_interface, const std::string& f_runnable);
+    void addInterfaceForProcess(const std::string& f_name, capro::Interfaces f_interface, const std::string& f_runnable);
 
-    void addApplicationForProcess(const std::string& f_name, Interfaces f_interface);
+    void addApplicationForProcess(const std::string& f_name);
 
     void addRunnableForProcess(const std::string& f_process, const std::string& f_runnable);
 
@@ -153,12 +157,10 @@ class ProcessManager : public ProcessManagerInterface
 
     void addReceiverForProcess(const std::string& f_name,
                                const capro::ServiceDescription& f_service,
-                               Interfaces f_interface,
                                const std::string& f_runnable);
 
     void addSenderForProcess(const std::string& f_name,
                              const capro::ServiceDescription& f_service,
-                             Interfaces f_interface,
                              const std::string& f_runnable);
 
     void initIntrospection(ProcessIntrospectionType* f_processIntrospection);
@@ -217,9 +219,7 @@ class ProcessManager : public ProcessManagerInterface
 
     SharedMemoryManager& m_shmMgr;
     mutable std::mutex m_mutex;
-    /// @todo use a fixed, stack based list once available
-    // using ProcessList_t = cxx::list<RouDiProcess, MAX_PROCESS_NUMBER>;
-    using ProcessList_t = std::list<RouDiProcess>;
+
     ProcessList_t m_processList;
 
     ProcessIntrospectionType* m_processIntrospection{nullptr};

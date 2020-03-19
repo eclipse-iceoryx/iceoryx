@@ -132,7 +132,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::sendReceiverPortsData()
 {
     auto chunkInfo = m_senderPortReceiverPortsData.reserveChunk(sizeof(ReceiverPortChangingIntrospectionFieldTopic));
     auto receiverPortChangingDataSample =
-    static_cast<ReceiverPortChangingIntrospectionFieldTopic*>(chunkInfo->payload());
+        static_cast<ReceiverPortChangingIntrospectionFieldTopic*>(chunkInfo->payload());
     new (receiverPortChangingDataSample) ReceiverPortChangingIntrospectionFieldTopic();
 
     m_portData.prepareTopic(*receiverPortChangingDataSample); // requires internal mutex (blocks
@@ -430,6 +430,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
             SenderPortData senderData;
             SenderPort port(senderInfo.portData);
             senderData.m_senderPortID = port.getUniqueID();
+            senderData.m_sourceInterface = senderInfo.service.getSourceInterface();
             senderData.m_name = cxx::CString100(senderInfo.name.c_str());
             senderData.m_runnable = cxx::CString100(senderInfo.runnable.c_str());
 

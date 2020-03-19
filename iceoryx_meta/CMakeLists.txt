@@ -25,8 +25,23 @@ if (NOT googletest_POPULATED)
     set(GTest_FOUND true)
     add_library(GTest::gtest ALIAS gtest)
     add_library(GTest::gmock ALIAS gmock)
-endif()   
+endif(NOT googletest_POPULATED)
 endif(test)
+
+if (TOML_CONFIG )
+    FetchContent_Declare(
+        CPPTOML
+        GIT_REPOSITORY https://github.com/skystrife/cpptoml
+        GIT_TAG v0.1.1
+    )
+    FetchContent_GetProperties(CPPTOML)
+    if (NOT cpptoml_POPULATED)
+        message(STATUS "updating: cpptoml" )
+        FetchContent_Populate(CPPTOML)
+        add_subdirectory(${cpptoml_SOURCE_DIR} ${cpptoml_BINARY_DIR})
+        set(cpptoml_FOUND true)
+    endif(NOT cpptoml_POPULATED)
+endif(TOML_CONFIG)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/iceoryx_utils )
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/iceoryx_posh )

@@ -16,10 +16,13 @@
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_posh/roudi/roudi_config_file_parser.hpp"
+#include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
+#include "iceoryx_posh/roudi/roudi_config_file_provider.hpp"
 #include "iceoryx_utils/log/logcommon.hpp"
+#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 #include <cstdint>
+#include <cstdio>
 
 namespace iox
 {
@@ -29,37 +32,22 @@ namespace roudi
 class RouDiApp
 {
   public:
-    /// @brief This controls the process alive monitoring. Upon timeout a monitored process is removed
-    /// and its resources made available. The process can then start and register itself again.
-    /// Contrarily, unmonitored processes can be restarted but registration will fail.
-    /// Once extended Runlevel Management is operational it will detect process absence and
-    /// those processes can register again.
-    /// ON - all processes are monitored
-    /// OFF - no process is monitored
-    enum class MonitoringMode
-    {
-        ON,
-        OFF
-    };
+    /// @brief Method passed to the OS signal handler
+    static void roudiSigHandler(int signal) noexcept;
 
-    /// @deprecated Please port to RouDiConfig_t
-    /// @todo use the [[gnu::deprecated]] attribute in the next release
+    /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
     static RouDiConfig_t generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept;
-    /// @deprecated Please port to RouDiConfig_t
-    /// @todo use the [[gnu::deprecated]] attribute in the next release
+
+    /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
     RouDiApp(int argc, char* argv[], const mepoo::MePooConfig* mePooConfig = nullptr) noexcept;
 
-    /// @brief constructor to create a RouDi daemon with a given config
-    /// @param[in] argc forwarding of command line arguments
-    /// @param[in] argv forwarding of command line arguments
-    /// @param[in] config the configuration to use
+    /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
     RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept;
 
-    /// @brief constructor to create a RouDi daemon with a given config
-    /// @param[in] argc forwarding of command line arguments
-    /// @param[in] argv forwarding of command line arguments
-    /// @param[in] configFileParser the configuration file parser for the RouDi config
-    RouDiApp(int argc, char* argv[], RouDiConfigFileParser* configFileParser) noexcept;
+    /// @brief C'tor with command line parser, which has already parsed the command line parameters
+    /// @param[in] cmdLineParser reference to a command line parser object
+    /// @param[in] config the configuration to use
+    RouDiApp(const CmdLineParser& cmdLineParser, const RouDiConfig_t& config) noexcept;
 
     virtual ~RouDiApp() noexcept {};
 
@@ -67,36 +55,39 @@ class RouDiApp
     virtual void run() noexcept = 0;
 
   protected:
-    enum class CmdLineArgumentParsingMode
-    {
-        ALL,
-        ONE
-    };
-
-    /// @brief this is needed for the child classes to extend the parseCmdLineArguments function
+    /// @brief this is needed for the child classes for custom CmdLineParser
     /// @param[in] config the configuration to use
     RouDiApp(const RouDiConfig_t& config) noexcept;
+
+    /// @brief Tells the OS which signals shall be hooked
+    void registerSigHandler() noexcept;
+
+    void parseCmdLineArguments(int argc,
+                               char* argv[],
+                               CmdLineParser::CmdLineArgumentParsingMode cmdLineParsingMode =
+                                   CmdLineParser::CmdLineArgumentParsingMode::ALL) noexcept;
+
+    /// @brief Extracts from CmdLineParser and sets them
+    void setCmdLineParserResults(const CmdLineParser& cmdLineParser) noexcept;
 
     /// @brief initialize the RouDi daemon
     void init() noexcept;
 
-    /// @brief waits for termination of RouDi daemon
-    void waitToFinish() noexcept;
-
-    /// @brief process the passed command line arguments
-    /// @param[in] argc forwarding of command line arguments
-    /// @param[in] argv forwarding of command line arguments
-    /// @param[in] cmdLineParsingMode the parser to use
-    void
-    parseCmdLineArguments(int argc,
-                          char* argv[],
-                          CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
+    /// @brief waits for the next signal to RouDi daemon
+    bool waitForSignal() const noexcept;
 
     bool m_run{true};
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
     MonitoringMode m_monitoringMode{MonitoringMode::ON};
     RouDiConfig_t m_config;
-    RouDiConfigFileParser* m_configFileParser{nullptr};
+
+    posix::Semaphore m_semaphore = std::move(posix::Semaphore::create(0)
+                                                 .on_error([] {
+                                                     std::cerr << "Unable to create the semaphore for RouDi"
+                                                               << std::endl;
+                                                     std::terminate();
+                                                 })
+                                                 .get_value());
 };
 
 } // namespace roudi

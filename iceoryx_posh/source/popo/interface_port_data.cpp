@@ -19,12 +19,12 @@ namespace iox
 namespace popo
 {
 InterfacePortData::InterfacePortData(const std::string& applicationName,
-                                     const Interfaces interface,
+                                     const capro::Interfaces interface,
                                      runtime::RunnableData* const runnable) noexcept
-    : BasePortData(capro::ServiceDescription(),
+    : BasePortData(capro::ServiceDescription(
+                       capro::InvalidIDString, capro::InvalidIDString, capro::InvalidIDString, {0, 0, 0, 0}, interface),
                    BasePortType::INTERFACE_PORT,
                    applicationName,
-                   interface,
                    runnable)
 {
 }

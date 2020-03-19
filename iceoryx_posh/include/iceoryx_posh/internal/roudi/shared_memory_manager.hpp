@@ -31,7 +31,7 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 
 #include "ac3log/simplelogger.hpp"
@@ -42,7 +42,7 @@ namespace iox
 {
 namespace roudi
 {
-Interfaces StringToEInterfaces(std::string str);
+capro::Interfaces StringToEInterfaces(std::string str);
 
 /// @ brief workaround container until we have a fixed list with the needed functionality
 template <typename T, uint64_t Capacity>
@@ -173,24 +173,27 @@ class SharedMemoryManager
 
     cxx::expected<SenderPortType::MemberType_t*, AcquireSenderPortDataError>
     acquireSenderPortData(const capro::ServiceDescription& service,
-                          Interfaces interface,
                           const std::string& processName,
                           mepoo::MemoryManager* payloadMemoryManager,
                           const std::string& runnable = "");
 
     ReceiverPortType::MemberType_t* acquireReceiverPortData(const capro::ServiceDescription& service,
-                                                            Interfaces interface,
                                                             const std::string& processName,
                                                             const std::string& runnable = "");
-    popo::InterfacePortData*
-    acquireInterfacePortData(Interfaces interface, const std::string& processName, const std::string& runnable = "");
-    popo::ApplicationPortData* acquireApplicationPortData(Interfaces interface, const std::string& processName);
+    popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
+                                                      const std::string& processName,
+                                                      const std::string& runnable = "");
+    popo::ApplicationPortData* acquireApplicationPortData(const std::string& processName);
     runtime::RunnableData* acquireRunnableData(const cxx::CString100& process, const cxx::CString100& runnable);
 
     bool areAllReceiverPortsSubscribed(std::string appName);
 
     void deletePortsOfProcess(std::string processName);
     void deleteRunnableAndItsPorts(std::string runnableName);
+
+    void destroySenderPort(SenderPortType::MemberType_t* const senderPortData);
+
+    void destroyReceiverPort(ReceiverPortType::MemberType_t* const receiverPortData);
 
     void printmempool();
     std::string GetShmAddrString();
@@ -221,7 +224,7 @@ class SharedMemoryManager
 
     void sendToAllMatchingReceiverPorts(const capro::CaproMessage& message, SenderPortType& senderSource);
 
-    void sendToAllMatchingInterfacePorts(const capro::CaproMessage& message, const iox::Interfaces& interfaceSource);
+    void sendToAllMatchingInterfacePorts(const capro::CaproMessage& message);
 
     void addEntryToServiceRegistry(const capro::ServiceDescription::IdString& service,
                                    const capro::ServiceDescription::IdString& instance) noexcept;

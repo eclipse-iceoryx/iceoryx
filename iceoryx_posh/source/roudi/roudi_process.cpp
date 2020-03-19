@@ -109,7 +109,7 @@ void ProcessManager::killAllProcesses()
 
     for (; l_itEnd != l_it; ++l_it)
     {
-        if (-1 == kill(static_cast<pid_t>(l_it->getPid()), 15))
+        if (-1 == kill(static_cast<pid_t>(l_it->getPid()), SIGTERM))
         {
             WARN_PRINTF("Process %d could not be killed\n", l_it->getPid());
         }
@@ -324,7 +324,7 @@ void ProcessManager::findServiceForProcess(const std::string& f_name, const capr
 }
 
 void ProcessManager::addInterfaceForProcess(const std::string& f_name,
-                                            Interfaces f_interface,
+                                            capro::Interfaces f_interface,
                                             const std::string& f_runnable)
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -374,14 +374,14 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const std::string
     }
 }
 
-void ProcessManager::addApplicationForProcess(const std::string& f_name, Interfaces f_interface)
+void ProcessManager::addApplicationForProcess(const std::string& f_name)
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
     RouDiProcess* l_process = getProcessFromList(f_name);
     if (nullptr != l_process)
     {
-        popo::ApplicationPortData* l_port = m_shmMgr.acquireApplicationPortData(f_interface, f_name);
+        popo::ApplicationPortData* l_port = m_shmMgr.acquireApplicationPortData(f_name);
 
         RelativePointer::id_t segmentId = m_shmMgr.getShmInterface().getSegmentId();
         auto offset = RelativePointer::getOffset(segmentId, l_port);
@@ -460,7 +460,6 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const std::string& f_name)
 
 void ProcessManager::addReceiverForProcess(const std::string& f_name,
                                            const capro::ServiceDescription& f_service,
-                                           Interfaces f_interface,
                                            const std::string& f_runnable)
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -469,8 +468,7 @@ void ProcessManager::addReceiverForProcess(const std::string& f_name,
     if (nullptr != l_process)
     {
         // create a ReceiverPort
-        ReceiverPortType::MemberType_t* l_receiver =
-            m_shmMgr.acquireReceiverPortData(f_service, f_interface, f_name, f_runnable);
+        ReceiverPortType::MemberType_t* l_receiver = m_shmMgr.acquireReceiverPortData(f_service, f_name, f_runnable);
 
         // send ReceiverPort to app as a serialized relative pointer
         RelativePointer::id_t segmentId = m_shmMgr.getShmInterface().getSegmentId();
@@ -491,7 +489,6 @@ void ProcessManager::addReceiverForProcess(const std::string& f_name,
 
 void ProcessManager::addSenderForProcess(const std::string& f_name,
                                          const capro::ServiceDescription& f_service,
-                                         Interfaces f_interface,
                                          const std::string& f_runnable)
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -500,8 +497,8 @@ void ProcessManager::addSenderForProcess(const std::string& f_name,
     if (nullptr != l_process)
     {
         // create a SenderPort
-        auto l_sender = m_shmMgr.acquireSenderPortData(
-            f_service, f_interface, f_name, l_process->getPayloadMemoryManager(), f_runnable);
+        auto l_sender =
+            m_shmMgr.acquireSenderPortData(f_service, f_name, l_process->getPayloadMemoryManager(), f_runnable);
 
         if (!l_sender.has_error())
         {
@@ -553,10 +550,8 @@ SenderPortType ProcessManager::addIntrospectionSenderPort(const capro::ServiceDe
 
     return SenderPortType(
         m_shmMgr
-            .acquireSenderPortData(f_service,
-                                   Interfaces::INTERNAL,
-                                   f_process_name,
-                                   &m_shmMgr.getShmInterface().getShmInterface()->m_roudiMemoryManager)
+            .acquireSenderPortData(
+                f_service, f_process_name, &m_shmMgr.getShmInterface().getShmInterface()->m_roudiMemoryManager)
             .get_value());
 }
 
@@ -565,7 +560,7 @@ ReceiverPortType ProcessManager::addInternalReceiverPort(const capro::ServiceDes
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    return ReceiverPortType(m_shmMgr.acquireReceiverPortData(f_service, Interfaces::INTERNAL, f_process_name));
+    return ReceiverPortType(m_shmMgr.acquireReceiverPortData(f_service, f_process_name));
 }
 
 void ProcessManager::removeInternalPorts(const std::string& f_process_name)
@@ -589,8 +584,7 @@ SenderPortType ProcessManager::addInternalSenderPort(const capro::ServiceDescrip
     std::lock_guard<std::mutex> g(m_mutex);
 
     return SenderPortType(
-        m_shmMgr.acquireSenderPortData(f_service, Interfaces::INTERNAL, f_process_name, m_memoryManagerOfCurrentProcess)
-            .get_value());
+        m_shmMgr.acquireSenderPortData(f_service, f_process_name, m_memoryManagerOfCurrentProcess).get_value());
 }
 
 

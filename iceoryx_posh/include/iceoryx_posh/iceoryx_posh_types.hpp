@@ -13,7 +13,6 @@
 // limitations under the License.
 #pragma once
 
-
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -36,7 +35,8 @@ constexpr char MQ_ROUDI_NAME[] = "/roudi";
 
 /// shared memmory segment for the iceoryx managment data
 constexpr char SHM_NAME[] = "/iceoryx_mgmt";
-constexpr char ROUDI_SEMAPHORE_NAME[] = "roudiAppSemaphore";
+/// semaphore which is created by roudi on startup
+constexpr char ROUDI_APP_SEMAPHORE_NAME[] = "roudiAppSemaphore";
 
 // Make the user-defined literal operators accessible
 using namespace units::duration_literals;
@@ -61,6 +61,9 @@ constexpr uint64_t SHARED_MEMORY_ALIGNMENT = 32;
 constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32;
 constexpr uint32_t MAX_SHM_SEGMENTS = 100;
 
+constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8;
+constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64;
+
 // Message Queue
 constexpr long ROUDI_MAX_MESSAGES = 5;
 constexpr long ROUDI_MESSAGE_SIZE = 512;
@@ -79,23 +82,11 @@ constexpr uint32_t MAX_START_FIND_SERVICE_CALLBACKS = 50;
 // Runnables
 constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000;
 constexpr uint32_t MAX_RUNNABLE_PER_PROCESS = 50;
+
+constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100;
 static_assert(MAX_PROCESS_NUMBER * MAX_RUNNABLE_PER_PROCESS > MAX_RUNNABLE_NUMBER,
               "Invalid configuration for runnables");
 
-enum class Interfaces : uint8_t
-{
-    INTERNAL = 0,
-    ESOC,
-    SOMEIP,
-    AMQP,
-    DDS,
-    SIGNAL,
-    MTA,
-    INTERFACE_END
-};
-
-constexpr const char* INTERFACE_NAMES[] = {
-    "INTERNAL", "ESOC", "SOMEIP", "AMQP", "DDS", "SIGNAL", "MTA", "Interface End"};
 
 enum class SubscribeState : uint32_t
 {

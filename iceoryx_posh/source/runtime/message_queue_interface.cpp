@@ -18,8 +18,8 @@
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/timespec.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <thread>
 
@@ -32,9 +32,10 @@ MqMessageType stringToMqMessageType(const char* str) noexcept
     std::underlying_type<MqMessageType>::type msg;
     bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
     noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
-    noError &= noError ? !(static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::BEGIN) >= msg
-                           || static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::END) <= msg)
-                       : false;
+    noError &= noError
+                   ? !(static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::BEGIN) >= msg
+                       || static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::END) <= msg)
+                   : false;
     return noError ? (static_cast<MqMessageType>(msg)) : MqMessageType::NOTYPE;
 }
 

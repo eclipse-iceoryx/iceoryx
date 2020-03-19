@@ -25,11 +25,12 @@ namespace roudi
 {
 RouDiEnvironment::RouDiEnvironment(RouDiMultiProcess* roudiApp)
 {
-    iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kWarn);
+    iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kWarn,
+                                                             iox::log::LogLevelOutput::kHideLogLevel);
     m_roudiApp = roudiApp;
 }
 
-RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig, RouDiApp::MonitoringMode monitoringMode)
+RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig, MonitoringMode monitoringMode)
     : RouDiEnvironment(new RouDiMultiProcess(monitoringMode, false, roudiConfig))
 {
 }

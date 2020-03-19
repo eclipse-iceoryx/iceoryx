@@ -31,21 +31,10 @@ class Mutex_test : public Test
             : iox::posix::mutex(isRecursive)
         {
         }
-
-        MutexMock(MutexMock&& rhs)
-            : iox::posix::mutex(std::forward<iox::posix::mutex>(rhs))
-        {
-        }
-
-        bool isInitialized() const noexcept
-        {
-            return m_isInitialized;
-        }
     };
 
     void SetUp() override
     {
-        ASSERT_THAT(sut.has_value(), Eq(true));
         internal::CaptureStderr();
     }
 
@@ -58,34 +47,26 @@ class Mutex_test : public Test
         }
     }
 
-    iox::cxx::optional<iox::posix::mutex> sut = iox::posix::mutex::CreateMutex(false);
+    iox::posix::mutex sut{false};
 };
 
 TEST_F(Mutex_test, TryLockWithNoLock)
 {
-    EXPECT_THAT(sut->try_lock(), Eq(true));
-    EXPECT_THAT(sut->unlock(), Eq(true));
+    EXPECT_THAT(sut.try_lock(), Eq(true));
+    EXPECT_THAT(sut.unlock(), Eq(true));
 }
 
 TEST_F(Mutex_test, TryLockWithLock)
 {
-    EXPECT_THAT(sut->lock(), Eq(true));
-    EXPECT_THAT(sut->try_lock(), Eq(false));
-    EXPECT_THAT(sut->unlock(), Eq(true));
+    EXPECT_THAT(sut.lock(), Eq(true));
+    EXPECT_THAT(sut.try_lock(), Eq(false));
+    EXPECT_THAT(sut.unlock(), Eq(true));
 }
 
 TEST_F(Mutex_test, LockAndUnlock)
 {
-    EXPECT_THAT(sut->lock(), Eq(true));
-    EXPECT_THAT(sut->unlock(), Eq(true));
-}
-
-TEST_F(Mutex_test, MoveConstructorInvalidatesOrigin)
-{
-    MutexMock mutexOrigin(true);
-    MutexMock sut(std::move(mutexOrigin));
-
-    EXPECT_THAT(mutexOrigin.isInitialized(), Eq(false));
+    EXPECT_THAT(sut.lock(), Eq(true));
+    EXPECT_THAT(sut.unlock(), Eq(true));
 }
 
 // in qnx you can destroy a locked mutex, without error if the thread holding the lock is destructing it.
@@ -98,10 +79,10 @@ TEST_F(Mutex_test, DestructorFailsOnLockedMutex)
         {
             std::thread* t;
             {
-                auto mtx = iox::posix::mutex::CreateMutex(false);
+                iox::posix::mutex mtx{false};
                 iox::posix::Timer hold(1000_ms);
                 t = new std::thread([&] {
-                    mtx->lock();
+                    mtx.lock();
                     iox::posix::Timer ct(5000_ms);
                     while (!ct.hasExpiredComparedToCreationTime()) // come back in any case!
                         ;

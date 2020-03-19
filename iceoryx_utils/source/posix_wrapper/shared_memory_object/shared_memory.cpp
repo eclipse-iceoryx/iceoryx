@@ -19,7 +19,6 @@
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
 
-
 #include <assert.h>
 
 namespace iox
@@ -146,9 +145,24 @@ bool SharedMemory::open()
             cxx::makeSmartC(ftruncate, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handle, m_size);
         if (l_truncateCall.hasErrors())
         {
-            std::cerr << "Unable to truncate SharedMemory (ftruncate failed) : " << l_truncateCall.getErrorString()
-                      << std::endl;
-            return false;
+            if (l_truncateCall.getErrNum() == ENOMEM)
+            {
+                char errormsg[] = "\033[0;1;97;41mFatal error:\033[m the available memory is insufficient. Cannot "
+                                  "allocate mempools in shared "
+                                  "memory. Please make sure that enough memory is available. For this, consider also "
+                                  "the memory which is "
+                                  "required for the [/iceoryx_mgmt] segment. Please refer to share/doc/iceoryx/FAQ.md "
+                                  "in your release delivery.";
+
+                std::cerr << errormsg << std::endl;
+                return false;
+            }
+            else
+            {
+                std::cerr << "Unable to truncate SharedMemory (ftruncate failed) : " << l_truncateCall.getErrorString()
+                          << std::endl;
+                return false;
+            }
         }
     }
 

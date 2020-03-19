@@ -26,12 +26,10 @@ BasePortData::BasePortData() noexcept
 BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
                            const BasePortType& portType,
                            const cxx::CString100& processName,
-                           const Interfaces interface,
                            runtime::RunnableData* const runnable) noexcept
     : m_portType(portType)
     , m_serviceDescription(serviceDescription)
     , m_processName(processName)
-    , m_interface(interface)
     , m_uniqueId(s_uniqueIdCounter.fetch_add(1, std::memory_order_relaxed))
     , m_runnable(runnable)
 {

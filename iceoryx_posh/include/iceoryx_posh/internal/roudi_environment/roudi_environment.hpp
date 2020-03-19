@@ -32,7 +32,7 @@ class RouDiEnvironment
 {
   public:
     RouDiEnvironment(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
-                     RouDiApp::MonitoringMode monitoringMode = RouDiApp::MonitoringMode::OFF);
+                     MonitoringMode monitoringMode = MonitoringMode::OFF);
     virtual ~RouDiEnvironment();
 
     RouDiEnvironment(RouDiEnvironment&& rhs);

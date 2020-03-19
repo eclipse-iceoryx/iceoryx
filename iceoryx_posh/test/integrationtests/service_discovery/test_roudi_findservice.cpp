@@ -202,7 +202,7 @@ TEST_F(RoudiFindService_test, InterfacePort)
     senderRuntime->offerService({"service1", "instance1"});
     this->InterOpWait();
 
-    auto interfacePortData = receiverRuntime->getMiddlewareInterface(iox::Interfaces::SOMEIP);
+    auto interfacePortData = receiverRuntime->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
     iox::popo::InterfacePort interfacePort(interfacePortData);
 
     iox::capro::CaproMessage caproMessage;

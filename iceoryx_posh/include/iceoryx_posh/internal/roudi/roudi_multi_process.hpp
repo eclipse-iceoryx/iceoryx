@@ -26,9 +26,9 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/platform/file.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include "ac3log/simplelogger.hpp"
 
@@ -44,7 +44,7 @@ class RouDiMultiProcess
     RouDiMultiProcess& operator=(const RouDiMultiProcess& other) = delete;
     RouDiMultiProcess(const RouDiMultiProcess& other) = delete;
 
-    RouDiMultiProcess(RouDiApp::MonitoringMode f_monitoringMode = RouDiApp::MonitoringMode::ON,
+    RouDiMultiProcess(const MonitoringMode f_monitoringMode = MonitoringMode::ON,
                       const bool f_killProcessesInDestructor = true,
                       const RouDiConfig_t f_config = RouDiConfig_t().setDefaults());
 
@@ -91,8 +91,6 @@ class RouDiMultiProcess
     /// cleanup mqueue, etc.
     bool cleanupBeforeStart();
 
-    //----member
-
     cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { RelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runThreads;
@@ -118,7 +116,7 @@ class RouDiMultiProcess
     MemPoolIntrospectionType m_mempoolIntrospection;
 
   private:
-    RouDiApp::MonitoringMode m_monitoringMode{RouDiApp::MonitoringMode::ON};
+    MonitoringMode m_monitoringMode{MonitoringMode::ON};
 };
 
 } // namespace roudi

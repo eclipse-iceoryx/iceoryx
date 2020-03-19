@@ -26,7 +26,6 @@ Timer::OsTimerCallbackHandle Timer::OsTimer::s_callbackHandlePool[MAX_NUMBER_OF_
 
 sigval Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor)
 {
-    // the max value of descriptor is 2^24 - 1;
     assert(descriptor < MAX_DESCRIPTOR_VALUE);
     uint32_t temp = (descriptor << 8) | static_cast<uint32_t>(index);
     sigval sigvalData;
@@ -483,33 +482,40 @@ TimerError Timer::getError() const noexcept
 
 cxx::error<TimerError> Timer::createErrorFromErrno(const int errnum) noexcept
 {
+    TimerError timerError = TimerError::INTERNAL_LOGIC_ERROR;
     switch (errnum)
     {
     case EAGAIN: {
         std::cerr << "Kernel failed to allocate timer structures" << std::endl;
-        return cxx::error<TimerError>(TimerError::KERNEL_ALLOC_FAILED);
+        timerError = TimerError::KERNEL_ALLOC_FAILED;
+        break;
     }
     case EINVAL: {
         std::cerr << "Provided invalid arguments for posix::Timer" << std::endl;
-        return cxx::error<TimerError>(TimerError::INVALID_ARGUMENTS);
+        timerError = TimerError::INVALID_ARGUMENTS;
+        break;
     }
     case ENOMEM: {
         std::cerr << "Could not allocate memory for posix::Timer" << std::endl;
-        return cxx::error<TimerError>(TimerError::ALLOC_MEM_FAILED);
+        timerError = TimerError::ALLOC_MEM_FAILED;
+        break;
     }
     case EPERM: {
         std::cerr << "No permissions to set the clock" << std::endl;
-        return cxx::error<TimerError>(TimerError::NO_PERMISSION);
+        timerError = TimerError::NO_PERMISSION;
+        break;
     }
     case EFAULT: {
         std::cerr << "An invalid pointer was provided" << std::endl;
-        return cxx::error<TimerError>(TimerError::INVALID_POINTER);
+        timerError = TimerError::INVALID_POINTER;
+        break;
     }
     default: {
         std::cerr << "Internal logic error in posix::Timer occurred" << std::endl;
-        return cxx::error<TimerError>(TimerError::INTERNAL_LOGIC_ERROR);
+        break;
     }
     }
+    return cxx::error<TimerError>(timerError);
 }
 
 } // namespace posix

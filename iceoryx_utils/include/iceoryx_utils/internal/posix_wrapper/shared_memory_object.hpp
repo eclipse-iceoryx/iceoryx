@@ -20,7 +20,6 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 
-
 #include <cstdint>
 
 namespace iox

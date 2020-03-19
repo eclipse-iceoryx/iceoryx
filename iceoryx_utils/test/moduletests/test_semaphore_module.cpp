@@ -335,4 +335,4 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
     TIMING_TEST_END();
 });
 
-#endif
+#endif // not defined QNX

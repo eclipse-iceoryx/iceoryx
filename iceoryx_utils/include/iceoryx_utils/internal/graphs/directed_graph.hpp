@@ -31,6 +31,8 @@ class DirectedGraph
 
     static constexpr Index_t INVALID_INDEX = -1;
 
+    virtual ~DirectedGraph() = default;
+
     /// add a vertex to the graph
     /// @param [in] vertex vertex to be added
     /// @return pointer true if the vertex was added successfully, false otherwise
@@ -184,7 +186,7 @@ class DirectedGraph
 
     /// check whether the given vertex is a sink
     /// @param [in] vertex to be checked
-    /// @return true iff the vertex is a sink
+    /// @return true if the vertex is a sink
     bool isSink(VertexType const* vertex)
     {
         auto index = findVertex(vertex);

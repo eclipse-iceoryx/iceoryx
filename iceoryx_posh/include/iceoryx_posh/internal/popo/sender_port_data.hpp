@@ -49,7 +49,6 @@ struct SenderPortData : public BasePortData
     SenderPortData(const capro::ServiceDescription& serviceDescription,
                    mepoo::MemoryManager* const memMgr,
                    const std::string& applicationName,
-                   const Interfaces interface,
                    runtime::RunnableData* const runnable) noexcept;
 
     using ReceiverHandler_t = ReceiverHandler<MAX_RECEIVERS_PER_SENDERPORT, ThreadSafe>;
