@@ -70,13 +70,17 @@ int iox_sem_post(iox_sem_t* sem)
     if (sem->m_hasPosixHandle)
     {
         retVal = sem_post(sem->m_handle.posix);
+        if (retVal == 0)
+        {
+            (*sem->m_value)++;
+        }
     }
     else
     {
         // dispatch semaphore always succeed
         dispatch_semaphore_signal(sem->m_handle.dispatch);
+        (*sem->m_value)++;
     }
-    sem->m_value->fetch_add((retVal == 0) ? 1 : 0);
     return retVal;
 }
 
@@ -122,11 +126,12 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
     struct timeval tv;
     gettimeofday(&tv, nullptr);
 
-    int64_t timeoutInNanoSeconds =
-        (abs_timeout->tv_sec < tv.tv_sec
-         || (abs_timeout->tv_sec == tv.tv_sec && abs_timeout->tv_nsec < tv.tv_usec * NSEC_PER_USEC))
-            ? 0
-            : (abs_timeout->tv_sec - tv.tv_sec) * NSEC_PER_SEC + abs_timeout->tv_nsec - tv.tv_usec * NSEC_PER_USEC;
+    static constexpr int64_t NANOSECONDS_PER_SECOND = 1000000000;
+    static constexpr int64_t NANOSECONDS_PER_MICROSECOND = 1000;
+
+    int64_t timeoutInNanoSeconds = std::max(0ll,
+                                            (abs_timeout->tv_sec - tv.tv_sec) * NANOSECONDS_PER_SECOND
+                                                + abs_timeout->tv_nsec - tv.tv_usec * NANOSECONDS_PER_MICROSECOND);
 
     if (sem->m_hasPosixHandle)
     {
