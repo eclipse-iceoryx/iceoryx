@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "iceoryx_posh/internal/popo/base_port_data.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/base_port_data.hpp"
 
 namespace iox
 {
@@ -57,30 +57,27 @@ class BasePort
     operator bool() const;
 
     /// @brief Reads Type of actual CaPro Port (sender/receiver...)
-    /// @param              Nothing
     /// @return m_portType  Type of Port in struct BasePortType
     BasePortType getPortType() const noexcept;
 
     /// @brief Reads Type of actual CaPro Port (sender/receiver...)
-    /// @param              Nothing
     /// @return m_portType  Type of Port in struct BasePortType
     capro::ServiceDescription getCaProServiceDescription() const noexcept;
 
     /// @brief Gets Application Name for the active port
-    /// @param              Nothing
     /// @return             Application name as String
     cxx::CString100 getApplicationName() const noexcept;
 
-
-    /// @brief Gets Interface Name for the active port
-    /// @param              Nothing
-    /// @return             Interface name as enum value
-    Interfaces getInterface() const noexcept;
-
     /// @brief Gets Id of thethe active port
-    /// @param              Nothing
     /// @return             UniqueId name as Integer
     uint64_t getUniqueID() const noexcept;
+
+    /// @brief Indicate that this port can be destroyed
+    void destroy() noexcept;
+
+    /// @brief Checks whether port can be destroyed
+    /// @return             true if it shall be destroyed, false if not
+    bool toBeDestroyed() const noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

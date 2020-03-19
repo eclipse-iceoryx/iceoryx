@@ -351,5 +351,4 @@ TEST_P(Semaphore_test, TimedWaitWithoutTimeout)
     EXPECT_TRUE(false);
 }
 
-
-#endif
+#endif // not defined QNX

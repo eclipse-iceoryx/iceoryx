@@ -32,7 +32,6 @@
 #include <cstring>
 #include <string>
 
-
 namespace iox
 {
 namespace runtime

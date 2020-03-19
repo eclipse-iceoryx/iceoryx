@@ -91,7 +91,7 @@ class ServiceDiscoveryNotifier
     mutable std::mutex m_queueAccessMutex;
 
     // used for starting the timer, first time StartFindService() is called.
-    /// @todo check if isRunning() method in Timer might be a better idea
+    /// @todo : Introducing isRunning() method in Timer might be a better idea
     bool m_serviceDiscoveryTimerActive;
 
     // counter used to generate handle for startFindService request

@@ -127,6 +127,9 @@ class Subscriber
     /// @return true if the references are set otherwise false
     bool isChunkReceiveSemaphoreSet() noexcept;
 
+    /// @brief Unset the semaphore if one is set
+    void unsetChunkReceiveSemaphore() noexcept;
+
   protected:
     // needed for unit testing
     Subscriber() noexcept;

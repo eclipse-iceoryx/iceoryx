@@ -17,7 +17,6 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/platform/mman.hpp"
 
-
 #include <cstdint>
 
 namespace iox

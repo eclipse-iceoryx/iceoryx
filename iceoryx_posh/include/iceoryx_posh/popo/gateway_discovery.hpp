@@ -36,7 +36,7 @@ class GatewayDiscovery
 
     /// @brief Constructor for discovering gateway based on type of interface
     /// @param[in] f_interface Type of interface
-    GatewayDiscovery(const Interfaces f_interface) noexcept
+    GatewayDiscovery(const capro::Interfaces f_interface) noexcept
         : m_impl(f_interface)
     {
     }

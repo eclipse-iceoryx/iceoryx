@@ -25,9 +25,8 @@ ReceiverPortData::ReceiverPortData() noexcept
 
 ReceiverPortData::ReceiverPortData(const capro::ServiceDescription& serviceDescription,
                                    const std::string& applicationName,
-                                   const Interfaces interface,
                                    runtime::RunnableData* const runnable) noexcept
-    : BasePortData(serviceDescription, BasePortType::RECEIVER_PORT, applicationName, interface, runnable)
+    : BasePortData(serviceDescription, BasePortType::RECEIVER_PORT, applicationName, runnable)
 {
 }
 

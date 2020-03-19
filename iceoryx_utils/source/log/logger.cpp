@@ -17,6 +17,8 @@
 #include "iceoryx_utils/log/logging.hpp"
 #include "iceoryx_utils/log/logstream.hpp"
 
+#include "iceoryx_utils/cxx/helplets.hpp"
+
 #include <chrono>
 #include <ctime>
 #include <iomanip>
@@ -108,44 +110,8 @@ void Logger::Print(const LogEntry entry) const
 
     buffer << "\033[0;90m" << std::put_time(timeInfo, "%Y-%m-%d %H:%M:%S");
     buffer << "." << std::right << std::setfill('0') << std::setw(3) << entry.time.count() % 1000 << " ";
-
-    switch (entry.level)
-    {
-    case LogLevel::kOff:
-        // nothing
-        break;
-    case LogLevel::kFatal:
-        // bold bright white on red
-        buffer << "\033[0;1;97;41m"
-               << "[ Fatal ]";
-        break;
-    case LogLevel::kError:
-        // bold red on light yellow
-        buffer << "\033[0;1;31;103m"
-               << "[ Error ]";
-        break;
-    case LogLevel::kWarn:
-        // bold bright yellow
-        buffer << "\033[0;1;93m"
-               << "[Warning]";
-        break;
-    case LogLevel::kInfo:
-        // bold bright green
-        buffer << "\033[0;1;92m"
-               << "[ Info  ]";
-        break;
-    case LogLevel::kDebug:
-        // bold bright cyan
-        buffer << "\033[0;1;96m"
-               << "[ Debug ]";
-        break;
-    case LogLevel::kVerbose:
-        // bold cyan
-        buffer << "\033[0;1;36m"
-               << "[Verbose]";
-        break;
-    }
-
+    buffer << LogLevelColor[cxx::enumTypeAsUnderlyingType(entry.level)]
+           << LogLevelText[cxx::enumTypeAsUnderlyingType(entry.level)];
     buffer << "\033[m: " << entry.message << std::endl;
     std::clog << buffer.str();
 }

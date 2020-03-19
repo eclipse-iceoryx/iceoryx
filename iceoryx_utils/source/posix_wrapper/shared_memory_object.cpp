@@ -16,15 +16,12 @@
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
 
-
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 
-
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
-
 
 namespace iox
 {

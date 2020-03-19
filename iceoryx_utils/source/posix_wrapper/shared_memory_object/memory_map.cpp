@@ -81,7 +81,25 @@ MemoryMap::MemoryMap(const void* f_baseAddressHint,
         m_isInitialized = true;
         m_baseAddress = mmapCall.getReturnValue();
     }
-}
+
+    /// lock all memory pages in QNX only for better performance on acquiring memory on RouDi
+    /// RouDi must be run as root! Otherwise
+#if defined(QNX) || defined(QNX__) || defined(__QNX__)
+    int l_lockflags = MCL_CURRENT;
+
+    auto mlockCall = cxx::makeSmartC(mlockall, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, l_lockflags);
+
+    if (mlockCall.hasErrors())
+    {
+        std::cerr << "Failed to perform memory mapping : " << mmapCall.getErrorString() << std::endl;
+        m_isLocked = false;
+    }
+    else
+    {
+        m_isLocked = true;
+    }
+#endif
+} // namespace posix
 
 
 MemoryMap::MemoryMap(MemoryMap&& rhs)

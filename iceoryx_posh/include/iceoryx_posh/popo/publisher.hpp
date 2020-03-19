@@ -25,7 +25,6 @@ namespace iox
 {
 namespace popo
 {
-
 class Publisher
 {
   public:
@@ -40,13 +39,14 @@ class Publisher
     Publisher& operator=(Publisher&&) = default;
     Publisher(Publisher&& other) = default;
 
-    virtual ~Publisher() noexcept = default;
+    virtual ~Publisher() noexcept;
 
     /// @brief Allocate memory for the chunk to be sent
     /// @param[in] payloadSize size of shared memory to be allocated
     /// @param[in] useDynamicPayloadSizes bool value of using dynamic payload size
     /// @return Information about the chunk reserved
-    virtual mepoo::ChunkHeader* allocateChunkWithHeader(uint32_t payloadSize, bool useDynamicPayloadSizes = false) noexcept;
+    virtual mepoo::ChunkHeader* allocateChunkWithHeader(uint32_t payloadSize,
+                                                        bool useDynamicPayloadSizes = false) noexcept;
 
     /// @brief Allocate memory for chunk to be sent
     /// @param[in] payloadSize size of shared memory to be allocated
@@ -66,7 +66,8 @@ class Publisher
     /// @param[in] chunkHeader Information of the chunk to be removed.
     virtual void freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept;
 
-    /// @brief Function for converting payload information to ChunkHeader , deleting particular chunk from chunkcontainer
+    /// @brief Function for converting payload information to ChunkHeader , deleting particular chunk from
+    /// chunkcontainer
     /// @param[in] payload payload of the chunk to be removed.
     virtual void freeChunk(void* const payload) noexcept;
 

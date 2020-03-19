@@ -28,7 +28,8 @@ namespace iox
 {
 namespace runtime
 {
-std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory =
+    PoshRuntime::defaultRuntimeFactory;
 
 
 PoshRuntime& PoshRuntime::defaultRuntimeFactory(const std::string& name) noexcept
@@ -51,7 +52,7 @@ PoshRuntime::PoshRuntime(const std::string& name, const bool doMapSharedMemoryIn
                      m_MqInterface.getShmTopicSize(),
                      m_MqInterface.getSegmentManagerAddr(),
                      m_MqInterface.getSegmentId())
-    , m_applicationPort(getMiddlewareApplication(Interfaces::INTERNAL))
+    , m_applicationPort(getMiddlewareApplication())
     , m_serviceDiscoveryNotifier(name, getServiceRegistryChangeCounter())
 {
     m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC);
@@ -73,7 +74,12 @@ const std::string& PoshRuntime::verifyInstanceName(const std::string& name) noex
     else if (name.front() != '/')
     {
         LogError() << "Cannot initialize runtime. Application name " << name
-                   << "does not have the required leading slash '/'";
+                   << " does not have the required leading slash '/'";
+        std::terminate();
+    }
+    else if (name.length() > MAX_PROCESS_NAME_LENGTH)
+    {
+        LogError() << "Application name has more than 100 characters, including null termination!";
         std::terminate();
     }
 
@@ -109,13 +115,11 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
 }
 
 SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::ServiceDescription& service,
-                                                               const Interfaces interface,
                                                                const cxx::CString100& runnableName) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_SENDER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << static_cast<uint32_t>(interface)
-               << runnableName;
+               << static_cast<cxx::Serialization>(service).toString() << runnableName;
 
     auto requestedSenderPort = requestSenderFromRoudi(sendBuffer);
     if (requestedSenderPort.has_error())
@@ -188,13 +192,11 @@ PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
 }
 
 ReceiverPortType::MemberType_t* PoshRuntime::getMiddlewareReceiver(const capro::ServiceDescription& service,
-                                                                   const Interfaces interface,
                                                                    const cxx::CString100& runnableName) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_RECEIVER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << static_cast<uint32_t>(interface)
-               << runnableName;
+               << static_cast<cxx::Serialization>(service).toString() << runnableName;
 
     return requestReceiverFromRoudi(sendBuffer);
 }
@@ -230,7 +232,7 @@ ReceiverPortType::MemberType_t* PoshRuntime::requestReceiverFromRoudi(const MqMe
     }
 }
 
-popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const Interfaces interface,
+popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interfaces interface,
                                                              const cxx::CString100& runnableName) noexcept
 {
     MqMessage sendBuffer;
@@ -379,11 +381,10 @@ void PoshRuntime::stopOfferService(const capro::ServiceDescription& serviceDescr
     m_applicationPort.dispatchCaProMessage(msg);
 }
 
-popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication(Interfaces interface) noexcept
+popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
 {
     MqMessage sendBuffer;
-    sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_APPLICATION) << m_appName
-               << static_cast<uint32_t>(interface);
+    sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_APPLICATION) << m_appName;
 
     MqMessage receiveBuffer;
 

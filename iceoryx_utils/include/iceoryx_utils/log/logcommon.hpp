@@ -39,6 +39,26 @@ enum class LogMode : uint8_t
     kConsole = 0x04
 };
 
+constexpr const char* LogLevelColor[] = {
+    "",                 // nothing
+    "\033[0;1;97;41m",  // bold bright white on red
+    "\033[0;1;31;103m", // bold red on light yellow
+    "\033[0;1;93m",     // bold bright yellow
+    "\033[0;1;92m",     // bold bright green
+    "\033[0;1;96m",     // bold bright cyan
+    "\033[0;1;36m",     // bold cyan
+};
+
+constexpr const char* LogLevelText[] = {
+    "[  Off  ]", // nothing
+    "[ Fatal ]", // bold bright white on red
+    "[ Error ]", // bold red on light yellow
+    "[Warning]", // bold bright yellow
+    "[ Info  ]", // bold bright green
+    "[ Debug ]", // bold bright cyan
+    "[Verbose]", // bold cyan
+};
+
 LogMode operator|(LogMode lhs, LogMode rhs);
 LogMode& operator|=(LogMode& lhs, LogMode rhs);
 LogMode operator&(LogMode lhs, LogMode rhs);
@@ -53,4 +73,3 @@ struct LogEntry
 
 } // namespace log
 } // namespace iox
-

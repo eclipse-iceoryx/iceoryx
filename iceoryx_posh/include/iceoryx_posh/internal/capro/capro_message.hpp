@@ -90,7 +90,7 @@ class CaproMessage
     CaproMessageType m_type{CaproMessageType::NOTYPE};
     CaproMessageSubType m_subType{CaproMessageSubType::NOSUBTYPE};
     ServiceDescription m_serviceDescription;
-    /// @brief Null-Pointer for request-port with no spedific type
+    /// @brief Null-Pointer for request-port with no specific type
     popo::ReceiverPortData* m_requestPort{nullptr};
 };
 

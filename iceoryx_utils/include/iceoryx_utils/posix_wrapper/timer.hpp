@@ -21,7 +21,6 @@
 #include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/platform/time.hpp"
 
-
 #include <atomic>
 #include <condition_variable>
 #include <cstdint>

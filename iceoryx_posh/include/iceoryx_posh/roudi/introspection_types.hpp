@@ -78,6 +78,7 @@ struct ReceiverPortData : public PortData
 struct SenderPortData : public PortData
 {
     uint64_t m_senderPortID{0};
+    iox::capro::Interfaces m_sourceInterface{iox::capro::Interfaces::INTERFACE_END};
 };
 
 /// @brief the topic for the port introspection that a user can subscribe to

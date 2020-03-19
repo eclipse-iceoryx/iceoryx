@@ -22,13 +22,8 @@ namespace iox
 {
 namespace roudi
 {
-IceOryxRouDiApp::IceOryxRouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept
-    : RouDiApp(argc, argv, config)
-{
-}
-
-IceOryxRouDiApp::IceOryxRouDiApp(int argc, char* argv[], RouDiConfigFileParser* configFileParser) noexcept
-    : RouDiApp(argc, argv, configFileParser)
+IceOryxRouDiApp::IceOryxRouDiApp(const CmdLineParser& cmdLineParser, const RouDiConfig_t& roudiConfig) noexcept
+    : RouDiApp(cmdLineParser, roudiConfig)
 {
 }
 
@@ -39,9 +34,8 @@ void IceOryxRouDiApp::run() noexcept
         static cxx::optional<RouDiMultiProcess> roudi;
         auto cleaner = cxx::makeScopedStatic(roudi, m_monitoringMode, true, m_config);
 
-        waitToFinish();
+        waitForSignal();
     }
 }
-
 } // namespace roudi
 } // namespace iox
