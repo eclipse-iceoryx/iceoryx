@@ -44,11 +44,6 @@ inline int mq_close(mqd_t mqdes)
     return 0;
 }
 
-// mqd_t
-// mq_open( const char *name, int oflag )
-//{
-//}
-
 inline mqd_t mq_open(const char* name, int oflag, mode_t mode, struct mq_attr* attr)
 {
     return 0;
