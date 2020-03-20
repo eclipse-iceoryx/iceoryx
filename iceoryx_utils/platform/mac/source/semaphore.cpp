@@ -72,14 +72,14 @@ int iox_sem_post(iox_sem_t* sem)
         retVal = sem_post(sem->m_handle.posix);
         if (retVal == 0)
         {
-            (*sem->m_value)++;
+            sem->m_value->fetch_add(1, std::memory_order_relaxed);
         }
     }
     else
     {
         // dispatch semaphore always succeed
         dispatch_semaphore_signal(sem->m_handle.dispatch);
-        (*sem->m_value)++;
+        sem->m_value->fetch_add(1, std::memory_order_relaxed);
     }
     return retVal;
 }
@@ -92,14 +92,14 @@ int iox_sem_wait(iox_sem_t* sem)
         retVal = sem_wait(sem->m_handle.posix);
         if (retVal == 0)
         {
-            (*sem->m_value)--;
+            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
         }
     }
     else
     {
         // dispatch semaphore always succeed
         dispatch_semaphore_wait(sem->m_handle.dispatch, DISPATCH_TIME_FOREVER);
-        (*sem->m_value)--;
+        sem->m_value->fetch_sub(1, std::memory_order_relaxed);
     }
 
     return retVal;
@@ -113,7 +113,7 @@ int iox_sem_trywait(iox_sem_t* sem)
         retVal = sem_trywait(sem->m_handle.posix);
         if (retVal == 0)
         {
-            (*sem->m_value)--;
+            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
         }
     }
     else
@@ -125,7 +125,7 @@ int iox_sem_trywait(iox_sem_t* sem)
         }
         else
         {
-            (*sem->m_value)--;
+            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
         }
     }
 
@@ -158,7 +158,7 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         else if (tryWaitCall == 0)
         {
-            (*sem->m_value)--;
+            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
             return 0;
         }
 
@@ -176,7 +176,7 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         else if (tryWaitCall == 0)
         {
-            (*sem->m_value)--;
+            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
             return 0;
         }
     }
@@ -190,7 +190,7 @@ int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
         }
         else
         {
-            (*sem->m_value)--;
+            sem->m_value->fetch_sub(1, std::memory_order_relaxed);
             return 0;
         }
     }
