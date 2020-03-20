@@ -137,12 +137,12 @@ TIMING_TEST_F(Timer_test, CallbackExecutedOnceAfterStart, Repeat(3), [&] {
 
 TIMING_TEST_F(Timer_test, CallbackExecutedPeriodicallyAfterStart, Repeat(3), [&] {
     std::atomic_int counter{0};
-    Timer sut(1_ms, [&] { counter++; });
+    Timer sut(2_ms, [&] { counter++; });
     sut.start(Timer::RunMode::PERIODIC);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     auto finalCount = counter.load();
 
-    TIMING_TEST_EXPECT_TRUE(9 <= finalCount && finalCount <= 11);
+    TIMING_TEST_EXPECT_TRUE(4 <= finalCount && finalCount <= 6);
     TIMING_TEST_END();
 });
 
@@ -197,11 +197,11 @@ TIMING_TEST_F(Timer_test, StartRunPeriodicOnceIsStoppedAfterStop, Repeat(3), [&]
 
 TIMING_TEST_F(Timer_test, StartRunPeriodicOnceIsStoppedInTheMiddleAfterStop, Repeat(3), [&] {
     std::atomic_int counter{0};
-    Timer sut(1_ms, [&] { counter++; });
+    Timer sut(2_ms, [&] { counter++; });
     sut.start(Timer::RunMode::PERIODIC);
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     sut.stop();
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     auto finalCount = counter.load();
 
@@ -226,7 +226,6 @@ TIMING_TEST_F(Timer_test, RestartWithDifferentTiming, Repeat(3), [&] {
     sut.restart(2_ms, Timer::RunMode::PERIODIC);
     counter = 0;
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
     auto finalCount = counter.load();
 
     TIMING_TEST_EXPECT_TRUE(4 <= finalCount && finalCount <= 6);
