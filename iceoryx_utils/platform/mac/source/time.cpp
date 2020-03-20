@@ -21,13 +21,15 @@ static std::chrono::nanoseconds getNanoSeconds(const timespec& value)
                                     + static_cast<uint64_t>(value.tv_nsec));
 }
 
+static void stopNotificationForTimer(timer_t timerid)
+{
+    timerid->keepRunning.store(false, std::memory_order_relaxed);
+    timerid->wakeup.notify_one();
+}
+
 static void stopTimer(timer_t timerid)
 {
-    {
-        timerid->keepRunning.store(false, std::memory_order_relaxed);
-    }
-    timerid->wakeup.notify_one();
-
+    stopNotificationForTimer(timerid);
     if (timerid->thread.joinable())
     {
         timerid->thread.join();
@@ -66,11 +68,12 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value
     // disarm timer
     if (new_value->it_value.tv_sec == 0 && new_value->it_value.tv_nsec == 0)
     {
-        stopTimer(timerid);
+        stopNotificationForTimer(timerid);
     }
     // run once
     else if (new_value->it_interval.tv_sec == 0 && new_value->it_interval.tv_nsec == 0)
     {
+        stopTimer(timerid);
         // no mutex required since we are still in the sequential phase and did
         // not start a thread
         timerid->keepRunning = true;
@@ -85,6 +88,7 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value
     // run periodically
     else
     {
+        stopTimer(timerid);
         // no mutex required since we are still in the sequential phase and did
         // not start a thread
         timerid->keepRunning = true;
