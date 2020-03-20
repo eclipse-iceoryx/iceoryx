@@ -60,8 +60,6 @@ int timer_delete(timer_t timerid)
     return 0;
 }
 
-#include <cstdio>
-
 int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value)
 {
     timerid->timeParameters = *new_value;
@@ -77,6 +75,7 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value
         // no mutex required since we are still in the sequential phase and did
         // not start a thread
         timerid->keepRunning = true;
+        clock_gettime(CLOCK_REALTIME, &timerid->startTime);
 
         timerid->thread = std::thread([timerid] {
             if (waitForExecution(timerid))
@@ -92,6 +91,7 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value
         // no mutex required since we are still in the sequential phase and did
         // not start a thread
         timerid->keepRunning = true;
+        clock_gettime(CLOCK_REALTIME, &timerid->startTime);
 
         timerid->thread = std::thread([timerid] {
             while (waitForExecution(timerid))
@@ -106,6 +106,12 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value
 
 int timer_gettime(timer_t timerid, struct itimerspec* curr_value)
 {
+    timespec currentTime;
+    clock_gettime(CLOCK_REALTIME, &currentTime);
+    curr_value->it_interval = timerid->timeParameters.it_interval;
+    curr_value->it_value.tv_sec = curr_value->it_interval.tv_sec - (currentTime.tv_sec - timerid->startTime.tv_sec);
+    curr_value->it_value.tv_nsec = curr_value->it_interval.tv_nsec - (currentTime.tv_nsec - timerid->startTime.tv_nsec);
+
     return 0;
 }
 

@@ -31,6 +31,7 @@ struct appleTimer_t
     void (*callback)(union sigval);
     sigval callbackParameter;
     itimerspec timeParameters;
+    timespec startTime;
 
     std::atomic_bool keepRunning{false};
     std::mutex wakeupMutex;

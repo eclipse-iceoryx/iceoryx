@@ -296,12 +296,13 @@ TIMING_TEST_F(Timer_test, TimeUntilExpirationWithCallback, Repeat(3), [&] {
     Timer sut(10_ms, [] {});
     sut.start(Timer::RunMode::PERIODIC);
     int timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
+    printf("1. %d\n", timeUntilExpiration);
     TIMING_TEST_EXPECT_TRUE(9 <= timeUntilExpiration && timeUntilExpiration <= 10);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
     timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
+    printf("2. %d\n", timeUntilExpiration);
     TIMING_TEST_EXPECT_TRUE(3 <= timeUntilExpiration && timeUntilExpiration <= 5);
-
     TIMING_TEST_END();
 });
 
@@ -400,16 +401,15 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningOnce, Repeat(5), [&] {
 TIMING_TEST_F(Timer_test, DestructorIsBlocking, Repeat(3), [&] {
     std::chrono::time_point<std::chrono::system_clock> startTime;
     {
-        Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(10)); });
+        Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(20)); });
         sut.start(Timer::RunMode::ONCE);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
         startTime = std::chrono::system_clock::now();
     }
     auto endTime = std::chrono::system_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 
-    TIMING_TEST_EXPECT_TRUE(9 <= elapsedTime);
+    TIMING_TEST_EXPECT_TRUE(15 <= elapsedTime);
 
     TIMING_TEST_END();
 });
