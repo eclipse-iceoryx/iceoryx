@@ -325,7 +325,7 @@ TIMING_TEST_F(Timer_test, StoppingIsNonBlocking, Repeat(3), [&] {
     auto endTime = std::chrono::system_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 
-    TIMING_TEST_EXPECT_TRUE(elapsedTime < 2);
+    TIMING_TEST_EXPECT_TRUE(elapsedTime < 4);
 
     TIMING_TEST_END();
 });
@@ -397,6 +397,38 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningOnce, Repeat(5), [&] {
     TIMING_TEST_END();
 });
 
+TIMING_TEST_F(Timer_test, DestructorIsBlocking, Repeat(3), [&] {
+    std::chrono::time_point<std::chrono::system_clock> startTime;
+    {
+        Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(10)); });
+        sut.start(Timer::RunMode::ONCE);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+        startTime = std::chrono::system_clock::now();
+    }
+    auto endTime = std::chrono::system_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+    TIMING_TEST_EXPECT_TRUE(9 <= elapsedTime);
+
+    TIMING_TEST_END();
+});
+
+TIMING_TEST_F(Timer_test, StartStopAndStartAgainIsNonBlocking, Repeat(3), [&] {
+    Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(10)); });
+    sut.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    auto startTime = std::chrono::system_clock::now();
+    sut.stop();
+    sut.start(Timer::RunMode::PERIODIC);
+    auto endTime = std::chrono::system_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+    TIMING_TEST_EXPECT_TRUE(elapsedTime <= 4);
+
+    TIMING_TEST_END();
+});
 
 TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
 {
