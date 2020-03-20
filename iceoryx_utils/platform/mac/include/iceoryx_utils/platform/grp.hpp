@@ -15,3 +15,17 @@
 #pragma once
 
 #include <grp.h>
+#include <unistd.h>
+
+// linux version looks like
+//   int getgrouplist(const char *user, gid_t group, gid_t *groups, int *ngroups);
+// mac version
+//   int getgrouplist(const char* name, int basegid, int* groups, int* ngroups);
+//
+// in our user template code we need the correct argument types since we are deducing the
+// function type. to avoid weird casts directly in the code we create a function
+// with the correct argument types and just forward all arguments
+inline int getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
+{
+    return getgrouplist(user, group, groups, ngroups);
+}

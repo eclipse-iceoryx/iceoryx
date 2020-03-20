@@ -12,15 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
-#include <iostream>
+#include "iceoryx_utils/platform/win32_errorHandling.hpp"
 
 #include "iceoryx_utils/platform/windows.hpp"
 
-inline int PrintLastErrorToConsole() noexcept
+#include <iostream>
+#include <mutex>
+
+int __PrintLastErrorToConsole(const char* functionName, const char* file, const int line) noexcept
 {
-    constexpr uint64_t BUFFER_SIZE{2048};
+    static std::mutex coutMutex;
+    constexpr uint64_t BUFFER_SIZE{2048u};
     int lastError = GetLastError();
     if (lastError != 0)
     {
@@ -33,7 +35,10 @@ inline int PrintLastErrorToConsole() noexcept
                       BUFFER_SIZE - 1,
                       NULL);
 
-        std::cerr << "error ( " << lastError << " ) :: " << buffer << std::endl;
+        coutMutex.lock();
+        std::cerr << "< Win32API Error > " << file << ":" << line << " { " << functionName << " } [ " << lastError
+                  << " ] ::: " << buffer;
+        coutMutex.unlock();
     }
     return lastError;
 }

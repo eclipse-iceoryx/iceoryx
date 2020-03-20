@@ -27,7 +27,7 @@ class Allocator
 
 
   public:
-    static constexpr uint64_t MEMORY_ALIGNMENT = 32;
+    static constexpr uint64_t MEMORY_ALIGNMENT = 32u;
     Allocator(const void* f_startAddress, const uint64_t f_length);
 
     Allocator(const Allocator&) = delete;
@@ -45,7 +45,7 @@ class Allocator
   private:
     byte_t* m_startAddress;
     uint64_t m_length;
-    uintptr_t m_currentPosition = 0;
+    uint64_t m_currentPosition = 0u;
     bool m_allocationFinalized = false;
 };
 } // namespace posix

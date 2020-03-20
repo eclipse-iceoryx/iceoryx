@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include "iceoryx_utils/platform/getopt.hpp"
 
-#include <sys/un.h>
+int optind;
+int opterr;
+int optout;

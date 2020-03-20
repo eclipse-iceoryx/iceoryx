@@ -16,79 +16,82 @@
 
 #include <cstdarg>
 
-int sem_getvalue(sem_t* sem, int* sval)
+int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
     LONG previousValue;
-    switch (WaitForSingleObject(sem->handle, 0))
+    auto waitResult = Win32Call(WaitForSingleObject(sem->handle, 0));
+    switch (waitResult)
     {
     case WAIT_OBJECT_0:
-        if (ReleaseSemaphore(sem->handle, 1, &previousValue))
+    {
+        auto releaseResult = Win32Call(ReleaseSemaphore(sem->handle, 1, &previousValue));
+        if (releaseResult)
         {
-            PrintLastErrorToConsole();
             *sval = previousValue + 1;
             return 0;
         }
         return 0;
+    }
     case WAIT_TIMEOUT:
+    {
         *sval = 0;
         return 0;
+    }
     default:
+    {
         return -1;
+    }
     }
 }
 
-int sem_post(sem_t* sem)
+int iox_sem_post(iox_sem_t* sem)
 {
-    int retVal = (ReleaseSemaphore(sem->handle, 1, nullptr) != 0) ? 0 : -1;
-    PrintLastErrorToConsole();
-    return retVal;
+    int retVal = Win32Call(ReleaseSemaphore(sem->handle, 1, nullptr));
+    return (retVal != 0) ? 0 : -1;
 }
 
-int sem_wait(sem_t* sem)
+int iox_sem_wait(iox_sem_t* sem)
 {
-    int retVal = (WaitForSingleObject(sem->handle, INFINITE) == WAIT_OBJECT_0) ? 0 : -1;
-    PrintLastErrorToConsole();
-    return retVal;
+    int retVal = Win32Call(WaitForSingleObject(sem->handle, INFINITE));
+    return (retVal == WAIT_OBJECT_0) ? 0 : -1;
 }
 
-int sem_trywait(sem_t* sem)
+int iox_sem_trywait(iox_sem_t* sem)
 {
-    int retVal = (WaitForSingleObject(sem->handle, 0) == WAIT_OBJECT_0) ? 0 : -1;
-    PrintLastErrorToConsole();
-    return retVal;
+    int retVal = Win32Call(WaitForSingleObject(sem->handle, 0));
+    return (retVal == WAIT_OBJECT_0) ? 0 : -1;
 }
 
-int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout)
+int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout)
 {
     struct timeval tv;
     gettimeofday(&tv, nullptr);
-    if (abs_timeout->tv_sec < tv.tv_sec)
+    if (abs_timeout->tv_sec < tv.tv_sec
+        || (abs_timeout->tv_sec == tv.tv_sec && abs_timeout->tv_nsec < tv.tv_usec * 1000))
     {
-        return 0;
+        return iox_sem_trywait(sem);
     }
 
     time_t epochCurrentTimeDiffInSeconds = abs_timeout->tv_sec - tv.tv_sec;
     long milliseconds = epochCurrentTimeDiffInSeconds * 1000 + ((abs_timeout->tv_nsec / 1000) - tv.tv_usec) / 1000;
 
-    auto state = WaitForSingleObject(sem->handle, milliseconds);
+    auto state = Win32Call(WaitForSingleObject(sem->handle, milliseconds));
     if (state == WAIT_TIMEOUT)
     {
         errno = ETIMEDOUT;
     }
-    PrintLastErrorToConsole();
 
     return (state == WAIT_OBJECT_0) ? 0 : -1;
 }
 
-int sem_close(sem_t* sem)
+int iox_sem_close(iox_sem_t* sem)
 {
-    int retVal = CloseHandle(sem->handle) ? 0 : -1;
-    PrintLastErrorToConsole();
-    free(sem);
-    return retVal;
+    int retVal = Win32Call(CloseHandle(sem->handle)) ? 0 : -1;
+    delete sem;
+    return (retVal) ? 0 : -1;
 }
 
-int sem_destroy(sem_t* sem)
+int iox_sem_destroy(iox_sem_t* sem)
 {
     // semaphores are destroyed in windows when the last process which is
     // holding a semaphore calls CloseHandle
@@ -99,47 +102,44 @@ HANDLE __sem_create_win32_semaphore(LONG value, LPCSTR name)
 {
     SECURITY_ATTRIBUTES securityAttribute;
     SECURITY_DESCRIPTOR securityDescriptor;
-    InitializeSecurityDescriptor(&securityDescriptor, SECURITY_DESCRIPTOR_REVISION);
-    PrintLastErrorToConsole();
+    Win32Call(InitializeSecurityDescriptor(&securityDescriptor, SECURITY_DESCRIPTOR_REVISION));
 
     TCHAR* permissions = TEXT("D:") TEXT("(A;OICI;GA;;;BG)") // access to built-in guests
         TEXT("(A;OICI;GA;;;AN)")                             // access to anonymous logon
         TEXT("(A;OICI;GRGWGX;;;AU)")                         // access to authenticated users
         TEXT("(A;OICI;GA;;;BA)");                            // access to administrators
 
-    ConvertStringSecurityDescriptorToSecurityDescriptor(
-        permissions, SDDL_REVISION_1, &(securityAttribute.lpSecurityDescriptor), NULL);
-    PrintLastErrorToConsole();
+    Win32Call(ConvertStringSecurityDescriptorToSecurityDescriptor(
+        permissions, SDDL_REVISION_1, &(securityAttribute.lpSecurityDescriptor), NULL));
     securityAttribute.nLength = sizeof(SECURITY_ATTRIBUTES);
     securityAttribute.lpSecurityDescriptor = &securityDescriptor;
     securityAttribute.bInheritHandle = FALSE;
 
-    HANDLE returnValue = CreateSemaphore(&securityAttribute, value, MAX_SEMAPHORE_VALUE, name);
-    PrintLastErrorToConsole();
+    HANDLE returnValue = Win32Call(CreateSemaphoreA(&securityAttribute, value, MAX_SEMAPHORE_VALUE, name));
     return returnValue;
 }
 
 
-int sem_init(sem_t* sem, int pshared, unsigned int value)
+int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
 {
     sem->handle = __sem_create_win32_semaphore(value, nullptr);
-    if (sem != nullptr)
+    if (sem->handle != nullptr)
     {
         return 0;
     }
     return -1;
 }
 
-int sem_unlink(const char* name)
+int iox_sem_unlink(const char* name)
 {
     // semaphores are unlinked in windows when the last process which is
     // holding a semaphore calls CloseHandle
     return 0;
 }
 
-sem_t* sem_open(const char* name, int oflag, ...) // mode_t mode, unsigned int value
+iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, unsigned int value
 {
-    sem_t* sem = static_cast<sem_t*>(malloc(sizeof(sem_t)));
+    iox_sem_t* sem = new iox_sem_t;
     if (oflag & (O_CREAT | O_EXCL))
     {
         va_list va;
@@ -151,17 +151,21 @@ sem_t* sem_open(const char* name, int oflag, ...) // mode_t mode, unsigned int v
         sem->handle = __sem_create_win32_semaphore(value, name);
         if (oflag & O_EXCL && GetLastError() == ERROR_ALREADY_EXISTS)
         {
-            sem_close(sem);
+            iox_sem_close(sem);
+            return SEM_FAILED;
+        }
+        else if (sem->handle == nullptr)
+        {
+            delete sem;
             return SEM_FAILED;
         }
     }
     else
     {
-        sem->handle = OpenSemaphoreA(SEMAPHORE_ALL_ACCESS, false, name);
-        PrintLastErrorToConsole();
-        if (sem->handle == NULL)
+        sem->handle = Win32Call(OpenSemaphoreA(SEMAPHORE_ALL_ACCESS, false, name));
+        if (sem->handle == nullptr)
         {
-            free(sem);
+            delete sem;
             return SEM_FAILED;
         }
     }

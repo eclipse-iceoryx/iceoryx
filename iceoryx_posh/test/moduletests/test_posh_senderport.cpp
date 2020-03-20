@@ -383,8 +383,8 @@ TEST_F(SenderPort_testLatchedTopic, getSameSampleAfterOneDeliver)
     ASSERT_THAT(m_receiver->getChunk(receivedSample), Eq(true));
     m_receiver->releaseChunk(receivedSample);
 
-    uintptr_t sampleAddress = reinterpret_cast<uintptr_t>(sample);
-    EXPECT_THAT(reinterpret_cast<uintptr_t>(m_sender->reserveChunk(sizeof(DummySample))), Eq(sampleAddress));
+    uint64_t sampleAddress = reinterpret_cast<uint64_t>(sample);
+    EXPECT_THAT(reinterpret_cast<uint64_t>(m_sender->reserveChunk(sizeof(DummySample))), Eq(sampleAddress));
 }
 
 TEST_F(SenderPort_testLatchedTopic, getDifferentSampleWhenStillInUse)
@@ -397,8 +397,8 @@ TEST_F(SenderPort_testLatchedTopic, getDifferentSampleWhenStillInUse)
     const iox::mepoo::ChunkHeader* receivedSample;
     ASSERT_THAT(m_receiver->getChunk(receivedSample), Eq(true));
 
-    uintptr_t sampleAddress = reinterpret_cast<uintptr_t>(sample);
-    EXPECT_THAT(reinterpret_cast<uintptr_t>(m_sender->reserveChunk(sizeof(DummySample))), Ne(sampleAddress));
+    uint64_t sampleAddress = reinterpret_cast<uint64_t>(sample);
+    EXPECT_THAT(reinterpret_cast<uint64_t>(m_sender->reserveChunk(sizeof(DummySample))), Ne(sampleAddress));
     m_receiver->releaseChunk(receivedSample);
 }
 
@@ -421,6 +421,6 @@ TEST_F(SenderPort_testLatchedTopic, getSameSampleAfterSecondDelivery)
     ASSERT_THAT(m_receiver->getChunk(receivedSample), Eq(true));
     m_receiver->releaseChunk(receivedSample);
 
-    uintptr_t sampleAddress = reinterpret_cast<uintptr_t>(sample);
-    EXPECT_THAT(reinterpret_cast<uintptr_t>(m_sender->reserveChunk(sizeof(DummySample))), Eq(sampleAddress));
+    uint64_t sampleAddress = reinterpret_cast<uint64_t>(sample);
+    EXPECT_THAT(reinterpret_cast<uint64_t>(m_sender->reserveChunk(sizeof(DummySample))), Eq(sampleAddress));
 }

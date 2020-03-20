@@ -19,6 +19,10 @@
 
 #define optarg "fuu"
 
+extern int optind;
+extern int opterr;
+extern int optout;
+
 struct option
 {
     const char* name;

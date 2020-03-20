@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__APPLE__)
 #include "mocks/mqueue_mock.hpp"
 #include "mocks/time_mock.hpp"
 

@@ -25,7 +25,7 @@ ChunkHeader::ChunkHeader() noexcept
 
 ChunkHeader* convertPayloadPointerToChunkHeader(void* const payload) noexcept
 {
-    return reinterpret_cast<ChunkHeader*>(reinterpret_cast<uintptr_t>(payload) - sizeof(ChunkHeader));
+    return reinterpret_cast<ChunkHeader*>(reinterpret_cast<uint64_t>(payload) - sizeof(ChunkHeader));
 }
 
 } // namespace mepoo

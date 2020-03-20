@@ -50,7 +50,7 @@ The counter can differ depending on startup of the applications.
 
 ### Iceoryx introspection application
 
-![introspection_screenshot](https://user-images.githubusercontent.com/22388003/75034595-cdf9d880-54ad-11ea-9f57-cc01e688f9fb.png)
+![introspection_screenshot](https://user-images.githubusercontent.com/22388003/75041206-672feb80-54bc-11ea-8621-2acf95bf376e.png)
 
 ## Feature walkthrough
 

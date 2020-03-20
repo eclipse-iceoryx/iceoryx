@@ -54,7 +54,7 @@ struct ReceiverPortData : public BasePortData
     iox::relative_ptr<posix::Semaphore> m_chunkSendSemaphore{nullptr};
 
     // offer semaphore that is stored in shared memory
-    sem_t m_shmSemaphoreHandle;
+    iox_sem_t m_shmSemaphoreHandle;
     posix::Semaphore::result_t m_shmSemaphore = posix::Semaphore::create();
 };
 

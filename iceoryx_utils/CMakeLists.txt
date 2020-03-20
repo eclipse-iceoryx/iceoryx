@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 set(iceoryx_utils_VERSION 0.16.1)
 project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 
-add_compile_options(-fPIC)
-add_compile_options(-std=c++11)
-
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatformDetection.cmake")
 
@@ -65,7 +62,11 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
             iceoryx_utils_testing PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
         )
     endif(PERFORM_CLANG_TIDY)
-
+    set_target_properties(iceoryx_utils_testing PROPERTIES 
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        POSITION_INDEPENDENT_CODE ON
+    )
 
     if(test_with_additional_user)
         target_compile_definitions(iceoryx_utils_testing PUBLIC -DTEST_WITH_ADDITIONAL_USER)
@@ -156,6 +157,12 @@ add_library(iceoryx_utils
 )
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)
+set_target_properties(iceoryx_utils PROPERTIES 
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
 
 if(LINUX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/)
@@ -181,28 +188,27 @@ target_include_directories(iceoryx_platform
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 add_library(iceoryx_utils::iceoryx_platform ALIAS iceoryx_platform)
+set_target_properties(iceoryx_platform PROPERTIES 
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
+
+if(PERFORM_CLANG_TIDY)
+    set_target_properties(
+        iceoryx_utils PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
+    )
+endif(PERFORM_CLANG_TIDY)
+
 
 target_link_libraries(iceoryx_utils PUBLIC iceoryx_utils::iceoryx_platform)
 
-set_target_properties(iceoryx_utils PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # TODO: Make ICEORYX::UTILS private???
 target_include_directories(iceoryx_utils
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
-
-target_compile_options(iceoryx_utils PUBLIC -std=c++11)
-target_compile_options(iceoryx_utils PUBLIC -fPIC)
-
-set_target_properties(iceoryx_utils
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-if(PERFORM_CLANG_TIDY)
-    set_target_properties(
-        iceoryx_utils PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
-    )
-endif(PERFORM_CLANG_TIDY)
 
 
 

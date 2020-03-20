@@ -83,3 +83,8 @@ inline ssize_t recvfrom(int sockfd, void* buf, size_t len, int flags, struct soc
 {
     return 0;
 }
+
+inline int connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
+{
+    return 0;
+}

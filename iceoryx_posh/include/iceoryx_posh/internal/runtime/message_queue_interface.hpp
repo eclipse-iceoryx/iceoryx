@@ -249,10 +249,7 @@ class MqInterfaceUser : public MqBase
 
     /// @brief The copy constructor and assignment operator are deleted since
     ///         this class manages a resource (message queue) which cannot
-    ///         be copied. Theoretically, we can create a new message queue
-    ///         but since every message queue needs a unique string
-    ///         identifier which is undefined when creating a copy, this
-    ///         makes no sense.
+    ///         be copied. Since move is not needed it is also deleted.
     MqInterfaceUser(const MqInterfaceUser&) = delete;
     MqInterfaceUser& operator=(const MqInterfaceUser&) = delete;
 
@@ -281,10 +278,7 @@ class MqInterfaceCreator : public MqBase
 
     /// @brief The copy constructor and assignment operator is deleted since
     ///         this class manages a resource (message queue) which cannot
-    ///         be copied. Theoretically, we can create a new message queue
-    ///         but since every message queue needs a unique string
-    ///         identifier which is undefined when creating a copy, this
-    ///         makes no sense.
+    ///         be copied. Move is also not needed, it is also deleted.
     MqInterfaceCreator(const MqInterfaceCreator&) = delete;
     MqInterfaceCreator& operator=(const MqInterfaceCreator&) = delete;
 

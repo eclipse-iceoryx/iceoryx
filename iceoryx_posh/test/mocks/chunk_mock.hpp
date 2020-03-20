@@ -17,6 +17,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
+#include <cstdlib>
 #include <cstring>
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)

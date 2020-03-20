@@ -97,7 +97,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     MessageQueue(const std::string& name,
                  const IpcChannelMode mode,
                  const IpcChannelSide channelSide,
-                 const size_t maxMsgSize = 512u,
+                 const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                  const uint64_t maxMsgNumber = 10u);
     cxx::expected<int32_t, IpcChannelError>
     open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide);

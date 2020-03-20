@@ -17,7 +17,7 @@
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/time.hpp"
 #include "iceoryx_utils/platform/types.hpp"
-#include "iceoryx_utils/platform/win32-error.hpp"
+#include "iceoryx_utils/platform/win32_errorHandling.hpp"
 #include "iceoryx_utils/platform/windows.hpp"
 
 
@@ -29,20 +29,26 @@
 
 #define SEM_FAILED 0
 
-struct sem_t
+struct iox_sem_t
 {
-    HANDLE handle;
+    HANDLE handle{nullptr};
 };
 static constexpr LONG MAX_SEMAPHORE_VALUE = LONG_MAX;
 static constexpr int MAX_SEMAPHORE_NAME_LENGTH = 128;
 
-int sem_getvalue(sem_t* sem, int* sval);
-int sem_post(sem_t* sem);
-int sem_wait(sem_t* sem);
-int sem_trywait(sem_t* sem);
-int sem_timedwait(sem_t* sem, const struct timespec* abs_timeout);
-int sem_close(sem_t* sem);
-int sem_destroy(sem_t* sem);
-int sem_init(sem_t* sem, int pshared, unsigned int value);
-sem_t* sem_open(const char* name, int oflag, ...);
-int sem_unlink(const char* name);
+int iox_sem_getvalue(iox_sem_t* sem, int* sval);
+int iox_sem_post(iox_sem_t* sem);
+int iox_sem_wait(iox_sem_t* sem);
+int iox_sem_trywait(iox_sem_t* sem);
+int iox_sem_timedwait(iox_sem_t* sem, const struct timespec* abs_timeout);
+int iox_sem_close(iox_sem_t* sem);
+int iox_sem_destroy(iox_sem_t* sem);
+int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value);
+iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...);
+int iox_sem_unlink(const char* name);
+
+template <typename... Targs>
+inline iox_sem_t* iox_sem_open(const char* name, int oflag, Targs... args)
+{
+    return iox_sem_open_impl(name, oflag, args...);
+}

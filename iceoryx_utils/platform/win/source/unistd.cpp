@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/platform/unistd.hpp"
+#include "iceoryx_utils/platform/win32_errorHandling.hpp"
 
 HandleTranslator& HandleTranslator::getInstance() noexcept
 {
@@ -57,7 +58,7 @@ long sysconf(int name)
 
 int closePlatformFileHandle(int fd)
 {
-    auto success = CloseHandle(HandleTranslator::getInstance().get(fd));
+    auto success = Win32Call(CloseHandle(HandleTranslator::getInstance().get(fd)));
     HandleTranslator::getInstance().remove(fd);
     if (success == 0)
     {

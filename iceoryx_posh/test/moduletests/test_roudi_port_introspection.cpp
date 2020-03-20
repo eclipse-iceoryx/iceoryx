@@ -47,7 +47,7 @@ class PortIntrospection_test : public Test
   public:
     PortIntrospection_test()
         : m_introspectionAccess(
-              static_cast<PortIntrospectionAccess<SenderPort_MOCK, ReceiverPort_MOCK>&>(*m_introspection))
+            static_cast<PortIntrospectionAccess<SenderPort_MOCK, ReceiverPort_MOCK>&>(*m_introspection))
     {
     }
 
