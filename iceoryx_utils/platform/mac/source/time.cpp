@@ -38,8 +38,16 @@ static void stopTimer(timer_t timerid)
 
 static bool waitForExecution(timer_t timerid)
 {
+    timespec waitUntil;
+    clock_gettime(CLOCK_REALTIME, &waitUntil);
+    waitUntil.tv_sec += timerid->timeParameters.it_value.tv_sec;
+    waitUntil.tv_nsec += timerid->timeParameters.it_value.tv_nsec;
+
     std::unique_lock<std::mutex> ulock(timerid->wakeupMutex);
-    timerid->wakeup.wait_for(ulock, getNanoSeconds(timerid->timeParameters.it_value));
+    using timePoint_t = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
+    while (timerid->wakeup.wait_until(ulock, timePoint_t(getNanoSeconds(waitUntil))) != std::cv_status::timeout)
+    {
+    }
 
     return timerid->keepRunning.load(std::memory_order_relaxed);
 }
