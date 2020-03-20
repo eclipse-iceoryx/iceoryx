@@ -321,7 +321,7 @@ cxx::expected<units::Duration, TimerError> Timer::OsTimer::timeUntilExpiration()
         return createErrorFromErrno(result.getErrNum());
     }
 
-    if (currentInterval.it_value.tv_sec == 0 && currentInterval.it_value.tv_sec == 0)
+    if (currentInterval.it_value.tv_sec == 0 && currentInterval.it_value.tv_nsec == 0)
     {
         // Timer is disarmed
         OsTimer::s_callbackHandlePool[m_callbackHandleIndex].m_isTimerActive.store(false, std::memory_order_relaxed);
@@ -485,32 +485,38 @@ cxx::error<TimerError> Timer::createErrorFromErrno(const int errnum) noexcept
     TimerError timerError = TimerError::INTERNAL_LOGIC_ERROR;
     switch (errnum)
     {
-    case EAGAIN: {
+    case EAGAIN:
+    {
         std::cerr << "Kernel failed to allocate timer structures" << std::endl;
         timerError = TimerError::KERNEL_ALLOC_FAILED;
         break;
     }
-    case EINVAL: {
+    case EINVAL:
+    {
         std::cerr << "Provided invalid arguments for posix::Timer" << std::endl;
         timerError = TimerError::INVALID_ARGUMENTS;
         break;
     }
-    case ENOMEM: {
+    case ENOMEM:
+    {
         std::cerr << "Could not allocate memory for posix::Timer" << std::endl;
         timerError = TimerError::ALLOC_MEM_FAILED;
         break;
     }
-    case EPERM: {
+    case EPERM:
+    {
         std::cerr << "No permissions to set the clock" << std::endl;
         timerError = TimerError::NO_PERMISSION;
         break;
     }
-    case EFAULT: {
+    case EFAULT:
+    {
         std::cerr << "An invalid pointer was provided" << std::endl;
         timerError = TimerError::INVALID_POINTER;
         break;
     }
-    default: {
+    default:
+    {
         std::cerr << "Internal logic error in posix::Timer occurred" << std::endl;
         break;
     }
