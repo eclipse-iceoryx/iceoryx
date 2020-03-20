@@ -21,7 +21,7 @@
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include "cpptoml.h"
-#include <getopt.h>
+#include "iceoryx_utils/platform/getopt.hpp"
 #include <string>
 
 namespace iox

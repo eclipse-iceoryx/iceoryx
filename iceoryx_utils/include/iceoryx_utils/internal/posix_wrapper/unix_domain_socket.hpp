@@ -32,9 +32,9 @@ namespace posix
 class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcChannelError>
 {
   public:
-    static constexpr size_t MAX_MESSAGE_SIZE = 4096;
-    static constexpr size_t SHORTEST_VALID_NAME = 2;
-    static constexpr size_t LONGEST_VALID_NAME = 100;
+    static constexpr size_t MAX_MESSAGE_SIZE = 4096u;
+    static constexpr size_t SHORTEST_VALID_NAME = 2u;
+    static constexpr size_t LONGEST_VALID_NAME = 100u;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
 

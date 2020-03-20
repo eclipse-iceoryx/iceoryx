@@ -5,6 +5,9 @@ project(iceperf)
 find_package(iceoryx_posh CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+if ( NOT ICEORYX_CXX_STANDARD )
+    include(IceoryxPlatformDetection)
+endif ( NOT ICEORYX_CXX_STANDARD )
 
 add_executable(iceperf-laurel iceperf_laurel.cpp)
 set_target_properties(iceperf-laurel PROPERTIES 

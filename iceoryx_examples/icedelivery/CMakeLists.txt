@@ -7,6 +7,9 @@ include(GNUInstallDirs)
 find_package(iceoryx_posh CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
+if ( NOT ICEORYX_CXX_STANDARD )
+    include(IceoryxPlatformDetection)
+endif ( NOT ICEORYX_CXX_STANDARD )
 
 add_executable(ice-publisher-bare-metal ./ice_publisher_bare_metal.cpp)
 target_link_libraries(ice-publisher-bare-metal

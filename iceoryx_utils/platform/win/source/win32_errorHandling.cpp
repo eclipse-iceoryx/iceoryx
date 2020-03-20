@@ -22,7 +22,7 @@
 int __PrintLastErrorToConsole(const char* functionName, const char* file, const int line) noexcept
 {
     static std::mutex coutMutex;
-    constexpr uint64_t BUFFER_SIZE{2048};
+    constexpr uint64_t BUFFER_SIZE{2048u};
     int lastError = GetLastError();
     if (lastError != 0)
     {

@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include "iceoryx_utils/platform/getopt.hpp"
 
-#include <pthread.h>
-
-inline int pthread_setname_np(pthread_t thread, const char* name)
-{
-    return pthread_setname_np(name);
-}
+int optind;
+int opterr;
+int optout;

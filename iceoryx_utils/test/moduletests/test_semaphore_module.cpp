@@ -140,7 +140,9 @@ TEST_F(SemaphoreCreate_test, OpenNonExistingNamedSemaphore)
 TEST_P(Semaphore_test, PostIncreasesSemaphoreValue)
 {
     for (int i = 0; i < 12; ++i)
+    {
         sut->post();
+    }
 
     int value;
     ASSERT_THAT(sut->getValue(value), Eq(true));
@@ -150,9 +152,13 @@ TEST_P(Semaphore_test, PostIncreasesSemaphoreValue)
 TEST_P(Semaphore_test, WaitDecreasesSemaphoreValue)
 {
     for (int i = 0; i < 18; ++i)
+    {
         sut->post();
+    }
     for (int i = 0; i < 7; ++i)
+    {
         sut->wait();
+    }
 
     int value;
     ASSERT_THAT(sut->getValue(value), Eq(true));
@@ -162,9 +168,13 @@ TEST_P(Semaphore_test, WaitDecreasesSemaphoreValue)
 TEST_P(Semaphore_test, SuccessfulTryWaitDecreasesSemaphoreValue)
 {
     for (int i = 0; i < 15; ++i)
+    {
         sut->post();
+    }
     for (int i = 0; i < 9; ++i)
+    {
         ASSERT_THAT(sut->tryWait(), Eq(true));
+    }
 
     int value;
     ASSERT_THAT(sut->getValue(value), Eq(true));
@@ -174,7 +184,9 @@ TEST_P(Semaphore_test, SuccessfulTryWaitDecreasesSemaphoreValue)
 TEST_P(Semaphore_test, FailingTryWaitDoesNotChangeSemaphoreValue)
 {
     for (int i = 0; i < 4; ++i)
+    {
         ASSERT_THAT(sut->tryWait(), Eq(false));
+    }
 
     int value;
     ASSERT_THAT(sut->getValue(value), Eq(true));
@@ -184,7 +196,9 @@ TEST_P(Semaphore_test, FailingTryWaitDoesNotChangeSemaphoreValue)
 TEST_P(Semaphore_test, SuccessfulTimedWaitDecreasesSemaphoreValue)
 {
     for (int i = 0; i < 19; ++i)
+    {
         sut->post();
+    }
 
     for (int i = 0; i < 12; ++i)
     {
