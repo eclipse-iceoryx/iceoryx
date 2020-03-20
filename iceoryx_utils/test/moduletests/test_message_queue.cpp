@@ -24,7 +24,6 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
 
-// using IpcChannel = UnixDomainSocket;
 using IpcChannel = MessageQueue;
 
 constexpr char goodName[] = "/channel_test";
@@ -63,7 +62,7 @@ class MessageQueue_test : public Test
     }
 
     static constexpr size_t MaxMsgSize = IpcChannel::MAX_MESSAGE_SIZE;
-    static constexpr uint64_t MaxMsgNumber = 10;
+    static constexpr uint64_t MaxMsgNumber = 10u;
     IpcChannel server;
     IpcChannel client;
 };

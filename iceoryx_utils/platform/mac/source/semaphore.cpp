@@ -60,7 +60,7 @@ iox_sem_t& iox_sem_t::operator=(iox_sem_t&& rhs) noexcept
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
-    *sval = sem->m_value->load();
+    *sval = sem->m_value->load(std::memory_order_relaxed);
     return 0;
 }
 
@@ -90,14 +90,18 @@ int iox_sem_wait(iox_sem_t* sem)
     if (sem->m_hasPosixHandle)
     {
         retVal = sem_wait(sem->m_handle.posix);
+        if (retVal == 0)
+        {
+            (*sem->m_value)--;
+        }
     }
     else
     {
         // dispatch semaphore always succeed
         dispatch_semaphore_wait(sem->m_handle.dispatch, DISPATCH_TIME_FOREVER);
+        (*sem->m_value)--;
     }
 
-    sem->m_value->fetch_sub((retVal == 0) ? 1 : 0);
     return retVal;
 }
 
@@ -107,6 +111,10 @@ int iox_sem_trywait(iox_sem_t* sem)
     if (sem->m_hasPosixHandle)
     {
         retVal = sem_trywait(sem->m_handle.posix);
+        if (retVal == 0)
+        {
+            (*sem->m_value)--;
+        }
     }
     else
     {
@@ -115,9 +123,12 @@ int iox_sem_trywait(iox_sem_t* sem)
             errno = EAGAIN;
             retVal = -1;
         }
+        else
+        {
+            (*sem->m_value)--;
+        }
     }
 
-    sem->m_value->fetch_sub((retVal == 0) ? 1 : 0);
     return retVal;
 }
 
@@ -208,7 +219,7 @@ int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
 {
     sem->m_hasPosixHandle = false;
     sem->m_handle.dispatch = dispatch_semaphore_create(value);
-    sem->m_value->store(value);
+    sem->m_value->store(value, std::memory_order_relaxed);
 
     if (sem->m_handle.dispatch == nullptr)
     {
@@ -236,7 +247,7 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
         va_end(va);
 
         sem->m_handle.posix = sem_open(name, oflag, mode, value);
-        sem->m_value->store(value);
+        sem->m_value->store(value, std::memory_order_relaxed);
     }
     else
     {
