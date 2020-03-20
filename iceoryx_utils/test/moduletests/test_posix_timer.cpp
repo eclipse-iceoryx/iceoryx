@@ -316,6 +316,89 @@ TIMING_TEST_F(Timer_test, TimeUntilExpirationZeroAfterCallbackOnceCalled, Repeat
     TIMING_TEST_END();
 });
 
+TIMING_TEST_F(Timer_test, StoppingIsNonBlocking, Repeat(3), [&] {
+    Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(10)); });
+    sut.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    auto startTime = std::chrono::system_clock::now();
+    sut.stop();
+    auto endTime = std::chrono::system_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+    TIMING_TEST_EXPECT_TRUE(elapsedTime < 2);
+
+    TIMING_TEST_END();
+});
+
+// This test has to be repeated more often since we are spawning a lot
+// of threads in here
+TIMING_TEST_F(Timer_test, MultipleTimersRunningContinuously, Repeat(5), [&] {
+    struct TimeValPair
+    {
+        TimeValPair()
+            : timer(2_ms, [&] { this->value++; })
+        {
+        }
+        int value{0};
+        Timer timer;
+    };
+
+    std::vector<TimeValPair> sutList(4);
+
+    for (auto& sut : sutList)
+    {
+        sut.timer.start(Timer::RunMode::PERIODIC);
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    for (auto& sut : sutList)
+    {
+        sut.timer.stop();
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    for (auto& sut : sutList)
+    {
+        TIMING_TEST_EXPECT_TRUE(4 <= sut.value && sut.value <= 6);
+    }
+
+    TIMING_TEST_END();
+});
+
+// This test has to be repeated more often since we are spawning a lot
+// of threads in here
+TIMING_TEST_F(Timer_test, MultipleTimersRunningOnce, Repeat(5), [&] {
+    struct TimeValPair
+    {
+        TimeValPair()
+            : timer(2_ms, [&] { this->value++; })
+        {
+        }
+        int value{0};
+        Timer timer;
+    };
+
+    std::vector<TimeValPair> sutList(4);
+
+    for (auto& sut : sutList)
+    {
+        sut.timer.start(Timer::RunMode::ONCE);
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
+    for (auto& sut : sutList)
+    {
+        TIMING_TEST_EXPECT_TRUE(sut.value == 1);
+    }
+
+    TIMING_TEST_END();
+});
+
+
 TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
 {
     Timer sut(1_ms);
