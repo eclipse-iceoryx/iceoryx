@@ -16,7 +16,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_versions.hpp"
 
-#include <getopt.h>
+#include "iceoryx_utils/platform/getopt.hpp"
 #include <iostream>
 
 namespace iox
@@ -53,11 +53,13 @@ void CmdLineParserConfigFileOption::parse(int argc,
             std::cout << "                                  or built-in config is used." << std::endl;
             m_run = false;
             break;
-        case 'c': {
+        case 'c':
+        {
             m_customConfigFilePath = ConfigFilePathString_t(cxx::UnsafeCheckPreconditions, optarg);
             break;
         }
-        default: {
+        default:
+        {
             // we want to parse the help option again, therefore we need to decrement the option index of getopt
             optind--;
             CmdLineParser::parse(argc, argv, CmdLineArgumentParsingMode::ONE);
