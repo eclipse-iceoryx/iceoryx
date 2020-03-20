@@ -181,7 +181,7 @@ endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 ########## build roudi ##########
 if(TOML_CONFIG)
     if ( NOT cpptoml_FOUND )
-        find_package(cpptoml_vendor REQUIRED)
+        find_package(cpptoml_vendor QUIET)
         find_package(cpptoml REQUIRED)
     endif(NOT cpptoml_FOUND)
     message("-- Build with TOML config file support.")
