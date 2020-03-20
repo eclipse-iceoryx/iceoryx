@@ -24,8 +24,7 @@ static std::chrono::nanoseconds getNanoSeconds(const timespec& value)
 static void stopTimer(timer_t timerid)
 {
     {
-        std::lock_guard<std::mutex> lock(timerid->keepRunningMutex);
-        timerid->keepRunning = false;
+        timerid->keepRunning.store(false, std::memory_order_relaxed);
     }
     timerid->wakeup.notify_one();
 
@@ -40,8 +39,7 @@ static bool waitForExecution(timer_t timerid)
     std::unique_lock<std::mutex> ulock(timerid->wakeupMutex);
     timerid->wakeup.wait_for(ulock, getNanoSeconds(timerid->timeParameters.it_value));
 
-    std::lock_guard<std::mutex> lock(timerid->keepRunningMutex);
-    return timerid->keepRunning;
+    return timerid->keepRunning.load(std::memory_order_relaxed);
 }
 
 int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid)

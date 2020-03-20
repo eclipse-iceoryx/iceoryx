@@ -32,8 +32,7 @@ struct appleTimer_t
     sigval callbackParameter;
     itimerspec timeParameters;
 
-    std::mutex keepRunningMutex;
-    bool keepRunning{false};
+    std::atomic_bool keepRunning{false};
     std::mutex wakeupMutex;
     std::condition_variable wakeup;
 };
