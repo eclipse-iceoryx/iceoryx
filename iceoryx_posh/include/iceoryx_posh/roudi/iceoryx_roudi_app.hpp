@@ -16,8 +16,6 @@
 
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 
-/// @todo once we have a config file for RouDi, this can be a private header
-
 namespace iox
 {
 namespace roudi

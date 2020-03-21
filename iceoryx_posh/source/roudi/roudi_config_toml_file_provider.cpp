@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
-
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"

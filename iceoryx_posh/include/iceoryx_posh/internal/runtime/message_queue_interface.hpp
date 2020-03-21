@@ -56,7 +56,6 @@ enum class MqMessageType : int32_t
     IMPL_APPLICATION_ACK,
     CREATE_RUNNABLE,
     CREATE_RUNNABLE_ACK,
-    REMOVE_RUNNABLE,
     FIND_SERVICE,
     KEEPALIVE,
     ERROR,
@@ -324,10 +323,6 @@ class MqRuntimeInterface
     /// @return true if communication was successful, otherwise false
     bool sendMessageToRouDi(const MqMessage& msg) noexcept;
 
-    /// @brief get the base address of the management shared memory segment
-    /// @return address as string
-    std::string getShmBaseAddr() const noexcept;
-
     /// @brief get the adress of the segment manager
     /// @return address as string
     std::string getSegmentManagerAddr() const noexcept;
@@ -357,12 +352,11 @@ class MqRuntimeInterface
 
   private:
     std::string m_appName;
-    std::string m_shmBaseAddr;
     std::string m_segmentManager;
     MqInterfaceCreator m_AppMqInterface;
     MqInterfaceUser m_RoudiMqInterface;
-    size_t m_shmTopicSize{0};
-    uint64_t m_segmentId{0};
+    size_t m_shmTopicSize{0u};
+    uint64_t m_segmentId{0u};
 };
 } // namespace runtime
 } // namespace iox

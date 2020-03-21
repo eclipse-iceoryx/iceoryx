@@ -32,9 +32,9 @@ class MemoryBlockMock final : public iox::roudi::MemoryBlock
         return alignmentMock();
     }
 
-    void memoryAvailable() noexcept override
+    void memoryAvailable(void* memory) noexcept override
     {
-        memoryAvailableMock();
+        memoryAvailableMock(memory);
     }
 
     void destroy() noexcept override
@@ -44,6 +44,6 @@ class MemoryBlockMock final : public iox::roudi::MemoryBlock
 
     MOCK_CONST_METHOD0(sizeMock, uint64_t());
     MOCK_CONST_METHOD0(alignmentMock, uint64_t());
-    MOCK_METHOD0(memoryAvailableMock, void());
+    MOCK_METHOD1(memoryAvailableMock, void(void*));
     MOCK_METHOD0(destroyMock, void());
 };

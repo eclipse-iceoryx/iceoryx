@@ -23,7 +23,7 @@ namespace iox
 {
 namespace posix
 {
-constexpr uint64_t MaxPageSize = 1024 * 512;
+constexpr uint64_t MaxPageSize = 1024u * 512u;
 
 cxx::optional<uint64_t> pageSize();
 

@@ -273,5 +273,47 @@ inline optional<OptionalBaseType> make_optional(Targs&&... args) noexcept
     returnValue.emplace(std::forward<Targs>(args)...);
     return returnValue;
 }
+
+template <typename T>
+inline optional<T>& optional<T>::and_then(const std::function<void(T&)>& callable) noexcept
+{
+    if (m_hasValue && callable)
+    {
+        callable(value());
+    }
+    return *this;
+}
+
+template <typename T>
+inline const optional<T>& optional<T>::and_then(const std::function<void(const T&)>& callable) const noexcept
+{
+    if (m_hasValue && callable)
+    {
+        callable(value());
+    }
+    return *this;
+}
+
+template <typename T>
+inline optional<T>& optional<T>::or_else(const std::function<void()>& callable) noexcept
+{
+    if (!m_hasValue && callable)
+    {
+        callable();
+    }
+    return *this;
+}
+
+template <typename T>
+inline const optional<T>& optional<T>::or_else(const std::function<void()>& callable) const noexcept
+{
+    if (!m_hasValue && callable)
+    {
+        callable();
+    }
+    return *this;
+}
+
+
 } // namespace cxx
 } // namespace iox

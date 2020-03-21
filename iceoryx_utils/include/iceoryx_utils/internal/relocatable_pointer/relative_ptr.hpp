@@ -27,7 +27,8 @@ class RelativePointer
   public:
     using id_t = uint64_t;
     using ptr_t = void*;
-    using offset_t = uint64_t;
+    using const_ptr_t = const void* const;
+    using offset_t = std::uintptr_t;
 
     RelativePointer(ptr_t ptr, id_t id)
         : m_id(id)
@@ -149,7 +150,7 @@ class RelativePointer
 
     ///@brief get the offset from id and ptr
     ///@return offset
-    static offset_t getOffset(const id_t id, const ptr_t ptr)
+    static offset_t getOffset(const id_t id, const_ptr_t ptr)
     {
         if (id == NULL_POINTER_ID)
         {

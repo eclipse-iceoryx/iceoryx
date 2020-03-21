@@ -14,6 +14,9 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/timespec.hpp"
 
+// For std types
+#include <cstdint>
+
 namespace iox
 {
 namespace posix
@@ -37,8 +40,13 @@ struct timespec addTimeMs(struct timespec time, const unsigned int timeToAdd_ms)
 
 double subtractTimespecMS(const struct timespec minuend, const struct timespec subtrahend)
 {
-    long long diff_s = static_cast<long long>(minuend.tv_sec) - static_cast<long long>(subtrahend.tv_sec);
-    long long diff_ns = static_cast<long long>(minuend.tv_nsec) - static_cast<long long>(subtrahend.tv_nsec);
+    // Define TimeType instead of long long to be machine independent, long long is 64-bit on QNX/Linux 32-bit/64-bit
+    using TimeType = std::uint64_t;
+    static_assert(sizeof(TimeType) >= sizeof(minuend.tv_sec), "Wrong type for this architecture");
+    static_assert(sizeof(TimeType) >= sizeof(subtrahend.tv_nsec), "Wrong type for this architecture");
+
+    const TimeType diff_s = static_cast<TimeType>(minuend.tv_sec) - static_cast<TimeType>(subtrahend.tv_sec);
+    const TimeType diff_ns = static_cast<TimeType>(minuend.tv_nsec) - static_cast<TimeType>(subtrahend.tv_nsec);
 
     return (static_cast<double>(diff_s) * 1000.)
            + (static_cast<double>(diff_ns) / static_cast<double>(TS_DIVIDER_msec));

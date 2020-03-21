@@ -86,7 +86,7 @@ void ProcessIntrospection<SenderPort>::addRunnable(const cxx::CString100& f_proc
             {
                 if (*it_runnable == f_runnable)
                 {
-                    LogWarn() << "Runnable " << f_runnable.to_cstring() << " already registered";
+                    LogWarn() << "Runnable " << f_runnable.c_str() << " already registered";
                     alreadyInList = true;
                 }
             }
@@ -98,7 +98,7 @@ void ProcessIntrospection<SenderPort>::addRunnable(const cxx::CString100& f_proc
     }
     if (!processFound)
     {
-        LogWarn() << "Trying to register runnable " << f_runnable.to_cstring()
+        LogWarn() << "Trying to register runnable " << f_runnable.c_str()
                   << " but the related process is not registered";
     }
     m_processListNewData = true;
@@ -129,14 +129,13 @@ void ProcessIntrospection<SenderPort>::removeRunnable(const cxx::CString100& f_p
             }
             if (!removedFromList)
             {
-                LogWarn() << "Trying to remove runnable " << f_runnable.to_cstring() << " but it was not registered";
+                LogWarn() << "Trying to remove runnable " << f_runnable.c_str() << " but it was not registered";
             }
         }
     }
     if (!processFound)
     {
-        LogWarn() << "Trying to remove runnable " << f_runnable.to_cstring()
-                  << " but the related process is not registered";
+        LogWarn() << "Trying to remove runnable " << f_runnable.c_str() << " but the related process is not registered";
     }
     m_processListNewData = true;
 }

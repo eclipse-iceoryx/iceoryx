@@ -15,6 +15,7 @@
 #pragma once
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
@@ -33,7 +34,7 @@ class MePooSegment
                  posix::Allocator* f_managementAllocator,
                  const posix::PosixGroup& f_readerGroup,
                  const posix::PosixGroup& f_writerGroup,
-                 const uint64_t f_baseAddressOffset);
+                 const iox::mepoo::MemoryInfo& memoryInfo = iox::mepoo::MemoryInfo());
 
     posix::PosixGroup getWriterGroup() const;
     posix::PosixGroup getReaderGroup() const;
@@ -44,8 +45,7 @@ class MePooSegment
 
   protected:
     SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& f_mempoolConfig,
-                                                    const posix::PosixGroup& f_writerGroup,
-                                                    const uint64_t f_baseAddressOffset [[gnu::unused]]);
+                                                    const posix::PosixGroup& f_writerGroup);
 
   protected:
     SharedMemoryObjectType m_sharedMemoryObject;
@@ -53,6 +53,7 @@ class MePooSegment
     posix::PosixGroup m_readerGroup;
     posix::PosixGroup m_writerGroup;
     uint64_t m_segmentId;
+    iox::mepoo::MemoryInfo m_memoryInfo;
 
   private:
     void setSegmentId(const uint64_t segmentId);

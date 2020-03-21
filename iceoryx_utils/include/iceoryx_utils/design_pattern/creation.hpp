@@ -19,9 +19,11 @@
 namespace DesignPattern
 {
 template <typename DerivedClass, typename ErrorType>
-struct Creation
+class Creation
 {
+  public:
     using result_t = iox::cxx::expected<DerivedClass, ErrorType>;
+    using errorType_t = ErrorType;
 
     template <typename... Targs>
     static result_t create(Targs&&... args) noexcept
@@ -35,10 +37,24 @@ struct Creation
         {
             return iox::cxx::error<ErrorType>(newObject.m_errorValue);
         }
-        else
+
+        return iox::cxx::success<DerivedClass>(std::move(newObject));
+    }
+
+    template <typename... Targs>
+    static iox::cxx::expected<ErrorType> placementCreate(void* const memory, Targs&&... args) noexcept
+    {
+        auto newClass = static_cast<DerivedClass*>(memory);
+        new (newClass) DerivedClass(std::forward<Targs>(args)...);
+
+        if (!newClass->m_isInitialized)
         {
-            return iox::cxx::success<DerivedClass>(std::move(newObject));
+            ErrorType errorValue = newClass->m_errorValue;
+            newClass->~DerivedClass();
+            return iox::cxx::error<ErrorType>(errorValue);
         }
+
+        return iox::cxx::success<>();
     }
 
     bool isInitialized() const noexcept
@@ -57,4 +73,5 @@ struct Creation
     bool m_isInitialized{false};
     ErrorType m_errorValue;
 };
+
 } // namespace DesignPattern

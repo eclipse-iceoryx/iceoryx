@@ -27,7 +27,7 @@ class RoudiStartFindService_test : public RouDiServiceDiscoveryTest
     void SetUp()
     {
         this->SetInterOpWaitingTime(std::chrono::milliseconds(INTER_OP_WAIT_FOR_SERVICE_DISCOVERY));
-        m_FindServiceHandlerCallCount = 0;
+        clear();
     }
 
     void TearDown()
@@ -40,6 +40,13 @@ class RoudiStartFindService_test : public RouDiServiceDiscoveryTest
         m_currentInstances = instanceContainer;
         m_handle = handle;
         m_FindServiceHandlerCallCount++;
+    }
+
+    static void clear()
+    {
+        m_currentInstances = {};
+        m_handle = -1;
+        m_FindServiceHandlerCallCount = 0;
     }
 
     iox::runtime::PoshRuntime* m_senderRuntime{&iox::runtime::PoshRuntime::getInstance("/sender")};
@@ -60,11 +67,11 @@ TEST_F(RoudiStartFindService_test, SingleServiceSingleInstance)
     InitContainer(instanceContainerExp, {"instance1"});
 
     auto l_handle = m_receiverRuntime->startFindService(FindServiceHandler, {"service1"}).get_value();
-    ASSERT_THAT(m_handle, l_handle);
 
     m_senderRuntime->offerService({"service1", "instance1"});
     InterOpWait();
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1 + 1));
+    EXPECT_THAT(m_handle, Eq(l_handle));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
 }
 
 TEST_F(RoudiStartFindService_test, SingleServiceSingleInstance_OfferStopOfferOfferSequence)
@@ -73,10 +80,10 @@ TEST_F(RoudiStartFindService_test, SingleServiceSingleInstance_OfferStopOfferOff
     InitContainer(instanceContainerExp, {"instance1"});
 
     auto l_handle = m_receiverRuntime->startFindService(FindServiceHandler, {"service1"}).get_value();
-    ASSERT_THAT(m_handle, l_handle);
 
     m_senderRuntime->offerService({"service1", "instance1"});
     InterOpWait();
+    EXPECT_THAT(m_handle, l_handle);
     ContainersEq(m_currentInstances, instanceContainerExp);
 
     m_senderRuntime->stopOfferService({"service1", "instance1"});
@@ -86,29 +93,26 @@ TEST_F(RoudiStartFindService_test, SingleServiceSingleInstance_OfferStopOfferOff
     m_senderRuntime->offerService({"service1", "instance1"});
     InterOpWait();
     ContainersEq(m_currentInstances, instanceContainerExp);
-
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1 + 3));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(3u));
 }
 
 TEST_F(RoudiStartFindService_test, stopFindService)
 {
     FindServiceHandle l_handle;
-
     l_handle = m_receiverRuntime->startFindService(FindServiceHandler, {"service1"}).get_value();
 
     m_senderRuntime->offerService({"service1", "instance1"});
     InterOpWait();
 
     m_receiverRuntime->stopFindService(l_handle);
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(2u));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
 
     // Any change in service state , after calling stopFindService(), wont lead to firing of FindServiceHandler
     m_senderRuntime->stopOfferService({"service1", "instance1"});
     InterOpWait();
     m_senderRuntime->offerService({"service1", "instance1"});
     InterOpWait();
-
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1 + 1));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
 }
 
 
@@ -118,7 +122,6 @@ const std::vector<iox::capro::ServiceDescription> singleServiceMultiInstance = {
 TEST_F(RoudiStartFindService_test, SingleServiceMultiInstanceSimultaneousOfferStopOfferOffer)
 {
     auto l_handle = m_receiverRuntime->startFindService(FindServiceHandler, {"service1"}).get_value();
-    ASSERT_THAT(m_handle, l_handle);
 
     InstanceContainer expectedInstances(singleServiceMultiInstance.size());
     std::transform(singleServiceMultiInstance.begin(),
@@ -131,6 +134,7 @@ TEST_F(RoudiStartFindService_test, SingleServiceMultiInstanceSimultaneousOfferSt
         m_senderRuntime->offerService(it);
     }
     InterOpWait();
+    EXPECT_THAT(m_handle, l_handle);
     ContainersEq(m_currentInstances, expectedInstances);
 
     for (auto const& it : singleServiceMultiInstance)
@@ -147,7 +151,7 @@ TEST_F(RoudiStartFindService_test, SingleServiceMultiInstanceSimultaneousOfferSt
     InterOpWait();
 
     ContainersEq(m_currentInstances, expectedInstances);
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1 + 3));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(3u));
 }
 
 
@@ -183,8 +187,7 @@ TEST_F(RoudiStartFindService_test, SingleServiceMultiInstanceSequentialOfferStop
         ASSERT_THAT(m_currentInstances.size(), Eq(++expectedInstanceCount));
         ContainersEq(m_currentInstances, expectedInstances);
     }
-
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1 + (3 * 3)));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq((3 * 3)));
 }
 
 std::vector<iox::capro::ServiceDescription> multiServiceSingleInstance = {
@@ -254,8 +257,7 @@ TEST_F(RoudiStartFindService_test, MultiServiceSingleInstanceSimultaneousOfferSt
         auto it = currentInstance.find(element.getServiceIDString());
         ContainersEq(it->second.instances, expectedInstances);
     }
-
-    ASSERT_THAT(findServiceHandlerCallCount, Eq(3 * 4));
+    ASSERT_THAT(findServiceHandlerCallCount, Eq(3 * 3));
 }
 
 TEST_F(RoudiStartFindService_test, MultiServiceSingleInstanceSequentialOfferStopOfferOffer)
@@ -306,10 +308,11 @@ TEST_F(RoudiStartFindService_test, MultiServiceSingleInstanceSequentialOfferStop
         auto it = currentInstance.find(element.getServiceIDString());
         ContainersEq(it->second.instances, expectedInstances);
     }
-    ASSERT_THAT(findServiceHandlerCallCount, Eq(3 * 4));
+    ASSERT_THAT(findServiceHandlerCallCount, Eq(3 * 3));
 }
 
-/// @todo pbt2kor : test case doesnt work for larger values
+
+/// @todo : test case doesnt work for larger values
 // Doesnt work for more 150 or more
 constexpr uint32_t MAX_NUMBER_OF_SERVICES = iox::MAX_START_FIND_SERVICE_CALLBACKS;
 constexpr uint32_t INTER_OP_WAIT_FOR_LARGE_SERVICES = 500;
@@ -318,11 +321,12 @@ TEST_F(RoudiStartFindService_test, LargeNumberOfServices)
 {
     std::vector<iox::capro::ServiceDescription> testServiceDescriptors;
 
-    for (auto i = 0; i < MAX_NUMBER_OF_SERVICES; i++)
+    for (uint i = 0; i < MAX_NUMBER_OF_SERVICES; i++)
     {
         std::string service = "service" + std::to_string(i);
         std::string instance = "instance" + std::to_string(i);
-        testServiceDescriptors.push_back({service, instance});
+        testServiceDescriptors.push_back(
+            {IdString(iox::cxx::TruncateToCapacity, service), IdString(iox::cxx::TruncateToCapacity, instance)});
     }
 
     int findServiceHandlerCallCount = 0;
@@ -380,7 +384,7 @@ TEST_F(RoudiStartFindService_test, LargeNumberOfServices)
         auto it = currentInstance.find(element.getServiceIDString());
         ContainersEq(expectedInstances, it->second.instances);
     }
-    EXPECT_THAT(findServiceHandlerCallCount, Eq((4 * MAX_NUMBER_OF_SERVICES)));
+    EXPECT_THAT(findServiceHandlerCallCount, Eq((3 * MAX_NUMBER_OF_SERVICES)));
 }
 
 
@@ -388,11 +392,12 @@ TEST_F(RoudiStartFindService_test, LargeNumberOfInstance)
 {
     std::vector<iox::capro::ServiceDescription> testServiceDescriptors;
 
-    for (auto i = 0; i < MAX_NUMBER_OF_SERVICES; i++)
+    for (uint i = 0; i < MAX_NUMBER_OF_SERVICES; i++)
     {
         std::string service = "service";
         std::string instance = "i" + std::to_string(i);
-        testServiceDescriptors.push_back({service, instance});
+        testServiceDescriptors.push_back(
+            {IdString(iox::cxx::TruncateToCapacity, service), IdString(iox::cxx::TruncateToCapacity, instance)});
     }
 
     m_receiverRuntime->startFindService(FindServiceHandler, {"service"});
@@ -428,14 +433,13 @@ TEST_F(RoudiStartFindService_test, LargeNumberOfInstance)
         expectedInstances.push_back(element.getInstanceIDString());
     }
     ContainersEq(m_currentInstances, expectedInstances);
-
-    EXPECT_THAT(m_FindServiceHandlerCallCount, Eq(4u));
+    EXPECT_THAT(m_FindServiceHandlerCallCount, Eq(3u));
 }
 
 
 // Corner cases
-/// @todo pbt2kor : This test fails due to deadlock in mutex
-TEST_F(RoudiStartFindService_test, DISABLED_stopFindServiceFromCallback)
+/// @todo : This test fails due to deadlock in mutex
+TEST_F(RoudiStartFindService_test, stopFindServiceFromCallback)
 {
     m_receiverRuntime->startFindService(
         [&](InstanceContainer instanceContainer, FindServiceHandle handle) {
@@ -460,27 +464,40 @@ TEST_F(RoudiStartFindService_test, startFindServiceMultipleCalls)
     m_senderRuntime->offerService(singleServiceSingleInstance);
     InterOpWait();
 
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(2u));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
 
     l_handle = m_receiverRuntime->startFindService(FindServiceHandler, startFindServiceInputParam).get_value();
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(2u));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
     ASSERT_THAT(l_handle, m_handle);
 }
 
-// startFindService is called , after services are offered
-TEST_F(RoudiStartFindService_test, singleServiceSingleInstanceDeferredCall)
+/// startFindService is called , after services are offered
+TEST_F(RoudiStartFindService_test, DeferredStartFindService)
 {
-    m_senderRuntime->offerService(singleServiceSingleInstance);
+    InstanceContainer expectedInstances;
+    InitContainer(expectedInstances, {"instance1"});
+
+    m_senderRuntime->offerService({"service1", "instance1"});
+    m_senderRuntime->offerService({"service2", "instance1"});
     InterOpWait();
 
     FindServiceHandle l_handle;
-    l_handle = m_receiverRuntime->startFindService(FindServiceHandler, startFindServiceInputParam).get_value();
+    l_handle = m_receiverRuntime->startFindService(FindServiceHandler, "service1").get_value();
+    InterOpWait();
+    /// FindServiceHandler() is called immediately
+    EXPECT_THAT(m_currentInstances.size(), Eq(1u));
+    ContainersEq(m_currentInstances, expectedInstances);
+    EXPECT_THAT(m_handle, l_handle);
+    EXPECT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
 
-    // FindServiceHandler() is called immediately
-    ASSERT_THAT(m_currentInstances.size(), Eq(1u));
-    ASSERT_THAT(*m_currentInstances.begin(), Eq(singleServiceSingleInstance.getInstanceIDString()));
-    ASSERT_THAT(m_handle, l_handle);
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
+    clear();
+    l_handle = m_receiverRuntime->startFindService(FindServiceHandler, "service2").get_value();
+    InterOpWait();
+
+    EXPECT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
+    EXPECT_THAT(m_currentInstances.size(), Eq(1u));
+    ContainersEq(m_currentInstances, expectedInstances);
+    EXPECT_THAT(m_handle, l_handle);
 }
 
 TEST_F(RoudiStartFindService_test, stopFindServiceRedudantCalls)
@@ -495,15 +512,14 @@ TEST_F(RoudiStartFindService_test, stopFindServiceRedudantCalls)
     m_receiverRuntime->stopFindService(l_handle);
     m_receiverRuntime->stopFindService(l_handle);
     m_receiverRuntime->stopFindService(l_handle);
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(2u));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
 
     // Any change in service state , after calling stopFindService(), wont lead to firing of FindServiceHandler
     m_senderRuntime->stopOfferService(singleServiceSingleInstance);
     InterOpWait();
     m_senderRuntime->offerService(singleServiceSingleInstance);
     InterOpWait();
-
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(2u));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
 }
 
 TEST_F(RoudiStartFindService_test, stopFindServiceRedudantCallsWithWrongInput)
@@ -525,8 +541,7 @@ TEST_F(RoudiStartFindService_test, stopFindServiceRedudantCallsWithWrongInput)
     InterOpWait();
     m_senderRuntime->offerService(singleServiceSingleInstance);
     InterOpWait();
-
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(2u));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
 }
 
 TEST_F(RoudiStartFindService_test, stopFindServiceWrongHandle)
@@ -548,7 +563,7 @@ TEST_F(RoudiStartFindService_test, stopFindServiceWrongHandle)
     m_senderRuntime->offerService(singleServiceSingleInstance);
     InterOpWait();
 
-    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(4u));
+    ASSERT_THAT(m_FindServiceHandlerCallCount, Eq(3u));
 }
 
 TEST_F(RoudiStartFindService_test, changeInServiceStateWithoutChangeInNumberOfInstances)
@@ -558,7 +573,6 @@ TEST_F(RoudiStartFindService_test, changeInServiceStateWithoutChangeInNumberOfIn
     m_senderRuntime->offerService({TEST_SERVICE, "instance1"});
     m_senderRuntime->offerService({TEST_SERVICE, "instance2"});
     m_senderRuntime->offerService({TEST_SERVICE, "instance3"});
-
 
     InterOpWait();
     InstanceContainer expectedInstances;
@@ -579,10 +593,8 @@ TEST_F(RoudiStartFindService_test, startFindServiceUniqueId)
 
     handle = m_receiverRuntime->startFindService(FindServiceHandler, {"service1"}).get_value();
     handles.push_back(handle);
-
     handle = m_receiverRuntime->startFindService(FindServiceHandler, {"service2"}).get_value();
     handles.push_back(handle);
-
     handle = m_receiverRuntime->startFindService(FindServiceHandler, {"service3"}).get_value();
     handles.push_back(handle);
 
@@ -606,22 +618,22 @@ TEST_F(RoudiStartFindService_test, StartFindServiceHandleRollOver)
 
 TEST_F(RoudiStartFindService_test, InstanceContainerOverflowErrorAtBeginning)
 {
+    m_currentInstances.clear();
     size_t noOfInstances = (iox::MAX_NUMBER_OF_INSTANCES + 1);
     InstanceContainer instanceContainerExp;
-    this->SetInterOpWaitingTime(std::chrono::milliseconds(200u));
 
     for (size_t i = 0; i < noOfInstances; i++)
     {
         std::string instance = "i" + std::to_string(i);
-        m_senderRuntime->offerService({"s", instance});
-        instanceContainerExp.push_back(instance);
+        m_senderRuntime->offerService({"s", IdString(iox::cxx::TruncateToCapacity, instance)});
+        instanceContainerExp.push_back(IdString(iox::cxx::TruncateToCapacity, instance));
     }
 
     InterOpWait();
-
     auto status = m_receiverRuntime->startFindService(FindServiceHandler, {"s"});
+    InterOpWait();
     EXPECT_THAT(status.has_error(), Eq(false));
-    EXPECT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
+    EXPECT_THAT(m_FindServiceHandlerCallCount, Eq(0u));
     /// If number of instances cant fit , then first invocation of the FindServiceHandler is called with zero instances.
     /// (In case of overflow, its not possible to compute the delta reliably in the consequent service discovery, hence
     /// all the instances are ignored)
@@ -636,11 +648,12 @@ TEST_F(RoudiStartFindService_test, InstanceContainerOverflowErrorIntermediate)
     for (size_t i = 1; i <= noOfInstances; i++)
     {
         std::string instance = "i" + std::to_string(i);
-        m_senderRuntime->offerService({"s", instance});
-        instanceContainerExp.push_back(instance);
+        m_senderRuntime->offerService({"s", IdString(iox::cxx::TruncateToCapacity, instance)});
+        instanceContainerExp.push_back(IdString(iox::cxx::TruncateToCapacity, instance));
     }
     InterOpWait();
     m_receiverRuntime->startFindService(FindServiceHandler, {"s"});
+    InterOpWait();
     EXPECT_THAT(m_FindServiceHandlerCallCount, Eq(1u));
     ContainersEq(m_currentInstances, instanceContainerExp);
 
@@ -660,7 +673,6 @@ TEST_F(RoudiStartFindService_test, InstanceContainerOverflowErrorIntermediate)
     m_senderRuntime->stopOfferService({"s", "i51"});
     instanceContainerExp.pop_back();
     instanceContainerExp.push_back({"i52"});
-
     InterOpWait();
 
     EXPECT_THAT(m_FindServiceHandlerCallCount, Eq(2u));
@@ -673,13 +685,30 @@ TEST_F(RoudiStartFindService_test, startFindServiceFindServiceCallbackContainerO
 
     for (size_t i = 0; i < noOfInstances; i++)
     {
-        auto status = m_receiverRuntime->startFindService(FindServiceHandler, {"service" + std::to_string(i)});
+        auto status = m_receiverRuntime->startFindService(
+            FindServiceHandler, IdString(iox::cxx::TruncateToCapacity, {"service" + std::to_string(i)}));
         EXPECT_THAT(status.has_error(), Eq(false));
     }
 
     // There is no room for accomodating this request
     auto status = m_receiverRuntime->startFindService(FindServiceHandler, {"service_max"});
     EXPECT_THAT(status.has_error(), Eq(true));
+    EXPECT_THAT(m_FindServiceHandlerCallCount, Eq(0u));
+}
 
-    EXPECT_THAT(m_FindServiceHandlerCallCount, Eq(noOfInstances));
+TEST_F(RoudiStartFindService_test, SingleServiceSingleInstance_StartStopStartFindService)
+{
+    InstanceContainer instanceContainerExp;
+    InitContainer(instanceContainerExp, {"instance1"});
+
+    auto l_handle = m_receiverRuntime->startFindService(FindServiceHandler, {"service1"}).get_value();
+    InterOpWait();
+    m_receiverRuntime->stopFindService(l_handle);
+    InterOpWait();
+    l_handle = m_receiverRuntime->startFindService(FindServiceHandler, {"service1"}).get_value();
+    InterOpWait();
+    m_senderRuntime->offerService({"service1", "instance1"});
+    InterOpWait();
+    EXPECT_THAT(m_handle, l_handle);
+    ContainersEq(m_currentInstances, instanceContainerExp);
 }

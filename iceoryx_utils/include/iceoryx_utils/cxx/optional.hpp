@@ -16,6 +16,7 @@
 
 #include "iceoryx_utils/cxx/types.hpp"
 
+#include <functional>
 #include <new> // needed for placement new in the construct_value member function
 #include <utility>
 
@@ -183,7 +184,7 @@ class optional
     ///         value the behavior is undefined. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return const reference to the underlying type
-    const T& value() const& noexcept;
+    const T& value() const & noexcept;
 
     /// @brief Returns a rvalue reference to the underlying value. If the optional has no
     ///         value the behavior is undefined. You need to verify that the
@@ -195,7 +196,7 @@ class optional
     ///         value the behavior is undefined. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return const rvalue reference to the underlying type
-    const T&& value() const&& noexcept;
+    const T&& value() const && noexcept;
 
     /// @brief If the optional contains a value a copy of that value is returned,
     ///         otherwise the default_value is returned.
@@ -203,6 +204,28 @@ class optional
     ///         a copy of default_value
     template <typename U>
     constexpr T value_or(U&& default_value) const noexcept;
+
+    /// @brief calls the provided callable with the optional value as arguments
+    ///         if the optional contains a value
+    /// @param[in] callable which has T as argument
+    /// @return reference to this
+    optional& and_then(const std::function<void(T&)>& callable) noexcept;
+
+    /// @brief calls the provided callable with the optional value as arguments
+    ///         if the optional contains a value
+    /// @param[in] callable which has T as argument
+    /// @return reference to this
+    const optional& and_then(const std::function<void(const T&)>& callable) const noexcept;
+
+    /// @brief calls the provided callable if the optional does not contain a value
+    /// @param[in] callable
+    /// @return reference to this
+    optional& or_else(const std::function<void()>& callable) noexcept;
+
+    /// @brief calls the provided callable if the optional does not contain a value
+    /// @param[in] callable
+    /// @return reference to this
+    const optional& or_else(const std::function<void()>& callable) const noexcept;
 
   private:
     alignas(alignof(T)) byte_t m_data[sizeof(T)];

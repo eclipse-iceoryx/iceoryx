@@ -47,7 +47,7 @@ TEST_F(Runtime_test, Appname_length_too_long)
 
 TEST_F(Runtime_test, Appname_length_ok)
 {
-    iox::cxx::optional<RouDiEnvironment> m_roudiEnv(iox::RouDiConfig_t().setDefaults());
+    RouDiEnvironment m_roudiEnv(iox::RouDiConfig_t().setDefaults());
     const std::string string100chars =
         "/MXIYXHyPF9KjXAPv9ev9jxofYDArZzTvf8FF5uaWWC4dwabcjW75DurqeN645IabAsXVfngor7784446vb4vhArwBxLZlN1k1";
     EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(string100chars); });
@@ -75,7 +75,7 @@ TEST_F(Runtime_test, no_leading_slash_Appname)
 
 TEST_F(Runtime_test, getInstanceName)
 {
-    iox::cxx::optional<RouDiEnvironment> m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
+    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     const std::string appname = "/app";
     auto& sut = PoshRuntime::getInstance(appname);
     EXPECT_EQ(sut.getInstanceName(), appname);

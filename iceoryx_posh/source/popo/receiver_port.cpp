@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
@@ -191,10 +192,14 @@ SubscribeState ReceiverPort::getSubscribeState() const
 
 bool ReceiverPort::getChunk(const mepoo::ChunkHeader*& f_chunkHeader) noexcept
 {
-    mepoo::SharedChunk l_chunk;
+    // Create tuple on stack in order to check the visibiltyIndex
+    DeliveryFiFo::ChunkManagementTransport l_tuple;
 
-    if (getMembers()->m_deliveryFiFo.pop(l_chunk))
+    if (getMembers()->m_deliveryFiFo.pop(l_tuple))
     {
+        auto chunkManagement = iox::relative_ptr<mepoo::ChunkManagement>(l_tuple.m_chunkOffset, l_tuple.m_segmentId);
+        mepoo::SharedChunk l_chunk(chunkManagement);
+
         // store the chunk that is provided to the user side
         if (getMembers()->m_deliveredChunkList.insert(l_chunk))
         {
@@ -251,8 +256,7 @@ void ReceiverPort::clearDeliveryFiFo()
 }
 
 /* expects an initialized POSIX semaphore, stored in shared memory! */
-void ReceiverPort::SetCallbackReferences(posix::Semaphore* f_callbackSemaphore,
-                                         std::atomic<ChunksCounterType>*) noexcept
+void ReceiverPort::SetCallbackReferences(posix::Semaphore* f_callbackSemaphore) noexcept
 {
     ///  @todo is this a method that will be called concurrent?
     std::lock_guard<mutex_t> g(getMembers()->m_chunkSendCallbackMutex);
@@ -318,7 +322,18 @@ bool ReceiverPort::deliver(mepoo::SharedChunk f_chunk_p) noexcept
 
     mepoo::SharedChunk l_chunk{nullptr};
 
-    getMembers()->m_deliveryFiFo.push(std::move(f_chunk_p), l_chunk);
+    if (getMembers()->m_deliveryFiFo.push(std::move(f_chunk_p), l_chunk) && getMembers()->m_notifyOverflow)
+    {
+        getMembers()->m_overflowCounter++;
+        errorHandler(
+            Error::kPOSH__RECEIVERPORT_DELIVERYFIFO_OVERFLOW,
+            [this] {
+                std::cout << "Overflow while sending, oldest sample in cache dropped! Total number of "
+                             "discarded samples till now: "
+                          << getMembers()->m_overflowCounter.load() << std::endl;
+            },
+            ErrorLevel::MODERATE);
+    }
 
     // check for registered event callback handler - trigger if existing
     // note that we also call in the overflow case of a push above
@@ -341,6 +356,16 @@ uint64_t ReceiverPort::getDeliveryFiFoCapacity() const
 uint64_t ReceiverPort::getDeliveryFiFoSize() const
 {
     return getMembers()->m_deliveryFiFo.getSize();
+}
+
+void ReceiverPort::setNotifyOnOverflow(const bool value) noexcept
+{
+    getMembers()->m_notifyOverflow = value;
+}
+
+const ReceiverPort::MemoryInfo& ReceiverPort::getMemoryInfo() const noexcept
+{
+    return getMembers()->m_memoryInfo;
 }
 
 } // namespace popo

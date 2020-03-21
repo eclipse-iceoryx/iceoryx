@@ -199,6 +199,7 @@ TEST_F(ObjectPool_test, parameter_construct)
     EXPECT_THAT(pool.capacity(), Eq(CAPACITY_UNSIGNED));
     EXPECT_THAT(Foo::getConstructionCounter(), Eq(0)); // no Foo objects constructed by pool
 
+    data = 0;
     for (int i = 1; i <= CAPACITY; ++i)
     {
         auto index = pool.construct(data);

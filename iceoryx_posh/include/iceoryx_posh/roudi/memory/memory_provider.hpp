@@ -70,6 +70,8 @@ class MemoryProvider
     MemoryProvider() noexcept = default;
     ~MemoryProvider() noexcept;
 
+    /// @note this is intentional not movable/copyable, since a pointer to the memory provider is registered at the
+    /// RouDiMemoryManager and therefore an instance of a MemoryProvider must be pinned to memory
     MemoryProvider(const MemoryProvider&) = delete;
     MemoryProvider(MemoryProvider&&) = delete;
     MemoryProvider& operator=(const MemoryProvider&) = delete;
@@ -77,8 +79,8 @@ class MemoryProvider
 
     /// @brief This function add a MemoryBlock to the list of memory requester
     /// @param [in] memoryBlock is a pointer to a user defined MemoryBlock
-    /// @return an MemoryProviderError::MemoryBlocksExhausted error if no further memory blocks can be added, otherwise
-    /// success
+    /// @return an MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED error if no further memory blocks can be added,
+    /// otherwise success
     cxx::expected<MemoryProviderError> addMemoryBlock(cxx::not_null<MemoryBlock*> memoryBlock) noexcept;
 
     /// @brief With this call the memory requested by the MemoryBlocks need to be created. The function should be called
@@ -107,7 +109,7 @@ class MemoryProvider
 
     /// @brief This function provides the segment id of the relocatable memory segment which is owned by the
     /// MemoryProvider.
-    /// @return an optional segment id for the created memory it the memory is available, otherwise cxx::nullopt_t
+    /// @return an optional segment id for the created memory if the memory is available, otherwise cxx::nullopt_t
     cxx::optional<uint64_t> segmentId() const noexcept;
 
     /// @brief This function can be used to check if the requested memory is already available
@@ -124,16 +126,17 @@ class MemoryProvider
     /// @param [in] size is the size in bytes for the requested memory, the size should already be calculated according
     /// to the alignment requirements
     /// @param [in] alignment the required alignment for the memory
-    /// @return the pointer of the begin of the created memory, nullptr if the memory could not be created
-    /// @todo expected
+    /// @return the pointer of the begin of the created memory or a MemoryProviderError if the memory could not be
+    /// created
     virtual cxx::expected<void*, MemoryProviderError> createMemory(const uint64_t size,
                                                                    const uint64_t alignment) noexcept = 0;
 
     /// @brief This function needs to be implemented to free the actual memory, e.g. in case of POSIX SHM, shm_unlink
     /// and munmap would need to be called in the implementation of this function
-    /// @return true if destruction was successfully, false otherwise
-    /// @todo expected
+    /// @return a MemoryProviderError if the destruction failed, otherwise success
     virtual cxx::expected<MemoryProviderError> destroyMemory() noexcept = 0;
+
+    static const char* getErrorString(const MemoryProviderError error);
 
   private:
     void* m_memory{nullptr};
@@ -144,3 +147,4 @@ class MemoryProvider
 };
 } // namespace roudi
 } // namespace iox
+

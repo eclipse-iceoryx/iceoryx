@@ -58,13 +58,12 @@ add_library(iceoryx_posh
     source/mepoo/shared_chunk.cpp
     source/mepoo/segment_manager.cpp
     source/mepoo/mepoo_segment.cpp
+    source/mepoo/memory_info.cpp
     source/popo/application_port.cpp
     source/popo/application_port_data.cpp
     source/popo/base_port_data.cpp
     source/popo/base_port.cpp
     source/popo/delivery_fifo.cpp
-    source/popo/publisher.cpp
-    source/popo/subscriber.cpp
     source/popo/gateway_generic.cpp
     source/popo/interface_port.cpp
     source/popo/interface_port_data.cpp
@@ -73,8 +72,11 @@ add_library(iceoryx_posh
     source/popo/sender_port.cpp
     source/popo/sender_port_data.cpp
     source/popo/receiver_handler.cpp
+    source/popo/building_blocks/chunk_queue.cpp
+    source/popo/building_blocks/chunk_distributor.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
+    source/runtime/port_config_info.cpp
     source/runtime/posh_runtime.cpp
     source/runtime/runnable.cpp
     source/runtime/runnable_data.cpp
@@ -134,7 +136,15 @@ add_library(iceoryx_posh_roudi
     source/roudi/application/roudi_app.cpp
     source/roudi/memory/memory_block.cpp
     source/roudi/memory/memory_provider.cpp
+    source/roudi/memory/mempool_collection_memory_block.cpp
+    source/roudi/memory/mempool_segment_manager_memory_block.cpp
+    source/roudi/memory/port_pool_memory_block.cpp
     source/roudi/memory/posix_shm_memory_provider.cpp
+    source/roudi/memory/default_roudi_memory.cpp
+    source/roudi/memory/roudi_memory_manager.cpp
+    source/roudi/memory/iceoryx_roudi_memory_manager.cpp
+    source/roudi/iceoryx_port_pool.cpp
+    source/roudi/port_pool.cpp
     source/roudi/roudi_config.cpp
     source/roudi/roudi_cmd_line_parser.cpp
     source/roudi/roudi_cmd_line_parser_config_file_option.cpp
@@ -174,11 +184,6 @@ target_link_libraries(iceoryx_posh_roudi
     iceoryx_utils::iceoryx_utils
 )
 
-if(CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
-endif(CMAKE_SYSTEM_NAME MATCHES QNX)
-
-########## build roudi ##########
 if(TOML_CONFIG)
     if ( NOT cpptoml_FOUND )
         find_package(cpptoml REQUIRED)
@@ -189,10 +194,16 @@ if(TOML_CONFIG)
         source/roudi/roudi_config_toml_file_provider.cpp
     )
     target_link_libraries(iceoryx_posh_roudi_toml PRIVATE cpptoml iceoryx_posh_roudi)
-    set_target_properties(iceoryx_posh_roudi_toml PROPERTIES 
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    )
+endif(TOML_CONFIG)
+
+if(CMAKE_SYSTEM_NAME MATCHES QNX)
+    target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
+endif(CMAKE_SYSTEM_NAME MATCHES QNX)
+
+#
+########## build roudi ##########
+if(TOML_CONFIG)
+
     add_executable(RouDi
         source/roudi/application/roudi_main.cpp
     )
@@ -205,7 +216,7 @@ if(TOML_CONFIG)
 
     target_link_libraries(RouDi 
         PRIVATE
-        ${PROJECT_NAMESPACE}::iceoryx_posh_roudi 
+        ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
         iceoryx_utils::iceoryx_utils
     )
 
@@ -216,6 +227,7 @@ if(TOML_CONFIG)
     endif(PERFORM_CLANG_TIDY)
 
     target_link_libraries(RouDi PRIVATE cpptoml iceoryx_posh_roudi_toml)
+
 endif(TOML_CONFIG)
 
 if(roudi_environment OR test)

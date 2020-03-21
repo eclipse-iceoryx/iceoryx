@@ -26,6 +26,14 @@ GatewayGeneric::GatewayGeneric(const capro::Interfaces f_interface) noexcept
 {
 }
 
+GatewayGeneric::~GatewayGeneric() noexcept
+{
+    if(m_interfaceImpl)
+    {
+        m_interfaceImpl.destroy();
+    }
+}
+
 bool GatewayGeneric::getCaProMessage(CaproMessage& msg) noexcept
 {
     return m_interfaceImpl.getCaProMessage(msg);

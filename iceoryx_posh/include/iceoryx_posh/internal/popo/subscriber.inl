@@ -12,51 +12,51 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/subscriber.hpp"
-
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/timespec.hpp"
-
-#include "ac3log/simplelogger.hpp"
-
-#include <cassert>
-
 namespace iox
 {
 namespace popo
 {
-Subscriber::Subscriber() noexcept
+
+template <typename ReceiverPortType>
+inline Subscriber_t<ReceiverPortType>::Subscriber_t() noexcept
 {
 }
 
-Subscriber::Subscriber(const capro::ServiceDescription& service, const cxx::CString100& runnableName) noexcept
+template <typename ReceiverPortType>
+inline Subscriber_t<ReceiverPortType>::Subscriber_t(const capro::ServiceDescription& service, const cxx::CString100& runnableName) noexcept
     : m_receiver(runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, runnableName))
 {
 }
 
-Subscriber::~Subscriber() noexcept
+template <typename ReceiverPortType>
+inline Subscriber_t<ReceiverPortType>::~Subscriber_t() noexcept
 {
     unsetReceiveHandler();
     // TODO: Find an alternative like an RAII receive handler which
     //          is called in the dtor. You cannot expect the user to call it before destruction
-    m_receiver.destroy();
+    if(m_receiver)
+    {
+        m_receiver.destroy();
+    }
 }
 
-void Subscriber::subscribe(const uint32_t cacheSize) noexcept
+template <typename ReceiverPortType>
+inline void Subscriber_t<ReceiverPortType>::subscribe(const uint32_t cacheSize) noexcept
 {
     m_subscribeDemand = true;
     uint32_t size = cacheSize;
-    if (size > MAX_RECEIVER_QUEUE_SIZE)
+    if (size > MAX_RECEIVER_QUEUE_CAPACITY)
     {
-        WARN_PRINTF("Cache size for subscribe too large %lu, limiting to MAX_RECEIVER_QUEUE_SIZE = %lu\n",
+        WARN_PRINTF("Cache size for subscribe too large %lu, limiting to MAX_RECEIVER_QUEUE_CAPACITY = %lu\n",
                     size,
-                    MAX_RECEIVER_QUEUE_SIZE);
-        size = MAX_RECEIVER_QUEUE_SIZE;
+                    MAX_RECEIVER_QUEUE_CAPACITY);
+        size = MAX_RECEIVER_QUEUE_CAPACITY;
     }
     m_receiver.subscribe(true, size);
 }
 
-SubscriptionState Subscriber::getSubscriptionState() const noexcept
+template <typename ReceiverPortType>
+inline SubscriptionState Subscriber_t<ReceiverPortType>::getSubscriptionState() const noexcept
 {
     if (!m_subscribeDemand)
     {
@@ -75,13 +75,15 @@ SubscriptionState Subscriber::getSubscriptionState() const noexcept
     }
 }
 
-void Subscriber::unsubscribe() noexcept
+template <typename ReceiverPortType>
+inline void Subscriber_t<ReceiverPortType>::unsubscribe() noexcept
 {
     m_receiver.unsubscribe();
     m_subscribeDemand = false;
 }
 
-void Subscriber::setReceiveHandler(ReceiveHandler_t cbHandler) noexcept
+template <typename ReceiverPortType>
+inline void Subscriber_t<ReceiverPortType>::setReceiveHandler(ReceiveHandler_t cbHandler) noexcept
 {
     // no need to guard this assignment since the thread accessing the cb
     // handler will be created later
@@ -99,11 +101,11 @@ void Subscriber::setReceiveHandler(ReceiveHandler_t cbHandler) noexcept
     m_receiver.SetCallbackReferences(m_callbackSemaphore);
 
     m_callbackRunFlag = true;
-    m_callbackThread = std::thread(&Subscriber::eventCallbackMain, this);
+    m_callbackThread = std::thread(&Subscriber_t::eventCallbackMain, this);
 // name thread if possible
 #ifdef __unix__
     char threadname[16];
-    static uint16_t thread_index = 0;
+    static uint16_t thread_index = 0u;
     snprintf(threadname, sizeof(threadname), "Receive_%d", ++thread_index);
     auto thread_handle = m_callbackThread.native_handle();
     pthread_setname_np(thread_handle, threadname); // thread name restricted to 16 chars
@@ -112,7 +114,8 @@ void Subscriber::setReceiveHandler(ReceiveHandler_t cbHandler) noexcept
     m_callbackThreadPresent = true;
 }
 
-void Subscriber::unsetReceiveHandler() noexcept
+template <typename ReceiverPortType>
+inline void Subscriber_t<ReceiverPortType>::unsetReceiveHandler() noexcept
 {
     // stop callback thread
     m_callbackRunFlag = false;
@@ -134,14 +137,16 @@ void Subscriber::unsetReceiveHandler() noexcept
     m_callbackThreadPresent = false;
 }
 
-void Subscriber::overrideCallbackReference(const Subscriber& receiverWithRererenceToUse) noexcept
+template <typename ReceiverPortType>
+inline void Subscriber_t<ReceiverPortType>::overrideCallbackReference(const Subscriber_t& receiverWithRererenceToUse) noexcept
 {
     const auto semaphore = receiverWithRererenceToUse.m_receiver.GetShmSemaphore();
     assert(semaphore != nullptr && "OverrideCallbackReference: source semaphore is not set");
     m_receiver.SetCallbackReferences(semaphore);
 }
 
-bool Subscriber::waitForChunk(const uint32_t timeoutMs) noexcept
+template <typename ReceiverPortType>
+inline bool Subscriber_t<ReceiverPortType>::waitForChunk(const uint32_t timeoutMs) noexcept
 {
     const auto semaphore = m_receiver.GetShmSemaphore();
     assert(semaphore != nullptr && "WaitForChunk: semaphore is not set");
@@ -152,7 +157,8 @@ bool Subscriber::waitForChunk(const uint32_t timeoutMs) noexcept
     return semaphore->timedWait(&ts, true);
 }
 
-bool Subscriber::tryWaitForChunk() noexcept
+template <typename ReceiverPortType>
+inline bool Subscriber_t<ReceiverPortType>::tryWaitForChunk() noexcept
 {
     const auto semaphore = m_receiver.GetShmSemaphore();
     assert(semaphore != nullptr && "TryWaitForChunk: semaphore is not set");
@@ -160,12 +166,14 @@ bool Subscriber::tryWaitForChunk() noexcept
     return semaphore->tryWait();
 }
 
-bool Subscriber::getChunk(const mepoo::ChunkHeader** chunkHeader) noexcept
+template <typename ReceiverPortType>
+inline bool Subscriber_t<ReceiverPortType>::getChunk(const mepoo::ChunkHeader** chunkHeader) noexcept
 {
     return (m_receiver.getChunk(*chunkHeader));
 }
 
-bool Subscriber::getChunk(const void** payload) noexcept
+template <typename ReceiverPortType>
+inline bool Subscriber_t<ReceiverPortType>::getChunk(const void** payload) noexcept
 {
     const mepoo::ChunkHeader* chunkHeader = nullptr;
     if (m_receiver.getChunk(chunkHeader))
@@ -180,28 +188,33 @@ bool Subscriber::getChunk(const void** payload) noexcept
     }
 }
 
-void Subscriber::deleteNewChunks() noexcept
+template <typename ReceiverPortType>
+inline void Subscriber_t<ReceiverPortType>::deleteNewChunks() noexcept
 {
     m_receiver.clearDeliveryFiFo();
 }
 
-bool Subscriber::releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept
+template <typename ReceiverPortType>
+inline bool Subscriber_t<ReceiverPortType>::releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     return m_receiver.releaseChunk(chunkHeader);
 }
 
-bool Subscriber::releaseChunk(const void* const payload) noexcept
+template <typename ReceiverPortType>
+inline bool Subscriber_t<ReceiverPortType>::releaseChunk(const void* const payload) noexcept
 {
     auto chunkHeader = iox::mepoo::convertPayloadPointerToChunkHeader(const_cast<void* const>(payload));
     return m_receiver.releaseChunk(chunkHeader);
 }
 
-bool Subscriber::hasNewChunks() const noexcept
+template <typename ReceiverPortType>
+inline bool Subscriber_t<ReceiverPortType>::hasNewChunks() const noexcept
 {
     return m_receiver.newData();
 }
 
-posix::Semaphore* Subscriber::getSemaphore() const noexcept
+template <typename ReceiverPortType>
+inline posix::Semaphore* Subscriber_t<ReceiverPortType>::getSemaphore() const noexcept
 {
     // Temporary solution as long as there is no other mechanism to request a semophore
     auto semaphore = m_receiver.GetShmSemaphore();
@@ -210,23 +223,26 @@ posix::Semaphore* Subscriber::getSemaphore() const noexcept
     return semaphore;
 }
 
-void Subscriber::setChunkReceiveSemaphore(posix::Semaphore* semaphore) noexcept
+template <typename ReceiverPortType>
+inline void Subscriber_t<ReceiverPortType>::setChunkReceiveSemaphore(posix::Semaphore* semaphore) noexcept
 {
     m_receiver.SetCallbackReferences(semaphore);
 }
 
-bool Subscriber::isChunkReceiveSemaphoreSet() noexcept
+template <typename ReceiverPortType>
+inline bool Subscriber_t<ReceiverPortType>::isChunkReceiveSemaphoreSet() noexcept
 {
     return m_receiver.AreCallbackReferencesSet();
 }
 
-void Subscriber::unsetChunkReceiveSemaphore() noexcept
+template <typename ReceiverPortType>
+inline void Subscriber_t<ReceiverPortType>::unsetChunkReceiveSemaphore() noexcept
 {
     m_receiver.UnsetCallbackReferences();
 }
 
-
-void Subscriber::eventCallbackMain() noexcept
+template <typename ReceiverPortType>
+inline void Subscriber_t<ReceiverPortType>::eventCallbackMain() noexcept
 {
     while (m_callbackRunFlag)
     {

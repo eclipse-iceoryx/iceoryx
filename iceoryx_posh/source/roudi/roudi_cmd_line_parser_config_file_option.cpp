@@ -55,7 +55,7 @@ void CmdLineParserConfigFileOption::parse(int argc,
             break;
         case 'c':
         {
-            m_customConfigFilePath = ConfigFilePathString_t(cxx::UnsafeCheckPreconditions, optarg);
+            m_customConfigFilePath = ConfigFilePathString_t(cxx::TruncateToCapacity, optarg);
             break;
         }
         default:

@@ -4,7 +4,7 @@
 #include "roudi_gtest.hpp"
 
 using FindServiceHandle = iox::runtime::FindServiceHandle;
-using IdString = iox::capro::ServiceDescription::IdString;
+using IdString = iox::capro::IdString;
 using InstanceContainer = iox::runtime::InstanceContainer;
 
 template <class T, uint64_t Capacity>
@@ -28,7 +28,7 @@ class RouDiServiceDiscoveryTest : public RouDi_GTest
         dest.clear();
         for (size_t i = 0; i < src.size(); i++)
         {
-            dest.push_back(src[i]);
+            dest.push_back(IdString(iox::cxx::TruncateToCapacity, src[i]));
         }
     }
 

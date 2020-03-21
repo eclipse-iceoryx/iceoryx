@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <memory>
 
@@ -25,21 +26,23 @@ namespace iox
 {
 namespace popo
 {
-class Publisher
+template <typename SenderPortType>
+class Publisher_t
 {
   public:
     /// @brief Constructor
     /// @param[in] service Information on service , service, instance, event Id
     /// @param[in] runnableName optional name of the runnable the publisher belongs to
-    Publisher(const capro::ServiceDescription& service, const cxx::CString100& runnableName = "") noexcept;
+    Publisher_t(const capro::ServiceDescription& service,
+                const cxx::CString100& runnableName = cxx::CString100("")) noexcept;
 
-    Publisher& operator=(const Publisher& other) = delete;
-    Publisher(const Publisher& other) = delete;
+    Publisher_t& operator=(const Publisher_t& other) = delete;
+    Publisher_t(const Publisher_t& other) = delete;
 
-    Publisher& operator=(Publisher&&) = default;
-    Publisher(Publisher&& other) = default;
+    Publisher_t& operator=(Publisher_t&&) = default;
+    Publisher_t(Publisher_t&& other) = default;
 
-    virtual ~Publisher() noexcept;
+    virtual ~Publisher_t() noexcept;
 
     /// @brief Allocate memory for the chunk to be sent
     /// @param[in] payloadSize size of shared memory to be allocated
@@ -90,12 +93,17 @@ class Publisher
 
   protected:
     // needed for unit testing
-    Publisher() noexcept;
+    Publisher_t() noexcept;
 
   protected:
     SenderPortType m_sender{nullptr};
     void* m_lastSample{nullptr};
 };
 
+using Publisher = Publisher_t<iox::popo::SenderPort>;
+
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/publisher.inl"
+

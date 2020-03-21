@@ -97,7 +97,8 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
         case 't':
         {
             /// @todo Calling milliseconds() should not be ambiguous, extend units::Duration?
-            iox::units::Duration l_rate = iox::units::Duration::milliseconds(static_cast<long double>(std::atoi(optarg)));
+            iox::units::Duration l_rate =
+                iox::units::Duration::milliseconds(static_cast<long double>(std::atoi(optarg)));
             updatePeriodMs = bounded(l_rate, MIN_UPDATE_PERIOD, MAX_UPDATE_PERIOD);
             break;
         }
@@ -153,8 +154,8 @@ void IntrospectionApp::initTerminal()
     init_pair(static_cast<uint8_t>(ColorPairs::whiteOnRed), COLOR_WHITE, COLOR_RED);
 
     // The pad should be big enough to hold all introspection data
-    constexpr uint32_t padLines = 200;
-    constexpr uint32_t padCols = 200;
+    constexpr uint32_t padLines = 200u;
+    constexpr uint32_t padCols = 200u;
     pad = newpad(padLines, padCols);
 
     keypad(pad, TRUE);
@@ -215,7 +216,7 @@ void IntrospectionApp::waitForUserInput(int32_t timeoutMs)
     struct pollfd fileDesc;
     fileDesc.fd = STDIN_FILENO;
     fileDesc.events = POLLIN;
-    constexpr size_t nFileDesc = 1;
+    constexpr size_t nFileDesc = 1u;
     /// @todo Wrap kernel calls with SmartC
     int32_t eventCount = poll(&fileDesc, nFileDesc, timeoutMs);
 
@@ -241,7 +242,7 @@ void IntrospectionApp::printProcessIntrospectionData(const ProcessIntrospectionF
 
     for (auto& data : processIntrospectionField->m_processList)
     {
-        wprintw(pad, "PID: %*d Process: %*s\n", pidWidth, data.m_pid, processWidth, data.m_name.to_cstring());
+        wprintw(pad, "PID: %*d Process: %*s\n", pidWidth, data.m_pid, processWidth, data.m_name);
     }
     wprintw(pad, "\n");
 }
@@ -273,12 +274,12 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionTopic& topic)
     wprintw(pad, "%*s\n", payloadSizeWidth, "Payload Size");
     wprintw(pad, "--------------------------------------------------------------------------\n");
 
-    for (size_t i = 0; i < topic.m_mempoolInfo.size(); ++i)
+    for (size_t i = 0u; i < topic.m_mempoolInfo.size(); ++i)
     {
         auto& info = topic.m_mempoolInfo[i];
-        if (info.m_numChunks > 0)
+        if (info.m_numChunks > 0u)
         {
-            wprintw(pad, "%*d |", memPoolWidth, i + 1);
+            wprintw(pad, "%*d |", memPoolWidth, i + 1u);
             wprintw(pad, "%*d |", usedchunksWidth, info.m_usedChunks);
             wprintw(pad, "%*d |", numchunksWidth, info.m_numChunks);
             wprintw(pad, "%*d |", minFreechunksWidth, info.m_minFreeChunks);
@@ -537,7 +538,7 @@ IntrospectionApp::composeSenderPortData(const PortIntrospectionFieldTopic* portD
     auto& m_senderList = portData->m_senderList;
     auto& m_throughputList = throughputData->m_throughputList;
     const bool fastLookup = (m_senderList.size() == m_throughputList.size());
-    for (uint64_t i = 0; i < m_senderList.size(); ++i)
+    for (uint64_t i = 0u; i < m_senderList.size(); ++i)
     {
         bool found = (fastLookup && m_senderList[i].m_senderPortID == m_throughputList[i].m_senderPortID);
         if (found)
@@ -564,8 +565,8 @@ IntrospectionApp::composeSenderPortData(const PortIntrospectionFieldTopic* portD
     }
 
     auto senderSortCriterion = [](const ComposedSenderPortData& sender1, const ComposedSenderPortData& sender2) {
-        std::string name1(sender1.portData->m_name.to_cstring());
-        std::string name2(sender2.portData->m_name.to_cstring());
+        std::string name1(sender1.portData->m_name.c_str());
+        std::string name2(sender2.portData->m_name.c_str());
         return name1.compare(name2) < 0;
     };
     std::sort(senderPortData.begin(), senderPortData.end(), senderSortCriterion);
@@ -580,7 +581,7 @@ IntrospectionApp::composeReceiverPortData(const PortIntrospectionFieldTopic* por
     std::vector<ComposedReceiverPortData> receiverPortData;
     receiverPortData.reserve(portData->m_receiverList.size());
 
-    int i = 0;
+    uint32_t i = 0u;
     if (portData->m_receiverList.size() == receiverPortChangingData->receiverPortChangingDataList.size())
     { // should be the same, else it will be soon
         for (const auto& port : portData->m_receiverList)
@@ -594,8 +595,8 @@ IntrospectionApp::composeReceiverPortData(const PortIntrospectionFieldTopic* por
 
     auto receiverSortCriterion = [](const ComposedReceiverPortData& receiver1,
                                     const ComposedReceiverPortData& receiver2) {
-        std::string name1(receiver1.portData->m_name.to_cstring());
-        std::string name2(receiver2.portData->m_name.to_cstring());
+        std::string name1(receiver1.portData->m_name.c_str());
+        std::string name2(receiver2.portData->m_name.c_str());
         return name1.compare(name2) < 0;
     };
     std::sort(receiverPortData.begin(), receiverPortData.end(), receiverSortCriterion);
@@ -617,7 +618,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     SubscriberType memPoolSubscriber(IntrospectionMempoolService);
     if (introspectionSelection.mempool == true)
     {
-        memPoolSubscriber.subscribe(iox::MAX_SHM_SEGMENTS + 1);
+        memPoolSubscriber.subscribe(iox::MAX_SHM_SEGMENTS + 1u);
 
         if (waitForSubscription(memPoolSubscriber) == false)
         {
@@ -631,7 +632,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     SubscriberType processSubscriber(IntrospectionProcessService);
     if (introspectionSelection.process == true)
     {
-        processSubscriber.subscribe(1);
+        processSubscriber.subscribe(1u);
 
         if (waitForSubscription(processSubscriber) == false)
         {
@@ -649,9 +650,9 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
 
     if (introspectionSelection.port == true)
     {
-        portSubscriber.subscribe(1);
-        portThroughputSubscriber.subscribe(1);
-        receiverPortChangingDataSubscriber.subscribe(1);
+        portSubscriber.subscribe(1u);
+        portThroughputSubscriber.subscribe(1u);
+        receiverPortChangingDataSubscriber.subscribe(1u);
 
         if (waitForSubscription(portSubscriber) == false)
         {

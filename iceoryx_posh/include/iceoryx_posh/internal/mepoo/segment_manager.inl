@@ -23,12 +23,8 @@ namespace mepoo
 {
 template <typename SegmentType>
 inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& f_segmentConfig,
-                                                   posix::Allocator* f_managementAllocator,
-                                                   const uint64_t f_sharedMemoryBaseAddressOffset,
-                                                   const bool f_verifySharedMemoryPlacement)
-    : m_nextSegmentBaseAddressOffset(f_sharedMemoryBaseAddressOffset)
-    , m_managementAllocator(f_managementAllocator)
-    , m_verifySharedMemoryPlacement(f_verifySharedMemoryPlacement)
+                                                   posix::Allocator* f_managementAllocator)
+    : m_managementAllocator(f_managementAllocator)
 {
     for (const auto& segmentEntry : f_segmentConfig.m_sharedMemorySegments)
     {
@@ -47,20 +43,7 @@ inline bool SegmentManager<SegmentType>::createSegment(const SegmentConfig::Segm
                                         m_managementAllocator,
                                         readerGroup,
                                         writerGroup,
-                                        m_nextSegmentBaseAddressOffset);
-
-        const auto& segment = m_segmentContainer.back();
-
-        if (m_verifySharedMemoryPlacement
-            && reinterpret_cast<uint64_t>(segment.getSharedMemoryObject().getBaseAddress())
-                   != m_nextSegmentBaseAddressOffset)
-        {
-            errorHandler(Error::kMEPOO__SEGMENT_BASEADDRESS_VIOLATES_SPECIFICATION);
-        }
-
-        m_nextSegmentBaseAddressOffset += cxx::align(segment.getSharedMemoryObject().getSizeInBytes(),
-                                                     posix::pageSize().value_or(posix::MaxPageSize));
-
+                                        f_segmentEntry.m_memoryInfo);
         return true;
     }
     else
@@ -157,31 +140,34 @@ SegmentManager<SegmentType>::getSegmentInformationForUser(posix::PosixUser f_use
 }
 
 template <typename SegmentType>
-uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const RouDiConfig_t& f_config)
+uint64_t SegmentManager<SegmentType>::requiredManagementMemorySize(const SegmentConfig& f_config)
 {
-    uint64_t memorySize{0};
+    uint64_t memorySize{0u};
     for (auto segment : f_config.m_sharedMemorySegments)
     {
-        memorySize += cxx::align(MemoryManager::requiredManagementMemorySize(segment.m_mempoolConfig), SHARED_MEMORY_ALIGNMENT);
+        memorySize +=
+            cxx::align(MemoryManager::requiredManagementMemorySize(segment.m_mempoolConfig), SHARED_MEMORY_ALIGNMENT);
     }
     return memorySize;
 }
 
 template <typename SegmentType>
-uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const RouDiConfig_t& f_config)
+uint64_t SegmentManager<SegmentType>::requiredChunkMemorySize(const SegmentConfig& f_config)
 {
-    uint64_t memorySize{0};
+    uint64_t memorySize{0u};
     for (auto segment : f_config.m_sharedMemorySegments)
     {
-        memorySize += cxx::align(MemoryManager::requiredChunkMemorySize(segment.m_mempoolConfig), SHARED_MEMORY_ALIGNMENT);
+        memorySize +=
+            cxx::align(MemoryManager::requiredChunkMemorySize(segment.m_mempoolConfig), SHARED_MEMORY_ALIGNMENT);
     }
     return memorySize;
 }
 
 template <typename SegmentType>
-uint64_t SegmentManager<SegmentType>::requiredFullMemorySize(const RouDiConfig_t& f_config)
+uint64_t SegmentManager<SegmentType>::requiredFullMemorySize(const SegmentConfig& f_config)
 {
-    return cxx::align(requiredManagementMemorySize(f_config) + requiredChunkMemorySize(f_config), SHARED_MEMORY_ALIGNMENT);
+    return cxx::align(requiredManagementMemorySize(f_config) + requiredChunkMemorySize(f_config),
+                      SHARED_MEMORY_ALIGNMENT);
 }
 
 } // namespace mepoo

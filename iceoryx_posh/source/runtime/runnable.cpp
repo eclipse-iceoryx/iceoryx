@@ -24,12 +24,16 @@ namespace iox
 namespace runtime
 {
 Runnable::Runnable(const iox::cxx::CString100& runnableName) noexcept
-    : m_data(PoshRuntime::getInstance().createRunnable(RunnableProperty(runnableName, 0)))
+    : m_data(PoshRuntime::getInstance().createRunnable(RunnableProperty(runnableName, 0u)))
 {
 }
 
 Runnable::~Runnable() noexcept
 {
+    if(m_data)
+    {
+        m_data->m_toBeDestroyed.store(true, std::memory_order_relaxed);
+    }
 }
 
 Runnable::Runnable(Runnable&& rhs) noexcept

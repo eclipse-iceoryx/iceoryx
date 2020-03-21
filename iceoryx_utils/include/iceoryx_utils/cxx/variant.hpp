@@ -231,7 +231,7 @@ class variant
     constexpr size_t index() const noexcept;
 
   private:
-    alignas(algorithm::max(alignof(Types)...)) internal::byte_t m_storage[TYPE_SIZE]{0};
+    alignas(algorithm::max(alignof(Types)...)) internal::byte_t m_storage[TYPE_SIZE]{0u};
     uint64_t m_type_index = INVALID_VARIANT_INDEX;
 
   private:

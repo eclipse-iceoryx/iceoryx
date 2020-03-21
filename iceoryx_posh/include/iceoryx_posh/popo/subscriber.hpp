@@ -19,7 +19,11 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/internal/posix_wrapper/timespec.hpp"
+#include "ac3log/simplelogger.hpp"
 
+#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <mutex>
@@ -36,7 +40,8 @@ enum class SubscriptionState
     SUBSCRIPTION_PENDING
 };
 
-class Subscriber
+template <typename ReceiverPortType>
+class Subscriber_t
 {
   public:
     using mutex_t = std::mutex;
@@ -45,20 +50,22 @@ class Subscriber
     /// @brief Constructor
     /// @param[in] service Information on service , service, instance, event Id
     /// @param[in] runnableName optional name of the runnable the subscriber belongs to
-    explicit Subscriber(const capro::ServiceDescription& service, const cxx::CString100& runnableName = "") noexcept;
+    explicit Subscriber_t(const capro::ServiceDescription& service,
+                        const cxx::CString100& runnableName = cxx::CString100("")) noexcept;
 
     /// @brief Destructor for event receiver
-    virtual ~Subscriber() noexcept;
+    virtual ~Subscriber_t() noexcept;
 
-    Subscriber& operator=(const Subscriber& other) = delete;
-    Subscriber(const Subscriber& other) = delete;
+    Subscriber_t& operator=(const Subscriber_t& other) = delete;
+    Subscriber_t(const Subscriber_t& other) = delete;
 
-    Subscriber(Subscriber&& other) = default;
-    Subscriber& operator=(Subscriber&&) = default;
+    /// implicitly already deleted because of the atomic members
+    Subscriber_t(Subscriber_t&& other) = delete;
+    Subscriber_t& operator=(Subscriber_t&&) = delete;
 
     /// @brief Function for subscribing to event
     /// @param[in] cacheSize Size of the receiver queue
-    void subscribe(const uint32_t cacheSize = MAX_RECEIVER_QUEUE_SIZE) noexcept;
+    void subscribe(const uint32_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
 
     /// @brief Get function for retrieving subsription state
     /// @return enum value of subsription state
@@ -76,7 +83,7 @@ class Subscriber
 
     /// @brief set the callback reference with shared memory semaphore
     /// @param[in] receiverWithRererenceToUse to get the shared memory semaphore
-    void overrideCallbackReference(const Subscriber& receiverWithRererenceToUse) noexcept;
+    void overrideCallbackReference(const Subscriber_t& receiverWithRererenceToUse) noexcept;
 
     /// @brief Function for timed wait to receive a chunk
     /// @param[in] timeoutMs the time in Milliseconds to wait
@@ -127,12 +134,18 @@ class Subscriber
     /// @return true if the references are set otherwise false
     bool isChunkReceiveSemaphoreSet() noexcept;
 
+    /// @deprecated interface for setting notifications when messages are dropped in receiverport
+    /// see receiverport.cpp void setNotifyOnOverflow(), shall be refactored
+    void setNotifyOnOverflow(const bool value) noexcept
+    {
+        m_receiver.setNotifyOnOverflow(value);
+    };
     /// @brief Unset the semaphore if one is set
     void unsetChunkReceiveSemaphore() noexcept;
 
   protected:
     // needed for unit testing
-    Subscriber() noexcept;
+    Subscriber_t() noexcept;
 
   private:
     // callback main method
@@ -152,5 +165,10 @@ class Subscriber
     posix::Semaphore* m_callbackSemaphore{nullptr};
 };
 
+using Subscriber = Subscriber_t<iox::popo::ReceiverPort>;
+
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/subscriber.inl"
+

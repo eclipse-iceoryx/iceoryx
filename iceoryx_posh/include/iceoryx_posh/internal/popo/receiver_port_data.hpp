@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/delivery_fifo.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
@@ -32,12 +33,13 @@ namespace popo
 {
 struct ReceiverPortData : public BasePortData
 {
+    using mutex_t = posix::mutex; // std::mutex
+    using MemoryInfo = iox::mepoo::MemoryInfo;
+
     ReceiverPortData() noexcept;
     ReceiverPortData(const capro::ServiceDescription& serviceDescription,
                      const std::string& applicationName,
-                     runtime::RunnableData* const runnable) noexcept;
-
-    using mutex_t = posix::mutex; // std::mutex
+                     const MemoryInfo& memoryInfo = MemoryInfo()) noexcept;
 
     // Written by application, read by RouDi
     std::atomic_bool m_subscribeRequested{false};
@@ -45,7 +47,7 @@ struct ReceiverPortData : public BasePortData
     std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
 
     DeliveryFiFo m_deliveryFiFo;
-    static constexpr uint32_t DELIVERED_LIST_SIZE = 2 * MAX_RECEIVER_QUEUE_SIZE;
+    static constexpr uint32_t DELIVERED_LIST_SIZE = 2u * MAX_RECEIVER_QUEUE_CAPACITY;
     UsedChunkList<DELIVERED_LIST_SIZE> m_deliveredChunkList;
 
     // event callback related
@@ -56,6 +58,11 @@ struct ReceiverPortData : public BasePortData
     // offer semaphore that is stored in shared memory
     iox_sem_t m_shmSemaphoreHandle;
     posix::Semaphore::result_t m_shmSemaphore = posix::Semaphore::create();
+
+    bool m_notifyOverflow{false};
+    std::atomic<uint64_t> m_overflowCounter{0u};
+
+    MemoryInfo m_memoryInfo;
 };
 
 } // namespace popo

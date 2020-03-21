@@ -129,7 +129,6 @@ add_library(iceoryx_utils
     source/concurrent/locked_loffli.cpp
     source/cxx/generic_raii.cpp
     source/error_handling/error_handling.cpp
-    source/fixed_string/string100.cpp
     source/file_reader/file_reader.cpp
     source/log/logcommon.cpp
     source/log/logger.cpp

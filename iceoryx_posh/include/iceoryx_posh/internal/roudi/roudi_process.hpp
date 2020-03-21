@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
@@ -118,8 +119,9 @@ class ProcessManager : public ProcessManagerInterface
     /// @todo use a fixed, stack based list once available
     // using ProcessList_t = cxx::list<RouDiProcess, MAX_PROCESS_NUMBER>;
     using ProcessList_t = std::list<RouDiProcess>;
+    using PortConfigInfo = iox::runtime::PortConfigInfo;
 
-    ProcessManager(SharedMemoryManager& f_shmMgr);
+    ProcessManager(RouDiMemoryInterface& roudiMemoryInterface, PortManager& portManager);
     virtual ~ProcessManager() override
     {
     }
@@ -147,21 +149,22 @@ class ProcessManager : public ProcessManagerInterface
 
     void findServiceForProcess(const std::string& f_name, const capro::ServiceDescription& f_service);
 
-    void addInterfaceForProcess(const std::string& f_name, capro::Interfaces f_interface, const std::string& f_runnable);
+    void
+    addInterfaceForProcess(const std::string& f_name, capro::Interfaces f_interface, const std::string& f_runnable);
 
     void addApplicationForProcess(const std::string& f_name);
 
     void addRunnableForProcess(const std::string& f_process, const std::string& f_runnable);
 
-    void removeRunnableForProcess(const std::string& f_process, const std::string& f_runnable);
-
     void addReceiverForProcess(const std::string& f_name,
                                const capro::ServiceDescription& f_service,
-                               const std::string& f_runnable);
+                               const std::string& f_runnable,
+                               const PortConfigInfo& portConfigInfo = PortConfigInfo());
 
     void addSenderForProcess(const std::string& f_name,
                              const capro::ServiceDescription& f_service,
-                             const std::string& f_runnable);
+                             const std::string& f_runnable,
+                             const PortConfigInfo& portConfigInfo = PortConfigInfo());
 
     void initIntrospection(ProcessIntrospectionType* f_processIntrospection);
 
@@ -186,9 +189,9 @@ class ProcessManager : public ProcessManagerInterface
 
     // BEGIN PortHandling interface
     ReceiverPortType addInternalReceiverPort(const capro::ServiceDescription& f_service,
-                                           const std::string& f_process_name) override;
+                                             const std::string& f_process_name) override;
     SenderPortType addInternalSenderPort(const capro::ServiceDescription& f_service,
-                                       const std::string& f_process_name) override;
+                                         const std::string& f_process_name) override;
     void removeInternalPorts(const std::string& f_process_name) override;
     void sendServiceRegistryChangeCounterToProcess(const std::string& f_process_name) override;
 
@@ -217,7 +220,11 @@ class ProcessManager : public ProcessManagerInterface
 
     bool removeProcess(const std::string& f_name);
 
-    SharedMemoryManager& m_shmMgr;
+    RouDiMemoryInterface& m_roudiMemoryInterface;
+    PortManager& m_portManager;
+    mepoo::SegmentManager<>* m_segmentManager{nullptr};
+    mepoo::MemoryManager* m_introspectionMemoryManager{nullptr};
+    RelativePointer::id_t m_mgmtSegmentId{RelativePointer::NULL_POINTER_ID};
     mutable std::mutex m_mutex;
 
     ProcessList_t m_processList;
@@ -226,8 +233,8 @@ class ProcessManager : public ProcessManagerInterface
 
     // this is currently used for the internal sender/receiver ports
     mepoo::MemoryManager* m_memoryManagerOfCurrentProcess{nullptr};
-    uint64_t m_segmentIdOfCurrentProcess{0};
 };
 
 } // namespace roudi
 } // namespace iox
+

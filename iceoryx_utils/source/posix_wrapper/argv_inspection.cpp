@@ -34,7 +34,7 @@ ArgvInspector::ArgvInspector()
 
 bool ArgvInspector::getCmdlineArgument(const int f_argNumber, std::string& f_argument) const
 {
-    std::size_t startPos = 0;
+    std::size_t startPos = 0u;
     std::size_t endPos = std::string::npos;
 
     if (!m_cmdline.has_value())
@@ -55,7 +55,7 @@ bool ArgvInspector::getCmdlineArgument(const int f_argNumber, std::string& f_arg
 
         f_argument = m_cmdline->substr(startPos, endPos - startPos);
 
-        startPos = endPos + 1;
+        startPos = endPos + 1u;
     }
 
     return true;

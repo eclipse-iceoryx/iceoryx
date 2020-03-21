@@ -43,17 +43,17 @@ uint32_t MqMessage::getNumberOfElements() const noexcept
 std::string MqMessage::getElementAtIndex(const uint32_t index) const noexcept
 {
     std::string messageRemainder(m_msg);
-    size_t startPos = 0;
+    size_t startPos = 0u;
     size_t endPos = messageRemainder.find_first_of(m_separator, startPos);
 
-    for (uint32_t counter = 0; endPos != std::string::npos; ++counter)
+    for (uint32_t counter = 0u; endPos != std::string::npos; ++counter)
     {
         if (counter == index)
         {
             return messageRemainder.substr(startPos, endPos - startPos);
         }
 
-        startPos = endPos + 1;
+        startPos = endPos + 1u;
         endPos = messageRemainder.find_first_of(m_separator, startPos);
     }
 
@@ -84,7 +84,7 @@ void MqMessage::setMessage(const std::string& msg) noexcept
     clearMessage();
 
     m_msg = msg;
-    if (!m_msg.empty() && m_msg.back() != m_separator)
+    if (m_msg.back() != m_separator && !m_msg.empty())
     {
         m_isValid = false;
     }
@@ -98,7 +98,7 @@ void MqMessage::setMessage(const std::string& msg) noexcept
 void MqMessage::clearMessage() noexcept
 {
     m_msg.clear();
-    m_numberOfElements = 0;
+    m_numberOfElements = 0u;
     m_isValid = true;
 }
 

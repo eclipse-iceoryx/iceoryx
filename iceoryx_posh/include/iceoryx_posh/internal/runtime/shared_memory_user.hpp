@@ -31,13 +31,12 @@ class SharedMemoryUser
 {
   public:
     /// @brief Constructor
-    /// @param[in] std::string base adress
     /// @param[in] doMapSharedMemoryIntoThread used by roudi environment for testing. No mapping of memory if false
     /// @param[in] topicSize size of the shared memory management segment
     /// @param[in] segmentManagerAddr adress of the segment manager that does the final mapping of memory in the process
+    /// @param[in] segmentId of the relocatable shared memory segment
     /// address space
-    SharedMemoryUser(std::string baseAddrString[[gnu::unused]],
-                     const bool doMapSharedMemoryIntoThread,
+    SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
                      const size_t topicSize,
                      std::string segmentManagerAddr,
                      const uint64_t segmentId);
@@ -49,3 +48,4 @@ class SharedMemoryUser
 
 } // namespace runtime
 } // namespace iox
+

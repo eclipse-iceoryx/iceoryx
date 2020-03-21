@@ -16,6 +16,8 @@
 
 #include "iceoryx_utils/fixed_string/string100.hpp"
 
+#include <atomic>
+
 namespace iox
 {
 namespace runtime
@@ -26,7 +28,9 @@ struct RunnableData
     /// @brief constructor
     /// @param[in] name name of the runnable
     /// @param[in] runnableDeviceIdentifier identifier of the device on which the runnable will run
-    RunnableData(const iox::cxx::CString100& process, const iox::cxx::CString100& runnable, const uint64_t runnableDeviceIdentifier) noexcept;
+    RunnableData(const iox::cxx::CString100& process,
+                 const iox::cxx::CString100& runnable,
+                 const uint64_t runnableDeviceIdentifier) noexcept;
 
     RunnableData(const RunnableData&) = delete;
     RunnableData(RunnableData&&) = delete;
@@ -37,6 +41,8 @@ struct RunnableData
     iox::cxx::CString100 m_process;
     iox::cxx::CString100 m_runnable;
     uint64_t m_runnableDeviceIdentifier;
+    std::atomic_bool m_toBeDestroyed{false};
 };
 } // namespace runtime
 } // namespace iox
+

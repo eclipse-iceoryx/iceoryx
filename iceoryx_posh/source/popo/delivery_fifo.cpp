@@ -20,8 +20,8 @@ namespace popo
 {
 bool DeliveryFiFo::pop(mepoo::SharedChunk& chunk)
 {
-    DeliveryFiFo::ChunkManagementTransport chunkTransport;
-    bool retVal = m_fifo.pop(chunkTransport);
+    ChunkManagementTransport chunkTransport;
+    bool retVal = pop(chunkTransport);
     if (retVal == true)
     {
         auto chunkManagement =
@@ -33,10 +33,11 @@ bool DeliveryFiFo::pop(mepoo::SharedChunk& chunk)
 
 bool DeliveryFiFo::push(mepoo::SharedChunk&& chunkIn, mepoo::SharedChunk& chunkOut)
 {
-    DeliveryFiFo::ChunkManagementTransport chunkTransportIn(chunkIn.releaseWithRelativePtr());
-    DeliveryFiFo::ChunkManagementTransport chunkTransportOut;
+    VisibilityIndexType visibiltyIndex = std::numeric_limits<VisibilityIndexType>::max();
+    ChunkManagementTransport chunkTransportIn(chunkIn.release(), visibiltyIndex);
+    ChunkManagementTransport chunkTransportOut;
 
-    bool retVal = m_fifo.push(std::move(chunkTransportIn), chunkTransportOut);
+    bool retVal = push(std::move(chunkTransportIn), chunkTransportOut);
 
     if (retVal == false)
     {
@@ -45,6 +46,16 @@ bool DeliveryFiFo::push(mepoo::SharedChunk&& chunkIn, mepoo::SharedChunk& chunkO
         chunkOut = mepoo::SharedChunk(chunkManagement);
     }
     return retVal;
+}
+
+bool DeliveryFiFo::pop(ChunkManagementTransport& chunkTransport)
+{
+    return m_fifo.pop(chunkTransport);
+}
+
+bool DeliveryFiFo::push(ChunkManagementTransport&& chunkTransportIn, ChunkManagementTransport& chunkTransportOut)
+{
+    return m_fifo.push(chunkTransportIn, chunkTransportOut);
 }
 
 bool DeliveryFiFo::empty() const

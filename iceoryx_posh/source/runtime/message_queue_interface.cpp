@@ -329,11 +329,6 @@ bool MqRuntimeInterface::sendKeepalive() noexcept
     return m_RoudiMqInterface.send({mqMessageTypeToString(MqMessageType::KEEPALIVE), m_appName});
 }
 
-std::string MqRuntimeInterface::getShmBaseAddr() const noexcept
-{
-    return m_shmBaseAddr;
-}
-
 std::string MqRuntimeInterface::getSegmentManagerAddr() const noexcept
 {
     return m_segmentManager;
@@ -417,20 +412,19 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
 
             if (stringToMqMessageType(cmd.c_str()) == MqMessageType::REG_ACK)
             {
-                constexpr uint32_t REGISTER_ACK_PARAMETERS = 6;
+                constexpr uint32_t REGISTER_ACK_PARAMETERS = 5;
                 if (receiveBuffer.getNumberOfElements() != REGISTER_ACK_PARAMETERS)
                 {
                     errorHandler(Error::kMQ_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
                 }
 
                 // read out the shared memory base address and save it
-                m_shmBaseAddr = receiveBuffer.getElementAtIndex(1);
-                m_shmTopicSize = strtoull(receiveBuffer.getElementAtIndex(2).c_str(), nullptr, 10);
-                m_segmentManager = receiveBuffer.getElementAtIndex(3);
+                m_shmTopicSize = strtoull(receiveBuffer.getElementAtIndex(1).c_str(), nullptr, 10);
+                m_segmentManager = receiveBuffer.getElementAtIndex(2);
 
                 int64_t receivedTimestamp;
-                cxx::convert::fromString(receiveBuffer.getElementAtIndex(4).c_str(), receivedTimestamp);
-                cxx::convert::fromString(receiveBuffer.getElementAtIndex(5).c_str(), m_segmentId);
+                cxx::convert::fromString(receiveBuffer.getElementAtIndex(3).c_str(), receivedTimestamp);
+                cxx::convert::fromString(receiveBuffer.getElementAtIndex(4).c_str(), m_segmentId);
                 if (transmissionTimestamp == receivedTimestamp)
                 {
                     return RegAckResult::SUCCESS;

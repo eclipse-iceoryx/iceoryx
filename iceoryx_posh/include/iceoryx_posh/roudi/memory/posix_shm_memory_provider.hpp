@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,14 +36,13 @@ class PosixShmMemoryProvider : public MemoryProvider
     /// @brief Constructs a PosixShmMemoryProvider which can be used to request memory via MemoryBlocks
     /// @param [in] shmName is the name of the posix share memory
     /// @param [in] accessMode defines the read and write access to the memory
-    /// @param [in] onwership defines the ownership of the shared memory. "mine" controls the lifetime the memory and
+    /// @param [in] ownership defines the ownership of the shared memory. "mine" controls the lifetime of the memory and
     /// "openExisting" will just use an already existing shared memory
     PosixShmMemoryProvider(const ShmNameString& shmName,
                            const posix::AccessMode accessMode,
-                           const posix::OwnerShip onwership) noexcept;
+                           const posix::OwnerShip ownership) noexcept;
     ~PosixShmMemoryProvider() noexcept;
 
-    /// @todo this is not yet implemented but is on the list
     PosixShmMemoryProvider(PosixShmMemoryProvider&&) = delete;
     PosixShmMemoryProvider& operator=(PosixShmMemoryProvider&&) = delete;
 
@@ -59,7 +58,7 @@ class PosixShmMemoryProvider : public MemoryProvider
     cxx::expected<void*, MemoryProviderError> createMemory(const uint64_t size, const uint64_t alignment) noexcept;
 
     /// @brief Implementation of MemoryProvider::destroyMemory
-    /// @return true if destruction was successfully, false otherwise
+    /// @return a MemoryProviderError if the destruction failed, otherwise success
     cxx::expected<MemoryProviderError> destroyMemory() noexcept;
 
   private:
@@ -71,3 +70,4 @@ class PosixShmMemoryProvider : public MemoryProvider
 
 } // namespace roudi
 } // namespace iox
+

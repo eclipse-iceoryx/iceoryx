@@ -16,7 +16,7 @@
 
 #include "iceoryx_utils/log/logmanager.hpp"
 
-uint8_t debuglevel = 99;
+uint8_t debuglevel = 99u;
 
 namespace
 {

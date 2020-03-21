@@ -23,6 +23,7 @@
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
+#include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_posh/runtime/service_discovery_notifier.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
 
@@ -94,23 +95,31 @@ class PoshRuntime
     /// @brief request the RouDi daemon to create a sender port
     /// @param[in] serviceDescription service description for the new sender port
     /// @param[in] runnableName name of the runnable where the sender should belong to
-    /// @return poiner to a created sender port data
+    /// @param[in] portConfigInfo configuration information for the port
+    /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
+    /// @return pointer to a created sender port data
+
     SenderPortType::MemberType_t* getMiddlewareSender(const capro::ServiceDescription& service,
-                                                      const cxx::CString100& runnableName = "") noexcept;
+                                                      const cxx::CString100& runnableName = cxx::CString100(""),
+                                                      const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a receiver port
     /// @param[in] serviceDescription service description for the new receiver port
     /// @param[in] runnableName name of the runnable where the receiver should belong to
+    /// @param[in] portConfigInfo configuration information for the port
+    /// (what type of port is requested, device where its payload memory is located on etc.)
     /// @return poiner to a created receiver port data
-    ReceiverPortType::MemberType_t* getMiddlewareReceiver(const capro::ServiceDescription& service,
-                                                          const cxx::CString100& runnableName = "") noexcept;
+    ReceiverPortType::MemberType_t*
+    getMiddlewareReceiver(const capro::ServiceDescription& service,
+                          const cxx::CString100& runnableName = cxx::CString100(""),
+                          const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create an interface port
     /// @param[in] interface interface to create
     /// @param[in] runnableName name of the runnable where the interface should belong to
     /// @return poiner to a created interface port data
     popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
-                                                    const cxx::CString100& runnableName = "") noexcept;
+                                                    const cxx::CString100& runnableName = cxx::CString100("")) noexcept;
 
     /// @brief request the RouDi daemon to create an application port
     /// @return poiner to a created application port data
@@ -120,11 +129,6 @@ class PoshRuntime
     /// @param[in] runnableProperty class which contains all properties which the runnable should have
     /// @return pointer to the data of the runnable
     RunnableData* createRunnable(const RunnableProperty& runnableProperty) noexcept;
-
-    /// @brief request the RouDi daemon to remove a runnable
-    /// @param[in] runnable runnable which should be removed
-    /// @return true if the remove was successful, otherwise false
-    void removeRunnable(const Runnable& runnable) noexcept;
 
     /// @brief requests the serviceRegistryChangeCounter from the shared memory
     /// @return pointer to the serviceRegistryChangeCounter
@@ -147,6 +151,7 @@ class PoshRuntime
     PoshRuntime& operator=(const PoshRuntime&) = delete;
     PoshRuntime(PoshRuntime&&) = delete;
     PoshRuntime& operator=(PoshRuntime&&) = delete;
+    virtual ~PoshRuntime() noexcept;
 
     friend class roudi::RuntimeTestInterface;
 
@@ -187,3 +192,4 @@ class PoshRuntime
 
 } // namespace runtime
 } // namespace iox
+

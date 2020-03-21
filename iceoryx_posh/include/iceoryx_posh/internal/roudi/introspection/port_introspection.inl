@@ -79,11 +79,11 @@ void PortIntrospection<SenderPort, ReceiverPort>::run()
     /// @todo the thread sleep mechanism needs to be redone with a trigger queue with a try_pop with timeout
     /// functionality
     m_runThread = true;
-    static uint32_t ct = 0;
+    static uint32_t ct = 0u;
     m_thread = std::thread([this] {
         while (m_runThread)
         {
-            if (0 == (ct % m_sendIntervalCount))
+            if (0u == (ct % m_sendIntervalCount))
             {
                 if (m_portData.isNew())
                 {
@@ -431,8 +431,8 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
             SenderPort port(senderInfo.portData);
             senderData.m_senderPortID = port.getUniqueID();
             senderData.m_sourceInterface = senderInfo.service.getSourceInterface();
-            senderData.m_name = cxx::CString100(senderInfo.name.c_str());
-            senderData.m_runnable = cxx::CString100(senderInfo.runnable.c_str());
+            senderData.m_name = cxx::string<100>(cxx::TruncateToCapacity, senderInfo.name.c_str());
+            senderData.m_runnable = cxx::string<100>(cxx::TruncateToCapacity, senderInfo.runnable.c_str());
 
             senderData.m_caproInstanceID = senderInfo.service.getInstanceIDString();
             senderData.m_caproServiceID = senderInfo.service.getServiceIDString();
@@ -456,8 +456,8 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
                 bool connected = connection.isConnected();
                 auto& receiverInfo = connection.receiverInfo;
 
-                receiverData.m_name = cxx::CString100(receiverInfo.name.c_str());
-                receiverData.m_runnable = cxx::CString100(receiverInfo.runnable.c_str());
+                receiverData.m_name = cxx::string<100>(cxx::TruncateToCapacity, receiverInfo.name.c_str());
+                receiverData.m_runnable = cxx::string<100>(cxx::TruncateToCapacity, receiverInfo.runnable.c_str());
 
                 receiverData.m_caproInstanceID = receiverInfo.service.getInstanceIDString();
                 receiverData.m_caproServiceID = receiverInfo.service.getServiceIDString();
@@ -543,8 +543,8 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(
                 }
                 else
                 {
-                    receiverData.fifoCapacity = 0;
-                    receiverData.fifoSize = 0;
+                    receiverData.fifoCapacity = 0u;
+                    receiverData.fifoSize = 0u;
                     receiverData.subscriptionState = iox::SubscribeState::NOT_SUBSCRIBED;
                     receiverData.sampleSendCallbackActive = false;
                     receiverData.propagationScope = capro::Scope::INVALID;

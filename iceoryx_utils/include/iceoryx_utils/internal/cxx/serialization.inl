@@ -117,13 +117,13 @@ inline bool Serialization::removeFirstEntry(std::string& firstEntry, std::string
         return false;
     }
 
-    if (remainder.size() < pos + length + 1)
+    if (remainder.size() < pos + length + 1u)
     {
         return false;
     }
 
-    firstEntry = remainder.substr(pos + 1, length);
-    remainder = remainder.substr(pos + 1 + length);
+    firstEntry = remainder.substr(pos + 1u, length);
+    remainder = remainder.substr(pos + 1u + length);
 
     return true;
 }

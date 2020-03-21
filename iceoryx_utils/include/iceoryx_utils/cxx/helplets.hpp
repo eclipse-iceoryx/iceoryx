@@ -109,7 +109,7 @@ template <typename T>
 T align(const T value, const T alignment)
 {
     T remainder = value % alignment;
-    return value + ((remainder == 0) ? 0 : alignment - remainder);
+    return value + ((remainder == 0u) ? 0u : alignment - remainder);
 }
 
 /// template recursion stopper for maximum alignment calculation
