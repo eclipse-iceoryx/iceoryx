@@ -144,7 +144,7 @@ TEST_P(ChunkQueue_test, AttachSemaphore)
 
     auto ret = m_dut.attachSemaphore(*semaphore);
     EXPECT_FALSE(ret.has_error());
-        
+
     EXPECT_THAT(m_dut.isSemaphoreAttached(), Eq(true));
 }
 
@@ -154,7 +154,7 @@ TEST_P(ChunkQueue_test, PushAndTriggersSemaphore)
     ASSERT_THAT(semaphore.has_error(), Eq(false));
 
     auto ret = m_dut.attachSemaphore(*semaphore);
-    EXPECT_FALSE(ret.has_error());    
+    EXPECT_FALSE(ret.has_error());
 
     EXPECT_THAT(semaphore->get()->tryWait(), Eq(false));
 
@@ -173,10 +173,10 @@ TEST_P(ChunkQueue_test, AttachSecondSemaphore)
     ASSERT_THAT(semaphore2.has_error(), Eq(false));
 
     auto ret1 = m_dut.attachSemaphore(*semaphore1);
-    EXPECT_FALSE(ret1.has_error());    
+    EXPECT_FALSE(ret1.has_error());
 
     auto ret2 = m_dut.attachSemaphore(*semaphore2);
-    EXPECT_TRUE(ret2.has_error());     
+    EXPECT_TRUE(ret2.has_error());
     ASSERT_THAT(ret2.get_error(), Eq(ChunkQueueError::SEMAPHORE_ALREADY_SET));
 
     EXPECT_THAT(semaphore1->get()->tryWait(), Eq(false));
