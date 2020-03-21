@@ -228,7 +228,7 @@ setup_install_directories_and_export_package(
 
 # header
 install(
-    FILES ${SETUP_PACKAGE_FILE}
+    FILES
         cmake/IceoryxPackageHelper.cmake
         cmake/IceoryxPlatformDetection.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
