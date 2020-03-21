@@ -42,12 +42,15 @@ static bool waitForExecution(timer_t timerid)
         clock_gettime(CLOCK_REALTIME, &waitUntil);
         waitUntil.tv_sec += timerid->parameter.timeParameters.it_value.tv_sec;
         waitUntil.tv_nsec += timerid->parameter.timeParameters.it_value.tv_nsec;
-        timerid->parameter.wakeup.wait_until(
-            ulock, timePoint_t(getNanoSeconds(waitUntil)), [timerid] { return !timerid->parameter.isTimerRunning; });
+        timerid->parameter.wakeup.wait_until(ulock, timePoint_t(getNanoSeconds(waitUntil)), [timerid] {
+            return !timerid->parameter.isTimerRunning || !timerid->keepRunning.load(std::memory_order_relaxed);
+        });
     }
     else
     {
-        timerid->parameter.wakeup.wait(ulock, [timerid] { return !timerid->parameter.isTimerRunning; });
+        timerid->parameter.wakeup.wait(ulock, [timerid] {
+            return timerid->parameter.isTimerRunning || !timerid->keepRunning.load(std::memory_order_relaxed);
+        });
     }
 
     return timerid->parameter.isTimerRunning;

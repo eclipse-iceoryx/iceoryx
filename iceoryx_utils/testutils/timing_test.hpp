@@ -66,13 +66,13 @@
 #define TIMING_TEST_CONSTRUCT(Name, Case, Repetitions, Test, GTestType)                                                \
     GTestType(Name, TimingTest_##Case)                                                                                 \
     {                                                                                                                  \
-        std::atomic_bool __timingTestResult__{true};                                                                   \
-        std::string __errorMessages__;                                                                                 \
-        bool testResult = __PerformingTimingTest__(Test, Repetitions, __timingTestResult__);                           \
+        std::atomic_bool timingTestResult{true};                                                                       \
+        std::string errorMessages;                                                                                     \
+        bool testResult = iox::testutils::performingTimingTest(Test, Repetitions, timingTestResult);                   \
         EXPECT_TRUE(testResult);                                                                                       \
         if (!testResult)                                                                                               \
         {                                                                                                              \
-            std::cout << "\n" << __errorMessages__ << std::endl;                                                       \
+            std::cout << "\n" << errorMessages << std::endl;                                                           \
         }                                                                                                              \
     }
 
@@ -82,28 +82,31 @@
 #define TIMING_TEST_EXPECT_ALWAYS_TRUE(value) EXPECT_TRUE(value)
 #define TIMING_TEST_EXPECT_ALWAYS_FALSE(value) EXPECT_FALSE(value)
 #define TIMING_TEST_EXPECT_TRUE(value)                                                                                 \
-    __errorMessages__ += __VerifyTimingTestResult__(__FILE__, __LINE__, #value, value, true, __timingTestResult__)
+    errorMessages += iox::testutils::verifyTimingTestResult(__FILE__, __LINE__, #value, value, true, timingTestResult)
 #define TIMING_TEST_EXPECT_FALSE(value)                                                                                \
-    __errorMessages__ += __VerifyTimingTestResult__(__FILE__, __LINE__, #value, value, false, __timingTestResult__)
+    errorMessages += iox::testutils::verifyTimingTestResult(__FILE__, __LINE__, #value, value, false, timingTestResult)
 #define TIMING_TEST_ASSERT_TRUE(value)                                                                                 \
     TIMING_TEST_EXPECT_TRUE(value);                                                                                    \
-    if (!__timingTestResult__.load())                                                                                  \
+    if (!timingTestResult.load())                                                                                      \
     {                                                                                                                  \
         return;                                                                                                        \
     }
 #define TIMING_TEST_ASSERT_FALSE(value)                                                                                \
     TIMING_TEST_EXPECT_FALSE(value);                                                                                   \
-    if (!__timingTestResult__.load())                                                                                  \
+    if (!timingTestResult.load())                                                                                      \
     {                                                                                                                  \
         return;                                                                                                        \
     }
 
-
 #define Repeat(n) n
 
-inline bool __PerformingTimingTest__(const std::function<void()>& testCallback,
-                                     const uint64_t repetitions,
-                                     std::atomic_bool& testResult) noexcept
+namespace iox
+{
+namespace testutils
+{
+inline bool performingTimingTest(const std::function<void()>& testCallback,
+                                 const uint64_t repetitions,
+                                 std::atomic_bool& testResult) noexcept
 {
     for (uint64_t i = 0; i < repetitions; ++i)
     {
@@ -120,12 +123,12 @@ inline bool __PerformingTimingTest__(const std::function<void()>& testCallback,
     return false;
 }
 
-inline std::string __VerifyTimingTestResult__(const char* file,
-                                              const int line,
-                                              const char* valueStr,
-                                              const bool value,
-                                              const bool expected,
-                                              std::atomic_bool& result) noexcept
+inline std::string verifyTimingTestResult(const char* file,
+                                          const int line,
+                                          const char* valueStr,
+                                          const bool value,
+                                          const bool expected,
+                                          std::atomic_bool& result) noexcept
 {
     std::string errorMessage;
     if (value != expected)
@@ -137,3 +140,5 @@ inline std::string __VerifyTimingTestResult__(const char* file,
     }
     return errorMessage;
 }
+} // namespace testutils
+} // namespace iox
