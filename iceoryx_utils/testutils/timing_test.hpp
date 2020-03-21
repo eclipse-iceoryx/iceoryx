@@ -39,8 +39,6 @@
 ///   sleep(2);
 ///   TIMING_TEST_EXPECT_TRUE(threadFinished.load());
 ///   t.join();
-///
-///   TIMING_TEST_END();
 /// });
 /// @endcode
 ///
