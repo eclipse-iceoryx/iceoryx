@@ -148,7 +148,7 @@ TEST_P(ChunkQueue_test, AttachSemaphore)
     EXPECT_THAT(m_dut.isSemaphoreAttached(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, PushAndTriggersSemaphore)
+TEST_P(ChunkQueue_test, DISABLED_PushAndTriggersSemaphore)
 {
     auto semaphore = semaphorePool.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(0);
     ASSERT_THAT(semaphore.has_error(), Eq(false));
@@ -165,7 +165,7 @@ TEST_P(ChunkQueue_test, PushAndTriggersSemaphore)
     EXPECT_THAT(semaphore->get()->tryWait(), Eq(false)); // shouldn't trigger a second time
 }
 
-TEST_P(ChunkQueue_test, AttachSecondSemaphore)
+TEST_P(ChunkQueue_test, DISABLED_AttachSecondSemaphore)
 {
     auto semaphore1 = semaphorePool.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(0);
     ASSERT_THAT(semaphore1.has_error(), Eq(false));

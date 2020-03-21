@@ -55,6 +55,7 @@ bool ChunkQueue::push(mepoo::SharedChunk chunk) noexcept
                         if (getMembers()->m_semaphoreAttached.load(std::memory_order_acquire)
                             && getMembers()->m_semaphore)
                         {
+                            std::cout << "fubar" << std::endl;
                             getMembers()->m_semaphore->post();
                         }
                     })
