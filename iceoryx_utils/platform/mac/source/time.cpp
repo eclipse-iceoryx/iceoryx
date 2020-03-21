@@ -21,15 +21,10 @@ static std::chrono::nanoseconds getNanoSeconds(const timespec& value)
                                     + static_cast<uint64_t>(value.tv_nsec));
 }
 
-static void stopNotificationForTimer(timer_t timerid)
+static void stopTimerThread(timer_t timerid)
 {
     timerid->keepRunning.store(false, std::memory_order_relaxed);
-    timerid->wakeup.notify_one();
-}
-
-static void stopTimer(timer_t timerid)
-{
-    stopNotificationForTimer(timerid);
+    timerid->parameter.wakeup.notify_one();
     if (timerid->thread.joinable())
     {
         timerid->thread.join();
@@ -38,18 +33,35 @@ static void stopTimer(timer_t timerid)
 
 static bool waitForExecution(timer_t timerid)
 {
-    timespec waitUntil;
-    clock_gettime(CLOCK_REALTIME, &waitUntil);
-    waitUntil.tv_sec += timerid->timeParameters.it_value.tv_sec;
-    waitUntil.tv_nsec += timerid->timeParameters.it_value.tv_nsec;
-
-    std::unique_lock<std::mutex> ulock(timerid->wakeupMutex);
     using timePoint_t = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>;
-    while (timerid->wakeup.wait_until(ulock, timePoint_t(getNanoSeconds(waitUntil))) != std::cv_status::timeout)
+    std::unique_lock<std::mutex> ulock(timerid->parameter.mutex);
+
+    if (timerid->parameter.isTimerRunning)
     {
+        timespec waitUntil;
+        clock_gettime(CLOCK_REALTIME, &waitUntil);
+        waitUntil.tv_sec += timerid->parameter.timeParameters.it_value.tv_sec;
+        waitUntil.tv_nsec += timerid->parameter.timeParameters.it_value.tv_nsec;
+        timerid->parameter.wakeup.wait_until(
+            ulock, timePoint_t(getNanoSeconds(waitUntil)), [timerid] { return !timerid->parameter.isTimerRunning; });
+    }
+    else
+    {
+        timerid->parameter.wakeup.wait(ulock, [timerid] { return !timerid->parameter.isTimerRunning; });
     }
 
-    return timerid->keepRunning.load(std::memory_order_relaxed);
+    return timerid->parameter.isTimerRunning;
+}
+
+static void
+setTimeParameters(timer_t timerid, const itimerspec& timeParameters, const bool runOnce, const bool isTimerRunning)
+{
+    std::lock_guard<std::mutex> l(timerid->parameter.mutex);
+    clock_gettime(CLOCK_REALTIME, &timerid->parameter.startTime);
+    timerid->parameter.timeParameters = timeParameters;
+    timerid->parameter.runOnce = runOnce;
+    timerid->parameter.wasCallbackCalled = false;
+    timerid->parameter.isTimerRunning = isTimerRunning;
 }
 
 int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid)
@@ -57,56 +69,58 @@ int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid)
     timer_t timer = new appleTimer_t();
     timer->callback = sevp->sigev_notify_function;
     timer->callbackParameter = sevp->sigev_value;
+
+    timer->thread = std::thread([timer] {
+        while (timer->keepRunning.load(std::memory_order_relaxed))
+        {
+            if (waitForExecution(timer))
+            {
+                timer->parameter.mutex.lock();
+                bool doCallCallback =
+                    !timer->parameter.runOnce || timer->parameter.runOnce && !timer->parameter.wasCallbackCalled;
+                timer->parameter.mutex.unlock();
+                if (doCallCallback)
+                {
+                    timer->callback(timer->callbackParameter);
+
+                    std::lock_guard<std::mutex> l(timer->parameter.mutex);
+                    timer->parameter.wasCallbackCalled = true;
+                }
+            }
+        }
+    });
+
     *timerid = timer;
     return 0;
 }
 
 int timer_delete(timer_t timerid)
 {
-    stopTimer(timerid);
+    stopTimerThread(timerid);
     delete timerid;
     return 0;
 }
 
 int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value)
 {
-    timerid->timeParameters = *new_value;
     // disarm timer
     if (new_value->it_value.tv_sec == 0 && new_value->it_value.tv_nsec == 0)
     {
-        stopNotificationForTimer(timerid);
+        setTimeParameters(timerid, *new_value, false, false);
+        timerid->parameter.wakeup.notify_one();
     }
     // run once
     else if (new_value->it_interval.tv_sec == 0 && new_value->it_interval.tv_nsec == 0)
     {
-        stopTimer(timerid);
-        // no mutex required since we are still in the sequential phase and did
-        // not start a thread
-        timerid->keepRunning = true;
-        clock_gettime(CLOCK_REALTIME, &timerid->startTime);
-
-        timerid->thread = std::thread([timerid] {
-            if (waitForExecution(timerid))
-            {
-                timerid->callback(timerid->callbackParameter);
-            }
-        });
+        setTimeParameters(timerid, *new_value, true, true);
+        timerid->parameter.wakeup.notify_one();
     }
     // run periodically
     else
     {
-        stopTimer(timerid);
-        // no mutex required since we are still in the sequential phase and did
-        // not start a thread
-        timerid->keepRunning = true;
-        clock_gettime(CLOCK_REALTIME, &timerid->startTime);
-
-        timerid->thread = std::thread([timerid] {
-            while (waitForExecution(timerid))
-            {
-                timerid->callback(timerid->callbackParameter);
-            }
-        });
+        setTimeParameters(timerid, *new_value, false, true);
+        // the lock is reacquired in this call therefore it has to be unlocked
+        timerid->parameter.wakeup.notify_one();
     }
 
     return 0;
@@ -114,11 +128,15 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value
 
 int timer_gettime(timer_t timerid, struct itimerspec* curr_value)
 {
-    timespec currentTime;
+    timespec currentTime, startTime;
     clock_gettime(CLOCK_REALTIME, &currentTime);
-    curr_value->it_interval = timerid->timeParameters.it_interval;
-    curr_value->it_value.tv_sec = curr_value->it_interval.tv_sec - (currentTime.tv_sec - timerid->startTime.tv_sec);
-    curr_value->it_value.tv_nsec = curr_value->it_interval.tv_nsec - (currentTime.tv_nsec - timerid->startTime.tv_nsec);
+    {
+        std::lock_guard<std::mutex> l(timerid->parameter.mutex);
+        curr_value->it_interval = timerid->parameter.timeParameters.it_interval;
+        startTime = timerid->parameter.startTime;
+    }
+    curr_value->it_value.tv_sec = curr_value->it_interval.tv_sec - (currentTime.tv_sec - startTime.tv_sec);
+    curr_value->it_value.tv_nsec = curr_value->it_interval.tv_nsec - (currentTime.tv_nsec - startTime.tv_nsec);
 
     return 0;
 }

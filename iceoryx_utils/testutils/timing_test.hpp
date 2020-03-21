@@ -68,9 +68,9 @@
     {                                                                                                                  \
         std::atomic_bool __timingTestResult__{true};                                                                   \
         std::string __errorMessages__;                                                                                 \
-        __PerformingTimingTest__(Test, Repetitions);                                                                   \
-        EXPECT_TRUE(__timingTestResult__.load());                                                                      \
-        if (!__timingTestResult__.load())                                                                              \
+        bool testResult = __PerformingTimingTest__(Test, Repetitions, __timingTestResult__);                           \
+        EXPECT_TRUE(testResult);                                                                                       \
+        if (!testResult)                                                                                               \
         {                                                                                                              \
             std::cout << "\n" << __errorMessages__ << std::endl;                                                       \
         }                                                                                                              \
@@ -78,8 +78,6 @@
 
 #define TIMING_TEST_F(Name, Case, Repetitions, Test) TIMING_TEST_CONSTRUCT(Name, Case, Repetitions, Test, TEST_F)
 #define TIMING_TEST_P(Name, Case, Repetitions, Test) TIMING_TEST_CONSTRUCT(Name, Case, Repetitions, Test, TEST_P)
-
-#define TIMING_TEST_END() return __timingTestResult__.load();
 
 #define TIMING_TEST_EXPECT_ALWAYS_TRUE(value) EXPECT_TRUE(value)
 #define TIMING_TEST_EXPECT_ALWAYS_FALSE(value) EXPECT_FALSE(value)
@@ -91,23 +89,30 @@
     TIMING_TEST_EXPECT_TRUE(value);                                                                                    \
     if (!__timingTestResult__.load())                                                                                  \
     {                                                                                                                  \
-        return false;                                                                                                  \
+        return;                                                                                                        \
     }
 #define TIMING_TEST_ASSERT_FALSE(value)                                                                                \
     TIMING_TEST_EXPECT_FALSE(value);                                                                                   \
     if (!__timingTestResult__.load())                                                                                  \
     {                                                                                                                  \
-        return false;                                                                                                  \
+        return;                                                                                                        \
     }
 
 
 #define Repeat(n) n
 
-inline bool __PerformingTimingTest__(const std::function<bool()>& testCallback, const uint64_t repetitions) noexcept
+inline bool __PerformingTimingTest__(const std::function<void()>& testCallback,
+                                     const uint64_t repetitions,
+                                     std::atomic_bool& testResult) noexcept
 {
     for (uint64_t i = 0; i < repetitions; ++i)
     {
-        if (testCallback())
+        // new test run therefore we have to reset the testResult
+        testResult.store(true);
+        // testResult will be set to false if a test failes
+        testCallback();
+
+        if (testResult.load())
         {
             return true;
         }
@@ -132,4 +137,3 @@ inline std::string __VerifyTimingTestResult__(const char* file,
     }
     return errorMessage;
 }
-

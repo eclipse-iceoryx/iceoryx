@@ -316,8 +316,6 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
     TIMING_TEST_EXPECT_TRUE(timedWaitFinish.load());
 
     t.join();
-
-    TIMING_TEST_END();
 });
 
 
@@ -345,8 +343,6 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
     TIMING_TEST_EXPECT_TRUE(timedWaitFinish.load());
 
     t.join();
-
-    TIMING_TEST_END();
 });
 
 #endif // not defined QNX

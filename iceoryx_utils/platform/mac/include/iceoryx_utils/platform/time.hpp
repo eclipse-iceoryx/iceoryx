@@ -30,12 +30,18 @@ struct appleTimer_t
     std::thread thread;
     void (*callback)(union sigval);
     sigval callbackParameter;
-    timespec startTime;
+    std::atomic_bool keepRunning{true};
 
-    itimerspec timeParameters;
-    std::atomic_bool keepRunning{false};
-    std::mutex wakeupMutex;
-    std::condition_variable wakeup;
+    struct
+    {
+        std::mutex mutex;
+        timespec startTime;
+        bool wasCallbackCalled{false};
+        bool runOnce{false};
+        bool isTimerRunning{false};
+        itimerspec timeParameters;
+        std::condition_variable wakeup;
+    } parameter;
 };
 
 using timer_t = appleTimer_t*;
