@@ -16,7 +16,7 @@
 
 static std::chrono::nanoseconds getNanoSeconds(const timespec& value)
 {
-    static constexpr uint64_t NANOSECONDS = 1000000000;
+    static constexpr uint64_t NANOSECONDS = 1000000000u;
     return std::chrono::nanoseconds(static_cast<uint64_t>(value.tv_sec) * NANOSECONDS
                                     + static_cast<uint64_t>(value.tv_nsec));
 }
