@@ -110,21 +110,18 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value
     if (new_value->it_value.tv_sec == 0 && new_value->it_value.tv_nsec == 0)
     {
         setTimeParameters(timerid, *new_value, false, false);
-        timerid->parameter.wakeup.notify_one();
     }
     // run once
     else if (new_value->it_interval.tv_sec == 0 && new_value->it_interval.tv_nsec == 0)
     {
         setTimeParameters(timerid, *new_value, true, true);
-        timerid->parameter.wakeup.notify_one();
     }
     // run periodically
     else
     {
         setTimeParameters(timerid, *new_value, false, true);
-        // the lock is reacquired in this call therefore it has to be unlocked
-        timerid->parameter.wakeup.notify_one();
     }
+    timerid->parameter.wakeup.notify_one();
 
     return 0;
 }
