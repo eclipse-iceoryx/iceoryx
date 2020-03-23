@@ -143,11 +143,17 @@ class Subscriber_t
     /// @brief Unset the semaphore if one is set
     void unsetChunkReceiveSemaphore() noexcept;
 
+    /// @brief Get the service description of this subscriber.
+    capro::ServiceDescription getServiceDescription() const;
+
   protected:
     // needed for unit testing
     Subscriber_t() noexcept;
 
   private:
+
+    capro::ServiceDescription m_serviceDescription{};
+
     // callback main method
     void eventCallbackMain() noexcept;
 
