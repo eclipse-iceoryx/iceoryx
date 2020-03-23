@@ -58,7 +58,7 @@ class Iceoryx2DDSGateway : gateway_t
     ~Iceoryx2DDSGateway();
 
     ///
-    /// @brief Posh2DDSGateway Enables injection of mocks during testing.
+    /// @brief Iceoryx2DDSGateway Enables injection of mocks during testing.
     /// @param subscriberFactory Factory that shall be used by the gateway to create Subscriber objects.
     /// @param dataWriterFactory Factory that shall be used by the gateway to create DataWriter objects.
     ///

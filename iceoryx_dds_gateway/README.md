@@ -1,9 +1,6 @@
 
 # Gateway to DDS Networks
-Gateway for bridging between iceoryx and DDS systems.
-The gateway enables data sent via iceoryx Publishers to be received via DDS DataReaders and vice versa.
-
-The combination of the two components can be used to set up internode-communication between iceoryx nodes on separate hosts that are networked together. 
+A gateway for bridging between iceoryx systems and DDS networks.
 
 ## **Note**: Currently only the iceoryx->dds direction is implemented. The opposite direction is coming soon!
 
