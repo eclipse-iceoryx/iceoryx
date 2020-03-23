@@ -86,7 +86,7 @@ add_library(iceoryx_posh
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh ALIAS iceoryx_posh)
-set_target_properties(iceoryx_posh PROPERTIES 
+set_target_properties(iceoryx_posh PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -156,7 +156,7 @@ add_library(iceoryx_posh_roudi
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi ALIAS iceoryx_posh_roudi)
-set_target_properties(iceoryx_posh_roudi PROPERTIES 
+set_target_properties(iceoryx_posh_roudi PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -184,8 +184,13 @@ target_link_libraries(iceoryx_posh_roudi
     iceoryx_utils::iceoryx_utils
 )
 
+if(CMAKE_SYSTEM_NAME MATCHES QNX)
+    target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
+endif(CMAKE_SYSTEM_NAME MATCHES QNX)
+
 if(TOML_CONFIG)
     if ( NOT cpptoml_FOUND )
+        find_package(cpptoml_vendor QUIET)
         find_package(cpptoml REQUIRED)
     endif(NOT cpptoml_FOUND)
     message("-- Build with TOML config file support.")
@@ -194,27 +199,22 @@ if(TOML_CONFIG)
         source/roudi/roudi_config_toml_file_provider.cpp
     )
     target_link_libraries(iceoryx_posh_roudi_toml PRIVATE cpptoml iceoryx_posh_roudi)
-endif(TOML_CONFIG)
-
-if(CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
-endif(CMAKE_SYSTEM_NAME MATCHES QNX)
-
-#
-########## build roudi ##########
-if(TOML_CONFIG)
+    set_target_properties(iceoryx_posh_roudi_toml PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    )
 
     add_executable(RouDi
         source/roudi/application/roudi_main.cpp
     )
-    set_target_properties(RouDi PROPERTIES 
+    set_target_properties(RouDi PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
         POSITION_INDEPENDENT_CODE ON
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     )
 
-    target_link_libraries(RouDi 
+    target_link_libraries(RouDi
         PRIVATE
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
         iceoryx_utils::iceoryx_utils
@@ -237,7 +237,7 @@ if(roudi_environment OR test)
     )
 
     add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi_environment ALIAS iceoryx_posh_roudi_environment)
-    set_target_properties(iceoryx_posh_roudi_environment PROPERTIES 
+    set_target_properties(iceoryx_posh_roudi_environment PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
         POSITION_INDEPENDENT_CODE ON
