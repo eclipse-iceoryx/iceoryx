@@ -57,9 +57,11 @@ MemoryMap::MemoryMap(const void* f_baseAddressHint,
         l_memoryProtection = PROT_READ | PROT_WRITE;
         break;
     }
-    auto mmapCall = cxx::makeSmartC(mmap,
+    auto mmapCall = cxx::makeSmartC(static_cast<void* (*)(void*, size_t, int, int, int, off_t)>(mmap),
                                     cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                    {MAP_FAILED},
+                                    // we have to perform reinterpret cast since mmap returns MAP_FAILED on error which
+                                    // is defined as (void*) -1; see man mmap for that definition
+                                    {reinterpret_cast<void*>(MAP_FAILED)},
                                     {},
                                     const_cast<void*>(f_baseAddressHint),
                                     f_length,
@@ -79,7 +81,25 @@ MemoryMap::MemoryMap(const void* f_baseAddressHint,
         m_isInitialized = true;
         m_baseAddress = mmapCall.getReturnValue();
     }
-}
+
+    /// lock all memory pages in QNX only for better performance on acquiring memory on RouDi
+    /// RouDi must be run as root! Otherwise
+#if defined(QNX) || defined(QNX__) || defined(__QNX__)
+    int l_lockflags = MCL_CURRENT;
+
+    auto mlockCall = cxx::makeSmartC(mlockall, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, l_lockflags);
+
+    if (mlockCall.hasErrors())
+    {
+        std::cerr << "Failed to perform memory mapping : " << mmapCall.getErrorString() << std::endl;
+        m_isLocked = false;
+    }
+    else
+    {
+        m_isLocked = true;
+    }
+#endif
+} // namespace posix
 
 
 MemoryMap::MemoryMap(MemoryMap&& rhs)

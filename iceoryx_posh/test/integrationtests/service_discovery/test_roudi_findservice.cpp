@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "roudi_gtest.hpp"
+#include "test_roudi_service_discovery.hpp"
 
-using IdString = iox::capro::ServiceDescription::IdString;
-
-class RoudiFindService_test : public RouDi_GTest
+class RoudiFindService_test : public RouDiServiceDiscoveryTest
 {
   public:
     void SetUp()
@@ -65,6 +62,23 @@ TEST_F(RoudiFindService_test, DISABLED_OfferMultiMethodServiceSingleInstance_PER
     receiverRuntime->findService({"service3", "instance1"}, instanceContainer);
     ASSERT_THAT(instanceContainer.size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.begin(), Eq(IdString("instance1")));
+}
+
+TEST_F(RoudiFindService_test, SubscribeAnyInstance)
+{
+    senderRuntime->offerService({"service1", "instance1"});
+    senderRuntime->offerService({"service1", "instance2"});
+    senderRuntime->offerService({"service1", "instance3"});
+
+    this->InterOpWait();
+    InstanceContainer instanceContainer;
+    InstanceContainer instanceContainerExp;
+    InitContainer(instanceContainerExp, {"instance1", "instance2", "instance3"});
+
+    receiverRuntime->findService({"service1", "65535"}, instanceContainer);
+
+    ASSERT_THAT(instanceContainer.size(), Eq(3u));
+    ContainersEq(instanceContainer, instanceContainerExp);
 }
 
 TEST_F(RoudiFindService_test, OfferSingleMethodServiceMultiInstance)
@@ -188,7 +202,7 @@ TEST_F(RoudiFindService_test, InterfacePort)
     senderRuntime->offerService({"service1", "instance1"});
     this->InterOpWait();
 
-    auto interfacePortData = receiverRuntime->getMiddlewareInterface(iox::Interfaces::SOMEIP);
+    auto interfacePortData = receiverRuntime->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
     iox::popo::InterfacePort interfacePort(interfacePortData);
 
     iox::capro::CaproMessage caproMessage;
@@ -207,4 +221,47 @@ TEST_F(RoudiFindService_test, InterfacePort)
         }
     }
     EXPECT_THAT(serviceFound, Eq(true));
+}
+
+TEST_F(RoudiFindService_test, findServiceMaxInstances)
+{
+    size_t noOfInstances = iox::MAX_NUMBER_OF_INSTANCES;
+    InstanceContainer instanceContainerExp;
+
+    for (size_t i = 0; i < noOfInstances; i++)
+    {
+        // Service & Instance string is kept short , to reduce the response size in find service request ,
+        // (message queue has a limit of 512)
+        std::string instance = "i" + std::to_string(i);
+        senderRuntime->offerService({"s", instance});
+        instanceContainerExp.push_back(instance);
+        this->InterOpWait();
+    }
+
+    iox::runtime::InstanceContainer instanceContainer;
+    auto status = receiverRuntime->findService({"s", "65535"}, instanceContainer);
+
+    EXPECT_THAT(instanceContainer.size(), Eq(iox::MAX_NUMBER_OF_INSTANCES));
+    ContainersEq(instanceContainer, instanceContainerExp);
+    ASSERT_THAT(status.has_error(), Eq(false));
+}
+
+TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
+{
+    size_t noOfInstances = (iox::MAX_NUMBER_OF_INSTANCES + 1);
+    InstanceContainer instanceContainerExp;
+    for (size_t i = 0; i < noOfInstances; i++)
+    {
+        std::string instance = "i" + std::to_string(i);
+        senderRuntime->offerService({"s", instance});
+        instanceContainerExp.push_back(instance);
+        this->InterOpWait();
+    }
+
+    iox::runtime::InstanceContainer instanceContainer;
+    auto status = receiverRuntime->findService({"s", "65535"}, instanceContainer);
+
+    EXPECT_THAT(instanceContainer.size(), Eq(iox::MAX_NUMBER_OF_INSTANCES));
+    ContainersEq(instanceContainer, instanceContainerExp);
+    ASSERT_THAT(status.has_error(), Eq(true));
 }

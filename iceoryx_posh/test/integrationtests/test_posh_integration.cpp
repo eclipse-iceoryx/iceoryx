@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-
-#include <sys/resource.h>
+#include "iceoryx_utils/platform/resource.hpp"
+#include "test.hpp"
 
 using namespace ::testing;
 using ::testing::_;

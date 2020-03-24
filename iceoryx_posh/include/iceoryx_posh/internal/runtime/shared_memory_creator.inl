@@ -16,19 +16,40 @@ namespace iox
 {
 namespace runtime
 {
+namespace
+{
+void sigbusHandler(int) noexcept
+{
+    char msg[] =
+        "\033[0;1;97;41mFatal error:\033[m the available memory is insufficient. Cannot allocate mempools in shared "
+        "memory. Please make sure that enough memory is available. For this, consider also the memory which is "
+        "required for the [/iceoryx_mgmt] segment. Please refer to share/doc/iceoryx/FAQ.md in your release delivery.";
+    size_t len = strlen(msg);
+    write(STDERR_FILENO, msg, len);
+    _exit(EXIT_FAILURE);
+}
+} // namespace
 template <typename ShmType>
 inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& config) noexcept
 {
     /// @todo these are internal mempool for the introspection, move to a better place
     mepoo::MePooConfig mempoolConfig;
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(cxx::align(sizeof(roudi::MemPoolIntrospectionTopic), 32ul)), 250});
+        {static_cast<uint32_t>(
+             cxx::align(static_cast<uint64_t>(sizeof(roudi::MemPoolIntrospectionTopic)), SHARED_MEMORY_ALIGNMENT)),
+         250});
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(cxx::align(sizeof(roudi::ProcessIntrospectionFieldTopic), 32ul)), 10});
+        {static_cast<uint32_t>(
+             cxx::align(static_cast<uint64_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), SHARED_MEMORY_ALIGNMENT)),
+         10});
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(cxx::align(sizeof(roudi::PortIntrospectionFieldTopic), 32ul)), 10});
+        {static_cast<uint32_t>(
+             cxx::align(static_cast<uint64_t>(sizeof(roudi::PortIntrospectionFieldTopic)), SHARED_MEMORY_ALIGNMENT)),
+         10});
     mempoolConfig.m_mempoolConfig.push_back(
-        {static_cast<uint32_t>(cxx::align(sizeof(roudi::PortThroughputIntrospectionFieldTopic), 32ul)), 10});
+        {static_cast<uint32_t>(cxx::align(static_cast<uint64_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)),
+                                          SHARED_MEMORY_ALIGNMENT)),
+         10});
     mempoolConfig.optimize();
 
     uint64_t totalSharedMemorySize = ShmType::getRequiredSharedMemory()
@@ -36,6 +57,14 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
                                      + mepoo::MemoryManager::requiredFullMemorySize(mempoolConfig);
 
     auto pageSize = posix::pageSize().value_or(posix::MaxPageSize);
+
+    // register signal handler for SIGBUS
+    struct sigaction oldAct;
+    struct sigaction newAct;
+    sigemptyset(&newAct.sa_mask);
+    newAct.sa_handler = sigbusHandler;
+    newAct.sa_flags = 0;
+    sigaction(SIGBUS, &newAct, &oldAct);
 
     // we let the OS decide where to map the shm segments
     constexpr void* BASE_ADDRESS_HINT{nullptr};
@@ -66,7 +95,7 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
     m_shmTypePtr = new (m_shmTypePtr) ShmType(
         m_shmObject->getAllocator(),
         config,
-        cxx::align(reinterpret_cast<uintptr_t>(m_shmObject->getBaseAddress()) + totalSharedMemorySize, pageSize),
+        cxx::align(reinterpret_cast<uint64_t>(m_shmObject->getBaseAddress()) + totalSharedMemorySize, pageSize),
         config.roudi.m_verifySharedMemoryPlacement);
 
     m_shmTypePtr->m_segmentId = managementSegmentId;
@@ -74,6 +103,9 @@ inline SharedMemoryCreator<ShmType>::SharedMemoryCreator(const RouDiConfig_t& co
     m_shmTypePtr->m_roudiMemoryManager.configureMemoryManager(
         mempoolConfig, m_shmObject->getAllocator(), m_shmObject->getAllocator());
     m_shmObject->finalizeAllocation();
+
+    // unregister signal handler
+    sigaction(SIGBUS, &oldAct, nullptr);
 }
 
 template <typename ShmType>

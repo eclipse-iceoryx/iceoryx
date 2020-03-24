@@ -82,7 +82,7 @@ template <typename T>
 uint64_t TypedMemPool<T>::requiredManagementMemorySize(const uint64_t f_numberOfChunks)
 {
     return f_numberOfChunks * sizeof(ChunkManagement)
-           + 2 * cxx::align(MemPool::freeList_t::requiredMemorySize(f_numberOfChunks), 32ul);
+           + 2 * cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredMemorySize(f_numberOfChunks)), SHARED_MEMORY_ALIGNMENT);
 }
 
 template <typename T>

@@ -255,7 +255,7 @@ void ReceiverPort::SetCallbackReferences(posix::Semaphore* f_callbackSemaphore,
                                          std::atomic<ChunksCounterType>*) noexcept
 {
     ///  @todo is this a method that will be called concurrent?
-    std::lock_guard<mutex_t> g(*getMembers()->m_chunkSendCallbackMutex);
+    std::lock_guard<mutex_t> g(getMembers()->m_chunkSendCallbackMutex);
 
     assert((getMembers()->m_chunkSendCallbackActive.load(std::memory_order_relaxed) == false)
            && "SetCallbackReferences: callback semaphore already set - please Unset first.");
@@ -265,7 +265,7 @@ void ReceiverPort::SetCallbackReferences(posix::Semaphore* f_callbackSemaphore,
 
 void ReceiverPort::UnsetCallbackReferences() noexcept
 {
-    std::lock_guard<mutex_t> g(*getMembers()->m_chunkSendCallbackMutex);
+    std::lock_guard<mutex_t> g(getMembers()->m_chunkSendCallbackMutex);
 
     getMembers()->m_chunkSendCallbackActive.store(false, std::memory_order_release);
     getMembers()->m_chunkSendSemaphore = nullptr;
@@ -341,16 +341,6 @@ uint64_t ReceiverPort::getDeliveryFiFoCapacity() const
 uint64_t ReceiverPort::getDeliveryFiFoSize() const
 {
     return getMembers()->m_deliveryFiFo.getSize();
-}
-
-const ReceiverPort::MemberType_t* ReceiverPort::getMembers() const
-{
-    return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
-}
-
-ReceiverPort::MemberType_t* ReceiverPort::getMembers()
-{
-    return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
 } // namespace popo

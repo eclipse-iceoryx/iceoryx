@@ -25,12 +25,10 @@ namespace roudi
 class IceOryxRouDiApp : public RouDiApp
 {
   public:
-
-    /// @brief contructor to create the RouDi daemon with a given config
-    /// @param[in] argc forwarding of command line arguments
-    /// @param[in] argv forwarding of command line arguments
-    /// @param[in] config the configuration to use
-    IceOryxRouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept;
+    /// @brief constructor to create the RouDi daemon with a given config
+    /// @param[in] Command liner parser object, that provides the settings
+    /// @param[in] RouDi config for mempool configuration
+    IceOryxRouDiApp(const CmdLineParser& cmdLineParser, const RouDiConfig_t& roudiConfig) noexcept;
 
     /// @brief starts the execution of the RouDi daemon
     void run() noexcept override;

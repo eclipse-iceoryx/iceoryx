@@ -17,9 +17,9 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/access_control.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 namespace iox
 {
@@ -33,7 +33,7 @@ class MePooSegment
                  posix::Allocator* f_managementAllocator,
                  const posix::PosixGroup& f_readerGroup,
                  const posix::PosixGroup& f_writerGroup,
-                 const uintptr_t f_baseAddressOffset);
+                 const uint64_t f_baseAddressOffset);
 
     posix::PosixGroup getWriterGroup() const;
     posix::PosixGroup getReaderGroup() const;
@@ -45,7 +45,7 @@ class MePooSegment
   protected:
     SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& f_mempoolConfig,
                                                     const posix::PosixGroup& f_writerGroup,
-                                                    const uintptr_t f_baseAddressOffset);
+                                                    const uint64_t f_baseAddressOffset [[gnu::unused]]);
 
   protected:
     SharedMemoryObjectType m_sharedMemoryObject;

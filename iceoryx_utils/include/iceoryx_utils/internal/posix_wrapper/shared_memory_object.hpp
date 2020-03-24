@@ -14,13 +14,13 @@
 
 #pragma once
 
-#include <cstdint>
-#include <sys/stat.h>
-
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
+
+#include <cstdint>
 
 namespace iox
 {
@@ -42,7 +42,7 @@ class SharedMemoryObject
     SharedMemoryObject& operator=(const SharedMemoryObject&) = delete;
     SharedMemoryObject(SharedMemoryObject&&) = default;
     SharedMemoryObject& operator=(SharedMemoryObject&&) = default;
-    ~SharedMemoryObject();
+    ~SharedMemoryObject() = default;
 
     void* allocate(const uint64_t f_size, const uint64_t f_alignment = Allocator::MEMORY_ALIGNMENT);
     void finalizeAllocation();
@@ -66,13 +66,12 @@ class SharedMemoryObject
     bool isInitialized() const;
 
   private:
-    SharedMemory m_sharedMemory;
-    MemoryMap m_memoryMap;
-    Allocator m_allocator;
     uint64_t m_memorySizeInBytes;
+    SharedMemory m_sharedMemory;
+    cxx::optional<MemoryMap> m_memoryMap;
+    cxx::optional<Allocator> m_allocator;
 
     bool m_isInitialized;
 };
 } // namespace posix
 } // namespace iox
-

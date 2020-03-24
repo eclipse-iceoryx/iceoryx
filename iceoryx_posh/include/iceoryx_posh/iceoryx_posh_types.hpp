@@ -13,7 +13,9 @@
 // limitations under the License.
 #pragma once
 
-
+#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 
 #include <cstdint>
@@ -53,8 +55,12 @@ constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PORT_NUMBER;
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128;
 
 // Memory
+constexpr uint64_t SHARED_MEMORY_ALIGNMENT = 32;
 constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32;
 constexpr uint32_t MAX_SHM_SEGMENTS = 100;
+
+constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8;
+constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64;
 
 // Message Queue
 constexpr long ROUDI_MAX_MESSAGES = 5;
@@ -64,27 +70,21 @@ constexpr long APP_MESSAGE_SIZE = 512;
 
 // Processes
 constexpr uint32_t MAX_PROCESS_NUMBER = 300;
+/// Maximum number of instances of a given service, which can be found.
+/// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
+/// instances)
+constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50;
+/// Maximum number of callbacks that can be registered with PoshRuntime::startFindService
+constexpr uint32_t MAX_START_FIND_SERVICE_CALLBACKS = 50;
 
 // Runnables
 constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000;
 constexpr uint32_t MAX_RUNNABLE_PER_PROCESS = 50;
+
+constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100;
 static_assert(MAX_PROCESS_NUMBER * MAX_RUNNABLE_PER_PROCESS > MAX_RUNNABLE_NUMBER,
               "Invalid configuration for runnables");
 
-enum class Interfaces : uint8_t
-{
-    INTERNAL = 0,
-    ESOC,
-    SOMEIP,
-    AMQP,
-    DDS,
-    SIGNAL,
-    MTA,
-    INTERFACE_END
-};
-
-constexpr const char* INTERFACE_NAMES[] = {
-    "INTERNAL", "ESOC", "SOMEIP", "AMQP", "DDS", "SIGNAL", "MTA", "Interface End"};
 
 enum class SubscribeState : uint32_t
 {
@@ -94,4 +94,20 @@ enum class SubscribeState : uint32_t
     UNSUBSCRIBE_REQUESTED,
     WAIT_FOR_OFFER
 };
+
+// alias for cxx::string
+using ConfigFilePathString_t = cxx::string<1024>;
+
+namespace runtime
+{
+// alias for IdString
+using IdString = iox::capro::ServiceDescription::IdString;
+using InstanceContainer = iox::cxx::vector<IdString, MAX_NUMBER_OF_INSTANCES>;
+
+// Return type of StartFindService() method
+using FindServiceHandle = uint32_t;
+// Signature for service discovery callback function
+using FindServiceHandler = std::function<void(InstanceContainer&, FindServiceHandle)>;
+} // namespace runtime
+
 } // namespace iox

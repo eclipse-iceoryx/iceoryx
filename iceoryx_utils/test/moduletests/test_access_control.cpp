@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
+#if !defined(_WIN32) && !defined(__APPLE__)
 #include "iceoryx_utils/internal/posix_wrapper/access_control.hpp"
+#include "iceoryx_utils/platform/pwd.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
+#include "test.hpp"
 
-#include <pwd.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 
 using namespace ::testing;
 using namespace iox::posix;
@@ -255,3 +256,4 @@ TEST_F(AccessController_test, addStrangeNames)
     // non-existing group name specified
     EXPECT_FALSE(entryAdded);
 }
+#endif

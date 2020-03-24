@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
 
 namespace iox
 {
@@ -23,7 +24,8 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const
     switch (reference)
     {
     case TimeSpecReference::None:
-        return {this->seconds<long>(), this->nanoSeconds<long>() - this->seconds<long>() * 1000000000};
+        return {this->seconds<int>(),
+                static_cast<int>(this->nanoSeconds<int64_t>() - this->seconds<int64_t>() * 1000000000)};
     default:
     {
         struct timespec referenceTime;
@@ -45,7 +47,8 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const
             int64_t seconds = this->seconds<int64_t>() + referenceTime.tv_sec + sumOfNanoSeconds / NanoSecondsPerSecond;
             int64_t nanoSeconds = sumOfNanoSeconds % NanoSecondsPerSecond;
 
-            return {seconds, nanoSeconds};
+            return {static_cast<decltype(referenceTime.tv_sec)>(seconds),
+                    static_cast<decltype(referenceTime.tv_nsec)>(nanoSeconds)};
         }
     }
     }

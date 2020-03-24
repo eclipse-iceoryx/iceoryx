@@ -36,8 +36,33 @@ static constexpr char AnyInstanceString[]{"65535"};
 static constexpr char AnyEventString[]{"65535"};
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
 
+/// @brief Describes from which interface the service is coming from
+enum class Interfaces : uint16_t
+{
+    /// @brief Used for services, which are locally on this system and not coming over a gateway
+    INTERNAL = 0,
+    /// @brief Canonical protocol for CAN Bus
+    ESOC,
+    /// @brief SOME/IP
+    SOMEIP,
+    /// @brief Advanced Message Queuing Protocol
+    AMQP,
+    /// @brief Data Distribution Service
+    DDS,
+    /// @brief Universal Measurement and Calibration Protocol (XCP)
+    SIGNAL,
+    /// @brief Measurement technology adapter
+    MTA,
+    /// @brief Robot Operating System 1
+    ROS1,
+    /// @brief End of enum
+    INTERFACE_END
+};
+
+constexpr const char* INTERFACE_NAMES[] = {"INTERNAL", "ESOC", "SOMEIP", "AMQP", "DDS", "SIGNAL", "MTA", "ROS1", "END"};
+
 /// @brief Scope of a service description
-enum class Scope : unsigned int
+enum class Scope : uint16_t
 {
     WORLDWIDE,
     INTERNAL,
@@ -62,6 +87,7 @@ class ServiceDescription
         uint32_t& operator[](const uint64_t index) noexcept;
         const uint32_t& operator[](const uint64_t index) const noexcept;
         bool operator==(const ClassHash& rhs) const noexcept;
+        bool operator!=(const ClassHash& rhs) const noexcept;
 
       private:
         static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4};
@@ -76,16 +102,19 @@ class ServiceDescription
 
     /// @brief construction of the capro service description using integers to create a service service description
     ServiceDescription(uint16_t f_serviceID, uint16_t f_instanceID) noexcept;
+
     /// @brief construction of the capro service description using fixed strings to create a service service description
     ServiceDescription(const IdString& f_service, const IdString& f_instance) noexcept;
 
     /// @brief construction of the capro service description using integers to create an event service description
     ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID, uint16_t f_instanceID) noexcept;
+
     /// @brief construction of the capro service description using fixed strings to create an event service description
     ServiceDescription(const IdString& f_service,
                        const IdString& f_instance,
                        const IdString& f_event,
-                       ClassHash m_classHash = {0, 0, 0, 0}) noexcept;
+                       ClassHash m_classHash = {0, 0, 0, 0},
+                       Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
     /// @brief compare operator. If wildcards AnyService, AnyInstance or AnyEvent are used as integer IDs, the
     /// corresponding member comparisons are skipped. Otherwise, both the integer and the string members are compared.
@@ -136,6 +165,9 @@ class ServiceDescription
     ClassHash getClassHash() const noexcept;
     ///@}
 
+    /// @brief Returns the interface form where the service is coming from.
+    Interfaces getSourceInterface() const noexcept;
+
   private:
     /// @brief 16-Bit service ID
     uint16_t m_serviceID;
@@ -156,6 +188,9 @@ class ServiceDescription
 
     /// @brief How far this service should be propagated
     Scope m_scope{Scope::WORLDWIDE};
+
+    /// @brief If StopOffer or Offer message, this is set from which interface its coming
+    Interfaces m_interfaceSource{Interfaces::INTERNAL};
 };
 
 /// @brief Compare two service descriptions via their values in member

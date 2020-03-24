@@ -63,10 +63,6 @@ CString100::CString100(const std::string& str)
 {
 }
 
-CString100::~CString100()
-{
-}
-
 //! Assignment operator.
 CString100& CString100::operator=(const CString100& str2)
 {
@@ -100,7 +96,7 @@ int32_t CString100::compare(const CString100& str2) const
     return strncmp(m_string_vector.data(), str2.m_string_vector.data(), MaxStringSize);
 }
 
-uint CString100::capacity() const
+uint64_t CString100::capacity() const
 {
     return MaxStringSize;
 }

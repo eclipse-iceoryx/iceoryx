@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
-#include <grp.h>
+#include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/platform/grp.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/pwd.hpp"
+#include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/platform/unistd.hpp"
+
 #include <limits>
-#include <pwd.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 namespace iox
 {
@@ -164,7 +166,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const
     gid_t groups[MaxNumberOfGroups];
     int numGroups = MaxNumberOfGroups;
 
-    auto getgrouplistCall = cxx::makeSmartC(getgrouplist,
+    auto getgrouplistCall = cxx::makeSmartC(static_cast<int (*)(const char*, gid_t, gid_t*, int*)>(getgrouplist),
                                             cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                             {-1},
                                             {},

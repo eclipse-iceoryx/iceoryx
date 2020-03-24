@@ -49,7 +49,7 @@ iox::log::LogLevel mapIoxLogToAc3LogLevel()
     return loglevel;
 }
 
-static iox::log::Logger& logger()
+iox::log::Logger& logger()
 {
     static auto& logger =
         iox::log::CreateLogger("ac3log", "Log context of the ac3log transition library!", mapIoxLogToAc3LogLevel());

@@ -2,9 +2,9 @@
 
 ## Introduction
 
-This example teaches you how to make use of the introspection for debugging purposes. With the introspection you can
-have look into the machine room of RouDi. The introspection shows live information about the memory usage and all
-registered processes. Additionally it shows the sender and receiver ports that are created inside the shared memory.
+This example teaches you how to make use of the introspection for debugging purposes. With the introspection you can 
+look into the machine room of RouDi. The introspection shows live information about the memory usage and all
+registered processes. Additionally, it shows the sender and receiver ports that are created inside the shared memory.
 
 ## Run icecrystal
 
@@ -50,7 +50,7 @@ The counter can differ depending on startup of the applications.
 
 ### Iceoryx introspection application
 
-![introspection_screenshot](https://user-images.githubusercontent.com/8661268/70729509-a515d400-1d03-11ea-877d-69d29efe58c0.png)
+![introspection_screenshot](https://user-images.githubusercontent.com/22388003/75041206-672feb80-54bc-11ea-8621-2acf95bf376e.png)
 
 ## Feature walkthrough
 
@@ -61,23 +61,23 @@ The introspection can be started with several command line arguments.
 
     --mempool         Subscribe to mempool introspection data.
 
-The memory pool view will show all available shared memory segments and its owner. Additionally the total and currently
-used chunks are visible as well as the minimal value of free chunks. This can be handy for stress tests to find out if
-your memory configuration is valid.
+The memory pool view will show all available shared memory segments and their respective owner. Additionally, the 
+maximum number of available chunks, the number of currently used chunks as well as the minimal value of free chunks
+are visible. This can be handy for stress tests to find out if your memory configuration is valid.
 
     --process         Subscribe to process introspection data.
 
-The process view will show you the processes, which are currently registered with RouDi and its PID.
+The process view will show you the processes (incl. PID), which are currently registered with RouDi.
 
     --port            Subscribe to port introspection data.
 
 The port view shows both sender and receiver ports that are created by RouDi in the shared memory. Their respective
 service description (service, instance, event) is shown to identify them uniquely. The columns `Process` and
-`used by process` display to which process the ports belongs and how they are currently connected. Size in bytes of
+`used by process` display to which process the ports belong and how they are currently connected. Size in bytes of
 both sample size and chunk size (sample size + meta data) and statistical data of `Chunks [/Minute]` is provided as
 well. When a sender port instantly provides data to a subscriber with the `subscribe()` call, the `Field` column is
-ticked. The service discovery protocol allows one to define the `Propagation scope` of the data. This makes it possible
-to forward data onwards to other machines e.g. over network or just consume them internally. When a `Callback` is
+ticked. The service discovery protocol allows you to define the `Propagation scope` of the data. This can enable
+data forwarding to other machines e.g. over network or just consume them internally. When a `Callback` is
 registered on subscriber side, the box is ticked accordingly. `FiFo size / capacity` shows the consumption of chunks
 on the subscriber side and is a useful column to debug potential memleaks.
 
@@ -87,5 +87,5 @@ on the subscriber side and is a useful column to debug potential memleaks.
 
     -v, --version     Display latest official iceoryx release version and exit.
 
-Make sure that the version number of the introspection exactly matches the version number of RouDi. Currently
+Make sure that the version number of the introspection exactly matches the version number of RouDi. Currently,
 we don't guarantee binary compatibility between different versions. With different version numbers things might break.

@@ -14,6 +14,8 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
+
 #include <iostream>
 
 namespace iox
@@ -40,9 +42,9 @@ void* Allocator::allocate(const uint64_t f_size, const uint64_t f_alignment)
         std::terminate();
     }
 
-    uintptr_t l_currentAddress = reinterpret_cast<uintptr_t>(m_startAddress) + m_currentPosition;
-    uintptr_t l_alignedPosition = cxx::align(l_currentAddress, f_alignment);
-    l_alignedPosition -= reinterpret_cast<uintptr_t>(m_startAddress);
+    uint64_t l_currentAddress = reinterpret_cast<uint64_t>(m_startAddress) + m_currentPosition;
+    uint64_t l_alignedPosition = cxx::align(l_currentAddress, static_cast<uint64_t>(f_alignment));
+    l_alignedPosition -= reinterpret_cast<uint64_t>(m_startAddress);
 
     byte_t* l_returnValue = nullptr;
 

@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "iceoryx_utils/platform/platform-correction.hpp"
+
 #include <atomic>
 #include <cstdint>
 #include <cstring>

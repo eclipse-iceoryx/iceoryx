@@ -14,12 +14,11 @@
 
 #pragma once
 
-#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
-
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
+#include "iceoryx_utils/platform/mman.hpp"
 
 #include <cstdint>
-#include <sys/mman.h>
 
 namespace iox
 {
@@ -58,9 +57,9 @@ class MemoryMap
     bool isInitialized() const;
 
     bool m_isInitialized;
+    bool m_isLocked;
     void* m_baseAddress;
     uint64_t m_length;
 };
 } // namespace posix
 } // namespace iox
-

@@ -15,9 +15,9 @@
 #pragma once
 
 #include "iceoryx_utils/cxx/optional.hpp"
-#include <pthread.h>
+#include "iceoryx_utils/platform/pthread.hpp"
 
-#if defined(__QNX__)
+#if defined(__QNX__) || defined(__APPLE__)
 #define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
 #define PTHREAD_MUTEX_FAST_NP PTHREAD_MUTEX_NORMAL
 #endif
@@ -53,12 +53,11 @@ namespace posix
 class mutex
 {
   public:
-    /// @brief Factory method which creates a new mutex object. If the mutex
-    ///         object could be created the optional contains the mutex, otherwise
-    ///         a cxx::nullopt_t object is returned. You always need to verify
-    ///         the success of the factory by calling the has_value() optional
-    ///         method.
-    static cxx::optional<mutex> CreateMutex(const bool f_isRecursive);
+    /// @brief the construction of the mutex can fail which will lead to a call
+    ///         to std::terminate which is alright for the moment since we are
+    ///         intending to get rid of the mutex sooner or later
+    mutex(const bool f_isRecursive);
+
     ~mutex();
 
     /// @brief all copy and move assignment methods need to be deleted otherwise
@@ -66,6 +65,7 @@ class mutex
     ///         or move mutexe when its possible that they are locked or will
     ///         be locked
     mutex(const mutex&) = delete;
+    mutex(mutex&&) = delete;
     mutex& operator=(const mutex&) = delete;
     mutex& operator=(mutex&&) = delete;
 
@@ -89,20 +89,7 @@ class mutex
     ///         call is not abstracted with this wrapper.
     pthread_mutex_t get_native_handle() const noexcept;
 
-    friend class cxx::optional<mutex>;
-
-  protected:
-    /// @brief The constructor needs to be private since the construction of the
-    ///         mutex can fail.
-    mutex(const bool f_isRecursive);
-    /// @brief Only the CreateMutex function is allowed to move a mutex. And since
-    ///         it is the factory and no lock/unlock can happen before the factory
-    ///         returned, this place is the only exception where a mutex is allowed
-    ///         to be moved.
-    mutex(mutex&&) noexcept;
-
     pthread_mutex_t m_handle;
-    bool m_isInitialized = true;
 };
 } // namespace posix
 } // namespace iox

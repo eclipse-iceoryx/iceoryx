@@ -14,6 +14,8 @@
 
 #include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 
+#include <string>
+
 namespace iox
 {
 namespace cxx
@@ -52,10 +54,6 @@ FileReader::FileReader(const std::string& f_fileName, const std::string& f_fileP
             }
         });
     }
-}
-
-FileReader::~FileReader()
-{
 }
 
 bool FileReader::IsOpen() const

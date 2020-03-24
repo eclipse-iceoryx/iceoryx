@@ -17,48 +17,23 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
+#include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/platform/fcntl.hpp"
+#include "iceoryx_utils/platform/mqueue.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
 
-#include <fcntl.h>
+
 #include <iostream>
-#include <mqueue.h>
-#include <sys/stat.h>
 
 namespace iox
 {
 namespace posix
 {
-enum class MessageQueueError
-{
-    MqNotInitialized,
-    AccessDenied,
-    NoSuchMessageQueue,
-    InternalLogicError,
-    MessageQueueAlreadyExists,
-    InvalidArguments,
-    MessageTooLong,
-    MessageQueueIsFull,
-    InvalidMessageQueueName,
-    Timeout,
-    Undefined
-};
-
-enum class MessageQueueMode
-{
-    NonBlocking,
-    Blocking
-};
-
-enum class MessageQueueOwnership
-{
-    OpenExisting,
-    CreateNew
-};
-
 /// @brief Wrapper class for posix message queue
 ///
-/// @tparam NonBlocking specifies the type of message queue. A non-blocking message queue will immediately return from a
-/// send/receive call if the queue is full/empty. A blocking message has member functions timedSend and timedReceive
+/// @tparam NON_BLOCKING specifies the type of message queue. A non-blocking message queue will immediately return from
+/// a send/receive call if the queue is full/empty. A blocking message has member functions timedSend and timedReceive
 /// which allow to specify a maximum timeout duration.
 /// @code
 ///     auto mq = posix::MessageQueue<true>::CreateMessageQueue("/MqName123");
@@ -70,16 +45,17 @@ enum class MessageQueueOwnership
 ///         mq->receive(str);
 ///     }
 /// @endcode
-class MessageQueue : public DesignPattern::Creation<MessageQueue, MessageQueueError>
+class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelError>
 {
   public:
-    static constexpr mqd_t InvalidDescriptor = -1;
-    static constexpr int32_t ErrorCode = -1;
-    static constexpr size_t MaxMsgSize = 512;
-    static constexpr int64_t MaxMsgNumber = 10;
+    static constexpr mqd_t INVALID_DESCRIPTOR = -1;
+    static constexpr int32_t ERROR_CODE = -1;
+    static constexpr size_t SHORTEST_VALID_QUEUE_NAME = 2;
+    static constexpr size_t NULL_TERMINATOR_SIZE = 1;
+    static constexpr size_t MAX_MESSAGE_SIZE = 4096;
 
     /// for calling private constructor in create method
-    friend class DesignPattern::Creation<MessageQueue, MessageQueueError>;
+    friend class DesignPattern::Creation<MessageQueue, IpcChannelError>;
 
     /// default constructor. The result is an invalid MessageQueue object which can be reassigned later by using the
     /// move constructor.
@@ -92,39 +68,50 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, MessageQueueEr
 
     ~MessageQueue();
 
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const std::string& name);
+
     /// close and remove message queue.
-    cxx::expected<MessageQueueError> destroy();
+    cxx::expected<IpcChannelError> destroy();
 
     /// @brief send a message to queue using std::string.
     /// @return true if sent without errors, false otherwise
-    cxx::expected<MessageQueueError> send(const std::string& f_msg);
+    cxx::expected<IpcChannelError> send(const std::string& msg) const;
+
+    /// @todo zero copy receive with receive(cxx::string&); cxx::string would be the buffer for mq_receive
 
     /// @brief receive message from queue using std::string.
-    /// @return number of characters received. In case of an error, returns -1 and f_msg is empty.
-    cxx::expected<std::string, MessageQueueError> receive();
+    /// @return number of characters received. In case of an error, returns -1 and msg is empty.
+    cxx::expected<std::string, IpcChannelError> receive() const;
 
     /// @brief try to receive message from queue for a given timeout duration using std::string. Only defined
-    /// for NonBlocking == false.
+    /// for NON_BLOCKING == false.
     /// @return optional containing the received string. In case of an error, nullopt type is returned.
-    cxx::expected<std::string, MessageQueueError> timedReceive(const units::Duration& f_timeout);
+    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const;
 
     /// @brief try to send a message to the queue for a given timeout duration using std::string
-    cxx::expected<MessageQueueError> timedSend(const std::string& f_msg, const units::Duration& f_timeout);
+    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const;
+
+    cxx::expected<bool, IpcChannelError> isOutdated();
 
   private:
-    MessageQueue(const std::string& f_name, const MessageQueueMode f_mode, const MessageQueueOwnership f_ownerShip);
-    cxx::expected<int32_t, MessageQueueError>
-    open(const std::string& f_name, const MessageQueueMode f_mode, const MessageQueueOwnership f_ownerShip);
+    MessageQueue(const std::string& name,
+                 const IpcChannelMode mode,
+                 const IpcChannelSide channelSide,
+                 const size_t maxMsgSize = MAX_MESSAGE_SIZE,
+                 const uint64_t maxMsgNumber = 10u);
+    cxx::expected<int32_t, IpcChannelError>
+    open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
 
-    cxx::expected<MessageQueueError> close();
-    cxx::expected<MessageQueueError> unlink();
-    cxx::error<MessageQueueError> createErrorFromErrnum(const int errnum);
+    cxx::expected<IpcChannelError> close();
+    cxx::expected<IpcChannelError> unlink();
+    cxx::error<IpcChannelError> createErrorFromErrnum(const int errnum) const;
+    static cxx::error<IpcChannelError> createErrorFromErrnum(const std::string& name, const int errnum);
 
   private:
     std::string m_name;
     struct mq_attr m_attributes;
-    mqd_t m_mqDescriptor = InvalidDescriptor;
-    MessageQueueOwnership m_ownerShip;
+    mqd_t m_mqDescriptor = INVALID_DESCRIPTOR;
+    IpcChannelSide m_channelSide;
 
 #ifdef __QNX__
     static constexpr int TIMEOUT_ERRNO = EINTR;
@@ -136,4 +123,3 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, MessageQueueEr
 };
 } // namespace posix
 } // namespace iox
-

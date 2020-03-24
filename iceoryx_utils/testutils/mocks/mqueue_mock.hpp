@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if !defined(_WIN32) && !defined(__APPLE__)
+
 #ifndef MQUEUE_MOCK_HPP_INCLUDED
 #define MQUEUE_MOCK_HPP_INCLUDED
 
+#include "iceoryx_utils/platform/mqueue.hpp"
+
 #include "test.hpp"
-#include <mqueue.h>
 #include <mutex>
 
 using namespace ::testing;
@@ -62,4 +65,5 @@ int mq_send(int mqdes, const char* msg_ptr, size_t msg_len, unsigned int msg_pri
 int mq_timedsend(
     int mqdes, const char* msg_ptr, size_t msg_len, unsigned int msg_prio, const struct timespec* abs_timeout);
 
+#endif
 #endif

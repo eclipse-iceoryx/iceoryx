@@ -24,7 +24,7 @@ namespace iox
 {
 namespace roudi
 {
-RouDiMultiProcess::RouDiMultiProcess(RouDiApp::MonitoringMode monitoringMode,
+RouDiMultiProcess::RouDiMultiProcess(const MonitoringMode monitoringMode,
                                      const bool killProcessesInDestructor,
                                      const RouDiConfig_t config)
     : m_killProcessesInDestructor(killProcessesInDestructor)
@@ -33,17 +33,19 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiApp::MonitoringMode monitoringMode,
     , m_cleanupBeforeStart(cleanupBeforeStart())
     , m_shmMgr(config)
     , m_prcMgr(m_shmMgr)
-    , m_mempoolIntrospection(
-          m_shmMgr.getShmInterface().getShmInterface()->m_roudiMemoryManager,
-          m_shmMgr.getShmInterface().getShmInterface()->m_segmentManager,
-          m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MEMPOOL_INTROSPECTION_MQ_APP_NAME))
+    , m_mempoolIntrospection(m_shmMgr.getShmInterface().getShmInterface()->m_roudiMemoryManager,
+                             m_shmMgr.getShmInterface().getShmInterface()->m_segmentManager,
+                             m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MQ_ROUDI_NAME))
     , m_monitoringMode(monitoringMode)
 {
     m_processIntrospection.registerSenderPort(
-        m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, PROCESS_INTROSPECTION_MQ_APP_NAME));
+        m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, MQ_ROUDI_NAME));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
     m_mempoolIntrospection.start();
+
+    // since RouDi offers the introspection services, also add it to the list of processes
+    m_processIntrospection.addProcess(getpid(), MQ_ROUDI_NAME);
 
     // run the threads
     m_processManagementThread = std::thread(&RouDiMultiProcess::processThread, this);
@@ -117,7 +119,7 @@ void RouDiMultiProcess::mqThread()
         runtime::MqMessage message;
         /// @todo do we really need timedReceive? an alternative solution would be to close the message queue,
         /// which also results in a return from mq_receive, and check the relevant errno and shutdown RouDi
-        if (!roudiMqInterface.timedReceive(m_MessageQueueTimeoutMilliseconds, message))
+        if (!roudiMqInterface.timedReceive(m_messageQueueTimeout, message))
         {
             // TODO: errorHandling
         }
@@ -168,13 +170,13 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
 
             parseRegisterMessage(message, pid, userId, transmissionTimestamp);
 
-            registerProcess(processName, pid, {userId}, transmissionTimestamp);
+            registerProcess(processName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess());
         }
         break;
     }
     case runtime::MqMessageType::IMPL_SENDER:
     {
-        if (message.getNumberOfElements() != 5)
+        if (message.getNumberOfElements() != 4)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_SENDER\" from \"%s\"received!\n",
                        processName.c_str());
@@ -182,15 +184,14 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            Interfaces interface = StringToEInterfaces(message.getElementAtIndex(3));
 
-            m_prcMgr.addSenderForProcess(processName, service, interface, message.getElementAtIndex(4));
+            m_prcMgr.addSenderForProcess(processName, service, message.getElementAtIndex(3));
         }
         break;
     }
     case runtime::MqMessageType::IMPL_RECEIVER:
     {
-        if (message.getNumberOfElements() != 5)
+        if (message.getNumberOfElements() != 4)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_RECEIVER\" from \"%s\"received!\n",
                        processName.c_str());
@@ -198,9 +199,8 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         else
         {
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            Interfaces interface = StringToEInterfaces(message.getElementAtIndex(3));
 
-            m_prcMgr.addReceiverForProcess(processName, service, interface, message.getElementAtIndex(4));
+            m_prcMgr.addReceiverForProcess(processName, service, message.getElementAtIndex(3));
         }
         break;
     }
@@ -213,7 +213,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            Interfaces interface = StringToEInterfaces(message.getElementAtIndex(2));
+            capro::Interfaces interface = StringToEInterfaces(message.getElementAtIndex(2));
 
             m_prcMgr.addInterfaceForProcess(processName, interface, message.getElementAtIndex(3));
         }
@@ -221,16 +221,14 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     }
     case runtime::MqMessageType::IMPL_APPLICATION:
     {
-        if (message.getNumberOfElements() != 3)
+        if (message.getNumberOfElements() != 2)
         {
             ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_APPLICATION\" from \"%s\"received!\n",
                        processName.c_str());
         }
         else
         {
-            Interfaces interface = StringToEInterfaces(message.getElementAtIndex(2));
-
-            m_prcMgr.addApplicationForProcess(processName, interface);
+            m_prcMgr.addApplicationForProcess(processName);
         }
         break;
     }
@@ -291,14 +289,18 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     }
 }
 
-bool RouDiMultiProcess::registerProcess(const std::string& name,
-                                        int pid,
-                                        posix::PosixUser user,
-                                        int64_t transmissionTimestamp)
+bool RouDiMultiProcess::registerProcess(
+    const std::string& name, int pid, posix::PosixUser user, int64_t transmissionTimestamp, const uint64_t sessionId)
 {
-    bool monitorProcess = (m_monitoringMode == RouDiApp::MonitoringMode::ON);
+    bool monitorProcess = (m_monitoringMode == MonitoringMode::ON);
 
-    return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp);
+    return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId);
+}
+
+uint64_t RouDiMultiProcess::getUniqueSessionIdForProcess()
+{
+    static uint64_t sessionId = 0;
+    return ++sessionId;
 }
 
 bool RouDiMultiProcess::cleanupBeforeStart()

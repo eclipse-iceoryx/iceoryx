@@ -20,7 +20,7 @@
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
 namespace iox
@@ -39,7 +39,7 @@ class SegmentManager
   public:
     SegmentManager(const SegmentConfig& f_segmentConfig,
                    posix::Allocator* f_managementAllocator,
-                   const uintptr_t f_sharedMemoryBaseAddressOffset,
+                   const uint64_t f_sharedMemoryBaseAddressOffset,
                    const bool f_skipShmPlacementVerification = false);
     ~SegmentManager() = default;
 
@@ -96,7 +96,7 @@ class SegmentManager
     template <typename MemoryManger, typename SegmentManager, typename SenderPort>
     friend class roudi::MemPoolIntrospection;
 
-    uintptr_t m_nextSegmentBaseAddressOffset{0};
+    uint64_t m_nextSegmentBaseAddressOffset{0};
     posix::Allocator* m_managementAllocator;
     cxx::vector<SegmentType, MAX_SHM_SEGMENTS> m_segmentContainer;
     bool m_createInterfaceEnabled{true};

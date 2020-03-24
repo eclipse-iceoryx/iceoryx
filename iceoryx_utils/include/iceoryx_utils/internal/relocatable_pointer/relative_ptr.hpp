@@ -27,7 +27,7 @@ class RelativePointer
   public:
     using id_t = uint64_t;
     using ptr_t = void*;
-    using offset_t = std::uintptr_t;
+    using offset_t = uint64_t;
 
     RelativePointer(ptr_t ptr, id_t id)
         : m_id(id)
@@ -111,45 +111,40 @@ class RelativePointer
         return getBasePtr(m_id);
     }
 
-    void print() const
-    {
-        std::cout << "RP: offset " << m_offset << " id " << m_id << " ptr " << get() << std::endl;
-    }
-
     //*********************************id operations********************************************
 
     ///@brief registers a memory segment at ptr with size of a new id
     ///@return id id it was registered to
     static id_t registerPtr(const ptr_t ptr, uint64_t size = 0)
     {
-        return s_repository.registerPtr(ptr, size);
+        return getRepository().registerPtr(ptr, size);
     }
 
     ///@brief registers a memory segment at ptr with size of given id
     ///@return true if successful (id not occupied), false otherwise
     static bool registerPtr(const id_t id, const ptr_t ptr, uint64_t size = 0)
     {
-        return s_repository.registerPtr(id, ptr, size);
+        return getRepository().registerPtr(id, ptr, size);
     }
 
     ///@brief unregister ptr with given id
     ///@return true if successful (ptr was registered with this id before), false otherwise
     static bool unregisterPtr(const id_t id)
     {
-        return s_repository.unregisterPtr(id);
+        return getRepository().unregisterPtr(id);
     }
 
     ///@brief get the base ptr associated with the given id
     ///@return ptr registered at the given id, nullptr if none was registered
     static ptr_t getBasePtr(const id_t id)
     {
-        return s_repository.getBasePtr(id);
+        return getRepository().getBasePtr(id);
     }
 
     ///@brief unregister all ptr id pairs (leads to initial state)
     static void unregisterAll()
     {
-        s_repository.unregisterAll();
+        getRepository().unregisterAll();
     }
 
     ///@brief get the offset from id and ptr
@@ -183,14 +178,19 @@ class RelativePointer
         {
             return NULL_POINTER_ID;
         }
-        return s_repository.searchId(ptr);
+        return getRepository().searchId(ptr);
     }
 
     static bool isValid(id_t id)
     {
-        return s_repository.isValid(id);
+        return getRepository().isValid(id);
     }
 
+    static PointerRepository<id_t, ptr_t>& getRepository() noexcept
+    {
+        static PointerRepository<id_t, ptr_t> repository;
+        return repository;
+    }
 
     //*****************************************************************************************
 
@@ -210,8 +210,6 @@ class RelativePointer
   protected:
     id_t m_id{NULL_POINTER_ID};
     offset_t m_offset{NULL_POINTER_OFFSET};
-
-    static PointerRepository<id_t, ptr_t> s_repository;
 };
 
 template <typename T>

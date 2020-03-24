@@ -12,15 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/iceoryx_posh_config.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
+#include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
+#include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 
 int main(int argc, char* argv[])
 {
-    iox::RouDiConfig_t roudiConfig;
-    roudiConfig.setDefaults();
-
     using iox::roudi::IceOryxRouDiApp;
-    IceOryxRouDiApp roudi(argc, argv, roudiConfig);
+
+    iox::roudi::CmdLineParserConfigFileOption cmdLineParser;
+    cmdLineParser.parse(argc, argv);
+
+    iox::roudi::TomlRouDiConfigFileProvider configFileProvider(cmdLineParser);
+
+    using ParseResult = iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError>;
+
+    iox::RouDiConfig_t roudiConfig =
+        configFileProvider.parse()
+            .on_error([](ParseResult& parseResult) {
+                iox::LogFatal() << "Couldn't parse config file. Error: "
+                                << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
+                                                                 parseResult.get_error());
+                std::terminate();
+            })
+            .get_value();
+
+    IceOryxRouDiApp roudi(cmdLineParser, roudiConfig);
+
     roudi.run();
 
     return 0;

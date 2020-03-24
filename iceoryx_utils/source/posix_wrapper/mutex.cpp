@@ -14,6 +14,8 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
+
 #include <cassert>
 #include <utility>
 
@@ -21,70 +23,56 @@ namespace iox
 {
 namespace posix
 {
-cxx::optional<mutex> mutex::CreateMutex(const bool f_isRecursive)
-{
-    cxx::optional<mutex> returnValue;
-    returnValue.emplace(f_isRecursive);
-    if (!returnValue->m_isInitialized)
-    {
-        return cxx::nullopt_t();
-    }
-    return returnValue;
-}
-
 mutex::mutex(bool f_isRecursive)
 {
     pthread_mutexattr_t attr;
-    m_isInitialized &=
+    bool isInitialized{true};
+    isInitialized &=
         !cxx::makeSmartC(pthread_mutexattr_init, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &attr).hasErrors();
-    m_isInitialized &= !cxx::makeSmartC(pthread_mutexattr_setpshared,
-                                        cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
-                                        {0},
-                                        {},
-                                        &attr,
-                                        PTHREAD_PROCESS_SHARED)
-                            .hasErrors();
-    m_isInitialized &= !cxx::makeSmartC(pthread_mutexattr_settype,
-                                        cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
-                                        {0},
-                                        {},
-                                        &attr,
-                                        f_isRecursive ? PTHREAD_MUTEX_RECURSIVE_NP : PTHREAD_MUTEX_FAST_NP)
-                            .hasErrors();
-    m_isInitialized &= !cxx::makeSmartC(pthread_mutexattr_setprotocol,
-                                        cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
-                                        {0},
-                                        {},
-                                        &attr,
-                                        PTHREAD_PRIO_NONE)
-                            .hasErrors();
+    isInitialized &= !cxx::makeSmartC(pthread_mutexattr_setpshared,
+                                      cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
+                                      {0},
+                                      {},
+                                      &attr,
+                                      PTHREAD_PROCESS_SHARED)
+                          .hasErrors();
+    isInitialized &= !cxx::makeSmartC(pthread_mutexattr_settype,
+                                      cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
+                                      {0},
+                                      {},
+                                      &attr,
+                                      f_isRecursive ? PTHREAD_MUTEX_RECURSIVE_NP : PTHREAD_MUTEX_FAST_NP)
+                          .hasErrors();
+    isInitialized &= !cxx::makeSmartC(pthread_mutexattr_setprotocol,
+                                      cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
+                                      {0},
+                                      {},
+                                      &attr,
+                                      PTHREAD_PRIO_NONE)
+                          .hasErrors();
 
-    m_isInitialized &=
+    isInitialized &=
         !cxx::makeSmartC(pthread_mutex_init, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle, &attr)
              .hasErrors();
-}
 
-mutex::mutex(mutex&& rhs) noexcept
-{
-    m_handle = rhs.m_handle;
-    m_isInitialized = rhs.m_isInitialized;
-    rhs.m_isInitialized = false;
+    if (!isInitialized)
+    {
+        std::cerr << "unable to create mutex - terminating\n";
+        std::terminate();
+    }
 }
 
 mutex::~mutex()
 {
-    if (m_isInitialized)
-    {
-        auto destroyCall =
-            cxx::makeSmartC(pthread_mutex_destroy, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle);
+    auto destroyCall =
+        cxx::makeSmartC(pthread_mutex_destroy, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, &m_handle);
 
-        if (destroyCall.hasErrors())
-        {
-            std::cerr << "could not destroy mutex ::: pthread_mutex_destroy returned " << destroyCall.getReturnValue()
-                      << " "
-                      << "( " << strerror(destroyCall.getReturnValue()) << ") " << std::endl;
-            std::terminate();
-        }
+    if (destroyCall.hasErrors())
+    {
+        std::cerr << "could not destroy mutex ::: pthread_mutex_destroy returned " << destroyCall.getReturnValue()
+                  << " "
+                  << "( " << strerror(destroyCall.getReturnValue()) << ") " << std::endl;
+        std::terminate();
     }
 }
 

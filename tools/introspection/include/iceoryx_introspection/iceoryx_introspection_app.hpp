@@ -23,7 +23,7 @@ namespace introspection
 class IceOryxIntrospectionApp : public IntrospectionApp
 {
   public:
-    /// @brief contructor to create the introspection
+    /// @brief constructor to create the introspection
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
     IceOryxIntrospectionApp(int argc, char* argv[]) noexcept;

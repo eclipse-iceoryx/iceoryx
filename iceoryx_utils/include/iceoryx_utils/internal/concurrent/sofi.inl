@@ -47,7 +47,7 @@ template <class ValueType, uint32_t CapacityValue>
 bool SoFi<ValueType, CapacityValue>::resize(const uint32_t newSize) noexcept
 {
     uint64_t newInternalSize = newSize + INTERNAL_SIZE_ADD_ON;
-    if (empty() and (newInternalSize <= INTERNAL_SOFI_SIZE))
+    if (empty() && (newInternalSize <= INTERNAL_SOFI_SIZE))
     {
         m_size = newInternalSize;
 

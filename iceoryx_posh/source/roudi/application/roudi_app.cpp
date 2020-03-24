@@ -19,18 +19,18 @@
 #include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_utils/log/logging.hpp"
 #include "iceoryx_utils/log/logmanager.hpp"
+#include "iceoryx_utils/platform/getopt.hpp"
+#include "iceoryx_utils/platform/pthread.hpp"
+#include "iceoryx_utils/platform/resource.hpp"
+#include "iceoryx_utils/platform/semaphore.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_versions.hpp"
 
 #include "stdio.h"
-#include <getopt.h>
-#include <pthread.h>
-#include <semaphore.h> // @todo: use semaphore wrapper
 #include <signal.h>
-#include <sys/resource.h>
 
 namespace iox
 {
@@ -39,16 +39,30 @@ namespace roudi
 // using unnamed namespace to keep the functions in this translation unit
 namespace
 {
-sem_t g_runSemaphore;
+iox::roudi::RouDiApp* g_RouDiApp;
+} // unnamed namespace
 
-void roudiSigHandler(int /* sig */) noexcept
+void RouDiApp::roudiSigHandler(int signal) noexcept
 {
-    sem_post(&g_runSemaphore); // post semaphore to exit the application
+    if (g_RouDiApp)
+    {
+        if (signal == SIGHUP)
+        {
+            LogWarn() << "SIGHUP not supported by RouDi";
+        }
+        // Post semaphore to exit
+        g_RouDiApp->m_semaphore.post();
+    }
 }
 
-void registerSigHandler() noexcept
+void RouDiApp::registerSigHandler() noexcept
 {
-    // register sigHandler for SIGINT and SIGTERM
+    /// @todo smart_c all the things
+
+    // Save the pointer to self
+    g_RouDiApp = this;
+
+    // register sigHandler for SIGINT, SIGTERM and SIGHUP
     struct sigaction act;
     sigemptyset(&act.sa_mask);
     act.sa_handler = roudiSigHandler;
@@ -56,19 +70,21 @@ void registerSigHandler() noexcept
     if (-1 == sigaction(SIGINT, &act, NULL))
     {
         LogError() << "Calling sigaction() failed";
-        exit(EXIT_FAILURE);
+        std::terminate();
     }
 
     if (-1 == sigaction(SIGTERM, &act, NULL))
     {
         LogError() << "Calling sigaction() failed";
-        exit(EXIT_FAILURE);
+        std::terminate();
     }
 
-    sem_init(&g_runSemaphore, 1, 0); // we sync processes since signal handler runs in kernel context
+    if (-1 == sigaction(SIGHUP, &act, NULL))
+    {
+        LogError() << "Calling sigaction() failed";
+        std::terminate();
+    }
 }
-
-} // unnamed namespace
 
 RouDiApp::RouDiApp(int argc, char* argv[], const mepoo::MePooConfig* mePooConfig) noexcept
     : RouDiApp(argc, argv, generateConfigFromMePooConfig(mePooConfig))
@@ -79,7 +95,13 @@ RouDiApp::RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept
     : RouDiApp(config)
 {
     parseCmdLineArguments(argc, argv);
+    init();
+}
 
+RouDiApp::RouDiApp(const CmdLineParser& cmdLineParser, const RouDiConfig_t& config) noexcept
+    : RouDiApp(config)
+{
+    setCmdLineParserResults(cmdLineParser);
     init();
 }
 
@@ -87,6 +109,21 @@ RouDiApp::RouDiApp(const RouDiConfig_t& config) noexcept
     : m_config(config)
 {
     m_config.optimize();
+
+    if (config.m_sharedMemorySegments.size() == 0)
+    {
+        m_run = false;
+        LogError() << "A RouDiConfig without segments was specified! Please provide a valid config!";
+    }
+
+    for (const auto& segment : config.m_sharedMemorySegments)
+    {
+        if (segment.m_mempoolConfig.m_mempoolConfig.size() == 0)
+        {
+            m_run = false;
+            LogError() << "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
+        }
+    }
 }
 
 RouDiConfig_t RouDiApp::generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept
@@ -112,146 +149,37 @@ RouDiConfig_t RouDiApp::generateConfigFromMePooConfig(const mepoo::MePooConfig* 
 
 void RouDiApp::init() noexcept
 {
-    iox::log::LogManager::GetLogManager().SetDefaultLogLevel(m_logLevel);
-
-    registerSigHandler();
-}
-
-void RouDiApp::waitToFinish() noexcept
-{
-    while ((sem_wait(&g_runSemaphore) != 0) && (errno == EINTR))
+    // be silent if not running
+    if (m_run)
     {
-        // wait further
+        iox::log::LogManager::GetLogManager().SetDefaultLogLevel(m_logLevel);
+
+        registerSigHandler();
     }
 }
 
-void RouDiApp::parseCmdLineArguments(int argc, char* argv[], CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
+bool RouDiApp::waitForSignal() const noexcept
 {
-    constexpr option longOptions[] = {{"help", no_argument, nullptr, 'h'},
-                                      {"version", no_argument, nullptr, 'v'},
-                                      {"monitoring-mode", required_argument, nullptr, 'm'},
-                                      {"log-level", required_argument, nullptr, 'l'},
-                                      {nullptr, 0, nullptr, 0}};
+    return m_semaphore.wait();
+}
 
-    // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* shortOptions = "hvm:l:b:";
-    int index;
-    int opt{-1};
-    while (opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1)
-    {
-        switch (opt)
-        {
-        case 'h':
-            std::cout << "Usage: " << argv[0] << " [options]" << std::endl;
-            std::cout << "Options:" << std::endl;
-            std::cout << "-h, --help                        Display help." << std::endl;
-            std::cout << "-v, --version                     Display version." << std::endl;
-            std::cout << "-m, --monitoring-mode <MODE>      Set process alive monitoring mode." << std::endl;
-            std::cout << "                                  <MODE> {on, off}" << std::endl;
-            std::cout << "                                  default = 'on'" << std::endl;
-            std::cout << "                                  on: enables monitoring for all processes" << std::endl;
-            std::cout << "                                  off: disables monitoring for all processes" << std::endl;
-            std::cout << "-l, --log-level <LEVEL>           Set log level." << std::endl;
-            std::cout << "                                  <LEVEL> {off, fatal, error, warning, info, debug, verbose}"
-                      << std::endl;
-            std::cout << "-b,                               Start address hint of the shared memory segments"
-                         "                                  e.g. 0x1f4000000"
-                      << std::endl;
+void RouDiApp::setCmdLineParserResults(const CmdLineParser& cmdLineParser) noexcept
+{
+    m_monitoringMode = cmdLineParser.getMonitoringMode();
+    m_logLevel = cmdLineParser.getLogLevel();
+    // the "and" is intentional, just in case the the provided RouDiConfig_t is empty
+    m_run &= cmdLineParser.getRun();
+}
 
-            m_run = false;
-            break;
-        case 'v':
-            std::cout << "RouDi version: " << ICEORYX_LATEST_RELEASE_VERSION << std::endl;
-            std::cout << "Build date: " << ICEORYX_BUILDDATE << std::endl;
-            m_run = false;
-            break;
-
-        case 'm':
-        {
-            if (strcmp(optarg, "on") == 0)
-            {
-                m_monitoringMode = MonitoringMode::ON;
-            }
-            else if (strcmp(optarg, "off") == 0)
-            {
-                m_monitoringMode = MonitoringMode::OFF;
-            }
-            else
-            {
-                m_run = false;
-                LogError() << "Options for monitoring-mode are 'on' and 'off'!";
-            }
-            break;
-        }
-
-        case 'b':
-        {
-            auto call = cxx::makeSmartC(
-                strtoull, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, optarg, nullptr, 16);
-            if (call.hasErrors())
-            {
-                LogFatal() << optarg
-                           << " is not a valid base address in hexadecimal form for option (-b), use it like -b 0xabc";
-                std::terminate();
-            }
-            else
-            {
-                m_config.roudi.m_sharedMemoryBaseAddressOffset = static_cast<uintptr_t>(call.getReturnValue());
-            }
-
-            break;
-        }
-
-        case 'l':
-        {
-            if (strcmp(optarg, "off") == 0)
-            {
-                m_logLevel = iox::log::LogLevel::kOff;
-            }
-            else if (strcmp(optarg, "fatal") == 0)
-            {
-                m_logLevel = iox::log::LogLevel::kFatal;
-            }
-            else if (strcmp(optarg, "error") == 0)
-            {
-                m_logLevel = iox::log::LogLevel::kError;
-            }
-            else if (strcmp(optarg, "warning") == 0)
-            {
-                m_logLevel = iox::log::LogLevel::kWarn;
-            }
-            else if (strcmp(optarg, "info") == 0)
-            {
-                m_logLevel = iox::log::LogLevel::kInfo;
-            }
-            else if (strcmp(optarg, "debug") == 0)
-            {
-                m_logLevel = iox::log::LogLevel::kDebug;
-            }
-            else if (strcmp(optarg, "verbose") == 0)
-            {
-                m_logLevel = iox::log::LogLevel::kVerbose;
-            }
-            else
-            {
-                m_run = false;
-                LogError()
-                    << "Options for log-level are 'off', 'fatal', 'error', 'waring', 'info', 'debug' and 'verbose'!";
-            }
-            break;
-        }
-
-        default:
-        {
-            m_run = false;
-        }
-        };
-
-        if (cmdLineParsingMode == CmdLineArgumentParsingMode::ONE)
-        {
-            break;
-        }
-    }
+void RouDiApp::parseCmdLineArguments(int argc,
+                                     char* argv[],
+                                     CmdLineParser::CmdLineArgumentParsingMode cmdLineParsingMode
+                                     [[gnu::unused]]) noexcept
+{
+    /// @todo Remove this from RouDi once the deprecated c'tors taking argc and argv have been removed
+    CmdLineParser cmdLineParser;
+    cmdLineParser.parse(argc, argv);
+    setCmdLineParserResults(cmdLineParser);
 }
 
 } // namespace roudi

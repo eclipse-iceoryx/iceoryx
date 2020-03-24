@@ -13,8 +13,10 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/posix_wrapper/access_control.hpp"
+
 #include "iceoryx_utils/cxx/smart_c.hpp"
-#include "iceoryx_utils/internal/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <iostream>
 
@@ -82,7 +84,7 @@ AccessController::smartAclPointer_t AccessController::createACL(const int f_numE
     }
 
     // define how to free the memory (custom deleter for the smart pointer)
-    std::function<void(struct __acl_ext*)> freeACL = [&](struct __acl_ext* acl) {
+    std::function<void(acl_t)> freeACL = [&](acl_t acl) {
         auto aclFreeCall = cxx::makeSmartC(acl_free, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, acl);
         if (aclFreeCall.hasErrors())
         {
@@ -91,7 +93,7 @@ AccessController::smartAclPointer_t AccessController::createACL(const int f_numE
         }
     };
 
-    return smartAclPointer_t(reinterpret_cast<struct __acl_ext*>(aclInitCall.getReturnValue()), freeACL);
+    return smartAclPointer_t(reinterpret_cast<acl_t>(aclInitCall.getReturnValue()), freeACL);
 }
 
 bool AccessController::addPermissionEntry(const Category f_category,

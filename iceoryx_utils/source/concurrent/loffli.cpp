@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/concurrent/loffli.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
 
 #include <cassert>
 

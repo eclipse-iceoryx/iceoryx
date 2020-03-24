@@ -37,7 +37,7 @@ struct alignas(32) ChunkHeader
     void* payload() const
     {
         // payload is always located relative to "this" in this way
-        return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(this) + sizeof(ChunkHeader));
+        return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(this) + sizeof(ChunkHeader));
     }
 
     /// @todo this is a temporary dummy variable to keep the size of the ChunkHeader at 64 byte for compatibility

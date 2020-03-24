@@ -30,8 +30,7 @@ Subscriber::Subscriber() noexcept
 }
 
 Subscriber::Subscriber(const capro::ServiceDescription& service, const cxx::CString100& runnableName) noexcept
-    : m_receiver(
-        runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, Interfaces::INTERNAL, runnableName))
+    : m_receiver(runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, runnableName))
 {
 }
 
@@ -40,6 +39,7 @@ Subscriber::~Subscriber() noexcept
     unsetReceiveHandler();
     // TODO: Find an alternative like an RAII receive handler which
     //          is called in the dtor. You cannot expect the user to call it before destruction
+    m_receiver.destroy();
 }
 
 void Subscriber::subscribe(const uint32_t cacheSize) noexcept
@@ -103,8 +103,8 @@ void Subscriber::setReceiveHandler(ReceiveHandler_t cbHandler) noexcept
 // name thread if possible
 #ifdef __unix__
     char threadname[16];
-    static ushort thread_index = 0;
-    snprintf(threadname, sizeof(threadname), "receiver-cb_%d", ++thread_index);
+    static uint16_t thread_index = 0;
+    snprintf(threadname, sizeof(threadname), "Receive_%d", ++thread_index);
     auto thread_handle = m_callbackThread.native_handle();
     pthread_setname_np(thread_handle, threadname); // thread name restricted to 16 chars
 // (incl. '0') but name buffer needs to be at least 16 chars
@@ -219,6 +219,12 @@ bool Subscriber::isChunkReceiveSemaphoreSet() noexcept
 {
     return m_receiver.AreCallbackReferencesSet();
 }
+
+void Subscriber::unsetChunkReceiveSemaphore() noexcept
+{
+    m_receiver.UnsetCallbackReferences();
+}
+
 
 void Subscriber::eventCallbackMain() noexcept
 {

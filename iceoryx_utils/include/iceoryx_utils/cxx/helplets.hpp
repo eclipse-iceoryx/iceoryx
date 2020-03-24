@@ -15,6 +15,7 @@
 #pragma once
 
 #include "iceoryx_utils/cxx/generic_raii.hpp"
+#include "iceoryx_utils/platform/platform-correction.hpp"
 
 #include <assert.h>
 #include <iostream>
@@ -142,7 +143,7 @@ constexpr size_t maxSize()
 /// @todo better name
 /// create a GenericRAII object to cleanup a static optional object at the end of the scope
 /// @param [in] T memory container which has emplace(...) and reset
-/// @param [in] CTorArgs ctor types for the object to contruct
+/// @param [in] CTorArgs ctor types for the object to construct
 /// @param [in] memory is a reference to a memory container, e.g. cxx::optional
 /// @param [in] ctorArgs ctor arguments for the object to construct
 /// @return cxx::GenericRAII
@@ -152,11 +153,18 @@ GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs)
     memory.emplace(std::forward<CTorArgs>(ctorArgs)...);
     return GenericRAII([] {}, [&memory] { memory.reset(); });
 }
-/// Convert Enum class type to string 
+/// Convert Enum class type to string
 template <typename T, typename Enumeration>
 const char* convertEnumToString(T port, const Enumeration source)
 {
     return port[static_cast<size_t>(source)];
+}
+
+/// cast an enum to its underlying type
+template <typename enum_type>
+auto enumTypeAsUnderlyingType(enum_type const value) -> typename std::underlying_type<enum_type>::type
+{
+    return static_cast<typename std::underlying_type<enum_type>::type>(value);
 }
 
 } // namespace cxx

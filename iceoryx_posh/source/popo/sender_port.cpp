@@ -393,13 +393,9 @@ uint32_t SenderPort::getMaxDeliveryFiFoCapacity()
     return getMembers()->m_receiverHandler.getMaxDeliveryFiFoCapacity();
 }
 
-const SenderPort::MemberType_t* SenderPort::getMembers() const
+bool SenderPort::isUnique() const
 {
-    return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
-}
-SenderPort::MemberType_t* SenderPort::getMembers()
-{
-    return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
+    return getMembers()->m_isUnique;
 }
 
 } // namespace popo

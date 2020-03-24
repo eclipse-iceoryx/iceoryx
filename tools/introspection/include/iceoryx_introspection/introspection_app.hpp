@@ -16,8 +16,8 @@
 
 #include "iceoryx_introspection/introspection_types.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_utils/platform/getopt.hpp"
 
-#include <getopt.h>
 #include <map>
 #include <ncurses.h>
 #include <vector>
@@ -66,7 +66,7 @@ class IntrospectionApp
   public:
     using SubscriberType = iox::popo::Subscriber;
 
-    /// @brief contructor to create a introspection
+    /// @brief constructor to create a introspection
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
     IntrospectionApp(int argc, char* argv[]) noexcept;

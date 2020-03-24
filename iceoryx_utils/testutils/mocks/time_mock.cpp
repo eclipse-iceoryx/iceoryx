@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if !defined(_WIN32) && !defined(__APPLE__)
 #include "time_mock.hpp"
 #include "mocks.hpp"
 
@@ -57,3 +58,4 @@ int clock_settime(clockid_t clk_id, const struct timespec* res) noexcept
 {
     return (time_MOCK::doUseMock) ? time_MOCK::mock->clock_settime(clk_id, res) : time_orig::clock_settime(clk_id, res);
 }
+#endif

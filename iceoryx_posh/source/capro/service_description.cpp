@@ -55,9 +55,15 @@ bool ServiceDescription::ClassHash::operator==(const ClassHash& rhs) const noexc
     return true;
 }
 
+bool ServiceDescription::ClassHash::operator!=(const ClassHash& rhs) const noexcept
+{
+    return !operator==(rhs);
+}
+
 ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexcept
 {
     std::underlying_type<Scope>::type scope;
+    std::underlying_type<Interfaces>::type interfaceSource;
     f_serial.extract(m_serviceString,
                      m_instanceString,
                      m_eventString,
@@ -69,7 +75,8 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexc
                      m_classHash[2],
                      m_classHash[3],
                      m_hasServiceOnlyDescription,
-                     scope);
+                     scope,
+                     interfaceSource);
     if (scope > static_cast<std::underlying_type<Scope>::type>(Scope::INVALID))
     {
         m_scope = Scope::INVALID;
@@ -77,6 +84,14 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexc
     else
     {
         m_scope = static_cast<Scope>(scope);
+    }
+    if (interfaceSource > static_cast<std::underlying_type<Interfaces>::type>(Interfaces::INTERFACE_END))
+    {
+        m_interfaceSource = Interfaces::INTERFACE_END;
+    }
+    else
+    {
+        m_interfaceSource = static_cast<Interfaces>(interfaceSource);
     }
 }
 
@@ -110,11 +125,13 @@ ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID,
 ServiceDescription::ServiceDescription(const IdString& f_service,
                                        const IdString& f_instance,
                                        const IdString& f_event,
-                                       ClassHash f_classHash) noexcept
+                                       ClassHash f_classHash,
+                                       Interfaces interfaceSource) noexcept
     : m_serviceString{f_service}
     , m_instanceString{f_instance}
     , m_eventString{f_event}
     , m_classHash(f_classHash)
+    , m_interfaceSource(interfaceSource)
 {
     if (cxx::convert::stringIsNumber(m_serviceString.to_cstring(), cxx::convert::NumberType::UNSIGNED_INTEGER))
     {
@@ -211,6 +228,7 @@ ServiceDescription& ServiceDescription::operator=(const ServiceDescription& othe
     m_hasServiceOnlyDescription = other.m_hasServiceOnlyDescription;
     m_classHash = other.m_classHash;
     m_scope = other.m_scope;
+    m_interfaceSource = other.m_interfaceSource;
 
     return *this;
 }
@@ -218,6 +236,8 @@ ServiceDescription& ServiceDescription::operator=(const ServiceDescription& othe
 ServiceDescription::operator cxx::Serialization() const
 {
     std::underlying_type<Scope>::type scope = static_cast<std::underlying_type<Scope>::type>(m_scope);
+    std::underlying_type<Interfaces>::type interface =
+        static_cast<std::underlying_type<Interfaces>::type>(m_interfaceSource);
     return cxx::Serialization::create(m_serviceString,
                                       m_instanceString,
                                       m_eventString,
@@ -229,7 +249,8 @@ ServiceDescription::operator cxx::Serialization() const
                                       m_classHash[2],
                                       m_classHash[3],
                                       m_hasServiceOnlyDescription,
-                                      scope);
+                                      scope,
+                                      interface);
 }
 
 std::string ServiceDescription::getServiceString() const noexcept
@@ -295,6 +316,11 @@ Scope ServiceDescription::getScope() noexcept
 ServiceDescription::ClassHash ServiceDescription::getClassHash() const noexcept
 {
     return m_classHash;
+}
+
+Interfaces ServiceDescription::getSourceInterface() const noexcept
+{
+    return m_interfaceSource;
 }
 
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept

@@ -66,7 +66,7 @@ class SharedMemoryManager_test : public Test
         m_shmManager = new CShmMangerTester(config);
         // clearing the introspection, is not in d'tor -> SEGFAULT in delete sporadically
         m_shmManager->stopPortIntrospection();
-        m_shmManager->deletePortsOfProcess(iox::roudi::PORT_INTROSPECTION_MQ_APP_NAME);
+        m_shmManager->deletePortsOfProcess(iox::MQ_ROUDI_NAME);
     }
 
     void TearDown() override
@@ -108,15 +108,15 @@ class SharedMemoryManager_test : public Test
 TEST_F(SharedMemoryManager_test, doDiscovery_singleShotSenderFirst)
 {
     SenderPort sender(
-        m_shmManager->acquireSenderPortData({1, 1, 1},
-                                            iox::Interfaces::INTERNAL,
-                                            "/guiseppe",
-                                            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager));
+        m_shmManager
+            ->acquireSenderPortData(
+                {1, 1, 1}, "/guiseppe", &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
+            .get_value());
     ASSERT_TRUE(sender);
     sender.activate();
     // no doDiscovery() at this position is intentional
 
-    ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, iox::Interfaces::INTERNAL, "/schlomo"));
+    ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/schlomo"));
     ASSERT_TRUE(receiver1);
     receiver1.subscribe(true);
 
@@ -134,16 +134,16 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotSenderFirst)
 
 TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirst)
 {
-    ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, iox::Interfaces::INTERNAL, "/schlomo"));
+    ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/schlomo"));
     ASSERT_TRUE(receiver1);
     receiver1.subscribe(true);
     // no doDiscovery() at this position is intentional
 
     SenderPort sender(
-        m_shmManager->acquireSenderPortData({1, 1, 1},
-                                            iox::Interfaces::INTERNAL,
-                                            "/guiseppe",
-                                            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager));
+        m_shmManager
+            ->acquireSenderPortData(
+                {1, 1, 1}, "/guiseppe", &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
+            .get_value());
     ASSERT_TRUE(sender);
     sender.activate();
 
@@ -161,16 +161,16 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirst)
 
 TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirstWithDiscovery)
 {
-    ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, iox::Interfaces::INTERNAL, "/schlomo"));
+    ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/schlomo"));
     ASSERT_TRUE(receiver1);
     receiver1.subscribe(true);
     m_shmManager->doDiscovery();
 
     SenderPort sender(
-        m_shmManager->acquireSenderPortData({1, 1, 1},
-                                            iox::Interfaces::INTERNAL,
-                                            "/guiseppe",
-                                            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager));
+        m_shmManager
+            ->acquireSenderPortData(
+                {1, 1, 1}, "/guiseppe", &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
+            .get_value());
     ASSERT_TRUE(sender);
     sender.activate();
 
@@ -188,20 +188,20 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirstWithDiscover
 
 TEST_F(SharedMemoryManager_test, doDiscovery_rightOrdering)
 {
-    ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, iox::Interfaces::INTERNAL, "/schlomo"));
+    ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/schlomo"));
     ASSERT_TRUE(receiver1);
     receiver1.subscribe(true);
     m_shmManager->doDiscovery();
 
     SenderPort sender(
-        m_shmManager->acquireSenderPortData({1, 1, 1},
-                                            iox::Interfaces::INTERNAL,
-                                            "/guiseppe",
-                                            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager));
+        m_shmManager
+            ->acquireSenderPortData(
+                {1, 1, 1}, "/guiseppe", &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
+            .get_value());
     ASSERT_TRUE(sender);
     sender.activate();
 
-    ReceiverPort receiver2(m_shmManager->acquireReceiverPortData({1, 1, 1}, iox::Interfaces::INTERNAL, "/ignatz"));
+    ReceiverPort receiver2(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/ignatz"));
     ASSERT_TRUE(receiver2);
     receiver2.subscribe(true);
     m_shmManager->doDiscovery();
@@ -456,12 +456,12 @@ TEST_F(SharedMemoryManager_test, InterfaceAndApplicationsOverflow)
 
     for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
     {
-        auto interp = m_shmManager->acquireInterfacePortData(iox::Interfaces::INTERNAL, itf + std::to_string(i));
+        auto interp = m_shmManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, itf + std::to_string(i));
         EXPECT_THAT(interp, Ne(nullptr));
     }
     for (unsigned int i = 0; i < iox::MAX_PROCESS_NUMBER; i++)
     {
-        auto appp = m_shmManager->acquireApplicationPortData(iox::Interfaces::INTERNAL, app + std::to_string(i));
+        auto appp = m_shmManager->acquireApplicationPortData(app + std::to_string(i));
         EXPECT_THAT(appp, Ne(nullptr));
     }
 
@@ -472,12 +472,12 @@ TEST_F(SharedMemoryManager_test, InterfaceAndApplicationsOverflow)
             const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
         errorHandlerCalled = false;
-        auto interp = m_shmManager->acquireInterfacePortData(iox::Interfaces::INTERNAL, "/itfPenguin");
+        auto interp = m_shmManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "/itfPenguin");
         EXPECT_THAT(interp, Eq(nullptr));
         EXPECT_TRUE(errorHandlerCalled);
 
         errorHandlerCalled = false;
-        auto appp = m_shmManager->acquireApplicationPortData(iox::Interfaces::INTERNAL, "/appPenguin");
+        auto appp = m_shmManager->acquireApplicationPortData("/appPenguin");
         EXPECT_THAT(appp, Eq(nullptr));
         EXPECT_TRUE(errorHandlerCalled);
     }
@@ -488,10 +488,11 @@ TEST_F(SharedMemoryManager_test, InterfaceAndApplicationsOverflow)
         m_shmManager->deletePortsOfProcess(itf + std::to_string(testi));
         m_shmManager->deletePortsOfProcess(app + std::to_string(testi));
 
-        auto interp = m_shmManager->acquireInterfacePortData(iox::Interfaces::INTERNAL, itf + std::to_string(testi));
+        auto interp =
+            m_shmManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, itf + std::to_string(testi));
         EXPECT_THAT(interp, Ne(nullptr));
 
-        auto appp = m_shmManager->acquireApplicationPortData(iox::Interfaces::INTERNAL, app + std::to_string(testi));
+        auto appp = m_shmManager->acquireApplicationPortData(app + std::to_string(testi));
         EXPECT_THAT(appp, Ne(nullptr));
     }
 }

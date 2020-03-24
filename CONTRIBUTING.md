@@ -25,7 +25,7 @@ The project maintains the following source code repositories
 
 ## Eclipse Contributor Agreement
 
-Before your contribution can be accepted by the project team contributors must
+Before your contribution can be accepted by the project team, contributors must
 electronically sign the Eclipse Contributor Agreement (ECA).
 
 * http://www.eclipse.org/legal/ECA.php
@@ -48,7 +48,7 @@ Contact the project developers via the project's "dev" list.
 ## Feature request and bugs
 
 We love pull requests! The next sections try to cover most of the relevant questions. For larger contributions or
-architectural changes we'd kindly ask you to get in touch with one of the maintainers beforehand. If you would like to
+architectural changes, we'd kindly ask you to get in touch with one of the maintainers beforehand. If you would like to
 report a bug or propose a new feature, please raise an issue before raising a pull request. This makes it easier to
 track. Please make sure you have:
 
@@ -59,12 +59,12 @@ track. Please make sure you have:
 ## Coding style
 
 We love the [C++ core guidelines](http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines). If in doubt please try
-to follow them as well as our unwritten conventions in the exisiting parts of the code base.
+to follow them as well as our unwritten conventions in the existing parts of the code base.
 Please format your code with the provided [clang-format](https://clang.llvm.org/docs/ClangFormat.html) and
 [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) before raising a pull request. Lots of IDEs do read the
 clang-format file these days.
 
-We created some convenient rules to highlite some bits that you might not be used to in other FOSS projects. They are
+We created some convenient rules to highlight some bits that you might not be used to in other FOSS projects. They are
 helpful to build embedded systems for safety fields like automotive or avionics. It is possible that not the whole
 codebase follows these rules, things are work in progress.
 
@@ -125,7 +125,7 @@ with the version 1.8.1.
 
 ### Unit tests (aka module tests)
 
-Units tests are black box tests, that test the public interface of a class. They are required for all new code.
+Unit tests are black box tests that test the public interface of a class. They are required for all new code.
 
 ### Integration tests
 

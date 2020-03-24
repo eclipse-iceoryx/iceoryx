@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
-set(iceoryx_utils_VERSION 0.16.0)
+set(iceoryx_utils_VERSION 0.16.1)
 project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 
-add_compile_options(-fPIC)
-add_compile_options(-std=c++11)
-
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatformDetection.cmake")
 
 if( clang-tidy )
     find_program(
@@ -64,7 +62,11 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
             iceoryx_utils_testing PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
         )
     endif(PERFORM_CLANG_TIDY)
-
+    set_target_properties(iceoryx_utils_testing PROPERTIES 
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        POSITION_INDEPENDENT_CODE ON
+    )
 
     if(test_with_additional_user)
         target_compile_definitions(iceoryx_utils_testing PUBLIC -DTEST_WITH_ADDITIONAL_USER)
@@ -86,9 +88,9 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
         ${CMAKE_DL_LIBS}
     )
 
-    if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+    if(LINUX)
         target_link_libraries(iceoryx_utils_testing PRIVATE rt)
-    endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+    endif()
 
     # install_target_directories_and_header(
     # TARGETS iceoryx_utils_testing
@@ -144,6 +146,7 @@ add_library(iceoryx_utils
     source/posix_wrapper/timespec.cpp
     source/posix_wrapper/shared_memory_object.cpp
     source/posix_wrapper/message_queue.cpp
+    source/posix_wrapper/unix_domain_socket.cpp
     source/posix_wrapper/shared_memory_object/allocator.cpp
     source/posix_wrapper/shared_memory_object/memory_map.cpp
     source/posix_wrapper/shared_memory_object/shared_memory.cpp
@@ -154,31 +157,43 @@ add_library(iceoryx_utils
 )
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)
+set_target_properties(iceoryx_utils PROPERTIES 
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
 
-set_target_properties(iceoryx_utils PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-# TODO: Make ICEORYX::UTILS private???
-target_include_directories(iceoryx_utils
+if(LINUX)
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/)
+    target_link_libraries(iceoryx_utils PRIVATE rt acl atomic ${CODE_COVERAGE_LIBS})
+elseif(QNX)
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/qnx/)
+elseif(APPLE)
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/mac/)
+elseif(WIN32)
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/win/)
+else()
+    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
+endif()
+
+# this must be recurse since every platform has potentially different cpp files
+file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
+    ${ICEORYX_PLATFORM}/source/*.cpp
+)
+add_library(iceoryx_platform ${ICEORYX_PLATFORM_FILES})
+target_include_directories(iceoryx_platform 
     PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/message_queue>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${ICEORYX_PLATFORM}/include/>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
-target_compile_options(iceoryx_utils PUBLIC -std=c++11)
-target_compile_options(iceoryx_utils PUBLIC -fPIC)
-
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_utils PRIVATE acl ${CODE_COVERAGE_LIBS})
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_utils PRIVATE rt)
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-
-
-set_target_properties(iceoryx_utils
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+add_library(iceoryx_utils::iceoryx_platform ALIAS iceoryx_platform)
+set_target_properties(iceoryx_platform PROPERTIES 
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
 )
+
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
         iceoryx_utils PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
@@ -186,21 +201,37 @@ if(PERFORM_CLANG_TIDY)
 endif(PERFORM_CLANG_TIDY)
 
 
+target_link_libraries(iceoryx_utils PUBLIC iceoryx_utils::iceoryx_platform)
+
+# TODO: Make ICEORYX::UTILS private???
+target_include_directories(iceoryx_utils
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include/${PREFIX}>
+)
+
+
 
 #
 ########## exporting library ##########
 #
+
+#TODO add support for multiple include directories to setup_install_directories_and_export_package
+install(
+    DIRECTORY ${ICEORYX_PLATFORM}/include/
+    DESTINATION include/${PREFIX}
+    COMPONENT dev
+)
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_utils
+    TARGETS iceoryx_utils iceoryx_platform
     INCLUDE_DIRECTORY include/
 )
-
-# package file
-set (SETUP_PACKAGE_FILE "cmake/IceoryxPackageHelper.cmake")
 
 # header
 install(
     FILES ${SETUP_PACKAGE_FILE}
+        cmake/IceoryxPackageHelper.cmake
+        cmake/IceoryxPlatformDetection.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 

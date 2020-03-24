@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
-#include "test_definitions.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_utils/platform/fcntl.hpp"
+#include "iceoryx_utils/platform/stat.hpp"
+#include "iceoryx_utils/platform/types.hpp"
+#include "test.hpp"
+#include "test_definitions.hpp"
 
-#include <fcntl.h>
+
 #include <functional>
 #include <memory>
-#include <sys/stat.h>
-#include <sys/types.h>
 
 using namespace ::testing;
 using namespace iox::mepoo;

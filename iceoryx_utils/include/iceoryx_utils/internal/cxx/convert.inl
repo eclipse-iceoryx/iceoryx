@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <limits>
 namespace iox
 {
 namespace cxx
@@ -104,18 +105,15 @@ inline bool convert::stringIsNumberWithErrorMessage(const char* v, const NumberT
         std::cerr << v << " is not ";
         switch (type)
         {
-        case NumberType::FLOAT:
-        {
+        case NumberType::FLOAT: {
             std::cerr << "a float";
             break;
         }
-        case NumberType::INTEGER:
-        {
+        case NumberType::INTEGER: {
             std::cerr << "a signed integer";
             break;
         }
-        case NumberType::UNSIGNED_INTEGER:
-        {
+        case NumberType::UNSIGNED_INTEGER: {
             std::cerr << "an unsigned integer";
             break;
         }
@@ -184,97 +182,7 @@ inline bool convert::fromString<long double>(const char* v, long double& dest)
 }
 
 template <>
-inline bool convert::fromString<unsigned int>(const char* v, unsigned int& dest)
-{
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
-    {
-        return false;
-    }
-
-    auto call = makeSmartC(strtoul, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULONG_MAX}, {}, v, nullptr, 10);
-    if (call.hasErrors())
-    {
-        return false;
-    }
-
-    if (call.getReturnValue() > UINT_MAX)
-    {
-        std::cerr << call.getReturnValue() << " too large, unsigned integer overflow" << std::endl;
-        return false;
-    }
-
-    dest = static_cast<unsigned int>(call.getReturnValue());
-    return true;
-}
-
-template <>
-inline bool convert::fromString<unsigned short>(const char* v, unsigned short& dest)
-{
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
-    {
-        return false;
-    }
-
-    auto call = makeSmartC(strtoul, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULONG_MAX}, {}, v, nullptr, 10);
-    if (call.hasErrors())
-    {
-        return false;
-    }
-
-    if (call.getReturnValue() > USHRT_MAX)
-    {
-        std::cerr << call.getReturnValue() << " too large, unsigned short overflow" << std::endl;
-        return false;
-    }
-
-    dest = static_cast<unsigned short>(call.getReturnValue());
-    return true;
-}
-
-template <>
-inline bool convert::fromString<short>(const char* v, short& dest)
-{
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
-    {
-        return false;
-    }
-
-    auto call = makeSmartC(strtol, ReturnMode::PRE_DEFINED_ERROR_CODE, {LONG_MAX, LONG_MIN}, {}, v, nullptr, 10);
-    if (call.hasErrors())
-    {
-        return false;
-    }
-
-    if (call.getReturnValue() > SHRT_MAX || call.getReturnValue() < SHRT_MIN)
-    {
-        std::cerr << call.getReturnValue() << " too large, short integer overflow" << std::endl;
-        return false;
-    }
-
-    dest = static_cast<short>(call.getReturnValue());
-    return true;
-}
-
-template <>
-inline bool convert::fromString<unsigned long>(const char* v, unsigned long& dest)
-{
-    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
-    {
-        return false;
-    }
-
-    auto call = makeSmartC(strtoul, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULONG_MAX}, {}, v, nullptr, 10);
-    if (call.hasErrors())
-    {
-        return false;
-    }
-
-    dest = call.getReturnValue();
-    return true;
-}
-
-template <>
-inline bool convert::fromString<unsigned long long>(const char* v, unsigned long long& dest)
+inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest)
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
     {
@@ -287,54 +195,90 @@ inline bool convert::fromString<unsigned long long>(const char* v, unsigned long
         return false;
     }
 
-    dest = call.getReturnValue();
+    if (call.getReturnValue() > std::numeric_limits<uint64_t>::max())
+    {
+        std::cerr << call.getReturnValue() << " too large, uint64_t overflow" << std::endl;
+        return false;
+    }
+
+    dest = static_cast<uint64_t>(call.getReturnValue());
     return true;
 }
 
 template <>
-inline bool convert::fromString<int>(const char* v, int& dest)
+inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest)
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
+    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
     {
         return false;
     }
 
-    auto call = makeSmartC(strtol, ReturnMode::PRE_DEFINED_ERROR_CODE, {LONG_MAX, LONG_MIN}, {}, v, nullptr, 10);
+    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, 10);
     if (call.hasErrors())
     {
         return false;
     }
 
-    if (call.getReturnValue() < INT_MIN || call.getReturnValue() > INT_MAX)
+    if (call.getReturnValue() > std::numeric_limits<uint32_t>::max())
     {
-        std::cerr << call.getReturnValue() << " too large, integer overflow!" << std::endl;
+        std::cerr << call.getReturnValue() << " too large, uint32_t overflow" << std::endl;
         return false;
     }
 
-    dest = static_cast<int>(call.getReturnValue());
+    dest = static_cast<uint32_t>(call.getReturnValue());
     return true;
 }
 
 template <>
-inline bool convert::fromString<long>(const char* v, long& dest)
+inline bool convert::fromString<uint16_t>(const char* v, uint16_t& dest)
 {
-    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
+    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
     {
         return false;
     }
 
-    auto call = makeSmartC(strtol, ReturnMode::PRE_DEFINED_ERROR_CODE, {LONG_MAX, LONG_MIN}, {}, v, nullptr, 10);
+    auto call = makeSmartC(strtoul, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULONG_MAX}, {}, v, nullptr, 10);
     if (call.hasErrors())
     {
         return false;
     }
 
-    dest = call.getReturnValue();
+    if (call.getReturnValue() > std::numeric_limits<uint16_t>::max())
+    {
+        std::cerr << call.getReturnValue() << " too large, uint16_t overflow" << std::endl;
+        return false;
+    }
+
+    dest = static_cast<uint16_t>(call.getReturnValue());
     return true;
 }
 
 template <>
-inline bool convert::fromString<long long>(const char* v, long long& dest)
+inline bool convert::fromString<uint8_t>(const char* v, uint8_t& dest)
+{
+    if (!stringIsNumberWithErrorMessage(v, NumberType::UNSIGNED_INTEGER))
+    {
+        return false;
+    }
+
+    auto call = makeSmartC(strtoul, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULONG_MAX}, {}, v, nullptr, 10);
+    if (call.hasErrors())
+    {
+        return false;
+    }
+
+    if (call.getReturnValue() > std::numeric_limits<uint8_t>::max())
+    {
+        std::cerr << call.getReturnValue() << " too large, uint8_t overflow" << std::endl;
+        return false;
+    }
+
+    dest = static_cast<uint8_t>(call.getReturnValue());
+    return true;
+}
+
+template <>
+inline bool convert::fromString<int64_t>(const char* v, int64_t& dest)
 {
     if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
     {
@@ -347,7 +291,89 @@ inline bool convert::fromString<long long>(const char* v, long long& dest)
         return false;
     }
 
-    dest = call.getReturnValue();
+    if (call.getReturnValue() > std::numeric_limits<int64_t>::max()
+        || call.getReturnValue() < std::numeric_limits<int64_t>::min())
+    {
+        std::cerr << call.getReturnValue() << " is out of range, int64_t overflow" << std::endl;
+        return false;
+    }
+
+    dest = static_cast<int64_t>(call.getReturnValue());
+    return true;
+}
+
+template <>
+inline bool convert::fromString<int32_t>(const char* v, int32_t& dest)
+{
+    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
+    {
+        return false;
+    }
+
+    auto call = makeSmartC(strtoll, ReturnMode::PRE_DEFINED_ERROR_CODE, {LLONG_MAX, LLONG_MIN}, {}, v, nullptr, 10);
+    if (call.hasErrors())
+    {
+        return false;
+    }
+
+    if (call.getReturnValue() > std::numeric_limits<int32_t>::max()
+        || call.getReturnValue() < std::numeric_limits<int32_t>::min())
+    {
+        std::cerr << call.getReturnValue() << " is out of range, int32_t overflow" << std::endl;
+        return false;
+    }
+
+    dest = static_cast<int32_t>(call.getReturnValue());
+    return true;
+}
+
+template <>
+inline bool convert::fromString<int16_t>(const char* v, int16_t& dest)
+{
+    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
+    {
+        return false;
+    }
+
+    auto call = makeSmartC(strtol, ReturnMode::PRE_DEFINED_ERROR_CODE, {LONG_MAX, LONG_MIN}, {}, v, nullptr, 10);
+    if (call.hasErrors())
+    {
+        return false;
+    }
+
+    if (call.getReturnValue() > std::numeric_limits<int16_t>::max()
+        || call.getReturnValue() < std::numeric_limits<int16_t>::min())
+    {
+        std::cerr << call.getReturnValue() << " is out of range, int16_t overflow" << std::endl;
+        return false;
+    }
+
+    dest = static_cast<int16_t>(call.getReturnValue());
+    return true;
+}
+
+template <>
+inline bool convert::fromString<int8_t>(const char* v, int8_t& dest)
+{
+    if (!stringIsNumberWithErrorMessage(v, NumberType::INTEGER))
+    {
+        return false;
+    }
+
+    auto call = makeSmartC(strtol, ReturnMode::PRE_DEFINED_ERROR_CODE, {LONG_MAX, LONG_MIN}, {}, v, nullptr, 10);
+    if (call.hasErrors())
+    {
+        return false;
+    }
+
+    if (call.getReturnValue() > std::numeric_limits<int8_t>::max()
+        || call.getReturnValue() < std::numeric_limits<int8_t>::min())
+    {
+        std::cerr << call.getReturnValue() << " is out of range, int8_t overflow" << std::endl;
+        return false;
+    }
+
+    dest = static_cast<int8_t>(call.getReturnValue());
     return true;
 }
 

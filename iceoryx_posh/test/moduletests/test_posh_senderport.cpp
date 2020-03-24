@@ -80,8 +80,7 @@ class SenderPort_testBase : public Test
 
     iox::ReceiverPortType* CreateReceiver(const ServiceDescription& f_service)
     {
-        iox::ReceiverPortType::MemberType_t* data =
-            new iox::ReceiverPortType::MemberType_t(f_service, "", iox::Interfaces::INTERNAL, nullptr);
+        iox::ReceiverPortType::MemberType_t* data = new iox::ReceiverPortType::MemberType_t(f_service, "", nullptr);
         m_portData.emplace_back(data);
         iox::ReceiverPortType* l_receiver = new iox::ReceiverPortType(data);
         m_ports.emplace_back(l_receiver);
@@ -91,7 +90,7 @@ class SenderPort_testBase : public Test
     iox::SenderPortType* CreateSender(const ServiceDescription& f_service)
     {
         iox::SenderPortType::MemberType_t* data =
-            new iox::SenderPortType::MemberType_t(f_service, &m_memPoolHandler, "", iox::Interfaces::INTERNAL, nullptr);
+            new iox::SenderPortType::MemberType_t(f_service, &m_memPoolHandler, "", nullptr);
         m_portData.emplace_back(data);
         iox::SenderPortType* l_sender = new iox::SenderPortType(data);
         m_ports.emplace_back(l_sender);
@@ -384,8 +383,8 @@ TEST_F(SenderPort_testLatchedTopic, getSameSampleAfterOneDeliver)
     ASSERT_THAT(m_receiver->getChunk(receivedSample), Eq(true));
     m_receiver->releaseChunk(receivedSample);
 
-    uintptr_t sampleAddress = reinterpret_cast<uintptr_t>(sample);
-    EXPECT_THAT(reinterpret_cast<uintptr_t>(m_sender->reserveChunk(sizeof(DummySample))), Eq(sampleAddress));
+    uint64_t sampleAddress = reinterpret_cast<uint64_t>(sample);
+    EXPECT_THAT(reinterpret_cast<uint64_t>(m_sender->reserveChunk(sizeof(DummySample))), Eq(sampleAddress));
 }
 
 TEST_F(SenderPort_testLatchedTopic, getDifferentSampleWhenStillInUse)
@@ -398,8 +397,8 @@ TEST_F(SenderPort_testLatchedTopic, getDifferentSampleWhenStillInUse)
     const iox::mepoo::ChunkHeader* receivedSample;
     ASSERT_THAT(m_receiver->getChunk(receivedSample), Eq(true));
 
-    uintptr_t sampleAddress = reinterpret_cast<uintptr_t>(sample);
-    EXPECT_THAT(reinterpret_cast<uintptr_t>(m_sender->reserveChunk(sizeof(DummySample))), Ne(sampleAddress));
+    uint64_t sampleAddress = reinterpret_cast<uint64_t>(sample);
+    EXPECT_THAT(reinterpret_cast<uint64_t>(m_sender->reserveChunk(sizeof(DummySample))), Ne(sampleAddress));
     m_receiver->releaseChunk(receivedSample);
 }
 
@@ -422,6 +421,6 @@ TEST_F(SenderPort_testLatchedTopic, getSameSampleAfterSecondDelivery)
     ASSERT_THAT(m_receiver->getChunk(receivedSample), Eq(true));
     m_receiver->releaseChunk(receivedSample);
 
-    uintptr_t sampleAddress = reinterpret_cast<uintptr_t>(sample);
-    EXPECT_THAT(reinterpret_cast<uintptr_t>(m_sender->reserveChunk(sizeof(DummySample))), Eq(sampleAddress));
+    uint64_t sampleAddress = reinterpret_cast<uint64_t>(sample);
+    EXPECT_THAT(reinterpret_cast<uint64_t>(m_sender->reserveChunk(sizeof(DummySample))), Eq(sampleAddress));
 }

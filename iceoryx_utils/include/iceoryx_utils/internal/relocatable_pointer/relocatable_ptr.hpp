@@ -23,6 +23,9 @@ namespace iox
 ///@todo restructure and split into multiple files along with an implementation cpp for non-template code
 class RelocatablePointer
 {
+    template <typename T>
+    friend class relocatable_ptr;
+
   public:
     using offset_t = std::ptrdiff_t;
 
@@ -94,17 +97,11 @@ class RelocatablePointer
         return m_offset;
     }
 
-    void print() const
-    {
-        std::cout << "&m_offset = " << reinterpret_cast<offset_t>(&m_offset) << std::endl;
-        std::cout << "m_offset = " << m_offset << std::endl;
-        std::cout << "raw = " << this->operator*() << std::endl;
-    }
+
+    static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
 
   protected:
     offset_t m_offset{NULL_POINTER_OFFSET};
-
-    static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
 
     inline offset_t computeOffset(const void* ptr) const
     {
@@ -188,6 +185,11 @@ class relocatable_ptr : public RelocatablePointer
     {
         auto ptr = static_cast<T*>(computeRawPtr());
         return *(ptr + index);
+    }
+
+    operator T*() const
+    {
+        return reinterpret_cast<T*>(computeRawPtr());
     }
 };
 

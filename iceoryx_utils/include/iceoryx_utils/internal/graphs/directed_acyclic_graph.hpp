@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <cassert>
 #include "iceoryx_utils/internal/cxx/set.hpp"
 #include "iceoryx_utils/internal/graphs/directed_graph.hpp"
 
@@ -66,7 +67,7 @@ class DirectedAcyclicGraph : public DirectedGraph<VertexType, VERTEX_LIMIT, DEGR
 
   private:
     ///@todo: static cast should only be a temporary solution, currently VERTEX_LIMIT has to
-    /// be unsigned for the tests and since it is a postive quantity this makes sense
+    /// be unsigned for the tests and since it is a positive quantity this makes sense
     /// TFixedVector cannot deal with this properly since its capacity is a signed type (which
     /// is nonconforming with STL and makes no sense since a capacity is always nonnegative)
     /// casting is no problem for the ranges we use, but for very large values (larger than
@@ -127,12 +128,14 @@ class DirectedAcyclicGraph : public DirectedGraph<VertexType, VERTEX_LIMIT, DEGR
 
     void init()
     {
-        // as a small optimisation we could defer the
+        bool stat = true;
+        // as a small optimization we could defer the
         // initialization to the time the vertex is actually added
-        for (size_t i = 0; i < VERTEX_LIMIT; ++i)
+        for (decltype(VERTEX_LIMIT) i = 0; i < VERTEX_LIMIT; ++i)
         {
-            m_reachableFrom.emplace_back(IndexSet());
-            m_leadsTo.emplace_back(IndexSet());
+            stat &= m_reachableFrom.emplace_back(IndexSet());
+            stat &= m_leadsTo.emplace_back(IndexSet());
         }
+        assert(stat);
     }
 };

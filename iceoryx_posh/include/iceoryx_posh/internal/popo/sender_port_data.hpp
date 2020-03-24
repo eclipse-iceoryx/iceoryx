@@ -49,7 +49,6 @@ struct SenderPortData : public BasePortData
     SenderPortData(const capro::ServiceDescription& serviceDescription,
                    mepoo::MemoryManager* const memMgr,
                    const std::string& applicationName,
-                   const Interfaces interface,
                    runtime::RunnableData* const runnable) noexcept;
 
     using ReceiverHandler_t = ReceiverHandler<MAX_RECEIVERS_PER_SENDERPORT, ThreadSafe>;
@@ -57,12 +56,13 @@ struct SenderPortData : public BasePortData
 
     // Written by application, read by RouDi
     std::atomic_bool m_activateRequested{false};
+    std::atomic_bool m_active{false};
+    bool m_isUnique{false};
 
 
     UsedChunkList<MAX_SAMPLE_ALLOCATE_PER_SENDER> m_allocatedChunksList;
 
     mepoo::SequenceNumberType m_sequenceNumber{0};
-    std::atomic_bool m_active{false};
     // throughput related members
     std::atomic<uint32_t> m_activePayloadSize{0};
     Throughput m_throughput{};
@@ -76,7 +76,7 @@ struct SenderPortData : public BasePortData
     mutable concurrent::TACO<Throughput, ThreadContext> m_throughputExchange{
         concurrent::TACOMode::DenyDataFromSameContext};
 
-    iox::relative_ptr<mepoo::MemoryManager> m_memoryMgr;
+    relative_ptr<mepoo::MemoryManager> m_memoryMgr;
     mepoo::SharedChunk m_lastChunk{nullptr};
 };
 
