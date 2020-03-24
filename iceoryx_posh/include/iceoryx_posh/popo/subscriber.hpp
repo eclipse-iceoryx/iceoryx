@@ -14,14 +14,14 @@
 
 #pragma once
 
+#include "ac3log/simplelogger.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/timespec.hpp"
-#include "ac3log/simplelogger.hpp"
+#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 #include <cassert>
 #include <cstdint>
@@ -51,7 +51,7 @@ class Subscriber_t
     /// @param[in] service Information on service , service, instance, event Id
     /// @param[in] runnableName optional name of the runnable the subscriber belongs to
     explicit Subscriber_t(const capro::ServiceDescription& service,
-                        const cxx::CString100& runnableName = cxx::CString100("")) noexcept;
+                          const cxx::CString100& runnableName = cxx::CString100("")) noexcept;
 
     /// @brief Destructor for event receiver
     virtual ~Subscriber_t() noexcept;
@@ -165,10 +165,19 @@ class Subscriber_t
     posix::Semaphore* m_callbackSemaphore{nullptr};
 };
 
-using Subscriber = Subscriber_t<iox::popo::ReceiverPort>;
+// Default Subscriber
+class Subscriber : public Subscriber_t<iox::popo::ReceiverPort>
+{
+  public:
+    Subscriber(const capro::ServiceDescription& service,
+               const cxx::CString100& runnableName = cxx::CString100("")) noexcept
+        : Subscriber_t<iox::popo::ReceiverPort>(service, runnableName)
+    {
+    }
+};
+
 
 } // namespace popo
 } // namespace iox
 
 #include "iceoryx_posh/internal/popo/subscriber.inl"
-
