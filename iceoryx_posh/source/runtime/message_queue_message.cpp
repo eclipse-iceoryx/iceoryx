@@ -84,7 +84,7 @@ void MqMessage::setMessage(const std::string& msg) noexcept
     clearMessage();
 
     m_msg = msg;
-    if (m_msg.back() != m_separator && !m_msg.empty())
+    if (!m_msg.empty() && m_msg.back() != m_separator)
     {
         m_isValid = false;
     }
