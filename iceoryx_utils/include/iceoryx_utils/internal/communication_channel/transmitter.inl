@@ -16,13 +16,13 @@
 
 namespace iox
 {
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline Transmitter<DataType, TransportLayer>::Transmitter(TransportLayer_t* const f_transportLayer)
     : m_transportLayer(f_transportLayer)
 {
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline bool Transmitter<DataType, TransportLayer>::Send(const DataType& f_message)
 {
     return m_transportLayer->Send(f_message);
