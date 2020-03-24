@@ -18,7 +18,7 @@
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
-#include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
+#include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
@@ -53,8 +53,9 @@ class RouDiProcess
 
     RouDiProcess(const RouDiProcess& other) = delete;
     RouDiProcess& operator=(const RouDiProcess& other) = delete;
-    RouDiProcess(RouDiProcess&& other) = default;
-    RouDiProcess& operator=(RouDiProcess&& other) = default;
+    /// @note the move cTor and assignment operator are already implicitly deleted because of the atomic
+    RouDiProcess(RouDiProcess&& other) = delete;
+    RouDiProcess& operator=(RouDiProcess&& other) = delete;
     ~RouDiProcess() = default;
 
     int getPid() const;
