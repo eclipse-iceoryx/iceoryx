@@ -28,8 +28,8 @@ namespace roudi
 class ServiceRegistry
 {
   public:
-    static constexpr uint32_t MAX_INSTANCES_PER_SERVICE = 100;
-    using CaproIdString_t = capro::ServiceDescription::IdString;
+    static constexpr uint32_t MAX_INSTANCES_PER_SERVICE = 100u;
+    using CaproIdString_t = capro::IdString;
     using InstanceSet_t = cxx::vector<CaproIdString_t, MAX_INSTANCES_PER_SERVICE>;
     struct instance_t
     {
@@ -49,3 +49,4 @@ class ServiceRegistry
 };
 } // namespace roudi
 } // namespace iox
+

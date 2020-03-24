@@ -18,7 +18,7 @@ namespace mepoo
 {
 template <typename T>
 template <typename... Targs>
-inline SharedPointer<T>::SharedPointer(const SharedChunk& chunk, Targs&&... args)
+inline SharedPointer<T>::SharedPointer(const SharedChunk& chunk, Targs&&... args) noexcept
     : m_chunk(chunk)
 {
     if (chunk.m_chunkManagement != nullptr)
@@ -34,13 +34,13 @@ inline SharedPointer<T>::SharedPointer(const SharedChunk& chunk, Targs&&... args
 }
 
 template <typename T>
-inline SharedPointer<T>::~SharedPointer()
+inline SharedPointer<T>::~SharedPointer() noexcept
 {
     deleteManagedObjectIfNecessary();
 }
 
 template <typename T>
-inline SharedPointer<T>& SharedPointer<T>::operator=(const SharedPointer& rhs)
+inline SharedPointer<T>& SharedPointer<T>::operator=(const SharedPointer& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -51,7 +51,7 @@ inline SharedPointer<T>& SharedPointer<T>::operator=(const SharedPointer& rhs)
 }
 
 template <typename T>
-inline SharedPointer<T>& SharedPointer<T>::operator=(SharedPointer&& rhs)
+inline SharedPointer<T>& SharedPointer<T>::operator=(SharedPointer&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -62,7 +62,7 @@ inline SharedPointer<T>& SharedPointer<T>::operator=(SharedPointer&& rhs)
 }
 
 template <typename T>
-inline void SharedPointer<T>::deleteManagedObjectIfNecessary()
+inline void SharedPointer<T>::deleteManagedObjectIfNecessary() noexcept
 {
     if (m_chunk.m_chunkManagement != nullptr
         && m_chunk.m_chunkManagement->m_referenceCounter.load(std::memory_order_relaxed) == 2)
@@ -72,39 +72,45 @@ inline void SharedPointer<T>::deleteManagedObjectIfNecessary()
 }
 
 template <typename T>
-inline T* SharedPointer<T>::get()
+inline T* SharedPointer<T>::get() noexcept
 {
     return static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->payload());
 }
 
 template <typename T>
-inline const T* SharedPointer<T>::get() const
+inline const T* SharedPointer<T>::get() const noexcept
 {
     return const_cast<SharedPointer*>(this)->get();
 }
 
 template <typename T>
-inline T* SharedPointer<T>::operator->()
+inline T* SharedPointer<T>::operator->() noexcept
 {
     return static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->payload());
 }
 
 template <typename T>
-inline const T* SharedPointer<T>::operator->() const
+inline const T* SharedPointer<T>::operator->() const noexcept
 {
     return const_cast<SharedPointer*>(this)->operator->();
 }
 
 template <typename T>
-inline T& SharedPointer<T>::operator*()
+inline T& SharedPointer<T>::operator*() noexcept
 {
     return *static_cast<T*>(m_chunk.m_chunkManagement->m_chunkHeader->payload());
 }
 
 template <typename T>
-inline const T& SharedPointer<T>::operator*() const
+inline const T& SharedPointer<T>::operator*() const noexcept
 {
     return const_cast<SharedPointer*>(this)->operator*();
+}
+
+template <typename T>
+inline SharedPointer<T>::operator bool() const noexcept
+{
+    return static_cast<bool>(m_chunk);
 }
 
 

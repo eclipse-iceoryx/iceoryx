@@ -43,7 +43,7 @@ class ObjectPool
 
 
     Index_t m_freeIndex{0};
-    size_t m_size{0};
+    size_t m_size{0u};
 
     // todo: maybe this metainformation can be combined, e.g. the data pointer == nullptr to indicate that
     // the data is invalid

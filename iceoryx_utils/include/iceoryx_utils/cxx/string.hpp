@@ -22,12 +22,14 @@ namespace cxx
 {
 /// @brief struct used to define a compile time variable which is used to distinguish between
 /// constructors with certain behavior
-struct UnsafeCheckPreconditions_t
+struct TruncateToCapacity_t
 {
-    explicit UnsafeCheckPreconditions_t() = default;
+    explicit TruncateToCapacity_t() = default;
 };
-constexpr UnsafeCheckPreconditions_t UnsafeCheckPreconditions{};
+constexpr TruncateToCapacity_t TruncateToCapacity{};
 
+/// @brief string implementation with some adjustments in the API, because we are not allowed to throw exceptions or use
+/// heap. Please see iceoryx/iceoryx_utils/doc/fixedString.adoc for further information.
 template <uint64_t Capacity>
 class string
 {
@@ -35,7 +37,7 @@ class string
 
   public:
     /// @brief creates an empty string with size 0
-    string() noexcept;
+    constexpr string() noexcept;
 
     /// @brief copy constructor
     ///
@@ -61,9 +63,6 @@ class string
     /// @return reference to self
     string& operator=(string&& rhs) noexcept;
 
-    /// @brief destructor
-    ~string() noexcept;
-
     /// @brief conversion constructor for char array with compile time check if the array size is lesser than or equal
     /// to the string capacity
     ///
@@ -71,7 +70,7 @@ class string
     /// @param [in] other is the char array
     ///
     /// @code
-    ///     #include "classes/string.hpp"
+    ///     #include "iceoryx_utils/cxx/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
@@ -79,67 +78,67 @@ class string
     ///         string<4> fuu("abcd");
     ///     }
     /// @endcode
-    template <int N>
+    template <uint64_t N>
     string(const char (&other)[N]) noexcept;
 
     /// @brief conversion constructor for cstring to string which truncates characters if the size is greater than
     /// the string capacity
     ///
-    /// @param [in] UnsafeCheckPreconditions_t is a compile time variable which is used to distinguish between
+    /// @param [in] TruncateToCapacity_t is a compile time variable which is used to distinguish between
     /// constructors with certain behavior
     /// @param [in] other is the cstring to convert
     /// @attention truncates characters if the size is greater than the string capacity
     ///
     /// @code
-    ///     #include "classes/string.hpp"
+    ///     #include "iceoryx_utils/cxx/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
     ///     {
-    ///         string<4> fuu(UnsafeCheckPreconditions, "abcd");
+    ///         string<4> fuu(TruncateToCapacity, "abcd");
     ///     }
     /// @endcode
-    string(UnsafeCheckPreconditions_t, const char* const other) noexcept;
+    string(TruncateToCapacity_t, const char* const other) noexcept;
 
     /// @brief conversion constructor for std::string to string which truncates characters if the std::string size is
     /// greater than the string capacity
     ///
-    /// @param [in] UnsafeCheckPreconditions_t is a compile time variable which is used to distinguish between
+    /// @param [in] TruncateToCapacity_t is a compile time variable which is used to distinguish between
     /// constructors with certain behavior
     /// @param [in] other is the std::string to convert
     /// @attention truncates characters if the std::string size is greater than the string capacity
     ///
     /// @code
-    ///     #include "classes/string.hpp"
+    ///     #include "iceoryx_utils/cxx/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
     ///     {
     ///         std::string bar = "bar";
-    ///         string<4> fuu(UnsafeCheckPreconditions, bar);
+    ///         string<4> fuu(TruncateToCapacity, bar);
     ///     }
     /// @endcode
-    string(UnsafeCheckPreconditions_t, const std::string& other) noexcept;
+    string(TruncateToCapacity_t, const std::string& other) noexcept;
 
-    /// @brief conversion constructor from cstring to string. Constructs the string with the first count characters of
-    /// the cstring including null characters. If count is greater than the string capacity the remainder of the
-    /// characters are truncated.
+    /// @brief constructor from cstring to string. Constructs the string with the first count characters of the cstring
+    /// including null characters. If count is greater than the string capacity the remainder of the characters are
+    /// truncated.
     ///
-    /// @param [in] UnsafeCheckPreconditions_t is a compile time variable which is used to distinguish between
+    /// @param [in] TruncateToCapacity_t is a compile time variable which is used to distinguish between
     /// constructors with certain behavior
-    /// @param other is the cstring to convert
-    /// @param count is the number of characters for constructing the string
+    /// @param [in] other is the cstring to convert
+    /// @param [in] count is the number of characters for constructing the string
     ///
     /// @code
-    ///     #include "classes/string.hpp"
+    ///     #include "iceoryx_utils/cxx/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
     ///     {
-    ///         string<4> fuu(UnsafeCheckPreconditions, "abcd", 2);
+    ///         string<4> fuu(TruncateToCapacity, "abcd", 2);
     ///     }
     /// @endcode
-    string(UnsafeCheckPreconditions_t, const char* const other, const uint64_t count) noexcept;
+    string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept;
 
     /// @brief assigns a char array to string with compile time check if the array size is lesser than or equal
     /// to the string capacity
@@ -150,7 +149,7 @@ class string
     /// @return reference to self
     ///
     /// @code
-    ///     #include "classes/string.hpp"
+    ///     #include "iceoryx_utils/cxx/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
@@ -158,7 +157,7 @@ class string
     ///         string<4> fuu = "abcd";
     ///     }
     /// @endcode
-    template <int N>
+    template <uint64_t N>
     string& operator=(const char (&rhs)[N]) noexcept;
 
     /// @brief fixed string assignment
@@ -177,7 +176,7 @@ class string
     /// @return reference to self
     /// @code
     ///
-    ///     #include "classes/string.hpp"
+    ///     #include "iceoryx_utils/cxx/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
@@ -187,7 +186,7 @@ class string
     ///         fuu.assign(bar);
     ///     }
     /// @endcode
-    template <int N>
+    template <uint64_t N>
     string& assign(const char (&str)[N]) noexcept;
 
     /// @brief assigns a cstring to string. The assignment fails if the cstring size is greater than the string
@@ -213,8 +212,7 @@ class string
     /// @return an integer < 0 if the first character that does not match has a lower value in self than in other, 0 if
     /// the contents of both strings are equal, an integer > 0 if the first character that does not match has a greater
     /// value in self than in other
-    int compare(const string other) const noexcept;
-    // int64_t compare(const string other) const noexcept;
+    int64_t compare(const string other) const noexcept;
 
     /// @brief checks if self is equal to rhs
     ///
@@ -258,6 +256,36 @@ class string
     /// @return true if self is greater than or equal to rhs, otherwise false
     bool operator>=(const string& rhs) const noexcept;
 
+    /// @brief The equality operator for fixed string and char pointer is disabled via a static_assert, because it may
+    /// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
+    /// string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) before compare it to a
+    /// fixed string.
+    ///
+    /// @param [in] rhs is the char pointer to the array to compare
+    ///
+    /// @return false
+    ///
+    /// @todo consider implementing the equality operator for a char array for which the size is known at compile time;
+    /// it could have the following signature
+    /// template <int N>
+    /// bool operator==(const char (&rhs)[N]) const noexcept
+    bool operator==(const char* const rhs) const noexcept;
+
+    /// @brief The inequality operator for fixed string and char pointer is disabled via a static_assert, because it may
+    /// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
+    /// string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) before compare it to a
+    /// fixed string.
+    ///
+    /// @param [in] rhs is the char pointer to the array to compare
+    ///
+    /// @return false
+    ///
+    /// @todo consider implementing the inequality operator for a char array for which the size is known at compile
+    /// time; it could have the following signature
+    /// template <int N>
+    /// bool operator==(const char (&rhs)[N]) const noexcept
+    bool operator!=(const char* const rhs) const noexcept;
+
     /// @brief returns a pointer to the char array of self
     ///
     /// @return a pointer to the char array of self
@@ -266,22 +294,97 @@ class string
     /// @brief returns the number of characters stored in the string
     ///
     /// @return the number of characters stored in the string
-    uint64_t size() const noexcept;
+    constexpr uint64_t size() const noexcept;
 
     /// @brief returns the maximum number of characters that can be stored in the string
     ///
     /// @return the maximum number of characters that can be stored in the string
-    uint64_t capacity() const noexcept;
+    constexpr uint64_t capacity() const noexcept;
+
+    /// @brief returns if the string is empty or not
+    ///
+    /// @return true if size() == 0 otherwise false
+    constexpr bool empty() const noexcept;
 
     /// @brief converts the string to a std::string
     ///
     /// @return a std::string with data equivalent to those stored in the string
-    explicit operator std::string() const noexcept;
+    operator std::string() const noexcept;
 
   private:
     char m_rawstring[Capacity + 1]{'\0'};
-    size_t m_rawstringSize{0};
+    uint64_t m_rawstringSize{0u};
 };
+
+/// @brief checks if a rhs fixed string is equal to a lhs std::string
+///
+/// @param [in] lhs is the std::string
+/// @param [in] rhs is the fixed string
+///
+/// @return true if both strings are equal, otherwise false
+template <uint64_t Capacity>
+inline bool operator==(const std::string& lhs, const string<Capacity>& rhs);
+
+/// @brief checks if a rhs std::string is equal to a lhs fixed string
+///
+/// @param [in] lhs is the fixed string
+/// @param [in] rhs is the std::string
+///
+/// @return true if both strings are equal, otherwise false
+template <uint64_t Capacity>
+inline bool operator==(const string<Capacity>& lhs, const std::string& rhs);
+
+/// @brief checks if a rhs fixed string is not equal to a lhs std::string
+///
+/// @param [in] lhs is the std::string
+/// @param [in] rhs is the fixed string
+///
+/// @return true if both strings are not equal, otherwise false
+template <uint64_t Capacity>
+inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs);
+
+/// @brief checks if a rhs std::string is not equal to a lhs fixed string
+///
+/// @param [in] lhs is the fixed string
+/// @param [in] rhs is the std::string
+///
+/// @return true if both strings are not equal, otherwise false
+template <uint64_t Capacity>
+inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs);
+
+/// @brief The equality operator for char pointer and fixed string is disabled via a static_assert, because it may
+/// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
+/// string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) before compare it to a
+/// fixed string.
+///
+/// @param [in] lhs is the char pointer to the array to compare
+/// @param [in] rhs is the fixed string
+///
+/// @return false
+template <uint64_t Capacity>
+inline bool operator==(const char* const lhs, const string<Capacity>& rhs);
+
+/// @brief The inequality operator for char pointer and fixed string is disabled via a static_assert, because it may
+/// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
+/// string with string(TruncateToCapacity_t, const char* const other, const uint64_t count) before compare it to a
+/// fixed string.
+///
+/// @param [in] lhs is the char pointer to the array to compare
+/// @param [in] rhs is the fixed string
+///
+/// @return false
+template <uint64_t Capacity>
+inline bool operator!=(const char* const lhs, const string<Capacity>& rhs);
+
+
+/// @brief outputs the fixed string on stream
+///
+/// @param [in] stream is the output stream
+/// @param [in] str is the fixed string
+///
+/// @return the stream output of the fixed string
+template <uint64_t Capacity>
+inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str);
 } // namespace cxx
 } // namespace iox
 #include "iceoryx_utils/internal/cxx/string.inl"

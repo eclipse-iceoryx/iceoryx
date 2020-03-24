@@ -63,13 +63,13 @@ MePooConfig& MePooConfig::optimize() noexcept
 
     std::sort(config.begin(), config.end(), [](const Entry& lhs, const Entry& rhs) { return lhs.m_size < rhs.m_size; });
 
-    MePooConfig::Entry newEntry{0, 0};
+    MePooConfig::Entry newEntry{0u, 0u};
 
     for (const auto& entry : config)
     {
         if (entry.m_size != newEntry.m_size)
         {
-            if (newEntry.m_size != 0)
+            if (newEntry.m_size != 0u)
             {
                 m_mempoolConfig.push_back(newEntry);
             }
@@ -82,7 +82,7 @@ MePooConfig& MePooConfig::optimize() noexcept
         }
     }
 
-    if (newEntry.m_size != 0)
+    if (newEntry.m_size != 0u)
     {
         m_mempoolConfig.push_back(newEntry);
     }

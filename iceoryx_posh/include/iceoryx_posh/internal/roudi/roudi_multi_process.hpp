@@ -19,11 +19,11 @@
 
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
-#include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
-#include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
+#include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
@@ -38,15 +38,18 @@ namespace iox
 {
 namespace roudi
 {
+using namespace iox::units::duration_literals;
+
 class RouDiMultiProcess
 {
   public:
     RouDiMultiProcess& operator=(const RouDiMultiProcess& other) = delete;
     RouDiMultiProcess(const RouDiMultiProcess& other) = delete;
 
-    RouDiMultiProcess(const MonitoringMode f_monitoringMode = MonitoringMode::ON,
-                      const bool f_killProcessesInDestructor = true,
-                      const RouDiConfig_t f_config = RouDiConfig_t().setDefaults());
+    RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInteface,
+                      PortManager& portManager,
+                      const MonitoringMode f_monitoringMode = MonitoringMode::ON,
+                      const bool f_killProcessesInDestructor = true);
 
     virtual ~RouDiMultiProcess();
 
@@ -88,23 +91,19 @@ class RouDiMultiProcess
 
     void processThread();
 
-    /// cleanup mqueue, etc.
-    bool cleanupBeforeStart();
-
     cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { RelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runThreads;
 
-    const units::Duration m_messageQueueTimeout{units::Duration::milliseconds(static_cast<unsigned long long>(100))};
-
-    /// locks the socket for preventing multiple start of RouDi
-    RouDiLock m_roudilock;
-
-    /// dummy variable to call cleanupBeforeStart after getting the roudi lock
-    bool m_cleanupBeforeStart;
+    const units::Duration m_messageQueueTimeout{100_ms};
 
   protected:
-    SharedMemoryManager m_shmMgr;
+    RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
+    /// @note destroy the memory right at the end of the dTor, since the memory is not needed anymore and we know that
+    /// the lifetime of the MemoryBlocks must be at least as long as RouDiMultiProcess; this saves us from issues if the
+    /// RouDiMemoryManager outlives some MemoryBlocks
+    cxx::GenericRAII m_roudiMemoryManagerCleaner{[]() {}, [this]() { this->m_roudiMemoryInterface->destroyMemory(); }};
+    PortManager* m_portManager;
     ProcessManager m_prcMgr;
 
   private:
@@ -121,3 +120,4 @@ class RouDiMultiProcess
 
 } // namespace roudi
 } // namespace iox
+

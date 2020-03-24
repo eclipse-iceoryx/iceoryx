@@ -122,11 +122,11 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
         EXPECT_THAT(chunk1->sample()->m_processList.size(), Eq(0));
 
         // a new process should be sent
-        m_introspection.addProcess(PID, iox::cxx::CString100(PROCESS_NAME));
+        m_introspection.addProcess(PID, iox::cxx::string<100>(PROCESS_NAME));
         auto chunk2 = createMemoryChunkAndSend(m_introspection);
         EXPECT_THAT(chunk2->sample()->m_processList.size(), Eq(1));
         EXPECT_THAT(chunk2->sample()->m_processList[0].m_pid, Eq(PID));
-        EXPECT_THAT(strcmp(PROCESS_NAME, chunk2->sample()->m_processList[0].m_name.to_cstring()), Eq(0));
+        EXPECT_THAT(iox::cxx::string<100>(PROCESS_NAME) == chunk2->sample()->m_processList[0].m_name, Eq(true));
 
         // list should be empty after removal
         m_introspection.removeProcess(PID);
@@ -241,7 +241,7 @@ TEST_F(ProcessIntrospection_test, addRemoveRunnable)
         auto chunk6 = createMemoryChunkAndSend(m_introspection);
         EXPECT_THAT(chunk6->sample()->m_processList.size(), Eq(1));
         EXPECT_THAT(chunk6->sample()->m_processList[0].m_runnables.size(), Eq(1));
-        EXPECT_THAT(strcmp(RUNNABLE_2, chunk6->sample()->m_processList[0].m_runnables[0].to_cstring()), Eq(0));
+        EXPECT_THAT(strcmp(RUNNABLE_2, chunk6->sample()->m_processList[0].m_runnables[0].c_str()), Eq(0));
 
         // remove last runnable list empty again
         m_introspection.removeRunnable(iox::cxx::CString100(PROCESS_NAME), iox::cxx::CString100(RUNNABLE_2));

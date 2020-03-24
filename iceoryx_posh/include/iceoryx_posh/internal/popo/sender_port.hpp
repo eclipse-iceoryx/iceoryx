@@ -27,6 +27,7 @@ class SenderPort : public BasePort
 {
   public:
     using MemberType_t = SenderPortData;
+    using MemoryInfo = iox::mepoo::MemoryInfo;
 
     SenderPort(SenderPortData* const member);
 
@@ -57,6 +58,7 @@ class SenderPort : public BasePort
 
   protected:
     virtual bool connectReceiverPort(ReceiverPortType::MemberType_t* const receiver);
+    virtual void deliverChunkToAllReceiver(const mepoo::SharedChunk f_chunk);
 
   private:
     bool hasValidService(const capro::CaproMessage& caproMessage);
@@ -71,6 +73,8 @@ class SenderPort : public BasePort
     bool deleteFromAllocatedChunkContainer(mepoo::ChunkHeader* chunkHeader);
     void clearAllocatedChunkContainer();
 
+    const MemoryInfo& getMemoryInfo() const noexcept;
+
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 };
@@ -79,3 +83,4 @@ class SenderPort : public BasePort
 } // namespace iox
 
 #include "iceoryx_posh/internal/popo/sender_port.inl"
+

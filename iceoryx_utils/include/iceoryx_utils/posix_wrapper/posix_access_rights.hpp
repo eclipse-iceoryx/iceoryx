@@ -55,7 +55,7 @@ class PosixGroup
 
   private:
     gid_t m_id;
-    bool m_doesExist;
+    bool m_doesExist{false};
 };
 
 class PosixUser
@@ -80,7 +80,7 @@ class PosixUser
 
   private:
     uid_t m_id;
-    bool m_doesExist;
+    bool m_doesExist{false};
 };
 
 } // namespace posix

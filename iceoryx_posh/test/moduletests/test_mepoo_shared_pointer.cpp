@@ -336,3 +336,14 @@ TEST_F(SharedPointer_Test, MoveFromEmpty)
     }
     EXPECT_THAT(TestClass::counter.dtor, Eq(1));
 }
+
+TEST_F(SharedPointer_Test, DefaultCTorProvidesInvalidSharedPointer)
+{
+    EXPECT_THAT(static_cast<bool>(SharedPointer<int>()), Eq(false));
+}
+
+TEST_F(SharedPointer_Test, SharedPointerWithContentIsValid)
+{
+    auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).get_value();
+    EXPECT_THAT(static_cast<bool>(sut3), Eq(true));
+}

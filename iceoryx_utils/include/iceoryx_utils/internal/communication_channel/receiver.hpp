@@ -23,7 +23,7 @@ namespace iox
 ///     communication partners to receive messages. it is also used by the
 ///     transceiver which inherits from it to provide a sending and receiving
 ///     interface
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 class Receiver
 {
   public:

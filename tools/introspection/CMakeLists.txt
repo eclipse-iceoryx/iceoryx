@@ -53,8 +53,14 @@ target_link_libraries(iceoryx_introspection
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
     ncurses
-    tinfo
 )
+
+# Don't link tinfo under QNX
+if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+    target_link_libraries(iceoryx_introspection
+        tinfo
+    )
+endif()
 
 set_target_properties(iceoryx_introspection
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"

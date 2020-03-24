@@ -28,21 +28,27 @@ namespace popo
 class DeliveryFiFo
 {
   public:
+    using VisibilityIndexType = std::uint16_t;
+
     struct ChunkManagementTransport
     {
         ChunkManagementTransport() = default;
-        ChunkManagementTransport(iox::relative_ptr<mepoo::ChunkManagement> f_chunk)
-            : m_segmentId(f_chunk.getId())
-            , m_chunkOffset(f_chunk.getOffset())
+        ChunkManagementTransport(iox::relative_ptr<mepoo::ChunkManagement> chunk, VisibilityIndexType visibilityIndex)
+            : m_segmentId(chunk.getId())
+            , m_chunkOffset(chunk.getOffset())
+            , m_visibilityIndex(visibilityIndex)
         {
         }
 
         RelativePointer::id_t m_segmentId{iox::RelativePointer::NULL_POINTER_ID};
         RelativePointer::offset_t m_chunkOffset{iox::RelativePointer::NULL_POINTER_OFFSET};
+        VisibilityIndexType m_visibilityIndex;
     };
 
     bool pop(mepoo::SharedChunk& chunk);
     bool push(mepoo::SharedChunk&& chunkIn, mepoo::SharedChunk& chunkOut);
+    bool pop(ChunkManagementTransport& chunkTransport);
+    bool push(ChunkManagementTransport&& chunkTransportIn, ChunkManagementTransport& chunkTransportOut);
 
     bool empty() const;
     bool resize(const uint32_t f_size);
@@ -50,7 +56,7 @@ class DeliveryFiFo
     uint64_t getSize() const;
 
   private:
-    concurrent::SoFi<ChunkManagementTransport, MAX_RECEIVER_QUEUE_SIZE> m_fifo;
+    concurrent::SoFi<ChunkManagementTransport, MAX_RECEIVER_QUEUE_CAPACITY> m_fifo;
 };
 
 } // namespace popo

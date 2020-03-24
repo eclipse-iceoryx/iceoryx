@@ -243,7 +243,7 @@ TEST_F(CMqInterface_test, MqBase_Receive)
     CMqInterface_Receive<MqBase>(base);
 }
 
-TEST_F(CMqInterface_test, MqBase_TimedReceive)
+TEST_F(CMqInterface_test, DISABLED_MqBase_TimedReceive)
 {
     MqBase base(ifName, maxMessages, messageSize);
     CMqInterface_Open(base);
@@ -294,7 +294,7 @@ TEST_F(CMqInterface_test, MqInterfaceUser_Receive)
     CMqInterface_Receive<MqInterfaceUser>(base);
 }
 
-TEST_F(CMqInterface_test, MqInterfaceUser_TimedReceive)
+TEST_F(CMqInterface_test, DISABLED_MqInterfaceUser_TimedReceive)
 {
     MqInterfaceUser base(ifName);
     CMqInterface_Open(base);
@@ -345,7 +345,7 @@ TEST_F(CMqInterface_test, MqInterfaceCreator_Receive)
     CMqInterface_Receive<MqInterfaceCreator>(base);
 }
 
-TEST_F(CMqInterface_test, MqInterfaceCreator_TimedReceive)
+TEST_F(CMqInterface_test, DISABLED_MqInterfaceCreator_TimedReceive)
 {
     MqInterfaceCreator base(ifName);
     CMqInterface_Open(base);

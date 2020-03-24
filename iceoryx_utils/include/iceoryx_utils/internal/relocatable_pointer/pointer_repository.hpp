@@ -36,8 +36,8 @@ class PointerRepository
         ptr_t endPtr{nullptr};
     };
 
-    static constexpr size_t MAX_ID = CAPACITY - 1;
-    static constexpr size_t MIN_ID = 1;
+    static constexpr size_t MAX_ID = CAPACITY - 1u;
+    static constexpr size_t MIN_ID = 1u;
     // remark: 0 is a special purpose id and reserved
     // id 0 is reserved to interpret the offset just as a raw pointer,
     // i.e. its corresponding base ptr is 0
@@ -59,7 +59,7 @@ class PointerRepository
         if (m_info[id].basePtr == nullptr)
         {
             m_info[id].basePtr = ptr;
-            m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uint64_t>(ptr) + size - 1);
+            m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uint64_t>(ptr) + size - 1u);
             if (id > m_maxRegistered)
             {
                 m_maxRegistered = id;
@@ -69,14 +69,14 @@ class PointerRepository
         return false;
     }
 
-    id_t registerPtr(const ptr_t ptr, uint64_t size = 0)
+    id_t registerPtr(const ptr_t ptr, uint64_t size = 0u)
     {
-        for (id_t id = 1; id <= MAX_ID; ++id)
+        for (id_t id = 1u; id <= MAX_ID; ++id)
         {
             if (m_info[id].basePtr == nullptr)
             {
                 m_info[id].basePtr = ptr;
-                m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uint64_t>(ptr) + size - 1);
+                m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uint64_t>(ptr) + size - 1u);
                 if (id > m_maxRegistered)
                 {
                     m_maxRegistered = id;
@@ -110,7 +110,7 @@ class PointerRepository
         {
             info.basePtr = nullptr;
         }
-        m_maxRegistered = 0;
+        m_maxRegistered = 0u;
     }
 
     ptr_t getBasePtr(id_t id)
@@ -128,7 +128,7 @@ class PointerRepository
 
     id_t searchId(ptr_t ptr)
     {
-        for (id_t id = 1; id <= m_maxRegistered; ++id)
+        for (id_t id = 1u; id <= m_maxRegistered; ++id)
         {
             // return first id where the ptr is in the corresponding interval
             if (ptr >= m_info[id].basePtr && ptr <= m_info[id].endPtr)
@@ -140,7 +140,7 @@ class PointerRepository
         // by setting id to 0
         // rationale: test cases work without registered shared memory and require
         // this at the moment to avoid fundamental changes
-        return 0;
+        return 0u;
         // return INVALID_ID;
     }
 
@@ -169,7 +169,7 @@ class PointerRepository
     // and each needs to initialize it via register calls above
 
     iox::cxx::vector<Info, CAPACITY> m_info;
-    uint64_t m_maxRegistered{0};
+    uint64_t m_maxRegistered{0u};
 };
 
 } // namespace iox

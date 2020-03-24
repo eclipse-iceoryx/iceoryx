@@ -215,7 +215,7 @@ TEST_F(PortIntrospection_test, sendData_OneSender)
     std::string senderPortName("name");
 
     PortData expectedSenderPortData;
-    expectedSenderPortData.m_name = iox::cxx::CString100(senderPortName.c_str());
+    expectedSenderPortData.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, senderPortName.c_str());
     expectedSenderPortData.m_caproInstanceID = "1";
     expectedSenderPortData.m_caproServiceID = "2";
     expectedSenderPortData.m_caproEventMethodID = "3";
@@ -305,23 +305,23 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
     auto mockPort1 = port1.details;
     auto mockPort2 = port2.details;
 
-    std::string name1("name1");
-    std::string name2("name2");
+    iox::cxx::string<100> name1("name1");
+    iox::cxx::string<100> name2("name2");
 
     // prepare expected outputs
     PortData expected1;
-    expected1.m_name = iox::cxx::CString100(name1.c_str());
+    expected1.m_name = name1;
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
-    expected1.m_runnable = iox::cxx::CString100("4");
+    expected1.m_runnable = iox::cxx::string<100>("4");
 
     PortData expected2;
-    expected2.m_name = iox::cxx::CString100(name2.c_str());
+    expected2.m_name = name2;
     expected2.m_caproInstanceID = "abc";
     expected2.m_caproServiceID = "def";
     expected2.m_caproEventMethodID = "ghi";
-    expected2.m_runnable = iox::cxx::CString100("jkl");
+    expected2.m_runnable = iox::cxx::string<100>("jkl");
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -415,25 +415,25 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
 
     m_senderPortImpl_mock->reserveSampleReturn = chunk->chunkHeader();
 
-    std::string name1("name1");
-    std::string name2("name2");
+    iox::cxx::string<100> name1("name1");
+    iox::cxx::string<100> name2("name2");
 
     // prepare expected outputs
     PortData expected1;
-    expected1.m_name = iox::cxx::CString100(name1.c_str());
+    expected1.m_name = name1;
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
     expected1.m_senderIndex = -1;
-    expected1.m_runnable = iox::cxx::CString100("4");
+    expected1.m_runnable = iox::cxx::string<100>("4");
 
     PortData expected2;
-    expected2.m_name = iox::cxx::CString100(name2.c_str());
+    expected2.m_name = name2;
     expected2.m_caproInstanceID = "4";
     expected2.m_caproServiceID = "5";
     expected2.m_caproEventMethodID = "6";
     expected2.m_senderIndex = -1;
-    expected2.m_runnable = iox::cxx::CString100("7");
+    expected2.m_runnable = iox::cxx::string<100>("7");
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -533,14 +533,14 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
 
     // prepare expected outputs
     ReceiverPortData expectedReceiver;
-    expectedReceiver.m_name = iox::cxx::CString100(nameReceiver.c_str());
+    expectedReceiver.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, nameReceiver.c_str());
     expectedReceiver.m_caproInstanceID = "1";
     expectedReceiver.m_caproServiceID = "2";
     expectedReceiver.m_caproEventMethodID = "3";
     expectedReceiver.m_senderIndex = -1;
 
     SenderPortData expectedSender;
-    expectedSender.m_name = iox::cxx::CString100(nameSender.c_str());
+    expectedSender.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, nameSender.c_str());
     expectedSender.m_caproInstanceID = "1";
     expectedSender.m_caproServiceID = "2";
     expectedSender.m_caproEventMethodID = "3";

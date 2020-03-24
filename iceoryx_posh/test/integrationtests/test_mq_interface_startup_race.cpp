@@ -84,13 +84,12 @@ class CMqInterfaceStartupRace_test : public Test
     {
         std::lock_guard<std::mutex> lock(m_appQueueMutex);
         MqMessage regAck;
-        constexpr uint32_t DUMMY_SHM_ADDRESS{42};
         constexpr uint32_t DUMMY_SHM_SIZE{37};
         constexpr uint32_t DUMMY_SHM_OFFSET{73};
         constexpr uint32_t DUMMY_SEGMENT_ID{13};
         constexpr uint32_t INDEX_OF_TIMESTAMP{4};
-        regAck << mqMessageTypeToString(MqMessageType::REG_ACK) << DUMMY_SHM_ADDRESS << DUMMY_SHM_SIZE
-               << DUMMY_SHM_OFFSET << oldMsg.getElementAtIndex(INDEX_OF_TIMESTAMP) << DUMMY_SEGMENT_ID;
+        regAck << mqMessageTypeToString(MqMessageType::REG_ACK) << DUMMY_SHM_SIZE << DUMMY_SHM_OFFSET
+               << oldMsg.getElementAtIndex(INDEX_OF_TIMESTAMP) << DUMMY_SEGMENT_ID;
 
         if (m_appQueue.has_error())
         {

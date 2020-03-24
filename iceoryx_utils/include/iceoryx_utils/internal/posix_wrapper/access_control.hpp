@@ -22,6 +22,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <type_traits>
 
 namespace iox
 {
@@ -44,7 +45,7 @@ class AccessController
 
 /// @brief identifier for a permission entry (user, group, others, ...)
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
-    enum class Category : std::underlying_type(acl_tag_t)
+    enum class Category : std::underlying_type<acl_tag_t>::type
 #else
     enum class Category : acl_tag_t
 #endif
@@ -60,7 +61,7 @@ class AccessController
 
 /// @brief access right for a permission entry
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
-    enum class Permission : std::underlying_type(acl_perm_t)
+    enum class Permission : std::underlying_type<acl_perm_t>::type
 #else
     enum class Permission : acl_perm_t
 #endif

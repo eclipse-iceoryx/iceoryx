@@ -15,6 +15,7 @@
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 #include "test.hpp"
 
@@ -38,8 +39,7 @@ class alignas(32) TypedMemPool_test : public Test
     static constexpr uint32_t NumberOfChunks{3};
     static constexpr uint32_t ChunkSize{128};
 
-    static constexpr uint32_t LoFFLiMemoryRequirement{
-        MemPool::freeList_t::requiredMemorySize(NumberOfChunks) + 100000};
+    static constexpr uint32_t LoFFLiMemoryRequirement{MemPool::freeList_t::requiredMemorySize(NumberOfChunks) + 100000};
 
     TypedMemPool_test()
         : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)
@@ -82,4 +82,41 @@ TEST_F(TypedMemPool_test, OutOfChunksErrorWhenFull)
 
     EXPECT_THAT(object4.has_error(), Eq(true));
     EXPECT_THAT(object4.get_error(), Eq(TypedMemPoolError::OutOfChunks));
+}
+
+class alignas(32) TypedMemPool_Semaphore_test : public Test
+{
+  public:
+    static constexpr uint32_t NumberOfChunks{3};
+    static constexpr uint32_t ChunkSize{sizeof(iox::posix::Semaphore)};
+
+    static constexpr uint32_t LoFFLiMemoryRequirement{MemPool::freeList_t::requiredMemorySize(NumberOfChunks) + 100000};
+
+    TypedMemPool_Semaphore_test()
+        : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)
+        , sut(NumberOfChunks, &allocator, &allocator)
+    {
+    }
+
+    void SetUp(){};
+    void TearDown(){};
+
+    alignas(32) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
+    iox::posix::Allocator allocator;
+
+    TypedMemPool<iox::posix::Semaphore> sut;
+};
+
+TEST_F(TypedMemPool_Semaphore_test, CreateValidSemaphore)
+{
+    auto semaphorePtr =
+        sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>("/fuuSem", S_IRUSR | S_IWUSR, 10);
+    EXPECT_THAT(semaphorePtr.has_error(), Eq(false));
+}
+
+TEST_F(TypedMemPool_Semaphore_test, CreateInvalidSemaphore)
+{
+    auto semaphorePtr =
+        sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>("", S_IRUSR | S_IWUSR, 10);
+    EXPECT_THAT(semaphorePtr.has_error(), Eq(true));
 }

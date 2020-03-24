@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
@@ -26,10 +27,11 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(con
                                                                              posix::Allocator* f_managementAllocator,
                                                                              const posix::PosixGroup& f_readerGroup,
                                                                              const posix::PosixGroup& f_writerGroup,
-                                                                             const uint64_t f_baseAddressOffset)
-    : m_sharedMemoryObject(createSharedMemoryObject(f_mempoolConfig, f_writerGroup, f_baseAddressOffset))
+                                                                             const iox::mepoo::MemoryInfo& memoryInfo)
+    : m_sharedMemoryObject(createSharedMemoryObject(f_mempoolConfig, f_writerGroup))
     , m_readerGroup(f_readerGroup)
     , m_writerGroup(f_writerGroup)
+    , m_memoryInfo(memoryInfo)
 {
     using namespace posix;
     AccessController f_accessController;
@@ -55,9 +57,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(con
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
-    const MePooConfig& f_mempoolConfig,
-    const posix::PosixGroup& f_writerGroup,
-    const uint64_t f_baseAddressOffset [[gnu::unused]])
+    const MePooConfig& f_mempoolConfig, const posix::PosixGroup& f_writerGroup)
 {
     // we let the OS decide where to map the shm segments
     constexpr void* BASE_ADDRESS_HINT{nullptr};
@@ -77,9 +77,9 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
 
     setSegmentId(iox::RelativePointer::registerPtr(retVal->getBaseAddress(), retVal->getSizeInBytes()));
 
-    LogInfo() << "Roudi registered payload segment "
-              << iox::log::HexFormat(reinterpret_cast<uint64_t>(retVal->getBaseAddress())) << " with size "
-              << retVal->getSizeInBytes() << " to id " << m_segmentId;
+    LogDebug() << "Roudi registered payload segment "
+               << iox::log::HexFormat(reinterpret_cast<uint64_t>(retVal->getBaseAddress())) << " with size "
+               << retVal->getSizeInBytes() << " to id " << m_segmentId;
 
     return std::move(retVal.value());
 }

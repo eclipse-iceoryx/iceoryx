@@ -20,8 +20,8 @@
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 namespace iox
 {
@@ -37,10 +37,7 @@ template <typename SegmentType = MePooSegment<>>
 class SegmentManager
 {
   public:
-    SegmentManager(const SegmentConfig& f_segmentConfig,
-                   posix::Allocator* f_managementAllocator,
-                   const uint64_t f_sharedMemoryBaseAddressOffset,
-                   const bool f_skipShmPlacementVerification = false);
+    SegmentManager(const SegmentConfig& f_segmentConfig, posix::Allocator* f_managementAllocator);
     ~SegmentManager() = default;
 
     SegmentManager(const SegmentManager& rhs) = delete;
@@ -52,17 +49,18 @@ class SegmentManager
     struct SegmentMapping
     {
       public:
-        SegmentMapping(const std::string f_sharedMemoryName,
-                       void* f_startAddress,
-                       uint64_t f_size,
-                       bool f_isWritable,
-                       uint64_t f_segmentId)
-            : m_sharedMemoryName(f_sharedMemoryName)
-            , m_startAddress(f_startAddress)
-            , m_size(f_size)
-            , m_isWritable(f_isWritable)
-
-            , m_segmentId(f_segmentId)
+        SegmentMapping(const std::string& sharedMemoryName,
+                       void* startAddress,
+                       uint64_t size,
+                       bool isWritable,
+                       uint64_t segmentId,
+                       const iox::mepoo::MemoryInfo& memoryInfo = iox::mepoo::MemoryInfo())
+            : m_sharedMemoryName(sharedMemoryName)
+            , m_startAddress(startAddress)
+            , m_size(size)
+            , m_isWritable(isWritable)
+            , m_segmentId(segmentId)
+            , m_memoryInfo(memoryInfo)
 
         {
         }
@@ -72,6 +70,7 @@ class SegmentManager
         uint64_t m_size{0};
         bool m_isWritable{false};
         uint64_t m_segmentId{0};
+        iox::mepoo::MemoryInfo m_memoryInfo; // we can specify additional info about a segments memory here
     };
 
     struct SegmentUserInformation
@@ -85,9 +84,9 @@ class SegmentManager
     SegmentMappingContainer getSegmentMappings(posix::PosixUser f_user);
     SegmentUserInformation getSegmentInformationForUser(posix::PosixUser f_user);
 
-    static uint64_t requiredManagementMemorySize(const RouDiConfig_t& f_config);
-    static uint64_t requiredChunkMemorySize(const RouDiConfig_t& f_config);
-    static uint64_t requiredFullMemorySize(const RouDiConfig_t& f_config);
+    static uint64_t requiredManagementMemorySize(const SegmentConfig& f_config);
+    static uint64_t requiredChunkMemorySize(const SegmentConfig& f_config);
+    static uint64_t requiredFullMemorySize(const SegmentConfig& f_config);
 
   private:
     bool createSegment(const SegmentConfig::SegmentEntry& f_segmentEntry);
@@ -96,11 +95,9 @@ class SegmentManager
     template <typename MemoryManger, typename SegmentManager, typename SenderPort>
     friend class roudi::MemPoolIntrospection;
 
-    uint64_t m_nextSegmentBaseAddressOffset{0};
     posix::Allocator* m_managementAllocator;
     cxx::vector<SegmentType, MAX_SHM_SEGMENTS> m_segmentContainer;
     bool m_createInterfaceEnabled{true};
-    bool m_verifySharedMemoryPlacement{false};
 };
 
 
@@ -108,3 +105,4 @@ class SegmentManager
 } // namespace iox
 
 #include "iceoryx_posh/internal/mepoo/segment_manager.inl"
+

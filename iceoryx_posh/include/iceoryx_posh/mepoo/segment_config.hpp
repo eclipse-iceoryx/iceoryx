@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -29,9 +30,22 @@ struct SegmentConfig
 {
     struct SegmentEntry
     {
+        SegmentEntry(const std::string& readerGroup,
+                     const std::string& writerGroup,
+                     const MePooConfig& memPoolConfig,
+                     iox::mepoo::MemoryInfo memoryInfo = iox::mepoo::MemoryInfo())
+            : m_readerGroup(readerGroup)
+            , m_writerGroup(writerGroup)
+            , m_mempoolConfig(memPoolConfig)
+            , m_memoryInfo(memoryInfo)
+
+        {
+        }
+
         std::string m_readerGroup;
         std::string m_writerGroup;
         MePooConfig m_mempoolConfig;
+        iox::mepoo::MemoryInfo m_memoryInfo;
     };
 
     cxx::vector<SegmentEntry, MAX_SHM_SEGMENTS> m_sharedMemorySegments;

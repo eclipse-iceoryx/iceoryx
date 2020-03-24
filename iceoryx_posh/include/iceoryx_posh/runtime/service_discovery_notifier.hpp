@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
+#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 #include <atomic>
@@ -24,8 +25,8 @@ namespace iox
 {
 namespace runtime
 {
-/// @brief descriptor to store per service, which is registered for SD notification
-struct ServiceHandlerDescription
+// descriptor to store per service, which is registered for SD notification
+struct ServiceHandlerDescriptor
 {
     // callback handler , registered by Proxy
     FindServiceHandler callbackHandler;
@@ -70,32 +71,52 @@ class ServiceDiscoveryNotifier
     ServiceDiscoveryNotifier& operator=(ServiceDiscoveryNotifier&&) = delete;
 
   private:
-    // Cyclic function, this calculates delta of service instances , in case of change in service registry
+    /// Private helper function, to process stopFindService() requests
+    /// @note : This function modifies m_serviceDescriptors, has to be called under the mutex m_serviceDescriptorsMutex
+    void processStopFindServiceRequests() noexcept;
+    /// Private helper function, which checks for the change in available instances for the given service, compared to
+    /// last call of the function
+    bool checkForInstanceChange(ServiceHandlerDescriptor& descriptor) const noexcept;
+
+  private:
+    /// Cyclic function, this calculates delta of service instances , in case of change in service registry
     void serviceDiscoveryNotifier() noexcept;
 
-    // name , identifier for the instance.
+    /// name , identifier for the instance.
     std::string m_appName;
 
-    // Pointer to service registry change counter. This points to an object in shared memory.
-    // Pointer to this is fetched during initialisation.
+    /// Pointer to service registry change counter. This points to an object in shared memory.
+    /// Pointer to this is fetched during initialisation.
     const std::atomic<uint64_t>* m_serviceRegistryChangeCounter{nullptr};
 
-    // Last known value of the counter
+    /// Last known value of the counter
     uint64_t m_changeCountAtLastServiceDiscovery{0};
 
+    /// Store descriptor per registered service
+    iox::cxx::vector<ServiceHandlerDescriptor, MAX_START_FIND_SERVICE_CALLBACKS> m_serviceDescriptors;
 
-    // Store descriptor per registered service
-    iox::cxx::vector<ServiceHandlerDescription, MAX_START_FIND_SERVICE_CALLBACKS> m_handlers;
+    /// Mutex to synchronise access to m_serviceDescriptors
+    /// Also used for synchronising access to m_serviceDiscoveryTimerActive & m_triggerDiscoveryLoop
+    mutable std::mutex m_serviceDescriptorsMutex;
 
-    // Mutex to synchronise access to m_handlers
-    mutable std::mutex m_queueAccessMutex;
-
-    // used for starting the timer, first time StartFindService() is called.
+    /// used for starting the timer, first time StartFindService() is called.
     /// @todo : Introducing isRunning() method in Timer might be a better idea
     bool m_serviceDiscoveryTimerActive;
 
-    // counter used to generate handle for startFindService request
+    /// used to trigger the service discovery loop , under certain special circumstances
+    /// At the moment, used when startFindService() is called for a service
+    bool m_triggerDiscoveryLoop;
+
+    /// counter used to generate handle for startFindService request
     FindServiceHandle m_handleCounter;
+
+    /// vector, used to collect all the requests for stopFindService(), between two invocation of cyclic thread
+    /// serviceDiscoveryNotifier()
+    /// stopFindService() requests are executed at the beginning of serviceDiscoveryNotifier()
+    /// Rationale : Avoid concurrent modification of m_serviceDescriptors in stopFindService(), as iterate over it in
+    /// serviceDiscoveryNotifier()
+    concurrent::smart_lock<iox::cxx::vector<FindServiceHandle, MAX_START_FIND_SERVICE_CALLBACKS>>
+        m_threadSafeStoppedHandles;
 
     /// @note the m_serviceDiscovery should always be the last member, so that it will be the first member to be
     /// detroyed
@@ -104,3 +125,4 @@ class ServiceDiscoveryNotifier
 
 } // namespace runtime
 } // namespace iox
+

@@ -27,8 +27,7 @@ struct InterfacePortData : public BasePortData
 {
     InterfacePortData() = default;
     InterfacePortData(const std::string& applicationName,
-                      const capro::Interfaces interface,
-                      runtime::RunnableData* const runnable) noexcept;
+                      const capro::Interfaces interface) noexcept;
     concurrent::FiFo<capro::CaproMessage, MAX_INTERFACE_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
     bool m_doInitialOfferForward{true};
 };

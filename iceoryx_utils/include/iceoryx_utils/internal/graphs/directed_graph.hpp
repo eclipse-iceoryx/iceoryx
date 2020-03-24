@@ -145,7 +145,7 @@ class DirectedGraph
         iox::cxx::vector<VertexType*, VERTEX_LIMIT> result;
         for (auto& vertexData : m_vertices)
         {
-            if (vertexData.predecessors.size() == 0)
+            if (vertexData.predecessors.size() == 0u)
             {
                 result.emplace_back(vertexData.vertex);
             }

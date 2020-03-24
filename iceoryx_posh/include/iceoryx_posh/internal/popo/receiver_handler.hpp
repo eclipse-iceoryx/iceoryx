@@ -101,7 +101,6 @@ class ReceiverHandler : public LockingPolicy
         return RouDiContext(*this);
     }
 
-    void deliverChunk(const mepoo::SharedChunk f_chunk);
     void updateLastChunk(const mepoo::SharedChunk f_chunk);
     /// checks for a sample for delivering on subscription
     /// @return true if there is a valid sample for delivering on subscription

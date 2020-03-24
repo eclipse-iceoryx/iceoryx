@@ -212,9 +212,9 @@ TEST_F(RoudiFindService_test, InterfacePort)
 
     while (interfacePort.getCaProMessage(caproMessage))
     {
-        if ((caproMessage.m_serviceDescription.getServiceIDString() == "service1")
-            && (caproMessage.m_serviceDescription.getInstanceIDString() == "instance1")
-            && ((caproMessage.m_serviceDescription.getEventIDString() == iox::capro::AnyEventString)))
+        if ((caproMessage.m_serviceDescription.getServiceIDString() == IdString("service1"))
+            && (caproMessage.m_serviceDescription.getInstanceIDString() == IdString("instance1"))
+            && ((caproMessage.m_serviceDescription.getEventIDString() == IdString(iox::capro::AnyEventString))))
         {
             serviceFound = true;
             break;
@@ -233,8 +233,8 @@ TEST_F(RoudiFindService_test, findServiceMaxInstances)
         // Service & Instance string is kept short , to reduce the response size in find service request ,
         // (message queue has a limit of 512)
         std::string instance = "i" + std::to_string(i);
-        senderRuntime->offerService({"s", instance});
-        instanceContainerExp.push_back(instance);
+        senderRuntime->offerService({"s", IdString(iox::cxx::TruncateToCapacity, instance)});
+        instanceContainerExp.push_back(IdString(iox::cxx::TruncateToCapacity, instance));
         this->InterOpWait();
     }
 
@@ -253,8 +253,8 @@ TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
     for (size_t i = 0; i < noOfInstances; i++)
     {
         std::string instance = "i" + std::to_string(i);
-        senderRuntime->offerService({"s", instance});
-        instanceContainerExp.push_back(instance);
+        senderRuntime->offerService({"s", IdString(iox::cxx::TruncateToCapacity, instance)});
+        instanceContainerExp.push_back(IdString(iox::cxx::TruncateToCapacity, instance));
         this->InterOpWait();
     }
 

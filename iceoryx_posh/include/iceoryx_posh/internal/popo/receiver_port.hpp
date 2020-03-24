@@ -38,8 +38,7 @@ class ReceiverPort : public BasePort
   public:
     using MemberType_t = ReceiverPortData;
     using mutex_t = posix::mutex;
-
-    using ChunksCounterType = mepoo::SamplesCounterType;
+    using MemoryInfo = iox::mepoo::MemoryInfo;
 
     // BEGIN REGION__ROUDI // /* access from RouDi------------------------------------
 
@@ -61,8 +60,8 @@ class ReceiverPort : public BasePort
     // BEGIN REGION__APPLICATION // /* access from Application-------------------------------
 
     void subscribe(const bool f_autoResubscribe = false,
-                   const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_SIZE); // deprecated
-    void subscribe(const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_SIZE);
+                   const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY); // deprecated
+    void subscribe(const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY);
     void unsubscribe();
     bool isSubscribed() const;
     SubscribeState getSubscribeState() const;
@@ -76,8 +75,7 @@ class ReceiverPort : public BasePort
     void clearDeliveryFiFo();
 
     /* expects an initialized POSIX semaphore, stored in shared memory! */
-    virtual void SetCallbackReferences(posix::Semaphore* f_callbackSemaphore,
-                                       std::atomic<ChunksCounterType>* f_sendChunksCounter = 0) noexcept;
+    virtual void SetCallbackReferences(posix::Semaphore* f_callbackSemaphore) noexcept;
     virtual void UnsetCallbackReferences() noexcept;
 
     bool AreCallbackReferencesSet();
@@ -93,6 +91,14 @@ class ReceiverPort : public BasePort
     uint64_t getDeliveryFiFoCapacity() const;
     uint64_t getDeliveryFiFoSize() const;
 
+    /// @deprecated function for enabling/disabling notifications when the deliveryfifo is dropping messages (e.g. SoFi
+    /// is used) Enables a bool which is evaluated in delivery() function for counting dropped samples and printing
+    /// logmessages.
+    /// @todo integrate that function cleaner with next refactoring
+    void setNotifyOnOverflow(const bool) noexcept;
+
+    const MemoryInfo& getMemoryInfo() const noexcept;
+
   private:
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
@@ -102,3 +108,4 @@ class ReceiverPort : public BasePort
 } // namespace iox
 
 #include "iceoryx_posh/internal/popo/receiver_port.inl"
+

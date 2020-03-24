@@ -76,19 +76,23 @@ class RouDiApp
     /// @brief waits for the next signal to RouDi daemon
     bool waitForSignal() const noexcept;
 
-    bool m_run{true};
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
     MonitoringMode m_monitoringMode{MonitoringMode::ON};
+    bool m_run{true};
     RouDiConfig_t m_config;
 
-    posix::Semaphore m_semaphore = std::move(posix::Semaphore::create(0)
+    posix::Semaphore m_semaphore = std::move(posix::Semaphore::create(0u)
                                                  .on_error([] {
                                                      std::cerr << "Unable to create the semaphore for RouDi"
                                                                << std::endl;
                                                      std::terminate();
                                                  })
                                                  .get_value());
+
+  private:
+    bool checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept;
 };
 
 } // namespace roudi
 } // namespace iox
+

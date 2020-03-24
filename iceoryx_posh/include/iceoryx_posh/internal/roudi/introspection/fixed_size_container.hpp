@@ -91,7 +91,7 @@ class FixedSizeContainer
         if (m_size >= capacity)
             return NOT_AN_ELEMENT; // container is full
 
-        for (; m_values[m_freeIndex].isValid; m_freeIndex = (m_freeIndex + 1) % capacity)
+        for (; m_values[m_freeIndex].isValid; m_freeIndex = (m_freeIndex + 1u) % capacity)
             ;
 
         return m_freeIndex;
@@ -108,7 +108,7 @@ class FixedSizeContainer
     }
 
     Index_t m_freeIndex{0};
-    size_t m_size{0};
+    size_t m_size{0u};
 
     struct entry_t
     {

@@ -107,7 +107,7 @@ SmartC<Function, ReturnType, FunctionArguments...>::SmartC(const char* file,
             if (value == m_returnValue)
             {
                 m_errnum = errno;
-                strncpy(m_errorString, strerror(errno), m_errorStringSize);
+                m_errorString.unsafe_assign(std::strerror(m_errnum));
                 for (const auto ignored : f_ignoredValues)
                 {
                     if (m_errnum == ignored)
@@ -141,8 +141,7 @@ SmartC<Function, ReturnType, FunctionArguments...>::SmartC(const char* file,
             }
         }
         m_errnum = errno;
-        strncpy(m_errorString, strerror(errno), m_errorStringSize);
-
+        m_errorString.unsafe_assign(std::strerror(m_errnum));
         for (const auto ignored : f_ignoredValues)
         {
             if (m_errnum == ignored)
@@ -184,11 +183,11 @@ inline bool SmartC<Function, ReturnType, FunctionArguments...>::hasErrors() cons
 template <typename Function, typename ReturnType, typename... FunctionArguments>
 inline const char* SmartC<Function, ReturnType, FunctionArguments...>::getErrorString() const noexcept
 {
-    return m_errorString;
+    return m_errorString.c_str();
 }
 
 template <typename Function, typename ReturnType, typename... FunctionArguments>
-inline int SmartC<Function, ReturnType, FunctionArguments...>::getErrNum() const noexcept
+inline int32_t SmartC<Function, ReturnType, FunctionArguments...>::getErrNum() const noexcept
 {
     return m_errnum;
 }

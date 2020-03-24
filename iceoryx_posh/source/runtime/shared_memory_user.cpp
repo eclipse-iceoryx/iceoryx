@@ -17,15 +17,14 @@
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 namespace iox
 {
 namespace runtime
 {
-SharedMemoryUser::SharedMemoryUser(std::string baseAddrString[[gnu::unused]],
-                                   const bool doMapSharedMemoryIntoThread,
+SharedMemoryUser::SharedMemoryUser(const bool doMapSharedMemoryIntoThread,
                                    const size_t topicSize,
                                    std::string segmentManagerAddr,
                                    const uint64_t segmentId)
@@ -46,9 +45,9 @@ SharedMemoryUser::SharedMemoryUser(std::string baseAddrString[[gnu::unused]],
 
         RelativePointer::registerPtr(segmentId, m_shmObject->getBaseAddress(), m_shmObject->getSizeInBytes());
 
-        LogInfo() << "Application registered management segment "
-                  << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_shmObject->getBaseAddress())) << " with size "
-                  << m_shmObject->getSizeInBytes() << " to id " << segmentId;
+        LogDebug() << "Application registered management segment "
+                   << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_shmObject->getBaseAddress())) << " with size "
+                   << m_shmObject->getSizeInBytes() << " to id " << segmentId;
 
         RelativePointer::offset_t offset;
         iox::cxx::convert::fromString(segmentManagerAddr.c_str(), offset);

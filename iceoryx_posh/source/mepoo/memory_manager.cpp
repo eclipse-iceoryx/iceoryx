@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -119,16 +120,18 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& f_mePooConfig
 
 uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& f_mePooConfig)
 {
-    uint64_t memorySize{0};
-    uint32_t sumOfAllChunks{0};
+    uint64_t memorySize{0u};
+    uint32_t sumOfAllChunks{0u};
     for (const auto& mempool : f_mePooConfig.m_mempoolConfig)
     {
         sumOfAllChunks += mempool.m_chunkCount;
-        memorySize += cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredMemorySize(mempool.m_chunkCount)), SHARED_MEMORY_ALIGNMENT);
+        memorySize += cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredMemorySize(mempool.m_chunkCount)),
+                                 SHARED_MEMORY_ALIGNMENT);
     }
 
     memorySize += sumOfAllChunks * sizeof(ChunkManagement);
-    memorySize += cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredMemorySize(sumOfAllChunks)), SHARED_MEMORY_ALIGNMENT);
+    memorySize += cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredMemorySize(sumOfAllChunks)),
+                             SHARED_MEMORY_ALIGNMENT);
 
     return memorySize;
 }
@@ -187,9 +190,9 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
         new (chunk) ChunkHeader();
         static_cast<ChunkHeader*>(chunk)->m_info.m_payloadSize = f_size;
         static_cast<ChunkHeader*>(chunk)->m_info.m_usedSizeOfChunk = adjustedSize;
-        ChunkManagement* chunkManagement = static_cast<ChunkManagement*>(m_chunkManagementPool[0].getChunk());
+        ChunkManagement* chunkManagement = static_cast<ChunkManagement*>(m_chunkManagementPool.front().getChunk());
         new (chunkManagement)
-            ChunkManagement(static_cast<ChunkHeader*>(chunk), memPoolPointer, &m_chunkManagementPool[0]);
+            ChunkManagement(static_cast<ChunkHeader*>(chunk), memPoolPointer, &m_chunkManagementPool.front());
         return SharedChunk(chunkManagement);
     }
 }

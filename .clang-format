@@ -23,7 +23,8 @@ AlwaysBreakTemplateDeclarations: true
 BinPackArguments: false
 BinPackParameters: false  # If false, a function declaration's or function definition's parameters will either all be on the same line or will have one line each.
 BreakBeforeBraces: Custom
-BraceWrapping:   
+BraceWrapping:
+  AfterCaseLabel:           true
   AfterClass:               true
   AfterControlStatement:    true
   AfterEnum:                true

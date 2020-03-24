@@ -111,13 +111,19 @@ inline expected<ValueType, ErrorType> expected<ValueType, ErrorType>::create_err
 }
 
 template <typename ValueType, typename ErrorType>
+inline expected<ValueType, ErrorType>::operator bool() const noexcept
+{
+    return m_hasError;
+}
+
+template <typename ValueType, typename ErrorType>
 inline bool expected<ValueType, ErrorType>::has_error() const noexcept
 {
     return m_hasError;
 }
 
 template <typename ValueType, typename ErrorType>
-inline const ErrorType&& expected<ValueType, ErrorType>::get_error() const && noexcept
+inline const ErrorType&& expected<ValueType, ErrorType>::get_error() const&& noexcept
 {
     return std::move(*m_store.template get_at_index<1>());
 }
@@ -135,7 +141,7 @@ template <typename ValueType, typename ErrorType>
 }
 
 template <typename ValueType, typename ErrorType>
-inline const ErrorType& expected<ValueType, ErrorType>::get_error() const & noexcept
+inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexcept
 {
     return *m_store.template get_at_index<1>();
 }
@@ -147,13 +153,13 @@ template <typename ValueType, typename ErrorType>
 }
 
 template <typename ValueType, typename ErrorType>
-inline const ValueType& expected<ValueType, ErrorType>::get_value() const & noexcept
+inline const ValueType& expected<ValueType, ErrorType>::get_value() const& noexcept
 {
     return *m_store.template get_at_index<0>();
 }
 
 template <typename ValueType, typename ErrorType>
-inline const ValueType&& expected<ValueType, ErrorType>::get_value() const && noexcept
+inline const ValueType&& expected<ValueType, ErrorType>::get_value() const&& noexcept
 {
     return std::move(*m_store.template get_at_index<0>());
 }
@@ -399,6 +405,12 @@ inline expected<ErrorType> expected<ErrorType>::create_error(Targs&&... args) no
 }
 
 template <typename ErrorType>
+inline expected<ErrorType>::operator bool() const noexcept
+{
+    return m_hasError;
+}
+
+template <typename ErrorType>
 inline bool expected<ErrorType>::has_error() const noexcept
 {
     return m_hasError;
@@ -411,13 +423,13 @@ template <typename ErrorType>
 }
 
 template <typename ErrorType>
-inline const ErrorType& expected<ErrorType>::get_error() const & noexcept
+inline const ErrorType& expected<ErrorType>::get_error() const& noexcept
 {
     return *m_store.template get_at_index<0>();
 }
 
 template <typename ErrorType>
-inline const ErrorType&& expected<ErrorType>::get_error() const && noexcept
+inline const ErrorType&& expected<ErrorType>::get_error() const&& noexcept
 {
     return std::move(*m_store.template get_at_index<0>());
 }

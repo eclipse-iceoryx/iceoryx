@@ -122,7 +122,7 @@ class MePooSegment_test : public Test
 
     MePooConfig mepooConfig = setupMepooConfig();
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut{
-        mepooConfig, &m_managementAllocator, {"roudi_test1"}, {"roudi_test2"}, 0};
+        mepooConfig, &m_managementAllocator, {"roudi_test1"}, {"roudi_test2"}};
 };
 MePooSegment_test::SharedMemoryObject_MOCK::createFct MePooSegment_test::SharedMemoryObject_MOCK::createVerificator;
 
@@ -144,7 +144,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationPara
         EXPECT_THAT(f_ownerShip, Eq(iox::posix::OwnerShip::mine));
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
-        mepooConfig, &m_managementAllocator, {"roudi_test1"}, {"roudi_test2"}, 0};
+        mepooConfig, &m_managementAllocator, {"roudi_test1"}, {"roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 }
@@ -161,7 +161,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
         memorySizeInBytes = f_memorySizeInBytes;
     };
     MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
-        mepooConfig, &m_managementAllocator, {"roudi_test1"}, {"roudi_test2"}, 0};
+        mepooConfig, &m_managementAllocator, {"roudi_test1"}, {"roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 
@@ -180,7 +180,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetWriterGroup))
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
 {
-    ASSERT_THAT(sut.getMemoryManager().getNumberOfMemPools(), Eq(1));
+    ASSERT_THAT(sut.getMemoryManager().getNumberOfMemPools(), Eq(1u));
     auto config = sut.getMemoryManager().getMemPoolInfo(0);
     ASSERT_THAT(config.m_numChunks, Eq(100u));
     auto chunk = sut.getMemoryManager().getChunk(128);

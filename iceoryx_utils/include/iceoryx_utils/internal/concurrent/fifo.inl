@@ -31,7 +31,7 @@ inline bool FiFo<ValueType, Capacity>::push(const ValueType& f_param_r)
 
         // m_write_pos must be increased after writing the new value otherwise
         // it is possible that the value is read by pop while it is written
-        m_write_pos.fetch_add(1, std::memory_order_acq_rel);
+        m_write_pos.fetch_add(1u, std::memory_order_acq_rel);
         return true;
     }
 }
