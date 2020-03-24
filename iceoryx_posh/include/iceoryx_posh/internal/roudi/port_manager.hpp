@@ -44,16 +44,13 @@ namespace roudi
 {
 capro::Interfaces StringToEInterfaces(std::string str);
 
-/// @todo rename to PortManager once OSS iceoryx is merged
-class SharedMemoryManager;
-using PortManager = SharedMemoryManager;
-class SharedMemoryManager
+class PortManager
 {
   public:
     using PortConfigInfo = iox::runtime::PortConfigInfo;
-    SharedMemoryManager(RouDiMemoryInterface* roudiMemoryInterface);
+    PortManager(RouDiMemoryInterface* roudiMemoryInterface);
 
-    virtual ~SharedMemoryManager() = default;
+    virtual ~PortManager() = default;
 
     /// @todo Remove this later
     void stopPortIntrospection();

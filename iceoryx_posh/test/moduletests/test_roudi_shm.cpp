@@ -23,7 +23,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp" // MAX_PORT_NUMBER
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
-#include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
+#include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
@@ -38,22 +38,22 @@ using iox::popo::ReceiverPort;
 using iox::popo::SenderPort;
 using iox::roudi::IceOryxRouDiMemoryManager;
 using iox::roudi::PortPoolError;
-using iox::roudi::SharedMemoryManager;
+using iox::roudi::PortManager;
 
-class CShmMangerTester : public SharedMemoryManager
+class CShmMangerTester : public PortManager
 {
   public:
     CShmMangerTester(IceOryxRouDiMemoryManager* roudiMemoryManager)
-        : SharedMemoryManager(roudiMemoryManager)
+        : PortManager(roudiMemoryManager)
     {
     }
 
   private:
-    FRIEND_TEST(SharedMemoryManager_test, CheckDeleteOfPortsFromProcess1);
-    FRIEND_TEST(SharedMemoryManager_test, CheckDeleteOfPortsFromProcess2);
+    FRIEND_TEST(PortManager_test, CheckDeleteOfPortsFromProcess1);
+    FRIEND_TEST(PortManager_test, CheckDeleteOfPortsFromProcess2);
 };
 
-class SharedMemoryManager_test : public Test
+class PortManager_test : public Test
 {
   public:
     iox::mepoo::MemoryManager* m_payloadMemoryManager{nullptr};
@@ -120,7 +120,7 @@ class SharedMemoryManager_test : public Test
 };
 
 
-TEST_F(SharedMemoryManager_test, doDiscovery_singleShotSenderFirst)
+TEST_F(PortManager_test, doDiscovery_singleShotSenderFirst)
 {
     SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).get_value());
     ASSERT_TRUE(sender);
@@ -143,7 +143,7 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotSenderFirst)
     EXPECT_TRUE(receiver1.isSubscribed());
 }
 
-TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirst)
+TEST_F(PortManager_test, doDiscovery_singleShotReceiverFirst)
 {
     ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/schlomo"));
     ASSERT_TRUE(receiver1);
@@ -166,7 +166,7 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirst)
     EXPECT_TRUE(receiver1.isSubscribed());
 }
 
-TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirstWithDiscovery)
+TEST_F(PortManager_test, doDiscovery_singleShotReceiverFirstWithDiscovery)
 {
     ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/schlomo"));
     ASSERT_TRUE(receiver1);
@@ -189,7 +189,7 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirstWithDiscover
     EXPECT_TRUE(receiver1.isSubscribed());
 }
 
-TEST_F(SharedMemoryManager_test, doDiscovery_rightOrdering)
+TEST_F(PortManager_test, doDiscovery_rightOrdering)
 {
     ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/schlomo"));
     ASSERT_TRUE(receiver1);
@@ -219,7 +219,7 @@ TEST_F(SharedMemoryManager_test, doDiscovery_rightOrdering)
     EXPECT_TRUE(receiver2.isSubscribed());
 }
 
-TEST_F(SharedMemoryManager_test, SenderReceiverOverflow)
+TEST_F(PortManager_test, SenderReceiverOverflow)
 {
     std::string p1 = "/test1";
     std::string r1 = "run1";
@@ -257,7 +257,7 @@ TEST_F(SharedMemoryManager_test, SenderReceiverOverflow)
     }
 }
 
-TEST_F(SharedMemoryManager_test, InterfaceAndApplicationsOverflow)
+TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
 {
     // overflow of interface and applications
     std::string itf = "/itf";
@@ -308,7 +308,7 @@ TEST_F(SharedMemoryManager_test, InterfaceAndApplicationsOverflow)
     }
 }
 
-TEST_F(SharedMemoryManager_test, PortDestroy)
+TEST_F(PortManager_test, PortDestroy)
 {
     std::string p1 = "/myProcess1";
     std::string p2 = "/myProcess2";

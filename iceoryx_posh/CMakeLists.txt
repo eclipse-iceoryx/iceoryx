@@ -144,6 +144,7 @@ add_library(iceoryx_posh_roudi
     source/roudi/memory/roudi_memory_manager.cpp
     source/roudi/memory/iceoryx_roudi_memory_manager.cpp
     source/roudi/iceoryx_port_pool.cpp
+    source/roudi/port_manager.cpp
     source/roudi/port_pool.cpp
     source/roudi/roudi_config.cpp
     source/roudi/roudi_cmd_line_parser.cpp
@@ -151,7 +152,6 @@ add_library(iceoryx_posh_roudi
     source/roudi/roudi_multi_process.cpp
     source/roudi/roudi_lock.cpp
     source/roudi/roudi_process.cpp
-    source/roudi/shared_memory_manager.cpp
     source/roudi/service_registry.cpp
 )
 
