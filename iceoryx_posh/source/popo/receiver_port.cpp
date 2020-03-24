@@ -192,12 +192,13 @@ SubscribeState ReceiverPort::getSubscribeState() const
 
 bool ReceiverPort::getChunk(const mepoo::ChunkHeader*& f_chunkHeader) noexcept
 {
-    // Create tuple on stack in order to check the visibiltyIndex
-    DeliveryFiFo::ChunkManagementTransport l_tuple;
+    // Create ChunkManagementTransport on stack in order to check the visibiltyIndex
+    DeliveryFiFo::ChunkManagementTransport chunkTransport;
 
-    if (getMembers()->m_deliveryFiFo.pop(l_tuple))
+    if (getMembers()->m_deliveryFiFo.pop(chunkTransport))
     {
-        auto chunkManagement = iox::relative_ptr<mepoo::ChunkManagement>(l_tuple.m_chunkOffset, l_tuple.m_segmentId);
+        auto chunkManagement =
+            iox::relative_ptr<mepoo::ChunkManagement>(chunkTransport.m_chunkOffset, chunkTransport.m_segmentId);
         mepoo::SharedChunk l_chunk(chunkManagement);
 
         // store the chunk that is provided to the user side
@@ -286,7 +287,7 @@ posix::Semaphore* ReceiverPort::GetShmSemaphore()
 {
     if (getMembers()->m_shmSemaphore.has_error())
     {
-        getMembers()->m_shmSemaphore = std::move(posix::Semaphore::create(&getMembers()->m_shmSemaphoreHandle, 0));
+        getMembers()->m_shmSemaphore = posix::Semaphore::create(&getMembers()->m_shmSemaphoreHandle, 0);
         if (getMembers()->m_shmSemaphore.has_error())
         {
             return nullptr;
