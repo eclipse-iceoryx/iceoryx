@@ -6,7 +6,8 @@ or namespace, depending on where or how they are used.
 
 ## structure
 
- - internal and why
+ - internal and why, unstable api, maybe soon deprecated or experimental 
+   and we would like to use it
 
 ## categories
 
@@ -30,16 +31,19 @@ STL type but we have to make exceptions here. For instance, we do not
 throw exceptions or are using the heap. In these cases we adjusted the
 API to our use case. 
 
+Most of the headers are providing some minimalistic example on how the 
+class should be used.
+
 | class                   | internal | description |
 |:-----------------------:|:--------:|:------------|
 |```algorithm```          |   | Implements ```min``` and ```max``` for an arbitrary number of values of the same type. For instance ```min(1,2,3,4,5);``` |
 |```convert```            |   | Converting a number into a string is easy, converting it back can be hard. You can use functions like ```strtoll``` but you still have to handle errors like under- and overflow, or converting invalid strings into number. Here we abstract all the error handling so that you can convert strings into numbers safely. |
-|```expected```           |   | |
-|```GenericRAII```        |   | |
-|```helplets```           |   | |
-|```pair```               | x | |
+|```expected```           |   | Our base class used in error handling. Every function which can fail should return an expected. With this the user knows that this function can fail and that they have to do some kind of error handling. We got inspired by the [C++ expected proposal]( http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0323r7.html) and by the [rust error handling concept](https://doc.rust-lang.org/std/result/enum.Result.html). |
+|```GenericRAII```        |   | This is an abstraction of the C++ RAII idiom. Sometimes you have constructs where you would like to perform a certain task on creation and then again when they are getting out of scope, this is where ```GenericRAII``` comes in. It is like a ```std::lock_guard``` or a ```std::shared_ptr``` but more generic. |
+|```helplets```           |   | Implementations of [C++ Core Guideline](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) concepts like ```not_null```, ```Ensures```, ```Expects``` are contained here. Additionally, we are providing some types to verify preconditions at compile time. Think of an int which has to be always greater 5 here we provide types like ```greater_or_equal<int, 6>```.|
+|```pair```               | x | Simplistic reimplementation of an ```std::pair```. It maybe becomes obsolete. |
 |```poor_mans_heap```     |   | |
-|```ReferenceCounter```   | x | |
+|```ReferenceCounter```   | x | Basic building block for classes which are needing some kind of reference counting like a ```std::shared_ptr``` |
 |```serialization```      |   | |
 |```set```                | x | |
 |```smart_c```            |   | |
@@ -50,10 +54,50 @@ API to our use case.
 
 ### concurrent
 
+| class                   | internal | description |
+|:-----------------------:|:--------:|:------------|
+|```ActiveObject```       | x | |
+|```FiFo```               | x | |
+|```LockedLoFFLi```       | x | |
+|```smart_lock```         | x | |
+|```SoFi```               | x | |
+|```TACO```               | x | |
+|```TriggerQueue```       | x | |
+
 ### design pattern
 
+| class                   | internal | description |
+|:-----------------------:|:--------:|:------------|
+|```Creation```           |  | |
+
 ### log
+logging_free_function_building_block.hpp
+| class                   | internal | description |
+|:-----------------------:|:--------:|:------------|
+|```logger```             |   | |
 
 ### posix wrapper
 
+| class                   | internal | description |
+|:-----------------------:|:--------:|:------------|
+|```AccessController```   | x | |
+|```ArgvInspector```      | x | |
+|```IpcChannel```         | x | |
+|```MessageQueue```       | x | |
+|```mutex```              | x | |
+|```posix_access_rights```|   | |
+|```Semaphore```          |   | |
+|```shared_memory_object/Allocator``` | x | |
+|```shared_memory_object/MemoryMap``` | x | |
+|```shared_memory_object/SharedMemory``` | x | |
+|```SharedMemoryObject``` | x | |
+|```system_configuration``` | x | |
+|```Timer```              |   | |
+|```timespec```           | x | |
+|```UnixDomainSocket```   | x | |
+
 ### units
+
+| class                   | internal | description |
+|:-----------------------:|:--------:|:------------|
+|```Duration```           | x | |
