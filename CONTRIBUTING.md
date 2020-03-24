@@ -148,6 +148,10 @@ your code as portable as possible. Currently our focus is [QNX](https://blackber
 We aim for [ASIL-D](https://en.wikipedia.org/wiki/Automotive_Safety_Integrity_Level#ASIL_D) compliance. The
 [ISO262](https://en.wikipedia.org/wiki/ISO_26262) is also a good read-up if you want to learn more about automotive
 safety. A nice introduction [video](https://www.youtube.com/watch?v=F4GzsA00s5I) was presented on CppCon 2019.
+
+We have a partnership with [Perforce](https://www.perforce.com) and use
+[Helix QAC++ 2019.2](https://www.perforce.com/products/helix-qac) to perform a static-code analysis.
+
 Github [labels](https://github.com/eclipse/iceoryx/labels) are used to group issues into the rulesets:
 
 | Ruleset name | Github issue label |
@@ -155,6 +159,18 @@ Github [labels](https://github.com/eclipse/iceoryx/labels) are used to group iss
 | [MISRA](https://www.misra.org.uk/) C++ 2008 | MISRA |
 | [Adaptive AUTOSAR](https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-03/AUTOSAR_RS_CPP14Guidelines.pdf) C++14 | AUTOSAR |
 | [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682) 2016 Coding Standard | CERT |
+
+If one of the rules is not followed, a rationale is added in the following manner:
+
+    /// @rationale
+    /// Short description why
+    *mynullptr = foo; // PRQA S 4242
+
+Don't be afraid if you don't have Helix QAC++ available. As we want to make it easy for developers to contribute,
+please use the ``staging`` branch and we'll run the QAC++ scan and get back to you.
+
+Results will be available on this [Helix QAC dashboard](https://qaverify.programmingresearch.com/). Please contact us, if
+you're interested in getting access.
 
 It is possible that not the whole codebase follows these rules, things are work in progress. But this is where we want
 go. As of now we don't have any continous integration checks implemented but will rely on reviews during the pull
