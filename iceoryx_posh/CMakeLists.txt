@@ -256,6 +256,10 @@ if(roudi_environment OR test)
     )
 endif(roudi_environment OR test)
 
+if(ICEORYX_LARGE_DEPLOYMENT)
+    add_definitions(-DICEORYX_LARGE_DEPLOYMENT)
+endif(ICEORYX_LARGE_DEPLOYMENT)
+
 #
 ########## exporting library ##########
 #

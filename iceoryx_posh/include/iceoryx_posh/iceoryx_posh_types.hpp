@@ -46,10 +46,14 @@ constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * DISCOVERY_INTERVAL; 
 constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
 
 // Communication Resources
+#ifdef ICEORYX_LARGE_DEPLOYMENT
 constexpr uint32_t MAX_PORT_NUMBER = 4096u;
-constexpr uint32_t MAX_INTERFACE_NUMBER = 16u;
+#else
+constexpr uint32_t MAX_PORT_NUMBER = 1024u;
+#endif
+constexpr uint32_t MAX_INTERFACE_NUMBER = 4u;
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = 256u;
-constexpr uint32_t MAX_SAMPLE_ALLOCATE_PER_SENDER = 16u;
+constexpr uint32_t MAX_SAMPLE_ALLOCATE_PER_SENDER = 8u;
 constexpr uint64_t MAX_SENDER_SAMPLE_HISTORY_CAPACITY = 16u;
 constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = 256u;
 constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PORT_NUMBER;
