@@ -47,6 +47,7 @@ class ChunkDistributor_test : public Test
 
     static constexpr size_t MEGABYTE = 1 << 20;
     static constexpr size_t MEMORY_SIZE = 1 * MEGABYTE;
+    const uint64_t HISTORY_SIZE = 16;
     char memory[MEMORY_SIZE];
     iox::posix::Allocator allocator{memory, MEMORY_SIZE};
     MemPool mempool{128, 20, &allocator, &allocator};
@@ -63,7 +64,7 @@ class ChunkDistributor_test : public Test
 
     std::shared_ptr<ChunkDistributorData> getChunkDistributorData()
     {
-        return std::make_shared<ChunkDistributorData>();
+        return std::make_shared<ChunkDistributorData>(HISTORY_SIZE);
     }
 };
 

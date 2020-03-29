@@ -225,13 +225,13 @@ TEST_F(SenderPort_test, reserveSample_Overflow)
 {
     std::vector<ChunkHeader*> samples;
 
-    // allocate samples until MAX_SAMPLE_ALLOCATE_PER_SENDER level
-    for (size_t i = 0; i < iox::MAX_SAMPLE_ALLOCATE_PER_SENDER; i++)
+    // allocate samples until MAX_CHUNKS_ALLOCATE_PER_SENDER level
+    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
     {
         samples.push_back(m_sender->reserveChunk(sizeof(DummySample)));
     }
 
-    for (size_t i = 0; i < iox::MAX_SAMPLE_ALLOCATE_PER_SENDER; i++)
+    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
     {
         EXPECT_THAT(samples[i], Ne(nullptr));
     }
