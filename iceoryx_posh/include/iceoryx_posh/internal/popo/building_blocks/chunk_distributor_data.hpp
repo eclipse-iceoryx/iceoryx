@@ -31,7 +31,7 @@ struct ChunkQueueData;
 
 struct ChunkDistributorData
 {
-    ChunkDistributorData(uint64_t historyCapacity = MAX_SENDER_SAMPLE_HISTORY_CAPACITY) noexcept
+    ChunkDistributorData(uint64_t historyCapacity = 0u) noexcept
         : m_historyCapacity(algorithm::min(historyCapacity, MAX_SENDER_SAMPLE_HISTORY_CAPACITY))
     {
         if (m_historyCapacity != historyCapacity)

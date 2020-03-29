@@ -53,7 +53,7 @@ constexpr uint32_t MAX_PORT_NUMBER = 1024u;
 #endif
 constexpr uint32_t MAX_INTERFACE_NUMBER = 4u;
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = 256u;
-constexpr uint32_t MAX_SAMPLE_ALLOCATE_PER_SENDER = 8u;
+constexpr uint32_t MAX_CHUNKS_ALLOCATE_PER_SENDER = 8u;
 constexpr uint64_t MAX_SENDER_SAMPLE_HISTORY_CAPACITY = 16u;
 constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = 256u;
 constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PORT_NUMBER;

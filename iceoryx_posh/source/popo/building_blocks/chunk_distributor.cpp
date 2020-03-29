@@ -113,11 +113,14 @@ void ChunkDistributor::deliverToQueue(ChunkQueue::MemberType_t* const queue, mep
 
 void ChunkDistributor::addToHistoryWithoutDelivery(mepoo::SharedChunk chunk) noexcept
 {
-    if (getMembers()->m_sampleHistory.size() >= getMembers()->m_historyCapacity)
+    if (0 < getMembers()->m_historyCapacity)
     {
-        getMembers()->m_sampleHistory.erase(getMembers()->m_sampleHistory.begin());
+        if (getMembers()->m_sampleHistory.size() >= getMembers()->m_historyCapacity)
+        {
+            getMembers()->m_sampleHistory.erase(getMembers()->m_sampleHistory.begin());
+        }
+        getMembers()->m_sampleHistory.push_back(chunk);
     }
-    getMembers()->m_sampleHistory.push_back(chunk);
 }
 
 uint64_t ChunkDistributor::getHistorySize() noexcept

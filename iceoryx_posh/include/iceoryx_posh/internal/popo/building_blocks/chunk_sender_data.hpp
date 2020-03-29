@@ -27,24 +27,25 @@ namespace iox
 {
 namespace popo
 {
-struct ChunkSenderData
+struct ChunkSenderData : public ChunkDistributorData
 {
-    ChunkSenderData(mepoo::MemoryManager* const memMgr,
-                    uint64_t historyCapacity = MAX_SENDER_SAMPLE_HISTORY_CAPACITY,
-                    const MemoryInfo& memoryInfo = MemoryInfo()) noexcept
-        : m_memoryMgr(memMgr)
+    ChunkSenderData(mepoo::MemoryManager* const memoryManager,
+                    uint64_t historyCapacity = 0u,
+                    const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
+        : ChunkDistributorData(historyCapacity)
+        , m_memoryMgr(memoryManager)
         , m_memoryInfo(memoryInfo)
-        , m_chunkDistributor(historyCapacity)
     {
+        assert(nullptr != memoryManager);
     }
 
-    iox::relative_ptr<mepoo::MemoryManager> m_memoryMgr;
-    MemoryInfo m_memoryInfo;
-    ChunkDistributorData m_chunkDistributorData;
-    UsedChunkList<MAX_SAMPLE_ALLOCATE_PER_SENDER> m_chunksInUse;
+    relative_ptr<mepoo::MemoryManager> m_memoryMgr;
+    mepoo::MemoryInfo m_memoryInfo;
+    UsedChunkList<MAX_CHUNKS_ALLOCATE_PER_SENDER> m_chunksInUse;
     mepoo::SequenceNumberType m_sequenceNumber{0u};
     mepoo::SharedChunk m_lastChunk{nullptr};
 
+    /// @todo This here?
     // bool m_isUnique{false};
     // throughput related members
     // std::atomic<uint32_t> m_activePayloadSize{0u};
