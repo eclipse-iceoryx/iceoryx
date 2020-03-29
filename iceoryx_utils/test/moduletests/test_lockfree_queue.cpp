@@ -136,7 +136,7 @@ TYPED_TEST(LockFreeQueueTest, tryPushInFullQueueFails)
     EXPECT_FALSE(q.try_push(data));
 }
 
-TYPED_TEST(LockFreeQueueTest, pushedElementsAreInFifoOrder)
+TYPED_TEST(LockFreeQueueTest, poppedElementsAreInFifoOrder)
 {
     auto& q = this->queue;
     auto capacity = q.capacity();

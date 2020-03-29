@@ -39,6 +39,11 @@ class IndexQueue
     std::atomic<Index> m_tail;
 
   public:
+    IndexQueue(const IndexQueue&) = delete;
+    IndexQueue(IndexQueue&&) = delete;
+    IndexQueue& operator=(const IndexQueue&) = delete;
+    IndexQueue& operator=(IndexQueue&&) = delete;
+
     // just to distingish between constructors at compile time and make the
     // construction policy more explicit
     enum class ConstructFull
@@ -73,7 +78,6 @@ class IndexQueue
     /// value is only valid if the function returns true
     /// threadsafe, lockfree
     bool pop(indexvalue_t& index);
-
 
     /// @brief tries to remove index in FIFO order iff the queue is full
     /// @return true iff removal was successful (i.e. queue was full)
