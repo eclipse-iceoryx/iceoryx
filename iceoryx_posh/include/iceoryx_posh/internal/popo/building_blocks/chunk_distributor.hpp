@@ -58,7 +58,7 @@ class ChunkDistributor
 
     /// @brief Get the information whether there are any stored chunk queues
     /// @return true if there are stored chunk queues, false if not
-    bool hasStoredQueues() noexcept;
+    bool hasStoredQueues() const noexcept;
 
     /// @brief Deliver the provided shared chunk to all the stored chunk queues. The chunk will be added to the chunk
     /// history
@@ -78,11 +78,11 @@ class ChunkDistributor
 
     /// @brief Get the current size of the chunk history
     /// @return chunk history size
-    uint64_t getHistorySize() noexcept;
+    uint64_t getHistorySize() const noexcept;
 
     /// @brief Get the capacity of the chunk history
     /// @return chunk history capacity
-    uint64_t getHistoryCapacity() noexcept;
+    uint64_t getHistoryCapacity() const noexcept;
 
     /// @brief Clears the chunk history
     void clearHistory() noexcept;

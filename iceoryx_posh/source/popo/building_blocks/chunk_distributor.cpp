@@ -89,7 +89,7 @@ void ChunkDistributor::removeAllQueues() noexcept
     getMembers()->m_queues.clear();
 }
 
-bool ChunkDistributor::hasStoredQueues() noexcept
+bool ChunkDistributor::hasStoredQueues() const noexcept
 {
     return !getMembers()->m_queues.empty();
 }
@@ -123,12 +123,12 @@ void ChunkDistributor::addToHistoryWithoutDelivery(mepoo::SharedChunk chunk) noe
     }
 }
 
-uint64_t ChunkDistributor::getHistorySize() noexcept
+uint64_t ChunkDistributor::getHistorySize() const noexcept
 {
     return getMembers()->m_sampleHistory.size();
 }
 
-uint64_t ChunkDistributor::getHistoryCapacity() noexcept
+uint64_t ChunkDistributor::getHistoryCapacity() const noexcept
 {
     return getMembers()->m_historyCapacity;
 }

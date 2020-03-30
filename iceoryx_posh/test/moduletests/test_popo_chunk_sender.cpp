@@ -52,19 +52,13 @@ class ChunkSender_testBase : public Test
     {
     }
 
-    void ReceiveDummyData()
-    {
-        // // Be sure to receive the chunk we just sent to be able to recycle it
-        // const iox::mepoo::ChunkHeader* receivedSample1;
-        // m_receiver->getChunk(receivedSample1);
-        // m_receiver->releaseChunk(receivedSample1);
-    }
-
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
     uint8_t m_memory[1024 * 1024];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
     static constexpr uint32_t SMALL_CHUNK = 128;
     static constexpr uint32_t BIG_CHUNK = 256;
+    static constexpr uint64_t HISTORY_CAPACITY = 4;
+    
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
@@ -72,7 +66,6 @@ class ChunkSender_testBase : public Test
     iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::popo::ChunkSenderData m_chunkSenderData{&m_memoryManager, 0}; // history is assumed to be 0 in tests
     iox::popo::ChunkSender m_chunkSender{&m_chunkSenderData};
-    static constexpr uint64_t HISTORY_CAPACITY = 4;
     iox::popo::ChunkSenderData m_chunkSenderDataWithHistory{&m_memoryManager, HISTORY_CAPACITY};
     iox::popo::ChunkSender m_chunkSenderWithHistory{&m_chunkSenderDataWithHistory};
 };
@@ -288,8 +281,6 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 
         if (!chunk.has_error())
         {
-            (*chunk)->m_info.m_externalSequenceNumber_bl = true;
-            (*chunk)->m_info.m_sequenceNumber = i;
             auto sample = (*chunk)->payload();
             new (sample) DummySample();
             static_cast<DummySample*>(sample)->dummy = i;
@@ -308,6 +299,36 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
         EXPECT_THAT(popRet->getChunkHeader()->m_info.m_sequenceNumber, Eq(i));
     }
 }
+
+TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
+{
+    m_chunkSender.addQueue(&m_chunkQueueData);
+    iox::popo::ChunkQueue checkQueue(&m_chunkQueueData);
+    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.capacity());
+
+    for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
+    {
+        auto chunk = m_chunkSender.allocate(sizeof(DummySample));
+        EXPECT_FALSE(chunk.has_error());
+
+        if (!chunk.has_error())
+        {
+            (*chunk)->m_info.m_externalSequenceNumber_bl = true;
+            (*chunk)->m_info.m_sequenceNumber = i;
+            m_chunkSender.send(*chunk);
+        }
+    }
+
+    for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
+    {
+        iox::popo::ChunkQueue myQueue(&m_chunkQueueData);
+        EXPECT_FALSE(myQueue.empty());
+        auto popRet = myQueue.pop();
+        EXPECT_TRUE(popRet.has_value());
+        EXPECT_THAT(popRet->getChunkHeader()->m_info.m_sequenceNumber, Eq(i));
+    }
+}
+
 
 TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {

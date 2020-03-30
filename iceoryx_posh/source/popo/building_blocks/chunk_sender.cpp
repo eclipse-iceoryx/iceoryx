@@ -127,6 +127,13 @@ cxx::optional<const mepoo::ChunkHeader*> ChunkSender::getLastChunk() const noexc
     }
 }
 
+void ChunkSender::cleanup() noexcept
+{
+    getMembers()->m_chunksInUse.cleanup();
+    this->clearHistory();
+    getMembers()->m_lastChunk = nullptr;
+}
+
 bool ChunkSender::getChunkReadyForSend(mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept
 {
     if (getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
@@ -148,13 +155,6 @@ bool ChunkSender::getChunkReadyForSend(mepoo::ChunkHeader* chunkHeader, mepoo::S
         errorHandler(Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER, nullptr, ErrorLevel::SEVERE);
         return false;
     }
-}
-
-void ChunkSender::cleanup() noexcept
-{
-    getMembers()->m_chunksInUse.cleanup();
-    this->clearHistory();
-    getMembers()->m_lastChunk = nullptr;
 }
 
 } // namespace popo

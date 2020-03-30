@@ -39,26 +39,11 @@ struct ChunkSenderData : public ChunkDistributorData
         assert(nullptr != memoryManager);
     }
 
-    relative_ptr<mepoo::MemoryManager> m_memoryMgr;
+    const relative_ptr<mepoo::MemoryManager> m_memoryMgr;
     mepoo::MemoryInfo m_memoryInfo;
     UsedChunkList<MAX_CHUNKS_ALLOCATE_PER_SENDER> m_chunksInUse;
     mepoo::SequenceNumberType m_sequenceNumber{0u};
     mepoo::SharedChunk m_lastChunk{nullptr};
-
-    /// @todo This here?
-    // bool m_isUnique{false};
-    // throughput related members
-    // std::atomic<uint32_t> m_activePayloadSize{0u};
-    // Throughput m_throughput{};
-    // mutable Throughput m_throughputReadCache{};
-    // enum class ThreadContext : uint32_t
-    // {
-    //     Application,
-    //     RouDi,
-    //     END_OF_LIST
-    // };
-    // mutable concurrent::TACO<Throughput, ThreadContext> m_throughputExchange{
-    //     concurrent::TACOMode::DenyDataFromSameContext};
 };
 
 } // namespace popo
