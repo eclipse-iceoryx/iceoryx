@@ -115,6 +115,18 @@ void ChunkSender::pushToHistory(mepoo::ChunkHeader* const chunkHeader) noexcept
     // STOP of critical section, chunk will be lost if process gets hard terminated in between
 }
 
+cxx::optional<const mepoo::ChunkHeader*> ChunkSender::getLastChunk() const noexcept
+{
+    if (getMembers()->m_lastChunk)
+    {
+        return getMembers()->m_lastChunk.getChunkHeader();
+    }
+    else
+    {
+        return cxx::nullopt_t();
+    }
+}
+
 bool ChunkSender::getChunkReadyForSend(mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept
 {
     if (getMembers()->m_chunksInUse.remove(chunkHeader, chunk))

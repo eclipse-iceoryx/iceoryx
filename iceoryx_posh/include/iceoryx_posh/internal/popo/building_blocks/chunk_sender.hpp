@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 
 namespace iox
 {
@@ -68,6 +69,10 @@ class ChunkSender : public ChunkDistributor
     /// @brief Push an allocated chunk to the history without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to push to the history
     void pushToHistory(mepoo::ChunkHeader* const chunkHeader) noexcept;
+
+    /// @brief Returns the last sent chunk if there is one
+    /// @return pointer to the ChunkHeader of the last sent Chunk if there is one, empty optional if not
+    cxx::optional<const mepoo::ChunkHeader*> getLastChunk() const noexcept;
 
     /// @brief Release all the chunks that are currently held. Caution: Only call this if the user process is no more
     /// running E.g. This cleans up chunks that were held by a user process that died unexpectetly, for avoiding lost

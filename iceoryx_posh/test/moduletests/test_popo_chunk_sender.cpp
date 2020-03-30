@@ -67,8 +67,11 @@ class ChunkSender_testBase : public Test
     iox::mepoo::MemoryManager m_memoryManager;
 
     iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-    iox::popo::ChunkSenderData m_chunkSenderData{&m_memoryManager};
+    iox::popo::ChunkSenderData m_chunkSenderData{&m_memoryManager, 0}; // history is assumed to be 0 in tests
     iox::popo::ChunkSender m_chunkSender{&m_chunkSenderData};
+    static constexpr uint64_t HISTORY_CAPACITY = 4;
+    iox::popo::ChunkSenderData m_chunkSenderDataWithHistory{&m_memoryManager, HISTORY_CAPACITY}; 
+    iox::popo::ChunkSender m_chunkSenderWithHistory{&m_chunkSenderDataWithHistory};    
 };
 
 class ChunkSender_test : public ChunkSender_testBase
@@ -172,6 +175,74 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
     delete myCrazyChunk;
+}
+
+TEST_F(ChunkSender_test, sendWithoutReceiver)
+{
+    auto chunk = m_chunkSender.allocate(sizeof(DummySample));
+    EXPECT_FALSE(chunk.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+
+    if (!chunk.has_error())
+    {
+        auto sample = *chunk;
+        new (sample) DummySample();
+        m_chunkSender.send(sample);
+        // chunk is still used because last chunk is stored
+        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    }
+}
+
+TEST_F(ChunkSender_test, sendMultipleWithoutReceiverAndAlwaysLast)
+{
+    for (size_t i = 0; i < 100; i++)
+    {
+        auto chunk = m_chunkSender.allocate(sizeof(DummySample));
+        EXPECT_FALSE(chunk.has_error());
+        auto lastChunk = m_chunkSender.getLastChunk();
+        if(i > 0)
+        {
+            EXPECT_TRUE(lastChunk.has_value());
+            EXPECT_TRUE(*chunk == *lastChunk);
+        }
+        else
+        {
+            EXPECT_FALSE(lastChunk.has_value());
+        }
+        auto sample = *chunk;
+        new (sample) DummySample();
+        m_chunkSender.send(sample);
+    }
+
+    // Exactly one chunk is used because last chunk is stored
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+
+}
+
+TEST_F(ChunkSender_test, sendOneWithReceiver)
+{
+    m_chunkSender.addQueue(&m_chunkQueueData);
+
+    auto chunk = m_chunkSender.allocate(sizeof(DummySample));
+    EXPECT_FALSE(chunk.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+
+    if (!chunk.has_error())
+    {
+        auto sample = (*chunk)->payload();
+        new (sample) DummySample();
+        m_chunkSender.send(*chunk);
+
+        // consume the sample
+        {
+            iox::popo::ChunkQueue myQueue(&m_chunkQueueData);
+            EXPECT_FALSE(myQueue.empty());
+            auto popRet = myQueue.pop();
+            EXPECT_TRUE(popRet.has_value());
+            auto dummySample = *reinterpret_cast<DummySample*>(popRet->getPayload());
+            EXPECT_THAT(dummySample.dummy, Eq(42));
+        }
+    }
 }
 
 // TEST_F(ChunkSender_test, reserveSample_DynamicSamplesSameSizeReturningValidLastChunk)
