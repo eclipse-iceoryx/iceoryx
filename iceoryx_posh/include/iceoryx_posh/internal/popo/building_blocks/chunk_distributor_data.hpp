@@ -20,8 +20,10 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue.hpp"
 #include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 
 #include <cstdint>
+#include <mutex>
 
 namespace iox
 {
@@ -29,8 +31,38 @@ namespace popo
 {
 struct ChunkQueueData;
 
-struct ChunkDistributorData
+class ThreadSafePolicy
 {
+  public: // needs to be public since we want to use std::lock_guard
+    void lock()
+    {
+        m_mutex.lock();
+    }
+    void unlock()
+    {
+        m_mutex.unlock();
+    }
+
+  private:
+    posix::mutex m_mutex{true}; // recursive lock
+};
+
+class SingleThreadedPolicy
+{
+  public: // needs to be public since we want to use std::lock_guard
+    void lock()
+    {
+    }
+    void unlock()
+    {
+    }
+};
+
+template <uint32_t MaxQueues, typename LockingPolicy>
+struct ChunkDistributorData : public LockingPolicy
+{
+    using lockGuard_t = std::lock_guard<ChunkDistributorData<MaxQueues, LockingPolicy>>;
+
     ChunkDistributorData(uint64_t historyCapacity = 0u) noexcept
         : m_historyCapacity(algorithm::min(historyCapacity, MAX_SENDER_SAMPLE_HISTORY_CAPACITY))
     {
@@ -43,7 +75,7 @@ struct ChunkDistributorData
 
     const uint64_t m_historyCapacity;
 
-    using QueueContainer_t = cxx::vector<ChunkQueue::MemberType_t*, MAX_RECEIVERS_PER_SENDERPORT>;
+    using QueueContainer_t = cxx::vector<ChunkQueue::MemberType_t*, MaxQueues>;
     QueueContainer_t m_queues;
 
     /// @todo using ChunkManagement instead of SheredChunk as in UsedChunkList?

@@ -12,29 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
-
 namespace iox
 {
 namespace popo
 {
-ChunkSender::ChunkSender(MemberType_t* const chunkSenderDataPtr) noexcept
-    : ChunkDistributor(chunkSenderDataPtr)
+template <typename ChunkDistributorType>
+inline ChunkSender<ChunkDistributorType>::ChunkSender(MemberType_t* const chunkSenderDataPtr) noexcept
+    : ChunkDistributorType(chunkSenderDataPtr)
 {
 }
 
-const ChunkSender::MemberType_t* ChunkSender::getMembers() const noexcept
+template <typename ChunkDistributorType>
+inline const typename ChunkSender<ChunkDistributorType>::MemberType_t*
+ChunkSender<ChunkDistributorType>::getMembers() const noexcept
 {
-    return reinterpret_cast<const MemberType_t*>(ChunkDistributor::getMembers());
+    return reinterpret_cast<const MemberType_t*>(ChunkDistributorType::getMembers());
 }
 
-ChunkSender::MemberType_t* ChunkSender::getMembers() noexcept
+template <typename ChunkDistributorType>
+inline typename ChunkSender<ChunkDistributorType>::MemberType_t*
+ChunkSender<ChunkDistributorType>::getMembers() noexcept
 {
-    return reinterpret_cast<MemberType_t*>(ChunkDistributor::getMembers());
+    return reinterpret_cast<MemberType_t*>(ChunkDistributorType::getMembers());
 }
 
-cxx::expected<mepoo::ChunkHeader*, ChunkSenderError> ChunkSender::allocate(const uint32_t payloadSize) noexcept
+template <typename ChunkDistributorType>
+inline cxx::expected<mepoo::ChunkHeader*, ChunkSenderError>
+ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
 {
     // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload fits in this
     // chunk
@@ -82,7 +86,8 @@ cxx::expected<mepoo::ChunkHeader*, ChunkSenderError> ChunkSender::allocate(const
     }
 }
 
-void ChunkSender::free(mepoo::ChunkHeader* const chunkHeader) noexcept
+template <typename ChunkDistributorType>
+inline void ChunkSender<ChunkDistributorType>::free(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
     if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
@@ -91,7 +96,8 @@ void ChunkSender::free(mepoo::ChunkHeader* const chunkHeader) noexcept
     }
 }
 
-void ChunkSender::send(mepoo::ChunkHeader* const chunkHeader) noexcept
+template <typename ChunkDistributorType>
+inline void ChunkSender<ChunkDistributorType>::send(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
     // START of critical section, chunk will be lost if process gets hard terminated in between
@@ -103,7 +109,8 @@ void ChunkSender::send(mepoo::ChunkHeader* const chunkHeader) noexcept
     // STOP of critical section, chunk will be lost if process gets hard terminated in between
 }
 
-void ChunkSender::pushToHistory(mepoo::ChunkHeader* const chunkHeader) noexcept
+template <typename ChunkDistributorType>
+inline void ChunkSender<ChunkDistributorType>::pushToHistory(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
     // START of critical section, chunk will be lost if process gets hard terminated in between
@@ -115,7 +122,8 @@ void ChunkSender::pushToHistory(mepoo::ChunkHeader* const chunkHeader) noexcept
     // STOP of critical section, chunk will be lost if process gets hard terminated in between
 }
 
-cxx::optional<const mepoo::ChunkHeader*> ChunkSender::getLastChunk() const noexcept
+template <typename ChunkDistributorType>
+inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkDistributorType>::getLastChunk() const noexcept
 {
     if (getMembers()->m_lastChunk)
     {
@@ -127,14 +135,17 @@ cxx::optional<const mepoo::ChunkHeader*> ChunkSender::getLastChunk() const noexc
     }
 }
 
-void ChunkSender::cleanup() noexcept
+template <typename ChunkDistributorType>
+inline void ChunkSender<ChunkDistributorType>::cleanup() noexcept
 {
     getMembers()->m_chunksInUse.cleanup();
     this->clearHistory();
     getMembers()->m_lastChunk = nullptr;
 }
 
-bool ChunkSender::getChunkReadyForSend(mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept
+template <typename ChunkDistributorType>
+inline bool ChunkSender<ChunkDistributorType>::getChunkReadyForSend(mepoo::ChunkHeader* chunkHeader,
+                                                                    mepoo::SharedChunk& chunk) noexcept
 {
     if (getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
     {

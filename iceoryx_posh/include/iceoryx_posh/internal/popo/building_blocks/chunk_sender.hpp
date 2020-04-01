@@ -17,10 +17,12 @@
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -38,10 +40,11 @@ enum class ChunkSenderError
 /// For getting chunks of memory the MemoryManger is used. Together with the ChunkReceiver, they are the next
 /// abstraction layer on top of ChunkDistributor and ChunkQueue. The ChunkSender holds the ownership of the
 /// SharedChunks and does a bookkeeping which chunks are currently passed to the user side.
-class ChunkSender : public ChunkDistributor
+template <typename ChunkDistributorType>
+class ChunkSender : public ChunkDistributorType
 {
   public:
-    using MemberType_t = ChunkSenderData;
+    using MemberType_t = ChunkSenderData<typename ChunkDistributorType::MemberType_t>;
 
     ChunkSender(MemberType_t* const chunkDistributorDataPtr) noexcept;
 
@@ -92,5 +95,7 @@ class ChunkSender : public ChunkDistributor
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.inl"
 
 #endif

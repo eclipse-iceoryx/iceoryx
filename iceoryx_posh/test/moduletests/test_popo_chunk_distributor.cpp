@@ -48,6 +48,7 @@ class ChunkDistributor_test : public Test
     static constexpr size_t MEGABYTE = 1 << 20;
     static constexpr size_t MEMORY_SIZE = 1 * MEGABYTE;
     const uint64_t HISTORY_SIZE = 16;
+    static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
     char memory[MEMORY_SIZE];
     iox::posix::Allocator allocator{memory, MEMORY_SIZE};
     MemPool mempool{128, 20, &allocator, &allocator};
@@ -62,16 +63,16 @@ class ChunkDistributor_test : public Test
         return std::make_shared<ChunkQueueData>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer);
     }
 
-    std::shared_ptr<ChunkDistributorData> getChunkDistributorData()
+    std::shared_ptr<ChunkDistributorData<MAX_NUMBER_QUEUES, ThreadSafePolicy>> getChunkDistributorData()
     {
-        return std::make_shared<ChunkDistributorData>(HISTORY_SIZE);
+        return std::make_shared<ChunkDistributorData<MAX_NUMBER_QUEUES, ThreadSafePolicy>>(HISTORY_SIZE);
     }
 };
 
 TEST_F(ChunkDistributor_test, AddingNonAddedQueueWorks)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     EXPECT_THAT(sut.addQueue(queueData.get()), Eq(true));
@@ -80,7 +81,7 @@ TEST_F(ChunkDistributor_test, AddingNonAddedQueueWorks)
 TEST_F(ChunkDistributor_test, AddingNullptrQueueDoesNotWork)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     EXPECT_THAT(sut.addQueue(nullptr), Eq(false));
 }
@@ -88,7 +89,7 @@ TEST_F(ChunkDistributor_test, AddingNullptrQueueDoesNotWork)
 TEST_F(ChunkDistributor_test, AddingQueueTwiceDoesWork)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -98,7 +99,7 @@ TEST_F(ChunkDistributor_test, AddingQueueTwiceDoesWork)
 TEST_F(ChunkDistributor_test, NewChunkDistributorHasNoQueues)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     EXPECT_THAT(sut.hasStoredQueues(), Eq(false));
 }
@@ -106,25 +107,39 @@ TEST_F(ChunkDistributor_test, NewChunkDistributorHasNoQueues)
 TEST_F(ChunkDistributor_test, AfterAddingQueueChunkDistributorHasQueues)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
     EXPECT_THAT(sut.hasStoredQueues(), Eq(true));
 }
 
-TEST_F(ChunkDistributor_test, AfterAddingQueueFailureNoQueuesAreStored)
+TEST_F(ChunkDistributor_test, QueueOverflow)
 {
+    std::vector<std::shared_ptr<ChunkQueueData>> queueVecor;
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
-    sut.addQueue(nullptr);
+    for (auto i = 0; i < MAX_NUMBER_QUEUES; ++i)
+    {
+        auto queueData = getChunkQueueData();
+        EXPECT_THAT(sut.addQueue(queueData.get()), Eq(true));
+        queueVecor.push_back(queueData);
+    }
+
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
+        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+
+    auto queueData = getChunkQueueData();
+    EXPECT_THAT(sut.addQueue(queueData.get()), Eq(false));
+    EXPECT_TRUE(errorHandlerCalled);
 }
 
 TEST_F(ChunkDistributor_test, RemovingExistingQueueWorks)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -136,7 +151,7 @@ TEST_F(ChunkDistributor_test, RemovingExistingQueueWorks)
 TEST_F(ChunkDistributor_test, RemovingNonExistingQueueChangesNothing)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -150,7 +165,7 @@ TEST_F(ChunkDistributor_test, RemovingNonExistingQueueChangesNothing)
 TEST_F(ChunkDistributor_test, RemoveAllQueuesWhenContainingOne)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -162,7 +177,7 @@ TEST_F(ChunkDistributor_test, RemoveAllQueuesWhenContainingOne)
 TEST_F(ChunkDistributor_test, RemoveAllQueuesWhenContainingMultipleQueues)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -176,7 +191,7 @@ TEST_F(ChunkDistributor_test, RemoveAllQueuesWhenContainingMultipleQueues)
 TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -194,7 +209,7 @@ TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
 TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOneChunk)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -210,7 +225,7 @@ TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOneChu
 TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDeliversOneChunk)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -229,7 +244,7 @@ TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDeliver
 TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleChunks)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -251,7 +266,7 @@ TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleChunks
 TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliverMultipleChunks)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -268,7 +283,7 @@ TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliverMultipl
 TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto limit = 10;
     std::vector<std::shared_ptr<ChunkQueueData>> queueData;
@@ -294,7 +309,7 @@ TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
 TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMultipleChunks)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto limit = 10;
     std::vector<std::shared_ptr<ChunkQueueData>> queueData;
@@ -323,7 +338,7 @@ TEST_F(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMultiple
 TEST_F(ChunkDistributor_test, AddToHistoryWithoutQueues)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
     auto limit = 8;
     for (auto i = 0; i < limit; ++i)
         sut.deliverToAllStoredQueues(allocateChunk(34));
@@ -334,14 +349,14 @@ TEST_F(ChunkDistributor_test, AddToHistoryWithoutQueues)
 TEST_F(ChunkDistributor_test, HistoryEmptyWhenCreated)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
     EXPECT_THAT(sut.getHistorySize(), Eq(0));
 }
 
 TEST_F(ChunkDistributor_test, HistoryEmptyAfterClear)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
     auto limit = 8;
     for (auto i = 0; i < limit; ++i)
         sut.deliverToAllStoredQueues(allocateChunk(34));
@@ -353,7 +368,7 @@ TEST_F(ChunkDistributor_test, HistoryEmptyAfterClear)
 TEST_F(ChunkDistributor_test, addToHistoryWithoutDelivery)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
     auto limit = 7;
     for (auto i = 0; i < limit; ++i)
         sut.addToHistoryWithoutDelivery(allocateChunk(34));
@@ -364,7 +379,7 @@ TEST_F(ChunkDistributor_test, addToHistoryWithoutDelivery)
 TEST_F(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAdded)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
 
@@ -381,7 +396,7 @@ TEST_F(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAdded)
 TEST_F(ChunkDistributor_test, DeliverToQueueDirectlyWhenAdded)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -399,7 +414,7 @@ TEST_F(ChunkDistributor_test, DeliverToQueueDirectlyWhenAdded)
 TEST_F(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAddedDoesNotChangeHistory)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
 
@@ -412,7 +427,7 @@ TEST_F(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAddedDoesNotChangeHis
 TEST_F(ChunkDistributor_test, DeliverToQueueDirectlyWhenAddedDoesNotChangeHistory)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     auto queueData = getChunkQueueData();
     sut.addQueue(queueData.get());
@@ -426,7 +441,7 @@ TEST_F(ChunkDistributor_test, DeliverToQueueDirectlyWhenAddedDoesNotChangeHistor
 TEST_F(ChunkDistributor_test, DeliverHistoryOnAddWithLessThanAvailable)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     sut.deliverToAllStoredQueues(allocateChunk(1));
     sut.deliverToAllStoredQueues(allocateChunk(2));
@@ -449,7 +464,7 @@ TEST_F(ChunkDistributor_test, DeliverHistoryOnAddWithLessThanAvailable)
 TEST_F(ChunkDistributor_test, DeliverHistoryOnAddWithExactAvailable)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     sut.deliverToAllStoredQueues(allocateChunk(1));
     sut.deliverToAllStoredQueues(allocateChunk(2));
@@ -477,7 +492,7 @@ TEST_F(ChunkDistributor_test, DeliverHistoryOnAddWithExactAvailable)
 TEST_F(ChunkDistributor_test, DeliverHistoryOnAddWithMoreThanAvailable)
 {
     auto sutData = getChunkDistributorData();
-    ChunkDistributor sut(sutData.get());
+    ChunkDistributor<MAX_NUMBER_QUEUES, ThreadSafePolicy> sut(sutData.get());
 
     sut.deliverToAllStoredQueues(allocateChunk(1));
     sut.deliverToAllStoredQueues(allocateChunk(2));

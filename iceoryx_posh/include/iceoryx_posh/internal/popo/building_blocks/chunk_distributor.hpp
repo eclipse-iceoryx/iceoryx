@@ -28,10 +28,14 @@ namespace popo
 /// allows to provide a newly added queue a number of last chunks to start from. This is needed for functionality
 /// known as latched topic in ROS or field in ara::com. A ChunkDistributor is used to build elements of higher
 /// abstraction layers that also do memory managemet and provide an API towards the real user
+///
+/// About Concurrency:
+///
+template <uint32_t MaxQueues, typename LockingPolicy>
 class ChunkDistributor
 {
   public:
-    using MemberType_t = ChunkDistributorData;
+    using MemberType_t = ChunkDistributorData<MaxQueues, LockingPolicy>;
 
     ChunkDistributor(MemberType_t* const chunkDistrubutorDataPtr) noexcept;
 
@@ -58,7 +62,7 @@ class ChunkDistributor
 
     /// @brief Get the information whether there are any stored chunk queues
     /// @return true if there are stored chunk queues, false if not
-    bool hasStoredQueues() const noexcept;
+    bool hasStoredQueues() noexcept;
 
     /// @brief Deliver the provided shared chunk to all the stored chunk queues. The chunk will be added to the chunk
     /// history
@@ -78,7 +82,7 @@ class ChunkDistributor
 
     /// @brief Get the current size of the chunk history
     /// @return chunk history size
-    uint64_t getHistorySize() const noexcept;
+    uint64_t getHistorySize() noexcept;
 
     /// @brief Get the capacity of the chunk history
     /// @return chunk history capacity
@@ -97,3 +101,5 @@ class ChunkDistributor
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.inl"

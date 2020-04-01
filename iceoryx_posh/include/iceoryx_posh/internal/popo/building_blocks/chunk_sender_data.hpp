@@ -27,12 +27,13 @@ namespace iox
 {
 namespace popo
 {
-struct ChunkSenderData : public ChunkDistributorData
+template <typename ChunkDistributorDataType>
+struct ChunkSenderData : public ChunkDistributorDataType
 {
     ChunkSenderData(mepoo::MemoryManager* const memoryManager,
                     uint64_t historyCapacity = 0u,
                     const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : ChunkDistributorData(historyCapacity)
+        : ChunkDistributorDataType(historyCapacity)
         , m_memoryMgr(memoryManager)
         , m_memoryInfo(memoryInfo)
     {
