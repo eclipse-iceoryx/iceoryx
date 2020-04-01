@@ -17,6 +17,7 @@
 
 namespace iox
 {
+#include <limits>
 #include <stdint.h>
 
 // a word on the target architecture, must be able to be used in a CAS operation
@@ -26,60 +27,81 @@ using word_t = uint64_t;
 // using byte_t = unsigned char;
 using byte_t = uint8_t;
 
-/// @todo: try to make the operations more efficient (i.e. no modulo)
-/// e.g. store the internal state differently, use bitoperations in updates/retrievals
 
 /// @brief index structure that can contain logical values 0, ..., CycleLength-1
 /// but also stores an internal ABA counter to be used in compare_exchange
-template <uint64_t CycleLength>
+template <uint64_t CycleLength, typename value_t = uint64_t>
 class CyclicIndex
 {
   public:
-    /// @brief index structure that can contain logical values 0, ..., CycleLength-1
-    explicit CyclicIndex(word_t value = 0) noexcept
+    static constexpr value_t MAX_INDEX = CycleLength - 1;
+    static constexpr value_t MAX_VALUE = std::numeric_limits<value_t>::max();
+    static constexpr value_t MAX_CYCLE = MAX_VALUE / CycleLength;
+
+    static constexpr value_t INDEX_AT_MAX_VALUE = MAX_VALUE % CycleLength;
+    static constexpr value_t OVERFLOW_START_INDEX = (INDEX_AT_MAX_VALUE + 1) % CycleLength;
+
+    static_assert(CycleLength < MAX_VALUE / 2); // need at least one bit for the cycle
+
+    explicit CyclicIndex(value_t value = 0) noexcept
         : m_value(value)
     {
     }
 
-    /// @brief create CyclicIndex using the actual index and a specified cycle
-    CyclicIndex(word_t index, word_t cycle) noexcept
-        : m_value(cycle * CycleLength + index)
+    CyclicIndex(value_t index, value_t cycle) noexcept
+        : m_value(index + cycle * CycleLength)
     {
     }
 
     CyclicIndex(const CyclicIndex&) = default;
-
     CyclicIndex& operator=(const CyclicIndex&) = default;
 
-    /// @brief get the logical index
-    /// @return logical index
-    word_t getIndex()
+    /// @note an implementation with bitmasks instead of the much more concise integer division
+    /// and remainder arithmetics seems to provide no performance benefit (on the contrary)
+    /// this will of course depend on target architecture and the implementation itself
+    value_t getIndex() const noexcept
     {
         return m_value % CycleLength;
     }
 
-    /// @brief get the cycle stored internally
-    /// @return cycle
-    word_t getCycle()
+    value_t getCycle() const noexcept
     {
         return m_value / CycleLength;
     }
 
-    /// @brief increment the internal index by one
-    /// @return stored internal index value after increment
-    word_t operator++()
+    CyclicIndex operator+(value_t value) const
     {
-        return ++m_value;
-    }
+        // if we were at this value, we would have no overflow, i.e. when m_value is larger there is an overflow
+        auto delta = MAX_VALUE - value;
+        if (delta < m_value)
+        {
+            // overflow, rare case (overflow by m_value - delta)
+            // we need to compute the correct index and cycle we are in after overflow
+            // note that we could also limit the max value to always start at OVERFLOW_START_INDEX = 0,
+            // but this has other drawbacks (and the overflow will not occur often if at all with 64 bit)
+            delta = m_value - delta - 1;
+            return CyclicIndex(OVERFLOW_START_INDEX + delta);
+        }
 
-    /// @brief return the CyclicIndex incremented by value
-    /// @return current CyclicIndex incremented by value
-    CyclicIndex operator+(word_t value)
-    {
+        // no overflow, regular case
         return CyclicIndex(m_value + value);
     }
 
+    CyclicIndex next()
+    {
+        if (m_value == MAX_VALUE)
+        {
+            return CyclicIndex(OVERFLOW_START_INDEX);
+        }
+        return CyclicIndex(m_value + 1);
+    }
+
+    void print()
+    {
+        std::cout << "value " << m_value << " index " << getIndex() << " cycle " << getCycle() << std::endl;
+    }
+
   private:
-    word_t m_value{0};
+    value_t m_value{0};
 };
 } // namespace iox
