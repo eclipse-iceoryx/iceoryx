@@ -14,12 +14,15 @@
 
 #pragma once
 
+#include "misc.hpp"
+
+#include <limits>
+#include <stdint.h>
+#include <type_traits>
+
 
 namespace iox
 {
-#include <limits>
-#include <stdint.h>
-
 // a word on the target architecture, must be able to be used in a CAS operation
 using word_t = uint64_t;
 
@@ -43,6 +46,12 @@ class CyclicIndex
 
     static_assert(CycleLength < MAX_VALUE / 2); // need at least one bit for the cycle
 
+  private:
+    static constexpr uint64_t NUM_INDEX_BITS = std::ceil(std::log2(CycleLength));
+    static constexpr value_t INDEX_MASK = (1 << NUM_INDEX_BITS) - 1;
+    static constexpr value_t CYCLE_MASK = ~INDEX_MASK;
+
+  public:
     explicit CyclicIndex(value_t value = 0) noexcept
         : m_value(value)
     {
@@ -59,12 +68,34 @@ class CyclicIndex
     /// @note an implementation with bitmasks instead of the much more concise integer division
     /// and remainder arithmetics seems to provide no performance benefit (on the contrary)
     /// this will of course depend on target architecture and the implementation itself
-    value_t getIndex() const noexcept
+    /// we switch to bit operations in the trivial case were CycleLength is a power of two
+
+    // this is an unusual SFINAE constellation, in theory S and the helper struct seem to be superfluous
+    // but then the compiler tries to instantiate the functions with the class and one
+    // instantiation naturally fails...
+    /// @ŧodo: is there a better solution for a compile time switch to a more efficient implementation
+    /// when CycleLength is a power of two?
+
+    template <typename S = uint64_t>
+    typename std::enable_if<is_power_of_two<S, CycleLength>::value, value_t>::type getIndex() const noexcept
+    {
+        return m_value & INDEX_MASK;
+    }
+
+    template <typename S = uint64_t>
+    typename std::enable_if<!is_power_of_two<S, CycleLength>::value, value_t>::type getIndex() const noexcept
     {
         return m_value % CycleLength;
     }
 
-    value_t getCycle() const noexcept
+    template <typename S = uint64_t>
+    typename std::enable_if<is_power_of_two<S, CycleLength>::value, value_t>::type getCycle() const noexcept
+    {
+        return (m_value & CYCLE_MASK) >> NUM_INDEX_BITS;
+    }
+
+    template <typename S = uint64_t>
+    typename std::enable_if<!is_power_of_two<S, CycleLength>::value, value_t>::type getCycle() const noexcept
     {
         return m_value / CycleLength;
     }
