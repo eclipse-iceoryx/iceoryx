@@ -91,6 +91,9 @@ class ChunkDistributor
     /// @brief Clears the chunk history
     void clearHistory() noexcept;
 
+    /// @brief cleanup the used shrared memory chunks
+    void cleanup() noexcept;
+
   protected:
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;

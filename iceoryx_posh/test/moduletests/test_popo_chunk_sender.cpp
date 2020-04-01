@@ -544,7 +544,7 @@ TEST_F(ChunkSender_test, Cleanup)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks,
                 Eq(HISTORY_CAPACITY + iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
 
-    m_chunkSenderWithHistory.cleanup();
+    m_chunkSenderWithHistory.releaseAllChunks();
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }

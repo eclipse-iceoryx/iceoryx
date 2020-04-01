@@ -80,7 +80,7 @@ class ChunkSender : public ChunkDistributorType
     /// @brief Release all the chunks that are currently held. Caution: Only call this if the user process is no more
     /// running E.g. This cleans up chunks that were held by a user process that died unexpectetly, for avoiding lost
     /// chunks in the system
-    void cleanup() noexcept;
+    void releaseAllChunks() noexcept;
 
   private:
     /// @brief Get the SharedChunk from the provided ChunkHeader and do all that is required to send the chunk

@@ -169,6 +169,25 @@ inline void ChunkDistributor<MaxQueues, LockingPolicy>::clearHistory() noexcept
     getMembers()->m_sampleHistory.clear();
 }
 
+template <uint32_t MaxQueues, typename LockingPolicy>
+inline void ChunkDistributor<MaxQueues, LockingPolicy>::cleanup() noexcept
+{
+    if (getMembers()->tryLock())
+    {
+        clearHistory();
+        getMembers()->unlock();
+    }
+    else
+    {
+        /// @todo currently we have a deadlock / mutex destroy vulnerability if the ThreadSafePolicy is used
+        /// and a sending application dies when having the lock for sending. If the RouDi daemon wants to
+        /// cleanup or does discovery changes we have a deadlock or an exception when destroying the mutex
+        /// As long as we don't have a multi-threaded lock-free ChunkDistributor or another concept we die here
+        errorHandler(Error::kPOPO__CHUNK_DISTRIBUTOR_CLEANUP_DEADLOCK_BECAUSE_BAD_APPLICATION_TERMINATION,
+                     nullptr,
+                     ErrorLevel::FATAL);
+    }
+}
 
 } // namespace popo
 } // namespace iox

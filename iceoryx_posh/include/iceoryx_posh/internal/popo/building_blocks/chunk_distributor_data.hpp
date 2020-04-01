@@ -42,6 +42,10 @@ class ThreadSafePolicy
     {
         m_mutex.unlock();
     }
+    bool tryLock()
+    {
+        return m_mutex.try_lock();
+    }
 
   private:
     posix::mutex m_mutex{true}; // recursive lock
@@ -55,6 +59,10 @@ class SingleThreadedPolicy
     }
     void unlock()
     {
+    }
+    bool tryLock()
+    {
+        return true;
     }
 };
 

@@ -136,10 +136,10 @@ inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkDistributorType
 }
 
 template <typename ChunkDistributorType>
-inline void ChunkSender<ChunkDistributorType>::cleanup() noexcept
+inline void ChunkSender<ChunkDistributorType>::releaseAllChunks() noexcept
 {
     getMembers()->m_chunksInUse.cleanup();
-    this->clearHistory();
+    this->cleanup();
     getMembers()->m_lastChunk = nullptr;
 }
 
