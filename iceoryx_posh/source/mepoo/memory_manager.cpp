@@ -158,13 +158,16 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
     void* chunk{nullptr};
     MemPool* memPoolPointer{nullptr};
     uint32_t adjustedSize = MemoryManager::sizeWithChunkHeaderStruct(f_size);
+    uint32_t totalSizeOfAquiredChunk = 0;
 
     for (auto& memPool : m_memPoolVector)
     {
-        if (memPool.getChunkSize() >= adjustedSize)
+        uint32_t chunkSizeOfMemPool = memPool.getChunkSize();
+        if (chunkSizeOfMemPool >= adjustedSize)
         {
             chunk = memPool.getChunk();
             memPoolPointer = &memPool;
+            totalSizeOfAquiredChunk = chunkSizeOfMemPool;
             break;
         }
     }
@@ -190,6 +193,7 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
         new (chunk) ChunkHeader();
         static_cast<ChunkHeader*>(chunk)->m_info.m_payloadSize = f_size;
         static_cast<ChunkHeader*>(chunk)->m_info.m_usedSizeOfChunk = adjustedSize;
+        static_cast<ChunkHeader*>(chunk)->m_info.m_totalSizeOfChunk = totalSizeOfAquiredChunk;
         ChunkManagement* chunkManagement = static_cast<ChunkManagement*>(m_chunkManagementPool.front().getChunk());
         new (chunkManagement)
             ChunkManagement(static_cast<ChunkHeader*>(chunk), memPoolPointer, &m_chunkManagementPool.front());

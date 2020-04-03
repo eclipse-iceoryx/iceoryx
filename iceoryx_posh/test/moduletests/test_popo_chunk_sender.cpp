@@ -25,6 +25,8 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
 
+#include <memory>
+
 using namespace ::testing;
 
 struct DummySample
@@ -170,12 +172,11 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
         const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
-    iox::mepoo::ChunkHeader* myCrazyChunk = new iox::mepoo::ChunkHeader();
-    m_chunkSender.free(myCrazyChunk);
+    auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
+    m_chunkSender.free(myCrazyChunk.get());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-    delete myCrazyChunk;
 }
 
 TEST_F(ChunkSender_test, sendWithoutReceiver)
@@ -407,12 +408,11 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
         const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
-    iox::mepoo::ChunkHeader* myCrazyChunk = new iox::mepoo::ChunkHeader();
-    m_chunkSender.pushToHistory(myCrazyChunk);
+    auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
+    m_chunkSender.pushToHistory(myCrazyChunk.get());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-    delete myCrazyChunk;
 }
 
 TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
@@ -522,6 +522,29 @@ TEST_F(ChunkSender_test, NoReuseOfLastIfBigger)
     // not the last chunk
     EXPECT_FALSE(*chunkBigger == *lastChunk);
     EXPECT_FALSE((*chunkBigger)->payload() == (*lastChunk)->payload());
+}
+
+TEST_F(ChunkSender_test, ReuseOfLastIfBiggerButFitsInChunk)
+{
+    auto chunk = m_chunkSender.allocate(SMALL_CHUNK - 10);
+    EXPECT_FALSE(chunk.has_error());
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+
+    auto chunkHeader = *chunk;
+    m_chunkSender.send(chunkHeader);
+
+    auto chunkBigger = m_chunkSender.allocate(SMALL_CHUNK);
+    EXPECT_FALSE(chunkBigger.has_error());
+
+    // reuse as it still fits in the small chunk
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(0u));
+
+    auto lastChunk = m_chunkSender.getLastChunk();
+    EXPECT_TRUE(lastChunk.has_value());
+    // not the last chunk
+    EXPECT_TRUE(*chunkBigger == *lastChunk);
+    EXPECT_TRUE((*chunkBigger)->payload() == (*lastChunk)->payload());
 }
 
 TEST_F(ChunkSender_test, Cleanup)

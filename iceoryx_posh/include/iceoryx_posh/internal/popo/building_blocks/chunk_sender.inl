@@ -40,17 +40,16 @@ template <typename ChunkDistributorType>
 inline cxx::expected<mepoo::ChunkHeader*, ChunkSenderError>
 ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
 {
-    // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload fits in this
-    // chunk
+    // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
+    uint32_t neededChunkSize = getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
+
     if (getMembers()->m_lastChunk && getMembers()->m_lastChunk.hasNoOtherOwners()
-        && getMembers()->m_lastChunk.getChunkHeader()->m_info.m_usedSizeOfChunk
-               >= getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize))
+        && getMembers()->m_lastChunk.getChunkHeader()->m_info.m_totalSizeOfChunk >= neededChunkSize)
     {
         if (getMembers()->m_chunksInUse.insert(getMembers()->m_lastChunk))
         {
             getMembers()->m_lastChunk.getChunkHeader()->m_info.m_payloadSize = payloadSize;
-            getMembers()->m_lastChunk.getChunkHeader()->m_info.m_usedSizeOfChunk =
-                getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
+            getMembers()->m_lastChunk.getChunkHeader()->m_info.m_usedSizeOfChunk = neededChunkSize;
             return cxx::success<mepoo::ChunkHeader*>(getMembers()->m_lastChunk.getChunkHeader());
         }
         else
@@ -60,7 +59,7 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
     }
     else
     {
-        // START of critical section, chunk will be lost if process gets hard terminated in between
+        // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
         // get a new chunk
         mepoo::SharedChunk chunk = getMembers()->m_memoryMgr->getChunk(payloadSize);
 
@@ -69,7 +68,7 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
             // if the application allocated too much chunks, return no more chunks
             if (getMembers()->m_chunksInUse.insert(chunk))
             {
-                // STOP of critical section, chunk will be lost if process gets hard terminated in between
+                // END of critical section, chunk will be lost if process gets hard terminated in between
                 return cxx::success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
             }
             else
@@ -100,26 +99,26 @@ template <typename ChunkDistributorType>
 inline void ChunkSender<ChunkDistributorType>::send(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
-    // START of critical section, chunk will be lost if process gets hard terminated in between
+    // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
     if (getChunkReadyForSend(chunkHeader, chunk))
     {
         this->deliverToAllStoredQueues(chunk);
         getMembers()->m_lastChunk = chunk;
     }
-    // STOP of critical section, chunk will be lost if process gets hard terminated in between
+    // END of critical section, chunk will be lost if process gets hard terminated in between
 }
 
 template <typename ChunkDistributorType>
 inline void ChunkSender<ChunkDistributorType>::pushToHistory(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
-    // START of critical section, chunk will be lost if process gets hard terminated in between
+    // BEGIN of critical section, chunk will be lost if process gets hard terminated in between
     if (getChunkReadyForSend(chunkHeader, chunk))
     {
         this->addToHistoryWithoutDelivery(chunk);
         getMembers()->m_lastChunk = chunk;
     }
-    // STOP of critical section, chunk will be lost if process gets hard terminated in between
+    // END of critical section, chunk will be lost if process gets hard terminated in between
 }
 
 template <typename ChunkDistributorType>
