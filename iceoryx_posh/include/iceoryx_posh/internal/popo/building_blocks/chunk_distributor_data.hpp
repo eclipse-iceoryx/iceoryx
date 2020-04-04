@@ -72,12 +72,12 @@ struct ChunkDistributorData : public LockingPolicy
     using lockGuard_t = std::lock_guard<ChunkDistributorData<MaxQueues, LockingPolicy>>;
 
     ChunkDistributorData(uint64_t historyCapacity = 0u) noexcept
-        : m_historyCapacity(algorithm::min(historyCapacity, MAX_SENDER_SAMPLE_HISTORY_CAPACITY))
+        : m_historyCapacity(algorithm::min(historyCapacity, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR))
     {
         if (m_historyCapacity != historyCapacity)
         {
             LogWarn() << "Chunk history too large, reducing from " << historyCapacity << " to "
-                      << MAX_SENDER_SAMPLE_HISTORY_CAPACITY;
+                      << MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
         }
     }
 
@@ -90,7 +90,7 @@ struct ChunkDistributorData : public LockingPolicy
     /// When to store a SharedChunk and when the included ChunkManagement must be used?
     /// If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to
     /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup
-    using SampleHistoryContainer_t = cxx::vector<mepoo::SharedChunk, MAX_SENDER_SAMPLE_HISTORY_CAPACITY>;
+    using SampleHistoryContainer_t = cxx::vector<mepoo::SharedChunk, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR>;
     SampleHistoryContainer_t m_sampleHistory;
 };
 
