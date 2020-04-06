@@ -151,12 +151,15 @@ inline bool ChunkSender<ChunkDistributorType>::getChunkReadyForSend(mepoo::Chunk
         auto& chunkInfo = chunk.getChunkHeader()->m_info;
         if (!chunkInfo.m_externalSequenceNumber_bl)
         {
+            // if the sequence number is NOT set by the user, we take the one from the chunk sender for the chunk info
             chunkInfo.m_sequenceNumber = getMembers()->m_sequenceNumber;
             getMembers()->m_sequenceNumber++;
         }
         else
         {
-            getMembers()->m_sequenceNumber++; // for Introspection, else nobody updates.
+            // if the seqence number in the chunk info is set by the user, we still increment the internal one as this
+            // might be needed by midddleware spcific evaluation (like in introspection)
+            getMembers()->m_sequenceNumber++;
         }
         return true;
     }
