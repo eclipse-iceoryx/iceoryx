@@ -25,7 +25,8 @@ namespace popo
 {
 enum class ChunkQueueError
 {
-    SEMAPHORE_ALREADY_SET
+    SEMAPHORE_ALREADY_SET,
+    QUEUE_OVERFLOW
 };
 
 /// @brief The ChunkQueue is the low layer building block to receive SharedChunks. It follows a first-in-first-out
@@ -49,8 +50,8 @@ class ChunkQueue
     /// @brief push a new chunk to the chunk queue
     /// @param[in] shared chunk object
     /// @return if the values was pushed successfully into the chunk queue it returns
-    ///         true, otherwise false
-    bool push(mepoo::SharedChunk chunk) noexcept;
+    ///         success, otherwise a ChunkQueueError
+    cxx::expected<ChunkQueueError> push(mepoo::SharedChunk chunk) noexcept;
 
     /// @brief pop a chunk from the chunk queue
     /// @return optional for a shared chunk that is set if the queue is not empty

@@ -53,7 +53,7 @@ class ChunkReceiver_testBase : public Test
 
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
     uint8_t m_memory[1024 * 1024];
-    static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
+    static constexpr uint32_t NUM_CHUNKS_IN_POOL = iox::MAX_CHUNKS_HELD_PER_RECEIVER + iox::MAX_RECEIVER_QUEUE_CAPACITY;
     static constexpr uint32_t CHUNK_SIZE = 128;
 
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
@@ -73,8 +73,93 @@ class ChunkReceiver_test : public ChunkReceiver_testBase
     }
 };
 
-TEST_F(ChunkReceiver_test, get_OneChunk)
+TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)
 {
-    auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
-    EXPECT_TRUE(sharedChunk);
+    auto getRet = m_chunkReceiver.get();
+    EXPECT_FALSE(getRet.has_error());
+    EXPECT_FALSE((*getRet).has_value());
+}
+
+TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
+{
+    {
+        // have a scope her to release the shared chunk we allocate
+        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        EXPECT_TRUE(sharedChunk);
+        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+        auto pushRet = m_chunkReceiver.push(sharedChunk);
+        EXPECT_FALSE(pushRet.has_error());
+
+        auto getRet = m_chunkReceiver.get();
+        EXPECT_FALSE(getRet.has_error());
+        EXPECT_TRUE((*getRet).has_value());
+
+        EXPECT_TRUE(sharedChunk.getPayload() == (**getRet)->payload());
+        m_chunkReceiver.release(**getRet);
+    }
+
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
+}
+
+TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
+{
+}
+
+TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
+{
+}
+
+
+TEST_F(ChunkReceiver_test, releaseInvalidChunk)
+{
+    {
+        // have a scope her to release the shared chunk we allocate
+        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        EXPECT_TRUE(sharedChunk);
+        EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+        auto pushRet = m_chunkReceiver.push(sharedChunk);
+        EXPECT_FALSE(pushRet.has_error());
+
+        auto getRet = m_chunkReceiver.get();
+        EXPECT_FALSE(getRet.has_error());
+        EXPECT_TRUE((*getRet).has_value());
+
+        EXPECT_TRUE(sharedChunk.getPayload() == (**getRet)->payload());
+    }
+
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
+        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+
+    auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
+    m_chunkReceiver.release(myCrazyChunk.get());
+
+    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+}
+
+TEST_F(ChunkReceiver_test, Cleanup)
+{
+    for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_RECEIVER + iox::MAX_RECEIVER_QUEUE_CAPACITY; i++)
+    {
+        // MAX_CHUNKS_HELD_PER_RECEIVER on user side and MAX_RECEIVER_QUEUE_CAPACITY in the queue
+        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        EXPECT_TRUE(sharedChunk);
+        auto pushRet = m_chunkReceiver.push(sharedChunk);
+        EXPECT_FALSE(pushRet.has_error());
+
+        if (i < iox::MAX_CHUNKS_HELD_PER_RECEIVER)
+        {
+            auto getRet = m_chunkReceiver.get();
+            EXPECT_FALSE(getRet.has_error());
+            EXPECT_TRUE((*getRet).has_value());
+        }
+    }
+
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks,
+                Eq(iox::MAX_CHUNKS_HELD_PER_RECEIVER + iox::MAX_RECEIVER_QUEUE_CAPACITY));
+
+    m_chunkReceiver.releaseAll();
+
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
