@@ -377,12 +377,11 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
         const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
-    iox::mepoo::ChunkHeader* myCrazyChunk = new iox::mepoo::ChunkHeader();
-    m_chunkSender.send(myCrazyChunk);
+    auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
+    m_chunkSender.send(myCrazyChunk.get());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-    delete myCrazyChunk;
 }
 
 TEST_F(ChunkSender_test, pushToHistory)

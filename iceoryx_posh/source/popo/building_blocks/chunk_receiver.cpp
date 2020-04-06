@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
-
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -35,17 +35,46 @@ ChunkReceiver::MemberType_t* ChunkReceiver::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(ChunkQueue::getMembers());
 }
 
-cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiverError> get() noexcept
+cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiverError> ChunkReceiver::get() noexcept
 {
-    return cxx::error<ChunkReceiverError>(ChunkReceiverError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
+    auto popRet = this->pop();
+
+    if (popRet.has_value())
+    {
+        auto sharedChunk = *popRet;
+
+        // if the application holds too many chunks, don't provide more
+        if (getMembers()->m_chunksInUse.insert(sharedChunk))
+        {
+            return cxx::success<cxx::optional<const mepoo::ChunkHeader*>>(sharedChunk.getChunkHeader());
+        }
+        else
+        {
+            // release the chunk
+            sharedChunk = nullptr;
+            return cxx::error<ChunkReceiverError>(ChunkReceiverError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
+        }
+    }
+    else
+    {
+        // no new chunk
+        return cxx::success<cxx::optional<const mepoo::ChunkHeader*>>(cxx::nullopt_t());
+    }
 }
 
-void release(const mepoo::ChunkHeader* chunkHeader) noexcept
+void ChunkReceiver::release(const mepoo::ChunkHeader* chunkHeader) noexcept
 {
+    mepoo::SharedChunk chunk(nullptr);
+    if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
+    {
+        errorHandler(Error::kPOPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);
+    }
 }
 
-void releaseAll() noexcept
+void ChunkReceiver::releaseAll() noexcept
 {
+    getMembers()->m_chunksInUse.cleanup();
+    this->clear();
 }
 
 } // namespace popo

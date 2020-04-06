@@ -81,7 +81,8 @@ TEST_P(ChunkQueue_test, InitialSemaphoreAttached)
 TEST_P(ChunkQueue_test, PushOneChunk)
 {
     auto chunk = allocateChunk();
-    EXPECT_THAT(m_dut.push(chunk), Eq(true));
+    auto ret = m_dut.push(chunk);
+    EXPECT_FALSE(ret.has_error());
     EXPECT_THAT(m_dut.empty(), Eq(false));
     /// @note size not implemented on FIFO
     if (GetParam() != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
@@ -228,7 +229,9 @@ TEST_F(ChunkQueueFiFo_test, PushFull)
         m_dut.push(chunk);
     }
     auto chunk = allocateChunk();
-    EXPECT_THAT(m_dut.push(chunk), Eq(false));
+    auto ret = m_dut.push(chunk);
+    EXPECT_TRUE(ret.has_error());
+    EXPECT_THAT(ret.get_error(), Eq(iox::popo::ChunkQueueError::QUEUE_OVERFLOW));
     EXPECT_THAT(m_dut.empty(), Eq(false));
 }
 
@@ -268,7 +271,8 @@ TEST_F(ChunkQueueSoFi_test, PushFull)
         m_dut.push(chunk);
     }
     auto chunk = allocateChunk();
-    EXPECT_THAT(m_dut.push(chunk), Eq(true));
+    auto ret = m_dut.push(chunk);
+    EXPECT_FALSE(ret.has_error());
     EXPECT_THAT(m_dut.empty(), Eq(false));
     constexpr uint32_t SOFI_SIZE_WHEN_FULL = iox::MAX_RECEIVER_QUEUE_CAPACITY + 1;
     EXPECT_THAT(m_dut.size(), Eq(SOFI_SIZE_WHEN_FULL));
