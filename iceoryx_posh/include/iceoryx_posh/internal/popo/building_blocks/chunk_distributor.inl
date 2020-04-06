@@ -49,13 +49,13 @@ inline bool ChunkDistributor<MaxQueues, LockingPolicy>::addQueue(ChunkQueue::Mem
         return false;
     }
 
-    auto l_alreadyKnownReceiver =
+    auto alreadyKnownReceiver =
         std::find_if(getMembers()->m_queues.begin(),
                      getMembers()->m_queues.end(),
                      [&](ChunkQueue::MemberType_t* const queue) { return queue == queueToAdd; });
 
     // check if the queue is not already in the list
-    if (l_alreadyKnownReceiver == getMembers()->m_queues.end())
+    if (alreadyKnownReceiver == getMembers()->m_queues.end())
     {
         if (getMembers()->m_queues.size() < getMembers()->m_queues.capacity())
         {
@@ -87,10 +87,10 @@ ChunkDistributor<MaxQueues, LockingPolicy>::removeQueue(ChunkQueue::MemberType_t
 {
     typename MemberType_t::lockGuard_t lock(*getMembers());
 
-    auto l_iter = std::find(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), queueToRemove);
-    if (l_iter != getMembers()->m_queues.end())
+    auto iter = std::find(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), queueToRemove);
+    if (iter != getMembers()->m_queues.end())
     {
-        getMembers()->m_queues.erase(l_iter);
+        getMembers()->m_queues.erase(iter);
     }
 }
 
