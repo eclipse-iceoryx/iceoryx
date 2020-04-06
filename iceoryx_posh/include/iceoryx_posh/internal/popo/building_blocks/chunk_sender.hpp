@@ -16,8 +16,6 @@
 #define IOX_POSH_POPO_CHUNK_SENDER_HPP_
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -28,11 +26,10 @@ namespace iox
 {
 namespace popo
 {
-/// @brief error which can occur in the VariantQueue
 enum class ChunkSenderError
 {
     RUNNING_OUT_OF_CHUNKS,
-    TOO_MANY_CHUKS_ALLOCATED_IN_PARALLEL
+    TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL
 };
 
 /// @brief The ChunkSender is a building block of the shared memory communication infrastructure. It extends
@@ -75,12 +72,12 @@ class ChunkSender : public ChunkDistributorType
 
     /// @brief Returns the last sent chunk if there is one
     /// @return pointer to the ChunkHeader of the last sent Chunk if there is one, empty optional if not
-    cxx::optional<const mepoo::ChunkHeader*> getLastChunk() const noexcept;
+    cxx::optional<const mepoo::ChunkHeader*> getLast() const noexcept;
 
     /// @brief Release all the chunks that are currently held. Caution: Only call this if the user process is no more
     /// running E.g. This cleans up chunks that were held by a user process that died unexpectetly, for avoiding lost
     /// chunks in the system
-    void releaseAllChunks() noexcept;
+    void releaseAll() noexcept;
 
   private:
     /// @brief Get the SharedChunk from the provided ChunkHeader and do all that is required to send the chunk

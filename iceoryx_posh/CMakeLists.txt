@@ -72,7 +72,8 @@ add_library(iceoryx_posh
     source/popo/sender_port.cpp
     source/popo/sender_port_data.cpp
     source/popo/receiver_handler.cpp
-    source/popo/building_blocks/chunk_queue.cpp 
+    source/popo/building_blocks/chunk_queue.cpp
+    source/popo/building_blocks/chunk_receiver.cpp      
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp

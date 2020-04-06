@@ -133,7 +133,7 @@ TEST_F(ChunkSender_test, allocate_Overflow)
     // Allocate one more sample for overflow
     auto chunk = m_chunkSender.allocate(sizeof(DummySample));
     EXPECT_TRUE(chunk.has_error());
-    EXPECT_THAT(chunk.get_error(), Eq(iox::popo::ChunkSenderError::TOO_MANY_CHUKS_ALLOCATED_IN_PARALLEL));
+    EXPECT_THAT(chunk.get_error(), Eq(iox::popo::ChunkSenderError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL));
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
 }
 
@@ -200,7 +200,7 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverAndAlwaysLast)
     {
         auto chunk = m_chunkSender.allocate(sizeof(DummySample));
         EXPECT_FALSE(chunk.has_error());
-        auto lastChunk = m_chunkSender.getLastChunk();
+        auto lastChunk = m_chunkSender.getLast();
         if (i > 0)
         {
             EXPECT_TRUE(lastChunk.has_value());
@@ -227,7 +227,7 @@ TEST_F(ChunkSender_test, sendMultipleWithoutReceiverWithHistoryNoLastReuse)
     {
         auto chunk = m_chunkSenderWithHistory.allocate(sizeof(DummySample));
         EXPECT_FALSE(chunk.has_error());
-        auto lastChunk = m_chunkSenderWithHistory.getLastChunk();
+        auto lastChunk = m_chunkSenderWithHistory.getLast();
         if (i > 0)
         {
             EXPECT_TRUE(lastChunk.has_value());
@@ -423,7 +423,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverNoLastReuse)
     {
         auto chunk = m_chunkSender.allocate(sizeof(DummySample));
         EXPECT_FALSE(chunk.has_error());
-        auto lastChunk = m_chunkSender.getLastChunk();
+        auto lastChunk = m_chunkSender.getLast();
         if (i > 0)
         {
             EXPECT_TRUE(lastChunk.has_value());
@@ -452,7 +452,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverLastReuseBecauseAlreadyConsumed
     {
         auto chunk = m_chunkSender.allocate(sizeof(DummySample));
         EXPECT_FALSE(chunk.has_error());
-        auto lastChunk = m_chunkSender.getLastChunk();
+        auto lastChunk = m_chunkSender.getLast();
         if (i > 0)
         {
             EXPECT_TRUE(lastChunk.has_value());
@@ -494,7 +494,7 @@ TEST_F(ChunkSender_test, ReuseLastIfSmaller)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1u));
 
-    auto lastChunk = m_chunkSender.getLastChunk();
+    auto lastChunk = m_chunkSender.getLast();
     EXPECT_TRUE(lastChunk.has_value());
     // We get the last chunk again
     EXPECT_TRUE(*chunkSmaller == *lastChunk);
@@ -517,7 +517,7 @@ TEST_F(ChunkSender_test, NoReuseOfLastIfBigger)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(1u));
 
-    auto lastChunk = m_chunkSender.getLastChunk();
+    auto lastChunk = m_chunkSender.getLast();
     EXPECT_TRUE(lastChunk.has_value());
     // not the last chunk
     EXPECT_FALSE(*chunkBigger == *lastChunk);
@@ -540,7 +540,7 @@ TEST_F(ChunkSender_test, ReuseOfLastIfBiggerButFitsInChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(1).m_usedChunks, Eq(0u));
 
-    auto lastChunk = m_chunkSender.getLastChunk();
+    auto lastChunk = m_chunkSender.getLast();
     EXPECT_TRUE(lastChunk.has_value());
     // not the last chunk
     EXPECT_TRUE(*chunkBigger == *lastChunk);
@@ -567,7 +567,7 @@ TEST_F(ChunkSender_test, Cleanup)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks,
                 Eq(HISTORY_CAPACITY + iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
 
-    m_chunkSenderWithHistory.releaseAllChunks();
+    m_chunkSenderWithHistory.releaseAll();
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }

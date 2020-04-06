@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
+#include "iceoryx_utils/cxx/variant_queue.hpp"
 
 namespace iox
 {
@@ -27,8 +28,10 @@ namespace popo
 {
 struct ChunkReceiverData : public ChunkQueueData
 {
-    ChunkReceiverData(const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : m_memoryInfo(memoryInfo)
+    ChunkReceiverData(cxx::VariantQueueTypes queueType,
+                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
+        : ChunkQueueData(queueType)
+        , m_memoryInfo(memoryInfo)
     {
     }
 
