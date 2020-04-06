@@ -54,7 +54,7 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
         }
         else
         {
-            return cxx::error<ChunkSenderError>(ChunkSenderError::TOO_MANY_CHUKS_ALLOCATED_IN_PARALLEL);
+            return cxx::error<ChunkSenderError>(ChunkSenderError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
         }
     }
     else
@@ -75,7 +75,7 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
             {
                 // release the allocated chunk
                 chunk = nullptr;
-                return cxx::error<ChunkSenderError>(ChunkSenderError::TOO_MANY_CHUKS_ALLOCATED_IN_PARALLEL);
+                return cxx::error<ChunkSenderError>(ChunkSenderError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
             }
         }
         else
@@ -122,7 +122,7 @@ inline void ChunkSender<ChunkDistributorType>::pushToHistory(mepoo::ChunkHeader*
 }
 
 template <typename ChunkDistributorType>
-inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkDistributorType>::getLastChunk() const noexcept
+inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkDistributorType>::getLast() const noexcept
 {
     if (getMembers()->m_lastChunk)
     {
@@ -135,7 +135,7 @@ inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkDistributorType
 }
 
 template <typename ChunkDistributorType>
-inline void ChunkSender<ChunkDistributorType>::releaseAllChunks() noexcept
+inline void ChunkSender<ChunkDistributorType>::releaseAll() noexcept
 {
     getMembers()->m_chunksInUse.cleanup();
     this->cleanup();
