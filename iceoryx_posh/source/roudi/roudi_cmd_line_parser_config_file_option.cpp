@@ -49,7 +49,7 @@ void CmdLineParserConfigFileOption::parse(int argc,
             std::cout << "                                  Have a look at the documentation for the format."
                       << std::endl;
             std::cout << "                                  If option is not given, either" << std::endl;
-            std::cout << "                                  /etc/iceoryx/roudi_config.toml" << std::endl;
+            std::cout << "                                  /etc/iceoryx/roudi_config_medium_default.toml" << std::endl;
             std::cout << "                                  or built-in config is used." << std::endl;
             m_run = false;
             break;
