@@ -103,12 +103,67 @@ TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
 
 TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
 {
+    std::vector<const iox::mepoo::ChunkHeader*> chunks;
+
+    for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_RECEIVER; i++)
+    {
+        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        EXPECT_TRUE(sharedChunk);
+        auto sample = sharedChunk.getPayload();
+        new (sample) DummySample();
+        static_cast<DummySample*>(sample)->dummy = i;
+
+        auto pushRet = m_chunkReceiver.push(sharedChunk);
+        EXPECT_FALSE(pushRet.has_error());
+
+        auto getRet = m_chunkReceiver.get();
+        EXPECT_FALSE(getRet.has_error());
+        EXPECT_TRUE((*getRet).has_value());
+        chunks.push_back(**getRet);
+    }
+
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_HELD_PER_RECEIVER));
+
+    for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_RECEIVER; i++)
+    {
+        const auto chunk = chunks.back();
+        chunks.pop_back();
+        auto dummySample = *reinterpret_cast<DummySample*>(chunk->payload());
+        EXPECT_THAT(dummySample.dummy, Eq(iox::MAX_CHUNKS_HELD_PER_RECEIVER - 1 - i));
+        m_chunkReceiver.release(chunk);
+    }
+
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
 TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
 {
-}
+    // one more is OK, but we assume that one is released then (aligned with ara::com behavior)
+    // therefore MAX_CHUNKS_HELD_PER_RECEIVER+1
+    for (size_t i = 0; i < iox::MAX_CHUNKS_HELD_PER_RECEIVER + 1; i++)
+    {
+        auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+        EXPECT_TRUE(sharedChunk);
 
+        auto pushRet = m_chunkReceiver.push(sharedChunk);
+        EXPECT_FALSE(pushRet.has_error());
+
+        auto getRet = m_chunkReceiver.get();
+        EXPECT_FALSE(getRet.has_error());
+        EXPECT_TRUE((*getRet).has_value());
+    }
+
+    // but now it breaks
+    auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
+    EXPECT_TRUE(sharedChunk);
+
+    auto pushRet = m_chunkReceiver.push(sharedChunk);
+    EXPECT_FALSE(pushRet.has_error());
+
+    auto getRet = m_chunkReceiver.get();
+    EXPECT_TRUE(getRet.has_error());
+    EXPECT_THAT(getRet.get_error(), Eq(iox::popo::ChunkReceiverError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL));
+}
 
 TEST_F(ChunkReceiver_test, releaseInvalidChunk)
 {
