@@ -31,22 +31,24 @@ namespace popo
 ///
 /// About Concurrency:
 /// This ChunkDistributor can be used with different LockingPolicies for different scenarios
-/// When different threads operate on it (e.g. application sends chunks and RouDi adds and removes queues), 
-/// a locking policy must be used that ensures consistent data in the ChunkDistributorData. 
+/// When different threads operate on it (e.g. application sends chunks and RouDi adds and removes queues),
+/// a locking policy must be used that ensures consistent data in the ChunkDistributorData.
 /// @todo There are currently some challenge:
-/// For the stored queues and the history, containers are used which are not thread safe. Therefore we use an inter-process
-/// mutex. But this can lead to deadlocks if a user process gets terminated while one of its threads is in the ChunkDistributor 
-/// and holds a lock. An easier setup would be if changing the queues by a middleware thread and sending chunks by the user process
-/// would not interleave. I.e. there is no concurrent access to the containers. Then a memory synchronization would be sufficient
-/// The cleanup() call is the biggest challenge. This is used to free chunks that are still held by a not properly terminated
-/// user application. Even if access from middleware and user threads do not overlap, the history container to cleanup could be
-/// in an inconsistent state as the application was hard terminated while changing it. We would need a container like the
-/// UsedChunkList to have one that is robust against such inconsistencies.... A perfect job for our future selves
-template <uint32_t MaxQueues, typename LockingPolicy>
+/// For the stored queues and the history, containers are used which are not thread safe. Therefore we use an
+/// inter-process mutex. But this can lead to deadlocks if a user process gets terminated while one of its
+/// threads is in the ChunkDistributor and holds a lock. An easier setup would be if changing the queues
+/// by a middleware thread and sending chunks by the user process would not interleave. I.e. there is no concurrent
+/// access to the containers. Then a memory synchronization would be sufficient.
+/// The cleanup() call is the biggest challenge. This is used to free chunks that are still held by a not properly
+/// terminated user application. Even if access from middleware and user threads do not overlap, the history
+/// container to cleanup could be in an inconsistent state as the application was hard terminated while changing it.
+/// We would need a container like the UsedChunkList to have one that is robust against such inconsistencies....
+/// A perfect job for our future selves
+template <typename ChunkDistributorDataType>
 class ChunkDistributor
 {
   public:
-    using MemberType_t = ChunkDistributorData<MaxQueues, LockingPolicy>;
+    using MemberType_t = ChunkDistributorDataType;
 
     ChunkDistributor(MemberType_t* const chunkDistrubutorDataPtr) noexcept;
 

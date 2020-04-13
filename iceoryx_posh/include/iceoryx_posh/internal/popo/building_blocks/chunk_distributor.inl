@@ -17,29 +17,29 @@ namespace iox
 {
 namespace popo
 {
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline ChunkDistributor<MaxQueues, LockingPolicy>::ChunkDistributor(
+template <typename ChunkDistributorDataType>
+inline ChunkDistributor<ChunkDistributorDataType>::ChunkDistributor(
     MemberType_t* const chunkDistrubutorDataPtr) noexcept
     : m_chunkDistrubutorDataPtr(chunkDistrubutorDataPtr)
 {
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline const typename ChunkDistributor<MaxQueues, LockingPolicy>::MemberType_t*
-ChunkDistributor<MaxQueues, LockingPolicy>::getMembers() const noexcept
+template <typename ChunkDistributorDataType>
+inline const typename ChunkDistributor<ChunkDistributorDataType>::MemberType_t*
+ChunkDistributor<ChunkDistributorDataType>::getMembers() const noexcept
 {
     return m_chunkDistrubutorDataPtr;
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline typename ChunkDistributor<MaxQueues, LockingPolicy>::MemberType_t*
-ChunkDistributor<MaxQueues, LockingPolicy>::getMembers() noexcept
+template <typename ChunkDistributorDataType>
+inline typename ChunkDistributor<ChunkDistributorDataType>::MemberType_t*
+ChunkDistributor<ChunkDistributorDataType>::getMembers() noexcept
 {
     return m_chunkDistrubutorDataPtr;
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline bool ChunkDistributor<MaxQueues, LockingPolicy>::addQueue(ChunkQueue::MemberType_t* const queueToAdd,
+template <typename ChunkDistributorDataType>
+inline bool ChunkDistributor<ChunkDistributorDataType>::addQueue(ChunkQueue::MemberType_t* const queueToAdd,
                                                                  uint64_t requestedHistory) noexcept
 {
     typename MemberType_t::lockGuard_t lock(*getMembers());
@@ -61,14 +61,14 @@ inline bool ChunkDistributor<MaxQueues, LockingPolicy>::addQueue(ChunkQueue::Mem
         {
             getMembers()->m_queues.push_back(queueToAdd);
 
-            uint64_t currChunkHistorySize = getMembers()->m_sampleHistory.size();
+            uint64_t currChunkHistorySize = getMembers()->m_history.size();
 
             // if the current history is large enough we send the requested number of chunks, else we send the
             // total history
             auto startIndex = (requestedHistory <= currChunkHistorySize) ? currChunkHistorySize - requestedHistory : 0u;
             for (auto i = startIndex; i < currChunkHistorySize; ++i)
             {
-                deliverToQueue(queueToAdd, getMembers()->m_sampleHistory[i]);
+                deliverToQueue(queueToAdd, getMembers()->m_history[i]);
             }
         }
         else
@@ -81,9 +81,9 @@ inline bool ChunkDistributor<MaxQueues, LockingPolicy>::addQueue(ChunkQueue::Mem
     return true;
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
+template <typename ChunkDistributorDataType>
 inline void
-ChunkDistributor<MaxQueues, LockingPolicy>::removeQueue(ChunkQueue::MemberType_t* const queueToRemove) noexcept
+ChunkDistributor<ChunkDistributorDataType>::removeQueue(ChunkQueue::MemberType_t* const queueToRemove) noexcept
 {
     typename MemberType_t::lockGuard_t lock(*getMembers());
 
@@ -94,24 +94,24 @@ ChunkDistributor<MaxQueues, LockingPolicy>::removeQueue(ChunkQueue::MemberType_t
     }
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline void ChunkDistributor<MaxQueues, LockingPolicy>::removeAllQueues() noexcept
+template <typename ChunkDistributorDataType>
+inline void ChunkDistributor<ChunkDistributorDataType>::removeAllQueues() noexcept
 {
     typename MemberType_t::lockGuard_t lock(*getMembers());
 
     getMembers()->m_queues.clear();
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline bool ChunkDistributor<MaxQueues, LockingPolicy>::hasStoredQueues() noexcept
+template <typename ChunkDistributorDataType>
+inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() noexcept
 {
     typename MemberType_t::lockGuard_t lock(*getMembers());
 
     return !getMembers()->m_queues.empty();
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline void ChunkDistributor<MaxQueues, LockingPolicy>::deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept
+template <typename ChunkDistributorDataType>
+inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept
 {
     typename MemberType_t::lockGuard_t lock(*getMembers());
 
@@ -125,52 +125,52 @@ inline void ChunkDistributor<MaxQueues, LockingPolicy>::deliverToAllStoredQueues
     addToHistoryWithoutDelivery(chunk);
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline void ChunkDistributor<MaxQueues, LockingPolicy>::deliverToQueue(ChunkQueue::MemberType_t* const queue,
+template <typename ChunkDistributorDataType>
+inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(ChunkQueue::MemberType_t* const queue,
                                                                        mepoo::SharedChunk chunk) noexcept
 {
     ChunkQueue(queue).push(chunk);
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline void ChunkDistributor<MaxQueues, LockingPolicy>::addToHistoryWithoutDelivery(mepoo::SharedChunk chunk) noexcept
+template <typename ChunkDistributorDataType>
+inline void ChunkDistributor<ChunkDistributorDataType>::addToHistoryWithoutDelivery(mepoo::SharedChunk chunk) noexcept
 {
     typename MemberType_t::lockGuard_t lock(*getMembers());
 
     if (0 < getMembers()->m_historyCapacity)
     {
-        if (getMembers()->m_sampleHistory.size() >= getMembers()->m_historyCapacity)
+        if (getMembers()->m_history.size() >= getMembers()->m_historyCapacity)
         {
-            getMembers()->m_sampleHistory.erase(getMembers()->m_sampleHistory.begin());
+            getMembers()->m_history.erase(getMembers()->m_history.begin());
         }
-        getMembers()->m_sampleHistory.push_back(chunk);
+        getMembers()->m_history.push_back(chunk);
     }
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline uint64_t ChunkDistributor<MaxQueues, LockingPolicy>::getHistorySize() noexcept
+template <typename ChunkDistributorDataType>
+inline uint64_t ChunkDistributor<ChunkDistributorDataType>::getHistorySize() noexcept
 {
     typename MemberType_t::lockGuard_t lock(*getMembers());
 
-    return getMembers()->m_sampleHistory.size();
+    return getMembers()->m_history.size();
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline uint64_t ChunkDistributor<MaxQueues, LockingPolicy>::getHistoryCapacity() const noexcept
+template <typename ChunkDistributorDataType>
+inline uint64_t ChunkDistributor<ChunkDistributorDataType>::getHistoryCapacity() const noexcept
 {
     return getMembers()->m_historyCapacity;
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline void ChunkDistributor<MaxQueues, LockingPolicy>::clearHistory() noexcept
+template <typename ChunkDistributorDataType>
+inline void ChunkDistributor<ChunkDistributorDataType>::clearHistory() noexcept
 {
     typename MemberType_t::lockGuard_t lock(*getMembers());
 
-    getMembers()->m_sampleHistory.clear();
+    getMembers()->m_history.clear();
 }
 
-template <uint32_t MaxQueues, typename LockingPolicy>
-inline void ChunkDistributor<MaxQueues, LockingPolicy>::cleanup() noexcept
+template <typename ChunkDistributorDataType>
+inline void ChunkDistributor<ChunkDistributorDataType>::cleanup() noexcept
 {
     if (getMembers()->tryLock())
     {
