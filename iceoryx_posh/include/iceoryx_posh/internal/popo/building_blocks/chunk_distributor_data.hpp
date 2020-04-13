@@ -29,8 +29,6 @@ namespace iox
 {
 namespace popo
 {
-struct ChunkQueueData;
-
 class ThreadSafePolicy
 {
   public: // needs to be public since we want to use std::lock_guard
@@ -90,8 +88,8 @@ struct ChunkDistributorData : public LockingPolicy
     /// When to store a SharedChunk and when the included ChunkManagement must be used?
     /// If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to
     /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup
-    using SampleHistoryContainer_t = cxx::vector<mepoo::SharedChunk, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR>;
-    SampleHistoryContainer_t m_sampleHistory;
+    using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR>;
+    HistoryContainer_t m_history;
 };
 
 } // namespace popo

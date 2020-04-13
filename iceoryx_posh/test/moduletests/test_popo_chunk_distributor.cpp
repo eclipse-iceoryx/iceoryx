@@ -58,7 +58,7 @@ class ChunkDistributor_test : public Test
     MemPool mempool{128, 20, &allocator, &allocator};
     MemPool chunkMgmtPool{128, 20, &allocator, &allocator};
     using ChunkDistributorData_t = ChunkDistributorData<MAX_NUMBER_QUEUES, PolicyType>;
-    using ChunkDistributor_t = ChunkDistributor<MAX_NUMBER_QUEUES, PolicyType>;
+    using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
 
     void SetUp(){};
     void TearDown(){};
