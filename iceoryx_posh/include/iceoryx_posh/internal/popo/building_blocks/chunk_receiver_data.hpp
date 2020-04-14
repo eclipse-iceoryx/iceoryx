@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_CHUNK_RECEIVER_DATA_HPP_
-#define IOX_POSH_POPO_CHUNK_RECEIVER_DATA_HPP_
+#ifndef IOX_POPO_CHUNK_RECEIVER_DATA_HPP_
+#define IOX_POPO_CHUNK_RECEIVER_DATA_HPP_
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
