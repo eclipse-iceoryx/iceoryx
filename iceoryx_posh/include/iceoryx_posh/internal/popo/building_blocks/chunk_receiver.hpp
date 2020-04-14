@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_CHUNK_RECEIVER_HPP_
-#define IOX_POSH_POPO_CHUNK_RECEIVER_HPP_
+#ifndef IOX_POPO_CHUNK_RECEIVER_HPP_
+#define IOX_POPO_CHUNK_RECEIVER_HPP_
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"

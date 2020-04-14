@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_POPO_CHUNK_QUEUE_HPP_
+#define IOX_POPO_CHUNK_QUEUE_HPP_
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
@@ -100,3 +101,5 @@ class ChunkQueue
 
 } // namespace popo
 } // namespace iox
+
+#endif

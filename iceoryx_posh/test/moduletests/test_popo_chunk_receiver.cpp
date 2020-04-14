@@ -30,16 +30,16 @@ struct DummySample
     uint64_t dummy{42};
 };
 
-class ChunkReceiver_testBase : public Test
+class ChunkReceiver_test : public Test
 {
   protected:
-    ChunkReceiver_testBase()
+    ChunkReceiver_test()
     {
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
     }
 
-    ~ChunkReceiver_testBase()
+    ~ChunkReceiver_test()
     {
     }
 
@@ -52,7 +52,7 @@ class ChunkReceiver_testBase : public Test
     }
 
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
-    uint8_t m_memory[1024 * 1024];
+    uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = iox::MAX_CHUNKS_HELD_PER_RECEIVER + iox::MAX_RECEIVER_QUEUE_CAPACITY;
     static constexpr uint32_t CHUNK_SIZE = 128;
 
@@ -62,15 +62,6 @@ class ChunkReceiver_testBase : public Test
 
     iox::popo::ChunkReceiverData m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::popo::ChunkReceiver m_chunkReceiver{&m_chunkReceiverData};
-};
-
-class ChunkReceiver_test : public ChunkReceiver_testBase
-{
-  public:
-    ChunkReceiver_test()
-        : ChunkReceiver_testBase()
-    {
-    }
 };
 
 TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)

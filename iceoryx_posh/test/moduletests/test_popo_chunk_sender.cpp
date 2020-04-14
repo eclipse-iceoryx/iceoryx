@@ -34,17 +34,17 @@ struct DummySample
     uint64_t dummy{42};
 };
 
-class ChunkSender_testBase : public Test
+class ChunkSender_test : public Test
 {
   protected:
-    ChunkSender_testBase()
+    ChunkSender_test()
     {
         m_mempoolconf.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
         m_mempoolconf.addMemPool({BIG_CHUNK, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
     }
 
-    ~ChunkSender_testBase()
+    ~ChunkSender_test()
     {
     }
 
@@ -57,7 +57,7 @@ class ChunkSender_testBase : public Test
     }
 
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;
-    uint8_t m_memory[1024 * 1024];
+    uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
     static constexpr uint32_t SMALL_CHUNK = 128;
     static constexpr uint32_t BIG_CHUNK = 256;
@@ -74,18 +74,9 @@ class ChunkSender_testBase : public Test
     iox::popo::ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager, 0}; // must be 0 for test
     iox::popo::ChunkSenderData<ChunkDistributorData_t> m_chunkSenderDataWithHistory{&m_memoryManager, HISTORY_CAPACITY};
 
-    using ChunkDistributor_t = iox::popo::ChunkDistributor<MAX_NUMBER_QUEUES, iox::popo::ThreadSafePolicy>;
+    using ChunkDistributor_t = iox::popo::ChunkDistributor<ChunkDistributorData_t>;
     iox::popo::ChunkSender<ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
     iox::popo::ChunkSender<ChunkDistributor_t> m_chunkSenderWithHistory{&m_chunkSenderDataWithHistory};
-};
-
-class ChunkSender_test : public ChunkSender_testBase
-{
-  public:
-    ChunkSender_test()
-        : ChunkSender_testBase()
-    {
-    }
 };
 
 TEST_F(ChunkSender_test, allocate_OneChunk)
