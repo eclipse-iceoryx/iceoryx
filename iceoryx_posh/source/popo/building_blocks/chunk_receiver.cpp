@@ -21,18 +21,18 @@ namespace iox
 namespace popo
 {
 ChunkReceiver::ChunkReceiver(MemberType_t* const chunkReceiverDataPtr) noexcept
-    : ChunkQueue(chunkReceiverDataPtr)
+    : ChunkQueuePopper(chunkReceiverDataPtr)
 {
 }
 
 const ChunkReceiver::MemberType_t* ChunkReceiver::getMembers() const noexcept
 {
-    return reinterpret_cast<const MemberType_t*>(ChunkQueue::getMembers());
+    return reinterpret_cast<const MemberType_t*>(ChunkQueuePopper::getMembers());
 }
 
 ChunkReceiver::MemberType_t* ChunkReceiver::getMembers() noexcept
 {
-    return reinterpret_cast<MemberType_t*>(ChunkQueue::getMembers());
+    return reinterpret_cast<MemberType_t*>(ChunkQueuePopper::getMembers());
 }
 
 cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiverError> ChunkReceiver::get() noexcept

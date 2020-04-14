@@ -35,7 +35,7 @@ enum class ChunkSenderError
 /// @brief The ChunkSender is a building block of the shared memory communication infrastructure. It extends
 /// the functionality of a ChunkDistributor with the abililty to allocate and free memory chunks.
 /// For getting chunks of memory the MemoryManger is used. Together with the ChunkReceiver, they are the next
-/// abstraction layer on top of ChunkDistributor and ChunkQueue. The ChunkSender holds the ownership of the
+/// abstraction layer on top of ChunkDistributor and ChunkQueuePopper. The ChunkSender holds the ownership of the
 /// SharedChunks and does a bookkeeping which chunks are currently passed to the user side.
 template <typename ChunkDistributorType>
 class ChunkSender : public ChunkDistributorType
@@ -62,7 +62,7 @@ class ChunkSender : public ChunkDistributorType
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
     void free(mepoo::ChunkHeader* const chunkHeader) noexcept;
 
-    /// @brief Send an allocated chunk to all connected ChunkQueue
+    /// @brief Send an allocated chunk to all connected ChunkQueuePopper
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
     void send(mepoo::ChunkHeader* const chunkHeader) noexcept;
 

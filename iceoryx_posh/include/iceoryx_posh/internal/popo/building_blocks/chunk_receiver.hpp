@@ -15,7 +15,7 @@
 #ifndef IOX_POPO_CHUNK_RECEIVER_HPP_
 #define IOX_POPO_CHUNK_RECEIVER_HPP_
 
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -31,11 +31,12 @@ enum class ChunkReceiverError
 };
 
 /// @brief The ChunkReceiver is a building block of the shared memory communication infrastructure. It extends
-/// the functionality of a ChunkQueue with the abililty to pass chunks to the user side (user process).
-/// Together with the ChunkSender, they are the next abstraction layer on top of ChunkDistributor and ChunkQueue. The
+/// the functionality of a ChunkQueuePopper with the abililty to pass chunks to the user side (user process).
+/// Together with the ChunkSender, they are the next abstraction layer on top of ChunkDistributor and ChunkQueuePopper.
+/// The
 /// ChunkRceiver holds the ownership of the SharedChunks and does a bookkeeping which chunks are currently passed to the
 /// user side.
-class ChunkReceiver : public ChunkQueue
+class ChunkReceiver : public ChunkQueuePopper
 {
   public:
     using MemberType_t = ChunkReceiverData;

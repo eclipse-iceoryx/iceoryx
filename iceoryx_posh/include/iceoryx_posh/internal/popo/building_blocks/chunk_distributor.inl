@@ -39,20 +39,19 @@ ChunkDistributor<ChunkDistributorDataType>::getMembers() noexcept
 }
 
 template <typename ChunkDistributorDataType>
-inline bool ChunkDistributor<ChunkDistributorDataType>::addQueue(ChunkQueue::MemberType_t* const queueToAdd,
+inline bool ChunkDistributor<ChunkDistributorDataType>::addQueue(ChunkQueueData_t* const queueToAdd,
                                                                  uint64_t requestedHistory) noexcept
 {
-    typename MemberType_t::lockGuard_t lock(*getMembers());
+    typename MemberType_t::LockGuard_t lock(*getMembers());
 
     if (nullptr == queueToAdd)
     {
         return false;
     }
 
-    auto alreadyKnownReceiver =
-        std::find_if(getMembers()->m_queues.begin(),
-                     getMembers()->m_queues.end(),
-                     [&](ChunkQueue::MemberType_t* const queue) { return queue == queueToAdd; });
+    auto alreadyKnownReceiver = std::find_if(getMembers()->m_queues.begin(),
+                                             getMembers()->m_queues.end(),
+                                             [&](ChunkQueueData_t* const queue) { return queue == queueToAdd; });
 
     // check if the queue is not already in the list
     if (alreadyKnownReceiver == getMembers()->m_queues.end())
@@ -82,10 +81,9 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::addQueue(ChunkQueue::Mem
 }
 
 template <typename ChunkDistributorDataType>
-inline void
-ChunkDistributor<ChunkDistributorDataType>::removeQueue(ChunkQueue::MemberType_t* const queueToRemove) noexcept
+inline void ChunkDistributor<ChunkDistributorDataType>::removeQueue(ChunkQueueData_t* const queueToRemove) noexcept
 {
-    typename MemberType_t::lockGuard_t lock(*getMembers());
+    typename MemberType_t::LockGuard_t lock(*getMembers());
 
     auto iter = std::find(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), queueToRemove);
     if (iter != getMembers()->m_queues.end())
@@ -97,7 +95,7 @@ ChunkDistributor<ChunkDistributorDataType>::removeQueue(ChunkQueue::MemberType_t
 template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::removeAllQueues() noexcept
 {
-    typename MemberType_t::lockGuard_t lock(*getMembers());
+    typename MemberType_t::LockGuard_t lock(*getMembers());
 
     getMembers()->m_queues.clear();
 }
@@ -105,7 +103,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::removeAllQueues() noexce
 template <typename ChunkDistributorDataType>
 inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() noexcept
 {
-    typename MemberType_t::lockGuard_t lock(*getMembers());
+    typename MemberType_t::LockGuard_t lock(*getMembers());
 
     return !getMembers()->m_queues.empty();
 }
@@ -113,7 +111,7 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() noexce
 template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues(mepoo::SharedChunk chunk) noexcept
 {
-    typename MemberType_t::lockGuard_t lock(*getMembers());
+    typename MemberType_t::LockGuard_t lock(*getMembers());
 
     // send to all the queues
     for (auto& queue : getMembers()->m_queues)
@@ -126,16 +124,16 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
 }
 
 template <typename ChunkDistributorDataType>
-inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(ChunkQueue::MemberType_t* const queue,
+inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(ChunkQueueData_t* const queue,
                                                                        mepoo::SharedChunk chunk) noexcept
 {
-    ChunkQueue(queue).push(chunk);
+    ChunkQueuePusher_t(queue).push(chunk);
 }
 
 template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::addToHistoryWithoutDelivery(mepoo::SharedChunk chunk) noexcept
 {
-    typename MemberType_t::lockGuard_t lock(*getMembers());
+    typename MemberType_t::LockGuard_t lock(*getMembers());
 
     if (0 < getMembers()->m_historyCapacity)
     {
@@ -150,7 +148,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::addToHistoryWithoutDeliv
 template <typename ChunkDistributorDataType>
 inline uint64_t ChunkDistributor<ChunkDistributorDataType>::getHistorySize() noexcept
 {
-    typename MemberType_t::lockGuard_t lock(*getMembers());
+    typename MemberType_t::LockGuard_t lock(*getMembers());
 
     return getMembers()->m_history.size();
 }
@@ -164,7 +162,7 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::getHistoryCapacity()
 template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::clearHistory() noexcept
 {
-    typename MemberType_t::lockGuard_t lock(*getMembers());
+    typename MemberType_t::LockGuard_t lock(*getMembers());
 
     getMembers()->m_history.clear();
 }
