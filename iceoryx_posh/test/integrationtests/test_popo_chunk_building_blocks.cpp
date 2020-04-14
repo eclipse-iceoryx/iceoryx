@@ -13,23 +13,34 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
-
-/// @todo Shall RouDiEnvironment be used?
-#include "roudi_gtest.hpp"
+#include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
 #include "test.hpp"
+
+#include <stdlib.h>
+#include <thread>
 
 using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
 using ::testing::Return;
+using namespace std::chrono_literals;
 
-class ChunkBuildingBlocks_IntegrationTest : public RouDi_GTest
+struct DummySample
+{
+    uint64_t dummy{42};
+};
+
+/// @todo Make it a typed test?
+class ChunkBuildingBlocks_IntegrationTest : public Test
 {
   public:
     ChunkBuildingBlocks_IntegrationTest()
     {
+        m_mempoolconf.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
+        m_mempoolconf.addMemPool({BIG_CHUNK, NUM_CHUNKS_IN_POOL});
+        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
     }
     virtual ~ChunkBuildingBlocks_IntegrationTest()
     {
@@ -37,23 +48,57 @@ class ChunkBuildingBlocks_IntegrationTest : public RouDi_GTest
 
     void SetUp()
     {
-        // auto& senderRuntime = iox::runtime::PoshRuntime::getInstance("/sender");
-        // senderPort = iox::popo::SenderPort(senderRuntime.getMiddlewareSender(m_service_description));
-
-        // auto& receiverRuntime = iox::runtime::PoshRuntime::getInstance("/receiver");
-        // receiverPort = iox::popo::ReceiverPort(receiverRuntime.getMiddlewareReceiver(m_service_description));
+        /// @todo connect all four sut's
+        // ChunkSender
+        // ChunkSenderData
+        // ChunkReceiver
+        // ChunkReceiverData
     }
 
 
     void TearDown()
     {
-        // senderPort.deactivate();
-        // receiverPort.unsubscribe();
     }
 
+
+    std::thread chunkSenderThread{([&] {
+        /// @todo in a loop
+        // std::this_thread::sleep_for((rand() % 100)ms);
+        // auto chunk = m_chunkSender.allocate(sizeof(DummySample));
+        // EXPECT_FALSE(chunk.has_error());
+        // EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+        // m_chunkSender.send(chunk);
+        // EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+        // std::this_thread::sleep_for((rand() % 100)ms);
+    })};
+
+    std::thread chunkDistributorThread{([&] {
+        /// @todo in a loop
+        // std::this_thread::sleep_for((rand() % 100)ms);
+        // deliverToAllStoredQueues(); // multi threaded policy
+        // random sleep between 0-1s?
+        // std::this_thread::sleep_for((rand() % 100)ms);
+    })};
+
+    std::thread ChunkReceiverThread{([&] {
+        /// @todo in a loop
+        // std::this_thread::sleep_for((rand() % 100)ms);
+        // get();
+        // cast to SampleType
+        // is the counter running correct?
+        // std::this_thread::sleep_for((rand() % 100)ms);
+    })};
+
+    static constexpr size_t MEMORY_SIZE = 1024 * 1024;
+    uint8_t m_memory[1024 * 1024];
+    static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
+    static constexpr uint32_t SMALL_CHUNK = 128;
+    static constexpr uint32_t BIG_CHUNK = 256;
     static constexpr uint64_t HISTORY_CAPACITY = 4;
     static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
 
+    iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
 
     using ChunkDistributorData_t = iox::popo::ChunkDistributorData<MAX_NUMBER_QUEUES, iox::popo::ThreadSafePolicy>;
