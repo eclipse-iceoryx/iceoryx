@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -62,6 +63,7 @@ class ChunkReceiver_test : public Test
 
     iox::popo::ChunkReceiverData m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::popo::ChunkReceiver m_chunkReceiver{&m_chunkReceiverData};
+    iox::popo::ChunkQueuePusher m_chunkQueuePusher{&m_chunkReceiverData};
 };
 
 TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)
@@ -78,7 +80,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
         auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
         EXPECT_TRUE(sharedChunk);
         EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-        auto pushRet = m_chunkReceiver.push(sharedChunk);
+        auto pushRet = m_chunkQueuePusher.push(sharedChunk);
         EXPECT_FALSE(pushRet.has_error());
 
         auto getRet = m_chunkReceiver.get();
@@ -104,7 +106,7 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
         new (sample) DummySample();
         static_cast<DummySample*>(sample)->dummy = i;
 
-        auto pushRet = m_chunkReceiver.push(sharedChunk);
+        auto pushRet = m_chunkQueuePusher.push(sharedChunk);
         EXPECT_FALSE(pushRet.has_error());
 
         auto getRet = m_chunkReceiver.get();
@@ -136,7 +138,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
         auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
         EXPECT_TRUE(sharedChunk);
 
-        auto pushRet = m_chunkReceiver.push(sharedChunk);
+        auto pushRet = m_chunkQueuePusher.push(sharedChunk);
         EXPECT_FALSE(pushRet.has_error());
 
         auto getRet = m_chunkReceiver.get();
@@ -148,7 +150,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
     auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
     EXPECT_TRUE(sharedChunk);
 
-    auto pushRet = m_chunkReceiver.push(sharedChunk);
+    auto pushRet = m_chunkQueuePusher.push(sharedChunk);
     EXPECT_FALSE(pushRet.has_error());
 
     auto getRet = m_chunkReceiver.get();
@@ -163,7 +165,7 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
         auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
         EXPECT_TRUE(sharedChunk);
         EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-        auto pushRet = m_chunkReceiver.push(sharedChunk);
+        auto pushRet = m_chunkQueuePusher.push(sharedChunk);
         EXPECT_FALSE(pushRet.has_error());
 
         auto getRet = m_chunkReceiver.get();
@@ -191,7 +193,7 @@ TEST_F(ChunkReceiver_test, Cleanup)
         // MAX_CHUNKS_HELD_PER_RECEIVER on user side and MAX_RECEIVER_QUEUE_CAPACITY in the queue
         auto sharedChunk = m_memoryManager.getChunk(sizeof(DummySample));
         EXPECT_TRUE(sharedChunk);
-        auto pushRet = m_chunkReceiver.push(sharedChunk);
+        auto pushRet = m_chunkQueuePusher.push(sharedChunk);
         EXPECT_FALSE(pushRet.has_error());
 
         if (i < iox::MAX_CHUNKS_HELD_PER_RECEIVER)

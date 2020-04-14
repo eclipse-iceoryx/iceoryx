@@ -18,7 +18,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
@@ -65,10 +65,12 @@ class SingleThreadedPolicy
     }
 };
 
-template <uint32_t MaxQueues, typename LockingPolicy>
+template <uint32_t MaxQueues, typename LockingPolicy, typename ChunkQueuePusherType = ChunkQueuePusher>
 struct ChunkDistributorData : public LockingPolicy
 {
-    using lockGuard_t = std::lock_guard<ChunkDistributorData<MaxQueues, LockingPolicy>>;
+    using LockGuard_t = std::lock_guard<ChunkDistributorData<MaxQueues, LockingPolicy>>;
+    using ChunkQueuePusher_t = ChunkQueuePusherType;
+    using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
 
     ChunkDistributorData(uint64_t historyCapacity = 0u) noexcept
         : m_historyCapacity(algorithm::min(historyCapacity, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR))
@@ -82,7 +84,7 @@ struct ChunkDistributorData : public LockingPolicy
 
     const uint64_t m_historyCapacity;
 
-    using QueueContainer_t = cxx::vector<ChunkQueue::MemberType_t*, MaxQueues>;
+    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, MaxQueues>;
     QueueContainer_t m_queues;
 
     /// @todo using ChunkManagement instead of SharedChunk as in UsedChunkList?

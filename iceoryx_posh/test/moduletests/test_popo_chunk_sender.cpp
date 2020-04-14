@@ -16,8 +16,9 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -70,7 +71,8 @@ class ChunkSender_test : public Test
 
     iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 
-    using ChunkDistributorData_t = iox::popo::ChunkDistributorData<MAX_NUMBER_QUEUES, iox::popo::ThreadSafePolicy>;
+    using ChunkDistributorData_t =
+        iox::popo::ChunkDistributorData<MAX_NUMBER_QUEUES, iox::popo::ThreadSafePolicy, iox::popo::ChunkQueuePusher>;
     iox::popo::ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager, 0}; // must be 0 for test
     iox::popo::ChunkSenderData<ChunkDistributorData_t> m_chunkSenderDataWithHistory{&m_memoryManager, HISTORY_CAPACITY};
 
@@ -255,7 +257,7 @@ TEST_F(ChunkSender_test, sendOneWithReceiver)
 
         // consume the sample
         {
-            iox::popo::ChunkQueue myQueue(&m_chunkQueueData);
+            iox::popo::ChunkQueuePopper myQueue(&m_chunkQueueData);
             EXPECT_FALSE(myQueue.empty());
             auto popRet = myQueue.pop();
             EXPECT_TRUE(popRet.has_value());
@@ -268,7 +270,7 @@ TEST_F(ChunkSender_test, sendOneWithReceiver)
 TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
-    iox::popo::ChunkQueue checkQueue(&m_chunkQueueData);
+    iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.capacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
@@ -287,7 +289,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {
-        iox::popo::ChunkQueue myQueue(&m_chunkQueueData);
+        iox::popo::ChunkQueuePopper myQueue(&m_chunkQueueData);
         EXPECT_FALSE(myQueue.empty());
         auto popRet = myQueue.pop();
         EXPECT_TRUE(popRet.has_value());
@@ -300,7 +302,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
-    iox::popo::ChunkQueue checkQueue(&m_chunkQueueData);
+    iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.capacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
@@ -318,7 +320,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {
-        iox::popo::ChunkQueue myQueue(&m_chunkQueueData);
+        iox::popo::ChunkQueuePopper myQueue(&m_chunkQueueData);
         EXPECT_FALSE(myQueue.empty());
         auto popRet = myQueue.pop();
         EXPECT_TRUE(popRet.has_value());
@@ -330,7 +332,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
-    iox::popo::ChunkQueue checkQueue(&m_chunkQueueData);
+    iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.capacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
@@ -458,7 +460,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverLastReuseBecauseAlreadyConsumed
         new (sample) DummySample();
         m_chunkSender.send(*chunk);
 
-        iox::popo::ChunkQueue myQueue(&m_chunkQueueData);
+        iox::popo::ChunkQueuePopper myQueue(&m_chunkQueueData);
         EXPECT_FALSE(myQueue.empty());
         auto popRet = myQueue.pop();
         EXPECT_TRUE(popRet.has_value());
