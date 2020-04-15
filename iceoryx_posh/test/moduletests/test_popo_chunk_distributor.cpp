@@ -127,7 +127,7 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
-    for (auto i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
+    for (uint32_t i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
     {
         auto queueData = this->getChunkQueueData();
         EXPECT_THAT(sut.addQueue(queueData.get()), Eq(true));
