@@ -15,6 +15,8 @@
 #ifndef IOX_POPO_CHUNK_QUEUE_TYPES_HPP_
 #define IOX_POPO_CHUNK_QUEUE_TYPES_HPP_
 
+#include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 namespace iox
 {
@@ -24,6 +26,19 @@ enum class ChunkQueueError
 {
     SEMAPHORE_ALREADY_SET,
     QUEUE_OVERFLOW
+};
+
+struct ChunkTuple
+{
+    ChunkTuple() = default;
+    ChunkTuple(iox::relative_ptr<mepoo::ChunkManagement> f_chunk) noexcept
+        : m_segmentId(f_chunk.getId())
+        , m_chunkOffset(f_chunk.getOffset())
+    {
+    }
+
+    RelativePointer::id_t m_segmentId{iox::RelativePointer::NULL_POINTER_ID};
+    RelativePointer::offset_t m_chunkOffset{iox::RelativePointer::NULL_POINTER_OFFSET};
 };
 
 } // namespace popo

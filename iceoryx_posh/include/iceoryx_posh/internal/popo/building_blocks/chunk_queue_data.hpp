@@ -16,40 +16,25 @@
 #define IOX_POPO_CHUNK_QUEUE_DATA_HPP_
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
+#include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 namespace iox
 {
 namespace popo
 {
-
 struct ChunkQueueData
 {
-    struct ChunkTuple
-    {
-        ChunkTuple() = default;
-        ChunkTuple(iox::relative_ptr<mepoo::ChunkManagement> f_chunk) noexcept
-            : m_segmentId(f_chunk.getId())
-            , m_chunkOffset(f_chunk.getOffset())
-        {
-        }
-
-        RelativePointer::id_t m_segmentId{iox::RelativePointer::NULL_POINTER_ID};
-        RelativePointer::offset_t m_chunkOffset{iox::RelativePointer::NULL_POINTER_OFFSET};
-    };
-
     ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept
-    : m_queue(queueType)
+        : m_queue(queueType)
     {
-    
     }
 
     cxx::VariantQueue<ChunkTuple, MAX_RECEIVER_QUEUE_CAPACITY> m_queue;
     mepoo::SharedPointer<posix::Semaphore> m_semaphore;
     std::atomic_bool m_semaphoreAttached{false};
-
 };
 
 } // namespace popo
