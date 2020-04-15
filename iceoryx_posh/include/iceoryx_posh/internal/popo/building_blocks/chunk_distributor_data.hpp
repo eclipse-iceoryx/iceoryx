@@ -68,7 +68,7 @@ class SingleThreadedPolicy
 template <uint32_t MaxQueues, typename LockingPolicy, typename ChunkQueuePusherType = ChunkQueuePusher>
 struct ChunkDistributorData : public LockingPolicy
 {
-    using LockGuard_t = std::lock_guard<ChunkDistributorData<MaxQueues, LockingPolicy>>;
+    using LockGuard_t = std::lock_guard<ChunkDistributorData<MaxQueues, LockingPolicy, ChunkQueuePusherType>>;
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
 
