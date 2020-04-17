@@ -274,10 +274,19 @@ TEST_F(ChunkQueueSoFi_test, PushFull)
         auto chunk = allocateChunk();
         m_pusher.push(chunk);
     }
-    auto chunk = allocateChunk();
-    auto ret = m_pusher.push(chunk);
-    EXPECT_FALSE(ret.has_error());
-    EXPECT_THAT(m_popper.empty(), Eq(false));
-    constexpr uint32_t SOFI_SIZE_WHEN_FULL = iox::MAX_RECEIVER_QUEUE_CAPACITY + 1;
-    EXPECT_THAT(m_popper.size(), Eq(SOFI_SIZE_WHEN_FULL));
+
+    {
+        // pushing is still fine
+        auto chunk = allocateChunk();
+        auto ret = m_pusher.push(chunk);
+        EXPECT_FALSE(ret.has_error());
+        EXPECT_THAT(m_popper.empty(), Eq(false));
+    }
+    // get al the chunks in the queue
+    while (m_popper.pop().has_value())
+    {
+    }
+
+    // now all chunks are released
+    EXPECT_THAT(mempool.getUsedChunks(), Eq(0u));
 }

@@ -68,16 +68,16 @@ VariantQueue<ValueType, Capacity>::push(const ValueType& value) noexcept
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
         ValueType overriddenValue;
-        auto override =
+        auto notskipped =
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
                 ->push(value, overriddenValue);
-        if (override)
+        if (notskipped)
         {
-            ret = success<optional<ValueType>>(optional<ValueType>(std::move(overriddenValue)));
+            ret = success<optional<ValueType>>(nullopt_t());
         }
         else
         {
-            ret = success<optional<ValueType>>(nullopt_t());
+            ret = success<optional<ValueType>>(optional<ValueType>(std::move(overriddenValue)));
         }
         break;
     }
