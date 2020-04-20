@@ -16,6 +16,8 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "test.hpp"
@@ -57,8 +59,8 @@ class ChunkDistributor_test : public Test
     iox::posix::Allocator allocator{memory, MEMORY_SIZE};
     MemPool mempool{128, 20, &allocator, &allocator};
     MemPool chunkMgmtPool{128, 20, &allocator, &allocator};
-    using ChunkDistributorData_t = ChunkDistributorData<MAX_NUMBER_QUEUES, PolicyType>;
-    using ChunkDistributor_t = ChunkDistributor<MAX_NUMBER_QUEUES, PolicyType>;
+    using ChunkDistributorData_t = ChunkDistributorData<MAX_NUMBER_QUEUES, PolicyType, ChunkQueuePusher>;
+    using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
 
     void SetUp(){};
     void TearDown(){};
@@ -68,9 +70,9 @@ class ChunkDistributor_test : public Test
         return std::make_shared<ChunkQueueData>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer);
     }
 
-    std::shared_ptr<ChunkDistributorData<MAX_NUMBER_QUEUES, PolicyType>> getChunkDistributorData()
+    std::shared_ptr<ChunkDistributorData_t> getChunkDistributorData()
     {
-        return std::make_shared<ChunkDistributorData<MAX_NUMBER_QUEUES, PolicyType>>(HISTORY_SIZE);
+        return std::make_shared<ChunkDistributorData_t>(HISTORY_SIZE);
     }
 };
 
@@ -125,7 +127,7 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
-    for (auto i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
+    for (uint32_t i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
     {
         auto queueData = this->getChunkQueueData();
         EXPECT_THAT(sut.addQueue(queueData.get()), Eq(true));
@@ -204,7 +206,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
 
-    ChunkQueue queue(queueData.get());
+    ChunkQueuePopper queue(queueData.get());
     auto result = queue.pop();
 
     ASSERT_THAT(result.has_value(), Eq(true));
@@ -222,7 +224,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOn
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
 
-    ChunkQueue queue(queueData.get());
+    ChunkQueuePopper queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(1));
     EXPECT_THAT(sut.getHistorySize(), Eq(1));
 }
@@ -240,7 +242,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDel
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
 
-    ChunkQueue queue(queueData.get());
+    ChunkQueuePopper queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(1));
     EXPECT_THAT(sut.getHistorySize(), Eq(1));
 }
@@ -258,7 +260,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleCh
     for (auto i = 0; i < limit; ++i)
         sut.deliverToAllStoredQueues(this->allocateChunk(i * 123));
 
-    ChunkQueue queue(queueData.get());
+    ChunkQueuePopper queue(queueData.get());
     for (auto i = 0; i < limit; ++i)
     {
         auto result = queue.pop();
@@ -280,7 +282,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliverMul
     for (auto i = 0; i < limit; ++i)
         sut.deliverToAllStoredQueues(this->allocateChunk(i * 123));
 
-    ChunkQueue queue(queueData.get());
+    ChunkQueuePopper queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(limit));
     EXPECT_THAT(sut.getHistorySize(), Eq(limit));
 }
@@ -303,7 +305,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
 
     for (auto i = 0; i < limit; ++i)
     {
-        ChunkQueue queue(queueData[i].get());
+        ChunkQueuePopper queue(queueData[i].get());
         auto result = queue.pop();
         ASSERT_THAT(result.has_value(), Eq(true));
         EXPECT_THAT(this->getSharedChunkValue(*result), Eq(24451));
@@ -331,7 +333,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
     {
         for (auto k = 0; k < limit; ++k)
         {
-            ChunkQueue queue(queueData[i].get());
+            ChunkQueuePopper queue(queueData[i].get());
             auto result = queue.pop();
             ASSERT_THAT(result.has_value(), Eq(true));
             EXPECT_THAT(this->getSharedChunkValue(*result), Eq(k * 34));
@@ -391,7 +393,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAdded)
     auto chunk = this->allocateChunk(4451);
     sut.deliverToQueue(queueData.get(), chunk);
 
-    ChunkQueue queue(queueData.get());
+    ChunkQueuePopper queue(queueData.get());
     auto result = queue.pop();
 
     ASSERT_THAT(result.has_value(), Eq(true));
@@ -409,7 +411,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAdded)
     auto chunk = this->allocateChunk(451);
     sut.deliverToQueue(queueData.get(), chunk);
 
-    ChunkQueue queue(queueData.get());
+    ChunkQueuePopper queue(queueData.get());
     auto result = queue.pop();
 
     ASSERT_THAT(result.has_value(), Eq(true));
@@ -456,7 +458,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithLessThanAvailable)
 
     // add a queue with a requested history of one must deliver the latest sample
     auto queueData = this->getChunkQueueData();
-    ChunkQueue queue(queueData.get());
+    ChunkQueuePopper queue(queueData.get());
     sut.addQueue(queueData.get(), 1);
 
     EXPECT_THAT(queue.size(), Eq(1));
@@ -479,7 +481,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithExactAvailable)
 
     // add a queue with a requested history of 3 must deliver all three in the order oldest to newest
     auto queueData = this->getChunkQueueData();
-    ChunkQueue queue(queueData.get());
+    ChunkQueuePopper queue(queueData.get());
     sut.addQueue(queueData.get(), 3);
 
     EXPECT_THAT(queue.size(), Eq(3));
@@ -507,7 +509,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithMoreThanAvailable)
 
     // add a queue with a requested history of 5 must deliver only the three available in the order oldest to newest
     auto queueData = this->getChunkQueueData();
-    ChunkQueue queue(queueData.get());
+    ChunkQueuePopper queue(queueData.get());
     sut.addQueue(queueData.get(), 5);
 
     EXPECT_THAT(queue.size(), Eq(3));

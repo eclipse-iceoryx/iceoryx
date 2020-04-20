@@ -1,0 +1,76 @@
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#ifndef IOX_POPO_CHUNK_RECEIVER_HPP_
+#define IOX_POPO_CHUNK_RECEIVER_HPP_
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
+
+namespace iox
+{
+namespace popo
+{
+enum class ChunkReceiverError
+{
+    TOO_MANY_CHUNKS_HELD_IN_PARALLEL
+};
+
+/// @brief The ChunkReceiver is a building block of the shared memory communication infrastructure. It extends
+/// the functionality of a ChunkQueuePopper with the abililty to pass chunks to the user side (user process).
+/// Together with the ChunkSender, they are the next abstraction layer on top of ChunkDistributor and ChunkQueuePopper.
+/// The
+/// ChunkRceiver holds the ownership of the SharedChunks and does a bookkeeping which chunks are currently passed to the
+/// user side.
+class ChunkReceiver : public ChunkQueuePopper
+{
+  public:
+    using MemberType_t = ChunkReceiverData;
+
+    ChunkReceiver(MemberType_t* const chunkReceiverDataPtr) noexcept;
+
+    ChunkReceiver(const ChunkReceiver& other) = delete;
+    ChunkReceiver& operator=(const ChunkReceiver&) = delete;
+    ChunkReceiver(ChunkReceiver&& rhs) = default;
+    ChunkReceiver& operator=(ChunkReceiver&& rhs) = default;
+    ~ChunkReceiver() = default;
+
+    /// @brief Tries to get the next received chunk. If there is a new one the ChunkHeader of this new chunk is received
+    /// The ownerhip of the SharedChunk remains in the ChunkReceiver for being able to cleanup if the user process
+    /// disappears
+    /// @return optional that has a new chunk header or no value if there are no new chunks in the underlying queue,
+    /// ChunkReceiverError on error
+    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiverError> get() noexcept;
+
+    /// @brief Release a chunk that was obtained with get
+    /// @param[in] chunkHeader, pointer to the ChunkHeader to free
+    void release(const mepoo::ChunkHeader* chunkHeader) noexcept;
+
+    /// @brief Release all the chunks that are currently held. Caution: Only call this if the user process is no more
+    /// running E.g. This cleans up chunks that were held by a user process that died unexpectetly, for avoiding lost
+    /// chunks in the system
+    void releaseAll() noexcept;
+
+  private:
+    const MemberType_t* getMembers() const noexcept;
+    MemberType_t* getMembers() noexcept;
+};
+
+} // namespace popo
+} // namespace iox
+
+#endif
