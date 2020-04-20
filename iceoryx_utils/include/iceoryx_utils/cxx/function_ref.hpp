@@ -74,10 +74,11 @@ class function_ref<ReturnType(ArgTypes...)>
     ~function_ref() noexcept = default;
 
     /// @brief No copy c'tor
+    /// @todo test this
     function_ref(const function_ref&) noexcept = delete;
 
     /// @brief No copy assignment
-    function_ref& operator=(const function_ref&) noexcept = delete;
+    function_ref& operator=(const function_ref&) noexcept = default;
 
     /// @brief Create a function_ref
     /// @todo Type trait std::is_invocable is only available in C++17, workaround for C++11/14?

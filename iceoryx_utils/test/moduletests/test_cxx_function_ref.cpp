@@ -61,6 +61,27 @@ TEST_F(function_refTest, CreateEmptyAndAssign)
     EXPECT_TRUE(sut);
 }
 
+TEST_F(function_refTest, CreateAndCopyAssign)
+{
+    auto lambda = []() -> int { return 42; };
+    function_ref<int()> sut1(lambda);
+    function_ref<int()> sut2;
+    EXPECT_THAT(sut1(), Eq(42));
+    EXPECT_FALSE(sut2);
+    sut2 = sut1;
+    EXPECT_TRUE(sut2);
+    EXPECT_THAT(sut2(), Eq(42));
+}
+
+TEST_F(function_refTest, CreateAndCopy)
+{
+    auto lambda = []() -> int { return 42; };
+    function_ref<int()> sut1(lambda);
+    function_ref<int()> sut2{sut1};
+    EXPECT_TRUE(sut2);
+    EXPECT_THAT(sut2(), Eq(42));
+}
+
 TEST_F(function_refTest, CreateAndSwap)
 {
     auto lambda1 = []() -> int { return 42; };
@@ -121,3 +142,9 @@ TEST_F(function_refTest, CreateWithFunctor)
     function_ref<int()> sut(foo);
     EXPECT_THAT(sut(), Eq(73));
 }
+
+/// @todo member function test case
+
+/// @todo std bind test case
+
+/// @todo store function_ref in std::function
