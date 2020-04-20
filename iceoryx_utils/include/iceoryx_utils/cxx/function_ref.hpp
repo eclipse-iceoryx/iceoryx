@@ -98,6 +98,11 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @brief Calls the provided callable
     auto operator()(ArgTypes... args) const noexcept -> ReturnType
     {
+        if (!m_target)
+        {
+            // Callable was called without user having assigned one beforehand
+            std::terminate();
+        }
         return m_functionPointer(m_target, std::forward<ArgTypes>(args)...);
     }
 
