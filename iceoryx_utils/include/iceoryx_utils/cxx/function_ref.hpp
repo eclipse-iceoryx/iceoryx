@@ -36,7 +36,7 @@ namespace cxx
 ///         {
 ///             callback();
 ///         }
-///         // Call the lamda
+///         // Call the lambda
 ///         fuu([]{ doSomething(); });
 ///
 ///         // Usage with l-values
@@ -56,10 +56,7 @@ class function_ref<ReturnType(ArgTypes...)>
     using SignatureType = ReturnType(ArgTypes...);
 
   public:
-    /// @brief Take l-values via function_ref(CallableType&& callable) and std::forward
-    /// @param[in]
-    // function_ref() noexcept = delete;
-    /// @todo string_view can be empty, hence function_ref should be too?
+    /// @brief Creates an empty function_ref
     function_ref() noexcept
         : m_target(nullptr)
         , m_functionPointer(nullptr)

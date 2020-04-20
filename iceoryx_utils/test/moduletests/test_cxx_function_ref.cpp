@@ -41,9 +41,9 @@ TEST_F(function_refTest, CreateEmpty)
 
 TEST_F(function_refTest, CreateEmptyAndAssign)
 {
-    auto lamda = [] {};
+    auto lambda = [] {};
     function_ref<void()> sut;
-    sut = lamda;
+    sut = lambda;
     EXPECT_TRUE(sut);
 }
 
