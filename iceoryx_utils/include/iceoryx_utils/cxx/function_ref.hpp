@@ -119,10 +119,10 @@ class function_ref<ReturnType(ArgTypes...)>
 
   private:
     /// @brief Raw pointer of the callable
-    void* m_target;
+    void* m_target{nullptr};
 
     /// @brief Function pointer to the callable
-    ReturnType (*m_functionPointer)(void*, ArgTypes...);
+    ReturnType (*m_functionPointer)(void*, ArgTypes...){nullptr};
 };
 
 } // namespace cxx
