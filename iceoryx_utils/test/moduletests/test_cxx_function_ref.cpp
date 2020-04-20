@@ -47,6 +47,19 @@ TEST_F(function_refTest, CreateEmptyAndAssign)
     EXPECT_TRUE(sut);
 }
 
+TEST_F(function_refTest, CreateAndSwap)
+{
+    auto lambda1 = []() -> int { return 42; };
+    auto lambda2 = []() -> int { return 73; };
+    function_ref<int()> sut1(lambda1);
+    function_ref<int()> sut2(lambda2);
+    EXPECT_THAT(sut1(), Eq(42));
+    EXPECT_THAT(sut2(), Eq(73));
+    sut1.swap(sut2);
+    EXPECT_THAT(sut1(), Eq(73));
+    EXPECT_THAT(sut2(), Eq(42));
+}
+
 TEST_F(function_refTest, CreateWithNullptr)
 {
     function_ref<void()> sut(nullptr);

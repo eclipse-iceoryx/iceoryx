@@ -112,8 +112,13 @@ class function_ref<ReturnType(ArgTypes...)>
         return m_target != nullptr;
     }
 
+    void swap(function_ref<SignatureType>& rhs) noexcept
+    {
+        std::swap(m_target, rhs.m_target);
+        std::swap(m_functionPointer, rhs.m_functionPointer);
+    }
+
     /// @todo Be closer to std::function API
-    // swap()
     // target() ?
     // target_type() ?
 
@@ -124,6 +129,12 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @brief Function pointer to the callable
     ReturnType (*m_functionPointer)(void*, ArgTypes...){nullptr};
 };
+
+template <class ReturnType, class... ArgTypes>
+void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<ReturnType(ArgTypes...)>& rhs) noexcept
+{
+    lhs.swap(rhs);
+}
 
 } // namespace cxx
 } // namespace iox
