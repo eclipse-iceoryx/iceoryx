@@ -18,6 +18,20 @@
 using namespace ::testing;
 using namespace iox::cxx;
 
+int freeFunction()
+{
+    return 42 + 42;
+}
+
+class Functor
+{
+  public:
+    int operator()()
+    {
+        return 73;
+    }
+};
+
 class function_refTest : public Test
 {
   public:
@@ -93,4 +107,17 @@ TEST_F(function_refTest, CreateWithLambdaIntInt)
     auto lambda = [](int var) -> int { return ++var; };
     function_ref<int(int)> sut(lambda);
     EXPECT_THAT(sut(m_iter), Eq(1));
+}
+
+TEST_F(function_refTest, CreateWithFreeFunction)
+{
+    function_ref<int()> sut(freeFunction);
+    EXPECT_THAT(sut(), Eq(84));
+}
+
+TEST_F(function_refTest, CreateWithFunctor)
+{
+    Functor foo;
+    function_ref<int()> sut(foo);
+    EXPECT_THAT(sut(), Eq(73));
 }
