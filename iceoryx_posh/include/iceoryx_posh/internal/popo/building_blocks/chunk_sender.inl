@@ -17,8 +17,8 @@ namespace iox
 namespace popo
 {
 template <typename ChunkDistributorType>
-inline ChunkSender<ChunkDistributorType>::ChunkSender(MemberType_t* const chunkSenderDataPtr) noexcept
-    : ChunkDistributorType(chunkSenderDataPtr)
+inline ChunkSender<ChunkDistributorType>::ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept
+    : ChunkDistributorType(static_cast<typename ChunkDistributorType::MemberType_t* const>(chunkSenderDataPtr))
 {
 }
 

@@ -19,6 +19,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 
 namespace iox
@@ -41,7 +42,7 @@ class ChunkReceiver : public ChunkQueuePopper
   public:
     using MemberType_t = ChunkReceiverData;
 
-    ChunkReceiver(MemberType_t* const chunkReceiverDataPtr) noexcept;
+    ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
 
     ChunkReceiver(const ChunkReceiver& other) = delete;
     ChunkReceiver& operator=(const ChunkReceiver&) = delete;

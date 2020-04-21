@@ -19,7 +19,7 @@ namespace popo
 {
 template <typename ChunkDistributorDataType>
 inline ChunkDistributor<ChunkDistributorDataType>::ChunkDistributor(
-    MemberType_t* const chunkDistrubutorDataPtr) noexcept
+    cxx::not_null<MemberType_t* const> chunkDistrubutorDataPtr) noexcept
     : m_chunkDistrubutorDataPtr(chunkDistrubutorDataPtr)
 {
 }
@@ -39,15 +39,10 @@ ChunkDistributor<ChunkDistributorDataType>::getMembers() noexcept
 }
 
 template <typename ChunkDistributorDataType>
-inline bool ChunkDistributor<ChunkDistributorDataType>::addQueue(ChunkQueueData_t* const queueToAdd,
+inline void ChunkDistributor<ChunkDistributorDataType>::addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
                                                                  uint64_t requestedHistory) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
-
-    if (nullptr == queueToAdd)
-    {
-        return false;
-    }
 
     auto alreadyKnownReceiver = std::find_if(getMembers()->m_queues.begin(),
                                              getMembers()->m_queues.end(),
@@ -73,15 +68,13 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::addQueue(ChunkQueueData_
         else
         {
             errorHandler(Error::kPOPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER, nullptr, ErrorLevel::SEVERE);
-            return false;
         }
     }
-
-    return true;
 }
 
 template <typename ChunkDistributorDataType>
-inline void ChunkDistributor<ChunkDistributorDataType>::removeQueue(ChunkQueueData_t* const queueToRemove) noexcept
+inline void
+ChunkDistributor<ChunkDistributorDataType>::removeQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
@@ -124,7 +117,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQueues
 }
 
 template <typename ChunkDistributorDataType>
-inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(ChunkQueueData_t* const queue,
+inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
                                                                        mepoo::SharedChunk chunk) noexcept
 {
     ChunkQueuePusher_t(queue).push(chunk);
