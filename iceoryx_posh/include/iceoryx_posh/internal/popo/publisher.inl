@@ -55,6 +55,10 @@ template <typename SenderPortType>
 inline void* Publisher_t<SenderPortType>::allocateChunk(uint32_t payloadSize, bool useDynamicPayloadSizes) noexcept
 {
     auto chunkHeader = m_sender.reserveChunk(payloadSize, useDynamicPayloadSizes);
+    if (chunkHeader == nullptr)
+    {
+        return nullptr;
+    }
     return chunkHeader->payload();
 }
 
