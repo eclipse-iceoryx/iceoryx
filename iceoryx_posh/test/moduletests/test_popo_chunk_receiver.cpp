@@ -68,9 +68,9 @@ class ChunkReceiver_test : public Test
 
 TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)
 {
-    auto getRet = m_chunkReceiver.get();
-    EXPECT_FALSE(getRet.has_error());
-    EXPECT_FALSE((*getRet).has_value());
+    auto maybeChunkHeader = m_chunkReceiver.get();
+    EXPECT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_FALSE((*maybeChunkHeader).has_value());
 }
 
 TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
@@ -83,12 +83,12 @@ TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
         auto pushRet = m_chunkQueuePusher.push(sharedChunk);
         EXPECT_FALSE(pushRet.has_error());
 
-        auto getRet = m_chunkReceiver.get();
-        EXPECT_FALSE(getRet.has_error());
-        EXPECT_TRUE((*getRet).has_value());
+        auto maybeChunkHeader = m_chunkReceiver.get();
+        EXPECT_FALSE(maybeChunkHeader.has_error());
+        EXPECT_TRUE((*maybeChunkHeader).has_value());
 
-        EXPECT_TRUE(sharedChunk.getPayload() == (**getRet)->payload());
-        m_chunkReceiver.release(**getRet);
+        EXPECT_TRUE(sharedChunk.getPayload() == (**maybeChunkHeader)->payload());
+        m_chunkReceiver.release(**maybeChunkHeader);
     }
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
@@ -109,10 +109,10 @@ TEST_F(ChunkReceiver_test, getAndReleaseMultipleChunks)
         auto pushRet = m_chunkQueuePusher.push(sharedChunk);
         EXPECT_FALSE(pushRet.has_error());
 
-        auto getRet = m_chunkReceiver.get();
-        EXPECT_FALSE(getRet.has_error());
-        EXPECT_TRUE((*getRet).has_value());
-        chunks.push_back(**getRet);
+        auto maybeChunkHeader = m_chunkReceiver.get();
+        EXPECT_FALSE(maybeChunkHeader.has_error());
+        EXPECT_TRUE((*maybeChunkHeader).has_value());
+        chunks.push_back(**maybeChunkHeader);
     }
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_HELD_PER_RECEIVER));
@@ -141,9 +141,9 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
         auto pushRet = m_chunkQueuePusher.push(sharedChunk);
         EXPECT_FALSE(pushRet.has_error());
 
-        auto getRet = m_chunkReceiver.get();
-        EXPECT_FALSE(getRet.has_error());
-        EXPECT_TRUE((*getRet).has_value());
+        auto maybeChunkHeader = m_chunkReceiver.get();
+        EXPECT_FALSE(maybeChunkHeader.has_error());
+        EXPECT_TRUE((*maybeChunkHeader).has_value());
     }
 
     // but now it breaks
@@ -153,9 +153,9 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
     auto pushRet = m_chunkQueuePusher.push(sharedChunk);
     EXPECT_FALSE(pushRet.has_error());
 
-    auto getRet = m_chunkReceiver.get();
-    EXPECT_TRUE(getRet.has_error());
-    EXPECT_THAT(getRet.get_error(), Eq(iox::popo::ChunkReceiverError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL));
+    auto maybeChunkHeader = m_chunkReceiver.get();
+    EXPECT_TRUE(maybeChunkHeader.has_error());
+    EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::ChunkReceiverError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL));
 }
 
 TEST_F(ChunkReceiver_test, releaseInvalidChunk)
@@ -168,11 +168,11 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
         auto pushRet = m_chunkQueuePusher.push(sharedChunk);
         EXPECT_FALSE(pushRet.has_error());
 
-        auto getRet = m_chunkReceiver.get();
-        EXPECT_FALSE(getRet.has_error());
-        EXPECT_TRUE((*getRet).has_value());
+        auto maybeChunkHeader = m_chunkReceiver.get();
+        EXPECT_FALSE(maybeChunkHeader.has_error());
+        EXPECT_TRUE((*maybeChunkHeader).has_value());
 
-        EXPECT_TRUE(sharedChunk.getPayload() == (**getRet)->payload());
+        EXPECT_TRUE(sharedChunk.getPayload() == (**maybeChunkHeader)->payload());
     }
 
     auto errorHandlerCalled{false};
@@ -198,9 +198,9 @@ TEST_F(ChunkReceiver_test, Cleanup)
 
         if (i < iox::MAX_CHUNKS_HELD_PER_RECEIVER)
         {
-            auto getRet = m_chunkReceiver.get();
-            EXPECT_FALSE(getRet.has_error());
-            EXPECT_TRUE((*getRet).has_value());
+            auto maybeChunkHeader = m_chunkReceiver.get();
+            EXPECT_FALSE(maybeChunkHeader.has_error());
+            EXPECT_TRUE((*maybeChunkHeader).has_value());
         }
     }
 

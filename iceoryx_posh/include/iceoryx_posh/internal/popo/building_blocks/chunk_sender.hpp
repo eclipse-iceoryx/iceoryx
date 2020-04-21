@@ -19,6 +19,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
@@ -43,7 +44,7 @@ class ChunkSender : public ChunkDistributorType
   public:
     using MemberType_t = ChunkSenderData<typename ChunkDistributorType::MemberType_t>;
 
-    ChunkSender(MemberType_t* const chunkDistributorDataPtr) noexcept;
+    ChunkSender(cxx::not_null<MemberType_t* const> chunkDistributorDataPtr) noexcept;
 
     ChunkSender(const ChunkSender& other) = delete;
     ChunkSender& operator=(const ChunkSender&) = delete;

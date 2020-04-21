@@ -119,9 +119,9 @@ TEST_P(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
 
     for (int i = 0; i < NUMBER_CHUNKS; ++i)
     {
-        auto chunk = m_popper.pop();
-        ASSERT_THAT(chunk.has_value(), Eq(true));
-        auto data = *reinterpret_cast<int32_t*>(chunk->getPayload());
+        auto maybeSharedChunk = m_popper.pop();
+        ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+        auto data = *reinterpret_cast<int32_t*>((*maybeSharedChunk).getPayload());
         EXPECT_THAT(data, Eq(i));
     }
 }

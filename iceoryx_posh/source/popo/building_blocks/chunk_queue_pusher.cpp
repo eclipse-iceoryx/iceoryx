@@ -20,7 +20,7 @@ namespace iox
 {
 namespace popo
 {
-ChunkQueuePusher::ChunkQueuePusher(MemberType_t* const chunkQueueDataPtr) noexcept
+ChunkQueuePusher::ChunkQueuePusher(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept
     : m_chunkQueueDataPtr(chunkQueueDataPtr)
 {
 }

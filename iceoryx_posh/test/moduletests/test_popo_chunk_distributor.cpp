@@ -76,31 +76,12 @@ class ChunkDistributor_test : public Test
     }
 };
 
-TYPED_TEST(ChunkDistributor_test, AddingNonAddedQueueWorks)
-{
-    auto sutData = this->getChunkDistributorData();
-    typename TestFixture::ChunkDistributor_t sut(sutData.get());
-
-    auto queueData = this->getChunkQueueData();
-    EXPECT_THAT(sut.addQueue(queueData.get()), Eq(true));
-}
-
 TYPED_TEST(ChunkDistributor_test, AddingNullptrQueueDoesNotWork)
 {
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
-    EXPECT_THAT(sut.addQueue(nullptr), Eq(false));
-}
-
-TYPED_TEST(ChunkDistributor_test, AddingQueueTwiceDoesWork)
-{
-    auto sutData = this->getChunkDistributorData();
-    typename TestFixture::ChunkDistributor_t sut(sutData.get());
-
-    auto queueData = this->getChunkQueueData();
-    sut.addQueue(queueData.get());
-    EXPECT_THAT(sut.addQueue(queueData.get()), Eq(true));
+    EXPECT_DEATH(sut.addQueue(nullptr), ".*");
 }
 
 TYPED_TEST(ChunkDistributor_test, NewChunkDistributorHasNoQueues)
@@ -130,7 +111,7 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
     for (uint32_t i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
     {
         auto queueData = this->getChunkQueueData();
-        EXPECT_THAT(sut.addQueue(queueData.get()), Eq(true));
+        sut.addQueue(queueData.get());
         queueVecor.push_back(queueData);
     }
 
@@ -139,7 +120,7 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
         const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     auto queueData = this->getChunkQueueData();
-    EXPECT_THAT(sut.addQueue(queueData.get()), Eq(false));
+    sut.addQueue(queueData.get());
     EXPECT_TRUE(errorHandlerCalled);
 }
 
@@ -207,10 +188,10 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
     sut.deliverToAllStoredQueues(chunk);
 
     ChunkQueuePopper queue(queueData.get());
-    auto result = queue.pop();
+    auto maybeSharedChunk = queue.pop();
 
-    ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*result), Eq(4451));
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(4451));
 }
 
 TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOneChunk)
@@ -263,10 +244,10 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleCh
     ChunkQueuePopper queue(queueData.get());
     for (auto i = 0; i < limit; ++i)
     {
-        auto result = queue.pop();
+        auto maybeSharedChunk = queue.pop();
 
-        ASSERT_THAT(result.has_value(), Eq(true));
-        EXPECT_THAT(this->getSharedChunkValue(*result), Eq(i * 123));
+        ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+        EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(i * 123));
     }
 }
 
@@ -306,9 +287,9 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
     for (auto i = 0; i < limit; ++i)
     {
         ChunkQueuePopper queue(queueData[i].get());
-        auto result = queue.pop();
-        ASSERT_THAT(result.has_value(), Eq(true));
-        EXPECT_THAT(this->getSharedChunkValue(*result), Eq(24451));
+        auto maybeSharedChunk = queue.pop();
+        ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+        EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(24451));
     }
     EXPECT_THAT(sut.getHistorySize(), Eq(1));
 }
@@ -334,9 +315,9 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
         for (auto k = 0; k < limit; ++k)
         {
             ChunkQueuePopper queue(queueData[i].get());
-            auto result = queue.pop();
-            ASSERT_THAT(result.has_value(), Eq(true));
-            EXPECT_THAT(this->getSharedChunkValue(*result), Eq(k * 34));
+            auto maybeSharedChunk = queue.pop();
+            ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+            EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(k * 34));
         }
     }
     EXPECT_THAT(sut.getHistorySize(), Eq(limit));
@@ -394,10 +375,10 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAdded)
     sut.deliverToQueue(queueData.get(), chunk);
 
     ChunkQueuePopper queue(queueData.get());
-    auto result = queue.pop();
+    auto maybeSharedChunk = queue.pop();
 
-    ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*result), Eq(4451));
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(4451));
 }
 
 TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAdded)
@@ -412,10 +393,10 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAdded)
     sut.deliverToQueue(queueData.get(), chunk);
 
     ChunkQueuePopper queue(queueData.get());
-    auto result = queue.pop();
+    auto maybeSharedChunk = queue.pop();
 
-    ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*result), Eq(451));
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(451));
 }
 
 TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAddedDoesNotChangeHistory)
@@ -462,10 +443,10 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithLessThanAvailable)
     sut.addQueue(queueData.get(), 1);
 
     EXPECT_THAT(queue.size(), Eq(1));
-    auto result = queue.pop();
+    auto maybeSharedChunk = queue.pop();
 
-    ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*result), Eq(3));
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(3));
 }
 
 TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithExactAvailable)
@@ -485,15 +466,15 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithExactAvailable)
     sut.addQueue(queueData.get(), 3);
 
     EXPECT_THAT(queue.size(), Eq(3));
-    auto result = queue.pop();
-    ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*result), Eq(1));
-    result = queue.pop();
-    ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*result), Eq(2));
-    result = queue.pop();
-    ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*result), Eq(3));
+    auto maybeSharedChunk = queue.pop();
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(1));
+    maybeSharedChunk = queue.pop();
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(2));
+    maybeSharedChunk = queue.pop();
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(3));
 }
 
 TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithMoreThanAvailable)
@@ -513,13 +494,13 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithMoreThanAvailable)
     sut.addQueue(queueData.get(), 5);
 
     EXPECT_THAT(queue.size(), Eq(3));
-    auto result = queue.pop();
-    ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*result), Eq(1));
-    result = queue.pop();
-    ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*result), Eq(2));
-    result = queue.pop();
-    ASSERT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(this->getSharedChunkValue(*result), Eq(3));
+    auto maybeSharedChunk = queue.pop();
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(1));
+    maybeSharedChunk = queue.pop();
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(2));
+    maybeSharedChunk = queue.pop();
+    ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
+    EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(3));
 }
