@@ -23,7 +23,7 @@ cxx::optional<MemoryMap> MemoryMap::create(const void* f_baseAddressHint,
                                            const uint64_t f_length,
                                            const int f_fileDescriptor,
                                            const AccessMode f_accessMode,
-                                           const int f_flags,
+                                           const int32_t f_flags,
                                            const off_t f_offset)
 {
     cxx::optional<MemoryMap> returnValue;

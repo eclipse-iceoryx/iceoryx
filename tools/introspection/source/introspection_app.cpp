@@ -188,7 +188,7 @@ void IntrospectionApp::updateDisplayYX()
     int32_t yMax = getmaxy(pad) - LINES;
     int32_t xMax = getmaxx(pad) - COLS;
 
-    int ch = wgetch(pad);
+    int32_t ch = wgetch(pad);
     if ((ch == KEY_UP) && (yPad > 0))
     {
         yPad -= yIncrement;
