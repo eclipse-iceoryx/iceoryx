@@ -33,7 +33,7 @@ namespace client
 {
 namespace introspection
 {
-IntrospectionApp::IntrospectionApp(int argc, char* argv[]) noexcept
+IntrospectionApp::IntrospectionApp(int32_t argc, char* argv[]) noexcept
 {
     if (argc < 2)
     {
@@ -54,8 +54,8 @@ void IntrospectionApp::printHelp() noexcept
                  "  -h, --help        Display help and exit.\n"
                  "  -t, --time <ms>   Update period (in milliseconds) for the display of introspection data\n"
                  "                    [min: "
-              << MIN_UPDATE_PERIOD.milliSeconds<int>() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds<int>()
-              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds<int>()
+              << MIN_UPDATE_PERIOD.milliSeconds<int32_t>() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds<int32_t>()
+              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds<int32_t>()
               << "]\n"
                  "  -v, --version     Display latest official iceoryx release version and exit.\n"
                  "\nSubscription:\n"
@@ -72,12 +72,12 @@ void IntrospectionApp::printShortInfo(const std::string& binaryName) noexcept
     std::cout << "Run '" << binaryName << " --help' for more information." << std::endl;
 }
 
-void IntrospectionApp::parseCmdLineArguments(int argc,
+void IntrospectionApp::parseCmdLineArguments(int32_t argc,
                                              char** argv,
                                              CmdLineArgumentParsingMode /*cmdLineParsingMode*/) noexcept
 {
-    int opt;
-    int index;
+    int32_t opt;
+    int32_t index;
 
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index)) != -1)
     {
@@ -336,11 +336,11 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     wprintw(pad, "----------------------------------------------------------------------------\n");
 
     bool needsLineBreak{false};
-    int currentLine{0};
+    int32_t currentLine{0};
     auto printEntry = [&](std::uint32_t maxSize, const std::string& data) -> std::string {
         std::stringstream stream;
 
-        constexpr int indentation{2};
+        constexpr int32_t indentation{2};
         constexpr char indentationString[indentation + 1] = "  ";
 
         auto stringSize = data.size();
@@ -514,7 +514,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
 
 bool IntrospectionApp::waitForSubscription(SubscriberType& port)
 {
-    int numberOfLoopsTillTimeout{100};
+    int32_t numberOfLoopsTillTimeout{100};
     bool subscribed{false};
     while ((subscribed = (port.getSubscriptionState() == iox::popo::SubscriptionState::SUBSCRIBED)),
            !subscribed && numberOfLoopsTillTimeout > 0)

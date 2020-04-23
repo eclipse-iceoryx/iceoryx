@@ -300,7 +300,7 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
         return createErrorFromErrnum(socketCall.getErrNum());
     }
 
-    int sockfd = socketCall.getReturnValue();
+    int32_t sockfd = socketCall.getReturnValue();
 
     if (IpcChannelSide::SERVER == m_channelSide)
     {
@@ -316,7 +316,7 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
 
         if (!bindCall.hasErrors())
         {
-            return cxx::success<int>(sockfd);
+            return cxx::success<int32_t>(sockfd);
         }
         else
         {
@@ -337,7 +337,7 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
 
         if (!connectCall.hasErrors())
         {
-            return cxx::success<int>(sockfd);
+            return cxx::success<int32_t>(sockfd);
         }
         else
         {
@@ -356,7 +356,7 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated() noexcept
 }
 
 
-cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int errnum) noexcept
+cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int32_t errnum) noexcept
 {
     switch (errnum)
     {
