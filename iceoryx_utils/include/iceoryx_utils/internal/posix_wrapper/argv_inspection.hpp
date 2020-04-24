@@ -40,11 +40,10 @@ class ArgvInspector
     /// @brief get the command line argument at position f_argNumber and store into f_argument input parameter.
     /// @return false if the /proc filesystem could not be accessed or if the argument number exceeds the actual command
     /// line arguments
-    bool getCmdlineArgument(const int f_argNumber, std::string& f_argument) const;
+    bool getCmdlineArgument(const int32_t f_argNumber, std::string& f_argument) const;
 
   private:
     cxx::optional<std::string> m_cmdline;
 };
 } // namespace posix
 } // namespace iox
-

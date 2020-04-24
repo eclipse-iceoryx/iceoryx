@@ -27,7 +27,7 @@ namespace iox
 namespace roudi
 {
 RouDiProcess::RouDiProcess(std::string name,
-                           int pid,
+                           int32_t pid,
                            mepoo::MemoryManager* payloadMemoryManager,
                            bool isMonitored,
                            const uint64_t payloadSegmentId,
@@ -42,7 +42,7 @@ RouDiProcess::RouDiProcess(std::string name,
 {
 }
 
-int RouDiProcess::getPid() const
+int32_t RouDiProcess::getPid() const
 {
     return m_pid;
 }
@@ -140,7 +140,7 @@ void ProcessManager::killAllProcesses()
 }
 
 bool ProcessManager::registerProcess(const std::string& name,
-                                     int pid,
+                                     int32_t pid,
                                      posix::PosixUser user,
                                      bool isMonitored,
                                      int64_t transmissionTimestamp,
@@ -220,7 +220,7 @@ bool ProcessManager::registerProcess(const std::string& name,
 }
 
 bool ProcessManager::addProcess(const std::string& name,
-                                int pid,
+                                int32_t pid,
                                 mepoo::MemoryManager* payloadMemoryManager,
                                 bool isMonitored,
                                 int64_t transmissionTimestamp,

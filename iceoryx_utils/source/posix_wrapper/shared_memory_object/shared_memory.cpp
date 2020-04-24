@@ -116,7 +116,7 @@ bool SharedMemory::isInitialized() const
     return m_isInitialized;
 }
 
-int SharedMemory::getHandle() const
+int32_t SharedMemory::getHandle() const
 {
     return m_handle;
 }

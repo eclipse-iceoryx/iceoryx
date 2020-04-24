@@ -33,7 +33,7 @@ namespace client
 {
 namespace introspection
 {
-IntrospectionApp::IntrospectionApp(int32_t argc, char* argv[]) noexcept
+IntrospectionApp::IntrospectionApp(int argc, char* argv[]) noexcept
 {
     if (argc < 2)
     {
@@ -72,7 +72,7 @@ void IntrospectionApp::printShortInfo(const std::string& binaryName) noexcept
     std::cout << "Run '" << binaryName << " --help' for more information." << std::endl;
 }
 
-void IntrospectionApp::parseCmdLineArguments(int32_t argc,
+void IntrospectionApp::parseCmdLineArguments(int argc,
                                              char** argv,
                                              CmdLineArgumentParsingMode /*cmdLineParsingMode*/) noexcept
 {

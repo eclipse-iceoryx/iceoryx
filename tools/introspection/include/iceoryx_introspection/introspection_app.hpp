@@ -69,7 +69,7 @@ class IntrospectionApp
     /// @brief constructor to create a introspection
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
-    IntrospectionApp(int32_t argc, char* argv[]) noexcept;
+    IntrospectionApp(int argc, char* argv[]) noexcept;
 
     virtual ~IntrospectionApp() noexcept {};
 
@@ -91,7 +91,7 @@ class IntrospectionApp
     IntrospectionApp() noexcept;
 
     void
-    parseCmdLineArguments(int32_t argc,
+    parseCmdLineArguments(int argc,
                           char** argv,
                           CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
 

@@ -14,7 +14,7 @@
 
 #include "iceoryx_utils/platform/unistd.hpp"
 
-int closePlatformFileHandle(int fd)
+__int32_t closePlatformFileHandle(__int32_t fd)
 {
     return close(fd);
 }
