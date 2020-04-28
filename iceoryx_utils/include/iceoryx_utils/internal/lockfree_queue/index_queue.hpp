@@ -51,7 +51,6 @@ class IndexQueue
 
     using value_t = ValueType;
 
-  private:
     struct ConstructFull_t
     {
     };
@@ -90,19 +89,19 @@ class IndexQueue
     /// constraint: pushing more indices than capacity is not allowed
     /// constraint: only indices in the range [0, Capacity-1] are allowed
     /// threadsafe, lockfree
-    void push(value_t index);
+    void push(ValueType index);
 
     /// @brief tries to remove index in FIFO order
     /// @return true iff removal was successful (i.e. queue was not empty)
     /// value is only valid if the function returns true
     /// threadsafe, lockfree
-    bool pop(value_t& index);
+    bool pop(ValueType& index);
 
     /// @brief tries to remove index in FIFO order iff the queue is full
     /// @return true iff removal was successful (i.e. queue was full)
     /// value is only valid if the function returns true
     /// threadsafe, lockfree
-    bool popIfFull(value_t& index);
+    bool popIfFull(ValueType& index);
 
     /// @brief check whether the queue is empty
     /// @return true iff the queue is empty
