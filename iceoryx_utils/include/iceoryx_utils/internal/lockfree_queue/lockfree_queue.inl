@@ -18,8 +18,8 @@ namespace iox
 {
 template <typename T, uint64_t Capacity>
 LockFreeQueue<T, Capacity>::LockFreeQueue() noexcept
-    : m_freeIndices(IndexQueue<Capacity>::ConstructFull::Policy)
-    , m_usedIndices(IndexQueue<Capacity>::ConstructEmpty::Policy)
+    : m_freeIndices(IndexQueue<Capacity>::ConstructFull)
+    , m_usedIndices(IndexQueue<Capacity>::ConstructEmpty)
 {
 }
 
@@ -29,24 +29,18 @@ constexpr uint64_t LockFreeQueue<T, Capacity>::capacity() noexcept
     return Capacity;
 }
 
-template <typename T, uint64_t Capacity>
-T* LockFreeQueue<T, Capacity>::toPtr(index_t index) noexcept
-{
-    auto p = &(m_buffer[index * sizeof(T)]);
-    return reinterpret_cast<T*>(p);
-}
-
 
 template <typename T, uint64_t Capacity>
 bool LockFreeQueue<T, Capacity>::try_push(const T& value) noexcept
 {
-    index_t index;
-    if (!m_freeIndices.pop(index))
+    UniqueIndex index = m_freeIndices.pop();
+
+    if (!index.is_valid())
     {
         return false; // detected full queue
     }
 
-    auto ptr = toPtr(index);
+    auto ptr = m_buffer.ptr(index);
     new (ptr) T(value);
 
     m_usedIndices.push(index);
@@ -58,25 +52,28 @@ bool LockFreeQueue<T, Capacity>::try_push(const T& value) noexcept
 template <typename T, uint64_t Capacity>
 iox::cxx::optional<T> LockFreeQueue<T, Capacity>::push(const T& value) noexcept
 {
-    index_t index;
     cxx::optional<T> result;
 
-    while (!m_freeIndices.pop(index))
+    UniqueIndex index = m_freeIndices.pop();
+    while (!index.is_valid())
     {
         // only pop the index if the queue is still full
-        if (m_usedIndices.popIfFull(index))
+        index = m_usedIndices.popIfFull();
+        if (index.is_valid())
         {
-            auto ptr = toPtr(index);
+            // todo: private method and sync here?
+            auto ptr = m_buffer.ptr(index);
             result = std::move(*ptr);
             ptr->~T();
             break;
         }
-        // if the queue was not full we try again ...
+        // if the queue was not full we try again
+        index = m_freeIndices.pop();
     }
 
     // if we removed from a full queue via popIfFull it might not be full anymore when a concurrent pop occurs
 
-    auto ptr = toPtr(index);
+    auto ptr = m_buffer.ptr(index);
     new (ptr) T(value);
 
     m_usedIndices.push(index);
@@ -87,13 +84,14 @@ iox::cxx::optional<T> LockFreeQueue<T, Capacity>::push(const T& value) noexcept
 template <typename T, uint64_t Capacity>
 iox::cxx::optional<T> LockFreeQueue<T, Capacity>::pop() noexcept
 {
-    index_t index;
-    if (!m_usedIndices.pop(index))
+    UniqueIndex index = m_usedIndices.pop();
+
+    if (!index.is_valid())
     {
         return cxx::nullopt_t(); // detected empty queue
     }
 
-    auto ptr = toPtr(index);
+    auto ptr = m_buffer.ptr(index);
     cxx::optional<T> result(std::move(*ptr));
     ptr->~T();
 

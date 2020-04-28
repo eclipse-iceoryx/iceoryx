@@ -15,6 +15,7 @@
 #pragma once
 
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/internal/lockfree_queue/buffer.hpp"
 #include "iceoryx_utils/internal/lockfree_queue/index_queue.hpp"
 
 
@@ -27,9 +28,6 @@ namespace iox
 template <typename T, uint64_t Capacity>
 class LockFreeQueue
 {
-  private:
-    using index_t = word_t;
-
   public:
     /// @brief creates and initalizes an empty LockFreeQueue
     /// internally m_freeIndices are initialized as a full queue with indices 0...Capacity-1
@@ -71,23 +69,17 @@ class LockFreeQueue
     bool empty();
 
   private:
+    using UniqueIndex = typename IndexQueue<Capacity>::UniqueIndex;
     // actually m_freeIndices do not have to be in a queue, it could be another
     // multi-push multi-pop capable lockfree container (e.g. a stack or a list)
-    /// @todo: replace with more efficient lockfree structure once available
+    // @todo: replace with more efficient lockfree structure once available
     IndexQueue<Capacity> m_freeIndices;
 
     // required to be a queue for LockFreeQueue to exhibit FIFO behaviour
     IndexQueue<Capacity> m_usedIndices;
 
-    /// @todo create a buffer abstraction to be configured with desired size later
-    // m_buffer is large enough for Capacity elements of type T
-    // must be aligned as T due to placement new construction
-    alignas(alignof(T)) byte_t m_buffer[Capacity * sizeof(T)];
 
-  private:
-    /// @brief given the index, compute the corresponding pointer in the m_buffer
-    /// @return pointer corresponding to index in the internal m_buffer
-    T* toPtr(index_t index) noexcept;
+    Buffer<T, Capacity> m_buffer;
 };
 } // namespace iox
 
