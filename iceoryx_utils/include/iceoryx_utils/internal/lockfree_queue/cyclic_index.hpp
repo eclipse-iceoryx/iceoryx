@@ -23,8 +23,10 @@
 
 namespace iox
 {
+// @todo: implement with bitmasks with resize feature
+
 /// @brief index structure that can contain logical values 0, ..., CycleLength-1
-/// but also stores an internal ABA counter to be used in compare_exchange
+/// but also stores an internal cycle counter to be used in compare_exchange
 template <uint64_t CycleLength, typename value_t = uint64_t>
 class CyclicIndex
 {
