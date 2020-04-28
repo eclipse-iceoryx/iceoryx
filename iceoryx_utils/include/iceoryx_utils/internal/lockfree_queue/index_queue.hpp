@@ -23,11 +23,11 @@
 namespace iox
 {
 /// @brief lockfree queue capable of storing indices 0,1,... Capacity-1
-template <uint64_t Capacity>
+template <uint64_t Capacity, typename ValueType = uint64_t>
 class IndexQueue
 {
   public:
-    using value_t = uint64_t;
+    using value_t = ValueType;
     using UniqueIndex = unique<value_t>;
 
   private:
@@ -40,17 +40,10 @@ class IndexQueue
     };
 
     using Index = CyclicIndex<Capacity>;
-    // @todo: a compile time check whether atomic<Index> is actually lock free would be nice
+
+    // @todo: a compile time check whether Index is actually lock free would be nice
     // note: there is a way  with is_always_lock_free in c++17 (which we cannot use here)
 
-
-    std::atomic<Index> m_values[Capacity];
-
-    // todo: fine-tune memory order and ensure external memory synchronization
-
-    // todo: rename readposition
-    std::atomic<Index> m_readIndex;
-    std::atomic<Index> m_writeIndex;
 
   public:
     static constexpr ConstructFull_t ConstructFull{};
@@ -60,9 +53,6 @@ class IndexQueue
     IndexQueue(IndexQueue&&) = delete;
     IndexQueue& operator=(const IndexQueue&) = delete;
     IndexQueue& operator=(IndexQueue&&) = delete;
-
-    // just to distingish between constructors at compile time and make the
-
 
     /// @brief constructs an empty IndexQueue
     IndexQueue(ConstructEmpty_t = ConstructEmpty);
@@ -107,13 +97,19 @@ class IndexQueue
 
     UniqueIndex popIfFull();
 
+  private:
+    using Cell = std::atomic<Index>;
+    Cell m_cells[Capacity];
+
+    std::atomic<Index> m_readPosition;
+    std::atomic<Index> m_writePosition;
 
   private:
     Index loadNextReadPosition() const;
     Index loadNextWritePosition() const;
     Index loadValueAt(Index position) const;
     bool tryToPublishAt(Index writePosition, Index& oldValue, Index newValue);
-    bool tryToGetOwnership(Index& readPosition);
+    bool tryToGainOwnershipAt(Index& readPosition);
     void updateNextWritePosition(Index& oldWritePosition);
 };
 } // namespace iox

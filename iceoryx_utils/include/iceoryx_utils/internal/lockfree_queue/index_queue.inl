@@ -1,31 +1,31 @@
 namespace iox
 {
-template <uint64_t Capacity>
-IndexQueue<Capacity>::IndexQueue(ConstructEmpty_t)
-    : m_readIndex(Index(Capacity))
-    , m_writeIndex(Index(Capacity))
+template <uint64_t Capacity, typename ValueType>
+IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t)
+    : m_readPosition(Index(Capacity))
+    , m_writePosition(Index(Capacity))
 {
 }
 
-template <uint64_t Capacity>
-IndexQueue<Capacity>::IndexQueue(ConstructFull_t)
-    : m_readIndex(Index(0))
-    , m_writeIndex(Index(Capacity))
+template <uint64_t Capacity, typename ValueType>
+IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t)
+    : m_readPosition(Index(0))
+    , m_writePosition(Index(Capacity))
 {
     for (uint64_t i = 0; i < Capacity; ++i)
     {
-        m_values[i].store(Index(i));
+        m_cells[i].store(Index(i));
     }
 }
 
-template <uint64_t Capacity>
-constexpr uint64_t IndexQueue<Capacity>::capacity()
+template <uint64_t Capacity, typename ValueType>
+constexpr uint64_t IndexQueue<Capacity, ValueType>::capacity()
 {
     return Capacity;
 }
 
-template <uint64_t Capacity>
-void IndexQueue<Capacity>::push(value_t uniqueIndex)
+template <uint64_t Capacity, typename ValueType>
+void IndexQueue<Capacity, ValueType>::push(value_t uniqueIndex)
 {
     constexpr bool notPublished = true;
 
@@ -90,8 +90,8 @@ void IndexQueue<Capacity>::push(value_t uniqueIndex)
     updateNextWritePosition(writePosition);
 }
 
-template <uint64_t Capacity>
-bool IndexQueue<Capacity>::pop(value_t& uniqueIndex)
+template <uint64_t Capacity, typename ValueType>
+bool IndexQueue<Capacity, ValueType>::pop(value_t& uniqueIndex)
 {
     // we need the CAS loop here since we may fail due to concurrent pop operations
     // we leave when we detect an empty queue, otherwise we retry the pop operation
@@ -124,7 +124,7 @@ bool IndexQueue<Capacity>::pop(value_t& uniqueIndex)
         if (isUpToDate())
         {
             // case (1)
-            if (tryToGetOwnership(readPosition))
+            if (tryToGainOwnershipAt(readPosition))
             {
                 break; // pop successful
             }
@@ -144,8 +144,8 @@ bool IndexQueue<Capacity>::pop(value_t& uniqueIndex)
     return true;
 }
 
-template <uint64_t Capacity>
-bool IndexQueue<Capacity>::popIfFull(value_t& uniqueIndex)
+template <uint64_t Capacity, typename ValueType>
+bool IndexQueue<Capacity, ValueType>::popIfFull(value_t& uniqueIndex)
 {
     // we do NOT need a CAS loop here since if we detect that the queue is not full
     // someone else popped an element and we do not retry to check whether it was filled AGAIN
@@ -167,7 +167,7 @@ bool IndexQueue<Capacity>::popIfFull(value_t& uniqueIndex)
 
     if (isFull())
     {
-        if (tryToGetOwnership(readPosition))
+        if (tryToGainOwnershipAt(readPosition))
         {
             uniqueIndex = value.getIndex();
             return true;
@@ -176,57 +176,57 @@ bool IndexQueue<Capacity>::popIfFull(value_t& uniqueIndex)
     return false;
 }
 
-template <uint64_t Capacity>
-bool IndexQueue<Capacity>::empty()
+template <uint64_t Capacity, typename ValueType>
+bool IndexQueue<Capacity, ValueType>::empty()
 {
-    auto oldReadIndex = m_readIndex.load(std::memory_order_acquire);
-    auto value = m_values[oldReadIndex.getIndex()].load(std::memory_order_relaxed);
+    auto oldReadIndex = m_readPosition.load(std::memory_order_acquire);
+    auto value = m_cells[oldReadIndex.getIndex()].load(std::memory_order_relaxed);
 
-    // if m_readIndex is ahead by one cycle compared to the value stored at head,
+    // if m_readPosition is ahead by one cycle compared to the value stored at head,
     // the queue was empty at the time of the loads above (but might not be anymore!)
     return value.isOneCycleBehind(oldReadIndex);
 }
 
-template <uint64_t Capacity>
-typename IndexQueue<Capacity>::Index IndexQueue<Capacity>::loadNextReadPosition() const
+template <uint64_t Capacity, typename ValueType>
+typename IndexQueue<Capacity, ValueType>::Index IndexQueue<Capacity, ValueType>::loadNextReadPosition() const
 {
-    // return m_readIndex.load(std::memory_order_relaxed);
-    return m_readIndex.load(std::memory_order_acquire);
+    // return m_readPosition.load(std::memory_order_relaxed);
+    return m_readPosition.load(std::memory_order_acquire);
 }
 
-template <uint64_t Capacity>
-typename IndexQueue<Capacity>::Index IndexQueue<Capacity>::loadNextWritePosition() const
+template <uint64_t Capacity, typename ValueType>
+typename IndexQueue<Capacity, ValueType>::Index IndexQueue<Capacity, ValueType>::loadNextWritePosition() const
 {
-    // return m_writeIndex.load(std::memory_order_relaxed);
-    return m_writeIndex.load(std::memory_order_acquire);
+    // return m_writePosition.load(std::memory_order_relaxed);
+    return m_writePosition.load(std::memory_order_acquire);
 }
 
-template <uint64_t Capacity>
-typename IndexQueue<Capacity>::Index
-IndexQueue<Capacity>::loadValueAt(typename IndexQueue<Capacity>::Index position) const
+template <uint64_t Capacity, typename ValueType>
+typename IndexQueue<Capacity, ValueType>::Index
+IndexQueue<Capacity, ValueType>::loadValueAt(typename IndexQueue<Capacity, ValueType>::Index position) const
 {
-    return m_values[position.getIndex()].load(std::memory_order_relaxed);
-    // return m_values[position.getIndex()].load(std::memory_order_acquire);
+    return m_cells[position.getIndex()].load(std::memory_order_relaxed);
+    // return m_cells[position.getIndex()].load(std::memory_order_acquire);
 }
 
-template <uint64_t Capacity>
-bool IndexQueue<Capacity>::tryToPublishAt(typename IndexQueue<Capacity>::Index writePosition,
-                                          Index& oldValue,
-                                          Index newValue)
+template <uint64_t Capacity, typename ValueType>
+bool IndexQueue<Capacity, ValueType>::tryToPublishAt(typename IndexQueue<Capacity, ValueType>::Index writePosition,
+                                                     Index& oldValue,
+                                                     Index newValue)
 {
-    return m_values[writePosition.getIndex()].compare_exchange_strong(
+    return m_cells[writePosition.getIndex()].compare_exchange_strong(
         oldValue, newValue, std::memory_order_acq_rel, std::memory_order_acquire);
 }
 
-template <uint64_t Capacity>
-void IndexQueue<Capacity>::updateNextWritePosition(Index& writePosition)
+template <uint64_t Capacity, typename ValueType>
+void IndexQueue<Capacity, ValueType>::updateNextWritePosition(Index& writePosition)
 {
     // compare_exchange updates oldWritePosition
     // if not updateSucceeded
     // else oldWritePosition stays unchanged
     // and will be updated in if(updateSucceeded)
     Index newWritePosition(writePosition + 1);
-    auto updateSucceeded = m_writeIndex.compare_exchange_strong(
+    auto updateSucceeded = m_writePosition.compare_exchange_strong(
         writePosition, newWritePosition, std::memory_order_acq_rel, std::memory_order_acquire);
 
     // not needed
@@ -236,23 +236,23 @@ void IndexQueue<Capacity>::updateNextWritePosition(Index& writePosition)
     // }
 }
 
-template <uint64_t Capacity>
-bool IndexQueue<Capacity>::tryToGetOwnership(Index& oldReadPosition)
+template <uint64_t Capacity, typename ValueType>
+bool IndexQueue<Capacity, ValueType>::tryToGainOwnershipAt(Index& oldReadPosition)
 {
     Index newReadPosition(oldReadPosition + 1);
-    return m_readIndex.compare_exchange_strong(
+    return m_readPosition.compare_exchange_strong(
         oldReadPosition, newReadPosition, std::memory_order_acq_rel, std::memory_order_acquire);
 }
 
 
-template <uint64_t Capacity>
-void IndexQueue<Capacity>::push(const UniqueIndex& index)
+template <uint64_t Capacity, typename ValueType>
+void IndexQueue<Capacity, ValueType>::push(const UniqueIndex& index)
 {
     push(*index);
 }
 
-template <uint64_t Capacity>
-typename IndexQueue<Capacity>::UniqueIndex IndexQueue<Capacity>::pop()
+template <uint64_t Capacity, typename ValueType>
+typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, ValueType>::pop()
 {
     value_t value;
     if (pop(value))
@@ -262,8 +262,8 @@ typename IndexQueue<Capacity>::UniqueIndex IndexQueue<Capacity>::pop()
     return UniqueIndex::invalid;
 }
 
-template <uint64_t Capacity>
-typename IndexQueue<Capacity>::UniqueIndex IndexQueue<Capacity>::popIfFull()
+template <uint64_t Capacity, typename ValueType>
+typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, ValueType>::popIfFull()
 {
     value_t value;
     if (popIfFull(value))
