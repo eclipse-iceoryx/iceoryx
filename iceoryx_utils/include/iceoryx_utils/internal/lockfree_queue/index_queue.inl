@@ -25,10 +25,8 @@ constexpr uint64_t IndexQueue<Capacity, ValueType>::capacity()
 }
 
 template <uint64_t Capacity, typename ValueType>
-void IndexQueue<Capacity, ValueType>::push(value_t uniqueIndex)
+void IndexQueue<Capacity, ValueType>::push(ValueType index)
 {
-    constexpr bool notPublished = true;
-
     // we need the CAS loop here since we may fail due to concurrent push operations
     // note that we are always able to succeed to publish since we have
     // enough capacity for all unique indices used
@@ -49,39 +47,42 @@ void IndexQueue<Capacity, ValueType>::push(value_t uniqueIndex)
     //     write position is outdated, there must have been other pushes concurrently
     //     reload write position and try again
 
+    constexpr bool notPublished = true;
     auto writePosition = loadNextWritePosition();
     do
     {
         auto oldValue = loadValueAt(writePosition);
-
 
         auto isFreeToPublish = [&]() { return oldValue.isOneCycleBehind(writePosition); };
 
         if (isFreeToPublish())
         {
             // case (1)
-            Index newValue(uniqueIndex, writePosition.getCycle());
-            // if publish fails, another thread has published before
-            auto published = tryToPublishAt(writePosition, oldValue, newValue);
-            if (published)
+            Index newValue(index, writePosition.getCycle());
+
+            // if publish fails, another thread has published before us
+            if (tryToPublishAt(writePosition, oldValue, newValue))
             {
                 break;
             }
         }
 
-        // even if we are not able to publish, we try to help moving the writePosition
+        // even if we are not able to publish, we check whether some other push has already updated the writePosition
         // before trying again to publish
-        auto helpUpdateWritePosition = [&]() { return oldValue.getCycle() == writePosition.getCycle(); };
+        auto writePositionWasNotUpdated = [&]() { return oldValue.getCycle() == writePosition.getCycle(); };
 
-        if (helpUpdateWritePosition())
+        if (writePositionWasNotUpdated())
         {
             // case (2)
+            // the writePosition was not updated yet by another push but the value was already written
+            // help with the update
             updateNextWritePosition(writePosition);
         }
         else
         {
             // case (3) and (4)
-            // note: we do not the CAS in updateNextWritePosition here, it is bound to fail anyway
+            // note: we do not call updateNextWritePosition here, the CAS is bound to fail anyway
+            // (our value of writePosition is not up to date so needs to be loaded again)
             writePosition = loadNextWritePosition();
         }
 
@@ -91,7 +92,7 @@ void IndexQueue<Capacity, ValueType>::push(value_t uniqueIndex)
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::pop(value_t& uniqueIndex)
+bool IndexQueue<Capacity, ValueType>::pop(ValueType& index)
 {
     // we need the CAS loop here since we may fail due to concurrent pop operations
     // we leave when we detect an empty queue, otherwise we retry the pop operation
@@ -110,23 +111,31 @@ bool IndexQueue<Capacity, ValueType>::pop(value_t& uniqueIndex)
     //     read position is outdated, there must have been pushes concurrently
     //     reload read position and try again
 
+    constexpr bool ownerShipGained = true;
     Index value;
+    auto readPosition = loadNextReadPosition();
     do
     {
-        auto readPosition = loadNextReadPosition();
         value = loadValueAt(readPosition);
 
         // we only dequeue if value and readPosition are in the same cycle
-        auto isUpToDate = [&]() { return readPosition.getCycle() == value.getCycle(); };
+        auto isValidToRead = [&]() { return readPosition.getCycle() == value.getCycle(); };
         // readPosition is ahead by one cycle, queue was empty at loadValueAt(..)
         auto isEmpty = [&]() { return value.isOneCycleBehind(readPosition); };
 
-        if (isUpToDate())
+        if (isValidToRead())
         {
             // case (1)
             if (tryToGainOwnershipAt(readPosition))
             {
                 break; // pop successful
+            }
+            else
+            {
+                // retry, readPosition was already updated via CAS in tryToGainOwnershipAt
+                // todo: maybe refactor to eliminate the continue but still skip the reload of
+                // readPosition
+                continue;
             }
         }
         else if (isEmpty())
@@ -138,14 +147,16 @@ bool IndexQueue<Capacity, ValueType>::pop(value_t& uniqueIndex)
 
         // case (3) and (4)
 
-    } while (true); // we leave if we get ownership of readPosition
+        readPosition = loadNextReadPosition();
 
-    uniqueIndex = value.getIndex();
+    } while (!ownerShipGained); // we leave if we gain ownership of readPosition
+
+    index = value.getIndex();
     return true;
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::popIfFull(value_t& uniqueIndex)
+bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index)
 {
     // we do NOT need a CAS loop here since if we detect that the queue is not full
     // someone else popped an element and we do not retry to check whether it was filled AGAIN
@@ -169,7 +180,7 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(value_t& uniqueIndex)
     {
         if (tryToGainOwnershipAt(readPosition))
         {
-            uniqueIndex = value.getIndex();
+            index = value.getIndex();
             return true;
         }
     } // else someone else has popped an index
@@ -179,7 +190,7 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(value_t& uniqueIndex)
 template <uint64_t Capacity, typename ValueType>
 bool IndexQueue<Capacity, ValueType>::empty()
 {
-    auto oldReadIndex = m_readPosition.load(std::memory_order_acquire);
+    auto oldReadIndex = m_readPosition.load(std::memory_order_relaxed);
     auto value = m_cells[oldReadIndex.getIndex()].load(std::memory_order_relaxed);
 
     // if m_readPosition is ahead by one cycle compared to the value stored at head,
@@ -190,15 +201,13 @@ bool IndexQueue<Capacity, ValueType>::empty()
 template <uint64_t Capacity, typename ValueType>
 typename IndexQueue<Capacity, ValueType>::Index IndexQueue<Capacity, ValueType>::loadNextReadPosition() const
 {
-    // return m_readPosition.load(std::memory_order_relaxed);
-    return m_readPosition.load(std::memory_order_acquire);
+    return m_readPosition.load(std::memory_order_relaxed);
 }
 
 template <uint64_t Capacity, typename ValueType>
 typename IndexQueue<Capacity, ValueType>::Index IndexQueue<Capacity, ValueType>::loadNextWritePosition() const
 {
-    // return m_writePosition.load(std::memory_order_relaxed);
-    return m_writePosition.load(std::memory_order_acquire);
+    return m_writePosition.load(std::memory_order_relaxed);
 }
 
 template <uint64_t Capacity, typename ValueType>
@@ -206,7 +215,6 @@ typename IndexQueue<Capacity, ValueType>::Index
 IndexQueue<Capacity, ValueType>::loadValueAt(typename IndexQueue<Capacity, ValueType>::Index position) const
 {
     return m_cells[position.getIndex()].load(std::memory_order_relaxed);
-    // return m_cells[position.getIndex()].load(std::memory_order_acquire);
 }
 
 template <uint64_t Capacity, typename ValueType>
@@ -215,24 +223,21 @@ bool IndexQueue<Capacity, ValueType>::tryToPublishAt(typename IndexQueue<Capacit
                                                      Index newValue)
 {
     return m_cells[writePosition.getIndex()].compare_exchange_strong(
-        oldValue, newValue, std::memory_order_acq_rel, std::memory_order_acquire);
+        oldValue, newValue, std::memory_order_relaxed, std::memory_order_relaxed);
 }
 
 template <uint64_t Capacity, typename ValueType>
 void IndexQueue<Capacity, ValueType>::updateNextWritePosition(Index& writePosition)
 {
-    // compare_exchange updates oldWritePosition
-    // if not updateSucceeded
-    // else oldWritePosition stays unchanged
-    // and will be updated in if(updateSucceeded)
+    // compare_exchange updates writePosition if NOT successful
     Index newWritePosition(writePosition + 1);
     auto updateSucceeded = m_writePosition.compare_exchange_strong(
-        writePosition, newWritePosition, std::memory_order_acq_rel, std::memory_order_acquire);
+        writePosition, newWritePosition, std::memory_order_relaxed, std::memory_order_relaxed);
 
-    // not needed
+    // not needed in the successful case, we do not retry
     // if (updateSucceeded)
     // {
-    //     oldWritePosition = newWritePosition;
+    //     writePosition = newWritePosition;
     // }
 }
 
@@ -241,7 +246,7 @@ bool IndexQueue<Capacity, ValueType>::tryToGainOwnershipAt(Index& oldReadPositio
 {
     Index newReadPosition(oldReadPosition + 1);
     return m_readPosition.compare_exchange_strong(
-        oldReadPosition, newReadPosition, std::memory_order_acq_rel, std::memory_order_acquire);
+        oldReadPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
 }
 
 
@@ -254,7 +259,7 @@ void IndexQueue<Capacity, ValueType>::push(const UniqueIndex& index)
 template <uint64_t Capacity, typename ValueType>
 typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, ValueType>::pop()
 {
-    value_t value;
+    ValueType value;
     if (pop(value))
     {
         return UniqueIndex(value);
@@ -265,7 +270,7 @@ typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, Value
 template <uint64_t Capacity, typename ValueType>
 typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, ValueType>::popIfFull()
 {
-    value_t value;
+    ValueType value;
     if (popIfFull(value))
     {
         return UniqueIndex(value);

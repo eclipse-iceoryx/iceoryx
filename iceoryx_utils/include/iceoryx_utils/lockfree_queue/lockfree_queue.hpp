@@ -67,7 +67,7 @@ class LockFreeQueue
     bool empty();
 
   private:
-    using Queue = IndexQueue<Capacity>;
+    using Queue = IndexQueue<Capacity, uint64_t>;
     using UniqueIndex = typename Queue::UniqueIndex;
     using BufferIndex = typename Queue::value_t;
 
