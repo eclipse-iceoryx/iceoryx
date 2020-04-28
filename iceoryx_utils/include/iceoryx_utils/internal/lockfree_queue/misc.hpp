@@ -13,18 +13,17 @@
 // limitations under the License.
 
 #pragma once
+#include <stdint.h>
 
 namespace iox
 {
-#include <stdint.h>
-
 template <typename T>
 constexpr bool isPowerOfTwo(T n)
 {
     return (n != 0) && ((n & (n - 1)) == 0);
 }
 
-// needed to trick the compiler
+// needed to trick the compiler (evaluate it only when needed)
 // unused template argument T is needed in a SFINAE use case
 template <typename T = uint64_t, T n = 0>
 struct is_power_of_two

@@ -23,14 +23,6 @@
 
 namespace iox
 {
-// a word on the target architecture, must be able to be used in a CAS operation
-using word_t = uint64_t;
-
-// a byte on the target architecture, to be used in untyped buffers
-// using byte_t = unsigned char;
-using byte_t = uint8_t;
-
-
 /// @brief index structure that can contain logical values 0, ..., CycleLength-1
 /// but also stores an internal ABA counter to be used in compare_exchange
 template <uint64_t CycleLength, typename value_t = uint64_t>
@@ -127,6 +119,27 @@ class CyclicIndex
         return CyclicIndex(m_value + 1);
     }
 
+    static bool isBehind(value_t cycle1, value_t cycle2, value_t cyclesBehind = 1)
+    {
+        return (cycle1 + cyclesBehind) == cycle2;
+    }
+
+    static bool isBehind(const CyclicIndex& index1, const CyclicIndex& index2, value_t cyclesBehind = 1)
+    {
+        return (index1.getCycle() + cyclesBehind) == index2.getCycle();
+    }
+
+    bool isBehind(const CyclicIndex& index, value_t cyclesBehind)
+    {
+        return isBehind(*this, index, cyclesBehind);
+    }
+
+    bool isOneCycleBehind(const CyclicIndex& index)
+    {
+        return isBehind(*this, index, 1);
+    }
+
+    // delete
     void print()
     {
         std::cout << "value " << m_value << " index " << getIndex() << " cycle " << getCycle() << std::endl;

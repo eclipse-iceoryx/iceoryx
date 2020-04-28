@@ -14,7 +14,9 @@
 
 #pragma once
 
-#include "cyclic_index.hpp"
+#include "iceoryx_utils/internal/lockfree_queue/buffer.hpp"
+#include "iceoryx_utils/internal/lockfree_queue/cyclic_index.hpp"
+#include "iceoryx_utils/internal/lockfree_queue/unique_index.hpp"
 
 #include <atomic>
 
@@ -25,42 +27,48 @@ template <uint64_t Capacity>
 class IndexQueue
 {
   public:
-    using indexvalue_t = word_t;
+    using value_t = uint64_t;
+    using UniqueIndex = unique<value_t>;
 
   private:
+    struct ConstructFull_t
+    {
+    };
+
+    struct ConstructEmpty_t
+    {
+    };
+
     using Index = CyclicIndex<Capacity>;
-    // @todo: a compile time check whether atomic<Index> is actually lock free would be nice (is there a solution with
-    // c++11?)
-    // inner call is not constexpr so we cannot do compile time check here ...
-    // static_assert(std::atomic<Index>{}.is_lock_free());
+    // @todo: a compile time check whether atomic<Index> is actually lock free would be nice
+    // note: there is a way  with is_always_lock_free in c++17 (which we cannot use here)
+
 
     std::atomic<Index> m_values[Capacity];
-    std::atomic<Index> m_head;
-    std::atomic<Index> m_tail;
+
+    // todo: fine-tune memory order and ensure external memory synchronization
+
+    // todo: rename readposition
+    std::atomic<Index> m_readIndex;
+    std::atomic<Index> m_writeIndex;
 
   public:
+    static constexpr ConstructFull_t ConstructFull{};
+    static constexpr ConstructEmpty_t ConstructEmpty{};
+
     IndexQueue(const IndexQueue&) = delete;
     IndexQueue(IndexQueue&&) = delete;
     IndexQueue& operator=(const IndexQueue&) = delete;
     IndexQueue& operator=(IndexQueue&&) = delete;
 
     // just to distingish between constructors at compile time and make the
-    // construction policy more explicit
-    enum class ConstructFull
-    {
-        Policy
-    };
 
-    enum class ConstructEmpty
-    {
-        Policy
-    };
 
     /// @brief constructs an empty IndexQueue
-    IndexQueue(ConstructEmpty policy = ConstructEmpty::Policy);
+    IndexQueue(ConstructEmpty_t = ConstructEmpty);
 
     /// @brief constructs IndexQueue filled with all indices 0,1,...capacity-1
-    IndexQueue(ConstructFull);
+    IndexQueue(ConstructFull_t);
 
     /// @brief get the capacity of the IndexQueue
     /// @return capacity of the IndexQueue
@@ -71,19 +79,19 @@ class IndexQueue
     /// constraint: pushing more indices than capacity is not allowed
     /// constraint: only indices in the range [0, Capacity-1] are allowed
     /// threadsafe, lockfree
-    void push(indexvalue_t index);
+    void push(value_t index);
 
     /// @brief tries to remove index in FIFO order
     /// @return true iff removal was successful (i.e. queue was not empty)
     /// value is only valid if the function returns true
     /// threadsafe, lockfree
-    bool pop(indexvalue_t& index);
+    bool pop(value_t& index);
 
     /// @brief tries to remove index in FIFO order iff the queue is full
     /// @return true iff removal was successful (i.e. queue was full)
     /// value is only valid if the function returns true
     /// threadsafe, lockfree
-    bool popIfFull(indexvalue_t& index);
+    bool popIfFull(value_t& index);
 
     /// @brief check whether the queue is empty
     /// @return true iff the queue is empty
@@ -91,6 +99,22 @@ class IndexQueue
     /// not be empty anymore after the call
     /// (but it was at some point during the call)
     bool empty();
+
+    // @todo: finalize interface
+    void push(const UniqueIndex& index);
+
+    UniqueIndex pop();
+
+    UniqueIndex popIfFull();
+
+
+  private:
+    Index loadNextReadPosition() const;
+    Index loadNextWritePosition() const;
+    Index loadValueAt(Index position) const;
+    bool tryToPublishAt(Index writePosition, Index& oldValue, Index newValue);
+    bool tryToGetOwnership(Index& readPosition);
+    void updateNextWritePosition(Index& oldWritePosition);
 };
 } // namespace iox
 

@@ -26,7 +26,7 @@ class IndexQueueTest : public ::testing::Test
 {
   public:
     using Queue = T;
-    using index_t = typename Queue::indexvalue_t;
+    using index_t = typename Queue::value_t;
 
   protected:
     IndexQueueTest()
@@ -72,7 +72,7 @@ TYPED_TEST(IndexQueueTest, constructedQueueIsEmpty)
     using Queue = typename TestFixture::Queue;
     using index_t = typename TestFixture::index_t;
 
-    Queue q(Queue::ConstructEmpty::Policy);
+    Queue q(Queue::ConstructEmpty);
     EXPECT_TRUE(q.empty());
 }
 
@@ -103,7 +103,7 @@ TYPED_TEST(IndexQueueTest, IndicesAreIncreasingWhenConstructedFull)
     using Queue = typename TestFixture::Queue;
     using index_t = typename TestFixture::index_t;
 
-    Queue q(Queue::ConstructFull::Policy);
+    Queue q(Queue::ConstructFull);
     EXPECT_FALSE(q.empty());
 
     index_t index;
@@ -121,7 +121,7 @@ TYPED_TEST(IndexQueueTest, queueIsNotEmptyWhenConstructedFull)
     using Queue = typename TestFixture::Queue;
     using index_t = typename TestFixture::index_t;
 
-    Queue q(Queue::ConstructFull::Policy);
+    Queue q(Queue::ConstructFull);
     EXPECT_FALSE(q.empty());
 
     EXPECT_FALSE(q.empty());
@@ -132,7 +132,7 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyWhenPopFails)
     using Queue = typename TestFixture::Queue;
     using index_t = typename TestFixture::index_t;
 
-    Queue q(Queue::ConstructFull::Policy);
+    Queue q(Queue::ConstructFull);
     EXPECT_FALSE(q.empty());
 
     index_t index;
@@ -204,7 +204,7 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsOldestElementWhenQueueIsFull)
     using Queue = typename TestFixture::Queue;
     using index_t = typename TestFixture::index_t;
 
-    Queue q(Queue::ConstructFull::Policy);
+    Queue q(Queue::ConstructFull);
 
     index_t index{73};
 
@@ -217,7 +217,7 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsNotFull)
     using Queue = typename TestFixture::Queue;
     using index_t = typename TestFixture::index_t;
 
-    Queue q(Queue::ConstructFull::Policy);
+    Queue q(Queue::ConstructFull);
 
     index_t index;
     EXPECT_TRUE(q.pop(index));
