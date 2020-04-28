@@ -21,7 +21,7 @@
 
 namespace iox
 {
-/// @todo finalize interface, allow late configuration of actual capacity
+/// @todo finalize interface, configuration of actual capacity at runtime (resize feature)
 
 /// @brief implements a lock free queue (i.e. container with FIFO order) of elements of type T
 /// with Capacity
@@ -30,8 +30,6 @@ class LockFreeQueue
 {
   public:
     /// @brief creates and initalizes an empty LockFreeQueue
-    /// internally m_freeIndices are initialized as a full queue with indices 0...Capacity-1
-    /// and m_usedIndices are initialized as an empty queue
     LockFreeQueue() noexcept;
 
     /// @todo: a thread-safe and lockfree implementation of copy seems impossible
@@ -46,18 +44,18 @@ class LockFreeQueue
     constexpr uint64_t capacity() noexcept;
 
     /// @brief tries to insert value in FIFO order
-    /// @return true iff insertion was successful (i.e. queue was not full during push), false otherwise
+    /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// threadsafe, lockfree
     bool try_push(const T& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
-    /// @return removed value iff an overflow occured, empty optional otherwise
+    /// @return removed value if an overflow occured, empty optional otherwise
     /// threadsafe, lockfree
     iox::cxx::optional<T> push(const T& value) noexcept;
 
     /// @brief tries to remove value in FIFO order
-    /// @return value iff removal was successful, empty optional otherwise
+    /// @return value if removal was successful, empty optional otherwise
     /// threadsafe, lockfree
     iox::cxx::optional<T> pop() noexcept;
 

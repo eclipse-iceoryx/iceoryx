@@ -7,7 +7,7 @@ namespace iox
 template <typename T>
 class unique
 {
-  private:
+  public:
     struct invalid_t
     {
         explicit constexpr invalid_t()
@@ -15,7 +15,6 @@ class unique
         }
     };
 
-  public:
     static constexpr invalid_t invalid{};
 
     template <typename... Args>
@@ -82,7 +81,7 @@ class unique
         return m_valid;
     }
 
-    // interferes with operator const T& for some types, we cannot have both (which do we want?)
+    // note: interferes with operator const T& for some types, we cannot have both(which do we want ?)
     // operator bool()
     // {
     //     return m_valid;
@@ -93,4 +92,5 @@ class unique
     T m_value;
     bool m_valid{true};
 };
+
 } // namespace iox

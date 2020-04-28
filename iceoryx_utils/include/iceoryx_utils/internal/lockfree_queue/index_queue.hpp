@@ -16,7 +16,7 @@
 
 #include "iceoryx_utils/internal/lockfree_queue/buffer.hpp"
 #include "iceoryx_utils/internal/lockfree_queue/cyclic_index.hpp"
-#include "iceoryx_utils/internal/lockfree_queue/unique_index.hpp"
+#include "iceoryx_utils/internal/lockfree_queue/unique.hpp"
 
 #include <atomic>
 
@@ -27,8 +27,29 @@ template <uint64_t Capacity, typename ValueType = uint64_t>
 class IndexQueue
 {
   public:
+    class UniqueIndex : public unique<ValueType>
+    {
+      public:
+        using invalid_t = typename unique<ValueType>::invalid_t;
+        static constexpr invalid_t invalid{};
+
+        friend class IndexQueue<Capacity, ValueType>;
+
+        // only an invalid index can be constructed by anyone other than the IndexQueue itself
+        UniqueIndex(invalid_t)
+            : unique<ValueType>(invalid)
+        {
+        }
+
+      private:
+        // valid construction is made private and only accessible by the IndexQueue
+        UniqueIndex(const ValueType& value)
+            : unique<ValueType>(value)
+        {
+        }
+    };
+
     using value_t = ValueType;
-    using UniqueIndex = unique<value_t>;
 
   private:
     struct ConstructFull_t
