@@ -69,17 +69,19 @@ class LockFreeQueue
     bool empty();
 
   private:
-    using UniqueIndex = typename IndexQueue<Capacity>::UniqueIndex;
+    using Queue = IndexQueue<Capacity>;
+    using UniqueIndex = typename Queue::UniqueIndex;
+    using BufferIndex = typename Queue::value_t;
+
     // actually m_freeIndices do not have to be in a queue, it could be another
     // multi-push multi-pop capable lockfree container (e.g. a stack or a list)
     // @todo: replace with more efficient lockfree structure once available
-    IndexQueue<Capacity> m_freeIndices;
+    Queue m_freeIndices;
 
     // required to be a queue for LockFreeQueue to exhibit FIFO behaviour
-    IndexQueue<Capacity> m_usedIndices;
+    Queue m_usedIndices;
 
-
-    Buffer<T, Capacity> m_buffer;
+    Buffer<T, Capacity, BufferIndex> m_buffer;
 };
 } // namespace iox
 
