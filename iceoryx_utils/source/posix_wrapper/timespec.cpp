@@ -21,7 +21,7 @@ namespace iox
 {
 namespace posix
 {
-struct timespec addTimeMs(struct timespec time, const u_int32_t timeToAdd_ms)
+struct timespec addTimeMs(struct timespec time, const uint32_t timeToAdd_ms)
 {
     decltype(time.tv_nsec) sec_ns = time.tv_nsec + ((timeToAdd_ms % 1000) * TS_DIVIDER_msec);
     time.tv_sec += (timeToAdd_ms / 1000);

@@ -15,7 +15,7 @@
 #pragma once
 
 #include <time.h>
-#include "iceoryx_utils/platform/types.hpp"
+#include <cstdint>
 
 namespace iox
 {
