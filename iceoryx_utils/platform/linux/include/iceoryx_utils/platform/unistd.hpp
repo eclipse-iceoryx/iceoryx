@@ -15,5 +15,6 @@
 #pragma once
 
 #include <unistd.h>
+#include "iceoryx_utils/platform/types.hpp"
 
-__int32_t closePlatformFileHandle(__int32_t fd);
+int32_t closePlatformFileHandle(int32_t fd);
