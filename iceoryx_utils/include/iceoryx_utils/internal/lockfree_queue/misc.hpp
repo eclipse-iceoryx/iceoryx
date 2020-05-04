@@ -17,6 +17,10 @@
 
 namespace iox
 {
+// note: this will be refactored once the queue will be made resizable at runtime
+// since CyclicIndex will require extensive changes
+// and the functions/structs here are currently only used there
+
 template <typename T>
 constexpr bool isPowerOfTwo(T n)
 {

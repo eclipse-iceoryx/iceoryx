@@ -43,6 +43,10 @@ bool LockFreeQueue<T, Capacity>::try_push(const T& value) noexcept
     auto ptr = m_buffer.ptr(index);
     new (ptr) T(value);
 
+    // ensures that whenever an index is pushed into m_usedIndices, the corresponding value in m_buffer[index]
+    // was written before
+    releaseBufferChanges();
+
     m_usedIndices.push(index);
 
     return true;
@@ -76,6 +80,10 @@ iox::cxx::optional<T> LockFreeQueue<T, Capacity>::push(const T& value) noexcept
     auto ptr = m_buffer.ptr(index);
     new (ptr) T(value);
 
+    // ensures that whenever an index is pushed into m_usedIndices, the corresponding value in m_buffer[index]
+    // was written before
+    releaseBufferChanges();
+
     m_usedIndices.push(index);
 
     return result;
@@ -91,6 +99,10 @@ iox::cxx::optional<T> LockFreeQueue<T, Capacity>::pop() noexcept
         return cxx::nullopt_t(); // detected empty queue
     }
 
+    // combined with releaseChanges, this ensures that whenever an index is popped from m_usedIndices,
+    // the corresponding value in m_buffer[index] was written to before
+    acquireBufferChanges();
+
     auto ptr = m_buffer.ptr(index);
     cxx::optional<T> result(std::move(*ptr));
     ptr->~T();
@@ -103,5 +115,17 @@ template <typename T, uint64_t Capacity>
 bool LockFreeQueue<T, Capacity>::empty()
 {
     return m_usedIndices.empty();
+}
+
+template <typename T, uint64_t Capacity>
+void LockFreeQueue<T, Capacity>::acquireBufferChanges()
+{
+    std::atomic_thread_fence(std::memory_order_acquire);
+}
+
+template <typename T, uint64_t Capacity>
+void LockFreeQueue<T, Capacity>::releaseBufferChanges()
+{
+    std::atomic_thread_fence(std::memory_order_release);
 }
 } // namespace iox

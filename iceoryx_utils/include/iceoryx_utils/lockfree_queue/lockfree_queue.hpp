@@ -18,6 +18,8 @@
 #include "iceoryx_utils/internal/lockfree_queue/buffer.hpp"
 #include "iceoryx_utils/internal/lockfree_queue/index_queue.hpp"
 
+#include <atomic>
+
 
 namespace iox
 {
@@ -80,6 +82,14 @@ class LockFreeQueue
     Queue m_usedIndices;
 
     Buffer<T, Capacity, BufferIndex> m_buffer;
+
+    // note that we now perform the memory synchronization not using the index queue anymore but
+    // with those methods (using fences internally)
+    // this has the advantage of limiting unneccessary synchroization (e.g. due to CAS failure)
+    // and keeps the responsibility inside the LockFreeQueue itself (which contains the buffer)
+
+    void acquireBufferChanges();
+    void releaseBufferChanges();
 };
 } // namespace iox
 
