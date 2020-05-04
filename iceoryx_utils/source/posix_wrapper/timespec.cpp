@@ -14,9 +14,6 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/timespec.hpp"
 
-// For std types
-#include <cstdint>
-
 namespace iox
 {
 namespace posix

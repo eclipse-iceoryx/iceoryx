@@ -15,6 +15,5 @@
 #pragma once
 
 #include <unistd.h>
-#include <cstdint>
 
-int32_t closePlatformFileHandle(int32_t fd);
+int closePlatformFileHandle(int fd);
