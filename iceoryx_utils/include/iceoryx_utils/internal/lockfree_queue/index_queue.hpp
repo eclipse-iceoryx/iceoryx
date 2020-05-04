@@ -59,13 +59,9 @@ class IndexQueue
     {
     };
 
-    using Index = CyclicIndex<Capacity>;
-
     // @todo: a compile time check whether Index is actually lock free would be nice
     // note: there is a way  with is_always_lock_free in c++17 (which we cannot use here)
 
-
-  public:
     static constexpr ConstructFull_t ConstructFull{};
     static constexpr ConstructEmpty_t ConstructEmpty{};
 
@@ -85,24 +81,6 @@ class IndexQueue
     /// threadsafe, lockfree
     constexpr uint64_t capacity();
 
-    /// @brief push index into the queue in FIFO order
-    /// constraint: pushing more indices than capacity is not allowed
-    /// constraint: only indices in the range [0, Capacity-1] are allowed
-    /// threadsafe, lockfree
-    void push(ValueType index);
-
-    /// @brief tries to remove index in FIFO order
-    /// @return true iff removal was successful (i.e. queue was not empty)
-    /// value is only valid if the function returns true
-    /// threadsafe, lockfree
-    bool pop(ValueType& index);
-
-    /// @brief tries to remove index in FIFO order iff the queue is full
-    /// @return true iff removal was successful (i.e. queue was full)
-    /// value is only valid if the function returns true
-    /// threadsafe, lockfree
-    bool popIfFull(ValueType& index);
-
     /// @brief check whether the queue is empty
     /// @return true iff the queue is empty
     /// note that if the queue is used concurrently it might
@@ -110,14 +88,35 @@ class IndexQueue
     /// (but it was at some point during the call)
     bool empty();
 
-    // @todo: finalize interface
+    // The advantage of the UniqueIndex interface is that it prevents us from returning
+    // an index multiple times by design, i.e. it enforces that only indices popped from
+    // an IndexQueue can be returned.
+    // This works by preventing copies and construction of UniqueIndex outside of the IndexQueue.
+    // In particular, the user is free to get and copy the raw index, but he *cannot* construct a new
+    // UniqueIndex from it.
+
+    /// @brief push index into the queue in FIFO order
+    /// always succeeds if the UniqueIndex to be pushed is popped from another equallysized
+    /// IndexQueue (and should only be used this way)
+    /// threadsafe, lockfree
+    /// @param index to be pushed, any index can only be pushed once by design
     void push(const UniqueIndex& index);
 
+    /// @brief tries to remove index in FIFO order
+    /// threadsafe, lockfree
+    /// @return valid UniqueIndex if removal was successful (i.e. queue was not empty),
+    /// invalid UnqiueIndex otherwise
     UniqueIndex pop();
 
+    /// @brief tries to remove index in FIFO order iff the queue is full
+    /// threadsafe, lockfree
+    /// @return valid UniqueIndex if removal was successful (i.e. queue was full),
+    /// invalid UnqiueIndex otherwise
     UniqueIndex popIfFull();
 
   private:
+    using Index = CyclicIndex<Capacity>;
+
     using Cell = std::atomic<Index>;
     Cell m_cells[Capacity];
 
@@ -131,6 +130,18 @@ class IndexQueue
     bool tryToPublishAt(Index writePosition, Index& oldValue, Index newValue);
     bool tryToGainOwnershipAt(Index& readPosition);
     void updateNextWritePosition(Index& oldWritePosition);
+
+    // internal raw value (ValueType) interface
+    // private, since it does not prevent multiple of the same index pushes by design
+
+    // push index into the queue in FIFO order
+    void push(ValueType index);
+
+    // tries to remove index in FIFO order, succeeds if the queue is not empty
+    bool pop(ValueType& index);
+
+    // tries to remove index in FIFO order if the queue is full
+    bool popIfFull(ValueType& index);
 };
 } // namespace iox
 
