@@ -42,7 +42,6 @@ void IceOryxRouDiApp::run() noexcept
                                                      m_rouDiComponents.value().m_portManager,
                                                      m_monitoringMode,
                                                      true);
-
         waitForSignal();
     }
 }

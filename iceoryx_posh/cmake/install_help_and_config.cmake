@@ -3,7 +3,7 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/FAQ.md
 	COMPONENT dev)
 
 if(TOML_CONFIG)
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/etc/iceoryx/roudi_config_medium_default.toml
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/etc/iceoryx/roudi_config_example.toml
 		DESTINATION etc/
 		COMPONENT dev)
 endif(TOML_CONFIG)

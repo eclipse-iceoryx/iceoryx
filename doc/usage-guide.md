@@ -81,4 +81,4 @@ size = 1024
 count = 100
 ```
 
-When no config file is specified, the [default config](../iceoryx_posh/etc/iceoryx/roudi_config_medium_default.toml) will be used.
+When no config file is specified, a hard-coded version similar to [default config](../iceoryx_posh/etc/iceoryx/roudi_config_example.toml) will be used.
