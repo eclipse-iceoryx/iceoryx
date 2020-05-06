@@ -32,6 +32,10 @@ template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::Iceoryx2DDSGateway()
     : gateway_t(iox::capro::Interfaces::DDS)
 {
+    // Default factory methods.
+    // In both cases, objects are created directly in their respective ObjectPool.
+    // Custom deleters are set to clear the objects from the pool when there are no longer
+    // any references to them.
     m_subscriberFactory =
         [this](iox::capro::ServiceDescription sd) {
             return SubscriberPtr(
@@ -48,7 +52,6 @@ inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::Iceoryx2DDSGa
                             std::forward<const iox::dds::IdString>(eventId)),
                         [this](data_writer_t* p) -> void {m_dataWriterPool.free(p);});
     };
-
 };
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
@@ -108,10 +111,10 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover
     {
     case iox::capro::CaproMessageType::OFFER:
     {
-        auto& subscriber = addSubscriber(msg.m_serviceDescription);
-        subscriber.subscribe(s_subscriberCacheSize);
-        auto& writer = addDataWriter(msg.m_serviceDescription);
-        writer.connect();
+        auto subscriber = addSubscriber(msg.m_serviceDescription);
+        subscriber->subscribe(s_subscriberCacheSize);
+        auto writer = addDataWriter(msg.m_serviceDescription);
+        writer->connect();
         break;
     }
     case iox::capro::CaproMessageType::STOP_OFFER:
@@ -182,11 +185,11 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::shutdown
 
 // ======================================== Private ======================================== //
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline subscriber_t& Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::addSubscriber(
+inline std::shared_ptr<subscriber_t> Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::addSubscriber(
     const iox::capro::ServiceDescription& service) noexcept
 {
     m_subscribers.emplace_back(m_subscriberFactory(service));
-    return *m_subscribers.back();
+    return m_subscribers.back();
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
@@ -205,7 +208,7 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::removeSu
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline data_writer_t& Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::addDataWriter(
+inline std::shared_ptr<data_writer_t> Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::addDataWriter(
     const iox::capro::ServiceDescription& service) noexcept
 {
     m_writers.emplace_back(
@@ -214,7 +217,7 @@ inline data_writer_t& Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>
                     service.getInstanceIDString(),
                     service.getEventIDString())
             );
-    return *m_writers.back();
+    return m_writers.back();
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>

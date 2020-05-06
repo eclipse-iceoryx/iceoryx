@@ -16,7 +16,7 @@
 
 #include <atomic>
 #include <functional>
-#include <unordered_map>
+#include <memory>
 
 #include <iceoryx_posh/iceoryx_posh_types.hpp>
 #include <iceoryx_posh/popo/gateway_generic.hpp>
@@ -44,16 +44,18 @@ template <typename gateway_t = iox::popo::GatewayGeneric,
           typename data_writer_t = iox::dds::data_writer_t>
 class Iceoryx2DDSGateway : gateway_t
 {
-    using SubscriberPtr = std::unique_ptr<subscriber_t, std::function<void(subscriber_t*)>>;
+
+    using SubscriberPtr = std::shared_ptr<subscriber_t>;
     using SubscriberFactory = std::function<SubscriberPtr(const iox::capro::ServiceDescription)>;
     using SubscriberPool = iox::cxx::ObjectPool<subscriber_t, MAX_PORT_NUMBER>;
 
-    using DataWriterPtr = std::unique_ptr<data_writer_t, std::function<void(data_writer_t*)>>;
+    using DataWriterPtr = std::shared_ptr<data_writer_t>;
     using DataWriterFactory =
         std::function<DataWriterPtr(const iox::dds::IdString, const iox::dds::IdString, const iox::dds::IdString)>;
     using DataWriterPool = iox::cxx::ObjectPool<data_writer_t, MAX_PORT_NUMBER>;
 
   public:
+
     Iceoryx2DDSGateway();
     ~Iceoryx2DDSGateway();
 
@@ -142,9 +144,9 @@ class Iceoryx2DDSGateway : gateway_t
     iox::cxx::vector<SubscriberPtr, MAX_PORT_NUMBER> m_subscribers;
     iox::cxx::vector<DataWriterPtr, MAX_PORT_NUMBER> m_writers;
 
-    subscriber_t& addSubscriber(const iox::capro::ServiceDescription& service) noexcept;
+    SubscriberPtr addSubscriber(const iox::capro::ServiceDescription& service) noexcept;
     void removeSubscriber(const iox::capro::ServiceDescription& service) noexcept;
-    data_writer_t& addDataWriter(const iox::capro::ServiceDescription& service) noexcept;
+    DataWriterPtr addDataWriter(const iox::capro::ServiceDescription& service) noexcept;
     void removeDataWriter(const iox::capro::ServiceDescription& service) noexcept;
 };
 
