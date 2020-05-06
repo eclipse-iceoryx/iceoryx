@@ -17,6 +17,7 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include <chrono>
 
 #include <iceoryx_posh/iceoryx_posh_types.hpp>
 #include <iceoryx_posh/popo/gateway_generic.hpp>
@@ -34,6 +35,14 @@ namespace gateway
 {
 namespace dds
 {
+
+// Configuration Parameters
+static constexpr uint32_t DISCOVERY_PERIOD_MS = 1000;
+static constexpr uint32_t FORWARDING_PERIOD_MS = 50;
+static constexpr uint32_t MAX_SUBSCRIBER_NUMBER = MAX_PORT_NUMBER;
+static constexpr uint32_t MAX_DATA_WRITER_NUMBER = MAX_PORT_NUMBER;
+static constexpr uint32_t SUBSCRIBER_CACHE_SIZE = 128;
+
 ///
 /// @brief A Gateway to support internode communication between iceoryx nodes in a DDS network.
 ///
@@ -47,12 +56,12 @@ class Iceoryx2DDSGateway : gateway_t
 
     using SubscriberPtr = std::shared_ptr<subscriber_t>;
     using SubscriberFactory = std::function<SubscriberPtr(const iox::capro::ServiceDescription)>;
-    using SubscriberPool = iox::cxx::ObjectPool<subscriber_t, MAX_PORT_NUMBER>;
+    using SubscriberPool = iox::cxx::ObjectPool<subscriber_t, MAX_SUBSCRIBER_NUMBER>;
 
     using DataWriterPtr = std::shared_ptr<data_writer_t>;
     using DataWriterFactory =
         std::function<DataWriterPtr(const iox::dds::IdString, const iox::dds::IdString, const iox::dds::IdString)>;
-    using DataWriterPool = iox::cxx::ObjectPool<data_writer_t, MAX_PORT_NUMBER>;
+    using DataWriterPool = iox::cxx::ObjectPool<data_writer_t, MAX_DATA_WRITER_NUMBER>;
 
   public:
 
@@ -120,8 +129,6 @@ class Iceoryx2DDSGateway : gateway_t
     void shutdown() noexcept;
 
   private:
-    // TODO: Move this to some central gateway configuration somewhere
-    static constexpr size_t s_subscriberCacheSize{128};
 
     std::atomic_bool m_runForwardingLoop{false};
     std::atomic_bool m_runDiscoveryLoop{false};
@@ -141,8 +148,8 @@ class Iceoryx2DDSGateway : gateway_t
     // memory location.
     // This is a little deceiving, as vectors imply a particular in-memory ordering, however there is no
     // "List" implementation provided in iox.
-    iox::cxx::vector<SubscriberPtr, MAX_PORT_NUMBER> m_subscribers;
-    iox::cxx::vector<DataWriterPtr, MAX_PORT_NUMBER> m_writers;
+    iox::cxx::vector<SubscriberPtr, MAX_SUBSCRIBER_NUMBER> m_subscribers;
+    iox::cxx::vector<DataWriterPtr, MAX_DATA_WRITER_NUMBER> m_writers;
 
     SubscriberPtr addSubscriber(const iox::capro::ServiceDescription& service) noexcept;
     void removeSubscriber(const iox::capro::ServiceDescription& service) noexcept;

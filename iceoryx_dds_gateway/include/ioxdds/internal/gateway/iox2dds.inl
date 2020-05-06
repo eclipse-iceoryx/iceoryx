@@ -18,7 +18,6 @@
 #include <iceoryx_posh/mepoo/chunk_header.hpp>
 #include <iceoryx_utils/cxx/string.hpp>
 
-#include "ioxdds/gateway/iox2dds.hpp"
 #include "ioxdds/internal/log/logging.hpp"
 
 namespace iox
@@ -27,6 +26,7 @@ namespace gateway
 {
 namespace dds
 {
+
 // ======================================== Public ======================================== //
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::Iceoryx2DDSGateway()
@@ -82,7 +82,7 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover
         {
             discover(msg);
         }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(iox::gateway::dds::DISCOVERY_PERIOD_MS));
     }
     iox::LogDebug() << "[Iceoryx2DDSGateway] Stopped discovery.";
 }
@@ -112,7 +112,7 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover
     case iox::capro::CaproMessageType::OFFER:
     {
         auto subscriber = addSubscriber(msg.m_serviceDescription);
-        subscriber->subscribe(s_subscriberCacheSize);
+        subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
         auto writer = addDataWriter(msg.m_serviceDescription);
         writer->connect();
         break;
@@ -138,7 +138,7 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forwardi
     while (m_runForwardingLoop.load(std::memory_order_relaxed))
     {
         forward();
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(iox::gateway::dds::FORWARDING_PERIOD_MS));
     };
     iox::LogDebug() << "[Iceoryx2DDSGateway] Stopped forwarding.";
 }
