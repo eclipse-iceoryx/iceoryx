@@ -56,6 +56,7 @@ class function_ref<ReturnType(ArgTypes...)>
     using SignatureType = ReturnType(ArgTypes...);
 
   public:
+    /// @todo Remove empty instantiation , if you want to have it empty, use an cxx::optional around cxx::function_ref
     /// @brief Creates an empty function_ref
     function_ref() noexcept
         : m_target(nullptr)
