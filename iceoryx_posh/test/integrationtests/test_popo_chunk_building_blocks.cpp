@@ -40,7 +40,6 @@ static constexpr uint32_t NUM_CHUNKS_IN_POOL = 100;
 static constexpr uint32_t MAGIC_NUMBER_ITERATIONS = 10000;
 static constexpr uint32_t SMALL_CHUNK = 128;
 static constexpr uint32_t BIG_CHUNK = 256;
-static constexpr uint64_t HISTORY_CAPACITY = 4;
 static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
 
 iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
