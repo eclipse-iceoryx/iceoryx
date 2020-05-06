@@ -15,6 +15,8 @@
 #include <atomic>
 
 #include <ioxdds/gateway/iox2dds.hpp>
+#include <iceoryx_utils/cxx/helplets.hpp>
+#include <iceoryx_utils/cxx/optional.hpp>
 #include <iceoryx_posh/runtime/posh_runtime.hpp>
 
 class ShutdownManager
@@ -40,18 +42,22 @@ class ShutdownManager
 };
 std::mutex ShutdownManager::m_mutex;
 std::atomic_bool ShutdownManager::m_shutdownFlag(false);
+
 int main(int argc, char* argv[])
 {
     // Set OS signal handlers
     signal(SIGINT, ShutdownManager::scheduleShutdown);
     signal(SIGTERM, ShutdownManager::scheduleShutdown);
 
-    //    // Start gateway
+    // Start application
     iox::runtime::PoshRuntime::getInstance("/gateway_iox2dds");
-    iox::gateway::dds::Iceoryx2DDSGateway<> gateway;
 
-    auto discoveryThread = std::thread([&gateway] { gateway.discoveryLoop(); });
-    auto forwardingThread = std::thread([&gateway] { gateway.forwardingLoop(); });
+    //iox::gateway::dds::Iceoryx2DDSGateway<> gateway;
+    static iox::cxx::optional<iox::gateway::dds::Iceoryx2DDSGateway<>> gateway;
+    auto gatewayScopeGuard = iox::cxx::makeScopedStatic(gateway);
+
+    auto discoveryThread = std::thread([] { gateway.value().discoveryLoop(); });
+    auto forwardingThread = std::thread([] { gateway.value().forwardingLoop(); });
 
     // Run until SIGINT or SIGTERM
     while (!ShutdownManager::shouldShutdown())
@@ -60,7 +66,7 @@ int main(int argc, char* argv[])
     };
 
     // Shutdown gracefully
-    gateway.shutdown();
+    gateway.value().shutdown();
     discoveryThread.join();
     forwardingThread.join();
 
