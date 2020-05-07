@@ -39,7 +39,7 @@ class MockSubscriber
 class MockDataWriter : public iox::dds::DataWriter<MockDataWriter>
 {
   public:
-    MockDataWriter(std::string service, std::string instance, std::string event){};
+    MockDataWriter(const iox::capro::ServiceDescription& sd){};
     MOCK_METHOD0(connect, void(void));
     MOCK_METHOD2(write, bool(uint8_t*, uint64_t));
     MOCK_CONST_METHOD0(getServiceId, std::string(void));
@@ -52,8 +52,8 @@ class MockDataWriter : public iox::dds::DataWriter<MockDataWriter>
 using TestGateway = iox::gateway::dds::Iceoryx2DDSGateway<MockGenericGateway, MockSubscriber, MockDataWriter>;
 
 // Holds mocks created by tests to be returned by mock factories.
-static std::vector<std::unique_ptr<MockSubscriber>> stagedMockSubscribers;
-static std::vector<std::unique_ptr<MockDataWriter>> stagedMockWriters;
+static std::vector<std::shared_ptr<MockSubscriber>> stagedMockSubscribers;
+static std::vector<std::shared_ptr<MockDataWriter>> stagedMockWriters;
 
 // Marks where in the array to look for a valid mock.
 // Indexes lower than the marker are assumed to have been moved out and thus unspecified.
@@ -61,59 +61,61 @@ static size_t subscriberMarker = 0;
 static size_t dataWriterMarker = 0;
 
 // Create a new DataWriter mock
-std::unique_ptr<MockDataWriter> createMockDataWriter(std::string service, std::string instance, std::string event)
+std::shared_ptr<MockDataWriter> createMockDataWriter(const iox::capro::ServiceDescription& sd)
 {
-    return std::unique_ptr<MockDataWriter>(new MockDataWriter(
-        std::forward<std::string>(service), std::forward<std::string>(instance), std::forward<std::string>(event)));
+    return std::shared_ptr<MockDataWriter>(new MockDataWriter(sd));
 }
 
 // Stage the given mock to be provided by the DataWriter mock factory
-void stageMockDataWriter(std::unique_ptr<MockDataWriter>&& mock)
+void stageMockDataWriter(std::shared_ptr<MockDataWriter>&& mock)
 {
+    // Pass ownership - do not hold a reference here.
     stagedMockWriters.emplace_back(std::move(mock));
 };
 
 // Create a new Subscriber mock
-std::unique_ptr<MockSubscriber> createMockSubscriber(const iox::capro::ServiceDescription& sd)
+std::shared_ptr<MockSubscriber> createMockSubscriber(const iox::capro::ServiceDescription& sd)
 {
-    return std::unique_ptr<MockSubscriber>(new MockSubscriber(std::forward<const iox::capro::ServiceDescription&>(sd)));
+    return std::shared_ptr<MockSubscriber>(new MockSubscriber(sd));
 }
 
 // Stage the given mock to be provided by the Subscriber mock factory
-void stageMockSubscriber(std::unique_ptr<MockSubscriber>&& mock)
+void stageMockSubscriber(std::shared_ptr<MockSubscriber>&& mock)
 {
     stagedMockSubscribers.emplace_back(std::move(mock));
 };
 
 // ======================================== Mock Factories ======================================== //
-static std::unique_ptr<MockDataWriter>
-mockDataWriterFactory(std::string service, std::string instance, std::string event) noexcept
-{
-    if (dataWriterMarker < stagedMockWriters.size())
-    {
-        return std::move(stagedMockWriters.at(dataWriterMarker++));
-    }
-    else
-    {
-        // Create a mock if there are none staged.
-        // This occurs when a mock is required by the test class, but it has no expectations specified in the test.
-        return createMockDataWriter(service, instance, event);
-    }
-};
 
-static std::unique_ptr<MockSubscriber> mockSubscriberFactory(iox::capro::ServiceDescription sd) noexcept
+
+static iox::gateway::dds::Channel<MockSubscriber, MockDataWriter> mockChannelFactory(iox::capro::ServiceDescription sd) noexcept
 {
+    // Get or create a mock subscriber
+    std::shared_ptr<MockSubscriber> mockSubscriber;
     if (subscriberMarker < stagedMockSubscribers.size())
     {
-        return std::move(stagedMockSubscribers.at(subscriberMarker++));
+        // Important - must pass ownership to receiver so object is deleted when the receiver is done with it.
+        mockSubscriber = std::move(stagedMockSubscribers.at(subscriberMarker++));
     }
     else
     {
-        // Create a mock if there are none staged.
-        // This occurs when a mock is required by the test class, but it has no expectations specified in the test.
-        return createMockSubscriber(sd);
+        mockSubscriber = createMockSubscriber(sd);
     }
-};
+
+    // Get or create a mock data writer
+    std::shared_ptr<MockDataWriter> mockDataWriter;
+    if (dataWriterMarker < stagedMockWriters.size())
+    {
+        // Important - must pass ownership to receiver so object is deleted when the receiver is done with it.
+        mockDataWriter = std::move(stagedMockWriters.at(dataWriterMarker++));
+    }
+    else
+    {
+        mockDataWriter = createMockDataWriter(sd);
+    }
+
+    return iox::gateway::dds::Channel<MockSubscriber, MockDataWriter>(sd, std::move(mockSubscriber), std::move(mockDataWriter));
+}
 
 // ======================================== Fixture ======================================== //
 class Iceoryx2DDSGatewayTest : public Test
@@ -132,46 +134,43 @@ class Iceoryx2DDSGatewayTest : public Test
 // ======================================== Tests ======================================== //
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresIntrospectionPorts)
 {
-    auto gw = std::make_shared<TestGateway>(mockSubscriberFactory, mockDataWriterFactory);
+    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER,
                                         {"Introspection", iox::capro::AnyInstanceString, iox::capro::AnyEventString});
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
     gw->discover(msg);
-    EXPECT_EQ(0, gw->getNumberOfSubscribers());
-    EXPECT_EQ(0, gw->getNumberOfDataWriters());
+    EXPECT_EQ(0, gw->getNumberOfChannels());
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresServiceMessages)
 {
-    auto gw = std::make_shared<TestGateway>(mockSubscriberFactory, mockDataWriterFactory);
+    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
     auto msg = iox::capro::CaproMessage(
         iox::capro::CaproMessageType::OFFER,
         {iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString});
     msg.m_subType = iox::capro::CaproMessageSubType::SERVICE;
     gw->discover(msg);
-    EXPECT_EQ(0, gw->getNumberOfSubscribers());
-    EXPECT_EQ(0, gw->getNumberOfDataWriters());
+    EXPECT_EQ(0, gw->getNumberOfChannels());
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, CreatesSubscriberAndDataWriterForOfferedServices)
 {
-    auto gw = std::make_shared<TestGateway>(mockSubscriberFactory, mockDataWriterFactory);
+    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
     gw->discover(msg);
-    EXPECT_EQ(1, gw->getNumberOfSubscribers());
-    EXPECT_EQ(1, gw->getNumberOfDataWriters());
+    EXPECT_EQ(1, gw->getNumberOfChannels());
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDetectedPublishers)
 {
     // === Create Mock
-    auto mockSubscriber = createMockSubscriber(iox::capro::ServiceDescription("", "", ""));
+    auto mockSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
     EXPECT_CALL(*mockSubscriber, subscribe).Times(1);
     stageMockSubscriber(std::move(mockSubscriber));
 
     // === Test
-    auto gw = std::make_shared<TestGateway>(mockSubscriberFactory, mockDataWriterFactory);
+    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
     gw->discover(msg);
@@ -180,12 +179,12 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDetectedPublishers
 TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersToDDSNetwork)
 {
     // === Create Mock
-    auto mockWriter = createMockDataWriter("", "", "");
+    auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
     EXPECT_CALL(*mockWriter, connect).Times(1);
     stageMockDataWriter(std::move(mockWriter));
 
     // === Test
-    auto gw = std::make_shared<TestGateway>(mockSubscriberFactory, mockDataWriterFactory);
+    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
     gw->discover(msg);
@@ -202,8 +201,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsFromPoshSubscriberToDDSDataWriter)
     *payloadPtr = 42; // Payload Value
 
     // Set up subscriber to provide this chunk when requested
-    auto mockSubscriber = createMockSubscriber(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections"));
-    auto mockWriter = createMockDataWriter("Radar", "Front-Right", "Reflections");
+    auto mockSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
+    auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
 
     ON_CALL(*mockSubscriber, hasNewChunks).WillByDefault(Return(true));
     ON_CALL(*mockSubscriber, getChunk).WillByDefault(DoAll(SetArgPointee<0>(chunk), Return(true)));
@@ -214,7 +213,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsFromPoshSubscriberToDDSDataWriter)
     stageMockDataWriter(std::move(mockWriter));
 
     // === Test
-    auto gw = std::make_shared<TestGateway>(mockSubscriberFactory, mockDataWriterFactory);
+    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
     gw->discover(msg);
     gw->forward();
@@ -231,8 +230,8 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
     auto chunk = new (buf) iox::mepoo::ChunkHeader();
     chunk->m_info.m_payloadSize = 0;
 
-    auto mockSubscriber = createMockSubscriber(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections"));
-    auto mockWriter = createMockDataWriter("Radar", "Front-Right", "Reflections");
+    auto mockSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
+    auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
 
     EXPECT_CALL(*mockSubscriber, hasNewChunks).Times(1);
     ON_CALL(*mockSubscriber, hasNewChunks).WillByDefault(Return(true));
@@ -243,7 +242,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
     stageMockDataWriter(std::move(mockWriter));
 
     // === Test
-    auto gw = std::make_shared<TestGateway>(mockSubscriberFactory, mockDataWriterFactory);
+    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
     gw->discover(msg);
     gw->forward();
@@ -259,13 +258,12 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
     auto payloadPtr = reinterpret_cast<int*>(buf + sizeof(iox::mepoo::ChunkHeader));
     *payloadPtr = 42; // Payload Value
 
-    auto mockSubscriber = createMockSubscriber(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections"));
-    auto mockWriter = createMockDataWriter("Radar", "Front-Right", "Reflections");
+    auto mockSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
+    auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
 
     EXPECT_CALL(*mockSubscriber, hasNewChunks).Times(1);
     ON_CALL(*mockSubscriber, hasNewChunks).WillByDefault(Return(true));
     ON_CALL(*mockSubscriber, getChunk).WillByDefault(DoAll(SetArgPointee<0>(chunk), Return(true)));
-
     {
         InSequence seq;
         EXPECT_CALL(*mockSubscriber, getChunk).Times(1);
@@ -277,7 +275,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
     stageMockDataWriter(std::move(mockWriter));
 
     // === Test
-    auto gw = std::make_shared<TestGateway>(mockSubscriberFactory, mockDataWriterFactory);
+    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
     gw->discover(msg);
     gw->forward();
@@ -286,37 +284,40 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
 TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStopsOffering)
 {
     // === Create Mock
-    auto mockSubscriber1 = createMockSubscriber(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections"));
-    auto mockSubscriber2 = createMockSubscriber(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections"));
+    // Subscribers
+    auto firstCreatedSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
+    auto secondCreatedSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
 
-    ON_CALL(*mockSubscriber1, getServiceDescription).WillByDefault(
+    ON_CALL(*firstCreatedSubscriber, getServiceDescription).WillByDefault(
                 Return(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections"))
                 );
-    ON_CALL(*mockSubscriber2, getServiceDescription).WillByDefault(
+    ON_CALL(*secondCreatedSubscriber, getServiceDescription).WillByDefault(
                 Return(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections"))
                 );
 
     {
         InSequence seq;
-        EXPECT_CALL(*mockSubscriber1, subscribe).Times(1);
-        EXPECT_CALL(*mockSubscriber1, isDestroyed).Times(1);
-        EXPECT_CALL(*mockSubscriber2, subscribe).Times(1);
+        EXPECT_CALL(*firstCreatedSubscriber, subscribe).Times(1);
+        EXPECT_CALL(*firstCreatedSubscriber, isDestroyed).Times(1);
+        EXPECT_CALL(*secondCreatedSubscriber, subscribe).Times(1);
     }
 
-    stageMockSubscriber(std::move(mockSubscriber1));
-    stageMockSubscriber(std::move(mockSubscriber2));
+    // Important ! Pass ownership, do not keep the reference here.
+    stageMockSubscriber(std::move(firstCreatedSubscriber));
+    stageMockSubscriber(std::move(secondCreatedSubscriber));
 
-    // === Test
-    auto gw = std::make_shared<TestGateway>(mockSubscriberFactory, mockDataWriterFactory);
+    // Messages
     auto offerMsg =
         iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
+    offerMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
     auto stopOfferMsg =
         iox::capro::CaproMessage(iox::capro::CaproMessageType::STOP_OFFER, {"Radar", "Front-Right", "Reflections"});
-
-    offerMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
     stopOfferMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
+    // === Test
+    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
+
     gw->discover(offerMsg);
-    gw->discover(stopOfferMsg); // initial subscriber must be deleted here
+    gw->discover(stopOfferMsg); // first subscriber must be deleted here
     gw->discover(offerMsg);
 }

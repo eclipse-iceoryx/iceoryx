@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+﻿// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,9 +39,48 @@ namespace dds
 // Configuration Parameters
 static constexpr uint32_t DISCOVERY_PERIOD_MS = 1000;
 static constexpr uint32_t FORWARDING_PERIOD_MS = 50;
-static constexpr uint32_t MAX_SUBSCRIBER_NUMBER = MAX_PORT_NUMBER;
-static constexpr uint32_t MAX_DATA_WRITER_NUMBER = MAX_PORT_NUMBER;
+static constexpr uint32_t MAX_CHANNEL_NUMBER = MAX_PORT_NUMBER;
 static constexpr uint32_t SUBSCRIBER_CACHE_SIZE = 128;
+
+///
+/// @brief Groups and manages resources that make up a posh->dds channel
+///
+template <typename subscriber_t = iox::popo::Subscriber,
+          typename data_writer_t = iox::dds::data_writer_t>
+class Channel {
+public:
+    using SubscriberPtr = std::shared_ptr<subscriber_t>;
+    using SubscriberPool = iox::cxx::ObjectPool<subscriber_t, MAX_CHANNEL_NUMBER>;
+    using DataWriterPtr = std::shared_ptr<data_writer_t>;
+    using DataWriterPool = iox::cxx::ObjectPool<data_writer_t, MAX_CHANNEL_NUMBER>;
+
+    ///
+    /// @brief Channel Constructs an object with unmanaged resources.
+    /// @param service The service that the channel is connecting.
+    /// @param subscriber An externally managed subscriber endpoint.
+    /// @param dataWriter An externally managed data writer endpoint.
+    ///
+    Channel(const iox::capro::ServiceDescription& service, SubscriberPtr subscriber, DataWriterPtr dataWriter);
+
+    ///
+    /// @brief create Creates a channel with internally managed resources.
+    /// @param service The service that the channel is connecting.
+    /// @return Channel A channel with internally managed endpoints.
+    ///
+    static Channel create(const iox::capro::ServiceDescription& service);
+    iox::capro::ServiceDescription getService();
+    SubscriberPtr getSubscriber();
+    DataWriterPtr getDataWriter();
+
+private:
+    // Store in data segment - too large to keep in stack.
+    static SubscriberPool s_subscriberPool;
+    static DataWriterPool s_dataWriterPool;
+
+    iox::capro::ServiceDescription service;
+    SubscriberPtr subscriber;
+    DataWriterPtr dataWriter;
+};
 
 ///
 /// @brief A Gateway to support internode communication between iceoryx nodes in a DDS network.
@@ -54,14 +93,7 @@ template <typename gateway_t = iox::popo::GatewayGeneric,
 class Iceoryx2DDSGateway : gateway_t
 {
 
-    using SubscriberPtr = std::shared_ptr<subscriber_t>;
-    using SubscriberFactory = std::function<SubscriberPtr(const iox::capro::ServiceDescription)>;
-    using SubscriberPool = iox::cxx::ObjectPool<subscriber_t, MAX_SUBSCRIBER_NUMBER>;
-
-    using DataWriterPtr = std::shared_ptr<data_writer_t>;
-    using DataWriterFactory =
-        std::function<DataWriterPtr(const iox::dds::IdString, const iox::dds::IdString, const iox::dds::IdString)>;
-    using DataWriterPool = iox::cxx::ObjectPool<data_writer_t, MAX_DATA_WRITER_NUMBER>;
+    using ChannelFactory = std::function<Channel<subscriber_t, data_writer_t>(const iox::capro::ServiceDescription)>;
 
   public:
 
@@ -73,7 +105,7 @@ class Iceoryx2DDSGateway : gateway_t
     /// @param subscriberFactory Factory that shall be used by the gateway to create Subscriber objects.
     /// @param dataWriterFactory Factory that shall be used by the gateway to create DataWriter objects.
     ///
-    Iceoryx2DDSGateway(SubscriberFactory subscriberFactory, DataWriterFactory dataWriterFactory);
+    Iceoryx2DDSGateway(ChannelFactory channelFactory);
     Iceoryx2DDSGateway(const Iceoryx2DDSGateway&) = delete;
     Iceoryx2DDSGateway& operator=(const Iceoryx2DDSGateway&) = delete;
     Iceoryx2DDSGateway(Iceoryx2DDSGateway&&) = delete;
@@ -112,16 +144,10 @@ class Iceoryx2DDSGateway : gateway_t
     void forward() noexcept;
 
     ///
-    /// @brief getNumberOfSubscribers Get the number of subscribers used by the gateway.
-    /// @return The number of used subscribers.
+    /// @brief getNumberOfChannels Get the number of active channels.
+    /// @return The number of active channels.
     ///
-    uint64_t getNumberOfSubscribers() const noexcept;
-
-    ///
-    /// @brief getNumberOfDataWriters Get the number of data writers used by the gateway.
-    /// @return The number of used data writers.
-    ///
-    uint64_t getNumberOfDataWriters() const noexcept;
+    size_t getNumberOfChannels() const noexcept;
 
     ///
     /// @brief shutdown the gateway, stopping all threads
@@ -133,28 +159,13 @@ class Iceoryx2DDSGateway : gateway_t
     std::atomic_bool m_runForwardingLoop{false};
     std::atomic_bool m_runDiscoveryLoop{false};
 
-    SubscriberFactory m_subscriberFactory;
-    DataWriterFactory m_dataWriterFactory;
+    ChannelFactory m_channelFactory;
 
-    // Fixed memory pools to store subscribers & data writers. Required to avoid dynamic memory allocation.
-    // Elements in these pools should not be directly accessed, but should instead be accessed
-    // via smart pointers defined above (which provides a custom deleter).
-    // This ensures memory is automatically "freed" back to the pool when no longer needed.
-    SubscriberPool m_subscriberPool = SubscriberPool();
-    DataWriterPool m_dataWriterPool = DataWriterPool();
+    iox::cxx::vector<Channel<subscriber_t, data_writer_t>, MAX_CHANNEL_NUMBER> m_channels;
 
-    // References to objects in the fixed memory pools.
-    // Vector semantics may be used, allowing objects to be logically reordered without changing their physical
-    // memory location.
-    // This is a little deceiving, as vectors imply a particular in-memory ordering, however there is no
-    // "List" implementation provided in iox.
-    iox::cxx::vector<SubscriberPtr, MAX_SUBSCRIBER_NUMBER> m_subscribers;
-    iox::cxx::vector<DataWriterPtr, MAX_DATA_WRITER_NUMBER> m_writers;
+    Channel<subscriber_t, data_writer_t> setupChannel(const iox::capro::ServiceDescription& service);
+    void takeDownChannel(const iox::capro::ServiceDescription& service);
 
-    SubscriberPtr addSubscriber(const iox::capro::ServiceDescription& service) noexcept;
-    void removeSubscriber(const iox::capro::ServiceDescription& service) noexcept;
-    DataWriterPtr addDataWriter(const iox::capro::ServiceDescription& service) noexcept;
-    void removeDataWriter(const iox::capro::ServiceDescription& service) noexcept;
 };
 
 } // dds
