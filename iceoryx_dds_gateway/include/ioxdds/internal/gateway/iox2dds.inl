@@ -126,6 +126,9 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
+    // Prevent new channels being added/removed while doing discovery.
+    const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
+
     iox::LogDebug() << "[Iceoryx2DDSGateway] <CaproMessage> "
                     << iox::capro::CaproMessageTypeString[static_cast<uint8_t>(msg.m_type)]
                     << " { Service: " << msg.m_serviceDescription.getServiceIDString()
@@ -147,14 +150,14 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover
     {
     case iox::capro::CaproMessageType::OFFER:
     {
-        auto channel = setupChannel(msg.m_serviceDescription);
+        auto channel = setupChannelUnsafe(msg.m_serviceDescription);
         channel.getSubscriber()->subscribe(SUBSCRIBER_CACHE_SIZE);
         channel.getDataWriter()->connect();
         break;
     }
     case iox::capro::CaproMessageType::STOP_OFFER:
     {
-        takeDownChannel(msg.m_serviceDescription);
+        takeDownChannelUnsafe(msg.m_serviceDescription);
         break;
     }
     default:
@@ -180,6 +183,9 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forwardi
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward() noexcept
 {
+    // Prevent new channels being added/removed while doing forwarding.
+    const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
+
     auto index = 0;
     for (auto& channel : m_channels)
     {
@@ -200,8 +206,9 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward(
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline size_t Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::getNumberOfChannels() const noexcept
+inline size_t Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::getNumberOfChannels() noexcept
 {
+    const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
     return m_channels.size();
 }
 
@@ -216,20 +223,19 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::shutdown
 // ======================================== Private ======================================== //
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-Channel<subscriber_t, data_writer_t> Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::setupChannel(const iox::capro::ServiceDescription& service)
+Channel<subscriber_t, data_writer_t> Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::setupChannelUnsafe(const iox::capro::ServiceDescription& service)
 {
+    auto channel = m_channelFactory(service);
+    m_channels.push_back(channel);
     iox::LogDebug() << "[Iceoryx2DDSGateway] Channel set up for service: "
                     << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
                     <<  service.getEventIDString();
-    auto channel = m_channelFactory(service);
-    m_channels.push_back(channel);
     return channel;
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::takeDownChannel(const iox::capro::ServiceDescription& service)
+void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::takeDownChannelUnsafe(const iox::capro::ServiceDescription& service)
 {
-
     for(auto& channel : m_channels)
     {
         if(channel.getService() == service)
@@ -241,7 +247,6 @@ void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::takeDownChannel
             break;
         }
     }
-
 }
 
 } // namespace dds

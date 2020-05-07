@@ -68,6 +68,7 @@ public:
     /// @return Channel A channel with internally managed endpoints.
     ///
     static Channel create(const iox::capro::ServiceDescription& service);
+
     iox::capro::ServiceDescription getService();
     SubscriberPtr getSubscriber();
     DataWriterPtr getDataWriter();
@@ -102,8 +103,7 @@ class Iceoryx2DDSGateway : gateway_t
 
     ///
     /// @brief Iceoryx2DDSGateway Enables injection of mocks during testing.
-    /// @param subscriberFactory Factory that shall be used by the gateway to create Subscriber objects.
-    /// @param dataWriterFactory Factory that shall be used by the gateway to create DataWriter objects.
+    /// @param channelFactory Factory method to create channel instances containing mocks.
     ///
     Iceoryx2DDSGateway(ChannelFactory channelFactory);
     Iceoryx2DDSGateway(const Iceoryx2DDSGateway&) = delete;
@@ -147,7 +147,7 @@ class Iceoryx2DDSGateway : gateway_t
     /// @brief getNumberOfChannels Get the number of active channels.
     /// @return The number of active channels.
     ///
-    size_t getNumberOfChannels() const noexcept;
+    size_t getNumberOfChannels() noexcept;
 
     ///
     /// @brief shutdown the gateway, stopping all threads
@@ -161,10 +161,21 @@ class Iceoryx2DDSGateway : gateway_t
 
     ChannelFactory m_channelFactory;
 
+    std::mutex m_channelAccessMutex;
     iox::cxx::vector<Channel<subscriber_t, data_writer_t>, MAX_CHANNEL_NUMBER> m_channels;
 
-    Channel<subscriber_t, data_writer_t> setupChannel(const iox::capro::ServiceDescription& service);
-    void takeDownChannel(const iox::capro::ServiceDescription& service);
+    ///
+    /// @brief setupChannelUnsafe Creates a new channel for the given service without any synchronization.
+    /// @param service The service for which a channel will be established.
+    /// @return Channel object with subscriber and data writer for the given service.
+    ///
+    Channel<subscriber_t, data_writer_t> setupChannelUnsafe(const iox::capro::ServiceDescription& service);
+
+    ///
+    /// @brief takeDownChannelUnsafe Discards the channel for the given service without any synchonization.
+    /// @param service The service for which a channel will be discarded.
+    ///
+    void takeDownChannelUnsafe(const iox::capro::ServiceDescription& service);
 
 };
 
