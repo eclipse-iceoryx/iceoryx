@@ -55,6 +55,9 @@ class function_ref<ReturnType(ArgTypes...)>
 {
     using SignatureType = ReturnType(ArgTypes...);
 
+    template <typename CallableType>
+    using EnableIfNotFunctionRef = std::enable_if<!std::is_same<std::decay<CallableType>, function_ref>::value>;
+
   public:
     /// @todo Remove empty instantiation , if you want to have it empty, use an cxx::optional around cxx::function_ref
     /// @brief Creates an empty function_ref
@@ -83,8 +86,7 @@ class function_ref<ReturnType(ArgTypes...)>
 
     /// @brief Create a function_ref
     /// @todo Type trait std::is_invocable is only available in C++17, workaround for C++11/14?
-    template <typename CallableType,
-              typename = std::enable_if<!std::is_same<std::decay<CallableType>, function_ref>::value>>
+    template <typename CallableType, typename = EnableIfNotFunctionRef<CallableType>>
     function_ref(CallableType&& callable) noexcept
         : m_target(reinterpret_cast<void*>(std::addressof(callable)))
     {
