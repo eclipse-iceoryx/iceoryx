@@ -108,6 +108,7 @@ iox::cxx::optional<T> LockFreeQueue<T, Capacity>::pop() noexcept
     ptr->~T();
 
     m_freeIndices.push(index);
+
     return result;
 }
 
@@ -118,14 +119,24 @@ bool LockFreeQueue<T, Capacity>::empty()
 }
 
 template <typename T, uint64_t Capacity>
+uint64_t LockFreeQueue<T, Capacity>::size()
+{
+    return m_size.load(std::memory_order_relaxed);
+}
+
+template <typename T, uint64_t Capacity>
 void LockFreeQueue<T, Capacity>::acquireBufferChanges()
 {
-    std::atomic_thread_fence(std::memory_order_acquire);
+    // rename the method? it is now decrementing the size and performing synchronization
+    m_size.fetch_sub(1u, std::memory_order_acquire);
+    // std::atomic_thread_fence(std::memory_order_acquire);
 }
 
 template <typename T, uint64_t Capacity>
 void LockFreeQueue<T, Capacity>::releaseBufferChanges()
 {
-    std::atomic_thread_fence(std::memory_order_release);
+    // rename the method? it is now incrementing the size and performing synchronization
+    m_size.fetch_add(1u, std::memory_order_release);
+    // std::atomic_thread_fence(std::memory_order_release);
 }
 } // namespace iox
