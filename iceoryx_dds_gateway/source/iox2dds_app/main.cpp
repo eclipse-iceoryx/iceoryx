@@ -52,12 +52,9 @@ int main(int argc, char* argv[])
     // Start application
     iox::runtime::PoshRuntime::getInstance("/gateway_iox2dds");
 
-    //iox::gateway::dds::Iceoryx2DDSGateway<> gateway;
-    static iox::cxx::optional<iox::gateway::dds::Iceoryx2DDSGateway<>> gateway;
-    auto gatewayScopeGuard = iox::cxx::makeScopedStatic(gateway);
-
-    auto discoveryThread = std::thread([] { gateway.value().discoveryLoop(); });
-    auto forwardingThread = std::thread([] { gateway.value().forwardingLoop(); });
+    iox::gateway::dds::Iceoryx2DDSGateway<> gateway;
+    auto discoveryThread = std::thread([&gateway] { gateway.discoveryLoop(); });
+    auto forwardingThread = std::thread([&gateway] { gateway.forwardingLoop(); });
 
     // Run until SIGINT or SIGTERM
     while (!ShutdownManager::shouldShutdown())
@@ -66,7 +63,7 @@ int main(int argc, char* argv[])
     };
 
     // Shutdown gracefully
-    gateway.value().shutdown();
+    gateway.shutdown();
     discoveryThread.join();
     forwardingThread.join();
 
