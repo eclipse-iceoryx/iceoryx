@@ -36,8 +36,8 @@ struct DummySample
 
 static constexpr size_t MEMORY_SIZE = 1024 * 1024;
 uint8_t m_memory[MEMORY_SIZE];
-static constexpr uint32_t NUM_CHUNKS_IN_POOL = 100;
-static constexpr uint32_t MAGIC_NUMBER_ITERATIONS = 10000;
+static constexpr uint32_t NUM_CHUNKS_IN_POOL = 1000;
+static constexpr uint32_t MAGIC_NUMBER_ITERATIONS = 250;
 static constexpr uint32_t SMALL_CHUNK = 128;
 static constexpr uint32_t BIG_CHUNK = 256;
 static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
@@ -76,9 +76,9 @@ void publish()
             new (sample) DummySample();
             static_cast<DummySample*>(sample)->dummy = i;
             m_chunkSender.send(*maybeChunkHeader);
+            /// Add some jitter to make thread breath
+            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 100));
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        // std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 10));
     }
 }
 
@@ -86,12 +86,12 @@ void forward()
 {
     while (1)
     {
-        /// @todo Add some jitter to make threads breath
-        // std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 10));
         auto maybeSharedChunk = m_popper.pop();
         if (maybeSharedChunk.has_value())
         {
             m_chunkDistributor.deliverToAllStoredQueues(maybeSharedChunk.value());
+            /// Add some jitter to make thread breath
+            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 100));
         }
     }
 }
@@ -102,8 +102,6 @@ void subscribe()
 
     while (true)
     {
-        /// @todo Add some jitter to make threads breath
-        // std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 10));
         auto maybeChunkHeader = m_chunkReceiver.get();
         if (!maybeChunkHeader.has_error() && maybeChunkHeader.get_value().has_value())
         {
@@ -116,6 +114,8 @@ void subscribe()
                 break;
             }
             counter++;
+            /// Add some jitter to make thread breath
+            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 100));
             m_chunkReceiver.release(chunkHeader);
         }
     }
