@@ -92,6 +92,7 @@ TYPED_TEST(LockFreeQueueTest, constructedQueueIsEmpty)
 {
     auto& q = this->queue;
     EXPECT_TRUE(q.empty());
+    EXPECT_EQ(q.size(), 0);
 }
 
 TYPED_TEST(LockFreeQueueTest, pushAndPopSingleElement)
@@ -100,9 +101,12 @@ TYPED_TEST(LockFreeQueueTest, pushAndPopSingleElement)
 
     int data = 42;
     EXPECT_TRUE(q.try_push(data));
+    EXPECT_EQ(q.size(), 1);
+
     auto x = q.pop();
     ASSERT_TRUE(x.has_value());
     EXPECT_EQ(x.value(), 42);
+    EXPECT_EQ(q.size(), 0);
 }
 
 TYPED_TEST(LockFreeQueueTest, popFromEmptyQueueReturnsNothing)
@@ -113,6 +117,7 @@ TYPED_TEST(LockFreeQueueTest, popFromEmptyQueueReturnsNothing)
     q.try_push(data);
     q.pop();
     EXPECT_FALSE(q.pop().has_value());
+    EXPECT_EQ(q.size(), 0);
 }
 
 TYPED_TEST(LockFreeQueueTest, tryPushUntilFullCapacityIsUsed)
@@ -123,9 +128,12 @@ TYPED_TEST(LockFreeQueueTest, tryPushUntilFullCapacityIsUsed)
     int data{0};
     for (uint64_t i = 0; i < capacity; ++i)
     {
+        EXPECT_EQ(q.size(), i);
         EXPECT_TRUE(q.try_push(data));
         data++;
     }
+
+    EXPECT_EQ(q.size(), capacity);
 }
 
 TYPED_TEST(LockFreeQueueTest, tryPushInFullQueueFails)
@@ -146,14 +154,16 @@ TYPED_TEST(LockFreeQueueTest, poppedElementsAreInFifoOrder)
     int value = 73;
     this->fillQueue(value);
 
-    for (uint64_t i = 0; i < capacity; ++i)
+    for (uint64_t i = capacity; i > 0; --i)
     {
+        EXPECT_EQ(q.size(), i);
         auto x = q.pop();
         ASSERT_TRUE(x.has_value());
         EXPECT_EQ(x.value(), value);
         ++value;
     }
     EXPECT_FALSE(q.pop().has_value());
+    EXPECT_EQ(q.size(), 0);
 }
 
 TYPED_TEST(LockFreeQueueTest, pushDoesNotOverflowIfQueueIsNotFull)
@@ -223,6 +233,7 @@ TYPED_TEST(LockFreeQueueTest, checkEmptynessAfterOneElementWasPushedandPopped)
     auto x = q.pop();
 
     EXPECT_TRUE(q.empty());
+    EXPECT_EQ(q.size(), 0);
 }
 
 TYPED_TEST(LockFreeQueueTest, checkEmptynessAfterFullQueueWasEmptied)
@@ -239,6 +250,7 @@ TYPED_TEST(LockFreeQueueTest, checkEmptynessAfterFullQueueWasEmptied)
     }
 
     EXPECT_TRUE(q.empty());
+    EXPECT_EQ(q.size(), 0);
 }
 
 } // namespace

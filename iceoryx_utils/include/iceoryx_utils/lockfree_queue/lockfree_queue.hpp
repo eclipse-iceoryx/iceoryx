@@ -45,6 +45,8 @@ class LockFreeQueue
     /// threadsafe, lockfree
     constexpr uint64_t capacity() noexcept;
 
+    // TODO: value interface to support move
+
     /// @brief tries to insert value in FIFO order
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// threadsafe, lockfree
@@ -68,6 +70,12 @@ class LockFreeQueue
     ///  (but it was at some point during the call)
     bool empty();
 
+    /// @brief get the number of stored elements in the queue
+    /// @return number of stored elements in the queue
+    /// note that this will not be perfectly in sync with the actual number of contained elements
+    /// during concurrent operation but will always be at most capacity
+    uint64_t size();
+
   private:
     using Queue = IndexQueue<Capacity, uint64_t>;
     using UniqueIndex = typename Queue::UniqueIndex;
@@ -83,8 +91,10 @@ class LockFreeQueue
 
     Buffer<T, Capacity, BufferIndex> m_buffer;
 
+    std::atomic<uint64_t> m_size{0};
+
     // note that we now perform the memory synchronization not using the index queue anymore but
-    // with those methods (using fences internally)
+    // with those methods
     // this has the advantage of limiting unneccessary synchroization (e.g. due to CAS failure)
     // and keeps the responsibility inside the LockFreeQueue itself (which contains the buffer)
 
