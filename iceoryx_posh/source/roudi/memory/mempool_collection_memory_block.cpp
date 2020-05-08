@@ -36,7 +36,8 @@ MemPoolCollectionMemoryBlock::~MemPoolCollectionMemoryBlock() noexcept
 
 uint64_t MemPoolCollectionMemoryBlock::size() const noexcept
 {
-    return cxx::align(sizeof(mepoo::MemoryManager), mepoo::MemPool::MEMORY_ALIGNMENT)
+    return cxx::align(sizeof(mepoo::MemoryManager),
+        static_cast<unsigned int>(mepoo::MemPool::MEMORY_ALIGNMENT))
            + mepoo::MemoryManager::requiredFullMemorySize(m_memPoolConfig);
 }
 
@@ -44,7 +45,8 @@ uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
 {
     // algorithm::align doesn't like constexpr values
     auto memPoolAlignment = mepoo::MemPool::MEMORY_ALIGNMENT;
-    return algorithm::max(alignof(mepoo::MemoryManager), memPoolAlignment);
+    return algorithm::max(alignof(mepoo::MemoryManager),
+        static_cast<unsigned int>(memPoolAlignment));
 }
 
 void MemPoolCollectionMemoryBlock::memoryAvailable(void* memory) noexcept
