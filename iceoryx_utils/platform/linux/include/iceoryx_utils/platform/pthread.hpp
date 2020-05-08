@@ -15,3 +15,6 @@
 #pragma once
 
 #include <pthread.h>
+
+#define PTHREAD_MUTEX_RECURSIVE_NP 1
+#define PTHREAD_MUTEX_FAST_NP 2
