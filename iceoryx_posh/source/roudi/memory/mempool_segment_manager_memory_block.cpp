@@ -32,13 +32,15 @@ MemPoolSegmentManagerMemoryBlock::~MemPoolSegmentManagerMemoryBlock() noexcept
 
 uint64_t MemPoolSegmentManagerMemoryBlock::size() const noexcept
 {
-    return cxx::align(sizeof(mepoo::SegmentManager<>), SHARED_MEMORY_ALIGNMENT)
+    return cxx::align(sizeof(mepoo::SegmentManager<>),
+        static_cast<unsigned int>(SHARED_MEMORY_ALIGNMENT))
            + mepoo::SegmentManager<>::requiredManagementMemorySize(m_segmentConfig);
 }
 
 uint64_t MemPoolSegmentManagerMemoryBlock::alignment() const noexcept
 {
-    return algorithm::max(alignof(mepoo::SegmentManager<>), SHARED_MEMORY_ALIGNMENT);
+    return algorithm::max(alignof(mepoo::SegmentManager<>),
+        static_cast<unsigned int>(SHARED_MEMORY_ALIGNMENT));
 }
 
 void MemPoolSegmentManagerMemoryBlock::memoryAvailable(void* memory) noexcept
