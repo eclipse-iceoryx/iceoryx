@@ -82,8 +82,6 @@ constexpr uint32_t MAX_PROCESS_NUMBER = 300u;
 /// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
 /// instances)
 constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50u;
-/// Maximum number of callbacks that can be registered with PoshRuntime::startFindService
-constexpr uint32_t MAX_START_FIND_SERVICE_CALLBACKS = 50u;
 
 // Runnables
 constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000u;
@@ -119,4 +117,3 @@ using FindServiceHandler = std::function<void(InstanceContainer&, FindServiceHan
 } // namespace runtime
 
 } // namespace iox
-
