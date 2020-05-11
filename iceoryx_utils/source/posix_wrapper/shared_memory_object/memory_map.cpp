@@ -57,18 +57,18 @@ MemoryMap::MemoryMap(const void* f_baseAddressHint,
         l_memoryProtection = PROT_READ | PROT_WRITE;
         break;
     }
-    auto mmapCall = cxx::makeSmartC(static_cast<void* (*)(void*, size_t, int, int, int, off_t)>(mmap),
+    auto mmapCall = cxx::makeSmartC(static_cast<void* (*)(void*, size_t, int, int, int, off_t)>(mmap), // PRQA S 3066
                                     cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                     // we have to perform reinterpret cast since mmap returns MAP_FAILED on error which
                                     // is defined as (void*) -1; see man mmap for that definition
                                     {reinterpret_cast<void*>(MAP_FAILED)},
                                     {},
-                                    const_cast<void*>(f_baseAddressHint),
+                                    const_cast<void*>(f_baseAddressHint), 
                                     f_length,
                                     l_memoryProtection,
                                     f_flags,
                                     f_fileDescriptor,
-                                    f_offset);
+                                    f_offset); 
 
     if (mmapCall.hasErrors())
     {
