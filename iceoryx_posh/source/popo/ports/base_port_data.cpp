@@ -10,23 +10,27 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.
+// limitations under the License
 
-#pragma once
-
-#include "iceoryx_posh/internal/popo/base_port_data.hpp"
-
-#include "iceoryx_utils/internal/concurrent/fifo.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 
 namespace iox
 {
 namespace popo
 {
-struct ApplicationPortData : public BasePortData
+BasePortData::BasePortData() noexcept
+    : m_uniqueId(s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed))
 {
-    ApplicationPortData() = default;
-    ApplicationPortData(const std::string& f_applicationName);
-    concurrent::FiFo<capro::CaproMessage, MAX_APPLICATION_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
-};
+}
+
+BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
+                           const BasePortType& portType,
+                           const cxx::CString100& processName) noexcept
+    : m_portType(portType)
+    , m_serviceDescription(serviceDescription)
+    , m_processName(processName)
+    , m_uniqueId(s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed))
+{
+}
 } // namespace popo
 } // namespace iox

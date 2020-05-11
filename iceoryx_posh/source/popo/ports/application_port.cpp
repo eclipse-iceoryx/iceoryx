@@ -12,29 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/interface_port.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 
 namespace iox
 {
 namespace popo
 {
-InterfacePort::InterfacePort(InterfacePortData* const f_member)
-    : BasePort(f_member)
+ApplicationPort::ApplicationPort(ApplicationPortData* const f_memberPtr)
+    : BasePort(f_memberPtr)
 {
 }
 
-bool InterfacePort::dispatchCaProMessage(const capro::CaproMessage& f_message)
+bool ApplicationPort::dispatchCaProMessage(const capro::CaproMessage& f_message)
 {
-    bool returner = getMembers()->m_caproMessageFiFo.push(f_message);
-    if (!returner)
-    {
-        errorHandler(Error::kPOSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, nullptr, iox::ErrorLevel::SEVERE);
-    }
-    return returner;
+    return getMembers()->m_caproMessageFiFo.push(f_message);
 }
 
-bool InterfacePort::getCaProMessage(capro::CaproMessage& f_message)
+bool ApplicationPort::getCaProMessage(capro::CaproMessage& f_message)
 {
     auto msg = getMembers()->m_caproMessageFiFo.pop();
     if (msg.has_value())
@@ -45,16 +39,15 @@ bool InterfacePort::getCaProMessage(capro::CaproMessage& f_message)
     return false;
 }
 
-const InterfacePortData* InterfacePort::getMembers() const
+const typename ApplicationPort::MemberType_t* ApplicationPort::getMembers() const
 {
-    return reinterpret_cast<const InterfacePortData*>(BasePort::getMembers());
+    return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
 }
 
-InterfacePortData* InterfacePort::getMembers()
+typename ApplicationPort::MemberType_t* ApplicationPort::getMembers()
 {
-    return reinterpret_cast<InterfacePortData*>(BasePort::getMembers());
+    return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
-
 
 } // namespace popo
 } // namespace iox
