@@ -39,12 +39,19 @@ enum class BasePortType : uint8_t
     RECEIVER_PORT,
     INTERFACE_PORT,
     APPLICATION_PORT,
+    PUBLISHER_PORT,
+    SUBSCRIBER_PORT,
     PORT_TYPE_END,
 };
 
 constexpr int32_t MAX_PORT_TYPE_STRING_SIZE = 64;
-constexpr char BasePortTypeString[][MAX_PORT_TYPE_STRING_SIZE] = {
-    "NO_PORT", "SENDER_PORT", "RECEIVER_PORT", "INTERFACE_PORT", "APPLICATION_PORT"};
+constexpr char BasePortTypeString[][MAX_PORT_TYPE_STRING_SIZE] = {"NO_PORT",
+                                                                  "SENDER_PORT",
+                                                                  "RECEIVER_PORT",
+                                                                  "INTERFACE_PORT",
+                                                                  "APPLICATION_PORT",
+                                                                  "PUBLISHER_PORT",
+                                                                  "SUBSCRIBER_PORT"};
 
 /// @brief Defines different base port data
 struct BasePortData
