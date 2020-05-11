@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "iceoryx_posh/internal/popo/base_port.hpp"
-#include "iceoryx_posh/internal/popo/application_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/application_port_data.hpp"
 
 namespace iox
 {

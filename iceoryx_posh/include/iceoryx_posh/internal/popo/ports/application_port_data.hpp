@@ -12,19 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/interface_port_data.hpp"
+#pragma once
+
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
+
+#include "iceoryx_utils/internal/concurrent/fifo.hpp"
 
 namespace iox
 {
 namespace popo
 {
-InterfacePortData::InterfacePortData(const std::string& applicationName,
-                                     const capro::Interfaces interface) noexcept
-    : BasePortData(capro::ServiceDescription(
-                       capro::InvalidIDString, capro::InvalidIDString, capro::InvalidIDString, {0, 0, 0, 0}, interface),
-                   BasePortType::INTERFACE_PORT,
-                   iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
+struct ApplicationPortData : public BasePortData
 {
-}
+    ApplicationPortData() = default;
+    ApplicationPortData(const std::string& f_applicationName);
+    concurrent::FiFo<capro::CaproMessage, MAX_APPLICATION_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
+};
 } // namespace popo
 } // namespace iox

@@ -15,7 +15,7 @@
 #pragma once
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/base_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 
 namespace iox
 {
@@ -90,4 +90,4 @@ class BasePort
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/base_port.inl"
+#include "iceoryx_posh/internal/popo/ports/base_port.inl"

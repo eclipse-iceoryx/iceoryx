@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/application_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/application_port_data.hpp"
 
 namespace iox
 {

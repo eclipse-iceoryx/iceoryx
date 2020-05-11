@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/base_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_utils/internal/concurrent/fifo.hpp"
 
 namespace iox
