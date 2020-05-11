@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_POPO_INTERFACE_PORT_DATA_HPP_
+#define IOX_POPO_INTERFACE_PORT_DATA_HPP_
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -33,3 +34,5 @@ struct InterfacePortData : public BasePortData
 };
 } // namespace popo
 } // namespace iox
+
+#endif

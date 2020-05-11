@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_POPO_APPLICATION_PORT_HPP_
+#define IOX_POPO_APPLICATION_PORT_HPP_
 
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port_data.hpp"
@@ -44,4 +45,4 @@ class ApplicationPort : public BasePort
 } // namespace popo
 } // namespace iox
 
-
+#endif
