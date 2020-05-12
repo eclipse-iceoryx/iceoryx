@@ -45,7 +45,7 @@ static constexpr uint32_t SUBSCRIBER_CACHE_SIZE = 128;
 ///
 /// @brief A Gateway to support internode communication between iceoryx nodes in a DDS network.
 ///
-/// Forwards data published in a local iceoryx system to an attached DDS network.
+/// Forwards data published in a local posh runtime to an attached DDS network.
 ///
 template <typename gateway_t = iox::popo::GatewayGeneric,
           typename subscriber_t = iox::popo::Subscriber,
@@ -74,9 +74,10 @@ class Iceoryx2DDSGateway : gateway_t
     /// @brief Starts the discovery loop.
     ///
     /// Periodically check for and process capro messages received
-    /// via its interface port, specifically watching for changes related to SenderPorts.
-    /// When SenderPorts are added to or removed from the system, the gateway will set up the
-    /// required infrastructure to forward the data to the DDS network.
+    /// via the GenericGateway.
+    /// When new publishers are offered in the system, the required DDS components for
+    /// data fotwarding are initialized. Converseley, when publishers stop offering, these
+    /// components are destroyed.
     ///
     /// A dedicated thread is recommended for this loop.
     ///
@@ -91,14 +92,13 @@ class Iceoryx2DDSGateway : gateway_t
     ///
     /// @brief Starts the data forwarding loop.
     ///
-    /// Forwards all data received via ReceiverPorts to the DDS network.
+    /// Periodically processes data publsihed by local posh publishers to the DDS network.
     /// A dedicated thread is recommended for this loop.
     ///
     void forwardingLoop() noexcept;
 
     ///
-    /// @brief forward Forwards all new data points available on the gateways receiver
-    /// ports to the DDS network.
+    /// @brief forward Forwarding logic..
     ///
     void forward() noexcept;
 
@@ -120,18 +120,23 @@ class Iceoryx2DDSGateway : gateway_t
 
     ChannelFactory m_channelFactory;
 
+    // This mutex is required for synchronized access to the channels list.
     std::mutex m_channelAccessMutex;
     iox::cxx::vector<Channel<subscriber_t, data_writer_t>, MAX_CHANNEL_NUMBER> m_channels;
 
     ///
-    /// @brief setupChannelUnsafe Creates a new channel for the given service without any synchronization.
+    /// @brief setupChannelUnsafe Creates a new channel for a service. Unsafe as there are is no synchronization checks.
+    /// The caller is responsible for handling possible race conditions.
+    ///
     /// @param service The service for which a channel will be established.
     /// @return Channel object with subscriber and data writer for the given service.
     ///
     Channel<subscriber_t, data_writer_t> setupChannelUnsafe(const iox::capro::ServiceDescription& service);
 
     ///
-    /// @brief takeDownChannelUnsafe Discards the channel for the given service without any synchonization.
+    /// @brief takeDownChannelUnsafe Discards the channel for the given service. Unsafe as there are is no
+    /// synchronization checks. The caller is responsible for handling possible race consitions.
+    ///
     /// @param service The service for which a channel will be discarded.
     ///
     void takeDownChannelUnsafe(const iox::capro::ServiceDescription& service);

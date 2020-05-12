@@ -1,3 +1,17 @@
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #pragma once
 
 #include <cstdint>
@@ -18,9 +32,13 @@ namespace dds
 
 static constexpr uint32_t MAX_CHANNEL_NUMBER = MAX_PORT_NUMBER;
 
-
 ///
-/// @brief Groups and manages resources that make up a posh->dds channel
+/// @brief This data structure couples the subscriber and data writer components required to form a channel between
+/// the POSH and DDS worlds.
+/// The structure holds pointers to the related component instances. These instances can either be managed externally
+/// or by the class itself.
+/// Managed instances are placed in static ObjectPools which are fixed size according to
+/// MAX_CHANNEL_NUMBER and are automatically cleaned up when all references to them are discarded.
 ///
 template <typename subscriber_t = iox::popo::Subscriber,
           typename data_writer_t = iox::dds::data_writer_t>
@@ -33,15 +51,18 @@ public:
     using DataWriterPool = iox::cxx::ObjectPool<data_writer_t, MAX_CHANNEL_NUMBER>;
 
     ///
-    /// @brief Channel Constructs an object with unmanaged resources.
+    /// @brief Channel Constructs a channel object with components that are externally managed.
+    ///
     /// @param service The service that the channel is connecting.
-    /// @param subscriber An externally managed subscriber endpoint.
-    /// @param dataWriter An externally managed data writer endpoint.
+    /// @param subscriber An externally managed subscriber component.
+    /// @param dataWriter An externally managed data writer component.
     ///
     Channel(const iox::capro::ServiceDescription& service, SubscriberPtr subscriber, DataWriterPtr dataWriter);
 
     ///
-    /// @brief create Creates a channel with internally managed resources.
+    /// @brief create Creates a channel whose components are instantiated in static object pools that will be
+    /// automatically freed when all references are discarded.
+    ///
     /// @param service The service that the channel is connecting.
     /// @return Channel A channel with internally managed endpoints.
     ///

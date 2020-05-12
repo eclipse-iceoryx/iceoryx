@@ -24,6 +24,10 @@ namespace dds
 {
 using IdString = iox::cxx::string<100>;
 
+///
+/// @brief Interface for DDS Data Writers.
+/// The interface provides the minimum functionality required for posh-dds gateway implementations.
+///
 template <typename Impl>
 class DataWriter
 {
