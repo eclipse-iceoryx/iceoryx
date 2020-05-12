@@ -33,6 +33,11 @@ class Buffer
         return toPtr(index);
     }
 
+    uint64_t capacity()
+    {
+        return Capacity;
+    }
+
   private:
     using byte_t = uint8_t;
 
@@ -41,8 +46,6 @@ class Buffer
     T* toPtr(index_t index) const noexcept
     {
         auto ptr = &(m_buffer[index * sizeof(T)]);
-
-        // todo: eliminate const cast when possible
         return reinterpret_cast<T*>(const_cast<byte_t*>(ptr));
     }
 };

@@ -56,8 +56,6 @@ TEST(LockFreeQueueTest, capacityIsConsistent)
 }
 
 typedef ::testing::Types<IndexQueue<1>, IndexQueue<10>, IndexQueue<1000>> TestQueues;
-// typedef ::testing::Types<IndexQueue<10>> TestQueues;
-
 
 TYPED_TEST_CASE(IndexQueueTest, TestQueues);
 
