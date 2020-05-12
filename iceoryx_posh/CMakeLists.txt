@@ -72,6 +72,7 @@ add_library(iceoryx_posh
     source/popo/ports/application_port_data.cpp
     source/popo/ports/base_port_data.cpp
     source/popo/ports/base_port.cpp
+    source/popo/ports/publisher_port_user.cpp
     source/popo/building_blocks/chunk_queue_pusher.cpp
     source/popo/building_blocks/chunk_queue_popper.cpp    
     source/popo/building_blocks/chunk_receiver.cpp      

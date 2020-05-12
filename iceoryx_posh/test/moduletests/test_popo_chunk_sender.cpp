@@ -126,7 +126,7 @@ TEST_F(ChunkSender_test, allocate_Overflow)
     // Allocate one more sample for overflow
     auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample));
     EXPECT_TRUE(maybeChunkHeader.has_error());
-    EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::ChunkSenderError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL));
+    EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL));
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
 }
 
@@ -357,7 +357,7 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 
     auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample));
     EXPECT_TRUE(maybeChunkHeader.has_error());
-    EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::ChunkSenderError::RUNNING_OUT_OF_CHUNKS));
+    EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS));
 }
 
 TEST_F(ChunkSender_test, sendInvalidChunk)
