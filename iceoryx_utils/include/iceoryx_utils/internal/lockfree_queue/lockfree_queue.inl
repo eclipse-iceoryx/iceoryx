@@ -41,7 +41,7 @@ bool LockFreeQueue<ElementType, Capacity>::try_push(const ElementType value) noe
     }
 
     auto ptr = m_buffer.ptr(index);
-    new (ptr) ElementType(value);
+    new (ptr) ElementType(std::move(value));
 
     // ensures that whenever an index is pushed into m_usedIndices, the corresponding value in m_buffer[index]
     // was written before
@@ -78,7 +78,7 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const
     // if we removed from a full queue via popIfFull it might not be full anymore when a concurrent pop occurs
 
     auto ptr = m_buffer.ptr(index);
-    new (ptr) ElementType(value);
+    new (ptr) ElementType(std::move(value));
 
     // ensures that whenever an index is pushed into m_usedIndices, the corresponding value in m_buffer[index]
     // was written before

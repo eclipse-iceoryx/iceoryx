@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if 0
 #include "test.hpp"
 
 #include "iceoryx_utils/internal/lockfree_queue/index_queue.hpp"
@@ -47,6 +46,7 @@ class IndexQueueTest : public ::testing::Test
     }
 
     Queue queue;
+    Queue fullQueue{Queue::ConstructFull};
 };
 
 TEST(LockFreeQueueTest, capacityIsConsistent)
@@ -77,12 +77,13 @@ TYPED_TEST(IndexQueueTest, constructedQueueIsEmpty)
     EXPECT_TRUE(q.empty());
 }
 
+
 TYPED_TEST(IndexQueueTest, queueIsNotEmptyAfterPush)
 {
     using index_t = typename TestFixture::index_t;
     auto& q = this->queue;
+    auto index = this->fullQueue.pop();
 
-    index_t index{0};
     q.push(index);
     EXPECT_FALSE(q.empty());
 }
@@ -92,10 +93,11 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyAgainAfterPushFollowedByPop)
     using index_t = typename TestFixture::index_t;
     auto& q = this->queue;
 
-    index_t index{0};
+    auto index = this->fullQueue.pop();
+
     q.push(index);
     EXPECT_FALSE(q.empty());
-    q.pop(index);
+    q.pop();
     EXPECT_TRUE(q.empty());
 }
 
@@ -104,26 +106,24 @@ TYPED_TEST(IndexQueueTest, IndicesAreIncreasingWhenConstructedFull)
     using Queue = typename TestFixture::Queue;
     using index_t = typename TestFixture::index_t;
 
-    Queue q(Queue::ConstructFull);
+    Queue& q = this->fullQueue;
     EXPECT_FALSE(q.empty());
 
-    index_t index;
     index_t expected{0};
-
-    while (q.pop(index))
+    auto index = q.pop();
+    while (index.is_valid())
     {
         EXPECT_EQ(index, expected++);
+        index = q.pop();
     }
-    EXPECT_EQ(expected, q.capacity());
 }
+
 
 TYPED_TEST(IndexQueueTest, queueIsNotEmptyWhenConstructedFull)
 {
     using Queue = typename TestFixture::Queue;
-    using index_t = typename TestFixture::index_t;
 
-    Queue q(Queue::ConstructFull);
-    EXPECT_FALSE(q.empty());
+    Queue& q = this->fullQueue;
 
     EXPECT_FALSE(q.empty());
 }
@@ -131,14 +131,15 @@ TYPED_TEST(IndexQueueTest, queueIsNotEmptyWhenConstructedFull)
 TYPED_TEST(IndexQueueTest, queueIsEmptyWhenPopFails)
 {
     using Queue = typename TestFixture::Queue;
-    using index_t = typename TestFixture::index_t;
 
-    Queue q(Queue::ConstructFull);
+    Queue& q = this->fullQueue;
+
     EXPECT_FALSE(q.empty());
 
-    index_t index;
-    while (q.pop(index))
+    auto index = q.pop();
+    while (index.is_valid())
     {
+        index = q.pop();
     }
 
     EXPECT_TRUE(q.empty());
@@ -147,15 +148,13 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyWhenPopFails)
 TYPED_TEST(IndexQueueTest, pushAndPopSingleElement)
 {
     auto& q = this->queue;
-    using index_t = typename TestFixture::index_t;
+    auto index = this->fullQueue.pop();
 
-    index_t maxIndex{q.capacity() - 1};
-    index_t index{maxIndex};
     q.push(index);
+    auto popped = q.pop();
 
-    index = 0;
-    EXPECT_TRUE(q.pop(index));
-    EXPECT_EQ(index, maxIndex);
+    EXPECT_TRUE(popped.is_valid());
+    EXPECT_EQ(popped, index);
 }
 
 TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
@@ -164,68 +163,56 @@ TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
     using index_t = typename TestFixture::index_t;
 
     auto capacity = q.capacity();
-    index_t maxIndex{capacity - 1};
-    index_t index{maxIndex};
+    index_t expected{0};
 
     for (uint64_t i = 0; i < capacity; ++i)
     {
-        q.push(index--);
+        auto index = this->fullQueue.pop();
+        EXPECT_EQ(index, expected++);
+        q.push(index);
     }
 
-    index_t expected{maxIndex};
+    expected = 0;
     for (uint64_t i = 0; i < capacity; ++i)
     {
-        ASSERT_TRUE(q.pop(index));
-        EXPECT_EQ(index, expected);
-        --expected;
+        auto popped = q.pop();
+        ASSERT_TRUE(popped.is_valid());
+        EXPECT_EQ(popped, expected++);
     }
-    EXPECT_FALSE(q.pop(index));
 }
 
 TYPED_TEST(IndexQueueTest, popReturnsNothingWhenQueueIsEmpty)
 {
     auto& q = this->queue;
-    using index_t = typename TestFixture::index_t;
-    index_t index;
-
-    EXPECT_FALSE(q.pop(index));
+    EXPECT_FALSE(q.pop().is_valid());
 }
+
 
 TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsEmpty)
 {
     auto& q = this->queue;
-    using index_t = typename TestFixture::index_t;
-    index_t index;
-
-    EXPECT_FALSE(q.popIfFull(index));
+    EXPECT_FALSE(q.popIfFull().is_valid());
 }
+
 
 TYPED_TEST(IndexQueueTest, popIfFullReturnsOldestElementWhenQueueIsFull)
 {
     using Queue = typename TestFixture::Queue;
-    using index_t = typename TestFixture::index_t;
+    Queue& q = this->fullQueue;
 
-    Queue q(Queue::ConstructFull);
-
-    index_t index{73};
-
-    EXPECT_TRUE(q.popIfFull(index));
+    auto index = q.popIfFull();
+    EXPECT_TRUE(index.is_valid());
     EXPECT_EQ(index, 0);
 }
 
 TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsNotFull)
 {
     using Queue = typename TestFixture::Queue;
-    using index_t = typename TestFixture::index_t;
+    Queue& q = this->fullQueue;
 
-    Queue q(Queue::ConstructFull);
-
-    index_t index;
-    EXPECT_TRUE(q.pop(index));
-
-    EXPECT_FALSE(q.popIfFull(index));
+    auto index = q.pop();
+    EXPECT_TRUE(index.is_valid());
+    EXPECT_FALSE(q.popIfFull().is_valid());
 }
 
-} // namespace
-
-#endif
+}
