@@ -53,9 +53,9 @@ void IndexQueue<Capacity, ValueType>::push(ValueType index)
     {
         auto oldValue = loadValueAt(writePosition);
 
-        auto isFreeToPublish = [&]() { return oldValue.isOneCycleBehind(writePosition); };
+        auto cellIsFree = oldValue.isOneCycleBehind(writePosition);
 
-        if (isFreeToPublish())
+        if (cellIsFree)
         {
             // case (1)
             Index newValue(index, writePosition.getCycle());
@@ -69,9 +69,9 @@ void IndexQueue<Capacity, ValueType>::push(ValueType index)
 
         // even if we are not able to publish, we check whether some other push has already updated the writePosition
         // before trying again to publish
-        auto writePositionWasNotUpdated = [&]() { return oldValue.getCycle() == writePosition.getCycle(); };
+        auto writePositionRequiresUpdate = oldValue.getCycle() == writePosition.getCycle();
 
-        if (writePositionWasNotUpdated())
+        if (writePositionRequiresUpdate)
         {
             // case (2)
             // the writePosition was not updated yet by another push but the value was already written
@@ -82,7 +82,7 @@ void IndexQueue<Capacity, ValueType>::push(ValueType index)
         {
             // case (3) and (4)
             // note: we do not call updateNextWritePosition here, the CAS is bound to fail anyway
-            // (our value of writePosition is not up to date so needs to be loaded again)
+            // (since our value of writePosition is not up to date so needs to be loaded again)
             writePosition = loadNextWritePosition();
         }
 
@@ -119,35 +119,33 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index)
         value = loadValueAt(readPosition);
 
         // we only dequeue if value and readPosition are in the same cycle
-        auto isValidToRead = [&]() { return readPosition.getCycle() == value.getCycle(); };
-        // readPosition is ahead by one cycle, queue was empty at loadValueAt(..)
-        auto isEmpty = [&]() { return value.isOneCycleBehind(readPosition); };
+        auto cellIsValidToRead = readPosition.getCycle() == value.getCycle();
 
-        if (isValidToRead())
+        if (cellIsValidToRead)
         {
             // case (1)
             if (tryToGainOwnershipAt(readPosition))
             {
                 break; // pop successful
             }
-            else
-            {
-                // retry, readPosition was already updated via CAS in tryToGainOwnershipAt
-                // todo: maybe refactor to eliminate the continue but still skip the reload of
-                // readPosition
-                continue;
-            }
+            // retry, readPosition was already updated via CAS in tryToGainOwnershipAt
         }
-        else if (isEmpty())
+        else
         {
-            // case (2)
-            return false;
+            // readPosition is ahead by one cycle, queue was empty at loadValueAt(..)
+            auto isEmpty = value.isOneCycleBehind(readPosition);
+
+            if (isEmpty)
+            {
+                // case (2)
+                return false;
+            }
+
+            // case (3) and (4) requires loading readPosition again
+            readPosition = loadNextReadPosition();
         }
-        // else readPosition is outdated, retry operation
 
-        // case (3) and (4)
-
-        readPosition = loadNextReadPosition();
+        // readPosition is outdated, retry operation
 
     } while (!ownerShipGained); // we leave if we gain ownership of readPosition
 
@@ -172,18 +170,18 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index)
     auto readPosition = loadNextReadPosition();
     auto value = loadValueAt(readPosition);
 
-    auto isFull = [&]() {
-        return writePosition.getIndex() == readPosition.getIndex() && readPosition.isOneCycleBehind(writePosition);
-    };
+    auto isFull = writePosition.getIndex() == readPosition.getIndex() && readPosition.isOneCycleBehind(writePosition);
 
-    if (isFull())
+    if (isFull)
     {
         if (tryToGainOwnershipAt(readPosition))
         {
             index = value.getIndex();
             return true;
         }
-    } // else someone else has popped an index
+    }
+
+    // otherwise someone else has dequeued an index and the queue was not full at the start of this popIfFull
     return false;
 }
 
@@ -233,12 +231,6 @@ void IndexQueue<Capacity, ValueType>::updateNextWritePosition(Index& writePositi
     Index newWritePosition(writePosition + 1);
     auto updateSucceeded = m_writePosition.compare_exchange_strong(
         writePosition, newWritePosition, std::memory_order_relaxed, std::memory_order_relaxed);
-
-    // not needed in the successful case, we do not retry
-    // if (updateSucceeded)
-    // {
-    //     writePosition = newWritePosition;
-    // }
 }
 
 template <uint64_t Capacity, typename ValueType>
