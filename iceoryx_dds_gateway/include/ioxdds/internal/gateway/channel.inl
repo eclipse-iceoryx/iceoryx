@@ -20,58 +20,59 @@ namespace gateway
 {
 namespace dds
 {
-
 // Typedefs
-template<typename subscriber_t>
+template <typename subscriber_t>
 using SubscriberPool = iox::cxx::ObjectPool<subscriber_t, MAX_CHANNEL_NUMBER>;
-template<typename data_writer_t>
+template <typename data_writer_t>
 using DataWriterPool = iox::cxx::ObjectPool<data_writer_t, MAX_CHANNEL_NUMBER>;
 
 // Statics
-template<typename subscriber_t, typename data_writer_t>
+template <typename subscriber_t, typename data_writer_t>
 SubscriberPool<subscriber_t> Channel<subscriber_t, data_writer_t>::s_subscriberPool = SubscriberPool();
-template<typename subscriber_t, typename data_writer_t>
+template <typename subscriber_t, typename data_writer_t>
 DataWriterPool<data_writer_t> Channel<subscriber_t, data_writer_t>::s_dataWriterPool = DataWriterPool();
 
-template<typename subscriber_t, typename data_writer_t>
-inline Channel<subscriber_t, data_writer_t>::Channel(const iox::capro::ServiceDescription& service, SubscriberPtr subscriber, DataWriterPtr dataWriter)
+template <typename subscriber_t, typename data_writer_t>
+inline Channel<subscriber_t, data_writer_t>::Channel(const iox::capro::ServiceDescription& service,
+                                                     SubscriberPtr subscriber,
+                                                     DataWriterPtr dataWriter)
 {
     this->service = service;
     this->subscriber = subscriber;
     this->dataWriter = dataWriter;
 }
 
-template<typename subscriber_t, typename data_writer_t>
-inline Channel<subscriber_t, data_writer_t> Channel<subscriber_t, data_writer_t>::create(const iox::capro::ServiceDescription& service)
+template <typename subscriber_t, typename data_writer_t>
+inline Channel<subscriber_t, data_writer_t>
+Channel<subscriber_t, data_writer_t>::create(const iox::capro::ServiceDescription& service)
 {
     // Create objects in the pool.
-    auto rawSubscriberPtr = s_subscriberPool.create(
-                    std::forward<const iox::capro::ServiceDescription>(service));
-    auto rawDataWriterPtr = s_dataWriterPool.create(
-                    std::forward<const iox::dds::IdString>(service.getServiceIDString()),
-                    std::forward<const iox::dds::IdString>(service.getInstanceIDString()),
-                    std::forward<const iox::dds::IdString>(service.getEventIDString()));
+    auto rawSubscriberPtr = s_subscriberPool.create(std::forward<const iox::capro::ServiceDescription>(service));
+    auto rawDataWriterPtr =
+        s_dataWriterPool.create(std::forward<const iox::dds::IdString>(service.getServiceIDString()),
+                                std::forward<const iox::dds::IdString>(service.getInstanceIDString()),
+                                std::forward<const iox::dds::IdString>(service.getEventIDString()));
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
-    auto subscriberPtr = SubscriberPtr(rawSubscriberPtr, [](subscriber_t* p) -> void {s_subscriberPool.free(p);});
-    auto dataWriterPtr = DataWriterPtr(rawDataWriterPtr, [](data_writer_t* p) -> void {s_dataWriterPool.free(p);});
+    auto subscriberPtr = SubscriberPtr(rawSubscriberPtr, [](subscriber_t* p) -> void { s_subscriberPool.free(p); });
+    auto dataWriterPtr = DataWriterPtr(rawDataWriterPtr, [](data_writer_t* p) -> void { s_dataWriterPool.free(p); });
 
     return Channel(service, subscriberPtr, dataWriterPtr);
 }
 
-template<typename subscriber_t, typename data_writer_t>
+template <typename subscriber_t, typename data_writer_t>
 inline iox::capro::ServiceDescription Channel<subscriber_t, data_writer_t>::getService()
 {
     return this->service;
 }
 
-template<typename subscriber_t, typename data_writer_t>
+template <typename subscriber_t, typename data_writer_t>
 inline std::shared_ptr<subscriber_t> Channel<subscriber_t, data_writer_t>::getSubscriber()
 {
     return this->subscriber;
 }
 
-template<typename subscriber_t, typename data_writer_t>
+template <typename subscriber_t, typename data_writer_t>
 inline std::shared_ptr<data_writer_t> Channel<subscriber_t, data_writer_t>::getDataWriter()
 {
     return this->dataWriter;

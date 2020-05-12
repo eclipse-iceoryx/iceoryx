@@ -15,9 +15,9 @@
 #pragma once
 
 #include <atomic>
+#include <chrono>
 #include <functional>
 #include <memory>
-#include <chrono>
 
 #include <iceoryx_posh/iceoryx_posh_types.hpp>
 #include <iceoryx_posh/popo/gateway_generic.hpp>
@@ -36,7 +36,6 @@ namespace gateway
 {
 namespace dds
 {
-
 // Configuration Parameters
 static constexpr uint32_t DISCOVERY_PERIOD_MS = 1000;
 static constexpr uint32_t FORWARDING_PERIOD_MS = 50;
@@ -52,11 +51,9 @@ template <typename gateway_t = iox::popo::GatewayGeneric,
           typename data_writer_t = iox::dds::data_writer_t>
 class Iceoryx2DDSGateway : gateway_t
 {
-
     using ChannelFactory = std::function<Channel<subscriber_t, data_writer_t>(const iox::capro::ServiceDescription)>;
 
   public:
-
     Iceoryx2DDSGateway();
     ~Iceoryx2DDSGateway();
 
@@ -114,7 +111,6 @@ class Iceoryx2DDSGateway : gateway_t
     void shutdown() noexcept;
 
   private:
-
     std::atomic_bool m_runForwardingLoop{false};
     std::atomic_bool m_runDiscoveryLoop{false};
 
@@ -140,7 +136,6 @@ class Iceoryx2DDSGateway : gateway_t
     /// @param service The service for which a channel will be discarded.
     ///
     void takeDownChannelUnsafe(const iox::capro::ServiceDescription& service);
-
 };
 
 } // dds

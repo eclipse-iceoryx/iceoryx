@@ -23,7 +23,6 @@ namespace iox
 {
 namespace dds
 {
-
 ///
 /// @brief Implementation of the DataWriter interface using the cyclonedds implementation.
 ///

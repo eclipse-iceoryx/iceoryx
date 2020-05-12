@@ -14,10 +14,10 @@
 
 #include <atomic>
 
-#include <ioxdds/gateway/iox2dds.hpp>
+#include <iceoryx_posh/runtime/posh_runtime.hpp>
 #include <iceoryx_utils/cxx/helplets.hpp>
 #include <iceoryx_utils/cxx/optional.hpp>
-#include <iceoryx_posh/runtime/posh_runtime.hpp>
+#include <ioxdds/gateway/iox2dds.hpp>
 
 class ShutdownManager
 {

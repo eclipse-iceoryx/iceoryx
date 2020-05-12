@@ -15,9 +15,9 @@
 #include "test.hpp"
 
 #include "roudi_gtest.hpp"
+#include <iceoryx_posh/internal/capro/capro_message.hpp>
 #include <ioxdds/dds/data_writer.hpp>
 #include <ioxdds/gateway/iox2dds.hpp>
-#include <iceoryx_posh/internal/capro/capro_message.hpp>
 #include <limits>
 
 using namespace ::testing;
@@ -102,7 +102,8 @@ void stageMockSubscriber(std::shared_ptr<MockSubscriber>&& mock)
 // ======================================== Mock Factories ======================================== //
 
 
-static iox::gateway::dds::Channel<MockSubscriber, MockDataWriter> mockChannelFactory(iox::capro::ServiceDescription sd) noexcept
+static iox::gateway::dds::Channel<MockSubscriber, MockDataWriter>
+mockChannelFactory(iox::capro::ServiceDescription sd) noexcept
 {
     // Get or create a mock subscriber
     std::shared_ptr<MockSubscriber> mockSubscriber;
@@ -128,7 +129,8 @@ static iox::gateway::dds::Channel<MockSubscriber, MockDataWriter> mockChannelFac
         mockDataWriter = createMockDataWriter(sd);
     }
 
-    return iox::gateway::dds::Channel<MockSubscriber, MockDataWriter>(sd, std::move(mockSubscriber), std::move(mockDataWriter));
+    return iox::gateway::dds::Channel<MockSubscriber, MockDataWriter>(
+        sd, std::move(mockSubscriber), std::move(mockDataWriter));
 }
 
 // ======================================== Fixture ======================================== //
@@ -302,12 +304,10 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     auto firstCreatedSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
     auto secondCreatedSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
 
-    ON_CALL(*firstCreatedSubscriber, getServiceDescription).WillByDefault(
-                Return(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections"))
-                );
-    ON_CALL(*secondCreatedSubscriber, getServiceDescription).WillByDefault(
-                Return(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections"))
-                );
+    ON_CALL(*firstCreatedSubscriber, getServiceDescription)
+        .WillByDefault(Return(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections")));
+    ON_CALL(*secondCreatedSubscriber, getServiceDescription)
+        .WillByDefault(Return(iox::capro::ServiceDescription("Radar", "Front-Right", "Reflections")));
 
     {
         InSequence seq;

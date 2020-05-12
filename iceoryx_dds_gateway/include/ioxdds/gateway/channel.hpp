@@ -29,7 +29,6 @@ namespace gateway
 {
 namespace dds
 {
-
 static constexpr uint32_t MAX_CHANNEL_NUMBER = MAX_PORT_NUMBER;
 
 ///
@@ -40,11 +39,10 @@ static constexpr uint32_t MAX_CHANNEL_NUMBER = MAX_PORT_NUMBER;
 /// Managed instances are placed in static ObjectPools which are fixed size according to
 /// MAX_CHANNEL_NUMBER and are automatically cleaned up when all references to them are discarded.
 ///
-template <typename subscriber_t = iox::popo::Subscriber,
-          typename data_writer_t = iox::dds::data_writer_t>
-class Channel {
-public:
-
+template <typename subscriber_t = iox::popo::Subscriber, typename data_writer_t = iox::dds::data_writer_t>
+class Channel
+{
+  public:
     using SubscriberPtr = std::shared_ptr<subscriber_t>;
     using SubscriberPool = iox::cxx::ObjectPool<subscriber_t, MAX_CHANNEL_NUMBER>;
     using DataWriterPtr = std::shared_ptr<data_writer_t>;
@@ -72,7 +70,7 @@ public:
     SubscriberPtr getSubscriber();
     DataWriterPtr getDataWriter();
 
-private:
+  private:
     // Store in data segment - too large to keep in stack.
     static SubscriberPool s_subscriberPool;
     static DataWriterPool s_dataWriterPool;
@@ -87,4 +85,3 @@ private:
 } // iox
 
 #include "ioxdds/internal/gateway/channel.inl"
-

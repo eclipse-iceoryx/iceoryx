@@ -27,7 +27,6 @@ namespace gateway
 {
 namespace dds
 {
-
 // ======================================== Public ======================================== //
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::Iceoryx2DDSGateway()
@@ -67,7 +66,8 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover(const iox::capro::CaproMessage& msg) noexcept
+inline void
+Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
     // Prevent new channels being added/removed while doing discovery.
     const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
@@ -78,12 +78,10 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover
                     << ", Instance: " << msg.m_serviceDescription.getInstanceIDString()
                     << ", Event: " << msg.m_serviceDescription.getEventIDString() << " }";
 
-    // Ignore instrospection ports
     if (msg.m_serviceDescription.getServiceIDString() == iox::capro::IdString("Introspection"))
     {
         return;
     }
-    // Ignore services
     if (msg.m_subType == iox::capro::CaproMessageSubType::SERVICE)
     {
         return;
@@ -166,27 +164,29 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::shutdown
 // ======================================== Private ======================================== //
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-Channel<subscriber_t, data_writer_t> Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::setupChannelUnsafe(const iox::capro::ServiceDescription& service)
+Channel<subscriber_t, data_writer_t> Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::setupChannelUnsafe(
+    const iox::capro::ServiceDescription& service)
 {
     auto channel = m_channelFactory(service);
     m_channels.push_back(channel);
     iox::LogDebug() << "[Iceoryx2DDSGateway] Channel set up for service: "
                     << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
-                    <<  service.getEventIDString();
+                    << service.getEventIDString();
     return channel;
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::takeDownChannelUnsafe(const iox::capro::ServiceDescription& service)
+void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::takeDownChannelUnsafe(
+    const iox::capro::ServiceDescription& service)
 {
-    for(auto& channel : m_channels)
+    for (auto& channel : m_channels)
     {
-        if(channel.getService() == service)
+        if (channel.getService() == service)
         {
             m_channels.erase(&channel);
             iox::LogDebug() << "[Iceoryx2DDSGateway] Channel taken down for service: "
                             << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
-                            <<  service.getEventIDString();
+                            << service.getEventIDString();
             break;
         }
     }
