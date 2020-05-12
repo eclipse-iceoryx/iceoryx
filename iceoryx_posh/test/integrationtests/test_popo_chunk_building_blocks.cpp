@@ -27,6 +27,7 @@ using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
+using namespace iox::posix;
 using ::testing::Return;
 
 struct DummySample
@@ -36,49 +37,60 @@ struct DummySample
 
 static constexpr size_t MEMORY_SIZE = 1024 * 1024;
 uint8_t m_memory[MEMORY_SIZE];
-static constexpr uint32_t NUM_CHUNKS_IN_POOL = 1000;
-static constexpr uint32_t MAGIC_NUMBER_ITERATIONS = 250;
+static constexpr uint32_t NUM_CHUNKS_IN_POOL = 500;
+static constexpr uint32_t ITERATIONS = 10000;
 static constexpr uint32_t SMALL_CHUNK = 128;
-static constexpr uint32_t BIG_CHUNK = 256;
 static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
-
-iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
-iox::mepoo::MePooConfig m_mempoolconf;
-iox::mepoo::MemoryManager m_memoryManager;
 
 using ChunkDistributorData_t = iox::popo::ChunkDistributorData<MAX_NUMBER_QUEUES, iox::popo::ThreadSafePolicy>;
 using ChunkDistributor_t = iox::popo::ChunkDistributor<ChunkDistributorData_t>;
 
-// Publishing part
-iox::popo::ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
-iox::popo::ChunkSender<ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
+// Memory objects
+Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+MePooConfig m_mempoolConfig;
+MemoryManager m_memoryManager;
 
-// Forwarding part
+// Objects used by publishing thread
+ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
+ChunkSender<ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
+
+// Objects used by forwarding thread
 ChunkDistributorData_t m_chunkDistributorData;
 ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
 ChunkQueueData m_chunkData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 ChunkQueuePopper m_popper{&m_chunkData};
 
-// Subscribing part
-iox::popo::ChunkReceiverData m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-iox::popo::ChunkReceiver m_chunkReceiver{&m_chunkReceiverData};
+// Objects used by subscribing thread
+ChunkReceiverData m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+ChunkReceiver m_chunkReceiver{&m_chunkReceiverData};
+
+uint64_t sendCounter{0};
+uint64_t receiveCounter{0};
 
 void publish()
 {
-    for (size_t i = 0; i < MAGIC_NUMBER_ITERATIONS; i++)
+    for (size_t i = 0; i < ITERATIONS; i++)
     {
         auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample));
+
         EXPECT_FALSE(maybeChunkHeader.has_error());
 
-        if (!maybeChunkHeader.has_error())
-        {
-            auto sample = (*maybeChunkHeader)->payload();
-            new (sample) DummySample();
-            static_cast<DummySample*>(sample)->dummy = i;
-            m_chunkSender.send(*maybeChunkHeader);
-            /// Add some jitter to make thread breath
-            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 100));
-        }
+        /// @todo overload for on_success(TargetType& foo) would be nice?
+        maybeChunkHeader
+            .on_success([&](iox::cxx::expected<iox::mepoo::ChunkHeader*, ChunkSenderError>& chunkHeader) {
+                auto sample = chunkHeader.get_value()->payload();
+                new (sample) DummySample();
+                static_cast<DummySample*>(sample)->dummy = i;
+                m_chunkSender.send(chunkHeader.get_value());
+                sendCounter++;
+            })
+            .on_error([]() {
+                // Errors shall never occur
+                FAIL();
+            });
+
+        /// Add some jitter to make thread breathe
+        std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
     }
 }
 
@@ -87,71 +99,64 @@ void forward()
     while (1)
     {
         auto maybeSharedChunk = m_popper.pop();
-        if (maybeSharedChunk.has_value())
-        {
-            m_chunkDistributor.deliverToAllStoredQueues(maybeSharedChunk.value());
-            /// Add some jitter to make thread breath
-            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 100));
-        }
+        maybeSharedChunk.and_then([&](SharedChunk& chunk) { m_chunkDistributor.deliverToAllStoredQueues(chunk); });
+
+        /// Add some jitter to make thread breathe
+        std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
     }
 }
 
 void subscribe()
 {
-    uint64_t counter{0};
-
-    while (true)
+    while (receiveCounter < ITERATIONS)
     {
         auto maybeChunkHeader = m_chunkReceiver.get();
-        if (!maybeChunkHeader.has_error() && maybeChunkHeader.get_value().has_value())
-        {
-            auto chunkHeader = maybeChunkHeader.get_value().value();
 
-            auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
-            EXPECT_THAT(dummySample.dummy, Eq(counter));
-            if (MAGIC_NUMBER_ITERATIONS - 1 == counter)
-            {
-                break;
-            }
-            counter++;
-            /// Add some jitter to make thread breath
-            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 100));
-            m_chunkReceiver.release(chunkHeader);
-        }
+        EXPECT_FALSE(maybeChunkHeader.has_error());
+
+        maybeChunkHeader
+            .on_success([&]() {
+                /// @todo overload for and_then(ptr* foo) would be nice?
+                if (maybeChunkHeader.get_value().has_value())
+                {
+                    auto chunkHeader = maybeChunkHeader.get_value().value();
+
+                    auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
+                    // EXPECT_THAT(dummySample.dummy, Eq(receiveCounter));
+
+                    receiveCounter++;
+
+                    /// Add some jitter to make thread breathe
+                    std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
+
+                    m_chunkReceiver.release(chunkHeader);
+                }
+            })
+            .on_error([]() {
+                // Errors shall never occur
+                FAIL();
+            });
     }
 }
 
-/// @todo Remove the fixture (TEST() instead of TEST_F()), make it a typed test? Different timings? Different setups?
-class ChunkBuildingBlocks_IntegrationTest : public Test
+TEST(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreads)
 {
-  public:
-    ChunkBuildingBlocks_IntegrationTest()
-    {
-        m_mempoolconf.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
-        m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
-    }
-    virtual ~ChunkBuildingBlocks_IntegrationTest()
-    {
-    }
+    m_mempoolConfig.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
+    m_memoryManager.configureMemoryManager(m_mempoolConfig, &m_memoryAllocator, &m_memoryAllocator);
 
-    void SetUp()
-    {
-        m_chunkSender.addQueue(&m_chunkData);
-        m_chunkDistributor.addQueue(&m_chunkReceiverData);
-    }
+    m_chunkSender.addQueue(&m_chunkData);
+    m_chunkDistributor.addQueue(&m_chunkReceiverData);
 
-    void TearDown()
-    {
-    }
-};
-
-TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreads)
-{
-    std::thread publishingThread(publish);
-    std::thread forwardingThread(forward);
     std::thread subscribingThread(subscribe);
+    std::thread forwardingThread(forward);
+    std::thread publishingThread(publish);
 
-    // Just detach while (true)
+    if (publishingThread.joinable())
+    {
+        publishingThread.join();
+    }
+
+    // Detach while(true) will never return
     forwardingThread.detach();
 
     if (subscribingThread.joinable())
@@ -159,10 +164,7 @@ TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreads)
         subscribingThread.join();
     }
 
-    if (publishingThread.joinable())
-    {
-        publishingThread.join();
-    }
+    EXPECT_EQ(sendCounter, receiveCounter);
 
     /// @todo Use non global objects? We need to make sure that the d'tors of all objects have been called excluding the
     /// memory manager
