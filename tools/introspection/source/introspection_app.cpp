@@ -54,8 +54,8 @@ void IntrospectionApp::printHelp() noexcept
                  "  -h, --help        Display help and exit.\n"
                  "  -t, --time <ms>   Update period (in milliseconds) for the display of introspection data\n"
                  "                    [min: "
-              << MIN_UPDATE_PERIOD.milliSeconds<int32_t>() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds<int32_t>()
-              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds<int32_t>()
+              << MIN_UPDATE_PERIOD.milliSeconds<uint32_t>() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds<uint32_t>()
+              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds<uint32_t>()
               << "]\n"
                  "  -v, --version     Display latest official iceoryx release version and exit.\n"
                  "\nSubscription:\n"
@@ -336,11 +336,11 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     wprintw(pad, "----------------------------------------------------------------------------\n");
 
     bool needsLineBreak{false};
-    int32_t currentLine{0};
+    uint32_t currentLine{0};
     auto printEntry = [&](std::uint32_t maxSize, const std::string& data) -> std::string {
         std::stringstream stream;
 
-        constexpr int32_t indentation{2};
+        constexpr uint32_t indentation{2};
         constexpr char indentationString[indentation + 1] = "  ";
 
         auto stringSize = data.size();
@@ -514,7 +514,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
 
 bool IntrospectionApp::waitForSubscription(SubscriberType& port)
 {
-    int32_t numberOfLoopsTillTimeout{100};
+    uint32_t numberOfLoopsTillTimeout{100};
     bool subscribed{false};
     while ((subscribed = (port.getSubscriptionState() == iox::popo::SubscriptionState::SUBSCRIBED)),
            !subscribed && numberOfLoopsTillTimeout > 0)

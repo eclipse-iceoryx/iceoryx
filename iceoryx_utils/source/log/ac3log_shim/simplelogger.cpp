@@ -75,7 +75,7 @@ void iox_log(const uint8_t debuglevel, char* msg)
 
     // with the new logger an new line character is automacially added for each log message, therefore remove the
     // explicit new lines from ac3log calls
-    int32_t i = 0;
+    uint32_t i = 0;
     while (msg[i] != 0)
     {
         i++;
