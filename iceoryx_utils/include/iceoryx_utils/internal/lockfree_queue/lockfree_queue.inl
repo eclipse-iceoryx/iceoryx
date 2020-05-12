@@ -16,22 +16,22 @@
 
 namespace iox
 {
-template <typename T, uint64_t Capacity>
-LockFreeQueue<T, Capacity>::LockFreeQueue() noexcept
+template <typename ElementType, uint64_t Capacity>
+LockFreeQueue<ElementType, Capacity>::LockFreeQueue() noexcept
     : m_freeIndices(IndexQueue<Capacity>::ConstructFull)
     , m_usedIndices(IndexQueue<Capacity>::ConstructEmpty)
 {
 }
 
-template <typename T, uint64_t Capacity>
-constexpr uint64_t LockFreeQueue<T, Capacity>::capacity() noexcept
+template <typename ElementType, uint64_t Capacity>
+constexpr uint64_t LockFreeQueue<ElementType, Capacity>::capacity() noexcept
 {
     return Capacity;
 }
 
 
-template <typename T, uint64_t Capacity>
-bool LockFreeQueue<T, Capacity>::try_push(const T& value) noexcept
+template <typename ElementType, uint64_t Capacity>
+bool LockFreeQueue<ElementType, Capacity>::try_push(const ElementType value) noexcept
 {
     UniqueIndex index = m_freeIndices.pop();
 
@@ -41,7 +41,7 @@ bool LockFreeQueue<T, Capacity>::try_push(const T& value) noexcept
     }
 
     auto ptr = m_buffer.ptr(index);
-    new (ptr) T(value);
+    new (ptr) ElementType(value);
 
     // ensures that whenever an index is pushed into m_usedIndices, the corresponding value in m_buffer[index]
     // was written before
@@ -53,10 +53,10 @@ bool LockFreeQueue<T, Capacity>::try_push(const T& value) noexcept
 }
 
 
-template <typename T, uint64_t Capacity>
-iox::cxx::optional<T> LockFreeQueue<T, Capacity>::push(const T& value) noexcept
+template <typename ElementType, uint64_t Capacity>
+iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const ElementType value) noexcept
 {
-    cxx::optional<T> result;
+    cxx::optional<ElementType> result;
 
     UniqueIndex index = m_freeIndices.pop();
     while (!index.is_valid())
@@ -68,7 +68,7 @@ iox::cxx::optional<T> LockFreeQueue<T, Capacity>::push(const T& value) noexcept
             // todo: private method and sync here?
             auto ptr = m_buffer.ptr(index);
             result = std::move(*ptr);
-            ptr->~T();
+            ptr->~ElementType();
             break;
         }
         // if the queue was not full we try again
@@ -78,7 +78,7 @@ iox::cxx::optional<T> LockFreeQueue<T, Capacity>::push(const T& value) noexcept
     // if we removed from a full queue via popIfFull it might not be full anymore when a concurrent pop occurs
 
     auto ptr = m_buffer.ptr(index);
-    new (ptr) T(value);
+    new (ptr) ElementType(value);
 
     // ensures that whenever an index is pushed into m_usedIndices, the corresponding value in m_buffer[index]
     // was written before
@@ -89,8 +89,8 @@ iox::cxx::optional<T> LockFreeQueue<T, Capacity>::push(const T& value) noexcept
     return result;
 }
 
-template <typename T, uint64_t Capacity>
-iox::cxx::optional<T> LockFreeQueue<T, Capacity>::pop() noexcept
+template <typename ElementType, uint64_t Capacity>
+iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pop() noexcept
 {
     UniqueIndex index = m_usedIndices.pop();
 
@@ -104,36 +104,36 @@ iox::cxx::optional<T> LockFreeQueue<T, Capacity>::pop() noexcept
     acquireBufferChanges();
 
     auto ptr = m_buffer.ptr(index);
-    cxx::optional<T> result(std::move(*ptr));
-    ptr->~T();
+    cxx::optional<ElementType> result(std::move(*ptr));
+    ptr->~ElementType();
 
     m_freeIndices.push(index);
 
     return result;
 }
 
-template <typename T, uint64_t Capacity>
-bool LockFreeQueue<T, Capacity>::empty()
+template <typename ElementType, uint64_t Capacity>
+bool LockFreeQueue<ElementType, Capacity>::empty()
 {
     return m_usedIndices.empty();
 }
 
-template <typename T, uint64_t Capacity>
-uint64_t LockFreeQueue<T, Capacity>::size()
+template <typename ElementType, uint64_t Capacity>
+uint64_t LockFreeQueue<ElementType, Capacity>::size()
 {
     return m_size.load(std::memory_order_relaxed);
 }
 
-template <typename T, uint64_t Capacity>
-void LockFreeQueue<T, Capacity>::acquireBufferChanges()
+template <typename ElementType, uint64_t Capacity>
+void LockFreeQueue<ElementType, Capacity>::acquireBufferChanges()
 {
     // rename the method? it is now decrementing the size and performing synchronization
     m_size.fetch_sub(1u, std::memory_order_acquire);
     // std::atomic_thread_fence(std::memory_order_acquire);
 }
 
-template <typename T, uint64_t Capacity>
-void LockFreeQueue<T, Capacity>::releaseBufferChanges()
+template <typename ElementType, uint64_t Capacity>
+void LockFreeQueue<ElementType, Capacity>::releaseBufferChanges()
 {
     // rename the method? it is now incrementing the size and performing synchronization
     m_size.fetch_add(1u, std::memory_order_release);

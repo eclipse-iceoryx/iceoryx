@@ -23,11 +23,11 @@
 
 namespace iox
 {
-/// @todo finalize interface, configuration of actual capacity at runtime (resize feature)
+/// @todo finalize interface, configuration of actual capacity at runtime (change capacity feature)
 
 /// @brief implements a lock free queue (i.e. container with FIFO order) of elements of type T
 /// with Capacity
-template <typename T, uint64_t Capacity>
+template <typename ElementType, uint64_t Capacity>
 class LockFreeQueue
 {
   public:
@@ -36,6 +36,7 @@ class LockFreeQueue
 
     /// @todo: a thread-safe and lockfree implementation of copy seems impossible
     /// but unsafe copying (i.e. where synchronization is up to the user) would be possible
+    /// can be implemented when it is needed
     LockFreeQueue(const LockFreeQueue&) = delete;
     LockFreeQueue(LockFreeQueue&&) = delete;
     LockFreeQueue& operator=(const LockFreeQueue&) = delete;
@@ -45,23 +46,23 @@ class LockFreeQueue
     /// threadsafe, lockfree
     constexpr uint64_t capacity() noexcept;
 
-    // TODO: value interface to support move
-
     /// @brief tries to insert value in FIFO order
+    /// @param value to be inserted (value semantics support move by the user)
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// threadsafe, lockfree
-    bool try_push(const T& value) noexcept;
+    bool try_push(const ElementType value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
+    /// @param value to be inserted (value semantics support move by the user)
     /// @return removed value if an overflow occured, empty optional otherwise
     /// threadsafe, lockfree
-    iox::cxx::optional<T> push(const T& value) noexcept;
+    iox::cxx::optional<ElementType> push(const ElementType value) noexcept;
 
     /// @brief tries to remove value in FIFO order
     /// @return value if removal was successful, empty optional otherwise
     /// threadsafe, lockfree
-    iox::cxx::optional<T> pop() noexcept;
+    iox::cxx::optional<ElementType> pop() noexcept;
 
     /// @brief check whether the queue is empty
     /// @return true iff the queue is empty
@@ -89,13 +90,13 @@ class LockFreeQueue
     // required to be a queue for LockFreeQueue to exhibit FIFO behaviour
     Queue m_usedIndices;
 
-    Buffer<T, Capacity, BufferIndex> m_buffer;
+    Buffer<ElementType, Capacity, BufferIndex> m_buffer;
 
     std::atomic<uint64_t> m_size{0};
 
     // note that we now perform the memory synchronization not using the index queue anymore but
     // with those methods
-    // this has the advantage of limiting unneccessary synchroization (e.g. due to CAS failure)
+    // this has the advantage of limiting unneccessary synchronization (e.g. due to CAS failure)
     // and keeps the responsibility inside the LockFreeQueue itself (which contains the buffer)
 
     void acquireBufferChanges();
