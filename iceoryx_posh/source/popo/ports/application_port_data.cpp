@@ -20,7 +20,6 @@ namespace popo
 {
 ApplicationPortData::ApplicationPortData(const std::string& f_applicationName)
     : BasePortData(capro::ServiceDescription(),
-                   BasePortType::APPLICATION_PORT,
                    iox::cxx::string<100>(iox::cxx::TruncateToCapacity, f_applicationName))
 {
 }

@@ -375,7 +375,7 @@ bool PortManager::areAllReceiverPortsSubscribed(std::string f_appName)
     for (auto l_receiverPortData : m_portPool->receiverPortDataList())
     {
         ReceiverPortType receiver(l_receiverPortData);
-        if (receiver.getApplicationName() == iox::cxx::string<100>(iox::cxx::TruncateToCapacity, f_appName))
+        if (receiver.getProcessName() == iox::cxx::string<100>(iox::cxx::TruncateToCapacity, f_appName))
         {
             numberOfReceiverPorts++;
             numberOfConnectedReceiverPorts += receiver.isSubscribed() ? 1 : 0;
@@ -390,7 +390,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
     for (auto port : m_portPool->senderPortDataList())
     {
         SenderPortType l_sender(port);
-        if (f_processName == l_sender.getApplicationName())
+        if (f_processName == l_sender.getProcessName())
         {
             destroySenderPort(port);
         }
@@ -399,7 +399,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
     for (auto port : m_portPool->receiverPortDataList())
     {
         ReceiverPortType l_receiver(port);
-        if (f_processName == l_receiver.getApplicationName())
+        if (f_processName == l_receiver.getProcessName())
         {
             destroyReceiverPort(port);
         }
@@ -408,7 +408,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
     for (auto port : m_portPool->interfacePortDataList())
     {
         popo::InterfacePort l_interface(port);
-        if (f_processName == l_interface.getApplicationName())
+        if (f_processName == l_interface.getProcessName())
         {
             m_portPool->removeInterfacePort(port);
             DEBUG_PRINTF("Deleted Interface of application %s\n", f_processName.c_str());
@@ -418,7 +418,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
     for (auto port : m_portPool->appliactionPortDataList())
     {
         popo::ApplicationPort l_application(port);
-        if (f_processName == l_application.getApplicationName())
+        if (f_processName == l_application.getProcessName())
         {
             m_portPool->removeApplicationPort(port);
             DEBUG_PRINTF("Deleted ApplicationPort of application %s\n", f_processName.c_str());
@@ -449,7 +449,7 @@ void PortManager::destroySenderPort(SenderPortType::MemberType_t* const senderPo
     sendToAllMatchingReceiverPorts(message, senderPort);
     sendToAllMatchingInterfacePorts(message);
 
-    m_portIntrospection.removeSender(senderPort.getApplicationName(), serviceDescription);
+    m_portIntrospection.removeSender(senderPort.getProcessName(), serviceDescription);
 
     // delete sender impl from list after StopOffer was processed
     m_portPool->removeSenderPort(senderPortData);
@@ -469,7 +469,7 @@ void PortManager::destroyReceiverPort(ReceiverPortType::MemberType_t* const rece
 
     sendToAllMatchingSenderPorts(message, receiverPort);
 
-    m_portIntrospection.removeReceiver(receiverPort.getApplicationName(), serviceDescription);
+    m_portIntrospection.removeReceiver(receiverPort.getProcessName(), serviceDescription);
 
     // delete receiver impl from list after unsubscribe was processed
     m_portPool->removeReceiverPort(receiverPortData);

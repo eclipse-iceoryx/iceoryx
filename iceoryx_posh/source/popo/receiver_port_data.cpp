@@ -27,7 +27,6 @@ ReceiverPortData::ReceiverPortData(const capro::ServiceDescription& serviceDescr
                                    const std::string& applicationName,
                                    const MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription,
-                   BasePortType::RECEIVER_PORT,
                    iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
     , m_memoryInfo(memoryInfo)
 {

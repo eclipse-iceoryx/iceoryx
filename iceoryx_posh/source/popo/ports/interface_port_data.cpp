@@ -18,11 +18,9 @@ namespace iox
 {
 namespace popo
 {
-InterfacePortData::InterfacePortData(const std::string& applicationName,
-                                     const capro::Interfaces interface) noexcept
+InterfacePortData::InterfacePortData(const std::string& applicationName, const capro::Interfaces interface) noexcept
     : BasePortData(capro::ServiceDescription(
                        capro::InvalidIDString, capro::InvalidIDString, capro::InvalidIDString, {0, 0, 0, 0}, interface),
-                   BasePortType::INTERFACE_PORT,
                    iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
 {
 }

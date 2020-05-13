@@ -59,15 +59,11 @@ class BasePort
 
     /// @brief Reads Type of actual CaPro Port (sender/receiver...)
     /// @return m_portType  Type of Port in struct BasePortType
-    BasePortType getPortType() const noexcept;
-
-    /// @brief Reads Type of actual CaPro Port (sender/receiver...)
-    /// @return m_portType  Type of Port in struct BasePortType
     capro::ServiceDescription getCaProServiceDescription() const noexcept;
 
-    /// @brief Gets Application Name for the active port
-    /// @return             Application name as String
-    cxx::CString100 getApplicationName() const noexcept;
+    /// @brief Gets Process Name for the active port
+    /// @return             Process name as String
+    cxx::CString100 getProcessName() const noexcept;
 
     /// @brief Gets Id of thethe active port
     /// @return             UniqueId name as Integer

@@ -36,7 +36,7 @@ struct PublisherPortData : public BasePortData
                       mepoo::MemoryManager* const memoryManager,
                       uint64_t historyCapacity = 0u,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : BasePortData(serviceDescription, BasePortType::PUBLISHER_PORT, processName)
+        : BasePortData(serviceDescription, processName)
         , m_chunkSenderData(memoryManager, historyCapacity, memoryInfo)
     {
     }

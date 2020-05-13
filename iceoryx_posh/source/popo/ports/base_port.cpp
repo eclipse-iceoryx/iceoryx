@@ -44,17 +44,12 @@ BasePort::~BasePort() noexcept
 {
 }
 
-BasePortType BasePort::getPortType() const noexcept
-{
-    return getMembers()->m_portType;
-}
-
 capro::ServiceDescription BasePort::getCaProServiceDescription() const noexcept
 {
     return getMembers()->m_serviceDescription;
 }
 
-cxx::CString100 BasePort::getApplicationName() const noexcept
+cxx::CString100 BasePort::getProcessName() const noexcept
 {
     return getMembers()->m_processName;
 }

@@ -100,46 +100,6 @@ class BasePortParamtest : public TestWithParam<CreatePort*>
     BasePort* sut;
 };
 
-
-TEST_P(BasePortParamtest, getPortType)
-{
-    if (this->GetParam() == CreateCaProPort)
-    {
-        EXPECT_THAT(sut->getPortType(), Eq(BasePortType::NO_PORT));
-        EXPECT_THAT((iox::cxx::convertEnumToString(BasePortTypeString, BasePortType::NO_PORT)), StartsWith("NO_PORT"));
-    }
-    else if (this->GetParam() == CreateReceiverPort)
-    {
-        EXPECT_THAT(sut->getPortType(), Eq(BasePortType::RECEIVER_PORT));
-        EXPECT_THAT((iox::cxx::convertEnumToString(BasePortTypeString, BasePortType::RECEIVER_PORT)),
-                    StartsWith("RECEIVER_PORT"));
-    }
-    else if (this->GetParam() == CreateSenderPort)
-    {
-        EXPECT_THAT(sut->getPortType(), Eq(BasePortType::SENDER_PORT));
-        EXPECT_THAT((iox::cxx::convertEnumToString(BasePortTypeString, BasePortType::SENDER_PORT)),
-                    StartsWith("SENDER_PORT"));
-    }
-    else if (this->GetParam() == CreateInterfacePort)
-    {
-        EXPECT_THAT(sut->getPortType(), Eq(BasePortType::INTERFACE_PORT));
-        EXPECT_THAT((iox::cxx::convertEnumToString(BasePortTypeString, BasePortType::INTERFACE_PORT)),
-                    StartsWith("INTERFACE_PORT"));
-    }
-    else if (this->GetParam() == CreateApplicationPort)
-    {
-        EXPECT_THAT(sut->getPortType(), Eq(BasePortType::APPLICATION_PORT));
-        EXPECT_THAT((iox::cxx::convertEnumToString(BasePortTypeString, BasePortType::APPLICATION_PORT)),
-                    StartsWith("APPLICATION_PORT"));
-    }
-    else
-    {
-        // We should not be here
-        std::cout << "CaPro Port test failed!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-}
-
 TEST_P(BasePortParamtest, getUniqueID)
 {
     if (this->GetParam() == CreateCaProPort)
@@ -205,23 +165,23 @@ TEST_P(BasePortParamtest, getApplicationname)
 {
     if (this->GetParam() == CreateCaProPort)
     {
-        EXPECT_THAT(sut->getApplicationName(), Eq(m_emptyappname));
+        EXPECT_THAT(sut->getProcessName(), Eq(m_emptyappname));
     }
     else if (this->GetParam() == CreateReceiverPort)
     {
-        EXPECT_THAT(sut->getApplicationName(), Eq(m_receiverportname));
+        EXPECT_THAT(sut->getProcessName(), Eq(m_receiverportname));
     }
     else if (this->GetParam() == CreateSenderPort)
     {
-        EXPECT_THAT(sut->getApplicationName(), Eq(m_senderportname));
+        EXPECT_THAT(sut->getProcessName(), Eq(m_senderportname));
     }
     else if (this->GetParam() == CreateInterfacePort)
     {
-        EXPECT_THAT(sut->getApplicationName(), Eq(m_interfaceportname));
+        EXPECT_THAT(sut->getProcessName(), Eq(m_interfaceportname));
     }
     else if (this->GetParam() == CreateApplicationPort)
     {
-        EXPECT_THAT(sut->getApplicationName(), Eq(m_applicationportname));
+        EXPECT_THAT(sut->getProcessName(), Eq(m_applicationportname));
     }
     else
     {
