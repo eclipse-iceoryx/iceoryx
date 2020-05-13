@@ -466,7 +466,7 @@ cxx::error<TimerError> Timer::getError() const noexcept
     return m_errorValue;
 }
 
-cxx::error<TimerError> Timer::createErrorFromErrno(const int errnum) noexcept
+cxx::error<TimerError> Timer::createErrorFromErrno(const int32_t errnum) noexcept
 {
     TimerError timerError = TimerError::INTERNAL_LOGIC_ERROR;
     switch (errnum)

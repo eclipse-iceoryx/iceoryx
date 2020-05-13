@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {
@@ -54,7 +55,7 @@ class ChunkDistributor
     using ChunkQueueData_t = typename ChunkDistributorDataType::ChunkQueueData_t;
     using ChunkQueuePusher_t = typename ChunkDistributorDataType::ChunkQueuePusher_t;
 
-    ChunkDistributor(MemberType_t* const chunkDistrubutorDataPtr) noexcept;
+    ChunkDistributor(cxx::not_null<MemberType_t* const> chunkDistrubutorDataPtr) noexcept;
 
     ChunkDistributor(const ChunkDistributor& other) = delete;
     ChunkDistributor& operator=(const ChunkDistributor&) = delete;
@@ -67,12 +68,11 @@ class ChunkDistributor
     /// @param[in] queueToAdd chunk queue to add to the list
     /// @param[in] requestedHistory number of last chunks from history to send if available. If history size is smaller
     /// then the available history size chunks are provided
-    /// @return true on success otherwise false
-    bool addQueue(ChunkQueueData_t* const queueToAdd, uint64_t requestedHistory = 0) noexcept;
+    void addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd, uint64_t requestedHistory = 0) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] chunk queue to remove from the list
-    void removeQueue(ChunkQueueData_t* const queueToRemove) noexcept;
+    void removeQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
 
     /// @brief Delete all the stored chunk queues
     void removeAllQueues() noexcept;
@@ -90,7 +90,7 @@ class ChunkDistributor
     /// history
     /// @param[in] chunk queue to which this chunk shall be delivered
     /// @param[in] shared chunk to be delivered
-    void deliverToQueue(ChunkQueueData_t* const queue, mepoo::SharedChunk chunk) noexcept;
+    void deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
 
     /// @brief Update the chunk history but do not deliver the chunk to any chunk queue. E.g. use case is to to update a
     /// non offered field in ara
@@ -116,7 +116,7 @@ class ChunkDistributor
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* m_chunkDistrubutorDataPtr{nullptr};
+    MemberType_t* const m_chunkDistrubutorDataPtr;
 };
 
 } // namespace popo

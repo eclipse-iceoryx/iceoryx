@@ -25,6 +25,12 @@ using ::testing::Return;
 
 class RouDi_GTest : public iox::roudi::RouDiEnvironment, public Test
 {
+  public:
+    RouDi_GTest() = default;
+    RouDi_GTest(iox::RouDiConfig_t& roudiConfig)
+        : iox::roudi::RouDiEnvironment(roudiConfig)
+    {
+    }
 };
 
 #endif

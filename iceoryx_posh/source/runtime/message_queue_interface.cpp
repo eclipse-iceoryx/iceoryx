@@ -32,10 +32,9 @@ MqMessageType stringToMqMessageType(const char* str) noexcept
     std::underlying_type<MqMessageType>::type msg;
     bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
     noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
-    noError &= noError
-                   ? !(static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::BEGIN) >= msg
-                       || static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::END) <= msg)
-                   : false;
+    noError &= noError ? !(static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::BEGIN) >= msg
+                           || static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::END) <= msg)
+                       : false;
     return noError ? (static_cast<MqMessageType>(msg)) : MqMessageType::NOTYPE;
 }
 
@@ -61,7 +60,7 @@ std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept
     return std::to_string(static_cast<std::underlying_type<MqMessageErrorType>::type>(msg));
 }
 
-MqBase::MqBase(const std::string& InterfaceName, const long maxMessages, const long messageSize) noexcept
+MqBase::MqBase(const std::string& InterfaceName, const int64_t maxMessages, const int64_t messageSize) noexcept
     : m_interfaceName(InterfaceName)
 {
     m_maxMessages = maxMessages;
@@ -197,13 +196,15 @@ void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
     }
 }
 
-MqInterfaceUser::MqInterfaceUser(const std::string& name, const long maxMessages, const long messageSize) noexcept
+MqInterfaceUser::MqInterfaceUser(const std::string& name, const int64_t maxMessages, const int64_t messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
     openMessageQueue(posix::IpcChannelSide::CLIENT);
 }
 
-MqInterfaceCreator::MqInterfaceCreator(const std::string& name, const long maxMessages, const long messageSize) noexcept
+MqInterfaceCreator::MqInterfaceCreator(const std::string& name,
+                                       const int64_t maxMessages,
+                                       const int64_t messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
     // check if the mq is still there (e.g. because of no proper termination

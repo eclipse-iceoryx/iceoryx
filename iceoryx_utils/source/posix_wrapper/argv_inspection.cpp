@@ -32,7 +32,7 @@ ArgvInspector::ArgvInspector()
     }
 }
 
-bool ArgvInspector::getCmdlineArgument(const int f_argNumber, std::string& f_argument) const
+bool ArgvInspector::getCmdlineArgument(const int32_t f_argNumber, std::string& f_argument) const
 {
     std::size_t startPos = 0u;
     std::size_t endPos = std::string::npos;
@@ -43,7 +43,7 @@ bool ArgvInspector::getCmdlineArgument(const int f_argNumber, std::string& f_arg
         return false;
     }
 
-    for (int index = 0; index <= f_argNumber; ++index)
+    for (int32_t index = 0; index <= f_argNumber; ++index)
     {
         endPos = m_cmdline->find('\0', startPos);
 

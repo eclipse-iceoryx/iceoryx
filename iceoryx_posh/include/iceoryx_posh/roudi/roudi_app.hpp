@@ -33,7 +33,7 @@ class RouDiApp
 {
   public:
     /// @brief Method passed to the OS signal handler
-    static void roudiSigHandler(int signal) noexcept;
+    static void roudiSigHandler(int32_t signal) noexcept;
 
     /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
     static RouDiConfig_t generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept;
@@ -95,4 +95,3 @@ class RouDiApp
 
 } // namespace roudi
 } // namespace iox
-

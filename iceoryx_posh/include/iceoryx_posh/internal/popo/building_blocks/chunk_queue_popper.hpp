@@ -18,8 +18,8 @@
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
-
 
 namespace iox
 {
@@ -35,7 +35,7 @@ class ChunkQueuePopper
   public:
     using MemberType_t = ChunkQueueData;
 
-    ChunkQueuePopper(MemberType_t* const chunkQueueDataPtr) noexcept;
+    ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
 
     ChunkQueuePopper(const ChunkQueuePopper& other) = delete;
     ChunkQueuePopper& operator=(const ChunkQueuePopper&) = delete;
@@ -84,7 +84,7 @@ class ChunkQueuePopper
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* m_chunkQueueDataPtr{nullptr};
+    MemberType_t* const m_chunkQueueDataPtr;
 };
 
 } // namespace popo
