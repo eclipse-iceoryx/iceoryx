@@ -108,6 +108,10 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
+        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+
     for (uint32_t i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
     {
         auto queueData = this->getChunkQueueData();
@@ -115,9 +119,7 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
         queueVecor.push_back(queueData);
     }
 
-    auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    EXPECT_FALSE(errorHandlerCalled);
 
     auto queueData = this->getChunkQueueData();
     sut.addQueue(queueData.get());
