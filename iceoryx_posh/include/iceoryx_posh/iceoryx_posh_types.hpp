@@ -54,8 +54,15 @@ constexpr uint32_t MAX_PORT_NUMBER = 1024u;
 constexpr uint32_t MAX_INTERFACE_NUMBER = 4u;
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = 256u;
 constexpr uint32_t MAX_CHUNKS_ALLOCATE_PER_SENDER = 8u;
-constexpr uint64_t MAX_SENDER_SAMPLE_HISTORY_CAPACITY = 16u;
-constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = 256u;
+constexpr uint64_t MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR = 16u;
+constexpr uint32_t MAX_CHUNKS_HELD_PER_RECEIVER = 256u;
+constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER;
+/// With MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER we couple the maximum number of chunks a user is
+/// allowed to hold with the maximum queue capacity.
+/// This allows that a polling user can replace all the held chunks in one execution with all new ones
+/// from a completely filled queue. Or the other way round, when we have a contract with the user
+/// regarding how many chunks they are allowed to hold, then the queue size needs not be bigger. We
+/// can provide this number of newest chunks, more the user would not be allowed to hold anyway
 constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PORT_NUMBER;
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128u;
 
@@ -119,4 +126,3 @@ using FindServiceHandler = std::function<void(InstanceContainer&, FindServiceHan
 } // namespace runtime
 
 } // namespace iox
-

@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_POPO_CHUNK_DISTRIBUTOR_DATA_HPP_
+#define IOX_POPO_CHUNK_DISTRIBUTOR_DATA_HPP_
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
@@ -29,8 +30,6 @@ namespace iox
 {
 namespace popo
 {
-struct ChunkQueueData;
-
 class ThreadSafePolicy
 {
   public: // needs to be public since we want to use std::lock_guard
@@ -66,33 +65,37 @@ class SingleThreadedPolicy
     }
 };
 
-template <uint32_t MaxQueues, typename LockingPolicy>
+template <uint32_t MaxQueues, typename LockingPolicy, typename ChunkQueuePusherType = ChunkQueuePusher>
 struct ChunkDistributorData : public LockingPolicy
 {
-    using lockGuard_t = std::lock_guard<ChunkDistributorData<MaxQueues, LockingPolicy>>;
+    using LockGuard_t = std::lock_guard<ChunkDistributorData<MaxQueues, LockingPolicy, ChunkQueuePusherType>>;
+    using ChunkQueuePusher_t = ChunkQueuePusherType;
+    using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
 
     ChunkDistributorData(uint64_t historyCapacity = 0u) noexcept
-        : m_historyCapacity(algorithm::min(historyCapacity, MAX_SENDER_SAMPLE_HISTORY_CAPACITY))
+        : m_historyCapacity(algorithm::min(historyCapacity, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR))
     {
         if (m_historyCapacity != historyCapacity)
         {
             LogWarn() << "Chunk history too large, reducing from " << historyCapacity << " to "
-                      << MAX_SENDER_SAMPLE_HISTORY_CAPACITY;
+                      << MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
         }
     }
 
     const uint64_t m_historyCapacity;
 
-    using QueueContainer_t = cxx::vector<ChunkQueue::MemberType_t*, MaxQueues>;
+    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, MaxQueues>;
     QueueContainer_t m_queues;
 
     /// @todo using ChunkManagement instead of SharedChunk as in UsedChunkList?
     /// When to store a SharedChunk and when the included ChunkManagement must be used?
     /// If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to
     /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup
-    using SampleHistoryContainer_t = cxx::vector<mepoo::SharedChunk, MAX_SENDER_SAMPLE_HISTORY_CAPACITY>;
-    SampleHistoryContainer_t m_sampleHistory;
+    using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR>;
+    HistoryContainer_t m_history;
 };
 
 } // namespace popo
 } // namespace iox
+
+#endif

@@ -17,8 +17,8 @@ namespace iox
 namespace popo
 {
 template <typename ChunkDistributorType>
-inline ChunkSender<ChunkDistributorType>::ChunkSender(MemberType_t* const chunkSenderDataPtr) noexcept
-    : ChunkDistributorType(chunkSenderDataPtr)
+inline ChunkSender<ChunkDistributorType>::ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept
+    : ChunkDistributorType(static_cast<typename ChunkDistributorType::MemberType_t* const>(chunkSenderDataPtr))
 {
 }
 
@@ -54,7 +54,7 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
         }
         else
         {
-            return cxx::error<ChunkSenderError>(ChunkSenderError::TOO_MANY_CHUKS_ALLOCATED_IN_PARALLEL);
+            return cxx::error<ChunkSenderError>(ChunkSenderError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
         }
     }
     else
@@ -75,7 +75,7 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
             {
                 // release the allocated chunk
                 chunk = nullptr;
-                return cxx::error<ChunkSenderError>(ChunkSenderError::TOO_MANY_CHUKS_ALLOCATED_IN_PARALLEL);
+                return cxx::error<ChunkSenderError>(ChunkSenderError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
             }
         }
         else
@@ -122,7 +122,7 @@ inline void ChunkSender<ChunkDistributorType>::pushToHistory(mepoo::ChunkHeader*
 }
 
 template <typename ChunkDistributorType>
-inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkDistributorType>::getLastChunk() const noexcept
+inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkDistributorType>::getLast() const noexcept
 {
     if (getMembers()->m_lastChunk)
     {
@@ -135,7 +135,7 @@ inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkDistributorType
 }
 
 template <typename ChunkDistributorType>
-inline void ChunkSender<ChunkDistributorType>::releaseAllChunks() noexcept
+inline void ChunkSender<ChunkDistributorType>::releaseAll() noexcept
 {
     getMembers()->m_chunksInUse.cleanup();
     this->cleanup();
@@ -151,12 +151,15 @@ inline bool ChunkSender<ChunkDistributorType>::getChunkReadyForSend(mepoo::Chunk
         auto& chunkInfo = chunk.getChunkHeader()->m_info;
         if (!chunkInfo.m_externalSequenceNumber_bl)
         {
+            // if the sequence number is NOT set by the user, we take the one from the chunk sender for the chunk info
             chunkInfo.m_sequenceNumber = getMembers()->m_sequenceNumber;
             getMembers()->m_sequenceNumber++;
         }
         else
         {
-            getMembers()->m_sequenceNumber++; // for Introspection, else nobody updates.
+            // if the seqence number in the chunk info is set by the user, we still increment the internal one as this
+            // might be needed by midddleware spcific evaluation (like in introspection)
+            getMembers()->m_sequenceNumber++;
         }
         return true;
     }
