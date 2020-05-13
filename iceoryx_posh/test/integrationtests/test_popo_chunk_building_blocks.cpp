@@ -71,12 +71,9 @@ void publish()
 {
     for (size_t i = 0; i < ITERATIONS; i++)
     {
-        auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample));
-
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-
-        /// @todo overload for on_success(TargetType& foo) would be nice?
-        maybeChunkHeader
+        m_chunkSender
+            .allocate(sizeof(DummySample))
+            /// @todo overload for on_success(TargetType& foo) would be nice?
             .on_success([&](iox::cxx::expected<iox::mepoo::ChunkHeader*, ChunkSenderError>& chunkHeader) {
                 auto sample = chunkHeader.get_value()->payload();
                 new (sample) DummySample();
@@ -98,8 +95,7 @@ void forward()
 {
     while (1)
     {
-        auto maybeSharedChunk = m_popper.pop();
-        maybeSharedChunk.and_then([&](SharedChunk& chunk) { m_chunkDistributor.deliverToAllStoredQueues(chunk); });
+        m_popper.pop().and_then([&](SharedChunk& chunk) { m_chunkDistributor.deliverToAllStoredQueues(chunk); });
 
         /// Add some jitter to make thread breathe
         std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
@@ -110,19 +106,16 @@ void subscribe()
 {
     while (receiveCounter < ITERATIONS)
     {
-        auto maybeChunkHeader = m_chunkReceiver.get();
-
-        EXPECT_FALSE(maybeChunkHeader.has_error());
-
-        maybeChunkHeader
-            .on_success([&]() {
-                /// @todo overload for and_then(ptr* foo) would be nice?
+        m_chunkReceiver
+            .get()
+            /// @todo overload for and_then(ptr* foo) would be nice?
+            .on_success([&](iox::cxx::expected<iox::cxx::optional<const iox::mepoo::ChunkHeader*>, ChunkReceiverError>&
+                                maybeChunkHeader) {
                 if (maybeChunkHeader.get_value().has_value())
                 {
                     auto chunkHeader = maybeChunkHeader.get_value().value();
 
                     auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
-                    // EXPECT_THAT(dummySample.dummy, Eq(receiveCounter));
 
                     receiveCounter++;
 
@@ -156,13 +149,13 @@ TEST(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreads)
         publishingThread.join();
     }
 
-    // Detach while(true) will never return
-    forwardingThread.detach();
-
     if (subscribingThread.joinable())
     {
         subscribingThread.join();
     }
+
+    // set atomic, that forward threads can stop
+    // if(forwardingThread.join();)
 
     EXPECT_EQ(sendCounter, receiveCounter);
 
