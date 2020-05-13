@@ -272,7 +272,7 @@ class Timer
     cxx::optional<OsTimer> m_osTimer;
 
     /// @brief Converts errnum to TimerError
-    static cxx::error<TimerError> createErrorFromErrno(const int errnum) noexcept;
+    static cxx::error<TimerError> createErrorFromErrno(const int32_t errnum) noexcept;
 
     /// @brief Duration after the timer calls the user-defined callback function
     units::Duration m_timeToWait;

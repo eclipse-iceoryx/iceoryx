@@ -33,8 +33,8 @@ void CmdLineParserConfigFileOption::parse(int argc,
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
     constexpr const char* shortOptions = ":hc:";
-    int index;
-    int opt{-1};
+    int32_t index;
+    int32_t opt{-1};
     while (opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1)
     {
         switch (opt)
