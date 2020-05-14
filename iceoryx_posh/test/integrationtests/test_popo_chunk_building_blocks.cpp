@@ -75,14 +75,12 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     {
         for (size_t i = 0; i < ITERATIONS; i++)
         {
-            m_chunkSender
-                .allocate(sizeof(DummySample))
-                /// @todo overload for on_success(TargetType& foo) would be nice?
-                .on_success([&](iox::cxx::expected<iox::mepoo::ChunkHeader*, ChunkSenderError>& chunkHeader) {
-                    auto sample = chunkHeader.get_value()->payload();
+            m_chunkSender.allocate(sizeof(DummySample))
+                .on_success([&](iox::mepoo::ChunkHeader* chunkHeader) {
+                    auto sample = chunkHeader->payload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->dummy = i;
-                    m_chunkSender.send(chunkHeader.get_value());
+                    m_chunkSender.send(chunkHeader);
                     m_sendCounter++;
                 })
                 .on_error([]() {
@@ -111,12 +109,10 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         while (m_receiveCounter < ITERATIONS)
         {
             m_chunkReceiver.get()
-                .on_success([&](iox::cxx::expected<iox::cxx::optional<const iox::mepoo::ChunkHeader*>,
-                                                   ChunkReceiverError>& maybeChunkHeader) {
-                    /// @todo overload for and_then(ptr* foo) would be nice?
-                    if (maybeChunkHeader.get_value().has_value())
+                .on_success([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
+                    if (maybeChunkHeader.has_value())
                     {
-                        auto chunkHeader = maybeChunkHeader.get_value().value();
+                        auto chunkHeader = maybeChunkHeader.value();
 
                         auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
 
