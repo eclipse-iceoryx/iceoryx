@@ -29,26 +29,41 @@ constexpr uint64_t LockFreeQueue<ElementType, Capacity>::capacity() noexcept
     return Capacity;
 }
 
-
 template <typename ElementType, uint64_t Capacity>
-bool LockFreeQueue<ElementType, Capacity>::try_push(const ElementType value) noexcept
+bool LockFreeQueue<ElementType, Capacity>::try_push(const ElementType& value) noexcept
 {
-    // note that const precludes us from changing value but std::move works (it removes the constness)
-
     UniqueIndex index = m_freeIndices.pop();
 
     if (!index.isValid())
     {
-        return false; // detected full queue
+        return false; // detected full queue, value is unchanged (as demanded by const)
     }
 
-    writeBufferAt(index, value);
+    writeBufferAt(index, value); // const& version is called
 
     m_usedIndices.push(index);
 
-    return true;
+    return true; // value was copied into the queue and is unchanged
 }
 
+// @todo: test the move semantics, adapt tests when proposal of interface was discussed, rename method
+
+template <typename ElementType, uint64_t Capacity>
+iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
+{
+    UniqueIndex index = m_freeIndices.pop();
+
+    if (!index.isValid())
+    {
+        return cxx::optional<ElementType>(std::move(value)); // detected full queue, return value to the caller
+    }
+
+    writeBufferAt(index, value); //&& version is called
+
+    m_usedIndices.push(index);
+
+    return cxx::nullopt_t(); // value was moved into buffer, return nothing to the caller
+}
 
 template <typename ElementType, uint64_t Capacity>
 iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const ElementType value) noexcept
@@ -78,11 +93,11 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const
 
     // if we removed from a full queue via popIfFull it might not be full anymore when a concurrent pop occurs
 
-    writeBufferAt(index, value);
+    writeBufferAt(index, std::move(value)); //&& version is called due to explicit conversion via std::move
 
     m_usedIndices.push(index);
 
-    return evictedValue;
+    return evictedValue; // value was moved into the queue, if a value was evicted to do so return it
 }
 
 template <typename ElementType, uint64_t Capacity>
@@ -127,10 +142,20 @@ cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(co
 }
 
 template <typename ElementType, uint64_t Capacity>
+void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const UniqueIndex& index, ElementType&& value)
+{
+    auto elementPtr = m_buffer.ptr(index);
+    new (elementPtr) ElementType(value); // move ctor invoked
+
+    // also used for buffer synchronization
+    m_size.fetch_add(1u, std::memory_order_release);
+}
+
+template <typename ElementType, uint64_t Capacity>
 void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const UniqueIndex& index, const ElementType& value)
 {
     auto elementPtr = m_buffer.ptr(index);
-    new (elementPtr) ElementType(std::move(value));
+    new (elementPtr) ElementType(value); // copy ctor invoked
 
     // also used for buffer synchronization
     m_size.fetch_add(1u, std::memory_order_release);
