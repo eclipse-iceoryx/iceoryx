@@ -66,6 +66,7 @@ ChunkReceiver m_chunkReceiver{&m_chunkReceiverData};
 
 uint64_t sendCounter{0};
 uint64_t receiveCounter{0};
+std::atomic<bool> run{true};
 
 void publish()
 {
@@ -93,7 +94,7 @@ void publish()
 
 void forward()
 {
-    while (1)
+    while (run)
     {
         m_popper.pop().and_then([&](SharedChunk& chunk) { m_chunkDistributor.deliverToAllStoredQueues(chunk); });
 
@@ -106,11 +107,10 @@ void subscribe()
 {
     while (receiveCounter < ITERATIONS)
     {
-        m_chunkReceiver
-            .get()
-            /// @todo overload for and_then(ptr* foo) would be nice?
+        m_chunkReceiver.get()
             .on_success([&](iox::cxx::expected<iox::cxx::optional<const iox::mepoo::ChunkHeader*>, ChunkReceiverError>&
                                 maybeChunkHeader) {
+                /// @todo overload for and_then(ptr* foo) would be nice?
                 if (maybeChunkHeader.get_value().has_value())
                 {
                     auto chunkHeader = maybeChunkHeader.get_value().value();
@@ -154,13 +154,17 @@ TEST(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreads)
         subscribingThread.join();
     }
 
-    // set atomic, that forward threads can stop
-    // if(forwardingThread.join();)
+    run = false;
+
+    if (forwardingThread.joinable())
+    {
+        forwardingThread.join();
+    }
 
     EXPECT_EQ(sendCounter, receiveCounter);
 
     /// @todo Use non global objects? We need to make sure that the d'tors of all objects have been called excluding the
     /// memory manager
-    // One chunk is on hold due to the fact that chunkSender and chunkDistributor hold last chunk
+    /// @note One chunk is on hold due to the fact that chunkSender and chunkDistributor hold last chunk
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1));
 }
