@@ -24,23 +24,19 @@ class ShutdownManager
   public:
     static void scheduleShutdown(int num)
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
         char reason;
         psignal(num, &reason);
         m_shutdownFlag.store(true, std::memory_order_relaxed);
     }
     static bool shouldShutdown()
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
         return m_shutdownFlag.load(std::memory_order_relaxed);
     }
 
   private:
-    static std::mutex m_mutex;
     static std::atomic_bool m_shutdownFlag;
     ShutdownManager() = default;
 };
-std::mutex ShutdownManager::m_mutex;
 std::atomic_bool ShutdownManager::m_shutdownFlag(false);
 
 int main(int argc, char* argv[])
