@@ -46,11 +46,17 @@ class LockFreeQueue
     /// threadsafe, lockfree
     constexpr uint64_t capacity() noexcept;
 
-    /// @brief tries to insert value in FIFO order
+    /// @brief tries to insert value in FIFO order, moves the value internally
+    /// @param value to be inserted (value semantics support move by the user)
+    /// @return invalid optional if insertion was successful (i.e. queue was not full during push), value otherwise
+    /// threadsafe, lockfree
+    iox::cxx::optional<ElementType> tryPush(ElementType&& value) noexcept;
+
+    /// @brief tries to insert value in FIFO order, copies the value internally
     /// @param value to be inserted (value semantics support move by the user)
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// threadsafe, lockfree
-    bool try_push(const ElementType value) noexcept;
+    bool try_push(const ElementType& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
@@ -100,6 +106,8 @@ class LockFreeQueue
     // and keeps the responsibility inside the LockFreeQueue itself (which contains the buffer)
 
     void writeBufferAt(const UniqueIndex&, const ElementType&);
+    void writeBufferAt(const UniqueIndex&, ElementType&&);
+
     cxx::optional<ElementType> readBufferAt(const UniqueIndex&);
 };
 } // namespace iox
