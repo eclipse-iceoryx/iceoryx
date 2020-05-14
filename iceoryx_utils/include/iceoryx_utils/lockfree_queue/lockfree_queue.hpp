@@ -78,7 +78,7 @@ class LockFreeQueue
     uint64_t size();
 
   private:
-    using Queue = IndexQueue<Capacity, uint64_t>;
+    using Queue = IndexQueue<Capacity>;
     using UniqueIndex = typename Queue::UniqueIndex;
     using BufferIndex = typename Queue::value_t;
 

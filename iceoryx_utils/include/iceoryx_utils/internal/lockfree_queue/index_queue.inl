@@ -111,7 +111,7 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index)
     //     read position is outdated, there must have been pushes concurrently
     //     reload read position and try again
 
-    constexpr bool ownerShipGained = true;
+    constexpr bool ownershipGained = false;
     Index value;
     auto readPosition = loadNextReadPosition();
     do
@@ -132,7 +132,7 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index)
         }
         else
         {
-            // readPosition is ahead by one cycle, queue was empty at loadValueAt(..)
+            // readPosition is ahead by one cycle, queue was empty at loadValueAt(...)
             auto isEmpty = value.isOneCycleBehind(readPosition);
 
             if (isEmpty)
@@ -147,7 +147,7 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index)
 
         // readPosition is outdated, retry operation
 
-    } while (!ownerShipGained); // we leave if we gain ownership of readPosition
+    } while (!ownershipGained); // we leave if we gain ownership of readPosition
 
     index = value.getIndex();
     return true;
