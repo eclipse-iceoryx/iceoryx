@@ -76,7 +76,7 @@ class unique
         return m_value;
     }
 
-    bool is_valid() const
+    bool isValid() const
     {
         return m_valid;
     }

@@ -109,7 +109,7 @@ TYPED_TEST(IndexQueueTest, IndicesAreIncreasingWhenConstructedFull)
 
     index_t expected{0};
     auto index = q.pop();
-    while (index.is_valid())
+    while (index.isValid())
     {
         EXPECT_EQ(index, expected++);
         index = q.pop();
@@ -135,7 +135,7 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyWhenPopFails)
     EXPECT_FALSE(q.empty());
 
     auto index = q.pop();
-    while (index.is_valid())
+    while (index.isValid())
     {
         index = q.pop();
     }
@@ -151,7 +151,7 @@ TYPED_TEST(IndexQueueTest, pushAndPopSingleElement)
     q.push(index);
     auto popped = q.pop();
 
-    EXPECT_TRUE(popped.is_valid());
+    EXPECT_TRUE(popped.isValid());
     EXPECT_EQ(popped, index);
 }
 
@@ -174,7 +174,7 @@ TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
     for (uint64_t i = 0; i < capacity; ++i)
     {
         auto popped = q.pop();
-        ASSERT_TRUE(popped.is_valid());
+        ASSERT_TRUE(popped.isValid());
         EXPECT_EQ(popped, expected++);
     }
 }
@@ -182,14 +182,14 @@ TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
 TYPED_TEST(IndexQueueTest, popReturnsNothingWhenQueueIsEmpty)
 {
     auto& q = this->queue;
-    EXPECT_FALSE(q.pop().is_valid());
+    EXPECT_FALSE(q.pop().isValid());
 }
 
 
 TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsEmpty)
 {
     auto& q = this->queue;
-    EXPECT_FALSE(q.popIfFull().is_valid());
+    EXPECT_FALSE(q.popIfFull().isValid());
 }
 
 
@@ -199,7 +199,7 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsOldestElementWhenQueueIsFull)
     Queue& q = this->fullQueue;
 
     auto index = q.popIfFull();
-    EXPECT_TRUE(index.is_valid());
+    EXPECT_TRUE(index.isValid());
     EXPECT_EQ(index, 0);
 }
 
@@ -209,8 +209,8 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsNotFull)
     Queue& q = this->fullQueue;
 
     auto index = q.pop();
-    EXPECT_TRUE(index.is_valid());
-    EXPECT_FALSE(q.popIfFull().is_valid());
+    EXPECT_TRUE(index.isValid());
+    EXPECT_FALSE(q.popIfFull().isValid());
 }
 
 }
