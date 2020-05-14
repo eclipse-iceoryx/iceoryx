@@ -4,6 +4,8 @@
 <img src="https://user-images.githubusercontent.com/8661268/70233652-4aa6d180-175f-11ea-8524-2344e0d3935c.png" width="50%">
 </p>
 
+![Build & Test](https://github.com/eclipse/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=master)
+
 ## Introduction
 
 Great that you've made it to this little Eclipse project! Let's get you started by providing a quick background
