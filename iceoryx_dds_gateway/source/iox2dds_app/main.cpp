@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     // Start application
     iox::runtime::PoshRuntime::getInstance("/gateway_iox2dds");
 
-    iox::gateway::dds::Iceoryx2DDSGateway<> gateway;
+    iox::dds::Iceoryx2DDSGateway<> gateway;
     auto discoveryThread = std::thread([&gateway] { gateway.discoveryLoop(); });
     auto forwardingThread = std::thread([&gateway] { gateway.forwardingLoop(); });
 

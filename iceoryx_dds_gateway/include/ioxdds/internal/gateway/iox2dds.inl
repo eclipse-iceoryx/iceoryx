@@ -23,8 +23,6 @@
 
 namespace iox
 {
-namespace gateway
-{
 namespace dds
 {
 // ======================================== Public ======================================== //
@@ -191,5 +189,4 @@ void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discardChannel(
 }
 
 } // namespace dds
-} // namespace gateway
 } // namespace iox

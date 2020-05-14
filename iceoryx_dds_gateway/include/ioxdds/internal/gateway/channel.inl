@@ -16,8 +16,6 @@
 
 namespace iox
 {
-namespace gateway
-{
 namespace dds
 {
 // Typedefs
@@ -77,5 +75,4 @@ inline std::shared_ptr<data_writer_t> Channel<subscriber_t, data_writer_t>::getD
 }
 
 } // namespace dds
-} // namespace gateway
 } // namespace iox

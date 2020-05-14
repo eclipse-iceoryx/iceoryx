@@ -25,10 +25,9 @@
 
 namespace iox
 {
-namespace gateway
-{
 namespace dds
 {
+
 static constexpr uint32_t MAX_CHANNEL_NUMBER = MAX_PORT_NUMBER;
 
 ///
@@ -81,7 +80,6 @@ class Channel
 };
 
 } // dds
-} // gateway
 } // iox
 
 #include "ioxdds/internal/gateway/channel.inl"

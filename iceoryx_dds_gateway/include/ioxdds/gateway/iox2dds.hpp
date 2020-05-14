@@ -32,8 +32,6 @@
 
 namespace iox
 {
-namespace gateway
-{
 namespace dds
 {
 // Configuration Parameters
@@ -137,7 +135,6 @@ class Iceoryx2DDSGateway : gateway_t
 };
 
 } // dds
-} // gateway
 } // iox
 
 #include "ioxdds/internal/gateway/iox2dds.inl"

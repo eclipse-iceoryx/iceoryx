@@ -63,7 +63,7 @@ class MockDataWriter : public iox::dds::DataWriter<MockDataWriter>
 
 // ======================================== Helpers ======================================== //
 
-using TestGateway = iox::gateway::dds::Iceoryx2DDSGateway<MockGenericGateway, MockSubscriber, MockDataWriter>;
+using TestGateway = iox::dds::Iceoryx2DDSGateway<MockGenericGateway, MockSubscriber, MockDataWriter>;
 
 // Holds mocks created by tests to be returned by mock factories.
 static std::vector<std::shared_ptr<MockSubscriber>> stagedMockSubscribers;
@@ -102,7 +102,7 @@ void stageMockSubscriber(std::shared_ptr<MockSubscriber>&& mock)
 // ======================================== Mock Factories ======================================== //
 
 
-static iox::gateway::dds::Channel<MockSubscriber, MockDataWriter>
+static iox::dds::Channel<MockSubscriber, MockDataWriter>
 mockChannelFactory(iox::capro::ServiceDescription sd) noexcept
 {
     // Get or create a mock subscriber
@@ -129,7 +129,7 @@ mockChannelFactory(iox::capro::ServiceDescription sd) noexcept
         mockDataWriter = createMockDataWriter(sd);
     }
 
-    return iox::gateway::dds::Channel<MockSubscriber, MockDataWriter>(
+    return iox::dds::Channel<MockSubscriber, MockDataWriter>(
         sd, std::move(mockSubscriber), std::move(mockDataWriter));
 }
 
