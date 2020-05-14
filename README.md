@@ -28,7 +28,7 @@ It's all about the API!
 
 Don't get too frighten of the API when strolling through the codebase. Think of iceoryx's API as a "plumbing" one
 ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" API ourselves, but instead a typed API.
-Examples for a "porcelain" API would be are listed in the next section.
+An example for a "porcelain" API would be [ROS2](https://www.ros.org/). Others are listed in the next section.
 
 ### Where is Eclipse iceoryx used?
 
