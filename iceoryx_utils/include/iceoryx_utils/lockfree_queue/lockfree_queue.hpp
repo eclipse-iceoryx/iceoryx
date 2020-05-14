@@ -99,8 +99,8 @@ class LockFreeQueue
     // this has the advantage of limiting unneccessary synchronization (e.g. due to CAS failure)
     // and keeps the responsibility inside the LockFreeQueue itself (which contains the buffer)
 
-    void acquireBufferChanges();
-    void releaseBufferChanges();
+    void writeBufferAt(const UniqueIndex&, const ElementType&);
+    cxx::optional<ElementType> readBufferAt(const UniqueIndex&);
 };
 } // namespace iox
 

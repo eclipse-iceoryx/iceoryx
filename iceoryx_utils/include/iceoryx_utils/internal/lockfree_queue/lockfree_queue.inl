@@ -33,19 +33,16 @@ constexpr uint64_t LockFreeQueue<ElementType, Capacity>::capacity() noexcept
 template <typename ElementType, uint64_t Capacity>
 bool LockFreeQueue<ElementType, Capacity>::try_push(const ElementType value) noexcept
 {
+    // note that const precludes us from changing value but std::move works (it removes the constness)
+
     UniqueIndex index = m_freeIndices.pop();
 
-    if (!index.is_valid())
+    if (!index.isValid())
     {
         return false; // detected full queue
     }
 
-    auto ptr = m_buffer.ptr(index);
-    new (ptr) ElementType(std::move(value));
-
-    // ensures that whenever an index is pushed into m_usedIndices, the corresponding value in m_buffer[index]
-    // was written before
-    releaseBufferChanges();
+    writeBufferAt(index, value);
 
     m_usedIndices.push(index);
 
@@ -56,37 +53,36 @@ bool LockFreeQueue<ElementType, Capacity>::try_push(const ElementType value) noe
 template <typename ElementType, uint64_t Capacity>
 iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const ElementType value) noexcept
 {
-    cxx::optional<ElementType> result;
+    // note that const precludes us from changing value but std::move works (it removes the constness)
+
+    cxx::optional<ElementType> evictedValue;
 
     UniqueIndex index = m_freeIndices.pop();
-    while (!index.is_valid())
+
+    while (!index.isValid())
     {
         // only pop the index if the queue is still full
         index = m_usedIndices.popIfFull();
-        if (index.is_valid())
+        if (index.isValid())
         {
-            // todo: private method and sync here?
-            auto ptr = m_buffer.ptr(index);
-            result = std::move(*ptr);
-            ptr->~ElementType();
+            evictedValue = readBufferAt(index);
             break;
         }
-        // if the queue was not full we try again
+        // if m_usedIndices was not full we try again (m_freeIndices should contain an index in this case)
+        // note that it is theoretically possible to be unsuccessful indefinitely
+        // (and thus we would have an infinite loop)
+        // but this requires a timing of concurrent pushes and pops which is exceptionally unlikely in practice
+
         index = m_freeIndices.pop();
     }
 
     // if we removed from a full queue via popIfFull it might not be full anymore when a concurrent pop occurs
 
-    auto ptr = m_buffer.ptr(index);
-    new (ptr) ElementType(std::move(value));
-
-    // ensures that whenever an index is pushed into m_usedIndices, the corresponding value in m_buffer[index]
-    // was written before
-    releaseBufferChanges();
+    writeBufferAt(index, value);
 
     m_usedIndices.push(index);
 
-    return result;
+    return evictedValue;
 }
 
 template <typename ElementType, uint64_t Capacity>
@@ -94,18 +90,12 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pop() noex
 {
     UniqueIndex index = m_usedIndices.pop();
 
-    if (!index.is_valid())
+    if (!index.isValid())
     {
         return cxx::nullopt_t(); // detected empty queue
     }
 
-    // combined with releaseChanges, this ensures that whenever an index is popped from m_usedIndices,
-    // the corresponding value in m_buffer[index] was written to before
-    acquireBufferChanges();
-
-    auto ptr = m_buffer.ptr(index);
-    cxx::optional<ElementType> result(std::move(*ptr));
-    ptr->~ElementType();
+    auto result = readBufferAt(index);
 
     m_freeIndices.push(index);
 
@@ -125,14 +115,24 @@ uint64_t LockFreeQueue<ElementType, Capacity>::size()
 }
 
 template <typename ElementType, uint64_t Capacity>
-void LockFreeQueue<ElementType, Capacity>::acquireBufferChanges()
+cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const UniqueIndex& index)
 {
+    // also used for buffer synchronization
     m_size.fetch_sub(1u, std::memory_order_acquire);
+
+    auto& element = m_buffer[index];
+    cxx::optional<ElementType> result(std::move(element));
+    element.~ElementType();
+    return result;
 }
 
 template <typename ElementType, uint64_t Capacity>
-void LockFreeQueue<ElementType, Capacity>::releaseBufferChanges()
+void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const UniqueIndex& index, const ElementType& value)
 {
+    auto elementPtr = m_buffer.ptr(index);
+    new (elementPtr) ElementType(std::move(value));
+
+    // also used for buffer synchronization
     m_size.fetch_add(1u, std::memory_order_release);
 }
 } // namespace iox
