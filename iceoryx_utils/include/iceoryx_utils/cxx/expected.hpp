@@ -584,9 +584,9 @@ class expected<ValueType, ErrorType>
     expected& on_success(const std::function<void(expected&)>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
-    ///         a reference to the expected is given as an argument to the callable
+    ///         a reference to the result is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains a success value
-    /// @return const reference to the result
+    /// @return const reference to the expected
     /// @code
     ///     someExpected.on_success([](int& result){
     ///         std::cout << "we have a result : " << result << std::endl;
@@ -595,9 +595,9 @@ class expected<ValueType, ErrorType>
     const expected& on_success(const std::function<void(ValueType&)>& callable) const noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
-    ///         a reference to the expected is given as an argument to the callable
+    ///         a reference to the result is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains a success value
-    /// @return reference to the result
+    /// @return reference to the expected
     /// @code
     ///     someExpected.on_success([](int& result){
     ///         std::cout << "we have a result : " << result << std::endl;
