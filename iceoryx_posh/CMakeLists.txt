@@ -82,7 +82,6 @@ add_library(iceoryx_posh
     source/runtime/runnable.cpp
     source/runtime/runnable_data.cpp
     source/runtime/runnable_property.cpp
-    source/runtime/service_discovery_notifier.cpp
     source/runtime/shared_memory_user.cpp
 )
 
