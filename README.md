@@ -167,7 +167,6 @@ workings of iceoryx. We hope you enjoy our sightseeing tour!
 
 |Name | Description | Technologies |
 |---|---|---|
-| [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx) | See how iceoryx can be used inside the robot operating system | ROS, RMW |
 | [Larry.Robotics](https://gitlab.com/larry.robotics) | An iceoryx demonstrator for tinker, thinker and toddler | Demonstrator |
 | [iceoryx-rs](https://github.com/elBoberido/iceoryx-rs) | Experimental Rust wrapper for iceoryx | Rust |
 | [IceRay](https://github.com/elBoberido/iceray) | An iceoryx instrospection client written in Rust | Rust |
