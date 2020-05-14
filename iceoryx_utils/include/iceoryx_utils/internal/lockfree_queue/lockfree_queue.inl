@@ -127,16 +127,12 @@ uint64_t LockFreeQueue<ElementType, Capacity>::size()
 template <typename ElementType, uint64_t Capacity>
 void LockFreeQueue<ElementType, Capacity>::acquireBufferChanges()
 {
-    // rename the method? it is now decrementing the size and performing synchronization
     m_size.fetch_sub(1u, std::memory_order_acquire);
-    // std::atomic_thread_fence(std::memory_order_acquire);
 }
 
 template <typename ElementType, uint64_t Capacity>
 void LockFreeQueue<ElementType, Capacity>::releaseBufferChanges()
 {
-    // rename the method? it is now incrementing the size and performing synchronization
     m_size.fetch_add(1u, std::memory_order_release);
-    // std::atomic_thread_fence(std::memory_order_release);
 }
 } // namespace iox
