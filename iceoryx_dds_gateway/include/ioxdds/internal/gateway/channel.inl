@@ -48,10 +48,8 @@ Channel<subscriber_t, data_writer_t>::create(const iox::capro::ServiceDescriptio
 {
     // Create objects in the pool.
     auto rawSubscriberPtr = s_subscriberPool.create(std::forward<const iox::capro::ServiceDescription>(service));
-    auto rawDataWriterPtr =
-        s_dataWriterPool.create(service.getServiceIDString(),
-                                service.getInstanceIDString(),
-                                service.getEventIDString());
+    auto rawDataWriterPtr = s_dataWriterPool.create(
+        service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
     auto subscriberPtr = SubscriberPtr(rawSubscriberPtr, [](subscriber_t* p) -> void { s_subscriberPool.free(p); });
