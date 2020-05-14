@@ -269,6 +269,25 @@ expected<ValueType, ErrorType>::on_success(const std::function<void(expected&)>&
 }
 
 template <typename ValueType, typename ErrorType>
+inline const expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::on_success(const std::function<void(ValueType&)>& callable) const noexcept
+{
+    return const_cast<expected*>(this)->on_success(callable);
+}
+
+template <typename ValueType, typename ErrorType>
+inline expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::on_success(const std::function<void(ValueType&)>& callable) noexcept
+{
+    if (!this->has_error())
+    {
+        callable(get_value());
+    }
+
+    return *this;
+}
+
+template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::on_success(const std::function<void()>& callable) noexcept
 {

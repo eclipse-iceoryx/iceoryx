@@ -259,6 +259,24 @@ TEST_F(expected_test, ConstOnSuccessWhenHavingSuccessWithResult)
     EXPECT_THAT(a, Eq(1142));
 }
 
+TEST_F(expected_test, ValueTypeOnSuccessWhenHavingSuccessWithResult)
+{
+    expected<int, float> sut{success<int>(112)};
+    int a = 0;
+    sut.on_error([&](expected<int, float>&) { a = 3; }).on_success([&](int& r) { a = r; });
+
+    EXPECT_THAT(a, Eq(112));
+}
+
+TEST_F(expected_test, ValueTypeConstOnSuccessWhenHavingSuccessWithResult)
+{
+    const expected<int, float> sut{success<int>(1142)};
+    int a = 0;
+    sut.on_error([&](expected<int, float>&) { a = 3; }).on_success([&](int& r) { a = r; });
+
+    EXPECT_THAT(a, Eq(1142));
+}
+
 TEST_F(expected_test, VoidOnSuccessWhenHavingSuccessWithResult)
 {
     expected<float> sut{success<>()};
