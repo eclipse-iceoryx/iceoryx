@@ -70,9 +70,6 @@ template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline void
 Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
-    // Prevent new channels being added/removed while doing discovery.
-    const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
-
     iox::LogDebug() << "[Iceoryx2DDSGateway] <CaproMessage> "
                     << iox::capro::CaproMessageTypeString[static_cast<uint8_t>(msg.m_type)]
                     << " { Service: " << msg.m_serviceDescription.getServiceIDString()
@@ -126,9 +123,6 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forwardi
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward() noexcept
 {
-    // Prevent new channels being added/removed while doing forwarding.
-    const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
-
     auto index = 0;
     for (auto& channel : m_channels)
     {
@@ -170,10 +164,11 @@ Channel<subscriber_t, data_writer_t> Iceoryx2DDSGateway<gateway_t, subscriber_t,
     const iox::capro::ServiceDescription& service)
 {
     auto channel = m_channelFactory(service);
-    m_channels.push_back(channel);
     iox::LogDebug() << "[Iceoryx2DDSGateway] Channel set up for service: "
                     << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
                     << service.getEventIDString();
+    const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
+    m_channels.push_back(channel);
     return channel;
 }
 
@@ -181,6 +176,7 @@ template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discardChannelUnsafe(
     const iox::capro::ServiceDescription& service)
 {
+    const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
     for (auto& channel : m_channels)
     {
         if (channel.getService() == service)

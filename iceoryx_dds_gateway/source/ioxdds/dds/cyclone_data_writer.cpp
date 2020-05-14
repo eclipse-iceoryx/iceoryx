@@ -39,9 +39,7 @@ iox::dds::CycloneDataWriter::~CycloneDataWriter()
 void iox::dds::CycloneDataWriter::connect() noexcept
 {
     m_publisher = ::dds::pub::Publisher(getParticipant());
-    iox::cxx::string<512> topic(iox::cxx::TruncateToCapacity,
-                                "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/"
-                                    + std::string(m_eventId));
+    auto topic = "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
     m_topic = ::dds::topic::Topic<Mempool::Chunk>(getParticipant(), topic);
     m_writer = ::dds::pub::DataWriter<Mempool::Chunk>(m_publisher, m_topic);
     LogDebug() << "[CycloneDataWriter] Connected to topic: " << topic;
