@@ -121,21 +121,19 @@ class Iceoryx2DDSGateway : gateway_t
     iox::cxx::vector<Channel<subscriber_t, data_writer_t>, MAX_CHANNEL_NUMBER> m_channels;
 
     ///
-    /// @brief setupChannelUnsafe Creates a new channel for a service. Unsafe as there are is no synchronization checks.
-    /// The caller is responsible for handling possible race conditions.
+    /// @brief setupChannelUnsafe Creates a new channel for a service.
     ///
     /// @param service The service for which a channel will be established.
     /// @return Channel object with subscriber and data writer for the given service.
     ///
-    Channel<subscriber_t, data_writer_t> setupChannelUnsafe(const iox::capro::ServiceDescription& service);
+    Channel<subscriber_t, data_writer_t> setupChannel(const iox::capro::ServiceDescription& service);
 
     ///
-    /// @brief takeDownChannelUnsafe Discards the channel for the given service. Unsafe as there are is no
-    /// synchronization checks. The caller is responsible for handling possible race consitions.
+    /// @brief discardChannel Discards the channel for the given service.
     ///
     /// @param service The service for which a channel will be discarded.
     ///
-    void discardChannelUnsafe(const iox::capro::ServiceDescription& service);
+    void discardChannel(const iox::capro::ServiceDescription& service);
 };
 
 } // dds
