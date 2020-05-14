@@ -61,7 +61,7 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover
             discover(msg);
         }
         std::this_thread::sleep_until(std::chrono::steady_clock::now()
-                                      + std::chrono::milliseconds(iox::gateway::dds::DISCOVERY_PERIOD_MS));
+                                      + std::chrono::milliseconds(DISCOVERY_PERIOD.milliSeconds<int64_t>()));
     }
     iox::LogDebug() << "[Iceoryx2DDSGateway] Stopped discovery.";
 }
@@ -115,7 +115,7 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forwardi
     {
         forward();
         std::this_thread::sleep_until(std::chrono::steady_clock::now()
-                                      + std::chrono::milliseconds(iox::gateway::dds::FORWARDING_PERIOD_MS));
+                                      + std::chrono::milliseconds(FORWARDING_PERIOD.milliSeconds<int64_t>()));
     };
     iox::LogDebug() << "[Iceoryx2DDSGateway] Stopped forwarding.";
 }

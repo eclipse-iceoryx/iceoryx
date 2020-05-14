@@ -37,9 +37,9 @@ namespace gateway
 namespace dds
 {
 // Configuration Parameters
-static constexpr uint32_t DISCOVERY_PERIOD_MS = 1000;
-static constexpr uint32_t FORWARDING_PERIOD_MS = 50;
-static constexpr uint32_t SUBSCRIBER_CACHE_SIZE = 128;
+constexpr units::Duration DISCOVERY_PERIOD = 1000_ms;
+constexpr units::Duration FORWARDING_PERIOD = 50_ms;
+constexpr uint32_t SUBSCRIBER_CACHE_SIZE = 128;
 
 ///
 /// @brief A Gateway to support internode communication between iceoryx nodes in a DDS network.
