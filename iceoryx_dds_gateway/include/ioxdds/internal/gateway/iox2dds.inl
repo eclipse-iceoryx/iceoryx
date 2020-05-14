@@ -60,7 +60,8 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover
         {
             discover(msg);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(iox::gateway::dds::DISCOVERY_PERIOD_MS));
+        std::this_thread::sleep_until(std::chrono::steady_clock::now()
+                                      + std::chrono::milliseconds(iox::gateway::dds::DISCOVERY_PERIOD_MS));
     }
     iox::LogDebug() << "[Iceoryx2DDSGateway] Stopped discovery.";
 }
@@ -98,7 +99,7 @@ Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover(const iox::
     }
     case iox::capro::CaproMessageType::STOP_OFFER:
     {
-        takeDownChannelUnsafe(msg.m_serviceDescription);
+        discardChannelUnsafe(msg.m_serviceDescription);
         break;
     }
     default:
@@ -116,7 +117,8 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forwardi
     while (m_runForwardingLoop.load(std::memory_order_relaxed))
     {
         forward();
-        std::this_thread::sleep_for(std::chrono::milliseconds(iox::gateway::dds::FORWARDING_PERIOD_MS));
+        std::this_thread::sleep_until(std::chrono::steady_clock::now()
+                                      + std::chrono::milliseconds(iox::gateway::dds::FORWARDING_PERIOD_MS));
     };
     iox::LogDebug() << "[Iceoryx2DDSGateway] Stopped forwarding.";
 }
@@ -176,7 +178,7 @@ Channel<subscriber_t, data_writer_t> Iceoryx2DDSGateway<gateway_t, subscriber_t,
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::takeDownChannelUnsafe(
+void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discardChannelUnsafe(
     const iox::capro::ServiceDescription& service)
 {
     for (auto& channel : m_channels)

@@ -135,7 +135,7 @@ class Iceoryx2DDSGateway : gateway_t
     ///
     /// @param service The service for which a channel will be discarded.
     ///
-    void takeDownChannelUnsafe(const iox::capro::ServiceDescription& service);
+    void discardChannelUnsafe(const iox::capro::ServiceDescription& service);
 };
 
 } // dds
