@@ -55,7 +55,7 @@ PoshRuntime::PoshRuntime(const std::string& name, const bool doMapSharedMemoryIn
     , m_applicationPort(getMiddlewareApplication())
     , m_serviceDiscoveryNotifier(name, getServiceRegistryChangeCounter())
 {
-    m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC);
+    m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC)
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
 
