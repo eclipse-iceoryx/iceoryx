@@ -146,10 +146,10 @@ your code as portable as possible. Currently our focus is [QNX](https://blackber
 ### Safety & security
 
 We aim for [ASIL-D](https://en.wikipedia.org/wiki/Automotive_Safety_Integrity_Level#ASIL_D) compliance. The
-[ISO262](https://en.wikipedia.org/wiki/ISO_26262) is also a good read-up if you want to learn more about automotive
+[ISO26262](https://en.wikipedia.org/wiki/ISO_26262) is also a good read-up if you want to learn more about automotive
 safety. A nice introduction [video](https://www.youtube.com/watch?v=F4GzsA00s5I) was presented on CppCon 2019.
 
-We have a partnership with [Perforce](https://www.perforce.com) and use
+We have a [partnership](https://www.perforce.com/blog/qac/why-eclipse-iceoryx-uses-helix-qac) with [Perforce](https://www.perforce.com) and use
 [Helix QAC++ 2019.2](https://www.perforce.com/products/helix-qac) to perform a static-code analysis.
 
 Github [labels](https://github.com/eclipse/iceoryx/labels) are used to group issues into the rulesets:
