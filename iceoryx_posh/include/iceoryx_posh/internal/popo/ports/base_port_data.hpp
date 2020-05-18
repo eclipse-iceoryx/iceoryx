@@ -56,7 +56,7 @@ struct BasePortData
     cxx::CString100 m_processName;
 
     static std::atomic<uint64_t> s_uniqueIdCounter;
-    std::atomic<uint64_t> m_uniqueId{0};
+    const std::atomic<uint64_t> m_uniqueId{0};
     std::atomic_bool m_toBeDestroyed{false};
 };
 
