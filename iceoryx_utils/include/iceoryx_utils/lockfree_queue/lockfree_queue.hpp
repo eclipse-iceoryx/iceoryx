@@ -48,9 +48,9 @@ class LockFreeQueue
 
     /// @brief tries to insert value in FIFO order, moves the value internally
     /// @param value to be inserted (value semantics support move by the user)
-    /// @return invalid optional if insertion was successful (i.e. queue was not full during push), value otherwise
+    /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// threadsafe, lockfree
-    iox::cxx::optional<ElementType> tryPush(ElementType&& value) noexcept;
+    bool try_push(ElementType&& value) noexcept;
 
     /// @brief tries to insert value in FIFO order, copies the value internally
     /// @param value to be inserted (value semantics support move by the user)
@@ -100,13 +100,9 @@ class LockFreeQueue
 
     std::atomic<uint64_t> m_size{0};
 
-    // note that we now perform the memory synchronization not using the index queue anymore but
-    // with those methods
-    // this has the advantage of limiting unneccessary synchronization (e.g. due to CAS failure)
-    // and keeps the responsibility inside the LockFreeQueue itself (which contains the buffer)
-
-    void writeBufferAt(const UniqueIndex&, const ElementType&);
-    void writeBufferAt(const UniqueIndex&, ElementType&&);
+    // template is needed to distinguish between lvalue and rvalue T references
+    template <typename T>
+    void writeBufferAt(const UniqueIndex&, T&&);
 
     cxx::optional<ElementType> readBufferAt(const UniqueIndex&);
 };

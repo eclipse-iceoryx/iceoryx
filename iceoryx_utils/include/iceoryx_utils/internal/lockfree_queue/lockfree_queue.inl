@@ -14,6 +14,8 @@
 
 #include "iceoryx_utils/cxx/optional.hpp"
 
+#include <utility>
+
 namespace iox
 {
 template <typename ElementType, uint64_t Capacity>
@@ -46,23 +48,21 @@ bool LockFreeQueue<ElementType, Capacity>::try_push(const ElementType& value) no
     return true; // value was copied into the queue and is unchanged
 }
 
-// @todo: test the move semantics, adapt tests when proposal of interface was discussed, rename method
-
 template <typename ElementType, uint64_t Capacity>
-iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
+bool LockFreeQueue<ElementType, Capacity>::try_push(ElementType&& value) noexcept
 {
     UniqueIndex index = m_freeIndices.pop();
 
     if (!index.isValid())
     {
-        return cxx::optional<ElementType>(std::move(value)); // detected full queue, return value to the caller
+        return false; // detected full queue
     }
 
-    writeBufferAt(index, value); //&& version is called
+    writeBufferAt(index, std::forward<ElementType>(value)); //&& version is called
 
     m_usedIndices.push(index);
 
-    return cxx::nullopt_t(); // value was moved into buffer, return nothing to the caller
+    return true;
 }
 
 template <typename ElementType, uint64_t Capacity>
@@ -142,22 +142,14 @@ cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(co
 }
 
 template <typename ElementType, uint64_t Capacity>
-void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const UniqueIndex& index, ElementType&& value)
+template <typename T>
+void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const UniqueIndex& index, T&& value)
 {
     auto elementPtr = m_buffer.ptr(index);
-    new (elementPtr) ElementType(value); // move ctor invoked
+    new (elementPtr) ElementType(std::forward<T>(value)); // move ctor invoked when available, copy ctor otherwise
 
     // also used for buffer synchronization
     m_size.fetch_add(1u, std::memory_order_release);
 }
 
-template <typename ElementType, uint64_t Capacity>
-void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const UniqueIndex& index, const ElementType& value)
-{
-    auto elementPtr = m_buffer.ptr(index);
-    new (elementPtr) ElementType(value); // copy ctor invoked
-
-    // also used for buffer synchronization
-    m_size.fetch_add(1u, std::memory_order_release);
-}
 } // namespace iox
