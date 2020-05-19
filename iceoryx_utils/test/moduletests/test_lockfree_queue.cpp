@@ -61,7 +61,7 @@ class LockFreeQueueTest : public ::testing::Test
         int data{start};
         for (uint64_t i = 0; i < queue.capacity(); ++i)
         {
-            queue.try_push(data);
+            queue.tryPush(data);
             data++;
         }
     }
@@ -83,7 +83,7 @@ TEST(LockFreeQueueTest, capacityIsConsistent)
 }
 
 // note that we use implicit conversions of int to Integer to be able use the same test structure
-// for Integer and int (primarily for try_push)
+// for Integer and int (primarily for tryPush)
 typedef ::testing::Types<IntegerQueue<1>, IntegerQueue<10>, IntQueue<10>> TestQueues;
 
 TYPED_TEST_CASE(LockFreeQueueTest, TestQueues);
@@ -100,7 +100,7 @@ TYPED_TEST(LockFreeQueueTest, pushAndPopSingleElement)
     auto& q = this->queue;
 
     int data = 42;
-    EXPECT_TRUE(q.try_push(data));
+    EXPECT_TRUE(q.tryPush(data));
     EXPECT_EQ(q.size(), 1);
 
     auto x = q.pop();
@@ -114,7 +114,7 @@ TYPED_TEST(LockFreeQueueTest, popFromEmptyQueueReturnsNothing)
     auto& q = this->queue;
 
     int data = 24;
-    q.try_push(data);
+    q.tryPush(data);
     q.pop();
     EXPECT_FALSE(q.pop().has_value());
     EXPECT_EQ(q.size(), 0);
@@ -129,7 +129,7 @@ TYPED_TEST(LockFreeQueueTest, tryPushUntilFullCapacityIsUsed)
     for (uint64_t i = 0; i < capacity; ++i)
     {
         EXPECT_EQ(q.size(), i);
-        EXPECT_TRUE(q.try_push(data));
+        EXPECT_TRUE(q.tryPush(data));
         data++;
     }
 
@@ -141,7 +141,7 @@ TYPED_TEST(LockFreeQueueTest, tryPushInFullQueueFails)
     auto& q = this->queue;
     this->fillQueue(38);
     int data{37};
-    EXPECT_FALSE(q.try_push(data));
+    EXPECT_FALSE(q.tryPush(data));
 }
 
 TYPED_TEST(LockFreeQueueTest, poppedElementsAreInFifoOrder)
@@ -229,7 +229,7 @@ TYPED_TEST(LockFreeQueueTest, checkEmptynessAfterOneElementWasPushedandPopped)
 {
     auto& q = this->queue;
 
-    q.try_push(37);
+    q.tryPush(37);
     auto x = q.pop();
 
     EXPECT_TRUE(q.empty());
