@@ -32,7 +32,7 @@ constexpr uint64_t LockFreeQueue<ElementType, Capacity>::capacity() noexcept
 }
 
 template <typename ElementType, uint64_t Capacity>
-bool LockFreeQueue<ElementType, Capacity>::try_push(const ElementType& value) noexcept
+bool LockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noexcept
 {
     UniqueIndex index = m_freeIndices.pop();
 
@@ -49,7 +49,7 @@ bool LockFreeQueue<ElementType, Capacity>::try_push(const ElementType& value) no
 }
 
 template <typename ElementType, uint64_t Capacity>
-bool LockFreeQueue<ElementType, Capacity>::try_push(ElementType&& value) noexcept
+bool LockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
 {
     UniqueIndex index = m_freeIndices.pop();
 

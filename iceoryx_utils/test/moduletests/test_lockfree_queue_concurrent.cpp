@@ -55,7 +55,7 @@ void produce(Queue& queue, int id, int iterations)
     for (int i = 0; i < iterations; ++i)
     {
         d.count++;
-        while (!queue.try_push(d))
+        while (!queue.tryPush(d))
         {
         }
     }
@@ -228,7 +228,7 @@ void work(Queue& queue, int id, std::atomic<bool>& run)
             // try a push (we know the list is not empty since doPop is false)
             auto value = poppedValues.front();
             value.id = id;
-            if (queue.try_push(value))
+            if (queue.tryPush(value))
             {
                 poppedValues.pop_front();
                 doPop = true;
@@ -240,7 +240,7 @@ void work(Queue& queue, int id, std::atomic<bool>& run)
     for (auto& value : poppedValues)
     {
         value.id = id;
-        while (!queue.try_push(value))
+        while (!queue.tryPush(value))
         {
         }
     }
@@ -474,7 +474,7 @@ TYPED_TEST(LockFreeQueueStressTest, timedMultiProducerMultiConsumer)
     for (size_t i = 0; i < capacity; ++i)
     {
         d.count = i;
-        while (!q.try_push(d))
+        while (!q.tryPush(d))
             ;
     }
 
@@ -551,7 +551,7 @@ TYPED_TEST(LockFreeQueueStressTest, timedMultiProducerMultiConsumer0verflow)
     for (size_t i = 0; i < capacity; ++i)
     {
         d.count = i;
-        while (!q.try_push(d))
+        while (!q.tryPush(d))
         {
         }
     }

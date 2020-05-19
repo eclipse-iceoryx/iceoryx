@@ -50,13 +50,13 @@ class LockFreeQueue
     /// @param value to be inserted (value semantics support move by the user)
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// threadsafe, lockfree
-    bool try_push(ElementType&& value) noexcept;
+    bool tryPush(ElementType&& value) noexcept;
 
     /// @brief tries to insert value in FIFO order, copies the value internally
     /// @param value to be inserted (value semantics support move by the user)
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// threadsafe, lockfree
-    bool try_push(const ElementType& value) noexcept;
+    bool tryPush(const ElementType& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
