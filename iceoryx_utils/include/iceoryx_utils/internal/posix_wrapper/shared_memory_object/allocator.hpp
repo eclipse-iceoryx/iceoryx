@@ -28,23 +28,23 @@ class Allocator
 
   public:
     static constexpr uint64_t MEMORY_ALIGNMENT = 32;
-    Allocator(const void* f_startAddress, const uint64_t f_length);
+    Allocator(void* const f_startAddress, const uint64_t f_length) noexcept;
 
     Allocator(const Allocator&) = delete;
-    Allocator(Allocator&&) = default;
-    Allocator& operator=(const Allocator&) = delete;
+    Allocator(Allocator&&) noexcept = default;
+    Allocator& operator=(const Allocator&) noexcept = delete;
     Allocator& operator=(Allocator&&) = default;
     ~Allocator() = default;
 
-    void* allocate(const uint64_t f_size, const uint64_t f_alignment = MEMORY_ALIGNMENT);
+    void* allocate(const uint64_t f_size, const uint64_t f_alignment = MEMORY_ALIGNMENT) noexcept;
 
   protected:
     friend class SharedMemoryObject;
-    void finalizeAllocation();
+    void finalizeAllocation() noexcept;
 
   private:
-    byte_t* m_startAddress;
-    uint64_t m_length;
+    byte_t* m_startAddress{nullptr};
+    uint64_t m_length{0u};
     uint64_t m_currentPosition = 0u;
     bool m_allocationFinalized = false;
 };

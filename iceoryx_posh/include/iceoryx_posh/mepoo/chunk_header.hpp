@@ -45,7 +45,7 @@ struct alignas(32) ChunkHeader
     void* m_payloadDummy{nullptr};
 };
 
-ChunkHeader* convertPayloadPointerToChunkHeader(void* const payload) noexcept;
+ChunkHeader* convertPayloadPointerToChunkHeader(const void* const payload) noexcept;
 
 } // namespace mepoo
 } // namespace iox
