@@ -208,6 +208,7 @@ inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest)
     return true;
 }
 
+#ifdef __APPLE__
 /// introduced for mac os since unsigned long is not uint64_t despite it has the same size
 /// who knows why ¯\_(ツ)_/¯
 template <>
@@ -218,6 +219,7 @@ inline bool convert::fromString<unsigned long>(const char* v, unsigned long& des
     dest = temp;
     return retVal;
 }
+#endif
 
 template <>
 inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest)
