@@ -18,7 +18,6 @@
 #include <iceoryx_posh/mepoo/chunk_header.hpp>
 #include <iceoryx_utils/cxx/string.hpp>
 
-#include "ioxdds/gateway/iox2dds.hpp"
 #include "ioxdds/internal/log/logging.hpp"
 
 namespace iox
