@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
+#include <limits>
 
-#include "roudi_gtest.hpp"
 #include <iceoryx_posh/internal/capro/capro_message.hpp>
 #include <ioxdds/dds/data_writer.hpp>
 #include <ioxdds/gateway/iox2dds.hpp>
-#include <limits>
+
+#include "test.hpp"
+#include "roudi_gtest.hpp"
+#include "mocks/chunk_mock.hpp"
 
 using namespace ::testing;
 using ::testing::_;
@@ -178,7 +180,7 @@ TEST_F(Iceoryx2DDSGatewayTest, CreatesSubscriberAndDataWriterForOfferedServices)
 
 TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDetectedPublishers)
 {
-    // === Create Mock
+    // === Create Mocks
     auto mockSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
     EXPECT_CALL(*mockSubscriber, subscribe).Times(1);
     stageMockSubscriber(std::move(mockSubscriber));
@@ -192,7 +194,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDetectedPublishers
 
 TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersToDDSNetwork)
 {
-    // === Create Mock
+    // === Create Mocks
     auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
     EXPECT_CALL(*mockWriter, connect).Times(1);
     stageMockDataWriter(std::move(mockWriter));
@@ -206,22 +208,17 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersToDDSNetwork
 
 TEST_F(Iceoryx2DDSGatewayTest, ForwardsFromPoshSubscriberToDDSDataWriter)
 {
-    // === Create Mock
-    // Create a chunk in the heap
-    char* buf = new char[sizeof(iox::mepoo::ChunkHeader) + sizeof(int)];
-    auto chunk = new (buf) iox::mepoo::ChunkHeader();
-    chunk->m_info.m_payloadSize = sizeof(int);
-    auto payloadPtr = reinterpret_cast<int*>(buf + sizeof(iox::mepoo::ChunkHeader));
-    *payloadPtr = 42; // Payload Value
+    // === Create Mocks
+    ChunkMock<int> mockChunk{42};
 
     // Set up subscriber to provide this chunk when requested
     auto mockSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
     auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
 
     ON_CALL(*mockSubscriber, hasNewChunks).WillByDefault(Return(true));
-    ON_CALL(*mockSubscriber, getChunk).WillByDefault(DoAll(SetArgPointee<0>(chunk), Return(true)));
+    ON_CALL(*mockSubscriber, getChunk).WillByDefault(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
     EXPECT_CALL(*mockSubscriber, hasNewChunks).Times(1);
-    EXPECT_CALL(*mockWriter, write(SafeMatcherCast<uint8_t*>(Pointee(Eq(42))), chunk->m_info.m_payloadSize)).Times(1);
+    EXPECT_CALL(*mockWriter, write(SafeMatcherCast<uint8_t*>(Pointee(Eq(42))), mockChunk.chunkHeader()->m_info.m_payloadSize)).Times(1);
 
     stageMockSubscriber(std::move(mockSubscriber));
     stageMockDataWriter(std::move(mockWriter));
@@ -232,24 +229,20 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsFromPoshSubscriberToDDSDataWriter)
     gw->discover(msg);
     gw->forward();
 
-    // === Clean-up
-    delete[] buf;
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
 {
-    // === Create Mock
-    // Create a chunk in the heap
-    char* buf = new char[sizeof(iox::mepoo::ChunkHeader) + sizeof(int)];
-    auto chunk = new (buf) iox::mepoo::ChunkHeader();
-    chunk->m_info.m_payloadSize = 0;
+    // === Create Mocks
+    ChunkMock<int> mockChunk{42};
+    mockChunk.chunkHeader()->m_info.m_payloadSize = 0;
 
     auto mockSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
     auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
 
     EXPECT_CALL(*mockSubscriber, hasNewChunks).Times(1);
     ON_CALL(*mockSubscriber, hasNewChunks).WillByDefault(Return(true));
-    ON_CALL(*mockSubscriber, getChunk).WillByDefault(DoAll(SetArgPointee<0>(chunk), Return(true)));
+    ON_CALL(*mockSubscriber, getChunk).WillByDefault(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
     EXPECT_CALL(*mockWriter, write).Times(Exactly(0));
 
     stageMockSubscriber(std::move(mockSubscriber));
@@ -264,22 +257,19 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
 
 TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
 {
-    // === Create Mock
-    // Create a chunk in the heap (required for write)
-    char* buf = new char[sizeof(iox::mepoo::ChunkHeader) + sizeof(int)];
-    auto chunk = new (buf) iox::mepoo::ChunkHeader();
-    chunk->m_info.m_payloadSize = sizeof(int);
-    auto payloadPtr = reinterpret_cast<int*>(buf + sizeof(iox::mepoo::ChunkHeader));
-    *payloadPtr = 42; // Payload Value
+    // === Create Mocks
+    ChunkMock<int> mockChunk{42};
 
     auto mockSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
     auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
 
-    EXPECT_CALL(*mockSubscriber, hasNewChunks).Times(1);
     ON_CALL(*mockSubscriber, hasNewChunks).WillByDefault(Return(true));
-    ON_CALL(*mockSubscriber, getChunk).WillByDefault(DoAll(SetArgPointee<0>(chunk), Return(true)));
+    ON_CALL(*mockSubscriber, getChunk).WillByDefault(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
+
+    // Define expected sequence of calls
     {
         InSequence seq;
+        EXPECT_CALL(*mockSubscriber, hasNewChunks).Times(1);
         EXPECT_CALL(*mockSubscriber, getChunk).Times(1);
         EXPECT_CALL(*mockWriter, write).Times(1);
         EXPECT_CALL(*mockSubscriber, releaseChunk).Times(1);
@@ -297,7 +287,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
 
 TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStopsOffering)
 {
-    // === Create Mock
+    // === Create Mocks
     // Subscribers
     auto firstCreatedSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
     auto secondCreatedSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
