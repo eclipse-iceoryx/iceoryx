@@ -18,6 +18,7 @@
 #include <chrono>
 #include <functional>
 #include <memory>
+#include <thread>
 
 #include <iceoryx_posh/iceoryx_posh_types.hpp>
 #include <iceoryx_posh/popo/gateway_generic.hpp>
@@ -66,34 +67,22 @@ class Iceoryx2DDSGateway : gateway_t
     Iceoryx2DDSGateway& operator=(Iceoryx2DDSGateway&&) = delete;
 
     ///
-    /// @brief Starts the discovery loop.
+    /// @brief runMultithreaded Runs the DDS gateway with multiple threads - one for discovery and one for forwarding.
     ///
-    /// Periodically check for and process capro messages received
-    /// via the GenericGateway.
-    /// When new publishers are offered in the system, the required DDS components for
-    /// data fotwarding are initialized. Converseley, when publishers stop offering, these
-    /// components are destroyed.
-    ///
-    /// A dedicated thread is recommended for this loop.
-    ///
-    void discoveryLoop() noexcept;
+    void runMultithreaded() noexcept;
 
     ///
     /// @brief discover Run discovery logic for the given CaproMessage.
+    /// Used for manual gateway management.
+    ///
     /// @param msg
     ///
     void discover(const iox::capro::CaproMessage& msg) noexcept;
 
     ///
-    /// @brief Starts the data forwarding loop.
+    /// @brief forward Forward newly received data to DDS network.
+    /// Used for manual gateway management.
     ///
-    /// Periodically processes data publsihed by local posh publishers to the DDS network.
-    /// A dedicated thread is recommended for this loop.
-    ///
-    void forwardingLoop() noexcept;
-
-    ///
-    /// @brief forward Forwarding logic..
     ///
     void forward() noexcept;
 
@@ -109,14 +98,36 @@ class Iceoryx2DDSGateway : gateway_t
     void shutdown() noexcept;
 
   private:
+    std::atomic_bool m_isRunning{false};
     std::atomic_bool m_runForwardingLoop{false};
     std::atomic_bool m_runDiscoveryLoop{false};
+
+    std::thread m_discoveryThread;
+    std::thread m_forwardingThread;
 
     ChannelFactory m_channelFactory;
 
     // This mutex is required for synchronized access to the channels list.
     std::mutex m_channelAccessMutex;
     ChannelVector m_channels;
+
+    ///
+    /// @brief Starts the data forwarding loop.
+    ///
+    /// Periodically processes data published by local posh publishers to the DDS network.
+    ///
+    void forwardingLoop() noexcept;
+
+    ///
+    /// @brief Starts the discovery loop.
+    ///
+    /// Periodically check for and process capro messages received
+    /// via the GenericGateway.
+    /// When new publishers are offered in the system, the required DDS components for
+    /// data fotwarding are initialized. Converseley, when publishers stop offering, these
+    /// components are destroyed.
+    ///
+    void discoveryLoop() noexcept;
 
     ///
     /// @brief setupChannelUnsafe Creates a new channel for a service.

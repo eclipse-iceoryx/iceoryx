@@ -49,8 +49,7 @@ int main(int argc, char* argv[])
     iox::runtime::PoshRuntime::getInstance("/gateway_iox2dds");
 
     iox::dds::Iceoryx2DDSGateway<> gateway;
-    auto discoveryThread = std::thread([&gateway] { gateway.discoveryLoop(); });
-    auto forwardingThread = std::thread([&gateway] { gateway.forwardingLoop(); });
+    gateway.runMultithreaded();
 
     // Run until SIGINT or SIGTERM
     while (!ShutdownManager::shouldShutdown())
@@ -60,8 +59,6 @@ int main(int argc, char* argv[])
 
     // Shutdown gracefully
     gateway.shutdown();
-    discoveryThread.join();
-    forwardingThread.join();
 
     return 0;
 }

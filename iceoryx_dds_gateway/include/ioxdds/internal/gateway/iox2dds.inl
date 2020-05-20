@@ -43,7 +43,18 @@ inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::Iceoryx2DDSGa
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::~Iceoryx2DDSGateway()
 {
+    shutdown();
+    m_discoveryThread.join();
+    m_forwardingThread.join();
     m_channels.clear();
+}
+
+template <typename gateway_t, typename subscriber_t, typename data_writer_t>
+inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::runMultithreaded() noexcept
+{
+    m_discoveryThread = std::thread([this] { discoveryLoop(); });
+    m_forwardingThread = std::thread([this] { forwardingLoop(); });
+    m_isRunning.store(true, std::memory_order_relaxed);
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
@@ -121,7 +132,7 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forwardi
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward() noexcept
 {
-    auto index = 0;
+    uint64_t index{0};
     for (auto& channel : m_channels)
     {
         auto subscriber = channel.getSubscriber();
@@ -150,9 +161,13 @@ inline uint64_t Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::getN
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::shutdown() noexcept
 {
-    iox::LogDebug() << "[Iceoryx2DDSGateway] Shutting down Posh2DDSGateway.";
-    m_runDiscoveryLoop.store(false, std::memory_order_relaxed);
-    m_runForwardingLoop.store(false, std::memory_order_relaxed);
+    if(m_isRunning.load(std::memory_order_relaxed))
+    {
+        iox::LogDebug() << "[Iceoryx2DDSGateway] Shutting down Posh2DDSGateway.";
+        m_runDiscoveryLoop.store(false, std::memory_order_relaxed);
+        m_runForwardingLoop.store(false, std::memory_order_relaxed);
+        m_isRunning.store(false, std::memory_order_relaxed);
+    }
 }
 
 // ======================================== Private ======================================== //
