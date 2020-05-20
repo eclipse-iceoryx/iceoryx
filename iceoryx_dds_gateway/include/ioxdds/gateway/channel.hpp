@@ -54,7 +54,7 @@ class Channel
     /// @param subscriber An externally managed subscriber component.
     /// @param dataWriter An externally managed data writer component.
     ///
-    Channel(const iox::capro::ServiceDescription& m_service, SubscriberPtr m_subscriber, DataWriterPtr m_dataWriter);
+    Channel(const iox::capro::ServiceDescription& m_service, const SubscriberPtr m_subscriber, const DataWriterPtr m_dataWriter) noexcept;
 
     ///
     /// @brief create Creates a channel whose components are instantiated in static object pools that will be
@@ -63,11 +63,11 @@ class Channel
     /// @param service The service that the channel is connecting.
     /// @return Channel A channel with internally managed endpoints.
     ///
-    static Channel create(const iox::capro::ServiceDescription& m_service);
+    static Channel create(const iox::capro::ServiceDescription& m_service) noexcept;
 
-    iox::capro::ServiceDescription getService();
-    SubscriberPtr getSubscriber();
-    DataWriterPtr getDataWriter();
+    iox::capro::ServiceDescription getService() const noexcept;
+    SubscriberPtr getSubscriber() const noexcept;
+    DataWriterPtr getDataWriter() const noexcept;
 
   private:
     // Store in data segment - too large to keep in stack.

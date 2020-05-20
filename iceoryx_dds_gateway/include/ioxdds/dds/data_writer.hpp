@@ -44,7 +44,7 @@ class DataWriter
     /// @param bytes
     /// @param size
     ///
-    void write(const uint8_t* bytes, const uint64_t size) noexcept;
+    void write(const uint8_t* const bytes, const uint64_t size) noexcept;
 
     ///
     /// @brief getServiceId

@@ -45,7 +45,7 @@ void iox::dds::CycloneDataWriter::connect() noexcept
     LogDebug() << "[CycloneDataWriter] Connected to topic: " << topic;
 }
 
-void iox::dds::CycloneDataWriter::write(const uint8_t* bytes, const uint64_t size) noexcept
+void iox::dds::CycloneDataWriter::write(const uint8_t* const bytes, const uint64_t size) noexcept
 {
     LogDebug() << "[CycloneDataWriter] Writing " << size << " bytes.";
     auto chunk = Mempool::Chunk();

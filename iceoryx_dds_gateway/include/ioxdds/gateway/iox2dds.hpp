@@ -101,7 +101,7 @@ class Iceoryx2DDSGateway : gateway_t
     /// @brief getNumberOfChannels Get the number of active channels.
     /// @return The number of active channels.
     ///
-    size_t getNumberOfChannels() noexcept;
+    uint64_t getNumberOfChannels() noexcept;
 
     ///
     /// @brief shutdown the gateway, stopping all threads
@@ -124,14 +124,14 @@ class Iceoryx2DDSGateway : gateway_t
     /// @param service The service for which a channel will be established.
     /// @return Channel object with subscriber and data writer for the given service.
     ///
-    Channel<subscriber_t, data_writer_t> setupChannel(const iox::capro::ServiceDescription& service);
+    Channel<subscriber_t, data_writer_t> setupChannel(const iox::capro::ServiceDescription& service) noexcept;
 
     ///
     /// @brief discardChannel Discards the channel for the given service.
     ///
     /// @param service The service for which a channel will be discarded.
     ///
-    void discardChannel(const iox::capro::ServiceDescription& service);
+    void discardChannel(const iox::capro::ServiceDescription& service) noexcept;
 };
 
 } // dds

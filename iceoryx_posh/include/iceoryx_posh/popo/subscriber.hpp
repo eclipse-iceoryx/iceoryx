@@ -144,7 +144,7 @@ class Subscriber_t
     void unsetChunkReceiveSemaphore() noexcept;
 
     /// @brief Get the service description of this subscriber.
-    capro::ServiceDescription getServiceDescription() const;
+    capro::ServiceDescription getServiceDescription() const noexcept;
 
   protected:
     // needed for unit testing

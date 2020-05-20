@@ -265,7 +265,7 @@ inline void Subscriber_t<ReceiverPortType>::eventCallbackMain() noexcept
 }
 
 template <typename ReceiverPortType>
-inline capro::ServiceDescription Subscriber_t<ReceiverPortType>::getServiceDescription() const {
+inline capro::ServiceDescription Subscriber_t<ReceiverPortType>::getServiceDescription() const noexcept {
     return m_serviceDescription;
 }
 

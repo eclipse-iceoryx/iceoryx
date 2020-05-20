@@ -32,17 +32,13 @@ DataWriterPool<data_writer_t> Channel<subscriber_t, data_writer_t>::s_dataWriter
 
 template <typename subscriber_t, typename data_writer_t>
 inline Channel<subscriber_t, data_writer_t>::Channel(const iox::capro::ServiceDescription& service,
-                                                     SubscriberPtr subscriber,
-                                                     DataWriterPtr dataWriter)
-{
-    this->m_service = service;
-    this->m_subscriber = subscriber;
-    this->m_dataWriter = dataWriter;
-}
+                                                     const SubscriberPtr subscriber,
+                                                     const DataWriterPtr dataWriter) noexcept : m_service(service), m_subscriber(subscriber), m_dataWriter(dataWriter)
+{}
 
 template <typename subscriber_t, typename data_writer_t>
 inline Channel<subscriber_t, data_writer_t>
-Channel<subscriber_t, data_writer_t>::create(const iox::capro::ServiceDescription& service)
+Channel<subscriber_t, data_writer_t>::create(const iox::capro::ServiceDescription& service) noexcept
 {
     // Create objects in the pool.
     auto rawSubscriberPtr = s_subscriberPool.create(std::forward<const iox::capro::ServiceDescription>(service));
@@ -50,28 +46,28 @@ Channel<subscriber_t, data_writer_t>::create(const iox::capro::ServiceDescriptio
         service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
-    auto subscriberPtr = SubscriberPtr(rawSubscriberPtr, [](subscriber_t* p) -> void { s_subscriberPool.free(p); });
-    auto dataWriterPtr = DataWriterPtr(rawDataWriterPtr, [](data_writer_t* p) -> void { s_dataWriterPool.free(p); });
+    auto subscriberPtr = SubscriberPtr(rawSubscriberPtr, [](subscriber_t* p){ s_subscriberPool.free(p); });
+    auto dataWriterPtr = DataWriterPtr(rawDataWriterPtr, [](data_writer_t* p){ s_dataWriterPool.free(p); });
 
     return Channel(service, subscriberPtr, dataWriterPtr);
 }
 
 template <typename subscriber_t, typename data_writer_t>
-inline iox::capro::ServiceDescription Channel<subscriber_t, data_writer_t>::getService()
+inline iox::capro::ServiceDescription Channel<subscriber_t, data_writer_t>::getService() const noexcept
 {
-    return this->m_service;
+    return m_service;
 }
 
 template <typename subscriber_t, typename data_writer_t>
-inline std::shared_ptr<subscriber_t> Channel<subscriber_t, data_writer_t>::getSubscriber()
+inline std::shared_ptr<subscriber_t> Channel<subscriber_t, data_writer_t>::getSubscriber() const noexcept
 {
-    return this->m_subscriber;
+    return m_subscriber;
 }
 
 template <typename subscriber_t, typename data_writer_t>
-inline std::shared_ptr<data_writer_t> Channel<subscriber_t, data_writer_t>::getDataWriter()
+inline std::shared_ptr<data_writer_t> Channel<subscriber_t, data_writer_t>::getDataWriter() const noexcept
 {
-    return this->m_dataWriter;
+    return m_dataWriter;
 }
 
 } // namespace dds

@@ -141,7 +141,7 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward(
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline size_t Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::getNumberOfChannels() noexcept
+inline uint64_t Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::getNumberOfChannels() noexcept
 {
     const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
     return m_channels.size();
@@ -156,10 +156,9 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::shutdown
 }
 
 // ======================================== Private ======================================== //
-
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 Channel<subscriber_t, data_writer_t>
-Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::setupChannel(const iox::capro::ServiceDescription& service)
+Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
     auto channel = m_channelFactory(service);
     iox::LogDebug() << "[Iceoryx2DDSGateway] Channel set up for service: "
@@ -172,7 +171,7 @@ Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::setupChannel(const i
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discardChannel(
-    const iox::capro::ServiceDescription& service)
+    const iox::capro::ServiceDescription& service) noexcept
 {
     const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
     for (auto& channel : m_channels)

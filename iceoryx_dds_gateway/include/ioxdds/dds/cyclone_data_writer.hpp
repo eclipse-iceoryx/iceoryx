@@ -41,7 +41,7 @@ class CycloneDataWriter : public iox::dds::DataWriter<CycloneDataWriter>
     CycloneDataWriter& operator=(CycloneDataWriter&&) = default;
 
     void connect() noexcept;
-    void write(const uint8_t* bytes, const uint64_t size) noexcept;
+    void write(const uint8_t* const bytes, const uint64_t size) noexcept;
     std::string getServiceId() const noexcept;
     std::string getInstanceId() const noexcept;
     std::string getEventId() const noexcept;

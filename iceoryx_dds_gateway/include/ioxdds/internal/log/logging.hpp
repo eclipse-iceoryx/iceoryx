@@ -18,26 +18,6 @@
 
 namespace iox
 {
-namespace gateway
-{
-namespace dds
-{
-struct Iceoryx2DDSLoggingComponent
-{
-    static constexpr char Ctx[] = "Iceoryx2DDSGateway";
-    static constexpr char Description[] = "Log context of the Iceoryx2DDS gateway.";
-};
-
-static constexpr auto LogFatal = iox::log::ffbb::LogFatal<Iceoryx2DDSLoggingComponent>;
-static constexpr auto LogError = iox::log::ffbb::LogError<Iceoryx2DDSLoggingComponent>;
-static constexpr auto LogWarn = iox::log::ffbb::LogWarn<Iceoryx2DDSLoggingComponent>;
-static constexpr auto LogInfo = iox::log::ffbb::LogInfo<Iceoryx2DDSLoggingComponent>;
-static constexpr auto LogDebug = iox::log::ffbb::LogDebug<Iceoryx2DDSLoggingComponent>;
-static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<Iceoryx2DDSLoggingComponent>;
-
-} // namespace dds
-} // namespace gateway
-
 namespace dds
 {
 struct DDSLoggingComponent
@@ -54,5 +34,4 @@ static constexpr auto LogDebug = iox::log::ffbb::LogDebug<DDSLoggingComponent>;
 static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<DDSLoggingComponent>;
 
 } // namespace dds
-
 } // namespace iox
