@@ -21,14 +21,13 @@
 #include <iceoryx_utils/internal/objectpool/objectpool.hpp>
 
 #include "ioxdds/dds/data_writer.hpp"
-#include "ioxdds/dds/dds_types.hpp"
 #include "ioxdds/dds/dds_configs.hpp"
+#include "ioxdds/dds/dds_types.hpp"
 
 namespace iox
 {
 namespace dds
 {
-
 ///
 /// @brief This data structure couples the subscriber and data writer components required to form a channel between
 /// the POSH and DDS worlds.
@@ -53,7 +52,9 @@ class Channel
     /// @param subscriber An externally managed subscriber component.
     /// @param dataWriter An externally managed data writer component.
     ///
-    Channel(const iox::capro::ServiceDescription& m_service, const SubscriberPtr m_subscriber, const DataWriterPtr m_dataWriter) noexcept;
+    Channel(const iox::capro::ServiceDescription& m_service,
+            const SubscriberPtr m_subscriber,
+            const DataWriterPtr m_dataWriter) noexcept;
 
     ///
     /// @brief create Creates a channel whose components are instantiated in static object pools that will be

@@ -46,7 +46,7 @@ inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::~Iceoryx2DDSG
     shutdown();
     m_discoveryThread.join();
     m_forwardingThread.join();
-    m_channels.clear();
+    m_channels->clear();
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
@@ -133,10 +133,12 @@ template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward() noexcept
 {
     uint64_t index{0};
-    for (auto& channel : m_channels)
+
+    auto guardedVector = m_channels.GetScopeGuard();
+    for (auto channel = guardedVector->begin(); channel != guardedVector->end(); channel++)
     {
-        auto subscriber = channel.getSubscriber();
-        auto writer = channel.getDataWriter();
+        auto subscriber = channel->getSubscriber();
+        auto writer = channel->getDataWriter();
         if (subscriber->hasNewChunks())
         {
             const iox::mepoo::ChunkHeader* header;
@@ -152,16 +154,16 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward(
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline uint64_t Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::getNumberOfChannels() noexcept
+inline uint64_t Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::getNumberOfChannels() const noexcept
 {
-    const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
-    return m_channels.size();
+    auto guardedVector = m_channels.GetScopeGuard();
+    return guardedVector->size();
 }
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::shutdown() noexcept
 {
-    if(m_isRunning.load(std::memory_order_relaxed))
+    if (m_isRunning.load(std::memory_order_relaxed))
     {
         iox::LogDebug() << "[Iceoryx2DDSGateway] Shutting down Posh2DDSGateway.";
         m_runDiscoveryLoop.store(false, std::memory_order_relaxed);
@@ -172,15 +174,14 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::shutdown
 
 // ======================================== Private ======================================== //
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-Channel<subscriber_t, data_writer_t>
-Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
+Channel<subscriber_t, data_writer_t> Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::setupChannel(
+    const iox::capro::ServiceDescription& service) noexcept
 {
     auto channel = m_channelFactory(service);
     iox::LogDebug() << "[Iceoryx2DDSGateway] Channel set up for service: "
                     << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
                     << service.getEventIDString();
-    const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
-    m_channels.push_back(channel);
+    m_channels->push_back(channel);
     return channel;
 }
 
@@ -188,17 +189,17 @@ template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discardChannel(
     const iox::capro::ServiceDescription& service) noexcept
 {
-    const std::lock_guard<std::mutex> lock(m_channelAccessMutex);
-    for (auto& channel : m_channels)
+    auto guardedVector = m_channels.GetScopeGuard();
+    auto channel = std::find_if(
+        guardedVector->begin(), guardedVector->end(), [&service](const Channel<subscriber_t, data_writer_t>& channel) {
+            return channel.getService() == service;
+        });
+    if (channel != guardedVector->end())
     {
-        if (channel.getService() == service)
-        {
-            m_channels.erase(&channel);
-            iox::LogDebug() << "[Iceoryx2DDSGateway] Channel taken down for service: "
-                            << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
-                            << service.getEventIDString();
-            break;
-        }
+        guardedVector->erase(channel);
+        iox::LogDebug() << "[Iceoryx2DDSGateway] Channel taken down for service: "
+                        << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
+                        << service.getEventIDString();
     }
 }
 

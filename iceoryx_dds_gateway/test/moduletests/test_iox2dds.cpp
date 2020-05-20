@@ -102,8 +102,7 @@ void stageMockSubscriber(std::shared_ptr<MockSubscriber>&& mock)
 // ======================================== Mock Factories ======================================== //
 
 
-static iox::dds::Channel<MockSubscriber, MockDataWriter>
-mockChannelFactory(iox::capro::ServiceDescription sd) noexcept
+static iox::dds::Channel<MockSubscriber, MockDataWriter> mockChannelFactory(iox::capro::ServiceDescription sd) noexcept
 {
     // Get or create a mock subscriber
     std::shared_ptr<MockSubscriber> mockSubscriber;
@@ -129,8 +128,7 @@ mockChannelFactory(iox::capro::ServiceDescription sd) noexcept
         mockDataWriter = createMockDataWriter(sd);
     }
 
-    return iox::dds::Channel<MockSubscriber, MockDataWriter>(
-        sd, std::move(mockSubscriber), std::move(mockDataWriter));
+    return iox::dds::Channel<MockSubscriber, MockDataWriter>(sd, std::move(mockSubscriber), std::move(mockDataWriter));
 }
 
 // ======================================== Fixture ======================================== //

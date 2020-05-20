@@ -33,8 +33,12 @@ DataWriterPool<data_writer_t> Channel<subscriber_t, data_writer_t>::s_dataWriter
 template <typename subscriber_t, typename data_writer_t>
 inline Channel<subscriber_t, data_writer_t>::Channel(const iox::capro::ServiceDescription& service,
                                                      const SubscriberPtr subscriber,
-                                                     const DataWriterPtr dataWriter) noexcept : m_service(service), m_subscriber(subscriber), m_dataWriter(dataWriter)
-{}
+                                                     const DataWriterPtr dataWriter) noexcept
+    : m_service(service),
+      m_subscriber(subscriber),
+      m_dataWriter(dataWriter)
+{
+}
 
 template <typename subscriber_t, typename data_writer_t>
 inline Channel<subscriber_t, data_writer_t>
@@ -46,8 +50,8 @@ Channel<subscriber_t, data_writer_t>::create(const iox::capro::ServiceDescriptio
         service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
-    auto subscriberPtr = SubscriberPtr(rawSubscriberPtr, [](subscriber_t* p){ s_subscriberPool.free(p); });
-    auto dataWriterPtr = DataWriterPtr(rawDataWriterPtr, [](data_writer_t* p){ s_dataWriterPool.free(p); });
+    auto subscriberPtr = SubscriberPtr(rawSubscriberPtr, [](subscriber_t* p) { s_subscriberPool.free(p); });
+    auto dataWriterPtr = DataWriterPtr(rawDataWriterPtr, [](data_writer_t* p) { s_dataWriterPool.free(p); });
 
     return Channel(service, subscriberPtr, dataWriterPtr);
 }

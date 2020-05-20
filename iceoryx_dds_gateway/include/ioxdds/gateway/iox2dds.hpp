@@ -25,19 +25,18 @@
 #include <iceoryx_posh/popo/subscriber.hpp>
 #include <iceoryx_posh/runtime/posh_runtime.hpp>
 #include <iceoryx_utils/cxx/vector.hpp>
-#include <iceoryx_utils/internal/objectpool/objectpool.hpp>
 #include <iceoryx_utils/internal/concurrent/smart_lock.hpp>
+#include <iceoryx_utils/internal/objectpool/objectpool.hpp>
 
 #include "ioxdds/dds/data_writer.hpp"
-#include "ioxdds/dds/dds_types.hpp"
 #include "ioxdds/dds/dds_configs.hpp"
+#include "ioxdds/dds/dds_types.hpp"
 #include "ioxdds/gateway/channel.hpp"
 
 namespace iox
 {
 namespace dds
 {
-
 ///
 /// @brief A Gateway to support internode communication between iceoryx nodes in a DDS network.
 ///
@@ -90,7 +89,7 @@ class Iceoryx2DDSGateway : gateway_t
     /// @brief getNumberOfChannels Get the number of active channels.
     /// @return The number of active channels.
     ///
-    uint64_t getNumberOfChannels() noexcept;
+    uint64_t getNumberOfChannels() const noexcept;
 
     ///
     /// @brief shutdown the gateway, stopping all threads
@@ -108,8 +107,7 @@ class Iceoryx2DDSGateway : gateway_t
     ChannelFactory m_channelFactory;
 
     // This mutex is required for synchronized access to the channels list.
-    std::mutex m_channelAccessMutex;
-    ChannelVector m_channels;
+    ConcurrentChannelVector m_channels;
 
     ///
     /// @brief Starts the data forwarding loop.
