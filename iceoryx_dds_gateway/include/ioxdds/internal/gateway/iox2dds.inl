@@ -43,8 +43,6 @@ template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::~Iceoryx2DDSGateway()
 {
     shutdown();
-    m_discoveryThread.join();
-    m_forwardingThread.join();
     m_channels->clear();
 }
 
@@ -165,8 +163,13 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::shutdown
     if (m_isRunning.load(std::memory_order_relaxed))
     {
         iox::LogDebug() << "[Iceoryx2DDSGateway] Shutting down Posh2DDSGateway.";
+
         m_runDiscoveryLoop.store(false, std::memory_order_relaxed);
         m_runForwardingLoop.store(false, std::memory_order_relaxed);
+
+        m_discoveryThread.join();
+        m_forwardingThread.join();
+
         m_isRunning.store(false, std::memory_order_relaxed);
     }
 }
