@@ -17,6 +17,7 @@
 #include <iceoryx_posh/runtime/posh_runtime.hpp>
 #include <iceoryx_utils/cxx/helplets.hpp>
 #include <iceoryx_utils/cxx/optional.hpp>
+#include <iceoryx_utils/posix_wrapper/semaphore.hpp>
 #include <ioxdds/gateway/iox2dds.hpp>
 
 class ShutdownManager
@@ -26,18 +27,17 @@ class ShutdownManager
     {
         char reason;
         psignal(num, &reason);
-        m_shutdownFlag.store(true, std::memory_order_relaxed);
+        s_semaphore.post();
     }
-    static bool shouldShutdown()
+    static void waitUntilShutdown()
     {
-        return m_shutdownFlag.load(std::memory_order_relaxed);
+        s_semaphore.wait();
     }
-
   private:
-    static std::atomic_bool m_shutdownFlag;
+    static iox::posix::Semaphore s_semaphore;
     ShutdownManager() = default;
 };
-std::atomic_bool ShutdownManager::m_shutdownFlag(false);
+iox::posix::Semaphore ShutdownManager::s_semaphore = iox::posix::Semaphore::create(0u).get_value();
 
 int main(int argc, char* argv[])
 {
@@ -52,13 +52,7 @@ int main(int argc, char* argv[])
     gateway.runMultithreaded();
 
     // Run until SIGINT or SIGTERM
-    while (!ShutdownManager::shouldShutdown())
-    {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    };
-
-    // Shutdown gracefully
-    gateway.shutdown();
+    ShutdownManager::waitUntilShutdown();
 
     return 0;
 }

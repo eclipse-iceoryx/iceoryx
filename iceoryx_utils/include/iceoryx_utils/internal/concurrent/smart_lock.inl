@@ -76,7 +76,7 @@ typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->()
 template <typename T, typename MutexType>
 typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->() const
 {
-    return const_cast<const smart_lock<T, MutexType>*>(this)->operator->();
+    return const_cast<smart_lock<T, MutexType>*>(this)->operator->();
 }
 
 template <typename T, typename MutexType>
@@ -88,7 +88,7 @@ typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::GetScopeGuard
 template <typename T, typename MutexType>
 typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::GetScopeGuard() const
 {
-    return const_cast<const smart_lock<T, MutexType>*>(this)->GetScopeGuard();
+    return const_cast<smart_lock<T, MutexType>*>(this)->GetScopeGuard();
 }
 
 // PROXY OBJECT
