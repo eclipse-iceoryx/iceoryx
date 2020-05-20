@@ -23,8 +23,10 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp" // MAX_PORT_NUMBER
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
-#include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
+#include "iceoryx_posh/internal/roudi/port_manager.hpp"
+#include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <cstdint>
 #include <limits> // std::numeric_limits
@@ -34,25 +36,30 @@ using ::testing::Return;
 
 using iox::popo::ReceiverPort;
 using iox::popo::SenderPort;
-using iox::roudi::SharedMemoryManager;
+using iox::roudi::IceOryxRouDiMemoryManager;
+using iox::roudi::PortPoolError;
+using iox::roudi::PortManager;
 
-class CShmMangerTester : public SharedMemoryManager
+class CShmMangerTester : public PortManager
 {
   public:
-    CShmMangerTester(const iox::RouDiConfig_t& f_config)
-        : SharedMemoryManager(f_config)
+    CShmMangerTester(IceOryxRouDiMemoryManager* roudiMemoryManager)
+        : PortManager(roudiMemoryManager)
     {
     }
 
   private:
-    FRIEND_TEST(SharedMemoryManager_test, CheckDeleteOfPortsFromProcess1);
-    FRIEND_TEST(SharedMemoryManager_test, CheckDeleteOfPortsFromProcess2);
+    FRIEND_TEST(PortManager_test, CheckDeleteOfPortsFromProcess1);
+    FRIEND_TEST(PortManager_test, CheckDeleteOfPortsFromProcess2);
 };
 
-class SharedMemoryManager_test : public Test
+class PortManager_test : public Test
 {
   public:
-    CShmMangerTester* m_shmManager;
+    iox::mepoo::MemoryManager* m_payloadMemoryManager{nullptr};
+    IceOryxRouDiMemoryManager* m_roudiMemoryManager{nullptr};
+    CShmMangerTester* m_shmManager{nullptr};
+
     uint16_t m_instIdCounter, m_eventIdCounter, m_sIdCounter;
     void SetUp() override
     {
@@ -63,7 +70,14 @@ class SharedMemoryManager_test : public Test
 
         auto config = iox::RouDiConfig_t().setDefaults();
         config.roudi.m_verifySharedMemoryPlacement = false;
-        m_shmManager = new CShmMangerTester(config);
+        m_roudiMemoryManager = new IceOryxRouDiMemoryManager(config);
+        m_roudiMemoryManager->createAndAnnounceMemory();
+        m_shmManager = new CShmMangerTester(m_roudiMemoryManager);
+
+        auto user = iox::posix::PosixGroup::getGroupOfCurrentProcess().getName();
+        m_payloadMemoryManager =
+            m_roudiMemoryManager->segmentManager().value()->getSegmentInformationForUser(user).m_memoryManager;
+
         // clearing the introspection, is not in d'tor -> SEGFAULT in delete sporadically
         m_shmManager->stopPortIntrospection();
         m_shmManager->deletePortsOfProcess(iox::MQ_ROUDI_NAME);
@@ -71,8 +85,9 @@ class SharedMemoryManager_test : public Test
 
     void TearDown() override
     {
-        iox::RelativePointer::unregisterAll();
         delete m_shmManager;
+        delete m_roudiMemoryManager;
+        iox::RelativePointer::unregisterAll();
 
         if (Test::HasFailure())
         {
@@ -105,13 +120,9 @@ class SharedMemoryManager_test : public Test
 };
 
 
-TEST_F(SharedMemoryManager_test, doDiscovery_singleShotSenderFirst)
+TEST_F(PortManager_test, doDiscovery_singleShotSenderFirst)
 {
-    SenderPort sender(
-        m_shmManager
-            ->acquireSenderPortData(
-                {1, 1, 1}, "/guiseppe", &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
-            .get_value());
+    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).get_value());
     ASSERT_TRUE(sender);
     sender.activate();
     // no doDiscovery() at this position is intentional
@@ -122,7 +133,7 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotSenderFirst)
 
     m_shmManager->doDiscovery();
 
-    ASSERT_THAT(sender.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(1));
+    ASSERT_THAT(sender.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(1u));
     auto it = sender.getMembers()->m_receiverHandler.m_receiverVector.begin();
 
     // is the correct receiver in the receiver list
@@ -132,24 +143,20 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotSenderFirst)
     EXPECT_TRUE(receiver1.isSubscribed());
 }
 
-TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirst)
+TEST_F(PortManager_test, doDiscovery_singleShotReceiverFirst)
 {
     ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/schlomo"));
     ASSERT_TRUE(receiver1);
     receiver1.subscribe(true);
     // no doDiscovery() at this position is intentional
 
-    SenderPort sender(
-        m_shmManager
-            ->acquireSenderPortData(
-                {1, 1, 1}, "/guiseppe", &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
-            .get_value());
+    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).get_value());
     ASSERT_TRUE(sender);
     sender.activate();
 
     m_shmManager->doDiscovery();
 
-    ASSERT_THAT(sender.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(1));
+    ASSERT_THAT(sender.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(1u));
     auto it = sender.getMembers()->m_receiverHandler.m_receiverVector.begin();
 
     // is the correct receiver in the receiver list
@@ -159,24 +166,20 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirst)
     EXPECT_TRUE(receiver1.isSubscribed());
 }
 
-TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirstWithDiscovery)
+TEST_F(PortManager_test, doDiscovery_singleShotReceiverFirstWithDiscovery)
 {
     ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/schlomo"));
     ASSERT_TRUE(receiver1);
     receiver1.subscribe(true);
     m_shmManager->doDiscovery();
 
-    SenderPort sender(
-        m_shmManager
-            ->acquireSenderPortData(
-                {1, 1, 1}, "/guiseppe", &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
-            .get_value());
+    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).get_value());
     ASSERT_TRUE(sender);
     sender.activate();
 
     m_shmManager->doDiscovery();
 
-    ASSERT_THAT(sender.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(1));
+    ASSERT_THAT(sender.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(1u));
     auto it = sender.getMembers()->m_receiverHandler.m_receiverVector.begin();
 
     // is the correct receiver in the receiver list
@@ -186,18 +189,14 @@ TEST_F(SharedMemoryManager_test, doDiscovery_singleShotReceiverFirstWithDiscover
     EXPECT_TRUE(receiver1.isSubscribed());
 }
 
-TEST_F(SharedMemoryManager_test, doDiscovery_rightOrdering)
+TEST_F(PortManager_test, doDiscovery_rightOrdering)
 {
     ReceiverPort receiver1(m_shmManager->acquireReceiverPortData({1, 1, 1}, "/schlomo"));
     ASSERT_TRUE(receiver1);
     receiver1.subscribe(true);
     m_shmManager->doDiscovery();
 
-    SenderPort sender(
-        m_shmManager
-            ->acquireSenderPortData(
-                {1, 1, 1}, "/guiseppe", &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager)
-            .get_value());
+    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).get_value());
     ASSERT_TRUE(sender);
     sender.activate();
 
@@ -207,7 +206,7 @@ TEST_F(SharedMemoryManager_test, doDiscovery_rightOrdering)
     m_shmManager->doDiscovery();
 
     // check if all receivers are subscribed
-    ASSERT_THAT(sender.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(2));
+    ASSERT_THAT(sender.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(2u));
     auto it = sender.getMembers()->m_receiverHandler.m_receiverVector.begin();
 
     // check if the receivers are in the right order
@@ -220,235 +219,45 @@ TEST_F(SharedMemoryManager_test, doDiscovery_rightOrdering)
     EXPECT_TRUE(receiver2.isSubscribed());
 }
 
-TEST_F(SharedMemoryManager_test, DISABLED_CheckDeleteOfPortsFromProcess1)
+TEST_F(PortManager_test, SenderReceiverOverflow)
 {
-    /// @todo refactor this part of the code, this is a hard whitebox test which
-    ///         in the end tests nothing! You are not allowed to gain access to
-    ///         the middleware port lists in this test, think of something else!
-    ///
-    //    std::string p1 = "/test1";
-    //    std::string p2 = "/test2";
-    //    decltype(iox::MAX_PORT_NUMBER) introspectionPorts = 0; // stopped atm
-    //    decltype(iox::MAX_PORT_NUMBER) forP1 = iox::MAX_PORT_NUMBER / 2;
-    //    decltype(iox::MAX_PORT_NUMBER) forP2 = iox::MAX_PORT_NUMBER - forP1 - introspectionPorts;
-    //    std::vector<iox::popo::SenderPortData*> avaSender1(forP1);
-    //    std::vector<iox::popo::ReceiverPortData*> avaReceiver1(forP1);
-    //    std::vector<iox::popo::SenderPortData*> avaSender2(forP2);
-    //    std::vector<iox::popo::ReceiverPortData*> avaReceiver2(forP2);
-    //
-    //    m_shmManager->acquireInterfacePortData(iox::Interfaces::INTERNAL, p1);
-    //    m_shmManager->acquireInterfacePortData(iox::Interfaces::INTERNAL, p2);
-    //
-    //    for (unsigned int i = 0; i < forP1; i++)
-    //    {
-    //        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), iox::Interfaces::INTERNAL, p1);
-    //        ASSERT_THAT(rec, Ne(nullptr));
-    //        avaReceiver1[i] = rec;
-    //        auto sen = m_shmManager->acquireSenderPortData(
-    //            getUniqueSD(),
-    //            iox::Interfaces::INTERNAL,
-    //            p1,
-    //            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager);
-    //        ASSERT_THAT(sen, Ne(nullptr));
-    //        avaSender1[i] = sen;
-    //    }
-    //    for (unsigned int i = 0; i < forP2; i++)
-    //    {
-    //        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), iox::Interfaces::INTERNAL, p2);
-    //        ASSERT_THAT(rec, Ne(nullptr));
-    //        avaReceiver2[i] = rec;
-    //        auto sen = m_shmManager->acquireSenderPortData(
-    //            getUniqueSD(),
-    //            iox::Interfaces::INTERNAL,
-    //            p2,
-    //            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager);
-    //        avaSender2[i] = sen;
-    //        ASSERT_THAT(sen, Ne(nullptr));
-    //    }
-    //
-    //    { // test if overflow errors get hit
-    //        error_handling_MOCK::activateMock();
-    //        EXPECT_CALL(*error_handling_MOCK::mock, errorHandler(_, _, _, _)).WillOnce(Return());
-    //        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), iox::Interfaces::INTERNAL, p1);
-    //        EXPECT_THAT(rec, Eq(nullptr));
-    //
-    //        EXPECT_CALL(*error_handling_MOCK::mock, errorHandler(_, _, _, _)).WillOnce(Return());
-    //        auto sen = m_shmManager->acquireSenderPortData(
-    //            getUniqueSD(),
-    //            iox::Interfaces::INTERNAL,
-    //            p1,
-    //            &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager);
-    //        EXPECT_THAT(sen, Eq(nullptr));
-    //    }
-    //
-    //    // now we delete process and check if the ports of the living app are there and the others are deleted
-    //    m_shmManager->deletePortsOfProcess(p2);
-    //    iox::roudi::MiddlewareShm::middlewareReceiverList_t* avaRec =
-    //        &(m_shmManager->m_ShmInterface.getShmInterface()->m_middlewareReceiverList);
-    //    for (auto& rec : avaReceiver1) // check if the available process receivers are still there
-    //    {
-    //        bool found = false;
-    //        for (auto& livingList : *avaRec)
-    //        {
-    //            if (rec == &livingList) // we compare the pointer to shm
-    //            {
-    //                found = true;
-    //                break;
-    //            }
-    //        }
-    //        ASSERT_TRUE(found);
-    //    }
-    //    for (auto& rec : avaReceiver2) // check if the removed process receivers are gone
-    //    {
-    //        bool found = false;
-    //        for (auto& livingList : *avaRec)
-    //        {
-    //            if (rec == &livingList) // we compare the pointer to shm
-    //            {
-    //                found = true;
-    //                break;
-    //            }
-    //        }
-    //        ASSERT_FALSE(found);
-    //    }
-    //    iox::roudi::MiddlewareShm::middlewareSenderList_t* avaSend =
-    //        &(m_shmManager->m_ShmInterface.getShmInterface()->m_middlewareSenderList);
-    //    for (auto& rec : avaSender1) // check if the available process receivers are still there
-    //    {
-    //        bool found = false;
-    //        for (auto& livingList : *avaSend)
-    //        {
-    //            if (rec == &livingList) // we compare the pointer to shm
-    //            {
-    //                found = true;
-    //                break;
-    //            }
-    //        }
-    //        ASSERT_TRUE(found);
-    //    }
-    //    for (auto& rec : avaSender2) // check if the available process receivers are still there
-    //    {
-    //        bool found = false;
-    //        for (auto& livingList : *avaSend)
-    //        {
-    //            if (rec == &livingList) // we compare the pointer to shm
-    //            {
-    //                found = true;
-    //                break;
-    //            }
-    //        }
-    //        ASSERT_FALSE(found);
-    //    }
+    std::string p1 = "/test1";
+    std::string r1 = "run1";
+    decltype(iox::MAX_PORT_NUMBER) forP1 = iox::MAX_PORT_NUMBER;
+    std::vector<iox::popo::SenderPortData*> avaSender1(forP1);
+    std::vector<iox::popo::ReceiverPortData*> avaReceiver1(forP1);
+
+
+    for (unsigned int i = 0; i < forP1; i++)
+    {
+        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), p1, r1);
+        ASSERT_THAT(rec, Ne(nullptr));
+        avaReceiver1[i] = rec;
+        auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(), p1, m_payloadMemoryManager, r1);
+        ASSERT_FALSE(sen.has_error());
+        avaSender1[i] = sen.get_value();
+    }
+
+    { // test if overflow errors get hit
+
+        bool errorHandlerCalled = false;
+        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+            [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
+                                  const std::function<void()>,
+                                  const iox::ErrorLevel) { errorHandlerCalled = true; });
+        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), p1, r1);
+        EXPECT_TRUE(errorHandlerCalled);
+        EXPECT_THAT(rec, Eq(nullptr));
+
+        errorHandlerCalled = false;
+        auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(), p1, m_payloadMemoryManager, r1);
+        EXPECT_TRUE(errorHandlerCalled);
+        ASSERT_TRUE(sen.has_error());
+        EXPECT_THAT(sen.get_error(), Eq(PortPoolError::SENDER_PORT_LIST_FULL));
+    }
 }
 
-TEST_F(SharedMemoryManager_test, DISABLED_CheckDeleteOfPortsFromProcess2)
-{
-    /// @todo refactor this part of the code, this is a hard whitebox test which
-    ///         in the end tests nothing! You are not allowed to gain access to
-    ///         the middleware port lists in this test, think of something else!
-    ///
-    // // same as test before but now we delete p1 over an application port
-    // std::string p1 = "/test1";
-    // std::string p2 = "/test2";
-    // decltype(iox::MAX_PORT_NUMBER) introspectionPorts = 0; // stopped atm
-    // decltype(iox::MAX_PORT_NUMBER) forP1 = iox::MAX_PORT_NUMBER / 2;
-    // decltype(iox::MAX_PORT_NUMBER) forP2 = iox::MAX_PORT_NUMBER - forP1 - introspectionPorts;
-    // std::vector<iox::popo::SenderPort*> avaSender1(forP1);
-    // std::vector<iox::popo::ReceiverPort*> avaReceiver1(forP1);
-    // std::vector<iox::popo::SenderPort*> avaSender2(forP2);
-    // std::vector<iox::popo::ReceiverPort*> avaReceiver2(forP2);
-
-    // m_shmManager->acquireApplicationPortData(iox::Interfaces::INTERNAL, p1);
-    // m_shmManager->acquireApplicationPortData(iox::Interfaces::INTERNAL, p2);
-
-    // for (unsigned int i = 0; i < forP1; i++)
-    // {
-    //     auto rec = m_shmManager->addReceiverPort(getUniqueSD(), iox::Interfaces::INTERNAL, p1);
-    //     ASSERT_THAT(rec, Ne(nullptr));
-    //     avaReceiver1[i] = rec;
-    //     auto sen =
-    //         m_shmManager->addSenderPort(getUniqueSD(),
-    //                                     iox::Interfaces::INTERNAL,
-    //                                     p1,
-    //                                     &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager);
-    //     ASSERT_THAT(sen, Ne(nullptr));
-    //     avaSender1[i] = sen;
-    // }
-    // for (unsigned int i = 0; i < forP2; i++)
-    // {
-    //     auto rec = m_shmManager->addReceiverPort(getUniqueSD(), iox::Interfaces::INTERNAL, p2);
-    //     ASSERT_THAT(rec, Ne(nullptr));
-    //     avaReceiver2[i] = rec;
-    //     auto sen =
-    //         m_shmManager->addSenderPort(getUniqueSD(),
-    //                                     iox::Interfaces::INTERNAL,
-    //                                     p2,
-    //                                     &m_shmManager->getShmInterface().getShmInterface()->m_roudiMemoryManager);
-    //     avaSender2[i] = sen;
-    //     ASSERT_THAT(sen, Ne(nullptr));
-    // }
-
-    // // now we delete process and check if the ports of the living app are there and the others are deleted
-    // m_shmManager->deletePortsOfProcess(p1);
-    // iox::roudi::MiddlewareShm::middlewareReceiverList_t* avaRec =
-    //     &(m_shmManager->m_ShmInterface.getShmInterface()->m_middlewareReceiverList);
-    // for (auto& rec : avaReceiver2) // check if the available process receivers are still there
-    // {
-    //     bool found = false;
-    //     for (auto& livingList : *avaRec)
-    //     {
-    //         if (rec == &livingList) // we compare the pointer to shm
-    //         {
-    //             found = true;
-    //             break;
-    //         }
-    //     }
-    //     ASSERT_TRUE(found);
-    // }
-    // for (auto& rec : avaReceiver1) // check if the removed process receivers are gone
-    // {
-    //     bool found = false;
-    //     for (auto& livingList : *avaRec)
-    //     {
-    //         if (rec == &livingList) // we compare the pointer to shm
-    //         {
-    //             found = true;
-    //             break;
-    //         }
-    //     }
-    //     ASSERT_FALSE(found);
-    // }
-    // iox::roudi::MiddlewareShm::middlewareSenderList_t* avaSend =
-    //     &(m_shmManager->m_ShmInterface.getShmInterface()->m_middlewareSenderList);
-    // for (auto& rec : avaSender2) // check if the available process receivers are still there
-    // {
-    //     bool found = false;
-    //     for (auto& livingList : *avaSend)
-    //     {
-    //         if (rec == &livingList) // we compare the pointer to shm
-    //         {
-    //             found = true;
-    //             break;
-    //         }
-    //     }
-    //     ASSERT_TRUE(found);
-    // }
-    // for (auto& rec : avaSender1) // check if the available process receivers are still there
-    // {
-    //     bool found = false;
-    //     for (auto& livingList : *avaSend)
-    //     {
-    //         if (rec == &livingList) // we compare the pointer to shm
-    //         {
-    //             found = true;
-    //             break;
-    //         }
-    //     }
-    //     ASSERT_FALSE(found);
-    // }
-}
-
-TEST_F(SharedMemoryManager_test, InterfaceAndApplicationsOverflow)
+TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
 {
     // overflow of interface and applications
     std::string itf = "/itf";
@@ -468,8 +277,10 @@ TEST_F(SharedMemoryManager_test, InterfaceAndApplicationsOverflow)
     // test if overflow errors get hit
     {
         auto errorHandlerCalled{false};
-        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-            const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+        auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+            [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+                errorHandlerCalled = true;
+            });
 
         errorHandlerCalled = false;
         auto interp = m_shmManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "/itfPenguin");
@@ -494,5 +305,104 @@ TEST_F(SharedMemoryManager_test, InterfaceAndApplicationsOverflow)
 
         auto appp = m_shmManager->acquireApplicationPortData(app + std::to_string(testi));
         EXPECT_THAT(appp, Ne(nullptr));
+    }
+}
+
+TEST_F(PortManager_test, PortDestroy)
+{
+    std::string p1 = "/myProcess1";
+    std::string p2 = "/myProcess2";
+    iox::capro::ServiceDescription cap1(1, 1, 1);
+    iox::capro::ServiceDescription cap2(2, 2, 2);
+
+    // two processes p1 and p2 each with a sender and receiver that match to the other process
+    auto senderData1 = m_shmManager->acquireSenderPortData(cap1, p1, m_payloadMemoryManager).get_value();
+    auto receiverData1 = m_shmManager->acquireReceiverPortData(cap2, p1);
+
+    auto senderData2 = m_shmManager->acquireSenderPortData(cap2, p2, m_payloadMemoryManager).get_value();
+    auto receiverData2 = m_shmManager->acquireReceiverPortData(cap1, p2);
+
+    // let them connect
+    {
+        SenderPort sender1(senderData1);
+        ASSERT_TRUE(sender1);
+        sender1.activate();
+        ReceiverPort receiver1(receiverData1);
+        ASSERT_TRUE(receiver1);
+        receiver1.subscribe(true);
+
+        SenderPort sender2(senderData2);
+        ASSERT_TRUE(sender2);
+        sender2.activate();
+        ReceiverPort receiver2(receiverData2);
+        ASSERT_TRUE(receiver2);
+        receiver2.subscribe(true);
+
+        m_shmManager->doDiscovery();
+
+        ASSERT_THAT(sender1.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(1u));
+        EXPECT_TRUE(receiver1.isSubscribed());
+
+        ASSERT_THAT(sender2.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(1u));
+        EXPECT_TRUE(receiver1.isSubscribed());
+    }
+
+    // destroy the ports of process p2 and check if states of ports in p1 changed as expected
+    {
+        SenderPort sender1(senderData1);
+        ASSERT_TRUE(sender1);
+        ReceiverPort receiver1(receiverData1);
+        ASSERT_TRUE(receiver1);
+
+        SenderPort sender2(senderData2);
+        ASSERT_TRUE(sender2);
+        sender2.destroy();
+        ReceiverPort receiver2(receiverData2);
+        ASSERT_TRUE(receiver2);
+        receiver2.destroy();
+
+        m_shmManager->doDiscovery();
+
+        ASSERT_THAT(sender1.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(0u));
+        EXPECT_FALSE(receiver1.isSubscribed());
+    }
+
+    // re-create the ports of process p2
+    senderData2 = m_shmManager->acquireSenderPortData(cap2, p2, m_payloadMemoryManager).get_value();
+    receiverData2 = m_shmManager->acquireReceiverPortData(cap1, p2);
+
+    // let them connect
+    {
+        SenderPort sender1(senderData1);
+        ASSERT_TRUE(sender1);
+        ReceiverPort receiver1(receiverData1);
+        ASSERT_TRUE(receiver1);
+
+        SenderPort sender2(senderData2);
+        ASSERT_TRUE(sender2);
+        sender2.activate();
+        ReceiverPort receiver2(receiverData2);
+        ASSERT_TRUE(receiver2);
+        receiver2.subscribe(true);
+
+        m_shmManager->doDiscovery();
+
+        ASSERT_THAT(sender1.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(1u));
+        EXPECT_TRUE(receiver1.isSubscribed());
+
+        ASSERT_THAT(sender2.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(1u));
+        EXPECT_TRUE(receiver1.isSubscribed());
+    }
+
+    // cleanup process p2 and check if states of ports in p1 changed  as expected
+    {
+        m_shmManager->deletePortsOfProcess(p2);
+        SenderPort sender1(senderData1);
+        ASSERT_TRUE(sender1);
+        ReceiverPort receiver1(receiverData1);
+        ASSERT_TRUE(receiver1);
+
+        ASSERT_THAT(sender1.getMembers()->m_receiverHandler.m_receiverVector.size(), Eq(0u));
+        EXPECT_FALSE(receiver1.isSubscribed());
     }
 }

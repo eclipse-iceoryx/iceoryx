@@ -33,24 +33,23 @@ class ReceiverPort_MOCK
     {
     }
 
-    ReceiverPort_MOCK(ReceiverPort_MOCK&&) = default;
-    ReceiverPort_MOCK& operator=(ReceiverPort_MOCK&&) = default;
-    ReceiverPort_MOCK(const ReceiverPort_MOCK&) = default;
-    ReceiverPort_MOCK& operator=(const ReceiverPort_MOCK&) = default;
+    // these are actually all already implicitly deleted
+    ReceiverPort_MOCK(ReceiverPort_MOCK&&) = delete;
+    ReceiverPort_MOCK& operator=(ReceiverPort_MOCK&&) = delete;
+    ReceiverPort_MOCK(const ReceiverPort_MOCK&) = delete;
+    ReceiverPort_MOCK& operator=(const ReceiverPort_MOCK&) = delete;
 
     MOCK_METHOD0(getCaProMessage, iox::cxx::optional<iox::capro::CaproMessage>());
     MOCK_METHOD1(getCaProMessage, iox::cxx::optional<iox::capro::CaproMessage>(iox::capro::CaproMessage));
     MOCK_METHOD0(cleanup, void());
 
-    MOCK_METHOD0(cyclicServiceUpdate, void());
-
     MOCK_METHOD1(subscribe_impl, void(const uint32_t));
-    void subscribe(const bool f_autoResubscribe = false, const uint32_t f_deliverySize = iox::MAX_RECEIVER_QUEUE_SIZE)
+    void subscribe(const bool f_autoResubscribe = false, const uint32_t f_deliverySize = iox::MAX_RECEIVER_QUEUE_CAPACITY)
     {
         (void)f_autoResubscribe;
         subscribe_impl(f_deliverySize);
     }
-    void subscribe(const uint32_t f_deliverySize = iox::MAX_RECEIVER_QUEUE_SIZE)
+    void subscribe(const uint32_t f_deliverySize = iox::MAX_RECEIVER_QUEUE_CAPACITY)
     {
         subscribe_impl(f_deliverySize);
     }

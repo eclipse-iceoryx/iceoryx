@@ -25,12 +25,13 @@ namespace iox
 {
 namespace capro
 {
-static constexpr uint16_t InvalidID = 0;
-static constexpr char InvalidIDString[]{"0"};
+using IdString = cxx::CString100;
 
-static constexpr uint16_t AnyService = 0xFFFF;
-static constexpr uint16_t AnyInstance = 0xFFFF;
-static constexpr uint16_t AnyEvent = 0xFFFF;
+static constexpr uint16_t InvalidID = 0u;
+static const IdString InvalidIDString{"0"};
+static constexpr uint16_t AnyService = 0xFFFFu;
+static constexpr uint16_t AnyInstance = 0xFFFFu;
+static constexpr uint16_t AnyEvent = 0xFFFFu;
 static constexpr char AnyServiceString[]{"65535"};
 static constexpr char AnyInstanceString[]{"65535"};
 static constexpr char AnyEventString[]{"65535"};
@@ -69,7 +70,7 @@ enum class Scope : uint16_t
     INVALID
 };
 
-constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = {{"WORLDWIDE"}, {"INTERNAL"}, {"INVALID"}};
+constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = {"WORLDWIDE", "INTERNAL", "INVALID"};
 
 /// @brief class for the identification of a communication event including information on the service, the service
 /// instance and the event id.
@@ -79,7 +80,6 @@ constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = {{"WORLDWIDE"}, {"INTERN
 class ServiceDescription
 {
   public:
-    using IdString = cxx::CString100;
 
     struct ClassHash
     {
@@ -90,7 +90,7 @@ class ServiceDescription
         bool operator!=(const ClassHash& rhs) const noexcept;
 
       private:
-        static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4};
+        static constexpr size_t CLASS_HASH_ELEMENT_COUNT{4u};
         uint32_t data[CLASS_HASH_ELEMENT_COUNT];
     };
 
@@ -113,7 +113,7 @@ class ServiceDescription
     ServiceDescription(const IdString& f_service,
                        const IdString& f_instance,
                        const IdString& f_event,
-                       ClassHash m_classHash = {0, 0, 0, 0},
+                       ClassHash m_classHash = {0u, 0u, 0u, 0u},
                        Interfaces interfaceSource = Interfaces::INTERNAL) noexcept;
 
     /// @brief compare operator. If wildcards AnyService, AnyInstance or AnyEvent are used as integer IDs, the

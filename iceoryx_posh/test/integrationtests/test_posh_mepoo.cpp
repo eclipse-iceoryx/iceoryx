@@ -447,7 +447,7 @@ TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig)
     EXPECT_THAT(timediff, Le(maxtime));
 }
 
-TEST_F(Mepoo_IntegrationTest, MempoolCreationTime2GBConfig)
+TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolCreationTime2GBConfig)
 {
     constexpr uint32_t chunkSize = 1024 * 1024 * 512;
     constexpr uint32_t m_numChunks = 4;

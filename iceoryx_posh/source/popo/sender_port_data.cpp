@@ -27,9 +27,12 @@ SenderPortData::SenderPortData(mepoo::MemoryManager* const f_memoryMgr, mepoo::S
 SenderPortData::SenderPortData(const capro::ServiceDescription& serviceDescription,
                                mepoo::MemoryManager* const memMgr,
                                const std::string& applicationName,
-                               runtime::RunnableData* const runnable) noexcept
-    : BasePortData(serviceDescription, BasePortType::SENDER_PORT, applicationName, runnable)
+                               const MemoryInfo& memoryInfo) noexcept
+    : BasePortData(serviceDescription,
+                   BasePortType::SENDER_PORT,
+                   iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
     , m_memoryMgr(memMgr)
+    , m_memoryInfo(memoryInfo)
 {
 }
 

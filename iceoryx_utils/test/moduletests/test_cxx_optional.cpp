@@ -429,3 +429,39 @@ TEST_F(Optional_test, MakeOptional)
     EXPECT_THAT(sut->a, Eq(123));
     EXPECT_THAT(sut->b, Eq(456));
 }
+
+TEST_F(Optional_test, AndThenWhenContainingValue)
+{
+    iox::cxx::optional<int> sut(123);
+    int value = 0;
+
+    sut.and_then([&](int& v) { value = v; });
+    EXPECT_THAT(value, Eq(123));
+}
+
+TEST_F(Optional_test, AndThenWhenNotContainingValue)
+{
+    iox::cxx::optional<int> sut;
+    int value = 0;
+
+    sut.and_then([&](int&) { value = 42; });
+    EXPECT_THAT(value, Eq(0));
+}
+
+TEST_F(Optional_test, OrElseWhenContainingValue)
+{
+    iox::cxx::optional<int> sut(123);
+    int value = 0;
+
+    sut.or_else([&] { value = 42; });
+    EXPECT_THAT(value, Eq(0));
+}
+
+TEST_F(Optional_test, OrElseWhenNotContainingValue)
+{
+    iox::cxx::optional<int> sut;
+    int value = 0;
+
+    sut.or_else([&] { value = 42; });
+    EXPECT_THAT(value, Eq(42));
+}

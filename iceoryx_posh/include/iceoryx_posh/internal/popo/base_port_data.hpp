@@ -43,7 +43,7 @@ enum class BasePortType : uint8_t
 
 constexpr int32_t MAX_PORT_TYPE_STRING_SIZE = 64;
 constexpr char BasePortTypeString[][MAX_PORT_TYPE_STRING_SIZE] = {
-    {"NO_PORT"}, {"SENDER_PORT"}, {"RECEIVER_PORT"}, {"INTERFACE_PORT"}, {"APPLICATION_PORT"}};
+    "NO_PORT", "SENDER_PORT", "RECEIVER_PORT", "INTERFACE_PORT", "APPLICATION_PORT"};
 
 /// @brief Defines different base port data
 struct BasePortData
@@ -59,8 +59,7 @@ struct BasePortData
     /// @param[in] runnable The runnable where this port is attached to
     BasePortData(const capro::ServiceDescription& serviceDescription,
                  const BasePortType& portType,
-                 const cxx::CString100& processName,
-                 runtime::RunnableData* const runnable) noexcept;
+                 const cxx::CString100& processName) noexcept;
 
     BasePortData(const BasePortData&) = delete;
     BasePortData& operator=(const BasePortData&) = delete;
@@ -75,8 +74,6 @@ struct BasePortData
     static std::atomic<uint64_t> s_uniqueIdCounter;
     std::atomic<uint64_t> m_uniqueId{0};
     std::atomic_bool m_toBeDestroyed{false};
-
-    iox::relative_ptr<runtime::RunnableData> m_runnable;
 };
 
 } // namespace popo

@@ -34,7 +34,6 @@ class InterfacePortRequestStackBlowup_test : public RouDi_GTest
 TEST_F(InterfacePortRequestStackBlowup_test, RouDiMustContinue)
 {
     iox::runtime::PoshRuntime::getInstance("/inteface_port_request_stack_blowup");
-    auto serviceDescription = iox::capro::ServiceDescription{"InterfacePortRequest", "Stack", "Blowup"};
     GatewayGeneric sut(iox::capro::Interfaces::INTERNAL);
     iox::capro::CaproMessage caproMessage;
     // we don't care if there are capro messages or not, we just want to have a check that there was no segfault

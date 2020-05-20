@@ -55,8 +55,8 @@ class CmdLineParser
     /// @param[in] argv forwarding of command line arguments
     /// @param[in] cmdLineParsingMode selects to parse a single option or all options
     virtual void parse(int argc,
-               char* argv[],
-               const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
+                       char* argv[],
+                       const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
 
     bool getRun() const;
     iox::log::LogLevel getLogLevel() const;

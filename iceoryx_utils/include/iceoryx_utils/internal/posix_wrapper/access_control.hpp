@@ -22,6 +22,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <type_traits>
 
 namespace iox
 {
@@ -44,7 +45,7 @@ class AccessController
 
 /// @brief identifier for a permission entry (user, group, others, ...)
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
-    enum class Category : std::underlying_type(acl_tag_t)
+    enum class Category : std::underlying_type<acl_tag_t>::type
 #else
     enum class Category : acl_tag_t
 #endif
@@ -60,7 +61,7 @@ class AccessController
 
 /// @brief access right for a permission entry
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
-    enum class Permission : std::underlying_type(acl_perm_t)
+    enum class Permission : std::underlying_type<acl_perm_t>::type
 #else
     enum class Permission : acl_perm_t
 #endif
@@ -79,7 +80,7 @@ class AccessController
     /// @param[f_permission] Permissions which should be applied to the category.
     /// @param[f_id] The group or user id - depending on the category. For Category::USER, Category::GROUP and
     ///   Category::OTHER the f_id is not required for everything else a valid group or user id is mandatory.
-    bool addPermissionEntry(const Category f_category, const Permission f_permission, const unsigned int f_id = -1u);
+    bool addPermissionEntry(const Category f_category, const Permission f_permission, const uint32_t f_id = -1u);
 
     /// @brief just like addPermissionEntry(Category, Permission, int) but using a name instead of an id.
     bool addPermissionEntry(const Category f_category, const Permission f_permission, const string_t& f_name);
@@ -88,7 +89,7 @@ class AccessController
     /// @param[f_fileDescriptor] identifier for a file (can be regular file, shared memory file, message queue file...
     /// everything is a file).
     /// @return true if succesful. If false, you can assume that the file has not been touched at all.
-    bool writePermissionsToFile(const int f_fileDescriptor) const;
+    bool writePermissionsToFile(const int32_t f_fileDescriptor) const;
 
   private:
     using smartAclPointer_t = std::unique_ptr<std::remove_pointer<acl_t>::type, std::function<void(acl_t)>>;
@@ -102,7 +103,7 @@ class AccessController
 
     cxx::vector<PermissionEntry, MaxNumOfPermissions> m_permissions;
 
-    smartAclPointer_t createACL(const int f_numEntries) const;
+    smartAclPointer_t createACL(const int32_t f_numEntries) const;
     bool createACLEntry(const acl_t f_ACL, const PermissionEntry& f_entry) const;
     bool addAclPermission(acl_permset_t f_permset, acl_perm_t f_perm) const;
 

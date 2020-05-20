@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -84,6 +85,9 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
     m_size = totalSize;
     m_segmentId = RelativePointer::registerPtr(m_memory, m_size);
 
+    LogDebug() << "Registered memory segment " << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_memory))
+               << " with size " << m_size << " to id " << m_segmentId;
+
     iox::posix::Allocator allocator(m_memory, m_size);
 
     for (auto memoryBlock : m_memoryBlocks)
@@ -110,6 +114,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
+        RelativePointer::unregisterPtr(m_segmentId);
         m_memory = nullptr;
         m_size = 0u;
     }
@@ -138,7 +143,7 @@ void MemoryProvider::announceMemoryAvailable() noexcept
     {
         for (auto memoryBlock : m_memoryBlocks)
         {
-            memoryBlock->memoryAvailable();
+            memoryBlock->memoryAvailable(memoryBlock->m_memory);
         }
 
         m_memoryAvailableAnnounced = true;
@@ -153,6 +158,41 @@ bool MemoryProvider::isAvailable() const noexcept
 bool MemoryProvider::isAvailableAnnounced() const noexcept
 {
     return m_memoryAvailableAnnounced;
+}
+
+
+const char* MemoryProvider::getErrorString(const MemoryProviderError error)
+{
+    switch (error)
+    {
+    case MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED:
+        return "MEMORY_BLOCKS_EXHAUSTED";
+    case MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT:
+        return "NO_MEMORY_BLOCKS_PRESENT";
+    case MemoryProviderError::MEMORY_ALREADY_CREATED:
+        return "MEMORY_ALREADY_CREATED";
+    case MemoryProviderError::MEMORY_CREATION_FAILED:
+        return "MEMORY_CREATION_FAILED";
+    case MemoryProviderError::PAGE_SIZE_CHECK_ERROR:
+        return "PAGE_SIZE_CHECK_ERROR";
+    case MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE:
+        return "MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE";
+    case MemoryProviderError::MEMORY_ALLOCATION_FAILED:
+        return "MEMORY_ALLOCATION_FAILED";
+    case MemoryProviderError::MEMORY_MAPPING_FAILED:
+        return "MEMORY_MAPPING_FAILED";
+    case MemoryProviderError::MEMORY_NOT_AVAILABLE:
+        return "MEMORY_NOT_AVAILABLE";
+    case MemoryProviderError::MEMORY_DESTRUCTION_FAILED:
+        return "MEMORY_DESTRUCTION_FAILED";
+    case MemoryProviderError::MEMORY_DEALLOCATION_FAILED:
+        return "MEMORY_DEALLOCATION_FAILED";
+    case MemoryProviderError::MEMORY_UNMAPPING_FAILED:
+        return "MEMORY_UNMAPPING_FAILED";
+    }
+
+    // this will actually never be reached, but the compiler issues a warning
+    return "UNDEFINED";
 }
 
 } // namespace roudi

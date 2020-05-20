@@ -25,7 +25,6 @@ namespace mepoo
 using SequenceNumberType = std::uint32_t;
 using PureLocalTB = std::chrono::steady_clock; // atm sure PureLocalTB
 using BaseClock = PureLocalTB;                 // to be able to go to a synced clock
-using SamplesCounterType = std::uint8_t;       // AGR counter for send and received samples
 
 // use signed integer for duration;
 // there is a bug in gcc 4.8 which leads to a wrong calcutated time
@@ -44,9 +43,11 @@ struct ChunkInfo
     /// @brief size of header and used payload (remaining bytes of the memory chunk are not counted)
     std::uint32_t m_usedSizeOfChunk{0};
 
+    /// @brief total size of the chunk, independent of the usage
+    std::uint32_t m_totalSizeOfChunk{0};
+
     TimePointNs m_txTimestamp;
 };
 
 } // namespace mepoo
 } // namespace iox
-

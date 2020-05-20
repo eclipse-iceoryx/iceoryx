@@ -54,7 +54,7 @@ SharedMemory::SharedMemory(const char* f_name,
     , m_size(f_size)
 {
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
-    if (f_name == nullptr || strlen(f_name) == 0)
+    if (f_name == nullptr || strlen(f_name) == 0u)
     {
         std::cerr << "No shared memory name specified!" << std::endl;
         m_isInitialized = false;
@@ -70,10 +70,11 @@ SharedMemory::SharedMemory(const char* f_name,
     if (strlen(f_name) >= NAME_SIZE)
     {
         std::clog << "Shared memory name is too long! '" << f_name << "' will be truncated at position "
-                  << NAME_SIZE - 1 << "!" << std::endl;
+                  << NAME_SIZE - 1u << "!" << std::endl;
     }
 
     strncpy(m_name, f_name, NAME_SIZE);
+    m_name[NAME_SIZE - 1u] = '\0';
     m_oflags |= (f_accessMode == AccessMode::readOnly) ? O_RDONLY : O_RDWR;
     m_oflags |= (f_ownerShip == OwnerShip::mine) ? O_CREAT : 0;
 
@@ -115,7 +116,7 @@ bool SharedMemory::isInitialized() const
     return m_isInitialized;
 }
 
-int SharedMemory::getHandle() const
+int32_t SharedMemory::getHandle() const
 {
     return m_handle;
 }
@@ -123,7 +124,7 @@ int SharedMemory::getHandle() const
 bool SharedMemory::open()
 {
     // the mask will be applied to the permissions, therefore we need to set it to 0
-    mode_t umaskSaved = umask(0);
+    mode_t umaskSaved = umask(0u);
 
     auto l_shmOpenCall =
         cxx::makeSmartC(shm_open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name, m_oflags, m_permissions);

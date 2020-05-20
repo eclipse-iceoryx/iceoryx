@@ -51,7 +51,7 @@ inline bool convert::fromString<std::string>(const char* v, std::string& dest)
 template <>
 inline bool convert::fromString<char>(const char* v, char& dest)
 {
-    if (strlen(v) != 1)
+    if (strlen(v) != 1u)
     {
         std::cerr << v << " is not a char" << std::endl;
         return false;
@@ -61,9 +61,9 @@ inline bool convert::fromString<char>(const char* v, char& dest)
 }
 
 template <>
-inline bool convert::fromString<CString100>(const char* v, CString100& dest)
+inline bool convert::fromString<string<100>>(const char* v, string<100>& dest)
 {
-    dest = CString100(v);
+    dest = string<100>(TruncateToCapacity, v);
     return true;
 }
 
@@ -74,13 +74,13 @@ inline bool convert::stringIsNumber(const char* v, const NumberType type)
 
     bool hasDot = false;
 
-    for (unsigned int i = 0; v[i] != '\0'; ++i)
+    for (uint32_t i = 0u; v[i] != '\0'; ++i)
     {
         if (v[i] >= 48 && v[i] <= 57) // 48 == ascii 0, 57 == ascii 9
         {
             continue;
         }
-        else if (type != NumberType::UNSIGNED_INTEGER && i == 0
+        else if (type != NumberType::UNSIGNED_INTEGER && i == 0u
                  && (v[i] == 43 || v[i] == 45)) // 43 == ascii +, 45 == ascii -
         {
             continue;
@@ -105,15 +105,18 @@ inline bool convert::stringIsNumberWithErrorMessage(const char* v, const NumberT
         std::cerr << v << " is not ";
         switch (type)
         {
-        case NumberType::FLOAT: {
+        case NumberType::FLOAT:
+        {
             std::cerr << "a float";
             break;
         }
-        case NumberType::INTEGER: {
+        case NumberType::INTEGER:
+        {
             std::cerr << "a signed integer";
             break;
         }
-        case NumberType::UNSIGNED_INTEGER: {
+        case NumberType::UNSIGNED_INTEGER:
+        {
             std::cerr << "an unsigned integer";
             break;
         }
@@ -189,7 +192,7 @@ inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest)
         return false;
     }
 
-    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, 10);
+    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, 10u);
     if (call.hasErrors())
     {
         return false;
@@ -205,6 +208,17 @@ inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest)
     return true;
 }
 
+/// introduced for mac os since unsigned long is not uint64_t despite it has the same size
+/// who knows why ¯\_(ツ)_/¯
+template <>
+inline bool convert::fromString<unsigned long>(const char* v, unsigned long& dest)
+{
+    uint64_t temp{0};
+    bool retVal = fromString(v, temp);
+    dest = temp;
+    return retVal;
+}
+
 template <>
 inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest)
 {
@@ -213,7 +227,7 @@ inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest)
         return false;
     }
 
-    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, 10);
+    auto call = makeSmartC(strtoull, ReturnMode::PRE_DEFINED_ERROR_CODE, {ULLONG_MAX}, {}, v, nullptr, 10u);
     if (call.hasErrors())
     {
         return false;

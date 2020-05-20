@@ -87,40 +87,40 @@ class SegmentManager_test : public Test
     iox::posix::Allocator allocator{memory, MEM_SIZE};
     MePooConfig mepooConfig = getMempoolConfig();
     SegmentConfig segmentConfig = getSegmentConfig();
-    SegmentManager<> sut{segmentConfig, &allocator, 0, false};
+    SegmentManager<> sut{segmentConfig, &allocator};
 };
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsForReadUser))
 {
     auto mapping = sut.getSegmentMappings({"roudi_test1"});
-    ASSERT_THAT(mapping.size(), Eq(1));
+    ASSERT_THAT(mapping.size(), Eq(1u));
     EXPECT_THAT(mapping[0].m_isWritable, Eq(false));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsForWriteUser))
 {
     auto mapping = sut.getSegmentMappings({"roudi_test2"});
-    ASSERT_THAT(mapping.size(), Eq(2));
+    ASSERT_THAT(mapping.size(), Eq(2u));
     EXPECT_THAT(mapping[0].m_isWritable == mapping[1].m_isWritable, Eq(false));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsEmptyForNonRegisteredUser))
 {
     auto mapping = sut.getSegmentMappings({"roudi_test4"});
-    ASSERT_THAT(mapping.size(), Eq(0));
+    ASSERT_THAT(mapping.size(), Eq(0u));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsEmptyForNonExistingUser))
 {
     auto mapping = sut.getSegmentMappings({"no_user"});
-    ASSERT_THAT(mapping.size(), Eq(0));
+    ASSERT_THAT(mapping.size(), Eq(0u));
 }
 
 TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserWithWriteUser))
 {
     auto memoryManager = sut.getSegmentInformationForUser({"roudi_test2"}).m_memoryManager;
     ASSERT_THAT(memoryManager, Ne(nullptr));
-    ASSERT_THAT(memoryManager->getNumberOfMemPools(), Eq(2));
+    ASSERT_THAT(memoryManager->getNumberOfMemPools(), Eq(2u));
 
     auto poolInfo1 = memoryManager->getMemPoolInfo(0);
     auto poolInfo2 = memoryManager->getMemPoolInfo(1);

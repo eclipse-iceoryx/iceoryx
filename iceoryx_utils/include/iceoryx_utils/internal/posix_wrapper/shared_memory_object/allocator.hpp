@@ -27,7 +27,7 @@ class Allocator
 
 
   public:
-    static constexpr uint64_t MEMORY_ALIGNMENT = 32u;
+    static constexpr uint64_t MEMORY_ALIGNMENT = 32;
     Allocator(const void* f_startAddress, const uint64_t f_length);
 
     Allocator(const Allocator&) = delete;

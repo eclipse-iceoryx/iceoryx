@@ -16,7 +16,7 @@
 
 namespace iox
 {
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline Transceiver<DataType, TransportLayer>::Transceiver(TransportLayer_t* const f_transportLayerAliceToBob,
                                                           TransportLayer_t* const f_transportLayerBobToAlice)
     : Receiver<DataType, TransportLayer>(f_transportLayerAliceToBob)

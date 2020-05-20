@@ -15,8 +15,11 @@
 #pragma once
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
-#include "iceoryx_posh/roudi/roudi_app.hpp"
+#include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
 #include "iceoryx_posh/internal/roudi_environment/runtime_test_interface.hpp"
+#include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
+#include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_posh/roudi/roudi_app.hpp"
 
 #include <atomic>
 #include <map>
@@ -35,8 +38,8 @@ class RouDiEnvironment
                      MonitoringMode monitoringMode = MonitoringMode::OFF);
     virtual ~RouDiEnvironment();
 
-    RouDiEnvironment(RouDiEnvironment&& rhs);
-    RouDiEnvironment& operator=(RouDiEnvironment&& rhs);
+    RouDiEnvironment(RouDiEnvironment&& rhs) = default;
+    RouDiEnvironment& operator=(RouDiEnvironment&& rhs) = default;
 
     RouDiEnvironment(const RouDiEnvironment&) = delete;
     RouDiEnvironment& operator=(const RouDiEnvironment&) = delete;
@@ -47,13 +50,21 @@ class RouDiEnvironment
     void CleanupAppResources(const std::string& name);
 
   protected:
+    /// @note this is due to ambiguity of the cTor with the default parameter
+    enum class BaseCTor
+    {
+        BASE,
+    };
     /// @brief for implementations on top of RouDiEnvironment
-    RouDiEnvironment(RouDiMultiProcess* roudiApp);
+    RouDiEnvironment(BaseCTor);
+
+    void CleanupRuntimes();
 
   private:
     RuntimeTestInterface m_runtimes;
     std::chrono::milliseconds m_interOpWaitingTime = std::chrono::milliseconds(200);
-    RouDiMultiProcess* m_roudiApp{nullptr};
+    std::unique_ptr<IceOryxRouDiComponents> m_roudiComponents;
+    std::unique_ptr<RouDiMultiProcess> m_roudiApp;
 };
 
 } // namespace roudi

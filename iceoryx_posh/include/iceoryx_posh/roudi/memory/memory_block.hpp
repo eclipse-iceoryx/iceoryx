@@ -33,6 +33,8 @@ class MemoryBlock
   public:
     MemoryBlock() noexcept = default;
 
+    /// @note this is intentional not movable/copyable, since a pointer to the memory block is registered at a
+    /// MemoryProvider and therefore an instance of a MemoryBlock must be pinned to memory
     MemoryBlock(const MemoryBlock&) = delete;
     MemoryBlock(MemoryBlock&&) = delete;
     MemoryBlock& operator=(const MemoryBlock&) = delete;
@@ -54,7 +56,8 @@ class MemoryBlock
 
     /// @brief This function is called once the memory is available and is therefore the earliest possibility to use the
     /// memory.
-    virtual void memoryAvailable() noexcept;
+    /// @param [in] memory pointer to a valid memory block, the same one that the memory() member function would return
+    virtual void memoryAvailable(void* memory) noexcept;
 
     /// @brief This function provides the pointer to the requested memory.
     /// @return an optional pointer to a memory block with the requested size and alignment if the memory is available,
@@ -67,3 +70,4 @@ class MemoryBlock
 
 } // namespace roudi
 } // namespace iox
+

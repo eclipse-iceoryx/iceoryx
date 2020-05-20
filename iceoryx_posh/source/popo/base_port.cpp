@@ -18,7 +18,7 @@ namespace iox
 {
 namespace popo
 {
-std::atomic<uint64_t> BasePort::MemberType_t::s_uniqueIdCounter{1};
+std::atomic<uint64_t> BasePort::MemberType_t::s_uniqueIdCounter{1u};
 
 BasePort::BasePort(BasePortData* const f_basePortDataPtr) noexcept
     : m_basePortDataPtr(f_basePortDataPtr)
@@ -81,3 +81,4 @@ bool BasePort::toBeDestroyed() const noexcept
 
 } // namespace popo
 } // namespace iox
+

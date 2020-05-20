@@ -127,7 +127,7 @@ mepoo::ChunkHeader* SenderPort::reserveChunk(const uint32_t payloadSize, bool us
     /// @todo The chunk size should be set in the constructor
     /// this needs to be done in the upcoming refactoring
     auto activePayloadSize = getMembers()->m_activePayloadSize.load(std::memory_order_relaxed);
-    if (activePayloadSize == 0 || (useDynamicPayloadSizes && payloadSize != activePayloadSize))
+    if (activePayloadSize == 0u || (useDynamicPayloadSizes && payloadSize != activePayloadSize))
     {
         setThroughput(payloadSize);
     }
@@ -249,14 +249,14 @@ void SenderPort::deliverChunk(mepoo::ChunkHeader* const chunkHeader)
         if (l_isOffered && !l_isField)
         {
             // deliver the chunk and store the last chunk for recycling if it is free on next reserveChunk
-            getMembers()->m_receiverHandler.appContext().deliverChunk(l_chunk);
+            deliverChunkToAllReceiver(l_chunk);
             getMembers()->m_lastChunk = l_chunk;
         }
         else if (l_isOffered && l_isField)
         {
             // just deliver the chunk, we cannot recycle it as anytime someone could subscribe and the last chunk must
             // be provided
-            getMembers()->m_receiverHandler.appContext().deliverChunk(l_chunk);
+            deliverChunkToAllReceiver(l_chunk);
         }
         else
         {
@@ -264,6 +264,22 @@ void SenderPort::deliverChunk(mepoo::ChunkHeader* const chunkHeader)
             getMembers()->m_receiverHandler.appContext().updateLastChunk(l_chunk);
         }
     }
+}
+
+void SenderPort::deliverChunkToAllReceiver(const mepoo::SharedChunk f_chunk)
+{
+    getMembers()->m_receiverHandler.lock();
+
+    auto& receiverList = getMembers()->m_receiverHandler.appContext().getReceiverList();
+
+    for (int64_t i = static_cast<int64_t>(receiverList.size()) - 1; i >= 0; --i)
+    {
+        ReceiverPortType(receiverList[static_cast<uint64_t>(i)]).deliver(f_chunk);
+    }
+
+    getMembers()->m_receiverHandler.updateLastChunk(f_chunk);
+
+    getMembers()->m_receiverHandler.unlock();
 }
 
 void SenderPort::freeChunk(mepoo::ChunkHeader* const chunkHeader)
@@ -294,7 +310,7 @@ void SenderPort::deactivate()
     {
         this->getMembers()->m_activateRequested.store(false, std::memory_order_relaxed);
 
-        getMembers()->m_activePayloadSize.store(0, std::memory_order_relaxed);
+        getMembers()->m_activePayloadSize.store(0u, std::memory_order_relaxed);
     }
 }
 
@@ -312,7 +328,7 @@ void SenderPort::forwardChunk(mepoo::SharedChunk chunk)
     getMembers()->m_sequenceNumber++;
     setThroughputDeliveryData(chunk.getChunkHeader()->m_info, false);
     setThroughput(chunk.getChunkHeader()->m_info.m_payloadSize);
-    getMembers()->m_receiverHandler.appContext().deliverChunk(chunk);
+    deliverChunkToAllReceiver(chunk);
 }
 
 SenderPort::MemberType_t::Throughput SenderPort::getThroughput() const
@@ -396,6 +412,11 @@ uint32_t SenderPort::getMaxDeliveryFiFoCapacity()
 bool SenderPort::isUnique() const
 {
     return getMembers()->m_isUnique;
+}
+
+const SenderPort::MemoryInfo& SenderPort::getMemoryInfo() const noexcept
+{
+    return getMembers()->m_memoryInfo;
 }
 
 } // namespace popo

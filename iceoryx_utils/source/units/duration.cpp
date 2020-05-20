@@ -21,12 +21,12 @@ namespace units
 {
 struct timespec Duration::timespec(const TimeSpecReference& reference) const
 {
-    switch (reference)
+    if (reference == TimeSpecReference::None)
     {
-    case TimeSpecReference::None:
-        return {this->seconds<int>(),
-                static_cast<int>(this->nanoSeconds<int64_t>() - this->seconds<int64_t>() * 1000000000)};
-    default:
+        return {this->seconds<int32_t>(),
+                static_cast<int32_t>(this->nanoSeconds<int64_t>() - this->seconds<int64_t>() * 1000000000)};
+    }
+    else
     {
         struct timespec referenceTime;
         auto result = cxx::makeSmartC(clock_gettime,
@@ -47,10 +47,8 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const
             int64_t seconds = this->seconds<int64_t>() + referenceTime.tv_sec + sumOfNanoSeconds / NanoSecondsPerSecond;
             int64_t nanoSeconds = sumOfNanoSeconds % NanoSecondsPerSecond;
 
-            return {static_cast<decltype(referenceTime.tv_sec)>(seconds),
-                    static_cast<decltype(referenceTime.tv_nsec)>(nanoSeconds)};
+            return {seconds, nanoSeconds};
         }
-    }
     }
 }
 

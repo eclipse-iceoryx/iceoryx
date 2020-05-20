@@ -22,11 +22,11 @@ namespace capro
 {
 ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& values) noexcept
 {
-    uint64_t index = 0;
+    uint64_t index = 0u;
     for (auto& v : values)
     {
         data[index++] = v;
-        if (index == 4)
+        if (index == 4u)
         {
             return;
         }
@@ -45,7 +45,7 @@ const uint32_t& ServiceDescription::ClassHash::operator[](const uint64_t index) 
 
 bool ServiceDescription::ClassHash::operator==(const ClassHash& rhs) const noexcept
 {
-    for (size_t i = 0; i < CLASS_HASH_ELEMENT_COUNT; ++i)
+    for (size_t i = 0u; i < CLASS_HASH_ELEMENT_COUNT; ++i)
     {
         if (data[i] != rhs[i])
         {
@@ -70,10 +70,10 @@ ServiceDescription::ServiceDescription(const cxx::Serialization& f_serial) noexc
                      m_serviceID,
                      m_instanceID,
                      m_eventID,
-                     m_classHash[0],
-                     m_classHash[1],
-                     m_classHash[2],
-                     m_classHash[3],
+                     m_classHash[0u],
+                     m_classHash[1u],
+                     m_classHash[2u],
+                     m_classHash[3u],
                      m_hasServiceOnlyDescription,
                      scope,
                      interfaceSource);
@@ -116,9 +116,9 @@ ServiceDescription::ServiceDescription(uint16_t f_serviceID, uint16_t f_eventID,
     : m_serviceID(f_serviceID)
     , m_eventID(f_eventID)
     , m_instanceID(f_instanceID)
-    , m_serviceString(std::to_string(f_serviceID).c_str())
-    , m_instanceString(std::to_string(f_instanceID).c_str())
-    , m_eventString(std::to_string(f_eventID).c_str())
+    , m_serviceString(iox::cxx::TruncateToCapacity, std::to_string(f_serviceID))
+    , m_instanceString(iox::cxx::TruncateToCapacity, std::to_string(f_instanceID))
+    , m_eventString(iox::cxx::TruncateToCapacity, std::to_string(f_eventID))
 {
 }
 
@@ -133,29 +133,20 @@ ServiceDescription::ServiceDescription(const IdString& f_service,
     , m_classHash(f_classHash)
     , m_interfaceSource(interfaceSource)
 {
-    if (cxx::convert::stringIsNumber(m_serviceString.to_cstring(), cxx::convert::NumberType::UNSIGNED_INTEGER))
-    {
-        cxx::convert::fromString(m_serviceString.to_cstring(), m_serviceID);
-    }
-    else
+    if (!(cxx::convert::stringIsNumber(m_serviceString.c_str(), cxx::convert::NumberType::UNSIGNED_INTEGER)
+          && cxx::convert::fromString(m_serviceString.c_str(), m_serviceID)))
     {
         m_serviceID = InvalidID;
     }
 
-    if (cxx::convert::stringIsNumber(m_instanceString.to_cstring(), cxx::convert::NumberType::UNSIGNED_INTEGER))
-    {
-        cxx::convert::fromString(m_instanceString.to_cstring(), m_instanceID);
-    }
-    else
+    if (!(cxx::convert::stringIsNumber(m_instanceString.c_str(), cxx::convert::NumberType::UNSIGNED_INTEGER)
+          && cxx::convert::fromString(m_instanceString.c_str(), m_instanceID)))
     {
         m_instanceID = InvalidID;
     }
 
-    if (cxx::convert::stringIsNumber(m_eventString.to_cstring(), cxx::convert::NumberType::UNSIGNED_INTEGER))
-    {
-        cxx::convert::fromString(m_eventString.to_cstring(), m_eventID);
-    }
-    else
+    if (!(cxx::convert::stringIsNumber(m_eventString.c_str(), cxx::convert::NumberType::UNSIGNED_INTEGER)
+          && cxx::convert::fromString(m_eventString.c_str(), m_eventID)))
     {
         m_eventID = InvalidID;
     }
@@ -196,19 +187,19 @@ bool ServiceDescription::operator!=(const ServiceDescription& rhs) const
 
 bool ServiceDescription::operator<(const ServiceDescription& rhs) const
 {
-    int32_t serviceCompare = m_serviceString.compare(rhs.m_serviceString);
+    auto serviceCompare = m_serviceString.compare(rhs.m_serviceString);
     if (serviceCompare != 0)
     {
         return 0 < serviceCompare;
     }
 
-    int32_t instanceCompare = m_instanceString.compare(rhs.m_instanceString);
+    auto instanceCompare = m_instanceString.compare(rhs.m_instanceString);
     if (instanceCompare != 0)
     {
         return 0 < instanceCompare;
     }
 
-    int32_t eventCompare = m_eventString.compare(rhs.m_eventString);
+    auto eventCompare = m_eventString.compare(rhs.m_eventString);
     if (eventCompare != 0)
     {
         return 0 < eventCompare;
@@ -244,10 +235,10 @@ ServiceDescription::operator cxx::Serialization() const
                                       m_serviceID,
                                       m_instanceID,
                                       m_eventID,
-                                      m_classHash[0],
-                                      m_classHash[1],
-                                      m_classHash[2],
-                                      m_classHash[3],
+                                      m_classHash[0u],
+                                      m_classHash[1u],
+                                      m_classHash[2u],
+                                      m_classHash[3u],
                                       m_hasServiceOnlyDescription,
                                       scope,
                                       interface);
@@ -277,17 +268,17 @@ uint16_t ServiceDescription::getEventID() const noexcept
     return m_eventID;
 }
 
-ServiceDescription::IdString ServiceDescription::getServiceIDString() const noexcept
+IdString ServiceDescription::getServiceIDString() const noexcept
 {
     return m_serviceString;
 }
 
-ServiceDescription::IdString ServiceDescription::getInstanceIDString() const noexcept
+IdString ServiceDescription::getInstanceIDString() const noexcept
 {
     return m_instanceString;
 }
 
-ServiceDescription::IdString ServiceDescription::getEventIDString() const noexcept
+IdString ServiceDescription::getEventIDString() const noexcept
 {
     return m_eventString;
 }
@@ -330,3 +321,4 @@ bool serviceMatch(const ServiceDescription& first, const ServiceDescription& sec
 
 } // namespace capro
 } // namespace iox
+

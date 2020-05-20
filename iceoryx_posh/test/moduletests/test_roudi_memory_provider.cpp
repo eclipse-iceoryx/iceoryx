@@ -29,7 +29,7 @@ class MemoryProviderFailingCreation : public iox::roudi::MemoryProvider
 {
   public:
     iox::cxx::expected<void*, MemoryProviderError>
-    createMemory(const uint64_t size[[gnu::unused]], const uint64_t alignment[[gnu::unused]]) noexcept override
+    createMemory(const uint64_t size [[gnu::unused]], const uint64_t alignment [[gnu::unused]]) noexcept override
     {
         return iox::cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
     }
@@ -54,6 +54,22 @@ class MemoryProvider_Test : public Test
     {
         // unregisterAll is also called to leave a clean environment after the last test
         iox::RelativePointer::unregisterAll();
+    }
+
+    static constexpr uint64_t COMMON_SETUP_MEMORY_SIZE{16};
+    static constexpr uint64_t COMMON_SETUP_MEMORY_ALIGNMENT{8};
+
+    iox::cxx::expected<MemoryProviderError> commonSetup()
+    {
+        sut.addMemoryBlock(&memoryBlock1);
+        EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_SIZE));
+        EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_ALIGNMENT));
+        EXPECT_CALL(sut, createMemoryMock(COMMON_SETUP_MEMORY_SIZE, COMMON_SETUP_MEMORY_ALIGNMENT)).Times(1);
+
+        EXPECT_CALL(sut, destroyMemoryMock());
+        EXPECT_CALL(memoryBlock1, destroyMock());
+
+        return sut.create();
     }
 
     MemoryBlockMock memoryBlock1;
@@ -110,21 +126,14 @@ TEST_F(MemoryProvider_Test, CreateWithoutMemoryBlock)
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(false));
 }
 
-TEST_F(MemoryProvider_Test, CreateWithOneMemoryBlock)
+TEST_F(MemoryProvider_Test, CreateWithCommonSetupOfOneMemoryBlockIsSuccessful)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
-    EXPECT_THAT(sut.create().has_error(), Eq(false));
+    auto expectSuccess = commonSetup();
+
+    EXPECT_THAT(expectSuccess.has_error(), Eq(false));
 
     EXPECT_THAT(sut.isAvailable(), Eq(true));
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(false));
-
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
 }
 
 TEST_F(MemoryProvider_Test, CreationFailed)
@@ -146,21 +155,12 @@ TEST_F(MemoryProvider_Test, CreationFailed)
 
 TEST_F(MemoryProvider_Test, CreateAndAnnounceWithOneMemoryBlock)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
-    EXPECT_THAT(sut.create().has_error(), Eq(false));
+    commonSetup();
 
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock()).Times(1);
+    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
-
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
 }
 
 TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
@@ -179,8 +179,8 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
         .Times(1);
     EXPECT_THAT(sut.create().has_error(), Eq(false));
 
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock()).Times(1);
-    EXPECT_CALL(memoryBlock2, memoryAvailableMock()).Times(1);
+    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
+    EXPECT_CALL(memoryBlock2, memoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
@@ -192,73 +192,36 @@ TEST_F(MemoryProvider_Test, CreateAndAnnounceWithMultipleMemoryBlocks)
 
 TEST_F(MemoryProvider_Test, AddMemoryBlockAfterCreation)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(_, _)).Times(1);
-    sut.create().has_error(), Eq(false);
+    commonSetup();
 
     auto expectError = sut.addMemoryBlock(&memoryBlock2);
     ASSERT_THAT(expectError.has_error(), Eq(true));
     EXPECT_THAT(expectError.get_error(), Eq(MemoryProviderError::MEMORY_ALREADY_CREATED));
-
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
 }
 
 TEST_F(MemoryProvider_Test, MultipleCreates)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
+    commonSetup();
 
-    EXPECT_THAT(sut.create().has_error(), Eq(false));
     auto expectError = sut.create();
     ASSERT_THAT(expectError.has_error(), Eq(true));
     EXPECT_THAT(expectError.get_error(), Eq(MemoryProviderError::MEMORY_ALREADY_CREATED));
-
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
 }
 
 TEST_F(MemoryProvider_Test, MultipleAnnouncesAreSuppressed)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
-    sut.create();
+    commonSetup();
 
-    EXPECT_CALL(memoryBlock1, memoryAvailableMock()).Times(1);
+    EXPECT_CALL(memoryBlock1, memoryAvailableMock(_)).Times(1);
     sut.announceMemoryAvailable();
     sut.announceMemoryAvailable(); // this shouldn't trigger a second memoryAvailable call on memoryBlock1
 
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(true));
-
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
 }
 
 TEST_F(MemoryProvider_Test, MultipleDestroys)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
-
-    sut.create(), Eq(true);
-
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
+    commonSetup();
 
     EXPECT_THAT(sut.destroy().has_error(), Eq(false));
 
@@ -274,34 +237,17 @@ TEST_F(MemoryProvider_Test, IntialBaseAddressValueIsUnset)
 
 TEST_F(MemoryProvider_Test, BaseAddressValueAfterCreationIsValid)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
-    sut.create();
+    commonSetup();
 
     auto baseAddress = sut.baseAddress();
     ASSERT_THAT(baseAddress.has_value(), Eq(true));
     EXPECT_THAT(baseAddress.value(), Eq(memoryBlock1.memory().value()));
-
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
 }
 
 TEST_F(MemoryProvider_Test, BaseAddressValueAfterDestructionIsUnset)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
-    sut.create();
+    commonSetup();
 
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
     sut.destroy();
 
     EXPECT_THAT(sut.baseAddress().has_value(), Eq(false));
@@ -314,34 +260,15 @@ TEST_F(MemoryProvider_Test, InitialSizeValueIsZero)
 
 TEST_F(MemoryProvider_Test, SizeValueAfterCreationHasExpectedValue)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
+    commonSetup();
 
-    sut.create();
-
-    EXPECT_THAT(sut.size(), Eq(MEMORY_SIZE));
-
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
+    EXPECT_THAT(sut.size(), Eq(COMMON_SETUP_MEMORY_SIZE));
 }
 
 TEST_F(MemoryProvider_Test, SizeValueAfterDestructionIsZero)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
+    commonSetup();
 
-    sut.create();
-
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
     sut.destroy();
 
     EXPECT_THAT(sut.size(), Eq(0u));
@@ -354,39 +281,23 @@ TEST_F(MemoryProvider_Test, InitialSegmentIdValueIsUnset)
 
 TEST_F(MemoryProvider_Test, SegmentIdValueAfterCreationIsValid)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
-
     constexpr uint64_t DummyMemorySize{1024};
     uint8_t dummy[DummyMemorySize];
     auto segmentIdOffset = iox::RelativePointer::registerPtr(dummy, DummyMemorySize);
 
-    sut.create();
+    commonSetup();
 
     auto segmentId = sut.segmentId();
     ASSERT_THAT(segmentId.has_value(), Eq(true));
+    // the segment id being monotonic increasing is an implementation detail, in the case that the implementation
+    // changes, just remove this check, since we already check to get a valid result
     EXPECT_THAT(segmentId.value(), Eq(segmentIdOffset + 1));
-
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
 }
 
 TEST_F(MemoryProvider_Test, SegmentIdValueAfterDestructionIsUnset)
 {
-    sut.addMemoryBlock(&memoryBlock1);
-    uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{8};
-    EXPECT_CALL(memoryBlock1, sizeMock()).WillRepeatedly(Return(MEMORY_SIZE));
-    EXPECT_CALL(memoryBlock1, alignmentMock()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
-    EXPECT_CALL(sut, createMemoryMock(MEMORY_SIZE, MEMORY_ALIGNMENT)).Times(1);
-    sut.create();
+    commonSetup();
 
-    EXPECT_CALL(sut, destroyMemoryMock());
-    EXPECT_CALL(memoryBlock1, destroyMock());
     sut.destroy();
 
     EXPECT_THAT(sut.segmentId().has_value(), Eq(false));

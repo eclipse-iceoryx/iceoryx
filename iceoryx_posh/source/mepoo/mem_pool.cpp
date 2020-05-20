@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
@@ -31,7 +32,7 @@ MemPool::MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> f_chunk
     , m_numberOfChunks(f_numberOfChunks)
     , m_minFree(f_numberOfChunks)
 {
-    if (isMultipleOf32(f_chunkSize))
+    if (isMultipleOfAlignment(f_chunkSize))
     {
         m_rawMemory =
             static_cast<uint8_t*>(f_payloadAllocator->allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize));
@@ -42,13 +43,14 @@ MemPool::MemPool(const cxx::greater_or_equal<uint32_t, MEMORY_ALIGNMENT> f_chunk
     else
     {
         std::cerr << f_chunkSize << " :: " << f_numberOfChunks << std::endl;
-        errorHandler(Error::kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_LARGER_32_AND_MULTIPLE_OF_32);
+        errorHandler(
+            Error::kMEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_LARGER_THAN_SHARED_MEMORY_ALIGNMENT_AND_MULTIPLE_OF_ALIGNMENT);
     }
 }
 
-bool MemPool::isMultipleOf32(const uint32_t value) const
+bool MemPool::isMultipleOfAlignment(const uint32_t value) const
 {
-    return (value % 32 == 0);
+    return (value % SHARED_MEMORY_ALIGNMENT == 0u);
 }
 
 void MemPool::adjustMinFree()
@@ -60,7 +62,7 @@ void MemPool::adjustMinFree()
 
 void* MemPool::getChunk()
 {
-    uint32_t l_index{0};
+    uint32_t l_index{0u};
     if (!m_freeIndices.pop(l_index))
     {
         std::cerr << "Mempool [m_chunkSize = " << m_chunkSize << ", numberOfChunks = " << m_numberOfChunks
@@ -70,7 +72,7 @@ void* MemPool::getChunk()
 
     /// @todo: verify that m_usedChunk is not changed during adjustMInFree
     ///         without changing m_minFree
-    m_usedChunks.fetch_add(1, std::memory_order_relaxed);
+    m_usedChunks.fetch_add(1u, std::memory_order_relaxed);
     adjustMinFree();
 
     return m_rawMemory + l_index * m_chunkSize;
@@ -79,7 +81,7 @@ void* MemPool::getChunk()
 void MemPool::freeChunk(const void* chunk)
 {
     cxx::Expects(m_rawMemory <= chunk
-                 && chunk <= m_rawMemory + (static_cast<uint64_t>(m_chunkSize) * (m_numberOfChunks - 1)));
+                 && chunk <= m_rawMemory + (static_cast<uint64_t>(m_chunkSize) * (m_numberOfChunks - 1u)));
 
     auto offset = static_cast<const uint8_t*>(chunk) - m_rawMemory;
     cxx::Expects(offset % m_chunkSize == 0);
@@ -91,7 +93,7 @@ void MemPool::freeChunk(const void* chunk)
         errorHandler(Error::kPOSH__MEMPOOL_POSSIBLE_DOUBLE_FREE);
     }
 
-    m_usedChunks.fetch_sub(1, std::memory_order_relaxed);
+    m_usedChunks.fetch_sub(1u, std::memory_order_relaxed);
 }
 
 uint32_t MemPool::getChunkSize() const

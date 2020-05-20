@@ -31,9 +31,9 @@ class MemoryMap
   public:
     cxx::optional<MemoryMap> static create(const void* f_baseAddressHint,
                                            const uint64_t f_length,
-                                           const int f_fileDescriptor,
+                                           const int32_t f_fileDescriptor,
                                            const AccessMode f_accessMode = AccessMode::readWrite,
-                                           const int f_flags = MAP_SHARED,
+                                           const int32_t f_flags = MAP_SHARED,
                                            const off_t f_offset = 0);
 
     MemoryMap(const MemoryMap&) = delete;
@@ -50,16 +50,16 @@ class MemoryMap
   private:
     MemoryMap(const void* f_baseAddressHint,
               const uint64_t f_length,
-              const int f_fileDescriptor,
+              const int32_t f_fileDescriptor,
               const AccessMode f_accessMode,
-              const int f_flags = MAP_SHARED,
+              const int32_t f_flags = MAP_SHARED,
               const off_t f_offset = 0);
     bool isInitialized() const;
 
-    bool m_isInitialized;
-    bool m_isLocked;
-    void* m_baseAddress;
-    uint64_t m_length;
+    bool m_isInitialized{false};
+    bool m_isLocked{false};
+    void* m_baseAddress{nullptr};
+    uint64_t m_length{0};
 };
 } // namespace posix
 } // namespace iox

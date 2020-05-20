@@ -87,7 +87,7 @@ class LoFFLi
     /// @return the required memory size for a free-list with f_size elements
     static inline constexpr std::size_t requiredMemorySize(const uint32_t f_size)
     {
-        return (static_cast<size_t>(f_size) + 1) * sizeof(uint32_t);
+        return (static_cast<size_t>(f_size) + 1u) * sizeof(uint32_t);
     }
 };
 

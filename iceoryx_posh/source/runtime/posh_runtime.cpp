@@ -17,6 +17,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_posh/runtime/runnable.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
@@ -28,8 +29,7 @@ namespace iox
 {
 namespace runtime
 {
-std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory =
-    PoshRuntime::defaultRuntimeFactory;
+std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
 
 
 PoshRuntime& PoshRuntime::defaultRuntimeFactory(const std::string& name) noexcept
@@ -47,17 +47,24 @@ PoshRuntime& PoshRuntime::getInstance(const std::string& name) noexcept
 PoshRuntime::PoshRuntime(const std::string& name, const bool doMapSharedMemoryIntoThread) noexcept
     : m_appName(verifyInstanceName(name))
     , m_MqInterface(MQ_ROUDI_NAME, name, PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
-    , m_ShmInterface(m_MqInterface.getShmBaseAddr(),
-                     doMapSharedMemoryIntoThread,
+    , m_ShmInterface(doMapSharedMemoryIntoThread,
                      m_MqInterface.getShmTopicSize(),
                      m_MqInterface.getSegmentManagerAddr(),
                      m_MqInterface.getSegmentId())
     , m_applicationPort(getMiddlewareApplication())
-    , m_serviceDiscoveryNotifier(name, getServiceRegistryChangeCounter())
 {
     m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC);
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
+
+PoshRuntime::~PoshRuntime() noexcept
+{
+    if (m_applicationPort)
+    {
+        m_applicationPort.destroy();
+    }
+}
+
 
 const std::string& PoshRuntime::verifyInstanceName(const std::string& name) noexcept
 {
@@ -115,11 +122,13 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
 }
 
 SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::ServiceDescription& service,
-                                                               const cxx::CString100& runnableName) noexcept
+                                                               const cxx::CString100& runnableName,
+                                                               const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_SENDER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << runnableName;
+               << static_cast<cxx::Serialization>(service).toString() << runnableName
+               << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto requestedSenderPort = requestSenderFromRoudi(sendBuffer);
     if (requestedSenderPort.has_error())
@@ -192,11 +201,13 @@ PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
 }
 
 ReceiverPortType::MemberType_t* PoshRuntime::getMiddlewareReceiver(const capro::ServiceDescription& service,
-                                                                   const cxx::CString100& runnableName) noexcept
+                                                                   const cxx::CString100& runnableName,
+                                                                   const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_RECEIVER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << runnableName;
+               << static_cast<cxx::Serialization>(service).toString() << runnableName
+               << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     return requestReceiverFromRoudi(sendBuffer);
 }
@@ -305,21 +316,6 @@ RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProper
     }
 }
 
-void PoshRuntime::removeRunnable(const Runnable& runnable) noexcept
-{
-    LogError() << "removeRunnable not yet supported";
-    assert(false);
-
-    MqMessage sendBuffer;
-    sendBuffer << mqMessageTypeToString(MqMessageType::REMOVE_RUNNABLE) << runnable.getRunnableName();
-
-    if (!sendMessageToRouDi(sendBuffer))
-    {
-        LogError() << "unable to send runnable removal request to roudi";
-        assert(false);
-    }
-}
-
 cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& serviceDescription,
                                               InstanceContainer& instanceContainer) noexcept
 {
@@ -343,7 +339,7 @@ cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& s
     uint32_t numberOfInstances = ((numberOfElements > capacity) ? capacity : numberOfElements);
     for (uint32_t i = 0; i < numberOfInstances; ++i)
     {
-        IdString instance(requestResponse.getElementAtIndex(i).c_str());
+        IdString instance(iox::cxx::TruncateToCapacity, requestResponse.getElementAtIndex(i).c_str());
         instanceContainer.push_back(instance);
     }
 
@@ -355,17 +351,6 @@ cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& s
         return cxx::error<Error>(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW);
     }
     return {cxx::success<>()};
-}
-
-cxx::expected<FindServiceHandle, Error> PoshRuntime::startFindService(const FindServiceHandler& handler,
-                                                                      const IdString& serviceId) noexcept
-{
-    return m_serviceDiscoveryNotifier.startFindService(handler, serviceId);
-}
-
-void PoshRuntime::stopFindService(const FindServiceHandle handle) noexcept
-{
-    m_serviceDiscoveryNotifier.stopFindService(handle);
 }
 
 void PoshRuntime::offerService(const capro::ServiceDescription& serviceDescription) noexcept

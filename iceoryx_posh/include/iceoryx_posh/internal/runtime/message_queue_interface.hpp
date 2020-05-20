@@ -56,7 +56,6 @@ enum class MqMessageType : int32_t
     IMPL_APPLICATION_ACK,
     CREATE_RUNNABLE,
     CREATE_RUNNABLE_ACK,
-    REMOVE_RUNNABLE,
     FIND_SERVICE,
     KEEPALIVE,
     ERROR,
@@ -186,7 +185,7 @@ class MqBase
     MqBase() = delete;
     // TODO: unique identifier problem, multiple MqBase objects with the
     //        same InterfaceName are using the same message queue
-    MqBase(const std::string& InterfaceName, const long maxMessages, const long messageSize) noexcept;
+    MqBase(const std::string& InterfaceName, const int64_t maxMessages, const int64_t messageSize) noexcept;
     virtual ~MqBase() = default;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
@@ -244,8 +243,8 @@ class MqInterfaceUser : public MqBase
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
     MqInterfaceUser(const std::string& name,
-                    const long maxMessages = APP_MAX_MESSAGES,
-                    const long messageSize = APP_MESSAGE_SIZE) noexcept;
+                    const int64_t maxMessages = APP_MAX_MESSAGES,
+                    const int64_t messageSize = APP_MESSAGE_SIZE) noexcept;
 
     /// @brief The copy constructor and assignment operator are deleted since
     ///         this class manages a resource (message queue) which cannot
@@ -273,8 +272,8 @@ class MqInterfaceCreator : public MqBase
     /// @param[in] maxMessages maximum number of queued messages
     /// @param[in] message size maximum message size
     MqInterfaceCreator(const std::string& name,
-                       const long maxMessages = ROUDI_MAX_MESSAGES,
-                       const long messageSize = ROUDI_MESSAGE_SIZE) noexcept;
+                       const int64_t maxMessages = ROUDI_MAX_MESSAGES,
+                       const int64_t messageSize = ROUDI_MESSAGE_SIZE) noexcept;
 
     /// @brief The copy constructor and assignment operator is deleted since
     ///         this class manages a resource (message queue) which cannot
@@ -324,10 +323,6 @@ class MqRuntimeInterface
     /// @return true if communication was successful, otherwise false
     bool sendMessageToRouDi(const MqMessage& msg) noexcept;
 
-    /// @brief get the base address of the management shared memory segment
-    /// @return address as string
-    std::string getShmBaseAddr() const noexcept;
-
     /// @brief get the adress of the segment manager
     /// @return address as string
     std::string getSegmentManagerAddr() const noexcept;
@@ -357,12 +352,11 @@ class MqRuntimeInterface
 
   private:
     std::string m_appName;
-    std::string m_shmBaseAddr;
     std::string m_segmentManager;
     MqInterfaceCreator m_AppMqInterface;
     MqInterfaceUser m_RoudiMqInterface;
-    size_t m_shmTopicSize{0};
-    uint64_t m_segmentId{0};
+    size_t m_shmTopicSize{0u};
+    uint64_t m_segmentId{0u};
 };
 } // namespace runtime
 } // namespace iox

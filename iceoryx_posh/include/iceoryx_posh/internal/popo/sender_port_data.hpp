@@ -22,6 +22,8 @@
 #include "iceoryx_posh/internal/popo/receiver_handler.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/mepoo/memory_info.hpp"
+#include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/concurrent/taco.hpp"
@@ -36,11 +38,13 @@ namespace popo
 {
 struct SenderPortData : public BasePortData
 {
+    using MemoryInfo = iox::mepoo::MemoryInfo;
+
     struct Throughput
     {
-        mepoo::SequenceNumberType sequenceNumber{0};
-        uint32_t payloadSize{0};
-        uint32_t chunkSize{0};
+        mepoo::SequenceNumberType sequenceNumber{0u};
+        uint32_t payloadSize{0u};
+        uint32_t chunkSize{0u};
         mepoo::TimePointNs lastDeliveryTimestamp{mepoo::DurationNs(0)};
         mepoo::TimePointNs currentDeliveryTimestamp{mepoo::DurationNs(0)};
     };
@@ -49,7 +53,7 @@ struct SenderPortData : public BasePortData
     SenderPortData(const capro::ServiceDescription& serviceDescription,
                    mepoo::MemoryManager* const memMgr,
                    const std::string& applicationName,
-                   runtime::RunnableData* const runnable) noexcept;
+                   const MemoryInfo& memoryInfo = MemoryInfo()) noexcept;
 
     using ReceiverHandler_t = ReceiverHandler<MAX_RECEIVERS_PER_SENDERPORT, ThreadSafe>;
     ReceiverHandler_t m_receiverHandler;
@@ -60,11 +64,11 @@ struct SenderPortData : public BasePortData
     bool m_isUnique{false};
 
 
-    UsedChunkList<MAX_SAMPLE_ALLOCATE_PER_SENDER> m_allocatedChunksList;
+    UsedChunkList<MAX_CHUNKS_ALLOCATE_PER_SENDER> m_allocatedChunksList;
 
-    mepoo::SequenceNumberType m_sequenceNumber{0};
+    mepoo::SequenceNumberType m_sequenceNumber{0u};
     // throughput related members
-    std::atomic<uint32_t> m_activePayloadSize{0};
+    std::atomic<uint32_t> m_activePayloadSize{0u};
     Throughput m_throughput{};
     mutable Throughput m_throughputReadCache{};
     enum class ThreadContext : uint32_t
@@ -76,8 +80,10 @@ struct SenderPortData : public BasePortData
     mutable concurrent::TACO<Throughput, ThreadContext> m_throughputExchange{
         concurrent::TACOMode::DenyDataFromSameContext};
 
-    relative_ptr<mepoo::MemoryManager> m_memoryMgr;
+    iox::relative_ptr<mepoo::MemoryManager> m_memoryMgr;
     mepoo::SharedChunk m_lastChunk{nullptr};
+
+    MemoryInfo m_memoryInfo;
 };
 
 } // namespace popo

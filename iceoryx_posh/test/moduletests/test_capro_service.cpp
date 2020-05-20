@@ -16,13 +16,14 @@
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/serialization.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 
 #include <cstdint>
 
 using namespace ::testing;
 using ::testing::Return;
 
-using ServiceDescription = iox::capro::ServiceDescription;
+using namespace iox::capro;
 
 class ServiceDescription_test : public Test
 {
@@ -30,12 +31,9 @@ class ServiceDescription_test : public Test
     uint16_t testAnyServiceID = iox::capro::AnyService;
     uint16_t testAnyEventID = iox::capro::AnyEvent;
     uint16_t testAnyInstanceID = iox::capro::AnyInstance;
-    ServiceDescription::IdString service1 = "Service";
-    ServiceDescription::IdString instance1 = "Instance";
-    ServiceDescription::IdString event1 = "Event";
-    std::string service2 = "Service";
-    std::string instance2 = "Instance";
-    std::string event2 = "Event";
+    IdString service1{"Service"};
+    IdString instance1{"Instance"};
+    IdString event1{"Event"};
 
     ServiceDescription csd1 = ServiceDescription(1, 2, 3);
     ServiceDescription csd1Eq = ServiceDescription(testAnyServiceID, 2, 3);
@@ -50,7 +48,6 @@ class ServiceDescription_test : public Test
     ServiceDescription csd4Eq = ServiceDescription(1, 2, 3);
     ServiceDescription csd4Ne = ServiceDescription(9, 9, 9);
     ServiceDescription csdIdStr = ServiceDescription(service1, instance1, event1);
-    ServiceDescription csdStr = ServiceDescription(service2, instance2, event2);
     void SetUp(){};
     void TearDown(){};
 };
@@ -58,13 +55,22 @@ class ServiceDescription_test : public Test
 TEST_F(ServiceDescription_test, CtorSerial)
 {
     ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
-    auto serialObj = iox::cxx::Serialization::create(
-        "Service", "Instance", "Event", 1, 2, 3, testHash[0], testHash[1], testHash[2], testHash[3], true);
+    auto serialObj = iox::cxx::Serialization::create(service1.c_str(),
+                                                     instance1.c_str(),
+                                                     event1.c_str(),
+                                                     1,
+                                                     2,
+                                                     3,
+                                                     testHash[0],
+                                                     testHash[1],
+                                                     testHash[2],
+                                                     testHash[3],
+                                                     true);
     ServiceDescription csd = ServiceDescription(serialObj);
     csd.setInternal();
-    EXPECT_THAT(csd.getServiceIDString(), Eq("Service"));
-    EXPECT_THAT(csd.getInstanceIDString(), Eq("Instance"));
-    EXPECT_THAT(csd.getEventIDString(), Eq("Event"));
+    EXPECT_THAT(csd.getServiceIDString(), Eq(service1));
+    EXPECT_THAT(csd.getInstanceIDString(), Eq(instance1));
+    EXPECT_THAT(csd.getEventIDString(), Eq(event1));
     EXPECT_THAT(csd.getServiceID(), Eq(1));
     EXPECT_THAT(csd.getInstanceID(), Eq(2));
     EXPECT_THAT(csd.getEventID(), Eq(3));
@@ -108,9 +114,9 @@ TEST_F(ServiceDescription_test, CtorNoParams)
 
 TEST_F(ServiceDescription_test, CtorIDStrings)
 {
-    std::string testService = "Service";
-    std::string testInstance = "Instance";
-    std::string testEvent = "Event";
+    IdString testService("Service");
+    IdString testInstance("Instance");
+    IdString testEvent("Event");
     ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
     ServiceDescription csd = ServiceDescription(testService, testInstance, testEvent, testHash);
 
@@ -159,28 +165,6 @@ TEST_F(ServiceDescription_test, getServiceString)
 {
     EXPECT_THAT(csd1.getServiceString(), StrEq("Service_0001_0002_0003"));
     EXPECT_THAT(csd2.getServiceString(), StrEq("Service_0001_FFFF_0003"));
-}
-
-TEST_F(ServiceDescription_test, string100)
-{
-    ServiceDescription::IdString service1 = "Service";
-    ServiceDescription::IdString instance1 = "Instance";
-    ServiceDescription::IdString event1 = "Event";
-    ServiceDescription csdFixed = ServiceDescription(service1, instance1, event1);
-
-    std::string service2 = "Service";
-    std::string instance2 = "Instance";
-    std::string event2 = "Event";
-    ServiceDescription csd = ServiceDescription(service2, instance2, event2);
-
-    EXPECT_TRUE(csd.getServiceIDString() == csdFixed.getServiceIDString());
-    EXPECT_TRUE(csd.getInstanceIDString() == csdFixed.getInstanceIDString());
-    EXPECT_TRUE(csd.getEventIDString() == csdFixed.getEventIDString());
-
-    EXPECT_THAT(csd.getInstanceID(), Eq(iox::capro::InvalidID));
-    EXPECT_THAT(csdFixed.getInstanceID(), Eq(iox::capro::InvalidID));
-
-    EXPECT_TRUE(csd == csdFixed);
 }
 
 TEST_F(ServiceDescription_test, CreateServiceOnlyDescription)

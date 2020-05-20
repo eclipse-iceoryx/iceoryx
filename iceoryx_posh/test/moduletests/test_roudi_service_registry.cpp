@@ -17,6 +17,7 @@
 #define private public
 #define protected public
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 #undef protected
 #undef private
 
@@ -43,7 +44,7 @@ class ServiceRegistry_test : public Test
     iox::roudi::ServiceRegistry registry;
     iox::roudi::ServiceRegistry::InstanceSet_t searchResults;
 
-    std::string AnyInstanceString = iox::capro::AnyInstanceString;
+    iox::cxx::string<100> AnyInstanceString{iox::capro::AnyInstanceString};
 };
 
 TEST_F(ServiceRegistry_test, SingleAdd)
@@ -52,7 +53,7 @@ TEST_F(ServiceRegistry_test, SingleAdd)
     registry.find(searchResults, "a", AnyInstanceString);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq("b"));
+    EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("b")));
 }
 
 TEST_F(ServiceRegistry_test, SingleMultiAdd)
@@ -70,11 +71,11 @@ TEST_F(ServiceRegistry_test, SingleMultiAdd)
 
     for (auto& e : searchResults)
     {
-        if (e == "b")
+        if (e == iox::cxx::string<100>("b"))
             hasFoundB = true;
-        if (e == "c")
+        if (e == iox::cxx::string<100>("c"))
             hasFoundC = true;
-        if (e == "d")
+        if (e == iox::cxx::string<100>("d"))
             hasFoundD = true;
     }
 
@@ -88,12 +89,12 @@ TEST_F(ServiceRegistry_test, SingleAddMultiService)
     registry.find(searchResults, "a", AnyInstanceString);
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq("b"));
+    EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("b")));
     searchResults.clear();
 
     registry.find(searchResults, "c", AnyInstanceString);
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq("d"));
+    EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("d")));
 }
 
 TEST_F(ServiceRegistry_test, FindSpecificInstance)
@@ -104,7 +105,7 @@ TEST_F(ServiceRegistry_test, FindSpecificInstance)
     registry.find(searchResults, "a", "c");
 
     EXPECT_THAT(searchResults.size(), Eq(1));
-    EXPECT_THAT(searchResults[0], Eq("c"));
+    EXPECT_THAT(searchResults[0], Eq(iox::cxx::string<100>("c")));
 }
 
 TEST_F(ServiceRegistry_test, FindSpecificNonExistingInstance)
@@ -173,16 +174,16 @@ TEST_F(ServiceRegistry_test, GetServiceMap)
 
     for (auto const& x : serviceMap)
     {
-        if (x.first == "a")
+        if (x.first == iox::cxx::string<100>("a"))
         {
             ASSERT_THAT(x.second.instanceSet.size(), Eq(3));
             mapA = true;
-            EXPECT_THAT(x.second.instanceSet[0], Eq("b"));
-            EXPECT_THAT(x.second.instanceSet[1], Eq("c"));
-            EXPECT_THAT(x.second.instanceSet[2], Eq("d"));
+            EXPECT_THAT(x.second.instanceSet[0], Eq(iox::cxx::string<100>("b")));
+            EXPECT_THAT(x.second.instanceSet[1], Eq(iox::cxx::string<100>("c")));
+            EXPECT_THAT(x.second.instanceSet[2], Eq(iox::cxx::string<100>("d")));
         }
 
-        if (x.first == "e")
+        if (x.first == iox::cxx::string<100>("e"))
             mapE = true;
     }
 

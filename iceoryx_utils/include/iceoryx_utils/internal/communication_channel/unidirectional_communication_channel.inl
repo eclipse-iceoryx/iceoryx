@@ -16,7 +16,7 @@
 
 namespace iox
 {
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline UnidirectionalCommunicationChannel<DataType, TransportLayer>::UnidirectionalCommunicationChannel()
     : m_transportLayer()
     , m_transmitter(&m_transportLayer)
@@ -24,7 +24,7 @@ inline UnidirectionalCommunicationChannel<DataType, TransportLayer>::Unidirectio
 {
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 template <typename TransportLayerCTorArgument>
 inline UnidirectionalCommunicationChannel<DataType, TransportLayer>::UnidirectionalCommunicationChannel(
     const TransportLayerCTorArgument& argument)
@@ -34,14 +34,14 @@ inline UnidirectionalCommunicationChannel<DataType, TransportLayer>::Unidirectio
 {
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline typename UnidirectionalCommunicationChannel<DataType, TransportLayer>::Transmitter_t*
 UnidirectionalCommunicationChannel<DataType, TransportLayer>::getTransmitter()
 {
     return &m_transmitter;
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline typename UnidirectionalCommunicationChannel<DataType, TransportLayer>::Receiver_t*
 UnidirectionalCommunicationChannel<DataType, TransportLayer>::getReceiver()
 {

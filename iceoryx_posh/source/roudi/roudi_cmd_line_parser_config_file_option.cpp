@@ -33,8 +33,8 @@ void CmdLineParserConfigFileOption::parse(int argc,
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
     constexpr const char* shortOptions = ":hc:";
-    int index;
-    int opt{-1};
+    int32_t index;
+    int32_t opt{-1};
     while (opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1)
     {
         switch (opt)
@@ -48,14 +48,14 @@ void CmdLineParserConfigFileOption::parse(int argc,
             std::cout << "-c, --config-file                 Path to the RouDi Config File." << std::endl;
             std::cout << "                                  Have a look at the documentation for the format."
                       << std::endl;
-            std::cout << "                                  If option is not given, either" << std::endl;
-            std::cout << "                                  /etc/iceoryx/roudi_config.toml" << std::endl;
-            std::cout << "                                  or built-in config is used." << std::endl;
+            std::cout << "                                  If option is not given, fallbacks in descending order:" << std::endl;
+            std::cout << "                                  1) /etc/iceoryx/roudi_config.toml" << std::endl;
+            std::cout << "                                  2) hard-coded config" << std::endl;
             m_run = false;
             break;
         case 'c':
         {
-            m_customConfigFilePath = ConfigFilePathString_t(cxx::UnsafeCheckPreconditions, optarg);
+            m_customConfigFilePath = ConfigFilePathString_t(cxx::TruncateToCapacity, optarg);
             break;
         }
         default:

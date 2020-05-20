@@ -69,18 +69,18 @@ class MemPool
 
   private:
     void adjustMinFree();
-    bool isMultipleOf32(const uint32_t value) const;
+    bool isMultipleOfAlignment(const uint32_t value) const;
 
     relative_ptr<uint8_t> m_rawMemory;
 
-    uint32_t m_chunkSize{0};
+    uint32_t m_chunkSize{0u};
     /// needs to be 32 bit since loffli supports only 32 bit numbers
     /// (cas is only 64 bit and we need the other 32 bit for the aba counter)
-    uint32_t m_numberOfChunks{0};
+    uint32_t m_numberOfChunks{0u};
 
     /// @todo: put this into one struct and in a separate class in concurrent.
-    std::atomic<uint32_t> m_usedChunks{0};
-    std::atomic<uint32_t> m_minFree{0};
+    std::atomic<uint32_t> m_usedChunks{0u};
+    std::atomic<uint32_t> m_minFree{0u};
     /// @todo: end
 
     freeList_t m_freeIndices;

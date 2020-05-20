@@ -44,7 +44,7 @@ struct alignas(32) ChunkManagement
     }
 
     iox::relative_ptr<base_t> m_chunkHeader;
-    referenceCounter_t m_referenceCounter{1};
+    referenceCounter_t m_referenceCounter{1u};
     /// @todo optimization: check if this can be replaced by an offset relative to the this pointer
     iox::relative_ptr<MemPool> m_mempool;
     iox::relative_ptr<MemPool> m_chunkManagementPool;

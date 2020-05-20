@@ -27,7 +27,7 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value)
     {
         std::cerr << "Attemting to initialize a vector with more elements than its capacity!" << std::endl;
     }
-    for (uint64_t i = 0; i < count && i < Capacity; ++i)
+    for (uint64_t i = 0u; i < count && i < Capacity; ++i)
     {
         emplace_back(value);
     }
@@ -62,7 +62,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs)
 {
     if (this != &rhs)
     {
-        uint64_t i = 0;
+        uint64_t i = 0u;
         // copy using copy assignment
         for (; i < std::min(rhs.size(), size()); ++i)
         {
@@ -91,7 +91,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs)
 {
     if (this != &rhs)
     {
-        uint64_t i = 0;
+        uint64_t i = 0u;
         // move using move assignment
         for (; i < std::min(rhs.size(), size()); ++i)
         {
@@ -119,7 +119,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs)
 template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::empty() const
 {
-    return m_size == 0;
+    return m_size == 0u;
 }
 
 template <typename T, uint64_t Capacity>
@@ -137,11 +137,11 @@ inline uint64_t vector<T, Capacity>::capacity() const
 template <typename T, uint64_t Capacity>
 inline void vector<T, Capacity>::clear()
 {
-    for (uint64_t i = 0; i < m_size; ++i)
+    for (uint64_t i = 0u; i < m_size; ++i)
     {
         at(i).~T();
     }
-    m_size = 0;
+    m_size = 0u;
 }
 
 template <typename T, uint64_t Capacity>
@@ -199,7 +199,7 @@ inline T& vector<T, Capacity>::at(const uint64_t index)
 template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::at(const uint64_t index) const
 {
-    if (index + 1 > m_size)
+    if (index + 1u > m_size)
     {
         std::cerr << "out of bounds access, current size is " << m_size <<  " but given index is " << index << std::endl;
         std::terminate();
@@ -249,7 +249,7 @@ T& vector<T, Capacity>::back() noexcept
         std::cerr << "Attempting to access the back of an empty vector!" << std::endl;
         std::terminate();
     }
-    return at(size() - 1);
+    return at(size() - 1u);
 }
 
 template <typename T, uint64_t Capacity>
@@ -294,9 +294,9 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
     {
         uint64_t index = static_cast<uint64_t>(position - begin()) % (sizeof(element_t) * Capacity);
         size_t n = index;
-        for (; n + 1 < size(); ++n)
+        for (; n + 1u < size(); ++n)
         {
-            at(n) = std::move(at(n + 1));
+            at(n) = std::move(at(n + 1u));
         }
         at(n).~T();
         m_size--;

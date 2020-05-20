@@ -129,11 +129,20 @@ class UsedChunkList
     void init()
     {
         // build list
-        for (uint32_t i = 0; i < Size; ++i)
+        for (uint32_t i = 0u; i < Size; ++i)
         {
-            m_list[i] = i + 1;
+            m_list[i] = i + 1u;
         }
-        m_list[Size - 1] = InvalidIndex; // just to save us from the future self
+
+        if (Size > 0)
+        {
+            m_list[Size - 1u] = InvalidIndex; // just to save us from the future self
+        }
+        else
+        {
+            m_list[0u] = InvalidIndex;
+        }
+
 
         m_usedListHead = InvalidIndex;
         m_freeListHead = 0u;

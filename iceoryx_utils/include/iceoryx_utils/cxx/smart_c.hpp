@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/platform/platform-correction.hpp"
 
 #include <cstring>
@@ -63,6 +64,9 @@ namespace iox
 {
 namespace cxx
 {
+/// @brief maximum size of the errorstring to be handled
+static constexpr uint32_t ERRORSTRINGSIZE = 128u;
+
 /// @brief Defined the return code behavior of a c function. Does the function
 ///         has a specific code on success and an arbitrary number of error codes
 ///         or does it have a specific code on error and an arbitrary number of
@@ -127,7 +131,7 @@ class SmartC
 
     /// @brief Returns the errnum. 0 if no error has occurred, otherwise != 0
     /// @return returns the errno value which was set by the c call
-    int getErrNum() const noexcept;
+    int32_t getErrNum() const noexcept;
 
     template <typename Function_F, typename ReturnType_F, typename... FunctionArguments_F>
     friend SmartC<Function_F, ReturnType_F, FunctionArguments_F...>
@@ -155,10 +159,9 @@ class SmartC
     int resetErrnoAndInitErrnum() noexcept;
 
   private:
-    static constexpr int m_errorStringSize = 128;
-    int m_errnum = 0;
+    int32_t m_errnum{0};
     ReturnType m_returnValue;
-    char m_errorString[m_errorStringSize];
+    string<ERRORSTRINGSIZE> m_errorString;
     bool m_hasErrors = false;
 
     struct

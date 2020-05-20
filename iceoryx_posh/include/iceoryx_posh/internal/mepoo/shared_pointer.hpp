@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
 
 namespace iox
@@ -45,27 +45,29 @@ class SharedPointer : public DesignPattern::Creation<SharedPointer<T>, SharedPoi
     SharedPointer() = default;
     SharedPointer(const SharedPointer&) = default;
     SharedPointer(SharedPointer&&) = default;
-    ~SharedPointer();
+    ~SharedPointer() noexcept;
 
-    SharedPointer& operator=(const SharedPointer&);
-    SharedPointer& operator=(SharedPointer&&);
+    SharedPointer& operator=(const SharedPointer&) noexcept;
+    SharedPointer& operator=(SharedPointer&&) noexcept;
 
-    T* get();
-    const T* get() const;
+    T* get() noexcept;
+    const T* get() const noexcept;
 
-    T* operator->();
-    const T* operator->() const;
+    T* operator->() noexcept;
+    const T* operator->() const noexcept;
 
-    T& operator*();
-    const T& operator*() const;
+    T& operator*() noexcept;
+    const T& operator*() const noexcept;
+
+    explicit operator bool() const noexcept;
 
     friend class DesignPattern::Creation<SharedPointer<T>, SharedPointerError>;
 
   private:
     template <typename... Targs>
-    SharedPointer(const SharedChunk& chunk, Targs&&... args);
+    SharedPointer(const SharedChunk& chunk, Targs&&... args) noexcept;
 
-    void deleteManagedObjectIfNecessary();
+    void deleteManagedObjectIfNecessary() noexcept;
     SharedChunk m_chunk;
 };
 

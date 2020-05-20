@@ -104,8 +104,8 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
     cxx::expected<IpcChannelError> close();
     cxx::expected<IpcChannelError> unlink();
-    cxx::error<IpcChannelError> createErrorFromErrnum(const int errnum) const;
-    static cxx::error<IpcChannelError> createErrorFromErrnum(const std::string& name, const int errnum);
+    cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const;
+    static cxx::error<IpcChannelError> createErrorFromErrnum(const std::string& name, const int32_t errnum);
 
   private:
     std::string m_name;

@@ -42,7 +42,10 @@ class GatewayGeneric
 
     GatewayGeneric& operator=(const GatewayGeneric& other) = delete;
     GatewayGeneric(const GatewayGeneric& other) = delete;
+    GatewayGeneric(GatewayGeneric&& other) = default;
+    GatewayGeneric& operator=(GatewayGeneric&&) = default;
 
+    virtual ~GatewayGeneric() noexcept;
     /// @brief Get function for type of capro message - service or event or field
     /// @param[in] msg Type of caro message
     bool getCaProMessage(CaproMessage& msg) noexcept;
@@ -59,3 +62,4 @@ class GatewayGeneric
 
 } // namespace popo
 } // namespace iox
+

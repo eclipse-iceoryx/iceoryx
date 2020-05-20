@@ -46,42 +46,55 @@ constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * DISCOVERY_INTERVAL; 
 constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
 
 // Communication Resources
-constexpr uint32_t MAX_PORT_NUMBER = 2048;
-constexpr uint32_t MAX_INTERFACE_NUMBER = 16;
-constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = 256;
-constexpr uint32_t MAX_SAMPLE_ALLOCATE_PER_SENDER = 16;
-constexpr uint32_t MAX_RECEIVER_QUEUE_SIZE = 256;
+#ifdef ICEORYX_LARGE_DEPLOYMENT
+constexpr uint32_t MAX_PORT_NUMBER = 4096u;
+#else
+constexpr uint32_t MAX_PORT_NUMBER = 1024u;
+#endif
+constexpr uint32_t MAX_INTERFACE_NUMBER = 4u;
+constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = 256u;
+constexpr uint32_t MAX_CHUNKS_ALLOCATE_PER_SENDER = 8u;
+constexpr uint64_t MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR = 16u;
+constexpr uint32_t MAX_CHUNKS_HELD_PER_RECEIVER = 256u;
+constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER;
+/// With MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER we couple the maximum number of chunks a user is
+/// allowed to hold with the maximum queue capacity.
+/// This allows that a polling user can replace all the held chunks in one execution with all new ones
+/// from a completely filled queue. Or the other way round, when we have a contract with the user
+/// regarding how many chunks they are allowed to hold, then the queue size needs not be bigger. We
+/// can provide this number of newest chunks, more the user would not be allowed to hold anyway
 constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PORT_NUMBER;
-constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128;
+constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128u;
 
 // Memory
-constexpr uint64_t SHARED_MEMORY_ALIGNMENT = 32;
-constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32;
-constexpr uint32_t MAX_SHM_SEGMENTS = 100;
+constexpr uint64_t SHARED_MEMORY_ALIGNMENT = 32u;
+constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32u;
+constexpr uint32_t MAX_SHM_SEGMENTS = 100u;
 
-constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8;
-constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64;
+constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8u;
+constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64u;
 
 // Message Queue
-constexpr long ROUDI_MAX_MESSAGES = 5;
-constexpr long ROUDI_MESSAGE_SIZE = 512;
-constexpr long APP_MAX_MESSAGES = 5;
-constexpr long APP_MESSAGE_SIZE = 512;
+constexpr uint32_t ROUDI_MAX_MESSAGES = 5u;
+constexpr uint32_t ROUDI_MESSAGE_SIZE = 512u;
+constexpr uint32_t APP_MAX_MESSAGES = 5u;
+constexpr uint32_t APP_MESSAGE_SIZE = 512u;
+
+// Semaphore Pool
+constexpr uint32_t NUMBER_OF_SEMAPHORES = 1024u;
 
 // Processes
-constexpr uint32_t MAX_PROCESS_NUMBER = 300;
+constexpr uint32_t MAX_PROCESS_NUMBER = 300u;
 /// Maximum number of instances of a given service, which can be found.
 /// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
 /// instances)
-constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50;
-/// Maximum number of callbacks that can be registered with PoshRuntime::startFindService
-constexpr uint32_t MAX_START_FIND_SERVICE_CALLBACKS = 50;
+constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50u;
 
 // Runnables
-constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000;
-constexpr uint32_t MAX_RUNNABLE_PER_PROCESS = 50;
+constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000u;
+constexpr uint32_t MAX_RUNNABLE_PER_PROCESS = 50u;
 
-constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100;
+constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100u;
 static_assert(MAX_PROCESS_NUMBER * MAX_RUNNABLE_PER_PROCESS > MAX_RUNNABLE_NUMBER,
               "Invalid configuration for runnables");
 
@@ -101,7 +114,7 @@ using ConfigFilePathString_t = cxx::string<1024>;
 namespace runtime
 {
 // alias for IdString
-using IdString = iox::capro::ServiceDescription::IdString;
+using IdString = iox::capro::IdString;
 using InstanceContainer = iox::cxx::vector<IdString, MAX_NUMBER_OF_INSTANCES>;
 
 // Return type of StartFindService() method

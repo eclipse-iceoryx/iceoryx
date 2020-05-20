@@ -41,7 +41,7 @@ uint8_t Timer::OsTimerCallbackHandle::sigvalToIndex(sigval intVal)
 uint32_t Timer::OsTimerCallbackHandle::sigvalToDescriptor(sigval intVal)
 {
     uint32_t temp = static_cast<uint32_t>(intVal.sival_int);
-    return (temp >> 8) & 0xFFFFFF;
+    return (temp >> 8u) & 0xFFFFFFu;
 }
 
 void Timer::OsTimerCallbackHandle::incrementDescriptor()
@@ -50,7 +50,7 @@ void Timer::OsTimerCallbackHandle::incrementDescriptor()
     callbackHandleDescriptor++;
     if (callbackHandleDescriptor >= Timer::OsTimerCallbackHandle::MAX_DESCRIPTOR_VALUE)
     {
-        callbackHandleDescriptor = 0;
+        callbackHandleDescriptor = 0u;
     }
 
     m_descriptor.store(callbackHandleDescriptor, std::memory_order_relaxed);
@@ -113,7 +113,7 @@ Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<vo
 
     // find OsTimerCallbackHandle not in use
     bool callbackHandleFound = false;
-    uint32_t callbackHandleDescriptor = 0;
+    uint32_t callbackHandleDescriptor = 0u;
     for (auto& callbackHandle : OsTimer::s_callbackHandlePool)
     {
         if (!callbackHandle.m_inUse.load(std::memory_order_relaxed))
@@ -480,7 +480,7 @@ TimerError Timer::getError() const noexcept
     return m_errorValue;
 }
 
-cxx::error<TimerError> Timer::createErrorFromErrno(const int errnum) noexcept
+cxx::error<TimerError> Timer::createErrorFromErrno(const int32_t errnum) noexcept
 {
     TimerError timerError = TimerError::INTERNAL_LOGIC_ERROR;
     switch (errnum)

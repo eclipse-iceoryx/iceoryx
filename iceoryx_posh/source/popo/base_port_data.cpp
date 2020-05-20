@@ -19,19 +19,17 @@ namespace iox
 namespace popo
 {
 BasePortData::BasePortData() noexcept
-    : m_uniqueId(s_uniqueIdCounter.fetch_add(1, std::memory_order_relaxed))
+    : m_uniqueId(s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed))
 {
 }
 
 BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
                            const BasePortType& portType,
-                           const cxx::CString100& processName,
-                           runtime::RunnableData* const runnable) noexcept
+                           const cxx::CString100& processName) noexcept
     : m_portType(portType)
     , m_serviceDescription(serviceDescription)
     , m_processName(processName)
-    , m_uniqueId(s_uniqueIdCounter.fetch_add(1, std::memory_order_relaxed))
-    , m_runnable(runnable)
+    , m_uniqueId(s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed))
 {
 }
 } // namespace popo

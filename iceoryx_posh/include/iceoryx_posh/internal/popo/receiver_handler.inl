@@ -87,26 +87,6 @@ inline void ReceiverHandler<MaxReceivers, LockingPolicy>::RouDiContext::removeAl
 }
 
 template <uint32_t MaxReceivers, typename LockingPolicy>
-inline void ReceiverHandler<MaxReceivers, LockingPolicy>::deliverChunk(const mepoo::SharedChunk f_chunk)
-{
-    lockGuard_t lock(*this);
-    /// @todo use this once the cxx vector has reverse interators
-    // std::for_each(m_receiverVector.rbegin(), m_receiverVector.rend(), [&](ReceiverPortData* receiverData) {
-    //     ReceiverPort(receiverData).deliver(f_chunk);
-    // });
-
-    for (int64_t i = m_receiverVector.size() - 1; i >= 0; --i)
-    {
-        ReceiverPortType(m_receiverVector[i]).deliver(f_chunk);
-    }
-
-    if (m_doDeliverOnSubscription.load(std::memory_order_relaxed))
-    {
-        m_lastChunk = f_chunk;
-    }
-}
-
-template <uint32_t MaxReceivers, typename LockingPolicy>
 inline void ReceiverHandler<MaxReceivers, LockingPolicy>::updateLastChunk(const mepoo::SharedChunk f_chunk)
 {
     lockGuard_t lock(*this);
@@ -214,7 +194,7 @@ inline uint32_t ReceiverHandler<MaxReceivers, LockingPolicy>::getMaxDeliveryFiFo
 {
     lockGuard_t lock(*this);
 
-    uint64_t maxDeliveryFiFoCapacity = 0;
+    uint64_t maxDeliveryFiFoCapacity = 0u;
 
     for (auto receiver : m_receiverVector)
     {

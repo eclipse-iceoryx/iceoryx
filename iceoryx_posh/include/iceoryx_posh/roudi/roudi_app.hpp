@@ -33,7 +33,7 @@ class RouDiApp
 {
   public:
     /// @brief Method passed to the OS signal handler
-    static void roudiSigHandler(int signal) noexcept;
+    static void roudiSigHandler(int32_t signal) noexcept;
 
     /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
     static RouDiConfig_t generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept;
@@ -76,18 +76,21 @@ class RouDiApp
     /// @brief waits for the next signal to RouDi daemon
     bool waitForSignal() const noexcept;
 
-    bool m_run{true};
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
     MonitoringMode m_monitoringMode{MonitoringMode::ON};
+    bool m_run{true};
     RouDiConfig_t m_config;
 
-    posix::Semaphore m_semaphore = std::move(posix::Semaphore::create(0)
+    posix::Semaphore m_semaphore = std::move(posix::Semaphore::create(0u)
                                                  .on_error([] {
                                                      std::cerr << "Unable to create the semaphore for RouDi"
                                                                << std::endl;
                                                      std::terminate();
                                                  })
                                                  .get_value());
+
+  private:
+    bool checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept;
 };
 
 } // namespace roudi

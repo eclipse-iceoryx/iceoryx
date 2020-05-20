@@ -54,7 +54,7 @@ void SharedChunk::incrementReferenceCounter()
 void SharedChunk::decrementReferenceCounter()
 {
     if ((m_chunkManagement != nullptr)
-        && (m_chunkManagement->m_referenceCounter.fetch_sub(1u, std::memory_order_relaxed) == 1))
+        && (m_chunkManagement->m_referenceCounter.fetch_sub(1u, std::memory_order_relaxed) == 1u))
     {
         freeChunk();
     }
@@ -127,7 +127,7 @@ bool SharedChunk::hasNoOtherOwners() const
         return true;
     }
 
-    return m_chunkManagement->m_referenceCounter.load(std::memory_order_relaxed) == 1;
+    return m_chunkManagement->m_referenceCounter.load(std::memory_order_relaxed) == 1u;
 }
 
 SharedChunk::operator bool() const

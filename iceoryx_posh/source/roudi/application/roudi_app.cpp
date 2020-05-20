@@ -27,7 +27,6 @@
 #include "iceoryx_utils/platform/resource.hpp"
 #include "iceoryx_utils/platform/semaphore.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_versions.hpp"
 
 #include "stdio.h"
 #include <signal.h>
@@ -42,7 +41,7 @@ namespace
 iox::roudi::RouDiApp* g_RouDiApp;
 } // unnamed namespace
 
-void RouDiApp::roudiSigHandler(int signal) noexcept
+void RouDiApp::roudiSigHandler(int32_t signal) noexcept
 {
     if (g_RouDiApp)
     {
@@ -106,24 +105,29 @@ RouDiApp::RouDiApp(const CmdLineParser& cmdLineParser, const RouDiConfig_t& conf
 }
 
 RouDiApp::RouDiApp(const RouDiConfig_t& config) noexcept
-    : m_config(config)
+    : m_run(checkAndOptimizeConfig(config))
+    , m_config(config)
 {
-    m_config.optimize();
+}
 
-    if (config.m_sharedMemorySegments.size() == 0)
+bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
+{
+    if (config.m_sharedMemorySegments.empty())
     {
-        m_run = false;
         LogError() << "A RouDiConfig without segments was specified! Please provide a valid config!";
+        return false;
     }
 
     for (const auto& segment : config.m_sharedMemorySegments)
     {
-        if (segment.m_mempoolConfig.m_mempoolConfig.size() == 0)
+        if (segment.m_mempoolConfig.m_mempoolConfig.empty())
         {
-            m_run = false;
             LogError() << "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
+            return false;
         }
     }
+
+    return true;
 }
 
 RouDiConfig_t RouDiApp::generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept
@@ -132,17 +136,12 @@ RouDiConfig_t RouDiApp::generateConfigFromMePooConfig(const mepoo::MePooConfig* 
     defaultConfig.setDefaults();
     if (mePooConfig)
     {
-        defaultConfig.m_sharedMemorySegments[0].m_mempoolConfig.m_mempoolConfig.clear();
+        defaultConfig.m_sharedMemorySegments.front().m_mempoolConfig.m_mempoolConfig.clear();
         for (auto entry : *mePooConfig->getMemPoolConfig())
         {
-            defaultConfig.m_sharedMemorySegments[0].m_mempoolConfig.m_mempoolConfig.push_back({entry});
+            defaultConfig.m_sharedMemorySegments.front().m_mempoolConfig.m_mempoolConfig.push_back({entry});
         }
     }
-
-    /// @todo the best guess mapping address as long as we do not have introduced relative pointers
-    defaultConfig.roudi.m_sharedMemoryBaseAddressOffset = 0x3E80000000ull;
-    // the payload segments are now relocatable, therefore placement check can be omitted
-    defaultConfig.roudi.m_verifySharedMemoryPlacement = false;
 
     return defaultConfig;
 }

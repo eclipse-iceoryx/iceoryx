@@ -24,11 +24,11 @@ void iox_log(const uint8_t debuglevel, char* msg);
 
 // ======== this is the ac3log interface ========
 
-#define L_ERR 0
-#define L_MSG 1
-#define L_WARN 10
-#define L_INFO 20
-#define L_DEBUG 99
+#define L_ERR 0u
+#define L_MSG 1u
+#define L_WARN 10u
+#define L_INFO 20u
+#define L_DEBUG 99u
 
 extern uint8_t debuglevel;
 
@@ -37,7 +37,7 @@ void log_init();
 inline void X_PRINTF(const uint8_t debuglevel, const char* msg)
 {
     char buffer[2048];
-    strncpy(buffer, msg, 2047);
+    strncpy(buffer, msg, 2047u);
 
     iox_log(debuglevel, buffer);
 }
@@ -46,7 +46,7 @@ template <typename... Args>
 void X_PRINTF(const uint8_t debuglevel, const char* msg, Args&&... args)
 {
     char buffer[2048];
-    std::snprintf(buffer, 2047, msg, std::forward<Args>(args)...);
+    std::snprintf(buffer, 2047u, msg, std::forward<Args>(args)...);
 
     iox_log(debuglevel, buffer);
 }

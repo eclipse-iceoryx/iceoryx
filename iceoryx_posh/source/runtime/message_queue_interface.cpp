@@ -32,10 +32,9 @@ MqMessageType stringToMqMessageType(const char* str) noexcept
     std::underlying_type<MqMessageType>::type msg;
     bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
     noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
-    noError &= noError
-                   ? !(static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::BEGIN) >= msg
-                       || static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::END) <= msg)
-                   : false;
+    noError &= noError ? !(static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::BEGIN) >= msg
+                           || static_cast<std::underlying_type<MqMessageType>::type>(MqMessageType::END) <= msg)
+                       : false;
     return noError ? (static_cast<MqMessageType>(msg)) : MqMessageType::NOTYPE;
 }
 
@@ -61,7 +60,7 @@ std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept
     return std::to_string(static_cast<std::underlying_type<MqMessageErrorType>::type>(msg));
 }
 
-MqBase::MqBase(const std::string& InterfaceName, const long maxMessages, const long messageSize) noexcept
+MqBase::MqBase(const std::string& InterfaceName, const int64_t maxMessages, const int64_t messageSize) noexcept
     : m_interfaceName(InterfaceName)
 {
     m_maxMessages = maxMessages;
@@ -197,13 +196,15 @@ void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
     }
 }
 
-MqInterfaceUser::MqInterfaceUser(const std::string& name, const long maxMessages, const long messageSize) noexcept
+MqInterfaceUser::MqInterfaceUser(const std::string& name, const int64_t maxMessages, const int64_t messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
     openMessageQueue(posix::IpcChannelSide::CLIENT);
 }
 
-MqInterfaceCreator::MqInterfaceCreator(const std::string& name, const long maxMessages, const long messageSize) noexcept
+MqInterfaceCreator::MqInterfaceCreator(const std::string& name,
+                                       const int64_t maxMessages,
+                                       const int64_t messageSize) noexcept
     : MqBase(name, maxMessages, messageSize)
 {
     // check if the mq is still there (e.g. because of no proper termination
@@ -329,11 +330,6 @@ bool MqRuntimeInterface::sendKeepalive() noexcept
     return m_RoudiMqInterface.send({mqMessageTypeToString(MqMessageType::KEEPALIVE), m_appName});
 }
 
-std::string MqRuntimeInterface::getShmBaseAddr() const noexcept
-{
-    return m_shmBaseAddr;
-}
-
 std::string MqRuntimeInterface::getSegmentManagerAddr() const noexcept
 {
     return m_segmentManager;
@@ -417,20 +413,19 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
 
             if (stringToMqMessageType(cmd.c_str()) == MqMessageType::REG_ACK)
             {
-                constexpr uint32_t REGISTER_ACK_PARAMETERS = 6;
+                constexpr uint32_t REGISTER_ACK_PARAMETERS = 5;
                 if (receiveBuffer.getNumberOfElements() != REGISTER_ACK_PARAMETERS)
                 {
                     errorHandler(Error::kMQ_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
                 }
 
                 // read out the shared memory base address and save it
-                m_shmBaseAddr = receiveBuffer.getElementAtIndex(1);
-                m_shmTopicSize = strtoull(receiveBuffer.getElementAtIndex(2).c_str(), nullptr, 10);
-                m_segmentManager = receiveBuffer.getElementAtIndex(3);
+                m_shmTopicSize = strtoull(receiveBuffer.getElementAtIndex(1).c_str(), nullptr, 10);
+                m_segmentManager = receiveBuffer.getElementAtIndex(2);
 
                 int64_t receivedTimestamp;
-                cxx::convert::fromString(receiveBuffer.getElementAtIndex(4).c_str(), receivedTimestamp);
-                cxx::convert::fromString(receiveBuffer.getElementAtIndex(5).c_str(), m_segmentId);
+                cxx::convert::fromString(receiveBuffer.getElementAtIndex(3).c_str(), receivedTimestamp);
+                cxx::convert::fromString(receiveBuffer.getElementAtIndex(4).c_str(), m_segmentId);
                 if (transmissionTimestamp == receivedTimestamp)
                 {
                     return RegAckResult::SUCCESS;

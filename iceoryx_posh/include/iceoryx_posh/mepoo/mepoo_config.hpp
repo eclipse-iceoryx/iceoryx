@@ -23,7 +23,7 @@ namespace iox
 {
 namespace roudi
 {
-class SharedMemoryManager;
+class PortManager;
 }
 namespace mepoo
 {
