@@ -22,13 +22,12 @@
 
 #include "ioxdds/dds/data_writer.hpp"
 #include "ioxdds/dds/dds_types.hpp"
+#include "ioxdds/dds/dds_configs.hpp"
 
 namespace iox
 {
 namespace dds
 {
-
-static constexpr uint32_t MAX_CHANNEL_NUMBER = MAX_PORT_NUMBER;
 
 ///
 /// @brief This data structure couples the subscriber and data writer components required to form a channel between

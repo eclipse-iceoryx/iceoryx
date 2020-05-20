@@ -25,19 +25,17 @@
 #include <iceoryx_posh/runtime/posh_runtime.hpp>
 #include <iceoryx_utils/cxx/vector.hpp>
 #include <iceoryx_utils/internal/objectpool/objectpool.hpp>
+#include <iceoryx_utils/internal/concurrent/smart_lock.hpp>
 
 #include "ioxdds/dds/data_writer.hpp"
 #include "ioxdds/dds/dds_types.hpp"
+#include "ioxdds/dds/dds_configs.hpp"
 #include "ioxdds/gateway/channel.hpp"
 
 namespace iox
 {
 namespace dds
 {
-// Configuration Parameters
-constexpr units::Duration DISCOVERY_PERIOD = 1000_ms;
-constexpr units::Duration FORWARDING_PERIOD = 50_ms;
-constexpr uint32_t SUBSCRIBER_CACHE_SIZE = 128;
 
 ///
 /// @brief A Gateway to support internode communication between iceoryx nodes in a DDS network.
@@ -50,6 +48,8 @@ template <typename gateway_t = iox::popo::GatewayGeneric,
 class Iceoryx2DDSGateway : gateway_t
 {
     using ChannelFactory = std::function<Channel<subscriber_t, data_writer_t>(const iox::capro::ServiceDescription)>;
+    using ChannelVector = iox::cxx::vector<Channel<subscriber_t, data_writer_t>, MAX_CHANNEL_NUMBER>;
+    using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 
   public:
     Iceoryx2DDSGateway();
@@ -116,7 +116,7 @@ class Iceoryx2DDSGateway : gateway_t
 
     // This mutex is required for synchronized access to the channels list.
     std::mutex m_channelAccessMutex;
-    iox::cxx::vector<Channel<subscriber_t, data_writer_t>, MAX_CHANNEL_NUMBER> m_channels;
+    ChannelVector m_channels;
 
     ///
     /// @brief setupChannelUnsafe Creates a new channel for a service.
