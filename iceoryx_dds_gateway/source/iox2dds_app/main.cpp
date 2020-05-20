@@ -33,6 +33,7 @@ class ShutdownManager
     {
         s_semaphore.wait();
     }
+
   private:
     static iox::posix::Semaphore s_semaphore;
     ShutdownManager() = default;

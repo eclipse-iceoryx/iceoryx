@@ -18,9 +18,9 @@
 #include <ioxdds/dds/data_writer.hpp>
 #include <ioxdds/gateway/iox2dds.hpp>
 
-#include "test.hpp"
-#include "roudi_gtest.hpp"
 #include "mocks/chunk_mock.hpp"
+#include "roudi_gtest.hpp"
+#include "test.hpp"
 
 using namespace ::testing;
 using ::testing::_;
@@ -218,7 +218,9 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsFromPoshSubscriberToDDSDataWriter)
     ON_CALL(*mockSubscriber, hasNewChunks).WillByDefault(Return(true));
     ON_CALL(*mockSubscriber, getChunk).WillByDefault(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
     EXPECT_CALL(*mockSubscriber, hasNewChunks).Times(1);
-    EXPECT_CALL(*mockWriter, write(SafeMatcherCast<uint8_t*>(Pointee(Eq(42))), mockChunk.chunkHeader()->m_info.m_payloadSize)).Times(1);
+    EXPECT_CALL(*mockWriter,
+                write(SafeMatcherCast<uint8_t*>(Pointee(Eq(42))), mockChunk.chunkHeader()->m_info.m_payloadSize))
+        .Times(1);
 
     stageMockSubscriber(std::move(mockSubscriber));
     stageMockDataWriter(std::move(mockWriter));
@@ -228,7 +230,6 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsFromPoshSubscriberToDDSDataWriter)
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
     gw->discover(msg);
     gw->forward();
-
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
