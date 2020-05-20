@@ -26,6 +26,7 @@ endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
 
 # unittests
 add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC})
+set_property(TARGET ${PROJECT_PREFIX}_moduletests PROPERTY CXX_STANDARD 11)
 target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
-target_compile_options(${PROJECT_PREFIX}_moduletests PUBLIC -std=c++11 -fPIC PRIVATE -Wno-conversion)
+target_compile_options(${PROJECT_PREFIX}_moduletests PUBLIC -fPIC PRIVATE -Wno-conversion)
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
