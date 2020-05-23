@@ -45,17 +45,17 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcep
     {
         getMembers()->m_offered.store(true, std::memory_order_relaxed);
 
-        capro::CaproMessage l_caproMessage(capro::CaproMessageType::OFFER, this->getCaProServiceDescription());
+        capro::CaproMessage caproMessage(capro::CaproMessageType::OFFER, this->getCaProServiceDescription());
         // provide additional AUTOSAR Adaptive like information
         if (0 < m_chunkSender.getHistoryCapacity())
         {
-            l_caproMessage.m_subType = capro::CaproMessageSubType::FIELD;
+            caproMessage.m_subType = capro::CaproMessageSubType::FIELD;
         }
         else
         {
-            l_caproMessage.m_subType = capro::CaproMessageSubType::EVENT;
+            caproMessage.m_subType = capro::CaproMessageSubType::EVENT;
         }
-        return cxx::make_optional<capro::CaproMessage>(l_caproMessage);
+        return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
     else if (!offeringRequested && isOffered)
     {
@@ -64,8 +64,8 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcep
         // remove all the subscribers (represented by their chunk queues)
         m_chunkSender.removeAllQueues();
 
-        capro::CaproMessage l_caproMessage(capro::CaproMessageType::STOP_OFFER, this->getCaProServiceDescription());
-        return cxx::make_optional<capro::CaproMessage>(l_caproMessage);
+        capro::CaproMessage caproMessage(capro::CaproMessageType::STOP_OFFER, this->getCaProServiceDescription());
+        return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
     else
     {
@@ -77,34 +77,30 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcep
 cxx::optional<capro::CaproMessage>
 PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
 {
-    capro::CaproMessage l_responseMessage(capro::CaproMessageType::NACK,
-                                          this->getCaProServiceDescription(),
-                                          capro::CaproMessageSubType::NOSUBTYPE,
-                                          caProMessage.m_requestPort);
+    capro::CaproMessage responseMessage(
+        capro::CaproMessageType::NACK, this->getCaProServiceDescription(), capro::CaproMessageSubType::NOSUBTYPE);
 
-    /// TODO replacement m_requestPort, add history to CaPro message
     if (getMembers()->m_offered.load(std::memory_order_relaxed))
     {
         if (capro::CaproMessageType::SUB == caProMessage.m_type)
         {
-            auto ret =
-                m_chunkSender.addQueue(reinterpret_cast<PublisherPortData::ChunkDistributorData_t::ChunkQueueData_t*>(
-                    caProMessage.m_requestPort));
+            auto ret = m_chunkSender.addQueue(caProMessage.m_chunkQueueData, caProMessage.m_history);
             if (!ret.has_error())
             {
-                l_responseMessage.m_type = capro::CaproMessageType::ACK;
+                responseMessage.m_type = capro::CaproMessageType::ACK;
             }
         }
         else if (capro::CaproMessageType::UNSUB == caProMessage.m_type)
         {
-            m_chunkSender.removeQueue(reinterpret_cast<PublisherPortData::ChunkDistributorData_t::ChunkQueueData_t*>(
-                caProMessage.m_requestPort));
-
-            l_responseMessage.m_type = capro::CaproMessageType::ACK;
+            auto ret = m_chunkSender.removeQueue(caProMessage.m_chunkQueueData);
+            if (!ret.has_error())
+            {
+                responseMessage.m_type = capro::CaproMessageType::ACK;
+            }
         }
     }
 
-    return cxx::make_optional<capro::CaproMessage>(l_responseMessage);
+    return cxx::make_optional<capro::CaproMessage>(responseMessage);
 }
 
 void PublisherPortRouDi::cleanup() noexcept
