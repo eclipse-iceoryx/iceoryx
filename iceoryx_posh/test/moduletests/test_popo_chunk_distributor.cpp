@@ -98,7 +98,8 @@ TYPED_TEST(ChunkDistributor_test, AfterAddingQueueChunkDistributorHasQueues)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto queueData = this->getChunkQueueData();
-    sut.addQueue(queueData.get());
+    auto ret = sut.addQueue(queueData.get());
+    EXPECT_FALSE(ret.has_error());
     EXPECT_THAT(sut.hasStoredQueues(), Eq(true));
 }
 
@@ -120,7 +121,9 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
         const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     auto queueData = this->getChunkQueueData();
-    sut.addQueue(queueData.get());
+    auto ret = sut.addQueue(queueData.get());
+    EXPECT_TRUE(ret.has_error());
+    EXPECT_THAT(ret.get_error(), Eq(iox::popo::ChunkDistributorError::QUEUE_CONTAINER_OVERFLOW));
     EXPECT_TRUE(errorHandlerCalled);
 }
 
@@ -131,8 +134,8 @@ TYPED_TEST(ChunkDistributor_test, RemovingExistingQueueWorks)
 
     auto queueData = this->getChunkQueueData();
     sut.addQueue(queueData.get());
-    sut.removeQueue(queueData.get());
-
+    auto ret = sut.removeQueue(queueData.get());
+    EXPECT_FALSE(ret.has_error());
     EXPECT_THAT(sut.hasStoredQueues(), Eq(false));
 }
 
@@ -145,8 +148,9 @@ TYPED_TEST(ChunkDistributor_test, RemovingNonExistingQueueChangesNothing)
     sut.addQueue(queueData.get());
 
     auto queueData2 = this->getChunkQueueData();
-    sut.removeQueue(queueData2.get());
-
+    auto ret = sut.removeQueue(queueData2.get());
+    EXPECT_TRUE(ret.has_error());
+    EXPECT_THAT(ret.get_error(), Eq(iox::popo::ChunkDistributorError::QUEUE_NOT_IN_CONTAINER));
     EXPECT_THAT(sut.hasStoredQueues(), Eq(true));
 }
 
