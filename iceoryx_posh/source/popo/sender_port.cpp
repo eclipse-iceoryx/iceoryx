@@ -93,11 +93,6 @@ cxx::optional<capro::CaproMessage> SenderPort::dispatchCaProMessage(capro::Capro
         }
     }
 
-    auto l_returnMessage =
-        ReceiverPortType(reinterpret_cast<ReceiverPortType::MemberType_t*>(caProMessage.m_requestPort))
-            .dispatchCaProMessage(l_responseMessage);
-    cxx::Ensures(!l_returnMessage.has_value());
-
     return cxx::make_optional<capro::CaproMessage>(l_responseMessage);
 }
 

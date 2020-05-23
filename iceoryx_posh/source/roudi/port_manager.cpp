@@ -253,20 +253,23 @@ void PortManager::handleApplications()
         {
             switch (l_caproMessage.m_type)
             {
-            case capro::CaproMessageType::OFFER: {
+            case capro::CaproMessageType::OFFER:
+            {
                 auto l_serviceDescription = l_caproMessage.m_serviceDescription;
                 addEntryToServiceRegistry(l_serviceDescription.getServiceIDString(),
                                           l_serviceDescription.getInstanceIDString());
                 break;
             }
-            case capro::CaproMessageType::STOP_OFFER: {
+            case capro::CaproMessageType::STOP_OFFER:
+            {
                 auto l_serviceDescription = l_caproMessage.m_serviceDescription;
                 removeEntryFromServiceRegistry(l_serviceDescription.getServiceIDString(),
                                                l_serviceDescription.getInstanceIDString());
 
                 break;
             }
-            default: {
+            default:
+            {
                 LOG_ERR("Roudi: Something went wrong in receiving CaproMessage in ApplicationPortList!");
             }
             }
@@ -300,8 +303,7 @@ void PortManager::handleRunnables()
     }
 }
 
-bool PortManager::sendToAllMatchingSenderPorts(const capro::CaproMessage& f_message,
-                                                       ReceiverPortType& f_receiverSource)
+bool PortManager::sendToAllMatchingSenderPorts(const capro::CaproMessage& f_message, ReceiverPortType& f_receiverSource)
 {
     bool l_senderFound = false;
     for (auto l_senderPortData : m_portPool->senderPortDataList())
@@ -312,6 +314,12 @@ bool PortManager::sendToAllMatchingSenderPorts(const capro::CaproMessage& f_mess
             auto senderResponse = l_senderPort.dispatchCaProMessage(f_message);
             if (senderResponse.has_value())
             {
+                // sende response to receiver port
+                auto l_returnMessage = f_receiverSource.dispatchCaProMessage(senderResponse.value());
+
+                // ACK or NACK are sent back to the receiver port, no further response from this one expected
+                cxx::Ensures(!l_returnMessage.has_value());
+
                 // inform introspection
                 m_portIntrospection.reportMessage(senderResponse.value());
             }
@@ -321,8 +329,7 @@ bool PortManager::sendToAllMatchingSenderPorts(const capro::CaproMessage& f_mess
     return l_senderFound;
 }
 
-void PortManager::sendToAllMatchingReceiverPorts(const capro::CaproMessage& f_message,
-                                                         SenderPortType& f_senderSource)
+void PortManager::sendToAllMatchingReceiverPorts(const capro::CaproMessage& f_message, SenderPortType& f_senderSource)
 {
     for (auto l_receiverPortData : m_portPool->receiverPortDataList())
     {
@@ -343,6 +350,12 @@ void PortManager::sendToAllMatchingReceiverPorts(const capro::CaproMessage& f_me
                 auto senderResponse = f_senderSource.dispatchCaProMessage(receiverResponse.value());
                 if (senderResponse.has_value())
                 {
+                    // sende responsee to receiver port
+                    auto l_returnMessage = l_receiverPort.dispatchCaProMessage(senderResponse.value());
+
+                    // ACK or NACK are sent back to the receiver port, no further response from this one expected
+                    cxx::Ensures(!l_returnMessage.has_value());
+
                     // inform introspection
                     m_portIntrospection.reportMessage(senderResponse.value());
                 }
@@ -510,10 +523,10 @@ const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter()
 
 cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSenderPortData(const capro::ServiceDescription& f_service,
-                                           const std::string& f_processName,
-                                           mepoo::MemoryManager* f_payloadMemoryManager,
-                                           const std::string& f_runnable,
-                                           const PortConfigInfo& portConfigInfo)
+                                   const std::string& f_processName,
+                                   mepoo::MemoryManager* f_payloadMemoryManager,
+                                   const std::string& f_runnable,
+                                   const PortConfigInfo& portConfigInfo)
 {
     // check if already in list, we currently do not support multi publisher for one CaPro ID
     for (auto l_senderPortData : m_portPool->senderPortDataList())
@@ -539,7 +552,8 @@ PortManager::acquireSenderPortData(const capro::ServiceDescription& f_service,
     }
     // we can create a new port
 
-    auto result = m_portPool->addSenderPort(f_service, f_payloadMemoryManager, f_processName, portConfigInfo.memoryInfo);
+    auto result =
+        m_portPool->addSenderPort(f_service, f_payloadMemoryManager, f_processName, portConfigInfo.memoryInfo);
     if (!result.has_error())
     {
         m_portIntrospection.addSender(result.get_value(), f_processName, f_service, f_runnable);
@@ -550,9 +564,9 @@ PortManager::acquireSenderPortData(const capro::ServiceDescription& f_service,
 
 /// @todo return a cxx::expected
 ReceiverPortType::MemberType_t* PortManager::acquireReceiverPortData(const capro::ServiceDescription& f_service,
-                                                                             const std::string& f_processName,
-                                                                             const std::string& f_runnable,
-                                                                             const PortConfigInfo& portConfigInfo)
+                                                                     const std::string& f_processName,
+                                                                     const std::string& f_runnable,
+                                                                     const PortConfigInfo& portConfigInfo)
 {
     auto result = m_portPool->addReceiverPort(f_service, f_processName, portConfigInfo.memoryInfo);
     if (!result.has_error())
@@ -568,8 +582,8 @@ ReceiverPortType::MemberType_t* PortManager::acquireReceiverPortData(const capro
 
 /// @todo return a cxx::expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces f_interface,
-                                                                       const std::string& f_processName,
-                                                                       const std::string& /*f_runnable*/)
+                                                               const std::string& f_processName,
+                                                               const std::string& /*f_runnable*/)
 {
     auto result = m_portPool->addInterfacePort(f_processName, f_interface);
     if (!result.has_error())
@@ -596,15 +610,14 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const std::st
     }
 }
 
-void PortManager::addEntryToServiceRegistry(const capro::IdString& service,
-                                                    const capro::IdString& instance) noexcept
+void PortManager::addEntryToServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept
 {
     m_serviceRegistry.add(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
 void PortManager::removeEntryFromServiceRegistry(const capro::IdString& service,
-                                                         const capro::IdString& instance) noexcept
+                                                 const capro::IdString& instance) noexcept
 {
     m_serviceRegistry.remove(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
@@ -612,7 +625,7 @@ void PortManager::removeEntryFromServiceRegistry(const capro::IdString& service,
 
 /// @todo return a cxx::expected
 runtime::RunnableData* PortManager::acquireRunnableData(const cxx::CString100& f_process,
-                                                                const cxx::CString100& f_runnable)
+                                                        const cxx::CString100& f_runnable)
 {
     auto result = m_portPool->addRunnableData(f_process, f_runnable, 0);
     if (!result.has_error())
