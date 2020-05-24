@@ -28,7 +28,10 @@ namespace iox
 {
 namespace popo
 {
-/// @brief
+/// @brief The PublisherPortUser provides the API for accessing a publisher port from the user side. The publisher port
+/// is divided in the three parts PublisherPortData, PublisherPortRouDi and PublisherPortUser. The PublisherPortUser
+/// uses the functionality of a ChunkSender for sending shared memory chunks. Additionally it provides the offer /
+/// stopOffer API which controls whether the publisher port is discoverable for subscriber ports
 class PublisherPortUser
 {
   public:
@@ -79,7 +82,7 @@ class PublisherPortUser
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    MemberType_t* const m_publisherPortDataPtr;
+    MemberType_t* m_publisherPortDataPtr;
 
     using ChunkDistributor_t = ChunkDistributor<PublisherPortData::ChunkDistributorData_t>;
     ChunkSender<ChunkDistributor_t> m_chunkSender;

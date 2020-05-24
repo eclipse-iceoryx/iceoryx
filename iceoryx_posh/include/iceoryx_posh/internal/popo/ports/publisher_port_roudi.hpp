@@ -26,7 +26,10 @@ namespace iox
 {
 namespace popo
 {
-/// @brief
+/// @brief The PublisherPortUser provides the API for accessing a publisher port from the RouDi middleware daemon side.
+/// The publisher port is divided in the three parts PublisherPortData, PublisherPortRouDi and PublisherPortUser.
+/// The PublisherPortRouDi provides service discovery functionality that is based on CaPro messages. With this API the
+/// dynamic connections between publisher and subscriber ports can be established
 class PublisherPortRouDi : public BasePort
 {
   public:
