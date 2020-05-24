@@ -203,7 +203,7 @@ inline bool Subscriber_t<ReceiverPortType>::releaseChunk(const mepoo::ChunkHeade
 template <typename ReceiverPortType>
 inline bool Subscriber_t<ReceiverPortType>::releaseChunk(const void* const payload) noexcept
 {
-    auto chunkHeader = iox::mepoo::convertPayloadPointerToChunkHeader(const_cast<void* const>(payload));
+    auto chunkHeader = iox::mepoo::convertPayloadPointerToChunkHeader(payload);
     return m_receiver.releaseChunk(chunkHeader);
 }
 

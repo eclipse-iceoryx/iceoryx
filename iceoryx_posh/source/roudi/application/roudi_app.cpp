@@ -41,7 +41,7 @@ namespace
 iox::roudi::RouDiApp* g_RouDiApp;
 } // unnamed namespace
 
-void RouDiApp::roudiSigHandler(int signal) noexcept
+void RouDiApp::roudiSigHandler(int32_t signal) noexcept
 {
     if (g_RouDiApp)
     {
@@ -170,8 +170,10 @@ void RouDiApp::setCmdLineParserResults(const CmdLineParser& cmdLineParser) noexc
     m_run &= cmdLineParser.getRun();
 }
 
-void RouDiApp::parseCmdLineArguments(
-    int argc, char* argv[], CmdLineParser::CmdLineArgumentParsingMode cmdLineParsingMode[[gnu::unused]]) noexcept
+void RouDiApp::parseCmdLineArguments(int argc,
+                                     char* argv[],
+                                     CmdLineParser::CmdLineArgumentParsingMode cmdLineParsingMode
+                                     [[gnu::unused]]) noexcept
 {
     /// @todo Remove this from RouDi once the deprecated c'tors taking argc and argv have been removed
     CmdLineParser cmdLineParser;
@@ -181,4 +183,3 @@ void RouDiApp::parseCmdLineArguments(
 
 } // namespace roudi
 } // namespace iox
-

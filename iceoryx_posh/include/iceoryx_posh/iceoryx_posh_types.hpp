@@ -40,7 +40,7 @@ constexpr char SHM_NAME[] = "/iceoryx_mgmt";
 using namespace units::duration_literals;
 
 // Timeout
-constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 30_s;
+constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
 constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
 constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * DISCOVERY_INTERVAL;         // > DISCOVERY_INTERVAL
 constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
@@ -90,8 +90,6 @@ constexpr uint32_t MAX_PROCESS_NUMBER = 300u;
 /// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
 /// instances)
 constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50u;
-/// Maximum number of callbacks that can be registered with PoshRuntime::startFindService
-constexpr uint32_t MAX_START_FIND_SERVICE_CALLBACKS = 50u;
 
 // Runnables
 constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000u;

@@ -49,7 +49,7 @@ class SharedMemory
     SharedMemory& operator=(SharedMemory&&);
     ~SharedMemory();
 
-    int getHandle() const;
+    int32_t getHandle() const;
     bool isInitialized() const;
 
     friend class posix::SharedMemoryObject;

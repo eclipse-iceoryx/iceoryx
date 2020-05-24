@@ -26,7 +26,7 @@ namespace roudi
 {
 namespace
 {
-void sigbusHandler(int) noexcept
+void sigbusHandler(int32_t) noexcept
 {
     char msg[] =
         "\033[0;1;97;41mFatal error:\033[m the available memory is insufficient. Cannot allocate mempools in shared "

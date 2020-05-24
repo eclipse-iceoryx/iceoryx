@@ -24,7 +24,7 @@ namespace iox
 {
 namespace posix
 {
-bool AccessController::writePermissionsToFile(const int f_fileDescriptor) const
+bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) const
 {
     if (m_permissions.empty())
     {
@@ -71,7 +71,7 @@ bool AccessController::writePermissionsToFile(const int f_fileDescriptor) const
     return true;
 }
 
-AccessController::smartAclPointer_t AccessController::createACL(const int f_numEntries) const
+AccessController::smartAclPointer_t AccessController::createACL(const int32_t f_numEntries) const
 {
     // allocate memory for a new ACL
     auto aclInitCall = cxx::makeSmartC(
@@ -150,9 +150,7 @@ bool AccessController::addPermissionEntry(const Category f_category,
     return false;
 }
 
-bool AccessController::addPermissionEntry(const Category f_category,
-                                          const Permission f_permission,
-                                          const unsigned int f_id)
+bool AccessController::addPermissionEntry(const Category f_category, const Permission f_permission, const uint32_t f_id)
 {
     if (m_permissions.size() >= m_permissions.capacity())
     {
@@ -189,7 +187,7 @@ bool AccessController::addPermissionEntry(const Category f_category,
     }
     }
 
-    m_permissions.emplace_back(PermissionEntry{static_cast<unsigned int>(f_category), f_permission, f_id});
+    m_permissions.emplace_back(PermissionEntry{static_cast<uint32_t>(f_category), f_permission, f_id});
     return true;
 }
 

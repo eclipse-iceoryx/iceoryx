@@ -383,8 +383,8 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& f_m
 
 bool PortManager::areAllReceiverPortsSubscribed(std::string f_appName)
 {
-    int numberOfReceiverPorts{0};
-    int numberOfConnectedReceiverPorts{0};
+    int32_t numberOfReceiverPorts{0};
+    int32_t numberOfConnectedReceiverPorts{0};
     for (auto l_receiverPortData : m_portPool->receiverPortDataList())
     {
         ReceiverPortType receiver(l_receiverPortData);
