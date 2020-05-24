@@ -96,7 +96,7 @@ class CaproMessage
     /// @brief Null-Pointer for request-port with no specific type
     popo::ReceiverPortData* m_requestPort{nullptr};
     popo::ChunkQueueData* m_chunkQueueData{nullptr};
-    uint64_t m_history{0u};
+    uint64_t m_historyCapacity{0u};
 
 };
 

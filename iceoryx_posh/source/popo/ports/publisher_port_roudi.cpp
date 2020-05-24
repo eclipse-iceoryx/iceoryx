@@ -46,8 +46,12 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcep
         getMembers()->m_offered.store(true, std::memory_order_relaxed);
 
         capro::CaproMessage caproMessage(capro::CaproMessageType::OFFER, this->getCaProServiceDescription());
+
+        auto historyCapacity = m_chunkSender.getHistoryCapacity();
+        caproMessage.m_historyCapacity = historyCapacity;
+
         // provide additional AUTOSAR Adaptive like information
-        if (0 < m_chunkSender.getHistoryCapacity())
+        if (0u < historyCapacity)
         {
             caproMessage.m_subType = capro::CaproMessageSubType::FIELD;
         }
@@ -55,6 +59,7 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcep
         {
             caproMessage.m_subType = capro::CaproMessageSubType::EVENT;
         }
+
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
     else if (!offeringRequested && isOffered)
@@ -84,7 +89,7 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
     {
         if (capro::CaproMessageType::SUB == caProMessage.m_type)
         {
-            auto ret = m_chunkSender.addQueue(caProMessage.m_chunkQueueData, caProMessage.m_history);
+            auto ret = m_chunkSender.addQueue(caProMessage.m_chunkQueueData, caProMessage.m_historyCapacity);
             if (!ret.has_error())
             {
                 responseMessage.m_type = capro::CaproMessageType::ACK;
