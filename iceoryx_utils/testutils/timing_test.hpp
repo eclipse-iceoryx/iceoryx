@@ -106,7 +106,7 @@ inline bool performingTimingTest(const std::function<void()>& testCallback,
                                  const uint64_t repetitions,
                                  std::atomic_bool& testResult) noexcept
 {
-    for (uint64_t i = 0; i < repetitions; ++i)
+    for (uint64_t i = 0u; i < repetitions; ++i)
     {
         // new test run therefore we have to reset the testResult
         testResult.store(true);
