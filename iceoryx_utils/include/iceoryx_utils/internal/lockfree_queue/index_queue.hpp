@@ -30,6 +30,7 @@ class IndexQueue
     class UniqueIndex : public unique<ValueType>
     {
       public:
+        using value_t = ValueType;
         using invalid_t = typename unique<ValueType>::invalid_t;
         static constexpr invalid_t invalid{};
 
@@ -100,7 +101,7 @@ class IndexQueue
     /// IndexQueue (and should only be used this way)
     /// threadsafe, lockfree
     /// @param index to be pushed, any index can only be pushed once by design
-    void push(const UniqueIndex& index);
+    void push(UniqueIndex& index);
 
     /// @brief tries to remove index in FIFO order
     /// threadsafe, lockfree

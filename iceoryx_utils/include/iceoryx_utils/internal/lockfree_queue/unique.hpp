@@ -40,6 +40,7 @@ class unique
     // only move
     unique(unique&& other)
         : m_value(std::move(other.m_value))
+        , m_valid(other.m_valid)
     {
         other.m_valid = false;
     };
@@ -55,17 +56,12 @@ class unique
         return *this;
     }
 
-    T& operator*()
-    {
-        return m_value;
-    }
-
     const T& operator*() const
     {
         return m_value;
     }
 
-    T get()
+    T release()
     {
         m_valid = false;
         return std::move(m_value);
