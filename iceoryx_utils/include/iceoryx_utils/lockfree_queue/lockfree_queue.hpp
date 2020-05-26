@@ -60,10 +60,17 @@ class LockFreeQueue
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
-    /// @param value to be inserted (value semantics support move by the user)
+    /// @param value to be inserted is copied into the queue
     /// @return removed value if an overflow occured, empty optional otherwise
     /// threadsafe, lockfree
-    iox::cxx::optional<ElementType> push(const ElementType value) noexcept;
+    iox::cxx::optional<ElementType> push(const ElementType& value) noexcept;
+
+    /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
+    /// when the queue is detected to be full (overflow)
+    /// @param value to be inserted is moved into the queue if possible
+    /// @return removed value if an overflow occured, empty optional otherwise
+    /// threadsafe, lockfree
+    iox::cxx::optional<ElementType> push(ElementType&& value) noexcept;
 
     /// @brief tries to remove value in FIFO order
     /// @return value if removal was successful, empty optional otherwise
@@ -101,8 +108,13 @@ class LockFreeQueue
     std::atomic<uint64_t> m_size{0};
 
     // template is needed to distinguish between lvalue and rvalue T references
+    // (universal reference type deduction)
     template <typename T>
     void writeBufferAt(const UniqueIndex&, T&&);
+
+    // needed to avoid code duplication (via universal reference type deduction)
+    template <typename T>
+    iox::cxx::optional<ElementType> pushImpl(T&& value) noexcept;
 
     cxx::optional<ElementType> readBufferAt(const UniqueIndex&);
 };
