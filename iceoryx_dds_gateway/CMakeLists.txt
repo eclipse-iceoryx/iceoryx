@@ -78,6 +78,14 @@ target_link_libraries(gateway_iox2dds
     ${PROJECT_NAMESPACE}::ioxdds
 )
 
+add_executable(gateway_dds2iox
+    source/dds2iox_app/main.cpp
+)
+target_link_libraries(gateway_dds2iox
+    iceoryx_posh::iceoryx_posh
+    ${PROJECT_NAMESPACE}::ioxdds
+)
+
 #
 ########## build test executables ##########
 #
@@ -89,7 +97,7 @@ endif(BUILD_TESTS)
 ########## export library ##########
 #
 setup_install_directories_and_export_package(
-    TARGETS gateway_iox2dds
+    TARGETS gateway_iox2dds gateway_dds2iox
     INCLUDE_DIRECTORY include/
 )
 
