@@ -18,7 +18,7 @@
 #include <iceoryx_utils/cxx/helplets.hpp>
 #include <iceoryx_utils/cxx/optional.hpp>
 #include <iceoryx_utils/posix_wrapper/semaphore.hpp>
-#include <ioxdds/gateway/iox2dds.hpp>
+#include <ioxdds/gateway/iox_to_dds.hpp>
 
 class ShutdownManager
 {

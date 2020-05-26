@@ -146,4 +146,4 @@ class Iceoryx2DDSGateway : gateway_t
 } // dds
 } // iox
 
-#include "ioxdds/internal/gateway/iox2dds.inl"
+#include "ioxdds/internal/gateway/iox_to_dds.inl"

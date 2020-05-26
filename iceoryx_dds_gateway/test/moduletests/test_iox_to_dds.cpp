@@ -16,7 +16,7 @@
 
 #include <iceoryx_posh/internal/capro/capro_message.hpp>
 #include <ioxdds/dds/data_writer.hpp>
-#include <ioxdds/gateway/iox2dds.hpp>
+#include <ioxdds/gateway/iox_to_dds.hpp>
 
 #include "mocks/chunk_mock.hpp"
 #include "roudi_gtest.hpp"
