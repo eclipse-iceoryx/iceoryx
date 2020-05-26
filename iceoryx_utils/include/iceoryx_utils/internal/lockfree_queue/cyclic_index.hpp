@@ -26,25 +26,30 @@ namespace iox
 
 /// @brief index structure that can contain logical values 0, ..., CycleLength-1
 /// but also stores an internal cycle counter to be used in compare_exchange
-template <uint64_t CycleLength, typename value_t = uint64_t>
+template <uint64_t CycleLength, typename ValueType = uint64_t>
 class CyclicIndex
 {
   public:
-    static constexpr value_t MAX_INDEX = CycleLength - 1;
-    static constexpr value_t MAX_VALUE = std::numeric_limits<value_t>::max();
-    static constexpr value_t MAX_CYCLE = MAX_VALUE / CycleLength;
+    using value_t = ValueType;
 
-    static constexpr value_t INDEX_AT_MAX_VALUE = MAX_VALUE % CycleLength;
-    static constexpr value_t OVERFLOW_START_INDEX = (INDEX_AT_MAX_VALUE + 1) % CycleLength;
+    static constexpr ValueType MAX_INDEX = CycleLength - 1;
+    static constexpr ValueType MAX_VALUE = std::numeric_limits<ValueType>::max();
+
+    // assumes MAX_VALUE >= CycleLength, otherwise we could not fit in even one cycle
+    static constexpr ValueType MAX_CYCLE = MAX_VALUE / CycleLength;
+
+    static constexpr ValueType INDEX_AT_MAX_VALUE = MAX_VALUE % CycleLength;
+    static constexpr ValueType OVERFLOW_START_INDEX = (INDEX_AT_MAX_VALUE + 1) % CycleLength;
 
     static_assert(CycleLength < MAX_VALUE / 2); // need at least one bit for the cycle
+    static_assert(CycleLength > 0);
 
-    explicit CyclicIndex(value_t value = 0) noexcept
+    explicit CyclicIndex(ValueType value = 0) noexcept
         : m_value(value)
     {
     }
 
-    CyclicIndex(value_t index, value_t cycle) noexcept
+    CyclicIndex(ValueType index, ValueType cycle) noexcept
         : m_value(index + cycle * CycleLength)
     {
     }
@@ -52,17 +57,17 @@ class CyclicIndex
     CyclicIndex(const CyclicIndex&) = default;
     CyclicIndex& operator=(const CyclicIndex&) = default;
 
-    value_t getIndex() const noexcept
+    ValueType getIndex() const noexcept
     {
         return m_value % CycleLength;
     }
 
-    value_t getCycle() const noexcept
+    ValueType getCycle() const noexcept
     {
         return m_value / CycleLength;
     }
 
-    CyclicIndex operator+(value_t value) const
+    CyclicIndex operator+(ValueType value) const
     {
         // if we were at this value, we would have no overflow, i.e. when m_value is larger there is an overflow
         auto delta = MAX_VALUE - value;
@@ -89,27 +94,24 @@ class CyclicIndex
         return CyclicIndex(m_value + 1);
     }
 
-    static bool isBehind(value_t cycle1, value_t cycle2, value_t cyclesBehind = 1)
+    bool isOneCycleBehind(const CyclicIndex& other)
     {
-        return (cycle1 + cyclesBehind) == cycle2;
-    }
+        auto thisCycle = this->getCycle();
+        auto otherCycle = other.getCycle();
 
-    static bool isBehind(const CyclicIndex& index1, const CyclicIndex& index2, value_t cyclesBehind = 1)
-    {
-        return (index1.getCycle() + cyclesBehind) == index2.getCycle();
-    }
-
-    bool isBehind(const CyclicIndex& index, value_t cyclesBehind)
-    {
-        return isBehind(*this, index, cyclesBehind);
-    }
-
-    bool isOneCycleBehind(const CyclicIndex& index)
-    {
-        return isBehind(*this, index, 1);
+        if (thisCycle == MAX_CYCLE)
+        {
+            return otherCycle == 0;
+        }
+        return isBehind(thisCycle, otherCycle, 1);
     }
 
   private:
-    value_t m_value{0};
+    ValueType m_value{0};
+
+    static bool isBehind(ValueType cycle1, ValueType cycle2, ValueType cyclesBehind = 1)
+    {
+        return (cycle1 + cyclesBehind) == cycle2;
+    }
 };
 } // namespace iox
