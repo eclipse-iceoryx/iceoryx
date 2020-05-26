@@ -243,9 +243,9 @@ bool IndexQueue<Capacity, ValueType>::tryToGainOwnershipAt(Index& oldReadPositio
 
 
 template <uint64_t Capacity, typename ValueType>
-void IndexQueue<Capacity, ValueType>::push(const UniqueIndex& index)
+void IndexQueue<Capacity, ValueType>::push(UniqueIndex& index)
 {
-    push(*index);
+    push(index.release());
 }
 
 template <uint64_t Capacity, typename ValueType>
