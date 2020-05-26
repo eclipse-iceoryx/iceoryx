@@ -66,10 +66,9 @@ bool LockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const ElementType value) noexcept
+template <typename T>
+iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T&& value) noexcept
 {
-    // note that const precludes us from changing value but std::move works (it removes the constness)
-
     cxx::optional<ElementType> evictedValue;
 
     UniqueIndex index = m_freeIndices.pop();
@@ -93,11 +92,23 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const
 
     // if we removed from a full queue via popIfFull it might not be full anymore when a concurrent pop occurs
 
-    writeBufferAt(index, std::move(value)); //&& version is called due to explicit conversion via std::move
+    writeBufferAt(index, value); //&& version is called due to explicit conversion via std::move
 
     m_usedIndices.push(index);
 
     return evictedValue; // value was moved into the queue, if a value was evicted to do so return it
+}
+
+template <typename ElementType, uint64_t Capacity>
+iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const ElementType& value) noexcept
+{
+    return pushImpl(std::forward<const ElementType>(value));
+}
+
+template <typename ElementType, uint64_t Capacity>
+iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(ElementType&& value) noexcept
+{
+    return pushImpl(std::forward<ElementType>(value));
 }
 
 template <typename ElementType, uint64_t Capacity>
