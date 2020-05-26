@@ -42,6 +42,12 @@ class function_refTest : public Test
     void TearDown() override
     {
     }
+
+    int foobar()
+    {
+        return 4273;
+    }
+
     uint8_t m_iter{0};
 };
 
@@ -143,8 +149,29 @@ TEST_F(function_refTest, CreateWithFunctor)
     EXPECT_THAT(sut(), Eq(73));
 }
 
+TEST_F(function_refTest, CreateWithStdBind)
+{
+    function_ref<int()> sut(std::bind(&function_refTest::foobar, this));
+    EXPECT_THAT(sut(), Eq(4273));
+}
+
+TEST_F(function_refTest, CreateWithStdFunction)
+{
+    std::function<int()> baz;
+    baz = []() -> int { return 24; };
+    function_ref<int()> sut(baz);
+    EXPECT_THAT(sut(), Eq(24));
+}
+
+
+TEST_F(function_refTest, StoreInStdFunction)
+{
+    /// @todo
+    // auto lambda = []() -> int { return 37; };
+    // function_ref<int()> moep(lambda);
+    // // Copy cxx::function_ref into std::function, needs copy c'tor
+    // std::function<int()> sut(moep);
+    // EXPECT_THAT(sut(), Eq(37));
+}
+
 /// @todo member function test case
-
-/// @todo std bind test case
-
-/// @todo store function_ref in std::function

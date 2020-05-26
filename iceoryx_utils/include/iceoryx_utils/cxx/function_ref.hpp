@@ -78,11 +78,10 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @brief D'tor
     ~function_ref() noexcept = default;
 
-    /// @brief No copy c'tor
-    /// @todo test this
-    function_ref(const function_ref&) noexcept = delete;
+    /// @brief Copy c'tor
+    function_ref(const function_ref&) noexcept = default;
 
-    /// @brief No copy assignment
+    /// @brief Copy assignment operator
     function_ref& operator=(const function_ref&) noexcept = default;
 
     /// @brief Create a function_ref
@@ -96,7 +95,7 @@ class function_ref<ReturnType(ArgTypes...)>
         };
     }
 
-    /// @brief Move assignment
+    /// @brief Move assignment operator
     function_ref& operator=(function_ref&& rhs) noexcept = default;
 
     /// @brief Calls the provided callable
