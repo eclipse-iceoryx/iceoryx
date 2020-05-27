@@ -29,15 +29,15 @@ namespace iox
 namespace dds
 {
 ///
-/// @brief This data structure couples the subscriber and data writer components required to form a channel between
-/// the POSH and DDS worlds.
+/// @brief This data structure couples the subscriber and data writer components required to form an output channel
+/// between the POSH and DDS worlds.
 /// The structure holds pointers to the related component instances. These instances can either be managed externally
 /// or by the class itself.
 /// Managed instances are placed in static ObjectPools which are fixed size according to
 /// MAX_CHANNEL_NUMBER and are automatically cleaned up when all references to them are discarded.
 ///
 template <typename subscriber_t = iox::popo::Subscriber, typename data_writer_t = iox::dds::data_writer_t>
-class Channel
+class OutputChannel
 {
   public:
     using SubscriberPtr = std::shared_ptr<subscriber_t>;
@@ -52,18 +52,18 @@ class Channel
     /// @param subscriber An externally managed subscriber component.
     /// @param dataWriter An externally managed data writer component.
     ///
-    Channel(const iox::capro::ServiceDescription& m_service,
+    OutputChannel(const iox::capro::ServiceDescription& m_service,
             const SubscriberPtr m_subscriber,
             const DataWriterPtr m_dataWriter) noexcept;
 
     ///
-    /// @brief create Creates a channel whose components are instantiated in static object pools that will be
+    /// @brief create Creates an output channel whose components are instantiated in static object pools that will be
     /// automatically freed when all references are discarded.
     ///
     /// @param service The service that the channel is connecting.
     /// @return Channel A channel with internally managed endpoints.
     ///
-    static Channel create(const iox::capro::ServiceDescription& m_service) noexcept;
+    static OutputChannel create(const iox::capro::ServiceDescription& m_service) noexcept;
 
     iox::capro::ServiceDescription getService() const noexcept;
     SubscriberPtr getSubscriber() const noexcept;
@@ -82,4 +82,4 @@ class Channel
 } // dds
 } // iox
 
-#include "ioxdds/internal/gateway/channel.inl"
+#include "ioxdds/internal/gateway/output_channel.inl"

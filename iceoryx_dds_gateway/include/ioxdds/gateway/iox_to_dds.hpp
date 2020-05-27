@@ -31,7 +31,7 @@
 #include "ioxdds/dds/data_writer.hpp"
 #include "ioxdds/dds/dds_configs.hpp"
 #include "ioxdds/dds/dds_types.hpp"
-#include "ioxdds/gateway/channel.hpp"
+#include "ioxdds/gateway/output_channel.hpp"
 
 namespace iox
 {
@@ -47,8 +47,8 @@ template <typename gateway_t = iox::popo::GatewayGeneric,
           typename data_writer_t = iox::dds::data_writer_t>
 class Iceoryx2DDSGateway : gateway_t
 {
-    using ChannelFactory = std::function<Channel<subscriber_t, data_writer_t>(const iox::capro::ServiceDescription)>;
-    using ChannelVector = iox::cxx::vector<Channel<subscriber_t, data_writer_t>, MAX_CHANNEL_NUMBER>;
+    using ChannelFactory = std::function<OutputChannel<subscriber_t, data_writer_t>(const iox::capro::ServiceDescription)>;
+    using ChannelVector = iox::cxx::vector<OutputChannel<subscriber_t, data_writer_t>, MAX_CHANNEL_NUMBER>;
     using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 
   public:
@@ -133,7 +133,7 @@ class Iceoryx2DDSGateway : gateway_t
     /// @param service The service for which a channel will be established.
     /// @return Channel object with subscriber and data writer for the given service.
     ///
-    Channel<subscriber_t, data_writer_t> setupChannel(const iox::capro::ServiceDescription& service) noexcept;
+    OutputChannel<subscriber_t, data_writer_t> setupChannel(const iox::capro::ServiceDescription& service) noexcept;
 
     ///
     /// @brief discardChannel Discards the channel for the given service.

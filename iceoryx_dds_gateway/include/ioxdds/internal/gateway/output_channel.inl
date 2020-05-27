@@ -24,12 +24,12 @@ using DataWriterPool = iox::cxx::ObjectPool<data_writer_t, MAX_CHANNEL_NUMBER>;
 
 // Statics
 template <typename subscriber_t, typename data_writer_t>
-SubscriberPool<subscriber_t> Channel<subscriber_t, data_writer_t>::s_subscriberPool = SubscriberPool();
+SubscriberPool<subscriber_t> OutputChannel<subscriber_t, data_writer_t>::s_subscriberPool = SubscriberPool();
 template <typename subscriber_t, typename data_writer_t>
-DataWriterPool<data_writer_t> Channel<subscriber_t, data_writer_t>::s_dataWriterPool = DataWriterPool();
+DataWriterPool<data_writer_t> OutputChannel<subscriber_t, data_writer_t>::s_dataWriterPool = DataWriterPool();
 
 template <typename subscriber_t, typename data_writer_t>
-inline Channel<subscriber_t, data_writer_t>::Channel(const iox::capro::ServiceDescription& service,
+inline OutputChannel<subscriber_t, data_writer_t>::OutputChannel(const iox::capro::ServiceDescription& service,
                                                      const SubscriberPtr subscriber,
                                                      const DataWriterPtr dataWriter) noexcept
     : m_service(service),
@@ -39,8 +39,8 @@ inline Channel<subscriber_t, data_writer_t>::Channel(const iox::capro::ServiceDe
 }
 
 template <typename subscriber_t, typename data_writer_t>
-inline Channel<subscriber_t, data_writer_t>
-Channel<subscriber_t, data_writer_t>::create(const iox::capro::ServiceDescription& service) noexcept
+inline OutputChannel<subscriber_t, data_writer_t>
+OutputChannel<subscriber_t, data_writer_t>::create(const iox::capro::ServiceDescription& service) noexcept
 {
     // Create objects in the pool.
     auto rawSubscriberPtr = s_subscriberPool.create(std::forward<const iox::capro::ServiceDescription>(service));
@@ -51,23 +51,23 @@ Channel<subscriber_t, data_writer_t>::create(const iox::capro::ServiceDescriptio
     auto subscriberPtr = SubscriberPtr(rawSubscriberPtr, [](subscriber_t* p) { s_subscriberPool.free(p); });
     auto dataWriterPtr = DataWriterPtr(rawDataWriterPtr, [](data_writer_t* p) { s_dataWriterPool.free(p); });
 
-    return Channel(service, subscriberPtr, dataWriterPtr);
+    return OutputChannel(service, subscriberPtr, dataWriterPtr);
 }
 
 template <typename subscriber_t, typename data_writer_t>
-inline iox::capro::ServiceDescription Channel<subscriber_t, data_writer_t>::getService() const noexcept
+inline iox::capro::ServiceDescription OutputChannel<subscriber_t, data_writer_t>::getService() const noexcept
 {
     return m_service;
 }
 
 template <typename subscriber_t, typename data_writer_t>
-inline std::shared_ptr<subscriber_t> Channel<subscriber_t, data_writer_t>::getSubscriber() const noexcept
+inline std::shared_ptr<subscriber_t> OutputChannel<subscriber_t, data_writer_t>::getSubscriber() const noexcept
 {
     return m_subscriber;
 }
 
 template <typename subscriber_t, typename data_writer_t>
-inline std::shared_ptr<data_writer_t> Channel<subscriber_t, data_writer_t>::getDataWriter() const noexcept
+inline std::shared_ptr<data_writer_t> OutputChannel<subscriber_t, data_writer_t>::getDataWriter() const noexcept
 {
     return m_dataWriter;
 }
