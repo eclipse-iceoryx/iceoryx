@@ -23,7 +23,7 @@ static std::chrono::nanoseconds getNanoSeconds(const timespec& value)
 
 static void stopTimerThread(timer_t timerid)
 {
-    timerid->keepRunning.store(false, std::memory_order_relaxed);
+    timerid->keepRunning.store(false);
     timerid->parameter.wakeup.notify_one();
     if (timerid->thread.joinable())
     {
@@ -43,14 +43,13 @@ static bool waitForExecution(timer_t timerid)
         waitUntil.tv_sec += timerid->parameter.timeParameters.it_value.tv_sec;
         waitUntil.tv_nsec += timerid->parameter.timeParameters.it_value.tv_nsec;
         timerid->parameter.wakeup.wait_until(ulock, timePoint_t(getNanoSeconds(waitUntil)), [timerid] {
-            return !timerid->parameter.isTimerRunning || !timerid->keepRunning.load(std::memory_order_relaxed);
+            return !timerid->parameter.isTimerRunning || !timerid->keepRunning.load();
         });
     }
     else
     {
-        timerid->parameter.wakeup.wait(ulock, [timerid] {
-            return timerid->parameter.isTimerRunning || !timerid->keepRunning.load(std::memory_order_relaxed);
-        });
+        timerid->parameter.wakeup.wait(
+            ulock, [timerid] { return timerid->parameter.isTimerRunning || !timerid->keepRunning.load(); });
     }
 
     return timerid->parameter.isTimerRunning;
@@ -74,7 +73,7 @@ int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid)
     timer->callbackParameter = sevp->sigev_value;
 
     timer->thread = std::thread([timer] {
-        while (timer->keepRunning.load(std::memory_order_relaxed))
+        while (timer->keepRunning.load())
         {
             if (waitForExecution(timer))
             {
