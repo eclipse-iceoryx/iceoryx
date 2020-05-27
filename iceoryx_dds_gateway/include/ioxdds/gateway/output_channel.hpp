@@ -52,9 +52,9 @@ class OutputChannel
     /// @param subscriber An externally managed subscriber component.
     /// @param dataWriter An externally managed data writer component.
     ///
-    OutputChannel(const iox::capro::ServiceDescription& m_service,
-            const SubscriberPtr m_subscriber,
-            const DataWriterPtr m_dataWriter) noexcept;
+    OutputChannel(const iox::capro::ServiceDescription& service,
+            const SubscriberPtr subscriber,
+            const DataWriterPtr dataWriter) noexcept;
 
     ///
     /// @brief create Creates an output channel whose components are instantiated in static object pools that will be
@@ -63,7 +63,7 @@ class OutputChannel
     /// @param service The service that the channel is connecting.
     /// @return Channel A channel with internally managed endpoints.
     ///
-    static OutputChannel create(const iox::capro::ServiceDescription& m_service) noexcept;
+    static OutputChannel create(const iox::capro::ServiceDescription& service) noexcept;
 
     iox::capro::ServiceDescription getService() const noexcept;
     SubscriberPtr getSubscriber() const noexcept;

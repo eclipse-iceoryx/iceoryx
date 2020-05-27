@@ -4,6 +4,7 @@
 #include <iceoryx_posh/popo/publisher.hpp>
 
 #include "ioxdds/dds/dds_types.hpp";
+#include "ioxdds/gateway/input_channel.hpp"
 
 namespace iox {
 namespace dds {
@@ -13,6 +14,9 @@ template <typename gateway_t = iox::popo::GatewayGeneric,
           typename data_reader_t = iox::dds::data_reader_t>
 class DDS2IceoryxGateway : gateway_t
 {
+    using InputChannelFactory = std::function<InputChannel<publisher_t, data_reader_t>(const iox::capro::ServiceDescription)>;
+    using InputChannelVector = iox::cxx::vector<InputChannel<publisher_t, data_reader_t>, MAX_CHANNEL_NUMBER>;
+    using ConcurrentInputChannelVector = iox::concurrent::smart_lock<InputChannelVector>;
 
   public:
     DDS2IceoryxGateway();
@@ -36,8 +40,16 @@ class DDS2IceoryxGateway : gateway_t
     std::thread m_discoveryThread;
     std::thread m_forwardingThread;
 
+    InputChannelFactory m_channelFactory;
+    ConcurrentInputChannelVector m_channels;
+
     void forwardingLoop() noexcept;
     void discoveryLoop() noexcept;
+
+    void loadConfiguration() noexcept;
+
+    InputChannel<publisher_t, data_reader_t> setupChannel(const iox::capro::ServiceDescription& service) noexcept;
+    void discardChannel(const iox::capro::ServiceDescription& service) noexcept;
 
 };
 

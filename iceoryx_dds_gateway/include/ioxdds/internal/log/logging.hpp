@@ -23,7 +23,7 @@ namespace dds
 struct DDSLoggingComponent
 {
     static constexpr char Ctx[] = "DDS";
-    static constexpr char Description[] = "Log context of the DDS stack used by the dds gateway.";
+    static constexpr char Description[] = "Log context of the DDS module.";
 };
 
 static constexpr auto LogFatal = iox::log::ffbb::LogFatal<DDSLoggingComponent>;

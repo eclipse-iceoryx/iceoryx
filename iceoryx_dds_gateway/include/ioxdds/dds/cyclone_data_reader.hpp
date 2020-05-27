@@ -8,7 +8,7 @@ namespace dds {
 class CycloneDataReader : DataReader<CycloneDataReader>
 {
 public:
-    CycloneDataReader() noexcept;
+    CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept;
 };
 
 } // namespace dds

@@ -105,8 +105,6 @@ class Iceoryx2DDSGateway : gateway_t
     std::thread m_forwardingThread;
 
     ChannelFactory m_channelFactory;
-
-    // This mutex is required for synchronized access to the channels list.
     ConcurrentChannelVector m_channels;
 
     ///
