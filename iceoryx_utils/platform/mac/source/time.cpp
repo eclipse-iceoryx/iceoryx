@@ -79,7 +79,7 @@ int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid)
             {
                 timer->parameter.mutex.lock();
                 bool doCallCallback =
-                    !timer->parameter.runOnce || timer->parameter.runOnce && !timer->parameter.wasCallbackCalled;
+                    !timer->parameter.runOnce || (timer->parameter.runOnce && !timer->parameter.wasCallbackCalled);
                 timer->parameter.mutex.unlock();
                 if (doCallCallback)
                 {

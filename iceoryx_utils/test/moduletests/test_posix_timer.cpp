@@ -49,8 +49,9 @@ class Timer_test : public Test
 class TimerStopWatch_test : public Test
 {
   public:
-    iox::units::Duration timeout{4_ms};
+    static const iox::units::Duration TIMEOUT;
 };
+iox::units::Duration TIMEOUT{4_ms};
 
 TEST_F(TimerStopWatch_test, DurationOfZeroCausesError)
 {
@@ -60,19 +61,19 @@ TEST_F(TimerStopWatch_test, DurationOfZeroCausesError)
 }
 
 TIMING_TEST_F(TimerStopWatch_test, DurationOfNonZeroIsExpiresAfterTimeout, Repeat(5), [&] {
-    Timer sut(timeout);
+    Timer sut(TIMEOUT);
 
     TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * timeout.milliSeconds<int>() / 3));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * timeout.milliSeconds<int>() / 3));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
 });
 
 TEST_F(TimerStopWatch_test, ResetWithDurationIsExpired)
 {
-    Timer sut(1_ms);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    Timer sut(TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
     EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(true));
     sut.resetCreationTime();
     EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(false));
@@ -80,14 +81,16 @@ TEST_F(TimerStopWatch_test, ResetWithDurationIsExpired)
 
 TEST_F(TimerStopWatch_test, ResetWhenNotExpiredIsStillNotExpired)
 {
-    Timer sut(1_s);
+    Timer sut(TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     sut.resetCreationTime();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(false));
 }
 
 TIMING_TEST_F(TimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
-    Timer sut(timeout);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2 * timeout.milliSeconds<int>()));
+    Timer sut(TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
 
     TIMING_TEST_ASSERT_TRUE(sut.hasExpiredComparedToCreationTime());
     sut.resetCreationTime();
@@ -119,14 +122,15 @@ TIMING_TEST_F(Timer_test, CallbackNotExecutedWhenNotStarted, Repeat(5), [&] {
     TIMING_TEST_EXPECT_ALWAYS_FALSE(callbackExecuted);
 });
 
-TIMING_TEST_F(Timer_test, CallbackExecutedOnceAfterStart, Repeat(5), [&] {
+TEST_F(Timer_test, CallbackExecutedOnceAfterStart)
+{
     std::atomic_int counter{0};
     Timer sut(1_ns, [&] { counter++; });
     sut.start(Timer::RunMode::ONCE);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    TIMING_TEST_EXPECT_TRUE(counter.load() == 1);
-});
+    EXPECT_TRUE(counter.load() == 1);
+}
 
 TIMING_TEST_F(Timer_test, CallbackExecutedPeriodicallyAfterStart, Repeat(5), [&] {
     std::atomic_int counter{0};
@@ -189,11 +193,10 @@ TIMING_TEST_F(Timer_test, StartRunPeriodicOnceIsStoppedInTheMiddleAfterStop, Rep
     sut.start(Timer::RunMode::PERIODIC);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     sut.stop();
+    auto previousCount = counter.load();
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    auto finalCount = counter.load();
-
-    TIMING_TEST_EXPECT_TRUE(4 <= finalCount && finalCount <= 6);
+    TIMING_TEST_EXPECT_TRUE(previousCount == counter.load());
 });
 
 TEST_F(Timer_test, StopFailsWhenNoCallbackIsSet)
