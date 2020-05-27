@@ -187,7 +187,29 @@ TEST_F(expected_test, ConstOnErrorWhenHavingAnErrorWithResult)
     EXPECT_THAT(a, Eq(12.1f));
 }
 
-TEST_F(expected_test, VoidOnErrorWhenHavingAnErrorWithResult)
+TEST_F(expected_test, OnErrorWhenHavingAnErrorWithResultErrorType)
+{
+    expected<int, float> sut{error<float>(112.1f)};
+    float a = 0.2f;
+    sut.on_error([&](float& r) { a = r; }).on_success([&](expected<int, float>&) {
+        a = 2.0f;
+    });
+
+    EXPECT_THAT(a, Eq(112.1f));
+}
+
+TEST_F(expected_test, ConstOnErrorWhenHavingAnErrorWithResultErrorType)
+{
+    const expected<int, float> sut{error<float>(12.1f)};
+    float a = 7.1f;
+    sut.on_error([&](float& r) { a = r; }).on_success([&](expected<int, float>&) {
+        a = 91.f;
+    });
+
+    EXPECT_THAT(a, Eq(12.1f));
+}
+
+TEST_F(expected_test, ErrorTypeOnlyOnErrorWhenHavingAnErrorWithResult)
 {
     expected<float> sut{error<float>(7112.1f)};
     float a = 70.2f;
@@ -196,11 +218,29 @@ TEST_F(expected_test, VoidOnErrorWhenHavingAnErrorWithResult)
     EXPECT_THAT(a, Eq(7112.1f));
 }
 
-TEST_F(expected_test, VoidConstOnErrorWhenHavingAnErrorWithResult)
+TEST_F(expected_test, ErrorTypeOnlyConstOnErrorWhenHavingAnErrorWithResult)
 {
     const expected<float> sut{error<float>(612.1f)};
     float a = 67.1f;
     sut.on_error([&](expected<float>& r) { a = r.get_error(); }).on_success([&](expected<float>&) { a = 91.f; });
+
+    EXPECT_THAT(a, Eq(612.1f));
+}
+
+TEST_F(expected_test, ErrorTypeOnlyOnErrorWhenHavingAnErrorWithResultErrorType)
+{
+    expected<float> sut{error<float>(7112.1f)};
+    float a = 70.2f;
+    sut.on_error([&](float& r) { a = r; }).on_success([&](expected<float>&) { a = 2.0f; });
+
+    EXPECT_THAT(a, Eq(7112.1f));
+}
+
+TEST_F(expected_test, ErrorTypeOnlyConstOnErrorWhenHavingAnErrorWithResultErrorType)
+{
+    const expected<float> sut{error<float>(612.1f)};
+    float a = 67.1f;
+    sut.on_error([&](float& r) { a = r; }).on_success([&](expected<float>&) { a = 91.f; });
 
     EXPECT_THAT(a, Eq(612.1f));
 }
