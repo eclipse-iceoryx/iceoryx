@@ -14,7 +14,9 @@
 
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
-#include "ac3log/simplelogger.hpp"
+#include "iceoryx_utils/log/logger.hpp"
+#include "iceoryx_utils/log/logging.hpp"
+#include "iceoryx_utils/log/logmanager.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -46,19 +48,20 @@ void ErrorHandler::DefaultHandler(const Error error,
 
 void ErrorHandler::ReactOnErrorLevel(const ErrorLevel level, const char* errorText)
 {
+    static auto& logger = CreateLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
     switch (level)
     {
     case ErrorLevel::FATAL:
-        LOG_ERR(errorText);
+        logger.LogError() << errorText;
         assert(false);
         std::terminate();
         break;
     case ErrorLevel::SEVERE:
-        LOG_WARN(errorText);
+        logger.LogWarn() << errorText;
         assert(false);
         break;
     case ErrorLevel::MODERATE:
-        LOG_WARN(errorText);
+        logger.LogWarn() << errorText;
         break;
     }
 }
