@@ -14,8 +14,6 @@
 
 #pragma once
 
-#include "ioxdds/dds/data_writer.hpp"
-
 #ifdef USE_CYCLONE_DDS
 #include "ioxdds/dds/cyclone_data_reader.hpp"
 #include "ioxdds/dds/cyclone_data_writer.hpp"

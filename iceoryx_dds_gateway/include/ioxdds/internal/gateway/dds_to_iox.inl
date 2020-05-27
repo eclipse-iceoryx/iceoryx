@@ -4,56 +4,54 @@
 #include <iceoryx_posh/capro/service_description.hpp>
 #include <iceoryx_utils/cxx/string.hpp>
 
-#include "ioxdds/gateway/input_channel.hpp"
 #include "ioxdds/gateway/dds_to_iox.hpp"
 #include "ioxdds/internal/log/logging.hpp"
 
 namespace iox {
 namespace dds {
 
-template <typename gateway_t, typename publisher_t, typename data_reader_t>
-inline DDS2IceoryxGateway<gateway_t, publisher_t, data_reader_t>::DDS2IceoryxGateway()
-    : gateway_t(iox::capro::Interfaces::DDS)
+template <typename publisher_t, typename data_reader_t>
+inline DDS2IceoryxGateway<publisher_t, data_reader_t>::DDS2IceoryxGateway()
 {
 
     m_channelFactory = InputChannel<publisher_t, data_reader_t>::create;
 
-    // Initialize pre-configured DDS DataReaders
+    // Initialize pre-configured services
     loadConfiguration();
 
 }
 
-template <typename gateway_t, typename publisher_t, typename data_reader_t>
-inline DDS2IceoryxGateway<gateway_t, publisher_t, data_reader_t>::~DDS2IceoryxGateway()
+template <typename publisher_t, typename data_reader_t>
+inline DDS2IceoryxGateway<publisher_t, data_reader_t>::~DDS2IceoryxGateway()
 {
 }
 
-template <typename gateway_t, typename publisher_t, typename data_reader_t>
-inline void DDS2IceoryxGateway<gateway_t, publisher_t, data_reader_t>::runMultithreaded() noexcept
+template <typename publisher_t, typename data_reader_t>
+inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::runMultithreaded() noexcept
 {
 }
 
-template <typename gateway_t, typename publisher_t, typename data_reader_t>
-inline void DDS2IceoryxGateway<gateway_t, publisher_t, data_reader_t>::discoveryLoop() noexcept
-{
-
-}
-
-template <typename gateway_t, typename publisher_t, typename data_reader_t>
-inline void DDS2IceoryxGateway<gateway_t, publisher_t, data_reader_t>::forwardingLoop() noexcept
+template <typename publisher_t, typename data_reader_t>
+inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::discoveryLoop() noexcept
 {
 
 }
 
-template <typename gateway_t, typename publisher_t, typename data_reader_t>
-inline void DDS2IceoryxGateway<gateway_t, publisher_t, data_reader_t>::shutdown() noexcept
+template <typename publisher_t, typename data_reader_t>
+inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::forwardingLoop() noexcept
+{
+
+}
+
+template <typename publisher_t, typename data_reader_t>
+inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::shutdown() noexcept
 {
 
 }
 
 // ======================================== Private ======================================== //
-template <typename gateway_t, typename publisher_t, typename data_reader_t>
-inline void DDS2IceoryxGateway<gateway_t, publisher_t, data_reader_t>::loadConfiguration() noexcept
+template <typename publisher_t, typename data_reader_t>
+inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::loadConfiguration() noexcept
 {
 
     // Search for config passed as command line argument.
@@ -86,8 +84,8 @@ inline void DDS2IceoryxGateway<gateway_t, publisher_t, data_reader_t>::loadConfi
 
 }
 
-template <typename gateway_t, typename publisher_t, typename data_reader_t>
-InputChannel<publisher_t, data_reader_t> DDS2IceoryxGateway<gateway_t, publisher_t, data_reader_t>::setupChannel(
+template <typename publisher_t, typename data_reader_t>
+InputChannel<publisher_t, data_reader_t> DDS2IceoryxGateway<publisher_t, data_reader_t>::setupChannel(
     const iox::capro::ServiceDescription& service) noexcept
 {
     auto channel = m_channelFactory(service);
@@ -98,8 +96,8 @@ InputChannel<publisher_t, data_reader_t> DDS2IceoryxGateway<gateway_t, publisher
     return channel;
 }
 
-template <typename gateway_t, typename publisher_t, typename data_reader_t>
-void DDS2IceoryxGateway<gateway_t, publisher_t, data_reader_t>::discardChannel(
+template <typename publisher_t, typename data_reader_t>
+void DDS2IceoryxGateway<publisher_t, data_reader_t>::discardChannel(
     const iox::capro::ServiceDescription& service) noexcept
 {
     auto guardedVector = m_channels.GetScopeGuard();

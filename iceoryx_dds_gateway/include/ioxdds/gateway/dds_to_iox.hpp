@@ -1,24 +1,24 @@
 #pragma once
 
-#include <iceoryx_posh/popo/gateway_generic.hpp>
 #include <iceoryx_posh/popo/publisher.hpp>
 
-#include "ioxdds/dds/dds_types.hpp";
+#include "ioxdds/dds/dds_types.hpp"
+#include "ioxdds/gateway/base_gateway.hpp"
 #include "ioxdds/gateway/input_channel.hpp"
 
 namespace iox {
 namespace dds {
 
-template <typename gateway_t = iox::popo::GatewayGeneric,
-          typename publisher_t = iox::popo::Publisher,
+template <typename publisher_t = iox::popo::Publisher,
           typename data_reader_t = iox::dds::data_reader_t>
-class DDS2IceoryxGateway : gateway_t
+class DDS2IceoryxGateway : public iox::dds::DDSGateway<iox::dds::InputChannel<publisher_t, data_reader_t>>
 {
+
     using InputChannelFactory = std::function<InputChannel<publisher_t, data_reader_t>(const iox::capro::ServiceDescription)>;
     using InputChannelVector = iox::cxx::vector<InputChannel<publisher_t, data_reader_t>, MAX_CHANNEL_NUMBER>;
     using ConcurrentInputChannelVector = iox::concurrent::smart_lock<InputChannelVector>;
 
-  public:
+public:
     DDS2IceoryxGateway();
     ~DDS2IceoryxGateway();
 
@@ -32,7 +32,7 @@ class DDS2IceoryxGateway : gateway_t
     void forward() noexcept;
     void shutdown() noexcept;
 
-  private:
+private:
     std::atomic_bool m_isRunning{false};
     std::atomic_bool m_runForwardingLoop{false};
     std::atomic_bool m_runDiscoveryLoop{false};
