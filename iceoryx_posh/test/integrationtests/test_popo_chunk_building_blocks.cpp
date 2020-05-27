@@ -45,11 +45,6 @@ static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
 using ChunkDistributorData_t = iox::popo::ChunkDistributorData<MAX_NUMBER_QUEUES, iox::popo::ThreadSafePolicy>;
 using ChunkDistributor_t = iox::popo::ChunkDistributor<ChunkDistributorData_t>;
 
-// Memory objects
-Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
-MePooConfig m_mempoolConfig;
-MemoryManager m_memoryManager;
-
 class ChunkBuildingBlocks_IntegrationTest : public Test
 {
   public:
@@ -66,7 +61,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
     void SetUp()
     {
-        m_chunkSender.addQueue(&m_chunkData);
+        m_chunkSender.addQueue(&m_chunkQueueData);
         m_chunkDistributor.addQueue(&m_chunkReceiverData);
     }
     void TearDown(){};
@@ -81,6 +76,10 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->dummy = i;
                     m_chunkSender.send(chunkHeader);
+
+                    /// @todo for debugging only, to be removed
+                    chunkHeaderPointerPublisherVector.push_back(sample);
+
                     m_sendCounter++;
                 })
                 .on_error([]() {
@@ -95,10 +94,21 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
     void forward()
     {
+        uint64_t forwardCounter{0};
+
         while (m_run)
         {
-            m_popper.pop().and_then([&](SharedChunk& chunk) { m_chunkDistributor.deliverToAllStoredQueues(chunk); });
+            m_popper.pop().and_then([&](SharedChunk& chunk) {
+                auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
+                // Check if monotonically increasing
+                EXPECT_THAT(dummySample.dummy, Eq(forwardCounter));
 
+                /// @todo for debugging only, to be removed
+                chunkHeaderPointerForwardingVector.push_back(chunk.getPayload());
+
+                m_chunkDistributor.deliverToAllStoredQueues(chunk);
+                forwardCounter++;
+            });
             /// Add some jitter to make thread breathe
             std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
         }
@@ -106,22 +116,30 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
     void subscribe()
     {
-        while (m_receiveCounter < ITERATIONS)
+        bool finished{false};
+
+        while ((m_receiveCounter < ITERATIONS) && !finished)
         {
             m_chunkReceiver.get()
                 .on_success([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
                     if (maybeChunkHeader.has_value())
                     {
                         auto chunkHeader = maybeChunkHeader.value();
-
                         auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
+                        // Check if monotonically increasing
+                        EXPECT_THAT(dummySample.dummy, Eq(m_receiveCounter));
+
+                        /// @todo for debugging only, to be removed
+                        chunkHeaderPointerSubscriberVector.push_back(chunkHeader->payload());
 
                         m_receiveCounter++;
-
                         /// Add some jitter to make thread breathe
                         std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
-
                         m_chunkReceiver.release(chunkHeader);
+                    }
+                    else if (m_run == false)
+                    {
+                        finished = true;
                     }
                 })
                 .on_error([]() {
@@ -135,6 +153,11 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     uint64_t m_receiveCounter{0};
     std::atomic<bool> m_run{true};
 
+    // Memory objects
+    Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    MePooConfig m_mempoolConfig;
+    MemoryManager m_memoryManager;
+
     // Objects used by publishing thread
     ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
     ChunkSender<ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
@@ -142,12 +165,17 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     // Objects used by forwarding thread
     ChunkDistributorData_t m_chunkDistributorData;
     ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
-    ChunkQueueData m_chunkData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-    ChunkQueuePopper m_popper{&m_chunkData};
+    ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueuePopper m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
     ChunkReceiverData m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     ChunkReceiver m_chunkReceiver{&m_chunkReceiverData};
+
+    /// @todo for debugging only, to be removed
+    std::vector<void*> chunkHeaderPointerPublisherVector;
+    std::vector<void*> chunkHeaderPointerForwardingVector;
+    std::vector<void*> chunkHeaderPointerSubscriberVector;
 };
 
 TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreads)
@@ -161,13 +189,13 @@ TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreads)
         publishingThread.join();
     }
 
+    // Signal the other threads we're done
+    m_run = false;
+
     if (subscribingThread.joinable())
     {
         subscribingThread.join();
     }
-
-    // Stop the forwarding thread
-    m_run = false;
 
     if (forwardingThread.joinable())
     {
