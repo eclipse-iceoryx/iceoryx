@@ -56,6 +56,7 @@ target_link_libraries(ioxdds
 if(USE_CYCLONE_DDS)
     target_sources(ioxdds
         PRIVATE
+        source/ioxdds/dds/cyclone_data_reader.cpp
         source/ioxdds/dds/cyclone_data_writer.cpp
     )
     target_compile_definitions(ioxdds PUBLIC -DUSE_CYCLONE_DDS)

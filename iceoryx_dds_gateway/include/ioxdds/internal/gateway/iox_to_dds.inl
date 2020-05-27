@@ -30,7 +30,7 @@ inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::Iceoryx2DDSGa
     : gateway_t(iox::capro::Interfaces::DDS)
 {
     m_channelFactory = Channel<subscriber_t, data_writer_t>::create;
-};
+}
 
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::Iceoryx2DDSGateway(ChannelFactory channelFactory)
