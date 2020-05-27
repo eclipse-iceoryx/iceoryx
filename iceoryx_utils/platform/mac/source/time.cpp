@@ -127,16 +127,21 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value
 
 int timer_gettime(timer_t timerid, struct itimerspec* curr_value)
 {
-    timespec currentTime, startTime;
+    constexpr int64_t NANO_SECONDS{1000000000};
+    timespec currentTime;
     clock_gettime(CLOCK_REALTIME, &currentTime);
+    int64_t currentTimeNs = currentTime.tv_sec * NANO_SECONDS + currentTime.tv_nsec;
+    int64_t intervalTimeNs{0}, startTimeNs{0};
     {
         std::lock_guard<std::mutex> l(timerid->parameter.mutex);
         curr_value->it_interval = timerid->parameter.timeParameters.it_interval;
-        startTime = timerid->parameter.startTime;
+        intervalTimeNs = timerid->parameter.timeParameters.it_interval.tv_sec * NANO_SECONDS
+                         + timerid->parameter.timeParameters.it_interval.tv_nsec;
+        startTimeNs = timerid->parameter.startTime.tv_sec * NANO_SECONDS + timerid->parameter.startTime.tv_nsec;
     }
-    curr_value->it_value.tv_sec = curr_value->it_interval.tv_sec - (currentTime.tv_sec - startTime.tv_sec);
-    curr_value->it_value.tv_nsec = curr_value->it_interval.tv_nsec - (currentTime.tv_nsec - startTime.tv_nsec);
-
+    int64_t remainingTimeNs = intervalTimeNs - (currentTimeNs - startTimeNs);
+    curr_value->it_value.tv_sec = remainingTimeNs / NANO_SECONDS;
+    curr_value->it_value.tv_nsec = remainingTimeNs - curr_value->it_interval.tv_sec * NANO_SECONDS;
     return 0;
 }
 

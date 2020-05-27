@@ -51,7 +51,7 @@ class TimerStopWatch_test : public Test
   public:
     static const iox::units::Duration TIMEOUT;
 };
-iox::units::Duration TIMEOUT{4_ms};
+const iox::units::Duration TimerStopWatch_test::TIMEOUT{4_ms};
 
 TEST_F(TimerStopWatch_test, DurationOfZeroCausesError)
 {
@@ -286,6 +286,7 @@ TIMING_TEST_F(Timer_test, TimeUntilExpirationWithCallback, Repeat(5), [&] {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
+    printf("%d \n", timeUntilExpiration);
     TIMING_TEST_EXPECT_TRUE(1 <= timeUntilExpiration && timeUntilExpiration <= 10);
 });
 
@@ -310,8 +311,6 @@ TIMING_TEST_F(Timer_test, StoppingIsNonBlocking, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(elapsedTime < 10);
 });
 
-// This test has to be repeated more often since we are spawning a lot
-// of threads in here
 TIMING_TEST_F(Timer_test, MultipleTimersRunningContinuously, Repeat(5), [&] {
     struct TimeValPair
     {
@@ -345,8 +344,6 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningContinuously, Repeat(5), [&] {
     }
 });
 
-// This test has to be repeated more often since we are spawning a lot
-// of threads in here
 TIMING_TEST_F(Timer_test, MultipleTimersRunningOnce, Repeat(5), [&] {
     struct TimeValPair
     {
