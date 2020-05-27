@@ -17,6 +17,7 @@
 #include "ioxdds/dds/data_writer.hpp"
 
 #ifdef USE_CYCLONE_DDS
+#include "ioxdds/dds/cyclone_data_reader.hpp"
 #include "ioxdds/dds/cyclone_data_writer.hpp"
 #else
 #error "A DDS implementation must be provided."
@@ -28,6 +29,7 @@ namespace dds
 {
 // DDS implementation defined with compiler flags
 #ifdef USE_CYCLONE_DDS
+using data_reader_t = iox::dds::CycloneDataReader;
 using data_writer_t = iox::dds::CycloneDataWriter;
 #else
 #error "A DDS implementation must be set."
