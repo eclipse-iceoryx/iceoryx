@@ -72,8 +72,9 @@ add_library(iceoryx_posh
     source/popo/sender_port.cpp
     source/popo/sender_port_data.cpp
     source/popo/receiver_handler.cpp
-    source/popo/building_blocks/chunk_queue.cpp
-    source/popo/building_blocks/chunk_distributor.cpp
+    source/popo/building_blocks/chunk_queue_pusher.cpp
+    source/popo/building_blocks/chunk_queue_popper.cpp    
+    source/popo/building_blocks/chunk_receiver.cpp      
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
@@ -81,7 +82,6 @@ add_library(iceoryx_posh
     source/runtime/runnable.cpp
     source/runtime/runnable_data.cpp
     source/runtime/runnable_property.cpp
-    source/runtime/service_discovery_notifier.cpp
     source/runtime/shared_memory_user.cpp
 )
 
@@ -255,6 +255,10 @@ if(roudi_environment OR test)
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
     )
 endif(roudi_environment OR test)
+
+if(ICEORYX_LARGE_DEPLOYMENT)
+    add_definitions(-DICEORYX_LARGE_DEPLOYMENT)
+endif(ICEORYX_LARGE_DEPLOYMENT)
 
 #
 ########## exporting library ##########

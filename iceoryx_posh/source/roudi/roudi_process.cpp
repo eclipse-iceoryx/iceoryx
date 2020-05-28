@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port_data.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -27,7 +28,7 @@ namespace iox
 namespace roudi
 {
 RouDiProcess::RouDiProcess(std::string name,
-                           int pid,
+                           int32_t pid,
                            mepoo::MemoryManager* payloadMemoryManager,
                            bool isMonitored,
                            const uint64_t payloadSegmentId,
@@ -42,7 +43,7 @@ RouDiProcess::RouDiProcess(std::string name,
 {
 }
 
-int RouDiProcess::getPid() const
+int32_t RouDiProcess::getPid() const
 {
     return m_pid;
 }
@@ -134,13 +135,13 @@ void ProcessManager::killAllProcesses()
     {
         if (-1 == kill(static_cast<pid_t>(l_it->getPid()), SIGTERM))
         {
-            WARN_PRINTF("Process %d could not be killed\n", l_it->getPid());
+            LogWarn() << "Process " << l_it->getPid() << " could not be killed";
         }
     }
 }
 
 bool ProcessManager::registerProcess(const std::string& name,
-                                     int pid,
+                                     int32_t pid,
                                      posix::PosixUser user,
                                      bool isMonitored,
                                      int64_t transmissionTimestamp,
@@ -186,25 +187,22 @@ bool ProcessManager::registerProcess(const std::string& name,
     if (wasPreviouslyMonitored)
     {
         // process exists and is monitored - we rely on monitoring for removal
-        WARN_PRINTF("Received REG from %s, but another application with this "
-                    "name is already registered\n",
-                    name.c_str());
+        LogWarn() << "Received REG from " << name << ", but another application with this name is already registered";
     }
     else
     {
         // process exists and is not monitored - remove it and add the new process afterwards
-        DEBUG_PRINTF("Registering already existing application %s\n", name.c_str());
+        LogDebug() << "Registering already existing application " << name;
 
         // remove existing process
         if (!removeProcess(name)) // call will acquire lock
         {
-            WARN_PRINTF("Received REG from %s, but another application with this "
-                        "name is already registered and could not be removed\n",
-                        name.c_str());
+            LogWarn() << "Received REG from " << name
+                      << ", but another application with this name is already registered and could not be removed";
             return false;
         }
 
-        DEBUG_PRINTF("Registering already existing application %s - removed existing application\n", name.c_str());
+        LogDebug() << "Registering already existing application " << name << " - removed existing application";
 
         // try registration again, should succeed since removal was successful
         return addProcess(name,
@@ -220,7 +218,7 @@ bool ProcessManager::registerProcess(const std::string& name,
 }
 
 bool ProcessManager::addProcess(const std::string& name,
-                                int pid,
+                                int32_t pid,
                                 mepoo::MemoryManager* payloadMemoryManager,
                                 bool isMonitored,
                                 int64_t transmissionTimestamp,
@@ -231,7 +229,7 @@ bool ProcessManager::addProcess(const std::string& name,
     // overflow check
     if (m_processList.size() >= MAX_PROCESS_NUMBER)
     {
-        LOG_ERR("Could not register process - too many processes");
+        LogError() << "Could not register process - too many processes";
         return false;
     }
 
@@ -252,7 +250,7 @@ bool ProcessManager::addProcess(const std::string& name,
 
     m_processIntrospection->addProcess(pid, cxx::string<100>(cxx::TruncateToCapacity, name.c_str()));
 
-    DEBUG_PRINTF("Registered new application %s\n", name.c_str());
+    LogDebug() << "Registered new application " << name;
     return true;
 }
 
@@ -274,7 +272,7 @@ bool ProcessManager::removeProcess(const std::string& f_name)
             // delete application
             it = m_processList.erase(it);
 
-            DEBUG_PRINTF("New Registration - removed existing application %s\n", f_name.c_str());
+            LogDebug() << "New Registration - removed existing application " << f_name;
             return true; // we can assume there are no other processes with this name
         }
         ++it;
@@ -291,21 +289,19 @@ bool ProcessManager::sendMessageToProcess(const std::string& name,
     RouDiProcess* process = getProcessFromList(name);
     if (process == nullptr)
     {
-        WARN_PRINTF("Received message for unknown process %s\n", name.c_str());
+        LogWarn() << "Received message for unknown process " << name;
         return false;
     }
 
     auto validSessionId = process->getSessionId();
     if (sessionId != validSessionId)
     {
-        WARN_PRINTF("Outdated session ID for message queue for process %s. Outdated = %ull; Valid %ull\n",
-                    name.c_str(),
-                    sessionId,
-                    validSessionId);
+        LogWarn() << "Outdated session ID for message queue for process " << name << ". Outdated = " << sessionId
+                  << "; Valid " << validSessionId;
         return false;
     }
 
-    DEBUG_PRINTF("Send message to application %s\n", name.c_str());
+    LogDebug() << "Send message to application " << name;
     process->sendToMQ(message);
 
     return true;
@@ -323,7 +319,7 @@ void ProcessManager::updateLivlinessOfProcess(const std::string& f_name)
     }
     else
     {
-        WARN_PRINTF("Received Keepalive from unknown process %s\n ", f_name.c_str());
+        LogWarn() << "Received Keepalive from unknown process " << f_name;
     }
 }
 
@@ -336,11 +332,11 @@ void ProcessManager::findServiceForProcess(const std::string& f_name, const capr
     {
         runtime::MqMessage l_instanceString({m_portManager.findService(f_service)});
         l_process->sendToMQ(l_instanceString);
-        DEBUG_PRINTF("Sent InstanceString to application %s\n", f_name.c_str());
+        LogDebug() << "Sent InstanceString to application " << f_name;
     }
     else
     {
-        WARN_PRINTF("Unknown process %s requested an InstanceString.\n", f_name.c_str());
+        LogWarn() << "Unknown process " << f_name << " requested an InstanceString.";
     }
 }
 
@@ -364,11 +360,11 @@ void ProcessManager::addInterfaceForProcess(const std::string& f_name,
                      << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
         l_process->sendToMQ(l_sendBuffer);
 
-        DEBUG_PRINTF("Created new interface for application %s\n", f_name.c_str());
+        LogDebug() << "Created new interface for application " << f_name;
     }
     else
     {
-        WARN_PRINTF("Unknown application %s requested an interface.\n", f_name.c_str());
+        LogWarn() << "Unknown application " << f_name << " requested an interface.";
     }
 }
 
@@ -387,7 +383,7 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const std::string
     }
     else
     {
-        WARN_PRINTF("Unknown application %s requested an serviceRegistryChangeCounter.\n", processName.c_str());
+        LogWarn() << "Unknown application " << processName << " requested an serviceRegistryChangeCounter.";
     }
 }
 
@@ -407,11 +403,11 @@ void ProcessManager::addApplicationForProcess(const std::string& f_name)
                      << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
         l_process->sendToMQ(l_sendBuffer);
 
-        DEBUG_PRINTF("Created new ApplicationPort for application %s\n", f_name.c_str());
+        LogDebug() << "Created new ApplicationPort for application " << f_name;
     }
     else
     {
-        WARN_PRINTF("Unknown application %s requested an ApplicationPort.\n", f_name.c_str());
+        LogWarn() << "Unknown application " << f_name << " requested an ApplicationPort." << f_name;
     }
 }
 
@@ -435,11 +431,11 @@ void ProcessManager::addRunnableForProcess(const std::string& f_process, const s
         l_process->sendToMQ(l_sendBuffer);
         m_processIntrospection->addRunnable(cxx::string<100>(cxx::TruncateToCapacity, f_process.c_str()),
                                             cxx::string<100>(cxx::TruncateToCapacity, f_runnable.c_str()));
-        DEBUG_PRINTF("Created new runnable %s for application %s\n", f_runnable.c_str(), f_process.c_str());
+        LogDebug() << "Created new runnable " << f_runnable << " for application " << f_process;
     }
     else
     {
-        WARN_PRINTF("Unknown application %s requested a runnable.\n", f_process.c_str());
+        LogWarn() << "Unknown application " << f_process << " requested a runnable.";
     }
 }
 
@@ -454,7 +450,7 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const std::string& f_name)
         l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::MESSAGE_NOT_SUPPORTED);
         l_process->sendToMQ(l_sendBuffer);
 
-        ERR_PRINTF("Application %s sent a message, which is not supported by this RouDi\n", f_name.c_str());
+        LogError() << "Application " << f_name << " sent a message, which is not supported by this RouDi";
     }
 }
 
@@ -488,11 +484,11 @@ void ProcessManager::addReceiverForProcess(const std::string& f_name,
                      << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
         l_process->sendToMQ(l_sendBuffer);
 
-        DEBUG_PRINTF("Created new ReceiverPortImpl for application %s\n", f_name.c_str());
+        LogDebug() << "Created new ReceiverPortImpl for application " << f_name;
     }
     else
     {
-        WARN_PRINTF("Unknown application %s requested a ReceiverPortImpl.\n", f_name.c_str());
+        LogWarn() << "Unknown application " << f_name << " requested a ReceiverPortImpl.";
     }
 }
 
@@ -520,7 +516,7 @@ void ProcessManager::addSenderForProcess(const std::string& f_name,
                          << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
             l_process->sendToMQ(l_sendBuffer);
 
-            DEBUG_PRINTF("Created new SenderPortImpl for application %s\n", f_name.c_str());
+            LogDebug() << "Created new SenderPortImpl for application " << f_name;
         }
         else
         {
@@ -531,12 +527,12 @@ void ProcessManager::addSenderForProcess(const std::string& f_name,
                      ? runtime::MqMessageErrorType::NO_UNIQUE_CREATED
                      : runtime::MqMessageErrorType::SENDERLIST_FULL));
             l_process->sendToMQ(l_sendBuffer);
-            ERR_PRINTF("Could not create SenderPortImpl for application %s\n", f_name.c_str());
+            LogError() << "Could not create SenderPortImpl for application " << f_name;
         }
     }
     else
     {
-        WARN_PRINTF("Unknown application %s requested a SenderPortImpl.\n", f_name.c_str());
+        LogWarn() << "Unknown application " << f_name << " requested a SenderPortImpl.";
     }
 }
 
@@ -632,9 +628,8 @@ void ProcessManager::monitorProcesses()
             if (std::chrono::milliseconds(timediff_ms)
                 > std::chrono::milliseconds(PROCESS_KEEP_ALIVE_TIMEOUT.milliSeconds<int64_t>()))
             {
-                WARN_PRINTF("Application %s not responding (last response %d milliseconds ago) --> removing it\n",
-                            processIterator->getName().c_str(),
-                            timediff_ms);
+                LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
+                          << timediff_ms << " milliseconds ago) --> removing it";
 
                 // note: if we would want to use the removeProcess function, it would search for the process again (but
                 // we already found it and have an iterator to remove it)

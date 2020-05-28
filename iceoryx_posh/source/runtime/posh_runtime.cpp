@@ -29,8 +29,7 @@ namespace iox
 {
 namespace runtime
 {
-std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory =
-    PoshRuntime::defaultRuntimeFactory;
+std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
 
 
 PoshRuntime& PoshRuntime::defaultRuntimeFactory(const std::string& name) noexcept
@@ -53,7 +52,6 @@ PoshRuntime::PoshRuntime(const std::string& name, const bool doMapSharedMemoryIn
                      m_MqInterface.getSegmentManagerAddr(),
                      m_MqInterface.getSegmentId())
     , m_applicationPort(getMiddlewareApplication())
-    , m_serviceDiscoveryNotifier(name, getServiceRegistryChangeCounter())
 {
     m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC);
     /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
@@ -61,7 +59,7 @@ PoshRuntime::PoshRuntime(const std::string& name, const bool doMapSharedMemoryIn
 
 PoshRuntime::~PoshRuntime() noexcept
 {
-    if(m_applicationPort)
+    if (m_applicationPort)
     {
         m_applicationPort.destroy();
     }
@@ -353,17 +351,6 @@ cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& s
         return cxx::error<Error>(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW);
     }
     return {cxx::success<>()};
-}
-
-cxx::expected<FindServiceHandle, Error> PoshRuntime::startFindService(const FindServiceHandler& handler,
-                                                                      const IdString& serviceId) noexcept
-{
-    return m_serviceDiscoveryNotifier.startFindService(handler, serviceId);
-}
-
-void PoshRuntime::stopFindService(const FindServiceHandle handle) noexcept
-{
-    m_serviceDiscoveryNotifier.stopFindService(handle);
 }
 
 void PoshRuntime::offerService(const capro::ServiceDescription& serviceDescription) noexcept

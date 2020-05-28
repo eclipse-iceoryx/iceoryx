@@ -1,0 +1,50 @@
+# This workflow builds & runs test cases in iceoryx
+
+name: Build & Test
+
+# Triggers the workflow on push or pull request events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build-test"
+  build-test:
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+#       os: [ubuntu-18.04, windows-latest, macos-latest]
+        os: [ubuntu-18.04]
+      fail-fast: false
+      
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+       # To build against multiple OSs dependencies installation needs to be OS specific
+      - name: Install iceoryx dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake libacl1-dev libncurses5-dev pkg-config
+      
+      - name : Checkout
+        uses: actions/checkout@v2
+ 
+    # Runs a set of commands using the runners shell
+      - name: Print details
+        run: |
+          echo This workflow is triggered by $GITHUB_EVENT_NAME
+          echo Running iceoryx build in directory $GITHUB_WORKSPACE
+          echo Home directory is $HOME
+
+      - name: Build with GNU
+        run: ./tools/iceoryx_build_test.sh
+      
+      - name: Execute Tests
+        run: "./tools/iceoryx_build_test.sh test"  
+        
+      - name : Build with clang
+        run: |
+          export CC=/usr/bin/clang
+          export CXX=/usr/bin/clang++
+          ./tools/iceoryx_build_test.sh clean

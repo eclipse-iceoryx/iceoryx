@@ -1,6 +1,7 @@
 
 # Contents
-1. [Configuring RouDi](#Configuring-RouDi)
+- [Contents](#contents)
+- [Configuring RouDi](#configuring-roudi)
 
 # Configuring RouDi
 
@@ -80,54 +81,4 @@ size = 1024
 count = 100
 ```
 
-When no config file is specified, this config will be used:
-```TOML
-[general]
-version = 1
-
-[[segment]]
-
-[[segment.mempool]]
-size = 32
-count = 10000
-
-[[segment.mempool]]
-size = 128
-count = 10000
-
-[[segment.mempool]]
-size = 1024
-count = 2000
-
-[[segment.mempool]]
-size = 16384
-count = 500
-
-[[segment.mempool]]
-size = 131072
-count = 200
-
-[[segment.mempool]]
-size = 1048576
-count = 50
-
-[[segment.mempool]]
-size = 2097152
-count = 20
-
-[[segment.mempool]]
-size = 4194304
-count = 10
-
-[[segment.mempool]]
-size = 8388608
-count = 10
-
-[[segment.mempool]]
-size = 16777216
-count = 5
-
-[[segment.mempool]]
-size = 33554432
-count = 2
-```
+When no config file is specified, a hard-coded version similar to [default config](../iceoryx_posh/etc/iceoryx/roudi_config_example.toml) will be used.
