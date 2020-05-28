@@ -24,21 +24,9 @@ public:
     DDS2IceoryxGateway(DDS2IceoryxGateway&&) = delete;
     DDS2IceoryxGateway& operator=(DDS2IceoryxGateway&&) = delete;
 
-    void runMultithreaded() noexcept;
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward() noexcept;
-    void shutdown() noexcept;
 
-private:
-    std::atomic_bool m_isRunning{false};
-    std::atomic_bool m_runForwardingLoop{false};
-    std::atomic_bool m_runDiscoveryLoop{false};
-
-    std::thread m_discoveryThread;
-    std::thread m_forwardingThread;
-
-    void forwardingLoop() noexcept;
-    void discoveryLoop() noexcept;
 
 };
 

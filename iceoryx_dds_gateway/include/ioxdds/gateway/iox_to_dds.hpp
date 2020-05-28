@@ -45,18 +45,13 @@ class Iceoryx2DDSGateway : public iox::dds::DDSGatewayGeneric<iox::dds::Channel<
 {
 
   public:
-    Iceoryx2DDSGateway();
-    ~Iceoryx2DDSGateway();
+    Iceoryx2DDSGateway() = default;
+    ~Iceoryx2DDSGateway() = default;
 
     Iceoryx2DDSGateway(const Iceoryx2DDSGateway&) = delete;
     Iceoryx2DDSGateway& operator=(const Iceoryx2DDSGateway&) = delete;
     Iceoryx2DDSGateway(Iceoryx2DDSGateway&&) = delete;
     Iceoryx2DDSGateway& operator=(Iceoryx2DDSGateway&&) = delete;
-
-    ///
-    /// @brief runMultithreaded Runs the DDS gateway with multiple threads - one for discovery and one for forwarding.
-    ///
-    void runMultithreaded() noexcept;
 
     ///
     /// @brief discover Run discovery logic for the given CaproMessage.
@@ -78,37 +73,6 @@ class Iceoryx2DDSGateway : public iox::dds::DDSGatewayGeneric<iox::dds::Channel<
     /// @return The number of active channels.
     ///
     uint64_t getNumberOfChannels() const noexcept;
-
-    ///
-    /// @brief shutdown the gateway, stopping all threads
-    ///
-    void shutdown() noexcept;
-
-  private:
-    std::atomic_bool m_isRunning{false};
-    std::atomic_bool m_runForwardingLoop{false};
-    std::atomic_bool m_runDiscoveryLoop{false};
-
-    std::thread m_discoveryThread;
-    std::thread m_forwardingThread;
-
-    ///
-    /// @brief Starts the data forwarding loop.
-    ///
-    /// Periodically processes data published by local posh publishers to the DDS network.
-    ///
-    void forwardingLoop() noexcept;
-
-    ///
-    /// @brief Starts the discovery loop.
-    ///
-    /// Periodically check for and process capro messages received
-    /// via the GenericGateway.
-    /// When new publishers are offered in the system, the required DDS components for
-    /// data fotwarding are initialized. Converseley, when publishers stop offering, these
-    /// components are destroyed.
-    ///
-    void discoveryLoop() noexcept;
 
 };
 

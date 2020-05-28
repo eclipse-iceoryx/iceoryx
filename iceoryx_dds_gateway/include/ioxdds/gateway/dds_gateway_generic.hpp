@@ -1,5 +1,8 @@
 #pragma once
 
+#include <thread>
+#include <atomic>
+
 #include <iceoryx_posh/popo/gateway_generic.hpp>
 #include <iceoryx_posh/capro/service_description.hpp>
 #include <iceoryx_utils/cxx/vector.hpp>
@@ -17,16 +20,38 @@ class DDSGatewayGeneric : public iox::popo::GatewayGeneric
     using ChannelVector = iox::cxx::vector<channel_t, MAX_CHANNEL_NUMBER>;
     using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 
+public:
+
+    virtual ~DDSGatewayGeneric();
+
+    void runMultithreaded() noexcept;
+    void shutdown() noexcept;
+
+    virtual void discover(const iox::capro::CaproMessage& msg) noexcept = 0;
+    virtual void forward() noexcept = 0;
+
 protected:
 
     DDSGatewayGeneric();
+
+    // These are made available to child classes for use in discover or forward methods.
+    ChannelFactory m_channelFactory;
+    ConcurrentChannelVector m_channels;
 
     void loadConfiguration() noexcept;
     channel_t setupChannel(const iox::capro::ServiceDescription& service) noexcept;
     void discardChannel(const iox::capro::ServiceDescription& service) noexcept;
 
-    ChannelFactory m_channelFactory;
-    ConcurrentChannelVector m_channels;
+private:
+    std::atomic_bool m_isRunning{false};
+    std::atomic_bool m_runForwardingLoop{false};
+    std::atomic_bool m_runDiscoveryLoop{false};
+
+    std::thread m_discoveryThread;
+    std::thread m_forwardingThread;
+
+    void forwardingLoop() noexcept;
+    void discoveryLoop() noexcept;
 
 };
 

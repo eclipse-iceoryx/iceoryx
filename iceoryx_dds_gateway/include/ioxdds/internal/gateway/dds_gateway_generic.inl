@@ -6,6 +6,41 @@
 #include "ioxdds/dds/dds_types.hpp"
 #include "ioxdds/gateway/dds_gateway_generic.hpp"
 
+// ================================================== Public ================================================== //
+
+template<typename channel_t>
+iox::dds::DDSGatewayGeneric<channel_t>::~DDSGatewayGeneric()
+{
+    shutdown();
+}
+
+template<typename channel_t>
+void iox::dds::DDSGatewayGeneric<channel_t>::runMultithreaded() noexcept
+{
+    m_discoveryThread = std::thread([this] { discoveryLoop(); });
+    m_forwardingThread = std::thread([this] { forwardingLoop(); });
+    m_isRunning.store(true, std::memory_order_relaxed);
+}
+
+template<typename channel_t>
+void iox::dds::DDSGatewayGeneric<channel_t>::shutdown() noexcept
+{
+    if (m_isRunning.load(std::memory_order_relaxed))
+    {
+        iox::LogDebug() << "[DDSGatewayGeneric] Shutting down Posh2DDSGateway.";
+
+        m_runDiscoveryLoop.store(false, std::memory_order_relaxed);
+        m_runForwardingLoop.store(false, std::memory_order_relaxed);
+
+        m_discoveryThread.join();
+        m_forwardingThread.join();
+
+        m_isRunning.store(false, std::memory_order_relaxed);
+    }
+}
+
+// ================================================== Protected ================================================== //
+
 template<typename channel_t>
 iox::dds::DDSGatewayGeneric<channel_t>::DDSGatewayGeneric() : iox::popo::GatewayGeneric(iox::capro::Interfaces::DDS)
 {
@@ -72,3 +107,38 @@ void iox::dds::DDSGatewayGeneric<channel_t>::discardChannel(const iox::capro::Se
                         << service.getEventIDString();
     }
 }
+
+// ================================================== Private ================================================== //
+
+template<typename channel_t>
+void iox::dds::DDSGatewayGeneric<channel_t>::discoveryLoop() noexcept
+{
+    iox::LogDebug() << "[DDSGatewayGeneric] Starting discovery.";
+    m_runDiscoveryLoop.store(true, std::memory_order_relaxed);
+    while (m_runDiscoveryLoop.load(std::memory_order_relaxed))
+    {
+        iox::capro::CaproMessage msg;
+        while (this->getCaProMessage(msg))
+        {
+            discover(msg);
+        }
+        std::this_thread::sleep_until(std::chrono::steady_clock::now()
+                                      + std::chrono::milliseconds(DISCOVERY_PERIOD.milliSeconds<int64_t>()));
+    }
+    iox::LogDebug() << "[DDSGatewayGeneric] Stopped discovery.";
+}
+
+template<typename channel_t>
+void iox::dds::DDSGatewayGeneric<channel_t>::forwardingLoop() noexcept
+{
+    iox::LogDebug() << "[DDSGatewayGeneric] Starting forwarding.";
+    m_runForwardingLoop.store(true, std::memory_order_relaxed);
+    while (m_runForwardingLoop.load(std::memory_order_relaxed))
+    {
+        forward();
+        std::this_thread::sleep_until(std::chrono::steady_clock::now()
+                                      + std::chrono::milliseconds(FORWARDING_PERIOD.milliSeconds<int64_t>()));
+    };
+    iox::LogDebug() << "[DDSGatewayGeneric] Stopped forwarding.";
+}
+

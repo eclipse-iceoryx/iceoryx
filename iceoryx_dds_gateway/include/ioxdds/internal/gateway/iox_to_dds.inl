@@ -25,44 +25,6 @@ namespace dds
 {
 // ======================================== Public ======================================== //
 template <typename subscriber_t, typename data_writer_t>
-inline Iceoryx2DDSGateway<subscriber_t, data_writer_t>::Iceoryx2DDSGateway()
-{
-}
-
-
-template <typename subscriber_t, typename data_writer_t>
-inline Iceoryx2DDSGateway<subscriber_t, data_writer_t>::~Iceoryx2DDSGateway()
-{
-    shutdown();
-}
-
-template <typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::runMultithreaded() noexcept
-{
-    m_discoveryThread = std::thread([this] { discoveryLoop(); });
-    m_forwardingThread = std::thread([this] { forwardingLoop(); });
-    m_isRunning.store(true, std::memory_order_relaxed);
-}
-
-template <typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::discoveryLoop() noexcept
-{
-    iox::LogDebug() << "[Iceoryx2DDSGateway] Starting discovery.";
-    m_runDiscoveryLoop.store(true, std::memory_order_relaxed);
-    while (m_runDiscoveryLoop.load(std::memory_order_relaxed))
-    {
-        iox::capro::CaproMessage msg;
-        while (this->getCaProMessage(msg))
-        {
-            discover(msg);
-        }
-        std::this_thread::sleep_until(std::chrono::steady_clock::now()
-                                      + std::chrono::milliseconds(DISCOVERY_PERIOD.milliSeconds<int64_t>()));
-    }
-    iox::LogDebug() << "[Iceoryx2DDSGateway] Stopped discovery.";
-}
-
-template <typename subscriber_t, typename data_writer_t>
 inline void
 Iceoryx2DDSGateway<subscriber_t, data_writer_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
@@ -103,20 +65,6 @@ Iceoryx2DDSGateway<subscriber_t, data_writer_t>::discover(const iox::capro::Capr
 }
 
 template <typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::forwardingLoop() noexcept
-{
-    iox::LogDebug() << "[Iceoryx2DDSGateway] Starting forwarding.";
-    m_runForwardingLoop.store(true, std::memory_order_relaxed);
-    while (m_runForwardingLoop.load(std::memory_order_relaxed))
-    {
-        forward();
-        std::this_thread::sleep_until(std::chrono::steady_clock::now()
-                                      + std::chrono::milliseconds(FORWARDING_PERIOD.milliSeconds<int64_t>()));
-    };
-    iox::LogDebug() << "[Iceoryx2DDSGateway] Stopped forwarding.";
-}
-
-template <typename subscriber_t, typename data_writer_t>
 inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::forward() noexcept
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
@@ -142,23 +90,6 @@ inline uint64_t Iceoryx2DDSGateway<subscriber_t, data_writer_t>::getNumberOfChan
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
     return guardedVector->size();
-}
-
-template <typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::shutdown() noexcept
-{
-    if (m_isRunning.load(std::memory_order_relaxed))
-    {
-        iox::LogDebug() << "[Iceoryx2DDSGateway] Shutting down Posh2DDSGateway.";
-
-        m_runDiscoveryLoop.store(false, std::memory_order_relaxed);
-        m_runForwardingLoop.store(false, std::memory_order_relaxed);
-
-        m_discoveryThread.join();
-        m_forwardingThread.join();
-
-        m_isRunning.store(false, std::memory_order_relaxed);
-    }
 }
 
 } // namespace dds

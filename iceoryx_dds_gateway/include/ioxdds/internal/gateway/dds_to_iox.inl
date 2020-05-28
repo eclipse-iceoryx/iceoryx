@@ -23,30 +23,17 @@ inline DDS2IceoryxGateway<publisher_t, data_reader_t>::~DDS2IceoryxGateway()
 }
 
 template <typename publisher_t, typename data_reader_t>
-inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::runMultithreaded() noexcept
-{
-}
-
-template <typename publisher_t, typename data_reader_t>
-inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::discoveryLoop() noexcept
+inline void
+DDS2IceoryxGateway<publisher_t, data_reader_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
 
 }
 
 template <typename publisher_t, typename data_reader_t>
-inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::forwardingLoop() noexcept
+inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::forward() noexcept
 {
 
 }
-
-template <typename publisher_t, typename data_reader_t>
-inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::shutdown() noexcept
-{
-
-}
-
-// ======================================== Private ======================================== //
-
 
 } // namespace dds
 } // namespace iox
