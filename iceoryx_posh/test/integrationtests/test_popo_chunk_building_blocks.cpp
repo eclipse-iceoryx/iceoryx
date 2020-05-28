@@ -35,11 +35,12 @@ struct DummySample
     uint64_t dummy{42};
 };
 
-static constexpr size_t MEMORY_SIZE = 1024 * 1024;
-uint8_t m_memory[MEMORY_SIZE];
 static constexpr uint32_t NUM_CHUNKS_IN_POOL = 3 * iox::MAX_RECEIVER_QUEUE_CAPACITY;
-static constexpr uint32_t ITERATIONS = 10000;
 static constexpr uint32_t SMALL_CHUNK = 128;
+static constexpr uint32_t CHUNK_META_INFO_SIZE = 256;
+static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
+alignas(64) uint8_t g_memory[MEMORY_SIZE];
+static constexpr uint32_t ITERATIONS = 10000;
 static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
 
 using ChunkDistributorData_t = iox::popo::ChunkDistributorData<MAX_NUMBER_QUEUES, iox::popo::ThreadSafePolicy>;
@@ -86,30 +87,42 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
             /// Add some jitter to make thread breathe
             std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
         }
+        // Signal the next threads we're done
+        m_publisherRun = false;
     }
 
     void forward()
     {
         uint64_t forwardCounter{0};
-        while (m_run)
+        bool finished{false};
+        while (!finished)
         {
             EXPECT_FALSE(m_popper.hasOverflown());
 
-            m_popper.pop().and_then([&](SharedChunk& chunk) {
-                auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
-                // Check if monotonically increasing
-                EXPECT_THAT(dummySample.dummy, Eq(forwardCounter));
-                m_chunkDistributor.deliverToAllStoredQueues(chunk);
-                forwardCounter++;
-            });
+            m_popper.pop()
+                .and_then([&](SharedChunk& chunk) {
+                    auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
+                    // Check if monotonically increasing
+                    EXPECT_THAT(dummySample.dummy, Eq(forwardCounter));
+                    m_chunkDistributor.deliverToAllStoredQueues(chunk);
+                    forwardCounter++;
+                })
+                .or_else([&] {
+                    if (!m_publisherRun.load(std::memory_order_relaxed))
+                    {
+                        finished = true;
+                    }
+                });
         }
+        // Signal the next threads we're done
+        m_forwarderRun = false;
     }
 
     void subscribe()
     {
         bool finished{false};
 
-        while ((m_receiveCounter < ITERATIONS) && !finished)
+        while (!finished)
         {
             EXPECT_FALSE(m_chunkReceiver.hasOverflown());
 
@@ -124,7 +137,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                         m_receiveCounter++;
                         m_chunkReceiver.release(chunkHeader);
                     }
-                    else if (m_run == false)
+                    else if (!m_forwarderRun.load(std::memory_order_relaxed))
                     {
                         finished = true;
                     }
@@ -138,10 +151,11 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
     uint64_t m_sendCounter{0};
     uint64_t m_receiveCounter{0};
-    std::atomic<bool> m_run{true};
+    std::atomic<bool> m_publisherRun{true};
+    std::atomic<bool> m_forwarderRun{true};
 
     // Memory objects
-    Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    Allocator m_memoryAllocator{g_memory, MEMORY_SIZE};
     MePooConfig m_mempoolConfig;
     MemoryManager m_memoryManager;
 
@@ -173,17 +187,14 @@ TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)
         publishingThread.join();
     }
 
-    // Signal the other threads we're done
-    m_run = false;
+    if (forwardingThread.joinable())
+    {
+        forwardingThread.join();
+    }
 
     if (subscribingThread.joinable())
     {
         subscribingThread.join();
-    }
-
-    if (forwardingThread.joinable())
-    {
-        forwardingThread.join();
     }
 
     EXPECT_EQ(m_sendCounter, m_receiveCounter);

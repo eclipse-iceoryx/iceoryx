@@ -56,7 +56,7 @@ cxx::optional<mepoo::SharedChunk> ChunkQueuePopper::pop() noexcept
 
 bool ChunkQueuePopper::hasOverflown() noexcept
 {
-    if(getMembers()->m_queueHasOverflown)
+    if (getMembers()->m_queueHasOverflown.load(std::memory_order_relaxed))
     {
         getMembers()->m_queueHasOverflown = false;
         return true;
