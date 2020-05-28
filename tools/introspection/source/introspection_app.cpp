@@ -154,8 +154,8 @@ void IntrospectionApp::initTerminal()
     init_pair(static_cast<uint8_t>(ColorPairs::whiteOnRed), COLOR_WHITE, COLOR_RED);
 
     // The pad should be big enough to hold all introspection data
-    constexpr uint32_t padLines = 200u;
-    constexpr uint32_t padCols = 200u;
+    constexpr uint32_t padLines = 10000u; // we support up to 3000 ports, so this must be quite high
+    constexpr uint32_t padCols = 1000u;
     pad = newpad(padLines, padCols);
 
     keypad(pad, TRUE);
