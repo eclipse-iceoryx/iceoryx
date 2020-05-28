@@ -17,47 +17,49 @@ namespace dds{
 /// channel.
 /// For example: An Iceoryx subscriber and its corresponding DDS data writer, which communicate eachother to form
 ///              an outbound communication channel.
+/// These entites are conceptualized as channel "Terminals".
 ///
-/// The structure holds pointers to the instances of the coupled entities.
-/// The entites can be created and managed externally, in which case the structure only serves as a means of coupling
+/// The structure holds pointers to the instances of the terminals.
+/// The terminals can be created and managed externally, in which case the structure only serves as a means of coupling
 /// the two.
-/// This can be achieved by simply calling the constructor with pointers to the instances.
+/// This can be achieved by simply calling the constructor with pointers to them.
 ///
-/// Alternatively, the class can manage the entities internally in a static object pool, automatically
+/// Alternatively, the class can manage the terminals internally in a static object pool, automatically
 /// cleaning them up when the channel is discarded.
 /// This can be achieved via the Channel::create method.
 ///
-template <typename IoxInterface, typename DDSInterface>
+template <typename IoxTerminal, typename DDSTerminal>
 class Channel
 {
-    using IoxInterfacePtr = std::shared_ptr<IoxInterface>;
-    using IoxInterfacePool = iox::cxx::ObjectPool<IoxInterface, MAX_CHANNEL_NUMBER>;
-    using DDSInterfacePtr = std::shared_ptr<DDSInterface>;
-    using DDSInterfacePool = iox::cxx::ObjectPool<DDSInterface, MAX_CHANNEL_NUMBER>;
+    using IoxTerminalPtr = std::shared_ptr<IoxTerminal>;
+    using IoxTerminalPool = iox::cxx::ObjectPool<IoxTerminal, MAX_CHANNEL_NUMBER>;
+    using DDSTerminalPtr = std::shared_ptr<DDSTerminal>;
+    using DDSTerminalPool = iox::cxx::ObjectPool<DDSTerminal, MAX_CHANNEL_NUMBER>;
 
 public:
 
     Channel(const iox::capro::ServiceDescription& service,
-            const IoxInterfacePtr ioxInterface,
-            const DDSInterfacePtr ddsInterface) noexcept;
+            const IoxTerminalPtr ioxInterface,
+            const DDSTerminalPtr ddsInterface) noexcept;
 
     static Channel create(const iox::capro::ServiceDescription& service) noexcept;
 
     iox::capro::ServiceDescription getService() const noexcept;
-    IoxInterfacePtr getIceoryInterface() const noexcept;
-    DDSInterfacePtr getDDSInterface() const noexcept;
+    IoxTerminalPtr getIceoryxTerminal() const noexcept;
+    DDSTerminalPtr getDDSTerminal() const noexcept;
 
 private:
 
-    static IoxInterfacePool s_ioxInterfacePool;
-    static DDSInterfacePool s_ddsInterfacePool;
+    static IoxTerminalPool s_ioxTerminals;
+    static DDSTerminalPool s_ddsTerminals;
 
     iox::capro::ServiceDescription m_service;
-    IoxInterfacePtr m_ioxInterface;
-    DDSInterfacePtr m_ddsInterface;
+    IoxTerminalPtr m_ioxTerminal;
+    DDSTerminalPtr m_ddsTerminal;
 
 };
 
 } // namespace dds
 } // namespace iox
 
+#include "ioxdds/internal/gateway/channel.inl"
