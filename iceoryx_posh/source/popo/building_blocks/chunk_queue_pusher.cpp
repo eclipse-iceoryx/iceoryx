@@ -43,6 +43,8 @@ cxx::expected<ChunkQueueError> ChunkQueuePusher::push(mepoo::SharedChunk chunk) 
 
     if (pushRet.has_error())
     {
+        // Inform the ChunkQueuePopper that our push failed
+        getMembers()->m_queueHasOverflown.store(true, std::memory_order_relaxed);
         return cxx::error<ChunkQueueError>(ChunkQueueError::QUEUE_OVERFLOW);
     }
     else
