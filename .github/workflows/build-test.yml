@@ -63,4 +63,9 @@ jobs:
       - name: Build Tests
         run: ./tools/iceoryx_build_test.sh skip-introspection build-test
 
+      - name: Run Tests
+        run: |
+          cd build
+          ../tools/run_mac_tests.sh        
+
       
