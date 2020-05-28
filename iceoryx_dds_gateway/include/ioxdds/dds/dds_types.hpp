@@ -25,6 +25,10 @@ namespace iox
 {
 namespace dds
 {
+
+// Fixed strings
+using IdString = iox::cxx::string<100>;
+
 // DDS implementation defined with compiler flags
 #ifdef USE_CYCLONE_DDS
 using data_reader_t = iox::dds::CycloneDataReader;
