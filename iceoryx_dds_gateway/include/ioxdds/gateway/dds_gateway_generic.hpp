@@ -25,8 +25,6 @@ protected:
     channel_t setupChannel(const iox::capro::ServiceDescription& service) noexcept;
     void discardChannel(const iox::capro::ServiceDescription& service) noexcept;
 
-private:
-
     ChannelFactory m_channelFactory;
     ConcurrentChannelVector m_channels;
 

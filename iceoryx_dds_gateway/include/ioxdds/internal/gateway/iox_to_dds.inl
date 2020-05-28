@@ -16,7 +16,6 @@
 #include <thread>
 
 #include <iceoryx_posh/mepoo/chunk_header.hpp>
-#include <iceoryx_utils/cxx/string.hpp>
 
 #include "ioxdds/internal/log/logging.hpp"
 
@@ -25,44 +24,35 @@ namespace iox
 namespace dds
 {
 // ======================================== Public ======================================== //
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::Iceoryx2DDSGateway()
-    : gateway_t(iox::capro::Interfaces::DDS)
+template <typename subscriber_t, typename data_writer_t>
+inline Iceoryx2DDSGateway<subscriber_t, data_writer_t>::Iceoryx2DDSGateway()
 {
-    m_channelFactory = OutputChannel<subscriber_t, data_writer_t>::create;
 }
 
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::Iceoryx2DDSGateway(ChannelFactory channelFactory)
-    : gateway_t(iox::capro::Interfaces::DDS)
-{
-    m_channelFactory = channelFactory;
-}
 
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::~Iceoryx2DDSGateway()
+template <typename subscriber_t, typename data_writer_t>
+inline Iceoryx2DDSGateway<subscriber_t, data_writer_t>::~Iceoryx2DDSGateway()
 {
     shutdown();
-    m_channels->clear();
 }
 
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::runMultithreaded() noexcept
+template <typename subscriber_t, typename data_writer_t>
+inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::runMultithreaded() noexcept
 {
     m_discoveryThread = std::thread([this] { discoveryLoop(); });
     m_forwardingThread = std::thread([this] { forwardingLoop(); });
     m_isRunning.store(true, std::memory_order_relaxed);
 }
 
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discoveryLoop() noexcept
+template <typename subscriber_t, typename data_writer_t>
+inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::discoveryLoop() noexcept
 {
     iox::LogDebug() << "[Iceoryx2DDSGateway] Starting discovery.";
     m_runDiscoveryLoop.store(true, std::memory_order_relaxed);
     while (m_runDiscoveryLoop.load(std::memory_order_relaxed))
     {
         iox::capro::CaproMessage msg;
-        while (static_cast<gateway_t*>(this)->getCaProMessage(msg))
+        while (this->getCaProMessage(msg))
         {
             discover(msg);
         }
@@ -72,9 +62,9 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover
     iox::LogDebug() << "[Iceoryx2DDSGateway] Stopped discovery.";
 }
 
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
+template <typename subscriber_t, typename data_writer_t>
 inline void
-Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover(const iox::capro::CaproMessage& msg) noexcept
+Iceoryx2DDSGateway<subscriber_t, data_writer_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
     iox::LogDebug() << "[Iceoryx2DDSGateway] <CaproMessage> "
                     << iox::capro::CaproMessageTypeString[static_cast<uint8_t>(msg.m_type)]
@@ -95,14 +85,14 @@ Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover(const iox::
     {
     case iox::capro::CaproMessageType::OFFER:
     {
-        auto channel = setupChannel(msg.m_serviceDescription);
-        channel.getSubscriber()->subscribe(SUBSCRIBER_CACHE_SIZE);
-        channel.getDataWriter()->connect();
+        auto channel = this->setupChannel(msg.m_serviceDescription);
+        channel.getIceoryxTerminal()->subscribe(SUBSCRIBER_CACHE_SIZE);
+        channel.getDDSTerminal()->connect();
         break;
     }
     case iox::capro::CaproMessageType::STOP_OFFER:
     {
-        discardChannel(msg.m_serviceDescription);
+        this->discardChannel(msg.m_serviceDescription);
         break;
     }
     default:
@@ -112,8 +102,8 @@ Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discover(const iox::
     }
 }
 
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forwardingLoop() noexcept
+template <typename subscriber_t, typename data_writer_t>
+inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::forwardingLoop() noexcept
 {
     iox::LogDebug() << "[Iceoryx2DDSGateway] Starting forwarding.";
     m_runForwardingLoop.store(true, std::memory_order_relaxed);
@@ -126,14 +116,14 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forwardi
     iox::LogDebug() << "[Iceoryx2DDSGateway] Stopped forwarding.";
 }
 
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward() noexcept
+template <typename subscriber_t, typename data_writer_t>
+inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::forward() noexcept
 {
-    auto guardedVector = m_channels.GetScopeGuard();
+    auto guardedVector = this->m_channels.GetScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); channel++)
     {
-        auto subscriber = channel->getSubscriber();
-        auto writer = channel->getDataWriter();
+        auto subscriber = channel->getIceoryxTerminal();
+        auto writer = channel->getDDSTerminal();
         if (subscriber->hasNewChunks())
         {
             const iox::mepoo::ChunkHeader* header;
@@ -147,15 +137,15 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward(
     }
 }
 
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline uint64_t Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::getNumberOfChannels() const noexcept
+template <typename subscriber_t, typename data_writer_t>
+inline uint64_t Iceoryx2DDSGateway<subscriber_t, data_writer_t>::getNumberOfChannels() const noexcept
 {
-    auto guardedVector = m_channels.GetScopeGuard();
+    auto guardedVector = this->m_channels.GetScopeGuard();
     return guardedVector->size();
 }
 
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::shutdown() noexcept
+template <typename subscriber_t, typename data_writer_t>
+inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::shutdown() noexcept
 {
     if (m_isRunning.load(std::memory_order_relaxed))
     {
@@ -168,37 +158,6 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::shutdown
         m_forwardingThread.join();
 
         m_isRunning.store(false, std::memory_order_relaxed);
-    }
-}
-
-// ======================================== Private ======================================== //
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-OutputChannel<subscriber_t, data_writer_t> Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::setupChannel(
-    const iox::capro::ServiceDescription& service) noexcept
-{
-    auto channel = m_channelFactory(service);
-    iox::LogDebug() << "[Iceoryx2DDSGateway] Channel set up for service: "
-                    << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
-                    << service.getEventIDString();
-    m_channels->push_back(channel);
-    return channel;
-}
-
-template <typename gateway_t, typename subscriber_t, typename data_writer_t>
-void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discardChannel(
-    const iox::capro::ServiceDescription& service) noexcept
-{
-    auto guardedVector = m_channels.GetScopeGuard();
-    auto channel = std::find_if(
-        guardedVector->begin(), guardedVector->end(), [&service](const OutputChannel<subscriber_t, data_writer_t>& channel) {
-            return channel.getService() == service;
-        });
-    if (channel != guardedVector->end())
-    {
-        guardedVector->erase(channel);
-        iox::LogDebug() << "[Iceoryx2DDSGateway] Channel taken down for service: "
-                        << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
-                        << service.getEventIDString();
     }
 }
 
