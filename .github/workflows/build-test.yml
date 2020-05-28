@@ -5,7 +5,7 @@ name: Build & Test
 # Triggers the workflow on push or pull request events but only for the master branch
 on:
   push:
-    branches: [ master, iox-#32-* ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -32,8 +32,10 @@ jobs:
       - name: Build Tests
         run: "./tools/iceoryx_build_test.sh build-test"  
 
-      - name: Execute Tests
-        run: "./tools/iceoryx_build_test.sh test"  
+      - name: Run Tests
+        run: |
+          cd build
+          ../tools/run_all_tests.sh
         
       - name : Build with clang
         run: |
@@ -47,11 +49,11 @@ jobs:
      
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Install iceoryx dependencies
-        # Softwares installed in macos-10.15 instance
-        # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md
-        # May be this contains some dependencies required by iceoryx introspection
-        run:  brew install gsl
+      # - name: Install iceoryx dependencies
+      #   # Softwares installed in macos-10.15 instance
+      #   # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md
+      #   # May be this contains some dependencies required by iceoryx introspection
+      #   run:  brew install gsl
       
       - name : Checkout
         uses: actions/checkout@v2
@@ -62,10 +64,6 @@ jobs:
       
       - name: Build Tests
         run: ./tools/iceoryx_build_test.sh skip-introspection build-test
-
-      - name: Run Tests
-        run: |
-          cd build
-          ../tools/run_mac_tests.sh        
+      
 
       
