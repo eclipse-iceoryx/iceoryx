@@ -54,6 +54,16 @@ cxx::optional<mepoo::SharedChunk> ChunkQueuePopper::pop() noexcept
     }
 }
 
+bool ChunkQueuePopper::hasOverflown() noexcept
+{
+    if(getMembers()->m_queueHasOverflown)
+    {
+        getMembers()->m_queueHasOverflown = false;
+        return true;
+    }
+    return false;
+}
+
 bool ChunkQueuePopper::empty() noexcept
 {
     return getMembers()->m_queue.empty();

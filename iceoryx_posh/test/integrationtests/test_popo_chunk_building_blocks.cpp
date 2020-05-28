@@ -37,7 +37,7 @@ struct DummySample
 
 static constexpr size_t MEMORY_SIZE = 1024 * 1024;
 uint8_t m_memory[MEMORY_SIZE];
-static constexpr uint32_t NUM_CHUNKS_IN_POOL = 500;
+static constexpr uint32_t NUM_CHUNKS_IN_POOL = 3 * iox::MAX_RECEIVER_QUEUE_CAPACITY;
 static constexpr uint32_t ITERATIONS = 10000;
 static constexpr uint32_t SMALL_CHUNK = 128;
 static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
@@ -76,10 +76,6 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->dummy = i;
                     m_chunkSender.send(chunkHeader);
-
-                    /// @todo for debugging only, to be removed
-                    chunkHeaderPointerPublisherVector.push_back(sample);
-
                     m_sendCounter++;
                 })
                 .on_error([]() {
@@ -95,22 +91,17 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     void forward()
     {
         uint64_t forwardCounter{0};
-
         while (m_run)
         {
+            EXPECT_FALSE(m_popper.hasOverflown());
+
             m_popper.pop().and_then([&](SharedChunk& chunk) {
                 auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
                 // Check if monotonically increasing
                 EXPECT_THAT(dummySample.dummy, Eq(forwardCounter));
-
-                /// @todo for debugging only, to be removed
-                chunkHeaderPointerForwardingVector.push_back(chunk.getPayload());
-
                 m_chunkDistributor.deliverToAllStoredQueues(chunk);
                 forwardCounter++;
             });
-            /// Add some jitter to make thread breathe
-            std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
         }
     }
 
@@ -120,6 +111,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
         while ((m_receiveCounter < ITERATIONS) && !finished)
         {
+            EXPECT_FALSE(m_chunkReceiver.hasOverflown());
+
             m_chunkReceiver.get()
                 .on_success([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
                     if (maybeChunkHeader.has_value())
@@ -128,13 +121,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                         auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
                         // Check if monotonically increasing
                         EXPECT_THAT(dummySample.dummy, Eq(m_receiveCounter));
-
-                        /// @todo for debugging only, to be removed
-                        chunkHeaderPointerSubscriberVector.push_back(chunkHeader->payload());
-
                         m_receiveCounter++;
-                        /// Add some jitter to make thread breathe
-                        std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
                         m_chunkReceiver.release(chunkHeader);
                     }
                     else if (m_run == false)
@@ -165,20 +152,17 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     // Objects used by forwarding thread
     ChunkDistributorData_t m_chunkDistributorData;
     ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
-    ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData m_chunkQueueData{
+        iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
     ChunkQueuePopper m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
-    ChunkReceiverData m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkReceiverData m_chunkReceiverData{
+        iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
     ChunkReceiver m_chunkReceiver{&m_chunkReceiverData};
-
-    /// @todo for debugging only, to be removed
-    std::vector<void*> chunkHeaderPointerPublisherVector;
-    std::vector<void*> chunkHeaderPointerForwardingVector;
-    std::vector<void*> chunkHeaderPointerSubscriberVector;
 };
 
-TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreads)
+TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)
 {
     std::thread subscribingThread(&ChunkBuildingBlocks_IntegrationTest::subscribe, this);
     std::thread forwardingThread(&ChunkBuildingBlocks_IntegrationTest::forward, this);
