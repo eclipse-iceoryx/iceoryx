@@ -20,7 +20,6 @@
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 namespace iox
 {
