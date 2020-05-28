@@ -95,6 +95,9 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     {
         uint64_t forwardCounter{0};
         bool finished{false};
+        // this is to prevent a race condition on thread shutdown; there must be two consecutive empty pops after the
+        // publish thread finished
+        bool newChunkReceivedInLastIteration{true};
         while (!finished)
         {
             EXPECT_FALSE(m_popper.hasOverflown());
@@ -106,11 +109,19 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                     EXPECT_THAT(dummySample.dummy, Eq(forwardCounter));
                     m_chunkDistributor.deliverToAllStoredQueues(chunk);
                     forwardCounter++;
+                    newChunkReceivedInLastIteration = true;
                 })
                 .or_else([&] {
                     if (!m_publisherRun.load(std::memory_order_relaxed))
                     {
-                        finished = true;
+                        if (newChunkReceivedInLastIteration)
+                        {
+                            newChunkReceivedInLastIteration = false;
+                        }
+                        else
+                        {
+                            finished = true;
+                        }
                     }
                 });
         }
@@ -121,6 +132,9 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     void subscribe()
     {
         bool finished{false};
+        // this is to prevent a race condition on thread shutdown; there must be two consecutive empty pops after the
+        // forward thread finished
+        bool newChunkReceivedInLastIteration{true};
 
         while (!finished)
         {
@@ -136,10 +150,18 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                         EXPECT_THAT(dummySample.dummy, Eq(m_receiveCounter));
                         m_receiveCounter++;
                         m_chunkReceiver.release(chunkHeader);
+                        newChunkReceivedInLastIteration = true;
                     }
                     else if (!m_forwarderRun.load(std::memory_order_relaxed))
                     {
-                        finished = true;
+                        if (newChunkReceivedInLastIteration)
+                        {
+                            newChunkReceivedInLastIteration = false;
+                        }
+                        else
+                        {
+                            finished = true;
+                        }
                     }
                 })
                 .on_error([]() {
