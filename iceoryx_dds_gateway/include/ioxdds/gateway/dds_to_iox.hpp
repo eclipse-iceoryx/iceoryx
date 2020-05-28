@@ -14,20 +14,10 @@ template <typename publisher_t = iox::popo::Publisher,
           typename data_reader_t = iox::dds::data_reader_t>
 class DDS2IceoryxGateway : public iox::dds::DDSGatewayGeneric<iox::dds::Channel<publisher_t, data_reader_t>>
 {
-
 public:
     DDS2IceoryxGateway();
-    ~DDS2IceoryxGateway();
-
-    DDS2IceoryxGateway(const DDS2IceoryxGateway&) = delete;
-    DDS2IceoryxGateway& operator=(const DDS2IceoryxGateway&) = delete;
-    DDS2IceoryxGateway(DDS2IceoryxGateway&&) = delete;
-    DDS2IceoryxGateway& operator=(DDS2IceoryxGateway&&) = delete;
-
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward() noexcept;
-
-
 };
 
 } // namespace dds

@@ -21,8 +21,12 @@ class DDSGatewayGeneric : public iox::popo::GatewayGeneric
     using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 
 public:
-
     virtual ~DDSGatewayGeneric();
+
+    DDSGatewayGeneric(const DDSGatewayGeneric&) = delete;
+    DDSGatewayGeneric& operator=(const DDSGatewayGeneric&) = delete;
+    DDSGatewayGeneric(DDSGatewayGeneric&&) = delete;
+    DDSGatewayGeneric& operator=(DDSGatewayGeneric&&) = delete;
 
     void runMultithreaded() noexcept;
     void shutdown() noexcept;
@@ -30,8 +34,9 @@ public:
     virtual void discover(const iox::capro::CaproMessage& msg) noexcept = 0;
     virtual void forward() noexcept = 0;
 
-protected:
+    uint64_t getNumberOfChannels() const noexcept;
 
+protected:
     DDSGatewayGeneric();
 
     // These are made available to child classes for use in discover or forward methods.

@@ -48,8 +48,10 @@ Iceoryx2DDSGateway<subscriber_t, data_writer_t>::discover(const iox::capro::Capr
     case iox::capro::CaproMessageType::OFFER:
     {
         auto channel = this->setupChannel(msg.m_serviceDescription);
-        channel.getIceoryxTerminal()->subscribe(SUBSCRIBER_CACHE_SIZE);
-        channel.getDDSTerminal()->connect();
+        auto subscriber = channel.getIceoryxTerminal();
+        auto dataWriter = channel.getDDSTerminal();
+        subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
+        dataWriter->connect();
         break;
     }
     case iox::capro::CaproMessageType::STOP_OFFER:
@@ -71,25 +73,18 @@ inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::forward() noexcept
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); channel++)
     {
         auto subscriber = channel->getIceoryxTerminal();
-        auto writer = channel->getDDSTerminal();
+        auto dataWriter = channel->getDDSTerminal();
         if (subscriber->hasNewChunks())
         {
             const iox::mepoo::ChunkHeader* header;
             subscriber->getChunk(&header);
             if (header->m_info.m_payloadSize > 0)
             {
-                writer->write(static_cast<uint8_t*>(header->payload()), header->m_info.m_payloadSize);
+                dataWriter->write(static_cast<uint8_t*>(header->payload()), header->m_info.m_payloadSize);
             }
             subscriber->releaseChunk(header);
         }
     }
-}
-
-template <typename subscriber_t, typename data_writer_t>
-inline uint64_t Iceoryx2DDSGateway<subscriber_t, data_writer_t>::getNumberOfChannels() const noexcept
-{
-    auto guardedVector = this->m_channels.GetScopeGuard();
-    return guardedVector->size();
 }
 
 } // namespace dds

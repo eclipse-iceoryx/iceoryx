@@ -43,37 +43,10 @@ template <typename subscriber_t = iox::popo::Subscriber,
           typename data_writer_t = iox::dds::data_writer_t>
 class Iceoryx2DDSGateway : public iox::dds::DDSGatewayGeneric<iox::dds::Channel<subscriber_t, data_writer_t>>
 {
-
   public:
     Iceoryx2DDSGateway() = default;
-    ~Iceoryx2DDSGateway() = default;
-
-    Iceoryx2DDSGateway(const Iceoryx2DDSGateway&) = delete;
-    Iceoryx2DDSGateway& operator=(const Iceoryx2DDSGateway&) = delete;
-    Iceoryx2DDSGateway(Iceoryx2DDSGateway&&) = delete;
-    Iceoryx2DDSGateway& operator=(Iceoryx2DDSGateway&&) = delete;
-
-    ///
-    /// @brief discover Run discovery logic for the given CaproMessage.
-    /// Used for manual gateway management.
-    ///
-    /// @param msg
-    ///
     void discover(const iox::capro::CaproMessage& msg) noexcept;
-
-    ///
-    /// @brief forward Forward newly received data to DDS network.
-    /// Used for manual gateway management.
-    ///
-    ///
     void forward() noexcept;
-
-    ///
-    /// @brief getNumberOfChannels Get the number of active channels.
-    /// @return The number of active channels.
-    ///
-    uint64_t getNumberOfChannels() const noexcept;
-
 };
 
 } // dds
