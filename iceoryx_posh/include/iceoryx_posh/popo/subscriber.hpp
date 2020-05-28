@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "ac3log/simplelogger.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
