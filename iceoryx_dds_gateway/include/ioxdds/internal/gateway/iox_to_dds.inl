@@ -19,14 +19,23 @@
 
 #include "ioxdds/internal/log/logging.hpp"
 
+#include "ioxdds/gateway/iox_to_dds.hpp"
+
 namespace iox
 {
 namespace dds
 {
 // ======================================== Public ======================================== //
-template <typename subscriber_t, typename data_writer_t>
+template <typename channel_t>
+inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway() : iox::dds::DDSGatewayGeneric<channel_t>()
+{
+    // Initialize pre-configured services
+    this->loadConfiguration();
+}
+
+template <typename channel_t>
 inline void
-Iceoryx2DDSGateway<subscriber_t, data_writer_t>::discover(const iox::capro::CaproMessage& msg) noexcept
+Iceoryx2DDSGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
     iox::LogDebug() << "[Iceoryx2DDSGateway] <CaproMessage> "
                     << iox::capro::CaproMessageTypeString[static_cast<uint8_t>(msg.m_type)]
@@ -47,12 +56,22 @@ Iceoryx2DDSGateway<subscriber_t, data_writer_t>::discover(const iox::capro::Capr
     {
     case iox::capro::CaproMessageType::OFFER:
     {
-        auto channel = this->setupChannel(msg.m_serviceDescription);
-        auto subscriber = channel.getIceoryxTerminal();
-        auto dataWriter = channel.getDDSTerminal();
-        subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
-        dataWriter->connect();
-        break;
+//        // Check if channel already exists using a predicate that checks the channel service desription.
+//        auto guardedVector = this->m_channels.GetScopeGuard();
+//        if(std::find_if(
+//                guardedVector->begin(),
+//                guardedVector->end(),
+//                [&msg](const Channel<subscriber_t, data_writer_t>& channel) {
+//                    return channel.getService() == msg.m_serviceDescription;
+//                }) == guardedVector->end())
+//        {
+//            auto channel = this->setupChannel(msg.m_serviceDescription);
+//            auto subscriber = channel.getIceoryxTerminal();
+//            auto dataWriter = channel.getDDSTerminal();
+//            subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
+//            dataWriter->connect();
+//            break;
+//        }
     }
     case iox::capro::CaproMessageType::STOP_OFFER:
     {
@@ -66,8 +85,8 @@ Iceoryx2DDSGateway<subscriber_t, data_writer_t>::discover(const iox::capro::Capr
     }
 }
 
-template <typename subscriber_t, typename data_writer_t>
-inline void Iceoryx2DDSGateway<subscriber_t, data_writer_t>::forward() noexcept
+template <typename channel_t>
+inline void Iceoryx2DDSGateway<channel_t>::forward() noexcept
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); channel++)

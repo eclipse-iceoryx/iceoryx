@@ -39,12 +39,11 @@ namespace dds
 ///
 /// Forwards data published in a local posh runtime to an attached DDS network.
 ///
-template <typename subscriber_t = iox::popo::Subscriber,
-          typename data_writer_t = iox::dds::data_writer_t>
-class Iceoryx2DDSGateway : public iox::dds::DDSGatewayGeneric<iox::dds::Channel<subscriber_t, data_writer_t>>
+template <typename channel_t = iox::dds::Channel<iox::popo::Subscriber, iox::dds::data_writer_t>>
+class Iceoryx2DDSGateway : public iox::dds::DDSGatewayGeneric<channel_t>
 {
   public:
-    Iceoryx2DDSGateway() = default;
+    Iceoryx2DDSGateway();
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward() noexcept;
 };

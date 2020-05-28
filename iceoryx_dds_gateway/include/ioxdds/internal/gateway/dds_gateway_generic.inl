@@ -51,6 +51,7 @@ inline uint64_t iox::dds::DDSGatewayGeneric<channel_t>::getNumberOfChannels() co
 template<typename channel_t>
 inline iox::dds::DDSGatewayGeneric<channel_t>::DDSGatewayGeneric() : iox::popo::GatewayGeneric(iox::capro::Interfaces::DDS)
 {
+     LogDebug() << "[DDSGatewayGeneric] Using default channel factory.";
     m_channelFactory = channel_t::create;
 }
 
@@ -66,8 +67,9 @@ inline void iox::dds::DDSGatewayGeneric<channel_t>::loadConfiguration() noexcept
     // Search for local config.
 
 
-    // Setup data readers and publishers
-    auto configuredTopics = config->get_table_array("services");
+    // Setup data readers and publishers                  
+    auto configuredTopics = config->get_table_array("services");  
+    LogDebug() << "[DDSGatewayGeneric] Setting up channels for pre-configured services.";
     for(const auto& topic : *configuredTopics)
     {
         auto service = topic->get_as<std::string>("service").value_or("");
@@ -80,9 +82,6 @@ inline void iox::dds::DDSGatewayGeneric<channel_t>::loadConfiguration() noexcept
                          IdString(iox::cxx::TruncateToCapacity, event.c_str())
                          )
                      );
-
-        LogDebug() << "[DDSGatewayGeneric] Loaded topic from file: " + service + "/" + instance + "/" + event;
-
     }
 }
 

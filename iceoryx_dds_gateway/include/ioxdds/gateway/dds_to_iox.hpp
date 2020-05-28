@@ -10,9 +10,8 @@
 namespace iox {
 namespace dds {
 
-template <typename publisher_t = iox::popo::Publisher,
-          typename data_reader_t = iox::dds::data_reader_t>
-class DDS2IceoryxGateway : public iox::dds::DDSGatewayGeneric<iox::dds::Channel<publisher_t, data_reader_t>>
+template <typename channel_t = iox::dds::Channel<iox::popo::Publisher, iox::dds::data_reader_t>>
+class DDS2IceoryxGateway : public iox::dds::DDSGatewayGeneric<channel_t>
 {
 public:
     DDS2IceoryxGateway();

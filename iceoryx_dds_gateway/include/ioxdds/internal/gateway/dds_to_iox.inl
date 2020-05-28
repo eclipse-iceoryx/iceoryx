@@ -10,22 +10,22 @@
 namespace iox {
 namespace dds {
 
-template <typename publisher_t, typename data_reader_t>
-inline DDS2IceoryxGateway<publisher_t, data_reader_t>::DDS2IceoryxGateway()
+template <typename channel_t>
+inline DDS2IceoryxGateway<channel_t>::DDS2IceoryxGateway()
+    : iox::dds::DDSGatewayGeneric<channel_t>()
 {
     // Initialize pre-configured services
     this->loadConfiguration();
 }
 
-template <typename publisher_t, typename data_reader_t>
-inline void
-DDS2IceoryxGateway<publisher_t, data_reader_t>::discover(const iox::capro::CaproMessage& msg) noexcept
+template <typename channel_t>
+inline void DDS2IceoryxGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
 
 }
 
-template <typename publisher_t, typename data_reader_t>
-inline void DDS2IceoryxGateway<publisher_t, data_reader_t>::forward() noexcept
+template <typename channel_t>
+inline void DDS2IceoryxGateway<channel_t>::forward() noexcept
 {
 
 }
