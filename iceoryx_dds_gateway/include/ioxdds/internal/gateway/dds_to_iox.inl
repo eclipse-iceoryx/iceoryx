@@ -15,7 +15,6 @@ inline DDS2IceoryxGateway<publisher_t, data_reader_t>::DDS2IceoryxGateway()
 {
     // Initialize pre-configured services
     this->loadConfiguration();
-
 }
 
 template <typename publisher_t, typename data_reader_t>

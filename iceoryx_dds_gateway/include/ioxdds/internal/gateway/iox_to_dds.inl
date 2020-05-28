@@ -129,8 +129,6 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forwardi
 template <typename gateway_t, typename subscriber_t, typename data_writer_t>
 inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward() noexcept
 {
-    uint64_t index{0};
-
     auto guardedVector = m_channels.GetScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); channel++)
     {
@@ -146,7 +144,6 @@ inline void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::forward(
             }
             subscriber->releaseChunk(header);
         }
-        index++;
     }
 }
 
