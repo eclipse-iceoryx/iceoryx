@@ -139,7 +139,7 @@ inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Ver
 template <class ValueType, uint32_t CapacityValue>
 bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueOut, ValueType& f_paramOut_r) noexcept
 {
-    constexpr bool OVERFLOW{false};
+    constexpr bool SOFI_OVERFLOW{false};
 
     uint64_t currentWritePosition = m_writePosition.load(std::memory_order_relaxed);
     uint64_t nextWritePosition = currentWritePosition + 1U;
@@ -152,7 +152,7 @@ bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueOut, ValueType& 
     // check if there is a free position for the next push
     if (nextWritePosition < currentReadPosition + m_size)
     {
-        return !OVERFLOW;
+        return !SOFI_OVERFLOW;
     }
 
     // this is an overflow situation, which means that the next push has no free position, therefore the oldest value
@@ -178,10 +178,10 @@ bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueOut, ValueType& 
             currentReadPosition, nextReadPosition, std::memory_order_acq_rel, std::memory_order_relaxed))
     {
         std::memcpy(&f_paramOut_r, &m_data[static_cast<int32_t>(currentReadPosition) % m_size], sizeof(ValueType));
-        return OVERFLOW;
+        return SOFI_OVERFLOW;
     }
 
-    return !OVERFLOW;
+    return !SOFI_OVERFLOW;
 }
 
 
