@@ -100,7 +100,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         bool newChunkReceivedInLastIteration{true};
         while (!finished)
         {
-            EXPECT_FALSE(m_popper.hasOverflown());
+            ASSERT_FALSE(m_popper.hasOverflown());
 
             m_popper.pop()
                 .and_then([&](SharedChunk& chunk) {
@@ -138,7 +138,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
         while (!finished)
         {
-            EXPECT_FALSE(m_chunkReceiver.hasOverflown());
+            ASSERT_FALSE(m_chunkReceiver.hasOverflown());
 
             m_chunkReceiver.get()
                 .on_success([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {

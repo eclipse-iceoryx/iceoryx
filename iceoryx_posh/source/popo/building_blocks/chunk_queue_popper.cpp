@@ -58,7 +58,7 @@ bool ChunkQueuePopper::hasOverflown() noexcept
 {
     if (getMembers()->m_queueHasOverflown.load(std::memory_order_relaxed))
     {
-        getMembers()->m_queueHasOverflown = false;
+        getMembers()->m_queueHasOverflown.store(false, std::memory_order_relaxed);
         return true;
     }
     return false;
