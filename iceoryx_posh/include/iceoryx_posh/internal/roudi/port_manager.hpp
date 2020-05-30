@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include "ac3log/simplelogger.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"

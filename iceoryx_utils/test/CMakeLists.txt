@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
-project(test_iceoryx_posh VERSION ${test_iceoryx_posh})
+set(test_iceoryx_utils_VERSION 0)
+project(test_iceoryx_utils VERSION ${test_iceoryx_utils_VERSION})
 
 find_package(Threads REQUIRED)
 

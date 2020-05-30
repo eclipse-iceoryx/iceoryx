@@ -94,12 +94,7 @@ class CUnitTestContainerSoFi : public ::testing::Test
      */
     void checkMultiOverflow(const std::string& scope, int serNumStart);
 
-    enum
-    {
-        TEST_SOFI_CAPACITY = 10,
-        TEST_SOFI_FULL = TEST_SOFI_CAPACITY + 1 // SoFi has an internal capacity with two more items than the specified
-                                                // one; the write position must always point to an empty position
-    };
+    static constexpr uint64_t TEST_SOFI_CAPACITY = 10;
     iox::concurrent::SoFi<int, TEST_SOFI_CAPACITY> m_sofi;
 };
 
@@ -179,7 +174,7 @@ void CUnitTestContainerSoFi::checkCapacity(const std::string& scope, int serNumS
     SCOPED_TRACE(scope); // just a helper to trace the failure when subroutines are used
 
     // fill the SoFi
-    int valIn = pushSome(serNumStart, TEST_SOFI_FULL); // TEST_SOFI_FULL is SoFi::SOFI_SIZE + 1
+    int valIn = pushSome(serNumStart, TEST_SOFI_CAPACITY);
     // one more element should cause an overflow, which means the SoFi was already full
     int valOut{-1}; // set valOut to a value not present in the SoFi
     EXPECT_FALSE(m_sofi.push(valIn, valOut)) << "No overflow occured! SoFi is not full yet!";
@@ -197,13 +192,13 @@ void CUnitTestContainerSoFi::checkOverflow(const std::string& scope, int serNumS
     int valOut{-2};
 
     // fill the SoFi and return the first not pushed serial number
-    valIn = pushSome(serNumStart, TEST_SOFI_FULL);
+    valIn = pushSome(serNumStart, TEST_SOFI_CAPACITY);
     // pushing another item, should cause an overflow and returning the oldest pushed item
     EXPECT_FALSE(m_sofi.push(valIn, valOut)) << "Expected overflow didn't occur";
     EXPECT_EQ(serNumStart, valOut);
 
     // popping should return the remaining item
-    popSome(serNumStart + 1, TEST_SOFI_FULL); // we had an overflow, so the serial number is off by one
+    popSome(serNumStart + 1, TEST_SOFI_CAPACITY); // we had an overflow, so the serial number is off by one
 
     // SoFi should now be empty
     valOut = -2; // set valOut to a value not present in the SoFi
@@ -219,11 +214,11 @@ void CUnitTestContainerSoFi::checkMultiOverflow(const std::string& scope, int se
     int valOut{-2};
 
     // fill the SoFi and return the first not pushed serial number
-    valIn = pushSome(serNumStart, TEST_SOFI_FULL);
+    valIn = pushSome(serNumStart, TEST_SOFI_CAPACITY);
     // pushing additional items, should cause an overflow and returning the oldest pushed item
     // lets run three times throug the container
     int serNumExp = serNumStart;
-    for (uint32_t i = 0; i < 3 * TEST_SOFI_FULL; i++)
+    for (uint32_t i = 0; i < 3 * TEST_SOFI_CAPACITY; i++)
     {
         valOut = -2; // set valOut to a value not present in the SoFi
         EXPECT_FALSE(m_sofi.push(valIn, valOut)) << "Expected overflow didn't occur at iteration " << i << "!";
@@ -233,7 +228,7 @@ void CUnitTestContainerSoFi::checkMultiOverflow(const std::string& scope, int se
     }
 
     // popping should return the remaining item
-    popSome(serNumExp, TEST_SOFI_FULL); // we had an overflow, so the serial number is off by one
+    popSome(serNumExp, TEST_SOFI_CAPACITY); // we had an overflow, so the serial number is off by one
 
     // SoFi should now be empty
     valOut = -2; // set valOut to a value not present in the SoFi
@@ -311,7 +306,7 @@ TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushesOverflow)
     int ret;
 
     // Push 11 items to provoke overflow and check size
-    for (uint32_t i = 0; i < TEST_SOFI_FULL; i++)
+    for (uint32_t i = 0; i < TEST_SOFI_CAPACITY; i++)
     {
         EXPECT_EQ(m_sofi.size(), i);
         m_sofi.push(i, ret);
@@ -448,13 +443,15 @@ TEST_F(CUnitTestContainerSoFi, PopIfOnEmpty)
 TEST_F(CUnitTestContainerSoFi, PopIfFullWithValidCondition)
 {
     int output;
-    for (int i = 0; i < static_cast<int>(m_sofi.capacity()) + 2; i++)
-        m_sofi.push(i + 100, output);
+    constexpr int INITIAL_VALUE = 100;
+    constexpr int OFFSET = 2;
+    for (int i = 0; i < static_cast<int>(m_sofi.capacity()) + OFFSET; i++)
+        m_sofi.push(i + INITIAL_VALUE, output);
 
     bool result = m_sofi.popIf(output, [](const int& peek) { return peek < 150; });
 
     EXPECT_EQ(result, true);
-    EXPECT_EQ(output, 101);
+    EXPECT_EQ(output, INITIAL_VALUE + OFFSET);
 }
 
 TEST_F(CUnitTestContainerSoFi, PopIfFullWithInvalidCondition)

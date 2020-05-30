@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/runtime/runnable.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -31,7 +32,7 @@ capro::Interfaces StringToEInterfaces(std::string f_str)
     cxx::convert::fromString(f_str.c_str(), i);
     if (i >= static_cast<int32_t>(capro::Interfaces::INTERFACE_END))
     {
-        WARN_PRINTF("invalid enum (out of range: %d) \n", i);
+        LogWarn() << "invalid enum (out of range: " << i << ")";
         return capro::Interfaces::INTERNAL;
     }
     return static_cast<capro::Interfaces>(i);
@@ -153,7 +154,7 @@ void PortManager::handleReceiverPorts()
 
             if (!sendToAllMatchingSenderPorts(caproMessage, l_receiverPort))
             {
-                DEBUG_PRINTF("capro::SUB/UNSUB, no matching sender!!\n");
+                LogDebug() << "capro::SUB/UNSUB, no matching sender!!";
                 capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
                                                 l_receiverPort.getCaProServiceDescription());
                 l_receiverPort.dispatchCaProMessage(nackMessage);
@@ -185,7 +186,7 @@ void PortManager::handleInterfaces()
         if (l_interfacePortData->m_toBeDestroyed)
         {
             m_portPool->removeInterfacePort(l_interfacePortData);
-            DEBUG_PRINTF("Destroyed InterfacePortData\n");
+            LogDebug() << "Destroyed InterfacePortData";
         }
     }
 
@@ -270,7 +271,7 @@ void PortManager::handleApplications()
             }
             default:
             {
-                LOG_ERR("Roudi: Something went wrong in receiving CaproMessage in ApplicationPortList!");
+                LogError() << "Roudi: Something went wrong in receiving CaproMessage in ApplicationPortList!";
             }
             }
 
@@ -282,7 +283,7 @@ void PortManager::handleApplications()
         if (l_applicationPort.toBeDestroyed())
         {
             m_portPool->removeApplicationPort(l_applicationPortData);
-            DEBUG_PRINTF("Destroyed ApplicationPortData\n");
+            LogDebug() << "Destroyed ApplicationPortData";
         }
     }
 }
@@ -298,7 +299,7 @@ void PortManager::handleRunnables()
         if (runnableData->m_toBeDestroyed)
         {
             m_portPool->removeRunnableData(runnableData);
-            DEBUG_PRINTF("Destroyed RunnableData\n");
+            LogDebug() << "Destroyed RunnableData";
         }
     }
 }
@@ -424,7 +425,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
         if (f_processName == l_interface.getProcessName())
         {
             m_portPool->removeInterfacePort(port);
-            DEBUG_PRINTF("Deleted Interface of application %s\n", f_processName.c_str());
+            LogDebug() << "Deleted Interface of application " << f_processName;
         }
     }
 
@@ -434,7 +435,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
         if (f_processName == l_application.getProcessName())
         {
             m_portPool->removeApplicationPort(port);
-            DEBUG_PRINTF("Deleted ApplicationPort of application %s\n", f_processName.c_str());
+            LogDebug() << "Deleted ApplicationPort of application " << f_processName;
         }
     }
 
@@ -443,7 +444,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
         if (f_processName == runnableData->m_process)
         {
             m_portPool->removeRunnableData(runnableData);
-            DEBUG_PRINTF("Deleted runnable of application %s\n", f_processName.c_str());
+            LogDebug() << "Deleted runnable of application " << f_processName;
         }
     }
 }
@@ -466,7 +467,7 @@ void PortManager::destroySenderPort(SenderPortType::MemberType_t* const senderPo
 
     // delete sender impl from list after StopOffer was processed
     m_portPool->removeSenderPort(senderPortData);
-    DEBUG_PRINTF("Destroyed SenderPortImpl\n");
+    LogDebug() << "Destroyed SenderPortImpl";
 }
 
 void PortManager::destroyReceiverPort(ReceiverPortType::MemberType_t* const receiverPortData)
@@ -486,7 +487,7 @@ void PortManager::destroyReceiverPort(ReceiverPortType::MemberType_t* const rece
 
     // delete receiver impl from list after unsubscribe was processed
     m_portPool->removeReceiverPort(receiverPortData);
-    DEBUG_PRINTF("Destroyed ReceiverPortImpl\n");
+    LogDebug() << "Destroyed ReceiverPortImpl";
 }
 
 runtime::MqMessage PortManager::findService(const capro::ServiceDescription& f_service)
@@ -534,11 +535,10 @@ PortManager::acquireSenderPortData(const capro::ServiceDescription& f_service,
         SenderPortType l_senderPort(l_senderPortData);
         if (f_service == l_senderPort.getCaProServiceDescription())
         {
-            std::stringstream ss;
-            ss << "Process '" << f_processName << "' tried to register an unique SenderPort which is already used by '"
-               << l_senderPortData->m_processName << "' with service '"
-               << f_service.operator cxx::Serialization().toString() << "'.";
-            LOG_WARN(ss.str().c_str());
+            LogWarn() << "Process '" << f_processName
+                      << "' tried to register an unique SenderPort which is already used by '"
+                      << l_senderPortData->m_processName << "' with service '"
+                      << f_service.operator cxx::Serialization().toString() << "'.";
             if (l_senderPort.isUnique())
             {
                 errorHandler(Error::kPOSH__SENDERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);

@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "timing_test.hpp"
 #if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
 
+#include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/time.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "test.hpp"
@@ -24,6 +26,7 @@
 
 
 using namespace ::testing;
+using namespace iox::units::duration_literals;
 
 typedef iox::posix::Semaphore* CreateSemaphore();
 
@@ -71,7 +74,7 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
         }
     }
 
-    static constexpr uint64_t TIMING_TEST_REPETITIONS{5};
+    static constexpr long TIMING_TEST_TIMEOUT{(100_ms).nanoSeconds<long>()};
 
     iox::posix::Semaphore* sut{nullptr};
     iox::posix::Semaphore* syncSemaphore = [] {
@@ -290,79 +293,56 @@ TEST_P(Semaphore_test, MoveCTor)
     EXPECT_THAT(sut->post(), Eq(false));
 }
 
-TEST_P(Semaphore_test, TimedWaitWithTimeout)
-{
-    for (uint64_t repetition = 0; repetition < TIMING_TEST_REPETITIONS; ++repetition)
-    {
-        std::atomic<bool> timedWaitFinish{false};
-        bool isTestSuccessful{true};
+TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
+    std::atomic_bool timedWaitFinish{false};
+    bool isTestSuccessful{true};
 
-        std::thread t([&] {
-            struct timespec ts;
-            clock_gettime(CLOCK_REALTIME, &ts);
-            constexpr long TEN_MILLISECONDS{10000000};
-            ts.tv_nsec += TEN_MILLISECONDS;
-            syncSemaphore->post();
-            sut->wait();
-            sut->timedWait(&ts, false);
-            timedWaitFinish.store(true);
-        });
+    std::thread t([&] {
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        ts.tv_nsec += TIMING_TEST_TIMEOUT;
+        syncSemaphore->post();
+        sut->wait();
+        TIMING_TEST_EXPECT_FALSE(sut->timedWait(&ts, false));
+        timedWaitFinish.store(true);
+    });
 
-        syncSemaphore->wait();
-        sut->post();
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
-        isTestSuccessful &= !timedWaitFinish.load();
+    syncSemaphore->wait();
+    sut->post();
+    std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
+    TIMING_TEST_EXPECT_FALSE(timedWaitFinish.load());
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        isTestSuccessful &= timedWaitFinish.load();
+    std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
+    TIMING_TEST_EXPECT_TRUE(timedWaitFinish.load());
 
-        t.join();
+    t.join();
+});
 
-        if (isTestSuccessful)
-        {
-            return;
-        }
-    }
 
-    EXPECT_TRUE(false);
-}
+TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
+    std::atomic_bool timedWaitFinish{false};
+    bool isTestSuccessful{true};
 
-TEST_P(Semaphore_test, TimedWaitWithoutTimeout)
-{
-    for (uint64_t repetition = 0; repetition < TIMING_TEST_REPETITIONS; ++repetition)
-    {
-        std::atomic_bool timedWaitFinish{false};
-        bool isTestSuccessful{true};
+    std::thread t([&] {
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        ts.tv_nsec += TIMING_TEST_TIMEOUT;
+        syncSemaphore->post();
+        sut->wait();
+        TIMING_TEST_EXPECT_TRUE(sut->timedWait(&ts, false));
+        timedWaitFinish.store(true);
+    });
 
-        std::thread t([&] {
-            struct timespec ts;
-            clock_gettime(CLOCK_REALTIME, &ts);
-            constexpr long TEN_MILLISECONDS{10000000};
-            ts.tv_nsec += TEN_MILLISECONDS;
-            syncSemaphore->post();
-            sut->wait();
-            sut->timedWait(&ts, false);
-            timedWaitFinish.store(true);
-        });
+    syncSemaphore->wait();
+    sut->post();
+    std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
+    TIMING_TEST_EXPECT_FALSE(timedWaitFinish.load());
 
-        syncSemaphore->wait();
-        sut->post();
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
-        isTestSuccessful &= !timedWaitFinish.load();
+    sut->post();
+    std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
+    TIMING_TEST_EXPECT_TRUE(timedWaitFinish.load());
 
-        sut->post();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        isTestSuccessful &= timedWaitFinish.load();
-
-        t.join();
-
-        if (isTestSuccessful)
-        {
-            return;
-        }
-    }
-
-    EXPECT_TRUE(false);
-}
+    t.join();
+});
 
 #endif // not defined QNX
