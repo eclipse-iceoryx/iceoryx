@@ -11,7 +11,7 @@ namespace iox {
 namespace dds {
 
 template <typename channel_t>
-inline DDS2IceoryxGateway<channel_t>::DDS2IceoryxGateway()
+inline DDS2IceoryxGateway<channel_t>::DDS2IceoryxGateway() noexcept
     : iox::dds::DDSGatewayGeneric<channel_t>()
 {
     // Initialize pre-configured services

@@ -43,7 +43,7 @@ template <typename channel_t = iox::dds::Channel<iox::popo::Subscriber, iox::dds
 class Iceoryx2DDSGateway : public iox::dds::DDSGatewayGeneric<channel_t>
 {
   public:
-    Iceoryx2DDSGateway();
+    Iceoryx2DDSGateway() noexcept;
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward() noexcept;
 };

@@ -9,7 +9,7 @@
 // ================================================== Public ================================================== //
 
 template<typename channel_t>
-inline iox::dds::DDSGatewayGeneric<channel_t>::~DDSGatewayGeneric()
+inline iox::dds::DDSGatewayGeneric<channel_t>::~DDSGatewayGeneric() noexcept
 {
     shutdown();
 }
@@ -49,7 +49,7 @@ inline uint64_t iox::dds::DDSGatewayGeneric<channel_t>::getNumberOfChannels() co
 // ================================================== Protected ================================================== //
 
 template<typename channel_t>
-inline iox::dds::DDSGatewayGeneric<channel_t>::DDSGatewayGeneric() : iox::popo::GatewayGeneric(iox::capro::Interfaces::DDS)
+inline iox::dds::DDSGatewayGeneric<channel_t>::DDSGatewayGeneric() noexcept : iox::popo::GatewayGeneric(iox::capro::Interfaces::DDS)
 {
      LogDebug() << "[DDSGatewayGeneric] Using default channel factory.";
     m_channelFactory = channel_t::create;

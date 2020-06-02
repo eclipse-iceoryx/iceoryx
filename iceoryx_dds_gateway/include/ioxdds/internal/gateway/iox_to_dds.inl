@@ -27,7 +27,7 @@ namespace dds
 {
 // ======================================== Public ======================================== //
 template <typename channel_t>
-inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway() : iox::dds::DDSGatewayGeneric<channel_t>()
+inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway() noexcept : iox::dds::DDSGatewayGeneric<channel_t>()
 {
     // Create channels for all pre-configured services.
     this->loadConfiguration();
