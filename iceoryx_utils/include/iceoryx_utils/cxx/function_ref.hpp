@@ -133,10 +133,6 @@ class function_ref<ReturnType(ArgTypes...)>
         std::swap(m_functionPointer, rhs.m_functionPointer);
     }
 
-    /// @todo Be closer to std::function API
-    // target() ?
-    // target_type() ?
-
   private:
     /// @brief Raw pointer of the callable
     void* m_target{nullptr};
