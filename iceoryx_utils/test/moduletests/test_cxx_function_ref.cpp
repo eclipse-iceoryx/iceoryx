@@ -32,6 +32,30 @@ class Functor
     }
 };
 
+struct ComplexType
+{
+    char a;
+    int b;
+    float c;
+
+    bool operator==(const ComplexType& rhs) const
+    {
+        if (a == rhs.a && b == rhs.b && c == rhs.c)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+};
+
+ComplexType returnComplexType(ComplexType foo)
+{
+    return foo;
+}
+
 class function_refTest : public Test
 {
   public:
@@ -141,6 +165,13 @@ TEST_F(function_refTest, CreateWithFreeFunction)
     EXPECT_THAT(sut(), Eq(84));
 }
 
+TEST_F(function_refTest, CreateWithComplexType)
+{
+    ComplexType fuubar{1, 2, 1.3f};
+    function_ref<ComplexType(ComplexType)> sut(returnComplexType);
+    EXPECT_THAT(sut(fuubar), Eq(fuubar));
+}
+
 TEST_F(function_refTest, CreateWithFunctor)
 {
     Functor foo;
@@ -161,7 +192,6 @@ TEST_F(function_refTest, CreateWithStdFunction)
     function_ref<int()> sut(baz);
     EXPECT_THAT(sut(), Eq(24));
 }
-
 
 TEST_F(function_refTest, StoreInStdFunction)
 {
