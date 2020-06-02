@@ -103,18 +103,6 @@ TEST_F(function_refTest, CreateEmptyAndAssign)
     EXPECT_TRUE(sut);
 }
 
-TEST_F(function_refTest, CreateAndCopyAssign)
-{
-    auto lambda = []() -> int { return 42; };
-    function_ref<int()> sut1(lambda);
-    function_ref<int()> sut2;
-    EXPECT_THAT(sut1(), Eq(42));
-    EXPECT_FALSE(sut2);
-    sut2 = sut1;
-    EXPECT_TRUE(sut2);
-    EXPECT_THAT(sut2(), Eq(42));
-}
-
 TEST_F(function_refTest, CreateAndCopy)
 {
     auto lambda = []() -> int { return 42; };
@@ -122,6 +110,43 @@ TEST_F(function_refTest, CreateAndCopy)
     function_ref<int()> sut2{sut1};
     EXPECT_TRUE(sut2);
     EXPECT_THAT(sut2(), Eq(42));
+}
+
+TEST_F(function_refTest, CreateAndCopyAssign)
+{
+    auto lambda = []() -> int { return 42; };
+    function_ref<int()> sut2;
+    {
+        function_ref<int()> sut1(lambda);
+        EXPECT_THAT(sut1(), Eq(42));
+        EXPECT_FALSE(sut2);
+        sut2 = sut1;
+    }
+    EXPECT_TRUE(sut2);
+    EXPECT_THAT(sut2(), Eq(42));
+}
+
+TEST_F(function_refTest, CreateAndMove)
+{
+    auto lambda = []() -> int { return 42; };
+    function_ref<int()> sut1{lambda};
+    function_ref<int()> sut2(std::move(sut1));
+    EXPECT_TRUE(sut2);
+    EXPECT_THAT(sut2(), Eq(42));
+    EXPECT_FALSE(sut1);
+}
+
+TEST_F(function_refTest, CreateAndMoveAssign)
+{
+    auto lambda1 = []() -> int { return 42; };
+    auto lambda2 = []() -> int { return 73; };
+    function_ref<int()> sut1{lambda1};
+    {
+        function_ref<int()> sut2{lambda2};
+        sut1 = std::move(sut2);
+    }
+    EXPECT_TRUE(sut1);
+    EXPECT_THAT(sut1(), Eq(73));
 }
 
 TEST_F(function_refTest, CreateAndSwap)
@@ -201,5 +226,3 @@ TEST_F(function_refTest, StoreInStdFunction)
     std::function<int()> sut(moep);
     EXPECT_THAT(sut(), Eq(37));
 }
-
-/// @todo complex return type e.g. struct

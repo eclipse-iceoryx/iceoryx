@@ -78,7 +78,7 @@ class function_ref<ReturnType(ArgTypes...)>
     function_ref(const function_ref&) noexcept = default;
 
     /// @brief Copy assignment operator
-    function_ref<SignatureType>& operator=(const function_ref&) noexcept = default;
+    function_ref& operator=(const function_ref&) noexcept = default;
 
     /// @brief Create a function_ref
     template <typename CallableType, typename = EnableIfNotFunctionRef<SelfType>>
@@ -92,23 +92,18 @@ class function_ref<ReturnType(ArgTypes...)>
     }
 
     /// @brief Moves a function_ref
-    function_ref(function_ref&& callable) noexcept
+    function_ref(function_ref&& rhs) noexcept
     {
-        *this = std::move(callable);
+        *this = std::move(rhs);
     }
 
     /// @brief Move assignment operator
-    /// @todo we need a test case
-    template <typename CallableType, typename = EnableIfNotFunctionRef<SelfType>>
     function_ref& operator=(function_ref&& rhs) noexcept
     {
         if (this != &rhs)
         {
-            m_target = reinterpret_cast<void*>(std::addressof(rhs));
-            m_functionPointer = [](void* target, ArgTypes... args) -> ReturnType {
-                return (*reinterpret_cast<typename std::add_pointer<CallableType>::type>(target))(
-                    std::forward<ArgTypes>(args)...);
-            };
+            m_target = rhs.m_target;
+            m_functionPointer = rhs.m_functionPointer;
             rhs.m_target = nullptr;
             rhs.m_functionPointer = nullptr;
         }
@@ -116,7 +111,7 @@ class function_ref<ReturnType(ArgTypes...)>
     };
 
     /// @brief Calls the provided callable
-    auto operator()(ArgTypes... args) const noexcept -> ReturnType
+    ReturnType operator()(ArgTypes... args) const noexcept
     {
         if (!m_target)
         {
@@ -148,7 +143,7 @@ class function_ref<ReturnType(ArgTypes...)>
 
     /// @brief Function pointer to the callable
     ReturnType (*m_functionPointer)(void*, ArgTypes...){nullptr};
-};
+}; // namespace cxx
 
 template <class ReturnType, class... ArgTypes>
 void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<ReturnType(ArgTypes...)>& rhs) noexcept
