@@ -29,8 +29,17 @@ namespace dds
 template <typename channel_t>
 inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway() : iox::dds::DDSGatewayGeneric<channel_t>()
 {
-    // Initialize pre-configured services
+    // Create channels for all pre-configured services.
     this->loadConfiguration();
+
+    // Connect the terminals of the created channels.
+    for (auto channel = this->m_channels->begin(); channel != this->m_channels->end(); channel++)
+    {
+        auto subscriber = channel->getIceoryxTerminal();
+        auto dataWriter = channel->getDDSTerminal();
+        subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
+        dataWriter->connect();
+    }
 }
 
 template <typename channel_t>
@@ -56,22 +65,21 @@ Iceoryx2DDSGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noe
     {
     case iox::capro::CaproMessageType::OFFER:
     {
-//        // Check if channel already exists using a predicate that checks the channel service desription.
-//        auto guardedVector = this->m_channels.GetScopeGuard();
-//        if(std::find_if(
-//                guardedVector->begin(),
-//                guardedVector->end(),
-//                [&msg](const Channel<subscriber_t, data_writer_t>& channel) {
-//                    return channel.getService() == msg.m_serviceDescription;
-//                }) == guardedVector->end())
-//        {
-//            auto channel = this->setupChannel(msg.m_serviceDescription);
-//            auto subscriber = channel.getIceoryxTerminal();
-//            auto dataWriter = channel.getDDSTerminal();
-//            subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
-//            dataWriter->connect();
-//            break;
-//        }
+        // Check if channel already exists using a predicate that checks the channel service desription.
+        if(std::find_if(
+                this->m_channels->begin(),
+                this->m_channels->end(),
+                [&msg](const channel_t& channel) {
+                    return channel.getService() == msg.m_serviceDescription;
+                }) == this->m_channels->end())
+        {
+            auto channel = this->setupChannel(msg.m_serviceDescription);
+            auto subscriber = channel.getIceoryxTerminal();
+            auto dataWriter = channel.getDDSTerminal();
+            subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
+            dataWriter->connect();
+        }
+        break;
     }
     case iox::capro::CaproMessageType::STOP_OFFER:
     {

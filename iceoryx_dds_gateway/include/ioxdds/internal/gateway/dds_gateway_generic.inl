@@ -76,12 +76,11 @@ inline void iox::dds::DDSGatewayGeneric<channel_t>::loadConfiguration() noexcept
         auto instance = topic->get_as<std::string>("instance").value_or("");
         auto event = topic->get_as<std::string>("event").value_or("");
 
-        this->setupChannel(iox::capro::ServiceDescription(
-                         IdString(iox::cxx::TruncateToCapacity, service.c_str()),
-                         IdString(iox::cxx::TruncateToCapacity, instance.c_str()),
-                         IdString(iox::cxx::TruncateToCapacity, event.c_str())
-                         )
-                     );
+        auto channel = this->setupChannel(iox::capro::ServiceDescription(
+                                 IdString(iox::cxx::TruncateToCapacity, service.c_str()),
+                                 IdString(iox::cxx::TruncateToCapacity, instance.c_str()),
+                                 IdString(iox::cxx::TruncateToCapacity, event.c_str())
+                             ));
     }
 }
 
@@ -93,7 +92,8 @@ inline channel_t iox::dds::DDSGatewayGeneric<channel_t>::setupChannel(const iox:
     iox::LogDebug() << "[DDSGatewayGeneric] Channel set up for service: "
                     << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
                     << service.getEventIDString();
-    m_channels->push_back(channel);
+    auto guardedVector = m_channels.GetScopeGuard();
+    guardedVector->push_back(channel);
     return channel;
 }
 
