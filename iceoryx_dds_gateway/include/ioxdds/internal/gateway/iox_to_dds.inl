@@ -33,7 +33,8 @@ inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway() noexcept : iox::dds::
     this->loadConfiguration();
 
     // Connect the terminals of the created channels.
-    for (auto channel = this->m_channels->begin(); channel != this->m_channels->end(); channel++)
+    auto guardedVector = this->m_channels.GetScopeGuard();
+    for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
     {
         auto subscriber = channel->getIceoryxTerminal();
         auto dataWriter = channel->getDDSTerminal();
@@ -65,13 +66,7 @@ Iceoryx2DDSGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noe
     {
     case iox::capro::CaproMessageType::OFFER:
     {
-        // Check if channel already exists using a predicate that checks the channel service desription.
-        if(std::find_if(
-                this->m_channels->begin(),
-                this->m_channels->end(),
-                [&msg](const channel_t& channel) {
-                    return channel.getService() == msg.m_serviceDescription;
-                }) == this->m_channels->end())
+        if(!this->channelExists(msg.m_serviceDescription))
         {
             auto channel = this->setupChannel(msg.m_serviceDescription);
             auto subscriber = channel.getIceoryxTerminal();
@@ -83,7 +78,10 @@ Iceoryx2DDSGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noe
     }
     case iox::capro::CaproMessageType::STOP_OFFER:
     {
-        this->discardChannel(msg.m_serviceDescription);
+        if(this->channelExists(msg.m_serviceDescription))
+        {
+            this->discardChannel(msg.m_serviceDescription);
+        }
         break;
     }
     default:
@@ -100,13 +98,13 @@ inline void Iceoryx2DDSGateway<channel_t>::forward() noexcept
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); channel++)
     {
         auto subscriber = channel->getIceoryxTerminal();
-        auto dataWriter = channel->getDDSTerminal();
         if (subscriber->hasNewChunks())
         {
             const iox::mepoo::ChunkHeader* header;
             subscriber->getChunk(&header);
             if (header->m_info.m_payloadSize > 0)
             {
+                auto dataWriter = channel->getDDSTerminal();
                 dataWriter->write(static_cast<uint8_t*>(header->payload()), header->m_info.m_payloadSize);
             }
             subscriber->releaseChunk(header);

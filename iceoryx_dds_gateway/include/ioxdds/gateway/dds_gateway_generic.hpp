@@ -46,6 +46,7 @@ protected:
     void loadConfiguration() noexcept;
     channel_t setupChannel(const iox::capro::ServiceDescription& service) noexcept;
     void discardChannel(const iox::capro::ServiceDescription& service) noexcept;
+    bool channelExists(const iox::capro::ServiceDescription& service) noexcept;
 
 private:
     std::atomic_bool m_isRunning{false};
