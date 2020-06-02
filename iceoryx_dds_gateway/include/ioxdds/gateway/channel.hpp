@@ -28,35 +28,33 @@ namespace dds{
 /// cleaning them up when the channel is discarded.
 /// This can be achieved via the Channel::create method.
 ///
-template <typename IoxTerminal, typename DDSTerminal>
+template <typename IceoryxTerminal, typename DDSTerminal>
 class Channel
 {
-    using IoxTerminalPtr = std::shared_ptr<IoxTerminal>;
-    using IoxTerminalPool = iox::cxx::ObjectPool<IoxTerminal, MAX_CHANNEL_NUMBER>;
+    using IceoryxTerminalPtr = std::shared_ptr<IceoryxTerminal>;
+    using IceoryxTerminalPool = iox::cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
     using DDSTerminalPtr = std::shared_ptr<DDSTerminal>;
     using DDSTerminalPool = iox::cxx::ObjectPool<DDSTerminal, MAX_CHANNEL_NUMBER>;
 
 public:
 
     Channel(const iox::capro::ServiceDescription& service,
-            const IoxTerminalPtr ioxInterface,
-            const DDSTerminalPtr ddsInterface) noexcept;
+            const IceoryxTerminalPtr iceoryxTerminal,
+            const DDSTerminalPtr ddsTerminal) noexcept;
 
     static Channel create(const iox::capro::ServiceDescription& service) noexcept;
 
     iox::capro::ServiceDescription getService() const noexcept;
-    IoxTerminalPtr getIceoryxTerminal() const noexcept;
+    IceoryxTerminalPtr getIceoryxTerminal() const noexcept;
     DDSTerminalPtr getDDSTerminal() const noexcept;
 
 private:
-
-    static IoxTerminalPool s_ioxTerminals;
+    static IceoryxTerminalPool s_iceoryxTerminals;
     static DDSTerminalPool s_ddsTerminals;
 
     iox::capro::ServiceDescription m_service;
-    IoxTerminalPtr m_ioxTerminal;
+    IceoryxTerminalPtr m_iceoryxTerminal;
     DDSTerminalPtr m_ddsTerminal;
-
 };
 
 } // namespace dds

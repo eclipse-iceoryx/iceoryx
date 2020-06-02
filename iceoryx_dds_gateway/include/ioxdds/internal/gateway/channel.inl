@@ -20,57 +20,57 @@ namespace dds
 {
 
 // Typedefs
-template <typename IoxTerminal>
-using IoxTerminalPool = iox::cxx::ObjectPool<IoxTerminal, MAX_CHANNEL_NUMBER>;
+template <typename IceoryxTerminal>
+using IceoryxTerminalPool = iox::cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
 template <typename DDSTerminal>
 using DDSTerminalPool = iox::cxx::ObjectPool<DDSTerminal, MAX_CHANNEL_NUMBER>;
 
 // Statics
-template <typename IoxTerminal, typename DDSTerminal>
-IoxTerminalPool<IoxTerminal> Channel<IoxTerminal, DDSTerminal>::s_ioxTerminals = IoxTerminalPool();
-template <typename IoxTerminal, typename DDSTerminal>
-DDSTerminalPool<DDSTerminal> Channel<IoxTerminal, DDSTerminal>::s_ddsTerminals = DDSTerminalPool();
+template <typename IceoryxTerminal, typename DDSTerminal>
+IceoryxTerminalPool<IceoryxTerminal> Channel<IceoryxTerminal, DDSTerminal>::s_iceoryxTerminals = IceoryxTerminalPool();
+template <typename IceoryxTerminal, typename DDSTerminal>
+DDSTerminalPool<DDSTerminal> Channel<IceoryxTerminal, DDSTerminal>::s_ddsTerminals = DDSTerminalPool();
 
-template <typename IoxTerminal, typename DDSTerminal>
-inline Channel<IoxTerminal, DDSTerminal>::Channel(const iox::capro::ServiceDescription& service,
-                                                  const IoxTerminalPtr ioxTerminal,
+template <typename IceoryxTerminal, typename DDSTerminal>
+inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const iox::capro::ServiceDescription& service,
+                                                  const IceoryxTerminalPtr iceoryxTerminal,
                                                   const DDSTerminalPtr ddsTerminal) noexcept
     : m_service(service),
-      m_ioxTerminal(ioxTerminal),
+      m_iceoryxTerminal(iceoryxTerminal),
       m_ddsTerminal(ddsTerminal)
 {
 }
 
-template <typename IoxTerminal, typename DDSTerminal>
-inline Channel<IoxTerminal, DDSTerminal>
-Channel<IoxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescription& service) noexcept
+template <typename IceoryxTerminal, typename DDSTerminal>
+inline Channel<IceoryxTerminal, DDSTerminal>
+Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescription& service) noexcept
 {
     // Create objects in the pool.
-    auto rawIoxTerminalPtr = s_ioxTerminals.create(std::forward<const iox::capro::ServiceDescription>(service));
+    auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const iox::capro::ServiceDescription>(service));
     auto rawDDSTerminalPtr = s_ddsTerminals.create(
         service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
-    auto ioxTerminalPtr = IoxTerminalPtr(rawIoxTerminalPtr, [](IoxTerminal* p) { s_ioxTerminals.free(p); });
+    auto iceoryxTerminalPtr = IceoryxTerminalPtr(rawIceoryxTerminalPtr, [](IceoryxTerminal* p) { s_iceoryxTerminals.free(p); });
     auto ddsTerminalPtr = DDSTerminalPtr(rawDDSTerminalPtr, [](DDSTerminal* p) { s_ddsTerminals.free(p); });
 
-    return Channel(service, ioxTerminalPtr, ddsTerminalPtr);
+    return Channel(service, iceoryxTerminalPtr, ddsTerminalPtr);
 }
 
-template <typename IoxTerminal, typename DDSTerminal>
-inline iox::capro::ServiceDescription Channel<IoxTerminal, DDSTerminal>::getService() const noexcept
+template <typename IceoryxTerminal, typename DDSTerminal>
+inline iox::capro::ServiceDescription Channel<IceoryxTerminal, DDSTerminal>::getService() const noexcept
 {
     return m_service;
 }
 
-template <typename IoxTerminal, typename DDSTerminal>
-inline std::shared_ptr<IoxTerminal> Channel<IoxTerminal, DDSTerminal>::getIceoryxTerminal() const noexcept
+template <typename IceoryxTerminal, typename DDSTerminal>
+inline std::shared_ptr<IceoryxTerminal> Channel<IceoryxTerminal, DDSTerminal>::getIceoryxTerminal() const noexcept
 {
-    return m_ioxTerminal;
+    return m_iceoryxTerminal;
 }
 
-template <typename IoxTerminal, typename DDSTerminal>
-inline std::shared_ptr<DDSTerminal> Channel<IoxTerminal, DDSTerminal>::getDDSTerminal() const noexcept
+template <typename IceoryxTerminal, typename DDSTerminal>
+inline std::shared_ptr<DDSTerminal> Channel<IceoryxTerminal, DDSTerminal>::getDDSTerminal() const noexcept
 {
     return m_ddsTerminal;
 }
