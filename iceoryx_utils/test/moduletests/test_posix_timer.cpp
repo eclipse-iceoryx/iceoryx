@@ -282,12 +282,11 @@ TIMING_TEST_F(Timer_test, TimeUntilExpirationWithCallback, Repeat(5), [&] {
     Timer sut(20_ms, [] {});
     sut.start(Timer::RunMode::PERIODIC);
     int timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
-    TIMING_TEST_EXPECT_TRUE(10 <= timeUntilExpiration && timeUntilExpiration <= 20);
+    TIMING_TEST_EXPECT_TRUE(timeUntilExpiration > 15);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
-    printf("%d \n", timeUntilExpiration);
-    TIMING_TEST_EXPECT_TRUE(1 <= timeUntilExpiration && timeUntilExpiration <= 10);
+    TIMING_TEST_EXPECT_TRUE(1 <= timeUntilExpiration && timeUntilExpiration <= 13);
 });
 
 TIMING_TEST_F(Timer_test, TimeUntilExpirationZeroAfterCallbackOnceCalled, Repeat(5), [&] {
