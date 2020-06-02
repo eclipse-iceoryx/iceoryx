@@ -59,6 +59,18 @@ TEST_F(function_refTest, CreateEmpty)
     EXPECT_FALSE(sut);
 }
 
+TEST_F(function_refTest, CreateWithNullptr)
+{
+    function_ref<void()> sut(nullptr);
+    EXPECT_FALSE(sut);
+}
+
+TEST_F(function_refDeathTest, CreateEmptyLeadsToTermination)
+{
+    function_ref<void()> sut;
+    EXPECT_DEATH(sut(), ".*");
+}
+
 TEST_F(function_refTest, CreateEmptyAndAssign)
 {
     auto lambda = [] {};
@@ -99,19 +111,6 @@ TEST_F(function_refTest, CreateAndSwap)
     sut1.swap(sut2);
     EXPECT_THAT(sut1(), Eq(73));
     EXPECT_THAT(sut2(), Eq(42));
-}
-
-TEST_F(function_refTest, CreateWithNullptr)
-{
-    function_ref<void()> sut(nullptr);
-    EXPECT_FALSE(sut);
-}
-
-TEST_F(function_refDeathTest, UBCreateWithTempLambda)
-{
-    function_ref<void()> sut([&] { m_iter++; });
-    /// @todo
-    // EXPECT_EXIT(sut(), ::testing::KilledBySignal(SIGSEGV), "Segmentation fault");
 }
 
 TEST_F(function_refTest, CreateWithCapturingLambdaVoidVoid)
@@ -166,12 +165,11 @@ TEST_F(function_refTest, CreateWithStdFunction)
 
 TEST_F(function_refTest, StoreInStdFunction)
 {
-    /// @todo
-    // auto lambda = []() -> int { return 37; };
-    // function_ref<int()> moep(lambda);
-    // // Copy cxx::function_ref into std::function, needs copy c'tor
-    // std::function<int()> sut(moep);
-    // EXPECT_THAT(sut(), Eq(37));
+    auto lambda = []() -> int { return 37; };
+    function_ref<int()> moep(lambda);
+    // Moves cxx::function_ref into std::function, needs copy c'tor
+    std::function<int()> sut(moep);
+    EXPECT_THAT(sut(), Eq(37));
 }
 
-/// @todo member function test case
+/// @todo complex return type e.g. struct

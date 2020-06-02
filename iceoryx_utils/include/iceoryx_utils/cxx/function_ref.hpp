@@ -22,11 +22,9 @@ namespace iox
 {
 namespace cxx
 {
-/// @brief cxx::function_ref is a lightweight alternative to std::function
+/// @brief cxx::function_ref is a non-owning reference to a callable.
 ///
-///        It is a non-owning reference to a callable.
-///
-///        It shall have these features:
+///        It has these features:
 ///         * No heap usage
 ///         * No exceptions
 ///         * Stateful lambda support
@@ -55,10 +53,9 @@ template <class ReturnType, class... ArgTypes>
 class function_ref<ReturnType(ArgTypes...)>
 {
     using SignatureType = ReturnType(ArgTypes...);
-
-    template <typename CallableType>
-    using EnableIfNotFunctionRef =
-        typename std::enable_if<!std::is_same<std::decay<CallableType>, function_ref>::value>::type;
+    using SelfType = function_ref<SignatureType>;
+    template <typename T>
+    using EnableIfNotFunctionRef = typename std::enable_if<!std::is_same<std::decay<T>, function_ref>::value>::type;
 
   public:
     /// @brief Creates an empty function_ref
@@ -70,8 +67,7 @@ class function_ref<ReturnType(ArgTypes...)>
 
     /// @brief Creates an empty function_ref
     function_ref(nullptr_t) noexcept
-        : m_target(nullptr)
-        , m_functionPointer(nullptr)
+        : function_ref()
     {
     }
 
@@ -82,21 +78,42 @@ class function_ref<ReturnType(ArgTypes...)>
     function_ref(const function_ref&) noexcept = default;
 
     /// @brief Copy assignment operator
-    function_ref& operator=(const function_ref&) noexcept = default;
+    function_ref<SignatureType>& operator=(const function_ref&) noexcept = default;
 
     /// @brief Create a function_ref
-    template <typename CallableType, typename = EnableIfNotFunctionRef<CallableType>>
+    template <typename CallableType, typename = EnableIfNotFunctionRef<SelfType>>
     function_ref(CallableType&& callable) noexcept
         : m_target(reinterpret_cast<void*>(std::addressof(callable)))
-    {
-        m_functionPointer = [](void* target, ArgTypes... args) -> ReturnType {
+        , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
             return (*reinterpret_cast<typename std::add_pointer<CallableType>::type>(target))(
                 std::forward<ArgTypes>(args)...);
-        };
+        })
+    {
+    }
+
+    /// @brief Moves a function_ref
+    function_ref(function_ref&& callable) noexcept
+    {
+        *this = std::move(callable);
     }
 
     /// @brief Move assignment operator
-    function_ref& operator=(function_ref&& rhs) noexcept = default;
+    /// @todo we need a test case
+    template <typename CallableType, typename = EnableIfNotFunctionRef<SelfType>>
+    function_ref& operator=(function_ref&& rhs) noexcept
+    {
+        if (this != &rhs)
+        {
+            m_target = reinterpret_cast<void*>(std::addressof(rhs));
+            m_functionPointer = [](void* target, ArgTypes... args) -> ReturnType {
+                return (*reinterpret_cast<typename std::add_pointer<CallableType>::type>(target))(
+                    std::forward<ArgTypes>(args)...);
+            };
+            rhs.m_target = nullptr;
+            rhs.m_functionPointer = nullptr;
+        }
+        return *this;
+    };
 
     /// @brief Calls the provided callable
     auto operator()(ArgTypes... args) const noexcept -> ReturnType
@@ -115,7 +132,7 @@ class function_ref<ReturnType(ArgTypes...)>
         return m_target != nullptr;
     }
 
-    void swap(function_ref<SignatureType>& rhs) noexcept
+    void swap(function_ref& rhs) noexcept
     {
         std::swap(m_target, rhs.m_target);
         std::swap(m_functionPointer, rhs.m_functionPointer);
