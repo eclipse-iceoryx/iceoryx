@@ -372,15 +372,15 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningOnce, Repeat(5), [&] {
 TIMING_TEST_F(Timer_test, DestructorIsBlocking, Repeat(5), [&] {
     std::chrono::time_point<std::chrono::system_clock> startTime;
     {
-        Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(20)); });
+        Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(25)); });
         sut.start(Timer::RunMode::ONCE);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         startTime = std::chrono::system_clock::now();
     }
     auto endTime = std::chrono::system_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 
-    TIMING_TEST_EXPECT_TRUE(15 <= elapsedTime);
+    TIMING_TEST_EXPECT_TRUE(10 <= elapsedTime);
 });
 
 TIMING_TEST_F(Timer_test, StartStopAndStartAgainIsNonBlocking, Repeat(5), [&] {
