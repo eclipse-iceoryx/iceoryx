@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_UTILS_CXX_FUNCTION_REF_HPP
+#define IOX_UTILS_CXX_FUNCTION_REF_HPP
 
 #include <cstddef>
 #include <memory>
@@ -97,15 +98,27 @@ class function_ref<ReturnType(ArgTypes...)>
         *this = std::move(rhs);
     }
 
-    /// @brief Move assignment operator
-    function_ref& operator=(function_ref&& rhs) noexcept
+    /// @brief Move assignment operator for lvalues
+    function_ref& operator=(function_ref&& rhs) & noexcept
     {
         if (this != &rhs)
         {
             m_target = rhs.m_target;
             m_functionPointer = rhs.m_functionPointer;
+            // Make sure no UB can happen by marking the lvalue as invalid
             rhs.m_target = nullptr;
             rhs.m_functionPointer = nullptr;
+        }
+        return *this;
+    };
+
+    /// @brief Move assignment operator for rvalues
+    function_ref& operator=(function_ref&& rhs) && noexcept
+    {
+        if (this != &rhs)
+        {
+            m_target = rhs.m_target;
+            m_functionPointer = rhs.m_functionPointer;
         }
         return *this;
     };
@@ -134,12 +147,12 @@ class function_ref<ReturnType(ArgTypes...)>
     }
 
   private:
-    /// @brief Raw pointer of the callable
+    /// @brief Raw pointer of the callablei
     void* m_target{nullptr};
 
     /// @brief Function pointer to the callable
     ReturnType (*m_functionPointer)(void*, ArgTypes...){nullptr};
-}; // namespace cxx
+};
 
 template <class ReturnType, class... ArgTypes>
 void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<ReturnType(ArgTypes...)>& rhs) noexcept
@@ -149,3 +162,5 @@ void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<ReturnType(Ar
 
 } // namespace cxx
 } // namespace iox
+
+#endif
