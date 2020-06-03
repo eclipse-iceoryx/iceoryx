@@ -16,7 +16,7 @@
 
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/grp.hpp"
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 #include "iceoryx_utils/platform/pwd.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"

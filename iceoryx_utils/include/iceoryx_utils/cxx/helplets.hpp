@@ -15,7 +15,7 @@
 #pragma once
 
 #include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <assert.h>
 #include <iostream>

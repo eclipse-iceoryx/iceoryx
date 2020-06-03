@@ -15,7 +15,7 @@
 #pragma once
 
 #include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <cstring>
 #include <initializer_list>

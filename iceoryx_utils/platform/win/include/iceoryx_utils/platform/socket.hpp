@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 
 #define AF_INET 0

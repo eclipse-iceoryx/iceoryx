@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <atomic>
 #include <cstdint>
