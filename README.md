@@ -117,6 +117,17 @@ In default-mode, the script is not building the provided test. For a clean build
 
 If the script is not used, keep in mind to pass `-DTOML_CONFIG=on` to cmake if the optional RouDi config file feature shall be built.
 
+**NOTE:** Users who wish to build iceoryx with cmake can follow the below steps (Requires CMake 3.14 or higher).
+
+* Step into root folder of iceoryx.
+
+* Execute the below commands.
+
+```
+iceoryx$ cmake -Bbuild -Hiceoryx_meta // Customisation possible with cmake swithces
+iceoryx$ cmake --build build
+```
+
 #### Build with tests
 
 To build iceoryx with tests, just add "test" as first argument to the script.
@@ -140,6 +151,9 @@ colcon build
 This build method makes the most sense in combination with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git)
 
 Congrats! You've build all the necessary things to continue playing around with the examples.
+
+##### Build with colcon
+
 
 ##### Build and run in a Docker environment
 
