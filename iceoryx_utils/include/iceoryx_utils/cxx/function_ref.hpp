@@ -147,7 +147,7 @@ class function_ref<ReturnType(ArgTypes...)>
     }
 
   private:
-    /// @brief Raw pointer of the callablei
+    /// @brief Raw pointer of the callable
     void* m_target{nullptr};
 
     /// @brief Function pointer to the callable
