@@ -98,8 +98,8 @@ class function_ref<ReturnType(ArgTypes...)>
         *this = std::move(rhs);
     }
 
-    /// @brief Move assignment operator for lvalues
-    function_ref& operator=(function_ref&& rhs) & noexcept
+    /// @brief Move assignment operator
+    function_ref& operator=(function_ref&& rhs) noexcept
     {
         if (this != &rhs)
         {
@@ -108,17 +108,6 @@ class function_ref<ReturnType(ArgTypes...)>
             // Make sure no UB can happen by marking the lvalue as invalid
             rhs.m_target = nullptr;
             rhs.m_functionPointer = nullptr;
-        }
-        return *this;
-    };
-
-    /// @brief Move assignment operator for rvalues
-    function_ref& operator=(function_ref&& rhs) && noexcept
-    {
-        if (this != &rhs)
-        {
-            m_target = rhs.m_target;
-            m_functionPointer = rhs.m_functionPointer;
         }
         return *this;
     };
