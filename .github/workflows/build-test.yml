@@ -26,18 +26,18 @@ jobs:
       - name : Checkout
         uses: actions/checkout@v2
  
-      - name: Build with GNU
-        run: ./tools/iceoryx_build_test.sh
+      - name: Build sources
+        run: ./tools/iceoryx_build_test.sh clean
       
-      - name: Build Tests
+      - name: Build tests
         run: "./tools/iceoryx_build_test.sh build-test"  
 
-      - name: Run Tests
+      - name: Run tests
         run: |
           cd build
           ../tools/run_all_tests.sh
         
-      - name : Build with clang
+      - name : Build sources (clang)
         run: |
           export CC=/usr/bin/clang
           export CXX=/usr/bin/clang++
@@ -58,11 +58,11 @@ jobs:
       - name : Checkout
         uses: actions/checkout@v2
  
-      - name: Build with GNU
+      - name: Build sources
         # iceoryx introspection build fails in mac , hence disable for now
         run: ./tools/iceoryx_build_test.sh skip-introspection
       
-      - name: Build Tests
+      - name: Build tests
         run: ./tools/iceoryx_build_test.sh skip-introspection build-test
       
 
