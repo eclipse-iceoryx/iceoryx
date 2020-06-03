@@ -54,7 +54,8 @@ inline bool FiFo<ValueType, Capacity>::empty() const
 template <class ValueType, uint32_t Capacity>
 inline cxx::optional<ValueType> FiFo<ValueType, Capacity>::pop()
 {
-    bool isEmpty = (m_read_pos.load(std::memory_order_relaxed) ==
+    auto currentReadPos = m_read_pos.load(std::memory_order_relaxed);
+    bool isEmpty = (currentReadPos ==
                     // we are not allowed to use the empty method since we have to sync with
                     // the producer pop - this is done here
                     m_write_pos.load(std::memory_order_acquire));
@@ -64,7 +65,6 @@ inline cxx::optional<ValueType> FiFo<ValueType, Capacity>::pop()
     }
     else
     {
-        auto currentReadPos = m_read_pos.load(std::memory_order_relaxed);
         ValueType out = m_data[currentReadPos % Capacity];
 
         // m_read_pos must be increased after reading the pop'ed value otherwise
