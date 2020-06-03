@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ioxdds/dds/data_reader.hpp"
+#include "iceoryx_dds/dds/data_reader.hpp"
 
 namespace iox {
 namespace dds {

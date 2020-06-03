@@ -2,10 +2,9 @@
 
 #include <iceoryx_posh/popo/publisher.hpp>
 
-#include "ioxdds/dds/dds_types.hpp"
-#include "ioxdds/gateway/dds_gateway_generic.hpp"
-#include "ioxdds/gateway/channel.hpp"
-#include "ioxdds/gateway/input_channel.hpp"
+#include "iceoryx_dds/dds/dds_types.hpp"
+#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
+#include "iceoryx_dds/gateway/channel.hpp"
 
 namespace iox {
 namespace dds {
@@ -22,4 +21,4 @@ public:
 } // namespace dds
 } // namespace iox
 
-#include "ioxdds/internal/gateway/dds_to_iox.inl"
+#include "iceoryx_dds/internal/gateway/dds_to_iox.inl"

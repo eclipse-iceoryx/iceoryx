@@ -24,11 +24,11 @@
 #include <iceoryx_posh/popo/subscriber.hpp>
 #include <iceoryx_posh/runtime/posh_runtime.hpp>
 
-#include "ioxdds/dds/data_writer.hpp"
-#include "ioxdds/dds/dds_configs.hpp"
-#include "ioxdds/dds/dds_types.hpp"
-#include "ioxdds/gateway/dds_gateway_generic.hpp"
-#include "ioxdds/gateway/channel.hpp"
+#include "iceoryx_dds/dds/data_writer.hpp"
+#include "iceoryx_dds/dds/dds_configs.hpp"
+#include "iceoryx_dds/dds/dds_types.hpp"
+#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
+#include "iceoryx_dds/gateway/channel.hpp"
 
 namespace iox
 {
@@ -51,4 +51,4 @@ class Iceoryx2DDSGateway : public iox::dds::DDSGatewayGeneric<channel_t>
 } // dds
 } // iox
 
-#include "ioxdds/internal/gateway/iox_to_dds.inl"
+#include "iceoryx_dds/internal/gateway/iox_to_dds.inl"

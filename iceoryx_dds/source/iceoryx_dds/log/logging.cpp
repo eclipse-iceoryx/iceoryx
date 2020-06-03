@@ -1,5 +1,5 @@
 
-#include "ioxdds/internal/log/logging.hpp"
+#include "iceoryx_dds/internal/log/logging.hpp"
 
 namespace iox
 {

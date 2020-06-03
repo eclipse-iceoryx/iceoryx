@@ -15,8 +15,8 @@
 #pragma once
 
 #ifdef USE_CYCLONE_DDS
-#include "ioxdds/dds/cyclone_data_reader.hpp"
-#include "ioxdds/dds/cyclone_data_writer.hpp"
+#include "iceoryx_dds/dds/cyclone_data_reader.hpp"
+#include "iceoryx_dds/dds/cyclone_data_writer.hpp"
 #else
 #error "A DDS implementation must be provided."
 #endif

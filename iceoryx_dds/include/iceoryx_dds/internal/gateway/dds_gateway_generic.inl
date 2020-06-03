@@ -1,10 +1,9 @@
 
 #include <cpptoml.h>
 
-#include "ioxdds/internal/log/logging.hpp"
-
-#include "ioxdds/dds/dds_types.hpp"
-#include "ioxdds/gateway/dds_gateway_generic.hpp"
+#include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_dds/dds/dds_types.hpp"
+#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
 
 // ================================================== Public ================================================== //
 

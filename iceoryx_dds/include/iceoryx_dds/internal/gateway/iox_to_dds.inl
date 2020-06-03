@@ -17,9 +17,8 @@
 
 #include <iceoryx_posh/mepoo/chunk_header.hpp>
 
-#include "ioxdds/internal/log/logging.hpp"
-
-#include "ioxdds/gateway/iox_to_dds.hpp"
+#include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_dds/gateway/iox_to_dds.hpp"
 
 namespace iox
 {

@@ -4,7 +4,7 @@
 
 #include <iceoryx_posh/capro/service_description.hpp>
 #include <iceoryx_utils/internal/objectpool/objectpool.hpp>
-#include "ioxdds/dds/dds_configs.hpp"
+#include "iceoryx_dds/dds/dds_configs.hpp"
 
 namespace iox {
 namespace dds{
@@ -60,4 +60,4 @@ private:
 } // namespace dds
 } // namespace iox
 
-#include "ioxdds/internal/gateway/channel.inl"
+#include "iceoryx_dds/internal/gateway/channel.inl"

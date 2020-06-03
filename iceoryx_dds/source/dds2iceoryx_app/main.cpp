@@ -3,7 +3,7 @@
 #include <iceoryx_posh/runtime/posh_runtime.hpp>
 #include <iceoryx_utils/posix_wrapper/semaphore.hpp>
 
-#include "ioxdds/gateway/dds_to_iox.hpp"
+#include "iceoryx_dds/gateway/dds_to_iox.hpp"
 
 class ShutdownManager
 {
