@@ -95,7 +95,7 @@ template <typename channel_t>
 inline void Iceoryx2DDSGateway<channel_t>::forward() noexcept
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
-    for (auto channel = guardedVector->begin(); channel != guardedVector->end(); channel++)
+    for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
     {
         auto subscriber = channel->getIceoryxTerminal();
         if (subscriber->hasNewChunks())
