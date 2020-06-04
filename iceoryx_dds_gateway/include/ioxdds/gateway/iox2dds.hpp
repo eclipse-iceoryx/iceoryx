@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_DDS_GATEWAY_GATEWAY_IOX2DDS_HPP
+#define IOX_DDS_GATEWAY_GATEWAY_IOX2DDS_HPP
 
 #include <atomic>
 #include <chrono>
@@ -147,3 +147,5 @@ class Iceoryx2DDSGateway : gateway_t
 } // iox
 
 #include "ioxdds/internal/gateway/iox2dds.inl"
+
+#endif // IOX_DDS_GATEWAY_GATEWAY_IOX2DDS_HPP

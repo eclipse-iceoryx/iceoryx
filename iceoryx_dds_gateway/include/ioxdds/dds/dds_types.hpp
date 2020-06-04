@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_DDS_GATEWAY_DDS_DDS_TYPES_HPP
+#define IOX_DDS_GATEWAY_DDS_DDS_TYPES_HPP
 
 #include "ioxdds/dds/data_writer.hpp"
 
@@ -34,3 +34,5 @@ using data_writer_t = iox::dds::CycloneDataWriter;
 #endif
 }
 }
+
+#endif // IOX_DDS_GATEWAY_DDS_DDS_TYPES_HPP

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_DDS_GATEWAY_DDS_DATA_WRITER_INL
+#define IOX_DDS_GATEWAY_DDS_DATA_WRITER_INL
 
 template <typename Impl>
 inline void iox::dds::DataWriter<Impl>::connect() noexcept
@@ -41,3 +43,5 @@ inline iox::dds::IdString iox::dds::DataWriter<Impl>::getEventId() const noexcep
 {
     return static_cast<Impl*>(this)->getEventId();
 };
+
+#endif // IOX_DDS_GATEWAY_DDS_DATA_WRITER_INL

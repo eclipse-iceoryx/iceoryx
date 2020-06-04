@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_DDS_GATEWAY_MOCKS_CHUNK_MOCK_HPP
+#define IOX_DDS_GATEWAY_MOCKS_CHUNK_MOCK_HPP
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -91,3 +91,5 @@ class ChunkMock
     iox::mepoo::ChunkHeader* m_chunkHeader = nullptr;
     T* m_value = nullptr;
 };
+
+#endif // IOX_DDS_GATEWAY_MOCKS_CHUNK_MOCK_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_DDS_GATEWAY_GATEWAY_CHANNEL_HPP
+#define IOX_DDS_GATEWAY_GATEWAY_CHANNEL_HPP
 
 #include <cstdint>
 
@@ -83,3 +83,5 @@ class Channel
 } // iox
 
 #include "ioxdds/internal/gateway/channel.inl"
+
+#endif // IOX_DDS_GATEWAY_GATEWAY_CHANNEL_HPP

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_DDS_GATEWAY_GATEWAY_CHANNEL_INL
+#define IOX_DDS_GATEWAY_GATEWAY_CHANNEL_INL
 
 namespace iox
 {
@@ -74,3 +76,5 @@ inline std::shared_ptr<data_writer_t> Channel<subscriber_t, data_writer_t>::getD
 
 } // namespace dds
 } // namespace iox
+
+#endif // IOX_DDS_GATEWAY_GATEWAY_CHANNEL_INL

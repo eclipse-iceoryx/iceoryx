@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_DDS_GATEWAY_GATEWAY_IOX2DDS_INL
+#define IOX_DDS_GATEWAY_GATEWAY_IOX2DDS_INL
 
 #include <chrono>
 #include <thread>
@@ -207,3 +209,5 @@ void Iceoryx2DDSGateway<gateway_t, subscriber_t, data_writer_t>::discardChannel(
 
 } // namespace dds
 } // namespace iox
+
+#endif // IOX_DDS_GATEWAY_GATEWAY_IOX2DDS_INL

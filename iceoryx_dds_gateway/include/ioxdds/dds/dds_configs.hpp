@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IOX_DDS_GATEWAY_DDS_DDS_CONFIGS_HPP
+#define IOX_DDS_GATEWAY_DDS_DDS_CONFIGS_HPP
 
 #include <iceoryx_posh/iceoryx_posh_types.hpp>
 
@@ -13,3 +14,5 @@ static constexpr uint32_t MAX_CHANNEL_NUMBER = iox::MAX_PORT_NUMBER;
 
 } // namespace dds
 } // namespace iox
+
+#endif // IOX_DDS_GATEWAY_DDS_DDS_CONFIGS_HPP
