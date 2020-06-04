@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_CONCURRENT_LOFFLI_HPP
+#define IOX_UTILS_CONCURRENT_LOFFLI_HPP
 
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
@@ -93,3 +93,5 @@ class LoFFLi
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_UTILS_CONCURRENT_LOFFLI_HPP

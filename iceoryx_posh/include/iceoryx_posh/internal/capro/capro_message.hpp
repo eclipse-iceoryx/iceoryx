@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_CAPRO_CAPRO_MESSAGE_HPP
+#define IOX_POSH_CAPRO_CAPRO_MESSAGE_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 
@@ -98,3 +98,5 @@ class CaproMessage
 
 } // namespace capro
 } // namespace iox
+
+#endif // IOX_POSH_CAPRO_CAPRO_MESSAGE_HPP

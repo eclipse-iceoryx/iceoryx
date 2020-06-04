@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_PLATFORM_SIGNAL_HPP
+#define IOX_UTILS_PLATFORM_SIGNAL_HPP
 
 #include "iceoryx_utils/platform/types.hpp"
 
@@ -66,3 +66,5 @@ inline int kill(pid_t pid, int sig)
 {
     return 0;
 }
+
+#endif // IOX_UTILS_PLATFORM_SIGNAL_HPP

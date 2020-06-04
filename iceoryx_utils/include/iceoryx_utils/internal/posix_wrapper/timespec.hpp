@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_POSIX_WRAPPER_TIMESPEC_HPP
+#define IOX_UTILS_POSIX_WRAPPER_TIMESPEC_HPP
 
 #include <time.h>
 // For std types
@@ -39,3 +39,5 @@ double subtractTimespecMS(const struct timespec minuend, const struct timespec s
 
 } // namespace posix
 } // namespace iox
+
+#endif // IOX_UTILS_POSIX_WRAPPER_TIMESPEC_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_UNITS_DURATION_HPP
+#define IOX_UTILS_UNITS_DURATION_HPP
 
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
@@ -236,3 +236,5 @@ std::ostream& operator<<(std::ostream& stream, const Duration& t);
 } // namespace iox
 
 #include "iceoryx_utils/internal/units/duration.inl"
+
+#endif // IOX_UTILS_UNITS_DURATION_HPP

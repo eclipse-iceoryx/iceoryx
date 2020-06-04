@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_GRAPHS_DIRECTED_GRAPH_HPP
+#define IOX_UTILS_GRAPHS_DIRECTED_GRAPH_HPP
 
 #include "iceoryx_utils/cxx/vector.hpp"
 
@@ -260,3 +260,5 @@ class DirectedGraph
         return index >= 0 && index < static_cast<Index_t>(m_vertices.size());
     }
 };
+
+#endif // IOX_UTILS_GRAPHS_DIRECTED_GRAPH_HPP

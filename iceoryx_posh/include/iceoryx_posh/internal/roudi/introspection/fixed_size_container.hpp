@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_INTROSPECTION_FIXED_SIZE_CONTAINER_HPP
+#define IOX_POSH_INTROSPECTION_FIXED_SIZE_CONTAINER_HPP
 
 #include "iceoryx_utils/cxx/vector.hpp"
 
@@ -118,3 +118,5 @@ class FixedSizeContainer
 
     iox::cxx::vector<entry_t, capacity> m_values;
 };
+
+#endif // IOX_POSH_INTROSPECTION_FIXED_SIZE_CONTAINER_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
+#define IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -50,3 +50,4 @@ class ServiceRegistry
 } // namespace roudi
 } // namespace iox
 
+#endif // IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP

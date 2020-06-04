@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_SERIALIZATION_INL
+#define IOX_UTILS_CXX_SERIALIZATION_INL
 
 namespace iox
 {
@@ -150,3 +152,5 @@ inline bool Serialization::getNth(const unsigned int index, T& t) const noexcept
 }
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_SERIALIZATION_INL

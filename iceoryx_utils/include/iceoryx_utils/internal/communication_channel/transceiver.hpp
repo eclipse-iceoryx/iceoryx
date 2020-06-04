@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_COMMUNICATION_CHANNEL_TRANSCEIVER_HPP
+#define IOX_UTILS_COMMUNICATION_CHANNEL_TRANSCEIVER_HPP
 
 #include "receiver.hpp"
 #include "transmitter.hpp"
@@ -35,3 +35,5 @@ class Transceiver : public Receiver<DataType, TransportLayer>, public Transmitte
 } // namespace iox
 
 #include "iceoryx_utils/internal/communication_channel/transceiver.inl"
+
+#endif // IOX_UTILS_COMMUNICATION_CHANNEL_TRANSCEIVER_HPP

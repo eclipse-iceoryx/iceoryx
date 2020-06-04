@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef MOCKS_HPP_INCLUDED
-#define MOCKS_HPP_INCLUDED
+#ifndef IOX_UTILS_MOCKS_MOCKS_HPP
+#define IOX_UTILS_MOCKS_MOCKS_HPP
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -34,4 +33,4 @@ T assignSymbol(const std::string& functionName);
 
 #include "mocks.inl"
 
-#endif
+#endif // IOX_UTILS_MOCKS_MOCKS_HPP

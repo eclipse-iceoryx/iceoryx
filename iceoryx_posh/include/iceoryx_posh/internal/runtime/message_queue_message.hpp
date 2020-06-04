@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_HPP
+#define IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_HPP
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 
@@ -127,3 +127,5 @@ class MqMessage
 
 
 #include "iceoryx_posh/internal/runtime/message_queue_message.inl"
+
+#endif // IOX_POSH_RUNTIME_MESSAGE_QUEUE_MESSAGE_HPP

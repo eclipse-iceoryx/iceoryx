@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_POPO_BASE_PORT_HPP
+#define IOX_POSH_POPO_BASE_PORT_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/base_port_data.hpp"
@@ -91,3 +91,5 @@ class BasePort
 } // namespace iox
 
 #include "iceoryx_posh/internal/popo/base_port.inl"
+
+#endif // IOX_POSH_POPO_BASE_PORT_HPP

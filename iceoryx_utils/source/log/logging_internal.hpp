@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_LOG_LOGGING_INTERNAL_HPP
+#define IOX_UTILS_LOG_LOGGING_INTERNAL_HPP
 
 #include "iceoryx_utils/log/logging_free_function_building_block.hpp"
 
@@ -36,3 +36,4 @@ static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<LoggingComponent>;
 } // namespace log
 } // namespace iox
 
+#endif // IOX_UTILS_LOG_LOGGING_INTERNAL_HPP

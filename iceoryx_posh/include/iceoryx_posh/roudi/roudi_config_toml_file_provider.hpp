@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ROUDI_ROUDI_CONFIG_TOML_FILE_PROVIDER_HPP
+#define IOX_POSH_ROUDI_ROUDI_CONFIG_TOML_FILE_PROVIDER_HPP
 
 #include "iceoryx_posh/roudi/roudi_config_file_provider.hpp"
 
@@ -35,3 +35,5 @@ class TomlRouDiConfigFileProvider : public iox::roudi::RouDiConfigFileProvider
 };
 } // namespace roudi
 } // namespace iox
+
+#endif // IOX_POSH_ROUDI_ROUDI_CONFIG_TOML_FILE_PROVIDER_HPP

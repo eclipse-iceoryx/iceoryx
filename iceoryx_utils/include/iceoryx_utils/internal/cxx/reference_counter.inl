@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_REFERENCE_COUNTER_INL
+#define IOX_UTILS_CXX_REFERENCE_COUNTER_INL
 
 #include "iceoryx_utils/internal/cxx/reference_counter.hpp"
 
@@ -94,3 +96,5 @@ inline void ReferenceCounter<T>::decrementReferenceCounter() noexcept
 }
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_REFERENCE_COUNTER_INL

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MEPOO_SHARED_POINTER_HPP
+#define IOX_POSH_MEPOO_SHARED_POINTER_HPP
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -76,3 +76,4 @@ class SharedPointer : public DesignPattern::Creation<SharedPointer<T>, SharedPoi
 
 #include "iceoryx_posh/internal/mepoo/shared_pointer.inl"
 
+#endif // IOX_POSH_MEPOO_SHARED_POINTER_HPP

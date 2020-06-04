@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
+#define IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
@@ -123,3 +125,5 @@ inline void MePooSegment<SharedMemoryObjectType, MemoryManagerType>::setSegmentI
 
 } // namespace mepoo
 } // namespace iox
+
+#endif // IOX_POSH_MEPOO_MEPOO_SEGMENT_INL

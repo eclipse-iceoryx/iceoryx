@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_PLATFORM_SEMAPHORE_HPP
+#define IOX_UTILS_PLATFORM_SEMAPHORE_HPP
 
 #include <atomic>
 #include <dispatch/dispatch.h>
@@ -54,3 +54,5 @@ inline iox_sem_t* iox_sem_open(const char* name, int oflag, Targs... args)
 {
     return iox_sem_open_impl(name, oflag, args...);
 }
+
+#endif // IOX_UTILS_PLATFORM_SEMAPHORE_HPP

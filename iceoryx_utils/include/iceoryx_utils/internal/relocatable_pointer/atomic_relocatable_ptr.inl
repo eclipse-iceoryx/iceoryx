@@ -1,3 +1,6 @@
+#ifndef IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_INL
+#define IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_INL
+
 #include "iceoryx_utils/internal/relocatable_pointer/atomic_relocatable_ptr.hpp"
 
 namespace iox
@@ -56,3 +59,5 @@ inline typename atomic_relocatable_ptr<T>::offset_t atomic_relocatable_ptr<T>::c
     return reinterpret_cast<offset_t>(&m_offset) - reinterpret_cast<offset_t>(ptr);
 }
 }
+
+#endif // IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_INL

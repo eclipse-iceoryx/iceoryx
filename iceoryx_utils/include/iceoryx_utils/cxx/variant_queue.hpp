@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_CXX_VARIANT_QUEUE_HPP
+#define IOX_UTILS_CXX_VARIANT_QUEUE_HPP
 
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -126,3 +126,5 @@ class VariantQueue
 } // namespace iox
 
 #include "iceoryx_utils/internal/cxx/variant_queue.inl"
+
+#endif // IOX_UTILS_CXX_VARIANT_QUEUE_HPP

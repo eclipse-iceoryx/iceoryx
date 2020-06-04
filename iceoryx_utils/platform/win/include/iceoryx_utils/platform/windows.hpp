@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_PLATFORM_WINDOWS_HPP
+#define IOX_UTILS_PLATFORM_WINDOWS_HPP
 
 #define _WINSOCKAPI_
 #define WIN32_LEAN_AND_MEAN
@@ -20,3 +20,5 @@
 #include <windows.h>
 
 #include "iceoryx_utils/platform/platform_correction.hpp"
+
+#endif // IOX_UTILS_PLATFORM_WINDOWS_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_RUNTIME_MESSAGE_QUEUE_INTERFACE_HPP
+#define IOX_POSH_RUNTIME_MESSAGE_QUEUE_INTERFACE_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
@@ -360,3 +360,5 @@ class MqRuntimeInterface
 };
 } // namespace runtime
 } // namespace iox
+
+#endif // IOX_POSH_RUNTIME_MESSAGE_QUEUE_INTERFACE_HPP

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IOX_POSH_SERVICE_DISCOVERY_TEST_ROUDI_SERVICE_DISCOVERY_HPP
+#define IOX_POSH_SERVICE_DISCOVERY_TEST_ROUDI_SERVICE_DISCOVERY_HPP
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "roudi_gtest.hpp"
@@ -41,3 +42,5 @@ class RouDiServiceDiscoveryTest : public RouDi_GTest
         }
     }
 };
+
+#endif // IOX_POSH_SERVICE_DISCOVERY_TEST_ROUDI_SERVICE_DISCOVERY_HPP

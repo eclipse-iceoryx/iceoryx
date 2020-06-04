@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_LOG_LOGGING_HPP
+#define IOX_UTILS_LOG_LOGGING_HPP
 
 #include "iceoryx_utils/log/logcommon.hpp"
 #include "iceoryx_utils/log/logger.hpp"
@@ -104,3 +104,4 @@ inline constexpr LogRawBuffer RawBuffer(const T& value) noexcept
 } // namespace log
 } // namespace iox
 
+#endif // IOX_UTILS_LOG_LOGGING_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MEPOO_MEM_POOL_HPP
+#define IOX_POSH_MEPOO_MEM_POOL_HPP
 
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/internal/concurrent/loffli.hpp"
@@ -88,3 +88,5 @@ class MemPool
 
 } // namespace mepoo
 } // namespace iox
+
+#endif // IOX_POSH_MEPOO_MEM_POOL_HPP

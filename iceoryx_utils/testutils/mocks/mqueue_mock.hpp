@@ -11,11 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_MOCKS_MQUEUE_MOCK_HPP
+#define IOX_UTILS_MOCKS_MQUEUE_MOCK_HPP
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 
-#ifndef MQUEUE_MOCK_HPP_INCLUDED
-#define MQUEUE_MOCK_HPP_INCLUDED
 
 #include "iceoryx_utils/platform/mqueue.hpp"
 
@@ -66,4 +66,5 @@ int mq_timedsend(
     int mqdes, const char* msg_ptr, size_t msg_len, unsigned int msg_prio, const struct timespec* abs_timeout);
 
 #endif
-#endif
+
+#endif // IOX_UTILS_MOCKS_MQUEUE_MOCK_HPP

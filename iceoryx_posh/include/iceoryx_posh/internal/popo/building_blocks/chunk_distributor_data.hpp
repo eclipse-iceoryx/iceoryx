@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef IOX_POPO_CHUNK_DISTRIBUTOR_DATA_HPP_
-#define IOX_POPO_CHUNK_DISTRIBUTOR_DATA_HPP_
+#ifndef IOX_POSH_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_HPP
+#define IOX_POSH_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -98,4 +97,4 @@ struct ChunkDistributorData : public LockingPolicy
 } // namespace popo
 } // namespace iox
 
-#endif
+#endif // IOX_POSH_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_CXX_OPTIONAL_HPP
+#define IOX_UTILS_CXX_OPTIONAL_HPP
 
 #include "iceoryx_utils/cxx/types.hpp"
 
@@ -248,3 +248,5 @@ optional<OptionalBaseType> make_optional(Targs&&... args) noexcept;
 } // namespace iox
 
 #include "iceoryx_utils/internal/cxx/optional.inl"
+
+#endif // IOX_UTILS_CXX_OPTIONAL_HPP

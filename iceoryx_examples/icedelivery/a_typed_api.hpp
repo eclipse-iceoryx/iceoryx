@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_EXAMPLES_ICEDELIVERY_A_TYPED_API_HPP
+#define IOX_EXAMPLES_ICEDELIVERY_A_TYPED_API_HPP
 
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
@@ -136,3 +136,5 @@ class TypedSubscriber
     iox::popo::Subscriber m_subscriber;
     OnReceiveCallback<TopicType> m_callback;
 };
+
+#endif // IOX_EXAMPLES_ICEDELIVERY_A_TYPED_API_HPP

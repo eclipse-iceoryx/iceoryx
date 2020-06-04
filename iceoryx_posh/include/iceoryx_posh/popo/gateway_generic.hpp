@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_POPO_GATEWAY_GENERIC_HPP
+#define IOX_POSH_POPO_GATEWAY_GENERIC_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -63,3 +63,4 @@ class GatewayGeneric
 } // namespace popo
 } // namespace iox
 
+#endif // IOX_POSH_POPO_GATEWAY_GENERIC_HPP

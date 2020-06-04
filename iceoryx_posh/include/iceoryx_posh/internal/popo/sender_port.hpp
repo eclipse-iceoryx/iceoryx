@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_POPO_SENDER_PORT_HPP
+#define IOX_POSH_POPO_SENDER_PORT_HPP
 
 #include "iceoryx_posh/internal/popo/base_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port_data.hpp"
@@ -84,3 +84,4 @@ class SenderPort : public BasePort
 
 #include "iceoryx_posh/internal/popo/sender_port.inl"
 
+#endif // IOX_POSH_POPO_SENDER_PORT_HPP

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_UNITS_DURATION_INL
+#define IOX_UTILS_UNITS_DURATION_INL
 
 #include "iceoryx_utils/internal/units/duration.hpp"
 
@@ -278,3 +280,5 @@ inline constexpr Duration operator/(const T& left, const Duration& right)
 
 } // namespace units
 } // namespace iox
+
+#endif // IOX_UTILS_UNITS_DURATION_INL

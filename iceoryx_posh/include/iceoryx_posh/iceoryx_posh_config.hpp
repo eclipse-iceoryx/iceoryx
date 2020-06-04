@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ICEORYX_POSH_ICEORYX_POSH_CONFIG_HPP
+#define IOX_POSH_ICEORYX_POSH_ICEORYX_POSH_CONFIG_HPP
 
 #include "iceoryx_posh/mepoo/segment_config.hpp"
 #include "roudi/roudi_config.hpp"
@@ -95,3 +95,5 @@ struct Config : public ConfigParts...
 
 using RouDiConfig_t = Config<mepoo::SegmentConfig, roudi::RouDiConfig>;
 } // namespace iox
+
+#endif // IOX_POSH_ICEORYX_POSH_ICEORYX_POSH_CONFIG_HPP

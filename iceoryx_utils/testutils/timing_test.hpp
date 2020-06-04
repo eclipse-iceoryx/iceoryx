@@ -11,7 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+#ifndef IOX_UTILS_TESTUTILS_TIMING_TEST_HPP
+#define IOX_UTILS_TESTUTILS_TIMING_TEST_HPP
 
 #include <atomic>
 #include <cstdint>
@@ -140,3 +141,5 @@ inline std::string verifyTimingTestResult(const char* file,
 }
 } // namespace testutils
 } // namespace iox
+
+#endif // IOX_UTILS_TESTUTILS_TIMING_TEST_HPP

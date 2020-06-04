@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_POPO_SUBSCRIBER_INL
+#define IOX_POSH_POPO_SUBSCRIBER_INL
 
 namespace iox
 {
@@ -266,3 +268,5 @@ inline void Subscriber_t<ReceiverPortType>::eventCallbackMain() noexcept
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_SUBSCRIBER_INL

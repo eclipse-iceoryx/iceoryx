@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_CXX_CONVERT_HPP
+#define IOX_UTILS_CXX_CONVERT_HPP
 
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
@@ -89,3 +89,5 @@ class convert
 } // namespace iox
 
 #include "iceoryx_utils/internal/cxx/convert.inl"
+
+#endif // IOX_UTILS_CXX_CONVERT_HPP

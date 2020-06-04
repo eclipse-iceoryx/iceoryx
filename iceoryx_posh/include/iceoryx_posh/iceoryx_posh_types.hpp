@@ -11,7 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+#ifndef IOX_POSH_ICEORYX_POSH_ICEORYX_POSH_TYPES_HPP
+#define IOX_POSH_ICEORYX_POSH_ICEORYX_POSH_TYPES_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
@@ -124,3 +125,5 @@ using FindServiceHandler = std::function<void(InstanceContainer&, FindServiceHan
 } // namespace runtime
 
 } // namespace iox
+
+#endif // IOX_POSH_ICEORYX_POSH_ICEORYX_POSH_TYPES_HPP

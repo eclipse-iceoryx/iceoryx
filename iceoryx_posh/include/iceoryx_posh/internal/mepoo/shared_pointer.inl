@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_MEPOO_SHARED_POINTER_INL
+#define IOX_POSH_MEPOO_SHARED_POINTER_INL
 
 namespace iox
 {
@@ -116,3 +118,5 @@ inline SharedPointer<T>::operator bool() const noexcept
 
 } // namespace mepoo
 } // namespace iox
+
+#endif // IOX_POSH_MEPOO_SHARED_POINTER_INL

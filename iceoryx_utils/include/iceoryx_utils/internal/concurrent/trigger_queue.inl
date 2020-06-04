@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CONCURRENT_TRIGGER_QUEUE_INL
+#define IOX_UTILS_CONCURRENT_TRIGGER_QUEUE_INL
 
 #include "iceoryx_utils/internal/concurrent/trigger_queue.hpp"
 
@@ -120,3 +122,5 @@ bool TriggerQueue<T, CAPACITY>::stl_queue_push(const T& in)
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_UTILS_CONCURRENT_TRIGGER_QUEUE_INL

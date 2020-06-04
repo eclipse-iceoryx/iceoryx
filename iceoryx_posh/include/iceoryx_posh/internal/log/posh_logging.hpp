@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_LOG_POSH_LOGGING_HPP
+#define IOX_POSH_LOG_POSH_LOGGING_HPP
 
 /// @todo this might be needed to be public when the logger is used in templates
 
@@ -35,3 +35,4 @@ static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<LoggingComponent>;
 
 } // namespace iox
 
+#endif // IOX_POSH_LOG_POSH_LOGGING_HPP

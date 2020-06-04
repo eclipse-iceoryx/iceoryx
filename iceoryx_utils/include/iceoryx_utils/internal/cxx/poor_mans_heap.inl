@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_POOR_MANS_HEAP_INL
+#define IOX_UTILS_CXX_POOR_MANS_HEAP_INL
 
 #include "iceoryx_utils/cxx/poor_mans_heap.hpp"
 
@@ -77,3 +79,5 @@ Interface& PoorMansHeap<Interface, TypeSize, TypeAlignment>::operator*() const n
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_POOR_MANS_HEAP_INL

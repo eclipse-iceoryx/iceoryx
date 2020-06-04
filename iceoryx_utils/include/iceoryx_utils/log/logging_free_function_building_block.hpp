@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_LOG_LOGGING_FREE_FUNCTION_BUILDING_BLOCK_HPP
+#define IOX_UTILS_LOG_LOGGING_FREE_FUNCTION_BUILDING_BLOCK_HPP
 
 /// @brief building block to easily create free function for logging in a library context
 /// @code
@@ -108,3 +108,4 @@ inline LogStream LogVerbose() noexcept
 } // namespace log
 } // namespace iox
 
+#endif // IOX_UTILS_LOG_LOGGING_FREE_FUNCTION_BUILDING_BLOCK_HPP

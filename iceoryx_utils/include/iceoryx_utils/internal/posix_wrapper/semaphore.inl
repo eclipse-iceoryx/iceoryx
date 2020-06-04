@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_INL
+#define IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_INL
 
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
@@ -31,3 +33,5 @@ bool Semaphore::setHandleFromCall(const SmartC& call) noexcept
 }
 } // namespace posix
 } // namespace iox
+
+#endif // IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_INL

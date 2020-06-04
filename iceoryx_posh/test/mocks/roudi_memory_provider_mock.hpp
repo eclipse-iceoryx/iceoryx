@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_MOCKS_ROUDI_MEMORY_PROVIDER_MOCK_HPP
+#define IOX_POSH_MOCKS_ROUDI_MEMORY_PROVIDER_MOCK_HPP
 
 #include "test.hpp"
 
@@ -76,3 +78,5 @@ class MemoryProviderMock final : public MemoryProviderTestImpl
         m_mockCallsEnabled = true;
     }
 };
+
+#endif // IOX_POSH_MOCKS_ROUDI_MEMORY_PROVIDER_MOCK_HPP

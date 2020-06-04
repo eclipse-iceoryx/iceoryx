@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef IOX_POPO_CHUNK_QUEUE_TYPES_HPP_
-#define IOX_POPO_CHUNK_QUEUE_TYPES_HPP_
+#ifndef IOX_POSH_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP
+#define IOX_POSH_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP
 
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
@@ -44,4 +43,4 @@ struct ChunkTuple
 } // namespace popo
 } // namespace iox
 
-#endif
+#endif // IOX_POSH_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP

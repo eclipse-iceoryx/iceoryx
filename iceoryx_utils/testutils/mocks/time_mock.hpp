@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef TIME_MOCK_HPP_INCLUDED
-#define TIME_MOCK_HPP_INCLUDED
+#ifndef IOX_UTILS_MOCKS_TIME_MOCK_HPP
+#define IOX_UTILS_MOCKS_TIME_MOCK_HPP
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 
@@ -49,4 +48,5 @@ int clock_gettime(clockid_t clk_id, struct timespec* res) noexcept;
 int clock_settime(clockid_t clk_id, const struct timespec* res) noexcept;
 #endif
 #endif
-#endif
+
+#endif // IOX_UTILS_MOCKS_TIME_MOCK_HPP

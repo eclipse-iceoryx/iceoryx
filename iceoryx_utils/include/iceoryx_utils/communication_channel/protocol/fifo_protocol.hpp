@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_PROTOCOL_FIFO_PROTOCOL_HPP
+#define IOX_UTILS_PROTOCOL_FIFO_PROTOCOL_HPP
 
 #include "iceoryx_utils/internal/concurrent/fifo.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -66,3 +66,5 @@ class FiFoProtocol
 } // namespace iox
 
 #include "iceoryx_utils/internal/communication_channel/protocol/fifo_protocol.inl"
+
+#endif // IOX_UTILS_PROTOCOL_FIFO_PROTOCOL_HPP

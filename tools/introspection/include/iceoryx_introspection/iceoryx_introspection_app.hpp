@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_TOOLS_ICEORYX_INTROSPECTION_ICEORYX_INTROSPECTION_APP_HPP
+#define IOX_TOOLS_ICEORYX_INTROSPECTION_ICEORYX_INTROSPECTION_APP_HPP
 
 #include "iceoryx_introspection/introspection_app.hpp"
 
@@ -35,3 +37,5 @@ class IceOryxIntrospectionApp : public IntrospectionApp
 } // namespace introspection
 } // namespace client
 } // namespace iox
+
+#endif // IOX_TOOLS_ICEORYX_INTROSPECTION_ICEORYX_INTROSPECTION_APP_HPP

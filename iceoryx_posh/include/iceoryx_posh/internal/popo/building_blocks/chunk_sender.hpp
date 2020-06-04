@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef IOX_POPO_CHUNK_SENDER_HPP_
-#define IOX_POPO_CHUNK_SENDER_HPP_
+#ifndef IOX_POSH_BUILDING_BLOCKS_CHUNK_SENDER_HPP
+#define IOX_POSH_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
@@ -96,4 +95,4 @@ class ChunkSender : public ChunkDistributorType
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.inl"
 
-#endif
+#endif // IOX_POSH_BUILDING_BLOCKS_CHUNK_SENDER_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_PLATFORM_GETOPT_HPP
+#define IOX_UTILS_PLATFORM_GETOPT_HPP
 
 #define no_argument 0
 #define required_argument 1
@@ -36,3 +36,5 @@ getopt_long(int argc, char* const argv[], const char* optstring, const struct op
 {
     return 0;
 }
+
+#endif // IOX_UTILS_PLATFORM_GETOPT_HPP

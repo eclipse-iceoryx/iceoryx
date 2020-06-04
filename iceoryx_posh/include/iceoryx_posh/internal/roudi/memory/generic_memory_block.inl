@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_MEMORY_GENERIC_MEMORY_BLOCK_INL
+#define IOX_POSH_MEMORY_GENERIC_MEMORY_BLOCK_INL
 
 namespace iox
 {
@@ -67,3 +69,5 @@ cxx::optional<T*> GenericMemoryBlock<T>::value() const noexcept
 
 } // namespace roudi
 } // namespace iox
+
+#endif // IOX_POSH_MEMORY_GENERIC_MEMORY_BLOCK_INL

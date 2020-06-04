@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_MOCKS_ROUDI_MEMORY_BLOCK_MOCK_HPP
+#define IOX_POSH_MOCKS_ROUDI_MEMORY_BLOCK_MOCK_HPP
 
 #include "test.hpp"
 
@@ -47,3 +49,5 @@ class MemoryBlockMock final : public iox::roudi::MemoryBlock
     MOCK_METHOD1(memoryAvailableMock, void(void*));
     MOCK_METHOD0(destroyMock, void());
 };
+
+#endif // IOX_POSH_MOCKS_ROUDI_MEMORY_BLOCK_MOCK_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_PLATFORM_TIME_HPP
+#define IOX_UTILS_PLATFORM_TIME_HPP
 
 #include <condition_variable>
 #include <mutex>
@@ -51,3 +51,5 @@ int timer_delete(timer_t timerid);
 int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value);
 int timer_gettime(timer_t timerid, struct itimerspec* curr_value);
 int timer_getoverrun(timer_t timerid);
+
+#endif // IOX_UTILS_PLATFORM_TIME_HPP
