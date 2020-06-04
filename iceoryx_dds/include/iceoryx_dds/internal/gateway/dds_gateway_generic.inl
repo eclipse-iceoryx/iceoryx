@@ -1,9 +1,11 @@
 
 #include <cpptoml.h>
 
+#include <iceoryx_utils/internal/file_reader/file_reader.hpp>
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_dds/dds/dds_types.hpp"
 #include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
+
 
 // ================================================== Public ================================================== //
 
@@ -55,12 +57,20 @@ inline iox::dds::DDSGatewayGeneric<channel_t>::DDSGatewayGeneric() noexcept : io
 }
 
 template<typename channel_t>
+inline iox::dds::DDSGatewayGeneric<channel_t>::DDSGatewayGeneric(std::function<channel_t(const iox::capro::ServiceDescription)> channelFactory) noexcept
+    : iox::popo::GatewayGeneric(iox::capro::Interfaces::DDS), m_channelFactory(channelFactory)
+{
+     LogDebug() << "[DDSGatewayGeneric] Using provided channel factory.";
+}
+
+template<typename channel_t>
 inline void iox::dds::DDSGatewayGeneric<channel_t>::loadConfiguration() noexcept
 {
     // Search for config passed as command line argument.
 
 
     // Search for local config.
+
     auto config = cpptoml::parse_file("config.toml");
 
     // Search for local config.

@@ -38,6 +38,7 @@ public:
 
 protected:
     DDSGatewayGeneric() noexcept;
+    DDSGatewayGeneric(ChannelFactory channelFactory) noexcept;
 
     // These are made available to child classes for use in discover or forward methods.
     ChannelFactory m_channelFactory;

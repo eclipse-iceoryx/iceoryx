@@ -24,6 +24,10 @@ namespace iox
 {
 namespace dds
 {
+
+template <typename channel_t>
+using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
+
 // ======================================== Public ======================================== //
 template <typename channel_t>
 inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway() noexcept : iox::dds::DDSGatewayGeneric<channel_t>()
@@ -41,6 +45,10 @@ inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway() noexcept : iox::dds::
         dataWriter->connect();
     }
 }
+
+template <typename channel_t>
+inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway(ChannelFactory<channel_t> channelFactory) noexcept : iox::dds::DDSGatewayGeneric<channel_t>(channelFactory)
+{}
 
 template <typename channel_t>
 inline void

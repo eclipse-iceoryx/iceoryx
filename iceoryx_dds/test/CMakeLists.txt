@@ -4,7 +4,7 @@ project(test_iox_to_dds VERSION ${test_iox_to_dds})
 find_package(iceoryx_utils_testing REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
-set(PROJECT_PREFIX "ioxdds")
+set(PROJECT_PREFIX "iceoryx_dds")
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
 
@@ -17,7 +17,7 @@ set(TEST_LINK_LIBS
     iceoryx_utils::iceoryx_utils
     iceoryx_utils_testing::iceoryx_utils_testing
     iceoryx_posh::iceoryx_posh
-    iceoryx_dds_gateway::ioxdds
+    iceoryx_dds::iceoryx_dds
 )
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
