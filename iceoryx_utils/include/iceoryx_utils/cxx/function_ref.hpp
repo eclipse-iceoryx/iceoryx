@@ -62,7 +62,7 @@ class function_ref<ReturnType(ArgTypes...)>
     function_ref() noexcept;
 
     /// @brief Creates an empty function_ref
-    function_ref(nullptr_t) noexcept;
+    function_ref(std::nullptr_t) noexcept;
 
     /// @brief D'tor
     ~function_ref() noexcept = default;
