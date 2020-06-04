@@ -44,6 +44,6 @@ class ArgvInspector
 
   private:
     cxx::optional<std::string> m_cmdline;
-};
+} m
 } // namespace posix
 } // namespace iox
