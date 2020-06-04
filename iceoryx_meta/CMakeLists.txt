@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-set(iceoryx_VERSION 0.17.0.2)
-
+file (STRINGS "../VERSION" iceoryx_VERSION)
 project(iceoryx VERSION ${iceoryx_VERSION})
 
 #uncomment this as soon the ExternalProject install path issue is solved
