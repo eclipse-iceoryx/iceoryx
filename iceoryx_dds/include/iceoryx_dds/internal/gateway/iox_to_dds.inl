@@ -25,30 +25,31 @@ namespace iox
 namespace dds
 {
 
-template <typename channel_t>
-using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
+//template <typename channel_t>
+//using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
 
 // ======================================== Public ======================================== //
 template <typename channel_t>
 inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway() noexcept : iox::dds::DDSGatewayGeneric<channel_t>()
-{
-    // Create channels for all pre-configured services.
-    this->loadConfiguration();
+{}
 
-    // Connect the terminals of the created channels.
-    auto guardedVector = this->m_channels.GetScopeGuard();
-    for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
+template <typename channel_t>
+inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway(ChannelFactory channelFactory) noexcept : iox::dds::DDSGatewayGeneric<channel_t>(channelFactory)
+{}
+
+template<typename channel_t>
+inline void Iceoryx2DDSGateway<channel_t>::loadConfiguration(GatewayConfig config)
+{
+    for(const auto& service : config.m_configuredServices)
     {
-        auto subscriber = channel->getIceoryxTerminal();
-        auto dataWriter = channel->getDDSTerminal();
+        auto channel = this->setupChannel(service);
+        auto subscriber = channel.getIceoryxTerminal();
+        auto dataWriter = channel.getDDSTerminal();
         subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
         dataWriter->connect();
     }
 }
 
-template <typename channel_t>
-inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway(ChannelFactory<channel_t> channelFactory) noexcept : iox::dds::DDSGatewayGeneric<channel_t>(channelFactory)
-{}
 
 template <typename channel_t>
 inline void

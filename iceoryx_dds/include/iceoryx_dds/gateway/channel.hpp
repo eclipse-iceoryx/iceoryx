@@ -4,7 +4,7 @@
 
 #include <iceoryx_posh/capro/service_description.hpp>
 #include <iceoryx_utils/internal/objectpool/objectpool.hpp>
-#include "iceoryx_dds/dds/dds_configs.hpp"
+#include "iceoryx_dds/dds/dds_config.hpp"
 
 namespace iox {
 namespace dds{

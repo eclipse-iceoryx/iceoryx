@@ -19,6 +19,7 @@
 #include <iceoryx_utils/cxx/optional.hpp>
 #include <iceoryx_utils/posix_wrapper/semaphore.hpp>
 #include <iceoryx_dds/gateway/iox_to_dds.hpp>
+#include <iceoryx_dds/gateway/gateway_config.hpp>
 
 class ShutdownManager
 {
@@ -46,10 +47,14 @@ int main(int argc, char* argv[])
     signal(SIGINT, ShutdownManager::scheduleShutdown);
     signal(SIGTERM, ShutdownManager::scheduleShutdown);
 
+    // Parse configuration
+    iox::dds::GatewayConfig config;
+
     // Start application
-    iox::runtime::PoshRuntime::getInstance("/gateway_iox2dds");
+    iox::runtime::PoshRuntime::getInstance("/gateway_iceoryx2dds");
 
     iox::dds::Iceoryx2DDSGateway<> gateway;
+    gateway.loadConfiguration(config);
     gateway.runMultithreaded();
 
     // Run until SIGINT or SIGTERM

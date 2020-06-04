@@ -5,10 +5,14 @@
 
 #include <iceoryx_posh/popo/gateway_generic.hpp>
 #include <iceoryx_posh/capro/service_description.hpp>
+#include <iceoryx_posh/iceoryx_posh_types.hpp>
+#include <iceoryx_utils/cxx/string.hpp>
 #include <iceoryx_utils/cxx/vector.hpp>
 #include <iceoryx_utils/internal/concurrent/smart_lock.hpp>
 
 #include "iceoryx_dds/dds/dds_configs.hpp"
+#include "iceoryx_dds/gateway/gateway_config.hpp"
+
 namespace iox {
 namespace dds {
 
@@ -28,6 +32,12 @@ public:
     DDSGatewayGeneric(DDSGatewayGeneric&&) = delete;
     DDSGatewayGeneric& operator=(DDSGatewayGeneric&&) = delete;
 
+    ///
+    /// @brief loadConfiguration Load the provided configuration.
+    /// @note This method is virtual pure since different configuration likely to be different across implementations.
+    /// @param config
+    ///
+    virtual void loadConfiguration(GatewayConfig config) = 0;
     void runMultithreaded() noexcept;
     void shutdown() noexcept;
 
@@ -44,7 +54,6 @@ protected:
     ChannelFactory m_channelFactory;
     ConcurrentChannelVector m_channels;
 
-    void loadConfiguration() noexcept;
     channel_t setupChannel(const iox::capro::ServiceDescription& service) noexcept;
     void discardChannel(const iox::capro::ServiceDescription& service) noexcept;
     bool channelExists(const iox::capro::ServiceDescription& service) noexcept;

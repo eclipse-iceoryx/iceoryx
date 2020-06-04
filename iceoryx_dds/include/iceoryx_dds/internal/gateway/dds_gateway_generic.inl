@@ -63,36 +63,6 @@ inline iox::dds::DDSGatewayGeneric<channel_t>::DDSGatewayGeneric(std::function<c
      LogDebug() << "[DDSGatewayGeneric] Using provided channel factory.";
 }
 
-template<typename channel_t>
-inline void iox::dds::DDSGatewayGeneric<channel_t>::loadConfiguration() noexcept
-{
-    // Search for config passed as command line argument.
-
-
-    // Search for local config.
-
-    auto config = cpptoml::parse_file("config.toml");
-
-    // Search for local config.
-
-
-    // Setup data readers and publishers                  
-    auto configuredTopics = config->get_table_array("services");  
-    LogDebug() << "[DDSGatewayGeneric] Setting up channels for pre-configured services.";
-    for(const auto& topic : *configuredTopics)
-    {
-        auto service = topic->get_as<std::string>("service").value_or("");
-        auto instance = topic->get_as<std::string>("instance").value_or("");
-        auto event = topic->get_as<std::string>("event").value_or("");
-
-        this->setupChannel(iox::capro::ServiceDescription(
-                             IdString(iox::cxx::TruncateToCapacity, service.c_str()),
-                             IdString(iox::cxx::TruncateToCapacity, instance.c_str()),
-                             IdString(iox::cxx::TruncateToCapacity, event.c_str())
-                         ));
-    }
-}
-
 
 template<typename channel_t>
 inline channel_t iox::dds::DDSGatewayGeneric<channel_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept

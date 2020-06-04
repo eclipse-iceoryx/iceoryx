@@ -12,8 +12,11 @@ namespace dds {
 template <typename channel_t = iox::dds::Channel<iox::popo::Publisher, iox::dds::data_reader_t>>
 class DDS2IceoryxGateway : public iox::dds::DDSGatewayGeneric<channel_t>
 {
+    using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
 public:
     DDS2IceoryxGateway() noexcept;
+    DDS2IceoryxGateway(ChannelFactory channelFactory) noexcept;
+    void loadConfiguration(GatewayConfig config);
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward() noexcept;
 };
