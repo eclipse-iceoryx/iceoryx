@@ -54,23 +54,15 @@ template <class ReturnType, class... ArgTypes>
 class function_ref<ReturnType(ArgTypes...)>
 {
     using SignatureType = ReturnType(ArgTypes...);
-    using SelfType = function_ref<SignatureType>;
     template <typename T>
     using EnableIfNotFunctionRef = typename std::enable_if<!std::is_same<std::decay<T>, function_ref>::value>::type;
 
   public:
     /// @brief Creates an empty function_ref
-    function_ref() noexcept
-        : m_target(nullptr)
-        , m_functionPointer(nullptr)
-    {
-    }
+    function_ref() noexcept;
 
     /// @brief Creates an empty function_ref
-    function_ref(nullptr_t) noexcept
-        : function_ref()
-    {
-    }
+    function_ref(nullptr_t) noexcept;
 
     /// @brief D'tor
     ~function_ref() noexcept = default;
@@ -82,58 +74,22 @@ class function_ref<ReturnType(ArgTypes...)>
     function_ref& operator=(const function_ref&) noexcept = default;
 
     /// @brief Create a function_ref
-    template <typename CallableType, typename = EnableIfNotFunctionRef<SelfType>>
-    function_ref(CallableType&& callable) noexcept
-        : m_target(reinterpret_cast<void*>(std::addressof(callable)))
-        , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
-            return (*reinterpret_cast<typename std::add_pointer<CallableType>::type>(target))(
-                std::forward<ArgTypes>(args)...);
-        })
-    {
-    }
+    template <typename CallableType, typename = EnableIfNotFunctionRef<CallableType>>
+    function_ref(CallableType&& callable) noexcept;
 
     /// @brief Moves a function_ref
-    function_ref(function_ref&& rhs) noexcept
-    {
-        *this = std::move(rhs);
-    }
+    function_ref(function_ref&& rhs) noexcept;
 
     /// @brief Move assignment operator
-    function_ref& operator=(function_ref&& rhs) noexcept
-    {
-        if (this != &rhs)
-        {
-            m_target = rhs.m_target;
-            m_functionPointer = rhs.m_functionPointer;
-            // Make sure no UB can happen by marking the lvalue as invalid
-            rhs.m_target = nullptr;
-            rhs.m_functionPointer = nullptr;
-        }
-        return *this;
-    };
+    function_ref& operator=(function_ref&& rhs) noexcept;
 
     /// @brief Calls the provided callable
-    ReturnType operator()(ArgTypes... args) const noexcept
-    {
-        if (!m_target)
-        {
-            // Callable was called without user having assigned one beforehand
-            std::terminate();
-        }
-        return m_functionPointer(m_target, std::forward<ArgTypes>(args)...);
-    }
+    ReturnType operator()(ArgTypes... args) const noexcept;
 
     /// @brief Checks whether a valid target is contained
-    explicit operator bool() const noexcept
-    {
-        return m_target != nullptr;
-    }
+    explicit operator bool() const noexcept;
 
-    void swap(function_ref& rhs) noexcept
-    {
-        std::swap(m_target, rhs.m_target);
-        std::swap(m_functionPointer, rhs.m_functionPointer);
-    }
+    void swap(function_ref& rhs) noexcept;
 
   private:
     /// @brief Raw pointer of the callable
@@ -143,13 +99,9 @@ class function_ref<ReturnType(ArgTypes...)>
     ReturnType (*m_functionPointer)(void*, ArgTypes...){nullptr};
 };
 
-template <class ReturnType, class... ArgTypes>
-void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<ReturnType(ArgTypes...)>& rhs) noexcept
-{
-    lhs.swap(rhs);
-}
-
 } // namespace cxx
 } // namespace iox
+
+#include "iceoryx_utils/internal/cxx/function_ref.inl"
 
 #endif
