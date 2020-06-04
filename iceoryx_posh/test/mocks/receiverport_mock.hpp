@@ -33,10 +33,11 @@ class ReceiverPort_MOCK
     {
     }
 
-    ReceiverPort_MOCK(ReceiverPort_MOCK&&) = default;
-    ReceiverPort_MOCK& operator=(ReceiverPort_MOCK&&) = default;
-    ReceiverPort_MOCK(const ReceiverPort_MOCK&) = default;
-    ReceiverPort_MOCK& operator=(const ReceiverPort_MOCK&) = default;
+    // these are actually all already implicitly deleted
+    ReceiverPort_MOCK(ReceiverPort_MOCK&&) = delete;
+    ReceiverPort_MOCK& operator=(ReceiverPort_MOCK&&) = delete;
+    ReceiverPort_MOCK(const ReceiverPort_MOCK&) = delete;
+    ReceiverPort_MOCK& operator=(const ReceiverPort_MOCK&) = delete;
 
     MOCK_METHOD0(getCaProMessage, iox::cxx::optional<iox::capro::CaproMessage>());
     MOCK_METHOD1(getCaProMessage, iox::cxx::optional<iox::capro::CaproMessage>(iox::capro::CaproMessage));

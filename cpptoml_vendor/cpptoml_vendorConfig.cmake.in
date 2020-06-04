@@ -1,0 +1,3 @@
+# include cpptoml config file to make find_package(cpptoml REQUIRED) work
+
+include(${CMAKE_CURRENT_LIST_DIR}/../../cpptoml_install/lib/cmake/cpptoml/cpptomlConfig.cmake)

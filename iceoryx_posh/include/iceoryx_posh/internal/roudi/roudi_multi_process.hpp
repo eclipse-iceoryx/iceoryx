@@ -30,8 +30,6 @@
 #include "iceoryx_utils/platform/file.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
-#include "ac3log/simplelogger.hpp"
-
 #include <cstdint>
 
 namespace iox

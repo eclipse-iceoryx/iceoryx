@@ -139,46 +139,49 @@ inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Ver
 template <class ValueType, uint32_t CapacityValue>
 bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueOut, ValueType& f_paramOut_r) noexcept
 {
-    bool hasOverflow = false;
+    constexpr bool SOFI_OVERFLOW{false};
 
     uint64_t currentWritePosition = m_writePosition.load(std::memory_order_relaxed);
     uint64_t nextWritePosition = currentWritePosition + 1U;
 
-    uint64_t currentReadPosition = m_readPosition.load(std::memory_order_acquire);
-    uint64_t nextReadPosition;
-
-    do
-    {
-        // buffer overflow detection
-        if (nextWritePosition < currentReadPosition + m_size)
-        {
-            hasOverflow = false;
-            break;
-        }
-
-        nextReadPosition = currentReadPosition + 1U;
-
-        hasOverflow = true;
-
-        // compare and swap
-        // if(m_readPosition == currentReadPosition)
-        //     m_readPosition = l_next_aba_read_pos
-        // else
-        //     currentReadPosition = m_readPosition
-    } while (!m_readPosition.compare_exchange_weak(
-        currentReadPosition, nextReadPosition, std::memory_order_acq_rel, std::memory_order_acquire));
-
-    // no atomic synchronization required because writer can always
-    // read his own data
-    if (hasOverflow)
-    {
-        std::memcpy(&f_paramOut_r, &m_data[static_cast<int32_t>(currentReadPosition) % m_size], sizeof(ValueType));
-    }
-
     m_data[static_cast<int32_t>(currentWritePosition) % m_size] = valueOut;
     m_writePosition.store(nextWritePosition, std::memory_order_release);
 
-    return !hasOverflow;
+    uint64_t currentReadPosition = m_readPosition.load(std::memory_order_acquire);
+
+    // check if there is a free position for the next push
+    if (nextWritePosition < currentReadPosition + m_size)
+    {
+        return !SOFI_OVERFLOW;
+    }
+
+    // this is an overflow situation, which means that the next push has no free position, therefore the oldest value
+    // needs to be passed back to the caller
+
+    uint64_t nextReadPosition = currentReadPosition + 1U;
+
+    // we need to update the read position
+    // a) it works, then we need to pass the overflow value back
+    // b) it doesn't work, which means that the pop thread already took the value in the meantime an no further action
+    // is required
+    // memory order success is memory_order_acq_rel
+    //   - this is to prevent the reordering of m_writePosition.store(...) after the increment of the m_readPosition
+    //     - in case of an overflow, this might result in the pop thread getting one element less than the capacity of
+    //       the SoFi if the push thread is suspended in between this two statements
+    //     - it's still possible to get more elements than the capacity, but this is an inherent issue with concurrent
+    //       queues and cannot be prevented since there can always be a push during a pop operation
+    //   - another issue might be that two consecutive pushes (not concurrent) happen on different CPU cores without
+    //     synchronization, then the memory also needs to be synchronized for the overflow case
+    // memory order failure is memory_order_relaxed since there is no further synchronization needed if there is no
+    // overflow
+    if (m_readPosition.compare_exchange_strong(
+            currentReadPosition, nextReadPosition, std::memory_order_acq_rel, std::memory_order_relaxed))
+    {
+        std::memcpy(&f_paramOut_r, &m_data[static_cast<int32_t>(currentReadPosition) % m_size], sizeof(ValueType));
+        return SOFI_OVERFLOW;
+    }
+
+    return !SOFI_OVERFLOW;
 }
 
 

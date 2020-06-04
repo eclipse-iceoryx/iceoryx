@@ -8,13 +8,12 @@ It provides publisher and subscriber applications. They come in two API flavours
 ### RouDi, the daemon
 
 RouDi is an abbrevation for **Rou**ting and **Di**scovery. This perfectly describes RouDi's tasks. He takes care of the
-communication setup but does not actually participate in the communication between the publisher and the subscriber. Think
-of RouDi as the switchboard operator of iceoryx. One of his other major tasks is the setup of the shared memory,
+communication setup but does not actually participate in the communication between the publisher and the subscriber.
+Think of RouDi as the switchboard operator of iceoryx. One of his other major tasks is the setup of the shared memory,
 which the applications are using to talk to each other. We currently use memory pools with different chunk sizes,
-called in literature a segregated free-list approach. RouDi is delivered pre-built in the Debian package
-with a default memory config. We don't support the memory pool configuration with a config file yet, so it has to be
-changed in the source file [mepoo_config.cpp](../../iceoryx_posh/source/mepoo/mepoo_config.cpp).
-To view the available command line options call `RouDi --help`.
+called in literature a segregated free-list approach. RouDi is delivered with a built-in default memory config. You can
+change the memory configration using a [TOML config file](../../doc/usage-guide.md). To view the available command
+line options call `RouDi --help`.
 
 ## Run icedelivery
 

@@ -100,7 +100,7 @@ TEST_F(Allocator_Test, allocateAfterFinalizeAllocation)
     class AllocatorAccess : iox::posix::Allocator
     {
       public:
-        AllocatorAccess(const void* f_startAddress, const uint64_t f_length)
+        AllocatorAccess(void* const f_startAddress, const uint64_t f_length)
             : iox::posix::Allocator(f_startAddress, f_length)
         {
         }

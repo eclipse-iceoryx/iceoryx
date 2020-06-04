@@ -16,25 +16,25 @@
 
 namespace iox
 {
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline Receiver<DataType, TransportLayer>::Receiver(TransportLayer_t* const f_transportLayer)
     : m_transportLayer(f_transportLayer)
 {
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline cxx::optional<DataType> Receiver<DataType, TransportLayer>::timedReceive(const units::Duration& f_timeout)
 {
     return m_transportLayer->timedReceive(f_timeout);
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline cxx::optional<DataType> Receiver<DataType, TransportLayer>::BlockingReceive()
 {
     return m_transportLayer->BlockingReceive();
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline cxx::optional<DataType> Receiver<DataType, TransportLayer>::TryReceive()
 {
     return m_transportLayer->TryReceive();

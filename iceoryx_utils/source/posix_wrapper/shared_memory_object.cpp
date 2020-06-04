@@ -115,7 +115,7 @@ uint64_t SharedMemoryObject::getSizeInBytes() const
     return m_memorySizeInBytes;
 }
 
-int SharedMemoryObject::getFileHandle() const
+int32_t SharedMemoryObject::getFileHandle() const
 {
     return m_sharedMemory.getHandle();
 }

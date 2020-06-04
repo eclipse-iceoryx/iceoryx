@@ -164,7 +164,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const
     gid_t userDefaultGroup = getpwnamCall.getReturnValue()->pw_gid;
 
     gid_t groups[MaxNumberOfGroups];
-    int numGroups = MaxNumberOfGroups;
+    int32_t numGroups = MaxNumberOfGroups;
 
     auto getgrouplistCall = cxx::makeSmartC(static_cast<int (*)(const char*, gid_t, gid_t*, int*)>(getgrouplist),
                                             cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
@@ -188,7 +188,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const
     }
 
     groupVector_t vec;
-    for (int i = 0; i < numGroups; ++i)
+    for (int32_t i = 0; i < numGroups; ++i)
     {
         vec.emplace_back(PosixGroup(groups[i]));
     }

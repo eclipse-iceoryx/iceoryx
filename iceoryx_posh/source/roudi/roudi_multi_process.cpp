@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_property.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -20,7 +21,6 @@
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
-#include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 namespace iox
 {
@@ -77,15 +77,15 @@ void RouDiMultiProcess::shutdown()
 
     if (m_processManagementThread.joinable())
     {
-        LOG_DEBUG("Joining 'ProcessMgmt' thread...");
+        LogDebug() << "Joining 'ProcessMgmt' thread...";
         m_processManagementThread.join();
-        LOG_DEBUG("...'ProcessMgmt' thread joined.");
+        LogDebug() << "...'ProcessMgmt' thread joined.";
     }
     if (m_processMQThread.joinable())
     {
-        LOG_DEBUG("Joining 'MQ-processing' thread...");
+        LogDebug() << "Joining 'MQ-processing' thread...";
         m_processMQThread.join();
-        LOG_DEBUG("...'MQ-processing' thread joined.");
+        LogDebug() << "...'MQ-processing' thread joined.";
     }
 }
 
@@ -153,8 +153,8 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 5)
         {
-            ERR_PRINTF("Wrong number of parameter for \"MqMessageType::REG\" from \"%s\"received!\n",
-                       processName.c_str());
+            LogError() << "Wrong number of parameter for \"MqMessageType::REG\" from \"" << processName
+                       << "\"received!";
         }
         else
         {
@@ -172,8 +172,8 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 5)
         {
-            ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_SENDER\" from \"%s\"received!\n",
-                       processName.c_str());
+            LogError() << "Wrong number of parameter for \"MqMessageType::IMPL_SENDER\" from \"" << processName
+                       << "\"received!";
         }
         else
         {
@@ -191,8 +191,8 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 5)
         {
-            ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_RECEIVER\" from \"%s\"received!\n",
-                       processName.c_str());
+            LogError() << "Wrong number of parameter for \"MqMessageType::IMPL_RECEIVER\" from \"" << processName
+                       << "\"received!";
         }
         else
         {
@@ -210,8 +210,8 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 4)
         {
-            ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_INTERFACE\" from \"%s\"received!\n",
-                       processName.c_str());
+            LogError() << "Wrong number of parameter for \"MqMessageType::IMPL_INTERFACE\" from \"" << processName
+                       << "\"received!";
         }
         else
         {
@@ -225,8 +225,8 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 2)
         {
-            ERR_PRINTF("Wrong number of parameter for \"MqMessageType::IMPL_APPLICATION\" from \"%s\"received!\n",
-                       processName.c_str());
+            LogError() << "Wrong number of parameter for \"MqMessageType::IMPL_APPLICATION\" from \"" << processName
+                       << "\"received!";
         }
         else
         {
@@ -238,8 +238,8 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 3)
         {
-            ERR_PRINTF("Wrong number of parameter for \"MqMessageType::CREATE_RUNNABLE\" from \"%s\"received!\n",
-                       processName.c_str());
+            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_RUNNABLE\" from \"" << processName
+                       << "\"received!";
         }
         else
         {
@@ -252,8 +252,8 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 3)
         {
-            ERR_PRINTF("Wrong number of parameter for \"MqMessageType::FIND_SERVICE\" from \"%s\"received!\n",
-                       processName.c_str());
+            LogError() << "Wrong number of parameter for \"MqMessageType::FIND_SERVICE\" from \"" << processName
+                       << "\"received!";
         }
         else
         {
@@ -270,7 +270,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     }
     default:
     {
-        ERR_PRINTF("Unknown MQ Command [%s]\n", runtime::mqMessageTypeToString(cmd).c_str());
+        LogError() << "Unknown MQ Command [" << runtime::mqMessageTypeToString(cmd) << "]";
 
         m_prcMgr.sendMessageNotSupportedToRuntime(processName);
         break;

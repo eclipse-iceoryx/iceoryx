@@ -41,7 +41,7 @@ namespace iox
 ///         std::cout << "received message " << message.value() << " from application A\n";
 ///     }
 /// @endcode
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 class BidirectionalCommunicationChannel
 {
   public:

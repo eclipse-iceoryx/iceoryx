@@ -16,7 +16,7 @@
 
 namespace iox
 {
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline BidirectionalCommunicationChannel<DataType, TransportLayer>::BidirectionalCommunicationChannel()
     : m_transportLayerPair()
     , m_transceiverPair{{&m_transportLayerPair.first, &m_transportLayerPair.second},
@@ -24,7 +24,7 @@ inline BidirectionalCommunicationChannel<DataType, TransportLayer>::Bidirectiona
 {
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 template <typename TransportLayerCTorArgument>
 inline BidirectionalCommunicationChannel<DataType, TransportLayer>::BidirectionalCommunicationChannel(
     const TransportLayerCTorArgument& argumentAliceToBob, const TransportLayerCTorArgument& argumentBobToAlice)
@@ -34,14 +34,14 @@ inline BidirectionalCommunicationChannel<DataType, TransportLayer>::Bidirectiona
 {
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline typename BidirectionalCommunicationChannel<DataType, TransportLayer>::Transceiver_t*
 BidirectionalCommunicationChannel<DataType, TransportLayer>::getFirstTransceiver()
 {
     return &m_transceiverPair.first;
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline typename BidirectionalCommunicationChannel<DataType, TransportLayer>::Transceiver_t*
 BidirectionalCommunicationChannel<DataType, TransportLayer>::getSecondTransceiver()
 {

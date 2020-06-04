@@ -14,8 +14,8 @@
 
 #pragma once
 
+#include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
-#include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"

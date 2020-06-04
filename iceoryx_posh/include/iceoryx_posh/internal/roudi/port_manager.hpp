@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include "ac3log/simplelogger.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
@@ -44,16 +43,13 @@ namespace roudi
 {
 capro::Interfaces StringToEInterfaces(std::string str);
 
-/// @todo rename to PortManager once OSS iceoryx is merged
-class SharedMemoryManager;
-using PortManager = SharedMemoryManager;
-class SharedMemoryManager
+class PortManager
 {
   public:
     using PortConfigInfo = iox::runtime::PortConfigInfo;
-    SharedMemoryManager(RouDiMemoryInterface* roudiMemoryInterface);
+    PortManager(RouDiMemoryInterface* roudiMemoryInterface);
 
-    virtual ~SharedMemoryManager() = default;
+    virtual ~PortManager() = default;
 
     /// @todo Remove this later
     void stopPortIntrospection();
