@@ -67,59 +67,96 @@ class PublisherPort_test : public Test
     // publisher port w/o history
     iox::popo::PublisherPortData m_publisherPortData{
         iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager};
-    iox::popo::PublisherPortRouDi m_publisherPortRouDi{&m_publisherPortData};
-    iox::popo::PublisherPortUser m_publisherPortUser{&m_publisherPortData};
+    iox::popo::PublisherPortRouDi m_sutRouDiSide{&m_publisherPortData};
+    iox::popo::PublisherPortUser m_sutUserSide{&m_publisherPortData};
+
+    // publisher port w/ history
+    iox::popo::PublisherPortData m_publisherPortDataHistory{iox::capro::ServiceDescription("x", "y", "z"),
+                                                            "myApp",
+                                                            &m_memoryManager,
+                                                            iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR};
+    iox::popo::PublisherPortUser m_sutWithHistoryUseriSide{&m_publisherPortDataHistory};
+    iox::popo::PublisherPortRouDi m_sutWithHistoryRouDiSide{&m_publisherPortDataHistory};
 };
 
-TEST_F(PublisherPort_test, initial_state)
+TEST_F(PublisherPort_test, initialStateIsNotOffered)
 {
-    EXPECT_FALSE(m_publisherPortUser.isOffered());
-    EXPECT_FALSE(m_publisherPortUser.hasSubscribers());
-    auto maybeCaproMessage = m_publisherPortRouDi.getCaProMessage();
+    EXPECT_FALSE(m_sutUserSide.isOffered());
+}
+
+TEST_F(PublisherPort_test, initialStateIsNoSubscribers)
+{
+    EXPECT_FALSE(m_sutUserSide.hasSubscribers());
+}
+
+TEST_F(PublisherPort_test, initialStateReturnsNoCaProMessage)
+{
+    auto maybeCaproMessage = m_sutRouDiSide.getCaProMessage();
+
     EXPECT_FALSE(maybeCaproMessage.has_value());
 }
 
-TEST_F(PublisherPort_test, offering_stop_offering)
+TEST_F(PublisherPort_test, offerCallResultsInOfferedState)
 {
-    // initial state
-    EXPECT_FALSE(m_publisherPortUser.isOffered());
-    auto maybeCaproMessage = m_publisherPortRouDi.getCaProMessage();
-    EXPECT_FALSE(maybeCaproMessage.has_value());
+    m_sutUserSide.offer();
 
-    // offering
-    m_publisherPortUser.offer();
-    EXPECT_TRUE(m_publisherPortUser.isOffered());
-    maybeCaproMessage = m_publisherPortRouDi.getCaProMessage();
+    EXPECT_TRUE(m_sutUserSide.isOffered());
+}
+
+TEST_F(PublisherPort_test, offerCallResultsInOfferCaProMessage)
+{
+    m_sutUserSide.offer();
+
+    auto maybeCaproMessage = m_sutRouDiSide.getCaProMessage();
+
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::OFFER));
     EXPECT_THAT(caproMessage.m_serviceDescription, Eq(iox::capro::ServiceDescription("a", "b", "c")));
     EXPECT_THAT(caproMessage.m_subType, Eq(iox::capro::CaproMessageSubType::EVENT));
     EXPECT_THAT(caproMessage.m_historyCapacity, Eq(0u));
+}
 
-    // stop offering
-    m_publisherPortUser.stopOffer();
-    EXPECT_FALSE(m_publisherPortUser.isOffered());
-    maybeCaproMessage = m_publisherPortRouDi.getCaProMessage();
+TEST_F(PublisherPort_test, stopOfferCallResultsInNotOfferedState)
+{
+    m_sutUserSide.offer();
+
+    m_sutUserSide.stopOffer();
+
+    EXPECT_FALSE(m_sutUserSide.isOffered());
+}
+
+TEST_F(PublisherPort_test, stopOfferCallResultsInStopOfferCaProMessage)
+{
+    // arrange, we need a transition from offer to stop offer, also form a RouDi point of view
+    // therefore we must also get the offer CapPro message (but ignore it here)
+    m_sutUserSide.offer();
+    m_sutRouDiSide.getCaProMessage();
+    m_sutUserSide.stopOffer();
+
+    auto maybeCaproMessage = m_sutRouDiSide.getCaProMessage();
+
     EXPECT_TRUE(maybeCaproMessage.has_value());
-    caproMessage = maybeCaproMessage.value();
+    auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::STOP_OFFER));
     EXPECT_THAT(caproMessage.m_serviceDescription, Eq(iox::capro::ServiceDescription("a", "b", "c")));
 }
 
-TEST_F(PublisherPort_test, offering_with_history)
+TEST_F(PublisherPort_test, offerStateChangesThatEndUpInTheSameStateDoNotReturnACaProMessage)
 {
-    iox::popo::PublisherPortData m_publisherPortDataHistory{iox::capro::ServiceDescription("x", "y", "z"),
-                                                            "myApp",
-                                                            &m_memoryManager,
-                                                            iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR};
-    iox::popo::PublisherPortUser m_publisherPortUserHistory{&m_publisherPortDataHistory};
-    iox::popo::PublisherPortRouDi m_publisherPortRouDiHistory{&m_publisherPortDataHistory};
+    m_sutUserSide.offer();
+    m_sutUserSide.stopOffer();
 
-    // offering
-    m_publisherPortUserHistory.offer();
-    EXPECT_TRUE(m_publisherPortUserHistory.isOffered());
-    auto maybeCaproMessage = m_publisherPortRouDiHistory.getCaProMessage();
+    auto maybeCaproMessage = m_sutRouDiSide.getCaProMessage();
+
+    EXPECT_FALSE(maybeCaproMessage.has_value());
+}
+
+TEST_F(PublisherPort_test, offerCallWhenHavingHistoryResultsInOfferCaProMessageWithSubTypeFieldAndCorrectHistoryCapacity)
+{
+    m_sutWithHistoryUseriSide.offer();
+
+    auto maybeCaproMessage = m_sutWithHistoryRouDiSide.getCaProMessage();
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::OFFER));
@@ -128,39 +165,53 @@ TEST_F(PublisherPort_test, offering_with_history)
     EXPECT_THAT(caproMessage.m_historyCapacity, Eq(iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR));
 }
 
-TEST_F(PublisherPort_test, allocate_free)
+TEST_F(PublisherPort_test, allocatingAChunk)
 {
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
-    auto maybeChunkHeader = m_publisherPortUser.allocateChunk(10u);
+    auto maybeChunkHeader = m_sutUserSide.allocateChunk(10u);
+ 
     EXPECT_FALSE(maybeChunkHeader.has_error());
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+}
+
+TEST_F(PublisherPort_test, freeingAnAllocatedChunkReleasesTheMemory)
+{
+    auto maybeChunkHeader = m_sutUserSide.allocateChunk(10u);
     auto chunkHeader = maybeChunkHeader.get_value();
-    m_publisherPortUser.freeChunk(chunkHeader);
+
+    m_sutUserSide.freeChunk(chunkHeader);
+
     // this one is not stored in the last chunk, so all chunks must be free again
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
-
-TEST_F(PublisherPort_test, allocate_send_no_subscriber)
+TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
 {
-    auto maybeChunkHeader = m_publisherPortUser.allocateChunk(10u);
-    EXPECT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+    auto maybeChunkHeader = m_sutUserSide.allocateChunk(10u);
     auto chunkHeader = maybeChunkHeader.get_value();
-    m_publisherPortUser.sendChunk(chunkHeader);
+    
+    m_sutUserSide.sendChunk(chunkHeader);
+    
     // this one is stored in the last chunk, so this chunk is still in use
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-
-    // send another one, still only one chunk in use
-    maybeChunkHeader = m_publisherPortUser.allocateChunk(10u);
-    EXPECT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
-    chunkHeader = maybeChunkHeader.get_value();
-    m_publisherPortUser.sendChunk(chunkHeader);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 }
 
-TEST_F(PublisherPort_test, subscribe_not_offered)
+TEST_F(PublisherPort_test, allocateAndSendMultipleChunksWithoutSubscriberHoldsOnlyTheLast)
+{
+    auto maybeChunkHeader = m_sutUserSide.allocateChunk(10u);
+    auto chunkHeader = maybeChunkHeader.get_value();
+    m_sutUserSide.sendChunk(chunkHeader);
+    maybeChunkHeader = m_sutUserSide.allocateChunk(10u);
+    chunkHeader = maybeChunkHeader.get_value();
+    m_sutUserSide.sendChunk(chunkHeader);
+    maybeChunkHeader = m_sutUserSide.allocateChunk(10u);
+    chunkHeader = maybeChunkHeader.get_value();
+    m_sutUserSide.sendChunk(chunkHeader);
+
+    // the last is stored in the last chunk, so one chunk is still in use
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+}
+
+TEST_F(PublisherPort_test, subscribeWhenNotOfferedReturnsNACK)
 {
     iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
@@ -168,74 +219,73 @@ TEST_F(PublisherPort_test, subscribe_not_offered)
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0u;
 
-    auto maybeCaProMessage = m_publisherPortRouDi.dispatchCaProMessage(caproMessage);
+    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+    
     EXPECT_TRUE(maybeCaProMessage.has_value());
     auto caproMessageResponse = maybeCaProMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::NACK));
 }
 
-TEST_F(PublisherPort_test, unsubscribe_when_not_subscribed)
+TEST_F(PublisherPort_test, unsubscribeWhenNotSubscribedReturnsNACK)
 {
-    m_publisherPortUser.offer();
-    auto maybeCaproMessage = m_publisherPortRouDi.getCaProMessage();
-    EXPECT_TRUE(maybeCaproMessage.has_value());
-    auto caproMessageReturned = maybeCaproMessage.value();
-    EXPECT_THAT(caproMessageReturned.m_type, Eq(iox::capro::CaproMessageType::OFFER));
-
+    m_sutUserSide.offer();
+    m_sutRouDiSide.getCaProMessage();
     iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::UNSUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0u;
 
-    maybeCaproMessage = m_publisherPortRouDi.dispatchCaProMessage(caproMessage);
+    auto maybeCaproMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::NACK));
 }
 
-TEST_F(PublisherPort_test, subscribe_unsubscribe)
+TEST_F(PublisherPort_test, subscribeWhenOfferedReturnsACKAndWeHaveSubscribers)
 {
-    m_publisherPortUser.offer();
-    auto maybeCaproMessage = m_publisherPortRouDi.getCaProMessage();
-    EXPECT_TRUE(maybeCaproMessage.has_value());
-    auto caproMessageReturned = maybeCaproMessage.value();
-    EXPECT_THAT(caproMessageReturned.m_type, Eq(iox::capro::CaproMessageType::OFFER));
-
-    EXPECT_FALSE(m_publisherPortUser.hasSubscribers());
-
+    m_sutUserSide.offer();
+    m_sutRouDiSide.getCaProMessage();
     iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0u;
 
-    auto maybeCaProMessage = m_publisherPortRouDi.dispatchCaProMessage(caproMessage);
+    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+
     EXPECT_TRUE(maybeCaProMessage.has_value());
     auto caproMessageResponse = maybeCaProMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::ACK));
+    EXPECT_TRUE(m_sutUserSide.hasSubscribers());
+}
 
-    EXPECT_TRUE(m_publisherPortUser.hasSubscribers());
-
+TEST_F(PublisherPort_test, unsubscribeWhenSubscribedReturnsACKAndWeHaveNoMoreSubscribers)
+{
+    m_sutUserSide.offer();
+    m_sutRouDiSide.getCaProMessage();
+    iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
+                                          iox::capro::ServiceDescription("a", "b", "c"));
+    caproMessage.m_chunkQueueData = &m_chunkQueueData;
+    caproMessage.m_historyCapacity = 0u;
+    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
     // set CaPro message to UNSUB, the other members are reused
     caproMessage.m_type = iox::capro::CaproMessageType::UNSUB;
 
-    maybeCaProMessage = m_publisherPortRouDi.dispatchCaProMessage(caproMessage);
-    EXPECT_TRUE(maybeCaProMessage.has_value());
-    caproMessageResponse = maybeCaProMessage.value();
-    EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::ACK));
+    maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
 
-    EXPECT_FALSE(m_publisherPortUser.hasSubscribers());
+    EXPECT_TRUE(maybeCaProMessage.has_value());
+    auto caproMessageResponse = maybeCaProMessage.value();
+    EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::ACK));
+    EXPECT_FALSE(m_sutUserSide.hasSubscribers());
 }
 
-TEST_F(PublisherPort_test, subscribe_till_overflow)
+TEST_F(PublisherPort_test, subscribeManyIsFine)
 {
-    m_publisherPortUser.offer();
-    auto maybeCaproMessage = m_publisherPortRouDi.getCaProMessage();
-    EXPECT_TRUE(maybeCaproMessage.has_value());
-    auto caproMessageReturned = maybeCaproMessage.value();
-    EXPECT_THAT(caproMessageReturned.m_type, Eq(iox::capro::CaproMessageType::OFFER));
-
+    m_sutUserSide.offer();
+    m_sutRouDiSide.getCaProMessage();
     // using dummy pointers for the provided chunk queue data
     uint64_t dummy;
     uint64_t* dummyPtr = &dummy;
@@ -244,147 +294,140 @@ TEST_F(PublisherPort_test, subscribe_till_overflow)
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = reinterpret_cast<iox::popo::ChunkQueueData*>(dummyPtr);
     caproMessage.m_historyCapacity = 0u;
-
+    
     for (size_t i = 0; i < iox::MAX_SUBSCRIBERS_PER_PUBLISHER; i++)
     {
-        auto maybeCaProMessage = m_publisherPortRouDi.dispatchCaProMessage(caproMessage);
+        auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
         EXPECT_TRUE(maybeCaProMessage.has_value());
         auto caproMessageResponse = maybeCaProMessage.value();
         EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::ACK));
         dummyPtr++;
         caproMessage.m_chunkQueueData = reinterpret_cast<iox::popo::ChunkQueueData*>(dummyPtr);
     }
+}
 
-    auto maybeCaProMessage = m_publisherPortRouDi.dispatchCaProMessage(caproMessage);
+TEST_F(PublisherPort_test, subscribeTillOverflowReturnsNACK)
+{
+    m_sutUserSide.offer();
+    m_sutRouDiSide.getCaProMessage();
+    // using dummy pointers for the provided chunk queue data
+    uint64_t dummy;
+    uint64_t* dummyPtr = &dummy;
+    iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
+                                          iox::capro::ServiceDescription("a", "b", "c"));
+    caproMessage.m_chunkQueueData = reinterpret_cast<iox::popo::ChunkQueueData*>(dummyPtr);
+    caproMessage.m_historyCapacity = 0u;
+    for (size_t i = 0; i < iox::MAX_SUBSCRIBERS_PER_PUBLISHER; i++)
+    {
+        m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+        dummyPtr++;
+        caproMessage.m_chunkQueueData = reinterpret_cast<iox::popo::ChunkQueueData*>(dummyPtr);
+    }
+
+    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+
     EXPECT_TRUE(maybeCaProMessage.has_value());
     auto caproMessageResponse = maybeCaProMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::NACK));
 }
 
-TEST_F(PublisherPort_test, subscribe_and_send)
+TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
 {
-    m_publisherPortUser.offer();
-    auto maybeCaproMessage = m_publisherPortRouDi.getCaProMessage();
-    EXPECT_TRUE(maybeCaproMessage.has_value());
-    auto caproMessageReturned = maybeCaproMessage.value();
-    EXPECT_THAT(caproMessageReturned.m_type, Eq(iox::capro::CaproMessageType::OFFER));
-
+    m_sutUserSide.offer();
+    m_sutRouDiSide.getCaProMessage();
     iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0u;
-
-    auto maybeCaProMessage = m_publisherPortRouDi.dispatchCaProMessage(caproMessage);
-    EXPECT_TRUE(maybeCaProMessage.has_value());
-    auto caproMessageResponse = maybeCaProMessage.value();
-    EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::ACK));
-
-    EXPECT_TRUE(m_publisherPortUser.hasSubscribers());
-
-    auto maybeChunkHeader = m_publisherPortUser.allocateChunk(sizeof(DummySample));
-    EXPECT_FALSE(maybeChunkHeader.has_error());
+    m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+    auto maybeChunkHeader = m_sutUserSide.allocateChunk(sizeof(DummySample));
     auto chunkHeader = maybeChunkHeader.get_value();
     auto sample = chunkHeader->payload();
     new (sample) DummySample();
     static_cast<DummySample*>(sample)->dummy = 17;
-    m_publisherPortUser.sendChunk(chunkHeader);
-
+    m_sutUserSide.sendChunk(chunkHeader);
     iox::popo::ChunkQueuePopper m_chunkQueuePopper(&m_chunkQueueData);
+    
     auto maybeSharedChunk = m_chunkQueuePopper.pop();
+    
     EXPECT_TRUE(maybeSharedChunk.has_value());
     auto sharedChunk = maybeSharedChunk.value();
     auto dummySample = *reinterpret_cast<DummySample*>(sharedChunk.getPayload());
     EXPECT_THAT(dummySample.dummy, Eq(17));
 }
 
-TEST_F(PublisherPort_test, subscribe_with_history)
+TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
 {
     iox::popo::PublisherPortData m_publisherPortDataHistory{
         iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, 1u}; // history = 1
-    iox::popo::PublisherPortUser m_publisherPortUserHistory{&m_publisherPortDataHistory};
-    iox::popo::PublisherPortRouDi m_publisherPortRouDiHistory{&m_publisherPortDataHistory};
-
+    iox::popo::PublisherPortUser m_sutWithHistoryUseriSide{&m_publisherPortDataHistory};
+    iox::popo::PublisherPortRouDi m_sutWithHistoryRouDiSide{&m_publisherPortDataHistory};
     // do it the ara field like way
-
     // 1. publish a chunk to a not yet offered publisher
-    auto maybeChunkHeader = m_publisherPortUserHistory.allocateChunk(sizeof(DummySample));
-    EXPECT_FALSE(maybeChunkHeader.has_error());
+    auto maybeChunkHeader = m_sutWithHistoryUseriSide.allocateChunk(sizeof(DummySample));
     auto chunkHeader = maybeChunkHeader.get_value();
     auto sample = chunkHeader->payload();
     new (sample) DummySample();
     static_cast<DummySample*>(sample)->dummy = 17;
-    m_publisherPortUserHistory.sendChunk(chunkHeader);
-
+    m_sutWithHistoryUseriSide.sendChunk(chunkHeader);
     // 2. offer
-    m_publisherPortUserHistory.offer();
-    auto maybeCaproMessage = m_publisherPortRouDiHistory.getCaProMessage();
-    EXPECT_TRUE(maybeCaproMessage.has_value());
-    auto caproMessageReturned = maybeCaproMessage.value();
-    EXPECT_THAT(caproMessageReturned.m_type, Eq(iox::capro::CaproMessageType::OFFER));
-
+    m_sutWithHistoryUseriSide.offer();
+    m_sutWithHistoryRouDiSide.getCaProMessage();
     // 3. subscribe with a history request
     iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 1u; // request history of 1
-
-    auto maybeCaProMessage = m_publisherPortRouDiHistory.dispatchCaProMessage(caproMessage);
-    EXPECT_TRUE(maybeCaProMessage.has_value());
-    auto caproMessageResponse = maybeCaProMessage.value();
-    EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::ACK));
-
-    // 4. We get the history value on subscribe
+    m_sutWithHistoryRouDiSide.dispatchCaProMessage(caproMessage);
     iox::popo::ChunkQueuePopper m_chunkQueuePopper(&m_chunkQueueData);
+    
+    // 4. We get the history value on subscribe
     auto maybeSharedChunk = m_chunkQueuePopper.pop();
+    
     EXPECT_TRUE(maybeSharedChunk.has_value());
     auto sharedChunk = maybeSharedChunk.value();
     auto dummySample = *reinterpret_cast<DummySample*>(sharedChunk.getPayload());
     EXPECT_THAT(dummySample.dummy, Eq(17));
 }
 
-TEST_F(PublisherPort_test, last_chunk)
+TEST_F(PublisherPort_test, noLastChunkWhenNothingSent)
 {
-    auto maybeLastChunkHeader = m_publisherPortUser.getLastChunk();
+    auto maybeLastChunkHeader = m_sutUserSide.getLastChunk();
+    
     EXPECT_FALSE(maybeLastChunkHeader.has_value());
+}
 
-    auto maybeChunkHeader = m_publisherPortUser.allocateChunk(10u);
-    EXPECT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+TEST_F(PublisherPort_test, lastChunkAvailableAfterSend)
+{
+    auto maybeChunkHeader = m_sutUserSide.allocateChunk(10u);
     auto chunkHeader = maybeChunkHeader.get_value();
     auto firstPayloadPtr = chunkHeader->payload();
-    m_publisherPortUser.sendChunk(chunkHeader);
+    m_sutUserSide.sendChunk(chunkHeader);
 
-    maybeLastChunkHeader = m_publisherPortUser.getLastChunk();
+    auto maybeLastChunkHeader = m_sutUserSide.getLastChunk();
+    
     EXPECT_TRUE(maybeLastChunkHeader.has_value());
     EXPECT_THAT(maybeLastChunkHeader.value()->payload(), Eq(firstPayloadPtr));
 }
 
-TEST_F(PublisherPort_test, cleanup)
+TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
 {
-    iox::popo::PublisherPortData m_publisherPortDataHistory{iox::capro::ServiceDescription("x", "y", "z"),
-                                                            "myApp",
-                                                            &m_memoryManager,
-                                                            iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR};
-    iox::popo::PublisherPortUser m_publisherPortUserHistory{&m_publisherPortDataHistory};
-    iox::popo::PublisherPortRouDi m_publisherPortRouDiHistory{&m_publisherPortDataHistory};
-
     // push some chunks to history
     for (size_t i = 0; i < iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR; i++)
     {
-        auto maybeChunkHeader = m_publisherPortUserHistory.allocateChunk(sizeof(DummySample));
-        EXPECT_FALSE(maybeChunkHeader.has_error());
+        auto maybeChunkHeader = m_sutWithHistoryUseriSide.allocateChunk(sizeof(DummySample));
         auto chunkHeader = maybeChunkHeader.get_value();
-        m_publisherPortUserHistory.sendChunk(chunkHeader);
+        m_sutWithHistoryUseriSide.sendChunk(chunkHeader);
     }
-
     // allocate some samples
-    auto maybeChunkHeader1 = m_publisherPortUserHistory.allocateChunk(sizeof(DummySample));
-    auto maybeChunkHeader2 = m_publisherPortUserHistory.allocateChunk(sizeof(DummySample));
-    auto maybeChunkHeader3 = m_publisherPortUserHistory.allocateChunk(sizeof(DummySample));
+    auto maybeChunkHeader1 = m_sutWithHistoryUseriSide.allocateChunk(sizeof(DummySample));
+    auto maybeChunkHeader2 = m_sutWithHistoryUseriSide.allocateChunk(sizeof(DummySample));
+    auto maybeChunkHeader3 = m_sutWithHistoryUseriSide.allocateChunk(sizeof(DummySample));
 
-    m_publisherPortRouDiHistory.cleanup();
+    m_sutWithHistoryRouDiSide.cleanup();
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
