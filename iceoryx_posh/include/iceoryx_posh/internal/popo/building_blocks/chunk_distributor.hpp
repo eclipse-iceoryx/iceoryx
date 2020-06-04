@@ -87,7 +87,7 @@ class ChunkDistributor
 
     /// @brief Get the information whether there are any stored chunk queues
     /// @return true if there are stored chunk queues, false if not
-    bool hasStoredQueues() noexcept;
+    bool hasStoredQueues() const noexcept;
 
     /// @brief Deliver the provided shared chunk to all the stored chunk queues. The chunk will be added to the chunk
     /// history

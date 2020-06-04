@@ -76,7 +76,7 @@ class PublisherPortUser
 
     /// @brief Checks whether there are currently subscribers connected to this publisher
     /// @return true if there are subscribers otherwise false
-    bool hasSubscribers() noexcept;
+    bool hasSubscribers() const noexcept;
 
   private:
     const MemberType_t* getMembers() const noexcept;

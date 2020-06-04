@@ -90,7 +90,7 @@ bool PublisherPortUser::isOffered() const noexcept
     return getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
 }
 
-bool PublisherPortUser::hasSubscribers() noexcept
+bool PublisherPortUser::hasSubscribers() const noexcept
 {
     return m_chunkSender.hasStoredQueues();
 }

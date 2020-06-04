@@ -47,18 +47,12 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcep
 
         capro::CaproMessage caproMessage(capro::CaproMessageType::OFFER, this->getCaProServiceDescription());
 
-        auto historyCapacity = m_chunkSender.getHistoryCapacity();
+        const auto historyCapacity = m_chunkSender.getHistoryCapacity();
         caproMessage.m_historyCapacity = historyCapacity;
 
         // provide additional AUTOSAR Adaptive like information
-        if (0u < historyCapacity)
-        {
-            caproMessage.m_subType = capro::CaproMessageSubType::FIELD;
-        }
-        else
-        {
-            caproMessage.m_subType = capro::CaproMessageSubType::EVENT;
-        }
+        caproMessage.m_subType =
+            (0u < historyCapacity) ? capro::CaproMessageSubType::FIELD : capro::CaproMessageSubType::EVENT;
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }

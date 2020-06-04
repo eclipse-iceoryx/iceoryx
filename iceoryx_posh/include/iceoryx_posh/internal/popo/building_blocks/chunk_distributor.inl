@@ -109,7 +109,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::removeAllQueues() noexce
 }
 
 template <typename ChunkDistributorDataType>
-inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() noexcept
+inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() const noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 

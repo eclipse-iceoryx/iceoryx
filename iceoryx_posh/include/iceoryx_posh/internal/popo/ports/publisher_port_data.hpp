@@ -34,13 +34,9 @@ struct PublisherPortData : public BasePortData
     PublisherPortData(const capro::ServiceDescription& serviceDescription,
                       const ProcessName_t& processName,
                       mepoo::MemoryManager* const memoryManager,
-                      uint64_t historyCapacity = 0u,
-                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : BasePortData(serviceDescription, processName)
-        , m_chunkSenderData(memoryManager, historyCapacity, memoryInfo)
-    {
-    }
-
+                      const uint64_t historyCapacity = 0u,
+                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
+                      
     using ChunkDistributorData_t =
         ChunkDistributorData<MAX_SUBSCRIBERS_PER_PUBLISHER, ThreadSafePolicy, ChunkQueuePusher>;
     ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData;
