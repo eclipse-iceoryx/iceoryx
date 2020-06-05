@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_POPO_BASE_PORT_DATA_HPP_
+#define IOX_POPO_BASE_PORT_DATA_HPP_
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -30,20 +31,6 @@ struct RunnableData;
 
 namespace popo
 {
-/// @brief the 4 fundamental ports which can further be derived for custom behaviour
-enum class BasePortType : uint8_t
-{
-    NO_PORT,
-    SENDER_PORT,
-    RECEIVER_PORT,
-    INTERFACE_PORT,
-    APPLICATION_PORT,
-    PORT_TYPE_END,
-};
-
-constexpr int32_t MAX_PORT_TYPE_STRING_SIZE = 64;
-constexpr char BasePortTypeString[][MAX_PORT_TYPE_STRING_SIZE] = {
-    "NO_PORT", "SENDER_PORT", "RECEIVER_PORT", "INTERFACE_PORT", "APPLICATION_PORT"};
 
 /// @brief Defines different base port data
 struct BasePortData
@@ -58,7 +45,6 @@ struct BasePortData
     /// @param[in] processName Name of the process
     /// @param[in] runnable The runnable where this port is attached to
     BasePortData(const capro::ServiceDescription& serviceDescription,
-                 const BasePortType& portType,
                  const cxx::CString100& processName) noexcept;
 
     BasePortData(const BasePortData&) = delete;
@@ -66,15 +52,15 @@ struct BasePortData
     BasePortData(BasePortData&&) = delete;
     BasePortData& operator=(BasePortData&&) = delete;
 
-
-    BasePortType m_portType{BasePortType::NO_PORT};
     capro::ServiceDescription m_serviceDescription;
     cxx::CString100 m_processName;
 
     static std::atomic<uint64_t> s_uniqueIdCounter;
-    std::atomic<uint64_t> m_uniqueId{0};
+    const std::atomic<uint64_t> m_uniqueId{0};
     std::atomic_bool m_toBeDestroyed{false};
 };
 
 } // namespace popo
 } // namespace iox
+
+#endif

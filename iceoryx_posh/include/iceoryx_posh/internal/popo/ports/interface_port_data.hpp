@@ -12,25 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/receiver_port_data.hpp"
+#ifndef IOX_POPO_INTERFACE_PORT_DATA_HPP_
+#define IOX_POPO_INTERFACE_PORT_DATA_HPP_
+
+#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
+#include "iceoryx_utils/internal/concurrent/fifo.hpp"
 
 namespace iox
 {
 namespace popo
 {
-ReceiverPortData::ReceiverPortData() noexcept
-    : BasePortData()
+struct InterfacePortData : public BasePortData
 {
-}
-
-ReceiverPortData::ReceiverPortData(const capro::ServiceDescription& serviceDescription,
-                                   const std::string& applicationName,
-                                   const MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription,
-                   iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
-    , m_memoryInfo(memoryInfo)
-{
-}
-
+    InterfacePortData() = default;
+    InterfacePortData(const std::string& applicationName,
+                      const capro::Interfaces interface) noexcept;
+    concurrent::FiFo<capro::CaproMessage, MAX_INTERFACE_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
+    bool m_doInitialOfferForward{true};
+};
 } // namespace popo
 } // namespace iox
+
+#endif

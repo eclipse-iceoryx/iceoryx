@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License
 
-#include "iceoryx_posh/internal/popo/base_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 
 namespace iox
 {
@@ -24,10 +24,8 @@ BasePortData::BasePortData() noexcept
 }
 
 BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
-                           const BasePortType& portType,
                            const cxx::CString100& processName) noexcept
-    : m_portType(portType)
-    , m_serviceDescription(serviceDescription)
+    : m_serviceDescription(serviceDescription)
     , m_processName(processName)
     , m_uniqueId(s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed))
 {

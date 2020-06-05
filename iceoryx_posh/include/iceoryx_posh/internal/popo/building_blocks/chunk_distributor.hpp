@@ -24,6 +24,12 @@ namespace iox
 {
 namespace popo
 {
+enum class ChunkDistributorError
+{
+    QUEUE_CONTAINER_OVERFLOW,
+    QUEUE_NOT_IN_CONTAINER
+};
+
 /// @brief The ChunkDistributor is the low layer building block to send SharedChunks to a dynamic number of ChunkQueus.
 /// Together with the ChunkQueuePusher, the ChunkDistributor builds the infrastructure to exchange memory chunks between
 /// different data producers and consumers that could be located in different processes. Besides a modifiable container
@@ -68,18 +74,20 @@ class ChunkDistributor
     /// @param[in] queueToAdd chunk queue to add to the list
     /// @param[in] requestedHistory number of last chunks from history to send if available. If history size is smaller
     /// then the available history size chunks are provided
-    void addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd, uint64_t requestedHistory = 0) noexcept;
+    /// @return if the queue could be added it returns success, otherwiese a ChunkDistributor error
+    cxx::expected<ChunkDistributorError> addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd, uint64_t requestedHistory = 0) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] chunk queue to remove from the list
-    void removeQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
+    /// @return if the queue could be removed it returns success, otherwiese a ChunkDistributor error
+    cxx::expected<ChunkDistributorError> removeQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
 
     /// @brief Delete all the stored chunk queues
     void removeAllQueues() noexcept;
 
     /// @brief Get the information whether there are any stored chunk queues
     /// @return true if there are stored chunk queues, false if not
-    bool hasStoredQueues() noexcept;
+    bool hasStoredQueues() const noexcept;
 
     /// @brief Deliver the provided shared chunk to all the stored chunk queues. The chunk will be added to the chunk
     /// history

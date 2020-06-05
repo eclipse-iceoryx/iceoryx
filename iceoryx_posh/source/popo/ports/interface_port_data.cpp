@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/application_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/interface_port_data.hpp"
 
 namespace iox
 {
 namespace popo
 {
-ApplicationPortData::ApplicationPortData(const std::string& f_applicationName)
-    : BasePortData(capro::ServiceDescription(),
-                   BasePortType::APPLICATION_PORT,
-                   iox::cxx::string<100>(iox::cxx::TruncateToCapacity, f_applicationName))
+InterfacePortData::InterfacePortData(const std::string& applicationName, const capro::Interfaces interface) noexcept
+    : BasePortData(capro::ServiceDescription(
+                       capro::InvalidIDString, capro::InvalidIDString, capro::InvalidIDString, {0, 0, 0, 0}, interface),
+                   iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
 {
 }
 } // namespace popo

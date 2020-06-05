@@ -12,36 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_POPO_INTERFACE_PORT_HPP_
+#define IOX_POPO_INTERFACE_PORT_HPP_
 
-#include "iceoryx_posh/internal/popo/base_port.hpp"
-#include "iceoryx_posh/internal/popo/application_port_data.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/interface_port_data.hpp"
 
 namespace iox
 {
 namespace popo
 {
-class ApplicationPort : public BasePort
+class InterfacePort : public BasePort
 {
   public:
-    using MemberType_t = ApplicationPortData;
-
-    ApplicationPort(ApplicationPortData* const f_memberPtr);
-    ApplicationPort(const ApplicationPort& other) = delete;
-    ApplicationPort& operator=(const ApplicationPort& other) = delete;
-
-    ApplicationPort(ApplicationPort&& other) = default;
-    ApplicationPort& operator=(ApplicationPort&& other) = default;
+    InterfacePort(InterfacePortData* const f_member);
+    InterfacePort(const InterfacePort& other) = delete;
+    InterfacePort& operator=(const InterfacePort& other) = delete;
+    InterfacePort(InterfacePort&& other) = default;
+    InterfacePort& operator=(InterfacePort&& other) = default;
 
     bool dispatchCaProMessage(const capro::CaproMessage& f_message);
+
     bool getCaProMessage(capro::CaproMessage& f_message);
 
   private:
-    const MemberType_t* getMembers() const;
-    MemberType_t* getMembers();
+    const InterfacePortData* getMembers() const;
+    InterfacePortData* getMembers();
 };
 
 } // namespace popo
 } // namespace iox
 
-
+#endif
