@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_PLATFORM_SOCKET_HPP
-#define IOX_UTILS_PLATFORM_SOCKET_HPP
+#ifndef IOX_UTILS_WIN_PLATFORM_SOCKET_HPP
+#define IOX_UTILS_WIN_PLATFORM_SOCKET_HPP
 
 #include "iceoryx_utils/platform/platform_correction.hpp"
 #include "iceoryx_utils/platform/types.hpp"
@@ -89,4 +89,4 @@ inline int connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
     return 0;
 }
 
-#endif // IOX_UTILS_PLATFORM_SOCKET_HPP
+#endif // IOX_UTILS_WIN_PLATFORM_SOCKET_HPP

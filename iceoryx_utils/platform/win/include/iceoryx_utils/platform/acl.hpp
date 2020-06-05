@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_PLATFORM_ACL_HPP
-#define IOX_UTILS_PLATFORM_ACL_HPP
+#ifndef IOX_UTILS_WIN_PLATFORM_ACL_HPP
+#define IOX_UTILS_WIN_PLATFORM_ACL_HPP
 
 #include "iceoryx_utils/platform/types.hpp"
 
@@ -96,4 +96,4 @@ inline acl_t acl_get_fd(int fd)
     return acl_t();
 }
 
-#endif // IOX_UTILS_PLATFORM_ACL_HPP
+#endif // IOX_UTILS_WIN_PLATFORM_ACL_HPP

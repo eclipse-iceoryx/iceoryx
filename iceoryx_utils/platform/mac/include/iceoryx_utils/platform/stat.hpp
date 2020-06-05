@@ -11,9 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_PLATFORM_STAT_HPP
-#define IOX_UTILS_PLATFORM_STAT_HPP
+#ifndef IOX_UTILS_MAC_PLATFORM_STAT_HPP
+#define IOX_UTILS_MAC_PLATFORM_STAT_HPP
 
 #include <sys/stat.h>
 
-#endif // IOX_UTILS_PLATFORM_STAT_HPP
+#endif // IOX_UTILS_MAC_PLATFORM_STAT_HPP

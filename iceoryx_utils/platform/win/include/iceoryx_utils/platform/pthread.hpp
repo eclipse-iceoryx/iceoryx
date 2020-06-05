@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_PLATFORM_PTHREAD_HPP
-#define IOX_UTILS_PLATFORM_PTHREAD_HPP
+#ifndef IOX_UTILS_WIN_PLATFORM_PTHREAD_HPP
+#define IOX_UTILS_WIN_PLATFORM_PTHREAD_HPP
 
 #include <thread>
 
@@ -80,4 +80,4 @@ inline int pthread_mutex_unlock(pthread_mutex_t* mutex)
     return 0;
 }
 
-#endif // IOX_UTILS_PLATFORM_PTHREAD_HPP
+#endif // IOX_UTILS_WIN_PLATFORM_PTHREAD_HPP

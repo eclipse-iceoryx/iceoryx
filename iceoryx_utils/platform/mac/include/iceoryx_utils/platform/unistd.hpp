@@ -11,11 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_PLATFORM_UNISTD_HPP
-#define IOX_UTILS_PLATFORM_UNISTD_HPP
+#ifndef IOX_UTILS_MAC_PLATFORM_UNISTD_HPP
+#define IOX_UTILS_MAC_PLATFORM_UNISTD_HPP
 
 #include <unistd.h>
 
 int closePlatformFileHandle(int fd);
 
-#endif // IOX_UTILS_PLATFORM_UNISTD_HPP
+#endif // IOX_UTILS_MAC_PLATFORM_UNISTD_HPP
