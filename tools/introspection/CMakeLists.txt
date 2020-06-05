@@ -34,6 +34,8 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     FORCE
 )
 
+# This is required for mac build (set to c++17 globally)
+add_compile_options(-std=c++11)
 add_library(iceoryx_introspection
             source/iceoryx_introspection_app.cpp
             source/introspection_app.cpp
@@ -55,10 +57,19 @@ target_link_libraries(iceoryx_introspection
     ncurses
 )
 
+
+
+# Find tinfo library for APPLE, for other platforms its part of package Curses
+if(CMAKE_SYSTEM_NAME MATCHES Darwin)
+find_library(LIB_TINFO tinfo)
+else()
+set(LIB_TINFO tinfo)
+endif(CMAKE_SYSTEM_NAME MATCHES Darwin)
+
 # Don't link tinfo under QNX
 if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceoryx_introspection
-        tinfo
+        ${LIB_TINFO}
     )
 endif()
 

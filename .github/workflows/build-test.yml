@@ -27,43 +27,54 @@ jobs:
         uses: actions/checkout@v2
  
       - name: Build sources
-        run: ./tools/iceoryx_build_test.sh clean
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean
       
       - name: Build tests
-        run: "./tools/iceoryx_build_test.sh build-test"  
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test
 
       - name: Run tests
         run: |
-          cd build
+          cd $GITHUB_WORKSPACE/build
           ../tools/run_all_tests.sh
         
       - name : Build sources (clang)
         run: |
           export CC=/usr/bin/clang
           export CXX=/usr/bin/clang++
-          ./tools/iceoryx_build_test.sh clean
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean
 
-  # This job builds & runs iceoryx tests in macos-10.15
+ # This job builds & runs iceoryx tests in macos-10.15
   build-test-mac:
     runs-on: macos-10.15
-     
+    # Softwares installed in macos-10.15 instance
+    # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md     
+    
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # - name: Install iceoryx dependencies
-      #   # Softwares installed in macos-10.15 instance
-      #   # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md
-      #   # May be this contains some dependencies required by iceoryx introspection
-      #   run:  brew install gsl
-      
       - name : Checkout
         uses: actions/checkout@v2
+        
+      - name: Build ncurses by source
+      # tinfo library which is required by iceoryx_introspection isn't available in mac
+        run: |
+          cd $GITHUB_WORKSPACE
+          mkdir -p build
+          cd build
+          git clone https://github.com/mirror/ncurses.git 
+          cd ncurses
+          git checkout v6.2          
+          ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/ --with-termlib 
+          make
+          make install                  
  
       - name: Build sources
-        # iceoryx introspection build fails in mac , hence disable for now
-        run: ./tools/iceoryx_build_test.sh skip-introspection
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh
       
       - name: Build tests
-        run: ./tools/iceoryx_build_test.sh skip-introspection build-test
-      
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test
 
-      
+      # - name: Run tests
+      #   run: |
+      #     cd $GITHUB_WORKSPACE/build
+      #     ../tools/run_all_tests.sh
+
