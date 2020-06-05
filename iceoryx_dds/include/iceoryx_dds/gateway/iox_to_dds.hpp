@@ -16,7 +16,6 @@ class Iceoryx2DDSGateway : public gateway_t
     using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
 public:
     Iceoryx2DDSGateway() noexcept;
-    Iceoryx2DDSGateway(ChannelFactory channelFactory) noexcept;
     void loadConfiguration(GatewayConfig config) noexcept;
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward() noexcept;

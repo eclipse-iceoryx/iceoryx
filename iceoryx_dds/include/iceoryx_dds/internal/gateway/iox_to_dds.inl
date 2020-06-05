@@ -34,11 +34,6 @@ inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway() noexcept :
 {}
 
 template <typename channel_t, typename gateway_t>
-inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway(ChannelFactory channelFactory) noexcept
-{
-}
-
-template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(GatewayConfig config) noexcept
 {
     iox::LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway.";
