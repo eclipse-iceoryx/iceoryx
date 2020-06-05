@@ -11,7 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+#ifndef IOX_UTILS_WIN_PLATFORM_PLATFORM_CORRECTION_HPP
+#define IOX_UTILS_WIN_PLATFORM_PLATFORM_CORRECTION_HPP
 
 // !NO PRAGMA ONCE OR INCLUDE GUARD HERE!
 // We want that these macros are always executed and
@@ -23,9 +24,6 @@
 // Usage Instructions: This header has to be ALWAYS the last header which
 // is included otherwise some windows header pops up and defines some macros
 
-#ifndef __PRETTY_FUNCTION__
-#define __PRETTY_FUNCTION__ __FUNCSIG__
-#endif
 
 #undef CreateMutex
 #undef max
@@ -34,3 +32,5 @@
 #undef interface
 #undef CreateSemaphore
 #undef NO_ERROR
+
+#endif // IOX_UTILS_WIN_PLATFORM_PLATFORM_CORRECTION_HPP
