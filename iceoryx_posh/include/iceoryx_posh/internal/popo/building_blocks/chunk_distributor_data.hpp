@@ -21,6 +21,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 
 #include <cstdint>
@@ -32,16 +33,23 @@ namespace popo
 {
 class ThreadSafePolicy
 {
-  public: // needs to be public since we want to use std::lock_guard
+  public:
+    // needs to be public since we want to use std::lock_guard
     void lock() const
     {
-        m_mutex.lock();
+        if (!m_mutex.lock())
+        {
+            errorHandler(Error::kPOPO__CHUNK_DISTRIBUTOR_LOCKING_ERROR, nullptr, ErrorLevel::FATAL);
+        }
     }
-    void unlock() const 
+    void unlock() const
     {
-        m_mutex.unlock();
+        if (!m_mutex.unlock())
+        {
+            errorHandler(Error::kPOPO__CHUNK_DISTRIBUTOR_LOCKING_ERROR, nullptr, ErrorLevel::FATAL);
+        }
     }
-    bool tryLock() const 
+    bool tryLock() const
     {
         return m_mutex.try_lock();
     }
@@ -53,13 +61,13 @@ class ThreadSafePolicy
 class SingleThreadedPolicy
 {
   public: // needs to be public since we want to use std::lock_guard
-    void lock() const 
+    void lock() const
     {
     }
-    void unlock() const 
+    void unlock() const
     {
     }
-    bool tryLock() const 
+    bool tryLock() const
     {
         return true;
     }
@@ -72,8 +80,9 @@ struct ChunkDistributorData : public LockingPolicy
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
 
-    ChunkDistributorData(uint64_t historyCapacity = 0u) noexcept
-        : m_historyCapacity(algorithm::min(historyCapacity, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR))
+    explicit ChunkDistributorData(uint64_t historyCapacity = 0u) noexcept
+        : LockingPolicy()
+        , m_historyCapacity(algorithm::min(historyCapacity, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR))
     {
         if (m_historyCapacity != historyCapacity)
         {
