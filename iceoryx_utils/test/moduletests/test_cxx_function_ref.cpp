@@ -18,9 +18,13 @@
 using namespace ::testing;
 using namespace iox::cxx;
 
+constexpr int freeFuncTestValue = 42 + 42;
+constexpr int functorTestValue = 11;
+constexpr int memberFuncTestValue = 4273;
+
 int freeFunction()
 {
-    return 42 + 42;
+    return freeFuncTestValue;
 }
 
 class Functor
@@ -28,7 +32,7 @@ class Functor
   public:
     int operator()()
     {
-        return 73;
+        return functorTestValue;
     }
 };
 
@@ -69,7 +73,7 @@ class function_refTest : public Test
 
     int foobar()
     {
-        return 4273;
+        return memberFuncTestValue;
     }
 
     uint8_t m_iter{0};
@@ -77,25 +81,19 @@ class function_refTest : public Test
 
 using function_refDeathTest = function_refTest;
 
-TEST_F(function_refTest, CreateEmpty)
+TEST_F(function_refTest, CreateEmptyIsFalse)
 {
     function_ref<void()> sut;
     EXPECT_FALSE(sut);
 }
 
-TEST_F(function_refTest, CreateWithNullptr)
-{
-    function_ref<void()> sut(nullptr);
-    EXPECT_FALSE(sut);
-}
-
-TEST_F(function_refDeathTest, CreateEmptyLeadsToTermination)
+TEST_F(function_refDeathTest, CallEmptyLeadsToTermination)
 {
     function_ref<void()> sut;
     EXPECT_DEATH(sut(), ".*");
 }
 
-TEST_F(function_refTest, CreateEmptyAndAssign)
+TEST_F(function_refTest, CreateValidByAssignIsTrue)
 {
     auto lambda = [] {};
     function_ref<void()> sut;
@@ -103,53 +101,91 @@ TEST_F(function_refTest, CreateEmptyAndAssign)
     EXPECT_TRUE(sut);
 }
 
-TEST_F(function_refTest, CreateAndCopy)
+TEST_F(function_refTest, CreateValidByAssignResultEqual)
 {
-    auto lambda = []() -> int { return 42; };
-    function_ref<int()> sut1(lambda);
-    function_ref<int()> sut2{sut1};
-    EXPECT_TRUE(sut2);
-    EXPECT_THAT(sut2(), Eq(42));
+    auto lambda = []() -> int { return 7253; };
+    function_ref<int()> sut;
+    sut = lambda;
+    EXPECT_THAT(sut(), Eq(7253));
 }
 
-TEST_F(function_refTest, CreateAndCopyAssign)
+TEST_F(function_refTest, CreateValidByCopyConstructResultEqual)
 {
-    auto lambda = []() -> int { return 42; };
+    auto lambda = []() -> int { return 3527; };
+    function_ref<int()> sut1{lambda};
+    function_ref<int()> sut2(sut1);
+    EXPECT_TRUE(sut2);
+    EXPECT_THAT(sut2(), Eq(3527));
+}
+
+TEST_F(function_refTest, CreateValidByCopyAssignResultEqual)
+{
+    auto lambda = []() -> int { return 43; };
     function_ref<int()> sut2;
     {
-        function_ref<int()> sut1(lambda);
-        EXPECT_THAT(sut1(), Eq(42));
+        function_ref<int()> sut1{lambda};
+        EXPECT_THAT(sut1(), Eq(43));
         EXPECT_FALSE(sut2);
         sut2 = sut1;
     }
-    EXPECT_TRUE(sut2);
-    EXPECT_THAT(sut2(), Eq(42));
+    EXPECT_THAT(sut2(), Eq(43));
 }
 
-TEST_F(function_refTest, CreateAndMove)
+TEST_F(function_refTest, CreateInvalidByCopyAssignIsFalse)
 {
-    auto lambda = []() -> int { return 42; };
+    auto lambda = []() -> int { return 44; };
+    function_ref<int()> sut2{lambda};
+    EXPECT_THAT(sut2(), Eq(44));
+    {
+        function_ref<int()> sut1;
+        EXPECT_FALSE(sut1);
+        sut2 = sut1;
+    }
+    EXPECT_FALSE(sut2);
+}
+
+TEST_F(function_refTest, CreateValidByMoveResultEqual)
+{
+    auto lambda = []() -> int { return 123; };
     function_ref<int()> sut1{lambda};
-    function_ref<int()> sut2(std::move(sut1));
+    function_ref<int()> sut2{std::move(sut1)};
     EXPECT_TRUE(sut2);
-    EXPECT_THAT(sut2(), Eq(42));
     EXPECT_FALSE(sut1);
+    EXPECT_THAT(sut2(), Eq(123));
 }
 
-TEST_F(function_refTest, CreateAndMoveAssign)
+TEST_F(function_refTest, CreateInvalidByMoveIsFalse)
 {
-    auto lambda1 = []() -> int { return 42; };
-    auto lambda2 = []() -> int { return 73; };
+    function_ref<void()> sut1;
+    function_ref<void()> sut2{std::move(sut1)};
+    EXPECT_FALSE(sut2);
+}
+
+TEST_F(function_refTest, CreateValidByMoveAssignResultEqual)
+{
+    auto lambda1 = []() -> int { return 118; };
+    auto lambda2 = []() -> int { return 999; };
     function_ref<int()> sut1{lambda1};
     {
         function_ref<int()> sut2{lambda2};
         sut1 = std::move(sut2);
     }
     EXPECT_TRUE(sut1);
-    EXPECT_THAT(sut1(), Eq(73));
+    EXPECT_THAT(sut1(), Eq(999));
 }
 
-TEST_F(function_refTest, CreateAndSwap)
+TEST_F(function_refTest, CreateInvalidByMoveAssignIsFalse)
+{
+    auto lambda1 = [] {};
+    function_ref<void()> sut1{lambda1};
+    {
+        function_ref<void()> sut2;
+        sut1 = std::move(sut2);
+    }
+    EXPECT_FALSE(sut1);
+}
+
+TEST_F(function_refTest, CreateValidAndSwapResultEqual)
 {
     auto lambda1 = []() -> int { return 42; };
     auto lambda2 = []() -> int { return 73; };
@@ -162,7 +198,19 @@ TEST_F(function_refTest, CreateAndSwap)
     EXPECT_THAT(sut2(), Eq(42));
 }
 
-TEST_F(function_refTest, CreateWithCapturingLambdaVoidVoid)
+TEST_F(function_refTest, CreateInvalidAndSwapWithValidResultNotEqual)
+{
+    auto lambda2 = []() -> int { return 7331; };
+    function_ref<int()> sut1;
+    function_ref<int()> sut2(lambda2);
+    EXPECT_FALSE(sut1);
+    EXPECT_THAT(sut2(), Eq(7331));
+    sut1.swap(sut2);
+    EXPECT_THAT(sut1(), Eq(7331));
+    EXPECT_FALSE(sut2);
+}
+
+TEST_F(function_refTest, CreateValidWithCapturingLambdaVoidVoidIncremented)
 {
     auto lambda = [&] { m_iter++; };
     function_ref<void(void)> sut(lambda);
@@ -170,47 +218,47 @@ TEST_F(function_refTest, CreateWithCapturingLambdaVoidVoid)
     EXPECT_THAT(m_iter, Eq(1));
 }
 
-TEST_F(function_refTest, CreateWithLambdaIntVoid)
+TEST_F(function_refTest, CreateValidWithLambdaIntVoidResultEqual)
 {
-    auto lambda = [](void) -> int { return 42; };
+    auto lambda = [](void) -> int { return 1337; };
     function_ref<int(void)> sut(lambda);
-    EXPECT_THAT(sut(), Eq(42));
+    EXPECT_THAT(sut(), Eq(1337));
 }
 
-TEST_F(function_refTest, CreateWithLambdaIntInt)
+TEST_F(function_refTest, CreateValidWithLambdaIntIntIncremented)
 {
     auto lambda = [](int var) -> int { return ++var; };
     function_ref<int(int)> sut(lambda);
-    EXPECT_THAT(sut(m_iter), Eq(1));
+    EXPECT_THAT(sut(0), Eq(1));
 }
 
-TEST_F(function_refTest, CreateWithFreeFunction)
+TEST_F(function_refTest, CreateValidWithFreeFunctionResultEqual)
 {
     function_ref<int()> sut(freeFunction);
-    EXPECT_THAT(sut(), Eq(84));
+    EXPECT_THAT(sut(), Eq(freeFuncTestValue));
 }
 
-TEST_F(function_refTest, CreateWithComplexType)
+TEST_F(function_refTest, CreateValidWithComplexTypeResultEqual)
 {
     ComplexType fuubar{1, 2, 1.3f};
     function_ref<ComplexType(ComplexType)> sut(returnComplexType);
     EXPECT_THAT(sut(fuubar), Eq(fuubar));
 }
 
-TEST_F(function_refTest, CreateWithFunctor)
+TEST_F(function_refTest, CreateValidWithFunctorResultEqual)
 {
     Functor foo;
     function_ref<int()> sut(foo);
-    EXPECT_THAT(sut(), Eq(73));
+    EXPECT_THAT(sut(), Eq(functorTestValue));
 }
 
-TEST_F(function_refTest, CreateWithStdBind)
+TEST_F(function_refTest, CreateValidWithStdBindResultEqual)
 {
     function_ref<int()> sut(std::bind(&function_refTest::foobar, this));
-    EXPECT_THAT(sut(), Eq(4273));
+    EXPECT_THAT(sut(), Eq(memberFuncTestValue));
 }
 
-TEST_F(function_refTest, CreateWithStdFunction)
+TEST_F(function_refTest, CreateValidWithStdFunctionResultEqual)
 {
     std::function<int()> baz;
     baz = []() -> int { return 24; };
@@ -218,7 +266,7 @@ TEST_F(function_refTest, CreateWithStdFunction)
     EXPECT_THAT(sut(), Eq(24));
 }
 
-TEST_F(function_refTest, StoreInStdFunction)
+TEST_F(function_refTest, StoreInStdFunctionResultEqual)
 {
     auto lambda = []() -> int { return 37; };
     function_ref<int()> moep(lambda);

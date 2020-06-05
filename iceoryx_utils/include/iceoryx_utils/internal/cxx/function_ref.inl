@@ -24,12 +24,6 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref() noexcept
 }
 
 template <class ReturnType, class... ArgTypes>
-inline function_ref<ReturnType(ArgTypes...)>::function_ref(std::nullptr_t) noexcept
-    : function_ref()
-{
-}
-
-template <class ReturnType, class... ArgTypes>
 template <typename CallableType,
           typename = typename function_ref<ReturnType(ArgTypes...)>::template EnableIfNotFunctionRef<CallableType>>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
@@ -68,7 +62,7 @@ inline ReturnType function_ref<ReturnType(ArgTypes...)>::operator()(ArgTypes... 
     if (!m_target)
     {
         // Callable was called without user having assigned one beforehand
-        std::cerr << "Empty funtion_ref invoked" << std::endl;
+        std::cerr << "Empty function_ref invoked" << std::endl;
         std::terminate();
     }
     return m_functionPointer(m_target, std::forward<ArgTypes>(args)...);

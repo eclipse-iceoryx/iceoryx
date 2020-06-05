@@ -16,6 +16,7 @@
 #define IOX_UTILS_CXX_FUNCTION_REF_HPP
 
 #include <cstddef>
+#include <iostream>
 #include <memory>
 #include <type_traits>
 
@@ -60,9 +61,6 @@ class function_ref<ReturnType(ArgTypes...)>
   public:
     /// @brief Creates an empty function_ref
     function_ref() noexcept;
-
-    /// @brief Creates an empty function_ref
-    function_ref(std::nullptr_t) noexcept;
 
     /// @brief D'tor
     ~function_ref() noexcept = default;
