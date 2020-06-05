@@ -124,7 +124,7 @@ If the script is not used, keep in mind to pass `-DTOML_CONFIG=on` to cmake if t
 * Execute the below commands.
 
 ```
-iceoryx$ cmake -Bbuild -Hiceoryx_meta // Customisation possible with cmake swithces
+iceoryx$ cmake -Bbuild -Hiceoryx_meta // Customisation possible with cmake switches
 iceoryx$ cmake --build build
 ```
 
