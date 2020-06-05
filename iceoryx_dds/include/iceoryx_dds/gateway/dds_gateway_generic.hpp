@@ -8,6 +8,7 @@
 #include <iceoryx_posh/iceoryx_posh_types.hpp>
 #include <iceoryx_utils/cxx/string.hpp>
 #include <iceoryx_utils/cxx/vector.hpp>
+#include <iceoryx_utils/cxx/optional.hpp>
 #include <iceoryx_utils/internal/concurrent/smart_lock.hpp>
 
 #include "iceoryx_dds/dds/dds_configs.hpp"
@@ -25,6 +26,7 @@ class DDSGatewayGeneric : public iox::popo::GatewayGeneric
     using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 
 public:
+
     virtual ~DDSGatewayGeneric() noexcept;
 
     DDSGatewayGeneric(const DDSGatewayGeneric&) = delete;
@@ -37,7 +39,7 @@ public:
     /// @note This method is virtual pure since different configuration likely to be different across implementations.
     /// @param config
     ///
-    virtual void loadConfiguration(GatewayConfig config) = 0;
+    virtual void loadConfiguration(GatewayConfig config) noexcept = 0;
     void runMultithreaded() noexcept;
     void shutdown() noexcept;
 
@@ -47,18 +49,52 @@ public:
     uint64_t getNumberOfChannels() const noexcept;
 
 protected:
+
     DDSGatewayGeneric() noexcept;
-    DDSGatewayGeneric(ChannelFactory channelFactory) noexcept;
 
-    // These are made available to child classes for use in discover or forward methods.
     ChannelFactory m_channelFactory;
-    ConcurrentChannelVector m_channels;
 
-    channel_t setupChannel(const iox::capro::ServiceDescription& service) noexcept;
+    ///
+    /// @brief addChannel Creates a channel for the given service and stores a copy of it in an internal collection for
+    /// later access.
+    /// @param service The service to create a channel for.
+    /// @return A copy of the created channel.
+    ///
+    /// @note Channels are supposed to be lightweight, consisting only of pointers to the terminals and a copy of the
+    /// service description, therefore a copy is provided to any entity that requires them.
+    /// When no more copies of a channel exists in the system, the terminals will automatically be cleaned up via
+    /// the custom deleters included in their pointers.
+    ///
+    /// The service description is perhaps too large for copying since they contain strings, however this should be
+    /// addressed with the service description repository feature.
+    ///
+    channel_t addChannel(const iox::capro::ServiceDescription& service) noexcept;
+
+    ///
+    /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns
+    /// it one exists.
+    /// \param service The service to find a channel for.
+    /// \return An optional containining the matching channel if one exists, otherwise an empty optional.
+    ///
+    iox::cxx::optional<channel_t> findChannel(const iox::capro::ServiceDescription& service) noexcept;
+
+    ///
+    /// @brief forEachChannel Executs the given function for each channel in the internally stored collection.
+    /// @param f The function to execute.
+    /// @note This operation allows thread-safe access to the internal collection.
+    ///
+    void forEachChannel(const std::function<void(channel_t&)> f) noexcept;
+
+    ///
+    /// @brief discardChannel Discard the channel for the given service in the internal collection if one exists.
+    /// @param service The service whose channels hiould be discarded.
+    ///
     void discardChannel(const iox::capro::ServiceDescription& service) noexcept;
-    bool channelExists(const iox::capro::ServiceDescription& service) noexcept;
 
 private:
+
+    ConcurrentChannelVector m_channels;
+
     std::atomic_bool m_isRunning{false};
     std::atomic_bool m_runForwardingLoop{false};
     std::atomic_bool m_runDiscoveryLoop{false};

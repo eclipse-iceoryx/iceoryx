@@ -15,6 +15,7 @@
 #include <limits>
 
 #include <iceoryx_posh/internal/capro/capro_message.hpp>
+#include <iceoryx_utils/cxx/optional.hpp>
 #include <iceoryx_dds/dds/data_writer.hpp>
 #include <iceoryx_dds/gateway/channel.hpp>
 #include <iceoryx_dds/gateway/iox_to_dds.hpp>
@@ -64,9 +65,20 @@ class MockDataWriter : public iox::dds::DataWriter<MockDataWriter>
     MOCK_CONST_METHOD0(getEventId, std::string(void));
 };
 
+class MockGenericDDSGateway
+{
+public:
+  MockGenericDDSGateway(){};
+  MockGenericDDSGateway(const iox::capro::Interfaces i){};
+  MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
+  MOCK_METHOD1(addChannel, iox::dds::Channel<MockSubscriber, MockDataWriter>(const iox::capro::ServiceDescription&));
+  MOCK_METHOD1(discardChannel, void(const iox::capro::ServiceDescription&));
+  MOCK_METHOD1(findChannel, iox::cxx::optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(const iox::capro::ServiceDescription&));
+};
+
 // ======================================== Helpers ======================================== //
 
-using TestGateway = iox::dds::Iceoryx2DDSGateway<iox::dds::Channel<MockSubscriber, MockDataWriter>>;
+using TestGateway = iox::dds::Iceoryx2DDSGateway<iox::dds::Channel<MockSubscriber, MockDataWriter>, MockGenericDDSGateway>;
 
 // Holds mocks created by tests to be returned by mock factories.
 static std::vector<std::shared_ptr<MockSubscriber>> stagedMockSubscribers;
@@ -151,60 +163,82 @@ class Iceoryx2DDSGatewayTest : public Test
 // ======================================== Tests ======================================== //
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresIntrospectionPorts)
 {
-    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
+    // === Setup
+    TestGateway gw{mockChannelFactory};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER,
                                         {"Introspection", iox::capro::AnyInstanceString, iox::capro::AnyEventString});
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
-    gw->discover(msg);
-    EXPECT_EQ(0, gw->getNumberOfChannels());
+
+    EXPECT_CALL(gw, addChannel).Times(0);
+
+    // === Test
+    gw.discover(msg);
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresServiceMessages)
 {
-    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
+    // === Setup
+    TestGateway gw{mockChannelFactory};
     auto msg = iox::capro::CaproMessage(
         iox::capro::CaproMessageType::OFFER,
         {iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString});
     msg.m_subType = iox::capro::CaproMessageSubType::SERVICE;
-    gw->discover(msg);
-    EXPECT_EQ(0, gw->getNumberOfChannels());
+
+    EXPECT_CALL(gw, addChannel).Times(0);
+
+    // === Test
+    gw.discover(msg);
 }
 
-//TEST_F(Iceoryx2DDSGatewayTest, CreatesSubscriberAndDataWriterForOfferedServices)
-//{
-//    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
-//    auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
-//    msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
-//    gw->discover(msg);
-//    EXPECT_EQ(1, gw->getNumberOfChannels());
-//}
+TEST_F(Iceoryx2DDSGatewayTest, CreatesSubscriberAndDataWriterForOfferedServices)
+{
+    // === Setup
+    TestGateway gw{mockChannelFactory};
+    auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
+    msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
+
+    ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
+    ON_CALL(gw, addChannel).WillByDefault(Return(mockChannelFactory(msg.m_serviceDescription)));
+    EXPECT_CALL(gw, addChannel).Times(1);
+
+    // === Test
+    gw.discover(msg);
+}
 
 //TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDetectedPublishers)
 //{
-//    // === Create Mocks
+//    // === Setup
 //    auto mockSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
 //    EXPECT_CALL(*mockSubscriber, subscribe).Times(1);
 //    stageMockSubscriber(std::move(mockSubscriber));
 
-//    // === Test
-//    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
+//    TestGateway gw{mockChannelFactory};
 //    auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
 //    msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
-//    gw->discover(msg);
+
+//    ON_CALL(gw, channelExists).WillByDefault(Return(false));
+//    ON_CALL(gw, setupChannel).WillByDefault(Return(mockChannelFactory(msg.m_serviceDescription)));
+
+//    // === Test
+//    gw.discover(msg);
 //}
 
 //TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersToDDSNetwork)
 //{
-//    // === Create Mocks
+//    // === Setup
 //    auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
 //    EXPECT_CALL(*mockWriter, connect).Times(1);
 //    stageMockDataWriter(std::move(mockWriter));
 
-//    // === Test
-//    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
+//    TestGateway gw{mockChannelFactory};
 //    auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
 //    msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
-//    gw->discover(msg);
+
+//    ON_CALL(gw, channelExists).WillByDefault(Return(false));
+//    ON_CALL(gw, setupChannel).WillByDefault(Return(mockChannelFactory(msg.m_serviceDescription)));
+
+//    // === Test
+//    gw.discover(msg);
 //}
 
 //TEST_F(Iceoryx2DDSGatewayTest, ForwardsFromPoshSubscriberToDDSDataWriter)
@@ -214,11 +248,10 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresServiceMessages)
 
 //    // Set up subscriber to provide this chunk when requested
 //    auto mockSubscriber = createMockSubscriber({"Radar", "Front-Right", "Reflections"});
-//    auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
-
 //    ON_CALL(*mockSubscriber, hasNewChunks).WillByDefault(Return(true));
 //    ON_CALL(*mockSubscriber, getChunk).WillByDefault(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
 //    EXPECT_CALL(*mockSubscriber, hasNewChunks).Times(1);
+//    auto mockWriter = createMockDataWriter({"Radar", "Front-Right", "Reflections"});
 //    EXPECT_CALL(*mockWriter,
 //                write(SafeMatcherCast<uint8_t*>(Pointee(Eq(42))), mockChunk.chunkHeader()->m_info.m_payloadSize))
 //        .Times(1);
@@ -226,11 +259,15 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresServiceMessages)
 //    stageMockSubscriber(std::move(mockSubscriber));
 //    stageMockDataWriter(std::move(mockWriter));
 
-//    // === Test
-//    auto gw = std::make_shared<TestGateway>(mockChannelFactory);
+//    TestGateway gw{mockChannelFactory};
 //    auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, {"Radar", "Front-Right", "Reflections"});
-//    gw->discover(msg);
-//    gw->forward();
+
+//    ON_CALL(gw, channelExists).WillByDefault(Return(false));
+//    ON_CALL(gw, setupChannel).WillByDefault(Return(mockChannelFactory(msg.m_serviceDescription)));
+
+//    // === Test
+//    gw.discover(msg);
+//    gw.forward();
 //}
 
 //TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)

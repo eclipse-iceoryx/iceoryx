@@ -29,20 +29,22 @@ namespace dds
 //using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
 
 // ======================================== Public ======================================== //
-template <typename channel_t>
-inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway() noexcept : iox::dds::DDSGatewayGeneric<channel_t>()
+template <typename channel_t, typename gateway_t>
+inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway() noexcept : gateway_t()
 {}
 
-template <typename channel_t>
-inline Iceoryx2DDSGateway<channel_t>::Iceoryx2DDSGateway(ChannelFactory channelFactory) noexcept : iox::dds::DDSGatewayGeneric<channel_t>(channelFactory)
-{}
-
-template<typename channel_t>
-inline void Iceoryx2DDSGateway<channel_t>::loadConfiguration(GatewayConfig config)
+template <typename channel_t, typename gateway_t>
+inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway(ChannelFactory channelFactory) noexcept
 {
+}
+
+template <typename channel_t, typename gateway_t>
+inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(GatewayConfig config) noexcept
+{
+    iox::LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway.";
     for(const auto& service : config.m_configuredServices)
     {
-        auto channel = this->setupChannel(service);
+        auto channel = this->addChannel(service);
         auto subscriber = channel.getIceoryxTerminal();
         auto dataWriter = channel.getDDSTerminal();
         subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
@@ -51,9 +53,9 @@ inline void Iceoryx2DDSGateway<channel_t>::loadConfiguration(GatewayConfig confi
 }
 
 
-template <typename channel_t>
+template <typename channel_t, typename gateway_t>
 inline void
-Iceoryx2DDSGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noexcept
+Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
     iox::LogDebug() << "[Iceoryx2DDSGateway] <CaproMessage> "
                     << iox::capro::CaproMessageTypeString[static_cast<uint8_t>(msg.m_type)]
@@ -74,9 +76,9 @@ Iceoryx2DDSGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noe
     {
     case iox::capro::CaproMessageType::OFFER:
     {
-        if(!this->channelExists(msg.m_serviceDescription))
+        if(!this->findChannel(msg.m_serviceDescription).has_value())
         {
-            auto channel = this->setupChannel(msg.m_serviceDescription);
+            auto channel = this->addChannel(msg.m_serviceDescription);
             auto subscriber = channel.getIceoryxTerminal();
             auto dataWriter = channel.getDDSTerminal();
             subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
@@ -86,7 +88,7 @@ Iceoryx2DDSGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noe
     }
     case iox::capro::CaproMessageType::STOP_OFFER:
     {
-        if(this->channelExists(msg.m_serviceDescription))
+        if(this->findChannel(msg.m_serviceDescription).has_value())
         {
             this->discardChannel(msg.m_serviceDescription);
         }
@@ -99,25 +101,23 @@ Iceoryx2DDSGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noe
     }
 }
 
-template <typename channel_t>
-inline void Iceoryx2DDSGateway<channel_t>::forward() noexcept
+template <typename channel_t, typename gateway_t>
+inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward() noexcept
 {
-    auto guardedVector = this->m_channels.GetScopeGuard();
-    for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
-    {
-        auto subscriber = channel->getIceoryxTerminal();
+    this->forEachChannel([](channel_t channel){
+        auto subscriber = channel.getIceoryxTerminal();
         if (subscriber->hasNewChunks())
         {
             const iox::mepoo::ChunkHeader* header;
             subscriber->getChunk(&header);
             if (header->m_info.m_payloadSize > 0)
             {
-                auto dataWriter = channel->getDDSTerminal();
+                auto dataWriter = channel.getDDSTerminal();
                 dataWriter->write(static_cast<uint8_t*>(header->payload()), header->m_info.m_payloadSize);
             }
             subscriber->releaseChunk(header);
         }
-    }
+    });
 }
 
 } // namespace dds

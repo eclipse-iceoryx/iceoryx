@@ -41,6 +41,11 @@ public:
     Channel(const iox::capro::ServiceDescription& service,
             const IceoryxTerminalPtr iceoryxTerminal,
             const DDSTerminalPtr ddsTerminal) noexcept;
+    ~Channel() noexcept;
+    Channel(const Channel<IceoryxTerminal, DDSTerminal>&) noexcept;
+    Channel& operator=(const Channel<IceoryxTerminal, DDSTerminal>&) noexcept;
+    Channel(Channel<IceoryxTerminal, DDSTerminal>&&) noexcept;
+    Channel& operator=(Channel<IceoryxTerminal, DDSTerminal>&&) noexcept;
 
     static Channel create(const iox::capro::ServiceDescription& service) noexcept;
 

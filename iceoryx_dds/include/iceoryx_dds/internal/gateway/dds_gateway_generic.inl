@@ -57,15 +57,7 @@ inline iox::dds::DDSGatewayGeneric<channel_t>::DDSGatewayGeneric() noexcept : io
 }
 
 template<typename channel_t>
-inline iox::dds::DDSGatewayGeneric<channel_t>::DDSGatewayGeneric(std::function<channel_t(const iox::capro::ServiceDescription)> channelFactory) noexcept
-    : iox::popo::GatewayGeneric(iox::capro::Interfaces::DDS), m_channelFactory(channelFactory)
-{
-     LogDebug() << "[DDSGatewayGeneric] Using provided channel factory.";
-}
-
-
-template<typename channel_t>
-inline channel_t iox::dds::DDSGatewayGeneric<channel_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
+inline channel_t iox::dds::DDSGatewayGeneric<channel_t>::addChannel(const iox::capro::ServiceDescription& service) noexcept
 {
     auto channel = m_channelFactory(service);
     m_channels->push_back(channel);
@@ -73,6 +65,35 @@ inline channel_t iox::dds::DDSGatewayGeneric<channel_t>::setupChannel(const iox:
                     << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
                     << service.getEventIDString();
     return channel;
+}
+
+template<typename channel_t>
+inline iox::cxx::optional<channel_t> iox::dds::DDSGatewayGeneric<channel_t>::findChannel(const iox::capro::ServiceDescription& service) noexcept
+{
+    auto guardedVector = this->m_channels.GetScopeGuard();
+    auto channel = std::find_if(
+        guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
+            return channel.getService() == service;
+        });
+    if(channel == guardedVector->end())
+    {
+        return iox::cxx::nullopt_t();
+    }
+    else
+    {
+        // Needs to be dereferenced since the smart lock returns pointers to elements in concurrent collections.
+        return iox::cxx::make_optional<channel_t>(*channel);
+    }
+}
+
+template<typename channel_t>
+inline void iox::dds::DDSGatewayGeneric<channel_t>::forEachChannel(const std::function<void(channel_t&)> f) noexcept
+{
+    auto guardedVector = m_channels.GetScopeGuard();
+    for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
+    {
+        f(*channel);
+    }
 }
 
 template<typename channel_t>
@@ -90,17 +111,6 @@ inline void iox::dds::DDSGatewayGeneric<channel_t>::discardChannel(const iox::ca
                         << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
                         << service.getEventIDString();
     }
-}
-
-template<typename channel_t>
-inline bool iox::dds::DDSGatewayGeneric<channel_t>::channelExists(const iox::capro::ServiceDescription& service) noexcept
-{
-    auto guardedVector = this->m_channels.GetScopeGuard();
-    auto channel = std::find_if(
-        guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
-            return channel.getService() == service;
-        });
-    return channel != guardedVector->end();
 }
 
 // ================================================== Private ================================================== //
