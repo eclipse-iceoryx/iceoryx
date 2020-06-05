@@ -25,14 +25,14 @@
 #include <iceoryx_utils/cxx/optional.hpp>
 #include <iceoryx_utils/internal/concurrent/smart_lock.hpp>
 
-#include "iceoryx_dds/dds/dds_configs.hpp"
+#include "iceoryx_dds/dds/dds_config.hpp"
 #include "iceoryx_dds/gateway/gateway_config.hpp"
 
 namespace iox {
 namespace dds {
 
-template <typename channel_t>
-class DDSGatewayGeneric : public iox::popo::GatewayGeneric
+template <typename channel_t, typename gateway_t = iox::popo::GatewayGeneric>
+class DDSGatewayGeneric : public gateway_t
 {
 
     using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
