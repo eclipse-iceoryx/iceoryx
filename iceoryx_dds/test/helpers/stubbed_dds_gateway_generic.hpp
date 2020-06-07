@@ -52,12 +52,12 @@ public:
 
     channel_t addChannel(const iox::capro::ServiceDescription& service) noexcept
     {
-        TestDDSGatewayGeneric<channel_t>::addChannel(service);
+        return TestDDSGatewayGeneric<channel_t>::addChannel(service);
     }
 
     iox::cxx::optional<channel_t> findChannel(const iox::capro::ServiceDescription& service) noexcept
     {
-        TestDDSGatewayGeneric<channel_t>::findChannel(service);
+        return TestDDSGatewayGeneric<channel_t>::findChannel(service);
     }
 
     void forEachChannel(const std::function<void(channel_t&)> f) noexcept

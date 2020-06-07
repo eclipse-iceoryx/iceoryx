@@ -18,6 +18,9 @@ struct StubbedDDSTerminal{
     StubbedDDSTerminal(iox::dds::IdString sid, iox::dds::IdString iid, iox::dds::IdString eid){};
 };
 
+using TestChannel = iox::dds::Channel<StubbedIceoryxTerminal, StubbedDDSTerminal>;
+using TestDDSGatewayGeneric = iox::dds::StubbedDDSGatewayGeneric<TestChannel>;
+
 // ======================================== Fixture ======================================== //
 class DDSGatewayGenericTest : public Test
 {
@@ -30,9 +33,9 @@ class DDSGatewayGenericTest : public Test
 TEST_F(DDSGatewayGenericTest, AddedChannelsAreStored)
 {
     // ===== Setup
-    auto testService = iox::capro::ServiceDescription("", "", "");
+    auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
-    iox::dds::StubbedDDSGatewayGeneric<iox::dds::Channel<StubbedIceoryxTerminal, StubbedDDSTerminal>> gw{};
+    TestDDSGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(testService);
@@ -44,14 +47,14 @@ TEST_F(DDSGatewayGenericTest, AddedChannelsAreStored)
 TEST_F(DDSGatewayGenericTest, DiscardedChannelsAreNotStored)
 {
     // ===== Setup
-    auto testService = iox::capro::ServiceDescription("", "", "");
+    auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
-    iox::dds::StubbedDDSGatewayGeneric<iox::dds::Channel<StubbedIceoryxTerminal, StubbedDDSTerminal>> gw{};
+    TestDDSGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(testService);
+    EXPECT_EQ(1, gw.getNumberOfChannels());
     gw.discardChannel(testService);
-
     EXPECT_EQ(0, gw.getNumberOfChannels());
 
 }
@@ -61,12 +64,11 @@ TEST_F(DDSGatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
     // ===== Setup
     auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
-    iox::dds::StubbedDDSGatewayGeneric<iox::dds::Channel<StubbedIceoryxTerminal, StubbedDDSTerminal>> gw{};
+    TestDDSGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(testService);
     auto foundChannel = gw.findChannel(testService);
-    EXPECT_EQ(1, gw.getNumberOfChannels());
     EXPECT_EQ(true, foundChannel.has_value());
     if(foundChannel.has_value())
     {
@@ -78,12 +80,37 @@ TEST_F(DDSGatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
 TEST_F(DDSGatewayGenericTest, FindChannelGivesEmptyOptionalIfNoneFound)
 {
     // ===== Setup
-    auto testService = iox::capro::ServiceDescription("", "", "");
+    auto storedChannelService = iox::capro::ServiceDescription("service", "instance", "event");
+    auto notStoredChannelService = iox::capro::ServiceDescription("otherService", "otherInstance", "otherEvent");
 
-    iox::dds::StubbedDDSGatewayGeneric<iox::dds::Channel<StubbedIceoryxTerminal, StubbedDDSTerminal>> gw{};
+    TestDDSGatewayGeneric gw{};
 
     // ===== Test
-    auto foundChannel = gw.findChannel(testService);
+    gw.addChannel(storedChannelService);
+    auto foundChannel = gw.findChannel(notStoredChannelService);
     EXPECT_EQ(false, foundChannel.has_value());
 }
 
+TEST_F(DDSGatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredChannels)
+{
+    // ===== Setup
+    auto testServiceA = iox::capro::ServiceDescription("serviceA", "instanceA", "eventA");
+    auto testServiceB = iox::capro::ServiceDescription("serviceB", "instanceB", "eventB");
+    auto testServiceC = iox::capro::ServiceDescription("serviceC", "instanceC", "eventC");
+
+    auto count = 0u;
+    auto f = [&count](TestChannel& channel){
+        count++;
+    };
+
+    TestDDSGatewayGeneric gw{};
+
+    // ===== Test
+    gw.addChannel(testServiceA);
+    gw.addChannel(testServiceB);
+    gw.addChannel(testServiceC);
+    gw.forEachChannel(f);
+
+    EXPECT_EQ(3, count);
+
+}
