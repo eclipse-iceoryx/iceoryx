@@ -45,7 +45,7 @@ public:
         // Stubbed.
     }
 
-    void forward() noexcept
+    void forward(channel_t channel) noexcept
     {
         // Stubbed.
     }

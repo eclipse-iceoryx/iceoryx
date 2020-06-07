@@ -58,7 +58,7 @@ public:
     void shutdown() noexcept;
 
     virtual void discover(const iox::capro::CaproMessage& msg) noexcept = 0;
-    virtual void forward() noexcept = 0;
+    virtual void forward(channel_t channel) noexcept = 0;
 
     uint64_t getNumberOfChannels() const noexcept;
 

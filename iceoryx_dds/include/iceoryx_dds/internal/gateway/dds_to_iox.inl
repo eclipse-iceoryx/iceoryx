@@ -41,7 +41,7 @@ inline void DDS2IceoryxGateway<channel_t>::discover(const iox::capro::CaproMessa
 }
 
 template <typename channel_t>
-inline void DDS2IceoryxGateway<channel_t>::forward() noexcept
+inline void DDS2IceoryxGateway<channel_t>::forward(channel_t channel) noexcept
 {
 }
 

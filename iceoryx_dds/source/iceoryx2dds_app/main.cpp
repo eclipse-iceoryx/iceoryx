@@ -47,15 +47,11 @@ int main(int argc, char* argv[])
     signal(SIGINT, ShutdownManager::scheduleShutdown);
     signal(SIGTERM, ShutdownManager::scheduleShutdown);
 
-    // Parse configuration
-    iox::dds::GatewayConfig config;
-
     // Start application
     iox::runtime::PoshRuntime::getInstance("/gateway_iceoryx2dds");
 
-    iox::dds::Iceoryx2DDSGateway<> gateway;
-    gateway.loadConfiguration(config);
-    gateway.runMultithreaded();
+    iox::dds::Iceoryx2DDSGateway<> gw;
+    gw.runMultithreaded();
 
     // Run until SIGINT or SIGTERM
     ShutdownManager::waitUntilShutdown();

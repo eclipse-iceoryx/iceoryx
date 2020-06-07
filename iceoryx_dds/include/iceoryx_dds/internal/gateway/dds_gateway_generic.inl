@@ -153,7 +153,9 @@ inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::forwardingLoop() 
     m_runForwardingLoop.store(true, std::memory_order_relaxed);
     while (m_runForwardingLoop.load(std::memory_order_relaxed))
     {
-        forward();
+        forEachChannel([this](channel_t channel){
+            this->forward(channel);
+        });
         std::this_thread::sleep_until(std::chrono::steady_clock::now()
                                       + std::chrono::milliseconds(FORWARDING_PERIOD.milliSeconds<int64_t>()));
     };

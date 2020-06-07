@@ -27,14 +27,17 @@ iox::posix::Semaphore ShutdownManager::s_semaphore = iox::posix::Semaphore::crea
 
 int main(int argc, char *argv[])
 {
+    // Set OS signal handlers
+    signal(SIGINT, ShutdownManager::scheduleShutdown);
+    signal(SIGTERM, ShutdownManager::scheduleShutdown);
 
-    iox::runtime::PoshRuntime::getInstance("/gateway_dds2iox");
+    // Start application
+    iox::runtime::PoshRuntime::getInstance("/gateway_dds2iceoryx");
 
     iox::dds::DDS2IceoryxGateway<> gw;
     gw.runMultithreaded();
 
-    std::cout << "Hello." << std::endl;
-
+    // Run until SIGINT or SIGTERM
     ShutdownManager::waitUntilShutdown();
 
     return 0;

@@ -97,22 +97,20 @@ Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro::CaproMessag
 }
 
 template <typename channel_t, typename gateway_t>
-inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward() noexcept
+inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(channel_t channel) noexcept
 {
-    this->forEachChannel([](channel_t channel){
-        auto subscriber = channel.getIceoryxTerminal();
-        if (subscriber->hasNewChunks())
+    auto subscriber = channel.getIceoryxTerminal();
+    if (subscriber->hasNewChunks())
+    {
+        const iox::mepoo::ChunkHeader* header;
+        subscriber->getChunk(&header);
+        if (header->m_info.m_payloadSize > 0)
         {
-            const iox::mepoo::ChunkHeader* header;
-            subscriber->getChunk(&header);
-            if (header->m_info.m_payloadSize > 0)
-            {
-                auto dataWriter = channel.getDDSTerminal();
-                dataWriter->write(static_cast<uint8_t*>(header->payload()), header->m_info.m_payloadSize);
-            }
-            subscriber->releaseChunk(header);
+            auto dataWriter = channel.getDDSTerminal();
+            dataWriter->write(static_cast<uint8_t*>(header->payload()), header->m_info.m_payloadSize);
         }
-    });
+        subscriber->releaseChunk(header);
+    }
 }
 
 } // namespace dds

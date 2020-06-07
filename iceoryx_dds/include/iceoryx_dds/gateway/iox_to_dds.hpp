@@ -32,7 +32,7 @@ public:
     Iceoryx2DDSGateway() noexcept;
     void loadConfiguration(GatewayConfig config) noexcept;
     void discover(const iox::capro::CaproMessage& msg) noexcept;
-    void forward() noexcept;
+    void forward(channel_t channel) noexcept;
 };
 
 } // namespace dds
