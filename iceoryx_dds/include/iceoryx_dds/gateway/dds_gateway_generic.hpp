@@ -89,15 +89,15 @@ class DDSGatewayGeneric : public gateway_t
     /// the custom deleters included in their pointers.
     ///
     /// The service description is perhaps too large for copying since they contain strings, however this should be
-    /// addressed with the service description repository feature.
+    /// addressed with a service description repository feature.
     ///
     channel_t addChannel(const iox::capro::ServiceDescription& service) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns
     /// it one exists.
-    /// \param service The service to find a channel for.
-    /// \return An optional containining the matching channel if one exists, otherwise an empty optional.
+    /// @param service The service to find a channel for.
+    /// @return An optional containining the matching channel if one exists, otherwise an empty optional.
     ///
     iox::cxx::optional<channel_t> findChannel(const iox::capro::ServiceDescription& service) const noexcept;
 
