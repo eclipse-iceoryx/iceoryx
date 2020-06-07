@@ -117,6 +117,21 @@ class Iceoryx2DDSGatewayTest : public Test
 };
 
 // ======================================== Tests ======================================== //
+TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)
+{
+
+}
+
+TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromConfiguredServices)
+{
+
+}
+
+TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForConfiguredServices)
+{
+
+}
+
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresIntrospectionPorts)
 {
     // === Setup
@@ -146,21 +161,6 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresServiceMessages)
     gw.discover(msg);
 }
 
-TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)
-{
-
-}
-
-TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromConfiguredServices)
-{
-
-}
-
-TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForConfiguredServices)
-{
-
-}
-
 TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForDiscoveredServices)
 {
     // === Setup
@@ -169,10 +169,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForDiscoveredServices)
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
-    ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
-
-    EXPECT_CALL(gw, addChannel).Times(1);
+    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel).WillOnce(Return(createTestChannel(testService)));
 
     // === Test
     gw.discover(msg);
@@ -191,8 +189,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDiscoveredServices
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
     // Mock methods of the mock generic dds gateway base class
-    ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
+    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel).WillOnce(Return(createTestChannel(testService)));
 
     // === Test
     gw.discover(msg);
@@ -211,8 +209,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForDiscovere
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
     // Mock methods of the mock generic dds gateway base class
-    ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
+    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel).WillOnce(Return(createTestChannel(testService)));
 
     // === Test
     gw.discover(msg);
@@ -314,10 +312,6 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     // Subscribers
     auto firstCreatedSubscriber = createMockSubscriber(testService);
     auto secondCreatedSubscriber = createMockSubscriber(testService);
-    ON_CALL(*firstCreatedSubscriber, getServiceDescription)
-        .WillByDefault(Return(testService));
-    ON_CALL(*secondCreatedSubscriber, getServiceDescription)
-        .WillByDefault(Return(testService));
     {
         InSequence seq;
         EXPECT_CALL(*firstCreatedSubscriber, subscribe).Times(1);
@@ -340,7 +334,6 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     auto testChannelTwo = createTestChannel(testService);
 
     TestGateway gw{};
-    // EXPECT_CALL is used here because it allows specifying different return values for consecutive calls
     EXPECT_CALL(gw, findChannel)
             .WillOnce(Return(iox::cxx::nullopt_t()))
             .WillOnce(Return(iox::cxx::make_optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(testChannelOne)))
