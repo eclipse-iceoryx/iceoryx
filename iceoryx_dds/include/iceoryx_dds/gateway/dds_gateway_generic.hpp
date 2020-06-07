@@ -110,8 +110,6 @@ private:
     ConcurrentChannelVector m_channels;
 
     std::atomic_bool m_isRunning{false};
-    std::atomic_bool m_runForwardingLoop{false};
-    std::atomic_bool m_runDiscoveryLoop{false};
 
     std::thread m_discoveryThread;
     std::thread m_forwardingThread;

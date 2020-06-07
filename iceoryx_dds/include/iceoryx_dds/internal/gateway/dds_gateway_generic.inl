@@ -43,13 +43,11 @@ inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::shutdown() noexce
     {
         iox::dds::LogDebug() << "[DDSGatewayGeneric] Shutting down Posh2DDSGateway.";
 
-        m_runDiscoveryLoop.store(false, std::memory_order_relaxed);
-        m_runForwardingLoop.store(false, std::memory_order_relaxed);
+        m_isRunning.store(false, std::memory_order_relaxed);
 
         m_discoveryThread.join();
         m_forwardingThread.join();
 
-        m_isRunning.store(false, std::memory_order_relaxed);
     }
 }
 
@@ -132,8 +130,7 @@ template<typename channel_t, typename gateway_t>
 inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::discoveryLoop() noexcept
 {
     iox::dds::LogDebug() << "[DDSGatewayGeneric] Starting discovery.";
-    m_runDiscoveryLoop.store(true, std::memory_order_relaxed);
-    while (m_runDiscoveryLoop.load(std::memory_order_relaxed))
+    while (m_isRunning.load(std::memory_order_relaxed))
     {
         iox::capro::CaproMessage msg;
         while (this->getCaProMessage(msg))
@@ -150,8 +147,7 @@ template<typename channel_t, typename gateway_t>
 inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::forwardingLoop() noexcept
 {
     iox::dds::LogDebug() << "[DDSGatewayGeneric] Starting forwarding.";
-    m_runForwardingLoop.store(true, std::memory_order_relaxed);
-    while (m_runForwardingLoop.load(std::memory_order_relaxed))
+    while (m_isRunning.load(std::memory_order_relaxed))
     {
         forEachChannel([this](channel_t channel){
             this->forward(channel);
