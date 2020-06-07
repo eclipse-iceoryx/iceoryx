@@ -10,11 +10,13 @@ using ::testing::_;
 
 // ======================================== Helpers ======================================== //
 // We do not need real channel terminals to test the base class.
-struct StubbedIceoryxTerminal{
+struct StubbedIceoryxTerminal
+{
     StubbedIceoryxTerminal(iox::capro::ServiceDescription sd){};
 };
 
-struct StubbedDDSTerminal{
+struct StubbedDDSTerminal
+{
     StubbedDDSTerminal(iox::dds::IdString sid, iox::dds::IdString iid, iox::dds::IdString eid){};
 };
 
@@ -41,7 +43,6 @@ TEST_F(DDSGatewayGenericTest, AddedChannelsAreStored)
     gw.addChannel(testService);
 
     EXPECT_EQ(1, gw.getNumberOfChannels());
-
 }
 
 TEST_F(DDSGatewayGenericTest, DiscardedChannelsAreNotStored)
@@ -56,7 +57,6 @@ TEST_F(DDSGatewayGenericTest, DiscardedChannelsAreNotStored)
     EXPECT_EQ(1, gw.getNumberOfChannels());
     gw.discardChannel(testService);
     EXPECT_EQ(0, gw.getNumberOfChannels());
-
 }
 
 TEST_F(DDSGatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
@@ -70,11 +70,10 @@ TEST_F(DDSGatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
     gw.addChannel(testService);
     auto foundChannel = gw.findChannel(testService);
     EXPECT_EQ(true, foundChannel.has_value());
-    if(foundChannel.has_value())
+    if (foundChannel.has_value())
     {
         EXPECT_EQ(testService, foundChannel.value().getService());
     }
-
 }
 
 TEST_F(DDSGatewayGenericTest, FindChannelGivesEmptyOptionalIfNoneFound)
@@ -99,9 +98,7 @@ TEST_F(DDSGatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredCha
     auto testServiceC = iox::capro::ServiceDescription("serviceC", "instanceC", "eventC");
 
     auto count = 0u;
-    auto f = [&count](TestChannel& channel){
-        count++;
-    };
+    auto f = [&count](TestChannel& channel) { count++; };
 
     TestDDSGatewayGeneric gw{};
 
@@ -112,5 +109,4 @@ TEST_F(DDSGatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredCha
     gw.forEachChannel(f);
 
     EXPECT_EQ(3, count);
-
 }

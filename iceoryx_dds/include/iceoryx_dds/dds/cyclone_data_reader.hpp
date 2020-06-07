@@ -16,12 +16,13 @@
 
 #include "iceoryx_dds/dds/data_reader.hpp"
 
-namespace iox {
-namespace dds {
-
+namespace iox
+{
+namespace dds
+{
 class CycloneDataReader : DataReader<CycloneDataReader>
 {
-public:
+  public:
     CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept;
 };
 

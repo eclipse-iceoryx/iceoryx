@@ -17,29 +17,29 @@
 
 #include <iceoryx_posh/mepoo/chunk_header.hpp>
 
-#include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_dds/gateway/iox_to_dds.hpp"
+#include "iceoryx_dds/internal/log/logging.hpp"
 
 namespace iox
 {
 namespace dds
 {
-
-//template <typename channel_t>
-//using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
+// template <typename channel_t>
+// using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
 
 // ======================================== Public ======================================== //
 template <typename channel_t, typename gateway_t>
 inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway() noexcept : gateway_t()
-{}
+{
+}
 
 template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(GatewayConfig config) noexcept
 {
     iox::LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway.";
-    for(const auto& service : config.m_configuredServices)
+    for (const auto& service : config.m_configuredServices)
     {
-        if(!this->findChannel(service).has_value())
+        if (!this->findChannel(service).has_value())
         {
             auto channel = this->addChannel(service);
             auto subscriber = channel.getIceoryxTerminal();
@@ -52,8 +52,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(GatewayC
 
 
 template <typename channel_t, typename gateway_t>
-inline void
-Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro::CaproMessage& msg) noexcept
+inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
     iox::LogDebug() << "[Iceoryx2DDSGateway] <CaproMessage> "
                     << iox::capro::CaproMessageTypeString[static_cast<uint8_t>(msg.m_type)]
@@ -74,7 +73,7 @@ Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro::CaproMessag
     {
     case iox::capro::CaproMessageType::OFFER:
     {
-        if(!this->findChannel(msg.m_serviceDescription).has_value())
+        if (!this->findChannel(msg.m_serviceDescription).has_value())
         {
             auto channel = this->addChannel(msg.m_serviceDescription);
             auto subscriber = channel.getIceoryxTerminal();
@@ -86,7 +85,7 @@ Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro::CaproMessag
     }
     case iox::capro::CaproMessageType::STOP_OFFER:
     {
-        if(this->findChannel(msg.m_serviceDescription).has_value())
+        if (this->findChannel(msg.m_serviceDescription).has_value())
         {
             this->discardChannel(msg.m_serviceDescription);
         }

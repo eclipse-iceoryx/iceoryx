@@ -14,13 +14,13 @@
 
 #include <limits>
 
-#include <iceoryx_posh/internal/capro/capro_message.hpp>
-#include <iceoryx_posh/mepoo/chunk_header.hpp>
-#include <iceoryx_utils/cxx/optional.hpp>
 #include <iceoryx_dds/dds/data_writer.hpp>
 #include <iceoryx_dds/gateway/channel.hpp>
 #include <iceoryx_dds/gateway/gateway_config.hpp>
 #include <iceoryx_dds/gateway/iox_to_dds.hpp>
+#include <iceoryx_posh/internal/capro/capro_message.hpp>
+#include <iceoryx_posh/mepoo/chunk_header.hpp>
+#include <iceoryx_utils/cxx/optional.hpp>
 
 #include "mocks/chunk_mock.hpp"
 #include "mocks/google_mocks.hpp"
@@ -35,7 +35,8 @@ using ::testing::InSequence;
 
 // ======================================== Helpers ======================================== //
 
-using TestGateway = iox::dds::Iceoryx2DDSGateway<iox::dds::Channel<MockSubscriber, MockDataWriter>, MockGenericDDSGateway>;
+using TestGateway =
+    iox::dds::Iceoryx2DDSGateway<iox::dds::Channel<MockSubscriber, MockDataWriter>, MockGenericDDSGateway>;
 
 // Holds mocks created by tests to be returned by mock factories.
 static std::vector<std::shared_ptr<MockSubscriber>> stagedMockSubscribers;
@@ -285,7 +286,6 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
 {
-
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
@@ -309,12 +309,10 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
 
     // === Test
     gw.forward(testChannel);
-
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
 {
-
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
@@ -340,7 +338,6 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
 
     // === Test
     gw.forward(testChannel);
-
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStopsOffering)
@@ -361,11 +358,9 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     stageMockSubscriber(std::move(secondCreatedSubscriber));
 
     // Messages
-    auto offerMsg =
-        iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
+    auto offerMsg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
     offerMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
-    auto stopOfferMsg =
-        iox::capro::CaproMessage(iox::capro::CaproMessageType::STOP_OFFER, testService);
+    auto stopOfferMsg = iox::capro::CaproMessage(iox::capro::CaproMessageType::STOP_OFFER, testService);
     stopOfferMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
     // Get the test channels here as we need to use them in expectations
@@ -374,14 +369,11 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel)
-            .WillOnce(Return(iox::cxx::nullopt_t()))
-            .WillOnce(Return(iox::cxx::make_optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(testChannelOne)))
-            .WillOnce(Return(iox::cxx::nullopt_t()));
-    EXPECT_CALL(gw, addChannel)
-            .WillOnce(Return(testChannelOne))
-            .WillOnce(Return(testChannelTwo));
-    EXPECT_CALL(gw, discardChannel)
-            .Times(1);
+        .WillOnce(Return(iox::cxx::nullopt_t()))
+        .WillOnce(Return(iox::cxx::make_optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(testChannelOne)))
+        .WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel).WillOnce(Return(testChannelOne)).WillOnce(Return(testChannelTwo));
+    EXPECT_CALL(gw, discardChannel).Times(1);
 
     // === Test
     gw.discover(offerMsg);

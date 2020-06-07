@@ -18,9 +18,10 @@
 
 #include "mocks/google_mocks.hpp"
 
-namespace iox {
-namespace dds {
-
+namespace iox
+{
+namespace dds
+{
 template <typename channel_t>
 using TestDDSGatewayGeneric = iox::dds::DDSGatewayGeneric<channel_t, MockGenericGateway>;
 
@@ -32,9 +33,7 @@ using TestDDSGatewayGeneric = iox::dds::DDSGatewayGeneric<channel_t, MockGeneric
 template <typename channel_t>
 class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
 {
-
-public:
-
+  public:
     virtual void loadConfiguration(GatewayConfig config) noexcept
     {
         // Stubbed.
@@ -69,8 +68,6 @@ public:
     {
         TestDDSGatewayGeneric<channel_t>::discardChannel(service);
     }
-
 };
-
 }
 }

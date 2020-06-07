@@ -16,5 +16,4 @@
 
 iox::dds::CycloneDataReader::CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept
 {
-
 }

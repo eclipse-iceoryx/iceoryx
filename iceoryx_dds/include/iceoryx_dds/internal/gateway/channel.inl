@@ -18,7 +18,6 @@ namespace iox
 {
 namespace dds
 {
-
 // Typedefs
 template <typename IceoryxTerminal>
 using IceoryxTerminalPool = iox::cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
@@ -33,8 +32,8 @@ DDSTerminalPool<DDSTerminal> Channel<IceoryxTerminal, DDSTerminal>::s_ddsTermina
 
 template <typename IceoryxTerminal, typename DDSTerminal>
 inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const iox::capro::ServiceDescription& service,
-                                                  const IceoryxTerminalPtr iceoryxTerminal,
-                                                  const DDSTerminalPtr ddsTerminal) noexcept
+                                                      const IceoryxTerminalPtr iceoryxTerminal,
+                                                      const DDSTerminalPtr ddsTerminal) noexcept
     : m_service(service),
       m_iceoryxTerminal(iceoryxTerminal),
       m_ddsTerminal(ddsTerminal)
@@ -44,7 +43,6 @@ inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const iox::capro::ServiceD
 template <typename IceoryxTerminal, typename DDSTerminal>
 inline Channel<IceoryxTerminal, DDSTerminal>::~Channel() noexcept
 {
-
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
@@ -56,7 +54,8 @@ inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const Channel<IceoryxTermi
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
-inline Channel<IceoryxTerminal, DDSTerminal>& Channel<IceoryxTerminal, DDSTerminal>::operator=(const Channel<IceoryxTerminal, DDSTerminal>& rhs) noexcept
+inline Channel<IceoryxTerminal, DDSTerminal>& Channel<IceoryxTerminal, DDSTerminal>::
+operator=(const Channel<IceoryxTerminal, DDSTerminal>& rhs) noexcept
 {
     m_service = rhs.m_service;
     m_ddsTerminal = rhs.m_ddsTerminal;
@@ -72,7 +71,8 @@ inline Channel<IceoryxTerminal, DDSTerminal>::Channel(Channel<IceoryxTerminal, D
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
-inline Channel<IceoryxTerminal, DDSTerminal>& Channel<IceoryxTerminal, DDSTerminal>::operator=(Channel<IceoryxTerminal, DDSTerminal>&& rhs) noexcept
+inline Channel<IceoryxTerminal, DDSTerminal>& Channel<IceoryxTerminal, DDSTerminal>::
+operator=(Channel<IceoryxTerminal, DDSTerminal>&& rhs) noexcept
 {
     m_service = std::move(rhs.m_service);
     m_ddsTerminal = std::move(rhs.m_ddsTerminal);
@@ -85,11 +85,12 @@ Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescripti
 {
     // Create objects in the pool.
     auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const iox::capro::ServiceDescription>(service));
-    auto rawDDSTerminalPtr = s_ddsTerminals.create(
-        service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
+    auto rawDDSTerminalPtr =
+        s_ddsTerminals.create(service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
-    auto iceoryxTerminalPtr = IceoryxTerminalPtr(rawIceoryxTerminalPtr, [](IceoryxTerminal* p) { s_iceoryxTerminals.free(p); });
+    auto iceoryxTerminalPtr =
+        IceoryxTerminalPtr(rawIceoryxTerminalPtr, [](IceoryxTerminal* p) { s_iceoryxTerminals.free(p); });
     auto ddsTerminalPtr = DDSTerminalPtr(rawDDSTerminalPtr, [](DDSTerminal* p) { s_ddsTerminals.free(p); });
 
     return Channel(service, iceoryxTerminalPtr, ddsTerminalPtr);

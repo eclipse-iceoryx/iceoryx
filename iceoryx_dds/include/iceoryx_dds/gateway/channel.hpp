@@ -16,13 +16,14 @@
 
 #include <memory>
 
+#include "iceoryx_dds/dds/dds_config.hpp"
 #include <iceoryx_posh/capro/service_description.hpp>
 #include <iceoryx_utils/internal/objectpool/objectpool.hpp>
-#include "iceoryx_dds/dds/dds_config.hpp"
 
-namespace iox {
-namespace dds{
-
+namespace iox
+{
+namespace dds
+{
 ///
 /// @class Channel
 /// @brief A data structure representing a channel between Iceoryx and DDS.
@@ -50,8 +51,7 @@ class Channel
     using DDSTerminalPtr = std::shared_ptr<DDSTerminal>;
     using DDSTerminalPool = iox::cxx::ObjectPool<DDSTerminal, MAX_CHANNEL_NUMBER>;
 
-public:
-
+  public:
     Channel(const iox::capro::ServiceDescription& service,
             const IceoryxTerminalPtr iceoryxTerminal,
             const DDSTerminalPtr ddsTerminal) noexcept;
@@ -67,7 +67,7 @@ public:
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;
     DDSTerminalPtr getDDSTerminal() const noexcept;
 
-private:
+  private:
     static IceoryxTerminalPool s_iceoryxTerminals;
     static DDSTerminalPool s_ddsTerminals;
 

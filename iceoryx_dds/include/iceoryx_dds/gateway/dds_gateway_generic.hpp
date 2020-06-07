@@ -14,33 +14,36 @@
 
 #pragma once
 
-#include <thread>
 #include <atomic>
+#include <thread>
 
-#include <iceoryx_posh/popo/gateway_generic.hpp>
 #include <iceoryx_posh/capro/service_description.hpp>
 #include <iceoryx_posh/iceoryx_posh_types.hpp>
+#include <iceoryx_posh/popo/gateway_generic.hpp>
+#include <iceoryx_utils/cxx/optional.hpp>
 #include <iceoryx_utils/cxx/string.hpp>
 #include <iceoryx_utils/cxx/vector.hpp>
-#include <iceoryx_utils/cxx/optional.hpp>
 #include <iceoryx_utils/internal/concurrent/smart_lock.hpp>
 
 #include "iceoryx_dds/dds/dds_config.hpp"
 #include "iceoryx_dds/gateway/gateway_config.hpp"
 
-namespace iox {
-namespace dds {
-
+namespace iox
+{
+namespace dds
+{
+///
+/// @brief Base class for DDS gateways containing common logic used by all implementations. Methods that are expected
+/// to differ across implementations are left as pure virtual.
+///
 template <typename channel_t, typename gateway_t = iox::popo::GatewayGeneric>
 class DDSGatewayGeneric : public gateway_t
 {
-
     using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
     using ChannelVector = iox::cxx::vector<channel_t, MAX_CHANNEL_NUMBER>;
     using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 
-public:
-
+  public:
     virtual ~DDSGatewayGeneric() noexcept;
 
     DDSGatewayGeneric(const DDSGatewayGeneric&) = delete;
@@ -48,22 +51,28 @@ public:
     DDSGatewayGeneric(DDSGatewayGeneric&&) = delete;
     DDSGatewayGeneric& operator=(DDSGatewayGeneric&&) = delete;
 
-    ///
-    /// @brief loadConfiguration Load the provided configuration.
-    /// @note This method is virtual pure since different configuration likely to be different across implementations.
-    /// @param config
-    ///
-    virtual void loadConfiguration(GatewayConfig config) noexcept = 0;
     void runMultithreaded() noexcept;
     void shutdown() noexcept;
 
+    ///
+    /// @brief loadConfiguration Load the provided configuration.
+    /// @param config Generic dds gateway configuration which is applicable to all implementations.
+    ///
+    virtual void loadConfiguration(GatewayConfig config) noexcept = 0;
+    ///
+    /// @brief discover Process discovery messages coming from iceoryx.
+    /// @param msg The discovery message.
+    ///
     virtual void discover(const iox::capro::CaproMessage& msg) noexcept = 0;
+    ///
+    /// @brief forward Forward data between the two terminals of the channel used by the implementation.
+    /// @param channel The channel to propogate data across.
+    ///
     virtual void forward(channel_t channel) noexcept = 0;
 
     uint64_t getNumberOfChannels() const noexcept;
 
-protected:
-
+  protected:
     DDSGatewayGeneric() noexcept;
 
     ChannelFactory m_channelFactory;
@@ -90,14 +99,14 @@ protected:
     /// \param service The service to find a channel for.
     /// \return An optional containining the matching channel if one exists, otherwise an empty optional.
     ///
-    iox::cxx::optional<channel_t> findChannel(const iox::capro::ServiceDescription& service) noexcept;
+    iox::cxx::optional<channel_t> findChannel(const iox::capro::ServiceDescription& service) const noexcept;
 
     ///
     /// @brief forEachChannel Executs the given function for each channel in the internally stored collection.
     /// @param f The function to execute.
     /// @note This operation allows thread-safe access to the internal collection.
     ///
-    void forEachChannel(const std::function<void(channel_t&)> f) noexcept;
+    void forEachChannel(const std::function<void(channel_t&)> f) const noexcept;
 
     ///
     /// @brief discardChannel Discard the channel for the given service in the internal collection if one exists.
@@ -105,8 +114,7 @@ protected:
     ///
     void discardChannel(const iox::capro::ServiceDescription& service) noexcept;
 
-private:
-
+  private:
     ConcurrentChannelVector m_channels;
 
     std::atomic_bool m_isRunning{false};
@@ -116,7 +124,6 @@ private:
 
     void forwardingLoop() noexcept;
     void discoveryLoop() noexcept;
-
 };
 
 } // namespace dds

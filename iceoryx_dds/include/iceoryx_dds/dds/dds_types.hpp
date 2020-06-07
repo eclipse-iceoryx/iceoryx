@@ -25,7 +25,6 @@ namespace iox
 {
 namespace dds
 {
-
 // Fixed strings
 using IdString = iox::cxx::string<100>;
 

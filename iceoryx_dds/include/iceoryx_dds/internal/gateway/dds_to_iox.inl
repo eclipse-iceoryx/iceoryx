@@ -20,16 +20,16 @@
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 
-namespace iox {
-namespace dds {
-
+namespace iox
+{
+namespace dds
+{
 template <typename channel_t>
-inline DDS2IceoryxGateway<channel_t>::DDS2IceoryxGateway() noexcept
-    : iox::dds::DDSGatewayGeneric<channel_t>()
+inline DDS2IceoryxGateway<channel_t>::DDS2IceoryxGateway() noexcept : iox::dds::DDSGatewayGeneric<channel_t>()
 {
 }
 
-template<typename channel_t>
+template <typename channel_t>
 inline void DDS2IceoryxGateway<channel_t>::loadConfiguration(GatewayConfig config) noexcept
 {
 }

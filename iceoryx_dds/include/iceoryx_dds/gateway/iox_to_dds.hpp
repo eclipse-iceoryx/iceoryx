@@ -17,18 +17,23 @@
 #include <iceoryx_posh/popo/subscriber.hpp>
 
 #include "iceoryx_dds/dds/dds_types.hpp"
-#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
 #include "iceoryx_dds/gateway/channel.hpp"
+#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
 
-namespace iox {
-namespace dds {
-
+namespace iox
+{
+namespace dds
+{
+///
+/// @brief DDS Gateway implementation for the iceoryx to DDS direction.
+///
 template <typename channel_t = iox::dds::Channel<iox::popo::Subscriber, iox::dds::data_writer_t>,
           typename gateway_t = iox::dds::DDSGatewayGeneric<channel_t>>
 class Iceoryx2DDSGateway : public gateway_t
 {
     using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
-public:
+
+  public:
     Iceoryx2DDSGateway() noexcept;
     void loadConfiguration(GatewayConfig config) noexcept;
     void discover(const iox::capro::CaproMessage& msg) noexcept;
