@@ -19,6 +19,7 @@
 #include <iceoryx_utils/cxx/optional.hpp>
 #include <iceoryx_dds/dds/data_writer.hpp>
 #include <iceoryx_dds/gateway/channel.hpp>
+#include <iceoryx_dds/gateway/gateway_config.hpp>
 #include <iceoryx_dds/gateway/iox_to_dds.hpp>
 
 #include "mocks/chunk_mock.hpp"
@@ -119,17 +120,55 @@ class Iceoryx2DDSGatewayTest : public Test
 // ======================================== Tests ======================================== //
 TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)
 {
+    // === Setup
+    auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+    iox::dds::GatewayConfig config{};
+    config.m_configuredServices.push_back(testService);
 
+    TestGateway gw{};
+    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel).WillOnce(Return(createTestChannel(testService)));
+
+    // === Test
+    gw.loadConfiguration(config);
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromConfiguredServices)
 {
+    // === Setup
+    auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+    iox::dds::GatewayConfig config{};
+    config.m_configuredServices.push_back(testService);
 
+    auto mockSubscriber = createMockSubscriber(testService);
+    EXPECT_CALL(*mockSubscriber, subscribe).Times(1);
+    stageMockSubscriber(std::move(mockSubscriber));
+
+    TestGateway gw{};
+    ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
+    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
+
+    // === Test
+    gw.loadConfiguration(config);
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForConfiguredServices)
 {
+    // === Setup
+    auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+    iox::dds::GatewayConfig config{};
+    config.m_configuredServices.push_back(testService);
 
+    auto mockWriter = createMockDataWriter(testService);
+    EXPECT_CALL(*mockWriter, connect).Times(1);
+    stageMockDataWriter(std::move(mockWriter));
+
+    TestGateway gw{};
+    ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
+    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
+
+    // === Test
+    gw.loadConfiguration(config);
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresIntrospectionPorts)
@@ -189,8 +228,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDiscoveredServices
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
     // Mock methods of the mock generic dds gateway base class
-    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
-    EXPECT_CALL(gw, addChannel).WillOnce(Return(createTestChannel(testService)));
+    ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
+    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
 
     // === Test
     gw.discover(msg);
@@ -209,8 +248,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForDiscovere
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
     // Mock methods of the mock generic dds gateway base class
-    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
-    EXPECT_CALL(gw, addChannel).WillOnce(Return(createTestChannel(testService)));
+    ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
+    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
 
     // === Test
     gw.discover(msg);

@@ -39,11 +39,14 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(GatewayC
     iox::LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway.";
     for(const auto& service : config.m_configuredServices)
     {
-        auto channel = this->addChannel(service);
-        auto subscriber = channel.getIceoryxTerminal();
-        auto dataWriter = channel.getDDSTerminal();
-        subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
-        dataWriter->connect();
+        if(!this->findChannel(service).has_value())
+        {
+            auto channel = this->addChannel(service);
+            auto subscriber = channel.getIceoryxTerminal();
+            auto dataWriter = channel.getDDSTerminal();
+            subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
+            dataWriter->connect();
+        }
     }
 }
 
