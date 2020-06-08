@@ -4,6 +4,15 @@
 
 namespace iox
 {
+// remark: Is currently only used to implement unqiue index,
+// which might be removed during the capacity change feature
+// it is effectively a reduced optional with forbidden copies
+// However, we do not need all the extra functionality of the optional
+// and would need to account for the differences.
+
+// The idea is to have a unique (value) resource which is only movable
+// but otherwise behaves almost as the template type.
+
 template <typename T>
 class unique
 {
@@ -39,19 +48,27 @@ class unique
 
     // only move
     unique(unique&& other)
-        : m_value(std::move(other.m_value))
-        , m_valid(other.m_valid)
+        : m_valid(other.m_valid)
     {
-        other.m_valid = false;
+        if (other.m_valid)
+        {
+            // note that we could move construct from other.m_value even if other.m_valid is false,
+            // but this way it might be more efficient (depends on optimization and the underlying type)
+            m_value = std::move(other.m_value);
+            other.m_valid = false;
+        }
     };
 
     unique& operator=(unique&& other)
     {
         if (this != &other)
         {
-            m_value = std::move(other.m_value);
             m_valid = other.m_valid;
-            other.m_valid = false;
+            if (other.m_valid)
+            {
+                m_value = std::move(other.m_value);
+                other.m_valid = false;
+            }
         }
         return *this;
     }
@@ -77,14 +94,7 @@ class unique
         return m_valid;
     }
 
-    // note: interferes with operator const T& for some types, we cannot have both(which do we want ?)
-    // operator bool()
-    // {
-    //     return m_valid;
-    // }
-
   private:
-    // note: storing the value enforces a (default) ctor
     T m_value;
     bool m_valid{true};
 };
