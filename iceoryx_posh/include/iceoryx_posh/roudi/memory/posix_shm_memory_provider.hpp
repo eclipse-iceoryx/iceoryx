@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_MEMORY_POSIX_SHM_MEMORY_PROVIDER_HPP
-#define IOX_POSH_MEMORY_POSIX_SHM_MEMORY_PROVIDER_HPP
+#ifndef IOX_POSH_ROUDI_MEMORY_POSIX_SHM_MEMORY_PROVIDER_HPP
+#define IOX_POSH_ROUDI_MEMORY_POSIX_SHM_MEMORY_PROVIDER_HPP
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
@@ -71,4 +71,4 @@ class PosixShmMemoryProvider : public MemoryProvider
 } // namespace roudi
 } // namespace iox
 
-#endif // IOX_POSH_MEMORY_POSIX_SHM_MEMORY_PROVIDER_HPP
+#endif // IOX_POSH_ROUDI_MEMORY_POSIX_SHM_MEMORY_PROVIDER_HPP

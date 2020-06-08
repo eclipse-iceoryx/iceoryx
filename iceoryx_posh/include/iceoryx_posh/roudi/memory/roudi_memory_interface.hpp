@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_MEMORY_ROUDI_MEMORY_INTERFACE_HPP
-#define IOX_POSH_MEMORY_ROUDI_MEMORY_INTERFACE_HPP
+#ifndef IOX_POSH_ROUDI_MEMORY_ROUDI_MEMORY_INTERFACE_HPP
+#define IOX_POSH_ROUDI_MEMORY_ROUDI_MEMORY_INTERFACE_HPP
 
 #include "iceoryx_posh/internal/roudi/memory/mempool_collection_memory_block.hpp"
 #include "iceoryx_posh/internal/roudi/memory/mempool_segment_manager_memory_block.hpp"
@@ -61,4 +61,4 @@ class RouDiMemoryInterface
 } // namespace roudi
 } // namespace iox
 
-#endif // IOX_POSH_MEMORY_ROUDI_MEMORY_INTERFACE_HPP
+#endif // IOX_POSH_ROUDI_MEMORY_ROUDI_MEMORY_INTERFACE_HPP

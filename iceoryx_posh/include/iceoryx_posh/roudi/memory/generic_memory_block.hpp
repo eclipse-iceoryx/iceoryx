@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_MEMORY_GENERIC_MEMORY_BLOCK_HPP
-#define IOX_POSH_MEMORY_GENERIC_MEMORY_BLOCK_HPP
+#ifndef IOX_POSH_ROUDI_MEMORY_GENERIC_MEMORY_BLOCK_HPP
+#define IOX_POSH_ROUDI_MEMORY_GENERIC_MEMORY_BLOCK_HPP
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
@@ -70,4 +70,4 @@ class GenericMemoryBlock final : public MemoryBlock
 
 #include "iceoryx_posh/internal/roudi/memory/generic_memory_block.inl"
 
-#endif // IOX_POSH_MEMORY_GENERIC_MEMORY_BLOCK_HPP
+#endif // IOX_POSH_ROUDI_MEMORY_GENERIC_MEMORY_BLOCK_HPP

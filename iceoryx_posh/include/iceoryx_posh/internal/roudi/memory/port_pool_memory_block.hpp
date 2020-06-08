@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_MEMORY_PORT_POOL_MEMORY_BLOCK_HPP
-#define IOX_POSH_MEMORY_PORT_POOL_MEMORY_BLOCK_HPP
+#ifndef IOX_POSH_ROUDI_MEMORY_PORT_POOL_MEMORY_BLOCK_HPP
+#define IOX_POSH_ROUDI_MEMORY_PORT_POOL_MEMORY_BLOCK_HPP
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
@@ -66,4 +66,4 @@ class PortPoolMemoryBlock : public MemoryBlock
 } // namespace roudi
 } // namespace iox
 
-#endif // IOX_POSH_MEMORY_PORT_POOL_MEMORY_BLOCK_HPP
+#endif // IOX_POSH_ROUDI_MEMORY_PORT_POOL_MEMORY_BLOCK_HPP

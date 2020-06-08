@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
-#define IOX_POSH_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
@@ -123,4 +123,4 @@ class ChunkDistributor
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.inl"
 
-#endif // IOX_POSH_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
