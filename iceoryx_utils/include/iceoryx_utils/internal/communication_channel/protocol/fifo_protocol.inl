@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_PROTOCOL_FIFO_PROTOCOL_INL
-#define IOX_UTILS_PROTOCOL_FIFO_PROTOCOL_INL
+#ifndef IOX_UTILS_COMMUNICATION_CHANNEL_PROTOCOL_FIFO_PROTOCOL_INL
+#define IOX_UTILS_COMMUNICATION_CHANNEL_PROTOCOL_FIFO_PROTOCOL_INL
 
 #include "iceoryx_utils/communication_channel/protocol/fifo_protocol.hpp"
 
@@ -62,4 +62,4 @@ inline cxx::optional<DataType> FiFoProtocol<DataType, Capacity>::timedReceive(co
 
 } // namespace iox
 
-#endif // IOX_UTILS_PROTOCOL_FIFO_PROTOCOL_INL
+#endif // IOX_UTILS_COMMUNICATION_CHANNEL_PROTOCOL_FIFO_PROTOCOL_INL

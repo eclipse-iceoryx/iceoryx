@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
-#define IOX_UTILS_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
+#ifndef IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
+#define IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
@@ -64,4 +64,4 @@ class MemoryMap
 } // namespace posix
 } // namespace iox
 
-#endif // IOX_UTILS_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
+#endif // IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
