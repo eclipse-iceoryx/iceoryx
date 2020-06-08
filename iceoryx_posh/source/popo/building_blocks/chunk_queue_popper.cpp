@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 
@@ -20,49 +20,22 @@ namespace iox
 {
 namespace popo
 {
-ChunkQueue::ChunkQueue(MemberType_t* const chunkQueueDataPtr) noexcept
+ChunkQueuePopper::ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept
     : m_chunkQueueDataPtr(chunkQueueDataPtr)
 {
 }
 
-const ChunkQueue::MemberType_t* ChunkQueue::getMembers() const noexcept
+const ChunkQueuePopper::MemberType_t* ChunkQueuePopper::getMembers() const noexcept
 {
     return m_chunkQueueDataPtr;
 }
 
-ChunkQueue::MemberType_t* ChunkQueue::getMembers() noexcept
+ChunkQueuePopper::MemberType_t* ChunkQueuePopper::getMembers() noexcept
 {
     return m_chunkQueueDataPtr;
 }
 
-bool ChunkQueue::push(mepoo::SharedChunk chunk) noexcept
-{
-    ChunkQueueData::ChunkTuple chunkTupleIn(chunk.releaseWithRelativePtr());
-
-    return !getMembers()
-                ->m_queue.push(chunkTupleIn)
-                .on_success(
-                    [this](cxx::expected<cxx::optional<ChunkQueueData::ChunkTuple>, cxx::VariantQueueError>& retVal) {
-                        // drop the chunk if one is returned by a safe overflow
-                        if (*retVal)
-                        {
-                            auto chunkTupleOut = **retVal;
-                            auto chunkManagement = iox::relative_ptr<mepoo::ChunkManagement>(
-                                chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
-                            auto chunk = mepoo::SharedChunk(chunkManagement);
-                        }
-
-                        if (getMembers()->m_semaphoreAttached.load(std::memory_order_acquire)
-                            && getMembers()->m_semaphore)
-                        {
-                            std::cout << "fubar" << std::endl;
-                            getMembers()->m_semaphore->post();
-                        }
-                    })
-                .has_error();
-}
-
-cxx::optional<mepoo::SharedChunk> ChunkQueue::pop() noexcept
+cxx::optional<mepoo::SharedChunk> ChunkQueuePopper::pop() noexcept
 {
     auto retVal = getMembers()->m_queue.pop();
 
@@ -81,34 +54,47 @@ cxx::optional<mepoo::SharedChunk> ChunkQueue::pop() noexcept
     }
 }
 
-bool ChunkQueue::empty() noexcept
+bool ChunkQueuePopper::empty() noexcept
 {
     return getMembers()->m_queue.empty();
 }
 
-uint64_t ChunkQueue::size() noexcept
+uint64_t ChunkQueuePopper::size() noexcept
 {
     return getMembers()->m_queue.size();
 }
 
-void ChunkQueue::setCapacity(const uint32_t newCapacity) noexcept
+void ChunkQueuePopper::setCapacity(const uint32_t newCapacity) noexcept
 {
     getMembers()->m_queue.setCapacity(newCapacity);
 }
 
-uint64_t ChunkQueue::capacity() noexcept
+uint64_t ChunkQueuePopper::capacity() noexcept
 {
     return getMembers()->m_queue.capacity();
 }
 
-void ChunkQueue::clear() noexcept
+void ChunkQueuePopper::clear() noexcept
 {
-    while (getMembers()->m_queue.pop())
+    do
     {
-    }
+        auto retVal = getMembers()->m_queue.pop();
+        if (retVal)
+        {
+            auto chunkTupleOut = *retVal;
+            auto chunkManagement =
+                iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            auto chunk = mepoo::SharedChunk(chunkManagement);
+        }
+        else
+        {
+            break;
+        }
+    } while (true);
 }
 
-cxx::expected<ChunkQueueError> ChunkQueue::attachSemaphore(mepoo::SharedPointer<posix::Semaphore> semaphore) noexcept
+cxx::expected<ChunkQueueError>
+ChunkQueuePopper::attachSemaphore(mepoo::SharedPointer<posix::Semaphore> semaphore) noexcept
 {
     if (isSemaphoreAttached())
     {
@@ -123,7 +109,7 @@ cxx::expected<ChunkQueueError> ChunkQueue::attachSemaphore(mepoo::SharedPointer<
     }
 }
 
-bool ChunkQueue::isSemaphoreAttached() noexcept
+bool ChunkQueuePopper::isSemaphoreAttached() noexcept
 {
     return getMembers()->m_semaphoreAttached.load(std::memory_order_relaxed);
 }

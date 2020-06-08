@@ -76,7 +76,7 @@ SharedMemory::SharedMemory(const char* f_name,
     strncpy(m_name, f_name, NAME_SIZE);
     m_name[NAME_SIZE - 1u] = '\0';
     m_oflags |= (f_accessMode == AccessMode::readOnly) ? O_RDONLY : O_RDWR;
-    m_oflags |= (f_ownerShip == OwnerShip::mine) ? O_CREAT : 0;
+    m_oflags |= (f_ownerShip == OwnerShip::mine) ? O_CREAT | O_EXCL : 0;
 
     m_isInitialized = open();
 }
@@ -116,7 +116,7 @@ bool SharedMemory::isInitialized() const
     return m_isInitialized;
 }
 
-int SharedMemory::getHandle() const
+int32_t SharedMemory::getHandle() const
 {
     return m_handle;
 }
@@ -125,6 +125,17 @@ bool SharedMemory::open()
 {
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0u);
+
+    // if we create the shm, cleanup old resources
+    if (m_oflags & O_CREAT)
+    {
+        auto shmUnlinkCall =
+            cxx::makeSmartC(shm_unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ENOENT}, m_name);
+        if (!shmUnlinkCall.hasErrors() && shmUnlinkCall.getErrNum() != ENOENT)
+        {
+            std::cout << "SharedMemory still there, doing an unlink of " << m_name << std::endl;
+        }
+    }
 
     auto l_shmOpenCall =
         cxx::makeSmartC(shm_open, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_name, m_oflags, m_permissions);

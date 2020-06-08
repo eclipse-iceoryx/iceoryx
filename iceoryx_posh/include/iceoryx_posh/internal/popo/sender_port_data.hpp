@@ -64,7 +64,7 @@ struct SenderPortData : public BasePortData
     bool m_isUnique{false};
 
 
-    UsedChunkList<MAX_SAMPLE_ALLOCATE_PER_SENDER> m_allocatedChunksList;
+    UsedChunkList<MAX_CHUNKS_ALLOCATE_PER_SENDER> m_allocatedChunksList;
 
     mepoo::SequenceNumberType m_sequenceNumber{0u};
     // throughput related members
@@ -88,4 +88,3 @@ struct SenderPortData : public BasePortData
 
 } // namespace popo
 } // namespace iox
-

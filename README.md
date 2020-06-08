@@ -4,6 +4,8 @@
 <img src="https://user-images.githubusercontent.com/8661268/70233652-4aa6d180-175f-11ea-8524-2344e0d3935c.png" width="50%">
 </p>
 
+![Build & Test](https://github.com/eclipse/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=master)
+
 ## Introduction
 
 Great that you've made it to this little Eclipse project! Let's get you started by providing a quick background
@@ -26,9 +28,16 @@ It's all about the API!
 
 Don't get too frighten of the API when strolling through the codebase. Think of iceoryx's API as a "plumbing" one
 ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" API ourselves, but instead a typed API.
-Examples for a "porcelain" API would be e.g.
-[Adaptive Autosar Foundation](https://www.autosar.org/fileadmin/Releases_TEMP/Adaptive_Platform_19-03/AdaptiveFoundation.zip)
-(see AUTOSAR_EXP_ARAComAPI.pdf) or [ROS](https://www.ros.org).
+An example for a "porcelain" API would be [ROS2](https://www.ros.org/). Others are listed in the next section.
+
+### Where is Eclipse iceoryx used?
+
+|Framework | Description |
+|---|---|
+| [ROS2](https://github.com/ros2/rmw_iceoryx) | Eclipse iceoryx can be used inside the [robot operating system](https://www.ros.org/) with rmw_iceoryx |
+| [eCAL](https://github.com/continental/ecal) | Open-source middleware from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
+| [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
+| [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
 
 ### Supported Platforms
 
@@ -158,7 +167,6 @@ workings of iceoryx. We hope you enjoy our sightseeing tour!
 
 |Name | Description | Technologies |
 |---|---|---|
-| [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx) | See how iceoryx can be used inside the robot operating system | ROS, RMW |
 | [Larry.Robotics](https://gitlab.com/larry.robotics) | An iceoryx demonstrator for tinker, thinker and toddler | Demonstrator |
 | [iceoryx-rs](https://github.com/elBoberido/iceoryx-rs) | Experimental Rust wrapper for iceoryx | Rust |
 | [IceRay](https://github.com/elBoberido/iceray) | An iceoryx instrospection client written in Rust | Rust |

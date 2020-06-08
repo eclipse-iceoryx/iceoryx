@@ -242,7 +242,10 @@ iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
     {
         va_list va;
         va_start(va, oflag);
-        mode_t mode = va_arg(va, mode_t);
+        // mode_t is an alias for unsigned short but this causes undefined
+        // behavior in va_arg since it is a promotable type - which will be
+        // promoted to int
+        mode_t mode = static_cast<mode_t>(va_arg(va, unsigned int));
         unsigned int value = va_arg(va, unsigned int);
         va_end(va);
 

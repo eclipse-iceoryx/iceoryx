@@ -108,10 +108,13 @@ TEST_F(VariantQueue_test, handlesOverflow)
 {
     PerformTestForQueueTypes([](uint64_t typeID) {
         VariantQueue<int, 2> sut(static_cast<VariantQueueTypes>(typeID));
+        // current SOFI can hold capacity +1 values, so push some more to ensure overflow
         sut.push(14123);
         sut.push(24123);
+        sut.push(22222);
+        sut.push(33333);
         auto hasPushed = sut.push(667);
-        EXPECT_THAT((hasPushed.has_error() || hasPushed.get_value().has_value()), Eq(true));
+        EXPECT_THAT((hasPushed.has_error() || (hasPushed.get_value()).has_value()), Eq(true));
     });
 }
 

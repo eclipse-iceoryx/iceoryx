@@ -174,13 +174,13 @@ inline const T& optional<T>::operator*() const noexcept
 template <typename T>
 inline T* optional<T>::operator->() noexcept
 {
-    return const_cast<T*>(const_cast<const optional*>(this)->operator->());
+    return &value();
 }
 
 template <typename T>
 inline T& optional<T>::operator*() noexcept
 {
-    return const_cast<T&>(const_cast<const optional*>(this)->operator*());
+    return value();
 }
 
 template <typename T>
@@ -227,7 +227,9 @@ template <typename T>
 template <typename T>
 inline const T& optional<T>::value() const& noexcept
 {
-    return const_cast<optional<T>*>(this)->value();
+    /// @rationale
+    /// const cast to avoid code duplication
+    return const_cast<optional<T>*>(this)->value(); // PRQA S 3066
 }
 
 template <typename T>
