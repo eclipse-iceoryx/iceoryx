@@ -291,8 +291,6 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, isOneCycleBehindCheckNegative)
     Index cycleMid(m / 2, c);
     Index cycleEnd(i, c);
 
-    Index nextCycleStart = cycleStart + m;
-    Index nextCycleMid = cycleMid + m;
     Index nextCycleEnd = cycleEnd + m;
 
     Index nextCycleStart2 = nextCycleEnd.next();

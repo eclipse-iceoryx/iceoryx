@@ -4,7 +4,8 @@
 
 namespace iox
 {
-// @todo: add more functionality (policies for cache line size, redzoning), rename in a suitable way
+// remark: we can add more functionality (policies for cache line size, redzoning)
+
 template <typename ElementType, uint64_t Capacity, typename index_t = uint64_t>
 class Buffer
 {
@@ -13,27 +14,27 @@ class Buffer
     Buffer(const Buffer&) = delete;
     Buffer& operator=(const Buffer&) = delete;
 
-    ElementType& operator[](index_t index) noexcept
+    ElementType& operator[](const index_t index) noexcept
     {
         return *toPtr(index);
     }
 
-    const ElementType& operator[](index_t index) const noexcept
+    const ElementType& operator[](const index_t index) const noexcept
     {
         return *toPtr(index);
     }
 
-    ElementType* ptr(index_t index) noexcept
+    ElementType* ptr(const index_t index) noexcept
     {
         return toPtr(index);
     }
 
-    const ElementType* ptr(index_t index) const noexcept
+    const ElementType* ptr(const index_t index) const noexcept
     {
         return toPtr(index);
     }
 
-    uint64_t capacity()
+    uint64_t capacity() const noexcept
     {
         return Capacity;
     }

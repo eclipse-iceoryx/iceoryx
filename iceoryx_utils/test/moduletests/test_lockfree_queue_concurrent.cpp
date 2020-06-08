@@ -26,9 +26,6 @@ using namespace ::testing;
 #include <vector>
 
 
-/// @todo disable the tests (they take quite long)
-/// and define a separate target for them (to be desi)
-
 namespace
 {
 struct Data
@@ -95,9 +92,9 @@ void consume(Queue& queue, std::atomic<bool>& run, size_t expectedFinalCount, in
 }
 
 
-/// @todo rework to avoid stroing the popped values for check with multiple consumers
+/// remark: a possible rework could try to avoid storing the popped values for check with multiple consumers
 /// since this would allow us to run the test much longer (currently we will exhaust memory
-/// by using the list), this is somewhat nontrivial
+/// by using the list), but this rework is somewhat nontrivial
 template <typename Queue>
 void consumeAndStore(Queue& queue, std::atomic<bool>& run, std::list<Data>& consumed)
 {

@@ -60,9 +60,6 @@ class IndexQueue
     {
     };
 
-    // @todo: a compile time check whether Index is actually lock free would be nice
-    // note: there is a way  with is_always_lock_free in c++17 (which we cannot use here)
-
     static constexpr ConstructFull_t ConstructFull{};
     static constexpr ConstructEmpty_t ConstructEmpty{};
 
@@ -87,7 +84,7 @@ class IndexQueue
     /// note that if the queue is used concurrently it might
     /// not be empty anymore after the call
     /// (but it was at some point during the call)
-    bool empty();
+    bool empty() const noexcept;
 
     // The advantage of the UniqueIndex interface is that it prevents us from returning
     // an index multiple times by design, i.e. it enforces that only indices popped from
@@ -116,6 +113,8 @@ class IndexQueue
     UniqueIndex popIfFull();
 
   private:
+    // remark: a compile time check whether Index is actually lock free would be nice
+    // note: there is a way  with is_always_lock_free in c++17 (which we cannot use here)
     using Index = CyclicIndex<Capacity>;
 
     using Cell = std::atomic<Index>;

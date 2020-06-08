@@ -129,13 +129,13 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pop() noex
 }
 
 template <typename ElementType, uint64_t Capacity>
-bool LockFreeQueue<ElementType, Capacity>::empty()
+bool LockFreeQueue<ElementType, Capacity>::empty() const noexcept
 {
     return m_usedIndices.empty();
 }
 
 template <typename ElementType, uint64_t Capacity>
-uint64_t LockFreeQueue<ElementType, Capacity>::size()
+uint64_t LockFreeQueue<ElementType, Capacity>::size() const noexcept
 {
     return m_size.load(std::memory_order_relaxed);
 }

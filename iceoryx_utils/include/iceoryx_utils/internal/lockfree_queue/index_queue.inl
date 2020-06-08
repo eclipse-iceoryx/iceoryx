@@ -186,7 +186,7 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index)
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::empty()
+bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 {
     auto oldReadIndex = m_readPosition.load(std::memory_order_relaxed);
     auto value = m_cells[oldReadIndex.getIndex()].load(std::memory_order_relaxed);

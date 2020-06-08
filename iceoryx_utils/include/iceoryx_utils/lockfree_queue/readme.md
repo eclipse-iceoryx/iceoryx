@@ -15,7 +15,7 @@ Assume n = 4 in this explanation, so we can store the indices 0, 1, 2, 3.
 
 ### Index representation
 Each index i corresponds to an equivalence class [i] modulo n, i.e. 
-[i] = {j | j = c*n + i, n >= 0}
+[i] = {j | j = c*n + i, c >= 0}
 
 This means j = 3, 7, 11, ... all represent the same index 3 (pointing to the last element in the array)
 

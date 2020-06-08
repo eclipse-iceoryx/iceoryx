@@ -23,7 +23,7 @@
 
 namespace iox
 {
-/// @todo finalize interface, configuration of actual capacity at runtime (change capacity feature)
+// remark: configuration of capacity at runtime is an upcoming feature
 
 /// @brief implements a lock free queue (i.e. container with FIFO order) of elements of type T
 /// with Capacity
@@ -34,9 +34,9 @@ class LockFreeQueue
     /// @brief creates and initalizes an empty LockFreeQueue
     LockFreeQueue() noexcept;
 
-    /// @todo: a thread-safe and lockfree implementation of copy seems impossible
-    /// but unsafe copying (i.e. where synchronization is up to the user) would be possible
-    /// can be implemented when it is needed
+    // remark: a thread-safe and lockfree implementation of copy seems impossible
+    // but unsafe copying (i.e. where synchronization is up to the user) would be possible
+    // can be implemented when it is needed
     LockFreeQueue(const LockFreeQueue&) = delete;
     LockFreeQueue(LockFreeQueue&&) = delete;
     LockFreeQueue& operator=(const LockFreeQueue&) = delete;
@@ -44,16 +44,16 @@ class LockFreeQueue
 
     /// @brief returns the capacity of the queue
     /// threadsafe, lockfree
-    constexpr uint64_t capacity() noexcept;
+    constexpr uint64_t capacity() const noexcept;
 
     /// @brief tries to insert value in FIFO order, moves the value internally
-    /// @param value to be inserted (value semantics support move by the user)
+    /// @param value to be inserted
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// threadsafe, lockfree
     bool tryPush(ElementType&& value) noexcept;
 
     /// @brief tries to insert value in FIFO order, copies the value internally
-    /// @param value to be inserted (value semantics support move by the user)
+    /// @param value to be inserted
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// threadsafe, lockfree
     bool tryPush(const ElementType& value) noexcept;
@@ -82,22 +82,21 @@ class LockFreeQueue
     /// note that if the queue is used concurrently it might
     /// not be empty anymore after the call
     ///  (but it was at some point during the call)
-    bool empty();
+    bool empty() const noexcept;
 
     /// @brief get the number of stored elements in the queue
     /// @return number of stored elements in the queue
     /// note that this will not be perfectly in sync with the actual number of contained elements
     /// during concurrent operation but will always be at most capacity
-    uint64_t size();
+    uint64_t size() const noexcept;
 
   private:
     using Queue = IndexQueue<Capacity>;
     using UniqueIndex = typename Queue::UniqueIndex;
     using BufferIndex = typename Queue::value_t;
 
-    // actually m_freeIndices do not have to be in a queue, it could be another
+    // remark: actually m_freeIndices do not have to be in a queue, it could be another
     // multi-push multi-pop capable lockfree container (e.g. a stack or a list)
-    // @todo: replace with more efficient lockfree structure once available
     Queue m_freeIndices;
 
     // required to be a queue for LockFreeQueue to exhibit FIFO behaviour

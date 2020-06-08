@@ -21,9 +21,6 @@
 
 namespace iox
 {
-// @todo: unit tests - will be tested with the resize feature implementation
-// which might require minor adaptations/extensions of the CyclicIndex
-
 /// @brief index structure that can contain logical values 0, ..., CycleLength-1
 /// but also stores an internal cycle counter to be used in compare_exchange
 template <uint64_t CycleLength, typename ValueType = uint64_t>
@@ -41,8 +38,8 @@ class CyclicIndex
     static constexpr ValueType INDEX_AT_MAX_VALUE = MAX_VALUE % CycleLength;
     static constexpr ValueType OVERFLOW_START_INDEX = (INDEX_AT_MAX_VALUE + 1) % CycleLength;
 
-    static_assert(CycleLength < MAX_VALUE / 2); // need at least one bit for the cycle
-    static_assert(CycleLength > 0);
+    static_assert(CycleLength < MAX_VALUE / 2, "CycleLength is too large, need at least one bit for cycle");
+    static_assert(CycleLength > 0, "CycleLength must be positive");
 
     explicit CyclicIndex(ValueType value = 0) noexcept
         : m_value(value)
@@ -67,7 +64,7 @@ class CyclicIndex
         return m_value / CycleLength;
     }
 
-    CyclicIndex operator+(ValueType value) const
+    CyclicIndex operator+(ValueType value) const noexcept
     {
         // if we were at this value, we would have no overflow, i.e. when m_value is larger there is an overflow
         auto delta = MAX_VALUE - value;
@@ -85,7 +82,7 @@ class CyclicIndex
         return CyclicIndex(m_value + value);
     }
 
-    CyclicIndex next()
+    CyclicIndex next() const noexcept
     {
         if (m_value == MAX_VALUE)
         {
@@ -94,7 +91,7 @@ class CyclicIndex
         return CyclicIndex(m_value + 1);
     }
 
-    bool isOneCycleBehind(const CyclicIndex& other)
+    bool isOneCycleBehind(const CyclicIndex& other) const noexcept
     {
         auto thisCycle = this->getCycle();
         auto otherCycle = other.getCycle();
@@ -109,7 +106,7 @@ class CyclicIndex
   private:
     ValueType m_value{0};
 
-    static bool isBehind(ValueType cycle1, ValueType cycle2, ValueType cyclesBehind = 1)
+    static bool isBehind(ValueType cycle1, ValueType cycle2, ValueType cyclesBehind = 1) noexcept
     {
         return (cycle1 + cyclesBehind) == cycle2;
     }
