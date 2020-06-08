@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License
 
-#include "iceoryx_posh/internal/popo/base_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 
 namespace iox
 {
@@ -44,17 +44,12 @@ BasePort::~BasePort() noexcept
 {
 }
 
-BasePortType BasePort::getPortType() const noexcept
-{
-    return getMembers()->m_portType;
-}
-
 capro::ServiceDescription BasePort::getCaProServiceDescription() const noexcept
 {
     return getMembers()->m_serviceDescription;
 }
 
-cxx::CString100 BasePort::getApplicationName() const noexcept
+cxx::CString100 BasePort::getProcessName() const noexcept
 {
     return getMembers()->m_processName;
 }

@@ -26,7 +26,7 @@ namespace iox
 {
 namespace popo
 {
-enum class ChunkSenderError
+enum class AllocationError
 {
     RUNNING_OUT_OF_CHUNKS,
     TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL
@@ -43,7 +43,7 @@ class ChunkSender : public ChunkDistributorType
   public:
     using MemberType_t = ChunkSenderData<typename ChunkDistributorType::MemberType_t>;
 
-    ChunkSender(cxx::not_null<MemberType_t* const> chunkDistributorDataPtr) noexcept;
+    ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
 
     ChunkSender(const ChunkSender& other) = delete;
     ChunkSender& operator=(const ChunkSender&) = delete;
@@ -56,7 +56,7 @@ class ChunkSender : public ChunkDistributorType
     /// @param[in] payloadSize, size of the user paylaod without additional headers
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
-    cxx::expected<mepoo::ChunkHeader*, ChunkSenderError> allocate(const uint32_t payloadSize) noexcept;
+    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocate(const uint32_t payloadSize) noexcept;
 
     /// @brief Free an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free

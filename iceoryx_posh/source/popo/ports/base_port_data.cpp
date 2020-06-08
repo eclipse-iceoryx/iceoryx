@@ -10,27 +10,25 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.
+// limitations under the License
 
-#include "iceoryx_posh/internal/popo/receiver_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 
 namespace iox
 {
 namespace popo
 {
-ReceiverPortData::ReceiverPortData() noexcept
-    : BasePortData()
+BasePortData::BasePortData() noexcept
+    : m_uniqueId(s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed))
 {
 }
 
-ReceiverPortData::ReceiverPortData(const capro::ServiceDescription& serviceDescription,
-                                   const std::string& applicationName,
-                                   const MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription,
-                   iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
-    , m_memoryInfo(memoryInfo)
+BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
+                           const cxx::CString100& processName) noexcept
+    : m_serviceDescription(serviceDescription)
+    , m_processName(processName)
+    , m_uniqueId(s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed))
 {
 }
-
 } // namespace popo
 } // namespace iox

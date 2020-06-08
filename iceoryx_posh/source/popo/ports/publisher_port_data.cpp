@@ -10,21 +10,24 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.
+// limitations under the License
 
-#include "iceoryx_posh/internal/popo/interface_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 
 namespace iox
 {
 namespace popo
 {
-InterfacePortData::InterfacePortData(const std::string& applicationName,
-                                     const capro::Interfaces interface) noexcept
-    : BasePortData(capro::ServiceDescription(
-                       capro::InvalidIDString, capro::InvalidIDString, capro::InvalidIDString, {0, 0, 0, 0}, interface),
-                   BasePortType::INTERFACE_PORT,
-                   iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
+
+PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
+                                     const ProcessName_t& processName,
+                                     mepoo::MemoryManager* const memoryManager,
+                                     const uint64_t historyCapacity,
+                                     const mepoo::MemoryInfo& memoryInfo) noexcept
+    : BasePortData(serviceDescription, processName)
+    , m_chunkSenderData(memoryManager, historyCapacity, memoryInfo)
 {
 }
+
 } // namespace popo
 } // namespace iox

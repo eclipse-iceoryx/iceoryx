@@ -11,26 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_BASE_PORT_INL
-#define IOX_POSH_POPO_BASE_PORT_INL
 
-#include "iceoryx_posh/internal/popo/base_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/interface_port_data.hpp"
 
 namespace iox
 {
 namespace popo
 {
-inline const typename BasePort::MemberType_t* BasePort::getMembers() const noexcept
+InterfacePortData::InterfacePortData(const std::string& applicationName, const capro::Interfaces interface) noexcept
+    : BasePortData(capro::ServiceDescription(
+                       capro::InvalidIDString, capro::InvalidIDString, capro::InvalidIDString, {0, 0, 0, 0}, interface),
+                   iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
 {
-    return m_basePortDataPtr;
 }
-
-inline BasePort::MemberType_t* BasePort::getMembers() noexcept
-{
-    return m_basePortDataPtr;
-}
-
 } // namespace popo
 } // namespace iox
-
-#endif // IOX_POSH_POPO_BASE_PORT_INL

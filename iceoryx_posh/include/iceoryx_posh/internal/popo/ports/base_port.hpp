@@ -11,11 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_BASE_PORT_HPP
-#define IOX_POSH_POPO_BASE_PORT_HPP
+#ifndef IOX_POSH_POPO_PORTS_BASE_PORT_HPP
+#define IOX_POSH_POPO_PORTS_BASE_PORT_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/base_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 
 namespace iox
 {
@@ -58,15 +58,11 @@ class BasePort
 
     /// @brief Reads Type of actual CaPro Port (sender/receiver...)
     /// @return m_portType  Type of Port in struct BasePortType
-    BasePortType getPortType() const noexcept;
-
-    /// @brief Reads Type of actual CaPro Port (sender/receiver...)
-    /// @return m_portType  Type of Port in struct BasePortType
     capro::ServiceDescription getCaProServiceDescription() const noexcept;
 
-    /// @brief Gets Application Name for the active port
-    /// @return             Application name as String
-    cxx::CString100 getApplicationName() const noexcept;
+    /// @brief Gets Process Name for the active port
+    /// @return             Process name as String
+    cxx::CString100 getProcessName() const noexcept;
 
     /// @brief Gets Id of thethe active port
     /// @return             UniqueId name as Integer
@@ -90,6 +86,6 @@ class BasePort
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/base_port.inl"
+#include "iceoryx_posh/internal/popo/ports/base_port.inl"
 
-#endif // IOX_POSH_POPO_BASE_PORT_HPP
+#endif // IOX_POSH_POPO_PORTS_BASE_PORT_HPP

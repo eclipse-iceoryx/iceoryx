@@ -40,8 +40,9 @@ ChunkDistributor<ChunkDistributorDataType>::getMembers() noexcept
 }
 
 template <typename ChunkDistributorDataType>
-inline void ChunkDistributor<ChunkDistributorDataType>::addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
-                                                                 uint64_t requestedHistory) noexcept
+inline cxx::expected<ChunkDistributorError>
+ChunkDistributor<ChunkDistributorDataType>::addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
+                                                     uint64_t requestedHistory) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
@@ -65,16 +66,24 @@ inline void ChunkDistributor<ChunkDistributorDataType>::addQueue(cxx::not_null<C
             {
                 deliverToQueue(queueToAdd, getMembers()->m_history[i]);
             }
+
+            return cxx::success<void>();
         }
         else
         {
-            errorHandler(Error::kPOPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER, nullptr, ErrorLevel::SEVERE);
+            // that's not the fault of the chunk distributor user, we report a moderate error and indicate that adding
+            // the queue was not possible
+            errorHandler(Error::kPOPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER, nullptr, ErrorLevel::MODERATE);
+
+            return cxx::error<ChunkDistributorError>(ChunkDistributorError::QUEUE_CONTAINER_OVERFLOW);
         }
     }
+
+    return cxx::success<void>();
 }
 
 template <typename ChunkDistributorDataType>
-inline void
+inline cxx::expected<ChunkDistributorError>
 ChunkDistributor<ChunkDistributorDataType>::removeQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
@@ -83,6 +92,12 @@ ChunkDistributor<ChunkDistributorDataType>::removeQueue(cxx::not_null<ChunkQueue
     if (iter != getMembers()->m_queues.end())
     {
         getMembers()->m_queues.erase(iter);
+
+        return cxx::success<void>();
+    }
+    else
+    {
+        return cxx::error<ChunkDistributorError>(ChunkDistributorError::QUEUE_NOT_IN_CONTAINER);
     }
 }
 
@@ -95,7 +110,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::removeAllQueues() noexce
 }
 
 template <typename ChunkDistributorDataType>
-inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() noexcept
+inline bool ChunkDistributor<ChunkDistributorDataType>::hasStoredQueues() const noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 

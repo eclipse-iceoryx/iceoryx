@@ -17,7 +17,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
-#include "iceoryx_posh/internal/popo/base_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port_data.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"

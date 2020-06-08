@@ -14,7 +14,7 @@
 #ifndef IOX_POSH_POPO_SENDER_PORT_HPP
 #define IOX_POSH_POPO_SENDER_PORT_HPP
 
-#include "iceoryx_posh/internal/popo/base_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port_data.hpp"
 
 #include <cstdint>

@@ -18,7 +18,7 @@
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
-#include "iceoryx_posh/internal/popo/base_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/receiver_handler.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
