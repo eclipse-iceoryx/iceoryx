@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_INL
+#define IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_INL
 
 #include "process_introspection.hpp"
 
@@ -226,3 +228,5 @@ void ProcessIntrospection<SenderPort>::setSendInterval(unsigned int interval_ms)
 
 } // namespace roudi
 } // namespace iox
+
+#endif // IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_INL

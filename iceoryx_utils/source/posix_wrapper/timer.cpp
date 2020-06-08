@@ -16,7 +16,7 @@
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 namespace iox
 {

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_COMMUNICATION_CHANNEL_TRANSCEIVER_INL
+#define IOX_UTILS_COMMUNICATION_CHANNEL_TRANSCEIVER_INL
 
 #include "iceoryx_utils/internal/communication_channel/transceiver.hpp"
 
@@ -24,3 +26,5 @@ inline Transceiver<DataType, TransportLayer>::Transceiver(TransportLayer_t* cons
 {
 }
 } // namespace iox
+
+#endif // IOX_UTILS_COMMUNICATION_CHANNEL_TRANSCEIVER_INL

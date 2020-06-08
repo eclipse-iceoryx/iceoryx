@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_POPO_RECEIVER_HANDLER_INL
+#define IOX_POSH_POPO_RECEIVER_HANDLER_INL
 
 namespace iox
 {
@@ -211,3 +213,5 @@ inline uint32_t ReceiverHandler<MaxReceivers, LockingPolicy>::getMaxDeliveryFiFo
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_RECEIVER_HANDLER_INL

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_ERROR_HANDLING_ERROR_HANDLING_HPP
+#define IOX_UTILS_ERROR_HANDLING_ERROR_HANDLING_HPP
 
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -187,3 +187,5 @@ void errorHandler(const Error error,
                   const std::function<void()> errorCallBack = std::function<void()>(),
                   const ErrorLevel level = ErrorLevel::FATAL);
 } // namespace iox
+
+#endif // IOX_UTILS_ERROR_HANDLING_ERROR_HANDLING_HPP

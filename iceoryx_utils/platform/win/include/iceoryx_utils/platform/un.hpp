@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_WIN_PLATFORM_UN_HPP
+#define IOX_UTILS_WIN_PLATFORM_UN_HPP
 
 #include "iceoryx_utils/platform/socket.hpp"
 
@@ -21,3 +21,5 @@ struct sockaddr_un
     sa_family_t sun_family;
     char sun_path[108];
 };
+
+#endif // IOX_UTILS_WIN_PLATFORM_UN_HPP

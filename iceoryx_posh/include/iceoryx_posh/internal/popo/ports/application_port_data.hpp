@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef IOX_POPO_APPLICATION_PORT_DATA_HPP_
-#define IOX_POPO_APPLICATION_PORT_DATA_HPP_
+#ifndef IOX_POSH_POPO_PORTS_APPLICATION_PORT_DATA_HPP
+#define IOX_POSH_POPO_PORTS_APPLICATION_PORT_DATA_HPP
 
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 
@@ -32,4 +31,4 @@ struct ApplicationPortData : public BasePortData
 } // namespace popo
 } // namespace iox
 
-#endif
+#endif // IOX_POSH_POPO_PORTS_APPLICATION_PORT_DATA_HPP

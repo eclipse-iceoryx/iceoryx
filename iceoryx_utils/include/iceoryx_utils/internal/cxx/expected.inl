@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_EXPECTED_INL
+#define IOX_UTILS_CXX_EXPECTED_INL
 
 namespace iox
 {
@@ -567,3 +569,5 @@ inline const expected<ErrorType>& expected<ErrorType>::on_success(const std::fun
 }
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_EXPECTED_INL

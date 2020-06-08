@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef TEST_DEFINITIONS_HPP_INCLUDED
-#define TEST_DEFINITIONS_HPP_INCLUDED
+#ifndef IOX_UTILS_TESTUTILS_TEST_DEFINITIONS_HPP
+#define IOX_UTILS_TESTUTILS_TEST_DEFINITIONS_HPP
 
 /// @note this can be used to enable/disable tests where additional users are needed
 /// e.g.: TEST_F(FOO, ADD_TEST_WITH_ADDITIONAL_USER(barTest))
@@ -23,4 +22,4 @@
 #define ADD_TEST_WITH_ADDITIONAL_USER(TestName) DISABLED_##TestName
 #endif
 
-#endif // TEST_DEFINITIONS_HPP_INCLUDED
+#endif // IOX_UTILS_TESTUTILS_TEST_DEFINITIONS_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_HPP
+#define IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_HPP
 
 #include <atomic>
 #include <limits>
@@ -61,3 +61,5 @@ class atomic_relocatable_ptr
 } // namespace iox
 
 #include "iceoryx_utils/internal/relocatable_pointer/atomic_relocatable_ptr.inl"
+
+#endif // IOX_UTILS_RELOCATABLE_POINTER_ATOMIC_RELOCATABLE_PTR_HPP

@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
-
+#ifndef IOX_UTILS_WIN_PLATFORM_WIN32_ERRORHANDLING_HPP
+#define IOX_UTILS_WIN_PLATFORM_WIN32_ERRORHANDLING_HPP
 
 #define PrintLastErrorToConsole() __PrintLastErrorToConsole("", __FILE__, __LINE__)
 int __PrintLastErrorToConsole(const char* functionName, const char* file, const int line) noexcept;
@@ -24,3 +23,5 @@ int __PrintLastErrorToConsole(const char* functionName, const char* file, const 
         return function;                                                                                               \
     }();                                                                                                               \
     __PrintLastErrorToConsole(#function, __FILE__, __LINE__)
+
+#endif // IOX_UTILS_WIN_PLATFORM_WIN32_ERRORHANDLING_HPP

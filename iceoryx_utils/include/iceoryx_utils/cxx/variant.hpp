@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_CXX_VARIANT_HPP
+#define IOX_UTILS_CXX_VARIANT_HPP
 
 #include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/internal/cxx/variant_internal.hpp"
@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 namespace iox
 {
@@ -250,3 +250,5 @@ constexpr bool holds_alternative(const variant<Types...>& f_variant) noexcept;
 } // namespace iox
 
 #include "iceoryx_utils/internal/cxx/variant.inl"
+
+#endif // IOX_UTILS_CXX_VARIANT_HPP

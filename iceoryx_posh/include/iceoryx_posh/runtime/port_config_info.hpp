@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_RUNTIME_PORT_CONFIG_INFO_HPP
+#define IOX_POSH_RUNTIME_PORT_CONFIG_INFO_HPP
 
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_utils/cxx/serialization.hpp"
@@ -62,3 +62,5 @@ struct PortConfigInfo
 
 } // namespace runtime
 } // namespace iox
+
+#endif // IOX_POSH_RUNTIME_PORT_CONFIG_INFO_HPP

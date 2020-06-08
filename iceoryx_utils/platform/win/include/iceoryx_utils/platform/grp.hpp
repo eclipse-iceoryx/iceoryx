@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_WIN_PLATFORM_GRP_HPP
+#define IOX_UTILS_WIN_PLATFORM_GRP_HPP
 
 #include "iceoryx_utils/platform/grp.hpp"
 
@@ -43,3 +43,5 @@ inline int getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngrou
 {
     return 0;
 }
+
+#endif // IOX_UTILS_WIN_PLATFORM_GRP_HPP

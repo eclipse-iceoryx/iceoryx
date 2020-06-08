@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MOCKS_RECEIVERPORT_MOCK_HPP
+#define IOX_POSH_MOCKS_RECEIVERPORT_MOCK_HPP
 
 #include "test.hpp"
 
@@ -71,3 +71,5 @@ class ReceiverPort_MOCK
     MOCK_CONST_METHOD0(getCaProServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD0(AreCallbackReferencesSet, bool());
 };
+
+#endif // IOX_POSH_MOCKS_RECEIVERPORT_MOCK_HPP

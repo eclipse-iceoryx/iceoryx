@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CONCURRENT_SOFI_HPP
+#define IOX_UTILS_CONCURRENT_SOFI_HPP
 
-#pragma once
-
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -161,3 +161,5 @@ class SoFi
 } // namespace iox
 
 #include "iceoryx_utils/internal/concurrent/sofi.inl"
+
+#endif // IOX_UTILS_CONCURRENT_SOFI_HPP

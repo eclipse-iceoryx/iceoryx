@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CONCURRENT_SMART_LOCK_INL
+#define IOX_UTILS_CONCURRENT_SMART_LOCK_INL
 
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
 
@@ -122,3 +124,5 @@ T* smart_lock<T, MutexType>::Proxy::operator->() const
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_UTILS_CONCURRENT_SMART_LOCK_INL

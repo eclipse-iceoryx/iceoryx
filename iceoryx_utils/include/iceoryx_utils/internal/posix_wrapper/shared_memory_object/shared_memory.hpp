@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
+#define IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/platform/mman.hpp"
@@ -78,3 +78,5 @@ class SharedMemory
 };
 } // namespace posix
 } // namespace iox
+
+#endif // IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MEPOO_MEMORY_INFO_HPP
+#define IOX_POSH_MEPOO_MEMORY_INFO_HPP
 
 #include <cstdint>
 
@@ -47,3 +47,5 @@ struct MemoryInfo
 };
 }
 }
+
+#endif // IOX_POSH_MEPOO_MEMORY_INFO_HPP
