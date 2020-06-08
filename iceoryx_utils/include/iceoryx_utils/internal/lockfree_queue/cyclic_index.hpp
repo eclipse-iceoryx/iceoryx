@@ -39,7 +39,7 @@ class CyclicIndex
     static constexpr ValueType OVERFLOW_START_INDEX = (INDEX_AT_MAX_VALUE + 1) % CycleLength;
 
     static_assert(CycleLength < MAX_VALUE / 2, "CycleLength is too large, need at least one bit for cycle");
-    static_assert(CycleLength > 0, "CycleLength must be positive");
+    static_assert(CycleLength > 0, "CycleLength must be > 0");
 
     explicit CyclicIndex(ValueType value = 0) noexcept
         : m_value(value)
@@ -47,12 +47,14 @@ class CyclicIndex
     }
 
     CyclicIndex(ValueType index, ValueType cycle) noexcept
-        : m_value(index + cycle * CycleLength)
+        : CyclicIndex(index + cycle * CycleLength)
     {
     }
 
     CyclicIndex(const CyclicIndex&) = default;
+    CyclicIndex(CyclicIndex&&) = default;
     CyclicIndex& operator=(const CyclicIndex&) = default;
+    CyclicIndex& operator=(CyclicIndex&&) = default;
 
     ValueType getIndex() const noexcept
     {
@@ -64,7 +66,7 @@ class CyclicIndex
         return m_value / CycleLength;
     }
 
-    CyclicIndex operator+(ValueType value) const noexcept
+    CyclicIndex operator+(const ValueType value) const noexcept
     {
         // if we were at this value, we would have no overflow, i.e. when m_value is larger there is an overflow
         auto delta = MAX_VALUE - value;
@@ -100,15 +102,10 @@ class CyclicIndex
         {
             return otherCycle == 0;
         }
-        return isBehind(thisCycle, otherCycle, 1);
+        return (thisCycle + 1 == otherCycle);
     }
 
   private:
     ValueType m_value{0};
-
-    static bool isBehind(ValueType cycle1, ValueType cycle2, ValueType cyclesBehind = 1) noexcept
-    {
-        return (cycle1 + cyclesBehind) == cycle2;
-    }
 };
 } // namespace iox

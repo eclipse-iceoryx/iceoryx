@@ -37,14 +37,14 @@ class IndexQueue
         friend class IndexQueue<Capacity, ValueType>;
 
         // only an invalid index can be constructed by anyone other than the IndexQueue itself
-        UniqueIndex(invalid_t)
+        UniqueIndex(invalid_t) noexcept
             : unique<ValueType>(invalid)
         {
         }
 
       private:
         // valid construction is made private and only accessible by the IndexQueue
-        UniqueIndex(const ValueType& value)
+        UniqueIndex(const ValueType& value) noexcept
             : unique<ValueType>(value)
         {
         }
@@ -69,15 +69,15 @@ class IndexQueue
     IndexQueue& operator=(IndexQueue&&) = delete;
 
     /// @brief constructs an empty IndexQueue
-    IndexQueue(ConstructEmpty_t = ConstructEmpty);
+    constexpr IndexQueue(ConstructEmpty_t = ConstructEmpty) noexcept;
 
     /// @brief constructs IndexQueue filled with all indices 0,1,...capacity-1
-    IndexQueue(ConstructFull_t);
+    IndexQueue(ConstructFull_t) noexcept;
 
     /// @brief get the capacity of the IndexQueue
     /// @return capacity of the IndexQueue
     /// threadsafe, lockfree
-    constexpr uint64_t capacity();
+    constexpr uint64_t capacity() const noexcept;
 
     /// @brief check whether the queue is empty
     /// @return true iff the queue is empty
@@ -98,19 +98,19 @@ class IndexQueue
     /// IndexQueue (and should only be used this way)
     /// threadsafe, lockfree
     /// @param index to be pushed, any index can only be pushed once by design
-    void push(UniqueIndex& index);
+    void push(UniqueIndex& index) noexcept;
 
     /// @brief tries to remove index in FIFO order
     /// threadsafe, lockfree
     /// @return valid UniqueIndex if removal was successful (i.e. queue was not empty),
     /// invalid UnqiueIndex otherwise
-    UniqueIndex pop();
+    UniqueIndex pop() noexcept;
 
     /// @brief tries to remove index in FIFO order iff the queue is full
     /// threadsafe, lockfree
     /// @return valid UniqueIndex if removal was successful (i.e. queue was full),
     /// invalid UnqiueIndex otherwise
-    UniqueIndex popIfFull();
+    UniqueIndex popIfFull() noexcept;
 
   private:
     // remark: a compile time check whether Index is actually lock free would be nice
@@ -124,24 +124,24 @@ class IndexQueue
     std::atomic<Index> m_writePosition;
 
   private:
-    Index loadNextReadPosition() const;
-    Index loadNextWritePosition() const;
-    Index loadValueAt(Index position) const;
-    bool tryToPublishAt(Index writePosition, Index& oldValue, Index newValue);
-    bool tryToGainOwnershipAt(Index& readPosition);
-    void updateNextWritePosition(Index& oldWritePosition);
+    Index loadNextReadPosition() const noexcept;
+    Index loadNextWritePosition() const noexcept;
+    Index loadValueAt(const Index position) const noexcept;
+    bool tryToPublishAt(const Index writePosition, Index& oldValue, const Index newValue) noexcept;
+    bool tryToGainOwnershipAt(Index& readPosition) noexcept;
+    void updateNextWritePosition(Index& oldWritePosition) noexcept;
 
     // internal raw value (ValueType) interface
     // private, since it does not prevent multiple of the same index pushes by design
 
     // push index into the queue in FIFO order
-    void push(ValueType index);
+    void push(const ValueType index) noexcept;
 
     // tries to remove index in FIFO order, succeeds if the queue is not empty
-    bool pop(ValueType& index);
+    bool pop(ValueType& index) noexcept;
 
     // tries to remove index in FIFO order if the queue is full
-    bool popIfFull(ValueType& index);
+    bool popIfFull(ValueType& index) noexcept;
 };
 } // namespace iox
 

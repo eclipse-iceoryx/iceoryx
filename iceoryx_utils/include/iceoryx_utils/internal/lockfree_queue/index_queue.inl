@@ -1,31 +1,31 @@
 namespace iox
 {
 template <uint64_t Capacity, typename ValueType>
-IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t)
+constexpr IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
     : m_readPosition(Index(Capacity))
     , m_writePosition(Index(Capacity))
 {
 }
 
 template <uint64_t Capacity, typename ValueType>
-IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t)
+IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t) noexcept
     : m_readPosition(Index(0))
     , m_writePosition(Index(Capacity))
 {
-    for (uint64_t i = 0; i < Capacity; ++i)
+    for (uint64_t i = 0u; i < Capacity; ++i)
     {
         m_cells[i].store(Index(i));
     }
 }
 
 template <uint64_t Capacity, typename ValueType>
-constexpr uint64_t IndexQueue<Capacity, ValueType>::capacity()
+constexpr uint64_t IndexQueue<Capacity, ValueType>::capacity() const noexcept
 {
     return Capacity;
 }
 
 template <uint64_t Capacity, typename ValueType>
-void IndexQueue<Capacity, ValueType>::push(ValueType index)
+void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
 {
     // we need the CAS loop here since we may fail due to concurrent push operations
     // note that we are always able to succeed to publish since we have
@@ -92,7 +92,7 @@ void IndexQueue<Capacity, ValueType>::push(ValueType index)
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::pop(ValueType& index)
+bool IndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
 {
     // we need the CAS loop here since we may fail due to concurrent pop operations
     // we leave when we detect an empty queue, otherwise we retry the pop operation
@@ -154,7 +154,7 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index)
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index)
+bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
 {
     // we do NOT need a CAS loop here since if we detect that the queue is not full
     // someone else popped an element and we do not retry to check whether it was filled AGAIN
@@ -197,35 +197,35 @@ bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-typename IndexQueue<Capacity, ValueType>::Index IndexQueue<Capacity, ValueType>::loadNextReadPosition() const
+typename IndexQueue<Capacity, ValueType>::Index IndexQueue<Capacity, ValueType>::loadNextReadPosition() const noexcept
 {
     return m_readPosition.load(std::memory_order_relaxed);
 }
 
 template <uint64_t Capacity, typename ValueType>
-typename IndexQueue<Capacity, ValueType>::Index IndexQueue<Capacity, ValueType>::loadNextWritePosition() const
+typename IndexQueue<Capacity, ValueType>::Index IndexQueue<Capacity, ValueType>::loadNextWritePosition() const noexcept
 {
     return m_writePosition.load(std::memory_order_relaxed);
 }
 
 template <uint64_t Capacity, typename ValueType>
 typename IndexQueue<Capacity, ValueType>::Index
-IndexQueue<Capacity, ValueType>::loadValueAt(typename IndexQueue<Capacity, ValueType>::Index position) const
+IndexQueue<Capacity, ValueType>::loadValueAt(const typename IndexQueue<Capacity, ValueType>::Index position) const
+    noexcept
 {
     return m_cells[position.getIndex()].load(std::memory_order_relaxed);
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::tryToPublishAt(typename IndexQueue<Capacity, ValueType>::Index writePosition,
-                                                     Index& oldValue,
-                                                     Index newValue)
+bool IndexQueue<Capacity, ValueType>::tryToPublishAt(
+    const typename IndexQueue<Capacity, ValueType>::Index writePosition, Index& oldValue, const Index newValue) noexcept
 {
     return m_cells[writePosition.getIndex()].compare_exchange_strong(
         oldValue, newValue, std::memory_order_relaxed, std::memory_order_relaxed);
 }
 
 template <uint64_t Capacity, typename ValueType>
-void IndexQueue<Capacity, ValueType>::updateNextWritePosition(Index& writePosition)
+void IndexQueue<Capacity, ValueType>::updateNextWritePosition(Index& writePosition) noexcept
 {
     // compare_exchange updates writePosition if NOT successful
     Index newWritePosition(writePosition + 1);
@@ -234,7 +234,7 @@ void IndexQueue<Capacity, ValueType>::updateNextWritePosition(Index& writePositi
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::tryToGainOwnershipAt(Index& oldReadPosition)
+bool IndexQueue<Capacity, ValueType>::tryToGainOwnershipAt(Index& oldReadPosition) noexcept
 {
     Index newReadPosition(oldReadPosition + 1);
     return m_readPosition.compare_exchange_strong(
@@ -243,13 +243,13 @@ bool IndexQueue<Capacity, ValueType>::tryToGainOwnershipAt(Index& oldReadPositio
 
 
 template <uint64_t Capacity, typename ValueType>
-void IndexQueue<Capacity, ValueType>::push(UniqueIndex& index)
+void IndexQueue<Capacity, ValueType>::push(UniqueIndex& index) noexcept
 {
     push(index.release());
 }
 
 template <uint64_t Capacity, typename ValueType>
-typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, ValueType>::pop()
+typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, ValueType>::pop() noexcept
 {
     ValueType value;
     if (pop(value))
@@ -260,7 +260,7 @@ typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, Value
 }
 
 template <uint64_t Capacity, typename ValueType>
-typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, ValueType>::popIfFull()
+typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, ValueType>::popIfFull() noexcept
 {
     ValueType value;
     if (popIfFull(value))
