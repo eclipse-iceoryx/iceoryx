@@ -64,22 +64,22 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @brief send a message using std::string.
     /// @param msg to send
     /// @return IpcChannelError if error occured
-    cxx::expected<IpcChannelError> send(const std::string& msg) noexcept;
+    cxx::expected<IpcChannelError> send(const std::string& msg) const noexcept;
 
     /// @brief try to send a message for a given timeout duration using std::string
     /// @param msg to send
     /// @param timout for the send operation
     /// @return IpcChannelError if error occured
-    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) noexcept;
+    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
 
     /// @brief receive message using std::string.
     /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
-    cxx::expected<std::string, IpcChannelError> receive() noexcept;
+    cxx::expected<std::string, IpcChannelError> receive() const noexcept;
 
     /// @brief try to receive message for a given timeout duration using std::string.
     /// @param timout for the receive operation
     /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
-    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) noexcept;
+    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
     /// @brief checks whether the unix domain socket is outdated
     /// @return true if the unix domain socket is outdated, false otherwise, IpcChannelError if error occured
@@ -105,7 +105,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
     /// @brief create an IpcChannelError from the provides error code
     /// @return IpcChannelError if error occured
-    cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) noexcept;
+    cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
 
   private:
     std::string m_name;

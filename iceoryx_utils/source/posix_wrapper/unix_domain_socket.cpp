@@ -140,7 +140,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
     return cxx::success<void>();
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) const noexcept
 {
     // we also support timedSend. The setsockopt call sets the timeout for all further sendto calls, so we must set
     // it to 0 to turn the timeout off
@@ -151,8 +151,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) no
     return timedSend(msg, units::Duration(tv));
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
-                                                           const units::Duration& timeout) noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout) const
+    noexcept
 {
     if (msg.size() >= m_maxMessageSize) // message sizes with null termination must be smaller than m_maxMessageSize
     {
@@ -205,7 +205,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
 }
 
-cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() noexcept
+cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const noexcept
 {
     // we also support timedReceive. The setsockopt call sets the timeout for all further recvfrom calls, so we must set
     // it to 0 to turn the timeout off
@@ -217,7 +217,8 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() noexcept
 }
 
 
-cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout) noexcept
+cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout) const
+    noexcept
 {
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
@@ -356,7 +357,7 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated() noexcept
 }
 
 
-cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int32_t errnum) noexcept
+cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int32_t errnum) const noexcept
 {
     switch (errnum)
     {
