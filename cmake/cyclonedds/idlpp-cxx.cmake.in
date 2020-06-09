@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.5)
+
+project(idlpp-cxx-download NONE)
+
+include(ExternalProject)
+ExternalProject_Add(ext_idlpp_cxx
+  GIT_REPOSITORY    https://github.com/ADLINK-IST/idlpp-cxx.git
+  GIT_TAG           idlpp-cxx-1.0.0
+  SOURCE_DIR        "${CMAKE_BINARY_DIR}/idlpp-cxx-src"
+  BINARY_DIR        "${CMAKE_BINARY_DIR}/idlpp-cxx-build"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+)

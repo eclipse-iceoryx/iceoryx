@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.5)
+
+project(cdds-cxx-download NONE)
+
+include(ExternalProject)
+ExternalProject_Add(ext_cdds_cxx
+  GIT_REPOSITORY    https://github.com/ThijsSassen/cdds-cxx.git
+  GIT_TAG           origin/master
+  SOURCE_DIR        "${CMAKE_BINARY_DIR}/cdds-cxx-src"
+  BINARY_DIR        "${CMAKE_BINARY_DIR}/cdds-cxx-build"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+)
