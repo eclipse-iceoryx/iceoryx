@@ -41,71 +41,29 @@ class CyclicIndex
     static_assert(CycleLength < MAX_VALUE / 2, "CycleLength is too large, need at least one bit for cycle");
     static_assert(CycleLength > 0, "CycleLength must be > 0");
 
-    explicit CyclicIndex(ValueType value = 0) noexcept
-        : m_value(value)
-    {
-    }
+    explicit CyclicIndex(ValueType value = 0) noexcept;
 
-    CyclicIndex(ValueType index, ValueType cycle) noexcept
-        : CyclicIndex(index + cycle * CycleLength)
-    {
-    }
+    CyclicIndex(ValueType index, ValueType cycle) noexcept;
 
     CyclicIndex(const CyclicIndex&) = default;
     CyclicIndex(CyclicIndex&&) = default;
     CyclicIndex& operator=(const CyclicIndex&) = default;
     CyclicIndex& operator=(CyclicIndex&&) = default;
 
-    ValueType getIndex() const noexcept
-    {
-        return m_value % CycleLength;
-    }
+    ValueType getIndex() const noexcept;
 
-    ValueType getCycle() const noexcept
-    {
-        return m_value / CycleLength;
-    }
+    ValueType getCycle() const noexcept;
 
-    CyclicIndex operator+(const ValueType value) const noexcept
-    {
-        // if we were at this value, we would have no overflow, i.e. when m_value is larger there is an overflow
-        auto delta = MAX_VALUE - value;
-        if (delta < m_value)
-        {
-            // overflow, rare case (overflow by m_value - delta)
-            // we need to compute the correct index and cycle we are in after overflow
-            // note that we could also limit the max value to always start at OVERFLOW_START_INDEX = 0,
-            // but this has other drawbacks (and the overflow will not occur often if at all with 64 bit)
-            delta = m_value - delta - 1;
-            return CyclicIndex(OVERFLOW_START_INDEX + delta);
-        }
+    CyclicIndex operator+(const ValueType value) const noexcept;
 
-        // no overflow, regular case
-        return CyclicIndex(m_value + value);
-    }
+    CyclicIndex next() const noexcept;
 
-    CyclicIndex next() const noexcept
-    {
-        if (m_value == MAX_VALUE)
-        {
-            return CyclicIndex(OVERFLOW_START_INDEX);
-        }
-        return CyclicIndex(m_value + 1);
-    }
-
-    bool isOneCycleBehind(const CyclicIndex& other) const noexcept
-    {
-        auto thisCycle = this->getCycle();
-        auto otherCycle = other.getCycle();
-
-        if (thisCycle == MAX_CYCLE)
-        {
-            return otherCycle == 0;
-        }
-        return (thisCycle + 1 == otherCycle);
-    }
+    bool isOneCycleBehind(const CyclicIndex& other) const noexcept;
 
   private:
     ValueType m_value{0};
 };
+
 } // namespace iox
+
+#include "cyclic_index.inl"
