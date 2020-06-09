@@ -32,6 +32,10 @@ class ChunkMock
     {
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
         m_rawMemory = static_cast<uint8_t*>(memalign(Alignment, Size));
+#elif defined(__APPLE__)
+        uint64_t memOffset = reinterpret_cast<uint64_t>(malloc(Size + Alignment));
+        memOffset += memOffset % Alignment;
+        m_rawMemory = reinterpret_cast<uint8_t*>(memOffset);
 #elif defined(_WIN32)
         m_rawMemory = static_cast<uint8_t*>(_aligned_malloc(Alignment, Size));
 #else
