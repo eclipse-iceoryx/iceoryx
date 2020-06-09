@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
+#define IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/application_port.hpp"
-#include "iceoryx_posh/internal/popo/interface_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/application_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
@@ -174,3 +174,5 @@ class PoshRuntime
 
 } // namespace runtime
 } // namespace iox
+
+#endif // IOX_POSH_RUNTIME_POSH_RUNTIME_HPP

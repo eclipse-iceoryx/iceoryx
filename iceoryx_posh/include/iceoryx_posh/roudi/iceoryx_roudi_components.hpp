@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ROUDI_ICEORYX_ROUDI_COMPONENTS_HPP
+#define IOX_POSH_ROUDI_ICEORYX_ROUDI_COMPONENTS_HPP
 
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
@@ -62,3 +62,5 @@ struct IceOryxRouDiComponents
 };
 } // namespace roudi
 } // namespace iox
+
+#endif // IOX_POSH_ROUDI_ICEORYX_ROUDI_COMPONENTS_HPP

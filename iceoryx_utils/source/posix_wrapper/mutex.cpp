@@ -14,7 +14,7 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <cassert>
 #include <utility>

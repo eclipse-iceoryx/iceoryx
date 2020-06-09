@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MOCKS_SENDERPORT_MOCK_HPP
+#define IOX_POSH_MOCKS_SENDERPORT_MOCK_HPP
 
 #include "test.hpp"
 
@@ -165,3 +165,5 @@ class SenderPort_MOCK
         return details->isConnectedToMembersReturn;
     }
 };
+
+#endif // IOX_POSH_MOCKS_SENDERPORT_MOCK_HPP

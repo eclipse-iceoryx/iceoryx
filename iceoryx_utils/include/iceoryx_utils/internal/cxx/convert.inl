@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_CONVERT_INL
+#define IOX_UTILS_CXX_CONVERT_INL
 
 namespace iox
 {
@@ -412,3 +414,5 @@ inline bool convert::fromString<bool>(const char* v, bool& dest)
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_CONVERT_INL

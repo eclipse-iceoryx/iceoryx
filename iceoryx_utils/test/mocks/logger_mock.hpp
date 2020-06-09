@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_MOCKS_LOGGER_MOCK_HPP
+#define IOX_UTILS_MOCKS_LOGGER_MOCK_HPP
 
 #include "iceoryx_utils/log/logger.hpp"
 #include "iceoryx_utils/log/logstream.hpp"
@@ -36,3 +36,4 @@ class Logger_Mock : public iox::log::Logger
     mutable std::vector<iox::log::LogEntry> m_logs;
 };
 
+#endif // IOX_UTILS_MOCKS_LOGGER_MOCK_HPP

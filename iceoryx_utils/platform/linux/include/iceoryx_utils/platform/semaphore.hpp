@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_LINUX_PLATFORM_SEMAPHORE_HPP
+#define IOX_UTILS_LINUX_PLATFORM_SEMAPHORE_HPP
 
 #include <semaphore.h>
 
@@ -68,3 +68,5 @@ inline int iox_sem_unlink(const char* name)
 {
     return sem_unlink(name);
 }
+
+#endif // IOX_UTILS_LINUX_PLATFORM_SEMAPHORE_HPP

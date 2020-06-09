@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_POPO_SUBSCRIBER_INL
+#define IOX_POSH_POPO_SUBSCRIBER_INL
 
 namespace iox
 {
@@ -24,7 +26,7 @@ inline Subscriber_t<ReceiverPortType>::Subscriber_t() noexcept
 template <typename ReceiverPortType>
 inline Subscriber_t<ReceiverPortType>::Subscriber_t(const capro::ServiceDescription& service,
                                                     const cxx::CString100& runnableName) noexcept
-    : m_receiver(runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, runnableName))
+    : m_serviceDescription(service), m_receiver(runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, runnableName))
 {
 }
 
@@ -264,5 +266,12 @@ inline void Subscriber_t<ReceiverPortType>::eventCallbackMain() noexcept
     }
 }
 
+template <typename ReceiverPortType>
+inline capro::ServiceDescription Subscriber_t<ReceiverPortType>::getServiceDescription() const noexcept {
+    return m_serviceDescription;
+}
+
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_SUBSCRIBER_INL

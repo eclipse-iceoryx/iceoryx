@@ -315,6 +315,12 @@ bool PortManager::sendToAllMatchingSenderPorts(const capro::CaproMessage& f_mess
             auto senderResponse = l_senderPort.dispatchCaProMessage(f_message);
             if (senderResponse.has_value())
             {
+                // sende response to receiver port
+                auto l_returnMessage = f_receiverSource.dispatchCaProMessage(senderResponse.value());
+
+                // ACK or NACK are sent back to the receiver port, no further response from this one expected
+                cxx::Ensures(!l_returnMessage.has_value());
+
                 // inform introspection
                 m_portIntrospection.reportMessage(senderResponse.value());
             }
@@ -345,6 +351,12 @@ void PortManager::sendToAllMatchingReceiverPorts(const capro::CaproMessage& f_me
                 auto senderResponse = f_senderSource.dispatchCaProMessage(receiverResponse.value());
                 if (senderResponse.has_value())
                 {
+                    // sende responsee to receiver port
+                    auto l_returnMessage = l_receiverPort.dispatchCaProMessage(senderResponse.value());
+
+                    // ACK or NACK are sent back to the receiver port, no further response from this one expected
+                    cxx::Ensures(!l_returnMessage.has_value());
+
                     // inform introspection
                     m_portIntrospection.reportMessage(senderResponse.value());
                 }
@@ -377,7 +389,7 @@ bool PortManager::areAllReceiverPortsSubscribed(std::string f_appName)
     for (auto l_receiverPortData : m_portPool->receiverPortDataList())
     {
         ReceiverPortType receiver(l_receiverPortData);
-        if (receiver.getApplicationName() == iox::cxx::string<100>(iox::cxx::TruncateToCapacity, f_appName))
+        if (receiver.getProcessName() == iox::cxx::string<100>(iox::cxx::TruncateToCapacity, f_appName))
         {
             numberOfReceiverPorts++;
             numberOfConnectedReceiverPorts += receiver.isSubscribed() ? 1 : 0;
@@ -392,7 +404,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
     for (auto port : m_portPool->senderPortDataList())
     {
         SenderPortType l_sender(port);
-        if (f_processName == l_sender.getApplicationName())
+        if (f_processName == l_sender.getProcessName())
         {
             destroySenderPort(port);
         }
@@ -401,7 +413,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
     for (auto port : m_portPool->receiverPortDataList())
     {
         ReceiverPortType l_receiver(port);
-        if (f_processName == l_receiver.getApplicationName())
+        if (f_processName == l_receiver.getProcessName())
         {
             destroyReceiverPort(port);
         }
@@ -410,7 +422,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
     for (auto port : m_portPool->interfacePortDataList())
     {
         popo::InterfacePort l_interface(port);
-        if (f_processName == l_interface.getApplicationName())
+        if (f_processName == l_interface.getProcessName())
         {
             m_portPool->removeInterfacePort(port);
             LogDebug() << "Deleted Interface of application " << f_processName;
@@ -420,7 +432,7 @@ void PortManager::deletePortsOfProcess(std::string f_processName)
     for (auto port : m_portPool->appliactionPortDataList())
     {
         popo::ApplicationPort l_application(port);
-        if (f_processName == l_application.getApplicationName())
+        if (f_processName == l_application.getProcessName())
         {
             m_portPool->removeApplicationPort(port);
             LogDebug() << "Deleted ApplicationPort of application " << f_processName;
@@ -451,7 +463,7 @@ void PortManager::destroySenderPort(SenderPortType::MemberType_t* const senderPo
     sendToAllMatchingReceiverPorts(message, senderPort);
     sendToAllMatchingInterfacePorts(message);
 
-    m_portIntrospection.removeSender(senderPort.getApplicationName(), serviceDescription);
+    m_portIntrospection.removeSender(senderPort.getProcessName(), serviceDescription);
 
     // delete sender impl from list after StopOffer was processed
     m_portPool->removeSenderPort(senderPortData);
@@ -471,7 +483,7 @@ void PortManager::destroyReceiverPort(ReceiverPortType::MemberType_t* const rece
 
     sendToAllMatchingSenderPorts(message, receiverPort);
 
-    m_portIntrospection.removeReceiver(receiverPort.getApplicationName(), serviceDescription);
+    m_portIntrospection.removeReceiver(receiverPort.getProcessName(), serviceDescription);
 
     // delete receiver impl from list after unsubscribe was processed
     m_portPool->removeReceiverPort(receiverPortData);

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_VECTOR_INL
+#define IOX_UTILS_CXX_VECTOR_INL
 
 #include "iceoryx_utils/cxx/vector.hpp"
 
@@ -308,3 +310,5 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_VECTOR_INL

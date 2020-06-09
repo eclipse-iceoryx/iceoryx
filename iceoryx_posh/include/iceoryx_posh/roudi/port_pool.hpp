@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ROUDI_PORT_POOL_HPP
+#define IOX_POSH_ROUDI_PORT_POOL_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/application_port.hpp"
-#include "iceoryx_posh/internal/popo/interface_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/application_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_data.hpp"
@@ -89,3 +89,5 @@ class PortPool
 
 } // namespace roudi
 } // namespace iox
+
+#endif // IOX_POSH_ROUDI_PORT_POOL_HPP

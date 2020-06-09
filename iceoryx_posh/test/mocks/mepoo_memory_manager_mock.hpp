@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MOCKS_MEPOO_MEMORY_MANAGER_MOCK_HPP
+#define IOX_POSH_MOCKS_MEPOO_MEMORY_MANAGER_MOCK_HPP
 
 #include "test.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
@@ -27,3 +27,4 @@ class MePooMemoryManager_MOCK
     MOCK_CONST_METHOD1(getMemPoolInfo, iox::mepoo::MemPoolInfo(uint32_t));
 };
 
+#endif // IOX_POSH_MOCKS_MEPOO_MEMORY_MANAGER_MOCK_HPP

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CONCURRENT_SMART_LOCK_INL
+#define IOX_UTILS_CONCURRENT_SMART_LOCK_INL
 
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
 
@@ -67,6 +69,30 @@ smart_lock<T, MutexType>& smart_lock<T, MutexType>::operator=(smart_lock&& rhs)
     base = std::move(rhs.base);
 }
 
+template <typename T, typename MutexType>
+typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->()
+{
+    return Proxy(&base, &lock);
+}
+
+template <typename T, typename MutexType>
+typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->() const
+{
+    return const_cast<smart_lock<T, MutexType>*>(this)->operator->();
+}
+
+template <typename T, typename MutexType>
+typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::GetScopeGuard()
+{
+    return Proxy(&base, &lock);
+}
+
+template <typename T, typename MutexType>
+typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::GetScopeGuard() const
+{
+    return const_cast<smart_lock<T, MutexType>*>(this)->GetScopeGuard();
+}
+
 // PROXY OBJECT
 
 template <typename T, typename MutexType>
@@ -90,17 +116,13 @@ T* smart_lock<T, MutexType>::Proxy::operator->()
 }
 
 template <typename T, typename MutexType>
-typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->()
+T* smart_lock<T, MutexType>::Proxy::operator->() const
 {
-    return Proxy(&base, &lock);
-}
-
-template <typename T, typename MutexType>
-typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::GetScopeGuard()
-{
-    return Proxy(&base, &lock);
+    return const_cast<smart_lock<T, MutexType>::Proxy*>(this)->operator->();
 }
 
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_UTILS_CONCURRENT_SMART_LOCK_INL

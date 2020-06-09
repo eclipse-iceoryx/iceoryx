@@ -11,13 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef TESTUTILS_TEST_HPP_TEST
-#define TESTUTILS_TEST_HPP_TEST
+#ifndef IOX_UTILS_TESTUTILS_TEST_HPP
+#define IOX_UTILS_TESTUTILS_TEST_HPP
 
 #include <fstream>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <memory>
 
-#endif
+#endif // IOX_UTILS_TESTUTILS_TEST_HPP

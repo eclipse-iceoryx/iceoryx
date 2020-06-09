@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_CONCURRENT_SMART_LOCK_HPP
+#define IOX_UTILS_CONCURRENT_SMART_LOCK_HPP
 
 #include <mutex>
 
@@ -56,6 +56,7 @@ class smart_lock
         ~Proxy();
 
         T* operator->();
+        T* operator->() const;
 
       private:
         T* base;
@@ -82,12 +83,23 @@ class smart_lock
     /// @endcode
     Proxy operator->();
 
+    /// @brief The arrow operator returns a proxy object which locks the mutex
+    ///         of smart_lock and has another arrow operator defined which
+    ///         returns the pointer of the underlying object. You use this
+    ///         operator to call an arbitrary method of the base object which
+    ///         is secured by the smart_lock mutex
+    /// @code
+    ///     iox::concurrent::smart_lock<std::vector<int>> threadSafeVector;
+    ///     threadSafeVector->push_back(123); // this call is secured by a mutex
+    /// @endcode
+    Proxy operator->() const;
+
     /// @brief If you need to lock your object over multiple method calls you
     ///         acquire a scope guard which locks the object as long as this
     ///         guard is in scope, like a std::lock_guard.
     ///
     ///         IMPORTANT:
-    ///         You need to with this guard in that scope and not with the
+    ///         You need to work with this guard in that scope and not with the
     ///         smart_lock object, otherwise a deadlock occurs!
     /// @code
     ///     iox::concurrent::smart_lock<std::vector<int>> threadSafeVector;
@@ -105,6 +117,29 @@ class smart_lock
     ///     }
     Proxy GetScopeGuard();
 
+    /// @brief If you need to lock your object over multiple method calls you
+    ///         acquire a scope guard which locks the object as long as this
+    ///         guard is in scope, like a std::lock_guard.
+    ///
+    ///         IMPORTANT:
+    ///         You need to work with this guard in that scope and not with the
+    ///         smart_lock object, otherwise a deadlock occurs!
+    /// @code
+    ///     iox::concurrent::smart_lock<std::vector<int>> threadSafeVector;
+    ///
+    ///     // The following scope is secured by the smart_lock mutex. In that
+    ///     // scope you should not use the -> operator of threadSafeVector
+    ///     // since it would lead to a deadlock.
+    ///     // You access the underlying object by using the vectorGuard object!
+    ///     {
+    ///         auto vectorGuard = threadSafeVector.GetScopeGuard();
+    ///         auto iter = std::find(vectorGuard->begin(), vectorGuard->end(),
+    ///                 123);
+    ///         if ( iter != vectorGuard->end() )
+    ///             vectorGuard->erase(iter);
+    ///     }
+    Proxy GetScopeGuard() const;
+
   private:
     T base;
     MutexType lock;
@@ -113,3 +148,5 @@ class smart_lock
 } // namespace iox
 
 #include "iceoryx_utils/internal/concurrent/smart_lock.inl"
+
+#endif // IOX_UTILS_CONCURRENT_SMART_LOCK_HPP

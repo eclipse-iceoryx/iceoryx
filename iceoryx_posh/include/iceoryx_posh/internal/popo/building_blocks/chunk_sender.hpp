@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef IOX_POPO_CHUNK_SENDER_HPP_
-#define IOX_POPO_CHUNK_SENDER_HPP_
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
@@ -27,7 +26,7 @@ namespace iox
 {
 namespace popo
 {
-enum class ChunkSenderError
+enum class AllocationError
 {
     RUNNING_OUT_OF_CHUNKS,
     TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL
@@ -44,7 +43,7 @@ class ChunkSender : public ChunkDistributorType
   public:
     using MemberType_t = ChunkSenderData<typename ChunkDistributorType::MemberType_t>;
 
-    ChunkSender(cxx::not_null<MemberType_t* const> chunkDistributorDataPtr) noexcept;
+    ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
 
     ChunkSender(const ChunkSender& other) = delete;
     ChunkSender& operator=(const ChunkSender&) = delete;
@@ -57,7 +56,7 @@ class ChunkSender : public ChunkDistributorType
     /// @param[in] payloadSize, size of the user paylaod without additional headers
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
-    cxx::expected<mepoo::ChunkHeader*, ChunkSenderError> allocate(const uint32_t payloadSize) noexcept;
+    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocate(const uint32_t payloadSize) noexcept;
 
     /// @brief Free an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
@@ -96,4 +95,4 @@ class ChunkSender : public ChunkDistributorType
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.inl"
 
-#endif
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP

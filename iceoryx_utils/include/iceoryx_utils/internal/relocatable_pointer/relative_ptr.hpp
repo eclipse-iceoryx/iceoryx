@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_HPP
+#define IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_HPP
 
 #include "pointer_repository.hpp"
 
@@ -349,3 +349,5 @@ class relative_ptr<void> : public RelativePointer
 };
 
 } // namespace iox
+
+#endif // IOX_UTILS_RELOCATABLE_POINTER_RELATIVE_PTR_HPP

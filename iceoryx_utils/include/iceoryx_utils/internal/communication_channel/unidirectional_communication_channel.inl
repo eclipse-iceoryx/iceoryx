@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_COMMUNICATION_CHANNEL_UNIDIRECTIONAL_COMMUNICATION_CHANNEL_INL
+#define IOX_UTILS_COMMUNICATION_CHANNEL_UNIDIRECTIONAL_COMMUNICATION_CHANNEL_INL
 
 #include "iceoryx_utils/communication_channel/unidirectional_communication_channel.hpp"
 
@@ -48,3 +50,5 @@ UnidirectionalCommunicationChannel<DataType, TransportLayer>::getReceiver()
     return &m_receiver;
 }
 } // namespace iox
+
+#endif // IOX_UTILS_COMMUNICATION_CHANNEL_UNIDIRECTIONAL_COMMUNICATION_CHANNEL_INL

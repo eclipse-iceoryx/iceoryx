@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_INL
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_INL
 
 namespace iox
 {
@@ -37,7 +39,7 @@ ChunkSender<ChunkDistributorType>::getMembers() noexcept
 }
 
 template <typename ChunkDistributorType>
-inline cxx::expected<mepoo::ChunkHeader*, ChunkSenderError>
+inline cxx::expected<mepoo::ChunkHeader*, AllocationError>
 ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
 {
     // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
@@ -54,7 +56,7 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
         }
         else
         {
-            return cxx::error<ChunkSenderError>(ChunkSenderError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
+            return cxx::error<AllocationError>(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
         }
     }
     else
@@ -75,12 +77,12 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
             {
                 // release the allocated chunk
                 chunk = nullptr;
-                return cxx::error<ChunkSenderError>(ChunkSenderError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
+                return cxx::error<AllocationError>(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
             }
         }
         else
         {
-            return cxx::error<ChunkSenderError>(ChunkSenderError::RUNNING_OUT_OF_CHUNKS);
+            return cxx::error<AllocationError>(AllocationError::RUNNING_OUT_OF_CHUNKS);
         }
     }
 }
@@ -172,3 +174,5 @@ inline bool ChunkSender<ChunkDistributorType>::getChunkReadyForSend(mepoo::Chunk
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_INL

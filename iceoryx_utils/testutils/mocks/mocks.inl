@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_MOCKS_MOCKS_INL
+#define IOX_UTILS_MOCKS_MOCKS_INL
 
 namespace mocks
 {
@@ -29,3 +31,5 @@ T assignSymbol(const std::string& functionName)
     return destination;
 }
 } // namespace mocks
+
+#endif // IOX_UTILS_MOCKS_MOCKS_INL

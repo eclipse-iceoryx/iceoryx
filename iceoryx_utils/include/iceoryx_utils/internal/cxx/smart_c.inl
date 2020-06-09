@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_SMART_C_INL
+#define IOX_UTILS_CXX_SMART_C_INL
 
 namespace iox
 {
@@ -193,3 +195,5 @@ inline int32_t SmartC<Function, ReturnType, FunctionArguments...>::getErrNum() c
 }
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_SMART_C_INL

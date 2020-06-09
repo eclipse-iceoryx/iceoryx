@@ -59,19 +59,22 @@ add_library(iceoryx_posh
     source/mepoo/segment_manager.cpp
     source/mepoo/mepoo_segment.cpp
     source/mepoo/memory_info.cpp
-    source/popo/application_port.cpp
-    source/popo/application_port_data.cpp
-    source/popo/base_port_data.cpp
-    source/popo/base_port.cpp
     source/popo/delivery_fifo.cpp
     source/popo/gateway_generic.cpp
-    source/popo/interface_port.cpp
-    source/popo/interface_port_data.cpp
     source/popo/receiver_port.cpp
     source/popo/receiver_port_data.cpp
     source/popo/sender_port.cpp
     source/popo/sender_port_data.cpp
     source/popo/receiver_handler.cpp
+    source/popo/ports/interface_port.cpp
+    source/popo/ports/interface_port_data.cpp
+    source/popo/ports/application_port.cpp
+    source/popo/ports/application_port_data.cpp
+    source/popo/ports/base_port_data.cpp
+    source/popo/ports/base_port.cpp
+    source/popo/ports/publisher_port_user.cpp
+    source/popo/ports/publisher_port_roudi.cpp    
+    source/popo/ports/publisher_port_data.cpp      
     source/popo/building_blocks/chunk_queue_pusher.cpp
     source/popo/building_blocks/chunk_queue_popper.cpp    
     source/popo/building_blocks/chunk_receiver.cpp      

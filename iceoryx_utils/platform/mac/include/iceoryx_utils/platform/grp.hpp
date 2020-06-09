@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_MAC_PLATFORM_GRP_HPP
+#define IOX_UTILS_MAC_PLATFORM_GRP_HPP
 
 #include <grp.h>
 #include <unistd.h>
@@ -29,3 +29,5 @@ inline int getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngrou
 {
     return getgrouplist(user, group, groups, ngroups);
 }
+
+#endif // IOX_UTILS_MAC_PLATFORM_GRP_HPP

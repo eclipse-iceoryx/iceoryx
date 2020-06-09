@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef IOX_POPO_CHUNK_DISTRIBUTOR_DATA_HPP_
-#define IOX_POPO_CHUNK_DISTRIBUTOR_DATA_HPP_
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -33,33 +32,33 @@ namespace popo
 class ThreadSafePolicy
 {
   public: // needs to be public since we want to use std::lock_guard
-    void lock()
+    void lock() const
     {
         m_mutex.lock();
     }
-    void unlock()
+    void unlock() const 
     {
         m_mutex.unlock();
     }
-    bool tryLock()
+    bool tryLock() const 
     {
         return m_mutex.try_lock();
     }
 
   private:
-    posix::mutex m_mutex{true}; // recursive lock
+    mutable posix::mutex m_mutex{true}; // recursive lock
 };
 
 class SingleThreadedPolicy
 {
   public: // needs to be public since we want to use std::lock_guard
-    void lock()
+    void lock() const 
     {
     }
-    void unlock()
+    void unlock() const 
     {
     }
-    bool tryLock()
+    bool tryLock() const 
     {
         return true;
     }
@@ -68,7 +67,7 @@ class SingleThreadedPolicy
 template <uint32_t MaxQueues, typename LockingPolicy, typename ChunkQueuePusherType = ChunkQueuePusher>
 struct ChunkDistributorData : public LockingPolicy
 {
-    using LockGuard_t = std::lock_guard<ChunkDistributorData<MaxQueues, LockingPolicy, ChunkQueuePusherType>>;
+    using LockGuard_t = std::lock_guard<const ChunkDistributorData<MaxQueues, LockingPolicy, ChunkQueuePusherType>>;
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
 
@@ -98,4 +97,4 @@ struct ChunkDistributorData : public LockingPolicy
 } // namespace popo
 } // namespace iox
 
-#endif
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_HPP

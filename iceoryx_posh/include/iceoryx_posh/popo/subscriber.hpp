@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_POPO_SUBSCRIBER_HPP
+#define IOX_POSH_POPO_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
@@ -143,11 +143,17 @@ class Subscriber_t
     /// @brief Unset the semaphore if one is set
     void unsetChunkReceiveSemaphore() noexcept;
 
+    /// @brief Get the service description of this subscriber.
+    capro::ServiceDescription getServiceDescription() const noexcept;
+
   protected:
     // needed for unit testing
     Subscriber_t() noexcept;
 
   private:
+
+    capro::ServiceDescription m_serviceDescription{};
+
     // callback main method
     void eventCallbackMain() noexcept;
 
@@ -181,3 +187,5 @@ class Subscriber : public Subscriber_t<iox::popo::ReceiverPort>
 } // namespace iox
 
 #include "iceoryx_posh/internal/popo/subscriber.inl"
+
+#endif // IOX_POSH_POPO_SUBSCRIBER_HPP

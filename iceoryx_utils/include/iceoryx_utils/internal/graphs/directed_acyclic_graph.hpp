@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_GRAPHS_DIRECTED_ACYCLIC_GRAPH_HPP
+#define IOX_UTILS_GRAPHS_DIRECTED_ACYCLIC_GRAPH_HPP
 
 #include <cassert>
 #include "iceoryx_utils/internal/cxx/set.hpp"
@@ -139,3 +139,5 @@ class DirectedAcyclicGraph : public DirectedGraph<VertexType, VERTEX_LIMIT, DEGR
         assert(stat);
     }
 };
+
+#endif // IOX_UTILS_GRAPHS_DIRECTED_ACYCLIC_GRAPH_HPP

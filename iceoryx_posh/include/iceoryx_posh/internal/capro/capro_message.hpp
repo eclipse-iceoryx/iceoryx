@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_CAPRO_CAPRO_MESSAGE_HPP
+#define IOX_POSH_CAPRO_CAPRO_MESSAGE_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 
@@ -21,6 +21,7 @@ namespace iox
 namespace popo
 {
 struct ReceiverPortData;
+struct ChunkQueueData;
 }
 
 namespace capro
@@ -94,7 +95,12 @@ class CaproMessage
     ServiceDescription m_serviceDescription;
     /// @brief Null-Pointer for request-port with no specific type
     popo::ReceiverPortData* m_requestPort{nullptr};
+    popo::ChunkQueueData* m_chunkQueueData{nullptr};
+    uint64_t m_historyCapacity{0u};
+
 };
 
 } // namespace capro
 } // namespace iox
+
+#endif // IOX_POSH_CAPRO_CAPRO_MESSAGE_HPP
