@@ -77,7 +77,7 @@ class IndexQueue
         /// @return the underlying value
         ValueType release()
         {
-            auto value = std::move(m_value.value());
+            ValueType value = std::move(m_value.value());
             m_value.reset();
             return value;
         }

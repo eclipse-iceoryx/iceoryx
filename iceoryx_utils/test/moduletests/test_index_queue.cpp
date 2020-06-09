@@ -145,14 +145,27 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyWhenPopFails)
 
 TYPED_TEST(IndexQueueTest, pushAndPopSingleElement)
 {
+    using index_t = typename TestFixture::index_t;
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
 
+    // we need to store a raw index to compare it,
+    // but we cannot copy nor move it since we want to push it back
+    // which invalidates the index
+    // but we can copy the raw index
+    // (but not create a index to return to the queue from it again)
+    index_t rawIndex = index;
+
+    EXPECT_TRUE(index.isValid());
+
     q.push(index);
+
+    EXPECT_FALSE(index.isValid());
+
     auto popped = q.pop();
 
-    EXPECT_TRUE(popped.isValid());
-    EXPECT_EQ(popped, index);
+    ASSERT_TRUE(popped.isValid());
+    EXPECT_EQ(popped, rawIndex);
 }
 
 TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
@@ -213,4 +226,4 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsNotFull)
     EXPECT_FALSE(q.popIfFull().isValid());
 }
 
-}
+} // namespace
