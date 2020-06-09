@@ -109,7 +109,7 @@ class IndexQueue
     /// @brief tries to remove index in FIFO order iff the queue is full
     /// threadsafe, lockfree
     /// @return valid UniqueIndex if removal was successful (i.e. queue was full),
-    /// invalid UnqiueIndex otherwise
+    /// invalid UniqueIndex otherwise
     UniqueIndex popIfFull() noexcept;
 
   private:
@@ -124,12 +124,7 @@ class IndexQueue
     std::atomic<Index> m_writePosition;
 
   private:
-    Index loadNextReadPosition() const noexcept;
-    Index loadNextWritePosition() const noexcept;
     Index loadValueAt(const Index position) const noexcept;
-    bool tryToPublishAt(const Index writePosition, Index& oldValue, const Index newValue) noexcept;
-    bool tryToGainOwnershipAt(Index& readPosition) noexcept;
-    void updateNextWritePosition(Index& oldWritePosition) noexcept;
 
     // internal raw value (ValueType) interface
     // private, since it does not prevent multiple of the same index pushes by design

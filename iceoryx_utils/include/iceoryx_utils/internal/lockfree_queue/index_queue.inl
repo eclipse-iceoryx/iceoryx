@@ -47,8 +47,8 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
     //     write position is outdated, there must have been other pushes concurrently
     //     reload write position and try again
 
-    constexpr bool notPublished = true;
-    auto writePosition = loadNextWritePosition();
+    bool notPublished = true;
+    auto writePosition = m_writePosition.load(std::memory_order_relaxed);
     do
     {
         auto oldValue = loadValueAt(writePosition);
@@ -61,7 +61,10 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
             Index newValue(index, writePosition.getCycle());
 
             // if publish fails, another thread has published before us
-            if (tryToPublishAt(writePosition, oldValue, newValue))
+            auto published = m_cells[writePosition.getIndex()].compare_exchange_weak(
+                oldValue, newValue, std::memory_order_relaxed, std::memory_order_relaxed);
+
+            if (published)
             {
                 break;
             }
@@ -76,19 +79,25 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
             // case (2)
             // the writePosition was not updated yet by another push but the value was already written
             // help with the update
-            updateNextWritePosition(writePosition);
+            // (note that we do not care if it fails, then a retry or another push will handle it)
+
+            Index newWritePosition(writePosition + 1);
+            m_writePosition.compare_exchange_strong(
+                writePosition, newWritePosition, std::memory_order_relaxed, std::memory_order_relaxed);
         }
         else
         {
             // case (3) and (4)
-            // note: we do not call updateNextWritePosition here, the CAS is bound to fail anyway
+            // note: we do not update with CAS here, the CAS is bound to fail anyway
             // (since our value of writePosition is not up to date so needs to be loaded again)
-            writePosition = loadNextWritePosition();
+            writePosition = m_writePosition.load(std::memory_order_relaxed);
         }
 
     } while (notPublished);
 
-    updateNextWritePosition(writePosition);
+    Index newWritePosition(writePosition + 1);
+    m_writePosition.compare_exchange_strong(
+        writePosition, newWritePosition, std::memory_order_relaxed, std::memory_order_relaxed);
 }
 
 template <uint64_t Capacity, typename ValueType>
@@ -111,9 +120,9 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
     //     read position is outdated, there must have been pushes concurrently
     //     reload read position and try again
 
-    constexpr bool ownershipGained = false;
+    bool ownershipGained = false;
     Index value;
-    auto readPosition = loadNextReadPosition();
+    auto readPosition = m_readPosition.load(std::memory_order_relaxed);
     do
     {
         value = loadValueAt(readPosition);
@@ -124,11 +133,9 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
         if (cellIsValidToRead)
         {
             // case (1)
-            if (tryToGainOwnershipAt(readPosition))
-            {
-                break; // pop successful
-            }
-            // retry, readPosition was already updated via CAS in tryToGainOwnershipAt
+            Index newReadPosition(readPosition + 1);
+            ownershipGained = m_readPosition.compare_exchange_weak(
+                readPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
         }
         else
         {
@@ -142,7 +149,7 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
             }
 
             // case (3) and (4) requires loading readPosition again
-            readPosition = loadNextReadPosition();
+            readPosition = m_readPosition.load(std::memory_order_relaxed);
         }
 
         // readPosition is outdated, retry operation
@@ -166,15 +173,19 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
     // unfortunately it seems impossible in this design to check this condition without loading
     // write posiion and read position (which causes more contention)
 
-    auto writePosition = loadNextWritePosition();
-    auto readPosition = loadNextReadPosition();
+    auto writePosition = m_writePosition.load(std::memory_order_relaxed);
+    auto readPosition = m_readPosition.load(std::memory_order_relaxed);
     auto value = loadValueAt(readPosition);
 
     auto isFull = writePosition.getIndex() == readPosition.getIndex() && readPosition.isOneCycleBehind(writePosition);
 
     if (isFull)
     {
-        if (tryToGainOwnershipAt(readPosition))
+        Index newReadPosition(readPosition + 1);
+        auto ownershipGained = m_readPosition.compare_exchange_strong(
+            readPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
+
+        if (ownershipGained)
         {
             index = value.getIndex();
             return true;
@@ -197,50 +208,12 @@ bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-typename IndexQueue<Capacity, ValueType>::Index IndexQueue<Capacity, ValueType>::loadNextReadPosition() const noexcept
-{
-    return m_readPosition.load(std::memory_order_relaxed);
-}
-
-template <uint64_t Capacity, typename ValueType>
-typename IndexQueue<Capacity, ValueType>::Index IndexQueue<Capacity, ValueType>::loadNextWritePosition() const noexcept
-{
-    return m_writePosition.load(std::memory_order_relaxed);
-}
-
-template <uint64_t Capacity, typename ValueType>
 typename IndexQueue<Capacity, ValueType>::Index
 IndexQueue<Capacity, ValueType>::loadValueAt(const typename IndexQueue<Capacity, ValueType>::Index position) const
     noexcept
 {
     return m_cells[position.getIndex()].load(std::memory_order_relaxed);
 }
-
-template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::tryToPublishAt(
-    const typename IndexQueue<Capacity, ValueType>::Index writePosition, Index& oldValue, const Index newValue) noexcept
-{
-    return m_cells[writePosition.getIndex()].compare_exchange_strong(
-        oldValue, newValue, std::memory_order_relaxed, std::memory_order_relaxed);
-}
-
-template <uint64_t Capacity, typename ValueType>
-void IndexQueue<Capacity, ValueType>::updateNextWritePosition(Index& writePosition) noexcept
-{
-    // compare_exchange updates writePosition if NOT successful
-    Index newWritePosition(writePosition + 1);
-    auto updateSucceeded = m_writePosition.compare_exchange_strong(
-        writePosition, newWritePosition, std::memory_order_relaxed, std::memory_order_relaxed);
-}
-
-template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::tryToGainOwnershipAt(Index& oldReadPosition) noexcept
-{
-    Index newReadPosition(oldReadPosition + 1);
-    return m_readPosition.compare_exchange_strong(
-        oldReadPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
-}
-
 
 template <uint64_t Capacity, typename ValueType>
 void IndexQueue<Capacity, ValueType>::push(UniqueIndex& index) noexcept
