@@ -74,7 +74,7 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
         }
     }
 
-    static constexpr long TIMING_TEST_TIMEOUT{(100_ms).nanoSeconds<long>()};
+    static constexpr uint64_t TIMING_TEST_TIMEOUT{(100_ms).nanoSeconds<long>()};
 
     iox::posix::Semaphore* sut{nullptr};
     iox::posix::Semaphore* syncSemaphore = [] {
@@ -294,13 +294,12 @@ TEST_P(Semaphore_test, MoveCTor)
 }
 
 TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
+    using namespace iox::units;
     std::atomic_bool timedWaitFinish{false};
     bool isTestSuccessful{true};
 
     std::thread t([&] {
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        ts.tv_nsec += TIMING_TEST_TIMEOUT;
+        auto ts = Duration::nanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
         syncSemaphore->post();
         sut->wait();
         TIMING_TEST_EXPECT_FALSE(sut->timedWait(&ts, false));
@@ -320,13 +319,12 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
 
 
 TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
+    using namespace iox::units;
     std::atomic_bool timedWaitFinish{false};
     bool isTestSuccessful{true};
 
     std::thread t([&] {
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        ts.tv_nsec += TIMING_TEST_TIMEOUT;
+        auto ts = Duration::nanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
         syncSemaphore->post();
         sut->wait();
         TIMING_TEST_EXPECT_TRUE(sut->timedWait(&ts, false));
