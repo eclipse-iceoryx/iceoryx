@@ -74,7 +74,7 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
         }
     }
 
-    static constexpr long TIMING_TEST_TIMEOUT{(100_ms).nanoSeconds<long>()};
+    static constexpr long TIMING_TEST_TIMEOUT{(500_ms).nanoSeconds<long>()};
 
     iox::posix::Semaphore* sut{nullptr};
     iox::posix::Semaphore* syncSemaphore = [] {
