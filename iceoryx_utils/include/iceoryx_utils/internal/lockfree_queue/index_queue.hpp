@@ -14,9 +14,9 @@
 
 #pragma once
 
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/lockfree_queue/buffer.hpp"
 #include "iceoryx_utils/internal/lockfree_queue/cyclic_index.hpp"
-#include "iceoryx_utils/internal/lockfree_queue/unique.hpp"
 
 #include <atomic>
 
@@ -27,27 +27,79 @@ template <uint64_t Capacity, typename ValueType = uint64_t>
 class IndexQueue
 {
   public:
-    class UniqueIndex : public unique<ValueType>
+    class UniqueIndex
     {
       public:
         using value_t = ValueType;
-        using invalid_t = typename unique<ValueType>::invalid_t;
+
+        // for some reason, using nullopt_t instead with an alias and constructing a constexpr static is not possible
+        // UniqueIndex is scheduled to be refactored in the capacity change feature, leave it like this for now
+
+        struct invalid_t
+        {
+        };
+
         static constexpr invalid_t invalid{};
 
         friend class IndexQueue<Capacity, ValueType>;
 
-        // only an invalid index can be constructed by anyone other than the IndexQueue itself
+        /// @brief only an invalid index can be constructed by anyone other than the IndexQueue itself
         UniqueIndex(invalid_t) noexcept
-            : unique<ValueType>(invalid)
+            : m_value(cxx::nullopt_t{})
         {
+        }
+
+        // no copies
+        UniqueIndex(const UniqueIndex&) = delete;
+        UniqueIndex& operator=(const UniqueIndex&) = delete;
+
+        // only move
+        UniqueIndex(UniqueIndex&&) = default;
+        UniqueIndex& operator=(UniqueIndex&&) = default;
+
+        /// @brief returns whether it contains valid index
+        /// @return true if the index is valid, false otherwise
+        bool isValid()
+        {
+            return m_value.has_value();
+        }
+
+        /// @brief converts to a reference to the underlying value if it is valid, undefined behaviour otherwise
+        /// this allows using it as the underlying type in certain circumstances (without copying)
+        /// @return reference to the underlying value
+        operator const ValueType&() const
+        {
+            return m_value.value();
+        }
+
+        /// @brief releases the underlying value if it is valid, undefined behaviour otherwise
+        ///  the object is invalid afterwards
+        /// @return the underlying value
+        ValueType release()
+        {
+            auto value = std::move(m_value.value());
+            m_value.reset();
+            return value;
+        }
+
+        /// @brief returns a reference to the underlying value if it is valid, undefined behaviour otherwise
+        /// @return reference to the underlying value
+        ValueType& operator*()
+        {
+            return m_value.value();
         }
 
       private:
         // valid construction is made private and only accessible by the IndexQueue
-        UniqueIndex(const ValueType& value) noexcept
-            : unique<ValueType>(value)
+        // (that is also a reason why we use a nested class)
+        UniqueIndex(ValueType value) noexcept
+            : m_value(std::move(value))
         {
         }
+
+        // composition is preferred here to inheritance to control the (minimal) interface,
+        // we use the optional to benefit from its move behaviour
+        iox::cxx::optional<ValueType> m_value;
     };
 
     using value_t = ValueType;
