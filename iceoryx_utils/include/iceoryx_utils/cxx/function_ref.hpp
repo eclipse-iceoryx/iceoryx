@@ -59,41 +59,40 @@ class function_ref<ReturnType(ArgTypes...)>
     using EnableIfNotFunctionRef = typename std::enable_if<!std::is_same<std::decay<T>, function_ref>::value>::type;
 
   public:
-    /// @brief Creates an empty function_ref
+    /// @brief Creates an empty function_ref in an invalid state
+    /// @note Handle with care, program will terminate when calling an invalid function_ref
     function_ref() noexcept;
 
-    /// @brief D'tor
     ~function_ref() noexcept = default;
 
-    /// @brief Copy c'tor
     function_ref(const function_ref&) noexcept = default;
 
-    /// @brief Copy assignment operator
     function_ref& operator=(const function_ref&) noexcept = default;
 
-    /// @brief Create a function_ref
+    /// @brief Creates a function_ref with a callable whose lifetime has to be longer than function_ref
+    /// @param[in] callable that is not a function_ref
     template <typename CallableType, typename = EnableIfNotFunctionRef<CallableType>>
     function_ref(CallableType&& callable) noexcept;
 
-    /// @brief Moves a function_ref
     function_ref(function_ref&& rhs) noexcept;
 
-    /// @brief Move assignment operator
     function_ref& operator=(function_ref&& rhs) noexcept;
 
     /// @brief Calls the provided callable
+    /// @param[in] Arguments are forwarded to the underlying function pointer
+    /// @return Returns the data type of the underlying function pointer
     ReturnType operator()(ArgTypes... args) const noexcept;
 
     /// @brief Checks whether a valid target is contained
+    /// @return True if valid target is contained, otherwise false
     explicit operator bool() const noexcept;
 
+    /// @brief Swaps the contents of two function_ref's
+    /// @param[in] Reference to another function_ref
     void swap(function_ref& rhs) noexcept;
 
   private:
-    /// @brief Raw pointer of the callable
-    void* m_target{nullptr};
-
-    /// @brief Function pointer to the callable
+    void* m_pointerToCallable{nullptr};
     ReturnType (*m_functionPointer)(void*, ArgTypes...){nullptr};
 };
 

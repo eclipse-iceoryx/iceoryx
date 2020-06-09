@@ -18,7 +18,7 @@ namespace cxx
 {
 template <class ReturnType, class... ArgTypes>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref() noexcept
-    : m_target(nullptr)
+    : m_pointerToCallable(nullptr)
     , m_functionPointer(nullptr)
 {
 }
@@ -27,7 +27,7 @@ template <class ReturnType, class... ArgTypes>
 template <typename CallableType,
           typename = typename function_ref<ReturnType(ArgTypes...)>::template EnableIfNotFunctionRef<CallableType>>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
-    : m_target(reinterpret_cast<void*>(std::addressof(callable)))
+    : m_pointerToCallable(reinterpret_cast<void*>(std::addressof(callable)))
     , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
         return (*reinterpret_cast<typename std::add_pointer<CallableType>::type>(target))(
             std::forward<ArgTypes>(args)...);
@@ -47,10 +47,10 @@ function_ref<ReturnType(ArgTypes...)>::operator=(function_ref<ReturnType(ArgType
 {
     if (this != &rhs)
     {
-        m_target = rhs.m_target;
+        m_pointerToCallable = rhs.m_pointerToCallable;
         m_functionPointer = rhs.m_functionPointer;
         // Make sure no undefined behavior can happen by marking the rhs as invalid
-        rhs.m_target = nullptr;
+        rhs.m_pointerToCallable = nullptr;
         rhs.m_functionPointer = nullptr;
     }
     return *this;
@@ -59,25 +59,25 @@ function_ref<ReturnType(ArgTypes...)>::operator=(function_ref<ReturnType(ArgType
 template <class ReturnType, class... ArgTypes>
 inline ReturnType function_ref<ReturnType(ArgTypes...)>::operator()(ArgTypes... args) const noexcept
 {
-    if (!m_target)
+    if (!m_pointerToCallable)
     {
         // Callable was called without user having assigned one beforehand
         std::cerr << "Empty function_ref invoked" << std::endl;
         std::terminate();
     }
-    return m_functionPointer(m_target, std::forward<ArgTypes>(args)...);
+    return m_functionPointer(m_pointerToCallable, std::forward<ArgTypes>(args)...);
 }
 
 template <class ReturnType, class... ArgTypes>
 inline function_ref<ReturnType(ArgTypes...)>::operator bool() const noexcept
 {
-    return m_target != nullptr;
+    return m_pointerToCallable != nullptr;
 }
 
 template <class ReturnType, class... ArgTypes>
 inline void function_ref<ReturnType(ArgTypes...)>::swap(function_ref<ReturnType(ArgTypes...)>& rhs) noexcept
 {
-    std::swap(m_target, rhs.m_target);
+    std::swap(m_pointerToCallable, rhs.m_pointerToCallable);
     std::swap(m_functionPointer, rhs.m_functionPointer);
 }
 
