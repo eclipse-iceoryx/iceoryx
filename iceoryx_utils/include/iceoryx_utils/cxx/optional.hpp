@@ -29,6 +29,7 @@ namespace cxx
 struct nullopt_t
 {
 };
+constexpr nullopt_t nullopt = nullopt_t();
 
 /// @brief Optional implementation from the C++17 standard with C++11. The
 ///         interface is analog to the C++17 standard and it can be used in
@@ -184,7 +185,7 @@ class optional
     ///         value the behavior is undefined. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return const reference to the underlying type
-    const T& value() const & noexcept;
+    const T& value() const& noexcept;
 
     /// @brief Returns a rvalue reference to the underlying value. If the optional has no
     ///         value the behavior is undefined. You need to verify that the
@@ -196,7 +197,7 @@ class optional
     ///         value the behavior is undefined. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return const rvalue reference to the underlying type
-    const T&& value() const && noexcept;
+    const T&& value() const&& noexcept;
 
     /// @brief If the optional contains a value a copy of that value is returned,
     ///         otherwise the default_value is returned.
