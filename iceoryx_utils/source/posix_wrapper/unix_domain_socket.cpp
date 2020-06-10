@@ -245,11 +245,10 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
     else
     {
         char message[MAX_MESSAGE_SIZE + 1];
-
         auto recvCall = cxx::makeSmartC(recvfrom,
                                         cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                         {static_cast<ssize_t>(ERROR_CODE)},
-                                        {},
+                                        {EAGAIN},
                                         m_sockfd,
                                         &(message[0]),
                                         MAX_MESSAGE_SIZE,
@@ -260,7 +259,12 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
 
         if (recvCall.hasErrors())
         {
-            // timeout is also an error and would return here
+            return createErrorFromErrnum(recvCall.getErrNum());
+        }
+        /// we have to handle the timeout separately since it is not actual an
+        /// error, it is expected behavior. but we have to still inform the user
+        else if (recvCall.getErrNum() == EAGAIN)
+        {
             return createErrorFromErrnum(recvCall.getErrNum());
         }
         else
