@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_DDS_DDS_DATA_READER_HPP
+#define IOX_DDS_DDS_DATA_READER_HPP
 
 #include <iceoryx_utils/cxx/string.hpp>
 
@@ -28,3 +29,5 @@ class DataReader
 };
 }
 }
+
+#endif // IOX_DDS_DDS_DATA_READER_HPP

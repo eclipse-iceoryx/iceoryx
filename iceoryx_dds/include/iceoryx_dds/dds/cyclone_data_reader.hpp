@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_DDS_DDS_CYCLONE_DATA_READER_HPP
+#define IOX_DDS_DDS_CYCLONE_DATA_READER_HPP
 
 #include "iceoryx_dds/dds/data_reader.hpp"
 
@@ -28,3 +29,5 @@ class CycloneDataReader : DataReader<CycloneDataReader>
 
 } // namespace dds
 } // namespace iox
+
+#endif // IOX_DDS_DDS_CYCLONE_DATA_READER_HPP

@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_DDS_GATEWAY_DDS_GATEWAY_GENERIC_HPP
+#define IOX_DDS_GATEWAY_DDS_GATEWAY_GENERIC_HPP
 
 #include <atomic>
 #include <thread>
@@ -130,3 +131,5 @@ class DDSGatewayGeneric : public gateway_t
 } // namespace iox
 
 #include "iceoryx_dds/internal/gateway/dds_gateway_generic.inl"
+
+#endif // IOX_DDS_GATEWAY_DDS_GATEWAY_GENERIC_HPP

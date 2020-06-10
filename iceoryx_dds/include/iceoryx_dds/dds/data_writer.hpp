@@ -11,8 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_DDS_GATEWAY_DDS_DATA_WRITER_HPP
-#define IOX_DDS_GATEWAY_DDS_DATA_WRITER_HPP
+
+#ifndef IOX_DDS_DDS_DATA_WRITER_HPP
+#define IOX_DDS_DDS_DATA_WRITER_HPP
 
 #include <cstdint>
 
@@ -72,6 +73,6 @@ class DataWriter
 } // namespace dds
 } // namespace iox
 
-#include "ioxdds/internal/dds/data_writer.inl"
+#include "iceoryx_dds/internal/dds/data_writer.inl"
 
-#endif // IOX_DDS_GATEWAY_DDS_DATA_WRITER_HPP
+#endif // IOX_DDS_DDS_DATA_WRITER_HPP

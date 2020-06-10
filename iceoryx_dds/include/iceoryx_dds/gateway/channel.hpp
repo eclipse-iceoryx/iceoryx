@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_DDS_GATEWAY_CHANNEL_HPP
+#define IOX_DDS_GATEWAY_CHANNEL_HPP
 
 #include <memory>
 
@@ -80,3 +81,5 @@ class Channel
 } // namespace iox
 
 #include "iceoryx_dds/internal/gateway/channel.inl"
+
+#endif // IOX_DDS_DDS_DDS_TYPES_HPP

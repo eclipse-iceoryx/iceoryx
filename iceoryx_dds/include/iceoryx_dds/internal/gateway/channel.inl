@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/gateway/channel.hpp"
-
 namespace iox
 {
 namespace dds

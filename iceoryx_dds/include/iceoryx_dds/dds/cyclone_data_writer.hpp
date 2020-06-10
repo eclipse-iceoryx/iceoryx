@@ -11,8 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_DDS_GATEWAY_DDS_CYCLONE_DATA_WRITER_HPP
-#define IOX_DDS_GATEWAY_DDS_CYCLONE_DATA_WRITER_HPP
+
+#ifndef IOX_DDS_DDS_CYCLONE_DATA_WRITER_HPP
+#define IOX_DDS_DDS_CYCLONE_DATA_WRITER_HPP
 
 #include <Mempool_DCPS.hpp>
 #include <dds/dds.hpp>
@@ -61,4 +62,4 @@ class CycloneDataWriter : public iox::dds::DataWriter<CycloneDataWriter>
 } // namespace dds
 } // namespace iox
 
-#endif // IOX_DDS_GATEWAY_DDS_CYCLONE_DATA_WRITER_HPP
+#endif // IOX_DDS_DDS_CYCLONE_DATA_WRITER_HPP

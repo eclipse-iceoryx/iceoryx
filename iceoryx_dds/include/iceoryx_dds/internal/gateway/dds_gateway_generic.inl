@@ -15,7 +15,6 @@
 #include <cpptoml.h>
 
 #include "iceoryx_dds/dds/dds_types.hpp"
-#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include <iceoryx_utils/internal/file_reader/file_reader.hpp>
 

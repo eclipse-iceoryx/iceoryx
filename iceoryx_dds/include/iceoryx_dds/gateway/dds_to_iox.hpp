@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_DDS_GATEWAY_DDS_TO_IOX_HPP
+#define IOX_DDS_GATEWAY_DDS_TO_IOX_HPP
 
 #include <iceoryx_posh/popo/publisher.hpp>
 
@@ -44,3 +45,5 @@ class DDS2IceoryxGateway : public iox::dds::DDSGatewayGeneric<channel_t>
 } // namespace iox
 
 #include "iceoryx_dds/internal/gateway/dds_to_iox.inl"
+
+#endif // IOX_DDS_GATEWAY_DDS_TO_IOX_HPP
