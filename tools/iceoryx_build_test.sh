@@ -1,3 +1,19 @@
+#!/bin/bash
+
+# Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # This script builds iceoryx_utils und iceoryx_posh and executes all tests
 
 set -e
@@ -16,58 +32,8 @@ CLEAN_BUILD=false
 BUILD_TYPE=""
 STRICT_FLAG="off"
 TEST_FLAG="off"
-RUN_TEST=false
-INTROSPECTION_FLAG="on"
-
-for arg in "$@"
-do
-    case "$arg" in
-        "clean")
-            CLEAN_BUILD=true
-            ;;
-        "release")
-            BUILD_TYPE="Release"
-            ;;
-        "debug")
-            BUILD_TYPE="Debug"
-            ;;
-        "strict")
-            STRICT_FLAG="on"
-            ;;
-        "test")
-            RUN_TEST=true
-            TEST_FLAG="on"
-            ;;
-        "build-test")
-            RUN_TEST=false
-            TEST_FLAG="on"
-            ;;
-        "skip-introspection")
-            INTROSPECTION_FLAG="off"
-            ;;
-        "help")
-            echo "Build script for iceoryx."
-            echo "By default, iceoryx and the examples are build."
-            echo ""
-            echo "Usage: iceoryx_build_test.sh [options]"
-            echo "Options:"
-            echo "    clean                 Cleans the build directory"
-            echo "    release               Build release configuration"
-            echo "    debug                 Build debug configuration"
-            echo "    strict                Build is performed with '-Werror'"
-            echo "    test                  Builds and runs the tests"
-            echo "    build-test            Builds the tests (doesn't tun)"
-            echo "    skip-introspection    Skips building iceoryx introspection"
-            echo "    help                  Prints this help"
-            echo ""
-            echo "e.g. iceoryx_build_test.sh clean test release"
-            exit 0
-            ;;
-        *)
-            echo "Invalid argument '$arg'. Try 'help' for options."
-            exit -1
-            ;;
-    esac
+DOWNLOAD_GTEST=true
+DOWNLOAD_CPPTOML=true
 DOWNLOAD_CYCLONEDDS=true
 
 while (( "$#" )); do
@@ -144,20 +110,15 @@ if [ $CLEAN_BUILD == true ]
 then
     echo " [i] Cleaning build directory"
     cd $WORKSPACE
-    rm -rf build/*
     rm -rf $BUILD_DIR/*
 fi
 
 # create a new build directory and change the current working directory
 echo " [i] Create a new build directory and change the current working directory"
 cd $WORKSPACE
-mkdir -p build
-cd build
 mkdir -p $BUILD_DIR
 cd $BUILD_DIR
 
-echo " [i] Current working directory:"
-pwd
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
