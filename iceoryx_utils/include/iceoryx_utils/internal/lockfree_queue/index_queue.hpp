@@ -19,6 +19,7 @@
 #include "iceoryx_utils/internal/lockfree_queue/cyclic_index.hpp"
 
 #include <atomic>
+#include <type_traits>
 
 namespace iox
 {
@@ -27,14 +28,15 @@ template <uint64_t Capacity, typename ValueType = uint64_t>
 class IndexQueue
 {
   public:
+    static_assert(std::is_unsigned<ValueType>::value, "ValueType must be an unsigned integral type");
+
     class UniqueIndex
     {
       public:
         using value_t = ValueType;
 
-        // for some reason, using nullopt_t instead with an alias and constructing a constexpr static is not possible
-        // UniqueIndex is scheduled to be refactored in the capacity change feature, leave it like this for now
-
+        // remark: for some reason, using nullopt_t instead with an alias and constructing a constexpr static is not
+        // possible
         struct invalid_t
         {
         };
@@ -73,7 +75,8 @@ class IndexQueue
         }
 
         /// @brief releases the underlying value if it is valid, undefined behaviour otherwise
-        ///  the object is invalid afterwards
+        /// this means we have to check isValid() before or otherwise be sure it holds a value,
+        //  the object is invalid after the release call
         /// @return the underlying value
         ValueType release()
         {
@@ -176,10 +179,7 @@ class IndexQueue
     std::atomic<Index> m_writePosition;
 
   private:
-    Index loadValueAt(const Index position) const noexcept;
-
     // internal raw value (ValueType) interface
-    // private, since it does not prevent multiple of the same index pushes by design
 
     // push index into the queue in FIFO order
     void push(const ValueType index) noexcept;

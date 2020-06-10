@@ -51,7 +51,7 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
     auto writePosition = m_writePosition.load(std::memory_order_relaxed);
     do
     {
-        auto oldValue = loadValueAt(writePosition);
+        auto oldValue = m_cells[writePosition.getIndex()].load(std::memory_order_relaxed);
 
         auto cellIsFree = oldValue.isOneCycleBehind(writePosition);
 
@@ -61,7 +61,7 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
             Index newValue(index, writePosition.getCycle());
 
             // if publish fails, another thread has published before us
-            auto published = m_cells[writePosition.getIndex()].compare_exchange_weak(
+            bool published = m_cells[writePosition.getIndex()].compare_exchange_weak(
                 oldValue, newValue, std::memory_order_relaxed, std::memory_order_relaxed);
 
             if (published)
@@ -125,7 +125,7 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
     auto readPosition = m_readPosition.load(std::memory_order_relaxed);
     do
     {
-        value = loadValueAt(readPosition);
+        value = m_cells[readPosition.getIndex()].load(std::memory_order_relaxed);
 
         // we only dequeue if value and readPosition are in the same cycle
         auto cellIsValidToRead = readPosition.getCycle() == value.getCycle();
@@ -139,7 +139,7 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
         }
         else
         {
-            // readPosition is ahead by one cycle, queue was empty at loadValueAt(...)
+            // readPosition is ahead by one cycle, queue was empty at value load
             auto isEmpty = value.isOneCycleBehind(readPosition);
 
             if (isEmpty)
@@ -175,7 +175,7 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
 
     auto writePosition = m_writePosition.load(std::memory_order_relaxed);
     auto readPosition = m_readPosition.load(std::memory_order_relaxed);
-    auto value = loadValueAt(readPosition);
+    auto value = m_cells[readPosition.getIndex()].load(std::memory_order_relaxed);
 
     auto isFull = writePosition.getIndex() == readPosition.getIndex() && readPosition.isOneCycleBehind(writePosition);
 
@@ -205,14 +205,6 @@ bool IndexQueue<Capacity, ValueType>::empty() const noexcept
     // if m_readPosition is ahead by one cycle compared to the value stored at head,
     // the queue was empty at the time of the loads above (but might not be anymore!)
     return value.isOneCycleBehind(oldReadIndex);
-}
-
-template <uint64_t Capacity, typename ValueType>
-typename IndexQueue<Capacity, ValueType>::Index
-IndexQueue<Capacity, ValueType>::loadValueAt(const typename IndexQueue<Capacity, ValueType>::Index position) const
-    noexcept
-{
-    return m_cells[position.getIndex()].load(std::memory_order_relaxed);
 }
 
 template <uint64_t Capacity, typename ValueType>
