@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_UTILS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
+#define IOX_UTILS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/lockfree_queue/buffer.hpp"
@@ -193,3 +194,5 @@ class IndexQueue
 } // namespace iox
 
 #include "index_queue.inl"
+
+#endif // IOX_UTILS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP

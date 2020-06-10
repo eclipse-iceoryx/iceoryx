@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_UTILS_LOCKFREE_QUEUE_CYCLIC_INDEX_HPP
+#define IOX_UTILS_LOCKFREE_QUEUE_CYCLIC_INDEX_HPP
 
 #include <limits>
 #include <stdint.h>
@@ -67,3 +68,5 @@ class CyclicIndex
 } // namespace iox
 
 #include "cyclic_index.inl"
+
+#endif // IOX_UTILS_LOCKFREE_QUEUE_CYCLIC_INDEX_HPP

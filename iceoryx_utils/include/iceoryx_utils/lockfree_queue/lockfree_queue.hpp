@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_UTILS_CONCURRENT_LOCKFREE_QUEUE_HPP
+#define IOX_UTILS_CONCURRENT_LOCKFREE_QUEUE_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/lockfree_queue/buffer.hpp"
@@ -120,3 +121,5 @@ class LockFreeQueue
 } // namespace iox
 
 #include "iceoryx_utils/internal/lockfree_queue/lockfree_queue.inl"
+
+#endif // IOX_UTILS_CONCURRENT_LOCKFREE_QUEUE_HPP

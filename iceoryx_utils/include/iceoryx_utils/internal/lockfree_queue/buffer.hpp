@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_UTILS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP
+#define IOX_UTILS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP
 
 #include <stdint.h>
 
@@ -52,3 +53,5 @@ class Buffer
 } // namespace iox
 
 #include "buffer.inl"
+
+#endif // IOX_UTILS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP
