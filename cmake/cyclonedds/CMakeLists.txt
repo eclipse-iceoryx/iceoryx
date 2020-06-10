@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 project(cyclonedds-build CXX)
 
+include(ProcessorCount)
+ProcessorCount(N)
+if(NOT N EQUAL 0)
+  set(CMAKE_BUILD_FLAGS -j${N})
+endif()
+
 # ===== Helpers
 function(fetch_and_install name)
     set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/${name}-download)
@@ -46,7 +52,7 @@ function(fetch_and_install name)
         message(FATAL_ERROR "CMake step [configure] for ${name} failed: ${result}")
     endif()
 
-    execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install
+    execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install ${CMAKE_BUILD_FLAGS}
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${BUILD_DIR} )
     if(result)

@@ -16,33 +16,7 @@
 
 # This file runs all tests for Ice0ryx
 
-component_folder="utils posh"
-
-GTEST_FILTER="*"
-
-for arg in "$@"
-do 
-    case "$arg" in
-        "disable-timing-tests")
-            GTEST_FILTER="-*.TimingTest_*"
-            ;;
-        "only-timing-tests")
-            GTEST_FILTER="*.TimingTest_*"
-            ;;
-        *)
-            echo ""
-            echo "Test script for iceoryx."
-            echo "By default all module-, integration- and componenttests are executed."
-            echo ""
-            echo "Usage: $0 [OPTIONS]"
-            echo "Options:"
-            echo "      disable-timing-tests        Disables all timing tests"
-            echo "      only-timing-tests           Runs only timing tests"
-            echo ""
-            exit -1
-            ;;
-    esac
-done 
+component_folder="posh utils dds"
 
 #check if this script is sourced by another script,
 # if yes then exit properly, so the other script can use this

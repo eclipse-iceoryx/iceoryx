@@ -20,9 +20,9 @@ find_package(GTest CONFIG REQUIRED)
 
 set(PROJECT_PREFIX "iceoryx_dds")
 
-file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
+#file(GLOB_RECURSE MODULETESTS_SRC "moduletests/*.cpp")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
 set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
@@ -41,7 +41,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
 endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
 
 # unittests
-add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC})
+add_executable(${PROJECT_PREFIX}_moduletests moduletests/main.cpp)
 set_property(TARGET ${PROJECT_PREFIX}_moduletests PROPERTY CXX_STANDARD 11)
 target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
 target_compile_options(${PROJECT_PREFIX}_moduletests PUBLIC -fPIC PRIVATE ${TEST_CXX_FLAGS})

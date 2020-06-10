@@ -26,8 +26,6 @@ set -e
 WORKSPACE=$(git rev-parse --show-toplevel)
 BUILD_DIR=$WORKSPACE/build
 
-ICEORYX_INSTALL_PREFIX=$WORKSPACE/build/install/prefix/
-
 CLEAN_BUILD=false
 BUILD_TYPE=""
 STRICT_FLAG="off"
@@ -99,62 +97,139 @@ while (( "$#" )); do
   esac
 done
 
+# define directories dependent on the build directory
+ICEORYX_INSTALL_PREFIX=$BUILD_DIR/install/prefix/
+DEPENDENCIES_INSTALL_PREFIX=$BUILD_DIR/dependencies/
+
 echo " [i] Building in $BUILD_DIR"
 
 #====================================================================================================
 #==== Step 1 : Build  ===============================================================================
 #====================================================================================================
 
-# Clean build folder
-if [ $CLEAN_BUILD == true ]
-then
-    echo " [i] Cleaning build directory"
-    cd $WORKSPACE
-    rm -rf $BUILD_DIR/*
+# detect number of course if possible
+NUM_CORES=1
+if nproc >/dev/null 2>&1; then
+    NUM_CORES=`nproc`
 fi
 
-# create a new build directory and change the current working directory
-echo " [i] Create a new build directory and change the current working directory"
-cd $WORKSPACE
-mkdir -p $BUILD_DIR
+# # clean build folder
+# if [ $CLEAN_BUILD == true ]
+# then
+#     echo " [i] Cleaning build directory"
+#     cd $WORKSPACE
+#     rm -rf $BUILD_DIR/*
+# fi
+
+# # create a new build directory and change the current working directory
+# echo " [i] Create a new build directory and change the current working directory"
+# cd $WORKSPACE
+# mkdir -p $BUILD_DIR
+# cd $BUILD_DIR
+
+# echo " [i] Current working directory: $(pwd)"
+
+# # Download and install googletest
+# if [[ $TEST_FLAG == "on" && $DOWNLOAD_GTEST == true ]]
+# then
+#     cd $BUILD_DIR
+#     mkdir -p googletest
+#     cd googletest
+
+#     echo ">>>>>> Start building googletest dependency <<<<<<"
+#     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$DEPENDENCIES_INSTALL_PREFIX -Dtest=$TEST_FLAG $WORKSPACE/cmake/googletest
+#     echo ">>>>>> finished building googletest dependency <<<<<<"
+# fi
+
+# # Download and install cpptoml
+# if [ $DOWNLOAD_CPPTOML == true ]
+# then
+#     cd $BUILD_DIR
+#     mkdir -p cpptoml
+#     cd cpptoml
+
+#     echo ">>>>>> Start building cpptoml dependency <<<<<<"
+#     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$DEPENDENCIES_INSTALL_PREFIX $WORKSPACE/cmake/cpptoml
+#     echo ">>>>>> finished building cpptoml dependency <<<<<<"
+# fi
+
+# # Download and install cyclonedds
+# if [ $DOWNLOAD_CYCLONEDDS == true ]
+# then
+#     cd $BUILD_DIR
+#     mkdir -p cyclonedds
+#     cd cyclonedds
+
+#     echo ">>>>>> Start building cyclonedds dependency <<<<<<"
+#     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$DEPENDENCIES_INSTALL_PREFIX $WORKSPACE/cmake/cyclonedds
+#     echo ">>>>>> finished building cyclonedds dependency <<<<<<"
+# fi
+
+# # Build iceoryx_utils
+# cd $BUILD_DIR
+# mkdir -p utils
+# cd utils
+
+# echo ">>>>>> Start building iceoryx utils package <<<<<<"
+# cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=$DEPENDENCIES_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -Dtest=$TEST_FLAG $WORKSPACE/iceoryx_utils
+# cmake --build . -j$NUM_CORES --target install
+# echo ">>>>>> finished building iceoryx utils package <<<<<<"
+
+# # Build iceoryx_posh
+# cd $BUILD_DIR
+# mkdir -p posh
+# cd posh
+
+# echo ">>>>>> Start building iceoryx posh package <<<<<<"
+# cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=$DEPENDENCIES_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on $WORKSPACE/iceoryx_posh
+# cmake --build . -j$NUM_CORES --target install
+# echo ">>>>>> finished building iceoryx posh package <<<<<<"
+
+# Build iceoryx_dds
 cd $BUILD_DIR
+mkdir -p dds
+cd dds
 
-echo " [i] Current working directory: $(pwd)"
+echo ">>>>>> Start building iceoryx dds package <<<<<<"
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=$DEPENDENCIES_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DBUILD_TESTS=$TEST_FLAG $WORKSPACE/iceoryx_dds_gateway
+cmake --build . -j$NUM_CORES --target install
+echo ">>>>>> finished building iceoryx dds package <<<<<<"
 
-echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG $WORKSPACE/iceoryx_meta
-cmake --build . --target install
-echo ">>>>>> finished building iceoryx package <<<<<<"
+# Build iceoryx_introspection
+cd $BUILD_DIR
+mkdir -p iceoryx_introspection
+cd iceoryx_introspection
+
+echo ">>>>>> Start building iceoryx introspection <<<<<<"
+cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -Dtest=$TEST_FLAG -Droudi_environment=on $WORKSPACE/tools/introspection
+cmake --build . -j$NUM_CORES --target install
+echo ">>>>>> finished building iceoryx introspection package <<<<<<"
 
 echo ">>>>>> Start building iceoryx examples <<<<<<"
-cd $WORKSPACE/build
 cd $BUILD_DIR
 mkdir -p iceoryx_examples
 echo ">>>>>>>> icedelivery"
-cd $WORKSPACE/build/iceoryx_examples
 cd $BUILD_DIR/iceoryx_examples
 mkdir -p icedelivery
 cd icedelivery
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
-cmake --build .
+cmake --build . -j$NUM_CORES
 echo ">>>>>>>> iceperf"
-cd $WORKSPACE/build/iceoryx_examples
 cd $BUILD_DIR/iceoryx_examples
 mkdir -p iceperf
 cd iceperf
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
-cmake --build .
+cmake --build . -j$NUM_CORES
 echo ">>>>>> finished building iceoryx examples <<<<<<"
 
 #====================================================================================================
 #==== Step 2 : Run all Tests  =======================================================================
 #====================================================================================================
 
-if [ $RUN_TEST == true ]
+if [ $TEST_FLAG == "on" ]
 then
 
 # The absolute path of the directory assigned to the build
-cd $WORKSPACE/build
 cd $BUILD_DIR
 
 # change the current working directory
@@ -166,3 +241,22 @@ echo " [i] Run all Tests:"
 $WORKSPACE/build/tools/run_all_tests.sh
 
 for folder in $component_folder; do
+
+    if [ ! -f testresults/"$folder"_ModuleTestResults.xml ]; then
+        echo "xml:"$folder"_ModuletestTestResults.xml not found!"
+        exit 1
+    fi
+
+    if [ ! -f testresults/"$folder"_ComponenttestTestResults.xml ]; then
+        echo "xml:"$folder"_ComponenttestTestResults.xml not found!"
+        exit 1
+    fi
+
+    if [ ! -f testresults/"$folder"_IntegrationTestResults.xml ]; then
+        echo "xml:"$folder"_IntegrationTestResults.xml not found!"
+        exit 1
+    fi
+
+done
+
+fi
