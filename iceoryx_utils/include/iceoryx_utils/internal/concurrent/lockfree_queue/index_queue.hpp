@@ -192,6 +192,8 @@ class IndexQueue
 
     // tries to remove index in FIFO order if the queue is full
     bool popIfFull(ValueType& index) noexcept;
+
+    Index loadvalueAt(const Index& position, std::memory_order memoryOrder = std::memory_order_relaxed) const;
 };
 } // namespace concurrent
 } // namespace iox
