@@ -14,12 +14,12 @@
 
 #include "test.hpp"
 
-#include "iceoryx_utils/internal/lockfree_queue/buffer.hpp"
+#include "iceoryx_utils/internal/concurrent/lockfree_queue/buffer.hpp"
 using namespace ::testing;
 
 namespace
 {
-using iox::Buffer;
+using iox::concurrent::Buffer;
 
 template <typename T>
 class LockFreeQueueBufferTest : public ::testing::Test

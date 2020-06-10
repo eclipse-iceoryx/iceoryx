@@ -14,7 +14,7 @@
 
 #include "test.hpp"
 
-#include "iceoryx_utils/lockfree_queue/lockfree_queue.hpp"
+#include "iceoryx_utils/concurrent/lockfree_queue.hpp"
 using namespace ::testing;
 
 #include <atomic>
@@ -336,7 +336,7 @@ class LockFreeQueueStressTest : public ::testing::Test
 };
 
 template <size_t Capacity>
-using TestQueue = iox::LockFreeQueue<Data, Capacity>;
+using TestQueue = iox::concurrent::LockFreeQueue<Data, Capacity>;
 using SingleElementQueue = TestQueue<1>;
 using SmallQueue = TestQueue<10>;
 using MediumQueue = TestQueue<1000>;

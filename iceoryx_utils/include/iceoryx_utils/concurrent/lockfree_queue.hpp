@@ -16,13 +16,15 @@
 #define IOX_UTILS_CONCURRENT_LOCKFREE_QUEUE_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/internal/lockfree_queue/buffer.hpp"
-#include "iceoryx_utils/internal/lockfree_queue/index_queue.hpp"
+#include "iceoryx_utils/internal/concurrent/lockfree_queue/buffer.hpp"
+#include "iceoryx_utils/internal/concurrent/lockfree_queue/index_queue.hpp"
 
 #include <atomic>
 
 
 namespace iox
+{
+namespace concurrent
 {
 // remark: configuration of capacity at runtime is an upcoming feature
 
@@ -118,8 +120,9 @@ class LockFreeQueue
 
     cxx::optional<ElementType> readBufferAt(const UniqueIndex&);
 };
+} // namespace concurrent
 } // namespace iox
 
-#include "iceoryx_utils/internal/lockfree_queue/lockfree_queue.inl"
+#include "iceoryx_utils/internal/concurrent/lockfree_queue/lockfree_queue.inl"
 
 #endif // IOX_UTILS_CONCURRENT_LOCKFREE_QUEUE_HPP

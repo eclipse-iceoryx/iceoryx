@@ -14,12 +14,12 @@
 
 #include "test.hpp"
 
-#include "iceoryx_utils/internal/lockfree_queue/index_queue.hpp"
+#include "iceoryx_utils/internal/concurrent/lockfree_queue/index_queue.hpp"
 using namespace ::testing;
 
 namespace
 {
-using iox::IndexQueue;
+using iox::concurrent::IndexQueue;
 
 template <typename T>
 class IndexQueueTest : public ::testing::Test

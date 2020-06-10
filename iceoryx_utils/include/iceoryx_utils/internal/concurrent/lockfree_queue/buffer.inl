@@ -14,6 +14,8 @@
 
 namespace iox
 {
+namespace concurrent
+{
 template <typename ElementType, uint64_t Capacity, typename index_t>
 ElementType& Buffer<ElementType, Capacity, index_t>::operator[](const index_t index) noexcept
 {
@@ -51,4 +53,5 @@ ElementType* Buffer<ElementType, Capacity, index_t>::toPtr(index_t index) const 
     return reinterpret_cast<ElementType*>(const_cast<byte_t*>(ptr));
 }
 
+} // namespace concurrent
 } // namespace iox

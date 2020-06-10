@@ -14,12 +14,12 @@
 
 #include "test.hpp"
 
-#include "iceoryx_utils/internal/lockfree_queue/cyclic_index.hpp"
+#include "iceoryx_utils/internal/concurrent/lockfree_queue/cyclic_index.hpp"
 using namespace ::testing;
 
 namespace
 {
-using iox::CyclicIndex;
+using iox::concurrent::CyclicIndex;
 
 template <typename T>
 class LockFreeQueueCyclicIndexTest : public ::testing::Test

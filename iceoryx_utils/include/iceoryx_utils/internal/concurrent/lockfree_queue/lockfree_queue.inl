@@ -18,6 +18,8 @@
 
 namespace iox
 {
+namespace concurrent
+{
 template <typename ElementType, uint64_t Capacity>
 LockFreeQueue<ElementType, Capacity>::LockFreeQueue() noexcept
     : m_freeIndices(IndexQueue<Capacity>::ConstructFull)
@@ -163,4 +165,5 @@ void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const UniqueIndex& inde
     m_size.fetch_add(1u, std::memory_order_release);
 }
 
+} // namespace concurrent
 } // namespace iox

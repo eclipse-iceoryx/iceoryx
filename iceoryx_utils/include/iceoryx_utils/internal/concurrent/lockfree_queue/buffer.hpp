@@ -19,6 +19,8 @@
 
 namespace iox
 {
+namespace concurrent
+{
 // remark: we can add more functionality (policies for cache line size, redzoning)
 
 template <typename ElementType, uint64_t Capacity, typename index_t = uint64_t>
@@ -50,6 +52,7 @@ class Buffer
     ElementType* toPtr(index_t index) const noexcept;
 };
 
+} // namespace concurrent
 } // namespace iox
 
 #include "buffer.inl"

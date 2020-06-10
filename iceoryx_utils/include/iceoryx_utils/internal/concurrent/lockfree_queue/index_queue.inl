@@ -1,5 +1,7 @@
 namespace iox
 {
+namespace concurrent
+{
 template <uint64_t Capacity, typename ValueType>
 constexpr IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
     : m_readPosition(Index(Capacity))
@@ -236,4 +238,5 @@ typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, Value
 }
 
 
-} // namespace iox
+} // namespace concurrent
+}

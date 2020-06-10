@@ -16,13 +16,15 @@
 #define IOX_UTILS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
-#include "iceoryx_utils/internal/lockfree_queue/buffer.hpp"
-#include "iceoryx_utils/internal/lockfree_queue/cyclic_index.hpp"
+#include "iceoryx_utils/internal/concurrent/lockfree_queue/buffer.hpp"
+#include "iceoryx_utils/internal/concurrent/lockfree_queue/cyclic_index.hpp"
 
 #include <atomic>
 #include <type_traits>
 
 namespace iox
+{
+namespace concurrent
 {
 /// @brief lockfree queue capable of storing indices 0,1,... Capacity-1
 template <uint64_t Capacity, typename ValueType = uint64_t>
@@ -191,6 +193,7 @@ class IndexQueue
     // tries to remove index in FIFO order if the queue is full
     bool popIfFull(ValueType& index) noexcept;
 };
+} // namespace concurrent
 } // namespace iox
 
 #include "index_queue.inl"

@@ -14,7 +14,7 @@
 
 #include "test.hpp"
 
-#include "iceoryx_utils/lockfree_queue/lockfree_queue.hpp"
+#include "iceoryx_utils/concurrent/lockfree_queue.hpp"
 using namespace ::testing;
 
 namespace
@@ -71,10 +71,10 @@ class LockFreeQueueTest : public ::testing::Test
 };
 
 template <size_t Capacity>
-using IntegerQueue = iox::LockFreeQueue<Integer, Capacity>;
+using IntegerQueue = iox::concurrent::LockFreeQueue<Integer, Capacity>;
 
 template <size_t Capacity>
-using IntQueue = iox::LockFreeQueue<int, Capacity>;
+using IntQueue = iox::concurrent::LockFreeQueue<int, Capacity>;
 
 TEST(LockFreeQueueTest, capacityIsConsistent)
 {

@@ -14,6 +14,8 @@
 
 namespace iox
 {
+namespace concurrent
+{
 template <uint64_t CycleLength, typename ValueType>
 CyclicIndex<CycleLength, ValueType>::CyclicIndex(ValueType value) noexcept
     : m_value(value)
@@ -79,4 +81,5 @@ bool CyclicIndex<CycleLength, ValueType>::isOneCycleBehind(const CyclicIndex& ot
     }
     return (thisCycle + 1 == otherCycle);
 }
-} // namespace iox
+} // namespace concurrent
+}

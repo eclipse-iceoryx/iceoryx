@@ -22,6 +22,8 @@
 
 namespace iox
 {
+namespace concurrent
+{
 /// @brief index structure that can contain logical values 0, ..., CycleLength-1
 /// but also stores an internal cycle counter to be used in compare_exchange
 template <uint64_t CycleLength, typename ValueType = uint64_t>
@@ -65,6 +67,7 @@ class CyclicIndex
     ValueType m_value{0};
 };
 
+} // namespace concurrent
 } // namespace iox
 
 #include "cyclic_index.inl"
