@@ -101,7 +101,7 @@ TEST_F(function_refTest, CreateValidByAssignIsTrue)
     EXPECT_TRUE(sut);
 }
 
-TEST_F(function_refTest, CreateValidByAssignResultEqual)
+TEST_F(function_refTest, CallValidByAssignResultEqual)
 {
     auto lambda = []() -> int { return 7253; };
     function_ref<int()> sut;
@@ -109,12 +109,12 @@ TEST_F(function_refTest, CreateValidByAssignResultEqual)
     EXPECT_THAT(sut(), Eq(7253));
 }
 
-TEST_F(function_refTest, CreateValidByCopyConstructResultEqual)
+TEST_F(function_refTest, CallValidByCopyConstructResultEqual)
 {
     auto lambda = []() -> int { return 3527; };
     function_ref<int()> sut1{lambda};
     function_ref<int()> sut2(sut1);
-    EXPECT_TRUE(sut2);
+    ASSERT_TRUE(sut2);
     EXPECT_THAT(sut2(), Eq(3527));
 }
 
@@ -149,7 +149,7 @@ TEST_F(function_refTest, CreateValidByMoveResultEqual)
     auto lambda = []() -> int { return 123; };
     function_ref<int()> sut1{lambda};
     function_ref<int()> sut2{std::move(sut1)};
-    EXPECT_TRUE(sut2);
+    ASSERT_TRUE(sut2);
     EXPECT_FALSE(sut1);
     EXPECT_THAT(sut2(), Eq(123));
 }
