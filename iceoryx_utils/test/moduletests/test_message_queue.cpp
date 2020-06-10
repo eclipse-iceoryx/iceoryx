@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(_WIN32)
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
 
@@ -24,7 +24,11 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::posix;
 
+#if defined(__APPLE__)
+using IpcChannel = UnixDomainSocket;
+#else
 using IpcChannel = MessageQueue;
+#endif
 
 constexpr char goodName[] = "/channel_test";
 constexpr char anotherGoodName[] = "/horst";
@@ -61,13 +65,13 @@ class MessageQueue_test : public Test
     {
     }
 
-    static constexpr size_t MaxMsgSize = IpcChannel::MAX_MESSAGE_SIZE;
+    static const size_t MaxMsgSize;
     static constexpr uint64_t MaxMsgNumber = 10u;
     IpcChannel server;
     IpcChannel client;
 };
 
-constexpr size_t MessageQueue_test::MaxMsgSize;
+const size_t MessageQueue_test::MaxMsgSize = IpcChannel::MAX_MESSAGE_SIZE;
 constexpr uint64_t MessageQueue_test::MaxMsgNumber;
 
 TEST_F(MessageQueue_test, createNoName)
