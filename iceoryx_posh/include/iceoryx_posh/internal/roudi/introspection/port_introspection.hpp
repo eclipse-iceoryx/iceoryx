@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
+#define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 
 #include "fixed_size_container.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -424,3 +424,5 @@ using PortIntrospectionType = PortIntrospection<SenderPortType, ReceiverPortType
 } // namespace iox
 
 #include "port_introspection.inl"
+
+#endif // IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP

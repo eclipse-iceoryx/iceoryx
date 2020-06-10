@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
+#define IOX_UTILS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
@@ -101,11 +101,11 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @brief creates the unix domain socket
     /// @param mode blocking or non_blocking
     /// @return int with the socket file descriptor, IpcChannelError if error occured
-    cxx::expected<int, IpcChannelError> createSocket(const IpcChannelMode mode) noexcept;
+    cxx::expected<int32_t, IpcChannelError> createSocket(const IpcChannelMode mode) noexcept;
 
     /// @brief create an IpcChannelError from the provides error code
     /// @return IpcChannelError if error occured
-    cxx::error<IpcChannelError> createErrorFromErrnum(const int errnum) noexcept;
+    cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) noexcept;
 
   private:
     std::string m_name;
@@ -116,3 +116,5 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 };
 } // namespace posix
 } // namespace iox
+
+#endif // IOX_UTILS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP

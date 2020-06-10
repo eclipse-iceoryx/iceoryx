@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_POPO_SENDER_PORT_INL
+#define IOX_POSH_POPO_SENDER_PORT_INL
 
 namespace iox
 {
@@ -27,3 +29,5 @@ inline typename SenderPort::MemberType_t* SenderPort::getMembers() noexcept
 }
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_SENDER_PORT_INL

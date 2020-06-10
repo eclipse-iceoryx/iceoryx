@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/units/duration.hpp"
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 namespace iox
 {

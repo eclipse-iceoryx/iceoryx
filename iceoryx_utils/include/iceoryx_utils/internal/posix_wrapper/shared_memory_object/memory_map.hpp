@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
+#define IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
@@ -31,9 +31,9 @@ class MemoryMap
   public:
     cxx::optional<MemoryMap> static create(const void* f_baseAddressHint,
                                            const uint64_t f_length,
-                                           const int f_fileDescriptor,
+                                           const int32_t f_fileDescriptor,
                                            const AccessMode f_accessMode = AccessMode::readWrite,
-                                           const int f_flags = MAP_SHARED,
+                                           const int32_t f_flags = MAP_SHARED,
                                            const off_t f_offset = 0);
 
     MemoryMap(const MemoryMap&) = delete;
@@ -50,9 +50,9 @@ class MemoryMap
   private:
     MemoryMap(const void* f_baseAddressHint,
               const uint64_t f_length,
-              const int f_fileDescriptor,
+              const int32_t f_fileDescriptor,
               const AccessMode f_accessMode,
-              const int f_flags = MAP_SHARED,
+              const int32_t f_flags = MAP_SHARED,
               const off_t f_offset = 0);
     bool isInitialized() const;
 
@@ -63,3 +63,5 @@ class MemoryMap
 };
 } // namespace posix
 } // namespace iox
+
+#endif // IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_MEMORY_MAP_HPP

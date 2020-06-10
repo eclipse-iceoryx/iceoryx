@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_POSIX_WRAPPER_ARGV_INSPECTION_HPP
+#define IOX_UTILS_POSIX_WRAPPER_ARGV_INSPECTION_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 
@@ -40,7 +40,7 @@ class ArgvInspector
     /// @brief get the command line argument at position f_argNumber and store into f_argument input parameter.
     /// @return false if the /proc filesystem could not be accessed or if the argument number exceeds the actual command
     /// line arguments
-    bool getCmdlineArgument(const int f_argNumber, std::string& f_argument) const;
+    bool getCmdlineArgument(const int32_t f_argNumber, std::string& f_argument) const;
 
   private:
     cxx::optional<std::string> m_cmdline;
@@ -48,3 +48,4 @@ class ArgvInspector
 } // namespace posix
 } // namespace iox
 
+#endif // IOX_UTILS_POSIX_WRAPPER_ARGV_INSPECTION_HPP

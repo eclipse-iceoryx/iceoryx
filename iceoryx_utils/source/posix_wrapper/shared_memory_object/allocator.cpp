@@ -14,7 +14,7 @@
 
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <iostream>
 
@@ -23,14 +23,14 @@ namespace iox
 namespace posix
 {
 constexpr uint64_t Allocator::MEMORY_ALIGNMENT;
-Allocator::Allocator(const void* f_startAddress, const uint64_t f_length)
-    : m_startAddress(const_cast<byte_t*>(static_cast<const byte_t*>(f_startAddress)))
+Allocator::Allocator(void* const f_startAddress, const uint64_t f_length) noexcept
+    : m_startAddress(static_cast<byte_t* const>(f_startAddress))
     , m_length(f_length)
 {
     /// @todo memset to set memory and to avoid the usage of unavailable memory
 }
 
-void* Allocator::allocate(const uint64_t f_size, const uint64_t f_alignment)
+void* Allocator::allocate(const uint64_t f_size, const uint64_t f_alignment) noexcept
 {
     cxx::Expects(f_size > 0);
 
@@ -65,7 +65,7 @@ void* Allocator::allocate(const uint64_t f_size, const uint64_t f_alignment)
     return static_cast<void*>(l_returnValue);
 }
 
-void Allocator::finalizeAllocation()
+void Allocator::finalizeAllocation() noexcept
 {
     m_allocationFinalized = true;
 }

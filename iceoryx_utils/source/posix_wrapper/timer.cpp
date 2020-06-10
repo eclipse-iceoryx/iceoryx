@@ -16,7 +16,7 @@
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 namespace iox
 {
@@ -99,7 +99,7 @@ void Timer::OsTimer::callbackHelper(sigval data)
     }
 }
 
-Timer::OsTimer::OsTimer(units::Duration timeToWait, std::function<void()> callback) noexcept
+Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
     : m_timeToWait(timeToWait)
     , m_callback(callback)
 {
@@ -321,7 +321,7 @@ cxx::expected<units::Duration, TimerError> Timer::OsTimer::timeUntilExpiration()
         return createErrorFromErrno(result.getErrNum());
     }
 
-    if (currentInterval.it_value.tv_sec == 0 && currentInterval.it_value.tv_sec == 0)
+    if (currentInterval.it_value.tv_sec == 0 && currentInterval.it_value.tv_nsec == 0)
     {
         // Timer is disarmed
         OsTimer::s_callbackHandlePool[m_callbackHandleIndex].m_isTimerActive.store(false, std::memory_order_relaxed);
@@ -345,7 +345,7 @@ bool Timer::OsTimer::hasError() const noexcept
     return !m_isInitialized;
 }
 
-cxx::error<TimerError> Timer::OsTimer::getError() const noexcept
+TimerError Timer::OsTimer::getError() const noexcept
 {
     return m_errorValue;
 }
@@ -364,20 +364,30 @@ cxx::expected<units::Duration, TimerError> Timer::now() noexcept
     return cxx::success<units::Duration>(value);
 }
 
-Timer::Timer(units::Duration timeToWait) noexcept
+Timer::Timer(const units::Duration timeToWait) noexcept
     : m_timeToWait(timeToWait)
     , m_creationTime(now().get_value())
 {
+    if (m_timeToWait.nanoSeconds<uint64_t>() == 0u)
+    {
+        m_errorValue = TimerError::TIMEOUT_IS_ZERO;
+    }
 }
 
-Timer::Timer(units::Duration timeToWait, std::function<void()> callback) noexcept
+Timer::Timer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
     : m_timeToWait(timeToWait)
     , m_creationTime(now().get_value())
 {
+    if (m_timeToWait.nanoSeconds<uint64_t>() == 0u)
+    {
+        m_errorValue = TimerError::TIMEOUT_IS_ZERO;
+        return;
+    }
+
     m_osTimer.emplace(timeToWait, callback);
     if (m_osTimer->hasError())
     {
-        m_errorValue = m_osTimer->getError().value;
+        m_errorValue = m_osTimer->getError();
         m_osTimer.reset();
     }
 }
@@ -404,6 +414,11 @@ cxx::expected<TimerError> Timer::stop() noexcept
 
 cxx::expected<TimerError> Timer::restart(const units::Duration timeToWait, const RunMode runMode) noexcept
 {
+    if (timeToWait.nanoSeconds<uint64_t>() == 0u)
+    {
+        return cxx::error<TimerError>(TimerError::TIMEOUT_IS_ZERO);
+    }
+
     if (!m_osTimer.has_value())
     {
         return cxx::error<TimerError>(TimerError::TIMER_NOT_INITIALIZED);
@@ -457,16 +472,15 @@ bool Timer::hasExpiredComparedToCreationTime() noexcept
 
 bool Timer::hasError() const noexcept
 {
-    return !m_osTimer.has_value();
+    return m_errorValue != TimerError::NO_ERROR;
 }
 
-
-cxx::error<TimerError> Timer::getError() const noexcept
+TimerError Timer::getError() const noexcept
 {
     return m_errorValue;
 }
 
-cxx::error<TimerError> Timer::createErrorFromErrno(const int errnum) noexcept
+cxx::error<TimerError> Timer::createErrorFromErrno(const int32_t errnum) noexcept
 {
     TimerError timerError = TimerError::INTERNAL_LOGIC_ERROR;
     switch (errnum)

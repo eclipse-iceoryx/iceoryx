@@ -15,7 +15,7 @@
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 
 #include <chrono>
@@ -359,12 +359,12 @@ cxx::expected<bool, IpcChannelError> MessageQueue::isOutdated()
     return cxx::success<bool>(sb.st_nlink == 0);
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int errnum) const
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int32_t errnum) const
 {
     return createErrorFromErrnum(m_name, errnum);
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const std::string& name, const int errnum)
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const std::string& name, const int32_t errnum)
 {
     switch (errnum)
     {

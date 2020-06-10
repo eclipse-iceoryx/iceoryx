@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_MEPOO_TYPED_MEM_POOL_INL
+#define IOX_POSH_MEPOO_TYPED_MEM_POOL_INL
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
@@ -148,3 +150,5 @@ inline uint64_t TypedMemPool<T>::requiredFullMemorySize(const uint64_t f_numberO
 
 } // namespace mepoo
 } // namespace iox
+
+#endif // IOX_POSH_MEPOO_TYPED_MEM_POOL_INL

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MEPOO_CHUNK_INFO_HPP
+#define IOX_POSH_MEPOO_CHUNK_INFO_HPP
 
 #include <atomic>
 #include <chrono>
@@ -43,9 +43,13 @@ struct ChunkInfo
     /// @brief size of header and used payload (remaining bytes of the memory chunk are not counted)
     std::uint32_t m_usedSizeOfChunk{0};
 
+    /// @brief total size of the chunk, independent of the usage
+    std::uint32_t m_totalSizeOfChunk{0};
+
     TimePointNs m_txTimestamp;
 };
 
 } // namespace mepoo
 } // namespace iox
 
+#endif // IOX_POSH_MEPOO_CHUNK_INFO_HPP

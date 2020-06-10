@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MEPOO_CHUNK_HEADER_HPP
+#define IOX_POSH_MEPOO_CHUNK_HEADER_HPP
 
 #include "iceoryx_posh/mepoo/chunk_info.hpp"
 
@@ -45,8 +45,9 @@ struct alignas(32) ChunkHeader
     void* m_payloadDummy{nullptr};
 };
 
-ChunkHeader* convertPayloadPointerToChunkHeader(void* const payload) noexcept;
+ChunkHeader* convertPayloadPointerToChunkHeader(const void* const payload) noexcept;
 
 } // namespace mepoo
 } // namespace iox
 
+#endif // IOX_POSH_MEPOO_CHUNK_HEADER_HPP

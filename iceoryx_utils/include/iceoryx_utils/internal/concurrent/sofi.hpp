@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CONCURRENT_SOFI_HPP
+#define IOX_UTILS_CONCURRENT_SOFI_HPP
 
-#pragma once
-
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -51,7 +51,7 @@ class SoFi
 
     /// @brief Internal size needs to be bigger than the size desirred by the user
     /// This is because of buffer empty detection and overflow handling
-    static constexpr uint32_t INTERNAL_SIZE_ADD_ON = 2;
+    static constexpr uint32_t INTERNAL_SIZE_ADD_ON = 1;
 
     /// @brief This is the resulting internal size on creation
     static constexpr uint32_t INTERNAL_SOFI_SIZE = CapacityValue + INTERNAL_SIZE_ADD_ON;
@@ -161,3 +161,5 @@ class SoFi
 } // namespace iox
 
 #include "iceoryx_utils/internal/concurrent/sofi.inl"
+
+#endif // IOX_UTILS_CONCURRENT_SOFI_HPP

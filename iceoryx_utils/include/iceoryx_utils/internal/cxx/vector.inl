@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_VECTOR_INL
+#define IOX_UTILS_CXX_VECTOR_INL
 
 #include "iceoryx_utils/cxx/vector.hpp"
 
@@ -193,7 +195,9 @@ inline const T* vector<T, Capacity>::data() const noexcept
 template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::at(const uint64_t index)
 {
-    return const_cast<T&>(const_cast<const vector<T, Capacity>*>(this)->at(index));
+    /// @rationale
+    /// const cast to avoid code duplication
+    return const_cast<T&>(const_cast<const vector<T, Capacity>*>(this)->at(index));  // PRQA S 3066 
 }
 
 template <typename T, uint64_t Capacity>
@@ -306,3 +310,5 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_VECTOR_INL

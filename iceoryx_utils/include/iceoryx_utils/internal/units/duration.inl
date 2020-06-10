@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_UNITS_DURATION_INL
+#define IOX_UTILS_UNITS_DURATION_INL
 
 #include "iceoryx_utils/internal/units/duration.hpp"
 
@@ -197,7 +199,7 @@ inline constexpr Duration operator"" _ns(long double value)
     return Duration{value / 1000000000.0};
 }
 
-inline constexpr Duration operator"" _ns(unsigned long long int value)
+inline constexpr Duration operator"" _ns(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value) / 1000000000.0};
 }
@@ -207,7 +209,7 @@ inline constexpr Duration operator"" _us(long double value)
     return Duration{value / 1000000.0};
 }
 
-inline constexpr Duration operator"" _us(unsigned long long int value)
+inline constexpr Duration operator"" _us(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value) / 1000000.0};
 }
@@ -217,7 +219,7 @@ inline constexpr Duration operator"" _ms(long double value)
     return Duration{value / 1000.0};
 }
 
-inline constexpr Duration operator"" _ms(unsigned long long int value)
+inline constexpr Duration operator"" _ms(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value) / 1000.0};
 }
@@ -227,7 +229,7 @@ inline constexpr Duration operator"" _s(long double value)
     return Duration{value};
 }
 
-inline constexpr Duration operator"" _s(unsigned long long int value)
+inline constexpr Duration operator"" _s(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value)};
 }
@@ -237,7 +239,7 @@ inline constexpr Duration operator"" _m(long double value)
     return Duration{value * 60.0};
 }
 
-inline constexpr Duration operator"" _m(unsigned long long int value)
+inline constexpr Duration operator"" _m(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value) * 60.0};
 }
@@ -247,7 +249,7 @@ inline constexpr Duration operator"" _h(long double value)
     return Duration{value * 3600.0};
 }
 
-inline constexpr Duration operator"" _h(unsigned long long int value)
+inline constexpr Duration operator"" _h(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value) * 3600.0};
 }
@@ -257,7 +259,7 @@ inline constexpr Duration operator"" _d(long double value)
     return Duration{value * 24.0 * 3600.0};
 }
 
-inline constexpr Duration operator"" _d(unsigned long long int value)
+inline constexpr Duration operator"" _d(unsigned long long int value) // PRQA S 48
 {
     return Duration{static_cast<long double>(value) * 24.0 * 3600.0};
 }
@@ -278,3 +280,5 @@ inline constexpr Duration operator/(const T& left, const Duration& right)
 
 } // namespace units
 } // namespace iox
+
+#endif // IOX_UTILS_UNITS_DURATION_INL

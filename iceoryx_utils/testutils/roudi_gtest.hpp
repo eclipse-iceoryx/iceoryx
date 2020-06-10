@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef __ROUDI_GTEST_HPP__
-#define __ROUDI_GTEST_HPP__
+#ifndef IOX_UTILS_TESTUTILS_ROUDI_GTEST_HPP
+#define IOX_UTILS_TESTUTILS_ROUDI_GTEST_HPP
 
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 
@@ -25,6 +24,12 @@ using ::testing::Return;
 
 class RouDi_GTest : public iox::roudi::RouDiEnvironment, public Test
 {
+  public:
+    RouDi_GTest() = default;
+    RouDi_GTest(iox::RouDiConfig_t& roudiConfig)
+        : iox::roudi::RouDiEnvironment(roudiConfig)
+    {
+    }
 };
 
-#endif
+#endif // IOX_UTILS_TESTUTILS_ROUDI_GTEST_HPP

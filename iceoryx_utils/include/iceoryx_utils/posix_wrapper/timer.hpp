@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_POSIX_WRAPPER_TIMER_HPP
+#define IOX_UTILS_POSIX_WRAPPER_TIMER_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -43,6 +43,7 @@ enum class TimerError
     NO_PERMISSION,
     INVALID_POINTER,
     NO_TIMER_TO_DELETE,
+    TIMEOUT_IS_ZERO,
     INTERNAL_LOGIC_ERROR
 };
 
@@ -115,7 +116,7 @@ class Timer
         /// @brief Wrapper that can be registered with the operating system
         static void callbackHelper(sigval data);
 
-        OsTimer(units::Duration timeToWait, std::function<void()> callback) noexcept;
+        OsTimer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept;
 
         OsTimer(const OsTimer&) = delete;
         OsTimer(OsTimer&&) = delete;
@@ -129,7 +130,8 @@ class Timer
         ///
         /// The callback is called by the operating system after the time has expired.
         ///
-        /// @param[in] periodic - can be a periodic timer if set to true, default false
+        /// @param[in] periodic - can be a periodic timer if set to RunMode::PERIODIC or
+        ///                     once when in RunMode::ONCE
         /// @note Shall only be called when callback is given
         cxx::expected<TimerError> start(const RunMode runMode) noexcept;
 
@@ -155,7 +157,7 @@ class Timer
         bool hasError() const noexcept;
 
         /// @brief Returns the error that occured on constructing the object
-        cxx::error<TimerError> getError() const noexcept;
+        TimerError getError() const noexcept;
 
       private:
         /// @brief Call the user-defined callback
@@ -196,7 +198,7 @@ class Timer
     /// @param[in] timeToWait - How long should be waited?
     /// @note Does not set up an operating system timer, but uses CLOCK_REALTIME instead
     /// @todo refactor this cTor and its functionality to a class called StopWatch
-    Timer(units::Duration timeToWait) noexcept;
+    Timer(const units::Duration timeToWait) noexcept;
 
     /// @brief Creates a timer with an operating system callback
     ///
@@ -206,7 +208,7 @@ class Timer
     /// @param[in] callback - Function called after timeToWait (User needs to ensure lifetime of function till stop()
     ///                       call)
     /// @note Operating systems needs a valid reference to this object, hence DesignPattern::Creation can't be used
-    Timer(units::Duration timeToWait, std::function<void()> callback) noexcept;
+    Timer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept;
 
     /// @brief creates Duration from the result of clock_gettime(CLOCK_REALTIME, ...)
     /// @return if the clock_gettime call failed TimerError is returned otherwise Duration
@@ -266,13 +268,13 @@ class Timer
     bool hasError() const noexcept;
 
     /// @brief Returns the error that occured on constructing the object
-    cxx::error<TimerError> getError() const noexcept;
+    TimerError getError() const noexcept;
 
   private:
     cxx::optional<OsTimer> m_osTimer;
 
     /// @brief Converts errnum to TimerError
-    static cxx::error<TimerError> createErrorFromErrno(const int errnum) noexcept;
+    static cxx::error<TimerError> createErrorFromErrno(const int32_t errnum) noexcept;
 
     /// @brief Duration after the timer calls the user-defined callback function
     units::Duration m_timeToWait;
@@ -286,3 +288,5 @@ class Timer
 
 } // namespace posix
 } // namespace iox
+
+#endif // IOX_UTILS_POSIX_WRAPPER_TIMER_HPP

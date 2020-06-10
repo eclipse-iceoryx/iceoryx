@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
+#define IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 
 #include <cstdio>
 #include <thread>
@@ -29,8 +29,6 @@
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/platform/file.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
-
-#include "ac3log/simplelogger.hpp"
 
 #include <cstdint>
 
@@ -121,3 +119,4 @@ class RouDiMultiProcess
 } // namespace roudi
 } // namespace iox
 
+#endif // IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ROUDI_ROUDI_APP_HPP
+#define IOX_POSH_ROUDI_ROUDI_APP_HPP
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -33,7 +33,7 @@ class RouDiApp
 {
   public:
     /// @brief Method passed to the OS signal handler
-    static void roudiSigHandler(int signal) noexcept;
+    static void roudiSigHandler(int32_t signal) noexcept;
 
     /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
     static RouDiConfig_t generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept;
@@ -96,3 +96,4 @@ class RouDiApp
 } // namespace roudi
 } // namespace iox
 
+#endif // IOX_POSH_ROUDI_ROUDI_APP_HPP

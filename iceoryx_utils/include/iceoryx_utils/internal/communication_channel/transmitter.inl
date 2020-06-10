@@ -11,20 +11,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_COMMUNICATION_CHANNEL_TRANSMITTER_INL
+#define IOX_UTILS_COMMUNICATION_CHANNEL_TRANSMITTER_INL
 
 #include "iceoryx_utils/internal/communication_channel/transmitter.hpp"
 
 namespace iox
 {
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline Transmitter<DataType, TransportLayer>::Transmitter(TransportLayer_t* const f_transportLayer)
     : m_transportLayer(f_transportLayer)
 {
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline bool Transmitter<DataType, TransportLayer>::Send(const DataType& f_message)
 {
     return m_transportLayer->Send(f_message);
 }
 } // namespace iox
+
+#endif // IOX_UTILS_COMMUNICATION_CHANNEL_TRANSMITTER_INL

@@ -29,7 +29,6 @@ SenderPortData::SenderPortData(const capro::ServiceDescription& serviceDescripti
                                const std::string& applicationName,
                                const MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription,
-                   BasePortType::SENDER_PORT,
                    iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
     , m_memoryMgr(memMgr)
     , m_memoryInfo(memoryInfo)

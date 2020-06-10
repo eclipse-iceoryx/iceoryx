@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_RUNTIME_RUNNABLE_PROPERTY_HPP
+#define IOX_POSH_RUNTIME_RUNNABLE_PROPERTY_HPP
 
 #include "iceoryx_utils/fixed_string/string100.hpp"
 #include <string>
@@ -43,3 +43,5 @@ struct RunnableProperty
 };
 } // namespace runtime
 } // namespace iox
+
+#endif // IOX_POSH_RUNTIME_RUNNABLE_PROPERTY_HPP

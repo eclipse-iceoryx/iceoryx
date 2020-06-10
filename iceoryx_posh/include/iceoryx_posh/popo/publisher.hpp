@@ -11,14 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_POPO_PUBLISHER_HPP
+#define IOX_POSH_POPO_PUBLISHER_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/fixed_string/string100.hpp"
 
 #include <memory>
 
@@ -100,10 +100,20 @@ class Publisher_t
     void* m_lastSample{nullptr};
 };
 
-using Publisher = Publisher_t<iox::popo::SenderPort>;
+// Default Publisher
+class Publisher : public Publisher_t<iox::popo::SenderPort>
+{
+  public:
+    Publisher(const capro::ServiceDescription& service,
+              const cxx::CString100& runnableName = cxx::CString100("")) noexcept
+        : Publisher_t<iox::popo::SenderPort>(service, runnableName)
+    {
+    }
+};
 
 } // namespace popo
 } // namespace iox
 
 #include "iceoryx_posh/internal/popo/publisher.inl"
 
+#endif // IOX_POSH_POPO_PUBLISHER_HPP

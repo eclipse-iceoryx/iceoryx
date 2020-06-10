@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_CONCURRENT_ACTIVE_OBJECT_HPP
+#define IOX_UTILS_CONCURRENT_ACTIVE_OBJECT_HPP
 
 #include <functional>
 #include <thread>
@@ -47,3 +47,5 @@ class ActiveObject
 };
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_UTILS_CONCURRENT_ACTIVE_OBJECT_HPP

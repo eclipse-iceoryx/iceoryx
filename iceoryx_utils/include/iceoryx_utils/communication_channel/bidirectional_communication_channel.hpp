@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_COMMUNICATION_CHANNEL_BIDIRECTIONAL_COMMUNICATION_CHANNEL_HPP
+#define IOX_UTILS_COMMUNICATION_CHANNEL_BIDIRECTIONAL_COMMUNICATION_CHANNEL_HPP
 
 #include "iceoryx_utils/internal/cxx/pair.hpp"
 #include "iceoryx_utils/internal/communication_channel/transceiver.hpp"
@@ -41,7 +41,7 @@ namespace iox
 ///         std::cout << "received message " << message.value() << " from application A\n";
 ///     }
 /// @endcode
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 class BidirectionalCommunicationChannel
 {
   public:
@@ -85,3 +85,4 @@ class BidirectionalCommunicationChannel
 
 #include "iceoryx_utils/internal/communication_channel/bidirectional_communication_channel.inl"
 
+#endif // IOX_UTILS_COMMUNICATION_CHANNEL_BIDIRECTIONAL_COMMUNICATION_CHANNEL_HPP

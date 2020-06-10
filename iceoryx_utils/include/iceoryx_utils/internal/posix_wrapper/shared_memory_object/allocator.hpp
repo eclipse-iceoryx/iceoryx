@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_ALLOCATOR_HPP
+#define IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_ALLOCATOR_HPP
 
 #include <cstdint>
 namespace iox
@@ -28,25 +28,27 @@ class Allocator
 
   public:
     static constexpr uint64_t MEMORY_ALIGNMENT = 32;
-    Allocator(const void* f_startAddress, const uint64_t f_length);
+    Allocator(void* const f_startAddress, const uint64_t f_length) noexcept;
 
     Allocator(const Allocator&) = delete;
-    Allocator(Allocator&&) = default;
-    Allocator& operator=(const Allocator&) = delete;
+    Allocator(Allocator&&) noexcept = default;
+    Allocator& operator=(const Allocator&) noexcept = delete;
     Allocator& operator=(Allocator&&) = default;
     ~Allocator() = default;
 
-    void* allocate(const uint64_t f_size, const uint64_t f_alignment = MEMORY_ALIGNMENT);
+    void* allocate(const uint64_t f_size, const uint64_t f_alignment = MEMORY_ALIGNMENT) noexcept;
 
   protected:
     friend class SharedMemoryObject;
-    void finalizeAllocation();
+    void finalizeAllocation() noexcept;
 
   private:
-    byte_t* m_startAddress;
-    uint64_t m_length;
+    byte_t* m_startAddress{nullptr};
+    uint64_t m_length{0u};
     uint64_t m_currentPosition = 0u;
     bool m_allocationFinalized = false;
 };
 } // namespace posix
 } // namespace iox
+
+#endif // IOX_UTILS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_ALLOCATOR_HPP

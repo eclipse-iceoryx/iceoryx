@@ -13,10 +13,9 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
-
-#include "ac3log/simplelogger.hpp"
 
 #include <cassert>
 #include <cstdint>
@@ -93,11 +92,6 @@ cxx::optional<capro::CaproMessage> SenderPort::dispatchCaProMessage(capro::Capro
         }
     }
 
-    auto l_returnMessage =
-        ReceiverPortType(reinterpret_cast<ReceiverPortType::MemberType_t*>(caProMessage.m_requestPort))
-            .dispatchCaProMessage(l_responseMessage);
-    cxx::Ensures(!l_returnMessage.has_value());
-
     return cxx::make_optional<capro::CaproMessage>(l_responseMessage);
 }
 
@@ -121,7 +115,7 @@ mepoo::ChunkHeader* SenderPort::reserveChunk(const uint32_t payloadSize, bool us
 {
     if (!getMembers()->m_memoryMgr)
     {
-        ERR_PRINTF("There is no shared memory available to allocate from! Terminating!");
+        LogError() << "There is no shared memory available to allocate from! Terminating!";
         exit(EXIT_FAILURE);
     }
     /// @todo The chunk size should be set in the constructor

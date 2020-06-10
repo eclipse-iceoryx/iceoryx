@@ -11,12 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_COMMUNICATION_CHANNEL_BIDIRECTIONAL_COMMUNICATION_CHANNEL_INL
+#define IOX_UTILS_COMMUNICATION_CHANNEL_BIDIRECTIONAL_COMMUNICATION_CHANNEL_INL
 
 #include "iceoryx_utils/communication_channel/bidirectional_communication_channel.hpp"
 
 namespace iox
 {
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline BidirectionalCommunicationChannel<DataType, TransportLayer>::BidirectionalCommunicationChannel()
     : m_transportLayerPair()
     , m_transceiverPair{{&m_transportLayerPair.first, &m_transportLayerPair.second},
@@ -24,7 +26,7 @@ inline BidirectionalCommunicationChannel<DataType, TransportLayer>::Bidirectiona
 {
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 template <typename TransportLayerCTorArgument>
 inline BidirectionalCommunicationChannel<DataType, TransportLayer>::BidirectionalCommunicationChannel(
     const TransportLayerCTorArgument& argumentAliceToBob, const TransportLayerCTorArgument& argumentBobToAlice)
@@ -34,14 +36,14 @@ inline BidirectionalCommunicationChannel<DataType, TransportLayer>::Bidirectiona
 {
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline typename BidirectionalCommunicationChannel<DataType, TransportLayer>::Transceiver_t*
 BidirectionalCommunicationChannel<DataType, TransportLayer>::getFirstTransceiver()
 {
     return &m_transceiverPair.first;
 }
 
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 inline typename BidirectionalCommunicationChannel<DataType, TransportLayer>::Transceiver_t*
 BidirectionalCommunicationChannel<DataType, TransportLayer>::getSecondTransceiver()
 {
@@ -49,3 +51,5 @@ BidirectionalCommunicationChannel<DataType, TransportLayer>::getSecondTransceive
 }
 
 } // namespace iox
+
+#endif // IOX_UTILS_COMMUNICATION_CHANNEL_BIDIRECTIONAL_COMMUNICATION_CHANNEL_INL

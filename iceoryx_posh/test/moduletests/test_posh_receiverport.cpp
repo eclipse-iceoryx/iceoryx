@@ -79,6 +79,7 @@ class ReceiverPort_test : public Test
             {
                 CaproMessage expect_ack_msg = {iox::capro::CaproMessageType::ACK, m_service};
                 msg = senderResponse.value();
+                f_receiver->dispatchCaProMessage(msg);
                 EXPECT_THAT(msg.m_type, Eq(expect_ack_msg.m_type));
                 EXPECT_THAT(msg.m_serviceDescription, Eq(expect_ack_msg.m_serviceDescription));
                 EXPECT_THAT(f_receiver->isSubscribed(), Eq(true));

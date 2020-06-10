@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_COMMUNICATION_CHANNEL_RECEIVER_HPP
+#define IOX_UTILS_COMMUNICATION_CHANNEL_RECEIVER_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
@@ -23,7 +23,7 @@ namespace iox
 ///     communication partners to receive messages. it is also used by the
 ///     transceiver which inherits from it to provide a sending and receiving
 ///     interface
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 class Receiver
 {
   public:
@@ -57,3 +57,4 @@ class Receiver
 
 #include "iceoryx_utils/internal/communication_channel/receiver.inl"
 
+#endif // IOX_UTILS_COMMUNICATION_CHANNEL_RECEIVER_HPP

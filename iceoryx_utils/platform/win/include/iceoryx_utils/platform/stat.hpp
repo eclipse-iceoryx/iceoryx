@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_WIN_PLATFORM_STAT_HPP
+#define IOX_UTILS_WIN_PLATFORM_STAT_HPP
 
 #include <io.h>
 #include <sys/stat.h>
@@ -24,3 +24,5 @@
 #define S_IROTH 4
 #define S_IWOTH 5
 #define S_IRWXU 6
+
+#endif // IOX_UTILS_WIN_PLATFORM_STAT_HPP

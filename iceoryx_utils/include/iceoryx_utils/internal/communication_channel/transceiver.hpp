@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_COMMUNICATION_CHANNEL_TRANSCEIVER_HPP
+#define IOX_UTILS_COMMUNICATION_CHANNEL_TRANSCEIVER_HPP
 
 #include "receiver.hpp"
 #include "transmitter.hpp"
@@ -22,7 +22,7 @@ namespace iox
 /// @brief offers the combined interface of the Transmitter and Receiver for
 ///         bidirectional communication channel usage. every communication partner
 ///         will get one transceiver over which they can communicate.
-template <typename DataType, template <typename> typename TransportLayer>
+template <typename DataType, template <typename> class TransportLayer>
 class Transceiver : public Receiver<DataType, TransportLayer>, public Transmitter<DataType, TransportLayer>
 {
   public:
@@ -35,3 +35,5 @@ class Transceiver : public Receiver<DataType, TransportLayer>, public Transmitte
 } // namespace iox
 
 #include "iceoryx_utils/internal/communication_channel/transceiver.inl"
+
+#endif // IOX_UTILS_COMMUNICATION_CHANNEL_TRANSCEIVER_HPP

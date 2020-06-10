@@ -11,19 +11,21 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_POPO_SUBSCRIBER_INL
+#define IOX_POSH_POPO_SUBSCRIBER_INL
 
 namespace iox
 {
 namespace popo
 {
-
 template <typename ReceiverPortType>
 inline Subscriber_t<ReceiverPortType>::Subscriber_t() noexcept
 {
 }
 
 template <typename ReceiverPortType>
-inline Subscriber_t<ReceiverPortType>::Subscriber_t(const capro::ServiceDescription& service, const cxx::CString100& runnableName) noexcept
+inline Subscriber_t<ReceiverPortType>::Subscriber_t(const capro::ServiceDescription& service,
+                                                    const cxx::CString100& runnableName) noexcept
     : m_serviceDescription(service), m_receiver(runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, runnableName))
 {
 }
@@ -34,7 +36,7 @@ inline Subscriber_t<ReceiverPortType>::~Subscriber_t() noexcept
     unsetReceiveHandler();
     // TODO: Find an alternative like an RAII receive handler which
     //          is called in the dtor. You cannot expect the user to call it before destruction
-    if(m_receiver)
+    if (m_receiver)
     {
         m_receiver.destroy();
     }
@@ -47,9 +49,8 @@ inline void Subscriber_t<ReceiverPortType>::subscribe(const uint32_t cacheSize) 
     uint32_t size = cacheSize;
     if (size > MAX_RECEIVER_QUEUE_CAPACITY)
     {
-        WARN_PRINTF("Cache size for subscribe too large %lu, limiting to MAX_RECEIVER_QUEUE_CAPACITY = %lu\n",
-                    size,
-                    MAX_RECEIVER_QUEUE_CAPACITY);
+        LogWarn() << "Cache size for subscribe too large " << size
+                  << ", limiting to MAX_RECEIVER_QUEUE_CAPACITY = " << MAX_RECEIVER_QUEUE_CAPACITY;
         size = MAX_RECEIVER_QUEUE_CAPACITY;
     }
     m_receiver.subscribe(true, size);
@@ -95,7 +96,7 @@ inline void Subscriber_t<ReceiverPortType>::setReceiveHandler(ReceiveHandler_t c
     if (!m_callbackSemaphore)
     {
         m_callbackHandler = nullptr;
-        WARN_PRINTF("shared memory semaphore could not be initialized!\n");
+        LogWarn() << "Shared memory semaphore could not be initialized!";
         return;
     }
     m_receiver.SetCallbackReferences(m_callbackSemaphore);
@@ -138,7 +139,8 @@ inline void Subscriber_t<ReceiverPortType>::unsetReceiveHandler() noexcept
 }
 
 template <typename ReceiverPortType>
-inline void Subscriber_t<ReceiverPortType>::overrideCallbackReference(const Subscriber_t& receiverWithRererenceToUse) noexcept
+inline void
+Subscriber_t<ReceiverPortType>::overrideCallbackReference(const Subscriber_t& receiverWithRererenceToUse) noexcept
 {
     const auto semaphore = receiverWithRererenceToUse.m_receiver.GetShmSemaphore();
     assert(semaphore != nullptr && "OverrideCallbackReference: source semaphore is not set");
@@ -203,7 +205,7 @@ inline bool Subscriber_t<ReceiverPortType>::releaseChunk(const mepoo::ChunkHeade
 template <typename ReceiverPortType>
 inline bool Subscriber_t<ReceiverPortType>::releaseChunk(const void* const payload) noexcept
 {
-    auto chunkHeader = iox::mepoo::convertPayloadPointerToChunkHeader(const_cast<void* const>(payload));
+    auto chunkHeader = iox::mepoo::convertPayloadPointerToChunkHeader(payload);
     return m_receiver.releaseChunk(chunkHeader);
 }
 
@@ -271,3 +273,5 @@ inline capro::ServiceDescription Subscriber_t<ReceiverPortType>::getServiceDescr
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_SUBSCRIBER_INL

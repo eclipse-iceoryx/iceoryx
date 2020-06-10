@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MOCKS_RECEIVERPORT_MOCK_HPP
+#define IOX_POSH_MOCKS_RECEIVERPORT_MOCK_HPP
 
 #include "test.hpp"
 
@@ -33,10 +33,11 @@ class ReceiverPort_MOCK
     {
     }
 
-    ReceiverPort_MOCK(ReceiverPort_MOCK&&) = default;
-    ReceiverPort_MOCK& operator=(ReceiverPort_MOCK&&) = default;
-    ReceiverPort_MOCK(const ReceiverPort_MOCK&) = default;
-    ReceiverPort_MOCK& operator=(const ReceiverPort_MOCK&) = default;
+    // these are actually all already implicitly deleted
+    ReceiverPort_MOCK(ReceiverPort_MOCK&&) = delete;
+    ReceiverPort_MOCK& operator=(ReceiverPort_MOCK&&) = delete;
+    ReceiverPort_MOCK(const ReceiverPort_MOCK&) = delete;
+    ReceiverPort_MOCK& operator=(const ReceiverPort_MOCK&) = delete;
 
     MOCK_METHOD0(getCaProMessage, iox::cxx::optional<iox::capro::CaproMessage>());
     MOCK_METHOD1(getCaProMessage, iox::cxx::optional<iox::capro::CaproMessage>(iox::capro::CaproMessage));
@@ -70,3 +71,5 @@ class ReceiverPort_MOCK
     MOCK_CONST_METHOD0(getCaProServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD0(AreCallbackReferencesSet, bool());
 };
+
+#endif // IOX_POSH_MOCKS_RECEIVERPORT_MOCK_HPP

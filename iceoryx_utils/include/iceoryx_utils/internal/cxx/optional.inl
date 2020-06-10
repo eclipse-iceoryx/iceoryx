@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_OPTIONAL_INL
+#define IOX_UTILS_CXX_OPTIONAL_INL
 
 namespace iox
 {
@@ -174,13 +176,13 @@ inline const T& optional<T>::operator*() const noexcept
 template <typename T>
 inline T* optional<T>::operator->() noexcept
 {
-    return const_cast<T*>(const_cast<const optional*>(this)->operator->());
+    return &value();
 }
 
 template <typename T>
 inline T& optional<T>::operator*() noexcept
 {
-    return const_cast<T&>(const_cast<const optional*>(this)->operator*());
+    return value();
 }
 
 template <typename T>
@@ -227,7 +229,9 @@ template <typename T>
 template <typename T>
 inline const T& optional<T>::value() const& noexcept
 {
-    return const_cast<optional<T>*>(this)->value();
+    /// @rationale
+    /// const cast to avoid code duplication
+    return const_cast<optional<T>*>(this)->value(); // PRQA S 3066
 }
 
 template <typename T>
@@ -317,3 +321,5 @@ inline const optional<T>& optional<T>::or_else(const std::function<void()>& call
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_OPTIONAL_INL

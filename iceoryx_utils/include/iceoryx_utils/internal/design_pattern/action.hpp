@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_DESIGN_PATTERN_ACTION_HPP
+#define IOX_UTILS_DESIGN_PATTERN_ACTION_HPP
 
 namespace DesignPattern
 {
@@ -59,3 +59,5 @@ class Command<void>
 
 using Action = Command<void>;
 }
+
+#endif // IOX_UTILS_DESIGN_PATTERN_ACTION_HPP

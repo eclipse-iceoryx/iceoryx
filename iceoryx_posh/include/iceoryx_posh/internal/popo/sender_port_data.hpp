@@ -11,14 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_POPO_SENDER_PORT_DATA_HPP
+#define IOX_POSH_POPO_SENDER_PORT_DATA_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
-#include "iceoryx_posh/internal/popo/base_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/receiver_handler.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -64,7 +64,7 @@ struct SenderPortData : public BasePortData
     bool m_isUnique{false};
 
 
-    UsedChunkList<MAX_SAMPLE_ALLOCATE_PER_SENDER> m_allocatedChunksList;
+    UsedChunkList<MAX_CHUNKS_ALLOCATE_PER_SENDER> m_allocatedChunksList;
 
     mepoo::SequenceNumberType m_sequenceNumber{0u};
     // throughput related members
@@ -89,3 +89,4 @@ struct SenderPortData : public BasePortData
 } // namespace popo
 } // namespace iox
 
+#endif // IOX_POSH_POPO_SENDER_PORT_DATA_HPP

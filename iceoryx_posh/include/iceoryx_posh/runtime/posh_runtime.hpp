@@ -11,20 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
+#define IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/application_port.hpp"
-#include "iceoryx_posh/internal/popo/interface_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/application_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
-#include "iceoryx_posh/runtime/service_discovery_notifier.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
 
 #include <atomic>
@@ -68,21 +67,6 @@ class PoshRuntime
     /// Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ : Find Service Request could not be sent to RouDi
     cxx::expected<Error> findService(const capro::ServiceDescription& serviceDescription,
                                      InstanceContainer& instanceContainer) noexcept;
-
-    /// @brief register handler, which will be called when the service availability, as specified by
-    /// serviceDescription, changes
-    /// @param[in] handler to be called when the service availability changes
-    /// @param[in] IdString service id
-    /// @return cxx::expected<FindServiceHandle, Error>
-    /// FindServiceHandle -> a handle for this search/find request, which shall be used to stop the availability
-    /// monitoring and related firing of the given handler, in case of success
-    /// Error             -> corresponding Error code, in case of error
-    cxx::expected<FindServiceHandle, Error> startFindService(const FindServiceHandler& handler,
-                                                             const IdString& serviceId) noexcept;
-
-    /// @brief Method to stop finding service request (see above)
-    /// @param[in] handle identifier for the startFindService request
-    void stopFindService(const FindServiceHandle handle) noexcept;
 
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
     /// @param[in] serviceDescription service to offer
@@ -184,8 +168,6 @@ class PoshRuntime
     void sendKeepAlive() noexcept;
     static_assert(PROCESS_KEEP_ALIVE_INTERVAL > DISCOVERY_INTERVAL, "Keep alive interval too small");
 
-    ServiceDiscoveryNotifier m_serviceDiscoveryNotifier;
-
     /// @note the m_keepAliveTimer should always be the last member, so that it will be the first member to be detroyed
     iox::posix::Timer m_keepAliveTimer{PROCESS_KEEP_ALIVE_INTERVAL, [&]() { this->sendKeepAlive(); }};
 };
@@ -193,3 +175,4 @@ class PoshRuntime
 } // namespace runtime
 } // namespace iox
 
+#endif // IOX_POSH_RUNTIME_POSH_RUNTIME_HPP

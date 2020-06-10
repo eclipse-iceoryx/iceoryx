@@ -11,10 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_POSIX_WRAPPER_TIMESPEC_HPP
+#define IOX_UTILS_POSIX_WRAPPER_TIMESPEC_HPP
 
 #include <time.h>
+// For std types
+#include <cstdint>
 
 namespace iox
 {
@@ -27,7 +29,7 @@ constexpr unsigned int TS_DIVIDER_msec = (TS_DIVIDER_sec / 1000);
 /// @param[in] time period  time base
 /// @param[in] timeToAdd_ms period in time [ms] to be added
 /// @return sum of the two inputs [timespec]
-struct timespec addTimeMs(struct timespec time, const unsigned int timeToAdd_ms);
+struct timespec addTimeMs(struct timespec time, const uint32_t timeToAdd_ms);
 
 /// @brief subtract subtrahend from minuend
 /// @param[in] minuend [timespec]
@@ -38,3 +40,4 @@ double subtractTimespecMS(const struct timespec minuend, const struct timespec s
 } // namespace posix
 } // namespace iox
 
+#endif // IOX_UTILS_POSIX_WRAPPER_TIMESPEC_HPP

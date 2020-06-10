@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_VARIANT_QUEUE_INL
+#define IOX_UTILS_CXX_VARIANT_QUEUE_INL
 
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
@@ -68,16 +70,16 @@ VariantQueue<ValueType, Capacity>::push(const ValueType& value) noexcept
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
         ValueType overriddenValue;
-        auto override =
+        auto notskipped =
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
                 ->push(value, overriddenValue);
-        if (override)
+        if (notskipped)
         {
-            ret = success<optional<ValueType>>(optional<ValueType>(std::move(overriddenValue)));
+            ret = success<optional<ValueType>>(nullopt_t());
         }
         else
         {
-            ret = success<optional<ValueType>>(nullopt_t());
+            ret = success<optional<ValueType>>(optional<ValueType>(std::move(overriddenValue)));
         }
         break;
     }
@@ -247,3 +249,5 @@ VariantQueue<ValueType, Capacity>::getUnderlyingFiFo() noexcept
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_VARIANT_QUEUE_INL

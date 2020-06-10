@@ -11,8 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_CONVERT_INL
+#define IOX_UTILS_CXX_CONVERT_INL
 
-#include <limits>
 namespace iox
 {
 namespace cxx
@@ -105,15 +106,18 @@ inline bool convert::stringIsNumberWithErrorMessage(const char* v, const NumberT
         std::cerr << v << " is not ";
         switch (type)
         {
-        case NumberType::FLOAT: {
+        case NumberType::FLOAT:
+        {
             std::cerr << "a float";
             break;
         }
-        case NumberType::INTEGER: {
+        case NumberType::INTEGER:
+        {
             std::cerr << "a signed integer";
             break;
         }
-        case NumberType::UNSIGNED_INTEGER: {
+        case NumberType::UNSIGNED_INTEGER:
+        {
             std::cerr << "an unsigned integer";
             break;
         }
@@ -204,6 +208,19 @@ inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest)
     dest = static_cast<uint64_t>(call.getReturnValue());
     return true;
 }
+
+#ifdef __APPLE__
+/// introduced for mac os since unsigned long is not uint64_t despite it has the same size
+/// who knows why ¯\_(ツ)_/¯
+template <>
+inline bool convert::fromString<unsigned long>(const char* v, unsigned long& dest)
+{
+    uint64_t temp{0};
+    bool retVal = fromString(v, temp);
+    dest = temp;
+    return retVal;
+}
+#endif
 
 template <>
 inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest)
@@ -397,3 +414,5 @@ inline bool convert::fromString<bool>(const char* v, bool& dest)
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_CONVERT_INL

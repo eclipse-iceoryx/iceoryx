@@ -11,7 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+#ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
+#define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
@@ -40,18 +41,30 @@ constexpr char SHM_NAME[] = "/iceoryx_mgmt";
 using namespace units::duration_literals;
 
 // Timeout
-constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 30_s;
+constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
 constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
 constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * DISCOVERY_INTERVAL;         // > DISCOVERY_INTERVAL
 constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
 
 // Communication Resources
+#ifdef ICEORYX_LARGE_DEPLOYMENT
 constexpr uint32_t MAX_PORT_NUMBER = 4096u;
-constexpr uint32_t MAX_INTERFACE_NUMBER = 16u;
+#else
+constexpr uint32_t MAX_PORT_NUMBER = 1024u;
+#endif
+constexpr uint32_t MAX_INTERFACE_NUMBER = 4u;
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = 256u;
-constexpr uint32_t MAX_SAMPLE_ALLOCATE_PER_SENDER = 16u;
-constexpr uint64_t MAX_SENDER_SAMPLE_HISTORY_CAPACITY = 16u;
-constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = 256u;
+constexpr uint32_t MAX_SUBSCRIBERS_PER_PUBLISHER = 256u;
+constexpr uint32_t MAX_CHUNKS_ALLOCATE_PER_SENDER = 8u;
+constexpr uint64_t MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR = 16u;
+constexpr uint32_t MAX_CHUNKS_HELD_PER_RECEIVER = 256u;
+constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER;
+/// With MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER we couple the maximum number of chunks a user is
+/// allowed to hold with the maximum queue capacity.
+/// This allows that a polling user can replace all the held chunks in one execution with all new ones
+/// from a completely filled queue. Or the other way round, when we have a contract with the user
+/// regarding how many chunks they are allowed to hold, then the queue size needs not be bigger. We
+/// can provide this number of newest chunks, more the user would not be allowed to hold anyway
 constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PORT_NUMBER;
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128u;
 
@@ -78,8 +91,6 @@ constexpr uint32_t MAX_PROCESS_NUMBER = 300u;
 /// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
 /// instances)
 constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50u;
-/// Maximum number of callbacks that can be registered with PoshRuntime::startFindService
-constexpr uint32_t MAX_START_FIND_SERVICE_CALLBACKS = 50u;
 
 // Runnables
 constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000u;
@@ -101,6 +112,7 @@ enum class SubscribeState : uint32_t
 
 // alias for cxx::string
 using ConfigFilePathString_t = cxx::string<1024>;
+using ProcessName_t = cxx::string<100>;
 
 namespace runtime
 {
@@ -116,3 +128,4 @@ using FindServiceHandler = std::function<void(InstanceContainer&, FindServiceHan
 
 } // namespace iox
 
+#endif // IOX_POSH_ICEORYX_POSH_TYPES_HPP

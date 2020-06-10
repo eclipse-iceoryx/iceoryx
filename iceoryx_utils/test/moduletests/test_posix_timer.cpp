@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 #include "test.hpp"
+#include "testutils/timing_test.hpp"
 
 #include <atomic>
+#include <chrono>
 #include <thread>
 
 using namespace ::testing;
@@ -23,6 +27,7 @@ using namespace ::testing;
 using namespace iox::units::duration_literals;
 
 using Timer = iox::posix::Timer;
+using TimerError = iox::posix::TimerError;
 
 class Timer_test : public Test
 {
@@ -41,147 +46,362 @@ class Timer_test : public Test
     std::atomic<int> numberOfCalls{0};
 };
 
-TEST_F(Timer_test, DISABLED_CreateAndFireOnce_PERFORMANCETEST42)
+class TimerStopWatch_test : public Test
 {
-    Timer osTimer(second, [&]() { numberOfCalls++; });
+  public:
+    static const iox::units::Duration TIMEOUT;
+};
+const iox::units::Duration TimerStopWatch_test::TIMEOUT{4_ms};
 
-    EXPECT_THAT(osTimer.hasError(), Eq(false));
-
-    // Save the time before start()
-    auto start = Timer::now();
-    osTimer.start(Timer::RunMode::ONCE);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1100));
-
-    auto end = osTimer.now();
-
-    // Calc the difference
-    auto timediff = end.get_value() - start.get_value();
-
-    EXPECT_THAT(numberOfCalls, Eq(1));
-
-    // Just check for magnitude, allow up to 10% jitter for Jenkins and VMs
-    ASSERT_LE(timediff, 1.2_s);
-
-    osTimer.stop();
+TEST_F(TimerStopWatch_test, DurationOfZeroCausesError)
+{
+    Timer sut(0_s);
+    EXPECT_THAT(sut.hasError(), Eq(true));
+    EXPECT_THAT(sut.getError(), Eq(TimerError::TIMEOUT_IS_ZERO));
 }
 
-TEST_F(Timer_test, DISABLED_CreateAndStop_PERFORMANCETEST42)
+TIMING_TEST_F(TimerStopWatch_test, DurationOfNonZeroIsExpiresAfterTimeout, Repeat(5), [&] {
+    Timer sut(TIMEOUT);
+
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
+    TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
+});
+
+TEST_F(TimerStopWatch_test, ResetWithDurationIsExpired)
 {
-    Timer osTimer(second, [&]() { numberOfCalls++; });
-
-    EXPECT_THAT(osTimer.hasError(), Eq(false));
-
-    osTimer.start(Timer::RunMode::ONCE);
-
-    // Stop the timer and wait to make sure it does not fire
-    osTimer.stop();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-
-    EXPECT_THAT(numberOfCalls, Eq(0));
-}
-TEST_F(Timer_test, DISABLED_CreateAndFirePeriodically_PERFORMANCETEST42)
-{
-    Timer osTimer(second, [&]() { numberOfCalls++; });
-
-    EXPECT_THAT(osTimer.hasError(), Eq(false));
-
-    auto start = osTimer.now();
-    osTimer.start(Timer::RunMode::PERIODIC);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(3200));
-
-    auto end = osTimer.now();
-
-    // Calc the difference
-    auto timediff = end.get_value() - start.get_value();
-
-    osTimer.stop();
-
-    // Just check for magnitude, allow up to 10% jitter for Jenkins and VMs
-    ASSERT_LE(timediff, 3.3_s);
-
-    EXPECT_THAT(numberOfCalls, Eq(3));
-}
-TEST_F(Timer_test, DISABLED_CreateAndGetTimeUntilExpiration_PERFORMANCETEST42)
-{
-    Timer osTimer(second, [&]() { numberOfCalls++; });
-
-    EXPECT_THAT(osTimer.hasError(), Eq(false));
-
-    osTimer.start(Timer::RunMode::PERIODIC);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    // timeUntilExpiration shall now be 500_ms
-    auto end = osTimer.timeUntilExpiration();
-
-    // Just check for magnitude, allow up to 10% jitter for Jenkins and VMs
-    ASSERT_LE(end.get_value(), 550_ms);
-
-    osTimer.stop();
+    Timer sut(TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(true));
+    sut.resetCreationTime();
+    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(false));
 }
 
-TEST_F(Timer_test, DISABLED_CreateFirePeriodicallyAndGetoverruns_PERFORMANCETEST42)
+TEST_F(TimerStopWatch_test, ResetWhenNotExpiredIsStillNotExpired)
 {
-    Timer osTimer(50_ms, [&]() { numberOfCalls++; });
-
-    EXPECT_THAT(osTimer.hasError(), Eq(false));
-
-    osTimer.start(Timer::RunMode::ONCE);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    auto overruns = osTimer.getOverruns();
-
-    // See if an overruns occurred between time and actual callback from the operating system
-    EXPECT_THAT(overruns.get_value(), Eq(0u));
+    Timer sut(TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
+    sut.resetCreationTime();
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
+    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(false));
 }
-TEST_F(Timer_test, CreateAndCallExpired_PERFORMANCETEST42)
+
+TIMING_TEST_F(TimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
+    Timer sut(TIMEOUT);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
+
+    TIMING_TEST_ASSERT_TRUE(sut.hasExpiredComparedToCreationTime());
+    sut.resetCreationTime();
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
+});
+
+TEST_F(Timer_test, EmptyCallbackInCtorLeadsToError)
 {
-    Timer osTimer(second);
+    Timer sut(1_s, std::function<void()>());
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    EXPECT_THAT(osTimer.hasExpiredComparedToCreationTime(), Eq(false));
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(600));
-    EXPECT_THAT(osTimer.hasExpiredComparedToCreationTime(), Eq(true));
+    EXPECT_THAT(sut.hasError(), Eq(true));
+    EXPECT_THAT(sut.getError(), Eq(iox::posix::TimerError::NO_VALID_CALLBACK));
 }
-TEST_F(Timer_test, DISABLED_CreateAndRestart_PERFORMANCETEST42)
+
+TEST_F(Timer_test, ZeroTimeoutIsNotAllowed)
 {
-    Timer osTimer(second, [&]() { numberOfCalls++; });
+    Timer sut(0_s, [] {});
 
-    EXPECT_THAT(osTimer.hasError(), Eq(false));
+    EXPECT_THAT(sut.hasError(), Eq(true));
+    EXPECT_THAT(sut.getError(), Eq(iox::posix::TimerError::TIMEOUT_IS_ZERO));
+}
 
-    auto start = osTimer.now();
+TIMING_TEST_F(Timer_test, CallbackNotExecutedWhenNotStarted, Repeat(5), [&] {
+    bool callbackExecuted{false};
+    Timer sut(1_ns, [&] { callbackExecuted = true; });
 
-    osTimer.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1100));
+    TIMING_TEST_EXPECT_ALWAYS_FALSE(callbackExecuted);
+});
 
-    auto end = osTimer.now();
+TEST_F(Timer_test, CallbackExecutedOnceAfterStart)
+{
+    std::atomic_int counter{0};
+    Timer sut(1_ns, [&] { counter++; });
+    sut.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    auto timediff = end.get_value() - start.get_value();
+    EXPECT_TRUE(counter.load() == 1);
+}
 
-    // Just check for magnitude, allow up to 10% jitter for Jenkins and VMs
-    EXPECT_LE(timediff, 1.2_s);
+TIMING_TEST_F(Timer_test, CallbackExecutedPeriodicallyAfterStart, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(1_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::PERIODIC);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    auto finalCount = counter.load();
 
-    start = osTimer.now();
+    TIMING_TEST_EXPECT_TRUE(6 <= finalCount && finalCount <= 11);
+});
 
-    EXPECT_THAT(numberOfCalls, Eq(1));
+TIMING_TEST_F(Timer_test, PeriodicCallbackNotExecutedPrematurely, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(10_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::PERIODIC);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
+});
 
-    osTimer.restart(2_s, Timer::RunMode::ONCE);
+TIMING_TEST_F(Timer_test, OneTimeCallbackNotExecutedPrematurely, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(10_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
+});
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(2100));
+TEST_F(Timer_test, StartFailsWhenNoCallbackIsSet)
+{
+    Timer sut(1_ms);
+    auto call = sut.start(Timer::RunMode::ONCE);
 
-    end = osTimer.now();
-    osTimer.stop();
+    ASSERT_THAT(call.has_error(), Eq(true));
+    EXPECT_THAT(call.get_error(), Eq(TimerError::TIMER_NOT_INITIALIZED));
+}
 
-    timediff = end.get_value() - start.get_value();
+TIMING_TEST_F(Timer_test, StartRunModeOnceIsStoppedAfterStop, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(1_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::ONCE);
+    sut.stop();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    // Just check for magnitude, allow up to 10% jitter for Jenkins and VMs
-    EXPECT_LE(timediff, 2.2_s);
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
+});
 
-    EXPECT_THAT(numberOfCalls, Eq(2));
+TIMING_TEST_F(Timer_test, StartRunPeriodicOnceIsStoppedAfterStop, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(1_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::PERIODIC);
+    sut.stop();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
+});
+
+TIMING_TEST_F(Timer_test, StartRunPeriodicOnceIsStoppedInTheMiddleAfterStop, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(2_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::PERIODIC);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    sut.stop();
+    auto previousCount = counter.load();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    TIMING_TEST_EXPECT_TRUE(previousCount == counter.load());
+});
+
+TEST_F(Timer_test, StopFailsWhenNoCallbackIsSet)
+{
+    Timer sut(1_ms);
+    auto call = sut.stop();
+
+    ASSERT_THAT(call.has_error(), Eq(true));
+    EXPECT_THAT(call.get_error(), Eq(TimerError::TIMER_NOT_INITIALIZED));
+}
+
+TIMING_TEST_F(Timer_test, RestartWithDifferentTiming, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(5_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::PERIODIC);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    sut.restart(1_ms, Timer::RunMode::PERIODIC);
+    counter = 0;
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    auto finalCount = counter.load();
+
+    TIMING_TEST_EXPECT_TRUE(6 <= finalCount && finalCount <= 13);
+});
+
+TIMING_TEST_F(Timer_test, RestartWithDifferentRunMode, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(4_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::PERIODIC);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    sut.restart(4_ms, Timer::RunMode::ONCE);
+    counter = 0;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
+    std::this_thread::sleep_for(std::chrono::milliseconds(6));
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(6));
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 1);
+});
+
+TIMING_TEST_F(Timer_test, RestartWithDifferentTimingAndRunMode, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(5_ms, [&] { counter++; });
+    sut.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    counter = 0;
+    sut.restart(1_ms, Timer::RunMode::PERIODIC);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    auto finalCount = counter.load();
+    TIMING_TEST_EXPECT_TRUE(6 <= finalCount && finalCount <= 13);
+});
+
+TEST_F(Timer_test, RestartWithEmptyCallbackFails)
+{
+    Timer sut(1_ms);
+    auto call = sut.restart(1_s, Timer::RunMode::ONCE);
+
+    ASSERT_THAT(call.has_error(), Eq(true));
+    EXPECT_THAT(call.get_error(), Eq(TimerError::TIMER_NOT_INITIALIZED));
+}
+
+TEST_F(Timer_test, RestartWithTimeoutOfZeroFails)
+{
+    Timer sut(1_ms, [] {});
+    auto call = sut.restart(0_s, Timer::RunMode::ONCE);
+
+    ASSERT_THAT(call.has_error(), Eq(true));
+    EXPECT_THAT(call.get_error(), Eq(TimerError::TIMEOUT_IS_ZERO));
+}
+
+TEST_F(Timer_test, TimeUntilExpirationFailsWithoutCallback)
+{
+    Timer sut(1_ms);
+    auto call = sut.timeUntilExpiration();
+
+    ASSERT_THAT(call.has_error(), Eq(true));
+    EXPECT_THAT(call.get_error(), Eq(TimerError::TIMER_NOT_INITIALIZED));
+}
+
+TIMING_TEST_F(Timer_test, TimeUntilExpirationWithCallback, Repeat(5), [&] {
+    Timer sut(20_ms, [] {});
+    sut.start(Timer::RunMode::PERIODIC);
+    int timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
+    TIMING_TEST_EXPECT_TRUE(timeUntilExpiration > 15);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
+    TIMING_TEST_EXPECT_TRUE(1 <= timeUntilExpiration && timeUntilExpiration <= 13);
+});
+
+TIMING_TEST_F(Timer_test, TimeUntilExpirationZeroAfterCallbackOnceCalled, Repeat(5), [&] {
+    Timer sut(1_ms, [] {});
+    sut.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    int timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
+    TIMING_TEST_EXPECT_TRUE(timeUntilExpiration == 0);
+});
+
+TIMING_TEST_F(Timer_test, StoppingIsNonBlocking, Repeat(5), [&] {
+    Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(20)); });
+    sut.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    auto startTime = std::chrono::system_clock::now();
+    sut.stop();
+    auto endTime = std::chrono::system_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+    TIMING_TEST_EXPECT_TRUE(elapsedTime < 10);
+});
+
+TIMING_TEST_F(Timer_test, MultipleTimersRunningContinuously, Repeat(5), [&] {
+    struct TimeValPair
+    {
+        TimeValPair()
+            : timer(4_ms, [&] { this->value++; })
+        {
+        }
+        int value{0};
+        Timer timer;
+    };
+
+    std::vector<TimeValPair> sutList(4);
+
+    for (auto& sut : sutList)
+    {
+        sut.timer.start(Timer::RunMode::PERIODIC);
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+    for (auto& sut : sutList)
+    {
+        sut.timer.stop();
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+    for (auto& sut : sutList)
+    {
+        TIMING_TEST_EXPECT_TRUE(4 <= sut.value && sut.value <= 6);
+    }
+});
+
+TIMING_TEST_F(Timer_test, MultipleTimersRunningOnce, Repeat(5), [&] {
+    struct TimeValPair
+    {
+        TimeValPair()
+            : timer(2_ms, [&] { this->value++; })
+        {
+        }
+        int value{0};
+        Timer timer;
+    };
+
+    std::vector<TimeValPair> sutList(4);
+
+    for (auto& sut : sutList)
+    {
+        sut.timer.start(Timer::RunMode::ONCE);
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
+    for (auto& sut : sutList)
+    {
+        TIMING_TEST_EXPECT_TRUE(sut.value == 1);
+    }
+});
+
+TIMING_TEST_F(Timer_test, DestructorIsBlocking, Repeat(5), [&] {
+    std::chrono::time_point<std::chrono::system_clock> startTime;
+    {
+        Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(25)); });
+        sut.start(Timer::RunMode::ONCE);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        startTime = std::chrono::system_clock::now();
+    }
+    auto endTime = std::chrono::system_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+    TIMING_TEST_EXPECT_TRUE(10 <= elapsedTime);
+});
+
+TIMING_TEST_F(Timer_test, StartStopAndStartAgainIsNonBlocking, Repeat(5), [&] {
+    Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(20)); });
+    sut.start(Timer::RunMode::ONCE);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    auto startTime = std::chrono::system_clock::now();
+    sut.stop();
+    sut.start(Timer::RunMode::PERIODIC);
+    auto endTime = std::chrono::system_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+
+    TIMING_TEST_EXPECT_TRUE(elapsedTime <= 1);
+});
+
+TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
+{
+    Timer sut(1_ms);
+    auto call = sut.getOverruns();
+
+    ASSERT_THAT(call.has_error(), Eq(true));
+    EXPECT_THAT(call.get_error(), Eq(TimerError::TIMER_NOT_INITIALIZED));
 }

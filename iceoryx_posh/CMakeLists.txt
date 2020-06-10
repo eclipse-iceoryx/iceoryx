@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(iceoryx_posh_VERSION 0.16.1)
+file (STRINGS "../VERSION" iceoryx_posh_VERSION)
 project(iceoryx_posh VERSION ${iceoryx_posh_VERSION})
 
 find_package(Threads REQUIRED)
@@ -59,21 +59,25 @@ add_library(iceoryx_posh
     source/mepoo/segment_manager.cpp
     source/mepoo/mepoo_segment.cpp
     source/mepoo/memory_info.cpp
-    source/popo/application_port.cpp
-    source/popo/application_port_data.cpp
-    source/popo/base_port_data.cpp
-    source/popo/base_port.cpp
     source/popo/delivery_fifo.cpp
     source/popo/gateway_generic.cpp
-    source/popo/interface_port.cpp
-    source/popo/interface_port_data.cpp
     source/popo/receiver_port.cpp
     source/popo/receiver_port_data.cpp
     source/popo/sender_port.cpp
     source/popo/sender_port_data.cpp
     source/popo/receiver_handler.cpp
-    source/popo/building_blocks/chunk_queue.cpp
-    source/popo/building_blocks/chunk_distributor.cpp
+    source/popo/ports/interface_port.cpp
+    source/popo/ports/interface_port_data.cpp
+    source/popo/ports/application_port.cpp
+    source/popo/ports/application_port_data.cpp
+    source/popo/ports/base_port_data.cpp
+    source/popo/ports/base_port.cpp
+    source/popo/ports/publisher_port_user.cpp
+    source/popo/ports/publisher_port_roudi.cpp    
+    source/popo/ports/publisher_port_data.cpp      
+    source/popo/building_blocks/chunk_queue_pusher.cpp
+    source/popo/building_blocks/chunk_queue_popper.cpp    
+    source/popo/building_blocks/chunk_receiver.cpp      
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
@@ -81,12 +85,11 @@ add_library(iceoryx_posh
     source/runtime/runnable.cpp
     source/runtime/runnable_data.cpp
     source/runtime/runnable_property.cpp
-    source/runtime/service_discovery_notifier.cpp
     source/runtime/shared_memory_user.cpp
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh ALIAS iceoryx_posh)
-set_target_properties(iceoryx_posh PROPERTIES 
+set_target_properties(iceoryx_posh PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -144,6 +147,7 @@ add_library(iceoryx_posh_roudi
     source/roudi/memory/roudi_memory_manager.cpp
     source/roudi/memory/iceoryx_roudi_memory_manager.cpp
     source/roudi/iceoryx_port_pool.cpp
+    source/roudi/port_manager.cpp
     source/roudi/port_pool.cpp
     source/roudi/roudi_config.cpp
     source/roudi/roudi_cmd_line_parser.cpp
@@ -151,12 +155,11 @@ add_library(iceoryx_posh_roudi
     source/roudi/roudi_multi_process.cpp
     source/roudi/roudi_lock.cpp
     source/roudi/roudi_process.cpp
-    source/roudi/shared_memory_manager.cpp
     source/roudi/service_registry.cpp
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi ALIAS iceoryx_posh_roudi)
-set_target_properties(iceoryx_posh_roudi PROPERTIES 
+set_target_properties(iceoryx_posh_roudi PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -184,8 +187,13 @@ target_link_libraries(iceoryx_posh_roudi
     iceoryx_utils::iceoryx_utils
 )
 
+if(CMAKE_SYSTEM_NAME MATCHES QNX)
+    target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
+endif(CMAKE_SYSTEM_NAME MATCHES QNX)
+
 if(TOML_CONFIG)
     if ( NOT cpptoml_FOUND )
+        find_package(cpptoml_vendor QUIET)
         find_package(cpptoml REQUIRED)
     endif(NOT cpptoml_FOUND)
     message("-- Build with TOML config file support.")
@@ -194,27 +202,22 @@ if(TOML_CONFIG)
         source/roudi/roudi_config_toml_file_provider.cpp
     )
     target_link_libraries(iceoryx_posh_roudi_toml PRIVATE cpptoml iceoryx_posh_roudi)
-endif(TOML_CONFIG)
-
-if(CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
-endif(CMAKE_SYSTEM_NAME MATCHES QNX)
-
-#
-########## build roudi ##########
-if(TOML_CONFIG)
+    set_target_properties(iceoryx_posh_roudi_toml PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    )
 
     add_executable(RouDi
         source/roudi/application/roudi_main.cpp
     )
-    set_target_properties(RouDi PROPERTIES 
+    set_target_properties(RouDi PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
         POSITION_INDEPENDENT_CODE ON
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     )
 
-    target_link_libraries(RouDi 
+    target_link_libraries(RouDi
         PRIVATE
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
         iceoryx_utils::iceoryx_utils
@@ -237,7 +240,7 @@ if(roudi_environment OR test)
     )
 
     add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi_environment ALIAS iceoryx_posh_roudi_environment)
-    set_target_properties(iceoryx_posh_roudi_environment PROPERTIES 
+    set_target_properties(iceoryx_posh_roudi_environment PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
         POSITION_INDEPENDENT_CODE ON
@@ -255,6 +258,10 @@ if(roudi_environment OR test)
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
     )
 endif(roudi_environment OR test)
+
+if(ICEORYX_LARGE_DEPLOYMENT)
+    add_definitions(-DICEORYX_LARGE_DEPLOYMENT)
+endif(ICEORYX_LARGE_DEPLOYMENT)
 
 #
 ########## exporting library ##########

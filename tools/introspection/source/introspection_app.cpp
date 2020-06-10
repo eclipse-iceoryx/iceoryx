@@ -54,8 +54,8 @@ void IntrospectionApp::printHelp() noexcept
                  "  -h, --help        Display help and exit.\n"
                  "  -t, --time <ms>   Update period (in milliseconds) for the display of introspection data\n"
                  "                    [min: "
-              << MIN_UPDATE_PERIOD.milliSeconds<int>() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds<int>()
-              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds<int>()
+              << MIN_UPDATE_PERIOD.milliSeconds<uint32_t>() << ", max: " << MAX_UPDATE_PERIOD.milliSeconds<uint32_t>()
+              << ", default: " << DEFAULT_UPDATE_PERIOD.milliSeconds<uint32_t>()
               << "]\n"
                  "  -v, --version     Display latest official iceoryx release version and exit.\n"
                  "\nSubscription:\n"
@@ -76,8 +76,8 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
                                              char** argv,
                                              CmdLineArgumentParsingMode /*cmdLineParsingMode*/) noexcept
 {
-    int opt;
-    int index;
+    int32_t opt;
+    int32_t index;
 
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index)) != -1)
     {
@@ -154,8 +154,8 @@ void IntrospectionApp::initTerminal()
     init_pair(static_cast<uint8_t>(ColorPairs::whiteOnRed), COLOR_WHITE, COLOR_RED);
 
     // The pad should be big enough to hold all introspection data
-    constexpr uint32_t padLines = 200u;
-    constexpr uint32_t padCols = 200u;
+    constexpr uint32_t padLines = 10000u; // we support up to 3000 ports, so this must be quite high
+    constexpr uint32_t padCols = 1000u;
     pad = newpad(padLines, padCols);
 
     keypad(pad, TRUE);
@@ -188,7 +188,7 @@ void IntrospectionApp::updateDisplayYX()
     int32_t yMax = getmaxy(pad) - LINES;
     int32_t xMax = getmaxx(pad) - COLS;
 
-    int ch = wgetch(pad);
+    int32_t ch = wgetch(pad);
     if ((ch == KEY_UP) && (yPad > 0))
     {
         yPad -= yIncrement;
@@ -242,7 +242,7 @@ void IntrospectionApp::printProcessIntrospectionData(const ProcessIntrospectionF
 
     for (auto& data : processIntrospectionField->m_processList)
     {
-        wprintw(pad, "PID: %*d Process: %*s\n", pidWidth, data.m_pid, processWidth, data.m_name);
+        wprintw(pad, "PID: %*d Process: %*s\n", pidWidth, data.m_pid, processWidth, data.m_name.c_str());
     }
     wprintw(pad, "\n");
 }
@@ -336,11 +336,11 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
     wprintw(pad, "----------------------------------------------------------------------------\n");
 
     bool needsLineBreak{false};
-    int currentLine{0};
+    uint32_t currentLine{0};
     auto printEntry = [&](std::uint32_t maxSize, const std::string& data) -> std::string {
         std::stringstream stream;
 
-        constexpr int indentation{2};
+        constexpr uint32_t indentation{2};
         constexpr char indentationString[indentation + 1] = "  ";
 
         auto stringSize = data.size();
@@ -514,7 +514,7 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedSend
 
 bool IntrospectionApp::waitForSubscription(SubscriberType& port)
 {
-    int numberOfLoopsTillTimeout{100};
+    uint32_t numberOfLoopsTillTimeout{100};
     bool subscribed{false};
     while ((subscribed = (port.getSubscriptionState() == iox::popo::SubscriptionState::SUBSCRIBED)),
            !subscribed && numberOfLoopsTillTimeout > 0)

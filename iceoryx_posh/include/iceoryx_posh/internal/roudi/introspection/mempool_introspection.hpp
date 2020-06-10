@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
+#define IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
+#include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
-#include "iceoryx_posh/internal/roudi/shared_memory_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 
@@ -144,3 +144,5 @@ using MemPoolIntrospectionType = MemPoolIntrospection<mepoo::MemoryManager, mepo
 } // namespace roudi
 } // namespace iox
 #include "mempool_introspection.inl"
+
+#endif // IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP

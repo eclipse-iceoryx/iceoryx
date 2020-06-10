@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_ERROR_HANDLING_ERROR_HANDLING_HPP
+#define IOX_UTILS_ERROR_HANDLING_ERROR_HANDLING_HPP
 
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -48,6 +48,10 @@ namespace iox
     error(POSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW) \
     error(POSH__SERVICE_DISCOVERY_FIND_SERVICE_CALLBACKS_CONTAINER_OVERFLOW) \
     error(POPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER) \
+    error(POPO__CHUNK_DISTRIBUTOR_CLEANUP_DEADLOCK_BECAUSE_BAD_APPLICATION_TERMINATION) \
+    error(POPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER) \
+    error(POPO__CHUNK_SENDER_INVALID_CHUNK_TO_SEND_FROM_USER) \
+    error(POPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER) \
     error(MEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE) \
     error(MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE) \
     error(MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_LARGER_THAN_SHARED_MEMORY_ALIGNMENT_AND_MULTIPLE_OF_ALIGNMENT) \
@@ -183,3 +187,5 @@ void errorHandler(const Error error,
                   const std::function<void()> errorCallBack = std::function<void()>(),
                   const ErrorLevel level = ErrorLevel::FATAL);
 } // namespace iox
+
+#endif // IOX_UTILS_ERROR_HANDLING_ERROR_HANDLING_HPP
