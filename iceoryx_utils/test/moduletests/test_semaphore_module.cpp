@@ -131,6 +131,12 @@ TEST_F(SemaphoreCreate_test, OpenNamedSemaphore)
     EXPECT_THAT(semaphore2.has_error(), Eq(false));
 }
 
+TEST_F(SemaphoreCreate_test, OpenNamedSemaphoreWithEmptyNameFails)
+{
+    auto semaphore = iox::posix::Semaphore::create("", S_IRUSR | S_IWUSR, 10);
+    EXPECT_THAT(semaphore.has_error(), Eq(true));
+}
+
 TEST_F(SemaphoreCreate_test, OpenNonExistingNamedSemaphore)
 {
     auto semaphore2 = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR);
