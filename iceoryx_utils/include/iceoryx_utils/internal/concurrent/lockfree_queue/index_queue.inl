@@ -49,7 +49,7 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
     //     write position is outdated, there must have been other pushes concurrently
     //     reload write position and try again
 
-    bool notPublished = true;
+    constexpr bool notPublished = true;
     auto writePosition = m_writePosition.load(std::memory_order_relaxed);
     do
     {
@@ -98,6 +98,12 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
     } while (notPublished);
 
     Index newWritePosition(writePosition + 1);
+
+    // if this compare-exchange fails it is no problem, this only delays the update of m_writePosition
+    // for other pushes which are able to do them on their own (if writePositionRequiresUpdate above is true)
+    // no one else except popIfFull requires this update:
+    // In this case it is also ok: the push is only complete once this update of m_writePosition was executed,
+    // and the queue (logically) cannot be full until this happens.
     m_writePosition.compare_exchange_strong(
         writePosition, newWritePosition, std::memory_order_relaxed, std::memory_order_relaxed);
 }
