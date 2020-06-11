@@ -33,12 +33,16 @@ using iox::runtime::MqMessage;
 using iox::runtime::MqMessageType;
 using iox::runtime::MqRuntimeInterface;
 
-using MQueue = iox::posix::MessageQueue;
 
-constexpr char MqRouDiName[] = "/roudi";
-constexpr char MqAppName[] = "/racer";
-
+#if defined(__APPLE__)
+constexpr char DeleteRouDiMessageQueue[] = "rm /tmp/roudi";
+using MQueue = iox::posix::UnixDomainSocket;
+#else
 constexpr char DeleteRouDiMessageQueue[] = "rm /dev/mqueue/roudi";
+using MQueue = iox::posix::MessageQueue;
+#endif
+
+constexpr char MqAppName[] = "/racer";
 
 class StringToMessage : public MqBase
 {
@@ -103,7 +107,7 @@ class CMqInterfaceStartupRace_test : public Test
     /// @note smart_lock in combination with optional is currently not really usable
     std::mutex m_roudiQueueMutex;
     MQueue::result_t m_roudiQueue{
-        MQueue::create(MqRouDiName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
+        MQueue::create(std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
     std::mutex m_appQueueMutex;
     MQueue::result_t m_appQueue;
 };
@@ -127,7 +131,8 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
-        auto m_roudiQueue2 = MQueue::create(MqRouDiName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto m_roudiQueue2 =
+            MQueue::create(std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         request = m_roudiQueue2->timedReceive(15_s);
@@ -143,7 +148,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         }
     });
 
-    MqRuntimeInterface dut(MqRouDiName, MqAppName, 35_s);
+    MqRuntimeInterface dut(MQ_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
@@ -169,7 +174,8 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
-        auto newRoudi = MQueue::create(MqRouDiName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto newRoudi =
+            MQueue::create(std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         auto request = newRoudi->timedReceive(15_s);
@@ -192,7 +198,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
         }
     });
 
-    MqRuntimeInterface dut(MqRouDiName, MqAppName, 35_s);
+    MqRuntimeInterface dut(MQ_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
@@ -231,7 +237,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
         }
     });
 
-    MqRuntimeInterface dut(MqRouDiName, MqAppName, 35_s);
+    MqRuntimeInterface dut(MQ_ROUDI_NAME, MqAppName, 35_s);
 
     shutdown = true;
     roudi.join();
