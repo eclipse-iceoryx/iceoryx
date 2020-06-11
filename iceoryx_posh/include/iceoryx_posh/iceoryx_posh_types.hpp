@@ -33,6 +33,11 @@ using SenderPortType = iox::popo::SenderPort;
 using ReceiverPortType = iox::popo::ReceiverPort;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
+#if defined(__APPLE__)
+constexpr char MQ_ROOT_PATH[] = "/tmp";
+#else
+constexpr char MQ_ROOT_PATH[] = "";
+#endif
 
 /// shared memmory segment for the iceoryx managment data
 constexpr char SHM_NAME[] = "/iceoryx_mgmt";

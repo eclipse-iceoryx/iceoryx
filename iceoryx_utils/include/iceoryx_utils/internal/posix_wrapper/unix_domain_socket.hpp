@@ -109,6 +109,8 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @return IpcChannelError if error occured
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
 
+    static bool isNameValid(const std::string& name) noexcept;
+
   private:
     std::string m_name;
     IpcChannelSide m_channelSide;

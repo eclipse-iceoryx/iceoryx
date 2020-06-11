@@ -38,6 +38,13 @@ UnixDomainSocket::UnixDomainSocket(const std::string& name,
     : m_name(name)
     , m_channelSide(channelSide)
 {
+    if (!isNameValid(name))
+    {
+        this->m_isInitialized = false;
+        this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
+        return;
+    }
+
     if (maxMsgSize > MAX_MESSAGE_SIZE)
     {
         this->m_isInitialized = false;
@@ -94,15 +101,13 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const std::string& name) noexcept
 {
-    if (name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME || name.at(0) != '/')
+    if (!isNameValid(name))
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
-    auto nameCStr = name.c_str();
-    nameCStr++; // don't use the leading '/' for the unix domain socket name
 
     auto unlinkCall =
-        cxx::makeSmartC(unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, nameCStr);
+        cxx::makeSmartC(unlink, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, name.c_str());
 
     if (!unlinkCall.hasErrors())
     {
@@ -279,18 +284,10 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
 
 cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const IpcChannelMode mode) noexcept
 {
-    if (m_name.empty() || m_name.size() < SHORTEST_VALID_NAME || m_name.size() > LONGEST_VALID_NAME
-        || m_name.at(0) != '/')
-    {
-        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
-    }
-    auto nameCStr = m_name.c_str();
-    nameCStr++; // don't use the leading '/' for the unix domain socket name
-
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddr, 0, sizeof(m_sockAddr));
     m_sockAddr.sun_family = AF_LOCAL;
-    strncpy(m_sockAddr.sun_path, nameCStr, m_name.size() - 1); // since we don't use the leading '/'
+    strncpy(m_sockAddr.sun_path, m_name.c_str(), m_name.size());
 
     // we currently don't support a IpcChannelMode::NON_BLOCKING, for send and receive timouts can be used, the other
     // calls are blocking
@@ -484,6 +481,13 @@ cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int32_
     }
     }
 }
+
+bool UnixDomainSocket::isNameValid(const std::string& name) noexcept
+{
+    return !(name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME
+             || name.at(0) != '/');
+}
+
 
 } // namespace posix
 } // namespace iox
