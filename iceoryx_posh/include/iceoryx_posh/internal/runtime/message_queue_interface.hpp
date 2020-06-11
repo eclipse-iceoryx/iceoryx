@@ -107,12 +107,6 @@ class MqInterfaceCreator;
 class MqBase
 {
   public:
-#if defined(__APPLE__)
-    using CommunicationType = iox::posix::UnixDomainSocket;
-#else
-    using CommunicationType = iox::posix::MessageQueue;
-#endif
-
     /// @brief Receives a message from the message queue and stores it in
     ///         answer.
     /// @param[out] answer If a message is received it is stored there.

@@ -28,15 +28,23 @@ namespace popo
 class SenderPort;
 class ReceiverPort;
 } // namespace popo
+namespace posix
+{
+class UnixDomainSocket;
+class MessageQueue;
+} // namespace posix
 
 using SenderPortType = iox::popo::SenderPort;
 using ReceiverPortType = iox::popo::ReceiverPort;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
+
 #if defined(__APPLE__)
 constexpr char MQ_ROOT_PATH[] = "/tmp";
+using CommunicationType = iox::posix::UnixDomainSocket;
 #else
 constexpr char MQ_ROOT_PATH[] = "";
+using CommunicationType = iox::posix::MessageQueue;
 #endif
 
 /// shared memmory segment for the iceoryx managment data

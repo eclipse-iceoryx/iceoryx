@@ -238,14 +238,15 @@ MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
 
     int64_t transmissionTimestamp{0};
     auto regState = RegState::WAIT_FOR_ROUDI;
+    regState = RegState::SEND_REGISTER_REQUEST;
     while (!timer.hasExpiredComparedToCreationTime() && regState != RegState::FINISHED)
     {
-        if (!m_RoudiMqInterface.isInitialized() || !m_RoudiMqInterface.mqMapsToFile())
-        {
-            LogDebug() << "reopen RouDi mqueue!";
-            m_RoudiMqInterface.reopen();
-            regState = RegState::WAIT_FOR_ROUDI;
-        }
+        // if (!m_RoudiMqInterface.isInitialized() || !m_RoudiMqInterface.mqMapsToFile())
+        //{
+        //    LogDebug() << "reopen RouDi mqueue!";
+        //    m_RoudiMqInterface.reopen();
+        //    regState = RegState::WAIT_FOR_ROUDI;
+        //}
 
         switch (regState)
         {
