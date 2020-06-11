@@ -262,7 +262,11 @@ TEST_F(MessageQueue_test, sendAfterServerDestroy)
     std::string message = "Try to send me";
     auto sendResult = client.send(message);
     EXPECT_TRUE(sendResult.has_error());
+#if defined(__APPLE__)
+    EXPECT_THAT(sendResult.get_error(), Eq(IpcChannelError::CONNECTION_RESET_BY_PEER));
+#else
     EXPECT_THAT(sendResult.get_error(), Eq(IpcChannelError::NO_SUCH_CHANNEL));
+#endif
 }
 
 

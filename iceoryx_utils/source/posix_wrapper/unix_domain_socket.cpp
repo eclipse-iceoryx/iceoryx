@@ -469,6 +469,11 @@ cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int32_
         std::cerr << "No server for unix domain socket \"" << m_name << "\"" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::NO_SUCH_CHANNEL);
     }
+    case ECONNRESET:
+    {
+        std::cerr << "connection was reset by peer for \"" << m_name << "\"" << std::endl;
+        return cxx::error<IpcChannelError>(IpcChannelError::CONNECTION_RESET_BY_PEER);
+    }
     case EWOULDBLOCK:
     {
         // no error message needed since this is a normal use case
