@@ -32,11 +32,13 @@ namespace posix
 class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcChannelError>
 {
   public:
-    /// @remark: Max message size is on linux = 4096 and on mac os = 2048. To have
+    /// @brief Max message size is on linux = 4096 and on mac os = 2048. To have
     ///  the same behavior on every platform we use 2048.
     static constexpr size_t MAX_MESSAGE_SIZE = 2048u;
     static constexpr size_t SHORTEST_VALID_NAME = 2u;
-    static constexpr size_t LONGEST_VALID_NAME = 100u;
+    /// @brief The name has to contain the full path besides the name and has to
+    ///      be therefore much longer then the message queue pendant.
+    static constexpr size_t LONGEST_VALID_NAME = 1024u;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
 

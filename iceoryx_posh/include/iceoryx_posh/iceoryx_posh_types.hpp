@@ -38,7 +38,9 @@ using SenderPortType = iox::popo::SenderPort;
 using ReceiverPortType = iox::popo::ReceiverPort;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
-
+/// @brief The socket is created in the current path if no absolute path is given hence
+///      we need an absolut path so that every application knows where our sockets can
+///      be found.
 #if defined(__APPLE__)
 constexpr char MQ_ROOT_PATH[] = "/tmp";
 using CommunicationType = iox::posix::UnixDomainSocket;
