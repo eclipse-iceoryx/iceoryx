@@ -30,21 +30,24 @@ template <uint64_t CycleLength, typename ValueType = uint64_t>
 class CyclicIndex
 {
   public:
+    static_assert(std::is_unsigned<ValueType>::value, "ValueType must be an unsigned integral type");
+    static_assert(CycleLength >= 1u, "CycleLength must be >= 1");
+
     using value_t = ValueType;
 
-    static constexpr ValueType MAX_INDEX = CycleLength - 1;
+    static constexpr ValueType MAX_INDEX = CycleLength - 1u;
     static constexpr ValueType MAX_VALUE = std::numeric_limits<ValueType>::max();
 
     // assumes MAX_VALUE >= CycleLength, otherwise we could not fit in even one cycle
     static constexpr ValueType MAX_CYCLE = MAX_VALUE / CycleLength;
 
     static constexpr ValueType INDEX_AT_MAX_VALUE = MAX_VALUE % CycleLength;
-    static constexpr ValueType OVERFLOW_START_INDEX = (INDEX_AT_MAX_VALUE + 1) % CycleLength;
+    static constexpr ValueType OVERFLOW_START_INDEX = (INDEX_AT_MAX_VALUE + 1u) % CycleLength;
 
     static_assert(CycleLength < MAX_VALUE / 2, "CycleLength is too large, need at least one bit for cycle");
     static_assert(CycleLength > 0, "CycleLength must be > 0");
 
-    explicit CyclicIndex(ValueType value = 0) noexcept;
+    explicit CyclicIndex(ValueType value = 0u) noexcept;
 
     CyclicIndex(ValueType index, ValueType cycle) noexcept;
 

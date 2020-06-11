@@ -11,7 +11,7 @@ constexpr IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
 
 template <uint64_t Capacity, typename ValueType>
 IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t) noexcept
-    : m_readPosition(Index(0))
+    : m_readPosition(Index(0u))
     , m_writePosition(Index(Capacity))
 {
     for (uint64_t i = 0u; i < Capacity; ++i)

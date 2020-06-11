@@ -121,6 +121,7 @@ class IndexQueue
     static constexpr ConstructFull_t ConstructFull{};
     static constexpr ConstructEmpty_t ConstructEmpty{};
 
+    ~IndexQueue() = default;
     IndexQueue(const IndexQueue&) = delete;
     IndexQueue(IndexQueue&&) = delete;
     IndexQueue& operator=(const IndexQueue&) = delete;

@@ -37,6 +37,8 @@ class LockFreeQueue
     /// @brief creates and initalizes an empty LockFreeQueue
     LockFreeQueue() noexcept;
 
+    ~LockFreeQueue() = default;
+
     // remark: a thread-safe and lockfree implementation of copy seems impossible
     // but unsafe copying (i.e. where synchronization is up to the user) would be possible
     // can be implemented when it is needed
@@ -107,7 +109,7 @@ class LockFreeQueue
 
     Buffer<ElementType, Capacity, BufferIndex> m_buffer;
 
-    std::atomic<uint64_t> m_size{0};
+    std::atomic<uint64_t> m_size{0u};
 
     // template is needed to distinguish between lvalue and rvalue T references
     // (universal reference type deduction)

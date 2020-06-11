@@ -28,7 +28,7 @@ LockFreeQueue<ElementType, Capacity>::LockFreeQueue() noexcept
 }
 
 template <typename ElementType, uint64_t Capacity>
-constexpr uint64_t LockFreeQueue<ElementType, Capacity>::capacity() noexcept
+constexpr uint64_t LockFreeQueue<ElementType, Capacity>::capacity() const noexcept
 {
     return Capacity;
 }

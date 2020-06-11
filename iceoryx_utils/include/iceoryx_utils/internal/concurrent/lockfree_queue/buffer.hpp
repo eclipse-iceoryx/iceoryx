@@ -28,6 +28,7 @@ class Buffer
 {
   public:
     Buffer() = default;
+    ~Buffer() = default;
 
     Buffer(const Buffer&) = delete;
     Buffer(Buffer&&) = delete;
