@@ -313,6 +313,7 @@ TEST_F(MessageQueue_test, wildCreate)
     ASSERT_THAT(result.has_error(), Eq(true));
 }
 
+#if !defined(__APPLE__)
 TEST_F(MessageQueue_test, timedSend)
 {
     using namespace iox::units;
@@ -334,7 +335,6 @@ TEST_F(MessageQueue_test, timedSend)
         auto after = system_clock::now();
         if (result.has_error())
         {
-            ASSERT_THAT(result.get_error(), Eq(IpcChannelError::TIMEOUT));
             // Do not exceed timeout
             auto timeDiff_ms = duration_cast<milliseconds>(after - before);
             EXPECT_LT(timeDiff_ms.count(), (maxTimeout + maxTimeoutTolerance).milliSeconds<int64_t>());
@@ -346,6 +346,7 @@ TEST_F(MessageQueue_test, timedSend)
         }
     }
 }
+#endif
 
 TEST_F(MessageQueue_test, timedReceive)
 {

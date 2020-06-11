@@ -151,11 +151,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
 {
     // we also support timedSend. The setsockopt call sets the timeout for all further sendto calls, so we must set
     // it to 0 to turn the timeout off
-    struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-
-    return timedSend(msg, units::Duration(tv));
+    return timedSend(msg, units::Duration::seconds(0ULL));
 }
 
 cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout) const
@@ -173,6 +169,15 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     }
 
     struct timeval tv = timeout;
+#if defined(__APPLE__)
+    if (tv.tv_sec != 0 || tv.tv_usec != 0)
+    {
+        std::cerr
+            << "socket: \"" << m_name
+            << "\", timedSend with a timeout != 0 is not supported on MacOS. timedSend will behave like send instead."
+            << std::endl;
+    }
+#endif
 
     auto setsockoptCall = cxx::makeSmartC(setsockopt,
                                           cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
