@@ -26,7 +26,7 @@ namespace iox
 {
 namespace popo
 {
-enum class ChunkReceiverError
+enum class ChunkReceiveError
 {
     TOO_MANY_CHUNKS_HELD_IN_PARALLEL
 };
@@ -54,8 +54,8 @@ class ChunkReceiver : public ChunkQueuePopper
     /// The ownerhip of the SharedChunk remains in the ChunkReceiver for being able to cleanup if the user process
     /// disappears
     /// @return optional that has a new chunk header or no value if there are no new chunks in the underlying queue,
-    /// ChunkReceiverError on error
-    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiverError> get() noexcept;
+    /// ChunkReceiveError on error
+    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> get() noexcept;
 
     /// @brief Release a chunk that was obtained with get
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
