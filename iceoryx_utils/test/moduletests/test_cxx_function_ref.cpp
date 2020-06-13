@@ -21,6 +21,7 @@ using namespace iox::cxx;
 constexpr int freeFuncTestValue = 42 + 42;
 constexpr int functorTestValue = 11;
 constexpr int memberFuncTestValue = 4273;
+constexpr int sameSignatureTestValue = 12345;
 
 int freeFunction()
 {
@@ -58,6 +59,17 @@ struct ComplexType
 ComplexType returnComplexType(ComplexType foo)
 {
     return foo;
+}
+
+int SameSignature(function_ref<void(void)> callback)
+{
+    callback();
+    return -1;
+}
+
+int SameSignature(function_ref<int(int)> callback)
+{
+    return callback(sameSignatureTestValue);
 }
 
 class function_refTest : public Test
@@ -274,3 +286,21 @@ TEST_F(function_refTest, StoreInStdFunctionResultEqual)
     std::function<int()> sut(moep);
     EXPECT_THAT(sut(), Eq(37));
 }
+
+
+TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfCorrect)
+{
+    auto value = SameSignature([](int value) -> int { return value; });
+    EXPECT_THAT(value, Eq(sameSignatureTestValue));
+}
+
+/// @todo Wrap function_ref in function_ref to see if type trait works?
+
+/// @todo
+// int wrongCallable(int, int) {
+// }
+// TEST_F(function_refTest, WrongCallable)
+// {
+//     function_ref<void()> bubbedibub1(&wrongCallable);
+//     function_ref<void()> bubbedibub2("foo");
+// }
