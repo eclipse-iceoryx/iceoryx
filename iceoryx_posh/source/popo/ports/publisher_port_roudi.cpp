@@ -56,7 +56,7 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcep
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
-    else if (!offeringRequested && isOffered)
+    else if ((!offeringRequested) && isOffered)
     {
         getMembers()->m_offered.store(false, std::memory_order_relaxed);
 
@@ -83,7 +83,7 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
     {
         if (capro::CaproMessageType::SUB == caProMessage.m_type)
         {
-            auto ret = m_chunkSender.addQueue(caProMessage.m_chunkQueueData, caProMessage.m_historyCapacity);
+            const auto ret = m_chunkSender.addQueue(caProMessage.m_chunkQueueData, caProMessage.m_historyCapacity);
             if (!ret.has_error())
             {
                 responseMessage.m_type = capro::CaproMessageType::ACK;
@@ -91,11 +91,15 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
         }
         else if (capro::CaproMessageType::UNSUB == caProMessage.m_type)
         {
-            auto ret = m_chunkSender.removeQueue(caProMessage.m_chunkQueueData);
+            const auto ret = m_chunkSender.removeQueue(caProMessage.m_chunkQueueData);
             if (!ret.has_error())
             {
                 responseMessage.m_type = capro::CaproMessageType::ACK;
             }
+        }
+        else
+        {
+            errorHandler(Error::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
         }
     }
 

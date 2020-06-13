@@ -40,10 +40,6 @@ BasePort& BasePort::operator=(BasePort&& rhs) noexcept
     return *this;
 }
 
-BasePort::~BasePort() noexcept
-{
-}
-
 capro::ServiceDescription BasePort::getCaProServiceDescription() const noexcept
 {
     return getMembers()->m_serviceDescription;

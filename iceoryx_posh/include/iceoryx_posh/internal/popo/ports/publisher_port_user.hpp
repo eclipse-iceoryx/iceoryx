@@ -37,7 +37,7 @@ class PublisherPortUser
   public:
     using MemberType_t = PublisherPortData;
 
-    PublisherPortUser(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept;
+    explicit PublisherPortUser(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept;
 
     PublisherPortUser(const PublisherPortUser& other) = delete;
     PublisherPortUser& operator=(const PublisherPortUser&) = delete;

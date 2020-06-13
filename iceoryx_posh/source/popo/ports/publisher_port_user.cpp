@@ -48,7 +48,7 @@ void PublisherPortUser::freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcep
 
 void PublisherPortUser::sendChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
-    auto offerRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
+    const auto offerRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
 
     if (offerRequested)
     {

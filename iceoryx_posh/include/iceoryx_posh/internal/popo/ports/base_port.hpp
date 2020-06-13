@@ -48,7 +48,7 @@ class BasePort
     BasePort& operator=(const BasePort&) = delete;
     BasePort(BasePort&&) noexcept;
     BasePort& operator=(BasePort&&) noexcept;
-    virtual ~BasePort() noexcept;
+    virtual ~BasePort() = default;
 
     /// @brief a port can be constructed from a nullptr, additionally it also can be moved
     ///         and in these cases the member methods would work on a nullptr.
