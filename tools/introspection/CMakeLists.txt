@@ -6,9 +6,10 @@ find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
 include(IceoryxPackageHelper)
+include(IceoryxPlatformDetection)
 
 # cmake doesn't find ncurses under QNX; let the compiler complain if the header is missing
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+if(NOT QNX)
     SET(CURSES_USE_NCURSES TRUE)
     find_package(Curses REQUIRED)
     if(${CURSES_HAVE_NCURSES_H} MATCHES ".*-NOTFOUND")
@@ -59,19 +60,19 @@ target_link_libraries(iceoryx_introspection
 
 
 
-# Find tinfo library for APPLE, for other platforms its part of package Curses
-if(CMAKE_SYSTEM_NAME MATCHES Darwin)
-find_library(LIB_TINFO tinfo)
+if(LINUX)
+    set(LIB_TINFO tinfo)
+elseif(QNX)
+    set(LIB_TINFO "")
+elseif(APPLE)
+    find_library(LIB_TINFO tinfo)
+elseif(WIN32)
+    message(WARNING "Introspection not supported for windows." )
 else()
-set(LIB_TINFO tinfo)
-endif(CMAKE_SYSTEM_NAME MATCHES Darwin)
-
-# Don't link tinfo under QNX
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_introspection
-        ${LIB_TINFO}
-    )
+    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
 endif()
+
+target_link_libraries(iceoryx_introspection ${LIB_TINFO})
 
 set_target_properties(iceoryx_introspection
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
