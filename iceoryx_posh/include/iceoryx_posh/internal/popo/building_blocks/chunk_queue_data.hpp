@@ -27,7 +27,7 @@ namespace popo
 {
 struct ChunkQueueData
 {
-    ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept
+    explicit ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept
         : m_queue(queueType)
     {
     }

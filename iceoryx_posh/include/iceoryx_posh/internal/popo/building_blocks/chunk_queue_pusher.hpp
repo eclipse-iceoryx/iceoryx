@@ -34,7 +34,7 @@ class ChunkQueuePusher
   public:
     using MemberType_t = ChunkQueueData;
 
-    ChunkQueuePusher(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
+    explicit ChunkQueuePusher(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
 
     ChunkQueuePusher(const ChunkQueuePusher& other) = delete;
     ChunkQueuePusher& operator=(const ChunkQueuePusher&) = delete;
@@ -53,7 +53,7 @@ class ChunkQueuePusher
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* const m_chunkQueueDataPtr;
+    MemberType_t* m_chunkQueueDataPtr;
 };
 
 } // namespace popo

@@ -35,7 +35,7 @@ class ChunkQueuePopper
   public:
     using MemberType_t = ChunkQueueData;
 
-    ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
+    explicit ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
 
     ChunkQueuePopper(const ChunkQueuePopper& other) = delete;
     ChunkQueuePopper& operator=(const ChunkQueuePopper&) = delete;
@@ -88,7 +88,7 @@ class ChunkQueuePopper
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* const m_chunkQueueDataPtr;
+    MemberType_t* m_chunkQueueDataPtr;
 };
 
 } // namespace popo
