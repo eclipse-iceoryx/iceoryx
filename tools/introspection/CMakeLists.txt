@@ -35,12 +35,11 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
     FORCE
 )
 
-# This is required for mac build (set to c++17 globally)
-add_compile_options(-std=c++11)
 add_library(iceoryx_introspection
             source/iceoryx_introspection_app.cpp
             source/introspection_app.cpp
     )
+set_property(TARGET iceoryx_introspection PROPERTY CXX_STANDARD 11)
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_introspection ALIAS iceoryx_introspection)
 
@@ -79,6 +78,7 @@ set_target_properties(iceoryx_introspection
 )
 
 add_executable(iceoryx_introspection_client source/introspection_main.cpp)
+set_property(TARGET iceoryx_introspection_client PROPERTY CXX_STANDARD 11)
 
 target_link_libraries(iceoryx_introspection_client
     PRIVATE
