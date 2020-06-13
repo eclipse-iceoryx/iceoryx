@@ -44,7 +44,7 @@ class ChunkSender : public ChunkDistributorType
   public:
     using MemberType_t = ChunkSenderData<typename ChunkDistributorType::MemberType_t>;
 
-    ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
+    explicit ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
 
     ChunkSender(const ChunkSender& other) = delete;
     ChunkSender& operator=(const ChunkSender&) = delete;
@@ -59,9 +59,9 @@ class ChunkSender : public ChunkDistributorType
     /// not
     cxx::expected<mepoo::ChunkHeader*, AllocationError> allocate(const uint32_t payloadSize) noexcept;
 
-    /// @brief Free an allocated chunk without sending it
-    /// @param[in] chunkHeader, pointer to the ChunkHeader to free
-    void free(mepoo::ChunkHeader* const chunkHeader) noexcept;
+    /// @brief Release an allocated chunk without sending it
+    /// @param[in] chunkHeader, pointer to the ChunkHeader to release
+    void release(const mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief Send an allocated chunk to all connected ChunkQueuePopper
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
@@ -85,7 +85,7 @@ class ChunkSender : public ChunkDistributorType
     /// @param[in] chunkHeader of the chunk that shall be send
     /// @param[in][out] chunk that corresponds to the chunk header
     /// @return true if there was a matching chunk with this header, false if not
-    bool getChunkReadyForSend(mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept;
+    bool getChunkReadyForSend(const mepoo::ChunkHeader* const chunkHeader, mepoo::SharedChunk& chunk) noexcept;
 
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;

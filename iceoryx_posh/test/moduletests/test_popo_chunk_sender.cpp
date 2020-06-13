@@ -146,10 +146,10 @@ TEST_F(ChunkSender_test, freeChunk)
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
 
-    // free them all
+    // release them all
     for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
     {
-        m_chunkSender.free(chunks[i]);
+        m_chunkSender.release(chunks[i]);
     }
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
@@ -166,7 +166,7 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
         const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
-    m_chunkSender.free(myCrazyChunk.get());
+    m_chunkSender.release(myCrazyChunk.get());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));

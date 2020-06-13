@@ -41,7 +41,7 @@ class ChunkQueuePopper
     ChunkQueuePopper& operator=(const ChunkQueuePopper&) = delete;
     ChunkQueuePopper(ChunkQueuePopper&& rhs) = default;
     ChunkQueuePopper& operator=(ChunkQueuePopper&& rhs) = default;
-    ~ChunkQueuePopper() = default;
+    virtual ~ChunkQueuePopper() = default;
 
     /// @brief pop a chunk from the chunk queue
     /// @return optional for a shared chunk that is set if the queue is not empty

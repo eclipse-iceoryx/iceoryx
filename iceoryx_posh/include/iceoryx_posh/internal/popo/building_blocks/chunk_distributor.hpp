@@ -67,7 +67,7 @@ class ChunkDistributor
     ChunkDistributor& operator=(const ChunkDistributor&) = delete;
     ChunkDistributor(ChunkDistributor&& rhs) = default;
     ChunkDistributor& operator=(ChunkDistributor&& rhs) = default;
-    ~ChunkDistributor() = default;
+    virtual ~ChunkDistributor() = default;
 
     /// @brief Add a queue to the internal list of chunk queues to which chunks are delivered when calling
     /// deliverToAllStoredQueues

@@ -43,7 +43,7 @@ PublisherPortUser::allocateChunk(const uint32_t payloadSize) noexcept
 
 void PublisherPortUser::freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
-    m_chunkSender.free(chunkHeader);
+    m_chunkSender.release(chunkHeader);
 }
 
 void PublisherPortUser::sendChunk(mepoo::ChunkHeader* const chunkHeader) noexcept

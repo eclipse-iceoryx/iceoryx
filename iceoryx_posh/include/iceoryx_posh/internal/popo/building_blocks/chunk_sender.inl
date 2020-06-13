@@ -41,10 +41,10 @@ inline cxx::expected<mepoo::ChunkHeader*, AllocationError>
 ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
 {
     // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
-    uint32_t neededChunkSize = getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
+    const uint32_t neededChunkSize = getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
 
     if (getMembers()->m_lastChunk && getMembers()->m_lastChunk.hasNoOtherOwners()
-        && getMembers()->m_lastChunk.getChunkHeader()->m_info.m_totalSizeOfChunk >= neededChunkSize)
+        && (getMembers()->m_lastChunk.getChunkHeader()->m_info.m_totalSizeOfChunk >= neededChunkSize))
     {
         if (getMembers()->m_chunksInUse.insert(getMembers()->m_lastChunk))
         {
@@ -86,10 +86,11 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
 }
 
 template <typename ChunkDistributorType>
-inline void ChunkSender<ChunkDistributorType>::free(mepoo::ChunkHeader* const chunkHeader) noexcept
+inline void ChunkSender<ChunkDistributorType>::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
-    if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
+    /// @remark d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
+    if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk)) // PRQA S 4127
     {
         errorHandler(Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER, nullptr, ErrorLevel::SEVERE);
     }
@@ -143,7 +144,7 @@ inline void ChunkSender<ChunkDistributorType>::releaseAll() noexcept
 }
 
 template <typename ChunkDistributorType>
-inline bool ChunkSender<ChunkDistributorType>::getChunkReadyForSend(mepoo::ChunkHeader* chunkHeader,
+inline bool ChunkSender<ChunkDistributorType>::getChunkReadyForSend(const mepoo::ChunkHeader* const chunkHeader,
                                                                     mepoo::SharedChunk& chunk) noexcept
 {
     if (getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
