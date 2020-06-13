@@ -42,7 +42,7 @@ class ChunkReceiver : public ChunkQueuePopper
   public:
     using MemberType_t = ChunkReceiverData;
 
-    ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
+    explicit ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
 
     ChunkReceiver(const ChunkReceiver& other) = delete;
     ChunkReceiver& operator=(const ChunkReceiver&) = delete;
@@ -58,7 +58,7 @@ class ChunkReceiver : public ChunkQueuePopper
     cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiverError> get() noexcept;
 
     /// @brief Release a chunk that was obtained with get
-    /// @param[in] chunkHeader, pointer to the ChunkHeader to free
+    /// @param[in] chunkHeader, pointer to the ChunkHeader to release
     void release(const mepoo::ChunkHeader* chunkHeader) noexcept;
 
     /// @brief Release all the chunks that are currently held. Caution: Only call this if the user process is no more

@@ -19,14 +19,14 @@ namespace iox
 {
 namespace popo
 {
-InterfacePort::InterfacePort(InterfacePortData* const f_member)
-    : BasePort(f_member)
+InterfacePort::InterfacePort(InterfacePortData* const interfacePortDataPtr) noexcept
+    : BasePort(interfacePortDataPtr)
 {
 }
 
-bool InterfacePort::dispatchCaProMessage(const capro::CaproMessage& f_message)
+bool InterfacePort::dispatchCaProMessage(const capro::CaproMessage& message) noexcept
 {
-    bool returner = getMembers()->m_caproMessageFiFo.push(f_message);
+    const bool returner = getMembers()->m_caproMessageFiFo.push(message);
     if (!returner)
     {
         errorHandler(Error::kPOSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, nullptr, iox::ErrorLevel::SEVERE);
@@ -34,23 +34,23 @@ bool InterfacePort::dispatchCaProMessage(const capro::CaproMessage& f_message)
     return returner;
 }
 
-bool InterfacePort::getCaProMessage(capro::CaproMessage& f_message)
+bool InterfacePort::getCaProMessage(capro::CaproMessage& message) noexcept
 {
-    auto msg = getMembers()->m_caproMessageFiFo.pop();
-    if (msg.has_value())
+    auto maybeMessage = getMembers()->m_caproMessageFiFo.pop();
+    if (maybeMessage.has_value())
     {
-        f_message = msg.value();
+        message = maybeMessage.value();
         return true;
     }
     return false;
 }
 
-const InterfacePortData* InterfacePort::getMembers() const
+const InterfacePortData* InterfacePort::getMembers() const noexcept
 {
     return reinterpret_cast<const InterfacePortData*>(BasePort::getMembers());
 }
 
-InterfacePortData* InterfacePort::getMembers()
+InterfacePortData* InterfacePort::getMembers() noexcept
 {
     return reinterpret_cast<InterfacePortData*>(BasePort::getMembers());
 }

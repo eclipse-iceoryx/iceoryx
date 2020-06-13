@@ -15,8 +15,8 @@
 #ifndef IOX_POPO_APPLICATION_PORT_HPP_
 #define IOX_POPO_APPLICATION_PORT_HPP_
 
-#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 
 namespace iox
 {
@@ -27,19 +27,20 @@ class ApplicationPort : public BasePort
   public:
     using MemberType_t = ApplicationPortData;
 
-    ApplicationPort(ApplicationPortData* const f_memberPtr);
+    explicit ApplicationPort(ApplicationPortData* const applicationPortDataPtr) noexcept;
+
     ApplicationPort(const ApplicationPort& other) = delete;
     ApplicationPort& operator=(const ApplicationPort& other) = delete;
-
     ApplicationPort(ApplicationPort&& other) = default;
     ApplicationPort& operator=(ApplicationPort&& other) = default;
+    ~ApplicationPort() = default;
 
-    bool dispatchCaProMessage(const capro::CaproMessage& f_message);
-    bool getCaProMessage(capro::CaproMessage& f_message);
+    bool dispatchCaProMessage(const capro::CaproMessage& message) noexcept;
+    bool getCaProMessage(capro::CaproMessage& message) noexcept;
 
   private:
-    const MemberType_t* getMembers() const;
-    MemberType_t* getMembers();
+    const MemberType_t* getMembers() const noexcept;
+    MemberType_t* getMembers() noexcept;
 };
 
 } // namespace popo

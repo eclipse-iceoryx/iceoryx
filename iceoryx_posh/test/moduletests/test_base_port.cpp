@@ -32,8 +32,8 @@ const iox::capro::ServiceDescription m_servicedesc("Radar", "FrontRight", "Chuck
 const iox::capro::ServiceDescription m_emptyservicedesc(0, 0, 0);
 CString100 m_receiverportname = {"RecPort"};
 CString100 m_senderportname = {"SendPort"};
-CString100 m_applicationportname = {"AppPort"};
-CString100 m_interfaceportname = {"InterfacePort"};
+iox::ProcessName_t m_applicationportname = {"AppPort"};
+iox::ProcessName_t m_interfaceportname = {"InterfacePort"};
 CString100 m_emptyappname = {""};
 typedef BasePort* CreatePort();
 
@@ -57,8 +57,7 @@ BasePort* CreateReceiverPort()
 
 BasePort* CreateInterfacePort()
 {
-    InterfacePortData* interfacePortData =
-        new InterfacePortData("InterfacePort", iox::capro::Interfaces::INTERNAL);
+    InterfacePortData* interfacePortData = new InterfacePortData("InterfacePort", iox::capro::Interfaces::INTERNAL);
     return new InterfacePort(interfacePortData);
 }
 
@@ -191,10 +190,7 @@ TEST_P(BasePortParamtest, getApplicationname)
     }
 }
 
-INSTANTIATE_TEST_CASE_P(CaPro,
-                        BasePortParamtest,
-                        Values(&CreateCaProPort,
-                               &CreateReceiverPort,
-                               &CreateSenderPort,
-                               &CreateInterfacePort,
-                               &CreateApplicationPort));
+INSTANTIATE_TEST_CASE_P(
+    CaPro,
+    BasePortParamtest,
+    Values(&CreateCaProPort, &CreateReceiverPort, &CreateSenderPort, &CreateInterfacePort, &CreateApplicationPort));

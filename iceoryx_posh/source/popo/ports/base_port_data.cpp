@@ -24,7 +24,7 @@ BasePortData::BasePortData() noexcept
 }
 
 BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
-                           const cxx::CString100& processName) noexcept
+                           const ProcessName_t& processName) noexcept
     : m_serviceDescription(serviceDescription)
     , m_processName(processName)
     , m_uniqueId(s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed))
