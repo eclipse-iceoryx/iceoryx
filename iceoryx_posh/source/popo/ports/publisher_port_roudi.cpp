@@ -106,7 +106,7 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
     return cxx::make_optional<capro::CaproMessage>(responseMessage);
 }
 
-void PublisherPortRouDi::cleanup() noexcept
+void PublisherPortRouDi::releaseAllChunks() noexcept
 {
     m_chunkSender.releaseAll();
 }
