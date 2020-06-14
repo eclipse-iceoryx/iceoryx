@@ -34,7 +34,7 @@ class SubscriberPortRouDi : public BasePort
   public:
     using MemberType_t = SubscriberPortData;
 
-    explicit SubscriberPortRouDi(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept;
+    explicit SubscriberPortRouDi(cxx::not_null<MemberType_t* const> subscriberPortDataPtr) noexcept;
 
     SubscriberPortRouDi(const SubscriberPortRouDi& other) = delete;
     SubscriberPortRouDi& operator=(const SubscriberPortRouDi&) = delete;
