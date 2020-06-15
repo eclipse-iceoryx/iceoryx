@@ -29,6 +29,7 @@ namespace cxx
 struct nullopt_t
 {
 };
+constexpr nullopt_t nullopt = nullopt_t();
 
 /// @brief Optional implementation from the C++17 standard with C++11. The
 ///         interface is analog to the C++17 standard and it can be used in
