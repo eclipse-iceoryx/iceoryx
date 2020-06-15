@@ -119,11 +119,6 @@ namespace runtime
 // alias for IdString
 using IdString = iox::capro::IdString;
 using InstanceContainer = iox::cxx::vector<IdString, MAX_NUMBER_OF_INSTANCES>;
-
-// Return type of StartFindService() method
-using FindServiceHandle = uint32_t;
-// Signature for service discovery callback function
-using FindServiceHandler = std::function<void(InstanceContainer&, FindServiceHandle)>;
 } // namespace runtime
 
 } // namespace iox
