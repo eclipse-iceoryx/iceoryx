@@ -21,7 +21,9 @@ using namespace iox::cxx;
 constexpr int freeFuncTestValue = 42 + 42;
 constexpr int functorTestValue = 11;
 constexpr int memberFuncTestValue = 4273;
-constexpr int sameSignatureTestValue = 12345;
+constexpr int sameSignatureIntTestValue = 12345;
+constexpr int sameSignatureVoidTestValue = 12346;
+constexpr int sameSignatureIntIntTestValue = 12347;
 
 int freeFunction()
 {
@@ -61,15 +63,19 @@ ComplexType returnComplexType(ComplexType foo)
     return foo;
 }
 
-int SameSignature(function_ref<void(void)> callback)
-{
-    callback();
-    return -1;
-}
-
 int SameSignature(function_ref<int(int)> callback)
 {
-    return callback(sameSignatureTestValue);
+    return callback(sameSignatureIntTestValue);
+}
+
+int SameSignature(function_ref<int(void)> callback)
+{
+    return callback();
+}
+
+int SameSignature(function_ref<int(int, int)> callback)
+{
+    return callback(sameSignatureIntIntTestValue, sameSignatureIntIntTestValue);
 }
 
 class function_refTest : public Test
@@ -266,7 +272,8 @@ TEST_F(function_refTest, CreateValidWithFunctorResultEqual)
 
 TEST_F(function_refTest, CreateValidWithStdBindResultEqual)
 {
-    function_ref<int()> sut(std::bind(&function_refTest::foobar, this));
+    auto callable = std::bind(&function_refTest::foobar, this);
+    function_ref<int()> sut(callable);
     EXPECT_THAT(sut(), Eq(memberFuncTestValue));
 }
 
@@ -287,9 +294,20 @@ TEST_F(function_refTest, StoreInStdFunctionResultEqual)
     EXPECT_THAT(sut(), Eq(37));
 }
 
-
-TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfCorrect)
+TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfInt)
 {
     auto value = SameSignature([](int value) -> int { return value; });
-    EXPECT_THAT(value, Eq(sameSignatureTestValue));
+    EXPECT_THAT(value, Eq(sameSignatureIntTestValue));
+}
+
+TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfVoid)
+{
+    auto value = SameSignature([](void) -> int { return sameSignatureVoidTestValue; });
+    EXPECT_THAT(value, Eq(sameSignatureVoidTestValue));
+}
+
+TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfIntInt)
+{
+    auto value = SameSignature([](int value1, int value2) -> int { return value1; });
+    EXPECT_THAT(value, Eq(sameSignatureIntIntTestValue));
 }
