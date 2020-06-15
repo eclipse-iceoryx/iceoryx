@@ -96,7 +96,8 @@ class CMqInterfaceStartupRace_test : public Test
 
         if (m_appQueue.has_error())
         {
-            m_appQueue = CommunicationType::create(MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+            m_appQueue = CommunicationType::create(
+                std::string(MQ_ROOT_PATH) + MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
         }
         ASSERT_THAT(m_appQueue.has_error(), false);
 
@@ -203,6 +204,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
     shutdown = true;
     roudi.join();
 }
+#endif
 
 TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
 {
@@ -247,4 +249,3 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
     auto response = m_appQueue->timedReceive(10_ms);
     EXPECT_THAT(response.has_error(), Eq(true));
 }
-#endif
