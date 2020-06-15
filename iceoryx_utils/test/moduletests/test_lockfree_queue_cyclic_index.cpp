@@ -215,7 +215,6 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, cyclicIncrementWraparound)
 
     const auto i = Index::MAX_INDEX;
     const auto c = Index::MAX_CYCLE - 1;
-    const auto m = Index::MAX_INDEX + 1;
 
     const auto expectedIndex = 0;
     const auto expectedCycle = c + 1;
