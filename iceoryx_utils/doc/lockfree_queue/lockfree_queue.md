@@ -1,3 +1,5 @@
+Remark: This is a preliminary description and will be reworked when the capacity feature is implemented.
+
 # Lock Free queue 
 
 We explain some details of the lock free queue in order to provide an intuition for the way the lock free queue works. This could serve as a basis for a formal proof later if desired.
@@ -63,7 +65,7 @@ push(y)
 [ (c,?), (c,x), (c,y), (c-1,?) ]   H=(c,1)     T=(c,3)
 ```
 
-We only push iff the cycle at the element Tail points to is exactly one behind Tails cycle.
+We only push if the cycle at the element Tail points to is exactly one behind Tails cycle.
 
 Constraint: we can never push more than n elements (and our use case does not require this).
 

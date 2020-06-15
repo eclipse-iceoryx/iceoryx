@@ -49,7 +49,8 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
     //     write position is outdated, there must have been other pushes concurrently
     //     reload write position and try again
 
-    constexpr bool notPublished = true;
+    constexpr bool NotPublished = true;
+
     auto writePosition = m_writePosition.load(std::memory_order_relaxed);
     do
     {
@@ -95,7 +96,7 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
             writePosition = m_writePosition.load(std::memory_order_relaxed);
         }
 
-    } while (notPublished);
+    } while (NotPublished);
 
     Index newWritePosition(writePosition + 1);
 
