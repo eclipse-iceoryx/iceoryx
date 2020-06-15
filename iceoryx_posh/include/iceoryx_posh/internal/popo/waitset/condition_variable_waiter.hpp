@@ -23,7 +23,7 @@ namespace popo
 {
 struct ConditionVariableWaiter
 {
-    ConditionVariablewaiters(const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
+    ConditionVariableWaiter(const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
         : m_memoryInfo(memoryInfo)
     {
     }
