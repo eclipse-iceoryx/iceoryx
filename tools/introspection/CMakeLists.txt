@@ -6,9 +6,10 @@ find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
 include(IceoryxPackageHelper)
+include(IceoryxPlatformDetection)
 
 # cmake doesn't find ncurses under QNX; let the compiler complain if the header is missing
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+if(NOT QNX)
     SET(CURSES_USE_NCURSES TRUE)
     find_package(Curses REQUIRED)
     if(${CURSES_HAVE_NCURSES_H} MATCHES ".*-NOTFOUND")
@@ -38,6 +39,7 @@ add_library(iceoryx_introspection
             source/iceoryx_introspection_app.cpp
             source/introspection_app.cpp
     )
+set_property(TARGET iceoryx_introspection PROPERTY CXX_STANDARD 11)
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_introspection ALIAS iceoryx_introspection)
 
@@ -55,18 +57,28 @@ target_link_libraries(iceoryx_introspection
     ncurses
 )
 
-# Don't link tinfo under QNX
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceoryx_introspection
-        tinfo
-    )
+
+
+if(LINUX)
+    set(LIB_TINFO tinfo)
+elseif(QNX)
+    set(LIB_TINFO "")
+elseif(APPLE)
+    find_library(LIB_TINFO tinfo)
+elseif(WIN32)
+    message(WARNING "Introspection not supported for windows." )
+else()
+    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
 endif()
+
+target_link_libraries(iceoryx_introspection ${LIB_TINFO})
 
 set_target_properties(iceoryx_introspection
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
 add_executable(iceoryx_introspection_client source/introspection_main.cpp)
+set_property(TARGET iceoryx_introspection_client PROPERTY CXX_STANDARD 11)
 
 target_link_libraries(iceoryx_introspection_client
     PRIVATE
