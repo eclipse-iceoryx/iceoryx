@@ -11,40 +11,70 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build-test"
-  build-test:
+  # This job builds & runs iceoryx tests in ubuntu-18.04
+  build-test-ubuntu:
     # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-#       os: [ubuntu-18.04, windows-latest, macos-latest]
-        os: [ubuntu-18.04]
-      fail-fast: false
+    runs-on: ubuntu-18.04
       
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-       # To build against multiple OSs dependencies installation needs to be OS specific
       - name: Install iceoryx dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake libacl1-dev libncurses5-dev pkg-config
+        # Softwares installed in ubuntu-18.04 instance 
+        # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
+        run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
       
       - name : Checkout
         uses: actions/checkout@v2
  
-    # Runs a set of commands using the runners shell
-      - name: Print details
-        run: |
-          echo This workflow is triggered by $GITHUB_EVENT_NAME
-          echo Running iceoryx build in directory $GITHUB_WORKSPACE
-          echo Home directory is $HOME
-
-      - name: Build with GNU
-        run: ./tools/iceoryx_build_test.sh
+      - name: Build sources
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean
       
-      - name: Execute Tests
-        run: "./tools/iceoryx_build_test.sh test"  
+      - name: Build tests
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test
+
+      - name: Run tests
+        run: |
+          cd $GITHUB_WORKSPACE/build
+          ../tools/run_all_tests.sh
         
-      - name : Build with clang
+      - name : Build sources (clang)
         run: |
           export CC=/usr/bin/clang
           export CXX=/usr/bin/clang++
-          ./tools/iceoryx_build_test.sh clean
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean
+
+ # This job builds & runs iceoryx tests in macos-10.15
+  build-test-mac:
+    runs-on: macos-10.15
+    # Softwares installed in macos-10.15 instance
+    # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md     
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name : Checkout
+        uses: actions/checkout@v2
+        
+      - name: Build ncurses by source
+      # tinfo library which is required by iceoryx_introspection isn't available in mac
+        run: |
+          cd $GITHUB_WORKSPACE
+          mkdir -p build
+          cd build
+          git clone https://github.com/mirror/ncurses.git 
+          cd ncurses
+          git checkout v6.2          
+          ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/ --with-termlib 
+          make
+          make install                  
+ 
+      - name: Build sources
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh
+      
+      - name: Build tests
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test
+
+      # - name: Run tests
+      #   run: |
+      #     cd $GITHUB_WORKSPACE/build
+      #     ../tools/run_all_tests.sh
+
