@@ -293,14 +293,3 @@ TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfCorrect)
     auto value = SameSignature([](int value) -> int { return value; });
     EXPECT_THAT(value, Eq(sameSignatureTestValue));
 }
-
-/// @todo Wrap function_ref in function_ref to see if type trait works?
-
-/// @todo
-// int wrongCallable(int, int) {
-// }
-// TEST_F(function_refTest, WrongCallable)
-// {
-//     function_ref<void()> bubbedibub1(&wrongCallable);
-//     function_ref<void()> bubbedibub2("foo");
-// }

@@ -57,14 +57,10 @@ class function_ref<ReturnType(ArgTypes...)>
     using SignatureType = ReturnType(ArgTypes...);
     template <typename T>
     using NotFunctionRef =
-        typename std::integral_constant<bool, !bool(std::is_same<std::decay<T>, function_ref>::value)>;
+        typename std::integral_constant<bool, !bool(std::is_same<typename std::decay<T>::type, function_ref>::value)>;
     /// @note result_of is deprecated, switch to invoke_result in C++17
     template <typename T, typename = typename std::result_of<T(ArgTypes...)>::type>
     struct IsCallable : std::true_type
-    {
-    };
-    template <typename T>
-    struct IsCallable<T, T> : std::false_type
     {
     };
     template <typename T>

@@ -53,7 +53,7 @@ function_ref<ReturnType(ArgTypes...)>::operator=(function_ref<ReturnType(ArgType
         rhs.m_functionPointer = nullptr;
     }
     return *this;
-};
+}
 
 template <class ReturnType, class... ArgTypes>
 inline ReturnType function_ref<ReturnType(ArgTypes...)>::operator()(ArgTypes... args) const noexcept
