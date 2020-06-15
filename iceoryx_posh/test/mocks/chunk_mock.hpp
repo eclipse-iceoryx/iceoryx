@@ -32,14 +32,18 @@ class ChunkMock
     {
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
         m_rawMemory = static_cast<uint8_t*>(memalign(Alignment, Size));
+        m_unalignedMemory = m_rawMemory;
 #elif defined(__APPLE__)
         uint64_t memOffset = reinterpret_cast<uint64_t>(malloc(Size + Alignment));
+        m_unalignedMemory = reinterpret_cast<uint8_t*>(memOffset);
         memOffset += memOffset % Alignment;
         m_rawMemory = reinterpret_cast<uint8_t*>(memOffset);
 #elif defined(_WIN32)
         m_rawMemory = static_cast<uint8_t*>(_aligned_malloc(Alignment, Size));
+        m_unalignedMemory = m_rawMemory;
 #else
         m_rawMemory = static_cast<uint8_t*>(aligned_alloc(Alignment, Size));
+        m_unalignedMemory = m_rawMemory;
 #endif
         assert(m_rawMemory != nullptr && "Could not get aligned memory");
 
@@ -54,9 +58,10 @@ class ChunkMock
         {
             m_chunkHeader->~ChunkHeader();
         }
-        if (m_rawMemory != nullptr)
+        if (m_unalignedMemory != nullptr)
         {
-            free(m_rawMemory);
+            free(m_unalignedMemory);
+            m_unalignedMemory = nullptr;
             m_rawMemory = nullptr;
         }
     }
@@ -82,6 +87,7 @@ class ChunkMock
     uint8_t* m_rawMemory{nullptr};
     iox::mepoo::ChunkHeader* m_chunkHeader = nullptr;
     Topic* m_topic = nullptr;
+    void* m_unalignedMemory{nullptr};
 };
 
 #endif // IOX_POSH_MOCKS_CHUNK_MOCK_HPP

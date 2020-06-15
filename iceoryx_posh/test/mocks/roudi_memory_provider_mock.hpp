@@ -44,8 +44,9 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
         dummyMemory = static_cast<uint8_t*>(memalign(alignment, size));
 #elif defined(__APPLE__)
         uint64_t memOffset = reinterpret_cast<uint64_t>(malloc(size + alignment));
-        memOffset += memOffset % alignment;
         dummyMemory = reinterpret_cast<uint8_t*>(memOffset);
+        memOffset += memOffset % alignment;
+        return iox::cxx::success<void*>(reinterpret_cast<void*>(memOffset));
 #else
         dummyMemory = static_cast<uint8_t*>(aligned_alloc(alignment, size));
 #endif
