@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "test.hpp"
 
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
@@ -36,10 +37,8 @@ using iox::runtime::MqRuntimeInterface;
 
 #if defined(__APPLE__)
 constexpr char DeleteRouDiMessageQueue[] = "rm /tmp/roudi";
-using MQueue = iox::posix::UnixDomainSocket;
 #else
 constexpr char DeleteRouDiMessageQueue[] = "rm /dev/mqueue/roudi";
-using MQueue = iox::posix::MessageQueue;
 #endif
 
 constexpr char MqAppName[] = "/racer";
@@ -54,7 +53,7 @@ class CMqInterfaceStartupRace_test : public Test
 {
   public:
     CMqInterfaceStartupRace_test()
-        : m_appQueue{MQueue::create()}
+        : m_appQueue{CommunicationType::create()}
     {
     }
 
@@ -97,7 +96,7 @@ class CMqInterfaceStartupRace_test : public Test
 
         if (m_appQueue.has_error())
         {
-            m_appQueue = MQueue::create(MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+            m_appQueue = CommunicationType::create(MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
         }
         ASSERT_THAT(m_appQueue.has_error(), false);
 
@@ -106,10 +105,10 @@ class CMqInterfaceStartupRace_test : public Test
 
     /// @note smart_lock in combination with optional is currently not really usable
     std::mutex m_roudiQueueMutex;
-    MQueue::result_t m_roudiQueue{
-        MQueue::create(std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
+    CommunicationType::result_t m_roudiQueue{CommunicationType::create(
+        std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
     std::mutex m_appQueueMutex;
-    MQueue::result_t m_appQueue;
+    CommunicationType::result_t m_appQueue;
 };
 
 #if !defined(__APPLE__)
@@ -132,8 +131,8 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
-        auto m_roudiQueue2 =
-            MQueue::create(std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto m_roudiQueue2 = CommunicationType::create(
+            std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         request = m_roudiQueue2->timedReceive(15_s);
@@ -175,8 +174,8 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
-        auto newRoudi =
-            MQueue::create(std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto newRoudi = CommunicationType::create(
+            std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         auto request = newRoudi->timedReceive(15_s);
