@@ -112,6 +112,7 @@ class CMqInterfaceStartupRace_test : public Test
     MQueue::result_t m_appQueue;
 };
 
+#if !defined(__APPLE__)
 TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 {
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
@@ -247,3 +248,4 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
     auto response = m_appQueue->timedReceive(10_ms);
     EXPECT_THAT(response.has_error(), Eq(true));
 }
+#endif
