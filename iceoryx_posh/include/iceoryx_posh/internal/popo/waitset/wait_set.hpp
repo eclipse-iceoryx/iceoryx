@@ -17,19 +17,27 @@
 #include "condition_variable_waiter.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
+#include "iceoryx_utils/cxx/vector.hpp"
+
 
 namespace iox
 {
 namespace popo
 {
+constexpr uint16_t MAX_NUMBER_OF_CONDITION_VARIABLES{128};
+
 class WaitSet
 {
-    WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
-        : m_condVarDataPtr(condVarDataPtr)
+    WaitSet() noexcept
     {
     }
+    /// @brief Requests a condition variable from RouDi and creates a new object in vector with shared memory pointer
+    bool attachCondition();
+    bool detachCondition();
+    void timedWait();
+    void wait();
 
-    ConditionVariableData* const m_condVarDataPtr;
+    cxx::vector<ConditionVariableWaiter, MAX_NUMBER_OF_CONDITION_VARIABLES> m_waiterVector;
 };
 
 } // namespace popo

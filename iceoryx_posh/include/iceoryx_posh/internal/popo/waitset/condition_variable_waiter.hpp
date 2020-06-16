@@ -30,6 +30,10 @@ class ConditionVariableWaiter
     {
     }
 
+    void reset() noexcept;
+    void timedWait() noexcept;
+    void wait() noexcept;
+
   protected:
     const ConditionVariableData* getMembers() const noexcept;
     ConditionVariableData* getMembers() noexcept;

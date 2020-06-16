@@ -27,7 +27,9 @@ class Condition
     {
     }
 
-    // cxx::list m_waitSetList;
+    bool attachCondition();
+    bool detachCondition();
+    bool hasTrigger();
 };
 
 } // namespace popo
