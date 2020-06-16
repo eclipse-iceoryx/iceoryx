@@ -27,7 +27,7 @@ namespace iox
 namespace dds
 {
 // Fixed strings
-using IdString = iox::cxx::string<100>;
+using IdString = iox::cxx::string<100u>;
 
 // DDS implementation defined with compiler flags
 #ifdef USE_CYCLONE_DDS
