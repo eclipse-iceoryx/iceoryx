@@ -59,7 +59,7 @@ class DDSGatewayGeneric : public gateway_t
     /// @brief loadConfiguration Load the provided configuration.
     /// @param config Generic dds gateway configuration which is applicable to all implementations.
     ///
-    virtual void loadConfiguration(GatewayConfig config) noexcept = 0;
+    virtual void loadConfiguration(const GatewayConfig& config) noexcept = 0;
     ///
     /// @brief discover Process discovery messages coming from iceoryx.
     /// @param msg The discovery message.
@@ -69,7 +69,7 @@ class DDSGatewayGeneric : public gateway_t
     /// @brief forward Forward data between the two terminals of the channel used by the implementation.
     /// @param channel The channel to propogate data across.
     ///
-    virtual void forward(channel_t channel) noexcept = 0;
+    virtual void forward(const channel_t& channel) noexcept = 0;
 
     uint64_t getNumberOfChannels() const noexcept;
 

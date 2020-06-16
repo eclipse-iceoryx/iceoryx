@@ -30,8 +30,8 @@ inline iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::~DDSGatewayGeneric() n
 template <typename channel_t, typename gateway_t>
 inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::runMultithreaded() noexcept
 {
-    m_discoveryThread = std::thread([this] { discoveryLoop(); });
-    m_forwardingThread = std::thread([this] { forwardingLoop(); });
+    m_discoveryThread = std::thread([this] { this->discoveryLoop(); });
+    m_forwardingThread = std::thread([this] { this->forwardingLoop(); });
     m_isRunning.store(true, std::memory_order_relaxed);
 }
 
@@ -52,8 +52,7 @@ inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::shutdown() noexce
 template <typename channel_t, typename gateway_t>
 inline uint64_t iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::getNumberOfChannels() const noexcept
 {
-    auto guardedVector = m_channels.GetScopeGuard();
-    return guardedVector->size();
+    return m_channels->size();
 }
 
 // ================================================== Protected ================================================== //
@@ -93,7 +92,6 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro:
     }
     else
     {
-        // Needs to be dereferenced since the smart lock returns pointers to elements in concurrent collections.
         return iox::cxx::make_optional<channel_t>(*channel);
     }
 }
