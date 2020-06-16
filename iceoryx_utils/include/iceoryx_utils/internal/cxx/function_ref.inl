@@ -24,8 +24,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref() noexcept
 }
 
 template <class ReturnType, class... ArgTypes>
-template <typename CallableType,
-          typename = typename function_ref<ReturnType(ArgTypes...)>::template EnableIfNotFunctionRef<CallableType>>
+template <typename CallableType, typename, typename>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
     : m_pointerToCallable(reinterpret_cast<void*>(std::addressof(callable)))
     , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
@@ -54,7 +53,7 @@ function_ref<ReturnType(ArgTypes...)>::operator=(function_ref<ReturnType(ArgType
         rhs.m_functionPointer = nullptr;
     }
     return *this;
-};
+}
 
 template <class ReturnType, class... ArgTypes>
 inline ReturnType function_ref<ReturnType(ArgTypes...)>::operator()(ArgTypes... args) const noexcept

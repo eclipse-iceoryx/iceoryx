@@ -56,7 +56,15 @@ class function_ref<ReturnType(ArgTypes...)>
 {
     using SignatureType = ReturnType(ArgTypes...);
     template <typename T>
-    using EnableIfNotFunctionRef = typename std::enable_if<!std::is_same<std::decay<T>, function_ref>::value>::type;
+    using NotFunctionRef =
+        typename std::integral_constant<bool, !bool(std::is_same<typename std::decay<T>::type, function_ref>::value)>;
+    /// @note result_of is deprecated, switch to invoke_result in C++17
+    template <typename T, typename = typename std::result_of<T(ArgTypes...)>::type>
+    struct IsCallable : std::true_type
+    {
+    };
+    template <typename T>
+    using EnableIf = typename std::enable_if<T::value>::type;
 
   public:
     /// @brief Creates an empty function_ref in an invalid state
@@ -71,7 +79,9 @@ class function_ref<ReturnType(ArgTypes...)>
 
     /// @brief Creates a function_ref with a callable whose lifetime has to be longer than function_ref
     /// @param[in] callable that is not a function_ref
-    template <typename CallableType, typename = EnableIfNotFunctionRef<CallableType>>
+    template <typename CallableType,
+              typename = EnableIf<NotFunctionRef<CallableType>>,
+              typename = EnableIf<IsCallable<CallableType>>>
     function_ref(CallableType&& callable) noexcept;
 
     function_ref(function_ref&& rhs) noexcept;

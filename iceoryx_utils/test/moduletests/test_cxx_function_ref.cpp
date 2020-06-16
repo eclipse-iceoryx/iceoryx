@@ -21,6 +21,9 @@ using namespace iox::cxx;
 constexpr int freeFuncTestValue = 42 + 42;
 constexpr int functorTestValue = 11;
 constexpr int memberFuncTestValue = 4273;
+constexpr int sameSignatureIntTestValue = 12345;
+constexpr int sameSignatureVoidTestValue = 12346;
+constexpr int sameSignatureIntIntTestValue = 12347;
 
 int freeFunction()
 {
@@ -58,6 +61,21 @@ struct ComplexType
 ComplexType returnComplexType(ComplexType foo)
 {
     return foo;
+}
+
+int SameSignature(function_ref<int(int)> callback)
+{
+    return callback(sameSignatureIntTestValue);
+}
+
+int SameSignature(function_ref<int(void)> callback)
+{
+    return callback();
+}
+
+int SameSignature(function_ref<int(int, int)> callback)
+{
+    return callback(sameSignatureIntIntTestValue, sameSignatureIntIntTestValue);
 }
 
 class function_refTest : public Test
@@ -101,7 +119,7 @@ TEST_F(function_refTest, CreateValidByAssignIsTrue)
     EXPECT_TRUE(sut);
 }
 
-TEST_F(function_refTest, CreateValidByAssignResultEqual)
+TEST_F(function_refTest, CallValidByAssignResultEqual)
 {
     auto lambda = []() -> int { return 7253; };
     function_ref<int()> sut;
@@ -109,12 +127,12 @@ TEST_F(function_refTest, CreateValidByAssignResultEqual)
     EXPECT_THAT(sut(), Eq(7253));
 }
 
-TEST_F(function_refTest, CreateValidByCopyConstructResultEqual)
+TEST_F(function_refTest, CallValidByCopyConstructResultEqual)
 {
     auto lambda = []() -> int { return 3527; };
     function_ref<int()> sut1{lambda};
     function_ref<int()> sut2(sut1);
-    EXPECT_TRUE(sut2);
+    ASSERT_TRUE(sut2);
     EXPECT_THAT(sut2(), Eq(3527));
 }
 
@@ -149,7 +167,7 @@ TEST_F(function_refTest, CreateValidByMoveResultEqual)
     auto lambda = []() -> int { return 123; };
     function_ref<int()> sut1{lambda};
     function_ref<int()> sut2{std::move(sut1)};
-    EXPECT_TRUE(sut2);
+    ASSERT_TRUE(sut2);
     EXPECT_FALSE(sut1);
     EXPECT_THAT(sut2(), Eq(123));
 }
@@ -254,7 +272,8 @@ TEST_F(function_refTest, CreateValidWithFunctorResultEqual)
 
 TEST_F(function_refTest, CreateValidWithStdBindResultEqual)
 {
-    function_ref<int()> sut(std::bind(&function_refTest::foobar, this));
+    auto callable = std::bind(&function_refTest::foobar, this);
+    function_ref<int()> sut(callable);
     EXPECT_THAT(sut(), Eq(memberFuncTestValue));
 }
 
@@ -273,4 +292,22 @@ TEST_F(function_refTest, StoreInStdFunctionResultEqual)
     // Moves cxx::function_ref into std::function, needs copy c'tor
     std::function<int()> sut(moep);
     EXPECT_THAT(sut(), Eq(37));
+}
+
+TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfInt)
+{
+    auto value = SameSignature([](int value) -> int { return value; });
+    EXPECT_THAT(value, Eq(sameSignatureIntTestValue));
+}
+
+TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfVoid)
+{
+    auto value = SameSignature([](void) -> int { return sameSignatureVoidTestValue; });
+    EXPECT_THAT(value, Eq(sameSignatureVoidTestValue));
+}
+
+TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfIntInt)
+{
+    auto value = SameSignature([](int value1, int value2) -> int { return value1; });
+    EXPECT_THAT(value, Eq(sameSignatureIntIntTestValue));
 }
