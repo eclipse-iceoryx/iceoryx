@@ -23,8 +23,6 @@ namespace iox
 {
 namespace dds
 {
-// template <typename channel_t>
-// using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
 
 // ======================================== Public ======================================== //
 template <typename channel_t, typename gateway_t>
@@ -33,7 +31,7 @@ inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway() noexcept :
 }
 
 template <typename channel_t, typename gateway_t>
-inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(GatewayConfig config) noexcept
+inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const GatewayConfig& config) noexcept
 {
     iox::LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway.";
     for (const auto& service : config.m_configuredServices)
@@ -98,7 +96,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro:
 }
 
 template <typename channel_t, typename gateway_t>
-inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(channel_t channel) noexcept
+inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
     auto subscriber = channel.getIceoryxTerminal();
     if (subscriber->hasNewChunks())

@@ -36,9 +36,9 @@ class Iceoryx2DDSGateway : public gateway_t
 
   public:
     Iceoryx2DDSGateway() noexcept;
-    void loadConfiguration(GatewayConfig config) noexcept;
+    void loadConfiguration(const GatewayConfig& config) noexcept;
     void discover(const iox::capro::CaproMessage& msg) noexcept;
-    void forward(channel_t channel) noexcept;
+    void forward(const channel_t& channel) noexcept;
 };
 
 } // namespace dds

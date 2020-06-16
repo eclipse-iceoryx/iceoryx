@@ -29,7 +29,7 @@ inline DDS2IceoryxGateway<channel_t>::DDS2IceoryxGateway() noexcept : iox::dds::
 }
 
 template <typename channel_t>
-inline void DDS2IceoryxGateway<channel_t>::loadConfiguration(GatewayConfig config) noexcept
+inline void DDS2IceoryxGateway<channel_t>::loadConfiguration(const GatewayConfig& config) noexcept
 {
 }
 
@@ -40,7 +40,7 @@ inline void DDS2IceoryxGateway<channel_t>::discover(const iox::capro::CaproMessa
 }
 
 template <typename channel_t>
-inline void DDS2IceoryxGateway<channel_t>::forward(channel_t channel) noexcept
+inline void DDS2IceoryxGateway<channel_t>::forward(const channel_t& channel) noexcept
 {
 }
 

@@ -39,11 +39,6 @@ inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const iox::capro::ServiceD
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
-inline Channel<IceoryxTerminal, DDSTerminal>::~Channel() noexcept
-{
-}
-
-template <typename IceoryxTerminal, typename DDSTerminal>
 inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const Channel<IceoryxTerminal, DDSTerminal>& rhs) noexcept
 {
     m_service = rhs.m_service;
@@ -88,8 +83,8 @@ Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescripti
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
     auto iceoryxTerminalPtr =
-        IceoryxTerminalPtr(rawIceoryxTerminalPtr, [](IceoryxTerminal* p) { s_iceoryxTerminals.free(p); });
-    auto ddsTerminalPtr = DDSTerminalPtr(rawDDSTerminalPtr, [](DDSTerminal* p) { s_ddsTerminals.free(p); });
+        IceoryxTerminalPtr(rawIceoryxTerminalPtr, [](IceoryxTerminal* const p) { s_iceoryxTerminals.free(p); });
+    auto ddsTerminalPtr = DDSTerminalPtr(rawDDSTerminalPtr, [](DDSTerminal* const p) { s_ddsTerminals.free(p); });
 
     return Channel(service, iceoryxTerminalPtr, ddsTerminalPtr);
 }

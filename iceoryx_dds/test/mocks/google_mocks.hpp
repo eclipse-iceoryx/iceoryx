@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP
+#define IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP
 
 #include "test.hpp"
 #include <iceoryx_dds/dds/data_writer.hpp>
@@ -57,3 +58,5 @@ class MockGenericDDSGateway
         iox::cxx::optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(const iox::capro::ServiceDescription&));
     MOCK_METHOD1(forEachChannel, void(const std::function<void(iox::dds::Channel<MockSubscriber, MockDataWriter>&)>));
 };
+
+#endif // IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP
