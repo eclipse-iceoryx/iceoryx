@@ -25,6 +25,7 @@
 #include <condition_variable>
 #include <cstdint>
 #include <ctime>
+#include <functional>
 #include <limits>
 
 
