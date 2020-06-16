@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
-#include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/waitset/guard_condition.hpp"
+#include "iceoryx_posh/internal/popo/waitset/wait_set.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "test.hpp"
 
@@ -25,7 +26,7 @@ using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
 
-class ConditionVariableWaiter_test : public Test
+class WaitSet_test : public Test
 {
   public:
     static constexpr size_t MEGABYTE = 1 << 20;
@@ -37,10 +38,13 @@ class ConditionVariableWaiter_test : public Test
     MemPool mempool{128, 20, &allocator, &allocator};
     MemPool chunkMgmtPool{128, 20, &allocator, &allocator};
 
+    WaitSet m_waitset;
+    GuardCondition m_guardCondition;
+
     void SetUp(){};
     void TearDown(){};
 };
 
-TEST_F(ConditionVariableWaiter_test, NoSignalResultsInWait)
-{
-}
+// TEST_F(WaitSet_test, NoAttachResultsInError)
+// {
+// }

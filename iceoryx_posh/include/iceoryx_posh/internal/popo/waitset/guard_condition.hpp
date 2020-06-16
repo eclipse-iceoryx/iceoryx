@@ -14,6 +14,7 @@
 #ifndef IOX_POSH_POPO_WAITSET_GUARD_CONDITION_HPP
 #define IOX_POSH_POPO_WAITSET_GUARD_CONDITION_HPP
 
+#include "condition_variable_signaler.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 
@@ -21,14 +22,14 @@ namespace iox
 {
 namespace popo
 {
-struct GuardCondition
+class GuardCondition
 {
-    GuardCondition(const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : m_memoryInfo(memoryInfo)
+    GuardCondition(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
+        : m_condVarDataPtr(condVarDataPtr)
     {
     }
 
-    mepoo::MemoryInfo m_memoryInfo;
+    ConditionVariableData* const m_condVarDataPtr;
 };
 
 } // namespace popo

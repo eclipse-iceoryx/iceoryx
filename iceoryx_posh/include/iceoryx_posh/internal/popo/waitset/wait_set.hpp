@@ -14,6 +14,7 @@
 #ifndef IOX_POSH_POPO_WAITSET_WAIT_SET_HPP
 #define IOX_POSH_POPO_WAITSET_WAIT_SET_HPP
 
+#include "condition_variable_waiter.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 
@@ -21,14 +22,14 @@ namespace iox
 {
 namespace popo
 {
-struct WaitSet
+class WaitSet
 {
-    WaitSet(const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : m_memoryInfo(memoryInfo)
+    WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
+        : m_condVarDataPtr(condVarDataPtr)
     {
     }
 
-    mepoo::MemoryInfo m_memoryInfo;
+    ConditionVariableData* const m_condVarDataPtr;
 };
 
 } // namespace popo

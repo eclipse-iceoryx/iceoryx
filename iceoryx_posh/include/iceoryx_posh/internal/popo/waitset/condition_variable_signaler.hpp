@@ -11,9 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_WAITSET_CONDITION_HPP
-#define IOX_POSH_POPO_WAITSET_CONDITION_HPP
+#ifndef IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_SIGNALER_HPP
+#define IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_SIGNALER_HPP
 
+#include "condition_variable_data.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 
@@ -21,17 +22,23 @@ namespace iox
 {
 namespace popo
 {
-struct ConditionVariableSignaler
+class ConditionVariableSignaler
 {
-    ConditionVariableSignaler(const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : m_memoryInfo(memoryInfo)
+  public:
+    ConditionVariableSignaler(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
+        : m_condVarDataPtr(condVarDataPtr)
     {
     }
 
-    mepoo::MemoryInfo m_memoryInfo;
+  protected:
+    const ConditionVariableData* getMembers() const noexcept;
+    ConditionVariableData* getMembers() noexcept;
+
+  private:
+    ConditionVariableData* const m_condVarDataPtr;
 };
 
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_POSH_POPO_WAITSET_CONDITION_HPP
+#endif // IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_SIGNALER_HPP

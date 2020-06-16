@@ -21,15 +21,13 @@ namespace iox
 {
 namespace popo
 {
-struct Condition
+class Condition
 {
-    Condition(const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : m_memoryInfo(memoryInfo)
+    Condition() noexcept
     {
     }
 
-    mepoo::MemoryInfo m_memoryInfo;
-    cxx::list m_waitSetList;
+    // cxx::list m_waitSetList;
 };
 
 } // namespace popo

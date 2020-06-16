@@ -14,6 +14,8 @@
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
+#include "iceoryx_posh/internal/popo/waitset/condition_variable_waiter.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "test.hpp"
 
@@ -25,7 +27,7 @@ using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
 
-class ConditionVariableSignaler_test : public Test
+class ConditionVariable_test : public Test
 {
   public:
     static constexpr size_t MEGABYTE = 1 << 20;
@@ -37,10 +39,19 @@ class ConditionVariableSignaler_test : public Test
     MemPool mempool{128, 20, &allocator, &allocator};
     MemPool chunkMgmtPool{128, 20, &allocator, &allocator};
 
+    ConditionVariableData m_condVarData;
+    ConditionVariableWaiter m_waiter{&m_condVarData};
+    ConditionVariableSignaler m_signaler{&m_condVarData};
+
     void SetUp(){};
     void TearDown(){};
 };
 
-TEST_F(ConditionVariableSignaler_test, NoSignalResultsInWait)
+TEST_F(ConditionVariable_test, NoSignalResultsInWait)
 {
+}
+
+TEST_F(ConditionVariable_test, SignalResultsInCall)
+{
+    //m_signaler.signal();
 }
