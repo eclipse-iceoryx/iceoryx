@@ -21,7 +21,7 @@ namespace iox
 {
 namespace dds
 {
-using IdString = iox::cxx::string<100>;
+using IdString = iox::cxx::string<100u>;
 
 template <typename Impl>
 class DataReader
