@@ -7,6 +7,7 @@
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/function_ref.hpp"
 
 using namespace ::testing;
 using ::testing::_;
@@ -56,7 +57,7 @@ class MockGenericDDSGateway
     MOCK_METHOD1(
         findChannel,
         iox::cxx::optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(const iox::capro::ServiceDescription&));
-    MOCK_METHOD1(forEachChannel, void(const std::function<void(iox::dds::Channel<MockSubscriber, MockDataWriter>&)>));
+    MOCK_METHOD1(forEachChannel, void(const iox::cxx::function_ref<void(iox::dds::Channel<MockSubscriber, MockDataWriter>&)>));
 };
 
 #endif // IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 file (STRINGS "../VERSION" iceoryx_dds_VERSION)
-project(iceoryx_posh VERSION ${iceoryx_dds_VERSION})
+project(iceoryx_dds VERSION ${iceoryx_dds_VERSION})
 
 option(BUILD_TESTS "build test binaries")
 
