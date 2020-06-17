@@ -56,11 +56,7 @@ class Channel
     Channel(const iox::capro::ServiceDescription& service,
             const IceoryxTerminalPtr iceoryxTerminal,
             const DDSTerminalPtr ddsTerminal) noexcept;
-    ~Channel() noexcept = default;
-    Channel(const Channel<IceoryxTerminal, DDSTerminal>&) noexcept;
-    Channel& operator=(const Channel<IceoryxTerminal, DDSTerminal>&) noexcept;
-    Channel(Channel<IceoryxTerminal, DDSTerminal>&&) noexcept;
-    Channel& operator=(Channel<IceoryxTerminal, DDSTerminal>&&) noexcept;
+    constexpr bool operator==(const Channel<IceoryxTerminal, DDSTerminal>& rhs) const noexcept;
 
     static Channel create(const iox::capro::ServiceDescription& service) noexcept;
 
