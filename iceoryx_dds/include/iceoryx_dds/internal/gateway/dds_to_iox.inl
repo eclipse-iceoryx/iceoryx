@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cpptoml.h>
-
-#include <iceoryx_posh/capro/service_description.hpp>
-#include <iceoryx_utils/cxx/string.hpp>
-
 #include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 
 namespace iox
 {

@@ -15,7 +15,7 @@
 #ifndef IOX_DDS_DDS_CONFIG_HPP
 #define IOX_DDS_DDS_CONFIG_HPP
 
-#include <iceoryx_posh/iceoryx_posh_types.hpp>
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox
 {

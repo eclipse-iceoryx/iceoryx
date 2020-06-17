@@ -2,11 +2,11 @@
 #define IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP
 
 #include "test.hpp"
-#include <iceoryx_dds/dds/data_writer.hpp>
-#include <iceoryx_dds/gateway/channel.hpp>
-#include <iceoryx_posh/internal/capro/capro_message.hpp>
-#include <iceoryx_posh/mepoo/chunk_header.hpp>
-#include <iceoryx_utils/cxx/optional.hpp>
+#include "iceoryx_dds/dds/data_writer.hpp"
+#include "iceoryx_dds/gateway/channel.hpp"
+#include "iceoryx_posh/internal/capro/capro_message.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 
 using namespace ::testing;
 using ::testing::_;

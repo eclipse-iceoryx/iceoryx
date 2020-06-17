@@ -15,19 +15,18 @@
 #ifndef IOX_DDS_GATEWAY_DDS_GATEWAY_GENERIC_HPP
 #define IOX_DDS_GATEWAY_DDS_GATEWAY_GENERIC_HPP
 
-#include <atomic>
-#include <thread>
-
-#include <iceoryx_posh/capro/service_description.hpp>
-#include <iceoryx_posh/iceoryx_posh_types.hpp>
-#include <iceoryx_posh/popo/gateway_generic.hpp>
-#include <iceoryx_utils/cxx/optional.hpp>
-#include <iceoryx_utils/cxx/string.hpp>
-#include <iceoryx_utils/cxx/vector.hpp>
-#include <iceoryx_utils/internal/concurrent/smart_lock.hpp>
-
 #include "iceoryx_dds/dds/dds_config.hpp"
 #include "iceoryx_dds/gateway/gateway_config.hpp"
+#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/popo/gateway_generic.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
+
+#include <atomic>
+#include <thread>
 
 namespace iox
 {

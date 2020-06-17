@@ -15,9 +15,9 @@
 #ifndef IOX_DDS_DDS_DATA_WRITER_HPP
 #define IOX_DDS_DDS_DATA_WRITER_HPP
 
-#include <cstdint>
+#include "iceoryx_utils/cxx/string.hpp"
 
-#include <iceoryx_utils/cxx/string.hpp>
+#include <cstdint>
 
 namespace iox
 {

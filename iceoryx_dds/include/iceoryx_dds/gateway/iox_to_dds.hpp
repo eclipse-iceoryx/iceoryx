@@ -15,11 +15,10 @@
 #ifndef IOX_DDS_GATEWAY_IOX_TO_DDS_HPP
 #define IOX_DDS_GATEWAY_IOX_TO_DDS_HPP
 
-#include <iceoryx_posh/popo/subscriber.hpp>
-
 #include "iceoryx_dds/dds/dds_types.hpp"
 #include "iceoryx_dds/gateway/channel.hpp"
 #include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
+#include "iceoryx_posh/popo/subscriber.hpp"
 
 namespace iox
 {
