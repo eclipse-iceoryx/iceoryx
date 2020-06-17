@@ -127,6 +127,9 @@ else()
     message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
 endif()
 
+if(ICEORYX_LARGE_DEPLOYMENT)
+    target_compile_definitions(iceoryx_posh PUBLIC -DICEORYX_LARGE_DEPLOYMENT)
+endif(ICEORYX_LARGE_DEPLOYMENT)
 
 #
 ########## build roudi lib ##########
@@ -255,10 +258,6 @@ if(roudi_environment OR test)
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
     )
 endif(roudi_environment OR test)
-
-if(ICEORYX_LARGE_DEPLOYMENT)
-    add_definitions(-DICEORYX_LARGE_DEPLOYMENT)
-endif(ICEORYX_LARGE_DEPLOYMENT)
 
 #
 ########## exporting library ##########
