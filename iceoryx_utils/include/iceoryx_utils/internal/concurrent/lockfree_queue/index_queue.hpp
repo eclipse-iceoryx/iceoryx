@@ -177,7 +177,7 @@ class IndexQueue
     using Index = CyclicIndex<Capacity>;
 
     using Cell = std::atomic<Index>;
-    Cell m_cells[Capacity]{Cell(Index(0))};
+    Cell m_cells[Capacity]{Index(0)};
 
     std::atomic<Index> m_readPosition;
     std::atomic<Index> m_writePosition;
