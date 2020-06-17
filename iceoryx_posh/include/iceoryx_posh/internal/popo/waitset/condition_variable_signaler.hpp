@@ -17,6 +17,7 @@
 #include "condition_variable_data.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {
@@ -25,11 +26,8 @@ namespace popo
 class ConditionVariableSignaler
 {
   public:
-    ConditionVariableSignaler(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
-        : m_condVarDataPtr(condVarDataPtr)
-    {
-        /// @todo move implementation to cpp
-    }
+    ConditionVariableSignaler(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+
     void notify() noexcept;
 
   protected:

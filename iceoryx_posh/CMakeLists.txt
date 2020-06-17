@@ -73,11 +73,13 @@ add_library(iceoryx_posh
     source/popo/ports/base_port_data.cpp
     source/popo/ports/base_port.cpp
     source/popo/ports/publisher_port_user.cpp
-    source/popo/ports/publisher_port_roudi.cpp    
-    source/popo/ports/publisher_port_data.cpp      
+    source/popo/ports/publisher_port_roudi.cpp
+    source/popo/ports/publisher_port_data.cpp
     source/popo/building_blocks/chunk_queue_pusher.cpp
-    source/popo/building_blocks/chunk_queue_popper.cpp    
-    source/popo/building_blocks/chunk_receiver.cpp      
+    source/popo/building_blocks/chunk_queue_popper.cpp
+    source/popo/building_blocks/chunk_receiver.cpp
+    source/popo/waitset/condition_variable_signaler.cpp
+    source/popo/waitset/condition_variable_waiter.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp

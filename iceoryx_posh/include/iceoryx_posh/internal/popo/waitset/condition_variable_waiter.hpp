@@ -17,6 +17,7 @@
 #include "condition_variable_data.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {
@@ -25,10 +26,7 @@ namespace popo
 class ConditionVariableWaiter
 {
   public:
-    ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
-        : m_condVarDataPtr(condVarDataPtr)
-    {
-    }
+    ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
     void reset() noexcept;
     void timedWait() noexcept;
