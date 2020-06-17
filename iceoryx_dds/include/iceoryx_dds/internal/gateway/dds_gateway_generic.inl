@@ -67,12 +67,20 @@ template <typename channel_t, typename gateway_t>
 inline channel_t
 iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service) noexcept
 {
-    auto channel = m_channelFactory(service);
-    m_channels->push_back(channel);
-    iox::dds::LogDebug() << "[DDSGatewayGeneric] Channel set up for service: "
-                         << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
-                         << service.getEventIDString();
-    return channel;
+    auto existingChannel = findChannel(service);
+    if(existingChannel.has_value())
+    {
+        return existingChannel.value();
+    }
+    else
+    {
+        auto channel = m_channelFactory(service);
+        m_channels->push_back(channel);
+        iox::dds::LogDebug() << "[DDSGatewayGeneric] Channel set up for service: "
+                             << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
+                             << service.getEventIDString();
+        return channel;
+    }
 }
 
 template <typename channel_t, typename gateway_t>
