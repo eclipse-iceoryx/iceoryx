@@ -15,7 +15,7 @@
 #ifndef IOX_DDS_DDS_DATA_READER_HPP
 #define IOX_DDS_DDS_DATA_READER_HPP
 
-#include <iceoryx_utils/cxx/string.hpp>
+#include "iceoryx_utils/cxx/string.hpp"
 
 namespace iox
 {

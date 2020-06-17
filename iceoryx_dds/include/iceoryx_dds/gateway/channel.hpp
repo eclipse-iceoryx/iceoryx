@@ -15,11 +15,11 @@
 #ifndef IOX_DDS_GATEWAY_CHANNEL_HPP
 #define IOX_DDS_GATEWAY_CHANNEL_HPP
 
-#include <memory>
-
 #include "iceoryx_dds/dds/dds_config.hpp"
-#include <iceoryx_posh/capro/service_description.hpp>
-#include <iceoryx_utils/internal/objectpool/objectpool.hpp>
+#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_utils/internal/objectpool/objectpool.hpp"
+
+#include <memory>
 
 namespace iox
 {
