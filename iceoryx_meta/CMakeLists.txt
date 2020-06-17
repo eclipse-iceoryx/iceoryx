@@ -7,6 +7,8 @@ project(iceoryx VERSION ${iceoryx_VERSION})
 #    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/googletest ${CMAKE_BINARY_DIR}/gtest)
 #endif(test)
 
+option(examples "build with iceoryx examples" ON)
+option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
 
 include(FetchContent)
 
@@ -49,6 +51,11 @@ endif(TOML_CONFIG)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/iceoryx_utils )
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/iceoryx_posh )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/examples/icedelivery )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/examples/iceperf )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tools/introspection ${CMAKE_BINARY_DIR}/tools/introspection )
+if (examples)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/examples/icedelivery )
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/examples/iceperf )
+endif(examples)
+
+if(introspection)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tools/introspection ${CMAKE_BINARY_DIR}/tools/introspection )
+endif(introspection)
