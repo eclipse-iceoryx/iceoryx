@@ -48,3 +48,27 @@ class WaitSet_test : public Test
 // TEST_F(WaitSet_test, NoAttachResultsInError)
 // {
 // }
+
+// TEST_F(WaitSet_test, AttachCondition_Success_SingleCondition){}
+// TEST_F(WaitSet_test, AttachCondition_Success_MultipleConditions){}
+// TEST_F(WaitSet_test, AttachCondition_Fail_TooManyConditions){}
+// TEST_F(WaitSet_test, AttachCondition_Fail_InvalidCondition){}
+// TEST_F(WaitSet_test, AttachCondition_Fail_EmptyCondition){}
+
+// TEST_F(WaitSet_test, DetachCondition_Success_SingleCondition){}
+// TEST_F(WaitSet_test, DetachCondition_Success_MultipleleConditions){}
+// TEST_F(WaitSet_test, DetachCondition_Fail_ListEmpty){}
+// TEST_F(WaitSet_test, DetachCondition_Fail_InvalidCondition){}
+// TEST_F(WaitSet_test, DetachCondition_Fail_EmptyCondition){}
+
+// TEST_F(WaitSet_test, TimedWait_Fail_InvalidCondition){}
+// TEST_F(WaitSet_test, TimedWait_Fail_InvalidTime){}
+// TEST_F(WaitSet_test, TimedWait_Fail_NotTriggeredAfterTimeoutAndBlocking){}
+// TEST_F(WaitSet_test, TimedWait_Success_TriggeredBeforeWait){}
+// TEST_F(WaitSet_test, TimedWait_Success_TriggeredAfterWait){}
+// TEST_F(WaitSet_test, TimedWait_Success_Timeout){}
+
+// TEST_F(WaitSet_test, Wait_Fail_InvalidCondition){}
+// TEST_F(WaitSet_test, Wait_Success_NotTriggeredAndBlocking){}
+// TEST_F(WaitSet_test, Wait_Success_TriggeredBeforeWait){}
+// TEST_F(WaitSet_test, Wait_Success_TriggeredAfterWait){}
