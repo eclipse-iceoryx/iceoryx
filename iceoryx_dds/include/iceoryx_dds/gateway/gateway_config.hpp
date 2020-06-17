@@ -15,9 +15,9 @@
 #ifndef IOX_DDS_GATEWAY_GATEWAY_CONFIG_HPP
 #define IOX_DDS_GATEWAY_GATEWAY_CONFIG_HPP
 
-#include <iceoryx_posh/capro/service_description.hpp>
-#include <iceoryx_posh/iceoryx_posh_types.hpp>
-#include <iceoryx_utils/cxx/vector.hpp>
+#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_utils/cxx/vector.hpp"
 
 namespace iox
 {

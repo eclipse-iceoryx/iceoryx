@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cpptoml.h>
 
 #include "iceoryx_dds/dds/dds_types.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
-#include <iceoryx_utils/internal/file_reader/file_reader.hpp>
-
+#include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 
 // ================================================== Public ================================================== //
 

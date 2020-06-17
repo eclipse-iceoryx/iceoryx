@@ -15,7 +15,7 @@
 #ifndef IOX_DDS_LOG_LOGGING_HPP
 #define IOX_DDS_LOG_LOGGING_HPP
 
-#include <iceoryx_utils/log/logging_free_function_building_block.hpp>
+#include "iceoryx_utils/log/logging_free_function_building_block.hpp"
 
 namespace iox
 {
