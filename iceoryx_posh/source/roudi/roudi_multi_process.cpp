@@ -107,6 +107,8 @@ void RouDiMultiProcess::processThread()
 void RouDiMultiProcess::mqThread()
 {
     runtime::MqInterfaceCreator roudiMqInterface{MQ_ROUDI_NAME};
+    LogInfo() << "RouDi is ready for clients";
+
     while (m_runThreads)
     {
         // read RouDi message queue
