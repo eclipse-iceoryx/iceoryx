@@ -78,7 +78,7 @@ TEST_F(RoudiFindService_test, SubscribeAnyInstance)
     receiverRuntime->findService({"service1", "65535"}, instanceContainer);
 
     ASSERT_THAT(instanceContainer.size(), Eq(3u));
-    ContainersEq(instanceContainer, instanceContainerExp);
+    EXPECT_TRUE(instanceContainer == instanceContainerExp);
 }
 
 TEST_F(RoudiFindService_test, OfferSingleMethodServiceMultiInstance)
@@ -242,7 +242,7 @@ TEST_F(RoudiFindService_test, findServiceMaxInstances)
     auto status = receiverRuntime->findService({"s", "65535"}, instanceContainer);
 
     EXPECT_THAT(instanceContainer.size(), Eq(iox::MAX_NUMBER_OF_INSTANCES));
-    ContainersEq(instanceContainer, instanceContainerExp);
+    EXPECT_TRUE(instanceContainer == instanceContainerExp);
     ASSERT_THAT(status.has_error(), Eq(false));
 }
 
@@ -262,6 +262,6 @@ TEST_F(RoudiFindService_test, findServiceInstanceContainerOverflowError)
     auto status = receiverRuntime->findService({"s", "65535"}, instanceContainer);
 
     EXPECT_THAT(instanceContainer.size(), Eq(iox::MAX_NUMBER_OF_INSTANCES));
-    ContainersEq(instanceContainer, instanceContainerExp);
+    EXPECT_TRUE(instanceContainer == instanceContainerExp);
     ASSERT_THAT(status.has_error(), Eq(true));
 }

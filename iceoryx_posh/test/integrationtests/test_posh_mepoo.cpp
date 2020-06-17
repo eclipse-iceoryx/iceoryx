@@ -426,7 +426,7 @@ TEST_F(Mepoo_IntegrationTest, DISABLED_SampleOverflow)
     EXPECT_DEATH({ sendreceivesample<samplesize1>(repetition1); }, ".*");
 }
 
-TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig)
+TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolCreationTimeDefaultConfig)
 {
     MemPoolInfoContainer memPoolTestContainer;
     auto testMempoolConfig = defaultMemPoolConfig();

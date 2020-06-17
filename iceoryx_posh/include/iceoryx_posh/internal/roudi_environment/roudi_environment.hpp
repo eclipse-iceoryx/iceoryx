@@ -62,7 +62,7 @@ class RouDiEnvironment
 
   private:
     RuntimeTestInterface m_runtimes;
-    std::chrono::milliseconds m_interOpWaitingTime = std::chrono::milliseconds(200);
+    std::chrono::milliseconds m_interOpWaitingTime = std::chrono::milliseconds(1000);
     std::unique_ptr<IceOryxRouDiComponents> m_roudiComponents;
     std::unique_ptr<RouDiMultiProcess> m_roudiApp;
 };
