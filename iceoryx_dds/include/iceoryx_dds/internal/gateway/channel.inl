@@ -39,37 +39,9 @@ inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const iox::capro::ServiceD
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
-inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const Channel<IceoryxTerminal, DDSTerminal>& rhs) noexcept
+constexpr inline bool Channel<IceoryxTerminal, DDSTerminal>::operator==(const Channel<IceoryxTerminal, DDSTerminal>& rhs) const noexcept
 {
-    m_service = rhs.m_service;
-    m_ddsTerminal = rhs.m_ddsTerminal;
-    m_iceoryxTerminal = rhs.m_iceoryxTerminal;
-}
-
-template <typename IceoryxTerminal, typename DDSTerminal>
-inline Channel<IceoryxTerminal, DDSTerminal>& Channel<IceoryxTerminal, DDSTerminal>::
-operator=(const Channel<IceoryxTerminal, DDSTerminal>& rhs) noexcept
-{
-    m_service = rhs.m_service;
-    m_ddsTerminal = rhs.m_ddsTerminal;
-    m_iceoryxTerminal = rhs.m_iceoryxTerminal;
-}
-
-template <typename IceoryxTerminal, typename DDSTerminal>
-inline Channel<IceoryxTerminal, DDSTerminal>::Channel(Channel<IceoryxTerminal, DDSTerminal>&& rhs) noexcept
-{
-    m_service = std::move(rhs.m_service);
-    m_ddsTerminal = std::move(rhs.m_ddsTerminal);
-    m_iceoryxTerminal = std::move(rhs.m_iceoryxTerminal);
-}
-
-template <typename IceoryxTerminal, typename DDSTerminal>
-inline Channel<IceoryxTerminal, DDSTerminal>& Channel<IceoryxTerminal, DDSTerminal>::
-operator=(Channel<IceoryxTerminal, DDSTerminal>&& rhs) noexcept
-{
-    m_service = std::move(rhs.m_service);
-    m_ddsTerminal = std::move(rhs.m_ddsTerminal);
-    m_iceoryxTerminal = std::move(rhs.m_iceoryxTerminal);
+    return m_service == rhs.getService();
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
