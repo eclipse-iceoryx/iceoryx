@@ -14,12 +14,12 @@
 
 #include <atomic>
 
-#include <iceoryx_dds/gateway/gateway_config.hpp>
-#include <iceoryx_dds/gateway/iox_to_dds.hpp>
-#include <iceoryx_posh/runtime/posh_runtime.hpp>
-#include <iceoryx_utils/cxx/helplets.hpp>
-#include <iceoryx_utils/cxx/optional.hpp>
-#include <iceoryx_utils/posix_wrapper/semaphore.hpp>
+#include "iceoryx_dds/gateway/gateway_config.hpp"
+#include "iceoryx_dds/gateway/iox_to_dds.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 class ShutdownManager
 {

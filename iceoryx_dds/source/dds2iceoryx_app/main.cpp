@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <iostream>
-
-#include <iceoryx_posh/runtime/posh_runtime.hpp>
-#include <iceoryx_utils/posix_wrapper/semaphore.hpp>
 
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+
+#include <iostream>
 
 class ShutdownManager
 {
