@@ -59,9 +59,9 @@ class ReceiverPort : public BasePort
 
     // BEGIN REGION__APPLICATION // /* access from Application-------------------------------
 
-    void subscribe(const bool f_autoResubscribe = false,
-                   const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY); // deprecated
-    void subscribe(const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY);
+    virtual void subscribe(const bool f_autoResubscribe = false,
+                           const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY); // deprecated
+    virtual void subscribe(const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY);
     void unsubscribe();
     bool isSubscribed() const;
     SubscribeState getSubscribeState() const;
@@ -108,4 +108,3 @@ class ReceiverPort : public BasePort
 } // namespace iox
 
 #include "iceoryx_posh/internal/popo/receiver_port.inl"
-
