@@ -45,6 +45,20 @@ TEST_F(DDSGatewayGenericTest, AddedChannelsAreStored)
     EXPECT_EQ(1, gw.getNumberOfChannels());
 }
 
+TEST_F(DDSGatewayGenericTest, DoesNotAddWhenChannelAlreadyExists)
+{
+    // ===== Setup
+    auto testService = iox::capro::ServiceDescription("service", "instance", "event");
+
+    TestDDSGatewayGeneric gw{};
+
+    // ===== Test
+    gw.addChannel(testService);
+    gw.addChannel(testService);
+
+    EXPECT_EQ(1, gw.getNumberOfChannels());
+}
+
 TEST_F(DDSGatewayGenericTest, DiscardedChannelsAreNotStored)
 {
     // ===== Setup
