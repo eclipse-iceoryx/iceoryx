@@ -61,13 +61,6 @@ void Timer::OsTimer::callbackHelper(sigval data)
     auto index = Timer::OsTimerCallbackHandle::sigvalToIndex(data);
     auto descriptor = Timer::OsTimerCallbackHandle::sigvalToDescriptor(data);
 
-    /// @todo cxx::expect
-    if (index >= Timer::OsTimerCallbackHandle::MAX_DESCRIPTOR_VALUE)
-    {
-        ///@todo decide if to print a warning
-        return;
-    }
-
     auto& callbackHandle = OsTimer::s_callbackHandlePool[index];
 
     // small optimazition to not lock the mutex if the callback handle is not valid anymore
