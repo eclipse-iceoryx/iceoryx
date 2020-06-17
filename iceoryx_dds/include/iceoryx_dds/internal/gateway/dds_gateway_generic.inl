@@ -96,7 +96,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro:
 
 template <typename channel_t, typename gateway_t>
 inline void
-iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::forEachChannel(const std::function<void(channel_t&)> f) const
+iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::forEachChannel(const iox::cxx::function_ref<void(channel_t&)> f) const
     noexcept
 {
     auto guardedVector = m_channels.GetScopeGuard();
