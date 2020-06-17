@@ -13,8 +13,8 @@
 // limitations under the License.
 #pragma once
 
-#include <iceoryx_dds/gateway/channel.hpp>
-#include <iceoryx_dds/gateway/dds_gateway_generic.hpp>
+#include "iceoryx_dds/gateway/channel.hpp"
+#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
 
 #include "mocks/google_mocks.hpp"
 
@@ -34,7 +34,7 @@ template <typename channel_t>
 class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
 {
   public:
-    virtual void loadConfiguration(GatewayConfig config) noexcept
+    void loadConfiguration(const GatewayConfig& config) noexcept
     {
         // Stubbed.
     }
@@ -44,7 +44,7 @@ class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
         // Stubbed.
     }
 
-    void forward(channel_t channel) noexcept
+    void forward(const channel_t& channel) noexcept
     {
         // Stubbed.
     }
@@ -59,7 +59,7 @@ class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
         return TestDDSGatewayGeneric<channel_t>::findChannel(service);
     }
 
-    void forEachChannel(const std::function<void(channel_t&)> f) noexcept
+    void forEachChannel(const iox::cxx::function_ref<void(channel_t&)> f) noexcept
     {
         TestDDSGatewayGeneric<channel_t>::forEachChannel(f);
     }

@@ -23,6 +23,7 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
 
 #include <atomic>
@@ -106,7 +107,7 @@ class DDSGatewayGeneric : public gateway_t
     /// @param f The function to execute.
     /// @note This operation allows thread-safe access to the internal collection.
     ///
-    void forEachChannel(const std::function<void(channel_t&)> f) const noexcept;
+    void forEachChannel(const iox::cxx::function_ref<void(channel_t&)> f) const noexcept;
 
     ///
     /// @brief discardChannel Discard the channel for the given service in the internal collection if one exists.
