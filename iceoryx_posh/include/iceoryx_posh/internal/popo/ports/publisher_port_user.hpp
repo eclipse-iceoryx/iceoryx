@@ -40,8 +40,8 @@ class PublisherPortUser
 
     PublisherPortUser(const PublisherPortUser& other) = delete;
     PublisherPortUser& operator=(const PublisherPortUser&) = delete;
-    PublisherPortUser(PublisherPortUser&& rhs) = delete;
-    PublisherPortUser& operator=(PublisherPortUser&& rhs) = delete;
+    PublisherPortUser(PublisherPortUser&& rhs) = default;
+    PublisherPortUser& operator=(PublisherPortUser&& rhs) = default;
     ~PublisherPortUser() = default;
 
     /// @brief Allocate a chunk, the ownerhip of the SharedChunk remains in the PublisherPortUser for being able to
