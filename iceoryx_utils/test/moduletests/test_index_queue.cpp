@@ -57,7 +57,11 @@ TEST(LockFreeQueueTest, capacityIsConsistent)
 
 typedef ::testing::Types<IndexQueue<1>, IndexQueue<10>, IndexQueue<1000>> TestQueues;
 
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(IndexQueueTest, TestQueues);
+#pragma GCC diagnostic pop
 
 
 TYPED_TEST(IndexQueueTest, defaultConstructedQueueIsEmpty)
@@ -69,7 +73,6 @@ TYPED_TEST(IndexQueueTest, defaultConstructedQueueIsEmpty)
 TYPED_TEST(IndexQueueTest, constructedQueueIsEmpty)
 {
     using Queue = typename TestFixture::Queue;
-    using index_t = typename TestFixture::index_t;
 
     Queue q(Queue::ConstructEmpty);
     EXPECT_TRUE(q.empty());
@@ -78,7 +81,6 @@ TYPED_TEST(IndexQueueTest, constructedQueueIsEmpty)
 
 TYPED_TEST(IndexQueueTest, queueIsNotEmptyAfterPush)
 {
-    using index_t = typename TestFixture::index_t;
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
 
@@ -88,7 +90,6 @@ TYPED_TEST(IndexQueueTest, queueIsNotEmptyAfterPush)
 
 TYPED_TEST(IndexQueueTest, queueIsEmptyAgainAfterPushFollowedByPop)
 {
-    using index_t = typename TestFixture::index_t;
     auto& q = this->queue;
 
     auto index = this->fullQueue.pop();

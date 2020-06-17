@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/internal/communication_channel/receiver.hpp"
 #include "iceoryx_utils/communication_channel/protocol/fifo_protocol.hpp"
+#include "iceoryx_utils/internal/communication_channel/receiver.hpp"
 
 #include <atomic>
 #include <gmock/gmock.h>
@@ -49,7 +49,11 @@ template <typename DataType>
 using FiFoTestProtocol = FiFoProtocol<DataType, 100>;
 
 using Implementations = Types<Receiver<int, FiFoTestProtocol>>;
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(CommunicationChannelReceiver_Test, Implementations);
+#pragma GCC diagnostic pop
 
 TYPED_TEST(CommunicationChannelReceiver_Test, TryReceiveWithoutSample)
 {

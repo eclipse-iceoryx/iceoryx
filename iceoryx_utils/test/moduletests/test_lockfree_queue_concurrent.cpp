@@ -347,7 +347,11 @@ using LargeQueue = TestQueue<1000000>;
 typedef ::testing::Types<SingleElementQueue, SmallQueue, MediumQueue, LargeQueue> TestQueues;
 // typedef ::testing::Types<MediumQueue> TestQueues;
 
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(LockFreeQueueStressTest, TestQueues);
+#pragma GCC diagnostic pop
 
 ///@brief Tests concurrent operation of one prodcuer and one consumer
 /// The producer pushes a fixed number of data elements which the consumer pops and checks.

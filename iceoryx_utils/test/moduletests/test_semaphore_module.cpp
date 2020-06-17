@@ -101,7 +101,11 @@ class SemaphoreCreate_test : public Test
     }
 };
 
+/// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_CASE_P(Semaphore_test, Semaphore_test, Values(&CreateNamedSemaphore, &CreateUnnamedSemaphore));
+#pragma GCC diagnostic pop
 
 TEST_F(SemaphoreCreate_test, CreateNamedSemaphore)
 {
@@ -302,7 +306,6 @@ TEST_P(Semaphore_test, MoveCTor)
 TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
     using namespace iox::units;
     std::atomic_bool timedWaitFinish{false};
-    bool isTestSuccessful{true};
 
     std::thread t([&] {
         auto ts = Duration::nanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
@@ -327,7 +330,6 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
 TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
     using namespace iox::units;
     std::atomic_bool timedWaitFinish{false};
-    bool isTestSuccessful{true};
 
     std::thread t([&] {
         auto ts = Duration::nanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);

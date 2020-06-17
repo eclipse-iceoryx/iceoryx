@@ -60,7 +60,7 @@ std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept
     return std::to_string(static_cast<std::underlying_type<MqMessageErrorType>::type>(msg));
 }
 
-MqBase::MqBase(const std::string& InterfaceName, const int64_t maxMessages, const int64_t messageSize) noexcept
+MqBase::MqBase(const std::string& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
     : m_interfaceName(InterfaceName)
 {
     m_maxMessages = maxMessages;
@@ -241,7 +241,6 @@ MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
 
     int64_t transmissionTimestamp{0};
     auto regState = RegState::WAIT_FOR_ROUDI;
-    // regState = RegState::SEND_REGISTER_REQUEST;
     while (!timer.hasExpiredComparedToCreationTime() && regState != RegState::FINISHED)
     {
         if (!m_RoudiMqInterface.isInitialized() || !m_RoudiMqInterface.mqMapsToFile())

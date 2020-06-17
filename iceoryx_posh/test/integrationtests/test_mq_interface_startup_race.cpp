@@ -35,9 +35,7 @@ using iox::runtime::MqMessageType;
 using iox::runtime::MqRuntimeInterface;
 
 
-#if defined(__APPLE__)
-constexpr char DeleteRouDiMessageQueue[] = "rm /tmp/roudi";
-#else
+#if !defined(__APPLE__)
 constexpr char DeleteRouDiMessageQueue[] = "rm /dev/mqueue/roudi";
 #endif
 

@@ -69,7 +69,11 @@ class CommunicationChannelGenericProtocol_Test : public Test
 };
 
 using Implementations = Types<FiFoTestProtocol<int>>;
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(CommunicationChannelGenericProtocol_Test, Implementations);
+#pragma GCC diagnostic pop
 
 TYPED_TEST(CommunicationChannelGenericProtocol_Test, SendAndTryReceive)
 {

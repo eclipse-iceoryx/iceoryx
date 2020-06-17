@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
-#include "mocks/logger_mock.hpp"
 #include "iceoryx_utils/log/logging.hpp"
 #include "iceoryx_utils/log/logstream.hpp"
+#include "mocks/logger_mock.hpp"
+#include "test.hpp"
 
 #include <cstdint>
 #include <limits>
@@ -187,7 +187,11 @@ class IoxLogStreamHexBin_test : public IoxLogStream_test
 
 using LogHexBinTypes = Types<uint8_t, int8_t, uint16_t, int16_t, uint32_t, int32_t, uint64_t, int64_t>;
 
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(IoxLogStreamHexBin_test, LogHexBinTypes);
+#pragma GCC diagnostic pop
 
 template <typename LogType>
 void testStreamOperatorLogHex(Logger_Mock& loggerMock, LogType logValue)
@@ -252,7 +256,12 @@ TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogBin_ValueMax)
 
 using ArithmeticTypes =
     Types<bool, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, size_t, float, double>;
+
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(IoxLogStreamArithmetic_test, ArithmeticTypes);
+#pragma GCC diagnostic pop
 
 template <typename Arithmetic>
 class IoxLogStreamArithmetic_test : public IoxLogStream_test

@@ -9,8 +9,13 @@ project(iceoryx VERSION ${iceoryx_VERSION})
 
 option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
+option(diagnostic "enables allmost all compiler warnings" OFF)
 
 include(FetchContent)
+
+if (diagnostic)
+    add_compile_options(-Wall -W -Wextra -pedantic)
+endif(diagnostic)
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 if(test)
