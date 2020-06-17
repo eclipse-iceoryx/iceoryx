@@ -49,26 +49,26 @@ class WaitSet_test : public Test
 // {
 // }
 
-// TEST_F(WaitSet_test, AttachCondition_Success_SingleCondition){}
-// TEST_F(WaitSet_test, AttachCondition_Success_MultipleConditions){}
-// TEST_F(WaitSet_test, AttachCondition_Fail_TooManyConditions){}
-// TEST_F(WaitSet_test, AttachCondition_Fail_InvalidCondition){}
-// TEST_F(WaitSet_test, AttachCondition_Fail_EmptyCondition){}
+// TEST_F(WaitSet_test, AttachSingleConditionSuccessful){}
+// TEST_F(WaitSet_test, AttachMultipleConditionSuccessful){}
+// TEST_F(WaitSet_test, AttachTooManyConditionsResultsInFailure){}
+// TEST_F(WaitSet_test, AttachInvalidConditionResultsInFailure){}
+// TEST_F(WaitSet_test, AttachEmptyConditionResultsInFailure){}
 
-// TEST_F(WaitSet_test, DetachCondition_Success_SingleCondition){}
-// TEST_F(WaitSet_test, DetachCondition_Success_MultipleleConditions){}
-// TEST_F(WaitSet_test, DetachCondition_Fail_ListEmpty){}
-// TEST_F(WaitSet_test, DetachCondition_Fail_InvalidCondition){}
-// TEST_F(WaitSet_test, DetachCondition_Fail_EmptyCondition){}
+// TEST_F(WaitSet_test, DetachConditionSingleConditionSuccessful){}
+// TEST_F(WaitSet_test, DetachConditionMultipleleConditionsSuccessful){}
+// TEST_F(WaitSet_test, DetachConditionFromListEmptyResultsInFailure){}
+// TEST_F(WaitSet_test, DetachInvalidConditionResultsInFailure){}
+// TEST_F(WaitSet_test, DetachEmptyConditionResultsInFailure){}
 
-// TEST_F(WaitSet_test, TimedWait_Fail_InvalidCondition){}
-// TEST_F(WaitSet_test, TimedWait_Fail_InvalidTime){}
-// TEST_F(WaitSet_test, TimedWait_Fail_NotTriggeredAfterTimeoutAndBlocking){}
-// TEST_F(WaitSet_test, TimedWait_Success_TriggeredBeforeWait){}
-// TEST_F(WaitSet_test, TimedWait_Success_TriggeredAfterWait){}
-// TEST_F(WaitSet_test, TimedWait_Success_Timeout){}
+// TEST_F(WaitSet_test, TimedWaitWithSignalAlreadySetResultsInImmediateTrigger){}
+// TEST_F(WaitSet_test, SignalSetWhileWaitingInTimedWaitResultsInTrigger){}
+// TEST_F(WaitSet_test, TimeoutOfTimedWaitResultsInTrigger){}
+// TEST_F(WaitSet_test, TimedWaitWithInvalidConditionResultsInFailure){}
+// TEST_F(WaitSet_test, TimedWaitWithInvalidTimeResultsInFailure){}
+// TEST_F(WaitSet_test, TimeoutOfTimedWaitResultsInTrigger){}
 
-// TEST_F(WaitSet_test, Wait_Fail_InvalidCondition){}
-// TEST_F(WaitSet_test, Wait_Success_NotTriggeredAndBlocking){}
-// TEST_F(WaitSet_test, Wait_Success_TriggeredBeforeWait){}
-// TEST_F(WaitSet_test, Wait_Success_TriggeredAfterWait){}
+// TEST_F(WaitSet_test, WaitWithoutSignalResultsInBlocking){}
+// TEST_F(WaitSet_test, WaitWithSignalAlreadySetResultsInImmediateTrigger){}
+// TEST_F(WaitSet_test, SignalSetWhileWaitWaitResultsInTrigger){}
+// TEST_F(WaitSet_test, WaitWithInvalidConditionResultsInBlocking){}

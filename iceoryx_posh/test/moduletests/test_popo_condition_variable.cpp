@@ -53,5 +53,25 @@ TEST_F(ConditionVariable_test, NoSignalResultsInWait)
 
 TEST_F(ConditionVariable_test, SignalResultsInCall)
 {
-    //m_signaler.signal();
+    // m_signaler.signal();
 }
+
+// TEST_F(ConditionVariable_test, ResetConditionSuccessful){}
+// TEST_F(ConditionVariable_test, ResetConditionWithInvalidConditionResultsInFailure){}
+
+// TEST_F(ConditionVariable_test, NotifyConditionSuccessful){}
+// TEST_F(ConditionVariable_test, NotifyWithInvalidConditionResultsInFailure){}
+// TEST_F(ConditionVariable_test, NotifyWithInvalidConditionStateResultsInFailure){}
+
+// TEST_F(ConditionVariable_test, TimedWaitWithSignalAlreadySetResultsInImmediateTrigger){}
+// TEST_F(ConditionVariable_test, SignalSetWhileWaitingInTimedWaitResultsInTrigger){}
+// TEST_F(ConditionVariable_test, TimeoutOfTimedWaitResultsInTrigger){}
+// TEST_F(ConditionVariable_test, TimedWaitWithInvalidConditionResultsInFailure){}
+// TEST_F(ConditionVariable_test, TimedWaitWithInvalidTimeResultsInFailure){}
+// TEST_F(ConditionVariable_test, TimedWaitWithInvalidConditionStateResultsInFailure){}
+
+// TEST_F(ConditionVariable_test, WaitWithoutSignalResultsInBlocking){}
+// TEST_F(ConditionVariable_test, WaitWithSignalAlreadySetResultsInImmediateTrigger){}
+// TEST_F(ConditionVariable_test, SignalSetWhileWaitWaitResultsInTrigger){}
+// TEST_F(ConditionVariable_test, WaitWithInvalidConditionResultsInBlocking){}
+// TEST_F(ConditionVariable_test, WaitWithInvalidConditionStateResultsInFailure){}
