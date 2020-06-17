@@ -51,7 +51,7 @@ class SoFi
 
     /// @brief Internal size needs to be bigger than the size desirred by the user
     /// This is because of buffer empty detection and overflow handling
-    static constexpr uint32_t INTERNAL_SIZE_ADD_ON = 2;
+    static constexpr uint32_t INTERNAL_SIZE_ADD_ON = 1;
 
     /// @brief This is the resulting internal size on creation
     static constexpr uint32_t INTERNAL_SOFI_SIZE = CapacityValue + INTERNAL_SIZE_ADD_ON;
