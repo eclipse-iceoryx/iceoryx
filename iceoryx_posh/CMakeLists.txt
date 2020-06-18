@@ -12,6 +12,38 @@ include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
 include(IceoryxPlatformDetection)
 
+# configure deployment
+if(NOT IOX_MAX_PORT_NUMBER)
+    set(IOX_MAX_PORT_NUMBER 1024u)
+endif()
+
+if(NOT IOX_MAX_INTERFACE_NUMBER)
+    set(IOX_MAX_INTERFACE_NUMBER 4u)
+endif()
+
+if(NOT IOX_MAX_RECEIVERS_PER_SENDERPORT)
+    set(IOX_MAX_RECEIVERS_PER_SENDERPORT 256u)
+endif()
+
+if(NOT IOX_MAX_SUBSCRIBERS_PER_PUBLISHER)
+    set(IOX_MAX_SUBSCRIBERS_PER_PUBLISHER 256u)
+endif()
+
+if(NOT IOX_MAX_CHUNKS_ALLOCATE_PER_SENDER)
+    set(IOX_MAX_CHUNKS_ALLOCATE_PER_SENDER 8u)
+endif()
+
+if(NOT IOX_MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR)
+    set(IOX_MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR 16u)
+endif()
+
+if(NOT IOX_MAX_CHUNKS_HELD_PER_RECEIVER)
+    set(IOX_MAX_CHUNKS_HELD_PER_RECEIVER 256u)
+endif()
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_posh_deployment.hpp.in"
+  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_posh_deployment.hpp" @ONLY)
+
 if( clang-tidy )
     find_program(
         CLANG_TIDY_EXE
@@ -46,6 +78,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 #
 ########## build posh lib for ##########
 #
+
 add_library(iceoryx_posh
     source/log/posh_logging.cpp
     source/capro/capro_message.cpp
@@ -259,10 +292,6 @@ if(roudi_environment OR test)
     )
 endif(roudi_environment OR test)
 
-if(ICEORYX_LARGE_DEPLOYMENT)
-    add_definitions(-DICEORYX_LARGE_DEPLOYMENT)
-endif(ICEORYX_LARGE_DEPLOYMENT)
-
 #
 ########## exporting library ##########
 #
@@ -273,6 +302,12 @@ endif(TOML_CONFIG)
 setup_install_directories_and_export_package(
     TARGETS iceoryx_posh iceoryx_posh_roudi ${ROUDI_EXPORT}
     INCLUDE_DIRECTORY include/
+)
+
+install(
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_posh_deployment.hpp
+    DESTINATION include/${PREFIX}/${PROJECT_NAME}/
+    COMPONENT dev
 )
 
 if(test)

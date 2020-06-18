@@ -14,6 +14,7 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
+#include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -59,18 +60,15 @@ constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
 constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * DISCOVERY_INTERVAL;         // > DISCOVERY_INTERVAL
 constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
 
+
 // Communication Resources
-#ifdef ICEORYX_LARGE_DEPLOYMENT
-constexpr uint32_t MAX_PORT_NUMBER = 4096u;
-#else
-constexpr uint32_t MAX_PORT_NUMBER = 1024u;
-#endif
-constexpr uint32_t MAX_INTERFACE_NUMBER = 4u;
-constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = 256u;
-constexpr uint32_t MAX_SUBSCRIBERS_PER_PUBLISHER = 256u;
-constexpr uint32_t MAX_CHUNKS_ALLOCATE_PER_SENDER = 8u;
-constexpr uint64_t MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR = 16u;
-constexpr uint32_t MAX_CHUNKS_HELD_PER_RECEIVER = 256u;
+constexpr uint32_t MAX_PORT_NUMBER = IOX_MAX_PORT_NUMBER;
+constexpr uint32_t MAX_INTERFACE_NUMBER = IOX_MAX_INTERFACE_NUMBER;
+constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = IOX_MAX_RECEIVERS_PER_SENDERPORT;
+constexpr uint32_t MAX_SUBSCRIBERS_PER_PUBLISHER = IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;
+constexpr uint32_t MAX_CHUNKS_ALLOCATE_PER_SENDER = IOX_MAX_CHUNKS_ALLOCATE_PER_SENDER;
+constexpr uint64_t MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR = IOX_MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+constexpr uint32_t MAX_CHUNKS_HELD_PER_RECEIVER = IOX_MAX_CHUNKS_HELD_PER_RECEIVER;
 constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER;
 /// With MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER we couple the maximum number of chunks a user is
 /// allowed to hold with the maximum queue capacity.
