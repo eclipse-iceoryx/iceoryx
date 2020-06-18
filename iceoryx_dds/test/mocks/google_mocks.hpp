@@ -52,7 +52,7 @@ class MockGenericDDSGateway
     MockGenericDDSGateway(){};
     MockGenericDDSGateway(const iox::capro::Interfaces i){};
     MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
-    MOCK_METHOD1(addChannel, iox::dds::Channel<MockSubscriber, MockDataWriter>(const iox::capro::ServiceDescription&));
+    MOCK_METHOD1(addChannel, iox::cxx::expected<iox::dds::Channel<MockSubscriber, MockDataWriter>, uint8_t>(const iox::capro::ServiceDescription&));
     MOCK_METHOD1(discardChannel, void(const iox::capro::ServiceDescription&));
     MOCK_METHOD1(
         findChannel,

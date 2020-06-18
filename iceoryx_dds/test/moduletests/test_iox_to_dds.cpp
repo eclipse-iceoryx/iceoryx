@@ -14,13 +14,14 @@
 
 #include <limits>
 
-#include <iceoryx_dds/dds/data_writer.hpp>
-#include <iceoryx_dds/gateway/channel.hpp>
-#include <iceoryx_dds/gateway/gateway_config.hpp>
-#include <iceoryx_dds/gateway/iox_to_dds.hpp>
-#include <iceoryx_posh/internal/capro/capro_message.hpp>
-#include <iceoryx_posh/mepoo/chunk_header.hpp>
-#include <iceoryx_utils/cxx/optional.hpp>
+#include "iceoryx_dds/dds/data_writer.hpp"
+#include "iceoryx_dds/gateway/channel.hpp"
+#include "iceoryx_dds/gateway/gateway_config.hpp"
+#include "iceoryx_dds/gateway/iox_to_dds.hpp"
+#include "iceoryx_posh/internal/capro/capro_message.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
 
 #include "mocks/chunk_mock.hpp"
 #include "mocks/google_mocks.hpp"
@@ -75,7 +76,7 @@ void stageMockSubscriber(std::shared_ptr<MockSubscriber>&& mock)
 // ======================================== Mock Factories ======================================== //
 
 
-static iox::dds::Channel<MockSubscriber, MockDataWriter> createTestChannel(iox::capro::ServiceDescription sd) noexcept
+static iox::cxx::expected<iox::dds::Channel<MockSubscriber, MockDataWriter>, uint8_t> createTestChannel(iox::capro::ServiceDescription sd) noexcept
 {
     // Get or create a mock subscriber
     std::shared_ptr<MockSubscriber> mockSubscriber;
@@ -101,7 +102,8 @@ static iox::dds::Channel<MockSubscriber, MockDataWriter> createTestChannel(iox::
         mockDataWriter = createMockDataWriter(sd);
     }
 
-    return iox::dds::Channel<MockSubscriber, MockDataWriter>(sd, std::move(mockSubscriber), std::move(mockDataWriter));
+    return iox::cxx::success<iox::dds::Channel<MockSubscriber, MockDataWriter>>(iox::dds::Channel<MockSubscriber, MockDataWriter>(sd, std::move(mockSubscriber), std::move(mockDataWriter)));
+
 }
 
 // ======================================== Fixture ======================================== //
@@ -281,7 +283,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
     TestGateway gw{};
 
     // === Test
-    gw.forward(testChannel);
+    gw.forward(testChannel.get_value());
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
@@ -308,7 +310,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
     TestGateway gw{};
 
     // === Test
-    gw.forward(testChannel);
+    gw.forward(testChannel.get_value());
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
@@ -337,7 +339,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
     TestGateway gw{};
 
     // === Test
-    gw.forward(testChannel);
+    gw.forward(testChannel.get_value());
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStopsOffering)
@@ -370,7 +372,7 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel)
         .WillOnce(Return(iox::cxx::nullopt_t()))
-        .WillOnce(Return(iox::cxx::make_optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(testChannelOne)))
+        .WillOnce(Return(iox::cxx::make_optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(testChannelOne.get_value())))
         .WillOnce(Return(iox::cxx::nullopt_t()));
     EXPECT_CALL(gw, addChannel).WillOnce(Return(testChannelOne)).WillOnce(Return(testChannelTwo));
     EXPECT_CALL(gw, discardChannel).Times(1);

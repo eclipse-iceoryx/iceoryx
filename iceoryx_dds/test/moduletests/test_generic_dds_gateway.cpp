@@ -59,6 +59,26 @@ TEST_F(DDSGatewayGenericTest, DoesNotAddWhenChannelAlreadyExists)
     EXPECT_EQ(1, gw.getNumberOfChannels());
 }
 
+TEST_F(DDSGatewayGenericTest, IgnoresWildcardServices)
+{
+    // ===== Setup
+    auto completeWildcardService = iox::capro::ServiceDescription(iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString);
+    auto wildcardServiceService = iox::capro::ServiceDescription(iox::capro::AnyServiceString, "instance", "event");
+    auto wildcardInstanceService = iox::capro::ServiceDescription("service", iox::capro::AnyInstanceString, "event");
+    auto wildcardEventService = iox::capro::ServiceDescription("service", "instance", iox::capro::AnyEventString);
+
+    TestDDSGatewayGeneric gw{};
+
+    // ===== Test
+    gw.addChannel(completeWildcardService);
+    gw.addChannel(wildcardServiceService);
+    gw.addChannel(wildcardInstanceService);
+    gw.addChannel(wildcardEventService);
+
+
+    EXPECT_EQ(0, gw.getNumberOfChannels());
+}
+
 TEST_F(DDSGatewayGenericTest, DiscardedChannelsAreNotStored)
 {
     // ===== Setup
