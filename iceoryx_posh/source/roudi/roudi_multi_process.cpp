@@ -107,6 +107,10 @@ void RouDiMultiProcess::processThread()
 void RouDiMultiProcess::mqThread()
 {
     runtime::MqInterfaceCreator roudiMqInterface{MQ_ROUDI_NAME};
+
+    // the logger is intentionally not used, to ensure that this message is always printed
+    std::cout << "RouDi is ready for clients" << std::endl;
+
     while (m_runThreads)
     {
         // read RouDi message queue
