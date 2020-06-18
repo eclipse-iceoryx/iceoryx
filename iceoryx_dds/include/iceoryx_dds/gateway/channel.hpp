@@ -17,6 +17,7 @@
 
 #include "iceoryx_dds/dds/dds_config.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/internal/objectpool/objectpool.hpp"
 
 #include <memory>
@@ -58,7 +59,7 @@ class Channel
             const DDSTerminalPtr ddsTerminal) noexcept;
     constexpr bool operator==(const Channel<IceoryxTerminal, DDSTerminal>& rhs) const noexcept;
 
-    static Channel create(const iox::capro::ServiceDescription& service) noexcept;
+    static iox::cxx::expected<Channel, uint8_t> create(const iox::capro::ServiceDescription& service) noexcept;
 
     iox::capro::ServiceDescription getService() const noexcept;
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;
