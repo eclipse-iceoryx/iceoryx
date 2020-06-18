@@ -26,6 +26,12 @@ namespace iox
 {
 namespace dds
 {
+
+enum class ChannelError : uint8_t
+{
+    OBJECT_POOL_FULL
+};
+
 ///
 /// @class Channel
 /// @brief A data structure representing a channel between Iceoryx and DDS.
@@ -59,7 +65,7 @@ class Channel
             const DDSTerminalPtr ddsTerminal) noexcept;
     constexpr bool operator==(const Channel<IceoryxTerminal, DDSTerminal>& rhs) const noexcept;
 
-    static iox::cxx::expected<Channel, uint8_t> create(const iox::capro::ServiceDescription& service) noexcept;
+    static iox::cxx::expected<Channel, ChannelError> create(const iox::capro::ServiceDescription& service) noexcept;
 
     iox::capro::ServiceDescription getService() const noexcept;
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;
