@@ -98,6 +98,9 @@ make -j12
 make install
 ```
 
+If you would like to use our Cyclone DDS Gateway you have to install Cyclone DDS first, see
+[https://github.com/eclipse-cyclonedds/cyclonedds](https://github.com/eclipse-cyclonedds/cyclonedds).
+
 #### Linux
 
 Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 18.04 and at least GCC 7.4.0 for development.
