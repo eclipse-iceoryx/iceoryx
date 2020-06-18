@@ -64,13 +64,21 @@ inline iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::DDSGatewayGeneric() no
 }
 
 template <typename channel_t, typename gateway_t>
-inline channel_t
+inline iox::cxx::expected<channel_t, uint8_t>
 iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service) noexcept
 {
+
+    // Filter out wildcard services
+    if(service.getServiceID() == iox::capro::AnyService || service.getInstanceID() == iox::capro::AnyInstance || service.getEventID() == iox::capro::AnyEvent)
+    {
+        return iox::cxx::error<uint8_t>(1);
+    }
+
+    // Add channel if it doesn't already exist
     auto existingChannel = findChannel(service);
     if(existingChannel.has_value())
     {
-        return existingChannel.value();
+        return iox::cxx::success<channel_t>(existingChannel.value());
     }
     else
     {
@@ -79,7 +87,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
         iox::dds::LogDebug() << "[DDSGatewayGeneric] Channel set up for service: "
                              << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
                              << service.getEventIDString();
-        return channel;
+        return iox::cxx::success<channel_t>(channel);
     }
 }
 
