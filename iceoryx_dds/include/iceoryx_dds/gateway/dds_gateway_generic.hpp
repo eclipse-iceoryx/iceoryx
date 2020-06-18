@@ -38,7 +38,8 @@ namespace dds
 enum class GatewayError : uint8_t
 {
     UNSUPPORTED_SERVICE_TYPE,
-    UNSUCCESSFUL_CHANNEL_CREATION
+    UNSUCCESSFUL_CHANNEL_CREATION,
+    NONEXISTANT_CHANNEL
 };
 
 ///
@@ -48,7 +49,7 @@ enum class GatewayError : uint8_t
 template <typename channel_t, typename gateway_t = iox::popo::GatewayGeneric>
 class DDSGatewayGeneric : public gateway_t
 {
-    using ChannelFactory = std::function<iox::cxx::expected<channel_t, uint8_t>(const iox::capro::ServiceDescription)>;
+    using ChannelFactory = std::function<iox::cxx::expected<channel_t, iox::dds::ChannelError>(const iox::capro::ServiceDescription)>;
     using ChannelVector = iox::cxx::vector<channel_t, MAX_CHANNEL_NUMBER>;
     using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 
@@ -91,7 +92,7 @@ class DDSGatewayGeneric : public gateway_t
     /// @brief addChannel Creates a channel for the given service and stores a copy of it in an internal collection for
     /// later access.
     /// @param service The service to create a channel for.
-    /// @return An optional containing a copy of the created channel if successful, otherwise an empty optional.
+    /// @return an expected containing a copy of the added channel, otherwise an error
     ///
     /// @note Wildcard services are not allowed and will be ignored.
     ///
@@ -123,8 +124,9 @@ class DDSGatewayGeneric : public gateway_t
     ///
     /// @brief discardChannel Discard the channel for the given service in the internal collection if one exists.
     /// @param service The service whose channels hiould be discarded.
+    /// @return an empty expected on success, otherwise an error
     ///
-    void discardChannel(const iox::capro::ServiceDescription& service) noexcept;
+    iox::cxx::expected<iox::dds::GatewayError> discardChannel(const iox::capro::ServiceDescription& service) noexcept;
 
   private:
     ConcurrentChannelVector m_channels;
