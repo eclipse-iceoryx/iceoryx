@@ -49,7 +49,7 @@ class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
         // Stubbed.
     }
 
-    iox::cxx::expected<channel_t, uint8_t> addChannel(const iox::capro::ServiceDescription& service) noexcept
+    iox::cxx::expected<channel_t, iox::dds::GatewayError> addChannel(const iox::capro::ServiceDescription& service) noexcept
     {
         return TestDDSGatewayGeneric<channel_t>::addChannel(service);
     }

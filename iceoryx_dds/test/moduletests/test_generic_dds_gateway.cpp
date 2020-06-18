@@ -71,11 +71,15 @@ TEST_F(DDSGatewayGenericTest, IgnoresWildcardServices)
     TestDDSGatewayGeneric gw{};
 
     // ===== Test
-    gw.addChannel(completeWildcardService);
-    gw.addChannel(wildcardServiceService);
-    gw.addChannel(wildcardInstanceService);
-    gw.addChannel(wildcardEventService);
+    auto resultOne = gw.addChannel(completeWildcardService);
+    auto resultTwo = gw.addChannel(wildcardServiceService);
+    auto resultThree = gw.addChannel(wildcardInstanceService);
+    auto resultFour = gw.addChannel(wildcardEventService);
 
+    EXPECT_EQ(iox::dds::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultOne.get_error());
+    EXPECT_EQ(iox::dds::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultTwo.get_error());
+    EXPECT_EQ(iox::dds::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultThree.get_error());
+    EXPECT_EQ(iox::dds::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultFour.get_error());
 
     EXPECT_EQ(0, gw.getNumberOfChannels());
 }
@@ -142,6 +146,7 @@ TEST_F(DDSGatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
 
     auto result = gw.addChannel({"oneTooMany", "oneTooMany", "oneTooMany"});
     EXPECT_EQ(true, result.has_error());
+    EXPECT_EQ(iox::dds::GatewayError::UNSUCCESSFUL_CHANNEL_CREATION, result.get_error());
 
 }
 
