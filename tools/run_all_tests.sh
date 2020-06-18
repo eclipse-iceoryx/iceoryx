@@ -18,6 +18,32 @@
 
 component_folder="posh utils"
 
+GTEST_FILTER="*"
+
+for arg in "$@"
+do 
+    case "$arg" in
+        "disable-timing-tests")
+            GTEST_FILTER="-*.TimingTest_*"
+            ;;
+        "only-timing-tests")
+            GTEST_FILTER="*.TimingTest_*"
+            ;;
+        *)
+            echo ""
+            echo "Test script for iceoryx."
+            echo "By default all module-, integration- and componenttests are executed."
+            echo ""
+            echo "Usage: $0 [OPTIONS]"
+            echo "Options:"
+            echo "      disable-timing-tests        Disables all timing tests"
+            echo "      only-timing-tests           Runs only timing tests"
+            echo ""
+            exit -1
+            ;;
+    esac
+done 
+
 #check if this script is sourced by another script,
 # if yes then exit properly, so the other script can use this
 # scripts definitions
@@ -41,9 +67,9 @@ for folder in $component_folder; do
 
     cd $folder/$folder/test
 
-    ./"$folder"_moduletests --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ModuleTestResults.xml"
-    ./"$folder"_componenttests --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ComponenttestTestResults.xml"
-    ./"$folder"_integrationtests --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_IntegrationTestResults.xml"
+    ./"$folder"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ModuleTestResults.xml"
+    ./"$folder"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ComponenttestTestResults.xml"
+    ./"$folder"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_IntegrationTestResults.xml"
 
     cd ../../..
 

@@ -76,5 +76,5 @@ jobs:
       - name: Run tests
         run: |
           cd $GITHUB_WORKSPACE/build
-          ../tools/run_all_tests.sh
+          ../tools/run_all_tests.sh disable-timing-tests
 

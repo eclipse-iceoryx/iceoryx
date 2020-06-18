@@ -10,6 +10,7 @@ project(iceoryx VERSION ${iceoryx_VERSION})
 option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
 option(diagnostic "enables allmost all compiler warnings" OFF)
+option(dds "enables dds support by compiling the iceoryx dds gateway" OFF)
 
 include(FetchContent)
 
@@ -64,3 +65,7 @@ endif(examples)
 if(introspection)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tools/introspection ${CMAKE_BINARY_DIR}/tools/introspection )
 endif(introspection)
+
+if(dds)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dds_gateway ${CMAKE_BINARY_DIR}/iceoryx_dds_gateway )
+endif(dds)
