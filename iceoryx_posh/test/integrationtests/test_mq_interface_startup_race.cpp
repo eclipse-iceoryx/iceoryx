@@ -51,7 +51,7 @@ class CMqInterfaceStartupRace_test : public Test
 {
   public:
     CMqInterfaceStartupRace_test()
-        : m_appQueue{CommunicationType::create()}
+        : m_appQueue{IpcChannelType::create()}
     {
     }
 
@@ -94,7 +94,7 @@ class CMqInterfaceStartupRace_test : public Test
 
         if (m_appQueue.has_error())
         {
-            m_appQueue = CommunicationType::create(
+            m_appQueue = IpcChannelType::create(
                 std::string(MQ_ROOT_PATH) + MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
         }
         ASSERT_THAT(m_appQueue.has_error(), false);
@@ -104,10 +104,10 @@ class CMqInterfaceStartupRace_test : public Test
 
     /// @note smart_lock in combination with optional is currently not really usable
     std::mutex m_roudiQueueMutex;
-    CommunicationType::result_t m_roudiQueue{CommunicationType::create(
+    IpcChannelType::result_t m_roudiQueue{IpcChannelType::create(
         std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
     std::mutex m_appQueueMutex;
-    CommunicationType::result_t m_appQueue;
+    IpcChannelType::result_t m_appQueue;
 };
 
 #if !defined(__APPLE__)
@@ -130,7 +130,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
-        auto m_roudiQueue2 = CommunicationType::create(
+        auto m_roudiQueue2 = IpcChannelType::create(
             std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
@@ -173,7 +173,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
-        auto newRoudi = CommunicationType::create(
+        auto newRoudi = IpcChannelType::create(
             std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi

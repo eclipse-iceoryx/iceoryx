@@ -43,10 +43,10 @@ constexpr char MQ_ROUDI_NAME[] = "/roudi";
 ///      be found.
 #if defined(__APPLE__)
 constexpr char MQ_ROOT_PATH[] = "/tmp";
-using CommunicationType = iox::posix::UnixDomainSocket;
+using IpcChannelType = iox::posix::UnixDomainSocket;
 #else
 constexpr char MQ_ROOT_PATH[] = "";
-using CommunicationType = iox::posix::MessageQueue;
+using IpcChannelType = iox::posix::MessageQueue;
 #endif
 
 /// shared memmory segment for the iceoryx managment data

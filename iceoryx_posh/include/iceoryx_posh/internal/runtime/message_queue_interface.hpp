@@ -228,7 +228,7 @@ class MqBase
     uint64_t m_maxMessageSize{0};
     uint64_t m_maxMessages{0};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};
-    CommunicationType m_mq;
+    IpcChannelType m_mq;
 };
 
 /// @brief Class for handling a message queue via mq_open and mq_close.

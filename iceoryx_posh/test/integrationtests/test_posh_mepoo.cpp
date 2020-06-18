@@ -426,7 +426,8 @@ TEST_F(Mepoo_IntegrationTest, DISABLED_SampleOverflow)
     EXPECT_DEATH({ sendreceivesample<samplesize1>(repetition1); }, ".*");
 }
 
-TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolCreationTimeDefaultConfig)
+#if defined(QNX) || defined(QNX__) || defined(__QNX__)
+TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig)
 {
     MemPoolInfoContainer memPoolTestContainer;
     auto testMempoolConfig = defaultMemPoolConfig();
@@ -446,6 +447,7 @@ TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolCreationTimeDefaultConfig)
     auto maxtime = 2000_ms;
     EXPECT_THAT(timediff, Le(maxtime));
 }
+#endif
 
 TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolCreationTime2GBConfig)
 {

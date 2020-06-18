@@ -160,13 +160,12 @@ bool MqBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
     m_mq.destroy();
 
     m_channelSide = channelSide;
-    CommunicationType::create(std::string(MQ_ROOT_PATH) + m_interfaceName,
-                              posix::IpcChannelMode::BLOCKING,
-                              m_channelSide,
-                              m_maxMessageSize,
-                              m_maxMessages)
-        .on_success(
-            [this](cxx::expected<CommunicationType, posix::IpcChannelError>& mq) { this->m_mq = std::move(*mq); });
+    IpcChannelType::create(std::string(MQ_ROOT_PATH) + m_interfaceName,
+                           posix::IpcChannelMode::BLOCKING,
+                           m_channelSide,
+                           m_maxMessageSize,
+                           m_maxMessages)
+        .on_success([this](cxx::expected<IpcChannelType, posix::IpcChannelError>& mq) { this->m_mq = std::move(*mq); });
 
     return m_mq.isInitialized();
 }

@@ -9,7 +9,7 @@ IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
 {
     for (uint64_t i = 0u; i < Capacity; ++i)
     {
-        m_cells[i].store(Index(0));
+        m_cells[i].store(Index(0), std::memory_order_relaxed);
     }
 }
 
@@ -20,7 +20,7 @@ IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t) noexcept
 {
     for (uint64_t i = 0u; i < Capacity; ++i)
     {
-        m_cells[i].store(Index(i));
+        m_cells[i].store(Index(i), std::memory_order_relaxed);
     }
 }
 
