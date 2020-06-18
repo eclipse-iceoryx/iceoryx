@@ -35,7 +35,21 @@ UnixDomainSocket::UnixDomainSocket(const std::string& name,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber) noexcept
-    : UnixDomainSocket(NoPathPrefix, std::string(PATH_PREFIX) + name, mode, channelSide, maxMsgSize, maxMsgNumber)
+    : UnixDomainSocket(
+        NoPathPrefix,
+        [&]() -> std::string {
+            /// invalid names will be forwarded and handled by the other constructor
+            /// separately
+            if (!isNameValid(name))
+            {
+                return name;
+            }
+            return std::string(PATH_PREFIX) + name;
+        }(),
+        mode,
+        channelSide,
+        maxMsgSize,
+        maxMsgNumber)
 {
 }
 
