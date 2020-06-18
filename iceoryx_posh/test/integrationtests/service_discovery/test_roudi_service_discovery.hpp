@@ -4,7 +4,6 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "roudi_gtest.hpp"
 
-using FindServiceHandle = iox::runtime::FindServiceHandle;
 using IdString = iox::capro::IdString;
 using InstanceContainer = iox::runtime::InstanceContainer;
 
