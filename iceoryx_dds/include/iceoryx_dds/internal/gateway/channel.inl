@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_dds/gateway/channel.hpp"
+
 namespace iox
 {
 namespace dds
@@ -45,20 +47,28 @@ constexpr inline bool Channel<IceoryxTerminal, DDSTerminal>::operator==(const Ch
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
-inline Channel<IceoryxTerminal, DDSTerminal>
+inline iox::cxx::expected<Channel<IceoryxTerminal, DDSTerminal>, uint8_t>
 Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescription& service) noexcept
 {
     // Create objects in the pool.
     auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const iox::capro::ServiceDescription>(service));
+    if(rawIceoryxTerminalPtr == nullptr)
+    {
+        return iox::cxx::error<uint8_t>(1);
+    }
     auto rawDDSTerminalPtr =
         s_ddsTerminals.create(service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
+    if(rawDDSTerminalPtr == nullptr)
+    {
+        return iox::cxx::error<uint8_t>(2);
+    }
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
     auto iceoryxTerminalPtr =
         IceoryxTerminalPtr(rawIceoryxTerminalPtr, [](IceoryxTerminal* const p) { s_iceoryxTerminals.free(p); });
     auto ddsTerminalPtr = DDSTerminalPtr(rawDDSTerminalPtr, [](DDSTerminal* const p) { s_ddsTerminals.free(p); });
 
-    return Channel(service, iceoryxTerminalPtr, ddsTerminalPtr);
+    return iox::cxx::success<Channel>(Channel(service, iceoryxTerminalPtr, ddsTerminalPtr));
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>

@@ -41,7 +41,7 @@ namespace dds
 template <typename channel_t, typename gateway_t = iox::popo::GatewayGeneric>
 class DDSGatewayGeneric : public gateway_t
 {
-    using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
+    using ChannelFactory = std::function<iox::cxx::expected<channel_t, uint8_t>(const iox::capro::ServiceDescription)>;
     using ChannelVector = iox::cxx::vector<channel_t, MAX_CHANNEL_NUMBER>;
     using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 

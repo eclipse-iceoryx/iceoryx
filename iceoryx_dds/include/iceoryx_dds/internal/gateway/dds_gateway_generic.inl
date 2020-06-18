@@ -74,7 +74,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
         return iox::cxx::error<uint8_t>(1);
     }
 
-    // Add channel if it doesn't already exist
+    // Return existing channel if one for the service already exists, otherwise create a new one
     auto existingChannel = findChannel(service);
     if(existingChannel.has_value())
     {
@@ -82,12 +82,24 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
     }
     else
     {
-        auto channel = m_channelFactory(service);
-        m_channels->push_back(channel);
-        iox::dds::LogDebug() << "[DDSGatewayGeneric] Channel set up for service: "
-                             << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
-                             << service.getEventIDString();
-        return iox::cxx::success<channel_t>(channel);
+        auto result = m_channelFactory(service);
+        if(result.has_error())
+        {
+            iox::dds::LogError() << "[DDSGatewayGeneric] Unable to set up channel for service: "
+                                 << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
+                                 << service.getEventIDString();
+            return iox::cxx::error<uint8_t>(2);
+        }
+        else
+        {
+            auto channel = result.get_value();
+            m_channels->push_back(channel);
+            iox::dds::LogDebug() << "[DDSGatewayGeneric] Channel set up for service: "
+                                 << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
+                                 << service.getEventIDString();
+            return iox::cxx::success<channel_t>(channel);
+        }
+
     }
 }
 
