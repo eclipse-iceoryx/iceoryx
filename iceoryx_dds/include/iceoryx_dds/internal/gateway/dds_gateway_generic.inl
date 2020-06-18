@@ -64,14 +64,14 @@ inline iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::DDSGatewayGeneric() no
 }
 
 template <typename channel_t, typename gateway_t>
-inline iox::cxx::expected<channel_t, uint8_t>
+inline iox::cxx::expected<channel_t, iox::dds::GatewayError>
 iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service) noexcept
 {
 
     // Filter out wildcard services
     if(service.getServiceID() == iox::capro::AnyService || service.getInstanceID() == iox::capro::AnyInstance || service.getEventID() == iox::capro::AnyEvent)
     {
-        return iox::cxx::error<uint8_t>(1);
+        return iox::cxx::error<GatewayError>(GatewayError::UNSUPPORTED_SERVICE_TYPE);
     }
 
     // Return existing channel if one for the service already exists, otherwise create a new one
@@ -88,7 +88,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
             iox::dds::LogError() << "[DDSGatewayGeneric] Unable to set up channel for service: "
                                  << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
                                  << service.getEventIDString();
-            return iox::cxx::error<uint8_t>(2);
+            return iox::cxx::error<GatewayError>(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
         }
         else
         {
