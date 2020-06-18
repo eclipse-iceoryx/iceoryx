@@ -76,7 +76,7 @@ void stageMockSubscriber(std::shared_ptr<MockSubscriber>&& mock)
 // ======================================== Mock Factories ======================================== //
 
 
-static iox::cxx::expected<iox::dds::Channel<MockSubscriber, MockDataWriter>, uint8_t> createTestChannel(iox::capro::ServiceDescription sd) noexcept
+static iox::cxx::expected<iox::dds::Channel<MockSubscriber, MockDataWriter>, iox::dds::GatewayError> createTestChannel(iox::capro::ServiceDescription sd) noexcept
 {
     // Get or create a mock subscriber
     std::shared_ptr<MockSubscriber> mockSubscriber;
