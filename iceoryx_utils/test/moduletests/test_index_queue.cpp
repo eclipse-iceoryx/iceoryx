@@ -69,7 +69,6 @@ TYPED_TEST(IndexQueueTest, defaultConstructedQueueIsEmpty)
 TYPED_TEST(IndexQueueTest, constructedQueueIsEmpty)
 {
     using Queue = typename TestFixture::Queue;
-    using index_t = typename TestFixture::index_t;
 
     Queue q(Queue::ConstructEmpty);
     EXPECT_TRUE(q.empty());
@@ -78,7 +77,6 @@ TYPED_TEST(IndexQueueTest, constructedQueueIsEmpty)
 
 TYPED_TEST(IndexQueueTest, queueIsNotEmptyAfterPush)
 {
-    using index_t = typename TestFixture::index_t;
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
 
@@ -88,7 +86,6 @@ TYPED_TEST(IndexQueueTest, queueIsNotEmptyAfterPush)
 
 TYPED_TEST(IndexQueueTest, queueIsEmptyAgainAfterPushFollowedByPop)
 {
-    using index_t = typename TestFixture::index_t;
     auto& q = this->queue;
 
     auto index = this->fullQueue.pop();
