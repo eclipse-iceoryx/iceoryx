@@ -18,6 +18,8 @@
 #include <chrono>
 #include <thread>
 
+#include "iceoryx_dds/gateway/iox_to_dds.hpp"
+
 namespace iox
 {
 namespace dds
@@ -37,11 +39,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const Ga
     {
         if (!this->findChannel(service).has_value())
         {
-            auto channel = this->addChannel(service);
-            auto subscriber = channel.getIceoryxTerminal();
-            auto dataWriter = channel.getDDSTerminal();
-            subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
-            dataWriter->connect();
+            setupChannel(service);
         }
     }
 }
@@ -71,11 +69,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro:
     {
         if (!this->findChannel(msg.m_serviceDescription).has_value())
         {
-            auto channel = this->addChannel(msg.m_serviceDescription);
-            auto subscriber = channel.getIceoryxTerminal();
-            auto dataWriter = channel.getDDSTerminal();
-            subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
-            dataWriter->connect();
+            setupChannel(msg.m_serviceDescription);
         }
         break;
     }
@@ -109,6 +103,20 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
         }
         subscriber->releaseChunk(header);
     }
+}
+
+// ======================================== Private ======================================== //
+
+template <typename channel_t, typename gateway_t>
+void Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
+{
+    this->addChannel(service).on_success([](iox::cxx::expected<channel_t, uint8_t> result){
+        auto channel = result.get_value();
+        auto subscriber = channel.getIceoryxTerminal();
+        auto dataWriter = channel.getDDSTerminal();
+        subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
+        dataWriter->connect();
+    });
 }
 
 } // namespace dds
