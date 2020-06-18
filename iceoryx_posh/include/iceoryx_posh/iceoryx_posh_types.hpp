@@ -42,10 +42,8 @@ constexpr char MQ_ROUDI_NAME[] = "/roudi";
 ///      we need an absolut path so that every application knows where our sockets can
 ///      be found.
 #if defined(__APPLE__)
-constexpr char MQ_ROOT_PATH[] = "/tmp";
 using IpcChannelType = iox::posix::UnixDomainSocket;
 #else
-constexpr char MQ_ROOT_PATH[] = "";
 using IpcChannelType = iox::posix::MessageQueue;
 #endif
 

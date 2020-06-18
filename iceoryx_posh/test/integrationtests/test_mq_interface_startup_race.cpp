@@ -94,8 +94,7 @@ class CMqInterfaceStartupRace_test : public Test
 
         if (m_appQueue.has_error())
         {
-            m_appQueue = IpcChannelType::create(
-                std::string(MQ_ROOT_PATH) + MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+            m_appQueue = IpcChannelType::create(MqAppName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
         }
         ASSERT_THAT(m_appQueue.has_error(), false);
 
@@ -104,8 +103,8 @@ class CMqInterfaceStartupRace_test : public Test
 
     /// @note smart_lock in combination with optional is currently not really usable
     std::mutex m_roudiQueueMutex;
-    IpcChannelType::result_t m_roudiQueue{IpcChannelType::create(
-        std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
+    IpcChannelType::result_t m_roudiQueue{
+        IpcChannelType::create(MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER)};
     std::mutex m_appQueueMutex;
     IpcChannelType::result_t m_appQueue;
 };

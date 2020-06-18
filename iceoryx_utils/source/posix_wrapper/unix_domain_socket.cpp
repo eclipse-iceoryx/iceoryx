@@ -34,6 +34,17 @@ UnixDomainSocket::UnixDomainSocket(const std::string& name,
                                    const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
+                                   const uint64_t maxMsgNumber) noexcept
+    : UnixDomainSocket(NoPathPrefix, std::string(PATH_PREFIX) + name, mode, channelSide, maxMsgSize, maxMsgNumber)
+{
+}
+
+
+UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
+                                   const std::string& name,
+                                   const IpcChannelMode mode,
+                                   const IpcChannelSide channelSide,
+                                   const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber [[gnu::unused]]) noexcept
     : m_name(name)
     , m_channelSide(channelSide)
@@ -100,6 +111,12 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 }
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const std::string& name) noexcept
+{
+    return unlinkIfExists(NoPathPrefix, std::string(PATH_PREFIX) + name);
+}
+
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t,
+                                                                      const std::string& name) noexcept
 {
     if (!isNameValid(name))
     {

@@ -160,11 +160,8 @@ bool MqBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
     m_mq.destroy();
 
     m_channelSide = channelSide;
-    IpcChannelType::create(std::string(MQ_ROOT_PATH) + m_interfaceName,
-                           posix::IpcChannelMode::BLOCKING,
-                           m_channelSide,
-                           m_maxMessageSize,
-                           m_maxMessages)
+    IpcChannelType::create(
+        m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
         .on_success([this](cxx::expected<IpcChannelType, posix::IpcChannelError>& mq) { this->m_mq = std::move(*mq); });
 
     return m_mq.isInitialized();
@@ -192,7 +189,7 @@ bool MqBase::hasClosableMessageQueue() const noexcept
 
 void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
 {
-    if (posix::MessageQueue::unlinkIfExists(std::string(MQ_ROOT_PATH) + name).get_value_or(false))
+    if (posix::MessageQueue::unlinkIfExists(name).get_value_or(false))
     {
         LogWarn() << "MQ still there, doing an unlink of " << name;
     }

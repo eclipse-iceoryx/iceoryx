@@ -32,6 +32,11 @@ namespace posix
 class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcChannelError>
 {
   public:
+    struct NoPathPrefix_t
+    {
+    };
+    static constexpr NoPathPrefix_t NoPathPrefix{};
+
     /// @brief Max message size is on linux = 4096 and on mac os = 2048. To have
     ///  the same behavior on every platform we use 2048.
     static constexpr size_t MAX_MESSAGE_SIZE = 2048u;
@@ -41,6 +46,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     static constexpr size_t LONGEST_VALID_NAME = 1024u;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
+    static constexpr char PATH_PREFIX[] = "/tmp/";
 
     /// @brief for calling private constructor in create method
     friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
@@ -61,6 +67,12 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @param name of the unix domain socket to unlink
     /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
     static cxx::expected<bool, IpcChannelError> unlinkIfExists(const std::string& name) noexcept;
+
+    /// @brief unlink the provided unix domain socket
+    /// @param NoPathPrefix signalling that this method does not add a path prefix
+    /// @param name of the unix domain socket to unlink
+    /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const NoPathPrefix_t, const std::string& name) noexcept;
 
     /// @brief close the unix domain socket.
     cxx::expected<IpcChannelError> destroy() noexcept;
@@ -101,6 +113,21 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10u) noexcept;
+
+    /// @brief c'tor
+    /// @param NoPathPrefix signalling that this constructor does not add a path prefix
+    /// @param name for the unix domain socket
+    /// @param mode blocking or non_blocking
+    /// @param channel side client or server
+    /// @param maxMsgSize max message size that can be transmitted
+    /// @param maxMsgNumber max messages that can be queued
+    UnixDomainSocket(const NoPathPrefix_t,
+                     const std::string& name,
+                     const IpcChannelMode mode,
+                     const IpcChannelSide channelSide,
+                     const size_t maxMsgSize = MAX_MESSAGE_SIZE,
+                     const uint64_t maxMsgNumber = 10u) noexcept;
+
 
     /// @brief creates the unix domain socket
     /// @param mode blocking or non_blocking
