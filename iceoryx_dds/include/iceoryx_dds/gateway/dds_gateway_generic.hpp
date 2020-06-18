@@ -34,6 +34,13 @@ namespace iox
 {
 namespace dds
 {
+
+enum class GatewayError : uint8_t
+{
+    UNSUPPORTED_SERVICE_TYPE,
+    UNSUCCESSFUL_CHANNEL_CREATION
+};
+
 ///
 /// @brief Base class for DDS gateways containing common logic used by all implementations. Methods that are expected
 /// to differ across implementations are left as pure virtual.
@@ -46,6 +53,7 @@ class DDSGatewayGeneric : public gateway_t
     using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 
   public:
+
     virtual ~DDSGatewayGeneric() noexcept;
 
     DDSGatewayGeneric(const DDSGatewayGeneric&) = delete;
@@ -95,7 +103,7 @@ class DDSGatewayGeneric : public gateway_t
     /// The service description is perhaps too large for copying since they contain strings, however this should be
     /// addressed with a service description repository feature.
     ///
-    iox::cxx::expected<channel_t, uint8_t> addChannel(const iox::capro::ServiceDescription& service) noexcept;
+    iox::cxx::expected<channel_t, iox::dds::GatewayError> addChannel(const iox::capro::ServiceDescription& service) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns
