@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,17 +23,32 @@ ConditionVariableWaiter::ConditionVariableWaiter(cxx::not_null<ConditionVariable
 {
 }
 
-
 void ConditionVariableWaiter::reset() noexcept
 {
+    // Call c'tor again
+    getMembers()->m_semaphore.create(0u);
 }
 
 void ConditionVariableWaiter::wait() noexcept
 {
+    getMembers()->m_semaphore.wait();
 }
 
-void ConditionVariableWaiter::timedWait() noexcept
+bool ConditionVariableWaiter::timedWait(units::Duration timeToWait) noexcept
 {
+    auto timeout = timeToWait.timespec();
+    auto continueOnInterrupt{false};
+    return getMembers()->m_semaphore.timedWait(&timeout, continueOnInterrupt);
+}
+
+const ConditionVariableData* ConditionVariableWaiter::getMembers() const noexcept
+{
+    return m_condVarDataPtr;
+}
+
+ConditionVariableData* ConditionVariableWaiter::getMembers() noexcept
+{
+    return m_condVarDataPtr;
 }
 
 } // namespace popo

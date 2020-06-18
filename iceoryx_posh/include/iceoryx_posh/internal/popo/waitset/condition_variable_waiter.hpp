@@ -29,7 +29,7 @@ class ConditionVariableWaiter
     ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
     void reset() noexcept;
-    void timedWait() noexcept;
+    bool timedWait(units::Duration timeToWait) noexcept;
     void wait() noexcept;
 
   protected:

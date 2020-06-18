@@ -17,6 +17,8 @@
 #include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
 #include "iceoryx_posh/internal/popo/waitset/condition_variable_waiter.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+//#include "iceoryx_utils/internal/units/duration.hpp"
+
 #include "test.hpp"
 
 #include <memory>
@@ -26,6 +28,7 @@ using ::testing::Return;
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
+using namespace iox::units::duration_literals;
 
 class ConditionVariable_test : public Test
 {
@@ -49,6 +52,7 @@ class ConditionVariable_test : public Test
 
 TEST_F(ConditionVariable_test, NoSignalResultsInWait)
 {
+    EXPECT_THAT(m_waiter.timedWait(100_ms), Eq(false));
 }
 
 TEST_F(ConditionVariable_test, SignalResultsInCall)

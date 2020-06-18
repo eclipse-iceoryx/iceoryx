@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
+#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 namespace iox
 {
@@ -29,6 +30,7 @@ struct ConditionVariableData
     }
 
     mepoo::MemoryInfo m_memoryInfo;
+    posix::Semaphore m_semaphore = posix::Semaphore::create(0u).get_value();
 };
 
 } // namespace popo

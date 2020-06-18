@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,8 +24,20 @@ ConditionVariableSignaler::ConditionVariableSignaler(
 {
 }
 
-void ConditionVariableSignaler::notify() noexcept
+void ConditionVariableSignaler::notifyAll() noexcept
 {
+    /// @todo post semaphore n-times
+    getMembers()->m_semaphore.post();
+}
+
+const ConditionVariableData* ConditionVariableSignaler::getMembers() const noexcept
+{
+    return m_condVarDataPtr;
+}
+
+ConditionVariableData* ConditionVariableSignaler::getMembers() noexcept
+{
+    return m_condVarDataPtr;
 }
 
 } // namespace popo

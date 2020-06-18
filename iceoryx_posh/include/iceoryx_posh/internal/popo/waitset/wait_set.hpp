@@ -37,7 +37,7 @@ class WaitSet
     void timedWait();
     void wait();
 
-    cxx::vector<ConditionVariableWaiter, MAX_NUMBER_OF_CONDITION_VARIABLES> m_waiterVector;
+    cxx::vector<Condition, MAX_NUMBER_OF_CONDITION_VARIABLES> m_waiterVector;
 };
 
 } // namespace popo
