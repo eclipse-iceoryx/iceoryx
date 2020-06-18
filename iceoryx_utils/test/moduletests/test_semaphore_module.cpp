@@ -319,30 +319,30 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(6), [&] {
 });
 
 
-TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(6), [&] {
-    std::atomic_bool timedWaitFinish{false};
-    bool isTestSuccessful{true};
+// TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(6), [&] {
+//     std::atomic_bool timedWaitFinish{false};
+//     bool isTestSuccessful{true};
 
-    std::thread t([&] {
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        ts.tv_nsec += TIMING_TEST_TIMEOUT;
-        syncSemaphore->post();
-        sut->wait();
-        TIMING_TEST_EXPECT_TRUE(sut->timedWait(&ts, false));
-        timedWaitFinish.store(true);
-    });
+//     std::thread t([&] {
+//         struct timespec ts;
+//         clock_gettime(CLOCK_REALTIME, &ts);
+//         ts.tv_nsec += TIMING_TEST_TIMEOUT;
+//         syncSemaphore->post();
+//         sut->wait();
+//         TIMING_TEST_EXPECT_TRUE(sut->timedWait(&ts, false));
+//         timedWaitFinish.store(true);
+//     });
 
-    syncSemaphore->wait();
-    sut->post();
-    std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
-    TIMING_TEST_EXPECT_FALSE(timedWaitFinish.load());
+//     syncSemaphore->wait();
+//     sut->post();
+//     std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
+//     TIMING_TEST_EXPECT_FALSE(timedWaitFinish.load());
 
-    sut->post();
-    std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
-    TIMING_TEST_EXPECT_TRUE(timedWaitFinish.load());
+//     sut->post();
+//     std::this_thread::sleep_for(std::chrono::nanoseconds(TIMING_TEST_TIMEOUT / 3 * 2));
+//     TIMING_TEST_EXPECT_TRUE(timedWaitFinish.load());
 
-    t.join();
-});
+//     t.join();
+// });
 
 #endif // not defined QNX
