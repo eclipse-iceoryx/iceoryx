@@ -74,7 +74,7 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
         }
     }
 
-    static constexpr long TIMING_TEST_TIMEOUT{(100_ms).nanoSeconds<long>()};
+    static constexpr long TIMING_TEST_TIMEOUT{(500_ms).nanoSeconds<long>()};
 
     iox::posix::Semaphore* sut{nullptr};
     iox::posix::Semaphore* syncSemaphore = [] {
@@ -293,7 +293,7 @@ TEST_P(Semaphore_test, MoveCTor)
     EXPECT_THAT(sut->post(), Eq(false));
 }
 
-TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
+TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(6), [&] {
     std::atomic_bool timedWaitFinish{false};
     bool isTestSuccessful{true};
 
@@ -319,7 +319,7 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
 });
 
 
-TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
+TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(6), [&] {
     std::atomic_bool timedWaitFinish{false};
     bool isTestSuccessful{true};
 
