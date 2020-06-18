@@ -21,6 +21,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/gateway_generic.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
@@ -82,7 +83,9 @@ class DDSGatewayGeneric : public gateway_t
     /// @brief addChannel Creates a channel for the given service and stores a copy of it in an internal collection for
     /// later access.
     /// @param service The service to create a channel for.
-    /// @return A copy of the created channel.
+    /// @return An optional containing a copy of the created channel if successful, otherwise an empty optional.
+    ///
+    /// @note Wildcard services are not allowed and will be ignored.
     ///
     /// @note Channels are supposed to be lightweight, consisting only of pointers to the terminals and a copy of the
     /// service description, therefore a copy is provided to any entity that requires them.
@@ -92,7 +95,7 @@ class DDSGatewayGeneric : public gateway_t
     /// The service description is perhaps too large for copying since they contain strings, however this should be
     /// addressed with a service description repository feature.
     ///
-    channel_t addChannel(const iox::capro::ServiceDescription& service) noexcept;
+    iox::cxx::expected<channel_t, uint8_t> addChannel(const iox::capro::ServiceDescription& service) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns
