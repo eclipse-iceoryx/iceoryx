@@ -46,7 +46,7 @@ TEST_F(DDSGatewayGenericTest, AddedChannelsAreStored)
     EXPECT_EQ(1, gw.getNumberOfChannels());
 }
 
-TEST_F(DDSGatewayGenericTest, DoesNotAddWhenChannelAlreadyExists)
+TEST_F(DDSGatewayGenericTest, DoesNotAddDuplicateChannels)
 {
     // ===== Setup
     auto testService = iox::capro::ServiceDescription("service", "instance", "event");
@@ -150,6 +150,26 @@ TEST_F(DDSGatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
 
 }
 
+TEST_F(DDSGatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChannel)
+{
+    // ===== Setup
+    auto testServiceA = iox::capro::ServiceDescription("serviceA", "instanceA", "eventA");
+    auto testServiceB = iox::capro::ServiceDescription("serviceB", "instanceB", "eventB");
+    auto testServiceC = iox::capro::ServiceDescription("serviceC", "instanceC", "eventC");
+
+    TestDDSGatewayGeneric gw{};
+
+    // ===== Test
+    gw.addChannel(testServiceA);
+    gw.addChannel(testServiceB);
+    EXPECT_EQ(2, gw.getNumberOfChannels());
+
+    auto result = gw.discardChannel(testServiceC);
+    EXPECT_EQ(true, result.has_error());
+    EXPECT_EQ(2, gw.getNumberOfChannels());
+
+}
+
 TEST_F(DDSGatewayGenericTest, DiscardedChannelsAreNotStored)
 {
     // ===== Setup
@@ -160,7 +180,8 @@ TEST_F(DDSGatewayGenericTest, DiscardedChannelsAreNotStored)
     // ===== Test
     gw.addChannel(testService);
     EXPECT_EQ(1, gw.getNumberOfChannels());
-    gw.discardChannel(testService);
+    auto result = gw.discardChannel(testService);
+    EXPECT_EQ(false, result.has_error());
     EXPECT_EQ(0, gw.getNumberOfChannels());
 }
 

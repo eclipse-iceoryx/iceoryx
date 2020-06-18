@@ -47,20 +47,20 @@ constexpr inline bool Channel<IceoryxTerminal, DDSTerminal>::operator==(const Ch
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
-inline iox::cxx::expected<Channel<IceoryxTerminal, DDSTerminal>, uint8_t>
+inline iox::cxx::expected<Channel<IceoryxTerminal, DDSTerminal>, ChannelError>
 Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescription& service) noexcept
 {
     // Create objects in the pool.
     auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const iox::capro::ServiceDescription>(service));
     if(rawIceoryxTerminalPtr == nullptr)
     {
-        return iox::cxx::error<uint8_t>(1);
+        return iox::cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
     }
     auto rawDDSTerminalPtr =
         s_ddsTerminals.create(service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
     if(rawDDSTerminalPtr == nullptr)
     {
-        return iox::cxx::error<uint8_t>(2);
+        return iox::cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
     }
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.

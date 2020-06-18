@@ -135,7 +135,8 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::forEachChannel(const iox::cxx
 }
 
 template <typename channel_t, typename gateway_t>
-inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::discardChannel(
+inline iox::cxx::expected<iox::dds::GatewayError>
+iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::discardChannel(
     const iox::capro::ServiceDescription& service) noexcept
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
@@ -148,6 +149,11 @@ inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::discardChannel(
         iox::dds::LogDebug() << "[DDSGatewayGeneric] Channel taken down for service: "
                              << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
                              << service.getEventIDString();
+        return iox::cxx::success<void>();
+    }
+    else
+    {
+        return iox::cxx::error<GatewayError>(GatewayError::NONEXISTANT_CHANNEL);
     }
 }
 

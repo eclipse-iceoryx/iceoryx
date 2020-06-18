@@ -64,9 +64,9 @@ class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
         TestDDSGatewayGeneric<channel_t>::forEachChannel(f);
     }
 
-    void discardChannel(const iox::capro::ServiceDescription& service) noexcept
+    iox::cxx::expected<iox::dds::GatewayError> discardChannel(const iox::capro::ServiceDescription& service) noexcept
     {
-        TestDDSGatewayGeneric<channel_t>::discardChannel(service);
+        return TestDDSGatewayGeneric<channel_t>::discardChannel(service);
     }
 };
 }
