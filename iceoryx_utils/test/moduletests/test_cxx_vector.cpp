@@ -948,7 +948,7 @@ TEST_F(vector_test, TwoEqualVectorsWithDifferentCapacityAreEqual)
     EXPECT_FALSE(a != b);
 }
 
-TEST_F(vector_test, TwoNonEqualVectorsWithSameCapacityAreNotEqual)
+TEST_F(vector_test, TwoVectorsWithDifferentSizeAndSameCapacityAreNotEqual)
 {
     vector<int, 10> a, b;
     a.emplace_back(7);

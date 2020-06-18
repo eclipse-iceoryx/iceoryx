@@ -93,7 +93,7 @@ cd build
 git clone https://github.com/mirror/ncurses.git 
 cd ncurses
 git checkout v6.2          
-./configure  --prefix=$ICEORYX_DIR/build/install/prefix/ --exec-prefix=$ICEORYX_DIR/build/install/prefix/ --with-termlib 
+./configure  --prefix=$ICEORYX_DIR/build/dependencies/ --exec-prefix=$ICEORYX_DIR/build/dependencies/ --with-termlib 
 make -j12
 make install
 ```
@@ -114,18 +114,21 @@ Additionally, there is an optional dependency to the MIT licensed cpptoml librar
 **NOTE:** Requires CMake version 3.14 or higher. If you only have CMake version 3.5 or higher available please use the
 build script.
 
-We recommend using the ```CMakeLists.txt``` inside of ```iceoryx_meta``` provided by us so that you can 
-integrate iceoryx easily into your IDE. 
-
+The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx with an IDE.
+ 
  1. Clone the repository
     ```
     git clone https://github.com/eclipse/iceoryx.git
     ```
 
  2. Generate the necessary build files
-    ```
+    ```bash
     cd iceoryx
-    cmake -Bbuild -Hiceoryx_meta -DTOML_CONFIG=ON -DCMAKE_PREFIX_PATH=$(PWD)/build/install/prefix
+    cmake -Bbuild -Hiceoryx_meta -DTOML_CONFIG=ON
+    # when you have installed external dependencies like ncurses you have to add them
+    # to your prefix path
+    cmake -Bbuild -Hiceoryx_meta -DTOML_CONFIG=ON -DCMAKE_PREFIX_PATH=$(PWD)/build/dependencies/
+    ```
     ```
  3. Compile the source code
     ```
@@ -136,6 +139,7 @@ With the following CMake switches you can add additional features:
  
  |  switch  |  description |
  |:---------|:-------------|
+ | ```dds``` | builds the iceoryx dds gateway which requires an installed CycloneDDS, see [https://github.com/eclipse-cyclonedds/cyclonedds](https://github.com/eclipse-cyclonedds/cyclonedds) |
  | ```examples``` | builds all examples |
  | ```introspection``` | the console introspection client which requires an installed ncurses library with terminfo support |
  | ```test``` | enables module-, integration- and component-tests |

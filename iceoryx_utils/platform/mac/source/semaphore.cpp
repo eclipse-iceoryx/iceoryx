@@ -236,7 +236,7 @@ int iox_sem_unlink(const char* name)
 
 iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
 {
-    if (strlen(name) == 0)
+    if (strlen(name) == 0 || name[0] == 0)
     {
         return reinterpret_cast<iox_sem_t*>(SEM_FAILED);
     }
