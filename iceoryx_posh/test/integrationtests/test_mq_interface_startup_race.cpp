@@ -129,8 +129,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
-        auto m_roudiQueue2 = IpcChannelType::create(
-            std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto m_roudiQueue2 = IpcChannelType::create(MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         request = m_roudiQueue2->timedReceive(15_s);
@@ -172,8 +171,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
 
         // simulate the restart of RouDi with the mqueue cleanup
         system(DeleteRouDiMessageQueue);
-        auto newRoudi = IpcChannelType::create(
-            std::string(MQ_ROOT_PATH) + MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+        auto newRoudi = IpcChannelType::create(MQ_ROUDI_NAME, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
 
         // check if the app retries to register at RouDi
         auto request = newRoudi->timedReceive(15_s);
