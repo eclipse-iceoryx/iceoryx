@@ -15,6 +15,7 @@
 #include <atomic>
 
 #include "iceoryx_dds/gateway/gateway_config.hpp"
+#include "iceoryx_dds/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_dds/gateway/iox_to_dds.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -51,6 +52,11 @@ int main(int argc, char* argv[])
     iox::runtime::PoshRuntime::getInstance("/gateway_iceoryx2dds");
 
     iox::dds::Iceoryx2DDSGateway<> gw;
+    auto result = iox::dds::TomlGatewayConfigParser::parse();
+    if(!result.has_error())
+    {
+        gw.loadConfiguration(result.get_value());
+    }
     gw.runMultithreaded();
 
     // Run until SIGINT or SIGTERM
