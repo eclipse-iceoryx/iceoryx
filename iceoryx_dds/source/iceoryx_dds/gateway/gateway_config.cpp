@@ -2,5 +2,5 @@
 
 void iox::dds::GatewayConfig::setDefaults() noexcept
 {
-
+    // Nothing to do. Yet.
 }
