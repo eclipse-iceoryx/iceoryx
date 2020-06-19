@@ -8,7 +8,6 @@ iox::dds::TomlGatewayConfigParser::parse()
     return iox::dds::TomlGatewayConfigParser::parse(iox::dds::defaultConfigFilePath);
 }
 
-
 iox::cxx::expected<iox::dds::GatewayConfig, iox::dds::TomlGatewayConfigParseError>
 iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
 {
@@ -23,9 +22,12 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
 
     LogInfo() << "[TomlGatewayConfigParser] Loading gateway config at: " << path;
 
+    // Load the file
     auto parsedToml = cpptoml::parse_file(path.c_str());
-    auto serviceArray = parsedToml->get_table_array("services");
+    validateConfig(*parsedToml);
 
+    // Translate to config object
+    auto serviceArray = parsedToml->get_table_array("services");
     uint8_t count = 0;
     for(const auto& service : *serviceArray)
     {
@@ -50,5 +52,13 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
     }
 
     return iox::cxx::success<GatewayConfig>(config);
+}
 
+iox::cxx::expected<iox::dds::TomlGatewayConfigParseError>
+iox::dds::TomlGatewayConfigParser::validateConfig(const cpptoml::table& parsedToml) noexcept
+{
+    // Check for expected fields
+
+    // Check for invalid characters in strings
+    return iox::cxx::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::INVALID_SERVICE);
 }

@@ -4,7 +4,7 @@
 
 #include "test.hpp"
 
-#include "helpers/stubbed_dds_gateway_generic.hpp"
+#include "stubs/stubbed_dds_gateway_generic.hpp"
 
 using namespace ::testing;
 using ::testing::_;

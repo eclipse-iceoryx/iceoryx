@@ -342,43 +342,43 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
     gw.forward(testChannel.get_value());
 }
 
-TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStopsOffering)
-{
-    // === Setup
-    auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+//TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStopsOffering)
+//{
+//    // === Setup
+//    auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
-    // Subscribers
-    auto firstCreatedSubscriber = createMockSubscriber(testService);
-    auto secondCreatedSubscriber = createMockSubscriber(testService);
-    {
-        InSequence seq;
-        EXPECT_CALL(*firstCreatedSubscriber, subscribe).Times(1);
-        EXPECT_CALL(*secondCreatedSubscriber, subscribe).Times(1);
-    }
+//    // Subscribers
+//    auto firstCreatedSubscriber = createMockSubscriber(testService);
+//    auto secondCreatedSubscriber = createMockSubscriber(testService);
+//    {
+//        InSequence seq;
+//        EXPECT_CALL(*firstCreatedSubscriber, subscribe).Times(1);
+//        EXPECT_CALL(*secondCreatedSubscriber, subscribe).Times(1);
+//    }
 
-    stageMockSubscriber(std::move(firstCreatedSubscriber));
-    stageMockSubscriber(std::move(secondCreatedSubscriber));
+//    stageMockSubscriber(std::move(firstCreatedSubscriber));
+//    stageMockSubscriber(std::move(secondCreatedSubscriber));
 
-    // Messages
-    auto offerMsg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
-    offerMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
-    auto stopOfferMsg = iox::capro::CaproMessage(iox::capro::CaproMessageType::STOP_OFFER, testService);
-    stopOfferMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
+//    // Messages
+//    auto offerMsg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
+//    offerMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
+//    auto stopOfferMsg = iox::capro::CaproMessage(iox::capro::CaproMessageType::STOP_OFFER, testService);
+//    stopOfferMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
-    // Get the test channels here as we need to use them in expectations
-    auto testChannelOne = createTestChannel(testService);
-    auto testChannelTwo = createTestChannel(testService);
+//    // Get the test channels here as we need to use them in expectations
+//    auto testChannelOne = createTestChannel(testService);
+//    auto testChannelTwo = createTestChannel(testService);
 
-    TestGateway gw{};
-    EXPECT_CALL(gw, findChannel)
-        .WillOnce(Return(iox::cxx::nullopt_t()))
-        .WillOnce(Return(iox::cxx::make_optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(testChannelOne.get_value())))
-        .WillOnce(Return(iox::cxx::nullopt_t()));
-    EXPECT_CALL(gw, addChannel).WillOnce(Return(testChannelOne)).WillOnce(Return(testChannelTwo));
-    EXPECT_CALL(gw, discardChannel).Times(1);
+//    TestGateway gw{};
+//    EXPECT_CALL(gw, findChannel)
+//        .WillOnce(Return(iox::cxx::nullopt_t()))
+//        .WillOnce(Return(iox::cxx::make_optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(testChannelOne.get_value())))
+//        .WillOnce(Return(iox::cxx::nullopt_t()));
+//    EXPECT_CALL(gw, addChannel).WillOnce(Return(testChannelOne)).WillOnce(Return(testChannelTwo));
+//    EXPECT_CALL(gw, discardChannel).Times(1);
 
-    // === Test
-    gw.discover(offerMsg);
-    gw.discover(stopOfferMsg); // first subscriber must be deleted here
-    gw.discover(offerMsg);
-}
+//    // === Test
+//    gw.discover(offerMsg);
+//    gw.discover(stopOfferMsg); // first subscriber must be deleted here
+//    gw.discover(offerMsg);
+//}
