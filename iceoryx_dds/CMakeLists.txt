@@ -37,6 +37,7 @@ endif()
 add_library(iceoryx_dds
     STATIC
     source/iceoryx_dds/log/logging.cpp
+    source/iceoryx_dds/gateway/toml_gateway_config_parser.cpp
 )
 add_library(${PROJECT_NAMESPACE}::iceoryx_dds ALIAS iceoryx_dds)
 
