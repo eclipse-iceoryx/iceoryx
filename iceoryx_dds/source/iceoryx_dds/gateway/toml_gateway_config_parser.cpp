@@ -2,6 +2,8 @@
 #include "iceoryx_dds/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 
+#include <regex>
+
 iox::cxx::expected<iox::dds::GatewayConfig, iox::dds::TomlGatewayConfigParseError>
 iox::dds::TomlGatewayConfigParser::parse()
 {
@@ -24,30 +26,23 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
 
     // Load the file
     auto parsedToml = cpptoml::parse_file(path.c_str());
-    validateConfig(*parsedToml);
+    auto result = validate(*parsedToml);
+    if(result.has_error())
+    {
+        return iox::cxx::error<TomlGatewayConfigParseError>(result.get_error());
+    }
 
-    // Translate to config object
+    // Prepare config object
     auto serviceArray = parsedToml->get_table_array("services");
-    uint8_t count = 0;
     for(const auto& service : *serviceArray)
     {
-        ++count;
         auto name = service->get_as<std::string>("service");
         auto instance = service->get_as<std::string>("instance");
         auto event = service->get_as<std::string>("event");
-
-        // Ignore incomplete service descriptions
-        if(!name || !instance || !event)
-        {
-            LogWarn() << "[TomlGatewayConfigParser] Incomplete service description at entry: " << count;
-            continue;
-        }
-
         config.m_configuredServices.push_back(iox::capro::ServiceDescription(
                                                   iox::capro::IdString(iox::cxx::TruncateToCapacity, *name),
                                                   iox::capro::IdString(iox::cxx::TruncateToCapacity, *instance),
                                                   iox::capro::IdString(iox::cxx::TruncateToCapacity, *event)));
-
         LogDebug() << "[TomlGatewayConfigParser] Loaded service: {" << *name << ", " << *instance << ", " << *event << "}";
     }
 
@@ -55,10 +50,54 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
 }
 
 iox::cxx::expected<iox::dds::TomlGatewayConfigParseError>
-iox::dds::TomlGatewayConfigParser::validateConfig(const cpptoml::table& parsedToml) noexcept
+iox::dds::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) noexcept
 {
     // Check for expected fields
+    auto serviceArray = parsedToml.get_table_array("services");
+    if(!serviceArray)
+    {
+        LogError() << "[TomlGatewayConfigParser] Incomplete configuration provided.";
+        return iox::cxx::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION);
+    }
 
-    // Check for invalid characters in strings
-    return iox::cxx::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::INVALID_SERVICE);
+    uint8_t count = 0;
+    for(const auto& service: *serviceArray)
+    {
+        ++count;
+        auto serviceName = service->get_as<std::string>("service");
+        auto instance = service->get_as<std::string>("instance");
+        auto event = service->get_as<std::string>("event");
+
+        // Check for incomplete service descriptions
+        if(!serviceName || !instance || !event)
+        {
+            LogError() << "[TomlGatewayConfigParser] Incomplete service description at entry: " << count;
+            return iox::cxx::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION);
+        }
+
+        // Check for invalid characters in strings
+        if(hasInvalidCharacter(*serviceName) ||
+           hasInvalidCharacter(*instance) ||
+           hasInvalidCharacter(*event))
+        {
+            LogError() << "[TomlGatewayConfigParser] Invalid service description at entry: " << count;
+            return iox::cxx::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION);
+        }
+
+    }
+
+    return iox::cxx::success<>();
+
+}
+
+bool iox::dds::TomlGatewayConfigParser::hasInvalidCharacter(std::string s) noexcept
+{
+    // See: https://design.ros2.org/articles/topic_and_service_names.html
+    const std::regex regex("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    auto isInvalid = !std::regex_match(s, regex);
+    if(isInvalid)
+    {
+        LogError() << "[TomlGatewayConfigParser] Invalid character in name: " + s;
+    }
+    return isInvalid;
 }

@@ -14,11 +14,16 @@ namespace dds {
 enum TomlGatewayConfigParseError
 {
     FILE_NOT_FOUND,
-    INVALID_SERVICE
+    INCOMPLETE_CONFIGURATION,
+    INCOMPLETE_SERVICE_DESCRIPTION,
+    INVALID_SERVICE_DESCRIPTION
 };
 
 static constexpr char defaultConfigFilePath[] = "/etc/iceoryx/gateway_config.toml";
 
+///
+/// @brief The TomlGatewayConfigParser class provides methods for parsing gateway configs from toml text files.
+///
 class TomlGatewayConfigParser
 {
 public:
@@ -26,7 +31,11 @@ public:
     static iox::cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse(ConfigFilePathString_t path);
 
 protected:
-    static iox::cxx::expected<TomlGatewayConfigParseError> validateConfig(const cpptoml::table& parsedToml) noexcept;
+    static iox::cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept;
+
+private:
+    static bool hasInvalidCharacter(std::string s) noexcept;
+
 };
 
 }

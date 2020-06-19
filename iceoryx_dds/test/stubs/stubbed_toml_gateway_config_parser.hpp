@@ -15,9 +15,9 @@ namespace dds {
 class StubbedTomlGatewayConfigParser : public iox::dds::TomlGatewayConfigParser
 {
 public:
-    static iox::cxx::expected<TomlGatewayConfigParseError> validateConfig(const cpptoml::table& parsedToml) noexcept
+    static iox::cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept
     {
-        return iox::dds::TomlGatewayConfigParser::validateConfig(parsedToml);
+        return iox::dds::TomlGatewayConfigParser::validate(parsedToml);
     }
 
 };
