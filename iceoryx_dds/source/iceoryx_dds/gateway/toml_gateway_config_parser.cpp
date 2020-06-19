@@ -29,6 +29,7 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
     auto result = validate(*parsedToml);
     if(result.has_error())
     {
+        LogWarn() << "[TomlGatewayConfigParser] Unable to parse configuration file";
         return iox::cxx::error<TomlGatewayConfigParseError>(result.get_error());
     }
 
