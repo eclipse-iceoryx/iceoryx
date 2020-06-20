@@ -10,28 +10,24 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.
-#ifndef IOX_POSH_POPO_WAITSET_GUARD_CONDITION_HPP
-#define IOX_POSH_POPO_WAITSET_GUARD_CONDITION_HPP
+// limitations under the License
 
-#include "iceoryx_posh/internal/popo/waitset/condition.hpp"
-#include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
+#include "iceoryx_posh/internal/popo/waitset/guard_condition.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 namespace iox
 {
 namespace popo
 {
-class GuardCondition : public Condition
+GuardCondition::GuardCondition(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
+    : m_conditionVariableSignaler(condVarDataPtr)
 {
-    GuardCondition(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+}
 
-    void notify() noexcept;
-
-  private:
-    ConditionVariableSignaler m_conditionVariableSignaler;
-};
+void GuardCondition::notify() noexcept
+{
+    m_conditionVariableSignaler.notifyAll();
+}
 
 } // namespace popo
 } // namespace iox
-
-#endif // IOX_POSH_POPO_WAITSET_CHUNK_RECEIVER_DATA_HPP

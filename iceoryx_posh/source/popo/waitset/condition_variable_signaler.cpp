@@ -26,7 +26,7 @@ ConditionVariableSignaler::ConditionVariableSignaler(
 
 void ConditionVariableSignaler::notifyAll() noexcept
 {
-    /// @todo post semaphore n-times
+    /// @todo post semaphore n-times?
     getMembers()->m_semaphore.post();
 }
 

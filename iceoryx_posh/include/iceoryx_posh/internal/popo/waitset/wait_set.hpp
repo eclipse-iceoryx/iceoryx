@@ -16,28 +16,40 @@
 
 #include "condition_variable_waiter.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/mepoo/memory_info.hpp"
+#include "iceoryx_posh/internal/popo/waitset/condition.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
-
 
 namespace iox
 {
 namespace popo
 {
-constexpr uint16_t MAX_NUMBER_OF_CONDITION_VARIABLES{128};
+constexpr uint16_t MAX_NUMBER_OF_CONDITIONS{128};
 
+/// @brief Logical disjunction of a certain number of conditions
 class WaitSet
 {
-    WaitSet() noexcept
-    {
-    }
-    /// @brief Requests a condition variable from RouDi and creates a new object in vector with shared memory pointer
-    bool attachCondition();
-    bool detachCondition();
-    void timedWait();
-    void wait();
+    /// @brief Requests a condition variable from RouDi
+    WaitSet() noexcept;
 
-    cxx::vector<Condition, MAX_NUMBER_OF_CONDITION_VARIABLES> m_waiterVector;
+    /// @brief Adds a condition to the internal vector
+    /// @return True if successful, false if unsuccessful
+    bool attachCondition(Condition& condition) noexcept;
+
+    /// @brief Removes a condition from the internal vector
+    /// @return True if successful, false if unsuccessful
+    bool detachCondition(Condition& condition) noexcept;
+
+    /// @brief Blocking wait with time limit till one or more of the condition become true
+    /// @todo Shall we return the condition that have become true here?
+    void timedWait(units::Duration timeout) noexcept;
+
+    /// @brief Blocking wait till one or more of the condition become true
+    /// @todo Shall we return the condition that have become true here?
+    void wait() noexcept;
+
+  private:
+    cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> m_conditionVector;
+    ConditionVariableWaiter m_conditionVariableWaiter;
 };
 
 } // namespace popo

@@ -39,7 +39,11 @@ class WaitSet_test : public Test
     MemPool chunkMgmtPool{128, 20, &allocator, &allocator};
 
     WaitSet m_waitset;
-    GuardCondition m_guardCondition;
+    Condition m_condition1;
+    Condition m_condition2;
+    Condition m_condition3;
+    /// @todo Will be added in the c'tor of WaitSet
+    // GuardCondition m_guardCondition;
 
     void SetUp(){};
     void TearDown(){};

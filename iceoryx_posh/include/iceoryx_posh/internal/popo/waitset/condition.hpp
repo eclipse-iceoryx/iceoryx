@@ -14,22 +14,29 @@
 #ifndef IOX_POSH_POPO_WAITSET_CONDITION_HPP
 #define IOX_POSH_POPO_WAITSET_CONDITION_HPP
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/mepoo/memory_info.hpp"
+#include <atomic>
 
 namespace iox
 {
 namespace popo
 {
+/// @brief Base class representing a generic condition that can be stored in a WaitSet
 class Condition
 {
-    Condition() noexcept
-    {
-    }
+  public:
+    Condition() = default;
+    Condition(const Condition& rhs) noexcept;
+    Condition(Condition&& rhs) = delete;
+    Condition& operator=(const Condition& rhs) = delete;
+    Condition& operator=(Condition&& rhs) = delete;
 
-    bool attachCondition();
-    bool detachCondition();
-    bool hasTrigger();
+    bool operator==(const Condition& rhs) noexcept;
+
+    /// @return Returns true if condition has occured
+    bool hasTrigger() noexcept;
+
+  private:
+    std::atomic_bool m_trigger{false};
 };
 
 } // namespace popo
