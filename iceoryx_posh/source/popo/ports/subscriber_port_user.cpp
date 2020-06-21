@@ -38,38 +38,56 @@ SubscriberPortUser::MemberType_t* SubscriberPortUser::getMembers() noexcept
 
 void SubscriberPortUser::subscribe(const uint32_t queueCapacity) noexcept
 {
+    if (!getMembers()->m_subscribeRequested.load(std::memory_order_relaxed))
+    {
+        // start with new chunks, drop old ones that could be in the queue
+        m_chunkReceiver.clear();
+
+        /// @todo is it safe to change the capacity when it is no more the initial subscribe?
+        /// What is the contract for changing the capacity?
+
+        /// @todo where to check if it exceeds MAX_CAPACITY?
+        m_chunkReceiver.setCapacity(queueCapacity);
+        getMembers()->m_subscribeRequested.store(true, std::memory_order_relaxed);
+    }
 }
 
 void SubscriberPortUser::unsubscribe() noexcept
 {
+    if (getMembers()->m_subscribeRequested.load(std::memory_order_relaxed))
+    {
+        getMembers()->m_subscribeRequested.store(false, std::memory_order_relaxed);
+    }
 }
 
 SubscribeState SubscriberPortUser::getSubscriptionState() const noexcept
 {
-    return SubscribeState::NOT_SUBSCRIBED;
+    return getMembers()->m_subscriptionState;
 }
 
 cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> SubscriberPortUser::getChunk() noexcept
 {
-    return cxx::success<cxx::optional<const mepoo::ChunkHeader*>>(cxx::nullopt_t());
+    return m_chunkReceiver.get();
 }
 
 void SubscriberPortUser::releaseChunk(const mepoo::ChunkHeader* chunkHeader) noexcept
 {
+    m_chunkReceiver.release(chunkHeader);
 }
 
 void SubscriberPortUser::releaseQueuedChunks() noexcept
 {
+    m_chunkReceiver.clear();
 }
 
 bool SubscriberPortUser::hasNewChunks() noexcept
 {
-    return false;
+    return !m_chunkReceiver.empty();
 }
 
 bool SubscriberPortUser::hasLostChunks() noexcept
 {
-    return true;
+    return m_chunkReceiver.hasOverflown();
 }
 
 void SubscriberPortUser::attachConditionVariable() noexcept

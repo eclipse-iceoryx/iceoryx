@@ -79,9 +79,9 @@ void PublisherPortUser::offer() noexcept
 
 void PublisherPortUser::stopOffer() noexcept
 {
-    if (this->getMembers()->m_offeringRequested.load(std::memory_order_relaxed))
+    if (getMembers()->m_offeringRequested.load(std::memory_order_relaxed))
     {
-        this->getMembers()->m_offeringRequested.store(false, std::memory_order_relaxed);
+        getMembers()->m_offeringRequested.store(false, std::memory_order_relaxed);
     }
 }
 

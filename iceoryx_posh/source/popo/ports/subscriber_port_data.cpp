@@ -21,9 +21,11 @@ namespace popo
 SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceDescription,
                                        const ProcessName_t& processName,
                                        cxx::VariantQueueTypes queueType,
+                                       const uint64_t& historyRequest,
                                        const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, processName)
     , m_chunkReceiverData(queueType, memoryInfo)
+    , m_historyRequest(historyRequest)
 {
 }
 

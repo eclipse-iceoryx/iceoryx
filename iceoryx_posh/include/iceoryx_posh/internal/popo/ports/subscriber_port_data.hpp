@@ -32,9 +32,11 @@ struct SubscriberPortData : public BasePortData
     SubscriberPortData(const capro::ServiceDescription& serviceDescription,
                        const ProcessName_t& processName,
                        cxx::VariantQueueTypes queueType,
+                       const uint64_t& historyRequest = 0u,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     ChunkReceiverData m_chunkReceiverData;
+    const uint64_t m_historyRequest;
     std::atomic_bool m_subscribeRequested{false};
     std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
 };

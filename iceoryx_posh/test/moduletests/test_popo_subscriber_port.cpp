@@ -77,3 +77,47 @@ TEST_F(SubscriberPort_test, initialStateNotSubscribed)
 {
     EXPECT_THAT(m_sutUserSideSingleProducer.getSubscriptionState(), Eq(iox::SubscribeState::NOT_SUBSCRIBED));
 }
+
+TEST_F(SubscriberPort_test, initialStateNoChunksAvailable)
+{
+    auto maybeChunk = m_sutUserSideSingleProducer.getChunk();
+
+    EXPECT_FALSE(maybeChunk.has_error());
+    EXPECT_FALSE(maybeChunk.get_value().has_value());
+    EXPECT_FALSE(m_sutUserSideSingleProducer.hasNewChunks());
+}
+
+TEST_F(SubscriberPort_test, initialStateNoChunksLost)
+{
+    EXPECT_FALSE(m_sutUserSideSingleProducer.hasLostChunks());
+}
+
+TEST_F(SubscriberPort_test, initialStateReturnsNoCaProMessage)
+{
+    auto maybeCaproMessage = m_sutRouDiSideSingleProducer.getCaProMessage();
+
+    EXPECT_FALSE(maybeCaproMessage.has_value());
+}
+
+TEST_F(SubscriberPort_test, subscribeCallResultsInSUBCaProMessage)
+{
+    m_sutUserSideSingleProducer.subscribe();
+
+    auto maybeCaproMessage = m_sutRouDiSideSingleProducer.getCaProMessage();
+
+    EXPECT_TRUE(maybeCaproMessage.has_value());
+    auto caproMessage = maybeCaproMessage.value();
+    EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::SUB));
+    EXPECT_THAT(caproMessage.m_serviceDescription, Eq(iox::capro::ServiceDescription("x", "y", "z")));
+    EXPECT_THAT(caproMessage.m_historyCapacity, Eq(0u));
+}
+
+TEST_F(SubscriberPort_test, subscribeRequestedWhenCallingSubscribe)
+{
+    m_sutUserSideSingleProducer.subscribe();
+    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+
+    const auto subscriptionState = m_sutUserSideSingleProducer.getSubscriptionState();
+
+    EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::SUBSCRIBE_REQUESTED));
+}

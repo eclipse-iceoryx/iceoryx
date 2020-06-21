@@ -26,12 +26,14 @@ SubscriberPortMultiProducer::SubscriberPortMultiProducer(
 
 cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::getCaProMessage() noexcept
 {
+    /// @todo
     return cxx::nullopt_t();
 }
 
 cxx::optional<capro::CaproMessage>
-SubscriberPortMultiProducer::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept 
+SubscriberPortMultiProducer::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
 {
+    /// @todo
     return cxx::nullopt_t();
 }
 
