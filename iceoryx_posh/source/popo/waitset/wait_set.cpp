@@ -20,13 +20,20 @@ namespace iox
 namespace popo
 {
 WaitSet::WaitSet() noexcept
-    : m_conditionVariableWaiter(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
+    : m_conditionVariableDataPtr(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
+    , m_conditionVariableWaiter(m_conditionVariableDataPtr)
 {
     /// @todo Add GuardCondition to m_conditionVector, it's the default condition
 }
 
 bool WaitSet::attachCondition(Condition& condition) noexcept
 {
+    if (condition.isConditionVariableAttached())
+    {
+        // Early exit in case the condition was already used before
+        return false;
+    }
+    condition.attachConditionVariable(m_conditionVariableDataPtr);
     return m_conditionVector.push_back(condition);
 }
 
@@ -37,7 +44,7 @@ bool WaitSet::detachCondition(Condition& condition) noexcept
         if (currentCondition == condition)
         {
             /// @todo
-            //m_conditionVector.erase(currentCondition);
+            // m_conditionVector.erase(currentCondition);
         }
     }
 }
@@ -47,10 +54,37 @@ void WaitSet::timedWait(units::Duration timeout) noexcept
     m_conditionVariableWaiter.timedWait(timeout);
 }
 
-void WaitSet::wait() noexcept
+cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept
 {
-    m_conditionVariableWaiter.wait();
-}
+    cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> conditionsWithFulfilledPredicate;
 
+    /// @note Inbetween here and last wait someone could have set the trigger to true, hence reset it
+    m_conditionVariableWaiter.reset();
+
+    // Is one of the conditons true?
+    for (auto& currentCondition : m_conditionVector)
+    {
+        if (currentCondition.hasTrigger() == true)
+        {
+            conditionsWithFulfilledPredicate.push_back(currentCondition);
+        }
+    }
+
+    if (conditionsWithFulfilledPredicate.empty())
+    {
+        m_conditionVariableWaiter.wait();
+
+        // Check again if one of the conditions is true after we received the signal
+        for (auto& currentCondition : m_conditionVector)
+        {
+            if (currentCondition.hasTrigger() == true)
+            {
+                conditionsWithFulfilledPredicate.push_back(currentCondition);
+            }
+        }
+    }
+    /// @todo check move ctor of cxx::vector
+    // return conditionsWithFulfilledPredicate;
+}
 } // namespace popo
 } // namespace iox

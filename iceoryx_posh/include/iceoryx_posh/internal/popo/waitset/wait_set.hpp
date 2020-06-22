@@ -40,15 +40,15 @@ class WaitSet
     bool detachCondition(Condition& condition) noexcept;
 
     /// @brief Blocking wait with time limit till one or more of the condition become true
-    /// @todo Shall we return the condition that have become true here?
+    /// @todo Shall we return the condition that have become true here? Yep!
     void timedWait(units::Duration timeout) noexcept;
 
     /// @brief Blocking wait till one or more of the condition become true
-    /// @todo Shall we return the condition that have become true here?
-    void wait() noexcept;
+    cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> wait() noexcept;
 
   private:
     cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> m_conditionVector;
+    ConditionVariableData* m_conditionVariableDataPtr;
     ConditionVariableWaiter m_conditionVariableWaiter;
 };
 

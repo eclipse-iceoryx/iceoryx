@@ -14,6 +14,8 @@
 #ifndef IOX_POSH_POPO_WAITSET_CONDITION_HPP
 #define IOX_POSH_POPO_WAITSET_CONDITION_HPP
 
+#include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
+
 #include <atomic>
 
 namespace iox
@@ -34,6 +36,17 @@ class Condition
 
     /// @return Returns true if condition has occured
     bool hasTrigger() noexcept;
+
+    /// @note Not implemtend on purpose
+    virtual bool isConditionVariableAttached();
+
+    /// @note Not implemtend on purpose
+    virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr);
+    /// @note Not implemtend on purpose
+    virtual bool detachConditionVariable();
+
+  protected:
+    void setTrigger();
 
   private:
     std::atomic_bool m_trigger{false};

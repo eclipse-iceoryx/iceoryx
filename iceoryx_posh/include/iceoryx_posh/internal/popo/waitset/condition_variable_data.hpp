@@ -18,6 +18,8 @@
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
+#include <atomic>
+
 namespace iox
 {
 namespace popo

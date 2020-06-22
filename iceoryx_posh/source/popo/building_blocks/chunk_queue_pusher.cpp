@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
-
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
 
 namespace iox
 {
@@ -59,8 +59,13 @@ cxx::expected<ChunkQueueError> ChunkQueuePusher::push(mepoo::SharedChunk chunk) 
             auto returnedChunk = mepoo::SharedChunk(chunkManagement);
         }
 
+
         if (getMembers()->m_semaphoreAttached.load(std::memory_order_acquire) && getMembers()->m_semaphore)
         {
+            /// @todo replace semaphore with condition variable
+            //ConditionVariableSignaler condVarSignaler(&ConditionVariableDataPtr);
+            //condVarSignalerp.notifyAll();
+
             getMembers()->m_semaphore->post();
         }
 

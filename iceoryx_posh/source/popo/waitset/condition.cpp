@@ -20,12 +20,17 @@ namespace popo
 {
 Condition::Condition(const Condition& rhs) noexcept
 {
-    m_trigger.store(rhs.m_trigger);
+    m_trigger.store(rhs.m_trigger, std::memory_order_relaxed);
 }
 
 bool Condition::hasTrigger() noexcept
 {
     return m_trigger;
+}
+
+void Condition::setTrigger() noexcept
+{
+    m_trigger.store(true, std::memory_order_relaxed);
 }
 
 bool Condition::operator==(const Condition& rhs) noexcept
