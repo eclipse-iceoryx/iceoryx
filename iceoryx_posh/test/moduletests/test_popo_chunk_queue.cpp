@@ -213,7 +213,7 @@ TEST_F(ChunkQueueFiFo_test, DISABLED_InitialSize)
 /// @note API currently not supported
 TEST_F(ChunkQueueFiFo_test, DISABLED_Capacity)
 {
-    EXPECT_THAT(m_popper.capacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
+    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
 }
 
 
@@ -221,7 +221,7 @@ TEST_F(ChunkQueueFiFo_test, DISABLED_Capacity)
 TEST_F(ChunkQueueFiFo_test, DISABLED_SetCapacity)
 {
     m_popper.setCapacity(RESIZED_CAPACITY);
-    EXPECT_THAT(m_popper.capacity(), Eq(RESIZED_CAPACITY));
+    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(RESIZED_CAPACITY));
 }
 
 TEST_F(ChunkQueueFiFo_test, PushFull)
@@ -257,14 +257,14 @@ TEST_F(ChunkQueueSoFi_test, InitialSize)
 
 TEST_F(ChunkQueueSoFi_test, Capacity)
 {
-    EXPECT_THAT(m_popper.capacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
+    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
 }
 
 
 TEST_F(ChunkQueueSoFi_test, SetCapacity)
 {
     m_popper.setCapacity(RESIZED_CAPACITY);
-    EXPECT_THAT(m_popper.capacity(), Eq(RESIZED_CAPACITY));
+    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(RESIZED_CAPACITY));
 }
 
 TEST_F(ChunkQueueSoFi_test, PushFull)

@@ -79,9 +79,14 @@ void ChunkQueuePopper::setCapacity(const uint32_t newCapacity) noexcept
     getMembers()->m_queue.setCapacity(newCapacity);
 }
 
-uint64_t ChunkQueuePopper::capacity() noexcept
+uint64_t ChunkQueuePopper::getCurrentCapacity() const noexcept
 {
     return getMembers()->m_queue.capacity();
+}
+
+uint64_t ChunkQueuePopper::getMaximumCapacity() const noexcept
+{
+    return MemberType_t::MAX_CAPACITY;
 }
 
 void ChunkQueuePopper::clear() noexcept

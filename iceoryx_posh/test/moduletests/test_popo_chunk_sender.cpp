@@ -271,7 +271,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
     iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
-    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.capacity());
+    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.getCurrentCapacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {
@@ -303,7 +303,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
     iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
-    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.capacity());
+    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.getCurrentCapacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {
@@ -333,7 +333,7 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
     iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
-    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.capacity());
+    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.getCurrentCapacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {

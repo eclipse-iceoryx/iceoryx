@@ -13,6 +13,7 @@
 // limitations under the License
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 namespace iox
 {
@@ -46,8 +47,16 @@ void SubscriberPortUser::subscribe(const uint32_t queueCapacity) noexcept
         /// @todo is it safe to change the capacity when it is no more the initial subscribe?
         /// What is the contract for changing the capacity?
 
-        /// @todo where to check if it exceeds MAX_CAPACITY?
-        m_chunkReceiver.setCapacity(queueCapacity);
+        auto capacity = queueCapacity;
+        if (capacity > m_chunkReceiver.getMaximumCapacity())
+        {
+            LogWarn() << "Requested queue capacity " << queueCapacity
+                      << " exceeds the maximum possible one for this subscriber"
+                      << ", limiting to " << m_chunkReceiver.getMaximumCapacity();
+            capacity = m_chunkReceiver.getMaximumCapacity();
+        }
+        m_chunkReceiver.setCapacity(capacity);
+
         getMembers()->m_subscribeRequested.store(true, std::memory_order_relaxed);
     }
 }

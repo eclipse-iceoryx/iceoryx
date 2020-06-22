@@ -106,7 +106,7 @@ class VariantQueue
 
     /// @brief get the capacity of the queue.
     /// @return queue size
-    uint64_t capacity() noexcept;
+    uint64_t capacity() const noexcept;
 
     /// @brief returns reference to the underlying fifo
     /// @code

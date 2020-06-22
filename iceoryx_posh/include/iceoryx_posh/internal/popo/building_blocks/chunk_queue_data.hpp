@@ -32,7 +32,8 @@ struct ChunkQueueData
     {
     }
 
-    cxx::VariantQueue<ChunkTuple, MAX_RECEIVER_QUEUE_CAPACITY> m_queue;
+    static constexpr uint32_t MAX_CAPACITY = MAX_RECEIVER_QUEUE_CAPACITY;
+    cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasOverflown{false};
     mepoo::SharedPointer<posix::Semaphore> m_semaphore;
     std::atomic_bool m_semaphoreAttached{false};
