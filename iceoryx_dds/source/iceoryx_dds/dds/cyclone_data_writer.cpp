@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Mempool_DCPS.hpp"
 #include "iceoryx_dds/dds/cyclone_data_writer.hpp"
+#include "Mempool_DCPS.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 
 #include <chrono>

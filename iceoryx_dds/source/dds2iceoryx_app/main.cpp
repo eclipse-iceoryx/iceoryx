@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 
     iox::dds::DDS2IceoryxGateway<> gw;
     auto result = iox::dds::TomlGatewayConfigParser::parse();
-    if(!result.has_error())
+    if (!result.has_error())
     {
         gw.loadConfiguration(result.get_value());
     }

@@ -50,7 +50,8 @@ class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
         // Stubbed.
     }
 
-    iox::cxx::expected<channel_t, iox::dds::GatewayError> addChannel(const iox::capro::ServiceDescription& service) noexcept
+    iox::cxx::expected<channel_t, iox::dds::GatewayError>
+    addChannel(const iox::capro::ServiceDescription& service) noexcept
     {
         return TestDDSGatewayGeneric<channel_t>::addChannel(service);
     }
@@ -70,7 +71,7 @@ class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
         return TestDDSGatewayGeneric<channel_t>::discardChannel(service);
     }
 };
-}
-}
+} // namespace dds
+} // namespace iox
 
 #endif // IOX_DDS_TEST_STUBS_STUBBED_DDS_GATEWAY_GENERIC_HPP

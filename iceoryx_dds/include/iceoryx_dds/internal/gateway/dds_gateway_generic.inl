@@ -67,23 +67,23 @@ template <typename channel_t, typename gateway_t>
 inline iox::cxx::expected<channel_t, iox::dds::GatewayError>
 iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service) noexcept
 {
-
     // Filter out wildcard services
-    if(service.getServiceID() == iox::capro::AnyService || service.getInstanceID() == iox::capro::AnyInstance || service.getEventID() == iox::capro::AnyEvent)
+    if (service.getServiceID() == iox::capro::AnyService || service.getInstanceID() == iox::capro::AnyInstance
+        || service.getEventID() == iox::capro::AnyEvent)
     {
         return iox::cxx::error<GatewayError>(GatewayError::UNSUPPORTED_SERVICE_TYPE);
     }
 
     // Return existing channel if one for the service already exists, otherwise create a new one
     auto existingChannel = findChannel(service);
-    if(existingChannel.has_value())
+    if (existingChannel.has_value())
     {
         return iox::cxx::success<channel_t>(existingChannel.value());
     }
     else
     {
         auto result = m_channelFactory(service);
-        if(result.has_error())
+        if (result.has_error())
         {
             iox::dds::LogError() << "[DDSGatewayGeneric] Unable to set up channel for service: "
                                  << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
@@ -99,7 +99,6 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
                                  << service.getEventIDString();
             return iox::cxx::success<channel_t>(channel);
         }
-
     }
 }
 
@@ -123,9 +122,8 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro:
 }
 
 template <typename channel_t, typename gateway_t>
-inline void
-iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::forEachChannel(const iox::cxx::function_ref<void(channel_t&)> f) const
-    noexcept
+inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::forEachChannel(
+    const iox::cxx::function_ref<void(channel_t&)> f) const noexcept
 {
     auto guardedVector = m_channels.GetScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
@@ -135,8 +133,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::forEachChannel(const iox::cxx
 }
 
 template <typename channel_t, typename gateway_t>
-inline iox::cxx::expected<iox::dds::GatewayError>
-iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::discardChannel(
+inline iox::cxx::expected<iox::dds::GatewayError> iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::discardChannel(
     const iox::capro::ServiceDescription& service) noexcept
 {
     auto guardedVector = this->m_channels.GetScopeGuard();

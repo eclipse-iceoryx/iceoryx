@@ -21,7 +21,6 @@ class TomlGatewayConfigParserTest : public Test
 // ======================================== Tests ======================================== //
 TEST_F(TomlGatewayConfigParserTest, PassesValidationIfValidCharactersUsedInServiceDescription)
 {
-
     // ===== Setup
     // Prepare configuration to test with
     auto toml = cpptoml::make_table();
@@ -68,12 +67,10 @@ TEST_F(TomlGatewayConfigParserTest, PassesValidationIfValidCharactersUsedInServi
     // ===== Test
     auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(false, result.has_error());
-
 }
 
 TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoServiceNameInServiceDescription)
 {
-
     // ===== Setup
     // Prepare configuration to test with
     auto toml = cpptoml::make_table();
@@ -88,16 +85,14 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoServiceNameInServiceDescr
     // ===== Test
     auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
-    if(result.has_error())
+    if (result.has_error())
     {
         EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
     }
-
 }
 
 TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoInstanceNameInServiceDescription)
 {
-
     // ===== Setup
     // Prepare configuration to test with
     auto toml = cpptoml::make_table();
@@ -112,16 +107,14 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoInstanceNameInServiceDesc
     // ===== Test
     auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
-    if(result.has_error())
+    if (result.has_error())
     {
         EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
     }
-
 }
 
 TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoEventNameInServiceDescription)
 {
-
     // ===== Setup
     // Prepare configuration to test with
     auto toml = cpptoml::make_table();
@@ -136,16 +129,14 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoEventNameInServiceDescrip
     // ===== Test
     auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
-    if(result.has_error())
+    if (result.has_error())
     {
         EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
     }
-
 }
 
 TEST_F(TomlGatewayConfigParserTest, FailsValidationIfServiceDescriptionBeginsWithNumber)
 {
-
     // ===== Setup
     // Prepare configuration to test with
     auto toml = cpptoml::make_table();
@@ -161,17 +152,15 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfServiceDescriptionBeginsWit
     // ===== Test
     auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
-    if(result.has_error())
+    if (result.has_error())
     {
         EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
     }
-
 }
 
 // This is a common error due to a typo in the DDS spec, therefore tested for explicitly.
 TEST_F(TomlGatewayConfigParserTest, FailsValidationIfHyphenInServiceDescription)
 {
-
     // ===== Setup
     // Prepare configuration to test with
     auto toml = cpptoml::make_table();
@@ -186,16 +175,14 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfHyphenInServiceDescription)
     // ===== Test
     auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
-    if(result.has_error())
+    if (result.has_error())
     {
         EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
     }
-
 }
 
 TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoServicesInConfig)
 {
-
     // ===== Setup
     // Prepare configuration to test with
     auto toml = cpptoml::make_table();
@@ -203,9 +190,8 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoServicesInConfig)
     // ===== Test
     auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
-    if(result.has_error())
+    if (result.has_error())
     {
         EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
     }
-
 }

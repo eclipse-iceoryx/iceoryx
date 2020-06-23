@@ -26,7 +26,6 @@ namespace iox
 {
 namespace dds
 {
-
 enum class ChannelError : uint8_t
 {
     OBJECT_POOL_FULL

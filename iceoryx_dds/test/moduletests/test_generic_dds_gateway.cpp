@@ -63,7 +63,8 @@ TEST_F(DDSGatewayGenericTest, DoesNotAddDuplicateChannels)
 TEST_F(DDSGatewayGenericTest, IgnoresWildcardServices)
 {
     // ===== Setup
-    auto completeWildcardService = iox::capro::ServiceDescription(iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString);
+    auto completeWildcardService = iox::capro::ServiceDescription(
+        iox::capro::AnyServiceString, iox::capro::AnyInstanceString, iox::capro::AnyEventString);
     auto wildcardServiceService = iox::capro::ServiceDescription(iox::capro::AnyServiceString, "instance", "event");
     auto wildcardInstanceService = iox::capro::ServiceDescription("service", iox::capro::AnyInstanceString, "event");
     auto wildcardEventService = iox::capro::ServiceDescription("service", "instance", iox::capro::AnyEventString);
@@ -106,7 +107,6 @@ TEST_F(DDSGatewayGenericTest, ProperlyManagesMultipleChannels)
     EXPECT_EQ(true, gw.findChannel(serviceTwo).has_value());
     EXPECT_EQ(true, gw.findChannel(serviceThree).has_value());
     EXPECT_EQ(true, gw.findChannel(serviceFour).has_value());
-
 }
 
 TEST_F(DDSGatewayGenericTest, HandlesMaxmimumChannelCapacity)
@@ -115,39 +115,36 @@ TEST_F(DDSGatewayGenericTest, HandlesMaxmimumChannelCapacity)
     TestDDSGatewayGeneric gw{};
 
     // ===== Test
-    for(auto i=0u; i<iox::dds::MAX_CHANNEL_NUMBER; i++)
+    for (auto i = 0u; i < iox::dds::MAX_CHANNEL_NUMBER; i++)
     {
-        auto result = gw.addChannel(iox::capro::ServiceDescription(
-                              iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                              iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                              iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i))));
+        auto result = gw.addChannel(
+            iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
+                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
+                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i))));
         EXPECT_EQ(false, result.has_error());
     }
 
     EXPECT_EQ(iox::dds::MAX_CHANNEL_NUMBER, gw.getNumberOfChannels());
-
 }
 
 TEST_F(DDSGatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
 {
-
     // ===== Setup
     TestDDSGatewayGeneric gw{};
 
     // ===== Test
-    for(auto i=0u; i<iox::dds::MAX_CHANNEL_NUMBER; i++)
+    for (auto i = 0u; i < iox::dds::MAX_CHANNEL_NUMBER; i++)
     {
-        auto result = gw.addChannel(iox::capro::ServiceDescription(
-                              iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                              iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
-                              iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i))));
+        auto result = gw.addChannel(
+            iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
+                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
+                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i))));
         EXPECT_EQ(false, result.has_error());
     }
 
     auto result = gw.addChannel({"oneTooMany", "oneTooMany", "oneTooMany"});
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::dds::GatewayError::UNSUCCESSFUL_CHANNEL_CREATION, result.get_error());
-
 }
 
 TEST_F(DDSGatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChannel)
@@ -167,7 +164,6 @@ TEST_F(DDSGatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChanne
     auto result = gw.discardChannel(testServiceC);
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(2, gw.getNumberOfChannels());
-
 }
 
 TEST_F(DDSGatewayGenericTest, DiscardedChannelsAreNotStored)

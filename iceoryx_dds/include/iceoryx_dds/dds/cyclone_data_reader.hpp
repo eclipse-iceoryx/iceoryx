@@ -21,7 +21,6 @@ namespace iox
 {
 namespace dds
 {
-
 /// @note Implementation coming soon.
 class CycloneDataReader : DataReader<CycloneDataReader>
 {

@@ -8,9 +8,10 @@
 #include "cpptoml.h"
 
 
-namespace iox {
-namespace dds {
-
+namespace iox
+{
+namespace dds
+{
 enum TomlGatewayConfigParseError
 {
     FILE_NOT_FOUND,
@@ -26,19 +27,18 @@ static constexpr char defaultConfigFilePath[] = "/etc/iceoryx/gateway_config.tom
 ///
 class TomlGatewayConfigParser
 {
-public:
+  public:
     static iox::cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse();
     static iox::cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse(ConfigFilePathString_t path);
 
-protected:
+  protected:
     static iox::cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept;
 
-private:
+  private:
     static bool hasInvalidCharacter(std::string s) noexcept;
-
 };
 
-}
-}
+} // namespace dds
+} // namespace iox
 
 #endif // IOX_DDS_GATEWAY_FILE_CONFIG_PARSER_HPP

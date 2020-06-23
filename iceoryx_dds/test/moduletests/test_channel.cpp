@@ -1,5 +1,5 @@
-#include "iceoryx_dds/gateway/channel.hpp"
 #include "iceoryx_dds/dds/dds_types.hpp"
+#include "iceoryx_dds/gateway/channel.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 
 #include "test.hpp"

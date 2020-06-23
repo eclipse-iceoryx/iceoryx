@@ -33,7 +33,7 @@ struct GatewayConfig
 
     void setDefaults() noexcept;
 };
-}
-}
+} // namespace dds
+} // namespace iox
 
 #endif // IOX_DDS_GATEWAY_GATEWAY_CONFIG_HPP

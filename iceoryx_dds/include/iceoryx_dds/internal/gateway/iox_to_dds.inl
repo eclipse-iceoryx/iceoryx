@@ -24,10 +24,10 @@ namespace iox
 {
 namespace dds
 {
-
 // ======================================== Public ======================================== //
 template <typename channel_t, typename gateway_t>
-inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway() noexcept : gateway_t()
+inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway() noexcept
+    : gateway_t()
 {
 }
 
@@ -110,7 +110,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
 template <typename channel_t, typename gateway_t>
 void Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
-    this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result){
+    this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
         auto channel = result.get_value();
         auto subscriber = channel.getIceoryxTerminal();
         auto dataWriter = channel.getDDSTerminal();
