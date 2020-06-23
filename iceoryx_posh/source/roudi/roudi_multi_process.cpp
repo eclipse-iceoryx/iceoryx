@@ -29,7 +29,8 @@ namespace roudi
 RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
                                      PortManager& portManager,
                                      const MonitoringMode monitoringMode,
-                                     const bool killProcessesInDestructor)
+                                     const bool killProcessesInDestructor,
+                                     const MQThreadMode mqThreadMode)
     : m_killProcessesInDestructor(killProcessesInDestructor)
     , m_runThreads(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
@@ -54,13 +55,21 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
     m_processManagementThread = std::thread(&RouDiMultiProcess::processThread, this);
     pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
 
-    m_processMQThread = std::thread(&RouDiMultiProcess::mqThread, this);
-    pthread_setname_np(m_processMQThread.native_handle(), "MQ-processing");
+    if(mqThreadMode == MQThreadMode::START) {
+        startMQThread();
+    }
+
 }
 
 RouDiMultiProcess::~RouDiMultiProcess()
 {
     shutdown();
+}
+
+void RouDiMultiProcess::startMQThread() 
+{
+    m_processMQThread = std::thread(&RouDiMultiProcess::mqThread, this);
+    pthread_setname_np(m_processMQThread.native_handle(), "MQ-processing");
 }
 
 void RouDiMultiProcess::shutdown()
