@@ -33,21 +33,54 @@ void iox::dds::CycloneDataReader::connect() noexcept
 {
     if(!m_isConnected.load(std::memory_order_relaxed))
     {
-        auto m_topic = ::dds::topic::Topic<Mempool::Chunk>(CycloneContext::getParticipant(), "/Radar/FrontRight/Counter");
-        auto m_subscriber = ::dds::sub::Subscriber(CycloneContext::getParticipant());
-        auto m_reader = ::dds::sub::DataReader<Mempool::Chunk>(m_subscriber, m_topic);
+        auto topicString = "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
+        m_topic = ::dds::topic::Topic<Mempool::Chunk>(CycloneContext::getParticipant(), topicString);
+        m_subscriber = ::dds::sub::Subscriber(CycloneContext::getParticipant());
+        m_reader = ::dds::sub::DataReader<Mempool::Chunk>(m_subscriber, m_topic);
+
+        LogDebug() << "[CycloneDataReader] Created data reader for topic: " << topicString;
+
         m_isConnected.store(true, std::memory_order_relaxed);
     }
 }
 
-iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* buffer, uint64_t size) const noexcept
+iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* buffer, const uint64_t& size)
 {
     if(!m_isConnected.load())
     {
         return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::NOT_CONNECTED);
     }
 
-    return iox::cxx::success<uint8_t>(10u);
+    // Read all available data points ...
+    auto samples = m_reader.read();
+    LogDebug() << "[CycloneDataReader] Read samples: " << samples.length();
+
+    uint8_t cursor = 0;
+    uint8_t numSamplesBuffered = 0;
+    if(samples.length() > 0)
+    {
+        uint64_t sampleSize = samples.begin()->data().payload().size();
+
+        for(const auto& sample : samples)
+        {
+            // Check there is another space in the buffer.
+            if(cursor < size-sampleSize)
+            {
+                auto bytes = sample.data().payload().data();
+                std::copy(bytes, bytes + sampleSize, &buffer[cursor]);
+                cursor += sampleSize;
+            }
+            else
+            {
+                // Buffer full.
+                // TODO - what to do with unread samples ? Probably nothing (and leave their read flag unset).
+            }
+        }
+        numSamplesBuffered = cursor / sampleSize;
+    }
+
+    LogDebug() << "[CycloneDataReader] Buffered samples: " << numSamplesBuffered;
+    return iox::cxx::success<uint8_t>(numSamplesBuffered);
 }
 
 iox::dds::IdString iox::dds::CycloneDataReader::getServiceId() const noexcept

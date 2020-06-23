@@ -44,7 +44,7 @@ public:
     /// @param size The size of the buffer.
     /// @return Number of samples read if successful.
     ///
-    virtual iox::cxx::expected<uint8_t, DataReaderError> read(uint8_t* buffer, uint64_t size) const noexcept = 0;
+    virtual iox::cxx::expected<uint8_t, DataReaderError> read(uint8_t* buffer, const uint64_t& size) = 0;
 
     ///
     /// @brief getServiceId

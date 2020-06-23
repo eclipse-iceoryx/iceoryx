@@ -34,7 +34,7 @@ class CycloneDataReader : public DataReader
     virtual ~CycloneDataReader();
 
     void connect() noexcept override;
-    iox::cxx::expected<uint8_t, DataReaderError> read(uint8_t* buffer, uint64_t size) const noexcept override;
+    iox::cxx::expected<uint8_t, DataReaderError> read(uint8_t* buffer, const uint64_t& size) override;
     IdString getServiceId() const noexcept override;
     IdString getInstanceId() const noexcept override;
     IdString getEventId() const noexcept override;
@@ -46,7 +46,7 @@ class CycloneDataReader : public DataReader
 
     ::dds::sub::Subscriber m_subscriber = ::dds::core::null;
     ::dds::topic::Topic<Mempool::Chunk> m_topic = ::dds::core::null;
-    ::dds::sub::DataReader<Mempool::Chunk> m_writer = ::dds::core::null;
+    ::dds::sub::DataReader<Mempool::Chunk> m_reader = ::dds::core::null;
 
     std::atomic_bool m_isConnected{false};
 
