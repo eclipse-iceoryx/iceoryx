@@ -33,9 +33,9 @@ void iox::dds::CycloneDataReader::connect() noexcept
 
 }
 
-uint8_t iox::dds::CycloneDataReader::read(const uint8_t* buffer) const noexcept
+iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* buffer, uint64_t size) const noexcept
 {
-
+    return iox::cxx::success<uint8_t>(10u);
 }
 
 iox::dds::IdString iox::dds::CycloneDataReader::getServiceId() const noexcept

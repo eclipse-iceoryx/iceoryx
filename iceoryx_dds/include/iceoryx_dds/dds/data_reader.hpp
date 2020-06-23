@@ -16,13 +16,18 @@
 #define IOX_DDS_DDS_DATA_READER_HPP
 
 #include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
 
 namespace iox
 {
 namespace dds
 {
 using IdString = iox::cxx::string<100u>;
+
+enum class DataReaderError : uint8_t
+{
+
+};
 
 class DataReader
 {
@@ -36,9 +41,10 @@ public:
     ///
     /// @brief read Read samples from the DDS network.
     /// @param buffer Buffer in which to store read samples.
-    /// @return Number of samples read into the buffer, or -1 on failure.
+    /// @param size The size of the buffer.
+    /// @return Number of samples read if successful.
     ///
-    virtual uint8_t read(const uint8_t* buffer) const noexcept = 0;
+    virtual iox::cxx::expected<uint8_t, DataReaderError> read(uint8_t* buffer, uint64_t size) const noexcept = 0;
 
     ///
     /// @brief getServiceId

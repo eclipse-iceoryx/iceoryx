@@ -13,6 +13,8 @@
 // limitations under the License.
 
 
+#include "iceoryx_dds/dds/data_reader.hpp"
+
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 #include "iceoryx_dds/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -49,13 +51,29 @@ int main(int argc, char* argv[])
     // Start application
     iox::runtime::PoshRuntime::getInstance("/gateway_dds2iceoryx");
 
-    iox::dds::DDS2IceoryxGateway<> gw;
-    auto result = iox::dds::TomlGatewayConfigParser::parse();
-    if (!result.has_error())
+    // ===== DEBUG ===== //
+    auto reader = iox::dds::CycloneDataReader("", "", "");
+    uint64_t size = 1024;
+    uint8_t buffer[size];
+    auto result = reader.read(buffer, size);
+    if(!result.has_error())
     {
-        gw.loadConfiguration(result.get_value());
+        std::cout << "Num samples: " << static_cast<int>(result.get_value()) << std::endl;
     }
-    gw.runMultithreaded();
+    else
+    {
+        std::cout << "Failure to read from data reader" << std::endl;
+    }
+
+    // ===== DEBUG ===== //
+
+//    iox::dds::DDS2IceoryxGateway<> gw;
+//    auto result = iox::dds::TomlGatewayConfigParser::parse();
+//    if (!result.has_error())
+//    {
+//        gw.loadConfiguration(result.get_value());
+//    }
+//    gw.runMultithreaded();
 
     // Run until SIGINT or SIGTERM
     ShutdownManager::waitUntilShutdown();

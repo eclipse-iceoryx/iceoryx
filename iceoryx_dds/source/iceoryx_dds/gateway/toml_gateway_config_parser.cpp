@@ -22,7 +22,7 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
         return iox::cxx::success<iox::dds::GatewayConfig>(config);
     }
 
-    LogInfo() << "[TomlGatewayConfigParser] Loading gateway config at: " << path;
+    LogInfo() << "[TomlGatewayConfigParser] Using gateway config at: " << path;
 
     // Load the file
     auto parsedToml = cpptoml::parse_file(path.c_str());
@@ -44,7 +44,7 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
             iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, *name),
                                            iox::capro::IdString(iox::cxx::TruncateToCapacity, *instance),
                                            iox::capro::IdString(iox::cxx::TruncateToCapacity, *event)));
-        LogDebug() << "[TomlGatewayConfigParser] Loaded service: {" << *name << ", " << *instance << ", " << *event
+        LogDebug() << "[TomlGatewayConfigParser] Found service: {" << *name << ", " << *instance << ", " << *event
                    << "}";
     }
 
