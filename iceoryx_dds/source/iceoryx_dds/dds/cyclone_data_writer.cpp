@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_dds/dds/cyclone_context.hpp"
 #include "iceoryx_dds/dds/cyclone_data_writer.hpp"
 #include "Mempool_DCPS.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
@@ -36,9 +37,9 @@ iox::dds::CycloneDataWriter::~CycloneDataWriter()
 
 void iox::dds::CycloneDataWriter::connect() noexcept
 {
-    m_publisher = ::dds::pub::Publisher(getParticipant());
+    m_publisher = ::dds::pub::Publisher(CycloneContext::getParticipant());
     auto topic = "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
-    m_topic = ::dds::topic::Topic<Mempool::Chunk>(getParticipant(), topic);
+    m_topic = ::dds::topic::Topic<Mempool::Chunk>(CycloneContext::getParticipant(), topic);
     m_writer = ::dds::pub::DataWriter<Mempool::Chunk>(m_publisher, m_topic);
     LogDebug() << "[CycloneDataWriter] Connected to topic: " << topic;
 }
@@ -63,9 +64,3 @@ iox::dds::IdString iox::dds::CycloneDataWriter::getEventId() const noexcept
 {
     return m_eventId;
 };
-
-::dds::domain::DomainParticipant& iox::dds::CycloneDataWriter::getParticipant() noexcept
-{
-    static auto participant = ::dds::domain::DomainParticipant(org::eclipse::cyclonedds::domain::default_id());
-    return participant;
-}

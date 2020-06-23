@@ -20,7 +20,6 @@
 #include <Mempool_DCPS.hpp>
 #include <dds/dds.hpp>
 
-
 namespace iox
 {
 namespace dds
@@ -55,7 +54,6 @@ class CycloneDataWriter : public iox::dds::DataWriter
     ::dds::topic::Topic<Mempool::Chunk> m_topic = ::dds::core::null;
     ::dds::pub::DataWriter<Mempool::Chunk> m_writer = ::dds::core::null;
 
-    static ::dds::domain::DomainParticipant& getParticipant() noexcept;
 };
 
 } // namespace dds

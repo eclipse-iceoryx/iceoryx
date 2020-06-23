@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_dds/dds/cyclone_context.hpp"
 #include "iceoryx_dds/dds/cyclone_data_reader.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 
@@ -30,11 +31,22 @@ iox::dds::CycloneDataReader::~CycloneDataReader()
 
 void iox::dds::CycloneDataReader::connect() noexcept
 {
-
+    if(!m_isConnected.load(std::memory_order_relaxed))
+    {
+        auto m_topic = ::dds::topic::Topic<Mempool::Chunk>(CycloneContext::getParticipant(), "/Radar/FrontRight/Counter");
+        auto m_subscriber = ::dds::sub::Subscriber(CycloneContext::getParticipant());
+        auto m_reader = ::dds::sub::DataReader<Mempool::Chunk>(m_subscriber, m_topic);
+        m_isConnected.store(true, std::memory_order_relaxed);
+    }
 }
 
 iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* buffer, uint64_t size) const noexcept
 {
+    if(!m_isConnected.load())
+    {
+        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::NOT_CONNECTED);
+    }
+
     return iox::cxx::success<uint8_t>(10u);
 }
 

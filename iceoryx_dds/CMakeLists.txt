@@ -58,6 +58,7 @@ target_link_libraries(iceoryx_dds
 if(USE_CYCLONE_DDS)
     target_sources(iceoryx_dds
         PRIVATE
+        source/iceoryx_dds/dds/cyclone_context.cpp
         source/iceoryx_dds/dds/cyclone_data_reader.cpp
         source/iceoryx_dds/dds/cyclone_data_writer.cpp
     )

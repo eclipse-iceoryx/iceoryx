@@ -52,7 +52,8 @@ int main(int argc, char* argv[])
     iox::runtime::PoshRuntime::getInstance("/gateway_dds2iceoryx");
 
     // ===== DEBUG ===== //
-    auto reader = iox::dds::CycloneDataReader("", "", "");
+    iox::dds::CycloneDataReader reader{"", "", ""};
+    reader.connect();
     uint64_t size = 1024;
     uint8_t buffer[size];
     auto result = reader.read(buffer, size);
