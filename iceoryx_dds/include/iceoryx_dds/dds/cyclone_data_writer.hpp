@@ -28,25 +28,23 @@ namespace dds
 ///
 /// @brief Implementation of the DataWriter interface using the cyclonedds implementation.
 ///
-class CycloneDataWriter : public iox::dds::DataWriter<CycloneDataWriter>
+class CycloneDataWriter : public iox::dds::DataWriter
 {
   public:
     CycloneDataWriter() = delete;
     CycloneDataWriter(const IdString serviceId, const IdString instanceId, const IdString eventId);
     virtual ~CycloneDataWriter();
-
     CycloneDataWriter(const CycloneDataWriter&) = delete;
     CycloneDataWriter& operator=(const CycloneDataWriter&) = delete;
-
     // Required for vector
     CycloneDataWriter(CycloneDataWriter&&) = default;
     CycloneDataWriter& operator=(CycloneDataWriter&&) = default;
 
-    void connect() noexcept;
-    void write(const uint8_t* const bytes, const uint64_t size) noexcept;
-    std::string getServiceId() const noexcept;
-    std::string getInstanceId() const noexcept;
-    std::string getEventId() const noexcept;
+    void connect() noexcept override;
+    void write(const uint8_t* const bytes, const uint64_t size) noexcept override;
+    IdString getServiceId() const noexcept override;
+    IdString getInstanceId() const noexcept override;
+    IdString getEventId() const noexcept override;
 
   private:
     IdString m_serviceId{""};

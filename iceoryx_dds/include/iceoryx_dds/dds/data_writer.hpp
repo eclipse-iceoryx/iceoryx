@@ -26,10 +26,9 @@ namespace dds
 using IdString = iox::cxx::string<100>;
 
 ///
-/// @brief Interface for DDS Data Writers.
-/// The interface provides the minimum functionality required for posh-dds gateway implementations.
+/// @brief Abstraction for DDS Data Writers.
+/// Provides the minimum functionality required for posh-dds gateway implementations.
 ///
-template <typename Impl>
 class DataWriter
 {
   public:
@@ -38,41 +37,38 @@ class DataWriter
     ///
     /// @brief connect Connect the DataWriter to the underlying DDS network.
     ///
-    void connect() noexcept;
+    virtual void connect() noexcept = 0;
 
     ///
     /// @brief write Write the provided bytes on the DDS network on the topic: serviceId/instanceId/eventId
     /// @param bytes
     /// @param size
     ///
-    void write(const uint8_t* const bytes, const uint64_t size) noexcept;
+    virtual void write(const uint8_t* const bytes, const uint64_t size) noexcept = 0;
 
     ///
     /// @brief getServiceId
     /// @return The ID of the service producing the bytes
     ///
-    IdString getServiceId() const noexcept;
+    virtual IdString getServiceId() const noexcept = 0;
 
     ///
     /// @brief getInstanceId
     /// @return The ID of the instance of the service producing the bytes
     ///
-    IdString getInstanceId() const noexcept;
+    virtual IdString getInstanceId() const noexcept = 0;
 
     ///
     /// @brief getEventId
     /// @return The ID of the event producing the data
     ///
-    IdString getEventId() const noexcept;
+    virtual IdString getEventId() const noexcept = 0;
 
-  private:
+    protected:
     DataWriter() = default;
-    friend Impl;
 };
 
 } // namespace dds
 } // namespace iox
-
-#include "iceoryx_dds/internal/dds/data_writer.inl"
 
 #endif // IOX_DDS_DDS_DATA_WRITER_HPP

@@ -53,15 +53,15 @@ void iox::dds::CycloneDataWriter::write(const uint8_t* const bytes, const uint64
     m_writer.write(chunk);
 }
 
-std::string iox::dds::CycloneDataWriter::getServiceId() const noexcept
+iox::dds::IdString iox::dds::CycloneDataWriter::getServiceId() const noexcept
 {
     return m_serviceId;
 };
-std::string iox::dds::CycloneDataWriter::getInstanceId() const noexcept
+iox::dds::IdString iox::dds::CycloneDataWriter::getInstanceId() const noexcept
 {
     return m_instanceId;
 };
-std::string iox::dds::CycloneDataWriter::getEventId() const noexcept
+iox::dds::IdString iox::dds::CycloneDataWriter::getEventId() const noexcept
 {
     return m_eventId;
 };
