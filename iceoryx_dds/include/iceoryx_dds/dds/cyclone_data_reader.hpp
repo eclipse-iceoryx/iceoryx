@@ -22,10 +22,24 @@ namespace iox
 namespace dds
 {
 /// @note Implementation coming soon.
-class CycloneDataReader : DataReader<CycloneDataReader>
+class CycloneDataReader : public DataReader
 {
   public:
+    CycloneDataReader() = delete;
     CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept;
+    virtual ~CycloneDataReader();
+
+    void connect() noexcept override;
+    uint8_t read(const uint8_t* buffer) const noexcept override;
+    IdString getServiceId() const noexcept override;
+    IdString getInstanceId() const noexcept override;
+    IdString getEventId() const noexcept override;
+
+private:
+    IdString m_serviceId{""};
+    IdString m_instanceId{""};
+    IdString m_eventId{""};
+
 };
 
 } // namespace dds

@@ -13,7 +13,42 @@
 // limitations under the License.
 
 #include "iceoryx_dds/dds/cyclone_data_reader.hpp"
+#include "iceoryx_dds/internal/log/logging.hpp"
 
 iox::dds::CycloneDataReader::CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept
+    : m_serviceId(serviceId)
+    , m_instanceId(instanceId)
+    , m_eventId(eventId)
 {
+    LogDebug() << "[CycloneDataReader] Created CycloneDataReader.";
+}
+
+iox::dds::CycloneDataReader::~CycloneDataReader()
+{
+    LogDebug() << "[CycloneDataReader] Destroyed CycloneDataReader.";
+}
+
+void iox::dds::CycloneDataReader::connect() noexcept
+{
+
+}
+
+uint8_t iox::dds::CycloneDataReader::read(const uint8_t* buffer) const noexcept
+{
+
+}
+
+iox::dds::IdString iox::dds::CycloneDataReader::getServiceId() const noexcept
+{
+    return m_serviceId;
+}
+
+iox::dds::IdString iox::dds::CycloneDataReader::getInstanceId() const noexcept
+{
+    return m_instanceId;
+}
+
+iox::dds::IdString iox::dds::CycloneDataReader::getEventId() const noexcept
+{
+    return m_eventId;
 }

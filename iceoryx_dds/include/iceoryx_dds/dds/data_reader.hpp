@@ -16,6 +16,7 @@
 #define IOX_DDS_DDS_DATA_READER_HPP
 
 #include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 
 namespace iox
 {
@@ -23,11 +24,44 @@ namespace dds
 {
 using IdString = iox::cxx::string<100u>;
 
-/// @note Implementation coming soon.
-template <typename Impl>
 class DataReader
 {
+public:
+
+    ///
+    /// @brief connect Connect the DataReader to the underlying DDS network.
+    ///
+    virtual void connect() noexcept = 0;
+
+    ///
+    /// @brief read Read samples from the DDS network.
+    /// @param buffer Buffer in which to store read samples.
+    /// @return Number of samples read into the buffer, or -1 on failure.
+    ///
+    virtual uint8_t read(const uint8_t* buffer) const noexcept = 0;
+
+    ///
+    /// @brief getServiceId
+    /// @return The ID of the service producing the bytes
+    ///
+    virtual IdString getServiceId() const noexcept = 0;
+
+    ///
+    /// @brief getInstanceId
+    /// @return The ID of the instance of the service producing the bytes
+    ///
+    virtual IdString getInstanceId() const noexcept = 0;
+
+    ///
+    /// @brief getEventId
+    /// @return The ID of the event producing the data
+    ///
+    virtual IdString getEventId() const noexcept = 0;
+
+protected:
+    DataReader() = default;
 };
+
 } // namespace dds
 } // namespace iox
 

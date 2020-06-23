@@ -16,9 +16,7 @@
 #include "Mempool_DCPS.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 
-#include <chrono>
 #include <string>
-#include <thread>
 
 iox::dds::CycloneDataWriter::CycloneDataWriter(IdString serviceId, IdString instanceId, IdString eventId)
     : m_serviceId(serviceId)
