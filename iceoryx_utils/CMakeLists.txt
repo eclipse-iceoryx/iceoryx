@@ -127,6 +127,7 @@ add_library(iceoryx_utils
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
     source/concurrent/locked_loffli.cpp
+    source/cxx/helplets.cpp
     source/cxx/generic_raii.cpp
     source/error_handling/error_handling.cpp
     source/file_reader/file_reader.cpp

@@ -25,9 +25,9 @@ using namespace iox;
 using namespace iox::posix;
 
 #if defined(__APPLE__)
-using IpcChannel = UnixDomainSocket;
+using IpcChannelType = UnixDomainSocket;
 #else
-using IpcChannel = MessageQueue;
+using IpcChannelType = MessageQueue;
 #endif
 
 constexpr char goodName[] = "/channel_test";
@@ -40,14 +40,14 @@ class MessageQueue_test : public Test
   public:
     void SetUp()
     {
-        auto serverResult =
-            IpcChannel::create(goodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
+        auto serverResult = IpcChannelType::create(
+            goodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.get_value());
         internal::CaptureStderr();
 
-        auto clientResult =
-            IpcChannel::create(goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
+        auto clientResult = IpcChannelType::create(
+            goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
         client = std::move(clientResult.get_value());
     }
@@ -67,32 +67,32 @@ class MessageQueue_test : public Test
 
     static const size_t MaxMsgSize;
     static constexpr uint64_t MaxMsgNumber = 10u;
-    IpcChannel server;
-    IpcChannel client;
+    IpcChannelType server;
+    IpcChannelType client;
 };
 
-const size_t MessageQueue_test::MaxMsgSize = IpcChannel::MAX_MESSAGE_SIZE;
+const size_t MessageQueue_test::MaxMsgSize = IpcChannelType::MAX_MESSAGE_SIZE;
 constexpr uint64_t MessageQueue_test::MaxMsgNumber;
 
 TEST_F(MessageQueue_test, createNoName)
 {
-    auto mq2 = IpcChannel::create("", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto mq2 = IpcChannelType::create("", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_TRUE(mq2.has_error());
     ASSERT_THAT(mq2.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
 TEST_F(MessageQueue_test, createBadName)
 {
-    auto mq2 = IpcChannel::create(badName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto mq2 = IpcChannelType::create(badName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_TRUE(mq2.has_error());
 }
 
 TEST_F(MessageQueue_test, createAgain)
 {
     // if there is a leftover from a crashed channel, we can create a new one. This is simulated by creating twice
-    auto first = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto first = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(first.has_error());
-    auto second = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto second = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(second.has_error());
 }
 
@@ -102,11 +102,11 @@ TEST_F(MessageQueue_test, createAgainAndEmpty)
     using namespace iox::units;
     using namespace std::chrono;
 
-    auto serverResult = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto serverResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
     auto server = std::move(serverResult.get_value());
 
-    auto clientResult = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+    auto clientResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
     auto client = std::move(clientResult.get_value());
 
@@ -124,7 +124,7 @@ TEST_F(MessageQueue_test, createAgainAndEmpty)
     sent = client.send(newMessage).has_error();
     EXPECT_FALSE(sent);
 
-    auto second = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto second = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(second.has_error());
     server = std::move(second.get_value());
 
@@ -136,7 +136,7 @@ TEST_F(MessageQueue_test, createAgainAndEmpty)
 
 TEST_F(MessageQueue_test, clientWithoutServerFails)
 {
-    auto clientResult = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+    auto clientResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
     EXPECT_TRUE(clientResult.has_error());
     ASSERT_THAT(clientResult.get_error(), Eq(IpcChannelError::NO_SUCH_CHANNEL));
 }
@@ -144,11 +144,11 @@ TEST_F(MessageQueue_test, clientWithoutServerFails)
 
 TEST_F(MessageQueue_test, NotOutdatedOne)
 {
-    auto serverResult = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto serverResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
     auto server = std::move(serverResult.get_value());
 
-    auto clientResult = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+    auto clientResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
     auto client = std::move(clientResult.get_value());
 
@@ -160,17 +160,17 @@ TEST_F(MessageQueue_test, NotOutdatedOne)
 
 TEST_F(MessageQueue_test, OutdatedOne)
 {
-    if (std::is_same<IpcChannel, UnixDomainSocket>::value)
+    if (std::is_same<IpcChannelType, UnixDomainSocket>::value)
     {
         // isOutdated cannot be realized for unix domain sockets
         return;
     }
 
-    auto serverResult = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto serverResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
     auto server = std::move(serverResult.get_value());
 
-    auto clientResult = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
+    auto clientResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
     auto client = std::move(clientResult.get_value());
 
@@ -185,16 +185,16 @@ TEST_F(MessageQueue_test, OutdatedOne)
 
 TEST_F(MessageQueue_test, unlinkExistingOne)
 {
-    auto first = IpcChannel::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    auto first = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(first.has_error());
-    auto ret = IpcChannel::unlinkIfExists(anotherGoodName);
+    auto ret = IpcChannelType::unlinkIfExists(anotherGoodName);
     EXPECT_FALSE(ret.has_error());
     EXPECT_TRUE(ret.get_value());
 }
 
 TEST_F(MessageQueue_test, unlinkNonExistingOne)
 {
-    auto ret = IpcChannel::unlinkIfExists(theUnknown);
+    auto ret = IpcChannelType::unlinkIfExists(theUnknown);
     EXPECT_FALSE(ret.has_error());
     EXPECT_FALSE(ret.get_value());
 }
@@ -230,7 +230,7 @@ TEST_F(MessageQueue_test, sendAfterClientDestroy)
 
 TEST_F(MessageQueue_test, sendAfterServerDestroy)
 {
-    if (std::is_same<IpcChannel, MessageQueue>::value)
+    if (std::is_same<IpcChannelType, MessageQueue>::value)
     {
         // We still can send to the message queue is we destroy the server
         // it would be outdated, this is checked in another test
@@ -290,7 +290,7 @@ TEST_F(MessageQueue_test, sendMaxMessageSize)
 
 TEST_F(MessageQueue_test, wildCreate)
 {
-    auto result = IpcChannel::create();
+    auto result = IpcChannelType::create();
     ASSERT_THAT(result.has_error(), Eq(true));
 }
 

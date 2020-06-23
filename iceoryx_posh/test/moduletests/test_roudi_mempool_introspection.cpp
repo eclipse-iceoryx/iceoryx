@@ -227,15 +227,15 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
     mock->hasSubscribersReturn = false;
 
     using namespace iox::units::duration_literals;
-    iox::units::Duration timeout(100_ms);
+    iox::units::Duration snapshotInterval(100_ms);
 
-    m_introspection.setSnapshotInterval(timeout.milliSeconds<uint64_t>());
+    m_introspection.setSnapshotInterval(snapshotInterval.milliSeconds<uint64_t>());
     m_introspection.start();
     std::this_thread::sleep_for(std::chrono::milliseconds(
-        6 * timeout.milliSeconds<uint64_t>())); // within this time, the thread should have run 6 times
+        6 * snapshotInterval.milliSeconds<uint64_t>())); // within this time, the thread should have run 6 times
     m_introspection.wait();
     std::this_thread::sleep_for(std::chrono::milliseconds(
-        6 * timeout.milliSeconds<uint64_t>())); // the thread should sleep, if not, we have 12 runs
+        6 * snapshotInterval.milliSeconds<uint64_t>())); // the thread should sleep, if not, we have 12 runs
     m_introspection.terminate();
 
     TIMING_TEST_EXPECT_TRUE(4 <= mock->hasSubscribers && mock->hasSubscribers <= 8);

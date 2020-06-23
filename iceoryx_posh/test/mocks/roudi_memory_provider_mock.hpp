@@ -40,17 +40,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
             createMemoryMock(size, alignment);
         }
 
-#if defined(QNX) || defined(QNX__) || defined(__QNX__)
-        dummyMemory = static_cast<uint8_t*>(memalign(alignment, size));
-#elif defined(__APPLE__)
-        dummyMemory = static_cast<uint8_t*>(malloc(size + alignment));
-        auto memAddress = reinterpret_cast<uint64_t>(dummyMemory);
-        auto offset = memAddress % alignment;
-        auto alignedAddress = offset = 0 ? memAddress : memAddress + alignment - offset;
-        m_alignedMemory = reinterpret_cast<uint8_t*>(alignedAddress);
-#else
-        dummyMemory = static_cast<uint8_t*>(aligned_alloc(alignment, size));
-#endif
+        dummyMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignment, size));
         return iox::cxx::success<void*>(dummyMemory);
     }
     MOCK_METHOD2(createMemoryMock, void(uint64_t, uint64_t));
@@ -62,19 +52,14 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
             destroyMemoryMock();
         }
 
-        if (dummyMemory != nullptr)
-        {
-            free(dummyMemory);
-            dummyMemory = nullptr;
-            m_alignedMemory = nullptr;
-        }
+        iox::cxx::alignedFree(dummyMemory);
+        dummyMemory = nullptr;
 
         return iox::cxx::success<void>();
     }
     MOCK_METHOD0(destroyMemoryMock, void());
 
     uint8_t* dummyMemory{nullptr};
-    void* m_alignedMemory{nullptr};
 
   protected:
     bool m_mockCallsEnabled{false};
