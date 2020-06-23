@@ -158,6 +158,7 @@ cxx::expected<IpcChannelError> MessageQueue::destroy()
     }
 
     m_mqDescriptor = INVALID_DESCRIPTOR;
+    m_isInitialized = false;
     return cxx::success<void>();
 }
 
