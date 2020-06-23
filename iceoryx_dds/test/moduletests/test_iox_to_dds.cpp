@@ -377,7 +377,8 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
             iox::cxx::make_optional<iox::dds::Channel<MockSubscriber, MockDataWriter>>(testChannelOne.get_value())))
         .WillOnce(Return(iox::cxx::nullopt_t()));
     EXPECT_CALL(gw, addChannel).WillOnce(Return(testChannelOne)).WillOnce(Return(testChannelTwo));
-    EXPECT_CALL(gw, discardChannel).Times(1);
+    EXPECT_CALL(gw, discardChannel)
+            .WillOnce(Return(iox::cxx::success<>()));
 
     // === Test
     gw.discover(offerMsg);

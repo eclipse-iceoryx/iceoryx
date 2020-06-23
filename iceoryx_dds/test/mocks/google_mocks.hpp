@@ -36,7 +36,7 @@ class MockSubscriber
     MOCK_METHOD1(subscribe, void(const uint32_t));
 };
 
-class MockDataWriter : public iox::dds::DataWriter<MockDataWriter>
+class MockDataWriter
 {
   public:
     MockDataWriter(const iox::capro::ServiceDescription& sd){};
