@@ -48,40 +48,43 @@ void iox::dds::CycloneDataReader::connect() noexcept
     }
 }
 
-iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& size)
+iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize)
 {
     if(!m_isConnected.load())
     {
         return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::NOT_CONNECTED);
     }
 
-    // Read all available data points ...
-    auto samples = m_reader.read();
+    // Read up to the maximum number of samples that can fit in the buffer.
+    auto capacity = bufferSize / sampleSize;
+    auto samples = m_reader
+            .select()
+            .max_samples(capacity)
+            .state(::dds::sub::status::SampleState::not_read())
+            .take();
+
     LogDebug() << "[CycloneDataReader] Total samples: " << samples.length();
 
+    // Copy data into the provided buffer.
     uint8_t cursor = 0;
     uint8_t numSamplesBuffered = 0;
     if(samples.length() > 0)
     {
-        uint64_t sampleSize = samples.begin()->data().payload().size();
+        // Validation checks
+        uint64_t size = samples.begin()->data().payload().size();
+        if(size != sampleSize)
+        {
+            // Received invalid data.
+            // NOTE: This causes other data points received in this read to be lost...
+            return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATA);
+        }
+
+        // Do copy
         for(const auto& sample : samples)
         {
-            // Filter out already-read samples
-            auto isNotRead = sample.info().state().sample_state() == ::dds::sub::status::SampleState::not_read();
-            if(isNotRead){
-                // Check there is space in the buffer.
-                if(cursor < size-sampleSize)
-                {
-                    auto bytes = sample.data().payload().data();
-                    std::copy(bytes, bytes + sampleSize, &buffer[cursor]);
-                    cursor += sampleSize;
-                }
-                else
-                {
-                    // Buffer full.
-                    // TODO - what to do with unread samples ? Probably nothing (and leave their read flag unset).
-                }
-            }
+            auto bytes = sample.data().payload().data();
+            std::copy(bytes, bytes + sampleSize, &buffer[cursor]);
+            cursor += sampleSize;
         }
         numSamplesBuffered = cursor / sampleSize;
     }

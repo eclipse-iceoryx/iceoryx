@@ -26,7 +26,8 @@ using IdString = iox::cxx::string<100u>;
 
 enum class DataReaderError : uint8_t
 {
-    NOT_CONNECTED
+    NOT_CONNECTED,
+    INVALID_DATA
 };
 
 class DataReader
@@ -39,12 +40,15 @@ public:
     virtual void connect() noexcept = 0;
 
     ///
-    /// @brief read Read samples from the DDS network.
+    /// @brief read Read data for the give service from the DDS network.
     /// @param buffer Buffer in which to store read samples.
-    /// @param size The size of the buffer.
+    /// @param bufferSize The size of the buffer (in bytes).
+    /// @param sampleSize The expected size of the samples (in bytes).
     /// @return Number of samples read if successful.
     ///
-    virtual iox::cxx::expected<uint8_t, DataReaderError> read(uint8_t* const buffer, const uint64_t& size) = 0;
+    /// @note This is only a tentative API. Will be updated as the usecase is better understood.
+    ///
+    virtual iox::cxx::expected<uint8_t, DataReaderError> read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize) = 0;
 
     ///
     /// @brief getServiceId

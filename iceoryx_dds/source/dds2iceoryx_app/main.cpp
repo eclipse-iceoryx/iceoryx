@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
         uint64_t size = 1024;
         uint8_t buffer[size];
 
-        auto result = reader.read(buffer, size);
+        auto result = reader.read(buffer, size, sizeof(uint64_t));
         if(!result.has_error())
         {
             auto numSamples = static_cast<int>(result.get_value());

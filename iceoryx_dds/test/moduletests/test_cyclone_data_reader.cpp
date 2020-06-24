@@ -22,7 +22,7 @@ TEST_F(CycloneDataReaderTest, DoesNotAttemptToReadWhenDisconnected)
     uint8_t buffer[size];
 
     // ===== Test
-    auto result = reader.read(buffer, size);
+    auto result = reader.read(buffer, size, sizeof(uint8_t));
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::NOT_CONNECTED, result.get_error());
 }
