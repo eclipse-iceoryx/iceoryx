@@ -60,7 +60,6 @@ inline iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::DDSGatewayGeneric() no
     : gateway_t(iox::capro::Interfaces::DDS)
 {
     LogDebug() << "[DDSGatewayGeneric] Using default channel factory.";
-    m_channelFactory = channel_t::create;
 }
 
 template <typename channel_t, typename gateway_t>
@@ -82,7 +81,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
     }
     else
     {
-        auto result = m_channelFactory(service);
+        auto result = channel_t::create(service);
         if (result.has_error())
         {
             iox::dds::LogError() << "[DDSGatewayGeneric] Unable to set up channel for service: "

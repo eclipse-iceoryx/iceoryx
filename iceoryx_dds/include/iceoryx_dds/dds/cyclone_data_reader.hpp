@@ -25,7 +25,9 @@ namespace iox
 {
 namespace dds
 {
-/// @note Implementation coming soon.
+///
+/// @brief Cyclone DDS abstraction implementation.
+///
 class CycloneDataReader : public DataReader
 {
   public:

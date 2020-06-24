@@ -27,6 +27,7 @@ using IdString = iox::cxx::string<100u>;
 enum class DataReaderError : uint8_t
 {
     NOT_CONNECTED,
+    INVALID_RECV_BUFFER,
     INVALID_DATA
 };
 

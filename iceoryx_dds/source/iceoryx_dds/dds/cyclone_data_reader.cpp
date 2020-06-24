@@ -42,7 +42,7 @@ void iox::dds::CycloneDataReader::connect() noexcept
 
         m_reader = ::dds::sub::DataReader<Mempool::Chunk>(m_subscriber, m_topic, qos);
 
-        LogDebug() << "[CycloneDataReader] Created data reader for topic: " << topicString;
+        LogDebug() << "[CycloneDataReader] Connected to topic: " << topicString;
 
         m_isConnected.store(true, std::memory_order_relaxed);
     }
@@ -50,9 +50,18 @@ void iox::dds::CycloneDataReader::connect() noexcept
 
 iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize)
 {
+    // Validation checks
     if(!m_isConnected.load())
     {
         return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::NOT_CONNECTED);
+    }
+    if(buffer == nullptr)
+    {
+        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_RECV_BUFFER);
+    }
+    if(bufferSize < sampleSize)
+    {
+        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_RECV_BUFFER);
     }
 
     // Read up to the maximum number of samples that can fit in the buffer.
@@ -66,11 +75,10 @@ iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataRead
     LogDebug() << "[CycloneDataReader] Total samples: " << samples.length();
 
     // Copy data into the provided buffer.
-    uint8_t cursor = 0;
     uint8_t numSamplesBuffered = 0;
     if(samples.length() > 0)
     {
-        // Validation checks
+        // Sample validation checks
         uint64_t size = samples.begin()->data().payload().size();
         if(size != sampleSize)
         {
@@ -80,6 +88,7 @@ iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataRead
         }
 
         // Do copy
+        uint8_t cursor = 0; // Tracks the position in the buffer to write next sample.
         for(const auto& sample : samples)
         {
             auto bytes = sample.data().payload().data();

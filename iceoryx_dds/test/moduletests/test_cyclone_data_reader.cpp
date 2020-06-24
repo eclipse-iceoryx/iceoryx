@@ -17,12 +17,45 @@ class CycloneDataReaderTest : public Test
 TEST_F(CycloneDataReaderTest, DoesNotAttemptToReadWhenDisconnected)
 {
     // ===== Setup
-    iox::dds::CycloneDataReader reader{"", "", ""};
-    uint64_t size = 1024;
-    uint8_t buffer[size];
+    uint64_t bufferSize = 1024;
+    uint8_t buffer[bufferSize];
+    uint64_t sampleSize = sizeof(uint64_t);
 
     // ===== Test
-    auto result = reader.read(buffer, size, sizeof(uint8_t));
+    iox::dds::CycloneDataReader reader{"", "", ""};
+    auto result = reader.read(buffer, bufferSize, sampleSize);
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::NOT_CONNECTED, result.get_error());
+}
+
+TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
+{
+    // ===== Setup
+    uint64_t bufferSize = 0;
+    uint8_t* buffer = nullptr;
+    uint64_t sampleSize = sizeof(uint64_t);
+
+    // ===== Test
+    iox::dds::CycloneDataReader reader{"", "", ""};
+    reader.connect();
+    auto result = reader.read(buffer, bufferSize, sampleSize);
+
+    EXPECT_EQ(true, result.has_error());
+    EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, result.get_error());
+}
+
+TEST_F(CycloneDataReaderTest, ReturnsErrorWhenReceiverBufferSmallerThanSampleSize)
+{
+    // ===== Setup
+    uint64_t bufferSize = 0;
+    uint8_t buffer[bufferSize];
+    uint64_t sampleSize = sizeof(uint64_t);
+
+    // ===== Test
+    iox::dds::CycloneDataReader reader{"", "", ""};
+    reader.connect();
+    auto result = reader.read(buffer, bufferSize, sampleSize);
+
+    EXPECT_EQ(true, result.has_error());
+    EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, result.get_error());
 }

@@ -31,8 +31,6 @@ template <typename channel_t = iox::dds::Channel<iox::popo::Subscriber, iox::dds
           typename gateway_t = iox::dds::DDSGatewayGeneric<channel_t>>
 class Iceoryx2DDSGateway : public gateway_t
 {
-    using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
-
   public:
     Iceoryx2DDSGateway() noexcept;
     void loadConfiguration(const GatewayConfig& config) noexcept;
