@@ -243,11 +243,6 @@ TEST_F(MessageQueue_test, sendAfterServerDestroy)
     std::string message = "Try to send me";
     auto sendResult = client.send(message);
     EXPECT_TRUE(sendResult.has_error());
-#if defined(__APPLE__)
-    EXPECT_THAT(sendResult.get_error(), Eq(IpcChannelError::CONNECTION_RESET_BY_PEER));
-#else
-    EXPECT_THAT(sendResult.get_error(), Eq(IpcChannelError::NO_SUCH_CHANNEL));
-#endif
 }
 
 
@@ -316,6 +311,7 @@ TEST_F(MessageQueue_test, timedSend)
         auto after = system_clock::now();
         if (result.has_error())
         {
+            ASSERT_THAT(result.get_error(), Eq(IpcChannelError::TIMEOUT));
             // Do not exceed timeout
             auto timeDiff_ms = duration_cast<milliseconds>(after - before);
             EXPECT_LT(timeDiff_ms.count(), (maxTimeout + maxTimeoutTolerance).milliSeconds<int64_t>());
