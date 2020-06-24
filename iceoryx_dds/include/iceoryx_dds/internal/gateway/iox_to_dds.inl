@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_dds/gateway/iox_to_dds.hpp"
 
 #include <chrono>
 #include <thread>
-
-#include "iceoryx_dds/gateway/iox_to_dds.hpp"
 
 namespace iox
 {
@@ -54,7 +54,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro:
                     << ", Instance: " << msg.m_serviceDescription.getInstanceIDString()
                     << ", Event: " << msg.m_serviceDescription.getEventIDString() << " }";
 
-    if (msg.m_serviceDescription.getServiceIDString() == iox::capro::IdString("Introspection"))
+    if (msg.m_serviceDescription.getServiceIDString() == iox::capro::IdString(iox::roudi::INTROSPECTION_SERVICE_ID))
     {
         return;
     }

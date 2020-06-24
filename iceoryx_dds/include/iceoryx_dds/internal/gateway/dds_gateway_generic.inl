@@ -162,13 +162,13 @@ inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::discoveryLoop() n
     iox::dds::LogDebug() << "[DDSGatewayGeneric] Starting discovery.";
     while (m_isRunning.load(std::memory_order_relaxed))
     {
+        auto startTime = std::chrono::steady_clock::now();
         iox::capro::CaproMessage msg;
         while (this->getCaProMessage(msg))
         {
             discover(msg);
         }
-        std::this_thread::sleep_until(std::chrono::steady_clock::now()
-                                      + std::chrono::milliseconds(DISCOVERY_PERIOD.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(DISCOVERY_PERIOD.milliSeconds<int64_t>()));
     }
     iox::dds::LogDebug() << "[DDSGatewayGeneric] Stopped discovery.";
 }
@@ -179,9 +179,9 @@ inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::forwardingLoop() 
     iox::dds::LogDebug() << "[DDSGatewayGeneric] Starting forwarding.";
     while (m_isRunning.load(std::memory_order_relaxed))
     {
+        auto startTime = std::chrono::steady_clock::now();
         forEachChannel([this](channel_t channel) { this->forward(channel); });
-        std::this_thread::sleep_until(std::chrono::steady_clock::now()
-                                      + std::chrono::milliseconds(FORWARDING_PERIOD.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(FORWARDING_PERIOD.milliSeconds<int64_t>()));
     };
     iox::dds::LogDebug() << "[DDSGatewayGeneric] Stopped forwarding.";
 }

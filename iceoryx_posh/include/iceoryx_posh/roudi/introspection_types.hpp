@@ -23,7 +23,8 @@ namespace iox
 {
 namespace roudi
 {
-constexpr char INTROSPECTION_MQ_APP_NAME[] = "/introspection";
+constexpr const char INTROSPECTION_SERVICE_ID[] = "Introspection";
+constexpr const char INTROSPECTION_MQ_APP_NAME[] = "/introspection";
 const capro::ServiceDescription IntrospectionMempoolService("Introspection", "RouDi_ID", "MemPool");
 constexpr int MAX_GROUP_NAME_LENGTH = 32;
 
