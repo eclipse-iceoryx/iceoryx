@@ -75,16 +75,16 @@ int main(int argc, char* argv[])
             for(int i=0; i<numSamples; ++i)
             {
                 auto cursor = i * sizeof(uint64_t);
-                uint64_t sample;
-                std::copy(&buffer[cursor], &buffer[cursor] + sizeof(uint64_t), &sample);
-                std::cout << "[" << i << "] " << sample << std::endl;
+                uint64_t* sample = reinterpret_cast<uint64_t*>(&buffer[i * sizeof(sample)]);
+                //std::copy(&buffer[cursor], &buffer[cursor] + sizeof(sample), &sample);
+                std::cout << "[" << i << "] " << *sample << std::endl;
             }
         }
         else
         {
             std::cout << "Failure to read from data reader" << std::endl;
         }
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        std::this_thread::sleep_for(std::chrono::seconds(3));
     }
     // ===== DEBUG ===== //
 
