@@ -59,3 +59,21 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenReceiverBufferSmallerThanSampleSiz
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, result.get_error());
 }
+
+TEST_F(CycloneDataReaderTest, ReturnsErrorWhenSampleSizeDoesNotEqualExpectedSize)
+{
+    // ===== Setup
+
+
+    // ===== Test
+
+}
+
+TEST_F(CycloneDataReaderTest, ProperlyPacksReceivedSamplesIntoReceiveBuffer)
+{
+    // ===== Setup
+
+
+    // ===== Test
+
+}
