@@ -44,7 +44,7 @@ void iox::dds::CycloneDataReader::connect() noexcept
     }
 }
 
-iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* buffer, const uint64_t& size)
+iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& size)
 {
     if(!m_isConnected.load())
     {
@@ -60,7 +60,6 @@ iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataRead
     if(samples.length() > 0)
     {
         uint64_t sampleSize = samples.begin()->data().payload().size();
-
         for(const auto& sample : samples)
         {
             // Check there is another space in the buffer.
