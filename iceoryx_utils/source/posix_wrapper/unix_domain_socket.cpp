@@ -119,6 +119,7 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
         m_errorValue = std::move(other.m_errorValue);
         other.m_sockfd = INVALID_FD;
         m_maxMessageSize = std::move(other.m_maxMessageSize);
+        moveCreationPatternValues(std::move(other));
     }
 
     return *this;
@@ -166,6 +167,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
             }
 
             m_sockfd = INVALID_FD;
+            m_isInitialized = false;
 
             return cxx::success<void>();
         }

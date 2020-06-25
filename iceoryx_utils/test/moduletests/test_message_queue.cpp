@@ -218,6 +218,14 @@ TEST_F(MessageQueue_test, sendAndReceive)
     EXPECT_EQ(anotherMessage, *receivedMessage);
 }
 
+TEST_F(MessageQueue_test, invalidAfterDestroy)
+{
+    client.destroy();
+    ASSERT_FALSE(client.isInitialized());
+    server.destroy();
+    ASSERT_FALSE(server.isInitialized());
+}
+
 TEST_F(MessageQueue_test, sendAfterClientDestroy)
 {
     auto dest = client.destroy();

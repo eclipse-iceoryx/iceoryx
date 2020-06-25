@@ -34,19 +34,18 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(CmdLineParserConfigFile
     {
         if (cmdLineParser.getConfigFilePath().size() == 0)
         {
-            LogInfo() << "No config file provided. Using " << defaultConfigFilePath;
-
             /// @todo Replace with C++17 std::filesystem::exists()
-            cxx::FileReader configFile(defaultConfigFilePath, "", cxx::FileReader::ErrorMode::Inform);
+            cxx::FileReader configFile(defaultConfigFilePath, "", cxx::FileReader::ErrorMode::Ignore);
 
             if (configFile.IsOpen())
             {
+                LogInfo() << "No config file provided. Using '" << defaultConfigFilePath << "'";
                 m_customConfigFilePath = defaultConfigFilePath;
             }
             else
             {
-                LogInfo() << "No config file found at " << defaultConfigFilePath
-                          << ". Falling back to built-in config.";
+                LogInfo() << "No config file provided and also not found at '" << defaultConfigFilePath
+                          << "'. Falling back to built-in config.";
             }
         }
         m_customConfigFilePath = cmdLineParser.getConfigFilePath();
