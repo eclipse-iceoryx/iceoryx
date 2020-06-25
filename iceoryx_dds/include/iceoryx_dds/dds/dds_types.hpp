@@ -36,7 +36,7 @@ using data_writer_t = iox::dds::CycloneDataWriter;
 #else
 #error "A DDS implementation must be set."
 #endif
-}
-}
+} // namespace dds
+} // namespace iox
 
 #endif // IOX_DDS_DDS_DDS_TYPES_HPP

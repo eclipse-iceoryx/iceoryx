@@ -40,9 +40,7 @@ class Iceoryx2DDSGateway : public gateway_t
     void forward(const channel_t& channel) noexcept;
 
   private:
-
     void setupChannel(const iox::capro::ServiceDescription& service) noexcept;
-
 };
 
 } // namespace dds
