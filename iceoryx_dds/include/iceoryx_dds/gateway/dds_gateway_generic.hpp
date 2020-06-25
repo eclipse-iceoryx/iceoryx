@@ -20,11 +20,11 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/gateway_generic.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
 
 #include <atomic>
@@ -34,7 +34,6 @@ namespace iox
 {
 namespace dds
 {
-
 enum class GatewayError : uint8_t
 {
     UNSUPPORTED_SERVICE_TYPE,
@@ -49,12 +48,12 @@ enum class GatewayError : uint8_t
 template <typename channel_t, typename gateway_t = iox::popo::GatewayGeneric>
 class DDSGatewayGeneric : public gateway_t
 {
-    using ChannelFactory = std::function<iox::cxx::expected<channel_t, iox::dds::ChannelError>(const iox::capro::ServiceDescription)>;
+    using ChannelFactory =
+        std::function<iox::cxx::expected<channel_t, iox::dds::ChannelError>(const iox::capro::ServiceDescription)>;
     using ChannelVector = iox::cxx::vector<channel_t, MAX_CHANNEL_NUMBER>;
     using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 
   public:
-
     virtual ~DDSGatewayGeneric() noexcept;
 
     DDSGatewayGeneric(const DDSGatewayGeneric&) = delete;
@@ -104,7 +103,8 @@ class DDSGatewayGeneric : public gateway_t
     /// The service description is perhaps too large for copying since they contain strings, however this should be
     /// addressed with a service description repository feature.
     ///
-    iox::cxx::expected<channel_t, iox::dds::GatewayError> addChannel(const iox::capro::ServiceDescription& service) noexcept;
+    iox::cxx::expected<channel_t, iox::dds::GatewayError>
+    addChannel(const iox::capro::ServiceDescription& service) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns

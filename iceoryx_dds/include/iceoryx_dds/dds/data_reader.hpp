@@ -28,7 +28,7 @@ template <typename Impl>
 class DataReader
 {
 };
-}
-}
+} // namespace dds
+} // namespace iox
 
 #endif // IOX_DDS_DDS_DATA_READER_HPP

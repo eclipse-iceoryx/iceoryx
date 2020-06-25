@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef IOX_DDS_INTERNAL_GATEWAY_CHANNEL_INL
+#define IOX_DDS_INTERNAL_GATEWAY_CHANNEL_INL
+
 #include "iceoryx_dds/gateway/channel.hpp"
 
 namespace iox
@@ -34,14 +37,15 @@ template <typename IceoryxTerminal, typename DDSTerminal>
 inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const iox::capro::ServiceDescription& service,
                                                       const IceoryxTerminalPtr iceoryxTerminal,
                                                       const DDSTerminalPtr ddsTerminal) noexcept
-    : m_service(service),
-      m_iceoryxTerminal(iceoryxTerminal),
-      m_ddsTerminal(ddsTerminal)
+    : m_service(service)
+    , m_iceoryxTerminal(iceoryxTerminal)
+    , m_ddsTerminal(ddsTerminal)
 {
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
-constexpr inline bool Channel<IceoryxTerminal, DDSTerminal>::operator==(const Channel<IceoryxTerminal, DDSTerminal>& rhs) const noexcept
+constexpr inline bool
+Channel<IceoryxTerminal, DDSTerminal>::operator==(const Channel<IceoryxTerminal, DDSTerminal>& rhs) const noexcept
 {
     return m_service == rhs.getService();
 }
@@ -52,13 +56,13 @@ Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescripti
 {
     // Create objects in the pool.
     auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const iox::capro::ServiceDescription>(service));
-    if(rawIceoryxTerminalPtr == nullptr)
+    if (rawIceoryxTerminalPtr == nullptr)
     {
         return iox::cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
     }
     auto rawDDSTerminalPtr =
         s_ddsTerminals.create(service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
-    if(rawDDSTerminalPtr == nullptr)
+    if (rawDDSTerminalPtr == nullptr)
     {
         return iox::cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
     }
@@ -91,3 +95,5 @@ inline std::shared_ptr<DDSTerminal> Channel<IceoryxTerminal, DDSTerminal>::getDD
 
 } // namespace dds
 } // namespace iox
+
+#endif

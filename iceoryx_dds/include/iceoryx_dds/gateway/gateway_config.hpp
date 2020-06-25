@@ -31,7 +31,7 @@ struct GatewayConfig
   public:
     iox::cxx::vector<iox::capro::ServiceDescription, iox::MAX_PORT_NUMBER> m_configuredServices;
 };
-}
-}
+} // namespace dds
+} // namespace iox
 
 #endif // IOX_DDS_GATEWAY_GATEWAY_CONFIG_HPP
