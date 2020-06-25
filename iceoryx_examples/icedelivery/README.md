@@ -22,7 +22,7 @@ Create three terminals and run one command in each of them. Either choose to run
     # If installed and available in PATH environment variable
     RouDi
     # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/posh/RouDi
+    $ICEORYX_ROOT/build/iceoryx-posh/RouDi
 
 
     ./build/iceoryx_examples/icedelivery/ice-publisher-bare-metal
