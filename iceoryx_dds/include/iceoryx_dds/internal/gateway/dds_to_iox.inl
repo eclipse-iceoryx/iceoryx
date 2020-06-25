@@ -37,13 +37,7 @@ inline void DDS2IceoryxGateway<channel_t>::loadConfiguration(const GatewayConfig
     {
         if (!this->findChannel(service).has_value())
         {
-            this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
-                auto channel = result.get_value();
-                auto publisher = channel.getIceoryxTerminal();
-                publisher->offer();
-                auto reader = channel.getDDSTerminal();
-                reader->connect();
-            });
+            setupChannel(service);
         }
     }
 }
@@ -92,6 +86,20 @@ inline void DDS2IceoryxGateway<channel_t>::forward(const channel_t& channel) noe
     else{
         LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network.";
     }
+}
+
+// ======================================== Private ======================================== //
+
+template <typename channel_t>
+void iox::dds::DDS2IceoryxGateway<channel_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
+{
+    this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
+        auto channel = result.get_value();
+        auto publisher = channel.getIceoryxTerminal();
+        publisher->offer();
+        auto reader = channel.getDDSTerminal();
+        reader->connect();
+    });
 }
 
 } // namespace dds

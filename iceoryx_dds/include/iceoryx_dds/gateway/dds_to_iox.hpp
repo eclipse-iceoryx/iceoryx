@@ -41,6 +41,8 @@ class DDS2IceoryxGateway : public iox::dds::DDSGatewayGeneric<channel_t>
 
 private:
     void* m_reservedChunk = nullptr;
+
+    void setupChannel(const iox::capro::ServiceDescription& service) noexcept;
 };
 
 } // namespace dds
