@@ -12,70 +12,130 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
 #include "iceoryx_posh/internal/popo/waitset/condition_variable_waiter.hpp"
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
-//#include "iceoryx_utils/internal/units/duration.hpp"
 
 #include "test.hpp"
-
 #include <memory>
+#include <thread>
 
 using namespace ::testing;
 using ::testing::Return;
 using namespace iox::popo;
 using namespace iox::cxx;
-using namespace iox::mepoo;
 using namespace iox::units::duration_literals;
 
 class ConditionVariable_test : public Test
 {
   public:
-    static constexpr size_t MEGABYTE = 1 << 20;
-    static constexpr size_t MEMORY_SIZE = 1 * MEGABYTE;
-    const uint64_t HISTORY_SIZE = 16;
-    static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
-    char memory[MEMORY_SIZE];
-    iox::posix::Allocator allocator{memory, MEMORY_SIZE};
-    MemPool mempool{128, 20, &allocator, &allocator};
-    MemPool chunkMgmtPool{128, 20, &allocator, &allocator};
-
     ConditionVariableData m_condVarData;
     ConditionVariableWaiter m_waiter{&m_condVarData};
     ConditionVariableSignaler m_signaler{&m_condVarData};
 
+    iox::posix::Semaphore m_syncSemaphore = iox::posix::Semaphore::create(0u).get_value();
+
     void SetUp(){};
-    void TearDown(){};
+    void TearDown()
+    {
+        // Reset condition variable
+        m_waiter.reset();
+    };
 };
 
-TEST_F(ConditionVariable_test, NoSignalResultsInWait)
+TEST_F(ConditionVariable_test, TimedWaitWithInvalidTimeResultsInFailure)
 {
-    EXPECT_THAT(m_waiter.timedWait(100_ms), Eq(false));
+    EXPECT_FALSE(m_waiter.timedWait(0_ms));
 }
 
-TEST_F(ConditionVariable_test, SignalResultsInCall)
+TEST_F(ConditionVariable_test, NoNotifyResultsInTimeoutSingleThreaded)
 {
-    // m_signaler.signal();
+    EXPECT_FALSE(m_waiter.timedWait(10_ms));
 }
 
-// TEST_F(ConditionVariable_test, ResetConditionSuccessful){}
-// TEST_F(ConditionVariable_test, ResetConditionWithInvalidConditionResultsInFailure){}
+TEST_F(ConditionVariable_test, NotifyOnceResultsInNoTimeoutSingleThreaded)
+{
+    m_signaler.notifyOne();
+    EXPECT_TRUE(m_waiter.timedWait(10_ms));
+}
 
-// TEST_F(ConditionVariable_test, NotifyConditionSuccessful){}
-// TEST_F(ConditionVariable_test, NotifyWithInvalidConditionResultsInFailure){}
-// TEST_F(ConditionVariable_test, NotifyWithInvalidConditionStateResultsInFailure){}
+TEST_F(ConditionVariable_test, NotifyOnceResultsInNoWaitSingleThreaded)
+{
+    m_signaler.notifyOne();
+    m_waiter.wait();
+    // We expect that the next line is reached
+    EXPECT_TRUE(true);
+}
 
-// TEST_F(ConditionVariable_test, TimedWaitWithSignalAlreadySetResultsInImmediateTrigger){}
-// TEST_F(ConditionVariable_test, SignalSetWhileWaitingInTimedWaitResultsInTrigger){}
-// TEST_F(ConditionVariable_test, TimeoutOfTimedWaitResultsInTrigger){}
-// TEST_F(ConditionVariable_test, TimedWaitWithInvalidConditionResultsInFailure){}
-// TEST_F(ConditionVariable_test, TimedWaitWithInvalidTimeResultsInFailure){}
-// TEST_F(ConditionVariable_test, TimedWaitWithInvalidConditionStateResultsInFailure){}
+TEST_F(ConditionVariable_test, NotifyTwiceResultsInNoWaitSingleThreaded)
+{
+    m_signaler.notifyOne();
+    m_signaler.notifyOne();
+    m_waiter.wait();
+    m_waiter.wait();
+    // We expect that the next line is reached
+    EXPECT_TRUE(true);
+}
 
-// TEST_F(ConditionVariable_test, WaitWithoutSignalResultsInBlocking){}
-// TEST_F(ConditionVariable_test, WaitWithSignalAlreadySetResultsInImmediateTrigger){}
-// TEST_F(ConditionVariable_test, SignalSetWhileWaitWaitResultsInTrigger){}
-// TEST_F(ConditionVariable_test, WaitWithInvalidConditionResultsInBlocking){}
-// TEST_F(ConditionVariable_test, WaitWithInvalidConditionStateResultsInFailure){}
+TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThreaded)
+{
+    std::atomic<int> counter{0};
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        m_syncSemaphore.post();
+        m_waiter.wait();
+        EXPECT_THAT(counter, Eq(1));
+    });
+    m_syncSemaphore.wait();
+    counter++;
+    m_signaler.notifyOne();
+    waiter.join();
+}
+
+TEST_F(ConditionVariable_test, ResetResultsInBlockingWaitMultiThreaded)
+{
+    std::atomic<int> counter{0};
+    m_signaler.notifyOne();
+    EXPECT_TRUE(m_waiter.reset());
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        m_syncSemaphore.post();
+        m_waiter.wait();
+        EXPECT_THAT(counter, Eq(1));
+    });
+    m_syncSemaphore.wait();
+    counter++;
+    m_signaler.notifyOne();
+    waiter.join();
+}
+
+TEST_F(ConditionVariable_test, ResetWithoutNotifiyResultsInBlockingWaitMultiThreaded)
+{
+    std::atomic<int> counter{0};
+    EXPECT_TRUE(m_waiter.reset());
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        m_syncSemaphore.post();
+        m_waiter.wait();
+        EXPECT_THAT(counter, Eq(1));
+    });
+    m_syncSemaphore.wait();
+    counter++;
+    m_signaler.notifyOne();
+    waiter.join();
+}
+
+TEST_F(ConditionVariable_test, NotifyWhileWaitingResultsNoTimeoutMultiThreaded)
+{
+    std::atomic<int> counter{0};
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        m_syncSemaphore.post();
+        EXPECT_TRUE(m_waiter.timedWait(10_ms));
+        EXPECT_THAT(counter, Eq(1));
+    });
+    m_syncSemaphore.wait();
+    counter++;
+    m_signaler.notifyOne();
+    waiter.join();
+}

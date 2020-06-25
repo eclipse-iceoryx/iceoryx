@@ -26,7 +26,7 @@ class ConditionVariableSignaler
   public:
     ConditionVariableSignaler(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
-    void notifyAll() noexcept;
+    void notifyOne() noexcept;
 
   protected:
     const ConditionVariableData* getMembers() const noexcept;

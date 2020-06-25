@@ -26,7 +26,7 @@ GuardCondition::GuardCondition(cxx::not_null<ConditionVariableData* const> condV
 
 void GuardCondition::notify() noexcept
 {
-    m_conditionVariableSignaler.notifyAll();
+    m_conditionVariableSignaler.notifyOne();
 }
 
 } // namespace popo
