@@ -21,10 +21,12 @@ namespace units
 {
 struct timespec Duration::timespec(const TimeSpecReference& reference) const
 {
+    constexpr int64_t NanoSecondsPerSecond{1000000000};
     if (reference == TimeSpecReference::None)
     {
-        return {this->seconds<int32_t>(),
-                static_cast<int32_t>(this->nanoSeconds<int64_t>() - this->seconds<int64_t>() * 1000000000)};
+        int64_t timeInNanoSeconds = this->nanoSeconds<int64_t>();
+        int64_t seconds = timeInNanoSeconds / NanoSecondsPerSecond;
+        return {seconds, timeInNanoSeconds - seconds * NanoSecondsPerSecond};
     }
     else
     {
@@ -41,11 +43,12 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const
         }
         else
         {
-            constexpr int64_t NanoSecondsPerSecond{1000000000};
-            int64_t remainingNanoSecondsTimeout = this->nanoSeconds<int64_t>() % NanoSecondsPerSecond;
+            int64_t timeInNanoSeconds = this->nanoSeconds<int64_t>();
+            int64_t remainingNanoSecondsTimeout = timeInNanoSeconds % NanoSecondsPerSecond;
             int64_t sumOfNanoSeconds = remainingNanoSecondsTimeout + referenceTime.tv_nsec;
-            int64_t seconds = this->seconds<int64_t>() + referenceTime.tv_sec + sumOfNanoSeconds / NanoSecondsPerSecond;
-            int64_t nanoSeconds = sumOfNanoSeconds - (sumOfNanoSeconds / NanoSecondsPerSecond) * NanoSecondsPerSecond;
+            int64_t additionalSeconds = sumOfNanoSeconds / NanoSecondsPerSecond;
+            int64_t seconds = timeInNanoSeconds / NanoSecondsPerSecond + referenceTime.tv_sec + additionalSeconds;
+            int64_t nanoSeconds = sumOfNanoSeconds - additionalSeconds * NanoSecondsPerSecond;
 
             return {seconds, nanoSeconds};
         }

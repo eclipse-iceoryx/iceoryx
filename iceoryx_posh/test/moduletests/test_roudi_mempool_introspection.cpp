@@ -16,6 +16,7 @@
 #include "mocks/mepoo_memory_manager_mock.hpp"
 #include "mocks/senderport_mock.hpp"
 #include "test.hpp"
+#include "timing_test.hpp"
 
 using namespace ::testing;
 using ::testing::Return;
@@ -209,14 +210,13 @@ TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
     EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, chunk.sample()->m_mempoolInfo), Eq(true));
 }
 
-TEST_F(MemPoolIntrospection_test, thread)
-{
+TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
     auto mock = m_senderPortImpl_mock.details;
     MemPoolIntrospection m_introspection(
         m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_senderPortImpl_mock));
 
     MemPoolInfoContainer memPoolInfoContainer;
-    MemPoolInfo memPoolInfo{0, 0, 0, 0};
+    MemPoolInfo memPoolInfo(0, 0, 0, 0);
     initMemPoolInfoContainer(memPoolInfoContainer);
     EXPECT_CALL(m_rouDiInternalMemoryManager_mock, getMemPoolInfo(_)).WillRepeatedly(Invoke([&](uint32_t index) {
         initMemPoolInfo(index, memPoolInfo);
@@ -226,12 +226,17 @@ TEST_F(MemPoolIntrospection_test, thread)
     // we use the hasSubscribers call to check how often the thread calls the send method
     mock->hasSubscribersReturn = false;
 
-    m_introspection.setSnapshotInterval(10);
+    using namespace iox::units::duration_literals;
+    iox::units::Duration snapshotInterval(100_ms);
+
+    m_introspection.setSnapshotInterval(snapshotInterval.milliSeconds<uint64_t>());
     m_introspection.start();
-    std::this_thread::sleep_for(std::chrono::milliseconds(55)); // within this time, the thread should have run 6 times
+    std::this_thread::sleep_for(std::chrono::milliseconds(
+        6 * snapshotInterval.milliSeconds<uint64_t>())); // within this time, the thread should have run 6 times
     m_introspection.wait();
-    std::this_thread::sleep_for(std::chrono::milliseconds(55)); // the thread should sleep, if not, we have 12 runs
+    std::this_thread::sleep_for(std::chrono::milliseconds(
+        6 * snapshotInterval.milliSeconds<uint64_t>())); // the thread should sleep, if not, we have 12 runs
     m_introspection.terminate();
 
-    EXPECT_THAT(4 <= mock->hasSubscribers && mock->hasSubscribers <= 8, Ge(true));
-}
+    TIMING_TEST_EXPECT_TRUE(4 <= mock->hasSubscribers && mock->hasSubscribers <= 8);
+});

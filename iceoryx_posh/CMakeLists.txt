@@ -266,16 +266,14 @@ endif(ICEORYX_LARGE_DEPLOYMENT)
 #
 ########## exporting library ##########
 #
+if(TOML_CONFIG)
+    set(ROUDI_EXPORT RouDi)
+endif(TOML_CONFIG)
+
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_posh iceoryx_posh_roudi
+    TARGETS iceoryx_posh iceoryx_posh_roudi ${ROUDI_EXPORT}
     INCLUDE_DIRECTORY include/
 )
-if(TOML_CONFIG)
-    setup_install_directories_and_export_package(
-        TARGETS RouDi
-        INCLUDE_DIRECTORY include/
-    )
-endif(TOML_CONFIG)
 
 if(test)
     add_subdirectory(test)

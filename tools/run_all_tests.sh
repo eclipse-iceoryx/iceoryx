@@ -16,7 +16,33 @@
 
 # This file runs all tests for Ice0ryx
 
-component_folder="posh utils"
+component_folder="utils posh"
+
+GTEST_FILTER="*"
+
+for arg in "$@"
+do 
+    case "$arg" in
+        "disable-timing-tests")
+            GTEST_FILTER="-*.TimingTest_*"
+            ;;
+        "only-timing-tests")
+            GTEST_FILTER="*.TimingTest_*"
+            ;;
+        *)
+            echo ""
+            echo "Test script for iceoryx."
+            echo "By default all module-, integration- and componenttests are executed."
+            echo ""
+            echo "Usage: $0 [OPTIONS]"
+            echo "Options:"
+            echo "      disable-timing-tests        Disables all timing tests"
+            echo "      only-timing-tests           Runs only timing tests"
+            echo ""
+            exit -1
+            ;;
+    esac
+done 
 
 #check if this script is sourced by another script,
 # if yes then exit properly, so the other script can use this
@@ -34,18 +60,18 @@ echo ">>>>>> Running Ice0ryx Tests <<<<<<"
 
 set -e
 
+BASE_DIRECTORY=$PWD
+
 for folder in $component_folder; do
     echo ""
     echo "######################## processing moduletests & componenttests in $folder ########################"
     echo $PWD
 
-    cd $folder/$folder/test
+    cd $BASE_DIRECTORY/$folder/test
 
-    ./"$folder"_moduletests --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ModuleTestResults.xml"
-    ./"$folder"_componenttests --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ComponenttestTestResults.xml"
-    ./"$folder"_integrationtests --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_IntegrationTestResults.xml"
-
-    cd ../../..
+    ./"$folder"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ModuleTestResults.xml"
+    ./"$folder"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ComponenttestTestResults.xml"
+    ./"$folder"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_IntegrationTestResults.xml"
 
 done
 

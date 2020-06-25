@@ -28,11 +28,24 @@ namespace popo
 class SenderPort;
 class ReceiverPort;
 } // namespace popo
+namespace posix
+{
+class UnixDomainSocket;
+class MessageQueue;
+} // namespace posix
 
 using SenderPortType = iox::popo::SenderPort;
 using ReceiverPortType = iox::popo::ReceiverPort;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
+/// @brief The socket is created in the current path if no absolute path is given hence
+///      we need an absolut path so that every application knows where our sockets can
+///      be found.
+#if defined(__APPLE__)
+using IpcChannelType = iox::posix::UnixDomainSocket;
+#else
+using IpcChannelType = iox::posix::MessageQueue;
+#endif
 
 /// shared memmory segment for the iceoryx managment data
 constexpr char SHM_NAME[] = "/iceoryx_mgmt";

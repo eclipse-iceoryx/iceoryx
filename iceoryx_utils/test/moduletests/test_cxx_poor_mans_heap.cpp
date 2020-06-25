@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
-#include "iceoryx_utils/cxx/poor_mans_heap.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
-
+#include "iceoryx_utils/cxx/poor_mans_heap.hpp"
+#include "test.hpp"
 
 
 using namespace ::testing;
@@ -93,7 +92,7 @@ class Foo : public Interface
     }
 
   private:
-    alignas(32) uint8_t m_dummy[73];
+    [[gnu::unused]] alignas(32) uint8_t m_dummy[73];
 };
 
 } // namespace

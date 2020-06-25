@@ -75,24 +75,33 @@ the interwebs on a lonely evening, he finds out about iceoryx: Free-to-use, high
 runtime overhead, real-time support! Brilliant! Maybe even Robby's biggest wish for a network binding will come true,
 so he can stream his favorite [video](https://www.youtube.com/watch?v=g5NkgZXWl0w) even faster!
 
-## Download
+## Installation
 
-<!--
-Either download our pre-built daemon (called RouDi) and our runtime lib or build everything yourself.
+iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh is using some functions from utils and is depending on it. You are able to build posh and utils and integrate in into existing cmake projects.
 
-### Release
+### Prerequisites
 
-    wget iceoryx.deb
-    dpkg -i iceoryx.deb
+#### Mac OS
 
-You've successfully installed iceoryx! Continue with the section examples to see how to get started developing applications using iceoryx.
--->
+Before installing iceoryx you need a XCode installation, git and optional an installed ncurses library for 
+the introspection client. To install ncurses locally into your build folder follow these steps
+```
+cd iceoryx
+ICEORYX_DIR=$PWD
+mkdir -p build
+cd build
+git clone https://github.com/mirror/ncurses.git 
+cd ncurses
+git checkout v6.2          
+./configure  --prefix=$ICEORYX_DIR/build/dependencies/ --exec-prefix=$ICEORYX_DIR/build/dependencies/ --with-termlib 
+make -j12
+make install
+```
 
-### Development
+If you would like to use our Cyclone DDS Gateway you have to install Cyclone DDS first, see
+[https://github.com/eclipse-cyclonedds/cyclonedds](https://github.com/eclipse-cyclonedds/cyclonedds).
 
-Great that you want start developing iceoryx! In order to get started please consider the next sections.
-
-#### Prerequisites
+#### Linux
 
 Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 18.04 and at least GCC 7.4.0 for development.
 
@@ -103,40 +112,66 @@ You will need to install the following packages:
 Additionally, there is an optional dependency to the MIT licensed cpptoml library, which is used to parse a RouDi config file for the mempool config.
 [cpptoml](https://github.com/skystrife/cpptoml)
 
-#### Build from sources
+### Build with CMake (all supported platforms)
 
-iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh is using some functions from utils and is depending on it. You are able to build posh and utils and integrate in into existing cmake projects.
+**NOTE:** Requires CMake version 3.14 or higher. If you only have CMake version 3.5 or higher available please use the
+build script.
 
-##### Build Script
-For the first start, we advise to use our build-test script for building everything.
-
+The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx with an IDE.
+ 
+ 1. Clone the repository
+    ```
     git clone https://github.com/eclipse/iceoryx.git
+    ```
+
+ 2. Generate the necessary build files
+    ```bash
+    cd iceoryx
+    cmake -Bbuild -Hiceoryx_meta -DTOML_CONFIG=ON
+    # when you have installed external dependencies like ncurses you have to add them
+    # to your prefix path
+    cmake -Bbuild -Hiceoryx_meta -DTOML_CONFIG=ON -DCMAKE_PREFIX_PATH=$(PWD)/build/dependencies/
+    ```
+    ```
+ 3. Compile the source code
+    ```
+    cmake --build build
+    ```
+
+With the following CMake switches you can add additional features:
+ 
+ |  switch  |  description |
+ |:---------|:-------------|
+ | ```dds``` | builds the iceoryx dds gateway which requires an installed CycloneDDS, see [https://github.com/eclipse-cyclonedds/cyclonedds](https://github.com/eclipse-cyclonedds/cyclonedds) |
+ | ```examples``` | builds all examples |
+ | ```introspection``` | the console introspection client which requires an installed ncurses library with terminfo support |
+ | ```test``` | enables module-, integration- and component-tests |
+ | ```TOML_CONFIG``` | activates config file support by using toml, if this is deactivated the central broker ```RouDi``` is not being build |
+
+### Build with the build script (only Linux and QNX)
+
+As an alternative we provide our build-test script which we use to integrate
+iceoryx into our infrastructure.
+
+ 1. Clone the repository
+    ```
+    git clone https://github.com/eclipse/iceoryx.git
+    ```
+
+ 2. Build everything
+    ```
+    cd iceoryx
     ./tools/iceoryx_build_test.sh
+    ```
 
-In default-mode, the script is not building the provided test. For a clean build just add "clean" as first argument to the script.
+With the following arguments you can add additional features:
+ 
+ |  switch  |  description |
+ |:---------|:-------------|
+ | ```clean``` | Removes the build directory and performs a clean build. If you have installed ncurses locally into your build directory you have to reinstall it first. |
+ | ```test``` | Enables module-, integration- and component-tests. The Googletest-Framework will be automatically fetched from github and the test will be executed and the end of the script. |
 
-If the script is not used, keep in mind to pass `-DTOML_CONFIG=on` to cmake if the optional RouDi config file feature shall be built.
-
-**NOTE:** Users who wish to build iceoryx with cmake can follow the below steps (Requires CMake 3.14 or higher).
-
-* Step into root folder of iceoryx.
-
-* Execute the below commands.
-
-```
-iceoryx$ cmake -Bbuild -Hiceoryx_meta // Customisation possible with cmake switches
-iceoryx$ cmake --build build
-```
-
-#### Build with tests
-
-To build iceoryx with tests, just add "test" as first argument to the script.
-
-    ./tools/iceoryx_build_test.sh test
-
-The Googletest-Framework will be automatically fetched from github and the test will be executed and the end of the script.
-
-##### Build with colcon
+### Build with colcon
 
 Alternatively, iceoryx can be built with [colcon](https://colcon.readthedocs.io/en/released/user/installation.html) to provide a smooth integration for ROS2 developers.
 
@@ -152,7 +187,7 @@ This build method makes the most sense in combination with [rmw_iceoryx](https:/
 
 Congrats! You've build all the necessary things to continue playing around with the examples.
 
-##### Build and run in a Docker environment
+### Build and run in a Docker environment
 
 If you want to avoid installing anything on your host machine but you have Docker installed, it is possible to use it to build and run iceoryx applications.
 

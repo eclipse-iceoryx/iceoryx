@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/internal/concurrent/trigger_queue.hpp"
+#include "test.hpp"
 
 using namespace ::testing;
 
@@ -44,7 +44,11 @@ constexpr uint64_t GetCapacity(iox::concurrent::TriggerQueue<T, CAPACITY>&)
 using TriggerQueueTestSubjects = Types<iox::concurrent::TriggerQueue<uint64_t, 1>,
                                        iox::concurrent::TriggerQueue<uint64_t, 10>,
                                        iox::concurrent::TriggerQueue<uint64_t, 100>>;
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(TriggerQueue_test, TriggerQueueTestSubjects);
+#pragma GCC diagnostic pop
 
 TYPED_TEST(TriggerQueue_test, EmptyWhenEmpty)
 {

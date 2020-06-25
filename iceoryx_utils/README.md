@@ -95,7 +95,7 @@ abstractions or add a new one when using POSIX resources like semaphores, shared
 |`IpcChannel`         | i | | Helper types used by the `MessageQueue`and the `UnixDomainSocket`. |
 |`MessageQueue`       | i | | Interface for Message Queues, see [ManPage mq_overview](https://www.man7.org/linux/man-pages/man7/mq_overview.7.html). |
 |`mutex`              | i | | Mutex interface, see [ManPage pthread_mutex_lock](https://man7.org/linux/man-pages/man3/pthread_mutex_lock.3p.html). |
-|`posix_access_rights`   | | Rights and user management interface. |
+|`posix_access_rights`   | | | Rights and user management interface. |
 |`Semaphore`          |   | | Semaphore interface, see [ManPage sem_overview](https://man7.org/linux/man-pages/man7/sem_overview.7.html) |
 |`shared_memory_object/Allocator` | i | | Helper class for the `SharedMemoryObject`. |
 |`shared_memory_object/MemoryMap` | i | | Abstraction of `mmap`, `munmap` and helper class for the `SharedMemoryObject`.|

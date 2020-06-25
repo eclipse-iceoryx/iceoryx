@@ -87,7 +87,7 @@ class ChunkQueuePopper
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* const m_chunkQueueDataPtr;
+    MemberType_t* m_chunkQueueDataPtr;
 };
 
 } // namespace popo

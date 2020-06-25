@@ -215,7 +215,7 @@ int iox_sem_destroy(iox_sem_t* sem)
     return 0;
 }
 
-int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
+int iox_sem_init(iox_sem_t* sem, int, unsigned int value)
 {
     sem->m_hasPosixHandle = false;
     sem->m_handle.dispatch = dispatch_semaphore_create(value);
@@ -236,6 +236,11 @@ int iox_sem_unlink(const char* name)
 
 iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...)
 {
+    if (strlen(name) == 0 || name[0] == 0)
+    {
+        return reinterpret_cast<iox_sem_t*>(SEM_FAILED);
+    }
+
     iox_sem_t* sem = new iox_sem_t;
 
     if (oflag & (O_CREAT | O_EXCL))

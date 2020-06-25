@@ -101,7 +101,11 @@ class SemaphoreCreate_test : public Test
     }
 };
 
+/// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_CASE_P(Semaphore_test, Semaphore_test, Values(&CreateNamedSemaphore, &CreateUnnamedSemaphore));
+#pragma GCC diagnostic pop
 
 TEST_F(SemaphoreCreate_test, CreateNamedSemaphore)
 {
@@ -129,6 +133,12 @@ TEST_F(SemaphoreCreate_test, OpenNamedSemaphore)
     auto semaphore2 = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
     EXPECT_THAT(semaphore2.has_error(), Eq(false));
+}
+
+TEST_F(SemaphoreCreate_test, OpenNamedSemaphoreWithEmptyNameFails)
+{
+    auto semaphore = iox::posix::Semaphore::create("", S_IRUSR | S_IWUSR, 10);
+    EXPECT_THAT(semaphore.has_error(), Eq(true));
 }
 
 TEST_F(SemaphoreCreate_test, OpenNonExistingNamedSemaphore)
