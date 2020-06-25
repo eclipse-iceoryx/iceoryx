@@ -34,13 +34,13 @@ void iox::dds::CycloneDataReader::connect() noexcept
     if(!m_isConnected.load(std::memory_order_relaxed))
     {
         auto topicString = "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
-        m_topic = ::dds::topic::Topic<Mempool::Chunk>(CycloneContext::getParticipant(), topicString);
-        m_subscriber = ::dds::sub::Subscriber(CycloneContext::getParticipant());
+        auto topic = ::dds::topic::Topic<Mempool::Chunk>(CycloneContext::getParticipant(), topicString);
+        auto subscriber = ::dds::sub::Subscriber(CycloneContext::getParticipant());
 
         auto qos = ::dds::sub::qos::DataReaderQos();
         qos << ::dds::core::policy::History::KeepAll();
 
-        m_reader = ::dds::sub::DataReader<Mempool::Chunk>(m_subscriber, m_topic, qos);
+        m_impl = ::dds::sub::DataReader<Mempool::Chunk>(subscriber, topic, qos);
 
         LogDebug() << "[CycloneDataReader] Connected to topic: " << topicString;
 
@@ -66,7 +66,7 @@ iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataRead
 
     // Read up to the maximum number of samples that can fit in the buffer.
     auto capacity = bufferSize / sampleSize;
-    auto samples = m_reader
+    auto samples = m_impl
             .select()
             .max_samples(capacity)
             .state(::dds::sub::status::SampleState::not_read())

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
-project(test_iox_to_dds VERSION ${test_iox_to_dds})
+file (STRINGS "../../VERSION" test_iox_to_dds_VERSION)
+project(test_iox_to_dds VERSION ${test_iox_to_dds_VERSION})
 
 find_package(iceoryx_utils_testing REQUIRED)
 find_package(GTest CONFIG REQUIRED)

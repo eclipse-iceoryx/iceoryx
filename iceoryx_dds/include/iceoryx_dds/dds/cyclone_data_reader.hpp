@@ -17,9 +17,9 @@
 
 #include "iceoryx_dds/dds/data_reader.hpp"
 
-#include <atomic>
 #include <Mempool_DCPS.hpp>
 #include <dds/dds.hpp>
+#include <atomic>
 
 namespace iox
 {
@@ -42,13 +42,12 @@ class CycloneDataReader : public DataReader
     IdString getEventId() const noexcept override;
 
   private:
+
     IdString m_serviceId{""};
     IdString m_instanceId{""};
     IdString m_eventId{""};
 
-    ::dds::sub::Subscriber m_subscriber = ::dds::core::null;
-    ::dds::topic::Topic<Mempool::Chunk> m_topic = ::dds::core::null;
-    ::dds::sub::DataReader<Mempool::Chunk> m_reader = ::dds::core::null;
+    ::dds::sub::DataReader<Mempool::Chunk> m_impl = ::dds::core::null;
 
     std::atomic_bool m_isConnected{false};
 

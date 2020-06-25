@@ -76,7 +76,6 @@ int main(int argc, char* argv[])
             {
                 auto cursor = i * sizeof(uint64_t);
                 uint64_t* sample = reinterpret_cast<uint64_t*>(&buffer[i * sizeof(sample)]);
-                //std::copy(&buffer[cursor], &buffer[cursor] + sizeof(sample), &sample);
                 std::cout << "[" << i << "] " << *sample << std::endl;
             }
         }
