@@ -12,43 +12,6 @@ namespace iox
 {
 namespace dds
 {
-/*
- *             .select()
-            .max_samples(capacity)
-            .state(::dds::sub::status::SampleState::not_read())
-            .take();
-            */
-
-
-// ======================================== Mocks ======================================== //
-class MockDataReaderImpl
-{
-  public:
-    MockDataReaderImpl(){};
-    MockDataReaderImpl(::dds::sub::Subscriber sub,
-                       ::dds::topic::Topic<Mempool::Chunk> topic,
-                       ::dds::sub::qos::DataReaderQos qos){};
-
-    ::dds::sub::LoanedSamples<Mempool::Chunk> take(){
-
-    };
-
-    MockDataReaderImpl& select()
-    {
-        return *this;
-    }
-
-    MockDataReaderImpl& max_samples(uint64_t& val)
-    {
-        return *this;
-    }
-
-    MockDataReaderImpl& state(::dds::sub::status::SampleState state)
-    {
-        return *this;
-    }
-};
-
 // ======================================== Helpers ======================================== //
 using TestDataReader = CycloneDataReader;
 
