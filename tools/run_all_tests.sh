@@ -16,7 +16,7 @@
 
 # This file runs all tests for Ice0ryx
 
-component_folder="iceoryx_utils iceoryx_posh"
+component_folder="utils posh"
 
 GTEST_FILTER="*"
 
