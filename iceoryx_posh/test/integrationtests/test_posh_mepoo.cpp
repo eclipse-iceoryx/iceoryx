@@ -18,7 +18,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
-#include "testutils/timing_test.hpp"
+#include "timing_test.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -76,8 +76,11 @@ class Mepoo_IntegrationTest : public Test
         internal::CaptureStderr();
     }
 
-    void TearDown()
+    virtual void TearDown()
     {
+        senderPort.deactivate();
+        receiverPort.unsubscribe();
+
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
         {
@@ -162,12 +165,6 @@ class Mepoo_IntegrationTest : public Test
         std::cerr << "RouDi startup took " << start.milliSeconds<int>() << " milliseconds, "
                   << "(which is " << start.seconds<int>() << " seconds)"
                   << "(which is " << start.minutes<int>() << " minutes)" << std::endl;
-    }
-
-    virtual void TearDown()
-    {
-        senderPort.deactivate();
-        receiverPort.unsubscribe();
     }
 
     template <uint32_t size>
