@@ -16,6 +16,8 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 
+#include "iceoryx_dds/gateway/dds_to_iox.hpp"
+
 namespace iox
 {
 namespace dds
@@ -29,8 +31,19 @@ inline DDS2IceoryxGateway<channel_t>::DDS2IceoryxGateway() noexcept
 template <typename channel_t>
 inline void DDS2IceoryxGateway<channel_t>::loadConfiguration(const GatewayConfig& config) noexcept
 {
+    iox::LogDebug() << "[DDS2IceoryxGateway] Configuring gateway.";
+    for (const auto& service : config.m_configuredServices)
+    {
+        if (!this->findChannel(service).has_value())
+        {
+            this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
+                auto channel = result.get_value();
+                auto reader = channel.getDDSTerminal();
+                reader->connect();
+            });
+        }
+    }
 }
-
 
 template <typename channel_t>
 inline void DDS2IceoryxGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noexcept
@@ -40,6 +53,26 @@ inline void DDS2IceoryxGateway<channel_t>::discover(const iox::capro::CaproMessa
 template <typename channel_t>
 inline void DDS2IceoryxGateway<channel_t>::forward(const channel_t& channel) noexcept
 {
+    LogDebug() << "[DDS2IceoryxGateway] Forwarding data across channel: " << channel.getService().getServiceIDString();
+    auto publisher = channel.getIceoryxTerminal();
+    auto reader = channel.getDDSTerminal();
+
+    if(m_reservedChunk == nullptr)
+    {
+        m_reservedChunk = publisher->allocateChunk(channel.sampleSize());
+    }
+
+    auto buffer = static_cast<uint8_t*>(m_reservedChunk);
+    auto result = reader->read(buffer, channel.sampleSize(), channel.sampleSize());
+    if(!result.has_error())
+    {
+        auto num = result.get_value();
+        if(num > 0)
+        {
+            // publish the received data
+        }
+    }
+
 }
 
 } // namespace dds

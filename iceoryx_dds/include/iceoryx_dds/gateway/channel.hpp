@@ -70,6 +70,8 @@ class Channel
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;
     DDSTerminalPtr getDDSTerminal() const noexcept;
 
+    uint64_t sampleSize() const noexcept;
+
   private:
     static IceoryxTerminalPool s_iceoryxTerminals;
     static DDSTerminalPool s_ddsTerminals;
@@ -77,6 +79,9 @@ class Channel
     iox::capro::ServiceDescription m_service;
     IceoryxTerminalPtr m_iceoryxTerminal;
     DDSTerminalPtr m_ddsTerminal;
+
+    uint64_t m_sampleSize = 100u;
+
 };
 
 } // namespace dds

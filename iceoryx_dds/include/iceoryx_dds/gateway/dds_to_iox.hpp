@@ -38,6 +38,9 @@ class DDS2IceoryxGateway : public iox::dds::DDSGatewayGeneric<channel_t>
     void loadConfiguration(const GatewayConfig& config) noexcept;
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward(const channel_t& channel) noexcept;
+
+private:
+    void* m_reservedChunk = nullptr;
 };
 
 } // namespace dds

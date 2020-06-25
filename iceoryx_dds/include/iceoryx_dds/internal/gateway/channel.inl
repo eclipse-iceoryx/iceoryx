@@ -90,5 +90,11 @@ inline std::shared_ptr<DDSTerminal> Channel<IceoryxTerminal, DDSTerminal>::getDD
     return m_ddsTerminal;
 }
 
+template <typename IceoryxTerminal, typename DDSTerminal>
+inline uint64_t Channel<IceoryxTerminal, DDSTerminal>::sampleSize() const noexcept
+{
+    return m_sampleSize;
+}
+
 } // namespace dds
 } // namespace iox

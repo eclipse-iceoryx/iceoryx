@@ -59,42 +59,13 @@ int main(int argc, char* argv[])
     // Start application
     iox::runtime::PoshRuntime::getInstance("/gateway_dds2iceoryx");
 
-    // ===== DEBUG ===== //
-    iox::dds::CycloneDataReader reader{"Radar", "FrontRight", "Counter"};
-    reader.connect();
-
-    while (!ShutdownManager::shouldShutdown())
+    iox::dds::DDS2IceoryxGateway<> gw;
+    auto result = iox::dds::TomlGatewayConfigParser::parse();
+    if (!result.has_error())
     {
-        uint64_t size = 1024;
-        uint8_t buffer[size];
-
-        auto result = reader.read(buffer, size, sizeof(uint64_t));
-        if (!result.has_error())
-        {
-            auto numSamples = static_cast<int>(result.get_value());
-            std::cout << "Total samples received: " << numSamples << std::endl;
-            for (int i = 0; i < numSamples; ++i)
-            {
-                auto cursor = i * sizeof(uint64_t);
-                uint64_t* sample = reinterpret_cast<uint64_t*>(&buffer[i * sizeof(sample)]);
-                std::cout << "[" << i << "] " << *sample << std::endl;
-            }
-        }
-        else
-        {
-            std::cout << "Failure to read from data reader" << std::endl;
-        }
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+        gw.loadConfiguration(result.get_value());
     }
-    // ===== DEBUG ===== //
-
-    //    iox::dds::DDS2IceoryxGateway<> gw;
-    //    auto result = iox::dds::TomlGatewayConfigParser::parse();
-    //    if (!result.has_error())
-    //    {
-    //        gw.loadConfiguration(result.get_value());
-    //    }
-    //    gw.runMultithreaded();
+    gw.runMultithreaded();
 
     // Run until SIGINT or SIGTERM
     ShutdownManager::waitUntilShutdown();
