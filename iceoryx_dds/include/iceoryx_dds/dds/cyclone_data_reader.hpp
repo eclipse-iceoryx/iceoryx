@@ -36,8 +36,13 @@ class CycloneDataReader : public DataReader
     virtual ~CycloneDataReader();
 
     void connect() noexcept override;
+
     iox::cxx::expected<uint8_t, DataReaderError>
     read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize) override;
+
+    iox::cxx::expected<uint8_t, DataReaderError>
+    read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& numSamples);
+
     IdString getServiceId() const noexcept override;
     IdString getInstanceId() const noexcept override;
     IdString getEventId() const noexcept override;

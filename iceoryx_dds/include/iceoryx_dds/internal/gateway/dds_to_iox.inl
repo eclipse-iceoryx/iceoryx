@@ -22,6 +22,7 @@ namespace iox
 {
 namespace dds
 {
+
 template <typename channel_t>
 inline DDS2IceoryxGateway<channel_t>::DDS2IceoryxGateway() noexcept
     : iox::dds::DDSGatewayGeneric<channel_t>()
@@ -38,6 +39,8 @@ inline void DDS2IceoryxGateway<channel_t>::loadConfiguration(const GatewayConfig
         {
             this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
                 auto channel = result.get_value();
+                auto publisher = channel.getIceoryxTerminal();
+                publisher->offer();
                 auto reader = channel.getDDSTerminal();
                 reader->connect();
             });
@@ -48,31 +51,47 @@ inline void DDS2IceoryxGateway<channel_t>::loadConfiguration(const GatewayConfig
 template <typename channel_t>
 inline void DDS2IceoryxGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
+    /// @note Not implemented - requires dds discovery which is currently unavailable.
 }
 
 template <typename channel_t>
 inline void DDS2IceoryxGateway<channel_t>::forward(const channel_t& channel) noexcept
 {
-    LogDebug() << "[DDS2IceoryxGateway] Forwarding data across channel: " << channel.getService().getServiceIDString();
     auto publisher = channel.getIceoryxTerminal();
     auto reader = channel.getDDSTerminal();
 
+    // reserve a chunk for initial sample
     if(m_reservedChunk == nullptr)
     {
         m_reservedChunk = publisher->allocateChunk(channel.sampleSize());
     }
 
+    // read exactly one sample into the reserved chunk
     auto buffer = static_cast<uint8_t*>(m_reservedChunk);
-    auto result = reader->read(buffer, channel.sampleSize(), channel.sampleSize());
+    auto const numToRead = 1u;
+    auto result = reader->read(buffer, channel.sampleSize(), channel.sampleSize(), numToRead);
     if(!result.has_error())
     {
         auto num = result.get_value();
-        if(num > 0)
+        if(num == 0)
         {
-            // publish the received data
+            // Nothing to do.
+        }
+        else if(num == 1)
+        {
+            // publish the sample
+            publisher->sendChunk(buffer);
+            // reserve a new chunk for the next sample
+            m_reservedChunk = publisher->allocateChunk(channel.sampleSize());
+        }
+        else {
+            // sample is corrupt, don't publish.
+            LogWarn() << "[DDS2IceoryxGateway] Received corrupt sample. Buffer is larger than expected. Skipping.";
         }
     }
-
+    else{
+        LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network.";
+    }
 }
 
 } // namespace dds

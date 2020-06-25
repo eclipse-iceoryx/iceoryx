@@ -40,16 +40,28 @@ class DataReader
     virtual void connect() noexcept = 0;
 
     ///
-    /// @brief read Read data for the give service from the DDS network.
-    /// @param buffer Buffer in which to store read samples.
+    /// @brief read Read as many available unread samples as possible from the DDS network.
+    ///
+    /// @param buffer Receive buffer in which samples will be stored.
     /// @param bufferSize The size of the buffer (in bytes).
     /// @param sampleSize The expected size of the samples (in bytes).
     /// @return Number of samples read if successful.
     ///
-    /// @note This is only a tentative API. Will be updated as the usecase is better understood.
+    /// @note Maximum reads in one call is calculated as bufferSize / sampleSize.
     ///
     virtual iox::cxx::expected<uint8_t, DataReaderError>
     read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize) = 0;
+
+    ///
+    /// \brief read Read a specified number of unread samples from the DDS network.
+    /// @param buffer Receive buffer in which samples will be stored.
+    /// @param bufferSize The size of the buffer (in bytes).
+    /// @param sampleSize The expected size of the samples (in bytes).
+    /// \param numSamples The number of samples to request from the network.
+    /// \return Number of samples read if successful. Number of samples will be in the sange [0,num].
+    ///
+    virtual iox::cxx::expected<uint8_t, DataReaderError>
+    read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& numSamples) = 0;
 
     ///
     /// @brief getServiceId

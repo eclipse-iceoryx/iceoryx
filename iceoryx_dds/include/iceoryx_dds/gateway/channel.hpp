@@ -80,7 +80,7 @@ class Channel
     IceoryxTerminalPtr m_iceoryxTerminal;
     DDSTerminalPtr m_ddsTerminal;
 
-    uint64_t m_sampleSize = 100u;
+    uint64_t m_sampleSize = sizeof(uint64_t);
 
 };
 
