@@ -23,8 +23,9 @@ namespace iox
 namespace runtime
 {
 /// @brief struct which contains all the members of an object of type Runnable
-struct RunnableData
+class RunnableData
 {
+  public:
     /// @brief constructor
     /// @param[in] name name of the runnable
     /// @param[in] runnableDeviceIdentifier identifier of the device on which the runnable will run

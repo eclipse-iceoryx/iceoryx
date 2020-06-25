@@ -18,6 +18,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "timing_test.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -72,6 +73,19 @@ class Mepoo_IntegrationTest : public Test
     // just to prevent the "hides overloaded virtual function" warning
     virtual void SetUp()
     {
+        internal::CaptureStderr();
+    }
+
+    virtual void TearDown()
+    {
+        senderPort.deactivate();
+        receiverPort.unsubscribe();
+
+        std::string output = internal::GetCapturedStderr();
+        if (Test::HasFailure())
+        {
+            std::cout << output << std::endl;
+        }
     }
 
     enum class configType
@@ -148,15 +162,9 @@ class Mepoo_IntegrationTest : public Test
 
     void PrintTiming(iox::units::Duration start)
     {
-        std::cout << "RouDi startup took " << start.milliSeconds<int>() << " milliseconds, "
+        std::cerr << "RouDi startup took " << start.milliSeconds<int>() << " milliseconds, "
                   << "(which is " << start.seconds<int>() << " seconds)"
                   << "(which is " << start.minutes<int>() << " minutes)" << std::endl;
-    }
-
-    virtual void TearDown()
-    {
-        senderPort.deactivate();
-        receiverPort.unsubscribe();
     }
 
     template <uint32_t size>
@@ -426,8 +434,7 @@ TEST_F(Mepoo_IntegrationTest, DISABLED_SampleOverflow)
     EXPECT_DEATH({ sendreceivesample<samplesize1>(repetition1); }, ".*");
 }
 
-TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig)
-{
+TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5), [&] {
     MemPoolInfoContainer memPoolTestContainer;
     auto testMempoolConfig = defaultMemPoolConfig();
 
@@ -445,7 +452,7 @@ TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig)
     /// Currently we expect that the RouDi is ready at least after 2 seconds
     auto maxtime = 2000_ms;
     EXPECT_THAT(timediff, Le(maxtime));
-}
+});
 
 TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolCreationTime2GBConfig)
 {

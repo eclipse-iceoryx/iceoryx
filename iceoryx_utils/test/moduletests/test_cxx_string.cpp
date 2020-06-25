@@ -28,7 +28,11 @@ class stringTyped_test : public Test
 };
 
 using Implementations = Types<string<1>, string<15>, string<100>, string<1000>>;
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(stringTyped_test, Implementations);
+#pragma GCC diagnostic pop
 
 /// @note string() noexcept
 TYPED_TEST(stringTyped_test, EmptyInitializationResultsInSize0)

@@ -47,7 +47,11 @@ class LockFreeQueueCyclicIndexTest : public ::testing::Test
 
 typedef ::testing::Types<CyclicIndex<1>, CyclicIndex<2>, CyclicIndex<10>, CyclicIndex<1000>> TestIndices;
 
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(LockFreeQueueCyclicIndexTest, TestIndices);
+#pragma GCC diagnostic pop
 
 // note that in all tests we will check whether the getCycle and getIndex methods
 // behave as expected after certain operations (mainly addition),
@@ -166,7 +170,11 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, selfAssignmentWorks)
     const auto c = Index::MAX_CYCLE / 2;
 
     Index index(i, c);
+/// we are testing self assignment
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
     index = index;
+#pragma GCC diagnostic pop
 
     EXPECT_EQ(index.getIndex(), i);
     EXPECT_EQ(index.getCycle(), c);

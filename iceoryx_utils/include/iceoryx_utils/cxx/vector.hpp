@@ -168,6 +168,12 @@ class vector
 } // namespace cxx
 } // namespace iox
 
+template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
+bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept;
+
+template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
+bool operator!=(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept;
+
 #include "iceoryx_utils/internal/cxx/vector.inl"
 
 #endif // IOX_UTILS_CXX_VECTOR_HPP

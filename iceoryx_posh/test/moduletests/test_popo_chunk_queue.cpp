@@ -65,10 +65,14 @@ class ChunkQueue_test : public TestWithParam<iox::cxx::VariantQueueTypes>, publi
     ChunkQueuePusher m_pusher{&m_chunkData};
 };
 
+/// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_CASE_P(ChunkQueueAll,
                         ChunkQueue_test,
                         Values(iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
                                iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer));
+#pragma GCC diagnostic pop
 
 TEST_P(ChunkQueue_test, InitialEmpty)
 {

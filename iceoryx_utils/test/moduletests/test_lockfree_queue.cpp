@@ -86,7 +86,11 @@ TEST(LockFreeQueueTest, capacityIsConsistent)
 // for Integer and int (primarily for tryPush)
 typedef ::testing::Types<IntegerQueue<1>, IntegerQueue<10>, IntQueue<10>> TestQueues;
 
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(LockFreeQueueTest, TestQueues);
+#pragma GCC diagnostic pop
 
 TYPED_TEST(LockFreeQueueTest, constructedQueueIsEmpty)
 {

@@ -66,7 +66,7 @@ setTimeParameters(timer_t timerid, const itimerspec& timeParameters, const bool 
     timerid->parameter.isTimerRunning = isTimerRunning;
 }
 
-int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid)
+int timer_create(clockid_t, struct sigevent* sevp, timer_t* timerid)
 {
     timer_t timer = new appleTimer_t();
     timer->callback = sevp->sigev_notify_function;
@@ -103,7 +103,7 @@ int timer_delete(timer_t timerid)
     return 0;
 }
 
-int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value)
+int timer_settime(timer_t timerid, int, const struct itimerspec* new_value, struct itimerspec*)
 {
     // disarm timer
     if (new_value->it_value.tv_sec == 0 && new_value->it_value.tv_nsec == 0)
@@ -145,7 +145,7 @@ int timer_gettime(timer_t timerid, struct itimerspec* curr_value)
     return 0;
 }
 
-int timer_getoverrun(timer_t timerid)
+int timer_getoverrun(timer_t)
 {
     return 0;
 }

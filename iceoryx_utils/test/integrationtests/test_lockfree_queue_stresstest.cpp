@@ -347,12 +347,16 @@ using LargeQueue = TestQueue<1000000>;
 typedef ::testing::Types<SingleElementQueue, SmallQueue, MediumQueue, LargeQueue> TestQueues;
 // typedef ::testing::Types<MediumQueue> TestQueues;
 
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(LockFreeQueueStressTest, TestQueues);
+#pragma GCC diagnostic pop
 
 ///@brief Tests concurrent operation of one prodcuer and one consumer
 /// The producer pushes a fixed number of data elements which the consumer pops and checks.
 /// The order of popped elements and completeness (no data loss) is checked.
-TYPED_TEST(LockFreeQueueStressTest, singleProducerSingleConsumer)
+TYPED_TEST(LockFreeQueueStressTest, DISABLED_singleProducerSingleConsumer)
 {
     using Queue = typename TestFixture::Queue;
 
@@ -375,7 +379,7 @@ TYPED_TEST(LockFreeQueueStressTest, singleProducerSingleConsumer)
 ///@brief Tests concurrent operation of multiple prodcuers and one consumer.
 /// The producers push a fixed number of data elements which the consumer pops and checks.
 /// The order of popped elements and completeness (no data loss) is checked.
-TYPED_TEST(LockFreeQueueStressTest, multiProducerSingleConsumer)
+TYPED_TEST(LockFreeQueueStressTest, DISABLED_multiProducerSingleConsumer)
 {
     using Queue = typename TestFixture::Queue;
 
@@ -414,7 +418,7 @@ TYPED_TEST(LockFreeQueueStressTest, multiProducerSingleConsumer)
 /// with multiple consumers > 2, so for now we just do this for 2 consumers.
 /// This is especially the case for many producers/iterations since we need to store intermediate
 /// states from the consumers to check later (which can get quite large).
-TYPED_TEST(LockFreeQueueStressTest, multiProducerTwoConsumer)
+TYPED_TEST(LockFreeQueueStressTest, DISABLED_multiProducerTwoConsumer)
 {
     using Queue = typename TestFixture::Queue;
 
@@ -456,7 +460,7 @@ TYPED_TEST(LockFreeQueueStressTest, multiProducerTwoConsumer)
 /// data item back into the queue.
 /// Finally it is checked whether the queue still contains all elements it was initialized with
 ///(likely in a different order).
-TYPED_TEST(LockFreeQueueStressTest, timedMultiProducerMultiConsumer)
+TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer)
 {
     using Queue = typename TestFixture::Queue;
 
@@ -526,7 +530,7 @@ TYPED_TEST(LockFreeQueueStressTest, timedMultiProducerMultiConsumer)
 /// aggregated over the queue and the local lists of each thread
 /// all elements occur exactly as often as there are threads + 1 (i.e. nothing was lost, the +1 is
 /// due to the initial values in the queue itself).
-TYPED_TEST(LockFreeQueueStressTest, timedMultiProducerMultiConsumer0verflow)
+TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer0verflow)
 {
     using Queue = typename TestFixture::Queue;
 

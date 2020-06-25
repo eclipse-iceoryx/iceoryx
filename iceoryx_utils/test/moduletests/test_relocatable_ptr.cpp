@@ -75,8 +75,6 @@ TEST_F(RelocatablePointer_test, relocation)
     uint8_t* base1 = block1[0];
     uint8_t* base2 = block2[0];
 
-    EXPECT_EQ(base2 - base1, BLOCK_SIZE);
-
     int offset = BLOCK_SIZE / 2;
     auto adr1 = reinterpret_cast<int*>(base1 + offset);
     auto adr2 = reinterpret_cast<int*>(base2 + offset);
@@ -119,4 +117,4 @@ TEST_F(RelocatablePointer_test, relocation)
     // only has primitive members and the test ends here)
     rp->~relocatable_ptr<int>();
 }
-}
+} // namespace

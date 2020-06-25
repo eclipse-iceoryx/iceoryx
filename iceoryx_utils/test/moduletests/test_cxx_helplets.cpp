@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
+#include "test.hpp"
 
 using namespace ::testing;
 
@@ -21,19 +21,19 @@ namespace
 {
 class Bar
 {
-    alignas(8) uint8_t m_dummy[73];
+    [[gnu::unused]] alignas(8) uint8_t m_dummy[73];
 };
 class Foo
 {
-    uint8_t m_dummy[73];
+    [[gnu::unused]] uint8_t m_dummy[73];
 };
 class FooBar
 {
-    alignas(32) uint8_t m_dummy[73];
+    [[gnu::unused]] alignas(32) uint8_t m_dummy[73];
 };
 class FuBar
 {
-    alignas(32) uint8_t m_dummy[73];
+    [[gnu::unused]] alignas(32) uint8_t m_dummy[73];
 };
 } // namespace
 
