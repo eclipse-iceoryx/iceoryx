@@ -41,7 +41,6 @@ struct ChunkReceiverData : public ChunkQueueData
     /// has to return one to not brake the contract. This is aligned with AUTOSAR Adaptive ara::com
     static constexpr uint32_t MAX_CHUNKS_IN_USE = MAX_CHUNKS_HELD_PER_RECEIVER + 1;
     UsedChunkList<MAX_CHUNKS_IN_USE> m_chunksInUse;
-    /// @todo Add condition variable data here
 };
 
 } // namespace popo

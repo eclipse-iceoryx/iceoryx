@@ -23,10 +23,16 @@ ConditionVariableWaiter::ConditionVariableWaiter(cxx::not_null<ConditionVariable
 {
 }
 
-void ConditionVariableWaiter::reset() noexcept
+bool ConditionVariableWaiter::reset() noexcept
 {
-    // Call c'tor again
-    getMembers()->m_semaphore.create(0u);
+    // Re-create the semaphore
+    getMembers()->m_semaphore.~Semaphore();
+    getMembers()->m_semaphore = std::move(posix::Semaphore::create(0u)
+                                              .on_error([] {
+                                                  /// @todo add errorhandler call here
+                                              })
+                                              .get_value());
+    return true;
 }
 
 void ConditionVariableWaiter::wait() noexcept

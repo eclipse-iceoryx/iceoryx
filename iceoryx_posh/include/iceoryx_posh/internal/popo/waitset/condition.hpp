@@ -28,11 +28,9 @@ class Condition
   public:
     Condition() = default;
     Condition(const Condition& rhs) noexcept;
-    Condition(Condition&& rhs) = delete;
-    Condition& operator=(const Condition& rhs) = delete;
-    Condition& operator=(Condition&& rhs) = delete;
-
-    bool operator==(const Condition& rhs) noexcept;
+    Condition& operator=(const Condition& rhs) noexcept;
+    Condition(Condition&& rhs) noexcept;
+    Condition& operator=(Condition&& rhs) noexcept;
 
     /// @return Returns true if condition has occured
     bool hasTrigger() noexcept;
@@ -42,11 +40,12 @@ class Condition
 
     /// @note Not implemtend on purpose
     virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr);
+
     /// @note Not implemtend on purpose
     virtual bool detachConditionVariable();
 
   protected:
-    void setTrigger();
+    void setTrigger() noexcept;
 
   private:
     std::atomic_bool m_trigger{false};

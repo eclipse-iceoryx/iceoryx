@@ -47,7 +47,7 @@ class WaitSet
     cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> wait() noexcept;
 
   private:
-    cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> m_conditionVector;
+    cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> m_conditionVector;
     ConditionVariableData* m_conditionVariableDataPtr;
     ConditionVariableWaiter m_conditionVariableWaiter;
 };

@@ -14,8 +14,7 @@
 #ifndef IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_WAITER_HPP
 #define IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_WAITER_HPP
 
-#include "condition_variable_data.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
@@ -28,7 +27,7 @@ class ConditionVariableWaiter
   public:
     ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
-    void reset() noexcept;
+    bool reset() noexcept;
     bool timedWait(units::Duration timeToWait) noexcept;
     void wait() noexcept;
 

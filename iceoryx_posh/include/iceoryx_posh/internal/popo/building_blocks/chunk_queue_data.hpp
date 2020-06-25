@@ -33,8 +33,7 @@ struct ChunkQueueData
 
     cxx::VariantQueue<ChunkTuple, MAX_RECEIVER_QUEUE_CAPACITY> m_queue;
     std::atomic_bool m_queueHasOverflown{false};
-
-    /// @todo replace semaphore with condition variable
+    /// @todo replace semaphore with iox::popo::ConditionVariableData*
     mepoo::SharedPointer<posix::Semaphore> m_semaphore;
     /// @todo rename bool to m_condVarAttached
     std::atomic_bool m_semaphoreAttached{false};

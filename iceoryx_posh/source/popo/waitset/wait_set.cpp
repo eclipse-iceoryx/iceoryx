@@ -34,17 +34,16 @@ bool WaitSet::attachCondition(Condition& condition) noexcept
         return false;
     }
     condition.attachConditionVariable(m_conditionVariableDataPtr);
-    return m_conditionVector.push_back(condition);
+    return m_conditionVector.push_back(&condition);
 }
 
 bool WaitSet::detachCondition(Condition& condition) noexcept
 {
-    for (auto& currentCondition : m_conditionVector)
+    for (auto currentCondition : m_conditionVector)
     {
-        if (currentCondition == condition)
+        if (currentCondition == &condition)
         {
-            /// @todo
-            // m_conditionVector.erase(currentCondition);
+            m_conditionVector.erase(&currentCondition);
         }
     }
 }
@@ -62,11 +61,11 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept
     m_conditionVariableWaiter.reset();
 
     // Is one of the conditons true?
-    for (auto& currentCondition : m_conditionVector)
+    for (auto currentCondition : m_conditionVector)
     {
-        if (currentCondition.hasTrigger() == true)
+        if (currentCondition->hasTrigger() == true)
         {
-            conditionsWithFulfilledPredicate.push_back(currentCondition);
+            conditionsWithFulfilledPredicate.push_back(*currentCondition);
         }
     }
 
@@ -75,16 +74,16 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept
         m_conditionVariableWaiter.wait();
 
         // Check again if one of the conditions is true after we received the signal
-        for (auto& currentCondition : m_conditionVector)
+        for (auto currentCondition : m_conditionVector)
         {
-            if (currentCondition.hasTrigger() == true)
+            if (currentCondition->hasTrigger() == true)
             {
-                conditionsWithFulfilledPredicate.push_back(currentCondition);
+                conditionsWithFulfilledPredicate.push_back(*currentCondition);
             }
         }
     }
-    /// @todo check move ctor of cxx::vector
-    // return conditionsWithFulfilledPredicate;
+    // Return of a copy of all conditions that were fulfilled
+    return conditionsWithFulfilledPredicate;
 }
 } // namespace popo
 } // namespace iox

@@ -64,7 +64,7 @@ cxx::expected<ChunkQueueError> ChunkQueuePusher::push(mepoo::SharedChunk chunk) 
         {
             /// @todo replace semaphore with condition variable
             //ConditionVariableSignaler condVarSignaler(&ConditionVariableDataPtr);
-            //condVarSignalerp.notifyAll();
+            //condVarSignaler.notifyAll();
 
             getMembers()->m_semaphore->post();
         }

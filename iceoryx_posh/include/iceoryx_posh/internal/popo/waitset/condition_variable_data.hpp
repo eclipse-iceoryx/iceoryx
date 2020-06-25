@@ -32,7 +32,11 @@ struct ConditionVariableData
     }
 
     mepoo::MemoryInfo m_memoryInfo;
-    posix::Semaphore m_semaphore = posix::Semaphore::create(0u).get_value();
+    posix::Semaphore m_semaphore = std::move(posix::Semaphore::create(0u)
+                                                 .on_error([] {
+                                                     /// @todo add errorhandler call here
+                                                 })
+                                                 .get_value());
 };
 
 } // namespace popo
