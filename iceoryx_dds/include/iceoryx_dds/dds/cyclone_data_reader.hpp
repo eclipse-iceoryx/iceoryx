@@ -26,7 +26,7 @@ namespace iox
 namespace dds
 {
 ///
-/// @brief Cyclone DDS abstraction implementation.
+/// @brief Implementation of the DataReader abstraction using the cyclonedds implementation.
 ///
 class CycloneDataReader : public DataReader
 {
@@ -41,7 +41,7 @@ class CycloneDataReader : public DataReader
     read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize) override;
 
     iox::cxx::expected<uint8_t, DataReaderError>
-    read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& numSamples);
+    read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& maxSamples);
 
     IdString getServiceId() const noexcept override;
     IdString getInstanceId() const noexcept override;

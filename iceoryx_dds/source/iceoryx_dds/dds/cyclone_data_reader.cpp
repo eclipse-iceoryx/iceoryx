@@ -57,7 +57,7 @@ iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferS
 }
 
 iox::cxx::expected<uint8_t, iox::dds::DataReaderError>
-iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& numSamples)
+iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& maxSamples)
 {
     // Validation checks
     if (!m_isConnected.load())
@@ -74,7 +74,7 @@ iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferS
     }
 
     // Read up to the maximum number of samples that can fit in the buffer.
-    auto samples = m_impl.select().max_samples(numSamples).state(::dds::sub::status::SampleState::not_read()).take();
+    auto samples = m_impl.select().max_samples(maxSamples).state(::dds::sub::status::SampleState::not_read()).take();
 
     // Copy data into the provided buffer.
     uint8_t numSamplesBuffered = 0;

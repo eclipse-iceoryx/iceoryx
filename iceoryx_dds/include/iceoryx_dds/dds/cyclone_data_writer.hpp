@@ -25,7 +25,7 @@ namespace iox
 namespace dds
 {
 ///
-/// @brief Implementation of the DataWriter interface using the cyclonedds implementation.
+/// @brief Implementation of the DataWriter abstraction using the cyclonedds implementation.
 ///
 class CycloneDataWriter : public iox::dds::DataWriter
 {

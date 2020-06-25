@@ -57,11 +57,11 @@ class DataReader
     /// @param buffer Receive buffer in which samples will be stored.
     /// @param bufferSize The size of the buffer (in bytes).
     /// @param sampleSize The expected size of the samples (in bytes).
-    /// \param numSamples The number of samples to request from the network.
+    /// \param maxSamples The maximum number of samples to request from the network.
     /// \return Number of samples read if successful. Number of samples will be in the sange [0,num].
     ///
     virtual iox::cxx::expected<uint8_t, DataReaderError>
-    read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& numSamples) = 0;
+    read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& maxSamples) = 0;
 
     ///
     /// @brief getServiceId
