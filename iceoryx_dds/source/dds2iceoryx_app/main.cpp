@@ -19,9 +19,9 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
+#include <chrono>
 #include <iostream>
 #include <thread>
-#include <chrono>
 
 class ShutdownManager
 {
@@ -41,6 +41,7 @@ class ShutdownManager
     {
         return s_shutdownRequested.load(std::memory_order_relaxed);
     }
+
   private:
     static iox::posix::Semaphore s_semaphore;
     static std::atomic_bool s_shutdownRequested;
@@ -62,17 +63,17 @@ int main(int argc, char* argv[])
     iox::dds::CycloneDataReader reader{"Radar", "FrontRight", "Counter"};
     reader.connect();
 
-    while(!ShutdownManager::shouldShutdown())
+    while (!ShutdownManager::shouldShutdown())
     {
         uint64_t size = 1024;
         uint8_t buffer[size];
 
         auto result = reader.read(buffer, size, sizeof(uint64_t));
-        if(!result.has_error())
+        if (!result.has_error())
         {
             auto numSamples = static_cast<int>(result.get_value());
             std::cout << "Total samples received: " << numSamples << std::endl;
-            for(int i=0; i<numSamples; ++i)
+            for (int i = 0; i < numSamples; ++i)
             {
                 auto cursor = i * sizeof(uint64_t);
                 uint64_t* sample = reinterpret_cast<uint64_t*>(&buffer[i * sizeof(sample)]);
@@ -87,13 +88,13 @@ int main(int argc, char* argv[])
     }
     // ===== DEBUG ===== //
 
-//    iox::dds::DDS2IceoryxGateway<> gw;
-//    auto result = iox::dds::TomlGatewayConfigParser::parse();
-//    if (!result.has_error())
-//    {
-//        gw.loadConfiguration(result.get_value());
-//    }
-//    gw.runMultithreaded();
+    //    iox::dds::DDS2IceoryxGateway<> gw;
+    //    auto result = iox::dds::TomlGatewayConfigParser::parse();
+    //    if (!result.has_error())
+    //    {
+    //        gw.loadConfiguration(result.get_value());
+    //    }
+    //    gw.runMultithreaded();
 
     // Run until SIGINT or SIGTERM
     ShutdownManager::waitUntilShutdown();

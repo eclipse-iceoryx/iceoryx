@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/roudi/introspection_types.hpp"
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_dds/gateway/iox_to_dds.hpp"
+#include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/roudi/introspection_types.hpp"
 
 #include <chrono>
 #include <thread>

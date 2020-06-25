@@ -3,16 +3,17 @@
 
 #include <dds/dds.hpp>
 
-namespace iox {
-namespace dds {
-
+namespace iox
+{
+namespace dds
+{
 class CycloneContext
 {
-public:
+  public:
     static ::dds::domain::DomainParticipant& getParticipant() noexcept;
 };
 
-}
-}
+} // namespace dds
+} // namespace iox
 
 #endif // CYCLONE_CONTEXT_HPP

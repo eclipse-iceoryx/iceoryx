@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/dds/cyclone_context.hpp"
 #include "iceoryx_dds/dds/cyclone_data_reader.hpp"
+#include "iceoryx_dds/dds/cyclone_context.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 
 iox::dds::CycloneDataReader::CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept
@@ -31,9 +31,10 @@ iox::dds::CycloneDataReader::~CycloneDataReader()
 
 void iox::dds::CycloneDataReader::connect() noexcept
 {
-    if(!m_isConnected.load(std::memory_order_relaxed))
+    if (!m_isConnected.load(std::memory_order_relaxed))
     {
-        auto topicString = "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
+        auto topicString =
+            "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
         auto topic = ::dds::topic::Topic<Mempool::Chunk>(CycloneContext::getParticipant(), topicString);
         auto subscriber = ::dds::sub::Subscriber(CycloneContext::getParticipant());
 
@@ -48,39 +49,36 @@ void iox::dds::CycloneDataReader::connect() noexcept
     }
 }
 
-iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize)
+iox::cxx::expected<uint8_t, iox::dds::DataReaderError>
+iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize)
 {
     // Validation checks
-    if(!m_isConnected.load())
+    if (!m_isConnected.load())
     {
         return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::NOT_CONNECTED);
     }
-    if(buffer == nullptr)
+    if (buffer == nullptr)
     {
         return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_RECV_BUFFER);
     }
-    if(bufferSize < sampleSize)
+    if (bufferSize < sampleSize)
     {
         return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_RECV_BUFFER);
     }
 
     // Read up to the maximum number of samples that can fit in the buffer.
     auto capacity = bufferSize / sampleSize;
-    auto samples = m_impl
-            .select()
-            .max_samples(capacity)
-            .state(::dds::sub::status::SampleState::not_read())
-            .take();
+    auto samples = m_impl.select().max_samples(capacity).state(::dds::sub::status::SampleState::not_read()).take();
 
     LogDebug() << "[CycloneDataReader] Total samples: " << samples.length();
 
     // Copy data into the provided buffer.
     uint8_t numSamplesBuffered = 0;
-    if(samples.length() > 0)
+    if (samples.length() > 0)
     {
         // Sample validation checks
         uint64_t size = samples.begin()->data().payload().size();
-        if(size != sampleSize)
+        if (size != sampleSize)
         {
             // Received invalid data.
             // NOTE: This causes other data points received in this read to be lost...
@@ -89,7 +87,7 @@ iox::cxx::expected<uint8_t, iox::dds::DataReaderError> iox::dds::CycloneDataRead
 
         // Do copy
         uint8_t cursor = 0; // Tracks the position in the buffer to write next sample.
-        for(const auto& sample : samples)
+        for (const auto& sample : samples)
         {
             auto bytes = sample.data().payload().data();
             std::copy(bytes, bytes + sampleSize, &buffer[cursor]);

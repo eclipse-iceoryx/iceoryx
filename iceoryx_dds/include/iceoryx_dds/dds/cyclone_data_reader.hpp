@@ -18,8 +18,8 @@
 #include "iceoryx_dds/dds/data_reader.hpp"
 
 #include <Mempool_DCPS.hpp>
-#include <dds/dds.hpp>
 #include <atomic>
+#include <dds/dds.hpp>
 
 namespace iox
 {
@@ -36,13 +36,13 @@ class CycloneDataReader : public DataReader
     virtual ~CycloneDataReader();
 
     void connect() noexcept override;
-    iox::cxx::expected<uint8_t, DataReaderError> read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize) override;
+    iox::cxx::expected<uint8_t, DataReaderError>
+    read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize) override;
     IdString getServiceId() const noexcept override;
     IdString getInstanceId() const noexcept override;
     IdString getEventId() const noexcept override;
 
   private:
-
     IdString m_serviceId{""};
     IdString m_instanceId{""};
     IdString m_eventId{""};
@@ -50,7 +50,6 @@ class CycloneDataReader : public DataReader
     ::dds::sub::DataReader<Mempool::Chunk> m_impl = ::dds::core::null;
 
     std::atomic_bool m_isConnected{false};
-
 };
 
 } // namespace dds

@@ -53,7 +53,6 @@ class CycloneDataWriter : public iox::dds::DataWriter
     ::dds::pub::Publisher m_publisher = ::dds::core::null;
     ::dds::topic::Topic<Mempool::Chunk> m_topic = ::dds::core::null;
     ::dds::pub::DataWriter<Mempool::Chunk> m_writer = ::dds::core::null;
-
 };
 
 } // namespace dds

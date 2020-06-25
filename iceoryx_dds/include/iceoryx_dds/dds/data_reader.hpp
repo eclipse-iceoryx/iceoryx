@@ -15,8 +15,8 @@
 #ifndef IOX_DDS_DDS_DATA_READER_HPP
 #define IOX_DDS_DDS_DATA_READER_HPP
 
-#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 
 namespace iox
 {
@@ -33,8 +33,7 @@ enum class DataReaderError : uint8_t
 
 class DataReader
 {
-public:
-
+  public:
     ///
     /// @brief connect Connect the DataReader to the underlying DDS network.
     ///
@@ -49,7 +48,8 @@ public:
     ///
     /// @note This is only a tentative API. Will be updated as the usecase is better understood.
     ///
-    virtual iox::cxx::expected<uint8_t, DataReaderError> read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize) = 0;
+    virtual iox::cxx::expected<uint8_t, DataReaderError>
+    read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize) = 0;
 
     ///
     /// @brief getServiceId
@@ -69,7 +69,7 @@ public:
     ///
     virtual IdString getEventId() const noexcept = 0;
 
-protected:
+  protected:
     DataReader() = default;
 };
 

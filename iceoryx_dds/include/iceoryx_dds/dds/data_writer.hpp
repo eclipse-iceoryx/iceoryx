@@ -64,7 +64,7 @@ class DataWriter
     ///
     virtual IdString getEventId() const noexcept = 0;
 
-    protected:
+  protected:
     DataWriter() = default;
 };
 
