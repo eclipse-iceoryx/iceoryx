@@ -44,8 +44,10 @@ bool WaitSet::detachCondition(Condition& condition) noexcept
         if (currentCondition == &condition)
         {
             m_conditionVector.erase(&currentCondition);
+            return true;
         }
     }
+    return false;
 }
 
 void WaitSet::timedWait(units::Duration timeout) noexcept

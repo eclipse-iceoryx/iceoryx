@@ -28,6 +28,7 @@ constexpr uint16_t MAX_NUMBER_OF_CONDITIONS{128};
 /// @brief Logical disjunction of a certain number of conditions
 class WaitSet
 {
+  public:
     /// @brief Requests a condition variable from RouDi
     WaitSet() noexcept;
 

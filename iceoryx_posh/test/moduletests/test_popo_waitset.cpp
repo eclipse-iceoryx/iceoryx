@@ -16,6 +16,7 @@
 #include "iceoryx_posh/internal/popo/waitset/guard_condition.hpp"
 #include "iceoryx_posh/internal/popo/waitset/wait_set.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/cxx/vector.hpp"
 #include "test.hpp"
 
 #include <memory>
@@ -39,31 +40,86 @@ class WaitSet_test : public Test
     MemPool chunkMgmtPool{128, 20, &allocator, &allocator};
 
     WaitSet m_waitset;
-    Condition m_condition1;
-    Condition m_condition2;
-    Condition m_condition3;
+    Condition m_condition;
+    vector<Condition, MAX_NUMBER_OF_CONDITIONS> m_conditionVector;
     /// @todo Will be added in the c'tor of WaitSet
     // GuardCondition m_guardCondition;
 
-    void SetUp(){};
-    void TearDown(){};
+    void SetUp()
+    {
+        for (auto currentCondition : m_conditionVector)
+        {
+            m_conditionVector.push_back(m_condition);
+        }
+    };
+    void TearDown()
+    {
+        m_conditionVector.clear();
+    };
 };
 
 // TEST_F(WaitSet_test, NoAttachResultsInError)
 // {
 // }
 
-// TEST_F(WaitSet_test, AttachSingleConditionSuccessful){}
-// TEST_F(WaitSet_test, AttachMultipleConditionSuccessful){}
-// TEST_F(WaitSet_test, AttachTooManyConditionsResultsInFailure){}
-// TEST_F(WaitSet_test, AttachInvalidConditionResultsInFailure){}
-// TEST_F(WaitSet_test, AttachEmptyConditionResultsInFailure){}
+TEST_F(WaitSet_test, AttachSingleConditionSuccessful)
+{
+    EXPECT_TRUE(m_waitset.attachCondition(m_conditionVector.front()));
+}
 
-// TEST_F(WaitSet_test, DetachConditionSingleConditionSuccessful){}
-// TEST_F(WaitSet_test, DetachConditionMultipleleConditionsSuccessful){}
-// TEST_F(WaitSet_test, DetachConditionFromListEmptyResultsInFailure){}
-// TEST_F(WaitSet_test, DetachInvalidConditionResultsInFailure){}
-// TEST_F(WaitSet_test, DetachEmptyConditionResultsInFailure){}
+TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInOneFailure)
+{
+    m_waitset.attachCondition(m_conditionVector.front());
+    EXPECT_FALSE(m_waitset.attachCondition(m_conditionVector.front()));
+}
+
+TEST_F(WaitSet_test, AttachMultipleConditionSuccessful)
+{
+    for (auto currentCondition : m_conditionVector)
+    {
+        EXPECT_TRUE(m_waitset.attachCondition(currentCondition));
+    }
+}
+
+TEST_F(WaitSet_test, AttachTooManyConditionsResultsInFailure)
+{
+    for (auto currentCondition : m_conditionVector)
+    {
+        m_waitset.attachCondition(currentCondition);
+    }
+
+    Condition extraCondition;
+    EXPECT_FALSE(m_waitset.attachCondition(extraCondition));
+}
+
+TEST_F(WaitSet_test, DetachSingleConditionSuccessful)
+{
+    m_waitset.attachCondition(m_conditionVector.front());
+    EXPECT_TRUE(m_waitset.detachCondition(m_conditionVector.front()));
+}
+
+TEST_F(WaitSet_test, DetachMultipleleConditionsSuccessful)
+{
+    for (auto currentCondition : m_conditionVector)
+    {
+        m_waitset.attachCondition(currentCondition);
+    }
+    for (auto currentCondition : m_conditionVector)
+    {
+        EXPECT_TRUE(m_waitset.detachCondition(currentCondition));
+    }
+}
+
+TEST_F(WaitSet_test, DetachConditionFromEmptyListResultsInFailure)
+{
+    EXPECT_FALSE(m_waitset.detachCondition(m_conditionVector.front()));
+}
+
+TEST_F(WaitSet_test, DetachUnknownConditionResultsInFailure)
+{
+    m_waitset.attachCondition(m_conditionVector.front());
+    EXPECT_FALSE(m_waitset.detachCondition(m_conditionVector.back()));
+}
 
 // TEST_F(WaitSet_test, TimedWaitWithSignalAlreadySetResultsInImmediateTrigger){}
 // TEST_F(WaitSet_test, SignalSetWhileWaitingInTimedWaitResultsInTrigger){}
