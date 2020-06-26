@@ -49,7 +49,6 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const Ga
     }
 }
 
-
 template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {

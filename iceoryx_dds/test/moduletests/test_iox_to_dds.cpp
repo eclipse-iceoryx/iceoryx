@@ -37,11 +37,12 @@ using ::testing::Return;
 using ::testing::SetArgPointee;
 
 // ======================================== Helpers ======================================== //
+using TestChannel = iox::dds::Channel<MockSubscriber, MockDataWriter>;
 using TestGateway =
-    iox::dds::Iceoryx2DDSGateway<iox::dds::Channel<MockSubscriber, MockDataWriter>, MockGenericDDSGateway>;
+    iox::dds::Iceoryx2DDSGateway<TestChannel, MockGenericDDSGateway<TestChannel>>;
 
 // ======================================== Fixture ======================================== //
-class Iceoryx2DDSGatewayTest : public DDSGatewayTestFixture
+class Iceoryx2DDSGatewayTest : public DDSGatewayTestFixture<MockSubscriber, MockDataWriter>
 {};
 
 // ======================================== Tests ======================================== //
@@ -67,9 +68,9 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromConfiguredServices
     iox::dds::GatewayConfig config{};
     config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, 0});
 
-    auto mockSubscriber = createMockSubscriber(testService);
+    auto mockSubscriber = createMockIceoryxTerminal(testService);
     EXPECT_CALL(*mockSubscriber, subscribe).Times(1);
-    stageMockSubscriber(std::move(mockSubscriber));
+    stageMockIceoryxTerminal(std::move(mockSubscriber));
 
     TestGateway gw{};
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
@@ -86,9 +87,9 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForConfigure
     iox::dds::GatewayConfig config{};
     config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, 0});
 
-    auto mockWriter = createMockDataWriter(testService);
+    auto mockWriter = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockWriter, connect).Times(1);
-    stageMockDataWriter(std::move(mockWriter));
+    stageMockDDSTerminal(std::move(mockWriter));
 
     TestGateway gw{};
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
@@ -146,9 +147,9 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDiscoveredServices
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    auto mockSubscriber = createMockSubscriber(testService);
+    auto mockSubscriber = createMockIceoryxTerminal(testService);
     EXPECT_CALL(*mockSubscriber, subscribe).Times(1);
-    stageMockSubscriber(std::move(mockSubscriber));
+    stageMockIceoryxTerminal(std::move(mockSubscriber));
 
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
@@ -166,9 +167,9 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForDiscovere
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    auto mockWriter = createMockDataWriter(testService);
+    auto mockWriter = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockWriter, connect).Times(1);
-    stageMockDataWriter(std::move(mockWriter));
+    stageMockDDSTerminal(std::move(mockWriter));
 
     TestGateway gw{};
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
@@ -191,17 +192,17 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
     ChunkMock<int> mockChunk{42};
 
     // Set up subscriber to provide the chunk
-    auto mockSubscriber = createMockSubscriber(testService);
+    auto mockSubscriber = createMockIceoryxTerminal(testService);
     EXPECT_CALL(*mockSubscriber, hasNewChunks).WillOnce(Return(true));
     EXPECT_CALL(*mockSubscriber, getChunk).WillOnce(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
-    stageMockSubscriber(std::move(mockSubscriber));
+    stageMockIceoryxTerminal(std::move(mockSubscriber));
 
     // Verify expected write to the data writer
-    auto mockWriter = createMockDataWriter(testService);
+    auto mockWriter = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockWriter,
                 write(SafeMatcherCast<uint8_t*>(Pointee(Eq(42))), mockChunk.chunkHeader()->m_info.m_payloadSize))
         .Times(1);
-    stageMockDataWriter(std::move(mockWriter));
+    stageMockDDSTerminal(std::move(mockWriter));
 
     auto testChannel = channelFactory(testService);
     TestGateway gw{};
@@ -220,15 +221,15 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
     mockChunk.chunkHeader()->m_info.m_payloadSize = 0;
 
     // Set up subscriber to provide the chunk
-    auto mockSubscriber = createMockSubscriber(testService);
+    auto mockSubscriber = createMockIceoryxTerminal(testService);
     EXPECT_CALL(*mockSubscriber, hasNewChunks).WillOnce(Return(true));
     EXPECT_CALL(*mockSubscriber, getChunk).WillOnce(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
-    stageMockSubscriber(std::move(mockSubscriber));
+    stageMockIceoryxTerminal(std::move(mockSubscriber));
 
     // Verify expected write to the data writer
-    auto mockWriter = createMockDataWriter(testService);
+    auto mockWriter = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockWriter, write).Times(Exactly(0));
-    stageMockDataWriter(std::move(mockWriter));
+    stageMockDDSTerminal(std::move(mockWriter));
 
     auto testChannel = channelFactory(testService);
     TestGateway gw{};
@@ -246,8 +247,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
     ChunkMock<int> mockChunk{42};
 
     // Set up expect sequence of interactions with subscriber and data writer
-    auto mockSubscriber = createMockSubscriber(testService);
-    auto mockWriter = createMockDataWriter(testService);
+    auto mockSubscriber = createMockIceoryxTerminal(testService);
+    auto mockWriter = createMockDDSTerminal(testService);
     {
         InSequence seq;
         EXPECT_CALL(*mockSubscriber, hasNewChunks).WillOnce(Return(true));
@@ -256,8 +257,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
         EXPECT_CALL(*mockSubscriber, releaseChunk).Times(1);
     }
 
-    stageMockSubscriber(std::move(mockSubscriber));
-    stageMockDataWriter(std::move(mockWriter));
+    stageMockIceoryxTerminal(std::move(mockSubscriber));
+    stageMockDDSTerminal(std::move(mockWriter));
 
     auto testChannel = channelFactory(testService);
     TestGateway gw{};
@@ -272,16 +273,16 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
     // Subscribers
-    auto firstCreatedSubscriber = createMockSubscriber(testService);
-    auto secondCreatedSubscriber = createMockSubscriber(testService);
+    auto firstCreatedSubscriber = createMockIceoryxTerminal(testService);
+    auto secondCreatedSubscriber = createMockIceoryxTerminal(testService);
     {
         InSequence seq;
         EXPECT_CALL(*firstCreatedSubscriber, subscribe).Times(1);
         EXPECT_CALL(*secondCreatedSubscriber, subscribe).Times(1);
     }
 
-    stageMockSubscriber(std::move(firstCreatedSubscriber));
-    stageMockSubscriber(std::move(secondCreatedSubscriber));
+    stageMockIceoryxTerminal(std::move(firstCreatedSubscriber));
+    stageMockIceoryxTerminal(std::move(secondCreatedSubscriber));
 
     // Messages
     auto offerMsg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);

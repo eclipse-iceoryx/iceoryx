@@ -37,7 +37,12 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const Ga
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
-            setupChannel(service.m_serviceDescription);
+            auto result = setupChannel(service.m_serviceDescription);
+            if(!result.has_error())
+            {
+                auto channel = result.get_value();
+                channel.setSampleSize(service.m_dataSize);
+            }
         }
     }
 }
@@ -91,13 +96,14 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
 // ======================================== Private ======================================== //
 
 template <typename channel_t, typename gateway_t>
-void iox::dds::DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
+iox::cxx::expected<channel_t, iox::dds::GatewayError>
+DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
-    this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
+    return this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
         auto channel = result.get_value();
         auto publisher = channel.getIceoryxTerminal();
-        publisher->offer();
         auto reader = channel.getDDSTerminal();
+        publisher->offer();
         reader->connect();
     });
 }

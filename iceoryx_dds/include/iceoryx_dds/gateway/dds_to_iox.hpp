@@ -29,7 +29,7 @@ namespace dds
 ///
 template <typename channel_t = iox::dds::Channel<iox::popo::Publisher, iox::dds::data_reader_t>,
           typename gateway_t = iox::dds::DDSGatewayGeneric<channel_t>>
-class DDS2IceoryxGateway : public iox::dds::DDSGatewayGeneric<channel_t>
+class DDS2IceoryxGateway : public gateway_t
 {
     using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
 
@@ -42,8 +42,7 @@ class DDS2IceoryxGateway : public iox::dds::DDSGatewayGeneric<channel_t>
 
 private:
     void* m_reservedChunk = nullptr;
-
-    void setupChannel(const iox::capro::ServiceDescription& service) noexcept;
+    iox::cxx::expected<channel_t, iox::dds::GatewayError> setupChannel(const iox::capro::ServiceDescription& service) noexcept;
 };
 
 } // namespace dds

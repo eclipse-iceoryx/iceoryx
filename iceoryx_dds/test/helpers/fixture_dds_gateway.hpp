@@ -21,81 +21,82 @@
 #include "roudi_gtest.hpp"
 #include "test.hpp"
 
+template<typename IceoryxTerminal, typename DDSTerminal>
 class DDSGatewayTestFixture : public Test
 {
   public:
     // Holds mocks created by tests to be used by the channel factory.
-    std::vector<std::shared_ptr<MockSubscriber>> stagedMockSubscribers;
-    std::vector<std::shared_ptr<MockDataWriter>> stagedMockWriters;
+    std::vector<std::shared_ptr<IceoryxTerminal>> m_stagedMockIceoryxTerminal;
+    std::vector<std::shared_ptr<DDSTerminal>> m_stagedMockDDSTerminal;
 
     // Marks where in the array to look for a valid mock.
     // Indexes lower than the marker are assumed to have been moved out and thus undefined.
-    size_t subscriberMarker = 0;
-    size_t dataWriterMarker = 0;
+    size_t m_mockIceoryxTerminalCursor = 0;
+    size_t m_mockDDSTerminalMarker = 0;
 
     void SetUp(){};
     void TearDown()
     {
-        stagedMockSubscribers.clear();
-        subscriberMarker = 0;
-        stagedMockWriters.clear();
-        dataWriterMarker = 0;
+        m_stagedMockIceoryxTerminal.clear();
+        m_mockIceoryxTerminalCursor = 0;
+        m_stagedMockDDSTerminal.clear();
+        m_mockDDSTerminalMarker = 0;
     };
 
-    // Create a new DataWriter mock
-    std::shared_ptr<MockDataWriter> createMockDataWriter(const iox::capro::ServiceDescription& sd)
+    // Create a new dds mock
+    std::shared_ptr<DDSTerminal> createMockDDSTerminal(const iox::capro::ServiceDescription& sd)
     {
-        return std::shared_ptr<MockDataWriter>(new MockDataWriter(sd));
+        return std::shared_ptr<DDSTerminal>(new DDSTerminal(sd));
     }
     // Stage the given mock to be used in the channel factory
-    void stageMockDataWriter(std::shared_ptr<MockDataWriter>&& mock)
+    void stageMockDDSTerminal(std::shared_ptr<DDSTerminal>&& mock)
     {
         // Pass ownership - do not hold a reference here.
-        stagedMockWriters.emplace_back(std::move(mock));
+        m_stagedMockDDSTerminal.emplace_back(std::move(mock));
     };
-    // Create a new Subscriber mock
-    std::shared_ptr<MockSubscriber> createMockSubscriber(const iox::capro::ServiceDescription& sd)
+    // Create a new iceoryx mock
+    std::shared_ptr<IceoryxTerminal> createMockIceoryxTerminal(const iox::capro::ServiceDescription& sd)
     {
-        return std::shared_ptr<MockSubscriber>(new MockSubscriber(sd));
+        return std::shared_ptr<IceoryxTerminal>(new IceoryxTerminal(sd));
     }
     // Stage the given mock to be used in the channel factory
-    void stageMockSubscriber(std::shared_ptr<MockSubscriber>&& mock)
+    void stageMockIceoryxTerminal(std::shared_ptr<IceoryxTerminal>&& mock)
     {
-        stagedMockSubscribers.emplace_back(std::move(mock));
+        m_stagedMockIceoryxTerminal.emplace_back(std::move(mock));
     };
 
     // Creates channels to be used in tests.
     // Channels will contain staged mocks, or empty mocks if none are staged.
     // The factory method can be passed to test gateways, allowing injection of mocks.
-    iox::cxx::expected<iox::dds::Channel<MockSubscriber, MockDataWriter>, iox::dds::GatewayError>
+    iox::cxx::expected<iox::dds::Channel<IceoryxTerminal, DDSTerminal>, iox::dds::GatewayError>
     channelFactory(iox::capro::ServiceDescription sd) noexcept
     {
-        // Get or create a mock subscriber
-        std::shared_ptr<MockSubscriber> mockSubscriber;
-        if (subscriberMarker < stagedMockSubscribers.size())
+        // Get or create a mock iceoryx terminal
+        std::shared_ptr<IceoryxTerminal> mockIceoryxTerminal;
+        if (m_mockIceoryxTerminalCursor < m_stagedMockIceoryxTerminal.size())
         {
             // Important - must pass ownership to receiver so object is deleted when the receiver is done with it.
-            mockSubscriber = std::move(stagedMockSubscribers.at(subscriberMarker++));
+            mockIceoryxTerminal = std::move(m_stagedMockIceoryxTerminal.at(m_mockIceoryxTerminalCursor++));
         }
         else
         {
-            mockSubscriber = createMockSubscriber(sd);
+            mockIceoryxTerminal = createMockIceoryxTerminal(sd);
         }
 
-        // Get or create a mock data writer
-        std::shared_ptr<MockDataWriter> mockDataWriter;
-        if (dataWriterMarker < stagedMockWriters.size())
+        // Get or create a mock dds terminal
+        std::shared_ptr<DDSTerminal> mockDataWriter;
+        if (m_mockDDSTerminalMarker < m_stagedMockDDSTerminal.size())
         {
             // Important - must pass ownership to receiver so object is deleted when the receiver is done with it.
-            mockDataWriter = std::move(stagedMockWriters.at(dataWriterMarker++));
+            mockDataWriter = std::move(m_stagedMockDDSTerminal.at(m_mockDDSTerminalMarker++));
         }
         else
         {
-            mockDataWriter = createMockDataWriter(sd);
+            mockDataWriter = createMockDDSTerminal(sd);
         }
 
-        return iox::cxx::success<iox::dds::Channel<MockSubscriber, MockDataWriter>>(
-            iox::dds::Channel<MockSubscriber, MockDataWriter>(sd, std::move(mockSubscriber), std::move(mockDataWriter)));
+        return iox::cxx::success<iox::dds::Channel<IceoryxTerminal, DDSTerminal>>(
+            iox::dds::Channel<IceoryxTerminal, DDSTerminal>(sd, std::move(mockIceoryxTerminal), std::move(mockDataWriter)));
     }
 
 };

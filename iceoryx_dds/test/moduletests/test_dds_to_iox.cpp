@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "helpers/fixture_dds_gateway.hpp"
+
 #include "iceoryx_dds/gateway/channel.hpp"
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 
@@ -24,21 +26,13 @@ using namespace ::testing;
 using ::testing::_;
 
 // ======================================== Helpers ======================================== //
-
-using TestGateway =
-    iox::dds::DDS2IceoryxGateway<iox::dds::Channel<MockSubscriber, MockDataWriter>, MockGenericDDSGateway>;
+using TestChannel = iox::dds::Channel<MockPublisher, MockDataReader>;
+using TestGateway = iox::dds::DDS2IceoryxGateway<TestChannel, MockGenericDDSGateway<TestChannel>>;
 
 // ======================================== Fixture ======================================== //
 
-class DDS2IceoryxGatewayTest : public Test
-{
-  public:
-    void SetUp(){};
-    void TearDown()
-    {
-
-    };
-};
+class DDS2IceoryxGatewayTest : public DDSGatewayTestFixture<MockPublisher, MockDataReader>
+{};
 
 // ======================================== Tests ======================================== //
 
@@ -50,7 +44,8 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
     config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, 0});
 
     TestGateway gw{};
-
+    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, addChannel).WillOnce(Return(channelFactory(testService)));
 
     // === Test
     gw.loadConfiguration(config);
