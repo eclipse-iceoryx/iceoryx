@@ -27,7 +27,8 @@ namespace dds
 ///
 /// @brief DDS Gateway implementation for the DDS to iceoryx direction.
 ///
-template <typename channel_t = iox::dds::Channel<iox::popo::Publisher, iox::dds::data_reader_t>>
+template <typename channel_t = iox::dds::Channel<iox::popo::Publisher, iox::dds::data_reader_t>,
+          typename gateway_t = iox::dds::DDSGatewayGeneric<channel_t>>
 class DDS2IceoryxGateway : public iox::dds::DDSGatewayGeneric<channel_t>
 {
     using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;

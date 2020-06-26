@@ -23,14 +23,14 @@ namespace iox
 namespace dds
 {
 
-template <typename channel_t>
-inline DDS2IceoryxGateway<channel_t>::DDS2IceoryxGateway() noexcept
-    : iox::dds::DDSGatewayGeneric<channel_t>()
+template <typename channel_t, typename gateway_t>
+inline DDS2IceoryxGateway<channel_t, gateway_t>::DDS2IceoryxGateway() noexcept
+    : gateway_t()
 {
 }
 
-template <typename channel_t>
-inline void DDS2IceoryxGateway<channel_t>::loadConfiguration(const GatewayConfig& config) noexcept
+template <typename channel_t, typename gateway_t>
+inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const GatewayConfig& config) noexcept
 {
     iox::LogDebug() << "[DDS2IceoryxGateway] Configuring gateway.";
     for (const auto& service : config.m_configuredServices)
@@ -42,14 +42,14 @@ inline void DDS2IceoryxGateway<channel_t>::loadConfiguration(const GatewayConfig
     }
 }
 
-template <typename channel_t>
-inline void DDS2IceoryxGateway<channel_t>::discover(const iox::capro::CaproMessage& msg) noexcept
+template <typename channel_t, typename gateway_t>
+inline void DDS2IceoryxGateway<channel_t, gateway_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
     /// @note Not implemented - requires dds discovery which is currently unavailable.
 }
 
-template <typename channel_t>
-inline void DDS2IceoryxGateway<channel_t>::forward(const channel_t& channel) noexcept
+template <typename channel_t, typename gateway_t>
+inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
     auto publisher = channel.getIceoryxTerminal();
     auto reader = channel.getDDSTerminal();
@@ -90,8 +90,8 @@ inline void DDS2IceoryxGateway<channel_t>::forward(const channel_t& channel) noe
 
 // ======================================== Private ======================================== //
 
-template <typename channel_t>
-void iox::dds::DDS2IceoryxGateway<channel_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
+template <typename channel_t, typename gateway_t>
+void iox::dds::DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
     this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
         auto channel = result.get_value();

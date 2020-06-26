@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <limits>
+#include "helpers/fixture_dds_gateway.hpp"
 
 #include "iceoryx_dds/dds/data_writer.hpp"
 #include "iceoryx_dds/gateway/channel.hpp"
@@ -28,6 +28,8 @@
 #include "roudi_gtest.hpp"
 #include "test.hpp"
 
+#include <limits>
+
 using namespace ::testing;
 using ::testing::_;
 using ::testing::InSequence;
@@ -35,91 +37,12 @@ using ::testing::Return;
 using ::testing::SetArgPointee;
 
 // ======================================== Helpers ======================================== //
-
 using TestGateway =
     iox::dds::Iceoryx2DDSGateway<iox::dds::Channel<MockSubscriber, MockDataWriter>, MockGenericDDSGateway>;
 
-// Holds mocks created by tests to be returned by mock factories.
-static std::vector<std::shared_ptr<MockSubscriber>> stagedMockSubscribers;
-static std::vector<std::shared_ptr<MockDataWriter>> stagedMockWriters;
-
-// Marks where in the array to look for a valid mock.
-// Indexes lower than the marker are assumed to have been moved out and thus unspecified.
-static size_t subscriberMarker = 0;
-static size_t dataWriterMarker = 0;
-
-// Create a new DataWriter mock
-std::shared_ptr<MockDataWriter> createMockDataWriter(const iox::capro::ServiceDescription& sd)
-{
-    return std::shared_ptr<MockDataWriter>(new MockDataWriter(sd));
-}
-
-// Stage the given mock to be provided by the DataWriter mock factory
-void stageMockDataWriter(std::shared_ptr<MockDataWriter>&& mock)
-{
-    // Pass ownership - do not hold a reference here.
-    stagedMockWriters.emplace_back(std::move(mock));
-};
-
-// Create a new Subscriber mock
-std::shared_ptr<MockSubscriber> createMockSubscriber(const iox::capro::ServiceDescription& sd)
-{
-    return std::shared_ptr<MockSubscriber>(new MockSubscriber(sd));
-}
-
-// Stage the given mock to be provided by the Subscriber mock factory
-void stageMockSubscriber(std::shared_ptr<MockSubscriber>&& mock)
-{
-    stagedMockSubscribers.emplace_back(std::move(mock));
-};
-
-// ======================================== Mock Factories ======================================== //
-
-
-static iox::cxx::expected<iox::dds::Channel<MockSubscriber, MockDataWriter>, iox::dds::GatewayError>
-createTestChannel(iox::capro::ServiceDescription sd) noexcept
-{
-    // Get or create a mock subscriber
-    std::shared_ptr<MockSubscriber> mockSubscriber;
-    if (subscriberMarker < stagedMockSubscribers.size())
-    {
-        // Important - must pass ownership to receiver so object is deleted when the receiver is done with it.
-        mockSubscriber = std::move(stagedMockSubscribers.at(subscriberMarker++));
-    }
-    else
-    {
-        mockSubscriber = createMockSubscriber(sd);
-    }
-
-    // Get or create a mock data writer
-    std::shared_ptr<MockDataWriter> mockDataWriter;
-    if (dataWriterMarker < stagedMockWriters.size())
-    {
-        // Important - must pass ownership to receiver so object is deleted when the receiver is done with it.
-        mockDataWriter = std::move(stagedMockWriters.at(dataWriterMarker++));
-    }
-    else
-    {
-        mockDataWriter = createMockDataWriter(sd);
-    }
-
-    return iox::cxx::success<iox::dds::Channel<MockSubscriber, MockDataWriter>>(
-        iox::dds::Channel<MockSubscriber, MockDataWriter>(sd, std::move(mockSubscriber), std::move(mockDataWriter)));
-}
-
 // ======================================== Fixture ======================================== //
-class Iceoryx2DDSGatewayTest : public Test
-{
-  public:
-    void SetUp(){};
-    void TearDown()
-    {
-        stagedMockSubscribers.clear();
-        subscriberMarker = 0;
-        stagedMockWriters.clear();
-        dataWriterMarker = 0;
-    };
-};
+class Iceoryx2DDSGatewayTest : public DDSGatewayTestFixture
+{};
 
 // ======================================== Tests ======================================== //
 TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)
@@ -131,7 +54,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
-    EXPECT_CALL(gw, addChannel).WillOnce(Return(createTestChannel(testService)));
+    EXPECT_CALL(gw, addChannel).WillOnce(Return(channelFactory(testService)));
 
     // === Test
     gw.loadConfiguration(config);
@@ -150,7 +73,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromConfiguredServices
 
     TestGateway gw{};
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
+    ON_CALL(gw, addChannel).WillByDefault(Return(channelFactory(testService)));
 
     // === Test
     gw.loadConfiguration(config);
@@ -169,7 +92,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForConfigure
 
     TestGateway gw{};
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
+    ON_CALL(gw, addChannel).WillByDefault(Return(channelFactory(testService)));
 
     // === Test
     gw.loadConfiguration(config);
@@ -213,7 +136,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForDiscoveredServices)
     msg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
     EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
-    EXPECT_CALL(gw, addChannel).WillOnce(Return(createTestChannel(testService)));
+    EXPECT_CALL(gw, addChannel).WillOnce(Return(channelFactory(testService)));
 
     // === Test
     gw.discover(msg);
@@ -233,7 +156,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromDiscoveredServices
 
     // Mock methods of the mock generic dds gateway base class
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
+    ON_CALL(gw, addChannel).WillByDefault(Return(channelFactory(testService)));
 
     // === Test
     gw.discover(msg);
@@ -253,7 +176,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForDiscovere
 
     // Mock methods of the mock generic dds gateway base class
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel).WillByDefault(Return(createTestChannel(testService)));
+    ON_CALL(gw, addChannel).WillByDefault(Return(channelFactory(testService)));
 
     // === Test
     gw.discover(msg);
@@ -280,7 +203,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
         .Times(1);
     stageMockDataWriter(std::move(mockWriter));
 
-    auto testChannel = createTestChannel(testService);
+    auto testChannel = channelFactory(testService);
     TestGateway gw{};
 
     // === Test
@@ -307,7 +230,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
     EXPECT_CALL(*mockWriter, write).Times(Exactly(0));
     stageMockDataWriter(std::move(mockWriter));
 
-    auto testChannel = createTestChannel(testService);
+    auto testChannel = channelFactory(testService);
     TestGateway gw{};
 
     // === Test
@@ -336,7 +259,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
     stageMockSubscriber(std::move(mockSubscriber));
     stageMockDataWriter(std::move(mockWriter));
 
-    auto testChannel = createTestChannel(testService);
+    auto testChannel = channelFactory(testService);
     TestGateway gw{};
 
     // === Test
@@ -367,8 +290,8 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     stopOfferMsg.m_subType = iox::capro::CaproMessageSubType::EVENT;
 
     // Get the test channels here as we need to use them in expectations
-    auto testChannelOne = createTestChannel(testService);
-    auto testChannelTwo = createTestChannel(testService);
+    auto testChannelOne = channelFactory(testService);
+    auto testChannelTwo = channelFactory(testService);
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel)
