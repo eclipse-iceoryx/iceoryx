@@ -50,7 +50,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const Ga
 template <typename channel_t, typename gateway_t>
 inline void DDS2IceoryxGateway<channel_t, gateway_t>::discover(const iox::capro::CaproMessage& msg) noexcept
 {
-    /// @note Not implemented - requires dds discovery which is currently unavailable.
+    /// @note not implemented - requires dds discovery which is currently not implemented in the used dds stack.
 }
 
 template <typename channel_t, typename gateway_t>
@@ -94,7 +94,6 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
 }
 
 // ======================================== Private ======================================== //
-
 template <typename channel_t, typename gateway_t>
 iox::cxx::expected<channel_t, iox::dds::GatewayError>
 DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept

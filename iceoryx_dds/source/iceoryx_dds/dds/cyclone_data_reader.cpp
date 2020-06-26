@@ -49,14 +49,14 @@ void iox::dds::CycloneDataReader::connect() noexcept
     }
 }
 
-iox::cxx::expected<uint8_t, iox::dds::DataReaderError>
+iox::cxx::expected<uint64_t, iox::dds::DataReaderError>
 iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize)
 {
     auto bufferCapacity = bufferSize / sampleSize;
     return read(buffer, bufferSize, sampleSize, bufferCapacity);
 }
 
-iox::cxx::expected<uint8_t, iox::dds::DataReaderError>
+iox::cxx::expected<uint64_t, iox::dds::DataReaderError>
 iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& maxSamples)
 {
     // Validation checks
@@ -77,7 +77,7 @@ iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferS
     auto samples = m_impl.select().max_samples(maxSamples).state(::dds::sub::status::SampleState::not_read()).take();
 
     // Copy data into the provided buffer.
-    uint8_t numSamplesBuffered = 0;
+    auto numSamplesBuffered = 0u;
     if (samples.length() > 0)
     {
         // Sample validation checks
@@ -99,7 +99,7 @@ iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferS
         }
         numSamplesBuffered = cursor / sampleSize;
     }
-    return iox::cxx::success<uint8_t>(numSamplesBuffered);
+    return iox::cxx::success<uint64_t>(numSamplesBuffered);
 }
 
 iox::dds::IdString iox::dds::CycloneDataReader::getServiceId() const noexcept

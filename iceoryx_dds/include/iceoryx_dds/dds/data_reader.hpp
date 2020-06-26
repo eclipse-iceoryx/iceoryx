@@ -49,7 +49,7 @@ class DataReader
     ///
     /// @note Maximum reads in one call is calculated as bufferSize / sampleSize.
     ///
-    virtual iox::cxx::expected<uint8_t, DataReaderError>
+    virtual iox::cxx::expected<uint64_t, DataReaderError>
     read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize) = 0;
 
     ///
@@ -60,7 +60,7 @@ class DataReader
     /// \param maxSamples The maximum number of samples to request from the network.
     /// \return Number of samples read if successful. Number of samples will be in the sange [0,num].
     ///
-    virtual iox::cxx::expected<uint8_t, DataReaderError>
+    virtual iox::cxx::expected<uint64_t, DataReaderError>
     read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& maxSamples) = 0;
 
     ///
