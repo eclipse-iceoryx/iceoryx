@@ -37,14 +37,17 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
     auto serviceArray = parsedToml->get_table_array("services");
     for (const auto& service : *serviceArray)
     {
-        auto name = service->get_as<std::string>("service");
-        auto instance = service->get_as<std::string>("instance");
-        auto event = service->get_as<std::string>("event");
-        config.m_configuredServices.push_back(
-            iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, *name),
-                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, *instance),
-                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, *event)));
-        LogDebug() << "[TomlGatewayConfigParser] Found service: {" << *name << ", " << *instance << ", " << *event
+
+    GatewayConfig::ServiceEntry entry;
+    auto serviceName = service->get_as<std::string>("service");
+    auto instance = service->get_as<std::string>("instance");
+    auto event = service->get_as<std::string>("event");
+    entry.m_serviceDescription = iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, *serviceName),
+                                                                iox::capro::IdString(iox::cxx::TruncateToCapacity, *instance),
+                                                                iox::capro::IdString(iox::cxx::TruncateToCapacity, *event));
+    auto size = service->get_as<uint64_t>("size");
+    entry.m_dataSize = *size;
+        LogDebug() << "[TomlGatewayConfigParser] Found service: {" << *serviceName << ", " << *instance << ", " << *event
                    << "}";
     }
 
@@ -66,19 +69,28 @@ iox::dds::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) no
     for (const auto& service : *serviceArray)
     {
         ++count;
+
         auto serviceName = service->get_as<std::string>("service");
         auto instance = service->get_as<std::string>("instance");
         auto event = service->get_as<std::string>("event");
+        auto sampleSize = service->get_as<uint64_t>("size");
 
-        // Check for incomplete service descriptions
+        // check for incomplete service descriptions
         if (!serviceName || !instance || !event)
         {
             LogError() << "[TomlGatewayConfigParser] Incomplete service description at entry: " << count;
             return iox::cxx::error<TomlGatewayConfigParseError>(
                 TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION);
         }
+        // check for incomplete service descriptions
+        if (!sampleSize)
+        {
+            LogError() << "[TomlGatewayConfigParser] Incomplete data description at entry: " << count;
+            return iox::cxx::error<TomlGatewayConfigParseError>(
+                TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION);
+        }
 
-        // Check for invalid characters in strings
+        // check for invalid characters in strings
         if (hasInvalidCharacter(*serviceName) || hasInvalidCharacter(*instance) || hasInvalidCharacter(*event))
         {
             LogError() << "[TomlGatewayConfigParser] Invalid service description at entry: " << count;

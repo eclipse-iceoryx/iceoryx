@@ -30,36 +30,42 @@ TEST_F(TomlGatewayConfigParserTest, PassesValidationIfValidCharactersUsedInServi
     serviceEntry->insert("service", "service");
     serviceEntry->insert("instance", "instance");
     serviceEntry->insert("event", "event");
+    serviceEntry->insert("size", 0);
     serviceArray->push_back(serviceEntry);
 
     auto serviceEntryUppercase = cpptoml::make_table();
     serviceEntryUppercase->insert("service", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     serviceEntryUppercase->insert("instance", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     serviceEntryUppercase->insert("event", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    serviceEntryUppercase->insert("size", 0);
     serviceArray->push_back(serviceEntryUppercase);
 
-    auto serviceEntryLowercsase = cpptoml::make_table();
-    serviceEntryUppercase->insert("service", "abcdefghijklmnopqrstuvwxyz");
-    serviceEntryUppercase->insert("instance", "abcdefghijklmnopqrstuvwxyz");
-    serviceEntryUppercase->insert("event", "abcdefghijklmnopqrstuvwxyz");
-    serviceArray->push_back(serviceEntryUppercase);
+    auto serviceEntryLowercase = cpptoml::make_table();
+    serviceEntryLowercase->insert("service", "abcdefghijklmnopqrstuvwxyz");
+    serviceEntryLowercase->insert("instance", "abcdefghijklmnopqrstuvwxyz");
+    serviceEntryLowercase->insert("event", "abcdefghijklmnopqrstuvwxyz");
+    serviceEntryLowercase->insert("size", 0);
+    serviceArray->push_back(serviceEntryLowercase);
 
     auto serviceEntryNumbers = cpptoml::make_table();
-    serviceEntryUppercase->insert("service", "Number1234567890");
-    serviceEntryUppercase->insert("instance", "Number1234567890");
-    serviceEntryUppercase->insert("event", "Number1234567890");
-    serviceArray->push_back(serviceEntryUppercase);
+    serviceEntryNumbers->insert("service", "Number1234567890");
+    serviceEntryNumbers->insert("instance", "Number1234567890");
+    serviceEntryNumbers->insert("event", "Number1234567890");
+    serviceEntryNumbers->insert("size", 0);
+    serviceArray->push_back(serviceEntryNumbers);
 
     auto serviceEntryUnderscore = cpptoml::make_table();
     serviceEntryUnderscore->insert("service", "service_name");
     serviceEntryUnderscore->insert("instance", "instance_name");
     serviceEntryUnderscore->insert("event", "event_name");
+    serviceEntryUnderscore->insert("size", 0);
     serviceArray->push_back(serviceEntryUnderscore);
 
     auto serviceEntryBeginsWithUnderscore = cpptoml::make_table();
     serviceEntryBeginsWithUnderscore->insert("service", "_service_name");
     serviceEntryBeginsWithUnderscore->insert("instance", "_instance_name");
     serviceEntryBeginsWithUnderscore->insert("event", "_event_name");
+    serviceEntryBeginsWithUnderscore->insert("size", 0);
     serviceArray->push_back(serviceEntryBeginsWithUnderscore);
 
     toml->insert("services", serviceArray);
@@ -79,6 +85,7 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoServiceNameInServiceDescr
     auto serviceEntryNoServiceName = cpptoml::make_table();
     serviceEntryNoServiceName->insert("instance", "instance");
     serviceEntryNoServiceName->insert("event", "event");
+    serviceEntryNoServiceName->insert("size", 0);
     serviceArray->push_back(serviceEntryNoServiceName);
     toml->insert("services", serviceArray);
 
@@ -101,6 +108,7 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoInstanceNameInServiceDesc
     auto serviceEntryNoInstanceName = cpptoml::make_table();
     serviceEntryNoInstanceName->insert("service", "service");
     serviceEntryNoInstanceName->insert("event", "event");
+    serviceEntryNoInstanceName->insert("size", 0);
     serviceArray->push_back(serviceEntryNoInstanceName);
     toml->insert("services", serviceArray);
 
@@ -123,7 +131,31 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoEventNameInServiceDescrip
     auto serviceEntryNoEventName = cpptoml::make_table();
     serviceEntryNoEventName->insert("service", "service");
     serviceEntryNoEventName->insert("instance", "instance");
+    serviceEntryNoEventName->insert("size", 0);
     serviceArray->push_back(serviceEntryNoEventName);
+    toml->insert("services", serviceArray);
+
+    // ===== Test
+    auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
+    EXPECT_EQ(true, result.has_error());
+    if (result.has_error())
+    {
+        EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+    }
+}
+
+TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoDataSize)
+{
+    // ===== Setup
+    // Prepare configuration to test with
+    auto toml = cpptoml::make_table();
+    auto serviceArray = cpptoml::make_table_array();
+
+    auto serviceEntryNoSize = cpptoml::make_table();
+    serviceEntryNoSize->insert("service", "service");
+    serviceEntryNoSize->insert("instance", "instance");
+    serviceEntryNoSize->insert("event", "event");
+    serviceArray->push_back(serviceEntryNoSize);
     toml->insert("services", serviceArray);
 
     // ===== Test
@@ -146,6 +178,7 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfServiceDescriptionBeginsWit
     serviceBeginsWithNumber->insert("service", "0000");
     serviceBeginsWithNumber->insert("instance", "0000");
     serviceBeginsWithNumber->insert("event", "0000");
+    serviceBeginsWithNumber->insert("size", 0);
     serviceArray->push_back(serviceBeginsWithNumber);
     toml->insert("services", serviceArray);
 
@@ -169,6 +202,7 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfHyphenInServiceDescription)
     serviceEntry->insert("service", "service-name");
     serviceEntry->insert("instance", "instance-name");
     serviceEntry->insert("event", "event-name");
+    serviceEntry->insert("size", 0);
     serviceArray->push_back(serviceEntry);
     toml->insert("services", serviceArray);
 

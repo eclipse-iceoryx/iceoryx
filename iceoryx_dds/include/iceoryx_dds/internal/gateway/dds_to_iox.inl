@@ -35,9 +35,9 @@ inline void DDS2IceoryxGateway<channel_t>::loadConfiguration(const GatewayConfig
     iox::LogDebug() << "[DDS2IceoryxGateway] Configuring gateway.";
     for (const auto& service : config.m_configuredServices)
     {
-        if (!this->findChannel(service).has_value())
+        if (!this->findChannel(service.m_serviceDescription).has_value())
         {
-            setupChannel(service);
+            setupChannel(service.m_serviceDescription);
         }
     }
 }

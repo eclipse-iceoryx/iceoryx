@@ -96,5 +96,11 @@ inline uint64_t Channel<IceoryxTerminal, DDSTerminal>::sampleSize() const noexce
     return m_sampleSize;
 }
 
+template <typename IceoryxTerminal, typename DDSTerminal>
+inline void Channel<IceoryxTerminal, DDSTerminal>::setSampleSize(uint64_t size) noexcept
+{
+    m_sampleSize = size;
+}
+
 } // namespace dds
 } // namespace iox

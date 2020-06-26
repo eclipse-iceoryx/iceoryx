@@ -71,6 +71,7 @@ class Channel
     DDSTerminalPtr getDDSTerminal() const noexcept;
 
     uint64_t sampleSize() const noexcept;
+    void setSampleSize(uint64_t size) noexcept;
 
   private:
     static IceoryxTerminalPool s_iceoryxTerminals;
@@ -80,7 +81,7 @@ class Channel
     IceoryxTerminalPtr m_iceoryxTerminal;
     DDSTerminalPtr m_ddsTerminal;
 
-    uint64_t m_sampleSize = sizeof(uint64_t);
+    uint64_t m_sampleSize = 0u;
 
 };
 
