@@ -67,7 +67,7 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept
     // Is one of the conditons true?
     for (auto currentCondition : m_conditionVector)
     {
-        if (currentCondition->hasTrigger() == true)
+        if (currentCondition->hasTrigger())
         {
             conditionsWithFulfilledPredicate.push_back(*currentCondition);
         }
@@ -80,7 +80,7 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept
         // Check again if one of the conditions is true after we received the signal
         for (auto currentCondition : m_conditionVector)
         {
-            if (currentCondition->hasTrigger() == true)
+            if (currentCondition->hasTrigger())
             {
                 conditionsWithFulfilledPredicate.push_back(*currentCondition);
             }
