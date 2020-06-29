@@ -12,6 +12,8 @@ include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
 include(IceoryxPlatformDetection)
 
+include(cmake/iceoryx_posh_deployment.cmake)
+
 if( clang-tidy )
     find_program(
         CLANG_TIDY_EXE
@@ -46,6 +48,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 #
 ########## build posh lib for ##########
 #
+
 add_library(iceoryx_posh
     source/log/posh_logging.cpp
     source/capro/capro_message.cpp
@@ -259,10 +262,6 @@ if(roudi_environment OR test)
     )
 endif(roudi_environment OR test)
 
-if(ICEORYX_LARGE_DEPLOYMENT)
-    add_definitions(-DICEORYX_LARGE_DEPLOYMENT)
-endif(ICEORYX_LARGE_DEPLOYMENT)
-
 #
 ########## exporting library ##########
 #
@@ -273,6 +272,12 @@ endif(TOML_CONFIG)
 setup_install_directories_and_export_package(
     TARGETS iceoryx_posh iceoryx_posh_roudi ${ROUDI_EXPORT}
     INCLUDE_DIRECTORY include/
+)
+
+install(
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_posh_deployment.hpp
+    DESTINATION include/${PREFIX}/${PROJECT_NAME}/
+    COMPONENT dev
 )
 
 if(test)
