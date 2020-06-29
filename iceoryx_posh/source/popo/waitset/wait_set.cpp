@@ -28,13 +28,15 @@ WaitSet::WaitSet() noexcept
 
 bool WaitSet::attachCondition(Condition& condition) noexcept
 {
-    if (condition.isConditionVariableAttached())
+    if (!condition.isConditionVariableAttached())
     {
-        // Early exit in case the condition was already used before
-        return false;
+        if (condition.attachConditionVariable(m_conditionVariableDataPtr))
+        {
+            return m_conditionVector.push_back(&condition);
+        }
     }
-    condition.attachConditionVariable(m_conditionVariableDataPtr);
-    return m_conditionVector.push_back(&condition);
+
+    return false;
 }
 
 bool WaitSet::detachCondition(Condition& condition) noexcept
