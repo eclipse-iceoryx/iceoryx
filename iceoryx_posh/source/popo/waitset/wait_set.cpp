@@ -22,8 +22,9 @@ namespace popo
 WaitSet::WaitSet() noexcept
     : m_conditionVariableDataPtr(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
     , m_conditionVariableWaiter(m_conditionVariableDataPtr)
+    , m_guardCondition(m_conditionVariableDataPtr)
 {
-    /// @todo Add GuardCondition to m_conditionVector, it's the default condition
+    m_conditionVector.push_back(&m_guardCondition);
 }
 
 bool WaitSet::attachCondition(Condition& condition) noexcept

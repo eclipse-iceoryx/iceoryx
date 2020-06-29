@@ -23,6 +23,7 @@ namespace popo
 {
 class GuardCondition : public Condition
 {
+  public:
     GuardCondition(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
     void notify() noexcept;

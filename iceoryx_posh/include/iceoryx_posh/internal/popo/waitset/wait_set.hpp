@@ -15,6 +15,7 @@
 #define IOX_POSH_POPO_WAITSET_WAIT_SET_HPP
 
 #include "condition_variable_waiter.hpp"
+#include "guard_condition.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/waitset/condition.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -51,6 +52,7 @@ class WaitSet
     cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> m_conditionVector;
     ConditionVariableData* m_conditionVariableDataPtr;
     ConditionVariableWaiter m_conditionVariableWaiter;
+    GuardCondition m_guardCondition;
 };
 
 } // namespace popo

@@ -30,6 +30,7 @@ using namespace iox::mepoo;
 class WaitSet_test : public Test
 {
   public:
+    static constexpr uint16_t MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD = iox::popo::MAX_NUMBER_OF_CONDITIONS - 1;
     static constexpr size_t MEGABYTE = 1 << 20;
     static constexpr size_t MEMORY_SIZE = 1 * MEGABYTE;
     const uint64_t HISTORY_SIZE = 16;
@@ -41,9 +42,7 @@ class WaitSet_test : public Test
 
     WaitSet m_waitset;
     Condition m_condition;
-    vector<Condition, MAX_NUMBER_OF_CONDITIONS> m_conditionVector;
-    /// @todo Will be added in the c'tor of WaitSet
-    // GuardCondition m_guardCondition;
+    vector<Condition, MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD> m_conditionVector;
 
     void SetUp()
     {
@@ -110,7 +109,7 @@ TEST_F(WaitSet_test, DetachMultipleleConditionsSuccessful)
     }
 }
 
-TEST_F(WaitSet_test, DetachConditionFromEmptyListResultsInFailure)
+TEST_F(WaitSet_test, DetachConditionNotInListResultsInFailure)
 {
     EXPECT_FALSE(m_waitset.detachCondition(m_conditionVector.front()));
 }
