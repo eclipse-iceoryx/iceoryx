@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
+#include "iceoryx_posh/internal/popo/waitset/condition.hpp"
+#include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
 #include "iceoryx_posh/internal/popo/waitset/guard_condition.hpp"
 #include "iceoryx_posh/internal/popo/waitset/wait_set.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -40,12 +43,15 @@ class WaitSet_test : public Test
     MemPool mempool{128, 20, &allocator, &allocator};
     MemPool chunkMgmtPool{128, 20, &allocator, &allocator};
 
-    WaitSet m_waitset;
     Condition m_condition;
+    ConditionVariableData m_condVarData;
+    WaitSet m_waitset;
+    ConditionVariableSignaler m_signaler{&m_condVarData};
     vector<Condition, MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD> m_conditionVector;
 
     void SetUp()
     {
+        m_condition.attachConditionVariable(&m_condVarData);
         for (auto currentCondition : m_conditionVector)
         {
             m_conditionVector.push_back(m_condition);
