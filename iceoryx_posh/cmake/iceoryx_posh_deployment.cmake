@@ -7,10 +7,6 @@ if(NOT IOX_MAX_INTERFACE_NUMBER)
     set(IOX_MAX_INTERFACE_NUMBER 4u)
 endif()
 
-if(NOT IOX_MAX_RECEIVERS_PER_SENDERPORT)
-    set(IOX_MAX_RECEIVERS_PER_SENDERPORT 256u)
-endif()
-
 if(NOT IOX_MAX_SUBSCRIBERS_PER_PUBLISHER)
     set(IOX_MAX_SUBSCRIBERS_PER_PUBLISHER 256u)
 endif()
@@ -26,9 +22,6 @@ endif()
 if(NOT IOX_MAX_CHUNKS_HELD_PER_RECEIVER)
     set(IOX_MAX_CHUNKS_HELD_PER_RECEIVER 256u)
 endif()
-
-message("#### ${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_posh_deployment.hpp.in")
-message("#### ${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_posh/iceoryx_posh_deployment.hpp")
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_posh_deployment.hpp.in"
   "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_posh/iceoryx_posh_deployment.hpp" @ONLY)
