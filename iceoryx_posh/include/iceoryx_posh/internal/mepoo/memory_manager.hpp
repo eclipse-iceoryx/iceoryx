@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MEPOO_MEMORY_MANAGER_HPP
+#define IOX_POSH_MEPOO_MEMORY_MANAGER_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
@@ -25,7 +25,7 @@
 
 // this header must always be the last one, otherwise windows macros
 // are kicking in and nothing compiles
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 namespace iox
 {
@@ -82,3 +82,4 @@ class MemoryManager
 } // namespace mepoo
 } // namespace iox
 
+#endif // IOX_POSH_MEPOO_MEMORY_MANAGER_HPP

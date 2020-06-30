@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_OPTIONAL_HPP
+#define IOX_UTILS_CXX_OPTIONAL_HPP
 
-#pragma once
-
+#include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/types.hpp"
 
-#include <functional>
 #include <new> // needed for placement new in the construct_value member function
 #include <utility>
 
@@ -29,6 +29,7 @@ namespace cxx
 struct nullopt_t
 {
 };
+constexpr nullopt_t nullopt = nullopt_t();
 
 /// @brief Optional implementation from the C++17 standard with C++11. The
 ///         interface is analog to the C++17 standard and it can be used in
@@ -184,7 +185,7 @@ class optional
     ///         value the behavior is undefined. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return const reference to the underlying type
-    const T& value() const & noexcept;
+    const T& value() const& noexcept;
 
     /// @brief Returns a rvalue reference to the underlying value. If the optional has no
     ///         value the behavior is undefined. You need to verify that the
@@ -196,7 +197,7 @@ class optional
     ///         value the behavior is undefined. You need to verify that the
     ///         optional has a value by calling has_value() before using it.
     /// @return const rvalue reference to the underlying type
-    const T&& value() const && noexcept;
+    const T&& value() const&& noexcept;
 
     /// @brief If the optional contains a value a copy of that value is returned,
     ///         otherwise the default_value is returned.
@@ -209,23 +210,23 @@ class optional
     ///         if the optional contains a value
     /// @param[in] callable which has T as argument
     /// @return reference to this
-    optional& and_then(const std::function<void(T&)>& callable) noexcept;
+    optional& and_then(const cxx::function_ref<void(T&)>& callable) noexcept;
 
     /// @brief calls the provided callable with the optional value as arguments
     ///         if the optional contains a value
     /// @param[in] callable which has T as argument
     /// @return reference to this
-    const optional& and_then(const std::function<void(const T&)>& callable) const noexcept;
+    const optional& and_then(const cxx::function_ref<void(const T&)>& callable) const noexcept;
 
     /// @brief calls the provided callable if the optional does not contain a value
     /// @param[in] callable
     /// @return reference to this
-    optional& or_else(const std::function<void()>& callable) noexcept;
+    optional& or_else(const cxx::function_ref<void()>& callable) noexcept;
 
     /// @brief calls the provided callable if the optional does not contain a value
     /// @param[in] callable
     /// @return reference to this
-    const optional& or_else(const std::function<void()>& callable) const noexcept;
+    const optional& or_else(const cxx::function_ref<void()>& callable) const noexcept;
 
   private:
     alignas(alignof(T)) byte_t m_data[sizeof(T)];
@@ -248,3 +249,5 @@ optional<OptionalBaseType> make_optional(Targs&&... args) noexcept;
 } // namespace iox
 
 #include "iceoryx_utils/internal/cxx/optional.inl"
+
+#endif // IOX_UTILS_CXX_OPTIONAL_HPP

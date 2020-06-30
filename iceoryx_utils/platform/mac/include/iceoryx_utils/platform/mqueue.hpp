@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_MAC_PLATFORM_MQUEUE_HPP
+#define IOX_UTILS_MAC_PLATFORM_MQUEUE_HPP
 
 #include "iceoryx_utils/platform/types.hpp"
 
@@ -28,39 +28,39 @@ struct mq_attr
     long mq_curmsgs;
 };
 
-inline int mq_send(mqd_t mqdes, const char* msg_ptr, size_t msg_len, unsigned int msg_prio)
+inline int mq_send(mqd_t, const char*, size_t, unsigned int)
 {
     return 0;
 }
 
-inline int mq_timedsend(
-    mqd_t mqdes, const char* msg_ptr, size_t msg_len, unsigned int msg_prio, const struct timespec* abs_timeout)
+inline int mq_timedsend(mqd_t, const char*, size_t, unsigned int, const struct timespec*)
 {
     return 0;
 }
 
-inline int mq_close(mqd_t mqdes)
+inline int mq_close(mqd_t)
 {
     return 0;
 }
 
-inline mqd_t mq_open(const char* name, int oflag, mode_t mode, struct mq_attr* attr)
+inline mqd_t mq_open(const char*, int, mode_t, struct mq_attr*)
 {
     return 0;
 }
 
-inline ssize_t mq_receive(mqd_t mqdes, char* msg_ptr, size_t msg_len, unsigned int* msg_prio)
+inline ssize_t mq_receive(mqd_t, char*, size_t, unsigned int*)
 {
     return 0;
 }
 
-inline ssize_t
-mq_timedreceive(mqd_t mqdes, char* msg_ptr, size_t msg_len, unsigned int* msg_prio, const struct timespec* abs_timeout)
+inline ssize_t mq_timedreceive(mqd_t, char*, size_t, unsigned int*, const struct timespec*)
 {
     return 0;
 }
 
-inline int mq_unlink(const char* name)
+inline int mq_unlink(const char*)
 {
     return 0;
 }
+
+#endif // IOX_UTILS_MAC_PLATFORM_MQUEUE_HPP

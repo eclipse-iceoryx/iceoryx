@@ -11,7 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+#ifndef IOX_UTILS_CONCURRENT_SOFI_INL
+#define IOX_UTILS_CONCURRENT_SOFI_INL
 
 namespace iox
 {
@@ -187,3 +188,5 @@ bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueOut, ValueType& 
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_UTILS_CONCURRENT_SOFI_INL

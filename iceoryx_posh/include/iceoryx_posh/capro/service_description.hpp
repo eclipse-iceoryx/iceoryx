@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
+#define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
 #include "iceoryx_utils/cxx/serialization.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -203,3 +203,5 @@ bool serviceMatch(const ServiceDescription& first, const ServiceDescription& sec
 
 } // namespace capro
 } // namespace iox
+
+#endif // IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP

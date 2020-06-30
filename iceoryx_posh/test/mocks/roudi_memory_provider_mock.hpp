@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_MOCKS_ROUDI_MEMORY_PROVIDER_MOCK_HPP
+#define IOX_POSH_MOCKS_ROUDI_MEMORY_PROVIDER_MOCK_HPP
 
 #include "test.hpp"
 
@@ -38,11 +40,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
             createMemoryMock(size, alignment);
         }
 
-#if defined(QNX) || defined(QNX__) || defined(__QNX__)
-        dummyMemory = static_cast<uint8_t*>(memalign(alignment, size));
-#else
-        dummyMemory = static_cast<uint8_t*>(aligned_alloc(alignment, size));
-#endif
+        dummyMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignment, size));
         return iox::cxx::success<void*>(dummyMemory);
     }
     MOCK_METHOD2(createMemoryMock, void(uint64_t, uint64_t));
@@ -54,7 +52,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
             destroyMemoryMock();
         }
 
-        free(dummyMemory);
+        iox::cxx::alignedFree(dummyMemory);
         dummyMemory = nullptr;
 
         return iox::cxx::success<void>();
@@ -76,3 +74,5 @@ class MemoryProviderMock final : public MemoryProviderTestImpl
         m_mockCallsEnabled = true;
     }
 };
+
+#endif // IOX_POSH_MOCKS_ROUDI_MEMORY_PROVIDER_MOCK_HPP

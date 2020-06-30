@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_POPO_RECEIVER_PORT_DATA_HPP
+#define IOX_POSH_POPO_RECEIVER_PORT_DATA_HPP
 
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
@@ -24,7 +24,7 @@
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 namespace iox
 {
@@ -66,3 +66,5 @@ struct ReceiverPortData : public BasePortData
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_RECEIVER_PORT_DATA_HPP

@@ -74,7 +74,7 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
         }
     }
 
-    static constexpr long TIMING_TEST_TIMEOUT{(100_ms).nanoSeconds<long>()};
+    static constexpr unsigned long long TIMING_TEST_TIMEOUT{(100_ms).nanoSeconds<long>()};
 
     iox::posix::Semaphore* sut{nullptr};
     iox::posix::Semaphore* syncSemaphore = [] {
@@ -101,7 +101,11 @@ class SemaphoreCreate_test : public Test
     }
 };
 
+/// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_CASE_P(Semaphore_test, Semaphore_test, Values(&CreateNamedSemaphore, &CreateUnnamedSemaphore));
+#pragma GCC diagnostic pop
 
 TEST_F(SemaphoreCreate_test, CreateNamedSemaphore)
 {
@@ -129,6 +133,12 @@ TEST_F(SemaphoreCreate_test, OpenNamedSemaphore)
     auto semaphore2 = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
     EXPECT_THAT(semaphore2.has_error(), Eq(false));
+}
+
+TEST_F(SemaphoreCreate_test, OpenNamedSemaphoreWithEmptyNameFails)
+{
+    auto semaphore = iox::posix::Semaphore::create("", S_IRUSR | S_IWUSR, 10);
+    EXPECT_THAT(semaphore.has_error(), Eq(true));
 }
 
 TEST_F(SemaphoreCreate_test, OpenNonExistingNamedSemaphore)
@@ -294,13 +304,11 @@ TEST_P(Semaphore_test, MoveCTor)
 }
 
 TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
+    using namespace iox::units;
     std::atomic_bool timedWaitFinish{false};
-    bool isTestSuccessful{true};
 
     std::thread t([&] {
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        ts.tv_nsec += TIMING_TEST_TIMEOUT;
+        auto ts = Duration::nanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
         syncSemaphore->post();
         sut->wait();
         TIMING_TEST_EXPECT_FALSE(sut->timedWait(&ts, false));
@@ -320,13 +328,11 @@ TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {
 
 
 TIMING_TEST_P(Semaphore_test, TimedWaitWithoutTimeout, Repeat(3), [&] {
+    using namespace iox::units;
     std::atomic_bool timedWaitFinish{false};
-    bool isTestSuccessful{true};
 
     std::thread t([&] {
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        ts.tv_nsec += TIMING_TEST_TIMEOUT;
+        auto ts = Duration::nanoseconds(TIMING_TEST_TIMEOUT).timespec(TimeSpecReference::Epoch);
         syncSemaphore->post();
         sut->wait();
         TIMING_TEST_EXPECT_TRUE(sut->timedWait(&ts, false));

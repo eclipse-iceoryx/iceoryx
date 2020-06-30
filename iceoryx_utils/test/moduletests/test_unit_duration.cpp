@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "test.hpp"
 
 using namespace ::testing;
 using namespace iox::units;
@@ -220,4 +220,16 @@ TEST(Duration_test, constructFromTimeval)
 
     Duration result(value);
     EXPECT_EQ(result.microSeconds<uint64_t>(), 42 + 1000000 * 1337);
+}
+
+TEST(Duration_test, isZeroWhenConstructedFromNegativeChronoMilliSeconds)
+{
+    Duration result(std::chrono::milliseconds(-1));
+    EXPECT_EQ(result.milliSeconds<uint64_t>(), 0u);
+}
+
+TEST(Duration_test, isZeroWhenConstructedFromNegativeChronoNanoSeconds)
+{
+    Duration result(std::chrono::nanoseconds(-1));
+    EXPECT_EQ(result.nanoSeconds<uint64_t>(), 0u);
 }

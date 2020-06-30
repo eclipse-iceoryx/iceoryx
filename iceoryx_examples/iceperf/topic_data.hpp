@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_EXAMPLES_ICEPERF_TOPIC_DATA_HPP
+#define IOX_EXAMPLES_ICEPERF_TOPIC_DATA_HPP
 
 #include <cstdint>
 
@@ -21,3 +21,5 @@ struct PerfTopic
     uint32_t payloadSize{0};
     bool run{true};
 };
+
+#endif // IOX_EXAMPLES_ICEPERF_TOPIC_DATA_HPP

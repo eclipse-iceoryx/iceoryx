@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_OPTIONAL_INL
+#define IOX_UTILS_CXX_OPTIONAL_INL
 
 namespace iox
 {
@@ -277,7 +279,7 @@ inline optional<OptionalBaseType> make_optional(Targs&&... args) noexcept
 }
 
 template <typename T>
-inline optional<T>& optional<T>::and_then(const std::function<void(T&)>& callable) noexcept
+inline optional<T>& optional<T>::and_then(const cxx::function_ref<void(T&)>& callable) noexcept
 {
     if (m_hasValue && callable)
     {
@@ -287,7 +289,7 @@ inline optional<T>& optional<T>::and_then(const std::function<void(T&)>& callabl
 }
 
 template <typename T>
-inline const optional<T>& optional<T>::and_then(const std::function<void(const T&)>& callable) const noexcept
+inline const optional<T>& optional<T>::and_then(const cxx::function_ref<void(const T&)>& callable) const noexcept
 {
     if (m_hasValue && callable)
     {
@@ -297,7 +299,7 @@ inline const optional<T>& optional<T>::and_then(const std::function<void(const T
 }
 
 template <typename T>
-inline optional<T>& optional<T>::or_else(const std::function<void()>& callable) noexcept
+inline optional<T>& optional<T>::or_else(const cxx::function_ref<void()>& callable) noexcept
 {
     if (!m_hasValue && callable)
     {
@@ -307,7 +309,7 @@ inline optional<T>& optional<T>::or_else(const std::function<void()>& callable) 
 }
 
 template <typename T>
-inline const optional<T>& optional<T>::or_else(const std::function<void()>& callable) const noexcept
+inline const optional<T>& optional<T>::or_else(const cxx::function_ref<void()>& callable) const noexcept
 {
     if (!m_hasValue && callable)
     {
@@ -319,3 +321,5 @@ inline const optional<T>& optional<T>::or_else(const std::function<void()>& call
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_OPTIONAL_INL

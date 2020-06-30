@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ROUDI_ICEORYX_ROUDI_APP_HPP
+#define IOX_POSH_ROUDI_ICEORYX_ROUDI_APP_HPP
 
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 
@@ -34,3 +34,5 @@ class IceOryxRouDiApp : public RouDiApp
 
 } // namespace roudi
 } // namespace iox
+
+#endif // IOX_POSH_ROUDI_ICEORYX_ROUDI_APP_HPP

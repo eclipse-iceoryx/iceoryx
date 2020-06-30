@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_WIN_PLATFORM_UNISTD_HPP
+#define IOX_UTILS_WIN_PLATFORM_UNISTD_HPP
 
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/windows.hpp"
@@ -43,3 +43,5 @@ class HandleTranslator
 int ftruncate(int fildes, off_t length);
 long sysconf(int name);
 int closePlatformFileHandle(int fd);
+
+#endif // IOX_UTILS_WIN_PLATFORM_UNISTD_HPP

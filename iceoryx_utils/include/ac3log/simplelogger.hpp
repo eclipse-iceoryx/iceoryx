@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_AC3LOG_SIMPLELOGGER_HPP
+#define IOX_UTILS_AC3LOG_SIMPLELOGGER_HPP
 
 #include "iceoryx_utils/log/logging.hpp"
 
@@ -110,3 +110,5 @@ inline void LOG_DEBUG(const char* msg)
 {
     LOG_X(L_DEBUG, msg);
 }
+
+#endif // IOX_UTILS_AC3LOG_SIMPLELOGGER_HPP

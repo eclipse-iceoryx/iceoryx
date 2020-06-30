@@ -190,7 +190,11 @@ TEST_P(BasePortParamtest, getApplicationname)
     }
 }
 
+/// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_CASE_P(
     CaPro,
     BasePortParamtest,
     Values(&CreateCaProPort, &CreateReceiverPort, &CreateSenderPort, &CreateInterfacePort, &CreateApplicationPort));
+#pragma GCC diagnostic pop

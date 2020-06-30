@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_ROUDI_PORT_POOL_DATA_BASE_HPP
+#define IOX_POSH_ROUDI_PORT_POOL_DATA_BASE_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
@@ -60,3 +60,5 @@ struct PortPoolDataBase
 } // namespace iox
 
 #include "iceoryx_posh/internal/roudi/port_pool_data_base.inl"
+
+#endif // IOX_POSH_ROUDI_PORT_POOL_DATA_BASE_HPP

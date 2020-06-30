@@ -11,12 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_MAC_PLATFORM_PTHREAD_HPP
+#define IOX_UTILS_MAC_PLATFORM_PTHREAD_HPP
 
 #include <pthread.h>
 
-inline int pthread_setname_np(pthread_t thread, const char* name)
+inline int pthread_setname_np(pthread_t, const char* name)
 {
     return pthread_setname_np(name);
 }
+
+#endif // IOX_UTILS_MAC_PLATFORM_PTHREAD_HPP

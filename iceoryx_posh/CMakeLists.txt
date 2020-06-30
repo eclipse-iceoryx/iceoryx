@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(iceoryx_posh_VERSION 0.17.0.2)
+file (STRINGS "../VERSION" iceoryx_posh_VERSION)
 project(iceoryx_posh VERSION ${iceoryx_posh_VERSION})
 
 find_package(Threads REQUIRED)
@@ -11,6 +11,8 @@ include(cmake/iceoryxversions.cmake)
 include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
 include(IceoryxPlatformDetection)
+
+include(cmake/iceoryx_posh_deployment.cmake)
 
 if( clang-tidy )
     find_program(
@@ -46,6 +48,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 #
 ########## build posh lib for ##########
 #
+
 add_library(iceoryx_posh
     source/log/posh_logging.cpp
     source/capro/capro_message.cpp
@@ -264,23 +267,23 @@ if(roudi_environment OR test)
     )
 endif(roudi_environment OR test)
 
-if(ICEORYX_LARGE_DEPLOYMENT)
-    add_definitions(-DICEORYX_LARGE_DEPLOYMENT)
-endif(ICEORYX_LARGE_DEPLOYMENT)
-
 #
 ########## exporting library ##########
 #
+if(TOML_CONFIG)
+    set(ROUDI_EXPORT RouDi)
+endif(TOML_CONFIG)
+
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_posh iceoryx_posh_roudi
+    TARGETS iceoryx_posh iceoryx_posh_roudi ${ROUDI_EXPORT}
     INCLUDE_DIRECTORY include/
 )
-if(TOML_CONFIG)
-    setup_install_directories_and_export_package(
-        TARGETS RouDi
-        INCLUDE_DIRECTORY include/
-    )
-endif(TOML_CONFIG)
+
+install(
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_posh_deployment.hpp
+    DESTINATION include/${PREFIX}/${PROJECT_NAME}/
+    COMPONENT dev
+)
 
 if(test)
     add_subdirectory(test)

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_RUNTIME_RUNNABLE_HPP
+#define IOX_POSH_RUNTIME_RUNNABLE_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -21,7 +21,7 @@ namespace iox
 {
 namespace runtime
 {
-struct RunnableData;
+class RunnableData;
 
 /// @brief class which represents a runnable
 class Runnable
@@ -58,3 +58,5 @@ class Runnable
 };
 } // namespace runtime
 } // namespace iox
+
+#endif // IOX_POSH_RUNTIME_RUNNABLE_HPP

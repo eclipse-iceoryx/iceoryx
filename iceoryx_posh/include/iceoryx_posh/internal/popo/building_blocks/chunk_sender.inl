@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_INL
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_INL
 
 namespace iox
 {
@@ -173,3 +175,5 @@ inline bool ChunkSender<ChunkDistributorType>::getChunkReadyForSend(const mepoo:
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_INL

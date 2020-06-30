@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_VARIANT_INL
+#define IOX_UTILS_CXX_VARIANT_INL
 
 #include "iceoryx_utils/cxx/variant.hpp"
 
@@ -278,3 +280,5 @@ inline constexpr bool holds_alternative(const variant<Types...>& f_variant) noex
 }
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_VARIANT_INL

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_CXX_VECTOR_HPP
+#define IOX_UTILS_CXX_VECTOR_HPP
 
 #include <algorithm>
 #include <cstdint>
@@ -168,4 +168,12 @@ class vector
 } // namespace cxx
 } // namespace iox
 
+template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
+bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept;
+
+template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
+bool operator!=(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept;
+
 #include "iceoryx_utils/internal/cxx/vector.inl"
+
+#endif // IOX_UTILS_CXX_VECTOR_HPP

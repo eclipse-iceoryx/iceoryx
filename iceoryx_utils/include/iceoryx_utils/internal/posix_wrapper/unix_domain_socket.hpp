@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
+#define IOX_UTILS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
@@ -32,11 +32,21 @@ namespace posix
 class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcChannelError>
 {
   public:
-    static constexpr size_t MAX_MESSAGE_SIZE = 4096u;
+    struct NoPathPrefix_t
+    {
+    };
+    static constexpr NoPathPrefix_t NoPathPrefix{};
+
+    /// @brief Max message size is on linux = 4096 and on mac os = 2048. To have
+    ///  the same behavior on every platform we use 2048.
+    static constexpr size_t MAX_MESSAGE_SIZE = 2048u;
     static constexpr size_t SHORTEST_VALID_NAME = 2u;
-    static constexpr size_t LONGEST_VALID_NAME = 100u;
+    /// @brief The name has to contain the full path besides the name and has to
+    ///      be therefore much longer then the message queue pendant.
+    static constexpr size_t LONGEST_VALID_NAME = 1024u;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
+    static constexpr char PATH_PREFIX[] = "/tmp/";
 
     /// @brief for calling private constructor in create method
     friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
@@ -58,28 +68,34 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
     static cxx::expected<bool, IpcChannelError> unlinkIfExists(const std::string& name) noexcept;
 
+    /// @brief unlink the provided unix domain socket
+    /// @param NoPathPrefix signalling that this method does not add a path prefix
+    /// @param name of the unix domain socket to unlink
+    /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const NoPathPrefix_t, const std::string& name) noexcept;
+
     /// @brief close the unix domain socket.
     cxx::expected<IpcChannelError> destroy() noexcept;
 
     /// @brief send a message using std::string.
     /// @param msg to send
     /// @return IpcChannelError if error occured
-    cxx::expected<IpcChannelError> send(const std::string& msg) noexcept;
+    cxx::expected<IpcChannelError> send(const std::string& msg) const noexcept;
 
     /// @brief try to send a message for a given timeout duration using std::string
     /// @param msg to send
     /// @param timout for the send operation
     /// @return IpcChannelError if error occured
-    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) noexcept;
+    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
 
     /// @brief receive message using std::string.
     /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
-    cxx::expected<std::string, IpcChannelError> receive() noexcept;
+    cxx::expected<std::string, IpcChannelError> receive() const noexcept;
 
     /// @brief try to receive message for a given timeout duration using std::string.
     /// @param timout for the receive operation
     /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
-    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) noexcept;
+    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
     /// @brief checks whether the unix domain socket is outdated
     /// @return true if the unix domain socket is outdated, false otherwise, IpcChannelError if error occured
@@ -98,6 +114,21 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10u) noexcept;
 
+    /// @brief c'tor
+    /// @param NoPathPrefix signalling that this constructor does not add a path prefix
+    /// @param name for the unix domain socket
+    /// @param mode blocking or non_blocking
+    /// @param channel side client or server
+    /// @param maxMsgSize max message size that can be transmitted
+    /// @param maxMsgNumber max messages that can be queued
+    UnixDomainSocket(const NoPathPrefix_t,
+                     const std::string& name,
+                     const IpcChannelMode mode,
+                     const IpcChannelSide channelSide,
+                     const size_t maxMsgSize = MAX_MESSAGE_SIZE,
+                     const uint64_t maxMsgNumber = 10u) noexcept;
+
+
     /// @brief creates the unix domain socket
     /// @param mode blocking or non_blocking
     /// @return int with the socket file descriptor, IpcChannelError if error occured
@@ -105,7 +136,9 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 
     /// @brief create an IpcChannelError from the provides error code
     /// @return IpcChannelError if error occured
-    cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) noexcept;
+    cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
+
+    static bool isNameValid(const std::string& name) noexcept;
 
   private:
     std::string m_name;
@@ -116,3 +149,5 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
 };
 } // namespace posix
 } // namespace iox
+
+#endif // IOX_UTILS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP

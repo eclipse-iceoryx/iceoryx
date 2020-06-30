@@ -80,8 +80,6 @@ codebase follows these rules, things are work in progress.
     does return a bool)
 7) **Always use `iox::log::Logger`**, instead of `printf()`
 8) **Always use `iox::ErrorHandler()`**, instead of the direct STL calls
-9) **No include guards** Till [modules](https://isocpp.org/files/papers/n4720.pdf) are arriving with C++20, we'll rely
-    on `#pragma once` instead of the usual include guards
 
 ### Naming conventions
 

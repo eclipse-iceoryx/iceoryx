@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_WIN_PLATFORM_PWD_HPP
+#define IOX_UTILS_WIN_PLATFORM_PWD_HPP
 
 #include "iceoryx_utils/platform/types.hpp"
 
@@ -42,3 +42,5 @@ inline uid_t geteuid()
 {
     return 0;
 }
+
+#endif // IOX_UTILS_WIN_PLATFORM_PWD_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP
+#define IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP
 
 #include "iceoryx_utils/fixed_string/string100.hpp"
 
@@ -23,8 +23,9 @@ namespace iox
 namespace runtime
 {
 /// @brief struct which contains all the members of an object of type Runnable
-struct RunnableData
+class RunnableData
 {
+  public:
     /// @brief constructor
     /// @param[in] name name of the runnable
     /// @param[in] runnableDeviceIdentifier identifier of the device on which the runnable will run
@@ -46,3 +47,4 @@ struct RunnableData
 } // namespace runtime
 } // namespace iox
 
+#endif // IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP

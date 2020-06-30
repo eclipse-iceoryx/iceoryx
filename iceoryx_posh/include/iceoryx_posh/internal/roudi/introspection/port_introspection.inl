@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL
+#define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL
 
 namespace iox
 {
@@ -602,3 +604,5 @@ bool PortIntrospection<SenderPort, ReceiverPort>::removeReceiver(const std::stri
 
 } // namespace roudi
 } // namespace iox
+
+#endif // IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL

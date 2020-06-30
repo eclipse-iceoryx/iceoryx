@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_UTILS_CXX_VECTOR_INL
+#define IOX_UTILS_CXX_VECTOR_INL
 
 #include "iceoryx_utils/cxx/vector.hpp"
 
@@ -195,7 +197,7 @@ inline T& vector<T, Capacity>::at(const uint64_t index)
 {
     /// @rationale
     /// const cast to avoid code duplication
-    return const_cast<T&>(const_cast<const vector<T, Capacity>*>(this)->at(index));  // PRQA S 3066 
+    return const_cast<T&>(const_cast<const vector<T, Capacity>*>(this)->at(index)); // PRQA S 3066
 }
 
 template <typename T, uint64_t Capacity>
@@ -203,7 +205,7 @@ inline const T& vector<T, Capacity>::at(const uint64_t index) const
 {
     if (index + 1u > m_size)
     {
-        std::cerr << "out of bounds access, current size is " << m_size <<  " but given index is " << index << std::endl;
+        std::cerr << "out of bounds access, current size is " << m_size << " but given index is " << index << std::endl;
         std::terminate();
     }
     return reinterpret_cast<const T*>(m_data)[index];
@@ -308,3 +310,31 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
 
 } // namespace cxx
 } // namespace iox
+
+template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
+bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
+{
+    uint64_t vectorSize = lhs.size();
+    if (vectorSize != rhs.size())
+    {
+        return false;
+    }
+
+    for (uint64_t i = 0u; i < vectorSize; ++i)
+    {
+        if (lhs[i] != rhs[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
+bool operator!=(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
+{
+    return !(lhs == rhs);
+}
+
+
+#endif // IOX_UTILS_CXX_VECTOR_INL

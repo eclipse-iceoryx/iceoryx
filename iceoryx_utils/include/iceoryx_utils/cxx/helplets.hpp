@@ -11,11 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_CXX_HELPLETS_HPP
+#define IOX_UTILS_CXX_HELPLETS_HPP
 
 #include "iceoryx_utils/cxx/generic_raii.hpp"
-#include "iceoryx_utils/platform/platform-correction.hpp"
+#include "iceoryx_utils/platform/platform_correction.hpp"
 
 #include <assert.h>
 #include <iostream>
@@ -112,6 +112,16 @@ T align(const T value, const T alignment)
     return value + ((remainder == 0u) ? 0u : alignment - remainder);
 }
 
+/// @brief allocates aligned memory which can only be free'd by alignedFree
+/// @param[in] alignment, alignment of the memory
+/// @param[in] size, memory size
+/// @return void pointer to the aligned memory
+void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept;
+
+/// @brief frees aligned memory allocated with alignedAlloc
+/// @param[in] memory, pointer to the aligned memory
+void alignedFree(void* const memory);
+
 /// template recursion stopper for maximum alignment calculation
 template <size_t s = 0>
 constexpr size_t maxAlignment()
@@ -169,3 +179,5 @@ auto enumTypeAsUnderlyingType(enum_type const value) -> typename std::underlying
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_UTILS_CXX_HELPLETS_HPP

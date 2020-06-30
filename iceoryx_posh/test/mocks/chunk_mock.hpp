@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MOCKS_CHUNK_MOCK_HPP
+#define IOX_POSH_MOCKS_CHUNK_MOCK_HPP
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -30,15 +30,8 @@ class ChunkMock
   public:
     ChunkMock()
     {
-#if defined(QNX) || defined(QNX__) || defined(__QNX__)
-        m_rawMemory = static_cast<uint8_t*>(memalign(Alignment, Size));
-#elif defined(_WIN32)
-        m_rawMemory = static_cast<uint8_t*>(_aligned_malloc(Alignment, Size));
-#else
-        m_rawMemory = static_cast<uint8_t*>(aligned_alloc(Alignment, Size));
-#endif
+        m_rawMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(Alignment, Size));
         assert(m_rawMemory != nullptr && "Could not get aligned memory");
-
         memset(m_rawMemory, 0xFF, Size);
 
         m_chunkHeader = new (m_rawMemory) iox::mepoo::ChunkHeader();
@@ -52,7 +45,7 @@ class ChunkMock
         }
         if (m_rawMemory != nullptr)
         {
-            free(m_rawMemory);
+            iox::cxx::alignedFree(m_rawMemory);
             m_rawMemory = nullptr;
         }
     }
@@ -79,3 +72,5 @@ class ChunkMock
     iox::mepoo::ChunkHeader* m_chunkHeader = nullptr;
     Topic* m_topic = nullptr;
 };
+
+#endif // IOX_POSH_MOCKS_CHUNK_MOCK_HPP

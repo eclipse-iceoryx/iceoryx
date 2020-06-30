@@ -26,13 +26,12 @@ set -e
 WORKSPACE=$(git rev-parse --show-toplevel)
 
 ICEORYX_INSTALL_PREFIX=$WORKSPACE/build/install/prefix/
-DEPENDENCIES_INSTALL_PREFIX=$WORKSPACE/build/dependencies/
 
 CLEAN_BUILD=false
 BUILD_TYPE=""
 TEST_FLAG="off"
-DOWNLOAD_GTEST=true
-DOWNLOAD_CPPTOML=true
+RUN_TEST=false
+INTROSPECTION_FLAG="on"
 
 for arg in "$@"
 do
@@ -47,14 +46,15 @@ do
             BUILD_TYPE="Debug"
             ;;
         "test")
-            BUILD_TEST=true
+            RUN_TEST=true
             TEST_FLAG="on"
             ;;
-        "no-gtest-download")
-            DOWNLOAD_GTEST=false
-            ;;
-        "no-cpptoml-download")
-            DOWNLOAD_CPPTOML=false
+        "build-test")
+            RUN_TEST=false
+            TEST_FLAG="on"
+            ;;            
+        "skip-introspection")
+            INTROSPECTION_FLAG="off"
             ;;
         "help")
             echo "Build script for iceoryx."
@@ -66,10 +66,8 @@ do
             echo "    release               Build release configuration"
             echo "    debug                 Build debug configuration"
             echo "    test                  Builds and runs the tests"
-            echo "    no-gtest-download     Gtest will not be downloaded, but searched in the system"
-            echo "                          Be careful, there might be problems due to incompatible versions"
-            echo "    no-cpptoml-download   Cpptoml will not be downloaded, but searched in the system"
-            echo "                          Be careful, there might be problems due to incompatible versions"
+            echo "    build-test            Builds the tests (doesn't tun)"
+            echo "    skip-introspection    Skips building iceoryx introspection"
             echo "    help                  Prints this help"
             echo ""
             echo "e.g. iceoryx_build_test.sh clean test release"
@@ -103,59 +101,10 @@ cd build
 echo " [i] Current working directory:"
 pwd
 
-# Download and build googletest
-if [[ $TEST_FLAG == "on" && $DOWNLOAD_GTEST == true ]]
-then
-    cd $WORKSPACE/build
-    mkdir -p googletest
-    cd googletest
-
-    echo ">>>>>> Start building googletest dependency <<<<<<"
-    cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$DEPENDENCIES_INSTALL_PREFIX -Dtest=$TEST_FLAG $WORKSPACE/cmake/googletest
-    echo ">>>>>> finished building googletest dependency <<<<<<"
-fi
-
-# Build download and build cpptoml
-if [ $DOWNLOAD_CPPTOML == true ]
-then
-    cd $WORKSPACE/build
-    mkdir -p cpptoml
-    cd cpptoml
-
-    echo ">>>>>> Start building cpptoml dependency <<<<<<"
-    cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$DEPENDENCIES_INSTALL_PREFIX $WORKSPACE/cmake/cpptoml
-    echo ">>>>>> finished building googletest dependency <<<<<<"
-fi
-
-# Build iceoryx_utils
-cd $WORKSPACE/build
-mkdir -p utils
-cd utils
-
-echo ">>>>>> Start building iceoryx utils package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=$DEPENDENCIES_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -Dtest=$TEST_FLAG $WORKSPACE/iceoryx_utils
+echo ">>>>>> Start building iceoryx package <<<<<<"
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install
-echo ">>>>>> finished building iceoryx utils package <<<<<<"
-
-# Build iceoryx_posh
-cd $WORKSPACE/build
-mkdir -p posh
-cd posh
-
-echo ">>>>>> Start building iceoryx posh package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=$DEPENDENCIES_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on $WORKSPACE/iceoryx_posh
-cmake --build . --target install
-echo ">>>>>> finished building iceoryx posh package <<<<<<"
-
-# Build iceoryx_introspection
-cd $WORKSPACE/build
-mkdir -p iceoryx_introspection
-cd iceoryx_introspection
-
-echo ">>>>>> Start building iceoryx introspection <<<<<<"
-cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -Dtest=$TEST_FLAG -Droudi_environment=on $WORKSPACE/tools/introspection
-cmake --build . --target install
-echo ">>>>>> finished building iceoryx introspection package <<<<<<"
+echo ">>>>>> finished building iceoryx package <<<<<<"
 
 echo ">>>>>> Start building iceoryx examples <<<<<<"
 cd $WORKSPACE/build
@@ -178,7 +127,7 @@ echo ">>>>>> finished building iceoryx examples <<<<<<"
 #==== Step 2 : Run all Tests  =======================================================================
 #====================================================================================================
 
-if [ $TEST_FLAG == "on" ]
+if [ $RUN_TEST == true ]
 then
 
 # The absolute path of the directory assigned to the build

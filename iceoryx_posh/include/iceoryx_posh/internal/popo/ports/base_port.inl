@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_POPO_PORTS_BASE_PORT_INL
+#define IOX_POSH_POPO_PORTS_BASE_PORT_INL
 
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 
@@ -30,3 +32,5 @@ inline BasePort::MemberType_t* BasePort::getMembers() noexcept
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_PORTS_BASE_PORT_INL

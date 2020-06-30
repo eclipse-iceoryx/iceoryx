@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(iceoryx_utils_VERSION 0.17.0.2)
+file (STRINGS "../VERSION" iceoryx_utils_VERSION)
 project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
@@ -52,6 +52,7 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
     add_library(iceoryx_utils_testing
         testutils/mocks/mqueue_mock.cpp
         testutils/mocks/time_mock.cpp
+        testutils/timing_test.cpp
     )
 
     add_library(iceoryx_utils_testing::iceoryx_utils_testing ALIAS iceoryx_utils_testing)
@@ -127,6 +128,7 @@ add_library(iceoryx_utils
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
     source/concurrent/locked_loffli.cpp
+    source/cxx/helplets.cpp
     source/cxx/generic_raii.cpp
     source/error_handling/error_handling.cpp
     source/file_reader/file_reader.cpp
@@ -138,7 +140,6 @@ add_library(iceoryx_utils
     source/log/logstream.cpp
     source/log/ac3log_shim/simplelogger.cpp
     source/posix_wrapper/access_control.cpp
-    source/posix_wrapper/argv_inspection.cpp
     source/posix_wrapper/mutex.cpp
     source/posix_wrapper/semaphore.cpp
     source/posix_wrapper/timer.cpp

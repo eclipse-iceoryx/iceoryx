@@ -11,9 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#ifndef IOX_POPO_BASE_PORT_DATA_HPP_
-#define IOX_POPO_BASE_PORT_DATA_HPP_
+#ifndef IOX_POSH_POPO_PORTS_BASE_PORT_DATA_HPP
+#define IOX_POSH_POPO_PORTS_BASE_PORT_DATA_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -26,7 +25,7 @@ namespace iox
 {
 namespace runtime
 {
-struct RunnableData;
+class RunnableData;
 }
 
 namespace popo
@@ -61,4 +60,4 @@ struct BasePortData
 } // namespace popo
 } // namespace iox
 
-#endif
+#endif // IOX_POSH_POPO_PORTS_BASE_PORT_DATA_HPP

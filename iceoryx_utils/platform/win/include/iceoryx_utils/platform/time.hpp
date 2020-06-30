@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_WIN_PLATFORM_TIME_HPP
+#define IOX_UTILS_WIN_PLATFORM_TIME_HPP
 
 #include "iceoryx_utils/platform/win32_errorHandling.hpp"
 #include "iceoryx_utils/platform/windows.hpp"
@@ -95,3 +95,5 @@ inline int gettimeofday(struct timeval* tp, struct timezone* tzp)
     tp->tv_usec = static_cast<suseconds_t>(systemTime.wMilliseconds * 1000);
     return 0;
 }
+
+#endif // IOX_UTILS_WIN_PLATFORM_TIME_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_POPO_RECEIVER_PORT_HPP
+#define IOX_POSH_POPO_RECEIVER_PORT_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
@@ -59,9 +59,9 @@ class ReceiverPort : public BasePort
 
     // BEGIN REGION__APPLICATION // /* access from Application-------------------------------
 
-    void subscribe(const bool f_autoResubscribe = false,
-                   const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY); // deprecated
-    void subscribe(const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY);
+    virtual void subscribe(const bool f_autoResubscribe = false,
+                           const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY); // deprecated
+    virtual void subscribe(const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY);
     void unsubscribe();
     bool isSubscribed() const;
     SubscribeState getSubscribeState() const;
@@ -109,3 +109,4 @@ class ReceiverPort : public BasePort
 
 #include "iceoryx_posh/internal/popo/receiver_port.inl"
 
+#endif // IOX_POSH_POPO_RECEIVER_PORT_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_MEPOO_SEGMENT_CONFIG_HPP
+#define IOX_POSH_MEPOO_SEGMENT_CONFIG_HPP
 
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -58,3 +58,4 @@ struct SegmentConfig
 } // namespace mepoo
 } // namespace iox
 
+#endif // IOX_POSH_MEPOO_SEGMENT_CONFIG_HPP

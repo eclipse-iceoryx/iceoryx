@@ -46,7 +46,8 @@ cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> Chunk
         // if the application holds too many chunks, don't provide more
         if (getMembers()->m_chunksInUse.insert(sharedChunk))
         {
-            return cxx::success<cxx::optional<const mepoo::ChunkHeader*>>(sharedChunk.getChunkHeader());
+            return cxx::success<cxx::optional<const mepoo::ChunkHeader*>>(
+                const_cast<const mepoo::ChunkHeader*>(sharedChunk.getChunkHeader()));
         }
         else
         {

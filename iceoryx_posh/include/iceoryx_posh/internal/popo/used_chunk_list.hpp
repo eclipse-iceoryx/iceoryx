@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_POSH_POPO_USED_CHUNK_LIST_HPP
+#define IOX_POSH_POPO_USED_CHUNK_LIST_HPP
 
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
@@ -175,3 +175,5 @@ class UsedChunkList
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_USED_CHUNK_LIST_HPP
