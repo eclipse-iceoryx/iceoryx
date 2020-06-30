@@ -26,12 +26,12 @@ InterfacePort::InterfacePort(InterfacePortData* const interfacePortDataPtr) noex
 
 bool InterfacePort::dispatchCaProMessage(const capro::CaproMessage& message) noexcept
 {
-    const bool returner = getMembers()->m_caproMessageFiFo.push(message);
-    if (!returner)
+    const bool pushResult = getMembers()->m_caproMessageFiFo.push(message);
+    if (!pushResult)
     {
         errorHandler(Error::kPOSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, nullptr, iox::ErrorLevel::SEVERE);
     }
-    return returner;
+    return pushResult;
 }
 
 bool InterfacePort::getCaProMessage(capro::CaproMessage& message) noexcept
