@@ -84,7 +84,8 @@ class Channel
     /// @param dataSize The size of the individual data elements communicated over the channel.
     /// @return A copy of the created channel, if successful.
     ///
-    static iox::cxx::expected<Channel, ChannelError> create(const iox::capro::ServiceDescription& service, const uint64_t& dataSize) noexcept;
+    static iox::cxx::expected<Channel, ChannelError> create(const iox::capro::ServiceDescription& service,
+                                                            const uint64_t& dataSize) noexcept;
 
     iox::capro::ServiceDescription getServiceDescription() const noexcept;
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;
@@ -101,7 +102,6 @@ class Channel
     DDSTerminalPtr m_ddsTerminal;
 
     uint64_t m_dataSize;
-
 };
 
 } // namespace dds

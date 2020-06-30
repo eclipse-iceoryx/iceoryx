@@ -41,14 +41,15 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
         auto serviceName = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_NAME);
         auto instance = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_INSTANCE_NAME);
         auto event = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_EVENT_NAME);
-        entry.m_serviceDescription = iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, *serviceName),
-                                                                    iox::capro::IdString(iox::cxx::TruncateToCapacity, *instance),
-                                                                    iox::capro::IdString(iox::cxx::TruncateToCapacity, *event));
+        entry.m_serviceDescription =
+            iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, *serviceName),
+                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, *instance),
+                                           iox::capro::IdString(iox::cxx::TruncateToCapacity, *event));
         auto size = service->get_as<uint64_t>(GATEWAY_CONFIG_SERVICE_PAYLOAD_SIZE);
         entry.m_dataSize = *size;
         config.m_configuredServices.push_back(entry);
-        LogDebug() << "[TomlGatewayConfigParser] Found service: {" << *serviceName << ", " << *instance << ", " << *event
-                   << "}";
+        LogDebug() << "[TomlGatewayConfigParser] Found service: {" << *serviceName << ", " << *instance << ", "
+                   << *event << "}";
     }
 
     return iox::cxx::success<GatewayConfig>(config);

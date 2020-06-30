@@ -119,8 +119,8 @@ class DDSGatewayGeneric : public gateway_t
     /// The service description is perhaps too large for copying since they contain strings, however this should be
     /// addressed with a service description repository feature.
     ///
-    iox::cxx::expected<channel_t, iox::dds::GatewayError>
-    addChannel(const iox::capro::ServiceDescription& service, const uint64_t& dataSize) noexcept;
+    iox::cxx::expected<channel_t, iox::dds::GatewayError> addChannel(const iox::capro::ServiceDescription& service,
+                                                                     const uint64_t& dataSize) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns

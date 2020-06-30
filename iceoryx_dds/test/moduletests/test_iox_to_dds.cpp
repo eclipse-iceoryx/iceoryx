@@ -38,12 +38,12 @@ using ::testing::SetArgPointee;
 
 // ======================================== Helpers ======================================== //
 using TestChannel = iox::dds::Channel<MockSubscriber, MockDataWriter>;
-using TestGateway =
-    iox::dds::Iceoryx2DDSGateway<TestChannel, MockGenericDDSGateway<TestChannel>>;
+using TestGateway = iox::dds::Iceoryx2DDSGateway<TestChannel, MockGenericDDSGateway<TestChannel>>;
 
 // ======================================== Fixture ======================================== //
 class Iceoryx2DDSGatewayTest : public DDSGatewayTestFixture<MockSubscriber, MockDataWriter>
-{};
+{
+};
 
 // ======================================== Tests ======================================== //
 TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)

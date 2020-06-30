@@ -21,7 +21,7 @@
 #include "roudi_gtest.hpp"
 #include "test.hpp"
 
-template<typename IceoryxTerminal, typename DDSTerminal>
+template <typename IceoryxTerminal, typename DDSTerminal>
 class DDSGatewayTestFixture : public Test
 {
   public:
@@ -96,7 +96,8 @@ class DDSGatewayTestFixture : public Test
         }
 
         return iox::cxx::success<iox::dds::Channel<IceoryxTerminal, DDSTerminal>>(
-            iox::dds::Channel<IceoryxTerminal, DDSTerminal>(sd, std::move(mockIceoryxTerminal), std::move(mockDataWriter), dataSize));
+            iox::dds::Channel<IceoryxTerminal, DDSTerminal>(
+                sd, std::move(mockIceoryxTerminal), std::move(mockDataWriter), dataSize));
     }
 
     // Creates channels to be used in tests with size 0.
@@ -107,7 +108,6 @@ class DDSGatewayTestFixture : public Test
     {
         return channelFactory(sd, 0u);
     }
-
 };
 
 #endif // TEST_HELPERS_FIXTURE_DDS_GATEWAY_H

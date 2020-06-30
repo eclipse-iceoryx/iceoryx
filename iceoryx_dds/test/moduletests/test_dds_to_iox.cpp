@@ -31,7 +31,8 @@ using TestGateway = iox::dds::DDS2IceoryxGateway<TestChannel, MockGenericDDSGate
 
 // ======================================== Fixture ======================================== //
 class DDS2IceoryxGatewayTest : public DDSGatewayTestFixture<MockPublisher, MockDataReader>
-{};
+{
+};
 
 // ======================================== Tests ======================================== //
 TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
@@ -95,7 +96,7 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
 TEST_F(DDS2IceoryxGatewayTest, ForwardsReceivedBytesIntoReservedMemoryChunks)
 {
     // Will activate test when bug with returning an expected in a mock is resolved.
-    if(false)
+    if (false)
     {
         // === Setup
         auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
@@ -108,7 +109,7 @@ TEST_F(DDS2IceoryxGatewayTest, ForwardsReceivedBytesIntoReservedMemoryChunks)
         // NOTE: This line does does not compile with the following error. Will debug later...
         // error: cannot convert ‘iox::cxx::success<long unsigned int>’ to ‘long unsigned int’ in initialization
         // : value(std::forward<Targs>(args)...)
-        //ON_CALL(*mockDataReader, read(_, _, _, _)).WillByDefault(Return(iox::cxx::success<uint64_t>(1)));
+        // ON_CALL(*mockDataReader, read(_, _, _, _)).WillByDefault(Return(iox::cxx::success<uint64_t>(1)));
 
         EXPECT_CALL(*mockPublisher, sendChunk).Times(1);
 
@@ -125,7 +126,7 @@ TEST_F(DDS2IceoryxGatewayTest, ForwardsReceivedBytesIntoReservedMemoryChunks)
 
 TEST_F(DDS2IceoryxGatewayTest, OnlyRequestsOneSampleAtATime)
 {
-    if(false)
+    if (false)
     {
         // === Setup
         auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
@@ -142,7 +143,7 @@ TEST_F(DDS2IceoryxGatewayTest, OnlyRequestsOneSampleAtATime)
         // NOTE: This line does does not compile with the following error. Will debug later...
         // error: cannot convert ‘iox::cxx::success<long unsigned int>’ to ‘long unsigned int’ in initialization
         // : value(std::forward<Targs>(args)...).
-        //ON_CALL(*mockDataReader, read(_, _, _, _)).WillByDefault(Return(iox::cxx::success<uint64_t>(1)));
+        // ON_CALL(*mockDataReader, read(_, _, _, _)).WillByDefault(Return(iox::cxx::success<uint64_t>(1)));
 
         stageMockDDSTerminal(std::move(mockDataReader));
         stageMockIceoryxTerminal(std::move(mockPublisher));

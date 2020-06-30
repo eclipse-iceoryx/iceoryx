@@ -56,8 +56,10 @@ iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferS
     return read(buffer, bufferSize, sampleSize, bufferCapacity);
 }
 
-iox::cxx::expected<uint64_t, iox::dds::DataReaderError>
-iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& maxSamples)
+iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* const buffer,
+                                                                                          const uint64_t& bufferSize,
+                                                                                          const uint64_t& sampleSize,
+                                                                                          const uint64_t& maxSamples)
 {
     // Validation checks
     if (!m_isConnected.load())

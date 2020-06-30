@@ -73,7 +73,8 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
 
 template <typename channel_t, typename gateway_t>
 inline iox::cxx::expected<channel_t, iox::dds::GatewayError>
-iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service, const uint64_t& dataSize) noexcept
+iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service,
+                                                              const uint64_t& dataSize) noexcept
 {
     // Filter out wildcard services
     if (service.getServiceID() == iox::capro::AnyService || service.getInstanceID() == iox::capro::AnyInstance

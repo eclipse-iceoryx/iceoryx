@@ -40,9 +40,10 @@ class DDS2IceoryxGateway : public gateway_t
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward(const channel_t& channel) noexcept;
 
-private:
+  private:
     void* m_reservedChunk = nullptr;
-    iox::cxx::expected<channel_t, iox::dds::GatewayError> setupChannel(const iox::capro::ServiceDescription& service, const uint64_t& sampleSize) noexcept;
+    iox::cxx::expected<channel_t, iox::dds::GatewayError> setupChannel(const iox::capro::ServiceDescription& service,
+                                                                       const uint64_t& sampleSize) noexcept;
 };
 
 } // namespace dds
