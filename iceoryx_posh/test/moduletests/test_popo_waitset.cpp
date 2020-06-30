@@ -14,10 +14,10 @@
 
 #include "iceoryx_posh/internal/popo/waitset/condition.hpp"
 #include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
-#include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
 #include "iceoryx_posh/internal/popo/waitset/guard_condition.hpp"
 #include "iceoryx_posh/internal/popo/waitset/wait_set.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "mocks/posh_runtime_mock.hpp"
 #include "test.hpp"
 
 #include <memory>
@@ -28,28 +28,47 @@ using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
 
+class MockSubscriber : public Condition
+{
+  public:
+    bool isConditionVariableAttached() noexcept
+    {
+    }
+
+    bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept
+    {
+    }
+
+    bool detachConditionVariable() noexcept
+    {
+    }
+
+    bool notify()
+    {
+    }
+};
+
 class WaitSet_test : public Test
 {
   public:
     static constexpr uint16_t MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD = iox::popo::MAX_NUMBER_OF_CONDITIONS - 1;
 
-    Condition m_condition;
+    MockSubscriber m_subscriber;
     ConditionVariableData m_condVarData;
-    WaitSet m_waitset;
-    ConditionVariableSignaler m_signaler{&m_condVarData};
-    vector<Condition, MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD> m_conditionVector;
+    WaitSet m_sut;
+    vector<MockSubscriber, MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD> m_subscriberVector;
 
     void SetUp()
     {
-        m_condition.attachConditionVariable(&m_condVarData);
-        for (auto currentCondition : m_conditionVector)
+        for (auto currentSubscriber : m_subscriberVector)
         {
-            m_conditionVector.push_back(m_condition);
+            m_subscriberVector.push_back(m_subscriber);
         }
     };
+
     void TearDown()
     {
-        m_conditionVector.clear();
+        m_subscriberVector.clear();
     };
 };
 
@@ -59,61 +78,61 @@ class WaitSet_test : public Test
 
 TEST_F(WaitSet_test, AttachSingleConditionSuccessful)
 {
-    EXPECT_TRUE(m_waitset.attachCondition(m_conditionVector.front()));
+    EXPECT_TRUE(m_sut.attachCondition(m_subscriberVector.front()));
 }
 
 TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInOneFailure)
 {
-    m_waitset.attachCondition(m_conditionVector.front());
-    EXPECT_FALSE(m_waitset.attachCondition(m_conditionVector.front()));
+    m_sut.attachCondition(m_subscriberVector.front());
+    EXPECT_FALSE(m_sut.attachCondition(m_subscriberVector.front()));
 }
 
 TEST_F(WaitSet_test, AttachMultipleConditionSuccessful)
 {
-    for (auto currentCondition : m_conditionVector)
+    for (auto currentSubscriber : m_subscriberVector)
     {
-        EXPECT_TRUE(m_waitset.attachCondition(currentCondition));
+        EXPECT_TRUE(m_sut.attachCondition(currentSubscriber));
     }
 }
 
 TEST_F(WaitSet_test, AttachTooManyConditionsResultsInFailure)
 {
-    for (auto currentCondition : m_conditionVector)
+    for (auto currentSubscriber : m_subscriberVector)
     {
-        m_waitset.attachCondition(currentCondition);
+        m_sut.attachCondition(currentSubscriber);
     }
 
     Condition extraCondition;
-    EXPECT_FALSE(m_waitset.attachCondition(extraCondition));
+    EXPECT_FALSE(m_sut.attachCondition(extraCondition));
 }
 
 TEST_F(WaitSet_test, DetachSingleConditionSuccessful)
 {
-    m_waitset.attachCondition(m_conditionVector.front());
-    EXPECT_TRUE(m_waitset.detachCondition(m_conditionVector.front()));
+    m_sut.attachCondition(m_subscriberVector.front());
+    EXPECT_TRUE(m_sut.detachCondition(m_subscriberVector.front()));
 }
 
 TEST_F(WaitSet_test, DetachMultipleleConditionsSuccessful)
 {
-    for (auto currentCondition : m_conditionVector)
+    for (auto currentSubscriber : m_subscriberVector)
     {
-        m_waitset.attachCondition(currentCondition);
+        m_sut.attachCondition(currentSubscriber);
     }
-    for (auto currentCondition : m_conditionVector)
+    for (auto currentSubscriber : m_subscriberVector)
     {
-        EXPECT_TRUE(m_waitset.detachCondition(currentCondition));
+        EXPECT_TRUE(m_sut.detachCondition(currentSubscriber));
     }
 }
 
 TEST_F(WaitSet_test, DetachConditionNotInListResultsInFailure)
 {
-    EXPECT_FALSE(m_waitset.detachCondition(m_conditionVector.front()));
+    EXPECT_FALSE(m_sut.detachCondition(m_subscriberVector.front()));
 }
 
 TEST_F(WaitSet_test, DetachUnknownConditionResultsInFailure)
 {
-    m_waitset.attachCondition(m_conditionVector.front());
-    EXPECT_FALSE(m_waitset.detachCondition(m_conditionVector.back()));
+    m_sut.attachCondition(m_subscriberVector.front());
+    EXPECT_FALSE(m_sut.detachCondition(m_subscriberVector.back()));
 }
 
 // TEST_F(WaitSet_test, TimedWaitWithSignalAlreadySetResultsInImmediateTrigger){}
