@@ -55,8 +55,8 @@ ChunkDistributor<ChunkDistributorDataType>::addQueue(cxx::not_null<ChunkQueueDat
     {
         if (getMembers()->m_queues.size() < getMembers()->m_queues.capacity())
         {
-            /// @remark we checked the capacity, so pushing will be fine
-            getMembers()->m_queues.push_back(queueToAdd); // PRQA S 3804
+            // PRQA S 3804 1 # we checked the capacity, so pushing will be fine
+            getMembers()->m_queues.push_back(queueToAdd); 
 
             const auto currChunkHistorySize = getMembers()->m_history.size();
 

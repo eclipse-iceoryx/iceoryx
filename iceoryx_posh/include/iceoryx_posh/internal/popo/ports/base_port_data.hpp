@@ -35,7 +35,7 @@ namespace popo
 struct BasePortData
 {
     /// @brief Constructor for base port data members
-    BasePortData() noexcept;
+    BasePortData() = default;
 
     /// @brief Constructor
     /// @param[in] serviceDescription creates the service service description
@@ -54,7 +54,7 @@ struct BasePortData
     ProcessName_t m_processName;
 
     static std::atomic<uint64_t> s_uniqueIdCounter;
-    const std::atomic<uint64_t> m_uniqueId;
+    const std::atomic<uint64_t> m_uniqueId{s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed)};
     std::atomic_bool m_toBeDestroyed{false};
 };
 

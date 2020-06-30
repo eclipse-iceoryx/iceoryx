@@ -37,8 +37,8 @@ struct ChunkTuple
     {
     }
 
-    RelativePointer::id_t m_segmentId;
-    RelativePointer::offset_t m_chunkOffset;
+    RelativePointer::id_t m_segmentId{iox::RelativePointer::NULL_POINTER_ID};
+    RelativePointer::offset_t m_chunkOffset{iox::RelativePointer::NULL_POINTER_OFFSET};
 };
 
 } // namespace popo
