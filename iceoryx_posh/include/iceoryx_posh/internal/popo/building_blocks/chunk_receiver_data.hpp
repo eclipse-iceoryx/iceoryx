@@ -27,12 +27,8 @@ namespace popo
 {
 struct ChunkReceiverData : public ChunkQueueData
 {
-    explicit ChunkReceiverData(cxx::VariantQueueTypes queueType,
-                               const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : ChunkQueueData(queueType)
-        , m_memoryInfo(memoryInfo)
-    {
-    }
+    explicit ChunkReceiverData(const cxx::VariantQueueTypes queueType,
+                               const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     mepoo::MemoryInfo m_memoryInfo;
 

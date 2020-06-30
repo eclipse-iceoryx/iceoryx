@@ -11,31 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_HPP
-#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_HPP
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
-#include "iceoryx_utils/cxx/variant_queue.hpp"
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 namespace iox
 {
 namespace popo
 {
-struct ChunkQueueData
+ChunkTuple::ChunkTuple(iox::relative_ptr<mepoo::ChunkManagement> f_chunk) noexcept
+    : m_segmentId(f_chunk.getId())
+    , m_chunkOffset(f_chunk.getOffset())
 {
-    explicit ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept;
-
-    static constexpr uint32_t MAX_CAPACITY = MAX_RECEIVER_QUEUE_CAPACITY;
-    cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
-    std::atomic_bool m_queueHasOverflown{false};
-    mepoo::SharedPointer<posix::Semaphore> m_semaphore;
-    std::atomic_bool m_semaphoreAttached{false};
-};
+}
 
 } // namespace popo
 } // namespace iox
-
-#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_HPP

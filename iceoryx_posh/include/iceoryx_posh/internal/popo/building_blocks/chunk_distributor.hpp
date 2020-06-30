@@ -75,7 +75,7 @@ class ChunkDistributor
     /// then the available history size chunks are provided
     /// @return if the queue could be added it returns success, otherwiese a ChunkDistributor error
     cxx::expected<ChunkDistributorError> addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
-                                                  uint64_t requestedHistory = 0u) noexcept;
+                                                  const uint64_t requestedHistory = 0u) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] chunk queue to remove from the list

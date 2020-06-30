@@ -31,13 +31,8 @@ template <typename ChunkDistributorDataType>
 struct ChunkSenderData : public ChunkDistributorDataType
 {
     explicit ChunkSenderData(cxx::not_null<mepoo::MemoryManager* const> memoryManager,
-                             uint64_t historyCapacity = 0u,
-                             const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : ChunkDistributorDataType(historyCapacity)
-        , m_memoryMgr(memoryManager)
-        , m_memoryInfo(memoryInfo)
-    {
-    }
+                             const uint64_t historyCapacity = 0u,
+                             const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     const relative_ptr<mepoo::MemoryManager> m_memoryMgr;
     mepoo::MemoryInfo m_memoryInfo;
@@ -48,5 +43,7 @@ struct ChunkSenderData : public ChunkDistributorDataType
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.inl"
 
 #endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_DATA_HPP

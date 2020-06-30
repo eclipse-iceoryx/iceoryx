@@ -11,32 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP
-#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP
 
-#include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
-#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
 
 namespace iox
 {
 namespace popo
 {
-enum class ChunkQueueError
-{
-    SEMAPHORE_ALREADY_SET,
-    QUEUE_OVERFLOW
-};
 
-struct ChunkTuple
-{
-    ChunkTuple() = default;
-    explicit ChunkTuple(iox::relative_ptr<mepoo::ChunkManagement> f_chunk) noexcept;
-
-    RelativePointer::id_t m_segmentId{iox::RelativePointer::NULL_POINTER_ID};
-    RelativePointer::offset_t m_chunkOffset{iox::RelativePointer::NULL_POINTER_OFFSET};
-};
+    ChunkQueueData::ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept
+        : m_queue(queueType)
+    {
+    }
 
 } // namespace popo
 } // namespace iox
-
-#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_TYPES_HPP

@@ -63,7 +63,7 @@ cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> Chunk
     }
 }
 
-void ChunkReceiver::release(const mepoo::ChunkHeader* chunkHeader) noexcept
+void ChunkReceiver::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
     // PRQA S 4127 1 # d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk

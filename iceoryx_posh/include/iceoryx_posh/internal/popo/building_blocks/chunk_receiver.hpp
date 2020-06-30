@@ -58,7 +58,7 @@ class ChunkReceiver : public ChunkQueuePopper
 
     /// @brief Release a chunk that was obtained with get
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
-    void release(const mepoo::ChunkHeader* chunkHeader) noexcept;
+    void release(const mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief Release all the chunks that are currently held. Caution: Only call this if the user process is no more
     /// running E.g. This cleans up chunks that were held by a user process that died unexpectetly, for avoiding lost
