@@ -15,7 +15,6 @@
 #ifndef IOX_DDS_INTERNAL_GATEWAY_IOX_TO_DDS_INL
 #define IOX_DDS_INTERNAL_GATEWAY_IOX_TO_DDS_INL
 
-#include "iceoryx_dds/gateway/iox_to_dds.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
@@ -42,7 +41,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const Ga
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
-            setupChannel(service);
+            setupChannel(service.m_serviceDescription);
         }
     }
 }

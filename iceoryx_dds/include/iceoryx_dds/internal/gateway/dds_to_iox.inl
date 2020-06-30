@@ -19,8 +19,6 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 
-#include "iceoryx_dds/gateway/dds_to_iox.hpp"
-
 namespace iox
 {
 namespace dds
@@ -40,11 +38,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const Ga
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
-            auto result = setupChannel(service.m_serviceDescription, service.m_dataSize);
-            if(!result.has_error())
-            {
-                auto channel = result.get_value();
-            }
+            setupChannel(service.m_serviceDescription, service.m_dataSize);
         }
     }
 }
