@@ -34,5 +34,5 @@ if(examples)
 endif(examples)
 
 if(dds)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dds_gateway ${CMAKE_BINARY_DIR}/iceoryx_dds_gateway)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dds ${CMAKE_BINARY_DIR}/iceoryx_dds)
 endif(dds)
