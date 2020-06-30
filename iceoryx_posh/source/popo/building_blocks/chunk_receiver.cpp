@@ -66,7 +66,7 @@ cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> Chunk
 void ChunkReceiver::release(const mepoo::ChunkHeader* chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
-    /// @remark d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
+    // PRQA S 4127 1 # d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
     if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk)) // PRQA S 4127
     {
         errorHandler(Error::kPOPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);

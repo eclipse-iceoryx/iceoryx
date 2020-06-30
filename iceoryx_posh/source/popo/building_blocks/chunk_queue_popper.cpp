@@ -96,11 +96,11 @@ void ChunkQueuePopper::clear() noexcept
         auto retVal = getMembers()->m_queue.pop();
         if (retVal.has_value())
         {
-            /// @remark d'tor of SharedChunk will release the memory, so RAII has the side effect here
-            auto chunkTupleOut = *retVal; // PRQA S 4117
+            // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
+            auto chunkTupleOut = *retVal;
             auto chunkManagement = iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset,
-                                                                             chunkTupleOut.m_segmentId); // PRQA S 4117
-            auto chunk = mepoo::SharedChunk(chunkManagement);                                            // PRQA S 4117
+                                                                             chunkTupleOut.m_segmentId); 
+            auto chunk = mepoo::SharedChunk(chunkManagement);                                            
         }
         else
         {

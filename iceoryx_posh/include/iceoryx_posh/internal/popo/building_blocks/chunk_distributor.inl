@@ -57,7 +57,7 @@ ChunkDistributor<ChunkDistributorDataType>::addQueue(cxx::not_null<ChunkQueueDat
         if (getMembers()->m_queues.size() < getMembers()->m_queues.capacity())
         {
             // PRQA S 3804 1 # we checked the capacity, so pushing will be fine
-            getMembers()->m_queues.push_back(queueToAdd); 
+            getMembers()->m_queues.push_back(queueToAdd);
 
             const auto currChunkHistorySize = getMembers()->m_history.size();
 
@@ -94,8 +94,8 @@ ChunkDistributor<ChunkDistributorDataType>::removeQueue(cxx::not_null<ChunkQueue
     const auto iter = std::find(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), queueToRemove);
     if (iter != getMembers()->m_queues.end())
     {
-        /// @remark we don't use iter any longer so return value can be ignored
-        getMembers()->m_queues.erase(iter); // PRQA S 3804
+        // PRQA S 3804 1 # we don't use iter any longer so return value can be ignored
+        getMembers()->m_queues.erase(iter);
 
         return cxx::success<void>();
     }
@@ -140,9 +140,9 @@ template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
                                                                        mepoo::SharedChunk chunk) noexcept
 {
-    /// @remark We intentionally do not return anything here as from a ChunkDistributor
-    /// point of view it doesn't matter if the push succeeds or fails
-    ChunkQueuePusher_t(queue).push(chunk); // PRQA S 3803
+    // PRQA S 3803 2 # We intentionally do not return anything here as from a ChunkDistributor
+    // point of view it doesn't matter if the push succeeds or fails
+    ChunkQueuePusher_t(queue).push(chunk);
 }
 
 template <typename ChunkDistributorDataType>
@@ -154,10 +154,10 @@ inline void ChunkDistributor<ChunkDistributorDataType>::addToHistoryWithoutDeliv
     {
         if (getMembers()->m_history.size() >= getMembers()->m_historyCapacity)
         {
-            /// @remark we are not iterating here, so return value can be ignored
-            getMembers()->m_history.erase(getMembers()->m_history.begin()); // PRQA S 3804
+            // PRQA S 3804 1 # we are not iterating here, so return value can be ignored
+            getMembers()->m_history.erase(getMembers()->m_history.begin());
         }
-        /// @remark we ensured that there is space in the history, so return value can be ignored
+        // PRQA S 3804 1 # we ensured that there is space in the history, so return value can be ignored
         getMembers()->m_history.push_back(chunk); // PRQA S 3804
     }
 }

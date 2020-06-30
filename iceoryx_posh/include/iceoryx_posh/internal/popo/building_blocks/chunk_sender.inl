@@ -91,8 +91,8 @@ template <typename ChunkDistributorType>
 inline void ChunkSender<ChunkDistributorType>::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
-    /// @remark d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
-    if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk)) // PRQA S 4127
+    // PRQA S 4127 1 # d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
+    if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
     {
         errorHandler(Error::kPOPO__CHUNK_SENDER_INVALID_CHUNK_TO_FREE_FROM_USER, nullptr, ErrorLevel::SEVERE);
     }

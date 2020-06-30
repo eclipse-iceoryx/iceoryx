@@ -160,9 +160,12 @@ Github [labels](https://github.com/eclipse/iceoryx/labels) are used to group iss
 
 If one of the rules is not followed, a rationale is added in the following manner:
 
-    /// @rationale
-    /// Short description why
-    *mynullptr = foo; // PRQA S 4242
+With a comment in the same line:
+    *mynullptr = foo; // PRQA S 4242 # Short description why
+
+With a comment one line above (with the number after the warning number, next ’n’ lines are inclusive)
+    // PRQA S 4242 1 # Short description why
+    *mynullptr = foo; 
 
 Don't be afraid if you don't have Helix QAC++ available. As we want to make it easy for developers to contribute,
 please use the ``staging`` branch and we'll run the QAC++ scan and get back to you.
