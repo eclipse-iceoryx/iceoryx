@@ -273,3 +273,31 @@ TEST_F(SubscriberPort_test, invalidMessageResultsInError)
     EXPECT_FALSE(maybeCaproMessage.has_value());
     EXPECT_TRUE(errorHandlerCalled);
 }
+
+TEST_F(SubscriberPort_test, ackWhenNotWaitingForResultsInError)
+{
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
+        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
+                                          iox::capro::ServiceDescription("x", "y", "z"));
+
+    auto maybeCaproMessage = m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
+
+    EXPECT_FALSE(maybeCaproMessage.has_value());
+    EXPECT_TRUE(errorHandlerCalled);
+}
+
+TEST_F(SubscriberPort_test, nackWhenNotWaitingForResultsInError)
+{
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
+        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
+                                          iox::capro::ServiceDescription("x", "y", "z"));
+
+    auto maybeCaproMessage = m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
+
+    EXPECT_FALSE(maybeCaproMessage.has_value());
+    EXPECT_TRUE(errorHandlerCalled);
+}
