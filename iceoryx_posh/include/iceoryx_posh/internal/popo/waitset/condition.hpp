@@ -35,14 +35,11 @@ class Condition
     /// @return Returns true if condition has occured
     bool hasTrigger() noexcept;
 
-    /// @note Not implemtend on purpose
-    virtual bool isConditionVariableAttached();
+    virtual bool isConditionVariableAttached() noexcept;
 
-    /// @note Not implemtend on purpose
-    virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr);
+    virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept;
 
-    /// @note Not implemtend on purpose
-    virtual bool detachConditionVariable();
+    virtual bool detachConditionVariable() noexcept;
 
   protected:
     void setTrigger() noexcept;

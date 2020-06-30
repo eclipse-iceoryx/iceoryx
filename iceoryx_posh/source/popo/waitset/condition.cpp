@@ -43,6 +43,18 @@ bool Condition::hasTrigger() noexcept
     return m_trigger;
 }
 
+bool Condition::isConditionVariableAttached() noexcept
+{
+}
+
+bool Condition::attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept
+{
+}
+
+bool Condition::detachConditionVariable() noexcept
+{
+}
+
 void Condition::setTrigger() noexcept
 {
     m_trigger.store(true, std::memory_order_relaxed);
