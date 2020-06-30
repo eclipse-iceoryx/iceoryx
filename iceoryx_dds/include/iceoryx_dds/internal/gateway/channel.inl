@@ -66,7 +66,7 @@ template <typename IceoryxTerminal, typename DDSTerminal>
 inline iox::cxx::expected<Channel<IceoryxTerminal, DDSTerminal>, ChannelError>
 Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescription& service) noexcept
 {
-    return create(service);
+    return create(service, 0u);
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
