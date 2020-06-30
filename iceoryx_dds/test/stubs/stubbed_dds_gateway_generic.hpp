@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #ifndef IOX_DDS_TEST_STUBS_STUBBED_DDS_GATEWAY_GENERIC_HPP
 #define IOX_DDS_TEST_STUBS_STUBBED_DDS_GATEWAY_GENERIC_HPP
 
