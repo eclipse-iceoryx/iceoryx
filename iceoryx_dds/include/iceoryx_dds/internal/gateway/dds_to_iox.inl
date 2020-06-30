@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef IOX_DDS_INTERNAL_GATEWAY_DDS_TO_IOX_INL
+#define IOX_DDS_INTERNAL_GATEWAY_DDS_TO_IOX_INL
+
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
@@ -121,3 +124,5 @@ DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::Service
 
 } // namespace dds
 } // namespace iox
+
+#endif

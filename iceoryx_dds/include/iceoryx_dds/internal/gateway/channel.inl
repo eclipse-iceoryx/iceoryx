@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/gateway/channel.hpp"
+#ifndef IOX_DDS_INTERNAL_GATEWAY_CHANNEL_INL
+#define IOX_DDS_INTERNAL_GATEWAY_CHANNEL_INL
 
 namespace iox
 {
@@ -126,3 +127,5 @@ inline iox::cxx::optional<uint64_t> Channel<IceoryxTerminal, DDSTerminal>::getDa
 
 } // namespace dds
 } // namespace iox
+
+#endif

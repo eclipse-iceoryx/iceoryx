@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef IOX_DDS_INTERNAL_GATEWAY_IOX_TO_DDS_INL
+#define IOX_DDS_INTERNAL_GATEWAY_IOX_TO_DDS_INL
+
 #include "iceoryx_dds/gateway/iox_to_dds.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -39,11 +42,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const Ga
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
-            auto result = setupChannel(service.m_serviceDescription);
-            if(!result.has_error())
-            {
-                auto channel = result.get_value();
-            }
+            setupChannel(service);
         }
     }
 }
@@ -125,3 +124,5 @@ Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const iox::capro::Service
 
 } // namespace dds
 } // namespace iox
+
+#endif

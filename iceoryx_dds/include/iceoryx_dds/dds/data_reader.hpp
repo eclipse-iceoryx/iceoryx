@@ -84,7 +84,6 @@ class DataReader
   protected:
     DataReader() = default;
 };
-
 } // namespace dds
 } // namespace iox
 

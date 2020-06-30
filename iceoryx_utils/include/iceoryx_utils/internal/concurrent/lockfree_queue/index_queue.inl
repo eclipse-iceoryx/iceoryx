@@ -3,10 +3,14 @@ namespace iox
 namespace concurrent
 {
 template <uint64_t Capacity, typename ValueType>
-constexpr IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
+IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
     : m_readPosition(Index(Capacity))
     , m_writePosition(Index(Capacity))
 {
+    for (uint64_t i = 0u; i < Capacity; ++i)
+    {
+        m_cells[i].store(Index(0), std::memory_order_relaxed);
+    }
 }
 
 template <uint64_t Capacity, typename ValueType>
@@ -16,7 +20,7 @@ IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t) noexcept
 {
     for (uint64_t i = 0u; i < Capacity; ++i)
     {
-        m_cells[i].store(Index(i));
+        m_cells[i].store(Index(i), std::memory_order_relaxed);
     }
 }
 

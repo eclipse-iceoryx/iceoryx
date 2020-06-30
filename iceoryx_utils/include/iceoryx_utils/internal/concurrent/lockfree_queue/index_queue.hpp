@@ -128,7 +128,7 @@ class IndexQueue
     IndexQueue& operator=(IndexQueue&&) = delete;
 
     /// @brief constructs an empty IndexQueue
-    constexpr IndexQueue(ConstructEmpty_t = ConstructEmpty) noexcept;
+    IndexQueue(ConstructEmpty_t = ConstructEmpty) noexcept;
 
     /// @brief constructs IndexQueue filled with all indices 0,1,...capacity-1
     IndexQueue(ConstructFull_t) noexcept;
@@ -177,6 +177,10 @@ class IndexQueue
     using Index = CyclicIndex<Capacity>;
 
     using Cell = std::atomic<Index>;
+    ///    this member has to be initialized explicitly in the constructor since
+    ///    the default atomic constructor does not call the default constructor of the
+    ///    underlying class.
+    ///    See, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0883r0.pdf
     Cell m_cells[Capacity];
 
     std::atomic<Index> m_readPosition;

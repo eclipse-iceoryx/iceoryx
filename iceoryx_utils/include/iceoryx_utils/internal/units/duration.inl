@@ -71,12 +71,12 @@ inline constexpr Duration::Duration(const struct itimerspec& value)
 }
 
 inline constexpr Duration::Duration(const std::chrono::milliseconds& value)
-    : durationInSeconds(static_cast<long double>(value.count()) / 1000.0)
+    : Duration(static_cast<long double>(value.count()) / 1000.0)
 {
 }
 
 inline constexpr Duration::Duration(const std::chrono::nanoseconds& value)
-    : durationInSeconds(static_cast<long double>(value.count()) / 1000000000.0)
+    : Duration(static_cast<long double>(value.count()) / 1000000000.0)
 {
 }
 

@@ -72,23 +72,21 @@ TIMING_TEST_F(TimerStopWatch_test, DurationOfNonZeroIsExpiresAfterTimeout, Repea
     TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
 });
 
-TEST_F(TimerStopWatch_test, ResetWithDurationIsExpired)
-{
+TIMING_TEST_F(TimerStopWatch_test, ResetWithDurationIsExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
-    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(true));
+    TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
     sut.resetCreationTime();
-    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(false));
-}
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
+});
 
-TEST_F(TimerStopWatch_test, ResetWhenNotExpiredIsStillNotExpired)
-{
+TIMING_TEST_F(TimerStopWatch_test, ResetWhenNotExpiredIsStillNotExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     sut.resetCreationTime();
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(false));
-}
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
+});
 
 TIMING_TEST_F(TimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);

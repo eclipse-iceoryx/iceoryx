@@ -60,7 +60,7 @@ std::string mqMessageErrorTypeToString(const MqMessageErrorType msg) noexcept
     return std::to_string(static_cast<std::underlying_type<MqMessageErrorType>::type>(msg));
 }
 
-MqBase::MqBase(const std::string& InterfaceName, const int64_t maxMessages, const int64_t messageSize) noexcept
+MqBase::MqBase(const std::string& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept
     : m_interfaceName(InterfaceName)
 {
     m_maxMessages = maxMessages;
@@ -160,10 +160,9 @@ bool MqBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
     m_mq.destroy();
 
     m_channelSide = channelSide;
-    posix::MessageQueue::create(
+    IpcChannelType::create(
         m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
-        .on_success(
-            [this](cxx::expected<posix::MessageQueue, posix::IpcChannelError>& mq) { this->m_mq = std::move(*mq); });
+        .on_success([this](cxx::expected<IpcChannelType, posix::IpcChannelError>& mq) { this->m_mq = std::move(*mq); });
 
     return m_mq.isInitialized();
 }

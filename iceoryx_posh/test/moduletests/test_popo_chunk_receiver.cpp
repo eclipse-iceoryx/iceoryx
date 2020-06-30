@@ -52,12 +52,13 @@ class ChunkReceiver_test : public Test
     {
     }
 
-    static constexpr size_t MEMORY_SIZE = 1024 * 1024;
-    uint8_t m_memory[MEMORY_SIZE];
+    static constexpr size_t MEGABYTE = 1 << 20;
+    static constexpr size_t MEMORY_SIZE = 4 * MEGABYTE;
+    std::unique_ptr<char[]> m_memory{new char[MEMORY_SIZE]};
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = iox::MAX_CHUNKS_HELD_PER_RECEIVER + iox::MAX_RECEIVER_QUEUE_CAPACITY;
     static constexpr uint32_t CHUNK_SIZE = 128;
 
-    iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    iox::posix::Allocator m_memoryAllocator{m_memory.get(), MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
 
@@ -176,8 +177,10 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
     }
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
     m_chunkReceiver.release(myCrazyChunk.get());

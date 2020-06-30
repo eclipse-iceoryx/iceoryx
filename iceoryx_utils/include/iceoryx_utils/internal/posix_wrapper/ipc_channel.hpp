@@ -36,6 +36,7 @@ enum class IpcChannelError : uint8_t
     OUT_OF_MEMORY,
     INVALID_FILE_DESCRIPTOR,
     I_O_ERROR,
+    CONNECTION_RESET_BY_PEER,
     UNDEFINED
 };
 

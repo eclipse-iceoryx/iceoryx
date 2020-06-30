@@ -25,12 +25,11 @@ namespace iox
 {
 namespace runtime
 {
-struct RunnableData;
+class RunnableData;
 }
 
 namespace popo
 {
-
 /// @brief Defines different base port data
 struct BasePortData
 {
@@ -43,8 +42,7 @@ struct BasePortData
     /// @param[in] portType Type of port to be created
     /// @param[in] processName Name of the process
     /// @param[in] runnable The runnable where this port is attached to
-    BasePortData(const capro::ServiceDescription& serviceDescription,
-                 const cxx::CString100& processName) noexcept;
+    BasePortData(const capro::ServiceDescription& serviceDescription, const cxx::CString100& processName) noexcept;
 
     BasePortData(const BasePortData&) = delete;
     BasePortData& operator=(const BasePortData&) = delete;

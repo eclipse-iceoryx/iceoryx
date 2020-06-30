@@ -31,7 +31,11 @@ using namespace iox::cxx;
 using namespace iox::mepoo;
 
 using ChunkDistributorTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 TYPED_TEST_CASE(ChunkDistributor_test, ChunkDistributorTestSubjects);
+#pragma GCC diagnostic pop
 
 template <typename PolicyType>
 class ChunkDistributor_test : public Test
@@ -110,8 +114,10 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     for (uint32_t i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
     {

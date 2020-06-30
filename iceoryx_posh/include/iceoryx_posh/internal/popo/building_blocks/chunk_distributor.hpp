@@ -74,7 +74,8 @@ class ChunkDistributor
     /// @param[in] requestedHistory number of last chunks from history to send if available. If history size is smaller
     /// then the available history size chunks are provided
     /// @return if the queue could be added it returns success, otherwiese a ChunkDistributor error
-    cxx::expected<ChunkDistributorError> addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd, uint64_t requestedHistory = 0) noexcept;
+    cxx::expected<ChunkDistributorError> addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
+                                                  uint64_t requestedHistory = 0) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] chunk queue to remove from the list
@@ -123,7 +124,7 @@ class ChunkDistributor
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* const m_chunkDistrubutorDataPtr;
+    MemberType_t* m_chunkDistrubutorDataPtr;
 };
 
 } // namespace popo

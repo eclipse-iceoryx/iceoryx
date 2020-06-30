@@ -4,13 +4,16 @@ project(googletest-build CXX)
 if(test)
     if(WIN32)
         set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+        set(CREATE_PATH_COMMAND mkdir)
+    else()
+        set(CREATE_PATH_COMMAND mkdir -p)
     endif(WIN32)
 
     # set download confi, source and build paths
-    set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/googletest-download)
-    set(SOURCE_DIR ${CMAKE_BINARY_DIR}/googletest-src)
-    set(BUILD_DIR ${CMAKE_BINARY_DIR}/googletest-build)
-    set(INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
+    set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/dependencies/googletest/download)
+    set(SOURCE_DIR ${CMAKE_BINARY_DIR}/dependencies/googletest/src)
+    set(BUILD_DIR ${CMAKE_BINARY_DIR}/dependencies/googletest/build)
+    set(INSTALL_DIR ${CMAKE_BINARY_DIR}/dependencies/install)
 
     # Download and unpack googletest at configure time
     configure_file(googletest.cmake.in ${DOWNLOAD_CONFIG_DIR}/CMakeLists.txt)
@@ -28,7 +31,7 @@ if(test)
         message(FATAL_ERROR "Build step [download] for googletest failed: ${result}")
     endif()
 
-    execute_process(COMMAND mkdir -p "${BUILD_DIR}"
+    execute_process(COMMAND ${CREATE_PATH_COMMAND} "${BUILD_DIR}"
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
     if(result)
