@@ -18,6 +18,7 @@
 #include "iceoryx_dds/dds/dds_config.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/objectpool/objectpool.hpp"
 
 #include <memory>
@@ -62,16 +63,34 @@ class Channel
     Channel(const iox::capro::ServiceDescription& service,
             const IceoryxTerminalPtr iceoryxTerminal,
             const DDSTerminalPtr ddsTerminal) noexcept;
+    Channel(const iox::capro::ServiceDescription& service,
+            const IceoryxTerminalPtr iceoryxTerminal,
+            const DDSTerminalPtr ddsTerminal,
+            const uint64_t& dataSize) noexcept;
+
     constexpr bool operator==(const Channel<IceoryxTerminal, DDSTerminal>& rhs) const noexcept;
 
+    ///
+    /// @brief create Creates a channel for the given service whose terminals reside in a static object pool.
+    /// @param service The service to create the channel for.
+    /// @return A copy of the created channel, if successful.
+    /// @note The channel will be created with an unknown data element size.
+    ///
     static iox::cxx::expected<Channel, ChannelError> create(const iox::capro::ServiceDescription& service) noexcept;
 
-    iox::capro::ServiceDescription getService() const noexcept;
+    ///
+    /// @brief create Creates a channel for the given service whose terminals reside in a static object pool.
+    /// @param service The service to create the channel for.
+    /// @param dataSize The size of the individual data elements communicated over the channel.
+    /// @return A copy of the created channel, if successful.
+    ///
+    static iox::cxx::expected<Channel, ChannelError> create(const iox::capro::ServiceDescription& service, const uint64_t& dataSize) noexcept;
+
+    iox::capro::ServiceDescription getServiceDescription() const noexcept;
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;
     DDSTerminalPtr getDDSTerminal() const noexcept;
 
-    uint64_t sampleSize() const noexcept;
-    void setSampleSize(uint64_t size) noexcept;
+    iox::cxx::optional<uint64_t> getDataSize() const noexcept;
 
   private:
     static IceoryxTerminalPool s_iceoryxTerminals;
@@ -81,7 +100,7 @@ class Channel
     IceoryxTerminalPtr m_iceoryxTerminal;
     DDSTerminalPtr m_ddsTerminal;
 
-    uint64_t m_sampleSize = 0u;
+    uint64_t m_dataSize;
 
 };
 

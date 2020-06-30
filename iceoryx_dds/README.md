@@ -12,9 +12,9 @@ This module exports the following binaries:
 
 Each binary manages a POSH runtime that runs the gateway logic for a single direction of communication.
 
-The common building blocks logic for these applications are consolidated in the exported library, `libiceoryx_dds`.
+The common building blocks logic for these binaries are consolidated in the exported library, `libiceoryx_dds`.
 
-Applications may directly embed the gateway by using the exported lib.
+Applications may instead directly embed the gateway by using the exported lib.
 
 # Building
 The DDS stack used by the gateway is abstracted and needs to made explicit at compile time.

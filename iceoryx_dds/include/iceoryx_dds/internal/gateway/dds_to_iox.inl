@@ -37,11 +37,10 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const Ga
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
-            auto result = setupChannel(service.m_serviceDescription);
+            auto result = setupChannel(service.m_serviceDescription, service.m_dataSize);
             if(!result.has_error())
             {
                 auto channel = result.get_value();
-                channel.setSampleSize(service.m_dataSize);
             }
         }
     }
@@ -56,19 +55,30 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::discover(const iox::capro:
 template <typename channel_t, typename gateway_t>
 inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
+
+    // Don't forward across channels that don't provide their size.
+    // Data size is required to determine the required memchunk size.
+    auto dataSize = channel.getDataSize();
+    if(!dataSize.has_value())
+    {
+        // nothing to do
+        LogWarn() << "[DDS2IceoryxGateway] Attempted to forward over a channel with an unknown data size.";
+        return;
+    }
+
     auto publisher = channel.getIceoryxTerminal();
     auto reader = channel.getDDSTerminal();
 
     // reserve a chunk for initial sample
     if(m_reservedChunk == nullptr)
     {
-        m_reservedChunk = publisher->allocateChunk(channel.sampleSize());
+        m_reservedChunk = publisher->allocateChunk(dataSize.value());
     }
 
     // read exactly one sample into the reserved chunk
     auto buffer = static_cast<uint8_t*>(m_reservedChunk);
     auto const numToRead = 1u;
-    auto result = reader->read(buffer, channel.sampleSize(), channel.sampleSize(), numToRead);
+    auto result = reader->read(buffer, dataSize.value(), dataSize.value(), numToRead);
     if(!result.has_error())
     {
         auto num = result.get_value();
@@ -81,7 +91,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
             // publish the sample
             publisher->sendChunk(buffer);
             // reserve a new chunk for the next sample
-            m_reservedChunk = publisher->allocateChunk(channel.sampleSize());
+            m_reservedChunk = publisher->allocateChunk(dataSize.value());
         }
         else {
             // sample is corrupt, don't publish.
@@ -96,14 +106,16 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
 // ======================================== Private ======================================== //
 template <typename channel_t, typename gateway_t>
 iox::cxx::expected<channel_t, iox::dds::GatewayError>
-DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
+DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service, const uint64_t& sampleSize) noexcept
 {
-    return this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
+    return this->addChannel(service, sampleSize).on_success([&service](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
         auto channel = result.get_value();
         auto publisher = channel.getIceoryxTerminal();
         auto reader = channel.getDDSTerminal();
         publisher->offer();
         reader->connect();
+        iox::LogDebug() << "[DDS2IceoryxGateway] Setup channel for service: {" << service.getServiceIDString() << ", "
+                        << service.getInstanceIDString() << ", " << service.getEventIDString() << "}";
     });
 }
 

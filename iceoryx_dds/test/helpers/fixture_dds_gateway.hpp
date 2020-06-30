@@ -69,7 +69,7 @@ class DDSGatewayTestFixture : public Test
     // Channels will contain staged mocks, or empty mocks if none are staged.
     // The factory method can be passed to test gateways, allowing injection of mocks.
     iox::cxx::expected<iox::dds::Channel<IceoryxTerminal, DDSTerminal>, iox::dds::GatewayError>
-    channelFactory(iox::capro::ServiceDescription sd) noexcept
+    channelFactory(iox::capro::ServiceDescription sd, uint64_t dataSize) noexcept
     {
         // Get or create a mock iceoryx terminal
         std::shared_ptr<IceoryxTerminal> mockIceoryxTerminal;
@@ -96,7 +96,16 @@ class DDSGatewayTestFixture : public Test
         }
 
         return iox::cxx::success<iox::dds::Channel<IceoryxTerminal, DDSTerminal>>(
-            iox::dds::Channel<IceoryxTerminal, DDSTerminal>(sd, std::move(mockIceoryxTerminal), std::move(mockDataWriter)));
+            iox::dds::Channel<IceoryxTerminal, DDSTerminal>(sd, std::move(mockIceoryxTerminal), std::move(mockDataWriter), dataSize));
+    }
+
+    // Creates channels to be used in tests with size 0.
+    // Channels will contain staged mocks, or empty mocks if none are staged.
+    // The factory method can be passed to test gateways, allowing injection of mocks.
+    iox::cxx::expected<iox::dds::Channel<IceoryxTerminal, DDSTerminal>, iox::dds::GatewayError>
+    channelFactory(iox::capro::ServiceDescription sd) noexcept
+    {
+        return channelFactory(sd, 0u);
     }
 
 };

@@ -43,7 +43,6 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const Ga
             if(!result.has_error())
             {
                 auto channel = result.get_value();
-                channel.setSampleSize(service.m_dataSize);
             }
         }
     }

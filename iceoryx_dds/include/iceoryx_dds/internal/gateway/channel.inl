@@ -37,6 +37,20 @@ inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const iox::capro::ServiceD
     : m_service(service)
     , m_iceoryxTerminal(iceoryxTerminal)
     , m_ddsTerminal(ddsTerminal)
+    , m_dataSize(0u)
+{
+}
+
+
+template <typename IceoryxTerminal, typename DDSTerminal>
+inline Channel<IceoryxTerminal, DDSTerminal>::Channel(const iox::capro::ServiceDescription& service,
+                                                      const IceoryxTerminalPtr iceoryxTerminal,
+                                                      const DDSTerminalPtr ddsTerminal,
+                                                      const uint64_t& dataSize) noexcept
+    : m_service(service)
+    , m_iceoryxTerminal(iceoryxTerminal)
+    , m_ddsTerminal(ddsTerminal)
+    , m_dataSize(dataSize)
 {
 }
 
@@ -50,6 +64,13 @@ Channel<IceoryxTerminal, DDSTerminal>::operator==(const Channel<IceoryxTerminal,
 template <typename IceoryxTerminal, typename DDSTerminal>
 inline iox::cxx::expected<Channel<IceoryxTerminal, DDSTerminal>, ChannelError>
 Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescription& service) noexcept
+{
+    return create(service);
+}
+
+template <typename IceoryxTerminal, typename DDSTerminal>
+inline iox::cxx::expected<Channel<IceoryxTerminal, DDSTerminal>, ChannelError>
+Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescription& service, const uint64_t& dataSize) noexcept
 {
     // Create objects in the pool.
     auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const iox::capro::ServiceDescription>(service));
@@ -69,11 +90,11 @@ Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescripti
         IceoryxTerminalPtr(rawIceoryxTerminalPtr, [](IceoryxTerminal* const p) { s_iceoryxTerminals.free(p); });
     auto ddsTerminalPtr = DDSTerminalPtr(rawDDSTerminalPtr, [](DDSTerminal* const p) { s_ddsTerminals.free(p); });
 
-    return iox::cxx::success<Channel>(Channel(service, iceoryxTerminalPtr, ddsTerminalPtr));
+    return iox::cxx::success<Channel>(Channel(service, iceoryxTerminalPtr, ddsTerminalPtr, dataSize));
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
-inline iox::capro::ServiceDescription Channel<IceoryxTerminal, DDSTerminal>::getService() const noexcept
+inline iox::capro::ServiceDescription Channel<IceoryxTerminal, DDSTerminal>::getServiceDescription() const noexcept
 {
     return m_service;
 }
@@ -91,15 +112,16 @@ inline std::shared_ptr<DDSTerminal> Channel<IceoryxTerminal, DDSTerminal>::getDD
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
-inline uint64_t Channel<IceoryxTerminal, DDSTerminal>::sampleSize() const noexcept
+inline iox::cxx::optional<uint64_t> Channel<IceoryxTerminal, DDSTerminal>::getDataSize() const noexcept
 {
-    return m_sampleSize;
-}
-
-template <typename IceoryxTerminal, typename DDSTerminal>
-inline void Channel<IceoryxTerminal, DDSTerminal>::setSampleSize(uint64_t size) noexcept
-{
-    m_sampleSize = size;
+    if(m_dataSize > 0)
+    {
+        return iox::cxx::make_optional<uint64_t>(m_dataSize);
+    }
+    else
+    {
+        return iox::cxx::nullopt_t();
+    }
 }
 
 } // namespace dds

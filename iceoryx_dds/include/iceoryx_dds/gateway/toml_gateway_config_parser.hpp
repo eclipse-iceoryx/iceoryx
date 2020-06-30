@@ -20,7 +20,15 @@ enum TomlGatewayConfigParseError
     INVALID_SERVICE_DESCRIPTION
 };
 
-static constexpr char defaultConfigFilePath[] = "/etc/iceoryx/gateway_config.toml";
+static constexpr const char DEFAULT_CONFIG_FILE_PATH[] = "/etc/iceoryx/gateway_config.toml";
+
+static constexpr const char REGEX_VALID_CHARACTERS[] = "^[a-zA-Z_][a-zA-Z0-9_]*$";
+
+static constexpr const char GATEWAY_CONFIG_SERVICE_TABLE_NAME[] = "services";
+static constexpr const char GATEWAY_CONFIG_SERVICE_NAME[] = "service";
+static constexpr const char GATEWAY_CONFIG_SERVICE_INSTANCE_NAME[] = "instance";
+static constexpr const char GATEWAY_CONFIG_SERVICE_EVENT_NAME[] = "event";
+static constexpr const char GATEWAY_CONFIG_SERVICE_PAYLOAD_SIZE[] = "size";
 
 ///
 /// @brief The TomlGatewayConfigParser class provides methods for parsing gateway configs from toml text files.

@@ -7,7 +7,7 @@
 iox::cxx::expected<iox::dds::GatewayConfig, iox::dds::TomlGatewayConfigParseError>
 iox::dds::TomlGatewayConfigParser::parse()
 {
-    return iox::dds::TomlGatewayConfigParser::parse(iox::dds::defaultConfigFilePath);
+    return iox::dds::TomlGatewayConfigParser::parse(DEFAULT_CONFIG_FILE_PATH);
 }
 
 iox::cxx::expected<iox::dds::GatewayConfig, iox::dds::TomlGatewayConfigParseError>
@@ -34,19 +34,19 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
     }
 
     // Prepare config object
-    auto serviceArray = parsedToml->get_table_array("services");
+    auto serviceArray = parsedToml->get_table_array(GATEWAY_CONFIG_SERVICE_TABLE_NAME);
     for (const auto& service : *serviceArray)
     {
-
-    GatewayConfig::ServiceEntry entry;
-    auto serviceName = service->get_as<std::string>("service");
-    auto instance = service->get_as<std::string>("instance");
-    auto event = service->get_as<std::string>("event");
-    entry.m_serviceDescription = iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, *serviceName),
-                                                                iox::capro::IdString(iox::cxx::TruncateToCapacity, *instance),
-                                                                iox::capro::IdString(iox::cxx::TruncateToCapacity, *event));
-    auto size = service->get_as<uint64_t>("size");
-    entry.m_dataSize = *size;
+        GatewayConfig::ServiceEntry entry;
+        auto serviceName = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_NAME);
+        auto instance = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_INSTANCE_NAME);
+        auto event = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_EVENT_NAME);
+        entry.m_serviceDescription = iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, *serviceName),
+                                                                    iox::capro::IdString(iox::cxx::TruncateToCapacity, *instance),
+                                                                    iox::capro::IdString(iox::cxx::TruncateToCapacity, *event));
+        auto size = service->get_as<uint64_t>(GATEWAY_CONFIG_SERVICE_PAYLOAD_SIZE);
+        entry.m_dataSize = *size;
+        config.m_configuredServices.push_back(entry);
         LogDebug() << "[TomlGatewayConfigParser] Found service: {" << *serviceName << ", " << *instance << ", " << *event
                    << "}";
     }
@@ -58,7 +58,7 @@ iox::cxx::expected<iox::dds::TomlGatewayConfigParseError>
 iox::dds::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) noexcept
 {
     // Check for expected fields
-    auto serviceArray = parsedToml.get_table_array("services");
+    auto serviceArray = parsedToml.get_table_array(GATEWAY_CONFIG_SERVICE_TABLE_NAME);
     if (!serviceArray)
     {
         LogError() << "[TomlGatewayConfigParser] Incomplete configuration provided.";
@@ -70,10 +70,10 @@ iox::dds::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) no
     {
         ++count;
 
-        auto serviceName = service->get_as<std::string>("service");
-        auto instance = service->get_as<std::string>("instance");
-        auto event = service->get_as<std::string>("event");
-        auto sampleSize = service->get_as<uint64_t>("size");
+        auto serviceName = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_NAME);
+        auto instance = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_INSTANCE_NAME);
+        auto event = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_EVENT_NAME);
+        auto sampleSize = service->get_as<uint64_t>(GATEWAY_CONFIG_SERVICE_PAYLOAD_SIZE);
 
         // check for incomplete service descriptions
         if (!serviceName || !instance || !event)
@@ -105,7 +105,7 @@ iox::dds::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) no
 bool iox::dds::TomlGatewayConfigParser::hasInvalidCharacter(std::string s) noexcept
 {
     // See: https://design.ros2.org/articles/topic_and_service_names.html
-    const std::regex regex("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    const std::regex regex(REGEX_VALID_CHARACTERS);
     auto isInvalid = !std::regex_match(s, regex);
     if (isInvalid)
     {

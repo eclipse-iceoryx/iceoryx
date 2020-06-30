@@ -79,6 +79,9 @@ class MockGenericDDSGateway
     MOCK_METHOD1_T(addChannel,
                  iox::cxx::expected<channel_t, iox::dds::GatewayError>(
                      const iox::capro::ServiceDescription&));
+    MOCK_METHOD2_T(addChannel,
+                 iox::cxx::expected<channel_t, iox::dds::GatewayError>(
+                     const iox::capro::ServiceDescription&, const uint64_t&));
     MOCK_METHOD1(discardChannel, iox::cxx::expected<iox::dds::GatewayError>(const iox::capro::ServiceDescription&));
     MOCK_METHOD1_T(
         findChannel,

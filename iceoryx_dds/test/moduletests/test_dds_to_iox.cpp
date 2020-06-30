@@ -38,12 +38,13 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+    auto dataSize = 8u;
     iox::dds::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, 0});
+    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, dataSize});
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
-    EXPECT_CALL(gw, addChannel).WillOnce(Return(channelFactory(testService)));
+    EXPECT_CALL(gw, addChannel(testService, dataSize)).WillOnce(Return(channelFactory(testService, dataSize)));
 
     // === Test
     gw.loadConfiguration(config);
@@ -53,8 +54,10 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyOffersConfiguredPublishers)
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+    auto dataSize = 8u;
+
     iox::dds::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, 0});
+    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, dataSize});
 
     auto mockPublisher = createMockIceoryxTerminal(testService);
     EXPECT_CALL(*mockPublisher, offer).Times(1);
@@ -62,7 +65,7 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyOffersConfiguredPublishers)
 
     TestGateway gw{};
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel).WillByDefault(Return(channelFactory(testService)));
+    ON_CALL(gw, addChannel(testService, dataSize)).WillByDefault(Return(channelFactory(testService, dataSize)));
 
     // === Test
     gw.loadConfiguration(config);
@@ -72,8 +75,10 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+    auto dataSize = 8u;
+
     iox::dds::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, 0});
+    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, dataSize});
 
     auto mockDataReader = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockDataReader, connect).Times(1);
@@ -81,7 +86,7 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
 
     TestGateway gw{};
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel).WillByDefault(Return(channelFactory(testService)));
+    ON_CALL(gw, addChannel(testService, dataSize)).WillByDefault(Return(channelFactory(testService, dataSize)));
 
     // === Test
     gw.loadConfiguration(config);
@@ -94,12 +99,15 @@ TEST_F(DDS2IceoryxGatewayTest, ForwardsReceivedBytesIntoReservedMemoryChunks)
     {
         // === Setup
         auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+        auto dataSize = 8u;
 
         // Setup data reader to provide a sample
         auto mockDataReader = createMockDDSTerminal(testService);
         auto mockPublisher = createMockIceoryxTerminal(testService);
 
-        // NOTE: This line does does not compile for some reason... not sure if the issue with cxx::expected or gtest.
+        // NOTE: This line does does not compile with the following error. Will debug later...
+        // error: cannot convert ‘iox::cxx::success<long unsigned int>’ to ‘long unsigned int’ in initialization
+        // : value(std::forward<Targs>(args)...)
         //ON_CALL(*mockDataReader, read(_, _, _, _)).WillByDefault(Return(iox::cxx::success<uint64_t>(1)));
 
         EXPECT_CALL(*mockPublisher, sendChunk).Times(1);
@@ -107,9 +115,10 @@ TEST_F(DDS2IceoryxGatewayTest, ForwardsReceivedBytesIntoReservedMemoryChunks)
         stageMockDDSTerminal(std::move(mockDataReader));
         stageMockIceoryxTerminal(std::move(mockPublisher));
 
-        // === Test
-        auto testChannel = channelFactory(testService).get_value();
+        auto testChannel = channelFactory(testService, dataSize).get_value();
         TestGateway gw{};
+
+        // === Test
         gw.forward(testChannel);
     }
 }
@@ -120,6 +129,7 @@ TEST_F(DDS2IceoryxGatewayTest, OnlyRequestsOneSampleAtATime)
     {
         // === Setup
         auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+        auto dataSize = 8u;
 
         uint8_t buffer[64];
 
@@ -129,17 +139,40 @@ TEST_F(DDS2IceoryxGatewayTest, OnlyRequestsOneSampleAtATime)
 
         ON_CALL(*mockPublisher, allocateChunk).WillByDefault(Return(&buffer));
 
-        // NOTE: This line does does not compile for some reason... not sure if the issue with cxx::expected or gtest.
+        // NOTE: This line does does not compile with the following error. Will debug later...
+        // error: cannot convert ‘iox::cxx::success<long unsigned int>’ to ‘long unsigned int’ in initialization
+        // : value(std::forward<Targs>(args)...).
         //ON_CALL(*mockDataReader, read(_, _, _, _)).WillByDefault(Return(iox::cxx::success<uint64_t>(1)));
 
         stageMockDDSTerminal(std::move(mockDataReader));
         stageMockIceoryxTerminal(std::move(mockPublisher));
 
-        // === Test
-        auto testChannel = channelFactory(testService).get_value();
-        testChannel.setSampleSize(64);
-
+        auto testChannel = channelFactory(testService, dataSize).get_value();
         TestGateway gw{};
+
+        // === Test
         gw.forward(testChannel);
     }
+}
+
+TEST_F(DDS2IceoryxGatewayTest, DoesNotForwardAcrossChannelsWithNoDataSize)
+{
+    // === Setup
+    auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+    auto dataSize = 0u;
+
+    auto mockDataReader = createMockDDSTerminal(testService);
+    auto mockPublisher = createMockIceoryxTerminal(testService);
+
+    EXPECT_CALL(*mockDataReader, read(_, _, _, _)).Times(0);
+    EXPECT_CALL(*mockPublisher, sendChunk).Times(0);
+
+    stageMockDDSTerminal(std::move(mockDataReader));
+    stageMockIceoryxTerminal(std::move(mockPublisher));
+
+    TestGateway gw{};
+
+    // === Test
+    auto testChannel = channelFactory(testService, dataSize).get_value();
+    gw.forward(testChannel);
 }

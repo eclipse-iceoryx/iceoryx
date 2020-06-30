@@ -23,8 +23,9 @@ namespace iox
 {
 namespace dds
 {
+
 ///
-/// @brief Generic configuration for DDS gateways.
+/// @brief Generic configuration for gateways.
 ///
 struct GatewayConfig
 {

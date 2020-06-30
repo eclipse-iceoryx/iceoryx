@@ -66,6 +66,13 @@ template <typename channel_t, typename gateway_t>
 inline iox::cxx::expected<channel_t, iox::dds::GatewayError>
 iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service) noexcept
 {
+    return addChannel(service, 0u);
+}
+
+template <typename channel_t, typename gateway_t>
+inline iox::cxx::expected<channel_t, iox::dds::GatewayError>
+iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service, const uint64_t& dataSize) noexcept
+{
     // Filter out wildcard services
     if (service.getServiceID() == iox::capro::AnyService || service.getInstanceID() == iox::capro::AnyInstance
         || service.getEventID() == iox::capro::AnyEvent)
@@ -81,7 +88,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
     }
     else
     {
-        auto result = channel_t::create(service);
+        auto result = channel_t::create(service, dataSize);
         if (result.has_error())
         {
             iox::dds::LogError() << "[DDSGatewayGeneric] Unable to set up channel for service: "
@@ -108,7 +115,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro:
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
-        return channel.getService() == service;
+        return channel.getServiceDescription() == service;
     });
     if (channel == guardedVector->end())
     {
@@ -137,7 +144,7 @@ inline iox::cxx::expected<iox::dds::GatewayError> iox::dds::DDSGatewayGeneric<ch
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
-        return channel.getService() == service;
+        return channel.getServiceDescription() == service;
     });
     if (channel != guardedVector->end())
     {

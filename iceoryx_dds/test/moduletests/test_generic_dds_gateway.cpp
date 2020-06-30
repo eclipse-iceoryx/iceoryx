@@ -194,7 +194,7 @@ TEST_F(DDSGatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
     EXPECT_EQ(true, foundChannel.has_value());
     if (foundChannel.has_value())
     {
-        EXPECT_EQ(testService, foundChannel.value().getService());
+        EXPECT_EQ(testService, foundChannel.value().getServiceDescription());
     }
 }
 
