@@ -53,6 +53,7 @@ void SubscriberPortUser::subscribe(const uint32_t queueCapacity) noexcept
             LogWarn() << "Requested queue capacity " << queueCapacity
                       << " exceeds the maximum possible one for this subscriber"
                       << ", limiting to " << m_chunkReceiver.getMaximumCapacity();
+            /// @todo fix getCapacity and setCapacity issue in queues (uint32 vs uint64)
             capacity = m_chunkReceiver.getMaximumCapacity();
         }
         m_chunkReceiver.setCapacity(capacity);

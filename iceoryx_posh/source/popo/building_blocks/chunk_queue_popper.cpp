@@ -40,7 +40,7 @@ cxx::optional<mepoo::SharedChunk> ChunkQueuePopper::pop() noexcept
     auto retVal = getMembers()->m_queue.pop();
 
     // check if queue had an element that was poped and return if so
-    if (retVal)
+    if (retVal.has_value())
     {
         auto chunkTupleOut = *retVal;
         auto chunkManagement =
