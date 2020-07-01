@@ -15,45 +15,45 @@ jobs:
   build-test-ubuntu:
     # The type of runner that the job will run on
     runs-on: ubuntu-18.04
-      
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install iceoryx dependencies
         # Softwares installed in ubuntu-18.04 instance 
         # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
         run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
-      
+
       - name : Checkout
         uses: actions/checkout@v2
  
       - name: Build sources
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean
-      
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean strict
+
       - name: Build tests
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test strict
 
       - name: Run tests
         run: |
           cd $GITHUB_WORKSPACE/build
           ../tools/run_all_tests.sh
-        
+
       - name : Build sources (clang)
         run: |
           export CC=/usr/bin/clang
           export CXX=/usr/bin/clang++
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean strict
 
  # This job builds & runs iceoryx tests in macos-10.15
   build-test-mac:
     runs-on: macos-10.15
     # Softwares installed in macos-10.15 instance
     # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md     
-    
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name : Checkout
         uses: actions/checkout@v2
-        
+
       - name: Build ncurses by source
       # tinfo library which is required by iceoryx_introspection isn't available in mac
         run: |
@@ -62,19 +62,18 @@ jobs:
           cd build
           git clone https://github.com/mirror/ncurses.git 
           cd ncurses
-          git checkout v6.2          
+          git checkout v6.2
           ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/ --with-termlib 
           make
-          make install                  
+          make install
  
       - name: Build sources
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh
-      
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict
+
       - name: Build tests
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test strict
 
       - name: Run tests
         run: |
           cd $GITHUB_WORKSPACE/build
           ../tools/run_all_tests.sh disable-timing-tests
-

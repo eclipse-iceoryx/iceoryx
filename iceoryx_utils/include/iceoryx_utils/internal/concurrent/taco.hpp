@@ -148,7 +148,7 @@ class TACO
                       "TACO exceeded max number of contexts!");
 
         // initially assign the indices to the corresponding contexts
-        int i = 0;
+        uint32_t i = 0;
         for (auto& index : m_indices)
         {
             index = i;

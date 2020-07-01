@@ -58,10 +58,10 @@ void Timer::OsTimerCallbackHandle::incrementDescriptor()
 
 void Timer::OsTimer::callbackHelper(sigval data)
 {
-    auto index = Timer::OsTimerCallbackHandle::sigvalToIndex(data);
+    uint32_t index = Timer::OsTimerCallbackHandle::sigvalToIndex(data);
     auto descriptor = Timer::OsTimerCallbackHandle::sigvalToDescriptor(data);
 
-    if (static_cast<uint32_t>(index) >= Timer::OsTimerCallbackHandle::MAX_DESCRIPTOR_VALUE)
+    if (index >= Timer::OsTimerCallbackHandle::MAX_DESCRIPTOR_VALUE)
     {
         ///@todo decide if to print a warning
         return;

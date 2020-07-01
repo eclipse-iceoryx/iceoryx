@@ -57,6 +57,8 @@ target_link_libraries(iceoryx_introspection
     ncurses
 )
 
+target_compile_options(iceoryx_introspection PRIVATE ${ICEORYX_WARNINGS})
+
 
 
 if(LINUX)
@@ -84,6 +86,8 @@ target_link_libraries(iceoryx_introspection_client
     PRIVATE
     ${PROJECT_NAMESPACE}::iceoryx_introspection
 )
+
+target_compile_options(iceoryx_introspection_client PRIVATE ${ICEORYX_WARNINGS})
 
 
 #
