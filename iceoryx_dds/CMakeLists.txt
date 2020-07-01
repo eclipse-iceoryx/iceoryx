@@ -101,10 +101,14 @@ if(USE_CYCLONE_DDS)
     ##################################################################################################################################
 
     target_compile_definitions(iceoryx_dds PUBLIC -DUSE_CYCLONE_DDS)
+    target_include_directories(iceoryx_dds
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/iceoryx_dds_messages>
+    )
     target_link_libraries(iceoryx_dds
         PUBLIC
         CycloneDDS_CXX_API::ddscxx
-        iceoryx_dds_messages::iceoryx_dds_messages
+        ${IDLPP_GENERATE_DIR}/libiceoryx_dds_messages.a
     )
 endif()
 
