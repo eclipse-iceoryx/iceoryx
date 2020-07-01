@@ -296,7 +296,7 @@ TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThread
     waiter.join();
 }
 
-TEST_F(WaitSet_test, NotifyGuardConditionTwiceTimedWaitResultsInResetOfTrigger)
+TEST_F(WaitSet_test, NotifyGuardConditionOnceTimedWaitResultsInResetOfTrigger)
 {
     auto& guardCond = m_sut.getGuardCondition();
     guardCond.notify();
