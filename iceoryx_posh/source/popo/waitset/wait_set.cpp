@@ -71,6 +71,7 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::waitAndReturnFulfilled
         if (currentCondition->hasTrigger())
         {
             conditionsWithFulfilledPredicate.push_back(*currentCondition);
+            currentCondition->resetTrigger();
         }
     }
 
@@ -97,6 +98,7 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::waitAndReturnFulfilled
             if (currentCondition->hasTrigger())
             {
                 conditionsWithFulfilledPredicate.push_back(*currentCondition);
+                currentCondition->resetTrigger();
             }
         }
     }

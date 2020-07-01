@@ -35,5 +35,10 @@ bool GuardCondition::hasTrigger() noexcept
     return m_wasTriggered.load(std::memory_order_relaxed);
 }
 
+void GuardCondition::resetTrigger() noexcept
+{
+    m_wasTriggered.store(false, std::memory_order_relaxed);
+}
+
 } // namespace popo
 } // namespace iox

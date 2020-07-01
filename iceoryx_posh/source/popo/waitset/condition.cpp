@@ -23,6 +23,10 @@ bool Condition::hasTrigger() noexcept
     return false;
 }
 
+void Condition::resetTrigger() noexcept
+{
+}
+
 bool Condition::isConditionVariableAttached() noexcept
 {
     return false;

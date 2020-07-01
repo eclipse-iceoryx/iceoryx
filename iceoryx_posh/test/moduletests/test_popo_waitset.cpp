@@ -47,6 +47,11 @@ class MockSubscriber : public Condition
         return m_wasTriggered;
     }
 
+    void resetTrigger() noexcept override
+    {
+        m_wasTriggered = false;
+    }
+
     bool detachConditionVariable() noexcept override
     {
         m_condVarAttached = false;
@@ -289,4 +294,14 @@ TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThread
     counter++;
     guardCond.notify();
     waiter.join();
+}
+
+TEST_F(WaitSet_test, NotifyGuardConditionTwiceTimedWaitResultsInResetOfTrigger)
+{
+    auto& guardCond = m_sut.getGuardCondition();
+    guardCond.notify();
+    auto fulfilledConditions1 = m_sut.timedWait(1_ms);
+    EXPECT_THAT(fulfilledConditions1.size(), Eq(1));
+    auto fulfilledConditions2 = m_sut.timedWait(1_ms);
+    EXPECT_THAT(fulfilledConditions2.size(), Eq(0));
 }

@@ -30,6 +30,7 @@ class GuardCondition : public Condition
 
     void notify() noexcept;
     bool hasTrigger() noexcept override;
+    void resetTrigger() noexcept override;
 
   private:
     ConditionVariableSignaler m_conditionVariableSignaler;

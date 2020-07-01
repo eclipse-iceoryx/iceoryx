@@ -31,6 +31,7 @@ class Condition
 
     /// @return Always false
     virtual bool hasTrigger() noexcept;
+    virtual void resetTrigger() noexcept;
     /// @return Always false
     virtual bool isConditionVariableAttached() noexcept;
     /// @return Always false
