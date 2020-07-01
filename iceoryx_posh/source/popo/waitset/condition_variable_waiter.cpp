@@ -13,6 +13,7 @@
 // limitations under the License
 
 #include "iceoryx_posh/internal/popo/waitset/condition_variable_waiter.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -27,11 +28,12 @@ bool ConditionVariableWaiter::reset() noexcept
 {
     // Re-create the semaphore
     getMembers()->m_semaphore.~Semaphore();
-    getMembers()->m_semaphore = std::move(posix::Semaphore::create(0u)
-                                              .on_error([] {
-                                                  /// @todo add errorhandler call here
-                                              })
-                                              .get_value());
+    getMembers()->m_semaphore =
+        std::move(posix::Semaphore::create(0u)
+                      .on_error([] {
+                          iox::errorHandler(iox::Error::kPOPO__CONDITION_VARIABLE_WAITER_FAILED_TO_CREATE_SEMAPHORE);
+                      })
+                      .get_value());
     return true;
 }
 
