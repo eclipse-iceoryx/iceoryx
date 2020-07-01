@@ -17,7 +17,6 @@
 #include "iceoryx_posh/internal/popo/waitset/guard_condition.hpp"
 #include "iceoryx_posh/internal/popo/waitset/wait_set.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
-#include "mocks/posh_runtime_mock.hpp"
 #include "test.hpp"
 
 #include <memory>
