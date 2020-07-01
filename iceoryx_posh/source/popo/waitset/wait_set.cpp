@@ -57,10 +57,10 @@ void WaitSet::clear() noexcept
     m_conditionVector.clear();
 }
 
-cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::waitAndReturnFulfilledConditions(bool enableTimeout,
-                                                                                           units::Duration timeout) noexcept
+cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS>
+WaitSet::waitAndReturnFulfilledConditions(bool enableTimeout, units::Duration timeout) noexcept
 {
-    cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> conditionsWithFulfilledPredicate;
+    cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> conditionsWithFulfilledPredicate;
 
     /// @note Inbetween here and last wait someone could have set the trigger to true, hence reset it
     m_conditionVariableWaiter.reset();
@@ -70,7 +70,7 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::waitAndReturnFulfilled
     {
         if (currentCondition->hasTrigger())
         {
-            conditionsWithFulfilledPredicate.push_back(*currentCondition);
+            conditionsWithFulfilledPredicate.push_back(currentCondition);
             currentCondition->resetTrigger();
         }
     }
@@ -97,7 +97,7 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::waitAndReturnFulfilled
         {
             if (currentCondition->hasTrigger())
             {
-                conditionsWithFulfilledPredicate.push_back(*currentCondition);
+                conditionsWithFulfilledPredicate.push_back(currentCondition);
                 currentCondition->resetTrigger();
             }
         }
@@ -106,13 +106,13 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::waitAndReturnFulfilled
     return conditionsWithFulfilledPredicate;
 }
 
-cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::timedWait(units::Duration timeout) noexcept
+cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> WaitSet::timedWait(units::Duration timeout) noexcept
 {
     bool enableTimeout{true};
     return waitAndReturnFulfilledConditions(enableTimeout, timeout);
 }
 
-cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept
+cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept
 {
     bool disableTimeout{false};
     return waitAndReturnFulfilledConditions(disableTimeout);

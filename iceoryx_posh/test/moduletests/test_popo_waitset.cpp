@@ -177,6 +177,7 @@ TEST_F(WaitSet_test, TimedWaitWithNotificationResultsInImmediateTrigger)
     m_subscriberVector.front().notify();
     auto fulfilledConditions = m_sut.timedWait(1_ms);
     EXPECT_THAT(fulfilledConditions.size(), Eq(1));
+    EXPECT_THAT(fulfilledConditions.front(), &m_subscriberVector.front());
 }
 
 TEST_F(WaitSet_test, TimeoutOfTimedWaitResultsInEmptyVector)
@@ -195,6 +196,7 @@ TEST_F(WaitSet_test, NotifyOneWhileWaitingResultsInTriggerMultiThreaded)
         m_syncSemaphore.post();
         auto fulfilledConditions = m_sut.wait();
         EXPECT_THAT(fulfilledConditions.size(), Eq(1));
+        EXPECT_THAT(fulfilledConditions.front(), &m_subscriberVector.front());
         EXPECT_THAT(counter, Eq(1));
     });
     m_syncSemaphore.wait();
@@ -206,26 +208,27 @@ TEST_F(WaitSet_test, NotifyOneWhileWaitingResultsInTriggerMultiThreaded)
 TEST_F(WaitSet_test, AttachManyNotifyOneWhileWaitingResultsInTriggerMultiThreaded)
 {
     std::atomic<int> counter{0};
+    m_sut.attachCondition(m_subscriberVector[0]);
     m_sut.attachCondition(m_subscriberVector[1]);
-    m_sut.attachCondition(m_subscriberVector[2]);
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         m_syncSemaphore.post();
         auto fulfilledConditions = m_sut.wait();
         EXPECT_THAT(fulfilledConditions.size(), Eq(1));
+        EXPECT_THAT(fulfilledConditions.front(), &m_subscriberVector[0]);
         EXPECT_THAT(counter, Eq(1));
     });
     m_syncSemaphore.wait();
     counter++;
-    m_subscriberVector[1].notify();
+    m_subscriberVector[0].notify();
     waiter.join();
 }
 
 TEST_F(WaitSet_test, AttachManyNotifyManyBeforeWaitingResultsInTriggerMultiThreaded)
 {
     std::atomic<int> counter{0};
+    m_sut.attachCondition(m_subscriberVector[0]);
     m_sut.attachCondition(m_subscriberVector[1]);
-    m_sut.attachCondition(m_subscriberVector[2]);
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         m_syncSemaphore.post();
@@ -233,11 +236,13 @@ TEST_F(WaitSet_test, AttachManyNotifyManyBeforeWaitingResultsInTriggerMultiThrea
         m_syncSemaphore.wait();
         auto fulfilledConditions = m_sut.wait();
         EXPECT_THAT(fulfilledConditions.size(), Eq(2));
+        EXPECT_THAT(fulfilledConditions[0], &m_subscriberVector[0]);
+        EXPECT_THAT(fulfilledConditions[1], &m_subscriberVector[1]);
         EXPECT_THAT(counter, Eq(1));
     });
     m_syncSemaphore.wait();
+    m_subscriberVector[0].notify();
     m_subscriberVector[1].notify();
-    m_subscriberVector[2].notify();
     counter++;
     m_syncSemaphore.post();
     waiter.join();
@@ -246,18 +251,20 @@ TEST_F(WaitSet_test, AttachManyNotifyManyBeforeWaitingResultsInTriggerMultiThrea
 TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThreaded)
 {
     std::atomic<int> counter{0};
+    m_sut.attachCondition(m_subscriberVector[0]);
     m_sut.attachCondition(m_subscriberVector[1]);
-    m_sut.attachCondition(m_subscriberVector[2]);
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         m_syncSemaphore.post();
         auto fulfilledConditions = m_sut.wait();
         EXPECT_THAT(fulfilledConditions.size(), Eq(2));
+        EXPECT_THAT(fulfilledConditions[0], &m_subscriberVector[0]);
+        EXPECT_THAT(fulfilledConditions[1], &m_subscriberVector[1]);
         EXPECT_THAT(counter, Eq(1));
     });
     m_syncSemaphore.wait();
+    m_subscriberVector[0].notify();
     m_subscriberVector[1].notify();
-    m_subscriberVector[2].notify();
     counter++;
     waiter.join();
 }
@@ -282,14 +289,15 @@ TEST_F(WaitSet_test, WaitWithoutNotifyResultsInBlockingMultiThreaded)
 TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThreaded)
 {
     std::atomic<int> counter{0};
+    auto& guardCond = m_sut.getGuardCondition();
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         m_syncSemaphore.post();
         auto fulfilledConditions = m_sut.wait();
         EXPECT_THAT(fulfilledConditions.size(), Eq(1));
+        EXPECT_THAT(fulfilledConditions.front(), &guardCond);
         EXPECT_THAT(counter, Eq(1));
     });
-    auto& guardCond = m_sut.getGuardCondition();
     m_syncSemaphore.wait();
     counter++;
     guardCond.notify();
@@ -302,6 +310,7 @@ TEST_F(WaitSet_test, NotifyGuardConditionOnceTimedWaitResultsInResetOfTrigger)
     guardCond.notify();
     auto fulfilledConditions1 = m_sut.timedWait(1_ms);
     EXPECT_THAT(fulfilledConditions1.size(), Eq(1));
+    EXPECT_THAT(fulfilledConditions1.front(), &guardCond);
     auto fulfilledConditions2 = m_sut.timedWait(1_ms);
     EXPECT_THAT(fulfilledConditions2.size(), Eq(0));
 }
