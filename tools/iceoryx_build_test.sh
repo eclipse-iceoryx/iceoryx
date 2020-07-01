@@ -157,16 +157,16 @@ cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
 echo ">>>>>> Start building iceoryx examples <<<<<<"
-cd $BUILD_DIR
+cd $WORKSPACE/build
 mkdir -p iceoryx_examples
 echo ">>>>>>>> icedelivery"
-cd $BUILD_DIR/iceoryx_examples
+cd $WORKSPACE/build/iceoryx_examples
 mkdir -p icedelivery
 cd icedelivery
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
 cmake --build . -- -j$NUM_JOBS
 echo ">>>>>>>> iceperf"
-cd $BUILD_DIR/iceoryx_examples
+cd $WORKSPACE/build/iceoryx_examples
 mkdir -p iceperf
 cd iceperf
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
