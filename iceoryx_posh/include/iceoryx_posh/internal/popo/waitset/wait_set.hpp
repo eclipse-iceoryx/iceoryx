@@ -18,6 +18,7 @@
 #include "guard_condition.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/waitset/condition.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
 namespace iox
@@ -30,8 +31,8 @@ constexpr uint16_t MAX_NUMBER_OF_CONDITIONS{128};
 class WaitSet
 {
   public:
-    /// @brief Requests a condition variable from RouDi
-    WaitSet() noexcept;
+    WaitSet(cxx::not_null<ConditionVariableData* const> =
+                runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable()) noexcept;
 
     /// @brief Adds a condition to the internal vector
     /// @return True if successful, false if unsuccessful
@@ -41,9 +42,12 @@ class WaitSet
     /// @return True if successful, false if unsuccessful
     bool detachCondition(Condition& condition) noexcept;
 
+    /// @brief Clears all conditions from the waitset
+    void clear() noexcept;
+
     /// @brief Blocking wait with time limit till one or more of the condition become true
     /// @todo Shall we return the condition that have become true here? Yep!
-    void timedWait(units::Duration timeout) noexcept;
+    cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> timedWait(units::Duration timeout) noexcept;
 
     /// @brief Blocking wait till one or more of the condition become true
     cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> wait() noexcept;

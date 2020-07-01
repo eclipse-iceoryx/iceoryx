@@ -27,25 +27,15 @@ class Condition
 {
   public:
     Condition() = default;
-    Condition(const Condition& rhs) noexcept;
-    Condition& operator=(const Condition& rhs) noexcept;
-    Condition(Condition&& rhs) noexcept;
-    Condition& operator=(Condition&& rhs) noexcept;
 
-    /// @return Returns true if condition has occured
-    bool hasTrigger() noexcept;
-
+    /// @return Always false
+    virtual bool hasTrigger() noexcept;
+    /// @return Always false
     virtual bool isConditionVariableAttached() noexcept;
-
+    /// @return Always false
     virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept;
-
+    /// @return Always false
     virtual bool detachConditionVariable() noexcept;
-
-  protected:
-    void setTrigger() noexcept;
-
-  private:
-    std::atomic_bool m_trigger{false};
 };
 
 } // namespace popo

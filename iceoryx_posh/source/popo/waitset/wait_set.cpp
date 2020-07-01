@@ -13,14 +13,13 @@
 // limitations under the License
 
 #include "iceoryx_posh/internal/popo/waitset/wait_set.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 namespace iox
 {
 namespace popo
 {
-WaitSet::WaitSet() noexcept
-    : m_conditionVariableDataPtr(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
+WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
+    : m_conditionVariableDataPtr(condVarDataPtr)
     , m_conditionVariableWaiter(m_conditionVariableDataPtr)
     , m_guardCondition(m_conditionVariableDataPtr)
 {
@@ -53,9 +52,47 @@ bool WaitSet::detachCondition(Condition& condition) noexcept
     return false;
 }
 
-void WaitSet::timedWait(units::Duration timeout) noexcept
+void WaitSet::clear() noexcept
 {
-    m_conditionVariableWaiter.timedWait(timeout);
+    m_conditionVector.clear();
+}
+
+cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::timedWait(units::Duration timeout) noexcept
+{
+    cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> conditionsWithFulfilledPredicate;
+
+    /// @note Inbetween here and last wait someone could have set the trigger to true, hence reset it
+    m_conditionVariableWaiter.reset();
+
+    // Is one of the conditons true?
+    for (auto currentCondition : m_conditionVector)
+    {
+        if (currentCondition->hasTrigger())
+        {
+            conditionsWithFulfilledPredicate.push_back(*currentCondition);
+        }
+    }
+
+    if (conditionsWithFulfilledPredicate.empty())
+    {
+        auto retVal = m_conditionVariableWaiter.timedWait(timeout);
+
+        if (retVal == false)
+        {
+            return conditionsWithFulfilledPredicate;
+        }
+
+        // Check again if one of the conditions is true after we received the signal
+        for (auto currentCondition : m_conditionVector)
+        {
+            if (currentCondition->hasTrigger())
+            {
+                conditionsWithFulfilledPredicate.push_back(*currentCondition);
+            }
+        }
+    }
+    // Return of a copy of all conditions that were fulfilled
+    return conditionsWithFulfilledPredicate;
 }
 
 cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept

@@ -18,46 +18,24 @@ namespace iox
 {
 namespace popo
 {
-Condition::Condition(const Condition& rhs) noexcept
-{
-    m_trigger.store(rhs.m_trigger, std::memory_order_relaxed);
-}
-
-Condition& Condition::operator=(const Condition& rhs) noexcept
-{
-    m_trigger.store(rhs.m_trigger, std::memory_order_relaxed);
-}
-
-Condition::Condition(Condition&& rhs) noexcept
-{
-    m_trigger.store(rhs.m_trigger, std::memory_order_relaxed);
-}
-
-Condition& Condition::operator=(Condition&& rhs) noexcept
-{
-    m_trigger.store(rhs.m_trigger, std::memory_order_relaxed);
-}
-
 bool Condition::hasTrigger() noexcept
 {
-    return m_trigger;
+    return false;
 }
 
 bool Condition::isConditionVariableAttached() noexcept
 {
+    return false;
 }
 
 bool Condition::attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept
 {
+    return false;
 }
 
 bool Condition::detachConditionVariable() noexcept
 {
-}
-
-void Condition::setTrigger() noexcept
-{
-    m_trigger.store(true, std::memory_order_relaxed);
+    return false;
 }
 
 } // namespace popo

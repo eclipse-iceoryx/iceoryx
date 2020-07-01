@@ -26,26 +26,44 @@ using namespace ::testing;
 using ::testing::Return;
 using namespace iox::popo;
 using namespace iox::cxx;
-using namespace iox::mepoo;
+using namespace iox::units::duration_literals;
 
 class MockSubscriber : public Condition
 {
   public:
-    bool isConditionVariableAttached() noexcept
+    bool isConditionVariableAttached() noexcept override
     {
+        return m_condVarAttached;
     }
 
-    bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept
+    bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept override
     {
+        m_condVarAttached = true;
+        m_condVarPtr = ConditionVariableDataPtr;
     }
 
-    bool detachConditionVariable() noexcept
+    bool hasTrigger() noexcept override
     {
+        return m_trigger;
     }
 
+    bool detachConditionVariable() noexcept override
+    {
+        m_condVarAttached = false;
+    }
+
+    /// @note done in ChunkQueuePusher
     bool notify()
     {
+        m_trigger = true;
+        ConditionVariableSignaler signaler{m_condVarPtr};
+        signaler.notifyOne();
     }
+
+    /// @note members reside in ChunkQueueData in SHM
+    bool m_condVarAttached{false};
+    bool m_trigger{false};
+    ConditionVariableData* m_condVarPtr{nullptr};
 };
 
 class WaitSet_test : public Test
@@ -53,35 +71,36 @@ class WaitSet_test : public Test
   public:
     static constexpr uint16_t MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD = iox::popo::MAX_NUMBER_OF_CONDITIONS - 1;
 
-    MockSubscriber m_subscriber;
     ConditionVariableData m_condVarData;
-    WaitSet m_sut;
+    WaitSet m_sut{&m_condVarData};
     vector<MockSubscriber, MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD> m_subscriberVector;
+
+    iox::posix::Semaphore m_syncSemaphore = iox::posix::Semaphore::create(0u).get_value();
 
     void SetUp()
     {
-        for (auto currentSubscriber : m_subscriberVector)
+        MockSubscriber subscriber;
+        while (m_subscriberVector.size() != m_subscriberVector.capacity())
         {
-            m_subscriberVector.push_back(m_subscriber);
+            m_subscriberVector.push_back(subscriber);
         }
     };
 
     void TearDown()
     {
         m_subscriberVector.clear();
+        m_sut.clear();
+        ConditionVariableWaiter waiter{&m_condVarData};
+        waiter.reset();
     };
 };
-
-// TEST_F(WaitSet_test, NoAttachResultsInError)
-// {
-// }
 
 TEST_F(WaitSet_test, AttachSingleConditionSuccessful)
 {
     EXPECT_TRUE(m_sut.attachCondition(m_subscriberVector.front()));
 }
 
-TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInOneFailure)
+TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInFailure)
 {
     m_sut.attachCondition(m_subscriberVector.front());
     EXPECT_FALSE(m_sut.attachCondition(m_subscriberVector.front()));
@@ -135,14 +154,122 @@ TEST_F(WaitSet_test, DetachUnknownConditionResultsInFailure)
     EXPECT_FALSE(m_sut.detachCondition(m_subscriberVector.back()));
 }
 
-// TEST_F(WaitSet_test, TimedWaitWithSignalAlreadySetResultsInImmediateTrigger){}
-// TEST_F(WaitSet_test, SignalSetWhileWaitingInTimedWaitResultsInTrigger){}
-// TEST_F(WaitSet_test, TimeoutOfTimedWaitResultsInTrigger){}
-// TEST_F(WaitSet_test, TimedWaitWithInvalidConditionResultsInFailure){}
-// TEST_F(WaitSet_test, TimedWaitWithInvalidTimeResultsInFailure){}
-// TEST_F(WaitSet_test, TimeoutOfTimedWaitResultsInTrigger){}
+TEST_F(WaitSet_test, TimedWaitWithInvalidTimeResultsInEmptyVector)
+{
+    auto emptyVector = m_sut.timedWait(0_ms);
+    EXPECT_TRUE(emptyVector.empty());
+}
 
-// TEST_F(WaitSet_test, WaitWithoutSignalResultsInBlocking){}
-// TEST_F(WaitSet_test, WaitWithSignalAlreadySetResultsInImmediateTrigger){}
-// TEST_F(WaitSet_test, SignalSetWhileWaitWaitResultsInTrigger){}
-// TEST_F(WaitSet_test, WaitWithInvalidConditionResultsInBlocking){}
+TEST_F(WaitSet_test, NoAttachTimedWaitResultsInEmptyVector)
+{
+    auto emptyVector = m_sut.timedWait(1_ms);
+    EXPECT_TRUE(emptyVector.empty());
+}
+
+TEST_F(WaitSet_test, TimedWaitWithNotificationResultsInImmediateTrigger)
+{
+    m_sut.attachCondition(m_subscriberVector.front());
+    m_subscriberVector.front().notify();
+    auto fulfilledConditions = m_sut.timedWait(1_ms);
+    EXPECT_THAT(fulfilledConditions.size(), Eq(1));
+}
+
+TEST_F(WaitSet_test, TimeoutOfTimedWaitResultsInEmptyVector)
+{
+    m_sut.attachCondition(m_subscriberVector.front());
+    auto fulfilledConditions = m_sut.timedWait(1_ms);
+    EXPECT_THAT(fulfilledConditions.size(), Eq(0));
+}
+
+TEST_F(WaitSet_test, NotifyOneWhileWaitingResultsInTriggerMultiThreaded)
+{
+    std::atomic<int> counter{0};
+    m_sut.attachCondition(m_subscriberVector.front());
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        m_syncSemaphore.post();
+        auto fulfilledConditions = m_sut.wait();
+        EXPECT_THAT(fulfilledConditions.size(), Eq(1));
+        EXPECT_THAT(counter, Eq(1));
+    });
+    m_syncSemaphore.wait();
+    counter++;
+    m_subscriberVector.front().notify();
+    waiter.join();
+}
+
+TEST_F(WaitSet_test, AttachManyNotifyOneWhileWaitingResultsInTriggerMultiThreaded)
+{
+    std::atomic<int> counter{0};
+    m_sut.attachCondition(m_subscriberVector[1]);
+    m_sut.attachCondition(m_subscriberVector[2]);
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        m_syncSemaphore.post();
+        auto fulfilledConditions = m_sut.wait();
+        EXPECT_THAT(fulfilledConditions.size(), Eq(1));
+        EXPECT_THAT(counter, Eq(1));
+    });
+    m_syncSemaphore.wait();
+    counter++;
+    m_subscriberVector[1].notify();
+    waiter.join();
+}
+
+TEST_F(WaitSet_test, AttachManyNotifyManyBeforeWaitingResultsInTriggerMultiThreaded)
+{
+    std::atomic<int> counter{0};
+    m_sut.attachCondition(m_subscriberVector[1]);
+    m_sut.attachCondition(m_subscriberVector[2]);
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        m_syncSemaphore.post();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        m_syncSemaphore.wait();
+        auto fulfilledConditions = m_sut.wait();
+        EXPECT_THAT(fulfilledConditions.size(), Eq(2));
+        EXPECT_THAT(counter, Eq(1));
+    });
+    m_syncSemaphore.wait();
+    m_subscriberVector[1].notify();
+    m_subscriberVector[2].notify();
+    counter++;
+    m_syncSemaphore.post();
+    waiter.join();
+}
+
+TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThreaded)
+{
+    std::atomic<int> counter{0};
+    m_sut.attachCondition(m_subscriberVector[1]);
+    m_sut.attachCondition(m_subscriberVector[2]);
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        m_syncSemaphore.post();
+        auto fulfilledConditions = m_sut.wait();
+        EXPECT_THAT(fulfilledConditions.size(), Eq(2));
+        EXPECT_THAT(counter, Eq(1));
+    });
+    m_syncSemaphore.wait();
+    m_subscriberVector[1].notify();
+    m_subscriberVector[2].notify();
+    counter++;
+    waiter.join();
+}
+
+
+TEST_F(WaitSet_test, WaitWithoutNotifyResultsInBlocking)
+{
+    std::atomic<int> counter{0};
+    m_sut.attachCondition(m_subscriberVector.front());
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        m_syncSemaphore.post();
+        m_sut.wait();
+        EXPECT_THAT(counter, Eq(1));
+    });
+    m_syncSemaphore.wait();
+    counter++;
+    m_subscriberVector.front().notify();
+    waiter.join();
+}
