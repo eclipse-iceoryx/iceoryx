@@ -39,6 +39,7 @@ class MockSubscriber : public Condition
     {
         m_condVarAttached = true;
         m_condVarPtr = ConditionVariableDataPtr;
+        return m_condVarAttached;
     }
 
     bool hasTrigger() noexcept override
@@ -54,10 +55,11 @@ class MockSubscriber : public Condition
     bool detachConditionVariable() noexcept override
     {
         m_condVarAttached = false;
+        return m_condVarAttached;
     }
 
     /// @note done in ChunkQueuePusher
-    bool notify()
+    void notify()
     {
         m_wasTriggered = true;
         ConditionVariableSignaler signaler{m_condVarPtr};
