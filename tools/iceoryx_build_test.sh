@@ -30,9 +30,10 @@ CLEAN_BUILD=false
 BUILD_TYPE=""
 STRICT_FLAG="off"
 TEST_FLAG="off"
-DOWNLOAD_GTEST=true
-DOWNLOAD_CPPTOML=true
-DOWNLOAD_CYCLONEDDS=true
+RUN_TEST=false
+INTROSPECTION_FLAG="on"
+DDS_GATEWAY_FLAG="on"
+CYCLONEDDS_FLAG="$DDS_GATEWAY_FLAG"
 
 while (( "$#" )); do
   case "$1" in
@@ -57,37 +58,37 @@ while (( "$#" )); do
         TEST_FLAG="on"
         shift 1
         ;;
-    "no-gtest-download")
-        DOWNLOAD_GTEST=false
+    "build-test")
+        RUN_TEST=false
+        TEST_FLAG="on"
+        ;;  
+    "skip-introspection")
+        INTROSPECTION_FLAG="off"
         shift 1
         ;;
-    "no-cpptoml-download")
-        DOWNLOAD_CPPTOML=false
-        shift 1
-        ;;
-    "no-cyclonedds-download")
-        DOWNLOAD_CYCLONEDDS=false
+    "skip-dds")
+        DDS_GATEWAY_FLAG="on"
+        CYCLONEDDS_FLAG="on"
         shift 1
         ;;
     "help")
         echo "Build script for iceoryx."
         echo "By default, iceoryx and the examples are build."
         echo ""
-        echo "Usage: iceoryx_build_test.sh [options]"
+        echo "Usage: iceoryx_build_test.sh [options] [<args>]"
         echo "Options:"
-        echo "    clean                     Cleans the build directory"
-        echo "    release                   Build release configuration"
-        echo "    debug                     Build debug configuration"
-        echo "    test                      Builds and runs the tests"
-        echo "    no-gtest-download         Gtest will not be downloaded, but searched in the system"
-        echo "                              Be careful, there might be problems due to incompatible versions"
-        echo "    no-cpptoml-download       Cpptoml will not be downloaded, but searched in the system"
-        echo "                              Be careful, there might be problems due to incompatible versions"
-        echo "    no-cyclonedds-download    CycloneDDS will not be downloaded, but searched in the system"
-        echo "                              Be careful, there might be problems due to incompatible versions"
-        echo "    help                      Prints this help"
+        echo "    -build                Specify a non-default build directory"
+        echo "Args:"
+        echo "    clean                 Cleans the build directory"
+        echo "    release               Build release configuration"
+        echo "    debug                 Build debug configuration"
+        echo "    test                  Builds and runs the tests"
+        echo "    build-test            Builds the tests (doesn't tun)"
+        echo "    skip-introspection    Skips building iceoryx introspection"
+        echo "    skip-dds              Skips building iceoryx dds gateway"
+        echo "    help                  Prints this help"
         echo ""
-        echo "e.g. iceoryx_build_test.sh clean test release"
+        echo "e.g. iceoryx_build_test.sh -b /build/directory clean test release"
         exit 0
         ;;
     *)
@@ -113,113 +114,42 @@ if nproc >/dev/null 2>&1; then
     NUM_CORES=`nproc`
 fi
 
-# # clean build folder
-# if [ $CLEAN_BUILD == true ]
-# then
-#     echo " [i] Cleaning build directory"
-#     cd $WORKSPACE
-#     rm -rf $BUILD_DIR/*
-# fi
+# clean build folder
+if [ $CLEAN_BUILD == true ]
+then
+    echo " [i] Cleaning build directory"
+    cd $WORKSPACE
+    rm -rf $BUILD_DIR/*
+fi
 
-# # create a new build directory and change the current working directory
-# echo " [i] Create a new build directory and change the current working directory"
-# cd $WORKSPACE
-# mkdir -p $BUILD_DIR
-# cd $BUILD_DIR
-
-# echo " [i] Current working directory: $(pwd)"
-
-# # Download and install googletest
-# if [[ $TEST_FLAG == "on" && $DOWNLOAD_GTEST == true ]]
-# then
-#     cd $BUILD_DIR
-#     mkdir -p googletest
-#     cd googletest
-
-#     echo ">>>>>> Start building googletest dependency <<<<<<"
-#     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$DEPENDENCIES_INSTALL_PREFIX -Dtest=$TEST_FLAG $WORKSPACE/cmake/googletest
-#     echo ">>>>>> finished building googletest dependency <<<<<<"
-# fi
-
-# # Download and install cpptoml
-# if [ $DOWNLOAD_CPPTOML == true ]
-# then
-#     cd $BUILD_DIR
-#     mkdir -p cpptoml
-#     cd cpptoml
-
-#     echo ">>>>>> Start building cpptoml dependency <<<<<<"
-#     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$DEPENDENCIES_INSTALL_PREFIX $WORKSPACE/cmake/cpptoml
-#     echo ">>>>>> finished building cpptoml dependency <<<<<<"
-# fi
-
-# # Download and install cyclonedds
-# if [ $DOWNLOAD_CYCLONEDDS == true ]
-# then
-#     cd $BUILD_DIR
-#     mkdir -p cyclonedds
-#     cd cyclonedds
-
-#     echo ">>>>>> Start building cyclonedds dependency <<<<<<"
-#     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$DEPENDENCIES_INSTALL_PREFIX $WORKSPACE/cmake/cyclonedds
-#     echo ">>>>>> finished building cyclonedds dependency <<<<<<"
-# fi
-
-# # Build iceoryx_utils
-# cd $BUILD_DIR
-# mkdir -p utils
-# cd utils
-
-# echo ">>>>>> Start building iceoryx utils package <<<<<<"
-# cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=$DEPENDENCIES_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -Dtest=$TEST_FLAG $WORKSPACE/iceoryx_utils
-# cmake --build . -j$NUM_CORES --target install
-# echo ">>>>>> finished building iceoryx utils package <<<<<<"
-
-# # Build iceoryx_posh
-# cd $BUILD_DIR
-# mkdir -p posh
-# cd posh
-
-# echo ">>>>>> Start building iceoryx posh package <<<<<<"
-# cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=$DEPENDENCIES_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on $WORKSPACE/iceoryx_posh
-# cmake --build . -j$NUM_CORES --target install
-# echo ">>>>>> finished building iceoryx posh package <<<<<<"
-
-# Build iceoryx_dds
+# create a new build directory and change the current working directory
+echo " [i] Create a new build directory and change the current working directory"
+cd $WORKSPACE
+mkdir -p $BUILD_DIR
 cd $BUILD_DIR
-mkdir -p dds
-cd dds
 
-echo ">>>>>> Start building iceoryx dds package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=$DEPENDENCIES_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DBUILD_TESTS=$TEST_FLAG $WORKSPACE/iceoryx_dds_gateway
-cmake --build . -j$NUM_CORES --target install
-echo ">>>>>> finished building iceoryx dds package <<<<<<"
+echo " [i] Current working directory: $(pwd)"
 
-# Build iceoryx_introspection
-cd $BUILD_DIR
-mkdir -p iceoryx_introspection
-cd iceoryx_introspection
-
-echo ">>>>>> Start building iceoryx introspection <<<<<<"
-cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -Dtest=$TEST_FLAG -Droudi_environment=on $WORKSPACE/tools/introspection
-cmake --build . -j$NUM_CORES --target install
-echo ">>>>>> finished building iceoryx introspection package <<<<<<"
+echo ">>>>>> Start building iceoryx package <<<<<<"
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dcyclonedds=$CYCLONEDDS_FLAG $WORKSPACE/iceoryx_meta
+cmake --build . --target install
+echo ">>>>>> finished building iceoryx package <<<<<<"
 
 echo ">>>>>> Start building iceoryx examples <<<<<<"
-cd $BUILD_DIR
+cd $WORKSPACE/build
 mkdir -p iceoryx_examples
 echo ">>>>>>>> icedelivery"
-cd $BUILD_DIR/iceoryx_examples
+cd $WORKSPACE/build/iceoryx_examples
 mkdir -p icedelivery
 cd icedelivery
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
-cmake --build . -j$NUM_CORES
+cmake --build .
 echo ">>>>>>>> iceperf"
-cd $BUILD_DIR/iceoryx_examples
+cd $WORKSPACE/build/iceoryx_examples
 mkdir -p iceperf
 cd iceperf
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
-cmake --build . -j$NUM_CORES
+cmake --build .
 echo ">>>>>> finished building iceoryx examples <<<<<<"
 
 #====================================================================================================

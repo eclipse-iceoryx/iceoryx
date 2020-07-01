@@ -7,12 +7,18 @@ if(NOT N EQUAL 0)
   set(CMAKE_BUILD_FLAGS -j${N})
 endif()
 
+if(WIN32)
+    set(CREATE_PATH_COMMAND mkdir)
+else()
+    set(CREATE_PATH_COMMAND mkdir -p)
+endif(WIN32)
+
 # ===== Helpers
 function(fetch_and_install name)
-    set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/${name}-download)
-    set(SOURCE_DIR ${CMAKE_BINARY_DIR}/${name}-src)
-    set(BUILD_DIR ${CMAKE_BINARY_DIR}/${name}-build)
-    set(INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
+    set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/dependencies/${name}/download)
+    set(SOURCE_DIR ${CMAKE_BINARY_DIR}/dependencies/${name}/src)
+    set(BUILD_DIR ${CMAKE_BINARY_DIR}/dependencies/${name}/build)
+    set(INSTALL_DIR ${CMAKE_BINARY_DIR}/dependencies/install)
 
     # Fetch source
     configure_file(${name}.cmake.in ${DOWNLOAD_CONFIG_DIR}/CMakeLists.txt)
@@ -31,7 +37,7 @@ function(fetch_and_install name)
     endif()
 
     # Build
-    execute_process(COMMAND mkdir -p "${BUILD_DIR}"
+    execute_process(COMMAND ${CREATE_PATH_COMMAND} "${BUILD_DIR}"
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
     if(result)

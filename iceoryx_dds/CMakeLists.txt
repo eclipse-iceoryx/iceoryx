@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION 3.7)
 file (STRINGS "../VERSION" iceoryx_dds_VERSION)
 project(iceoryx_dds VERSION ${iceoryx_dds_VERSION})
 
-option(BUILD_TESTS "build test binaries")
+option(test "build test binaries")
 
 find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
@@ -140,9 +140,9 @@ target_compile_options(gateway_dds2iceoryx PRIVATE ${ICEORYX_WARNINGS})
 #
 ########## build test executables ##########
 #
-if(BUILD_TESTS)
+if(test)
     add_subdirectory(test)
-endif(BUILD_TESTS)
+endif(test)
 
 #
 ########## export library ##########
