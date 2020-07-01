@@ -57,7 +57,8 @@ void WaitSet::clear() noexcept
     m_conditionVector.clear();
 }
 
-cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::timedWait(units::Duration timeout) noexcept
+cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::waitAndReturnFulfilledConditions(bool enableTimeout,
+                                                                                           units::Duration timeout) noexcept
 {
     cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> conditionsWithFulfilledPredicate;
 
@@ -75,11 +76,19 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::timedWait(units::Durat
 
     if (conditionsWithFulfilledPredicate.empty())
     {
-        auto retVal = m_conditionVariableWaiter.timedWait(timeout);
-
-        if (retVal == false)
+        if (enableTimeout)
         {
-            return conditionsWithFulfilledPredicate;
+            auto retVal = m_conditionVariableWaiter.timedWait(timeout);
+
+            if (retVal == false)
+            {
+                // Return empty list
+                return conditionsWithFulfilledPredicate;
+            }
+        }
+        else
+        {
+            m_conditionVariableWaiter.wait();
         }
 
         // Check again if one of the conditions is true after we received the signal
@@ -93,39 +102,24 @@ cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::timedWait(units::Durat
     }
     // Return of a copy of all conditions that were fulfilled
     return conditionsWithFulfilledPredicate;
+}
+
+cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::timedWait(units::Duration timeout) noexcept
+{
+    bool enableTimeout{true};
+    return waitAndReturnFulfilledConditions(enableTimeout, timeout);
 }
 
 cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept
 {
-    cxx::vector<Condition, MAX_NUMBER_OF_CONDITIONS> conditionsWithFulfilledPredicate;
-
-    /// @note Inbetween here and last wait someone could have set the trigger to true, hence reset it
-    m_conditionVariableWaiter.reset();
-
-    // Is one of the conditons true?
-    for (auto currentCondition : m_conditionVector)
-    {
-        if (currentCondition->hasTrigger())
-        {
-            conditionsWithFulfilledPredicate.push_back(*currentCondition);
-        }
-    }
-
-    if (conditionsWithFulfilledPredicate.empty())
-    {
-        m_conditionVariableWaiter.wait();
-
-        // Check again if one of the conditions is true after we received the signal
-        for (auto currentCondition : m_conditionVector)
-        {
-            if (currentCondition->hasTrigger())
-            {
-                conditionsWithFulfilledPredicate.push_back(*currentCondition);
-            }
-        }
-    }
-    // Return of a copy of all conditions that were fulfilled
-    return conditionsWithFulfilledPredicate;
+    bool disableTimeout{false};
+    return waitAndReturnFulfilledConditions(disableTimeout);
 }
+
+GuardCondition& WaitSet::getGuardCondition() noexcept
+{
+    return m_guardCondition;
+}
+
 } // namespace popo
 } // namespace iox

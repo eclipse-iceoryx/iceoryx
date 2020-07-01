@@ -44,7 +44,7 @@ class MockSubscriber : public Condition
 
     bool hasTrigger() noexcept override
     {
-        return m_trigger;
+        return m_wasTriggered;
     }
 
     bool detachConditionVariable() noexcept override
@@ -55,14 +55,14 @@ class MockSubscriber : public Condition
     /// @note done in ChunkQueuePusher
     bool notify()
     {
-        m_trigger = true;
+        m_wasTriggered = true;
         ConditionVariableSignaler signaler{m_condVarPtr};
         signaler.notifyOne();
     }
 
     /// @note members reside in ChunkQueueData in SHM
     bool m_condVarAttached{false};
-    bool m_trigger{false};
+    bool m_wasTriggered{false};
     ConditionVariableData* m_condVarPtr{nullptr};
 };
 
@@ -271,5 +271,22 @@ TEST_F(WaitSet_test, WaitWithoutNotifyResultsInBlockingMultiThreaded)
     m_syncSemaphore.wait();
     counter++;
     m_subscriberVector.front().notify();
+    waiter.join();
+}
+
+TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThreaded)
+{
+    std::atomic<int> counter{0};
+    std::thread waiter([&] {
+        EXPECT_THAT(counter, Eq(0));
+        m_syncSemaphore.post();
+        auto fulfilledConditions = m_sut.wait();
+        EXPECT_THAT(fulfilledConditions.size(), Eq(1));
+        EXPECT_THAT(counter, Eq(1));
+    });
+    auto& guardCond = m_sut.getGuardCondition();
+    m_syncSemaphore.wait();
+    counter++;
+    guardCond.notify();
     waiter.join();
 }

@@ -27,6 +27,7 @@ class ConditionVariableWaiter
   public:
     ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
+    /// @brief Reinitialises the condition variable
     bool reset() noexcept;
     /// @brief Waits until notify is called on the ConditionVariableSignaler or time has run out
     bool timedWait(units::Duration timeToWait) noexcept;

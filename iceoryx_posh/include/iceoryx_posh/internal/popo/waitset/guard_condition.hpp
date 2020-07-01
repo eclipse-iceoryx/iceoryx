@@ -21,15 +21,19 @@ namespace iox
 {
 namespace popo
 {
+/// @brief Allows the user to manually notify inside of one application
+/// @note Contained in every WaitSet
 class GuardCondition : public Condition
 {
   public:
     GuardCondition(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
     void notify() noexcept;
+    bool hasTrigger() noexcept override;
 
   private:
     ConditionVariableSignaler m_conditionVariableSignaler;
+    std::atomic_bool m_wasTriggered;
 };
 
 } // namespace popo

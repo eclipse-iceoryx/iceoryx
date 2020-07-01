@@ -26,7 +26,13 @@ GuardCondition::GuardCondition(cxx::not_null<ConditionVariableData* const> condV
 
 void GuardCondition::notify() noexcept
 {
+    m_wasTriggered = true;
     m_conditionVariableSignaler.notifyOne();
+}
+
+bool GuardCondition::hasTrigger() noexcept
+{
+    return m_wasTriggered.load(std::memory_order_relaxed);
 }
 
 } // namespace popo
