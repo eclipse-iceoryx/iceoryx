@@ -258,7 +258,7 @@ TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThread
 }
 
 
-TEST_F(WaitSet_test, WaitWithoutNotifyResultsInBlocking)
+TEST_F(WaitSet_test, WaitWithoutNotifyResultsInBlockingMultiThreaded)
 {
     std::atomic<int> counter{0};
     m_sut.attachCondition(m_subscriberVector.front());

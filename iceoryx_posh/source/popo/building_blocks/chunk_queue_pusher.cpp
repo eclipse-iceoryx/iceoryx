@@ -63,6 +63,7 @@ cxx::expected<ChunkQueueError> ChunkQueuePusher::push(mepoo::SharedChunk chunk) 
         if (getMembers()->m_semaphoreAttached.load(std::memory_order_acquire) && getMembers()->m_semaphore)
         {
             /// @todo replace semaphore with condition variable
+            //getMembers()->m_wasTriggered.store(true, std::memory_order_relaxed);
             //ConditionVariableSignaler condVarSignaler(&ConditionVariableDataPtr);
             //condVarSignaler.notifyOne();
 

@@ -23,6 +23,7 @@ namespace iox
 namespace popo
 {
 /// @brief Base class representing a generic condition that can be stored in a WaitSet
+/// @note No functionality in this class
 class Condition
 {
   public:

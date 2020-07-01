@@ -37,6 +37,7 @@ struct ChunkQueueData
     mepoo::SharedPointer<posix::Semaphore> m_semaphore;
     /// @todo rename bool to m_condVarAttached
     std::atomic_bool m_semaphoreAttached{false};
+    std::atomic_bool m_wasTriggered{false};
 };
 
 } // namespace popo
