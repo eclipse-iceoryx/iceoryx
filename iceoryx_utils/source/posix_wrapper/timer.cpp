@@ -229,7 +229,8 @@ void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
         // interrupted thread then wins and acquires the lock the currentCycle is
         // smaller then m_callbackCycle since the callback was already called by
         // the previous thread
-        if (currentCycle < handle.m_callbackCycle.load(std::memory_order_relaxed))
+        if (handle.m_timerType == TimerType::ASAP_TIMER
+            && currentCycle <= handle.m_callbackCycle.load(std::memory_order_relaxed))
         {
             return;
         }
