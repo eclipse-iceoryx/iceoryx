@@ -225,12 +225,11 @@ void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
         // executeCallback and returns then m_callback() is called one more time
         // then necessary.
         // to avoid this executeCallback sets after every callback
-        // m_callbackCycle = m_cycle (current value is stored in nextCycle). if the
+        // m_callbackExecutionCycle = m_cycle (current value is stored in nextCycle). if the
         // interrupted thread then wins and acquires the lock the currentCycle is
-        // smaller then m_callbackCycle since the callback was already called by
+        // smaller then m_callbackExecutionCycle since the callback was already called by
         // the previous thread
-        if (handle.m_timerType == TimerType::ASAP_TIMER
-            && currentCycle <= handle.m_callbackCycle.load(std::memory_order_relaxed))
+        if (handle.m_timerType == TimerType::ASAP_TIMER && currentCycle <= handle.m_callbackExecutionCycle)
         {
             return;
         }
@@ -249,8 +248,8 @@ void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
         do
         {
             m_callback();
-            handle.m_callbackCycle.store(nextCycle, std::memory_order_relaxed);
-        } while (handle.m_isTimerActive
+            handle.m_callbackExecutionCycle = nextCycle;
+        } while (handle.m_isTimerActive.load(std::memory_order_relaxed)
                  && !handle.m_cycle.compare_exchange_strong(
                      nextCycle, nextCycle, std::memory_order_relaxed, std::memory_order_relaxed));
     }
@@ -291,7 +290,7 @@ cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const Tim
 
     handle.m_timerType = timerType;
     handle.m_cycle.store(0u, std::memory_order_relaxed);
-    handle.m_callbackCycle.store(0u, std::memory_order_relaxed);
+    handle.m_callbackExecutionCycle = 0u;
     handle.m_isTimerActive.store(true, std::memory_order_relaxed);
 
     return cxx::success<void>();
