@@ -19,6 +19,8 @@ ENV ICEORYX_BUILD=$B_ICEORYX_BUILD
 
 RUN apt update && apt install -y \
         cmake \
+        openjdk-8-jdk \
+        maven \
         libacl1-dev \
         libncurses5-dev \
         pkg-config \
@@ -26,8 +28,28 @@ RUN apt update && apt install -y \
         fish \
         git
 
-ADD . /iceoryx
+# Configureation
+## Maven Proxy - required for usage from behind a corporate proxy. Corporate proxy should be bound to docker network at 172.17.0.1.
+## If you are not behind a corporate proxy this can be ignored and shouldn't interfere with regular usage.
+RUN mkdir -p /root/.m2
+RUN echo '\n\
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" \n\
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" \n\
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 \n\
+                  http://maven.apache.org/xsd/settings-1.0.0.xsd"> \n\
+  <proxies> \n\
+    <proxy> \n\
+      <active>true</active> \n\
+      <protocol>http</protocol> \n\
+      <host>172.17.0.1</host> \n\
+      <port>3128</port> \n\
+      <nonProxyHosts>127.0.0.1</nonProxyHosts> \n\
+    </proxy> \n\
+  </proxies> \n\
+</settings> \n'\
+>> /root/.m2/settings.xml
 
+ADD . /iceoryx
 WORKDIR /iceoryx
 
 RUN ./tools/iceoryx_build_test.sh \

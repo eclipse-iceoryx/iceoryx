@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 project(cpptoml-build CXX)
 
+include(ProcessorCount)
+ProcessorCount(N)
+if(NOT N EQUAL 0 AND ((${CMAKE_VERSION} VERSION_GREATER "3.12.0") OR ${CMAKE_VERSION} VERSION_EQUAL "3.12.0"))
+  set(CMAKE_BUILD_FLAGS -j${N})
+endif()
+
 if(WIN32)
     set(CREATE_PATH_COMMAND mkdir)
 else()
@@ -22,7 +28,7 @@ if(result)
     message(FATAL_ERROR "CMake step [configure download] for cpptoml failed: ${result}")
 endif()
 
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
+execute_process(COMMAND ${CMAKE_COMMAND} --build . ${CMAKE_BUILD_FLAGS}
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${DOWNLOAD_CONFIG_DIR} )
 if(result)
@@ -43,7 +49,7 @@ if(result)
     message(FATAL_ERROR "CMake step [configure] for cpptoml failed: ${result}")
 endif()
 
-execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install
+execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install ${CMAKE_BUILD_FLAGS}
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${BUILD_DIR} )
 if(result)

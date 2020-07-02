@@ -3,7 +3,7 @@ project(cyclonedds-build CXX)
 
 include(ProcessorCount)
 ProcessorCount(N)
-if(NOT N EQUAL 0)
+if(NOT N EQUAL 0 AND ((${CMAKE_VERSION} VERSION_GREATER "3.12.0") OR ${CMAKE_VERSION} VERSION_EQUAL "3.12.0"))
   set(CMAKE_BUILD_FLAGS -j${N})
 endif()
 
@@ -29,7 +29,7 @@ function(fetch_and_install name)
         message(FATAL_ERROR "CMake step [configure download] for ${name} failed: ${result}")
     endif()
 
-    execute_process(COMMAND ${CMAKE_COMMAND} --build .
+    execute_process(COMMAND ${CMAKE_COMMAND} --build . ${CMAKE_BUILD_FLAGS}
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${DOWNLOAD_CONFIG_DIR} )
     if(result)

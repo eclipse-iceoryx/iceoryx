@@ -128,7 +128,7 @@ echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
 cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dcyclonedds=$CYCLONEDDS_FLAG $WORKSPACE/iceoryx_meta
-cmake --build . --target install -j$NUM_CORES
+cmake --build . --target install -- -j$NUM_CORES
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
 echo ">>>>>> Start building iceoryx examples <<<<<<"
@@ -139,13 +139,13 @@ cd $BUILD_DIR/iceoryx_examples
 mkdir -p icedelivery
 cd icedelivery
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
-cmake --build . -j$NUM_CORES
+cmake --build . -- -j$NUM_CORES
 echo ">>>>>>>> iceperf"
 cd $BUILD_DIR/iceoryx_examples
 mkdir -p iceperf
 cd iceperf
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
-cmake --build . -j$NUM_CORES
+cmake --build . -- -j$NUM_CORES
 echo ">>>>>> Finished building iceoryx examples <<<<<<"
 
 #====================================================================================================
