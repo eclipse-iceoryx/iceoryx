@@ -26,7 +26,7 @@ include(IceoryxPackageHelper)
 include(IceoryxPlatformDetection)
 
 #
-########## set variables for library export ##########
+########## set variables for export ##########
 #
 setup_package_name_and_create_files(
     NAME ${PROJECT_NAME}
