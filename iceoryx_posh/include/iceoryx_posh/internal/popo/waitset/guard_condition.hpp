@@ -34,7 +34,7 @@ class GuardCondition : public Condition
 
   private:
     ConditionVariableSignaler m_conditionVariableSignaler;
-    std::atomic_bool m_wasTriggered;
+    std::atomic_bool m_wasTriggered{false};
 };
 
 } // namespace popo

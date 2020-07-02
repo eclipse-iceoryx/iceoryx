@@ -55,6 +55,7 @@ class MockSubscriber : public Condition
     bool detachConditionVariable() noexcept override
     {
         m_condVarAttached = false;
+        m_condVarPtr = nullptr;
         return m_condVarAttached;
     }
 
@@ -114,7 +115,7 @@ TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInFailure)
 
 TEST_F(WaitSet_test, AttachMultipleConditionSuccessful)
 {
-    for (auto currentSubscriber : m_subscriberVector)
+    for (auto& currentSubscriber : m_subscriberVector)
     {
         EXPECT_TRUE(m_sut.attachCondition(currentSubscriber));
     }
@@ -122,7 +123,7 @@ TEST_F(WaitSet_test, AttachMultipleConditionSuccessful)
 
 TEST_F(WaitSet_test, AttachTooManyConditionsResultsInFailure)
 {
-    for (auto currentSubscriber : m_subscriberVector)
+    for (auto& currentSubscriber : m_subscriberVector)
     {
         m_sut.attachCondition(currentSubscriber);
     }
@@ -139,11 +140,11 @@ TEST_F(WaitSet_test, DetachSingleConditionSuccessful)
 
 TEST_F(WaitSet_test, DetachMultipleleConditionsSuccessful)
 {
-    for (auto currentSubscriber : m_subscriberVector)
+    for (auto& currentSubscriber : m_subscriberVector)
     {
         m_sut.attachCondition(currentSubscriber);
     }
-    for (auto currentSubscriber : m_subscriberVector)
+    for (auto& currentSubscriber : m_subscriberVector)
     {
         EXPECT_TRUE(m_sut.detachCondition(currentSubscriber));
     }

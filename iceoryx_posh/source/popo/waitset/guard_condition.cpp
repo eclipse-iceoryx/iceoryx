@@ -26,7 +26,7 @@ GuardCondition::GuardCondition(cxx::not_null<ConditionVariableData* const> condV
 
 void GuardCondition::notify() noexcept
 {
-    m_wasTriggered = true;
+    m_wasTriggered.store(true, std::memory_order_relaxed);
     m_conditionVariableSignaler.notifyOne();
 }
 
