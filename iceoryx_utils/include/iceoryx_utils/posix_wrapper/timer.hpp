@@ -115,6 +115,7 @@ class Timer
         std::atomic<bool> m_inUse{false};
         std::atomic<bool> m_isTimerActive{false};
         std::atomic<uint64_t> m_cycle{0u};
+        std::atomic<uint64_t> m_callbackCycle{0u};
         TimerType m_timerType{TimerType::HARD_TIMER};
         OsTimer* m_timer{nullptr};
     };
