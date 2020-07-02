@@ -220,6 +220,20 @@ void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
         auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
         uint64_t nextCycle = currentCycle;
 
+        // if a callbackHelper is interrupted before acquiring the accessMutex
+        // and continues after another thread executing callbackHelper as finished
+        // executeCallback and returns then m_callback() is called one more time
+        // then necessary.
+        // to avoid this executeCallback sets after every callback
+        // m_callbackExecutionCycle = m_cycle (current value is stored in nextCycle). if the
+        // interrupted thread then wins and acquires the lock the currentCycle is
+        // smaller then m_callbackExecutionCycle since the callback was already called by
+        // the previous thread
+        if (handle.m_timerType == TimerType::ASAP_TIMER && currentCycle <= handle.m_callbackExecutionCycle)
+        {
+            return;
+        }
+
         // we are using compare exchange to gain a behavior where the missed
         // timer callbacks do not accumulate. lets say the callback was triggered
         // 5 times till the last callback fired then we do not want to run the
@@ -234,7 +248,8 @@ void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
         do
         {
             m_callback();
-        } while (handle.m_isTimerActive
+            handle.m_callbackExecutionCycle = nextCycle;
+        } while (handle.m_isTimerActive.load(std::memory_order_relaxed)
                  && !handle.m_cycle.compare_exchange_strong(
                      nextCycle, nextCycle, std::memory_order_relaxed, std::memory_order_relaxed));
     }
@@ -274,6 +289,8 @@ cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const Tim
     auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
 
     handle.m_timerType = timerType;
+    handle.m_cycle.store(0u, std::memory_order_relaxed);
+    handle.m_callbackExecutionCycle = 0u;
     handle.m_isTimerActive.store(true, std::memory_order_relaxed);
 
     return cxx::success<void>();
@@ -281,9 +298,9 @@ cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const Tim
 
 cxx::expected<TimerError> Timer::OsTimer::stop() noexcept
 {
+    auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
     // Signal callbackHelper() that no callbacks shall be executed anymore
-    auto wasActive =
-        OsTimer::s_callbackHandlePool[m_callbackHandleIndex].m_isTimerActive.exchange(false, std::memory_order_relaxed);
+    auto wasActive = handle.m_isTimerActive.exchange(false, std::memory_order_relaxed);
 
     if (!wasActive)
     {
