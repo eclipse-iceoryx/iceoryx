@@ -110,10 +110,12 @@ class Timer
 
         /// @brief the descriptor is unique for a timer_t in OsTimer, if this handle is recycled, the descriptor needs
         /// to be incremented first
-        std::atomic<uint32_t> m_descriptor{0};
+        std::atomic<uint32_t> m_descriptor{0u};
 
         std::atomic<bool> m_inUse{false};
         std::atomic<bool> m_isTimerActive{false};
+        std::atomic<uint64_t> m_cycle{0u};
+        TimerType m_timerType{TimerType::SOFT_TIMER};
 
         OsTimer* m_timer{nullptr};
     };
@@ -176,7 +178,7 @@ class Timer
       private:
         /// @brief Call the user-defined callback
         /// @note This call is wrapped in a plain C function
-        void executeCallback() noexcept;
+        void executeCallback(const uint64_t currentCycle) noexcept;
 
 
       private:

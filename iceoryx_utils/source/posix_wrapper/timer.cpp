@@ -69,15 +69,31 @@ void Timer::OsTimer::callbackHelper(sigval data)
 
     auto& callbackHandle = OsTimer::s_callbackHandlePool[index];
 
-    // small optimazition to not lock the mutex if the callback handle is not valid anymore
+    // small optimization to not lock the mutex if the callback handle is not valid anymore
     if (descriptor != callbackHandle.m_descriptor.load(std::memory_order::memory_order_relaxed))
     {
         return;
     }
 
+    uint64_t currentCycle = (callbackHandle.m_timerType == TimerType::SOFT_TIMER)
+                                ? 0u
+                                : callbackHandle.m_cycle.fetch_add(1u, std::memory_order_relaxed) + 1u;
+
     std::lock_guard<std::mutex> lock(callbackHandle.m_accessMutex);
+    if (callbackHandle.m_timer == nullptr)
+    {
+        errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
+        return;
+    }
+
     if (!callbackHandle.m_inUse.load(std::memory_order::memory_order_relaxed))
     {
+        if (callbackHandle.m_timerType == TimerType::HARD_TIMER)
+        {
+            std::cerr << "callback runtime exceeded the periodic retrigger time of "
+                      << callbackHandle.m_timer->m_timeToWait << std::endl;
+            errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
+        }
         return;
     }
 
@@ -91,11 +107,7 @@ void Timer::OsTimer::callbackHelper(sigval data)
         return;
     }
 
-    /// @todo cxx::expect
-    if (callbackHandle.m_timer != nullptr)
-    {
-        callbackHandle.m_timer->executeCallback();
-    }
+    callbackHandle.m_timer->executeCallback(currentCycle);
 }
 
 Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
@@ -199,11 +211,30 @@ Timer::OsTimer::~OsTimer() noexcept
     }
 }
 
-void Timer::OsTimer::executeCallback() noexcept
+void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
 {
     if (m_isInitialized && m_callback)
     {
-        m_callback();
+        auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
+        uint64_t nextCycle = currentCycle;
+
+        // we are using compare exchange to gain a behavior where the missed
+        // timer callbacks do not accumulate. lets say the callback was triggered
+        // 5 times till the last callback fired then we do not want to run the
+        // callback 5 times we only want it to run it once.
+        // everytime we fire a callback we increment m_cycle. if now m_cycle
+        // differs from nextCycle the value of nextCycle is updated to the
+        // current value of m_cycle and the loop runs only once. if during that
+        // time no trigger follows we exit this function. if on the other hand
+        // we have N outstanding triggers and nextCycle + N = m_cycle we again
+        // update nextCycle to the most current value of m_cycle and only run
+        // the loop once if we are not retriggered.
+        do
+        {
+            m_callback();
+        } while (handle.m_isTimerActive
+                 && !handle.m_cycle.compare_exchange_strong(
+                     nextCycle, nextCycle, std::memory_order_relaxed, std::memory_order_relaxed));
     }
     else
     {
