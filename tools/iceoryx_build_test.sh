@@ -97,7 +97,6 @@ done
 
 # define directories dependent on the build directory
 ICEORYX_INSTALL_PREFIX=$BUILD_DIR/install/prefix/
-DEPENDENCIES_INSTALL_PREFIX=$BUILD_DIR/dependencies/
 
 echo " [i] Building in $BUILD_DIR"
 

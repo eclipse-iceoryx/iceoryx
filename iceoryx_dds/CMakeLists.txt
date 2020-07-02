@@ -78,11 +78,8 @@ if(USE_CYCLONE_DDS)
         source/iceoryx_dds/dds/cyclone_data_writer.cpp
     )
 
-    ##################################################################################################################################
-
     # Generate IDL at configure time
     set(IDLPP_GENERATE_DIR ${CMAKE_BINARY_DIR}/iceoryx_dds_messages)
-
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/idlpp-cxx-generate.cmake.in ${IDLPP_GENERATE_DIR}/CMakeLists.txt COPYONLY)
     execute_process(COMMAND ${CMAKE_COMMAND} "-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}" -DMESSAGE_DEFINITION_DIR=${CMAKE_CURRENT_SOURCE_DIR}/msg/ "${IDLPP_GENERATE_DIR}"
         RESULT_VARIABLE result
@@ -90,15 +87,12 @@ if(USE_CYCLONE_DDS)
     if(result)
         message(FATAL_ERROR "Unable to configure IDL.")
     endif()
-
     execute_process(COMMAND ${CMAKE_COMMAND} --build .
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${IDLPP_GENERATE_DIR})
     if(result)
         message(FATAL_ERROR "Unable to generate IDL.")
     endif()
-
-    ##################################################################################################################################
 
     target_compile_definitions(iceoryx_dds PUBLIC -DUSE_CYCLONE_DDS)
     target_include_directories(iceoryx_dds
