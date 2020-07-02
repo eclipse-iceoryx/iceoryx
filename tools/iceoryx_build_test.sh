@@ -54,14 +54,10 @@ while (( "$#" )); do
         shift 1
         ;;
     "test")
-        BUILD_TEST=true
+        RUN_TEST=true
         TEST_FLAG="on"
         shift 1
         ;;
-    "build-test")
-        RUN_TEST=false
-        TEST_FLAG="on"
-        ;;  
     "skip-introspection")
         INTROSPECTION_FLAG="off"
         shift 1
@@ -73,11 +69,12 @@ while (( "$#" )); do
         ;;
     "help")
         echo "Build script for iceoryx."
-        echo "By default, iceoryx and the examples are build."
+        echo "By default, iceoryx, the dds gateway and the examples are built."
         echo ""
-        echo "Usage: iceoryx_build_test.sh [options] [<args>]"
+        echo "Usage:"
+        echo "    iceoryx_build_test.sh [--builddir <dir>] [<args>]"
         echo "Options:"
-        echo "    -build                Specify a non-default build directory"
+        echo "    -b --builddir         Specify a non-default build directory"
         echo "Args:"
         echo "    clean                 Cleans the build directory"
         echo "    release               Build release configuration"
@@ -88,7 +85,7 @@ while (( "$#" )); do
         echo "    skip-dds              Skips building iceoryx dds gateway"
         echo "    help                  Prints this help"
         echo ""
-        echo "e.g. iceoryx_build_test.sh -b /build/directory clean test release"
+        echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test release"
         exit 0
         ;;
     *)
@@ -113,6 +110,7 @@ NUM_CORES=1
 if nproc >/dev/null 2>&1; then
     NUM_CORES=`nproc`
 fi
+echo " [i] Building with $NUM_CORES cores"
 
 # clean build folder
 if [ $CLEAN_BUILD == true ]
@@ -123,17 +121,16 @@ then
 fi
 
 # create a new build directory and change the current working directory
-echo " [i] Create a new build directory and change the current working directory"
+echo " [i] Preparing build directory"
 cd $WORKSPACE
 mkdir -p $BUILD_DIR
 cd $BUILD_DIR
-
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
 cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dcyclonedds=$CYCLONEDDS_FLAG $WORKSPACE/iceoryx_meta
-cmake --build . --target install
-echo ">>>>>> finished building iceoryx package <<<<<<"
+cmake --build . --target install -j$NUM_CORES
+echo ">>>>>> Finished building iceoryx package <<<<<<"
 
 echo ">>>>>> Start building iceoryx examples <<<<<<"
 cd $WORKSPACE/build
@@ -143,14 +140,14 @@ cd $WORKSPACE/build/iceoryx_examples
 mkdir -p icedelivery
 cd icedelivery
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
-cmake --build .
+cmake --build . -j$NUM_CORES
 echo ">>>>>>>> iceperf"
 cd $WORKSPACE/build/iceoryx_examples
 mkdir -p iceperf
 cd iceperf
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
-cmake --build .
-echo ">>>>>> finished building iceoryx examples <<<<<<"
+cmake --build . -j$NUM_CORES
+echo ">>>>>> Finished building iceoryx examples <<<<<<"
 
 #====================================================================================================
 #==== Step 2 : Run all Tests  =======================================================================
@@ -161,14 +158,11 @@ then
 
 # The absolute path of the directory assigned to the build
 cd $BUILD_DIR
-
-# change the current working directory
 mkdir -p tools
-cp $WORKSPACE/tools/run_all_tests.sh $WORKSPACE/build/tools/run_all_tests.sh
+cp $WORKSPACE/tools/run_all_tests.sh $BUILD_DIR/tools/run_all_tests.sh
 
-echo " [i] Run all Tests:"
-# call runAllTest shell script to run all tests for Iceoryx
-$WORKSPACE/build/tools/run_all_tests.sh
+echo " [i] Running all Tests:"
+$BUILD_DIR/tools/run_all_tests.sh
 
 for folder in $component_folder; do
 
