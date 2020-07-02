@@ -17,4 +17,4 @@ then
 	SHM_SIZE=700M
 fi
 
-docker run -it --rm --shm-size $SHM_SIZE --name=iceoryx-roudi iceoryx:latest
+docker run -it --rm --shm-size $SHM_SIZE --name=roudi iceoryx:latest
