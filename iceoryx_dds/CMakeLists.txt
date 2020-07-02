@@ -43,7 +43,6 @@ if(USE_CYCLONE_DDS)
     message(INFO " Using CycloneDDS stack")
     find_package(CycloneDDS CONFIG REQUIRED)
     find_package(CycloneDDS_CXX_API CONFIG REQUIRED)
-    find_package(Idlpp-cxx CONFIG REQUIRED)
 endif()
 
 #
