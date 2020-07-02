@@ -213,7 +213,7 @@ void Timer::OsTimer::executeCallback() noexcept
     }
 }
 
-cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode) noexcept
+cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const TimerType timerType) noexcept
 {
     // Convert units::Duration to itimerspec
     struct itimerspec interval;
@@ -274,7 +274,8 @@ cxx::expected<TimerError> Timer::OsTimer::stop() noexcept
     return cxx::success<void>();
 }
 
-cxx::expected<TimerError> Timer::OsTimer::restart(const units::Duration timeToWait, const RunMode runMode) noexcept
+cxx::expected<TimerError>
+Timer::OsTimer::restart(const units::Duration timeToWait, const RunMode runMode, const TimerType timerType) noexcept
 {
     // See if there is currently an active timer in the operating system and update m_isActive accordingly
     auto gettimeResult = timeUntilExpiration();
@@ -299,7 +300,7 @@ cxx::expected<TimerError> Timer::OsTimer::restart(const units::Duration timeToWa
     }
 
     // Activate the timer with the new timeToWait value
-    auto startResult = start(runMode);
+    auto startResult = start(runMode, timerType);
 
     if (startResult.has_error())
     {
@@ -391,14 +392,14 @@ Timer::Timer(const units::Duration timeToWait, const std::function<void()>& call
     }
 }
 
-cxx::expected<TimerError> Timer::start(const RunMode runMode) noexcept
+cxx::expected<TimerError> Timer::start(const RunMode runMode, const TimerType timerType) noexcept
 {
     if (!m_osTimer.has_value())
     {
         return cxx::error<TimerError>(TimerError::TIMER_NOT_INITIALIZED);
     }
 
-    return m_osTimer->start(runMode);
+    return m_osTimer->start(runMode, timerType);
 }
 
 cxx::expected<TimerError> Timer::stop() noexcept
@@ -411,7 +412,8 @@ cxx::expected<TimerError> Timer::stop() noexcept
     return m_osTimer->stop();
 }
 
-cxx::expected<TimerError> Timer::restart(const units::Duration timeToWait, const RunMode runMode) noexcept
+cxx::expected<TimerError>
+Timer::restart(const units::Duration timeToWait, const RunMode runMode, const TimerType timerType) noexcept
 {
     if (timeToWait.nanoSeconds<uint64_t>() == 0u)
     {
@@ -423,7 +425,7 @@ cxx::expected<TimerError> Timer::restart(const units::Duration timeToWait, const
         return cxx::error<TimerError>(TimerError::TIMER_NOT_INITIALIZED);
     }
 
-    return m_osTimer->restart(timeToWait, runMode);
+    return m_osTimer->restart(timeToWait, runMode, timerType);
 }
 
 cxx::expected<units::Duration, TimerError> Timer::timeUntilExpiration() noexcept

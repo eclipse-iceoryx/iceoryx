@@ -76,6 +76,18 @@ class Timer
         PERIODIC
     };
 
+    /// @brief
+    ///   when the callback is still running when the callback should be retriggered:
+    ///     - SOFT_TIMER = do nothing
+    ///     - ASAP_TIMER = retrigger callback right after the callback is finished
+    ///     - HARD_TIMER = terminate
+    enum class TimerType
+    {
+        SOFT_TIMER,
+        ASAP_TIMER,
+        HARD_TIMER
+    };
+
   private:
     static constexpr size_t SIZE_OF_COMBINDED_INDEX_AND_DESCRIPTOR = sizeof(uint32_t);
     static constexpr size_t SIZE_OF_SIGVAL_INT = sizeof(int);
@@ -134,7 +146,7 @@ class Timer
         /// @param[in] periodic - can be a periodic timer if set to RunMode::PERIODIC or
         ///                     once when in RunMode::ONCE
         /// @note Shall only be called when callback is given
-        cxx::expected<TimerError> start(const RunMode runMode) noexcept;
+        cxx::expected<TimerError> start(const RunMode runMode, const TimerType timerType) noexcept;
 
         /// @brief Disarms the timer
         /// @note Shall only be called when callback is given, guarantee after stop() call is callback is immediately
@@ -143,7 +155,8 @@ class Timer
 
         /// @brief Disarms the timer, assigns a new timeToWait value and arms the timer
         /// @note Shall only be called when callback is given
-        cxx::expected<TimerError> restart(const units::Duration timeToWait, const RunMode runMode) noexcept;
+        cxx::expected<TimerError>
+        restart(const units::Duration timeToWait, const RunMode runMode, const TimerType timerType) noexcept;
 
         // @brief Returns the time until the timer expires the next time
         /// @note Shall only be called when callback is given
@@ -238,7 +251,7 @@ class Timer
     /// @param[in] periodic - can be a periodic timer if set to true, default false
     /// @note Shall only be called when callback is given
     /// @todo replace bool with enum; SingleShot and Periodic
-    cxx::expected<TimerError> start(const RunMode runMode) noexcept;
+    cxx::expected<TimerError> start(const RunMode runMode, const TimerType timerType) noexcept;
 
     /// @brief Disarms the timer
     /// @note Shall only be called when callback is given, guarantee after stop() call is callback is immediately
@@ -247,7 +260,8 @@ class Timer
 
     /// @brief Disarms the timer, assigns a new timeToWait value and arms the timer
     /// @note Shall only be called when callback is given
-    cxx::expected<TimerError> restart(const units::Duration timeToWait, const RunMode runMode) noexcept;
+    cxx::expected<TimerError>
+    restart(const units::Duration timeToWait, const RunMode runMode, const TimerType timerType) noexcept;
 
     /// @brief Resets the internal creation time
     void resetCreationTime() noexcept;
