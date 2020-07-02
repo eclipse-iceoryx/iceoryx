@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcep
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
-    else if (!offeringRequested && isOffered)
+    else if ((!offeringRequested) && isOffered)
     {
         getMembers()->m_offered.store(false, std::memory_order_relaxed);
 
@@ -83,7 +83,7 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
     {
         if (capro::CaproMessageType::SUB == caProMessage.m_type)
         {
-            auto ret = m_chunkSender.addQueue(caProMessage.m_chunkQueueData, caProMessage.m_historyCapacity);
+            const auto ret = m_chunkSender.addQueue(caProMessage.m_chunkQueueData, caProMessage.m_historyCapacity);
             if (!ret.has_error())
             {
                 responseMessage.m_type = capro::CaproMessageType::ACK;
@@ -91,18 +91,22 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
         }
         else if (capro::CaproMessageType::UNSUB == caProMessage.m_type)
         {
-            auto ret = m_chunkSender.removeQueue(caProMessage.m_chunkQueueData);
+            const auto ret = m_chunkSender.removeQueue(caProMessage.m_chunkQueueData);
             if (!ret.has_error())
             {
                 responseMessage.m_type = capro::CaproMessageType::ACK;
             }
+        }
+        else
+        {
+            errorHandler(Error::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
         }
     }
 
     return cxx::make_optional<capro::CaproMessage>(responseMessage);
 }
 
-void PublisherPortRouDi::cleanup() noexcept
+void PublisherPortRouDi::releaseAllChunks() noexcept
 {
     m_chunkSender.releaseAll();
 }

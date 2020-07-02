@@ -25,7 +25,7 @@ namespace iox
 {
 namespace popo
 {
-enum class ChunkReceiverError
+enum class ChunkReceiveError
 {
     TOO_MANY_CHUNKS_HELD_IN_PARALLEL
 };
@@ -41,7 +41,7 @@ class ChunkReceiver : public ChunkQueuePopper
   public:
     using MemberType_t = ChunkReceiverData;
 
-    ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
+    explicit ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
 
     ChunkReceiver(const ChunkReceiver& other) = delete;
     ChunkReceiver& operator=(const ChunkReceiver&) = delete;
@@ -53,12 +53,12 @@ class ChunkReceiver : public ChunkQueuePopper
     /// The ownerhip of the SharedChunk remains in the ChunkReceiver for being able to cleanup if the user process
     /// disappears
     /// @return optional that has a new chunk header or no value if there are no new chunks in the underlying queue,
-    /// ChunkReceiverError on error
-    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiverError> get() noexcept;
+    /// ChunkReceiveError on error
+    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> get() noexcept;
 
     /// @brief Release a chunk that was obtained with get
-    /// @param[in] chunkHeader, pointer to the ChunkHeader to free
-    void release(const mepoo::ChunkHeader* chunkHeader) noexcept;
+    /// @param[in] chunkHeader, pointer to the ChunkHeader to release
+    void release(const mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief Release all the chunks that are currently held. Caution: Only call this if the user process is no more
     /// running E.g. This cleans up chunks that were held by a user process that died unexpectetly, for avoiding lost

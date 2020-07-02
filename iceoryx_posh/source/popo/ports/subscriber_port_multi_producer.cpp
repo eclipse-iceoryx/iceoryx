@@ -12,21 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License
 
-#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
 
 namespace iox
 {
 namespace popo
 {
-
-PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
-                                     const ProcessName_t& processName,
-                                     mepoo::MemoryManager* const memoryManager,
-                                     const uint64_t historyCapacity,
-                                     const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, processName)
-    , m_chunkSenderData(memoryManager, historyCapacity, memoryInfo)
+SubscriberPortMultiProducer::SubscriberPortMultiProducer(
+    cxx::not_null<MemberType_t* const> subscriberPortDataPtr) noexcept
+    : SubscriberPortRouDi(subscriberPortDataPtr)
 {
+}
+
+cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::getCaProMessage() noexcept
+{
+    /// @todo
+    return cxx::nullopt_t();
+}
+
+cxx::optional<capro::CaproMessage>
+SubscriberPortMultiProducer::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
+{
+    /// @todo
+    return cxx::nullopt_t();
 }
 
 } // namespace popo

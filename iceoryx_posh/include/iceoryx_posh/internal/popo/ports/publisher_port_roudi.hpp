@@ -25,7 +25,7 @@ namespace iox
 {
 namespace popo
 {
-/// @brief The PublisherPortUser provides the API for accessing a publisher port from the RouDi middleware daemon side.
+/// @brief The PublisherPortRouDi provides the API for accessing a publisher port from the RouDi middleware daemon side.
 /// The publisher port is divided in the three parts PublisherPortData, PublisherPortRouDi and PublisherPortUser.
 /// The PublisherPortRouDi provides service discovery functionality that is based on CaPro messages. With this API the
 /// dynamic connections between publisher and subscriber ports can be established
@@ -34,7 +34,7 @@ class PublisherPortRouDi : public BasePort
   public:
     using MemberType_t = PublisherPortData;
 
-    PublisherPortRouDi(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept;
+    explicit PublisherPortRouDi(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept;
 
     PublisherPortRouDi(const PublisherPortRouDi& other) = delete;
     PublisherPortRouDi& operator=(const PublisherPortRouDi&) = delete;
@@ -46,14 +46,14 @@ class PublisherPortRouDi : public BasePort
     /// @return CaPro message with the new offer state, empty optional if no state change
     cxx::optional<capro::CaproMessage> getCaProMessage() noexcept;
 
-    /// @brief dispatch a CaPro message to the piblisher for processing
+    /// @brief dispatch a CaPro message to the publisher for processing
     /// @param[in] caProMessage to process
     /// @return CaPro message with an immediate response the provided CaPro message, empty optional if no response
     cxx::optional<capro::CaproMessage> dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept;
 
     /// @brief cleanup the publisher and release all the chunks it currently holds
     /// Caution: Contract is that user process is no more running when cleanup is called
-    void cleanup() noexcept;
+    void releaseAllChunks() noexcept;
 
   private:
     const MemberType_t* getMembers() const noexcept;

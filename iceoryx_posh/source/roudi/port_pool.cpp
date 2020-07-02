@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 
 namespace iox
 {
@@ -44,7 +45,8 @@ PortPool::addInterfacePort(const std::string& applicationName, const capro::Inte
 {
     if (m_portPoolDataBase->m_interfacePortMembers.hasFreeSpace())
     {
-        auto interfacePortData = m_portPoolDataBase->m_interfacePortMembers.insert(applicationName, interface);
+        auto interfacePortData = m_portPoolDataBase->m_interfacePortMembers.insert(
+            iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName), interface);
         return cxx::success<popo::InterfacePortData*>(interfacePortData);
     }
     else
@@ -59,7 +61,8 @@ PortPool::addApplicationPort(const std::string& applicationName) noexcept
 {
     if (m_portPoolDataBase->m_applicationPortMembers.hasFreeSpace())
     {
-        auto applicationPortData = m_portPoolDataBase->m_applicationPortMembers.insert(applicationName);
+        auto applicationPortData = m_portPoolDataBase->m_applicationPortMembers.insert(
+            iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName));
         return cxx::success<popo::ApplicationPortData*>(applicationPortData);
     }
     else

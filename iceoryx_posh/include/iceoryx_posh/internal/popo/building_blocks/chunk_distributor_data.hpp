@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 
 #include <cstdint>
@@ -31,19 +32,11 @@ namespace popo
 {
 class ThreadSafePolicy
 {
-  public: // needs to be public since we want to use std::lock_guard
-    void lock() const
-    {
-        m_mutex.lock();
-    }
-    void unlock() const 
-    {
-        m_mutex.unlock();
-    }
-    bool tryLock() const 
-    {
-        return m_mutex.try_lock();
-    }
+  public:
+    // needs to be public since we want to use std::lock_guard
+    void lock() const noexcept;
+    void unlock() const noexcept;
+    bool tryLock() const noexcept;
 
   private:
     mutable posix::mutex m_mutex{true}; // recursive lock
@@ -51,17 +44,11 @@ class ThreadSafePolicy
 
 class SingleThreadedPolicy
 {
-  public: // needs to be public since we want to use std::lock_guard
-    void lock() const 
-    {
-    }
-    void unlock() const 
-    {
-    }
-    bool tryLock() const 
-    {
-        return true;
-    }
+  public: 
+    // needs to be public since we want to use std::lock_guard
+    void lock() const noexcept;
+    void unlock() const noexcept;
+    bool tryLock() const noexcept;
 };
 
 template <uint32_t MaxQueues, typename LockingPolicy, typename ChunkQueuePusherType = ChunkQueuePusher>
@@ -71,15 +58,7 @@ struct ChunkDistributorData : public LockingPolicy
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
 
-    ChunkDistributorData(uint64_t historyCapacity = 0u) noexcept
-        : m_historyCapacity(algorithm::min(historyCapacity, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR))
-    {
-        if (m_historyCapacity != historyCapacity)
-        {
-            LogWarn() << "Chunk history too large, reducing from " << historyCapacity << " to "
-                      << MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
-        }
-    }
+    explicit ChunkDistributorData(const uint64_t historyCapacity = 0u) noexcept;
 
     const uint64_t m_historyCapacity;
 
@@ -96,5 +75,7 @@ struct ChunkDistributorData : public LockingPolicy
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.inl"
 
 #endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_HPP

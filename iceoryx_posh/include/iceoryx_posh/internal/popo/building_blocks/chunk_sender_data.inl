@@ -10,24 +10,26 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License
-
-#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+// limitations under the License.
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_DATA_INL
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_DATA_INL
 
 namespace iox
 {
 namespace popo
 {
-
-PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
-                                     const ProcessName_t& processName,
-                                     mepoo::MemoryManager* const memoryManager,
-                                     const uint64_t historyCapacity,
-                                     const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, processName)
-    , m_chunkSenderData(memoryManager, historyCapacity, memoryInfo)
+template <typename ChunkDistributorDataType>
+inline ChunkSenderData<ChunkDistributorDataType>::ChunkSenderData(
+    cxx::not_null<mepoo::MemoryManager* const> memoryManager,
+    const uint64_t historyCapacity,
+    const mepoo::MemoryInfo& memoryInfo) noexcept
+    : ChunkDistributorDataType(historyCapacity)
+    , m_memoryMgr(memoryManager)
+    , m_memoryInfo(memoryInfo)
 {
 }
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_DATA_INL

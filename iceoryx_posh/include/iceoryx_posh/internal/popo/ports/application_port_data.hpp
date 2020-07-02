@@ -14,8 +14,8 @@
 #ifndef IOX_POSH_POPO_PORTS_APPLICATION_PORT_DATA_HPP
 #define IOX_POSH_POPO_PORTS_APPLICATION_PORT_DATA_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
-
 #include "iceoryx_utils/internal/concurrent/fifo.hpp"
 
 namespace iox
@@ -25,9 +25,11 @@ namespace popo
 struct ApplicationPortData : public BasePortData
 {
     ApplicationPortData() = default;
-    ApplicationPortData(const std::string& f_applicationName);
+    explicit ApplicationPortData(const ProcessName_t& processName) noexcept;
+
     concurrent::FiFo<capro::CaproMessage, MAX_APPLICATION_CAPRO_FIFO_SIZE> m_caproMessageFiFo;
 };
+
 } // namespace popo
 } // namespace iox
 

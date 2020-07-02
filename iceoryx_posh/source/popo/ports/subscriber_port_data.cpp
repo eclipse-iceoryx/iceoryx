@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License
 
-#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 
 namespace iox
 {
 namespace popo
 {
-
-PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
-                                     const ProcessName_t& processName,
-                                     mepoo::MemoryManager* const memoryManager,
-                                     const uint64_t historyCapacity,
-                                     const mepoo::MemoryInfo& memoryInfo) noexcept
+SubscriberPortData::SubscriberPortData(const capro::ServiceDescription& serviceDescription,
+                                       const ProcessName_t& processName,
+                                       cxx::VariantQueueTypes queueType,
+                                       const uint64_t& historyRequest,
+                                       const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, processName)
-    , m_chunkSenderData(memoryManager, historyCapacity, memoryInfo)
+    , m_chunkReceiverData(queueType, memoryInfo)
+    , m_historyRequest(historyRequest)
 {
 }
 

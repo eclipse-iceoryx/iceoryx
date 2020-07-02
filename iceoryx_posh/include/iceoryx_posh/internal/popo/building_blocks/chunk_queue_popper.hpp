@@ -34,13 +34,13 @@ class ChunkQueuePopper
   public:
     using MemberType_t = ChunkQueueData;
 
-    ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
+    explicit ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
 
     ChunkQueuePopper(const ChunkQueuePopper& other) = delete;
     ChunkQueuePopper& operator=(const ChunkQueuePopper&) = delete;
     ChunkQueuePopper(ChunkQueuePopper&& rhs) = default;
     ChunkQueuePopper& operator=(ChunkQueuePopper&& rhs) = default;
-    ~ChunkQueuePopper() = default;
+    virtual ~ChunkQueuePopper() = default;
 
     /// @brief pop a chunk from the chunk queue
     /// @return optional for a shared chunk that is set if the queue is not empty
@@ -65,9 +65,13 @@ class ChunkQueuePopper
     /// @concurrent not thread safe
     void setCapacity(const uint32_t newCapacity) noexcept;
 
-    /// @brief get the capacity of the queue.
-    /// @return queue size
-    uint64_t capacity() noexcept;
+    /// @brief get the current capacity of the queue.
+    /// @return current queue capacity
+    uint64_t getCurrentCapacity() const noexcept;
+
+    /// @brief get the maximum capacity of the queue.
+    /// @return maximum capacity of this queue
+    uint64_t getMaximumCapacity() const noexcept;
 
     /// @brief clear the queue
     void clear() noexcept;

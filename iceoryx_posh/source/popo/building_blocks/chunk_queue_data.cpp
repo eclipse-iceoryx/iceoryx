@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -10,20 +10,19 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License
+// limitations under the License.
 
-#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
 
 namespace iox
 {
 namespace popo
 {
-BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
-                           const ProcessName_t& processName) noexcept
-    : m_serviceDescription(serviceDescription)
-    , m_processName(processName)
-{
-}
+
+    ChunkQueueData::ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept
+        : m_queue(queueType)
+    {
+    }
 
 } // namespace popo
 } // namespace iox

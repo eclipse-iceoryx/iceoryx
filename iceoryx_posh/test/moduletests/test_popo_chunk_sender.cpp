@@ -146,10 +146,10 @@ TEST_F(ChunkSender_test, freeChunk)
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
 
-    // free them all
+    // release them all
     for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
     {
-        m_chunkSender.free(chunks[i]);
+        m_chunkSender.release(chunks[i]);
     }
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
@@ -166,7 +166,7 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
         const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
 
     auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
-    m_chunkSender.free(myCrazyChunk.get());
+    m_chunkSender.release(myCrazyChunk.get());
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
@@ -271,7 +271,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
     iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
-    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.capacity());
+    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.getCurrentCapacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {
@@ -303,7 +303,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
     iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
-    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.capacity());
+    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.getCurrentCapacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {
@@ -333,7 +333,7 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
     iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
-    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.capacity());
+    EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.getCurrentCapacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,12 +43,12 @@ PublisherPortUser::allocateChunk(const uint32_t payloadSize) noexcept
 
 void PublisherPortUser::freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
-    m_chunkSender.free(chunkHeader);
+    m_chunkSender.release(chunkHeader);
 }
 
 void PublisherPortUser::sendChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
-    auto offerRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
+    const auto offerRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
 
     if (offerRequested)
     {
@@ -79,9 +79,9 @@ void PublisherPortUser::offer() noexcept
 
 void PublisherPortUser::stopOffer() noexcept
 {
-    if (this->getMembers()->m_offeringRequested.load(std::memory_order_relaxed))
+    if (getMembers()->m_offeringRequested.load(std::memory_order_relaxed))
     {
-        this->getMembers()->m_offeringRequested.store(false, std::memory_order_relaxed);
+        getMembers()->m_offeringRequested.store(false, std::memory_order_relaxed);
     }
 }
 

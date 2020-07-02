@@ -229,9 +229,8 @@ template <typename T>
 template <typename T>
 inline const T& optional<T>::value() const& noexcept
 {
-    /// @rationale
-    /// const cast to avoid code duplication
-    return const_cast<optional<T>*>(this)->value(); // PRQA S 3066
+    // PRQA S 3066 1 # const cast to avoid code duplication
+    return const_cast<optional<T>*>(this)->value();
 }
 
 template <typename T>

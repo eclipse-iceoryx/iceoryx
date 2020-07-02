@@ -12,21 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License
 
-#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_roudi.hpp"
 
 namespace iox
 {
 namespace popo
 {
-
-PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
-                                     const ProcessName_t& processName,
-                                     mepoo::MemoryManager* const memoryManager,
-                                     const uint64_t historyCapacity,
-                                     const mepoo::MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription, processName)
-    , m_chunkSenderData(memoryManager, historyCapacity, memoryInfo)
+SubscriberPortRouDi::SubscriberPortRouDi(cxx::not_null<MemberType_t* const> subscriberPortDataPtr) noexcept
+    : BasePort(subscriberPortDataPtr)
+    , m_chunkReceiver(&getMembers()->m_chunkReceiverData)
 {
+}
+
+const SubscriberPortRouDi::MemberType_t* SubscriberPortRouDi::getMembers() const noexcept
+{
+    return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
+}
+
+SubscriberPortRouDi::MemberType_t* SubscriberPortRouDi::getMembers() noexcept
+{
+    return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
+}
+
+void SubscriberPortRouDi::releaseAllChunks() noexcept
+{
+    m_chunkReceiver.releaseAll();
 }
 
 } // namespace popo

@@ -195,9 +195,8 @@ inline const T* vector<T, Capacity>::data() const noexcept
 template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::at(const uint64_t index)
 {
-    /// @rationale
-    /// const cast to avoid code duplication
-    return const_cast<T&>(const_cast<const vector<T, Capacity>*>(this)->at(index)); // PRQA S 3066
+    // PRQA S 3066 1 # const cast to avoid code duplication
+    return const_cast<T&>(const_cast<const vector<T, Capacity>*>(this)->at(index));
 }
 
 template <typename T, uint64_t Capacity>
