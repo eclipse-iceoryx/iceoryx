@@ -27,7 +27,7 @@
 // with the correct argument types and just forward all arguments
 inline int getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
 {
-    return getgrouplist(user, group, groups, ngroups);
+    return getgrouplist(user, static_cast<int>(group), reinterpret_cast<int*>(groups), ngroups);
 }
 
 #endif // IOX_UTILS_MAC_PLATFORM_GRP_HPP

@@ -195,9 +195,8 @@ inline const T* vector<T, Capacity>::data() const noexcept
 template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::at(const uint64_t index)
 {
-    /// @rationale
-    /// const cast to avoid code duplication
-    return const_cast<T&>(const_cast<const vector<T, Capacity>*>(this)->at(index));  // PRQA S 3066 
+    // PRQA S 3066 1 # const cast to avoid code duplication
+    return const_cast<T&>(const_cast<const vector<T, Capacity>*>(this)->at(index));
 }
 
 template <typename T, uint64_t Capacity>
@@ -205,7 +204,7 @@ inline const T& vector<T, Capacity>::at(const uint64_t index) const
 {
     if (index + 1u > m_size)
     {
-        std::cerr << "out of bounds access, current size is " << m_size <<  " but given index is " << index << std::endl;
+        std::cerr << "out of bounds access, current size is " << m_size << " but given index is " << index << std::endl;
         std::terminate();
     }
     return reinterpret_cast<const T*>(m_data)[index];
@@ -310,5 +309,31 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
 
 } // namespace cxx
 } // namespace iox
+
+template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
+bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
+{
+    uint64_t vectorSize = lhs.size();
+    if (vectorSize != rhs.size())
+    {
+        return false;
+    }
+
+    for (uint64_t i = 0u; i < vectorSize; ++i)
+    {
+        if (lhs[i] != rhs[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
+bool operator!=(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
+{
+    return !(lhs == rhs);
+}
+
 
 #endif // IOX_UTILS_CXX_VECTOR_INL

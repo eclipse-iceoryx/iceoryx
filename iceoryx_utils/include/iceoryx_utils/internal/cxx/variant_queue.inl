@@ -212,7 +212,7 @@ inline void VariantQueue<ValueType, Capacity>::setCapacity(const uint32_t newCap
 }
 
 template <typename ValueType, uint32_t Capacity>
-inline uint64_t VariantQueue<ValueType, Capacity>::capacity() noexcept
+inline uint64_t VariantQueue<ValueType, Capacity>::capacity() const noexcept
 {
     uint64_t ret = 0;
 

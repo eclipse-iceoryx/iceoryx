@@ -60,13 +60,13 @@ class ChunkDistributor
     using ChunkQueueData_t = typename ChunkDistributorDataType::ChunkQueueData_t;
     using ChunkQueuePusher_t = typename ChunkDistributorDataType::ChunkQueuePusher_t;
 
-    ChunkDistributor(cxx::not_null<MemberType_t* const> chunkDistrubutorDataPtr) noexcept;
+    explicit ChunkDistributor(cxx::not_null<MemberType_t* const> chunkDistrubutorDataPtr) noexcept;
 
     ChunkDistributor(const ChunkDistributor& other) = delete;
     ChunkDistributor& operator=(const ChunkDistributor&) = delete;
     ChunkDistributor(ChunkDistributor&& rhs) = default;
     ChunkDistributor& operator=(ChunkDistributor&& rhs) = default;
-    ~ChunkDistributor() = default;
+    virtual ~ChunkDistributor() = default;
 
     /// @brief Add a queue to the internal list of chunk queues to which chunks are delivered when calling
     /// deliverToAllStoredQueues
@@ -74,7 +74,8 @@ class ChunkDistributor
     /// @param[in] requestedHistory number of last chunks from history to send if available. If history size is smaller
     /// then the available history size chunks are provided
     /// @return if the queue could be added it returns success, otherwiese a ChunkDistributor error
-    cxx::expected<ChunkDistributorError> addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd, uint64_t requestedHistory = 0) noexcept;
+    cxx::expected<ChunkDistributorError> addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
+                                                  const uint64_t requestedHistory = 0u) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] chunk queue to remove from the list
@@ -123,7 +124,7 @@ class ChunkDistributor
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* const m_chunkDistrubutorDataPtr;
+    MemberType_t* m_chunkDistrubutorDataPtr;
 };
 
 } // namespace popo

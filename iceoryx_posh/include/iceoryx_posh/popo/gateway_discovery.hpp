@@ -21,7 +21,7 @@ namespace iox
 {
 namespace capro
 {
-struct CaproMessage;
+class CaproMessage;
 }
 namespace popo
 {

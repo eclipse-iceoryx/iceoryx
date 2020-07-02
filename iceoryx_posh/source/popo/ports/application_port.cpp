@@ -18,33 +18,33 @@ namespace iox
 {
 namespace popo
 {
-ApplicationPort::ApplicationPort(ApplicationPortData* const f_memberPtr)
-    : BasePort(f_memberPtr)
+ApplicationPort::ApplicationPort(ApplicationPortData* const applicationPortDataPtr) noexcept
+    : BasePort(applicationPortDataPtr)
 {
 }
 
-bool ApplicationPort::dispatchCaProMessage(const capro::CaproMessage& f_message)
+bool ApplicationPort::dispatchCaProMessage(const capro::CaproMessage& message) noexcept
 {
-    return getMembers()->m_caproMessageFiFo.push(f_message);
+    return getMembers()->m_caproMessageFiFo.push(message);
 }
 
-bool ApplicationPort::getCaProMessage(capro::CaproMessage& f_message)
+bool ApplicationPort::getCaProMessage(capro::CaproMessage& message) noexcept
 {
-    auto msg = getMembers()->m_caproMessageFiFo.pop();
-    if (msg.has_value())
+    auto maybeMessage = getMembers()->m_caproMessageFiFo.pop();
+    if (maybeMessage.has_value())
     {
-        f_message = msg.value();
+        message = maybeMessage.value();
         return true;
     }
     return false;
 }
 
-const typename ApplicationPort::MemberType_t* ApplicationPort::getMembers() const
+const typename ApplicationPort::MemberType_t* ApplicationPort::getMembers() const noexcept
 {
     return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
 }
 
-typename ApplicationPort::MemberType_t* ApplicationPort::getMembers()
+typename ApplicationPort::MemberType_t* ApplicationPort::getMembers() noexcept
 {
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }

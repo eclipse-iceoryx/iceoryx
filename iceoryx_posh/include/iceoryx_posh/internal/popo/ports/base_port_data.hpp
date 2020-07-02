@@ -25,37 +25,35 @@ namespace iox
 {
 namespace runtime
 {
-struct RunnableData;
+class RunnableData;
 }
 
 namespace popo
 {
-
 /// @brief Defines different base port data
 struct BasePortData
 {
-  public:
     /// @brief Constructor for base port data members
-    BasePortData() noexcept;
+    BasePortData() = default;
 
     /// @brief Constructor
     /// @param[in] serviceDescription creates the service service description
     /// @param[in] portType Type of port to be created
     /// @param[in] processName Name of the process
     /// @param[in] runnable The runnable where this port is attached to
-    BasePortData(const capro::ServiceDescription& serviceDescription,
-                 const cxx::CString100& processName) noexcept;
+    BasePortData(const capro::ServiceDescription& serviceDescription, const ProcessName_t& processName) noexcept;
 
     BasePortData(const BasePortData&) = delete;
     BasePortData& operator=(const BasePortData&) = delete;
     BasePortData(BasePortData&&) = delete;
     BasePortData& operator=(BasePortData&&) = delete;
+    ~BasePortData() = default;
 
     capro::ServiceDescription m_serviceDescription;
-    cxx::CString100 m_processName;
+    ProcessName_t m_processName;
 
     static std::atomic<uint64_t> s_uniqueIdCounter;
-    const std::atomic<uint64_t> m_uniqueId{0};
+    const std::atomic<uint64_t> m_uniqueId{s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed)};
     std::atomic_bool m_toBeDestroyed{false};
 };
 

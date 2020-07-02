@@ -229,9 +229,8 @@ template <typename T>
 template <typename T>
 inline const T& optional<T>::value() const& noexcept
 {
-    /// @rationale
-    /// const cast to avoid code duplication
-    return const_cast<optional<T>*>(this)->value(); // PRQA S 3066
+    // PRQA S 3066 1 # const cast to avoid code duplication
+    return const_cast<optional<T>*>(this)->value();
 }
 
 template <typename T>
@@ -279,7 +278,7 @@ inline optional<OptionalBaseType> make_optional(Targs&&... args) noexcept
 }
 
 template <typename T>
-inline optional<T>& optional<T>::and_then(const std::function<void(T&)>& callable) noexcept
+inline optional<T>& optional<T>::and_then(const cxx::function_ref<void(T&)>& callable) noexcept
 {
     if (m_hasValue && callable)
     {
@@ -289,7 +288,7 @@ inline optional<T>& optional<T>::and_then(const std::function<void(T&)>& callabl
 }
 
 template <typename T>
-inline const optional<T>& optional<T>::and_then(const std::function<void(const T&)>& callable) const noexcept
+inline const optional<T>& optional<T>::and_then(const cxx::function_ref<void(const T&)>& callable) const noexcept
 {
     if (m_hasValue && callable)
     {
@@ -299,7 +298,7 @@ inline const optional<T>& optional<T>::and_then(const std::function<void(const T
 }
 
 template <typename T>
-inline optional<T>& optional<T>::or_else(const std::function<void()>& callable) noexcept
+inline optional<T>& optional<T>::or_else(const cxx::function_ref<void()>& callable) noexcept
 {
     if (!m_hasValue && callable)
     {
@@ -309,7 +308,7 @@ inline optional<T>& optional<T>::or_else(const std::function<void()>& callable) 
 }
 
 template <typename T>
-inline const optional<T>& optional<T>::or_else(const std::function<void()>& callable) const noexcept
+inline const optional<T>& optional<T>::or_else(const cxx::function_ref<void()>& callable) const noexcept
 {
     if (!m_hasValue && callable)
     {

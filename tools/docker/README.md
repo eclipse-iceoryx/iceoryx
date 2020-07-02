@@ -42,7 +42,7 @@ Step 8/8 : RUN ./tools/iceoryx_build_test.sh     && cp ./tools/docker/.screenrc 
 -- The CXX compiler identification is GNU 7.4.0
 -- Check for working C compiler: /usr/bin/cc
 ...
-[100%] Linking CXX executable icedelivery/ice_receiver_simple
+[100%] Linking CXX executable icedelivery/ice-subscriber-simple
 [100%] Built target ice_receiver_simple
 >>>>>> finished building iceoryx examples <<<<<<
 Removing intermediate container 28767c2c7c9f
@@ -83,7 +83,7 @@ and start the sender application:
 
 ```
 badc0ded@localhost:~$ docker exec -it roudi /bin/bash
-root@03043f96ae10:/iceoryx# ./build/iceoryx_examples/icedelivery/ice_sender
+root@03043f96ae10:/iceoryx# ./build/iceoryx_examples/icedelivery/ice-subscriber-simple
 Sending: 0
 Sending: 1
 Sending: 2
@@ -94,7 +94,7 @@ and in another terminal, start the receiver application:
 
 ```
 $ docker exec -it roudi /bin/bash
-root@03043f96ae10:/iceoryx# ./build/iceoryx_examples/icedelivery/ice_receiver
+root@03043f96ae10:/iceoryx# ./build/iceoryx_examples/icedelivery/ice-publisher-simple
 Not subscribed
 Receiving: 78
 Receiving: 79
@@ -140,7 +140,7 @@ To launch an example sender application, start a new virtual screen and run the 
 ```
 root@3b93f0d3eda2:/iceoryx# screen
 #[Enter]
-root@3b93f0d3eda2:/iceoryx# ./build/iceoryx_examples/icedelivery/ice_sender
+root@3b93f0d3eda2:/iceoryx# ./build/iceoryx_examples/icedelivery/ice-publisher-simple
 Sending: 0
 Sending: 1
 Sending: 2
@@ -156,7 +156,7 @@ Then the receiver application can be started, again in a separate virtual screen
 ```
 root@3b93f0d3eda2:/iceoryx# screen
 #[Enter]
-root@3b93f0d3eda2:/iceoryx# ./build/iceoryx_examples/icedelivery/ice_receiver
+root@3b93f0d3eda2:/iceoryx# ./build/iceoryx_examples/icedelivery/ice-subscriber-simple
 Not subscribed
 Receiving: 12
 Receiving: 13

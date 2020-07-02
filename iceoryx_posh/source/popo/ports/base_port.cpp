@@ -20,8 +20,8 @@ namespace popo
 {
 std::atomic<uint64_t> BasePort::MemberType_t::s_uniqueIdCounter{1u};
 
-BasePort::BasePort(BasePortData* const f_basePortDataPtr) noexcept
-    : m_basePortDataPtr(f_basePortDataPtr)
+BasePort::BasePort(MemberType_t* const basePortDataPtr) noexcept
+    : m_basePortDataPtr(basePortDataPtr)
 {
 }
 
@@ -40,16 +40,12 @@ BasePort& BasePort::operator=(BasePort&& rhs) noexcept
     return *this;
 }
 
-BasePort::~BasePort() noexcept
-{
-}
-
 capro::ServiceDescription BasePort::getCaProServiceDescription() const noexcept
 {
     return getMembers()->m_serviceDescription;
 }
 
-cxx::CString100 BasePort::getProcessName() const noexcept
+ProcessName_t BasePort::getProcessName() const noexcept
 {
     return getMembers()->m_processName;
 }
@@ -59,7 +55,7 @@ uint64_t BasePort::getUniqueID() const noexcept
     return getMembers()->m_uniqueId.load(std::memory_order_relaxed);
 }
 
-BasePort::operator bool() const
+BasePort::operator bool() const noexcept
 {
     return m_basePortDataPtr != nullptr;
 }
@@ -76,4 +72,3 @@ bool BasePort::toBeDestroyed() const noexcept
 
 } // namespace popo
 } // namespace iox
-

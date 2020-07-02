@@ -44,11 +44,11 @@ class ChunkQueue_testBase
     }
 
     static constexpr size_t MEGABYTE = 1 << 20;
-    static constexpr size_t MEMORY_SIZE = 1 * MEGABYTE;
-    char memory[MEMORY_SIZE];
-    iox::posix::Allocator allocator{memory, MEMORY_SIZE};
-    MemPool mempool{128, 1000, &allocator, &allocator};
-    MemPool chunkMgmtPool{128, 1000, &allocator, &allocator};
+    static constexpr size_t MEMORY_SIZE = 4 * MEGABYTE;
+    std::unique_ptr<char[]> memory{new char[MEMORY_SIZE]};
+    iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
+    MemPool mempool{128, 2 * iox::MAX_RECEIVER_QUEUE_CAPACITY, &allocator, &allocator};
+    MemPool chunkMgmtPool{128, 2 * iox::MAX_RECEIVER_QUEUE_CAPACITY, &allocator, &allocator};
     TypedMemPool<iox::posix::Semaphore> semaphorePool{10, &allocator, &allocator};
 
     static constexpr uint32_t RESIZED_CAPACITY{5u};
@@ -65,10 +65,14 @@ class ChunkQueue_test : public TestWithParam<iox::cxx::VariantQueueTypes>, publi
     ChunkQueuePusher m_pusher{&m_chunkData};
 };
 
+/// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 INSTANTIATE_TEST_CASE_P(ChunkQueueAll,
                         ChunkQueue_test,
                         Values(iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
                                iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer));
+#pragma GCC diagnostic pop
 
 TEST_P(ChunkQueue_test, InitialEmpty)
 {
@@ -213,7 +217,7 @@ TEST_F(ChunkQueueFiFo_test, DISABLED_InitialSize)
 /// @note API currently not supported
 TEST_F(ChunkQueueFiFo_test, DISABLED_Capacity)
 {
-    EXPECT_THAT(m_popper.capacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
+    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
 }
 
 
@@ -221,7 +225,7 @@ TEST_F(ChunkQueueFiFo_test, DISABLED_Capacity)
 TEST_F(ChunkQueueFiFo_test, DISABLED_SetCapacity)
 {
     m_popper.setCapacity(RESIZED_CAPACITY);
-    EXPECT_THAT(m_popper.capacity(), Eq(RESIZED_CAPACITY));
+    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(RESIZED_CAPACITY));
 }
 
 TEST_F(ChunkQueueFiFo_test, PushFull)
@@ -257,14 +261,14 @@ TEST_F(ChunkQueueSoFi_test, InitialSize)
 
 TEST_F(ChunkQueueSoFi_test, Capacity)
 {
-    EXPECT_THAT(m_popper.capacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
+    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
 }
 
 
 TEST_F(ChunkQueueSoFi_test, SetCapacity)
 {
     m_popper.setCapacity(RESIZED_CAPACITY);
-    EXPECT_THAT(m_popper.capacity(), Eq(RESIZED_CAPACITY));
+    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(RESIZED_CAPACITY));
 }
 
 TEST_F(ChunkQueueSoFi_test, PushFull)

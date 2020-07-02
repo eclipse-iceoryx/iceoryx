@@ -18,9 +18,8 @@ namespace iox
 {
 namespace popo
 {
-ApplicationPortData::ApplicationPortData(const std::string& f_applicationName)
-    : BasePortData(capro::ServiceDescription(),
-                   iox::cxx::string<100>(iox::cxx::TruncateToCapacity, f_applicationName))
+ApplicationPortData::ApplicationPortData(const ProcessName_t& processName) noexcept
+    : BasePortData(capro::ServiceDescription(), processName)
 {
 }
 } // namespace popo

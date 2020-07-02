@@ -427,7 +427,7 @@ TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
     auto maybeChunkHeader2 = m_sutWithHistoryUseriSide.allocateChunk(sizeof(DummySample));
     auto maybeChunkHeader3 = m_sutWithHistoryUseriSide.allocateChunk(sizeof(DummySample));
 
-    m_sutWithHistoryRouDiSide.cleanup();
+    m_sutWithHistoryRouDiSide.releaseAllChunks();
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }

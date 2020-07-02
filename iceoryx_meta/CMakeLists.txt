@@ -1,54 +1,38 @@
-cmake_minimum_required(VERSION 3.14)
-set(iceoryx_VERSION 0.17.0.2)
-
+cmake_minimum_required(VERSION 3.5)
+file (STRINGS "../VERSION" iceoryx_VERSION)
 project(iceoryx VERSION ${iceoryx_VERSION})
 
-#uncomment this as soon the ExternalProject install path issue is solved
-#if(test)
-#    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/googletest ${CMAKE_BINARY_DIR}/gtest)
-#endif(test)
-
-
-include(FetchContent)
-
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-if(test)
-FetchContent_Declare(
-    GOOGLETEST
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG release-1.10.0
-)
-FetchContent_GetProperties(GOOGLETEST)
-if (NOT googletest_POPULATED)
-    message(STATUS "updating: googletest" )
-    FetchContent_Populate(GOOGLETEST)
-    add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
-    set(GTest_FOUND true)
-    add_library(GTest::gtest ALIAS gtest)
-    add_library(GTest::gmock ALIAS gmock)
-endif(NOT googletest_POPULATED)
-endif(test)
-
-# must be additionally defined here, otherwise TOML_CONFIG is on default off
-# and the module is loaded only after the second cmake -Bbuild -Hiceoryx_meta command call
 option(TOML_CONFIG "activates or deactivates TOML support - without TOML RouDi will not be build" ON)
+option(test "Build tests" ON)
+option(examples "build with iceoryx examples" ON)
+option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
+option(diagnostic "enables allmost all compiler warnings" OFF)
+option(dds "enables dds support by compiling the iceoryx dds gateway" OFF)
 
-if (TOML_CONFIG )
-    FetchContent_Declare(
-        CPPTOML
-        GIT_REPOSITORY https://github.com/skystrife/cpptoml
-        GIT_TAG v0.1.1
-    )
-    FetchContent_GetProperties(CPPTOML)
-    if (NOT cpptoml_POPULATED)
-        message(STATUS "updating: cpptoml" )
-        FetchContent_Populate(CPPTOML)
-        add_subdirectory(${cpptoml_SOURCE_DIR} ${cpptoml_BINARY_DIR})
-        set(cpptoml_FOUND true)
-    endif(NOT cpptoml_POPULATED)
+if(TOML_CONFIG)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/cpptoml/prebuild)
 endif(TOML_CONFIG)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/iceoryx_utils )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/iceoryx_posh )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/examples/icedelivery )
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/examples/iceperf )
+if(diagnostic)
+    add_compile_options(-Wall -W -Wextra -pedantic)
+endif(diagnostic)
+
+if(test)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/googletest ${CMAKE_BINARY_DIR}/dependencies/googletest/prebuild)
+endif(test)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/posh)
+
+if(introspection)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tools/introspection ${CMAKE_BINARY_DIR}/iceoryx_introspection)
+endif(introspection)
+
+if(examples)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
+endif(examples)
+
+if(dds)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dds ${CMAKE_BINARY_DIR}/iceoryx_dds)
+endif(dds)

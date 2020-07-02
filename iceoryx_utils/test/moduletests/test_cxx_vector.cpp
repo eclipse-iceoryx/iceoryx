@@ -899,3 +899,138 @@ TEST_F(vector_test, ConstructorWithSizeParameterGreaterThanCapacity)
     EXPECT_THAT(vector_test::copyCTor, Eq(5));
     ASSERT_THAT(sut.size(), Eq(5));
 }
+
+TEST_F(vector_test, TwoEmptyVectorOfSameCapacityAreEqual)
+{
+    vector<int, 10> a, b;
+
+    EXPECT_TRUE(a == b);
+    EXPECT_FALSE(a != b);
+}
+
+TEST_F(vector_test, TwoEmptyVectorOfDifferentCapacityAreEqual)
+{
+    vector<int, 10> a;
+    vector<int, 20> b;
+
+    EXPECT_TRUE(a == b);
+    EXPECT_FALSE(a != b);
+}
+
+TEST_F(vector_test, TwoEqualVectorsWithSameCapacityAreEqual)
+{
+    vector<int, 10> a, b;
+    a.emplace_back(1);
+    a.emplace_back(2);
+    a.emplace_back(3);
+
+    b.emplace_back(1);
+    b.emplace_back(2);
+    b.emplace_back(3);
+
+    EXPECT_TRUE(a == b);
+    EXPECT_FALSE(a != b);
+}
+
+TEST_F(vector_test, TwoEqualVectorsWithDifferentCapacityAreEqual)
+{
+    vector<int, 10> a;
+    a.emplace_back(4);
+    a.emplace_back(5);
+    a.emplace_back(6);
+
+    vector<int, 20> b;
+    b.emplace_back(4);
+    b.emplace_back(5);
+    b.emplace_back(6);
+
+    EXPECT_TRUE(a == b);
+    EXPECT_FALSE(a != b);
+}
+
+TEST_F(vector_test, TwoVectorsWithDifferentSizeAndSameCapacityAreNotEqual)
+{
+    vector<int, 10> a, b;
+    a.emplace_back(7);
+    a.emplace_back(8);
+    a.emplace_back(9);
+
+    EXPECT_FALSE(a == b);
+    EXPECT_TRUE(a != b);
+}
+
+TEST_F(vector_test, TwoNonEqualVectorsWithDifferentCapacityAreNotEqual)
+{
+    vector<int, 10> a;
+    a.emplace_back(7);
+    a.emplace_back(8);
+    a.emplace_back(9);
+
+    vector<int, 20> b;
+    b.emplace_back(1);
+    b.emplace_back(2);
+    b.emplace_back(3);
+
+    EXPECT_FALSE(a == b);
+    EXPECT_TRUE(a != b);
+}
+
+TEST_F(vector_test, SubsetVectorWithSameCapacityIsNotEqual)
+{
+    vector<int, 10> a, b;
+    a.emplace_back(7);
+    a.emplace_back(8);
+    a.emplace_back(9);
+
+    b.emplace_back(7);
+    b.emplace_back(8);
+
+    EXPECT_FALSE(a == b);
+    EXPECT_TRUE(a != b);
+}
+
+TEST_F(vector_test, SubsetVectorWithDifferentCapacityIsNotEqual)
+{
+    vector<int, 10> a;
+    a.emplace_back(11);
+    a.emplace_back(12);
+    a.emplace_back(13);
+
+    vector<int, 20> b;
+    b.emplace_back(11);
+    b.emplace_back(12);
+
+    EXPECT_FALSE(a == b);
+    EXPECT_TRUE(a != b);
+}
+
+TEST_F(vector_test, PartiallyEqualVectorsWithSameCapacityAreNotEqual)
+{
+    vector<int, 10> a, b;
+    a.emplace_back(14);
+    a.emplace_back(15);
+    a.emplace_back(16);
+
+    b.emplace_back(14);
+    b.emplace_back(15);
+    b.emplace_back(666);
+
+    EXPECT_FALSE(a == b);
+    EXPECT_TRUE(a != b);
+}
+
+TEST_F(vector_test, PartiallyEqualVectorsWithDifferentCapacityAreNotEqual)
+{
+    vector<int, 10> a;
+    a.emplace_back(17);
+    a.emplace_back(18);
+    a.emplace_back(19);
+
+    vector<int, 20> b;
+    b.emplace_back(17);
+    b.emplace_back(18);
+    b.emplace_back(999);
+
+    EXPECT_FALSE(a == b);
+    EXPECT_TRUE(a != b);
+}

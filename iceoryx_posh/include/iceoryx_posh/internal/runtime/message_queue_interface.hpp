@@ -17,6 +17,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
+#include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/mqueue.hpp"
@@ -185,7 +186,7 @@ class MqBase
     MqBase() = delete;
     // TODO: unique identifier problem, multiple MqBase objects with the
     //        same InterfaceName are using the same message queue
-    MqBase(const std::string& InterfaceName, const int64_t maxMessages, const int64_t messageSize) noexcept;
+    MqBase(const std::string& InterfaceName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
     virtual ~MqBase() = default;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
@@ -224,10 +225,10 @@ class MqBase
 
   protected:
     std::string m_interfaceName;
-    long m_maxMessageSize{0};
-    long m_maxMessages{0};
+    uint64_t m_maxMessageSize{0};
+    uint64_t m_maxMessages{0};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};
-    iox::posix::MessageQueue m_mq;
+    IpcChannelType m_mq;
 };
 
 /// @brief Class for handling a message queue via mq_open and mq_close.

@@ -21,7 +21,7 @@ namespace iox
 {
 namespace runtime
 {
-struct RunnableData;
+class RunnableData;
 
 /// @brief class which represents a runnable
 class Runnable

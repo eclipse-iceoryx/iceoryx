@@ -62,7 +62,11 @@ class RouDiEnvironment
 
   private:
     RuntimeTestInterface m_runtimes;
+#if defined(__APPLE__)
+    std::chrono::milliseconds m_interOpWaitingTime = std::chrono::milliseconds(1000);
+#else
     std::chrono::milliseconds m_interOpWaitingTime = std::chrono::milliseconds(200);
+#endif
     std::unique_ptr<IceOryxRouDiComponents> m_roudiComponents;
     std::unique_ptr<RouDiMultiProcess> m_roudiApp;
 };

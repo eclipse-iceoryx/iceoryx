@@ -112,6 +112,16 @@ T align(const T value, const T alignment)
     return value + ((remainder == 0u) ? 0u : alignment - remainder);
 }
 
+/// @brief allocates aligned memory which can only be free'd by alignedFree
+/// @param[in] alignment, alignment of the memory
+/// @param[in] size, memory size
+/// @return void pointer to the aligned memory
+void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept;
+
+/// @brief frees aligned memory allocated with alignedAlloc
+/// @param[in] memory, pointer to the aligned memory
+void alignedFree(void* const memory);
+
 /// template recursion stopper for maximum alignment calculation
 template <size_t s = 0>
 constexpr size_t maxAlignment()
