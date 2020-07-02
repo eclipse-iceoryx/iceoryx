@@ -163,14 +163,14 @@ echo ">>>>>>>> icedelivery"
 cd $WORKSPACE/build/iceoryx_examples
 mkdir -p icedelivery
 cd icedelivery
-cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
-cmake --build . -- -j$NUM_JOBS
+cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
+cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>>>> iceperf"
 cd $WORKSPACE/build/iceoryx_examples
 mkdir -p iceperf
 cd iceperf
-cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
-cmake --build . -- -j$NUM_JOBS
+cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
+cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx examples <<<<<<"
 
 #====================================================================================================
