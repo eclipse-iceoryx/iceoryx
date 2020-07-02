@@ -99,11 +99,11 @@ class Timer
     struct OsTimerCallbackHandle
     {
         static constexpr uint32_t MAX_DESCRIPTOR_VALUE{(1u << 24u) - 1u};
-        static sigval indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor);
-        static uint8_t sigvalToIndex(sigval intVal);
-        static uint32_t sigvalToDescriptor(sigval intVal);
+        static sigval indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor) noexcept;
+        static uint8_t sigvalToIndex(sigval intVal) noexcept;
+        static uint32_t sigvalToDescriptor(sigval intVal) noexcept;
 
-        void incrementDescriptor();
+        void incrementDescriptor() noexcept;
 
         std::mutex m_accessMutex;
 
@@ -114,7 +114,7 @@ class Timer
         std::atomic<bool> m_inUse{false};
         std::atomic<bool> m_isTimerActive{false};
         std::atomic<uint64_t> m_cycle{0u};
-        TimerType m_timerType{TimerType::SOFT_TIMER};
+        TimerType m_timerType{TimerType::HARD_TIMER};
 
         OsTimer* m_timer{nullptr};
     };
@@ -144,8 +144,8 @@ class Timer
         ///
         /// The callback is called by the operating system after the time has expired.
         ///
-        /// @param[in] periodic - can be a periodic timer if set to RunMode::PERIODIC or
-        ///                     once when in RunMode::ONCE
+        /// @param[in] runMode for continuous callbacks PERIODIC otherwise ONCE
+        /// @param[in] TimerType selects the timer behavior
         /// @note Shall only be called when callback is given
         cxx::expected<TimerError> start(const RunMode runMode, const TimerType timerType) noexcept;
 
@@ -155,6 +155,9 @@ class Timer
         cxx::expected<TimerError> stop() noexcept;
 
         /// @brief Disarms the timer, assigns a new timeToWait value and arms the timer
+        /// @param[in] timeToWait duration till the callback should be called
+        /// @param[in] runMode for continuous callbacks PERIODIC otherwise ONCE
+        /// @param[in] TimerType selects the timer behavior
         /// @note Shall only be called when callback is given
         cxx::expected<TimerError>
         restart(const units::Duration timeToWait, const RunMode runMode, const TimerType timerType) noexcept;

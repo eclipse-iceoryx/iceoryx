@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 #include "test.hpp"
@@ -44,6 +45,7 @@ class Timer_test : public Test
     iox::units::Duration second{1_s};
 
     std::atomic<int> numberOfCalls{0};
+    static const iox::units::Duration TIMEOUT;
 };
 
 class TimerStopWatch_test : public Test
@@ -51,7 +53,8 @@ class TimerStopWatch_test : public Test
   public:
     static const iox::units::Duration TIMEOUT;
 };
-const iox::units::Duration TimerStopWatch_test::TIMEOUT{4_ms};
+const iox::units::Duration TimerStopWatch_test::TIMEOUT{10_ms};
+const iox::units::Duration Timer_test::TIMEOUT{TimerStopWatch_test::TIMEOUT};
 
 TEST_F(TimerStopWatch_test, DurationOfZeroCausesError)
 {
@@ -70,23 +73,21 @@ TIMING_TEST_F(TimerStopWatch_test, DurationOfNonZeroIsExpiresAfterTimeout, Repea
     TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
 });
 
-TEST_F(TimerStopWatch_test, ResetWithDurationIsExpired)
-{
+TIMING_TEST_F(TimerStopWatch_test, ResetWithDurationIsExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>()));
-    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(true));
+    TIMING_TEST_EXPECT_TRUE(sut.hasExpiredComparedToCreationTime());
     sut.resetCreationTime();
-    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(false));
-}
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
+});
 
-TEST_F(TimerStopWatch_test, ResetWhenNotExpiredIsStillNotExpired)
-{
+TIMING_TEST_F(TimerStopWatch_test, ResetWhenNotExpiredIsStillNotExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     sut.resetCreationTime();
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    EXPECT_THAT(sut.hasExpiredComparedToCreationTime(), Eq(false));
-}
+    TIMING_TEST_EXPECT_FALSE(sut.hasExpiredComparedToCreationTime());
+});
 
 TIMING_TEST_F(TimerStopWatch_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
     Timer sut(TIMEOUT);
@@ -115,9 +116,9 @@ TEST_F(Timer_test, ZeroTimeoutIsNotAllowed)
 
 TIMING_TEST_F(Timer_test, CallbackNotExecutedWhenNotStarted, Repeat(5), [&] {
     bool callbackExecuted{false};
-    Timer sut(1_ns, [&] { callbackExecuted = true; });
+    Timer sut(TIMEOUT, [&] { callbackExecuted = true; });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(4 * TIMEOUT.milliSeconds<int>() / 3));
 
     TIMING_TEST_EXPECT_ALWAYS_FALSE(callbackExecuted);
 });
@@ -134,9 +135,9 @@ TEST_F(Timer_test, CallbackExecutedOnceAfterStart)
 
 TIMING_TEST_F(Timer_test, CallbackExecutedPeriodicallyAfterStart, Repeat(5), [&] {
     std::atomic_int counter{0};
-    Timer sut(1_ms, [&] { counter++; });
+    Timer sut(TIMEOUT, [&] { counter++; });
     sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10));
     auto finalCount = counter.load();
 
     TIMING_TEST_EXPECT_TRUE(6 <= finalCount && finalCount <= 11);
@@ -144,17 +145,17 @@ TIMING_TEST_F(Timer_test, CallbackExecutedPeriodicallyAfterStart, Repeat(5), [&]
 
 TIMING_TEST_F(Timer_test, PeriodicCallbackNotExecutedPrematurely, Repeat(5), [&] {
     std::atomic_int counter{0};
-    Timer sut(10_ms, [&] { counter++; });
+    Timer sut(TIMEOUT, [&] { counter++; });
     sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
 });
 
 TIMING_TEST_F(Timer_test, OneTimeCallbackNotExecutedPrematurely, Repeat(5), [&] {
     std::atomic_int counter{0};
-    Timer sut(10_ms, [&] { counter++; });
+    Timer sut(TIMEOUT, [&] { counter++; });
     sut.start(Timer::RunMode::ONCE, Timer::TimerType::SOFT_TIMER);
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
 });
 
@@ -169,32 +170,32 @@ TEST_F(Timer_test, StartFailsWhenNoCallbackIsSet)
 
 TIMING_TEST_F(Timer_test, StartRunModeOnceIsStoppedAfterStop, Repeat(5), [&] {
     std::atomic_int counter{0};
-    Timer sut(1_ms, [&] { counter++; });
+    Timer sut(TIMEOUT, [&] { counter++; });
     sut.start(Timer::RunMode::ONCE, Timer::TimerType::SOFT_TIMER);
     sut.stop();
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(4 * TIMEOUT.milliSeconds<int>() / 3));
 
     TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
 });
 
 TIMING_TEST_F(Timer_test, StartRunPeriodicOnceIsStoppedAfterStop, Repeat(5), [&] {
     std::atomic_int counter{0};
-    Timer sut(1_ms, [&] { counter++; });
+    Timer sut(TIMEOUT, [&] { counter++; });
     sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
     sut.stop();
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(4 * TIMEOUT.milliSeconds<int>() / 3));
 
     TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
 });
 
 TIMING_TEST_F(Timer_test, StartRunPeriodicOnceIsStoppedInTheMiddleAfterStop, Repeat(5), [&] {
     std::atomic_int counter{0};
-    Timer sut(2_ms, [&] { counter++; });
+    Timer sut(TIMEOUT, [&] { counter++; });
     sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(4 * TIMEOUT.milliSeconds<int>() / 3));
     sut.stop();
     auto previousCount = counter.load();
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(4 * TIMEOUT.milliSeconds<int>() / 3));
 
     TIMING_TEST_EXPECT_TRUE(previousCount == counter.load());
 });
@@ -210,12 +211,12 @@ TEST_F(Timer_test, StopFailsWhenNoCallbackIsSet)
 
 TIMING_TEST_F(Timer_test, RestartWithDifferentTiming, Repeat(5), [&] {
     std::atomic_int counter{0};
-    Timer sut(5_ms, [&] { counter++; });
+    Timer sut(TIMEOUT * 10, [&] { counter++; });
     sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    sut.restart(1_ms, Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
+    std::this_thread::sleep_for(std::chrono::milliseconds(20 * TIMEOUT.milliSeconds<int>()));
+    sut.restart(TIMEOUT, Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
     counter = 0;
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10 * TIMEOUT.milliSeconds<int>()));
     auto finalCount = counter.load();
 
     TIMING_TEST_EXPECT_TRUE(6 <= finalCount && finalCount <= 13);
@@ -223,29 +224,29 @@ TIMING_TEST_F(Timer_test, RestartWithDifferentTiming, Repeat(5), [&] {
 
 TIMING_TEST_F(Timer_test, RestartWithDifferentRunMode, Repeat(5), [&] {
     std::atomic_int counter{0};
-    Timer sut(4_ms, [&] { counter++; });
+    Timer sut(TIMEOUT, [&] { counter++; });
     sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    sut.restart(4_ms, Timer::RunMode::ONCE, Timer::TimerType::SOFT_TIMER);
+    std::this_thread::sleep_for(std::chrono::milliseconds(4 * TIMEOUT.milliSeconds<int>() / 3));
+    sut.restart(TIMEOUT, Timer::RunMode::ONCE, Timer::TimerType::SOFT_TIMER);
     counter = 0;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     TIMING_TEST_EXPECT_TRUE(counter.load() == 0);
-    std::this_thread::sleep_for(std::chrono::milliseconds(6));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     TIMING_TEST_EXPECT_TRUE(counter.load() == 1);
-    std::this_thread::sleep_for(std::chrono::milliseconds(6));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     TIMING_TEST_EXPECT_TRUE(counter.load() == 1);
 });
 
 TIMING_TEST_F(Timer_test, RestartWithDifferentTimingAndRunMode, Repeat(5), [&] {
     std::atomic_int counter{0};
-    Timer sut(5_ms, [&] { counter++; });
+    Timer sut(TIMEOUT * 2, [&] { counter++; });
     sut.start(Timer::RunMode::ONCE, Timer::TimerType::SOFT_TIMER);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5 * TIMEOUT.milliSeconds<int>()));
     counter = 0;
-    sut.restart(1_ms, Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
+    sut.restart(TIMEOUT, Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10 * TIMEOUT.milliSeconds<int>()));
 
     auto finalCount = counter.load();
     TIMING_TEST_EXPECT_TRUE(6 <= finalCount && finalCount <= 13);
@@ -279,26 +280,26 @@ TEST_F(Timer_test, TimeUntilExpirationFailsWithoutCallback)
 }
 
 TIMING_TEST_F(Timer_test, TimeUntilExpirationWithCallback, Repeat(5), [&] {
-    Timer sut(20_ms, [] {});
+    Timer sut(TIMEOUT, [] {});
     sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
     int timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
-    TIMING_TEST_EXPECT_TRUE(timeUntilExpiration > 15);
+    TIMING_TEST_EXPECT_TRUE(timeUntilExpiration > 2 * TIMEOUT.milliSeconds<int>() / 3);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
     timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
-    TIMING_TEST_EXPECT_TRUE(1 <= timeUntilExpiration && timeUntilExpiration <= 13);
+    TIMING_TEST_EXPECT_TRUE(1 <= timeUntilExpiration && timeUntilExpiration <= TIMEOUT.milliSeconds<int>() / 3);
 });
 
 TIMING_TEST_F(Timer_test, TimeUntilExpirationZeroAfterCallbackOnceCalled, Repeat(5), [&] {
-    Timer sut(1_ms, [] {});
+    Timer sut(TIMEOUT, [] {});
     sut.start(Timer::RunMode::ONCE, Timer::TimerType::SOFT_TIMER);
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10 * TIMEOUT.milliSeconds<int>()));
     int timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
     TIMING_TEST_EXPECT_TRUE(timeUntilExpiration == 0);
 });
 
 TIMING_TEST_F(Timer_test, StoppingIsNonBlocking, Repeat(5), [&] {
-    Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(20)); });
+    Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
     sut.start(Timer::RunMode::ONCE, Timer::TimerType::SOFT_TIMER);
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
@@ -314,7 +315,7 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningContinuously, Repeat(5), [&] {
     struct TimeValPair
     {
         TimeValPair()
-            : timer(4_ms, [&] { this->value++; })
+            : timer(TIMEOUT, [&] { this->value++; })
         {
         }
         int value{0};
@@ -328,18 +329,18 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningContinuously, Repeat(5), [&] {
         sut.timer.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10 * TIMEOUT.milliSeconds<int>()));
 
     for (auto& sut : sutList)
     {
         sut.timer.stop();
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10 * TIMEOUT.milliSeconds<int>()));
 
     for (auto& sut : sutList)
     {
-        TIMING_TEST_EXPECT_TRUE(4 <= sut.value && sut.value <= 6);
+        TIMING_TEST_EXPECT_TRUE(7 <= sut.value && sut.value <= 13);
     }
 });
 
@@ -347,7 +348,7 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningOnce, Repeat(5), [&] {
     struct TimeValPair
     {
         TimeValPair()
-            : timer(2_ms, [&] { this->value++; })
+            : timer(TIMEOUT, [&] { this->value++; })
         {
         }
         int value{0};
@@ -361,7 +362,7 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningOnce, Repeat(5), [&] {
         sut.timer.start(Timer::RunMode::ONCE, Timer::TimerType::SOFT_TIMER);
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10 * TIMEOUT.milliSeconds<int>()));
 
     for (auto& sut : sutList)
     {
@@ -372,7 +373,8 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningOnce, Repeat(5), [&] {
 TIMING_TEST_F(Timer_test, DestructorIsBlocking, Repeat(5), [&] {
     std::chrono::time_point<std::chrono::system_clock> startTime;
     {
-        Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(25)); });
+        Timer sut(1_ns,
+                  [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
         sut.start(Timer::RunMode::ONCE, Timer::TimerType::SOFT_TIMER);
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         startTime = std::chrono::system_clock::now();
@@ -384,7 +386,7 @@ TIMING_TEST_F(Timer_test, DestructorIsBlocking, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(Timer_test, StartStopAndStartAgainIsNonBlocking, Repeat(5), [&] {
-    Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(20)); });
+    Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
     sut.start(Timer::RunMode::ONCE, Timer::TimerType::SOFT_TIMER);
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
@@ -405,3 +407,115 @@ TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
     ASSERT_THAT(call.has_error(), Eq(true));
     EXPECT_THAT(call.get_error(), Eq(TimerError::TIMER_NOT_INITIALIZED));
 }
+
+TIMING_TEST_F(Timer_test, SoftTimerContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
+    std::atomic_bool hasTerminated{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+
+    Timer sut(TIMEOUT,
+              [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10));
+    TIMING_TEST_EXPECT_FALSE(hasTerminated);
+});
+
+TIMING_TEST_F(Timer_test, ASAPTimerContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
+    std::atomic_bool hasTerminated{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+
+    Timer sut(TIMEOUT,
+              [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::ASAP_TIMER);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10));
+    TIMING_TEST_EXPECT_FALSE(hasTerminated);
+});
+
+TIMING_TEST_F(Timer_test, HardTimerTerminatesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
+    std::atomic_bool hasTerminated{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+
+    Timer sut(TIMEOUT,
+              [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::HARD_TIMER);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10));
+    TIMING_TEST_EXPECT_TRUE(hasTerminated);
+});
+
+TIMING_TEST_F(Timer_test, SoftToHardTimerChangesBehaviorToTerminate, Repeat(5), [&] {
+    std::atomic_bool hasTerminated{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+
+    Timer sut(TIMEOUT,
+              [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10));
+    sut.restart(TIMEOUT, Timer::RunMode::PERIODIC, Timer::TimerType::HARD_TIMER);
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10));
+
+    TIMING_TEST_EXPECT_TRUE(hasTerminated);
+});
+
+TIMING_TEST_F(Timer_test, SoftTimerSkipsCallbackWhenStillRunning, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(TIMEOUT, [&] {
+        ++counter;
+        // wait slightly longer then the timeout so that the effect is better measurable
+        std::this_thread::sleep_for(std::chrono::microseconds(TIMEOUT.milliSeconds<int>() * 1100));
+    });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 100));
+    // every second callback is skipped since the runtime is slightly longer therefore
+    // the counter must be in that range
+    TIMING_TEST_EXPECT_TRUE(50 <= counter <= 70);
+});
+
+TIMING_TEST_F(Timer_test, ASAPTimerCallsCallbackImmediatelyAfterFinishing, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(TIMEOUT, [&] {
+        ++counter;
+        // wait slightly longer then the timeout so that the effect is better measurable
+        std::this_thread::sleep_for(std::chrono::microseconds(TIMEOUT.milliSeconds<int>() * 1100));
+    });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::ASAP_TIMER);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 100));
+    // the asap timer should in theory call the callback 90 times since it is calling it right
+    // after the last one finished and one callback takes 1.1 ms and we run for 100ms.
+    TIMING_TEST_EXPECT_TRUE(80 <= counter <= 100);
+});
+
+TIMING_TEST_F(Timer_test, SoftTimerCallsLessCallbacksThanASAPTimer, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(TIMEOUT, [&] {
+        ++counter;
+        // wait slightly longer then the timeout so that the effect is better measurable
+        std::this_thread::sleep_for(std::chrono::microseconds(TIMEOUT.milliSeconds<int>() * 1100));
+    });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 100));
+    int softTimerCounter = counter.load();
+    sut.stop();
+
+    counter.store(0);
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::ASAP_TIMER);
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 100));
+    int asapTimerCounter = counter.load();
+    sut.stop();
+
+    TIMING_TEST_EXPECT_TRUE(softTimerCounter < asapTimerCounter);
+});

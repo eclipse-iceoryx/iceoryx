@@ -24,7 +24,7 @@ namespace posix
 {
 Timer::OsTimerCallbackHandle Timer::OsTimer::s_callbackHandlePool[MAX_NUMBER_OF_CALLBACK_HANDLES];
 
-sigval Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor)
+sigval Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor) noexcept
 {
     assert(descriptor < MAX_DESCRIPTOR_VALUE);
     uint32_t temp = (descriptor << 8) | static_cast<uint32_t>(index);
@@ -33,18 +33,18 @@ sigval Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(uint8_t index, u
     return sigvalData;
 }
 
-uint8_t Timer::OsTimerCallbackHandle::sigvalToIndex(sigval intVal)
+uint8_t Timer::OsTimerCallbackHandle::sigvalToIndex(sigval intVal) noexcept
 {
     return static_cast<uint8_t>(0xFF & intVal.sival_int);
 }
 
-uint32_t Timer::OsTimerCallbackHandle::sigvalToDescriptor(sigval intVal)
+uint32_t Timer::OsTimerCallbackHandle::sigvalToDescriptor(sigval intVal) noexcept
 {
     uint32_t temp = static_cast<uint32_t>(intVal.sival_int);
     return (temp >> 8u) & 0xFFFFFFu;
 }
 
-void Timer::OsTimerCallbackHandle::incrementDescriptor()
+void Timer::OsTimerCallbackHandle::incrementDescriptor() noexcept
 {
     auto callbackHandleDescriptor = m_descriptor.load(std::memory_order_relaxed);
     callbackHandleDescriptor++;
@@ -61,8 +61,7 @@ void Timer::OsTimer::callbackHelper(sigval data)
     auto index = Timer::OsTimerCallbackHandle::sigvalToIndex(data);
     auto descriptor = Timer::OsTimerCallbackHandle::sigvalToDescriptor(data);
 
-    /// @todo cxx::expect
-    if (index >= Timer::OsTimerCallbackHandle::MAX_DESCRIPTOR_VALUE)
+    if (static_cast<uint32_t>(index) >= Timer::OsTimerCallbackHandle::MAX_DESCRIPTOR_VALUE)
     {
         ///@todo decide if to print a warning
         return;
@@ -80,35 +79,37 @@ void Timer::OsTimer::callbackHelper(sigval data)
                                 ? 0u
                                 : callbackHandle.m_cycle.fetch_add(1u, std::memory_order_relaxed) + 1u;
 
-    std::lock_guard<std::mutex> lock(callbackHandle.m_accessMutex);
-    if (callbackHandle.m_timer == nullptr)
+    if (callbackHandle.m_accessMutex.try_lock() == true)
     {
-        errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
-        return;
-    }
+        iox::cxx::GenericRAII lockGuard([] {}, [&callbackHandle] { callbackHandle.m_accessMutex.unlock(); });
 
-    if (!callbackHandle.m_inUse.load(std::memory_order::memory_order_relaxed))
-    {
-        if (callbackHandle.m_timerType == TimerType::HARD_TIMER)
+        if (callbackHandle.m_timer == nullptr)
         {
-            std::cerr << "callback runtime exceeded the periodic retrigger time of "
-                      << callbackHandle.m_timer->m_timeToWait << std::endl;
-            errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
+            errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
+            return;
         }
-        return;
-    }
 
-    if (descriptor != callbackHandle.m_descriptor.load(std::memory_order::memory_order_relaxed))
+        if (!callbackHandle.m_inUse.load(std::memory_order::memory_order_relaxed))
+        {
+            return;
+        }
+
+        if (descriptor != callbackHandle.m_descriptor.load(std::memory_order::memory_order_relaxed))
+        {
+            return;
+        }
+
+        if (!callbackHandle.m_isTimerActive.load(std::memory_order::memory_order_relaxed))
+        {
+            return;
+        }
+
+        callbackHandle.m_timer->executeCallback(currentCycle);
+    }
+    else if (callbackHandle.m_timerType == TimerType::HARD_TIMER)
     {
-        return;
+        errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
     }
-
-    if (!callbackHandle.m_isTimerActive.load(std::memory_order::memory_order_relaxed))
-    {
-        return;
-    }
-
-    callbackHandle.m_timer->executeCallback(currentCycle);
 }
 
 Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
@@ -270,7 +271,10 @@ cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const Tim
         return createErrorFromErrno(result.getErrNum());
     }
 
-    OsTimer::s_callbackHandlePool[m_callbackHandleIndex].m_isTimerActive.store(true, std::memory_order_relaxed);
+    auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
+
+    handle.m_timerType = timerType;
+    handle.m_isTimerActive.store(true, std::memory_order_relaxed);
 
     return cxx::success<void>();
 }
