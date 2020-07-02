@@ -100,11 +100,11 @@ class Timer
     struct OsTimerCallbackHandle
     {
         static constexpr uint32_t MAX_DESCRIPTOR_VALUE{(1u << 24u) - 1u};
-        static sigval indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor);
-        static uint8_t sigvalToIndex(sigval intVal);
-        static uint32_t sigvalToDescriptor(sigval intVal);
+        static sigval indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor) noexcept;
+        static uint8_t sigvalToIndex(sigval intVal) noexcept;
+        static uint32_t sigvalToDescriptor(sigval intVal) noexcept;
 
-        void incrementDescriptor();
+        void incrementDescriptor() noexcept;
 
         std::mutex m_accessMutex;
 
@@ -115,8 +115,7 @@ class Timer
         std::atomic<bool> m_inUse{false};
         std::atomic<bool> m_isTimerActive{false};
         std::atomic<uint64_t> m_cycle{0u};
-        TimerType m_timerType{TimerType::SOFT_TIMER};
-
+        TimerType m_timerType{TimerType::HARD_TIMER};
         OsTimer* m_timer{nullptr};
     };
 

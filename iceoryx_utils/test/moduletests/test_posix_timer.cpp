@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
 #include "test.hpp"
@@ -406,3 +407,102 @@ TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
     ASSERT_THAT(call.has_error(), Eq(true));
     EXPECT_THAT(call.get_error(), Eq(TimerError::TIMER_NOT_INITIALIZED));
 }
+
+TIMING_TEST_F(Timer_test, SoftTimerContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
+    std::atomic_bool hasTerminated{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+
+    Timer sut(TIMEOUT,
+              [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10));
+    TIMING_TEST_EXPECT_FALSE(hasTerminated);
+});
+
+TIMING_TEST_F(Timer_test, HardTimerTerminatesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
+    std::atomic_bool hasTerminated{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+
+    Timer sut(TIMEOUT,
+              [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::HARD_TIMER);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10));
+    TIMING_TEST_EXPECT_TRUE(hasTerminated);
+});
+
+TIMING_TEST_F(Timer_test, SoftToHardTimerChangesBehaviorToTerminate, Repeat(5), [&] {
+    std::atomic_bool hasTerminated{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+
+    Timer sut(TIMEOUT,
+              [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10));
+    sut.restart(TIMEOUT, Timer::RunMode::PERIODIC, Timer::TimerType::HARD_TIMER);
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10));
+
+    TIMING_TEST_EXPECT_TRUE(hasTerminated);
+});
+
+TIMING_TEST_F(Timer_test, SoftTimerSkipsCallbackWhenStillRunning, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(TIMEOUT, [&] {
+        ++counter;
+        // wait slightly longer then the timeout so that the effect is better measurable
+        std::this_thread::sleep_for(std::chrono::microseconds(TIMEOUT.milliSeconds<int>() * 1100));
+    });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 100));
+    // every second callback is skipped since the runtime is slightly longer therefore
+    // the counter must be in that range
+    TIMING_TEST_EXPECT_TRUE(50 <= counter <= 70);
+});
+
+TIMING_TEST_F(Timer_test, ASAPTimerCallsCallbackImmediatelyAfterFinishing, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(TIMEOUT, [&] {
+        ++counter;
+        // wait slightly longer then the timeout so that the effect is better measurable
+        std::this_thread::sleep_for(std::chrono::microseconds(TIMEOUT.milliSeconds<int>() * 1100));
+    });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::ASAP_TIMER);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 100));
+    // the asap timer should in theory call the callback 90 times since it is calling it right
+    // after the last one finished and one callback takes 1.1 ms and we run for 100ms.
+    TIMING_TEST_EXPECT_TRUE(80 <= counter <= 100);
+});
+
+TIMING_TEST_F(Timer_test, SoftTimerCallsLessCallbacksThanASAPTimer, Repeat(5), [&] {
+    std::atomic_int counter{0};
+    Timer sut(TIMEOUT, [&] {
+        ++counter;
+        // wait slightly longer then the timeout so that the effect is better measurable
+        std::this_thread::sleep_for(std::chrono::microseconds(TIMEOUT.milliSeconds<int>() * 1100));
+    });
+
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::SOFT_TIMER);
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 100));
+    int softTimerCounter = counter.load();
+    sut.stop();
+
+    counter.store(0);
+    sut.start(Timer::RunMode::PERIODIC, Timer::TimerType::ASAP_TIMER);
+    std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 100));
+    int asapTimerCounter = counter.load();
+    sut.stop();
+
+    TIMING_TEST_EXPECT_TRUE(softTimerCounter < asapTimerCounter);
+});
+
