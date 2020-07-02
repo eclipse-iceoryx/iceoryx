@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-REVISION="current"
+REVISION="latest"
 IMAGE_NAME="iceoryx:${REVISION}"
 CONTAINER_NAME=roudi
 ICEORYX_BUILD=/iceoryx/build

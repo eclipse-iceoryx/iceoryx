@@ -26,6 +26,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# ======================================================================================================================== #
+
 FROM ubuntu:bionic as builder
 ARG REVISION
 ARG B_ICEORYX_BUILD
@@ -39,8 +41,6 @@ RUN apt update && apt install -y \
         libacl1-dev \
         libncurses5-dev \
         pkg-config \
-        screen \
-        fish \
         git \
         wget
 
@@ -86,6 +86,9 @@ RUN apt update && apt install -y \
         fish 
 
 COPY --from=builder /iceoryx/build/install/prefix/lib/lib* /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /iceoryx/build/dependencies/install/lib/lib* /usr/lib/x86_64-linux-gnu/
 COPY --from=builder /iceoryx/build/install/prefix/bin/* /usr/bin/
 COPY --from=builder /iceoryx/build/install/prefix/etc/* /etc/
 COPY --from=builder /iceoryx/tools/docker/.screenrc /root
+
+ENTRYPOINT ["/usr/bin/RouDi"]
