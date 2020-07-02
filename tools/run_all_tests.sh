@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ do
     esac
 done 
 
-#check if this script is sourced by another script,
+# check if this script is sourced by another script,
 # if yes then exit properly, so the other script can use this
 # scripts definitions
 [[ "${#BASH_SOURCE[@]}" -gt "1" ]] && { return 0; }
