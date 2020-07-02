@@ -21,6 +21,7 @@ namespace iox
 {
 namespace popo
 {
+/// @brief ConditionVariableSignaler can notifiy waiting threads and processes using a shared memory condition variable
 class ConditionVariableSignaler
 {
   public:

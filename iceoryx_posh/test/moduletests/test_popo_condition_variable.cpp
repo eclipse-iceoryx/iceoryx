@@ -19,6 +19,7 @@
 #include "test.hpp"
 #include <memory>
 #include <thread>
+#include <atomic>
 
 using namespace ::testing;
 using ::testing::Return;
@@ -96,7 +97,7 @@ TEST_F(ConditionVariable_test, ResetResultsInBlockingWaitMultiThreaded)
 {
     std::atomic<int> counter{0};
     m_signaler.notifyOne();
-    EXPECT_TRUE(m_waiter.reset());
+    m_waiter.reset();
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         m_syncSemaphore.post();
@@ -112,7 +113,7 @@ TEST_F(ConditionVariable_test, ResetResultsInBlockingWaitMultiThreaded)
 TEST_F(ConditionVariable_test, ResetWithoutNotifiyResultsInBlockingWaitMultiThreaded)
 {
     std::atomic<int> counter{0};
-    EXPECT_TRUE(m_waiter.reset());
+    m_waiter.reset();
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         m_syncSemaphore.post();

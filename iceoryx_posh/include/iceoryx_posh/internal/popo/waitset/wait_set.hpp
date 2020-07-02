@@ -46,12 +46,17 @@ class WaitSet
     void clear() noexcept;
 
     /// @brief Blocking wait with time limit till one or more of the condition become true
+    /// @param[in] timeout How long shall be waited for a signalling condition
+    /// @param[out] cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> vector of condition pointers that have become
+    /// fulfilled
     cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> timedWait(units::Duration timeout) noexcept;
 
     /// @brief Blocking wait till one or more of the condition become true
+    /// @param[out] cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> vector of condition pointers that have become
+    /// fulfilled
     cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> wait() noexcept;
 
-    /// @brief Returns a refernece to the GuardCondition
+    /// @brief Returns a reference to the GuardCondition
     GuardCondition& getGuardCondition() noexcept;
 
   private:

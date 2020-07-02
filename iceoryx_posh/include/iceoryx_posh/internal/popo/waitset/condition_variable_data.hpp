@@ -15,11 +15,8 @@
 #define IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_DATA_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
-
-#include <atomic>
 
 namespace iox
 {
@@ -27,12 +24,10 @@ namespace popo
 {
 struct ConditionVariableData
 {
-    ConditionVariableData(const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept
-        : m_memoryInfo(memoryInfo)
+    ConditionVariableData() noexcept
     {
     }
 
-    mepoo::MemoryInfo m_memoryInfo;
     posix::Semaphore m_semaphore =
         std::move(posix::Semaphore::create(0u)
                       .on_error([] { errorHandler(Error::kPOPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE); })

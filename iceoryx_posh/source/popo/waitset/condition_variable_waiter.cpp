@@ -24,7 +24,7 @@ ConditionVariableWaiter::ConditionVariableWaiter(cxx::not_null<ConditionVariable
 {
 }
 
-bool ConditionVariableWaiter::reset() noexcept
+void ConditionVariableWaiter::reset() noexcept
 {
     // Re-create the semaphore
     getMembers()->m_semaphore.~Semaphore();
@@ -34,7 +34,6 @@ bool ConditionVariableWaiter::reset() noexcept
                           iox::errorHandler(iox::Error::kPOPO__CONDITION_VARIABLE_WAITER_FAILED_TO_CREATE_SEMAPHORE);
                       })
                       .get_value());
-    return true;
 }
 
 void ConditionVariableWaiter::wait() noexcept

@@ -16,8 +16,6 @@
 
 #include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
 
-#include <atomic>
-
 namespace iox
 {
 namespace popo

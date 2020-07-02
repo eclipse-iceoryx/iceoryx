@@ -17,6 +17,8 @@
 #include "iceoryx_posh/internal/popo/waitset/condition.hpp"
 #include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
 
+#include <atomic>
+
 namespace iox
 {
 namespace popo
@@ -28,6 +30,7 @@ class GuardCondition : public Condition
   public:
     GuardCondition(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
+    /// @brief Wakes up a waiting WaitSet
     void notify() noexcept;
     bool hasTrigger() noexcept override;
     void resetTrigger() noexcept override;

@@ -79,9 +79,9 @@ WaitSet::waitAndReturnFulfilledConditions(bool enableTimeout, units::Duration ti
     {
         if (enableTimeout)
         {
-            auto retVal = m_conditionVariableWaiter.timedWait(timeout);
+            auto hasTimeOut = !m_conditionVariableWaiter.timedWait(timeout);
 
-            if (retVal == false)
+            if (hasTimeOut == true)
             {
                 // Return empty list
                 return conditionsWithFulfilledPredicate;

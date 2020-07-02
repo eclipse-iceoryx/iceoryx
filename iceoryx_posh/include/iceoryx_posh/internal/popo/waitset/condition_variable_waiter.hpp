@@ -22,13 +22,14 @@ namespace iox
 {
 namespace popo
 {
+/// @brief ConditionVariableWaiter allows one to wait using a shared memory condition variable
 class ConditionVariableWaiter
 {
   public:
     ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
     /// @brief Reinitialises the condition variable
-    bool reset() noexcept;
+    void reset() noexcept;
     /// @brief Waits until notify is called on the ConditionVariableSignaler or time has run out
     bool timedWait(units::Duration timeToWait) noexcept;
     /// @brief Waits until notify is called on the ConditionVariableSignaler
