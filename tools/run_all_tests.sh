@@ -16,9 +16,9 @@
 
 # This file runs all tests for Ice0ryx
 
-component_folder="utils posh dds_gateway"
-
+COMPONENTS="utils posh dds_gateway"
 GTEST_FILTER="*"
+BASE_DIR=$PWD
 
 for arg in "$@"
 do 
@@ -49,29 +49,26 @@ done
 # scripts definitions
 [[ "${#BASH_SOURCE[@]}" -gt "1" ]] && { return 0; }
 
-if [ -z "$TEST_RESULT_FOLDER" ]
+if [ -z "$TEST_RESULTS_DIR" ]
 then
-    TEST_RESULT_FOLDER="$(pwd)/testresults"
+    TEST_RESULTS_DIR="$(pwd)/testresults"
 fi
 
-mkdir -p "$TEST_RESULT_FOLDER"
+mkdir -p "$TEST_RESULTS_DIR"
 
 echo ">>>>>> Running Ice0ryx Tests <<<<<<"
 
 set -e
 
-BASE_DIRECTORY=$PWD
-
-for folder in $component_folder; do
+for COMPONENT in $COMPONENTS; do
     echo ""
-    echo "######################## processing moduletests & componenttests in $folder ########################"
-    echo $PWD
+    echo "######################## executing moduletests & componenttests for $COMPONENT ########################"
+    cd $BASE_DIR/$COMPONENT/test
 
-    cd $BASE_DIRECTORY/$folder/test
-
-    ./"$folder"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ModuleTestResults.xml"
-    ./"$folder"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ComponenttestTestResults.xml"
-    ./"$folder"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_IntegrationTestResults.xml"
+    # Runs only tests available for the given component
+    [ -f ./"$COMPONENT"_moduletests ]      && ./"$COMPONENT"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ModuleTestResults.xml"
+    [ -f ./"$COMPONENT"_componenttests ]   && ./"$COMPONENT"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ComponenttestTestResults.xml"
+    [ -f ./"$COMPONENT"_integrationtests ] && ./"$COMPONENT"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_IntegrationTestResults.xml"
 
 done
 

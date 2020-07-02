@@ -62,7 +62,7 @@ while (( "$#" )); do
         INTROSPECTION_FLAG="off"
         shift 1
         ;;
-    "skip-dds")
+    "skip-dds-gateway")
         DDS_GATEWAY_FLAG="on"
         CYCLONEDDS_FLAG="on"
         shift 1
@@ -82,7 +82,7 @@ while (( "$#" )); do
         echo "    test                  Builds and runs the tests"
         echo "    build-test            Builds the tests (doesn't tun)"
         echo "    skip-introspection    Skips building iceoryx introspection"
-        echo "    skip-dds              Skips building iceoryx dds gateway"
+        echo "    skip-dds-gateway      Skips building iceoryx dds gateway"
         echo "    help                  Prints this help"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test release"
@@ -133,16 +133,16 @@ cmake --build . --target install -j$NUM_CORES
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
 echo ">>>>>> Start building iceoryx examples <<<<<<"
-cd $WORKSPACE/build
+cd $BUILD_DIR
 mkdir -p iceoryx_examples
 echo ">>>>>>>> icedelivery"
-cd $WORKSPACE/build/iceoryx_examples
+cd $BUILD_DIR/iceoryx_examples
 mkdir -p icedelivery
 cd icedelivery
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
 cmake --build . -j$NUM_CORES
 echo ">>>>>>>> iceperf"
-cd $WORKSPACE/build/iceoryx_examples
+cd $BUILD_DIR/iceoryx_examples
 mkdir -p iceperf
 cd iceperf
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
@@ -161,23 +161,23 @@ cd $BUILD_DIR
 mkdir -p tools
 cp $WORKSPACE/tools/run_all_tests.sh $BUILD_DIR/tools/run_all_tests.sh
 
-echo " [i] Running all Tests:"
+echo " [i] Running all tests"
 $BUILD_DIR/tools/run_all_tests.sh
 
-for folder in $component_folder; do
+for COMPONENT in $COMPONENTS; do
 
-    if [ ! -f testresults/"$folder"_ModuleTestResults.xml ]; then
-        echo "xml:"$folder"_ModuletestTestResults.xml not found!"
+    if [ ! -f testresults/"$COMPONENT"_ModuleTestResults.xml ]; then
+        echo "xml:"$COMPONENT"_ModuletestTestResults.xml not found!"
         exit 1
     fi
 
-    if [ ! -f testresults/"$folder"_ComponenttestTestResults.xml ]; then
-        echo "xml:"$folder"_ComponenttestTestResults.xml not found!"
+    if [ ! -f testresults/"$COMPONENT"_ComponenttestTestResults.xml ]; then
+        echo "xml:"$COMPONENT"_ComponenttestTestResults.xml not found!"
         exit 1
     fi
 
-    if [ ! -f testresults/"$folder"_IntegrationTestResults.xml ]; then
-        echo "xml:"$folder"_IntegrationTestResults.xml not found!"
+    if [ ! -f testresults/"$COMPONENT"_IntegrationTestResults.xml ]; then
+        echo "xml:"$COMPONENT"_IntegrationTestResults.xml not found!"
         exit 1
     fi
 
