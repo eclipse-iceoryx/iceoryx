@@ -250,9 +250,9 @@ class Timer
     ///
     /// The callback is called by the operating system after the time has expired.
     ///
-    /// @param[in] periodic - can be a periodic timer if set to true, default false
+    /// @param[in] runMode for continuous callbacks PERIODIC otherwise ONCE
+    /// @param[in] TimerType selects the timer behavior
     /// @note Shall only be called when callback is given
-    /// @todo replace bool with enum; SingleShot and Periodic
     cxx::expected<TimerError> start(const RunMode runMode, const TimerType timerType) noexcept;
 
     /// @brief Disarms the timer
@@ -261,6 +261,9 @@ class Timer
     cxx::expected<TimerError> stop() noexcept;
 
     /// @brief Disarms the timer, assigns a new timeToWait value and arms the timer
+    /// @param[in] timeToWait duration till the callback should be called
+    /// @param[in] runMode for continuous callbacks PERIODIC otherwise ONCE
+    /// @param[in] TimerType selects the timer behavior
     /// @note Shall only be called when callback is given
     cxx::expected<TimerError>
     restart(const units::Duration timeToWait, const RunMode runMode, const TimerType timerType) noexcept;
