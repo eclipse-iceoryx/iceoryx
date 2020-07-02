@@ -27,15 +27,11 @@ class Condition
   public:
     Condition() = default;
 
-    /// @return Always false
-    virtual bool hasTrigger() noexcept;
-    virtual void resetTrigger() noexcept;
-    /// @return Always false
-    virtual bool isConditionVariableAttached() noexcept;
-    /// @return Always false
-    virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept;
-    /// @return Always false
-    virtual bool detachConditionVariable() noexcept;
+    virtual bool hasTrigger() noexcept = 0;
+    virtual void resetTrigger() noexcept = 0;
+    virtual bool isConditionVariableAttached() noexcept = 0;
+    virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept = 0;
+    virtual bool detachConditionVariable() noexcept = 0;
 };
 
 } // namespace popo

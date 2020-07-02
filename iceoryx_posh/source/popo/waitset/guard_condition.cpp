@@ -40,5 +40,20 @@ void GuardCondition::resetTrigger() noexcept
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
+bool GuardCondition::isConditionVariableAttached() noexcept
+{
+    return true;
+}
+
+bool GuardCondition::attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept
+{
+    return false;
+}
+
+bool GuardCondition::detachConditionVariable() noexcept
+{
+    return false;
+}
+
 } // namespace popo
 } // namespace iox

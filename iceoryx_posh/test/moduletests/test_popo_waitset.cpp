@@ -128,7 +128,7 @@ TEST_F(WaitSet_test, AttachTooManyConditionsResultsInFailure)
         m_sut.attachCondition(currentSubscriber);
     }
 
-    Condition extraCondition;
+    MockSubscriber extraCondition;
     EXPECT_FALSE(m_sut.attachCondition(extraCondition));
 }
 

@@ -34,6 +34,12 @@ class GuardCondition : public Condition
     void notify() noexcept;
     bool hasTrigger() noexcept override;
     void resetTrigger() noexcept override;
+    /// @return Always true on purpose
+    bool isConditionVariableAttached() noexcept override;
+    /// @return Always false on purpose
+    bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept override;
+    /// @return Always false on purpose
+    bool detachConditionVariable() noexcept override;
 
   private:
     ConditionVariableSignaler m_conditionVariableSignaler;
