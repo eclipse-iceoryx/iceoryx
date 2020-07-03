@@ -7,7 +7,7 @@ print_usage () {
         echo "Usage: $0"
 }
 
-CONTAINER_NAME=roudi
+CONTAINER_NAME=RouDi
 
 if [ ! $(docker inspect -f '{{.State.Running}}' $CONTAINER_NAME 2> /dev/null) ]
 then

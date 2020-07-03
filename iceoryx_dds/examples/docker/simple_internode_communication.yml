@@ -3,17 +3,17 @@ services:
   ice-publisher-gateway:
     build:
       context: .
-      dockerfile: ice-publisher-gateway.dockerfile
+      dockerfile: ice_publisher_gateway.dockerfile
     shm_size: '700M'
-    image: iceoryx-publisher:latest
+    image: iceoryx-publisher-gateway:latest
     networks: 
       - iceoryx-gateway
   ice-subscriber-gateway:
     build:
       context: .
-      dockerfile: ice-subscriber-gateway.dockerfile
+      dockerfile: ice_subscriber_gateway.dockerfile
     shm_size: '700M'
-    image: ice-subscriber:latest
+    image: iceoryx-subscriber-gateway:latest
     networks: 
       - iceoryx-gateway
 networks:
