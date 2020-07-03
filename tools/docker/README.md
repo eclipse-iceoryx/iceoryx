@@ -4,11 +4,9 @@ This directory contains files related to building and running [Eclipse iceoryx](
 
 # Building the iceoryx Docker Image
 
-To create and run a Docker image with the built iceoryx libraries and examples from your current sources, run the following script from the root of the repositoryx: `./tools/docker/build_and_run.sh`. Alternatively, the script can also be run from `./tools/docker`.
+To create a Docker image with the built iceoryx libraries and examples from your current sources, run the following script from the root of the repository: `./tools/docker/build_roudi_docker.sh`.
 
-For the rest of this text, for brevity, we assume `./tools/docker` is the current directory.
-
-After the Docker image is built and tagged, a corresponding container is immediately launched and RouDi is automatically started. You can then connect additional shell sessions to the container to run any other applications you wish.
+After the Docker image is built, you can run it in interactive mode then use one of the below options to connect to it and run the example applications.
 
 # Running an iceoryx Docker container
 

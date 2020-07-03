@@ -79,7 +79,7 @@ RUN ./tools/iceoryx_build_test.sh
 
 # ======================================================================================================================== #
 
-FROM ubuntu:bionic as base
+FROM ubuntu:bionic as roudi
 
 RUN apt update && apt install -y \
         screen \

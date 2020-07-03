@@ -17,16 +17,9 @@ set -euo pipefail
 
 REVISION="latest"
 IMAGE_NAME="iceoryx:${REVISION}"
-CONTAINER_NAME=roudi
 ICEORYX_BUILD=/iceoryx/build
 DOCKERFILE_DIR="$(dirname "$(readlink -n "$0")")"
 ICEORYX_SRC="$(dirname "$(dirname "${DOCKERFILE_DIR}")")"
-LAUNCH_FLAGS=(\
-	-it \
-	--rm \
-	--shm-size 700M \
-)
 
 cd "${ICEORYX_SRC}"
 docker build -f "${DOCKERFILE_DIR}/Dockerfile" --build-arg B_ICEORYX_BUILD="${ICEORYX_BUILD}" --build-arg REVISION="${REVISION}" . -t "${IMAGE_NAME}"
-docker run "${LAUNCH_FLAGS[@]}" --name="${CONTAINER_NAME}" "${IMAGE_NAME}"

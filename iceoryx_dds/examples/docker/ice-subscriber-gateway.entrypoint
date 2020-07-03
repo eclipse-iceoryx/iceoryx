@@ -1,0 +1,15 @@
+#!/bin/bash
+
+mkdir -p /etc/iceoryx
+
+cat <<EOF >> /etc/iceoryx/gateway_config.toml
+[[services]]
+service = "Radar"
+instance = "FrontRight"
+event = "Counter"
+size = 4
+EOF
+
+/usr/bin/RouDi &
+/usr/bin/gateway_dds2iceoryx &
+/usr/bin/ice-subscriber-simple
