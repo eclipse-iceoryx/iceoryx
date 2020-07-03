@@ -75,7 +75,7 @@ void Timer::OsTimer::callbackHelper(sigval data)
         return;
     }
 
-    uint64_t currentCycle = (callbackHandle.m_timerType == TimerType::SOFT_TIMER)
+    uint64_t currentCycle = (callbackHandle.m_catchUpPolicy == CatchUpPolicy::SKIP_TO_NEXT_BEAT)
                                 ? 0u
                                 : callbackHandle.m_cycle.fetch_add(1u, std::memory_order_relaxed) + 1u;
 
@@ -113,7 +113,7 @@ void Timer::OsTimer::callbackHelper(sigval data)
 
             callbackHandle.m_timer->executeCallback(currentCycle);
         }
-        else if (callbackHandle.m_timerType == TimerType::HARD_TIMER)
+        else if (callbackHandle.m_catchUpPolicy == CatchUpPolicy::TERMINATE)
         {
             errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
         }
@@ -237,7 +237,7 @@ void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
         // interrupted thread then wins and acquires the lock the currentCycle is
         // smaller then m_callbackExecutionCycle since the callback was already called by
         // the previous thread
-        if (handle.m_timerType == TimerType::ASAP_TIMER
+        if (handle.m_catchUpPolicy == CatchUpPolicy::IMMEDIATE
             && currentCycle <= handle.m_callbackExecutionCycle.load(std::memory_order_relaxed))
         {
             return;
@@ -270,7 +270,7 @@ void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
     }
 }
 
-cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const TimerType timerType) noexcept
+cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept
 {
     // Convert units::Duration to itimerspec
     struct itimerspec interval;
@@ -297,7 +297,7 @@ cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const Tim
 
     auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
 
-    handle.m_timerType = timerType;
+    handle.m_catchUpPolicy = catchUpPolicy;
     handle.m_cycle.store(0u, std::memory_order_relaxed);
     handle.m_callbackExecutionCycle.store(0u, std::memory_order_relaxed);
     handle.m_isTimerActive.store(true, std::memory_order_relaxed);
@@ -336,8 +336,9 @@ cxx::expected<TimerError> Timer::OsTimer::stop() noexcept
     return cxx::success<void>();
 }
 
-cxx::expected<TimerError>
-Timer::OsTimer::restart(const units::Duration timeToWait, const RunMode runMode, const TimerType timerType) noexcept
+cxx::expected<TimerError> Timer::OsTimer::restart(const units::Duration timeToWait,
+                                                  const RunMode runMode,
+                                                  const CatchUpPolicy catchUpPolicy) noexcept
 {
     // See if there is currently an active timer in the operating system and update m_isActive accordingly
     auto gettimeResult = timeUntilExpiration();
@@ -362,7 +363,7 @@ Timer::OsTimer::restart(const units::Duration timeToWait, const RunMode runMode,
     }
 
     // Activate the timer with the new timeToWait value
-    auto startResult = start(runMode, timerType);
+    auto startResult = start(runMode, catchUpPolicy);
 
     if (startResult.has_error())
     {
@@ -454,14 +455,14 @@ Timer::Timer(const units::Duration timeToWait, const std::function<void()>& call
     }
 }
 
-cxx::expected<TimerError> Timer::start(const RunMode runMode, const TimerType timerType) noexcept
+cxx::expected<TimerError> Timer::start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept
 {
     if (!m_osTimer.has_value())
     {
         return cxx::error<TimerError>(TimerError::TIMER_NOT_INITIALIZED);
     }
 
-    return m_osTimer->start(runMode, timerType);
+    return m_osTimer->start(runMode, catchUpPolicy);
 }
 
 cxx::expected<TimerError> Timer::stop() noexcept
@@ -475,7 +476,7 @@ cxx::expected<TimerError> Timer::stop() noexcept
 }
 
 cxx::expected<TimerError>
-Timer::restart(const units::Duration timeToWait, const RunMode runMode, const TimerType timerType) noexcept
+Timer::restart(const units::Duration timeToWait, const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept
 {
     if (timeToWait.nanoSeconds<uint64_t>() == 0u)
     {
@@ -487,7 +488,7 @@ Timer::restart(const units::Duration timeToWait, const RunMode runMode, const Ti
         return cxx::error<TimerError>(TimerError::TIMER_NOT_INITIALIZED);
     }
 
-    return m_osTimer->restart(timeToWait, runMode, timerType);
+    return m_osTimer->restart(timeToWait, runMode, catchUpPolicy);
 }
 
 cxx::expected<units::Duration, TimerError> Timer::timeUntilExpiration() noexcept
