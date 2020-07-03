@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+  ice-publisher-gateway:
+    build:
+      context: .
+      dockerfile: ice-publisher-gateway.dockerfile
+    shm_size: '700M'
+    image: iceoryx-publisher:latest
+    networks: 
+      - iceoryx-gateway
+  ice-subscriber-gateway:
+    build:
+      context: .
+      dockerfile: ice-subscriber-gateway.dockerfile
+    shm_size: '700M'
+    image: ice-subscriber:latest
+    networks: 
+      - iceoryx-gateway
+networks:
+  iceoryx-gateway:
+    driver: bridge
+    name: iceoryx-gateway
