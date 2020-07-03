@@ -79,36 +79,44 @@ void Timer::OsTimer::callbackHelper(sigval data)
                                 ? 0u
                                 : callbackHandle.m_cycle.fetch_add(1u, std::memory_order_relaxed) + 1u;
 
-    if (callbackHandle.m_accessMutex.try_lock() == true)
+    // without the loop it is possible that a previous thread is interrupted right
+    // after the executeCallback call at the end and the succeeding thread skips the
+    // callback call since it is unable to acquire the mutex with try_lock.
+    // therefore we would skip a callback. to avoid this we have to make sure
+    // the callback is called by checking the callbackExecutionCycle in a while loop
+    while (currentCycle <= callbackHandle.m_callbackExecutionCycle.load(std::memory_order_relaxed))
     {
-        iox::cxx::GenericRAII lockGuard([] {}, [&callbackHandle] { callbackHandle.m_accessMutex.unlock(); });
-
-        if (callbackHandle.m_timer == nullptr)
+        if (callbackHandle.m_accessMutex.try_lock() == true)
         {
-            errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
-            return;
-        }
+            iox::cxx::GenericRAII lockGuard([] {}, [&callbackHandle] { callbackHandle.m_accessMutex.unlock(); });
 
-        if (!callbackHandle.m_inUse.load(std::memory_order::memory_order_relaxed))
+            if (callbackHandle.m_timer == nullptr)
+            {
+                errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
+                return;
+            }
+
+            if (!callbackHandle.m_inUse.load(std::memory_order::memory_order_relaxed))
+            {
+                return;
+            }
+
+            if (descriptor != callbackHandle.m_descriptor.load(std::memory_order::memory_order_relaxed))
+            {
+                return;
+            }
+
+            if (!callbackHandle.m_isTimerActive.load(std::memory_order::memory_order_relaxed))
+            {
+                return;
+            }
+
+            callbackHandle.m_timer->executeCallback(currentCycle);
+        }
+        else if (callbackHandle.m_timerType == TimerType::HARD_TIMER)
         {
-            return;
+            errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
         }
-
-        if (descriptor != callbackHandle.m_descriptor.load(std::memory_order::memory_order_relaxed))
-        {
-            return;
-        }
-
-        if (!callbackHandle.m_isTimerActive.load(std::memory_order::memory_order_relaxed))
-        {
-            return;
-        }
-
-        callbackHandle.m_timer->executeCallback(currentCycle);
-    }
-    else if (callbackHandle.m_timerType == TimerType::HARD_TIMER)
-    {
-        errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
     }
 }
 
@@ -229,7 +237,8 @@ void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
         // interrupted thread then wins and acquires the lock the currentCycle is
         // smaller then m_callbackExecutionCycle since the callback was already called by
         // the previous thread
-        if (handle.m_timerType == TimerType::ASAP_TIMER && currentCycle <= handle.m_callbackExecutionCycle)
+        if (handle.m_timerType == TimerType::ASAP_TIMER
+            && currentCycle <= handle.m_callbackExecutionCycle.load(std::memory_order_relaxed))
         {
             return;
         }
@@ -248,7 +257,7 @@ void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
         do
         {
             m_callback();
-            handle.m_callbackExecutionCycle = nextCycle;
+            handle.m_callbackExecutionCycle.store(nextCycle, std::memory_order_relaxed);
         } while (handle.m_isTimerActive.load(std::memory_order_relaxed)
                  && !handle.m_cycle.compare_exchange_strong(
                      nextCycle, nextCycle, std::memory_order_relaxed, std::memory_order_relaxed));
@@ -290,7 +299,7 @@ cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const Tim
 
     handle.m_timerType = timerType;
     handle.m_cycle.store(0u, std::memory_order_relaxed);
-    handle.m_callbackExecutionCycle = 0u;
+    handle.m_callbackExecutionCycle.store(0u, std::memory_order_relaxed);
     handle.m_isTimerActive.store(true, std::memory_order_relaxed);
 
     return cxx::success<void>();
