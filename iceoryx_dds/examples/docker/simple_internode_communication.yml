@@ -7,7 +7,7 @@ services:
     shm_size: '300M'
     image: iceoryx-publisher-gateway:latest
     networks: 
-      - iceoryx-gateway
+      - iceoryx-dds
   ice-subscriber-gateway:
     build:
       context: .
@@ -15,8 +15,8 @@ services:
     shm_size: '300M'
     image: iceoryx-subscriber-gateway:latest
     networks: 
-      - iceoryx-gateway
+      - iceoryx-dds
 networks:
-  iceoryx-gateway:
+  iceoryx-dds:
     driver: bridge
-    name: iceoryx-gateway
+    name: iceoryx-dds
