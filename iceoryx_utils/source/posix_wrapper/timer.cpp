@@ -84,39 +84,58 @@ void Timer::OsTimer::callbackHelper(sigval data)
     // callback call since it is unable to acquire the mutex with try_lock.
     // therefore we would skip a callback. to avoid this we have to make sure
     // the callback is called by checking the callbackExecutionCycle in a while loop
-    while (currentCycle <= callbackHandle.m_callbackExecutionCycle.load(std::memory_order_relaxed))
+    if (callbackHandle.m_catchUpPolicy == CatchUpPolicy::IMMEDIATE)
     {
-        if (callbackHandle.m_accessMutex.try_lock() == true)
+        while (currentCycle >= callbackHandle.m_callbackExecutionCycle.load(std::memory_order_relaxed))
         {
-            iox::cxx::GenericRAII lockGuard([] {}, [&callbackHandle] { callbackHandle.m_accessMutex.unlock(); });
-
-            if (callbackHandle.m_timer == nullptr)
-            {
-                errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
-                return;
-            }
-
-            if (!callbackHandle.m_inUse.load(std::memory_order::memory_order_relaxed))
-            {
-                return;
-            }
-
             if (descriptor != callbackHandle.m_descriptor.load(std::memory_order::memory_order_relaxed))
             {
                 return;
             }
 
-            if (!callbackHandle.m_isTimerActive.load(std::memory_order::memory_order_relaxed))
-            {
-                return;
-            }
+            verifyAndExecuteCallback(callbackHandle, descriptor, currentCycle);
+        }
+    }
+    else
+    {
+        verifyAndExecuteCallback(callbackHandle, descriptor, currentCycle);
+    }
+}
 
-            callbackHandle.m_timer->executeCallback(currentCycle);
-        }
-        else if (callbackHandle.m_catchUpPolicy == CatchUpPolicy::TERMINATE)
+void Timer::OsTimer::verifyAndExecuteCallback(OsTimerCallbackHandle& handle,
+                                              const uint32_t descriptor,
+                                              const uint64_t currentCycle) noexcept
+{
+    if (handle.m_accessMutex.try_lock() == true)
+    {
+        iox::cxx::GenericRAII lockGuard([] {}, [&handle] { handle.m_accessMutex.unlock(); });
+
+        if (handle.m_timer == nullptr)
         {
-            errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
+            errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
+            return;
         }
+
+        if (!handle.m_inUse.load(std::memory_order::memory_order_relaxed))
+        {
+            return;
+        }
+
+        if (descriptor != handle.m_descriptor.load(std::memory_order::memory_order_relaxed))
+        {
+            return;
+        }
+
+        if (!handle.m_isTimerActive.load(std::memory_order::memory_order_relaxed))
+        {
+            return;
+        }
+
+        handle.m_timer->executeCallback(currentCycle);
+    }
+    else if (handle.m_catchUpPolicy == CatchUpPolicy::TERMINATE)
+    {
+        errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
     }
 }
 

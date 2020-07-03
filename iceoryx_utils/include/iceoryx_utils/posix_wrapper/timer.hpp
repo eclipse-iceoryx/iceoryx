@@ -185,6 +185,9 @@ class Timer
         /// @brief Call the user-defined callback
         /// @note This call is wrapped in a plain C function
         void executeCallback(const uint64_t currentCycle) noexcept;
+        static void verifyAndExecuteCallback(OsTimerCallbackHandle& handle,
+                                             const uint32_t descriptor,
+                                             const uint64_t currentCycle) noexcept;
 
 
       private:
