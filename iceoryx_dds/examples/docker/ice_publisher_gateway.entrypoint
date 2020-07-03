@@ -1,4 +1,4 @@
 #!/bin/bash
-/usr/bin/RouDi &
-/usr/bin/gateway_iceoryx2dds &
+/usr/bin/RouDi 
+/usr/bin/gateway_iceoryx2dds 
 /usr/bin/ice-publisher-simple

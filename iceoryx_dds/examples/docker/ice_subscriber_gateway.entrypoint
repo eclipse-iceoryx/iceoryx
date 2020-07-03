@@ -10,6 +10,6 @@ event = "Counter"
 size = 4
 EOF
 
-/usr/bin/RouDi &
-/usr/bin/gateway_dds2iceoryx &
+/usr/bin/RouDi
+/usr/bin/gateway_dds2iceoryx
 /usr/bin/ice-subscriber-simple

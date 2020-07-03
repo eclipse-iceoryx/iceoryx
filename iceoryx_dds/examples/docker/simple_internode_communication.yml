@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: ice_publisher_gateway.dockerfile
-    shm_size: '700M'
+    shm_size: '300M'
     image: iceoryx-publisher-gateway:latest
     networks: 
       - iceoryx-gateway
@@ -12,7 +12,7 @@ services:
     build:
       context: .
       dockerfile: ice_subscriber_gateway.dockerfile
-    shm_size: '700M'
+    shm_size: '300M'
     image: iceoryx-subscriber-gateway:latest
     networks: 
       - iceoryx-gateway
