@@ -20,6 +20,8 @@ namespace iox
 {
 namespace cxx
 {
+constexpr char FileReader::PATH_SEPARATOR[];
+
 FileReader::FileReader(const std::string& f_fileName, const std::string& f_filePath, ErrorMode f_errorMode)
     : m_errorMode{f_errorMode}
 {
