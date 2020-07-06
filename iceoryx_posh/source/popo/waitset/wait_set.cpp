@@ -58,7 +58,7 @@ void WaitSet::clear() noexcept
 }
 
 cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS>
-WaitSet::waitAndReturnFulfilledConditions(bool enableTimeout, units::Duration timeout) noexcept
+WaitSet::waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout) noexcept
 {
     cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> conditionsWithFulfilledPredicate;
 
@@ -77,9 +77,9 @@ WaitSet::waitAndReturnFulfilledConditions(bool enableTimeout, units::Duration ti
 
     if (conditionsWithFulfilledPredicate.empty())
     {
-        if (enableTimeout)
+        if (timeout.has_value())
         {
-            auto hasTimeOut = !m_conditionVariableWaiter.timedWait(timeout);
+            auto hasTimeOut = !m_conditionVariableWaiter.timedWait(timeout.value());
 
             if (hasTimeOut == true)
             {
@@ -108,14 +108,12 @@ WaitSet::waitAndReturnFulfilledConditions(bool enableTimeout, units::Duration ti
 
 cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> WaitSet::timedWait(units::Duration timeout) noexcept
 {
-    bool enableTimeout{true};
-    return waitAndReturnFulfilledConditions(enableTimeout, timeout);
+    return waitAndReturnFulfilledConditions(cxx::make_optional<units::Duration>(timeout));
 }
 
 cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept
 {
-    bool disableTimeout{false};
-    return waitAndReturnFulfilledConditions(disableTimeout);
+    return waitAndReturnFulfilledConditions(cxx::nullopt);
 }
 
 GuardCondition& WaitSet::getGuardCondition() noexcept

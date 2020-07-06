@@ -61,7 +61,7 @@ class WaitSet
 
   private:
     cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS>
-    waitAndReturnFulfilledConditions(bool enableTimeout, units::Duration timeout = 0_ms) noexcept;
+    waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout = cxx::nullopt) noexcept;
 
     cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> m_conditionVector;
     ConditionVariableData* m_conditionVariableDataPtr;
