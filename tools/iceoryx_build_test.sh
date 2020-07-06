@@ -29,6 +29,7 @@ ICEORYX_INSTALL_PREFIX=$WORKSPACE/build/install/prefix/
 
 CLEAN_BUILD=false
 BUILD_TYPE=""
+STRICT_FLAG="off"
 TEST_FLAG="off"
 RUN_TEST=false
 INTROSPECTION_FLAG="on"
@@ -45,6 +46,9 @@ do
         "debug")
             BUILD_TYPE="Debug"
             ;;
+        "strict")
+            STRICT_FLAG="on"
+            ;;
         "test")
             RUN_TEST=true
             TEST_FLAG="on"
@@ -52,7 +56,7 @@ do
         "build-test")
             RUN_TEST=false
             TEST_FLAG="on"
-            ;;            
+            ;;
         "skip-introspection")
             INTROSPECTION_FLAG="off"
             ;;
@@ -65,6 +69,7 @@ do
             echo "    clean                 Cleans the build directory"
             echo "    release               Build release configuration"
             echo "    debug                 Build debug configuration"
+            echo "    strict                Build is performed with '-Werror'"
             echo "    test                  Builds and runs the tests"
             echo "    build-test            Builds the tests (doesn't tun)"
             echo "    skip-introspection    Skips building iceoryx introspection"
@@ -102,7 +107,7 @@ echo " [i] Current working directory:"
 pwd
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install
 echo ">>>>>> finished building iceoryx package <<<<<<"
 

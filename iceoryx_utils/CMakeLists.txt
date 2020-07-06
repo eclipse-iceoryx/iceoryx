@@ -89,6 +89,8 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
         ${CMAKE_DL_LIBS}
     )
 
+    target_compile_options(iceoryx_utils_testing PRIVATE ${ICEORYX_WARNINGS})
+
     if(LINUX)
         target_link_libraries(iceoryx_utils_testing PRIVATE rt)
     endif()
@@ -194,6 +196,8 @@ set_target_properties(iceoryx_platform PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
+target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS})
+
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
         iceoryx_utils PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
@@ -202,6 +206,8 @@ endif(PERFORM_CLANG_TIDY)
 
 
 target_link_libraries(iceoryx_utils PUBLIC iceoryx_utils::iceoryx_platform)
+
+target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS})
 
 # TODO: Make ICEORYX::UTILS private???
 target_include_directories(iceoryx_utils

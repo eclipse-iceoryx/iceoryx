@@ -9,6 +9,7 @@ find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
 include(IceoryxPackageHelper)
+include(IceoryxPlatformDetection)
 
 #
 ########## set variables for library export ##########
@@ -68,6 +69,8 @@ if(USE_CYCLONE_DDS)
     )
 endif()
 
+target_compile_options(iceoryx_dds PRIVATE ${ICEORYX_WARNINGS})
+
 #
 ########## build gateway apps ##########
 #
@@ -79,6 +82,8 @@ target_link_libraries(gateway_iceoryx2dds
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
 
+target_compile_options(gateway_iceoryx2dds PRIVATE ${ICEORYX_WARNINGS})
+
 add_executable(gateway_dds2iceoryx
     source/dds2iceoryx_app/main.cpp
 )
@@ -86,6 +91,8 @@ target_link_libraries(gateway_dds2iceoryx
     iceoryx_posh::iceoryx_posh
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
+
+target_compile_options(gateway_dds2iceoryx PRIVATE ${ICEORYX_WARNINGS})
 
 #
 ########## build test executables ##########

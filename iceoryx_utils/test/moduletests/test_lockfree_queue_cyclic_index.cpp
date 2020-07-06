@@ -170,11 +170,8 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, selfAssignmentWorks)
     const auto c = Index::MAX_CYCLE / 2;
 
     Index index(i, c);
-/// we are testing self assignment
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
-    index = index;
-#pragma GCC diagnostic pop
+    // this construct is used to prevent a self-assign warning
+    [](Index& a, Index& b) { a = b; }(index, index);
 
     EXPECT_EQ(index.getIndex(), i);
     EXPECT_EQ(index.getCycle(), c);

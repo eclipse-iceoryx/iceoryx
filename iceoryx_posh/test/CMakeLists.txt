@@ -33,20 +33,20 @@ set(TEST_LINK_LIBS
 
 if(LINUX)
     set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl )
-    set(TEST_CXX_FLAGS PRIVATE -Wno-pedantic -Wno-conversion)  # -Wpedantic results in errors at the time mocks
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-pedantic -Wno-conversion)  # -Wpedantic results in errors at the time mocks
 elseif(QNX)
-    set(TEST_CXX_FLAGS PRIVATE -Wno-pedantic -Wno-conversion)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-pedantic -Wno-conversion)
 elseif(APPLE)
-    set(TEST_CXX_FLAGS PRIVATE -Wno-pedantic -Wno-conversion)
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-pedantic -Wno-conversion)
 elseif(WIN32)
-    set(TEST_CXX_FLAGS )
+    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
 endif()
 
 # unittests
 add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
 target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
 # TODO: fix conversion warnings
-target_compile_options(${PROJECT_PREFIX}_moduletests PUBLIC ${TEST_CXX_FLAGS})
+target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
 set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES 
     CXX_STANDARD_REQUIRED ON
@@ -56,7 +56,7 @@ set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES
 
 # integration tests
 add_executable( ${PROJECT_PREFIX}_integrationtests ${INTEGRATIONTESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
-target_compile_options(${PROJECT_PREFIX}_integrationtests PUBLIC ${TEST_CXX_FLAGS})
+target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${TEST_CXX_FLAGS})
 target_include_directories(${PROJECT_PREFIX}_integrationtests PRIVATE .)
 target_link_libraries(${PROJECT_PREFIX}_integrationtests ${TEST_LINK_LIBS})
 set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES 
@@ -67,7 +67,7 @@ set_target_properties(${PROJECT_PREFIX}_integrationtests PROPERTIES
 
 # component tests
 add_executable( ${PROJECT_PREFIX}_componenttests ${COMPONENTTESTS_SRC} ${TESTUTILS_SRC} ${MOCKS_SRC})
-target_compile_options(${PROJECT_PREFIX}_componenttests PUBLIC ${TEST_CXX_FLAGS}) 
+target_compile_options(${PROJECT_PREFIX}_componenttests PRIVATE ${TEST_CXX_FLAGS})
 target_include_directories(${PROJECT_PREFIX}_componenttests PRIVATE .)
 target_link_libraries(${PROJECT_PREFIX}_componenttests ${TEST_LINK_LIBS})
 set_target_properties(${PROJECT_PREFIX}_componenttests PROPERTIES 
