@@ -76,10 +76,10 @@ iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataRea
     }
 
     // Read up to the maximum number of samples that can fit in the buffer.
-    auto samples = m_impl.select().max_samples(maxSamples).state(::dds::sub::status::SampleState::not_read()).take();
+    auto samples = m_impl.select().max_samples(static_cast<uint32_t>(maxSamples)).state(::dds::sub::status::SampleState::not_read()).take();
 
     // Copy data into the provided buffer.
-    auto numSamplesBuffered = 0u;
+    uint64_t numSamplesBuffered = 0u;
     if (samples.length() > 0)
     {
         // Sample validation checks
@@ -92,7 +92,7 @@ iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataRea
         }
 
         // Do copy
-        uint8_t cursor = 0; // Tracks the position in the buffer to write next sample.
+        uint64_t cursor = 0; // Tracks the position in the buffer to write next sample.
         for (const auto& sample : samples)
         {
             auto bytes = sample.data().payload().data();
