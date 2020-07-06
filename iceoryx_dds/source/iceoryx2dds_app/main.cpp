@@ -60,7 +60,8 @@ int main(int argc, char* argv[])
     }
     else
     {
-        iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: " << iox::dds::TomlGatewayConfigParseErrorString[result.get_error()];
+        iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
+                            << iox::dds::TomlGatewayConfigParseErrorString[result.get_error()];
         iox::dds::LogWarn() << "[Main] Using default configuration.";
         iox::dds::GatewayConfig defaultConfig;
         defaultConfig.setDefaults();

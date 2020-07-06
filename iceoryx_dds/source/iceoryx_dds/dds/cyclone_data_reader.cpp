@@ -76,7 +76,10 @@ iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataRea
     }
 
     // Read up to the maximum number of samples that can fit in the buffer.
-    auto samples = m_impl.select().max_samples(static_cast<uint32_t>(maxSamples)).state(::dds::sub::status::SampleState::not_read()).take();
+    auto samples = m_impl.select()
+                       .max_samples(static_cast<uint32_t>(maxSamples))
+                       .state(::dds::sub::status::SampleState::not_read())
+                       .take();
 
     // Copy data into the provided buffer.
     uint64_t numSamplesBuffered = 0u;

@@ -21,7 +21,6 @@ namespace iox
 {
 namespace dds
 {
-
 ///
 /// @brief The CycloneContext manages cyclone configurations and singleton artifacts shared throughout an application.
 ///
