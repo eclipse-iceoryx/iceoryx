@@ -26,6 +26,7 @@ namespace iox
 {
 namespace dds
 {
+
 enum TomlGatewayConfigParseError
 {
     FILE_NOT_FOUND,
@@ -34,10 +35,15 @@ enum TomlGatewayConfigParseError
     INVALID_SERVICE_DESCRIPTION
 };
 
-static constexpr const char DEFAULT_CONFIG_FILE_PATH[] = "/etc/iceoryx/gateway_config.toml";
+constexpr int32_t MAX_ENUM_STRING_SIZE = 64;
+constexpr char TomlGatewayConfigParseErrorString[][MAX_ENUM_STRING_SIZE] = {"FILE_NOT_FOUND",
+                                                                             "INCOMPLETE_CONFIGURATION",
+                                                                             "INCOMPLETE_SERVICE_DESCRIPTION",
+                                                                             "INVALID_SERVICE_DESCRIPTION"};
 
 static constexpr const char REGEX_VALID_CHARACTERS[] = "^[a-zA-Z_][a-zA-Z0-9_]*$";
 
+static constexpr const char DEFAULT_CONFIG_FILE_PATH[] = "/etc/iceoryx/gateway_config.toml";
 static constexpr const char GATEWAY_CONFIG_SERVICE_TABLE_NAME[] = "services";
 static constexpr const char GATEWAY_CONFIG_SERVICE_NAME[] = "service";
 static constexpr const char GATEWAY_CONFIG_SERVICE_INSTANCE_NAME[] = "instance";

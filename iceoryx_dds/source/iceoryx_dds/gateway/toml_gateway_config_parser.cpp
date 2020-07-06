@@ -35,14 +35,13 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
         return iox::cxx::success<iox::dds::GatewayConfig>(config);
     }
 
-    LogInfo() << "[TomlGatewayConfigParser] Using gateway config at: " << path;
+    LogInfo() << "[TomlGatewayConfigParser] Attempting to load gateway config at: " << path;
 
     // Load the file
     auto parsedToml = cpptoml::parse_file(path.c_str());
     auto result = validate(*parsedToml);
     if (result.has_error())
     {
-        LogWarn() << "[TomlGatewayConfigParser] Unable to parse configuration file";
         return iox::cxx::error<TomlGatewayConfigParseError>(result.get_error());
     }
 
@@ -75,7 +74,6 @@ iox::dds::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) no
     auto serviceArray = parsedToml.get_table_array(GATEWAY_CONFIG_SERVICE_TABLE_NAME);
     if (!serviceArray)
     {
-        LogError() << "[TomlGatewayConfigParser] Incomplete configuration provided.";
         return iox::cxx::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION);
     }
 
@@ -92,14 +90,12 @@ iox::dds::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) no
         // check for incomplete service descriptions
         if (!serviceName || !instance || !event)
         {
-            LogError() << "[TomlGatewayConfigParser] Incomplete service description at entry: " << count;
             return iox::cxx::error<TomlGatewayConfigParseError>(
                 TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION);
         }
         // check for incomplete service descriptions
         if (!sampleSize)
         {
-            LogError() << "[TomlGatewayConfigParser] Incomplete data description at entry: " << count;
             return iox::cxx::error<TomlGatewayConfigParseError>(
                 TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION);
         }
@@ -107,7 +103,6 @@ iox::dds::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) no
         // check for invalid characters in strings
         if (hasInvalidCharacter(*serviceName) || hasInvalidCharacter(*instance) || hasInvalidCharacter(*event))
         {
-            LogError() << "[TomlGatewayConfigParser] Invalid service description at entry: " << count;
             return iox::cxx::error<TomlGatewayConfigParseError>(
                 TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION);
         }
@@ -121,9 +116,5 @@ bool iox::dds::TomlGatewayConfigParser::hasInvalidCharacter(std::string s) noexc
     // See: https://design.ros2.org/articles/topic_and_service_names.html
     const std::regex regex(REGEX_VALID_CHARACTERS);
     auto isInvalid = !std::regex_match(s, regex);
-    if (isInvalid)
-    {
-        LogError() << "[TomlGatewayConfigParser] Invalid character in name: " + s;
-    }
     return isInvalid;
 }

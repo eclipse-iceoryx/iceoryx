@@ -14,6 +14,7 @@
 
 #include "iceoryx_dds/dds/data_reader.hpp"
 
+#include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 #include "iceoryx_dds/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -65,6 +66,15 @@ int main(int argc, char* argv[])
     {
         gw.loadConfiguration(result.get_value());
     }
+    else
+    {
+        iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: " << iox::dds::TomlGatewayConfigParseErrorString[result.get_error()];
+        iox::dds::LogWarn() << "[Main] Using default configuration.";
+        iox::dds::GatewayConfig defaultConfig;
+        defaultConfig.setDefaults();
+        gw.loadConfiguration(defaultConfig);
+    }
+
     gw.runMultithreaded();
 
     // Run until SIGINT or SIGTERM
