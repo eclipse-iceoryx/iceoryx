@@ -31,6 +31,8 @@ constexpr uint16_t MAX_NUMBER_OF_CONDITIONS{128};
 class WaitSet
 {
   public:
+    using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS>;
+
     WaitSet(cxx::not_null<ConditionVariableData* const> =
                 runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable()) noexcept;
 
@@ -40,30 +42,28 @@ class WaitSet
 
     /// @brief Removes a condition from the internal vector
     /// @return True if successful, false if unsuccessful
-    bool detachCondition(Condition& condition) noexcept;
+    bool detachCondition(const Condition& condition) noexcept;
 
     /// @brief Clears all conditions from the waitset
     void clear() noexcept;
 
     /// @brief Blocking wait with time limit till one or more of the condition become true
     /// @param[in] timeout How long shall be waited for a signalling condition
-    /// @param[out] cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> vector of condition pointers that have become
+    /// @param[out] ConditionVector vector of condition pointers that have become
     /// fulfilled
-    cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> timedWait(units::Duration timeout) noexcept;
+    ConditionVector timedWait(units::Duration timeout) noexcept;
 
     /// @brief Blocking wait till one or more of the condition become true
-    /// @param[out] cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> vector of condition pointers that have become
+    /// @param[out] ConditionVector vector of condition pointers that have become
     /// fulfilled
-    cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> wait() noexcept;
+    ConditionVector wait() noexcept;
 
     /// @brief Returns a reference to the GuardCondition
     GuardCondition& getGuardCondition() noexcept;
 
   private:
-    cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS>
-    waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout = cxx::nullopt) noexcept;
-
-    cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> m_conditionVector;
+    ConditionVector waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout = cxx::nullopt) noexcept;
+    ConditionVector m_conditionVector;
     ConditionVariableData* m_conditionVariableDataPtr;
     ConditionVariableWaiter m_conditionVariableWaiter;
     GuardCondition m_guardCondition;

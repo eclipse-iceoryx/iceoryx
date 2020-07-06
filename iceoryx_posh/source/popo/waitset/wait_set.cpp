@@ -39,7 +39,7 @@ bool WaitSet::attachCondition(Condition& condition) noexcept
     return false;
 }
 
-bool WaitSet::detachCondition(Condition& condition) noexcept
+bool WaitSet::detachCondition(const Condition& condition) noexcept
 {
     for (auto currentCondition : m_conditionVector)
     {
