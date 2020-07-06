@@ -49,3 +49,17 @@ TEST_F(CaproMessage_test, CtorParams)
     EXPECT_EQ(testObj.m_type, CaproMessageType::OFFER);
     EXPECT_EQ(testObj.m_subType, CaproMessageSubType::SERVICE);
 }
+
+
+TEST_F(CaproMessage_test, CtorParameterized)
+{
+    uint16_t testServiceID = 1;
+    uint16_t testEventID = 2;
+    uint16_t testInstanceID = 3;
+    ServiceDescription sd = ServiceDescription(testServiceID, testEventID, testInstanceID);
+    iox::popo::ReceiverPortData recData;
+
+    CaproMessage testObj = CaproMessage(CaproMessageType::OFFER, sd);
+    EXPECT_EQ(testObj.m_requestPort, nullptr);
+    EXPECT_EQ(testObj.m_subType, CaproMessageSubType::NOSUBTYPE);
+}
