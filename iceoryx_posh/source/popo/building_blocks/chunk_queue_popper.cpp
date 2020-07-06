@@ -74,9 +74,11 @@ uint64_t ChunkQueuePopper::size() noexcept
     return getMembers()->m_queue.size();
 }
 
-void ChunkQueuePopper::setCapacity(const uint32_t newCapacity) noexcept
+void ChunkQueuePopper::setCapacity(const uint64_t newCapacity) noexcept
 {
-    getMembers()->m_queue.setCapacity(newCapacity);
+    /// @todo fix getCapacity and setCapacity issue in queues (uint32 vs uint64)
+    // this needs to be properly fixed by harmonizing the types across the functions, but currently this cast is also sufficient
+    getMembers()->m_queue.setCapacity(static_cast<decltype(MemberType_t::MAX_CAPACITY)>(newCapacity));
 }
 
 uint64_t ChunkQueuePopper::getCurrentCapacity() const noexcept
