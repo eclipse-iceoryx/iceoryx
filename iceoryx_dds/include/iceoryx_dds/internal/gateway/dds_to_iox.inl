@@ -67,7 +67,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
     // reserve a chunk for initial sample
     if (m_reservedChunk == nullptr)
     {
-        m_reservedChunk = publisher->allocateChunk(dataSize.value());
+        m_reservedChunk = publisher->allocateChunk(static_cast<uint32_t>(dataSize.value()));
     }
 
     // read exactly one sample into the reserved chunk
@@ -86,7 +86,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
             // publish the sample
             publisher->sendChunk(buffer);
             // reserve a new chunk for the next sample
-            m_reservedChunk = publisher->allocateChunk(dataSize.value());
+            m_reservedChunk = publisher->allocateChunk(static_cast<uint32_t>(dataSize.value()));
         }
         else
         {

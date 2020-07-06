@@ -43,7 +43,7 @@ class ShutdownManager
 };
 iox::posix::Semaphore ShutdownManager::s_semaphore = iox::posix::Semaphore::create(0u).get_value();
 
-int main(int argc, char* argv[])
+int main()
 {
     // Set OS signal handlers
     signal(SIGINT, ShutdownManager::scheduleShutdown);
