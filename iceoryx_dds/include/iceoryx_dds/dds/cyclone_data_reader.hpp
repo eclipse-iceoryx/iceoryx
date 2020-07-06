@@ -35,6 +35,11 @@ class CycloneDataReader : public DataReader
     CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept;
     virtual ~CycloneDataReader();
 
+    CycloneDataReader(const CycloneDataReader&) = delete;
+    CycloneDataReader& operator=(const CycloneDataReader&) = delete;
+    CycloneDataReader(CycloneDataReader&&) = delete;
+    CycloneDataReader& operator=(CycloneDataReader&&) = delete;
+
     void connect() noexcept override;
 
     iox::cxx::expected<uint64_t, DataReaderError>

@@ -57,6 +57,7 @@ int main(int argc, char* argv[])
     {
         gw.loadConfiguration(result.get_value());
     }
+
     gw.runMultithreaded();
 
     // Run until SIGINT or SIGTERM

@@ -21,9 +21,17 @@ namespace iox
 {
 namespace dds
 {
+
+///
+/// @brief The CycloneContext manages cyclone configurations and singleton artifacts shared throughout an application.
+///
 class CycloneContext
 {
   public:
+    ///
+    /// @brief getParticipant Get the DDS Domain Participant for the current runtime.
+    /// @return The DDS Domain Participant.
+    ///
     static ::dds::domain::DomainParticipant& getParticipant() noexcept;
 };
 

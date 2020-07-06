@@ -13,8 +13,7 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.5)
-file (STRINGS "../../VERSION" test_iox_to_dds_VERSION)
-project(test_iox_to_dds VERSION ${test_iox_to_dds_VERSION})
+project(test_iox_to_dds VERSION 0)
 
 find_package(iceoryx_utils_testing REQUIRED)
 find_package(GTest CONFIG REQUIRED)
