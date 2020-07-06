@@ -19,21 +19,21 @@ using namespace ::testing;
 
 namespace
 {
-class Bar
+struct Bar
 {
-    [[gnu::unused]] alignas(8) uint8_t m_dummy[73];
+    alignas(8) uint8_t m_dummy[73];
 };
-class Foo
+struct Foo
 {
-    [[gnu::unused]] uint8_t m_dummy[73];
+    uint8_t m_dummy[73];
 };
-class FooBar
+struct FooBar
 {
-    [[gnu::unused]] alignas(32) uint8_t m_dummy[73];
+    alignas(32) uint8_t m_dummy[73];
 };
-class FuBar
+struct FuBar
 {
-    [[gnu::unused]] alignas(32) uint8_t m_dummy[73];
+    alignas(32) uint8_t m_dummy[73];
 };
 } // namespace
 

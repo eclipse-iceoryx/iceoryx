@@ -41,20 +41,19 @@ class BasePort
   public:
     using MemberType_t = BasePortData;
 
-    BasePort(MemberType_t* const f_basePortDataPtr) noexcept;
+    explicit BasePort(MemberType_t* const basePortDataPtr) noexcept;
 
     BasePort(const BasePort& other) = delete;
     BasePort& operator=(const BasePort&) = delete;
     BasePort(BasePort&&) noexcept;
     BasePort& operator=(BasePort&&) noexcept;
-
-    virtual ~BasePort() noexcept;
+    virtual ~BasePort() = default;
 
     /// @brief a port can be constructed from a nullptr, additionally it also can be moved
     ///         and in these cases the member methods would work on a nullptr.
     ///         to circumvent this problem
     /// @return if the memberpointer is not null it returns true, otherwise false
-    operator bool() const;
+    operator bool() const noexcept;
 
     /// @brief Reads Type of actual CaPro Port (sender/receiver...)
     /// @return m_portType  Type of Port in struct BasePortType
@@ -62,7 +61,7 @@ class BasePort
 
     /// @brief Gets Process Name for the active port
     /// @return             Process name as String
-    cxx::CString100 getProcessName() const noexcept;
+    ProcessName_t getProcessName() const noexcept;
 
     /// @brief Gets Id of thethe active port
     /// @return             UniqueId name as Integer
@@ -80,7 +79,7 @@ class BasePort
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* m_basePortDataPtr{nullptr};
+    MemberType_t* m_basePortDataPtr;
 };
 
 } // namespace popo

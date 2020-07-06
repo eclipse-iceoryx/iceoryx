@@ -62,7 +62,7 @@ struct in_place_type
 ///     // variant with setted value therefore the index is not invalid
 ///     if ( someVariant.index() != INVALID_VARIANT_INDEX ) ...
 /// @endcode
-static constexpr uint64_t INVALID_VARIANT_INDEX = -1U;
+static constexpr uint64_t INVALID_VARIANT_INDEX = -1ULL;
 
 /// @brief Variant implementation from the C++17 standard with C++11. The
 ///         interface is inspired by the C++17 standard but it has changes in

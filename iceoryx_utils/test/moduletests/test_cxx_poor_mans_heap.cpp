@@ -91,8 +91,9 @@ class Foo : public Interface
         return LuckyNumber::Foo;
     }
 
-  private:
-    [[gnu::unused]] alignas(32) uint8_t m_dummy[73];
+    // protected instead of private to prevent a unused member warning
+  protected:
+    alignas(32) uint8_t m_dummy[73];
 };
 
 } // namespace

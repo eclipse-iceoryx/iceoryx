@@ -18,17 +18,12 @@ namespace iox
 {
 namespace popo
 {
-BasePortData::BasePortData() noexcept
-    : m_uniqueId(s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed))
+BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
+                           const ProcessName_t& processName) noexcept
+    : m_serviceDescription(serviceDescription)
+    , m_processName(processName)
 {
 }
 
-BasePortData::BasePortData(const capro::ServiceDescription& serviceDescription,
-                           const cxx::CString100& processName) noexcept
-    : m_serviceDescription(serviceDescription)
-    , m_processName(processName)
-    , m_uniqueId(s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed))
-{
-}
 } // namespace popo
 } // namespace iox

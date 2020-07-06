@@ -128,11 +128,9 @@ TEST_F(UniqueIndexTest, moveAssignmentInvalidatesValidIndex)
 TEST_F(UniqueIndexTest, selfMoveAssignmentDoesNotInvalidateValidIndex)
 {
     auto index = acquireIndex();
-    /// we are testing self move here therefore we do not need a warning that we do
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wself-move"
-    index = std::move(index);
-#pragma GCC diagnostic pop
+    // this construct is used to prevent a self-move warning
+    [](UniqueIndex& a, UniqueIndex& b) { a = std::move(b); }(index, index);
+
     EXPECT_TRUE(index.isValid());
     EXPECT_EQ(index, 1);
 }
@@ -141,11 +139,9 @@ TEST_F(UniqueIndexTest, selfMoveAssignedInvalidIndexStaysInvalid)
 {
     UniqueIndex index(UniqueIndex::invalid);
 
-    /// we are testing self move here therefore we do not need a warning that we do
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wself-move"
-    index = std::move(index);
-#pragma GCC diagnostic pop
+    // this construct is used to prevent a self-move warning
+    [](UniqueIndex& a, UniqueIndex& b) { a = std::move(b); }(index, index);
+
     EXPECT_FALSE(index.isValid());
 }
 

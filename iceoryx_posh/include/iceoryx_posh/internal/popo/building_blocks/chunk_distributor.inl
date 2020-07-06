@@ -42,26 +42,29 @@ ChunkDistributor<ChunkDistributorDataType>::getMembers() noexcept
 template <typename ChunkDistributorDataType>
 inline cxx::expected<ChunkDistributorError>
 ChunkDistributor<ChunkDistributorDataType>::addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
-                                                     uint64_t requestedHistory) noexcept
+                                                     const uint64_t requestedHistory) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
-    auto alreadyKnownReceiver = std::find_if(getMembers()->m_queues.begin(),
-                                             getMembers()->m_queues.end(),
-                                             [&](ChunkQueueData_t* const queue) { return queue == queueToAdd; });
+    const auto alreadyKnownReceiver =
+        std::find_if(getMembers()->m_queues.begin(),
+                     getMembers()->m_queues.end(),
+                     [&](const ChunkQueueData_t* const queue) { return queue == queueToAdd; });
 
     // check if the queue is not already in the list
     if (alreadyKnownReceiver == getMembers()->m_queues.end())
     {
         if (getMembers()->m_queues.size() < getMembers()->m_queues.capacity())
         {
+            // PRQA S 3804 1 # we checked the capacity, so pushing will be fine
             getMembers()->m_queues.push_back(queueToAdd);
 
-            uint64_t currChunkHistorySize = getMembers()->m_history.size();
+            const auto currChunkHistorySize = getMembers()->m_history.size();
 
             // if the current history is large enough we send the requested number of chunks, else we send the
             // total history
-            auto startIndex = (requestedHistory <= currChunkHistorySize) ? currChunkHistorySize - requestedHistory : 0u;
+            const auto startIndex =
+                (requestedHistory <= currChunkHistorySize) ? currChunkHistorySize - requestedHistory : 0u;
             for (auto i = startIndex; i < currChunkHistorySize; ++i)
             {
                 deliverToQueue(queueToAdd, getMembers()->m_history[i]);
@@ -88,9 +91,10 @@ ChunkDistributor<ChunkDistributorDataType>::removeQueue(cxx::not_null<ChunkQueue
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
-    auto iter = std::find(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), queueToRemove);
+    const auto iter = std::find(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), queueToRemove);
     if (iter != getMembers()->m_queues.end())
     {
+        // PRQA S 3804 1 # we don't use iter any longer so return value can be ignored
         getMembers()->m_queues.erase(iter);
 
         return cxx::success<void>();
@@ -136,8 +140,8 @@ template <typename ChunkDistributorDataType>
 inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
                                                                        mepoo::SharedChunk chunk) noexcept
 {
-    // We intentionally do not return anything here as from a ChunkDistributor point of view it doesn't matter if the
-    // push succeeds or fails
+    // PRQA S 3803 2 # We intentionally do not return anything here as from a ChunkDistributor
+    // point of view it doesn't matter if the push succeeds or fails
     ChunkQueuePusher_t(queue).push(chunk);
 }
 
@@ -146,13 +150,15 @@ inline void ChunkDistributor<ChunkDistributorDataType>::addToHistoryWithoutDeliv
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
-    if (0 < getMembers()->m_historyCapacity)
+    if (0u < getMembers()->m_historyCapacity)
     {
         if (getMembers()->m_history.size() >= getMembers()->m_historyCapacity)
         {
+            // PRQA S 3804 1 # we are not iterating here, so return value can be ignored
             getMembers()->m_history.erase(getMembers()->m_history.begin());
         }
-        getMembers()->m_history.push_back(chunk);
+        // PRQA S 3804 1 # we ensured that there is space in the history, so return value can be ignored
+        getMembers()->m_history.push_back(chunk); // PRQA S 3804
     }
 }
 

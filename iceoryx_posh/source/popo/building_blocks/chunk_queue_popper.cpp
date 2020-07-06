@@ -40,13 +40,13 @@ cxx::optional<mepoo::SharedChunk> ChunkQueuePopper::pop() noexcept
     auto retVal = getMembers()->m_queue.pop();
 
     // check if queue had an element that was poped and return if so
-    if (retVal)
+    if (retVal.has_value())
     {
         auto chunkTupleOut = *retVal;
         auto chunkManagement =
             iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         auto chunk = mepoo::SharedChunk(chunkManagement);
-        return chunk;
+        return cxx::make_optional<mepoo::SharedChunk>(chunk);
     }
     else
     {
@@ -79,9 +79,14 @@ void ChunkQueuePopper::setCapacity(const uint32_t newCapacity) noexcept
     getMembers()->m_queue.setCapacity(newCapacity);
 }
 
-uint64_t ChunkQueuePopper::capacity() noexcept
+uint64_t ChunkQueuePopper::getCurrentCapacity() const noexcept
 {
     return getMembers()->m_queue.capacity();
+}
+
+uint64_t ChunkQueuePopper::getMaximumCapacity() const noexcept
+{
+    return MemberType_t::MAX_CAPACITY;
 }
 
 void ChunkQueuePopper::clear() noexcept
@@ -89,12 +94,13 @@ void ChunkQueuePopper::clear() noexcept
     do
     {
         auto retVal = getMembers()->m_queue.pop();
-        if (retVal)
+        if (retVal.has_value())
         {
+            // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
             auto chunkTupleOut = *retVal;
-            auto chunkManagement =
-                iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
-            auto chunk = mepoo::SharedChunk(chunkManagement);
+            auto chunkManagement = iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset,
+                                                                             chunkTupleOut.m_segmentId); 
+            auto chunk = mepoo::SharedChunk(chunkManagement);                                            
         }
         else
         {

@@ -25,19 +25,21 @@ namespace popo
 class InterfacePort : public BasePort
 {
   public:
-    InterfacePort(InterfacePortData* const f_member);
+    explicit InterfacePort(InterfacePortData* const interfacePortDataPtr) noexcept;
+
     InterfacePort(const InterfacePort& other) = delete;
     InterfacePort& operator=(const InterfacePort& other) = delete;
     InterfacePort(InterfacePort&& other) = default;
     InterfacePort& operator=(InterfacePort&& other) = default;
+    ~InterfacePort() = default;
 
-    bool dispatchCaProMessage(const capro::CaproMessage& f_message);
+    bool dispatchCaProMessage(const capro::CaproMessage& message) noexcept;
 
-    bool getCaProMessage(capro::CaproMessage& f_message);
+    bool getCaProMessage(capro::CaproMessage& message) noexcept;
 
   private:
-    const InterfacePortData* getMembers() const;
-    InterfacePortData* getMembers();
+    const InterfacePortData* getMembers() const noexcept;
+    InterfacePortData* getMembers() noexcept;
 };
 
 } // namespace popo

@@ -35,7 +35,7 @@ ChunkReceiver::MemberType_t* ChunkReceiver::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(ChunkQueuePopper::getMembers());
 }
 
-cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiverError> ChunkReceiver::get() noexcept
+cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> ChunkReceiver::get() noexcept
 {
     auto popRet = this->pop();
 
@@ -53,7 +53,7 @@ cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiverError> Chun
         {
             // release the chunk
             sharedChunk = nullptr;
-            return cxx::error<ChunkReceiverError>(ChunkReceiverError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
+            return cxx::error<ChunkReceiveError>(ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
         }
     }
     else
@@ -63,10 +63,11 @@ cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiverError> Chun
     }
 }
 
-void ChunkReceiver::release(const mepoo::ChunkHeader* chunkHeader) noexcept
+void ChunkReceiver::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
-    if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
+    // PRQA S 4127 1 # d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
+    if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk)) // PRQA S 4127
     {
         errorHandler(Error::kPOPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER, nullptr, ErrorLevel::SEVERE);
     }
