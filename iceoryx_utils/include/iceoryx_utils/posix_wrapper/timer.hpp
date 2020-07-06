@@ -116,7 +116,7 @@ class Timer
 
         std::atomic<bool> m_inUse{false};
         std::atomic<bool> m_isTimerActive{false};
-        std::atomic<uint64_t> m_cycle{0u};
+        std::atomic<uint64_t> m_timerInvocationCounter{0u};
         std::atomic<uint64_t> m_callbackExecutionCycle{0u};
         CatchUpPolicy m_catchUpPolicy{CatchUpPolicy::TERMINATE};
         OsTimer* m_timer{nullptr};
@@ -184,11 +184,7 @@ class Timer
       private:
         /// @brief Call the user-defined callback
         /// @note This call is wrapped in a plain C function
-        void executeCallback(const uint64_t currentCycle) noexcept;
-        static void verifyAndExecuteCallback(OsTimerCallbackHandle& handle,
-                                             const uint32_t descriptor,
-                                             const uint64_t currentCycle) noexcept;
-
+        void executeCallback() noexcept;
 
       private:
         /// @brief Duration after the timer calls the user-defined callback function

@@ -17,6 +17,7 @@
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
+#include <atomic>
 
 namespace iox
 {
@@ -67,47 +68,26 @@ void Timer::OsTimer::callbackHelper(sigval data)
         return;
     }
 
-    auto& callbackHandle = OsTimer::s_callbackHandlePool[index];
+    auto& handle = OsTimer::s_callbackHandlePool[index];
 
     // small optimization to not lock the mutex if the callback handle is not valid anymore
-    if (descriptor != callbackHandle.m_descriptor.load(std::memory_order::memory_order_relaxed))
+    if (descriptor != handle.m_descriptor.load(std::memory_order::memory_order_relaxed))
     {
         return;
     }
 
-    uint64_t currentCycle = (callbackHandle.m_catchUpPolicy == CatchUpPolicy::SKIP_TO_NEXT_BEAT)
-                                ? 0u
-                                : callbackHandle.m_cycle.fetch_add(1u, std::memory_order_relaxed) + 1u;
+    handle.m_timerInvocationCounter.fetch_add(1u, std::memory_order_relaxed);
 
-    // without the loop it is possible that a previous thread is interrupted right
-    // after the executeCallback call at the end and the succeeding thread skips the
-    // callback call since it is unable to acquire the mutex with try_lock.
-    // therefore we would skip a callback. to avoid this we have to make sure
-    // the callback is called by checking the callbackExecutionCycle in a while loop
-    if (callbackHandle.m_catchUpPolicy == CatchUpPolicy::IMMEDIATE)
+    do
     {
-        while (currentCycle >= callbackHandle.m_callbackExecutionCycle.load(std::memory_order_relaxed))
+        if (handle.m_accessMutex.try_lock() == false)
         {
-            if (descriptor != callbackHandle.m_descriptor.load(std::memory_order::memory_order_relaxed))
+            if (handle.m_catchUpPolicy == CatchUpPolicy::TERMINATE)
             {
-                return;
+                errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
             }
-
-            verifyAndExecuteCallback(callbackHandle, descriptor, currentCycle);
+            return;
         }
-    }
-    else
-    {
-        verifyAndExecuteCallback(callbackHandle, descriptor, currentCycle);
-    }
-}
-
-void Timer::OsTimer::verifyAndExecuteCallback(OsTimerCallbackHandle& handle,
-                                              const uint32_t descriptor,
-                                              const uint64_t currentCycle) noexcept
-{
-    if (handle.m_accessMutex.try_lock() == true)
-    {
         iox::cxx::GenericRAII lockGuard([] {}, [&handle] { handle.m_accessMutex.unlock(); });
 
         if (handle.m_timer == nullptr)
@@ -131,12 +111,17 @@ void Timer::OsTimer::verifyAndExecuteCallback(OsTimerCallbackHandle& handle,
             return;
         }
 
-        handle.m_timer->executeCallback(currentCycle);
-    }
-    else if (handle.m_catchUpPolicy == CatchUpPolicy::TERMINATE)
-    {
-        errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
-    }
+        if (handle.m_timerInvocationCounter.load(std::memory_order_relaxed)
+            != handle.m_callbackExecutionCycle.load(std::memory_order_relaxed))
+        {
+            handle.m_callbackExecutionCycle.store(handle.m_timerInvocationCounter.load(std::memory_order_relaxed),
+                                                  std::memory_order_relaxed);
+            handle.m_timer->executeCallback();
+        }
+
+    } while (handle.m_catchUpPolicy == CatchUpPolicy::IMMEDIATE
+             && handle.m_timerInvocationCounter.load(std::memory_order_relaxed)
+                    != handle.m_callbackExecutionCycle.load(std::memory_order_relaxed));
 }
 
 Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
@@ -217,7 +202,6 @@ Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<vo
     }
 }
 
-
 Timer::OsTimer::~OsTimer() noexcept
 {
     if (m_timerId != INVALID_TIMER_ID)
@@ -240,46 +224,11 @@ Timer::OsTimer::~OsTimer() noexcept
     }
 }
 
-void Timer::OsTimer::executeCallback(const uint64_t currentCycle) noexcept
+void Timer::OsTimer::executeCallback() noexcept
 {
     if (m_isInitialized && m_callback)
     {
-        auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
-        uint64_t nextCycle = currentCycle;
-
-        // if a callbackHelper is interrupted before acquiring the accessMutex
-        // and continues after another thread executing callbackHelper as finished
-        // executeCallback and returns then m_callback() is called one more time
-        // then necessary.
-        // to avoid this executeCallback sets after every callback
-        // m_callbackExecutionCycle = m_cycle (current value is stored in nextCycle). if the
-        // interrupted thread then wins and acquires the lock the currentCycle is
-        // smaller then m_callbackExecutionCycle since the callback was already called by
-        // the previous thread
-        if (handle.m_catchUpPolicy == CatchUpPolicy::IMMEDIATE
-            && currentCycle <= handle.m_callbackExecutionCycle.load(std::memory_order_relaxed))
-        {
-            return;
-        }
-
-        // we are using compare exchange to gain a behavior where the missed
-        // timer callbacks do not accumulate. lets say the callback was triggered
-        // 5 times till the last callback fired then we do not want to run the
-        // callback 5 times we only want it to run it once.
-        // everytime we fire a callback we increment m_cycle. if now m_cycle
-        // differs from nextCycle the value of nextCycle is updated to the
-        // current value of m_cycle and the loop runs only once. if during that
-        // time no trigger follows we exit this function. if on the other hand
-        // we have N outstanding triggers and nextCycle + N = m_cycle we again
-        // update nextCycle to the most current value of m_cycle and only run
-        // the loop once if we are not retriggered.
-        do
-        {
-            m_callback();
-            handle.m_callbackExecutionCycle.store(nextCycle, std::memory_order_relaxed);
-        } while (handle.m_isTimerActive.load(std::memory_order_relaxed)
-                 && !handle.m_cycle.compare_exchange_strong(
-                     nextCycle, nextCycle, std::memory_order_relaxed, std::memory_order_relaxed));
+        m_callback();
     }
     else
     {
@@ -317,7 +266,7 @@ cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const Cat
     auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
 
     handle.m_catchUpPolicy = catchUpPolicy;
-    handle.m_cycle.store(0u, std::memory_order_relaxed);
+    handle.m_timerInvocationCounter.store(0u, std::memory_order_relaxed);
     handle.m_callbackExecutionCycle.store(0u, std::memory_order_relaxed);
     handle.m_isTimerActive.store(true, std::memory_order_relaxed);
 
