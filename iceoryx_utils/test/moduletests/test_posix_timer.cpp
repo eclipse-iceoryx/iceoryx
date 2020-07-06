@@ -411,7 +411,7 @@ TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
 TIMING_TEST_F(Timer_test, SoftTimerContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+        [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
 
     Timer sut(TIMEOUT,
               [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
@@ -425,7 +425,7 @@ TIMING_TEST_F(Timer_test, SoftTimerContinuesWhenCallbackIsLongerThenTriggerTime,
 TIMING_TEST_F(Timer_test, ASAPTimerContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+        [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
 
     Timer sut(TIMEOUT,
               [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
@@ -439,7 +439,7 @@ TIMING_TEST_F(Timer_test, ASAPTimerContinuesWhenCallbackIsLongerThenTriggerTime,
 TIMING_TEST_F(Timer_test, HardTimerTerminatesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+        [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
 
     Timer sut(TIMEOUT,
               [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
@@ -453,7 +453,7 @@ TIMING_TEST_F(Timer_test, HardTimerTerminatesWhenCallbackIsLongerThenTriggerTime
 TIMING_TEST_F(Timer_test, SoftToHardTimerChangesBehaviorToTerminate, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
+        [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
 
     Timer sut(TIMEOUT,
               [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
