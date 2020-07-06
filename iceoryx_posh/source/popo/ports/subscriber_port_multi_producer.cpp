@@ -31,7 +31,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::getCaProMessage(
 }
 
 cxx::optional<capro::CaproMessage>
-SubscriberPortMultiProducer::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
+SubscriberPortMultiProducer::dispatchCaProMessage(const capro::CaproMessage& caProMessage [[gnu::unused]]) noexcept
 {
     /// @todo
     return cxx::nullopt_t();
