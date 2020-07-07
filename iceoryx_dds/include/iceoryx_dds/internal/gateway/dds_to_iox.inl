@@ -39,7 +39,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const Ga
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
-            setupChannel(service.m_serviceDescription, service.m_dataSize);
+            setupChannel(service.m_serviceDescription);
         }
     }
 }
@@ -62,7 +62,6 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
     {
         // reserve a chunk for the sample
         auto size = peekResult.value();
-
         m_reservedChunk = publisher->allocateChunk(static_cast<uint32_t>(size));
 
         // read sample into reserved chunk
@@ -82,10 +81,9 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
 // ======================================== Private ======================================== //
 template <typename channel_t, typename gateway_t>
 iox::cxx::expected<channel_t, iox::dds::GatewayError>
-DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service,
-                                                       const uint64_t& sampleSize) noexcept
+DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
-    return this->addChannel(service, sampleSize)
+    return this->addChannel(service)
         .on_success([&service](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
             auto channel = result.get_value();
             auto publisher = channel.getIceoryxTerminal();

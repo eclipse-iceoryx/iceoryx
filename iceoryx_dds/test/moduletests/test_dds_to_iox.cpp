@@ -45,7 +45,7 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
-    EXPECT_CALL(gw, addChannel(testService, dataSize)).WillOnce(Return(channelFactory(testService, dataSize)));
+    EXPECT_CALL(gw, addChannel(testService)).WillOnce(Return(channelFactory(testService)));
 
     // === Test
     gw.loadConfiguration(config);
@@ -66,7 +66,7 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyOffersConfiguredPublishers)
 
     TestGateway gw{};
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel(testService, dataSize)).WillByDefault(Return(channelFactory(testService, dataSize)));
+    ON_CALL(gw, addChannel(testService)).WillByDefault(Return(channelFactory(testService)));
 
     // === Test
     gw.loadConfiguration(config);
@@ -79,7 +79,7 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
     auto dataSize = 8u;
 
     iox::dds::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, dataSize});
+    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService});
 
     auto mockDataReader = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockDataReader, connect).Times(1);
@@ -87,7 +87,7 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
 
     TestGateway gw{};
     ON_CALL(gw, findChannel).WillByDefault(Return(iox::cxx::nullopt_t()));
-    ON_CALL(gw, addChannel(testService, dataSize)).WillByDefault(Return(channelFactory(testService, dataSize)));
+    ON_CALL(gw, addChannel(testService)).WillByDefault(Return(channelFactory(testService)));
 
     // === Test
     gw.loadConfiguration(config);
@@ -116,7 +116,7 @@ TEST_F(DDS2IceoryxGatewayTest, ForwardsReceivedBytesIntoReservedMemoryChunks)
         stageMockDDSTerminal(std::move(mockDataReader));
         stageMockIceoryxTerminal(std::move(mockPublisher));
 
-        auto testChannel = channelFactory(testService, dataSize).get_value();
+        auto testChannel = channelFactory(testService).get_value();
         TestGateway gw{};
 
         // === Test
@@ -148,7 +148,7 @@ TEST_F(DDS2IceoryxGatewayTest, OnlyRequestsOneSampleAtATime)
         stageMockDDSTerminal(std::move(mockDataReader));
         stageMockIceoryxTerminal(std::move(mockPublisher));
 
-        auto testChannel = channelFactory(testService, dataSize).get_value();
+        auto testChannel = channelFactory(testService).get_value();
         TestGateway gw{};
 
         // === Test

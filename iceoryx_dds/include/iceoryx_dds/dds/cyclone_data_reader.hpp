@@ -43,13 +43,11 @@ class CycloneDataReader : public DataReader
     void connect() noexcept override;
 
     iox::cxx::optional<uint64_t> peekNext() override;
+
     iox::cxx::expected<DataReaderError> takeNext(uint8_t* const buffer, const uint64_t& bufferSize) override;
 
     iox::cxx::expected<uint64_t, DataReaderError>
-    take(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize) override;
-
-    iox::cxx::expected<uint64_t, DataReaderError>
-    take(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize, const uint64_t& maxSamples) override;
+    take(uint8_t* const buffer, const uint64_t& bufferSize, const iox::cxx::optional<uint64_t>& maxSamples) override;
 
     IdString getServiceId() const noexcept override;
     IdString getInstanceId() const noexcept override;

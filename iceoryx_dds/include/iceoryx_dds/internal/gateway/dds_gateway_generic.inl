@@ -68,14 +68,6 @@ template <typename channel_t, typename gateway_t>
 inline iox::cxx::expected<channel_t, iox::dds::GatewayError>
 iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service) noexcept
 {
-    return addChannel(service, 0u);
-}
-
-template <typename channel_t, typename gateway_t>
-inline iox::cxx::expected<channel_t, iox::dds::GatewayError>
-iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service,
-                                                              const uint64_t& dataSize) noexcept
-{
     // Filter out wildcard services
     if (service.getServiceID() == iox::capro::AnyService || service.getInstanceID() == iox::capro::AnyInstance
         || service.getEventID() == iox::capro::AnyEvent)
@@ -91,7 +83,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
     }
     else
     {
-        auto result = channel_t::create(service, dataSize);
+        auto result = channel_t::create(service);
         if (result.has_error())
         {
             iox::dds::LogError() << "[DDSGatewayGeneric] Unable to set up channel for service: "

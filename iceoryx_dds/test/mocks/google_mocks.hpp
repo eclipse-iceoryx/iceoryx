@@ -70,10 +70,7 @@ class MockDataReader
     MOCK_METHOD3(take,
                  iox::cxx::expected<uint64_t, iox::dds::DataReaderError>(uint8_t* const buffer,
                                                                          const uint64_t&,
-                                                                         const uint64_t&));
-    MOCK_METHOD4(take,
-                 iox::cxx::expected<uint64_t, iox::dds::DataReaderError>(
-                     uint8_t* const buffer, const uint64_t&, const uint64_t&, const uint64_t&));
+                                                                         const iox::cxx::optional<uint64_t>&));
     MOCK_CONST_METHOD0(getServiceId, std::string(void));
     MOCK_CONST_METHOD0(getInstanceId, std::string(void));
     MOCK_CONST_METHOD0(getEventId, std::string(void));
@@ -99,9 +96,6 @@ class MockGenericDDSGateway
     MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
     MOCK_METHOD1_T(addChannel,
                    iox::cxx::expected<channel_t, iox::dds::GatewayError>(const iox::capro::ServiceDescription&));
-    MOCK_METHOD2_T(addChannel,
-                   iox::cxx::expected<channel_t, iox::dds::GatewayError>(const iox::capro::ServiceDescription&,
-                                                                         const uint64_t&));
     MOCK_METHOD1(discardChannel, iox::cxx::expected<iox::dds::GatewayError>(const iox::capro::ServiceDescription&));
     MOCK_METHOD1_T(findChannel, iox::cxx::optional<channel_t>(const iox::capro::ServiceDescription&));
     MOCK_METHOD1_T(forEachChannel, void(const iox::cxx::function_ref<void(channel_t&)>));

@@ -46,7 +46,7 @@ TEST_F(CycloneDataReaderTest, DoesNotAttemptToReadWhenDisconnected)
 
     // ===== Test
     TestDataReader reader{"", "", ""};
-    auto result = reader.take(buffer, bufferSize, sampleSize);
+    auto result = reader.take(buffer, bufferSize, iox::cxx::make_optional<uint64_t>(sampleSize));
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::NOT_CONNECTED, result.get_error());
 }
@@ -61,7 +61,7 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
     // ===== Test
     TestDataReader reader{"", "", ""};
     reader.connect();
-    auto result = reader.take(buffer, bufferSize, sampleSize);
+    auto result = reader.take(buffer, bufferSize, iox::cxx::make_optional<uint64_t>(sampleSize));
 
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, result.get_error());
@@ -77,7 +77,7 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenReceiveBufferSmallerThanSampleSize
     // ===== Test
     TestDataReader reader{"", "", ""};
     reader.connect();
-    auto result = reader.take(buffer, bufferSize, sampleSize);
+    auto result = reader.take(buffer, bufferSize, iox::cxx::make_optional<uint64_t>(sampleSize));
 
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::RECV_BUFFER_TOO_SMALL, result.get_error());

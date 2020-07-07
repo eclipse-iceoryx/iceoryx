@@ -103,26 +103,6 @@ class DDSGatewayGeneric : public gateway_t
     addChannel(const iox::capro::ServiceDescription& service) noexcept;
 
     ///
-    /// @brief addChannel Creates a channel for the given service and stores a copy of it in an internal collection for
-    /// later access.
-    /// @param service The service to create a channel for.
-    /// @param dataSize dataSize The size of the individual data elements communicated over the channel.
-    /// @return an expected containing a copy of the added channel, otherwise an error
-    ///
-    /// @note Wildcard services are not allowed and will be ignored.
-    ///
-    /// @note Channels are supposed to be lightweight, consisting only of pointers to the terminals and a copy of the
-    /// service description, therefore a copy is provided to any entity that requires them.
-    /// When no more copies of a channel exists in the system, the terminals will automatically be cleaned up via
-    /// the custom deleters included in their pointers.
-    ///
-    /// The service description is perhaps too large for copying since they contain strings, however this should be
-    /// addressed with a service description repository feature.
-    ///
-    iox::cxx::expected<channel_t, iox::dds::GatewayError> addChannel(const iox::capro::ServiceDescription& service,
-                                                                     const uint64_t& dataSize) noexcept;
-
-    ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns
     /// it one exists.
     /// @param service The service to find a channel for.
