@@ -45,10 +45,10 @@ class DataReader
     virtual void connect() noexcept = 0;
 
     ///
-    /// @brief peekSize Get the size of the next sample if one is available.
+    /// @brief peekNextSize Get the size of the next sample if one is available.
     /// @return The size of the next sample if one is available.
     ///
-    virtual iox::cxx::optional<uint64_t> peekNext() = 0;
+    virtual iox::cxx::optional<uint64_t> peekNextSize() = 0;
 
     ///
     /// @brief take Take the next available sample from the DDS data space.

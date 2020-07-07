@@ -57,7 +57,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
     auto publisher = channel.getIceoryxTerminal();
     auto reader = channel.getDDSTerminal();
 
-    auto peekResult = reader->peekNext();
+    auto peekResult = reader->peekNextSize();
     if(peekResult.has_value())
     {
         // reserve a chunk for the sample

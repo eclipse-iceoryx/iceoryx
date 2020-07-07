@@ -42,7 +42,7 @@ class CycloneDataReader : public DataReader
 
     void connect() noexcept override;
 
-    iox::cxx::optional<uint64_t> peekNext() override;
+    iox::cxx::optional<uint64_t> peekNextSize() override;
 
     iox::cxx::expected<DataReaderError> takeNext(uint8_t* const buffer, const uint64_t& bufferSize) override;
 

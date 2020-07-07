@@ -90,85 +90,29 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
     gw.loadConfiguration(config);
 }
 
-TEST_F(DDS2IceoryxGatewayTest, ForwardsReceivedBytesIntoReservedMemoryChunks)
+TEST_F(DDS2IceoryxGatewayTest, PublishesMemoryChunksContainingSamplesToNetwork)
 {
-    // Will activate test when bug with returning an expected in a mock is resolved.
-    if (false)
-    {
-        // === Setup
-        auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
-        // Setup data reader to provide a sample
-        auto mockDataReader = createMockDDSTerminal(testService);
-        auto mockPublisher = createMockIceoryxTerminal(testService);
+    // === Setup
+    auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
-        // NOTE: This line does does not compile with the following error. Will debug later...
-        // error: cannot convert ‘iox::cxx::success<long unsigned int>’ to ‘long unsigned int’ in initialization
-        // : value(std::forward<Targs>(args)...)
-        // ON_CALL(*mockDataReader, read(_, _, _, _)).WillByDefault(Return(iox::cxx::success<uint64_t>(1)));
+    // Setup data reader to provide a sample
+    auto mockDataReader = createMockDDSTerminal(testService);
+    auto mockPublisher = createMockIceoryxTerminal(testService);
 
-        EXPECT_CALL(*mockPublisher, sendChunk).Times(1);
+    ON_CALL(*mockDataReader, peekNextSize).WillByDefault(Return(ByMove(iox::cxx::make_optional<uint64_t>(static_cast<uint64_t>(8u)))));
+    ON_CALL(*mockDataReader, takeNext).WillByDefault(Return(ByMove(iox::cxx::success<>())));
+    EXPECT_CALL(*mockPublisher, sendChunk).Times(1);
 
-        stageMockDDSTerminal(std::move(mockDataReader));
-        stageMockIceoryxTerminal(std::move(mockPublisher));
+    stageMockDDSTerminal(std::move(mockDataReader));
+    stageMockIceoryxTerminal(std::move(mockPublisher));
 
-        auto testChannel = channelFactory(testService).get_value();
-        TestGateway gw{};
+    TestGateway gw{};
 
-        // === Test
-        gw.forward(testChannel);
-    }
+    // === Test
+    auto testChannel = channelFactory(testService).get_value();
+    gw.forward(testChannel);
+
 }
 
-TEST_F(DDS2IceoryxGatewayTest, OnlyRequestsOneSampleAtATime)
-{
-    if (false)
-    {
-        // === Setup
-        auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
-        uint8_t buffer[64];
-
-        // Setup data reader to provide a sample
-        auto mockDataReader = createMockDDSTerminal(testService);
-        auto mockPublisher = createMockIceoryxTerminal(testService);
-
-        ON_CALL(*mockPublisher, allocateChunk).WillByDefault(Return(&buffer));
-
-        // NOTE: This line does does not compile with the following error. Will debug later...
-        // error: cannot convert ‘iox::cxx::success<long unsigned int>’ to ‘long unsigned int’ in initialization
-        // : value(std::forward<Targs>(args)...).
-        // ON_CALL(*mockDataReader, read(_, _, _, _)).WillByDefault(Return(iox::cxx::success<uint64_t>(1)));
-
-        stageMockDDSTerminal(std::move(mockDataReader));
-        stageMockIceoryxTerminal(std::move(mockPublisher));
-
-        auto testChannel = channelFactory(testService).get_value();
-        TestGateway gw{};
-
-        // === Test
-        gw.forward(testChannel);
-    }
-}
-
-//TEST_F(DDS2IceoryxGatewayTest, DoesNotForwardAcrossChannelsWithNoDataSize)
-//{
-//    // === Setup
-//    auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-//    auto dataSize = 0u;
-
-//    auto mockDataReader = createMockDDSTerminal(testService);
-//    auto mockPublisher = createMockIceoryxTerminal(testService);
-
-//    EXPECT_CALL(*mockDataReader, take(_, _, _, _)).Times(0);
-//    EXPECT_CALL(*mockPublisher, sendChunk).Times(0);
-
-//    stageMockDDSTerminal(std::move(mockDataReader));
-//    stageMockIceoryxTerminal(std::move(mockPublisher));
-
-//    TestGateway gw{};
-
-//    // === Test
-//    auto testChannel = channelFactory(testService, dataSize).get_value();
-//    gw.forward(testChannel);
-//}
