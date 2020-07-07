@@ -156,24 +156,24 @@ TEST_F(DDS2IceoryxGatewayTest, OnlyRequestsOneSampleAtATime)
     }
 }
 
-TEST_F(DDS2IceoryxGatewayTest, DoesNotForwardAcrossChannelsWithNoDataSize)
-{
-    // === Setup
-    auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    auto dataSize = 0u;
+//TEST_F(DDS2IceoryxGatewayTest, DoesNotForwardAcrossChannelsWithNoDataSize)
+//{
+//    // === Setup
+//    auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
+//    auto dataSize = 0u;
 
-    auto mockDataReader = createMockDDSTerminal(testService);
-    auto mockPublisher = createMockIceoryxTerminal(testService);
+//    auto mockDataReader = createMockDDSTerminal(testService);
+//    auto mockPublisher = createMockIceoryxTerminal(testService);
 
-    EXPECT_CALL(*mockDataReader, read(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockPublisher, sendChunk).Times(0);
+//    EXPECT_CALL(*mockDataReader, take(_, _, _, _)).Times(0);
+//    EXPECT_CALL(*mockPublisher, sendChunk).Times(0);
 
-    stageMockDDSTerminal(std::move(mockDataReader));
-    stageMockIceoryxTerminal(std::move(mockPublisher));
+//    stageMockDDSTerminal(std::move(mockDataReader));
+//    stageMockIceoryxTerminal(std::move(mockPublisher));
 
-    TestGateway gw{};
+//    TestGateway gw{};
 
-    // === Test
-    auto testChannel = channelFactory(testService, dataSize).get_value();
-    gw.forward(testChannel);
-}
+//    // === Test
+//    auto testChannel = channelFactory(testService, dataSize).get_value();
+//    gw.forward(testChannel);
+//}

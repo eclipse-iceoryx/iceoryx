@@ -49,14 +49,60 @@ void iox::dds::CycloneDataReader::connect() noexcept
     }
 }
 
-iox::cxx::expected<uint64_t, iox::dds::DataReaderError>
-iox::dds::CycloneDataReader::read(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize)
+iox::cxx::optional<uint64_t> iox::dds::CycloneDataReader::peekNext()
 {
-    auto bufferCapacity = bufferSize / sampleSize;
-    return read(buffer, bufferSize, sampleSize, bufferCapacity);
+    // Only reading the next sample details, not taking.
+    auto readSamples = m_impl.select()
+                       .max_samples(1u)
+                       .state(::dds::sub::status::SampleState::any())
+                       .read();
+    if(readSamples.length() > 0)
+    {
+        auto nextSample = readSamples.begin();
+        auto nextSampleSize = nextSample->data().payload().size();
+        return iox::cxx::optional<uint64_t>(static_cast<uint64_t>(nextSampleSize));
+    }
+    else
+    {
+        return iox::cxx::nullopt_t();
+
+    }
 }
 
-iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::read(uint8_t* const buffer,
+iox::cxx::expected<iox::dds::DataReaderError>
+iox::dds::CycloneDataReader::takeNext(uint8_t* const buffer, const uint64_t& bufferSize)
+{
+    auto result = peekNext();
+    if(result.has_value())
+    {
+        uint64_t size = result.value();
+        if (bufferSize < size)
+        {
+            // Provided buffer is too small.
+            return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::RECV_BUFFER_TOO_SMALL);
+        }
+
+        // Take next sample and copy into buffer
+        auto takenSamples = m_impl.select()
+                           .max_samples(1u)
+                           .state(::dds::sub::status::SampleState::any())
+                           .take();
+        auto nextSample = takenSamples.begin();
+        auto bytes = nextSample->data().payload().data();
+        std::copy(bytes, bytes + size, buffer);
+    }
+
+    return iox::cxx::success<>();
+}
+
+iox::cxx::expected<uint64_t, iox::dds::DataReaderError>
+iox::dds::CycloneDataReader::take(uint8_t* const buffer, const uint64_t& bufferSize, const uint64_t& sampleSize)
+{
+    auto bufferCapacity = bufferSize / sampleSize;
+    return take(buffer, bufferSize, sampleSize, bufferCapacity);
+}
+
+iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataReader::take(uint8_t* const buffer,
                                                                                           const uint64_t& bufferSize,
                                                                                           const uint64_t& sampleSize,
                                                                                           const uint64_t& maxSamples)
@@ -72,13 +118,13 @@ iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataRea
     }
     if (bufferSize < sampleSize)
     {
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_RECV_BUFFER);
+        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::RECV_BUFFER_TOO_SMALL);
     }
 
     // Read up to the maximum number of samples that can fit in the buffer.
     auto samples = m_impl.select()
                        .max_samples(static_cast<uint32_t>(maxSamples))
-                       .state(::dds::sub::status::SampleState::not_read())
+                       .state(::dds::sub::status::SampleState::any())
                        .take();
 
     // Copy data into the provided buffer.
@@ -87,11 +133,12 @@ iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataRea
     {
         // Sample validation checks
         uint64_t size = samples.begin()->data().payload().size();
+
         if (size != sampleSize)
         {
             // Received invalid data.
             // NOTE: This causes other data points received in this read to be lost...
-            return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATA);
+            return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::SAMPLE_SIZE_MISMATCH);
         }
 
         // Do copy

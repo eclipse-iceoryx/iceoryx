@@ -65,11 +65,11 @@ class MockDataReader
   public:
     MockDataReader(const iox::capro::ServiceDescription& sd){};
     MOCK_METHOD0(connect, void(void));
-    MOCK_METHOD3(read,
+    MOCK_METHOD3(take,
                  iox::cxx::expected<uint64_t, iox::dds::DataReaderError>(uint8_t* const buffer,
                                                                          const uint64_t&,
                                                                          const uint64_t&));
-    MOCK_METHOD4(read,
+    MOCK_METHOD4(take,
                  iox::cxx::expected<uint64_t, iox::dds::DataReaderError>(
                      uint8_t* const buffer, const uint64_t&, const uint64_t&, const uint64_t&));
     MOCK_CONST_METHOD0(getServiceId, std::string(void));

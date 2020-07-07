@@ -46,7 +46,7 @@ TEST_F(CycloneDataReaderTest, DoesNotAttemptToReadWhenDisconnected)
 
     // ===== Test
     TestDataReader reader{"", "", ""};
-    auto result = reader.read(buffer, bufferSize, sampleSize);
+    auto result = reader.take(buffer, bufferSize, sampleSize);
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::NOT_CONNECTED, result.get_error());
 }
@@ -61,13 +61,13 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
     // ===== Test
     TestDataReader reader{"", "", ""};
     reader.connect();
-    auto result = reader.read(buffer, bufferSize, sampleSize);
+    auto result = reader.take(buffer, bufferSize, sampleSize);
 
     EXPECT_EQ(true, result.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, result.get_error());
 }
 
-TEST_F(CycloneDataReaderTest, ReturnsErrorWhenReceiverBufferSmallerThanSampleSize)
+TEST_F(CycloneDataReaderTest, ReturnsErrorWhenReceiveBufferSmallerThanSampleSize)
 {
     // ===== Setup
     uint64_t bufferSize = 0;
@@ -77,10 +77,10 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenReceiverBufferSmallerThanSampleSiz
     // ===== Test
     TestDataReader reader{"", "", ""};
     reader.connect();
-    auto result = reader.read(buffer, bufferSize, sampleSize);
+    auto result = reader.take(buffer, bufferSize, sampleSize);
 
     EXPECT_EQ(true, result.has_error());
-    EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, result.get_error());
+    EXPECT_EQ(iox::dds::DataReaderError::RECV_BUFFER_TOO_SMALL, result.get_error());
 }
 
 } // namespace dds

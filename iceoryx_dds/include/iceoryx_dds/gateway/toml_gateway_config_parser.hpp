@@ -34,8 +34,7 @@ enum TomlGatewayConfigParseError
     INVALID_SERVICE_DESCRIPTION
 };
 
-constexpr int32_t MAX_ENUM_STRING_SIZE = 64;
-constexpr char TomlGatewayConfigParseErrorString[][MAX_ENUM_STRING_SIZE] = {
+constexpr char TomlGatewayConfigParseErrorString[][64] = {
     "FILE_NOT_FOUND", "INCOMPLETE_CONFIGURATION", "INCOMPLETE_SERVICE_DESCRIPTION", "INVALID_SERVICE_DESCRIPTION"};
 
 static constexpr const char REGEX_VALID_CHARACTERS[] = "^[a-zA-Z_][a-zA-Z0-9_]*$";

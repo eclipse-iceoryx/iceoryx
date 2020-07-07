@@ -95,7 +95,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
         if (result.has_error())
         {
             iox::dds::LogError() << "[DDSGatewayGeneric] Unable to set up channel for service: "
-                                 << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
+                                 << "/" << service.getServiceIDString() << "/" << service.getInstanceIDString() << "/"
                                  << service.getEventIDString();
             return iox::cxx::error<GatewayError>(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
         }
@@ -104,7 +104,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
             auto channel = result.get_value();
             m_channels->push_back(channel);
             iox::dds::LogDebug() << "[DDSGatewayGeneric] Channel set up for service: "
-                                 << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
+                                 << "/" << service.getServiceIDString() << "/" << service.getInstanceIDString() << "/"
                                  << service.getEventIDString();
             return iox::cxx::success<channel_t>(channel);
         }

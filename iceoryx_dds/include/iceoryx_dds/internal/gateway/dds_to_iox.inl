@@ -73,13 +73,13 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
     // read exactly one sample into the reserved chunk
     auto buffer = static_cast<uint8_t*>(m_reservedChunk);
     auto const numToRead = 1u;
-    auto result = reader->read(buffer, dataSize.value(), dataSize.value(), numToRead);
+    auto result = reader->take(buffer, dataSize.value(), dataSize.value(), numToRead);
     if (!result.has_error())
     {
         auto num = result.get_value();
         if (num == 0)
         {
-            // Nothing to do.
+            // nothing to do.
         }
         else if (num == 1)
         {
@@ -96,7 +96,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
     }
     else
     {
-        LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network.";
+        LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: " << iox::dds::DataReaderErrorString[static_cast<uint8_t>(result.get_error())];
     }
 }
 
