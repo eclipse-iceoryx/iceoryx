@@ -408,7 +408,7 @@ TEST_F(Timer_test, GetOverrunsFailsWithNoCallback)
     EXPECT_THAT(call.get_error(), Eq(TimerError::TIMER_NOT_INITIALIZED));
 }
 
-TIMING_TEST_F(Timer_test, SoftTimerContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
+TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
@@ -422,7 +422,7 @@ TIMING_TEST_F(Timer_test, SoftTimerContinuesWhenCallbackIsLongerThenTriggerTime,
     TIMING_TEST_EXPECT_FALSE(hasTerminated);
 });
 
-TIMING_TEST_F(Timer_test, ASAPTimerContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
+TIMING_TEST_F(Timer_test, CatchUpPolicyImmediateContinuesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
@@ -436,7 +436,7 @@ TIMING_TEST_F(Timer_test, ASAPTimerContinuesWhenCallbackIsLongerThenTriggerTime,
     TIMING_TEST_EXPECT_FALSE(hasTerminated);
 });
 
-TIMING_TEST_F(Timer_test, HardTimerTerminatesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
+TIMING_TEST_F(Timer_test, CatchUpPolicyTerminateTerminatesWhenCallbackIsLongerThenTriggerTime, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
@@ -450,7 +450,7 @@ TIMING_TEST_F(Timer_test, HardTimerTerminatesWhenCallbackIsLongerThenTriggerTime
     TIMING_TEST_EXPECT_TRUE(hasTerminated);
 });
 
-TIMING_TEST_F(Timer_test, SoftToHardTimerChangesBehaviorToTerminate, Repeat(5), [&] {
+TIMING_TEST_F(Timer_test, CatchUpPolicyChangeToTerminateChangesBehaviorToTerminate, Repeat(5), [&] {
     std::atomic_bool hasTerminated{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { hasTerminated = true; });
@@ -466,7 +466,7 @@ TIMING_TEST_F(Timer_test, SoftToHardTimerChangesBehaviorToTerminate, Repeat(5), 
     TIMING_TEST_EXPECT_TRUE(hasTerminated);
 });
 
-TIMING_TEST_F(Timer_test, SoftTimerSkipsCallbackWhenStillRunning, Repeat(5), [&] {
+TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatSkipsCallbackWhenStillRunning, Repeat(5), [&] {
     std::atomic_int counter{0};
     Timer sut(TIMEOUT, [&] {
         ++counter;
@@ -482,7 +482,7 @@ TIMING_TEST_F(Timer_test, SoftTimerSkipsCallbackWhenStillRunning, Repeat(5), [&]
     TIMING_TEST_EXPECT_TRUE(50 <= counter && counter <= 70);
 });
 
-TIMING_TEST_F(Timer_test, ASAPTimerCallsCallbackImmediatelyAfterFinishing, Repeat(5), [&] {
+TIMING_TEST_F(Timer_test, CatchUpPolicyImmediateCallsCallbackImmediatelyAfterFinishing, Repeat(5), [&] {
     std::atomic_int counter{0};
     Timer sut(TIMEOUT, [&] {
         ++counter;
@@ -499,7 +499,7 @@ TIMING_TEST_F(Timer_test, ASAPTimerCallsCallbackImmediatelyAfterFinishing, Repea
     TIMING_TEST_EXPECT_TRUE(80 <= counter && counter <= 100);
 });
 
-TIMING_TEST_F(Timer_test, SoftTimerCallsLessCallbacksThanASAPTimer, Repeat(5), [&] {
+TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatCallsLessCallbacksThanASAPTimer, Repeat(5), [&] {
     std::atomic_int counter{0};
     Timer sut(TIMEOUT, [&] {
         ++counter;

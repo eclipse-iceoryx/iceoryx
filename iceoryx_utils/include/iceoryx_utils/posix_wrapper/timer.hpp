@@ -147,8 +147,8 @@ class Timer
         ///
         /// The callback is called by the operating system after the time has expired.
         ///
-        /// @param[in] runMode periodic can be a periodic timer if set to RunMode::PERIODIC or
-        ///                     once when in RunMode::ONCE
+        /// @param[in] runMode can be a periodic timer if set to RunMode::PERIODIC or
+        ///                     it runs just once when it is set to RunMode::ONCE
         /// @param[in] CatchUpPolicy define behavior when callbackRuntime > timeToWait
         /// @note Shall only be called when callback is given
         cxx::expected<TimerError> start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept;
