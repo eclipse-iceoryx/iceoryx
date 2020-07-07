@@ -21,7 +21,7 @@ namespace iox
 namespace popo
 {
 ChunkReceiver::ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept
-    : ChunkQueuePopper(static_cast<ChunkQueuePopper::MemberType_t* const>(chunkReceiverDataPtr))
+    : ChunkQueuePopper(static_cast<ChunkQueuePopper::MemberType_t*>(chunkReceiverDataPtr))
 {
 }
 

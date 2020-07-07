@@ -48,9 +48,9 @@ struct IceOryxRouDiComponents
             // if there is an outdated mqueue, the start of the apps will be terminated
             runtime::MqBase::cleanupOutdatedMessageQueue(MQ_ROUDI_NAME);
 
-            m_rouDiMemoryManager.createAndAnnounceMemory().on_error([](cxx::expected<RouDiMemoryManagerError> error) {
+            m_rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
                 /// @todo errorHandler
-                LogFatal() << "Could not create SharedMemory! Error: " << static_cast<uint64_t>(error.get_error());
+                LogFatal() << "Could not create SharedMemory! Error: " << static_cast<uint64_t>(error);
                 std::terminate();
             });
             return true;

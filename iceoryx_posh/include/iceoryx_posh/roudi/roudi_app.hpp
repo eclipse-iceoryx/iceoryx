@@ -82,7 +82,7 @@ class RouDiApp
     RouDiConfig_t m_config;
 
     posix::Semaphore m_semaphore = std::move(posix::Semaphore::create(0u)
-                                                 .on_error([] {
+                                                 .or_else([](posix::SemaphoreError&) {
                                                      std::cerr << "Unable to create the semaphore for RouDi"
                                                                << std::endl;
                                                      std::terminate();
