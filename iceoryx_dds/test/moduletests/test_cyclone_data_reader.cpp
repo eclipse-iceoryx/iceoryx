@@ -75,5 +75,7 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
     EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, takeNextResult.get_error());
 }
 
+
+
 } // namespace dds
 } // namespace iox
