@@ -19,6 +19,8 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 
+#include "iceoryx_dds/gateway/dds_to_iox.hpp"
+
 namespace iox
 {
 namespace dds
@@ -51,53 +53,30 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::discover(const iox::capro:
 template <typename channel_t, typename gateway_t>
 inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
-    // Don't forward across channels that don't provide their size.
-    // Data size is required to determine the required memchunk size.
-    auto dataSize = channel.getDataSize();
-    if (!dataSize.has_value())
-    {
-        // nothing to do
-        LogWarn() << "[DDS2IceoryxGateway] Attempted to forward over a channel with an unknown data size.";
-        return;
-    }
 
     auto publisher = channel.getIceoryxTerminal();
     auto reader = channel.getDDSTerminal();
 
-    // reserve a chunk for initial sample
-    if (m_reservedChunk == nullptr)
+    auto peekResult = reader->peekNext();
+    if(peekResult.has_value())
     {
-        m_reservedChunk = publisher->allocateChunk(static_cast<uint32_t>(dataSize.value()));
+        // reserve a chunk for the sample
+        auto size = peekResult.value();
+
+        m_reservedChunk = publisher->allocateChunk(static_cast<uint32_t>(size));
+
+        // read sample into reserved chunk
+        auto buffer = static_cast<uint8_t*>(m_reservedChunk);
+        auto takeResult = reader->takeNext(buffer, size);
+        if(takeResult.has_error())
+        {
+            LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: " << iox::dds::DataReaderErrorString[static_cast<uint8_t>(takeResult.get_error())];
+        }
+
+        // publish the sample
+        publisher->sendChunk(buffer);
     }
 
-    // read exactly one sample into the reserved chunk
-    auto buffer = static_cast<uint8_t*>(m_reservedChunk);
-    auto const numToRead = 1u;
-    auto result = reader->take(buffer, dataSize.value(), dataSize.value(), numToRead);
-    if (!result.has_error())
-    {
-        auto num = result.get_value();
-        if (num == 0)
-        {
-            // nothing to do.
-        }
-        else if (num == 1)
-        {
-            // publish the sample
-            publisher->sendChunk(buffer);
-            // reserve a new chunk for the next sample
-            m_reservedChunk = publisher->allocateChunk(static_cast<uint32_t>(dataSize.value()));
-        }
-        else
-        {
-            // sample is corrupt, don't publish.
-            LogWarn() << "[DDS2IceoryxGateway] Received corrupt sample. Buffer is larger than expected. Skipping.";
-        }
-    }
-    else
-    {
-        LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: " << iox::dds::DataReaderErrorString[static_cast<uint8_t>(result.get_error())];
-    }
 }
 
 // ======================================== Private ======================================== //

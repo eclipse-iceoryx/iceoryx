@@ -56,17 +56,22 @@ iox::cxx::optional<uint64_t> iox::dds::CycloneDataReader::peekNext()
                        .max_samples(1u)
                        .state(::dds::sub::status::SampleState::any())
                        .read();
+
     if(readSamples.length() > 0)
     {
         auto nextSample = readSamples.begin();
         auto nextSampleSize = nextSample->data().payload().size();
-        return iox::cxx::optional<uint64_t>(static_cast<uint64_t>(nextSampleSize));
-    }
-    else
-    {
-        return iox::cxx::nullopt_t();
 
+        // Ignore samples with no payload
+        if (nextSampleSize != 0)
+        {
+            return iox::cxx::optional<uint64_t>(static_cast<uint64_t>(nextSampleSize));
+        }
     }
+
+    // No valid samples available
+    return iox::cxx::nullopt_t();
+
 }
 
 iox::cxx::expected<iox::dds::DataReaderError>
@@ -134,10 +139,12 @@ iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataRea
         // Sample validation checks
         uint64_t size = samples.begin()->data().payload().size();
 
+        if (size == 0)
+        {
+            return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATA);
+        }
         if (size != sampleSize)
         {
-            // Received invalid data.
-            // NOTE: This causes other data points received in this read to be lost...
             return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::SAMPLE_SIZE_MISMATCH);
         }
 
