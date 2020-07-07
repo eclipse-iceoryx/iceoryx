@@ -39,9 +39,8 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    auto dataSize = 8u;
     iox::dds::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, dataSize});
+    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService});
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
@@ -55,10 +54,9 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyOffersConfiguredPublishers)
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    auto dataSize = 8u;
 
     iox::dds::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService, dataSize});
+    config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService});
 
     auto mockPublisher = createMockIceoryxTerminal(testService);
     EXPECT_CALL(*mockPublisher, offer).Times(1);
@@ -76,7 +74,6 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    auto dataSize = 8u;
 
     iox::dds::GatewayConfig config{};
     config.m_configuredServices.push_back(iox::dds::GatewayConfig::ServiceEntry{testService});
@@ -100,7 +97,6 @@ TEST_F(DDS2IceoryxGatewayTest, ForwardsReceivedBytesIntoReservedMemoryChunks)
     {
         // === Setup
         auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-        auto dataSize = 8u;
 
         // Setup data reader to provide a sample
         auto mockDataReader = createMockDDSTerminal(testService);
@@ -130,7 +126,6 @@ TEST_F(DDS2IceoryxGatewayTest, OnlyRequestsOneSampleAtATime)
     {
         // === Setup
         auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-        auto dataSize = 8u;
 
         uint8_t buffer[64];
 

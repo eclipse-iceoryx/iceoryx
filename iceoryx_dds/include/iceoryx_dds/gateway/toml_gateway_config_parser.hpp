@@ -44,7 +44,6 @@ static constexpr const char GATEWAY_CONFIG_SERVICE_TABLE_NAME[] = "services";
 static constexpr const char GATEWAY_CONFIG_SERVICE_NAME[] = "service";
 static constexpr const char GATEWAY_CONFIG_SERVICE_INSTANCE_NAME[] = "instance";
 static constexpr const char GATEWAY_CONFIG_SERVICE_EVENT_NAME[] = "event";
-static constexpr const char GATEWAY_CONFIG_SERVICE_PAYLOAD_SIZE[] = "size";
 
 ///
 /// @brief The TomlGatewayConfigParser class provides methods for parsing gateway configs from toml text files.

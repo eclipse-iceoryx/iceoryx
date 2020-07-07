@@ -31,7 +31,6 @@ struct GatewayConfig
     struct ServiceEntry
     {
         iox::capro::ServiceDescription m_serviceDescription;
-        uint64_t m_dataSize;
     };
     iox::cxx::vector<ServiceEntry, iox::MAX_PORT_NUMBER> m_configuredServices;
 
