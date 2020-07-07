@@ -19,8 +19,6 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 
-#include "iceoryx_dds/gateway/dds_to_iox.hpp"
-
 namespace iox
 {
 namespace dds
