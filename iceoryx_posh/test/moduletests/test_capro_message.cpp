@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019-2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 #include "test.hpp"
 
 using namespace ::testing;
-// using ::testing::Return;
 using namespace iox::capro;
 
 class CaproMessage_test : public Test
@@ -33,6 +32,8 @@ TEST_F(CaproMessage_test, CtorNoParams)
     EXPECT_EQ(testObj.m_requestPort, nullptr);
     EXPECT_EQ(testObj.m_type, CaproMessageType::NOTYPE);
     EXPECT_EQ(testObj.m_subType, CaproMessageSubType::NOSUBTYPE);
+    EXPECT_EQ(testObj.m_chunkQueueData, nullptr);
+    EXPECT_EQ(testObj.m_historyCapacity, 0u);
 }
 
 
@@ -48,10 +49,12 @@ TEST_F(CaproMessage_test, CtorParams)
     EXPECT_EQ(testObj.m_requestPort, &recData);
     EXPECT_EQ(testObj.m_type, CaproMessageType::OFFER);
     EXPECT_EQ(testObj.m_subType, CaproMessageSubType::SERVICE);
+    EXPECT_EQ(testObj.m_chunkQueueData, nullptr);
+    EXPECT_EQ(testObj.m_historyCapacity, 0u);
 }
 
 
-TEST_F(CaproMessage_test, CtorParameterized)
+TEST_F(CaproMessage_test, CtorDefaultArgs)
 {
     uint16_t testServiceID = 1;
     uint16_t testEventID = 2;
