@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#pragma once
+#ifndef IOX_UTILS_POSIX_WRAPPER_TIMER_HPP
+#define IOX_UTILS_POSIX_WRAPPER_TIMER_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -147,8 +147,8 @@ class Timer
         ///
         /// The callback is called by the operating system after the time has expired.
         ///
-        /// @param[in] runMode periodic can be a periodic timer if set to RunMode::PERIODIC or
-        ///                     once when in RunMode::ONCE
+        /// @param[in] runMode can be a periodic timer if set to RunMode::PERIODIC or
+        ///                     it runs just once when it is set to RunMode::ONCE
         /// @param[in] CatchUpPolicy define behavior when callbackRuntime > timeToWait
         /// @note Shall only be called when callback is given
         cxx::expected<TimerError> start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept;
@@ -313,3 +313,5 @@ class Timer
 
 } // namespace posix
 } // namespace iox
+
+#endif // IOX_UTILS_POSIX_WRAPPER_TIMER_HPP
