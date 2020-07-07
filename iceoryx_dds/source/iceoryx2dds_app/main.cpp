@@ -54,11 +54,7 @@ int main()
 
     iox::dds::Iceoryx2DDSGateway<> gw;
     auto result = iox::dds::TomlGatewayConfigParser::parse();
-    if (!result.has_error())
-    {
-        gw.loadConfiguration(result.get_value());
-    }
-    else
+    if (result.has_error())
     {
         iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
                             << iox::dds::TomlGatewayConfigParseErrorString[result.get_error()];
@@ -66,6 +62,10 @@ int main()
         iox::dds::GatewayConfig defaultConfig;
         defaultConfig.setDefaults();
         gw.loadConfiguration(defaultConfig);
+    }
+    else
+    {
+        gw.loadConfiguration(result.get_value());
     }
 
     gw.runMultithreaded();

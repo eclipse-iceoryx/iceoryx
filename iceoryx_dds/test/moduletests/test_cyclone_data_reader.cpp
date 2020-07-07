@@ -53,7 +53,6 @@ TEST_F(CycloneDataReaderTest, DoesNotAttemptToReadWhenDisconnected)
     auto takeNextResult = reader.takeNext(buffer, bufferSize);
     EXPECT_EQ(true, takeNextResult.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::NOT_CONNECTED, takeResult.get_error());
-
 }
 
 TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
@@ -74,7 +73,6 @@ TEST_F(CycloneDataReaderTest, ReturnsErrorWhenAttemptingToReadIntoANullBuffer)
     EXPECT_EQ(true, takeNextResult.has_error());
     EXPECT_EQ(iox::dds::DataReaderError::INVALID_RECV_BUFFER, takeNextResult.get_error());
 }
-
 
 
 } // namespace dds

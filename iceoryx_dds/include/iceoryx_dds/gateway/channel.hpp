@@ -85,7 +85,6 @@ class Channel
     iox::capro::ServiceDescription m_service;
     IceoryxTerminalPtr m_iceoryxTerminal;
     DDSTerminalPtr m_ddsTerminal;
-
 };
 
 } // namespace dds
