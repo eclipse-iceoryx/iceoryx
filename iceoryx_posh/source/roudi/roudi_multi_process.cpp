@@ -30,7 +30,7 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
                                      PortManager& portManager,
                                      const MonitoringMode monitoringMode,
                                      const bool killProcessesInDestructor,
-                                     const MQThreadMode mqThreadMode)
+                                     const MQThreadStart mqThreadStart)
     : m_killProcessesInDestructor(killProcessesInDestructor)
     , m_runThreads(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
@@ -55,7 +55,7 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
     m_processManagementThread = std::thread(&RouDiMultiProcess::processThread, this);
     pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
 
-    if(mqThreadMode == MQThreadMode::START) {
+    if(mqThreadStart == MQThreadStart::IMMEDIATE) {
         startMQThread();
     }
 

@@ -44,8 +44,8 @@ class RouDiMultiProcess
 
     // indicate whether the message queue thread will start directly or deferred
     // this is important for derived classes which may need to initialize their members before the thread starts
-    enum class MQThreadMode {
-      START,
+    enum class MQThreadStart {
+      IMMEDIATE,
       DEFER_START
     };
    
@@ -57,7 +57,7 @@ class RouDiMultiProcess
                       PortManager& portManager,
                       const MonitoringMode f_monitoringMode = MonitoringMode::ON,
                       const bool f_killProcessesInDestructor = true,
-                      const MQThreadMode mqThreadMode = MQThreadMode::START);
+                      const MQThreadStart mqThreadStart = MQThreadStart::IMMEDIATE);
 
     virtual ~RouDiMultiProcess();
 
