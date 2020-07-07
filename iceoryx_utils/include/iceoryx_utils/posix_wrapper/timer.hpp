@@ -76,6 +76,20 @@ class Timer
         PERIODIC
     };
 
+    /// @brief
+    ///     defines the behavior of the timer when the callback runtime is greater
+    ///     than the periodic trigger time.
+    ///     SKIP_TO_NEXT_BEAT skip callback and call it in the next cycle
+    ///     IMMEDIATE call the callback right after the currently running callback is finished
+    ///     TERMINATE terminates the process by calling the errorHandler with
+    ///                 POSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME
+    enum class CatchUpPolicy
+    {
+        SKIP_TO_NEXT_BEAT,
+        IMMEDIATE,
+        TERMINATE
+    };
+
   private:
     static constexpr size_t SIZE_OF_COMBINDED_INDEX_AND_DESCRIPTOR = sizeof(uint32_t);
     static constexpr size_t SIZE_OF_SIGVAL_INT = sizeof(int);
@@ -88,21 +102,23 @@ class Timer
     struct OsTimerCallbackHandle
     {
         static constexpr uint32_t MAX_DESCRIPTOR_VALUE{(1u << 24u) - 1u};
-        static sigval indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor);
-        static uint8_t sigvalToIndex(sigval intVal);
-        static uint32_t sigvalToDescriptor(sigval intVal);
+        static sigval indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor) noexcept;
+        static uint8_t sigvalToIndex(sigval intVal) noexcept;
+        static uint32_t sigvalToDescriptor(sigval intVal) noexcept;
 
-        void incrementDescriptor();
+        void incrementDescriptor() noexcept;
 
         std::mutex m_accessMutex;
 
         /// @brief the descriptor is unique for a timer_t in OsTimer, if this handle is recycled, the descriptor needs
         /// to be incremented first
-        std::atomic<uint32_t> m_descriptor{0};
+        std::atomic<uint32_t> m_descriptor{0u};
 
         std::atomic<bool> m_inUse{false};
         std::atomic<bool> m_isTimerActive{false};
-
+        std::atomic<uint64_t> m_timerInvocationCounter{0u};
+        std::atomic<uint64_t> m_callbackExecutionCycle{0u};
+        CatchUpPolicy m_catchUpPolicy{CatchUpPolicy::TERMINATE};
         OsTimer* m_timer{nullptr};
     };
 
@@ -131,10 +147,11 @@ class Timer
         ///
         /// The callback is called by the operating system after the time has expired.
         ///
-        /// @param[in] periodic - can be a periodic timer if set to RunMode::PERIODIC or
-        ///                     once when in RunMode::ONCE
+        /// @param[in] runMode can be a periodic timer if set to RunMode::PERIODIC or
+        ///                     it runs just once when it is set to RunMode::ONCE
+        /// @param[in] CatchUpPolicy define behavior when callbackRuntime > timeToWait
         /// @note Shall only be called when callback is given
-        cxx::expected<TimerError> start(const RunMode runMode) noexcept;
+        cxx::expected<TimerError> start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept;
 
         /// @brief Disarms the timer
         /// @note Shall only be called when callback is given, guarantee after stop() call is callback is immediately
@@ -143,7 +160,11 @@ class Timer
 
         /// @brief Disarms the timer, assigns a new timeToWait value and arms the timer
         /// @note Shall only be called when callback is given
-        cxx::expected<TimerError> restart(const units::Duration timeToWait, const RunMode runMode) noexcept;
+        /// @param[in] runMode periodic can be a periodic timer if set to RunMode::PERIODIC or
+        ///                     once when in RunMode::ONCE
+        /// @param[in] CatchUpPolicy define behavior when callbackRuntime > timeToWait
+        cxx::expected<TimerError>
+        restart(const units::Duration timeToWait, const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept;
 
         // @brief Returns the time until the timer expires the next time
         /// @note Shall only be called when callback is given
@@ -164,7 +185,6 @@ class Timer
         /// @brief Call the user-defined callback
         /// @note This call is wrapped in a plain C function
         void executeCallback() noexcept;
-
 
       private:
         /// @brief Duration after the timer calls the user-defined callback function
@@ -235,10 +255,10 @@ class Timer
     ///
     /// The callback is called by the operating system after the time has expired.
     ///
-    /// @param[in] periodic - can be a periodic timer if set to true, default false
+    /// @param[in] runMode for continuous callbacks PERIODIC otherwise ONCE
+    /// @param[in] CatchUpPolicy define behavior when callbackRuntime > timeToWait
     /// @note Shall only be called when callback is given
-    /// @todo replace bool with enum; SingleShot and Periodic
-    cxx::expected<TimerError> start(const RunMode runMode) noexcept;
+    cxx::expected<TimerError> start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept;
 
     /// @brief Disarms the timer
     /// @note Shall only be called when callback is given, guarantee after stop() call is callback is immediately
@@ -246,8 +266,12 @@ class Timer
     cxx::expected<TimerError> stop() noexcept;
 
     /// @brief Disarms the timer, assigns a new timeToWait value and arms the timer
+    /// @param[in] timeToWait duration till the callback should be called
+    /// @param[in] runMode for continuous callbacks PERIODIC otherwise ONCE
+    /// @param[in] CatchUpPolicy define behavior when callbackRuntime > timeToWait
     /// @note Shall only be called when callback is given
-    cxx::expected<TimerError> restart(const units::Duration timeToWait, const RunMode runMode) noexcept;
+    cxx::expected<TimerError>
+    restart(const units::Duration timeToWait, const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept;
 
     /// @brief Resets the internal creation time
     void resetCreationTime() noexcept;
