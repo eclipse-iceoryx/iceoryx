@@ -12,15 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/internal/file_reader/file_reader.hpp"
+#include "test.hpp"
+
 
 #include <cstdio>
+#include <cstdlib>
 #include <fstream>
+#include <string>
+
 
 using namespace ::testing;
 
-const char* TestFileName = "/tmp/FileReader_test.tmp";
+const std::string TestFile = "FileReader_test.tmp";
+#ifndef _WIN32
+const std::string TempPath = "/tmp";
+const std::string CrapPath = "/All/Hail/Hypnotoad";
+const std::string TestFilePath = TempPath + "/" + TestFile;
+#else
+const std::string TempPath = std::getenv("TEMP");
+const std::string CrapPath = "C:\\All\\Hail\\Hypnotoad";
+const std::string TestFilePath = TempPath + "\\" + TestFile;
+#endif
 
 const char* TestFileContent = "This is a test file.\n"
                               "It consists of more than one line.\n\n"
@@ -33,7 +46,7 @@ class FileReader_test : public Test
     {
         internal::CaptureStdout();
 
-        std::fstream fs(TestFileName, std::fstream::out | std::fstream::trunc);
+        std::fstream fs(TestFilePath, std::fstream::out | std::fstream::trunc);
         fs << TestFileContent;
         fs.close();
     }
@@ -44,9 +57,9 @@ class FileReader_test : public Test
         {
             std::cout << output << std::endl;
         }
-        if (std::remove(TestFileName) != 0)
+        if (std::remove(TestFilePath.c_str()) != 0)
         {
-            std::cerr << "Failed to remove temporary file '" << TestFileName
+            std::cerr << "Failed to remove temporary file '" << TestFilePath
                       << "'. You'll have to remove it by yourself.";
         }
     }
@@ -60,28 +73,28 @@ TEST_F(FileReader_test, openNonExisting)
 
 TEST_F(FileReader_test, openExisting)
 {
-    iox::cxx::FileReader reader(TestFileName);
+    iox::cxx::FileReader reader(TestFilePath);
     EXPECT_TRUE(reader.IsOpen());
 }
 
 TEST_F(FileReader_test, openWithPath)
 {
-    iox::cxx::FileReader reader("FileReader_test.tmp", "/tmp");
+    iox::cxx::FileReader reader(TestFile, TempPath);
     EXPECT_TRUE(reader.IsOpen());
 
-    iox::cxx::FileReader almostTheSameReader("FileReader_test.tmp", "/tmp/");
+    iox::cxx::FileReader almostTheSameReader(TestFile, TempPath);
     EXPECT_TRUE(almostTheSameReader.IsOpen());
 }
 
 TEST_F(FileReader_test, openWithWrongPath)
 {
-    iox::cxx::FileReader reader("FileReader_test.tmp", "/tmp/what_path_is_this");
+    iox::cxx::FileReader reader(TestFile, CrapPath);
     EXPECT_FALSE(reader.IsOpen());
 }
 
 TEST_F(FileReader_test, readLines)
 {
-    iox::cxx::FileReader reader(TestFileName);
+    iox::cxx::FileReader reader(TestFilePath);
     std::string stringLine;
 
     bool isLineCorrect = reader.ReadLine(stringLine);
@@ -95,7 +108,7 @@ TEST_F(FileReader_test, readLines)
 
 TEST_F(FileReader_test, readAllLines)
 {
-    iox::cxx::FileReader reader(TestFileName);
+    iox::cxx::FileReader reader(TestFilePath);
     std::string stringLine;
     int numLines = 0;
     while (reader.ReadLine(stringLine))
