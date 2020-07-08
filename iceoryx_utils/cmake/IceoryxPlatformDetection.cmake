@@ -16,7 +16,11 @@ elseif(APPLE)
     set(ICEORYX_CXX_STANDARD 17)
 endif(LINUX)
 
-set (ICEORYX_WARNINGS -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type)
+if ( WIN32 )
+    set (ICEORYX_WARNINGS /W3 )
+else()
+    set (ICEORYX_WARNINGS -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type)
+endif ( WIN32 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # temporary disable conversion warnings for clang
@@ -25,5 +29,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 if(BUILD_STRICT)
-    set(ICEORYX_WARNINGS ${ICEORYX_WARNINGS} -Werror)
+    if ( WIN32 )
+        set(ICEORYX_WARNINGS ${ICEORYX_WARNINGS} /WX)
+    else()
+        set(ICEORYX_WARNINGS ${ICEORYX_WARNINGS} -Werror)
+    endif ( WIN32 )
 endif(BUILD_STRICT)
