@@ -73,21 +73,21 @@ set_target_properties(iceoryx_introspection
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
-add_executable(iox-introspection source/introspection_main.cpp)
-set_property(TARGET iox-introspection PROPERTY CXX_STANDARD 11)
+add_executable(iox-introspection-client source/introspection_main.cpp)
+set_property(TARGET iox-introspection-client PROPERTY CXX_STANDARD 11)
 
-target_link_libraries(iox-introspection
+target_link_libraries(iox-introspection-client
     PRIVATE
     ${PROJECT_NAMESPACE}::iceoryx_introspection
 )
 
-target_compile_options(iox-introspection PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iox-introspection-client PRIVATE ${ICEORYX_WARNINGS})
 
 #
 ########## exporting library ##########
 #
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_introspection iox-introspection
+    TARGETS iceoryx_introspection iox-introspection-client
     INCLUDE_DIRECTORY include/
 )
 
