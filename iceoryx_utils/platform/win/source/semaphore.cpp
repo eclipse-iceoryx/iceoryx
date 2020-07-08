@@ -139,6 +139,11 @@ int iox_sem_unlink(const char* name)
 
 iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...) // mode_t mode, unsigned int value
 {
+    if (strlen(name) == 0)
+    {
+        return SEM_FAILED;
+    }
+
     iox_sem_t* sem = new iox_sem_t;
     if (oflag & (O_CREAT | O_EXCL))
     {
