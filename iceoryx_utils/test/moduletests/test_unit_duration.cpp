@@ -21,7 +21,7 @@ using namespace iox::units;
 constexpr int KILO = 1000;
 constexpr int MEGA = 1000000;
 constexpr int GIGA = 1000000000;
-constexpr double doubleEpsilon = std::numeric_limits<double>::epsilon();
+constexpr double doubleEpsilon = std::numeric_limits<double>::epsilon() * 10.;
 
 TEST(Duration_test, convertDays)
 {
