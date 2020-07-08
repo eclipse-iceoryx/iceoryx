@@ -19,7 +19,7 @@ REVISION="current"
 IMAGE_NAME="iceoryx:${REVISION}"
 CONTAINER_NAME=roudi
 ICEORYX_BUILD=/iceoryx/build
-DOCKERFILE_DIR="$(dirname "$(readlink  "$0")")"
+DOCKERFILE_DIR="$(dirname "$(readlink -n "$0")")"
 ICEORYX_SRC="$(dirname "$(dirname "${DOCKERFILE_DIR}")")"
 LAUNCH_FLAGS=(\
 	-it \
