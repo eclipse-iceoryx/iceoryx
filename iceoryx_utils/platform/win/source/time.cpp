@@ -83,7 +83,8 @@ int timer_create(clockid_t, struct sigevent* sevp, timer_t* timerid)
                 timer->parameter.mutex.unlock();
                 if (doCallCallback)
                 {
-                    timer->callback(timer->callbackParameter);
+                    std::thread t(timer->callback, timer->callbackParameter);
+                    t.detach();
 
                     std::lock_guard<std::mutex> l(timer->parameter.mutex);
                     timer->parameter.wasCallbackCalled = true;
