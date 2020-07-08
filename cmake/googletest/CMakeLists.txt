@@ -4,9 +4,6 @@ project(googletest-build CXX)
 if(test)
     if(WIN32)
         set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-        set(CREATE_PATH_COMMAND mkdir)
-    else()
-        set(CREATE_PATH_COMMAND mkdir -p)
     endif(WIN32)
 
     # set download confi, source and build paths
@@ -31,12 +28,7 @@ if(test)
         message(FATAL_ERROR "Build step [download] for googletest failed: ${result}")
     endif()
 
-    execute_process(COMMAND ${CREATE_PATH_COMMAND} "${BUILD_DIR}"
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-    if(result)
-        message(FATAL_ERROR "CMake step [create build dir] for googletest failed: ${result}")
-    endif()
+    file(MAKE_DIRECTORY ${BUILD_DIR})
 
     execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${SOURCE_DIR}"
         RESULT_VARIABLE result
