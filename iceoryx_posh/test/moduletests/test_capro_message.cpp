@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ TEST_F(CaproMessage_test, CtorParams)
     EXPECT_EQ(testObj.m_subType, CaproMessageSubType::SERVICE);
     EXPECT_EQ(testObj.m_chunkQueueData, nullptr);
     EXPECT_EQ(testObj.m_historyCapacity, 0u);
+    EXPECT_EQ(testObj.m_serviceDescription, sd);
 }
 
 
