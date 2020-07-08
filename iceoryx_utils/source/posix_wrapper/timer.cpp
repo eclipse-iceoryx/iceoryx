@@ -17,6 +17,7 @@
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
+#include <atomic>
 
 namespace iox
 {
@@ -24,7 +25,7 @@ namespace posix
 {
 Timer::OsTimerCallbackHandle Timer::OsTimer::s_callbackHandlePool[MAX_NUMBER_OF_CALLBACK_HANDLES];
 
-sigval Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor)
+sigval Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(uint8_t index, uint32_t descriptor) noexcept
 {
     assert(descriptor < MAX_DESCRIPTOR_VALUE);
     uint32_t temp = (descriptor << 8) | static_cast<uint32_t>(index);
@@ -33,18 +34,18 @@ sigval Timer::OsTimerCallbackHandle::indexAndDescriptorToSigval(uint8_t index, u
     return sigvalData;
 }
 
-uint8_t Timer::OsTimerCallbackHandle::sigvalToIndex(sigval intVal)
+uint8_t Timer::OsTimerCallbackHandle::sigvalToIndex(sigval intVal) noexcept
 {
     return static_cast<uint8_t>(0xFF & intVal.sival_int);
 }
 
-uint32_t Timer::OsTimerCallbackHandle::sigvalToDescriptor(sigval intVal)
+uint32_t Timer::OsTimerCallbackHandle::sigvalToDescriptor(sigval intVal) noexcept
 {
     uint32_t temp = static_cast<uint32_t>(intVal.sival_int);
     return (temp >> 8u) & 0xFFFFFFu;
 }
 
-void Timer::OsTimerCallbackHandle::incrementDescriptor()
+void Timer::OsTimerCallbackHandle::incrementDescriptor() noexcept
 {
     auto callbackHandleDescriptor = m_descriptor.load(std::memory_order_relaxed);
     callbackHandleDescriptor++;
@@ -67,35 +68,60 @@ void Timer::OsTimer::callbackHelper(sigval data)
         return;
     }
 
-    auto& callbackHandle = OsTimer::s_callbackHandlePool[index];
+    auto& handle = OsTimer::s_callbackHandlePool[index];
 
-    // small optimazition to not lock the mutex if the callback handle is not valid anymore
-    if (descriptor != callbackHandle.m_descriptor.load(std::memory_order::memory_order_relaxed))
+    // small optimization to not lock the mutex if the callback handle is not valid anymore
+    if (descriptor != handle.m_descriptor.load(std::memory_order::memory_order_relaxed))
     {
         return;
     }
 
-    std::lock_guard<std::mutex> lock(callbackHandle.m_accessMutex);
-    if (!callbackHandle.m_inUse.load(std::memory_order::memory_order_relaxed))
-    {
-        return;
-    }
+    handle.m_timerInvocationCounter.fetch_add(1u, std::memory_order_relaxed);
 
-    if (descriptor != callbackHandle.m_descriptor.load(std::memory_order::memory_order_relaxed))
+    do
     {
-        return;
-    }
+        if (handle.m_accessMutex.try_lock() == false)
+        {
+            if (handle.m_catchUpPolicy == CatchUpPolicy::TERMINATE)
+            {
+                errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
+            }
+            return;
+        }
+        iox::cxx::GenericRAII lockGuard([] {}, [&handle] { handle.m_accessMutex.unlock(); });
 
-    if (!callbackHandle.m_isTimerActive.load(std::memory_order::memory_order_relaxed))
-    {
-        return;
-    }
+        if (handle.m_timer == nullptr)
+        {
+            errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
+            return;
+        }
 
-    /// @todo cxx::expect
-    if (callbackHandle.m_timer != nullptr)
-    {
-        callbackHandle.m_timer->executeCallback();
-    }
+        if (!handle.m_inUse.load(std::memory_order::memory_order_relaxed))
+        {
+            return;
+        }
+
+        if (descriptor != handle.m_descriptor.load(std::memory_order::memory_order_relaxed))
+        {
+            return;
+        }
+
+        if (!handle.m_isTimerActive.load(std::memory_order::memory_order_relaxed))
+        {
+            return;
+        }
+
+        if (handle.m_timerInvocationCounter.load(std::memory_order_relaxed)
+            != handle.m_callbackExecutionCycle.load(std::memory_order_relaxed))
+        {
+            handle.m_callbackExecutionCycle.store(handle.m_timerInvocationCounter.load(std::memory_order_relaxed),
+                                                  std::memory_order_relaxed);
+            handle.m_timer->executeCallback();
+        }
+
+    } while (handle.m_catchUpPolicy == CatchUpPolicy::IMMEDIATE
+             && handle.m_timerInvocationCounter.load(std::memory_order_relaxed)
+                    != handle.m_callbackExecutionCycle.load(std::memory_order_relaxed));
 }
 
 Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
@@ -176,7 +202,6 @@ Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<vo
     }
 }
 
-
 Timer::OsTimer::~OsTimer() noexcept
 {
     if (m_timerId != INVALID_TIMER_ID)
@@ -213,7 +238,7 @@ void Timer::OsTimer::executeCallback() noexcept
     }
 }
 
-cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode) noexcept
+cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept
 {
     // Convert units::Duration to itimerspec
     struct itimerspec interval;
@@ -238,16 +263,21 @@ cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode) noexcept
         return createErrorFromErrno(result.getErrNum());
     }
 
-    OsTimer::s_callbackHandlePool[m_callbackHandleIndex].m_isTimerActive.store(true, std::memory_order_relaxed);
+    auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
+
+    handle.m_catchUpPolicy = catchUpPolicy;
+    handle.m_timerInvocationCounter.store(0u, std::memory_order_relaxed);
+    handle.m_callbackExecutionCycle.store(0u, std::memory_order_relaxed);
+    handle.m_isTimerActive.store(true, std::memory_order_relaxed);
 
     return cxx::success<void>();
 }
 
 cxx::expected<TimerError> Timer::OsTimer::stop() noexcept
 {
+    auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
     // Signal callbackHelper() that no callbacks shall be executed anymore
-    auto wasActive =
-        OsTimer::s_callbackHandlePool[m_callbackHandleIndex].m_isTimerActive.exchange(false, std::memory_order_relaxed);
+    auto wasActive = handle.m_isTimerActive.exchange(false, std::memory_order_relaxed);
 
     if (!wasActive)
     {
@@ -274,7 +304,9 @@ cxx::expected<TimerError> Timer::OsTimer::stop() noexcept
     return cxx::success<void>();
 }
 
-cxx::expected<TimerError> Timer::OsTimer::restart(const units::Duration timeToWait, const RunMode runMode) noexcept
+cxx::expected<TimerError> Timer::OsTimer::restart(const units::Duration timeToWait,
+                                                  const RunMode runMode,
+                                                  const CatchUpPolicy catchUpPolicy) noexcept
 {
     // See if there is currently an active timer in the operating system and update m_isActive accordingly
     auto gettimeResult = timeUntilExpiration();
@@ -299,7 +331,7 @@ cxx::expected<TimerError> Timer::OsTimer::restart(const units::Duration timeToWa
     }
 
     // Activate the timer with the new timeToWait value
-    auto startResult = start(runMode);
+    auto startResult = start(runMode, catchUpPolicy);
 
     if (startResult.has_error())
     {
@@ -391,14 +423,14 @@ Timer::Timer(const units::Duration timeToWait, const std::function<void()>& call
     }
 }
 
-cxx::expected<TimerError> Timer::start(const RunMode runMode) noexcept
+cxx::expected<TimerError> Timer::start(const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept
 {
     if (!m_osTimer.has_value())
     {
         return cxx::error<TimerError>(TimerError::TIMER_NOT_INITIALIZED);
     }
 
-    return m_osTimer->start(runMode);
+    return m_osTimer->start(runMode, catchUpPolicy);
 }
 
 cxx::expected<TimerError> Timer::stop() noexcept
@@ -411,7 +443,8 @@ cxx::expected<TimerError> Timer::stop() noexcept
     return m_osTimer->stop();
 }
 
-cxx::expected<TimerError> Timer::restart(const units::Duration timeToWait, const RunMode runMode) noexcept
+cxx::expected<TimerError>
+Timer::restart(const units::Duration timeToWait, const RunMode runMode, const CatchUpPolicy catchUpPolicy) noexcept
 {
     if (timeToWait.nanoSeconds<uint64_t>() == 0u)
     {
@@ -423,7 +456,7 @@ cxx::expected<TimerError> Timer::restart(const units::Duration timeToWait, const
         return cxx::error<TimerError>(TimerError::TIMER_NOT_INITIALIZED);
     }
 
-    return m_osTimer->restart(timeToWait, runMode);
+    return m_osTimer->restart(timeToWait, runMode, catchUpPolicy);
 }
 
 cxx::expected<units::Duration, TimerError> Timer::timeUntilExpiration() noexcept
