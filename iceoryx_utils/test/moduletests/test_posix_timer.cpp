@@ -479,7 +479,7 @@ TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatSkipsCallbackWhenStillRunni
     std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 100));
     // every second callback is skipped since the runtime is slightly longer therefore
     // the counter must be in that range
-    TIMING_TEST_EXPECT_TRUE(50 <= counter && counter <= 70);
+    TIMING_TEST_EXPECT_TRUE(40 <= counter && counter <= 70);
 });
 
 TIMING_TEST_F(Timer_test, CatchUpPolicyImmediateCallsCallbackImmediatelyAfterFinishing, Repeat(5), [&] {
@@ -520,4 +520,3 @@ TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatCallsLessCallbacksThanASAPT
 
     TIMING_TEST_EXPECT_TRUE(softTimerCounter < asapTimerCounter);
 });
-
