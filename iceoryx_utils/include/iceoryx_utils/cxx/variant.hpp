@@ -19,6 +19,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <limits>
 
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
