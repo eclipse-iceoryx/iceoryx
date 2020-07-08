@@ -23,6 +23,6 @@ instance = "FrontRight"
 event = "Counter"
 EOF
 
-/usr/bin/RouDi &
-/usr/bin/gateway_dds2iceoryx &
+/usr/bin/iox-roudi &
+/usr/bin/iox-gw-dds2iceoryx &
 /usr/bin/ice-subscriber-simple 
