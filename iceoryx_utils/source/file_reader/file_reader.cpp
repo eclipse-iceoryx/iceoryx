@@ -26,8 +26,6 @@ FileReader::FileReader(const std::string& f_fileName, const std::string& f_fileP
     m_file = f_filePath.empty() ? f_fileName : f_filePath + PATH_SEPARATOR + f_fileName;
     m_fileStream.open(m_file, std::fstream::in);
 
-    std::cout << "\"" << m_file << "\"" << std::endl;
-
     if (!IsOpen())
     {
         errorHandler(Error::kFILEREADER__FAILED_TO_OPEN_FILE, [=]() {

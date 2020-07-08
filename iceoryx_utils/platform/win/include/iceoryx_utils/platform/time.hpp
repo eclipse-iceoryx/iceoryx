@@ -14,19 +14,23 @@
 #ifndef IOX_UTILS_WIN_PLATFORM_TIME_HPP
 #define IOX_UTILS_WIN_PLATFORM_TIME_HPP
 
+#include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/platform/win32_errorHandling.hpp"
 #include "iceoryx_utils/platform/windows.hpp"
-
 
 #include <cstdint>
 #include <cstdio>
 #include <ctime>
 
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
 #define CLOCK_REALTIME 0
 #define CLOCK_MONOTONIC 1
 
 using suseconds_t = uint64_t;
-using timer_t = void*;
 using clockid_t = int;
 
 struct timeval
@@ -41,31 +45,32 @@ struct itimerspec
     timespec it_value;
 };
 
-
-inline int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid)
+struct appleTimer_t
 {
-    return 0;
-}
+    std::thread thread;
+    void (*callback)(union sigval);
+    sigval callbackParameter;
+    std::atomic_bool keepRunning{true};
 
-inline int timer_delete(timer_t timerid)
-{
-    return 0;
-}
+    struct
+    {
+        std::mutex mutex;
+        timespec startTime;
+        bool wasCallbackCalled{false};
+        bool runOnce{false};
+        bool isTimerRunning{false};
+        itimerspec timeParameters;
+        std::condition_variable wakeup;
+    } parameter;
+};
 
-inline int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value)
-{
-    return 0;
-}
+using timer_t = appleTimer_t*;
 
-inline int timer_gettime(timer_t timerid, struct itimerspec* curr_value)
-{
-    return 0;
-}
-
-inline int timer_getoverrun(timer_t timerid)
-{
-    return 0;
-}
+int timer_create(clockid_t clockid, struct sigevent* sevp, timer_t* timerid);
+int timer_delete(timer_t timerid);
+int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value, struct itimerspec* old_value);
+int timer_gettime(timer_t timerid, struct itimerspec* curr_value);
+int timer_getoverrun(timer_t timerid);
 
 inline int clock_gettime(clockid_t clk_id, struct timespec* tp)
 {
