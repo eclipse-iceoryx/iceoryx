@@ -72,33 +72,7 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec* new_value
 int timer_gettime(timer_t timerid, struct itimerspec* curr_value);
 int timer_getoverrun(timer_t timerid);
 
-inline int clock_gettime(clockid_t clk_id, struct timespec* tp)
-{
-    if (clk_id != CLOCK_REALTIME)
-    {
-        fprintf(stderr, "Windows Version of clock_gettime supports only CLOCK_REALTIME clockID\n");
-    }
-    int retVal = Win32Call(timespec_get(tp, TIME_UTC));
-    return retVal;
-}
-
-inline int gettimeofday(struct timeval* tp, struct timezone* tzp)
-{
-    // difference in nano seconds between 01.01.1601 (UTC) and 01.01.1970 (EPOCH, unix time)
-    static constexpr uint64_t UTC_EPOCH_DIFF{116444736000000000};
-
-    SYSTEMTIME systemTime;
-    FILETIME fileTime;
-
-    Win32Call(GetSystemTime(&systemTime));
-    Win32Call(SystemTimeToFileTime(&systemTime, &fileTime));
-    uint64_t time =
-        static_cast<uint64_t>(fileTime.dwLowDateTime) + (static_cast<uint64_t>(fileTime.dwHighDateTime) << 32);
-
-    constexpr uint64_t TEN_MILLISECONDS_IN_NANOSECONDS = 10000000;
-    tp->tv_sec = static_cast<time_t>((time - UTC_EPOCH_DIFF) / TEN_MILLISECONDS_IN_NANOSECONDS);
-    tp->tv_usec = static_cast<suseconds_t>(systemTime.wMilliseconds * 1000);
-    return 0;
-}
+int clock_gettime(clockid_t clk_id, struct timespec* tp);
+int gettimeofday(struct timeval* tp, struct timezone* tzp);
 
 #endif // IOX_UTILS_WIN_PLATFORM_TIME_HPP
