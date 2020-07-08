@@ -29,11 +29,11 @@ class CaproMessage_test : public Test
 TEST_F(CaproMessage_test, CtorNoParams)
 {
     CaproMessage testObj = CaproMessage();
-    EXPECT_EQ(testObj.m_requestPort, nullptr);
-    EXPECT_EQ(testObj.m_type, CaproMessageType::NOTYPE);
-    EXPECT_EQ(testObj.m_subType, CaproMessageSubType::NOSUBTYPE);
-    EXPECT_EQ(testObj.m_chunkQueueData, nullptr);
-    EXPECT_EQ(testObj.m_historyCapacity, 0u);
+    EXPECT_EQ(nullptr, testObj.m_requestPort);
+    EXPECT_EQ(CaproMessageType::NOTYPE, testObj.m_type);
+    EXPECT_EQ(CaproMessageSubType::NOSUBTYPE, testObj.m_subType);
+    EXPECT_EQ(nullptr, testObj.m_chunkQueueData);
+    EXPECT_EQ(0u, testObj.m_historyCapacity);
 }
 
 
@@ -46,12 +46,12 @@ TEST_F(CaproMessage_test, CtorParams)
     iox::popo::ReceiverPortData recData;
 
     CaproMessage testObj = CaproMessage(CaproMessageType::OFFER, sd, CaproMessageSubType::SERVICE, &recData);
-    EXPECT_EQ(testObj.m_requestPort, &recData);
-    EXPECT_EQ(testObj.m_type, CaproMessageType::OFFER);
-    EXPECT_EQ(testObj.m_subType, CaproMessageSubType::SERVICE);
-    EXPECT_EQ(testObj.m_chunkQueueData, nullptr);
-    EXPECT_EQ(testObj.m_historyCapacity, 0u);
-    EXPECT_EQ(testObj.m_serviceDescription, sd);
+    EXPECT_EQ(&recData, testObj.m_requestPort);
+    EXPECT_EQ(CaproMessageType::OFFER, testObj.m_type);
+    EXPECT_EQ(CaproMessageSubType::SERVICE, testObj.m_subType);
+    EXPECT_EQ(nullptr, testObj.m_chunkQueueData);
+    EXPECT_EQ(0u, testObj.m_historyCapacity);
+    EXPECT_EQ(sd, testObj.m_serviceDescription);
 }
 
 
@@ -64,6 +64,6 @@ TEST_F(CaproMessage_test, CtorDefaultArgs)
     iox::popo::ReceiverPortData recData;
 
     CaproMessage testObj = CaproMessage(CaproMessageType::OFFER, sd);
-    EXPECT_EQ(testObj.m_requestPort, nullptr);
-    EXPECT_EQ(testObj.m_subType, CaproMessageSubType::NOSUBTYPE);
+    EXPECT_EQ(nullptr, testObj.m_requestPort);
+    EXPECT_EQ(CaproMessageSubType::NOSUBTYPE, testObj.m_subType);
 }
