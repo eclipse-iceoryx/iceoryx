@@ -21,7 +21,6 @@ option(BUILD_STRICT "Build is performed with '-Werror'" OFF)
 option(test "Build tests" ON)
 option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
-option(diagnostic "enables allmost all compiler warnings" OFF)
 option(dds "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
 
 # ===== Dependencies
