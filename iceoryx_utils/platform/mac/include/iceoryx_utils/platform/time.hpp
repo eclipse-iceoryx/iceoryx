@@ -31,11 +31,11 @@ struct appleTimer_t
     std::thread thread;
     void (*callback)(union sigval);
     sigval callbackParameter;
-    std::atomic_bool keepRunning{true};
 
     struct
     {
         std::mutex mutex;
+        bool keepRunning{true};
         timespec startTime;
         bool wasCallbackCalled{false};
         bool runOnce{false};
