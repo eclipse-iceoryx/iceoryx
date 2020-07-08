@@ -77,10 +77,8 @@ int timer_create(clockid_t, struct sigevent* sevp, timer_t* timerid)
 
     timer->thread = std::thread([timer] {
         while ([&]() -> bool {
-            timer->parameter.mutex.lock();
-            bool retVal = timer->parameter.keepRunning;
-            timer->parameter.mutex.unlock();
-            return retVal;
+            std::lock_guard<std::mutex> lock(timer->parameter.mutex);
+            return timer->parameter.keepRunning;
         }())
         {
             if (waitForExecution(timer))
