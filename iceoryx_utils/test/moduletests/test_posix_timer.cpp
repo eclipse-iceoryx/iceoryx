@@ -123,15 +123,19 @@ TIMING_TEST_F(Timer_test, CallbackNotExecutedWhenNotStarted, Repeat(5), [&] {
     TIMING_TEST_EXPECT_ALWAYS_FALSE(callbackExecuted);
 });
 
+#if not(defined(QNX) || defined(QNX__) || defined(__QNX__))
+/// iox-#179
 TEST_F(Timer_test, CallbackExecutedOnceAfterStart)
 {
     std::atomic_int counter{0};
     Timer sut(1_ns, [&] { counter++; });
     sut.start(Timer::RunMode::ONCE, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     EXPECT_TRUE(counter.load() == 1);
 }
+
+#endif //not(defined(QNX) || defined(QNX__) || defined(__QNX__))
 
 TIMING_TEST_F(Timer_test, CallbackExecutedPeriodicallyAfterStart, Repeat(5), [&] {
     std::atomic_int counter{0};
@@ -370,20 +374,24 @@ TIMING_TEST_F(Timer_test, MultipleTimersRunningOnce, Repeat(5), [&] {
     }
 });
 
+#if not(defined(QNX) || defined(QNX__) || defined(__QNX__))
+/// iox-#179
 TIMING_TEST_F(Timer_test, DestructorIsBlocking, Repeat(5), [&] {
     std::chrono::time_point<std::chrono::system_clock> startTime;
     {
         Timer sut(1_ns,
                   [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
         sut.start(Timer::RunMode::ONCE, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>()));
         startTime = std::chrono::system_clock::now();
     }
     auto endTime = std::chrono::system_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 
-    TIMING_TEST_EXPECT_TRUE(10 <= elapsedTime);
+    TIMING_TEST_EXPECT_TRUE(TIMEOUT.milliSeconds<int>() <= elapsedTime);
 });
+
+#endif //not(defined(QNX) || defined(QNX__) || defined(__QNX__))
 
 TIMING_TEST_F(Timer_test, StartStopAndStartAgainIsNonBlocking, Repeat(5), [&] {
     Timer sut(1_ns, [] { std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT.milliSeconds<int>() * 10)); });
