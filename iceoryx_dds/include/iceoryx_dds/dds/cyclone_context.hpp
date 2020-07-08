@@ -12,10 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_GATEWAY_TEST_TEST_HPP
-#define IOX_DDS_GATEWAY_TEST_TEST_HPP
+#ifndef CYCLONE_CONTEXT_HPP
+#define CYCLONE_CONTEXT_HPP
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include <dds/dds.hpp>
 
-#endif // IOX_DDS_GATEWAY_TEST_TEST_HPP
+namespace iox
+{
+namespace dds
+{
+///
+/// @brief The CycloneContext manages cyclone configurations and singleton artifacts shared throughout an application.
+///
+class CycloneContext
+{
+  public:
+    ///
+    /// @brief getParticipant Get the DDS Domain Participant for the current runtime.
+    /// @return The DDS Domain Participant.
+    ///
+    static ::dds::domain::DomainParticipant& getParticipant() noexcept;
+};
+
+} // namespace dds
+} // namespace iox
+
+#endif // CYCLONE_CONTEXT_HPP

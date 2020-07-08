@@ -1,6 +1,6 @@
 ---
 # for complete code formatting of codebase please type:
-# "find . -type f -regex '.*\.\(inl\|cpp\|h\|hpp\|cc\|cxx\)' -exec clang-format-4.0 -style=file -i {} \;"
+# "find . -type f -regex '.*\.\(inl\|cpp\|h\|hpp\|cc\|cxx\)' -exec clang-format-9 -style=file -i {} \;"
 Language:        Cpp
 # BasedOnStyle:  LLVM
 AccessModifierOffset: -2

@@ -62,7 +62,6 @@ inline iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::DDSGatewayGeneric() no
     : gateway_t(iox::capro::Interfaces::DDS)
 {
     LogDebug() << "[DDSGatewayGeneric] Using default channel factory.";
-    m_channelFactory = channel_t::create;
 }
 
 template <typename channel_t, typename gateway_t>
@@ -84,11 +83,11 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
     }
     else
     {
-        auto result = m_channelFactory(service);
+        auto result = channel_t::create(service);
         if (result.has_error())
         {
             iox::dds::LogError() << "[DDSGatewayGeneric] Unable to set up channel for service: "
-                                 << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
+                                 << "/" << service.getServiceIDString() << "/" << service.getInstanceIDString() << "/"
                                  << service.getEventIDString();
             return iox::cxx::error<GatewayError>(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
         }
@@ -97,7 +96,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::
             auto channel = result.get_value();
             m_channels->push_back(channel);
             iox::dds::LogDebug() << "[DDSGatewayGeneric] Channel set up for service: "
-                                 << "/" << service.getInstanceIDString() << "/" << service.getServiceIDString() << "/"
+                                 << "/" << service.getServiceIDString() << "/" << service.getInstanceIDString() << "/"
                                  << service.getEventIDString();
             return iox::cxx::success<channel_t>(channel);
         }
@@ -111,7 +110,7 @@ iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro:
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
-        return channel.getService() == service;
+        return channel.getServiceDescription() == service;
     });
     if (channel == guardedVector->end())
     {
@@ -140,7 +139,7 @@ inline iox::cxx::expected<iox::dds::GatewayError> iox::dds::DDSGatewayGeneric<ch
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
-        return channel.getService() == service;
+        return channel.getServiceDescription() == service;
     });
     if (channel != guardedVector->end())
     {
@@ -164,13 +163,13 @@ inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::discoveryLoop() n
     iox::dds::LogDebug() << "[DDSGatewayGeneric] Starting discovery.";
     while (m_isRunning.load(std::memory_order_relaxed))
     {
+        auto startTime = std::chrono::steady_clock::now();
         iox::capro::CaproMessage msg;
         while (this->getCaProMessage(msg))
         {
             discover(msg);
         }
-        std::this_thread::sleep_until(std::chrono::steady_clock::now()
-                                      + std::chrono::milliseconds(DISCOVERY_PERIOD.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(DISCOVERY_PERIOD.milliSeconds<int64_t>()));
     }
     iox::dds::LogDebug() << "[DDSGatewayGeneric] Stopped discovery.";
 }
@@ -181,9 +180,9 @@ inline void iox::dds::DDSGatewayGeneric<channel_t, gateway_t>::forwardingLoop() 
     iox::dds::LogDebug() << "[DDSGatewayGeneric] Starting forwarding.";
     while (m_isRunning.load(std::memory_order_relaxed))
     {
+        auto startTime = std::chrono::steady_clock::now();
         forEachChannel([this](channel_t channel) { this->forward(channel); });
-        std::this_thread::sleep_until(std::chrono::steady_clock::now()
-                                      + std::chrono::milliseconds(FORWARDING_PERIOD.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(FORWARDING_PERIOD.milliSeconds<int64_t>()));
     };
     iox::dds::LogDebug() << "[DDSGatewayGeneric] Stopped forwarding.";
 }

@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+
+#ifndef IOX_DDS_TEST_STUBS_STUBBED_DDS_GATEWAY_GENERIC_HPP
+#define IOX_DDS_TEST_STUBS_STUBBED_DDS_GATEWAY_GENERIC_HPP
 
 #include "iceoryx_dds/gateway/channel.hpp"
 #include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
@@ -72,3 +74,5 @@ class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
 };
 } // namespace dds
 } // namespace iox
+
+#endif // IOX_DDS_TEST_STUBS_STUBBED_DDS_GATEWAY_GENERIC_HPP
