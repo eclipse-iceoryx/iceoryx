@@ -1,7 +1,7 @@
 
 # Gateway to DDS Networks
 A gateway for bridging between iceoryx systems and DDS networks.
-The gateway enables iceoryx systems running on separate hosts to communicate with eachother.
+The gateway enables iceoryx systems running on separate hosts to communicate with each other.
 
 i.e. Data published by a publisher on `Host A` can be received by a matching subscriber on `Host B`.
 
