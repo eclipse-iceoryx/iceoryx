@@ -32,7 +32,7 @@ then
 fi
 
 CONTAINER_NAME=$2
-if [ -z "$1" ];
+if [ -z "$2" ];
 then
 CONTAINER_NAME=RouDi
 fi 

@@ -40,7 +40,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
 endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
 
 # unittests
-add_executable(${PROJECT_PREFIX}_moduletests moduletests/main.cpp)
+add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC})
 set_property(TARGET ${PROJECT_PREFIX}_moduletests PROPERTY CXX_STANDARD 11)
 target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
 target_compile_options(${PROJECT_PREFIX}_moduletests PUBLIC -fPIC PRIVATE ${TEST_CXX_FLAGS})

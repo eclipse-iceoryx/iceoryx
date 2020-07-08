@@ -14,6 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-/usr/bin/RouDi 
-/usr/bin/gateway_iceoryx2dds 
-/usr/bin/ice-publisher-simple
+/usr/bin/RouDi &
+/usr/bin/gateway_iceoryx2dds &
+/usr/bin/ice-publisher-simple 
