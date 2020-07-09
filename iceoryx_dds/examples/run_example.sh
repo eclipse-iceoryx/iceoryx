@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+SCRIPT_DIR=`dirname $(realpath -s $0)`
+
 build_iceoryx_docker() {
 	if [[ "$(docker images -q iceoryx:latest 2> /dev/null)" == "" ]]; then
 		echo "Building base iceoryx docker image."
-		../../tools/docker/build_iceoryx_docker.sh
+		$SCRIPT_DIR/../../tools/docker/build_iceoryx_docker.sh
 	fi
 }
 
@@ -29,7 +31,7 @@ do
     case $opt in
         "Simple Internode-Communcation")
 			build_iceoryx_docker
-			cd docker
+			cd $SCRIPT_DIR/docker
 			docker-compose -f simple_internode_communication.yml up
             break
             ;;

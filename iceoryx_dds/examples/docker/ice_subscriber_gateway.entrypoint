@@ -14,14 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+GATEWAY_CONF_PATH=/etc/iceoryx/gateway_config.toml
+
 mkdir -p /etc/iceoryx
 
-cat <<EOF >> /etc/iceoryx/gateway_config.toml
-[[services]]
-service = "Radar"
-instance = "FrontRight"
-event = "Counter"
+if [[ ! -f "$GATEWAY_CONF_PATH" ]]; then
+    cat <<EOF >> /etc/iceoryx/gateway_config.toml
+	[[services]]
+	service = "Radar"
+	instance = "FrontRight"
+	event = "Counter"
 EOF
+fi
 
 /usr/bin/iox-roudi &
 /usr/bin/iox-gw-dds2iceoryx &
