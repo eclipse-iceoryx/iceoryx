@@ -26,10 +26,11 @@ class ConditionVariableSignaler
 {
   public:
     explicit ConditionVariableSignaler(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+    virtual ~ConditionVariableSignaler() = default;
     ConditionVariableSignaler(const ConditionVariableSignaler& rhs) = delete;
-    ConditionVariableSignaler(ConditionVariableSignaler&& rhs) = delete;
+    ConditionVariableSignaler(ConditionVariableSignaler&& rhs) = default;
     ConditionVariableSignaler& operator=(const ConditionVariableSignaler& rhs) = delete;
-    ConditionVariableSignaler& operator=(ConditionVariableSignaler&& rhs) = delete;
+    ConditionVariableSignaler& operator=(ConditionVariableSignaler&& rhs) = default;
 
     void notifyOne() noexcept;
 
@@ -38,7 +39,7 @@ class ConditionVariableSignaler
     ConditionVariableData* getMembers() noexcept;
 
   private:
-    ConditionVariableData* const m_condVarDataPtr;
+    ConditionVariableData* m_condVarDataPtr{nullptr};
 };
 
 } // namespace popo

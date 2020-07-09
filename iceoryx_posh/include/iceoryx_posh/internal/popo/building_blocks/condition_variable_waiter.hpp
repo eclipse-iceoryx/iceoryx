@@ -27,10 +27,11 @@ class ConditionVariableWaiter
 {
   public:
     explicit ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+    virtual ~ConditionVariableWaiter() = default;
     ConditionVariableWaiter(const ConditionVariableWaiter& rhs) = delete;
-    ConditionVariableWaiter(ConditionVariableWaiter&& rhs) = delete;
+    ConditionVariableWaiter(ConditionVariableWaiter&& rhs) = default;
     ConditionVariableWaiter& operator=(const ConditionVariableWaiter& rhs) = delete;
-    ConditionVariableWaiter& operator=(ConditionVariableWaiter&& rhs) = delete;
+    ConditionVariableWaiter& operator=(ConditionVariableWaiter&& rhs) = default;
 
     /// @brief Reinitialises the condition variable
     void reset() noexcept;
@@ -44,7 +45,7 @@ class ConditionVariableWaiter
     ConditionVariableData* getMembers() noexcept;
 
   private:
-    ConditionVariableData* const m_condVarDataPtr;
+    ConditionVariableData* const m_condVarDataPtr{nullptr};
 };
 
 } // namespace popo
