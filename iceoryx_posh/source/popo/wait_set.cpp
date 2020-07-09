@@ -50,7 +50,7 @@ bool WaitSet::detachCondition(const Condition& condition) noexcept
     return false;
 }
 
-void WaitSet::clear() noexcept
+void WaitSet::detachAllConditions() noexcept
 {
     m_conditionVector.clear();
 }

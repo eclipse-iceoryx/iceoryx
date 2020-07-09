@@ -26,14 +26,10 @@ ConditionVariableWaiter::ConditionVariableWaiter(cxx::not_null<ConditionVariable
 
 void ConditionVariableWaiter::reset() noexcept
 {
-    // Re-create the semaphore
-    getMembers()->m_semaphore.~Semaphore();
-    getMembers()->m_semaphore =
-        std::move(posix::Semaphore::create(0u)
-                      .on_error([] {
-                          iox::errorHandler(iox::Error::kPOPO__CONDITION_VARIABLE_WAITER_FAILED_TO_CREATE_SEMAPHORE);
-                      })
-                      .get_value());
+    // Count the semaphore down to zero
+    while (getMembers()->m_semaphore.tryWait())
+    {
+    }
 }
 
 void ConditionVariableWaiter::wait() noexcept

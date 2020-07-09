@@ -32,6 +32,7 @@ class ConditionVariableSignaler
     ConditionVariableSignaler& operator=(const ConditionVariableSignaler& rhs) = delete;
     ConditionVariableSignaler& operator=(ConditionVariableSignaler&& rhs) = default;
 
+    /// @brief If threads are waiting on the condition variable, this call unblocks one of the waiting threads
     void notifyOne() noexcept;
 
   protected:

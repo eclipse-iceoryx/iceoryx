@@ -42,7 +42,7 @@ class WaitSet
     bool detachCondition(const Condition& condition) noexcept;
 
     /// @brief Clears all conditions from the waitset
-    void clear() noexcept;
+    void detachAllConditions() noexcept;
 
     /// @brief Blocking wait with time limit till one or more of the condition become true
     /// @param[in] timeout How long shall be waited for a signalling condition

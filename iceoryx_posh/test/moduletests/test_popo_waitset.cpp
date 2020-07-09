@@ -89,7 +89,7 @@ class WaitSet_test : public Test
     void TearDown()
     {
         m_subscriberVector.clear();
-        m_sut.clear();
+        m_sut.detachAllConditions();
         ConditionVariableWaiter waiter{&m_condVarData};
         waiter.reset();
     };
