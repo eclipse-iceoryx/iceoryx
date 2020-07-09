@@ -62,6 +62,11 @@ while (( "$#" )); do
         TEST_FLAG="on"
         shift 1
         ;;
+    "build-test")
+        RUN_TEST=false
+        TEST_FLAG="on"
+        shift 1
+        ;;
     "skip-introspection")
         INTROSPECTION_FLAG="off"
         shift 1
