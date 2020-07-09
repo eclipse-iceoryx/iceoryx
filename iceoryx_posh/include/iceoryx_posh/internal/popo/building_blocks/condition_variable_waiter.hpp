@@ -38,7 +38,7 @@ class ConditionVariableWaiter
     /// @brief Waits until notify is called on the ConditionVariableSignaler or time has run out
     /// @param[in] timeToWait, time to wait until the function returns
     /// @return False if timeout occured, true if no timeout occured
-    bool timedWait(units::Duration timeToWait) noexcept;
+    bool timedWait(const units::Duration timeToWait) noexcept;
     /// @brief Waits until notify is called on the ConditionVariableSignaler
     void wait() noexcept;
 

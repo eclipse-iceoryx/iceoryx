@@ -43,10 +43,10 @@ class GuardCondition final : public Condition
     void resetTrigger() noexcept;
     /// @brief Checks whether a condition variable has been attached before
     /// @return True if attachConditionVariable() has been called before, false if otherwise
-    bool isConditionVariableAttached() noexcept override;
+    bool isConditionVariableAttached() const noexcept override;
     /// @brief Stores a condition variable data pointer
     /// @return True if pointer could be stored, false if otherwise
-    bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept override;
+    bool attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept override;
     /// @brief Deletes the condition variable data pointer
     /// @return True if pointer could be set to nullptr, false if otherwise
     bool detachConditionVariable() noexcept override;

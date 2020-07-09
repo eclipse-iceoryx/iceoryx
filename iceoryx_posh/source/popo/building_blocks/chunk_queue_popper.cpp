@@ -115,7 +115,7 @@ void ChunkQueuePopper::clear() noexcept
 
 /// @deprecated #25
 cxx::expected<ChunkQueueError>
-ChunkQueuePopper::attachSemaphore(mepoo::SharedPointer<posix::Semaphore> semaphore) noexcept
+ChunkQueuePopper::attachSemaphore(const mepoo::SharedPointer<posix::Semaphore>& semaphore) noexcept
 {
     if (isSemaphoreAttached())
     {
@@ -131,7 +131,7 @@ ChunkQueuePopper::attachSemaphore(mepoo::SharedPointer<posix::Semaphore> semapho
 }
 
 /// @deprecated #25
-bool ChunkQueuePopper::isSemaphoreAttached() noexcept
+bool ChunkQueuePopper::isSemaphoreAttached() const noexcept
 {
     return getMembers()->m_semaphoreAttached.load(std::memory_order_relaxed);
 }

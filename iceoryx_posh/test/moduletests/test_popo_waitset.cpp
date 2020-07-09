@@ -30,12 +30,12 @@ using namespace iox::units::duration_literals;
 class MockSubscriber : public Condition
 {
   public:
-    bool isConditionVariableAttached() noexcept override
+    bool isConditionVariableAttached() const noexcept override
     {
         return m_condVarAttached;
     }
 
-    bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept override
+    bool attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept override
     {
         m_condVarAttached = true;
         m_condVarPtr = ConditionVariableDataPtr;
@@ -106,7 +106,7 @@ TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInFailure)
     EXPECT_FALSE(m_sut.attachCondition(m_subscriberVector.front()));
 }
 
-TEST_F(WaitSet_test, AttachMultipleConditionSuccessful)
+TEST_F(WaitSet_test, AttachMaximumAllowedConditionsSuccessful)
 {
     for (auto& currentSubscriber : m_subscriberVector)
     {
@@ -131,7 +131,7 @@ TEST_F(WaitSet_test, DetachSingleConditionSuccessful)
     EXPECT_TRUE(m_sut.detachCondition(m_subscriberVector.front()));
 }
 
-TEST_F(WaitSet_test, DetachMultipleleConditionsSuccessful)
+TEST_F(WaitSet_test, DetachMultipleConditionsSuccessful)
 {
     for (auto& currentSubscriber : m_subscriberVector)
     {

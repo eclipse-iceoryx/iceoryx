@@ -90,12 +90,12 @@ class ChunkQueuePopper
     /// cannot be detached or set again
     /// @param[in] semaphore to attach
     /// @return success if semaphore could be attached, error if not
-    cxx::expected<ChunkQueueError> attachSemaphore(mepoo::SharedPointer<posix::Semaphore>) noexcept;
+    cxx::expected<ChunkQueueError> attachSemaphore(const mepoo::SharedPointer<posix::Semaphore>&) noexcept;
 
     /// @deprecated #25
     /// @brief returns the information whether a semaphore is attached. Caution, a semaphore cannot be detached
     /// @return true if the semaphore is set, false if not
-    bool isSemaphoreAttached() noexcept;
+    bool isSemaphoreAttached() const noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

@@ -36,7 +36,7 @@ void GuardCondition::resetTrigger() noexcept
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
-bool GuardCondition::isConditionVariableAttached() noexcept
+bool GuardCondition::isConditionVariableAttached() const noexcept
 {
     return m_conditionVariableAttached.load(std::memory_order_relaxed);
 }

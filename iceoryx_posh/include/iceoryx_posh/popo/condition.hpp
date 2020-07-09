@@ -30,9 +30,9 @@ class Condition
     /// @brief Was the condition fulfilled since last call?
     virtual bool hasTriggered() const noexcept = 0;
     /// @brief Called by a WaitSet before attaching a Condition to see whether it was already added
-    virtual bool isConditionVariableAttached() noexcept = 0;
+    virtual bool isConditionVariableAttached() const noexcept = 0;
     /// @brief Called by a WaitSet to announce the condition variable pointer that usually lives in shared memory
-    virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept = 0;
+    virtual bool attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept = 0;
     /// @brief Called when removing the condition from a WaitSet
     virtual bool detachConditionVariable() noexcept = 0;
 };

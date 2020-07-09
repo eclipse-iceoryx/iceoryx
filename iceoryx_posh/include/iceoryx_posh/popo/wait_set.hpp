@@ -32,6 +32,11 @@ class WaitSet
 
     explicit WaitSet(cxx::not_null<ConditionVariableData* const> =
                          runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable()) noexcept;
+    virtual ~WaitSet() = default;
+    WaitSet(const WaitSet& rhs) = delete;
+    WaitSet(WaitSet&& rhs) = delete;
+    WaitSet& operator=(const WaitSet& rhs) = delete;
+    WaitSet& operator=(WaitSet&& rhs) = delete;
 
     /// @brief Adds a condition to the internal vector
     /// @return True if successful, false if unsuccessful
@@ -48,7 +53,7 @@ class WaitSet
     /// @param[in] timeout How long shall be waited for a signalling condition
     /// @param[out] ConditionVector vector of condition pointers that have become
     /// fulfilled
-    ConditionVector timedWait(units::Duration timeout) noexcept;
+    ConditionVector timedWait(const units::Duration timeout) noexcept;
 
     /// @brief Blocking wait till one or more of the condition become true
     /// @param[out] ConditionVector vector of condition pointers that have become
@@ -58,7 +63,7 @@ class WaitSet
   private:
     ConditionVector waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout = cxx::nullopt) noexcept;
     ConditionVector m_conditionVector;
-    ConditionVariableData* m_conditionVariableDataPtr;
+    ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionVariableWaiter m_conditionVariableWaiter;
 };
 

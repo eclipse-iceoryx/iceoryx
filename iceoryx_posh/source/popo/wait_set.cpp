@@ -102,7 +102,7 @@ WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(cxx::optional
     return conditionsWithFulfilledPredicate;
 }
 
-WaitSet::ConditionVector WaitSet::timedWait(units::Duration timeout) noexcept
+WaitSet::ConditionVector WaitSet::timedWait(const units::Duration timeout) noexcept
 {
     return waitAndReturnFulfilledConditions(cxx::make_optional<units::Duration>(timeout));
 }
