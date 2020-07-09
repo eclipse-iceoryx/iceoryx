@@ -162,7 +162,7 @@ echo ">>>>>> Finished building iceoryx examples <<<<<<"
 #==== Step 2 : Run all Tests  =======================================================================
 #====================================================================================================
 
-if [ $TEST_FLAG == "on" ]
+if [ $RUN_TEST == true ]
 then
 
 # The absolute path of the directory assigned to the build
