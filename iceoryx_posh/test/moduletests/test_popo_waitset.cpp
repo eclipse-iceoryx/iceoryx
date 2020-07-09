@@ -166,6 +166,17 @@ TEST_F(WaitSet_test, NoAttachTimedWaitResultsInEmptyVector)
     EXPECT_TRUE(emptyVector.empty());
 }
 
+TEST_F(WaitSet_test, TimedWaitWithMaximumNumberOfConditionsResultsInReturnOfMaximumNumberOfConditions)
+{
+    for (auto& currentSubscriber : m_subscriberVector)
+    {
+        m_sut.attachCondition(currentSubscriber);
+        currentSubscriber.notify();
+    }
+    auto fulfilledConditions = m_sut.timedWait(1_ms);
+    EXPECT_THAT(fulfilledConditions.size(), Eq(iox::MAX_NUMBER_OF_CONDITIONS));
+}
+
 TEST_F(WaitSet_test, TimedWaitWithNotificationResultsInImmediateTrigger)
 {
     m_sut.attachCondition(m_subscriberVector.front());
