@@ -33,7 +33,7 @@ ENV ICEORYX_BUILD=$B_ICEORYX_BUILD
 
 RUN apt update && apt install -y \
         cmake \
-        openjdk-8-jdk \
+        openjdk-11-jdk \
         maven \
         libacl1-dev \
         libncurses5-dev \
