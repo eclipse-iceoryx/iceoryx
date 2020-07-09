@@ -83,9 +83,8 @@ template <typename channel_t, typename gateway_t>
 iox::cxx::expected<channel_t, iox::dds::GatewayError>
 DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
-    return this->addChannel(service).on_success(
-        [&service](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
-            auto channel = result.get_value();
+    return this->addChannel(service).and_then(
+        [&service](channel_t channel) {
             auto publisher = channel.getIceoryxTerminal();
             auto reader = channel.getDDSTerminal();
             publisher->offer();
