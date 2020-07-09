@@ -24,7 +24,31 @@ namespace iox
 {
 namespace popo
 {
-/// @brief Logical disjunction of a certain number of conditions
+enum class WaitSetError : uint8_t
+{
+    CONDITION_VECTOR_OVERFLOW,
+    CONDITION_VARIABLE_ALREADY_SET
+};
+
+/// @brief Logical disjunction of a certain number of Conditions
+///
+/// The WaitSet stores Conditions and allows the user to wait till those set of Conditions become true. It works over
+/// process borders.
+///
+/// @note The WaitSet stores pointers to conditions, hence the lifetime of Conditions need to be longer than the
+/// lifetime of the WaitSet. See negative example below.
+///
+/// @code
+///
+/// ** Do not use the WaitSet like this **
+/// WaitSet myWaitSet;
+/// {
+///   Condition a;
+///   myWaitSet.attachCondition(a);
+/// } // a.~Condition() will be called
+/// myWaitSet.wait(); // Undefined behaviour
+///
+/// @endcode
 class WaitSet
 {
   public:
@@ -39,10 +63,12 @@ class WaitSet
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
     /// @brief Adds a condition to the internal vector
-    /// @return True if successful, false if unsuccessful
-    bool attachCondition(Condition& condition) noexcept;
+    /// @param[in] condition, condition to be attached
+    /// @return Returns an expected, that can contain on error from WaitSetError
+    cxx::expected<WaitSetError> attachCondition(Condition& condition) noexcept;
 
     /// @brief Removes a condition from the internal vector
+    /// @param[in] condition, condition to be detached
     /// @return True if successful, false if unsuccessful
     bool detachCondition(const Condition& condition) noexcept;
 
@@ -51,12 +77,12 @@ class WaitSet
 
     /// @brief Blocking wait with time limit till one or more of the condition become true
     /// @param[in] timeout How long shall be waited for a signalling condition
-    /// @param[out] ConditionVector vector of condition pointers that have become
+    /// @return ConditionVector vector of condition pointers that have become
     /// fulfilled
     ConditionVector timedWait(const units::Duration timeout) noexcept;
 
     /// @brief Blocking wait till one or more of the condition become true
-    /// @param[out] ConditionVector vector of condition pointers that have become
+    /// @return ConditionVector vector of condition pointers that have become
     /// fulfilled
     ConditionVector wait() noexcept;
 

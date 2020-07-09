@@ -97,20 +97,20 @@ class WaitSet_test : public Test
 
 TEST_F(WaitSet_test, AttachSingleConditionSuccessful)
 {
-    EXPECT_TRUE(m_sut.attachCondition(m_subscriberVector.front()));
+    EXPECT_FALSE(m_sut.attachCondition(m_subscriberVector.front()).has_error());
 }
 
 TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInFailure)
 {
     m_sut.attachCondition(m_subscriberVector.front());
-    EXPECT_FALSE(m_sut.attachCondition(m_subscriberVector.front()));
+    EXPECT_TRUE(m_sut.attachCondition(m_subscriberVector.front()).has_error());
 }
 
 TEST_F(WaitSet_test, AttachMaximumAllowedConditionsSuccessful)
 {
     for (auto& currentSubscriber : m_subscriberVector)
     {
-        EXPECT_TRUE(m_sut.attachCondition(currentSubscriber));
+        EXPECT_FALSE(m_sut.attachCondition(currentSubscriber).has_error());
     }
 }
 
@@ -122,7 +122,7 @@ TEST_F(WaitSet_test, AttachTooManyConditionsResultsInFailure)
     }
 
     MockSubscriber extraCondition;
-    EXPECT_FALSE(m_sut.attachCondition(extraCondition));
+    EXPECT_THAT(m_sut.attachCondition(extraCondition).get_error(), Eq(WaitSetError::CONDITION_VECTOR_OVERFLOW));
 }
 
 TEST_F(WaitSet_test, DetachSingleConditionSuccessful)

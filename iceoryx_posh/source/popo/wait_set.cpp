@@ -24,17 +24,24 @@ WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noe
 {
 }
 
-bool WaitSet::attachCondition(Condition& condition) noexcept
+cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexcept
 {
     if (!condition.isConditionVariableAttached())
     {
         if (condition.attachConditionVariable(m_conditionVariableDataPtr))
         {
-            return m_conditionVector.push_back(&condition);
+            if (!m_conditionVector.push_back(&condition))
+            {
+                return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
+            }
+            else
+            {
+                return iox::cxx::success<>();
+            }
         }
     }
 
-    return false;
+    return cxx::error<WaitSetError>(WaitSetError::CONDITION_VARIABLE_ALREADY_SET);
 }
 
 bool WaitSet::detachCondition(const Condition& condition) noexcept
