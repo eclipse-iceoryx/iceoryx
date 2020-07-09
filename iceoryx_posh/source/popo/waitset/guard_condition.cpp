@@ -19,15 +19,11 @@ namespace iox
 {
 namespace popo
 {
-GuardCondition::GuardCondition(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
-    : m_conditionVariableSignaler(condVarDataPtr)
-{
-}
-
 void GuardCondition::notify() noexcept
 {
     m_wasTriggered.store(true, std::memory_order_relaxed);
-    m_conditionVariableSignaler.notifyOne();
+    ConditionVariableSignaler condVarSignaler{m_conditionVariableDataPtr};
+    condVarSignaler.notifyOne();
 }
 
 bool GuardCondition::hasTrigger() const noexcept
@@ -42,17 +38,21 @@ void GuardCondition::resetTrigger() noexcept
 
 bool GuardCondition::isConditionVariableAttached() noexcept
 {
-    return true;
+    return m_conditionVariableAttached.load(std::memory_order_relaxed);
 }
 
 bool GuardCondition::attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept
 {
-    return false;
+    m_conditionVariableDataPtr = ConditionVariableDataPtr;
+    m_conditionVariableAttached.store(true, std::memory_order_relaxed);
+    return true;
 }
 
 bool GuardCondition::detachConditionVariable() noexcept
 {
-    return false;
+    m_conditionVariableDataPtr = nullptr;
+    m_conditionVariableAttached.store(false, std::memory_order_relaxed);
+    return true;
 }
 
 } // namespace popo

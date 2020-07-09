@@ -28,7 +28,6 @@ class Condition
     virtual ~Condition() = default;
 
     virtual bool hasTrigger() const noexcept = 0;
-    virtual void resetTrigger() noexcept = 0;
     virtual bool isConditionVariableAttached() noexcept = 0;
     virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept = 0;
     virtual bool detachConditionVariable() noexcept = 0;

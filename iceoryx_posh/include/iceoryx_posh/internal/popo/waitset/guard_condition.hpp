@@ -28,7 +28,7 @@ namespace popo
 class GuardCondition : public Condition
 {
   public:
-    explicit GuardCondition(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+    explicit GuardCondition() noexcept = default;
     GuardCondition(const GuardCondition& rhs) = delete;
     GuardCondition(GuardCondition&& rhs) = delete;
     GuardCondition& operator=(const GuardCondition& rhs) = delete;
@@ -36,8 +36,11 @@ class GuardCondition : public Condition
 
     /// @brief Wakes up a waiting WaitSet
     void notify() noexcept;
+    /// @brief Checks if trigger was set
+    /// @return True if trigger is set, false if otherwise
     bool hasTrigger() const noexcept override;
-    void resetTrigger() noexcept override;
+    /// @brief Sets trigger to false
+    void resetTrigger() noexcept;
     /// @return Always true on purpose
     bool isConditionVariableAttached() noexcept override;
     /// @return Always false on purpose
@@ -46,7 +49,8 @@ class GuardCondition : public Condition
     bool detachConditionVariable() noexcept override;
 
   private:
-    ConditionVariableSignaler m_conditionVariableSignaler;
+    ConditionVariableData* m_conditionVariableDataPtr;
+    std::atomic_bool m_conditionVariableAttached{false};
     std::atomic_bool m_wasTriggered{false};
 };
 

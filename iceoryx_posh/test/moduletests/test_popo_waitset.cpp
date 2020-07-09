@@ -47,11 +47,6 @@ class MockSubscriber : public Condition
         return m_wasTriggered;
     }
 
-    void resetTrigger() noexcept override
-    {
-        m_wasTriggered = false;
-    }
-
     bool detachConditionVariable() noexcept override
     {
         m_condVarAttached = false;
@@ -76,11 +71,9 @@ class MockSubscriber : public Condition
 class WaitSet_test : public Test
 {
   public:
-    static constexpr uint16_t MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD = iox::MAX_NUMBER_OF_CONDITIONS - 1;
-
     ConditionVariableData m_condVarData;
     WaitSet m_sut{&m_condVarData};
-    vector<MockSubscriber, MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD> m_subscriberVector;
+    vector<MockSubscriber, iox::MAX_NUMBER_OF_CONDITIONS> m_subscriberVector;
 
     iox::posix::Semaphore m_syncSemaphore = iox::posix::Semaphore::create(0u).get_value();
 
@@ -291,7 +284,8 @@ TEST_F(WaitSet_test, WaitWithoutNotifyResultsInBlockingMultiThreaded)
 TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThreaded)
 {
     std::atomic<int> counter{0};
-    auto& guardCond = m_sut.getGuardCondition();
+    GuardCondition guardCond;
+    m_sut.attachCondition(guardCond);
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         m_syncSemaphore.post();
@@ -308,11 +302,13 @@ TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThread
 
 TEST_F(WaitSet_test, NotifyGuardConditionOnceTimedWaitResultsInResetOfTrigger)
 {
-    auto& guardCond = m_sut.getGuardCondition();
+    GuardCondition guardCond;
+    m_sut.attachCondition(guardCond);
     guardCond.notify();
     auto fulfilledConditions1 = m_sut.timedWait(1_ms);
     EXPECT_THAT(fulfilledConditions1.size(), Eq(1));
     EXPECT_THAT(fulfilledConditions1.front(), &guardCond);
+    guardCond.resetTrigger();
     auto fulfilledConditions2 = m_sut.timedWait(1_ms);
     EXPECT_THAT(fulfilledConditions2.size(), Eq(0));
 }

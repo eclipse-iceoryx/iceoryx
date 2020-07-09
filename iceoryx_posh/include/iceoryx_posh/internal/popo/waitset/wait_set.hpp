@@ -56,15 +56,11 @@ class WaitSet
     /// fulfilled
     ConditionVector wait() noexcept;
 
-    /// @brief Returns a reference to the GuardCondition
-    GuardCondition& getGuardCondition() noexcept;
-
   private:
     ConditionVector waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout = cxx::nullopt) noexcept;
     ConditionVector m_conditionVector;
     ConditionVariableData* m_conditionVariableDataPtr;
     ConditionVariableWaiter m_conditionVariableWaiter;
-    GuardCondition m_guardCondition;
 };
 
 } // namespace popo

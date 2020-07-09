@@ -21,9 +21,7 @@ namespace popo
 WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
     : m_conditionVariableDataPtr(condVarDataPtr)
     , m_conditionVariableWaiter(m_conditionVariableDataPtr)
-    , m_guardCondition(m_conditionVariableDataPtr)
 {
-    m_conditionVector.push_back(&m_guardCondition);
 }
 
 bool WaitSet::attachCondition(Condition& condition) noexcept
@@ -70,7 +68,6 @@ WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(cxx::optional
                 {
                     errorHandler(Error::kPOPO__WAITSET_CONDITION_VECTOR_OVERFLOW, nullptr, ErrorLevel::FATAL);
                 }
-                currentCondition->resetTrigger();
             }
         }
     };
@@ -113,11 +110,6 @@ WaitSet::ConditionVector WaitSet::timedWait(units::Duration timeout) noexcept
 WaitSet::ConditionVector WaitSet::wait() noexcept
 {
     return waitAndReturnFulfilledConditions(cxx::nullopt);
-}
-
-GuardCondition& WaitSet::getGuardCondition() noexcept
-{
-    return m_guardCondition;
 }
 
 } // namespace popo
