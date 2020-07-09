@@ -404,6 +404,7 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
 popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept
 {
     /// @todo implement new MqMessageType and this method
+    return nullptr;
 }
 
 bool PoshRuntime::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept
