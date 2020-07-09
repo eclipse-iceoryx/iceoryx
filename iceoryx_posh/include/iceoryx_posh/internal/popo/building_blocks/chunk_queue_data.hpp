@@ -17,7 +17,9 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_types.hpp"
+#include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 namespace iox
@@ -31,11 +33,12 @@ struct ChunkQueueData
     static constexpr uint32_t MAX_CAPACITY = MAX_RECEIVER_QUEUE_CAPACITY;
     cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasOverflown{false};
-    /// @todo replace semaphore with relative_pointer<iox::popo::ConditionVariableData>
-    mepoo::SharedPointer<posix::Semaphore> m_semaphore;
-    /// @todo rename bool to m_condVarAttached
-    std::atomic_bool m_semaphoreAttached{false};
-    std::atomic_bool m_wasTriggered{false};
+
+    relative_ptr<iox::popo::ConditionVariableData> m_conditionVariableDataPtr;
+    std::atomic_bool m_conditionVariableAttached{false};
+
+    [[gnu::deprecated]] mepoo::SharedPointer<posix::Semaphore> m_semaphore;
+    [[gnu::deprecated]] std::atomic_bool m_semaphoreAttached{false};
 };
 
 } // namespace popo

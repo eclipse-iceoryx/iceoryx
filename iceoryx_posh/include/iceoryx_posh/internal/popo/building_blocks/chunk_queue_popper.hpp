@@ -76,17 +76,24 @@ class ChunkQueuePopper
     /// @brief clear the queue
     void clear() noexcept;
 
-    /// @todo rename to attachConditionVariable
+    /// @brief Attaches a condition variable signaler
+    /// @param[in] ConditionVariableDataPtr, pointer to an condition variable data object
+    /// @return True if successful, false if not
+    bool attachConditionVariableSignaler(ConditionVariableData* ConditionVariableDataPtr) noexcept;
+
+    /// @brief Returns the information whether a condition variable signaler is attached
+    /// @return true if condition variable signaler is set, false if not
+    bool isConditionVariableSignalerAttached() const noexcept;
+
     /// @brief Attach a semaphore which gets triggered if a new chunk is pushed to the queue. Caution, a semaphore
     /// cannot be detached or set again
     /// @param[in] semaphore to attach
     /// @return success if semaphore could be attached, error if not
-    cxx::expected<ChunkQueueError> attachSemaphore(mepoo::SharedPointer<posix::Semaphore>) noexcept;
+    [[gnu::deprecated]] cxx::expected<ChunkQueueError> attachSemaphore(mepoo::SharedPointer<posix::Semaphore>) noexcept;
 
-    /// @todo rename to isConditionVariableAttached
     /// @brief returns the information whether a semaphore is attached. Caution, a semaphore cannot be detached
     /// @return true if the semaphore is set, false if not
-    bool isSemaphoreAttached() noexcept;
+    [[gnu::deprecated]] bool isSemaphoreAttached() noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;
