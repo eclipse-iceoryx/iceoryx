@@ -32,7 +32,11 @@ struct ConditionVariableData
 
     posix::Semaphore m_semaphore =
         std::move(posix::Semaphore::create(0u)
-                      .on_error([] { errorHandler(Error::kPOPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE); })
+                      .or_else([](posix::SemaphoreError&) {
+                          errorHandler(Error::kPOPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE,
+                                       nullptr,
+                                       ErrorLevel::FATAL);
+                      })
                       .get_value());
 };
 
