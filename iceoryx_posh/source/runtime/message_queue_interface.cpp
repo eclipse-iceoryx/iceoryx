@@ -87,9 +87,7 @@ bool MqBase::receive(MqMessage& answer) const noexcept
 bool MqBase::timedReceive(const units::Duration timeout, MqMessage& answer) const noexcept
 {
     return !m_mq.timedReceive(timeout)
-                .on_success([&answer](cxx::expected<std::string, posix::IpcChannelError>& message) {
-                    MqBase::setMessageFromString(message.get_value().c_str(), answer);
-                })
+                .and_then([&answer](std::string& message) { MqBase::setMessageFromString(message.c_str(), answer); })
                 .has_error()
            && answer.isValid();
 }
@@ -114,15 +112,15 @@ bool MqBase::send(const MqMessage& msg) const noexcept
         return false;
     }
 
-    auto logLengthError = [&msg](cxx::expected<posix::IpcChannelError>& error) {
-        if (error.get_error() == posix::IpcChannelError::MESSAGE_TOO_LONG)
+    auto logLengthError = [&msg](posix::IpcChannelError& error) {
+        if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
         {
             const size_t messageSize =
                 static_cast<size_t>(msg.getMessage().size()) + posix::MessageQueue::NULL_TERMINATOR_SIZE;
             LogError() << "msg size of " << messageSize << "bigger than configured max message size";
         }
     };
-    return !m_mq.send(msg.getMessage()).on_error(logLengthError).has_error();
+    return !m_mq.send(msg.getMessage()).or_else(logLengthError).has_error();
 }
 
 bool MqBase::timedSend(const MqMessage& msg, units::Duration timeout) const noexcept
@@ -134,15 +132,15 @@ bool MqBase::timedSend(const MqMessage& msg, units::Duration timeout) const noex
         return false;
     }
 
-    auto logLengthError = [&msg](cxx::expected<posix::IpcChannelError>& error) {
-        if (error.get_error() == posix::IpcChannelError::MESSAGE_TOO_LONG)
+    auto logLengthError = [&msg](posix::IpcChannelError& error) {
+        if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
         {
             const size_t messageSize =
                 static_cast<size_t>(msg.getMessage().size()) + posix::MessageQueue::NULL_TERMINATOR_SIZE;
             LogError() << "msg size of " << messageSize << "bigger than configured max message size";
         }
     };
-    return !m_mq.timedSend(msg.getMessage(), timeout).on_error(logLengthError).has_error();
+    return !m_mq.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
 }
 
 const std::string& MqBase::getInterfaceName() const noexcept
@@ -162,7 +160,7 @@ bool MqBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
     m_channelSide = channelSide;
     IpcChannelType::create(
         m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
-        .on_success([this](cxx::expected<IpcChannelType, posix::IpcChannelError>& mq) { this->m_mq = std::move(*mq); });
+        .and_then([this](IpcChannelType& mq) { this->m_mq = std::move(mq); });
 
     return m_mq.isInitialized();
 }
