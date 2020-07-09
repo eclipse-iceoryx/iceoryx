@@ -47,7 +47,7 @@ class ConditionVariableWaiter
     ConditionVariableData* getMembers() noexcept;
 
   private:
-    ConditionVariableData* const m_condVarDataPtr{nullptr};
+    ConditionVariableData* m_condVarDataPtr{nullptr};
 };
 
 } // namespace popo
