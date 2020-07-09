@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_WAITSET_GUARD_CONDITION_HPP
-#define IOX_POSH_POPO_WAITSET_GUARD_CONDITION_HPP
+#ifndef IOX_POSH_POPO_GUARD_CONDITION_HPP
+#define IOX_POSH_POPO_GUARD_CONDITION_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
@@ -25,7 +25,7 @@ namespace popo
 {
 /// @brief Allows the user to manually notify inside of one application
 /// @note Contained in every WaitSet
-class GuardCondition : public Condition
+class GuardCondition final : public Condition
 {
   public:
     explicit GuardCondition() noexcept = default;
@@ -57,4 +57,4 @@ class GuardCondition : public Condition
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_POSH_POPO_WAITSET_CHUNK_RECEIVER_DATA_HPP
+#endif // IOX_POSH_POPO_GUARD_CONDITION_HPP

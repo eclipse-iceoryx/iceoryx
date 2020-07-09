@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_WAITSET_CONDITION_HPP
-#define IOX_POSH_POPO_WAITSET_CONDITION_HPP
+#ifndef IOX_POSH_POPO_CONDITION_HPP
+#define IOX_POSH_POPO_CONDITION_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 
@@ -27,13 +27,17 @@ class Condition
   public:
     virtual ~Condition() = default;
 
+    /// @brief Was the condition fulfilled since last call?
     virtual bool hasTriggered() const noexcept = 0;
+    /// @brief Called by a WaitSet before attaching a Condition to see whether it was already added
     virtual bool isConditionVariableAttached() noexcept = 0;
+    /// @brief Called by a WaitSet to announce the condition variable pointer that usually lives in shared memory
     virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept = 0;
+    /// @brief Called when removing the condition from a WaitSet
     virtual bool detachConditionVariable() noexcept = 0;
 };
 
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_POSH_POPO_WAITSET_CONDITION_HPP
+#endif // IOX_POSH_POPO_CONDITION_HPP

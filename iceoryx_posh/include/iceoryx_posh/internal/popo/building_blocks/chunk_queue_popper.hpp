@@ -85,15 +85,17 @@ class ChunkQueuePopper
     /// @return true if condition variable signaler is set, false if not
     bool isConditionVariableSignalerAttached() const noexcept;
 
+    /// @deprecated #25
     /// @brief Attach a semaphore which gets triggered if a new chunk is pushed to the queue. Caution, a semaphore
     /// cannot be detached or set again
     /// @param[in] semaphore to attach
     /// @return success if semaphore could be attached, error if not
-    [[gnu::deprecated]] cxx::expected<ChunkQueueError> attachSemaphore(mepoo::SharedPointer<posix::Semaphore>) noexcept;
+    cxx::expected<ChunkQueueError> attachSemaphore(mepoo::SharedPointer<posix::Semaphore>) noexcept;
 
+    /// @deprecated #25
     /// @brief returns the information whether a semaphore is attached. Caution, a semaphore cannot be detached
     /// @return true if the semaphore is set, false if not
-    [[gnu::deprecated]] bool isSemaphoreAttached() noexcept;
+    bool isSemaphoreAttached() noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

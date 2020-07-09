@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_SIGNALER_HPP
-#define IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_SIGNALER_HPP
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_SIGNALER_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_SIGNALER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -26,6 +26,10 @@ class ConditionVariableSignaler
 {
   public:
     explicit ConditionVariableSignaler(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+    ConditionVariableSignaler(const ConditionVariableSignaler& rhs) = delete;
+    ConditionVariableSignaler(ConditionVariableSignaler&& rhs) = delete;
+    ConditionVariableSignaler& operator=(const ConditionVariableSignaler& rhs) = delete;
+    ConditionVariableSignaler& operator=(ConditionVariableSignaler&& rhs) = delete;
 
     void notifyOne() noexcept;
 
@@ -40,4 +44,4 @@ class ConditionVariableSignaler
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_SIGNALER_HPP
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_SIGNALER_HPP

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_WAITER_HPP
-#define IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_WAITER_HPP
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_WAITER_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_WAITER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
@@ -27,6 +27,10 @@ class ConditionVariableWaiter
 {
   public:
     explicit ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+    ConditionVariableWaiter(const ConditionVariableWaiter& rhs) = delete;
+    ConditionVariableWaiter(ConditionVariableWaiter&& rhs) = delete;
+    ConditionVariableWaiter& operator=(const ConditionVariableWaiter& rhs) = delete;
+    ConditionVariableWaiter& operator=(ConditionVariableWaiter&& rhs) = delete;
 
     /// @brief Reinitialises the condition variable
     void reset() noexcept;
@@ -46,4 +50,4 @@ class ConditionVariableWaiter
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_WAITER_HPP
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_WAITER_HPP
