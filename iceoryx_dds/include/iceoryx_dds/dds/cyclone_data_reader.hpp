@@ -17,15 +17,50 @@
 
 #include "iceoryx_dds/dds/data_reader.hpp"
 
+#include <Mempool_DCPS.hpp>
+#include <atomic>
+#include <dds/dds.hpp>
+
 namespace iox
 {
 namespace dds
 {
-/// @note Implementation coming soon.
-class CycloneDataReader : DataReader<CycloneDataReader>
+///
+/// @brief Implementation of the DataReader abstraction using the cyclonedds implementation.
+///
+class CycloneDataReader : public DataReader
 {
   public:
+    CycloneDataReader() = delete;
     CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept;
+    virtual ~CycloneDataReader();
+
+    CycloneDataReader(const CycloneDataReader&) = delete;
+    CycloneDataReader& operator=(const CycloneDataReader&) = delete;
+    CycloneDataReader(CycloneDataReader&&) = delete;
+    CycloneDataReader& operator=(CycloneDataReader&&) = delete;
+
+    void connect() noexcept override;
+
+    iox::cxx::optional<uint64_t> peekNextSize() override;
+
+    iox::cxx::expected<DataReaderError> takeNext(uint8_t* const buffer, const uint64_t& bufferSize) override;
+
+    iox::cxx::expected<uint64_t, DataReaderError>
+    take(uint8_t* const buffer, const uint64_t& bufferSize, const iox::cxx::optional<uint64_t>& maxSamples) override;
+
+    IdString getServiceId() const noexcept override;
+    IdString getInstanceId() const noexcept override;
+    IdString getEventId() const noexcept override;
+
+  private:
+    IdString m_serviceId{""};
+    IdString m_instanceId{""};
+    IdString m_eventId{""};
+
+    ::dds::sub::DataReader<Mempool::Chunk> m_impl = ::dds::core::null;
+
+    std::atomic_bool m_isConnected{false};
 };
 
 } // namespace dds

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "test.hpp"
 
 using namespace ::testing;
 using namespace iox::cxx;
@@ -24,24 +24,24 @@ class expected_test : public Test
     struct Test
     {
         Test(int a, int b)
-            : a(a)
-            , b(b)
+            : m_a(a)
+            , m_b(b)
         {
         }
 
-        int Gimme()
+        int gimme()
         {
-            return a + b;
+            return m_a + m_b;
         }
 
-        int ConstGimme() const
+        int constGimme() const
         {
-            return a + b;
+            return m_a + m_b;
         }
 
 
-        int a;
-        int b;
+        int m_a;
+        int m_b;
     };
 };
 
@@ -63,14 +63,14 @@ TEST_F(expected_test, CreateValue)
 {
     auto sut = expected<Test, int>::create_value(12, 222);
     ASSERT_THAT(sut.has_error(), Eq(false));
-    EXPECT_THAT(sut.get_value().a, Eq(12));
+    EXPECT_THAT(sut.get_value().m_a, Eq(12));
 }
 
 TEST_F(expected_test, CreateError)
 {
     auto sut = expected<int, Test>::create_error(313, 212);
     ASSERT_THAT(sut.has_error(), Eq(true));
-    EXPECT_THAT(sut.get_error().b, Eq(212));
+    EXPECT_THAT(sut.get_error().m_b, Eq(212));
 }
 
 TEST_F(expected_test, GetValueOrWithError)
@@ -101,14 +101,14 @@ TEST_F(expected_test, ArrowOperator)
 {
     auto sut = expected<Test, float>::create_value(55, 81);
     ASSERT_THAT(sut.has_error(), Eq(false));
-    EXPECT_THAT(sut->Gimme(), Eq(136));
+    EXPECT_THAT(sut->gimme(), Eq(136));
 }
 
 TEST_F(expected_test, ConstArrowOperator)
 {
     const expected<Test, float> sut(success<Test>(Test(55, 81)));
     ASSERT_THAT(sut.has_error(), Eq(false));
-    EXPECT_THAT(sut->ConstGimme(), Eq(136));
+    EXPECT_THAT(sut->constGimme(), Eq(136));
 }
 
 TEST_F(expected_test, Dereferencing)
@@ -165,145 +165,47 @@ TEST_F(expected_test, CreateFromErrorType)
     EXPECT_THAT(sut.get_error(), Eq(112.1f));
 }
 
-TEST_F(expected_test, OnErrorWhenHavingAnErrorWithResult)
+TEST_F(expected_test, OrElseWhenHavingAnErrorWithResult)
 {
     expected<int, float> sut{error<float>(112.1f)};
     float a = 0.2f;
-    sut.on_error([&](expected<int, float>& r) { a = r.get_error(); }).on_success([&](expected<int, float>&) {
-        a = 2.0f;
-    });
+    sut.and_then([&](int&) { a = 2.0f; }).or_else([&](float& r) { a = r; });
 
     EXPECT_THAT(a, Eq(112.1f));
 }
 
-TEST_F(expected_test, ConstOnErrorWhenHavingAnErrorWithResult)
+TEST_F(expected_test, ConstOrElseWhenHavingAnErrorWithResult)
 {
     const expected<int, float> sut{error<float>(12.1f)};
     float a = 7.1f;
-    sut.on_error([&](expected<int, float>& r) { a = r.get_error(); }).on_success([&](expected<int, float>&) {
-        a = 91.f;
-    });
+    sut.and_then([&](int&) { a = 91.f; }).or_else([&](float& r) { a = r; });
 
     EXPECT_THAT(a, Eq(12.1f));
 }
 
-TEST_F(expected_test, OnErrorWhenHavingAnErrorWithResultErrorType)
-{
-    expected<int, float> sut{error<float>(112.1f)};
-    float a = 0.2f;
-    sut.on_error([&](float& r) { a = r; }).on_success([&](expected<int, float>&) {
-        a = 2.0f;
-    });
-
-    EXPECT_THAT(a, Eq(112.1f));
-}
-
-TEST_F(expected_test, ConstOnErrorWhenHavingAnErrorWithResultErrorType)
-{
-    const expected<int, float> sut{error<float>(12.1f)};
-    float a = 7.1f;
-    sut.on_error([&](float& r) { a = r; }).on_success([&](expected<int, float>&) {
-        a = 91.f;
-    });
-
-    EXPECT_THAT(a, Eq(12.1f));
-}
-
-TEST_F(expected_test, ErrorTypeOnlyOnErrorWhenHavingAnErrorWithResult)
+TEST_F(expected_test, ErrorTypeOnlyOrElseWhenHavingAnErrorWithResultErrorType)
 {
     expected<float> sut{error<float>(7112.1f)};
     float a = 70.2f;
-    sut.on_error([&](expected<float>& r) { a = r.get_error(); }).on_success([&](expected<float>&) { a = 2.0f; });
+    sut.and_then([&]() { a = 2.0f; }).or_else([&](float& r) { a = r; });
 
     EXPECT_THAT(a, Eq(7112.1f));
 }
 
-TEST_F(expected_test, ErrorTypeOnlyConstOnErrorWhenHavingAnErrorWithResult)
+TEST_F(expected_test, ErrorTypeOnlyConstOrElseWhenHavingAnErrorWithResultErrorType)
 {
     const expected<float> sut{error<float>(612.1f)};
     float a = 67.1f;
-    sut.on_error([&](expected<float>& r) { a = r.get_error(); }).on_success([&](expected<float>&) { a = 91.f; });
+    sut.and_then([&]() { a = 91.f; }).or_else([&](float& r) { a = r; });
 
     EXPECT_THAT(a, Eq(612.1f));
 }
 
-TEST_F(expected_test, ErrorTypeOnlyOnErrorWhenHavingAnErrorWithResultErrorType)
-{
-    expected<float> sut{error<float>(7112.1f)};
-    float a = 70.2f;
-    sut.on_error([&](float& r) { a = r; }).on_success([&](expected<float>&) { a = 2.0f; });
-
-    EXPECT_THAT(a, Eq(7112.1f));
-}
-
-TEST_F(expected_test, ErrorTypeOnlyConstOnErrorWhenHavingAnErrorWithResultErrorType)
-{
-    const expected<float> sut{error<float>(612.1f)};
-    float a = 67.1f;
-    sut.on_error([&](float& r) { a = r; }).on_success([&](expected<float>&) { a = 91.f; });
-
-    EXPECT_THAT(a, Eq(612.1f));
-}
-
-TEST_F(expected_test, OnErrorWhenHavingAnErrorWithoutResult)
-{
-    expected<int, float> sut{error<float>(112.1f)};
-    int a = 0;
-    sut.on_error([&]() { a = 5; }).on_success([&]() { a = 7; });
-
-    EXPECT_THAT(a, Eq(5));
-}
-
-TEST_F(expected_test, ConstOnErrorWhenHavingAnErrorWithoutResult)
-{
-    const expected<int, float> sut{error<float>(1112.1f)};
-    int a = 0;
-    sut.on_error([&]() { a = 51; }).on_success([&]() { a = 71; });
-
-    EXPECT_THAT(a, Eq(51));
-}
-
-TEST_F(expected_test, VoidOnErrorWhenHavingAnErrorWithoutResult)
-{
-    expected<float> sut{error<float>(4112.1f)};
-    int a = 0;
-    sut.on_error([&]() { a = 53; }).on_success([&]() { a = 37; });
-
-    EXPECT_THAT(a, Eq(53));
-}
-
-TEST_F(expected_test, VoidConstOnErrorWhenHavingAnErrorWithoutResult)
-{
-    const expected<float> sut{error<float>(18112.1f)};
-    int a = 0;
-    sut.on_error([&]() { a = 451; }).on_success([&]() { a = 71; });
-
-    EXPECT_THAT(a, Eq(451));
-}
-
-TEST_F(expected_test, OnSuccessWhenHavingSuccessWithResult)
+TEST_F(expected_test, ValueTypeAndThenWhenHavingSuccessWithResult)
 {
     expected<int, float> sut{success<int>(112)};
     int a = 0;
-    sut.on_error([&](expected<int, float>&) { a = 3; }).on_success([&](expected<int, float>& r) { a = r.get_value(); });
-
-    EXPECT_THAT(a, Eq(112));
-}
-
-TEST_F(expected_test, ConstOnSuccessWhenHavingSuccessWithResult)
-{
-    const expected<int, float> sut{success<int>(1142)};
-    int a = 0;
-    sut.on_error([&](expected<int, float>&) { a = 3; }).on_success([&](expected<int, float>& r) { a = r.get_value(); });
-
-    EXPECT_THAT(a, Eq(1142));
-}
-
-TEST_F(expected_test, ValueTypeOnSuccessWhenHavingSuccessWithResult)
-{
-    expected<int, float> sut{success<int>(112)};
-    int a = 0;
-    sut.on_error([&](expected<int, float>&) { a = 3; }).on_success([&](int& r) { a = r; });
+    sut.and_then([&](int& r) { a = r; }).or_else([&](float&) { a = 3; });
 
     EXPECT_THAT(a, Eq(112));
 }
@@ -312,65 +214,9 @@ TEST_F(expected_test, ValueTypeConstOnSuccessWhenHavingSuccessWithResult)
 {
     const expected<int, float> sut{success<int>(1142)};
     int a = 0;
-    sut.on_error([&](expected<int, float>&) { a = 3; }).on_success([&](int& r) { a = r; });
+    sut.and_then([&](int& r) { a = r; }).or_else([&](float&) { a = 3; });
 
     EXPECT_THAT(a, Eq(1142));
-}
-
-TEST_F(expected_test, VoidOnSuccessWhenHavingSuccessWithResult)
-{
-    expected<float> sut{success<>()};
-    int a = 0;
-    sut.on_error([&](expected<float>&) { a = 3; }).on_success([&](expected<float>& r) { a = (r.has_error()) ? 1 : 2; });
-
-    EXPECT_THAT(a, Eq(2));
-}
-
-TEST_F(expected_test, VoidConstOnSuccessWhenHavingSuccessWithResult)
-{
-    const expected<float> sut{success<>()};
-    int a = 0;
-    sut.on_error([&](expected<float>&) { a = 3; }).on_success([&](expected<float>& r) {
-        a = (r.has_error()) ? 13 : 23;
-    });
-
-    EXPECT_THAT(a, Eq(23));
-}
-
-TEST_F(expected_test, OnSuccessWhenHavingSuccessWithoutResult)
-{
-    expected<int, float> sut{success<int>(112)};
-    int a = 0;
-    sut.on_error([&]() { a = 3; }).on_success([&]() { a = 55; });
-
-    EXPECT_THAT(a, Eq(55));
-}
-
-TEST_F(expected_test, ConstOnSuccessWhenHavingSuccessWithoutResult)
-{
-    const expected<int, float> sut{success<int>(1125)};
-    int a = 0;
-    sut.on_error([&]() { a = 3; }).on_success([&]() { a = 555; });
-
-    EXPECT_THAT(a, Eq(555));
-}
-
-TEST_F(expected_test, VoidOnSuccessWhenHavingSuccessWithoutResult)
-{
-    expected<float> sut{success<>()};
-    int a = 0;
-    sut.on_error([&]() { a = 3; }).on_success([&]() { a = 855; });
-
-    EXPECT_THAT(a, Eq(855));
-}
-
-TEST_F(expected_test, VoidConstOnSuccessWhenHavingSuccessWithoutResult)
-{
-    const expected<float> sut{success<>()};
-    int a = 0;
-    sut.on_error([&]() { a = 3; }).on_success([&]() { a = 8553; });
-
-    EXPECT_THAT(a, Eq(8553));
 }
 
 TEST_F(expected_test, ConvertNonVoidSuccessResultToVoidResult)
@@ -386,4 +232,19 @@ TEST_F(expected_test, ConvertNonVoidErrorResultToVoidResult)
     expected<float> sut2 = sut;
     EXPECT_THAT(sut2.has_error(), Eq(true));
     EXPECT_THAT(sut2.get_error(), Eq(1.23f));
+}
+
+TEST_F(expected_test, ExpectedWithValueConvertsToOptionalWithValue)
+{
+    expected<int, float> sut{success<int>(4711)};
+    optional<int> value = sut.to_optional();
+    ASSERT_THAT(value.has_value(), Eq(true));
+    EXPECT_THAT(*value, Eq(4711));
+}
+
+TEST_F(expected_test, ExpectedWithErrorConvertsToNullopt)
+{
+    expected<int, float> sut{error<float>(47.11f)};
+    optional<int> value = sut.to_optional();
+    ASSERT_THAT(value.has_value(), Eq(false));
 }

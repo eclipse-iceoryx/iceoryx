@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_GATEWAY_TEST_TEST_HPP
-#define IOX_DDS_GATEWAY_TEST_TEST_HPP
+#include "iceoryx_dds/gateway/gateway_config.hpp"
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-
-#endif // IOX_DDS_GATEWAY_TEST_TEST_HPP
+void iox::dds::GatewayConfig::setDefaults() noexcept
+{
+    // Nothing to do. Yet.
+}

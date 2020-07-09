@@ -220,7 +220,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
                                           SOL_SOCKET,
                                           SO_SNDTIMEO,
                                           reinterpret_cast<const char*>(&tv),
-                                          sizeof(tv));
+                                          static_cast<socklen_t>(sizeof(tv)));
 
     if (setsockoptCall.hasErrors())
     {
@@ -230,14 +230,14 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
     {
         auto sendCall = cxx::makeSmartC(sendto,
                                         cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                        {ERROR_CODE},
+                                        {static_cast<ssize_t>(ERROR_CODE)},
                                         {},
                                         m_sockfd,
                                         msg.c_str(),
-                                        msg.size() + 1, // +1 for the \0 at the end
-                                        0,
+                                        static_cast<size_t>(msg.size() + 1), // +1 for the \0 at the end
+                                        static_cast<int>(0),
                                         nullptr, // socket address not used for a connected SOCK_DGRAM
-                                        0);
+                                        static_cast<socklen_t>(0));
 
         if (sendCall.hasErrors())
         {
@@ -281,7 +281,7 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const
                                           SOL_SOCKET,
                                           SO_RCVTIMEO,
                                           reinterpret_cast<const char*>(&tv),
-                                          sizeof(tv));
+                                          static_cast<socklen_t>(sizeof(tv)));
 
     if (setsockoptCall.hasErrors())
     {
@@ -354,7 +354,7 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
                                         {},
                                         sockfd,
                                         reinterpret_cast<struct sockaddr*>(&m_sockAddr),
-                                        sizeof(m_sockAddr));
+                                        static_cast<socklen_t>(sizeof(m_sockAddr)));
 
         if (!bindCall.hasErrors())
         {
@@ -375,7 +375,7 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
                                            {},
                                            sockfd,
                                            (struct sockaddr*)&m_sockAddr,
-                                           sizeof(m_sockAddr));
+                                           static_cast<socklen_t>(sizeof(m_sockAddr)));
 
         if (!connectCall.hasErrors())
         {

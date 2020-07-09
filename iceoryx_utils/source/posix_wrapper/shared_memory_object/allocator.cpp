@@ -24,7 +24,7 @@ namespace posix
 {
 constexpr uint64_t Allocator::MEMORY_ALIGNMENT;
 Allocator::Allocator(void* const f_startAddress, const uint64_t f_length) noexcept
-    : m_startAddress(static_cast<byte_t* const>(f_startAddress))
+    : m_startAddress(static_cast<byte_t*>(f_startAddress))
     , m_length(f_length)
 {
     /// @todo memset to set memory and to avoid the usage of unavailable memory

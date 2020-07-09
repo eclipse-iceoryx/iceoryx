@@ -32,7 +32,7 @@ using ::testing::Return;
 
 struct DummySample
 {
-    uint64_t dummy{42};
+    uint64_t m_dummy{42};
 };
 
 static constexpr uint32_t NUM_CHUNKS_IN_POOL = 3 * iox::MAX_RECEIVER_QUEUE_CAPACITY;
@@ -72,14 +72,14 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         for (size_t i = 0; i < ITERATIONS; i++)
         {
             m_chunkSender.allocate(sizeof(DummySample))
-                .on_success([&](iox::mepoo::ChunkHeader* chunkHeader) {
+                .and_then([&](iox::mepoo::ChunkHeader* chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();
-                    static_cast<DummySample*>(sample)->dummy = i;
+                    static_cast<DummySample*>(sample)->m_dummy = i;
                     m_chunkSender.send(chunkHeader);
                     m_sendCounter++;
                 })
-                .on_error([]() {
+                .or_else([](AllocationError) {
                     // Errors shall never occur
                     FAIL();
                 });
@@ -106,7 +106,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                 .and_then([&](SharedChunk& chunk) {
                     auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
                     // Check if monotonically increasing
-                    EXPECT_THAT(dummySample.dummy, Eq(forwardCounter));
+                    EXPECT_THAT(dummySample.m_dummy, Eq(forwardCounter));
                     m_chunkDistributor.deliverToAllStoredQueues(chunk);
                     forwardCounter++;
                     newChunkReceivedInLastIteration = true;
@@ -141,13 +141,13 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
             ASSERT_FALSE(m_chunkReceiver.hasOverflown());
 
             m_chunkReceiver.get()
-                .on_success([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
+                .and_then([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
                     if (maybeChunkHeader.has_value())
                     {
                         auto chunkHeader = maybeChunkHeader.value();
                         auto dummySample = *reinterpret_cast<DummySample*>(chunkHeader->payload());
                         // Check if monotonically increasing
-                        EXPECT_THAT(dummySample.dummy, Eq(m_receiveCounter));
+                        EXPECT_THAT(dummySample.m_dummy, Eq(m_receiveCounter));
                         m_receiveCounter++;
                         m_chunkReceiver.release(chunkHeader);
                         newChunkReceivedInLastIteration = true;
@@ -164,7 +164,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
                         }
                     }
                 })
-                .on_error([]() {
+                .or_else([](ChunkReceiveError) {
                     // Errors shall never occur
                     FAIL();
                 });

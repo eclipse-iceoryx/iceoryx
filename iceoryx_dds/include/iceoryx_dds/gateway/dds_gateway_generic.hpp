@@ -48,8 +48,6 @@ enum class GatewayError : uint8_t
 template <typename channel_t, typename gateway_t = iox::popo::GatewayGeneric>
 class DDSGatewayGeneric : public gateway_t
 {
-    using ChannelFactory =
-        std::function<iox::cxx::expected<channel_t, iox::dds::ChannelError>(const iox::capro::ServiceDescription)>;
     using ChannelVector = iox::cxx::vector<channel_t, MAX_CHANNEL_NUMBER>;
     using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
 
@@ -84,8 +82,6 @@ class DDSGatewayGeneric : public gateway_t
 
   protected:
     DDSGatewayGeneric() noexcept;
-
-    ChannelFactory m_channelFactory;
 
     ///
     /// @brief addChannel Creates a channel for the given service and stores a copy of it in an internal collection for

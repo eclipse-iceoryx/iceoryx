@@ -137,6 +137,8 @@ target_link_libraries(iceoryx_posh
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
+target_compile_options(iceoryx_posh PRIVATE ${ICEORYX_WARNINGS})
+
 if(LINUX)
     target_link_libraries(iceoryx_posh PRIVATE rt )
 elseif(QNX)
@@ -207,6 +209,8 @@ if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
+target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS})
+
 if(TOML_CONFIG)
     if ( NOT cpptoml_FOUND )
         find_package(cpptoml_vendor QUIET)
@@ -222,6 +226,7 @@ if(TOML_CONFIG)
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     )
+    target_compile_options(iceoryx_posh_roudi_toml PRIVATE ${ICEORYX_WARNINGS})
 
     add_executable(RouDi
         source/roudi/application/roudi_main.cpp
@@ -235,17 +240,19 @@ if(TOML_CONFIG)
 
     target_link_libraries(RouDi
         PRIVATE
-        ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
+        cpptoml
         iceoryx_utils::iceoryx_utils
+        ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
+        iceoryx_posh_roudi_toml
     )
+
+    target_compile_options(RouDi PRIVATE ${ICEORYX_WARNINGS})
 
     if(PERFORM_CLANG_TIDY)
         set_target_properties(
             RouDi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
         )
     endif(PERFORM_CLANG_TIDY)
-
-    target_link_libraries(RouDi PRIVATE cpptoml iceoryx_posh_roudi_toml)
 
 endif(TOML_CONFIG)
 
@@ -273,6 +280,8 @@ if(roudi_environment OR test)
         iceoryx_utils::iceoryx_utils
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
     )
+
+    target_compile_options(iceoryx_posh_roudi_environment PRIVATE ${ICEORYX_WARNINGS})
 endif(roudi_environment OR test)
 
 #

@@ -1,5 +1,19 @@
+# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 cmake_minimum_required(VERSION 3.5)
-project(test_iox_to_dds VERSION ${test_iox_to_dds})
+project(test_iox_to_dds VERSION 0)
 
 find_package(iceoryx_utils_testing REQUIRED)
 find_package(GTest CONFIG REQUIRED)
@@ -28,5 +42,5 @@ endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
 add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC})
 set_property(TARGET ${PROJECT_PREFIX}_moduletests PROPERTY CXX_STANDARD 11)
 target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
-target_compile_options(${PROJECT_PREFIX}_moduletests PUBLIC -fPIC PRIVATE -Wno-conversion)
+target_compile_options(${PROJECT_PREFIX}_moduletests PUBLIC -fPIC PRIVATE ${ICEORYX_WARNINGS} -Wno-conversion)
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})

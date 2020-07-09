@@ -74,9 +74,13 @@ uint64_t ChunkQueuePopper::size() noexcept
     return getMembers()->m_queue.size();
 }
 
-void ChunkQueuePopper::setCapacity(const uint32_t newCapacity) noexcept
+void ChunkQueuePopper::setCapacity(const uint64_t newCapacity) noexcept
 {
-    getMembers()->m_queue.setCapacity(newCapacity);
+    /// @todo fix getCapacity and setCapacity issue in queues (uint32 vs uint64)
+    // this needs to be properly fixed by harmonizing the types across the functions, but currently this cast is also
+    // sufficient
+    getMembers()->m_queue.setCapacity(
+        static_cast<std::remove_const<decltype(MemberType_t::MAX_CAPACITY)>::type>(newCapacity));
 }
 
 uint64_t ChunkQueuePopper::getCurrentCapacity() const noexcept
@@ -98,9 +102,9 @@ void ChunkQueuePopper::clear() noexcept
         {
             // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
             auto chunkTupleOut = *retVal;
-            auto chunkManagement = iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset,
-                                                                             chunkTupleOut.m_segmentId); 
-            auto chunk = mepoo::SharedChunk(chunkManagement);                                            
+            auto chunkManagement =
+                iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            auto chunk = mepoo::SharedChunk(chunkManagement);
         }
         else
         {
