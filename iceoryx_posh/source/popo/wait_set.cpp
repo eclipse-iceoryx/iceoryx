@@ -62,61 +62,14 @@ void WaitSet::detachAllConditions() noexcept
     m_conditionVector.clear();
 }
 
-WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout) noexcept
-{
-    ConditionVector conditionsWithFulfilledPredicate;
-
-    auto checkIfOneOfConditionsIsFulfilled = [&]() {
-        for (auto& currentCondition : m_conditionVector)
-        {
-            if (currentCondition->hasTriggered())
-            {
-                if (!conditionsWithFulfilledPredicate.push_back(currentCondition))
-                {
-                    errorHandler(Error::kPOPO__WAITSET_CONDITION_VECTOR_OVERFLOW, nullptr, ErrorLevel::FATAL);
-                }
-            }
-        }
-    };
-
-    /// @note Inbetween here and last wait someone could have set the trigger to true, hence reset it
-    m_conditionVariableWaiter.reset();
-
-    // Is one of the conditons true?
-    checkIfOneOfConditionsIsFulfilled();
-
-    if (conditionsWithFulfilledPredicate.empty())
-    {
-        if (timeout.has_value())
-        {
-            auto hasTimeOut = !m_conditionVariableWaiter.timedWait(timeout.value());
-
-            if (hasTimeOut == true)
-            {
-                // Return empty list
-                return conditionsWithFulfilledPredicate;
-            }
-        }
-        else
-        {
-            m_conditionVariableWaiter.wait();
-        }
-
-        // Check again if one of the conditions is true after we received the signal
-        checkIfOneOfConditionsIsFulfilled();
-    }
-    // Return of a copy of all conditions that were fulfilled
-    return conditionsWithFulfilledPredicate;
-}
-
 WaitSet::ConditionVector WaitSet::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnFulfilledConditions(cxx::make_optional<units::Duration>(timeout));
+    return waitAndReturnFulfilledConditions<WaitPolicy::TIMED_WAIT>(cxx::make_optional<units::Duration>(timeout));
 }
 
 WaitSet::ConditionVector WaitSet::wait() noexcept
 {
-    return waitAndReturnFulfilledConditions(cxx::nullopt);
+    return waitAndReturnFulfilledConditions<WaitPolicy::BLOCKING_WAIT>(cxx::nullopt);
 }
 
 } // namespace popo
