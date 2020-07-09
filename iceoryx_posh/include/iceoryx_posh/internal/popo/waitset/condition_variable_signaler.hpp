@@ -25,7 +25,7 @@ namespace popo
 class ConditionVariableSignaler
 {
   public:
-    ConditionVariableSignaler(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+    explicit ConditionVariableSignaler(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
     void notifyOne() noexcept;
 

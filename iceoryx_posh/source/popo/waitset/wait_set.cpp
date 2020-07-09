@@ -41,7 +41,7 @@ bool WaitSet::attachCondition(Condition& condition) noexcept
 
 bool WaitSet::detachCondition(const Condition& condition) noexcept
 {
-    for (auto currentCondition : m_conditionVector)
+    for (auto& currentCondition : m_conditionVector)
     {
         if (currentCondition == &condition)
         {
@@ -57,23 +57,29 @@ void WaitSet::clear() noexcept
     m_conditionVector.clear();
 }
 
-cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS>
-WaitSet::waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout) noexcept
+WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout) noexcept
 {
-    cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> conditionsWithFulfilledPredicate;
+    ConditionVector conditionsWithFulfilledPredicate;
+
+    auto checkIfOneOfConditionsIsFulfilled = [&]() {
+        for (auto& currentCondition : m_conditionVector)
+        {
+            if (currentCondition->hasTrigger())
+            {
+                if (!conditionsWithFulfilledPredicate.push_back(currentCondition))
+                {
+                    errorHandler(Error::kPOPO__WAITSET_CONDITION_VECTOR_OVERFLOW, nullptr, ErrorLevel::FATAL);
+                }
+                currentCondition->resetTrigger();
+            }
+        }
+    };
 
     /// @note Inbetween here and last wait someone could have set the trigger to true, hence reset it
     m_conditionVariableWaiter.reset();
 
     // Is one of the conditons true?
-    for (auto currentCondition : m_conditionVector)
-    {
-        if (currentCondition->hasTrigger())
-        {
-            conditionsWithFulfilledPredicate.push_back(currentCondition);
-            currentCondition->resetTrigger();
-        }
-    }
+    checkIfOneOfConditionsIsFulfilled();
 
     if (conditionsWithFulfilledPredicate.empty())
     {
@@ -93,25 +99,18 @@ WaitSet::waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout
         }
 
         // Check again if one of the conditions is true after we received the signal
-        for (auto currentCondition : m_conditionVector)
-        {
-            if (currentCondition->hasTrigger())
-            {
-                conditionsWithFulfilledPredicate.push_back(currentCondition);
-                currentCondition->resetTrigger();
-            }
-        }
+        checkIfOneOfConditionsIsFulfilled();
     }
     // Return of a copy of all conditions that were fulfilled
     return conditionsWithFulfilledPredicate;
 }
 
-cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> WaitSet::timedWait(units::Duration timeout) noexcept
+WaitSet::ConditionVector WaitSet::timedWait(units::Duration timeout) noexcept
 {
     return waitAndReturnFulfilledConditions(cxx::make_optional<units::Duration>(timeout));
 }
 
-cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS> WaitSet::wait() noexcept
+WaitSet::ConditionVector WaitSet::wait() noexcept
 {
     return waitAndReturnFulfilledConditions(cxx::nullopt);
 }

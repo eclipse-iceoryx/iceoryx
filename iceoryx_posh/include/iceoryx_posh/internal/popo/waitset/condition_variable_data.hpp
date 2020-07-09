@@ -24,9 +24,11 @@ namespace popo
 {
 struct ConditionVariableData
 {
-    ConditionVariableData() noexcept
-    {
-    }
+    ConditionVariableData() noexcept = default;
+    ConditionVariableData(const ConditionVariableData& rhs) = delete;
+    ConditionVariableData(ConditionVariableData&& rhs) = default;
+    ConditionVariableData& operator=(const ConditionVariableData& rhs) = delete;
+    ConditionVariableData& operator=(ConditionVariableData&& rhs) = default;
 
     posix::Semaphore m_semaphore =
         std::move(posix::Semaphore::create(0u)

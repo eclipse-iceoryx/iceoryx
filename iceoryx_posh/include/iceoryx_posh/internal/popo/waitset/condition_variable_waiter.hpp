@@ -26,7 +26,7 @@ namespace popo
 class ConditionVariableWaiter
 {
   public:
-    ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+    explicit ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
 
     /// @brief Reinitialises the condition variable
     void reset() noexcept;

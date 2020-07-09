@@ -25,9 +25,9 @@ namespace popo
 class Condition
 {
   public:
-    Condition() = default;
+    virtual ~Condition() = default;
 
-    virtual bool hasTrigger() noexcept = 0;
+    virtual bool hasTrigger() const noexcept = 0;
     virtual void resetTrigger() noexcept = 0;
     virtual bool isConditionVariableAttached() noexcept = 0;
     virtual bool attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept = 0;

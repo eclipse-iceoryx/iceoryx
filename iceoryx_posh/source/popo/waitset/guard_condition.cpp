@@ -30,7 +30,7 @@ void GuardCondition::notify() noexcept
     m_conditionVariableSignaler.notifyOne();
 }
 
-bool GuardCondition::hasTrigger() noexcept
+bool GuardCondition::hasTrigger() const noexcept
 {
     return m_wasTriggered.load(std::memory_order_relaxed);
 }

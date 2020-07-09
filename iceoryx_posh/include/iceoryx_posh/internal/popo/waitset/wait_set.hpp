@@ -25,16 +25,14 @@ namespace iox
 {
 namespace popo
 {
-constexpr uint16_t MAX_NUMBER_OF_CONDITIONS{128};
-
 /// @brief Logical disjunction of a certain number of conditions
 class WaitSet
 {
   public:
     using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS>;
 
-    WaitSet(cxx::not_null<ConditionVariableData* const> =
-                runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable()) noexcept;
+    explicit WaitSet(cxx::not_null<ConditionVariableData* const> =
+                         runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable()) noexcept;
 
     /// @brief Adds a condition to the internal vector
     /// @return True if successful, false if unsuccessful

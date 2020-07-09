@@ -42,7 +42,7 @@ class MockSubscriber : public Condition
         return m_condVarAttached;
     }
 
-    bool hasTrigger() noexcept override
+    bool hasTrigger() const noexcept override
     {
         return m_wasTriggered;
     }
@@ -76,7 +76,7 @@ class MockSubscriber : public Condition
 class WaitSet_test : public Test
 {
   public:
-    static constexpr uint16_t MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD = iox::popo::MAX_NUMBER_OF_CONDITIONS - 1;
+    static constexpr uint16_t MAX_NUMBER_OF_CONDITIONS_WITHOUT_GUARD = iox::MAX_NUMBER_OF_CONDITIONS - 1;
 
     ConditionVariableData m_condVarData;
     WaitSet m_sut{&m_condVarData};

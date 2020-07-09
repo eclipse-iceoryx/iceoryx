@@ -28,11 +28,15 @@ namespace popo
 class GuardCondition : public Condition
 {
   public:
-    GuardCondition(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+    explicit GuardCondition(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
+    GuardCondition(const GuardCondition& rhs) = delete;
+    GuardCondition(GuardCondition&& rhs) = delete;
+    GuardCondition& operator=(const GuardCondition& rhs) = delete;
+    GuardCondition& operator=(GuardCondition&& rhs) = delete;
 
     /// @brief Wakes up a waiting WaitSet
     void notify() noexcept;
-    bool hasTrigger() noexcept override;
+    bool hasTrigger() const noexcept override;
     void resetTrigger() noexcept override;
     /// @return Always true on purpose
     bool isConditionVariableAttached() noexcept override;
