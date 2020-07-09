@@ -42,7 +42,7 @@ class MockSubscriber : public Condition
         return m_condVarAttached;
     }
 
-    bool hasTrigger() const noexcept override
+    bool hasTriggered() const noexcept override
     {
         return m_wasTriggered;
     }

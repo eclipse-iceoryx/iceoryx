@@ -38,7 +38,7 @@ class GuardCondition : public Condition
     void notify() noexcept;
     /// @brief Checks if trigger was set
     /// @return True if trigger is set, false if otherwise
-    bool hasTrigger() const noexcept override;
+    bool hasTriggered() const noexcept override;
     /// @brief Sets trigger to false
     void resetTrigger() noexcept;
     /// @return Always true on purpose

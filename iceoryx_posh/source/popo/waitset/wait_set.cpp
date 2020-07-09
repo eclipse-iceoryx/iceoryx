@@ -62,7 +62,7 @@ WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(cxx::optional
     auto checkIfOneOfConditionsIsFulfilled = [&]() {
         for (auto& currentCondition : m_conditionVector)
         {
-            if (currentCondition->hasTrigger())
+            if (currentCondition->hasTriggered())
             {
                 if (!conditionsWithFulfilledPredicate.push_back(currentCondition))
                 {
