@@ -91,4 +91,4 @@ COPY --from=builder /iceoryx/build/install/prefix/bin/* /usr/bin/
 COPY --from=builder /iceoryx/build/install/prefix/etc/* /etc/
 COPY --from=builder /iceoryx/tools/docker/.screenrc /root
 
-ENTRYPOINT ["/usr/bin/RouDi"]
+ENTRYPOINT ["/usr/bin/iox-roudi"]
