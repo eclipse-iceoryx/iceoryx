@@ -14,7 +14,7 @@
 #ifndef IOX_POSH_POPO_WAITSET_CONDITION_HPP
 #define IOX_POSH_POPO_WAITSET_CONDITION_HPP
 
-#include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 
 namespace iox
 {

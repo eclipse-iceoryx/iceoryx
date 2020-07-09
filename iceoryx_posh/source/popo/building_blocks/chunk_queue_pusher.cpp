@@ -14,7 +14,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 
 namespace iox
 {

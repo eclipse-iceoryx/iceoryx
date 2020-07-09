@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License
 
-#include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 
 namespace iox
 {

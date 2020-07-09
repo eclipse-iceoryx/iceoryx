@@ -14,10 +14,9 @@
 #ifndef IOX_POSH_POPO_WAITSET_WAIT_SET_HPP
 #define IOX_POSH_POPO_WAITSET_WAIT_SET_HPP
 
-#include "condition_variable_waiter.hpp"
-#include "guard_condition.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/waitset/condition.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 

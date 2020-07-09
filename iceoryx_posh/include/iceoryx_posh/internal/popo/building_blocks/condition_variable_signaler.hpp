@@ -14,7 +14,7 @@
 #ifndef IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_SIGNALER_HPP
 #define IOX_POSH_POPO_WAITSET_CONDITION_VARIABLE_SIGNALER_HPP
 
-#include "iceoryx_posh/internal/popo/waitset/condition_variable_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox

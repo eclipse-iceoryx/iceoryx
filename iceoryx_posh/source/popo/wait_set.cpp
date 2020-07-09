@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License
 
-#include "iceoryx_posh/internal/popo/waitset/wait_set.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 
 namespace iox
 {

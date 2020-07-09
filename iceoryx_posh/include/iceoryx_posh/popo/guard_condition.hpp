@@ -14,8 +14,8 @@
 #ifndef IOX_POSH_POPO_WAITSET_GUARD_CONDITION_HPP
 #define IOX_POSH_POPO_WAITSET_GUARD_CONDITION_HPP
 
-#include "iceoryx_posh/internal/popo/waitset/condition.hpp"
-#include "iceoryx_posh/internal/popo/waitset/condition_variable_signaler.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
+#include "iceoryx_posh/popo/condition.hpp"
 
 #include <atomic>
 
