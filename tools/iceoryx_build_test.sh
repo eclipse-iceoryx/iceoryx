@@ -55,6 +55,7 @@ while (( "$#" )); do
         ;;
     "strict")
         STRICT_FLAG="on"
+        shift 1
         ;;
     "test")
         RUN_TEST=true
