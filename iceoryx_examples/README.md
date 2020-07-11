@@ -1,26 +1,28 @@
-# Building the examples
+## Howto build the examples
 
-A warm welcome to iceoryx examples Readme!
-<!-- You can build all the example either by using the Debian package or
-build things from scratch.
+To build the examples you can use the cmake configuration which is provided
+in `iceoryx_meta`.
+```sh 
+cmake -Bbuild -Hiceoryx_meta -Dexamples=ON # by default the examples are always build
+cd build 
+make
+```
 
-## Debian package
+To run an example switch into the `iceoryx_examples` directory which can be 
+found in our build directory. Then select your example and follow the instructions
+from the examples readme.
 
-In case you've installed the iceoryx debian package CMake's `find_package()` will find the installed version. To build
-the examples, do the following:
+```sh 
+cd build/iceoryx_examples/
+cd someExample
+./runExampleCode
+```
 
-    ./iceexample#          mkdir build && cd build
-    ./iceexample/build#    cmake ..
-    ./iceexample/build#    cmake --build .
--->
+## List of all examples
 
-## Build everything from source
-
-When building all the bits from source, build RouDi and the runtime as described in the main
-[Readme.md](../README.md#user-content-development) with `./tools/iceoryx_build_test.sh`. All examples are automatically
-built when using the script. If you want to build one example standalone add the path of the `build` directory when
-calling `cmake` after you have run the script:
-
-    ./iceexample#          mkdir build && cd build
-    ./iceexample/build#    cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../../../build/install/prefix"
-    ./iceexample/build#    cmake --build .
+| example                           | description |
+|:----------------------------------|:------------|
+|[icecrystal](./icecrystal/)        | Demostrates the usage of the iceoryx introspection client. |
+|[icedelivery](./icedelivery/)      | You are new to iceoryx then take a look at this example which demonstrates the basics of iceoryx by siding data from one process to another process. |
+|[iceperf](./iceperf/)              | A benchmark application which measures the latency of an IPC transmission between two applications. |
+|[singleprocess](./singleprocess/)  | Iceoryx can also be used for inter thread communication when you would like to run everything in a single process. |
