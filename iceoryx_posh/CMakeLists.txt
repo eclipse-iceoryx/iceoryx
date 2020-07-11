@@ -94,6 +94,7 @@ add_library(iceoryx_posh
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
     source/runtime/posh_runtime.cpp
+    source/runtime/posh_runtime_single_process.cpp
     source/runtime/runnable.cpp
     source/runtime/runnable_data.cpp
     source/runtime/runnable_property.cpp
