@@ -4,6 +4,7 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
+#include "iceoryx_utils/log/logmanager.hpp"
 
 #include <atomic>
 #include <chrono>
@@ -70,19 +71,24 @@ void receiver()
 
 int main()
 {
+    // set the log level to error to see the essence of the example
+    iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
+
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
     iox::roudi::RouDiMultiProcess roudi(
         roudiComponents.m_rouDiMemoryManager, roudiComponents.m_portManager, iox::roudi::MonitoringMode::OFF, false);
 
+    // create a single process runtime for inter thread communication
     iox::runtime::PoshRuntimeSingleProcess runtime("/singleProcessDemo");
-    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     std::thread receiverThread(receiver), senderThread(sender);
 
+    // communicate for 2 seconds and then stop the example
     std::this_thread::sleep_for(std::chrono::seconds(2));
     keepRunning.store(false);
+
     senderThread.join();
     receiverThread.join();
 }
