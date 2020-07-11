@@ -40,7 +40,7 @@ transmit and receive data.
 
 ## Code Walkthrough
 
-### startup 
+### Creating a Single Process RouDi, Sender and Receiver
 
  1. We start by setting the log level to error since we do not want to see all the
     debug messages.
@@ -61,7 +61,7 @@ transmit and receive data.
     iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
     ```
 
- 3. We are starting RouDi, provide him the required components. Furthermore, we 
+ 3. We are starting RouDi and provide him with the required components. Furthermore, we 
     disable monitoring. The last bool parameter `false` states that RouDi does not 
     terminate all registered processes when he goes out of scope. If we would set it 
     to `true`, our application would self terminate when the destructor is called.
@@ -77,7 +77,7 @@ transmit and receive data.
     iox::runtime::PoshRuntimeSingleProcess runtime("/singleProcessDemo");
     ```
 
- 5. Now that everything is up and running we could start the sender and receiver 
+ 5. Now that everything is up and running we can start the sender and receiver 
     thread, wait two seconds and then stop the example.
     ```cpp
     std::thread receiverThread(receiver), senderThread(sender);
@@ -90,8 +90,10 @@ transmit and receive data.
     receiverThread.join();
     ```
 
-### Sender and Receiver
-A detailed documentation can be found in the [icedelivery example](../icedelivery).
+### Implementation of Sender and Receiver
+Since there are no differences to inter process ports you can take a look at the
+[icedelivery example](../icedelivery) for a detailled documentation. We only provide 
+you here with a short overview.
 
 #### Sender 
 We create a publisher port with the following service description 
