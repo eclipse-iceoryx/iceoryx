@@ -14,6 +14,7 @@ endif ( NOT ICEORYX_CXX_STANDARD )
 add_executable(single_process ./single_process.cpp)
 target_link_libraries(single_process
     iceoryx_posh::iceoryx_posh
+    iceoryx_posh::iceoryx_posh_roudi
 )
 set_target_properties(single_process PROPERTIES 
     CXX_STANDARD_REQUIRED ON
