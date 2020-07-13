@@ -18,6 +18,8 @@
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
+#include <atomic>
+
 namespace iox
 {
 namespace popo
@@ -38,6 +40,8 @@ struct ConditionVariableData
                                        ErrorLevel::FATAL);
                       })
                       .get_value());
+
+    std::atomic_uint64_t m_referenceCounter{0u};
 };
 
 } // namespace popo

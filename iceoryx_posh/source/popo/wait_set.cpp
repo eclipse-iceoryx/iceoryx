@@ -13,6 +13,7 @@
 // limitations under the License
 
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_liveliness.hpp"
 
 namespace iox
 {
@@ -24,34 +25,50 @@ WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noe
 {
 }
 
+WaitSet::~WaitSet() noexcept
+{
+    // Notify all conditions in the vector that the condition variable data will be destroyed
+    detachAllConditions();
+    /// @todo Notify RouDi that the condition variable data shall be destroyed
+}
+
 cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexcept
 {
     if (!condition.isConditionVariableAttached())
     {
-        if (condition.attachConditionVariable(m_conditionVariableDataPtr))
+        if (condition.attachConditionVariableIntern(m_conditionVariableDataPtr))
         {
             if (!m_conditionVector.push_back(&condition))
             {
                 return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
             }
-            else
-            {
-                return iox::cxx::success<>();
-            }
+
+            ConditionVariableLiveliness condVarLiveliness{m_conditionVariableDataPtr};
+            condVarLiveliness.announce();
+            return iox::cxx::success<>();
         }
     }
-
     return cxx::error<WaitSetError>(WaitSetError::CONDITION_VARIABLE_ALREADY_SET);
 }
 
-bool WaitSet::detachCondition(const Condition& condition) noexcept
+bool WaitSet::detachCondition(Condition& condition) noexcept
 {
-    for (auto& currentCondition : m_conditionVector)
+    if (condition.isConditionVariableAttached())
     {
-        if (currentCondition == &condition)
+        if (!condition.detachConditionVariable())
         {
-            m_conditionVector.erase(&currentCondition);
-            return true;
+            errorHandler(Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION, nullptr, ErrorLevel::FATAL);
+        }
+
+        for (auto& currentCondition : m_conditionVector)
+        {
+            if (currentCondition == &condition)
+            {
+                ConditionVariableLiveliness condVarLiveliness{m_conditionVariableDataPtr};
+                condVarLiveliness.recall();
+                m_conditionVector.erase(&currentCondition);
+                return true;
+            }
         }
     }
     return false;
@@ -59,6 +76,19 @@ bool WaitSet::detachCondition(const Condition& condition) noexcept
 
 void WaitSet::detachAllConditions() noexcept
 {
+    for (auto& currentCondition : m_conditionVector)
+    {
+        if (currentCondition->isConditionVariableAttached())
+        {
+            if (!currentCondition->detachConditionVariable())
+            {
+                errorHandler(Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION, nullptr, ErrorLevel::FATAL);
+            }
+
+            ConditionVariableLiveliness condVarLiveliness{m_conditionVariableDataPtr};
+            condVarLiveliness.recall();
+        }
+    }
     m_conditionVector.clear();
 }
 

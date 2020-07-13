@@ -27,11 +27,11 @@ class ConditionVariableWaiter
 {
   public:
     explicit ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
-    virtual ~ConditionVariableWaiter() = default;
+    virtual ~ConditionVariableWaiter() noexcept = default;
     ConditionVariableWaiter(const ConditionVariableWaiter& rhs) = delete;
-    ConditionVariableWaiter(ConditionVariableWaiter&& rhs) = default;
+    ConditionVariableWaiter(ConditionVariableWaiter&& rhs) noexcept = default;
     ConditionVariableWaiter& operator=(const ConditionVariableWaiter& rhs) = delete;
-    ConditionVariableWaiter& operator=(ConditionVariableWaiter&& rhs) = default;
+    ConditionVariableWaiter& operator=(ConditionVariableWaiter&& rhs) noexcept = default;
 
     /// @brief Reinitialises the condition variable
     void reset() noexcept;

@@ -57,6 +57,8 @@ class MockSubscriber : public Condition
     /// @note done in ChunkQueuePusher
     void notify()
     {
+        // We don't need to check if the WaitSet is still alive as it follows RAII and will inform every Condition about
+        // a possible destruction
         m_wasTriggered = true;
         ConditionVariableSignaler signaler{m_condVarPtr};
         signaler.notifyOne();
@@ -88,8 +90,8 @@ class WaitSet_test : public Test
 
     void TearDown()
     {
-        m_subscriberVector.clear();
         m_sut.detachAllConditions();
+        m_subscriberVector.clear();
         ConditionVariableWaiter waiter{&m_condVarData};
         waiter.reset();
     };
@@ -309,6 +311,7 @@ TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThread
     counter++;
     guardCond.setTrigger();
     waiter.join();
+    m_sut.detachCondition(guardCond);
 }
 
 TEST_F(WaitSet_test, NotifyGuardConditionOnceTimedWaitResultsInResetOfTrigger)
@@ -322,4 +325,5 @@ TEST_F(WaitSet_test, NotifyGuardConditionOnceTimedWaitResultsInResetOfTrigger)
     guardCond.resetTrigger();
     auto fulfilledConditions2 = m_sut.timedWait(1_ms);
     EXPECT_THAT(fulfilledConditions2.size(), Eq(0));
+    m_sut.detachCondition(guardCond);
 }

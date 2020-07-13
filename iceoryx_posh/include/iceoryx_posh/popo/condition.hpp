@@ -20,12 +20,12 @@ namespace iox
 {
 namespace popo
 {
+class WaitSet;
 /// @brief Base class representing a generic condition that can be stored in a WaitSet
-/// @note No functionality in this class
 class Condition
 {
   public:
-    virtual ~Condition() = default;
+    virtual ~Condition() noexcept;
 
     /// @brief Was the condition fulfilled since last call?
     virtual bool hasTriggered() const noexcept = 0;
@@ -35,6 +35,11 @@ class Condition
     virtual bool attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept = 0;
     /// @brief Called when removing the condition from a WaitSet
     virtual bool detachConditionVariable() noexcept = 0;
+
+  private:
+    friend class WaitSet;
+    bool attachConditionVariableIntern(ConditionVariableData* const ConditionVariableDataPtr) noexcept;
+    ConditionVariableData* m_conditionVariableDataPtr{nullptr};
 };
 
 } // namespace popo

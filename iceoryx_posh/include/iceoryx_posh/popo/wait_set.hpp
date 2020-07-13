@@ -33,20 +33,63 @@ enum class WaitSetError : uint8_t
 /// @brief Logical disjunction of a certain number of Conditions
 ///
 /// The WaitSet stores Conditions and allows the user to wait till those set of Conditions become true. It works over
-/// process borders.
+/// process borders. With the creation of a WaitSet it requests a condition variable from RouDi and destroys it with the
+/// destructor. The lifetime of the condition variable is bound to the lifetime of the WaitSet.
 ///
 /// @note The WaitSet stores pointers to conditions, hence the lifetime of Conditions need to be longer than the
-/// lifetime of the WaitSet. See negative example below.
+/// lifetime of the WaitSet. If RouDi e.g. after a user application has crashed, notices during cleanup of a Condition
+/// that a condition variable is still set, he'll recall the usage.
 ///
 /// @code
 ///
-/// ** Do not use the WaitSet like this **
-/// WaitSet myWaitSet;
+/// @todo Add gateway use-case
+///
+/// // Create Waitset
+/// WaitSet myWaitSet();
+///
+/// Subscriber mySubscriber1({"Radar", "FrontRight", "Counter"});
+/// Subscriber mySubscriber2({"Radar", "FrontLeft", "Counter"});
+/// GuardCondition myGuardCond;
+///
+///
+/// myWaitSet.attachCondition(mySubscriber1);
+/// myWaitSet.attachCondition(mySubscriber2);
+/// myWaitSet.attachCondition(myGuardCond);
+///
+/// std::thread someOtherThread{[&](){
+/// 	while(true)
+/// 	{
+/// 	  if(IWantToWakeUpTheWaitSet)
+/// 	  {
+/// 		  // Let the WaitSet return
+/// 		  myGuardCond.setTrigger();
+/// 	  }
+/// 	  // Don't forget to reset the trigger
+/// 	  myGuardCond.resetTrigger();
+/// 	}
+/// }};
+///
+/// while (true)
 /// {
-///   Condition a;
-///   myWaitSet.attachCondition(a);
-/// } // a.~Condition() will be called
-/// myWaitSet.wait(); // Undefined behaviour
+/// 	// Wait till new data has arrived (any condition has become true)
+/// 	auto vectorOfFulfilledConditions = myWaitSet.wait();
+///
+/// 	for(auto& element : vectorOfFulfilledConditions)
+/// 	{
+/// 		if(element == &mySubscriber1)
+/// 		{
+/// 			// Subscriber1 has received new data
+/// 			ChunkHeader myData;
+/// 			mySubscriber1.getChunk(myData);
+/// 			doSomeThingWithTheNewData(myData);
+/// 		}
+/// 	}
+/// }
+/// someOtherThread.join();
+///
+/// myWaitSet.detachCondition(guardCond);
+/// myWaitSet.detachCondition(mySubscriber2);
+/// myWaitSet.detachCondition(mySubscriber1);
 ///
 /// @endcode
 class WaitSet
@@ -62,7 +105,7 @@ class WaitSet
 
     explicit WaitSet(cxx::not_null<ConditionVariableData* const> =
                          runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable()) noexcept;
-    virtual ~WaitSet() = default;
+    virtual ~WaitSet() noexcept;
     WaitSet(const WaitSet& rhs) = delete;
     WaitSet(WaitSet&& rhs) = delete;
     WaitSet& operator=(const WaitSet& rhs) = delete;
@@ -76,7 +119,7 @@ class WaitSet
     /// @brief Removes a condition from the internal vector
     /// @param[in] condition, condition to be detached
     /// @return True if successful, false if unsuccessful
-    bool detachCondition(const Condition& condition) noexcept;
+    bool detachCondition(Condition& condition) noexcept;
 
     /// @brief Clears all conditions from the waitset
     void detachAllConditions() noexcept;
