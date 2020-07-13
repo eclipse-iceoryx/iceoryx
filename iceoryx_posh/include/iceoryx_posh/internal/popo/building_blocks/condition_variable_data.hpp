@@ -28,9 +28,9 @@ struct ConditionVariableData
 {
     ConditionVariableData() noexcept = default;
     ConditionVariableData(const ConditionVariableData& rhs) = delete;
-    ConditionVariableData(ConditionVariableData&& rhs) = default;
+    ConditionVariableData(ConditionVariableData&& rhs) = delete;
     ConditionVariableData& operator=(const ConditionVariableData& rhs) = delete;
-    ConditionVariableData& operator=(ConditionVariableData&& rhs) = default;
+    ConditionVariableData& operator=(ConditionVariableData&& rhs) = delete;
 
     posix::Semaphore m_semaphore =
         std::move(posix::Semaphore::create(0u)
