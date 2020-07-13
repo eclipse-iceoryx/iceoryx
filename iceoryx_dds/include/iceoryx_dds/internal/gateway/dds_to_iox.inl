@@ -55,27 +55,21 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
     auto publisher = channel.getIceoryxTerminal();
     auto reader = channel.getDDSTerminal();
 
-    auto peekResult = reader->peekNextSize();
-    if (peekResult.has_value())
-    {
+    reader->peekNextSize().and_then([&](uint64_t size) {
         // reserve a chunk for the sample
-        auto size = peekResult.value();
         m_reservedChunk = publisher->allocateChunk(static_cast<uint32_t>(size));
-
         // read sample into reserved chunk
         auto buffer = static_cast<uint8_t*>(m_reservedChunk);
-        auto takeResult = reader->takeNext(buffer, size);
-        if (takeResult.has_error())
-        {
-            LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
-                      << iox::dds::DataReaderErrorString[static_cast<uint8_t>(takeResult.get_error())];
-        }
-        else
-        {
-            // publish the sample
-            publisher->sendChunk(buffer);
-        }
-    }
+        reader->takeNext(buffer, size)
+            .and_then([&]() {
+                // publish chunk
+                publisher->sendChunk(buffer);
+            })
+            .or_else([&](DataReaderError err) {
+                LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
+                          << iox::dds::DataReaderErrorString[static_cast<uint8_t>(err)];
+            });
+    });
 }
 
 // ======================================== Private ======================================== //
@@ -83,15 +77,14 @@ template <typename channel_t, typename gateway_t>
 iox::cxx::expected<channel_t, iox::dds::GatewayError>
 DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
-    return this->addChannel(service).and_then(
-        [&service](channel_t channel) {
-            auto publisher = channel.getIceoryxTerminal();
-            auto reader = channel.getDDSTerminal();
-            publisher->offer();
-            reader->connect();
-            iox::LogDebug() << "[DDS2IceoryxGateway] Setup channel for service: {" << service.getServiceIDString()
-                            << ", " << service.getInstanceIDString() << ", " << service.getEventIDString() << "}";
-        });
+    return this->addChannel(service).and_then([&service](channel_t channel) {
+        auto publisher = channel.getIceoryxTerminal();
+        auto reader = channel.getDDSTerminal();
+        publisher->offer();
+        reader->connect();
+        iox::LogDebug() << "[DDS2IceoryxGateway] Setup channel for service: {" << service.getServiceIDString() << ", "
+                        << service.getInstanceIDString() << ", " << service.getEventIDString() << "}";
+    });
 }
 
 } // namespace dds
