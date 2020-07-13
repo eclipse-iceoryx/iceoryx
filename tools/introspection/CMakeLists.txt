@@ -83,11 +83,10 @@ target_link_libraries(iceoryx_introspection_client
 
 target_compile_options(iceoryx_introspection_client PRIVATE ${ICEORYX_WARNINGS})
 
-
 #
 ########## exporting library ##########
 #
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_introspection
+    TARGETS iceoryx_introspection iceoryx_introspection_client
     INCLUDE_DIRECTORY include/
 )
