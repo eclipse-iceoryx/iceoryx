@@ -307,7 +307,7 @@ TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThread
     });
     m_syncSemaphore.wait();
     counter++;
-    guardCond.notify();
+    guardCond.setTrigger();
     waiter.join();
 }
 
@@ -315,7 +315,7 @@ TEST_F(WaitSet_test, NotifyGuardConditionOnceTimedWaitResultsInResetOfTrigger)
 {
     GuardCondition guardCond;
     m_sut.attachCondition(guardCond);
-    guardCond.notify();
+    guardCond.setTrigger();
     auto fulfilledConditions1 = m_sut.timedWait(1_ms);
     EXPECT_THAT(fulfilledConditions1.size(), Eq(1));
     EXPECT_THAT(fulfilledConditions1.front(), &guardCond);

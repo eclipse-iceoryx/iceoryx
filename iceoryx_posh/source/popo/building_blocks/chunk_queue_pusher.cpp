@@ -65,7 +65,7 @@ cxx::expected<ChunkQueueError> ChunkQueuePusher::push(mepoo::SharedChunk chunk) 
             ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
             condVarSignaler.notifyOne();
 
-            /// @todo remove deprecated call
+            /// @deprecated #25
             getMembers()->m_semaphore->post();
         }
 

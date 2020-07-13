@@ -19,11 +19,15 @@ namespace iox
 {
 namespace popo
 {
-void GuardCondition::notify() noexcept
+void GuardCondition::setTrigger() noexcept
 {
     m_wasTriggered.store(true, std::memory_order_relaxed);
-    ConditionVariableSignaler condVarSignaler{m_conditionVariableDataPtr};
-    condVarSignaler.notifyOne();
+    std::lock_guard<std::mutex> g(m_mutex);
+    if (isConditionVariableAttached() && m_conditionVariableDataPtr)
+    {
+        ConditionVariableSignaler condVarSignaler{m_conditionVariableDataPtr};
+        condVarSignaler.notifyOne();
+    }
 }
 
 bool GuardCondition::hasTriggered() const noexcept
@@ -43,6 +47,7 @@ bool GuardCondition::isConditionVariableAttached() const noexcept
 
 bool GuardCondition::attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept
 {
+    std::lock_guard<std::mutex> g(m_mutex);
     m_conditionVariableDataPtr = ConditionVariableDataPtr;
     m_conditionVariableAttached.store(true, std::memory_order_relaxed);
     return true;
@@ -50,6 +55,7 @@ bool GuardCondition::attachConditionVariable(ConditionVariableData* ConditionVar
 
 bool GuardCondition::detachConditionVariable() noexcept
 {
+    std::lock_guard<std::mutex> g(m_mutex);
     m_conditionVariableDataPtr = nullptr;
     m_conditionVariableAttached.store(false, std::memory_order_relaxed);
     return true;

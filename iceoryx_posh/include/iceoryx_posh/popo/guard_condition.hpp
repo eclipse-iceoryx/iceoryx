@@ -18,6 +18,7 @@
 #include "iceoryx_posh/popo/condition.hpp"
 
 #include <atomic>
+#include <mutex>
 
 namespace iox
 {
@@ -35,7 +36,7 @@ class GuardCondition final : public Condition
     GuardCondition& operator=(GuardCondition&& rhs) = delete;
 
     /// @brief Wakes up a waiting WaitSet
-    void notify() noexcept;
+    void setTrigger() noexcept;
     /// @brief Checks if trigger was set
     /// @return True if trigger is set, false if otherwise
     bool hasTriggered() const noexcept override;
@@ -55,6 +56,7 @@ class GuardCondition final : public Condition
     ConditionVariableData* m_conditionVariableDataPtr;
     std::atomic_bool m_conditionVariableAttached{false};
     std::atomic_bool m_wasTriggered{false};
+    std::mutex m_mutex;
 };
 
 } // namespace popo
