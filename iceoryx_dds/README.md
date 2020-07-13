@@ -29,12 +29,12 @@ The easiest way to build the gateway is via the script `iceoryx/tools/iceoryx_bu
 
 To build, simply run:
 ```bash
-iceoryx/tools/iceoryx_build_test.sh release
+iceoryx/tools/iceoryx_build_test.sh release build-dds-gateway
 ```
 
 You may want to specify the build directory, this can be done via a flag. e.g.
 ```bash
-iceoryx/tools/iceoryx_build_test.sh --builddir ./my-build release
+iceoryx/tools/iceoryx_build_test.sh --builddir ./my-build release build-dds-gateway
 ```
 
 Once complete, the gateway binaries can be found in `./my-build/install/prefix/bin`.
@@ -54,15 +54,10 @@ This can be done manually, in which case the following dependencies must be inst
 * iceoryx_posh
 
 A potentially easier method is, again, to take advantage of the script `iceoryx/tools/iceoryx_build_test.sh`.
+Through building the gateway once via the script, all dependencies will be automatically fetched and installed.
+They will be be found in, for example,  `./my-build/install/prefix`.
 
-All dependencies for `iceoryx_dds` can be fetched and built automatically with the following arguments:
-```
-./tools/iceoryx_build_test.sh -builddir ./my-build release skip-dds-gateway
-```
-
-Once complete, the installed dependencies can be found in `./my-build/install/prefix`.
-
-Finally, `iceoryx_dds` can be built via CMake like so:
+Then, `iceoryx_dds` can be built via CMake like so:
 ```
 INSTALL_DIR=./my-build/install/prefix
 mkdir -p ./my-build/dds_gateway

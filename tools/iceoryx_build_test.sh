@@ -33,7 +33,7 @@ STRICT_FLAG="off"
 TEST_FLAG="off"
 RUN_TEST=false
 INTROSPECTION_FLAG="on"
-DDS_GATEWAY_FLAG="on"
+DDS_GATEWAY_FLAG="off"
 CYCLONEDDS_FLAG="$DDS_GATEWAY_FLAG"
 
 while (( "$#" )); do
@@ -67,18 +67,21 @@ while (( "$#" )); do
         TEST_FLAG="on"
         shift 1
         ;;
-    "build-test")
+    "build-dds-gateway")
+        echo " [i] Including DDS gateway in build."
+        DDS_GATEWAY_FLAG="on"
+        CYCLONEDDS_FLAG="$DDS_GATEWAY_FLAG"
+        shift 1
+        ;;
+    "build-tests")
+        echo " [i] Including tests in build."
         RUN_TEST=false
         TEST_FLAG="on"
         shift 1
         ;;
     "skip-introspection")
+        echo " [i] Not including introspection client in build."
         INTROSPECTION_FLAG="off"
-        shift 1
-        ;;
-    "skip-dds-gateway")
-        DDS_GATEWAY_FLAG="on"
-        CYCLONEDDS_FLAG="on"
         shift 1
         ;;
     "help")
@@ -96,9 +99,9 @@ while (( "$#" )); do
         echo "    debug                 Build debug configuration"
         echo "    strict                Build is performed with '-Werror'"
         echo "    test                  Builds and runs the tests"
-        echo "    build-test            Builds the tests (doesn't tun)"
+        echo "    build-dds-gateway     Skips building iceoryx dds gateway"
+        echo "    build-tests           Builds the tests (doesn't run)"
         echo "    skip-introspection    Skips building iceoryx introspection"
-        echo "    skip-dds-gateway      Skips building iceoryx dds gateway"
         echo "    help                  Prints this help"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test release"
