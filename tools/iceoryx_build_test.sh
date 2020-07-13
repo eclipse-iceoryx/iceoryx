@@ -22,9 +22,10 @@ set -e
 #==== Step 0 : Setup ================================================================================
 #====================================================================================================
 
-# The absolute path of the directory assigned to the build
+# the absolute path of the directory assigned to the build
 WORKSPACE=$(git rev-parse --show-toplevel)
 BUILD_DIR=$WORKSPACE/build
+NUM_JOBS=""
 
 CLEAN_BUILD=false
 BUILD_TYPE=""
@@ -39,6 +40,10 @@ while (( "$#" )); do
   case "$1" in
     -b|--builddir)
         BUILD_DIR=$(realpath $2)
+        shift 2
+        ;;
+    -j|--jobs)
+        NUM_JOBS=$2
         shift 2
         ;;
     "clean")
@@ -84,6 +89,7 @@ while (( "$#" )); do
         echo "    iceoryx_build_test.sh [--builddir <dir>] [<args>]"
         echo "Options:"
         echo "    -b --builddir         Specify a non-default build directory"
+        echo "    -j --jobs             Specify the number of jobs to run simultaneously"
         echo "Args:"
         echo "    clean                 Cleans the build directory"
         echo "    release               Build release configuration"
@@ -114,12 +120,17 @@ echo " [i] Building in $BUILD_DIR"
 #==== Step 1 : Build  ===============================================================================
 #====================================================================================================
 
-# detect number of course if possible
-NUM_CORES=1
-if nproc >/dev/null 2>&1; then
-    NUM_CORES=`nproc`
+# run number of jobs equal to number of available cores unless manually specified
+if [ -z $NUM_JOBS ]
+then
+    if [ nproc >/dev/null 2>&1 ] 
+    then
+        NUM_JOBS=`nproc`
+    else
+        NUM_JOBS=1
+    fi
 fi
-echo " [i] Building with $NUM_CORES cores"
+echo " [i] Building with $NUM_JOBS cores"
 
 # clean build folder
 if [ $CLEAN_BUILD == true ]
@@ -138,7 +149,7 @@ echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
 cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dcyclonedds=$CYCLONEDDS_FLAG $WORKSPACE/iceoryx_meta
-cmake --build . --target install -- -j$NUM_CORES
+cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
 echo ">>>>>> Start building iceoryx examples <<<<<<"
@@ -149,13 +160,13 @@ cd $BUILD_DIR/iceoryx_examples
 mkdir -p icedelivery
 cd icedelivery
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
-cmake --build . -- -j$NUM_CORES
+cmake --build . -- -j$NUM_JOBS
 echo ">>>>>>>> iceperf"
 cd $BUILD_DIR/iceoryx_examples
 mkdir -p iceperf
 cd iceperf
 cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
-cmake --build . -- -j$NUM_CORES
+cmake --build . -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx examples <<<<<<"
 
 #====================================================================================================
@@ -165,7 +176,7 @@ echo ">>>>>> Finished building iceoryx examples <<<<<<"
 if [ $RUN_TEST == true ]
 then
 
-# The absolute path of the directory assigned to the build
+# the absolute path of the directory assigned to the build
 cd $BUILD_DIR
 mkdir -p tools
 cp $WORKSPACE/tools/run_all_tests.sh $BUILD_DIR/tools/run_all_tests.sh
