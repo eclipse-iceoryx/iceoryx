@@ -59,18 +59,12 @@ target_link_libraries(iceoryx_introspection
 
 target_compile_options(iceoryx_introspection PRIVATE ${ICEORYX_WARNINGS})
 
-
-
 if(LINUX)
     set(LIB_TINFO tinfo)
-elseif(QNX)
-    set(LIB_TINFO "")
-elseif(APPLE)
-    find_library(LIB_TINFO tinfo)
 elseif(WIN32)
     message(WARNING "Introspection not supported for windows." )
 else()
-    message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
+    set(LIB_TINFO "")
 endif()
 
 target_link_libraries(iceoryx_introspection ${LIB_TINFO})
