@@ -52,7 +52,7 @@ struct MemPoolIntrospectionTopic
     MemPoolInfoContainer m_mempoolInfo;
 };
 
-const capro::ServiceDescription IntrospectionPortService("Introspection", "RouDi_ID", "Port");
+const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Port");
 
 /// @brief sender/receiver port information consisting of a process name,a capro service description string
 /// and a runnable name
@@ -89,7 +89,7 @@ struct PortIntrospectionFieldTopic
     cxx::vector<SenderPortData, MAX_PORT_NUMBER> m_senderList;
 };
 
-const capro::ServiceDescription IntrospectionPortThroughputService("Introspection", "RouDi_ID", "PortThroughput");
+const capro::ServiceDescription IntrospectionPortThroughputService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "PortThroughput");
 
 struct PortThroughputData
 {
@@ -108,7 +108,7 @@ struct PortThroughputIntrospectionFieldTopic
 };
 
 const capro::ServiceDescription
-    IntrospectionReceiverPortChangingDataService("Introspection", "RouDi_ID", "ReceiverPortsData");
+    IntrospectionReceiverPortChangingDataService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "ReceiverPortsData");
 
 struct ReceiverPortChangingData
 {
@@ -125,7 +125,7 @@ struct ReceiverPortChangingIntrospectionFieldTopic
     cxx::vector<ReceiverPortChangingData, MAX_PORT_NUMBER> receiverPortChangingDataList;
 };
 
-const capro::ServiceDescription IntrospectionProcessService("Introspection", "RouDi_ID", "Process");
+const capro::ServiceDescription IntrospectionProcessService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Process");
 
 struct ProcessIntrospectionData
 {
