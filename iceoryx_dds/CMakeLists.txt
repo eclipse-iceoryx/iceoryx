@@ -141,7 +141,7 @@ endif(test)
 ########## export library ##########
 #
 setup_install_directories_and_export_package(
-    TARGETS gateway_iceoryx2dds gateway_dds2iceoryx
+    TARGETS iceoryx_dds gateway_iceoryx2dds gateway_dds2iceoryx
     INCLUDE_DIRECTORY include/
 )
 
