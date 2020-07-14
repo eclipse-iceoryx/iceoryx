@@ -126,14 +126,9 @@ echo " [i] Building in $BUILD_DIR"
 # run number of jobs equal to number of available cores unless manually specified
 if [ -z $NUM_JOBS ]
 then
-    if [ nproc >/dev/null 2>&1 ] 
-    then
-        NUM_JOBS=`nproc`
-    else
-        NUM_JOBS=1
-    fi
+    NUM_JOBS=1
 fi
-echo " [i] Building with $NUM_JOBS cores"
+echo " [i] Building with $NUM_JOBS jobs"
 
 # clean build folder
 if [ $CLEAN_BUILD == true ]
