@@ -33,6 +33,7 @@ PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const std::string& name) noex
     {
         std::cerr << "PoshRuntimeSingleProcess can only created once per process and only if the default PoshRuntime "
                      "factory method is set!\n";
+        errorHandler(Error::kPOSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES);
         std::terminate();
     }
 }
