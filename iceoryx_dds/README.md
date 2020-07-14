@@ -1,8 +1,20 @@
 
 # Gateway to DDS Networks
 A gateway for bridging between iceoryx systems and DDS networks.
+The gateway enables iceoryx systems running on separate hosts to communicate with eachother.
 
-## **Note**: Currently only the iceoryx->dds direction is implemented. The opposite direction is coming soon!
+i.e. Data published by a publisher on `Host A` can be received by a matching subscriber on `Host B`.
+
+# Organization
+This module exports the following binaries:
+* `gateway_iceoryx2dds`
+* `gateway_dds2iceoryx`
+
+Each binary manages a POSH runtime that runs the gateway logic for a single direction of communication.
+
+The common building blocks logic for these binaries are consolidated in the exported library, `libiceoryx_dds`.
+
+Applications may instead directly embed the gateway by using the exported lib.
 
 # Building
 The DDS stack used by the gateway is abstracted and needs to made explicit at compile time.
@@ -20,6 +32,8 @@ To build, simply run:
 ./scripts/build-for-cyclonedds.sh 
 ```
 
+> **NOTE:** This script will soon be deprecated in favor of a pure CMake build
+
 You may want to specify the build & install directories, this can be done like so:
 ```bash
 BUILD_DIR=/path/to/build/dir
@@ -36,19 +50,10 @@ i.e.
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_DIR/lib
 ```
 
-Then, simply run the gateway executable.
+Then, simply run the gateway executables as desired.
+
 e.g.
 ```bash
-$INSTALL_DIR/bin/gateway_iox2dds
+$INSTALL_DIR/bin/gateway_iceoryx2dds
+$INSTALL_DIR/bin/gateway_dds2iceoryx
 ```
-
-
-# Internals
-
-The Gateway is split across two applications, one for for each direction of communication.
-
-In the iceoryx->dds direction, `gateway_iox2dds`, the gateway translates iceoryx topics to DDS topics using a known convention and forwards all data received to the DDS network on these topics. 
-
-In the dds->iceoryx direction, `gateway_dds2iox`, iceoryx topics available in the DDS network are identified and the gateway forwards all data received on these topics to local iceoryx subscribers. 
-
-The common building block logic for these applications are consolidated in a library, `libioxdds`.

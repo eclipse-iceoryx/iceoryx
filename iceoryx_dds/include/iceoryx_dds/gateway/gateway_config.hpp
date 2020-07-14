@@ -24,12 +24,17 @@ namespace iox
 namespace dds
 {
 ///
-/// @brief Generic configuration for DDS gateways.
+/// @brief Generic configuration for gateways.
 ///
 struct GatewayConfig
 {
-  public:
-    iox::cxx::vector<iox::capro::ServiceDescription, iox::MAX_PORT_NUMBER> m_configuredServices;
+    struct ServiceEntry
+    {
+        iox::capro::ServiceDescription m_serviceDescription;
+    };
+    iox::cxx::vector<ServiceEntry, iox::MAX_PORT_NUMBER> m_configuredServices;
+
+    void setDefaults() noexcept;
 };
 } // namespace dds
 } // namespace iox

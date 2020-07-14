@@ -41,17 +41,33 @@ using namespace iox::units::duration_literals;
 class RouDiMultiProcess
 {
   public:
+
+    // indicate whether the message queue thread will start directly or deferred
+    // this is important for derived classes which may need to initialize their members before the thread starts
+    enum class MQThreadStart {
+      IMMEDIATE,
+      DEFER_START
+    };
+   
+
     RouDiMultiProcess& operator=(const RouDiMultiProcess& other) = delete;
     RouDiMultiProcess(const RouDiMultiProcess& other) = delete;
 
     RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInteface,
                       PortManager& portManager,
                       const MonitoringMode f_monitoringMode = MonitoringMode::ON,
-                      const bool f_killProcessesInDestructor = true);
+                      const bool f_killProcessesInDestructor = true,
+                      const MQThreadStart mqThreadStart = MQThreadStart::IMMEDIATE);
 
     virtual ~RouDiMultiProcess();
 
   protected:
+
+    /// @brief Starts the roudi message queue thread
+    /// Once this is done, applications can register and Roudi is fully operational.
+    void startMQThread();
+
+
     /// @brief Stops threads and kills all process known to RouDi
     /// Called in d'tor
     ///

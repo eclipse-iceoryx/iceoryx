@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "test.hpp"
 
 
 using namespace ::testing;
@@ -464,4 +464,10 @@ TEST_F(Optional_test, OrElseWhenNotContainingValue)
 
     sut.or_else([&] { value = 42; });
     EXPECT_THAT(value, Eq(42));
+}
+
+TEST_F(Optional_test, ReturningNulloptWithoutConstruction)
+{
+    auto val = []() -> iox::cxx::optional<int> { return iox::cxx::nullopt; }();
+    EXPECT_THAT(val.has_value(), Eq(false));
 }

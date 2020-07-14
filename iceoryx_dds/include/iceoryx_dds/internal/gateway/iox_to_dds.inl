@@ -17,11 +17,10 @@
 
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/roudi/introspection_types.hpp"
 
 #include <chrono>
 #include <thread>
-
-#include "iceoryx_dds/gateway/iox_to_dds.hpp"
 
 namespace iox
 {
@@ -40,13 +39,12 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const Ga
     iox::LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway.";
     for (const auto& service : config.m_configuredServices)
     {
-        if (!this->findChannel(service).has_value())
+        if (!this->findChannel(service.m_serviceDescription).has_value())
         {
-            setupChannel(service);
+            setupChannel(service.m_serviceDescription);
         }
     }
 }
-
 
 template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro::CaproMessage& msg) noexcept
@@ -57,7 +55,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const iox::capro:
                     << ", Instance: " << msg.m_serviceDescription.getInstanceIDString()
                     << ", Event: " << msg.m_serviceDescription.getEventIDString() << " }";
 
-    if (msg.m_serviceDescription.getServiceIDString() == iox::capro::IdString("Introspection"))
+    if (msg.m_serviceDescription.getServiceIDString() == iox::capro::IdString(iox::roudi::INTROSPECTION_SERVICE_ID))
     {
         return;
     }
@@ -111,9 +109,10 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
 // ======================================== Private ======================================== //
 
 template <typename channel_t, typename gateway_t>
-void Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
+iox::cxx::expected<channel_t, iox::dds::GatewayError>
+Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
-    this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
+    return this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
         auto channel = result.get_value();
         auto subscriber = channel.getIceoryxTerminal();
         auto dataWriter = channel.getDDSTerminal();

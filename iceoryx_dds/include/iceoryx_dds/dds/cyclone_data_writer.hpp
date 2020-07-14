@@ -20,33 +20,30 @@
 #include <Mempool_DCPS.hpp>
 #include <dds/dds.hpp>
 
-
 namespace iox
 {
 namespace dds
 {
 ///
-/// @brief Implementation of the DataWriter interface using the cyclonedds implementation.
+/// @brief Implementation of the DataWriter abstraction using the cyclonedds implementation.
 ///
-class CycloneDataWriter : public iox::dds::DataWriter<CycloneDataWriter>
+class CycloneDataWriter : public iox::dds::DataWriter
 {
   public:
     CycloneDataWriter() = delete;
     CycloneDataWriter(const IdString serviceId, const IdString instanceId, const IdString eventId);
     virtual ~CycloneDataWriter();
-
     CycloneDataWriter(const CycloneDataWriter&) = delete;
     CycloneDataWriter& operator=(const CycloneDataWriter&) = delete;
-
     // Required for vector
     CycloneDataWriter(CycloneDataWriter&&) = default;
     CycloneDataWriter& operator=(CycloneDataWriter&&) = default;
 
-    void connect() noexcept;
-    void write(const uint8_t* const bytes, const uint64_t size) noexcept;
-    std::string getServiceId() const noexcept;
-    std::string getInstanceId() const noexcept;
-    std::string getEventId() const noexcept;
+    void connect() noexcept override;
+    void write(const uint8_t* const bytes, const uint64_t size) noexcept override;
+    IdString getServiceId() const noexcept override;
+    IdString getInstanceId() const noexcept override;
+    IdString getEventId() const noexcept override;
 
   private:
     IdString m_serviceId{""};
@@ -56,8 +53,6 @@ class CycloneDataWriter : public iox::dds::DataWriter<CycloneDataWriter>
     ::dds::pub::Publisher m_publisher = ::dds::core::null;
     ::dds::topic::Topic<Mempool::Chunk> m_topic = ::dds::core::null;
     ::dds::pub::DataWriter<Mempool::Chunk> m_writer = ::dds::core::null;
-
-    static ::dds::domain::DomainParticipant& getParticipant() noexcept;
 };
 
 } // namespace dds

@@ -18,7 +18,7 @@
 
 #include "test.hpp"
 
-#include "helpers/stubbed_dds_gateway_generic.hpp"
+#include "stubs/stubbed_dds_gateway_generic.hpp"
 
 using namespace ::testing;
 using ::testing::_;
@@ -208,7 +208,7 @@ TEST_F(DDSGatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
     EXPECT_EQ(true, foundChannel.has_value());
     if (foundChannel.has_value())
     {
-        EXPECT_EQ(testService, foundChannel.value().getService());
+        EXPECT_EQ(testService, foundChannel.value().getServiceDescription());
     }
 }
 
