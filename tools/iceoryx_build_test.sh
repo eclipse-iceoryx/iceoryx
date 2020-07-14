@@ -73,9 +73,8 @@ while (( "$#" )); do
         CYCLONEDDS_FLAG="$DDS_GATEWAY_FLAG"
         shift 1
         ;;
-    "build-tests")
-        echo " [i] Building (but not running) tests."
-        RUN_TEST=false
+    "with-tests")
+        echo " [i] Including tests."
         TEST_FLAG="on"
         shift 1
         ;;
@@ -99,8 +98,8 @@ while (( "$#" )); do
         echo "    debug                 Build debug configuration"
         echo "    strict                Build is performed with '-Werror'"
         echo "    test                  Builds and runs the tests"
-        echo "    with-dds-gateway      Skips building iceoryx dds gateway"
-        echo "    build-tests           Builds the tests (doesn't run)"
+        echo "    with-dds-gateway      Builds the iceoryx dds gateway"
+        echo "    with-tests            Builds the tests (doesn't run)"
         echo "    skip-introspection    Skips building iceoryx introspection"
         echo "    help                  Prints this help"
         echo ""
