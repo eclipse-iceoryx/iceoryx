@@ -13,7 +13,6 @@
 // limitations under the License
 
 #include "iceoryx_posh/popo/wait_set.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_liveliness.hpp"
 
 namespace iox
 {
@@ -36,17 +35,15 @@ cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexc
 {
     if (!condition.isConditionVariableAttached())
     {
-        if (condition.attachConditionVariableIntern(m_conditionVariableDataPtr))
+        if (!m_conditionVector.push_back(&condition))
         {
-            if (!m_conditionVector.push_back(&condition))
-            {
-                return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
-            }
-
-            ConditionVariableLiveliness condVarLiveliness{m_conditionVariableDataPtr};
-            condVarLiveliness.announce();
-            return iox::cxx::success<>();
+            return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
         }
+        if (!condition.attachConditionVariable(m_conditionVariableDataPtr))
+        {
+            return cxx::error<WaitSetError>(WaitSetError::CONDITION_VARIABLE_ATTACH_FAILED);
+        }
+        return iox::cxx::success<>();
     }
     return cxx::error<WaitSetError>(WaitSetError::CONDITION_VARIABLE_ALREADY_SET);
 }
@@ -64,8 +61,6 @@ bool WaitSet::detachCondition(Condition& condition) noexcept
         {
             if (currentCondition == &condition)
             {
-                ConditionVariableLiveliness condVarLiveliness{m_conditionVariableDataPtr};
-                condVarLiveliness.recall();
                 m_conditionVector.erase(&currentCondition);
                 return true;
             }
@@ -78,15 +73,9 @@ void WaitSet::detachAllConditions() noexcept
 {
     for (auto& currentCondition : m_conditionVector)
     {
-        if (currentCondition->isConditionVariableAttached())
+        if (!currentCondition->detachConditionVariable())
         {
-            if (!currentCondition->detachConditionVariable())
-            {
-                errorHandler(Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION, nullptr, ErrorLevel::FATAL);
-            }
-
-            ConditionVariableLiveliness condVarLiveliness{m_conditionVariableDataPtr};
-            condVarLiveliness.recall();
+            errorHandler(Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION, nullptr, ErrorLevel::FATAL);
         }
     }
     m_conditionVector.clear();

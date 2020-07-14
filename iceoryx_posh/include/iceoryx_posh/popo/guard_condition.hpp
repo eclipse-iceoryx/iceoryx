@@ -42,19 +42,17 @@ class GuardCondition final : public Condition
     bool hasTriggered() const noexcept override;
     /// @brief Sets trigger to false
     void resetTrigger() noexcept;
-    /// @brief Checks whether a condition variable has been attached before
-    /// @return True if attachConditionVariable() has been called before, false if otherwise
-    bool isConditionVariableAttached() const noexcept override;
+
+  private:
     /// @brief Stores a condition variable data pointer
     /// @return True if pointer could be stored, false if otherwise
-    bool attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept override;
+    bool setConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept override;
     /// @brief Deletes the condition variable data pointer
     /// @return True if pointer could be set to nullptr, false if otherwise
-    bool detachConditionVariable() noexcept override;
+    bool unsetConditionVariable() noexcept override;
 
   private:
     ConditionVariableData* m_conditionVariableDataPtr;
-    std::atomic_bool m_conditionVariableAttached{false};
     std::atomic_bool m_wasTriggered{false};
     std::mutex m_mutex;
 };

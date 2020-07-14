@@ -40,24 +40,17 @@ void GuardCondition::resetTrigger() noexcept
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
-bool GuardCondition::isConditionVariableAttached() const noexcept
-{
-    return m_conditionVariableAttached.load(std::memory_order_relaxed);
-}
-
-bool GuardCondition::attachConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept
+bool GuardCondition::setConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_conditionVariableDataPtr = ConditionVariableDataPtr;
-    m_conditionVariableAttached.store(true, std::memory_order_relaxed);
     return true;
 }
 
-bool GuardCondition::detachConditionVariable() noexcept
+bool GuardCondition::unsetConditionVariable() noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_conditionVariableDataPtr = nullptr;
-    m_conditionVariableAttached.store(false, std::memory_order_relaxed);
     return true;
 }
 

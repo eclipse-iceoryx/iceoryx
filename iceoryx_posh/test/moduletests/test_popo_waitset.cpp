@@ -30,14 +30,8 @@ using namespace iox::units::duration_literals;
 class MockSubscriber : public Condition
 {
   public:
-    bool isConditionVariableAttached() const noexcept override
+    bool setConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept override
     {
-        return m_condVarAttached;
-    }
-
-    bool attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept override
-    {
-        m_condVarAttached = true;
         m_condVarPtr = ConditionVariableDataPtr;
         return true;
     }
@@ -47,9 +41,8 @@ class MockSubscriber : public Condition
         return m_wasTriggered;
     }
 
-    bool detachConditionVariable() noexcept override
+    bool unsetConditionVariable() noexcept override
     {
-        m_condVarAttached = false;
         m_condVarPtr = nullptr;
         return true;
     }
@@ -65,7 +58,6 @@ class MockSubscriber : public Condition
     }
 
     /// @note members reside in ChunkQueueData in SHM
-    bool m_condVarAttached{false};
     bool m_wasTriggered{false};
     ConditionVariableData* m_condVarPtr{nullptr};
 };
@@ -105,7 +97,26 @@ TEST_F(WaitSet_test, AttachSingleConditionSuccessful)
 TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInFailure)
 {
     m_sut.attachCondition(m_subscriberVector.front());
-    EXPECT_TRUE(m_sut.attachCondition(m_subscriberVector.front()).has_error());
+    EXPECT_THAT(m_sut.attachCondition(m_subscriberVector.front()).get_error(),
+                Eq(WaitSetError::CONDITION_VARIABLE_ALREADY_SET));
+}
+
+// TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
+// {
+//     {
+//         MockSubscriber scopedCondition;
+//         m_sut.attachCondition(scopedCondition);
+//     }
+//     EXPECT_DEATH({}}, ".*");
+// }
+
+TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
+{
+    {
+        WaitSet m_sut2{&m_condVarData};
+        m_sut2.attachCondition(m_subscriberVector.front());
+    }
+    EXPECT_FALSE(m_subscriberVector.front().isConditionVariableAttached());
 }
 
 TEST_F(WaitSet_test, AttachMaximumAllowedConditionsSuccessful)
@@ -154,6 +165,14 @@ TEST_F(WaitSet_test, DetachUnknownConditionResultsInFailure)
 {
     m_sut.attachCondition(m_subscriberVector.front());
     EXPECT_FALSE(m_sut.detachCondition(m_subscriberVector.back()));
+}
+
+TEST_F(WaitSet_test, AttachConditionInTwoWaitSetsResultsInAlreadySetError)
+{
+    WaitSet m_sut2{&m_condVarData};
+    m_sut.attachCondition(m_subscriberVector.front());
+    EXPECT_THAT(m_sut2.attachCondition(m_subscriberVector.front()).get_error(),
+                Eq(WaitSetError::CONDITION_VARIABLE_ALREADY_SET));
 }
 
 TEST_F(WaitSet_test, TimedWaitWithInvalidTimeResultsInEmptyVector)

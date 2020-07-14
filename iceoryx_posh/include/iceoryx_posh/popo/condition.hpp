@@ -25,21 +25,31 @@ class WaitSet;
 class Condition
 {
   public:
+    Condition() noexcept = default;
     virtual ~Condition() noexcept;
+    Condition(const Condition& rhs) noexcept;
+    Condition(Condition&& rhs) = delete;
+    Condition& operator=(const Condition& rhs) = delete;
+    Condition& operator=(Condition&& rhs) = delete;
 
     /// @brief Was the condition fulfilled since last call?
     virtual bool hasTriggered() const noexcept = 0;
     /// @brief Called by a WaitSet before attaching a Condition to see whether it was already added
-    virtual bool isConditionVariableAttached() const noexcept = 0;
-    /// @brief Called by a WaitSet to announce the condition variable pointer that usually lives in shared memory
-    virtual bool attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept = 0;
-    /// @brief Called when removing the condition from a WaitSet
-    virtual bool detachConditionVariable() noexcept = 0;
+    bool isConditionVariableAttached() const noexcept;
 
   private:
     friend class WaitSet;
-    bool attachConditionVariableIntern(ConditionVariableData* const ConditionVariableDataPtr) noexcept;
-    ConditionVariableData* m_conditionVariableDataPtr{nullptr};
+    /// @brief User interface for specific attach of condition variable
+    virtual bool setConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept = 0;
+    /// @brief User interface for specific detach of condition variable
+    virtual bool unsetConditionVariable() noexcept = 0;
+
+    /// @brief Called by a WaitSet to announce the condition variable pointer that usually lives in shared memory
+    bool attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept;
+    /// @brief Called when removing the condition from a WaitSet
+    bool detachConditionVariable() noexcept;
+
+    std::atomic_bool m_conditionVariableAttached{false};
 };
 
 } // namespace popo

@@ -13,7 +13,6 @@
 // limitations under the License
 
 #include "iceoryx_posh/popo/condition.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_liveliness.hpp"
 
 namespace iox
 {
@@ -21,19 +20,55 @@ namespace popo
 {
 Condition::~Condition() noexcept
 {
-    if (m_conditionVariableDataPtr)
+    // WaitSet is still alive as it uses RAII, hence our contract with the user isn't fulfilled anymore (no dangling
+    // condition allowed)
+    if (isConditionVariableAttached())
     {
-        ConditionVariableLiveliness condVarLiveliness{m_conditionVariableDataPtr};
-        condVarLiveliness.recall();
+        errorHandler(Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE, nullptr, ErrorLevel::FATAL);
     }
 }
 
-bool Condition::attachConditionVariableIntern(ConditionVariableData* const ConditionVariableDataPtr) noexcept
+Condition::Condition(const Condition& rhs) noexcept
 {
-    // Save the pointer so we can notify the condition variable on destruction
-    m_conditionVariableDataPtr = ConditionVariableDataPtr;
+    m_conditionVariableAttached.store(rhs.m_conditionVariableAttached, std::memory_order_relaxed);
+}
+
+bool Condition::isConditionVariableAttached() const noexcept
+{
+    return m_conditionVariableAttached.load(std::memory_order_relaxed);
+}
+
+bool Condition::attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept
+{
+    if (isConditionVariableAttached())
+    {
+        return false;
+    }
+
     // Call user implementation
-    return attachConditionVariable(ConditionVariableDataPtr);
+    if (setConditionVariable(ConditionVariableDataPtr))
+    {
+        // Save the info so we can notify the user on illegal destruction
+        m_conditionVariableAttached.store(true, std::memory_order_relaxed);
+        return true;
+    }
+    return false;
+}
+
+bool Condition::detachConditionVariable() noexcept
+{
+    if (!isConditionVariableAttached())
+    {
+        return false;
+    }
+
+    // Call user implementation
+    if (unsetConditionVariable())
+    {
+        m_conditionVariableAttached.store(false, std::memory_order_relaxed);
+        return true;
+    }
+    return false;
 }
 
 } // namespace popo

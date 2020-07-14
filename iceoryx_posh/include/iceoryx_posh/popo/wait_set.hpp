@@ -27,22 +27,21 @@ namespace popo
 enum class WaitSetError : uint8_t
 {
     CONDITION_VECTOR_OVERFLOW,
-    CONDITION_VARIABLE_ALREADY_SET
+    CONDITION_VARIABLE_ALREADY_SET,
+    CONDITION_VARIABLE_ATTACH_FAILED
 };
 
 /// @brief Logical disjunction of a certain number of Conditions
 ///
 /// The WaitSet stores Conditions and allows the user to wait till those set of Conditions become true. It works over
 /// process borders. With the creation of a WaitSet it requests a condition variable from RouDi and destroys it with the
-/// destructor. The lifetime of the condition variable is bound to the lifetime of the WaitSet.
+/// destructor. Hence the lifetime of the condition variable is bound to the lifetime of the WaitSet. Before destroying
+/// a Condition object the user has to ensure that it was detached from the WaitSet before.
 ///
-/// @note The WaitSet stores pointers to conditions, hence the lifetime of Conditions need to be longer than the
-/// lifetime of the WaitSet. If RouDi e.g. after a user application has crashed, notices during cleanup of a Condition
-/// that a condition variable is still set, he'll recall the usage.
 ///
 /// @code
 ///
-/// @todo Add gateway use-case
+/// @todo Add gateway use-case to example code
 ///
 /// // Create Waitset
 /// WaitSet myWaitSet();

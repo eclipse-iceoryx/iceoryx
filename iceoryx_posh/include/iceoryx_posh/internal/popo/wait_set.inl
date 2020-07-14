@@ -14,8 +14,6 @@
 #ifndef IOX_POSH_POPO_WAIT_SET_INL
 #define IOX_POSH_POPO_WAIT_SET_INL
 
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_liveliness.hpp"
-
 namespace iox
 {
 namespace popo
@@ -24,13 +22,6 @@ template <WaitSet::WaitPolicy policy>
 inline WaitSet::ConditionVector
 WaitSet::waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout) noexcept
 {
-    // Check if all our Conditions are still alive
-    ConditionVariableLiveliness condVarLiveliness{m_conditionVariableDataPtr};
-    if (m_conditionVector.size() != condVarLiveliness.getNumberOfUsers())
-    {
-        errorHandler(Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE, nullptr, ErrorLevel::FATAL);
-    }
-
     ConditionVector conditionsWithFulfilledPredicate;
 
     auto checkIfOneOfConditionsIsFulfilled = [&]() {
