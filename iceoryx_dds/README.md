@@ -29,12 +29,12 @@ The easiest way to build the gateway is via the script `iceoryx/tools/iceoryx_bu
 
 To build, simply run:
 ```bash
-iceoryx/tools/iceoryx_build_test.sh release build-dds-gateway
+iceoryx/tools/iceoryx_build_test.sh release with-dds-gateway
 ```
 
 You may want to specify the build directory, this can be done via a flag. e.g.
 ```bash
-iceoryx/tools/iceoryx_build_test.sh --builddir ./my-build release build-dds-gateway
+iceoryx/tools/iceoryx_build_test.sh --builddir ./my-build release with-dds-gateway
 ```
 
 Once complete, the gateway binaries can be found in `./my-build/install/prefix/bin`.
@@ -54,6 +54,7 @@ This can be done manually, in which case the following dependencies must be inst
 * iceoryx_posh
 
 A potentially easier method is, again, to take advantage of the script `iceoryx/tools/iceoryx_build_test.sh`.
+
 Through building the gateway once via the script, all dependencies will be automatically fetched and installed.
 They will be be found in, for example,  `./my-build/install/prefix`.
 
