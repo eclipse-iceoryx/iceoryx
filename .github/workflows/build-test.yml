@@ -53,8 +53,10 @@ jobs:
     steps:
       - name : Checkout
         uses: actions/checkout@v2
-
-      - name: Build ncurses by source
+      - name: Install Dependencies from Homebrew
+        run: |
+          brew install boost
+      - name: Build ncurses from source
       # tinfo library which is required by iceoryx_introspection isn't available in mac
         run: |
           cd $GITHUB_WORKSPACE
