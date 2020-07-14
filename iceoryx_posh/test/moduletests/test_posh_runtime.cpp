@@ -41,12 +41,12 @@ class PoshRuntime_test : public Test
 
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     const std::string m_appName = "/sender";
-    iox::runtime::PoshRuntime* m_senderRuntime{&iox::runtime::PoshRuntime::getInstance("/sender")};
-    iox::runtime::PoshRuntime* m_receiverRuntime{&iox::runtime::PoshRuntime::getInstance("/receiver")};
-    iox::runtime::MqMessage m_sendBuffer;
-    iox::runtime::MqMessage m_receiveBuffer;
-    const iox::cxx::CString100& m_runnableName = iox::cxx::CString100("testRunnable");
-    const iox::cxx::CString100& m_invalidRunnableName = iox::cxx::CString100("invalidRunnable,");
+    PoshRuntime* m_receiverRuntime{&iox::runtime::PoshRuntime::getInstance("/receiver")};
+    PoshRuntime* m_senderRuntime{&iox::runtime::PoshRuntime::getInstance("/sender")};
+    MqMessage m_sendBuffer;
+    MqMessage m_receiveBuffer;
+    const iox::cxx::CString100 m_runnableName = iox::cxx::CString100("testRunnable");
+    const iox::cxx::CString100 m_invalidRunnableName = iox::cxx::CString100("invalidRunnable,");
 };
 
 
@@ -74,7 +74,7 @@ TEST_F(PoshRuntime_test, SendMessageToRouDiInvalidMessage)
 
 TEST_F(PoshRuntime_test, SendMessageToRouDiEmptyMessage)
 {
-    auto status = m_senderRuntime->sendMessageToRouDi(m_sendBuffer);
+    const auto status = m_senderRuntime->sendMessageToRouDi(m_sendBuffer);
 
     EXPECT_EQ(true, status);
 }
@@ -85,7 +85,7 @@ TEST_F(PoshRuntime_test, SendRequestToRouDi)
     m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_appName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_runnableName;
 
-    auto status = m_senderRuntime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
+    const auto status = m_senderRuntime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
 
     EXPECT_EQ(true, status);
 }
@@ -96,7 +96,7 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
     m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_appName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_invalidRunnableName;
 
-    auto status = m_senderRuntime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
+    const auto status = m_senderRuntime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
 
     EXPECT_EQ(false, status);
 }
@@ -154,9 +154,61 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiverDefaultArgs)
 }
 
 
+TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounter)
+{
+    const uint64_t runnableDeviceIdentifier = 0u;
+    iox::runtime::RunnableProperty runnableProperty(iox::cxx::CString100("testRunnable"), runnableDeviceIdentifier);
+
+    auto runnableData = m_senderRuntime->getServiceRegistryChangeCounter();
+
+    // Roudi internally will call 5 servieces
+    EXPECT_EQ(5, *runnableData);
+}
+
+
+TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounter_OfferStopOfferService)
+{
+    const uint64_t runnableDeviceIdentifier = 0u;
+    iox::runtime::RunnableProperty runnableProperty(iox::cxx::CString100("testRunnable"), runnableDeviceIdentifier);
+
+    m_senderRuntime->offerService({"service1", "instance1"});
+    this->InterOpWait();
+    auto runnableData = m_senderRuntime->getServiceRegistryChangeCounter();
+
+    EXPECT_EQ(6, *runnableData);
+
+    m_senderRuntime->stopOfferService({"service1", "instance1"});
+    this->InterOpWait();
+
+    EXPECT_EQ(7, *runnableData);
+}
+
+
+TEST_F(PoshRuntime_test, GetMiddlewareSender_SenderlistOverflow)
+{
+    std::vector<iox::popo::SenderPort::MemberType_t*> senderPorts;
+    iox::runtime::PoshRuntime* senderRuntime{&iox::runtime::PoshRuntime::getInstance("/sender")};
+
+
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
+
+    for (uint64_t i = 0; i < iox::MAX_PORT_NUMBER; ++i)
+    {
+        const auto senderPortData = senderRuntime->getMiddlewareSender(iox::capro::ServiceDescription(i, i + 1, i + 2));
+        senderPorts.push_back(senderPortData);
+    }
+
+    EXPECT_TRUE(errorHandlerCalled);
+}
+
+
 TEST_F(PoshRuntime_test, CreateRunnable)
 {
-    uint64_t runnableDeviceIdentifier = 0u;
+    const uint64_t runnableDeviceIdentifier = 11u;
     iox::runtime::RunnableProperty runnableProperty(iox::cxx::CString100("testRunnable"), runnableDeviceIdentifier);
 
     auto runableData = m_senderRuntime->createRunnable(runnableProperty);
@@ -164,4 +216,29 @@ TEST_F(PoshRuntime_test, CreateRunnable)
     EXPECT_EQ(runnableDeviceIdentifier, runableData->m_runnableDeviceIdentifier);
     EXPECT_EQ(m_appName, runableData->m_process);
     EXPECT_EQ(iox::cxx::CString100("testRunnable"), runableData->m_runnable);
+}
+
+
+TEST_F(PoshRuntime_test, ApplicationPort)
+{
+    m_senderRuntime->offerService({"service1", "instance1"});
+    this->InterOpWait();
+    auto applicationPortData = m_receiverRuntime->getMiddlewareApplication();
+    iox::popo::ApplicationPort applicationPort(applicationPortData);
+    iox::capro::CaproMessage caproMessage;
+    this->InterOpWait();
+
+    bool serviceFound = false;
+    while (applicationPort.getCaProMessage(caproMessage))
+    {
+        if ((caproMessage.m_serviceDescription.getServiceIDString() == IdString("service1"))
+            && (caproMessage.m_serviceDescription.getInstanceIDString() == IdString("instance1"))
+            && ((caproMessage.m_serviceDescription.getEventIDString() == IdString(iox::capro::AnyEventString))))
+        {
+            serviceFound = true;
+            break;
+        }
+    }
+
+    EXPECT_THAT(serviceFound, Eq(true));
 }
