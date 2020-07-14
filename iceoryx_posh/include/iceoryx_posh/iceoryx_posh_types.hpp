@@ -14,8 +14,8 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
-#include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
@@ -94,8 +94,9 @@ constexpr uint32_t ROUDI_MESSAGE_SIZE = 512u;
 constexpr uint32_t APP_MAX_MESSAGES = 5u;
 constexpr uint32_t APP_MESSAGE_SIZE = 512u;
 
-// Semaphore Pool
+// Waitset
 constexpr uint32_t NUMBER_OF_SEMAPHORES = 1024u;
+constexpr uint32_t MAX_NUMBER_OF_CONDITIONS = 128u;
 
 // Processes
 constexpr uint32_t MAX_PROCESS_NUMBER = 300u;

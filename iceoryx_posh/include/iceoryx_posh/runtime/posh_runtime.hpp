@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
@@ -82,7 +83,6 @@ class PoshRuntime
     /// @param[in] portConfigInfo configuration information for the port
     /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created sender port data
-
     SenderPortType::MemberType_t* getMiddlewareSender(const capro::ServiceDescription& service,
                                                       const cxx::CString100& runnableName = cxx::CString100(""),
                                                       const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
@@ -92,7 +92,7 @@ class PoshRuntime
     /// @param[in] runnableName name of the runnable where the receiver should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (what type of port is requested, device where its payload memory is located on etc.)
-    /// @return poiner to a created receiver port data
+    /// @return pointer to a created receiver port data
     ReceiverPortType::MemberType_t*
     getMiddlewareReceiver(const capro::ServiceDescription& service,
                           const cxx::CString100& runnableName = cxx::CString100(""),
@@ -101,13 +101,17 @@ class PoshRuntime
     /// @brief request the RouDi daemon to create an interface port
     /// @param[in] interface interface to create
     /// @param[in] runnableName name of the runnable where the interface should belong to
-    /// @return poiner to a created interface port data
+    /// @return pointer to a created interface port data
     popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
                                                     const cxx::CString100& runnableName = cxx::CString100("")) noexcept;
 
     /// @brief request the RouDi daemon to create an application port
-    /// @return poiner to a created application port data
+    /// @return pointer to a created application port data
     popo::ApplicationPortData* getMiddlewareApplication() noexcept;
+
+    /// @brief request the RouDi daemon to create an condition variable
+    /// @return pointer to a created condition variable data
+    popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept;
 
     /// @brief request the RouDi daemon to create a runnable
     /// @param[in] runnableProperty class which contains all properties which the runnable should have
