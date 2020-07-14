@@ -15,6 +15,8 @@
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
+#include <utility>
+
 namespace iox
 {
 namespace units
@@ -26,7 +28,9 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const
     {
         int64_t timeInNanoSeconds = this->nanoSeconds<int64_t>();
         int64_t seconds = timeInNanoSeconds / NanoSecondsPerSecond;
-        return {seconds, timeInNanoSeconds - seconds * NanoSecondsPerSecond};
+        return {seconds,
+                static_cast<decltype(std::declval<struct timespec>().tv_nsec)>(timeInNanoSeconds
+                                                                               - seconds * NanoSecondsPerSecond)};
     }
     else
     {
@@ -50,7 +54,7 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const
             int64_t seconds = timeInNanoSeconds / NanoSecondsPerSecond + referenceTime.tv_sec + additionalSeconds;
             int64_t nanoSeconds = sumOfNanoSeconds - additionalSeconds * NanoSecondsPerSecond;
 
-            return {seconds, nanoSeconds};
+            return {seconds, static_cast<decltype(std::declval<struct timespec>().tv_nsec)>(nanoSeconds)};
         }
     }
 }

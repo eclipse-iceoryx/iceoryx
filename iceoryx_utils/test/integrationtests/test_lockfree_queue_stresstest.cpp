@@ -183,7 +183,7 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
         auto filtered1 = filter(consumed1, id);
         auto filtered2 = filter(consumed2, id);
 
-        if (!isStrictlyMonotonous(filtered1) or !isStrictlyMonotonous(filtered2))
+        if (!isStrictlyMonotonous(filtered1) || !isStrictlyMonotonous(filtered2))
         {
             std::cout << "id " << id << " not strictly monotonous" << std::endl;
             return false;

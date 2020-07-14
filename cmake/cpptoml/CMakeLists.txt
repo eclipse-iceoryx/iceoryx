@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(cpptoml-build CXX)
 
-if(WIN32)
-    set(CREATE_PATH_COMMAND mkdir)
-else()
-    set(CREATE_PATH_COMMAND mkdir -p)
-endif(WIN32)
-
 # set download config, source and build paths
 set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/download)
 set(SOURCE_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/src)
@@ -29,12 +23,7 @@ if(result)
     message(FATAL_ERROR "Build step [download] for cpptoml failed: ${result}")
 endif()
 
-execute_process(COMMAND ${CREATE_PATH_COMMAND} "${BUILD_DIR}"
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-if(result)
-    message(FATAL_ERROR "CMake step [create build dir] for cpptoml failed: ${result}")
-endif()
+file(MAKE_DIRECTORY ${BUILD_DIR})
 
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DENABLE_LIBCXX=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${SOURCE_DIR}"
     RESULT_VARIABLE result

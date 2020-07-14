@@ -32,7 +32,7 @@ struct option
 };
 
 inline int
-getopt_long(int argc, char* const argv[], const char* optstring, const struct option* longopts, int* longindex)
+getopt_long(int , char* const [], const char* , const struct option* , int* )
 {
     return 0;
 }
