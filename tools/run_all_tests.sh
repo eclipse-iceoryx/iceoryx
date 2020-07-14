@@ -16,7 +16,7 @@
 
 # This file runs all tests for Ice0ryx
 
-COMPONENTS="utils posh dds_gateway"
+COMPONENTS="iceoryx_utils iceoryx_posh iceoryx_dds"
 GTEST_FILTER="*"
 BASE_DIR=$PWD
 

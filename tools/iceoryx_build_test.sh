@@ -74,7 +74,7 @@ while (( "$#" )); do
         shift 1
         ;;
     "build-tests")
-        echo " [i] Including tests in build."
+        echo " [i] Building (but not running) tests."
         RUN_TEST=false
         TEST_FLAG="on"
         shift 1

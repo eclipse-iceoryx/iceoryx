@@ -8,7 +8,7 @@ if(test AND NOT GTest_FOUND)
     find_package(GTest CONFIG REQUIRED)
 endif(test AND NOT GTest_FOUND)
 
-set(PROJECT_PREFIX "posh")
+set(PROJECT_PREFIX "iceoryx_posh")
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
 file(GLOB_RECURSE INTEGRATIONTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
