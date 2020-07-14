@@ -32,7 +32,9 @@ jobs:
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh with-dds-gateway clean strict -j $NUM_CORES
 
       - name: Build tests
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-tests strict -j $NUM_CORES
+        run: |
+          export NUM_CORES=`nproc`
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-tests strict -j $NUM_CORES
 
       - name: Run tests
         run: |
