@@ -31,6 +31,7 @@ CLEAN_BUILD=false
 BUILD_TYPE=""
 STRICT_FLAG="off"
 TEST_FLAG="off"
+QACPP_JSON="off"
 RUN_TEST=false
 INTROSPECTION_FLAG="on"
 
@@ -48,6 +49,11 @@ do
             ;;
         "strict")
             STRICT_FLAG="on"
+            ;;
+        "qacpp")
+            BUILD_TYPE="Release"
+            QACPP_JSON="on"
+            INTROSPECTION_FLAG="off"
             ;;
         "test")
             RUN_TEST=true
@@ -70,6 +76,7 @@ do
             echo "    release               Build release configuration"
             echo "    debug                 Build debug configuration"
             echo "    strict                Build is performed with '-Werror'"
+            echo "    qacpp                 JSON is generated for QACPP"
             echo "    test                  Builds and runs the tests"
             echo "    build-test            Builds the tests (doesn't tun)"
             echo "    skip-introspection    Skips building iceoryx introspection"
@@ -107,7 +114,7 @@ echo " [i] Current working directory:"
 pwd
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install
 echo ">>>>>> finished building iceoryx package <<<<<<"
 
