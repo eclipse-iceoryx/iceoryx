@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(cpptoml-build CXX)
 
-if(WIN32)
-    set(CREATE_PATH_COMMAND mkdir)
-else()
-    set(CREATE_PATH_COMMAND mkdir -p)
-endif(WIN32)
-
 # set download config, source and build paths
 set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/download)
 set(SOURCE_DIR ${CMAKE_BINARY_DIR}/dependencies/cpptoml/src)
