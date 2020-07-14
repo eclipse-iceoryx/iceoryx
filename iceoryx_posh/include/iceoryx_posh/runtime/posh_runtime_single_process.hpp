@@ -11,11 +11,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
+#define IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
 
-#ifndef IOX_DDS_GATEWAY_TEST_TEST_HPP
-#define IOX_DDS_GATEWAY_TEST_TEST_HPP
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include <string>
 
-#endif // IOX_DDS_GATEWAY_TEST_TEST_HPP
+namespace iox
+{
+namespace runtime
+{
+class PoshRuntimeSingleProcess : public PoshRuntime
+{
+  public:
+    PoshRuntimeSingleProcess(const std::string& name) noexcept;
+    ~PoshRuntimeSingleProcess();
+};
+} // namespace runtime
+} // namespace iox
+
+#endif

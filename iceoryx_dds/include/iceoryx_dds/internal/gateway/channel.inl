@@ -15,8 +15,6 @@
 #ifndef IOX_DDS_INTERNAL_GATEWAY_CHANNEL_INL
 #define IOX_DDS_INTERNAL_GATEWAY_CHANNEL_INL
 
-#include "iceoryx_dds/gateway/channel.hpp"
-
 namespace iox
 {
 namespace dds
@@ -76,7 +74,7 @@ Channel<IceoryxTerminal, DDSTerminal>::create(const iox::capro::ServiceDescripti
 }
 
 template <typename IceoryxTerminal, typename DDSTerminal>
-inline iox::capro::ServiceDescription Channel<IceoryxTerminal, DDSTerminal>::getService() const noexcept
+inline iox::capro::ServiceDescription Channel<IceoryxTerminal, DDSTerminal>::getServiceDescription() const noexcept
 {
     return m_service;
 }

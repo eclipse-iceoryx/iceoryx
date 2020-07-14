@@ -208,22 +208,6 @@ bool ServiceDescription::operator<(const ServiceDescription& rhs) const
     return false;
 }
 
-ServiceDescription& ServiceDescription::operator=(const ServiceDescription& other)
-{
-    m_serviceID = other.m_serviceID;
-    m_instanceID = other.m_instanceID;
-    m_eventID = other.m_eventID;
-    m_serviceString = other.m_serviceString;
-    m_instanceString = other.m_instanceString;
-    m_eventString = other.m_eventString;
-    m_hasServiceOnlyDescription = other.m_hasServiceOnlyDescription;
-    m_classHash = other.m_classHash;
-    m_scope = other.m_scope;
-    m_interfaceSource = other.m_interfaceSource;
-
-    return *this;
-}
-
 ServiceDescription::operator cxx::Serialization() const
 {
     std::underlying_type<Scope>::type scope = static_cast<std::underlying_type<Scope>::type>(m_scope);

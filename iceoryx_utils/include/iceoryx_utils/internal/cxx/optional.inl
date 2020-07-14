@@ -111,8 +111,8 @@ inline optional<T>::~optional() noexcept
 
 template <typename T>
 template <typename U>
-inline typename std::enable_if<!std::is_same<U, optional<T>&>::value, optional<T>>::type& optional<T>::
-operator=(U&& newValue) noexcept
+inline typename std::enable_if<!std::is_same<U, optional<T>&>::value, optional<T>>::type&
+optional<T>::operator=(U&& newValue) noexcept
 {
     if (m_hasValue)
     {
@@ -220,7 +220,7 @@ inline void optional<T>::reset() noexcept
 }
 
 template <typename T>
-    inline T& optional<T>::value() & noexcept
+inline T& optional<T>::value() & noexcept
 {
     auto data = (has_value()) ? static_cast<T*>(static_cast<void*>(m_data)) : nullptr;
     return *data;
@@ -234,7 +234,7 @@ inline const T& optional<T>::value() const& noexcept
 }
 
 template <typename T>
-    inline T&& optional<T>::value() && noexcept
+inline T&& optional<T>::value() && noexcept
 {
     auto data = (has_value()) ? static_cast<T*>(static_cast<void*>(m_data)) : nullptr;
     return std::move(*data);

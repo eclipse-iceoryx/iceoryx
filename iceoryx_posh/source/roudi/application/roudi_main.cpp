@@ -28,14 +28,12 @@ int main(int argc, char* argv[])
 
     iox::roudi::TomlRouDiConfigFileProvider configFileProvider(cmdLineParser);
 
-    using ParseResult = iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError>;
-
     iox::RouDiConfig_t roudiConfig =
         configFileProvider.parse()
-            .on_error([](ParseResult& parseResult) {
+            .or_else([](iox::roudi::RouDiConfigFileParseError& parseResult) {
                 iox::LogFatal() << "Couldn't parse config file. Error: "
                                 << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
-                                                                 parseResult.get_error());
+                                                                 parseResult);
                 std::terminate();
             })
             .get_value();
