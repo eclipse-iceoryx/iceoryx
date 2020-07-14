@@ -101,14 +101,27 @@ TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInFailure)
                 Eq(WaitSetError::CONDITION_VARIABLE_ALREADY_SET));
 }
 
-// TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
-// {
-//     {
-//         MockSubscriber scopedCondition;
-//         m_sut.attachCondition(scopedCondition);
-//     }
-//     EXPECT_DEATH({}}, ".*");
-// }
+TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
+{
+    auto errorHandlerCalled{false};
+    iox::Error receivedError;
+
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
+
+    {
+        MockSubscriber scopedCondition;
+        m_sut.attachCondition(scopedCondition);
+    }
+
+    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_THAT(receivedError, Eq(iox::Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE));
+    m_sut.detachAllConditions();
+}
 
 TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
 {
@@ -118,6 +131,8 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
     }
     EXPECT_FALSE(m_subscriberVector.front().isConditionVariableAttached());
 }
+
+/// @todo Add test cases for move c'tor and move assignment
 
 TEST_F(WaitSet_test, AttachMaximumAllowedConditionsSuccessful)
 {
