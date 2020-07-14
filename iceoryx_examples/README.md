@@ -23,6 +23,6 @@ cd someExample
 | example                           | description |
 |:----------------------------------|:------------|
 |[icecrystal](./icecrystal/)        | Demostrates the usage of the iceoryx introspection client. |
-|[icedelivery](./icedelivery/)      | You are new to iceoryx then take a look at this example which demonstrates the basics of iceoryx by siding data from one process to another process. |
+|[icedelivery](./icedelivery/)      | You are new to iceoryx then take a look at this example which demonstrates the basics of iceoryx by sending data from one process to another process. |
 |[iceperf](./iceperf/)              | A benchmark application which measures the latency of an IPC transmission between two applications. |
 |[singleprocess](./singleprocess/)  | Iceoryx can also be used for inter thread communication when you would like to run everything in a single process. |
