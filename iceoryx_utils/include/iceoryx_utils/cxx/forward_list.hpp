@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 #ifndef CXX_FORWARD_LIST_HPP_INCLUDED
 #define CXX_FORWARD_LIST_HPP_INCLUDED
 
-#include <algorithm>
 #include <cstdint>
+#include <iostream>
 
 namespace iox
 {
@@ -44,7 +44,7 @@ class forward_list
     static_assert(CAPACITY > 0, "CAPACITY must be an unsigned integral type >0");
 
     using value_type = T;
-    using sizeType = typename std::make_unsigned<decltype(CAPACITY)>::type;
+    using SizeType = typename std::make_unsigned<decltype(CAPACITY)>::type;
 
     /// @brief constructor for an empty list (of T-types elements)
     forward_list() noexcept;
@@ -74,10 +74,6 @@ class forward_list
     /// @param[in] rhs is the list to move from ('source', same capacity)
     /// @return reference to created list
     forward_list& operator=(forward_list&& rhs) noexcept;
-
-    // cpy c'tor by different CapacityOther-sized list, repeat for remaining copy/move ops
-    // template<uint64_t CapacityOther, typename=std::enable_if<CapacityOther <Capacity, void>::type>  // PRQA S 1051
-    // list(const list<T, CapacityOther> & rhs) noexcept;  // PRQA S 1051
 
     /// @brief nested iterator class for list element operations including element access via dereferencing
     ///         iterator may be assigned to different list (non-const pointer to m_List), different list iterators
@@ -131,14 +127,14 @@ class forward_list
         ///         an iterator is only constructed through calls to before_begin(), begin() or end()
         /// @param[in] parent is the forward_list the this iterator operates on
         /// @param[in] idx is the index of the list element (within allocated memory of parent list)
-        explicit iterator(forward_list* parent, sizeType idx) noexcept;
+        explicit iterator(forward_list* parent, SizeType idx) noexcept;
 
-        using listNodePointer = ListNodeType*;
+        using ListNodePointer = ListNodeType*;
 
         friend class forward_list<T, CAPACITY>;
         friend class const_iterator;
         forward_list<T, CAPACITY>* m_list;
-        sizeType m_iterListNodeIdx;
+        SizeType m_iterListNodeIdx;
 
     }; // class iterator
 
@@ -159,7 +155,7 @@ class forward_list
         ///         an iterator is only constructed through calls to before_begin(), begin() or end()
         /// @param[in] parent is the const forward_list the this iterator operates on
         /// @param[in] idx is the index of the list element (within allocated memory of parent list)
-        explicit const_iterator(const forward_list* parent, sizeType idx) noexcept;
+        explicit const_iterator(const forward_list* parent, SizeType idx) noexcept;
 
       public:
         /// @brief construct a const_iterator from an (non-const_) iterator
@@ -192,10 +188,11 @@ class forward_list
         const T* operator->() const noexcept;
 
       private:
-        using clistNodePointer = const ListNodeType*;
+        using CListNodePointer = const ListNodeType*;
         friend class forward_list<T, CAPACITY>;
+
         const forward_list<T, CAPACITY>* m_cList;
-        sizeType m_iterListNodeIdx;
+        SizeType m_iterListNodeIdx;
 
     }; // class const_iterator
 
@@ -254,19 +251,15 @@ class forward_list
     /// @return current number of elements in list
     /// @min    returns min 0
     /// @max    returns max capacity
-    sizeType size() const noexcept;
+    SizeType size() const noexcept;
 
     /// @brief list meta information
     /// @return list has been initialized with the following number of elements.
-    sizeType capacity() const noexcept;
+    SizeType capacity() const noexcept;
 
     /// @brief list meta information
     /// @return list has been initialized with the following number of elements, same as capacity()
-    sizeType max_size() const noexcept;
-
-    // possible future function extension
-    // void resize(const size_type) noexcept; // PRQA S 1051
-    // void resize(const size_type, const T&) noexcept; // PRQA S 1051
+    SizeType max_size() const noexcept;
 
     /// @brief add element to the begin of the list
     /// @param[in] r_data reference to data element
@@ -282,9 +275,6 @@ class forward_list
     ///         element destructor will be invoked
     /// @return successful removal (true), otherwise no element could be taken from list (e.g. empty -> false)
     bool pop_front() noexcept;
-
-    // possible future function extension
-    // void swap(list & rhs) noexcept; // PRQA S 1051
 
     /// @brief remove all elements from the list, list will be empty
     ///         element destructors will be invoked
@@ -327,11 +317,11 @@ class forward_list
     struct ListNodeType
     {
         T data;
-        sizeType nextIdx;
+        SizeType nextIdx;
     };
 
     void init() noexcept;
-    ListNodeType* getNodePtrFromIdx(sizeType) const noexcept;
+    ListNodeType* getNodePtrFromIdx(SizeType) const noexcept;
     ListNodeType* getHeadFreeEl() const noexcept;
     ListNodeType* getPointerToListNode() const noexcept;
 
@@ -342,16 +332,19 @@ class forward_list
     //    members
     //***************************************
 
-    // two extra elements to handle the 'before_begin' element of each:(internalS) freeList and usedList
-    static constexpr sizeType FW_LIST_INT_CAPACITY{sizeType(CAPACITY) + 2U};
-    static constexpr sizeType BEFORE_BEGIN_USED_INDEX{0U};
-    static constexpr sizeType BEFORE_BEGIN_FREE_INDEX{1U};
-    static constexpr sizeType INVALID_INDEX{sizeType(CAPACITY) + 2U};
+    // two extra slots in the list to handle the 'before_begin' element of each:(internal) freeList and usedList
+    // the necessity for 'before_begin' elements stems from the way a forward_list removes elements at an arbitrary
+    // position. Removing the front-most list element (aka begin()) requires an element pointing towards this position,
+    // hence 'before_begin'. The before_begin index is the head of each free-slots or used-slots list respectively.
+    static constexpr SizeType INTERNAL_CAPACITY{SizeType(CAPACITY) + 2U};
+    static constexpr SizeType BEFORE_BEGIN_USED_INDEX{0U};
+    static constexpr SizeType BEFORE_BEGIN_FREE_INDEX{1U};
+    static constexpr SizeType INVALID_INDEX{SizeType(CAPACITY) + 2U};
 
     using element_t = uint8_t[sizeof(ListNodeType)];
-    alignas(alignof(T)) element_t m_data[FW_LIST_INT_CAPACITY];
+    alignas(alignof(T)) element_t m_data[INTERNAL_CAPACITY];
 
-    sizeType m_size{0u};
+    SizeType m_size{0u};
 }; // forward_list
 
 namespace

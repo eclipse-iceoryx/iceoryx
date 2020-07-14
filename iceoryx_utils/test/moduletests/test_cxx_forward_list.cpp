@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -144,24 +144,6 @@ TEST_F(forward_list_test, NewlyCreatedListIsEmpty)
 {
     EXPECT_THAT(sut.empty(), Eq(true));
 }
-
-// should (= will) not compile, not coverable with current test framework
-// kept here intentionally to allow occasional re-evalution
-// TEST_F(forward_list_test, NewlyCreatedListWithZeroCapacity)
-// {
-//     forward_list<int, 0u> zeroList;
-//     EXPECT_THAT(zeroList.empty(), Eq(true));
-//     EXPECT_THAT(zeroList.capacity(), Eq(0));
-// }
-
-// should (= will) not compile, not coverable with current test framework
-// kept here intentionally to allow occasional re-evalution
-// TEST_F(forward_list_test, NewlyCreatedListWithNegCapacity)
-// {
-//     forward_list<int, -1> NegList;
-//     EXPECT_THAT(NegList.empty(), Eq(true));
-//     EXPECT_THAT(NegList.capacity(), Eq(0));
-// }
 
 TEST_F(forward_list_test, NewlyCreatedListHasSizeZero)
 {
@@ -747,6 +729,33 @@ TEST_F(forward_list_test, InsertAfterEmptyListAsLValue)
     ASSERT_THAT(sut.size(), Eq(1u));
     ASSERT_THAT(cTor, Eq(0u));
     ASSERT_THAT(customCTor, Eq(1u));
+}
+
+TEST_F(forward_list_test, InsertAfterLValueCheckReturn)
+{
+    constexpr int DEFAULT_VALUE{13};
+    const CTorTest a{DEFAULT_VALUE};
+
+    auto iter = sut.insert_after(sut.before_begin(), a);
+
+    ASSERT_THAT(iter == sut.begin(), Eq(true));
+}
+
+TEST_F(forward_list_test, InsertAfterEmptyListAsRValue)
+{
+    sut.insert_after(sut.before_begin(), {10});
+
+    ASSERT_THAT(sut.size(), Eq(1u));
+    ASSERT_THAT(cTor, Eq(0u));
+    ASSERT_THAT(customCTor, Eq(1u));
+}
+
+TEST_F(forward_list_test, InsertAfterRValueCheckReturn)
+{
+    auto iter = sut.insert_after(sut.before_begin(), {10});
+
+    ASSERT_THAT(iter == sut.begin(), Eq(true));
+    ASSERT_THAT((*iter).m_value, Eq(10));
 }
 
 TEST_F(forward_list_test, InsertAfterBeginListLValue)
