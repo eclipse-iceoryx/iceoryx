@@ -21,7 +21,7 @@ option(BUILD_STRICT "Build is performed with '-Werror'" OFF)
 option(test "Build tests" ON)
 option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
-option(dds "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
+option(dds_gateway "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
 
 # ===== Dependencies
 if(TOML_CONFIG)
