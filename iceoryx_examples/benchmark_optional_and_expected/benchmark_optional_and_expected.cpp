@@ -19,19 +19,19 @@
 
 uint64_t globalCounter{0U};
 
-uint64_t intRaw()
+uint64_t simpleReturn()
 {
     uint64_t returnValue = globalCounter + 1;
     return returnValue;
 }
 
-iox::cxx::optional<uint64_t> intOptional()
+iox::cxx::optional<uint64_t> simpleReturnOptional()
 {
     uint64_t returnValue = globalCounter + 1;
     return returnValue;
 }
 
-bool __intSimpleFiFoPop(uint64_t& value)
+bool __popFromFiFo(uint64_t& value)
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
@@ -43,16 +43,16 @@ bool __intSimpleFiFoPop(uint64_t& value)
     return true;
 }
 
-void intSimpleFiFoPop()
+void popFromFiFo()
 {
     uint64_t maybeValue;
-    if (__intSimpleFiFoPop(maybeValue))
+    if (__popFromFiFo(maybeValue))
         globalCounter += maybeValue;
     else
         --globalCounter;
 }
 
-iox::cxx::optional<uint64_t> __optionalFiFoPop()
+iox::cxx::optional<uint64_t> __popFromFiFoOptional()
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
@@ -63,12 +63,12 @@ iox::cxx::optional<uint64_t> __optionalFiFoPop()
     return mod;
 }
 
-void optionalFiFoPop()
+void popFromFiFoOptional()
 {
-    __optionalFiFoPop().and_then([](uint64_t value) { globalCounter += value; }).or_else([] { --globalCounter; });
+    __popFromFiFoOptional().and_then([](uint64_t value) { globalCounter += value; }).or_else([] { --globalCounter; });
 }
 
-uint64_t __intFiFoPop(uint64_t& value)
+uint64_t __complexErrorValue(uint64_t& value)
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
@@ -80,17 +80,17 @@ uint64_t __intFiFoPop(uint64_t& value)
     return 0;
 }
 
-void intFiFoPop()
+void complexErrorValue()
 {
     uint64_t maybeValue;
-    uint64_t returnValue = __intFiFoPop(maybeValue);
+    uint64_t returnValue = __complexErrorValue(maybeValue);
     if (returnValue == 0)
         globalCounter += maybeValue;
     else
         globalCounter -= returnValue;
 }
 
-iox::cxx::expected<uint64_t, uint64_t> __expectedFiFoPop()
+iox::cxx::expected<uint64_t, uint64_t> __complexErrorValueExpected()
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
@@ -101,9 +101,9 @@ iox::cxx::expected<uint64_t, uint64_t> __expectedFiFoPop()
     return iox::cxx::success<uint64_t>(mod);
 }
 
-void expectedFiFoPop()
+void complexErrorValueExpected()
 {
-    __expectedFiFoPop().and_then([](uint64_t value) { globalCounter += value; }).or_else([](uint64_t value) {
+    __complexErrorValueExpected().and_then([](uint64_t value) { globalCounter += value; }).or_else([](uint64_t value) {
         globalCounter -= value;
     });
 }
@@ -113,10 +113,10 @@ int main()
     using namespace iox::units::duration_literals;
     auto timeout = 1_s;
 
-    BENCHMARK_NO_ARGS(intRaw, timeout);
-    BENCHMARK_NO_ARGS(intOptional, timeout);
-    BENCHMARK_NO_ARGS(intSimpleFiFoPop, timeout);
-    BENCHMARK_NO_ARGS(optionalFiFoPop, timeout);
-    BENCHMARK_NO_ARGS(intFiFoPop, timeout);
-    BENCHMARK_NO_ARGS(expectedFiFoPop, timeout);
+    BENCHMARK(simpleReturn, timeout);
+    BENCHMARK(simpleReturnOptional, timeout);
+    BENCHMARK(popFromFiFo, timeout);
+    BENCHMARK(popFromFiFoOptional, timeout);
+    BENCHMARK(complexErrorValue, timeout);
+    BENCHMARK(complexErrorValueExpected, timeout);
 }

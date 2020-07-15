@@ -28,33 +28,7 @@ std::string compiler = "gcc-" + std::to_string(__GNUC__) + "." + std::to_string(
 std::string compiler = "msvc-" + std::to_string(_MSC_VER);
 #endif
 
-#define BENCHMARK_NO_ARGS(f, duration) PerformBenchmark(f, #f, duration)
-#define BENCHMARK(f, duration, initialArguments) PerformBenchmark(f, #f, duration, initialArguments)
-
-template <typename Return, typename Arg>
-void PerformBenchmark(Return (&f)(Arg),
-                      const char* functionName,
-                      const iox::units::Duration& duration,
-                      Arg initialArgument)
-{
-    std::atomic_bool keepRunning{true};
-    uint64_t numberOfCalls{0U};
-    std::thread t([&] {
-        auto oldValue = f(initialArgument);
-        while (keepRunning)
-        {
-            oldValue = f(oldValue);
-            ++numberOfCalls;
-        }
-    });
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(duration.milliSeconds<uint64_t>()));
-    keepRunning = false;
-    t.join();
-
-    std::cout << std::setw(12) << compiler << " [ " << duration << " ] " << std::setw(20) << functionName << " : "
-              << numberOfCalls << std::endl;
-}
+#define BENCHMARK(f, duration) PerformBenchmark(f, #f, duration)
 
 template <typename Return>
 void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units::Duration& duration)
@@ -73,7 +47,7 @@ void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units:
     keepRunning = false;
     t.join();
 
-    std::cout << std::setw(12) << compiler << " [ " << duration << " ] " << std::setw(20) << functionName << " : "
+    std::cout << std::setw(16) << compiler << " [ " << duration << " ] " << std::setw(32) << functionName << " : "
               << numberOfCalls << std::endl;
 }
 
