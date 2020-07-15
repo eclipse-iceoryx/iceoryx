@@ -66,6 +66,11 @@ class FileReader
     bool ReadLine(std::string& f_string);
 
   private:
+#ifdef _WIN32
+    static constexpr char PATH_SEPARATOR[] = "\\";
+#else
+    static constexpr char PATH_SEPARATOR[] = "/";
+#endif
     std::fstream m_fileStream;
     std::string m_file;
     ErrorMode m_errorMode;

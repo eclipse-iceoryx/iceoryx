@@ -44,6 +44,7 @@ endif(introspection)
 if(examples)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
 endif(examples)
 
 # ===== Gateways
@@ -54,3 +55,21 @@ endif(cyclonedds)
 if(dds_gateway)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dds ${CMAKE_BINARY_DIR}/iceoryx_dds)
 endif(dds_gateway)
+
+
+message("")
+message("       Configured Options")
+message("          TOML_CONFIG...............: " ${TOML_CONFIG})
+message("          BUILD_STRICT..............: " ${BUILD_STRICT})
+message("          test......................: " ${test})
+message("          examples..................: " ${examples})
+message("          introspection.............: " ${introspection})
+message("          dds_gateway...............: " ${dds_gateway})
+
+message("")
+message("       Build Properties")
+message("          project name..............: " ${CMAKE_PROJECT_NAME})
+message("          c compiler................: " ${CMAKE_C_COMPILER})
+message("          c++ compiler..............: " ${CMAKE_CXX_COMPILER})
+message("")
+

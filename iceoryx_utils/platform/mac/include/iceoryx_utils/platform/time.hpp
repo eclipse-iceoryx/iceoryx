@@ -14,6 +14,7 @@
 #ifndef IOX_UTILS_MAC_PLATFORM_TIME_HPP
 #define IOX_UTILS_MAC_PLATFORM_TIME_HPP
 
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 #include <sys/time.h>
@@ -30,11 +31,11 @@ struct appleTimer_t
     std::thread thread;
     void (*callback)(union sigval);
     sigval callbackParameter;
-    std::atomic_bool keepRunning{true};
 
     struct
     {
         std::mutex mutex;
+        bool keepRunning{true};
         timespec startTime;
         bool wasCallbackCalled{false};
         bool runOnce{false};

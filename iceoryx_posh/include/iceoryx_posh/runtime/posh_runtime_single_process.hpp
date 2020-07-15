@@ -11,30 +11,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_WIN_PLATFORM_GETOPT_HPP
-#define IOX_UTILS_WIN_PLATFORM_GETOPT_HPP
+#ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
+#define IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
 
-#define no_argument 0
-#define required_argument 1
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-#define optarg "fuu"
+#include <string>
 
-extern int optind;
-extern int opterr;
-extern int optout;
-
-struct option
+namespace iox
 {
-    const char* name;
-    int has_arg;
-    int* flag;
-    int val;
+namespace runtime
+{
+class PoshRuntimeSingleProcess : public PoshRuntime
+{
+  public:
+    PoshRuntimeSingleProcess(const std::string& name) noexcept;
+    ~PoshRuntimeSingleProcess();
 };
+} // namespace runtime
+} // namespace iox
 
-inline int
-getopt_long(int , char* const [], const char* , const struct option* , int* )
-{
-    return 0;
-}
-
-#endif // IOX_UTILS_WIN_PLATFORM_GETOPT_HPP
+#endif
