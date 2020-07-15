@@ -19,31 +19,15 @@
 using namespace ::testing;
 using namespace iox::capro;
 
-class CaproMessage_test : public Test
+TEST(CaproMessage_test, CTorSetsParametersCorrectly)
 {
-  public:
-    CaproMessage_test()
-    {
-    }
-
-    virtual ~CaproMessage_test()
-    {
-    }
-
-    virtual void SetUp(){};
-    virtual void TearDown(){};
-};
-
-
-TEST_F(CaproMessage_test, CTorSetsParametersCorrectly)
-{
-    uint16_t testServiceID = 1;
-    uint16_t testEventID = 2;
-    uint16_t testInstanceID = 3;
-    ServiceDescription sd = ServiceDescription(testServiceID, testEventID, testInstanceID);
+    constexpr uint16_t testServiceID{1u};
+    constexpr uint16_t testEventID{2u};
+    constexpr uint16_t testInstanceID{3u};
+    ServiceDescription sd(testServiceID, testEventID, testInstanceID);
     iox::popo::ReceiverPortData recData;
 
-    CaproMessage testObj = CaproMessage(CaproMessageType::OFFER, sd, CaproMessageSubType::SERVICE, &recData);
+    CaproMessage testObj(CaproMessageType::OFFER, sd, CaproMessageSubType::SERVICE, &recData);
 
     EXPECT_EQ(&recData, testObj.m_requestPort);
     EXPECT_EQ(CaproMessageType::OFFER, testObj.m_type);
@@ -54,9 +38,9 @@ TEST_F(CaproMessage_test, CTorSetsParametersCorrectly)
 }
 
 
-TEST_F(CaproMessage_test, DefaultCtorArgs)
+TEST(CaproMessage_test, DefaultArgsOfCtor)
 {
-    CaproMessage testObj = CaproMessage(CaproMessageType::OFFER, ServiceDescription{});
+    CaproMessage testObj(CaproMessageType::OFFER, ServiceDescription(1u, 2u, 3u));
 
     EXPECT_EQ(CaproMessageSubType::NOSUBTYPE, testObj.m_subType);
     EXPECT_EQ(nullptr, testObj.m_requestPort);
