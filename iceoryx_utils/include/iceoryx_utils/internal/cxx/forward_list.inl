@@ -188,19 +188,19 @@ inline bool forward_list<T, CAPACITY>::full() const noexcept
 }
 
 template <typename T, int64_t CAPACITY>
-inline typename forward_list<T, CAPACITY>::SizeType forward_list<T, CAPACITY>::size() const noexcept
+inline typename forward_list<T, CAPACITY>::size_type forward_list<T, CAPACITY>::size() const noexcept
 {
     return m_size;
 }
 
 template <typename T, int64_t CAPACITY>
-inline typename forward_list<T, CAPACITY>::SizeType forward_list<T, CAPACITY>::capacity() const noexcept
+inline typename forward_list<T, CAPACITY>::size_type forward_list<T, CAPACITY>::capacity() const noexcept
 {
     return CAPACITY;
 }
 
 template <typename T, int64_t CAPACITY>
-inline typename forward_list<T, CAPACITY>::SizeType forward_list<T, CAPACITY>::max_size() const noexcept
+inline typename forward_list<T, CAPACITY>::size_type forward_list<T, CAPACITY>::max_size() const noexcept
 {
     return capacity();
 }
@@ -224,21 +224,23 @@ forward_list<T, CAPACITY>::emplace_after(const_iterator afterToBeEmplacedIter, C
         std::terminate();
     }
 
-    const SizeType toBeAddedIdx = getHeadFreeEl()->nextIdx;
+    const size_type toBeAddedIdx = getHeadOfFreeElementList()->nextIdx;
 
     if (m_size < CAPACITY && toBeAddedIdx < INVALID_INDEX)
     {
+        auto newNodePointer = getNodePtrFromIdx(toBeAddedIdx);
+
         // unlink from freeList
-        getHeadFreeEl()->nextIdx = getPointerToListNode()[toBeAddedIdx].nextIdx;
+        getHeadOfFreeElementList()->nextIdx = newNodePointer->nextIdx;
 
         // data class c'tor
-        new (&(getPointerToListNode()[toBeAddedIdx].data)) T(std::forward<ConstructorArgs>(args)...);
+        new (&(newNodePointer->data)) T(std::forward<ConstructorArgs>(args)...);
 
         // add to usedList
-        const SizeType emplaceAfterIdx = afterToBeEmplacedIter.m_iterListNodeIdx;
-        const SizeType emplaceBeforeIdx = getPointerToListNode()[emplaceAfterIdx].nextIdx;
-        getPointerToListNode()[toBeAddedIdx].nextIdx = emplaceBeforeIdx;
-        getPointerToListNode()[emplaceAfterIdx].nextIdx = toBeAddedIdx;
+        const size_type afterToBeEmplacedIdx = afterToBeEmplacedIter.m_iterListNodeIdx;
+        const size_type emplaceBeforeIdx = getNodePtrFromIdx(afterToBeEmplacedIdx)->nextIdx;
+        newNodePointer->nextIdx = emplaceBeforeIdx;
+        getNodePtrFromIdx(afterToBeEmplacedIdx)->nextIdx = toBeAddedIdx;
 
         ++m_size;
 
@@ -262,32 +264,33 @@ forward_list<T, CAPACITY>::erase_after(const_iterator beforeToBeErasedIter) noex
         std::terminate();
     }
 
-    SizeType beforeToBeRemovedIdx = beforeToBeErasedIter.m_iterListNodeIdx;
-    if (beforeToBeRemovedIdx >= INVALID_INDEX)
+    size_type beforeToBeErasedIdx = beforeToBeErasedIter.m_iterListNodeIdx;
+    if (!isValidIteratorIndex(beforeToBeErasedIdx))
     {
         errorMessage(__PRETTY_FUNCTION__, " iterator is end()");
         return end();
     }
 
-    SizeType toBeRemovedIdx = getPointerToListNode()[beforeToBeRemovedIdx].nextIdx;
+    size_type toBeErasedIdx = getNodePtrFromIdx(beforeToBeErasedIdx)->nextIdx;
 
-    if (toBeRemovedIdx < INVALID_INDEX && !empty())
+    if (isValidElementIndex(toBeErasedIdx) && !empty())
     {
+        auto toErasedNodePointer = getNodePtrFromIdx(toBeErasedIdx);
         // unlink from usedList
-        getPointerToListNode()[beforeToBeRemovedIdx].nextIdx = getPointerToListNode()[toBeRemovedIdx].nextIdx;
+        getNodePtrFromIdx(beforeToBeErasedIdx)->nextIdx = toErasedNodePointer->nextIdx;
 
         // data'tor data class
-        getPointerToListNode()[toBeRemovedIdx].data.~T();
+        toErasedNodePointer->data.~T();
 
         // add to freeList
-        getPointerToListNode()[toBeRemovedIdx].nextIdx = getHeadFreeEl()->nextIdx;
-        getHeadFreeEl()->nextIdx = toBeRemovedIdx;
+        toErasedNodePointer->nextIdx = getHeadOfFreeElementList()->nextIdx;
+        getHeadOfFreeElementList()->nextIdx = toBeErasedIdx;
 
         --m_size;
 
         // Iterator to the element following the erased one, or end() if no such element exists.
         return iterator{const_cast<forward_list<T, CAPACITY>*>(beforeToBeErasedIter.m_cList),
-                        getPointerToListNode()[beforeToBeRemovedIdx].nextIdx};
+                        getNodePtrFromIdx(beforeToBeErasedIdx)->nextIdx};
     }
 
     // in case list is empty or iterator reached end()
@@ -296,15 +299,45 @@ forward_list<T, CAPACITY>::erase_after(const_iterator beforeToBeErasedIter) noex
 
 
 template <typename T, int64_t CAPACITY>
-bool forward_list<T, CAPACITY>::push_front(const T& ref) noexcept
+T& forward_list<T, CAPACITY>::front() noexcept
 {
-    return emplace_front(ref);
+    auto iter = begin();
+
+    if (!isValidElementIndex(iter.m_iterListNodeIdx))
+    {
+        errorMessage(__PRETTY_FUNCTION__, " tryed accessing not existing element");
+        std::terminate();
+    }
+
+    return *iter;
+}
+
+
+template <typename T, int64_t CAPACITY>
+const T& forward_list<T, CAPACITY>::front() const noexcept
+{
+    auto citer = cbegin();
+
+    if (!isValidElementIndex(citer.m_iterListNodeIdx))
+    {
+        errorMessage(__PRETTY_FUNCTION__, " tryed accessing not existing element");
+        std::terminate();
+    }
+
+    return *citer;
+}
+
+
+template <typename T, int64_t CAPACITY>
+bool forward_list<T, CAPACITY>::push_front(const T& r_data) noexcept
+{
+    return emplace_front(r_data);
 }
 
 template <typename T, int64_t CAPACITY>
-bool forward_list<T, CAPACITY>::push_front(T&& uref) noexcept
+bool forward_list<T, CAPACITY>::push_front(T&& ur_data) noexcept
 {
-    return emplace_front(std::forward<T>(uref));
+    return emplace_front(std::forward<T>(ur_data));
 }
 
 template <typename T, int64_t CAPACITY>
@@ -331,7 +364,7 @@ typename forward_list<T, CAPACITY>::iterator forward_list<T, CAPACITY>::insert_a
 
 
 template <typename T, int64_t CAPACITY>
-void forward_list<T, CAPACITY>::clear()
+void forward_list<T, CAPACITY>::clear() noexcept
 {
     for (auto iter = before_begin(); begin() != end();)
     {
@@ -347,7 +380,7 @@ void forward_list<T, CAPACITY>::clear()
 /*************************/
 // iterator
 template <typename T, int64_t CAPACITY>
-forward_list<T, CAPACITY>::iterator::iterator(forward_list* parent, SizeType idx) noexcept
+forward_list<T, CAPACITY>::iterator::iterator(forward_list* parent, size_type idx) noexcept
     : m_list(parent)
     , m_iterListNodeIdx(idx)
 {
@@ -357,7 +390,7 @@ template <typename T, int64_t CAPACITY>
 typename forward_list<T, CAPACITY>::iterator& forward_list<T, CAPACITY>::iterator::operator++() noexcept
 {
     // get node ref from List
-    if (m_iterListNodeIdx < INVALID_INDEX)
+    if (m_list->isValidIteratorIndex(m_iterListNodeIdx))
     {
         ListNodePointer const nodePtr = m_list->getNodePtrFromIdx(m_iterListNodeIdx);
         m_iterListNodeIdx = nodePtr->nextIdx;
@@ -374,8 +407,8 @@ typename forward_list<T, CAPACITY>::iterator& forward_list<T, CAPACITY>::iterato
 template <typename T, int64_t CAPACITY>
 bool forward_list<T, CAPACITY>::iterator::operator==(const iterator rhs_iter) const noexcept
 {
-    // break recursive call for iterator::operator== by casting at least one parameter to const_cast
-    return (rhs_iter == (const_iterator) * this);
+    // break recursive call for iterator::operator== by converting at least one parameter to const_iterator
+    return (rhs_iter == const_iterator{*this});
 }
 template <typename T, int64_t CAPACITY>
 bool forward_list<T, CAPACITY>::iterator::operator==(const const_iterator rhs_citer) const noexcept
@@ -386,8 +419,7 @@ bool forward_list<T, CAPACITY>::iterator::operator==(const const_iterator rhs_ci
 template <typename T, int64_t CAPACITY>
 T& forward_list<T, CAPACITY>::iterator::operator*() const noexcept
 {
-    if ((m_iterListNodeIdx >= INVALID_INDEX) || (BEFORE_BEGIN_USED_INDEX == m_iterListNodeIdx)
-        || (BEFORE_BEGIN_FREE_INDEX == m_iterListNodeIdx))
+    if (!m_list->isValidElementIndex(m_iterListNodeIdx))
     {
         // terminate e.g. when trying to read e.g. from end()
         errorMessage(__PRETTY_FUNCTION__, " malformed iterator");
@@ -408,7 +440,7 @@ T* forward_list<T, CAPACITY>::iterator::operator->() const noexcept
 // const_iterator
 
 template <typename T, int64_t CAPACITY>
-forward_list<T, CAPACITY>::const_iterator::const_iterator(const forward_list* parent, SizeType idx) noexcept
+forward_list<T, CAPACITY>::const_iterator::const_iterator(const forward_list* parent, size_type idx) noexcept
     : m_cList(parent)
     , m_iterListNodeIdx(idx)
 {
@@ -425,7 +457,7 @@ template <typename T, int64_t CAPACITY>
 typename forward_list<T, CAPACITY>::const_iterator& forward_list<T, CAPACITY>::const_iterator::operator++() noexcept
 {
     // get node ref from List
-    if (m_iterListNodeIdx < INVALID_INDEX)
+    if (m_cList->isValidIteratorIndex(m_iterListNodeIdx))
     {
         CListNodePointer nodePtr = m_cList->getNodePtrFromIdx(m_iterListNodeIdx);
         m_iterListNodeIdx = nodePtr->nextIdx;
@@ -448,7 +480,7 @@ bool forward_list<T, CAPACITY>::const_iterator::operator==(const const_iterator 
         errorMessage(__PRETTY_FUNCTION__, " iterators of different list can't be compared");
         std::terminate();
     }
-    // index comparison, not <T>::operator==        // PRQA S 1051 # code snippet used for descriptive comment
+    // index comparison, not user_class operator==
     return (m_iterListNodeIdx == rhs_citer.m_iterListNodeIdx);
 }
 
@@ -456,8 +488,7 @@ bool forward_list<T, CAPACITY>::const_iterator::operator==(const const_iterator 
 template <typename T, int64_t CAPACITY>
 const T& forward_list<T, CAPACITY>::const_iterator::operator*() const noexcept
 {
-    if ((m_iterListNodeIdx >= INVALID_INDEX) || (BEFORE_BEGIN_USED_INDEX == m_iterListNodeIdx)
-        || (BEFORE_BEGIN_FREE_INDEX == m_iterListNodeIdx))
+    if (!m_cList->isValidElementIndex(m_iterListNodeIdx))
     {
         // terminate e.g. when trying to read e.g. from end()
         errorMessage(__PRETTY_FUNCTION__, " malformed iterator");
@@ -484,36 +515,49 @@ template <typename T, int64_t CAPACITY>
 void forward_list<T, CAPACITY>::init() noexcept
 {
     // initial link empty-list elements
-    getPointerToListNode()[BEFORE_BEGIN_USED_INDEX].nextIdx = INVALID_INDEX;
+    getNodePtrFromIdx(BEFORE_BEGIN_USED_INDEX)->nextIdx = INVALID_INDEX;
 
-    for (SizeType i = 1u; (i + 1u) < INTERNAL_CAPACITY; ++i)
+    for (size_type i = 1u; (i + 1u) < INTERNAL_CAPACITY; ++i)
     {
-        getPointerToListNode()[i].nextIdx = i + 1;
+        getNodePtrFromIdx(i)->nextIdx = i + 1;
     }
-    getPointerToListNode()[INTERNAL_CAPACITY - 1].nextIdx = INVALID_INDEX;
+    getNodePtrFromIdx(INTERNAL_CAPACITY - 1)->nextIdx = INVALID_INDEX;
 } // init
 
 
 /*************************/
 // list-node access
 template <typename T, int64_t CAPACITY>
-inline typename forward_list<T, CAPACITY>::ListNodeType*
-forward_list<T, CAPACITY>::getNodePtrFromIdx(SizeType idx) const noexcept
+inline typename forward_list<T, CAPACITY>::ListNode* forward_list<T, CAPACITY>::getNodePtrFromIdx(size_type idx) const
+    noexcept
 {
-    return &(getPointerToListNode()[idx]);
+    return &(getNodePtr()[idx]);
 }
 
 template <typename T, int64_t CAPACITY>
-inline typename forward_list<T, CAPACITY>::ListNodeType* forward_list<T, CAPACITY>::getHeadFreeEl() const noexcept
+inline typename forward_list<T, CAPACITY>::ListNode* forward_list<T, CAPACITY>::getHeadOfFreeElementList() const
+    noexcept
 {
     return getNodePtrFromIdx(BEFORE_BEGIN_FREE_INDEX);
 }
 
 template <typename T, int64_t CAPACITY>
-inline typename forward_list<T, CAPACITY>::ListNodeType* forward_list<T, CAPACITY>::getPointerToListNode() const
-    noexcept
+inline typename forward_list<T, CAPACITY>::ListNode* forward_list<T, CAPACITY>::getNodePtr() const noexcept
 {
-    return reinterpret_cast<ListNodeType* const>(const_cast<uint8_t(*)[CAPACITY + 2][sizeof(ListNodeType)]>(&m_data));
+    return reinterpret_cast<ListNode* const>(const_cast<uint8_t(*)[CAPACITY + 2][sizeof(ListNode)]>(&m_data));
+}
+
+
+template <typename T, int64_t CAPACITY>
+inline bool forward_list<T, CAPACITY>::isValidIteratorIndex(size_type index) const noexcept
+{
+    return index < INVALID_INDEX;
+}
+
+template <typename T, int64_t CAPACITY>
+inline bool forward_list<T, CAPACITY>::isValidElementIndex(size_type index) const noexcept
+{
+    return (isValidIteratorIndex(index) && index != BEFORE_BEGIN_USED_INDEX && index != BEFORE_BEGIN_FREE_INDEX);
 }
 
 template <typename T, int64_t CAPACITY>

@@ -139,6 +139,15 @@ int iteratorTraitReturnDoubleValue(IterType iter)
     return (2 * m_value); // will only work for integer-convertible m_value types
 }
 
+// in context of EXPECT_DEATH tests, dummyFunc() shall help suppressing following warning :
+// -Wunused-comparison
+// reason: the warning is already addressed with the internal handling, which shall be tested here
+bool dummyFunc(bool whatever)
+{
+    std::cerr << "Never get here - ever " << whatever << std::endl;
+    return whatever;
+}
+
 
 TEST_F(forward_list_test, NewlyCreatedListIsEmpty)
 {
@@ -655,6 +664,33 @@ TEST_F(forward_list_test, PushFrontFailsWhenSpaceNotAvailableRValue)
 }
 
 
+TEST_F(forward_list_test, AccessFrontElement)
+{
+    constexpr int DEFAULT_VALUE{13};
+    const CTorTest a{DEFAULT_VALUE};
+
+    sut.push_front(a);
+
+    CTorTest& b{sut.front()};
+    const CTorTest& c{sut.front()};
+    EXPECT_THAT(b.m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(c.m_value, Eq(DEFAULT_VALUE));
+}
+
+TEST_F(forward_list_test, AccessFrontElementFromConstList)
+{
+    constexpr int DEFAULT_VALUE{13};
+    const CTorTest a{DEFAULT_VALUE};
+
+    sut.push_front(a);
+
+    const forward_list<CTorTest, TESTLISTCAPACITY> cut{sut};
+    const CTorTest& c = cut.front();
+
+    EXPECT_THAT(c.m_value, Eq(DEFAULT_VALUE));
+}
+
+
 TEST_F(forward_list_test, PopFrontOnEmptyList)
 {
     EXPECT_FALSE(sut.pop_front());
@@ -992,27 +1028,27 @@ TEST_F(forward_list_test, IteratorComparisonOfDifferentLists)
 
     auto iter_sut1 = cut1.begin();
     auto iter_sut2 = cut2.begin();
-    EXPECT_DEATH(iter_sut1 == iter_sut2, "");
+    EXPECT_DEATH(dummyFunc(iter_sut1 == iter_sut2), "");
 
     iter_sut1 = cut1.before_begin();
     iter_sut2 = cut2.before_begin();
-    EXPECT_DEATH(iter_sut1 == iter_sut2, "");
+    EXPECT_DEATH(dummyFunc(iter_sut1 == iter_sut2), "");
 
     iter_sut1 = cut1.end();
     iter_sut2 = cut2.end();
-    EXPECT_DEATH(iter_sut1 == iter_sut2, "");
+    EXPECT_DEATH(dummyFunc(iter_sut1 == iter_sut2), "");
 
     iter_sut1 = cut1.begin();
     iter_sut2 = cut2.begin();
-    EXPECT_DEATH(iter_sut1 != iter_sut2, "");
+    EXPECT_DEATH(dummyFunc(iter_sut1 != iter_sut2), "");
 
     iter_sut1 = cut1.before_begin();
     iter_sut2 = cut2.before_begin();
-    EXPECT_DEATH(iter_sut1 != iter_sut2, "");
+    EXPECT_DEATH(dummyFunc(iter_sut1 != iter_sut2), "");
 
     iter_sut1 = cut1.end();
     iter_sut2 = cut2.end();
-    EXPECT_DEATH(iter_sut1 != iter_sut2, "");
+    EXPECT_DEATH(dummyFunc(iter_sut1 != iter_sut2), "");
 }
 
 
@@ -1106,7 +1142,7 @@ TEST_F(forward_list_test, CopyConstructor)
     EXPECT_THAT(cut2.size(), Eq(2));
 }
 
-TEST_F(forward_list_test, CopyConstructorWithEmptyVector)
+TEST_F(forward_list_test, CopyConstructorWithEmptyForwardList)
 {
     forward_list<CTorTest, TESTLISTCAPACITY> cut1;
     forward_list<CTorTest, TESTLISTCAPACITY> cut2(cut1);
@@ -1115,7 +1151,7 @@ TEST_F(forward_list_test, CopyConstructorWithEmptyVector)
     EXPECT_THAT(cut2.empty(), Eq(true));
 }
 
-TEST_F(forward_list_test, CopyConstructorWithFullVector)
+TEST_F(forward_list_test, CopyConstructorWithFullForwardList)
 {
     forward_list<CTorTest, TESTLISTCAPACITY> cut1;
     uint64_t i = 0;
