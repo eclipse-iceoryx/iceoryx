@@ -357,7 +357,7 @@ TEST_F(forward_list_test, EmplaceAfterWithOneElements)
     constexpr uint64_t ELEMENT_COUNT{1};
     forward_list<CTorTest, CAPACITY> cut;
     auto iter = cut.before_begin();
-    uint64_t cnt = 0;
+    decltype(CTorTest::m_value) cnt = 0;
 
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(0));
@@ -1154,7 +1154,7 @@ TEST_F(forward_list_test, CopyConstructorWithEmptyForwardList)
 TEST_F(forward_list_test, CopyConstructorWithFullForwardList)
 {
     forward_list<CTorTest, TESTLISTCAPACITY> cut1;
-    uint64_t i = 0;
+    decltype(CTorTest::m_value) i = 0;
 
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {

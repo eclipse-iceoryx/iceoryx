@@ -18,6 +18,8 @@
 #include <cstdint>
 #include <iostream>
 
+#include "iceoryx_utils/platform/platform_correction.hpp"
+
 namespace iox
 {
 namespace cxx

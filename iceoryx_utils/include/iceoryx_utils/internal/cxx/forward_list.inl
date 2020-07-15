@@ -517,7 +517,7 @@ void forward_list<T, CAPACITY>::init() noexcept
     // initial link empty-list elements
     getNodePtrFromIdx(BEFORE_BEGIN_USED_INDEX)->nextIdx = INVALID_INDEX;
 
-    for (size_type i = 1u; (i + 1u) < INTERNAL_CAPACITY; ++i)
+    for (size_type i = BEFORE_BEGIN_FREE_INDEX; (i + 1u) < INTERNAL_CAPACITY; ++i)
     {
         getNodePtrFromIdx(i)->nextIdx = i + 1;
     }
