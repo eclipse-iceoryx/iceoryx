@@ -20,36 +20,36 @@ performance.
 This shell command on the other hand does compile the benchmark for all 4 optimization
 levels from `-O0` to `-O3` and prints the result for every level.
 
-### Results
+### Results (obtained from gcc-10.1.0)
 
 **Optimization Level -O0**
 
-| Test Case | Plain | Optional | Expected |
-|----------:|:-----:|:--------:|:--------:|
-|simpleReturn|**225524291**|47035725||
-|popFromFiFo|**138717750**|26948663||
-|complexErrorValue|**140045308**||14254503|
+| Test Case           | Plain       | Optional    | Expected    |
+|--------------------:|:-----------:|:-----------:|:-----------:|
+|simpleReturn         |**225524291**|47035725     |             |
+|popFromFiFo          |**138717750**|26948663     |             |
+|complexErrorValue    |**140045308**|             |14254503     |
 
 **Optimization Level -O1**
 
-| Test Case | Plain | Optional | Expected |
-|----------:|:-----:|:--------:|:--------:|
-|simpleReturn|646117228|**906108218**||
-|popFromFiFo|295797403|**329602169**||
-|complexErrorValue|**359035415**||184509271|
+| Test Case           | Plain       | Optional    | Expected    |
+|--------------------:|:-----------:|:-----------:|:-----------:|
+|simpleReturn         |646117228    |**906108218**|             |
+|popFromFiFo          |295797403    |**329602169**|             |
+|complexErrorValue    |**359035415**|             |184509271    |
 
 **Optimization Level -O2**
 
-| Test Case | Plain | Optional | Expected |
-|----------:|:-----:|:--------:|:--------:|
-|simpleReturn|639481388|**906377309**||
-|popFromFiFo|580475112|**637568187**||
-|complexErrorValue|566417871||**623039921**|
+| Test Case           | Plain       | Optional    | Expected    |
+|--------------------:|:-----------:|:-----------:|:-----------:|
+|simpleReturn         |639481388    |**906377309**|             |
+|popFromFiFo          |580475112    |**637568187**|             |
+|complexErrorValue    |566417871    |             |**623039921**|
 
 **Optimization Level -O3**
 
-| Test Case | Plain | Optional | Expected |
-|----------:|:-----:|:--------:|:--------:|
-|simpleReturn|644953494|**887507023**||
-|popFromFiFo|580091861|**585706644**||
-|complexErrorValue|566601028||**619879032**|
+| Test Case           | Plain       | Optional    | Expected    |
+|--------------------:|:-----------:|:-----------:|:-----------:|
+|simpleReturn         |644953494    |**887507023**|             |
+|popFromFiFo          |580091861    |**585706644**|             |
+|complexErrorValue    |566601028    |             |**619879032**|

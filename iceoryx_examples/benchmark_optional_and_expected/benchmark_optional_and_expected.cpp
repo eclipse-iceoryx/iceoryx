@@ -19,6 +19,26 @@
 
 uint64_t globalCounter{0U};
 
+template <uint64_t Size>
+struct LargeObject
+{
+    uint64_t value;
+    char dataBlob[Size];
+};
+
+template <uint64_t Size>
+struct LargeObjectComplexCTor
+{
+    LargeObjectComplexCTor()
+    {
+        for (uint64_t i = 0u; i < Size; ++i)
+            dataBlob[i] = static_cast<char>((++globalCounter) % 256);
+    };
+    uint64_t value;
+    char dataBlob[Size];
+};
+
+
 uint64_t simpleReturn()
 {
     uint64_t returnValue = globalCounter + 1;
@@ -108,6 +128,76 @@ void complexErrorValueExpected()
     });
 }
 
+template <typename T>
+bool __largeObjectPopPlain(T& value)
+{
+    ++globalCounter;
+
+    if (globalCounter % 3 == 0)
+        return false;
+
+    T returnValue;
+    returnValue.value = globalCounter;
+    value = returnValue;
+
+    return true;
+}
+
+template <typename T>
+iox::cxx::optional<T> __largeObjectPopOptional()
+{
+    ++globalCounter;
+
+    if (globalCounter % 3 == 0)
+        return iox::cxx::nullopt;
+
+    T returnValue;
+    returnValue.value = globalCounter;
+
+    return returnValue;
+}
+
+template <typename T>
+iox::cxx::expected<T, uint64_t> __largeObjectPopExpected()
+{
+    ++globalCounter;
+
+    if (globalCounter % 3 == 0)
+        return iox::cxx::error<uint64_t>(globalCounter);
+
+    T returnValue;
+    returnValue.value = globalCounter;
+
+    return iox::cxx::success<T>(returnValue);
+}
+
+template <typename T>
+void largeObjectPopPlain()
+{
+    T value;
+    if (__largeObjectPopPlain(value))
+        globalCounter += value.value;
+    else
+        --globalCounter;
+}
+
+template <typename T>
+void largeObjectPopOptional()
+{
+    __largeObjectPopOptional<T>().and_then([](T& value) { globalCounter += value.value; }).or_else([] {
+        --globalCounter;
+    });
+}
+
+template <typename T>
+void largeObjectPopExpected()
+{
+    __largeObjectPopExpected<T>().and_then([](T& value) { globalCounter += value.value; }).or_else([](uint64_t) {
+        --globalCounter;
+    });
+}
+
+
 int main()
 {
     using namespace iox::units::duration_literals;
@@ -119,4 +209,13 @@ int main()
     BENCHMARK(popFromFiFoOptional, timeout);
     BENCHMARK(complexErrorValue, timeout);
     BENCHMARK(complexErrorValueExpected, timeout);
+
+    constexpr uint64_t LargeObjectSize = 1024;
+    BENCHMARK(largeObjectPopPlain<LargeObject<LargeObjectSize>>, timeout);
+    BENCHMARK(largeObjectPopOptional<LargeObject<LargeObjectSize>>, timeout);
+    BENCHMARK(largeObjectPopExpected<LargeObject<LargeObjectSize>>, timeout);
+
+    BENCHMARK(largeObjectPopPlain<LargeObjectComplexCTor<LargeObjectSize>>, timeout);
+    BENCHMARK(largeObjectPopOptional<LargeObjectComplexCTor<LargeObjectSize>>, timeout);
+    BENCHMARK(largeObjectPopExpected<LargeObjectComplexCTor<LargeObjectSize>>, timeout);
 }

@@ -47,7 +47,7 @@ void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units:
     keepRunning = false;
     t.join();
 
-    std::cout << std::setw(16) << compiler << " [ " << duration << " ] " << std::setw(32) << functionName << " : "
-              << numberOfCalls << std::endl;
+    std::cout << std::setw(16) << compiler << " [ " << duration << " ] " << std::setw(15) << numberOfCalls << " : "
+              << functionName << std::endl;
 }
 
