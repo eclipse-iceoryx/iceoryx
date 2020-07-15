@@ -41,7 +41,7 @@ jobs:
           export CC=/usr/bin/clang
           export CXX=/usr/bin/clang++
           export NUM_CORES=`nproc`
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh with-dds-gateway clean strict -j $NUM_CORES
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh with-tests with-dds-gateway clean strict -j $NUM_CORES
 
  # This job builds & runs iceoryx tests in macos-10.15
   build-test-mac:
@@ -68,15 +68,12 @@ jobs:
           make install
 
       - name: Build sources
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean strict
-
-      - name: Build tests
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test strict
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh with-tests clean strict skip-introspection
 
       - name: Run tests
         run: |
           cd $GITHUB_WORKSPACE/build
-          ../tools/run_all_tests.sh disable-timing-tests
+          ../tools/run_all_tests.sh disable-timing-tests skip-dds-tests
 
  # This job builds & runs iceoryx tests in Windows 2019
   build-test-windows:
@@ -96,5 +93,5 @@ jobs:
       - name: Run tests
       # at the moment we do not support windows therefore we just run a subset of all the tests
         run: |
-          build\utils\test\Debug\utils_moduletests.exe --gtest_filter="Semaphore*"
+          build\iceoryx_utils\test\Debug\iceoryx_utils_moduletests.exe --gtest_filter="Semaphore*"
 
