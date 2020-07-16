@@ -68,7 +68,7 @@ jobs:
           make install
 
       - name: Build sources
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh with-tests clean strict skip-introspection
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh with-tests clean strict
 
       - name: Run tests
         run: |
