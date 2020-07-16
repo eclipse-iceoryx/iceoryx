@@ -18,7 +18,7 @@ project(test_iox_to_dds VERSION 0)
 find_package(iceoryx_utils_testing REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
-set(PROJECT_PREFIX "iceoryx_dds")
+set(PROJECT_PREFIX "dds_gateway")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
