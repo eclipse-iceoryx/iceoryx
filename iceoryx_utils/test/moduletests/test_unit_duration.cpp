@@ -21,7 +21,7 @@ using namespace iox::units;
 constexpr int KILO = 1000;
 constexpr int MEGA = 1000000;
 constexpr int GIGA = 1000000000;
-constexpr double doubleEpsilon = std::numeric_limits<double>::epsilon();
+constexpr double tenTimesEpsilon = std::numeric_limits<double>::epsilon() * 10.;
 
 TEST(Duration_test, convertDays)
 {
@@ -175,14 +175,14 @@ TEST(Duration_test, multiplyDuration)
     auto time3 = 300000_us;
 
     auto result = time1 * time2;
-    EXPECT_NEAR(result.seconds<double>(), 1.04, doubleEpsilon);
+    EXPECT_NEAR(result.seconds<double>(), 1.04, tenTimesEpsilon);
     result = result * time3;
-    EXPECT_NEAR(result.seconds<double>(), 0.312, doubleEpsilon);
+    EXPECT_NEAR(result.seconds<double>(), 0.312, tenTimesEpsilon);
 
     auto time4 = 10_s;
 
     result = result * time4;
-    EXPECT_NEAR(result.seconds<double>(), 3.12, doubleEpsilon);
+    EXPECT_NEAR(result.seconds<double>(), 3.12, tenTimesEpsilon);
 }
 
 TEST(Duration_test, divideDuration)
@@ -192,14 +192,14 @@ TEST(Duration_test, divideDuration)
     auto time3 = 300000_us;
 
     auto result = time1 / time2;
-    EXPECT_NEAR(result.seconds<double>(), 26, doubleEpsilon);
+    EXPECT_NEAR(result.seconds<double>(), 26, tenTimesEpsilon);
     result = result / time3;
-    EXPECT_NEAR(result.seconds<double>(), 86.666666666666666, doubleEpsilon);
+    EXPECT_NEAR(result.seconds<double>(), 86.666666666666666, tenTimesEpsilon);
 
     auto time4 = 10_s;
 
     result = result / time4;
-    EXPECT_NEAR(result.seconds<double>(), 8.666666666666666, doubleEpsilon);
+    EXPECT_NEAR(result.seconds<double>(), 8.666666666666666, tenTimesEpsilon);
 }
 
 TEST(Duration_test, constructFromTimespec)
