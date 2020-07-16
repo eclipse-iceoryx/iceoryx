@@ -199,9 +199,17 @@ TEST_F(forward_list_test, CbeforebeginAndCbeginAreDifferentWhenEmpty)
 {
     EXPECT_THAT(sut.cbefore_begin() != sut.cbegin(), Eq(true));
 }
-TEST_F(forward_list_test, CbeforeBeginAndCendAreDifferentWhenEmpty)
+TEST_F(forward_list_test, beforebeginAndBeginAreDifferentWhenEmpty)
 {
-    EXPECT_THAT(sut.cbefore_begin() != sut.cend(), Eq(true));
+    EXPECT_THAT(sut.before_begin() != sut.begin(), Eq(true));
+}
+TEST_F(forward_list_test, CbeforeBeginAndBeginAreDifferentWhenEmpty)
+{
+    EXPECT_THAT(sut.cbefore_begin() != sut.begin(), Eq(true));
+}
+TEST_F(forward_list_test, beforeBeginAndCbeginAreDifferentWhenEmpty)
+{
+    EXPECT_THAT(sut.before_begin() != sut.cbegin(), Eq(true));
 }
 
 TEST_F(forward_list_test, CbeginCendAreDifferentWhenFilled)
@@ -1185,11 +1193,13 @@ TEST_F(forward_list_test, MoveConstructor)
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(2));
     EXPECT_THAT(moveCTor, Eq(2));
+    EXPECT_THAT(dTor, Eq(2));
     auto iter = cut2.begin();
     EXPECT_THAT(iter->m_value, Eq(8102));
     EXPECT_THAT((++iter)->m_value, Eq(8101));
     EXPECT_THAT(cut2.empty(), Eq(false));
     EXPECT_THAT(cut2.size(), Eq(2));
+    EXPECT_THAT(cut1.empty(), Eq(true));
 }
 
 TEST_F(forward_list_test, MoveConstructorWithEmptyForwardList)
