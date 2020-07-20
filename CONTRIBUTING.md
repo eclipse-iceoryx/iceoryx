@@ -165,7 +165,7 @@ With a comment in the same line:
 
 With a comment one line above (with the number after the warning number, next ’n’ lines are inclusive)
     // PRQA S 4242 1 # Short description why
-    *mynullptr = foo; 
+    *mynullptr = foo;
 
 Don't be afraid if you don't have Helix QAC++ available. As we want to make it easy for developers to contribute,
 please use the ``staging`` branch and we'll run the QAC++ scan and get back to you.
@@ -194,3 +194,39 @@ Each source file needs to have this header:
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+
+## Quality levels
+
+CMake targets can be developed according to different quality levels. All requirements of a lower level are included.
+
+Also see [ROS quality levels](https://github.com/ros-infrastructure/rep/blob/master/rep-2004.rst).
+
+### Default quality level
+
+This quality level is meant for examples and
+
+* Reviewed by two approver
+* License and copyright statement available
+* No version policy required
+* No unit tests required
+
+### Quality level A
+
+* No compiler warnings
+* Doxygen and documentation available
+* Test specification available
+* Unit tests available
+* Version policy required
+
+### Quality level B
+
+* Level 8 and 9 warnings in Helix QAC addressed
+
+### Quality level C
+
+* tbd
+
+### Quality level D
+
+* Warnings in Helix QAC addressed
+* Code coverage according to [MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage) available

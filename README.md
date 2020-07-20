@@ -40,12 +40,20 @@ An example for a "porcelain" API would be [ROS2](https://www.ros.org/). Others a
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
 
-### Supported Platforms
+### Targeted quality levels & platforms
 
- * Linux
- * QNX
- * macOS (initial support - please test and report bugs)
- * Windows 10 (not yet - currently in progress)
+> [Quality level](./CONTRIBUTING.md#quality-levels) are default, A, B, C, D, where D is highest
+
+|CMake project          | Quality level D on QNX | Quality level B on QNX | Default quality on Linux, Windows, Mac, QNX  | Comment                             |
+|-----------------------|:----------------------:|:----------------------:|:--------------------------------------------:|:-----------------------------------:|
+| example_icedelivery   |                        |                        | X                                            |                                     |
+| example_iceperf       |                        |                        | X                                            |                                     |
+| example_singleprocess |                        |                        | X                                            |                                     |
+| iceoryx_dds           |                        |                        | X                                            |                                     |
+| iceoryx_meta          |                        |                        | X                                            |                                     |
+| iceoryx_posh          | X                      | X                      |                                              | Will be split into separate targets |
+| iceoryx_utils         | X                      |                        |                                              |                                     |
+| iceoryx_introspection |                        |                        | X                                            |                                     |
 
 ### Scope
 
@@ -91,10 +99,10 @@ cd iceoryx
 ICEORYX_DIR=$PWD
 mkdir -p build
 cd build
-git clone https://github.com/mirror/ncurses.git 
+git clone https://github.com/mirror/ncurses.git
 cd ncurses
 git checkout v6.2
-./configure  --prefix=$ICEORYX_DIR/build/dependencies/ --exec-prefix=$ICEORYX_DIR/build/dependencies/ --with-termlib 
+./configure  --prefix=$ICEORYX_DIR/build/dependencies/ --exec-prefix=$ICEORYX_DIR/build/dependencies/ --with-termlib
 make -j12
 make install
 ```

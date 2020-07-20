@@ -1,6 +1,6 @@
 # Build icedelivery example
 cmake_minimum_required(VERSION 3.5)
-project(icedelivery)
+project(example_icedelivery)
 
 include(GNUInstallDirs)
 
@@ -15,7 +15,7 @@ add_executable(ice-publisher-bare-metal ./ice_publisher_bare_metal.cpp)
 target_link_libraries(ice-publisher-bare-metal
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(ice-publisher-bare-metal PROPERTIES 
+set_target_properties(ice-publisher-bare-metal PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -25,7 +25,7 @@ add_executable(ice-subscriber-bare-metal ./ice_subscriber_bare_metal.cpp)
 target_link_libraries(ice-subscriber-bare-metal
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(ice-subscriber-bare-metal PROPERTIES 
+set_target_properties(ice-subscriber-bare-metal PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -35,7 +35,7 @@ add_executable(ice-publisher-simple ./ice_publisher_simple.cpp)
 target_link_libraries(ice-publisher-simple
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(ice-publisher-simple PROPERTIES 
+set_target_properties(ice-publisher-simple PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -45,7 +45,7 @@ add_executable(ice-subscriber-simple ./ice_subscriber_simple.cpp)
 target_link_libraries(ice-subscriber-simple
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(ice-subscriber-simple PROPERTIES 
+set_target_properties(ice-subscriber-simple PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
