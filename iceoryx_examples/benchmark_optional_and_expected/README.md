@@ -1,6 +1,4 @@
-# benchmark_optional_and_expected - Or howto benchmark and optimize correctly
-
-## The Benchmark 
+## benchmark_optional_and_expected
 
 ### Howto Perform a Benchmark
 In bash you could execute this one liner directly in the root directory of iceoryx.
