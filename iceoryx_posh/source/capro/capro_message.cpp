@@ -18,11 +18,6 @@ namespace iox
 {
 namespace capro
 {
-CaproMessage::CaproMessage() noexcept
-    : m_requestPort(nullptr)
-{
-}
-
 CaproMessage::CaproMessage(CaproMessageType f_type,
                            const ServiceDescription& f_serviceDescription,
                            CaproMessageSubType f_subType,
