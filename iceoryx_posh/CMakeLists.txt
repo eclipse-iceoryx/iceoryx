@@ -76,24 +76,30 @@ add_library(iceoryx_posh
     source/popo/ports/base_port_data.cpp
     source/popo/ports/base_port.cpp
     source/popo/ports/publisher_port_user.cpp
-    source/popo/ports/publisher_port_roudi.cpp    
+    source/popo/ports/publisher_port_roudi.cpp
     source/popo/ports/publisher_port_data.cpp
     source/popo/ports/subscriber_port_user.cpp
-    source/popo/ports/subscriber_port_roudi.cpp  
+    source/popo/ports/subscriber_port_roudi.cpp
     source/popo/ports/subscriber_port_single_producer.cpp
-    source/popo/ports/subscriber_port_multi_producer.cpp           
+    source/popo/ports/subscriber_port_multi_producer.cpp
     source/popo/ports/subscriber_port_data.cpp
-    source/popo/building_blocks/chunk_distributor_data.cpp        
+    source/popo/building_blocks/chunk_distributor_data.cpp
     source/popo/building_blocks/chunk_queue_pusher.cpp
-    source/popo/building_blocks/chunk_queue_popper.cpp  
+    source/popo/building_blocks/chunk_queue_popper.cpp
     source/popo/building_blocks/chunk_queue_data.cpp
-    source/popo/building_blocks/chunk_queue_types.cpp            
+    source/popo/building_blocks/chunk_queue_types.cpp
     source/popo/building_blocks/chunk_receiver.cpp
-    source/popo/building_blocks/chunk_receiver_data.cpp         
+    source/popo/building_blocks/chunk_receiver_data.cpp
+    source/popo/building_blocks/condition_variable_signaler.cpp
+    source/popo/building_blocks/condition_variable_waiter.cpp
+    source/popo/condition.cpp
+    source/popo/guard_condition.cpp
+    source/popo/wait_set.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
     source/runtime/posh_runtime.cpp
+    source/runtime/posh_runtime_single_process.cpp
     source/runtime/runnable.cpp
     source/runtime/runnable_data.cpp
     source/runtime/runnable_property.cpp

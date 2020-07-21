@@ -117,6 +117,7 @@ inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Ver
             if (m_readPosition.load(std::memory_order_relaxed) == currentReadPosition && verificator(valueOut) == false)
             {
                 popWasSuccessful = false;
+                nextReadPosition = currentReadPosition;
             }
             else
             {

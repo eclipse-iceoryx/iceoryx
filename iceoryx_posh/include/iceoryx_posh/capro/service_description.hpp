@@ -80,7 +80,6 @@ constexpr char ScopeTypeString[][MAX_NUMBER_OF_CHARS] = {"WORLDWIDE", "INTERNAL"
 class ServiceDescription
 {
   public:
-
     struct ClassHash
     {
         ClassHash(const std::initializer_list<uint32_t>& values) noexcept;
@@ -99,6 +98,9 @@ class ServiceDescription
 
     /// @brief default C'tor
     ServiceDescription() noexcept;
+    ServiceDescription(const ServiceDescription&) = default;
+    ServiceDescription(ServiceDescription&&) = default;
+    ~ServiceDescription() = default;
 
     /// @brief construction of the capro service description using integers to create a service service description
     ServiceDescription(uint16_t f_serviceID, uint16_t f_instanceID) noexcept;
@@ -127,8 +129,8 @@ class ServiceDescription
     ///         This is needed to use ServiceDescription in sorted containers like map or set.
     bool operator<(const ServiceDescription& rhs) const;
 
-    /// @brief copy all member variables from the other class instance
-    ServiceDescription& operator=(const ServiceDescription& other);
+    ServiceDescription& operator=(const ServiceDescription&) = default;
+    ServiceDescription& operator=(ServiceDescription&&) = default;
 
     /// @brief serialization of the capro description.
     /// @todo operator Serialization() replaces getServiceString()
