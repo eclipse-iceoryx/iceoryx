@@ -135,7 +135,16 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
     EXPECT_FALSE(m_subscriberVector.front().isConditionVariableAttached());
 }
 
-/// @todo Add test cases for move c'tor and move assignment
+TEST_F(WaitSet_test, AttachConditionAndMoveIsSuccessful)
+{
+    /// @todo
+}
+
+
+TEST_F(WaitSet_test, AttachConditionAndMoveAssignIsSuccessful)
+{
+    /// @todo
+}
 
 TEST_F(WaitSet_test, AttachMaximumAllowedConditionsSuccessful)
 {

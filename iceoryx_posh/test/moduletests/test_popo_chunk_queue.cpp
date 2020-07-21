@@ -22,6 +22,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 
 #include "test.hpp"
 
@@ -30,6 +31,7 @@ using ::testing::Return;
 
 using namespace iox::popo;
 using namespace iox::mepoo;
+using namespace iox::units::duration_literals;
 
 class ChunkQueue_testBase
 {
@@ -79,9 +81,9 @@ TEST_P(ChunkQueue_test, InitialEmpty)
     EXPECT_THAT(m_popper.empty(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, InitialSemaphoreAttached)
+TEST_P(ChunkQueue_test, InitialConditionVariableAttached)
 {
-    EXPECT_THAT(m_popper.isSemaphoreAttached(), Eq(false));
+    EXPECT_THAT(m_popper.isConditionVariableSignalerAttached(), Eq(false));
 }
 
 TEST_P(ChunkQueue_test, PushOneChunk)
@@ -144,56 +146,52 @@ TEST_P(ChunkQueue_test, ClearWithData)
     EXPECT_THAT(m_popper.empty(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, AttachSemaphore)
+TEST_P(ChunkQueue_test, AttachConditionVariableSignaler)
 {
-    auto semaphore = semaphorePool.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(0);
-    ASSERT_THAT(semaphore.has_error(), Eq(false));
+    ConditionVariableData condVar;
 
-    auto ret = m_popper.attachSemaphore(*semaphore);
-    EXPECT_FALSE(ret.has_error());
+    auto ret = m_popper.attachConditionVariableSignaler(&condVar);
+    EXPECT_TRUE(ret);
 
-    EXPECT_THAT(m_popper.isSemaphoreAttached(), Eq(true));
+    EXPECT_THAT(m_popper.isConditionVariableSignalerAttached(), Eq(true));
 }
 
 TEST_P(ChunkQueue_test, DISABLED_PushAndTriggersSemaphore)
 {
-    auto semaphore = semaphorePool.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(0);
-    ASSERT_THAT(semaphore.has_error(), Eq(false));
+    ConditionVariableData condVar;
+    ConditionVariableWaiter condVarWaiter{&condVar};
 
-    auto ret = m_popper.attachSemaphore(*semaphore);
-    EXPECT_FALSE(ret.has_error());
-
-    EXPECT_THAT(semaphore->get()->tryWait(), Eq(false));
+    auto ret = m_popper.attachConditionVariableSignaler(&condVar);
+    EXPECT_TRUE(ret);
 
     auto chunk = allocateChunk();
     m_pusher.push(chunk);
 
-    EXPECT_THAT(semaphore->get()->tryWait(), Eq(true));
-    EXPECT_THAT(semaphore->get()->tryWait(), Eq(false)); // shouldn't trigger a second time
+    EXPECT_THAT(condVarWaiter.timedWait(1_ms), Eq(true));
+    EXPECT_THAT(condVarWaiter.timedWait(1_ms), Eq(false)); // shouldn't trigger a second time
 }
 
 TEST_P(ChunkQueue_test, DISABLED_AttachSecondSemaphore)
 {
-    auto semaphore1 = semaphorePool.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(0);
-    ASSERT_THAT(semaphore1.has_error(), Eq(false));
-    auto semaphore2 = semaphorePool.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(0);
-    ASSERT_THAT(semaphore2.has_error(), Eq(false));
+    ConditionVariableData condVar1;
+    ConditionVariableData condVar2;
+    ConditionVariableWaiter condVarWaiter1{&condVar1};
+    ConditionVariableWaiter condVarWaiter2{&condVar1};
 
-    auto ret1 = m_popper.attachSemaphore(*semaphore1);
-    EXPECT_FALSE(ret1.has_error());
+    auto ret1 = m_popper.attachConditionVariableSignaler(&condVar1);
+    EXPECT_TRUE(ret1);
 
-    auto ret2 = m_popper.attachSemaphore(*semaphore2);
-    EXPECT_TRUE(ret2.has_error());
-    ASSERT_THAT(ret2.get_error(), Eq(ChunkQueueError::SEMAPHORE_ALREADY_SET));
+    auto ret2 = m_popper.attachConditionVariableSignaler(&condVar2);
+    EXPECT_FALSE(ret2);
 
-    EXPECT_THAT(semaphore1->get()->tryWait(), Eq(false));
-    EXPECT_THAT(semaphore2->get()->tryWait(), Eq(false));
+    EXPECT_THAT(condVarWaiter1.timedWait(1_ms), Eq(false));
+    EXPECT_THAT(condVarWaiter2.timedWait(1_ms), Eq(false));
 
     auto chunk = allocateChunk();
     m_pusher.push(chunk);
 
-    EXPECT_THAT(semaphore1->get()->tryWait(), Eq(true));
-    EXPECT_THAT(semaphore2->get()->tryWait(), Eq(false));
+    EXPECT_THAT(condVarWaiter1.timedWait(1_ms), Eq(true));
+    EXPECT_THAT(condVarWaiter2.timedWait(1_ms), Eq(false));
 }
 
 /// @note this could be changed to a parameterized ChunkQueueSaturatingFIFO_test when there are more FIFOs available
