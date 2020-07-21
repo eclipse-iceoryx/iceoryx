@@ -44,16 +44,16 @@ An example for a "porcelain" API would be [ROS2](https://www.ros.org/). Others a
 
 > [Quality level](./CONTRIBUTING.md#quality-levels) are default, A, B, C, D, where D is highest
 
-|CMake project          | Quality level D on QNX | Quality level B on QNX | Default quality on Linux, Windows, Mac, QNX  | Comment                             |
-|-----------------------|:----------------------:|:----------------------:|:--------------------------------------------:|:-----------------------------------:|
-| example_icedelivery   |                        |                        | X                                            |                                     |
-| example_iceperf       |                        |                        | X                                            |                                     |
-| example_singleprocess |                        |                        | X                                            |                                     |
-| iceoryx_dds           |                        |                        | X                                            |                                     |
-| iceoryx_meta          |                        |                        | X                                            |                                     |
-| iceoryx_posh          | X                      | X                      |                                              | Will be split into separate targets |
-| iceoryx_utils         | X                      |                        |                                              |                                     |
-| iceoryx_introspection |                        |                        | X                                            |                                     |
+|CMake project/target   | QNX  | Linux, Windows, MacOS | Comment                             |
+|-----------------------|:----:|:---------------------:|:-----------------------------------:|
+| example_icedelivery   |      | Default               |                                     |
+| example_iceperf       |      | Default               |                                     |
+| example_singleprocess |      | Default               |                                     |
+| iceoryx_dds           |      | Default               |                                     |
+| iceoryx_meta          |      | Default               |                                     |
+| iceoryx_posh          | D, B |                       | Will be split into separate targets |
+| iceoryx_utils         | D    |                       |                                     |
+| iceoryx_introspection |      | Default               |                                     |
 
 ### Scope
 

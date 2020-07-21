@@ -203,7 +203,7 @@ Also see [ROS quality levels](https://github.com/ros-infrastructure/rep/blob/mas
 
 ### Default quality level
 
-This quality level is meant for examples and
+This quality level is meant for examples and helper tools.
 
 * Reviewed by two approver
 * License and copyright statement available
