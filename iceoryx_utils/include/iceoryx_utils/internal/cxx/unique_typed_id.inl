@@ -1,0 +1,98 @@
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#ifndef IOX_UTILS_CXX_UNIQUE_ID_INL
+#define IOX_UTILS_CXX_UNIQUE_ID_INL
+
+namespace iox
+{
+namespace cxx
+{
+template <typename T>
+std::atomic<uint64_t> UniqueTypedID<T>::globalIDCounter{0u};
+
+template <typename T>
+inline UniqueTypedID<T>::UniqueTypedID() noexcept
+    : m_id{globalIDCounter.fetch_add(1u, std::memory_order_relaxed)}
+{
+}
+
+template <typename T>
+inline UniqueTypedID<T>::UniqueTypedID(UniqueTypedID&& rhs) noexcept
+    : m_id{rhs.m_id}
+{
+    rhs.m_id = INVALID_ID;
+}
+
+template <typename T>
+inline UniqueTypedID<T>& UniqueTypedID<T>::operator=(UniqueTypedID&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        m_id = rhs.m_id;
+        rhs.m_id = INVALID_ID;
+    }
+    return *this;
+}
+
+template <typename T>
+inline bool UniqueTypedID<T>::operator==(const UniqueTypedID& rhs) const noexcept
+{
+    return m_id == rhs.m_id;
+}
+
+template <typename T>
+inline bool UniqueTypedID<T>::operator!=(const UniqueTypedID& rhs) const noexcept
+{
+    return m_id != rhs.m_id;
+}
+
+template <typename T>
+inline bool UniqueTypedID<T>::operator<(const UniqueTypedID& rhs) const noexcept
+{
+    return m_id < rhs.m_id;
+}
+
+template <typename T>
+inline bool UniqueTypedID<T>::operator<=(const UniqueTypedID& rhs) const noexcept
+{
+    return m_id <= rhs.m_id;
+}
+
+template <typename T>
+inline bool UniqueTypedID<T>::operator>(const UniqueTypedID& rhs) const noexcept
+{
+    return m_id > rhs.m_id;
+}
+
+template <typename T>
+inline bool UniqueTypedID<T>::operator>=(const UniqueTypedID& rhs) const noexcept
+{
+    return m_id >= rhs.m_id;
+}
+
+template <typename T>
+inline UniqueTypedID<T>::operator uint64_t() const noexcept
+{
+    return m_id;
+}
+
+template <typename T>
+inline uint64_t UniqueTypedID<T>::getID() const noexcept
+{
+    return m_id;
+}
+
+} // namespace cxx
+} // namespace iox
+#endif
