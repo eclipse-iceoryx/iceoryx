@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(iceoryx_posh_VERSION 0.17.0.5)
+set(iceoryx_posh_VERSION 0.17.0.6)
 project(iceoryx_posh VERSION ${iceoryx_posh_VERSION})
 
 find_package(Threads REQUIRED)
@@ -73,8 +73,8 @@ add_library(iceoryx_posh
     source/popo/sender_port_data.cpp
     source/popo/receiver_handler.cpp
     source/popo/building_blocks/chunk_queue_pusher.cpp
-    source/popo/building_blocks/chunk_queue_popper.cpp    
-    source/popo/building_blocks/chunk_receiver.cpp      
+    source/popo/building_blocks/chunk_queue_popper.cpp
+    source/popo/building_blocks/chunk_receiver.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
