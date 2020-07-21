@@ -53,7 +53,6 @@ do
         "qacpp")
             BUILD_TYPE="Release"
             QACPP_JSON="on"
-            INTROSPECTION_FLAG="off"
             ;;
         "test")
             RUN_TEST=true
