@@ -24,7 +24,7 @@ for arg in "$@"
 do 
     case "$arg" in
         "skip-dds-tests")
-            COMPONENTS="iceoryx_utils iceoryx_posh"
+            COMPONENTS="utils posh"
             ;;
         "disable-timing-tests")
             GTEST_FILTER="-*.TimingTest_*"
@@ -47,8 +47,6 @@ do
             ;;
     esac
 done 
-
-echo $COMPONENTS
 
 # check if this script is sourced by another script,
 # if yes then exit properly, so the other script can use this

@@ -31,6 +31,7 @@ CLEAN_BUILD=false
 BUILD_TYPE=""
 STRICT_FLAG="off"
 TEST_FLAG="off"
+QACPP_JSON="off"
 RUN_TEST=false
 INTROSPECTION_FLAG="on"
 DDS_GATEWAY_FLAG="off"
@@ -62,19 +63,24 @@ while (( "$#" )); do
         STRICT_FLAG="on"
         shift 1
         ;;
+    "qacpp")
+        BUILD_TYPE="Release"
+        QACPP_JSON="on"
+        shift 1
+        ;;
     "test")
         RUN_TEST=true
         TEST_FLAG="on"
         shift 1
         ;;
     "with-dds-gateway")
-        echo " [i] Including DDS gateway in build."
+        echo " [i] Including DDS gateway in build"
         DDS_GATEWAY_FLAG="on"
         CYCLONEDDS_FLAG="$DDS_GATEWAY_FLAG"
         shift 1
         ;;
-    "with-tests")
-        echo " [i] Including tests."
+    "build-test")
+        echo " [i] Building tests"
         TEST_FLAG="on"
         shift 1
         ;;
@@ -97,9 +103,10 @@ while (( "$#" )); do
         echo "    release               Build release configuration"
         echo "    debug                 Build debug configuration"
         echo "    strict                Build is performed with '-Werror'"
+        echo "    qacpp                 JSON is generated for QACPP"
         echo "    test                  Builds and runs the tests"
         echo "    with-dds-gateway      Builds the iceoryx dds gateway"
-        echo "    with-tests            Builds the tests (doesn't run)"
+        echo "    build-test            Builds the tests (doesn't run)"
         echo "    skip-introspection    Skips building iceoryx introspection"
         echo "    help                  Prints this help"
         echo ""
@@ -145,7 +152,7 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dcyclonedds=$CYCLONEDDS_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dcyclonedds=$CYCLONEDDS_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 

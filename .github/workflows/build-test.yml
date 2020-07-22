@@ -29,7 +29,7 @@ jobs:
       - name: Build sources
         run: |
           export NUM_CORES=`nproc`
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh with-tests with-dds-gateway clean strict -j $NUM_CORES
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test with-dds-gateway clean strict -j $NUM_CORES
 
       - name: Run tests
         run: |
@@ -41,7 +41,7 @@ jobs:
           export CC=/usr/bin/clang
           export CXX=/usr/bin/clang++
           export NUM_CORES=`nproc`
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh with-tests with-dds-gateway clean strict -j $NUM_CORES
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test with-dds-gateway clean strict -j $NUM_CORES
 
  # This job builds & runs iceoryx tests in macos-10.15
   build-test-mac:
@@ -68,7 +68,7 @@ jobs:
           make install
 
       - name: Build sources
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh with-tests clean strict
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test clean strict
 
       - name: Run tests
         run: |
