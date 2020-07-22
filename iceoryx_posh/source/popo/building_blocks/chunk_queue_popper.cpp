@@ -113,7 +113,7 @@ void ChunkQueuePopper::clear() noexcept
     } while (true);
 }
 
-bool ChunkQueuePopper::attachConditionVariableSignaler(ConditionVariableData* ConditionVariableDataPtr) noexcept
+bool ChunkQueuePopper::attachConditionVariableSignaler(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
     /// @todo Add lock guard here
     if (isConditionVariableSignalerAttached())
@@ -123,7 +123,7 @@ bool ChunkQueuePopper::attachConditionVariableSignaler(ConditionVariableData* Co
     }
     else
     {
-        getMembers()->m_conditionVariableDataPtr = ConditionVariableDataPtr;
+        getMembers()->m_conditionVariableDataPtr = conditionVariableDataPtr;
         getMembers()->m_conditionVariableAttached.store(true, std::memory_order_release);
         return true;
     }

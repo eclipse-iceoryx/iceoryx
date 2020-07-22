@@ -79,7 +79,7 @@ class ChunkQueuePopper
     /// @brief Attaches a condition variable signaler
     /// @param[in] ConditionVariableDataPtr, pointer to an condition variable data object
     /// @return True if successful, false if not
-    bool attachConditionVariableSignaler(ConditionVariableData* ConditionVariableDataPtr) noexcept;
+    bool attachConditionVariableSignaler(ConditionVariableData* conditionVariableDataPtr) noexcept;
 
     /// @brief Detaches a condition variable signaler
     /// @return true if condition variable signaler was detached, false if not

@@ -31,9 +31,9 @@ using namespace iox::units::duration_literals;
 class MockSubscriber : public Condition
 {
   public:
-    bool setConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept override
+    bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
     {
-        m_condVarPtr = ConditionVariableDataPtr;
+        m_condVarPtr = conditionVariableDataPtr;
         return true;
     }
 

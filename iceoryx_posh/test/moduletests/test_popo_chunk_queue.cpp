@@ -21,7 +21,6 @@
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 
 #include "test.hpp"
@@ -51,7 +50,6 @@ class ChunkQueue_testBase
     iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
     MemPool mempool{128, 2 * iox::MAX_RECEIVER_QUEUE_CAPACITY, &allocator, &allocator};
     MemPool chunkMgmtPool{128, 2 * iox::MAX_RECEIVER_QUEUE_CAPACITY, &allocator, &allocator};
-    TypedMemPool<iox::posix::Semaphore> semaphorePool{10, &allocator, &allocator};
 
     static constexpr uint32_t RESIZED_CAPACITY{5u};
 };
@@ -156,7 +154,7 @@ TEST_P(ChunkQueue_test, AttachConditionVariableSignaler)
     EXPECT_THAT(m_popper.isConditionVariableSignalerAttached(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, DISABLED_PushAndTriggersSemaphore)
+TEST_P(ChunkQueue_test, DISABLED_PushAndNotifyConditionVariableSignaler)
 {
     ConditionVariableData condVar;
     ConditionVariableWaiter condVarWaiter{&condVar};
@@ -167,11 +165,11 @@ TEST_P(ChunkQueue_test, DISABLED_PushAndTriggersSemaphore)
     auto chunk = allocateChunk();
     m_pusher.push(chunk);
 
-    EXPECT_THAT(condVarWaiter.timedWait(1_ms), Eq(true));
-    EXPECT_THAT(condVarWaiter.timedWait(1_ms), Eq(false)); // shouldn't trigger a second time
+    EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(true));
+    EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(false)); // shouldn't trigger a second time
 }
 
-TEST_P(ChunkQueue_test, DISABLED_AttachSecondSemaphore)
+TEST_P(ChunkQueue_test, DISABLED_AttachSecondConditionVariableSignaler)
 {
     ConditionVariableData condVar1;
     ConditionVariableData condVar2;
@@ -184,8 +182,8 @@ TEST_P(ChunkQueue_test, DISABLED_AttachSecondSemaphore)
     auto ret2 = m_popper.attachConditionVariableSignaler(&condVar2);
     EXPECT_FALSE(ret2);
 
-    EXPECT_THAT(condVarWaiter1.timedWait(1_ms), Eq(false));
-    EXPECT_THAT(condVarWaiter2.timedWait(1_ms), Eq(false));
+    EXPECT_THAT(condVarWaiter1.timedWait(1_ns), Eq(false));
+    EXPECT_THAT(condVarWaiter2.timedWait(1_ns), Eq(false));
 
     auto chunk = allocateChunk();
     m_pusher.push(chunk);
