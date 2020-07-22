@@ -11,18 +11,18 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatformDetection)
 endif ( NOT ICEORYX_CXX_STANDARD )
 
-add_executable(benchmark_optional_and_expected ./benchmark_optional_and_expected.cpp)
-target_link_libraries(benchmark_optional_and_expected
+add_executable(iox-benchmark-optional-and-expected ./benchmark_optional_and_expected.cpp)
+target_link_libraries(iox-benchmark-optional-and-expected
     iceoryx_utils::iceoryx_utils
     pthread
 )
-set_target_properties(benchmark_optional_and_expected PROPERTIES 
+set_target_properties(iox-benchmark-optional-and-expected PROPERTIES 
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
 
 install(
-    TARGETS benchmark_optional_and_expected
+    TARGETS iox-benchmark-optional-and-expected
     RUNTIME DESTINATION bin
 )
