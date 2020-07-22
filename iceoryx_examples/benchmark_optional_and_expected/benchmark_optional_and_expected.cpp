@@ -32,12 +32,13 @@ struct LargeObjectComplexCTor
     LargeObjectComplexCTor()
     {
         for (uint64_t i = 0u; i < Size; ++i)
+        {
             dataBlob[i] = static_cast<char>((++globalCounter) % 256);
+        }
     };
     uint64_t value;
     char dataBlob[Size];
 };
-
 
 uint64_t simpleReturn()
 {
@@ -51,13 +52,15 @@ iox::cxx::optional<uint64_t> simpleReturnOptional()
     return returnValue;
 }
 
-bool __popFromFiFo(uint64_t& value)
+bool popFromFiFoImpl(uint64_t& value)
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
 
     if (mod >= 4)
+    {
         return false;
+    }
 
     value = mod;
     return true;
@@ -66,35 +69,43 @@ bool __popFromFiFo(uint64_t& value)
 void popFromFiFo()
 {
     uint64_t maybeValue;
-    if (__popFromFiFo(maybeValue))
+    if (popFromFiFoImpl(maybeValue))
+    {
         globalCounter += maybeValue;
+    }
     else
+    {
         --globalCounter;
+    }
 }
 
-iox::cxx::optional<uint64_t> __popFromFiFoOptional()
+iox::cxx::optional<uint64_t> popFromFiFoOptionalImpl()
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
 
     if (mod >= 4)
+    {
         return iox::cxx::nullopt;
+    }
 
     return mod;
 }
 
 void popFromFiFoOptional()
 {
-    __popFromFiFoOptional().and_then([](uint64_t value) { globalCounter += value; }).or_else([] { --globalCounter; });
+    popFromFiFoOptionalImpl().and_then([](uint64_t value) { globalCounter += value; }).or_else([] { --globalCounter; });
 }
 
-uint64_t __complexErrorValue(uint64_t& value)
+uint64_t complexErrorValueImpl(uint64_t& value)
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
 
     if (mod >= 4)
+    {
         return mod;
+    }
 
     value = mod;
     return 0;
@@ -103,38 +114,46 @@ uint64_t __complexErrorValue(uint64_t& value)
 void complexErrorValue()
 {
     uint64_t maybeValue;
-    uint64_t returnValue = __complexErrorValue(maybeValue);
+    uint64_t returnValue = complexErrorValueImpl(maybeValue);
     if (returnValue == 0)
+    {
         globalCounter += maybeValue;
+    }
     else
+    {
         globalCounter -= returnValue;
+    }
 }
 
-iox::cxx::expected<uint64_t, uint64_t> __complexErrorValueExpected()
+iox::cxx::expected<uint64_t, uint64_t> complexErrorValueExpectedImpl()
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
 
     if (mod >= 4)
+    {
         return iox::cxx::error<uint64_t>(mod);
+    }
 
     return iox::cxx::success<uint64_t>(mod);
 }
 
 void complexErrorValueExpected()
 {
-    __complexErrorValueExpected().and_then([](uint64_t value) { globalCounter += value; }).or_else([](uint64_t value) {
-        globalCounter -= value;
-    });
+    complexErrorValueExpectedImpl()
+        .and_then([](uint64_t value) { globalCounter += value; })
+        .or_else([](uint64_t value) { globalCounter -= value; });
 }
 
 template <typename T>
-bool __largeObjectPopPlain(T& value)
+bool largeObjectPopPlainImpl(T& value)
 {
     ++globalCounter;
 
     if (globalCounter % 3 == 0)
+    {
         return false;
+    }
 
     T returnValue;
     returnValue.value = globalCounter;
@@ -144,12 +163,14 @@ bool __largeObjectPopPlain(T& value)
 }
 
 template <typename T>
-iox::cxx::optional<T> __largeObjectPopOptional()
+iox::cxx::optional<T> largeObjectPopOptionalImpl()
 {
     ++globalCounter;
 
     if (globalCounter % 3 == 0)
+    {
         return iox::cxx::nullopt;
+    }
 
     T returnValue;
     returnValue.value = globalCounter;
@@ -158,12 +179,14 @@ iox::cxx::optional<T> __largeObjectPopOptional()
 }
 
 template <typename T>
-iox::cxx::expected<T, uint64_t> __largeObjectPopExpected()
+iox::cxx::expected<T, uint64_t> largeObjectPopExpectedImpl()
 {
     ++globalCounter;
 
     if (globalCounter % 3 == 0)
+    {
         return iox::cxx::error<uint64_t>(globalCounter);
+    }
 
     T returnValue;
     returnValue.value = globalCounter;
@@ -175,16 +198,20 @@ template <typename T>
 void largeObjectPopPlain()
 {
     T value;
-    if (__largeObjectPopPlain(value))
+    if (largeObjectPopPlainImpl(value))
+    {
         globalCounter += value.value;
+    }
     else
+    {
         --globalCounter;
+    }
 }
 
 template <typename T>
 void largeObjectPopOptional()
 {
-    __largeObjectPopOptional<T>().and_then([](T& value) { globalCounter += value.value; }).or_else([] {
+    largeObjectPopOptionalImpl<T>().and_then([](T& value) { globalCounter += value.value; }).or_else([] {
         --globalCounter;
     });
 }
@@ -192,11 +219,10 @@ void largeObjectPopOptional()
 template <typename T>
 void largeObjectPopExpected()
 {
-    __largeObjectPopExpected<T>().and_then([](T& value) { globalCounter += value.value; }).or_else([](uint64_t) {
+    largeObjectPopExpectedImpl<T>().and_then([](T& value) { globalCounter += value.value; }).or_else([](uint64_t) {
         --globalCounter;
     });
 }
-
 
 int main()
 {
