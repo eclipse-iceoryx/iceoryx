@@ -1,0 +1,77 @@
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#ifndef MY_SAMPLE_CLASS_HPP_INCLUDED
+#define MY_SAMPLE_CLASS_HPP_INCLUDED
+
+#include "source/example_base_class.hpp"
+
+
+namespace example
+{
+/// @brief Short description
+/// @code
+///   minimalistic working example which uses all public methods
+/// @endcode
+/// @swcomponent example_component
+void SomeFreeFunction();
+
+/// @brief Forward declaration of other class
+class someOtherClass;
+
+/// @brief Short description
+/// @details Detailed description
+/// @code
+///
+/// @endcode
+/// @note Important note for user/developer
+/// @swcomponent cpp
+template <typename T>
+class MySampleClass : public ExampleBaseClass<T>
+{
+  public:
+    /// @brief Short description
+    /// @details Detailed description
+    /// @param[in] a Description of input parameter a
+    /// @param[in] b Description of input parameter b
+    MySampleClass(const int a, const int b);
+
+    /// @brief Short description
+    void simpleMethod() const;
+
+    /// @brief Short description
+    /// @param[in] c 	Description of input parameter c
+    /// @param[out] d 	Description of output parameter d
+    /// @return      	Description of return value
+    int complexMethod(uint32_t c, int* d);
+
+    /// @brief A good example method which sets some kind of speed
+    /// @code
+    ///     myClass.goodExampleMethod(200_kmh); // sets it to 200 km/h
+    ///     myClass.goodExampleMethod(40_ms);   // sets it to 40 m/s
+    /// @endcode
+    void goodExampleMethod(const speed_t speed);
+
+    /// @brief Short description
+    /// @pre 	Must be called before another method is called
+    /// @post 	Cannot be called twice, once it is called everything is done
+    /// @param[in] fuu      some clarification, min and max is also defined here
+    ///                     and not specified with a custom tag.
+    ///                     0 <= fuu <= 1000
+    /// @deprecated remove when feature iox is done
+    void preInitStuff(const uint32_t fuu);
+};
+
+} // namespace example
+
+#endif // MY_SAMPLE_CLASS_HPP_INCLUDED
