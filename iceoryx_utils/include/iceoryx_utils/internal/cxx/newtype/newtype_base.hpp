@@ -24,37 +24,26 @@ template <typename, template <typename> class...>
 class NewType;
 namespace newtype
 {
-class NewTypeBaseFriend
+namespace internal
 {
-  protected:
-    template <typename T, typename NewBaseType>
-    static T getValue(const NewBaseType& b) noexcept
-    {
-        return b.value();
-    }
-};
+template <typename T>
+inline typename T::value_type newTypeBaseAccessor(const T& b) noexcept
+{
+    return b.m_value;
+}
+} // namespace internal
 
 template <typename T>
 class NewTypeBase
 {
-  public:
-    explicit NewTypeBase(const T& value) noexcept;
+  protected:
+    template <typename U = T>
+    explicit NewTypeBase(const U& value) noexcept
+    {
+    }
 
-    NewTypeBase(const NewTypeBase&) = default;
-    NewTypeBase(NewTypeBase&&) = default;
-
-    NewTypeBase& operator=(const NewTypeBase&) = default;
-    NewTypeBase& operator=(NewTypeBase&&) = default;
-
-    friend class NewTypeBaseFriend;
-
-  private:
-    operator T() const noexcept;
-
-    const T& value() const& noexcept;
-    T& value() & noexcept;
-    const T&& value() const&& noexcept;
-    T&& value() && noexcept;
+    template <typename Type>
+    friend typename Type::value_type internal::newTypeBaseAccessor(const Type&) noexcept;
 
   private:
     T m_value;

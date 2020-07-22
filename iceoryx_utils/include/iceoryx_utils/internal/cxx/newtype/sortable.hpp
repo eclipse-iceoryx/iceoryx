@@ -22,30 +22,26 @@ namespace cxx
 namespace newtype
 {
 template <typename T>
-struct Sortable : public NewTypeBaseFriend
+struct Sortable
 {
     friend bool operator<=(const T& lhs, const T& rhs) noexcept
     {
-        return NewTypeBaseFriend::getValue<typename T::value_type>(lhs)
-               <= NewTypeBaseFriend::getValue<typename T::value_type>(rhs);
+        return internal::newTypeBaseAccessor(lhs) <= internal::newTypeBaseAccessor(rhs);
     }
 
     friend bool operator<(const T& lhs, const T& rhs) noexcept
     {
-        return NewTypeBaseFriend::getValue<typename T::value_type>(lhs)
-               < NewTypeBaseFriend::getValue<typename T::value_type>(rhs);
+        return internal::newTypeBaseAccessor(lhs) < internal::newTypeBaseAccessor(rhs);
     }
 
     friend bool operator>(const T& lhs, const T& rhs) noexcept
     {
-        return NewTypeBaseFriend::getValue<typename T::value_type>(lhs)
-               > NewTypeBaseFriend::getValue<typename T::value_type>(rhs);
+        return internal::newTypeBaseAccessor(lhs) > internal::newTypeBaseAccessor(rhs);
     }
 
     friend bool operator>=(const T& lhs, const T& rhs) noexcept
     {
-        return NewTypeBaseFriend::getValue<typename T::value_type>(lhs)
-               >= NewTypeBaseFriend::getValue<typename T::value_type>(rhs);
+        return internal::newTypeBaseAccessor(lhs) >= internal::newTypeBaseAccessor(rhs);
     }
 };
 

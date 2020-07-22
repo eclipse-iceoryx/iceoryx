@@ -20,42 +20,11 @@ namespace cxx
 {
 namespace newtype
 {
-template <typename T>
-inline NewTypeBase<T>::NewTypeBase(const T& value) noexcept
-    : m_value(value)
-{
-}
-
-template <typename T>
-inline NewTypeBase<T>::operator T() const noexcept
-{
-    return m_value;
-}
-
-template <typename T>
-inline const T& NewTypeBase<T>::value() const& noexcept
-{
-    return m_value;
-}
-
-template <typename T>
-inline T& NewTypeBase<T>::value() & noexcept
-{
-    return m_value;
-}
-
-template <typename T>
-inline const T&& NewTypeBase<T>::value() const&& noexcept
-{
-    return std::move(m_value);
-}
-
-template <typename T>
-inline T&& NewTypeBase<T>::value() && noexcept
-{
-    return std::move(m_value);
-}
-
+// template <typename T>
+// inline NewTypeBase<T>::NewTypeBase(const T& value) noexcept
+//    : m_value(value)
+//{
+//}
 } // namespace newtype
 } // namespace cxx
 } // namespace iox

@@ -18,15 +18,37 @@
 #include "iceoryx_utils/internal/cxx/newtype/newtype_base.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/sortable.hpp"
 
+#include <type_traits>
+
 namespace iox
 {
 namespace cxx
 {
+template <typename T>
+struct A
+{
+};
+
+template <typename T>
+struct Helper
+{
+};
+
 template <typename T, template <typename> class... Policies>
 class NewType : public Policies<NewType<T, Policies...>>..., public newtype::NewTypeBase<T>
 {
   public:
     using newtype::NewTypeBase<T>::NewTypeBase;
+
+    struct B : public Policies<Helper<T>>...
+    {
+    };
+
+    template <typename U = T>
+    NewType(const typename std::enable_if<std::is_base_of<A<Helper<U>>, B>::value, T>::type& value)
+        : newtype::NewTypeBase<T>(value)
+    {
+    }
 
     using value_type = T;
 };
