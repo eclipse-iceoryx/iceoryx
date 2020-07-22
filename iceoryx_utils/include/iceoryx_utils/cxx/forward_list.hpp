@@ -329,8 +329,8 @@ class forward_list
 
     /// @brief construct element inplace at begining of list
     /// @param[in] args T-typed construction parameters (initializer list)
-    template <typename... ConstructorArgs>
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
+    template <typename... ConstructorArgs>
     bool emplace_front(ConstructorArgs&&... args) noexcept;
 
     /// @brief construct element inplace at begining of list
@@ -388,10 +388,6 @@ class forward_list
     size_type m_size{0u};
 }; // forward_list
 
-// template <typename IterType, typename IterTypeOther>
-// bool operator==<typename std::enable_if<is_forward_list_iterator<IterType>::value>::type,
-//                 typename std::enable_if<is_forward_list_iterator<IterTypeOther>::value>::type>(
-//     const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept;
 template <typename IterType, typename IterTypeOther>
 bool operator==(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept;
 template <typename IterType, typename IterTypeOther>
@@ -401,6 +397,6 @@ bool operator!=(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcep
 } // namespace cxx
 } // namespace iox
 
-#include <iceoryx_utils/internal/cxx/forward_list.inl>
+#include "iceoryx_utils/internal/cxx/forward_list.inl"
 
 #endif // CXX_FORWARD_LIST_HPP_INCLUDED
