@@ -45,8 +45,8 @@ class NewType : public Policies<NewType<T, Policies...>>..., public newtype::New
     };
 
     template <typename U = T>
-    NewType(const typename std::enable_if<std::is_base_of<A<Helper<U>>, B>::value, T>::type& value)
-        : newtype::NewTypeBase<T>(value)
+    NewType(typename std::enable_if<std::is_base_of<A<Helper<U>>, B>::value, T>::type&& value)
+        : newtype::NewTypeBase<T>(std::forward<T>(value))
     {
     }
 

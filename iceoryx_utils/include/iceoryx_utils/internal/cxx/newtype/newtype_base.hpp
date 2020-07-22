@@ -38,7 +38,7 @@ class NewTypeBase
 {
   protected:
     template <typename U = T>
-    explicit NewTypeBase(const U& value) noexcept
+    explicit NewTypeBase(U&& value) noexcept
     {
     }
 
