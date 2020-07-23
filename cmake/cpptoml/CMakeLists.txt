@@ -1,5 +1,27 @@
+# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 cmake_minimum_required(VERSION 3.5)
 project(cpptoml-build CXX)
+
+include(ProcessorCount)
+ProcessorCount(N)
+if(NOT N EQUAL 0 AND ((${CMAKE_VERSION} VERSION_GREATER "3.12.0") OR ${CMAKE_VERSION} VERSION_EQUAL "3.12.0"))
+  set(CMAKE_BUILD_FLAGS -j${N})
+elseif(LINUX OR QNX)
+  set(CMAKE_BUILD_FLAGS -- -j${N})
+endif()
 
 if(WIN32)
     set(CREATE_PATH_COMMAND mkdir)
@@ -22,19 +44,14 @@ if(result)
     message(FATAL_ERROR "CMake step [configure download] for cpptoml failed: ${result}")
 endif()
 
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
+execute_process(COMMAND ${CMAKE_COMMAND} --build . ${CMAKE_BUILD_FLAGS}
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${DOWNLOAD_CONFIG_DIR} )
 if(result)
     message(FATAL_ERROR "Build step [download] for cpptoml failed: ${result}")
 endif()
 
-execute_process(COMMAND ${CREATE_PATH_COMMAND} "${BUILD_DIR}"
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
-if(result)
-    message(FATAL_ERROR "CMake step [create build dir] for cpptoml failed: ${result}")
-endif()
+file(MAKE_DIRECTORY ${BUILD_DIR})
 
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" "-DENABLE_LIBCXX=off" "-DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}" "${SOURCE_DIR}"
     RESULT_VARIABLE result
@@ -43,7 +60,7 @@ if(result)
     message(FATAL_ERROR "CMake step [configure] for cpptoml failed: ${result}")
 endif()
 
-execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install
+execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install ${CMAKE_BUILD_FLAGS}
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${BUILD_DIR} )
 if(result)

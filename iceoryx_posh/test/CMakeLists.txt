@@ -33,13 +33,14 @@ set(TEST_LINK_LIBS
 
 if(LINUX)
     set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl )
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-pedantic -Wno-conversion)  # -Wpedantic results in errors at the time mocks
-elseif(QNX)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS} /W3)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-pedantic -Wno-conversion)
-elseif(APPLE)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-pedantic -Wno-conversion)
-elseif(WIN32)
-    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
 endif()
 
 # unittests

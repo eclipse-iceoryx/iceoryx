@@ -214,14 +214,7 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 ## Examples
 
-Great that you're still here, time for code! The following examples give you a quick and easy introduction into the inner
-workings of iceoryx. We hope you enjoy our sightseeing tour!
-
-|Name | Description | Technologies |
-|---|---|---|
-| [icedelivery](./iceoryx_examples/icedelivery) | Transfer data between POSIX applications | [SoA](https://en.wikipedia.org/wiki/Service-oriented_architecture), service description |
-| [iceperf](./iceoryx_examples/iceperf) | Measure the latency from publisher to subscriber | Latency |
-| [icecrystal](./iceoryx_examples/icecrystal) | Learn how to use the introspection | Debugging |
+You can find our examples [here](./iceoryx_examples).
 
 ## Innovations enabled by iceoryx
 
