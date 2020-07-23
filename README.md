@@ -46,14 +46,14 @@ An example for a "porcelain" API would be [ROS2](https://www.ros.org/). Others a
 
 |CMake project/target   | QNX  | Linux, Windows, MacOS | Comment                             |
 |-----------------------|:----:|:---------------------:|:-----------------------------------:|
-| example_icedelivery   |      | 5                     |                                     |
-| example_iceperf       |      | 5                     |                                     |
-| example_singleprocess |      | 5                     |                                     |
-| iceoryx_dds           |      | 5                     |                                     |
-| iceoryx_meta          |      | 5                     |                                     |
-| iceoryx_posh          | 1, 3 |                       | Will be split into separate targets |
-| iceoryx_utils         | 1    |                       |                                     |
-| iceoryx_introspection |      | 5                     |                                     |
+| example_icedelivery   | 4    | 4                     |                                     |
+| example_iceperf       | 4    | 4                     |                                     |
+| example_singleprocess | 4    | 4                     |                                     |
+| iceoryx_dds           | 4    | 4                     |                                     |
+| iceoryx_meta          | 4    | 4                     |                                     |
+| iceoryx_posh          | 1, 2 | 4                     | Will be split into separate targets |
+| iceoryx_utils         | 1    | 4                     |                                     |
+| iceoryx_introspection | 4    | 4                     |                                     |
 
 ### Scope
 

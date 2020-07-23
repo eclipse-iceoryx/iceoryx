@@ -197,11 +197,11 @@ Each source file needs to have this header:
 
 ## Quality levels
 
-CMake targets can be developed according to different quality levels. All requirements of a lower level are included.
+CMake targets can be developed according to different quality levels. For production usage in a specific environment (e.g. compiler version, compiler flags, etc.), please contact one of the maintainers beforehand. All requirements of a lower quality level are included in higher quality levels e.g. quality level 4 is included in quality level 3.
 
 Also see [ROS quality levels](https://github.com/ros-infrastructure/rep/blob/master/rep-2004.rst).
 
-### Quality level 5
+### Quality level 4
 
 This quality level is the default quality level. It is meant for examples and helper tools.
 
@@ -210,21 +210,18 @@ This quality level is the default quality level. It is meant for examples and he
 * No version policy required
 * No unit tests required
 
-### Quality level 4
+### Quality level 3
 
 * No compiler warnings
 * Doxygen and documentation available
 * Test specification available
 * Unit tests available
 * Version policy required
-
-### Quality level 3
-
 * Level 8 and 9 warnings in Helix QAC addressed
 
 ### Quality level 2
 
-* tbd
+* Code coverage statement and branch
 
 ### Quality level 1
 
