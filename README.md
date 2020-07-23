@@ -42,18 +42,18 @@ An example for a "porcelain" API would be [ROS2](https://www.ros.org/). Others a
 
 ### Targeted quality levels & platforms
 
-> [Quality level](./CONTRIBUTING.md#quality-levels) are default, A, B, C, D, where D is highest
+> [Quality level](./CONTRIBUTING.md#quality-levels) are 5..1, where 1 is highest
 
 |CMake project/target   | QNX  | Linux, Windows, MacOS | Comment                             |
 |-----------------------|:----:|:---------------------:|:-----------------------------------:|
-| example_icedelivery   |      | Default               |                                     |
-| example_iceperf       |      | Default               |                                     |
-| example_singleprocess |      | Default               |                                     |
-| iceoryx_dds           |      | Default               |                                     |
-| iceoryx_meta          |      | Default               |                                     |
-| iceoryx_posh          | D, B |                       | Will be split into separate targets |
-| iceoryx_utils         | D    |                       |                                     |
-| iceoryx_introspection |      | Default               |                                     |
+| example_icedelivery   |      | 5                     |                                     |
+| example_iceperf       |      | 5                     |                                     |
+| example_singleprocess |      | 5                     |                                     |
+| iceoryx_dds           |      | 5                     |                                     |
+| iceoryx_meta          |      | 5                     |                                     |
+| iceoryx_posh          | 1, 3 |                       | Will be split into separate targets |
+| iceoryx_utils         | 1    |                       |                                     |
+| iceoryx_introspection |      | 5                     |                                     |
 
 ### Scope
 

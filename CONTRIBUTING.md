@@ -201,16 +201,16 @@ CMake targets can be developed according to different quality levels. All requir
 
 Also see [ROS quality levels](https://github.com/ros-infrastructure/rep/blob/master/rep-2004.rst).
 
-### Default quality level
+### Quality level 5
 
-This quality level is meant for examples and helper tools.
+This quality level is the default quality level. It is meant for examples and helper tools.
 
 * Reviewed by two approver
 * License and copyright statement available
 * No version policy required
 * No unit tests required
 
-### Quality level A
+### Quality level 4
 
 * No compiler warnings
 * Doxygen and documentation available
@@ -218,15 +218,15 @@ This quality level is meant for examples and helper tools.
 * Unit tests available
 * Version policy required
 
-### Quality level B
+### Quality level 3
 
 * Level 8 and 9 warnings in Helix QAC addressed
 
-### Quality level C
+### Quality level 2
 
 * tbd
 
-### Quality level D
+### Quality level 1
 
 * Warnings in Helix QAC addressed
 * Code coverage according to [MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage) available
