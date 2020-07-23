@@ -4,7 +4,7 @@ This directory contains files related to building and running [Eclipse iceoryx](
 
 # Building the iceoryx Docker Image
 
-To create a Docker image with the built iceoryx libraries and examples from your current sources, run the following script from the root of the repository: `./tools/docker/build_roudi_docker.sh`.
+To create a Docker image with the built iceoryx libraries and examples from your current sources, run the following script from the root of the repository: `./tools/docker/build_iceoryx_docker.sh`.
 
 After the Docker image is built, you can run it in interactive mode then use one of the below options to connect to it and run the example applications.
 
@@ -13,7 +13,7 @@ After the Docker image is built, you can run it in interactive mode then use one
 A helper script is provided to launch containers for ready-built containers.
 Simply run the following script from any location:
 ```
-./tools/docker/run_roudi_docker.sh
+./tools/docker/run_iceoryx_docker.sh
 ```
 
 # Connecting to the Docker container and running the example applications
@@ -26,7 +26,7 @@ There are a couple of methods available to connect to do this.
 It is possible to bind a shell to running containers via `docker exec`. A helper script is provided with the command for convenience.
 To bind a shell to the container, simply run the following script from any location:
 ```
-./tools/docker/bind_roudi_docker.sh
+./tools/docker/bind_iceoryx_docker.sh
 ```
 You will then be dropped into a bash shell where you can access all iceoryx binaries.
 
@@ -70,6 +70,8 @@ root@b10b3630f6d3:/# screen
 and press `[Enter]`.
 
 Inside the virtual screen shell, you can then launch the example applications.
+Again, all iceoryx applications are directly available in the $PATH.
+
 To launch an example sender application, run the corresponding binary:
 
 ```
@@ -101,6 +103,8 @@ Receiving: 15
 ```
 
 You can now detach from this virtual screen with `[Ctrl]+A D`.
+
+### Exercises with iceoryx examples using screen
 
 As an exercise, you can return to previous screen sessions to observe their current output.
 For examples, here we list all screens and return to the one running the sender:

@@ -45,7 +45,6 @@ RUN apt update && apt install -y \
         wget
 
 ## Install the latest CMake to take advantage of parallel builds
-## --no-check-certificate requried due to Bosch self-signed certificate at the proxy...
 RUN wget --no-check-certificate -P /root/ https://github.com/Kitware/CMake/releases/download/v3.16.3/cmake-3.16.3-Linux-x86_64.tar.gz && \
   cd /root/ && \
   tar xf ./cmake-3.16.3-Linux-x86_64.tar.gz
