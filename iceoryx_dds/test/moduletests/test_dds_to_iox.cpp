@@ -92,7 +92,6 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
 
 TEST_F(DDS2IceoryxGatewayTest, PublishesMemoryChunksContainingSamplesToNetwork)
 {
-
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
@@ -100,7 +99,8 @@ TEST_F(DDS2IceoryxGatewayTest, PublishesMemoryChunksContainingSamplesToNetwork)
     auto mockDataReader = createMockDDSTerminal(testService);
     auto mockPublisher = createMockIceoryxTerminal(testService);
 
-    ON_CALL(*mockDataReader, peekNextSize).WillByDefault(Return(ByMove(iox::cxx::make_optional<uint64_t>(static_cast<uint64_t>(8u)))));
+    ON_CALL(*mockDataReader, peekNextSize)
+        .WillByDefault(Return(ByMove(iox::cxx::make_optional<uint64_t>(static_cast<uint64_t>(8u)))));
     ON_CALL(*mockDataReader, takeNext).WillByDefault(Return(ByMove(iox::cxx::success<>())));
     EXPECT_CALL(*mockPublisher, sendChunk).Times(1);
 
@@ -112,7 +112,4 @@ TEST_F(DDS2IceoryxGatewayTest, PublishesMemoryChunksContainingSamplesToNetwork)
     // === Test
     auto testChannel = channelFactory(testService).get_value();
     gw.forward(testChannel);
-
 }
-
-
