@@ -53,6 +53,62 @@ class PoshRuntime_test : public Test
 bool PoshRuntime_test::m_errorHandlerCalled{false};
 
 
+TEST_F(PoshRuntime_test, AppnameLength_TooLong)
+{
+    const std::string string104chars =
+        "/MXIYXHyPF9KjXAPv9ev9jxofYDArZzTvf8FF5uaWWC4dwabcjW75DurqeN645IabAsXVfngor7784446vb4vhArwBxLZlN1k1Qmrtz";
+
+    EXPECT_DEATH({ PoshRuntime::getInstance(string104chars); },
+                 "Application name has more than 100 characters, including null termination!");
+}
+
+
+TEST_F(PoshRuntime_test, AppnameLength_ok)
+{
+    const std::string string100chars =
+        "/MXIYXHyPF9KjXAPv9ev9jxofYDArZzTvf8FF5uaWWC4dwabcjW75DurqeN645IabAsXVfngor7784446vb4vhArwBxLZlN1k1";
+
+    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(string100chars); });
+}
+
+
+TEST_F(PoshRuntime_test, NoAppname)
+{
+    const std::string wrong("");
+
+    EXPECT_DEATH({ PoshRuntime::getInstance(wrong); },
+                 "Cannot initialize runtime. Application name must not be empty!");
+}
+
+
+TEST_F(PoshRuntime_test, NoLeadingSlash_Appname)
+{
+    const std::string wrong = "wrongname";
+
+    EXPECT_DEATH({ PoshRuntime::getInstance(wrong); },
+                 "Cannot initialize runtime. Application name wrongname does not have the required leading slash '/'");
+}
+
+
+// test class creates instance of Poshruntime, so when getInstance() is called without name it reuturns extisting
+// instance
+TEST_F(PoshRuntime_test, DISABLED_AppnameEmpty)
+{
+    EXPECT_DEATH({ iox::runtime::PoshRuntime::getInstance(); },
+                 "Cannot initialize runtime. Application name has not been specified!");
+}
+
+
+TEST_F(PoshRuntime_test, GetInstanceName)
+{
+    const std::string appname = "/app";
+
+    auto& sut = PoshRuntime::getInstance(appname);
+
+    EXPECT_EQ(sut.getInstanceName(), appname);
+}
+
+
 TEST_F(PoshRuntime_test, GetMiddlewareApplication_ReturnValue)
 {
     uint32_t uniqueIdCounter = iox::popo::BasePortData::s_uniqueIdCounter;
