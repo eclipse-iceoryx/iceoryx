@@ -70,7 +70,6 @@ class Channel
     /// @brief create Creates a channel for the given service whose terminals reside in a static object pool.
     /// @param service The service to create the channel for.
     /// @return A copy of the created channel, if successful.
-    /// @note The channel will be created with an unknown data element size.
     ///
     static iox::cxx::expected<Channel, ChannelError> create(const iox::capro::ServiceDescription& service) noexcept;
 
@@ -85,7 +84,6 @@ class Channel
     iox::capro::ServiceDescription m_service;
     IceoryxTerminalPtr m_iceoryxTerminal;
     DDSTerminalPtr m_ddsTerminal;
-
 };
 
 } // namespace dds

@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION 3.7)
 file (STRINGS "../VERSION" iceoryx_dds_VERSION)
 project(iceoryx_dds VERSION ${iceoryx_dds_VERSION})
 
-option(BUILD_TESTS "build test binaries")
+option(test "build test binaries")
 
 find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
@@ -43,7 +43,6 @@ if(USE_CYCLONE_DDS)
     message(INFO " Using CycloneDDS stack")
     find_package(CycloneDDS CONFIG REQUIRED)
     find_package(CycloneDDS_CXX_API CONFIG REQUIRED)
-    find_package(Idlpp-cxx CONFIG REQUIRED)
 endif()
 
 #
@@ -77,12 +76,32 @@ if(USE_CYCLONE_DDS)
         source/iceoryx_dds/dds/cyclone_data_reader.cpp
         source/iceoryx_dds/dds/cyclone_data_writer.cpp
     )
+
+    # Generate IDL at configure time
+    set(IDLPP_GENERATE_DIR ${CMAKE_BINARY_DIR}/iceoryx_dds_messages)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/idlpp-cxx-generate.cmake.in ${IDLPP_GENERATE_DIR}/CMakeLists.txt COPYONLY)
+    execute_process(COMMAND ${CMAKE_COMMAND} "-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}" -DMESSAGE_DEFINITION_DIR=${CMAKE_CURRENT_SOURCE_DIR}/msg/ "${IDLPP_GENERATE_DIR}"
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${IDLPP_GENERATE_DIR} )
+    if(result)
+        message(FATAL_ERROR "Unable to configure IDL.")
+    endif()
+    execute_process(COMMAND ${CMAKE_COMMAND} --build .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${IDLPP_GENERATE_DIR})
+    if(result)
+        message(FATAL_ERROR "Unable to generate IDL.")
+    endif()
+
     target_compile_definitions(iceoryx_dds PUBLIC -DUSE_CYCLONE_DDS)
-    idl_ddscxx_generate(mempoolMessages_lib "msg/Mempool.idl")
+    target_include_directories(iceoryx_dds
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/iceoryx_dds_messages>
+    )
     target_link_libraries(iceoryx_dds
         PUBLIC
         CycloneDDS_CXX_API::ddscxx
-        mempoolMessages_lib
+        ${IDLPP_GENERATE_DIR}/libiceoryx_dds_messages.a
     )
 endif()
 
@@ -114,15 +133,15 @@ target_compile_options(gateway_dds2iceoryx PRIVATE ${ICEORYX_WARNINGS})
 #
 ########## build test executables ##########
 #
-if(BUILD_TESTS)
+if(test)
     add_subdirectory(test)
-endif(BUILD_TESTS)
+endif(test)
 
 #
 ########## export library ##########
 #
 setup_install_directories_and_export_package(
-    TARGETS gateway_iceoryx2dds gateway_dds2iceoryx
+    TARGETS iceoryx_dds gateway_iceoryx2dds gateway_dds2iceoryx
     INCLUDE_DIRECTORY include/
 )
 
