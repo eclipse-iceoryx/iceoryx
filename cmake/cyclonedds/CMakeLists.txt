@@ -17,11 +17,13 @@ project(cyclonedds-build CXX)
 
 include(ProcessorCount)
 ProcessorCount(N)
-if(NOT N EQUAL 0 AND ((${CMAKE_VERSION} VERSION_GREATER "3.12.0") OR ${CMAKE_VERSION} VERSION_EQUAL "3.12.0"))
-  set(CMAKE_BUILD_FLAGS -j${N})
-elseif(LINUX OR QNX)
-  set(CMAKE_BUILD_FLAGS -- -j${N})
-endif()
+
+### does not work on Debian 10.4 or Ubuntu 18.04
+# if(NOT N EQUAL 0 AND ((${CMAKE_VERSION} VERSION_GREATER "3.12.0") OR ${CMAKE_VERSION} VERSION_EQUAL "3.12.0"))
+#   set(CMAKE_BUILD_FLAGS -j${N})
+# elseif(LINUX OR QNX)
+#   set(CMAKE_BUILD_FLAGS -- -j${N})
+# endif()
 
 if(WIN32)
     set(CREATE_PATH_COMMAND mkdir)
