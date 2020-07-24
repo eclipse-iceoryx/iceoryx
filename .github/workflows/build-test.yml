@@ -92,6 +92,6 @@ jobs:
 
       - name: Run tests
       # at the moment we do not support windows therefore we just run a subset of all the tests
-        run: |
-          build\utils\test\Debug\utils_moduletests.exe --gtest_filter="Semaphore*"
+      #  run: |
+      #    build\utils\test\Debug\utils_moduletests.exe --gtest_filter="Semaphore*"
 
