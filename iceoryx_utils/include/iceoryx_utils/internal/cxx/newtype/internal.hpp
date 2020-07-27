@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_NEWTYPE_NEWTYPE_BASE_HPP
-#define IOX_UTILS_CXX_NEWTYPE_NEWTYPE_BASE_HPP
+#ifndef IOX_UTILS_CXX_NEWTYPE_INTERNAL_HPP
+#define IOX_UTILS_CXX_NEWTYPE_INTERNAL_HPP
 
 #include <utility>
 
@@ -26,6 +26,12 @@ namespace newtype
 {
 namespace internal
 {
+struct ProtectedConstructor_t
+{
+};
+
+static constexpr ProtectedConstructor_t ProtectedConstructor = ProtectedConstructor_t();
+
 template <typename T>
 inline typename T::value_type newTypeAccessor(const T& b) noexcept
 {

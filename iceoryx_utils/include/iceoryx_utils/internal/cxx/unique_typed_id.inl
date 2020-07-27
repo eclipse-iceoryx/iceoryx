@@ -23,76 +23,9 @@ std::atomic<uint64_t> UniqueTypedID<T>::globalIDCounter{0u};
 
 template <typename T>
 inline UniqueTypedID<T>::UniqueTypedID() noexcept
-    : m_id{globalIDCounter.fetch_add(1u, std::memory_order_relaxed)}
+    : ThisType(newtype::internal::ProtectedConstructor, globalIDCounter.fetch_add(1u, std::memory_order_relaxed))
 {
 }
-
-template <typename T>
-inline UniqueTypedID<T>::UniqueTypedID(UniqueTypedID&& rhs) noexcept
-    : m_id{rhs.m_id}
-{
-    rhs.m_id = INVALID_ID;
-}
-
-template <typename T>
-inline UniqueTypedID<T>& UniqueTypedID<T>::operator=(UniqueTypedID&& rhs) noexcept
-{
-    if (this != &rhs)
-    {
-        m_id = rhs.m_id;
-        rhs.m_id = INVALID_ID;
-    }
-    return *this;
-}
-
-template <typename T>
-inline bool UniqueTypedID<T>::operator==(const UniqueTypedID& rhs) const noexcept
-{
-    return m_id == rhs.m_id;
-}
-
-template <typename T>
-inline bool UniqueTypedID<T>::operator!=(const UniqueTypedID& rhs) const noexcept
-{
-    return m_id != rhs.m_id;
-}
-
-template <typename T>
-inline bool UniqueTypedID<T>::operator<(const UniqueTypedID& rhs) const noexcept
-{
-    return m_id < rhs.m_id;
-}
-
-template <typename T>
-inline bool UniqueTypedID<T>::operator<=(const UniqueTypedID& rhs) const noexcept
-{
-    return m_id <= rhs.m_id;
-}
-
-template <typename T>
-inline bool UniqueTypedID<T>::operator>(const UniqueTypedID& rhs) const noexcept
-{
-    return m_id > rhs.m_id;
-}
-
-template <typename T>
-inline bool UniqueTypedID<T>::operator>=(const UniqueTypedID& rhs) const noexcept
-{
-    return m_id >= rhs.m_id;
-}
-
-template <typename T>
-inline UniqueTypedID<T>::operator uint64_t() const noexcept
-{
-    return m_id;
-}
-
-template <typename T>
-inline uint64_t UniqueTypedID<T>::getID() const noexcept
-{
-    return m_id;
-}
-
 } // namespace cxx
 } // namespace iox
 #endif

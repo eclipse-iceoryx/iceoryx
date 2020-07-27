@@ -66,59 +66,23 @@ namespace cxx
 ///     uint64_t id2 = AddSecondClass();
 /// @endcode
 template <typename T>
-class UniqueTypedID
+class UniqueTypedID : public NewType<uint64_t,
+                                     newtype::ProtectedConstructByValueCopy,
+                                     newtype::Comparable,
+                                     newtype::Sortable,
+                                     newtype::Convertable,
+                                     newtype::Copyable,
+                                     newtype::Movable>
 {
   public:
+    using ThisType::ThisType;
+
     /// @brief the constructor creates an id which is greater then the
     ///         previous created id
     UniqueTypedID() noexcept;
 
-    /// @brief move constructs a new id and invalidates rhs by setting
-    ///         the id to INVALID_ID
-    UniqueTypedID(UniqueTypedID&& rhs) noexcept;
-
-    /// @brief move assigns rhs and invalidates rhs by setting
-    ///         the id to INVALID_ID
-    UniqueTypedID& operator=(UniqueTypedID&& rhs) noexcept;
-
-    UniqueTypedID(const UniqueTypedID& rhs) = default;
-    UniqueTypedID& operator=(const UniqueTypedID& rhs) = default;
-    ~UniqueTypedID() = default;
-
-    /// @brief if two ids are equal return true, otherwise false
-    bool operator==(const UniqueTypedID& rhs) const noexcept;
-
-    /// @brief if two ids are not equal return true, otherwise false
-    bool operator!=(const UniqueTypedID& rhs) const noexcept;
-
-    /// @brief if the id of this is less then rhs return true, otherwise false
-    bool operator<(const UniqueTypedID& rhs) const noexcept;
-
-    /// @brief if the id of this is less or equal then rhs return true, otherwise false
-    bool operator<=(const UniqueTypedID& rhs) const noexcept;
-
-    /// @brief if the id of this is greater or equal then rhs return true, otherwise false
-    bool operator>=(const UniqueTypedID& rhs) const noexcept;
-
-    /// @brief if the id of this is greater then rhs return true, otherwise false
-    bool operator>(const UniqueTypedID& rhs) const noexcept;
-
-    /// @brief converts the id into a uint64_t which contains the actual
-    ///         value of the id
-    operator uint64_t() const noexcept;
-
-    /// @brief returns the value of the id
-    uint64_t getID() const noexcept;
-
-    /// @brief constant which is used to signal an invalid id. used by the
-    ///         move operations to notify the user that their object is no
-    ///         longer valid.
-    static constexpr uint64_t INVALID_ID = std::numeric_limits<uint64_t>::max();
-
   private:
     static std::atomic<uint64_t> globalIDCounter; // = 0u
-
-    uint64_t m_id{INVALID_ID};
 };
 
 } // namespace cxx

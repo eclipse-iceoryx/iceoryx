@@ -26,6 +26,15 @@ inline NewType<T, Policies...>::NewType() noexcept
 }
 
 template <typename T, template <typename> class... Policies>
+inline NewType<T, Policies...>::NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept
+    : m_value(rhs)
+{
+    static_assert(algorithm::doesContainType<newtype::ProtectedConstructByValueCopy<T>, Policies<T>...>(),
+                  "This type is not protected constructable with value copy, please add the "
+                  "newtype::ProtectedConstructByValueCopy policy.");
+}
+
+template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>::NewType(const T& rhs) noexcept
     : m_value(rhs)
 {

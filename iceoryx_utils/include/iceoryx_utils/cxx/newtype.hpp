@@ -18,7 +18,8 @@
 #include "iceoryx_utils/internal/cxx/newtype/comparable.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/constructor.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/convertable.hpp"
-#include "iceoryx_utils/internal/cxx/newtype/newtype_base.hpp"
+#include "iceoryx_utils/internal/cxx/newtype/internal.hpp"
+#include "iceoryx_utils/internal/cxx/newtype/protected_constructor.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/sortable.hpp"
 
 #include <type_traits>
@@ -46,10 +47,29 @@ namespace cxx
 ///     if ( a < b ) {} /// allowed since we are Sortable
 ///     // a = 567; // not allowed since we are not assignable
 /// @endcode
+///
+/// @brief Another example could be that you would like to have an index class
+///         with those properties and some additional methods. Then you can
+///         inherit from NewType and add your methods.
+/// @code
+///     class Index : public NewType<int, newtype::ProtectedConstructByValueCopy, newtype::Comparable,
+///     newtype::Sortable>
+///     {
+///         public:
+///             using ThisType::ThisType // this makes all constructors of NewType available for Index
+///
+///             void MyFunkyMethod() noexcept;
+///     };
+/// @endcode
 template <typename T, template <typename> class... Policies>
 class NewType : public Policies<NewType<T, Policies...>>...
 {
+  protected:
+    NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept;
+
   public:
+    using ThisType = NewType<T, Policies...>;
+
     /// @brief default constructor
     NewType() noexcept;
 

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_NEWTYPE_CONVERTABLE_HPP
-#define IOX_UTILS_CXX_NEWTYPE_CONVERTABLE_HPP
+#ifndef IOX_UTILS_CXX_NEWTYPE_PROTECTED_CONSTRUCTOR_HPP
+#define IOX_UTILS_CXX_NEWTYPE_PROTECTED_CONSTRUCTOR_HPP
 
 namespace iox
 {
@@ -21,10 +21,9 @@ namespace cxx
 namespace newtype
 {
 template <typename T>
-struct Convertable
+struct ProtectedConstructByValueCopy
 {
 };
-
 } // namespace newtype
 } // namespace cxx
 } // namespace iox

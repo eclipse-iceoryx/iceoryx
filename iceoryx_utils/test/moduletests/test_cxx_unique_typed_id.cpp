@@ -24,6 +24,7 @@ class UniqueTypedID_test : public Test
   protected:
     using UniqueIDType = T;
 };
+
 using Implementations = Types<UniqueTypedID<int>, UniqueTypedID<float>>;
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
@@ -34,51 +35,36 @@ TYPED_TEST_CASE(UniqueTypedID_test, Implementations);
 TYPED_TEST(UniqueTypedID_test, DefaultConstructorIncrementsID)
 {
     typename TestFixture::UniqueIDType a, b;
-    EXPECT_THAT(a.getID() + 1, Eq(b.getID()));
+    EXPECT_THAT(static_cast<uint64_t>(a) + 1, Eq(static_cast<uint64_t>(b)));
 }
 
 TYPED_TEST(UniqueTypedID_test, CopyConstructorSetsSameID)
 {
     typename TestFixture::UniqueIDType a, b(a);
-    EXPECT_THAT(a.getID(), Eq(b.getID()));
+    EXPECT_THAT(static_cast<uint64_t>(a), Eq(static_cast<uint64_t>(b)));
 }
 
 TYPED_TEST(UniqueTypedID_test, CopyConstructorAssignmentSetsSameID)
 {
     typename TestFixture::UniqueIDType a, b;
     a = b;
-    EXPECT_THAT(a.getID(), Eq(b.getID()));
+    EXPECT_THAT(a, Eq(b));
 }
 
 TYPED_TEST(UniqueTypedID_test, MoveConstructorSetsSameID)
 {
     typename TestFixture::UniqueIDType a;
-    auto id = a.getID();
+    auto id = static_cast<uint64_t>(a);
     decltype(a) b(std::move(a));
-    EXPECT_THAT(b.getID(), Eq(id));
-}
-
-TYPED_TEST(UniqueTypedID_test, MoveConstructorInvalidatesOrigin)
-{
-    typename TestFixture::UniqueIDType a;
-    auto id = a.getID();
-    decltype(a) b(std::move(a));
-    EXPECT_THAT(a.getID(), decltype(a)::INVALID_ID);
+    EXPECT_THAT(static_cast<uint64_t>(b), Eq(id));
 }
 
 TYPED_TEST(UniqueTypedID_test, MoveAssignmentSetsSameID)
 {
     typename TestFixture::UniqueIDType a, b;
-    auto id = a.getID();
+    auto id = static_cast<uint64_t>(a);
     b = std::move(a);
-    EXPECT_THAT(b.getID(), Eq(id));
-}
-
-TYPED_TEST(UniqueTypedID_test, MoveAssignmentInvalidatesOrigin)
-{
-    typename TestFixture::UniqueIDType a, b;
-    b = std::move(a);
-    EXPECT_THAT(a.getID(), Eq(decltype(a)::INVALID_ID));
+    EXPECT_THAT(static_cast<uint64_t>(b), Eq(id));
 }
 
 TYPED_TEST(UniqueTypedID_test, SameIDsAreEqual)
@@ -122,6 +108,6 @@ TYPED_TEST(UniqueTypedID_test, ConversionToUint64)
     typename TestFixture::UniqueIDType a, b;
     uint64_t id = a;
     b = a;
-    EXPECT_EQ(id, b);
+    EXPECT_EQ(id, static_cast<uint64_t>(b));
 }
 
