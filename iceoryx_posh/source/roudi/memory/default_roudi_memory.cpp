@@ -34,8 +34,8 @@ mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig() const
     mepoo::MePooConfig mempoolConfig;
     mempoolConfig.m_mempoolConfig.push_back(
         {static_cast<uint32_t>(
-             cxx::align(static_cast<uint64_t>(sizeof(roudi::MemPoolIntrospectionTopic)), SHARED_MEMORY_ALIGNMENT)),
-         250});
+             cxx::align(static_cast<uint64_t>(sizeof(roudi::MemPoolIntrospectionInfoContainer)), SHARED_MEMORY_ALIGNMENT)),
+         10});
     mempoolConfig.m_mempoolConfig.push_back(
         {static_cast<uint32_t>(
              cxx::align(static_cast<uint64_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), SHARED_MEMORY_ALIGNMENT)),

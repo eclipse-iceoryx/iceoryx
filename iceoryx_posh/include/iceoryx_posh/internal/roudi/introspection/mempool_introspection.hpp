@@ -14,6 +14,7 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
 
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
@@ -52,7 +53,7 @@ class MemPoolIntrospection
         TERMINATE
     };
 
-    using Topic = MemPoolIntrospectionTopic;
+    using Topic = MemPoolIntrospectionInfoContainer;
 
   public:
     /**
@@ -124,10 +125,10 @@ class MemPoolIntrospection
     // is possible  terminate call leads to exit
     void threadMain();
 
-    void prepareIntrospectionSample(Topic* f_sample,
-                                    const posix::PosixGroup& f_readerGroup,
-                                    const posix::PosixGroup& f_writerGroup,
-                                    uint32_t f_id);
+    static void prepareIntrospectionSample(MemPoolIntrospectionInfo& f_sample,
+                                           const posix::PosixGroup& f_readerGroup,
+                                           const posix::PosixGroup& f_writerGroup,
+                                           uint32_t f_id);
     void send();
 
     // copy data fro internal struct into interface struct
