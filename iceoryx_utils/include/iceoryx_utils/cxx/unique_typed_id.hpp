@@ -14,6 +14,8 @@
 #ifndef IOX_UTILS_CXX_UNIQUE_ID_HPP
 #define IOX_UTILS_CXX_UNIQUE_ID_HPP
 
+#include "iceoryx_utils/cxx/newtype.hpp"
+
 #include <atomic>
 #include <cstdint>
 #include <limits>

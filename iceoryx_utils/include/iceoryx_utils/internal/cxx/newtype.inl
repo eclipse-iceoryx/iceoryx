@@ -69,6 +69,13 @@ inline NewType<T, Policies...>& NewType<T, Policies...>::operator=(NewType&& rhs
     return *this;
 }
 
+template <typename T, template <typename> class... Policies>
+inline NewType<T, Policies...>::operator T() const noexcept
+{
+    static_assert(algorithm::doesContainType<newtype::Convertable<T>, Policies<T>...>(),
+                  "This type is not convertable, please add the newtype::Convertable policy.");
+    return T();
+}
 
 } // namespace cxx
 } // namespace iox

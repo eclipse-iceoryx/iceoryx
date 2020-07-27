@@ -15,6 +15,7 @@
 #include "iceoryx_utils/cxx/newtype.hpp"
 #include "test.hpp"
 
+using namespace ::testing;
 using namespace iox;
 using namespace iox::cxx;
 
@@ -47,4 +48,11 @@ TEST(NewType, MovableDoesCompile)
         d(std::move(c));
     a = std::move(b);
     EXPECT_TRUE(a == d);
+}
+
+TEST(NewType, ConversionDoesCompile)
+{
+    cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Convertable> a(911);
+    int b = static_cast<int>(a);
+    EXPECT_THAT(b, Eq(911));
 }

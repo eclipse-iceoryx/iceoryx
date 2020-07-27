@@ -17,6 +17,7 @@
 #include "iceoryx_utils/cxx/algorithm.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/comparable.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/constructor.hpp"
+#include "iceoryx_utils/internal/cxx/newtype/convertable.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/newtype_base.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/sortable.hpp"
 
@@ -68,6 +69,9 @@ class NewType : public Policies<NewType<T, Policies...>>..., public newtype::New
 
     /// @brief move assignment
     NewType& operator=(NewType&& rhs) noexcept;
+
+    /// @conversion operator
+    explicit operator T() const noexcept;
 
     // the type of the underlying value
     using value_type = T;
