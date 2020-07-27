@@ -27,34 +27,13 @@ namespace newtype
 namespace internal
 {
 template <typename T>
-inline typename T::value_type newTypeBaseAccessor(const T& b) noexcept
+inline typename T::value_type newTypeAccessor(const T& b) noexcept
 {
     return b.m_value;
 }
 } // namespace internal
-
-template <typename T>
-class NewTypeBase
-{
-  public:
-    NewTypeBase() noexcept;
-    explicit NewTypeBase(const T& rhs) noexcept;
-    NewTypeBase(const NewTypeBase& rhs) noexcept;
-    NewTypeBase(NewTypeBase&& rhs) noexcept;
-
-    NewTypeBase& operator=(const NewTypeBase& rhs) noexcept;
-    NewTypeBase& operator=(NewTypeBase&& rhs) noexcept;
-
-    template <typename Type>
-    friend typename Type::value_type internal::newTypeBaseAccessor(const Type&) noexcept;
-
-  private:
-    T m_value;
-};
 } // namespace newtype
 } // namespace cxx
 } // namespace iox
-
-#include "iceoryx_utils/internal/cxx/newtype/newtype_base.inl"
 
 #endif

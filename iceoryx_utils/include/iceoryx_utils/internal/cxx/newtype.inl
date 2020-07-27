@@ -27,7 +27,7 @@ inline NewType<T, Policies...>::NewType() noexcept
 
 template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>::NewType(const T& rhs) noexcept
-    : newtype::NewTypeBase<T>(rhs)
+    : m_value(rhs)
 {
     static_assert(
         algorithm::doesContainType<newtype::ConstructByValueCopy<T>, Policies<T>...>(),
@@ -36,7 +36,7 @@ inline NewType<T, Policies...>::NewType(const T& rhs) noexcept
 
 template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>::NewType(const NewType& rhs) noexcept
-    : newtype::NewTypeBase<T>(rhs)
+    : m_value(rhs.m_value)
 {
     static_assert(algorithm::doesContainType<newtype::Copyable<T>, Policies<T>...>(),
                   "This type is not copyable, please add the newtype::Copyable policy.");
@@ -44,7 +44,7 @@ inline NewType<T, Policies...>::NewType(const NewType& rhs) noexcept
 
 template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>::NewType(NewType&& rhs) noexcept
-    : newtype::NewTypeBase<T>(std::move(rhs))
+    : m_value(std::move(rhs.m_value))
 {
     static_assert(algorithm::doesContainType<newtype::Movable<T>, Policies<T>...>(),
                   "This type is not movable, please add the newtype::Movable policy.");
@@ -53,7 +53,7 @@ inline NewType<T, Policies...>::NewType(NewType&& rhs) noexcept
 template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>& NewType<T, Policies...>::operator=(const NewType& rhs) noexcept
 {
-    *reinterpret_cast<newtype::NewTypeBase<T>*>(this) = reinterpret_cast<const newtype::NewTypeBase<T>&>(rhs);
+    m_value = rhs.m_value;
     static_assert(algorithm::doesContainType<newtype::Copyable<T>, Policies<T>...>(),
                   "This type is not copyable, please add the newtype::Copyable policy.");
     return *this;
@@ -62,8 +62,10 @@ inline NewType<T, Policies...>& NewType<T, Policies...>::operator=(const NewType
 template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>& NewType<T, Policies...>::operator=(NewType&& rhs) noexcept
 {
-    *reinterpret_cast<newtype::NewTypeBase<T>*>(this) =
-        std::move(reinterpret_cast<const newtype::NewTypeBase<T>&>(rhs));
+    if (this != &rhs)
+    {
+        m_value = std::move(rhs.m_value);
+    }
     static_assert(algorithm::doesContainType<newtype::Movable<T>, Policies<T>...>(),
                   "This type is not movable, please add the newtype::Movable policy.");
     return *this;
@@ -74,7 +76,7 @@ inline NewType<T, Policies...>::operator T() const noexcept
 {
     static_assert(algorithm::doesContainType<newtype::Convertable<T>, Policies<T>...>(),
                   "This type is not convertable, please add the newtype::Convertable policy.");
-    return T();
+    return m_value;
 }
 
 } // namespace cxx

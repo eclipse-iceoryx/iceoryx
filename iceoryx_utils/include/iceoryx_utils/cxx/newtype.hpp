@@ -47,11 +47,9 @@ namespace cxx
 ///     // a = 567; // not allowed since we are not assignable
 /// @endcode
 template <typename T, template <typename> class... Policies>
-class NewType : public Policies<NewType<T, Policies...>>..., public newtype::NewTypeBase<T>
+class NewType : public Policies<NewType<T, Policies...>>...
 {
   public:
-    using newtype::NewTypeBase<T>::NewTypeBase;
-
     /// @brief default constructor
     NewType() noexcept;
 
@@ -70,11 +68,17 @@ class NewType : public Policies<NewType<T, Policies...>>..., public newtype::New
     /// @brief move assignment
     NewType& operator=(NewType&& rhs) noexcept;
 
-    /// @conversion operator
+    /// @brief conversion operator
     explicit operator T() const noexcept;
 
     // the type of the underlying value
     using value_type = T;
+
+    template <typename Type>
+    friend typename Type::value_type newtype::internal::newTypeAccessor(const Type&) noexcept;
+
+  private:
+    T m_value;
 };
 } // namespace cxx
 } // namespace iox

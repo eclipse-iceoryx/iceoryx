@@ -13,7 +13,7 @@
 // limitations under the License.
 #ifndef IOX_UTILS_CXX_NEWTYPE_COMPARABLE_HPP
 #define IOX_UTILS_CXX_NEWTYPE_COMPARABLE_HPP
-#include "iceoryx_utils/internal/cxx/newtype/newtype_base.hpp"
+#include "iceoryx_utils/internal/cxx/newtype/internal.hpp"
 
 namespace iox
 {
@@ -26,7 +26,7 @@ struct Comparable
 {
     friend bool operator==(const T& lhs, const T& rhs) noexcept
     {
-        return internal::newTypeBaseAccessor(lhs) == internal::newTypeBaseAccessor(rhs);
+        return internal::newTypeAccessor(lhs) == internal::newTypeAccessor(rhs);
     }
 
     friend bool operator!=(const T& lhs, const T& rhs) noexcept
