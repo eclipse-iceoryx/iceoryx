@@ -18,61 +18,33 @@
 using namespace iox;
 using namespace iox::cxx;
 
-// template <typename T>
-// class UniqueID : public cxx::NewType<int, cxx::newtype::Comparable, cxx::newtype::Sortable>
-//{
-//  public:
-//    using type_t = cxx::NewType<int, cxx::newtype::Comparable, cxx::newtype::Sortable>;
-//    using type_t::type_t;
-//
-//    UniqueID()
-//        : type_t(1)
-//    {
-//    }
-//
-//  private:
-//    explicit UniqueID(const int& a)
-//        : type_t(a)
-//    {
-//    }
-//};
-//
-// using service = NewType<int, newtype::Comparable>;
-//
-// struct service2 : public NewType<int, newtype::Comparable>
-//{
-//};
-//
-// template <typename T, template <typename> class... Policies>
-// struct Sut : public NewType<T, Policies...>
-//{
-//    Sut(T a)
-//        : NewType<T, Policies...>(a)
-//    {
-//    }
-//};
-
-
 TEST(NewType, ComparableDoesCompile)
 {
-    NewType<int, A> asd(4);
-    // NewType<int, newtype::Sortable> aasd(4);
-    // NewType<int, newtype::Sortable> asd(4, 4, 4);
-    // Sut<int, newtype::Comparable> a(123), b(456);
-    // EXPECT_TRUE(a != b);
-    // EXPECT_FALSE(a == b);
+    cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Comparable> a(123), b(456);
+    EXPECT_TRUE(a != b);
+    EXPECT_FALSE(a == b);
 }
 
 TEST(NewType, SortableDoesCompile)
 {
-    //    cxx::NewType<int, cxx::newtype::Sortable> a(456), b(789);
-    //    EXPECT_TRUE(a < b);
-    //    EXPECT_TRUE(a <= b);
-    //    EXPECT_FALSE(a > b);
-    //    EXPECT_FALSE(a >= b);
+    cxx::NewType<int, newtype::ConstructByValueCopy, cxx::newtype::Sortable> a(456), b(789);
+    EXPECT_TRUE(a < b);
+    EXPECT_TRUE(a <= b);
+    EXPECT_FALSE(a > b);
+    EXPECT_FALSE(a >= b);
 }
 
-TEST(NewType, ComplexInheritance)
+TEST(NewType, CopyableDoesCompile)
 {
-    //    UniqueID<int> a;
+    cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Copyable, newtype::Comparable> a(91), b(92), c(a);
+    a = b;
+    EXPECT_TRUE(a == b);
+}
+
+TEST(NewType, MovableDoesCompile)
+{
+    cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Movable, newtype::Comparable> a(91), b(92), c(92),
+        d(std::move(c));
+    a = std::move(b);
+    EXPECT_TRUE(a == d);
 }

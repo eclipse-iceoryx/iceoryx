@@ -36,11 +36,14 @@ inline typename T::value_type newTypeBaseAccessor(const T& b) noexcept
 template <typename T>
 class NewTypeBase
 {
-  protected:
-    template <typename U = T>
-    explicit NewTypeBase(U&& value) noexcept
-    {
-    }
+  public:
+    NewTypeBase() noexcept;
+    explicit NewTypeBase(const T& rhs) noexcept;
+    NewTypeBase(const NewTypeBase& rhs) noexcept;
+    NewTypeBase(NewTypeBase&& rhs) noexcept;
+
+    NewTypeBase& operator=(const NewTypeBase& rhs) noexcept;
+    NewTypeBase& operator=(NewTypeBase&& rhs) noexcept;
 
     template <typename Type>
     friend typename Type::value_type internal::newTypeBaseAccessor(const Type&) noexcept;
