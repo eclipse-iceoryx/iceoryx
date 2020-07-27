@@ -207,7 +207,7 @@ TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
     m_introspection.send(); /// @todo expect call to MemPoolHandler::getMemPoolInfo
 
     EXPECT_THAT(mock->deliverChunk, Eq(1));
-    EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, chunk.sample()->m_mempoolInfo), Eq(true));
+    EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, chunk.sample()->front().m_mempoolInfo), Eq(true));
 }
 
 TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {

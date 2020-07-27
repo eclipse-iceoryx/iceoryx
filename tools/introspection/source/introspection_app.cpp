@@ -19,7 +19,6 @@
 #include "iceoryx_versions.hpp"
 
 #include <chrono>
-#include <deque>
 #include <iomanip>
 #include <poll.h>
 #include <thread>
@@ -247,7 +246,7 @@ void IntrospectionApp::printProcessIntrospectionData(const ProcessIntrospectionF
     wprintw(pad, "\n");
 }
 
-void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionTopic& topic)
+void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& topic)
 {
     wprintw(pad, "Segment ID: %d\n", topic.m_id);
 
@@ -701,43 +700,26 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            std::deque<const MemPoolIntrospectionTopic*> mempoolSamples;
             const void* rawMempoolSample{nullptr};
 
+            while (!rawMempoolSample)
+                memPoolSubscriber.getChunk(&rawMempoolSample);
+            const MemPoolIntrospectionTopic* mempoolSample =
+                static_cast<const MemPoolIntrospectionTopic*>(rawMempoolSample);
 
-            while (memPoolSubscriber.getChunk(&rawMempoolSample))
-            {
-                decltype(mempoolSamples)::value_type typedMempoolSample =
-                    static_cast<decltype(mempoolSamples)::value_type>(rawMempoolSample);
-                mempoolSamples.push_back(std::move(typedMempoolSample));
-                memPoolSubscriber.releaseChunk(rawMempoolSample);
-            }
-
-            if (mempoolSamples.empty())
+            if (mempoolSample->empty())
             {
                 prettyPrint("Waiting for mempool introspection data ...\n");
             }
             else
             {
-                auto it = mempoolSamples.end() - 1;
-                auto currentIter = it;
-                auto itBegin = mempoolSamples.begin();
-
-                uint32_t lastId = (*it)->m_id;
-
-                while (it != itBegin)
+                for (const auto& i : *mempoolSample)
                 {
-                    --it;
-                    if ((*it)->m_id == lastId)
-                    {
-                        break;
-                    }
-                    currentIter = it;
+                    printMemPoolInfo(i);
                 }
-
-                std::for_each(
-                    currentIter, mempoolSamples.end(), [&](decltype(*it) samplePtr) { printMemPoolInfo(*samplePtr); });
             }
+
+            memPoolSubscriber.releaseChunk(rawMempoolSample);
         }
 
         // print process information

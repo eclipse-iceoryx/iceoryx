@@ -115,13 +115,16 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::threadMain
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
 void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::prepareIntrospectionSample(
-    Topic* f_sample, const posix::PosixGroup& f_readerGroup, const posix::PosixGroup& f_writerGroup, uint32_t f_id)
+    MemPoolIntrospectionInfo& f_sample,
+    const posix::PosixGroup& f_readerGroup,
+    const posix::PosixGroup& f_writerGroup,
+    uint32_t f_id)
 {
-    strncpy(f_sample->m_readerGroupName, f_readerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
-    f_sample->m_readerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
-    strncpy(f_sample->m_writerGroupName, f_writerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
-    f_sample->m_writerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
-    f_sample->m_id = f_id;
+    strncpy(f_sample.m_readerGroupName, f_readerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
+    f_sample.m_readerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
+    strncpy(f_sample.m_writerGroupName, f_writerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
+    f_sample.m_writerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
+    f_sample.m_id = f_id;
 }
 
 
@@ -136,24 +139,28 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::send()
         auto sample = static_cast<Topic*>(chunkHeader->payload());
         new (sample) Topic;
 
-        prepareIntrospectionSample(
-            sample, posix::PosixGroup::getGroupOfCurrentProcess(), posix::PosixGroup::getGroupOfCurrentProcess(), id);
-        copyMemPoolInfo(*m_rouDiInternalMemoryManager, sample->m_mempoolInfo);
+        MemPoolIntrospectionInfo memPoolIntrospectionInfo;
 
-        m_senderPort.deliverChunk(chunkHeader);
+        prepareIntrospectionSample(memPoolIntrospectionInfo,
+                                   posix::PosixGroup::getGroupOfCurrentProcess(),
+                                   posix::PosixGroup::getGroupOfCurrentProcess(),
+                                   id);
+        copyMemPoolInfo(*m_rouDiInternalMemoryManager, memPoolIntrospectionInfo.m_mempoolInfo);
+
+        sample->push_back(memPoolIntrospectionInfo);
 
         for (auto& segment : m_segmentManager->m_segmentContainer)
         {
             ++id;
-            auto chunkHeader = m_senderPort.reserveChunk(sizeof(Topic));
-            auto sample = static_cast<Topic*>(chunkHeader->payload());
-            new (sample) Topic;
 
-            prepareIntrospectionSample(sample, segment.getReaderGroup(), segment.getWriterGroup(), id);
-            copyMemPoolInfo(segment.getMemoryManager(), sample->m_mempoolInfo);
+            prepareIntrospectionSample(
+                memPoolIntrospectionInfo, segment.getReaderGroup(), segment.getWriterGroup(), id);
+            copyMemPoolInfo(segment.getMemoryManager(), memPoolIntrospectionInfo.m_mempoolInfo);
 
-            m_senderPort.deliverChunk(chunkHeader);
+            sample->push_back(memPoolIntrospectionInfo);
         }
+
+        m_senderPort.deliverChunk(chunkHeader);
     }
 }
 

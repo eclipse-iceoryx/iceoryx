@@ -44,13 +44,16 @@ struct MemPoolInfo
 using MemPoolInfoContainer = cxx::vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
 
 /// @brief the topic for the mempool introspection that a user can subscribe to
-struct MemPoolIntrospectionTopic
+struct MemPoolIntrospectionInfo
 {
     uint32_t m_id;
     char m_writerGroupName[MAX_GROUP_NAME_LENGTH];
     char m_readerGroupName[MAX_GROUP_NAME_LENGTH];
     MemPoolInfoContainer m_mempoolInfo;
 };
+
+/// @brief container for MemPoolInfo structs of all available mempools.
+using MemPoolIntrospectionTopic = cxx::vector<MemPoolIntrospectionInfo, MAX_SHM_SEGMENTS>;
 
 const capro::ServiceDescription IntrospectionPortService("Introspection", "RouDi_ID", "Port");
 
