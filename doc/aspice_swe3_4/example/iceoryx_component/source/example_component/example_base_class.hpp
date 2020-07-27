@@ -47,7 +47,7 @@ class ExampleBaseClass
     void simplerMethod() const;
 
     /// @brief Short description
-    std::uint32_t memberVariable{0};
+    std::uint32_t m_memberVariable{0};
 };
 
 } // namespace example

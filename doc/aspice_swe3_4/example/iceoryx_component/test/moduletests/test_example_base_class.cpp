@@ -38,11 +38,11 @@ class ExampleBaseClass_test : public Test
 /// @note name of the Testcase shall describe the test case in detail to avoid additional comments
 TEST_F(ExampleBaseClass_test, FirstUnitTestCase)
 {
-    ExampleBaseClass<T> testinstance(1, 2);
+    ExampleBaseClass<T> testInstance(1, 2);
 
     testinstance.simplerMethod();
 
-    EXPECT_THAT(testinstance.memberVariable, Eq(100u));
+    EXPECT_THAT(testInstance.m_memberVariable, Eq(100u));
 }
 
 } // namespace test

@@ -24,10 +24,10 @@ namespace example
 ///   minimalistic working example which uses all public methods
 /// @endcode
 /// @swcomponent example_component
-void SomeFreeFunction();
+void someFreeFunction();
 
 /// @brief Forward declaration of other class
-class someOtherClass;
+class SomeOtherClass;
 
 /// @brief Short description
 /// @details Detailed description
