@@ -81,6 +81,11 @@ class forward_list_test : public Test
             return *this;
         }
 
+        bool operator==(const CTorTest& rhs)
+        {
+            return rhs.m_value == m_value;
+        }
+
         ~CTorTest()
         {
             dTor++;
@@ -267,7 +272,7 @@ TEST_F(forward_list_test, FullWhenFilledWithMoreThanCapacityElements)
 
     EXPECT_THAT(sut.full(), Eq(true));
 }
-TEST_F(forward_list_test, NotFullWhenFilledWithMoreThanCapacityAndRemovedOneElements)
+TEST_F(forward_list_test, NotFullWhenFilledWithMoreThanCapacityAnEraseOneElements)
 {
     for (uint64_t i = 0; i < sut.capacity() + 1; ++i)
     {
@@ -1445,4 +1450,313 @@ TEST_F(forward_list_test, MoveAssignmentWithLargerSource)
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(1584122));
     EXPECT_THAT((++iter)->m_value, Eq(15842));
+}
+
+TEST_F(forward_list_test, RemoveDefaultElementFromEmptyList)
+{
+    auto cnt = sut.remove({});
+
+    EXPECT_THAT(cTor, Eq(1));
+    EXPECT_THAT(customCTor, Eq(0));
+    EXPECT_THAT(dTor, Eq(1));
+    EXPECT_THAT(sut.size(), Eq(0));
+    EXPECT_THAT(cnt, Eq(0));
+}
+TEST_F(forward_list_test, RemoveCustomElementFromEmptyList)
+{
+    auto cnt = sut.remove({10});
+
+    EXPECT_THAT(cTor, Eq(0));
+    EXPECT_THAT(customCTor, Eq(1));
+    EXPECT_THAT(dTor, Eq(1));
+    EXPECT_THAT(sut.size(), Eq(0));
+    EXPECT_THAT(cnt, Eq(0));
+}
+TEST_F(forward_list_test, RemoveOneDefaultElementFromList)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+    cut1.emplace_front();
+    cut1.emplace_front();
+    cut1.emplace_front(1584122);
+    cut1.emplace_front(158432);
+    cut1.emplace_front(158432);
+
+    auto cnt = cut1.remove({});
+
+    EXPECT_THAT(cTor, Eq(3));
+    EXPECT_THAT(customCTor, Eq(4));
+    EXPECT_THAT(dTor, Eq(3));
+    EXPECT_THAT(cut1.size(), Eq(4));
+    EXPECT_THAT(cnt, Eq(2));
+
+    auto iter = cut1.cbefore_begin();
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(1584122));
+    EXPECT_THAT((++iter)->m_value, Eq(15842));
+}
+TEST_F(forward_list_test, RemoveOneCustomElementFromList)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+    cut1.emplace_front();
+    cut1.emplace_front();
+    cut1.emplace_front(1584122);
+    cut1.emplace_front(158432);
+    cut1.emplace_front(158432);
+
+    auto cnt = cut1.remove({1584122});
+
+    EXPECT_THAT(cTor, Eq(2));
+    EXPECT_THAT(customCTor, Eq(5));
+    EXPECT_THAT(dTor, Eq(2));
+    EXPECT_THAT(cut1.size(), Eq(5));
+    EXPECT_THAT(cnt, Eq(1));
+
+    auto iter = cut1.cbefore_begin();
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(15842));
+}
+TEST_F(forward_list_test, RemoveNotExistentElementFromList)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+    cut1.emplace_front();
+    cut1.emplace_front();
+    cut1.emplace_front(1584122);
+    cut1.emplace_front(158432);
+    cut1.emplace_front(158432);
+
+    auto cnt = cut1.remove({1243});
+
+    EXPECT_THAT(cTor, Eq(2));
+    EXPECT_THAT(customCTor, Eq(5));
+    EXPECT_THAT(dTor, Eq(1));
+    EXPECT_THAT(cut1.size(), Eq(6));
+    EXPECT_THAT(cnt, Eq(0));
+
+    auto iter = cut1.cbefore_begin();
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(1584122));
+    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(15842));
+}
+
+TEST_F(forward_list_test, RemoveOnetoEmptyList)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+
+    auto cnt = cut1.remove({15842});
+
+    EXPECT_THAT(cTor, Eq(0));
+    EXPECT_THAT(customCTor, Eq(2));
+    EXPECT_THAT(dTor, Eq(2));
+    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(cnt, Eq(1));
+}
+
+TEST_F(forward_list_test, RemoveWithFewMatches)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+    cut1.emplace_front();
+    cut1.emplace_front();
+
+    auto cnt = cut1.remove({});
+
+    EXPECT_THAT(cTor, Eq(3));
+    EXPECT_THAT(customCTor, Eq(1));
+    EXPECT_THAT(dTor, Eq(3));
+    EXPECT_THAT(cut1.size(), Eq(1));
+    EXPECT_THAT(cnt, Eq(2));
+}
+
+TEST_F(forward_list_test, RemoveWithAllMatches)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front();
+    cut1.emplace_front();
+
+    auto cnt = cut1.remove({});
+
+    EXPECT_THAT(cTor, Eq(3));
+    EXPECT_THAT(customCTor, Eq(0));
+    EXPECT_THAT(dTor, Eq(3));
+    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(cnt, Eq(2));
+}
+
+TEST_F(forward_list_test, RemoveAllFromList)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+    cut1.emplace_front();
+    cut1.emplace_front();
+
+    auto cnt = cut1.remove({15842});
+    cnt += cut1.remove({});
+
+    EXPECT_THAT(cTor, Eq(3));
+    EXPECT_THAT(customCTor, Eq(2));
+    EXPECT_THAT(dTor, Eq(5));
+    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(cnt, Eq(3));
+}
+
+
+TEST_F(forward_list_test, RemoveIfFromEmptyList)
+{
+    auto cnt = sut.remove_if([](const CTorTest& cut) { return true; });
+
+    EXPECT_THAT(isSetupState(), Eq(true));
+    EXPECT_THAT(sut.size(), Eq(0));
+    EXPECT_THAT(cnt, Eq(0));
+}
+
+
+TEST_F(forward_list_test, RemoveIfOneDefaultElementFromList)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+    cut1.emplace_front();
+    cut1.emplace_front();
+    cut1.emplace_front(1584122);
+    cut1.emplace_front(158432);
+    cut1.emplace_front(158432);
+
+    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == C_TOR_TEST_VALUE_DEFAULT_VALUE; });
+
+    EXPECT_THAT(cTor, Eq(2));
+    EXPECT_THAT(customCTor, Eq(4));
+    EXPECT_THAT(dTor, Eq(2));
+    EXPECT_THAT(cut1.size(), Eq(4));
+    EXPECT_THAT(cnt, Eq(2));
+
+    auto iter = cut1.cbefore_begin();
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(1584122));
+    EXPECT_THAT((++iter)->m_value, Eq(15842));
+}
+
+TEST_F(forward_list_test, RemoveIfOneCustomElementFromList)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+    cut1.emplace_front();
+    cut1.emplace_front();
+    cut1.emplace_front(1584122);
+    cut1.emplace_front(158432);
+    cut1.emplace_front(158432);
+
+    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == 1584122; });
+
+    EXPECT_THAT(cTor, Eq(2));
+    EXPECT_THAT(customCTor, Eq(4));
+    EXPECT_THAT(dTor, Eq(1));
+    EXPECT_THAT(cut1.size(), Eq(5));
+    EXPECT_THAT(cnt, Eq(1));
+
+    auto iter = cut1.cbefore_begin();
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(15842));
+}
+
+TEST_F(forward_list_test, RemoveIfNotExistentElementFromList)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+    cut1.emplace_front();
+    cut1.emplace_front();
+    cut1.emplace_front(1584122);
+    cut1.emplace_front(158432);
+    cut1.emplace_front(158432);
+
+    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == 1234; });
+
+    EXPECT_THAT(cTor, Eq(2));
+    EXPECT_THAT(customCTor, Eq(4));
+    EXPECT_THAT(dTor, Eq(0));
+    EXPECT_THAT(cut1.size(), Eq(6));
+    EXPECT_THAT(cnt, Eq(0));
+
+    auto iter = cut1.cbefore_begin();
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(158432));
+    EXPECT_THAT((++iter)->m_value, Eq(1584122));
+    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(15842));
+}
+
+TEST_F(forward_list_test, RemoveIfOnetoEmptyList)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+
+    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == 15842; });
+
+    EXPECT_THAT(cTor, Eq(0));
+    EXPECT_THAT(customCTor, Eq(1));
+    EXPECT_THAT(dTor, Eq(1));
+    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(cnt, Eq(1));
+}
+
+TEST_F(forward_list_test, RemoveIfWithFewMatches)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+    cut1.emplace_front();
+    cut1.emplace_front();
+
+    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == C_TOR_TEST_VALUE_DEFAULT_VALUE; });
+
+    EXPECT_THAT(cTor, Eq(2));
+    EXPECT_THAT(customCTor, Eq(1));
+    EXPECT_THAT(dTor, Eq(2));
+    EXPECT_THAT(cut1.size(), Eq(1));
+    EXPECT_THAT(cnt, Eq(2));
+}
+
+TEST_F(forward_list_test, RemoveIfWithAllMatches)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front();
+    cut1.emplace_front();
+
+    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == C_TOR_TEST_VALUE_DEFAULT_VALUE; });
+
+    EXPECT_THAT(cTor, Eq(2));
+    EXPECT_THAT(customCTor, Eq(0));
+    EXPECT_THAT(dTor, Eq(2));
+    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(cnt, Eq(2));
+}
+
+TEST_F(forward_list_test, RemoveIfAllFromList)
+{
+    forward_list<CTorTest, 10> cut1;
+    cut1.emplace_front(15842);
+    cut1.emplace_front();
+    cut1.emplace_front();
+
+    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == 15842; });
+    cnt += cut1.remove_if([](const CTorTest& cut) { return cut.m_value == C_TOR_TEST_VALUE_DEFAULT_VALUE; });
+
+    EXPECT_THAT(cTor, Eq(2));
+    EXPECT_THAT(customCTor, Eq(1));
+    EXPECT_THAT(dTor, Eq(3));
+    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(cnt, Eq(3));
 }

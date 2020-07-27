@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef CXX_FORWARD_LIST_HPP_INCLUDED
-#define CXX_FORWARD_LIST_HPP_INCLUDED
+#ifndef IOX_UTILS_CXX_FORWARD_LIST_HPP
+#define IOX_UTILS_CXX_FORWARD_LIST_HPP
 
 #include <cstdint>
 #include <iostream>
@@ -99,6 +99,26 @@ class forward_list
         /// @return reference to this iterator object
         iterator& operator++() noexcept;
 
+
+        /// @brief comparing list iterators on equality
+        ///         the referenced list position is compared, not the content of the list element (T-typed)
+        ///         there is no content for meta-elements like before_begin() and end()
+        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
+        ///         ADL doesn't find const_iterator::operator== without providing this
+        /// @param[in] rhs_citer is the 2nd iterator to compare to
+        /// @return list position for two iterators is the same (true) or different (false)
+        bool operator==(const iterator rhs_citer) const noexcept;
+
+        /// @brief comparing list iterators on equality
+        ///         the referenced list position is compared, not the content of the list element (T-typed)
+        ///         there is no content for meta-elements like before_begin() and end()
+        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
+        ///         ADL doesn't find const_iterator::operator== without providing this
+        /// @param[in] rhs_citer is the 2nd iterator to compare to
+        /// @return list position for two iterators is the same (true) or different (false)
+        bool operator!=(const iterator rhs_citer) const noexcept;
+
+
         /// @brief dereferencing element content via iterator-position element
         /// @return reference to list element data
         T& operator*() const noexcept;
@@ -115,36 +135,9 @@ class forward_list
         /// @param[in] idx is the index of the list element (within allocated memory of parent list)
         explicit iterator(forward_list* parent, size_type idx) noexcept;
 
-        /// @brief comparing list iterators for equality
-        ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         -> there is no content for fictional elements like before_begin() and end()
-        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
-        ///         the comparison is done in a non-member friend function to
-        ///         share with between iterator and const_iterator
-        /// @param[in] lhs_iter is the 1st iterator to compare to
-        /// @param[in] rhs_iter is the 2nd iterator to compare to
-        /// @return list position for two iterators is the same (true) or different (false)
-        // template <typename IterType, typename IterTypeOther>
-        // friend bool operator==(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept;
-        template <typename IterType, typename IterTypeOther>
-        friend bool operator==(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept;
-
-        /// @brief comparing list iterators for non-equality
-        ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         -> there is no content for fictional elements like before_begin() and end()
-        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
-        ///         the comparison is done in a non-member friend function to
-        ///         share with between iterator and const_iterator
-        /// @param[in] lhs_iter is the 1st iterator to compare to
-        /// @param[in] rhs_iter is the 2nd iterator to compare to
-        /// @return list position for two iterators is the same (true) or different (false)
-        template <typename IterType, typename IterTypeOther>
-        friend bool operator!=(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept;
-
         using ListNodePointer = ListNode*;
 
         friend class forward_list<T, Capacity>;
-
         forward_list<T, Capacity>* m_list;
         size_type m_iterListNodeIdx;
 
@@ -182,6 +175,41 @@ class forward_list
         /// @return reference to this iterator object
         const_iterator& operator++() noexcept;
 
+        /// @brief comparing list iterators for equality
+        ///         the referenced list position is compared, not the content of the list element (T-typed)
+        ///         -> there is no content for fictional elements like before_begin() and end()
+        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
+        ///         share with between iterator and const_iterator; inlined to circumvent warning -Wnon-template-friend,
+        ///         an out-of-class definition fails to deduce list's template parameter
+        /// @param[in] lhs_citer is the 1st iterator to compare to
+        /// @param[in] rhs_citer is the 2nd iterator to compare to
+        /// @return list position for two iterators is the same (true) or different (false)
+        friend inline bool operator==(const const_iterator lhs_citer, const const_iterator rhs_citer) noexcept
+        {
+            if (lhs_citer.m_list != rhs_citer.m_list)
+            {
+                std::cerr << __PRETTY_FUNCTION__ << " ::: "
+                          << " iterators of different list can't be compared" << std::endl;
+                std::terminate();
+            }
+            // index comparison
+            return (lhs_citer.m_iterListNodeIdx == rhs_citer.m_iterListNodeIdx);
+        }
+
+        /// @brief comparing list iterators for non-equality
+        ///         the referenced list position is compared, not the content of the list element (T-typed)
+        ///         -> there is no content for fictional elements like before_begin() and end()
+        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
+        ///         the comparison is done in a non-member friend function to
+        ///         share with between iterator and const_iterator; inlined to circumvent warning -Wnon-template-friend,
+        ///         an out-of-class definition fails to deduce list's template parameter
+        /// @param[in] lhs_citer is the 1st iterator to compare to
+        /// @param[in] rhs_citer is the 2nd iterator to compare to
+        /// @return list position for two iterators is the same (true) or different (false)
+        friend inline bool operator!=(const const_iterator lhs_citer, const const_iterator rhs_citer) noexcept
+        {
+            return !(lhs_citer == rhs_citer);
+        }
 
         /// @brief dereferencing element content via iterator-position element
         /// @return reference to list element data
@@ -192,34 +220,9 @@ class forward_list
         const T* operator->() const noexcept;
 
       private:
-        /// @brief comparing list iterators for equality
-        ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         -> there is no content for fictional elements like before_begin() and end()
-        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
-        ///         the comparison is done in a non-member friend function to
-        ///         share with between iterator and const_iterator
-        /// @param[in] lhs_iter is the 1st iterator to compare to
-        /// @param[in] rhs_iter is the 2nd iterator to compare to
-        /// @return list position for two iterators is the same (true) or different (false)
-        template <typename IterType, typename IterTypeOther>
-        friend bool operator==(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept;
-
-        /// @brief comparing list iterators for non-equality
-        ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         -> there is no content for fictional elements like before_begin() and end()
-        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
-        ///         the comparison is done in a non-member friend function to
-        ///         share with between iterator and const_iterator
-        /// @param[in] lhs_iter is the 1st iterator to compare to
-        /// @param[in] rhs_iter is the 2nd iterator to compare to
-        /// @return list position for two iterators is the same (true) or different (false)
-        template <typename IterType, typename IterTypeOther>
-        friend bool operator!=(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept;
-
         using CListNodePointer = const ListNode*;
 
         friend class forward_list<T, Capacity>;
-
         const forward_list<T, Capacity>* m_list;
         size_type m_iterListNodeIdx;
 
@@ -327,6 +330,19 @@ class forward_list
     ///         returns end() element when reached end of list
     iterator erase_after(const_iterator beforeToBeErasedIter) noexcept;
 
+    /// @brief remove the first element which matches the given comparing element (compare by value)
+    ///         requires a the template type T to have operator== defined.
+    /// @param[in] data value to compare to
+    /// @return the number of elements removed
+    size_type remove(const T& data) noexcept;
+
+    /// @brief remove the first element which matches the provided comparison function
+    ///         requires a the template type T to have a operator== defined.
+    /// @param[in] pred unary predicate which returns ​true if the element should be removed
+    /// @return the number of elements removed
+    template <typename UnaryPredicate>
+    size_type remove_if(UnaryPredicate pred) noexcept;
+
     /// @brief construct element inplace at begining of list
     /// @param[in] args T-typed construction parameters (initializer list)
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
@@ -388,15 +404,9 @@ class forward_list
     size_type m_size{0u};
 }; // forward_list
 
-template <typename IterType, typename IterTypeOther>
-bool operator==(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept;
-template <typename IterType, typename IterTypeOther>
-bool operator!=(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept;
-
-
 } // namespace cxx
 } // namespace iox
 
 #include "iceoryx_utils/internal/cxx/forward_list.inl"
 
-#endif // CXX_FORWARD_LIST_HPP_INCLUDED
+#endif // IOX_UTILS_CXX_FORWARD_LIST_HPP

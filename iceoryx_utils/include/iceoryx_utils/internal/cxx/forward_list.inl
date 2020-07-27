@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef CXX_FORWARD_LIST_INL_INCLUDED
-#define CXX_FORWARD_LIST_INL_INCLUDED
+#ifndef IOX_UTILS_CXX_FORWARD_LIST_INL
+#define IOX_UTILS_CXX_FORWARD_LIST_INL
 
 
 #include "iceoryx_utils/cxx/forward_list.hpp"
@@ -298,6 +298,37 @@ forward_list<T, Capacity>::erase_after(const_iterator beforeToBeErasedIter) noex
     return end();
 }
 
+template <typename T, uint64_t Capacity>
+typename forward_list<T, Capacity>::size_type forward_list<T, Capacity>::remove(const T& data) noexcept
+{
+    return remove_if([&](T& this_data) { return this_data == data; });
+}
+
+
+template <typename T, uint64_t Capacity>
+template <typename UnaryPredicate>
+typename forward_list<T, Capacity>::size_type forward_list<T, Capacity>::remove_if(UnaryPredicate pred) noexcept
+{
+    size_type removed_cnt = 0;
+
+    auto it = before_begin();
+    auto next_it = begin();
+    while (next_it != cend())
+    {
+        if (pred(*next_it))
+        {
+            next_it = erase_after(it);
+            ++removed_cnt;
+        }
+        else
+        {
+            it = next_it;
+            ++next_it;
+        }
+    }
+    return removed_cnt;
+}
+
 
 template <typename T, uint64_t Capacity>
 T& forward_list<T, Capacity>::front() noexcept
@@ -405,6 +436,19 @@ typename forward_list<T, Capacity>::iterator& forward_list<T, Capacity>::iterato
     }
 }
 
+template <typename T, uint64_t Capacity>
+bool forward_list<T, Capacity>::iterator::operator==(const iterator rhs_citer) const noexcept
+{
+    // break recursive call for iterator::operator== by casting at least one parameter
+    return (const_iterator{rhs_citer} == const_iterator{*this});
+}
+
+template <typename T, uint64_t Capacity>
+bool forward_list<T, Capacity>::iterator::operator!=(const iterator rhs_citer) const noexcept
+{
+    // break recursive call for iterator::operator!= by casting at least one parameter
+    return (const_iterator{rhs_citer} != const_iterator{*this});
+}
 
 template <typename T, uint64_t Capacity>
 T& forward_list<T, Capacity>::iterator::operator*() const noexcept
@@ -494,11 +538,11 @@ void forward_list<T, Capacity>::init() noexcept
     // initial link empty-list elements
     getNodePtrFromIdx(BEFORE_BEGIN_USED_INDEX)->nextIdx = INVALID_INDEX;
 
-    for (size_type i = BEFORE_BEGIN_FREE_INDEX; (i + 1u) < INTERNAL_CAPACITY; ++i)
+    for (size_type i = BEFORE_BEGIN_FREE_INDEX; (i + 1U) < INTERNAL_CAPACITY; ++i)
     {
-        getNodePtrFromIdx(i)->nextIdx = i + 1;
+        getNodePtrFromIdx(i)->nextIdx = i + 1U;
     }
-    getNodePtrFromIdx(INTERNAL_CAPACITY - 1)->nextIdx = INVALID_INDEX;
+    getNodePtrFromIdx(INTERNAL_CAPACITY - 1U)->nextIdx = INVALID_INDEX;
 } // init
 
 
@@ -521,7 +565,7 @@ inline typename forward_list<T, Capacity>::ListNode* forward_list<T, Capacity>::
 template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::ListNode* forward_list<T, Capacity>::getNodePtr() const noexcept
 {
-    return reinterpret_cast<ListNode* const>(const_cast<uint8_t(*)[Capacity + 2][sizeof(ListNode)]>(&m_data));
+    return reinterpret_cast<ListNode* const>(const_cast<uint8_t(*)[Capacity + 2U][sizeof(ListNode)]>(&m_data));
 }
 
 
@@ -544,26 +588,7 @@ inline void forward_list<T, Capacity>::errorMessage(const char* f_source, const 
 }
 
 
-template <typename IterType, typename IterTypeOther>
-bool operator!=(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept
-{
-    return !operator==(lhs_iter, rhs_iter);
-}
-
-template <typename IterType, typename IterTypeOther>
-bool operator==(const IterType& lhs_iter, const IterTypeOther& rhs_iter) noexcept
-{
-    if (lhs_iter.m_list != rhs_iter.m_list)
-    {
-        std::cerr << __PRETTY_FUNCTION__ << " ::: "
-                  << " iterators of different list can't be compared" << std::endl;
-        std::terminate();
-    }
-    return lhs_iter.m_iterListNodeIdx == rhs_iter.m_iterListNodeIdx;
-}
-
-
 } // namespace cxx
 } // namespace iox
 
-#endif // CXX_FORWARD_LIST_INL_INCLUDED
+#endif // IOX_UTILS_CXX_FORWARD_LIST_INL
