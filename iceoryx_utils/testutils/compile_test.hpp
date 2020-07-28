@@ -39,7 +39,7 @@
 ///         struct Sut {
 ///             static_assert(std::is_same<T, int>, "only ints");
 ///         };
-///    )");
+///    )", {"myIncludeDir", "anotherIncludeDir"});
 ///
 ///    EXPECT_TRUE( test.verify(R"(Sut<int> a;)") );    // compiles since T is an int
 ///    EXPECT_FALSE( test.verify(R"(Sut<float> a;)") ); // does not compile since T is not an int
