@@ -58,7 +58,7 @@ int main()
     signal(SIGTERM, ShutdownManager::scheduleShutdown);
 
     // Start application
-    iox::runtime::PoshRuntime::getInstance("/gw-dds2iceoryx");
+    iox::runtime::PoshRuntime::getInstance("/iox-gw-dds2iceoryx");
 
     iox::dds::DDS2IceoryxGateway<> gw;
 

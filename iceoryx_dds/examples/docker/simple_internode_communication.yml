@@ -14,20 +14,20 @@
 
 version: '3.7'
 services:
-  ice-publisher-gateway:
+  publisher-node:
     build:
       context: .
-      dockerfile: ice_publisher_gateway.dockerfile
+      dockerfile: publisher_node.dockerfile
     shm_size: '300M'
-    image: iceoryx-publisher-gateway:latest
+    image: iceoryx-publisher-node:latest
     networks: 
       - iceoryx-dds
-  ice-subscriber-gateway:
+  subscriber-node:
     build:
       context: .
-      dockerfile: ice_subscriber_gateway.dockerfile
+      dockerfile: subscriber_node.dockerfile
     shm_size: '300M'
-    image: iceoryx-subscriber-gateway:latest
+    image: iceoryx-subscriber-node:latest
     networks: 
       - iceoryx-dds
 networks:

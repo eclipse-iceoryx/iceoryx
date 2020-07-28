@@ -16,4 +16,4 @@
 
 /usr/bin/iox-roudi &
 /usr/bin/iox-gw-iceoryx2dds &
-/usr/bin/ice-publisher-simple 
+/usr/bin/iox-ex-publisher-simple 

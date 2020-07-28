@@ -16,6 +16,8 @@
 
 SCRIPT_DIR=`dirname $(realpath -s $0)`
 
+echo $SCRIPT_DIR
+
 build_iceoryx_docker() {
 	if [[ "$(docker images -q iceoryx:latest 2> /dev/null)" == "" ]]; then
 		echo "Building base iceoryx docker image."
@@ -31,9 +33,9 @@ do
     case $opt in
         "Simple Internode-Communcation")
 			build_iceoryx_docker
-			cd $SCRIPT_DIR/docker
-			docker-compose -f simple_internode_communication.yml up
-            break
+			#cd $SCRIPT_DIR/docker
+			#docker-compose -f simple_internode_communication.yml up
+            #break
             ;;
         "Quit")
             break
