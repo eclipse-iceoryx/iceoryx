@@ -29,13 +29,12 @@ NUM_JOBS=""
 
 CLEAN_BUILD=false
 BUILD_TYPE=""
-STRICT_FLAG="off"
-TEST_FLAG="off"
-QACPP_JSON="off"
+STRICT_FLAG="OFF"
+TEST_FLAG="OFF"
+QACPP_JSON="OFF"
 RUN_TEST=false
-INTROSPECTION_FLAG="on"
-DDS_GATEWAY_FLAG="off"
-CYCLONEDDS_FLAG="$DDS_GATEWAY_FLAG"
+INTROSPECTION_FLAG="ON"
+DDS_GATEWAY_FLAG="OFF"
 
 while (( "$#" )); do
   case "$1" in
@@ -60,33 +59,32 @@ while (( "$#" )); do
         shift 1
         ;;
     "strict")
-        STRICT_FLAG="on"
+        STRICT_FLAG="ON"
         shift 1
         ;;
     "qacpp")
         BUILD_TYPE="Release"
-        QACPP_JSON="on"
+        QACPP_JSON="ON"
         shift 1
         ;;
     "test")
         RUN_TEST=true
-        TEST_FLAG="on"
+        TEST_FLAG="ON"
         shift 1
         ;;
     "with-dds-gateway")
         echo " [i] Including DDS gateway in build"
-        DDS_GATEWAY_FLAG="on"
-        CYCLONEDDS_FLAG="$DDS_GATEWAY_FLAG"
+        DDS_GATEWAY_FLAG="ON"
         shift 1
         ;;
     "build-test")
         echo " [i] Building tests"
-        TEST_FLAG="on"
+        TEST_FLAG="ON"
         shift 1
         ;;
     "skip-introspection")
         echo " [i] Not including introspection client in build."
-        INTROSPECTION_FLAG="off"
+        INTROSPECTION_FLAG="OFF"
         shift 1
         ;;
     "help")
@@ -152,7 +150,7 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dcyclonedds=$CYCLONEDDS_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
