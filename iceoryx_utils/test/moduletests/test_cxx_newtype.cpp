@@ -14,6 +14,7 @@
 
 #include "iceoryx_utils/cxx/newtype.hpp"
 #include "test.hpp"
+#include "testutils/compile_test.hpp"
 
 using namespace ::testing;
 using namespace iox;
@@ -26,11 +27,35 @@ struct Sut : public T
     using T::operator=; // bring all operator= into scope
 };
 
+static CompileTest compileTest(R"(
+    #include \"iceoryx_utils/cxx/newtype.hpp\"
+
+    template <typename T>
+    struct Sut : public T
+    {
+        using T::T;
+        using T::operator=; // bring all operator= into scope
+    };
+
+    using namespace iox;
+    using namespace iox::cxx;
+)",
+                               {"iceoryx_utils/include"});
+
+
 TEST(NewType, ComparableDoesCompile)
 {
     Sut<cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Comparable>> a(123), b(456);
     EXPECT_TRUE(a != b);
     EXPECT_FALSE(a == b);
+}
+
+TEST(NewType, NoComparableDoesNotCompile)
+{
+    EXPECT_FALSE(compileTest.verify(R"(
+        Sut<NewType<int, newtype::ConstructByValueCopy>> a(123), b(456);
+        if ( a == b ) {}
+    )"));
 }
 
 TEST(NewType, SortableDoesCompile)
