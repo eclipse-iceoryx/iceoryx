@@ -31,9 +31,9 @@ using namespace iox::units::duration_literals;
 class MockSubscriber : public Condition
 {
   public:
-    bool setConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept override
+    bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
     {
-        m_condVarPtr = ConditionVariableDataPtr;
+        m_condVarPtr = conditionVariableDataPtr;
         return true;
     }
 
@@ -135,7 +135,16 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
     EXPECT_FALSE(m_subscriberVector.front().isConditionVariableAttached());
 }
 
-/// @todo Add test cases for move c'tor and move assignment
+TEST_F(WaitSet_test, AttachConditionAndMoveIsSuccessful)
+{
+    /// @todo
+}
+
+
+TEST_F(WaitSet_test, AttachConditionAndMoveAssignIsSuccessful)
+{
+    /// @todo
+}
 
 TEST_F(WaitSet_test, AttachMaximumAllowedConditionsSuccessful)
 {

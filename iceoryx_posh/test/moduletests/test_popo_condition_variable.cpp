@@ -140,3 +140,23 @@ TEST_F(ConditionVariable_test, NotifyWhileWaitingResultsNoTimeoutMultiThreaded)
     m_signaler.notifyOne();
     waiter.join();
 }
+
+TEST_F(ConditionVariable_test, MoveConditionVariableSignalerIsSuccessful)
+{
+    /// @todo
+}
+
+TEST_F(ConditionVariable_test, MoveConditionVariableWaiterIsSuccessful)
+{
+    /// @todo
+}
+
+TEST_F(ConditionVariable_test, MoveAssignConditionVariableSignalerIsSuccessful)
+{
+    /// @todo
+}
+
+TEST_F(ConditionVariable_test, MoveAssignConditionVariableWaiterIsSuccessful)
+{
+    /// @todo
+}
