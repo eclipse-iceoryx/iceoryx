@@ -35,6 +35,11 @@ struct AssignByValueCopy
 {
 };
 
+template <typename T>
+struct AssignByValueMove
+{
+};
+
 } // namespace newtype
 } // namespace cxx
 } // namespace iox

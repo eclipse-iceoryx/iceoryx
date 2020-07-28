@@ -19,49 +19,89 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::cxx;
 
+template <typename T>
+struct Sut : public T
+{
+    using T::T;
+    using T::operator=; // bring all operator= into scope
+};
+
 TEST(NewType, ComparableDoesCompile)
 {
-    cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Comparable> a(123), b(456);
+    Sut<cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Comparable>> a(123), b(456);
     EXPECT_TRUE(a != b);
     EXPECT_FALSE(a == b);
 }
 
 TEST(NewType, SortableDoesCompile)
 {
-    cxx::NewType<int, newtype::ConstructByValueCopy, cxx::newtype::Sortable> a(456), b(789);
+    Sut<cxx::NewType<int, newtype::ConstructByValueCopy, cxx::newtype::Sortable>> a(456), b(789);
     EXPECT_TRUE(a < b);
     EXPECT_TRUE(a <= b);
     EXPECT_FALSE(a > b);
     EXPECT_FALSE(a >= b);
 }
 
-TEST(NewType, CopyableDoesCompile)
+TEST(NewType, DefaultConstructableDoesCompile)
 {
-    cxx::NewType<int,
-                 newtype::ConstructByValueCopy,
-                 newtype::CopyAssignable,
-                 newtype::CopyConstructable,
-                 newtype::Comparable>
-        a(91), b(92), c(a);
-    a = b;
+    Sut<cxx::NewType<int, newtype::DefaultConstructable>> a;
+}
+
+TEST(NewType, CopyConstructableDoesCompile)
+{
+    Sut<cxx::NewType<int, newtype::ConstructByValueCopy, newtype::CopyConstructable, newtype::Comparable>> a(91), b(92),
+        c(a);
+    EXPECT_TRUE(a == c);
+}
+
+TEST(NewType, CopyAssignableDoesCompile)
+{
+    Sut<cxx::NewType<int, newtype::ConstructByValueCopy, newtype::CopyAssignable, newtype::Comparable>> a(491), b(492),
+        c(423);
+    b = a;
     EXPECT_TRUE(a == b);
 }
 
-TEST(NewType, MovableDoesCompile)
+TEST(NewType, MoveConstructableDoesCompile)
 {
-    cxx::NewType<int,
-                 newtype::ConstructByValueCopy,
-                 newtype::MoveConstructable,
-                 newtype::MoveAssignable,
-                 newtype::Comparable>
-        a(91), b(92), c(92), d(std::move(c));
-    a = std::move(b);
-    EXPECT_TRUE(a == d);
+    Sut<cxx::NewType<int, newtype::ConstructByValueCopy, newtype::MoveConstructable, newtype::Comparable>> b(92), c(92),
+        d(std::move(c));
+    EXPECT_TRUE(b == d);
+}
+
+TEST(NewType, MoveAssignableDoesCompile)
+{
+    Sut<cxx::NewType<int, newtype::ConstructByValueCopy, newtype::MoveAssignable, newtype::Comparable>> b(912), c(912),
+        d(123);
+    d = std::move(c);
+    EXPECT_TRUE(b == d);
 }
 
 TEST(NewType, ConversionDoesCompile)
 {
-    cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Convertable> a(911);
+    Sut<cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Convertable>> a(911);
     int b = static_cast<int>(a);
     EXPECT_THAT(b, Eq(911));
+}
+
+TEST(NewType, AssignByValueCopyDoesCompile)
+{
+    Sut<cxx::NewType<int, newtype::AssignByValueCopy, newtype::ConstructByValueCopy, newtype::Comparable>> a(8791),
+        b(651);
+
+    int blubb = 651;
+    a = blubb;
+
+    EXPECT_TRUE(a == b);
+}
+
+TEST(NewType, AssignByValueMoveDoesCompile)
+{
+    Sut<cxx::NewType<int, newtype::AssignByValueMove, newtype::ConstructByValueCopy, newtype::Comparable>> a(8791),
+        b(651);
+
+    int blubb = 651;
+    a = std::move(blubb);
+
+    EXPECT_TRUE(a == b);
 }

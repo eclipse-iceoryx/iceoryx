@@ -63,7 +63,10 @@ class NewType : public Policies<NewType<T, Policies...>>...
     NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept;
 
   public:
+    /// @brief the type of *this
     using ThisType = NewType<T, Policies...>;
+    /// @brief the type of the underlying value
+    using value_type = T;
 
     /// @brief default constructor
     NewType() noexcept;
@@ -86,11 +89,11 @@ class NewType : public Policies<NewType<T, Policies...>>...
     /// @brief copy by value assignment
     NewType& operator=(const T& rhs) noexcept;
 
+    /// @brief copy by value assignment
+    NewType& operator=(T&& rhs) noexcept;
+
     /// @brief conversion operator
     explicit operator T() const noexcept;
-
-    // the type of the underlying value
-    using value_type = T;
 
     template <typename Type>
     friend typename Type::value_type newtype::internal::newTypeAccessor(const Type&) noexcept;
