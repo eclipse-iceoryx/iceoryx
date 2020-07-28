@@ -14,5 +14,5 @@
 
 FROM iceoryx:latest
 
-COPY ice_publisher_gateway.entrypoint /root/
+COPY publisher_node.entrypoint /root/
 ENTRYPOINT ["/root/publisher_node.entrypoint"]

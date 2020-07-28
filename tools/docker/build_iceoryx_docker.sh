@@ -33,7 +33,7 @@ set -euo pipefail
 REVISION="latest"
 IMAGE_NAME="iceoryx:${REVISION}"
 ICEORYX_BUILD=/iceoryx/build
-DOCKERFILE_DIR="$(dirname "$(readlink -n "$0")")"
+DOCKERFILE_DIR="$(dirname $(realpath -s $0))"
 ICEORYX_SRC="$(dirname "$(dirname "${DOCKERFILE_DIR}")")"
 
 cd "${ICEORYX_SRC}"

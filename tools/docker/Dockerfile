@@ -34,7 +34,7 @@ ARG B_ICEORYX_BUILD
 ENV ICEORYX_BUILD=$B_ICEORYX_BUILD
 
 # Dependencies
-RUN apt update && apt install -y \
+RUN apt-get update && apt-get install -y \
         cmake \
         openjdk-11-jdk \
         maven \
@@ -74,13 +74,13 @@ RUN echo '\n\
 ADD . /iceoryx
 WORKDIR /iceoryx
 
-RUN ./tools/iceoryx_build_test.sh 
+RUN ./tools/iceoryx_build_test.sh release with-dds-gateway
 
 # ======================================================================================================================== #
 
 FROM ubuntu:bionic as roudi
 
-RUN apt update && apt install -y \
+RUN apt-get update && apt-get install -y \
         screen \
         fish 
 

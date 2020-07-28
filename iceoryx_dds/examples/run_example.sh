@@ -33,9 +33,9 @@ do
     case $opt in
         "Simple Internode-Communcation")
 			build_iceoryx_docker
-			#cd $SCRIPT_DIR/docker
-			#docker-compose -f simple_internode_communication.yml up
-            #break
+			cd $SCRIPT_DIR/docker
+			docker-compose -f simple_internode_communication.yml up
+            break
             ;;
         "Quit")
             break
