@@ -34,4 +34,3 @@ networks:
   iceoryx-dds:
     driver: bridge
     name: iceoryx-dds
-  
