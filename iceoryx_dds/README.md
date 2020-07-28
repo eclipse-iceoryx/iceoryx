@@ -6,11 +6,11 @@ The gateway enables iceoryx systems running on separate hosts to communicate wit
 i.e. Data published by a publisher on `Host A` can be received by a matching subscriber on `Host B`.
 
 # Organization
-This module exports the following binaries:
-* `gateway_iceoryx2dds`
-* `gateway_dds2iceoryx`
+This module exports the following executables:
+* `iox-gw-iceoryx2dds`
+* `iox-gw-dds2iceoryx`
 
-Each binary manages a POSH runtime that runs the gateway logic for a single direction of communication.
+Each executable manages a POSH runtime that runs the gateway logic for a single direction of communication.
 
 The common building blocks logic for these binaries are consolidated in the exported library, `libiceoryx_dds`.
 
@@ -78,6 +78,6 @@ Then, simply run the gateway executables as desired.
 
 e.g.
 ```bash
-$INSTALL_DIR/bin/gateway_iceoryx2dds
-$INSTALL_DIR/bin/gateway_dds2iceoryx
+$INSTALL_DIR/bin/iox-gw-iceoryx2dds
+$INSTALL_DIR/bin/iox-gw-dds2iceoryx
 ```

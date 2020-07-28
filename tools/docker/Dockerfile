@@ -26,24 +26,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:bionic
+# ======================================================================================================================== #
+
+FROM ubuntu:bionic as builder
 ARG REVISION
 ARG B_ICEORYX_BUILD
 ENV ICEORYX_BUILD=$B_ICEORYX_BUILD
 
-RUN apt update && apt install -y \
+# Dependencies
+RUN apt-get update && apt-get install -y \
         cmake \
         openjdk-11-jdk \
         maven \
         libacl1-dev \
         libncurses5-dev \
         pkg-config \
-        screen \
-        fish \
-        git
+        git \
+        wget
 
-# Configureation
-## Maven Proxy - required for usage from behind a corporate proxy. Corporate proxy should be bound to docker network at 172.17.0.1.
+## Install the latest CMake to take advantage of parallel builds
+RUN wget --no-check-certificate -P /root/ https://github.com/Kitware/CMake/releases/download/v3.16.3/cmake-3.16.3-Linux-x86_64.tar.gz && \
+  cd /root/ && \
+  tar xf ./cmake-3.16.3-Linux-x86_64.tar.gz
+ENV PATH="/root/cmake-3.16.3-Linux-x86_64/bin:${PATH}"
+
+# Configuration
+## Maven Proxy - required for usage from behind a corporate proxy. Corporate proxy should be bound to the docker network bridge at 172.17.0.1.
 ## If you are not behind a corporate proxy this can be ignored and shouldn't interfere with regular usage.
 RUN mkdir -p /root/.m2
 RUN echo '\n\
@@ -66,5 +74,20 @@ RUN echo '\n\
 ADD . /iceoryx
 WORKDIR /iceoryx
 
-RUN ./tools/iceoryx_build_test.sh \
-    && cp ./tools/docker/.screenrc /root
+RUN ./tools/iceoryx_build_test.sh release with-dds-gateway
+
+# ======================================================================================================================== #
+
+FROM ubuntu:bionic as roudi
+
+RUN apt-get update && apt-get install -y \
+        screen \
+        fish 
+
+COPY --from=builder /iceoryx/build/install/prefix/lib/lib* /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /iceoryx/build/dependencies/install/lib/lib* /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /iceoryx/build/install/prefix/bin/* /usr/bin/
+COPY --from=builder /iceoryx/build/install/prefix/etc/* /etc/
+COPY --from=builder /iceoryx/tools/docker/.screenrc /root
+
+ENTRYPOINT ["/usr/bin/iox-roudi"]
