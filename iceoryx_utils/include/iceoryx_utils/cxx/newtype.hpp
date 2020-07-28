@@ -43,10 +43,14 @@ namespace cxx
 ///     class Index : public NewType<int,
 ///                                     newtype::ConstructByValueCopy,
 ///                                     newtype::Comparable,
-///                                     newtype::Sortable>
+///                                     newtype::Sortable,
+///                                     newtype::AssignByValueCopy>
 ///     {
 ///         public:
-///             using ThisType::ThisType // this makes all constructors of NewType available for Index
+///         // VERY IMPORTANT: we have to put the constructors and operator= in scope
+///         //                 otherwise the code will not compile
+///             using ThisType::ThisType;   // this makes all constructors of NewType available for Index
+///             using ThisType::operator=;  // put the assignment operators in scope
 ///
 ///             void MyFunkyMethod() noexcept;
 ///     };
@@ -54,7 +58,7 @@ namespace cxx
 ///     Index a(123), c(456);   // allowed since we are using the policy ConstructByValueCopy
 ///     // Index b;             // not allowed since we are not using the policy DefaultConstructable
 ///     if ( a < c ) {}         // allowed since we are Sortable
-///     // a = 567;             // not allowed since we are not assignable
+///     a = 567;                // allowed since we are assignable
 /// @endcode
 template <typename T, template <typename> class... Policies>
 class NewType : public Policies<NewType<T, Policies...>>...
