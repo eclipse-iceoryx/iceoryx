@@ -25,7 +25,7 @@ namespace iox
 namespace cxx
 {
 /// @brief Unique ID depending on type. If you would like to assign different
-///         types consistent unique ids use this class. Every types gets gets its
+///         types consistent unique ids use this class. Every types gets its
 ///         own distinct set of ids starting with 0. If the types are the same the
 ///         ids are the same.
 ///
@@ -71,8 +71,10 @@ class UniqueTypedID : public NewType<uint64_t,
                                      newtype::Comparable,
                                      newtype::Sortable,
                                      newtype::Convertable,
-                                     newtype::Copyable,
-                                     newtype::Movable>
+                                     newtype::CopyConstructable,
+                                     newtype::MoveConstructable,
+                                     newtype::CopyAssignable,
+                                     newtype::MoveAssignable>
 {
   public:
     using ThisType::ThisType;

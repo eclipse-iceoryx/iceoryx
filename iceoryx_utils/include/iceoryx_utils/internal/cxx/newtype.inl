@@ -47,7 +47,7 @@ template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>::NewType(const NewType& rhs) noexcept
     : m_value(rhs.m_value)
 {
-    static_assert(algorithm::doesContainType<newtype::Copyable<T>, Policies<T>...>(),
+    static_assert(algorithm::doesContainType<newtype::CopyConstructable<T>, Policies<T>...>(),
                   "This type is not copyable, please add the newtype::Copyable policy.");
 }
 
@@ -55,7 +55,7 @@ template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>::NewType(NewType&& rhs) noexcept
     : m_value(std::move(rhs.m_value))
 {
-    static_assert(algorithm::doesContainType<newtype::Movable<T>, Policies<T>...>(),
+    static_assert(algorithm::doesContainType<newtype::MoveConstructable<T>, Policies<T>...>(),
                   "This type is not movable, please add the newtype::Movable policy.");
 }
 
@@ -63,7 +63,7 @@ template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>& NewType<T, Policies...>::operator=(const NewType& rhs) noexcept
 {
     m_value = rhs.m_value;
-    static_assert(algorithm::doesContainType<newtype::Copyable<T>, Policies<T>...>(),
+    static_assert(algorithm::doesContainType<newtype::CopyAssignable<T>, Policies<T>...>(),
                   "This type is not copyable, please add the newtype::Copyable policy.");
     return *this;
 }
@@ -75,8 +75,17 @@ inline NewType<T, Policies...>& NewType<T, Policies...>::operator=(NewType&& rhs
     {
         m_value = std::move(rhs.m_value);
     }
-    static_assert(algorithm::doesContainType<newtype::Movable<T>, Policies<T>...>(),
+    static_assert(algorithm::doesContainType<newtype::MoveAssignable<T>, Policies<T>...>(),
                   "This type is not movable, please add the newtype::Movable policy.");
+    return *this;
+}
+
+template <typename T, template <typename> class... Policies>
+inline NewType<T, Policies...>& NewType<T, Policies...>::operator=(const T& rhs) noexcept
+{
+    m_value = rhs;
+    static_assert(algorithm::doesContainType<newtype::AssignByValueCopy<T>, Policies<T>...>(),
+                  "This type is not copyable, please add the newtype::Copyable policy.");
     return *this;
 }
 

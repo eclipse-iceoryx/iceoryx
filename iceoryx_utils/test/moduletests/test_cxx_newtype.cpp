@@ -37,15 +37,24 @@ TEST(NewType, SortableDoesCompile)
 
 TEST(NewType, CopyableDoesCompile)
 {
-    cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Copyable, newtype::Comparable> a(91), b(92), c(a);
+    cxx::NewType<int,
+                 newtype::ConstructByValueCopy,
+                 newtype::CopyAssignable,
+                 newtype::CopyConstructable,
+                 newtype::Comparable>
+        a(91), b(92), c(a);
     a = b;
     EXPECT_TRUE(a == b);
 }
 
 TEST(NewType, MovableDoesCompile)
 {
-    cxx::NewType<int, newtype::ConstructByValueCopy, newtype::Movable, newtype::Comparable> a(91), b(92), c(92),
-        d(std::move(c));
+    cxx::NewType<int,
+                 newtype::ConstructByValueCopy,
+                 newtype::MoveConstructable,
+                 newtype::MoveAssignable,
+                 newtype::Comparable>
+        a(91), b(92), c(92), d(std::move(c));
     a = std::move(b);
     EXPECT_TRUE(a == d);
 }

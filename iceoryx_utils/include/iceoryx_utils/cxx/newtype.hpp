@@ -15,6 +15,7 @@
 #define IOX_UTILS_CXX_NEWTYPE_HPP
 
 #include "iceoryx_utils/cxx/algorithm.hpp"
+#include "iceoryx_utils/internal/cxx/newtype/assignment.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/comparable.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/constructor.hpp"
 #include "iceoryx_utils/internal/cxx/newtype/convertable.hpp"
@@ -81,6 +82,9 @@ class NewType : public Policies<NewType<T, Policies...>>...
 
     /// @brief move assignment
     NewType& operator=(NewType&& rhs) noexcept;
+
+    /// @brief copy by value assignment
+    NewType& operator=(const T& rhs) noexcept;
 
     /// @brief conversion operator
     explicit operator T() const noexcept;
