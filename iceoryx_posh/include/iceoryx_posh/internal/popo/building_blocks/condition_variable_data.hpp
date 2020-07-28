@@ -41,7 +41,7 @@ struct ConditionVariableData
                       })
                       .get_value());
 
-    std::atomic_uint64_t m_referenceCounter{0u};
+    std::atomic<uint64_t> m_referenceCounter{0u};
 };
 
 } // namespace popo

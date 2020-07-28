@@ -1,3 +1,17 @@
+# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 cmake_minimum_required(VERSION 3.5)
 file (STRINGS "../VERSION" iceoryx_VERSION)
 project(iceoryx VERSION ${iceoryx_VERSION})
@@ -7,8 +21,9 @@ option(BUILD_STRICT "Build is performed with '-Werror'" OFF)
 option(test "Build tests" ON)
 option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
-option(dds "enables dds support by compiling the iceoryx dds gateway" OFF)
+option(dds_gateway "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
 
+# ===== Dependencies
 if(TOML_CONFIG)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpptoml/ ${CMAKE_BINARY_DIR}/dependencies/cpptoml/prebuild)
 endif(TOML_CONFIG)
@@ -17,9 +32,11 @@ if(test)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/googletest ${CMAKE_BINARY_DIR}/dependencies/googletest/prebuild)
 endif(test)
 
+# ===== Core
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_utils ${CMAKE_BINARY_DIR}/utils)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/posh)
 
+# ===== Extras
 if(introspection)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tools/introspection ${CMAKE_BINARY_DIR}/iceoryx_introspection)
 endif(introspection)
@@ -31,9 +48,11 @@ if(examples)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
 endif(examples)
 
-if(dds)
+# ===== Gateways
+if(dds_gateway)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cyclonedds ${CMAKE_BINARY_DIR}/dependencies/cyclonedds/prebuild)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dds ${CMAKE_BINARY_DIR}/iceoryx_dds)
-endif(dds)
+endif(dds_gateway)
 
 
 message("")
@@ -43,7 +62,7 @@ message("          BUILD_STRICT..............: " ${BUILD_STRICT})
 message("          test......................: " ${test})
 message("          examples..................: " ${examples})
 message("          introspection.............: " ${introspection})
-message("          dds.......................: " ${dds})
+message("          dds_gateway...............: " ${dds_gateway})
 
 message("")
 message("       Build Properties")
