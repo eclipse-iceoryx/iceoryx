@@ -106,7 +106,7 @@ TYPED_TEST(UniqueTypedID_test, FirstIDIsSmallestID)
 TYPED_TEST(UniqueTypedID_test, ConversionToUint64)
 {
     typename TestFixture::UniqueIDType a, b;
-    uint64_t id = a;
+    uint64_t id = static_cast<uint64_t>(a);
     b = a;
     EXPECT_EQ(id, static_cast<uint64_t>(b));
 }
