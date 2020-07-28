@@ -44,17 +44,21 @@ class ThreadSafePolicy
 
 class SingleThreadedPolicy
 {
-  public: 
+  public:
     // needs to be public since we want to use std::lock_guard
     void lock() const noexcept;
     void unlock() const noexcept;
     bool tryLock() const noexcept;
 };
 
-template <uint32_t MaxQueues, typename LockingPolicy, typename ChunkQueuePusherType = ChunkQueuePusher>
+template <uint32_t MaxQueues,
+          uint64_t MaxHistoryCapacity,
+          typename LockingPolicy,
+          typename ChunkQueuePusherType = ChunkQueuePusher>
 struct ChunkDistributorData : public LockingPolicy
 {
-    using LockGuard_t = std::lock_guard<const ChunkDistributorData<MaxQueues, LockingPolicy, ChunkQueuePusherType>>;
+    using LockGuard_t =
+        std::lock_guard<const ChunkDistributorData<MaxQueues, MaxHistoryCapacity, LockingPolicy, ChunkQueuePusherType>>;
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
 
@@ -69,7 +73,7 @@ struct ChunkDistributorData : public LockingPolicy
     /// When to store a SharedChunk and when the included ChunkManagement must be used?
     /// If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to
     /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup
-    using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR>;
+    using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, MaxHistoryCapacity>;
     HistoryContainer_t m_history;
 };
 

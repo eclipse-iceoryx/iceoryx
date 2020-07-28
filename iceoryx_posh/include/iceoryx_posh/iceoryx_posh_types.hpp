@@ -113,7 +113,6 @@ constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100u;
 static_assert(MAX_PROCESS_NUMBER * MAX_RUNNABLE_PER_PROCESS > MAX_RUNNABLE_NUMBER,
               "Invalid configuration for runnables");
 
-
 enum class SubscribeState : uint32_t
 {
     NOT_SUBSCRIBED = 0,
@@ -121,6 +120,12 @@ enum class SubscribeState : uint32_t
     SUBSCRIBED,
     UNSUBSCRIBE_REQUESTED,
     WAIT_FOR_OFFER
+};
+
+struct DefaultChunkDistributorConfig
+{
+    static constexpr uint32_t m_maxQueues = MAX_SUBSCRIBERS_PER_PUBLISHER;
+    static constexpr uint64_t m_maxHistoryCapacity = MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
 };
 
 // alias for cxx::string

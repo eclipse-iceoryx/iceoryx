@@ -28,6 +28,7 @@ namespace iox
 {
 namespace popo
 {
+template <typename Properties>
 struct PublisherPortData : public BasePortData
 {
     PublisherPortData(const capro::ServiceDescription& serviceDescription,
@@ -35,9 +36,11 @@ struct PublisherPortData : public BasePortData
                       mepoo::MemoryManager* const memoryManager,
                       const uint64_t historyCapacity = 0u,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
-                      
-    using ChunkDistributorData_t =
-        ChunkDistributorData<MAX_SUBSCRIBERS_PER_PUBLISHER, ThreadSafePolicy, ChunkQueuePusher>;
+
+    using ChunkDistributorData_t = ChunkDistributorData<Properties::m_maxQueues,
+                                                        Properties::m_maxHistoryCapacity,
+                                                        ThreadSafePolicy,
+                                                        ChunkQueuePusher>;
     ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData;
     std::atomic_bool m_offeringRequested{false};
     std::atomic_bool m_offered{false};
@@ -45,5 +48,7 @@ struct PublisherPortData : public BasePortData
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/ports/publisher_port_data.inl"
 
 #endif // IOX_POSH_POPO_PORTS_PUBLISHER_PORT_DATA_HPP
