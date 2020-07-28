@@ -35,31 +35,25 @@ namespace cxx
 /// creating it but afterwards it should be immutable.
 /// You would like to be able to compare the type as well as to sort it so that
 /// it can be stored in a map for instance.
-/// You could either use directly an integer and hope the user does not misuse
-/// it or you could create a NewType of integer with the previous mentioned
-/// properties to avoid misuse.
+/// An example could be that you would like to have an index class
+/// with those properties and some additional methods. Then you can
+/// inherit from NewType and add your methods.
 /// @code
-///     using namespace iox::cxx;
-///     using index = NewType<int, newtype::ConstructByValueCopy, newtype::Comparable, newtype::Sortable>;
-///
-///     index a(123);
-///     // index b; // uncommenting this line would not compile
-///     if ( a < b ) {} /// allowed since we are Sortable
-///     // a = 567; // not allowed since we are not assignable
-/// @endcode
-///
-/// @brief Another example could be that you would like to have an index class
-///         with those properties and some additional methods. Then you can
-///         inherit from NewType and add your methods.
-/// @code
-///     class Index : public NewType<int, newtype::ProtectedConstructByValueCopy, newtype::Comparable,
-///     newtype::Sortable>
+///     class Index : public NewType<int,
+///                                     newtype::ConstructByValueCopy,
+///                                     newtype::Comparable,
+///                                     newtype::Sortable>
 ///     {
 ///         public:
 ///             using ThisType::ThisType // this makes all constructors of NewType available for Index
 ///
 ///             void MyFunkyMethod() noexcept;
 ///     };
+///
+///     Index a(123), c(456);   // allowed since we are using the policy ConstructByValueCopy
+///     // Index b;             // not allowed since we are not using the policy DefaultConstructable
+///     if ( a < c ) {}         // allowed since we are Sortable
+///     // a = 567;             // not allowed since we are not assignable
 /// @endcode
 template <typename T, template <typename> class... Policies>
 class NewType : public Policies<NewType<T, Policies...>>...
