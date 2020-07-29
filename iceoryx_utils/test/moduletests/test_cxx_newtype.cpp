@@ -50,7 +50,7 @@ TEST(NewType, ComparableDoesCompile)
     EXPECT_FALSE(a == b);
 }
 
-TEST(NewType, NoComparableDoesNotCompile)
+TEST(NewType, DISABLED_NoComparableDoesNotCompile)
 {
     EXPECT_FALSE(compileTest.verify(R"(
         Sut<NewType<int, newtype::ConstructByValueCopy>> a(123), b(456);

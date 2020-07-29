@@ -19,39 +19,39 @@ using namespace ::testing;
 using namespace iox::cxx;
 
 template <typename T>
-class UniqueTypedID_test : public Test
+class UniqueTypedId_test : public Test
 {
   protected:
     using UniqueIDType = T;
 };
 
-using Implementations = Types<UniqueTypedID<int>, UniqueTypedID<float>>;
+using Implementations = Types<UniqueTypedId<int>, UniqueTypedId<float>>;
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(UniqueTypedID_test, Implementations);
+TYPED_TEST_CASE(UniqueTypedId_test, Implementations);
 #pragma GCC diagnostic pop
 
-TYPED_TEST(UniqueTypedID_test, DefaultConstructorIncrementsID)
+TYPED_TEST(UniqueTypedId_test, DefaultConstructorIncrementsID)
 {
     typename TestFixture::UniqueIDType a, b;
     EXPECT_THAT(static_cast<uint64_t>(a) + 1, Eq(static_cast<uint64_t>(b)));
 }
 
-TYPED_TEST(UniqueTypedID_test, CopyConstructorSetsSameID)
+TYPED_TEST(UniqueTypedId_test, CopyConstructorSetsSameID)
 {
     typename TestFixture::UniqueIDType a, b(a);
     EXPECT_THAT(static_cast<uint64_t>(a), Eq(static_cast<uint64_t>(b)));
 }
 
-TYPED_TEST(UniqueTypedID_test, CopyConstructorAssignmentSetsSameID)
+TYPED_TEST(UniqueTypedId_test, CopyConstructorAssignmentSetsSameID)
 {
     typename TestFixture::UniqueIDType a, b;
     a = b;
     EXPECT_THAT(a, Eq(b));
 }
 
-TYPED_TEST(UniqueTypedID_test, MoveConstructorSetsSameID)
+TYPED_TEST(UniqueTypedId_test, MoveConstructorSetsSameID)
 {
     typename TestFixture::UniqueIDType a;
     auto id = static_cast<uint64_t>(a);
@@ -59,7 +59,7 @@ TYPED_TEST(UniqueTypedID_test, MoveConstructorSetsSameID)
     EXPECT_THAT(static_cast<uint64_t>(b), Eq(id));
 }
 
-TYPED_TEST(UniqueTypedID_test, MoveAssignmentSetsSameID)
+TYPED_TEST(UniqueTypedId_test, MoveAssignmentSetsSameID)
 {
     typename TestFixture::UniqueIDType a, b;
     auto id = static_cast<uint64_t>(a);
@@ -67,7 +67,7 @@ TYPED_TEST(UniqueTypedID_test, MoveAssignmentSetsSameID)
     EXPECT_THAT(static_cast<uint64_t>(b), Eq(id));
 }
 
-TYPED_TEST(UniqueTypedID_test, SameIDsAreEqual)
+TYPED_TEST(UniqueTypedId_test, SameIDsAreEqual)
 {
     typename TestFixture::UniqueIDType a, b(a);
     EXPECT_TRUE(a == b);
@@ -76,7 +76,7 @@ TYPED_TEST(UniqueTypedID_test, SameIDsAreEqual)
     EXPECT_TRUE(a >= b);
 }
 
-TYPED_TEST(UniqueTypedID_test, DifferentIDsAreNotEqual)
+TYPED_TEST(UniqueTypedId_test, DifferentIDsAreNotEqual)
 {
     typename TestFixture::UniqueIDType a, b;
     EXPECT_FALSE(a == b);
@@ -85,7 +85,7 @@ TYPED_TEST(UniqueTypedID_test, DifferentIDsAreNotEqual)
     EXPECT_FALSE(a >= b);
 }
 
-TYPED_TEST(UniqueTypedID_test, LatestIDIsGreatestID)
+TYPED_TEST(UniqueTypedId_test, LatestIDIsGreatestID)
 {
     typename TestFixture::UniqueIDType a, b;
     EXPECT_TRUE(a < b);
@@ -94,7 +94,7 @@ TYPED_TEST(UniqueTypedID_test, LatestIDIsGreatestID)
     EXPECT_FALSE(a >= b);
 }
 
-TYPED_TEST(UniqueTypedID_test, FirstIDIsSmallestID)
+TYPED_TEST(UniqueTypedId_test, FirstIDIsSmallestID)
 {
     typename TestFixture::UniqueIDType a, b;
     EXPECT_FALSE(b < a);
@@ -103,7 +103,7 @@ TYPED_TEST(UniqueTypedID_test, FirstIDIsSmallestID)
     EXPECT_TRUE(b >= a);
 }
 
-TYPED_TEST(UniqueTypedID_test, ConversionToUint64)
+TYPED_TEST(UniqueTypedId_test, ConversionToUint64)
 {
     typename TestFixture::UniqueIDType a, b;
     uint64_t id = static_cast<uint64_t>(a);

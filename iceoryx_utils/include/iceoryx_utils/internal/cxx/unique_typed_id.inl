@@ -19,10 +19,10 @@ namespace iox
 namespace cxx
 {
 template <typename T>
-std::atomic<uint64_t> UniqueTypedID<T>::globalIDCounter{0u};
+std::atomic<uint64_t> UniqueTypedId<T>::globalIDCounter{0u};
 
 template <typename T>
-inline UniqueTypedID<T>::UniqueTypedID() noexcept
+inline UniqueTypedId<T>::UniqueTypedId() noexcept
     : ThisType(newtype::internal::ProtectedConstructor, globalIDCounter.fetch_add(1u, std::memory_order_relaxed))
 {
 }

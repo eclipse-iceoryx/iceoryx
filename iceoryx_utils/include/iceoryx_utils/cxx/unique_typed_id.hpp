@@ -32,12 +32,12 @@ namespace cxx
 /// @code
 ///     struct MyClass {
 ///         // some members;
-///         iox::cxx::UniqueTypedID<MyClass> id;
+///         iox::cxx::UniqueTypedId<MyClass> id;
 ///     };
 ///
 ///     struct MySecondClass {
 ///         // some members;
-///         iox::cxx::UniqueTypedID<MySecondClass> id;
+///         iox::cxx::UniqueTypedId<MySecondClass> id;
 ///     };
 //
 ///     std::vector<MyClass> myClassVector;
@@ -66,7 +66,7 @@ namespace cxx
 ///     uint64_t id2 = AddSecondClass();
 /// @endcode
 template <typename T>
-class UniqueTypedID : public NewType<uint64_t,
+class UniqueTypedId : public NewType<uint64_t,
                                      newtype::ProtectedConstructByValueCopy,
                                      newtype::Comparable,
                                      newtype::Sortable,
@@ -81,7 +81,7 @@ class UniqueTypedID : public NewType<uint64_t,
 
     /// @brief the constructor creates an id which is greater then the
     ///         previous created id
-    UniqueTypedID() noexcept;
+    UniqueTypedId() noexcept;
 
   private:
     static std::atomic<uint64_t> globalIDCounter; // = 0u
