@@ -18,16 +18,16 @@ namespace iox
 {
 namespace popo
 {
-template <typename Properties, typename LockingPolicy, typename ChunkQueuePusherType>
-inline ChunkDistributorData<Properties, LockingPolicy, ChunkQueuePusherType>::ChunkDistributorData(
+template <typename DistributorProperties, typename LockingPolicy, typename ChunkQueuePusherType>
+inline ChunkDistributorData<DistributorProperties, LockingPolicy, ChunkQueuePusherType>::ChunkDistributorData(
     const uint64_t historyCapacity) noexcept
     : LockingPolicy()
-    , m_historyCapacity(algorithm::min(historyCapacity, Properties::m_maxHistoryCapacity))
+    , m_historyCapacity(algorithm::min(historyCapacity, DistributorProperties::m_maxHistoryCapacity))
 {
     if (m_historyCapacity != historyCapacity)
     {
         LogWarn() << "Chunk history too large, reducing from " << historyCapacity << " to "
-                  << Properties::m_maxHistoryCapacity;
+                  << DistributorProperties::m_maxHistoryCapacity;
     }
 }
 

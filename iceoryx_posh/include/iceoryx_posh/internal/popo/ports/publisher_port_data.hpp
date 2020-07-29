@@ -28,7 +28,7 @@ namespace iox
 {
 namespace popo
 {
-template <typename Properties>
+template <typename DistributorProperties>
 struct PublisherPortData : public BasePortData
 {
     PublisherPortData(const capro::ServiceDescription& serviceDescription,
@@ -37,8 +37,8 @@ struct PublisherPortData : public BasePortData
                       const uint64_t historyCapacity = 0u,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    using ChunkDistributorData_t = ChunkDistributorData<Properties, ThreadSafePolicy, ChunkQueuePusher>;
-    ChunkSenderData<Properties, ChunkDistributorData_t> m_chunkSenderData;
+    using ChunkDistributorData_t = ChunkDistributorData<DistributorProperties, ThreadSafePolicy, ChunkQueuePusher>;
+    ChunkSenderData<DistributorProperties, ChunkDistributorData_t> m_chunkSenderData;
     std::atomic_bool m_offeringRequested{false};
     std::atomic_bool m_offered{false};
 };
