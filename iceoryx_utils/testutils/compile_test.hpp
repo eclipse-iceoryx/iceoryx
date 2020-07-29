@@ -14,11 +14,13 @@
 #ifndef IOX_UTILS_TESTUTILS_COMPILE_TEST_HPP
 #define IOX_UTILS_TESTUTILS_COMPILE_TEST_HPP
 
+#include "iceoryx_utils/platform/wait.hpp"
+
 #include <cstdio>
 #include <iostream>
 #include <string>
-#include <sys/wait.h>
 #include <vector>
+
 
 /// @brief Let's say you have implemented a template with certain restrictions
 ///         like for instance that certain types are not allowed. How would you
