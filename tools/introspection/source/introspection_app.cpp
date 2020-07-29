@@ -703,7 +703,10 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
             const void* rawMempoolSample{nullptr};
 
             while (!rawMempoolSample)
+            {
                 memPoolSubscriber.getChunk(&rawMempoolSample);
+            }
+
             const MemPoolIntrospectionInfoContainer* mempoolSample =
                 static_cast<const MemPoolIntrospectionInfoContainer*>(rawMempoolSample);
 
