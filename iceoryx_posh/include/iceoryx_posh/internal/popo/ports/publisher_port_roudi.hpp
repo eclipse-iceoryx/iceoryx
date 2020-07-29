@@ -61,7 +61,7 @@ class PublisherPortRouDi : public BasePort
 
     using ChunkDistributor_t =
         ChunkDistributor<PublisherPortData<DefaultChunkDistributorConfig>::ChunkDistributorData_t>;
-    ChunkSender<DefaultChunkDistributorConfig::m_maxChunksPerSender, ChunkDistributor_t> m_chunkSender;
+    ChunkSender<DefaultChunkDistributorConfig, ChunkDistributor_t> m_chunkSender;
 };
 
 } // namespace popo
