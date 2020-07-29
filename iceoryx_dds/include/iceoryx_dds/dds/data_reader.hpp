@@ -15,8 +15,8 @@
 #ifndef IOX_DDS_DDS_DATA_READER_HPP
 #define IOX_DDS_DDS_DATA_READER_HPP
 
-#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 
 namespace iox
@@ -66,7 +66,7 @@ class DataReader
     /// @param maxSamples The maximum number of samples to request from the network.
     /// @return Number of samples taken if successful. Number of samples will be in the sange [0,maxSamples].
     ///
-    /// @note Sample size must be known ahead of time & can be checked using @ref peekNext() .
+    /// @note Sample size must be known ahead of time & can be checked using @ref peekNextSize() .
     ///
     virtual iox::cxx::expected<uint64_t, DataReaderError>
     take(uint8_t* const buffer, const uint64_t& bufferSize, const iox::cxx::optional<uint64_t>& maxSamples) = 0;

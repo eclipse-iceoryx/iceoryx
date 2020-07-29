@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2019-2020 by Robert Bosch GmbH. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,13 +16,16 @@
 
 # This file runs all tests for Ice0ryx
 
-component_folder="utils posh"
-
+COMPONENTS="utils posh dds_gateway"
 GTEST_FILTER="*"
+BASE_DIR=$PWD
 
 for arg in "$@"
 do 
     case "$arg" in
+        "skip-dds-tests")
+            COMPONENTS="utils posh"
+            ;;
         "disable-timing-tests")
             GTEST_FILTER="-*.TimingTest_*"
             ;;
@@ -36,6 +39,7 @@ do
             echo ""
             echo "Usage: $0 [OPTIONS]"
             echo "Options:"
+            echo "      skip-dds-tests              Skips tests for iceoryx_dds"
             echo "      disable-timing-tests        Disables all timing tests"
             echo "      only-timing-tests           Runs only timing tests"
             echo ""
@@ -44,34 +48,31 @@ do
     esac
 done 
 
-#check if this script is sourced by another script,
+# check if this script is sourced by another script,
 # if yes then exit properly, so the other script can use this
 # scripts definitions
 [[ "${#BASH_SOURCE[@]}" -gt "1" ]] && { return 0; }
 
-if [ -z "$TEST_RESULT_FOLDER" ]
+if [ -z "$TEST_RESULTS_DIR" ]
 then
-    TEST_RESULT_FOLDER="$(pwd)/testresults"
+    TEST_RESULTS_DIR="$(pwd)/testresults"
 fi
 
-mkdir -p "$TEST_RESULT_FOLDER"
+mkdir -p "$TEST_RESULTS_DIR"
 
 echo ">>>>>> Running Ice0ryx Tests <<<<<<"
 
 set -e
 
-BASE_DIRECTORY=$PWD
-
-for folder in $component_folder; do
+for COMPONENT in $COMPONENTS; do
     echo ""
-    echo "######################## processing moduletests & componenttests in $folder ########################"
-    echo $PWD
+    echo "######################## executing moduletests & componenttests for $COMPONENT ########################"
+    cd $BASE_DIR/$COMPONENT/test
 
-    cd $BASE_DIRECTORY/$folder/test
-
-    ./"$folder"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ModuleTestResults.xml"
-    ./"$folder"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_ComponenttestTestResults.xml"
-    ./"$folder"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULT_FOLDER/"$folder"_IntegrationTestResults.xml"
+    # Runs only tests available for the given component
+    [ -f ./"$COMPONENT"_moduletests ]      && ./"$COMPONENT"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ModuleTestResults.xml"
+    [ -f ./"$COMPONENT"_componenttests ]   && ./"$COMPONENT"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ComponenttestTestResults.xml"
+    [ -f ./"$COMPONENT"_integrationtests ] && ./"$COMPONENT"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_IntegrationTestResults.xml"
 
 done
 

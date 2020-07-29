@@ -31,7 +31,7 @@ static void sigHandler(int f_sig[[gnu::unused]])
 void sending()
 {
     // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::getInstance("/publisher-bare-metal");
+    iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-bare-metal");
 
     // Create a publisher
     iox::popo::Publisher myPublisher({"Radar", "FrontLeft", "Counter"});

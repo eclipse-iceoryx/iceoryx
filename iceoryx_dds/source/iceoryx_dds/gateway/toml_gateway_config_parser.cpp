@@ -14,6 +14,7 @@
 
 #include "iceoryx_dds/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 
 #include <regex>
 
@@ -31,12 +32,20 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
     // Set defaults if no path provided.
     if (path.size() == 0)
     {
+        LogWarn() << "Invalid file path provided. Falling back to built-in config.";
         config.setDefaults();
         return iox::cxx::success<iox::dds::GatewayConfig>(config);
     }
 
-    LogInfo() << "[TomlGatewayConfigParser] Attempting to load gateway config at: " << path;
+    /// @todo Replace with C++17 std::filesystem::exists()
+    iox::cxx::FileReader configFile(path, "", cxx::FileReader::ErrorMode::Ignore);
+    if (!configFile.IsOpen())
+    {
+        LogWarn() << "Config file not found at: '" << path << "'. Falling back to built-in config.";
+        return iox::cxx::success<iox::dds::GatewayConfig>(config);
+    }
 
+    LogInfo() << "[TomlGatewayConfigParser] Using gateway config at: " << path;
     // Load the file
     auto parsedToml = cpptoml::parse_file(path.c_str());
     auto result = validate(*parsedToml);
