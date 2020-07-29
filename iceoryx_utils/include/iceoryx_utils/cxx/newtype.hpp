@@ -51,8 +51,6 @@ namespace cxx
 ///         //                 otherwise the code will not compile
 ///             using ThisType::ThisType;   // this makes all constructors of NewType available for Index
 ///             using ThisType::operator=;  // put the assignment operators in scope
-///
-///             void MyFunkyMethod() noexcept;
 ///     };
 ///
 ///     Index a(123), c(456);   // allowed since we are using the policy ConstructByValueCopy
