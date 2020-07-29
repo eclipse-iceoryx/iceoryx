@@ -72,7 +72,7 @@ class MemPoolIntrospection_test : public Test
     using MemPoolInfo = iox::mepoo::MemPoolInfo;
     using MemPoolIntrospection =
         iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, SenderPort_MOCK>;
-    using Topic = iox::roudi::MemPoolIntrospectionTopic;
+    using Topic = iox::roudi::MemPoolIntrospectionInfoContainer;
 
     MemPoolIntrospection_test()
     {
@@ -203,11 +203,13 @@ TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
     ChunkMock<Topic> chunk;
     mock->hasSubscribersReturn = true;
     mock->reserveSampleReturn = chunk.chunkHeader();
+    const auto& sample = chunk.sample();
 
     m_introspection.send(); /// @todo expect call to MemPoolHandler::getMemPoolInfo
 
     EXPECT_THAT(mock->deliverChunk, Eq(1));
-    EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, chunk.sample()->m_mempoolInfo), Eq(true));
+    ASSERT_EQ(sample->size(), 1u);
+    EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, chunk.sample()->front().m_mempoolInfo), Eq(true));
 }
 
 TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {

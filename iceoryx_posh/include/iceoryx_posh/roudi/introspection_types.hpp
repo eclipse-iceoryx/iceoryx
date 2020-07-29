@@ -44,7 +44,7 @@ struct MemPoolInfo
 using MemPoolInfoContainer = cxx::vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
 
 /// @brief the topic for the mempool introspection that a user can subscribe to
-struct MemPoolIntrospectionTopic
+struct MemPoolIntrospectionInfo
 {
     uint32_t m_id;
     char m_writerGroupName[MAX_GROUP_NAME_LENGTH];
@@ -52,10 +52,12 @@ struct MemPoolIntrospectionTopic
     MemPoolInfoContainer m_mempoolInfo;
 };
 
-const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Port");
+/// @brief container for MemPoolInfo structs of all available mempools.
+using MemPoolIntrospectionInfoContainer = cxx::vector<MemPoolIntrospectionInfo, MAX_SHM_SEGMENTS + 1>;
 
 /// @brief sender/receiver port information consisting of a process name,a capro service description string
 /// and a runnable name
+const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Port");
 /// @todo if future fixed string is aligned to 8 byte, the alignment here can be removed
 struct PortData
 {
