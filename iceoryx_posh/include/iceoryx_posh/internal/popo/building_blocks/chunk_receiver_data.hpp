@@ -25,21 +25,21 @@ namespace iox
 {
 namespace popo
 {
-struct ChunkReceiverData : public ChunkQueueData
+template <typename Properties>
+struct ChunkReceiverData : public ChunkQueueData<Properties>
 {
     explicit ChunkReceiverData(const cxx::VariantQueueTypes queueType,
                                const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     mepoo::MemoryInfo m_memoryInfo;
 
-    /// we use one more than MAX_CHUNKS_HELD_PER_RECEIVER for being able to provide one new chunk
-    /// to the user if they already have the allowed MAX_CHUNKS_HELD_PER_RECEIVER. But then the user
-    /// has to return one to not brake the contract. This is aligned with AUTOSAR Adaptive ara::com
-    static constexpr uint32_t MAX_CHUNKS_IN_USE = MAX_CHUNKS_HELD_PER_RECEIVER + 1u;
+    static constexpr uint32_t MAX_CHUNKS_IN_USE = Properties::m_maxChunksPerReceiver;
     UsedChunkList<MAX_CHUNKS_IN_USE> m_chunksInUse;
 };
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.inl"
 
 #endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_DATA_HPP

@@ -39,7 +39,7 @@ enum class ChunkReceiveError
 class ChunkReceiver : public ChunkQueuePopper
 {
   public:
-    using MemberType_t = ChunkReceiverData;
+    using MemberType_t = ChunkReceiverData<DefaultChunkQueueConfig>;
 
     explicit ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
 

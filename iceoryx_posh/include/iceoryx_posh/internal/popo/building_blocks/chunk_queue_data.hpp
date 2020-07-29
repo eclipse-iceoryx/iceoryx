@@ -26,11 +26,12 @@ namespace iox
 {
 namespace popo
 {
+template <typename Properties>
 struct ChunkQueueData
 {
     explicit ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept;
 
-    static constexpr uint32_t MAX_CAPACITY = MAX_RECEIVER_QUEUE_CAPACITY;
+    static constexpr uint32_t MAX_CAPACITY = Properties::m_maxQueues;
     cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasOverflown{false};
 
@@ -40,5 +41,7 @@ struct ChunkQueueData
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.inl"
 
 #endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_HPP

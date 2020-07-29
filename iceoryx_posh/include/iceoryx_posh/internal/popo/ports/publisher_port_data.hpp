@@ -41,7 +41,7 @@ struct PublisherPortData : public BasePortData
                                                         Properties::m_maxHistoryCapacity,
                                                         ThreadSafePolicy,
                                                         ChunkQueuePusher>;
-    ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData;
+    ChunkSenderData<Properties::m_maxChunksPerSender, ChunkDistributorData_t> m_chunkSenderData;
     std::atomic_bool m_offeringRequested{false};
     std::atomic_bool m_offered{false};
 };

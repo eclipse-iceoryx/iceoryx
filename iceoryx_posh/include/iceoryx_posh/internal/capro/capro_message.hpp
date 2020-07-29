@@ -15,12 +15,14 @@
 #define IOX_POSH_CAPRO_CAPRO_MESSAGE_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox
 {
 namespace popo
 {
 struct ReceiverPortData;
+template <typename Properties>
 struct ChunkQueueData;
 } // namespace popo
 
@@ -81,7 +83,7 @@ class CaproMessage
     ServiceDescription m_serviceDescription;
     /// @brief Null-Pointer for request-port with no specific type
     popo::ReceiverPortData* m_requestPort{nullptr};
-    popo::ChunkQueueData* m_chunkQueueData{nullptr};
+    popo::ChunkQueueData<DefaultChunkQueueConfig>* m_chunkQueueData{nullptr};
     uint64_t m_historyCapacity{0u};
 };
 

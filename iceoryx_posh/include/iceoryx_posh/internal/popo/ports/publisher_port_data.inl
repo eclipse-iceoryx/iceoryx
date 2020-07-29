@@ -21,11 +21,11 @@ namespace iox
 namespace popo
 {
 template <typename Properties>
-PublisherPortData<Properties>::PublisherPortData(const capro::ServiceDescription& serviceDescription,
-                                                 const ProcessName_t& processName,
-                                                 mepoo::MemoryManager* const memoryManager,
-                                                 const uint64_t historyCapacity,
-                                                 const mepoo::MemoryInfo& memoryInfo) noexcept
+inline PublisherPortData<Properties>::PublisherPortData(const capro::ServiceDescription& serviceDescription,
+                                                        const ProcessName_t& processName,
+                                                        mepoo::MemoryManager* const memoryManager,
+                                                        const uint64_t historyCapacity,
+                                                        const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, processName)
     , m_chunkSenderData(memoryManager, historyCapacity, memoryInfo)
 {

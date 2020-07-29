@@ -85,10 +85,8 @@ add_library(iceoryx_posh
     source/popo/building_blocks/chunk_distributor_data.cpp
     source/popo/building_blocks/chunk_queue_pusher.cpp
     source/popo/building_blocks/chunk_queue_popper.cpp
-    source/popo/building_blocks/chunk_queue_data.cpp
     source/popo/building_blocks/chunk_queue_types.cpp
     source/popo/building_blocks/chunk_receiver.cpp
-    source/popo/building_blocks/chunk_receiver_data.cpp
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
     source/popo/condition.cpp

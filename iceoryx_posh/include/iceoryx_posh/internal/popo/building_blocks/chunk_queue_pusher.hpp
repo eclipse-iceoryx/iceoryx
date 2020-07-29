@@ -31,7 +31,7 @@ namespace popo
 class ChunkQueuePusher
 {
   public:
-    using MemberType_t = ChunkQueueData;
+    using MemberType_t = ChunkQueueData<DefaultChunkQueueConfig>;
 
     explicit ChunkQueuePusher(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
 

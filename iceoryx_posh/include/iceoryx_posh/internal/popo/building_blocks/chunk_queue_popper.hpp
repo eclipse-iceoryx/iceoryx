@@ -32,7 +32,7 @@ namespace popo
 class ChunkQueuePopper
 {
   public:
-    using MemberType_t = ChunkQueueData;
+    using MemberType_t = ChunkQueueData<DefaultChunkQueueConfig>;
 
     explicit ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
 
