@@ -18,10 +18,10 @@ namespace iox
 {
 namespace popo
 {
-template <typename Properties>
-inline ChunkReceiverData<Properties>::ChunkReceiverData(const cxx::VariantQueueTypes queueType,
-                                                        const mepoo::MemoryInfo& memoryInfo) noexcept
-    : ChunkQueueData<Properties>(queueType)
+template <typename ChunkQueueProperties>
+inline ChunkReceiverData<ChunkQueueProperties>::ChunkReceiverData(const cxx::VariantQueueTypes queueType,
+                                                                  const mepoo::MemoryInfo& memoryInfo) noexcept
+    : ChunkQueueData<ChunkQueueProperties>(queueType)
     , m_memoryInfo(memoryInfo)
 {
 }

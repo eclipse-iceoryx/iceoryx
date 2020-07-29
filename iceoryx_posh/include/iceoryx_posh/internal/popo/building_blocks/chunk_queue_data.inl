@@ -18,8 +18,8 @@ namespace iox
 {
 namespace popo
 {
-template <typename Properties>
-inline ChunkQueueData<Properties>::ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept
+template <typename ChunkQueueProperties>
+inline ChunkQueueData<ChunkQueueProperties>::ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept
     : m_queue(queueType)
 {
 }

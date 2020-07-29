@@ -25,15 +25,15 @@ namespace iox
 {
 namespace popo
 {
-template <typename Properties>
-struct ChunkReceiverData : public ChunkQueueData<Properties>
+template <typename ChunkQueueProperties>
+struct ChunkReceiverData : public ChunkQueueData<ChunkQueueProperties>
 {
     explicit ChunkReceiverData(const cxx::VariantQueueTypes queueType,
                                const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     mepoo::MemoryInfo m_memoryInfo;
 
-    static constexpr uint32_t MAX_CHUNKS_IN_USE = Properties::m_maxChunksPerReceiver;
+    static constexpr uint32_t MAX_CHUNKS_IN_USE = ChunkQueueProperties::m_maxChunksPerReceiver;
     UsedChunkList<MAX_CHUNKS_IN_USE> m_chunksInUse;
 };
 

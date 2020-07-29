@@ -22,7 +22,7 @@ namespace iox
 namespace popo
 {
 struct ReceiverPortData;
-template <typename Properties>
+template <typename ChunkQueueProperties>
 struct ChunkQueueData;
 } // namespace popo
 
