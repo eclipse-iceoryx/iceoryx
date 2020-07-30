@@ -62,9 +62,10 @@ class ChunkReceiver_test : public Test
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
 
-    iox::popo::ChunkReceiverData m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-    iox::popo::ChunkReceiver m_chunkReceiver{&m_chunkReceiverData};
-    iox::popo::ChunkQueuePusher m_chunkQueuePusher{&m_chunkReceiverData};
+    iox::popo::ChunkReceiverData<iox::DefaultChunkQueueConfig> m_chunkReceiverData{
+        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    iox::popo::ChunkReceiver<iox::DefaultChunkQueueConfig> m_chunkReceiver{&m_chunkReceiverData};
+    iox::popo::ChunkQueuePusher<iox::DefaultChunkQueueConfig> m_chunkQueuePusher{&m_chunkReceiverData};
 };
 
 TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)

@@ -69,16 +69,35 @@ class ChunkSender_test : public Test
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
 
-    iox::popo::ChunkQueueData m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    struct ChunkDistributorConfig
+    {
+        static constexpr uint32_t m_maxQueues = MAX_NUMBER_QUEUES;
+        static constexpr uint32_t m_maxChunksPerSender = iox::MAX_CHUNKS_ALLOCATE_PER_SENDER;
+        static constexpr uint64_t m_maxHistoryCapacity = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+    };
 
-    using ChunkDistributorData_t =
-        iox::popo::ChunkDistributorData<MAX_NUMBER_QUEUES, iox::popo::ThreadSafePolicy, iox::popo::ChunkQueuePusher>;
-    iox::popo::ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager, 0}; // must be 0 for test
-    iox::popo::ChunkSenderData<ChunkDistributorData_t> m_chunkSenderDataWithHistory{&m_memoryManager, HISTORY_CAPACITY};
+    struct ChunkQueueConfig
+    {
+        static constexpr uint32_t m_maxQueues = NUM_CHUNKS_IN_POOL;
+        static constexpr uint32_t m_maxChunksPerReceiver = iox::MAX_CHUNKS_HELD_PER_RECEIVER + 1u;
+    };
+
+    iox::popo::ChunkQueueData<ChunkQueueConfig> m_chunkQueueData{
+        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+
+    using ChunkDistributorData_t = iox::popo::ChunkDistributorData<ChunkDistributorConfig,
+                                                                   ChunkQueueConfig,
+                                                                   iox::popo::ThreadSafePolicy,
+                                                                   iox::popo::ChunkQueuePusher<ChunkQueueConfig>>;
+    iox::popo::ChunkSenderData<ChunkDistributorConfig, ChunkDistributorData_t> m_chunkSenderData{
+        &m_memoryManager, 0}; // must be 0 for test
+    iox::popo::ChunkSenderData<ChunkDistributorConfig, ChunkDistributorData_t> m_chunkSenderDataWithHistory{
+        &m_memoryManager, HISTORY_CAPACITY};
 
     using ChunkDistributor_t = iox::popo::ChunkDistributor<ChunkDistributorData_t>;
-    iox::popo::ChunkSender<ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
-    iox::popo::ChunkSender<ChunkDistributor_t> m_chunkSenderWithHistory{&m_chunkSenderDataWithHistory};
+    iox::popo::ChunkSender<ChunkDistributorConfig, ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
+    iox::popo::ChunkSender<ChunkDistributorConfig, ChunkDistributor_t> m_chunkSenderWithHistory{
+        &m_chunkSenderDataWithHistory};
 };
 
 TEST_F(ChunkSender_test, allocate_OneChunk)
@@ -162,8 +181,10 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
     m_chunkSender.release(myCrazyChunk.get());
@@ -257,7 +278,7 @@ TEST_F(ChunkSender_test, sendOneWithReceiver)
 
         // consume the sample
         {
-            iox::popo::ChunkQueuePopper myQueue(&m_chunkQueueData);
+            iox::popo::ChunkQueuePopper<ChunkQueueConfig> myQueue(&m_chunkQueueData);
             EXPECT_FALSE(myQueue.empty());
             auto popRet = myQueue.pop();
             EXPECT_TRUE(popRet.has_value());
@@ -270,7 +291,7 @@ TEST_F(ChunkSender_test, sendOneWithReceiver)
 TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
-    iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
+    iox::popo::ChunkQueuePopper<ChunkQueueConfig> checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.getCurrentCapacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
@@ -289,7 +310,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {
-        iox::popo::ChunkQueuePopper myQueue(&m_chunkQueueData);
+        iox::popo::ChunkQueuePopper<ChunkQueueConfig> myQueue(&m_chunkQueueData);
         EXPECT_FALSE(myQueue.empty());
         auto popRet = myQueue.pop();
         EXPECT_TRUE(popRet.has_value());
@@ -302,7 +323,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiver)
 TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
-    iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
+    iox::popo::ChunkQueuePopper<ChunkQueueConfig> checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.getCurrentCapacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
@@ -320,7 +341,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
     {
-        iox::popo::ChunkQueuePopper myQueue(&m_chunkQueueData);
+        iox::popo::ChunkQueuePopper<ChunkQueueConfig> myQueue(&m_chunkQueueData);
         EXPECT_FALSE(myQueue.empty());
         auto popRet = myQueue.pop();
         EXPECT_TRUE(popRet.has_value());
@@ -332,7 +353,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverExternalSequenceNumber)
 TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
 {
     m_chunkSender.addQueue(&m_chunkQueueData);
-    iox::popo::ChunkQueuePopper checkQueue(&m_chunkQueueData);
+    iox::popo::ChunkQueuePopper<ChunkQueueConfig> checkQueue(&m_chunkQueueData);
     EXPECT_TRUE(NUM_CHUNKS_IN_POOL < checkQueue.getCurrentCapacity());
 
     for (size_t i = 0; i < NUM_CHUNKS_IN_POOL; i++)
@@ -352,8 +373,10 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
     }
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample));
     EXPECT_TRUE(maybeChunkHeader.has_error());
@@ -367,8 +390,10 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
     m_chunkSender.send(myCrazyChunk.get());
@@ -397,8 +422,10 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
     m_chunkSender.pushToHistory(myCrazyChunk.get());
@@ -460,7 +487,7 @@ TEST_F(ChunkSender_test, sendMultipleWithReceiverLastReuseBecauseAlreadyConsumed
         new (sample) DummySample();
         m_chunkSender.send(*maybeChunkHeader);
 
-        iox::popo::ChunkQueuePopper myQueue(&m_chunkQueueData);
+        iox::popo::ChunkQueuePopper<ChunkQueueConfig> myQueue(&m_chunkQueueData);
         EXPECT_FALSE(myQueue.empty());
         auto popRet = myQueue.pop();
         EXPECT_TRUE(popRet.has_value());
