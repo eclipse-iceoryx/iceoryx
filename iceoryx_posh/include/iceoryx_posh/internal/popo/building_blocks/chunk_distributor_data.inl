@@ -18,6 +18,7 @@ namespace iox
 {
 namespace popo
 {
+/// @todo Add min() without reference to algorithms?! C++11 needs a declaration for constexpr!
 template <typename T>
 constexpr T min(const T left, const T right)
 {
@@ -31,12 +32,12 @@ template <typename DistributorProperties,
 inline ChunkDistributorData<DistributorProperties, ChunkQueueProperties, LockingPolicy, ChunkQueuePusherType>::
     ChunkDistributorData(const uint64_t historyCapacity) noexcept
     : LockingPolicy()
-    , m_historyCapacity(min(historyCapacity, DistributorProperties::m_maxHistoryCapacity))
+    , m_historyCapacity(min(historyCapacity, DistributorProperties::MAX_HISTORY_CAPACITY))
 {
     if (m_historyCapacity != historyCapacity)
     {
         LogWarn() << "Chunk history too large, reducing from " << historyCapacity << " to "
-                  << DistributorProperties::m_maxHistoryCapacity;
+                  << DistributorProperties::MAX_HISTORY_CAPACITY;
     }
 }
 

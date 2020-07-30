@@ -124,18 +124,18 @@ enum class SubscribeState : uint32_t
 
 struct DefaultChunkDistributorConfig
 {
-    static constexpr uint32_t m_maxQueues = MAX_SUBSCRIBERS_PER_PUBLISHER;
-    static constexpr uint32_t m_maxChunksPerSender = MAX_CHUNKS_ALLOCATE_PER_SENDER;
-    static constexpr uint64_t m_maxHistoryCapacity = MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+    static constexpr uint32_t MAX_QUEUES = MAX_SUBSCRIBERS_PER_PUBLISHER;
+    static constexpr uint32_t MAX_CHUNKS_PER_SENDER = MAX_CHUNKS_ALLOCATE_PER_SENDER;
+    static constexpr uint64_t MAX_HISTORY_CAPACITY = MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
 };
 
 struct DefaultChunkQueueConfig
 {
-    static constexpr uint32_t m_maxQueues = MAX_RECEIVER_QUEUE_CAPACITY;
+    static constexpr uint32_t MAX_QUEUES = MAX_RECEIVER_QUEUE_CAPACITY;
     /// we use one more than MAX_CHUNKS_HELD_PER_RECEIVER for being able to provide one new chunk
     /// to the user if they already have the allowed MAX_CHUNKS_HELD_PER_RECEIVER. But then the user
     /// has to return one to not brake the contract. This is aligned with AUTOSAR Adaptive ara::com
-    static constexpr uint32_t m_maxChunksPerReceiver = MAX_CHUNKS_HELD_PER_RECEIVER + 1u;
+    static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = MAX_CHUNKS_HELD_PER_RECEIVER + 1u;
 };
 
 // alias for cxx::string

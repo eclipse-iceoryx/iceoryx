@@ -31,7 +31,7 @@ struct ChunkQueueData
 {
     explicit ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept;
 
-    static constexpr uint32_t MAX_CAPACITY = ChunkQueueProperties::m_maxQueues;
+    static constexpr uint32_t MAX_CAPACITY = ChunkQueueProperties::MAX_QUEUES;
     cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasOverflown{false};
 

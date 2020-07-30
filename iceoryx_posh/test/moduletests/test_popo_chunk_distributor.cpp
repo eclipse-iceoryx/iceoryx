@@ -66,9 +66,9 @@ class ChunkDistributor_test : public Test
 
     struct ChunkDistributorConfig
     {
-        static constexpr uint32_t m_maxQueues = MAX_NUMBER_QUEUES;
-        static constexpr uint32_t m_maxChunksPerSender = iox::MAX_CHUNKS_ALLOCATE_PER_SENDER;
-        static constexpr uint64_t m_maxHistoryCapacity = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+        static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
+        static constexpr uint32_t MAX_CHUNKS_PER_SENDER = iox::MAX_CHUNKS_ALLOCATE_PER_SENDER;
+        static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
     };
 
     using ChunkDistributorData_t =

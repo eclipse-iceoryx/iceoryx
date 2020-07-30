@@ -33,7 +33,7 @@ struct ChunkReceiverData : public ChunkQueueData<ChunkQueueProperties>
 
     mepoo::MemoryInfo m_memoryInfo;
 
-    static constexpr uint32_t MAX_CHUNKS_IN_USE = ChunkQueueProperties::m_maxChunksPerReceiver;
+    static constexpr uint32_t MAX_CHUNKS_IN_USE = ChunkQueueProperties::MAX_CHUNKS_PER_RECEIVER;
     UsedChunkList<MAX_CHUNKS_IN_USE> m_chunksInUse;
 };
 

@@ -66,14 +66,14 @@ struct ChunkDistributorData : public LockingPolicy
 
     const uint64_t m_historyCapacity;
 
-    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, DistributorProperties::m_maxHistoryCapacity>;
+    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, DistributorProperties::MAX_HISTORY_CAPACITY>;
     QueueContainer_t m_queues;
 
     /// @todo using ChunkManagement instead of SharedChunk as in UsedChunkList?
     /// When to store a SharedChunk and when the included ChunkManagement must be used?
     /// If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to
     /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup
-    using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, DistributorProperties::m_maxHistoryCapacity>;
+    using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, DistributorProperties::MAX_HISTORY_CAPACITY>;
     HistoryContainer_t m_history;
 };
 
