@@ -69,19 +69,26 @@ class ChunkDistributor_test : public Test
         static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
         static constexpr uint32_t MAX_CHUNKS_PER_SENDER = iox::MAX_CHUNKS_ALLOCATE_PER_SENDER;
         static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
-    };
+    } ChunkDistributorConfig_t;
 
-    using ChunkDistributorData_t =
-        ChunkDistributorData<ChunkDistributorConfig, iox::DefaultChunkQueueConfig, PolicyType>;
+    struct ChunkQueueConfig
+    {
+        static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
+        /// we use one more than MAX_CHUNKS_HELD_PER_RECEIVER for being able to provide one new chunk
+        /// to the user if they already have the allowed MAX_CHUNKS_HELD_PER_RECEIVER. But then the user
+        /// has to return one to not brake the contract. This is aligned with AUTOSAR Adaptive ara::com
+        static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = iox::MAX_CHUNKS_HELD_PER_RECEIVER + 1u;
+    } ChunkQueueConfig_t;
+
+    using ChunkDistributorData_t = ChunkDistributorData<ChunkDistributorConfig, ChunkQueueConfig, PolicyType>;
     using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
 
     void SetUp(){};
     void TearDown(){};
 
-    std::shared_ptr<ChunkQueueData<iox::DefaultChunkQueueConfig>> getChunkQueueData()
+    std::shared_ptr<ChunkQueueData<ChunkQueueConfig>> getChunkQueueData()
     {
-        return std::make_shared<ChunkQueueData<iox::DefaultChunkQueueConfig>>(
-            VariantQueueTypes::SoFi_SingleProducerSingleConsumer);
+        return std::make_shared<ChunkQueueData<ChunkQueueConfig>>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer);
     }
 
     std::shared_ptr<ChunkDistributorData_t> getChunkDistributorData()
@@ -119,7 +126,7 @@ TYPED_TEST(ChunkDistributor_test, AfterAddingQueueChunkDistributorHasQueues)
 
 TYPED_TEST(ChunkDistributor_test, QueueOverflow)
 {
-    std::vector<std::shared_ptr<ChunkQueueData<iox::DefaultChunkQueueConfig>>> queueVecor;
+    std::vector<std::shared_ptr<ChunkQueueData<decltype(this->ChunkQueueConfig_t)>>> queueVector;
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -129,11 +136,11 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
             errorHandlerCalled = true;
         });
 
-    for (uint32_t i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
+    for (uint32_t i = 0; i < decltype(this->ChunkDistributorConfig_t)::MAX_HISTORY_CAPACITY; ++i)
     {
         auto queueData = this->getChunkQueueData();
         sut.addQueue(queueData.get());
-        queueVecor.push_back(queueData);
+        queueVector.push_back(queueData);
     }
 
     EXPECT_FALSE(errorHandlerCalled);
@@ -209,7 +216,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
 
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData.get());
+    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
     auto maybeSharedChunk = queue.pop();
 
     ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
@@ -227,7 +234,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOn
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
 
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData.get());
+    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(1u));
     EXPECT_THAT(sut.getHistorySize(), Eq(1u));
 }
@@ -245,7 +252,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDel
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
 
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData.get());
+    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(1u));
     EXPECT_THAT(sut.getHistorySize(), Eq(1u));
 }
@@ -263,7 +270,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleCh
     for (auto i = 0; i < limit; ++i)
         sut.deliverToAllStoredQueues(this->allocateChunk(i * 123));
 
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData.get());
+    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
     for (auto i = 0; i < limit; ++i)
     {
         auto maybeSharedChunk = queue.pop();
@@ -285,7 +292,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliverMul
     for (auto i = 0u; i < limit; ++i)
         sut.deliverToAllStoredQueues(this->allocateChunk(i * 123));
 
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData.get());
+    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(limit));
     EXPECT_THAT(sut.getHistorySize(), Eq(limit));
 }
@@ -296,7 +303,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto limit = 10;
-    std::vector<std::shared_ptr<ChunkQueueData<iox::DefaultChunkQueueConfig>>> queueData;
+    std::vector<std::shared_ptr<ChunkQueueData<decltype(this->ChunkQueueConfig_t)>>> queueData;
     for (auto i = 0; i < limit; ++i)
     {
         queueData.emplace_back(this->getChunkQueueData());
@@ -308,7 +315,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
 
     for (auto i = 0; i < limit; ++i)
     {
-        ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData[i].get());
+        ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData[i].get());
         auto maybeSharedChunk = queue.pop();
         ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
         EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(24451u));
@@ -322,7 +329,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto limit = 10u;
-    std::vector<std::shared_ptr<ChunkQueueData<iox::DefaultChunkQueueConfig>>> queueData;
+    std::vector<std::shared_ptr<ChunkQueueData<decltype(this->ChunkQueueConfig_t)>>> queueData;
     for (auto i = 0u; i < limit; ++i)
     {
         queueData.emplace_back(this->getChunkQueueData());
@@ -336,7 +343,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
     {
         for (auto k = 0u; k < limit; ++k)
         {
-            ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData[i].get());
+            ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData[i].get());
             auto maybeSharedChunk = queue.pop();
             ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
             EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(k * 34u));
@@ -396,7 +403,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAdded)
     auto chunk = this->allocateChunk(4451);
     sut.deliverToQueue(queueData.get(), chunk);
 
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData.get());
+    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
     auto maybeSharedChunk = queue.pop();
 
     ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
@@ -414,7 +421,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAdded)
     auto chunk = this->allocateChunk(451);
     sut.deliverToQueue(queueData.get(), chunk);
 
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData.get());
+    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
     auto maybeSharedChunk = queue.pop();
 
     ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
@@ -461,7 +468,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithLessThanAvailable)
 
     // add a queue with a requested history of one must deliver the latest sample
     auto queueData = this->getChunkQueueData();
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData.get());
+    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
     sut.addQueue(queueData.get(), 1);
 
     EXPECT_THAT(queue.size(), Eq(1u));
@@ -484,7 +491,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithExactAvailable)
 
     // add a queue with a requested history of 3 must deliver all three in the order oldest to newest
     auto queueData = this->getChunkQueueData();
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData.get());
+    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
     sut.addQueue(queueData.get(), 3);
 
     EXPECT_THAT(queue.size(), Eq(3u));
@@ -512,7 +519,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithMoreThanAvailable)
 
     // add a queue with a requested history of 5 must deliver only the three available in the order oldest to newest
     auto queueData = this->getChunkQueueData();
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> queue(queueData.get());
+    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
     sut.addQueue(queueData.get(), 5);
 
     EXPECT_THAT(queue.size(), Eq(3u));
