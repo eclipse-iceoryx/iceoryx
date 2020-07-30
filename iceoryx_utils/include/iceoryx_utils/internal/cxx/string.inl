@@ -67,6 +67,29 @@ inline string<Capacity>& string<Capacity>::operator=(string&& rhs) noexcept
 
 template <uint64_t Capacity>
 template <uint64_t N>
+inline string<Capacity>::string(const string<N>& other) noexcept
+{
+    static_assert(N <= Capacity,
+                  "Construction failed. The capacity of the given fixed string is larger than the capacity of this.");
+    *this = other;
+}
+
+template <uint64_t Capacity>
+template <uint64_t N>
+inline string<Capacity>& string<Capacity>::operator=(const string<N>& rhs) noexcept
+{
+    static_assert(N <= Capacity,
+                  "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
+
+    uint64_t strSize = rhs.size();
+    std::memcpy(m_rawstring, rhs.c_str(), strSize);
+    m_rawstring[strSize] = '\0';
+    m_rawstringSize = strSize;
+    return *this;
+}
+
+template <uint64_t Capacity>
+template <uint64_t N>
 inline string<Capacity>::string(const char (&other)[N]) noexcept
 {
     *this = other;
@@ -126,8 +149,11 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
 }
 
 template <uint64_t Capacity>
-inline string<Capacity>& string<Capacity>::assign(const string& str) noexcept
+template <uint64_t N>
+inline string<Capacity>& string<Capacity>::assign(const string<N>& str) noexcept
 {
+    static_assert(N <= Capacity,
+                  "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
     *this = str;
     return *this;
 }
@@ -177,7 +203,8 @@ inline bool string<Capacity>::unsafe_assign(const std::string& str) noexcept
 }
 
 template <uint64_t Capacity>
-inline int64_t string<Capacity>::compare(const string other) const noexcept
+template <uint64_t N>
+inline int64_t string<Capacity>::compare(const string<N>& other) const noexcept
 {
     uint64_t otherSize = other.size();
     if (m_rawstringSize < otherSize)
@@ -192,37 +219,43 @@ inline int64_t string<Capacity>::compare(const string other) const noexcept
 }
 
 template <uint64_t Capacity>
-inline bool string<Capacity>::operator==(const string& rhs) const noexcept
+template <uint64_t N>
+inline bool string<Capacity>::operator==(const string<N>& rhs) const noexcept
 {
     return (compare(rhs) == 0);
 }
 
 template <uint64_t Capacity>
-inline bool string<Capacity>::operator!=(const string& rhs) const noexcept
+template <uint64_t N>
+inline bool string<Capacity>::operator!=(const string<N>& rhs) const noexcept
 {
     return (compare(rhs) != 0);
 }
 
 template <uint64_t Capacity>
-inline bool string<Capacity>::operator<(const string& rhs) const noexcept
+template <uint64_t N>
+inline bool string<Capacity>::operator<(const string<N>& rhs) const noexcept
 {
     return (compare(rhs) < 0);
 }
 
 template <uint64_t Capacity>
-inline bool string<Capacity>::operator<=(const string& rhs) const noexcept
+template <uint64_t N>
+inline bool string<Capacity>::operator<=(const string<N>& rhs) const noexcept
 {
     return !(compare(rhs) > 0);
 }
 
 template <uint64_t Capacity>
-inline bool string<Capacity>::operator>(const string& rhs) const noexcept
+template <uint64_t N>
+inline bool string<Capacity>::operator>(const string<N>& rhs) const noexcept
 {
     return (compare(rhs) > 0);
 }
 
 template <uint64_t Capacity>
-inline bool string<Capacity>::operator>=(const string& rhs) const noexcept
+template <uint64_t N>
+inline bool string<Capacity>::operator>=(const string<N>& rhs) const noexcept
 {
     return !(compare(rhs) < 0);
 }

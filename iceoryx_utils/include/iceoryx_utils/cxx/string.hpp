@@ -64,6 +64,24 @@ class string
     /// @return reference to self
     string& operator=(string&& rhs) noexcept;
 
+    /// @brief creates a new string as a copy of other with compile time check wether the capacity of other is lesser
+    /// than or equal to the capacity
+    ///
+    /// @tparam N is the template parameter for the capacity of other
+    /// @param [in] other is the copy origin
+    template <uint64_t N>
+    string(const string<N>& other) noexcept;
+
+    /// @brief assigns rhs fixed string to this with compile time check wether the capacity of rhs is lesser than or
+    /// equal to the capacity
+    ///
+    /// @tparam N is the template parameter for the capacity of rhs
+    /// @param [in] rhs is the copy origin
+    ///
+    /// @return reference to self
+    template <uint64_t N>
+    string& operator=(const string<N>& rhs) noexcept;
+
     /// @brief conversion constructor for char array with compile time check if the array size is lesser than or equal
     /// to the string capacity
     ///
@@ -166,7 +184,8 @@ class string
     /// @param [in] str is the fixed string object to assign
     ///
     /// @return reference to self
-    string& assign(const string& str) noexcept;
+    template <uint64_t N>
+    string& assign(const string<N>& str) noexcept;
 
     /// @brief assigns a char array to string with compile time check if the array size is lesser than or equal to the
     /// string capacity
@@ -213,49 +232,56 @@ class string
     /// @return an integer < 0 if the first character that does not match has a lower value in self than in other, 0 if
     /// the contents of both strings are equal, an integer > 0 if the first character that does not match has a greater
     /// value in self than in other
-    int64_t compare(const string other) const noexcept;
+    template <uint64_t N>
+    int64_t compare(const string<N>& other) const noexcept;
 
     /// @brief checks if self is equal to rhs
     ///
     /// @param [in] rhs is the string to compare with self
     ///
     /// @return true if both strings are equal, otherwise false
-    bool operator==(const string& rhs) const noexcept;
+    template <uint64_t N>
+    bool operator==(const string<N>& rhs) const noexcept;
 
     /// @brief checks if self is not equal to rhs
     ///
     /// @param [in] rhs is the string to compare with self
     ///
     /// @return true if both strings are not equal, otherwise false
-    bool operator!=(const string& rhs) const noexcept;
+    template <uint64_t N>
+    bool operator!=(const string<N>& rhs) const noexcept;
 
     /// @brief checks if self is lesser than rhs, in lexicographical order
     ///
     /// @param [in] rhs is the string to compare with self
     ///
     /// @return true if self is lesser than rhs, otherwise false
-    bool operator<(const string& rhs) const noexcept;
+    template <uint64_t N>
+    bool operator<(const string<N>& rhs) const noexcept;
 
     /// @brief checks if self is lesser than or equal to rhs, in lexicographical order
     ///
     /// @param [in] rhs is the string to compare with self
     ///
     /// @return true if self is lesser than or equal to rhs, otherwise false
-    bool operator<=(const string& rhs) const noexcept;
+    template <uint64_t N>
+    bool operator<=(const string<N>& rhs) const noexcept;
 
     /// @brief checks if self is greater than rhs, in lexicographical order
     ///
     /// @param [in] rhs is the string to compare with self
     ///
     /// @return true if self is greater than rhs, otherwise false
-    bool operator>(const string& rhs) const noexcept;
+    template <uint64_t N>
+    bool operator>(const string<N>& rhs) const noexcept;
 
     /// @brief checks if self is greater than or equal to rhs, in lexicographical order
     ///
     /// @param [in] rhs is the string to compare with self
     ///
     /// @return true if self is greater than or equal to rhs, otherwise false
-    bool operator>=(const string& rhs) const noexcept;
+    template <uint64_t N>
+    bool operator>=(const string<N>& rhs) const noexcept;
 
     /// @brief The equality operator for fixed string and char pointer is disabled via a static_assert, because it may
     /// lead to undefined behavior if the char array is not null-terminated. Please convert the char array to a fixed
@@ -284,7 +310,7 @@ class string
     /// @todo consider implementing the inequality operator for a char array for which the size is known at compile
     /// time; it could have the following signature
     /// template <int N>
-    /// bool operator==(const char (&rhs)[N]) const noexcept
+    /// bool operator!=(const char (&rhs)[N]) const noexcept
     bool operator!=(const char* const rhs) const noexcept;
 
     /// @brief returns a pointer to the char array of self
@@ -376,7 +402,6 @@ inline bool operator==(const char* const lhs, const string<Capacity>& rhs);
 /// @return false
 template <uint64_t Capacity>
 inline bool operator!=(const char* const lhs, const string<Capacity>& rhs);
-
 
 /// @brief outputs the fixed string on stream
 ///
