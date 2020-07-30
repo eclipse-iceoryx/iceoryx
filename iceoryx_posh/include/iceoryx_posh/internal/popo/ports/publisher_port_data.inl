@@ -20,12 +20,13 @@ namespace iox
 {
 namespace popo
 {
-template <typename DistributorProperties>
-inline PublisherPortData<DistributorProperties>::PublisherPortData(const capro::ServiceDescription& serviceDescription,
-                                                                   const ProcessName_t& processName,
-                                                                   mepoo::MemoryManager* const memoryManager,
-                                                                   const uint64_t historyCapacity,
-                                                                   const mepoo::MemoryInfo& memoryInfo) noexcept
+template <typename DistributorProperties, typename ChunkQueueProperties>
+inline PublisherPortData<DistributorProperties, ChunkQueueProperties>::PublisherPortData(
+    const capro::ServiceDescription& serviceDescription,
+    const ProcessName_t& processName,
+    mepoo::MemoryManager* const memoryManager,
+    const uint64_t historyCapacity,
+    const mepoo::MemoryInfo& memoryInfo) noexcept
     : BasePortData(serviceDescription, processName)
     , m_chunkSenderData(memoryManager, historyCapacity, memoryInfo)
 {

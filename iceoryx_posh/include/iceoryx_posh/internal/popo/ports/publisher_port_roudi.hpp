@@ -32,7 +32,7 @@ namespace popo
 class PublisherPortRouDi : public BasePort
 {
   public:
-    using MemberType_t = PublisherPortData<DefaultChunkDistributorConfig>;
+    using MemberType_t = PublisherPortData<DefaultChunkDistributorConfig, DefaultChunkQueueConfig>;
 
     explicit PublisherPortRouDi(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept;
 
@@ -59,8 +59,8 @@ class PublisherPortRouDi : public BasePort
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    using ChunkDistributor_t =
-        ChunkDistributor<PublisherPortData<DefaultChunkDistributorConfig>::ChunkDistributorData_t>;
+    using ChunkDistributor_t = ChunkDistributor<
+        PublisherPortData<DefaultChunkDistributorConfig, DefaultChunkQueueConfig>::ChunkDistributorData_t>;
     ChunkSender<DefaultChunkDistributorConfig, ChunkDistributor_t> m_chunkSender;
 };
 

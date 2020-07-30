@@ -18,11 +18,20 @@ namespace iox
 {
 namespace popo
 {
-template <typename DistributorProperties, typename LockingPolicy, typename ChunkQueuePusherType>
-inline ChunkDistributorData<DistributorProperties, LockingPolicy, ChunkQueuePusherType>::ChunkDistributorData(
-    const uint64_t historyCapacity) noexcept
+template <typename T>
+constexpr T min(const T left, const T right)
+{
+    return (left < right) ? left : right;
+}
+
+template <typename DistributorProperties,
+          typename ChunkQueueProperties,
+          typename LockingPolicy,
+          typename ChunkQueuePusherType>
+inline ChunkDistributorData<DistributorProperties, ChunkQueueProperties, LockingPolicy, ChunkQueuePusherType>::
+    ChunkDistributorData(const uint64_t historyCapacity) noexcept
     : LockingPolicy()
-    , m_historyCapacity(algorithm::min(historyCapacity, DistributorProperties::m_maxHistoryCapacity))
+    , m_historyCapacity(min(historyCapacity, DistributorProperties::m_maxHistoryCapacity))
 {
     if (m_historyCapacity != historyCapacity)
     {

@@ -11,31 +11,42 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_INL
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_INL
 
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
 namespace popo
 {
-ChunkReceiver::ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept
-    : ChunkQueuePopper(static_cast<ChunkQueuePopper::MemberType_t*>(chunkReceiverDataPtr))
+template <typename ChunkQueueProperties>
+inline ChunkReceiver<ChunkQueueProperties>::ChunkReceiver(
+    cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept
+    : ChunkQueuePopper<ChunkQueueProperties>(
+        static_cast<typename ChunkQueuePopper<ChunkQueueProperties>::MemberType_t*>(chunkReceiverDataPtr))
 {
 }
 
-const ChunkReceiver::MemberType_t* ChunkReceiver::getMembers() const noexcept
+template <typename ChunkQueueProperties>
+inline const typename ChunkReceiver<ChunkQueueProperties>::MemberType_t*
+ChunkReceiver<ChunkQueueProperties>::getMembers() const noexcept
 {
-    return reinterpret_cast<const MemberType_t*>(ChunkQueuePopper::getMembers());
+    return reinterpret_cast<const MemberType_t*>(ChunkQueuePopper<ChunkQueueProperties>::getMembers());
 }
 
-ChunkReceiver::MemberType_t* ChunkReceiver::getMembers() noexcept
+template <typename ChunkQueueProperties>
+inline typename ChunkReceiver<ChunkQueueProperties>::MemberType_t*
+ChunkReceiver<ChunkQueueProperties>::getMembers() noexcept
 {
-    return reinterpret_cast<MemberType_t*>(ChunkQueuePopper::getMembers());
+    return reinterpret_cast<MemberType_t*>(ChunkQueuePopper<ChunkQueueProperties>::getMembers());
 }
 
-cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> ChunkReceiver::get() noexcept
+template <typename ChunkQueueProperties>
+inline cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError>
+ChunkReceiver<ChunkQueueProperties>::get() noexcept
 {
     auto popRet = this->pop();
 
@@ -63,7 +74,8 @@ cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> Chunk
     }
 }
 
-void ChunkReceiver::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
+template <typename ChunkQueueProperties>
+inline void ChunkReceiver<ChunkQueueProperties>::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
     // PRQA S 4127 1 # d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
@@ -73,7 +85,8 @@ void ChunkReceiver::release(const mepoo::ChunkHeader* const chunkHeader) noexcep
     }
 }
 
-void ChunkReceiver::releaseAll() noexcept
+template <typename ChunkQueueProperties>
+inline void ChunkReceiver<ChunkQueueProperties>::releaseAll() noexcept
 {
     getMembers()->m_chunksInUse.cleanup();
     this->clear();
@@ -81,3 +94,5 @@ void ChunkReceiver::releaseAll() noexcept
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_INL

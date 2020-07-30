@@ -36,10 +36,11 @@ enum class ChunkReceiveError
 /// The
 /// ChunkRceiver holds the ownership of the SharedChunks and does a bookkeeping which chunks are currently passed to the
 /// user side.
-class ChunkReceiver : public ChunkQueuePopper
+template <typename ChunkQueueProperties>
+class ChunkReceiver : public ChunkQueuePopper<ChunkQueueProperties>
 {
   public:
-    using MemberType_t = ChunkReceiverData<DefaultChunkQueueConfig>;
+    using MemberType_t = ChunkReceiverData<ChunkQueueProperties>;
 
     explicit ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
 
@@ -72,5 +73,7 @@ class ChunkReceiver : public ChunkQueuePopper
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.inl"
 
 #endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_HPP

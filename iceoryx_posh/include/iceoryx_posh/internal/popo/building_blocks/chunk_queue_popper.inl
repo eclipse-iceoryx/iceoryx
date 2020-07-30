@@ -11,31 +11,39 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_INL
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_INL
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 
 namespace iox
 {
 namespace popo
 {
-ChunkQueuePopper::ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept
+template <typename ChunkQueueProperties>
+inline ChunkQueuePopper<ChunkQueueProperties>::ChunkQueuePopper(
+    cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept
     : m_chunkQueueDataPtr(chunkQueueDataPtr)
 {
 }
 
-const ChunkQueuePopper::MemberType_t* ChunkQueuePopper::getMembers() const noexcept
+template <typename ChunkQueueProperties>
+inline const typename ChunkQueuePopper<ChunkQueueProperties>::MemberType_t*
+ChunkQueuePopper<ChunkQueueProperties>::getMembers() const noexcept
 {
     return m_chunkQueueDataPtr;
 }
 
-ChunkQueuePopper::MemberType_t* ChunkQueuePopper::getMembers() noexcept
+template <typename ChunkQueueProperties>
+inline typename ChunkQueuePopper<ChunkQueueProperties>::MemberType_t*
+ChunkQueuePopper<ChunkQueueProperties>::getMembers() noexcept
 {
     return m_chunkQueueDataPtr;
 }
 
-cxx::optional<mepoo::SharedChunk> ChunkQueuePopper::pop() noexcept
+template <typename ChunkQueueProperties>
+inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueProperties>::pop() noexcept
 {
     auto retVal = getMembers()->m_queue.pop();
 
@@ -54,7 +62,8 @@ cxx::optional<mepoo::SharedChunk> ChunkQueuePopper::pop() noexcept
     }
 }
 
-bool ChunkQueuePopper::hasOverflown() noexcept
+template <typename ChunkQueueProperties>
+inline bool ChunkQueuePopper<ChunkQueueProperties>::hasOverflown() noexcept
 {
     if (getMembers()->m_queueHasOverflown.load(std::memory_order_relaxed))
     {
@@ -64,36 +73,42 @@ bool ChunkQueuePopper::hasOverflown() noexcept
     return false;
 }
 
-bool ChunkQueuePopper::empty() noexcept
+template <typename ChunkQueueProperties>
+inline bool ChunkQueuePopper<ChunkQueueProperties>::empty() noexcept
 {
     return getMembers()->m_queue.empty();
 }
 
-uint64_t ChunkQueuePopper::size() noexcept
+template <typename ChunkQueueProperties>
+inline uint64_t ChunkQueuePopper<ChunkQueueProperties>::size() noexcept
 {
     return getMembers()->m_queue.size();
 }
 
-void ChunkQueuePopper::setCapacity(const uint64_t newCapacity) noexcept
+template <typename ChunkQueueProperties>
+inline void ChunkQueuePopper<ChunkQueueProperties>::setCapacity(const uint64_t newCapacity) noexcept
 {
     /// @todo fix getCapacity and setCapacity issue in queues (uint32 vs uint64)
     // this needs to be properly fixed by harmonizing the types across the functions, but currently this cast is also
     // sufficient
     getMembers()->m_queue.setCapacity(
-        static_cast<std::remove_const<decltype(MemberType_t::MAX_CAPACITY)>::type>(newCapacity));
+        static_cast<typename std::remove_const<decltype(MemberType_t::MAX_CAPACITY)>::type>(newCapacity));
 }
 
-uint64_t ChunkQueuePopper::getCurrentCapacity() const noexcept
+template <typename ChunkQueueProperties>
+inline uint64_t ChunkQueuePopper<ChunkQueueProperties>::getCurrentCapacity() const noexcept
 {
     return getMembers()->m_queue.capacity();
 }
 
-uint64_t ChunkQueuePopper::getMaximumCapacity() const noexcept
+template <typename ChunkQueueProperties>
+inline uint64_t ChunkQueuePopper<ChunkQueueProperties>::getMaximumCapacity() const noexcept
 {
     return MemberType_t::MAX_CAPACITY;
 }
 
-void ChunkQueuePopper::clear() noexcept
+template <typename ChunkQueueProperties>
+inline void ChunkQueuePopper<ChunkQueueProperties>::clear() noexcept
 {
     do
     {
@@ -113,7 +128,9 @@ void ChunkQueuePopper::clear() noexcept
     } while (true);
 }
 
-bool ChunkQueuePopper::attachConditionVariableSignaler(ConditionVariableData* conditionVariableDataPtr) noexcept
+template <typename ChunkQueueProperties>
+inline bool ChunkQueuePopper<ChunkQueueProperties>::attachConditionVariableSignaler(
+    ConditionVariableData* conditionVariableDataPtr) noexcept
 {
     /// @todo Add lock guard here
     if (isConditionVariableSignalerAttached())
@@ -129,7 +146,8 @@ bool ChunkQueuePopper::attachConditionVariableSignaler(ConditionVariableData* co
     }
 }
 
-bool ChunkQueuePopper::detachConditionVariableSignaler() noexcept
+template <typename ChunkQueueProperties>
+inline bool ChunkQueuePopper<ChunkQueueProperties>::detachConditionVariableSignaler() noexcept
 {
     /// @todo Add lock guard here
     if (isConditionVariableSignalerAttached())
@@ -145,10 +163,13 @@ bool ChunkQueuePopper::detachConditionVariableSignaler() noexcept
     }
 }
 
-bool ChunkQueuePopper::isConditionVariableSignalerAttached() const noexcept
+template <typename ChunkQueueProperties>
+inline bool ChunkQueuePopper<ChunkQueueProperties>::isConditionVariableSignalerAttached() const noexcept
 {
     return getMembers()->m_conditionVariableAttached.load(std::memory_order_relaxed);
 }
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_INL

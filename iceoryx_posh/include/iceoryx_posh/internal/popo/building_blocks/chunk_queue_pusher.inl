@@ -11,31 +11,40 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_INL
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_INL
 
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 
 namespace iox
 {
 namespace popo
 {
-ChunkQueuePusher::ChunkQueuePusher(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept
+template <typename ChunkQueueProperties>
+inline ChunkQueuePusher<ChunkQueueProperties>::ChunkQueuePusher(
+    cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept
     : m_chunkQueueDataPtr(chunkQueueDataPtr)
 {
 }
 
-const ChunkQueuePusher::MemberType_t* ChunkQueuePusher::getMembers() const noexcept
+template <typename ChunkQueueProperties>
+inline const typename ChunkQueuePusher<ChunkQueueProperties>::MemberType_t*
+ChunkQueuePusher<ChunkQueueProperties>::getMembers() const noexcept
 {
     return m_chunkQueueDataPtr;
 }
 
-ChunkQueuePusher::MemberType_t* ChunkQueuePusher::getMembers() noexcept
+template <typename ChunkQueueProperties>
+inline typename ChunkQueuePusher<ChunkQueueProperties>::MemberType_t*
+ChunkQueuePusher<ChunkQueueProperties>::getMembers() noexcept
 {
     return m_chunkQueueDataPtr;
 }
 
-cxx::expected<ChunkQueueError> ChunkQueuePusher::push(mepoo::SharedChunk chunk) noexcept
+template <typename ChunkQueueProperties>
+inline cxx::expected<ChunkQueueError> ChunkQueuePusher<ChunkQueueProperties>::push(mepoo::SharedChunk chunk) noexcept
 {
     ChunkTuple chunkTupleIn(chunk.releaseWithRelativePtr());
 
@@ -59,7 +68,8 @@ cxx::expected<ChunkQueueError> ChunkQueuePusher::push(mepoo::SharedChunk chunk) 
             auto returnedChunk = mepoo::SharedChunk(chunkManagement);
         }
 
-        if (getMembers()->m_conditionVariableAttached.load(std::memory_order_acquire) && getMembers()->m_conditionVariableDataPtr)
+        if (getMembers()->m_conditionVariableAttached.load(std::memory_order_acquire)
+            && getMembers()->m_conditionVariableDataPtr)
         {
             /// @todo Add lock guard here
             ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
@@ -72,3 +82,5 @@ cxx::expected<ChunkQueueError> ChunkQueuePusher::push(mepoo::SharedChunk chunk) 
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_INL

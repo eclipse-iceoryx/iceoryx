@@ -51,11 +51,14 @@ class SingleThreadedPolicy
     bool tryLock() const noexcept;
 };
 
-template <typename DistributorProperties, typename LockingPolicy, typename ChunkQueuePusherType = ChunkQueuePusher>
+template <typename DistributorProperties,
+          typename ChunkQueueProperties,
+          typename LockingPolicy,
+          typename ChunkQueuePusherType = ChunkQueuePusher<ChunkQueueProperties>>
 struct ChunkDistributorData : public LockingPolicy
 {
-    using LockGuard_t =
-        std::lock_guard<const ChunkDistributorData<DistributorProperties, LockingPolicy, ChunkQueuePusherType>>;
+    using LockGuard_t = std::lock_guard<
+        const ChunkDistributorData<DistributorProperties, ChunkQueueProperties, LockingPolicy, ChunkQueuePusherType>>;
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
 
@@ -63,7 +66,7 @@ struct ChunkDistributorData : public LockingPolicy
 
     const uint64_t m_historyCapacity;
 
-    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, DistributorProperties::m_maxQueues>;
+    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, DistributorProperties::m_maxHistoryCapacity>;
     QueueContainer_t m_queues;
 
     /// @todo using ChunkManagement instead of SharedChunk as in UsedChunkList?
