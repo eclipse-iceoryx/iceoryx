@@ -136,7 +136,7 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
             errorHandlerCalled = true;
         });
 
-    for (uint32_t i = 0; i < decltype(this->ChunkDistributorConfig_t)::MAX_HISTORY_CAPACITY; ++i)
+    for (uint32_t i = 0; i < this->MAX_NUMBER_QUEUES; ++i)
     {
         auto queueData = this->getChunkQueueData();
         sut.addQueue(queueData.get());

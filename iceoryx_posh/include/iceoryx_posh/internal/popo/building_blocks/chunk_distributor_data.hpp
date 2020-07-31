@@ -66,7 +66,7 @@ struct ChunkDistributorData : public LockingPolicy
 
     const uint64_t m_historyCapacity;
 
-    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, DistributorProperties::MAX_HISTORY_CAPACITY>;
+    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, DistributorProperties::MAX_QUEUES>;
     QueueContainer_t m_queues;
 
     /// @todo using ChunkManagement instead of SharedChunk as in UsedChunkList?

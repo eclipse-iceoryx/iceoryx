@@ -303,7 +303,7 @@ TEST_F(PublisherPort_test, subscribeManyIsFine)
         reinterpret_cast<iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig>*>(dummyPtr);
     caproMessage.m_historyCapacity = 0u;
 
-    for (size_t i = 0; i < iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR; i++)
+    for (size_t i = 0; i < iox::MAX_SUBSCRIBERS_PER_PUBLISHER; i++)
     {
         auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
         EXPECT_TRUE(maybeCaProMessage.has_value());
