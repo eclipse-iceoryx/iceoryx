@@ -74,10 +74,7 @@ class ChunkDistributor_test : public Test
     struct ChunkQueueConfig
     {
         static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
-        /// we use one more than MAX_CHUNKS_HELD_PER_RECEIVER for being able to provide one new chunk
-        /// to the user if they already have the allowed MAX_CHUNKS_HELD_PER_RECEIVER. But then the user
-        /// has to return one to not brake the contract. This is aligned with AUTOSAR Adaptive ara::com
-        static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = iox::MAX_CHUNKS_HELD_PER_RECEIVER + 1u;
+        static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = iox::MAX_CHUNKS_HELD_PER_RECEIVER;
     } ChunkQueueConfig_t;
 
     using ChunkDistributorData_t = ChunkDistributorData<ChunkDistributorConfig, ChunkQueueConfig, PolicyType>;

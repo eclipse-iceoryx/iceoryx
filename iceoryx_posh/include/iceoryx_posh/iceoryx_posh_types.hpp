@@ -132,10 +132,7 @@ struct DefaultChunkDistributorConfig
 struct DefaultChunkQueueConfig
 {
     static constexpr uint32_t MAX_QUEUES = MAX_RECEIVER_QUEUE_CAPACITY;
-    /// we use one more than MAX_CHUNKS_HELD_PER_RECEIVER for being able to provide one new chunk
-    /// to the user if they already have the allowed MAX_CHUNKS_HELD_PER_RECEIVER. But then the user
-    /// has to return one to not brake the contract. This is aligned with AUTOSAR Adaptive ara::com
-    static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = MAX_CHUNKS_HELD_PER_RECEIVER + 1u;
+    static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = MAX_CHUNKS_HELD_PER_RECEIVER;
 };
 
 // alias for cxx::string
