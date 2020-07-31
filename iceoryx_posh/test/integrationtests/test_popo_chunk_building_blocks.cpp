@@ -47,7 +47,7 @@ struct ChunkDistributorConfig
 {
     static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
     static constexpr uint32_t MAX_CHUNKS_PER_SENDER = iox::MAX_CHUNKS_ALLOCATE_PER_SENDER;
-    static constexpr uint64_t MAX_HISTORY_CAPACITY = 16UL; //;//iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+    static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
 };
 
 struct ChunkQueueConfig
