@@ -25,12 +25,9 @@ constexpr T min(const T left, const T right)
     return (left < right) ? left : right;
 }
 
-template <typename DistributorProperties,
-          typename ChunkQueueProperties,
-          typename LockingPolicy,
-          typename ChunkQueuePusherType>
-inline ChunkDistributorData<DistributorProperties, ChunkQueueProperties, LockingPolicy, ChunkQueuePusherType>::
-    ChunkDistributorData(const uint64_t historyCapacity) noexcept
+template <typename DistributorProperties, typename LockingPolicy, typename ChunkQueuePusherType>
+inline ChunkDistributorData<DistributorProperties, LockingPolicy, ChunkQueuePusherType>::ChunkDistributorData(
+    const uint64_t historyCapacity) noexcept
     : LockingPolicy()
     , m_historyCapacity(min(historyCapacity, DistributorProperties::MAX_HISTORY_CAPACITY))
 {

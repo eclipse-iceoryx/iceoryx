@@ -52,13 +52,12 @@ class SingleThreadedPolicy
 };
 
 template <typename DistributorProperties,
-          typename ChunkQueueProperties,
           typename LockingPolicy,
-          typename ChunkQueuePusherType = ChunkQueuePusher<ChunkQueueProperties>>
+          typename ChunkQueuePusherType = ChunkQueuePusher<DistributorProperties>>
 struct ChunkDistributorData : public LockingPolicy
 {
-    using LockGuard_t = std::lock_guard<
-        const ChunkDistributorData<DistributorProperties, ChunkQueueProperties, LockingPolicy, ChunkQueuePusherType>>;
+    using LockGuard_t =
+        std::lock_guard<const ChunkDistributorData<DistributorProperties, LockingPolicy, ChunkQueuePusherType>>;
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
     using DistributorProperties_t = DistributorProperties;

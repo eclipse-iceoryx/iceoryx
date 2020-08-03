@@ -38,7 +38,6 @@ struct PublisherPortData : public BasePortData
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     using ChunkDistributorData_t = ChunkDistributorData<iox::DefaultChunkDistributorConfig,
-                                                        ChunkQueueProperties,
                                                         ThreadSafePolicy,
                                                         ChunkQueuePusher<ChunkQueueProperties>>;
     ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData;
