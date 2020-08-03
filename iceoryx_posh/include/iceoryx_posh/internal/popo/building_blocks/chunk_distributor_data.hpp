@@ -61,6 +61,7 @@ struct ChunkDistributorData : public LockingPolicy
         const ChunkDistributorData<DistributorProperties, ChunkQueueProperties, LockingPolicy, ChunkQueuePusherType>>;
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
+    using DistributorProperties_t = DistributorProperties;
 
     explicit ChunkDistributorData(const uint64_t historyCapacity = 0u) noexcept;
 

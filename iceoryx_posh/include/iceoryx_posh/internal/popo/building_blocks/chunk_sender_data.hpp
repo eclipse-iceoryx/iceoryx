@@ -27,7 +27,7 @@ namespace iox
 {
 namespace popo
 {
-template <typename ChunkQueueProperties, typename ChunkDistributorDataType>
+template <typename ChunkDistributorDataType>
 struct ChunkSenderData : public ChunkDistributorDataType
 {
     explicit ChunkSenderData(cxx::not_null<mepoo::MemoryManager* const> memoryManager,
@@ -36,7 +36,7 @@ struct ChunkSenderData : public ChunkDistributorDataType
 
     const relative_ptr<mepoo::MemoryManager> m_memoryMgr;
     mepoo::MemoryInfo m_memoryInfo;
-    UsedChunkList<ChunkQueueProperties::MAX_CHUNKS_PER_SENDER> m_chunksInUse;
+    UsedChunkList<ChunkDistributorDataType::DistributorProperties_t::MAX_CHUNKS_PER_SENDER> m_chunksInUse;
     mepoo::SequenceNumberType m_sequenceNumber{0u};
     mepoo::SharedChunk m_lastChunk{nullptr};
 };

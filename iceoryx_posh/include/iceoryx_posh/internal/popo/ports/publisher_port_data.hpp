@@ -37,11 +37,11 @@ struct PublisherPortData : public BasePortData
                       const uint64_t historyCapacity = 0u,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    using ChunkDistributorData_t = ChunkDistributorData<DistributorProperties,
+    using ChunkDistributorData_t = ChunkDistributorData<iox::DefaultChunkDistributorConfig,
                                                         ChunkQueueProperties,
                                                         ThreadSafePolicy,
                                                         ChunkQueuePusher<ChunkQueueProperties>>;
-    ChunkSenderData<DistributorProperties, ChunkDistributorData_t> m_chunkSenderData;
+    ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData;
     std::atomic_bool m_offeringRequested{false};
     std::atomic_bool m_offered{false};
 };
