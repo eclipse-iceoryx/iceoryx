@@ -37,69 +37,77 @@ class PoshRuntime_test : public Test
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
-    iox::cxx::GenericRAII m_errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [](const iox::Error, const std::function<void()>, const iox::ErrorLevel) { m_errorHandlerCalled = true; });
-
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
-    PoshRuntime* m_receiverRuntime{&iox::runtime::PoshRuntime::getInstance("/receiver")};
-    PoshRuntime* m_senderRuntime{&iox::runtime::PoshRuntime::getInstance("/sender")};
+    PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::getInstance("/sender")};
     MqMessage m_sendBuffer;
     MqMessage m_receiveBuffer;
-    const iox::cxx::CString100 m_runnableName = iox::cxx::CString100("testRunnable");
-    const iox::cxx::CString100 m_invalidRunnableName = iox::cxx::CString100("invalidRunnable,");
+    const iox::cxx::string<100> m_runnableName{"testRunnable"};
+    const iox::cxx::string<100> m_invalidRunnableName{"invalidRunnable,"};
     static bool m_errorHandlerCalled;
+    const iox::cxx::string<100> m_runtimeName{"/sender"};
 };
 
 bool PoshRuntime_test::m_errorHandlerCalled{false};
 
 
-TEST_F(PoshRuntime_test, AppnameLength_TooLong)
+TEST_F(PoshRuntime_test, ValidAppName)
 {
-    const std::string string104chars =
-        "/MXIYXHyPF9KjXAPv9ev9jxofYDArZzTvf8FF5uaWWC4dwabcjW75DurqeN645IabAsXVfngor7784446vb4vhArwBxLZlN1k1Qmrtz";
+    std::string appName("/valid_name");
 
-    EXPECT_DEATH({ PoshRuntime::getInstance(string104chars); },
+    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(appName); });
+}
+
+
+TEST_F(PoshRuntime_test, AppNameLength_OutOfLimit)
+{
+    std::string tooLongName(100, 's');
+    tooLongName.insert(0, 1, '/');
+
+    EXPECT_DEATH({ PoshRuntime::getInstance(tooLongName); },
                  "Application name has more than 100 characters, including null termination!");
 }
 
 
-TEST_F(PoshRuntime_test, AppnameLength_ok)
+TEST_F(PoshRuntime_test, MaxAppNameLength)
 {
-    const std::string string100chars =
-        "/MXIYXHyPF9KjXAPv9ev9jxofYDArZzTvf8FF5uaWWC4dwabcjW75DurqeN645IabAsXVfngor7784446vb4vhArwBxLZlN1k1";
+    std::string maxValidName(99, 's');
+    maxValidName.insert(0, 1, '/');
 
-    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(string100chars); });
+    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(maxValidName); });
 }
 
 
-TEST_F(PoshRuntime_test, NoAppname)
+TEST_F(PoshRuntime_test, NoAppName)
 {
-    const std::string wrong("");
+    const std::string invalidAppName("");
 
-    EXPECT_DEATH({ PoshRuntime::getInstance(wrong); },
+    EXPECT_DEATH({ PoshRuntime::getInstance(invalidAppName); },
                  "Cannot initialize runtime. Application name must not be empty!");
 }
 
 
-TEST_F(PoshRuntime_test, NoLeadingSlash_Appname)
+TEST_F(PoshRuntime_test, NoLeadingSlashAppName)
 {
-    const std::string wrong = "wrongname";
+    const std::string invalidAppName = "invalidname";
 
-    EXPECT_DEATH({ PoshRuntime::getInstance(wrong); },
-                 "Cannot initialize runtime. Application name wrongname does not have the required leading slash '/'");
+    EXPECT_DEATH(
+        { PoshRuntime::getInstance(invalidAppName); },
+        "Cannot initialize runtime. Application name invalidname does not have the required leading slash '/'");
 }
 
 
-// test class creates instance of Poshruntime, so when getInstance() is called without name it reuturns extisting
-// instance
-TEST_F(PoshRuntime_test, DISABLED_AppnameEmpty)
+// since getInstance is a singleton and test class creates instance of Poshruntime,
+// when getInstance() is called without parameterx it reuturns extisting instance
+// To be able to test this, it needs to be the very first call to getInstance but since,
+// we have multiple tests in this binary its not possible here to test
+TEST_F(PoshRuntime_test, DISABLED_AppNameEmpty)
 {
     EXPECT_DEATH({ iox::runtime::PoshRuntime::getInstance(); },
                  "Cannot initialize runtime. Application name has not been specified!");
 }
 
 
-TEST_F(PoshRuntime_test, GetInstanceName)
+TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 {
     const std::string appname = "/app";
 
@@ -109,13 +117,14 @@ TEST_F(PoshRuntime_test, GetInstanceName)
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareApplication_ReturnValue)
+TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
 {
     uint32_t uniqueIdCounter = iox::popo::BasePortData::s_uniqueIdCounter;
 
-    const auto applicationPortData = m_senderRuntime->getMiddlewareApplication();
+    const auto applicationPortData = m_runtime->getMiddlewareApplication();
 
-    EXPECT_EQ(std::string("/sender"), applicationPortData->m_processName);
+    ASSERT_THAT(applicationPortData, Ne(nullptr));
+    EXPECT_THAT(m_runtimeName, applicationPortData->m_processName);
     EXPECT_EQ(iox::capro::ServiceDescription(0u, 0u, 0u), applicationPortData->m_serviceDescription);
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
     EXPECT_EQ(uniqueIdCounter, applicationPortData->m_uniqueId);
@@ -124,23 +133,30 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplication_ReturnValue)
 
 TEST_F(PoshRuntime_test, GetMiddlewareApplication_ApplicationlistOverflow)
 {
-    m_errorHandlerCalled = false;
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
-    for (auto i = 0u; i < iox::MAX_PROCESS_NUMBER; ++i)
+    // i=1 because there is already an active runtime in test fixture class which acquired an application port
+    for (auto i = 1u; i < iox::MAX_PROCESS_NUMBER; ++i)
     {
-        m_senderRuntime->getMiddlewareApplication();
+        auto appPort = m_runtime->getMiddlewareApplication();
+        EXPECT_NE(nullptr, appPort);
     }
+    auto appPort = m_runtime->getMiddlewareApplication();
 
-    EXPECT_TRUE(m_errorHandlerCalled);
+    EXPECT_EQ(nullptr, appPort);
+    EXPECT_TRUE(errorHandlerCalled);
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareInterface_ReturnValue)
+TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
 {
-    const auto interfacePortData =
-        m_senderRuntime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_runnableName);
+    const auto interfacePortData = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_runnableName);
 
-    EXPECT_EQ(std::string("/sender"), interfacePortData->m_processName);
+    EXPECT_EQ(m_runtimeName, interfacePortData->m_processName);
     EXPECT_EQ(iox::capro::ServiceDescription(0u, 0u, 0u), interfacePortData->m_serviceDescription);
     EXPECT_EQ(false, interfacePortData->m_toBeDestroyed);
     EXPECT_EQ(true, interfacePortData->m_doInitialOfferForward);
@@ -149,25 +165,32 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterface_ReturnValue)
 
 TEST_F(PoshRuntime_test, GetMiddlewareInterface_InterfacelistOverflow)
 {
-    m_errorHandlerCalled = false;
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
-    for (auto i = 0u; i < iox::MAX_INTERFACE_NUMBER + 1u; ++i)
+    for (auto i = 0u; i < iox::MAX_INTERFACE_NUMBER; ++i)
     {
-        m_senderRuntime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL);
+        auto interfacePort = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL);
+        EXPECT_NE(nullptr, interfacePort);
     }
+    auto interfacePort = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL);
 
-    EXPECT_TRUE(m_errorHandlerCalled);
+    EXPECT_EQ(nullptr, interfacePort);
+    EXPECT_TRUE(errorHandlerCalled);
 }
 
 
 TEST_F(PoshRuntime_test, SendMessageToRouDi_ValidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << std::string("/sender")
+    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_runnableName;
 
-    const auto status = m_senderRuntime->sendMessageToRouDi(m_sendBuffer);
+    const auto successfullySent = m_runtime->sendMessageToRouDi(m_sendBuffer);
 
-    EXPECT_EQ(true, status);
+    EXPECT_EQ(true, successfullySent);
 }
 
 
@@ -176,45 +199,46 @@ TEST_F(PoshRuntime_test, SendMessageToRouDi_InvalidMessage)
     m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << std::string()
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_invalidRunnableName;
 
-    const auto status = m_senderRuntime->sendMessageToRouDi(m_sendBuffer);
+    const auto successfullySent = m_runtime->sendMessageToRouDi(m_sendBuffer);
 
-    EXPECT_EQ(false, status);
+    EXPECT_EQ(false, successfullySent);
 }
 
 
 TEST_F(PoshRuntime_test, SendMessageToRouDi_EmptyMessage)
 {
-    const auto status = m_senderRuntime->sendMessageToRouDi(m_sendBuffer);
+    const auto successfullySent = m_runtime->sendMessageToRouDi(m_sendBuffer);
 
-    EXPECT_EQ(true, status);
+    EXPECT_EQ(true, successfullySent);
 }
 
 
 TEST_F(PoshRuntime_test, SendRequestToRouDi_ValidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << std::string("/sender")
+    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_runnableName;
 
-    const auto status = m_senderRuntime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
+    const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
 
-    EXPECT_EQ(true, status);
+    EXPECT_TRUE(m_receiveBuffer.isValid());
+    EXPECT_EQ(true, successfullySent);
 }
 
 
 TEST_F(PoshRuntime_test, SendRequestToRouDi_InvalidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << std::string("/sender")
+    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_invalidRunnableName;
 
-    const auto status = m_senderRuntime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
+    const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
 
-    EXPECT_EQ(false, status);
+    EXPECT_EQ(false, successfullySent);
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareSender_ReturnValue)
+TEST_F(PoshRuntime_test, GetMiddlewareSenderIsSuccessful)
 {
-    const auto senderPort = m_senderRuntime->getMiddlewareSender(
+    const auto senderPort = m_runtime->getMiddlewareSender(
         iox::capro::ServiceDescription(99u, 1u, 20u), m_runnableName, iox::runtime::PortConfigInfo(11u, 22u, 33u));
 
     EXPECT_EQ(iox::capro::ServiceDescription(99u, 1u, 20u), senderPort->m_serviceDescription);
@@ -225,7 +249,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSender_ReturnValue)
 
 TEST_F(PoshRuntime_test, GetMiddlewareSender_DefaultArgs)
 {
-    const auto senderPort = m_senderRuntime->getMiddlewareSender(iox::capro::ServiceDescription(99u, 1u, 20u));
+    const auto senderPort = m_runtime->getMiddlewareSender(iox::capro::ServiceDescription(99u, 1u, 20u));
 
     EXPECT_EQ(0u, senderPort->m_memoryInfo.deviceId);
     EXPECT_EQ(0u, senderPort->m_memoryInfo.memoryType);
@@ -234,20 +258,24 @@ TEST_F(PoshRuntime_test, GetMiddlewareSender_DefaultArgs)
 
 TEST_F(PoshRuntime_test, GetMiddlewareSender_SenderlistOverflow)
 {
-    m_errorHandlerCalled = false;
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     for (uint32_t i = 0u; i < iox::MAX_PORT_NUMBER; ++i)
     {
-        m_senderRuntime->getMiddlewareSender(iox::capro::ServiceDescription(i, i + 1u, i + 2u));
+        m_runtime->getMiddlewareSender(iox::capro::ServiceDescription(i, i + 1u, i + 2u));
     }
 
-    EXPECT_TRUE(m_errorHandlerCalled);
+    EXPECT_TRUE(errorHandlerCalled);
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareReceiver_ReturnValue)
+TEST_F(PoshRuntime_test, GetMiddlewareReceiverIsSuccessful)
 {
-    auto receiverPort = m_receiverRuntime->getMiddlewareReceiver(
+    auto receiverPort = m_runtime->getMiddlewareReceiver(
         iox::capro::ServiceDescription(99u, 1u, 20u), m_runnableName, iox::runtime::PortConfigInfo(11u, 22u, 33u));
 
     EXPECT_EQ(iox::capro::ServiceDescription(99u, 1u, 20u), receiverPort->m_serviceDescription);
@@ -258,7 +286,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiver_ReturnValue)
 
 TEST_F(PoshRuntime_test, GetMiddlewareReceiver_DefaultArgs)
 {
-    auto receiverPort = m_receiverRuntime->getMiddlewareReceiver(iox::capro::ServiceDescription(99u, 1u, 20u));
+    auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(99u, 1u, 20u));
 
     EXPECT_EQ(0u, receiverPort->m_memoryInfo.deviceId);
     EXPECT_EQ(0u, receiverPort->m_memoryInfo.memoryType);
@@ -267,53 +295,47 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiver_DefaultArgs)
 
 TEST_F(PoshRuntime_test, GetMiddlewareReceiver_ReceiverlistOverflow)
 {
-    m_errorHandlerCalled = false;
+    auto errorHandlerCalled{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     for (uint32_t i = 0u; i < iox::MAX_PORT_NUMBER + 1; ++i)
     {
-        m_senderRuntime->getMiddlewareReceiver(iox::capro::ServiceDescription(i, i + 1u, i + 2u));
+        m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(i, i + 1u, i + 2u));
     }
 
-    EXPECT_TRUE(m_errorHandlerCalled);
-}
-
-
-TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounter_ReturnValue)
-{
-    auto runnableData = m_senderRuntime->getServiceRegistryChangeCounter();
-
-    // Roudi internally  calls 5 servieces before application registers its service
-    EXPECT_EQ(5u, *runnableData);
+    EXPECT_TRUE(errorHandlerCalled);
 }
 
 
 TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounter_OfferStopOfferService)
 {
-    auto initial_value = m_senderRuntime->getServiceRegistryChangeCounter();
-    EXPECT_EQ(5u, *initial_value);
+    auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
+    auto initialCout = serviceCounter->load();
 
-    m_senderRuntime->offerService({"service1", "instance1"});
-    this->InterOpWait();
-    auto runnableData = m_senderRuntime->getServiceRegistryChangeCounter();
-
-    EXPECT_EQ(6u, *runnableData);
-
-    m_senderRuntime->stopOfferService({"service1", "instance1"});
+    m_runtime->offerService({"service1", "instance1"});
     this->InterOpWait();
 
-    EXPECT_EQ(7u, *runnableData);
+    EXPECT_EQ(initialCout + 1, serviceCounter->load());
+
+    m_runtime->stopOfferService({"service1", "instance1"});
+    this->InterOpWait();
+
+    EXPECT_EQ(initialCout + 2, serviceCounter->load());
 }
 
 
 TEST_F(PoshRuntime_test, CreateRunnable_ReturnValue)
 {
     const uint32_t runnableDeviceIdentifier = 1u;
-    iox::runtime::RunnableProperty runnableProperty(iox::cxx::CString100("testRunnable"), runnableDeviceIdentifier);
+    iox::runtime::RunnableProperty runnableProperty(iox::cxx::string<100>("testRunnable"), runnableDeviceIdentifier);
 
-    auto runableData = m_senderRuntime->createRunnable(runnableProperty);
+    auto runableData = m_runtime->createRunnable(runnableProperty);
 
-    EXPECT_EQ(std::string("/sender"), runableData->m_process);
-    EXPECT_EQ(iox::cxx::CString100("testRunnable"), runableData->m_runnable);
+    EXPECT_EQ(iox::cxx::string<100>("/sender"), runableData->m_process);
+    EXPECT_EQ(iox::cxx::string<100>("testRunnable"), runableData->m_runnable);
 
     /// @todo I am passing runnableDeviceIdentifier as 1, but it returns 0, is this expected?
     // EXPECT_EQ(runnableDeviceIdentifier, runableData->m_runnableDeviceIdentifier);
