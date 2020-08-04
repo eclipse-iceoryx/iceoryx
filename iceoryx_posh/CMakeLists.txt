@@ -75,6 +75,7 @@ add_library(iceoryx_posh
     source/popo/ports/application_port_data.cpp
     source/popo/ports/base_port_data.cpp
     source/popo/ports/base_port.cpp
+    source/popo/ports/publisher_port_data.cpp
     source/popo/ports/publisher_port_user.cpp
     source/popo/ports/publisher_port_roudi.cpp
     source/popo/ports/subscriber_port_user.cpp

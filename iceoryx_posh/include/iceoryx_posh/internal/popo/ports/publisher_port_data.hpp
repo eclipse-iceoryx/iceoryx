@@ -49,6 +49,4 @@ struct PublisherPortData : public BasePortData
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/ports/publisher_port_data.inl"
-
 #endif // IOX_POSH_POPO_PORTS_PUBLISHER_PORT_DATA_HPP
