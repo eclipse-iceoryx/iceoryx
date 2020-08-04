@@ -69,13 +69,13 @@ class ChunkDistributor_test : public Test
         static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
         static constexpr uint32_t MAX_CHUNKS_PER_SENDER = iox::MAX_CHUNKS_ALLOCATE_PER_SENDER;
         static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
-    } ChunkDistributorConfig_t;
+    };
 
     struct ChunkQueueConfig
     {
         static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
         static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = iox::MAX_CHUNKS_HELD_PER_RECEIVER;
-    } ChunkQueueConfig_t;
+    };
 
     using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig>;
     using ChunkDistributorData_t =
@@ -125,7 +125,7 @@ TYPED_TEST(ChunkDistributor_test, AfterAddingQueueChunkDistributorHasQueues)
 
 TYPED_TEST(ChunkDistributor_test, QueueOverflow)
 {
-    std::vector<std::shared_ptr<ChunkQueueData<decltype(this->ChunkQueueConfig_t)>>> queueVector;
+    std::vector<std::shared_ptr<ChunkQueueData<typename TestFixture::ChunkQueueConfig>>> queueVector;
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -302,7 +302,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto limit = 10;
-    std::vector<std::shared_ptr<ChunkQueueData<decltype(this->ChunkQueueConfig_t)>>> queueData;
+    std::vector<std::shared_ptr<ChunkQueueData<typename TestFixture::ChunkQueueConfig>>> queueData;
     for (auto i = 0; i < limit; ++i)
     {
         queueData.emplace_back(this->getChunkQueueData());
@@ -328,7 +328,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto limit = 10u;
-    std::vector<std::shared_ptr<ChunkQueueData<decltype(this->ChunkQueueConfig_t)>>> queueData;
+    std::vector<std::shared_ptr<ChunkQueueData<typename TestFixture::ChunkQueueConfig>>> queueData;
     for (auto i = 0u; i < limit; ++i)
     {
         queueData.emplace_back(this->getChunkQueueData());
