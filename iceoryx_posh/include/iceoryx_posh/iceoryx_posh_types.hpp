@@ -122,6 +122,7 @@ enum class SubscribeState : uint32_t
     WAIT_FOR_OFFER
 };
 
+// Default properties of ChunkDistributorData
 struct DefaultChunkDistributorConfig
 {
     static constexpr uint32_t MAX_QUEUES = MAX_SUBSCRIBERS_PER_PUBLISHER;
@@ -129,6 +130,7 @@ struct DefaultChunkDistributorConfig
     static constexpr uint64_t MAX_HISTORY_CAPACITY = MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
 };
 
+// Default properties of ChunkQueueData
 struct DefaultChunkQueueConfig
 {
     static constexpr uint32_t MAX_QUEUES = MAX_RECEIVER_QUEUE_CAPACITY;

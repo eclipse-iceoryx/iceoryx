@@ -51,27 +51,27 @@ class SingleThreadedPolicy
     bool tryLock() const noexcept;
 };
 
-template <typename DistributorProperties, typename LockingPolicy, typename ChunkQueuePusherType>
+template <typename ChunkDistributorDataProperties, typename LockingPolicy, typename ChunkQueuePusherType>
 struct ChunkDistributorData : public LockingPolicy
 {
-    using LockGuard_t =
-        std::lock_guard<const ChunkDistributorData<DistributorProperties, LockingPolicy, ChunkQueuePusherType>>;
+    using LockGuard_t = std::lock_guard<
+        const ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>>;
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
-    using DistributorProperties_t = DistributorProperties;
+    using ChunkDistributorDataProperties_t = ChunkDistributorDataProperties;
 
     explicit ChunkDistributorData(const uint64_t historyCapacity = 0u) noexcept;
 
     const uint64_t m_historyCapacity;
 
-    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, DistributorProperties::MAX_QUEUES>;
+    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, ChunkDistributorDataProperties_t::MAX_QUEUES>;
     QueueContainer_t m_queues;
 
     /// @todo using ChunkManagement instead of SharedChunk as in UsedChunkList?
     /// When to store a SharedChunk and when the included ChunkManagement must be used?
     /// If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to
     /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup
-    using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, DistributorProperties::MAX_HISTORY_CAPACITY>;
+    using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY>;
     HistoryContainer_t m_history;
 };
 

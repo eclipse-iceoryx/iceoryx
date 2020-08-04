@@ -25,16 +25,16 @@ constexpr T min(const T left, const T right)
     return (left < right) ? left : right;
 }
 
-template <typename DistributorProperties, typename LockingPolicy, typename ChunkQueuePusherType>
-inline ChunkDistributorData<DistributorProperties, LockingPolicy, ChunkQueuePusherType>::ChunkDistributorData(
+template <typename ChunkDistributorDataProperties, typename LockingPolicy, typename ChunkQueuePusherType>
+inline ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>::ChunkDistributorData(
     const uint64_t historyCapacity) noexcept
     : LockingPolicy()
-    , m_historyCapacity(min(historyCapacity, DistributorProperties::MAX_HISTORY_CAPACITY))
+    , m_historyCapacity(min(historyCapacity, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY))
 {
     if (m_historyCapacity != historyCapacity)
     {
         LogWarn() << "Chunk history too large, reducing from " << historyCapacity << " to "
-                  << DistributorProperties::MAX_HISTORY_CAPACITY;
+                  << ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY;
     }
 }
 
