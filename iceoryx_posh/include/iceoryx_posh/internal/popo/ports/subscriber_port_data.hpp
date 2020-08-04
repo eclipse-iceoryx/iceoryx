@@ -35,6 +35,8 @@ struct SubscriberPortData : public BasePortData
                        const uint64_t& historyRequest = 0u,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
+    using ChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig>;
+
     ChunkReceiverData<DefaultChunkQueueConfig> m_chunkReceiverData;
     const uint64_t m_historyRequest;
     std::atomic_bool m_subscribeRequested{false};

@@ -37,7 +37,7 @@ enum class AllocationError
 /// For getting chunks of memory the MemoryManger is used. Together with the ChunkReceiver, they are the next
 /// abstraction layer on top of ChunkDistributor and ChunkQueuePopper. The ChunkSender holds the ownership of the
 /// SharedChunks and does a bookkeeping which chunks are currently passed to the user side.
-template <typename ChunkQueueProperties, typename ChunkDistributorType>
+template <typename ChunkDistributorType>
 class ChunkSender : public ChunkDistributorType
 {
   public:

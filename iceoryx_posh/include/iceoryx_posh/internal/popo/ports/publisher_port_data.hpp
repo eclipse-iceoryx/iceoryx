@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -28,7 +29,6 @@ namespace iox
 {
 namespace popo
 {
-template <typename DistributorProperties, typename ChunkQueueProperties>
 struct PublisherPortData : public BasePortData
 {
     PublisherPortData(const capro::ServiceDescription& serviceDescription,
@@ -37,9 +37,10 @@ struct PublisherPortData : public BasePortData
                       const uint64_t historyCapacity = 0u,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    using ChunkDistributorData_t = ChunkDistributorData<iox::DefaultChunkDistributorConfig,
-                                                        ThreadSafePolicy,
-                                                        ChunkQueuePusher<ChunkQueueProperties>>;
+    using ChunkQueueData_t = SubscriberPortData::ChunkQueueData_t;
+    using ChunkDistributorData_t =
+        ChunkDistributorData<DefaultChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
+
     ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData;
     std::atomic_bool m_offeringRequested{false};
     std::atomic_bool m_offered{false};

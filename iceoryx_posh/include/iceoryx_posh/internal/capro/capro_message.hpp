@@ -22,8 +22,6 @@ namespace iox
 namespace popo
 {
 struct ReceiverPortData;
-template <typename ChunkQueueProperties>
-struct ChunkQueueData;
 } // namespace popo
 
 namespace capro
@@ -83,7 +81,7 @@ class CaproMessage
     ServiceDescription m_serviceDescription;
     /// @brief Null-Pointer for request-port with no specific type
     popo::ReceiverPortData* m_requestPort{nullptr};
-    popo::ChunkQueueData<DefaultChunkQueueConfig>* m_chunkQueueData{nullptr};
+    void* m_chunkQueueData{nullptr};
     uint64_t m_historyCapacity{0u};
 };
 

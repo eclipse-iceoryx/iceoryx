@@ -51,9 +51,7 @@ class SingleThreadedPolicy
     bool tryLock() const noexcept;
 };
 
-template <typename DistributorProperties,
-          typename LockingPolicy,
-          typename ChunkQueuePusherType = ChunkQueuePusher<DistributorProperties>>
+template <typename DistributorProperties, typename LockingPolicy, typename ChunkQueuePusherType>
 struct ChunkDistributorData : public LockingPolicy
 {
     using LockGuard_t =

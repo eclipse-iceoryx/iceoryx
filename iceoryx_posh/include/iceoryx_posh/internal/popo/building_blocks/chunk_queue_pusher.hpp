@@ -28,11 +28,11 @@ namespace popo
 /// Together with the ChunkDistributor and ChunkQueuePopper the ChunkQueuePusher builds the infrastructure
 /// to exchange memory chunks between different data producers and consumers that could be located in different
 /// processes. A ChunkQueuePusher is the part of the chunk queue that is knwon by the ChunkDistributor
-template <typename DistributorProperties>
+template <typename ChunkQueueDataType>
 class ChunkQueuePusher
 {
   public:
-    using MemberType_t = ChunkQueueData<DistributorProperties>;
+    using MemberType_t = ChunkQueueDataType;
 
     explicit ChunkQueuePusher(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
 
