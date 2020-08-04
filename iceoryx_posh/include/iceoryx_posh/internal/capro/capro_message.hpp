@@ -15,7 +15,6 @@
 #define IOX_POSH_CAPRO_CAPRO_MESSAGE_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox
 {
