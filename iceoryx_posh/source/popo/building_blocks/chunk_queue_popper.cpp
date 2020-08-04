@@ -115,7 +115,7 @@ void ChunkQueuePopper::clear() noexcept
 
 bool ChunkQueuePopper::attachConditionVariableSignaler(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
-    /// @todo Add lock guard here
+    /// @todo Add lock guard here, use smart_lock
     if (isConditionVariableSignalerAttached())
     {
         LogWarn() << "Condition variable signaler already set. Attaching a second time will be ignored!";
@@ -131,7 +131,7 @@ bool ChunkQueuePopper::attachConditionVariableSignaler(ConditionVariableData* co
 
 bool ChunkQueuePopper::detachConditionVariableSignaler() noexcept
 {
-    /// @todo Add lock guard here
+    /// @todo Add lock guard here, use smart_lock
     if (isConditionVariableSignalerAttached())
     {
         getMembers()->m_conditionVariableDataPtr = nullptr;

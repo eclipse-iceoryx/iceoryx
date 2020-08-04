@@ -61,7 +61,7 @@ cxx::expected<ChunkQueueError> ChunkQueuePusher::push(mepoo::SharedChunk chunk) 
 
         if (getMembers()->m_conditionVariableAttached.load(std::memory_order_acquire) && getMembers()->m_conditionVariableDataPtr)
         {
-            /// @todo Add lock guard here
+            /// @todo Add lock guard here, use smart_lock
             ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
             condVarSignaler.notifyOne();
         }
