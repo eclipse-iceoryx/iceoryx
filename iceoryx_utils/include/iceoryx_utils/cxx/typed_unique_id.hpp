@@ -79,7 +79,7 @@ class TypedUniqueId : public NewType<uint64_t,
   public:
     using ThisType::ThisType;
 
-    /// @brief the constructor creates an id which is greater then the
+    /// @brief the constructor creates an id which is greater than the
     ///         previous created id
     TypedUniqueId() noexcept;
 
