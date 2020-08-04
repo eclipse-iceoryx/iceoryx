@@ -32,7 +32,7 @@ template<typename T, typename sender_port_t = iox::popo::SenderPort>
 class Publisher
 {
 public:
-    using chunk_t = T*;
+    using chunk_t = void*;
     using uid_t = uint64_t;
 
     // Temporary, to be replaced with service description / id based constructors
@@ -58,7 +58,7 @@ public:
     /// @brief allocate Allocates a chunk of shared memory.Q
     /// @return Pointer to the successfully allocated memory, otherwise an allocation error.
     ///
-    cxx::expected<void*, AllocationError> allocate() const noexcept;
+    cxx::expected<chunk_t, AllocationError> allocate() const noexcept;
 
     ///
     /// @brief release Releases ownership of an unused allocated chunk.
@@ -75,7 +75,7 @@ public:
     /// @details Ownership of published chunks is automatically released.
     /// @param chunk
     ///
-    void publish(void*&& chunk) const noexcept;
+    void publish(chunk_t&& chunk) const noexcept;
 
     ///
     /// @brief copyAndPublish Copy the given sample into a shared memory chunk and immediately publish.
