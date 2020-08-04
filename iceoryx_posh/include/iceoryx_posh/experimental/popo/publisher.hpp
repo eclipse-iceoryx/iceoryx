@@ -32,7 +32,7 @@ template<typename T, typename sender_port_t = iox::popo::SenderPort>
 class Publisher
 {
 public:
-    using chunk_t = void*;
+    using chunk_t = T*;
     using uid_t = uint64_t;
 
     // Temporary, to be replaced with service description / id based constructors
@@ -54,6 +54,8 @@ public:
     // For the purpose of minimizing copying, a chunk needs to be returned when allocated (i.e. void pointer), with
     // which the user can use to initialize the type.
     // Therefore, the user needs some kind of entity (i.e. chunk) that provides a memory location to write the data.
+    // We can't just provide a T* because this memory is undefined and could lead to misuse. We can't initialize the
+    // memory ourselves because then we have no zero copy (or a wasted initliazation? double check...).
     ///
     /// @brief allocate Allocates a chunk of shared memory.Q
     /// @return Pointer to the successfully allocated memory, otherwise an allocation error.
