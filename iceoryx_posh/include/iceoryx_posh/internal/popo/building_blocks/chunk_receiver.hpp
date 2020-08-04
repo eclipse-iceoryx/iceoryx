@@ -36,11 +36,11 @@ enum class ChunkReceiveError
 /// The
 /// ChunkRceiver holds the ownership of the SharedChunks and does a bookkeeping which chunks are currently passed to the
 /// user side.
-template <typename ChunkQueueProperties>
-class ChunkReceiver : public ChunkQueuePopper<ChunkQueueProperties>
+template <typename ChunkQueueDataType>
+class ChunkReceiver : public ChunkQueuePopper<ChunkQueueDataType>
 {
   public:
-    using MemberType_t = ChunkReceiverData<ChunkQueueProperties>;
+    using MemberType_t = ChunkReceiverData<ChunkQueueDataType>;
 
     explicit ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
 

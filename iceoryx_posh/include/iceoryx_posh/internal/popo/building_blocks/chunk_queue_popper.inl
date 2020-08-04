@@ -21,29 +21,29 @@ namespace iox
 {
 namespace popo
 {
-template <typename ChunkQueueProperties>
-inline ChunkQueuePopper<ChunkQueueProperties>::ChunkQueuePopper(
+template <typename ChunkQueueDataType>
+inline ChunkQueuePopper<ChunkQueueDataType>::ChunkQueuePopper(
     cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept
     : m_chunkQueueDataPtr(chunkQueueDataPtr)
 {
 }
 
-template <typename ChunkQueueProperties>
-inline const typename ChunkQueuePopper<ChunkQueueProperties>::MemberType_t*
-ChunkQueuePopper<ChunkQueueProperties>::getMembers() const noexcept
+template <typename ChunkQueueDataType>
+inline const typename ChunkQueuePopper<ChunkQueueDataType>::MemberType_t*
+ChunkQueuePopper<ChunkQueueDataType>::getMembers() const noexcept
 {
     return m_chunkQueueDataPtr;
 }
 
-template <typename ChunkQueueProperties>
-inline typename ChunkQueuePopper<ChunkQueueProperties>::MemberType_t*
-ChunkQueuePopper<ChunkQueueProperties>::getMembers() noexcept
+template <typename ChunkQueueDataType>
+inline typename ChunkQueuePopper<ChunkQueueDataType>::MemberType_t*
+ChunkQueuePopper<ChunkQueueDataType>::getMembers() noexcept
 {
     return m_chunkQueueDataPtr;
 }
 
-template <typename ChunkQueueProperties>
-inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueProperties>::pop() noexcept
+template <typename ChunkQueueDataType>
+inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::pop() noexcept
 {
     auto retVal = getMembers()->m_queue.pop();
 
@@ -62,8 +62,8 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueProperties>:
     }
 }
 
-template <typename ChunkQueueProperties>
-inline bool ChunkQueuePopper<ChunkQueueProperties>::hasOverflown() noexcept
+template <typename ChunkQueueDataType>
+inline bool ChunkQueuePopper<ChunkQueueDataType>::hasOverflown() noexcept
 {
     if (getMembers()->m_queueHasOverflown.load(std::memory_order_relaxed))
     {
@@ -73,20 +73,20 @@ inline bool ChunkQueuePopper<ChunkQueueProperties>::hasOverflown() noexcept
     return false;
 }
 
-template <typename ChunkQueueProperties>
-inline bool ChunkQueuePopper<ChunkQueueProperties>::empty() noexcept
+template <typename ChunkQueueDataType>
+inline bool ChunkQueuePopper<ChunkQueueDataType>::empty() noexcept
 {
     return getMembers()->m_queue.empty();
 }
 
-template <typename ChunkQueueProperties>
-inline uint64_t ChunkQueuePopper<ChunkQueueProperties>::size() noexcept
+template <typename ChunkQueueDataType>
+inline uint64_t ChunkQueuePopper<ChunkQueueDataType>::size() noexcept
 {
     return getMembers()->m_queue.size();
 }
 
-template <typename ChunkQueueProperties>
-inline void ChunkQueuePopper<ChunkQueueProperties>::setCapacity(const uint64_t newCapacity) noexcept
+template <typename ChunkQueueDataType>
+inline void ChunkQueuePopper<ChunkQueueDataType>::setCapacity(const uint64_t newCapacity) noexcept
 {
     /// @todo fix getCapacity and setCapacity issue in queues (uint32 vs uint64)
     // this needs to be properly fixed by harmonizing the types across the functions, but currently this cast is also
@@ -95,20 +95,20 @@ inline void ChunkQueuePopper<ChunkQueueProperties>::setCapacity(const uint64_t n
         static_cast<typename std::remove_const<decltype(MemberType_t::MAX_CAPACITY)>::type>(newCapacity));
 }
 
-template <typename ChunkQueueProperties>
-inline uint64_t ChunkQueuePopper<ChunkQueueProperties>::getCurrentCapacity() const noexcept
+template <typename ChunkQueueDataType>
+inline uint64_t ChunkQueuePopper<ChunkQueueDataType>::getCurrentCapacity() const noexcept
 {
     return getMembers()->m_queue.capacity();
 }
 
-template <typename ChunkQueueProperties>
-inline uint64_t ChunkQueuePopper<ChunkQueueProperties>::getMaximumCapacity() const noexcept
+template <typename ChunkQueueDataType>
+inline uint64_t ChunkQueuePopper<ChunkQueueDataType>::getMaximumCapacity() const noexcept
 {
     return MemberType_t::MAX_CAPACITY;
 }
 
-template <typename ChunkQueueProperties>
-inline void ChunkQueuePopper<ChunkQueueProperties>::clear() noexcept
+template <typename ChunkQueueDataType>
+inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
 {
     do
     {
@@ -128,8 +128,8 @@ inline void ChunkQueuePopper<ChunkQueueProperties>::clear() noexcept
     } while (true);
 }
 
-template <typename ChunkQueueProperties>
-inline bool ChunkQueuePopper<ChunkQueueProperties>::attachConditionVariableSignaler(
+template <typename ChunkQueueDataType>
+inline bool ChunkQueuePopper<ChunkQueueDataType>::attachConditionVariableSignaler(
     ConditionVariableData* conditionVariableDataPtr) noexcept
 {
     /// @todo Add lock guard here
@@ -146,8 +146,8 @@ inline bool ChunkQueuePopper<ChunkQueueProperties>::attachConditionVariableSigna
     }
 }
 
-template <typename ChunkQueueProperties>
-inline bool ChunkQueuePopper<ChunkQueueProperties>::detachConditionVariableSignaler() noexcept
+template <typename ChunkQueueDataType>
+inline bool ChunkQueuePopper<ChunkQueueDataType>::detachConditionVariableSignaler() noexcept
 {
     /// @todo Add lock guard here
     if (isConditionVariableSignalerAttached())
@@ -163,8 +163,8 @@ inline bool ChunkQueuePopper<ChunkQueueProperties>::detachConditionVariableSigna
     }
 }
 
-template <typename ChunkQueueProperties>
-inline bool ChunkQueuePopper<ChunkQueueProperties>::isConditionVariableSignalerAttached() const noexcept
+template <typename ChunkQueueDataType>
+inline bool ChunkQueuePopper<ChunkQueueDataType>::isConditionVariableSignalerAttached() const noexcept
 {
     return getMembers()->m_conditionVariableAttached.load(std::memory_order_relaxed);
 }

@@ -215,7 +215,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueue)
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
 
-    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
+    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     auto maybeSharedChunk = queue.pop();
 
     ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
@@ -233,7 +233,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliversOn
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
 
-    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
+    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(1u));
     EXPECT_THAT(sut.getHistorySize(), Eq(1u));
 }
@@ -251,7 +251,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithDuplicatedQueueDel
     auto chunk = this->allocateChunk(4451);
     sut.deliverToAllStoredQueues(chunk);
 
-    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
+    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(1u));
     EXPECT_THAT(sut.getHistorySize(), Eq(1u));
 }
@@ -269,7 +269,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueMultipleCh
     for (auto i = 0; i < limit; ++i)
         sut.deliverToAllStoredQueues(this->allocateChunk(i * 123));
 
-    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
+    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     for (auto i = 0; i < limit; ++i)
     {
         auto maybeSharedChunk = queue.pop();
@@ -291,7 +291,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithOneQueueDeliverMul
     for (auto i = 0u; i < limit; ++i)
         sut.deliverToAllStoredQueues(this->allocateChunk(i * 123));
 
-    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
+    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     EXPECT_THAT(queue.size(), Eq(limit));
     EXPECT_THAT(sut.getHistorySize(), Eq(limit));
 }
@@ -314,7 +314,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
 
     for (auto i = 0; i < limit; ++i)
     {
-        ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData[i].get());
+        ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData[i].get());
         auto maybeSharedChunk = queue.pop();
         ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
         EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(24451u));
@@ -342,7 +342,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
     {
         for (auto k = 0u; k < limit; ++k)
         {
-            ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData[i].get());
+            ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData[i].get());
             auto maybeSharedChunk = queue.pop();
             ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
             EXPECT_THAT(this->getSharedChunkValue(*maybeSharedChunk), Eq(k * 34u));
@@ -402,7 +402,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenNotAdded)
     auto chunk = this->allocateChunk(4451);
     sut.deliverToQueue(queueData.get(), chunk);
 
-    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
+    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     auto maybeSharedChunk = queue.pop();
 
     ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
@@ -420,7 +420,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueDirectlyWhenAdded)
     auto chunk = this->allocateChunk(451);
     sut.deliverToQueue(queueData.get(), chunk);
 
-    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
+    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     auto maybeSharedChunk = queue.pop();
 
     ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
@@ -467,7 +467,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithLessThanAvailable)
 
     // add a queue with a requested history of one must deliver the latest sample
     auto queueData = this->getChunkQueueData();
-    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
+    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     sut.addQueue(queueData.get(), 1);
 
     EXPECT_THAT(queue.size(), Eq(1u));
@@ -490,7 +490,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithExactAvailable)
 
     // add a queue with a requested history of 3 must deliver all three in the order oldest to newest
     auto queueData = this->getChunkQueueData();
-    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
+    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     sut.addQueue(queueData.get(), 3);
 
     EXPECT_THAT(queue.size(), Eq(3u));
@@ -518,7 +518,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverHistoryOnAddWithMoreThanAvailable)
 
     // add a queue with a requested history of 5 must deliver only the three available in the order oldest to newest
     auto queueData = this->getChunkQueueData();
-    ChunkQueuePopper<decltype(this->ChunkQueueConfig_t)> queue(queueData.get());
+    ChunkQueuePopper<typename TestFixture::ChunkQueueData_t> queue(queueData.get());
     sut.addQueue(queueData.get(), 5);
 
     EXPECT_THAT(queue.size(), Eq(3u));

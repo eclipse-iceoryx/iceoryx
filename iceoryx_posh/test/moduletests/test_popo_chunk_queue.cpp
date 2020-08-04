@@ -63,7 +63,7 @@ class ChunkQueue_test : public TestWithParam<iox::cxx::VariantQueueTypes>, publi
     using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
 
     ChunkQueueData_t m_chunkData{GetParam()};
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> m_popper{&m_chunkData};
+    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
     ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
@@ -204,7 +204,7 @@ class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
     using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
 
     ChunkQueueData_t m_chunkData{iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer};
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> m_popper{&m_chunkData};
+    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
     ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
@@ -251,9 +251,8 @@ class ChunkQueueSoFi_test : public Test, public ChunkQueue_testBase
 
     using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
 
-    ChunkQueueData_t m_chunkData{
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-    ChunkQueuePopper<iox::DefaultChunkQueueConfig> m_popper{&m_chunkData};
+    ChunkQueueData_t m_chunkData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
     ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 

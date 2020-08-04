@@ -37,7 +37,7 @@ struct SubscriberPortData : public BasePortData
 
     using ChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig>;
 
-    ChunkReceiverData<DefaultChunkQueueConfig> m_chunkReceiverData;
+    ChunkReceiverData<ChunkQueueData_t> m_chunkReceiverData;
     const uint64_t m_historyRequest;
     std::atomic_bool m_subscribeRequested{false};
     std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};

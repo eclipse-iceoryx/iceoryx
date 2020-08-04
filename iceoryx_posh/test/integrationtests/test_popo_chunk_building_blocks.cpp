@@ -203,14 +203,14 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     // Objects used by forwarding thread
     ChunkDistributorData_t m_chunkDistributorData;
     ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
-    ChunkQueueData<ChunkQueueConfig> m_chunkQueueData{
+    ChunkQueueData_t m_chunkQueueData{
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
-    ChunkQueuePopper<ChunkQueueConfig> m_popper{&m_chunkQueueData};
+    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
-    ChunkReceiverData<ChunkQueueConfig> m_chunkReceiverData{
+    ChunkReceiverData<ChunkQueueData_t> m_chunkReceiverData{
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
-    ChunkReceiver<ChunkQueueConfig> m_chunkReceiver{&m_chunkReceiverData};
+    ChunkReceiver<ChunkQueueData_t> m_chunkReceiver{&m_chunkReceiverData};
 };
 
 TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)

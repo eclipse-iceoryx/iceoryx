@@ -60,6 +60,8 @@ class PublisherPort_test : public Test
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 20;
     static constexpr uint32_t CHUNK_SIZE = 128;
 
+    using ChunkQueueData_t = iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig>;
+
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
@@ -214,8 +216,7 @@ TEST_F(PublisherPort_test, allocateAndSendMultipleChunksWithoutSubscriberHoldsOn
 
 TEST_F(PublisherPort_test, subscribeWhenNotOfferedReturnsNACK)
 {
-    iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig> m_chunkQueueData{
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -232,8 +233,7 @@ TEST_F(PublisherPort_test, unsubscribeWhenNotSubscribedReturnsNACK)
 {
     m_sutUserSide.offer();
     m_sutRouDiSide.getCaProMessage();
-    iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig> m_chunkQueueData{
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::UNSUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -250,8 +250,7 @@ TEST_F(PublisherPort_test, subscribeWhenOfferedReturnsACKAndWeHaveSubscribers)
 {
     m_sutUserSide.offer();
     m_sutRouDiSide.getCaProMessage();
-    iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig> m_chunkQueueData{
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -269,8 +268,7 @@ TEST_F(PublisherPort_test, unsubscribeWhenSubscribedReturnsACKAndWeHaveNoMoreSub
 {
     m_sutUserSide.offer();
     m_sutRouDiSide.getCaProMessage();
-    iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig> m_chunkQueueData{
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -294,12 +292,10 @@ TEST_F(PublisherPort_test, subscribeManyIsFine)
     // using dummy pointers for the provided chunk queue data
     uint64_t dummy;
     uint64_t* dummyPtr = &dummy;
-    iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig> m_chunkQueueData{
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
-    caproMessage.m_chunkQueueData =
-        reinterpret_cast<iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig>*>(dummyPtr);
+    caproMessage.m_chunkQueueData = reinterpret_cast<ChunkQueueData_t*>(dummyPtr);
     caproMessage.m_historyCapacity = 0u;
 
     for (size_t i = 0; i < iox::MAX_SUBSCRIBERS_PER_PUBLISHER; i++)
@@ -309,8 +305,7 @@ TEST_F(PublisherPort_test, subscribeManyIsFine)
         auto caproMessageResponse = maybeCaProMessage.value();
         EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::ACK));
         dummyPtr++;
-        caproMessage.m_chunkQueueData =
-            reinterpret_cast<iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig>*>(dummyPtr);
+        caproMessage.m_chunkQueueData = reinterpret_cast<ChunkQueueData_t*>(dummyPtr);
     }
 }
 
@@ -321,19 +316,16 @@ TEST_F(PublisherPort_test, subscribeTillOverflowReturnsNACK)
     // using dummy pointers for the provided chunk queue data
     uint64_t dummy;
     uint64_t* dummyPtr = &dummy;
-    iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig> m_chunkQueueData{
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
-    caproMessage.m_chunkQueueData =
-        reinterpret_cast<iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig>*>(dummyPtr);
+    caproMessage.m_chunkQueueData = reinterpret_cast<ChunkQueueData_t*>(dummyPtr);
     caproMessage.m_historyCapacity = 0u;
     for (size_t i = 0; i < iox::MAX_SUBSCRIBERS_PER_PUBLISHER; i++)
     {
         m_sutRouDiSide.dispatchCaProMessage(caproMessage);
         dummyPtr++;
-        caproMessage.m_chunkQueueData =
-            reinterpret_cast<iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig>*>(dummyPtr);
+        caproMessage.m_chunkQueueData = reinterpret_cast<ChunkQueueData_t*>(dummyPtr);
     }
 
     auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
@@ -347,8 +339,7 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
 {
     m_sutUserSide.offer();
     m_sutRouDiSide.getCaProMessage();
-    iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig> m_chunkQueueData{
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -360,7 +351,7 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
     new (sample) DummySample();
     static_cast<DummySample*>(sample)->dummy = 17;
     m_sutUserSide.sendChunk(chunkHeader);
-    iox::popo::ChunkQueuePopper<iox::DefaultChunkQueueConfig> m_chunkQueuePopper(&m_chunkQueueData);
+    iox::popo::ChunkQueuePopper<ChunkQueueData_t> m_chunkQueuePopper(&m_chunkQueueData);
 
     auto maybeSharedChunk = m_chunkQueuePopper.pop();
 
@@ -388,14 +379,13 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
     m_sutWithHistoryUseriSide.offer();
     m_sutWithHistoryRouDiSide.getCaProMessage();
     // 3. subscribe with a history request
-    iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig> m_chunkQueueData{
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 1u; // request history of 1
     m_sutWithHistoryRouDiSide.dispatchCaProMessage(caproMessage);
-    iox::popo::ChunkQueuePopper<iox::DefaultChunkQueueConfig> m_chunkQueuePopper(&m_chunkQueueData);
+    iox::popo::ChunkQueuePopper<ChunkQueueData_t> m_chunkQueuePopper(&m_chunkQueueData);
 
     // 4. We get the history value on subscribe
     auto maybeSharedChunk = m_chunkQueuePopper.pop();

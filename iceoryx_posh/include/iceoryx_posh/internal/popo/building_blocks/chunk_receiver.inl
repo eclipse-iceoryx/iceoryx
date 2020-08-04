@@ -21,31 +21,31 @@ namespace iox
 {
 namespace popo
 {
-template <typename ChunkQueueProperties>
-inline ChunkReceiver<ChunkQueueProperties>::ChunkReceiver(
+template <typename ChunkQueueDataType>
+inline ChunkReceiver<ChunkQueueDataType>::ChunkReceiver(
     cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept
-    : ChunkQueuePopper<ChunkQueueProperties>(
-        static_cast<typename ChunkQueuePopper<ChunkQueueProperties>::MemberType_t*>(chunkReceiverDataPtr))
+    : ChunkQueuePopper<ChunkQueueDataType>(
+        static_cast<typename ChunkQueuePopper<ChunkQueueDataType>::MemberType_t*>(chunkReceiverDataPtr))
 {
 }
 
-template <typename ChunkQueueProperties>
-inline const typename ChunkReceiver<ChunkQueueProperties>::MemberType_t*
-ChunkReceiver<ChunkQueueProperties>::getMembers() const noexcept
+template <typename ChunkQueueDataType>
+inline const typename ChunkReceiver<ChunkQueueDataType>::MemberType_t*
+ChunkReceiver<ChunkQueueDataType>::getMembers() const noexcept
 {
-    return reinterpret_cast<const MemberType_t*>(ChunkQueuePopper<ChunkQueueProperties>::getMembers());
+    return reinterpret_cast<const MemberType_t*>(ChunkQueuePopper<ChunkQueueDataType>::getMembers());
 }
 
-template <typename ChunkQueueProperties>
-inline typename ChunkReceiver<ChunkQueueProperties>::MemberType_t*
-ChunkReceiver<ChunkQueueProperties>::getMembers() noexcept
+template <typename ChunkQueueDataType>
+inline typename ChunkReceiver<ChunkQueueDataType>::MemberType_t*
+ChunkReceiver<ChunkQueueDataType>::getMembers() noexcept
 {
-    return reinterpret_cast<MemberType_t*>(ChunkQueuePopper<ChunkQueueProperties>::getMembers());
+    return reinterpret_cast<MemberType_t*>(ChunkQueuePopper<ChunkQueueDataType>::getMembers());
 }
 
-template <typename ChunkQueueProperties>
+template <typename ChunkQueueDataType>
 inline cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError>
-ChunkReceiver<ChunkQueueProperties>::get() noexcept
+ChunkReceiver<ChunkQueueDataType>::get() noexcept
 {
     auto popRet = this->pop();
 
@@ -73,8 +73,8 @@ ChunkReceiver<ChunkQueueProperties>::get() noexcept
     }
 }
 
-template <typename ChunkQueueProperties>
-inline void ChunkReceiver<ChunkQueueProperties>::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
+template <typename ChunkQueueDataType>
+inline void ChunkReceiver<ChunkQueueDataType>::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
     // PRQA S 4127 1 # d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
@@ -84,8 +84,8 @@ inline void ChunkReceiver<ChunkQueueProperties>::release(const mepoo::ChunkHeade
     }
 }
 
-template <typename ChunkQueueProperties>
-inline void ChunkReceiver<ChunkQueueProperties>::releaseAll() noexcept
+template <typename ChunkQueueDataType>
+inline void ChunkReceiver<ChunkQueueDataType>::releaseAll() noexcept
 {
     getMembers()->m_chunksInUse.cleanup();
     this->clear();

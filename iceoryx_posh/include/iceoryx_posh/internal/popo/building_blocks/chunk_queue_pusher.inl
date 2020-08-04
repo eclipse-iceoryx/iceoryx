@@ -22,29 +22,29 @@ namespace iox
 {
 namespace popo
 {
-template <typename ChunkQueueProperties>
-inline ChunkQueuePusher<ChunkQueueProperties>::ChunkQueuePusher(
+template <typename ChunkQueueDataType>
+inline ChunkQueuePusher<ChunkQueueDataType>::ChunkQueuePusher(
     cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept
     : m_chunkQueueDataPtr(chunkQueueDataPtr)
 {
 }
 
-template <typename ChunkQueueProperties>
-inline const typename ChunkQueuePusher<ChunkQueueProperties>::MemberType_t*
-ChunkQueuePusher<ChunkQueueProperties>::getMembers() const noexcept
+template <typename ChunkQueueDataType>
+inline const typename ChunkQueuePusher<ChunkQueueDataType>::MemberType_t*
+ChunkQueuePusher<ChunkQueueDataType>::getMembers() const noexcept
 {
     return m_chunkQueueDataPtr;
 }
 
-template <typename ChunkQueueProperties>
-inline typename ChunkQueuePusher<ChunkQueueProperties>::MemberType_t*
-ChunkQueuePusher<ChunkQueueProperties>::getMembers() noexcept
+template <typename ChunkQueueDataType>
+inline typename ChunkQueuePusher<ChunkQueueDataType>::MemberType_t*
+ChunkQueuePusher<ChunkQueueDataType>::getMembers() noexcept
 {
     return m_chunkQueueDataPtr;
 }
 
-template <typename ChunkQueueProperties>
-inline cxx::expected<ChunkQueueError> ChunkQueuePusher<ChunkQueueProperties>::push(mepoo::SharedChunk chunk) noexcept
+template <typename ChunkQueueDataType>
+inline cxx::expected<ChunkQueueError> ChunkQueuePusher<ChunkQueueDataType>::push(mepoo::SharedChunk chunk) noexcept
 {
     ChunkTuple chunkTupleIn(chunk.releaseWithRelativePtr());
 
