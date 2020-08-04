@@ -45,30 +45,38 @@ class PoshRuntime_test : public Test
     PoshRuntime* m_senderRuntime{&iox::runtime::PoshRuntime::getInstance("/sender")};
     MqMessage m_sendBuffer;
     MqMessage m_receiveBuffer;
-    const iox::cxx::CString100 m_runnableName = iox::cxx::CString100("testRunnable");
-    const iox::cxx::CString100 m_invalidRunnableName = iox::cxx::CString100("invalidRunnable,");
+    const iox::cxx::CString100 m_runnableName{"testRunnable"};
+    const iox::cxx::CString100 m_invalidRunnableName{"invalidRunnable,"};
     static bool m_errorHandlerCalled;
 };
 
 bool PoshRuntime_test::m_errorHandlerCalled{false};
 
 
-TEST_F(PoshRuntime_test, AppnameLength_TooLong)
+TEST_F(PoshRuntime_test, ValidAppname)
 {
-    const std::string string104chars =
-        "/MXIYXHyPF9KjXAPv9ev9jxofYDArZzTvf8FF5uaWWC4dwabcjW75DurqeN645IabAsXVfngor7784446vb4vhArwBxLZlN1k1Qmrtz";
+    std::string appName("/valid_name");
 
-    EXPECT_DEATH({ PoshRuntime::getInstance(string104chars); },
+    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(appName); });
+}
+
+
+TEST_F(PoshRuntime_test, AppnameLength_OutOfLimit)
+{
+    std::string tooLongName(100, 's');
+    tooLongName.insert(0, 1, '/');
+
+    EXPECT_DEATH({ PoshRuntime::getInstance(tooLongName); },
                  "Application name has more than 100 characters, including null termination!");
 }
 
 
-TEST_F(PoshRuntime_test, AppnameLength_ok)
+TEST_F(PoshRuntime_test, MaxAppnameLength)
 {
-    const std::string string100chars =
-        "/MXIYXHyPF9KjXAPv9ev9jxofYDArZzTvf8FF5uaWWC4dwabcjW75DurqeN645IabAsXVfngor7784446vb4vhArwBxLZlN1k1";
+    std::string maxValidName(99, 's');
+    maxValidName.insert(0, 1, '/');
 
-    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(string100chars); });
+    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(maxValidName); });
 }
 
 
@@ -99,7 +107,7 @@ TEST_F(PoshRuntime_test, DISABLED_AppnameEmpty)
 }
 
 
-TEST_F(PoshRuntime_test, GetInstanceName)
+TEST_F(PoshRuntime_test, GetInstanceName_ReturnValue)
 {
     const std::string appname = "/app";
 
@@ -278,30 +286,21 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiver_ReceiverlistOverflow)
 }
 
 
-TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounter_ReturnValue)
-{
-    auto runnableData = m_senderRuntime->getServiceRegistryChangeCounter();
-
-    // Roudi internally  calls 5 servieces before application registers its service
-    EXPECT_EQ(5u, *runnableData);
-}
-
-
 TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounter_OfferStopOfferService)
 {
-    auto initial_value = m_senderRuntime->getServiceRegistryChangeCounter();
-    EXPECT_EQ(5u, *initial_value);
+    auto initialValue = m_senderRuntime->getServiceRegistryChangeCounter();
+    EXPECT_EQ(5u, *initialValue);
 
     m_senderRuntime->offerService({"service1", "instance1"});
     this->InterOpWait();
-    auto runnableData = m_senderRuntime->getServiceRegistryChangeCounter();
+    auto counter = m_senderRuntime->getServiceRegistryChangeCounter();
 
-    EXPECT_EQ(6u, *runnableData);
+    EXPECT_EQ(6u, *counter);
 
     m_senderRuntime->stopOfferService({"service1", "instance1"});
     this->InterOpWait();
 
-    EXPECT_EQ(7u, *runnableData);
+    EXPECT_EQ(7u, *counter);
 }
 
 
