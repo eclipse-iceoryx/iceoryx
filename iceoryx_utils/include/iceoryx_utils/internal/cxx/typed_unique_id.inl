@@ -11,18 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_UNIQUE_ID_INL
-#define IOX_UTILS_CXX_UNIQUE_ID_INL
+#ifndef IOX_UTILS_CXX_TYPED_UNIQUE_ID_INL
+#define IOX_UTILS_CXX_TYPED_UNIQUE_ID_INL
 
 namespace iox
 {
 namespace cxx
 {
 template <typename T>
-std::atomic<uint64_t> UniqueTypedId<T>::globalIDCounter{0u};
+std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{0u};
 
 template <typename T>
-inline UniqueTypedId<T>::UniqueTypedId() noexcept
+inline TypedUniqueId<T>::TypedUniqueId() noexcept
     : ThisType(newtype::internal::ProtectedConstructor, globalIDCounter.fetch_add(1u, std::memory_order_relaxed))
 {
 }

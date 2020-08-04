@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_UNIQUE_ID_HPP
-#define IOX_UTILS_CXX_UNIQUE_ID_HPP
+#ifndef IOX_UTILS_CXX_TYPED_UNIQUE_ID_HPP
+#define IOX_UTILS_CXX_TYPED_UNIQUE_ID_HPP
 
 #include "iceoryx_utils/cxx/newtype.hpp"
 
@@ -32,12 +32,12 @@ namespace cxx
 /// @code
 ///     struct MyClass {
 ///         // some members;
-///         iox::cxx::UniqueTypedId<MyClass> id;
+///         iox::cxx::TypedUniqueId<MyClass> id;
 ///     };
 ///
 ///     struct MySecondClass {
 ///         // some members;
-///         iox::cxx::UniqueTypedId<MySecondClass> id;
+///         iox::cxx::TypedUniqueId<MySecondClass> id;
 ///     };
 //
 ///     std::vector<MyClass> myClassVector;
@@ -66,7 +66,7 @@ namespace cxx
 ///     uint64_t id2 = AddSecondClass();
 /// @endcode
 template <typename T>
-class UniqueTypedId : public NewType<uint64_t,
+class TypedUniqueId : public NewType<uint64_t,
                                      newtype::ProtectedConstructByValueCopy,
                                      newtype::Comparable,
                                      newtype::Sortable,
@@ -81,7 +81,7 @@ class UniqueTypedId : public NewType<uint64_t,
 
     /// @brief the constructor creates an id which is greater then the
     ///         previous created id
-    UniqueTypedId() noexcept;
+    TypedUniqueId() noexcept;
 
   private:
     static std::atomic<uint64_t> globalIDCounter; // = 0u
@@ -90,6 +90,6 @@ class UniqueTypedId : public NewType<uint64_t,
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_utils/internal/cxx/unique_typed_id.inl"
+#include "iceoryx_utils/internal/cxx/typed_unique_id.inl"
 
 #endif
