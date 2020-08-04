@@ -56,11 +56,10 @@ struct ChunkQueueConfig
     static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = iox::MAX_CHUNKS_HELD_PER_RECEIVER;
 };
 
-using ChunkDistributorData_t = iox::popo::ChunkDistributorData<ChunkDistributorConfig,
-                                                               ChunkQueueConfig,
-                                                               iox::popo::ThreadSafePolicy,
-                                                               ChunkQueuePusher<ChunkQueueConfig>>;
-using ChunkDistributor_t = iox::popo::ChunkDistributor<ChunkDistributorData_t>;
+using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig>;
+using ChunkDistributorData_t =
+    ChunkDistributorData<ChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
+using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
 
 class ChunkBuildingBlocks_IntegrationTest : public Test
 {
@@ -198,8 +197,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     MemoryManager m_memoryManager;
 
     // Objects used by publishing thread
-    ChunkSenderData<ChunkDistributorConfig, ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
-    ChunkSender<ChunkDistributorConfig, ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
+    ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
+    ChunkSender<ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
 
     // Objects used by forwarding thread
     ChunkDistributorData_t m_chunkDistributorData;

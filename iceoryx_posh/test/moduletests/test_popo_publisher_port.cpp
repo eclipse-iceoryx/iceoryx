@@ -65,17 +65,16 @@ class PublisherPort_test : public Test
     iox::mepoo::MemoryManager m_memoryManager;
 
     // publisher port w/o history
-    iox::popo::PublisherPortData<iox::DefaultChunkDistributorConfig, iox::DefaultChunkQueueConfig> m_publisherPortData{
+    iox::popo::PublisherPortData m_publisherPortData{
         iox::capro::ServiceDescription("a", "b", "c"), "myApp", &m_memoryManager};
     iox::popo::PublisherPortRouDi m_sutRouDiSide{&m_publisherPortData};
     iox::popo::PublisherPortUser m_sutUserSide{&m_publisherPortData};
 
     // publisher port w/ history
-    iox::popo::PublisherPortData<iox::DefaultChunkDistributorConfig, iox::DefaultChunkQueueConfig>
-        m_publisherPortDataHistory{iox::capro::ServiceDescription("x", "y", "z"),
-                                   "myApp",
-                                   &m_memoryManager,
-                                   iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR};
+    iox::popo::PublisherPortData m_publisherPortDataHistory{iox::capro::ServiceDescription("x", "y", "z"),
+                                                            "myApp",
+                                                            &m_memoryManager,
+                                                            iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR};
     iox::popo::PublisherPortUser m_sutWithHistoryUseriSide{&m_publisherPortDataHistory};
     iox::popo::PublisherPortRouDi m_sutWithHistoryRouDiSide{&m_publisherPortDataHistory};
 };
@@ -373,9 +372,8 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
 
 TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
 {
-    iox::popo::PublisherPortData<iox::DefaultChunkDistributorConfig, iox::DefaultChunkQueueConfig>
-        m_publisherPortDataHistory{
-            iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, 1u}; // history = 1
+    iox::popo::PublisherPortData m_publisherPortDataHistory{
+        iox::capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, 1u}; // history = 1
     iox::popo::PublisherPortUser m_sutWithHistoryUseriSide{&m_publisherPortDataHistory};
     iox::popo::PublisherPortRouDi m_sutWithHistoryRouDiSide{&m_publisherPortDataHistory};
     // do it the ara field like way

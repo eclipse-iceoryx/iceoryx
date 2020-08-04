@@ -77,15 +77,17 @@ class ChunkDistributor_test : public Test
         static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = iox::MAX_CHUNKS_HELD_PER_RECEIVER;
     } ChunkQueueConfig_t;
 
-    using ChunkDistributorData_t = ChunkDistributorData<ChunkDistributorConfig, ChunkQueueConfig, PolicyType>;
+    using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig>;
+    using ChunkDistributorData_t =
+        ChunkDistributorData<ChunkDistributorConfig, PolicyType, ChunkQueuePusher<ChunkQueueData_t>>;
     using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
 
     void SetUp(){};
     void TearDown(){};
 
-    std::shared_ptr<ChunkQueueData<ChunkQueueConfig>> getChunkQueueData()
+    std::shared_ptr<ChunkQueueData_t> getChunkQueueData()
     {
-        return std::make_shared<ChunkQueueData<ChunkQueueConfig>>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer);
+        return std::make_shared<ChunkQueueData_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer);
     }
 
     std::shared_ptr<ChunkDistributorData_t> getChunkDistributorData()
