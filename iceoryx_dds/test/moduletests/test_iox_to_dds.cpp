@@ -193,7 +193,9 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
 
     // Set up subscriber to provide the chunk
     auto mockSubscriber = createMockIceoryxTerminal(testService);
-    EXPECT_CALL(*mockSubscriber, hasNewChunks).WillOnce(Return(true));
+    EXPECT_CALL(*mockSubscriber, hasNewChunks)
+            .WillOnce(Return(true))
+            .WillRepeatedly(Return(false));
     EXPECT_CALL(*mockSubscriber, getChunk).WillOnce(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
     stageMockIceoryxTerminal(std::move(mockSubscriber));
 
@@ -222,7 +224,9 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
 
     // Set up subscriber to provide the chunk
     auto mockSubscriber = createMockIceoryxTerminal(testService);
-    EXPECT_CALL(*mockSubscriber, hasNewChunks).WillOnce(Return(true));
+    EXPECT_CALL(*mockSubscriber, hasNewChunks)
+            .WillOnce(Return(true))
+            .WillRepeatedly(Return(false));
     EXPECT_CALL(*mockSubscriber, getChunk).WillOnce(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
     stageMockIceoryxTerminal(std::move(mockSubscriber));
 
@@ -255,6 +259,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
         EXPECT_CALL(*mockSubscriber, getChunk).WillOnce(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
         EXPECT_CALL(*mockWriter, write).Times(1);
         EXPECT_CALL(*mockSubscriber, releaseChunk).Times(1);
+        EXPECT_CALL(*mockSubscriber, hasNewChunks).WillRepeatedly(Return(false)); // No more chunks after the first one
     }
 
     stageMockIceoryxTerminal(std::move(mockSubscriber));

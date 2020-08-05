@@ -2,145 +2,82 @@
 
 This directory contains files related to building and running [Eclipse iceoryx](https://github.com/eclipse/iceoryx) using [Docker](https://www.docker.com/).
 
-# Building the Docker image and running the container
+# Building the iceoryx Docker Image
 
-To create and run a Docker image with a built iceoryx library and examples from your current sources, from the top-level iceoryx repo, run: `./tools/docker/build_and_run.sh`. Or you can navigate to `./tools/docker` and then run `./build_and_run.sh`, per your preference.
+To create a Docker image with the built iceoryx libraries and examples from your current sources, run the following script from the root of the repository: `./tools/docker/build_iceoryx_docker.sh`.
 
-For the rest of this text, for brevity, we assume `./tools/docker` is the current directory.
+After the Docker image is built, you can run it in interactive mode then use one of the below options to connect to it and run the example applications.
 
-Expected output of `./build_and_run.sh` looks like:
+# Running an iceoryx Docker container
 
+A helper script is provided to launch containers for ready-built containers.
+Simply run the following script from any location:
 ```
-Sending build context to Docker daemon  3.352MB
-Step 1/8 : FROM ubuntu:bionic
- ---> 4c108a37151f
-Step 2/8 : ARG REVISION
- ---> Using cache
- ---> a398e6040568
-Step 3/8 : ARG B_ICEORYX_BUILD
- ---> Using cache
- ---> 6adec4590084
-Step 4/8 : ENV ICEORYX_BUILD=$B_ICEORYX_BUILD
- ---> Using cache
- ---> c0ff19e371ca
-Step 5/8 : RUN apt update && apt install -y         cmake         libacl1-dev         libncurses5-dev         pkg-config         screen         git
- ---> Using cache
- ---> 6c0d2d84c2f9
-Step 6/8 : ADD . /
- ---> 65602097702b
-Step 7/8 : WORKDIR /iceoryx
- ---> Running in 61ce7c4b3718
-Removing intermediate container 61ce7c4b3718
- ---> 987569d9f854
-Step 8/8 : RUN ./tools/iceoryx_build_test.sh     && cp ./tools/docker/.screenrc /root
- ---> Running in 28767c2c7c9f
- [i] Create a new build directory and change the current working directory
- [i] Current working directory:
-/iceoryx/build
->>>>>> Start building iceoryx utils package <<<<<<
--- The C compiler identification is GNU 7.4.0
--- The CXX compiler identification is GNU 7.4.0
--- Check for working C compiler: /usr/bin/cc
-...
-[100%] Linking CXX executable icedelivery/ice-subscriber-simple
-[100%] Built target ice_receiver_simple
->>>>>> finished building iceoryx examples <<<<<<
-Removing intermediate container 28767c2c7c9f
- ---> ab28011a1a6b
-Successfully built ab28011a1a6b
-Successfully tagged iceoryx:master
+./tools/docker/run_iceoryx_docker.sh
 ```
 
-After the Docker image is built and tagged, a corresponding container is launched, and you are dropped in a shell inside the `iceoryx` directory containing the library source and binaries.
+# Connecting to the Docker container and running the example applications
 
-# Launching the RouDi daemon and example applications inside the container
-
-The next step is to launch the RouDi daemon to enable communication and run example communicating applications.
+With the iceoryx Docker container running RouDi, you can connect to it to play with the example applications.
+There are a couple of methods available to connect to do this.
 
 ## Using `docker exec`
 
-After using `./build_and_run.sh`, you can launch the RouDi daemon in the provided shell:
+It is possible to bind a shell to running containers via `docker exec`. A helper script is provided with the command for convenience.
+To bind a shell to the container, simply run the following script from any location:
+```
+./tools/docker/bind_iceoryx_docker.sh
+```
+You will then be dropped into a bash shell where you can access all iceoryx binaries.
+
+All iceoryx binaries are directly available in the $PATH of the shell.
+For example, to start the sender application, you need only run the following from the bound bash shell:
 
 ```
-$ ./build_and_run.sh
-...
-root@03043f96ae10:/iceoryx# ./build/install/prefix/bin/RouDi
-Reserving 95306080 bytes in the shared memory [/iceoryx_mgmt]
-[ Reserving shared memory successful ]
-Reserving 595259200 bytes in the shared memory [/root]
-[ Reserving shared memory successful ]
-```
-
-then, in a new terminal, issue `docker ps` to see running containers:
-
-```
-$ docker ps
-CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
-03043f96ae10        iceoryx:current     "/bin/bash"         About a minute ago   Up About a minute                       roudi
-```
-
-and start the sender application:
-
-```
-badc0ded@localhost:~$ docker exec -it roudi /bin/bash
-root@03043f96ae10:/iceoryx# ./build/iceoryx_examples/icedelivery/ice-subscriber-simple
+root@b10b3630f6d3:/# ice-publisher-simple 
+2020-07-02 16:18:58.811 [ Debug ]: Application registered management segment 0x7f9c7fbc4000 with size 71546016 to id 1
+2020-07-02 16:18:58.811 [ Info  ]: Application registered payload segment 0x7f9c76d0a000 with size 149655680 to id 2
 Sending: 0
 Sending: 1
 Sending: 2
-Sending: 3
 ```
 
-and in another terminal, start the receiver application:
+To run the receiver application, bind another shell to the container and run the following:
 
 ```
-$ docker exec -it roudi /bin/bash
-root@03043f96ae10:/iceoryx# ./build/iceoryx_examples/icedelivery/ice-publisher-simple
-Not subscribed
-Receiving: 78
-Receiving: 79
-Receiving: 80
-Receiving: 81
+root@b10b3630f6d3:/# ice-subscriber-simple 
+2020-07-02 16:21:00.242 [ Debug ]: Application registered management segment 0x7f9d8fbc4000 with size 71546016 to id 1
+2020-07-02 16:21:00.242 [ Info  ]: Application registered payload segment 0x7f9d86d0a000 with size 149655680 to id 2
+Callback: 1
+Callback: 2
+Callback: 3
 ```
 
-## Using `screen` to launch RouDi and examples
+The complete communication flow should now be observable.
+
+## Using `screen`
 
 Another way of interacting with the daemon and examples is to use [screen](https://www.gnu.org/software/screen/) (also included in the Docker image) to start executables in different virtual screens that you attach to and detach from as your experiments may require.
 
 This may be a better option if you are working on a remote machine and don't want to have to open multiple connections to it in separate terminals and/or if you're comfortable with using `screen`.
 
-To prepare a virtual screen in which we'll launch the RouDi daemon, enter:
+To start a session with screen, run the following from a bound bash shell:
 
 ```
-$ ./build_and_run.sh
-...
-root@03043f96ae10:/iceoryx# screen
+root@b10b3630f6d3:/# screen
 ```
 
 and press `[Enter]`.
 
-Inside the virtual screen shell, you can then launch the RouDi daemon as follows:
+Inside the virtual screen shell, you can then launch the example applications.
+Again, all iceoryx applications are directly available in the $PATH.
 
-```
-root@3b93f0d3eda2:/iceoryx# ./build/install/prefix/bin/RouDi
-Reserving 95306080 bytes in the shared memory [/iceoryx_mgmt]
-[ Reserving shared memory successful ]
-Reserving 595259200 bytes in the shared memory [/root]
-[ Reserving shared memory successful ]
-```
-
-and then press `[Ctrl]+A D` to detach from the virtual screen.
-
-You should a see a message like this:
-```
-[detached from 16.pts-0.3b93f0d3eda2]
-```
-
-To launch an example sender application, start a new virtual screen and run the corresponding binary:
+To launch an example sender application, run the corresponding binary:
 
 ```
 root@3b93f0d3eda2:/iceoryx# screen
 #[Enter]
-root@3b93f0d3eda2:/iceoryx# ./build/iceoryx_examples/icedelivery/ice-publisher-simple
+root@3b93f0d3eda2:/iceoryx# ice-publisher-simple
 Sending: 0
 Sending: 1
 Sending: 2
@@ -149,14 +86,14 @@ Sending: 4
 ...
 ```
 
-As above, press `[Ctrl]+A D` to detach from this virtual screen.
+Press `[Ctrl]+A D` to detach from this virtual screen.
 
-Then the receiver application can be started, again in a separate virtual screen:
+Then, the receiver application can be started in a separate virtual screen:
 
 ```
 root@3b93f0d3eda2:/iceoryx# screen
 #[Enter]
-root@3b93f0d3eda2:/iceoryx# ./build/iceoryx_examples/icedelivery/ice-subscriber-simple
+root@3b93f0d3eda2:/iceoryx# ice-subscriber-simple
 Not subscribed
 Receiving: 12
 Receiving: 13
@@ -165,7 +102,12 @@ Receiving: 15
 ...
 ```
 
-You can now detach from this virtual screen with `[Ctrl]+A D`, and, as an exercise, list all screens and return to the one with the sender.
+You can now detach from this virtual screen with `[Ctrl]+A D`.
+
+### Exercises with iceoryx examples using screen
+
+As an exercise, you can return to previous screen sessions to observe their current output.
+For examples, here we list all screens and return to the one running the sender:
 
 ```
 root@d3e51ca29d56:/iceoryx# screen -r
