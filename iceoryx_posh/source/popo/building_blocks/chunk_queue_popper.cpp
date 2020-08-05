@@ -124,7 +124,6 @@ bool ChunkQueuePopper::attachConditionVariable(ConditionVariableData* conditionV
     else
     {
         getMembers()->m_conditionVariableDataPtr = conditionVariableDataPtr;
-        getMembers()->m_conditionVariableAttached.store(true, std::memory_order_release);
         return true;
     }
 }
@@ -135,7 +134,6 @@ bool ChunkQueuePopper::detachConditionVariable() noexcept
     if (isConditionVariableAttached())
     {
         getMembers()->m_conditionVariableDataPtr = nullptr;
-        getMembers()->m_conditionVariableAttached.store(false, std::memory_order_release);
         return true;
     }
     else
@@ -147,7 +145,7 @@ bool ChunkQueuePopper::detachConditionVariable() noexcept
 
 bool ChunkQueuePopper::isConditionVariableAttached() const noexcept
 {
-    return getMembers()->m_conditionVariableAttached.load(std::memory_order_relaxed);
+    return getMembers()->m_conditionVariableDataPtr;
 }
 
 } // namespace popo
