@@ -113,10 +113,10 @@ void ChunkQueuePopper::clear() noexcept
     } while (true);
 }
 
-bool ChunkQueuePopper::attachConditionVariableSignaler(ConditionVariableData* conditionVariableDataPtr) noexcept
+bool ChunkQueuePopper::attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
     /// @todo Add lock guard here, use smart_lock
-    if (isConditionVariableSignalerAttached())
+    if (isConditionVariableAttached())
     {
         LogWarn() << "Condition variable signaler already set. Attaching a second time will be ignored!";
         return false;
@@ -129,10 +129,10 @@ bool ChunkQueuePopper::attachConditionVariableSignaler(ConditionVariableData* co
     }
 }
 
-bool ChunkQueuePopper::detachConditionVariableSignaler() noexcept
+bool ChunkQueuePopper::detachConditionVariable() noexcept
 {
     /// @todo Add lock guard here, use smart_lock
-    if (isConditionVariableSignalerAttached())
+    if (isConditionVariableAttached())
     {
         getMembers()->m_conditionVariableDataPtr = nullptr;
         getMembers()->m_conditionVariableAttached.store(false, std::memory_order_release);
@@ -145,7 +145,7 @@ bool ChunkQueuePopper::detachConditionVariableSignaler() noexcept
     }
 }
 
-bool ChunkQueuePopper::isConditionVariableSignalerAttached() const noexcept
+bool ChunkQueuePopper::isConditionVariableAttached() const noexcept
 {
     return getMembers()->m_conditionVariableAttached.load(std::memory_order_relaxed);
 }

@@ -81,7 +81,7 @@ TEST_P(ChunkQueue_test, InitialEmpty)
 
 TEST_P(ChunkQueue_test, InitialConditionVariableAttached)
 {
-    EXPECT_THAT(m_popper.isConditionVariableSignalerAttached(), Eq(false));
+    EXPECT_THAT(m_popper.isConditionVariableAttached(), Eq(false));
 }
 
 TEST_P(ChunkQueue_test, PushOneChunk)
@@ -148,10 +148,10 @@ TEST_P(ChunkQueue_test, AttachConditionVariableSignaler)
 {
     ConditionVariableData condVar;
 
-    auto ret = m_popper.attachConditionVariableSignaler(&condVar);
+    auto ret = m_popper.attachConditionVariable(&condVar);
     EXPECT_TRUE(ret);
 
-    EXPECT_THAT(m_popper.isConditionVariableSignalerAttached(), Eq(true));
+    EXPECT_THAT(m_popper.isConditionVariableAttached(), Eq(true));
 }
 
 TEST_P(ChunkQueue_test, DISABLED_PushAndNotifyConditionVariableSignaler)
@@ -159,7 +159,7 @@ TEST_P(ChunkQueue_test, DISABLED_PushAndNotifyConditionVariableSignaler)
     ConditionVariableData condVar;
     ConditionVariableWaiter condVarWaiter{&condVar};
 
-    auto ret = m_popper.attachConditionVariableSignaler(&condVar);
+    auto ret = m_popper.attachConditionVariable(&condVar);
     EXPECT_TRUE(ret);
 
     auto chunk = allocateChunk();
@@ -176,10 +176,10 @@ TEST_P(ChunkQueue_test, DISABLED_AttachSecondConditionVariableSignaler)
     ConditionVariableWaiter condVarWaiter1{&condVar1};
     ConditionVariableWaiter condVarWaiter2{&condVar1};
 
-    auto ret1 = m_popper.attachConditionVariableSignaler(&condVar1);
+    auto ret1 = m_popper.attachConditionVariable(&condVar1);
     EXPECT_TRUE(ret1);
 
-    auto ret2 = m_popper.attachConditionVariableSignaler(&condVar2);
+    auto ret2 = m_popper.attachConditionVariable(&condVar2);
     EXPECT_FALSE(ret2);
 
     EXPECT_THAT(condVarWaiter1.timedWait(1_ns), Eq(false));
