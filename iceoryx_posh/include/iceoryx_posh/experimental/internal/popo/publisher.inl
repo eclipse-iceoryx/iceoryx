@@ -29,6 +29,13 @@ using SamplePtr = iox::cxx::unique_ptr<T>;
 
 using uid_t = uint64_t;
 
+//template<typename T, typename port_t>
+//Publisher<T, port_t>::Publisher(const capro::ServiceDescription& service)
+//    : m_port();
+//{
+
+//}
+
 template<typename T, typename port_t>
 inline uid_t
 Publisher<T, port_t>::uid() const noexcept
@@ -39,9 +46,9 @@ Publisher<T, port_t>::uid() const noexcept
 
 template<typename T, typename port_t>
 inline cxx::expected<SamplePtr<T>, AllocationError>
-Publisher<T, port_t>::allocate() const noexcept
+Publisher<T, port_t>::loan() const noexcept
 {
-    return m_sender.allocateChunk(sizeof(T))
+    return m_port.allocateChunk(sizeof(T))
         .and_then([&](mepoo::ChunkHeader* header){
             auto ptr = iox::cxx::unique_ptr<T>(header->payload(), [this](T* const p){
                 this->release(p);
@@ -55,9 +62,9 @@ Publisher<T, port_t>::allocate() const noexcept
 
 template<typename T, typename port_t>
 cxx::expected<AllocationError>
-Publisher<T, port_t>::allocate(cxx::function_ref<void(SamplePtr&) noexcept> f) const noexcept
+Publisher<T, port_t>::loan(cxx::function_ref<void(SamplePtr&) noexcept> f) const noexcept
 {
-    auto result = allocate()
+    auto result = loan()
         .and_then([&f](SamplePtr s){
             f(s);
             return cxx::success<>();
@@ -73,7 +80,7 @@ inline void
 Publisher<T, port_t>::release(SamplePtr&& sample) const noexcept
 {
     auto header = iox::mepoo::convertPayloadPointerToChunkHeader(sample.release());
-    m_sender.freeChunk(header);
+    m_port.freeChunk(header);
 }
 
 template<typename T, typename port_t>
@@ -81,7 +88,7 @@ inline void
 Publisher<T, port_t>::publish(SamplePtr&& sample) const noexcept
 {
     auto header = iox::mepoo::convertPayloadPointerToChunkHeader(const_cast<void* const>(sample.release()));
-    m_sender.deliverChunk(header);
+    m_port.deliverChunk(header);
 }
 
 template<typename T, typename port_t>
@@ -103,28 +110,28 @@ template<typename T, typename port_t>
 inline void
 Publisher<T, port_t>::offer() noexcept
 {
-    m_sender.activate();
+    m_port.offer();
 }
 
 template<typename T, typename port_t>
 inline void
 Publisher<T, port_t>::stopOffer() noexcept
 {
-    m_sender.deactivate();
+    m_port.stopOffer();
 }
 
 template<typename T, typename port_t>
 inline bool
 Publisher<T, port_t>::isOffered() const noexcept
 {
-    return m_sender.isPortActive();
+    return m_port.isOffered();
 }
 
 template<typename T, typename port_t>
 inline bool
 Publisher<T, port_t>::hasSubscribers() const noexcept
 {
-    return m_sender.hasSubscribers();
+    return m_port.hasSubscribers();
 }
 
 } // namespace popo

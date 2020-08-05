@@ -46,6 +46,12 @@ public:
     // Temporary, to be replaced with service description / id based constructors
     Publisher() = default;
 
+    ///
+    /// @brief Publisher Create publisher for specified service [legacy].
+    /// @param service Service to publish to.
+    ///
+    Publisher(const capro::ServiceDescription& service);
+
     Publisher(const Publisher& other) = delete;
     Publisher& operator=(const Publisher&) = delete;
     Publisher(Publisher&& rhs) = default;
@@ -59,17 +65,17 @@ public:
     uid_t uid() const noexcept;
 
     ///
-    /// @brief allocate Allocates a chunk of shared memory.
-    /// @return Pointer to the successfully allocated memory, otherwise an allocation error.
+    /// @brief loan Loan an empty sample from the shared memory pool.
+    /// @return Pointer to the successfully loaned sample, otherwise an allocation error.
     ///
-    cxx::expected<SamplePtr, AllocationError> allocate() const noexcept;
+    cxx::expected<SamplePtr, AllocationError> loan() const noexcept;
 
     ///
-    /// @brief allocate Allocate a chunk then execute the provided callable using the allocated chunk.
-    /// @param f Callable to execute, taking the allocated chunk as its parameter.
-    /// @return Success if chunk was successfully allocated and the provided callable was successfully executed.
+    /// @brief loan  Loan an empty sample from the shared memory pool and process it with the given callable.
+    /// @param f Function to execute, taking the allocated chunk as its parameter.
+    /// @return Success if the loaned sample
     ///
-    cxx::expected<AllocationError> allocate(cxx::function_ref<void(SamplePtr&) noexcept> f) const noexcept;
+    cxx::expected<AllocationError> loan(cxx::function_ref<void(SamplePtr&) noexcept> f) const noexcept;
 
     ///
     /// @brief release Releases ownership of an unused allocated chunk.
@@ -80,24 +86,24 @@ public:
     void release(SamplePtr&& chunk) const noexcept;
 
     ///
-    /// @brief send Publishes the chunk to the system.
-    /// @details Ownership of published chunks is automatically released.
+    /// @brief send Publishes the loaned sample to all subscribers.
+    /// @details The loanded sample is automatically released after publishing.
     /// @param chunk
     ///
     void publish(SamplePtr&& chunk) const noexcept;
 
     ///
-    /// @brief copyAndPublish Copy the given sample into a shared memory chunk and immediately publish.
+    /// @brief copyAndPublish Copy the given sample into a loaned sample and publish it to all subscribers.
     /// @details This method should not be used for larger data types as it includes a copy. For larger data types, it
-    /// is preferred to first allocate a chunk and then directly write the data into it (e.g. with a placement new),
+    /// is preferred to first laon an empty sample and then directly write the data into it (e.g. with a placement new)
     /// rather than to write it elsewhere then copy it in.
-    /// @param val The value to publish.
+    /// @param val The value to publish
     ///
     void publishCopyOf(const T& val) const noexcept;
 
     ///
-    /// @brief previous Reclaims ownership of a previously published chunk if it has not yet been accessed.
-    /// @return The previously published chunk if one exists and is unclaimed, otherwise an error.
+    /// @brief previous Reclaims ownership of a previously published sample if it has not yet been accessed by subscribers.
+    /// @return The previously published sample if one exists and is unclaimed, otherwise an error.
     ///
     cxx::expected<ChunkRecallError> previous() const noexcept;
 
@@ -107,7 +113,7 @@ public:
     bool hasSubscribers() const noexcept;
 
 protected:
-    port_t m_sender{nullptr};
+    port_t m_port{nullptr};
     bool m_useDynamicPayloadSize = true;
 
 private:
