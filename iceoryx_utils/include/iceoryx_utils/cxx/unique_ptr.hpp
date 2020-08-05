@@ -37,14 +37,20 @@ public:
     unique_ptr(function_ref<void(ptr_t const)> deleter) noexcept;
 
     ///
-    /// @brief unique_ptr Creates a unique pointer.
-    /// @details A delete must always be provided as no heap is used. The unique_ptr needs to know how to delete
-    /// the object when the reference is out of scope.
-    /// @param ptr The raw pointer to the object to take ownership of.
-    /// @param deleter The deleter function for cleaning up the object.
+    /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
+    /// @details A deleter must always be provided as no heap is used. The unique_ptr needs to know how to delete
+    /// the managed object when the reference is out of scope.
+    /// @param ptr The raw pointer to the object to be managed.
+    /// @param deleter The deleter function for cleaning up the managed object.
     ///
     unique_ptr(ptr_t ptr, const function_ref<void(ptr_t const)> deleter) noexcept;
 
+    ///
+    /// @brief unique_ptr Creates an empty unique pointer that points to a specific memory location.
+    /// @details The managed object is initially undefined thus must be defined before accessing.
+    /// @param allocation The allocation of memory where managed object will reside once created.
+    /// @param deleter The deleter function for cleaning up the managed object.
+    ///
     unique_ptr(void* allocation, const function_ref<void(ptr_t const)> deleter) noexcept;
 
     // Not copy-able to ensure uniqueness.
