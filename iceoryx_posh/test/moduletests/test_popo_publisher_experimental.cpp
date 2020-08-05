@@ -64,7 +64,7 @@ TEST_F(ExperimentalPublisherTest, BasicAllocateWriteAndPublish)
 
     iox::popo::Publisher<Position> publisher{};
     publisher.allocate()
-        .and_then([&](void* chunk){
+        .and_then([&](Position* chunk){
             auto position = new (chunk) Position();
             position->x = 42.42;
             position->y = 77.77;

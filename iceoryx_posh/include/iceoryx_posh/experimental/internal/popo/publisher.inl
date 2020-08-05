@@ -38,12 +38,12 @@ Publisher<T, sender_port_t>::uid() const noexcept
 }
 
 template<typename T, typename sender_port_t>
-inline cxx::expected<void*, AllocationError>
+inline cxx::expected<chunk_t<T>, AllocationError>
 Publisher<T, sender_port_t>::allocate() const noexcept
 {
     std::cout << "allocate()" << std::endl;
     uint8_t* buf = new uint8_t[sizeof (T)];
-    return iox::cxx::success<void*>(buf);
+    return iox::cxx::success<chunk_t>(reinterpret_cast<chunk_t>(buf));
 }
 
 template<typename T, typename sender_port_t>
@@ -55,7 +55,7 @@ Publisher<T, sender_port_t>::release(chunk_t&& chunk) const noexcept
 
 template<typename T, typename sender_port_t>
 inline void
-Publisher<T, sender_port_t>::publish(void*&& chunk) const noexcept
+Publisher<T, sender_port_t>::publish(chunk_t&& chunk) const noexcept
 {
     std::cout << "publish()" << std::endl;
 }
