@@ -63,9 +63,9 @@ class ChunkReceiver_test : public Test
     iox::mepoo::MemoryManager m_memoryManager;
 
     using ChunkQueueData_t = iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig>;
-    using ChunkReceiverData_t = iox::popo::ChunkReceiverData<ChunkQueueData_t>;
+    using ChunkReceiverData_t = iox::popo::ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t>;
 
-    iox::popo::ChunkReceiverData<ChunkQueueData_t> m_chunkReceiverData{
+    iox::popo::ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t> m_chunkReceiverData{
         iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::popo::ChunkReceiver<ChunkQueueData_t> m_chunkReceiver{&m_chunkReceiverData};
     iox::popo::ChunkQueuePusher<ChunkReceiverData_t> m_chunkQueuePusher{&m_chunkReceiverData};

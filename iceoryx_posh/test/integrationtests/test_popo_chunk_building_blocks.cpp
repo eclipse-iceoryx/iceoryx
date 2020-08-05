@@ -46,14 +46,12 @@ static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
 struct ChunkDistributorConfig
 {
     static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
-    static constexpr uint32_t MAX_CHUNKS_PER_SENDER = iox::MAX_CHUNKS_ALLOCATE_PER_SENDER;
     static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
 };
 
 struct ChunkQueueConfig
 {
     static constexpr uint32_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL;
-    static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = iox::MAX_CHUNKS_HELD_PER_RECEIVER;
 };
 
 using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig>;
@@ -197,7 +195,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     MemoryManager m_memoryManager;
 
     // Objects used by publishing thread
-    ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
+    ChunkSenderData<iox::MAX_CHUNKS_ALLOCATE_PER_SENDER, ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
     ChunkSender<ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
 
     // Objects used by forwarding thread
@@ -208,7 +206,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
-    ChunkReceiverData<ChunkQueueData_t> m_chunkReceiverData{
+    ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t> m_chunkReceiverData{
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
     ChunkReceiver<ChunkQueueData_t> m_chunkReceiver{&m_chunkReceiverData};
 };

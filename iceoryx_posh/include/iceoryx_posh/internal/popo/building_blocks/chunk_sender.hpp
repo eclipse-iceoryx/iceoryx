@@ -41,7 +41,7 @@ template <typename ChunkDistributorType>
 class ChunkSender : public ChunkDistributorType
 {
   public:
-    using MemberType_t = ChunkSenderData<typename ChunkDistributorType::MemberType_t>;
+    using MemberType_t = ChunkSenderData<MAX_CHUNKS_ALLOCATE_PER_SENDER, typename ChunkDistributorType::MemberType_t>;
 
     explicit ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
 

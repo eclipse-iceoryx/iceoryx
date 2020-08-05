@@ -40,7 +40,7 @@ template <typename ChunkQueueDataType>
 class ChunkReceiver : public ChunkQueuePopper<ChunkQueueDataType>
 {
   public:
-    using MemberType_t = ChunkReceiverData<ChunkQueueDataType>;
+    using MemberType_t = ChunkReceiverData<MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueDataType>;
 
     explicit ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
 

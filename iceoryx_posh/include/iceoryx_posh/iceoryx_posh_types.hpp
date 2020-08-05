@@ -126,7 +126,6 @@ enum class SubscribeState : uint32_t
 struct DefaultChunkDistributorConfig
 {
     static constexpr uint32_t MAX_QUEUES = MAX_SUBSCRIBERS_PER_PUBLISHER;
-    static constexpr uint32_t MAX_CHUNKS_PER_SENDER = MAX_CHUNKS_ALLOCATE_PER_SENDER;
     static constexpr uint64_t MAX_HISTORY_CAPACITY = MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
 };
 
@@ -134,7 +133,6 @@ struct DefaultChunkDistributorConfig
 struct DefaultChunkQueueConfig
 {
     static constexpr uint32_t MAX_QUEUE_CAPACITY = MAX_RECEIVER_QUEUE_CAPACITY;
-    static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = MAX_CHUNKS_HELD_PER_RECEIVER;
 };
 
 // alias for cxx::string

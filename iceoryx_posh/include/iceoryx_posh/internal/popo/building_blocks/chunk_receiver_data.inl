@@ -18,9 +18,9 @@ namespace iox
 {
 namespace popo
 {
-template <typename ChunkQueueDataType>
-inline ChunkReceiverData<ChunkQueueDataType>::ChunkReceiverData(const cxx::VariantQueueTypes queueType,
-                                                                const mepoo::MemoryInfo& memoryInfo) noexcept
+template <uint32_t MaxChunksPerReceiver, typename ChunkQueueDataType>
+inline ChunkReceiverData<MaxChunksPerReceiver, ChunkQueueDataType>::ChunkReceiverData(
+    const cxx::VariantQueueTypes queueType, const mepoo::MemoryInfo& memoryInfo) noexcept
     : ChunkQueueDataType(queueType)
     , m_memoryInfo(memoryInfo)
 {
