@@ -47,6 +47,17 @@ Publisher<T, sender_port_t>::allocate() const noexcept
 }
 
 template<typename T, typename sender_port_t>
+cxx::expected<AllocationError>
+Publisher<T, sender_port_t>::allocate(cxx::function_ref<void(chunk_t&)> f) const noexcept
+{
+    std::cout << "allocate(cxx::function_ref<chunk_t&>)" << std::endl;
+    uint8_t* buf = new uint8_t[sizeof (T)];
+    auto chunk = reinterpret_cast<chunk_t>(buf);
+    f(chunk);
+    return cxx::success<>();
+};
+
+template<typename T, typename sender_port_t>
 inline void
 Publisher<T, sender_port_t>::release(chunk_t&& chunk) const noexcept
 {
@@ -68,7 +79,7 @@ Publisher<T, sender_port_t>::publishCopyOf(const T& val) const noexcept
 }
 
 template<typename T, typename sender_port_t>
-inline cxx::expected<chunk_t<T>>
+inline cxx::expected<ChunkRecallError>
 Publisher<T, sender_port_t>::previous() const noexcept
 {
     std::cout << "previous()" << std::endl;

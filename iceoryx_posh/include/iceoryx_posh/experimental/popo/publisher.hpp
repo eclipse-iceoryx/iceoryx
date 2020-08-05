@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/function_ref.hpp"
 
 #include <memory>
 
@@ -25,6 +26,12 @@ namespace iox
 {
 namespace popo
 {
+
+enum class ChunkRecallError : uint8_t
+{
+    NO_PREVIOUS_CHUNK,
+    CHUNK_ALREADY_CLAIMED
+};
 
 struct Untyped{};
 
@@ -57,10 +64,17 @@ public:
     // We can't just provide a T* because this memory is undefined and could lead to misuse. We can't initialize the
     // memory ourselves because then we have no zero copy (or a wasted initliazation? double check...).
     ///
-    /// @brief allocate Allocates a chunk of shared memory.Q
+    /// @brief allocate Allocates a chunk of shared memory.
     /// @return Pointer to the successfully allocated memory, otherwise an allocation error.
     ///
     cxx::expected<chunk_t, AllocationError> allocate() const noexcept;
+
+    ///
+    /// @brief allocate Allocate a chunk then execute the provided callable using the allocated chunk.
+    /// @param f Callable to execute, taking the allocated chunk as its parameter.
+    /// @return
+    ///
+    cxx::expected<AllocationError> allocate(cxx::function_ref<void(chunk_t&)> f) const noexcept;
 
     ///
     /// @brief release Releases ownership of an unused allocated chunk.
@@ -92,7 +106,7 @@ public:
     /// @brief previous Reclaims ownership of a previously published chunk if it has not yet been accessed.
     /// @return The previously published chunk if one exists and is unclaimed, otherwise an error.
     ///
-    cxx::expected<chunk_t> previous() const noexcept;
+    cxx::expected<ChunkRecallError> previous() const noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;

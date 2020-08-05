@@ -85,3 +85,18 @@ TEST_F(ExperimentalPublisherTest, BasicCopiedPublish)
     publisher.publishCopyOf(position);
 
 }
+
+TEST_F(ExperimentalPublisherTest, BasicAllocateThenPublish)
+{
+    struct Position {
+        double_t x = 0.0;
+        double_t y = 0.0;
+        double_t z = 0.0;
+    } position;
+
+    iox::popo::Publisher<Position> publisher{};
+    publisher.allocate([&](Position* chunk){
+        std::cout << "Lambda called with passed chunk." << std::endl;
+    });
+
+}
