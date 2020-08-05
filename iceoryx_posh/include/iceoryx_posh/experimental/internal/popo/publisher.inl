@@ -48,7 +48,7 @@ Publisher<T, sender_port_t>::allocate() const noexcept
 
 template<typename T, typename sender_port_t>
 cxx::expected<AllocationError>
-Publisher<T, sender_port_t>::allocate(cxx::function_ref<void(chunk_t&)> f) const noexcept
+Publisher<T, sender_port_t>::allocate(cxx::function_ref<void(chunk_t&) noexcept> f) const noexcept
 {
     std::cout << "allocate(cxx::function_ref<chunk_t&>)" << std::endl;
     uint8_t* buf = new uint8_t[sizeof (T)];

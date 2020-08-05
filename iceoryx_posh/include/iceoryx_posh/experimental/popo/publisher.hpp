@@ -72,9 +72,9 @@ public:
     ///
     /// @brief allocate Allocate a chunk then execute the provided callable using the allocated chunk.
     /// @param f Callable to execute, taking the allocated chunk as its parameter.
-    /// @return
+    /// @return Success if chunk was successfully allocated and the provided callable was successfully executed.
     ///
-    cxx::expected<AllocationError> allocate(cxx::function_ref<void(chunk_t&)> f) const noexcept;
+    cxx::expected<AllocationError> allocate(cxx::function_ref<void(chunk_t&) noexcept> f) const noexcept;
 
     ///
     /// @brief release Releases ownership of an unused allocated chunk.
