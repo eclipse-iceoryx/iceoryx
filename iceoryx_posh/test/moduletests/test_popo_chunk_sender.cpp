@@ -78,7 +78,7 @@ class ChunkSender_test : public Test
 
     struct ChunkQueueConfig
     {
-        static constexpr uint32_t MAX_QUEUES = NUM_CHUNKS_IN_POOL;
+        static constexpr uint32_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL;
         static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = iox::MAX_CHUNKS_HELD_PER_RECEIVER;
     };
 

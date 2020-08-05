@@ -133,7 +133,7 @@ struct DefaultChunkDistributorConfig
 // Default properties of ChunkQueueData
 struct DefaultChunkQueueConfig
 {
-    static constexpr uint32_t MAX_QUEUES = MAX_RECEIVER_QUEUE_CAPACITY;
+    static constexpr uint32_t MAX_QUEUE_CAPACITY = MAX_RECEIVER_QUEUE_CAPACITY;
     static constexpr uint32_t MAX_CHUNKS_PER_RECEIVER = MAX_CHUNKS_HELD_PER_RECEIVER;
 };
 
