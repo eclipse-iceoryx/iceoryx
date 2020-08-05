@@ -143,7 +143,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
  |  switch  |  description |
  |:---------|:-------------|
- | `dds` | builds the iceoryx dds gateway which requires an installed CycloneDDS, see [https://github.com/eclipse-cyclonedds/cyclonedds](https://github.com/eclipse-cyclonedds/cyclonedds) |
+ | `dds_gateway` | builds the iceoryx dds gateway using the cyclonedds dds stack, cyclonedds will be fetched and built as part of the build, see [cyclonedds](https://github.com/eclipse-cyclonedds/cyclonedds) for details |
  | `examples` | builds all examples |
  | `introspection` | the console introspection client which requires an installed ncurses library with terminfo support |
  | `test` | enables module-, integration- and component-tests |

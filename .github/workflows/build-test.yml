@@ -89,9 +89,3 @@ jobs:
       - name: Build sources
         run: |
           cmake -Bbuild -Hiceoryx_meta -Dtest=ON && cmake --build build
-
-      - name: Run tests
-      # at the moment we do not support windows therefore we just run a subset of all the tests
-        run: |
-          build\utils\test\Debug\utils_moduletests.exe --gtest_filter="Semaphore*"
-

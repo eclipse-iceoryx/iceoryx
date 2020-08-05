@@ -14,6 +14,7 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
 
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
@@ -52,7 +53,7 @@ class MemPoolIntrospection
         TERMINATE
     };
 
-    using Topic = MemPoolIntrospectionTopic;
+    using Topic = MemPoolIntrospectionInfoContainer;
 
   public:
     /**
@@ -81,19 +82,19 @@ class MemPoolIntrospection
      *        sends snapshots of the mempool introspecton data to the client.
      *        The send interval can be set by @ref setSnapshotInterval "setSnapshotInterval(...)".
      */
-    void start();
+    void start() noexcept;
 
     /**
      * @brief This functions sets the thread into a wait state and
      *        the transmission of the introspection data is stopped.
      */
-    void wait();
+    void wait() noexcept;
 
     /**
      * @brief This function stops the thread which sends the introspection data.
      *        It is not possible to start the thread again.
      */
-    void terminate();
+    void terminate() noexcept;
 
     /**
      * @brief This function configures the interval for the transmission of the
@@ -101,7 +102,7 @@ class MemPoolIntrospection
      *
      * @param snapshotInterval_ms is the interval time in milliseconds
      */
-    void setSnapshotInterval(unsigned int snapshotInterval_ms);
+    void setSnapshotInterval(unsigned int snapshotInterval_ms) noexcept;
 
   private:
     MemoryManager* m_rouDiInternalMemoryManager{nullptr}; // mempool handler needs to outlive this class (!)
@@ -116,22 +117,22 @@ class MemPoolIntrospection
     std::mutex m_mutex;
     std::thread m_thread;
 
-    void run();
-    void waitForRunLevelChange();
-    void wakeUp(RunLevel newLevel = RUN);
+    void run() noexcept;
+    void waitForRunLevelChange() noexcept;
+    void wakeUp(RunLevel newLevel = RUN) noexcept;
 
     // wait until start command, run until wait or terminate, restart from wait
     // is possible  terminate call leads to exit
-    void threadMain();
+    void threadMain() noexcept;
 
-    void prepareIntrospectionSample(Topic* f_sample,
-                                    const posix::PosixGroup& f_readerGroup,
-                                    const posix::PosixGroup& f_writerGroup,
-                                    uint32_t f_id);
-    void send();
+    static void prepareIntrospectionSample(MemPoolIntrospectionInfo& sample,
+                                           const posix::PosixGroup& readerGroup,
+                                           const posix::PosixGroup& writerGroup,
+                                           uint32_t id) noexcept;
+    void send() noexcept;
 
     // copy data fro internal struct into interface struct
-    void copyMemPoolInfo(const MemoryManager& f_memoryManager, MemPoolInfoContainer& f_dest);
+    void copyMemPoolInfo(const MemoryManager& memoryManager, MemPoolInfoContainer& dest) noexcept;
 };
 
 /**
