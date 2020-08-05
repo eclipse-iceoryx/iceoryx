@@ -46,7 +46,7 @@ class GuardCondition final : public Condition
   private:
     /// @brief Stores a condition variable data pointer
     /// @return True if pointer could be stored, false if otherwise
-    bool setConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept override;
+    bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
     /// @brief Deletes the condition variable data pointer
     /// @return True if pointer could be set to nullptr, false if otherwise
     bool unsetConditionVariable() noexcept override;

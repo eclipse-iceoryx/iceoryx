@@ -59,14 +59,11 @@ cxx::expected<ChunkQueueError> ChunkQueuePusher::push(mepoo::SharedChunk chunk) 
             auto returnedChunk = mepoo::SharedChunk(chunkManagement);
         }
 
-
-        if (getMembers()->m_semaphoreAttached.load(std::memory_order_acquire) && getMembers()->m_semaphore)
+        /// @todo Add lock guard here, use smart_lock
+        if (getMembers()->m_conditionVariableDataPtr)
         {
             ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
             condVarSignaler.notifyOne();
-
-            /// @deprecated #25
-            getMembers()->m_semaphore->post();
         }
 
         return cxx::success<void>();

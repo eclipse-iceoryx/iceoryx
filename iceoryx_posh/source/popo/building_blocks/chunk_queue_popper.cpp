@@ -113,27 +113,39 @@ void ChunkQueuePopper::clear() noexcept
     } while (true);
 }
 
-/// @deprecated #25
-cxx::expected<ChunkQueueError>
-ChunkQueuePopper::attachSemaphore(const mepoo::SharedPointer<posix::Semaphore>& semaphore) noexcept
+bool ChunkQueuePopper::attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
-    if (isSemaphoreAttached())
+    /// @todo Add lock guard here, use smart_lock
+    if (isConditionVariableAttached())
     {
-        LogWarn() << "Semaphore already set. Attaching the semaphore a second time will be ignored!";
-        return cxx::error<ChunkQueueError>(ChunkQueueError::SEMAPHORE_ALREADY_SET);
+        LogWarn() << "Condition variable signaler already set. Attaching a second time will be ignored!";
+        return false;
     }
     else
     {
-        getMembers()->m_semaphore = semaphore;
-        getMembers()->m_semaphoreAttached.store(true, std::memory_order_release);
-        return cxx::success<void>();
+        getMembers()->m_conditionVariableDataPtr = conditionVariableDataPtr;
+        return true;
     }
 }
 
-/// @deprecated #25
-bool ChunkQueuePopper::isSemaphoreAttached() const noexcept
+bool ChunkQueuePopper::detachConditionVariable() noexcept
 {
-    return getMembers()->m_semaphoreAttached.load(std::memory_order_relaxed);
+    /// @todo Add lock guard here, use smart_lock
+    if (isConditionVariableAttached())
+    {
+        getMembers()->m_conditionVariableDataPtr = nullptr;
+        return true;
+    }
+    else
+    {
+        LogWarn() << "Condition variable signaler not set yet.";
+        return false;
+    }
+}
+
+bool ChunkQueuePopper::isConditionVariableAttached() const noexcept
+{
+    return getMembers()->m_conditionVariableDataPtr;
 }
 
 } // namespace popo

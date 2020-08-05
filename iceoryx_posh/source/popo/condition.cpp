@@ -38,7 +38,7 @@ bool Condition::isConditionVariableAttached() const noexcept
     return m_conditionVariableAttached.load(std::memory_order_relaxed);
 }
 
-bool Condition::attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept
+bool Condition::attachConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
     if (isConditionVariableAttached())
     {
@@ -46,7 +46,7 @@ bool Condition::attachConditionVariable(ConditionVariableData* const ConditionVa
     }
 
     // Call user implementation
-    if (setConditionVariable(ConditionVariableDataPtr))
+    if (setConditionVariable(conditionVariableDataPtr))
     {
         // Save the info so we can notify the user on illegal destruction
         m_conditionVariableAttached.store(true, std::memory_order_relaxed);
