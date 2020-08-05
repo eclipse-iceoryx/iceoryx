@@ -29,7 +29,8 @@ namespace popo
 enum class AllocationError
 {
     RUNNING_OUT_OF_CHUNKS,
-    TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL
+    TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
+    UNKNOWN
 };
 
 /// @brief The ChunkSender is a building block of the shared memory communication infrastructure. It extends

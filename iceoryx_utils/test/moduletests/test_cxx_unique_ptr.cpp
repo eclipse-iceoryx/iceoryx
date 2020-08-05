@@ -61,7 +61,6 @@ TEST_F(UniquePtrTest, CanBeConstructedWithUndefinedBlob)
 
 TEST_F(UniquePtrTest, CanBeResetToPointToUndefinedBlob)
 {
-
     auto deleter = [](Position* const p){delete p;};
     auto ptr = iox::cxx::unique_ptr<Position>(deleter);
 
@@ -75,7 +74,6 @@ TEST_F(UniquePtrTest, CanBeResetToPointToUndefinedBlob)
     EXPECT_EQ(10.0, ptr->x);
     EXPECT_EQ(77.77, ptr->y);
     EXPECT_EQ(50.50, ptr->z);
-
 }
 
 TEST_F(UniquePtrTest, DeleterIsCalledWhenPtrGoesOutOfScope)

@@ -39,64 +39,64 @@ public:
 
 };
 
-TEST_F(ExperimentalPublisherTest, BasicUidRetrieval)
-{
-    struct Position {
-        double_t x = 0.0;
-        double_t y = 0.0;
-        double_t z = 0.0;
-    } position;
+//TEST_F(ExperimentalPublisherTest, BasicUidRetrieval)
+//{
+//    struct Position {
+//        double_t x = 0.0;
+//        double_t y = 0.0;
+//        double_t z = 0.0;
+//    } position;
 
-    iox::popo::Publisher<Position> publisher{};
+//    iox::popo::Publisher<Position> publisher{};
 
-    auto uid = publisher.uid();
-    std::cout << "Publisher UID: " << uid << std::endl;
+//    auto uid = publisher.uid();
+//    std::cout << "Publisher UID: " << uid << std::endl;
 
-}
+//}
 
-TEST_F(ExperimentalPublisherTest, BasicAllocateWriteAndPublish)
-{
-    struct Position {
-        double_t x = 0.0;
-        double_t y = 0.0;
-        double_t z = 0.0;
-    };
+//TEST_F(ExperimentalPublisherTest, BasicAllocateWriteAndPublish)
+//{
+//    struct Position {
+//        double_t x = 0.0;
+//        double_t y = 0.0;
+//        double_t z = 0.0;
+//    };
 
-    iox::popo::Publisher<Position> publisher{};
-    publisher.allocate()
-        .and_then([&](Position* chunk){
-            auto position = new (chunk) Position();
-            position->x = 42.42;
-            position->y = 77.77;
-            position->z = 00.15;
-            publisher.publish(std::move(chunk));
-        });
-}
+//    iox::popo::Publisher<Position> publisher{};
+//    publisher.allocate()
+//        .and_then([&](Position* chunk){
+//            auto position = new (chunk) Position();
+//            position->x = 42.42;
+//            position->y = 77.77;
+//            position->z = 00.15;
+//            publisher.publish(std::move(chunk));
+//        });
+//}
 
-TEST_F(ExperimentalPublisherTest, BasicCopiedPublish)
-{
-    struct Position {
-        double_t x = 0.0;
-        double_t y = 0.0;
-        double_t z = 0.0;
-    } position;
+//TEST_F(ExperimentalPublisherTest, BasicCopiedPublish)
+//{
+//    struct Position {
+//        double_t x = 0.0;
+//        double_t y = 0.0;
+//        double_t z = 0.0;
+//    } position;
 
-    iox::popo::Publisher<Position> publisher{};
-    publisher.publishCopyOf(position);
+//    iox::popo::Publisher<Position> publisher{};
+//    publisher.publishCopyOf(position);
 
-}
+//}
 
-TEST_F(ExperimentalPublisherTest, BasicAllocateThenPublish)
-{
-    struct Position {
-        double_t x = 0.0;
-        double_t y = 0.0;
-        double_t z = 0.0;
-    } position;
+//TEST_F(ExperimentalPublisherTest, BasicAllocateThenPublish)
+//{
+//    struct Position {
+//        double_t x = 0.0;
+//        double_t y = 0.0;
+//        double_t z = 0.0;
+//    } position;
 
-    iox::popo::Publisher<Position> publisher{};
-    publisher.allocate([&](Position* chunk){
-        std::cout << "Lambda called with passed chunk." << std::endl;
-    });
+//    iox::popo::Publisher<Position> publisher{};
+//    publisher.allocate([&](Position* chunk){
+//        std::cout << "Lambda called with passed chunk." << std::endl;
+//    });
 
-}
+//}

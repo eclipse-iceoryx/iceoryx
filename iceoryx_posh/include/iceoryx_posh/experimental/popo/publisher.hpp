@@ -15,8 +15,9 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
 
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
+#include "iceoryx_utils/cxx/unique_ptr.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 
@@ -35,11 +36,11 @@ enum class ChunkRecallError : uint8_t
 
 struct Untyped{};
 
-template<typename T, typename sender_port_t = iox::popo::SenderPort>
+template<typename T, typename port_t = iox::popo::PublisherPortUser>
 class Publisher
 {
 public:
-    using chunk_t = T*;
+    using SamplePtr = cxx::unique_ptr<T>;
     using uid_t = uint64_t;
 
     // Temporary, to be replaced with service description / id based constructors
@@ -57,24 +58,18 @@ public:
     ///
     uid_t uid() const noexcept;
 
-    // How to divorce the concept of a chunk when using the typed API ? It is not possible...
-    // For the purpose of minimizing copying, a chunk needs to be returned when allocated (i.e. void pointer), with
-    // which the user can use to initialize the type.
-    // Therefore, the user needs some kind of entity (i.e. chunk) that provides a memory location to write the data.
-    // We can't just provide a T* because this memory is undefined and could lead to misuse. We can't initialize the
-    // memory ourselves because then we have no zero copy (or a wasted initliazation? double check...).
     ///
     /// @brief allocate Allocates a chunk of shared memory.
     /// @return Pointer to the successfully allocated memory, otherwise an allocation error.
     ///
-    cxx::expected<chunk_t, AllocationError> allocate() const noexcept;
+    cxx::expected<SamplePtr, AllocationError> allocate() const noexcept;
 
     ///
     /// @brief allocate Allocate a chunk then execute the provided callable using the allocated chunk.
     /// @param f Callable to execute, taking the allocated chunk as its parameter.
     /// @return Success if chunk was successfully allocated and the provided callable was successfully executed.
     ///
-    cxx::expected<AllocationError> allocate(cxx::function_ref<void(chunk_t&) noexcept> f) const noexcept;
+    cxx::expected<AllocationError> allocate(cxx::function_ref<void(SamplePtr&) noexcept> f) const noexcept;
 
     ///
     /// @brief release Releases ownership of an unused allocated chunk.
@@ -82,14 +77,14 @@ public:
     /// to it in the system.
     /// @param chunk
     ///
-    void release(chunk_t&& chunk) const noexcept;
+    void release(SamplePtr&& chunk) const noexcept;
 
     ///
     /// @brief send Publishes the chunk to the system.
     /// @details Ownership of published chunks is automatically released.
     /// @param chunk
     ///
-    void publish(chunk_t&& chunk) const noexcept;
+    void publish(SamplePtr&& chunk) const noexcept;
 
     ///
     /// @brief copyAndPublish Copy the given sample into a shared memory chunk and immediately publish.
@@ -112,7 +107,12 @@ public:
     bool hasSubscribers() const noexcept;
 
 protected:
-    sender_port_t m_sender{nullptr};
+    port_t m_sender{nullptr};
+    bool m_useDynamicPayloadSize = true;
+
+private:
+
+
 };
 
 } // namespace popo
