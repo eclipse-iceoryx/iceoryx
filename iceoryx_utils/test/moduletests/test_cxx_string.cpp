@@ -15,6 +15,8 @@
 #include "iceoryx_utils/cxx/string.hpp"
 #include "test.hpp"
 
+namespace
+{
 using namespace ::testing;
 using namespace iox::cxx;
 
@@ -1142,6 +1144,32 @@ TYPED_TEST(stringTyped_test, ConstrWithStringWithSmallerCapaWorks)
 }
 
 /// @note template <uint64_t N>
+/// string(string<N>&& other) noexcept;
+TYPED_TEST(stringTyped_test, MoveConstrWithEmptyStringWithSmallerCapaWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto stringCap = myString().capacity();
+    string<stringCap + 30> testString(std::move(this->testSubject));
+    EXPECT_THAT(testString.size(), Eq(0));
+    EXPECT_THAT(this->testSubject.size(), Eq(0));
+    EXPECT_THAT(testString.c_str(), StrEq(""));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+}
+
+TYPED_TEST(stringTyped_test, MoveConstrWithStringSmallerCapaWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto stringCap = myString().capacity();
+    std::string testString(stringCap, 'M');
+    EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
+    string<stringCap + 11> fuu(std::move(this->testSubject));
+    EXPECT_THAT(this->testSubject.size(), Eq(0));
+    EXPECT_THAT(fuu.size(), Eq(stringCap));
+    EXPECT_THAT(fuu.c_str(), Eq(testString));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+}
+
+/// @note template <uint64_t N>
 /// string& operator=(const string<N>& rhs) noexcept;
 TYPED_TEST(stringTyped_test, AssignmentOfStringWithSmallerCapaWorks)
 {
@@ -1167,7 +1195,7 @@ TYPED_TEST(stringTyped_test, AssignmentOfEmptyStringWithSmallerCapaWorks)
     EXPECT_THAT(this->testSubject.size(), Eq(0));
 }
 
-TEST(String100, AssignmentOfStringWithSmallerCapaWorks)
+TEST(String100, AssignmentOfNotEmptyStringWithSmallerCapaWorks)
 {
     string<100> testString1("Yoda");
     string<36> testString2("R2-D2");
@@ -1177,3 +1205,43 @@ TEST(String100, AssignmentOfStringWithSmallerCapaWorks)
     EXPECT_THAT(testString2.c_str(), StrEq("R2-D2"));
     EXPECT_THAT(testString2.size(), Eq(5));
 }
+
+/// @note template <uint64_t N>
+/// string& operator=(string<N>&& rhs) noexcept;
+TYPED_TEST(stringTyped_test, MoveAssignmentOfStringWithSmallerCapaWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto stringCap = myString().capacity();
+    string<stringCap + 63> fuu;
+    fuu = std::move(this->testSubject);
+    EXPECT_THAT(this->testSubject.size(), Eq(0));
+    EXPECT_THAT(fuu.size(), Eq(0));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+    EXPECT_THAT(fuu.c_str(), StrEq(""));
+}
+
+TYPED_TEST(stringTyped_test, MoveAssignmentOfEmptyStringWithSmallerCapaWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto stringCap = myString().capacity();
+    std::string testString(stringCap, 'M');
+    EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
+    string<stringCap + 36> fuu;
+    fuu = std::move(this->testSubject);
+    EXPECT_THAT(fuu.size(), Eq(stringCap));
+    EXPECT_THAT(this->testSubject.size(), Eq(0));
+    EXPECT_THAT(fuu.c_str(), Eq(testString));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+}
+
+TEST(String100, MoveAssignmentOfNotEmptyStringWithSmallerCapaWorks)
+{
+    string<100> testString1("Jean-Luc");
+    string<36> testString2("Picard");
+    testString1 = std::move(testString2);
+    EXPECT_THAT(testString1.c_str(), StrEq("Picard"));
+    EXPECT_THAT(testString1.size(), Eq(6));
+    EXPECT_THAT(testString2.c_str(), StrEq(""));
+    EXPECT_THAT(testString2.size(), Eq(0));
+}
+} // namespace

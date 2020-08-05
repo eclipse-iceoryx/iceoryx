@@ -26,13 +26,13 @@ inline constexpr string<Capacity>::string() noexcept
 template <uint64_t Capacity>
 inline string<Capacity>::string(const string& other) noexcept
 {
-    *this = other;
+    copy(other);
 }
 
 template <uint64_t Capacity>
 inline string<Capacity>::string(string&& other) noexcept
 {
-    *this = std::move(other);
+    move(std::move(other));
 }
 
 template <uint64_t Capacity>
@@ -42,11 +42,7 @@ inline string<Capacity>& string<Capacity>::operator=(const string& rhs) noexcept
     {
         return *this;
     }
-    uint64_t strSize = rhs.size();
-    std::memcpy(m_rawstring, rhs.c_str(), strSize);
-    m_rawstring[strSize] = '\0';
-    m_rawstringSize = strSize;
-    return *this;
+    return copy(rhs);
 }
 
 template <uint64_t Capacity>
@@ -56,13 +52,7 @@ inline string<Capacity>& string<Capacity>::operator=(string&& rhs) noexcept
     {
         return *this;
     }
-    uint64_t strSize = rhs.size();
-    std::memcpy(m_rawstring, rhs.c_str(), strSize);
-    m_rawstring[strSize] = '\0';
-    m_rawstringSize = strSize;
-    rhs.m_rawstring[0] = '\0';
-    rhs.m_rawstringSize = 0u;
-    return *this;
+    return move(std::move(rhs));
 }
 
 template <uint64_t Capacity>
@@ -71,7 +61,16 @@ inline string<Capacity>::string(const string<N>& other) noexcept
 {
     static_assert(N <= Capacity,
                   "Construction failed. The capacity of the given fixed string is larger than the capacity of this.");
-    *this = other;
+    copy(other);
+}
+
+template <uint64_t Capacity>
+template <uint64_t N>
+inline string<Capacity>::string(string<N>&& other) noexcept
+{
+    static_assert(N <= Capacity,
+                  "Construction failed. The capacity of the given fixed string is larger than the capacity of this.");
+    move(std::move(other));
 }
 
 template <uint64_t Capacity>
@@ -80,12 +79,16 @@ inline string<Capacity>& string<Capacity>::operator=(const string<N>& rhs) noexc
 {
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
+    return copy(rhs);
+}
 
-    uint64_t strSize = rhs.size();
-    std::memcpy(m_rawstring, rhs.c_str(), strSize);
-    m_rawstring[strSize] = '\0';
-    m_rawstringSize = strSize;
-    return *this;
+template <uint64_t Capacity>
+template <uint64_t N>
+inline string<Capacity>& string<Capacity>::operator=(string<N>&& rhs) noexcept
+{
+    static_assert(N <= Capacity,
+                  "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
+    return move(std::move(rhs));
 }
 
 template <uint64_t Capacity>
@@ -288,6 +291,34 @@ template <uint64_t Capacity>
 inline string<Capacity>::operator std::string() const noexcept
 {
     return std::string(c_str());
+}
+
+template <uint64_t Capacity>
+template <uint64_t N>
+inline string<Capacity>& string<Capacity>::copy(const string<N>& rhs) noexcept
+{
+    static_assert(N <= Capacity,
+                  "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
+    uint64_t strSize = rhs.size();
+    std::memcpy(m_rawstring, rhs.c_str(), strSize);
+    m_rawstring[strSize] = '\0';
+    m_rawstringSize = strSize;
+    return *this;
+}
+
+template <uint64_t Capacity>
+template <uint64_t N>
+inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
+{
+    static_assert(N <= Capacity,
+                  "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
+    uint64_t strSize = rhs.size();
+    std::memcpy(m_rawstring, rhs.c_str(), strSize);
+    m_rawstring[strSize] = '\0';
+    m_rawstringSize = strSize;
+    rhs.m_rawstring[0] = '\0';
+    rhs.m_rawstringSize = 0u;
+    return *this;
 }
 
 template <uint64_t Capacity>

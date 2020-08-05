@@ -65,22 +65,36 @@ class string
     string& operator=(string&& rhs) noexcept;
 
     /// @brief creates a new string as a copy of other with compile time check wether the capacity of other is lesser
-    /// than or equal to the capacity
+    /// than or equal to this' capacity
     ///
-    /// @tparam N is the template parameter for the capacity of other
     /// @param [in] other is the copy origin
     template <uint64_t N>
     string(const string<N>& other) noexcept;
 
-    /// @brief assigns rhs fixed string to this with compile time check wether the capacity of rhs is lesser than or
-    /// equal to the capacity
+    /// @brief moves other to this with compile time check wether the capacity of other is lesser than or equal to this'
+    /// capacity
     ///
-    /// @tparam N is the template parameter for the capacity of rhs
+    /// @param [in] other is the move origin
+    template <uint64_t N>
+    string(string<N>&& other) noexcept;
+
+    /// @brief assigns rhs fixed string to this with compile time check wether the capacity of rhs is lesser than or
+    /// equal to this' capacity
+    ///
     /// @param [in] rhs is the copy origin
     ///
     /// @return reference to self
     template <uint64_t N>
     string& operator=(const string<N>& rhs) noexcept;
+
+    /// @brief moves rhs fixed string to this with compile time check wether the capacity of rhs is lesser than or equal
+    /// to this' capacity
+    ///
+    /// @param [in] rhs is the move origin
+    ///
+    /// @return reference to self
+    template <uint64_t N>
+    string& operator=(string<N>&& rhs) noexcept;
 
     /// @brief conversion constructor for char array with compile time check if the array size is lesser than or equal
     /// to the string capacity
@@ -338,7 +352,26 @@ class string
     /// @return a std::string with data equivalent to those stored in the string
     operator std::string() const noexcept;
 
+    template <uint64_t N>
+    friend class string;
+
   private:
+    /// @brief copies rhs fixed string to lhs fixed string
+    ///
+    /// @param [in] rhs is the copy origin
+    ///
+    /// @return reference to self
+    template <uint64_t N>
+    string& copy(const string<N>& rhs) noexcept;
+
+    /// @brief moves rhs fixed string to lhs fixed string
+    ///
+    /// @param [in] rhs is the move origin
+    ///
+    /// @return reference to self
+    template <uint64_t N>
+    string& move(string<N>&& rhs) noexcept;
+
     char m_rawstring[Capacity + 1]{'\0'};
     uint64_t m_rawstringSize{0u};
 };
