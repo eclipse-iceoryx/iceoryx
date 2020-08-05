@@ -1,5 +1,4 @@
-!building_blocks/
-build*/
+/build*/
 install/
 /CMakeLists.txt
 .vscode
