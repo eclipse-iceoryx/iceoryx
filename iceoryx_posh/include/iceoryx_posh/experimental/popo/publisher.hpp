@@ -84,8 +84,6 @@ public:
     ///
     void release(chunk_t&& chunk) const noexcept;
 
-    // To use this method, the user needs to know about the chunk concept.
-    // This means, the usage cannot be completely transparant (unless via copyAndPublish).
     ///
     /// @brief send Publishes the chunk to the system.
     /// @details Ownership of published chunks is automatically released.
