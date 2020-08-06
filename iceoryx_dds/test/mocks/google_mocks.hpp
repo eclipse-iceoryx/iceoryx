@@ -15,7 +15,9 @@
 #ifndef IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP
 #define IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP
 
+#include "iceoryx_dds/dds/data_reader.hpp"
 #include "iceoryx_dds/dds/data_writer.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/gateway/channel.hpp"
 #include "iceoryx_posh/popo/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
@@ -81,15 +83,15 @@ class MockDataWriter
 };
 
 template <typename channel_t>
-class MockGenericDDSGateway
+class MockGenericGateway
 {
   public:
-    MockGenericDDSGateway(){};
-    MockGenericDDSGateway(const iox::capro::Interfaces i){};
+    MockGenericGateway(){};
+    MockGenericGateway(const iox::capro::Interfaces i, iox::units::Duration discoveryPeriod, iox::units::Duration forwardingPeriod){};
     MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
     MOCK_METHOD1_T(addChannel,
-                   iox::cxx::expected<channel_t, iox::dds::GatewayError>(const iox::capro::ServiceDescription&));
-    MOCK_METHOD1(discardChannel, iox::cxx::expected<iox::dds::GatewayError>(const iox::capro::ServiceDescription&));
+                   iox::cxx::expected<channel_t, iox::popo::GatewayError>(const iox::capro::ServiceDescription&));
+    MOCK_METHOD1(discardChannel, iox::cxx::expected<iox::popo::GatewayError>(const iox::capro::ServiceDescription&));
     MOCK_METHOD1_T(findChannel, iox::cxx::optional<channel_t>(const iox::capro::ServiceDescription&));
     MOCK_METHOD1_T(forEachChannel, void(const iox::cxx::function_ref<void(channel_t&)>));
 };
