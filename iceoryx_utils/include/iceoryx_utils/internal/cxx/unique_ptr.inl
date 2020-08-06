@@ -44,7 +44,7 @@ T* unique_ptr<T>::operator->() noexcept
 
 
 template<typename T>
-T* unique_ptr<T>::get() noexcept
+T* unique_ptr<T>::get() const noexcept
 {
   return m_ptr;
 }
@@ -76,6 +76,45 @@ void unique_ptr<T>::swap(unique_ptr<T>& other) noexcept
     // Set new pointers on both instances.
     reset(otherPtr);
     other.reset(release());
+}
+
+
+// Comparison Operators
+
+template<typename T, typename U>
+bool operator==(const unique_ptr<T>& x, const unique_ptr<U>& y)
+{
+    return x.get() == y.get();
+}
+
+template<typename T>
+bool operator==(const unique_ptr<T>& x, std::nullptr_t)
+{
+    return !x;
+}
+
+template<typename T>
+bool operator==(std::nullptr_t, const unique_ptr<T>& x)
+{
+    return !x;
+}
+
+template<typename T, typename U>
+bool operator!=(const unique_ptr<T>& x, const unique_ptr<U>& y)
+{
+    return x.get() != y.get();
+}
+
+template<typename T>
+bool operator!=(const unique_ptr<T>& x, std::nullptr_t)
+{
+    return (bool)x;
+}
+
+template<typename T>
+bool operator!=(std::nullptr_t, const unique_ptr<T>& x)
+{
+    return (bool)x;
 }
 
 } // namespace iox

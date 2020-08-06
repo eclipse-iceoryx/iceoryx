@@ -52,11 +52,9 @@ TEST_F(UniquePtrTest, CanBeConstructedWithUndefinedBlob)
     ptr->x = 10.0;
     ptr->y = 77.77;
     ptr->z = 50.50;
-
     EXPECT_EQ(10.0, ptr->x);
     EXPECT_EQ(77.77, ptr->y);
     EXPECT_EQ(50.50, ptr->z);
-
 }
 
 TEST_F(UniquePtrTest, CanBeResetToPointToUndefinedBlob)
@@ -70,7 +68,6 @@ TEST_F(UniquePtrTest, CanBeResetToPointToUndefinedBlob)
     ptr->x = 10.0;
     ptr->y = 77.77;
     ptr->z = 50.50;
-
     EXPECT_EQ(10.0, ptr->x);
     EXPECT_EQ(77.77, ptr->y);
     EXPECT_EQ(50.50, ptr->z);

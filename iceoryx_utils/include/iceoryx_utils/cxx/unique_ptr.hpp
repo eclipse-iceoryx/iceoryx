@@ -31,6 +31,14 @@ public:
 
     using ptr_t = T*;
 
+    unique_ptr() = delete;
+
+    ///
+    /// @brief An empty pointer that does nothing.
+    ///
+    unique_ptr(std::nullptr_t) noexcept
+    {};
+
     ///
     /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later.
     ///
@@ -46,7 +54,7 @@ public:
     unique_ptr(ptr_t ptr, const function_ref<void(ptr_t const)> deleter) noexcept;
 
     ///
-    /// @brief unique_ptr Creates an empty unique pointer that points to a specific memory location.
+    /// @brief unique_ptr Creates an empty unique pointer that points to an allocated memory location.
     /// @details The managed object is initially undefined thus must be defined before accessing.
     /// @param allocation The allocation of memory where managed object will reside once created.
     /// @param deleter The deleter function for cleaning up the managed object.
@@ -72,12 +80,25 @@ public:
     /// Return the stored pointer.
     ptr_t operator->() noexcept;
 
+    explicit operator bool() const noexcept
+    { return get() == ptr_t() ? false : true; }
+
+    ///
+    /// @brief operator = Reset to empty pointer when setting to nullptr.
+    /// @return An empty unique pointer.
+    ///
+    unique_ptr& operator=(std::nullptr_t) noexcept
+    {
+      reset();
+      return *this;
+    }
+
     ///
     /// @brief get Retrieve the underlying raw pointer.
     /// @details The unique_ptr retains ownership, therefore the "borrowed" pointer must not be deleted.
     /// @return Pointer to managed object or nullptr if none owned.
     ///
-    ptr_t get() noexcept;
+    ptr_t get() const noexcept;
 
     ///
     /// @brief release Releases ownership of the underlying pointer.
@@ -87,10 +108,10 @@ public:
 
     ///
     /// @brief reset Reset the unique_ptr instance's owned object to the one given.
-    /// @details Any previously owned objects will be deleted.
+    /// @details Any previously owned objects will be deleted. If no pointer given, resets ot an empty pointer.
     /// @param ptr Pointer to object to take ownership on.
     ///
-    void reset(ptr_t ptr) noexcept;
+    void reset(ptr_t ptr = ptr_t()) noexcept;
 
     ///
     /// @brief swap Swaps object ownership with another unique_ptr.
