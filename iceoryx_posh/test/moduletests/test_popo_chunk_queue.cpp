@@ -19,9 +19,9 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 
 #include "test.hpp"
 
@@ -60,9 +60,11 @@ class ChunkQueue_test : public TestWithParam<iox::cxx::VariantQueueTypes>, publi
     void SetUp() override{};
     void TearDown() override{};
 
-    ChunkQueueData m_chunkData{GetParam()};
-    ChunkQueuePopper m_popper{&m_chunkData};
-    ChunkQueuePusher m_pusher{&m_chunkData};
+    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
+
+    ChunkQueueData_t m_chunkData{GetParam()};
+    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
+    ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
 /// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
@@ -199,9 +201,11 @@ class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
     void SetUp() override{};
     void TearDown() override{};
 
-    ChunkQueueData m_chunkData{iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer};
-    ChunkQueuePopper m_popper{&m_chunkData};
-    ChunkQueuePusher m_pusher{&m_chunkData};
+    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
+
+    ChunkQueueData_t m_chunkData{iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer};
+    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
+    ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
 /// @note API currently not supported
@@ -245,9 +249,11 @@ class ChunkQueueSoFi_test : public Test, public ChunkQueue_testBase
     void SetUp() override{};
     void TearDown() override{};
 
-    ChunkQueueData m_chunkData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-    ChunkQueuePopper m_popper{&m_chunkData};
-    ChunkQueuePusher m_pusher{&m_chunkData};
+    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
+
+    ChunkQueueData_t m_chunkData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
+    ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
 TEST_F(ChunkQueueSoFi_test, InitialSize)

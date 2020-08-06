@@ -302,8 +302,7 @@ TIMING_TEST_F(WaitSet_test, AttachManyNotifyManyBeforeWaitingResultsInTriggerMul
 });
 
 
-TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThreaded)
-{
+TIMING_TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThreaded, Repeat(5), [&] {
     std::atomic<int> counter{0};
     m_sut.attachCondition(m_subscriberVector[0]);
     m_sut.attachCondition(m_subscriberVector[1]);
@@ -321,7 +320,7 @@ TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThread
     m_subscriberVector[1].notify();
     counter++;
     waiter.join();
-}
+});
 
 
 TEST_F(WaitSet_test, WaitWithoutNotifyResultsInBlockingMultiThreaded)

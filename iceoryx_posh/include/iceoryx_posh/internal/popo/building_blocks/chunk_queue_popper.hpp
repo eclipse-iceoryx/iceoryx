@@ -29,10 +29,11 @@ namespace popo
 /// infrastructure to exchange memory chunks between different data producers and consumers that could be located in
 /// different processes. A ChunkQueuePopper is used to build elements of higher abstraction layers that also do memory
 /// managemet and provide an API towards the real user
+template <typename ChunkQueueDataType>
 class ChunkQueuePopper
 {
   public:
-    using MemberType_t = ChunkQueueData;
+    using MemberType_t = ChunkQueueDataType;
 
     explicit ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
 
@@ -99,5 +100,7 @@ class ChunkQueuePopper
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.inl"
 
 #endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_HPP

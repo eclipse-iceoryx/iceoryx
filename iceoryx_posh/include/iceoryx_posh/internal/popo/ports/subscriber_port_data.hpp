@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POPO_SUBSCRIBER_PORT_DATA_HPP_
-#define IOX_POPO_SUBSCRIBER_PORT_DATA_HPP_
+#ifndef IOX_POSH_POPO_PORTS_SUBSCRIBER_PORT_DATA_HPP
+#define IOX_POSH_POPO_PORTS_SUBSCRIBER_PORT_DATA_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -35,7 +35,9 @@ struct SubscriberPortData : public BasePortData
                        const uint64_t& historyRequest = 0u,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    ChunkReceiverData m_chunkReceiverData;
+    using ChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig>;
+
+    ChunkReceiverData<MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t> m_chunkReceiverData;
     const uint64_t m_historyRequest;
     std::atomic_bool m_subscribeRequested{false};
     std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
@@ -44,4 +46,4 @@ struct SubscriberPortData : public BasePortData
 } // namespace popo
 } // namespace iox
 
-#endif
+#endif // IOX_POSH_POPO_PORTS_SUBSCRIBER_PORT_DATA_HPP
