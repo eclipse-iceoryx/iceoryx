@@ -19,6 +19,7 @@ project(iceoryx_dds VERSION ${iceoryx_dds_VERSION})
 
 option(test "build test binaries")
 
+find_package(cpptoml REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
@@ -51,8 +52,6 @@ endif()
 add_library(iceoryx_dds
     STATIC
     source/iceoryx_dds/log/logging.cpp
-    source/iceoryx_dds/gateway/gateway_config.cpp
-    source/iceoryx_dds/gateway/toml_gateway_config_parser.cpp
 )
 add_library(${PROJECT_NAMESPACE}::iceoryx_dds ALIAS iceoryx_dds)
 
@@ -114,6 +113,7 @@ add_executable(iox-gw-iceoryx2dds
     source/iceoryx2dds_app/main.cpp
 )
 target_link_libraries(iox-gw-iceoryx2dds
+    cpptoml
     iceoryx_posh::iceoryx_posh
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
@@ -124,6 +124,7 @@ add_executable(iox-gw-dds2iceoryx
     source/dds2iceoryx_app/main.cpp
 )
 target_link_libraries(iox-gw-dds2iceoryx 
+    cpptoml
     iceoryx_posh::iceoryx_posh
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )

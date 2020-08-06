@@ -16,8 +16,9 @@
 #define IOX_DDS_GATEWAY_DDS_TO_IOX_HPP
 
 #include "iceoryx_dds/dds/dds_types.hpp"
-#include "iceoryx_dds/gateway/channel.hpp"
-#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
+#include "iceoryx_posh/popo/gateway/channel.hpp"
+#include "iceoryx_posh/popo/gateway/gateway_generic.hpp"
+#include "iceoryx_posh/popo/gateway/gateway_config.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 
 namespace iox
@@ -27,8 +28,8 @@ namespace dds
 ///
 /// @brief DDS Gateway implementation for the DDS to iceoryx direction.
 ///
-template <typename channel_t = iox::dds::Channel<iox::popo::Publisher, iox::dds::data_reader_t>,
-          typename gateway_t = iox::dds::DDSGatewayGeneric<channel_t>>
+template <typename channel_t = iox::popo::Channel<iox::popo::Publisher, iox::dds::data_reader_t>,
+          typename gateway_t = iox::popo::GatewayGeneric<channel_t>>
 class DDS2IceoryxGateway : public gateway_t
 {
     using ChannelFactory = std::function<channel_t(const iox::capro::ServiceDescription)>;
@@ -36,13 +37,13 @@ class DDS2IceoryxGateway : public gateway_t
   public:
     DDS2IceoryxGateway() noexcept;
     DDS2IceoryxGateway(ChannelFactory channelFactory) noexcept;
-    void loadConfiguration(const GatewayConfig& config) noexcept;
+    void loadConfiguration(const iox::popo::GatewayConfig& config) noexcept;
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward(const channel_t& channel) noexcept;
 
   private:
     void* m_reservedChunk = nullptr;
-    iox::cxx::expected<channel_t, iox::dds::GatewayError>
+    iox::cxx::expected<channel_t, iox::popo::GatewayError>
     setupChannel(const iox::capro::ServiceDescription& service) noexcept;
 };
 

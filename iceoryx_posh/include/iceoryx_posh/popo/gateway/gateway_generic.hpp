@@ -84,7 +84,10 @@ class GatewayGeneric : public gateway_t
     uint64_t getNumberOfChannels() const noexcept;
 
   protected:
-    GatewayGeneric() noexcept;
+    GatewayGeneric(
+            iox::capro::Interfaces interface,
+            units::Duration discoveryPeriod = 1000_ms,
+            units::Duration forwardingPeriod = 50_ms) noexcept;
 
     ///
     /// @brief addChannel Creates a channel for the given service and stores a copy of it in an internal collection for
@@ -132,6 +135,9 @@ class GatewayGeneric : public gateway_t
 
     std::atomic_bool m_isRunning{false};
 
+    units::Duration m_discoveryPeriod;
+    units::Duration m_forwardingPeriod;
+
     std::thread m_discoveryThread;
     std::thread m_forwardingThread;
 
@@ -142,6 +148,6 @@ class GatewayGeneric : public gateway_t
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_dds/internal/gateway/dds_gateway_generic.inl"
+#include "iceoryx_posh/internal/popo/gateway/gateway_generic.inl"
 
 #endif // IOX_POSH_GATEWAY_GENERIC_HPP

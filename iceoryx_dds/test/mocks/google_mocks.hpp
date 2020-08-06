@@ -16,8 +16,8 @@
 #define IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP
 
 #include "iceoryx_dds/dds/data_writer.hpp"
-#include "iceoryx_dds/gateway/channel.hpp"
-#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
+#include "iceoryx_posh/popo/gateway/channel.hpp"
+#include "iceoryx_posh/popo/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"

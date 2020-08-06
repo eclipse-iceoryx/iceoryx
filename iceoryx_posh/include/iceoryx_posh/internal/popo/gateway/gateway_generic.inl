@@ -56,8 +56,10 @@ inline uint64_t iox::popo::GatewayGeneric<channel_t, gateway_t>::getNumberOfChan
 // ================================================== Protected ================================================== //
 
 template <typename channel_t, typename gateway_t>
-inline iox::popo::GatewayGeneric<channel_t, gateway_t>::GatewayGeneric() noexcept
-    : gateway_t(iox::capro::Interfaces::DDS)
+inline iox::popo::GatewayGeneric<channel_t, gateway_t>::GatewayGeneric(iox::capro::Interfaces interface,
+                                                                       units::Duration discoveryPeriod,
+                                                                       units::Duration forwardingPeriod) noexcept
+    : gateway_t(interface), m_discoveryPeriod(discoveryPeriod), m_forwardingPeriod(forwardingPeriod)
 {}
 
 template <typename channel_t, typename gateway_t>
@@ -155,7 +157,7 @@ inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::discoveryLoop() noe
         {
             discover(msg);
         }
-        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(DISCOVERY_PERIOD.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_discoveryPeriod.milliSeconds<int64_t>()));
     }
 }
 
@@ -166,7 +168,7 @@ inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::forwardingLoop() no
     {
         auto startTime = std::chrono::steady_clock::now();
         forEachChannel([this](channel_t channel) { this->forward(channel); });
-        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(FORWARDING_PERIOD.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_forwardingPeriod.milliSeconds<int64_t>()));
     };
 }
 

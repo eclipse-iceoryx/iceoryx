@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/gateway/toml_gateway_config_parser.hpp"
-#include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_posh/popo/gateway/toml_gateway_config_parser.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 
 #include <regex>
 
-iox::cxx::expected<iox::dds::GatewayConfig, iox::dds::TomlGatewayConfigParseError>
-iox::dds::TomlGatewayConfigParser::parse()
+iox::cxx::expected<iox::popo::GatewayConfig, iox::popo::TomlGatewayConfigParseError>
+iox::popo::TomlGatewayConfigParser::parse()
 {
-    return iox::dds::TomlGatewayConfigParser::parse(DEFAULT_CONFIG_FILE_PATH);
+    return iox::popo::TomlGatewayConfigParser::parse(DEFAULT_CONFIG_FILE_PATH);
 }
 
-iox::cxx::expected<iox::dds::GatewayConfig, iox::dds::TomlGatewayConfigParseError>
-iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
+iox::cxx::expected<iox::popo::GatewayConfig, iox::popo::TomlGatewayConfigParseError>
+iox::popo::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
 {
     GatewayConfig config;
 
@@ -34,18 +34,18 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
     {
         LogWarn() << "Invalid file path provided. Falling back to built-in config.";
         config.setDefaults();
-        return iox::cxx::success<iox::dds::GatewayConfig>(config);
+        return iox::cxx::success<GatewayConfig>(config);
     }
 
     /// @todo Replace with C++17 std::filesystem::exists()
     iox::cxx::FileReader configFile(path, "", cxx::FileReader::ErrorMode::Ignore);
     if (!configFile.IsOpen())
     {
-        LogWarn() << "Config file not found at: '" << path << "'. Falling back to built-in config.";
-        return iox::cxx::success<iox::dds::GatewayConfig>(config);
+        LogWarn() << "Gateway config file not found at: '" << path << "'. Falling back to built-in config.";
+        return iox::cxx::success<GatewayConfig>(config);
     }
 
-    LogInfo() << "[TomlGatewayConfigParser] Using gateway config at: " << path;
+    LogInfo() << "Using gateway config at: " << path;
     // Load the file
     auto parsedToml = cpptoml::parse_file(path.c_str());
     auto result = validate(*parsedToml);
@@ -67,15 +67,13 @@ iox::dds::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
                                            iox::capro::IdString(iox::cxx::TruncateToCapacity, *instance),
                                            iox::capro::IdString(iox::cxx::TruncateToCapacity, *event));
         config.m_configuredServices.push_back(entry);
-        LogDebug() << "[TomlGatewayConfigParser] Found service: {" << *serviceName << ", " << *instance << ", "
-                   << *event << "}";
     }
 
     return iox::cxx::success<GatewayConfig>(config);
 }
 
-iox::cxx::expected<iox::dds::TomlGatewayConfigParseError>
-iox::dds::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) noexcept
+iox::cxx::expected<iox::popo::TomlGatewayConfigParseError>
+iox::popo::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) noexcept
 {
     // Check for expected fields
     auto serviceArray = parsedToml.get_table_array(GATEWAY_CONFIG_SERVICE_TABLE_NAME);
@@ -111,7 +109,7 @@ iox::dds::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) no
     return iox::cxx::success<>();
 }
 
-bool iox::dds::TomlGatewayConfigParser::hasInvalidCharacter(std::string s) noexcept
+bool iox::popo::TomlGatewayConfigParser::hasInvalidCharacter(std::string s) noexcept
 {
     // See: https://design.ros2.org/articles/topic_and_service_names.html
     const std::regex regex(REGEX_VALID_CHARACTERS);

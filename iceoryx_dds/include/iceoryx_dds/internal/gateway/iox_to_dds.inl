@@ -15,12 +15,12 @@
 #ifndef IOX_DDS_INTERNAL_GATEWAY_IOX_TO_DDS_INL
 #define IOX_DDS_INTERNAL_GATEWAY_IOX_TO_DDS_INL
 
+#include "iceoryx_dds/dds/dds_config.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/popo/gateway/gateway_config.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
-
-#include <chrono>
-#include <thread>
 
 namespace iox
 {
@@ -29,12 +29,12 @@ namespace dds
 // ======================================== Public ======================================== //
 template <typename channel_t, typename gateway_t>
 inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway() noexcept
-    : gateway_t()
+    : gateway_t(iox::capro::Interfaces::DDS, DISCOVERY_PERIOD, FORWARDING_PERIOD)
 {
 }
 
 template <typename channel_t, typename gateway_t>
-inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const GatewayConfig& config) noexcept
+inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const iox::popo::GatewayConfig& config) noexcept
 {
     iox::LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway.";
     for (const auto& service : config.m_configuredServices)
@@ -99,7 +99,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
         subscriber->getChunk(&header);
         if (header->m_info.m_payloadSize > 0)
         {
-            auto dataWriter = channel.getDDSTerminal();
+            auto dataWriter = channel.getExternalTerminal();
             dataWriter->write(static_cast<uint8_t*>(header->payload()), header->m_info.m_payloadSize);
         }
         subscriber->releaseChunk(header);
@@ -109,12 +109,12 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
 // ======================================== Private ======================================== //
 
 template <typename channel_t, typename gateway_t>
-iox::cxx::expected<channel_t, iox::dds::GatewayError>
+iox::cxx::expected<channel_t, iox::popo::GatewayError>
 Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
     return this->addChannel(service).and_then([](channel_t channel) {
         auto subscriber = channel.getIceoryxTerminal();
-        auto dataWriter = channel.getDDSTerminal();
+        auto dataWriter = channel.getExternalTerminal();
         subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);
         dataWriter->connect();
     });

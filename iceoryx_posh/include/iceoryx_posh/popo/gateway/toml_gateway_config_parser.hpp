@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_GATEWAY_FILE_CONFIG_PARSER_HPP
-#define IOX_DDS_GATEWAY_FILE_CONFIG_PARSER_HPP
+#ifndef IOX_POSH_GATEWAY_FILE_CONFIG_PARSER_HPP
+#define IOX_POSH_GATEWAY_FILE_CONFIG_PARSER_HPP
 
-#include "iceoryx_dds/gateway/gateway_config.hpp"
+#include "iceoryx_posh/popo/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 
-#include "cpptoml.h"
+#include <cpptoml.h>
 
 
 namespace iox
 {
-namespace dds
+namespace popo
 {
 enum TomlGatewayConfigParseError
 {
@@ -64,4 +64,4 @@ class TomlGatewayConfigParser
 } // namespace dds
 } // namespace iox
 
-#endif // IOX_DDS_GATEWAY_FILE_CONFIG_PARSER_HPP
+#endif // IOX_POSH_GATEWAY_FILE_CONFIG_PARSER_HPP

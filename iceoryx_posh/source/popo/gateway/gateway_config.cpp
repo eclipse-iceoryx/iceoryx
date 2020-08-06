@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/gateway/gateway_config.hpp"
+#include "iceoryx_posh/popo/gateway/gateway_config.hpp"
 
-void iox::dds::GatewayConfig::setDefaults() noexcept
+void iox::popo::GatewayConfig::setDefaults() noexcept
 {
     // Nothing to do. Yet.
 }

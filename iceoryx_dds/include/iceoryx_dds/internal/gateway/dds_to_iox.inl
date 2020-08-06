@@ -15,6 +15,7 @@
 #ifndef IOX_DDS_INTERNAL_GATEWAY_DDS_TO_IOX_INL
 #define IOX_DDS_INTERNAL_GATEWAY_DDS_TO_IOX_INL
 
+#include "iceoryx_dds/dds/dds_config.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
@@ -25,12 +26,12 @@ namespace dds
 {
 template <typename channel_t, typename gateway_t>
 inline DDS2IceoryxGateway<channel_t, gateway_t>::DDS2IceoryxGateway() noexcept
-    : gateway_t()
+    : gateway_t(iox::capro::Interfaces::DDS, DISCOVERY_PERIOD, FORWARDING_PERIOD)
 {
 }
 
 template <typename channel_t, typename gateway_t>
-inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const GatewayConfig& config) noexcept
+inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const iox::popo::GatewayConfig& config) noexcept
 {
     iox::LogDebug() << "[DDS2IceoryxGateway] Configuring gateway.";
     for (const auto& service : config.m_configuredServices)
@@ -53,7 +54,7 @@ template <typename channel_t, typename gateway_t>
 inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
     auto publisher = channel.getIceoryxTerminal();
-    auto reader = channel.getDDSTerminal();
+    auto reader = channel.getExternalTerminal();
 
     reader->peekNextSize().and_then([&](uint64_t size) {
         // reserve a chunk for the sample
@@ -74,12 +75,12 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
 
 // ======================================== Private ======================================== //
 template <typename channel_t, typename gateway_t>
-iox::cxx::expected<channel_t, iox::dds::GatewayError>
+iox::cxx::expected<channel_t, iox::popo::GatewayError>
 DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
     return this->addChannel(service).and_then([&service](channel_t channel) {
         auto publisher = channel.getIceoryxTerminal();
-        auto reader = channel.getDDSTerminal();
+        auto reader = channel.getExternalTerminal();
         publisher->offer();
         reader->connect();
         iox::LogDebug() << "[DDS2IceoryxGateway] Setup channel for service: {" << service.getServiceIDString() << ", "

@@ -63,7 +63,6 @@ add_library(iceoryx_posh
     source/mepoo/mepoo_segment.cpp
     source/mepoo/memory_info.cpp
     source/popo/delivery_fifo.cpp
-    source/popo/gateway_generic.cpp
     source/popo/receiver_port.cpp
     source/popo/receiver_port_data.cpp
     source/popo/sender_port.cpp
@@ -92,6 +91,9 @@ add_library(iceoryx_posh
     source/popo/building_blocks/chunk_receiver_data.cpp
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
+    source/popo/gateway/gateway_config.cpp
+    source/popo/gateway/gateway_base.cpp
+    source/popo/gateway/toml_gateway_config_parser.cpp
     source/popo/condition.cpp
     source/popo/guard_condition.cpp
     source/popo/wait_set.cpp

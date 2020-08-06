@@ -16,8 +16,8 @@
 #define IOX_DDS_GATEWAY_IOX_TO_DDS_HPP
 
 #include "iceoryx_dds/dds/dds_types.hpp"
-#include "iceoryx_dds/gateway/channel.hpp"
-#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
+#include "iceoryx_posh/popo/gateway/channel.hpp"
+#include "iceoryx_posh/popo/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 
 namespace iox
@@ -27,18 +27,18 @@ namespace dds
 ///
 /// @brief DDS Gateway implementation for the iceoryx to DDS direction.
 ///
-template <typename channel_t = iox::dds::Channel<iox::popo::Subscriber, iox::dds::data_writer_t>,
-          typename gateway_t = iox::dds::DDSGatewayGeneric<channel_t>>
+template <typename channel_t = iox::popo::Channel<iox::popo::Subscriber, iox::dds::data_writer_t>,
+          typename gateway_t = iox::popo::GatewayGeneric<channel_t>>
 class Iceoryx2DDSGateway : public gateway_t
 {
   public:
     Iceoryx2DDSGateway() noexcept;
-    void loadConfiguration(const GatewayConfig& config) noexcept;
+    void loadConfiguration(const iox::popo::GatewayConfig& config) noexcept;
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward(const channel_t& channel) noexcept;
 
   private:
-    iox::cxx::expected<channel_t, iox::dds::GatewayError>
+    iox::cxx::expected<channel_t, iox::popo::GatewayError>
     setupChannel(const iox::capro::ServiceDescription& service) noexcept;
 };
 

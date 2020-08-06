@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/gateway/toml_gateway_config_parser.hpp"
+#include "iceoryx_posh/popo/gateway/toml_gateway_config_parser.hpp"
 #include "stubs/stubbed_toml_gateway_config_parser.hpp"
 
 #include "test.hpp"

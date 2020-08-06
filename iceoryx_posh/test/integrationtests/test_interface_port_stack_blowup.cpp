@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/gateway_generic.hpp"
+#include "iceoryx_posh/popo/gateway/gateway_base.hpp"
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "roudi_gtest.hpp"
@@ -34,7 +34,7 @@ class InterfacePortRequestStackBlowup_test : public RouDi_GTest
 TEST_F(InterfacePortRequestStackBlowup_test, RouDiMustContinue)
 {
     iox::runtime::PoshRuntime::getInstance("/inteface_port_request_stack_blowup");
-    GatewayGeneric sut(iox::capro::Interfaces::INTERNAL);
+    GatewayBase sut(iox::capro::Interfaces::INTERNAL);
     iox::capro::CaproMessage caproMessage;
     // we don't care if there are capro messages or not, we just want to have a check that there was no segfault
     EXPECT_THAT(sut.getCaProMessage(caproMessage), AnyOf(true, false));
