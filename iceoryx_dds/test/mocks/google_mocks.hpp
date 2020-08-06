@@ -28,13 +28,6 @@
 using namespace ::testing;
 using ::testing::_;
 
-class MockGenericGateway
-{
-  public:
-    MockGenericGateway(const iox::capro::Interfaces i){};
-    MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
-};
-
 class MockPublisher
 {
   public:

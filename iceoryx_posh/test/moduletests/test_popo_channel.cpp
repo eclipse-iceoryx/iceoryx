@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/dds/dds_types.hpp"
-#include "iceoryx_dds/gateway/channel.hpp"
+#include "iceoryx_posh/popo/gateway/channel.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 
 #include "test.hpp"
@@ -22,18 +21,21 @@ using namespace ::testing;
 using ::testing::_;
 
 // ======================================== Helpers ======================================== //
+
+using IdString = iox::cxx::string<100>;
+
 // We do not need real channel terminals to test the base class.
 struct StubbedIceoryxTerminal
 {
     StubbedIceoryxTerminal(iox::capro::ServiceDescription sd){};
 };
 
-struct StubbedDDSTerminal
+struct StubbedExternalTerminal
 {
-    StubbedDDSTerminal(iox::dds::IdString sid, iox::dds::IdString iid, iox::dds::IdString eid){};
+    StubbedExternalTerminal(IdString sid, IdString iid, IdString eid){};
 };
 
-using TestChannel = iox::dds::Channel<StubbedIceoryxTerminal, StubbedDDSTerminal>;
+using TestChannel = iox::popo::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
 
 // ======================================== Fixture ======================================== //
 class ChannelTest : public Test
@@ -46,5 +48,5 @@ class ChannelTest : public Test
 // ======================================== Tests ======================================== //
 TEST_F(ChannelTest, ReturnsEmptyOptionalIfObjectPoolExhausted)
 {
-    auto channel = iox::dds::Channel<StubbedIceoryxTerminal, StubbedDDSTerminal>::create({"", "", ""});
+    auto channel = iox::popo::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create({"", "", ""});
 }

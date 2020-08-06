@@ -85,7 +85,7 @@ class GatewayGeneric : public gateway_t
 
   protected:
     GatewayGeneric(
-            iox::capro::Interfaces interface,
+            capro::Interfaces interface,
             units::Duration discoveryPeriod = 1000_ms,
             units::Duration forwardingPeriod = 50_ms) noexcept;
 

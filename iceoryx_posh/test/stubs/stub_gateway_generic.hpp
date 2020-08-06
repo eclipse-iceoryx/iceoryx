@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_TEST_STUBS_STUBBED_DDS_GATEWAY_GENERIC_HPP
-#define IOX_DDS_TEST_STUBS_STUBBED_DDS_GATEWAY_GENERIC_HPP
+#ifndef IOX_POSH_STUBS_GATEWAY_GENERIC_HPP
+#define IOX_POSH_STUBS_GATEWAY_GENERIC_HPP
 
-#include "iceoryx_dds/gateway/channel.hpp"
-#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
+#include "iceoryx_posh/popo/gateway/channel.hpp"
+#include "iceoryx_posh/popo/gateway/gateway_generic.hpp"
 
-#include "mocks/google_mocks.hpp"
+#include "mocks/gateway_base_mock.hpp"
 
 namespace iox
 {
-namespace dds
+namespace popo
 {
 template <typename channel_t>
-using TestDDSGatewayGeneric = iox::dds::DDSGatewayGeneric<channel_t, MockGenericGateway>;
+using TestGatewayGeneric = iox::popo::GatewayGeneric<channel_t, MockGatewayBase>;
 
 ///
 /// @brief The StubbedDDSGatewayGeneric class stubs out the pure virtual methods and exposes the protected methods
@@ -33,9 +33,12 @@ using TestDDSGatewayGeneric = iox::dds::DDSGatewayGeneric<channel_t, MockGeneric
 /// Only to be used in testing.
 ///
 template <typename channel_t>
-class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
+class StubbedGatewayGeneric : public TestGatewayGeneric<channel_t>
 {
   public:
+
+    StubbedGatewayGeneric() : TestGatewayGeneric<channel_t>(iox::capro::Interfaces::INTERNAL) {};
+
     void loadConfiguration(const GatewayConfig& config) noexcept
     {
         // Stubbed.
@@ -51,28 +54,28 @@ class StubbedDDSGatewayGeneric : public TestDDSGatewayGeneric<channel_t>
         // Stubbed.
     }
 
-    iox::cxx::expected<channel_t, iox::dds::GatewayError>
+    iox::cxx::expected<channel_t, iox::popo::GatewayError>
     addChannel(const iox::capro::ServiceDescription& service) noexcept
     {
-        return TestDDSGatewayGeneric<channel_t>::addChannel(service);
+        return TestGatewayGeneric<channel_t>::addChannel(service);
     }
 
     iox::cxx::optional<channel_t> findChannel(const iox::capro::ServiceDescription& service) noexcept
     {
-        return TestDDSGatewayGeneric<channel_t>::findChannel(service);
+        return TestGatewayGeneric<channel_t>::findChannel(service);
     }
 
     void forEachChannel(const iox::cxx::function_ref<void(channel_t&)> f) noexcept
     {
-        TestDDSGatewayGeneric<channel_t>::forEachChannel(f);
+        TestGatewayGeneric<channel_t>::forEachChannel(f);
     }
 
-    iox::cxx::expected<iox::dds::GatewayError> discardChannel(const iox::capro::ServiceDescription& service) noexcept
+    iox::cxx::expected<iox::popo::GatewayError> discardChannel(const iox::capro::ServiceDescription& service) noexcept
     {
-        return TestDDSGatewayGeneric<channel_t>::discardChannel(service);
+        return TestGatewayGeneric<channel_t>::discardChannel(service);
     }
 };
-} // namespace dds
+} // namespace popo
 } // namespace iox
 
-#endif // IOX_DDS_TEST_STUBS_STUBBED_DDS_GATEWAY_GENERIC_HPP
+#endif // IOX_POSH_STUBS_GATEWAY_GENERIC_HPP
