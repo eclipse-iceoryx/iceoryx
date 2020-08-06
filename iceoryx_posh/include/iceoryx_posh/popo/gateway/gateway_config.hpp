@@ -12,20 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_DDS_CONFIG_HPP
-#define IOX_DDS_DDS_CONFIG_HPP
+#ifndef IOX_POSH_GATEWAY_CONFIG_HPP
+#define IOX_POSH_GATEWAY_CONFIG_HPP
 
+#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_utils/cxx/vector.hpp"
 
 namespace iox
 {
-namespace dds
+namespace popo
 {
-static constexpr units::Duration DISCOVERY_PERIOD = 1000_ms;
-static constexpr units::Duration FORWARDING_PERIOD = 50_ms;
-static constexpr uint32_t SUBSCRIBER_CACHE_SIZE = 128u;
+///
+/// @brief Generic configuration for gateways.
+///
+struct GatewayConfig
+{
+    struct ServiceEntry
+    {
+        iox::capro::ServiceDescription m_serviceDescription;
+    };
+    iox::cxx::vector<ServiceEntry, iox::MAX_PORT_NUMBER> m_configuredServices;
 
-} // namespace dds
+    void setDefaults() noexcept;
+};
+} // namespace popo
 } // namespace iox
 
-#endif // IOX_DDS_DDS_CONFIG_HPP
+#endif // IOX_POSH_GATEWAY_CONFIG_HPP
