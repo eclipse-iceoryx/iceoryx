@@ -135,7 +135,7 @@ Integration tests are composition of more than one class and test their interact
 
 * [POSIX](https://en.wikipedia.org/wiki/POSIX)
 Iceoryx aims to be fully POSIX-compliant towards the current revision POSIX.1-2017 (IEEE 1003.1-2017). Please write
-your code as portable as possible. Currently our focus is [QNX](https://blackberry.qnx.com/en) and Linux.
+your code as portable as possible. Currently our focus is [QNX](https://blackberry.qnx.com/en) (QCC 5.4) and Linux (GCC 7.5.0).
 
 * [ACL](https://en.wikipedia.org/wiki/Access-control_list)
 

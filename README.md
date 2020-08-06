@@ -112,7 +112,7 @@ If you would like to use our Cyclone DDS Gateway you have to install Cyclone DDS
 
 #### Linux
 
-Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 18.04 and at least GCC 7.4.0 for development.
+Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 18.04 and at least GCC 7.5.0 for development.
 
 You will need to install the following packages:
     ```
