@@ -47,18 +47,18 @@ int main(int argc, char *argv[])
 
     // OR - if you want to loan a sample and construct the data with arbitrary logic
 
-//    publisher.loan()
-//        .and_then([&](iox::popo::Sample<Position>& sample){
-//            getVehiclePosition(sample.allocation());
-//            // OR
-//            sample.emplace(77, 88, 99);
-//            // OR
-//            sample.emplace(getVehiclePosition);
+    publisher.loan()
+        .and_then([&](iox::popo::Sample<Position>& sample){
+            getVehiclePosition(sample.allocation());
+            // OR
+            sample.emplace(77.77, 88.88, 99.99);
+            // OR
+            sample.emplace(getVehiclePosition);
 
-//            // sample.publish()
-//            // OR
-//            // publisher.publish(std::move(sample));
-//        });
+            // sample.publish()
+            // OR
+            publisher.publish(std::move(sample));
+        });
 
     return 0;
 }

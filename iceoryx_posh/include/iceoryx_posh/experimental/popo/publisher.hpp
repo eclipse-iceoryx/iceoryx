@@ -57,27 +57,38 @@ public:
       m_isEmpty = true;
       return *this;
     }
-    template <typename... Args>
-    void emplace(Args&&... args) noexcept
+    template <typename Arg, typename... Args>
+    auto emplace(Arg arg, Args... args)
+        -> typename std::enable_if<!std::is_same<std::decay<Arg>, cxx::function_ref<void(T*)>>::value>::type
     {
         if(m_samplePtr != nullptr)
         {
-            new (m_samplePtr.get()) T(std::forward<Args>(args)...);
+            new (m_samplePtr.get()) T(std::forward<Arg>(arg), std::forward<Args>(args)...);
             m_isEmpty = false;
         }
     }
-    void emplace(cxx::function_ref<void(T*)> f)
+    void emplace(cxx::function_ref<void(T*)> f) noexcept
     {
         f(m_samplePtr.get());
         m_isEmpty = false;
     }
+//    template <typename... Args>
+//    void emplace(Args&&... args) noexcept
+//    {
+//        if(m_samplePtr != nullptr)
+//        {
+//            new (m_samplePtr.get()) T(std::forward<Args>(args)...);
+//            m_isEmpty = false;
+//        }
+//    }
     void publish() noexcept
     {
         m_publisher.publish(std::move(*this));
     }
 private:
-    const cxx::unique_ptr<T> m_samplePtr = nullptr;
     bool m_isEmpty = true;
+
+    cxx::unique_ptr<T> m_samplePtr = nullptr;
     Publisher<T>& m_publisher;
 };
 
