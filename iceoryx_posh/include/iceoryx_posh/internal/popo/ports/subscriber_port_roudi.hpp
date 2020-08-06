@@ -60,7 +60,8 @@ class SubscriberPortRouDi : public BasePort
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    ChunkReceiver<SubscriberPortData::ChunkQueueData_t> m_chunkReceiver;
+    using ChunkQueuePopper_t = ChunkQueuePopper<SubscriberPortData::ChunkQueueData_t>;
+    ChunkReceiver<ChunkQueuePopper_t> m_chunkReceiver;
 };
 
 } // namespace popo

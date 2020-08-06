@@ -58,6 +58,7 @@ using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig>;
 using ChunkDistributorData_t =
     ChunkDistributorData<ChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
 using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
+using ChunkQueuePopper_t = ChunkQueuePopper<ChunkQueueData_t>;
 
 class ChunkBuildingBlocks_IntegrationTest : public Test
 {
@@ -203,12 +204,12 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
     ChunkQueueData_t m_chunkQueueData{
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
-    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkQueueData};
+    ChunkQueuePopper_t m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
     ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t> m_chunkReceiverData{
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
-    ChunkReceiver<ChunkQueueData_t> m_chunkReceiver{&m_chunkReceiverData};
+    ChunkReceiver<ChunkQueuePopper_t> m_chunkReceiver{&m_chunkReceiverData};
 };
 
 TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)
