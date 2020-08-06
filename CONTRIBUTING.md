@@ -170,8 +170,8 @@ With a comment one line above (with the number after the warning number, next â€
 Don't be afraid if you don't have Helix QAC++ available. As we want to make it easy for developers to contribute,
 please use the ``staging`` branch and we'll run the QAC++ scan and get back to you.
 
-Results will be available on this [Helix QAC dashboard](https://qaverify.programmingresearch.com/). Please contact us, if
-you're interested in getting access.
+Results will be available on this [Helix QAC dashboard](https://qaverify.programmingresearch.com/). Please contact one
+of the maintainers, if you're interested in getting access.
 
 It is possible that not the whole codebase follows these rules, things are work in progress. But this is where we want
 go. As of now we don't have any continous integration checks implemented but will rely on reviews during the pull
@@ -197,7 +197,10 @@ Each source file needs to have this header:
 
 ## Quality levels
 
-CMake targets can be developed according to different quality levels. For production usage in a specific environment (e.g. compiler version, compiler flags, etc.), please contact one of the maintainers beforehand. All requirements of a lower quality level are included in higher quality levels e.g. quality level 4 is included in quality level 3.
+CMake targets can be developed according to different quality levels. Despite developing some of our targets according
+to automotive standards like ISO26262, the code base standalone does NOT legitimize the usage in a safety critical
+system. All requirements of a lower quality level are included in higher quality levels e.g. quality level 4 is
+included in quality level 3.
 
 Also see [ROS quality levels](https://github.com/ros-infrastructure/rep/blob/master/rep-2004.rst).
 
