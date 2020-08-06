@@ -75,21 +75,16 @@ add_library(iceoryx_posh
     source/popo/ports/application_port_data.cpp
     source/popo/ports/base_port_data.cpp
     source/popo/ports/base_port.cpp
+    source/popo/ports/publisher_port_data.cpp
     source/popo/ports/publisher_port_user.cpp
     source/popo/ports/publisher_port_roudi.cpp
-    source/popo/ports/publisher_port_data.cpp
     source/popo/ports/subscriber_port_user.cpp
     source/popo/ports/subscriber_port_roudi.cpp
     source/popo/ports/subscriber_port_single_producer.cpp
     source/popo/ports/subscriber_port_multi_producer.cpp
     source/popo/ports/subscriber_port_data.cpp
     source/popo/building_blocks/chunk_distributor_data.cpp
-    source/popo/building_blocks/chunk_queue_pusher.cpp
-    source/popo/building_blocks/chunk_queue_popper.cpp
-    source/popo/building_blocks/chunk_queue_data.cpp
     source/popo/building_blocks/chunk_queue_types.cpp
-    source/popo/building_blocks/chunk_receiver.cpp
-    source/popo/building_blocks/chunk_receiver_data.cpp
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
     source/popo/condition.cpp
@@ -230,17 +225,17 @@ if(TOML_CONFIG)
     )
     target_compile_options(iceoryx_posh_roudi_toml PRIVATE ${ICEORYX_WARNINGS})
 
-    add_executable(RouDi
+    add_executable(iox-roudi
         source/roudi/application/roudi_main.cpp
     )
-    set_target_properties(RouDi PROPERTIES
+    set_target_properties(iox-roudi PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
         POSITION_INDEPENDENT_CODE ON
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     )
 
-    target_link_libraries(RouDi
+    target_link_libraries(iox-roudi
         PRIVATE
         cpptoml
         iceoryx_utils::iceoryx_utils
@@ -248,11 +243,11 @@ if(TOML_CONFIG)
         iceoryx_posh_roudi_toml
     )
 
-    target_compile_options(RouDi PRIVATE ${ICEORYX_WARNINGS})
+    target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS})
 
     if(PERFORM_CLANG_TIDY)
         set_target_properties(
-            RouDi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
+            iox-roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
         )
     endif(PERFORM_CLANG_TIDY)
 
@@ -290,7 +285,7 @@ endif(roudi_environment OR test)
 ########## exporting library ##########
 #
 if(TOML_CONFIG)
-    set(ROUDI_EXPORT RouDi)
+    set(ROUDI_EXPORT iox-roudi)
 endif(TOML_CONFIG)
 
 setup_install_directories_and_export_package(

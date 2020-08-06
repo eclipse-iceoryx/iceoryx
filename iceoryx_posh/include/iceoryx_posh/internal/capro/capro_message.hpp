@@ -21,8 +21,7 @@ namespace iox
 namespace popo
 {
 struct ReceiverPortData;
-struct ChunkQueueData;
-}
+} // namespace popo
 
 namespace capro
 {
@@ -47,19 +46,8 @@ enum class CaproMessageType : uint8_t
 };
 
 constexpr int32_t MAX_ENUM_STRING_SIZE = 64;
-constexpr char CaproMessageTypeString[][MAX_ENUM_STRING_SIZE] = {"NOTYPE",
-                                                                 "FIND",
-                                                                 "OFFER",
-                                                                 "STOP_OFFER",
-                                                                 "SUB",
-                                                                 "UNSUB",
-                                                                 "ACK",
-                                                                 "NACK",
-                                                                 "PUB",
-                                                                 "REQ",
-                                                                 "RES",
-                                                                 "PING",
-                                                                 "PONG"};
+constexpr char CaproMessageTypeString[][MAX_ENUM_STRING_SIZE] = {
+    "NOTYPE", "FIND", "OFFER", "STOP_OFFER", "SUB", "UNSUB", "ACK", "NACK", "PUB", "REQ", "RES", "PING", "PONG"};
 
 
 enum class CaproMessageSubType : uint8_t
@@ -74,11 +62,8 @@ enum class CaproMessageSubType : uint8_t
 class CaproMessage
 {
   public:
-    /// @brief C'tor for CaPro Message with no type and service description
-    /// @param m_type(NOTYPE)       Type that declare no message type
-    /// @param m_requestPort(0)     No port
-    /// @return                     Nothing
-    CaproMessage() noexcept;
+    /// @brief default constructor
+    CaproMessage() = default;
 
     /// @brief C'tor for CaPro Message with type, service description
     /// @param f_type                    Message type
@@ -95,9 +80,8 @@ class CaproMessage
     ServiceDescription m_serviceDescription;
     /// @brief Null-Pointer for request-port with no specific type
     popo::ReceiverPortData* m_requestPort{nullptr};
-    popo::ChunkQueueData* m_chunkQueueData{nullptr};
+    void* m_chunkQueueData{nullptr};
     uint64_t m_historyCapacity{0u};
-
 };
 
 } // namespace capro

@@ -43,8 +43,22 @@ alignas(64) uint8_t g_memory[MEMORY_SIZE];
 static constexpr uint32_t ITERATIONS = 10000;
 static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
 
-using ChunkDistributorData_t = iox::popo::ChunkDistributorData<MAX_NUMBER_QUEUES, iox::popo::ThreadSafePolicy>;
-using ChunkDistributor_t = iox::popo::ChunkDistributor<ChunkDistributorData_t>;
+struct ChunkDistributorConfig
+{
+    static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
+    static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+};
+
+struct ChunkQueueConfig
+{
+    static constexpr uint32_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL;
+};
+
+using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig>;
+using ChunkDistributorData_t =
+    ChunkDistributorData<ChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
+using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
+using ChunkQueuePopper_t = ChunkQueuePopper<ChunkQueueData_t>;
 
 class ChunkBuildingBlocks_IntegrationTest : public Test
 {
@@ -182,20 +196,20 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     MemoryManager m_memoryManager;
 
     // Objects used by publishing thread
-    ChunkSenderData<ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
+    ChunkSenderData<iox::MAX_CHUNKS_ALLOCATE_PER_SENDER, ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
     ChunkSender<ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
 
     // Objects used by forwarding thread
     ChunkDistributorData_t m_chunkDistributorData;
     ChunkDistributor_t m_chunkDistributor{&m_chunkDistributorData};
-    ChunkQueueData m_chunkQueueData{
+    ChunkQueueData_t m_chunkQueueData{
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
-    ChunkQueuePopper m_popper{&m_chunkQueueData};
+    ChunkQueuePopper_t m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
-    ChunkReceiverData m_chunkReceiverData{
+    ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t> m_chunkReceiverData{
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
-    ChunkReceiver m_chunkReceiver{&m_chunkReceiverData};
+    ChunkReceiver<ChunkQueuePopper_t> m_chunkReceiver{&m_chunkReceiverData};
 };
 
 TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)

@@ -26,24 +26,23 @@ namespace iox
 {
 namespace popo
 {
+template <typename ChunkQueueDataProperties>
 struct ChunkQueueData
 {
+    using ChunkQueueDataProperties_t = ChunkQueueDataProperties;
+
     explicit ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept;
 
-    static constexpr uint32_t MAX_CAPACITY = MAX_RECEIVER_QUEUE_CAPACITY;
+    static constexpr uint32_t MAX_CAPACITY = ChunkQueueDataProperties_t::MAX_QUEUE_CAPACITY;
     cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasOverflown{false};
 
-    relative_ptr<iox::popo::ConditionVariableData> m_conditionVariableDataPtr;
-    std::atomic_bool m_conditionVariableAttached{false};
-
-    /// @deprecated #25
-    mepoo::SharedPointer<posix::Semaphore> m_semaphore;
-    /// @deprecated #25
-    std::atomic_bool m_semaphoreAttached{false};
+    relative_ptr<iox::popo::ConditionVariableData> m_conditionVariableDataPtr{nullptr};
 };
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.inl"
 
 #endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_HPP

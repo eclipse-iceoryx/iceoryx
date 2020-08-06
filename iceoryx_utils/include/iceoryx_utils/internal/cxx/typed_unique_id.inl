@@ -11,19 +11,21 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
+#ifndef IOX_UTILS_CXX_TYPED_UNIQUE_ID_INL
+#define IOX_UTILS_CXX_TYPED_UNIQUE_ID_INL
 
 namespace iox
 {
-namespace popo
+namespace cxx
 {
-ChunkReceiverData::ChunkReceiverData(const cxx::VariantQueueTypes queueType,
-                                     const mepoo::MemoryInfo& memoryInfo) noexcept
-    : ChunkQueueData(queueType)
-    , m_memoryInfo(memoryInfo)
+template <typename T>
+std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{0u};
+
+template <typename T>
+inline TypedUniqueId<T>::TypedUniqueId() noexcept
+    : ThisType(newtype::internal::ProtectedConstructor, globalIDCounter.fetch_add(1u, std::memory_order_relaxed))
 {
 }
-
-} // namespace popo
+} // namespace cxx
 } // namespace iox
+#endif

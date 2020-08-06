@@ -19,9 +19,9 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
 #include "test.hpp"
 
@@ -30,6 +30,7 @@ using ::testing::Return;
 
 using namespace iox::popo;
 using namespace iox::mepoo;
+using namespace iox::units::duration_literals;
 
 class ChunkQueue_testBase
 {
@@ -49,7 +50,6 @@ class ChunkQueue_testBase
     iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
     MemPool mempool{128, 2 * iox::MAX_RECEIVER_QUEUE_CAPACITY, &allocator, &allocator};
     MemPool chunkMgmtPool{128, 2 * iox::MAX_RECEIVER_QUEUE_CAPACITY, &allocator, &allocator};
-    TypedMemPool<iox::posix::Semaphore> semaphorePool{10, &allocator, &allocator};
 
     static constexpr uint32_t RESIZED_CAPACITY{5u};
 };
@@ -60,9 +60,11 @@ class ChunkQueue_test : public TestWithParam<iox::cxx::VariantQueueTypes>, publi
     void SetUp() override{};
     void TearDown() override{};
 
-    ChunkQueueData m_chunkData{GetParam()};
-    ChunkQueuePopper m_popper{&m_chunkData};
-    ChunkQueuePusher m_pusher{&m_chunkData};
+    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
+
+    ChunkQueueData_t m_chunkData{GetParam()};
+    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
+    ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
 /// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
@@ -79,9 +81,9 @@ TEST_P(ChunkQueue_test, InitialEmpty)
     EXPECT_THAT(m_popper.empty(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, InitialSemaphoreAttached)
+TEST_P(ChunkQueue_test, InitialConditionVariableAttached)
 {
-    EXPECT_THAT(m_popper.isSemaphoreAttached(), Eq(false));
+    EXPECT_THAT(m_popper.isConditionVariableAttached(), Eq(false));
 }
 
 TEST_P(ChunkQueue_test, PushOneChunk)
@@ -144,56 +146,52 @@ TEST_P(ChunkQueue_test, ClearWithData)
     EXPECT_THAT(m_popper.empty(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, AttachSemaphore)
+TEST_P(ChunkQueue_test, AttachConditionVariableSignaler)
 {
-    auto semaphore = semaphorePool.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(0);
-    ASSERT_THAT(semaphore.has_error(), Eq(false));
+    ConditionVariableData condVar;
 
-    auto ret = m_popper.attachSemaphore(*semaphore);
-    EXPECT_FALSE(ret.has_error());
+    auto ret = m_popper.attachConditionVariable(&condVar);
+    EXPECT_TRUE(ret);
 
-    EXPECT_THAT(m_popper.isSemaphoreAttached(), Eq(true));
+    EXPECT_THAT(m_popper.isConditionVariableAttached(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, DISABLED_PushAndTriggersSemaphore)
+TEST_P(ChunkQueue_test, DISABLED_PushAndNotifyConditionVariableSignaler)
 {
-    auto semaphore = semaphorePool.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(0);
-    ASSERT_THAT(semaphore.has_error(), Eq(false));
+    ConditionVariableData condVar;
+    ConditionVariableWaiter condVarWaiter{&condVar};
 
-    auto ret = m_popper.attachSemaphore(*semaphore);
-    EXPECT_FALSE(ret.has_error());
-
-    EXPECT_THAT(semaphore->get()->tryWait(), Eq(false));
+    auto ret = m_popper.attachConditionVariable(&condVar);
+    EXPECT_TRUE(ret);
 
     auto chunk = allocateChunk();
     m_pusher.push(chunk);
 
-    EXPECT_THAT(semaphore->get()->tryWait(), Eq(true));
-    EXPECT_THAT(semaphore->get()->tryWait(), Eq(false)); // shouldn't trigger a second time
+    EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(true));
+    EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(false)); // shouldn't trigger a second time
 }
 
-TEST_P(ChunkQueue_test, DISABLED_AttachSecondSemaphore)
+TEST_P(ChunkQueue_test, DISABLED_AttachSecondConditionVariableSignaler)
 {
-    auto semaphore1 = semaphorePool.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(0);
-    ASSERT_THAT(semaphore1.has_error(), Eq(false));
-    auto semaphore2 = semaphorePool.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(0);
-    ASSERT_THAT(semaphore2.has_error(), Eq(false));
+    ConditionVariableData condVar1;
+    ConditionVariableData condVar2;
+    ConditionVariableWaiter condVarWaiter1{&condVar1};
+    ConditionVariableWaiter condVarWaiter2{&condVar1};
 
-    auto ret1 = m_popper.attachSemaphore(*semaphore1);
-    EXPECT_FALSE(ret1.has_error());
+    auto ret1 = m_popper.attachConditionVariable(&condVar1);
+    EXPECT_TRUE(ret1);
 
-    auto ret2 = m_popper.attachSemaphore(*semaphore2);
-    EXPECT_TRUE(ret2.has_error());
-    ASSERT_THAT(ret2.get_error(), Eq(ChunkQueueError::SEMAPHORE_ALREADY_SET));
+    auto ret2 = m_popper.attachConditionVariable(&condVar2);
+    EXPECT_FALSE(ret2);
 
-    EXPECT_THAT(semaphore1->get()->tryWait(), Eq(false));
-    EXPECT_THAT(semaphore2->get()->tryWait(), Eq(false));
+    EXPECT_THAT(condVarWaiter1.timedWait(1_ns), Eq(false));
+    EXPECT_THAT(condVarWaiter2.timedWait(1_ns), Eq(false));
 
     auto chunk = allocateChunk();
     m_pusher.push(chunk);
 
-    EXPECT_THAT(semaphore1->get()->tryWait(), Eq(true));
-    EXPECT_THAT(semaphore2->get()->tryWait(), Eq(false));
+    EXPECT_THAT(condVarWaiter1.timedWait(1_ms), Eq(true));
+    EXPECT_THAT(condVarWaiter2.timedWait(1_ms), Eq(false));
 }
 
 /// @note this could be changed to a parameterized ChunkQueueSaturatingFIFO_test when there are more FIFOs available
@@ -203,9 +201,11 @@ class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
     void SetUp() override{};
     void TearDown() override{};
 
-    ChunkQueueData m_chunkData{iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer};
-    ChunkQueuePopper m_popper{&m_chunkData};
-    ChunkQueuePusher m_pusher{&m_chunkData};
+    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
+
+    ChunkQueueData_t m_chunkData{iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer};
+    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
+    ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
 /// @note API currently not supported
@@ -249,9 +249,11 @@ class ChunkQueueSoFi_test : public Test, public ChunkQueue_testBase
     void SetUp() override{};
     void TearDown() override{};
 
-    ChunkQueueData m_chunkData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-    ChunkQueuePopper m_popper{&m_chunkData};
-    ChunkQueuePusher m_pusher{&m_chunkData};
+    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
+
+    ChunkQueueData_t m_chunkData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
+    ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
 TEST_F(ChunkQueueSoFi_test, InitialSize)

@@ -157,29 +157,6 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoEventNameInServiceDescrip
     }
 }
 
-TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoDataSize)
-{
-    // ===== Setup
-    // Prepare configuration to test with
-    auto toml = cpptoml::make_table();
-    auto serviceArray = cpptoml::make_table_array();
-
-    auto serviceEntryNoSize = cpptoml::make_table();
-    serviceEntryNoSize->insert("service", "service");
-    serviceEntryNoSize->insert("instance", "instance");
-    serviceEntryNoSize->insert("event", "event");
-    serviceArray->push_back(serviceEntryNoSize);
-    toml->insert("services", serviceArray);
-
-    // ===== Test
-    auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
-    EXPECT_EQ(true, result.has_error());
-    if (result.has_error())
-    {
-        EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
-    }
-}
-
 TEST_F(TomlGatewayConfigParserTest, FailsValidationIfServiceDescriptionBeginsWithNumber)
 {
     // ===== Setup

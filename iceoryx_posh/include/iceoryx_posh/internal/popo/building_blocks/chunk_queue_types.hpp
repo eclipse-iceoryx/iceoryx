@@ -23,7 +23,6 @@ namespace popo
 {
 enum class ChunkQueueError
 {
-    SEMAPHORE_ALREADY_SET,
     QUEUE_OVERFLOW
 };
 
