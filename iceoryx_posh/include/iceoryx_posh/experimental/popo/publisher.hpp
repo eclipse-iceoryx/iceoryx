@@ -38,6 +38,7 @@ public:
     Sample(T* allocation, const cxx::function_ref<void(T* const)> deleter, Publisher<T>& publisher)
         : m_samplePtr(allocation, deleter), m_publisher(publisher) {}
 
+    Sample(std::nullptr_t) noexcept {};
     Sample(const Sample& other) = delete;
     Sample& operator=(const Sample&) = delete;
     Sample(Sample&& rhs) = default;
@@ -50,6 +51,11 @@ public:
     T* allocation() noexcept
     {
         return m_samplePtr.get();
+    }
+    Sample& operator=(std::nullptr_t) noexcept
+    {
+      m_isEmpty = true;
+      return *this;
     }
     template <typename... Args>
     void emplace(Args&&... args) noexcept
