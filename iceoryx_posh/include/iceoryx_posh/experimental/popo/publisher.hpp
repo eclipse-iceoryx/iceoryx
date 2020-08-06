@@ -21,12 +21,59 @@
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 
-#include <memory>
+#include <atomic>
 
 namespace iox
 {
 namespace popo
 {
+
+template <typename T, typename port_t = iox::popo::PublisherPortUser>
+class Publisher;
+
+template <typename T>
+class Sample
+{
+public:
+    Sample(T* allocation, const cxx::function_ref<void(T* const)> deleter, Publisher<T>& publisher)
+        : m_samplePtr(allocation, deleter), m_publisher(publisher) {}
+
+    Sample(const Sample& other) = delete;
+    Sample& operator=(const Sample&) = delete;
+    Sample(Sample&& rhs) = default;
+    Sample& operator=(Sample&& rhs) = default;
+
+    T* operator->() noexcept
+    {
+        return m_samplePtr.get();
+    }
+    T* allocation() noexcept
+    {
+        return m_samplePtr.get();
+    }
+    template <typename... Args>
+    void emplace(Args&&... args) noexcept
+    {
+        if(m_samplePtr != nullptr)
+        {
+            new (m_samplePtr.get()) T(std::forward<Args>(args)...);
+            m_isEmpty = false;
+        }
+    }
+    void emplace(cxx::function_ref<void(T*)> f)
+    {
+        f(m_samplePtr.get());
+        m_isEmpty = false;
+    }
+    void publish() noexcept
+    {
+        m_publisher.publish(std::move(*this));
+    }
+private:
+    const cxx::unique_ptr<T> m_samplePtr = nullptr;
+    bool m_isEmpty = true;
+    Publisher<T>& m_publisher;
+};
 
 enum class ChunkRecallError : uint8_t
 {
@@ -36,11 +83,11 @@ enum class ChunkRecallError : uint8_t
 
 struct Untyped{};
 
-template<typename T, typename port_t = iox::popo::PublisherPortUser>
+template<typename T, typename port_t>
 class Publisher
 {
 public:
-    using SamplePtr = cxx::unique_ptr<T>;
+    //using SamplePtr = cxx::unique_ptr<T>;
     using uid_t = uint64_t;
 
     // Temporary, to be replaced with service description / id based constructors
@@ -68,14 +115,14 @@ public:
     /// @brief loan Loan an empty sample from the shared memory pool.
     /// @return Pointer to the successfully loaned sample, otherwise an allocation error.
     ///
-    cxx::expected<SamplePtr, AllocationError> loan() const noexcept;
+    cxx::expected<Sample<T>, AllocationError> loan() noexcept;
 
-    ///
-    /// @brief loan  Loan an empty sample from the shared memory pool and process it with the given callable.
-    /// @param f Function to execute, taking the allocated chunk as its parameter.
-    /// @return Success if the loaned sample
-    ///
-    cxx::expected<AllocationError> loan(cxx::function_ref<void(SamplePtr&) noexcept> f) const noexcept;
+//    ///
+//    /// @brief loan  Loan an empty sample from the shared memory pool and process it with the given callable.
+//    /// @param f Function to execute, taking the allocated chunk as its parameter.
+//    /// @return Success if the loaned sample
+//    ///
+//    cxx::expected<AllocationError> loan(cxx::function_ref<void(Sample<T>&) noexcept> f) noexcept;
 
     ///
     /// @brief release Releases ownership of an unused allocated chunk.
@@ -83,14 +130,21 @@ public:
     /// to it in the system.
     /// @param chunk
     ///
-    void release(SamplePtr&& chunk) const noexcept;
+    void release(Sample<T>&& sample) noexcept;
 
     ///
     /// @brief send Publishes the loaned sample to all subscribers.
     /// @details The loanded sample is automatically released after publishing.
     /// @param chunk
     ///
-    void publish(SamplePtr&& chunk) const noexcept;
+    void publish(Sample<T>&& sample) noexcept;
+
+    ///
+    /// @brief publish Publishes the value returned to the given function to all subscribers.
+    /// @details Sample is automatically loaned.
+    /// @param f Function that prodocues a value T at the provided location.
+    ///
+    void publish(cxx::function_ref<void(T*)> f) noexcept;
 
     ///
     /// @brief copyAndPublish Copy the given sample into a loaned sample and publish it to all subscribers.
@@ -99,7 +153,7 @@ public:
     /// rather than to write it elsewhere then copy it in.
     /// @param val The value to publish
     ///
-    void publishCopyOf(const T& val) const noexcept;
+    void publishCopyOf(const T& val) noexcept;
 
     ///
     /// @brief previous Reclaims ownership of a previously published sample if it has not yet been accessed by subscribers.
@@ -107,8 +161,8 @@ public:
     ///
     cxx::expected<ChunkRecallError> previous() const noexcept;
 
-    void offer() noexcept;
-    void stopOffer() noexcept;
+    void offer() const noexcept;
+    void stopOffer() const noexcept;
     bool isOffered() const noexcept;
     bool hasSubscribers() const noexcept;
 
