@@ -18,7 +18,7 @@
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
+#include "timing_test.hpp"
 
 #include <memory>
 
@@ -135,15 +135,15 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
     EXPECT_FALSE(m_subscriberVector.front().isConditionVariableAttached());
 }
 
-TEST_F(WaitSet_test, AttachConditionAndMoveIsSuccessful)
+TEST_F(WaitSet_test, DISABLED_AttachConditionAndMoveIsSuccessful)
 {
-    /// @todo
+    /// @todo move c'tor currently deleted
 }
 
 
-TEST_F(WaitSet_test, AttachConditionAndMoveAssignIsSuccessful)
+TEST_F(WaitSet_test, DISABLED_AttachConditionAndMoveAssignIsSuccessful)
 {
-    /// @todo
+    /// @todo move assign currently deleted
 }
 
 TEST_F(WaitSet_test, AttachMaximumAllowedConditionsSuccessful)

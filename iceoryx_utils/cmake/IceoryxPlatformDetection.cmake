@@ -17,7 +17,7 @@ elseif(APPLE)
 endif(LINUX)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS} /W3)
+    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS} /W1)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")

@@ -15,7 +15,6 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_INL
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 
 namespace iox
 {
@@ -129,11 +128,11 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
 }
 
 template <typename ChunkQueueDataType>
-inline bool ChunkQueuePopper<ChunkQueueDataType>::attachConditionVariableSignaler(
-    ConditionVariableData* conditionVariableDataPtr) noexcept
+inline bool
+ChunkQueuePopper<ChunkQueueDataType>::attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
-    /// @todo Add lock guard here
-    if (isConditionVariableSignalerAttached())
+    /// @todo Add lock guard here, use smart_lock
+    if (isConditionVariableAttached())
     {
         LogWarn() << "Condition variable signaler already set. Attaching a second time will be ignored!";
         return false;
@@ -141,19 +140,17 @@ inline bool ChunkQueuePopper<ChunkQueueDataType>::attachConditionVariableSignale
     else
     {
         getMembers()->m_conditionVariableDataPtr = conditionVariableDataPtr;
-        getMembers()->m_conditionVariableAttached.store(true, std::memory_order_release);
         return true;
     }
 }
 
 template <typename ChunkQueueDataType>
-inline bool ChunkQueuePopper<ChunkQueueDataType>::detachConditionVariableSignaler() noexcept
+inline bool ChunkQueuePopper<ChunkQueueDataType>::detachConditionVariable() noexcept
 {
-    /// @todo Add lock guard here
-    if (isConditionVariableSignalerAttached())
+    /// @todo Add lock guard here, use smart_lock
+    if (isConditionVariableAttached())
     {
         getMembers()->m_conditionVariableDataPtr = nullptr;
-        getMembers()->m_conditionVariableAttached.store(false, std::memory_order_release);
         return true;
     }
     else
@@ -164,9 +161,9 @@ inline bool ChunkQueuePopper<ChunkQueueDataType>::detachConditionVariableSignale
 }
 
 template <typename ChunkQueueDataType>
-inline bool ChunkQueuePopper<ChunkQueueDataType>::isConditionVariableSignalerAttached() const noexcept
+inline bool ChunkQueuePopper<ChunkQueueDataType>::isConditionVariableAttached() const noexcept
 {
-    return getMembers()->m_conditionVariableAttached.load(std::memory_order_relaxed);
+    return getMembers()->m_conditionVariableDataPtr;
 }
 
 } // namespace popo

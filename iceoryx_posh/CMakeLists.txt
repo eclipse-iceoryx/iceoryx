@@ -225,17 +225,17 @@ if(TOML_CONFIG)
     )
     target_compile_options(iceoryx_posh_roudi_toml PRIVATE ${ICEORYX_WARNINGS})
 
-    add_executable(RouDi
+    add_executable(iox-roudi
         source/roudi/application/roudi_main.cpp
     )
-    set_target_properties(RouDi PROPERTIES
+    set_target_properties(iox-roudi PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
         POSITION_INDEPENDENT_CODE ON
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     )
 
-    target_link_libraries(RouDi
+    target_link_libraries(iox-roudi
         PRIVATE
         cpptoml
         iceoryx_utils::iceoryx_utils
@@ -243,11 +243,11 @@ if(TOML_CONFIG)
         iceoryx_posh_roudi_toml
     )
 
-    target_compile_options(RouDi PRIVATE ${ICEORYX_WARNINGS})
+    target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS})
 
     if(PERFORM_CLANG_TIDY)
         set_target_properties(
-            RouDi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
+            iox-roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
         )
     endif(PERFORM_CLANG_TIDY)
 
@@ -285,7 +285,7 @@ endif(roudi_environment OR test)
 ########## exporting library ##########
 #
 if(TOML_CONFIG)
-    set(ROUDI_EXPORT RouDi)
+    set(ROUDI_EXPORT iox-roudi)
 endif(TOML_CONFIG)
 
 setup_install_directories_and_export_package(

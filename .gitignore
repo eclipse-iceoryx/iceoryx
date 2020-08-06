@@ -2,4 +2,4 @@
 install/
 /CMakeLists.txt
 .vscode
-/*/*.user
+/**/*.user

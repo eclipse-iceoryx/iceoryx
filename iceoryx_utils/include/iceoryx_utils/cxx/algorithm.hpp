@@ -14,6 +14,8 @@
 #ifndef IOX_UTILS_CXX_ALGORITHM_HPP
 #define IOX_UTILS_CXX_ALGORITHM_HPP
 
+#include <type_traits>
+
 namespace iox
 {
 namespace algorithm
@@ -75,6 +77,20 @@ constexpr T min(const T& left, const T& right) noexcept;
 /// @return returns the minimum of the set {left, right, args...}
 template <typename T, typename... Targs>
 constexpr T min(const T& left, const T& right, const Targs&... args) noexcept;
+
+/// @brief Returns true if T is equal to CompareType, otherwise false
+/// @param T type to compare to
+/// @param CompareType the type to which T is compared
+/// @return true if the types T and CompareType are equal, otherwise false
+template <typename T, typename CompareType>
+constexpr bool doesContainType() noexcept;
+
+/// @brief Returns true if T is contained the provided type list
+/// @param T type to compare to
+/// @param CompareType, Next, Remainder the type list in which T should be contained
+/// @return true if the T is contained in the type list, otherwise false
+template <typename T, typename CompareType, typename Next, typename... Remainder>
+constexpr bool doesContainType() noexcept;
 
 } // namespace algorithm
 } // namespace iox
