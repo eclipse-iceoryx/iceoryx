@@ -86,6 +86,7 @@ add_library(iceoryx_posh
     source/popo/building_blocks/chunk_queue_types.cpp
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
+    source/popo/building_blocks/locking_policy.cpp
     source/popo/condition.cpp
     source/popo/guard_condition.cpp
     source/popo/wait_set.cpp

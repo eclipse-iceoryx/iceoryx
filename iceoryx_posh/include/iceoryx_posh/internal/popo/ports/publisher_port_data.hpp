@@ -19,9 +19,9 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
-#include "iceoryx_utils/concurrent/locking_policy.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -39,9 +39,8 @@ struct PublisherPortData : public BasePortData
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     using ChunkQueueData_t = SubscriberPortData::ChunkQueueData_t;
-    using ChunkDistributorData_t = ChunkDistributorData<DefaultChunkDistributorConfig,
-                                                        concurrent::ThreadSafePolicy,
-                                                        ChunkQueuePusher<ChunkQueueData_t>>;
+    using ChunkDistributorData_t =
+        ChunkDistributorData<DefaultChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
 
     ChunkSenderData<MAX_CHUNKS_ALLOCATE_PER_SENDER, ChunkDistributorData_t> m_chunkSenderData;
     std::atomic_bool m_offeringRequested{false};

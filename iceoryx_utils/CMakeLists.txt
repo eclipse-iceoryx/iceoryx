@@ -129,7 +129,6 @@ setup_package_name_and_create_files(
 
 add_library(iceoryx_utils
     source/concurrent/active_object.cpp
-    source/concurrent/locking_policy.cpp
     source/concurrent/loffli.cpp
     source/concurrent/locked_loffli.cpp
     source/cxx/helplets.cpp

@@ -11,14 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CONCURRENT_LOCKING_POLICY_HPP
-#define IOX_UTILS_CONCURRENT_LOCKING_POLICY_HPP
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_LOCKING_POLICY_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_LOCKING_POLICY_HPP
 
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
 
 namespace iox
 {
-namespace concurrent
+namespace popo
 {
 class ThreadSafePolicy
 {
@@ -41,7 +41,7 @@ class SingleThreadedPolicy
     bool tryLock() const noexcept;
 };
 
-} // namespace concurrent
+} // namespace popo
 } // namespace iox
 
-#endif // IOX_UTILS_CONCURRENT_LOCKING_POLICY_HPP
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_LOCKING_POLICY_HPP
