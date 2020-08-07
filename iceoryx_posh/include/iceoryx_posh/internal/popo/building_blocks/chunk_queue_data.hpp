@@ -26,9 +26,10 @@ namespace iox
 {
 namespace popo
 {
-template <typename ChunkQueueDataProperties>
-struct ChunkQueueData
+template <typename ChunkQueueDataProperties, typename LockingPolicy>
+struct ChunkQueueData : public LockingPolicy
 {
+    using LockGuard_t = std::lock_guard<const ChunkQueueData<ChunkQueueDataProperties, LockingPolicy>>;
     using ChunkQueueDataProperties_t = ChunkQueueDataProperties;
 
     explicit ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept;
