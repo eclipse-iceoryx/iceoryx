@@ -54,7 +54,6 @@ class ChunkQueue_testBase
     static constexpr uint32_t RESIZED_CAPACITY{5u};
 };
 
-
 template <typename PolicyType, iox::cxx::VariantQueueTypes VariantQueueType>
 struct TypeDefinitions
 {
@@ -81,7 +80,6 @@ class ChunkQueue_test : public Test, public ChunkQueue_testBase
     void SetUp() override{};
     void TearDown() override{};
 
-    // @todo Use typed test
     using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, typename TestTypes::PolicyType_t>;
 
     iox::cxx::VariantQueueTypes m_variantQueueType{TestTypes::variantQueueType};
@@ -241,7 +239,6 @@ TYPED_TEST(ChunkQueueFiFo_test, DISABLED_Capacity)
 {
     EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
 }
-
 
 /// @note API currently not supported
 TYPED_TEST(ChunkQueueFiFo_test, DISABLED_SetCapacity)
