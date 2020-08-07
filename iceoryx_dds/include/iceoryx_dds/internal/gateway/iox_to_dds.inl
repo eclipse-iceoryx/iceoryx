@@ -22,6 +22,8 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 
+#include "iceoryx_dds/gateway/iox_to_dds.hpp"
+
 namespace iox
 {
 namespace dds
@@ -36,12 +38,17 @@ inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway() noexcept
 template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const iox::popo::GatewayConfig& config) noexcept
 {
-    iox::LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway.";
+    iox::LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway...";
     for (const auto& service : config.m_configuredServices)
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
-            setupChannel(service.m_serviceDescription);
+            auto serviceDescription =  service.m_serviceDescription;
+            iox::LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
+                            << serviceDescription.getServiceIDString() << ", "
+                            << serviceDescription.getInstanceIDString() << ", "
+                            << serviceDescription.getEventIDString() << "}";
+            setupChannel(serviceDescription);
         }
     }
 }
