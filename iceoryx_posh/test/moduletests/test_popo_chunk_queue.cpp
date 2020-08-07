@@ -170,7 +170,7 @@ TYPED_TEST(ChunkQueue_test, AttachConditionVariableSignaler)
     EXPECT_THAT(this->m_popper.isConditionVariableAttached(), Eq(true));
 }
 
-TYPED_TEST(ChunkQueue_test, DISABLED_PushAndNotifyConditionVariableSignaler)
+TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariableSignaler)
 {
     ConditionVariableData condVar;
     ConditionVariableWaiter condVarWaiter{&condVar};
@@ -185,7 +185,7 @@ TYPED_TEST(ChunkQueue_test, DISABLED_PushAndNotifyConditionVariableSignaler)
     EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(false)); // shouldn't trigger a second time
 }
 
-TYPED_TEST(ChunkQueue_test, DISABLED_AttachSecondConditionVariableSignaler)
+TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariableSignaler)
 {
     ConditionVariableData condVar1;
     ConditionVariableData condVar2;
