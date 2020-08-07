@@ -91,9 +91,7 @@ add_library(iceoryx_posh
     source/popo/building_blocks/chunk_receiver_data.cpp
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
-    source/popo/gateway/gateway_config.cpp
     source/popo/gateway/gateway_base.cpp
-    source/popo/gateway/toml_gateway_config_parser.cpp
     source/popo/condition.cpp
     source/popo/guard_condition.cpp
     source/popo/wait_set.cpp
@@ -171,9 +169,6 @@ add_library(iceoryx_posh_roudi
     source/roudi/iceoryx_port_pool.cpp
     source/roudi/port_manager.cpp
     source/roudi/port_pool.cpp
-    source/roudi/roudi_config.cpp
-    source/roudi/roudi_cmd_line_parser.cpp
-    source/roudi/roudi_cmd_line_parser_config_file_option.cpp
     source/roudi/roudi_multi_process.cpp
     source/roudi/roudi_lock.cpp
     source/roudi/roudi_process.cpp
@@ -222,15 +217,32 @@ if(TOML_CONFIG)
     endif(NOT cpptoml_FOUND)
     message("-- Build with TOML config file support.")
 
-    add_library(iceoryx_posh_roudi_toml
+    # This library contains utilities used for configuration at runtime
+    add_library(iceoryx_posh_config
+        source/log/posh_config_logging.cpp
+        source/popo/gateway/gateway_config.cpp
+        source/popo/gateway/toml_gateway_config_parser.cpp
         source/roudi/roudi_config_toml_file_provider.cpp
+        source/roudi/roudi_config.cpp
+        source/roudi/roudi_cmd_line_parser.cpp
+        source/roudi/roudi_cmd_line_parser_config_file_option.cpp
     )
-    target_link_libraries(iceoryx_posh_roudi_toml PRIVATE cpptoml iceoryx_posh_roudi)
-    set_target_properties(iceoryx_posh_roudi_toml PROPERTIES
+    add_library(${PROJECT_NAMESPACE}::iceoryx_posh_config ALIAS iceoryx_posh_config)
+    target_include_directories(iceoryx_posh_config PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
+        $<INSTALL_INTERFACE:include/${PREFIX}>
+    )
+    target_link_libraries(iceoryx_posh_config PRIVATE
+        iceoryx_utils::iceoryx_utils
+        cpptoml
+    )
+    set_target_properties(iceoryx_posh_config PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     )
-    target_compile_options(iceoryx_posh_roudi_toml PRIVATE ${ICEORYX_WARNINGS})
+    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS})
 
     add_executable(iox-roudi
         source/roudi/application/roudi_main.cpp
@@ -241,17 +253,18 @@ if(TOML_CONFIG)
         POSITION_INDEPENDENT_CODE ON
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     )
-
     target_link_libraries(iox-roudi
         PRIVATE
-        cpptoml
         iceoryx_utils::iceoryx_utils
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
-        iceoryx_posh_roudi_toml
+        ${PROJECT_NAMESPACE}::iceoryx_posh_config
     )
-
+    target_include_directories(iox-roudi PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
+        $<INSTALL_INTERFACE:include/${PREFIX}>
+    )
     target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS})
-
     if(PERFORM_CLANG_TIDY)
         set_target_properties(
             iox-roudi PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
@@ -296,7 +309,7 @@ if(TOML_CONFIG)
 endif(TOML_CONFIG)
 
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_posh iceoryx_posh_roudi ${ROUDI_EXPORT}
+    TARGETS iceoryx_posh iceoryx_posh_roudi iceoryx_posh_config ${ROUDI_EXPORT}
     INCLUDE_DIRECTORY include/
 )
 

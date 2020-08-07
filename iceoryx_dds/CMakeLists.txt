@@ -60,11 +60,13 @@ target_compile_options(iceoryx_dds PUBLIC -std=c++11)
 target_include_directories(iceoryx_dds
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 target_link_libraries(iceoryx_dds
     PRIVATE
     iceoryx_posh::iceoryx_posh
+    iceoryx_posh::iceoryx_posh_config
     iceoryx_utils::iceoryx_utils
 )
 
@@ -113,7 +115,6 @@ add_executable(iox-gw-iceoryx2dds
     source/iceoryx2dds_app/main.cpp
 )
 target_link_libraries(iox-gw-iceoryx2dds
-    cpptoml
     iceoryx_posh::iceoryx_posh
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
@@ -124,7 +125,6 @@ add_executable(iox-gw-dds2iceoryx
     source/dds2iceoryx_app/main.cpp
 )
 target_link_libraries(iox-gw-dds2iceoryx 
-    cpptoml
     iceoryx_posh::iceoryx_posh
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
