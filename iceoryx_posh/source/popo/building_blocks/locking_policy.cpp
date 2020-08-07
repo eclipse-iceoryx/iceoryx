@@ -23,7 +23,7 @@ void ThreadSafePolicy::lock() const noexcept
 {
     if (!m_mutex.lock())
     {
-        errorHandler(Error::kPOPO__CHUNK_DISTRIBUTOR_LOCKING_ERROR, nullptr, ErrorLevel::FATAL);
+        errorHandler(Error::kPOPO__CHUNK_LOCKING_ERROR, nullptr, ErrorLevel::FATAL);
     }
 }
 
@@ -31,7 +31,7 @@ void ThreadSafePolicy::unlock() const noexcept
 {
     if (!m_mutex.unlock())
     {
-        errorHandler(Error::kPOPO__CHUNK_DISTRIBUTOR_LOCKING_ERROR, nullptr, ErrorLevel::FATAL);
+        errorHandler(Error::kPOPO__CHUNK_UNLOCKING_ERROR, nullptr, ErrorLevel::FATAL);
     }
 }
 
