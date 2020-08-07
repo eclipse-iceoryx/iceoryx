@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
+#include "iceoryx_utils/concurrent/locking_policy.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
-namespace popo
+namespace concurrent
 {
 void ThreadSafePolicy::lock() const noexcept
 {
@@ -52,5 +53,5 @@ bool SingleThreadedPolicy::tryLock() const noexcept
     return true;
 }
 
-} // namespace popo
+} // namespace concurrent
 } // namespace iox
