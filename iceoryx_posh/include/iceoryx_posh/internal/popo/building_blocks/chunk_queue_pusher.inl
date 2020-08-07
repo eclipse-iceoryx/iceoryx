@@ -67,11 +67,13 @@ inline cxx::expected<ChunkQueueError> ChunkQueuePusher<ChunkQueueDataType>::push
             auto returnedChunk = mepoo::SharedChunk(chunkManagement);
         }
 
-        /// @todo Add lock guard here, use smart_lock
-        if (getMembers()->m_conditionVariableDataPtr)
         {
-            ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
-            condVarSignaler.notifyOne();
+            typename MemberType_t::LockGuard_t lock(*getMembers());
+            if (getMembers()->m_conditionVariableDataPtr)
+            {
+                ConditionVariableSignaler condVarSignaler(getMembers()->m_conditionVariableDataPtr.get());
+                condVarSignaler.notifyOne();
+            }
         }
 
         return cxx::success<void>();
