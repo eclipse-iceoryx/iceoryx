@@ -32,7 +32,6 @@ using namespace iox::popo;
 using namespace iox::mepoo;
 using namespace iox::units::duration_literals;
 
-// @todo Use typed test
 class ChunkQueue_testBase
 {
   public:
@@ -55,142 +54,155 @@ class ChunkQueue_testBase
     static constexpr uint32_t RESIZED_CAPACITY{5u};
 };
 
-class ChunkQueue_test : public TestWithParam<iox::cxx::VariantQueueTypes>, public ChunkQueue_testBase
+
+template <typename PolicyType, iox::cxx::VariantQueueTypes VariantQueueType>
+struct TypeDefinitions
+{
+    using PolicyType_t = PolicyType;
+    static const iox::cxx::VariantQueueTypes variantQueueType{VariantQueueType};
+};
+
+using ChunkQueueSubjects =
+    Types<TypeDefinitions<ThreadSafePolicy, iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer>,
+          TypeDefinitions<ThreadSafePolicy, iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer>,
+          TypeDefinitions<SingleThreadedPolicy, iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer>,
+          TypeDefinitions<SingleThreadedPolicy, iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer>>;
+
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+TYPED_TEST_CASE(ChunkQueue_test, ChunkQueueSubjects);
+#pragma GCC diagnostic pop
+
+template <typename TestTypes>
+class ChunkQueue_test : public Test, public ChunkQueue_testBase
 {
   public:
     void SetUp() override{};
     void TearDown() override{};
 
     // @todo Use typed test
-    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, ThreadSafePolicy>;
+    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, typename TestTypes::PolicyType_t>;
 
-    ChunkQueueData_t m_chunkData{GetParam()};
+    iox::cxx::VariantQueueTypes m_variantQueueType{TestTypes::variantQueueType};
+    ChunkQueueData_t m_chunkData{m_variantQueueType};
     ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
     ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
-/// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-INSTANTIATE_TEST_CASE_P(ChunkQueueAll,
-                        ChunkQueue_test,
-                        Values(iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
-                               iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer));
-#pragma GCC diagnostic pop
-
-TEST_P(ChunkQueue_test, InitialEmpty)
+TYPED_TEST(ChunkQueue_test, InitialEmpty)
 {
-    EXPECT_THAT(m_popper.empty(), Eq(true));
+    EXPECT_THAT(this->m_popper.empty(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, InitialConditionVariableAttached)
+TYPED_TEST(ChunkQueue_test, InitialConditionVariableAttached)
 {
-    EXPECT_THAT(m_popper.isConditionVariableAttached(), Eq(false));
+    EXPECT_THAT(this->m_popper.isConditionVariableAttached(), Eq(false));
 }
 
-TEST_P(ChunkQueue_test, PushOneChunk)
+TYPED_TEST(ChunkQueue_test, PushOneChunk)
 {
-    auto chunk = allocateChunk();
-    auto ret = m_pusher.push(chunk);
+    auto chunk = this->allocateChunk();
+    auto ret = this->m_pusher.push(chunk);
     EXPECT_FALSE(ret.has_error());
-    EXPECT_THAT(m_popper.empty(), Eq(false));
+    EXPECT_THAT(this->m_popper.empty(), Eq(false));
     /// @note size not implemented on FIFO
-    if (GetParam() != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
+    if (this->m_variantQueueType != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
     {
-        EXPECT_THAT(m_popper.size(), Eq(1u));
+        EXPECT_THAT(this->m_popper.size(), Eq(1u));
     }
 }
 
-TEST_P(ChunkQueue_test, PopOneChunk)
+TYPED_TEST(ChunkQueue_test, PopOneChunk)
 {
-    auto chunk = allocateChunk();
-    m_pusher.push(chunk);
+    auto chunk = this->allocateChunk();
+    this->m_pusher.push(chunk);
 
-    EXPECT_THAT(m_popper.pop().has_value(), Eq(true));
-    EXPECT_THAT(m_popper.empty(), Eq(true));
+    EXPECT_THAT(this->m_popper.pop().has_value(), Eq(true));
+    EXPECT_THAT(this->m_popper.empty(), Eq(true));
     /// @note size not implemented on FIFO
-    if (GetParam() != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
+    if (this->m_variantQueueType != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
     {
-        EXPECT_THAT(m_popper.size(), Eq(0u));
+        EXPECT_THAT(this->m_popper.size(), Eq(0u));
     }
 }
 
-TEST_P(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
+TYPED_TEST(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
 {
     constexpr int32_t NUMBER_CHUNKS{5};
     for (int i = 0; i < NUMBER_CHUNKS; ++i)
     {
-        auto chunk = allocateChunk();
+        auto chunk = this->allocateChunk();
         *reinterpret_cast<int32_t*>(chunk.getPayload()) = i;
-        m_pusher.push(chunk);
+        this->m_pusher.push(chunk);
     }
 
     for (int i = 0; i < NUMBER_CHUNKS; ++i)
     {
-        auto maybeSharedChunk = m_popper.pop();
+        auto maybeSharedChunk = this->m_popper.pop();
         ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
         auto data = *reinterpret_cast<int32_t*>((*maybeSharedChunk).getPayload());
         EXPECT_THAT(data, Eq(i));
     }
 }
 
-TEST_P(ChunkQueue_test, ClearOnEmpty)
+TYPED_TEST(ChunkQueue_test, ClearOnEmpty)
 {
-    m_popper.clear();
-    EXPECT_THAT(m_popper.empty(), Eq(true));
+    this->m_popper.clear();
+    EXPECT_THAT(this->m_popper.empty(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, ClearWithData)
+TYPED_TEST(ChunkQueue_test, ClearWithData)
 {
-    auto chunk = allocateChunk();
-    m_pusher.push(chunk);
-    m_popper.clear();
-    EXPECT_THAT(m_popper.empty(), Eq(true));
+    auto chunk = this->allocateChunk();
+    this->m_pusher.push(chunk);
+    this->m_popper.clear();
+    EXPECT_THAT(this->m_popper.empty(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, AttachConditionVariableSignaler)
+TYPED_TEST(ChunkQueue_test, AttachConditionVariableSignaler)
 {
     ConditionVariableData condVar;
 
-    auto ret = m_popper.attachConditionVariable(&condVar);
+    auto ret = this->m_popper.attachConditionVariable(&condVar);
     EXPECT_TRUE(ret);
 
-    EXPECT_THAT(m_popper.isConditionVariableAttached(), Eq(true));
+    EXPECT_THAT(this->m_popper.isConditionVariableAttached(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, DISABLED_PushAndNotifyConditionVariableSignaler)
+TYPED_TEST(ChunkQueue_test, DISABLED_PushAndNotifyConditionVariableSignaler)
 {
     ConditionVariableData condVar;
     ConditionVariableWaiter condVarWaiter{&condVar};
 
-    auto ret = m_popper.attachConditionVariable(&condVar);
+    auto ret = this->m_popper.attachConditionVariable(&condVar);
     EXPECT_TRUE(ret);
 
-    auto chunk = allocateChunk();
-    m_pusher.push(chunk);
+    auto chunk = this->allocateChunk();
+    this->m_pusher.push(chunk);
 
     EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(true));
     EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(false)); // shouldn't trigger a second time
 }
 
-TEST_P(ChunkQueue_test, DISABLED_AttachSecondConditionVariableSignaler)
+TYPED_TEST(ChunkQueue_test, DISABLED_AttachSecondConditionVariableSignaler)
 {
     ConditionVariableData condVar1;
     ConditionVariableData condVar2;
     ConditionVariableWaiter condVarWaiter1{&condVar1};
     ConditionVariableWaiter condVarWaiter2{&condVar1};
 
-    auto ret1 = m_popper.attachConditionVariable(&condVar1);
+    auto ret1 = this->m_popper.attachConditionVariable(&condVar1);
     EXPECT_TRUE(ret1);
 
-    auto ret2 = m_popper.attachConditionVariable(&condVar2);
+    auto ret2 = this->m_popper.attachConditionVariable(&condVar2);
     EXPECT_FALSE(ret2);
 
     EXPECT_THAT(condVarWaiter1.timedWait(1_ns), Eq(false));
     EXPECT_THAT(condVarWaiter2.timedWait(1_ns), Eq(false));
 
-    auto chunk = allocateChunk();
-    m_pusher.push(chunk);
+    auto chunk = this->allocateChunk();
+    this->m_pusher.push(chunk);
 
     EXPECT_THAT(condVarWaiter1.timedWait(1_ms), Eq(true));
     EXPECT_THAT(condVarWaiter2.timedWait(1_ms), Eq(false));
