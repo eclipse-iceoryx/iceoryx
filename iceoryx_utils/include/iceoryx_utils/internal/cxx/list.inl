@@ -265,19 +265,19 @@ typename list<T, Capacity>::iterator list<T, Capacity>::erase(const_iterator ite
     // unlink from usedList
     setPrevIdx(getNextIdx(iter.m_iterListNodeIdx), getPrevIdx(iter.m_iterListNodeIdx));
     setNextIdx(getPrevIdx(iter.m_iterListNodeIdx), getNextIdx(iter.m_iterListNodeIdx));
-    size_type ret_iterIdx = getNextIdx(iter.m_iterListNodeIdx);
+    size_type retIterIdx = getNextIdx(iter.m_iterListNodeIdx);
 
     // d'tor data class
     (*iter).~T();
 
     // add to freeList
-    setNextIdx(iter.m_iterListNodeIdx, getNextIdx(m_freeListHeadIdx));
+    setNextIdx(iter.m_iterListNodeIdx, m_freeListHeadIdx);
     m_freeListHeadIdx = iter.m_iterListNodeIdx;
 
     --m_size;
 
     // Iterator to the element following the erased one, or end() if no such element exists.
-    return iterator{this, ret_iterIdx};
+    return iterator{this, retIterIdx};
 }
 
 template <typename T, uint64_t Capacity>
@@ -495,19 +495,12 @@ template <typename T, uint64_t Capacity>
 T& list<T, Capacity>::iterator::operator*() const noexcept
 {
     return *operator->();
-} // operator*
+}
 
 
 template <typename T, uint64_t Capacity>
 T* list<T, Capacity>::iterator::operator->() const noexcept
 {
-    if (!m_list->isValidElementIndex(m_iterListNodeIdx))
-    {
-        // terminate e.g. when trying to read e.g. from end()
-        errorMessage(__PRETTY_FUNCTION__, " malformed iterator");
-        std::terminate();
-    }
-
     return m_list->getDataPtrFromIdx(m_iterListNodeIdx);
 }
 // iterator
@@ -573,18 +566,12 @@ template <typename T, uint64_t Capacity>
 const T& list<T, Capacity>::const_iterator::operator*() const noexcept
 {
     return *operator->();
-} // operator*
+}
 
 
 template <typename T, uint64_t Capacity>
 const T* list<T, Capacity>::const_iterator::operator->() const noexcept
 {
-    if (!m_list->isValidElementIndex(m_iterListNodeIdx))
-    {
-        // terminate e.g. when trying to read e.g. from end()
-        errorMessage(__PRETTY_FUNCTION__, " malformed iterator");
-        std::terminate();
-    }
     return m_list->getDataPtrFromIdx(m_iterListNodeIdx);
 }
 
@@ -692,9 +679,9 @@ inline bool list<T, Capacity>::isValidElementIndex(size_type index) const noexce
 // failure handling / messaging
 
 template <typename T, uint64_t Capacity>
-inline void list<T, Capacity>::errorMessage(const char* f_source, const char* f_msg) noexcept
+inline void list<T, Capacity>::errorMessage(const char* source, const char* msg) noexcept
 {
-    std::cerr << f_source << " ::: " << f_msg << std::endl;
+    std::cerr << source << " ::: " << msg << std::endl;
 }
 
 

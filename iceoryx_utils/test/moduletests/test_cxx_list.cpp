@@ -268,6 +268,28 @@ TEST_F(list_test, NotFullWhenFilledWithCapacityAndEraseOneElements)
     EXPECT_THAT(sut.full(), Eq(false));
 }
 
+TEST_F(list_test, NotFullWhenFilledWithCapacityAndEraseOneAndReinsertElements)
+{
+    uint64_t i = 0;
+    for (; i < sut.capacity(); ++i)
+    {
+        sut.emplace_back(i);
+    }
+    sut.erase(sut.cbegin());
+    sut.erase(sut.cbegin());
+    sut.emplace_back(i);
+    sut.emplace_back(++i);
+
+    i = 1;
+    for (auto& element : sut)
+    {
+        EXPECT_THAT(element, Eq(++i));
+    }
+
+    EXPECT_THAT(sut.size(), Eq(sut.capacity()));
+    EXPECT_THAT(sut.full(), Eq(true));
+}
+
 TEST_F(list_test, CTorWithOneElements)
 {
     constexpr uint64_t CAPACITY{42u};
@@ -1152,6 +1174,7 @@ TEST_F(list_test, InsertSomeElementsListLValue)
 {
     constexpr int DEFAULT_VALUE{13};
     const CTorTest a{DEFAULT_VALUE};
+    uint64_t loopCounter = 0;
 
     // this tests the test case setup (the following code needs a minimum testlist capacity)
     ASSERT_THAT(TESTLISTCAPACITY, Ge(10u));
@@ -1171,7 +1194,13 @@ TEST_F(list_test, InsertSomeElementsListLValue)
     }
     sut.insert(iter, a);
 
+    for (auto& x : sut)
+    {
+        ++loopCounter;
+    }
+
     ASSERT_THAT(sut.size(), Eq(6u));
+    ASSERT_THAT(loopCounter, Eq(6u));
     ASSERT_THAT(cTor, Eq(0u));
     ASSERT_THAT(customCTor, Eq(6u));
 
