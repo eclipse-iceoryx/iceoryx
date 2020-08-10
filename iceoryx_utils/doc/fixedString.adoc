@@ -31,6 +31,12 @@ In the second step, the functionality has been extended:
 
 === Interface:
 ----
+	template <typename T1, typename T2>
+	string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2);
+
+	template <typename T1, typename T2, typename... Targs>
+	string<internal::SumCapa<T1, T2, Targs...>::value> concatenate(const T1& t1, const T2& t2, const Targs&... targs);
+
 	struct TruncateToCapacity_t
 	{
 	    explicit TruncateToCapacity_t() = default;

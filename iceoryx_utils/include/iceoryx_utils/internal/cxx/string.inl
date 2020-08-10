@@ -407,6 +407,27 @@ inline bool operator!=(const char* const, const string<Capacity>&)
                   "before comparing it to a fixed string.");
     return false;
 }
+
+template <typename T1, typename T2>
+inline string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2)
+{
+    uint64_t size1 = internal::GetSize<T1>::call(t1);
+    uint64_t size2 = internal::GetSize<T2>::call(t2);
+    typedef string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> newStringType;
+    newStringType newString;
+    std::memcpy(newString.m_rawstring, internal::GetData<T1>::call(t1), size1);
+    std::memcpy(newString.m_rawstring + size1, internal::GetData<T2>::call(t2), size2);
+    newString.m_rawstring[size1 + size2] = '\0';
+    newString.m_rawstringSize = size1 + size2;
+
+    return newString;
+}
+
+template <typename T1, typename T2, typename... Targs>
+inline string<internal::SumCapa<T1, T2, Targs...>::value> concatenate(const T1& t1, const T2& t2, const Targs&... targs)
+{
+    return concatenate(concatenate(t1, t2), targs...);
+}
 } // namespace cxx
 } // namespace iox
 

@@ -14,6 +14,8 @@
 #ifndef IOX_UTILS_CXX_STRING_HPP
 #define IOX_UTILS_CXX_STRING_HPP
 
+#include "iceoryx_utils/internal/cxx/string_internal.hpp"
+
 #include <cstring>
 #include <iostream>
 
@@ -21,6 +23,32 @@ namespace iox
 {
 namespace cxx
 {
+/// @brief concatenates two fixed strings/string literals
+///
+/// @param [in] fixed strings/string literals to concatenate
+///
+/// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings
+///
+/// @code
+///     string<5> fuu("cdefg");
+///     auto bar = iox::cxx::concatenate(fuu, "ahc");
+/// @endcode
+template <typename T1, typename T2>
+string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2);
+
+/// @brief concatenates an arbitrary number of fixed strings and string literals
+///
+/// @param [in] fixed strings/string literals to concatenate
+///
+/// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings
+///
+/// @code
+///     string<4> fuu("cdef");
+///     auto bar = iox::cxx::concatenate(fuu, "g", "ah", fuu);
+/// @endcode
+template <typename T1, typename T2, typename... Targs>
+string<internal::SumCapa<T1, T2, Targs...>::value> concatenate(const T1& t1, const T2& t2, const Targs&... targs);
+
 /// @brief struct used to define a compile time variable which is used to distinguish between
 /// constructors with certain behavior
 struct TruncateToCapacity_t
@@ -354,6 +382,9 @@ class string
 
     template <uint64_t N>
     friend class string;
+
+    template <typename T1, typename T2>
+    friend string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2);
 
   private:
     /// @brief copies rhs fixed string to lhs fixed string

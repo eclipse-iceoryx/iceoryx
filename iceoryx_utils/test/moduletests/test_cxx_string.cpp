@@ -1244,4 +1244,96 @@ TEST(String100, MoveAssignmentOfNotEmptyStringWithSmallerCapaWorks)
     EXPECT_THAT(testString2.c_str(), StrEq(""));
     EXPECT_THAT(testString2.size(), Eq(0));
 }
+
+/// @note template <typename T1, typename T2, typename... Targs>
+/// string<internal::SumCapa<T1, T2, Targs...>::value> concatenate(const T1& t1, const T2& t2, const Targs&... targs)
+TYPED_TEST(stringTyped_test, ConcatenateTwoEmptyStringsReturnsEmptyStringWithTotalCapa)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto stringCap = myString().capacity();
+    string<stringCap + 1> testString1;
+    auto testString2 = iox::cxx::concatenate(this->testSubject, testString1);
+
+    EXPECT_THAT(this->testSubject.capacity(), Eq(stringCap));
+    EXPECT_THAT(this->testSubject.size(), Eq(0));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+    EXPECT_THAT(testString1.capacity(), Eq(stringCap + 1));
+    EXPECT_THAT(testString1.size(), Eq(0));
+    EXPECT_THAT(testString1.c_str(), StrEq(""));
+    EXPECT_THAT(testString2.capacity(), Eq(2 * stringCap + 1));
+    EXPECT_THAT(testString2.size(), Eq(0));
+    EXPECT_THAT(testString2.c_str(), StrEq(""));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateTwoStringsWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto stringCap = myString().capacity();
+    std::string testStdString(stringCap, 'M');
+    EXPECT_THAT(this->testSubject.unsafe_assign(testStdString), Eq(true));
+    string<stringCap + 2> testString1;
+    auto testString2 = concatenate(testString1, this->testSubject);
+
+    EXPECT_THAT(testString2.capacity(), Eq(2 * stringCap + 2));
+    EXPECT_THAT(testString2.size(), Eq(stringCap));
+    EXPECT_THAT(testString2.c_str(), StrEq(testStdString));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateTwoNotEmptyStringsWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto stringCap = myString().capacity();
+    std::string testStdString0(stringCap, 'M');
+    EXPECT_THAT(this->testSubject.unsafe_assign(testStdString0), Eq(true));
+    std::string testStdString1(stringCap + 3, 'L');
+    string<stringCap + 3> testString1(TruncateToCapacity, testStdString1);
+    auto testString2 = concatenate(this->testSubject, testString1);
+
+    EXPECT_THAT(testString2.capacity(), Eq(2 * stringCap + 3));
+    EXPECT_THAT(testString2.size(), Eq(this->testSubject.size() + testString1.size()));
+    EXPECT_THAT(testString2.c_str(), StrEq(testStdString0 + testStdString1));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateThreeStringsWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto stringCap = myString().capacity();
+    string<stringCap> testString1("A");
+    string<stringCap + 2> testString2("YOD");
+    auto testString3 = concatenate(testString2, this->testSubject, testString1);
+
+    std::string cmpString = std::string(testString2) + std::string(this->testSubject) + std::string(testString1);
+    EXPECT_THAT(testString3.capacity(), Eq(3 * stringCap + 2));
+    EXPECT_THAT(testString3.size(), Eq(cmpString.size()));
+    EXPECT_THAT(testString3.c_str(), StrEq(cmpString));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto stringCap = myString().capacity();
+    auto testString = concatenate(this->testSubject, "M");
+    EXPECT_THAT(testString.capacity(), Eq(stringCap + 1));
+    EXPECT_THAT(testString.size(), Eq(1));
+    EXPECT_THAT(testString.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateStringLiteralAndStringWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto stringCap = myString().capacity();
+    this->testSubject = "S";
+    auto testString = concatenate("Ferdinand", this->testSubject);
+    EXPECT_THAT(testString.capacity(), Eq(stringCap + 9));
+    EXPECT_THAT(testString.size(), Eq(10));
+    EXPECT_THAT(testString.c_str(), StrEq("FerdinandS"));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateOnlyStringLiteralsWorks)
+{
+    auto testString = iox::cxx::concatenate("Ferdi", "nandSpitzschnu", "ef", "fler");
+    EXPECT_THAT(testString.capacity(), Eq(25));
+    EXPECT_THAT(testString.size(), Eq(25));
+    EXPECT_THAT(testString.c_str(), StrEq("FerdinandSpitzschnueffler"));
+}
 } // namespace
