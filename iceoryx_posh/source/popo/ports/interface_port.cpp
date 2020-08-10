@@ -24,25 +24,27 @@ InterfacePort::InterfacePort(InterfacePortData* const interfacePortDataPtr) noex
 {
 }
 
-bool InterfacePort::dispatchCaProMessage(const capro::CaproMessage& message) noexcept
-{
-    const bool pushResult = getMembers()->m_caproMessageFiFo.push(message);
-    if (!pushResult)
-    {
-        errorHandler(Error::kPOSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, nullptr, iox::ErrorLevel::SEVERE);
-    }
-    return pushResult;
-}
-
-bool InterfacePort::getCaProMessage(capro::CaproMessage& message) noexcept
+cxx::optional<capro::CaproMessage> InterfacePort::getCaProMessage() noexcept
 {
     auto maybeMessage = getMembers()->m_caproMessageFiFo.pop();
+
     if (maybeMessage.has_value())
     {
-        message = maybeMessage.value();
-        return true;
+        return cxx::make_optional<capro::CaproMessage>(maybeMessage.value());
     }
-    return false;
+    else
+    {
+        return cxx::nullopt_t();
+    }
+}
+
+void InterfacePort::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
+{
+    if (!getMembers()->m_caproMessageFiFo.push(caProMessage))
+    {
+        // information loss for this interface port
+        errorHandler(Error::kPOSH__INTERFACEPORT_CAPRO_MESSAGE_DISMISSED, nullptr, ErrorLevel::SEVERE);
+    }
 }
 
 const InterfacePortData* InterfacePort::getMembers() const noexcept
