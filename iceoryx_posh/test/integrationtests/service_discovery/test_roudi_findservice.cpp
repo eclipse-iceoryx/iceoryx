@@ -205,21 +205,30 @@ TEST_F(RoudiFindService_test, InterfacePort)
     auto interfacePortData = receiverRuntime->getMiddlewareInterface(iox::capro::Interfaces::SOMEIP);
     iox::popo::InterfacePort interfacePort(interfacePortData);
 
-    iox::capro::CaproMessage caproMessage;
     this->InterOpWait();
 
     bool serviceFound = false;
 
-    while (interfacePort.getCaProMessage(caproMessage))
+    do
     {
-        if ((caproMessage.m_serviceDescription.getServiceIDString() == IdString("service1"))
-            && (caproMessage.m_serviceDescription.getInstanceIDString() == IdString("instance1"))
-            && ((caproMessage.m_serviceDescription.getEventIDString() == IdString(iox::capro::AnyEventString))))
+        auto maybeCaProMessage = interfacePort.getCaProMessage();
+        if (maybeCaProMessage.has_value())
         {
-            serviceFound = true;
+            auto caproMessage = maybeCaProMessage.value();
+            if ((caproMessage.m_serviceDescription.getServiceIDString() == IdString("service1"))
+                && (caproMessage.m_serviceDescription.getInstanceIDString() == IdString("instance1"))
+                && ((caproMessage.m_serviceDescription.getEventIDString() == IdString(iox::capro::AnyEventString))))
+            {
+                serviceFound = true;
+                break;
+            }
+        }
+        else
+        {
             break;
         }
-    }
+    } while (true);
+
     EXPECT_THAT(serviceFound, Eq(true));
 }
 
