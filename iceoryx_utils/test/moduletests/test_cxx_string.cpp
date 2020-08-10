@@ -51,9 +51,9 @@ TYPED_TEST(stringTyped_test, EmptyInitializationResultsInEmptyString)
 TYPED_TEST(stringTyped_test, CopyConstructEmptyStringResultsInSize0)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu(this->testSubject);
-    EXPECT_THAT(fuu.capacity(), Eq(stringCap));
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu(this->testSubject);
+    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(0));
     EXPECT_THAT(fuu.c_str(), StrEq(""));
 }
@@ -61,12 +61,12 @@ TYPED_TEST(stringTyped_test, CopyConstructEmptyStringResultsInSize0)
 TYPED_TEST(stringTyped_test, CopyConstructStringOfSizeCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap> fuu(this->testSubject);
-    EXPECT_THAT(fuu.capacity(), Eq(stringCap));
-    EXPECT_THAT(fuu.size(), Eq(stringCap));
+    string<STRINGCAP> fuu(this->testSubject);
+    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
 }
 
@@ -74,8 +74,8 @@ TYPED_TEST(stringTyped_test, CopyConstructStringOfSizeCapaResultsInSizeCapa)
 TYPED_TEST(stringTyped_test, MoveConstructionWithStringOfSize0Works)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testString(std::move(this->testSubject));
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testString(std::move(this->testSubject));
     EXPECT_THAT(testString.size(), Eq(0));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(testString.c_str(), StrEq(""));
@@ -85,12 +85,12 @@ TYPED_TEST(stringTyped_test, MoveConstructionWithStringOfSize0Works)
 TYPED_TEST(stringTyped_test, MoveConstructionWithStringOfSizeSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap - 1, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP - 1, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap> fuu(std::move(this->testSubject));
+    string<STRINGCAP> fuu(std::move(this->testSubject));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
-    EXPECT_THAT(fuu.size(), Eq(stringCap - 1));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP - 1));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
 }
@@ -98,12 +98,12 @@ TYPED_TEST(stringTyped_test, MoveConstructionWithStringOfSizeSmallerCapaWorks)
 TYPED_TEST(stringTyped_test, MoveConstructionWithStringOfSizeCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap> fuu(std::move(this->testSubject));
+    string<STRINGCAP> fuu(std::move(this->testSubject));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
-    EXPECT_THAT(fuu.size(), Eq(stringCap));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
 }
@@ -120,8 +120,8 @@ TYPED_TEST(stringTyped_test, SelfCopyAssignmentExcluded)
 TYPED_TEST(stringTyped_test, CopyAssignmentWithStringOfSize0Works)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu;
     fuu = this->testSubject;
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
@@ -132,28 +132,28 @@ TYPED_TEST(stringTyped_test, CopyAssignmentWithStringOfSize0Works)
 TYPED_TEST(stringTyped_test, CopyAssignmentWithStringOfSizeSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap - 1, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP - 1, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap> fuu;
+    string<STRINGCAP> fuu;
     fuu = this->testSubject;
-    EXPECT_THAT(this->testSubject.size(), Eq(stringCap - 1));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(testString.substr(0, stringCap - 1)));
-    EXPECT_THAT(fuu.size(), Eq(stringCap - 1));
-    EXPECT_THAT(fuu.c_str(), StrEq(testString.substr(0, stringCap - 1)));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP - 1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testString.substr(0, STRINGCAP - 1)));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP - 1));
+    EXPECT_THAT(fuu.c_str(), StrEq(testString.substr(0, STRINGCAP - 1)));
 }
 
 TYPED_TEST(stringTyped_test, CopyAssignmentWithStringOfSizeCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap> fuu;
+    string<STRINGCAP> fuu;
     fuu = this->testSubject;
-    EXPECT_THAT(this->testSubject.size(), Eq(stringCap));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.c_str(), Eq(testString));
-    EXPECT_THAT(fuu.size(), Eq(stringCap));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
 }
 
@@ -169,8 +169,8 @@ TYPED_TEST(stringTyped_test, SelfMoveAssignmentExcluded)
 TYPED_TEST(stringTyped_test, MoveAssignmentOfStringWithSize0ResultsInSize0)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu;
     fuu = std::move(this->testSubject);
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(fuu.size(), Eq(0));
@@ -181,12 +181,12 @@ TYPED_TEST(stringTyped_test, MoveAssignmentOfStringWithSize0ResultsInSize0)
 TYPED_TEST(stringTyped_test, MoveAssignmentOfStringWithSmallerSizeResultsInSmallerSize)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap - 1, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP - 1, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap> fuu;
+    string<STRINGCAP> fuu;
     fuu = std::move(this->testSubject);
-    EXPECT_THAT(fuu.size(), Eq(stringCap - 1));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP - 1));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
@@ -195,12 +195,12 @@ TYPED_TEST(stringTyped_test, MoveAssignmentOfStringWithSmallerSizeResultsInSmall
 TYPED_TEST(stringTyped_test, MoveAssignmentOfStringWithSizeCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap> fuu;
+    string<STRINGCAP> fuu;
     fuu = std::move(this->testSubject);
-    EXPECT_THAT(fuu.size(), Eq(stringCap));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
@@ -211,9 +211,9 @@ TYPED_TEST(stringTyped_test, MoveAssignmentOfStringWithSizeCapaResultsInSizeCapa
 TYPED_TEST(stringTyped_test, CharToStringConvConstrWithSize0ResultsInSize0)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("");
-    EXPECT_THAT(fuu.capacity(), Eq(stringCap));
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("");
+    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(0));
     EXPECT_THAT(fuu.c_str(), StrEq(""));
 }
@@ -221,16 +221,16 @@ TYPED_TEST(stringTyped_test, CharToStringConvConstrWithSize0ResultsInSize0)
 TYPED_TEST(stringTyped_test, CharToStringConvConstrWithSizeCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    char testChar[stringCap];
-    for (uint64_t i = 0; i < stringCap - 1; i++)
+    constexpr auto STRINGCAP = myString().capacity();
+    char testChar[STRINGCAP];
+    for (uint64_t i = 0; i < STRINGCAP - 1; i++)
     {
         testChar[i] = 'M';
     }
-    testChar[stringCap - 1] = '\0';
-    string<stringCap> testSubject(testChar);
-    EXPECT_THAT(testSubject.capacity(), Eq(stringCap));
-    EXPECT_THAT(testSubject.size(), Eq(stringCap - 1));
+    testChar[STRINGCAP - 1] = '\0';
+    string<STRINGCAP> testSubject(testChar);
+    EXPECT_THAT(testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(testSubject.size(), Eq(STRINGCAP - 1));
     EXPECT_THAT(testSubject.c_str(), StrEq(testChar));
 }
 
@@ -238,9 +238,9 @@ TYPED_TEST(stringTyped_test, CharToStringConvConstrWithSizeCapaResultsInSizeCapa
 TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSize0ResultsInSize0)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu(TruncateToCapacity, "");
-    EXPECT_THAT(fuu.capacity(), Eq(stringCap));
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu(TruncateToCapacity, "");
+    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(0));
     EXPECT_THAT(fuu.c_str(), StrEq(""));
 }
@@ -248,42 +248,42 @@ TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSize0ResultsInSize0
 TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSizeCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    char testChar[stringCap];
-    for (uint64_t i = 0; i < stringCap - 1; i++)
+    constexpr auto STRINGCAP = myString().capacity();
+    char testChar[STRINGCAP];
+    for (uint64_t i = 0; i < STRINGCAP - 1; i++)
     {
         testChar[i] = 'M';
     }
-    testChar[stringCap - 1] = '\0';
-    string<stringCap> testSubject(TruncateToCapacity, testChar);
-    EXPECT_THAT(testSubject.capacity(), Eq(stringCap));
-    EXPECT_THAT(testSubject.size(), Eq(stringCap - 1));
+    testChar[STRINGCAP - 1] = '\0';
+    string<STRINGCAP> testSubject(TruncateToCapacity, testChar);
+    EXPECT_THAT(testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(testSubject.size(), Eq(STRINGCAP - 1));
     EXPECT_THAT(testSubject.c_str(), StrEq(testChar));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSizeGreaterCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    char testChar[stringCap + 1];
-    for (uint64_t i = 0; i < stringCap; i++)
+    constexpr auto STRINGCAP = myString().capacity();
+    char testChar[STRINGCAP + 1];
+    for (uint64_t i = 0; i < STRINGCAP; i++)
     {
         testChar[i] = 'M';
     }
-    testChar[stringCap] = '\0';
-    string<stringCap> testSubject(TruncateToCapacity, testChar);
-    EXPECT_THAT(testSubject.capacity(), Eq(stringCap));
-    EXPECT_THAT(testSubject.size(), Eq(stringCap));
+    testChar[STRINGCAP] = '\0';
+    string<STRINGCAP> testSubject(TruncateToCapacity, testChar);
+    EXPECT_THAT(testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(testSubject.size(), Eq(STRINGCAP));
 }
 
 /// @note string(TruncateToCapacity_t, const std::string& other) noexcept
 TYPED_TEST(stringTyped_test, UnsafeSTDStringToStringConvConstrWithSize0ResultsInSize0)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
+    constexpr auto STRINGCAP = myString().capacity();
     std::string testString;
-    string<stringCap> fuu(TruncateToCapacity, testString);
-    EXPECT_THAT(fuu.capacity(), Eq(stringCap));
+    string<STRINGCAP> fuu(TruncateToCapacity, testString);
+    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(0));
     EXPECT_THAT(fuu.c_str(), StrEq(""));
 }
@@ -291,43 +291,43 @@ TYPED_TEST(stringTyped_test, UnsafeSTDStringToStringConvConstrWithSize0ResultsIn
 TYPED_TEST(stringTyped_test, UnsafeSTDStringToStringConvConstrWithSizeSmallerCapaResultsInSizeSmallerCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap - 1, 'M');
-    string<stringCap> fuu(TruncateToCapacity, testString);
-    EXPECT_THAT(fuu.capacity(), Eq(stringCap));
-    EXPECT_THAT(fuu.size(), Eq(stringCap - 1));
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP - 1, 'M');
+    string<STRINGCAP> fuu(TruncateToCapacity, testString);
+    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP - 1));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeSTDStringToStringConvConstrWithSizeCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
-    string<stringCap> fuu(TruncateToCapacity, testString);
-    EXPECT_THAT(fuu.capacity(), Eq(stringCap));
-    EXPECT_THAT(fuu.size(), Eq(stringCap));
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
+    string<STRINGCAP> fuu(TruncateToCapacity, testString);
+    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeSTDStringToStringConvConstrWithSizeGreaterCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap + 1, 'M');
-    string<stringCap> fuu(TruncateToCapacity, testString);
-    EXPECT_THAT(fuu.capacity(), Eq(stringCap));
-    EXPECT_THAT(fuu.size(), Eq(stringCap));
-    EXPECT_THAT(fuu.c_str(), Eq(testString.substr(0, stringCap)));
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP + 1, 'M');
+    string<STRINGCAP> fuu(TruncateToCapacity, testString);
+    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
+    EXPECT_THAT(fuu.c_str(), Eq(testString.substr(0, STRINGCAP)));
 }
 
 /// @note string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept
 TYPED_TEST(stringTyped_test, UnsafeCharToStringConstrWithCount0ResultsInSize0)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu(TruncateToCapacity, "Yoda", 0);
-    EXPECT_THAT(fuu.capacity(), Eq(stringCap));
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu(TruncateToCapacity, "Yoda", 0);
+    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(0));
     EXPECT_THAT(fuu.c_str(), StrEq(""));
 }
@@ -335,23 +335,23 @@ TYPED_TEST(stringTyped_test, UnsafeCharToStringConstrWithCount0ResultsInSize0)
 TYPED_TEST(stringTyped_test, UnsafeCharToStringConstrWithCountEqCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
-    string<stringCap> testSubject(TruncateToCapacity, testString.c_str(), stringCap);
-    EXPECT_THAT(testSubject.capacity(), Eq(stringCap));
-    EXPECT_THAT(testSubject.size(), Eq(stringCap));
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
+    string<STRINGCAP> testSubject(TruncateToCapacity, testString.c_str(), STRINGCAP);
+    EXPECT_THAT(testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(testSubject.size(), Eq(STRINGCAP));
     EXPECT_THAT(testSubject.c_str(), StrEq(testString));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeCharToStringConstrWithCountGreaterCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap + 1, 'M');
-    string<stringCap> testSubject(TruncateToCapacity, testString.c_str(), stringCap + 1);
-    EXPECT_THAT(testSubject.capacity(), Eq(stringCap));
-    EXPECT_THAT(testSubject.size(), Eq(stringCap));
-    EXPECT_THAT(testSubject.c_str(), StrEq(testString.substr(0, stringCap)));
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP + 1, 'M');
+    string<STRINGCAP> testSubject(TruncateToCapacity, testString.c_str(), STRINGCAP + 1);
+    EXPECT_THAT(testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(testSubject.size(), Eq(STRINGCAP));
+    EXPECT_THAT(testSubject.c_str(), StrEq(testString.substr(0, STRINGCAP)));
 }
 
 TEST(String100, UnsafeCharToStringConstrIncludingNullCharWithCountResultsInSizeCount)
@@ -366,9 +366,9 @@ TEST(String100, UnsafeCharToStringConstrIncludingNullCharWithCountResultsInSizeC
 TYPED_TEST(stringTyped_test, UnsafeCharToStringConstrWithNullPtrResultsEmptyString)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu(TruncateToCapacity, nullptr, stringCap);
-    EXPECT_THAT(fuu.capacity(), Eq(stringCap));
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu(TruncateToCapacity, nullptr, STRINGCAP);
+    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(0));
     EXPECT_THAT(fuu.c_str(), StrEq(""));
 }
@@ -385,16 +385,16 @@ TYPED_TEST(stringTyped_test, AssignCStringOfSize0WithOperatorResultsInSize0)
 TYPED_TEST(stringTyped_test, AssignCStringOfSizeCapaWithOperatorResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    char testChar[stringCap];
-    for (uint64_t i = 0; i < stringCap - 1; i++)
+    constexpr auto STRINGCAP = myString().capacity();
+    char testChar[STRINGCAP];
+    for (uint64_t i = 0; i < STRINGCAP - 1; i++)
     {
         testChar[i] = 'M';
     }
-    testChar[stringCap - 1] = '\0';
-    string<stringCap> testSubject;
+    testChar[STRINGCAP - 1] = '\0';
+    string<STRINGCAP> testSubject;
     testSubject = testChar;
-    EXPECT_THAT(testSubject.size(), Eq(stringCap - 1));
+    EXPECT_THAT(testSubject.size(), Eq(STRINGCAP - 1));
     EXPECT_THAT(testSubject.c_str(), StrEq(testChar));
 }
 
@@ -403,8 +403,8 @@ TYPED_TEST(stringTyped_test, AssignCStringOfSizeCapaWithOperatorResultsInSizeCap
 TYPED_TEST(stringTyped_test, SelfAssignmentIsExcluded)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testSubject;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testSubject;
     testSubject.assign(testSubject);
     EXPECT_THAT(testSubject.size(), Eq(0));
 }
@@ -412,8 +412,8 @@ TYPED_TEST(stringTyped_test, SelfAssignmentIsExcluded)
 TYPED_TEST(stringTyped_test, AssignStringOfSize0ResultsInSize0)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu;
     this->testSubject.assign(fuu);
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
@@ -424,21 +424,21 @@ TYPED_TEST(stringTyped_test, AssignStringOfSize0ResultsInSize0)
 TYPED_TEST(stringTyped_test, AssignStringOfSizeCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
-    string<stringCap> fuu(TruncateToCapacity, testString);
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
+    string<STRINGCAP> fuu(TruncateToCapacity, testString);
     this->testSubject.assign(fuu);
-    EXPECT_THAT(this->testSubject.size(), Eq(stringCap));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(testString));
-    EXPECT_THAT(fuu.size(), Eq(stringCap));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), StrEq(testString));
 }
 
 TYPED_TEST(stringTyped_test, AssignStringOfSize0AndSmallerCapaResultsInSize0)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> testString;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> testString;
     testString.assign(this->testSubject);
     EXPECT_THAT(testString.size(), Eq(0));
     EXPECT_THAT(testString.c_str(), StrEq(""));
@@ -449,14 +449,14 @@ TYPED_TEST(stringTyped_test, AssignStringOfSize0AndSmallerCapaResultsInSize0)
 TYPED_TEST(stringTyped_test, AssignStringWithSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testStdString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testStdString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testStdString), Eq(true));
-    string<stringCap + 1> testString;
+    string<STRINGCAP + 1> testString;
     testString.assign(this->testSubject);
-    EXPECT_THAT(testString.size(), Eq(stringCap));
+    EXPECT_THAT(testString.size(), Eq(STRINGCAP));
     EXPECT_THAT(testString.c_str(), StrEq(testStdString));
-    EXPECT_THAT(this->testSubject.size(), Eq(stringCap));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString));
 }
 
@@ -478,16 +478,16 @@ TYPED_TEST(stringTyped_test, ReassignNothingResultsInZeroSize)
 TYPED_TEST(stringTyped_test, AssignCStringOfSizeCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    char testChar[stringCap];
-    for (uint64_t i = 0; i < stringCap - 1; i++)
+    constexpr auto STRINGCAP = myString().capacity();
+    char testChar[STRINGCAP];
+    for (uint64_t i = 0; i < STRINGCAP - 1; i++)
     {
         testChar[i] = 'M';
     }
-    testChar[stringCap - 1] = '\0';
-    string<stringCap> testSubject;
+    testChar[STRINGCAP - 1] = '\0';
+    string<STRINGCAP> testSubject;
     testSubject.assign(testChar);
-    EXPECT_THAT(testSubject.size(), Eq(stringCap - 1));
+    EXPECT_THAT(testSubject.size(), Eq(STRINGCAP - 1));
     EXPECT_THAT(testSubject.c_str(), StrEq(testChar));
 }
 
@@ -509,18 +509,18 @@ TYPED_TEST(stringTyped_test, UnsafeAssignOfCStringOfSize1ResultsInSize1)
 TYPED_TEST(stringTyped_test, UnsafeAssignCStringOfSizeCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::vector<char> testCharstring(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::vector<char> testCharstring(STRINGCAP, 'M');
     testCharstring.emplace_back('\0');
     EXPECT_THAT(this->testSubject.unsafe_assign(testCharstring.data()), Eq(true));
-    EXPECT_THAT(this->testSubject.size(), Eq(stringCap));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeAssignCStringOfSizeGreaterCapaResultsInSize0)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::vector<char> testCharstring(stringCap + 1, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::vector<char> testCharstring(STRINGCAP + 1, 'M');
     testCharstring.emplace_back('\0');
     EXPECT_THAT(this->testSubject.unsafe_assign(testCharstring.data()), Eq(false));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
@@ -532,8 +532,8 @@ TYPED_TEST(stringTyped_test, UnsafeAssignOfInvalidCStringFails)
     this->testSubject = "L";
 
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::vector<char> testCharstring(stringCap + 1, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::vector<char> testCharstring(STRINGCAP + 1, 'M');
     testCharstring.emplace_back('\0');
 
     EXPECT_THAT(this->testSubject.unsafe_assign(testCharstring.data()), Eq(false));
@@ -568,17 +568,17 @@ TYPED_TEST(stringTyped_test, UnsafeAssignOfSTDStringOfSize1ResultsInSize1)
 TYPED_TEST(stringTyped_test, UnsafeAssignSTDStringOfSizeCapaResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    EXPECT_THAT(this->testSubject.size(), Eq(stringCap));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeAssignSTDStringOfSizeGreaterCapaResultsInSize0)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap + 1, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP + 1, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(false));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
 }
@@ -588,8 +588,8 @@ TYPED_TEST(stringTyped_test, AssignOfInvalidSTDStringFails)
     this->testSubject = "L";
 
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap + 1, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP + 1, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(false));
     EXPECT_THAT(this->testSubject.size(), Eq(1));
     EXPECT_THAT(this->testSubject.c_str(), StrEq("L"));
@@ -600,10 +600,10 @@ TYPED_TEST(stringTyped_test, AssignOfInvalidSTDStringFails)
 TYPED_TEST(stringTyped_test, CompareEqStringsResultsInZero)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap> fuu;
+    string<STRINGCAP> fuu;
     EXPECT_THAT(fuu.unsafe_assign(testString), Eq(true));
     EXPECT_THAT(this->testSubject.compare(this->testSubject), Eq(0));
     EXPECT_THAT(this->testSubject.compare(fuu), Eq(0));
@@ -612,11 +612,11 @@ TYPED_TEST(stringTyped_test, CompareEqStringsResultsInZero)
 TYPED_TEST(stringTyped_test, CompareResultNegative)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString1(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString1(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString1), Eq(true));
-    string<stringCap> fuu;
-    std::string testString2(stringCap, 'L');
+    string<STRINGCAP> fuu;
+    std::string testString2(STRINGCAP, 'L');
     EXPECT_THAT(fuu.unsafe_assign(testString2), Eq(true));
     EXPECT_THAT(fuu.compare(this->testSubject), Lt(0));
 }
@@ -624,11 +624,11 @@ TYPED_TEST(stringTyped_test, CompareResultNegative)
 TYPED_TEST(stringTyped_test, CompareResultPositive)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString1(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString1(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString1), Eq(true));
-    string<stringCap> fuu;
-    std::string testString2(stringCap, 'L');
+    string<STRINGCAP> fuu;
+    std::string testString2(STRINGCAP, 'L');
     EXPECT_THAT(fuu.unsafe_assign(testString2), Eq(true));
     EXPECT_THAT(this->testSubject.compare(fuu), Gt(0));
 }
@@ -636,8 +636,8 @@ TYPED_TEST(stringTyped_test, CompareResultPositive)
 TYPED_TEST(stringTyped_test, CompareWithEmptyStringResultsInPositive)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
     EXPECT_THAT(fuu.compare(this->testSubject), Gt(0));
 }
 
@@ -653,10 +653,10 @@ TEST(String100, CompareStringsInclNullCharacterWorks)
 TYPED_TEST(stringTyped_test, CompareEqStringsWithDifferentCapaResultsInZero)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap + 1> fuu;
+    string<STRINGCAP + 1> fuu;
     EXPECT_THAT(fuu.unsafe_assign(testString), Eq(true));
     EXPECT_THAT(this->testSubject.compare(this->testSubject), Eq(0));
     EXPECT_THAT(this->testSubject.compare(fuu), Eq(0));
@@ -665,11 +665,11 @@ TYPED_TEST(stringTyped_test, CompareEqStringsWithDifferentCapaResultsInZero)
 TYPED_TEST(stringTyped_test, CompareResultNegativeWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString1(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString1(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString1), Eq(true));
-    string<stringCap + 1> fuu;
-    std::string testString2(stringCap + 1, 'M');
+    string<STRINGCAP + 1> fuu;
+    std::string testString2(STRINGCAP + 1, 'M');
     EXPECT_THAT(fuu.unsafe_assign(testString2), Eq(true));
     EXPECT_THAT(this->testSubject.compare(fuu), Lt(0));
 }
@@ -677,11 +677,11 @@ TYPED_TEST(stringTyped_test, CompareResultNegativeWithDifferentCapa)
 TYPED_TEST(stringTyped_test, CompareResultPositiveWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString1(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString1(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString1), Eq(true));
-    string<stringCap + 1> fuu;
-    std::string testString2(stringCap + 1, 'M');
+    string<STRINGCAP + 1> fuu;
+    std::string testString2(STRINGCAP + 1, 'M');
     EXPECT_THAT(fuu.unsafe_assign(testString2), Eq(true));
     EXPECT_THAT(fuu.compare(this->testSubject), Gt(0));
 }
@@ -689,8 +689,8 @@ TYPED_TEST(stringTyped_test, CompareResultPositiveWithDifferentCapa)
 TYPED_TEST(stringTyped_test, CompareWithEmptyStringOfDifferentCapaResultsInPositive)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> fuu("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> fuu("M");
     EXPECT_THAT(fuu.compare(this->testSubject), Gt(0));
 }
 
@@ -708,37 +708,37 @@ TEST(String100, CompareStringsWithDifferentCapaInclNullCharacterWorks)
 TYPED_TEST(stringTyped_test, CompareOperatorEqualResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
     EXPECT_THAT(fuu == fuu, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorEqualResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(fuu == bar, Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorEqualResultTrueWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testString1("M");
-    string<stringCap + 1> testString2("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testString1("M");
+    string<STRINGCAP + 1> testString2("M");
     EXPECT_THAT(testString1 == testString2, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorEqualResultFalseWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> testString1("M");
-    string<stringCap> testString2("L");
-    string<stringCap + 1> testString3;
-    std::string testStdString(stringCap + 1, 'L');
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> testString1("M");
+    string<STRINGCAP> testString2("L");
+    string<STRINGCAP + 1> testString3;
+    std::string testStdString(STRINGCAP + 1, 'L');
     EXPECT_THAT(testString3.unsafe_assign(testStdString), Eq(true));
     EXPECT_THAT(testString1 == testString2, Eq(false));
     EXPECT_THAT(testString3 == testString2, Eq(false));
@@ -749,37 +749,37 @@ TYPED_TEST(stringTyped_test, CompareOperatorEqualResultFalseWithDifferentCapa)
 TYPED_TEST(stringTyped_test, CompareOperatorNotEqualResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
     EXPECT_THAT(fuu != fuu, Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorNotEqualResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(fuu != bar, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorNotEqualResultFalseWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testString1("M");
-    string<stringCap + 1> testString2("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testString1("M");
+    string<STRINGCAP + 1> testString2("M");
     EXPECT_THAT(testString1 != testString2, Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorNotEqualResultTrueWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> testString1("M");
-    string<stringCap> testString2("L");
-    string<stringCap + 1> testString3;
-    std::string testStdString(stringCap + 1, 'L');
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> testString1("M");
+    string<STRINGCAP> testString2("L");
+    string<STRINGCAP + 1> testString3;
+    std::string testStdString(STRINGCAP + 1, 'L');
     EXPECT_THAT(testString3.unsafe_assign(testStdString), Eq(true));
     EXPECT_THAT(testString1 != testString2, Eq(true));
     EXPECT_THAT(testString3 != testString2, Eq(true));
@@ -790,18 +790,18 @@ TYPED_TEST(stringTyped_test, CompareOperatorNotEqualResultTrueWithDifferentCapa)
 TYPED_TEST(stringTyped_test, CompareOperatorLesserResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(bar < fuu, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorLesserResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(fuu < bar, Eq(false));
     EXPECT_THAT(fuu < fuu, Eq(false));
 }
@@ -809,18 +809,18 @@ TYPED_TEST(stringTyped_test, CompareOperatorLesserResultFalse)
 TYPED_TEST(stringTyped_test, CompareOperatorLesserResultTrueWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testString1("M");
-    string<stringCap + 1> testString2("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testString1("M");
+    string<STRINGCAP + 1> testString2("L");
     EXPECT_THAT(testString2 < testString1, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorLesserResultFalseWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> testString1("M");
-    string<stringCap> testString2("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> testString1("M");
+    string<STRINGCAP> testString2("L");
     EXPECT_THAT(testString1 < testString2, Eq(false));
     EXPECT_THAT(testString1 < testString1, Eq(false));
 }
@@ -830,9 +830,9 @@ TYPED_TEST(stringTyped_test, CompareOperatorLesserResultFalseWithDifferentCapa)
 TYPED_TEST(stringTyped_test, CompareOperatorLesserEqResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(this->testSubject <= fuu, Eq(true));
     EXPECT_THAT(bar <= fuu, Eq(true));
 }
@@ -840,18 +840,18 @@ TYPED_TEST(stringTyped_test, CompareOperatorLesserEqResultTrue)
 TYPED_TEST(stringTyped_test, CompareOperatorLesserEqResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(fuu <= bar, Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorLesserEqResultTrueWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap + 1> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP + 1> bar("L");
     EXPECT_THAT(this->testSubject <= fuu, Eq(true));
     EXPECT_THAT(bar <= fuu, Eq(true));
 }
@@ -859,9 +859,9 @@ TYPED_TEST(stringTyped_test, CompareOperatorLesserEqResultTrueWithDifferentCapa)
 TYPED_TEST(stringTyped_test, CompareOperatorLesserEqResultFalseWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(fuu <= bar, Eq(false));
 }
 
@@ -870,18 +870,18 @@ TYPED_TEST(stringTyped_test, CompareOperatorLesserEqResultFalseWithDifferentCapa
 TYPED_TEST(stringTyped_test, CompareOperatorGreaterResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(fuu > bar, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorGreaterResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(bar > fuu, Eq(false));
     EXPECT_THAT(bar > bar, Eq(false));
 }
@@ -889,18 +889,18 @@ TYPED_TEST(stringTyped_test, CompareOperatorGreaterResultFalse)
 TYPED_TEST(stringTyped_test, CompareOperatorGreaterResultTrueWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(fuu > bar, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorGreaterResultFalseWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap + 1> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP + 1> bar("L");
     EXPECT_THAT(bar > fuu, Eq(false));
     EXPECT_THAT(bar > bar, Eq(false));
 }
@@ -910,9 +910,9 @@ TYPED_TEST(stringTyped_test, CompareOperatorGreaterResultFalseWithDifferentCapa)
 TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bar("L");
     this->testSubject = "M";
     EXPECT_THAT(fuu >= bar, Eq(true));
     EXPECT_THAT(fuu >= this->testSubject, Eq(true));
@@ -921,18 +921,18 @@ TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultTrue)
 TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP> bar("L");
     EXPECT_THAT(bar >= fuu, Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultTrueWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> fuu("M");
-    string<stringCap> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> fuu("M");
+    string<STRINGCAP> bar("L");
     this->testSubject = "M";
     EXPECT_THAT(fuu >= bar, Eq(true));
     EXPECT_THAT(fuu >= this->testSubject, Eq(true));
@@ -941,9 +941,9 @@ TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultTrueWithDifferentCapa
 TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultFalseWithDifferentCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> fuu("M");
-    string<stringCap + 1> bar("L");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> fuu("M");
+    string<STRINGCAP + 1> bar("L");
     this->testSubject = "L";
     EXPECT_THAT(bar >= fuu, Eq(false));
     EXPECT_THAT(bar >= this->testSubject, Eq(true));
@@ -960,12 +960,12 @@ TYPED_TEST(stringTyped_test, EmptyStringToSTDStringConvResultsInZeroSize)
 TYPED_TEST(stringTyped_test, StringOfSizeCapaToSTDStringConvResultsInSizeCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString1(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString1(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString1), Eq(true));
     std::string testString2 = std::string(this->testSubject);
-    EXPECT_THAT(testString2.size(), Eq(stringCap));
-    EXPECT_THAT(testString2.c_str(), StrEq(testString1.substr(0, stringCap)));
+    EXPECT_THAT(testString2.size(), Eq(STRINGCAP));
+    EXPECT_THAT(testString2.c_str(), StrEq(testString1.substr(0, STRINGCAP)));
 }
 
 /// @note template <uint64_t Capacity>
@@ -973,8 +973,8 @@ TYPED_TEST(stringTyped_test, StringOfSizeCapaToSTDStringConvResultsInSizeCapa)
 TYPED_TEST(stringTyped_test, CompareOperatorSTDStringEqualFixedStringResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "M";
     EXPECT_THAT(testSTDString == testFixedString, Eq(true));
 }
@@ -982,8 +982,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorSTDStringEqualFixedStringResultTrue)
 TYPED_TEST(stringTyped_test, CompareOperatorSTDStringEqualFixedStringWithSameSizeResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "L";
     EXPECT_THAT(testSTDString == testFixedString, Eq(false));
 }
@@ -991,8 +991,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorSTDStringEqualFixedStringWithSameSiz
 TYPED_TEST(stringTyped_test, CompareOperatorSTDStringEqualFixedStringResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "ML";
     EXPECT_THAT(testSTDString == testFixedString, Eq(false));
 }
@@ -1002,8 +1002,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorSTDStringEqualFixedStringResultFalse
 TYPED_TEST(stringTyped_test, CompareOperatorFixedStringEqualSTDStringResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "M";
     EXPECT_THAT(testFixedString == testSTDString, Eq(true));
 }
@@ -1011,8 +1011,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorFixedStringEqualSTDStringResultTrue)
 TYPED_TEST(stringTyped_test, CompareOperatorFixedStringEqualSTDStringWithSameSizeResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "L";
     EXPECT_THAT(testFixedString == testSTDString, Eq(false));
 }
@@ -1020,8 +1020,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorFixedStringEqualSTDStringWithSameSiz
 TYPED_TEST(stringTyped_test, CompareOperatorFixedStringEqualSTDStringResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "ML";
     EXPECT_THAT(testFixedString == testSTDString, Eq(false));
 }
@@ -1031,8 +1031,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorFixedStringEqualSTDStringResultFalse
 TYPED_TEST(stringTyped_test, CompareOperatorSTDStringNotEqualFixedStringResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "Ferdinand Spitzschnüffler";
     EXPECT_THAT(testSTDString != testFixedString, Eq(true));
 }
@@ -1040,8 +1040,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorSTDStringNotEqualFixedStringResultTr
 TYPED_TEST(stringTyped_test, CompareOperatorSTDStringNotEqualFixedStringWithSameSizeResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "L";
     EXPECT_THAT(testSTDString != testFixedString, Eq(true));
 }
@@ -1049,8 +1049,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorSTDStringNotEqualFixedStringWithSame
 TYPED_TEST(stringTyped_test, CompareOperatorSTDStringNotEqualFixedStringResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "M";
     EXPECT_THAT(testSTDString != testFixedString, Eq(false));
 }
@@ -1060,8 +1060,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorSTDStringNotEqualFixedStringResultFa
 TYPED_TEST(stringTyped_test, CompareOperatorFixedStringNotEqualSTDStringResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "Müslimädchen";
     EXPECT_THAT(testFixedString != testSTDString, Eq(true));
 }
@@ -1069,8 +1069,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorFixedStringNotEqualSTDStringResultTr
 TYPED_TEST(stringTyped_test, CompareOperatorFixedStringNotEqualSTDStringWithSameSizeResultTrue)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "L";
     EXPECT_THAT(testFixedString != testSTDString, Eq(true));
 }
@@ -1078,8 +1078,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorFixedStringNotEqualSTDStringWithSame
 TYPED_TEST(stringTyped_test, CompareOperatorFixedStringNotEqualSTDStringResultFalse)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testFixedString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testFixedString("M");
     std::string testSTDString = "M";
     EXPECT_THAT(testFixedString != testSTDString, Eq(false));
 }
@@ -1096,9 +1096,9 @@ TYPED_TEST(stringTyped_test, EmptyStreamInputWorks)
 TYPED_TEST(stringTyped_test, StreamInputOfSizeCapacityWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
-    string<stringCap> testFixedString(TruncateToCapacity, testString);
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
+    string<STRINGCAP> testFixedString(TruncateToCapacity, testString);
     std::ostringstream testStream;
     testStream << testFixedString;
     EXPECT_THAT(testStream.str(), Eq(testFixedString.c_str()));
@@ -1123,8 +1123,8 @@ TYPED_TEST(stringTyped_test, StringWithContentIsNotEmtpy)
 TYPED_TEST(stringTyped_test, ConstrWithEmptyStringWithSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> testString(this->testSubject);
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> testString(this->testSubject);
     EXPECT_THAT(testString.c_str(), StrEq(""));
     EXPECT_THAT(testString.size(), Eq(0));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
@@ -1134,9 +1134,9 @@ TYPED_TEST(stringTyped_test, ConstrWithEmptyStringWithSmallerCapaWorks)
 TYPED_TEST(stringTyped_test, ConstrWithStringWithSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
+    constexpr auto STRINGCAP = myString().capacity();
     this->testSubject = "M";
-    string<stringCap + 1> testString(this->testSubject);
+    string<STRINGCAP + 1> testString(this->testSubject);
     EXPECT_THAT(testString.c_str(), StrEq("M"));
     EXPECT_THAT(testString.size(), Eq(1));
     EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
@@ -1148,8 +1148,8 @@ TYPED_TEST(stringTyped_test, ConstrWithStringWithSmallerCapaWorks)
 TYPED_TEST(stringTyped_test, MoveConstrWithEmptyStringWithSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 30> testString(std::move(this->testSubject));
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 30> testString(std::move(this->testSubject));
     EXPECT_THAT(testString.size(), Eq(0));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(testString.c_str(), StrEq(""));
@@ -1159,12 +1159,12 @@ TYPED_TEST(stringTyped_test, MoveConstrWithEmptyStringWithSmallerCapaWorks)
 TYPED_TEST(stringTyped_test, MoveConstrWithStringSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap + 11> fuu(std::move(this->testSubject));
+    string<STRINGCAP + 11> fuu(std::move(this->testSubject));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
-    EXPECT_THAT(fuu.size(), Eq(stringCap));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
 }
@@ -1174,8 +1174,8 @@ TYPED_TEST(stringTyped_test, MoveConstrWithStringSmallerCapaWorks)
 TYPED_TEST(stringTyped_test, AssignmentOfStringWithSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> testString;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> testString;
     testString = this->testSubject;
     EXPECT_THAT(testString.c_str(), StrEq(""));
     EXPECT_THAT(testString.size(), Eq(0));
@@ -1186,8 +1186,8 @@ TYPED_TEST(stringTyped_test, AssignmentOfStringWithSmallerCapaWorks)
 TYPED_TEST(stringTyped_test, AssignmentOfEmptyStringWithSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> testString("M");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> testString("M");
     testString = this->testSubject;
     EXPECT_THAT(testString.c_str(), StrEq(""));
     EXPECT_THAT(testString.size(), Eq(0));
@@ -1211,8 +1211,8 @@ TEST(String100, AssignmentOfNotEmptyStringWithSmallerCapaWorks)
 TYPED_TEST(stringTyped_test, MoveAssignmentOfStringWithSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 63> fuu;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 63> fuu;
     fuu = std::move(this->testSubject);
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(fuu.size(), Eq(0));
@@ -1223,12 +1223,12 @@ TYPED_TEST(stringTyped_test, MoveAssignmentOfStringWithSmallerCapaWorks)
 TYPED_TEST(stringTyped_test, MoveAssignmentOfEmptyStringWithSmallerCapaWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<stringCap + 36> fuu;
+    string<STRINGCAP + 36> fuu;
     fuu = std::move(this->testSubject);
-    EXPECT_THAT(fuu.size(), Eq(stringCap));
+    EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
@@ -1250,17 +1250,17 @@ TEST(String100, MoveAssignmentOfNotEmptyStringWithSmallerCapaWorks)
 TYPED_TEST(stringTyped_test, ConcatenateTwoEmptyStringsReturnsEmptyStringWithTotalCapa)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap + 1> testString1;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 1> testString1;
     auto testString2 = iox::cxx::concatenate(this->testSubject, testString1);
 
-    EXPECT_THAT(this->testSubject.capacity(), Eq(stringCap));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
-    EXPECT_THAT(testString1.capacity(), Eq(stringCap + 1));
+    EXPECT_THAT(testString1.capacity(), Eq(STRINGCAP + 1));
     EXPECT_THAT(testString1.size(), Eq(0));
     EXPECT_THAT(testString1.c_str(), StrEq(""));
-    EXPECT_THAT(testString2.capacity(), Eq(2 * stringCap + 1));
+    EXPECT_THAT(testString2.capacity(), Eq(2 * STRINGCAP + 1));
     EXPECT_THAT(testString2.size(), Eq(0));
     EXPECT_THAT(testString2.c_str(), StrEq(""));
 }
@@ -1268,28 +1268,28 @@ TYPED_TEST(stringTyped_test, ConcatenateTwoEmptyStringsReturnsEmptyStringWithTot
 TYPED_TEST(stringTyped_test, ConcatenateTwoStringsWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testStdString(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testStdString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testStdString), Eq(true));
-    string<stringCap + 2> testString1;
+    string<STRINGCAP + 2> testString1;
     auto testString2 = concatenate(testString1, this->testSubject);
 
-    EXPECT_THAT(testString2.capacity(), Eq(2 * stringCap + 2));
-    EXPECT_THAT(testString2.size(), Eq(stringCap));
+    EXPECT_THAT(testString2.capacity(), Eq(2 * STRINGCAP + 2));
+    EXPECT_THAT(testString2.size(), Eq(STRINGCAP));
     EXPECT_THAT(testString2.c_str(), StrEq(testStdString));
 }
 
 TYPED_TEST(stringTyped_test, ConcatenateTwoNotEmptyStringsWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    std::string testStdString0(stringCap, 'M');
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testStdString0(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testStdString0), Eq(true));
-    std::string testStdString1(stringCap + 3, 'L');
-    string<stringCap + 3> testString1(TruncateToCapacity, testStdString1);
+    std::string testStdString1(STRINGCAP + 3, 'L');
+    string<STRINGCAP + 3> testString1(TruncateToCapacity, testStdString1);
     auto testString2 = concatenate(this->testSubject, testString1);
 
-    EXPECT_THAT(testString2.capacity(), Eq(2 * stringCap + 3));
+    EXPECT_THAT(testString2.capacity(), Eq(2 * STRINGCAP + 3));
     EXPECT_THAT(testString2.size(), Eq(this->testSubject.size() + testString1.size()));
     EXPECT_THAT(testString2.c_str(), StrEq(testStdString0 + testStdString1));
 }
@@ -1297,13 +1297,13 @@ TYPED_TEST(stringTyped_test, ConcatenateTwoNotEmptyStringsWorks)
 TYPED_TEST(stringTyped_test, ConcatenateThreeStringsWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
-    string<stringCap> testString1("A");
-    string<stringCap + 2> testString2("YOD");
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP> testString1("A");
+    string<STRINGCAP + 2> testString2("YOD");
     auto testString3 = concatenate(testString2, this->testSubject, testString1);
 
     std::string cmpString = std::string(testString2) + std::string(this->testSubject) + std::string(testString1);
-    EXPECT_THAT(testString3.capacity(), Eq(3 * stringCap + 2));
+    EXPECT_THAT(testString3.capacity(), Eq(3 * STRINGCAP + 2));
     EXPECT_THAT(testString3.size(), Eq(cmpString.size()));
     EXPECT_THAT(testString3.c_str(), StrEq(cmpString));
 }
@@ -1311,9 +1311,9 @@ TYPED_TEST(stringTyped_test, ConcatenateThreeStringsWorks)
 TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
+    constexpr auto STRINGCAP = myString().capacity();
     auto testString = concatenate(this->testSubject, "M");
-    EXPECT_THAT(testString.capacity(), Eq(stringCap + 1));
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 1));
     EXPECT_THAT(testString.size(), Eq(1));
     EXPECT_THAT(testString.c_str(), StrEq("M"));
 }
@@ -1321,10 +1321,10 @@ TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWorks)
 TYPED_TEST(stringTyped_test, ConcatenateStringLiteralAndStringWorks)
 {
     using myString = typename TestFixture::stringType;
-    constexpr auto stringCap = myString().capacity();
+    constexpr auto STRINGCAP = myString().capacity();
     this->testSubject = "S";
     auto testString = concatenate("Ferdinand", this->testSubject);
-    EXPECT_THAT(testString.capacity(), Eq(stringCap + 9));
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 9));
     EXPECT_THAT(testString.size(), Eq(10));
     EXPECT_THAT(testString.c_str(), StrEq("FerdinandS"));
 }
@@ -1336,4 +1336,67 @@ TYPED_TEST(stringTyped_test, ConcatenateOnlyStringLiteralsWorks)
     EXPECT_THAT(testString.size(), Eq(25));
     EXPECT_THAT(testString.c_str(), StrEq("FerdinandSpitzschnueffler"));
 }
+
+/// operator+
+// TYPED_TEST(stringTyped_test, ConcatenateTwoEmptyStringsReturnsEmptyString)
+// {
+//     using myString = typename TestFixture::stringType;
+//     constexpr auto STRINGCAP = myString().capacity();
+//     string<2 * STRINGCAP> testString = this->testSubject + this->testSubject;
+//     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+//     EXPECT_THAT(this->testSubject.size(), Eq(0));
+//     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+// }
+//
+// TYPED_TEST(stringTyped_test, ConcatenateTwoStringsWithOperatorPlusWorks)
+// {
+//     using myString = typename TestFixture::stringType;
+//     constexpr auto STRINGCAP = myString().capacity();
+//     std::string testStdString(STRINGCAP, 'M');
+//     EXPECT_THAT(this->testSubject.unsafe_assign(testStdString), Eq(true));
+//     string<STRINGCAP + 2> testString1;
+//     string<2 * STRINGCAP + 2> testString2;
+//     testString2 = testString1 + this->testSubject;
+//
+//     EXPECT_THAT(testString2.capacity(), Eq(2 * STRINGCAP + 2));
+//     EXPECT_THAT(testString2.size(), Eq(STRINGCAP));
+//     EXPECT_THAT(testString2.c_str(), StrEq(testStdString));
+// }
+//
+// TYPED_TEST(stringTyped_test, ConcatenateNotEmptyStringsWorks)
+// {
+//     using myString = typename TestFixture::stringType;
+//     constexpr auto STRINGCAP = myString().capacity();
+//     std::string testStdString0(STRINGCAP, 'M');
+//     EXPECT_THAT(this->testSubject.unsafe_assign(testStdString0), Eq(true));
+//     std::string testStdString1(STRINGCAP + 3, 'L');
+//     string<STRINGCAP + 3> testString1(TruncateToCapacity, testStdString1);
+//     string<6 * STRINGCAP> testString2 = this->testSubject + testString1 + this->testSubject;
+//
+//     EXPECT_THAT(testString2.capacity(), Eq(6 * STRINGCAP));
+//     EXPECT_THAT(testString2.size(), Eq(2 * this->testSubject.size() + testString1.size()));
+//     EXPECT_THAT(testString2.c_str(), StrEq(testStdString0 + testStdString1 + testStdString0));
+// }
+//
+// TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWithOperatorPlusWorks)
+// {
+//     using myString = typename TestFixture::stringType;
+//     constexpr auto STRINGCAP = myString().capacity();
+//     string<2 * STRINGCAP> testString = this->testSubject + "M";
+//     EXPECT_THAT(testString.capacity(), Eq(2 * STRINGCAP));
+//     EXPECT_THAT(testString.size(), Eq(1));
+//     EXPECT_THAT(testString.c_str(), StrEq("M"));
+// }
+//
+// TYPED_TEST(stringTyped_test, ConcatenateStringLiteralAndStringWithOperatorPlusWorks)
+// {
+//     using myString = typename TestFixture::stringType;
+//     constexpr auto STRINGCAP = myString().capacity();
+//     this->testSubject = "e";
+//     string<STRINGCAP + 7> testString = "AdmTass" + this->testSubject;
+//     EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 7));
+//     EXPECT_THAT(testString.size(), Eq(8));
+//     EXPECT_THAT(testString.c_str(), StrEq("AdmTasse"));
+// }
 } // namespace
+
