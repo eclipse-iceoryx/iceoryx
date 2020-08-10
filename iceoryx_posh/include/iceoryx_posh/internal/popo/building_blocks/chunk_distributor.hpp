@@ -56,6 +56,7 @@ template <typename ChunkDistributorDataType>
 class ChunkDistributor
 {
   public:
+    using UniqueId_t = UniqueId<ChunkDistributorDataType>;
     using MemberType_t = ChunkDistributorDataType;
     using ChunkQueueData_t = typename ChunkDistributorDataType::ChunkQueueData_t;
     using ChunkQueuePusher_t = typename ChunkDistributorDataType::ChunkQueuePusher_t;
@@ -118,6 +119,9 @@ class ChunkDistributor
 
     /// @brief cleanup the used shrared memory chunks
     void cleanup() noexcept;
+
+    /// @brief returns the unique id of the chunk distributor
+    UniqueId_t uniqueId() const noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

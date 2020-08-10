@@ -168,6 +168,14 @@ inline bool ChunkQueuePopper<ChunkQueueDataType>::isConditionVariableAttached() 
     return getMembers()->m_conditionVariableDataPtr;
 }
 
+template <typename ChunkQueueDataType>
+inline typename ChunkQueuePopper<ChunkQueueDataType>::UniqueId_t
+ChunkQueuePopper<ChunkQueueDataType>::uniqueId() const noexcept
+{
+    return getMembers()->m_uniqueId;
+}
+
+
 } // namespace popo
 } // namespace iox
 

@@ -33,6 +33,7 @@ namespace popo
 template <typename ChunkDistributorDataProperties, typename LockingPolicy, typename ChunkQueuePusherType>
 struct ChunkDistributorData : public LockingPolicy
 {
+    using ThisType_t = ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>;
     using LockGuard_t = std::lock_guard<
         const ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>>;
     using ChunkQueuePusher_t = ChunkQueuePusherType;
@@ -52,6 +53,7 @@ struct ChunkDistributorData : public LockingPolicy
     /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup
     using HistoryContainer_t = cxx::vector<mepoo::SharedChunk, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY>;
     HistoryContainer_t m_history;
+    UniqueId<ThisType_t> m_uniqueId;
 };
 
 } // namespace popo

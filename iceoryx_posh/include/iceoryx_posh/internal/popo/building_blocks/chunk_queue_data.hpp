@@ -29,6 +29,7 @@ namespace popo
 template <typename ChunkQueueDataProperties, typename LockingPolicy>
 struct ChunkQueueData : public LockingPolicy
 {
+    using ThisType_t = ChunkQueueData<ChunkQueueDataProperties, LockingPolicy>;
     using LockGuard_t = std::lock_guard<const ChunkQueueData<ChunkQueueDataProperties, LockingPolicy>>;
     using ChunkQueueDataProperties_t = ChunkQueueDataProperties;
 
@@ -39,6 +40,7 @@ struct ChunkQueueData : public LockingPolicy
     std::atomic_bool m_queueHasOverflown{false};
 
     relative_ptr<iox::popo::ConditionVariableData> m_conditionVariableDataPtr{nullptr};
+    UniqueId<ThisType_t> m_uniqueId;
 };
 
 } // namespace popo

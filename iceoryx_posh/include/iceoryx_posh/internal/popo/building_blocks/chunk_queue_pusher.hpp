@@ -32,6 +32,7 @@ template <typename ChunkQueueDataType>
 class ChunkQueuePusher
 {
   public:
+    using UniqueId_t = UniqueId<ChunkQueueDataType>;
     using MemberType_t = ChunkQueueDataType;
 
     explicit ChunkQueuePusher(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
@@ -47,6 +48,9 @@ class ChunkQueuePusher
     /// @return if the values was pushed successfully into the chunk queue it returns
     ///         success, otherwise a ChunkQueueError
     cxx::expected<ChunkQueueError> push(mepoo::SharedChunk chunk) noexcept;
+
+    /// @brief returns the unique id of the chunk distributor
+    UniqueId_t uniqueId() const noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

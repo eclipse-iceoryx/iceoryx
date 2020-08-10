@@ -33,6 +33,7 @@ template <typename ChunkQueueDataType>
 class ChunkQueuePopper
 {
   public:
+    using UniqueId_t = UniqueId<ChunkQueueDataType>;
     using MemberType_t = ChunkQueueDataType;
 
     explicit ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
@@ -89,6 +90,9 @@ class ChunkQueuePopper
     /// @brief Returns the information whether a condition variable signaler is attached
     /// @return true if condition variable signaler is set, false if not
     bool isConditionVariableAttached() const noexcept;
+
+    /// @brief returns the unique id of the chunk queue popper
+    UniqueId_t uniqueId() const noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;
