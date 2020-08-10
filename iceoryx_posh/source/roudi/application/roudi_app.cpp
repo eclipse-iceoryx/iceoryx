@@ -168,6 +168,7 @@ void RouDiApp::setCmdLineParserResults(const CmdLineParser& cmdLineParser) noexc
     m_logLevel = cmdLineParser.getLogLevel();
     // the "and" is intentional, just in case the the provided RouDiConfig_t is empty
     m_run &= cmdLineParser.getRun();
+    m_compatibilityCheckLevel = cmdLineParser.getCompatibilityCheckLevel();
 }
 
 void RouDiApp::parseCmdLineArguments(int argc,

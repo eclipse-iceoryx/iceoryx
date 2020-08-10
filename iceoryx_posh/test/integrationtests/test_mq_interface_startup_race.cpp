@@ -72,7 +72,7 @@ class CMqInterfaceStartupRace_test : public Test
 
     void checkRegRequest(const MqMessage& msg) const
     {
-        ASSERT_THAT(msg.getNumberOfElements(), Eq(5u));
+        ASSERT_THAT(msg.getNumberOfElements(), Eq(6u));
 
         std::string cmd = msg.getElementAtIndex(0);
         ASSERT_THAT(cmd.c_str(), StrEq(mqMessageTypeToString(MqMessageType::REG)));
