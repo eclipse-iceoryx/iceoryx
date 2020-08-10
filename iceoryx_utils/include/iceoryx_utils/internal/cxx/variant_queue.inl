@@ -157,12 +157,12 @@ inline optional<ValueType> VariantQueue<ValueType, Capacity>::pop() noexcept
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        auto returnType =
+        auto maybeReturnType =
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
                 ->pop();
-        if (returnType)
+        if (maybeReturnType)
         {
-            ret = returnType;
+            ret = maybeReturnType.value();
         }
         break;
     }
