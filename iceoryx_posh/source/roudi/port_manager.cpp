@@ -250,20 +250,23 @@ void PortManager::handleApplications()
     for (auto l_applicationPortData : m_portPool->appliactionPortDataList())
     {
         iox::popo::ApplicationPort l_applicationPort(l_applicationPortData);
-        while (l_applicationPort.getCaProMessage(l_caproMessage))
+
+        for (auto maybeCaproMessage = l_applicationPort.getCaProMessage(); maybeCaproMessage.has_value();
+             maybeCaproMessage = l_applicationPort.getCaProMessage())
         {
-            switch (l_caproMessage.m_type)
+            auto caproMessage = maybeCaproMessage.value();
+            switch (caproMessage.m_type)
             {
             case capro::CaproMessageType::OFFER:
             {
-                auto l_serviceDescription = l_caproMessage.m_serviceDescription;
+                auto l_serviceDescription = caproMessage.m_serviceDescription;
                 addEntryToServiceRegistry(l_serviceDescription.getServiceIDString(),
                                           l_serviceDescription.getInstanceIDString());
                 break;
             }
             case capro::CaproMessageType::STOP_OFFER:
             {
-                auto l_serviceDescription = l_caproMessage.m_serviceDescription;
+                auto l_serviceDescription = caproMessage.m_serviceDescription;
                 removeEntryFromServiceRegistry(l_serviceDescription.getServiceIDString(),
                                                l_serviceDescription.getInstanceIDString());
 
@@ -292,7 +295,8 @@ void PortManager::handleRunnables()
 {
     /// @todo we have to update the introspection but runnable information is in process introspection which is not
     // accessible here. So currently runnables will be removed not before a process is removed
-    // m_processIntrospection->removeRunnable(cxx::CString100(f_process.c_str()), cxx::CString100(f_runnable.c_str()));
+    // m_processIntrospection->removeRunnable(cxx::CString100(f_process.c_str()),
+    // cxx::CString100(f_runnable.c_str()));
 
     for (auto runnableData : m_portPool->runnableDataList())
     {
