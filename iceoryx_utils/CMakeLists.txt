@@ -64,7 +64,7 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
             iceoryx_utils_testing PROPERTIES CXX_CLANG_TIDY "${PERFORM_CLANG_TIDY}"
         )
     endif(PERFORM_CLANG_TIDY)
-    set_target_properties(iceoryx_utils_testing PROPERTIES 
+    set_target_properties(iceoryx_utils_testing PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
         POSITION_INDEPENDENT_CODE ON
@@ -160,7 +160,7 @@ add_library(iceoryx_utils
 )
 
 add_library(iceoryx_utils::iceoryx_utils ALIAS iceoryx_utils)
-set_target_properties(iceoryx_utils PROPERTIES 
+set_target_properties(iceoryx_utils PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -185,13 +185,13 @@ file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
     ${ICEORYX_PLATFORM}/source/*.cpp
 )
 add_library(iceoryx_platform ${ICEORYX_PLATFORM_FILES})
-target_include_directories(iceoryx_platform 
+target_include_directories(iceoryx_platform
     PUBLIC
     $<BUILD_INTERFACE:${ICEORYX_PLATFORM}/include/>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 add_library(iceoryx_utils::iceoryx_platform ALIAS iceoryx_platform)
-set_target_properties(iceoryx_platform PROPERTIES 
+set_target_properties(iceoryx_platform PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON

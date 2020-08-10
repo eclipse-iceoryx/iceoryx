@@ -18,6 +18,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
 
@@ -35,7 +36,7 @@ struct SubscriberPortData : public BasePortData
                        const uint64_t& historyRequest = 0u,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    using ChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig>;
+    using ChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig, ThreadSafePolicy>;
 
     ChunkReceiverData<MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t> m_chunkReceiverData;
     const uint64_t m_historyRequest;

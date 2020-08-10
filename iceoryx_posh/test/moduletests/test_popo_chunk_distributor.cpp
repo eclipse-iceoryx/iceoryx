@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "test.hpp"
@@ -75,7 +76,7 @@ class ChunkDistributor_test : public Test
         static constexpr uint32_t MAX_QUEUE_CAPACITY = MAX_NUMBER_QUEUES;
     };
 
-    using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig>;
+    using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig, PolicyType>;
     using ChunkDistributorData_t =
         ChunkDistributorData<ChunkDistributorConfig, PolicyType, ChunkQueuePusher<ChunkQueueData_t>>;
     using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
@@ -123,7 +124,7 @@ TYPED_TEST(ChunkDistributor_test, AfterAddingQueueChunkDistributorHasQueues)
 
 TYPED_TEST(ChunkDistributor_test, QueueOverflow)
 {
-    std::vector<std::shared_ptr<ChunkQueueData<typename TestFixture::ChunkQueueConfig>>> queueVector;
+    std::vector<std::shared_ptr<typename TestFixture::ChunkQueueData_t>> queueVector;
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
@@ -300,7 +301,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueues)
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto limit = 10;
-    std::vector<std::shared_ptr<ChunkQueueData<typename TestFixture::ChunkQueueConfig>>> queueData;
+    std::vector<std::shared_ptr<typename TestFixture::ChunkQueueData_t>> queueData;
     for (auto i = 0; i < limit; ++i)
     {
         queueData.emplace_back(this->getChunkQueueData());
@@ -326,7 +327,7 @@ TYPED_TEST(ChunkDistributor_test, DeliverToAllStoredQueuesWithMultipleQueuesMult
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
     auto limit = 10u;
-    std::vector<std::shared_ptr<ChunkQueueData<typename TestFixture::ChunkQueueConfig>>> queueData;
+    std::vector<std::shared_ptr<typename TestFixture::ChunkQueueData_t>> queueData;
     for (auto i = 0u; i < limit; ++i)
     {
         queueData.emplace_back(this->getChunkQueueData());

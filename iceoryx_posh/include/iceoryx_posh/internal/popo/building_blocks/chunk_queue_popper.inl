@@ -131,7 +131,8 @@ template <typename ChunkQueueDataType>
 inline bool
 ChunkQueuePopper<ChunkQueueDataType>::attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
-    /// @todo Add lock guard here, use smart_lock
+    typename MemberType_t::LockGuard_t lock(*getMembers());
+
     if (isConditionVariableAttached())
     {
         LogWarn() << "Condition variable signaler already set. Attaching a second time will be ignored!";
@@ -147,7 +148,8 @@ ChunkQueuePopper<ChunkQueueDataType>::attachConditionVariable(ConditionVariableD
 template <typename ChunkQueueDataType>
 inline bool ChunkQueuePopper<ChunkQueueDataType>::detachConditionVariable() noexcept
 {
-    /// @todo Add lock guard here, use smart_lock
+    typename MemberType_t::LockGuard_t lock(*getMembers());
+
     if (isConditionVariableAttached())
     {
         getMembers()->m_conditionVariableDataPtr = nullptr;

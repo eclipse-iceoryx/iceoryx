@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
-
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
@@ -54,154 +54,174 @@ class ChunkQueue_testBase
     static constexpr uint32_t RESIZED_CAPACITY{5u};
 };
 
-class ChunkQueue_test : public TestWithParam<iox::cxx::VariantQueueTypes>, public ChunkQueue_testBase
+template <typename PolicyType, iox::cxx::VariantQueueTypes VariantQueueType>
+struct TypeDefinitions
+{
+    using PolicyType_t = PolicyType;
+    static const iox::cxx::VariantQueueTypes variantQueueType{VariantQueueType};
+};
+
+using ChunkQueueSubjects =
+    Types<TypeDefinitions<ThreadSafePolicy, iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer>,
+          TypeDefinitions<ThreadSafePolicy, iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer>,
+          TypeDefinitions<SingleThreadedPolicy, iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer>,
+          TypeDefinitions<SingleThreadedPolicy, iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer>>;
+
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+TYPED_TEST_CASE(ChunkQueue_test, ChunkQueueSubjects);
+#pragma GCC diagnostic pop
+
+template <typename TestTypes>
+class ChunkQueue_test : public Test, public ChunkQueue_testBase
 {
   public:
     void SetUp() override{};
     void TearDown() override{};
 
-    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
+    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, typename TestTypes::PolicyType_t>;
 
-    ChunkQueueData_t m_chunkData{GetParam()};
+    iox::cxx::VariantQueueTypes m_variantQueueType{TestTypes::variantQueueType};
+    ChunkQueueData_t m_chunkData{m_variantQueueType};
     ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
     ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
-/// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-INSTANTIATE_TEST_CASE_P(ChunkQueueAll,
-                        ChunkQueue_test,
-                        Values(iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
-                               iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer));
-#pragma GCC diagnostic pop
-
-TEST_P(ChunkQueue_test, InitialEmpty)
+TYPED_TEST(ChunkQueue_test, InitialEmpty)
 {
-    EXPECT_THAT(m_popper.empty(), Eq(true));
+    EXPECT_THAT(this->m_popper.empty(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, InitialConditionVariableAttached)
+TYPED_TEST(ChunkQueue_test, InitialConditionVariableAttached)
 {
-    EXPECT_THAT(m_popper.isConditionVariableAttached(), Eq(false));
+    EXPECT_THAT(this->m_popper.isConditionVariableAttached(), Eq(false));
 }
 
-TEST_P(ChunkQueue_test, PushOneChunk)
+TYPED_TEST(ChunkQueue_test, PushOneChunk)
 {
-    auto chunk = allocateChunk();
-    auto ret = m_pusher.push(chunk);
+    auto chunk = this->allocateChunk();
+    auto ret = this->m_pusher.push(chunk);
     EXPECT_FALSE(ret.has_error());
-    EXPECT_THAT(m_popper.empty(), Eq(false));
+    EXPECT_THAT(this->m_popper.empty(), Eq(false));
     /// @note size not implemented on FIFO
-    if (GetParam() != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
+    if (this->m_variantQueueType != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
     {
-        EXPECT_THAT(m_popper.size(), Eq(1u));
+        EXPECT_THAT(this->m_popper.size(), Eq(1u));
     }
 }
 
-TEST_P(ChunkQueue_test, PopOneChunk)
+TYPED_TEST(ChunkQueue_test, PopOneChunk)
 {
-    auto chunk = allocateChunk();
-    m_pusher.push(chunk);
+    auto chunk = this->allocateChunk();
+    this->m_pusher.push(chunk);
 
-    EXPECT_THAT(m_popper.pop().has_value(), Eq(true));
-    EXPECT_THAT(m_popper.empty(), Eq(true));
+    EXPECT_THAT(this->m_popper.pop().has_value(), Eq(true));
+    EXPECT_THAT(this->m_popper.empty(), Eq(true));
     /// @note size not implemented on FIFO
-    if (GetParam() != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
+    if (this->m_variantQueueType != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
     {
-        EXPECT_THAT(m_popper.size(), Eq(0u));
+        EXPECT_THAT(this->m_popper.size(), Eq(0u));
     }
 }
 
-TEST_P(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
+TYPED_TEST(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
 {
     constexpr int32_t NUMBER_CHUNKS{5};
     for (int i = 0; i < NUMBER_CHUNKS; ++i)
     {
-        auto chunk = allocateChunk();
+        auto chunk = this->allocateChunk();
         *reinterpret_cast<int32_t*>(chunk.getPayload()) = i;
-        m_pusher.push(chunk);
+        this->m_pusher.push(chunk);
     }
 
     for (int i = 0; i < NUMBER_CHUNKS; ++i)
     {
-        auto maybeSharedChunk = m_popper.pop();
+        auto maybeSharedChunk = this->m_popper.pop();
         ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
         auto data = *reinterpret_cast<int32_t*>((*maybeSharedChunk).getPayload());
         EXPECT_THAT(data, Eq(i));
     }
 }
 
-TEST_P(ChunkQueue_test, ClearOnEmpty)
+TYPED_TEST(ChunkQueue_test, ClearOnEmpty)
 {
-    m_popper.clear();
-    EXPECT_THAT(m_popper.empty(), Eq(true));
+    this->m_popper.clear();
+    EXPECT_THAT(this->m_popper.empty(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, ClearWithData)
+TYPED_TEST(ChunkQueue_test, ClearWithData)
 {
-    auto chunk = allocateChunk();
-    m_pusher.push(chunk);
-    m_popper.clear();
-    EXPECT_THAT(m_popper.empty(), Eq(true));
+    auto chunk = this->allocateChunk();
+    this->m_pusher.push(chunk);
+    this->m_popper.clear();
+    EXPECT_THAT(this->m_popper.empty(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, AttachConditionVariableSignaler)
+TYPED_TEST(ChunkQueue_test, AttachConditionVariable)
 {
     ConditionVariableData condVar;
 
-    auto ret = m_popper.attachConditionVariable(&condVar);
+    auto ret = this->m_popper.attachConditionVariable(&condVar);
     EXPECT_TRUE(ret);
 
-    EXPECT_THAT(m_popper.isConditionVariableAttached(), Eq(true));
+    EXPECT_THAT(this->m_popper.isConditionVariableAttached(), Eq(true));
 }
 
-TEST_P(ChunkQueue_test, DISABLED_PushAndNotifyConditionVariableSignaler)
+TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
 {
     ConditionVariableData condVar;
     ConditionVariableWaiter condVarWaiter{&condVar};
 
-    auto ret = m_popper.attachConditionVariable(&condVar);
+    auto ret = this->m_popper.attachConditionVariable(&condVar);
     EXPECT_TRUE(ret);
 
-    auto chunk = allocateChunk();
-    m_pusher.push(chunk);
+    auto chunk = this->allocateChunk();
+    this->m_pusher.push(chunk);
 
     EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(true));
     EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(false)); // shouldn't trigger a second time
 }
 
-TEST_P(ChunkQueue_test, DISABLED_AttachSecondConditionVariableSignaler)
+TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
 {
     ConditionVariableData condVar1;
     ConditionVariableData condVar2;
     ConditionVariableWaiter condVarWaiter1{&condVar1};
     ConditionVariableWaiter condVarWaiter2{&condVar1};
 
-    auto ret1 = m_popper.attachConditionVariable(&condVar1);
+    auto ret1 = this->m_popper.attachConditionVariable(&condVar1);
     EXPECT_TRUE(ret1);
 
-    auto ret2 = m_popper.attachConditionVariable(&condVar2);
+    auto ret2 = this->m_popper.attachConditionVariable(&condVar2);
     EXPECT_FALSE(ret2);
 
     EXPECT_THAT(condVarWaiter1.timedWait(1_ns), Eq(false));
     EXPECT_THAT(condVarWaiter2.timedWait(1_ns), Eq(false));
 
-    auto chunk = allocateChunk();
-    m_pusher.push(chunk);
+    auto chunk = this->allocateChunk();
+    this->m_pusher.push(chunk);
 
     EXPECT_THAT(condVarWaiter1.timedWait(1_ms), Eq(true));
     EXPECT_THAT(condVarWaiter2.timedWait(1_ms), Eq(false));
 }
 
 /// @note this could be changed to a parameterized ChunkQueueSaturatingFIFO_test when there are more FIFOs available
+using ChunkQueueFiFoTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+TYPED_TEST_CASE(ChunkQueueFiFo_test, ChunkQueueFiFoTestSubjects);
+#pragma GCC diagnostic pop
+
+template <typename PolicyType>
 class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
 {
   public:
     void SetUp() override{};
     void TearDown() override{};
 
-    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
+    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, PolicyType>;
 
     ChunkQueueData_t m_chunkData{iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer};
     ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
@@ -209,90 +229,97 @@ class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
 };
 
 /// @note API currently not supported
-TEST_F(ChunkQueueFiFo_test, DISABLED_InitialSize)
+TYPED_TEST(ChunkQueueFiFo_test, DISABLED_InitialSize)
 {
-    EXPECT_THAT(m_popper.size(), Eq(0u));
+    EXPECT_THAT(this->m_popper.size(), Eq(0u));
 }
 
 /// @note API currently not supported
-TEST_F(ChunkQueueFiFo_test, DISABLED_Capacity)
+TYPED_TEST(ChunkQueueFiFo_test, DISABLED_Capacity)
 {
-    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
+    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
 }
-
 
 /// @note API currently not supported
-TEST_F(ChunkQueueFiFo_test, DISABLED_SetCapacity)
+TYPED_TEST(ChunkQueueFiFo_test, DISABLED_SetCapacity)
 {
-    m_popper.setCapacity(RESIZED_CAPACITY);
-    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(RESIZED_CAPACITY));
+    this->m_popper.setCapacity(this->RESIZED_CAPACITY);
+    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(this->RESIZED_CAPACITY));
 }
 
-TEST_F(ChunkQueueFiFo_test, PushFull)
+TYPED_TEST(ChunkQueueFiFo_test, PushFull)
 {
     for (auto i = 0u; i < iox::MAX_RECEIVER_QUEUE_CAPACITY; ++i)
     {
-        auto chunk = allocateChunk();
-        m_pusher.push(chunk);
+        auto chunk = this->allocateChunk();
+        this->m_pusher.push(chunk);
     }
-    auto chunk = allocateChunk();
-    auto ret = m_pusher.push(chunk);
+    auto chunk = this->allocateChunk();
+    auto ret = this->m_pusher.push(chunk);
     EXPECT_TRUE(ret.has_error());
     EXPECT_THAT(ret.get_error(), Eq(iox::popo::ChunkQueueError::QUEUE_OVERFLOW));
-    EXPECT_THAT(m_popper.empty(), Eq(false));
+    EXPECT_THAT(this->m_popper.empty(), Eq(false));
 }
 
 /// @note this could be changed to a parameterized ChunkQueueOverflowingFIFO_test when there are more FIFOs available
+using ChunkQueueSoFiSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+TYPED_TEST_CASE(ChunkQueueSoFi_test, ChunkQueueSoFiSubjects);
+#pragma GCC diagnostic pop
+
+template <typename PolicyType>
 class ChunkQueueSoFi_test : public Test, public ChunkQueue_testBase
 {
   public:
     void SetUp() override{};
     void TearDown() override{};
 
-    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig>;
+    using ChunkQueueData_t = ChunkQueueData<iox::DefaultChunkQueueConfig, PolicyType>;
 
     ChunkQueueData_t m_chunkData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     ChunkQueuePopper<ChunkQueueData_t> m_popper{&m_chunkData};
     ChunkQueuePusher<ChunkQueueData_t> m_pusher{&m_chunkData};
 };
 
-TEST_F(ChunkQueueSoFi_test, InitialSize)
+TYPED_TEST(ChunkQueueSoFi_test, InitialSize)
 {
-    EXPECT_THAT(m_popper.size(), Eq(0u));
+    EXPECT_THAT(this->m_popper.size(), Eq(0u));
 }
 
-TEST_F(ChunkQueueSoFi_test, Capacity)
+TYPED_TEST(ChunkQueueSoFi_test, Capacity)
 {
-    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
+    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
 }
 
 
-TEST_F(ChunkQueueSoFi_test, SetCapacity)
+TYPED_TEST(ChunkQueueSoFi_test, SetCapacity)
 {
-    m_popper.setCapacity(RESIZED_CAPACITY);
-    EXPECT_THAT(m_popper.getCurrentCapacity(), Eq(RESIZED_CAPACITY));
+    this->m_popper.setCapacity(this->RESIZED_CAPACITY);
+    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(this->RESIZED_CAPACITY));
 }
 
-TEST_F(ChunkQueueSoFi_test, PushFull)
+TYPED_TEST(ChunkQueueSoFi_test, PushFull)
 {
     for (auto i = 0u; i < iox::MAX_RECEIVER_QUEUE_CAPACITY * 2; ++i)
     {
-        auto chunk = allocateChunk();
-        m_pusher.push(chunk);
+        auto chunk = this->allocateChunk();
+        this->m_pusher.push(chunk);
     }
 
     {
         // pushing is still fine
-        auto chunk = allocateChunk();
-        auto ret = m_pusher.push(chunk);
+        auto chunk = this->allocateChunk();
+        auto ret = this->m_pusher.push(chunk);
         EXPECT_FALSE(ret.has_error());
-        EXPECT_THAT(m_popper.empty(), Eq(false));
+        EXPECT_THAT(this->m_popper.empty(), Eq(false));
     }
     // get al the chunks in the queue
-    while (m_popper.pop().has_value())
+    while (this->m_popper.pop().has_value())
     {
     }
 
     // now all chunks are released
-    EXPECT_THAT(mempool.getUsedChunks(), Eq(0u));
+    EXPECT_THAT(this->mempool.getUsedChunks(), Eq(0u));
 }

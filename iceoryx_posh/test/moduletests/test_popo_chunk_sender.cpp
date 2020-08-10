@@ -21,6 +21,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -80,7 +81,7 @@ class ChunkSender_test : public Test
         static constexpr uint32_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL;
     };
 
-    using ChunkQueueData_t = iox::popo::ChunkQueueData<ChunkQueueConfig>;
+    using ChunkQueueData_t = iox::popo::ChunkQueueData<ChunkQueueConfig, iox::popo::ThreadSafePolicy>;
     using ChunkDistributorData_t = iox::popo::ChunkDistributorData<ChunkDistributorConfig,
                                                                    iox::popo::ThreadSafePolicy,
                                                                    iox::popo::ChunkQueuePusher<ChunkQueueData_t>>;

@@ -30,27 +30,6 @@ namespace iox
 {
 namespace popo
 {
-class ThreadSafePolicy
-{
-  public:
-    // needs to be public since we want to use std::lock_guard
-    void lock() const noexcept;
-    void unlock() const noexcept;
-    bool tryLock() const noexcept;
-
-  private:
-    mutable posix::mutex m_mutex{true}; // recursive lock
-};
-
-class SingleThreadedPolicy
-{
-  public:
-    // needs to be public since we want to use std::lock_guard
-    void lock() const noexcept;
-    void unlock() const noexcept;
-    bool tryLock() const noexcept;
-};
-
 template <typename ChunkDistributorDataProperties, typename LockingPolicy, typename ChunkQueuePusherType>
 struct ChunkDistributorData : public LockingPolicy
 {
