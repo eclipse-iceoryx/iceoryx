@@ -37,10 +37,6 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
-    {
-        m_fifo.template emplace<concurrent::LockFreeQueue<ValueType, Capacity>>();
-        break;
-    }
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
         m_fifo.template emplace<concurrent::LockFreeQueue<ValueType, Capacity>>();
@@ -159,16 +155,6 @@ inline optional<ValueType> VariantQueue<ValueType, Capacity>::pop() noexcept
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
-    {
-        auto returnType =
-            m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-                ->pop();
-        if (returnType)
-        {
-            ret = returnType;
-        }
-        break;
-    }
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
         auto returnType =
@@ -211,12 +197,6 @@ inline bool VariantQueue<ValueType, Capacity>::empty() const noexcept
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
-    {
-        ret =
-            m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-                ->empty();
-        break;
-    }
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
         ret =
@@ -254,12 +234,6 @@ inline uint64_t VariantQueue<ValueType, Capacity>::size() noexcept
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
-    {
-        ret =
-            m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-                ->size();
-        break;
-    }
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
         ret =
@@ -295,14 +269,9 @@ inline void VariantQueue<ValueType, Capacity>::setCapacity(const uint32_t newCap
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
-    {
-        /// @todo must be implemented for FiFo
-        assert(false);
-        break;
-    }
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        /// @todo must be implemented for FiFo
+        /// @todo must be implemented for LockFreeQueue
         assert(false);
         break;
     }
@@ -334,12 +303,6 @@ inline uint64_t VariantQueue<ValueType, Capacity>::capacity() const noexcept
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
-    {
-        ret =
-            m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-                ->capacity();
-        break;
-    }
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
         ret =
