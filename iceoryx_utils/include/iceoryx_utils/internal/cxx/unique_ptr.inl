@@ -10,22 +10,32 @@ namespace cxx
 {
 
 template<typename T>
-unique_ptr<T>::unique_ptr(const  function_ref<void(T* const)> deleter) noexcept : m_deleter(deleter)
+unique_ptr<T>::unique_ptr(std::function<void(T*)>&& deleter) noexcept : m_deleter(std::move(deleter))
 {}
 
 template<typename T>
-unique_ptr<T>::unique_ptr(ptr_t ptr, const function_ref<void(T* const)> deleter) noexcept : m_ptr(ptr), m_deleter(deleter)
+unique_ptr<T>::unique_ptr(ptr_t ptr, std::function<void(T*)>&& deleter) noexcept : m_ptr(ptr), m_deleter(std::move(deleter))
 {}
 
 template<typename T>
-unique_ptr<T>::unique_ptr(void* allocation, const function_ref<void(ptr_t const)> deleter) noexcept
-    : m_ptr(reinterpret_cast<T*>(allocation)), m_deleter(deleter)
+unique_ptr<T>::unique_ptr(void* allocation, std::function<void(T*)>&& deleter) noexcept
+    : m_ptr(reinterpret_cast<T*>(allocation)), m_deleter(std::move(deleter))
 {}
+
+template<typename T>
+unique_ptr<T>::unique_ptr(unique_ptr&& rhs) noexcept
+{
+    m_ptr = rhs.m_ptr;
+    m_deleter = std::move(rhs.m_deleter);
+}
 
 template<typename T>
 unique_ptr<T>::~unique_ptr() noexcept
 {
-    m_deleter(m_ptr);
+    if(m_deleter)
+    {
+        m_deleter(m_ptr);
+    }
 }
 
 /// Dereference the stored pointer.

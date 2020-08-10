@@ -19,4 +19,12 @@ struct CounterTopic
     uint32_t counter;
 };
 
+struct Position {
+    Position(double_t x, double_t y, double_t z) : x(x), y(y), z(z)
+    {};
+    double_t x = 0.0;
+    double_t y = 0.0;
+    double_t z = 0.0;
+};
+
 #endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP

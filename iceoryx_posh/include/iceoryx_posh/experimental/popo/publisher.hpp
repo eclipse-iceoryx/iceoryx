@@ -15,7 +15,7 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
 
-#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -28,15 +28,17 @@ namespace iox
 namespace popo
 {
 
-template <typename T, typename port_t = iox::popo::PublisherPortUser>
+template <typename T, typename port_t = iox::popo::SenderPort>
 class Publisher;
 
 template <typename T>
 class Sample
 {
 public:
-    Sample(T* allocation, const cxx::function_ref<void(T* const)> deleter, Publisher<T>& publisher)
-        : m_samplePtr(allocation, deleter), m_publisher(publisher) {}
+
+    Sample(cxx::unique_ptr<T>&& samplePtr, Publisher<T>& publisher)
+        : m_samplePtr(std::move(samplePtr)), m_publisher(publisher)
+    {};
 
     Sample(std::nullptr_t) noexcept {};
     Sample(const Sample& other) = delete;
@@ -67,26 +69,22 @@ public:
             m_isEmpty = false;
         }
     }
-    void emplace(cxx::function_ref<void(T*)> f) noexcept
-    {
-        f(m_samplePtr.get());
-        m_isEmpty = false;
-    }
-//    template <typename... Args>
-//    void emplace(Args&&... args) noexcept
-//    {
-//        if(m_samplePtr != nullptr)
-//        {
-//            new (m_samplePtr.get()) T(std::forward<Args>(args)...);
-//            m_isEmpty = false;
-//        }
-//    }
     void publish() noexcept
     {
-        m_publisher.publish(std::move(*this));
+        if(m_isValid && !m_isEmpty)
+        {
+            m_publisher.publish(std::move(*this));
+            m_samplePtr = nullptr;
+            m_isValid = false;
+        }
+        else
+        {
+            /// @todo Notify caller that attempted to publish invalid chunk.
+        }
     }
 private:
     bool m_isEmpty = true;
+    bool m_isValid = true;
 
     cxx::unique_ptr<T> m_samplePtr = nullptr;
     Publisher<T>& m_publisher;
@@ -104,11 +102,7 @@ template<typename T, typename port_t>
 class Publisher
 {
 public:
-    //using SamplePtr = cxx::unique_ptr<T>;
     using uid_t = uint64_t;
-
-    // Temporary, to be replaced with service description / id based constructors
-    Publisher() = default;
 
     ///
     /// @brief Publisher Create publisher for specified service [legacy].
@@ -134,34 +128,27 @@ public:
     ///
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
 
-//    ///
-//    /// @brief loan  Loan an empty sample from the shared memory pool and process it with the given callable.
-//    /// @param f Function to execute, taking the allocated chunk as its parameter.
-//    /// @return Success if the loaned sample
-//    ///
-//    cxx::expected<AllocationError> loan(cxx::function_ref<void(Sample<T>&) noexcept> f) noexcept;
-
     ///
     /// @brief release Releases ownership of an unused allocated chunk.
     /// @details The released chunk will be freed as soon as there are no longer any active references
     /// to it in the system.
     /// @param chunk
     ///
-    void release(Sample<T>&& sample) noexcept;
+    cxx::expected<Sample<T>, AllocationError> release(Sample<T>&& sample) noexcept;
 
     ///
     /// @brief send Publishes the loaned sample to all subscribers.
     /// @details The loanded sample is automatically released after publishing.
     /// @param chunk
     ///
-    void publish(Sample<T>&& sample) noexcept;
+    cxx::expected<Sample<T>, AllocationError> publish(Sample<T>&& sample) noexcept;
 
     ///
-    /// @brief publish Publishes the value returned to the given function to all subscribers.
-    /// @details Sample is automatically loaned.
-    /// @param f Function that prodocues a value T at the provided location.
+    /// @brief publish Publishes the argument produced by the given function.
+    /// @details Sample is automatically loaned and released.
+    /// @param f Function that produces a value T at the provided location.
     ///
-    void publish(cxx::function_ref<void(T*)> f) noexcept;
+    cxx::expected<Sample<T>, AllocationError> publishResultOf(cxx::function_ref<void(T*)> f) noexcept;
 
     ///
     /// @brief copyAndPublish Copy the given sample into a loaned sample and publish it to all subscribers.
@@ -170,7 +157,7 @@ public:
     /// rather than to write it elsewhere then copy it in.
     /// @param val The value to publish
     ///
-    void publishCopyOf(const T& val) noexcept;
+    cxx::expected<Sample<T>, AllocationError> publishCopyOf(const T& val) noexcept;
 
     ///
     /// @brief previous Reclaims ownership of a previously published sample if it has not yet been accessed by subscribers.
@@ -188,7 +175,6 @@ protected:
     bool m_useDynamicPayloadSize = true;
 
 private:
-
 
 };
 

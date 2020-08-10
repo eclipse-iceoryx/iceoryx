@@ -16,6 +16,7 @@
 #define IOX_UTILS_CXX_UNIQUE_PTR_HPP
 
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include <functional>
 
 namespace iox
 {
@@ -30,6 +31,7 @@ class unique_ptr{
 public:
 
     using ptr_t = T*;
+    typedef void (*Deleter)(ptr_t const);
 
     unique_ptr() = delete;
 
@@ -42,7 +44,7 @@ public:
     ///
     /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later.
     ///
-    unique_ptr(function_ref<void(ptr_t const)> deleter) noexcept;
+    unique_ptr(std::function<void(T*)>&& deleter) noexcept;
 
     ///
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
@@ -51,7 +53,7 @@ public:
     /// @param ptr The raw pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(ptr_t ptr, const function_ref<void(ptr_t const)> deleter) noexcept;
+    unique_ptr(ptr_t ptr, std::function<void(T*)>&& deleter) noexcept;
 
     ///
     /// @brief unique_ptr Creates an empty unique pointer that points to an allocated memory location.
@@ -59,15 +61,14 @@ public:
     /// @param allocation The allocation of memory where managed object will reside once created.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(void* allocation, const function_ref<void(ptr_t const)> deleter) noexcept;
+    unique_ptr(void* allocation, std::function<void(T*)>&& deleter) noexcept;
 
     // Not copy-able to ensure uniqueness.
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
 
-    // These might need to be specialized.
-    unique_ptr(unique_ptr&& rhs) = default;
-    unique_ptr& operator=(unique_ptr&& rhs) = default;
+    unique_ptr(unique_ptr&& rhs) noexcept;
+    unique_ptr& operator=(unique_ptr&& rhs) noexcept;
 
     ///
     /// Automatically deletes the owned object on destruction.
@@ -121,7 +122,8 @@ public:
 
 private:
     ptr_t m_ptr = nullptr;
-    function_ref<void(ptr_t const)> m_deleter;
+
+    std::function<void(T*)> m_deleter = [](T* const){};
 };
 
 
