@@ -32,12 +32,12 @@ namespace cxx
 /// @code
 ///     struct MyClass {
 ///         // some members;
-///         iox::cxx::TypedUniqueId<MyClass> id;
+///         iox::cxx::TypedUniqueId<MyClass, 0> id;
 ///     };
 ///
 ///     struct MySecondClass {
 ///         // some members;
-///         iox::cxx::TypedUniqueId<MySecondClass> id;
+///         iox::cxx::TypedUniqueId<MySecondClass, 0> id;
 ///     };
 //
 ///     std::vector<MyClass> myClassVector;
@@ -65,6 +65,10 @@ namespace cxx
 ///     // it can be that id == id2 since the id is unique per type
 ///     uint64_t id2 = AddSecondClass();
 /// @endcode
+/// @param[in] T type for which the unique ids should be generated
+/// @param[in] MajorOffset every unique id has internally a major offset of
+///             16 bit which is constant for all types.
+///
 template <typename T, uint16_t MajorOffset>
 class TypedUniqueId : public NewType<uint64_t,
                                      newtype::ProtectedConstructByValueCopy,
