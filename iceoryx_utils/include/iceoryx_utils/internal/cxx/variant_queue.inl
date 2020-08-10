@@ -97,7 +97,7 @@ VariantQueue<ValueType, Capacity>::push(const ValueType& value) noexcept
     {
         auto hasSuccess =
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-                ->push(value);
+                ->tryPush(value);
         if (hasSuccess)
         {
             ret = success<optional<ValueType>>(nullopt_t());
@@ -110,16 +110,16 @@ VariantQueue<ValueType, Capacity>::push(const ValueType& value) noexcept
     }
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        auto hasSuccess =
+        auto overriddenValue =
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
                 ->push(value);
-        if (hasSuccess)
+        if (overriddenValue)
         {
-            ret = success<optional<ValueType>>(nullopt_t());
+            ret = success<optional<ValueType>>(optional<ValueType>(std::move(overriddenValue.value())));
         }
         else
         {
-            ret = error<VariantQueueError>(VariantQueueError::QueueIsFull);
+            ret = success<optional<ValueType>>(nullopt_t());
         }
         break;
     }
