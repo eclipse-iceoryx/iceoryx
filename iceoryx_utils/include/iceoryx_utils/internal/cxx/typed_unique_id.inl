@@ -18,12 +18,31 @@ namespace iox
 {
 namespace cxx
 {
-template <typename T>
-std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{0u};
+template <typename T, uint16_t MajorOffset>
+std::atomic<uint64_t> TypedUniqueId<T, MajorOffset>::globalIDCounter{0u};
 
-template <typename T>
-inline TypedUniqueId<T>::TypedUniqueId() noexcept
-    : ThisType(newtype::internal::ProtectedConstructor, globalIDCounter.fetch_add(1u, std::memory_order_relaxed))
+template <typename T, uint16_t MajorOffset>
+inline TypedUniqueId<T, MajorOffset>::Id::Id(const uint64_t minor) noexcept
+    : m_major(MajorOffset)
+    , m_minor(minor)
+{
+    uint64_t minorMaximum = static_cast<uint64_t>(1u) << 48;
+    if (minor > minorMaximum)
+    {
+        std::cerr << "typed unique id overflow " << minor << " > " << minorMaximum << std::endl;
+    }
+}
+
+template <typename T, uint16_t MajorOffset>
+inline TypedUniqueId<T, MajorOffset>::Id::operator uint64_t() const noexcept
+{
+    return *reinterpret_cast<const uint64_t*>(this);
+}
+
+template <typename T, uint16_t MajorOffset>
+inline TypedUniqueId<T, MajorOffset>::TypedUniqueId() noexcept
+    : ThisType(newtype::internal::ProtectedConstructor,
+               static_cast<uint64_t>(Id(globalIDCounter.fetch_add(1u, std::memory_order_relaxed))))
 {
 }
 } // namespace cxx

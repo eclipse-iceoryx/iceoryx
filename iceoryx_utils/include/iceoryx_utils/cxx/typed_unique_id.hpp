@@ -18,7 +18,7 @@
 
 #include <atomic>
 #include <cstdint>
-#include <limits>
+#include <iostream>
 
 namespace iox
 {
@@ -65,7 +65,7 @@ namespace cxx
 ///     // it can be that id == id2 since the id is unique per type
 ///     uint64_t id2 = AddSecondClass();
 /// @endcode
-template <typename T>
+template <typename T, uint16_t MajorOffset>
 class TypedUniqueId : public NewType<uint64_t,
                                      newtype::ProtectedConstructByValueCopy,
                                      newtype::Comparable,
@@ -83,7 +83,15 @@ class TypedUniqueId : public NewType<uint64_t,
     ///         previous created id
     TypedUniqueId() noexcept;
 
+
   private:
+    struct Id
+    {
+        Id(const uint64_t minor) noexcept;
+        explicit operator uint64_t() const noexcept;
+        uint64_t m_minor : 48;
+        uint16_t m_major : 16;
+    };
     static std::atomic<uint64_t> globalIDCounter; // = 0u
 };
 
