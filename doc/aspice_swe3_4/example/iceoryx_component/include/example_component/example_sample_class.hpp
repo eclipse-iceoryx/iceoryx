@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MY_SAMPLE_CLASS_HPP_INCLUDED
-#define MY_SAMPLE_CLASS_HPP_INCLUDED
+#ifndef IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_SAMPLE_CLASS_HPP
+#define IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_SAMPLE_CLASS_HPP
 
 #include "source/example_base_class.hpp"
 
@@ -53,7 +53,7 @@ class MySampleClass : public ExampleBaseClass<T>
     /// @param[in] c 	Description of input parameter c
     /// @param[out] d 	Description of output parameter d
     /// @return      	Description of return value
-    int complexMethod(uint32_t c, int* d) noexcept;
+    int complexMethod(const uint32_t c, const uint32_t* d) noexcept;
 
     /// @brief A good example method which sets some kind of speed
     /// @code
@@ -74,4 +74,4 @@ class MySampleClass : public ExampleBaseClass<T>
 
 } // namespace example
 
-#endif // MY_SAMPLE_CLASS_HPP_INCLUDED
+#endif // IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_SAMPLE_CLASS_HPP

@@ -42,11 +42,19 @@ ALIASES += "requirement=\xrefitem requirement \"Requirement\" \"Requirements\" "
     //=================================
     // bla bla bla
     //---------------------------------
-    void BadCommentedFunction();
+    void badCommentedFunction();
 
     /// good comment: bla bla bla
-    void GoodCommentedFunction();
+    void goodCommentedFunction();
  ```
-
  * Try to give a usage example via @code / @endcode of more complex to use functions
 
+
+### Include guards
+Every header and inl file needs to have an include guard. Pragma once is not allowed.
+The include guard is placed directly under the file header and needs to have the following scheme:
+
+   * IOX_[COMPONENT_W/O_ICEORYX][SUB_COMPONENT][FILE_NAME]
+   * IOX_[COMPONENT_W/O_ICEORYX][SUB_COMPONENT][SUB_COMPONENT]_[FILE_NAME]
+
+See the header files under iceoryx/doc/aspice_swe3_4/example.

@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef EXAMPLE_BASE_CLASS_HPP_INCLUDED
-#define EXAMPLE_BASE_CLASS_HPP_INCLUDED
+#ifndef IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_BASE_CLASS_HPP
+#define IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_BASE_CLASS_HPP
 
 namespace example
 {
@@ -53,4 +53,4 @@ class ExampleBaseClass
 } // namespace example
 
 
-#endif // EXAMPLE_BASE_CLASS_HPP_INCLUDED
+#endif // IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_BASE_CLASS_HPP
