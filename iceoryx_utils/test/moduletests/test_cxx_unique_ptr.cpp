@@ -88,3 +88,28 @@ TEST_F(UniquePtrTest, DeleterIsCalledWhenPtrGoesOutOfScope)
 
     ASSERT_EQ(true, deleterCalled);
 }
+
+TEST_F(UniquePtrTest, DeleterIsProperlySet)
+{
+
+}
+
+TEST_F(UniquePtrTest, DeleterNotCalledOnReleasedPointers)
+{
+
+}
+
+TEST_F(UniquePtrTest, DeleterNotCalledOnNullptrs)
+{
+
+}
+
+TEST_F(UniquePtrTest, CanResetToNullptr)
+{
+
+}
+
+TEST_F(UniquePtrTest, CanResetToAnExistingRawPtr)
+{
+
+}

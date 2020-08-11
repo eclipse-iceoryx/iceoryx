@@ -39,6 +39,11 @@ public:
 
 };
 
+TEST_F(ExperimentalPublisherTest, OffersWhenPublishingOnUnofferedPublisher)
+{
+
+}
+
 //TEST_F(ExperimentalPublisherTest, BasicUidRetrieval)
 //{
 //    struct Position {

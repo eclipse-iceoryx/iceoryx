@@ -68,24 +68,26 @@ Publisher<T, port_t>::loan() noexcept
 }
 
 template<typename T, typename port_t>
-inline cxx::expected<Sample<T>, AllocationError>
-Publisher<T, port_t>::release(Sample<T>&& sample) noexcept
+inline cxx::expected<AllocationError>
+Publisher<T, port_t>::release(Sample<T>& sample) noexcept
 {
     auto header = iox::mepoo::convertPayloadPointerToChunkHeader(sample.allocation());
     m_port.freeChunk(header);
+    return iox::cxx::success<>();
 }
 
 template<typename T, typename port_t>
-inline cxx::expected<Sample<T>, AllocationError>
-Publisher<T, port_t>::publish(Sample<T>&& sample) noexcept
+inline cxx::expected<AllocationError>
+Publisher<T, port_t>::publish(Sample<T>& sample) noexcept
 {
     /// @todo - ensure sample points to valid shared memory location
     auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.allocation()));
     m_port.deliverChunk(header);
+    return iox::cxx::success<>();
 }
 
 template<typename T, typename port_t>
-inline cxx::expected<Sample<T>, AllocationError>
+inline cxx::expected<AllocationError>
 Publisher<T, port_t>::publishResultOf(cxx::function_ref<void(T*)> f) noexcept
 {
     loan()
@@ -96,10 +98,11 @@ Publisher<T, port_t>::publishResultOf(cxx::function_ref<void(T*)> f) noexcept
 }
 
 template<typename T, typename port_t>
-inline cxx::expected<Sample<T>, AllocationError>
+inline cxx::expected<AllocationError>
 Publisher<T, port_t>::publishCopyOf(const T& val) noexcept
 {
     std::cout << "publishCopyOf()" << std::endl;
+    return iox::cxx::success<>();
 }
 
 template<typename T, typename port_t>
@@ -112,28 +115,28 @@ Publisher<T, port_t>::previous() const noexcept
 
 template<typename T, typename port_t>
 inline void
-Publisher<T, port_t>::offer() const noexcept
+Publisher<T, port_t>::offer() noexcept
 {
-    m_port.offer();
+    m_port.activate();
 }
 
 template<typename T, typename port_t>
 inline void
-Publisher<T, port_t>::stopOffer() const noexcept
+Publisher<T, port_t>::stopOffer() noexcept
 {
-    m_port.stopOffer();
+    m_port.deactivate();
 }
 
 template<typename T, typename port_t>
 inline bool
-Publisher<T, port_t>::isOffered() const noexcept
+Publisher<T, port_t>::isOffered() noexcept
 {
-    return m_port.isOffered();
+    //return m_port.isOffered();
 }
 
 template<typename T, typename port_t>
 inline bool
-Publisher<T, port_t>::hasSubscribers() const noexcept
+Publisher<T, port_t>::hasSubscribers() noexcept
 {
     return m_port.hasSubscribers();
 }

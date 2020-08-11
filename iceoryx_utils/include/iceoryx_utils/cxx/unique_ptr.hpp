@@ -35,11 +35,21 @@ public:
 
     unique_ptr() = delete;
 
+//    ///
+//    /// @brief An empty pointer that does nothing.
+//    ///
+//    unique_ptr(std::nullptr_t) noexcept
+//    {};
+
     ///
-    /// @brief An empty pointer that does nothing.
+    /// @brief operator = Reset to empty pointer when setting to nullptr.
+    /// @return An empty unique pointer.
     ///
-    unique_ptr(std::nullptr_t) noexcept
-    {};
+    unique_ptr& operator=(std::nullptr_t) noexcept
+    {
+      reset();
+      return *this;
+    }
 
     ///
     /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later.
@@ -85,16 +95,6 @@ public:
     { return get() == ptr_t() ? false : true; }
 
     ///
-    /// @brief operator = Reset to empty pointer when setting to nullptr.
-    /// @return An empty unique pointer.
-    ///
-    unique_ptr& operator=(std::nullptr_t) noexcept
-    {
-      reset();
-      return *this;
-    }
-
-    ///
     /// @brief get Retrieve the underlying raw pointer.
     /// @details The unique_ptr retains ownership, therefore the "borrowed" pointer must not be deleted.
     /// @return Pointer to managed object or nullptr if none owned.
@@ -109,10 +109,11 @@ public:
 
     ///
     /// @brief reset Reset the unique_ptr instance's owned object to the one given.
-    /// @details Any previously owned objects will be deleted. If no pointer given, resets ot an empty pointer.
+    /// @details Any previously owned objects will be deleted. If no pointer given then points to nullptr.
+    /// Deleter provided on instantiation will remain.
     /// @param ptr Pointer to object to take ownership on.
     ///
-    void reset(ptr_t ptr = ptr_t()) noexcept;
+    void reset(ptr_t ptr = nullptr) noexcept;
 
     ///
     /// @brief swap Swaps object ownership with another unique_ptr.
@@ -122,7 +123,6 @@ public:
 
 private:
     ptr_t m_ptr = nullptr;
-
     std::function<void(T*)> m_deleter = [](T* const){};
 };
 

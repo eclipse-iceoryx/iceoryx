@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
 {
     iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-modern");
     auto publisher = iox::popo::Publisher<Position>({"Odometry", "Position", "Vehicle"});
+    publisher.offer();
 
     float_t ct = 0.0;
     while(!killswitch)

@@ -46,6 +46,11 @@ public:
     Sample(Sample&& rhs) = default;
     Sample& operator=(Sample&& rhs) = default;
 
+    ~Sample()
+    {
+        m_samplePtr = nullptr;
+    }
+
     T* operator->() noexcept
     {
         return m_samplePtr.get();
@@ -73,9 +78,9 @@ public:
     {
         if(m_isValid && !m_isEmpty)
         {
-            m_publisher.publish(std::move(*this));
-            m_samplePtr = nullptr;
-            m_isValid = false;
+            m_publisher.publish(*this); // Only delivers chunk, doesn't modify pointer.
+            m_samplePtr.release(); // Release pointer, no deletion required.
+            m_isValid = false; // Mark as invalid to prevent re-use.
         }
         else
         {
@@ -134,21 +139,21 @@ public:
     /// to it in the system.
     /// @param chunk
     ///
-    cxx::expected<Sample<T>, AllocationError> release(Sample<T>&& sample) noexcept;
+    cxx::expected<AllocationError> release(Sample<T>& sample) noexcept;
 
     ///
     /// @brief send Publishes the loaned sample to all subscribers.
-    /// @details The loanded sample is automatically released after publishing.
+    /// @details Only publishes, doesn't release chunk.
     /// @param chunk
     ///
-    cxx::expected<Sample<T>, AllocationError> publish(Sample<T>&& sample) noexcept;
+    cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
 
     ///
     /// @brief publish Publishes the argument produced by the given function.
     /// @details Sample is automatically loaned and released.
     /// @param f Function that produces a value T at the provided location.
     ///
-    cxx::expected<Sample<T>, AllocationError> publishResultOf(cxx::function_ref<void(T*)> f) noexcept;
+    cxx::expected<AllocationError> publishResultOf(cxx::function_ref<void(T*)> f) noexcept;
 
     ///
     /// @brief copyAndPublish Copy the given sample into a loaned sample and publish it to all subscribers.
@@ -157,7 +162,7 @@ public:
     /// rather than to write it elsewhere then copy it in.
     /// @param val The value to publish
     ///
-    cxx::expected<Sample<T>, AllocationError> publishCopyOf(const T& val) noexcept;
+    cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept;
 
     ///
     /// @brief previous Reclaims ownership of a previously published sample if it has not yet been accessed by subscribers.
@@ -165,10 +170,11 @@ public:
     ///
     cxx::expected<ChunkRecallError> previous() const noexcept;
 
-    void offer() const noexcept;
-    void stopOffer() const noexcept;
-    bool isOffered() const noexcept;
-    bool hasSubscribers() const noexcept;
+    /// @todo Make these const by changing the equivalent port methods.
+    void offer() noexcept;
+    void stopOffer() noexcept;
+    bool isOffered() noexcept;
+    bool hasSubscribers() noexcept;
 
 protected:
     port_t m_port{nullptr};
