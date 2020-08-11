@@ -26,16 +26,7 @@ ApplicationPort::ApplicationPort(ApplicationPortData* const applicationPortDataP
 
 cxx::optional<capro::CaproMessage> ApplicationPort::getCaProMessage() noexcept
 {
-    auto maybeMessage = getMembers()->m_caproMessageFiFo.pop();
-
-    if (maybeMessage.has_value())
-    {
-        return cxx::make_optional<capro::CaproMessage>(maybeMessage.value());
-    }
-    else
-    {
-        return cxx::nullopt_t();
-    }
+   return getMembers()->m_caproMessageFiFo.pop();
 }
 
 void ApplicationPort::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept

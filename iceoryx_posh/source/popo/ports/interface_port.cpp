@@ -26,16 +26,7 @@ InterfacePort::InterfacePort(InterfacePortData* const interfacePortDataPtr) noex
 
 cxx::optional<capro::CaproMessage> InterfacePort::getCaProMessage() noexcept
 {
-    auto maybeMessage = getMembers()->m_caproMessageFiFo.pop();
-
-    if (maybeMessage.has_value())
-    {
-        return cxx::make_optional<capro::CaproMessage>(maybeMessage.value());
-    }
-    else
-    {
-        return cxx::nullopt_t();
-    }
+    return getMembers()->m_caproMessageFiFo.pop();
 }
 
 void InterfacePort::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept

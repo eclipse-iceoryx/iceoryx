@@ -26,7 +26,7 @@ namespace iox
 {
 namespace roudi
 {
-capro::Interfaces StringToEInterfaces(std::string str)
+capro::Interfaces StringToCaProInterface(const std::string& str)
 {
     int32_t i;
     cxx::convert::fromString(str.c_str(), i);

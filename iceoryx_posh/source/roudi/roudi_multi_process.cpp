@@ -228,7 +228,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            capro::Interfaces interface = StringToEInterfaces(message.getElementAtIndex(2));
+            capro::Interfaces interface = StringToCaProInterface(message.getElementAtIndex(2));
 
             m_prcMgr.addInterfaceForProcess(processName, interface, message.getElementAtIndex(3));
         }
