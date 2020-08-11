@@ -428,6 +428,12 @@ inline string<internal::SumCapa<T1, T2, Targs...>::value> concatenate(const T1& 
 {
     return concatenate(concatenate(t1, t2), targs...);
 }
+
+template <typename T1, typename T2>
+inline string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> operator+(const T1& t1, const T2& t2)
+{
+    return concatenate(t1, t2);
+}
 } // namespace cxx
 } // namespace iox
 

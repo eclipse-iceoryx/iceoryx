@@ -1337,66 +1337,64 @@ TYPED_TEST(stringTyped_test, ConcatenateOnlyStringLiteralsWorks)
     EXPECT_THAT(testString.c_str(), StrEq("FerdinandSpitzschnueffler"));
 }
 
-/// operator+
-// TYPED_TEST(stringTyped_test, ConcatenateTwoEmptyStringsReturnsEmptyString)
-// {
-//     using myString = typename TestFixture::stringType;
-//     constexpr auto STRINGCAP = myString().capacity();
-//     string<2 * STRINGCAP> testString = this->testSubject + this->testSubject;
-//     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
-//     EXPECT_THAT(this->testSubject.size(), Eq(0));
-//     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
-// }
-//
-// TYPED_TEST(stringTyped_test, ConcatenateTwoStringsWithOperatorPlusWorks)
-// {
-//     using myString = typename TestFixture::stringType;
-//     constexpr auto STRINGCAP = myString().capacity();
-//     std::string testStdString(STRINGCAP, 'M');
-//     EXPECT_THAT(this->testSubject.unsafe_assign(testStdString), Eq(true));
-//     string<STRINGCAP + 2> testString1;
-//     string<2 * STRINGCAP + 2> testString2;
-//     testString2 = testString1 + this->testSubject;
-//
-//     EXPECT_THAT(testString2.capacity(), Eq(2 * STRINGCAP + 2));
-//     EXPECT_THAT(testString2.size(), Eq(STRINGCAP));
-//     EXPECT_THAT(testString2.c_str(), StrEq(testStdString));
-// }
-//
-// TYPED_TEST(stringTyped_test, ConcatenateNotEmptyStringsWorks)
-// {
-//     using myString = typename TestFixture::stringType;
-//     constexpr auto STRINGCAP = myString().capacity();
-//     std::string testStdString0(STRINGCAP, 'M');
-//     EXPECT_THAT(this->testSubject.unsafe_assign(testStdString0), Eq(true));
-//     std::string testStdString1(STRINGCAP + 3, 'L');
-//     string<STRINGCAP + 3> testString1(TruncateToCapacity, testStdString1);
-//     string<6 * STRINGCAP> testString2 = this->testSubject + testString1 + this->testSubject;
-//
-//     EXPECT_THAT(testString2.capacity(), Eq(6 * STRINGCAP));
-//     EXPECT_THAT(testString2.size(), Eq(2 * this->testSubject.size() + testString1.size()));
-//     EXPECT_THAT(testString2.c_str(), StrEq(testStdString0 + testStdString1 + testStdString0));
-// }
-//
-// TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWithOperatorPlusWorks)
-// {
-//     using myString = typename TestFixture::stringType;
-//     constexpr auto STRINGCAP = myString().capacity();
-//     string<2 * STRINGCAP> testString = this->testSubject + "M";
-//     EXPECT_THAT(testString.capacity(), Eq(2 * STRINGCAP));
-//     EXPECT_THAT(testString.size(), Eq(1));
-//     EXPECT_THAT(testString.c_str(), StrEq("M"));
-// }
-//
-// TYPED_TEST(stringTyped_test, ConcatenateStringLiteralAndStringWithOperatorPlusWorks)
-// {
-//     using myString = typename TestFixture::stringType;
-//     constexpr auto STRINGCAP = myString().capacity();
-//     this->testSubject = "e";
-//     string<STRINGCAP + 7> testString = "AdmTass" + this->testSubject;
-//     EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 7));
-//     EXPECT_THAT(testString.size(), Eq(8));
-//     EXPECT_THAT(testString.c_str(), StrEq("AdmTasse"));
-// }
-} // namespace
+/// @note template <typename T1, typename T2>
+/// string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> operator+(const T1& t1, const T2& t2);
+TYPED_TEST(stringTyped_test, ConcatenateEmptyStringsReturnsEmptyString)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<2 * STRINGCAP> testString = this->testSubject + this->testSubject;
+    EXPECT_THAT(testString.capacity(), Eq(2 * STRINGCAP));
+    EXPECT_THAT(testString.size(), Eq(0));
+    EXPECT_THAT(testString.c_str(), StrEq(""));
+}
 
+TYPED_TEST(stringTyped_test, ConcatenateStringsWithOperatorPlusWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testStdString(STRINGCAP, 'M');
+    EXPECT_THAT(this->testSubject.unsafe_assign(testStdString), Eq(true));
+    string<STRINGCAP + 2> testString1;
+    string<2 * STRINGCAP + 2> testString2;
+    testString2 = testString1 + this->testSubject;
+    EXPECT_THAT(testString2.capacity(), Eq(2 * STRINGCAP + 2));
+    EXPECT_THAT(testString2.size(), Eq(STRINGCAP));
+    EXPECT_THAT(testString2.c_str(), StrEq(testStdString));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateNotEmptyStringsWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testStdString0(STRINGCAP, 'M');
+    EXPECT_THAT(this->testSubject.unsafe_assign(testStdString0), Eq(true));
+    std::string testStdString1(STRINGCAP + 3, 'L');
+    string<STRINGCAP + 3> testString1(TruncateToCapacity, testStdString1);
+    string<6 * STRINGCAP> testString2 = this->testSubject + testString1 + this->testSubject;
+    EXPECT_THAT(testString2.capacity(), Eq(6 * STRINGCAP));
+    EXPECT_THAT(testString2.size(), Eq(2 * this->testSubject.size() + testString1.size()));
+    EXPECT_THAT(testString2.c_str(), StrEq(testStdString0 + testStdString1 + testStdString0));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWithOperatorPlusWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<2 * STRINGCAP> testString = this->testSubject + "M";
+    EXPECT_THAT(testString.capacity(), Eq(2 * STRINGCAP));
+    EXPECT_THAT(testString.size(), Eq(1));
+    EXPECT_THAT(testString.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, ConcatenateStringLiteralAndStringWithOperatorPlusWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    this->testSubject = "e";
+    string<STRINGCAP + 7> testString = "AdmTass" + this->testSubject;
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 7));
+    EXPECT_THAT(testString.size(), Eq(8));
+    EXPECT_THAT(testString.c_str(), StrEq("AdmTasse"));
+}
+} // namespace
