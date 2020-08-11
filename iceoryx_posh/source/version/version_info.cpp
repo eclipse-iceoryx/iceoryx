@@ -20,10 +20,10 @@ namespace iox
 {
 namespace version
 {
-VersionInfo::VersionInfo(uint16_t versionMajor,
-                         uint16_t versionMinor,
-                         uint16_t versionPatch,
-                         uint16_t versionTweak,
+VersionInfo::VersionInfo(const uint16_t versionMajor,
+                         const uint16_t versionMinor,
+                         const uint16_t versionPatch,
+                         const uint16_t versionTweak,
                          const BuildDateStringType& buildDateString,
                          const CommitIdStringType& commitIdString) noexcept
     : m_versionMajor(versionMajor)
@@ -39,7 +39,7 @@ VersionInfo::VersionInfo(const cxx::Serialization& serial) noexcept
 {
     cxx::string<100> tmp_m_buildDateString;
     cxx::string<100> tmp_commitIdString;
-    serial.extract(
+    m_valid = serial.extract(
         m_versionMajor, m_versionMinor, m_versionPatch, m_versionTweak, tmp_m_buildDateString, tmp_commitIdString);
     m_buildDateString = BuildDateStringType(cxx::TruncateToCapacity, tmp_m_buildDateString.c_str());
     m_commitIdString = CommitIdStringType(cxx::TruncateToCapacity, tmp_commitIdString.c_str());
@@ -56,7 +56,7 @@ VersionInfo::operator cxx::Serialization() const noexcept
 
 bool VersionInfo::operator==(const VersionInfo& rhs) const noexcept
 {
-    return (m_versionMajor == rhs.m_versionMajor) && (m_versionMinor == rhs.m_versionMinor)
+    return (m_valid == rhs.m_valid) && (m_versionMajor == rhs.m_versionMajor) && (m_versionMinor == rhs.m_versionMinor)
            && (m_versionPatch == rhs.m_versionPatch) && (m_versionTweak == rhs.m_versionTweak)
            && (m_buildDateString == rhs.m_buildDateString) && (m_commitIdString == rhs.m_commitIdString);
 }
@@ -66,8 +66,8 @@ bool VersionInfo::operator!=(const VersionInfo& rhs) const noexcept
     return !(*this == rhs);
 }
 
-bool VersionInfo::checkCompatibility(const VersionInfo& other, CompatibilityCheckLevel compatibilityCheckLevel) const
-    noexcept
+bool VersionInfo::checkCompatibility(const VersionInfo& other,
+                                     const CompatibilityCheckLevel compatibilityCheckLevel) const noexcept
 {
     bool isCompatible = false;
     switch (compatibilityCheckLevel)
@@ -76,36 +76,39 @@ bool VersionInfo::checkCompatibility(const VersionInfo& other, CompatibilityChec
         isCompatible = true;
         break;
     case CompatibilityCheckLevel::MAJOR:
-        isCompatible = (m_versionMajor == other.m_versionMajor);
+        isCompatible = (m_valid == other.m_valid) && (m_versionMajor == other.m_versionMajor);
         break;
     case CompatibilityCheckLevel::MINOR:
-        isCompatible = (m_versionMajor == other.m_versionMajor) && (m_versionMinor == other.m_versionMinor);
+        isCompatible = (m_valid == other.m_valid) && (m_versionMajor == other.m_versionMajor)
+                       && (m_versionMinor == other.m_versionMinor);
         break;
     case CompatibilityCheckLevel::PATCH:
-        isCompatible = (m_versionMajor == other.m_versionMajor) && (m_versionMinor == other.m_versionMinor)
-                       && (m_versionPatch == other.m_versionPatch);
+        isCompatible = (m_valid == other.m_valid) && (m_versionMajor == other.m_versionMajor)
+                       && (m_versionMinor == other.m_versionMinor) && (m_versionPatch == other.m_versionPatch);
         break;
     case CompatibilityCheckLevel::COMMIT_ID:
-        isCompatible = (m_versionMajor == other.m_versionMajor) && (m_versionMinor == other.m_versionMinor)
-                       && (m_versionPatch == other.m_versionPatch) && (m_versionTweak == other.m_versionTweak)
-                       && (m_commitIdString == other.m_commitIdString);
+        isCompatible = (m_valid == other.m_valid) && (m_versionMajor == other.m_versionMajor)
+                       && (m_versionMinor == other.m_versionMinor) && (m_versionPatch == other.m_versionPatch)
+                       && (m_versionTweak == other.m_versionTweak) && (m_commitIdString == other.m_commitIdString);
         break;
     case CompatibilityCheckLevel::BUILD_DATE:
-        isCompatible = (m_versionMajor == other.m_versionMajor) && (m_versionMinor == other.m_versionMinor)
-                       && (m_versionPatch == other.m_versionPatch) && (m_versionTweak == other.m_versionTweak)
-                       && (m_commitIdString == other.m_commitIdString)
-                       && (m_buildDateString == other.m_buildDateString);
+        isCompatible = (*this == other);
         break;
     }
     return isCompatible;
 }
 
-VersionInfo VersionInfo::getCurrentVersion()
+bool VersionInfo::isValid() noexcept
 {
-    static const char* iceoryxCommitId = ICEORYX_SHA1;
+    return m_valid;
+}
+
+VersionInfo VersionInfo::getCurrentVersion() noexcept
+{
+    static constexpr char ICEORYX_COMMIT_ID[] = ICEORYX_SHA1;
 
     BuildDateStringType buildDateStringCxx(cxx::TruncateToCapacity, ICEORYX_BUILDDATE);
-    CommitIdStringType shortCommitIdString(cxx::TruncateToCapacity, iceoryxCommitId, COMMIT_ID_STRING_SIZE);
+    CommitIdStringType shortCommitIdString(cxx::TruncateToCapacity, ICEORYX_COMMIT_ID, COMMIT_ID_STRING_SIZE);
 
     return VersionInfo(static_cast<uint16_t>(ICEORYX_VERSION_MAJOR),
                        static_cast<uint16_t>(ICEORYX_VERSION_MINOR),
