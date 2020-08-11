@@ -17,13 +17,13 @@
 namespace example
 {
 template <typename T>
-inline ExampleBaseClass<T>::ExampleBaseClass(const int a, const int b)
+inline ExampleBaseClass<T>::ExampleBaseClass(const uint32_t a, const uint32_t b)
 {
     // example code
 }
 
 template <typename T>
-inline ExampleBaseClass<T>::simplerMethod()
+inline void ExampleBaseClass<T>::simplerMethod() const noexcept
 {
     // example code
 }

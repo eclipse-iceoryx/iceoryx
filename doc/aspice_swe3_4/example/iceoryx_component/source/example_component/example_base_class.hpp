@@ -21,7 +21,7 @@ namespace example
 ///   minimalistic working example which uses all public methods
 /// @endcode
 /// @swcomponent example_component
-void someOtherFreeFunction();
+void someOtherFreeFunction() noexcept;
 
 /// @brief Base class which is not part of the public API
 /// @details Detailed description
@@ -44,10 +44,10 @@ class ExampleBaseClass
     ExampleBaseClass(const uint32_t a, const uint32_t b);
 
     /// @brief Short description
-    void simplerMethod() const;
+    void simplerMethod() const noexcept;
 
     /// @brief Short description
-    std::uint32_t m_memberVariable{0};
+    uint32_t m_memberVariable{0};
 };
 
 } // namespace example

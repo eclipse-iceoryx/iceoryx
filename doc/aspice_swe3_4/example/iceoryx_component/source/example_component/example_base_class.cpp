@@ -16,7 +16,7 @@
 
 namespace example
 {
-void someOtherFreeFunction()
+void someOtherFreeFunction() noexcept
 {
     // example code
 }

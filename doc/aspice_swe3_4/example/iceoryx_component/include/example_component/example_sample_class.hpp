@@ -44,23 +44,23 @@ class MySampleClass : public ExampleBaseClass<T>
     /// @details Detailed description
     /// @param[in] a Description of input parameter a
     /// @param[in] b Description of input parameter b
-    MySampleClass(const int a, const int b);
+    MySampleClass(const int a, const int b) noexcept;
 
     /// @brief Short description
-    void simpleMethod() const;
+    void simpleMethod() const noexcept;
 
     /// @brief Short description
     /// @param[in] c 	Description of input parameter c
     /// @param[out] d 	Description of output parameter d
     /// @return      	Description of return value
-    int complexMethod(uint32_t c, int* d);
+    int complexMethod(uint32_t c, int* d) noexcept;
 
     /// @brief A good example method which sets some kind of speed
     /// @code
     ///     myClass.goodExampleMethod(200_kmh); // sets it to 200 km/h
     ///     myClass.goodExampleMethod(40_ms);   // sets it to 40 m/s
     /// @endcode
-    void goodExampleMethod(const speed_t speed);
+    void goodExampleMethod(const speed_t speed) noexcept;
 
     /// @brief Short description
     /// @pre 	Must be called before another method is called
@@ -69,7 +69,7 @@ class MySampleClass : public ExampleBaseClass<T>
     ///                     and not specified with a custom tag.
     ///                     0 <= fuu <= 1000
     /// @deprecated remove when feature iox is done
-    void preInitStuff(const uint32_t fuu);
+    void preInitStuff(const uint32_t fuu) noexcept;
 };
 
 } // namespace example
