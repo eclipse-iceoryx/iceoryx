@@ -70,7 +70,7 @@ public:
     {
         if(m_samplePtr != nullptr)
         {
-            new (m_samplePtr.get()) T(std::forward<Arg>(arg), std::forward<Args>(args)...);
+            new (allocation()) T(std::forward<Arg>(arg), std::forward<Args>(args)...);
             m_isEmpty = false;
         }
     }
@@ -78,8 +78,8 @@ public:
     {
         if(m_isValid && !m_isEmpty)
         {
-            m_publisher.publish(*this); // Only delivers chunk, doesn't modify pointer.
-            m_samplePtr.release(); // Release pointer, no deletion required.
+            m_publisher.publish(*this);
+            m_samplePtr.release(); // Release ownership of the sample since it has been published.
             m_isValid = false; // Mark as invalid to prevent re-use.
         }
         else
@@ -95,7 +95,7 @@ private:
     Publisher<T>& m_publisher;
 };
 
-enum class ChunkRecallError : uint8_t
+enum class SampleRecallError : uint8_t
 {
     NO_PREVIOUS_CHUNK,
     CHUNK_ALREADY_CLAIMED
@@ -165,10 +165,10 @@ public:
     cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept;
 
     ///
-    /// @brief previous Reclaims ownership of a previously published sample if it has not yet been accessed by subscribers.
+    /// @brief previousSample Reclaims ownership of a previously published sample if it has not yet been accessed by subscribers.
     /// @return The previously published sample if one exists and is unclaimed, otherwise an error.
     ///
-    cxx::expected<ChunkRecallError> previous() const noexcept;
+    cxx::expected<SampleRecallError> previousSample() const noexcept;
 
     /// @todo Make these const by changing the equivalent port methods.
     void offer() noexcept;

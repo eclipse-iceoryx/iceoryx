@@ -35,12 +35,6 @@ public:
 
     unique_ptr() = delete;
 
-//    ///
-//    /// @brief An empty pointer that does nothing.
-//    ///
-//    unique_ptr(std::nullptr_t) noexcept
-//    {};
-
     ///
     /// @brief operator = Reset to empty pointer when setting to nullptr.
     /// @return An empty unique pointer.
@@ -52,14 +46,14 @@ public:
     }
 
     ///
-    /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later.
+    /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later via reset.
     ///
     unique_ptr(std::function<void(T*)>&& deleter) noexcept;
 
     ///
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
-    /// @details A deleter must always be provided as no heap is used. The unique_ptr needs to know how to delete
-    /// the managed object when the reference is out of scope.
+    /// @details A deleter must always be provided as no default can be provided given that no head is used.
+    /// The unique_ptr must know how to delete the managed object when pointer out of scope.
     /// @param ptr The raw pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
@@ -67,9 +61,9 @@ public:
 
     ///
     /// @brief unique_ptr Creates an empty unique pointer that points to an allocated memory location.
-    /// @details The managed object is initially undefined thus must be defined before accessing.
+    /// @details The contents of the pointeris initially undefined thus must be defined before accessing.
     /// @param allocation The allocation of memory where managed object will reside once created.
-    /// @param deleter The deleter function for cleaning up the managed object.
+    /// @param deleter The deleter function for cleaning up the allocated memory.
     ///
     unique_ptr(void* allocation, std::function<void(T*)>&& deleter) noexcept;
 
@@ -85,12 +79,19 @@ public:
     ///
     ~unique_ptr() noexcept;
 
+    ///
     /// Dereference the stored pointer.
+    ///
     T operator*() noexcept;
 
+    ///
     /// Return the stored pointer.
+    ///
     ptr_t operator->() noexcept;
 
+    ///
+    /// @brief operator bool Returns true if it points to something.
+    ///
     explicit operator bool() const noexcept
     { return get() == ptr_t() ? false : true; }
 
@@ -102,15 +103,14 @@ public:
     ptr_t get() const noexcept;
 
     ///
-    /// @brief release Releases ownership of the underlying pointer.
+    /// @brief release Release ownership of the underlying pointer.
     /// @return Pointer to the managed object or nullptr if none owned.
     ///
     ptr_t release() noexcept;
 
     ///
-    /// @brief reset Reset the unique_ptr instance's owned object to the one given.
+    /// @brief reset Reset the unique pointer to take ownership of the given pointer.
     /// @details Any previously owned objects will be deleted. If no pointer given then points to nullptr.
-    /// Deleter provided on instantiation will remain.
     /// @param ptr Pointer to object to take ownership on.
     ///
     void reset(ptr_t ptr = nullptr) noexcept;

@@ -100,13 +100,16 @@ template<typename T, typename port_t>
 inline cxx::expected<AllocationError>
 Publisher<T, port_t>::publishCopyOf(const T& val) noexcept
 {
-    std::cout << "publishCopyOf()" << std::endl;
-    return iox::cxx::success<>();
+    loan()
+        .and_then([&](Sample<T>& sample){
+            sample.emplace(val);
+            publish(std::move(sample));
+        });
 }
 
 template<typename T, typename port_t>
 inline cxx::expected<ChunkRecallError>
-Publisher<T, port_t>::previous() const noexcept
+Publisher<T, port_t>::previousSample() const noexcept
 {
     assert(false && "Not yet supported");
     return iox::cxx::error<ChunkRecallError>(ChunkRecallError::NO_PREVIOUS_CHUNK);
@@ -130,7 +133,7 @@ template<typename T, typename port_t>
 inline bool
 Publisher<T, port_t>::isOffered() noexcept
 {
-    //return m_port.isOffered();
+    assert(false && "Not yet supported");
 }
 
 template<typename T, typename port_t>
