@@ -21,7 +21,7 @@ namespace example
 ///   minimalistic working example which uses all public methods
 /// @endcode
 /// @swcomponent example_component
-void SomeOtherFreeFunction();
+void someOtherFreeFunction();
 
 /// @brief Base class which is not part of the public API
 /// @details Detailed description

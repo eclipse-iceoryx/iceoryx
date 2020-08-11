@@ -41,7 +41,7 @@ class MySampleClass;
 template <typename T>
 class ExampleBaseClass;
 
-void SomeOtherFreeFunction();
+void someOtherFreeFunction();
 
 } // namespace example
 

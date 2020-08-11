@@ -16,7 +16,7 @@
 
 namespace example
 {
-void SomeOtherFreeFunction()
+void someOtherFreeFunction()
 {
     // example code
 }
