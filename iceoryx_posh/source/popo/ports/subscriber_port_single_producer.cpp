@@ -36,7 +36,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::getCaProMessage
         getMembers()->m_subscriptionState.store(SubscribeState::SUBSCRIBE_REQUESTED, std::memory_order_relaxed);
 
         capro::CaproMessage caproMessage(capro::CaproMessageType::SUB, BasePort::getMembers()->m_serviceDescription);
-        caproMessage.m_chunkQueueData = &getMembers()->m_chunkReceiverData;
+        caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
         caproMessage.m_historyCapacity = getMembers()->m_historyRequest;
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
@@ -46,7 +46,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::getCaProMessage
         getMembers()->m_subscriptionState.store(SubscribeState::UNSUBSCRIBE_REQUESTED, std::memory_order_relaxed);
 
         capro::CaproMessage caproMessage(capro::CaproMessageType::UNSUB, BasePort::getMembers()->m_serviceDescription);
-        caproMessage.m_chunkQueueData = &getMembers()->m_chunkReceiverData;
+        caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
@@ -73,7 +73,7 @@ SubscriberPortSingleProducer::dispatchCaProMessage(const capro::CaproMessage& ca
         getMembers()->m_subscriptionState.store(SubscribeState::SUBSCRIBE_REQUESTED, std::memory_order_relaxed);
 
         capro::CaproMessage caproMessage(capro::CaproMessageType::SUB, BasePort::getMembers()->m_serviceDescription);
-        caproMessage.m_chunkQueueData = &getMembers()->m_chunkReceiverData;
+        caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
         caproMessage.m_historyCapacity = getMembers()->m_historyRequest;
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);

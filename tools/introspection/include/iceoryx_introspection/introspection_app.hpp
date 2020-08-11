@@ -130,7 +130,7 @@ class IntrospectionApp
     void printProcessIntrospectionData(const ProcessIntrospectionFieldTopic* processIntrospectionField);
 
     /// @brief prints table showing current mempool usage
-    void printMemPoolInfo(const MemPoolIntrospectionTopic& topic);
+    void printMemPoolInfo(const MemPoolIntrospectionInfo& introspectionInfo);
 
     /// @brief Waits till port is subscribed
     bool waitForSubscription(SubscriberType& port);

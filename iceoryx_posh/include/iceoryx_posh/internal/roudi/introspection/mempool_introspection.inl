@@ -47,7 +47,7 @@ MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::~MemPoolIntrosp
 }
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::wakeUp(RunLevel newLevel)
+void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::wakeUp(RunLevel newLevel) noexcept
 {
     std::unique_lock<std::mutex> lock(m_mutex);
     m_runLevel.store(newLevel, std::memory_order_seq_cst);
@@ -55,32 +55,32 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::wakeUp(Run
 }
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::start()
+void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::start() noexcept
 {
     wakeUp(RUN);
 }
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::wait()
+void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::wait() noexcept
 {
     wakeUp(WAIT);
 }
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::terminate()
+void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::terminate() noexcept
 {
     wakeUp(TERMINATE);
 }
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
 void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::setSnapshotInterval(
-    unsigned int snapshotInterval_ms)
+    unsigned int snapshotInterval_ms) noexcept
 {
     m_snapShotInterval = std::chrono::milliseconds(snapshotInterval_ms);
 }
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::run()
+void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::run() noexcept
 {
     while (m_runLevel.load(std::memory_order_seq_cst) == RUN)
     {
@@ -92,7 +92,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::run()
 }
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::waitForRunLevelChange()
+void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::waitForRunLevelChange() noexcept
 {
     std::unique_lock<std::mutex> lock(m_mutex);
     while (m_runLevel.load(std::memory_order_seq_cst) == WAIT)
@@ -104,7 +104,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::waitForRun
 // wait until start command, run until wait or terminate, restart from wait
 // is possible  terminate call leads to exit
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::threadMain()
+void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::threadMain() noexcept
 {
     while (m_runLevel.load(std::memory_order_seq_cst) != TERMINATE)
     {
@@ -115,18 +115,21 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::threadMain
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
 void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::prepareIntrospectionSample(
-    Topic* f_sample, const posix::PosixGroup& f_readerGroup, const posix::PosixGroup& f_writerGroup, uint32_t f_id)
+    MemPoolIntrospectionInfo& sample,
+    const posix::PosixGroup& readerGroup,
+    const posix::PosixGroup& writerGroup,
+    uint32_t id) noexcept
 {
-    strncpy(f_sample->m_readerGroupName, f_readerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
-    f_sample->m_readerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
-    strncpy(f_sample->m_writerGroupName, f_writerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
-    f_sample->m_writerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
-    f_sample->m_id = f_id;
+    strncpy(sample.m_readerGroupName, readerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
+    sample.m_readerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
+    strncpy(sample.m_writerGroupName, writerGroup.getName().c_str(), MAX_GROUP_NAME_LENGTH - 1);
+    sample.m_writerGroupName[MAX_GROUP_NAME_LENGTH - 1] = 0;
+    sample.m_id = id;
 }
 
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
-void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::send()
+void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::send() noexcept
 {
     if (m_senderPort.hasSubscribers())
     {
@@ -136,38 +139,45 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::send()
         auto sample = static_cast<Topic*>(chunkHeader->payload());
         new (sample) Topic;
 
-        prepareIntrospectionSample(
-            sample, posix::PosixGroup::getGroupOfCurrentProcess(), posix::PosixGroup::getGroupOfCurrentProcess(), id);
-        copyMemPoolInfo(*m_rouDiInternalMemoryManager, sample->m_mempoolInfo);
+        if (sample->emplace_back())
+        {
+            auto& memPoolIntrospectionInfo = sample->back();
+
+            prepareIntrospectionSample(memPoolIntrospectionInfo,
+                                       posix::PosixGroup::getGroupOfCurrentProcess(),
+                                       posix::PosixGroup::getGroupOfCurrentProcess(),
+                                       id);
+            copyMemPoolInfo(*m_rouDiInternalMemoryManager, memPoolIntrospectionInfo.m_mempoolInfo);
+
+            for (auto& segment : m_segmentManager->m_segmentContainer)
+            {
+                ++id;
+
+                prepareIntrospectionSample(
+                    memPoolIntrospectionInfo, segment.getReaderGroup(), segment.getWriterGroup(), id);
+                copyMemPoolInfo(segment.getMemoryManager(), memPoolIntrospectionInfo.m_mempoolInfo);
+            }
+        }
+        else
+        {
+            LogError() << "Mempool Introspection Container full, Mempool Introspection Data not updated!";
+        }
 
         m_senderPort.deliverChunk(chunkHeader);
-
-        for (auto& segment : m_segmentManager->m_segmentContainer)
-        {
-            ++id;
-            auto chunkHeader = m_senderPort.reserveChunk(sizeof(Topic));
-            auto sample = static_cast<Topic*>(chunkHeader->payload());
-            new (sample) Topic;
-
-            prepareIntrospectionSample(sample, segment.getReaderGroup(), segment.getWriterGroup(), id);
-            copyMemPoolInfo(segment.getMemoryManager(), sample->m_mempoolInfo);
-
-            m_senderPort.deliverChunk(chunkHeader);
-        }
     }
 }
 
 // copy data fro internal struct into interface struct
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
 void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::copyMemPoolInfo(
-    const MemoryManager& f_memoryManager, MemPoolInfoContainer& f_dest)
+    const MemoryManager& memoryManager, MemPoolInfoContainer& dest) noexcept
 {
-    auto numOfMemPools = f_memoryManager.getNumberOfMemPools();
-    f_dest = MemPoolInfoContainer(numOfMemPools, MemPoolInfo());
+    auto numOfMemPools = memoryManager.getNumberOfMemPools();
+    dest = MemPoolInfoContainer(numOfMemPools, MemPoolInfo());
     for (uint32_t i = 0; i < numOfMemPools; ++i)
     {
-        auto src = f_memoryManager.getMemPoolInfo(i);
-        auto& dst = f_dest[static_cast<int>(i)];
+        auto src = memoryManager.getMemPoolInfo(i);
+        auto& dst = dest[static_cast<int>(i)];
         dst.m_usedChunks = src.m_usedChunks;
         dst.m_minFreeChunks = src.m_minFreeChunks;
         dst.m_numChunks = src.m_numChunks;
