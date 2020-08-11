@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     {
         publisher.loan()
             .and_then([&](iox::popo::Sample<Position>& sample){
-            std::cout << "Got sample" << std::endl;
+                std::cout << "Got sample" << std::endl;
                 ++ct;
                 sample.emplace(ct, ct, ct);
                 sample.publish();

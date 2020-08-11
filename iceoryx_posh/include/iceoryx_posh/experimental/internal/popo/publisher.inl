@@ -49,7 +49,6 @@ inline cxx::expected<Sample<T>, AllocationError>
 Publisher<T, port_t>::loan() noexcept
 {
     auto header = m_port.reserveChunk(sizeof(T), m_useDynamicPayloadSize);
-    auto payload = header->payload();
     if (header == nullptr)
     {
         // Old API does not provide error handling, so return unknown error.
@@ -57,7 +56,7 @@ Publisher<T, port_t>::loan() noexcept
     }
     return iox::cxx::success<Sample<T>>(
                 cxx::unique_ptr<T>(
-                    payload,
+                    header->payload(),
                     [this](T* const p){
                         auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
                         this->m_port.freeChunk(header);
