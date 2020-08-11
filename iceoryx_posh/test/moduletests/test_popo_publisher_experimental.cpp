@@ -39,27 +39,8 @@ public:
 
 };
 
-TEST_F(ExperimentalPublisherTest, OffersWhenPublishingOnUnofferedPublisher)
+TEST_F(ExperimentalPublisherTest, OffersIfTryingToPublishBeforeOffer)
 {
 
 }
 
-TEST_F(ExperimentalPublisherTest, BasicUidRetrieval)
-{
-
-}
-
-TEST_F(ExperimentalPublisherTest, BasicAllocateWriteAndPublish)
-{
-
-}
-
-TEST_F(ExperimentalPublisherTest, BasicCopiedPublish)
-{
-
-}
-
-TEST_F(ExperimentalPublisherTest, BasicAllocateThenPublish)
-{
-
-}

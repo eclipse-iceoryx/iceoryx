@@ -108,11 +108,11 @@ Publisher<T, port_t>::publishCopyOf(const T& val) noexcept
 }
 
 template<typename T, typename port_t>
-inline cxx::expected<ChunkRecallError>
+inline cxx::expected<SampleRecallError>
 Publisher<T, port_t>::previousSample() const noexcept
 {
     assert(false && "Not yet supported");
-    return iox::cxx::error<ChunkRecallError>(ChunkRecallError::NO_PREVIOUS_CHUNK);
+    return iox::cxx::error<SampleRecallError>(SampleRecallError::NO_PREVIOUS_CHUNK);
 }
 
 template<typename T, typename port_t>

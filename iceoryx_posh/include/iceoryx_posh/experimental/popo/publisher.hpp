@@ -51,19 +51,43 @@ public:
         m_samplePtr = nullptr;
     }
 
+    ///
+    /// @brief operator -> Transparent access to the underlying pointer.
+    /// @return
+    ///
     T* operator->() noexcept
     {
-        return m_samplePtr.get();
+        return allocation();
     }
+    ///
+    /// @brief allocation Access to the memory allocated to the sample.
+    /// @return
+    ///
     T* allocation() noexcept
     {
-        return m_samplePtr.get();
+        if(m_isValid)
+        {
+            return m_samplePtr.get();
+        }
+        else
+        {
+            return nullptr;
+        }
     }
+    ///
+    /// @brief operator = Clear the sample.
+    /// @return
+    ///
     Sample& operator=(std::nullptr_t) noexcept
     {
+      m_samplePtr = nullptr;
       m_isEmpty = true;
+      m_isValid = false;
       return *this;
     }
+    ///
+    /// Placement new of the type T in the memory allocated to the sample.
+    ///
     template <typename Arg, typename... Args>
     auto emplace(Arg arg, Args... args)
         -> typename std::enable_if<!std::is_same<std::decay<Arg>, cxx::function_ref<void(T*)>>::value>::type
@@ -74,6 +98,9 @@ public:
             m_isEmpty = false;
         }
     }
+    ///
+    /// @brief publish Publish the sample.
+    ///
     void publish() noexcept
     {
         if(m_isValid && !m_isEmpty)
@@ -84,7 +111,7 @@ public:
         }
         else
         {
-            /// @todo Notify caller that attempted to publish invalid chunk.
+            /// @todo Notify caller of attemptto publish invalid chunk.
         }
     }
 private:
@@ -137,14 +164,13 @@ public:
     /// @brief release Releases ownership of an unused allocated chunk.
     /// @details The released chunk will be freed as soon as there are no longer any active references
     /// to it in the system.
-    /// @param chunk
+    /// @param sample
     ///
     cxx::expected<AllocationError> release(Sample<T>& sample) noexcept;
 
     ///
-    /// @brief send Publishes the loaned sample to all subscribers.
-    /// @details Only publishes, doesn't release chunk.
-    /// @param chunk
+    /// @brief publish Publishes the loaned sample to all subscribers.
+    /// @param sample
     ///
     cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
 
@@ -156,7 +182,7 @@ public:
     cxx::expected<AllocationError> publishResultOf(cxx::function_ref<void(T*)> f) noexcept;
 
     ///
-    /// @brief copyAndPublish Copy the given sample into a loaned sample and publish it to all subscribers.
+    /// @brief publishCopyOf Copy the given sample into a loaned sample and publish it to all subscribers.
     /// @details This method should not be used for larger data types as it includes a copy. For larger data types, it
     /// is preferred to first laon an empty sample and then directly write the data into it (e.g. with a placement new)
     /// rather than to write it elsewhere then copy it in.
