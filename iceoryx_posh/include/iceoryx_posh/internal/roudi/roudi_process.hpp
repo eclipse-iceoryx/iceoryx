@@ -127,9 +127,7 @@ class ProcessManager : public ProcessManagerInterface
     ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
                    PortManager& portManager,
                    const version::CompatibilityCheckLevel compatibilityCheckLevel);
-    virtual ~ProcessManager() override
-    {
-    }
+    virtual ~ProcessManager() override = default;
 
     ProcessManager(const ProcessManager& other) = delete;
     ProcessManager& operator=(const ProcessManager& other) = delete;

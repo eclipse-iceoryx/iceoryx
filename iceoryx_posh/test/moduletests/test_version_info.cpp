@@ -20,51 +20,6 @@ using namespace ::testing;
 using namespace iox::version;
 using namespace iox::cxx;
 
-namespace
-{
-class VersionInfoSut : public VersionInfo
-{
-  public:
-    VersionInfoSut(uint16_t versionMajor,
-                   uint16_t versionMinor,
-                   uint16_t versionPatch,
-                   uint16_t versionTweak,
-                   const BuildDateStringType& buildDateString,
-                   const CommitIdStringType& commitIdString) noexcept
-        : VersionInfo(versionMajor, versionMinor, versionPatch, versionTweak, buildDateString, commitIdString){};
-
-    VersionInfoSut(const Serialization& serial) noexcept
-        : VersionInfo(serial){};
-
-    uint16_t getVersionMajor()
-    {
-        return m_versionMajor;
-    }
-    uint16_t getVersionMinor()
-    {
-        return m_versionMinor;
-    }
-    uint16_t getVersionPatch()
-    {
-        return m_versionPatch;
-    }
-    uint16_t getVersionTweak()
-    {
-        return m_versionTweak;
-    }
-
-    VersionInfo::BuildDateStringType getBuildDateString()
-    {
-        return m_buildDateString;
-    }
-
-    VersionInfo::CommitIdStringType getCommitIdString()
-    {
-        return m_commitIdString;
-    }
-};
-} // namespace
-
 class VersionInfo_test : public Test
 {
   public:
@@ -74,81 +29,49 @@ class VersionInfo_test : public Test
     virtual void TearDown(){};
 };
 
-
-TEST_F(VersionInfo_test, ValidMaxVersionTweak)
-{
-    VersionInfoSut versionInfoSut(65535u, 65535u, 65535u, 65535u, "abc", "efg");
-    EXPECT_EQ(versionInfoSut.getVersionMajor(), 65535u);
-    EXPECT_EQ(versionInfoSut.getVersionMinor(), 65535u);
-    EXPECT_EQ(versionInfoSut.getVersionPatch(), 65535u);
-    EXPECT_EQ(versionInfoSut.getVersionTweak(), 65535u);
-    EXPECT_EQ(std::string(versionInfoSut.getBuildDateString().c_str()), "abc");
-    EXPECT_EQ(std::string(versionInfoSut.getCommitIdString().c_str()), "efg");
-}
-
-TEST_F(VersionInfo_test, ValidMaxVersionFinalRelease)
-{
-    VersionInfoSut versionInfoSut(65535u, 65535u, 65535u, 0, "", "");
-    EXPECT_EQ(versionInfoSut.getVersionMajor(), 65535u);
-    EXPECT_EQ(versionInfoSut.getVersionMinor(), 65535u);
-    EXPECT_EQ(versionInfoSut.getVersionPatch(), 65535u);
-    EXPECT_EQ(versionInfoSut.getVersionTweak(), 0u);
-}
-
-TEST_F(VersionInfo_test, SerializationWorking)
-{
-    VersionInfoSut versionInfoSut1(65535u, 2u, 3u, 789u, "abc", "efg");
-    VersionInfoSut versionInfoSut2(versionInfoSut1.operator iox::cxx::Serialization());
-    EXPECT_EQ(versionInfoSut1.getVersionMajor(), versionInfoSut2.getVersionMajor());
-    EXPECT_EQ(versionInfoSut1.getVersionMinor(), versionInfoSut2.getVersionMinor());
-    EXPECT_EQ(versionInfoSut1.getVersionPatch(), versionInfoSut2.getVersionPatch());
-    EXPECT_EQ(versionInfoSut1.getVersionTweak(), versionInfoSut2.getVersionTweak());
-    EXPECT_EQ(std::string(versionInfoSut1.getBuildDateString().c_str()),
-              std::string(versionInfoSut2.getBuildDateString().c_str()));
-    EXPECT_EQ(std::string(versionInfoSut1.getCommitIdString().c_str()),
-              std::string(versionInfoSut2.getCommitIdString().c_str()));
-}
-
 TEST_F(VersionInfo_test, SerializationWorkingOnOurVersion)
 {
-    VersionInfoSut versionInfoSut1(VersionInfoSut::getCurrentVersion().operator iox::cxx::Serialization());
-    EXPECT_TRUE(versionInfoSut1 == VersionInfoSut::getCurrentVersion());
+    VersionInfo versionInfo1(VersionInfo::getCurrentVersion().operator iox::cxx::Serialization());
+    EXPECT_TRUE(versionInfo1.isValid());
+    EXPECT_TRUE(versionInfo1 == VersionInfo::getCurrentVersion());
 }
 
 TEST_F(VersionInfo_test, ComparesWorkingForOurVersion)
 {
-    VersionInfoSut versionInfoSut1(VersionInfoSut::getCurrentVersion().operator iox::cxx::Serialization());
-    VersionInfoSut versionInfoSut2(versionInfoSut1.operator iox::cxx::Serialization());
+    VersionInfo versionInfo1(static_cast<iox::cxx::Serialization>(VersionInfo::getCurrentVersion()));
+    VersionInfo versionInfo2(static_cast<iox::cxx::Serialization>(versionInfo1));
 
-    EXPECT_TRUE(versionInfoSut1 == versionInfoSut2);
-    EXPECT_FALSE(versionInfoSut1 != versionInfoSut2);
-    EXPECT_TRUE(versionInfoSut1.checkCompatibility(versionInfoSut2, CompatibilityCheckLevel::OFF));
-    EXPECT_TRUE(versionInfoSut1.checkCompatibility(versionInfoSut2, CompatibilityCheckLevel::MAJOR));
-    EXPECT_TRUE(versionInfoSut1.checkCompatibility(versionInfoSut2, CompatibilityCheckLevel::MINOR));
-    EXPECT_TRUE(versionInfoSut1.checkCompatibility(versionInfoSut2, CompatibilityCheckLevel::PATCH));
-    EXPECT_TRUE(versionInfoSut1.checkCompatibility(versionInfoSut2, CompatibilityCheckLevel::COMMIT_ID));
-    EXPECT_TRUE(versionInfoSut1.checkCompatibility(versionInfoSut2, CompatibilityCheckLevel::BUILD_DATE));
+    EXPECT_TRUE(versionInfo1.isValid());
+    EXPECT_TRUE(versionInfo2.isValid());
+    EXPECT_TRUE(versionInfo1 == versionInfo2);
+    EXPECT_FALSE(versionInfo1 != versionInfo2);
+    EXPECT_TRUE(versionInfo1.checkCompatibility(versionInfo2, CompatibilityCheckLevel::OFF));
+    EXPECT_TRUE(versionInfo1.checkCompatibility(versionInfo2, CompatibilityCheckLevel::MAJOR));
+    EXPECT_TRUE(versionInfo1.checkCompatibility(versionInfo2, CompatibilityCheckLevel::MINOR));
+    EXPECT_TRUE(versionInfo1.checkCompatibility(versionInfo2, CompatibilityCheckLevel::PATCH));
+    EXPECT_TRUE(versionInfo1.checkCompatibility(versionInfo2, CompatibilityCheckLevel::COMMIT_ID));
+    EXPECT_TRUE(versionInfo1.checkCompatibility(versionInfo2, CompatibilityCheckLevel::BUILD_DATE));
 }
 
 TEST_F(VersionInfo_test, CompareUnequalVersions)
 {
-    const int versionInfoSutsSize = 7;
-    VersionInfoSut versionInfoSuts[versionInfoSutsSize] = {{11u, 22u, 33u, 44u, "abc", "efg"},
-                                                           {0u, 22u, 33u, 44u, "abc", "efg"},
-                                                           {11u, 0u, 33u, 44u, "abc", "efg"},
-                                                           {11u, 22u, 0u, 44u, "abc", "efg"},
-                                                           {11u, 22u, 33u, 0u, "abc", "efg"},
-                                                           {11u, 22u, 33u, 44u, "abc", "0"},
-                                                           {11u, 22u, 33u, 44u, "0", "efg"}};
+    const int versionInfosSize = 7;
+    VersionInfo versionInfos[versionInfosSize] = {{11u, 22u, 33u, 44u, "abc", "efg"},
+                                                  {0u, 22u, 33u, 44u, "abc", "efg"},
+                                                  {11u, 0u, 33u, 44u, "abc", "efg"},
+                                                  {11u, 22u, 0u, 44u, "abc", "efg"},
+                                                  {11u, 22u, 33u, 0u, "abc", "efg"},
+                                                  {11u, 22u, 33u, 44u, "abc", "0"},
+                                                  {11u, 22u, 33u, 44u, "0", "efg"}};
 
     // all versions are different
-    for (int i = 0; i < versionInfoSutsSize; i++)
+    for (int i = 0; i < versionInfosSize; i++)
     {
-        for (int j = 0; j < versionInfoSutsSize; j++)
+        for (int j = 0; j < versionInfosSize; j++)
         {
             if (i != j)
             {
-                EXPECT_TRUE(versionInfoSuts[i] != versionInfoSuts[j]);
+                EXPECT_TRUE(versionInfos[i] != versionInfos[j]);
             }
         }
     }

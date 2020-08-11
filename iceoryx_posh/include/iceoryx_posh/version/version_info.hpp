@@ -25,19 +25,25 @@ namespace iox
 {
 namespace version
 {
+template <size_t SizeValue>
+static constexpr size_t strlen2(char const (&/*notInterested*/)[SizeValue])
+{
+    return SizeValue - 1;
+}
+
 /// @brief Is used to compare the RouDis and runtime's version information.
 class VersionInfo
 {
   public:
-    static const uint64_t COMMIT_ID_STRING_SIZE = 12;
-    static const uint64_t COMMIT_BUILD_DATE_STRING_SIZE = 36;
+    static const uint64_t COMMIT_ID_STRING_SIZE = 12u;
+    static const uint64_t COMMIT_BUILD_DATE_STRING_SIZE = 36u;
     using BuildDateStringType = cxx::string<COMMIT_BUILD_DATE_STRING_SIZE>;
     using CommitIdStringType = cxx::string<COMMIT_ID_STRING_SIZE>;
 
-    static_assert(strlen(ICEORYX_BUILDDATE) < COMMIT_BUILD_DATE_STRING_SIZE,
-                  "COMMIT_BUILD_DATE_STRING_SIZE need to be bigger");
+    static_assert(strlen2(ICEORYX_BUILDDATE) < COMMIT_BUILD_DATE_STRING_SIZE,
+                  "COMMIT_BUILD_DATE_STRING_SIZE needs to be bigger");
 
-    /// @brief Generates an VersionInfo initialized normally with the information given by the auto generated
+    /// @brief Generates an VersionInfo initialized with the information given by the auto generated
     /// iceoryx_versions.hpp defines.
     /// @param{in] versionMajor The major version.
     /// @param{in] versionMinor The minor version.
@@ -45,10 +51,10 @@ class VersionInfo
     /// @param{in] versionTweak The tweak/RC version.
     /// @param{in] buildDateString The date when the component was build as string with maximal 36 readable chars.
     /// @param{in] commitIdString The commit id is shortened internally to 12 readable chars.
-    VersionInfo(uint16_t versionMajor,
-                uint16_t versionMinor,
-                uint16_t versionPatch,
-                uint16_t versionTweak,
+    VersionInfo(const uint16_t versionMajor,
+                const uint16_t versionMinor,
+                const uint16_t versionPatch,
+                const uint16_t versionTweak,
                 const BuildDateStringType& buildDateString,
                 const CommitIdStringType& commitIdString) noexcept;
 
@@ -70,17 +76,23 @@ class VersionInfo
     /// @brief Compares this version versus another with respect to the compatibility value give.
     /// @param[in] other The other version compared with this version.
     /// @param[in] compatibilityCheckLevel Gives the level how deep it should be compared.
-    bool checkCompatibility(const VersionInfo& other, CompatibilityCheckLevel compatibilityCheckLevel) const noexcept;
+    bool checkCompatibility(const VersionInfo& other, const CompatibilityCheckLevel compatibilityCheckLevel) const
+        noexcept;
+
+    /// @brief The serialization could fail, which cause an invalid object, else true.
+    /// @return Returns if the object is valid.
+    bool isValid() noexcept;
 
     /// @brief Creates a version object of the current iceoryx version.
     /// @return Returns the current version of iceoryx as an object.
-    static VersionInfo getCurrentVersion();
+    static VersionInfo getCurrentVersion() noexcept;
 
   protected:
-    uint16_t m_versionMajor = 0u;
-    uint16_t m_versionMinor = 0u;
-    uint16_t m_versionPatch = 0u;
-    uint16_t m_versionTweak = 0u;
+    bool m_valid{true};
+    uint16_t m_versionMajor{0u};
+    uint16_t m_versionMinor{0u};
+    uint16_t m_versionPatch{0u};
+    uint16_t m_versionTweak{0u};
     BuildDateStringType m_buildDateString;
     CommitIdStringType m_commitIdString;
 };
