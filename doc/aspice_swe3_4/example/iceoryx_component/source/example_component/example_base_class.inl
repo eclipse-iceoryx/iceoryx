@@ -11,8 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef EXAMPLE_BASE_CLASS_INL_INCLUDED
+#define EXAMPLE_BASE_CLASS_INL_INCLUDED
 
-#include "example_base_class.hpp"
 
 namespace example
 {
@@ -29,3 +30,5 @@ inline void ExampleBaseClass<T>::simplerMethod() const noexcept
 }
 
 } // namespace example
+
+#endif // EXAMPLE_BASE_CLASS_INL_INCLUDED

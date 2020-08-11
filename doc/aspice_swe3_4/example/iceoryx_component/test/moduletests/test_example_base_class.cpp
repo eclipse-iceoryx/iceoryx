@@ -31,8 +31,13 @@ template <typename T>
 class ExampleBaseClass_test : public Test
 {
   public:
-    void SetUp(){};
-    void TearDown(){};
+    void SetUp() override
+    {
+    }
+
+    void TearDown() override
+    {
+    }
 };
 
 /// @note name of the Testcase shall describe the test case in detail to avoid additional comments
