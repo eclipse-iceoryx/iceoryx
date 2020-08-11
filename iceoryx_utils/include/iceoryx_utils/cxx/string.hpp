@@ -389,6 +389,18 @@ class string
     /// @return a std::string with data equivalent to those stored in the string
     operator std::string() const noexcept;
 
+    /// @brief since there are two valid options for what should happen when appending a string larger than this'
+    /// capacity (failing or truncating), the fixed string does not support operator+= use append for truncating or
+    /// unsafe_append for failing in that case
+    template <typename T>
+    string& operator+=(const T&);
+
+    template <typename T>
+    string& append(const T& t)
+    {
+        return *this;
+    }
+
     template <uint64_t N>
     friend class string;
 

@@ -123,6 +123,9 @@ In the second step, the functionality has been extended:
 	    constexpr uint64_t size() const noexcept;
 	    constexpr uint64_t capacity() const noexcept;
 	    operator std::string() const noexcept;
+
+    	template <typename T>
+    	string operator+=(const T& t)
 	};
 
 	template <uint64_t Capacity>

@@ -408,6 +408,15 @@ inline bool operator!=(const char* const, const string<Capacity>&)
     return false;
 }
 
+template <uint64_t Capacity>
+template <typename T>
+inline string<Capacity>& string<Capacity>::operator+=(const T&)
+{
+    static_assert(always_false<Capacity>::value,
+                  "operator += is not supported by cxx::string, use append or unsafe_append instead");
+    return *this;
+}
+
 template <typename T1, typename T2>
 inline string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2)
 {
