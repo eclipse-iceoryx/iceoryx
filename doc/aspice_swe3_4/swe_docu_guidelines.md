@@ -49,6 +49,8 @@ ALIASES += "requirement=\xrefitem requirement \"Requirement\" \"Requirements\" "
  ```
  * Try to give a usage example via @code / @endcode of more complex to use functions
 
+### file header
+Please see [Header](https://github.com/eclipse/iceoryx/blob/master/CONTRIBUTING.md#header).
 
 ### Include guards
 Every header and inl file needs to have an include guard. Pragma once is not allowed.
