@@ -37,14 +37,14 @@ class SomeOtherClass;
 /// @note Important note for user/developer
 /// @swcomponent cpp
 template <typename T>
-class MySampleClass : public ExampleBaseClass<T>
+class ExampleSampleClass : public ExampleBaseClass<T>
 {
   public:
     /// @brief Short description
     /// @details Detailed description
     /// @param[in] a Description of input parameter a
     /// @param[in] b Description of input parameter b
-    MySampleClass(const int a, const int b) noexcept;
+    ExampleSampleClass(const int a, const int b) noexcept;
 
     /// @brief Short description
     void simpleMethod() const noexcept;
