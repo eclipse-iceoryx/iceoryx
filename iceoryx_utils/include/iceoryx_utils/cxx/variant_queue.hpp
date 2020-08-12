@@ -66,7 +66,7 @@ enum class VariantQueueError
 ///         std::cout << "element " << overriddenElement->value() << " was overridden\n";
 ///     }
 /// @endcode
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 class VariantQueue
 {
   public:

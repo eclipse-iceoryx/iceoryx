@@ -20,7 +20,7 @@ namespace iox
 {
 namespace cxx
 {
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes type) noexcept
     : m_type(type)
 {
@@ -49,7 +49,7 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
     }
 }
 
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 inline expected<optional<ValueType>, VariantQueueError>
 VariantQueue<ValueType, Capacity>::push(const ValueType& value) noexcept
 {
@@ -128,7 +128,7 @@ VariantQueue<ValueType, Capacity>::push(const ValueType& value) noexcept
     return ret;
 }
 
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 inline optional<ValueType> VariantQueue<ValueType, Capacity>::pop() noexcept
 {
     optional<ValueType> ret = nullopt_t();
@@ -175,7 +175,7 @@ inline optional<ValueType> VariantQueue<ValueType, Capacity>::pop() noexcept
     return ret;
 }
 
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 inline bool VariantQueue<ValueType, Capacity>::empty() const noexcept
 {
     bool ret = true;
@@ -213,7 +213,7 @@ inline bool VariantQueue<ValueType, Capacity>::empty() const noexcept
     return ret;
 }
 
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 inline uint64_t VariantQueue<ValueType, Capacity>::size() noexcept
 {
     uint64_t ret = 0;
@@ -251,7 +251,7 @@ inline uint64_t VariantQueue<ValueType, Capacity>::size() noexcept
 }
 
 
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 inline void VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCapacity) noexcept
 {
     switch (m_type)
@@ -282,7 +282,7 @@ inline void VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCap
     }
 }
 
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 inline uint64_t VariantQueue<ValueType, Capacity>::capacity() const noexcept
 {
     uint64_t ret = 0;
@@ -319,7 +319,7 @@ inline uint64_t VariantQueue<ValueType, Capacity>::capacity() const noexcept
     return ret;
 }
 
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 inline typename VariantQueue<ValueType, Capacity>::fifo_t&
 VariantQueue<ValueType, Capacity>::getUnderlyingFiFo() noexcept
 {
