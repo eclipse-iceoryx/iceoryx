@@ -459,6 +459,29 @@ inline bool string<Capacity>::unsafe_append(const T& t) noexcept
     m_rawstringSize += tSize;
     return true;
 }
+
+template <uint64_t Capacity>
+template <typename T>
+inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
+{
+    uint64_t tSize = internal::GetSize<T>::call(t);
+    const char* tData = internal::GetData<T>::call(t);
+    if (Capacity < (m_rawstringSize + tSize))
+    {
+        std::cerr << "The last " << tSize - Capacity + m_rawstringSize << " characters of " << tData
+                  << " are truncated, because the length is larger than the capacity." << std::endl;
+        std::memcpy(m_rawstring + m_rawstringSize, tData, Capacity - m_rawstringSize);
+        m_rawstring[Capacity] = '\0';
+        m_rawstringSize = Capacity;
+    }
+    else
+    {
+        std::memcpy(m_rawstring + m_rawstringSize, tData, tSize);
+        m_rawstring[m_rawstringSize + tSize] = '\0';
+        m_rawstringSize += tSize;
+    }
+    return *this;
+}
 } // namespace cxx
 } // namespace iox
 

@@ -395,11 +395,21 @@ class string
     template <typename T>
     string& operator+=(const T&) noexcept;
 
+    /// @brief appends a fixed string or string literal to the end of this. If this' capacity is too small for appending
+    /// the whole string (literal) the remainder of the characters are truncated.
+    ///
+    /// @param [in] TruncateToCapacity_t is a compile time variable which is used to make the user aware of the possible
+    /// truncation
+    /// @param [in] fixed string/string literal to append
+    ///
+    /// @return reference to self
+    ///
+    /// @code
+    ///     string<5> fuu("cde");
+    ///     fuu.append(TruncateToCapacity, "fgahc");
+    /// @endcode
     template <typename T>
-    string& append(TruncateToCapacity_t, const T& t) noexcept
-    {
-        return *this;
-    }
+    string& append(TruncateToCapacity_t, const T& t) noexcept;
 
     /// @brief appends a fixed string or string literal to the end of this. The appending fails if the sum of both sizes
     /// is greater than this' capacity

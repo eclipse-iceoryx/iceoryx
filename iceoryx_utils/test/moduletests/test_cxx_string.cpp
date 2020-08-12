@@ -1449,11 +1449,11 @@ TYPED_TEST(stringTyped_test, UnsafeAppendEmptyStringLiteralWorks)
     EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
 }
 
-TYPED_TEST(stringTyped_test, UnsafeAppendFittingStringLiteralWorks)
+TEST(String10, UnsafeAppendFittingStringLiteralWorks)
 {
-    string<19> testString("R2-D");
+    string<10> testString("R2-D");
     EXPECT_THAT(testString.unsafe_append("2"), Eq(true));
-    EXPECT_THAT(testString.capacity(), Eq(19));
+    EXPECT_THAT(testString.capacity(), Eq(10));
     EXPECT_THAT(testString.size(), Eq(5));
     EXPECT_THAT(testString.c_str(), StrEq("R2-D2"));
 }
@@ -1465,5 +1465,95 @@ TEST(String10, UnsafeAppendTooLargeStringLiteralFails)
     EXPECT_THAT(testString.capacity(), Eq(10));
     EXPECT_THAT(testString.size(), Eq(4));
     EXPECT_THAT(testString.c_str(), StrEq("Kern"));
+}
+
+/// @note template <typename T>
+/// string& append(TruncateToCapacity_t, const T& t) noexcept
+TYPED_TEST(stringTyped_test, AppendEmptyStringWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    this->testSubject = "M";
+    string<STRINGCAP + 1> testString;
+    this->testSubject.append(TruncateToCapacity, testString);
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, AppendStringToEmptyStringResultsInConcatenatedString)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 5> testString("M");
+    this->testSubject.append(TruncateToCapacity, testString);
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, AppendStringResultsInConcatenatedString)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    this->testSubject = "d";
+    string<STRINGCAP + 5> testString("Picar");
+    testString.append(TruncateToCapacity, this->testSubject);
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 5));
+    EXPECT_THAT(testString.size(), Eq(6));
+    EXPECT_THAT(testString.c_str(), StrEq("Picard"));
+}
+
+TYPED_TEST(stringTyped_test, AppendTooLargeStringResultsInTruncatedString)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    this->testSubject = "M";
+    string<STRINGCAP + 1> testString;
+    std::string testStdString(STRINGCAP + 1, 'M');
+    EXPECT_THAT(testString.unsafe_assign(testStdString), Eq(true));
+    this->testSubject.append(TruncateToCapacity, testString);
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString.substr(0, STRINGCAP)));
+}
+
+TYPED_TEST(stringTyped_test, AppendEmptyStringLiteralWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    this->testSubject = "M";
+    this->testSubject.append(TruncateToCapacity, "");
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, AppendStringLiteralToEmptyStringResultsInConcatenatedString)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    this->testSubject.append(TruncateToCapacity, "M");
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TEST(String10, AppendStringLiteralResultsInConcatenatedString)
+{
+    string<10> testString("Picar");
+    testString.append(TruncateToCapacity, "d");
+    EXPECT_THAT(testString.capacity(), Eq(10));
+    EXPECT_THAT(testString.size(), Eq(6));
+    EXPECT_THAT(testString.c_str(), StrEq("Picard"));
+}
+
+TEST(String10, AppendTooLargeStringLiteralResultsInTruncatedString)
+{
+    string<10> testString("Live long");
+    testString.append(TruncateToCapacity, " and prosper");
+    EXPECT_THAT(testString.capacity(), Eq(10));
+    EXPECT_THAT(testString.size(), Eq(10));
+    EXPECT_THAT(testString.c_str(), StrEq("Live long "));
 }
 } // namespace

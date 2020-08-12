@@ -127,6 +127,8 @@ In the second step, the functionality has been extended:
     	template <typename T>
     	string& operator+=(const T& t) noexcept;
     	template <typename T>
+    	string& append(TruncateToCapacity_t, const T& t) noexcept;
+    	template <typename T>
     	bool unsafe_append(const T& t) noexcept;
 	};
 
