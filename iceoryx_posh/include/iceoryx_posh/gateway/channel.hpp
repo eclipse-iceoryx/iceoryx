@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_GATEWAY_CHANNEL_HPP
-#define IOX_POSH_GATEWAY_CHANNEL_HPP
+#ifndef IOX_POSH_GW_CHANNEL_HPP
+#define IOX_POSH_GW_CHANNEL_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
@@ -25,7 +25,7 @@
 
 namespace iox
 {
-namespace popo
+namespace gw
 {
 enum class ChannelError : uint8_t
 {
@@ -53,12 +53,12 @@ template <typename IceoryxTerminal, typename ExternalTerminal>
 class Channel
 {
     using IceoryxTerminalPtr = std::shared_ptr<IceoryxTerminal>;
-    using IceoryxTerminalPool = iox::cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
+    using IceoryxTerminalPool = cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
     using ExternalTerminalPtr = std::shared_ptr<ExternalTerminal>;
-    using ExternalTerminalPool = iox::cxx::ObjectPool<ExternalTerminal, MAX_CHANNEL_NUMBER>;
+    using ExternalTerminalPool = cxx::ObjectPool<ExternalTerminal, MAX_CHANNEL_NUMBER>;
 
   public:
-    Channel(const iox::capro::ServiceDescription& service,
+    Channel(const capro::ServiceDescription& service,
             const IceoryxTerminalPtr iceoryxTerminal,
             const ExternalTerminalPtr externalTerminal) noexcept;
 
@@ -69,9 +69,9 @@ class Channel
     /// @param service The service to create the channel for.
     /// @return A copy of the created channel, if successful.
     ///
-    static iox::cxx::expected<Channel, ChannelError> create(const iox::capro::ServiceDescription& service) noexcept;
+    static cxx::expected<Channel, ChannelError> create(const capro::ServiceDescription& service) noexcept;
 
-    iox::capro::ServiceDescription getServiceDescription() const noexcept;
+    capro::ServiceDescription getServiceDescription() const noexcept;
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;
     ExternalTerminalPtr getExternalTerminal() const noexcept;
 
@@ -79,14 +79,14 @@ class Channel
     static IceoryxTerminalPool s_iceoryxTerminals;
     static ExternalTerminalPool s_externalTerminals;
 
-    iox::capro::ServiceDescription m_service;
+    capro::ServiceDescription m_service;
     IceoryxTerminalPtr m_iceoryxTerminal;
     ExternalTerminalPtr m_externalTerminal;
 };
 
-} // namespace popo
+} // namespace gw
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/gateway/channel.inl"
+#include "iceoryx_posh/internal/gateway/channel.inl"
 
-#endif // IOX_POSH_GATEWAY_CHANNEL_HPP
+#endif // IOX_POSH_GW_CHANNEL_HPP

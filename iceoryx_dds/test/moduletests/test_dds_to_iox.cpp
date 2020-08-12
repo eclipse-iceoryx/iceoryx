@@ -14,7 +14,7 @@
 
 #include "helpers/fixture_dds_gateway.hpp"
 
-#include "iceoryx_posh/popo/gateway/channel.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 
 #include "mocks/chunk_mock.hpp"
@@ -26,7 +26,7 @@ using namespace ::testing;
 using ::testing::_;
 
 // ======================================== Helpers ======================================== //
-using TestChannel = iox::popo::Channel<MockPublisher, MockDataReader>;
+using TestChannel = iox::gw::Channel<MockPublisher, MockDataReader>;
 using TestGateway = iox::dds::DDS2IceoryxGateway<TestChannel, MockGenericGateway<TestChannel>>;
 
 // ======================================== Fixture ======================================== //
@@ -39,8 +39,8 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    iox::popo::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::popo::GatewayConfig::ServiceEntry{testService});
+    iox::gw::GatewayConfig config{};
+    config.m_configuredServices.push_back(iox::gw::GatewayConfig::ServiceEntry{testService});
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
@@ -55,8 +55,8 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyOffersConfiguredPublishers)
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
-    iox::popo::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::popo::GatewayConfig::ServiceEntry{testService});
+    iox::gw::GatewayConfig config{};
+    config.m_configuredServices.push_back(iox::gw::GatewayConfig::ServiceEntry{testService});
 
     auto mockPublisher = createMockIceoryxTerminal(testService);
     EXPECT_CALL(*mockPublisher, offer).Times(1);
@@ -75,8 +75,8 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
-    iox::popo::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::popo::GatewayConfig::ServiceEntry{testService});
+    iox::gw::GatewayConfig config{};
+    config.m_configuredServices.push_back(iox::gw::GatewayConfig::ServiceEntry{testService});
 
     auto mockDataReader = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockDataReader, connect).Times(1);

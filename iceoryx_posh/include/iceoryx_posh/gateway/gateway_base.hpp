@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_GATEWAY_BASE_HPP
-#define IOX_POSH_POPO_GATEWAY_BASE_HPP
+#ifndef IOX_POSH_GW_GATEWAY_BASE_HPP
+#define IOX_POSH_GW_GATEWAY_BASE_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -22,14 +22,18 @@
 
 namespace iox
 {
+
 namespace capro
 {
 class CaproMessage;
 }
+
 namespace popo
 {
 class InterfacePort;
+}
 
+namespace gw {
 /// @brief Generic gateway for communication events
 class GatewayBase
 {
@@ -57,10 +61,10 @@ class GatewayBase
     }
 
   protected:
-    InterfacePort m_interfaceImpl{nullptr};
+    popo::InterfacePort m_interfaceImpl{nullptr};
 };
 
-} // namespace popo
+} // namespace gw
 } // namespace iox
 
-#endif // IOX_POSH_POPO_GATEWAY_BASE_HPP
+#endif // IOX_POSH_GW_GATEWAY_BASE_HPP

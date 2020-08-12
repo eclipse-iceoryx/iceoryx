@@ -15,8 +15,8 @@
 #include "helpers/fixture_dds_gateway.hpp"
 
 #include "iceoryx_dds/dds/data_writer.hpp"
-#include "iceoryx_posh/popo/gateway/channel.hpp"
-#include "iceoryx_posh/popo/gateway/gateway_config.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
+#include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_dds/gateway/iox_to_dds.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -37,7 +37,7 @@ using ::testing::Return;
 using ::testing::SetArgPointee;
 
 // ======================================== Helpers ======================================== //
-using TestChannel = iox::popo::Channel<MockSubscriber, MockDataWriter>;
+using TestChannel = iox::gw::Channel<MockSubscriber, MockDataWriter>;
 using TestGateway = iox::dds::Iceoryx2DDSGateway<TestChannel, MockGenericGateway<TestChannel>>;
 
 // ======================================== Fixture ======================================== //
@@ -50,8 +50,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    iox::popo::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::popo::GatewayConfig::ServiceEntry{testService});
+    iox::gw::GatewayConfig config{};
+    config.m_configuredServices.push_back(iox::gw::GatewayConfig::ServiceEntry{testService});
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
@@ -65,8 +65,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelySubscribesToDataFromConfiguredServices
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    iox::popo::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::popo::GatewayConfig::ServiceEntry{testService});
+    iox::gw::GatewayConfig config{};
+    config.m_configuredServices.push_back(iox::gw::GatewayConfig::ServiceEntry{testService});
 
     auto mockSubscriber = createMockIceoryxTerminal(testService);
     EXPECT_CALL(*mockSubscriber, subscribe).Times(1);
@@ -84,8 +84,8 @@ TEST_F(Iceoryx2DDSGatewayTest, ImmediatelyConnectsCreatedDataWritersForConfigure
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    iox::popo::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::popo::GatewayConfig::ServiceEntry{testService});
+    iox::gw::GatewayConfig config{};
+    config.m_configuredServices.push_back(iox::gw::GatewayConfig::ServiceEntry{testService});
 
     auto mockWriter = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockWriter, connect).Times(1);
@@ -303,7 +303,7 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     EXPECT_CALL(gw, findChannel)
         .WillOnce(Return(iox::cxx::nullopt_t()))
         .WillOnce(Return(
-            iox::cxx::make_optional<iox::popo::Channel<MockSubscriber, MockDataWriter>>(testChannelOne.get_value())))
+            iox::cxx::make_optional<iox::gw::Channel<MockSubscriber, MockDataWriter>>(testChannelOne.get_value())))
         .WillOnce(Return(iox::cxx::nullopt_t()));
     EXPECT_CALL(gw, addChannel(_)).WillOnce(Return(testChannelOne)).WillOnce(Return(testChannelTwo));
     EXPECT_CALL(gw, discardChannel).WillOnce(Return(iox::cxx::success<>()));

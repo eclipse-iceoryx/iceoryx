@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_GATEWAY_DISCOVERY_HPP
-#define IOX_POSH_POPO_GATEWAY_DISCOVERY_HPP
+#ifndef IOX_POSH_GW_GATEWAY_DISCOVERY_HPP
+#define IOX_POSH_GW_GATEWAY_DISCOVERY_HPP
 
 #include "gateway_generic.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -23,7 +23,7 @@ namespace capro
 {
 class CaproMessage;
 }
-namespace popo
+namespace gw
 {
 class InterfacePort;
 
@@ -58,7 +58,7 @@ class GatewayDiscovery
   private:
     Impl_T m_impl;
 };
-} // namespace popo
+} // namespace gw
 } // namespace iox
 
-#endif // IOX_POSH_POPO_GATEWAY_DISCOVERY_HPP
+#endif // IOX_POSH_GW_GATEWAY_DISCOVERY_HPP

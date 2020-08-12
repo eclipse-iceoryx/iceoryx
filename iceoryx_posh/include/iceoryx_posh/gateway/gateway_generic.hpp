@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_GATEWAY_GENERIC_HPP
-#define IOX_POSH_GATEWAY_GENERIC_HPP
+#ifndef IOX_POSH_GW_GATEWAY_GENERIC_HPP
+#define IOX_POSH_GW_GATEWAY_GENERIC_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/popo/gateway/gateway_config.hpp"
-#include "iceoryx_posh/popo/gateway/gateway_base.hpp"
+#include "iceoryx_posh/gateway/gateway_config.hpp"
+#include "iceoryx_posh/gateway/gateway_base.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -32,7 +32,7 @@
 
 namespace iox
 {
-namespace popo
+namespace gw
 {
 enum class GatewayError : uint8_t
 {
@@ -48,11 +48,11 @@ enum class GatewayError : uint8_t
 ///
 /// When run, the gateway will automatically call the respective methods when required.
 ///
-template <typename channel_t, typename gateway_t = iox::popo::GatewayBase>
+template <typename channel_t, typename gateway_t = GatewayBase>
 class GatewayGeneric : public gateway_t
 {
-    using ChannelVector = iox::cxx::vector<channel_t, MAX_CHANNEL_NUMBER>;
-    using ConcurrentChannelVector = iox::concurrent::smart_lock<ChannelVector>;
+    using ChannelVector = cxx::vector<channel_t, MAX_CHANNEL_NUMBER>;
+    using ConcurrentChannelVector = concurrent::smart_lock<ChannelVector>;
 
   public:
     virtual ~GatewayGeneric() noexcept;
@@ -74,7 +74,7 @@ class GatewayGeneric : public gateway_t
     /// @brief discover Process discovery messages coming from iceoryx.
     /// @param msg The discovery message.
     ///
-    virtual void discover(const iox::capro::CaproMessage& msg) noexcept = 0;
+    virtual void discover(const capro::CaproMessage& msg) noexcept = 0;
     ///
     /// @brief forward Forward data between the two terminals of the channel used by the implementation.
     /// @param channel The channel to propogate data across.
@@ -105,8 +105,8 @@ class GatewayGeneric : public gateway_t
     /// The service description is perhaps too large for copying since they contain strings, however this should be
     /// addressed with a service description repository feature.
     ///
-    iox::cxx::expected<channel_t, GatewayError>
-    addChannel(const iox::capro::ServiceDescription& service) noexcept;
+    cxx::expected<channel_t, GatewayError>
+    addChannel(const capro::ServiceDescription& service) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns
@@ -114,21 +114,21 @@ class GatewayGeneric : public gateway_t
     /// @param service The service to find a channel for.
     /// @return An optional containining the matching channel if one exists, otherwise an empty optional.
     ///
-    iox::cxx::optional<channel_t> findChannel(const iox::capro::ServiceDescription& service) const noexcept;
+    cxx::optional<channel_t> findChannel(const capro::ServiceDescription& service) const noexcept;
 
     ///
     /// @brief forEachChannel Executs the given function for each channel in the internally stored collection.
     /// @param f The function to execute.
     /// @note This operation allows thread-safe access to the internal collection.
     ///
-    void forEachChannel(const iox::cxx::function_ref<void(channel_t&)> f) const noexcept;
+    void forEachChannel(const cxx::function_ref<void(channel_t&)> f) const noexcept;
 
     ///
     /// @brief discardChannel Discard the channel for the given service in the internal collection if one exists.
     /// @param service The service whose channels hiould be discarded.
     /// @return an empty expected on success, otherwise an error
     ///
-    iox::cxx::expected<GatewayError> discardChannel(const iox::capro::ServiceDescription& service) noexcept;
+    cxx::expected<GatewayError> discardChannel(const capro::ServiceDescription& service) noexcept;
 
   private:
     ConcurrentChannelVector m_channels;
@@ -145,9 +145,9 @@ class GatewayGeneric : public gateway_t
     void discoveryLoop() noexcept;
 };
 
-} // namespace popo
+} // namespace gw
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/gateway/gateway_generic.inl"
+#include "iceoryx_posh/internal/gateway/gateway_generic.inl"
 
-#endif // IOX_POSH_GATEWAY_GENERIC_HPP
+#endif // IOX_POSH_GW_GATEWAY_GENERIC_HPP

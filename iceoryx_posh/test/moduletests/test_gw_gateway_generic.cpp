@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/popo/gateway/channel.hpp"
-#include "iceoryx_posh/popo/gateway/gateway_config.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
+#include "iceoryx_posh/gateway/gateway_config.hpp"
 
 #include "test.hpp"
 
@@ -38,8 +38,8 @@ struct StubbedExternalTerminal
     StubbedExternalTerminal(IdString sid, IdString iid, IdString eid){};
 };
 
-using TestChannel = iox::popo::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
-using TestGatewayGeneric = iox::popo::StubbedGatewayGeneric<TestChannel>;
+using TestChannel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
+using TestGatewayGeneric = iox::gw::StubbedGatewayGeneric<TestChannel>;
 
 // ======================================== Fixture ======================================== //
 class GatewayGenericTest : public Test
@@ -94,10 +94,10 @@ TEST_F(GatewayGenericTest, IgnoresWildcardServices)
     auto resultThree = gw.addChannel(wildcardInstanceService);
     auto resultFour = gw.addChannel(wildcardEventService);
 
-    EXPECT_EQ(iox::popo::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultOne.get_error());
-    EXPECT_EQ(iox::popo::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultTwo.get_error());
-    EXPECT_EQ(iox::popo::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultThree.get_error());
-    EXPECT_EQ(iox::popo::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultFour.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultOne.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultTwo.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultThree.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultFour.get_error());
 
     EXPECT_EQ(0, gw.getNumberOfChannels());
 }
@@ -161,7 +161,7 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
 
     auto result = gw.addChannel({"oneTooMany", "oneTooMany", "oneTooMany"});
     EXPECT_EQ(true, result.has_error());
-    EXPECT_EQ(iox::popo::GatewayError::UNSUCCESSFUL_CHANNEL_CREATION, result.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUCCESSFUL_CHANNEL_CREATION, result.get_error());
 }
 
 TEST_F(GatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChannel)

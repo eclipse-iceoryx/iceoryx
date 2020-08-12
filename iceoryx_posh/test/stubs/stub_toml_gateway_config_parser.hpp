@@ -15,24 +15,24 @@
 #ifndef IOX_POSH_STUBS_TOML_GATEWAY_CONFIG_PARSER_HPP
 #define IOX_POSH_STUBS_TOML_GATEWAY_CONFIG_PARSER_HPP
 
-#include "iceoryx_posh/popo/gateway/toml_gateway_config_parser.hpp"
+#include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 
 #include "iceoryx_utils/cxx/expected.hpp"
 
 namespace iox
 {
-namespace popo
+namespace gw
 {
 ///
 /// @brief The StubbedTomlGatewayConfigParser class exposes protected methods in the TomlGatewayConfigParser os that
 /// they can be tested.
 ///
-class StubbedTomlGatewayConfigParser : public iox::popo::TomlGatewayConfigParser
+class StubbedTomlGatewayConfigParser : public TomlGatewayConfigParser
 {
   public:
-    static iox::cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept
+    static cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept
     {
-        return iox::popo::TomlGatewayConfigParser::validate(parsedToml);
+        return TomlGatewayConfigParser::validate(parsedToml);
     }
 };
 

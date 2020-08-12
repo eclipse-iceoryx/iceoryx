@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/gateway/gateway_base.hpp"
+#include "iceoryx_posh/gateway/gateway_base.hpp"
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "roudi_gtest.hpp"
@@ -22,7 +22,7 @@
 using namespace ::testing;
 using ::testing::Return;
 
-using namespace iox::popo;
+using namespace iox::gw;
 
 class InterfacePortRequestStackBlowup_test : public RouDi_GTest
 {

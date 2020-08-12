@@ -15,17 +15,17 @@
 #ifndef IOX_POSH_STUBS_GATEWAY_GENERIC_HPP
 #define IOX_POSH_STUBS_GATEWAY_GENERIC_HPP
 
-#include "iceoryx_posh/popo/gateway/channel.hpp"
-#include "iceoryx_posh/popo/gateway/gateway_generic.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
+#include "iceoryx_posh/gateway/gateway_generic.hpp"
 
 #include "mocks/gateway_base_mock.hpp"
 
 namespace iox
 {
-namespace popo
+namespace gw
 {
 template <typename channel_t>
-using TestGatewayGeneric = iox::popo::GatewayGeneric<channel_t, MockGatewayBase>;
+using TestGatewayGeneric = iox::gw::GatewayGeneric<channel_t, MockGatewayBase>;
 
 ///
 /// @brief The StubbedDDSGatewayGeneric class stubs out the pure virtual methods and exposes the protected methods
@@ -54,7 +54,7 @@ class StubbedGatewayGeneric : public TestGatewayGeneric<channel_t>
         // Stubbed.
     }
 
-    iox::cxx::expected<channel_t, iox::popo::GatewayError>
+    iox::cxx::expected<channel_t, iox::gw::GatewayError>
     addChannel(const iox::capro::ServiceDescription& service) noexcept
     {
         return TestGatewayGeneric<channel_t>::addChannel(service);
@@ -70,7 +70,7 @@ class StubbedGatewayGeneric : public TestGatewayGeneric<channel_t>
         TestGatewayGeneric<channel_t>::forEachChannel(f);
     }
 
-    iox::cxx::expected<iox::popo::GatewayError> discardChannel(const iox::capro::ServiceDescription& service) noexcept
+    iox::cxx::expected<iox::gw::GatewayError> discardChannel(const iox::capro::ServiceDescription& service) noexcept
     {
         return TestGatewayGeneric<channel_t>::discardChannel(service);
     }

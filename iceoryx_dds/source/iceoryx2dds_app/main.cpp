@@ -16,8 +16,8 @@
 
 #include "iceoryx_dds/gateway/iox_to_dds.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
-#include "iceoryx_posh/popo/gateway/gateway_config.hpp"
-#include "iceoryx_posh/popo/gateway/toml_gateway_config_parser.hpp"
+#include "iceoryx_posh/gateway/gateway_config.hpp"
+#include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -54,13 +54,13 @@ int main()
 
     iox::dds::Iceoryx2DDSGateway<> gw;
 
-    iox::popo::TomlGatewayConfigParser::parse()
-        .and_then([&](iox::popo::GatewayConfig config) { gw.loadConfiguration(config); })
-        .or_else([&](iox::popo::TomlGatewayConfigParseError err) {
+    iox::gw::TomlGatewayConfigParser::parse()
+        .and_then([&](iox::gw::GatewayConfig config) { gw.loadConfiguration(config); })
+        .or_else([&](iox::gw::TomlGatewayConfigParseError err) {
             iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
-                                << iox::popo::TomlGatewayConfigParseErrorString[err];
+                                << iox::gw::TomlGatewayConfigParseErrorString[err];
             iox::dds::LogWarn() << "[Main] Using default configuration.";
-            iox::popo::GatewayConfig defaultConfig;
+            iox::gw::GatewayConfig defaultConfig;
             defaultConfig.setDefaults();
             gw.loadConfiguration(defaultConfig);
         });

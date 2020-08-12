@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_GATEWAY_CHANNEL_INL
-#define IOX_POSH_GATEWAY_CHANNEL_INL
+#ifndef IOX_POSH_GW_CHANNEL_INL
+#define IOX_POSH_GW_CHANNEL_INL
 
 #include "iceoryx_posh/popo/gateway/channel.hpp"
 
 namespace iox
 {
-namespace popo
+namespace gw
 {
 // Typedefs
 template <typename IceoryxTerminal>
-using IceoryxTerminalPool = iox::cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
+using IceoryxTerminalPool = cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
 template <typename ExternalTerminal>
-using ExternalTerminalPool = iox::cxx::ObjectPool<ExternalTerminal, MAX_CHANNEL_NUMBER>;
+using ExternalTerminalPool = cxx::ObjectPool<ExternalTerminal, MAX_CHANNEL_NUMBER>;
 
 // Statics
 template <typename IceoryxTerminal, typename ExternalTerminal>
@@ -34,7 +34,7 @@ template <typename IceoryxTerminal, typename ExternalTerminal>
 ExternalTerminalPool<ExternalTerminal> Channel<IceoryxTerminal, ExternalTerminal>::s_externalTerminals = ExternalTerminalPool();
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
-inline Channel<IceoryxTerminal, ExternalTerminal>::Channel(const iox::capro::ServiceDescription& service,
+inline Channel<IceoryxTerminal, ExternalTerminal>::Channel(const capro::ServiceDescription& service,
                                                       const IceoryxTerminalPtr iceoryxTerminal,
                                                       const ExternalTerminalPtr externalTerminal) noexcept
     : m_service(service)
@@ -51,20 +51,20 @@ Channel<IceoryxTerminal, ExternalTerminal>::operator==(const Channel<IceoryxTerm
 }
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
-inline iox::cxx::expected<Channel<IceoryxTerminal, ExternalTerminal>, ChannelError>
-Channel<IceoryxTerminal, ExternalTerminal>::create(const iox::capro::ServiceDescription& service) noexcept
+inline cxx::expected<Channel<IceoryxTerminal, ExternalTerminal>, ChannelError>
+Channel<IceoryxTerminal, ExternalTerminal>::create(const capro::ServiceDescription& service) noexcept
 {
     // Create objects in the pool.
-    auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const iox::capro::ServiceDescription>(service));
+    auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const capro::ServiceDescription>(service));
     if (rawIceoryxTerminalPtr == nullptr)
     {
-        return iox::cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
+        return cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
     }
     auto rawExternalTerminalPtr =
         s_externalTerminals.create(service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
     if (rawExternalTerminalPtr == nullptr)
     {
-        return iox::cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
+        return cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
     }
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
@@ -72,11 +72,11 @@ Channel<IceoryxTerminal, ExternalTerminal>::create(const iox::capro::ServiceDesc
         IceoryxTerminalPtr(rawIceoryxTerminalPtr, [](IceoryxTerminal* const p) { s_iceoryxTerminals.free(p); });
     auto externalTerminalPtr = ExternalTerminalPtr(rawExternalTerminalPtr, [](ExternalTerminal* const p) { s_externalTerminals.free(p); });
 
-    return iox::cxx::success<Channel>(Channel(service, iceoryxTerminalPtr, externalTerminalPtr));
+    return cxx::success<Channel>(Channel(service, iceoryxTerminalPtr, externalTerminalPtr));
 }
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
-inline iox::capro::ServiceDescription Channel<IceoryxTerminal, ExternalTerminal>::getServiceDescription() const noexcept
+inline capro::ServiceDescription Channel<IceoryxTerminal, ExternalTerminal>::getServiceDescription() const noexcept
 {
     return m_service;
 }
@@ -93,7 +93,7 @@ inline std::shared_ptr<ExternalTerminal> Channel<IceoryxTerminal, ExternalTermin
     return m_externalTerminal;
 }
 
-} // namespace popo
+} // namespace gw
 } // namespace iox
 
-#endif // IOX_POSH_GATEWAY_CHANNEL_INL
+#endif // IOX_POSH_GW_CHANNEL_INL

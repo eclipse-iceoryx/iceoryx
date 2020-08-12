@@ -12,23 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_GATEWAY_GENERIC_INL
-#define IOX_POSH_GATEWAY_GENERIC_INL
+#ifndef IOX_POSH_GW_GATEWAY_GENERIC_INL
+#define IOX_POSH_GW_GATEWAY_GENERIC_INL
 
-#include "iceoryx_posh/popo/gateway/gateway_generic.hpp"
+#include "iceoryx_posh/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 
 // ================================================== Public ================================================== //
 
+namespace iox {
+namespace gw {
+
 template <typename channel_t, typename gateway_t>
-inline iox::popo::GatewayGeneric<channel_t, gateway_t>::~GatewayGeneric() noexcept
+inline GatewayGeneric<channel_t, gateway_t>::~GatewayGeneric() noexcept
 {
     shutdown();
 }
 
 template <typename channel_t, typename gateway_t>
-inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::runMultithreaded() noexcept
+inline void GatewayGeneric<channel_t, gateway_t>::runMultithreaded() noexcept
 {
     m_discoveryThread = std::thread([this] { this->discoveryLoop(); });
     m_forwardingThread = std::thread([this] { this->forwardingLoop(); });
@@ -36,7 +39,7 @@ inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::runMultithreaded() 
 }
 
 template <typename channel_t, typename gateway_t>
-inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::shutdown() noexcept
+inline void GatewayGeneric<channel_t, gateway_t>::shutdown() noexcept
 {
     if (m_isRunning.load(std::memory_order_relaxed))
     {
@@ -48,7 +51,7 @@ inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::shutdown() noexcept
 }
 
 template <typename channel_t, typename gateway_t>
-inline uint64_t iox::popo::GatewayGeneric<channel_t, gateway_t>::getNumberOfChannels() const noexcept
+inline uint64_t GatewayGeneric<channel_t, gateway_t>::getNumberOfChannels() const noexcept
 {
     return m_channels->size();
 }
@@ -56,48 +59,48 @@ inline uint64_t iox::popo::GatewayGeneric<channel_t, gateway_t>::getNumberOfChan
 // ================================================== Protected ================================================== //
 
 template <typename channel_t, typename gateway_t>
-inline iox::popo::GatewayGeneric<channel_t, gateway_t>::GatewayGeneric(iox::capro::Interfaces interface,
+inline GatewayGeneric<channel_t, gateway_t>::GatewayGeneric(capro::Interfaces interface,
                                                                        units::Duration discoveryPeriod,
                                                                        units::Duration forwardingPeriod) noexcept
     : gateway_t(interface), m_discoveryPeriod(discoveryPeriod), m_forwardingPeriod(forwardingPeriod)
 {}
 
 template <typename channel_t, typename gateway_t>
-inline iox::cxx::expected<channel_t, iox::popo::GatewayError>
-iox::popo::GatewayGeneric<channel_t, gateway_t>::addChannel(const iox::capro::ServiceDescription& service) noexcept
+inline cxx::expected<channel_t, GatewayError>
+GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription& service) noexcept
 {
     // Filter out wildcard services
-    if (service.getServiceID() == iox::capro::AnyService || service.getInstanceID() == iox::capro::AnyInstance
-        || service.getEventID() == iox::capro::AnyEvent)
+    if (service.getServiceID() == capro::AnyService || service.getInstanceID() == capro::AnyInstance
+        || service.getEventID() == capro::AnyEvent)
     {
-        return iox::cxx::error<GatewayError>(GatewayError::UNSUPPORTED_SERVICE_TYPE);
+        return cxx::error<GatewayError>(GatewayError::UNSUPPORTED_SERVICE_TYPE);
     }
 
     // Return existing channel if one for the service already exists, otherwise create a new one
     auto existingChannel = findChannel(service);
     if (existingChannel.has_value())
     {
-        return iox::cxx::success<channel_t>(existingChannel.value());
+        return cxx::success<channel_t>(existingChannel.value());
     }
     else
     {
         auto result = channel_t::create(service);
         if (result.has_error())
         {
-            return iox::cxx::error<GatewayError>(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
+            return cxx::error<GatewayError>(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
         }
         else
         {
             auto channel = result.get_value();
             m_channels->push_back(channel);
-            return iox::cxx::success<channel_t>(channel);
+            return cxx::success<channel_t>(channel);
         }
     }
 }
 
 template <typename channel_t, typename gateway_t>
-inline iox::cxx::optional<channel_t>
-iox::popo::GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescription& service) const
+inline cxx::optional<channel_t>
+GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescription& service) const
     noexcept
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
@@ -106,17 +109,17 @@ iox::popo::GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::S
     });
     if (channel == guardedVector->end())
     {
-        return iox::cxx::nullopt_t();
+        return cxx::nullopt_t();
     }
     else
     {
-        return iox::cxx::make_optional<channel_t>(*channel);
+        return cxx::make_optional<channel_t>(*channel);
     }
 }
 
 template <typename channel_t, typename gateway_t>
-inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::forEachChannel(
-    const iox::cxx::function_ref<void(channel_t&)> f) const noexcept
+inline void GatewayGeneric<channel_t, gateway_t>::forEachChannel(
+    const cxx::function_ref<void(channel_t&)> f) const noexcept
 {
     auto guardedVector = m_channels.GetScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
@@ -126,8 +129,8 @@ inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::forEachChannel(
 }
 
 template <typename channel_t, typename gateway_t>
-inline iox::cxx::expected<iox::popo::GatewayError> iox::popo::GatewayGeneric<channel_t, gateway_t>::discardChannel(
-    const iox::capro::ServiceDescription& service) noexcept
+inline cxx::expected<GatewayError> GatewayGeneric<channel_t, gateway_t>::discardChannel(
+    const capro::ServiceDescription& service) noexcept
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
@@ -136,23 +139,23 @@ inline iox::cxx::expected<iox::popo::GatewayError> iox::popo::GatewayGeneric<cha
     if (channel != guardedVector->end())
     {
         guardedVector->erase(channel);
-        return iox::cxx::success<void>();
+        return cxx::success<void>();
     }
     else
     {
-        return iox::cxx::error<GatewayError>(GatewayError::NONEXISTANT_CHANNEL);
+        return cxx::error<GatewayError>(GatewayError::NONEXISTANT_CHANNEL);
     }
 }
 
 // ================================================== Private ================================================== //
 
 template <typename channel_t, typename gateway_t>
-inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::discoveryLoop() noexcept
+inline void GatewayGeneric<channel_t, gateway_t>::discoveryLoop() noexcept
 {
     while (m_isRunning.load(std::memory_order_relaxed))
     {
         auto startTime = std::chrono::steady_clock::now();
-        iox::capro::CaproMessage msg;
+        capro::CaproMessage msg;
         while (this->getCaProMessage(msg))
         {
             discover(msg);
@@ -162,7 +165,7 @@ inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::discoveryLoop() noe
 }
 
 template <typename channel_t, typename gateway_t>
-inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::forwardingLoop() noexcept
+inline void GatewayGeneric<channel_t, gateway_t>::forwardingLoop() noexcept
 {
     while (m_isRunning.load(std::memory_order_relaxed))
     {
@@ -172,4 +175,7 @@ inline void iox::popo::GatewayGeneric<channel_t, gateway_t>::forwardingLoop() no
     };
 }
 
-#endif // IOX_POSH_GATEWAY_GENERIC_INL
+} // namespace gw
+} // namespace iox
+
+#endif // IOX_POSH_GW_GATEWAY_GENERIC_INL

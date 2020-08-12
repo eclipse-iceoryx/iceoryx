@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_INTERNAL_GATEWAY_DDS_TO_IOX_INL
-#define IOX_DDS_INTERNAL_GATEWAY_DDS_TO_IOX_INL
+#ifndef IOX_DDS_DDS_TO_IOX_INL
+#define IOX_DDS_DDS_TO_IOX_INL
 
 #include "iceoryx_dds/dds/dds_config.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
@@ -26,20 +26,20 @@ namespace dds
 {
 template <typename channel_t, typename gateway_t>
 inline DDS2IceoryxGateway<channel_t, gateway_t>::DDS2IceoryxGateway() noexcept
-    : gateway_t(iox::capro::Interfaces::DDS, DISCOVERY_PERIOD, FORWARDING_PERIOD)
+    : gateway_t(capro::Interfaces::DDS, DISCOVERY_PERIOD, FORWARDING_PERIOD)
 {
 }
 
 template <typename channel_t, typename gateway_t>
-inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const iox::popo::GatewayConfig& config) noexcept
+inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const gw::GatewayConfig& config) noexcept
 {
-    iox::LogDebug() << "[DDS2IceoryxGateway] Configuring gateway...";
+    LogDebug() << "[DDS2IceoryxGateway] Configuring gateway...";
     for (const auto& service : config.m_configuredServices)
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
             auto serviceDescription =  service.m_serviceDescription;
-            iox::LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
+            LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
                             << serviceDescription.getServiceIDString() << ", "
                             << serviceDescription.getInstanceIDString() << ", "
                             << serviceDescription.getEventIDString() << "}";
@@ -50,7 +50,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const io
 
 template <typename channel_t, typename gateway_t>
 inline void
-DDS2IceoryxGateway<channel_t, gateway_t>::discover([[gnu::unused]] const iox::capro::CaproMessage& msg) noexcept
+DDS2IceoryxGateway<channel_t, gateway_t>::discover([[gnu::unused]] const capro::CaproMessage& msg) noexcept
 {
     /// @note not implemented - requires dds discovery which is currently not implemented in the used dds stack.
 }
@@ -73,15 +73,15 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
             })
             .or_else([&](DataReaderError err) {
                 LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
-                          << iox::dds::DataReaderErrorString[static_cast<uint8_t>(err)];
+                          << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
             });
     });
 }
 
 // ======================================== Private ======================================== //
 template <typename channel_t, typename gateway_t>
-iox::cxx::expected<channel_t, iox::popo::GatewayError>
-DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
+cxx::expected<channel_t, gw::GatewayError>
+DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service) noexcept
 {
     return this->addChannel(service).and_then([&service](channel_t channel) {
         auto publisher = channel.getIceoryxTerminal();
@@ -96,4 +96,4 @@ DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const iox::capro::Service
 } // namespace dds
 } // namespace iox
 
-#endif
+#endif // IOX_DDS_DDS_TO_IOX_INL
