@@ -109,22 +109,14 @@ inline uint64_t ChunkQueuePopper<ChunkQueueDataType>::getMaximumCapacity() const
 template <typename ChunkQueueDataType>
 inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
 {
-    do
+    while (auto maybeChunkTuple = getMembers()->m_queue.pop())
     {
-        auto retVal = getMembers()->m_queue.pop();
-        if (retVal.has_value())
-        {
-            // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
-            auto chunkTupleOut = *retVal;
-            auto chunkManagement =
-                iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
-            auto chunk = mepoo::SharedChunk(chunkManagement);
-        }
-        else
-        {
-            break;
-        }
-    } while (true);
+        // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
+        auto chunkTupleOut = maybeChunkTuple.value();
+        auto chunkManagement =
+            iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+        auto chunk = mepoo::SharedChunk(chunkManagement);
+    }
 }
 
 template <typename ChunkQueueDataType>

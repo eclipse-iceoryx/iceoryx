@@ -209,25 +209,17 @@ TEST_F(RoudiFindService_test, InterfacePort)
 
     bool serviceFound = false;
 
-    do
+    while (auto maybeCaProMessage = interfacePort.getCaProMessage())
     {
-        auto maybeCaProMessage = interfacePort.getCaProMessage();
-        if (maybeCaProMessage.has_value())
+        auto caproMessage = maybeCaProMessage.value();
+        if ((caproMessage.m_serviceDescription.getServiceIDString() == IdString("service1"))
+            && (caproMessage.m_serviceDescription.getInstanceIDString() == IdString("instance1"))
+            && ((caproMessage.m_serviceDescription.getEventIDString() == IdString(iox::capro::AnyEventString))))
         {
-            auto caproMessage = maybeCaProMessage.value();
-            if ((caproMessage.m_serviceDescription.getServiceIDString() == IdString("service1"))
-                && (caproMessage.m_serviceDescription.getInstanceIDString() == IdString("instance1"))
-                && ((caproMessage.m_serviceDescription.getEventIDString() == IdString(iox::capro::AnyEventString))))
-            {
-                serviceFound = true;
-                break;
-            }
-        }
-        else
-        {
+            serviceFound = true;
             break;
         }
-    } while (true);
+    }
 
     EXPECT_THAT(serviceFound, Eq(true));
 }
