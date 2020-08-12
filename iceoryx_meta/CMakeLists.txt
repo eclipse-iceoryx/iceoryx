@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 file (STRINGS "../VERSION" iceoryx_VERSION)
-project(iceoryx VERSION ${iceoryx_VERSION})
+project(iceoryx_meta VERSION ${iceoryx_VERSION})
 
 option(TOML_CONFIG "activates or deactivates TOML support - without TOML RouDi will not be build" ON)
 option(BUILD_STRICT "Build is performed with '-Werror'" OFF)

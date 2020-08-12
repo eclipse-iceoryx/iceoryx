@@ -40,10 +40,10 @@ void GuardCondition::resetTrigger() noexcept
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
-bool GuardCondition::setConditionVariable(ConditionVariableData* ConditionVariableDataPtr) noexcept
+bool GuardCondition::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
-    m_conditionVariableDataPtr = ConditionVariableDataPtr;
+    m_conditionVariableDataPtr = conditionVariableDataPtr;
     return true;
 }
 

@@ -40,12 +40,20 @@ An example for a "porcelain" API would be [ROS2](https://www.ros.org/). Others a
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
 
-### Supported Platforms
+### Targeted quality levels & platforms
 
- * Linux
- * QNX
- * macOS (initial support - please test and report bugs)
- * Windows 10 (not yet - currently in progress)
+> [Quality level](./CONTRIBUTING.md#quality-levels) are 5..1, where 1 is highest
+
+|CMake project/target   | QNX  | Linux, Windows, MacOS | Comment                             |
+|-----------------------|:----:|:---------------------:|:-----------------------------------:|
+| example_icedelivery   | 5    | 5                     |                                     |
+| example_iceperf       | 5    | 5                     |                                     |
+| example_singleprocess | 5    | 5                     |                                     |
+| iceoryx_dds           | 4    | 4                     |                                     |
+| iceoryx_meta          | 5    | 5                     |                                     |
+| iceoryx_posh          | 1, 2 | 4                     | Will be split into separate targets |
+| iceoryx_utils         | 1    | 4                     |                                     |
+| iceoryx_introspection | 5    | 5                     |                                     |
 
 ### Scope
 
@@ -91,10 +99,10 @@ cd iceoryx
 ICEORYX_DIR=$PWD
 mkdir -p build
 cd build
-git clone https://github.com/mirror/ncurses.git 
+git clone https://github.com/mirror/ncurses.git
 cd ncurses
 git checkout v6.2
-./configure  --prefix=$ICEORYX_DIR/build/dependencies/ --exec-prefix=$ICEORYX_DIR/build/dependencies/ --with-termlib 
+./configure  --prefix=$ICEORYX_DIR/build/dependencies/ --exec-prefix=$ICEORYX_DIR/build/dependencies/ --with-termlib
 make -j12
 make install
 ```
@@ -104,7 +112,7 @@ If you would like to use our Cyclone DDS Gateway you have to install Cyclone DDS
 
 #### Linux
 
-Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 18.04 and at least GCC 7.4.0 for development.
+Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 18.04 and at least GCC 7.5.0 for development.
 
 You will need to install the following packages:
     ```

@@ -91,7 +91,8 @@ class SubscriberPortUser
 
     MemberType_t* m_subscriberPortDataPtr;
 
-    ChunkReceiver m_chunkReceiver;
+    using ChunkQueuePopper_t = ChunkQueuePopper<SubscriberPortData::ChunkQueueData_t>;
+    ChunkReceiver<ChunkQueuePopper_t> m_chunkReceiver;
 };
 
 } // namespace popo

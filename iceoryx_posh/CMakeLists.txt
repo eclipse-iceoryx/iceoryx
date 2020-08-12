@@ -74,27 +74,22 @@ add_library(iceoryx_posh
     source/popo/ports/application_port_data.cpp
     source/popo/ports/base_port_data.cpp
     source/popo/ports/base_port.cpp
+    source/popo/ports/publisher_port_data.cpp
     source/popo/ports/publisher_port_user.cpp
     source/popo/ports/publisher_port_roudi.cpp
-    source/popo/ports/publisher_port_data.cpp
     source/popo/ports/subscriber_port_user.cpp
     source/popo/ports/subscriber_port_roudi.cpp
     source/popo/ports/subscriber_port_single_producer.cpp
     source/popo/ports/subscriber_port_multi_producer.cpp
     source/popo/ports/subscriber_port_data.cpp
-    source/popo/building_blocks/chunk_distributor_data.cpp
-    source/popo/building_blocks/chunk_queue_pusher.cpp
-    source/popo/building_blocks/chunk_queue_popper.cpp
-    source/popo/building_blocks/chunk_queue_data.cpp
     source/popo/building_blocks/chunk_queue_types.cpp
-    source/popo/building_blocks/chunk_receiver.cpp
-    source/popo/building_blocks/chunk_receiver_data.cpp
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
-    source/popo/gateway/gateway_base.cpp
+    source/popo/building_blocks/locking_policy.cpp
     source/popo/condition.cpp
     source/popo/guard_condition.cpp
     source/popo/wait_set.cpp
+    source/gateway/gateway_base.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
@@ -220,8 +215,8 @@ if(TOML_CONFIG)
     # This library contains utilities used for configuration at runtime
     add_library(iceoryx_posh_config
         source/log/posh_config_logging.cpp
-        source/popo/gateway/gateway_config.cpp
-        source/popo/gateway/toml_gateway_config_parser.cpp
+        source/gateway/gateway_config.cpp
+        source/gateway/toml_gateway_config_parser.cpp
         source/roudi/roudi_config_toml_file_provider.cpp
         source/roudi/roudi_config.cpp
         source/roudi/roudi_cmd_line_parser.cpp

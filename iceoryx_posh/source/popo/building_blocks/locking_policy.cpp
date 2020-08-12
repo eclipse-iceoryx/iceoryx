@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -22,7 +23,7 @@ void ThreadSafePolicy::lock() const noexcept
 {
     if (!m_mutex.lock())
     {
-        errorHandler(Error::kPOPO__CHUNK_DISTRIBUTOR_LOCKING_ERROR, nullptr, ErrorLevel::FATAL);
+        errorHandler(Error::kPOPO__CHUNK_LOCKING_ERROR, nullptr, ErrorLevel::FATAL);
     }
 }
 
@@ -30,7 +31,7 @@ void ThreadSafePolicy::unlock() const noexcept
 {
     if (!m_mutex.unlock())
     {
-        errorHandler(Error::kPOPO__CHUNK_DISTRIBUTOR_LOCKING_ERROR, nullptr, ErrorLevel::FATAL);
+        errorHandler(Error::kPOPO__CHUNK_UNLOCKING_ERROR, nullptr, ErrorLevel::FATAL);
     }
 }
 
