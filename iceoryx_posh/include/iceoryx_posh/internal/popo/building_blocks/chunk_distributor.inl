@@ -204,13 +204,6 @@ inline void ChunkDistributor<ChunkDistributorDataType>::cleanup() noexcept
     }
 }
 
-template <typename ChunkDistributorDataType>
-inline typename ChunkDistributor<ChunkDistributorDataType>::UniqueId_t
-ChunkDistributor<ChunkDistributorDataType>::uniqueId() const noexcept
-{
-    return getMembers()->m_uniqueId;
-}
-
 } // namespace popo
 } // namespace iox
 

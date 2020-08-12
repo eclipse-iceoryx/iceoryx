@@ -17,7 +17,6 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
-#include "iceoryx_utils/cxx/typed_unique_id.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 
@@ -40,14 +39,6 @@ using SenderPortType = iox::popo::SenderPort;
 using ReceiverPortType = iox::popo::ReceiverPort;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
-
-/// @brief In an environment where multiple RouDi instances are running side
-///        by side we use the UNIQUE_ROUDI_ID to identify and distinct them.
-///        This id is also used in the TypedUniqueId to generate unique ids
-///        which are unique in the whole environment.
-constexpr uint16_t UNIQUE_ROUDI_ID = 1337;
-template <typename T>
-using UniqueId = cxx::TypedUniqueId<T, UNIQUE_ROUDI_ID>;
 
 /// @brief The socket is created in the current path if no absolute path is given hence
 ///      we need an absolut path so that every application knows where our sockets can

@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_TYPED_UNIQUE_ID_INL
-#define IOX_UTILS_CXX_TYPED_UNIQUE_ID_INL
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_INL
+#define IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_INL
 
 namespace iox
 {
-namespace cxx
+namespace popo
 {
 template <typename T, uint16_t MajorOffset>
 std::atomic<uint64_t> TypedUniqueId<T, MajorOffset>::globalIDCounter{0u};
@@ -41,10 +41,10 @@ inline TypedUniqueId<T, MajorOffset>::Id::operator uint64_t() const noexcept
 
 template <typename T, uint16_t MajorOffset>
 inline TypedUniqueId<T, MajorOffset>::TypedUniqueId() noexcept
-    : ThisType(newtype::internal::ProtectedConstructor,
+    : ThisType(cxx::newtype::internal::ProtectedConstructor,
                static_cast<uint64_t>(Id(globalIDCounter.fetch_add(1u, std::memory_order_relaxed))))
 {
 }
-} // namespace cxx
+} // namespace popo
 } // namespace iox
 #endif

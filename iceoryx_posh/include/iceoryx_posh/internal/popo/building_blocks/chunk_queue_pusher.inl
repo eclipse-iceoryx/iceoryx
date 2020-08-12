@@ -80,13 +80,6 @@ inline cxx::expected<ChunkQueueError> ChunkQueuePusher<ChunkQueueDataType>::push
     }
 }
 
-template <typename ChunkQueueDataType>
-inline typename ChunkQueuePusher<ChunkQueueDataType>::UniqueId_t
-ChunkQueuePusher<ChunkQueueDataType>::uniqueId() const noexcept
-{
-    return getMembers()->m_uniqueId;
-}
-
 } // namespace popo
 } // namespace iox
 

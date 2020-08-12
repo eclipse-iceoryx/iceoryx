@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_TYPED_UNIQUE_ID_HPP
-#define IOX_UTILS_CXX_TYPED_UNIQUE_ID_HPP
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_HPP
+#define IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_HPP
 
 #include "iceoryx_utils/cxx/newtype.hpp"
 
@@ -22,7 +22,7 @@
 
 namespace iox
 {
-namespace cxx
+namespace popo
 {
 /// @brief Unique ID depending on type. If you would like to assign different
 ///         types consistent unique ids use this class. Every types gets its
@@ -70,15 +70,15 @@ namespace cxx
 ///             16 bit which is constant for all types.
 ///
 template <typename T, uint16_t MajorOffset>
-class TypedUniqueId : public NewType<uint64_t,
-                                     newtype::ProtectedConstructByValueCopy,
-                                     newtype::Comparable,
-                                     newtype::Sortable,
-                                     newtype::Convertable,
-                                     newtype::CopyConstructable,
-                                     newtype::MoveConstructable,
-                                     newtype::CopyAssignable,
-                                     newtype::MoveAssignable>
+class TypedUniqueId : public cxx::NewType<uint64_t,
+                                          cxx::newtype::ProtectedConstructByValueCopy,
+                                          cxx::newtype::Comparable,
+                                          cxx::newtype::Sortable,
+                                          cxx::newtype::Convertable,
+                                          cxx::newtype::CopyConstructable,
+                                          cxx::newtype::MoveConstructable,
+                                          cxx::newtype::CopyAssignable,
+                                          cxx::newtype::MoveAssignable>
 {
   public:
     using ThisType::ThisType;
@@ -99,9 +99,9 @@ class TypedUniqueId : public NewType<uint64_t,
     static std::atomic<uint64_t> globalIDCounter; // = 0u
 };
 
-} // namespace cxx
+} // namespace popo
 } // namespace iox
 
-#include "iceoryx_utils/internal/cxx/typed_unique_id.inl"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.inl"
 
 #endif

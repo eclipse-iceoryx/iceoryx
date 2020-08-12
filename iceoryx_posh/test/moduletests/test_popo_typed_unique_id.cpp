@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/cxx/typed_unique_id.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
+using namespace iox::popo;
 using namespace iox::cxx;
 
 template <typename T>
