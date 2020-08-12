@@ -393,13 +393,22 @@ class string
     /// capacity (failing or truncating), the fixed string does not support operator+= use append for truncating or
     /// unsafe_append for failing in that case
     template <typename T>
-    string& operator+=(const T&);
+    string& operator+=(const T&) noexcept;
 
     template <typename T>
-    string& append(const T& t)
+    string& append(TruncateToCapacity_t, const T& t) noexcept
     {
         return *this;
     }
+
+    /// @brief appends a fixed string or string literal to the end of this. The appending fails if the sum of both sizes
+    /// is greater than this' capacity
+    ///
+    /// @param [in] fixed string/string literal to append
+    ///
+    /// @return true if the appending succeeds, otherwise false
+    template <typename T>
+    bool unsafe_append(const T& t) noexcept;
 
     template <uint64_t N>
     friend class string;

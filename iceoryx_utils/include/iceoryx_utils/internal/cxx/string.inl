@@ -410,7 +410,7 @@ inline bool operator!=(const char* const, const string<Capacity>&)
 
 template <uint64_t Capacity>
 template <typename T>
-inline string<Capacity>& string<Capacity>::operator+=(const T&)
+inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 {
     static_assert(always_false<Capacity>::value,
                   "operator += is not supported by cxx::string, use append or unsafe_append instead");
@@ -442,6 +442,22 @@ template <typename T1, typename T2>
 inline string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> operator+(const T1& t1, const T2& t2)
 {
     return concatenate(t1, t2);
+}
+
+template <uint64_t Capacity>
+template <typename T>
+inline bool string<Capacity>::unsafe_append(const T& t) noexcept
+{
+    uint64_t tSize = internal::GetSize<T>::call(t);
+    if (Capacity < (m_rawstringSize + tSize))
+    {
+        std::cerr << "Appending failed because the sum of sizes exceeds this' capacity." << std::endl;
+        return false;
+    }
+    std::memcpy(m_rawstring + m_rawstringSize, internal::GetData<T>::call(t), tSize);
+    m_rawstring[m_rawstringSize + tSize] = '\0';
+    m_rawstringSize += tSize;
+    return true;
 }
 } // namespace cxx
 } // namespace iox

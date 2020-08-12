@@ -1397,4 +1397,73 @@ TYPED_TEST(stringTyped_test, ConcatenateStringLiteralAndStringWithOperatorPlusWo
     EXPECT_THAT(testString.size(), Eq(8));
     EXPECT_THAT(testString.c_str(), StrEq("AdmTasse"));
 }
+
+/// @note template <typename T>
+/// bool unsafe_append(const T& t) noexcept;
+TYPED_TEST(stringTyped_test, UnsafeAppendEmptyStringWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    this->testSubject = "M";
+    string<2 * STRINGCAP> testString;
+    EXPECT_THAT(this->testSubject.unsafe_append(testString), Eq(true));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, UnsafeAppendFittingStringWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    this->testSubject = "2";
+    string<5 * STRINGCAP> testString("R2-D");
+    EXPECT_THAT(testString.unsafe_append(this->testSubject), Eq(true));
+    EXPECT_THAT(testString.capacity(), Eq(5 * STRINGCAP));
+    EXPECT_THAT(testString.size(), Eq(5));
+    EXPECT_THAT(testString.c_str(), StrEq("R2-D2"));
+}
+
+TYPED_TEST(stringTyped_test, UnsafeAppendTooLargeStringFails)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    this->testSubject = "M";
+    string<2 * STRINGCAP> testString;
+    std::string testStdString(STRINGCAP, 'M');
+    EXPECT_THAT(testString.unsafe_assign(testStdString), Eq(true));
+    EXPECT_THAT(this->testSubject.unsafe_append(testString), Eq(false));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, UnsafeAppendEmptyStringLiteralWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    this->testSubject = "M";
+    EXPECT_THAT(this->testSubject.unsafe_append(""), Eq(true));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, UnsafeAppendFittingStringLiteralWorks)
+{
+    string<19> testString("R2-D");
+    EXPECT_THAT(testString.unsafe_append("2"), Eq(true));
+    EXPECT_THAT(testString.capacity(), Eq(19));
+    EXPECT_THAT(testString.size(), Eq(5));
+    EXPECT_THAT(testString.c_str(), StrEq("R2-D2"));
+}
+
+TEST(String10, UnsafeAppendTooLargeStringLiteralFails)
+{
+    string<10> testString("Kern");
+    EXPECT_THAT(testString.unsafe_append("fusionsbaby"), Eq(false));
+    EXPECT_THAT(testString.capacity(), Eq(10));
+    EXPECT_THAT(testString.size(), Eq(4));
+    EXPECT_THAT(testString.c_str(), StrEq("Kern"));
+}
 } // namespace

@@ -49,10 +49,10 @@ In the second step, the functionality has been extended:
 	template <uint64_t Capacity>
 	class string
 	{
-        static_assert(Capacity > 0, "The capacity of the fixed string must be greater than 0!");
+		static_assert(Capacity > 0, "The capacity of the fixed string must be greater than 0!");
 
 	  public:
-	    constexpr string() noexcept;
+	  	constexpr string() noexcept;
 	
 	    string(const string& other) noexcept;
 	
@@ -65,14 +65,14 @@ In the second step, the functionality has been extended:
 	    template <uint64_t N>
 	    string(const string<N>& other) noexcept;
 
-    	template <uint64_t N>
-    	string(string<N>&& other) noexcept;
+		template <uint64_t N>
+		string(string<N>&& other) noexcept;
 	   
 	    template <uint64_t N>
 	    string& operator=(const string<N>& str) noexcept;
 
-    	template <uint64_t N>
-    	string& operator=(string<N>&& rhs) noexcept;
+		template <uint64_t N>
+		string& operator=(string<N>&& rhs) noexcept;
     	
 		template <uint64_t N>
 	    string(const char (&other)[N]) noexcept;
@@ -101,19 +101,19 @@ In the second step, the functionality has been extended:
 	    bool unsafe_assign(const char* const str) noexcept;
 	    bool unsafe_assign(const std::string& str) noexcept;
 	
-    	template <uint64_t N>
+		template <uint64_t N>
 	    int compare(const string<N>& other) const noexcept;
-    	template <uint64_t N>
+		template <uint64_t N>
 	    bool operator==(const string<N>& rhs) const noexcept;
-    	template <uint64_t N>
+		template <uint64_t N>
 	    bool operator!=(const string<N>& rhs) const noexcept;
-    	template <uint64_t N>
+		template <uint64_t N>
 	    bool operator<(const string<N>& rhs) const noexcept;
-    	template <uint64_t N>
+		template <uint64_t N>
 	    bool operator<=(const string<N>& rhs) const noexcept;
-    	template <uint64_t N>
+		template <uint64_t N>
 	    bool operator>(const string<N>& rhs) const noexcept;
-    	template <uint64_t N>
+		template <uint64_t N>
 	    bool operator>=(const string<N>& rhs) const noexcept;
 
 		bool operator==(const char* const rhs) const noexcept;
@@ -125,7 +125,9 @@ In the second step, the functionality has been extended:
 	    operator std::string() const noexcept;
 
     	template <typename T>
-    	string operator+=(const T& t)
+    	string& operator+=(const T& t) noexcept;
+    	template <typename T>
+    	bool unsafe_append(const T& t) noexcept;
 	};
 
 	template <uint64_t Capacity>
@@ -148,5 +150,5 @@ In the second step, the functionality has been extended:
 
 	template <uint64_t Capacity>
 	inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str);
-
+	}
 ----	
