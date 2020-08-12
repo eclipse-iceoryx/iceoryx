@@ -32,12 +32,12 @@ namespace popo
 /// @code
 ///     struct MyClass {
 ///         // some members;
-///         iox::cxx::TypedUniqueId<MyClass, 0> id;
+///         iox::cxx::TypedUniqueId<MyClass> id;
 ///     };
 ///
 ///     struct MySecondClass {
 ///         // some members;
-///         iox::cxx::TypedUniqueId<MySecondClass, 0> id;
+///         iox::cxx::TypedUniqueId<MySecondClass> id;
 ///     };
 //
 ///     std::vector<MyClass> myClassVector;
@@ -69,7 +69,7 @@ namespace popo
 /// @param[in] MajorOffset every unique id has internally a major offset of
 ///             16 bit which is constant for all types.
 ///
-template <typename T, uint16_t MajorOffset>
+template <typename T>
 class TypedUniqueId : public cxx::NewType<uint64_t,
                                           cxx::newtype::ProtectedConstructByValueCopy,
                                           cxx::newtype::Comparable,
@@ -87,15 +87,7 @@ class TypedUniqueId : public cxx::NewType<uint64_t,
     ///         previous created id
     TypedUniqueId() noexcept;
 
-
   private:
-    struct Id
-    {
-        Id(const uint64_t minor) noexcept;
-        explicit operator uint64_t() const noexcept;
-        uint64_t m_minor : 48;
-        uint16_t m_major : 16;
-    };
     static std::atomic<uint64_t> globalIDCounter; // = 0u
 };
 

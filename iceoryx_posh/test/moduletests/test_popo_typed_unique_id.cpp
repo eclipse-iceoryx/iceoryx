@@ -26,7 +26,7 @@ class TypedUniqueId_test : public Test
     using UniqueIDType = T;
 };
 
-using Implementations = Types<TypedUniqueId<int, 0>, TypedUniqueId<float, 24>>;
+using Implementations = Types<TypedUniqueId<int>, TypedUniqueId<float>>;
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
