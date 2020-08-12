@@ -58,7 +58,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface)
         LogFatal() << "Could not get MemoryManager for introspection!";
         std::terminate();
     }
-    auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
+    auto& introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active senderport)
     // are there used instances of RouDiBase?
@@ -252,7 +252,7 @@ void PortManager::handleApplications()
 
         while (auto maybeCaproMessage = applicationPort.getCaProMessage())
         {
-            auto caproMessage = maybeCaproMessage.value();
+            auto& caproMessage = maybeCaproMessage.value();
             switch (caproMessage.m_type)
             {
             case capro::CaproMessageType::OFFER:
