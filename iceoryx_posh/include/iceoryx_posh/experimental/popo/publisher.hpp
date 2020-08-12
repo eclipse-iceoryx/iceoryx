@@ -41,6 +41,7 @@ public:
     {};
 
     Sample(std::nullptr_t) noexcept {};
+
     Sample(const Sample& other) = delete;
     Sample& operator=(const Sample&) = delete;
     Sample(Sample&& rhs) = default;
@@ -50,7 +51,17 @@ public:
     {
         m_samplePtr = nullptr;
     }
-
+    ///
+    /// @brief operator = Clear the sample.
+    /// @return
+    ///
+    Sample& operator=(std::nullptr_t) noexcept
+    {
+      m_samplePtr = nullptr;
+      m_isEmpty = true;
+      m_isValid = false;
+      return *this;
+    }
     ///
     /// @brief operator -> Transparent access to the underlying pointer.
     /// @return
@@ -73,17 +84,6 @@ public:
         {
             return nullptr;
         }
-    }
-    ///
-    /// @brief operator = Clear the sample.
-    /// @return
-    ///
-    Sample& operator=(std::nullptr_t) noexcept
-    {
-      m_samplePtr = nullptr;
-      m_isEmpty = true;
-      m_isValid = false;
-      return *this;
     }
     ///
     /// Placement new of the type T in the memory allocated to the sample.

@@ -34,7 +34,7 @@ static void sigHandler(int f_sig[[gnu::unused]])
     killswitch = true;
 }
 
-void vehiclePositon(Position* allocation)
+void getVehiclePosition(Position* allocation)
 {
     new (allocation) Position(11.11, 22.22, 33.33);
 }
@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
                 sample.publish();
             });
             std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        publisher.publishResultOf(getVehiclePosition);
     }
 
     return 0;

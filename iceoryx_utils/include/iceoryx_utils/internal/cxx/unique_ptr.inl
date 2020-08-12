@@ -90,12 +90,20 @@ void unique_ptr<T>::reset(T* ptr) noexcept
 template<typename T>
 void unique_ptr<T>::swap(unique_ptr<T>& other) noexcept
 {
-    // Release pointers from both instances.
-    auto thisPtr = release();
-    auto otherPtr = other.release();
-    // Set new pointers on both instances.
-    reset(otherPtr);
-    other.reset(release());
+    if(other)
+    {
+        // Release pointers from both instances.
+        auto thisPtr = release();
+        auto otherPtr = other.release();
+        // Set new pointers on both instances.
+        reset(otherPtr);
+        other.reset(thisPtr);
+    }
+    else
+    {
+        reset();
+    }
+
 }
 
 

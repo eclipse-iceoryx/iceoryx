@@ -92,7 +92,7 @@ Publisher<T, port_t>::publishResultOf(cxx::function_ref<void(T*)> f) noexcept
     loan()
         .and_then([&](Sample<T>& sample){
             f(sample.allocation()); // Populate the sample with the given function.
-            publish(std::move(sample));
+            publish(sample);
         });
 }
 
