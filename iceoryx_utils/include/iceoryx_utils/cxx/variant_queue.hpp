@@ -106,7 +106,7 @@ class VariantQueue
     /// @pre it is important that no pop or push calls occur during
     ///         this call
     /// @concurrent not thread safe
-    void setCapacity(const uint32_t newCapacity) noexcept;
+    void setCapacity(const uint64_t newCapacity) noexcept;
 
     /// @brief get the capacity of the queue.
     /// @return queue size

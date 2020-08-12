@@ -137,7 +137,7 @@ class SoFi
     /// @pre it is important that no pop or push calls occur during
     ///         this call
     /// @concurrent not thread safe
-    bool resize(const uint32_t newSize) noexcept;
+    bool setCapacity(const uint64_t newSize) noexcept;
 
     /// @brief returns the capacity of sofi
     /// @concurrent unrestricted thread safe

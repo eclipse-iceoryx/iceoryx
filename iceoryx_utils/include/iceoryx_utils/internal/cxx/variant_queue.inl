@@ -252,7 +252,7 @@ inline uint64_t VariantQueue<ValueType, Capacity>::size() noexcept
 
 
 template <typename ValueType, uint32_t Capacity>
-inline void VariantQueue<ValueType, Capacity>::setCapacity(const uint32_t newCapacity) noexcept
+inline void VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCapacity) noexcept
 {
     switch (m_type)
     {
@@ -265,7 +265,7 @@ inline void VariantQueue<ValueType, Capacity>::setCapacity(const uint32_t newCap
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
         m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
-            ->resize(newCapacity);
+            ->setCapacity(newCapacity);
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
