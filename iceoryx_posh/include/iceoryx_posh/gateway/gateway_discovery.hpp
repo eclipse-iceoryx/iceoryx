@@ -14,7 +14,7 @@
 #ifndef IOX_POSH_GW_GATEWAY_DISCOVERY_HPP
 #define IOX_POSH_GW_GATEWAY_DISCOVERY_HPP
 
-#include "gateway_generic.hpp"
+#include "iceoryx_posh/gateway/gateway_base.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox
@@ -28,7 +28,7 @@ namespace gw
 class InterfacePort;
 
 /// @brief Discover the gateway
-template <typename Impl_T = GatewayGeneric>
+template <typename Impl_T = GatewayBase>
 class GatewayDiscovery
 {
   public:

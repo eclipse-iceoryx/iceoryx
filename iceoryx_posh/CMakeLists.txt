@@ -89,7 +89,6 @@ add_library(iceoryx_posh
     source/popo/condition.cpp
     source/popo/guard_condition.cpp
     source/popo/wait_set.cpp
-    source/gateway/gateway_base.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
@@ -145,6 +144,29 @@ else()
     message(WARNING "Could not detect supported platform, but I'm feeling lucky today." )
 endif()
 
+#
+########## build lib for gateway support ##########
+#
+add_library(iceoryx_posh_gateway
+    source/gateway/gateway_base.cpp
+)
+add_library(${PROJECT_NAMESPACE}::iceoryx_posh_gateway ALIAS iceoryx_posh_gateway)
+
+target_include_directories(iceoryx_posh
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
+    $<INSTALL_INTERFACE:include/${PREFIX}>
+)
+
+target_link_libraries(iceoryx_posh_gateway
+    PUBLIC
+    iceoryx_utils::iceoryx_utils
+    iceoryx_posh::iceoryx_posh
+)
+
+target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS})
 
 #
 ########## build roudi lib ##########
@@ -304,7 +326,7 @@ if(TOML_CONFIG)
 endif(TOML_CONFIG)
 
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_posh iceoryx_posh_roudi iceoryx_posh_config ${ROUDI_EXPORT}
+    TARGETS iceoryx_posh iceoryx_posh_roudi iceoryx_posh_config iceoryx_posh_gateway ${ROUDI_EXPORT}
     INCLUDE_DIRECTORY include/
 )
 

@@ -67,6 +67,7 @@ target_link_libraries(iceoryx_dds
     PRIVATE
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_config
+    iceoryx_posh::iceoryx_posh_gateway
     iceoryx_utils::iceoryx_utils
 )
 
