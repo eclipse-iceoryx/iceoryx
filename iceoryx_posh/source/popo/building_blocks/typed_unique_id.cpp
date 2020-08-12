@@ -11,24 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_INL
-#define IOX_POSH_POPO_BUILDING_BLOCKS_TYPED_UNIQUE_ID_INL
+
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 
 namespace iox
 {
 namespace popo
 {
-template <typename T>
-std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{0u};
+static uint16_t uniqueRouDiId{0};
 
-
-template <typename T>
-inline TypedUniqueId<T>::TypedUniqueId() noexcept
-    : ThisType(cxx::newtype::internal::ProtectedConstructor,
-               (static_cast<uint64_t>(getUniqueRouDiId()) << 48)
-                   + ((globalIDCounter.fetch_add(1u, std::memory_order_relaxed) << 16) >> 16))
+void setUniqueRouDiId(const uint16_t id) noexcept
 {
+    uniqueRouDiId = id;
+}
+
+uint16_t getUniqueRouDiId() noexcept
+{
+    return uniqueRouDiId;
 }
 } // namespace popo
 } // namespace iox
-#endif

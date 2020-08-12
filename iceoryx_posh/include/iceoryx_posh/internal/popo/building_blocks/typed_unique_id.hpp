@@ -24,6 +24,9 @@ namespace iox
 {
 namespace popo
 {
+void setUniqueRouDiId(const uint16_t id) noexcept;
+uint16_t getUniqueRouDiId() noexcept;
+
 /// @brief Unique ID depending on type. If you would like to assign different
 ///         types consistent unique ids use this class. Every types gets its
 ///         own distinct set of ids starting with 0. If the types are the same the
