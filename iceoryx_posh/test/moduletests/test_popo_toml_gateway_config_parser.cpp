@@ -181,7 +181,6 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfServiceDescriptionBeginsWit
     }
 }
 
-// This is a common error due to a typo in the DDS spec, therefore tested for explicitly.
 TEST_F(TomlGatewayConfigParserTest, FailsValidationIfHyphenInServiceDescription)
 {
     // ===== Setup

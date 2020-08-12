@@ -28,7 +28,7 @@ template <typename channel_t>
 using TestGatewayGeneric = iox::gw::GatewayGeneric<channel_t, MockGatewayBase>;
 
 ///
-/// @brief The StubbedDDSGatewayGeneric class stubs out the pure virtual methods and exposes the protected methods
+/// @brief The StubbedGatewayGeneric class stubs out the pure virtual methods and exposes the protected methods
 /// to allow them to be tested.
 /// Only to be used in testing.
 ///
@@ -75,7 +75,7 @@ class StubbedGatewayGeneric : public TestGatewayGeneric<channel_t>
         return TestGatewayGeneric<channel_t>::discardChannel(service);
     }
 };
-} // namespace popo
+} // namespace gw
 } // namespace iox
 
 #endif // IOX_POSH_STUBS_GATEWAY_GENERIC_HPP

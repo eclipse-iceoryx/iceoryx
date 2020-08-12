@@ -67,7 +67,7 @@ class GatewayGeneric : public gateway_t
 
     ///
     /// @brief loadConfiguration Load the provided configuration.
-    /// @param config A generic gateay implementation.
+    /// @param config A generic gateway implementation.
     ///
     virtual void loadConfiguration(const GatewayConfig& config) noexcept = 0;
     ///

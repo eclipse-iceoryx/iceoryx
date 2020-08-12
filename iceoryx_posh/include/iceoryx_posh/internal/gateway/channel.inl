@@ -15,7 +15,7 @@
 #ifndef IOX_POSH_GW_CHANNEL_INL
 #define IOX_POSH_GW_CHANNEL_INL
 
-#include "iceoryx_posh/popo/gateway/channel.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
 
 namespace iox
 {

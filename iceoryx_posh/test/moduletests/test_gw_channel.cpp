@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/gateway/channel.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 
 #include "test.hpp"
@@ -35,7 +35,7 @@ struct StubbedExternalTerminal
     StubbedExternalTerminal(IdString sid, IdString iid, IdString eid){};
 };
 
-using TestChannel = iox::popo::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
+using TestChannel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
 
 // ======================================== Fixture ======================================== //
 class ChannelTest : public Test
@@ -48,5 +48,5 @@ class ChannelTest : public Test
 // ======================================== Tests ======================================== //
 TEST_F(ChannelTest, ReturnsEmptyOptionalIfObjectPoolExhausted)
 {
-    auto channel = iox::popo::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create({"", "", ""});
+    auto channel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>::create({"", "", ""});
 }

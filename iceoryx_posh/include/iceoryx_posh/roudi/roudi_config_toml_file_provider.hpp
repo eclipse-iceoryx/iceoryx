@@ -17,8 +17,6 @@
 #include "iceoryx_posh/roudi/roudi_config_file_provider.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 
-#include "cpptoml.h"
-
 namespace iox
 {
 namespace roudi
