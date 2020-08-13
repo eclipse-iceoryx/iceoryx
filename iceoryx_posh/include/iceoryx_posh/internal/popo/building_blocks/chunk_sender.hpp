@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -32,6 +33,9 @@ enum class AllocationError
     TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL
 };
 
+struct BasePortData;
+
+
 /// @brief The ChunkSender is a building block of the shared memory communication infrastructure. It extends
 /// the functionality of a ChunkDistributor with the abililty to allocate and free memory chunks.
 /// For getting chunks of memory the MemoryManger is used. Together with the ChunkReceiver, they are the next
@@ -42,6 +46,7 @@ class ChunkSender : public ChunkDistributorType
 {
   public:
     using MemberType_t = ChunkSenderData<MAX_CHUNKS_ALLOCATE_PER_SENDER, typename ChunkDistributorType::MemberType_t>;
+    using UniqueId_t = TypedUniqueId<BasePortData>;
 
     explicit ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
 
@@ -56,7 +61,8 @@ class ChunkSender : public ChunkDistributorType
     /// @param[in] payloadSize, size of the user paylaod without additional headers
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
-    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocate(const uint32_t payloadSize) noexcept;
+    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocate(const uint32_t payloadSize,
+                                                                 const UniqueId_t originId) noexcept;
 
     /// @brief Release an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
