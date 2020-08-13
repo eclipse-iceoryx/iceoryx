@@ -66,7 +66,7 @@ enum class VariantQueueError
 ///         std::cout << "element " << overriddenElement->value() << " was overridden\n";
 ///     }
 /// @endcode
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 class VariantQueue
 {
   public:
@@ -106,7 +106,7 @@ class VariantQueue
     /// @pre it is important that no pop or push calls occur during
     ///         this call
     /// @concurrent not thread safe
-    void setCapacity(const uint32_t newCapacity) noexcept;
+    void setCapacity(const uint64_t newCapacity) noexcept;
 
     /// @brief get the capacity of the queue.
     /// @return queue size

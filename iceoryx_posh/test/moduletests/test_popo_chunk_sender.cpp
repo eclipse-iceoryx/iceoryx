@@ -78,7 +78,7 @@ class ChunkSender_test : public Test
 
     struct ChunkQueueConfig
     {
-        static constexpr uint32_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL;
+        static constexpr uint64_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL;
     };
 
     using ChunkQueueData_t = iox::popo::ChunkQueueData<ChunkQueueConfig, iox::popo::ThreadSafePolicy>;

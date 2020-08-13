@@ -37,7 +37,7 @@ SubscriberPortUser::MemberType_t* SubscriberPortUser::getMembers() noexcept
 }
 
 
-void SubscriberPortUser::subscribe(const uint32_t queueCapacity) noexcept
+void SubscriberPortUser::subscribe(const uint64_t queueCapacity) noexcept
 {
     if (!getMembers()->m_subscribeRequested.load(std::memory_order_relaxed))
     {

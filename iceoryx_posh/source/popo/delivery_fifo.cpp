@@ -65,7 +65,7 @@ bool DeliveryFiFo::empty() const
 
 bool DeliveryFiFo::resize(const uint32_t f_size)
 {
-    return m_fifo.resize(f_size);
+    return m_fifo.setCapacity(f_size);
 }
 
 uint64_t DeliveryFiFo::getCapacity() const
