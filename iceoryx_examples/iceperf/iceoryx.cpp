@@ -42,6 +42,16 @@ void Iceoryx::init() noexcept
     std::cout << "done" << std::endl;
 }
 
+void Iceoryx::initLeader() noexcept
+{
+    init();
+}
+
+void Iceoryx::initFollower() noexcept
+{
+    init();
+}
+
 void Iceoryx::shutdown() noexcept
 {
     m_subscriber.unsubscribe();

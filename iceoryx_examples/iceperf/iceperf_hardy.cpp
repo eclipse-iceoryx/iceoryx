@@ -18,6 +18,7 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
+#include "uds.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -28,7 +29,7 @@ constexpr char SUBSCRIBER[] = "Laurel";
 
 void followerDo(IcePerfBase& ipcTechnology)
 {
-    ipcTechnology.init();
+    ipcTechnology.initFollower();
 
     ipcTechnology.pingPongFollower();
 
@@ -41,7 +42,9 @@ int main()
     iox::runtime::PoshRuntime::getInstance(APP_NAME);
 
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
+    UDS uds(PUBLISHER, SUBSCRIBER);
 
+    followerDo(uds);
     followerDo(iceoryx);
 
     return (EXIT_SUCCESS);

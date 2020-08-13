@@ -18,8 +18,11 @@
 
 class IcePerfBase
 {
+
   public:
-    virtual void init() noexcept = 0;
+    static constexpr uint32_t ONE_KILOBYTE = 1024u;
+    virtual void initLeader() noexcept = 0;
+    virtual void initFollower() noexcept = 0;
     virtual void shutdown() noexcept = 0;
     virtual void prePingPongLeader(uint32_t payloadSizeInBytes) noexcept = 0;
     virtual void postPingPongLeader() noexcept = 0;

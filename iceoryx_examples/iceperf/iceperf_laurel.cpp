@@ -17,12 +17,13 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
+#include "uds.hpp"
 
 #include <chrono>
 #include <iomanip>
 #include <iostream>
 
-constexpr int64_t NUMBER_OF_ROUNDTRIPS{100}; // 1000000};
+constexpr int64_t NUMBER_OF_ROUNDTRIPS{100000};
 constexpr char APP_NAME[] = "/laurel";
 constexpr char PUBLISHER[] = "Laurel";
 constexpr char SUBSCRIBER[] = "Hardy";
@@ -30,14 +31,14 @@ constexpr char SUBSCRIBER[] = "Hardy";
 
 void leaderDo(IcePerfBase& ipcTechnology)
 {
-    ipcTechnology.init();
+    ipcTechnology.initLeader();
 
     std::vector<double> latencyInMicroSeconds;
     const std::vector<uint32_t> payloadSizesInKB{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
     for (const auto payloadSizeInKB : payloadSizesInKB)
     {
         std::cout << "Measurement for " << payloadSizeInKB << " kB payload ... " << std::flush;
-        auto payloadSizeInBytes = payloadSizeInKB * 1024;
+        auto payloadSizeInBytes = payloadSizeInKB * IcePerfBase::ONE_KILOBYTE;
 
         ipcTechnology.prePingPongLeader(payloadSizeInBytes);
 
@@ -74,7 +75,11 @@ int main()
     iox::runtime::PoshRuntime::getInstance(APP_NAME);
 
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
+    UDS uds(PUBLISHER, SUBSCRIBER);
 
+    std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+    leaderDo(uds);
+    std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
     leaderDo(iceoryx);
 
     return (EXIT_SUCCESS);

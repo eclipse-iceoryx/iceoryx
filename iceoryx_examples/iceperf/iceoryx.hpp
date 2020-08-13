@@ -23,7 +23,8 @@ class Iceoryx : public IcePerfBase
 {
   public:
     Iceoryx(const iox::capro::IdString& publisherName, const iox::capro::IdString& subscriberName) noexcept;
-    void init() noexcept override;
+    void initLeader() noexcept override;
+    void initFollower() noexcept override;
     void shutdown() noexcept override;
     void prePingPongLeader(uint32_t payloadSizeInBytes) noexcept override;
     void postPingPongLeader() noexcept override;
@@ -32,6 +33,8 @@ class Iceoryx : public IcePerfBase
     void pingPongFollower() noexcept override;
 
   private:
+    void init() noexcept;
+
     iox::popo::Publisher m_publisher;
     iox::popo::Subscriber m_subscriber;
 };
