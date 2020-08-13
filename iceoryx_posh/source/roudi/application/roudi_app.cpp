@@ -109,7 +109,6 @@ RouDiApp::RouDiApp(const RouDiConfig_t& config) noexcept
     : m_run(checkAndOptimizeConfig(config))
     , m_config(config)
 {
-    popo::setUniqueRouDiId(UNIQUE_ROUDI_ID);
 }
 
 bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
@@ -170,6 +169,11 @@ void RouDiApp::setCmdLineParserResults(const CmdLineParser& cmdLineParser) noexc
     m_logLevel = cmdLineParser.getLogLevel();
     // the "and" is intentional, just in case the the provided RouDiConfig_t is empty
     m_run &= cmdLineParser.getRun();
+    auto uniqueId = cmdLineParser.getUniqueRouDiId();
+    if (uniqueId)
+    {
+        popo::setUniqueRouDiId(*uniqueId);
+    }
 }
 
 void RouDiApp::parseCmdLineArguments(int argc,

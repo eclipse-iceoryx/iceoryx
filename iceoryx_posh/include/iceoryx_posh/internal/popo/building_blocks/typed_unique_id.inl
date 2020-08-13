@@ -21,7 +21,6 @@ namespace popo
 template <typename T>
 std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{0u};
 
-
 template <typename T>
 inline TypedUniqueId<T>::TypedUniqueId() noexcept
     : ThisType(cxx::newtype::internal::ProtectedConstructor,

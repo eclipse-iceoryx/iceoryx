@@ -62,6 +62,7 @@ class CmdLineParser
     bool getRun() const;
     iox::log::LogLevel getLogLevel() const;
     MonitoringMode getMonitoringMode() const;
+    cxx::optional<uint16_t> getUniqueRouDiId() const noexcept;
 
   protected:
     bool m_run{true};

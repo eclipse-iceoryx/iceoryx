@@ -156,5 +156,10 @@ MonitoringMode CmdLineParser::getMonitoringMode() const
 {
     return m_monitoringMode;
 }
+
+cxx::optional<uint16_t> CmdLineParser::getUniqueRouDiId() const noexcept
+{
+    return m_uniqueRouDiId;
+}
 } // namespace roudi
 } // namespace iox
