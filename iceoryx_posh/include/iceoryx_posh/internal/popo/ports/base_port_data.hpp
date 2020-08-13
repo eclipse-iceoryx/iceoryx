@@ -17,6 +17,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <atomic>
@@ -33,6 +34,8 @@ namespace popo
 /// @brief Defines different base port data
 struct BasePortData
 {
+    using UniqueId_t = TypedUniqueId<BasePortData>;
+
     /// @brief Constructor for base port data members
     BasePortData() = default;
 
@@ -52,8 +55,7 @@ struct BasePortData
     capro::ServiceDescription m_serviceDescription;
     ProcessName_t m_processName;
 
-    static std::atomic<uint64_t> s_uniqueIdCounter;
-    const std::atomic<uint64_t> m_uniqueId{s_uniqueIdCounter.fetch_add(1u, std::memory_order_relaxed)};
+    UniqueId_t m_uniqueId;
     std::atomic_bool m_toBeDestroyed{false};
 };
 

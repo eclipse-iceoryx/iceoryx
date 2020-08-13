@@ -86,6 +86,7 @@ class BasePortParamtest : public TestWithParam<CreatePort*>
     }
     ~BasePortParamtest()
     {
+        uniquePortIds.emplace_back(sut->getUniqueID());
         delete sut;
     }
     virtual void SetUp()
@@ -97,36 +98,15 @@ class BasePortParamtest : public TestWithParam<CreatePort*>
     }
 
     BasePort* sut;
+    static std::vector<BasePort::UniqueId_t> uniquePortIds;
 };
+std::vector<BasePort::UniqueId_t> BasePortParamtest::uniquePortIds;
 
 TEST_P(BasePortParamtest, getUniqueID)
 {
-    if (this->GetParam() == CreateCaProPort)
+    for (auto& id : uniquePortIds)
     {
-        // we have already created 5 CaProPorts in the previous test, so we expect as uniqueid = 6
-        EXPECT_THAT(sut->getUniqueID(), Ne(0u));
-    }
-    else if (this->GetParam() == CreateReceiverPort)
-    {
-        EXPECT_THAT(sut->getUniqueID(), Ne(0u));
-    }
-    else if (this->GetParam() == CreateSenderPort)
-    {
-        EXPECT_THAT(sut->getUniqueID(), Ne(0u));
-    }
-    else if (this->GetParam() == CreateInterfacePort)
-    {
-        EXPECT_THAT(sut->getUniqueID(), Ne(0u));
-    }
-    else if (this->GetParam() == CreateApplicationPort)
-    {
-        EXPECT_THAT(sut->getUniqueID(), Ne(0u));
-    }
-    else
-    {
-        // We should not be here
-        std::cout << "CaPro UniqueId test failed!" << std::endl;
-        exit(EXIT_FAILURE);
+        EXPECT_THAT(sut->getUniqueID(), Ne(id));
     }
 }
 
