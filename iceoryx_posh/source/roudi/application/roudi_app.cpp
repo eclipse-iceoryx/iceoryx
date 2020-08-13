@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -108,6 +109,7 @@ RouDiApp::RouDiApp(const RouDiConfig_t& config) noexcept
     : m_run(checkAndOptimizeConfig(config))
     , m_config(config)
 {
+    popo::setUniqueRouDiId(UNIQUE_ROUDI_ID);
 }
 
 bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept

@@ -40,6 +40,12 @@ using ReceiverPortType = iox::popo::ReceiverPort;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
 
+/// @brief The unique roudi id is currently a compile time constant but
+///         in the near future it should be read at runtime. It is provided
+///         as argument to setUniqueRouDiId so that every BasePort::UniqueId_t
+///         is unique in a system of multiple RouDi instances.
+constexpr uint16_t UNIQUE_ROUDI_ID = 1337;
+
 /// @brief The socket is created in the current path if no absolute path is given hence
 ///      we need an absolut path so that every application knows where our sockets can
 ///      be found.
