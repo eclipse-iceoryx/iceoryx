@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/log/logcommon.hpp"
 
 namespace iox
@@ -66,6 +67,7 @@ class CmdLineParser
     bool m_run{true};
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
     MonitoringMode m_monitoringMode{MonitoringMode::ON};
+    cxx::optional<uint16_t> m_uniqueRouDiId;
 };
 
 } // namespace roudi
