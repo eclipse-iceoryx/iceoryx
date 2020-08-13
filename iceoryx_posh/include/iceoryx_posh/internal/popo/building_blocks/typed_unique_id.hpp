@@ -27,7 +27,7 @@ namespace popo
 void setUniqueRouDiId(const uint16_t id) noexcept;
 uint16_t getUniqueRouDiId() noexcept;
 
-/// @brief Unique ID depending on type. If you would like to assign different
+/// @brief Unique ID depending on a type. If you would like to assign different
 ///         types consistent unique ids use this class. Every types gets its
 ///         own distinct set of ids starting with 0. If the types are the same the
 ///         ids are the same.
@@ -35,12 +35,12 @@ uint16_t getUniqueRouDiId() noexcept;
 /// @code
 ///     struct MyClass {
 ///         // some members;
-///         iox::cxx::TypedUniqueId<MyClass> id;
+///         iox::port::TypedUniqueId<MyClass> id;
 ///     };
 ///
 ///     struct MySecondClass {
 ///         // some members;
-///         iox::cxx::TypedUniqueId<MySecondClass> id;
+///         iox::port::TypedUniqueId<MySecondClass> id;
 ///     };
 //
 ///     std::vector<MyClass> myClassVector;

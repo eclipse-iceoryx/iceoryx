@@ -28,10 +28,12 @@ namespace mepoo
 ///         32 byte aligned otherwise we get alignment problems!
 struct alignas(32) ChunkHeader
 {
+    static constexpr uint64_t INVALID_ORIGIN_ID = std::numeric_limits<uint64_t>::max();
+
     /// @brief ALlocates memory to store the information about the chunks.
     ChunkHeader() noexcept;
 
-    std::uint32_t m_mtaHeader[2];
+    uint64_t m_originId = INVALID_ORIGIN_ID;
     ChunkInfo m_info;
 
     void* payload() const
