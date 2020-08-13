@@ -36,7 +36,7 @@ namespace cxx
 template <typename T1, typename T2>
 string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2);
 
-/// @brief concatenates an arbitrary number of fixed strings and string literals
+/// @brief concatenates an arbitrary number of fixed strings or string literals
 ///
 /// @param [in] fixed strings/string literals to concatenate
 ///
@@ -101,21 +101,21 @@ class string
     /// @return reference to self
     string& operator=(string&& rhs) noexcept;
 
-    /// @brief creates a new string as a copy of other with compile time check wether the capacity of other is lesser
-    /// than or equal to this' capacity
+    /// @brief creates a new string of given capacity as a copy of other with compile time check whether the capacity of
+    /// other is lesser than or equal to this' capacity
     ///
     /// @param [in] other is the copy origin
     template <uint64_t N>
     string(const string<N>& other) noexcept;
 
-    /// @brief moves other to this with compile time check wether the capacity of other is lesser than or equal to this'
-    /// capacity
+    /// @brief moves other to this with compile time check whether the capacity of other is lesser than or equal to
+    /// this' capacity
     ///
     /// @param [in] other is the move origin
     template <uint64_t N>
     string(string<N>&& other) noexcept;
 
-    /// @brief assigns rhs fixed string to this with compile time check wether the capacity of rhs is lesser than or
+    /// @brief assigns rhs fixed string to this with compile time check whether the capacity of rhs is lesser than or
     /// equal to this' capacity
     ///
     /// @param [in] rhs is the copy origin
@@ -124,8 +124,8 @@ class string
     template <uint64_t N>
     string& operator=(const string<N>& rhs) noexcept;
 
-    /// @brief moves rhs fixed string to this with compile time check wether the capacity of rhs is lesser than or equal
-    /// to this' capacity
+    /// @brief moves rhs fixed string to this with compile time check whether the capacity of rhs is lesser than or
+    /// equal to this' capacity
     ///
     /// @param [in] rhs is the move origin
     ///
@@ -230,7 +230,8 @@ class string
     template <uint64_t N>
     string& operator=(const char (&rhs)[N]) noexcept;
 
-    /// @brief fixed string assignment
+    /// @brief fixed string assignment with compile time check if capacity of str is lesser than or equal to this'
+    /// capacity
     ///
     /// @param [in] str is the fixed string object to assign
     ///
@@ -390,7 +391,7 @@ class string
     operator std::string() const noexcept;
 
     /// @brief since there are two valid options for what should happen when appending a string larger than this'
-    /// capacity (failing or truncating), the fixed string does not support operator+= use append for truncating or
+    /// capacity (failing or truncating), the fixed string does not support operator+=; use append for truncating or
     /// unsafe_append for failing in that case
     template <typename T>
     string& operator+=(const T&) noexcept;
@@ -400,7 +401,7 @@ class string
     ///
     /// @param [in] TruncateToCapacity_t is a compile time variable which is used to make the user aware of the possible
     /// truncation
-    /// @param [in] fixed string/string literal to append
+    /// @param [in] t is the fixed string/string literal to append
     ///
     /// @return reference to self
     ///
@@ -412,7 +413,7 @@ class string
     string& append(TruncateToCapacity_t, const T& t) noexcept;
 
     /// @brief appends a fixed string or string literal to the end of this. The appending fails if the sum of both sizes
-    /// is greater than this' capacity
+    /// is greater than this' capacity.
     ///
     /// @param [in] fixed string/string literal to append
     ///
@@ -427,7 +428,8 @@ class string
     friend string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2);
 
   private:
-    /// @brief copies rhs fixed string to lhs fixed string
+    /// @brief copies rhs fixed string to lhs fixed string with compile time check whether rhs capacity is lesser than
+    /// or equal to lhs capacity
     ///
     /// @param [in] rhs is the copy origin
     ///
@@ -435,7 +437,8 @@ class string
     template <uint64_t N>
     string& copy(const string<N>& rhs) noexcept;
 
-    /// @brief moves rhs fixed string to lhs fixed string
+    /// @brief moves rhs fixed string to lhs fixed string with compile time check whether rhs capacity is lesser than or
+    /// equal to lhs capacity
     ///
     /// @param [in] rhs is the move origin
     ///

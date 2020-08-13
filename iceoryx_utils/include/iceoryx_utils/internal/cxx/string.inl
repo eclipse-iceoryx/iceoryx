@@ -413,7 +413,7 @@ template <typename T>
 inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 {
     static_assert(always_false<Capacity>::value,
-                  "operator += is not supported by cxx::string, use append or unsafe_append instead");
+                  "operator += is not supported by cxx::string, please use append or unsafe_append instead");
     return *this;
 }
 

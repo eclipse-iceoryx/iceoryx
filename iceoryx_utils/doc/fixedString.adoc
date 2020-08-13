@@ -102,7 +102,7 @@ In the second step, the functionality has been extended:
 	    bool unsafe_assign(const std::string& str) noexcept;
 	
 		template <uint64_t N>
-	    int compare(const string<N>& other) const noexcept;
+	    int64_t compare(const string<N>& other) const noexcept;
 		template <uint64_t N>
 	    bool operator==(const string<N>& rhs) const noexcept;
 		template <uint64_t N>
@@ -122,6 +122,7 @@ In the second step, the functionality has been extended:
 	    const char* c_str() const noexcept;
 	    constexpr uint64_t size() const noexcept;
 	    constexpr uint64_t capacity() const noexcept;
+    	constexpr bool empty() const noexcept;
 	    operator std::string() const noexcept;
 
     	template <typename T>
