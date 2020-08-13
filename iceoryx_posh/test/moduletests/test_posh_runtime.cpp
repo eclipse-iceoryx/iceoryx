@@ -312,19 +312,18 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiver_ReceiverlistOverflow)
 
 TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounter_OfferStopOfferService)
 {
-    auto initialValue = m_runtime->getServiceRegistryChangeCounter();
-    auto cout = initialValue->load();
+    auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
+    auto initialCout = serviceCounter->load();
 
     m_runtime->offerService({"service1", "instance1"});
     this->InterOpWait();
-    auto counter = m_runtime->getServiceRegistryChangeCounter();
 
-    EXPECT_EQ(cout + 1, *counter);
+    EXPECT_EQ(initialCout + 1, serviceCounter->load());
 
     m_runtime->stopOfferService({"service1", "instance1"});
     this->InterOpWait();
 
-    EXPECT_EQ(cout + 2, *counter);
+    EXPECT_EQ(initialCout + 2, serviceCounter->load());
 }
 
 
