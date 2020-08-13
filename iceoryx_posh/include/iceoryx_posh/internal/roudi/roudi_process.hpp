@@ -49,7 +49,7 @@ class RouDiProcess
                  mepoo::MemoryManager* payloadMemoryManager,
                  bool isMonitored,
                  const uint64_t payloadSegmentId,
-                 const uint64_t sessionId);
+                 const uint64_t sessionId) noexcept;
 
     RouDiProcess(const RouDiProcess& other) = delete;
     RouDiProcess& operator=(const RouDiProcess& other) = delete;
@@ -58,24 +58,24 @@ class RouDiProcess
     RouDiProcess& operator=(RouDiProcess&& other) = delete;
     ~RouDiProcess() = default;
 
-    int32_t getPid() const;
+    int32_t getPid() const noexcept;
 
-    const std::string& getName() const;
+    const std::string& getName() const noexcept;
 
-    void sendToMQ(const runtime::MqMessage& f_data);
+    void sendToMQ(const runtime::MqMessage& f_data) noexcept;
 
     /// @brief The session ID which is used to check outdated mqueue transmissions for this process
     /// @return the session ID for this process
-    uint64_t getSessionId();
+    uint64_t getSessionId() noexcept;
 
-    void setTimestamp(const mepoo::TimePointNs f_timestamp);
+    void setTimestamp(const mepoo::TimePointNs f_timestamp) noexcept;
 
-    mepoo::TimePointNs getTimestamp();
+    mepoo::TimePointNs getTimestamp() noexcept;
 
-    mepoo::MemoryManager* getPayloadMemoryManager() const;
-    uint64_t getPayloadSegmentId() const;
+    mepoo::MemoryManager* getPayloadMemoryManager() const noexcept;
+    uint64_t getPayloadSegmentId() const noexcept;
 
-    bool isMonitored() const;
+    bool isMonitored() const noexcept;
 
   private:
     int m_pid;
@@ -122,10 +122,8 @@ class ProcessManager : public ProcessManagerInterface
     using ProcessList_t = std::list<RouDiProcess>;
     using PortConfigInfo = iox::runtime::PortConfigInfo;
 
-    ProcessManager(RouDiMemoryInterface& roudiMemoryInterface, PortManager& portManager);
-    virtual ~ProcessManager() override
-    {
-    }
+    ProcessManager(RouDiMemoryInterface& roudiMemoryInterface, PortManager& portManager) noexcept;
+    virtual ~ProcessManager() noexcept = default;
 
     ProcessManager(const ProcessManager& other) = delete;
     ProcessManager& operator=(const ProcessManager& other) = delete;
@@ -142,40 +140,43 @@ class ProcessManager : public ProcessManagerInterface
                          posix::PosixUser user,
                          bool isMonitored,
                          int64_t transmissionTimestamp,
-                         const uint64_t sessionId);
+                         const uint64_t sessionId) noexcept;
 
-    void killAllProcesses();
+    void killAllProcesses() noexcept;
 
-    void updateLivlinessOfProcess(const std::string& f_name);
+    void updateLivlinessOfProcess(const std::string& f_name) noexcept;
 
-    void findServiceForProcess(const std::string& f_name, const capro::ServiceDescription& f_service);
+    void findServiceForProcess(const std::string& f_name, const capro::ServiceDescription& f_service) noexcept;
 
-    void
-    addInterfaceForProcess(const std::string& f_name, capro::Interfaces f_interface, const std::string& f_runnable);
+    void addInterfaceForProcess(const std::string& f_name,
+                                capro::Interfaces f_interface,
+                                const std::string& f_runnable) noexcept;
 
-    void addApplicationForProcess(const std::string& f_name);
+    void addApplicationForProcess(const std::string& f_name) noexcept;
 
-    void addRunnableForProcess(const std::string& f_process, const std::string& f_runnable);
+    void addRunnableForProcess(const std::string& f_process, const std::string& f_runnable) noexcept;
 
     void addReceiverForProcess(const std::string& f_name,
                                const capro::ServiceDescription& f_service,
                                const std::string& f_runnable,
-                               const PortConfigInfo& portConfigInfo = PortConfigInfo());
+                               const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addSenderForProcess(const std::string& f_name,
                              const capro::ServiceDescription& f_service,
                              const std::string& f_runnable,
-                             const PortConfigInfo& portConfigInfo = PortConfigInfo());
+                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
-    void initIntrospection(ProcessIntrospectionType* f_processIntrospection);
+    void addConditionVariableForProcess() noexcept;
 
-    void run();
+    void initIntrospection(ProcessIntrospectionType* f_processIntrospection) noexcept;
+
+    void run() noexcept;
 
     SenderPortType addIntrospectionSenderPort(const capro::ServiceDescription& f_service,
-                                              const std::string& f_process_name);
+                                              const std::string& f_process_name) noexcept;
 
     /// @brief Notify the application that it sent an unsupported message
-    void sendMessageNotSupportedToRuntime(const std::string& f_name);
+    void sendMessageNotSupportedToRuntime(const std::string& f_name) noexcept;
 
     // BEGIN ProcessActivationInterface
     /// @brief This is an interface to send messages to processes handled by a ProcessManager
@@ -185,24 +186,24 @@ class ProcessManager : public ProcessManagerInterface
     /// @return true if the message was delivered, false otherwise
     bool sendMessageToProcess(const std::string& name,
                               const iox::runtime::MqMessage& message,
-                              const uint64_t sessionId) override;
+                              const uint64_t sessionId) noexcept override;
     // END
 
     // BEGIN PortHandling interface
     ReceiverPortType addInternalReceiverPort(const capro::ServiceDescription& f_service,
-                                             const std::string& f_process_name) override;
+                                             const std::string& f_process_name) noexcept override;
     SenderPortType addInternalSenderPort(const capro::ServiceDescription& f_service,
-                                         const std::string& f_process_name) override;
-    void removeInternalPorts(const std::string& f_process_name) override;
-    void sendServiceRegistryChangeCounterToProcess(const std::string& f_process_name) override;
+                                         const std::string& f_process_name) noexcept override;
+    void removeInternalPorts(const std::string& f_process_name) noexcept override;
+    void sendServiceRegistryChangeCounterToProcess(const std::string& f_process_name) noexcept override;
 
-    bool areAllReceiverPortsSubscribed(const std::string& f_process_name) override;
+    bool areAllReceiverPortsSubscribed(const std::string& f_process_name) noexcept override;
     // END
 
   private:
-    RouDiProcess* getProcessFromList(const std::string& f_name);
-    void monitorProcesses();
-    void discoveryUpdate() override;
+    RouDiProcess* getProcessFromList(const std::string& f_name) noexcept;
+    void monitorProcesses() noexcept;
+    void discoveryUpdate() noexcept override;
 
     /// @param [in] name of the process; this is equal to the mqueue name, which is used for communication
     /// @param [in] pid is the host system process id
@@ -217,9 +218,9 @@ class ProcessManager : public ProcessManagerInterface
                     bool isMonitored,
                     int64_t transmissionTimestamp,
                     const uint64_t payloadSegmentId,
-                    const uint64_t sessionId);
+                    const uint64_t sessionId) noexcept;
 
-    bool removeProcess(const std::string& f_name);
+    bool removeProcess(const std::string& f_name) noexcept;
 
     RouDiMemoryInterface& m_roudiMemoryInterface;
     PortManager& m_portManager;

@@ -55,10 +55,10 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
     m_processManagementThread = std::thread(&RouDiMultiProcess::processThread, this);
     pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
 
-    if(mqThreadStart == MQThreadStart::IMMEDIATE) {
+    if (mqThreadStart == MQThreadStart::IMMEDIATE)
+    {
         startMQThread();
     }
-
 }
 
 RouDiMultiProcess::~RouDiMultiProcess()
@@ -66,7 +66,7 @@ RouDiMultiProcess::~RouDiMultiProcess()
     shutdown();
 }
 
-void RouDiMultiProcess::startMQThread() 
+void RouDiMultiProcess::startMQThread()
 {
     m_processMQThread = std::thread(&RouDiMultiProcess::mqThread, this);
     pthread_setname_np(m_processMQThread.native_handle(), "MQ-processing");
@@ -217,6 +217,20 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
                                            message.getElementAtIndex(3),
                                            iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
+        break;
+    }
+    case runtime::MqMessageType::IMPL_CONDITION_VARIABLE:
+    {
+        if (message.getNumberOfElements() != 1)
+        {
+            LogError() << "Wrong number of parameter for \"MqMessageType::IMPL_CONDITION_VARIABLE\" from \""
+                       << processName << "\"received!";
+        }
+        else
+        {
+            //m_prcMgr.addConditionVariableForProcess(processName);
+        }
+        break;
         break;
     }
     case runtime::MqMessageType::IMPL_INTERFACE:
