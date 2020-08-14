@@ -2,7 +2,7 @@
 
 This list contains rather high-prio features that will most likely be implemented in the near future.
 
-* Windows and Mac support
+* Windows support
 * Man page for RouDi and the runtime
 * Request-response communication
 * Support for multiple publishers on the same topic

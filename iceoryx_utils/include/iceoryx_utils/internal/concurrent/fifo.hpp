@@ -23,7 +23,7 @@ namespace iox
 namespace concurrent
 {
 /// @brief single pusher single pop'er thread safe fifo
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 class FiFo
 {
   public:

@@ -33,9 +33,13 @@ class InterfacePort : public BasePort
     InterfacePort& operator=(InterfacePort&& other) = default;
     ~InterfacePort() = default;
 
-    bool dispatchCaProMessage(const capro::CaproMessage& message) noexcept;
+    /// @brief get an optional CaPro message for the interface port to process
+    /// @return CaPro message, empty optional if no new messages
+    cxx::optional<capro::CaproMessage> getCaProMessage() noexcept;
 
-    bool getCaProMessage(capro::CaproMessage& message) noexcept;
+    /// @brief dispatch a CaPro message to this interface port
+    /// @param[in] caProMessage
+    void dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept;
 
   private:
     const InterfacePortData* getMembers() const noexcept;

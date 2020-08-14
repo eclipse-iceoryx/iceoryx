@@ -48,7 +48,7 @@ class SubscriberPortUser
     /// @brief try to subscribe to all matching publishers
     /// @param[in] queueCapacity, capacity of the queue where chunks are stored before they are passed to the user with
     /// getChunk. Caution: Depending on the underlying queue there can be a different overflow behavior
-    void subscribe(const uint32_t queueCapacity = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
+    void subscribe(const uint64_t queueCapacity = MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
 
     /// @brief unsubscribe from publishers, if there are any to which we are currently subscribed
     void unsubscribe() noexcept;

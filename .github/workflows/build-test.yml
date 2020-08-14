@@ -73,7 +73,7 @@ jobs:
       - name: Run tests
         run: |
           cd $GITHUB_WORKSPACE/build
-          ../tools/run_all_tests.sh disable-timing-tests skip-dds-tests
+          ../tools/run_all_tests.sh disable-timing-tests
 
  # This job builds & runs iceoryx tests in Windows 2019
   build-test-windows:
