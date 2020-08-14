@@ -271,7 +271,7 @@ typename list<T, Capacity>::iterator list<T, Capacity>::erase(const_iterator ite
     setNextIdx(getPrevIdx(iter), retIdx);
 
     // d'tor data class
-    iter->~T();
+    (*iter).~T();
 
     // mark index as unused / invalid via 'previous index' set to INVALID_INDEX while index is handled within freeList
     setPrevIdx(eraseIdx, INVALID_INDEX);
