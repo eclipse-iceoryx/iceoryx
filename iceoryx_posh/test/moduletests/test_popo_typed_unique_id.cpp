@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -24,6 +25,9 @@ class TypedUniqueId_test : public Test
 {
   protected:
     using UniqueIDType = T;
+
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 };
 
 using Implementations = Types<TypedUniqueId<int>, TypedUniqueId<float>>;

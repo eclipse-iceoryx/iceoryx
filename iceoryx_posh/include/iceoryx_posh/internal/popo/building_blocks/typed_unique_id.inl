@@ -24,7 +24,7 @@ std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{0u};
 template <typename T>
 inline TypedUniqueId<T>::TypedUniqueId() noexcept
     : ThisType(cxx::newtype::internal::ProtectedConstructor,
-               (static_cast<uint64_t>(getUniqueRouDiId()) << 48)
+               (static_cast<uint64_t>(internal::getUniqueRouDiId()) << 48)
                    + ((globalIDCounter.fetch_add(1u, std::memory_order_relaxed) << 16) >> 16))
 {
 }

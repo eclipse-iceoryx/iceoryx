@@ -13,13 +13,23 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
 using namespace iox::capro;
 
-TEST(CaproMessage_test, CTorSetsParametersCorrectly)
+class CaproMessage_test : public Test
+{
+  public:
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
+};
+
+
+TEST_F(CaproMessage_test, CTorSetsParametersCorrectly)
 {
     constexpr uint16_t testServiceID{1u};
     constexpr uint16_t testEventID{2u};
@@ -38,7 +48,7 @@ TEST(CaproMessage_test, CTorSetsParametersCorrectly)
 }
 
 
-TEST(CaproMessage_test, DefaultArgsOfCtor)
+TEST_F(CaproMessage_test, DefaultArgsOfCtor)
 {
     CaproMessage testObj(CaproMessageType::OFFER, ServiceDescription(1u, 2u, 3u));
 

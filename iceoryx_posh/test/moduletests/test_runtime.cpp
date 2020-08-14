@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "test.hpp"
 #include "test_definitions.hpp"
 
@@ -35,6 +36,9 @@ class Runtime_test : public Test
     virtual void SetUp(){};
 
     virtual void TearDown(){};
+
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 };
 
 TEST_F(Runtime_test, Appname_length_too_long)

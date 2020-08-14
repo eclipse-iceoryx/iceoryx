@@ -77,7 +77,7 @@ jobs:
 
  # This job builds & runs iceoryx tests in Windows 2019
   build-test-windows:
-    runs-on: windows-latest
+    runs-on: windows-2016 # should run on windows-latest but there are some issues that the exit code is 1 despite it executed without errors
     # Softwares installed in windows instance
     # https://github.com/actions/virtual-environments/blob/master/images/win/Windows2019-Readme.md
 

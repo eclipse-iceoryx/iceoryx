@@ -13,21 +13,37 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
 namespace popo
 {
-static uint16_t uniqueRouDiId{0};
+namespace internal
+{
+static uint16_t uniqueRouDiId{0u};
+static bool hasDefinedUniqueRouDiId{false};
 
 void setUniqueRouDiId(const uint16_t id) noexcept
 {
     uniqueRouDiId = id;
+    hasDefinedUniqueRouDiId = true;
+}
+
+void unsetUniqueRouDiId() noexcept
+{
+    hasDefinedUniqueRouDiId = false;
 }
 
 uint16_t getUniqueRouDiId() noexcept
 {
+    if (!hasDefinedUniqueRouDiId)
+    {
+        errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_NO_DEFINED_UNIQUE_ID);
+    }
     return uniqueRouDiId;
 }
+
+} // namespace internal
 } // namespace popo
 } // namespace iox

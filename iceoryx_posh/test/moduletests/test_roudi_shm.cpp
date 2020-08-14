@@ -25,6 +25,7 @@
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
@@ -37,8 +38,8 @@ using ::testing::Return;
 using iox::popo::ReceiverPort;
 using iox::popo::SenderPort;
 using iox::roudi::IceOryxRouDiMemoryManager;
-using iox::roudi::PortPoolError;
 using iox::roudi::PortManager;
+using iox::roudi::PortPoolError;
 
 class CShmMangerTester : public PortManager
 {
@@ -117,6 +118,9 @@ class PortManager_test : public Test
         }
         return {m_sIdCounter, m_eventIdCounter, m_instIdCounter};
     }
+
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 };
 
 

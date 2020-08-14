@@ -172,7 +172,7 @@ void RouDiApp::setCmdLineParserResults(const CmdLineParser& cmdLineParser) noexc
     auto uniqueId = cmdLineParser.getUniqueRouDiId();
     if (uniqueId)
     {
-        popo::setUniqueRouDiId(*uniqueId);
+        popo::internal::setUniqueRouDiId(*uniqueId);
     }
 }
 

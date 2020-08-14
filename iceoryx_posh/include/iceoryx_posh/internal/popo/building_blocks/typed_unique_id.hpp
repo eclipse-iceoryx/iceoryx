@@ -24,8 +24,18 @@ namespace iox
 {
 namespace popo
 {
+namespace internal
+{
+/// @brief Has to be set on roudi startup of so that a unique roudi id is set
+///         for all newly generated unique ids.
 void setUniqueRouDiId(const uint16_t id) noexcept;
+
+/// @brief Sets the RouDi id to an undefined state
+void unsetUniqueRouDiId() noexcept;
+
+/// @brief returns the unique roudi id
 uint16_t getUniqueRouDiId() noexcept;
+} // namespace internal
 
 /// @brief Unique ID depending on a type. If you would like to assign different
 ///         types consistent unique ids use this class. Every types gets its
