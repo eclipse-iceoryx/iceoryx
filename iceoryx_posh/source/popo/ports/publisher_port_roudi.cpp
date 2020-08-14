@@ -83,7 +83,9 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
     {
         if (capro::CaproMessageType::SUB == caProMessage.m_type)
         {
-            const auto ret = m_chunkSender.addQueue(caProMessage.m_chunkQueueData, caProMessage.m_historyCapacity);
+            const auto ret =
+                m_chunkSender.addQueue(static_cast<PublisherPortData::ChunkQueueData_t*>(caProMessage.m_chunkQueueData),
+                                       caProMessage.m_historyCapacity);
             if (!ret.has_error())
             {
                 responseMessage.m_type = capro::CaproMessageType::ACK;
@@ -91,7 +93,8 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
         }
         else if (capro::CaproMessageType::UNSUB == caProMessage.m_type)
         {
-            const auto ret = m_chunkSender.removeQueue(caProMessage.m_chunkQueueData);
+            const auto ret = m_chunkSender.removeQueue(
+                static_cast<PublisherPortData::ChunkQueueData_t*>(caProMessage.m_chunkQueueData));
             if (!ret.has_error())
             {
                 responseMessage.m_type = capro::CaproMessageType::ACK;

@@ -45,6 +45,7 @@ class should be used.
 |`GenericRAII`        |   |   | This is an abstraction of the C++ RAII idiom. Sometimes you have constructs where you would like to perform a certain task on creation and then again when they are getting out of scope, this is where `GenericRAII` comes in. It is like a `std::lock_guard` or a `std::shared_ptr` but more generic. |
 |`helplets`           |   |   | Implementations of [C++ Core Guideline](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) concepts like `not_null` `Ensures` `Expects` are contained here. Additionally, we are providing some types to verify preconditions at compile time. Think of an int which has to be always greater 5, here we provide types like `greater_or_equal<int, 6>`.|
 |`list`               |   |   | Heap and exception free implementation of `std::list` |
+|`NewType<T, Policies>`|   |   | C++11 implementation of [Haskells NewType-pattern](https://wiki.haskell.org/Newtype). |
 |`optional`           |   |   | C++11 implementation of the C++17 feature `std::optional` |
 |`pair`               | i | X | Simplistic reimplementation of an `std::pair` It maybe becomes obsolete. |
 |`poor_mans_heap`     |   |   | Acquires memory on the stack for placement new instantiations. All classes must inherit from a base class which has to be known at compile time but the class itself does not have to be known - only the size. |
@@ -54,6 +55,7 @@ class should be used.
 |`smart_c`            |   |   | Wrapper around C and POSIX function calls which performs a full error handling. Additionally, this wrapper makes sure that `EINTR` handling is performed correctly by repeating the system call. |
 |`string`             |   |   | Heap and exception free implementation of `std::string`. |
 |`types`              |   |   | Declares essential building block types like `byte_t`. |
+|`UniqueTypedID<T>`   |   |   | Provides a unique ids depending on the type. It does not provide a unique id for a type T! |
 |`variant`            |   |   | C++11 implementation of the C++17 feature `std::variant` |
 |`vector`             |   |   | Heap and exception free implementation of `std::vector` |
 

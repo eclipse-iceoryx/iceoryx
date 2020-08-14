@@ -41,7 +41,7 @@ namespace iox
 {
 namespace roudi
 {
-capro::Interfaces StringToEInterfaces(std::string str);
+capro::Interfaces StringToCaProInterface(const std::string& str);
 
 class PortManager
 {

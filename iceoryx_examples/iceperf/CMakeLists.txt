@@ -1,6 +1,6 @@
 # Build iceperf example
 cmake_minimum_required(VERSION 3.5)
-project(iceperf)
+project(example_iceperf)
 
 find_package(iceoryx_posh CONFIG REQUIRED)
 
@@ -10,7 +10,7 @@ if ( NOT ICEORYX_CXX_STANDARD )
 endif ( NOT ICEORYX_CXX_STANDARD )
 
 add_executable(iceperf-laurel iceperf_laurel.cpp)
-set_target_properties(iceperf-laurel PROPERTIES 
+set_target_properties(iceperf-laurel PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
@@ -21,7 +21,7 @@ target_link_libraries(iceperf-laurel
 )
 
 add_executable(iceperf-hardy iceperf_hardy.cpp)
-set_target_properties(iceperf-hardy PROPERTIES 
+set_target_properties(iceperf-hardy PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
