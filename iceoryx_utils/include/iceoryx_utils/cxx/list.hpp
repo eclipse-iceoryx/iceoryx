@@ -55,11 +55,12 @@ class list
   private:
     // forward declarations, private
     struct ListLink;
+    template <bool>
+    class iterator_base;
 
   public:
-    // forward declarations, public
-    class const_iterator;
-
+    using iterator = iterator_base<false>;
+    using const_iterator = iterator_base<true>;
     using value_type = T;
     using size_type = decltype(Capacity);
 
@@ -92,161 +93,6 @@ class list
     /// @return reference to created list
     list& operator=(list&& rhs) noexcept;
 
-    /// @brief nested iterator class for list element operations including element access via dereferencing
-    ///         iterator may be assigned to different list (non-const pointer to m_List), different list iterators
-    ///         however are not compareable
-
-    class iterator
-    {
-      public:
-        // provide the following public types for a std::iterator_traits compatible iterator_category interface
-        using iterator_category = std::bidirectional_iterator_tag;
-        using value_type = T;
-        using difference_type = void; // so far no difference operations supported
-        using pointer = T*;
-        using reference = T&;
-        // end of iterator_traits interface
-
-        /// @brief prefix increment iterator, so it points to the next list element
-        ///         when trying to increment beyond the end of the list,
-        ///         iterator stays pointing at the end and a message is forwarded to the error_message
-        ///         handler / cerr stream
-        /// @return reference to this iterator object
-        iterator& operator++() noexcept;
-
-        /// @brief prefix decrement iterator, so it points to the previous list element
-        ///         when trying to decrement beyond the beginning of the list,
-        ///         iterator stays pointing at the beginning and a message is forwarded to the error_message
-        ///         handler / cerr stream
-        /// @return reference to this iterator object
-        iterator& operator--() noexcept;
-
-        /// @brief comparing list iterators for equality
-        ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         there is no content for fictional elements at BEGIN_END_LINK_INDEX
-        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
-        ///         ADL doesn't find const_iterator::operator== without providing this
-        /// @param[in] rhs_citer is the 2nd iterator to compare to
-        /// @return list position for two iterators is the same (true) or different (false)
-        bool operator==(const iterator rhs_citer) const noexcept;
-
-        /// @brief comparing list iterators for equality
-        ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         there is no content for fictional elements at BEGIN_END_LINK_INDEX
-        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
-        /// @param[in] rhs_citer is the 2nd iterator to compare to
-        /// @return list position for two iterators is the same (true) or different (false)
-        bool operator==(const const_iterator rhs_citer) const noexcept;
-
-        /// @brief comparing list iterators for non-equality
-        ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         there is no content for fictional elements at BEGIN_END_LINK_INDEX
-        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
-        ///         ADL doesn't find const_iterator::operator== without providing this
-        /// @param[in] rhs_citer is the 2nd iterator to compare to
-        /// @return list position for two iterators is the same (true) or different (false)
-        bool operator!=(const iterator rhs_citer) const noexcept;
-
-        /// @brief comparing list iterators for non-equality
-        ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         there is no content for fictional elements at BEGIN_END_LINK_INDEX
-        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
-        /// @param[in] rhs_citer is the 2nd iterator to compare to
-        /// @return list position for two iterators is the same (true) or different (false)
-        bool operator!=(const const_iterator rhs_citer) const noexcept;
-
-        /// @brief dereferencing element content via iterator-position element
-        /// @return reference to list element data
-        T& operator*() noexcept;
-
-        /// @brief dereferencing element content via iterator-position element
-        /// @return pointer to list element data
-        T* operator->() noexcept;
-
-      private:
-        /// @brief private construct for an iterator, the iterator is bundled to
-        ///         an existing parent (object) of type list,
-        ///         an iterator is only constructed through calls begin() or end()
-        /// @param[in] parent is the list the this iterator operates on
-        /// @param[in] idx is the index of the list element (within allocated memory of parent list)
-        explicit iterator(list* parent, size_type idx) noexcept;
-
-        friend class list<T, Capacity>;
-        list<T, Capacity>* m_list;
-        size_type m_iterListNodeIdx;
-
-    }; // class iterator
-
-    /// @brief nested const_iterator class, --> linked data element is 'const'
-    class const_iterator
-    {
-      public:
-        // provide the following public types for a std::iterator compatible iterator_category interface
-        using iterator_category = std::bidirectional_iterator_tag;
-        using value_type = const T;
-        using difference_type = void;
-        using pointer = const T*;
-        using reference = const T&;
-
-
-        /// @brief construct a const_iterator from an (non-const_) iterator
-        /// @param[in] iter is the iterator which will deliver list and index info for the const_iterator
-        const_iterator(const iterator& iter) noexcept;
-
-
-        /// @brief prefix increment iterator, so it points to the next list element
-        ///         when trying to increment beyond the end of the list,
-        ///         iterator stays pointing at the end and a message is forwarded to the error_message
-        ///         handler / cerr stream
-        /// @return reference to this iterator object
-        const_iterator& operator++() noexcept;
-
-        /// @brief prefix decrement iterator, so it points to the previous list element
-        ///         when trying to decrement beyond the beginning of the list,
-        ///         iterator stays pointing at the beginning and a message is forwarded to the error_message
-        ///         handler / cerr stream
-        /// @return reference to this iterator object
-        const_iterator& operator--() noexcept;
-
-        /// @brief comparing list iterators for equality
-        ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         -> there is no content for fictional elements at BEGIN_END_LINK_INDEX
-        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
-        ///         share with between iterator and const_iterator
-        /// @param[in] rhs_citer is the 2nd iterator to compare to
-        /// @return list position for two iterators is the same (true) or different (false)
-        bool operator==(const const_iterator rhs_citer) const noexcept;
-
-        /// @brief comparing list iterators for non-equality
-        ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         -> there is no content for fictional elements at BEGIN_END_LINK_INDEX
-        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
-        ///         share with between iterator and const_iterator
-        /// @param[in] rhs_citer is the 2nd iterator to compare to
-        /// @return list position for two iterators is the same (true) or different (false)
-        bool operator!=(const const_iterator rhs_citer) const noexcept;
-
-        /// @brief dereferencing element content via iterator-position element
-        /// @return reference to list element data
-        const T& operator*() const noexcept;
-
-        /// @brief dereferencing element content via iterator-position element
-        /// @return pointer to const list data element
-        const T* operator->() const noexcept;
-
-      private:
-        /// @brief private construct for an iterator, the iterator is bundled to
-        ///         an existing parent (object) of type list,
-        ///         an iterator is only constructed through calls to begin() or end()
-        /// @param[in] parent is the const list the this iterator operates on
-        /// @param[in] idx is the index of the list element (within allocated memory of parent list)
-        explicit const_iterator(const list* parent, size_type idx) noexcept;
-
-        friend class list<T, Capacity>;
-        const list<T, Capacity>* m_list;
-        size_type m_iterListNodeIdx;
-
-    }; // class const_iterator
 
     /// @brief default list operation to retrieve an interator to first list element
     /// @return iterator to first list element, returns iterator to end() when list is empty
@@ -404,6 +250,83 @@ class list
     iterator insert(const_iterator citer, T&& data) noexcept;
 
   private:
+    /// @brief nested iterator class for list element operations including element access
+    ///         comparison of iterator from different list is rejected by terminate()
+    template <bool is_const_iterator = true>
+    class iterator_base
+    {
+      public:
+        // provide the following public types for a std::iterator compatible iterator_category interface
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = typename std::conditional<is_const_iterator, const T, T>::type;
+        using difference_type = void;
+        using pointer = typename std::conditional<is_const_iterator, const T*, T*>::type;
+        using reference = typename std::conditional<is_const_iterator, const T&, T&>::type;
+
+
+        /// @brief construct a const_iterator from an iterator
+        /// @param[in] iter is the iterator which will deliver list and index info for the const_iterator
+        iterator_base(const iterator_base<false>& iter);
+
+        /// @brief prefix increment iterator, so it points to the next list element
+        ///         when trying to increment beyond the end of the list, iterator stays pointing at the end, a
+        ///         message is forwarded to the error_message handler / cerr stream
+        /// @return reference to this iterator object
+        iterator_base& operator++() noexcept;
+
+        /// @brief prefix decrement iterator, so it points to the previous list element
+        ///         when trying to increment beyond the end of the list, iterator stays pointing at the end, a
+        ///         message is forwarded to the error_message handler / cerr stream
+        /// @return reference to this iterator object
+        iterator_base& operator--() noexcept;
+
+
+        /// @brief comparing list iterators for equality
+        ///         the referenced list position is compared, not the content of the list element (T-typed)
+        ///         -> there is no content for fictional elements at BEGIN_END_LINK_INDEX
+        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
+        /// @param[in] rhs is the 2nd iterator to compare to
+        /// @return list position for two iterators is the same (true) or different (false)
+        template <bool is_const_iterator_other>
+        bool operator==(const iterator_base<is_const_iterator_other>& rhs) const noexcept;
+
+        /// @brief comparing list iterators for non-equality
+        ///         the referenced list position is compared, not the content of the list element (T-typed)
+        ///         -> there is no content for fictional elements at BEGIN_END_LINK_INDEX
+        ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
+        /// @param[in] rhs is the 2nd iterator to compare to
+        /// @return list position for two iterators is the same (true) or different (false)
+        template <bool is_const_iterator_other>
+        bool operator!=(const iterator_base<is_const_iterator_other>& rhs) const noexcept;
+
+        /// @brief dereferencing element content via iterator-position element
+        /// @return reference to list element data
+        reference operator*() const noexcept;
+
+        /// @brief dereferencing element content via iterator-position element
+        /// @return pointer to const list data element
+        pointer operator->() const noexcept;
+
+
+      private:
+        using parentListPointer =
+            typename std::conditional<is_const_iterator, const list<T, Capacity>*, list<T, Capacity>*>::type;
+
+        /// @brief private construct for an iterator, the iterator is bundled to
+        ///         an existing parent (object) of type list,
+        ///         an iterator is only constructed through calls to begin() or end()
+        /// @param[in] parent is the const list the this iterator operates on
+        /// @param[in] idx is the index of the list element (within allocated memory of parent list)
+        explicit iterator_base(parentListPointer parent, size_type idx) noexcept;
+
+        // Make iterator_base<true> a friend class of iterator_base<false> so the copy constructor can access the
+        // private member variables.
+        friend class iterator_base<true>;
+        friend class list<T, Capacity>;
+        parentListPointer m_list;
+        size_type m_iterListNodeIdx;
+    };
+
     struct NodeLink
     {
         size_type nextIdx;
@@ -445,8 +368,8 @@ class list
 
     // m_links array is one element bigger than request element count. In this additional element links are stored
     // to the beginning and end of the list. This additional element (index position 'capacity' aka
-    // BEGIN_END_LINK_INDEX) 'previous' will point to the last valid element (end()) and 'next' will point to the first
-    // used list element (begin())
+    // BEGIN_END_LINK_INDEX) 'previous' will point to the last valid element (end()) and 'next' will point to the
+    // first used list element (begin())
     NodeLink m_links[NODE_LINK_COUNT];
     using element_t = uint8_t[sizeof(T)];
     alignas(alignof(T)) element_t m_data[Capacity];

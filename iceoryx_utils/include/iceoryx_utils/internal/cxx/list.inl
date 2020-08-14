@@ -429,101 +429,30 @@ void list<T, Capacity>::clear() noexcept
     }
 }
 
-/*************************/
-// private member functions
-/*************************/
 
 /*************************/
 // iterator
+
 template <typename T, uint64_t Capacity>
-list<T, Capacity>::iterator::iterator(list* parent, size_type idx) noexcept
+template <bool is_const_iter>
+list<T, Capacity>::iterator_base<is_const_iter>::iterator_base(parentListPointer parent, size_type idx) noexcept
     : m_list(parent)
     , m_iterListNodeIdx(idx)
 {
 }
 
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::iterator& list<T, Capacity>::iterator::operator++() noexcept
-{
-    if (!m_list->handleInvalidIterator(*this))
-    {
-        // no increment beyond end() / no restart at begin()
-        if (m_list->isValidElementIdx(m_iterListNodeIdx))
-        {
-            m_iterListNodeIdx = m_list->getNextIdx(m_iterListNodeIdx);
-        }
-    }
-    return *this;
-}
-
-template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::iterator& list<T, Capacity>::iterator::operator--() noexcept
-{
-    if (!m_list->handleInvalidIterator(*this))
-    {
-        // no increment beyond begin() / no restart at end()
-        if (m_list->isValidElementIdx(m_list->getPrevIdx(m_iterListNodeIdx)))
-        {
-            m_iterListNodeIdx = m_list->getPrevIdx(m_iterListNodeIdx);
-        }
-    }
-    return *this;
-}
-
-template <typename T, uint64_t Capacity>
-bool list<T, Capacity>::iterator::operator==(const iterator rhs_citer) const noexcept
-{
-    return (const_iterator{rhs_citer} == const_iterator{*this});
-}
-template <typename T, uint64_t Capacity>
-bool list<T, Capacity>::iterator::operator==(const const_iterator rhs_citer) const noexcept
-{
-    return (rhs_citer == const_iterator{*this});
-}
-
-template <typename T, uint64_t Capacity>
-bool list<T, Capacity>::iterator::operator!=(const iterator rhs_citer) const noexcept
-{
-    return (const_iterator{rhs_citer} != const_iterator{*this});
-}
-template <typename T, uint64_t Capacity>
-bool list<T, Capacity>::iterator::operator!=(const const_iterator rhs_citer) const noexcept
-{
-    return (rhs_citer != const_iterator{*this});
-}
-
-template <typename T, uint64_t Capacity>
-T& list<T, Capacity>::iterator::operator*() noexcept
-{
-    return *operator->();
-}
-
-template <typename T, uint64_t Capacity>
-T* list<T, Capacity>::iterator::operator->() noexcept
-{
-    return m_list->getDataPtrFromIdx(m_iterListNodeIdx);
-}
-
-// iterator
-/*************************/
-// const_iterator
-
-template <typename T, uint64_t Capacity>
-list<T, Capacity>::const_iterator::const_iterator(const list* parent, size_type idx) noexcept
-    : m_list(parent)
-    , m_iterListNodeIdx(idx)
-{
-}
-
-template <typename T, uint64_t Capacity>
-list<T, Capacity>::const_iterator::const_iterator(const iterator& iter) noexcept
+template <bool is_const_iter>
+list<T, Capacity>::iterator_base<is_const_iter>::iterator_base(const iterator_base<false>& iter)
     : m_list(iter.m_list)
     , m_iterListNodeIdx(iter.m_iterListNodeIdx)
 {
 }
 
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::const_iterator& list<T, Capacity>::const_iterator::operator++() noexcept
+template <bool is_const_iter>
+auto list<T, Capacity>::iterator_base<is_const_iter>::operator++() noexcept ->
+    typename list<T, Capacity>::template iterator_base<is_const_iter>&
 {
     if (!m_list->handleInvalidIterator(*this))
     {
@@ -537,7 +466,9 @@ typename list<T, Capacity>::const_iterator& list<T, Capacity>::const_iterator::o
 }
 
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::const_iterator& list<T, Capacity>::const_iterator::operator--() noexcept
+template <bool is_const_iter>
+auto list<T, Capacity>::iterator_base<is_const_iter>::operator--() noexcept ->
+    typename list<T, Capacity>::template iterator_base<is_const_iter>&
 {
     if (!m_list->handleInvalidIterator(*this))
     {
@@ -551,38 +482,50 @@ typename list<T, Capacity>::const_iterator& list<T, Capacity>::const_iterator::o
 }
 
 template <typename T, uint64_t Capacity>
-bool list<T, Capacity>::const_iterator::operator==(const const_iterator rhs_citer) const noexcept
+template <bool is_const_iter>
+template <bool is_const_iter_other>
+bool list<T, Capacity>::iterator_base<is_const_iter>::operator==(
+    const list<T, Capacity>::iterator_base<is_const_iter_other>& rhs) const noexcept
 {
-    if (m_list->invalidIterOrDifferentLists(rhs_citer) || m_list->handleInvalidIterator(*this))
+    if (m_list->invalidIterOrDifferentLists(rhs) || m_list->handleInvalidIterator(*this))
     {
         return false;
     }
     // index comparison
-    return (m_iterListNodeIdx == rhs_citer.m_iterListNodeIdx);
+    return (m_iterListNodeIdx == rhs.m_iterListNodeIdx);
 }
 
 template <typename T, uint64_t Capacity>
-bool list<T, Capacity>::const_iterator::operator!=(const const_iterator rhs_citer) const noexcept
+template <bool is_const_iter>
+template <bool is_const_iter_other>
+bool list<T, Capacity>::iterator_base<is_const_iter>::operator!=(
+    const list<T, Capacity>::iterator_base<is_const_iter_other>& rhs) const noexcept
 {
-    return !operator==(rhs_citer);
+    return !operator==(rhs);
 }
 
 
 template <typename T, uint64_t Capacity>
-const T& list<T, Capacity>::const_iterator::operator*() const noexcept
+template <bool is_const_iter>
+auto list<T, Capacity>::iterator_base<is_const_iter>::operator*() const noexcept ->
+    typename list<T, Capacity>::template iterator_base<is_const_iter>::reference
 {
     return *operator->();
 }
 
 
 template <typename T, uint64_t Capacity>
-const T* list<T, Capacity>::const_iterator::operator->() const noexcept
+template <bool is_const_iter>
+auto list<T, Capacity>::iterator_base<is_const_iter>::operator-> () const noexcept ->
+    typename list<T, Capacity>::template iterator_base<is_const_iter>::pointer
 {
     return m_list->getDataPtrFromIdx(m_iterListNodeIdx);
 }
+// iterator
+/*************************/
 
-
-// const_iterator
+/*************************/
+// private member functions
 /*************************/
 
 /*************************/
