@@ -37,8 +37,8 @@ VersionInfo::VersionInfo(const uint16_t versionMajor,
 
 VersionInfo::VersionInfo(const cxx::Serialization& serial) noexcept
 {
-    cxx::string<100> tmp_m_buildDateString;
-    cxx::string<100> tmp_commitIdString;
+    SerializationStringType tmp_m_buildDateString;
+    SerializationStringType tmp_commitIdString;
     m_valid = serial.extract(
         m_versionMajor, m_versionMinor, m_versionPatch, m_versionTweak, tmp_m_buildDateString, tmp_commitIdString);
     m_buildDateString = BuildDateStringType(cxx::TruncateToCapacity, tmp_m_buildDateString.c_str());
@@ -48,8 +48,8 @@ VersionInfo::VersionInfo(const cxx::Serialization& serial) noexcept
 /// @brief Serialization of the VersionInfo.
 VersionInfo::operator cxx::Serialization() const noexcept
 {
-    cxx::string<100> tmp_m_buildDateString(cxx::TruncateToCapacity, m_buildDateString.c_str());
-    cxx::string<100> tmp_commitIdString(cxx::TruncateToCapacity, m_commitIdString.c_str());
+    SerializationStringType tmp_m_buildDateString(cxx::TruncateToCapacity, m_buildDateString.c_str());
+    SerializationStringType tmp_commitIdString(cxx::TruncateToCapacity, m_commitIdString.c_str());
     return cxx::Serialization::create(
         m_versionMajor, m_versionMinor, m_versionPatch, m_versionTweak, tmp_m_buildDateString, tmp_commitIdString);
 }

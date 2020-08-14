@@ -15,6 +15,7 @@
 #define IOX_POSH_VERSION_VERSION_INFO_HPP
 
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/serialization.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_versions.hpp"
@@ -25,23 +26,21 @@ namespace iox
 {
 namespace version
 {
-template <size_t SizeValue>
-static constexpr size_t strlen2(char const (&/*notInterested*/)[SizeValue])
-{
-    return SizeValue - 1;
-}
-
 /// @brief Is used to compare the RouDis and runtime's version information.
 class VersionInfo
 {
   public:
     static const uint64_t COMMIT_ID_STRING_SIZE = 12u;
-    static const uint64_t COMMIT_BUILD_DATE_STRING_SIZE = 36u;
-    using BuildDateStringType = cxx::string<COMMIT_BUILD_DATE_STRING_SIZE>;
+    static const uint64_t BUILD_DATE_STRING_SIZE = 36u;
+    static const uint64_t SERIALIZATION_STRING_SIZE = 100u;
+    using BuildDateStringType = cxx::string<BUILD_DATE_STRING_SIZE>;
     using CommitIdStringType = cxx::string<COMMIT_ID_STRING_SIZE>;
+    using SerializationStringType = cxx::string<SERIALIZATION_STRING_SIZE>;
 
-    static_assert(strlen2(ICEORYX_BUILDDATE) < COMMIT_BUILD_DATE_STRING_SIZE,
-                  "COMMIT_BUILD_DATE_STRING_SIZE needs to be bigger");
+    static_assert(COMMIT_ID_STRING_SIZE <= SERIALIZATION_STRING_SIZE, "CommitId needs to transfered completely.");
+    static_assert(COMMIT_ID_STRING_SIZE <= BUILD_DATE_STRING_SIZE, "BuildDate needs to transfered completely.");
+    static_assert(cxx::strlen2(ICEORYX_BUILDDATE) < BUILD_DATE_STRING_SIZE,
+                  "COMMIT_BUILD_DATE_STRING_SIZE needs to be bigger.");
 
     /// @brief Generates an VersionInfo initialized with the information given by the auto generated
     /// iceoryx_versions.hpp defines.
