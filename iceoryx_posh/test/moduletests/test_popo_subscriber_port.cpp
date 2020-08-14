@@ -295,8 +295,12 @@ TEST_F(SubscriberPortSingleProducer_test, ackWhenNotWaitingForResultsInError)
 TEST_F(SubscriberPortSingleProducer_test, nackWhenNotWaitingForResultsInError)
 {
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    iox::Error receivedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled, &receivedError](
+        const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+        errorHandlerCalled = true;
+        receivedError = error;
+    });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
@@ -304,6 +308,7 @@ TEST_F(SubscriberPortSingleProducer_test, nackWhenNotWaitingForResultsInError)
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
     EXPECT_TRUE(errorHandlerCalled);
+    ASSERT_THAT(receivedError, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
 }
 
 class SubscriberPortMultiProducer_test : public Test
@@ -459,8 +464,12 @@ TEST_F(SubscriberPortMultiProducer_test, unsubscribeInSubscribedTriggersUnsubMes
 TEST_F(SubscriberPortMultiProducer_test, invalidMessageResultsInError)
 {
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    iox::Error receivedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled, &receivedError](
+        const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+        errorHandlerCalled = true;
+        receivedError = error;
+    });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::UNSUB,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
@@ -468,4 +477,5 @@ TEST_F(SubscriberPortMultiProducer_test, invalidMessageResultsInError)
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
     EXPECT_TRUE(errorHandlerCalled);
+    ASSERT_THAT(receivedError, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
 }
