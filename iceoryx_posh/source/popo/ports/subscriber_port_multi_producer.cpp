@@ -33,7 +33,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::getCaProMessage(
 
     if (currentSubscribeRequest && (SubscribeState::NOT_SUBSCRIBED == currentSubscriptionState))
     {
-        getMembers()->m_subscriptionState.store(SubscribeState::WAIT_FOR_OFFER, std::memory_order_relaxed);
+        getMembers()->m_subscriptionState.store(SubscribeState::SUBSCRIBED, std::memory_order_relaxed);
 
         capro::CaproMessage caproMessage(capro::CaproMessageType::SUB, BasePort::getMembers()->m_serviceDescription);
         caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
@@ -41,7 +41,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::getCaProMessage(
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
-    else if (!currentSubscribeRequest && (SubscribeState::WAIT_FOR_OFFER == currentSubscriptionState))
+    else if (!currentSubscribeRequest && (SubscribeState::SUBSCRIBED == currentSubscriptionState))
     {
         getMembers()->m_subscriptionState.store(SubscribeState::NOT_SUBSCRIBED, std::memory_order_relaxed);
 
@@ -63,7 +63,7 @@ SubscriberPortMultiProducer::dispatchCaProMessage(const capro::CaproMessage& caP
     const auto currentSubscriptionState = getMembers()->m_subscriptionState.load(std::memory_order_relaxed);
 
     if ((capro::CaproMessageType::OFFER == caProMessage.m_type)
-        && (SubscribeState::WAIT_FOR_OFFER == currentSubscriptionState))
+        && (SubscribeState::SUBSCRIBED == currentSubscriptionState))
     {
         capro::CaproMessage caproMessage(capro::CaproMessageType::SUB, BasePort::getMembers()->m_serviceDescription);
         caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
