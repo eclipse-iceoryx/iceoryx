@@ -29,8 +29,19 @@ class PoshRuntime_test : public Test
     {
     }
 
-    virtual void SetUp(){};
-    virtual void TearDown(){};
+    virtual void SetUp()
+    {
+        internal::CaptureStdout();
+    };
+
+    virtual void TearDown()
+    {
+        std::string output = internal::GetCapturedStdout();
+        if (Test::HasFailure())
+        {
+            std::cout << output << std::endl;
+        }
+    };
 
     void InterOpWait()
     {
@@ -123,32 +134,36 @@ TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
 
     const auto applicationPortData = m_runtime->getMiddlewareApplication();
 
-    ASSERT_THAT(applicationPortData, Ne(nullptr));
-    EXPECT_THAT(m_runtimeName, applicationPortData->m_processName);
+    ASSERT_NE(nullptr, applicationPortData);
+    EXPECT_EQ(m_runtimeName, applicationPortData->m_processName);
     EXPECT_EQ(iox::capro::ServiceDescription(0u, 0u, 0u), applicationPortData->m_serviceDescription);
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
     EXPECT_EQ(uniqueIdCounter, applicationPortData->m_uniqueId);
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareApplication_ApplicationlistOverflow)
+TEST_F(PoshRuntime_test, GetMiddlewareApplicationApplicationlistOverflow)
 {
-    auto errorHandlerCalled{false};
+    auto applicationlistOverflowDetected{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
+        [&applicationlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            applicationlistOverflowDetected = true;
+            EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__APPLICATIONLIST_OVERFLOW));
         });
 
-    // i=1 because there is already an active runtime in test fixture class which acquired an application port
+    // i = 1 because there is already an active runtime in test fixture class which acquired an application port
     for (auto i = 1u; i < iox::MAX_PROCESS_NUMBER; ++i)
     {
         auto appPort = m_runtime->getMiddlewareApplication();
-        EXPECT_NE(nullptr, appPort);
+        ASSERT_NE(nullptr, appPort);
     }
+
+    EXPECT_FALSE(applicationlistOverflowDetected);
+
     auto appPort = m_runtime->getMiddlewareApplication();
 
     EXPECT_EQ(nullptr, appPort);
-    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_TRUE(applicationlistOverflowDetected);
 }
 
 
@@ -156,6 +171,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
 {
     const auto interfacePortData = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL, m_runnableName);
 
+    ASSERT_NE(nullptr, interfacePortData);
     EXPECT_EQ(m_runtimeName, interfacePortData->m_processName);
     EXPECT_EQ(iox::capro::ServiceDescription(0u, 0u, 0u), interfacePortData->m_serviceDescription);
     EXPECT_EQ(false, interfacePortData->m_toBeDestroyed);
@@ -163,57 +179,31 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceIsSuccessful)
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareInterface_InterfacelistOverflow)
+TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
 {
-    auto errorHandlerCalled{false};
+    auto interfacelistOverflowDetected{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
+        [&interfacelistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            interfacelistOverflowDetected = true;
+            EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__INTERFACELIST_OVERFLOW));
         });
 
     for (auto i = 0u; i < iox::MAX_INTERFACE_NUMBER; ++i)
     {
         auto interfacePort = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL);
-        EXPECT_NE(nullptr, interfacePort);
+        ASSERT_NE(nullptr, interfacePort);
     }
+
+    EXPECT_FALSE(interfacelistOverflowDetected);
+
     auto interfacePort = m_runtime->getMiddlewareInterface(iox::capro::Interfaces::INTERNAL);
 
     EXPECT_EQ(nullptr, interfacePort);
-    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_TRUE(interfacelistOverflowDetected);
 }
 
 
-TEST_F(PoshRuntime_test, SendMessageToRouDi_ValidMessage)
-{
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_runtimeName
-                 << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_runnableName;
-
-    const auto successfullySent = m_runtime->sendMessageToRouDi(m_sendBuffer);
-
-    EXPECT_EQ(true, successfullySent);
-}
-
-
-TEST_F(PoshRuntime_test, SendMessageToRouDi_InvalidMessage)
-{
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << std::string()
-                 << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_invalidRunnableName;
-
-    const auto successfullySent = m_runtime->sendMessageToRouDi(m_sendBuffer);
-
-    EXPECT_EQ(false, successfullySent);
-}
-
-
-TEST_F(PoshRuntime_test, SendMessageToRouDi_EmptyMessage)
-{
-    const auto successfullySent = m_runtime->sendMessageToRouDi(m_sendBuffer);
-
-    EXPECT_EQ(true, successfullySent);
-}
-
-
-TEST_F(PoshRuntime_test, SendRequestToRouDi_ValidMessage)
+TEST_F(PoshRuntime_test, SendRequestToRouDiValidMessage)
 {
     m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_runnableName;
@@ -221,18 +211,18 @@ TEST_F(PoshRuntime_test, SendRequestToRouDi_ValidMessage)
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
 
     EXPECT_TRUE(m_receiveBuffer.isValid());
-    EXPECT_EQ(true, successfullySent);
+    EXPECT_TRUE(successfullySent);
 }
 
 
-TEST_F(PoshRuntime_test, SendRequestToRouDi_InvalidMessage)
+TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
 {
     m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_invalidRunnableName;
 
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
 
-    EXPECT_EQ(false, successfullySent);
+    EXPECT_FALSE(successfullySent);
 }
 
 
@@ -241,13 +231,14 @@ TEST_F(PoshRuntime_test, GetMiddlewareSenderIsSuccessful)
     const auto senderPort = m_runtime->getMiddlewareSender(
         iox::capro::ServiceDescription(99u, 1u, 20u), m_runnableName, iox::runtime::PortConfigInfo(11u, 22u, 33u));
 
+    ASSERT_THAT(senderPort, Ne(nullptr));
     EXPECT_EQ(iox::capro::ServiceDescription(99u, 1u, 20u), senderPort->m_serviceDescription);
     EXPECT_EQ(22u, senderPort->m_memoryInfo.deviceId);
     EXPECT_EQ(33u, senderPort->m_memoryInfo.memoryType);
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareSender_DefaultArgs)
+TEST_F(PoshRuntime_test, GetMiddlewareSenderDefaultArgs)
 {
     const auto senderPort = m_runtime->getMiddlewareSender(iox::capro::ServiceDescription(99u, 1u, 20u));
 
@@ -256,20 +247,36 @@ TEST_F(PoshRuntime_test, GetMiddlewareSender_DefaultArgs)
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareSender_SenderlistOverflow)
+TEST_F(PoshRuntime_test, GetMiddlewareSenderSenderlistOverflow)
 {
-    auto errorHandlerCalled{false};
+    auto senderlistOverflowDetected{false};
+
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
+        [&senderlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            if (error == iox::Error::kPORT_POOL__SENDERLIST_OVERFLOW)
+            {
+                senderlistOverflowDetected = true;
+            }
         });
 
-    for (uint32_t i = 0u; i < iox::MAX_PORT_NUMBER; ++i)
+    ///@note 5 sender ports are alloted for internal services of Roudi.
+    /// hence getServiceRegistryChangeCounter() is used
+    auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
+    auto availableSenderPort = serviceCounter->load();
+    for (; availableSenderPort < iox::MAX_PORT_NUMBER; ++availableSenderPort)
     {
-        m_runtime->getMiddlewareSender(iox::capro::ServiceDescription(i, i + 1u, i + 2u));
+        auto senderPort = m_runtime->getMiddlewareSender(
+            iox::capro::ServiceDescription(availableSenderPort, availableSenderPort + 1u, availableSenderPort + 2u));
+        ASSERT_NE(nullptr, senderPort);
     }
 
-    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_FALSE(senderlistOverflowDetected);
+
+    auto senderPort = m_runtime->getMiddlewareSender(
+        iox::capro::ServiceDescription(availableSenderPort, availableSenderPort + 1u, availableSenderPort + 2u));
+
+    EXPECT_EQ(nullptr, senderPort);
+    EXPECT_TRUE(senderlistOverflowDetected);
 }
 
 
@@ -278,39 +285,49 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiverIsSuccessful)
     auto receiverPort = m_runtime->getMiddlewareReceiver(
         iox::capro::ServiceDescription(99u, 1u, 20u), m_runnableName, iox::runtime::PortConfigInfo(11u, 22u, 33u));
 
+    ASSERT_NE(nullptr, receiverPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99u, 1u, 20u), receiverPort->m_serviceDescription);
     EXPECT_EQ(22u, receiverPort->m_memoryInfo.deviceId);
     EXPECT_EQ(33u, receiverPort->m_memoryInfo.memoryType);
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareReceiver_DefaultArgs)
+TEST_F(PoshRuntime_test, GetMiddlewareReceiverDefaultArgs)
 {
     auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(99u, 1u, 20u));
 
+    ASSERT_NE(nullptr, receiverPort);
     EXPECT_EQ(0u, receiverPort->m_memoryInfo.deviceId);
     EXPECT_EQ(0u, receiverPort->m_memoryInfo.memoryType);
 }
 
 
-TEST_F(PoshRuntime_test, GetMiddlewareReceiver_ReceiverlistOverflow)
+TEST_F(PoshRuntime_test, GetMiddlewareReceiverReceiverlistOverflow)
 {
-    auto errorHandlerCalled{false};
+    auto receiverlistOverflowDetected{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
+        [&receiverlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            receiverlistOverflowDetected = true;
+            EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__RECEIVERLIST_OVERFLOW));
         });
 
-    for (uint32_t i = 0u; i < iox::MAX_PORT_NUMBER + 1; ++i)
+    uint32_t i = 0u;
+    for (; i < iox::MAX_PORT_NUMBER; ++i)
     {
-        m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(i, i + 1u, i + 2u));
+        auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(i, i + 1u, i + 2u));
+        ASSERT_NE(nullptr, receiverPort);
     }
 
-    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_FALSE(receiverlistOverflowDetected);
+
+    auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(i, i + 1u, i + 2u));
+
+    EXPECT_EQ(nullptr, receiverPort);
+    EXPECT_TRUE(receiverlistOverflowDetected);
 }
 
 
-TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounter_OfferStopOfferService)
+TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounterOfferStopOfferService)
 {
     auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
     auto initialCout = serviceCounter->load();
@@ -327,7 +344,7 @@ TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounter_OfferStopOfferService)
 }
 
 
-TEST_F(PoshRuntime_test, CreateRunnable_ReturnValue)
+TEST_F(PoshRuntime_test, CreateRunnableReturnValue)
 {
     const uint32_t runnableDeviceIdentifier = 1u;
     iox::runtime::RunnableProperty runnableProperty(iox::cxx::string<100>("testRunnable"), runnableDeviceIdentifier);
