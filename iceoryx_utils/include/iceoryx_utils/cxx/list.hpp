@@ -30,6 +30,23 @@ namespace cxx
 ///         attempt to add elements to a full list will be ignored.
 ///         Capacity must at least be 1, (unintended) negative initialization is rejected with compile assertion
 ///         limitation: concurrency concerns have to be handled by client side.
+///
+///      overview of cxx::forward_list deviations to std::forward_list(C++11)
+///         - list declaration with mandatory max list size argument
+///         - memeber functions don't throw exception but will trigger different failure handling
+///         - push_front/~_back returns a bool (instead of void) informing on successful insertion (true)
+///         - pop_front/~_back returns a bool (instead of void) informing on successful removal (true), otherwise empty
+///         (false)
+///         - emplace_front/~_back returns a reference to the inserted element (instead of void), this is C++17-conform
+///         - remove / remove_if returns a the number of removed elements (instead of void), this is C++20-conform
+///
+///         (yet) missing implementations
+///         -------------------------------
+///         - allocator, difference_type / range operations
+///         - assign, resize, swap, merge, splice_after, reverse, rbegin/crbegin, rend/crend, unique, sort
+///         - list operator==, operator!=, operator<, operator<=, operator>, operator>=
+///
+///
 /// @param T type user data to be managed within list
 /// @param Capacity number of maximum list elements a client can push to the list. minimum value is '1'
 template <typename T, uint64_t Capacity>
@@ -42,8 +59,6 @@ class list
   public:
     // forward declarations, public
     class const_iterator;
-
-    static_assert(Capacity > 0, "Capacity must be an unsigned integral type >0");
 
     using value_type = T;
     using size_type = decltype(Capacity);
@@ -142,11 +157,11 @@ class list
 
         /// @brief dereferencing element content via iterator-position element
         /// @return reference to list element data
-        T& operator*() const noexcept;
+        T& operator*() noexcept;
 
         /// @brief dereferencing element content via iterator-position element
         /// @return pointer to list element data
-        T* operator->() const noexcept;
+        T* operator->() noexcept;
 
       private:
         /// @brief private construct for an iterator, the iterator is bundled to
@@ -347,13 +362,13 @@ class list
     /// @brief remove the first element which matches the given comparing element (compare by value)
     ///         requires a the template type T to have operator== defined.
     /// @param[in] data value to compare to
-    /// @return the number of elements removed
+    /// @return the number of elements removed, return is C++20-conform
     size_type remove(const T& data) noexcept;
 
     /// @brief remove the first element which matches the provided comparison function
     ///         requires a the template type T to have a operator== defined.
     /// @param[in] pred unary predicate which returns ​true if the element should be removed
-    /// @return the number of elements removed
+    /// @return the number of elements removed, return is C++20-conform
     template <typename UnaryPredicate>
     size_type remove_if(UnaryPredicate pred) noexcept;
 
@@ -396,24 +411,25 @@ class list
     };
 
     void init() noexcept;
-    T* getDataPtrFromIdx(const size_type idx) const noexcept;
-    T* getDataBasePtr() const noexcept;
-    NodeLink* getLinkPtrFromIdx(const size_type idx) const noexcept;
-    NodeLink* getLinkBasePtr() const noexcept;
+    T* getDataPtrFromIdx(const size_type idx) noexcept;
+    const T* getDataPtrFromIdx(const size_type idx) const noexcept;
 
-    bool isValidIteratorIndex(const size_type idx) const noexcept;
-    bool isValidElementIndex(const size_type idx) const noexcept;
-    bool invalidElement(const size_type idx) const noexcept;
-    bool invalidIterator(const const_iterator& iter) const noexcept;
+    bool isValidElementIdx(const size_type idx) const noexcept;
+    bool handleInvalidElement(const size_type idx) const noexcept;
+    bool handleInvalidIterator(const const_iterator& iter) const noexcept;
     bool invalidIterOrDifferentLists(const const_iterator& iter) const noexcept;
-    size_type getPrevIdx(const size_type idx) const noexcept;
-    size_type getNextIdx(const size_type idx) const noexcept;
-    size_type getPrevIdx(const const_iterator& iter) const noexcept;
-    size_type getNextIdx(const const_iterator& iter) const noexcept;
+    size_type& getPrevIdx(const size_type idx) noexcept;
+    size_type& getNextIdx(const size_type idx) noexcept;
+    size_type& getPrevIdx(const const_iterator& iter) noexcept;
+    size_type& getNextIdx(const const_iterator& iter) noexcept;
+    const size_type& getPrevIdx(const size_type idx) const noexcept;
+    const size_type& getNextIdx(const size_type idx) const noexcept;
+    const size_type& getPrevIdx(const const_iterator& iter) const noexcept;
+    const size_type& getNextIdx(const const_iterator& iter) const noexcept;
     void setPrevIdx(const size_type idx, const size_type prevIdx) noexcept;
     void setNextIdx(const size_type idx, const size_type nextIdx) noexcept;
 
-    static void errorMessage(const char* f_source, const char* f_msg) noexcept;
+    static void errorMessage(const char* source, const char* msg) noexcept;
 
     //***************************************
     //    members
@@ -421,19 +437,18 @@ class list
 
     static constexpr size_type BEGIN_END_LINK_INDEX{size_type(Capacity)};
     static constexpr size_type NODE_LINK_COUNT{size_type(Capacity) + 1U};
-    static constexpr size_type INVALID_INDEX{size_type(Capacity) + 2U};
+    static constexpr size_type INVALID_INDEX{NODE_LINK_COUNT};
 
     // two member variables point to head of freeList and usedList
     // available elements are moved between freeList and usedList when inserted or removed
     size_type m_freeListHeadIdx{0U};
 
     // m_links array is one element bigger than request element count. In this additional element links are stored
-    // to the beginning and end of the list this additional element (index position 'capacity') contains
-    // BEGIN_END_LINK_INDEX to previsous and nect element when list is empty. Otherwise previsous will point to the last
-    // valid element and next will point to the first used list element
-    using nodelink_t = uint8_t[sizeof(NodeLink)];
+    // to the beginning and end of the list. This additional element (index position 'capacity' aka
+    // BEGIN_END_LINK_INDEX) 'previous' will point to the last valid element (end()) and 'next' will point to the first
+    // used list element (begin())
+    NodeLink m_links[NODE_LINK_COUNT];
     using element_t = uint8_t[sizeof(T)];
-    alignas(alignof(T)) nodelink_t m_links[NODE_LINK_COUNT];
     alignas(alignof(T)) element_t m_data[Capacity];
 
     size_type m_size{0U};
