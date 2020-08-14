@@ -2212,7 +2212,7 @@ TEST_F(list_test, invalidIteratorComparison)
     ++iter;
     auto iter2 = sut.erase(iter);
 
-    EXPECT_DEATH(sut.cbegin() == iter, "");
+    EXPECT_DEATH(dummyFunc(sut.cbegin() == iter), "");
 }
 
 TEST_F(list_test, invalidIteratorComparisonUnequal)
