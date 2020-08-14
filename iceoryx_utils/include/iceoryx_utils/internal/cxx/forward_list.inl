@@ -389,83 +389,31 @@ void forward_list<T, Capacity>::clear() noexcept
     }
 }
 
-/*************************/
-// private member functions
-/*************************/
 
 /*************************/
 // iterator
+
+
 template <typename T, uint64_t Capacity>
-forward_list<T, Capacity>::iterator::iterator(forward_list* parent, size_type idx) noexcept
+template <bool is_const_iter>
+forward_list<T, Capacity>::iterator_base<is_const_iter>::iterator_base(parentListPointer parent, size_type idx) noexcept
     : m_list(parent)
     , m_iterListNodeIdx(idx)
 {
 }
 
 template <typename T, uint64_t Capacity>
-typename forward_list<T, Capacity>::iterator& forward_list<T, Capacity>::iterator::operator++() noexcept
-{
-    if (!m_list->handleInvalidIterator(*this))
-    {
-        m_iterListNodeIdx = m_list->getNextIdx(m_iterListNodeIdx);
-    }
-    return *this;
-}
-
-template <typename T, uint64_t Capacity>
-bool forward_list<T, Capacity>::iterator::operator==(const iterator rhs_citer) const noexcept
-{
-    return (const_iterator{rhs_citer} == const_iterator{*this});
-}
-template <typename T, uint64_t Capacity>
-bool forward_list<T, Capacity>::iterator::operator==(const const_iterator rhs_citer) const noexcept
-{
-    return (rhs_citer == const_iterator{*this});
-}
-
-template <typename T, uint64_t Capacity>
-bool forward_list<T, Capacity>::iterator::operator!=(const iterator rhs_citer) const noexcept
-{
-    return (const_iterator{rhs_citer} != const_iterator{*this});
-}
-template <typename T, uint64_t Capacity>
-bool forward_list<T, Capacity>::iterator::operator!=(const const_iterator rhs_citer) const noexcept
-{
-    return (rhs_citer != const_iterator{*this});
-}
-
-template <typename T, uint64_t Capacity>
-T& forward_list<T, Capacity>::iterator::operator*() noexcept
-{
-    return *operator->();
-}
-
-template <typename T, uint64_t Capacity>
-T* forward_list<T, Capacity>::iterator::operator->() noexcept
-{
-    return m_list->getDataPtrFromIdx(m_iterListNodeIdx);
-}
-
-// iterator
-/*************************/
-// const_iterator
-
-template <typename T, uint64_t Capacity>
-forward_list<T, Capacity>::const_iterator::const_iterator(const forward_list* parent, size_type idx) noexcept
-    : m_list(parent)
-    , m_iterListNodeIdx(idx)
-{
-}
-
-template <typename T, uint64_t Capacity>
-forward_list<T, Capacity>::const_iterator::const_iterator(const iterator& iter) noexcept
+template <bool is_const_iter>
+forward_list<T, Capacity>::iterator_base<is_const_iter>::iterator_base(const iterator_base<false>& iter)
     : m_list(iter.m_list)
     , m_iterListNodeIdx(iter.m_iterListNodeIdx)
 {
 }
 
 template <typename T, uint64_t Capacity>
-typename forward_list<T, Capacity>::const_iterator& forward_list<T, Capacity>::const_iterator::operator++() noexcept
+template <bool is_const_iter>
+auto forward_list<T, Capacity>::iterator_base<is_const_iter>::operator++() noexcept ->
+    typename forward_list<T, Capacity>::template iterator_base<is_const_iter>&
 {
     if (!m_list->handleInvalidIterator(*this))
     {
@@ -476,38 +424,52 @@ typename forward_list<T, Capacity>::const_iterator& forward_list<T, Capacity>::c
 
 
 template <typename T, uint64_t Capacity>
-bool forward_list<T, Capacity>::const_iterator::operator==(const const_iterator rhs_citer) const noexcept
+template <bool is_const_iter>
+template <bool is_const_iter_other>
+bool forward_list<T, Capacity>::iterator_base<is_const_iter>::operator==(
+    const forward_list<T, Capacity>::iterator_base<is_const_iter_other>& rhs) const noexcept
 {
-    if (m_list->invalidIterOrDifferentLists(rhs_citer) || m_list->handleInvalidIterator(*this))
+    if (m_list->invalidIterOrDifferentLists(rhs) || m_list->handleInvalidIterator(*this))
     {
         return false;
     }
     // index comparison
-    return (m_iterListNodeIdx == rhs_citer.m_iterListNodeIdx);
+    return (m_iterListNodeIdx == rhs.m_iterListNodeIdx);
 }
 
 template <typename T, uint64_t Capacity>
-bool forward_list<T, Capacity>::const_iterator::operator!=(const const_iterator rhs_citer) const noexcept
+template <bool is_const_iter>
+template <bool is_const_iter_other>
+bool forward_list<T, Capacity>::iterator_base<is_const_iter>::operator!=(
+    const forward_list<T, Capacity>::iterator_base<is_const_iter_other>& rhs) const noexcept
 {
-    return !operator==(rhs_citer);
+    return !operator==(rhs);
 }
 
 
 template <typename T, uint64_t Capacity>
-const T& forward_list<T, Capacity>::const_iterator::operator*() const noexcept
+template <bool is_const_iter>
+auto forward_list<T, Capacity>::iterator_base<is_const_iter>::operator*() const noexcept ->
+    typename forward_list<T, Capacity>::template iterator_base<is_const_iter>::reference
 {
     return *operator->();
 }
 
 
 template <typename T, uint64_t Capacity>
-const T* forward_list<T, Capacity>::const_iterator::operator->() const noexcept
+template <bool is_const_iter>
+auto forward_list<T, Capacity>::iterator_base<is_const_iter>::operator-> () const noexcept ->
+    typename forward_list<T, Capacity>::template iterator_base<is_const_iter>::pointer
 {
     return m_list->getDataPtrFromIdx(m_iterListNodeIdx);
 }
 
+// iterator
+/*************************/
 
-// const_iterator
+
+/*************************/
+// private member functions
 /*************************/
 
 /*************************/
