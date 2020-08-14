@@ -27,6 +27,10 @@ inline TypedUniqueId<T>::TypedUniqueId() noexcept
                (static_cast<uint64_t>(internal::getUniqueRouDiId()) << 48)
                    + ((globalIDCounter.fetch_add(1u, std::memory_order_relaxed) << 16) >> 16))
 {
+    if (globalIDCounter.load() >= (static_cast<uint64_t>(1u) << 48))
+    {
+        errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_OVERFLOW);
+    }
 }
 } // namespace popo
 } // namespace iox

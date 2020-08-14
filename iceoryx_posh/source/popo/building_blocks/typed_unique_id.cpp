@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
-#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
