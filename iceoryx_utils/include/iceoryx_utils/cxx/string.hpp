@@ -15,6 +15,7 @@
 #define IOX_UTILS_CXX_STRING_HPP
 
 #include "iceoryx_utils/internal/cxx/string_internal.hpp"
+#include "optional.hpp"
 
 #include <cstring>
 #include <iostream>
@@ -420,6 +421,26 @@ class string
     /// @return true if the appending succeeds, otherwise false
     template <typename T>
     bool unsafe_append(const T& t) noexcept;
+
+    /// @brief creates a substring containing the characters from pos until count; if pos+count is greater than the size
+    /// of the original string the returned substring only contains the characters from pos until size();
+    /// iox::cxx::nullopt is returned if pos is greater than the size of the original string;
+    ///
+    /// @param [in] pos is the position of the first character used for the substring
+    /// @param [in] count is the requested length of the substring
+    ///
+    /// @return an optional containing the substring, iox::cc::nullopt if pos is greater than the size of the original
+    /// string
+    iox::cxx::optional<string<Capacity>> substr(uint64_t pos, uint64_t count) const noexcept;
+
+    /// @brief creates a substring containing the characters from pos until size(); iox::cxx::nullopt is returned if pos
+    /// is greater than the size of the original string
+    ///
+    /// @param [in] pos is the position of the first character used for the substring
+    ///
+    /// @return an optional containing the substring, iox::cc::nullopt if pos is greater than the size of the original
+    /// string
+    iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
 
     template <uint64_t N>
     friend class string;

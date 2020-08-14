@@ -1565,4 +1565,93 @@ TEST(String10, AppendTooLargeStringLiteralResultsInTruncatedString)
     EXPECT_THAT(testString.size(), Eq(10));
     EXPECT_THAT(testString.c_str(), StrEq("Live long "));
 }
+
+/// @note iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
+TYPED_TEST(stringTyped_test, SubstrWithDefaultPosAndSizeResultsInWholeString)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    std::string testStdString(STRINGCAP, 'M');
+    EXPECT_THAT(this->testSubject.unsafe_assign(testStdString), Eq(true));
+    auto substr = this->testSubject.substr();
+    EXPECT_THAT(substr.has_value(), Eq(true));
+
+    auto testSubstring = substr.value();
+    std::string testStdSubstring = testStdString.substr();
+    EXPECT_THAT(testSubstring.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(testSubstring.size(), Eq(testStdSubstring.size()));
+    EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString));
+}
+
+TEST(String100, SubstrWithDefaultSizeWorks)
+{
+    std::string testStdString = "Mueslimaedchen";
+    std::string testStdSubstring = testStdString.substr(8);
+    string<100> testCxxString(TruncateToCapacity, testStdString);
+    auto substr = testCxxString.substr(8);
+    EXPECT_THAT(substr.has_value(), Eq(true));
+
+    auto testSubstring = substr.value();
+    EXPECT_THAT(testSubstring.capacity(), Eq(100));
+    EXPECT_THAT(testSubstring.size(), Eq(testStdSubstring.size()));
+    EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring));
+}
+
+/// @note iox::cxx::optional<string<Capacity>> substr(uint64_t pos, uint64_t count) const noexcept
+TEST(String100, SubstrWithValidPosAndSizeWorks)
+{
+    std::string testStdString = "Ferdinand Spitzschnueffler";
+    string<100> testCxxString(TruncateToCapacity, testStdString);
+
+    std::string testStdSubstring = testStdString.substr(0, 19);
+    auto substr1 = testCxxString.substr(0, 19);
+    EXPECT_THAT(substr1.has_value(), Eq(true));
+    auto testSubstring1 = substr1.value();
+    EXPECT_THAT(testSubstring1.capacity(), Eq(100));
+    EXPECT_THAT(testSubstring1.size(), Eq(testStdSubstring.size()));
+    EXPECT_THAT(testSubstring1.c_str(), StrEq(testStdSubstring));
+
+    testStdSubstring = testStdString.substr(20, 5);
+    auto substr2 = testCxxString.substr(20, 5);
+    EXPECT_THAT(substr2.has_value(), Eq(true));
+    auto testSubstring2 = substr2.value();
+    EXPECT_THAT(testSubstring2.capacity(), Eq(100));
+    EXPECT_THAT(testSubstring2.size(), Eq(testStdSubstring.size()));
+    EXPECT_THAT(testSubstring2.c_str(), StrEq(testStdSubstring));
+
+    testStdSubstring = testStdString.substr(0, 26);
+    auto substr3 = testCxxString.substr(0, 26);
+    EXPECT_THAT(substr3.has_value(), Eq(true));
+    auto testSubstring3 = substr3.value();
+    EXPECT_THAT(testSubstring3.capacity(), Eq(100));
+    EXPECT_THAT(testSubstring3.size(), Eq(testStdSubstring.size()));
+    EXPECT_THAT(testSubstring3.c_str(), StrEq(testStdSubstring));
+
+    testStdSubstring = testStdString.substr(11, 8);
+    auto substr4 = testCxxString.substr(11, 8);
+    EXPECT_THAT(substr4.has_value(), Eq(true));
+    auto testSubstring4 = substr4.value();
+    EXPECT_THAT(testSubstring4.capacity(), Eq(100));
+    EXPECT_THAT(testSubstring4.size(), Eq(testStdSubstring.size()));
+    EXPECT_THAT(testSubstring4.c_str(), StrEq(testStdSubstring));
+
+    testStdSubstring = testStdString.substr(13, 98);
+    auto substr5 = testCxxString.substr(13, 98);
+    EXPECT_THAT(substr5.has_value(), Eq(true));
+    auto testSubstring5 = substr5.value();
+    EXPECT_THAT(testSubstring5.capacity(), Eq(100));
+    EXPECT_THAT(testSubstring5.size(), Eq(testStdSubstring.size()));
+    EXPECT_THAT(testSubstring5.c_str(), StrEq(testStdSubstring));
+}
+
+TYPED_TEST(stringTyped_test, SubstrWithInvalidPosFails)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    auto substr = this->testSubject.substr(STRINGCAP + 1, STRINGCAP + 2);
+    EXPECT_THAT(substr.has_value(), Eq(false));
+}
 } // namespace

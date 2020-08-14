@@ -482,6 +482,30 @@ inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, const T&
     }
     return *this;
 }
+
+template <uint64_t Capacity>
+inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(uint64_t pos, uint64_t count) const noexcept
+{
+    if (pos > m_rawstringSize)
+    {
+        return iox::cxx::nullopt;
+    }
+    if (m_rawstringSize < (pos + count))
+    {
+        count = m_rawstringSize - pos;
+    }
+    string subString;
+    std::memcpy(subString.m_rawstring, &m_rawstring[pos], count);
+    subString.m_rawstring[count] = '\0';
+    subString.m_rawstringSize = count;
+    return subString;
+}
+
+template <uint64_t Capacity>
+inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(uint64_t pos) const noexcept
+{
+    return substr(pos, m_rawstringSize);
+}
 } // namespace cxx
 } // namespace iox
 

@@ -131,6 +131,9 @@ In the second step, the functionality has been extended:
     	string& append(TruncateToCapacity_t, const T& t) noexcept;
     	template <typename T>
     	bool unsafe_append(const T& t) noexcept;
+
+    	iox::cxx::optional<string<Capacity>> substr(uint64_t pos, uint64_t count) const noexcept;
+    	iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
 	};
 
 	template <uint64_t Capacity>
