@@ -192,6 +192,15 @@ TEST_F(PublisherPort_test, freeingAnAllocatedChunkReleasesTheMemory)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
+TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
+{
+    auto maybeChunkHeader = m_sutUserSide.allocateChunk(10u);
+    auto chunkHeader = maybeChunkHeader.get_value();
+
+    EXPECT_THAT(chunkHeader->m_originId, Eq(static_cast<uint64_t>(m_sutUserSide.getUniqueID())));
+    m_sutUserSide.freeChunk(chunkHeader);
+}
+
 TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
 {
     auto maybeChunkHeader = m_sutUserSide.allocateChunk(10u);

@@ -106,8 +106,17 @@ class ChunkSender_test : public Test
 TEST_F(ChunkSender_test, allocate_OneChunk)
 {
     auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample), UniqueId_t());
-    EXPECT_FALSE(maybeChunkHeader.has_error());
+    ASSERT_FALSE(maybeChunkHeader.has_error());
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
+}
+
+TEST_F(ChunkSender_test, allocate_ChunkHasOriginIdSet)
+{
+    UniqueId_t uniqueId;
+    auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample), uniqueId);
+
+    ASSERT_FALSE(maybeChunkHeader.has_error());
+    EXPECT_THAT((*maybeChunkHeader)->m_originId, Eq(static_cast<uint64_t>(uniqueId)));
 }
 
 TEST_F(ChunkSender_test, allocate_MultipleChunks)
@@ -115,13 +124,10 @@ TEST_F(ChunkSender_test, allocate_MultipleChunks)
     auto chunk1 = m_chunkSender.allocate(sizeof(DummySample), UniqueId_t());
     auto chunk2 = m_chunkSender.allocate(sizeof(DummySample), UniqueId_t());
 
-    EXPECT_FALSE(chunk1.has_error());
-    EXPECT_FALSE(chunk2.has_error());
-    if (!chunk1.has_error() && !chunk2.has_error())
-    {
-        // must be different chunks
-        EXPECT_THAT(*chunk1, Ne(*chunk2));
-    }
+    ASSERT_FALSE(chunk1.has_error());
+    ASSERT_FALSE(chunk2.has_error());
+    // must be different chunks
+    EXPECT_THAT(*chunk1, Ne(*chunk2));
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(2u));
 }
 
