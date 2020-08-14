@@ -396,17 +396,22 @@ class list
     };
 
     void init() noexcept;
-    T* getDataPtrFromIdx(size_type) const noexcept;
+    T* getDataPtrFromIdx(const size_type idx) const noexcept;
     T* getDataBasePtr() const noexcept;
-    NodeLink* getLinkPtrFromIdx(size_type idx) const noexcept;
+    NodeLink* getLinkPtrFromIdx(const size_type idx) const noexcept;
     NodeLink* getLinkBasePtr() const noexcept;
 
-    bool isValidIteratorIndex(size_type index) const noexcept;
-    bool isValidElementIndex(size_type index) const noexcept;
-    size_type getPrevIdx(size_type idx) const noexcept;
-    size_type getNextIdx(size_type idx) const noexcept;
-    void setPrevIdx(size_type idx, size_type prevIdx) noexcept;
-    void setNextIdx(size_type idx, size_type nextIdx) noexcept;
+    bool isValidIteratorIndex(const size_type idx) const noexcept;
+    bool isValidElementIndex(const size_type idx) const noexcept;
+    bool invalidElement(const size_type idx) const noexcept;
+    bool invalidIterator(const const_iterator& iter) const noexcept;
+    bool invalidIterOrDifferentLists(const const_iterator& iter) const noexcept;
+    size_type getPrevIdx(const size_type idx) const noexcept;
+    size_type getNextIdx(const size_type idx) const noexcept;
+    size_type getPrevIdx(const const_iterator& iter) const noexcept;
+    size_type getNextIdx(const const_iterator& iter) const noexcept;
+    void setPrevIdx(const size_type idx, const size_type prevIdx) noexcept;
+    void setNextIdx(const size_type idx, const size_type nextIdx) noexcept;
 
     static void errorMessage(const char* f_source, const char* f_msg) noexcept;
 
@@ -414,9 +419,9 @@ class list
     //    members
     //***************************************
 
-    static constexpr size_type NODE_LINK_COUNT{size_type(Capacity) + 1U};
     static constexpr size_type BEGIN_END_LINK_INDEX{size_type(Capacity)};
-    // static constexpr size_type INVALID_INDEX{NODE_LINK_COUNT};
+    static constexpr size_type NODE_LINK_COUNT{size_type(Capacity) + 1U};
+    static constexpr size_type INVALID_INDEX{size_type(Capacity) + 2U};
 
     // two member variables point to head of freeList and usedList
     // available elements are moved between freeList and usedList when inserted or removed
@@ -431,7 +436,7 @@ class list
     alignas(alignof(T)) nodelink_t m_links[NODE_LINK_COUNT];
     alignas(alignof(T)) element_t m_data[Capacity];
 
-    size_type m_size{0u};
+    size_type m_size{0U};
 }; // list
 
 } // namespace cxx
