@@ -303,11 +303,12 @@ TEST_F(SubscriberPortSingleProducer_test, nackWhenNotWaitingForResultsInError)
 {
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled, &receivedError](
-        const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-        errorHandlerCalled = true;
-        receivedError = error;
-    });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
@@ -337,6 +338,8 @@ class SubscriberPortMultiProducer_test : public Test
     {
     }
 
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     iox::popo::SubscriberPortData m_subscriberPortDataMultiProducer{
         SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION,
         "myApp",
@@ -472,11 +475,12 @@ TEST_F(SubscriberPortMultiProducer_test, invalidMessageResultsInError)
 {
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled, &receivedError](
-        const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-        errorHandlerCalled = true;
-        receivedError = error;
-    });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::UNSUB,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
