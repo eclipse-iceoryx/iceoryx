@@ -53,9 +53,9 @@ const std::string& RouDiProcess::getName() const noexcept
     return m_mq.getInterfaceName();
 }
 
-void RouDiProcess::sendToMQ(const runtime::MqMessage& f_data) noexcept
+void RouDiProcess::sendToMQ(const runtime::MqMessage& data) noexcept
 {
-    m_mq.send(f_data);
+    m_mq.send(data);
 }
 
 uint64_t RouDiProcess::getSessionId() noexcept
@@ -63,9 +63,9 @@ uint64_t RouDiProcess::getSessionId() noexcept
     return m_sessionId.load(std::memory_order_relaxed);
 }
 
-void RouDiProcess::setTimestamp(const mepoo::TimePointNs f_timestamp) noexcept
+void RouDiProcess::setTimestamp(const mepoo::TimePointNs timestamp) noexcept
 {
-    m_timestamp = f_timestamp;
+    m_timestamp = timestamp;
 }
 
 mepoo::TimePointNs RouDiProcess::getTimestamp() noexcept
@@ -128,14 +128,14 @@ void ProcessManager::killAllProcesses() noexcept
     std::lock_guard<std::mutex> g(m_mutex);
 
     // send SIGTERM to all running applications
-    typename ProcessList_t::iterator l_it = m_processList.begin();
-    const typename ProcessList_t::iterator l_itEnd = m_processList.end();
+    typename ProcessList_t::iterator it = m_processList.begin();
+    const typename ProcessList_t::iterator itEnd = m_processList.end();
 
-    for (; l_itEnd != l_it; ++l_it)
+    for (; itEnd != it; ++it)
     {
-        if (-1 == kill(static_cast<pid_t>(l_it->getPid()), SIGTERM))
+        if (-1 == kill(static_cast<pid_t>(it->getPid()), SIGTERM))
         {
-            LogWarn() << "Process " << l_it->getPid() << " could not be killed";
+            LogWarn() << "Process " << it->getPid() << " could not be killed";
         }
     }
 }
@@ -236,14 +236,14 @@ bool ProcessManager::addProcess(const std::string& name,
     m_processList.emplace_back(name, pid, payloadMemoryManager, isMonitored, payloadSegmentId, sessionId);
 
     // send REG_ACK and BaseAddrString
-    runtime::MqMessage l_sendBuffer;
+    runtime::MqMessage sendBuffer;
 
     auto offset = RelativePointer::getOffset(m_mgmtSegmentId, m_segmentManager);
-    l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::REG_ACK)
-                 << m_roudiMemoryInterface.mgmtMemoryProvider()->size() << offset << transmissionTimestamp
-                 << m_mgmtSegmentId;
+    sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::REG_ACK)
+               << m_roudiMemoryInterface.mgmtMemoryProvider()->size() << offset << transmissionTimestamp
+               << m_mgmtSegmentId;
 
-    m_processList.back().sendToMQ(l_sendBuffer);
+    m_processList.back().sendToMQ(sendBuffer);
 
     // set current timestamp again (already done in RouDiProcess's constructor
     m_processList.back().setTimestamp(mepoo::BaseClock::now());
@@ -254,7 +254,7 @@ bool ProcessManager::addProcess(const std::string& name,
     return true;
 }
 
-bool ProcessManager::removeProcess(const std::string& f_name) noexcept
+bool ProcessManager::removeProcess(const std::string& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     // we need to search for the process (currently linear search)
@@ -263,7 +263,7 @@ bool ProcessManager::removeProcess(const std::string& f_name) noexcept
     while (it != m_processList.end())
     {
         auto name = it->getName();
-        if (name == f_name)
+        if (name == name)
         {
             m_portManager.deletePortsOfProcess(name);
 
@@ -272,7 +272,7 @@ bool ProcessManager::removeProcess(const std::string& f_name) noexcept
             // delete application
             it = m_processList.erase(it);
 
-            LogDebug() << "New Registration - removed existing application " << f_name;
+            LogDebug() << "New Registration - removed existing application " << name;
             return true; // we can assume there are no other processes with this name
         }
         ++it;
@@ -307,80 +307,79 @@ bool ProcessManager::sendMessageToProcess(const std::string& name,
     return true;
 }
 
-void ProcessManager::updateLivlinessOfProcess(const std::string& f_name) noexcept
+void ProcessManager::updateLivlinessOfProcess(const std::string& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* l_process = getProcessFromList(f_name);
-    if (nullptr != l_process)
+    RouDiProcess* process = getProcessFromList(name);
+    if (nullptr != process)
     {
         // reset timestamp
-        l_process->setTimestamp(mepoo::BaseClock::now());
+        process->setTimestamp(mepoo::BaseClock::now());
     }
     else
     {
-        LogWarn() << "Received Keepalive from unknown process " << f_name;
+        LogWarn() << "Received Keepalive from unknown process " << name;
     }
 }
 
-void ProcessManager::findServiceForProcess(const std::string& f_name,
-                                           const capro::ServiceDescription& f_service) noexcept
+void ProcessManager::findServiceForProcess(const std::string& name, const capro::ServiceDescription& service) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* l_process = getProcessFromList(f_name);
-    if (nullptr != l_process)
+    RouDiProcess* process = getProcessFromList(name);
+    if (nullptr != process)
     {
-        runtime::MqMessage l_instanceString({m_portManager.findService(f_service)});
-        l_process->sendToMQ(l_instanceString);
-        LogDebug() << "Sent InstanceString to application " << f_name;
+        runtime::MqMessage instanceString({m_portManager.findService(service)});
+        process->sendToMQ(instanceString);
+        LogDebug() << "Sent InstanceString to application " << name;
     }
     else
     {
-        LogWarn() << "Unknown process " << f_name << " requested an InstanceString.";
+        LogWarn() << "Unknown process " << name << " requested an InstanceString.";
     }
 }
 
-void ProcessManager::addInterfaceForProcess(const std::string& f_name,
-                                            capro::Interfaces f_interface,
-                                            const std::string& f_runnable) noexcept
+void ProcessManager::addInterfaceForProcess(const std::string& name,
+                                            capro::Interfaces interface,
+                                            const std::string& runnable) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* l_process = getProcessFromList(f_name);
-    if (nullptr != l_process)
+    RouDiProcess* process = getProcessFromList(name);
+    if (nullptr != process)
     {
         // create a ReceiverPort
-        popo::InterfacePortData* l_port = m_portManager.acquireInterfacePortData(f_interface, f_name, f_runnable);
+        popo::InterfacePortData* port = m_portManager.acquireInterfacePortData(interface, name, runnable);
 
         // send ReceiverPort to app as a serialized relative pointer
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, l_port);
+        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, port);
 
-        runtime::MqMessage l_sendBuffer;
-        l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_INTERFACE_ACK)
-                     << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-        l_process->sendToMQ(l_sendBuffer);
+        runtime::MqMessage sendBuffer;
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_INTERFACE_ACK)
+                   << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+        process->sendToMQ(sendBuffer);
 
-        LogDebug() << "Created new interface for application " << f_name;
+        LogDebug() << "Created new interface for application " << name;
     }
     else
     {
-        LogWarn() << "Unknown application " << f_name << " requested an interface.";
+        LogWarn() << "Unknown application " << name << " requested an interface.";
     }
 }
 
 void ProcessManager::sendServiceRegistryChangeCounterToProcess(const std::string& processName) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
-    RouDiProcess* l_process = getProcessFromList(processName);
-    if (nullptr != l_process)
+    RouDiProcess* process = getProcessFromList(processName);
+    if (nullptr != process)
     {
         // send counter to app as a serialized relative pointer
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, m_portManager.serviceRegistryChangeCounter());
 
-        runtime::MqMessage l_sendBuffer;
-        l_sendBuffer << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-        l_process->sendToMQ(l_sendBuffer);
+        runtime::MqMessage sendBuffer;
+        sendBuffer << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+        process->sendToMQ(sendBuffer);
     }
     else
     {
@@ -388,82 +387,82 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const std::string
     }
 }
 
-void ProcessManager::addApplicationForProcess(const std::string& f_name) noexcept
+void ProcessManager::addApplicationForProcess(const std::string& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* l_process = getProcessFromList(f_name);
-    if (nullptr != l_process)
+    RouDiProcess* process = getProcessFromList(name);
+    if (nullptr != process)
     {
-        popo::ApplicationPortData* l_port = m_portManager.acquireApplicationPortData(f_name);
+        popo::ApplicationPortData* port = m_portManager.acquireApplicationPortData(name);
 
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, l_port);
+        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, port);
 
-        runtime::MqMessage l_sendBuffer;
-        l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_APPLICATION_ACK)
-                     << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-        l_process->sendToMQ(l_sendBuffer);
+        runtime::MqMessage sendBuffer;
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_APPLICATION_ACK)
+                   << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+        process->sendToMQ(sendBuffer);
 
-        LogDebug() << "Created new ApplicationPort for application " << f_name;
+        LogDebug() << "Created new ApplicationPort for application " << name;
     }
     else
     {
-        LogWarn() << "Unknown application " << f_name << " requested an ApplicationPort." << f_name;
+        LogWarn() << "Unknown application " << name << " requested an ApplicationPort." << name;
     }
 }
 
-void ProcessManager::addRunnableForProcess(const std::string& f_process, const std::string& f_runnable) noexcept
+void ProcessManager::addRunnableForProcess(const std::string& processName, const std::string& runnableName) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* l_process = getProcessFromList(f_process);
-    if (nullptr != l_process)
+    RouDiProcess* process = getProcessFromList(processName);
+    if (nullptr != process)
     {
-        runtime::RunnableData* l_runnable =
-            m_portManager.acquireRunnableData(cxx::string<100>(cxx::TruncateToCapacity, f_process),
-                                              cxx::string<100>(cxx::TruncateToCapacity, f_runnable));
+        runtime::RunnableData* runnable =
+            m_portManager.acquireRunnableData(cxx::string<100>(cxx::TruncateToCapacity, processName),
+                                              cxx::string<100>(cxx::TruncateToCapacity, runnableName));
 
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, l_runnable);
+        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, runnable);
 
-        runtime::MqMessage l_sendBuffer;
-        l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_RUNNABLE_ACK)
-                     << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+        runtime::MqMessage sendBuffer;
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_RUNNABLE_ACK)
+                   << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
 
-        l_process->sendToMQ(l_sendBuffer);
-        m_processIntrospection->addRunnable(cxx::string<100>(cxx::TruncateToCapacity, f_process.c_str()),
-                                            cxx::string<100>(cxx::TruncateToCapacity, f_runnable.c_str()));
-        LogDebug() << "Created new runnable " << f_runnable << " for application " << f_process;
+        process->sendToMQ(sendBuffer);
+        m_processIntrospection->addRunnable(cxx::string<100>(cxx::TruncateToCapacity, processName.c_str()),
+                                            cxx::string<100>(cxx::TruncateToCapacity, runnableName.c_str()));
+        LogDebug() << "Created new runnable " << runnableName << " for application " << processName;
     }
     else
     {
-        LogWarn() << "Unknown application " << f_process << " requested a runnable.";
+        LogWarn() << "Unknown application " << processName << " requested a runnable.";
     }
 }
 
-void ProcessManager::sendMessageNotSupportedToRuntime(const std::string& f_name) noexcept
+void ProcessManager::sendMessageNotSupportedToRuntime(const std::string& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* l_process = getProcessFromList(f_name);
-    if (nullptr != l_process)
+    RouDiProcess* process = getProcessFromList(name);
+    if (nullptr != process)
     {
-        runtime::MqMessage l_sendBuffer;
-        l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::MESSAGE_NOT_SUPPORTED);
-        l_process->sendToMQ(l_sendBuffer);
+        runtime::MqMessage sendBuffer;
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::MESSAGE_NOT_SUPPORTED);
+        process->sendToMQ(sendBuffer);
 
-        LogError() << "Application " << f_name << " sent a message, which is not supported by this RouDi";
+        LogError() << "Application " << name << " sent a message, which is not supported by this RouDi";
     }
 }
 
-void ProcessManager::addReceiverForProcess(const std::string& f_name,
-                                           const capro::ServiceDescription& f_service,
-                                           const std::string& f_runnable,
+void ProcessManager::addReceiverForProcess(const std::string& name,
+                                           const capro::ServiceDescription& service,
+                                           const std::string& runnable,
                                            const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* l_process = getProcessFromList(f_name);
-    if (nullptr != l_process)
+    RouDiProcess* process = getProcessFromList(name);
+    if (nullptr != process)
     {
         // create a ReceiverPort
 
@@ -474,76 +473,77 @@ void ProcessManager::addReceiverForProcess(const std::string& f_name,
         /// which could support queries like: find all ports with a given service or some other
         /// specific attribute (to allow efficient and well encapsulated lookup)
 
-        ReceiverPortType::MemberType_t* l_receiver =
-            m_portManager.acquireReceiverPortData(f_service, f_name, f_runnable, portConfigInfo);
+        ReceiverPortType::MemberType_t* receiver =
+            m_portManager.acquireReceiverPortData(service, name, runnable, portConfigInfo);
 
         // send ReceiverPort to app as a serialized relative pointer
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, l_receiver);
+        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, receiver);
 
-        runtime::MqMessage l_sendBuffer;
-        l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_RECEIVER_ACK)
-                     << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-        l_process->sendToMQ(l_sendBuffer);
+        runtime::MqMessage sendBuffer;
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_RECEIVER_ACK)
+                   << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+        process->sendToMQ(sendBuffer);
 
-        LogDebug() << "Created new ReceiverPortImpl for application " << f_name;
+        LogDebug() << "Created new ReceiverPortImpl for application " << name;
     }
     else
     {
-        LogWarn() << "Unknown application " << f_name << " requested a ReceiverPortImpl.";
+        LogWarn() << "Unknown application " << name << " requested a ReceiverPortImpl.";
     }
 }
 
-void ProcessManager::addSenderForProcess(const std::string& f_name,
-                                         const capro::ServiceDescription& f_service,
-                                         const std::string& f_runnable,
+void ProcessManager::addSenderForProcess(const std::string& name,
+                                         const capro::ServiceDescription& service,
+                                         const std::string& runnable,
                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    RouDiProcess* l_process = getProcessFromList(f_name);
-    if (nullptr != l_process)
+    RouDiProcess* process = getProcessFromList(name);
+    if (nullptr != process)
     {
         // create a SenderPort
-        auto l_sender = m_portManager.acquireSenderPortData(
-            f_service, f_name, l_process->getPayloadMemoryManager(), f_runnable, portConfigInfo);
+        auto sender = m_portManager.acquireSenderPortData(
+            service, name, process->getPayloadMemoryManager(), runnable, portConfigInfo);
 
-        if (!l_sender.has_error())
+        if (!sender.has_error())
         {
             // send SenderPort to app as a serialized relative pointer
-            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, l_sender.get_value());
+            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, sender.get_value());
 
-            runtime::MqMessage l_sendBuffer;
-            l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_SENDER_ACK)
-                         << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-            l_process->sendToMQ(l_sendBuffer);
+            runtime::MqMessage sendBuffer;
+            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_SENDER_ACK)
+                       << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+            process->sendToMQ(sendBuffer);
 
-            LogDebug() << "Created new SenderPortImpl for application " << f_name;
+            LogDebug() << "Created new SenderPortImpl for application " << name;
         }
         else
         {
-            runtime::MqMessage l_sendBuffer;
-            l_sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
-            l_sendBuffer << runtime::mqMessageErrorTypeToString( // map error codes
-                (l_sender.get_error() == PortPoolError::UNIQUE_SENDER_PORT_ALREADY_EXISTS
+            runtime::MqMessage sendBuffer;
+            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
+            sendBuffer << runtime::mqMessageErrorTypeToString( // map error codes
+                (sender.get_error() == PortPoolError::UNIQUE_SENDER_PORT_ALREADY_EXISTS
                      ? runtime::MqMessageErrorType::NO_UNIQUE_CREATED
                      : runtime::MqMessageErrorType::SENDERLIST_FULL));
-            l_process->sendToMQ(l_sendBuffer);
-            LogError() << "Could not create SenderPortImpl for application " << f_name;
+            process->sendToMQ(sendBuffer);
+            LogError() << "Could not create SenderPortImpl for application " << name;
         }
     }
     else
     {
-        LogWarn() << "Unknown application " << f_name << " requested a SenderPortImpl.";
+        LogWarn() << "Unknown application " << name << " requested a SenderPortImpl.";
     }
 }
 
-void ProcessManager::addConditionVariableForProcess() noexcept
+void ProcessManager::addConditionVariableForProcess(const std::string& processName) noexcept
 {
+    /// @todo
 }
 
-void ProcessManager::initIntrospection(ProcessIntrospectionType* f_processIntrospection) noexcept
+void ProcessManager::initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept
 {
-    m_processIntrospection = f_processIntrospection;
+    m_processIntrospection = processIntrospection;
 }
 
 void ProcessManager::run() noexcept
@@ -553,65 +553,65 @@ void ProcessManager::run() noexcept
     std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.milliSeconds<int64_t>()));
 }
 
-SenderPortType ProcessManager::addIntrospectionSenderPort(const capro::ServiceDescription& f_service,
-                                                          const std::string& f_process_name) noexcept
+SenderPortType ProcessManager::addIntrospectionSenderPort(const capro::ServiceDescription& service,
+                                                          const std::string& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
     return SenderPortType(
-        m_portManager.acquireSenderPortData(f_service, f_process_name, m_introspectionMemoryManager).get_value());
+        m_portManager.acquireSenderPortData(service, process_name, m_introspectionMemoryManager).get_value());
 }
 
-ReceiverPortType ProcessManager::addInternalReceiverPort(const capro::ServiceDescription& f_service,
-                                                         const std::string& f_process_name) noexcept
+ReceiverPortType ProcessManager::addInternalReceiverPort(const capro::ServiceDescription& service,
+                                                         const std::string& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    return ReceiverPortType(m_portManager.acquireReceiverPortData(f_service, f_process_name));
+    return ReceiverPortType(m_portManager.acquireReceiverPortData(service, process_name));
 }
 
-void ProcessManager::removeInternalPorts(const std::string& f_process_name) noexcept
+void ProcessManager::removeInternalPorts(const std::string& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    m_portManager.deletePortsOfProcess(f_process_name);
+    m_portManager.deletePortsOfProcess(process_name);
 }
 
 
-bool ProcessManager::areAllReceiverPortsSubscribed(const std::string& f_process_name) noexcept
+bool ProcessManager::areAllReceiverPortsSubscribed(const std::string& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    return m_portManager.areAllReceiverPortsSubscribed(f_process_name);
+    return m_portManager.areAllReceiverPortsSubscribed(process_name);
 }
 
-SenderPortType ProcessManager::addInternalSenderPort(const capro::ServiceDescription& f_service,
-                                                     const std::string& f_process_name) noexcept
+SenderPortType ProcessManager::addInternalSenderPort(const capro::ServiceDescription& service,
+                                                     const std::string& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
     return SenderPortType(
-        m_portManager.acquireSenderPortData(f_service, f_process_name, m_memoryManagerOfCurrentProcess).get_value());
+        m_portManager.acquireSenderPortData(service, process_name, m_memoryManagerOfCurrentProcess).get_value());
 }
 
 
-RouDiProcess* ProcessManager::getProcessFromList(const std::string& f_name) noexcept
+RouDiProcess* ProcessManager::getProcessFromList(const std::string& name) noexcept
 {
-    RouDiProcess* l_processPtr = nullptr;
+    RouDiProcess* processPtr = nullptr;
 
-    typename ProcessList_t::iterator l_it = m_processList.begin();
-    const typename ProcessList_t::iterator l_itEnd = m_processList.end();
+    typename ProcessList_t::iterator it = m_processList.begin();
+    const typename ProcessList_t::iterator itEnd = m_processList.end();
 
-    for (; l_itEnd != l_it; ++l_it)
+    for (; itEnd != it; ++it)
     {
-        if (f_name == l_it->getName())
+        if (name == it->getName())
         {
-            l_processPtr = &(*l_it);
+            processPtr = &(*it);
             break;
         }
     }
 
-    return l_processPtr;
+    return processPtr;
 }
 
 void ProcessManager::monitorProcesses() noexcept
@@ -625,16 +625,16 @@ void ProcessManager::monitorProcesses() noexcept
     {
         if (processIterator->isMonitored())
         {
-            auto timediff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp
-                                                                                     - processIterator->getTimestamp())
-                                   .count();
+            auto timedifms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp
+                                                                                   - processIterator->getTimestamp())
+                                 .count();
 
             static_assert(PROCESS_KEEP_ALIVE_TIMEOUT > PROCESS_KEEP_ALIVE_INTERVAL, "keep alive timeout too small");
-            if (std::chrono::milliseconds(timediff_ms)
+            if (std::chrono::milliseconds(timedifms)
                 > std::chrono::milliseconds(PROCESS_KEEP_ALIVE_TIMEOUT.milliSeconds<int64_t>()))
             {
                 LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
-                          << timediff_ms << " milliseconds ago) --> removing it";
+                          << timedifms << " milliseconds ago) --> removing it";
 
                 // note: if we would want to use the removeProcess function, it would search for the process again (but
                 // we already found it and have an iterator to remove it)

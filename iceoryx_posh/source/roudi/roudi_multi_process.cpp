@@ -228,7 +228,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            //m_prcMgr.addConditionVariableForProcess(processName);
+            m_prcMgr.addConditionVariableForProcess(processName);
         }
         break;
         break;
