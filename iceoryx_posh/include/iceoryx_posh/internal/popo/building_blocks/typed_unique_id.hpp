@@ -91,8 +91,6 @@ constexpr CreateInvalidId_t CreateInvalidId = CreateInvalidId_t();
 ///     uint64_t id2 = AddSecondClass();
 /// @endcode
 /// @param[in] T type for which the unique ids should be generated
-/// @param[in] MajorOffset every unique id has internally a major offset of
-///             16 bit which is constant for all types.
 ///
 template <typename T>
 class TypedUniqueId : public cxx::NewType<uint64_t,

@@ -28,8 +28,7 @@ void setUniqueRouDiId(const uint16_t id) noexcept
     if (hasDefinedUniqueRouDiId)
     {
         errorHandler(
-            Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_NO_DEFINED_UNIQUE_ID, [] {}, ErrorLevel::MODERATE);
-        errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID);
+            Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID, [] {}, ErrorLevel::MODERATE);
     }
     uniqueRouDiId = id;
     hasDefinedUniqueRouDiId = true;

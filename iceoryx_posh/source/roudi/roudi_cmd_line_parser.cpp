@@ -66,9 +66,10 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
         case 'u':
         {
             uint16_t roudiId{0u};
+            constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
             if (!cxx::convert::fromString(optarg, roudiId))
             {
-                LogError() << "The RouDi id must be in the range of [0, " << ((1 << 16) - 1) << "]";
+                LogError() << "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]";
                 m_run = false;
             }
 
