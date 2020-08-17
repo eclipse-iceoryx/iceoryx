@@ -625,16 +625,16 @@ void ProcessManager::monitorProcesses() noexcept
     {
         if (processIterator->isMonitored())
         {
-            auto timedifms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp
-                                                                                   - processIterator->getTimestamp())
-                                 .count();
+            auto timediff_ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTimestamp
+                                                                                     - processIterator->getTimestamp())
+                                   .count();
 
             static_assert(PROCESS_KEEP_ALIVE_TIMEOUT > PROCESS_KEEP_ALIVE_INTERVAL, "keep alive timeout too small");
-            if (std::chrono::milliseconds(timedifms)
+            if (std::chrono::milliseconds(timediff_ms)
                 > std::chrono::milliseconds(PROCESS_KEEP_ALIVE_TIMEOUT.milliSeconds<int64_t>()))
             {
                 LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
-                          << timedifms << " milliseconds ago) --> removing it";
+                          << timediff_ms << " milliseconds ago) --> removing it";
 
                 // note: if we would want to use the removeProcess function, it would search for the process again (but
                 // we already found it and have an iterator to remove it)
