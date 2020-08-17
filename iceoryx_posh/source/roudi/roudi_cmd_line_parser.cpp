@@ -46,7 +46,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             std::cout << "Options:" << std::endl;
             std::cout << "-h, --help                        Display help." << std::endl;
             std::cout << "-v, --version                     Display version." << std::endl;
-            std::cout << "-u, --unique-roudi-id <INT>       Display version." << std::endl;
+            std::cout << "-u, --unique-roudi-id <INT>       Set the unique RouDi id." << std::endl;
             std::cout << "-m, --monitoring-mode <MODE>      Set process alive monitoring mode." << std::endl;
             std::cout << "                                  <MODE> {on, off}" << std::endl;
             std::cout << "                                  default = 'on'" << std::endl;

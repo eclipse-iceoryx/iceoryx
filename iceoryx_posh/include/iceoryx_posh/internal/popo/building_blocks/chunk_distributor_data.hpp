@@ -34,8 +34,7 @@ template <typename ChunkDistributorDataProperties, typename LockingPolicy, typen
 struct ChunkDistributorData : public LockingPolicy
 {
     using ThisType_t = ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>;
-    using LockGuard_t = std::lock_guard<
-        const ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>>;
+    using LockGuard_t = std::lock_guard<const ThisType_t>;
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
     using ChunkDistributorDataProperties_t = ChunkDistributorDataProperties;
