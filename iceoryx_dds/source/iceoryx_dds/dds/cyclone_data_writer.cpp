@@ -46,7 +46,6 @@ void iox::dds::CycloneDataWriter::connect() noexcept
 
 void iox::dds::CycloneDataWriter::write(const uint8_t* const bytes, const uint64_t size) noexcept
 {
-    LogDebug() << "[CycloneDataWriter] Writing " << size << " bytes.";
     auto chunk = Mempool::Chunk();
     std::copy(bytes, bytes + size, std::back_inserter(chunk.payload()));
     m_writer.write(chunk);

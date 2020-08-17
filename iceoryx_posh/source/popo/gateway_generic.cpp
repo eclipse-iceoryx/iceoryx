@@ -28,7 +28,7 @@ GatewayGeneric::GatewayGeneric(const capro::Interfaces f_interface) noexcept
 
 GatewayGeneric::~GatewayGeneric() noexcept
 {
-    if(m_interfaceImpl)
+    if (m_interfaceImpl)
     {
         m_interfaceImpl.destroy();
     }
@@ -36,7 +36,17 @@ GatewayGeneric::~GatewayGeneric() noexcept
 
 bool GatewayGeneric::getCaProMessage(CaproMessage& msg) noexcept
 {
-    return m_interfaceImpl.getCaProMessage(msg);
+    auto maybeCaproMessage = m_interfaceImpl.getCaProMessage();
+    if (maybeCaproMessage.has_value())
+    {
+        msg = maybeCaproMessage.value();
+        return true;
+    }
+    else
+    {
+        msg.m_type = capro::CaproMessageType::NOTYPE;
+        return false;
+    }
 }
 
 } // namespace popo

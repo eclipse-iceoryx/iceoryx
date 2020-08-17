@@ -29,10 +29,11 @@ namespace popo
 /// infrastructure to exchange memory chunks between different data producers and consumers that could be located in
 /// different processes. A ChunkQueuePopper is used to build elements of higher abstraction layers that also do memory
 /// managemet and provide an API towards the real user
+template <typename ChunkQueueDataType>
 class ChunkQueuePopper
 {
   public:
-    using MemberType_t = ChunkQueueData;
+    using MemberType_t = ChunkQueueDataType;
 
     explicit ChunkQueuePopper(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
 
@@ -79,23 +80,15 @@ class ChunkQueuePopper
     /// @brief Attaches a condition variable signaler
     /// @param[in] ConditionVariableDataPtr, pointer to an condition variable data object
     /// @return True if successful, false if not
-    bool attachConditionVariableSignaler(ConditionVariableData* ConditionVariableDataPtr) noexcept;
+    bool attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+
+    /// @brief Detaches a condition variable signaler
+    /// @return true if condition variable signaler was detached, false if not
+    bool detachConditionVariable() noexcept;
 
     /// @brief Returns the information whether a condition variable signaler is attached
     /// @return true if condition variable signaler is set, false if not
-    bool isConditionVariableSignalerAttached() const noexcept;
-
-    /// @deprecated #25
-    /// @brief Attach a semaphore which gets triggered if a new chunk is pushed to the queue. Caution, a semaphore
-    /// cannot be detached or set again
-    /// @param[in] semaphore to attach
-    /// @return success if semaphore could be attached, error if not
-    cxx::expected<ChunkQueueError> attachSemaphore(const mepoo::SharedPointer<posix::Semaphore>&) noexcept;
-
-    /// @deprecated #25
-    /// @brief returns the information whether a semaphore is attached. Caution, a semaphore cannot be detached
-    /// @return true if the semaphore is set, false if not
-    bool isSemaphoreAttached() const noexcept;
+    bool isConditionVariableAttached() const noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;
@@ -107,5 +100,7 @@ class ChunkQueuePopper
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.inl"
 
 #endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_POPPER_HPP

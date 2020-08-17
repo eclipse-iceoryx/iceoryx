@@ -17,10 +17,13 @@ project(cyclonedds-build CXX)
 
 include(ProcessorCount)
 ProcessorCount(N)
-if(NOT N EQUAL 0 AND ((${CMAKE_VERSION} VERSION_GREATER "3.12.0") OR ${CMAKE_VERSION} VERSION_EQUAL "3.12.0"))
-  set(CMAKE_BUILD_FLAGS -j${N})
-elseif(LINUX OR QNX)
-  set(CMAKE_BUILD_FLAGS -- -j${N})
+
+if(NOT N EQUAL 0)
+    if(((${CMAKE_VERSION} VERSION_GREATER "3.12.0") OR ${CMAKE_VERSION} VERSION_EQUAL "3.12.0"))
+        set(CMAKE_BUILD_FLAGS -j ${N})
+    elseif(LINUX OR QNX)
+        set(CMAKE_BUILD_FLAGS -- -j ${N})
+    endif()
 endif()
 
 if(WIN32)
@@ -82,7 +85,8 @@ function(fetch_and_install name)
     endif()
 endfunction()
 
-# ===== Install
+# ===== Install 
+
 fetch_and_install(idlpp-cxx)
 fetch_and_install(cyclonedds)
 fetch_and_install(cdds-cxx -DBUILD_TESTING=OFF)

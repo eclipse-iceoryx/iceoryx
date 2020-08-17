@@ -18,7 +18,7 @@
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "test.hpp"
-#include "testutils/timing_test.hpp"
+#include "timing_test.hpp"
 
 #include <memory>
 
@@ -31,9 +31,9 @@ using namespace iox::units::duration_literals;
 class MockSubscriber : public Condition
 {
   public:
-    bool setConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept override
+    bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
     {
-        m_condVarPtr = ConditionVariableDataPtr;
+        m_condVarPtr = conditionVariableDataPtr;
         return true;
     }
 
@@ -135,7 +135,16 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
     EXPECT_FALSE(m_subscriberVector.front().isConditionVariableAttached());
 }
 
-/// @todo Add test cases for move c'tor and move assignment
+TEST_F(WaitSet_test, DISABLED_AttachConditionAndMoveIsSuccessful)
+{
+    /// @todo move c'tor currently deleted
+}
+
+
+TEST_F(WaitSet_test, DISABLED_AttachConditionAndMoveAssignIsSuccessful)
+{
+    /// @todo move assign currently deleted
+}
 
 TEST_F(WaitSet_test, AttachMaximumAllowedConditionsSuccessful)
 {
@@ -293,8 +302,7 @@ TIMING_TEST_F(WaitSet_test, AttachManyNotifyManyBeforeWaitingResultsInTriggerMul
 });
 
 
-TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThreaded)
-{
+TIMING_TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThreaded, Repeat(10), [&] {
     std::atomic<int> counter{0};
     m_sut.attachCondition(m_subscriberVector[0]);
     m_sut.attachCondition(m_subscriberVector[1]);
@@ -312,7 +320,7 @@ TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThread
     m_subscriberVector[1].notify();
     counter++;
     waiter.join();
-}
+});
 
 
 TEST_F(WaitSet_test, WaitWithoutNotifyResultsInBlockingMultiThreaded)

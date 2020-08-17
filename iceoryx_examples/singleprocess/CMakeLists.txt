@@ -1,6 +1,6 @@
 # Build icedelivery example
 cmake_minimum_required(VERSION 3.5)
-project(singleprocess)
+project(example_singleprocess)
 
 include(GNUInstallDirs)
 
@@ -16,7 +16,7 @@ target_link_libraries(single_process
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_roudi
 )
-set_target_properties(single_process PROPERTIES 
+set_target_properties(single_process PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON

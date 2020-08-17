@@ -26,7 +26,7 @@ include(IceoryxPackageHelper)
 include(IceoryxPlatformDetection)
 
 #
-########## set variables for library export ##########
+########## set variables for export ##########
 #
 setup_package_name_and_create_files(
     NAME ${PROJECT_NAME}
@@ -110,25 +110,25 @@ target_compile_options(iceoryx_dds PRIVATE ${ICEORYX_WARNINGS})
 #
 ########## build gateway apps ##########
 #
-add_executable(gateway_iceoryx2dds
+add_executable(iox-gw-iceoryx2dds
     source/iceoryx2dds_app/main.cpp
 )
-target_link_libraries(gateway_iceoryx2dds
+target_link_libraries(iox-gw-iceoryx2dds
     iceoryx_posh::iceoryx_posh
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
 
-target_compile_options(gateway_iceoryx2dds PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iox-gw-iceoryx2dds PRIVATE ${ICEORYX_WARNINGS})
 
-add_executable(gateway_dds2iceoryx
+add_executable(iox-gw-dds2iceoryx 
     source/dds2iceoryx_app/main.cpp
 )
-target_link_libraries(gateway_dds2iceoryx
+target_link_libraries(iox-gw-dds2iceoryx 
     iceoryx_posh::iceoryx_posh
     ${PROJECT_NAMESPACE}::iceoryx_dds
 )
 
-target_compile_options(gateway_dds2iceoryx PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iox-gw-dds2iceoryx PRIVATE ${ICEORYX_WARNINGS})
 
 #
 ########## build test executables ##########
@@ -141,7 +141,7 @@ endif(test)
 ########## export library ##########
 #
 setup_install_directories_and_export_package(
-    TARGETS iceoryx_dds gateway_iceoryx2dds gateway_dds2iceoryx
+    TARGETS iceoryx_dds iox-gw-iceoryx2dds iox-gw-dds2iceoryx
     INCLUDE_DIRECTORY include/
 )
 

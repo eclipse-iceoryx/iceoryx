@@ -11,19 +11,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
+#ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_INL
+#define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_INL
 
 namespace iox
 {
 namespace popo
 {
-ChunkReceiverData::ChunkReceiverData(const cxx::VariantQueueTypes queueType,
-                                     const mepoo::MemoryInfo& memoryInfo) noexcept
-    : ChunkQueueData(queueType)
-    , m_memoryInfo(memoryInfo)
+template <typename ChunkQueueProperties, typename LockingPolicy>
+inline ChunkQueueData<ChunkQueueProperties, LockingPolicy>::ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept
+    : m_queue(queueType)
 {
 }
 
 } // namespace popo
 } // namespace iox
+
+#endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_DATA_INL

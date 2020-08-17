@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 file (STRINGS "../VERSION" iceoryx_VERSION)
-project(iceoryx VERSION ${iceoryx_VERSION})
+project(iceoryx_meta VERSION ${iceoryx_VERSION})
 
 option(TOML_CONFIG "activates or deactivates TOML support - without TOML RouDi will not be build" ON)
 option(BUILD_STRICT "Build is performed with '-Werror'" OFF)
@@ -45,14 +45,12 @@ if(examples)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
 endif(examples)
 
 # ===== Gateways
-if(cyclonedds)
-	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cyclonedds ${CMAKE_BINARY_DIR}/dependencies/cyclonedds/prebuild)
-endif(cyclonedds)
-
 if(dds_gateway)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cyclonedds ${CMAKE_BINARY_DIR}/dependencies/cyclonedds/prebuild)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dds ${CMAKE_BINARY_DIR}/iceoryx_dds)
 endif(dds_gateway)
 
