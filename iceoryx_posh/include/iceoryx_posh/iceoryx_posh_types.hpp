@@ -95,7 +95,7 @@ constexpr uint32_t APP_MAX_MESSAGES = 5u;
 constexpr uint32_t APP_MESSAGE_SIZE = 512u;
 
 // Waitset
-constexpr uint32_t NUMBER_OF_SEMAPHORES = 1024u;
+constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024u;
 constexpr uint32_t MAX_NUMBER_OF_CONDITIONS = 128u;
 
 // Processes
