@@ -6,16 +6,15 @@ This example measures the latency of an IPC transmission between two application
 
 ## Run iceperf
 
-Create three terminals and run one command in each of them.
+Create three terminals and run one command in each of them. 
+The order is first the RouDi daemon, then iceperf-laurel which is the leader in this setup and then iceperf-laurel for doing the ping pong measurements with iceperf-laurel
 
     # If installed and available in PATH environment variable
-    RouDi
+    iox-roudi
     # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/install/prefix/bin/RouDi
-
+    $ICEORYX_ROOT/build/install/prefix/bin/iox-roudi
 
     build/iceoryx_examples/iceperf/iceperf-laurel
-
 
     build/iceoryx_examples/iceperf/iceperf-hardy
 

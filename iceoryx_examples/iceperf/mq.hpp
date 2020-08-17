@@ -30,6 +30,10 @@
 class MQ : public IcePerfBase
 {
   public:
+    static constexpr size_t MAX_MESSAGE_SIZE = 4096;
+    static constexpr size_t MAX_MESSAGES = 8;
+    static constexpr int32_t ERROR_CODE = -1;
+    static constexpr mqd_t INVALID_DESCRIPTOR = -1;
 
     MQ(const std::string& publisherName, const std::string& subscriberName) noexcept;
     void initLeader() noexcept override;
@@ -42,7 +46,16 @@ class MQ : public IcePerfBase
     void pingPongFollower() noexcept override;
 
   private:
+    void init() noexcept;
+    void open(const std::string& name, const iox::posix::IpcChannelSide channelSide) noexcept;
 
+    const std::string m_publisherName;
+    const std::string m_subscriberName;
+    struct mq_attr m_attributes;
+    mqd_t m_mqDescriptorPublisher = INVALID_DESCRIPTOR;
+    mqd_t m_mqDescriptorSubscriber = INVALID_DESCRIPTOR;
+    // read/write permissions
+    static constexpr mode_t m_filemode{S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH};
 };
 
-#endif // IOX_EXAMPLES_ICEPERF_UDS_HPP
+#endif // IOX_EXAMPLES_ICEPERF_MQ_HPP
