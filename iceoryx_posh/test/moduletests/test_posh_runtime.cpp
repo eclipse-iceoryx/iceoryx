@@ -71,7 +71,7 @@ TEST_F(PoshRuntime_test, ValidAppName)
 
 TEST_F(PoshRuntime_test, AppNameLength_OutOfLimit)
 {
-    std::string tooLongName(100, 's');
+    std::string tooLongName(iox::MAX_PROCESS_NAME_LENGTH, 's');
     tooLongName.insert(0, 1, '/');
 
     EXPECT_DEATH({ PoshRuntime::getInstance(tooLongName); },
@@ -81,7 +81,7 @@ TEST_F(PoshRuntime_test, AppNameLength_OutOfLimit)
 
 TEST_F(PoshRuntime_test, MaxAppNameLength)
 {
-    std::string maxValidName(99, 's');
+    std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH - 1, 's');
     maxValidName.insert(0, 1, '/');
 
     EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(maxValidName); });
@@ -262,18 +262,18 @@ TEST_F(PoshRuntime_test, GetMiddlewareSenderSenderlistOverflow)
     ///@note 5 sender ports are alloted for internal services of Roudi.
     /// hence getServiceRegistryChangeCounter() is used
     auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
-    auto availableSenderPort = serviceCounter->load();
-    for (; availableSenderPort < iox::MAX_PORT_NUMBER; ++availableSenderPort)
+    auto usedSenderPort = serviceCounter->load();
+    for (; usedSenderPort < iox::MAX_PORT_NUMBER; ++usedSenderPort)
     {
         auto senderPort = m_runtime->getMiddlewareSender(
-            iox::capro::ServiceDescription(availableSenderPort, availableSenderPort + 1u, availableSenderPort + 2u));
+            iox::capro::ServiceDescription(usedSenderPort, usedSenderPort + 1u, usedSenderPort + 2u));
         ASSERT_NE(nullptr, senderPort);
     }
 
     EXPECT_FALSE(senderlistOverflowDetected);
 
     auto senderPort = m_runtime->getMiddlewareSender(
-        iox::capro::ServiceDescription(availableSenderPort, availableSenderPort + 1u, availableSenderPort + 2u));
+        iox::capro::ServiceDescription(usedSenderPort, usedSenderPort + 1u, usedSenderPort + 2u));
 
     EXPECT_EQ(nullptr, senderPort);
     EXPECT_TRUE(senderlistOverflowDetected);
