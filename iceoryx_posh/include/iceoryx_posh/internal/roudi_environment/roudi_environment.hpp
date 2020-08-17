@@ -57,7 +57,7 @@ class RouDiEnvironment
         BASE,
     };
     /// @brief for implementations on top of RouDiEnvironment
-    RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId = 0);
+    RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId = 0u);
 
     void CleanupRuntimes();
 

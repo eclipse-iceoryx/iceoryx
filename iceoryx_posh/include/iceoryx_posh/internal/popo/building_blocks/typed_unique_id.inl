@@ -24,10 +24,11 @@ std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{0u};
 template <typename T>
 inline TypedUniqueId<T>::TypedUniqueId() noexcept
     : ThisType(cxx::newtype::internal::ProtectedConstructor,
-               (static_cast<uint64_t>(internal::getUniqueRouDiId()) << 48)
-                   + ((globalIDCounter.fetch_add(1u, std::memory_order_relaxed) << 16) >> 16))
+               (static_cast<uint64_t>(internal::getUniqueRouDiId()) << UNIQUE_ID_BIT_LENGTH)
+                   + ((globalIDCounter.fetch_add(1u, std::memory_order_relaxed) << ROUDI_ID_BIT_LENGTH)
+                      >> ROUDI_ID_BIT_LENGTH))
 {
-    if (globalIDCounter.load() >= (static_cast<uint64_t>(1u) << 48))
+    if (globalIDCounter.load() >= (static_cast<uint64_t>(1u) << UNIQUE_ID_BIT_LENGTH))
     {
         errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_OVERFLOW);
     }

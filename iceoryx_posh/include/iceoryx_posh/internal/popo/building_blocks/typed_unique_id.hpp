@@ -26,14 +26,19 @@ namespace popo
 {
 namespace internal
 {
-/// @brief Has to be set on roudi startup of so that a unique roudi id is set
-///         for all newly generated unique ids.
+/// @brief Has to be set on roudi startup so that a unique roudi id is set
+///         for all newly generated unique ids. If you call it when a unique
+///         id is already set an error is generated in the errorHandler.
+///         If you would like to reset the unique id you have to call
+///         unsetUniqueRouDiId first.
+/// @param[in] id the unique id which you would like to set
 void setUniqueRouDiId(const uint16_t id) noexcept;
 
 /// @brief Sets the RouDi id to an undefined state
 void unsetUniqueRouDiId() noexcept;
 
 /// @brief returns the unique roudi id
+/// @return value of the unique roudi id
 uint16_t getUniqueRouDiId() noexcept;
 } // namespace internal
 
@@ -101,6 +106,8 @@ class TypedUniqueId : public cxx::NewType<uint64_t,
     TypedUniqueId() noexcept;
 
   private:
+    static constexpr uint64_t ROUDI_ID_BIT_LENGTH = 16u;
+    static constexpr uint64_t UNIQUE_ID_BIT_LENGTH = 48u;
     static std::atomic<uint64_t> globalIDCounter; // = 0u
 };
 

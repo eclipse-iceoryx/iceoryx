@@ -25,6 +25,10 @@ static bool hasDefinedUniqueRouDiId{false};
 
 void setUniqueRouDiId(const uint16_t id) noexcept
 {
+    if (hasDefinedUniqueRouDiId)
+    {
+        errorHandler(Error::kPOPO__TYPED_UNIQUE_ID_ROUDI_HAS_ALREADY_DEFINED_UNIQUE_ID);
+    }
     uniqueRouDiId = id;
     hasDefinedUniqueRouDiId = true;
 }
