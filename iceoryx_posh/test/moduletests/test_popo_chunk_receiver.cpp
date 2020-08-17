@@ -17,6 +17,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -62,9 +63,16 @@ class ChunkReceiver_test : public Test
     iox::mepoo::MePooConfig m_mempoolconf;
     iox::mepoo::MemoryManager m_memoryManager;
 
-    iox::popo::ChunkReceiverData m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-    iox::popo::ChunkReceiver m_chunkReceiver{&m_chunkReceiverData};
-    iox::popo::ChunkQueuePusher m_chunkQueuePusher{&m_chunkReceiverData};
+    using ChunkQueueData_t = iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig, iox::popo::ThreadSafePolicy>;
+    using ChunkReceiverData_t = iox::popo::ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t>;
+    using ChunkQueuePopper_t = iox::popo::ChunkQueuePopper<ChunkQueueData_t>;
+
+    iox::popo::ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t> m_chunkReceiverData{
+        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+
+    iox::popo::ChunkReceiver<ChunkQueuePopper_t> m_chunkReceiver{&m_chunkReceiverData};
+
+    iox::popo::ChunkQueuePusher<ChunkReceiverData_t> m_chunkQueuePusher{&m_chunkReceiverData};
 };
 
 TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)

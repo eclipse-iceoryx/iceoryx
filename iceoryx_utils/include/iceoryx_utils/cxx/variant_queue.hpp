@@ -14,6 +14,7 @@
 #ifndef IOX_UTILS_CXX_VARIANT_QUEUE_HPP
 #define IOX_UTILS_CXX_VARIANT_QUEUE_HPP
 
+#include "iceoryx_utils/concurrent/lockfree_queue.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/variant.hpp"
@@ -37,13 +38,13 @@ enum class VariantQueueTypes : uint64_t
     FiFo_SingleProducerSingleConsumer = 0,
     SoFi_SingleProducerSingleConsumer = 1,
     FiFo_MultiProducerSingleConsumer = 2,
-    SoFi_MultiProducerSingleConsumer = 3,    
+    SoFi_MultiProducerSingleConsumer = 3
 };
 
 /// @brief error which can occur in the VariantQueue
 enum class VariantQueueError
 {
-    QueueIsFull, 
+    QueueIsFull,
     InternalError
 };
 
@@ -65,11 +66,13 @@ enum class VariantQueueError
 ///         std::cout << "element " << overriddenElement->value() << " was overridden\n";
 ///     }
 /// @endcode
-template <typename ValueType, uint32_t Capacity>
+template <typename ValueType, uint64_t Capacity>
 class VariantQueue
 {
   public:
-    using fifo_t = variant<concurrent::FiFo<ValueType, Capacity>, concurrent::SoFi<ValueType, Capacity>>;
+    using fifo_t = variant<concurrent::FiFo<ValueType, Capacity>,
+                           concurrent::SoFi<ValueType, Capacity>,
+                           concurrent::LockFreeQueue<ValueType, Capacity>>;
 
     /// @brief Constructor of a VariantQueue
     /// @param[in] type type of the underlying queue
@@ -93,7 +96,8 @@ class VariantQueue
     /// @brief returns true if empty otherwise true
     bool empty() const noexcept;
 
-    /// @brief get the current size of the queue. Caution, another thread can have changed the size just after reading it 
+    /// @brief get the current size of the queue. Caution, another thread can have changed the size just after reading
+    /// it
     /// @return queue size
     uint64_t size() noexcept;
 
@@ -102,7 +106,7 @@ class VariantQueue
     /// @pre it is important that no pop or push calls occur during
     ///         this call
     /// @concurrent not thread safe
-    void setCapacity(const uint32_t newCapacity) noexcept;
+    void setCapacity(const uint64_t newCapacity) noexcept;
 
     /// @brief get the capacity of the queue.
     /// @return queue size

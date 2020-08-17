@@ -140,3 +140,23 @@ TEST_F(ConditionVariable_test, NotifyWhileWaitingResultsNoTimeoutMultiThreaded)
     m_signaler.notifyOne();
     waiter.join();
 }
+
+TEST_F(ConditionVariable_test, DISABLED_MoveConditionVariableSignalerIsSuccessful)
+{
+    /// @todo move c'tor currently deleted
+}
+
+TEST_F(ConditionVariable_test, DISABLED_MoveConditionVariableWaiterIsSuccessful)
+{
+    /// @todo move c'tor currently deleted
+}
+
+TEST_F(ConditionVariable_test, DISABLED_MoveAssignConditionVariableSignalerIsSuccessful)
+{
+    /// @todo move assign currently deleted
+}
+
+TEST_F(ConditionVariable_test, DISABLED_MoveAssignConditionVariableWaiterIsSuccessful)
+{
+    /// @todo move assign currently deleted
+}
