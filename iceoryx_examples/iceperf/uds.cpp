@@ -43,8 +43,6 @@ void UDS::initFollower() noexcept
 
 void UDS::init() noexcept
 {
-    std::cout << "starting client side ... " << std::flush;
-
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddrPublisher, 0, sizeof(m_sockAddrPublisher));
     m_sockAddrPublisher.sun_family = AF_LOCAL;
@@ -60,10 +58,6 @@ void UDS::init() noexcept
     }
 
     m_sockfdPublisher = socketCallPublisher.getReturnValue();
-
-    std::cout << "done" << std::endl;
-
-    std::cout << "starting server side ... " << std::flush;
 
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddrSubscriber, 0, sizeof(m_sockAddrSubscriber));
@@ -96,14 +90,10 @@ void UDS::init() noexcept
         std::cout << "bind error" << std::endl;
         exit(1);
     }
-
-    std::cout << "done" << std::endl;
 }
 
 void UDS::shutdown() noexcept
 {
-    std::cout << "shutdown" << std::endl;
-
     if (m_sockfdPublisher != INVALID_FD)
     {
         auto closeCall = iox::cxx::makeSmartC(

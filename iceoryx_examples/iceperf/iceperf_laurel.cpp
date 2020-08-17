@@ -25,7 +25,7 @@
 #include <iomanip>
 #include <iostream>
 
-constexpr int64_t NUMBER_OF_ROUNDTRIPS{100};
+constexpr int64_t NUMBER_OF_ROUNDTRIPS{10000};
 constexpr char APP_NAME[] = "/laurel";
 constexpr char PUBLISHER[] = "Laurel";
 constexpr char SUBSCRIBER[] = "Hardy";
@@ -57,7 +57,7 @@ void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
 
     std::cout << std::endl;
     std::cout << "#### Measurement Result ####" << std::endl;
-    std::cout << NUMBER_OF_ROUNDTRIPS << " round trips for each payload." << std::endl;
+    std::cout << numRoundtrips << " round trips for each payload." << std::endl;
     std::cout << std::endl;
     std::cout << "| Payload Size [kB] | Average Latency [µs] |" << std::endl;
     std::cout << "|------------------:|---------------------:|" << std::endl;
@@ -85,8 +85,6 @@ int main(int argc, char* argv[])
 
     // Create the runtime for registering with the RouDi daemon
     iox::runtime::PoshRuntime::getInstance(APP_NAME);
-
-    std::cout << "let's strart with rundtrips: " << numRoundtrips << std::endl;
 
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
     UDS uds(PUBLISHER, SUBSCRIBER);

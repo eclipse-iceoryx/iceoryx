@@ -37,31 +37,28 @@ void Iceoryx::init() noexcept
     m_publisher.offer();
     m_subscriber.subscribe();
 
-    std::cout << "Waiting till subscribed ... " << std::flush;
+    std::cout << "Waiting till subscribed ... " << std::endl << std::flush;
     while (m_subscriber.getSubscriptionState() != iox::popo::SubscriptionState::SUBSCRIBED)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    std::cout << "done" << std::endl;
 
-    std::cout << "Waiting for subscriber ... " << std::flush;
+    std::cout << "Waiting for subscriber ... " << std::endl << std::flush;
     while (!m_publisher.hasSubscribers())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    std::cout << "done" << std::endl;
 }
 
 void Iceoryx::shutdown() noexcept
 {
     m_subscriber.unsubscribe();
 
-    std::cout << "Waiting for subscriber to unsubscribe ... " << std::flush;
+    std::cout << "Waiting for subscriber to unsubscribe ... " << std::endl << std::flush;
     while (!m_publisher.hasSubscribers())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    std::cout << "done" << std::endl;
 
     // with stopOffer we disconnect all subscribers and the publisher is no more visible
     m_publisher.stopOffer();
