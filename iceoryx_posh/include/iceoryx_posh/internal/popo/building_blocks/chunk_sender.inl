@@ -71,7 +71,7 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize, const Un
             if (getMembers()->m_chunksInUse.insert(chunk))
             {
                 // END of critical section, chunk will be lost if process gets hard terminated in between
-                chunk.getChunkHeader()->m_originId = static_cast<uint64_t>(originId);
+                chunk.getChunkHeader()->m_originId = originId;
                 return cxx::success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
             }
             else

@@ -14,6 +14,8 @@
 #ifndef IOX_POSH_MEPOO_CHUNK_HEADER_HPP
 #define IOX_POSH_MEPOO_CHUNK_HEADER_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_info.hpp"
 
 #include <atomic>
@@ -28,12 +30,10 @@ namespace mepoo
 ///         32 byte aligned otherwise we get alignment problems!
 struct alignas(32) ChunkHeader
 {
-    static constexpr uint64_t INVALID_ORIGIN_ID = std::numeric_limits<uint64_t>::max();
-
     /// @brief ALlocates memory to store the information about the chunks.
     ChunkHeader() noexcept;
 
-    uint64_t m_originId = INVALID_ORIGIN_ID;
+    UniquePortId m_originId{popo::CreateInvalidId};
     ChunkInfo m_info;
 
     void* payload() const

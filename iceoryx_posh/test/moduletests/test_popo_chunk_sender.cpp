@@ -115,7 +115,7 @@ TEST_F(ChunkSender_test, allocate_ChunkHasOriginIdSet)
     auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample), uniqueId);
 
     ASSERT_FALSE(maybeChunkHeader.has_error());
-    EXPECT_THAT((*maybeChunkHeader)->m_originId, Eq(static_cast<uint64_t>(uniqueId)));
+    EXPECT_THAT((*maybeChunkHeader)->m_originId, Eq(uniqueId));
 }
 
 TEST_F(ChunkSender_test, allocate_MultipleChunks)
