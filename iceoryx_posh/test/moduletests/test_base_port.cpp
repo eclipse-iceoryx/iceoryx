@@ -101,9 +101,9 @@ class BasePortParamtest : public TestWithParam<CreatePort*>
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     BasePort* sut;
-    static std::vector<BasePort::UniqueId_t> uniquePortIds;
+    static std::vector<iox::UniquePortId> uniquePortIds;
 };
-std::vector<BasePort::UniqueId_t> BasePortParamtest::uniquePortIds;
+std::vector<iox::UniquePortId> BasePortParamtest::uniquePortIds;
 
 TEST_P(BasePortParamtest, getUniqueID)
 {

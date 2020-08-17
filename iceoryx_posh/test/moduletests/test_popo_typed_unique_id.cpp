@@ -152,3 +152,15 @@ TYPED_TEST(TypedUniqueId_test, ConversionToUint64)
     EXPECT_EQ(id, static_cast<uint64_t>(b));
 }
 
+TYPED_TEST(TypedUniqueId_test, CreatingAnUniqueIdWithDefaultCTorIsValid)
+{
+    typename TestFixture::UniqueIDType a;
+    EXPECT_TRUE(a.isValid());
+}
+
+TYPED_TEST(TypedUniqueId_test, InvalidIdIsInvalid)
+{
+    typename TestFixture::UniqueIDType a(CreateInvalidId);
+    EXPECT_FALSE(a.isValid());
+}
+

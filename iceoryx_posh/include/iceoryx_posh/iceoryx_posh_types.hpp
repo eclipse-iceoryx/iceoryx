@@ -26,6 +26,10 @@ namespace iox
 {
 namespace popo
 {
+template <typename>
+class TypedUniqueId;
+struct BasePortData;
+
 class SenderPort;
 class ReceiverPort;
 } // namespace popo
@@ -37,6 +41,7 @@ class MessageQueue;
 
 using SenderPortType = iox::popo::SenderPort;
 using ReceiverPortType = iox::popo::ReceiverPort;
+using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
 

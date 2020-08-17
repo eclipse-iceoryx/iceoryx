@@ -88,7 +88,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     {
         for (size_t i = 0; i < ITERATIONS; i++)
         {
-            m_chunkSender.allocate(sizeof(DummySample), BasePort::UniqueId_t())
+            m_chunkSender.allocate(sizeof(DummySample), iox::UniquePortId())
                 .and_then([&](iox::mepoo::ChunkHeader* chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();

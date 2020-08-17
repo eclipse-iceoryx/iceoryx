@@ -34,6 +34,20 @@ inline TypedUniqueId<T>::TypedUniqueId() noexcept
             Error::kPOPO__TYPED_UNIQUE_ID_OVERFLOW, [] {}, ErrorLevel::FATAL);
     }
 }
+
+template <typename T>
+inline TypedUniqueId<T>::TypedUniqueId(CreateInvalidId_t) noexcept
+    /// we have to cast INVALID_UNIQUE_ID with static_cast<uint64_t> otherwise it will not link
+    /// with gcc-7.x - gcc-10.x. Who knows why?!
+    : ThisType(cxx::newtype::internal::ProtectedConstructor, static_cast<uint64_t>(INVALID_UNIQUE_ID))
+{
+}
+
+template <typename T>
+inline bool TypedUniqueId<T>::isValid() const noexcept
+{
+    return TypedUniqueId<T>(CreateInvalidId) != *this;
+}
 } // namespace popo
 } // namespace iox
 #endif

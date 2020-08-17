@@ -48,7 +48,7 @@ ProcessName_t BasePort::getProcessName() const noexcept
     return getMembers()->m_processName;
 }
 
-BasePort::UniqueId_t BasePort::getUniqueID() const noexcept
+UniquePortId BasePort::getUniqueID() const noexcept
 {
     return getMembers()->m_uniqueId;
 }

@@ -40,7 +40,6 @@ class BasePort
 {
   public:
     using MemberType_t = BasePortData;
-    using UniqueId_t = BasePortData::UniqueId_t;
 
     explicit BasePort(MemberType_t* const basePortDataPtr) noexcept;
 
@@ -66,7 +65,7 @@ class BasePort
 
     /// @brief Gets Id of thethe active port
     /// @return             UniqueId name as Integer
-    UniqueId_t getUniqueID() const noexcept;
+    UniquePortId getUniqueID() const noexcept;
 
     /// @brief Indicate that this port can be destroyed
     void destroy() noexcept;

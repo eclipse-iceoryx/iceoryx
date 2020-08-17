@@ -19,6 +19,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <limits>
 
 namespace iox
 {
@@ -41,6 +42,12 @@ void unsetUniqueRouDiId() noexcept;
 /// @return value of the unique roudi id
 uint16_t getUniqueRouDiId() noexcept;
 } // namespace internal
+
+/// @brief Struct to signal the constructor to create an invalid id
+struct CreateInvalidId_t
+{
+};
+constexpr CreateInvalidId_t CreateInvalidId = CreateInvalidId_t();
 
 /// @brief Unique ID depending on a type. If you would like to assign different
 ///         types consistent unique ids use this class. Every types gets its
@@ -105,7 +112,13 @@ class TypedUniqueId : public cxx::NewType<uint64_t,
     ///         previous created id
     TypedUniqueId() noexcept;
 
+    /// @brief constructor which creates an invalid id
+    TypedUniqueId(CreateInvalidId_t) noexcept;
+
+    bool isValid() const noexcept;
+
   private:
+    static constexpr uint64_t INVALID_UNIQUE_ID = 0u;
     static constexpr uint64_t ROUDI_ID_BIT_LENGTH = 16u;
     static constexpr uint64_t UNIQUE_ID_BIT_LENGTH = 48u;
     static std::atomic<uint64_t> globalIDCounter; // = 0u

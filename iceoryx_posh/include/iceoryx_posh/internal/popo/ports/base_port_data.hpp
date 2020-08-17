@@ -34,8 +34,6 @@ namespace popo
 /// @brief Defines different base port data
 struct BasePortData
 {
-    using UniqueId_t = TypedUniqueId<BasePortData>;
-
     /// @brief Constructor for base port data members
     BasePortData() = default;
 
@@ -55,7 +53,7 @@ struct BasePortData
     capro::ServiceDescription m_serviceDescription;
     ProcessName_t m_processName;
 
-    UniqueId_t m_uniqueId;
+    UniquePortId m_uniqueId;
     std::atomic_bool m_toBeDestroyed{false};
 };
 
