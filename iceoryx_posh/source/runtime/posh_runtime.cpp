@@ -414,13 +414,6 @@ bool PoshRuntime::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) no
     return m_MqInterface.sendRequestToRouDi(msg, answer);
 }
 
-bool PoshRuntime::sendMessageToRouDi(const MqMessage& msg) noexcept
-{
-    // runtime must be thread safe
-    std::lock_guard<std::mutex> g(m_appMqRequestMutex);
-    return m_MqInterface.sendMessageToRouDi(msg);
-}
-
 // this is the callback for the m_keepAliveTimer
 void PoshRuntime::sendKeepAlive() noexcept
 {

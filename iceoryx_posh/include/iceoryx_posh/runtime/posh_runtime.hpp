@@ -129,11 +129,6 @@ class PoshRuntime
     /// @return true if sucessful request/response, false on error
     bool sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept;
 
-    /// @brief sends a message to the RouDi daemon
-    /// @param[in] msg request message to send
-    /// @return true if sucessful send message, false on error
-    bool sendMessageToRouDi(const MqMessage& msg) noexcept;
-
   public:
     PoshRuntime(const PoshRuntime&) = delete;
     PoshRuntime& operator=(const PoshRuntime&) = delete;
