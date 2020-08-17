@@ -53,6 +53,20 @@ void MQ::initFollower() noexcept
     sendPerfTopic(sizeof(PerfTopic), true);
 }
 
+void MQ::init() noexcept
+{
+    // fields have a different order in QNX,
+    // so we need to initialize by name
+    m_attributes.mq_flags = 0;
+    m_attributes.mq_maxmsg = MAX_MESSAGES;
+    m_attributes.mq_msgsize = MAX_MESSAGE_SIZE;
+    m_attributes.mq_curmsgs = 0;
+#ifdef __QNX__
+    m_attributes.mq_recvwait = 0;
+    m_attributes.mq_sendwait = 0;
+#endif
+}
+
 void MQ::shutdown() noexcept
 {
     auto mqCallSubClose = iox::cxx::makeSmartC(
@@ -83,73 +97,44 @@ void MQ::shutdown() noexcept
     }
 }
 
-
-void MQ::prePingPongLeader(uint32_t payloadSizeInBytes) noexcept
+void MQ::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    sendPerfTopic(payloadSizeInBytes, true);
-}
+    char buffer[payloadSizeInBytes];
+    auto sample = reinterpret_cast<PerfTopic*>(&buffer[0]);
 
-void MQ::postPingPongLeader() noexcept
-{
-    // Wait for the last response
-    receivePerfTopic();
-
-    std::cout << "done" << std::endl;
-}
-
-void MQ::triggerEnd() noexcept
-{
-    sendPerfTopic(sizeof(PerfTopic), false);
-}
-
-double MQ::pingPongLeader(int64_t numRoundTrips) noexcept
-{
-    auto start = std::chrono::high_resolution_clock::now();
-
-    // run the performance test
-    for (auto i = 0; i < numRoundTrips; ++i)
+    // Specify the payload size for the measurement
+    sample->payloadSize = payloadSizeInBytes;
+    sample->run = runFlag;
+    if (payloadSizeInBytes <= MAX_MESSAGE_SIZE)
     {
-        auto perfTopic = receivePerfTopic();
-        sendPerfTopic(perfTopic.payloadSize, true);
+        sample->subPacktes = 1;
+        send(&buffer[0], payloadSizeInBytes);
     }
-
-    auto finish = std::chrono::high_resolution_clock::now();
-
-    constexpr int64_t TRANSMISSIONS_PER_ROUNDTRIP{2};
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
-    auto latencyInNanoSeconds = (duration.count() / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));
-    auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000;
-    return latencyInMicroSeconds;
-}
-
-void MQ::pingPongFollower() noexcept
-{
-    while (true)
+    else
     {
-        auto perfTopic = receivePerfTopic();
-
-        // stop replying when no more run
-        if (!perfTopic.run)
+        sample->subPacktes = payloadSizeInBytes / MAX_MESSAGE_SIZE;
+        for (uint32_t i = 0; i < sample->subPacktes; ++i)
         {
-            break;
+            send(&buffer[0], MAX_MESSAGE_SIZE);
         }
-
-        sendPerfTopic(perfTopic.payloadSize, true);
     }
 }
 
-void MQ::init() noexcept
+PerfTopic MQ::receivePerfTopic() noexcept
 {
-    // fields have a different order in QNX,
-    // so we need to initialize by name
-    m_attributes.mq_flags = 0;
-    m_attributes.mq_maxmsg = MAX_MESSAGES;
-    m_attributes.mq_msgsize = MAX_MESSAGE_SIZE;
-    m_attributes.mq_curmsgs = 0;
-#ifdef __QNX__
-    m_attributes.mq_recvwait = 0;
-    m_attributes.mq_sendwait = 0;
-#endif
+    receive(&m_message[0]);
+
+    auto receivedSample = reinterpret_cast<const PerfTopic*>(&m_message[0]);
+
+    if (receivedSample->subPacktes > 1)
+    {
+        for (uint32_t i = 0; i < receivedSample->subPacktes - 1; ++i)
+        {
+            receive(&m_message[0]);
+        }
+    }
+
+    return *receivedSample;
 }
 
 void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelSide) noexcept
@@ -233,44 +218,4 @@ void MQ::receive(char* buffer) noexcept
         std::cout << "receive error" << std::endl;
         exit(1);
     }
-}
-
-void MQ::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
-{
-    char buffer[payloadSizeInBytes];
-    auto sample = reinterpret_cast<PerfTopic*>(&buffer[0]);
-
-    // Specify the payload size for the measurement
-    sample->payloadSize = payloadSizeInBytes;
-    sample->run = runFlag;
-    if (payloadSizeInBytes <= MAX_MESSAGE_SIZE)
-    {
-        sample->subPacktes = 1;
-        send(&buffer[0], payloadSizeInBytes);
-    }
-    else
-    {
-        sample->subPacktes = payloadSizeInBytes / MAX_MESSAGE_SIZE;
-        for (uint32_t i = 0; i < sample->subPacktes; ++i)
-        {
-            send(&buffer[0], MAX_MESSAGE_SIZE);
-        }
-    }
-}
-
-PerfTopic MQ::receivePerfTopic() noexcept
-{
-    receive(&m_message[0]);
-
-    auto receivedSample = reinterpret_cast<const PerfTopic*>(&m_message[0]);
-
-    if (receivedSample->subPacktes > 1)
-    {
-        for (uint32_t i = 0; i < receivedSample->subPacktes - 1; ++i)
-        {
-            receive(&m_message[0]);
-        }
-    }
-
-    return *receivedSample;
 }

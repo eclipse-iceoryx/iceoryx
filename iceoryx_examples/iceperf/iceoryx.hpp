@@ -26,14 +26,11 @@ class Iceoryx : public IcePerfBase
     void initLeader() noexcept override;
     void initFollower() noexcept override;
     void shutdown() noexcept override;
-    void prePingPongLeader(uint32_t payloadSizeInBytes) noexcept override;
-    void postPingPongLeader() noexcept override;
-    void triggerEnd() noexcept override;
-    double pingPongLeader(int64_t numRoundTrips) noexcept override;
-    void pingPongFollower() noexcept override;
 
   private:
     void init() noexcept;
+    void sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept override;
+    PerfTopic receivePerfTopic() noexcept override;
 
     iox::popo::Publisher m_publisher;
     iox::popo::Subscriber m_subscriber;

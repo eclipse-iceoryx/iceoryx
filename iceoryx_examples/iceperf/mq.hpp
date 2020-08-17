@@ -39,19 +39,14 @@ class MQ : public IcePerfBase
     void initLeader() noexcept override;
     void initFollower() noexcept override;
     void shutdown() noexcept override;
-    void prePingPongLeader(uint32_t payloadSizeInBytes) noexcept override;
-    void postPingPongLeader() noexcept override;
-    void triggerEnd() noexcept override;
-    double pingPongLeader(int64_t numRoundTrips) noexcept override;
-    void pingPongFollower() noexcept override;
 
   private:
     void init() noexcept;
     void open(const std::string& name, const iox::posix::IpcChannelSide channelSide) noexcept;
     void send(const char* buffer, uint32_t length) noexcept;
     void receive(char* buffer) noexcept;
-    void sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept;
-    PerfTopic receivePerfTopic() noexcept;
+    void sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept override;
+    PerfTopic receivePerfTopic() noexcept override;
 
     const std::string m_publisherName;
     const std::string m_subscriberName;

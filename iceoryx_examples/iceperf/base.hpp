@@ -15,20 +15,26 @@
 #define IOX_EXAMPLES_ICEPERF_BASE_HPP
 
 #include "topic_data.hpp"
+#include <chrono>
+#include <iostream>
 
 class IcePerfBase
 {
-
   public:
     static constexpr uint32_t ONE_KILOBYTE = 1024u;
     virtual void initLeader() noexcept = 0;
     virtual void initFollower() noexcept = 0;
     virtual void shutdown() noexcept = 0;
-    virtual void prePingPongLeader(uint32_t payloadSizeInBytes) noexcept = 0;
-    virtual void postPingPongLeader() noexcept = 0;
-    virtual void triggerEnd() noexcept = 0;
-    virtual double pingPongLeader(int64_t numRoundTrips) noexcept = 0;
-    virtual void pingPongFollower() noexcept = 0;
+
+    void prePingPongLeader(uint32_t payloadSizeInBytes) noexcept;
+    void postPingPongLeader() noexcept;
+    void releaseFollower() noexcept;
+    double pingPongLeader(int64_t numRoundTrips) noexcept;
+    void pingPongFollower() noexcept;
+
+  private:
+    virtual void sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept = 0;
+    virtual PerfTopic receivePerfTopic() noexcept = 0;
 };
 
 #endif // IOX_EXAMPLES_ICEPERF_BASE_HPP

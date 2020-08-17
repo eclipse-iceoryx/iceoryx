@@ -47,6 +47,7 @@ int main()
     MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
 
     followerDo(mq);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // ensure leader first
     followerDo(uds);
     followerDo(iceoryx);
 

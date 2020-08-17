@@ -134,46 +134,6 @@ void UDS::shutdown() noexcept
     }
 }
 
-void UDS::send(const char* buffer, uint32_t length) noexcept
-{
-    auto sendCall = iox::cxx::makeSmartC(sendto,
-                                         iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                         {ERROR_CODE},
-                                         {},
-                                         m_sockfdPublisher,
-                                         buffer,
-                                         length,
-                                         static_cast<int>(0),
-                                         reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
-                                         static_cast<socklen_t>(sizeof(m_sockAddrPublisher)));
-
-    if (sendCall.hasErrors())
-    {
-        std::cout << std::endl << "send error" << std::endl;
-        exit(1);
-    }
-}
-
-void UDS::receive(char* buffer) noexcept
-{
-    auto recvCall = iox::cxx::makeSmartC(recvfrom,
-                                         iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
-                                         {ERROR_CODE},
-                                         {},
-                                         m_sockfdSubscriber,
-                                         buffer,
-                                         MAX_MESSAGE_SIZE,
-                                         0,
-                                         nullptr,
-                                         nullptr);
-
-    if (recvCall.hasErrors())
-    {
-        std::cout << "receive error" << std::endl;
-        exit(1);
-    }
-}
-
 void UDS::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
     char buffer[payloadSizeInBytes];
@@ -214,57 +174,42 @@ PerfTopic UDS::receivePerfTopic() noexcept
     return *receivedSample;
 }
 
-
-void UDS::prePingPongLeader(uint32_t payloadSizeInBytes) noexcept
+void UDS::send(const char* buffer, uint32_t length) noexcept
 {
-    sendPerfTopic(payloadSizeInBytes, true);
-}
+    auto sendCall = iox::cxx::makeSmartC(sendto,
+                                         iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                         {ERROR_CODE},
+                                         {},
+                                         m_sockfdPublisher,
+                                         buffer,
+                                         length,
+                                         static_cast<int>(0),
+                                         reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
+                                         static_cast<socklen_t>(sizeof(m_sockAddrPublisher)));
 
-void UDS::postPingPongLeader() noexcept
-{
-    // Wait for the last response
-    receivePerfTopic();
-
-    std::cout << "done" << std::endl;
-}
-
-void UDS::triggerEnd() noexcept
-{
-    sendPerfTopic(sizeof(PerfTopic), false);
-}
-
-double UDS::pingPongLeader(int64_t numRoundTrips) noexcept
-{
-    auto start = std::chrono::high_resolution_clock::now();
-
-    // run the performance test
-    for (auto i = 0; i < numRoundTrips; ++i)
+    if (sendCall.hasErrors())
     {
-        auto perfTopic = receivePerfTopic();
-        sendPerfTopic(perfTopic.payloadSize, true);
+        std::cout << std::endl << "send error" << std::endl;
+        exit(1);
     }
-
-    auto finish = std::chrono::high_resolution_clock::now();
-
-    constexpr int64_t TRANSMISSIONS_PER_ROUNDTRIP{2};
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
-    auto latencyInNanoSeconds = (duration.count() / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));
-    auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000;
-    return latencyInMicroSeconds;
 }
 
-void UDS::pingPongFollower() noexcept
+void UDS::receive(char* buffer) noexcept
 {
-    while (true)
+    auto recvCall = iox::cxx::makeSmartC(recvfrom,
+                                         iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                         {ERROR_CODE},
+                                         {},
+                                         m_sockfdSubscriber,
+                                         buffer,
+                                         MAX_MESSAGE_SIZE,
+                                         0,
+                                         nullptr,
+                                         nullptr);
+
+    if (recvCall.hasErrors())
     {
-        auto perfTopic = receivePerfTopic();
-
-        // stop replying when no more run
-        if (!perfTopic.run)
-        {
-            break;
-        }
-
-        sendPerfTopic(perfTopic.payloadSize, true);
+        std::cout << "receive error" << std::endl;
+        exit(1);
     }
 }

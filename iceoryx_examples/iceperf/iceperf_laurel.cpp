@@ -16,6 +16,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "mq.hpp"
 #include "topic_data.hpp"
 #include "uds.hpp"
@@ -24,13 +25,13 @@
 #include <iomanip>
 #include <iostream>
 
-constexpr int64_t NUMBER_OF_ROUNDTRIPS{100000};
+constexpr int64_t NUMBER_OF_ROUNDTRIPS{100};
 constexpr char APP_NAME[] = "/laurel";
 constexpr char PUBLISHER[] = "Laurel";
 constexpr char SUBSCRIBER[] = "Hardy";
 
 
-void leaderDo(IcePerfBase& ipcTechnology)
+void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
 {
     ipcTechnology.initLeader();
 
@@ -43,14 +44,14 @@ void leaderDo(IcePerfBase& ipcTechnology)
 
         ipcTechnology.prePingPongLeader(payloadSizeInBytes);
 
-        auto latency = ipcTechnology.pingPongLeader(NUMBER_OF_ROUNDTRIPS);
+        auto latency = ipcTechnology.pingPongLeader(numRoundtrips);
 
         latencyInMicroSeconds.push_back(latency);
 
         ipcTechnology.postPingPongLeader();
     }
 
-    ipcTechnology.triggerEnd();
+    ipcTechnology.releaseFollower();
 
     ipcTechnology.shutdown();
 
@@ -70,21 +71,33 @@ void leaderDo(IcePerfBase& ipcTechnology)
     std::cout << "Finished!" << std::endl;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+    uint64_t numRoundtrips = NUMBER_OF_ROUNDTRIPS;
+    if (argc > 1)
+    {
+        if (!iox::cxx::convert::fromString(argv[1], numRoundtrips))
+        {
+            std::cout << "error command line parameter" << std::endl;
+            exit(1);
+        }
+    }
+
     // Create the runtime for registering with the RouDi daemon
     iox::runtime::PoshRuntime::getInstance(APP_NAME);
+
+    std::cout << "let's strart with rundtrips: " << numRoundtrips << std::endl;
 
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
     UDS uds(PUBLISHER, SUBSCRIBER);
     MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
 
     std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
-    leaderDo(mq);
+    leaderDo(mq, numRoundtrips);
     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
-    leaderDo(uds);
+    leaderDo(uds, numRoundtrips);
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
-    leaderDo(iceoryx);
+    leaderDo(iceoryx, numRoundtrips);
 
     return (EXIT_SUCCESS);
 }

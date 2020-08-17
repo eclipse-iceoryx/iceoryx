@@ -22,6 +22,16 @@ Iceoryx::Iceoryx(const iox::capro::IdString& publisherName, const iox::capro::Id
 {
 }
 
+void Iceoryx::initLeader() noexcept
+{
+    init();
+}
+
+void Iceoryx::initFollower() noexcept
+{
+    init();
+}
+
 void Iceoryx::init() noexcept
 {
     m_publisher.offer();
@@ -42,16 +52,6 @@ void Iceoryx::init() noexcept
     std::cout << "done" << std::endl;
 }
 
-void Iceoryx::initLeader() noexcept
-{
-    init();
-}
-
-void Iceoryx::initFollower() noexcept
-{
-    init();
-}
-
 void Iceoryx::shutdown() noexcept
 {
     m_subscriber.unsubscribe();
@@ -69,94 +69,26 @@ void Iceoryx::shutdown() noexcept
     std::cout << "Finished!" << std::endl;
 }
 
-void Iceoryx::prePingPongLeader(uint32_t payloadSizeInBytes) noexcept
+void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    // Allocate a memory chunk for the sample to be sent and allow dynamic sample size, as we dynamically change the
-    // payload
-    auto sample = static_cast<PerfTopic*>(m_publisher.allocateChunk(payloadSizeInBytes, true));
+    auto sendSample = static_cast<PerfTopic*>(m_publisher.allocateChunk(payloadSizeInBytes, true));
+    sendSample->payloadSize = payloadSizeInBytes;
+    sendSample->run = runFlag;
+    sendSample->subPacktes = 1;
 
-    // Specify the payload size for the measurement
-    sample->payloadSize = payloadSizeInBytes;
-    sample->run = true;
-
-    // Send the initial sample to start the round-trips
-    m_publisher.sendChunk(sample);
+    m_publisher.sendChunk(sendSample);
 }
 
-void Iceoryx::postPingPongLeader() noexcept
+PerfTopic Iceoryx::receivePerfTopic() noexcept
 {
-    // Wait for the last response
     const void* receivedChunk;
     while (!m_subscriber.getChunk(&receivedChunk))
     {
         // poll as fast as possible
     }
+
+    auto receivedSample = *(static_cast<const PerfTopic*>(receivedChunk));
     m_subscriber.releaseChunk(receivedChunk);
-    std::cout << "done" << std::endl;
-}
 
-void Iceoryx::triggerEnd() noexcept
-{
-    const int64_t payloadSize = sizeof(PerfTopic);
-    auto stopSample = static_cast<PerfTopic*>(m_publisher.allocateChunk(payloadSize, true));
-
-    // Write sample data
-    stopSample->payloadSize = payloadSize;
-    stopSample->run = false;
-    m_publisher.sendChunk(stopSample);
-}
-
-double Iceoryx::pingPongLeader(int64_t numRoundTrips) noexcept
-{
-    auto start = std::chrono::high_resolution_clock::now();
-    // run the performance test
-    for (auto i = 0; i < numRoundTrips; ++i)
-    {
-        const void* receivedChunk;
-        while (!m_subscriber.getChunk(&receivedChunk))
-        {
-            // poll as fast as possible
-        }
-
-        auto receivedSample = static_cast<const PerfTopic*>(receivedChunk);
-
-        auto sendSample = static_cast<PerfTopic*>(m_publisher.allocateChunk(receivedSample->payloadSize, true));
-        sendSample->payloadSize = receivedSample->payloadSize;
-        sendSample->run = true;
-
-        m_publisher.sendChunk(sendSample);
-
-        m_subscriber.releaseChunk(receivedChunk);
-    }
-
-    auto finish = std::chrono::high_resolution_clock::now();
-
-    constexpr int64_t TRANSMISSIONS_PER_ROUNDTRIP{2};
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
-    auto latencyInNanoSeconds = (duration.count() / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));
-    auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000;
-    return latencyInMicroSeconds;
-}
-
-void Iceoryx::pingPongFollower() noexcept
-{
-    bool run{true};
-    while (run)
-    {
-        const void* receivedChunk;
-        while (!m_subscriber.getChunk(&receivedChunk))
-        {
-            // poll as fast as possible
-        }
-
-        auto receivedSample = static_cast<const PerfTopic*>(receivedChunk);
-
-        auto sendSample = static_cast<PerfTopic*>(m_publisher.allocateChunk(receivedSample->payloadSize, true));
-        sendSample->payloadSize = receivedSample->payloadSize;
-
-        m_publisher.sendChunk(sendSample);
-
-        run = receivedSample->run;
-        m_subscriber.releaseChunk(receivedChunk);
-    }
+    return receivedSample;
 }
