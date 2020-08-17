@@ -58,23 +58,20 @@ int main()
     signal(SIGTERM, ShutdownManager::scheduleShutdown);
 
     // Start application
-    iox::runtime::PoshRuntime::getInstance("/gateway_dds2iceoryx");
+    iox::runtime::PoshRuntime::getInstance("/iox-gw-dds2iceoryx");
 
     iox::dds::DDS2IceoryxGateway<> gw;
-    auto result = iox::dds::TomlGatewayConfigParser::parse();
-    if (!result.has_error())
-    {
-        gw.loadConfiguration(result.get_value());
-    }
-    else
-    {
-        iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
-                            << iox::dds::TomlGatewayConfigParseErrorString[result.get_error()];
-        iox::dds::LogWarn() << "[Main] Using default configuration.";
-        iox::dds::GatewayConfig defaultConfig;
-        defaultConfig.setDefaults();
-        gw.loadConfiguration(defaultConfig);
-    }
+
+    iox::dds::TomlGatewayConfigParser::parse()
+        .and_then([&](iox::dds::GatewayConfig config) { gw.loadConfiguration(config); })
+        .or_else([&](iox::dds::TomlGatewayConfigParseError err) {
+            iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
+                                << iox::dds::TomlGatewayConfigParseErrorString[err];
+            iox::dds::LogWarn() << "[Main] Using default configuration.";
+            iox::dds::GatewayConfig defaultConfig;
+            defaultConfig.setDefaults();
+            gw.loadConfiguration(defaultConfig);
+        });
 
     gw.runMultithreaded();
 

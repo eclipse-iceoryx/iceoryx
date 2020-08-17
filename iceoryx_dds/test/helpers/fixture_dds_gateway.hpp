@@ -99,7 +99,6 @@ class DDSGatewayTestFixture : public Test
             iox::dds::Channel<IceoryxTerminal, DDSTerminal>(
                 sd, std::move(mockIceoryxTerminal), std::move(mockDataWriter)));
     }
-
 };
 
 #endif // TEST_HELPERS_FIXTURE_DDS_GATEWAY_H

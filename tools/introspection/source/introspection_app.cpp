@@ -19,7 +19,6 @@
 #include "iceoryx_versions.hpp"
 
 #include <chrono>
-#include <deque>
 #include <iomanip>
 #include <poll.h>
 #include <thread>
@@ -247,16 +246,16 @@ void IntrospectionApp::printProcessIntrospectionData(const ProcessIntrospectionF
     wprintw(pad, "\n");
 }
 
-void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionTopic& topic)
+void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspectionInfo)
 {
-    wprintw(pad, "Segment ID: %d\n", topic.m_id);
+    wprintw(pad, "Segment ID: %d\n", introspectionInfo.m_id);
 
     wprintw(pad, "Shared memory segment writer group: ");
-    prettyPrint(std::string(topic.m_writerGroupName), PrettyOptions::bold);
+    prettyPrint(std::string(introspectionInfo.m_writerGroupName), PrettyOptions::bold);
     wprintw(pad, "\n");
 
     wprintw(pad, "Shared memory segment reader group: ");
-    prettyPrint(std::string(topic.m_readerGroupName), PrettyOptions::bold);
+    prettyPrint(std::string(introspectionInfo.m_readerGroupName), PrettyOptions::bold);
     wprintw(pad, "\n\n");
 
     constexpr int32_t memPoolWidth{8};
@@ -274,9 +273,9 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionTopic& topic)
     wprintw(pad, "%*s\n", payloadSizeWidth, "Payload Size");
     wprintw(pad, "--------------------------------------------------------------------------\n");
 
-    for (size_t i = 0u; i < topic.m_mempoolInfo.size(); ++i)
+    for (size_t i = 0u; i < introspectionInfo.m_mempoolInfo.size(); ++i)
     {
-        auto& info = topic.m_mempoolInfo[i];
+        auto& info = introspectionInfo.m_mempoolInfo[i];
         if (info.m_numChunks > 0u)
         {
             wprintw(pad, "%*d |", memPoolWidth, i + 1u);
@@ -701,43 +700,29 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            std::deque<const MemPoolIntrospectionTopic*> mempoolSamples;
             const void* rawMempoolSample{nullptr};
 
-
-            while (memPoolSubscriber.getChunk(&rawMempoolSample))
+            while (!rawMempoolSample)
             {
-                decltype(mempoolSamples)::value_type typedMempoolSample =
-                    static_cast<decltype(mempoolSamples)::value_type>(rawMempoolSample);
-                mempoolSamples.push_back(std::move(typedMempoolSample));
-                memPoolSubscriber.releaseChunk(rawMempoolSample);
+                memPoolSubscriber.getChunk(&rawMempoolSample);
             }
 
-            if (mempoolSamples.empty())
+            const MemPoolIntrospectionInfoContainer* mempoolSample =
+                static_cast<const MemPoolIntrospectionInfoContainer*>(rawMempoolSample);
+
+            if (mempoolSample->empty())
             {
                 prettyPrint("Waiting for mempool introspection data ...\n");
             }
             else
             {
-                auto it = mempoolSamples.end() - 1;
-                auto currentIter = it;
-                auto itBegin = mempoolSamples.begin();
-
-                uint32_t lastId = (*it)->m_id;
-
-                while (it != itBegin)
+                for (const auto& i : *mempoolSample)
                 {
-                    --it;
-                    if ((*it)->m_id == lastId)
-                    {
-                        break;
-                    }
-                    currentIter = it;
+                    printMemPoolInfo(i);
                 }
-
-                std::for_each(
-                    currentIter, mempoolSamples.end(), [&](decltype(*it) samplePtr) { printMemPoolInfo(*samplePtr); });
             }
+
+            memPoolSubscriber.releaseChunk(rawMempoolSample);
         }
 
         // print process information

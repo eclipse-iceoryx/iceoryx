@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 namespace iox
 {
@@ -23,20 +24,18 @@ ApplicationPort::ApplicationPort(ApplicationPortData* const applicationPortDataP
 {
 }
 
-bool ApplicationPort::dispatchCaProMessage(const capro::CaproMessage& message) noexcept
+cxx::optional<capro::CaproMessage> ApplicationPort::getCaProMessage() noexcept
 {
-    return getMembers()->m_caproMessageFiFo.push(message);
+   return getMembers()->m_caproMessageFiFo.pop();
 }
 
-bool ApplicationPort::getCaProMessage(capro::CaproMessage& message) noexcept
+void ApplicationPort::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
 {
-    auto maybeMessage = getMembers()->m_caproMessageFiFo.pop();
-    if (maybeMessage.has_value())
+    if (!getMembers()->m_caproMessageFiFo.push(caProMessage))
     {
-        message = maybeMessage.value();
-        return true;
+        // information loss from application to RouDi daemon
+        errorHandler(Error::kPOPO__APPLICATION_PORT_QUEUE_OVERFLOW, nullptr, ErrorLevel::SEVERE);
     }
-    return false;
 }
 
 const typename ApplicationPort::MemberType_t* ApplicationPort::getMembers() const noexcept

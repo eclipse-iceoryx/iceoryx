@@ -27,19 +27,19 @@ namespace concurrent
 {
 /// @brief
 /// Thread safe producer and consumer queue with a safe overflowing behavior.
-/// TSoFi is designed in a FIFO Manner but prevents data loss when pushing into
+/// SoFi is designed in a FIFO Manner but prevents data loss when pushing into
 /// a full SoFi. When SoFi is full and a Sender tries to push, the data at the
 /// current read position will be returned. SoFi is a Thread safe without using
 /// locks. When the buffer is filled, new data is written starting at the
-/// beginning of the buffer and overwriting the old.The TSoFi is especially
+/// beginning of the buffer and overwriting the old.The SoFi is especially
 /// designed to provide fixed capacity storage. When its capacity is exhausted,
 /// newly inserted elements will cause elements either at the beginning
-/// to be overwritten.The TSoFi only allocates memory when
+/// to be overwritten.The SoFi only allocates memory when
 /// created , capacity can be is adjusted explicitly.
 ///
 /// @param[in] ValueType        DataType to be stored, must be trivially copyable
-/// @param[in] CapacityValue    Capacity of the TSoFi
-template <class ValueType, uint32_t CapacityValue>
+/// @param[in] CapacityValue    Capacity of the SoFi
+template <class ValueType, uint64_t CapacityValue>
 class SoFi
 {
     static_assert(std::is_trivially_copyable<ValueType>::value, "SoFi can handle only trivially copyable data types");
@@ -137,7 +137,7 @@ class SoFi
     /// @pre it is important that no pop or push calls occur during
     ///         this call
     /// @concurrent not thread safe
-    bool resize(const uint32_t newSize) noexcept;
+    bool setCapacity(const uint64_t newSize) noexcept;
 
     /// @brief returns the capacity of sofi
     /// @concurrent unrestricted thread safe

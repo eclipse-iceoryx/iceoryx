@@ -93,7 +93,7 @@ template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
     auto subscriber = channel.getIceoryxTerminal();
-    if (subscriber->hasNewChunks())
+    while (subscriber->hasNewChunks())
     {
         const iox::mepoo::ChunkHeader* header;
         subscriber->getChunk(&header);
@@ -112,8 +112,7 @@ template <typename channel_t, typename gateway_t>
 iox::cxx::expected<channel_t, iox::dds::GatewayError>
 Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const iox::capro::ServiceDescription& service) noexcept
 {
-    return this->addChannel(service).on_success([](iox::cxx::expected<channel_t, iox::dds::GatewayError> result) {
-        auto channel = result.get_value();
+    return this->addChannel(service).and_then([](channel_t channel) {
         auto subscriber = channel.getIceoryxTerminal();
         auto dataWriter = channel.getDDSTerminal();
         subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);

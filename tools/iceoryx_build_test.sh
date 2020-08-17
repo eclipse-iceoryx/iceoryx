@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2019-2020 by Robert Bosch GmbH. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,111 +22,154 @@ set -e
 #==== Step 0 : Setup ================================================================================
 #====================================================================================================
 
-# The absolute path of the directory assigned to the build
+# the absolute path of the directory assigned to the build
 WORKSPACE=$(git rev-parse --show-toplevel)
-
-ICEORYX_INSTALL_PREFIX=$WORKSPACE/build/install/prefix/
+BUILD_DIR=$WORKSPACE/build
+NUM_JOBS=""
 
 CLEAN_BUILD=false
 BUILD_TYPE=""
-STRICT_FLAG="off"
-TEST_FLAG="off"
+STRICT_FLAG="OFF"
+TEST_FLAG="OFF"
+QACPP_JSON="OFF"
 RUN_TEST=false
-INTROSPECTION_FLAG="on"
+INTROSPECTION_FLAG="ON"
+DDS_GATEWAY_FLAG="OFF"
 
-for arg in "$@"
-do
-    case "$arg" in
-        "clean")
-            CLEAN_BUILD=true
-            ;;
-        "release")
-            BUILD_TYPE="Release"
-            ;;
-        "debug")
-            BUILD_TYPE="Debug"
-            ;;
-        "strict")
-            STRICT_FLAG="on"
-            ;;
-        "test")
-            RUN_TEST=true
-            TEST_FLAG="on"
-            ;;
-        "build-test")
-            RUN_TEST=false
-            TEST_FLAG="on"
-            ;;
-        "skip-introspection")
-            INTROSPECTION_FLAG="off"
-            ;;
-        "help")
-            echo "Build script for iceoryx."
-            echo "By default, iceoryx and the examples are build."
-            echo ""
-            echo "Usage: iceoryx_build_test.sh [options]"
-            echo "Options:"
-            echo "    clean                 Cleans the build directory"
-            echo "    release               Build release configuration"
-            echo "    debug                 Build debug configuration"
-            echo "    strict                Build is performed with '-Werror'"
-            echo "    test                  Builds and runs the tests"
-            echo "    build-test            Builds the tests (doesn't tun)"
-            echo "    skip-introspection    Skips building iceoryx introspection"
-            echo "    help                  Prints this help"
-            echo ""
-            echo "e.g. iceoryx_build_test.sh clean test release"
-            exit 0
-            ;;
-        *)
-            echo "Invalid argument '$arg'. Try 'help' for options."
-            exit -1
-            ;;
-    esac
+while (( "$#" )); do
+  case "$1" in
+    -b|--builddir)
+        BUILD_DIR=$(realpath $2)
+        shift 2
+        ;;
+    -j|--jobs)
+        NUM_JOBS=$2
+        shift 2
+        ;;
+    "clean")
+        CLEAN_BUILD=true
+        shift 1
+        ;;
+    "release")
+        BUILD_TYPE="Release"
+        shift 1
+        ;;
+    "debug")
+        BUILD_TYPE="Debug"
+        shift 1
+        ;;
+    "strict")
+        STRICT_FLAG="ON"
+        shift 1
+        ;;
+    "qacpp")
+        BUILD_TYPE="Release"
+        QACPP_JSON="ON"
+        shift 1
+        ;;
+    "test")
+        RUN_TEST=true
+        TEST_FLAG="ON"
+        shift 1
+        ;;
+    "with-dds-gateway")
+        echo " [i] Including DDS gateway in build"
+        DDS_GATEWAY_FLAG="ON"
+        shift 1
+        ;;
+    "build-test")
+        echo " [i] Building tests"
+        TEST_FLAG="ON"
+        shift 1
+        ;;
+    "skip-introspection")
+        echo " [i] Not including introspection client in build."
+        INTROSPECTION_FLAG="OFF"
+        shift 1
+        ;;
+    "help")
+        echo "Build script for iceoryx."
+        echo "By default, iceoryx, the dds gateway and the examples are built."
+        echo ""
+        echo "Usage:"
+        echo "    iceoryx_build_test.sh [--builddir <dir>] [<args>]"
+        echo "Options:"
+        echo "    -b --builddir         Specify a non-default build directory"
+        echo "    -j --jobs             Specify the number of jobs to run simultaneously"
+        echo "Args:"
+        echo "    clean                 Cleans the build directory"
+        echo "    release               Build release configuration"
+        echo "    debug                 Build debug configuration"
+        echo "    strict                Build is performed with '-Werror'"
+        echo "    qacpp                 JSON is generated for QACPP"
+        echo "    test                  Builds and runs the tests"
+        echo "    with-dds-gateway      Builds the iceoryx dds gateway"
+        echo "    build-test            Builds the tests (doesn't run)"
+        echo "    skip-introspection    Skips building iceoryx introspection"
+        echo "    help                  Prints this help"
+        echo ""
+        echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test release"
+        exit 0
+        ;;
+    *)
+        echo "Invalid argument '$1'. Try 'help' for options."
+        exit -1
+        ;;
+  esac
 done
+
+# define directories dependent on the build directory
+ICEORYX_INSTALL_PREFIX=$BUILD_DIR/install/prefix/
+
+echo " [i] Building in $BUILD_DIR"
 
 #====================================================================================================
 #==== Step 1 : Build  ===============================================================================
 #====================================================================================================
 
-# Clean build folder
+# run number of jobs equal to number of available cores unless manually specified
+if [ -z $NUM_JOBS ]
+then
+    NUM_JOBS=1
+fi
+echo " [i] Building with $NUM_JOBS jobs"
+
+# clean build folder
 if [ $CLEAN_BUILD == true ]
 then
     echo " [i] Cleaning build directory"
     cd $WORKSPACE
-    rm -rf build/*
+    rm -rf $BUILD_DIR/*
 fi
 
 # create a new build directory and change the current working directory
-echo " [i] Create a new build directory and change the current working directory"
+echo " [i] Preparing build directory"
 cd $WORKSPACE
-mkdir -p build
-cd build
-
-echo " [i] Current working directory:"
-pwd
+mkdir -p $BUILD_DIR
+cd $BUILD_DIR
+echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG $WORKSPACE/iceoryx_meta
-cmake --build . --target install
-echo ">>>>>> finished building iceoryx package <<<<<<"
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG $WORKSPACE/iceoryx_meta
+cmake --build . --target install -- -j$NUM_JOBS
+echo ">>>>>> Finished building iceoryx package <<<<<<"
 
 echo ">>>>>> Start building iceoryx examples <<<<<<"
-cd $WORKSPACE/build
+cd $BUILD_DIR
 mkdir -p iceoryx_examples
 echo ">>>>>>>> icedelivery"
-cd $WORKSPACE/build/iceoryx_examples
+cd $BUILD_DIR/iceoryx_examples
 mkdir -p icedelivery
 cd icedelivery
-cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
-cmake --build .
+cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
+cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>>>> iceperf"
-cd $WORKSPACE/build/iceoryx_examples
+cd $BUILD_DIR/iceoryx_examples
 mkdir -p iceperf
 cd iceperf
-cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
-cmake --build .
-echo ">>>>>> finished building iceoryx examples <<<<<<"
+cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
+cmake --build . --target install -- -j$NUM_JOBS
+echo ">>>>>> Finished building iceoryx examples <<<<<<"
 
 #====================================================================================================
 #==== Step 2 : Run all Tests  =======================================================================
@@ -135,31 +178,33 @@ echo ">>>>>> finished building iceoryx examples <<<<<<"
 if [ $RUN_TEST == true ]
 then
 
-# The absolute path of the directory assigned to the build
-cd $WORKSPACE/build
-
-# change the current working directory
+# the absolute path of the directory assigned to the build
+cd $BUILD_DIR
 mkdir -p tools
-cp $WORKSPACE/tools/run_all_tests.sh $WORKSPACE/build/tools/run_all_tests.sh
+cp $WORKSPACE/tools/run_all_tests.sh $BUILD_DIR/tools/run_all_tests.sh
 
-echo " [i] Run all Tests:"
-# call runAllTest shell script to run all tests for Iceoryx
-$WORKSPACE/build/tools/run_all_tests.sh
+echo " [i] Running all tests"
+if [ "$DDS_GATEWAY_FLAG" == "ON" ]
+then
+    $BUILD_DIR/tools/run_all_tests.sh with-dds-gateway-tests
+else
+    $BUILD_DIR/tools/run_all_tests.sh
+fi
 
-for folder in $component_folder; do
+for COMPONENT in $COMPONENTS; do
 
-    if [ ! -f testresults/"$folder"_ModuleTestResults.xml ]; then
-        echo "xml:"$folder"_ModuletestTestResults.xml not found!"
+    if [ ! -f testresults/"$COMPONENT"_ModuleTestResults.xml ]; then
+        echo "xml:"$COMPONENT"_ModuletestTestResults.xml not found!"
         exit 1
     fi
 
-    if [ ! -f testresults/"$folder"_ComponenttestTestResults.xml ]; then
-        echo "xml:"$folder"_ComponenttestTestResults.xml not found!"
+    if [ ! -f testresults/"$COMPONENT"_ComponenttestTestResults.xml ]; then
+        echo "xml:"$COMPONENT"_ComponenttestTestResults.xml not found!"
         exit 1
     fi
 
-    if [ ! -f testresults/"$folder"_IntegrationTestResults.xml ]; then
-        echo "xml:"$folder"_IntegrationTestResults.xml not found!"
+    if [ ! -f testresults/"$COMPONENT"_IntegrationTestResults.xml ]; then
+        echo "xml:"$COMPONENT"_IntegrationTestResults.xml not found!"
         exit 1
     fi
 

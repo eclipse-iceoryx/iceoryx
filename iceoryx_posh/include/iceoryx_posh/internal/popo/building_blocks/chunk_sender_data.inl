@@ -18,8 +18,8 @@ namespace iox
 {
 namespace popo
 {
-template <typename ChunkDistributorDataType>
-inline ChunkSenderData<ChunkDistributorDataType>::ChunkSenderData(
+template <uint32_t MaxChunksAllocatedSimultaneously, typename ChunkDistributorDataType>
+inline ChunkSenderData<MaxChunksAllocatedSimultaneously, ChunkDistributorDataType>::ChunkSenderData(
     cxx::not_null<mepoo::MemoryManager* const> memoryManager,
     const uint64_t historyCapacity,
     const mepoo::MemoryInfo& memoryInfo) noexcept

@@ -37,7 +37,7 @@ SubscriberPortUser::MemberType_t* SubscriberPortUser::getMembers() noexcept
 }
 
 
-void SubscriberPortUser::subscribe(const uint32_t queueCapacity) noexcept
+void SubscriberPortUser::subscribe(const uint64_t queueCapacity) noexcept
 {
     if (!getMembers()->m_subscribeRequested.load(std::memory_order_relaxed))
     {
@@ -55,7 +55,12 @@ void SubscriberPortUser::subscribe(const uint32_t queueCapacity) noexcept
                       << ", limiting to " << m_chunkReceiver.getMaximumCapacity();
             capacity = m_chunkReceiver.getMaximumCapacity();
         }
-        m_chunkReceiver.setCapacity(capacity);
+
+        // only change the capacity if it has to be changed
+        if (m_chunkReceiver.getCurrentCapacity() != capacity)
+        {
+            m_chunkReceiver.setCapacity(capacity);
+        }
 
         getMembers()->m_subscribeRequested.store(true, std::memory_order_relaxed);
     }

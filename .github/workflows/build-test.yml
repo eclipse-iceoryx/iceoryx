@@ -27,10 +27,9 @@ jobs:
         uses: actions/checkout@v2
  
       - name: Build sources
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean strict
-
-      - name: Build tests
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test strict
+        run: |
+          export NUM_CORES=`nproc`
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test with-dds-gateway clean strict -j $NUM_CORES
 
       - name: Run tests
         run: |
@@ -41,7 +40,8 @@ jobs:
         run: |
           export CC=/usr/bin/clang
           export CXX=/usr/bin/clang++
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean strict
+          export NUM_CORES=`nproc`
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test with-dds-gateway clean strict -j $NUM_CORES
 
  # This job builds & runs iceoryx tests in macos-10.15
   build-test-mac:
@@ -54,7 +54,7 @@ jobs:
       - name : Checkout
         uses: actions/checkout@v2
 
-      - name: Build ncurses by source
+      - name: Build ncurses from source
       # tinfo library which is required by iceoryx_introspection isn't available in mac
         run: |
           cd $GITHUB_WORKSPACE
@@ -66,12 +66,9 @@ jobs:
           ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/ --with-termlib 
           make
           make install
- 
-      - name: Build sources
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh strict
 
-      - name: Build tests
-        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test strict
+      - name: Build sources
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test clean strict
 
       - name: Run tests
         run: |
@@ -92,9 +89,3 @@ jobs:
       - name: Build sources
         run: |
           cmake -Bbuild -Hiceoryx_meta -Dtest=ON && cmake --build build
-
-      - name: Run tests
-      # at the moment we do not support windows therefore we just run a subset of all the tests
-        run: |
-          build\utils\test\Debug\utils_moduletests.exe --gtest_filter="Semaphore*"
-

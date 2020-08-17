@@ -1,7 +1,7 @@
-build/
+/build*/
 install/
 /CMakeLists.txt
 .vscode
-/*/*.user
+/**/*.user
 iceoryx_utils/doc/html/
 iceoryx_utils/doc/latex/

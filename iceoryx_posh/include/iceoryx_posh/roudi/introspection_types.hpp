@@ -44,7 +44,7 @@ struct MemPoolInfo
 using MemPoolInfoContainer = cxx::vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
 
 /// @brief the topic for the mempool introspection that a user can subscribe to
-struct MemPoolIntrospectionTopic
+struct MemPoolIntrospectionInfo
 {
     uint32_t m_id;
     char m_writerGroupName[MAX_GROUP_NAME_LENGTH];
@@ -52,10 +52,12 @@ struct MemPoolIntrospectionTopic
     MemPoolInfoContainer m_mempoolInfo;
 };
 
-const capro::ServiceDescription IntrospectionPortService("Introspection", "RouDi_ID", "Port");
+/// @brief container for MemPoolInfo structs of all available mempools.
+using MemPoolIntrospectionInfoContainer = cxx::vector<MemPoolIntrospectionInfo, MAX_SHM_SEGMENTS + 1>;
 
 /// @brief sender/receiver port information consisting of a process name,a capro service description string
 /// and a runnable name
+const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Port");
 /// @todo if future fixed string is aligned to 8 byte, the alignment here can be removed
 struct PortData
 {
@@ -89,7 +91,7 @@ struct PortIntrospectionFieldTopic
     cxx::vector<SenderPortData, MAX_PORT_NUMBER> m_senderList;
 };
 
-const capro::ServiceDescription IntrospectionPortThroughputService("Introspection", "RouDi_ID", "PortThroughput");
+const capro::ServiceDescription IntrospectionPortThroughputService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "PortThroughput");
 
 struct PortThroughputData
 {
@@ -108,7 +110,7 @@ struct PortThroughputIntrospectionFieldTopic
 };
 
 const capro::ServiceDescription
-    IntrospectionReceiverPortChangingDataService("Introspection", "RouDi_ID", "ReceiverPortsData");
+    IntrospectionReceiverPortChangingDataService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "ReceiverPortsData");
 
 struct ReceiverPortChangingData
 {
@@ -125,7 +127,7 @@ struct ReceiverPortChangingIntrospectionFieldTopic
     cxx::vector<ReceiverPortChangingData, MAX_PORT_NUMBER> receiverPortChangingDataList;
 };
 
-const capro::ServiceDescription IntrospectionProcessService("Introspection", "RouDi_ID", "Process");
+const capro::ServiceDescription IntrospectionProcessService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Process");
 
 struct ProcessIntrospectionData
 {
