@@ -46,8 +46,8 @@ class UDS : public IcePerfBase
 
   private:
     void init() noexcept;
-    void send(const void* buffer, uint32_t length) noexcept;
-    void receive(void* buffer) noexcept;
+    void send(const char* buffer, uint32_t length) noexcept;
+    void receive(char* buffer) noexcept;
     void sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept;
     PerfTopic receivePerfTopic() noexcept;
 

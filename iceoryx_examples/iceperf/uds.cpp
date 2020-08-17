@@ -134,7 +134,7 @@ void UDS::shutdown() noexcept
     }
 }
 
-void UDS::send(const void* buffer, uint32_t length) noexcept
+void UDS::send(const char* buffer, uint32_t length) noexcept
 {
     auto sendCall = iox::cxx::makeSmartC(sendto,
                                          iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
@@ -154,7 +154,7 @@ void UDS::send(const void* buffer, uint32_t length) noexcept
     }
 }
 
-void UDS::receive(void* buffer) noexcept
+void UDS::receive(char* buffer) noexcept
 {
     auto recvCall = iox::cxx::makeSmartC(recvfrom,
                                          iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
@@ -176,7 +176,7 @@ void UDS::receive(void* buffer) noexcept
 
 void UDS::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    uint8_t buffer[payloadSizeInBytes];
+    char buffer[payloadSizeInBytes];
     auto sample = reinterpret_cast<PerfTopic*>(&buffer[0]);
 
     // Specify the payload size for the measurement
@@ -185,14 +185,14 @@ void UDS::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
     if (payloadSizeInBytes <= MAX_MESSAGE_SIZE)
     {
         sample->subPacktes = 1;
-        send(&buffer, payloadSizeInBytes);
+        send(&buffer[0], payloadSizeInBytes);
     }
     else
     {
         sample->subPacktes = payloadSizeInBytes / MAX_MESSAGE_SIZE;
         for (uint32_t i = 0; i < sample->subPacktes; ++i)
         {
-            send(&buffer, MAX_MESSAGE_SIZE);
+            send(&buffer[0], MAX_MESSAGE_SIZE);
         }
     }
 }

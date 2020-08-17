@@ -45,7 +45,8 @@ void MQ::initFollower() noexcept
 
     open(m_subscriberName, iox::posix::IpcChannelSide::SERVER);
 
-    std::cout << "registering with the leader, if no leader this will crash with a socket error now" << std::endl;
+    std::cout << "registering with the leader, if no leader this will crash with a message queue error now"
+              << std::endl;
 
     open(m_publisherName, iox::posix::IpcChannelSide::CLIENT);
 
@@ -54,6 +55,32 @@ void MQ::initFollower() noexcept
 
 void MQ::shutdown() noexcept
 {
+    auto mqCallSubClose = iox::cxx::makeSmartC(
+        mq_close, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_mqDescriptorSubscriber);
+
+    if (mqCallSubClose.hasErrors())
+    {
+        std::cout << "mq_close error" << std::endl;
+        exit(1);
+    }
+
+    auto mqCallSubUnlink = iox::cxx::makeSmartC(
+        mq_unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, m_subscriberName.c_str());
+
+    if (mqCallSubUnlink.hasErrors())
+    {
+        std::cout << "mq_unlink error" << std::endl;
+        exit(1);
+    }
+
+    auto mqCallPubClose = iox::cxx::makeSmartC(
+        mq_close, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_mqDescriptorPublisher);
+
+    if (mqCallPubClose.hasErrors())
+    {
+        std::cout << "mq_close error" << std::endl;
+        exit(1);
+    }
 }
 
 
@@ -171,14 +198,14 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
     }
 }
 
-void MQ::send(const void* buffer, uint32_t length) noexcept
+void MQ::send(const char* buffer, uint32_t length) noexcept
 {
     auto mqCall = iox::cxx::makeSmartC(mq_send,
                                        iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                        {ERROR_CODE},
                                        {},
                                        m_mqDescriptorPublisher,
-                                       static_cast<const char*>(buffer),
+                                       buffer,
                                        length,
                                        1);
 
@@ -189,7 +216,7 @@ void MQ::send(const void* buffer, uint32_t length) noexcept
     }
 }
 
-void MQ::receive(void* buffer) noexcept
+void MQ::receive(char* buffer) noexcept
 {
     char message[MAX_MESSAGE_SIZE];
     auto mqCall = iox::cxx::makeSmartC(mq_receive,
@@ -197,7 +224,7 @@ void MQ::receive(void* buffer) noexcept
                                        {static_cast<ssize_t>(ERROR_CODE)},
                                        {},
                                        m_mqDescriptorSubscriber,
-                                       static_cast<char*>(buffer),
+                                       buffer,
                                        MAX_MESSAGE_SIZE,
                                        nullptr);
 
@@ -210,7 +237,7 @@ void MQ::receive(void* buffer) noexcept
 
 void MQ::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    uint8_t buffer[payloadSizeInBytes];
+    char buffer[payloadSizeInBytes];
     auto sample = reinterpret_cast<PerfTopic*>(&buffer[0]);
 
     // Specify the payload size for the measurement
@@ -219,14 +246,14 @@ void MQ::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
     if (payloadSizeInBytes <= MAX_MESSAGE_SIZE)
     {
         sample->subPacktes = 1;
-        send(&buffer, payloadSizeInBytes);
+        send(&buffer[0], payloadSizeInBytes);
     }
     else
     {
         sample->subPacktes = payloadSizeInBytes / MAX_MESSAGE_SIZE;
         for (uint32_t i = 0; i < sample->subPacktes; ++i)
         {
-            send(&buffer, MAX_MESSAGE_SIZE);
+            send(&buffer[0], MAX_MESSAGE_SIZE);
         }
     }
 }
