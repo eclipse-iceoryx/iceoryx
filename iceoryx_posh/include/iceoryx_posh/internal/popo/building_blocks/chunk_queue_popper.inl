@@ -87,11 +87,7 @@ inline uint64_t ChunkQueuePopper<ChunkQueueDataType>::size() noexcept
 template <typename ChunkQueueDataType>
 inline void ChunkQueuePopper<ChunkQueueDataType>::setCapacity(const uint64_t newCapacity) noexcept
 {
-    /// @todo fix getCapacity and setCapacity issue in queues (uint32 vs uint64)
-    // this needs to be properly fixed by harmonizing the types across the functions, but currently this cast is also
-    // sufficient
-    getMembers()->m_queue.setCapacity(
-        static_cast<typename std::remove_const<decltype(MemberType_t::MAX_CAPACITY)>::type>(newCapacity));
+    getMembers()->m_queue.setCapacity(newCapacity);
 }
 
 template <typename ChunkQueueDataType>
