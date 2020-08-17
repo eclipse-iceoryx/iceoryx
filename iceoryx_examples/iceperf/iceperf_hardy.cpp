@@ -17,6 +17,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "mq.hpp"
 #include "topic_data.hpp"
 #include "uds.hpp"
 
@@ -43,7 +44,9 @@ int main()
 
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
     UDS uds(PUBLISHER, SUBSCRIBER);
+    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
 
+    followerDo(mq);
     followerDo(uds);
     followerDo(iceoryx);
 

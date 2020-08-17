@@ -48,6 +48,10 @@ class MQ : public IcePerfBase
   private:
     void init() noexcept;
     void open(const std::string& name, const iox::posix::IpcChannelSide channelSide) noexcept;
+    void send(const void* buffer, uint32_t length) noexcept;
+    void receive(void* buffer) noexcept;
+    void sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept;
+    PerfTopic receivePerfTopic() noexcept;
 
     const std::string m_publisherName;
     const std::string m_subscriberName;
@@ -56,6 +60,7 @@ class MQ : public IcePerfBase
     mqd_t m_mqDescriptorSubscriber = INVALID_DESCRIPTOR;
     // read/write permissions
     static constexpr mode_t m_filemode{S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH};
+    char m_message[MAX_MESSAGE_SIZE];
 };
 
 #endif // IOX_EXAMPLES_ICEPERF_MQ_HPP

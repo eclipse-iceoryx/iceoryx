@@ -30,22 +30,26 @@ void MQ::initLeader() noexcept
 {
     init();
 
-    open(m_publisherName, iox::posix::IpcChannelSide::SERVER);
+    open(m_subscriberName, iox::posix::IpcChannelSide::SERVER);
 
     std::cout << "waiting for follower" << std::endl;
 
-    // receivePerfTopic();
+    receivePerfTopic();
+
+    open(m_publisherName, iox::posix::IpcChannelSide::CLIENT);
 }
 
 void MQ::initFollower() noexcept
 {
     init();
 
-    open(m_publisherName, iox::posix::IpcChannelSide::SERVER);
+    open(m_subscriberName, iox::posix::IpcChannelSide::SERVER);
 
     std::cout << "registering with the leader, if no leader this will crash with a socket error now" << std::endl;
 
-    // sendPerfTopic(sizeof(PerfTopic), true);
+    open(m_publisherName, iox::posix::IpcChannelSide::CLIENT);
+
+    sendPerfTopic(sizeof(PerfTopic), true);
 }
 
 void MQ::shutdown() noexcept
@@ -55,23 +59,56 @@ void MQ::shutdown() noexcept
 
 void MQ::prePingPongLeader(uint32_t payloadSizeInBytes) noexcept
 {
+    sendPerfTopic(payloadSizeInBytes, true);
 }
 
 void MQ::postPingPongLeader() noexcept
 {
+    // Wait for the last response
+    receivePerfTopic();
+
+    std::cout << "done" << std::endl;
 }
 
 void MQ::triggerEnd() noexcept
 {
+    sendPerfTopic(sizeof(PerfTopic), false);
 }
 
 double MQ::pingPongLeader(int64_t numRoundTrips) noexcept
 {
-    return 0.0;
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // run the performance test
+    for (auto i = 0; i < numRoundTrips; ++i)
+    {
+        auto perfTopic = receivePerfTopic();
+        sendPerfTopic(perfTopic.payloadSize, true);
+    }
+
+    auto finish = std::chrono::high_resolution_clock::now();
+
+    constexpr int64_t TRANSMISSIONS_PER_ROUNDTRIP{2};
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
+    auto latencyInNanoSeconds = (duration.count() / (numRoundTrips * TRANSMISSIONS_PER_ROUNDTRIP));
+    auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000;
+    return latencyInMicroSeconds;
 }
 
 void MQ::pingPongFollower() noexcept
 {
+    while (true)
+    {
+        auto perfTopic = receivePerfTopic();
+
+        // stop replying when no more run
+        if (!perfTopic.run)
+        {
+            break;
+        }
+
+        sendPerfTopic(perfTopic.payloadSize, true);
+    }
 }
 
 void MQ::init() noexcept
@@ -126,10 +163,87 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
 
     if (channelSide == iox::posix::IpcChannelSide::SERVER)
     {
-        m_mqDescriptorPublisher = mqCall.getReturnValue();
+        m_mqDescriptorSubscriber = mqCall.getReturnValue();
     }
     else
     {
-        m_mqDescriptorSubscriber = mqCall.getReturnValue();
+        m_mqDescriptorPublisher = mqCall.getReturnValue();
     }
+}
+
+void MQ::send(const void* buffer, uint32_t length) noexcept
+{
+    auto mqCall = iox::cxx::makeSmartC(mq_send,
+                                       iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                       {ERROR_CODE},
+                                       {},
+                                       m_mqDescriptorPublisher,
+                                       static_cast<const char*>(buffer),
+                                       length,
+                                       1);
+
+    if (mqCall.hasErrors())
+    {
+        std::cout << std::endl << "send error" << std::endl;
+        exit(1);
+    }
+}
+
+void MQ::receive(void* buffer) noexcept
+{
+    char message[MAX_MESSAGE_SIZE];
+    auto mqCall = iox::cxx::makeSmartC(mq_receive,
+                                       iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                       {static_cast<ssize_t>(ERROR_CODE)},
+                                       {},
+                                       m_mqDescriptorSubscriber,
+                                       static_cast<char*>(buffer),
+                                       MAX_MESSAGE_SIZE,
+                                       nullptr);
+
+    if (mqCall.hasErrors())
+    {
+        std::cout << "receive error" << std::endl;
+        exit(1);
+    }
+}
+
+void MQ::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
+{
+    uint8_t buffer[payloadSizeInBytes];
+    auto sample = reinterpret_cast<PerfTopic*>(&buffer[0]);
+
+    // Specify the payload size for the measurement
+    sample->payloadSize = payloadSizeInBytes;
+    sample->run = runFlag;
+    if (payloadSizeInBytes <= MAX_MESSAGE_SIZE)
+    {
+        sample->subPacktes = 1;
+        send(&buffer, payloadSizeInBytes);
+    }
+    else
+    {
+        sample->subPacktes = payloadSizeInBytes / MAX_MESSAGE_SIZE;
+        for (uint32_t i = 0; i < sample->subPacktes; ++i)
+        {
+            send(&buffer, MAX_MESSAGE_SIZE);
+        }
+    }
+}
+
+PerfTopic MQ::receivePerfTopic() noexcept
+{
+    receive(&m_message[0]);
+
+    auto receivedSample = reinterpret_cast<const PerfTopic*>(&m_message[0]);
+
+    if (receivedSample->subPacktes > 1)
+    {
+        for (uint32_t i = 0; i < receivedSample->subPacktes - 1; ++i)
+        {
+            receive(&m_message[0]);
+        }
+    }
+
+    return *receivedSample;
 }
