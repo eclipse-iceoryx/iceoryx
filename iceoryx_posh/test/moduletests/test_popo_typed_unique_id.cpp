@@ -20,6 +20,42 @@ using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::cxx;
 
+TEST(TypedUniqueId_RouDiId, SettingTheRouDiIdWorks)
+{
+    uint16_t someId = 1243u;
+    iox::popo::internal::setUniqueRouDiId(someId);
+    EXPECT_EQ(iox::popo::internal::getUniqueRouDiId(), someId);
+    iox::popo::internal::unsetUniqueRouDiId();
+}
+
+TEST(TypedUniqueId_RouDiId, SettingTheRouDiIdTwiceFails)
+{
+    uint16_t someId = 1243u;
+    bool errorHandlerCalled = false;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
+                              const std::function<void()>,
+                              const iox::ErrorLevel) { errorHandlerCalled = true; });
+
+    iox::popo::internal::setUniqueRouDiId(someId);
+    EXPECT_FALSE(errorHandlerCalled);
+    iox::popo::internal::setUniqueRouDiId(someId);
+    EXPECT_TRUE(errorHandlerCalled);
+    iox::popo::internal::unsetUniqueRouDiId();
+}
+
+TEST(TypedUniqueId_RouDiId, GettingTheRouDiIdWithoutSettingFails)
+{
+    bool errorHandlerCalled = false;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
+                              const std::function<void()>,
+                              const iox::ErrorLevel) { errorHandlerCalled = true; });
+
+    iox::popo::internal::getUniqueRouDiId();
+    EXPECT_TRUE(errorHandlerCalled);
+}
+
 template <typename T>
 class TypedUniqueId_test : public Test
 {
