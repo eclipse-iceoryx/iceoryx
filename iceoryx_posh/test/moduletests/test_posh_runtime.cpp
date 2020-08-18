@@ -130,15 +130,12 @@ TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 
 TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
 {
-    uint32_t uniqueIdCounter = iox::popo::BasePortData::s_uniqueIdCounter;
-
     const auto applicationPortData = m_runtime->getMiddlewareApplication();
 
     ASSERT_NE(nullptr, applicationPortData);
     EXPECT_EQ(m_runtimeName, applicationPortData->m_processName);
     EXPECT_EQ(iox::capro::ServiceDescription(0u, 0u, 0u), applicationPortData->m_serviceDescription);
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
-    EXPECT_EQ(uniqueIdCounter, applicationPortData->m_uniqueId);
 }
 
 

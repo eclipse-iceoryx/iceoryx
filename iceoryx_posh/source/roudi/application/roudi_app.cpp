@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -168,6 +169,11 @@ void RouDiApp::setCmdLineParserResults(const CmdLineParser& cmdLineParser) noexc
     m_logLevel = cmdLineParser.getLogLevel();
     // the "and" is intentional, just in case the the provided RouDiConfig_t is empty
     m_run &= cmdLineParser.getRun();
+    auto uniqueId = cmdLineParser.getUniqueRouDiId();
+    if (uniqueId)
+    {
+        popo::internal::setUniqueRouDiId(*uniqueId);
+    }
 }
 
 void RouDiApp::parseCmdLineArguments(int argc,
