@@ -31,12 +31,8 @@ template <uint64_t N>
 using charTemp = char[N];
 
 /// @brief struct to get capacity of fixed string/string literal
-/// @note capa is a dummy value for any other type than cxx::string and char
 template <typename T>
-struct GetCapa
-{
-    static constexpr uint64_t capa = 0;
-};
+struct GetCapa;
 
 template <uint64_t N>
 struct GetCapa<string<N>>
@@ -48,6 +44,13 @@ template <uint64_t N>
 struct GetCapa<char[N]>
 {
     static constexpr uint64_t capa = N - 1;
+};
+
+/// @note capa is a dummy value; this struct is only needed for the find function, otherwise we get compile errors
+template <>
+struct GetCapa<std::string>
+{
+    static constexpr uint64_t capa = 0;
 };
 
 /// @brief struct to get size of fixed string/string literal/std::string
@@ -126,19 +129,6 @@ template <typename T, typename... Targs>
 struct SumCapa<T, Targs...>
 {
     static constexpr uint64_t value = GetCapa<T>::capa + SumCapa<Targs...>::value;
-};
-
-/// @brief struct to check whether an argument is of type std::string
-template <typename T>
-struct IsString
-{
-    static constexpr bool value = false;
-};
-
-template <>
-struct IsString<std::string>
-{
-    static constexpr bool value = true;
 };
 } // namespace internal
 } // namespace cxx
