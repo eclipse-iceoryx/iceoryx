@@ -126,7 +126,7 @@ void UDS::shutdown() noexcept
 
 void UDS::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    char buffer[payloadSizeInBytes];
+    char* buffer = new char[payloadSizeInBytes];
     auto sample = reinterpret_cast<PerfTopic*>(&buffer[0]);
 
     // Specify the payload size for the measurement
@@ -145,6 +145,7 @@ void UDS::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
             send(&buffer[0], MAX_MESSAGE_SIZE);
         }
     }
+    delete[] buffer;
 }
 
 PerfTopic UDS::receivePerfTopic() noexcept
