@@ -521,6 +521,9 @@ TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatCallsLessCallbacksThanASAPT
     TIMING_TEST_EXPECT_TRUE(softTimerCounter < asapTimerCounter);
 });
 
+/// Unit tests which segfaults (issue #243). If the segfault is fixed this unit test has
+/// to be adjusted but for the moment it seems that it causes the segfault
+/// reliable.
 TEST_F(Timer_test, DISABLED_SelfTriggeringTimerWorksAndDoesNotCauseSegFault)
 {
     Duration selfTriggerTimeout = 1_ns;
@@ -528,6 +531,9 @@ TEST_F(Timer_test, DISABLED_SelfTriggeringTimerWorksAndDoesNotCauseSegFault)
     std::atomic_int counter{0};
     {
         Timer sut(selfTriggerTimeout, [&] {
+            /// this timing is set to provoke the segfault. if the timing is
+            /// decreased the segfault is more unlikely to occure but with a
+            /// value of 100 ms it always happens. see issue #243
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             if (counter < repetitions)
             {
@@ -538,6 +544,8 @@ TEST_F(Timer_test, DISABLED_SelfTriggeringTimerWorksAndDoesNotCauseSegFault)
         });
 
         sut.start(Timer::RunMode::ONCE, Timer::CatchUpPolicy::IMMEDIATE);
+
+        /// this time seems to be sufficient to cause the segfault
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
