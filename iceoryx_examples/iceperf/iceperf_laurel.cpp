@@ -88,10 +88,13 @@ int main(int argc, char* argv[])
 
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
     UDS uds(PUBLISHER, SUBSCRIBER);
-    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
 
+#ifndef __APPLE__ 
+    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
     std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
     leaderDo(mq, numRoundtrips);
+#endif
+    
     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
     leaderDo(uds, numRoundtrips);
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;

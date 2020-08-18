@@ -44,11 +44,14 @@ int main()
 
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
     UDS uds(PUBLISHER, SUBSCRIBER);
-    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
 
+#ifndef __APPLE__ 
+    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
     std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
     followerDo(mq);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // ensure leader first
+#endif
+    
     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
     followerDo(uds);
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
