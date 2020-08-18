@@ -465,6 +465,17 @@ class string
     template <typename T>
     iox::cxx::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept;
 
+    /// @brief finds the last occurence of a character equal to one of the characters of the given character sequence
+    /// and returns its position; returns iox::cxx::nullopt if no character is found
+    ///
+    /// @param [in] t is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] pos is the position at which to finish the search
+    ///
+    /// @return an optional containing the position of the last character equal to one of the characters of the given
+    /// character sequence, iox::cxx::optional if no character is found
+    template <typename T>
+    iox::cxx::optional<uint64_t> find_last_of(const T& t, uint64_t pos = Capacity) const noexcept;
+
     template <uint64_t N>
     friend class string;
 

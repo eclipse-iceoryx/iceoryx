@@ -137,9 +137,10 @@ In the second step, the functionality has been extended:
 
     	template <typename T>
     	iox::cxx::optional<uint64_t> find(const T& t, uint64_t pos = 0) const noexcept;
-
 	    template <typename T>
 	    iox::cxx::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept;
+    	template <typename T>
+    	iox::cxx::optional<uint64_t> find_last_of(const T& t, uint64_t pos = Capacity) const noexcept;
 	};
 
 	template <uint64_t Capacity>

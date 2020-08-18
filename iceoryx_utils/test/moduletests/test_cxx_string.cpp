@@ -1683,6 +1683,13 @@ TYPED_TEST(stringTyped_test, FindStringInEmptyStringFails)
     string<STRINGCAP + 5> testString("a");
     auto res = this->testSubject.find(testString);
     EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = this->testSubject.find("a");
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    std::string testStdString = "a";
+    res = this->testSubject.find(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TEST(String100, FindStringInNotEmptyStringWorks)
@@ -1748,13 +1755,6 @@ TEST(String100, FindNotIncludedStringLiteralFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
-TYPED_TEST(stringTyped_test, FindSTDStringInEmptyStringFails)
-{
-    std::string testStdString = "a";
-    auto res = this->testSubject.find(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
-}
-
 TEST(String100, FindSTDStringInNotEmptyStringWorks)
 {
     string<100> testString("R2-D2");
@@ -1810,6 +1810,13 @@ TYPED_TEST(stringTyped_test, FindFirstOfForStringInEmptyStringFails)
     constexpr auto STRINGCAP = myString().capacity();
     string<STRINGCAP + 5> testString("a");
     auto res = this->testSubject.find_first_of(testString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = this->testSubject.find_first_of("a");
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    std::string testStdString = "a";
+    res = this->testSubject.find_first_of(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
@@ -1892,13 +1899,6 @@ TEST(String100, FindFirstOfForNotIncludedStringLiteralFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
-TYPED_TEST(stringTyped_test, FindFirstOfForSTDStringInEmptyStringFails)
-{
-    std::string testStdString = "a";
-    auto res = this->testSubject.find_first_of(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
-}
-
 TEST(String100, FindFirstOfForSTDStringInNotEmptyStringWorks)
 {
     string<100> testString("R2-D2");
@@ -1936,6 +1936,153 @@ TEST(String100, FindFirstOfForNotIncludedSTDStringFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 
     res = testString.find_first_of(testStdString, 50);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+/// @note template <typename T>
+/// iox::cxx::optional<uint64_t> find_last_of(const T& t, uint64_t pos = 0) const noexcept
+TYPED_TEST(stringTyped_test, FindLastOfFailsForEmptyStringInEmptyString)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 5> testString;
+    auto res = this->testSubject.find_last_of(testString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = this->testSubject.find_last_of("");
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    std::string testStdString;
+    res = this->testSubject.find_last_of(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TYPED_TEST(stringTyped_test, FindLastOfForStringInEmptyStringFails)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 5> testString("a");
+    auto res = this->testSubject.find_last_of(testString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = this->testSubject.find_last_of("a");
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    std::string testStdString = "a";
+    res = this->testSubject.find_last_of(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TEST(String100, FindLastOfForStringInNotEmptyStringWorks)
+{
+    string<10> testString("R2-D2");
+    string<100> substring1("2");
+    auto res = testString.find_last_of(substring1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+
+    res = testString.find_last_of(substring1, 1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(1));
+
+    res = testString.find_last_of(substring1, 5);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+
+    string<100> substring2("D3R");
+    res = testString.find_last_of(substring2);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(3));
+
+    res = testString.find_last_of(substring2, 1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(0));
+}
+
+TEST(String100, FindLastOfForNotIncludedStringFails)
+{
+    string<100> testString("Kernfusionsbaby");
+    string<100> substring("cdG");
+    auto res = testString.find_last_of(substring);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_last_of(substring, 0);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_last_of(substring, 50);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TEST(String100, FindLastOfForStringLiteralInNotEmptyStringWorks)
+{
+    string<100> testString1("Mueslimaedchen");
+    auto res = testString1.find_last_of("lima");
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(7));
+
+    res = testString1.find_last_of("lima", 5);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(5));
+
+    res = testString1.find_last_of("e", 7);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(2));
+
+    res = testString1.find_last_of("U3M");
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(0));
+}
+
+TEST(String100, FindLastOfForNotIncludedStringLiteralFails)
+{
+    string<100> testString("Kernfusionsbaby");
+    auto res = testString.find_last_of("cd");
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_last_of("cd", 0);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_last_of("cd", 50);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TEST(String100, FindLastOfForSTDStringInNotEmptyStringWorks)
+{
+    string<100> testString("R2-D2");
+    std::string testStdString1 = "2";
+    auto res = testString.find_last_of(testStdString1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+
+    res = testString.find_last_of(testStdString1, 1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(1));
+
+    res = testString.find_last_of(testStdString1, 5);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+
+    std::string testStdString2 = "D3R";
+    res = testString.find_last_of(testStdString2);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(3));
+
+    res = testString.find_last_of(testStdString2, 1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(0));
+}
+
+TEST(String100, FindLastOfForNotIncludedSTDStringFails)
+{
+    string<100> testString("Kernfusionsbaby");
+    std::string testStdString = "cd";
+    auto res = testString.find_last_of(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_last_of(testStdString, 0);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_last_of(testStdString, 50);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 } // namespace
