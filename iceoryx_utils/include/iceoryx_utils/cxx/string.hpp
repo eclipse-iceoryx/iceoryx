@@ -443,7 +443,7 @@ class string
     iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
 
     /// @brief finds the first occurence of the given character sequence; returns the position of the first character of
-    /// the found substring or iox::cxx::nullopt if no substring is found
+    /// the found substring, returns iox::cxx::nullopt if no substring is found or if pos is greater than this' size
     ///
     /// @param [in] t is the character sequence to search for; must be a cxx::string, string literal or std::string
     /// @param [in] pos is the position at which to start the search
@@ -452,6 +452,18 @@ class string
     /// no substring is found
     template <typename T>
     iox::cxx::optional<uint64_t> find(const T& t, uint64_t pos = 0) const noexcept;
+
+    /// @brief finds the first occurence of a character equal to one of the characters of the given character sequence
+    /// and returns its position; returns iox::cxx::nullopt if no character is found or if pos is greater than this'
+    /// size
+    ///
+    /// @param [in] t is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] pos is the position at which to start the search
+    ///
+    /// @return an optional containing the position of the first character equal to one of the characters of the given
+    /// character sequence, iox::cxx::optional if no character is found
+    template <typename T>
+    iox::cxx::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept;
 
     template <uint64_t N>
     friend class string;

@@ -1716,13 +1716,6 @@ TEST(String100, FindNotIncludedStringFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
-TYPED_TEST(stringTyped_test, FindEmptyStringLiteralInEmptyStringWorks)
-{
-    auto res = this->testSubject.find("");
-    EXPECT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(0));
-}
-
 TEST(String100, FindStringLiteralInNotEmptyStringWorks)
 {
     string<100> testString1("Mueslimaedchen");
@@ -1790,6 +1783,159 @@ TEST(String100, FindNotIncludedSTDStringFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 
     res = testString.find(testStdString, 50);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+/// @note template <typename T>
+/// iox::cxx::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept
+TYPED_TEST(stringTyped_test, FindFirstOfFailsForEmptyStringInEmptyString)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 5> testString;
+    auto res = this->testSubject.find_first_of(testString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = this->testSubject.find_first_of("");
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    std::string testStdString;
+    res = this->testSubject.find_first_of(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TYPED_TEST(stringTyped_test, FindFirstOfForStringInEmptyStringFails)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 5> testString("a");
+    auto res = this->testSubject.find_first_of(testString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TEST(String100, FindFirstOfForStringInNotEmptyStringWorks)
+{
+    string<10> testString("R2-D2");
+    string<100> substring1("2");
+    auto res = testString.find_first_of(substring1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(1));
+
+    res = testString.find_first_of(substring1, 1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(1));
+
+    res = testString.find_first_of(substring1, 2);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+
+    string<100> substring2("D3R");
+    res = testString.find_first_of(substring2);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(0));
+
+    res = testString.find_first_of(substring2, 1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(3));
+}
+
+TEST(String100, FindFirstOfForNotIncludedStringFails)
+{
+    string<100> testString("Kernfusionsbaby");
+    string<100> substring("cdG");
+    auto res = testString.find_first_of(substring);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_first_of(substring, 0);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_first_of(substring, 50);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TEST(String100, FindFirstOfForStringLiteralInNotEmptyStringWorks)
+{
+    string<100> testString1("Mueslimaedchen");
+    auto res = testString1.find_first_of("lima");
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+
+    res = testString1.find_first_of("lima", 2);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+
+    res = testString1.find_first_of("e", 10);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(12));
+
+    res = testString1.find_first_of("U3M");
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(0));
+
+    std::string testStdString{"ice\0ryx", 7};
+    string<100> testString2(TruncateToCapacity, testStdString.c_str(), 7);
+    res = testString2.find_first_of("e\0ry", 0);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(2));
+}
+
+TEST(String100, FindFirstOfForNotIncludedStringLiteralFails)
+{
+    string<100> testString("Kernfusionsbaby");
+    auto res = testString.find_first_of("cd");
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_first_of("cd", 0);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_first_of("cd", 50);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TYPED_TEST(stringTyped_test, FindFirstOfForSTDStringInEmptyStringFails)
+{
+    std::string testStdString = "a";
+    auto res = this->testSubject.find_first_of(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TEST(String100, FindFirstOfForSTDStringInNotEmptyStringWorks)
+{
+    string<100> testString("R2-D2");
+    std::string testStdString1 = "2";
+    auto res = testString.find_first_of(testStdString1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(1));
+
+    res = testString.find_first_of(testStdString1, 1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(1));
+
+    res = testString.find_first_of(testStdString1, 2);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+
+    std::string testStdString2 = "D3R";
+    res = testString.find_first_of(testStdString2);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(0));
+
+    res = testString.find_first_of(testStdString2, 1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(3));
+}
+
+TEST(String100, FindFirstOfForNotIncludedSTDStringFails)
+{
+    string<100> testString("Kernfusionsbaby");
+    std::string testStdString = "cd";
+    auto res = testString.find_first_of(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_first_of(testStdString, 0);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find_first_of(testStdString, 50);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 } // namespace

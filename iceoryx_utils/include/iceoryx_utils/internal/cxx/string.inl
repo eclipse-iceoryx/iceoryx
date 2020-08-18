@@ -546,6 +546,30 @@ inline iox::cxx::optional<uint64_t> string<Capacity>::find(const T& t, uint64_t 
     }
     return (found - c_str());
 }
+
+template <uint64_t Capacity>
+template <typename T>
+inline iox::cxx::optional<uint64_t> string<Capacity>::find_first_of(const T& t, uint64_t pos) const noexcept
+{
+    static_assert(internal::IsString<T>::value || std::is_same<T, char[internal::GetCapa<T>::capa + 1]>::value
+                      || std::is_same<T, string<internal::GetCapa<T>::capa>>::value,
+                  "The character sequence must be a cxx::string, string literal or std::string.");
+
+    if (pos > m_rawstringSize)
+    {
+        return iox::cxx::nullopt;
+    }
+    const char* found = nullptr;
+    for (; pos < m_rawstringSize; ++pos)
+    {
+        found = std::strstr(internal::GetData<T>::call(t), substr(pos, 1).value().c_str());
+        if (found != nullptr)
+        {
+            return pos;
+        }
+    }
+    return iox::cxx::nullopt;
+}
 } // namespace cxx
 } // namespace iox
 
