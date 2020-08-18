@@ -1654,4 +1654,142 @@ TYPED_TEST(stringTyped_test, SubstrWithInvalidPosFails)
     auto substr = this->testSubject.substr(STRINGCAP + 1, STRINGCAP + 2);
     EXPECT_THAT(substr.has_value(), Eq(false));
 }
+
+/// @note template <typename T>
+/// iox::cxx::optional<uint64_t> find(const T& t, uint64_t pos = 0) const noexcept
+TYPED_TEST(stringTyped_test, FindEmptyStringInEmptyStringWorks)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 5> testString;
+    auto res = this->testSubject.find(testString);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(0));
+
+    res = this->testSubject.find("");
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(0));
+
+    std::string testStdString;
+    res = this->testSubject.find(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(0));
+}
+
+TYPED_TEST(stringTyped_test, FindStringInEmptyStringFails)
+{
+    using myString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = myString().capacity();
+    string<STRINGCAP + 5> testString("a");
+    auto res = this->testSubject.find(testString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TEST(String100, FindStringInNotEmptyStringWorks)
+{
+    string<10> testString("R2-D2");
+    string<100> substring("2");
+    auto res = testString.find(substring);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(1));
+
+    res = testString.find(substring, 1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(1));
+
+    res = testString.find(substring, 2);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+}
+
+TEST(String100, FindNotIncludedStringFails)
+{
+    string<100> testString("Kernfusionsbaby");
+    string<100> substring("abc");
+    auto res = testString.find(substring);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find(substring, 0);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find(substring, 50);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TYPED_TEST(stringTyped_test, FindEmptyStringLiteralInEmptyStringWorks)
+{
+    auto res = this->testSubject.find("");
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(0));
+}
+
+TEST(String100, FindStringLiteralInNotEmptyStringWorks)
+{
+    string<100> testString1("Mueslimaedchen");
+    auto res = testString1.find("lima");
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+
+    res = testString1.find("lima", 2);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+
+    res = testString1.find("e", 10);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(12));
+
+    std::string testStdString{"ice\0ryx", 7};
+    string<100> testString2(TruncateToCapacity, testStdString.c_str(), 7);
+    res = testString2.find("e\0ry", 0);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(2));
+}
+
+TEST(String100, FindNotIncludedStringLiteralFails)
+{
+    string<100> testString("Kernfusionsbaby");
+    auto res = testString.find("abc");
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find("abc", 50);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TYPED_TEST(stringTyped_test, FindSTDStringInEmptyStringFails)
+{
+    std::string testStdString = "a";
+    auto res = this->testSubject.find(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
+
+TEST(String100, FindSTDStringInNotEmptyStringWorks)
+{
+    string<100> testString("R2-D2");
+    std::string testStdString = "2";
+    auto res = testString.find(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(1));
+
+    res = testString.find(testStdString, 1);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(1));
+
+    res = testString.find(testStdString, 2);
+    EXPECT_THAT(res.has_value(), Eq(true));
+    EXPECT_THAT(res.value(), Eq(4));
+}
+
+TEST(String100, FindNotIncludedSTDStringFails)
+{
+    string<100> testString("Kernfusionsbaby");
+    std::string testStdString = "abc";
+    auto res = testString.find(testStdString);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find(testStdString, 0);
+    EXPECT_THAT(res.has_value(), Eq(false));
+
+    res = testString.find(testStdString, 50);
+    EXPECT_THAT(res.has_value(), Eq(false));
+}
 } // namespace

@@ -16,6 +16,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <string>
 
 namespace iox
 {
@@ -45,7 +46,14 @@ struct GetCapa<char[N]>
     static constexpr uint64_t capa = N - 1;
 };
 
-/// @brief struct to get size of fixed string/string literal
+/// @note capa is a dummy value; this specialization is needed for the find function, otherwise we get compile errors
+template <>
+struct GetCapa<std::string>
+{
+    static constexpr uint64_t capa = 0;
+};
+
+/// @brief struct to get size of fixed string/string literal/std::string
 template <typename T>
 struct GetSize;
 
@@ -67,7 +75,16 @@ struct GetSize<char[N]>
     }
 };
 
-/// @brief struct to get a pointer to the char array of the fixed string/string literal
+template <>
+struct GetSize<std::string>
+{
+    static uint64_t call(const std::string& data)
+    {
+        return data.size();
+    }
+};
+
+/// @brief struct to get a pointer to the char array of the fixed string/string literal/std::string
 template <typename T>
 struct GetData;
 
@@ -89,6 +106,15 @@ struct GetData<char[N]>
     }
 };
 
+template <>
+struct GetData<std::string>
+{
+    static const char* call(const std::string& data)
+    {
+        return data.data();
+    }
+};
+
 /// @brief struct to get the sum of the capacities of fixed strings/string literals
 template <typename... Targs>
 struct SumCapa;
@@ -103,6 +129,19 @@ template <typename T, typename... Targs>
 struct SumCapa<T, Targs...>
 {
     static constexpr uint64_t value = GetCapa<T>::capa + SumCapa<Targs...>::value;
+};
+
+/// @brief struct to check whether an argument is of type std::string
+template <typename T>
+struct IsString
+{
+    static constexpr bool value = false;
+};
+
+template <>
+struct IsString<std::string>
+{
+    static constexpr bool value = true;
 };
 } // namespace internal
 } // namespace cxx

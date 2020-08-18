@@ -420,6 +420,12 @@ inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 template <typename T1, typename T2>
 inline string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2)
 {
+    static_assert((std::is_same<T1, char[internal::GetCapa<T1>::capa + 1]>::value
+                   || std::is_same<T1, string<internal::GetCapa<T1>::capa>>::value)
+                      && (std::is_same<T2, char[internal::GetCapa<T2>::capa + 1]>::value
+                          || std::is_same<T2, string<internal::GetCapa<T2>::capa>>::value),
+                  "The character sequence must be a cxx::string or string literal.");
+
     uint64_t size1 = internal::GetSize<T1>::call(t1);
     uint64_t size2 = internal::GetSize<T2>::call(t2);
     typedef string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> newStringType;
@@ -441,6 +447,12 @@ inline string<internal::SumCapa<T1, T2, Targs...>::value> concatenate(const T1& 
 template <typename T1, typename T2>
 inline string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> operator+(const T1& t1, const T2& t2)
 {
+    static_assert((std::is_same<T1, char[internal::GetCapa<T1>::capa + 1]>::value
+                   || std::is_same<T1, string<internal::GetCapa<T1>::capa>>::value)
+                      && (std::is_same<T2, char[internal::GetCapa<T2>::capa + 1]>::value
+                          || std::is_same<T2, string<internal::GetCapa<T2>::capa>>::value),
+                  "The character sequence must be a cxx::string or string literal.");
+
     return concatenate(t1, t2);
 }
 
@@ -448,6 +460,10 @@ template <uint64_t Capacity>
 template <typename T>
 inline bool string<Capacity>::unsafe_append(const T& t) noexcept
 {
+    static_assert(std::is_same<T, char[internal::GetCapa<T>::capa + 1]>::value
+                      || std::is_same<T, string<internal::GetCapa<T>::capa>>::value,
+                  "The character sequence must be a cxx::string or string literal.");
+
     uint64_t tSize = internal::GetSize<T>::call(t);
     if (Capacity < (m_rawstringSize + tSize))
     {
@@ -464,6 +480,10 @@ template <uint64_t Capacity>
 template <typename T>
 inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
 {
+    static_assert(std::is_same<T, char[internal::GetCapa<T>::capa + 1]>::value
+                      || std::is_same<T, string<internal::GetCapa<T>::capa>>::value,
+                  "The character sequence must be a cxx::string or string literal.");
+
     uint64_t tSize = internal::GetSize<T>::call(t);
     const char* tData = internal::GetData<T>::call(t);
     if (Capacity < (m_rawstringSize + tSize))
@@ -505,6 +525,26 @@ template <uint64_t Capacity>
 inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(uint64_t pos) const noexcept
 {
     return substr(pos, m_rawstringSize);
+}
+
+template <uint64_t Capacity>
+template <typename T>
+inline iox::cxx::optional<uint64_t> string<Capacity>::find(const T& t, uint64_t pos) const noexcept
+{
+    static_assert(internal::IsString<T>::value || std::is_same<T, char[internal::GetCapa<T>::capa + 1]>::value
+                      || std::is_same<T, string<internal::GetCapa<T>::capa>>::value,
+                  "The character sequence must be a cxx::string, string literal or std::string.");
+
+    if (pos > m_rawstringSize)
+    {
+        return iox::cxx::nullopt;
+    }
+    const char* found = std::strstr(c_str() + pos, internal::GetData<T>::call(t));
+    if (found == nullptr)
+    {
+        return iox::cxx::nullopt;
+    }
+    return (found - c_str());
 }
 } // namespace cxx
 } // namespace iox
