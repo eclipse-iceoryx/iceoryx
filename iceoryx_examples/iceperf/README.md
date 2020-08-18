@@ -2,13 +2,13 @@
 
 ## Introduction
 
-This example measures the latency of an IPC transmission between two applications.
+This example measures the latency of a IPC transmissions between two applications.
 We compare the latency of iceoryx with message queues and unix domain sockets
 
 ## Run iceperf
 
 Create three terminals and run one command in each of them. 
-The order is first the RouDi daemon, then iceperf-laurel which is the leader in this setup and then iceperf-laurel for doing the ping pong measurements with iceperf-laurel. You can set the number of measurement iteration (number of roundtrips) with a command line paramter of iceperf-laurel (e.g. ./iceperf-laurel 10000)
+The order is first the RouDi daemon, then iceperf-laurel which is the leader in this setup and then iceperf-laurel for doing the ping pong measurements with iceperf-laurel. You can set the number of measurement iterations (number of roundtrips) with a command line paramter of iceperf-laurel (e.g. ./iceperf-laurel 100000)
 
     # If installed and available in PATH environment variable
     iox-roudi
