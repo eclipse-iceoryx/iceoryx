@@ -81,7 +81,7 @@ class SubscriberPortUser
     bool hasLostChunks() noexcept;
 
     /// @todo we first need the new condition variable
-    void attachConditionVariable() noexcept;
+    bool attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
     void detachConditionVaribale() noexcept;
     bool isConditionVariableAttached() noexcept;
 
