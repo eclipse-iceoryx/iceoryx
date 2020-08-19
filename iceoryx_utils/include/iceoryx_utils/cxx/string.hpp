@@ -35,7 +35,10 @@ namespace cxx
 ///     auto bar = iox::cxx::concatenate(fuu, "ahc");
 /// @endcode
 template <typename T1, typename T2>
-string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2);
+typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
+                            && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
+                        string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+concatenate(const T1& t1, const T2& t2);
 
 /// @brief concatenates an arbitrary number of fixed strings or string literals
 ///
@@ -48,7 +51,10 @@ string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(co
 ///     auto bar = iox::cxx::concatenate(fuu, "g", "ah", fuu);
 /// @endcode
 template <typename T1, typename T2, typename... Targs>
-string<internal::SumCapa<T1, T2, Targs...>::value> concatenate(const T1& t1, const T2& t2, const Targs&... targs);
+typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
+                            && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
+                        string<internal::SumCapa<T1, T2, Targs...>::value>>::type
+concatenate(const T1& t1, const T2& t2, const Targs&... targs);
 
 /// @brief concatenates two fixed strings or one fixed fixed string and one string literal; concatenation of two string
 /// literals is not possible
@@ -57,7 +63,11 @@ string<internal::SumCapa<T1, T2, Targs...>::value> concatenate(const T1& t1, con
 ///
 /// @return a new fixed string with capacity equal to the sum of the capacities of the concatenated strings
 template <typename T1, typename T2>
-string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> operator+(const T1& t1, const T2& t2);
+typename std::enable_if<(internal::IsCharArray<T1>::value && internal::IsCxxString<T2>::value)
+                            || (internal::IsCxxString<T1>::value && internal::IsCharArray<T2>::value)
+                            || (internal::IsCxxString<T1>::value && internal::IsCxxString<T2>::value),
+                        string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+operator+(const T1& t1, const T2& t2);
 
 /// @brief struct used to define a compile time variable which is used to distinguish between
 /// constructors with certain behavior
@@ -491,7 +501,10 @@ class string
     friend class string;
 
     template <typename T1, typename T2>
-    friend string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2);
+    friend typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
+                                       && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
+                                   string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+    concatenate(const T1& t1, const T2& t2);
 
   private:
     /// @brief copies rhs fixed string to lhs fixed string with compile time check whether rhs capacity is lesser than

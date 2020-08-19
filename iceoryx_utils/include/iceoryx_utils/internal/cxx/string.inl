@@ -418,14 +418,11 @@ inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 }
 
 template <typename T1, typename T2>
-inline string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concatenate(const T1& t1, const T2& t2)
+inline typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
+                                   && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
+                               string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+concatenate(const T1& t1, const T2& t2)
 {
-    static_assert((std::is_same<T1, char[internal::GetCapa<T1>::capa + 1]>::value
-                   || std::is_same<T1, string<internal::GetCapa<T1>::capa>>::value)
-                      && (std::is_same<T2, char[internal::GetCapa<T2>::capa + 1]>::value
-                          || std::is_same<T2, string<internal::GetCapa<T2>::capa>>::value),
-                  "The character sequence must be a cxx::string or string literal.");
-
     uint64_t size1 = internal::GetSize<T1>::call(t1);
     uint64_t size2 = internal::GetSize<T2>::call(t2);
     typedef string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> newStringType;
@@ -439,20 +436,21 @@ inline string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> concate
 }
 
 template <typename T1, typename T2, typename... Targs>
-inline string<internal::SumCapa<T1, T2, Targs...>::value> concatenate(const T1& t1, const T2& t2, const Targs&... targs)
+inline typename std::enable_if<(internal::IsCharArray<T1>::value || internal::IsCxxString<T1>::value)
+                                   && (internal::IsCharArray<T2>::value || internal::IsCxxString<T2>::value),
+                               string<internal::SumCapa<T1, T2, Targs...>::value>>::type
+concatenate(const T1& t1, const T2& t2, const Targs&... targs)
 {
     return concatenate(concatenate(t1, t2), targs...);
 }
 
 template <typename T1, typename T2>
-inline string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> operator+(const T1& t1, const T2& t2)
+inline typename std::enable_if<(internal::IsCharArray<T1>::value && internal::IsCxxString<T2>::value)
+                                   || (internal::IsCxxString<T1>::value && internal::IsCharArray<T2>::value)
+                                   || (internal::IsCxxString<T1>::value && internal::IsCxxString<T2>::value),
+                               string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>>::type
+operator+(const T1& t1, const T2& t2)
 {
-    static_assert((std::is_same<T1, char[internal::GetCapa<T1>::capa + 1]>::value
-                   || std::is_same<T1, string<internal::GetCapa<T1>::capa>>::value)
-                      && (std::is_same<T2, char[internal::GetCapa<T2>::capa + 1]>::value
-                          || std::is_same<T2, string<internal::GetCapa<T2>::capa>>::value),
-                  "The character sequence must be a cxx::string or string literal.");
-
     return concatenate(t1, t2);
 }
 
