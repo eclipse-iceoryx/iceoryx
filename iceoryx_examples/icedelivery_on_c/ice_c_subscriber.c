@@ -13,18 +13,60 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/posh_runtime.h"
+#include "iceoryx_binding_c/sleep_for.h"
 #include "iceoryx_binding_c/subscriber.h"
+#include "topic_data.h"
+
+#include <signal.h>
+#include <stdbool.h>
+#include <stdio.h>
+
+bool killswitch = false;
+
+static void sigHandler(int signalValue)
+{
+    (void)signalValue;
+    // caught SIGINT, now exit gracefully
+    killswitch = true;
+}
 
 void receiving()
 {
+    PoshRuntime_getInstance("/iox-c-publisher");
+
+    uint64_t historyRequest = 0u;
+    struct SubscriberPortData* subscriber = Subscriber_new("Radar", "FrontLeft", "Counter", historyRequest);
+    Subscriber_subscribe(subscriber, 10);
+
+    while (!killswitch)
+    {
+        if (SubscribeState_SUBSCRIBED == Subscriber_getSubscriptionState(subscriber))
+        {
+            const void* chunk = NULL;
+            while (ChunkReceiveError_SUCCESS == Subscriber_getChunk(subscriber, &chunk))
+            {
+                const struct CounterTopic* sample = (const struct CounterTopic*)(chunk);
+                printf("Receiving: %u\n", sample->counter);
+                Subscriber_releaseChunk(subscriber, chunk);
+            }
+        }
+        else
+        {
+            printf("Not subscribed!\n");
+        }
+
+        sleepFor(1000);
+    }
+
+    Subscriber_unsubscribe(subscriber);
+    Subscriber_delete(subscriber);
 }
 
 int main()
 {
-    PoshRuntime_getInstance("/iox-c-publisher");
+    signal(SIGINT, sigHandler);
 
-    struct SubscriberPortData* subscriber = Subscriber_new();
-    Subscriber_subscribe(subscriber, 10);
-    Subscriber_delete(subscriber);
+    receiving();
+
     return 0;
 }

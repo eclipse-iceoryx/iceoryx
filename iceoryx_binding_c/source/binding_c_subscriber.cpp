@@ -27,10 +27,17 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
-SubscriberPortData* Subscriber_new()
+SubscriberPortData* Subscriber_new(const char* const service,
+                                   const char* const instance,
+                                   const char* const event,
+                                   const uint64_t historyRequest)
 {
-    return new SubscriberPortData(
-        ServiceDescription{1, 2, 3}, "bla", VariantQueueTypes::FiFo_SingleProducerSingleConsumer);
+    return new SubscriberPortData(ServiceDescription{IdString(TruncateToCapacity, service),
+                                                     IdString(TruncateToCapacity, instance),
+                                                     IdString(TruncateToCapacity, event)},
+                                  "AllHailHypnotoad!",
+                                  VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                  historyRequest);
 }
 
 void Subscriber_delete(SubscriberPortData* const self)
@@ -53,28 +60,28 @@ Subscriber_SubscriptionState Subscriber_getSubscriptionState(SubscriberPortData*
     return static_cast<Subscriber_SubscriptionState>(static_cast<int>(SubscriberPortUser(self).getSubscriptionState()));
 }
 
-Subscriber_AllocateError Subscriber_getChunk(SubscriberPortData* const self, const ChunkHeader** const header)
+Subscriber_AllocateError Subscriber_getChunk(SubscriberPortData* const self, const void** const header)
 {
     auto result = SubscriberPortUser(self).getChunk();
     if (result.has_error())
     {
         return (result.get_error() == ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL)
-                   ? Subscriber_AllocateError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL
-                   : Subscriber_AllocateError::INTERNAL_ERROR;
+                   ? ChunkReceiveError_TOO_MANY_CHUNKS_HELD_IN_PARALLEL
+                   : ChunkReceiveError_INTERNAL_ERROR;
     }
 
     if (!result->has_value())
     {
-        return Subscriber_AllocateError::NO_CHUNK_RECEIVED;
+        return ChunkReceiveError_NO_CHUNK_RECEIVED;
     }
 
-    *header = **result;
-    return Subscriber_AllocateError::SUCCESS;
+    *header = (**result)->payload();
+    return ChunkReceiveError_SUCCESS;
 }
 
-void Subscriber_releaseChunk(SubscriberPortData* const self, const ChunkHeader* const chunkHeader)
+void Subscriber_releaseChunk(SubscriberPortData* const self, const void* const chunk)
 {
-    SubscriberPortUser(self).releaseChunk(chunkHeader);
+    SubscriberPortUser(self).releaseChunk(convertPayloadPointerToChunkHeader(chunk));
 }
 
 void Subscriber_releaseQueuedChunks(SubscriberPortData* const self)

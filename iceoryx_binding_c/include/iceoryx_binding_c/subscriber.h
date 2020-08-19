@@ -18,14 +18,14 @@
 #include "iceoryx_binding_c/internal/c2cpp_bridge.h"
 #include "iceoryx_binding_c/types.h"
 
-CLASS SubscriberPortData* Subscriber_new();
+CLASS SubscriberPortData*
+Subscriber_new(const char* const service, const char* const instance, const char* const event, uint64_t historyRequest);
 void Subscriber_delete(CLASS SubscriberPortData* const self);
 void Subscriber_subscribe(CLASS SubscriberPortData* const self, const uint64_t queueCapacity);
 void Subscriber_unsubscribe(CLASS SubscriberPortData* const self);
 ENUM Subscriber_SubscriptionState Subscriber_getSubscriptionState(CLASS SubscriberPortData* const self);
-ENUM Subscriber_AllocateError Subscriber_getChunk(CLASS SubscriberPortData* const self,
-                                                  const CLASS ChunkHeader** const);
-void Subscriber_releaseChunk(CLASS SubscriberPortData* const self, const CLASS ChunkHeader* const);
+ENUM Subscriber_AllocateError Subscriber_getChunk(CLASS SubscriberPortData* const self, const void** const);
+void Subscriber_releaseChunk(CLASS SubscriberPortData* const self, const void* const);
 void Subscriber_releaseQueuedChunks(CLASS SubscriberPortData* const self);
 bool Subscriber_hasNewChunks(CLASS SubscriberPortData* const self);
 bool Subscriber_hasLostChunks(CLASS SubscriberPortData* const self);

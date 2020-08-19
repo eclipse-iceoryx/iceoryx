@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_INTERNAL_C2CPP_BRIDGE_H_
-#define IOX_BINDING_C_INTERNAL_C2CPP_BRIDGE_H_
+#ifndef IOX_BINDING_C_POSH_RUNTIME_H_
+#define IOX_BINDING_C_POSH_RUNTIME_H_
 
 #include "internal/c2cpp_bridge.h"
 

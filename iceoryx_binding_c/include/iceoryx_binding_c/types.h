@@ -17,19 +17,19 @@
 
 enum Subscriber_SubscriptionState
 {
-    NOT_SUBSCRIBED = 0,
-    SUBSCRIBE_REQUESTED,
-    SUBSCRIBED,
-    UNSUBSCRIBE_REQUESTED,
-    WAIT_FOR_OFFER
+    SubscribeState_NOT_SUBSCRIBED = 0,
+    SubscribeState_SUBSCRIBE_REQUESTED,
+    SubscribeState_SUBSCRIBED,
+    SubscribeState_UNSUBSCRIBE_REQUESTED,
+    SubscribeState_WAIT_FOR_OFFER
 };
 
 enum Subscriber_AllocateError
 {
-    SUCCESS,
-    TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
-    NO_CHUNK_RECEIVED,
-    INTERNAL_ERROR,
+    ChunkReceiveError_SUCCESS,
+    ChunkReceiveError_TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
+    ChunkReceiveError_NO_CHUNK_RECEIVED,
+    ChunkReceiveError_INTERNAL_ERROR,
 };
 
 

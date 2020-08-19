@@ -12,20 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_INTERNAL_C2CPP_BRIDGE_H_
-#define IOX_BINDING_C_INTERNAL_C2CPP_BRIDGE_H_
+#ifndef IOX_BINDING_C_SLEEP_FOR_H_
+#define IOX_BINDING_C_SLEEP_FOR_H_
 
-#ifdef __cplusplus
-#include <cstdint>
+#ifdef _WIN32
+#include <windows.h>
 
-#define CLASS
-#define ENUM
+void sleepFor(int milliseconds)
+{
+    Sleep(milliseconds);
+}
+
 #else
-#include <stdbool.h>
-#include <stdint.h>
+#include <unistd.h>
 
-#define CLASS struct
-#define ENUM enum
+void sleepFor(int milliseconds)
+{
+    usleep(milliseconds * 1000);
+}
 #endif
 
 #endif
