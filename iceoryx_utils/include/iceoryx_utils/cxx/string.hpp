@@ -451,7 +451,10 @@ class string
     /// @return an optional containing the position of the first character of the found substring, iox::cxx::optional if
     /// no substring is found
     template <typename T>
-    iox::cxx::optional<uint64_t> find(const T& t, uint64_t pos = 0) const noexcept;
+    typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
+                                || internal::IsCxxString<T>::value,
+                            iox::cxx::optional<uint64_t>>::type
+    find(const T& t, uint64_t pos = 0) const noexcept;
 
     /// @brief finds the first occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found or if pos is greater than this'
@@ -463,7 +466,10 @@ class string
     /// @return an optional containing the position of the first character equal to one of the characters of the given
     /// character sequence, iox::cxx::optional if no character is found
     template <typename T>
-    iox::cxx::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept;
+    typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
+                                || internal::IsCxxString<T>::value,
+                            iox::cxx::optional<uint64_t>>::type
+    find_first_of(const T& t, uint64_t pos = 0) const noexcept;
 
     /// @brief finds the last occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found
@@ -474,7 +480,10 @@ class string
     /// @return an optional containing the position of the last character equal to one of the characters of the given
     /// character sequence, iox::cxx::optional if no character is found
     template <typename T>
-    iox::cxx::optional<uint64_t> find_last_of(const T& t, uint64_t pos = Capacity) const noexcept;
+    typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
+                                || internal::IsCxxString<T>::value,
+                            iox::cxx::optional<uint64_t>>::type
+    find_last_of(const T& t, uint64_t pos = Capacity) const noexcept;
 
     template <uint64_t N>
     friend class string;

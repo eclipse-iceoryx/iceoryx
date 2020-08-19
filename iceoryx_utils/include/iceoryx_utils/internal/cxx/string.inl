@@ -529,12 +529,11 @@ inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(uint64_t po
 
 template <uint64_t Capacity>
 template <typename T>
-inline iox::cxx::optional<uint64_t> string<Capacity>::find(const T& t, uint64_t pos) const noexcept
+inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
+                                   || internal::IsCxxString<T>::value,
+                               iox::cxx::optional<uint64_t>>::type
+string<Capacity>::find(const T& t, uint64_t pos) const noexcept
 {
-    static_assert(std::is_same<T, std::string>::value || std::is_same<T, char[internal::GetCapa<T>::capa + 1]>::value
-                      || std::is_same<T, string<internal::GetCapa<T>::capa>>::value,
-                  "The character sequence must be a cxx::string, string literal or std::string.");
-
     if (pos > m_rawstringSize)
     {
         return iox::cxx::nullopt;
@@ -549,12 +548,11 @@ inline iox::cxx::optional<uint64_t> string<Capacity>::find(const T& t, uint64_t 
 
 template <uint64_t Capacity>
 template <typename T>
-inline iox::cxx::optional<uint64_t> string<Capacity>::find_first_of(const T& t, uint64_t pos) const noexcept
+inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
+                                   || internal::IsCxxString<T>::value,
+                               iox::cxx::optional<uint64_t>>::type
+string<Capacity>::find_first_of(const T& t, uint64_t pos) const noexcept
 {
-    static_assert(std::is_same<T, std::string>::value || std::is_same<T, char[internal::GetCapa<T>::capa + 1]>::value
-                      || std::is_same<T, string<internal::GetCapa<T>::capa>>::value,
-                  "The character sequence must be a cxx::string, string literal or std::string.");
-
     if (pos > m_rawstringSize)
     {
         return iox::cxx::nullopt;
@@ -573,12 +571,11 @@ inline iox::cxx::optional<uint64_t> string<Capacity>::find_first_of(const T& t, 
 
 template <uint64_t Capacity>
 template <typename T>
-inline iox::cxx::optional<uint64_t> string<Capacity>::find_last_of(const T& t, uint64_t pos) const noexcept
+inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
+                                   || internal::IsCxxString<T>::value,
+                               iox::cxx::optional<uint64_t>>::type
+string<Capacity>::find_last_of(const T& t, uint64_t pos) const noexcept
 {
-    static_assert(std::is_same<T, std::string>::value || std::is_same<T, char[internal::GetCapa<T>::capa + 1]>::value
-                      || std::is_same<T, string<internal::GetCapa<T>::capa>>::value,
-                  "The character sequence must be a cxx::string, string literal or std::string.");
-
     if (m_rawstringSize == 0)
     {
         return iox::cxx::nullopt;

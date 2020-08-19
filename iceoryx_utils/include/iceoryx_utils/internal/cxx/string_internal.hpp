@@ -130,6 +130,32 @@ struct SumCapa<T, Targs...>
 {
     static constexpr uint64_t value = GetCapa<T>::capa + SumCapa<Targs...>::value;
 };
+
+/// @brief struct to check whether an argument is a char array
+template <typename T>
+struct IsCharArray
+{
+    static constexpr bool value = false;
+};
+
+template <uint64_t N>
+struct IsCharArray<char[N]>
+{
+    static constexpr bool value = true;
+};
+
+/// @brief struct to check whether an argument is a cxx string
+template <typename T>
+struct IsCxxString
+{
+    static constexpr bool value = false;
+};
+
+template <uint64_t N>
+struct IsCxxString<string<N>>
+{
+    static constexpr bool value = true;
+};
 } // namespace internal
 } // namespace cxx
 } // namespace iox
