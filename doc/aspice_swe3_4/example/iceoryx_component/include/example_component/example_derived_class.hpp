@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_SAMPLE_CLASS_HPP
-#define IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_SAMPLE_CLASS_HPP
+#ifndef IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_DERIVED_CLASS_HPP
+#define IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_DERIVED_CLASS_HPP
 
 #include "source/example_base_class.hpp"
 
@@ -37,14 +37,14 @@ class SomeOtherClass;
 /// @note Important note for user/developer
 /// @swcomponent cpp
 template <typename T>
-class ExampleSampleClass : public ExampleBaseClass<T>
+class ExampleDerivedClass : public ExampleBaseClass<T>
 {
   public:
     /// @brief Short description
     /// @details Detailed description
     /// @param[in] a Description of input parameter a
     /// @param[in] b Description of input parameter b
-    ExampleSampleClass(const int a, const int b) noexcept;
+    ExampleDerivedClass(const uint64_t a, const uint64_t b) noexcept;
 
     /// @brief Short description
     void simpleMethod() const noexcept;
@@ -56,6 +56,7 @@ class ExampleSampleClass : public ExampleBaseClass<T>
     int complexMethod(const uint32_t c, const uint32_t* d) noexcept;
 
     /// @brief A good example method which sets some kind of speed
+    /// @param[in] speed 	Description of input parameter speed
     /// @code
     ///     myClass.goodExampleMethod(200_kmh); // sets it to 200 km/h
     ///     myClass.goodExampleMethod(40_ms);   // sets it to 40 m/s
@@ -68,10 +69,10 @@ class ExampleSampleClass : public ExampleBaseClass<T>
     /// @param[in] fuu      some clarification, min and max is also defined here
     ///                     and not specified with a custom tag.
     ///                     0 <= fuu <= 1000
-    /// @deprecated remove when feature iox is done
+    /// @deprecated will be removed when feature iox-#123 is implemented
     void preInitStuff(const uint32_t fuu) noexcept;
 };
 
 } // namespace example
 
-#endif // IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_SAMPLE_CLASS_HPP
+#endif // IOX_DOC_EXAMPLE_COMPONENT_EXAMPLE_DERIVED_CLASS_HPP
