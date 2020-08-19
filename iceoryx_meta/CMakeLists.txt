@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-set(iceoryx_VERSION 0.17.0.7)
+set(iceoryx_VERSION 0.17.0)
 
 project(iceoryx VERSION ${iceoryx_VERSION})
 
