@@ -72,8 +72,13 @@ class PortManager
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const std::string& processName,
                                                       const std::string& runnable = "");
+
     popo::ApplicationPortData* acquireApplicationPortData(const std::string& processName);
+
     runtime::RunnableData* acquireRunnableData(const cxx::CString100& process, const cxx::CString100& runnable);
+
+    cxx::expected<popo::ConditionVariableData*, PortPoolError>
+    acquireConditionVariableData(const cxx::CString100& processName);
 
     bool areAllReceiverPortsSubscribed(std::string appName);
 

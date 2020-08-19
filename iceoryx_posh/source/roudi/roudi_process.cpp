@@ -503,13 +503,13 @@ void ProcessManager::addSenderForProcess(const std::string& name,
     if (nullptr != process)
     {
         // create a SenderPort
-        auto sender = m_portManager.acquireSenderPortData(
+        auto maybeSender = m_portManager.acquireSenderPortData(
             service, name, process->getPayloadMemoryManager(), runnable, portConfigInfo);
 
-        if (!sender.has_error())
+        if (!maybeSender.has_error())
         {
             // send SenderPort to app as a serialized relative pointer
-            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, sender.get_value());
+            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSender.get_value());
 
             runtime::MqMessage sendBuffer;
             sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_SENDER_ACK)
@@ -523,7 +523,7 @@ void ProcessManager::addSenderForProcess(const std::string& name,
             runtime::MqMessage sendBuffer;
             sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
             sendBuffer << runtime::mqMessageErrorTypeToString( // map error codes
-                (sender.get_error() == PortPoolError::UNIQUE_SENDER_PORT_ALREADY_EXISTS
+                (maybeSender.get_error() == PortPoolError::UNIQUE_SENDER_PORT_ALREADY_EXISTS
                      ? runtime::MqMessageErrorType::NO_UNIQUE_CREATED
                      : runtime::MqMessageErrorType::SENDERLIST_FULL));
             process->sendToMQ(sendBuffer);
@@ -536,9 +536,33 @@ void ProcessManager::addSenderForProcess(const std::string& name,
     }
 }
 
-void ProcessManager::addConditionVariableForProcess(const std::string& processName) noexcept
+void ProcessManager::addConditionVariableForProcess(const cxx::CString100& processName) noexcept
 {
-    /// @todo
+    std::lock_guard<std::mutex> g(m_mutex);
+
+    RouDiProcess* process = getProcessFromList(processName);
+    if (nullptr != process)
+    {
+        // create a condition variable
+
+        auto maybeConditionVariableData =
+            m_portManager.acquireConditionVariableData(processName).and_then([&](popo::ConditionVariableData* condVar) {
+                // popo::ConditionVariableData*
+            });
+        // send ReceiverPort to app as a serialized relative pointer
+        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeConditionVariableData.get_value());
+
+        runtime::MqMessage sendBuffer;
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_CONDITION_VARIABLE_ACK)
+                   << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+        process->sendToMQ(sendBuffer);
+
+        LogDebug() << "Created new ConditionVariableImpl for application " << processName;
+    }
+    else
+    {
+        LogWarn() << "Unknown application " << processName << " requested a ConditionVariableImpl.";
+    }
 }
 
 void ProcessManager::initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept

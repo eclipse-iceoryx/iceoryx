@@ -221,14 +221,15 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     }
     case runtime::MqMessageType::IMPL_CONDITION_VARIABLE:
     {
-        if (message.getNumberOfElements() != 1)
+        if (message.getNumberOfElements() != 2)
         {
             LogError() << "Wrong number of parameter for \"MqMessageType::IMPL_CONDITION_VARIABLE\" from \""
                        << processName << "\"received!";
         }
         else
         {
-            m_prcMgr.addConditionVariableForProcess(processName);
+            auto processNameTrucated = iox::cxx::CString100(iox::cxx::TruncateToCapacity, processName);
+            m_prcMgr.addConditionVariableForProcess(processNameTrucated);
         }
         break;
         break;

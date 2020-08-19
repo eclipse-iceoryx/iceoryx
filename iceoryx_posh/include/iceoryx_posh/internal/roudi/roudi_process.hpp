@@ -165,7 +165,7 @@ class ProcessManager : public ProcessManagerInterface
                              const std::string& runnable,
                              const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
-    void addConditionVariableForProcess(const std::string& processName) noexcept;
+    void addConditionVariableForProcess(const cxx::CString100& processName) noexcept;
 
     void initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept;
 
