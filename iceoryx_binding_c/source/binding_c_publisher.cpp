@@ -24,9 +24,18 @@ extern "C" {
 #include "iceoryx_binding_c/publisher.h"
 }
 
-PublisherPortData* Publisher_new()
+PublisherPortData*
+Publisher_new(const char* service, const char* instance, const char* event, const uint64_t historyCapacity)
 {
-    return new PublisherPortData(ServiceDescription{1, 2, 3}, "JoinTheChurchOfHypnotoad!", nullptr, 0u);
+    return new PublisherPortData(
+        ServiceDescription{
+            IdString(TruncateToCapacity, service),
+            IdString(TruncateToCapacity, instance),
+            IdString(TruncateToCapacity, event),
+        },
+        "JoinTheChurchOfHypnotoad!",
+        nullptr,
+        historyCapacity);
 }
 
 void Publisher_delete(PublisherPortData* const self)

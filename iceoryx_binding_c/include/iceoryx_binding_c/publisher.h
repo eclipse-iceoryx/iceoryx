@@ -18,10 +18,12 @@
 #include "iceoryx_binding_c/internal/c2cpp_bridge.h"
 #include "iceoryx_binding_c/types.h"
 
-CLASS PublisherPortData* Publisher_new();
+CLASS PublisherPortData*
+Publisher_new(const char* service, const char* instance, const char* event, const uint64_t historyCapacity);
 void Publisher_delete(CLASS PublisherPortData* const self);
-iox_popo_AllocationError
-Publisher_allocateChunk(CLASS PublisherPortData* const self, void** const chunk, const uint32_t payloadSize);
+ENUM iox_popo_AllocationError Publisher_allocateChunk(CLASS PublisherPortData* const self,
+                                                      void** const chunk,
+                                                      const uint32_t payloadSize);
 void Publisher_freeChunk(CLASS PublisherPortData* const self, void* const chunk);
 void Publisher_sendChunk(CLASS PublisherPortData* const self, void* const chunk);
 const void* Publisher_getLastChunk(CLASS PublisherPortData* const self);

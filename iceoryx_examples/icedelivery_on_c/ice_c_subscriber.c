@@ -32,7 +32,7 @@ static void sigHandler(int signalValue)
 
 void receiving()
 {
-    PoshRuntime_getInstance("/iox-c-publisher");
+    PoshRuntime_getInstance("/iox-c-subscriber");
 
     uint64_t historyRequest = 0u;
     struct SubscriberPortData* subscriber = Subscriber_new("Radar", "FrontLeft", "Counter", historyRequest);
