@@ -87,14 +87,14 @@ int main(int argc, char* argv[])
     iox::runtime::PoshRuntime::getInstance(APP_NAME);
 
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
-    UDS uds(PUBLISHER, SUBSCRIBER);
+    UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
 
-#ifndef __APPLE__ 
+#ifndef __APPLE__
     MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
     std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
     leaderDo(mq, numRoundtrips);
 #endif
-    
+
     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
     leaderDo(uds, numRoundtrips);
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
