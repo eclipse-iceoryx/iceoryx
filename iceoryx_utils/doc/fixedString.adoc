@@ -61,127 +61,125 @@ In the second step, the functionality has been extended:
 		static_assert(Capacity > 0, "The capacity of the fixed string must be greater than 0!");
 
 	  public:
-	  	constexpr string() noexcept;
-	
-	    string(const string& other) noexcept;
-	
-	    string(string&& other) noexcept;
-	
-	    string& operator=(const string& rhs) noexcept;
-	
-	    string& operator=(string&& rhs) noexcept;
+		constexpr string() noexcept;
 
-	    template <uint64_t N>
-	    string(const string<N>& other) noexcept;
+		string(const string& other) noexcept;
+
+		string(string&& other) noexcept;
+
+		string& operator=(const string& rhs) noexcept;
+
+		string& operator=(string&& rhs) noexcept;
+
+		template <uint64_t N>
+		string(const string<N>& other) noexcept;
 
 		template <uint64_t N>
 		string(string<N>&& other) noexcept;
-	   
-	    template <uint64_t N>
-	    string& operator=(const string<N>& str) noexcept;
+
+		template <uint64_t N>
+		string& operator=(const string<N>& str) noexcept;
 
 		template <uint64_t N>
 		string& operator=(string<N>&& rhs) noexcept;
-    	
+
 		template <uint64_t N>
-	    string(const char (&other)[N]) noexcept;
-	
-	    string(TruncateToCapacity_t, const char* const other) noexcept;
-	    string(TruncateToCapacity_t, const std::string& other) noexcept;
-	    string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept;
-	
-	    template <uint64_t N>
-	    string& operator=(const char (&rhs)[N]) noexcept;
+		string(const char (&other)[N]) noexcept;
+
+		string(TruncateToCapacity_t, const char* const other) noexcept;
+		string(TruncateToCapacity_t, const std::string& other) noexcept;
+		string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept;
+
+		template <uint64_t N>
+		string& operator=(const char (&rhs)[N]) noexcept;
 	
 	// step 1+2
 		template <uint64_t N>
-	    string& assign(const string<N>& str) noexcept;
+		string& assign(const string<N>& str) noexcept;
 	// step 3
-	    enum class AssignmentPolicy {
+		enum class AssignmentPolicy {
 			Assert,
 			Truncate
-	    }
-	    template <uint64_t N, AssignmentPolicy P = AssignmentPolicy::Assert>
-	    string& assign(const string<N>& str) noexcept;
-	
-	    template <uint64_t N>
-	    string& assign(const char (&str)[N]) noexcept;
-	
-	    bool unsafe_assign(const char* const str) noexcept;
-	    bool unsafe_assign(const std::string& str) noexcept;
-	
+		}
+		template <uint64_t N, AssignmentPolicy P = AssignmentPolicy::Assert>
+		string& assign(const string<N>& str) noexcept;
+		
 		template <uint64_t N>
-	    int64_t compare(const string<N>& other) const noexcept;
-		template <uint64_t N>
-	    bool operator==(const string<N>& rhs) const noexcept;
-		template <uint64_t N>
-	    bool operator!=(const string<N>& rhs) const noexcept;
-		template <uint64_t N>
-	    bool operator<(const string<N>& rhs) const noexcept;
-		template <uint64_t N>
-	    bool operator<=(const string<N>& rhs) const noexcept;
-		template <uint64_t N>
-	    bool operator>(const string<N>& rhs) const noexcept;
-		template <uint64_t N>
-	    bool operator>=(const string<N>& rhs) const noexcept;
+		string& assign(const char (&str)[N]) noexcept;
 
+		bool unsafe_assign(const char* const str) noexcept;
+		bool unsafe_assign(const std::string& str) noexcept;
+		
+		template <uint64_t N>
+		int64_t compare(const string<N>& other) const noexcept;
+		template <uint64_t N>
+		bool operator==(const string<N>& rhs) const noexcept;
+		template <uint64_t N>
+		bool operator!=(const string<N>& rhs) const noexcept;
+		template <uint64_t N>
+		bool operator<(const string<N>& rhs) const noexcept;
+		template <uint64_t N>
+		bool operator<=(const string<N>& rhs) const noexcept;
+		template <uint64_t N>
+		bool operator>(const string<N>& rhs) const noexcept;
+		template <uint64_t N>
+		bool operator>=(const string<N>& rhs) const noexcept;
+		
 		bool operator==(const char* const rhs) const noexcept;
 		bool operator!=(const char* const rhs) const noexcept;
-	
-	    const char* c_str() const noexcept;
-	    constexpr uint64_t size() const noexcept;
-	    constexpr uint64_t capacity() const noexcept;
-    	constexpr bool empty() const noexcept;
-	    operator std::string() const noexcept;
+		
+		const char* c_str() const noexcept;
+		
+		constexpr uint64_t size() const noexcept;
 
-    	template <typename T>
-    	string& operator+=(const T& t) noexcept;
-    	template <typename T>
-    	typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, string&>::type
-    	append(TruncateToCapacity_t, const T& t) noexcept;
-    	template <typename T>
-    	typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, bool>::type
-    	unsafe_append(const T& t) noexcept;
+		constexpr uint64_t capacity() const noexcept;
 
-    	iox::cxx::optional<string<Capacity>> substr(uint64_t pos, uint64_t count) const noexcept;
-    	iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
+		constexpr bool empty() const noexcept;
+		
+		operator std::string() const noexcept;
 
-    	template <typename T>
-    	typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
-    	                            || internal::IsCxxString<T>::value,
-    	                        iox::cxx::optional<uint64_t>>::type
-    	find(const T& t, uint64_t pos = 0) const noexcept;
-    	template <typename T>
-    	typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
-    	                            || internal::IsCxxString<T>::value,
-    	                        iox::cxx::optional<uint64_t>>::type
-    	find_first_of(const T& t, uint64_t pos = 0) const noexcept;
-    	template <typename T>
-    	typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
-    	                            || internal::IsCxxString<T>::value,
-    	                        iox::cxx::optional<uint64_t>>::type
-    	find_last_of(const T& t, uint64_t pos = Capacity) const noexcept;
+		template <typename T>
+		string& operator+=(const T& t) noexcept;
+		template <typename T>
+		typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, string&>::type
+		append(TruncateToCapacity_t, const T& t) noexcept;
+		template <typename T>
+		typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, bool>::type
+		unsafe_append(const T& t) noexcept;
+
+		iox::cxx::optional<string<Capacity>> substr(uint64_t pos, uint64_t count) const noexcept;
+		iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
+
+		template <typename T>
+		typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
+		                            || internal::IsCxxString<T>::value,
+		                        iox::cxx::optional<uint64_t>>::type
+		find(const T& t, uint64_t pos = 0) const noexcept;
+		template <typename T>
+		typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
+		                            || internal::IsCxxString<T>::value,
+		                        iox::cxx::optional<uint64_t>>::type
+		find_first_of(const T& t, uint64_t pos = 0) const noexcept;
+		template <typename T>
+		typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
+		                            || internal::IsCxxString<T>::value,
+		                        iox::cxx::optional<uint64_t>>::type
+		find_last_of(const T& t, uint64_t pos = Capacity) const noexcept;
 	};
 
 	template <uint64_t Capacity>
 	inline bool operator==(const std::string& lhs, const string<Capacity>& rhs);
-
 	template <uint64_t Capacity>
 	inline bool operator==(const string<Capacity>& lhs, const std::string& rhs);
-
 	template <uint64_t Capacity>
 	inline bool operator!=(const std::string& lhs, const string<Capacity>& rhs);
-
 	template <uint64_t Capacity>
 	inline bool operator!=(const string<Capacity>& lhs, const std::string& rhs);
-
 	template <uint64_t Capacity>
 	inline bool operator==(const char* const lhs, const string<Capacity>& rhs);
-
 	template <uint64_t Capacity>
 	inline bool operator!=(const char* const lhs, const string<Capacity>& rhs);
 
 	template <uint64_t Capacity>
 	inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str);
-	}
 ----	
