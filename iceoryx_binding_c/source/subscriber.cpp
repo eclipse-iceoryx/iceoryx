@@ -20,20 +20,24 @@ using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::capro;
 
+#include <iostream>
 
 SubscriberPortData* subscriber_new()
 {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
     return new SubscriberPortData(
         ServiceDescription{1, 2, 3}, "bla", VariantQueueTypes::FiFo_SingleProducerSingleConsumer);
 }
 
 void subscriber_delete(SubscriberPortData* const self)
 {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
     delete self;
 }
 
 void subscriber_subscribe(SubscriberPortData* const self, const uint64_t queueCapacity)
 {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
     SubscriberPortUser(self).subscribe(queueCapacity);
 }
 

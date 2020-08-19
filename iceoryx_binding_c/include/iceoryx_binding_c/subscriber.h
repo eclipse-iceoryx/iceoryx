@@ -12,10 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stdint.h>
-
 #ifndef IOX_BINDING_C_SUBSCRIBER_H_
 #define IOX_BINDING_C_SUBSCRIBER_H_
+
+
+#ifdef __cplusplus
+#include <cstdint>
+
+#define CLASS
+#define ENUM
+#else
+#include <stdbool.h>
+#include <stdint.h>
+
+#define CLASS struct
+#define ENUM enum
+#endif
 
 enum subscriber_SubscriptionState
 {
@@ -34,18 +46,13 @@ enum subscriber_AllocateError
     INTERNAL_ERROR,
 };
 
-#ifdef __cplusplus
-#define CLASS
-#else
-#define CLASS struct
-#endif
-
 CLASS SubscriberPortData* subscriber_new();
 void subscriber_delete(CLASS SubscriberPortData* const self);
 void subscriber_subscribe(CLASS SubscriberPortData* const self, const uint64_t queueCapacity);
 void subscriber_unsubscribe(CLASS SubscriberPortData* const self);
-subscriber_SubscriptionState subscriber_getSubscriptionState(CLASS SubscriberPortData* const self);
-subscriber_AllocateError subscriber_getChunk(CLASS SubscriberPortData* const self, const CLASS ChunkHeader** const);
+ENUM subscriber_SubscriptionState subscriber_getSubscriptionState(CLASS SubscriberPortData* const self);
+ENUM subscriber_AllocateError subscriber_getChunk(CLASS SubscriberPortData* const self,
+                                                  const CLASS ChunkHeader** const);
 void subscriber_releaseChunk(CLASS SubscriberPortData* const self, const CLASS ChunkHeader* const);
 void subscriber_releaseQueuedChunks(CLASS SubscriberPortData* const self);
 bool subscriber_hasNewChunks(CLASS SubscriberPortData* const self);

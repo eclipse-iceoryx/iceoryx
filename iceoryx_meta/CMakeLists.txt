@@ -42,13 +42,6 @@ if(introspection)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tools/introspection ${CMAKE_BINARY_DIR}/iceoryx_introspection)
 endif(introspection)
 
-if(examples)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
-endif(examples)
-
 # ===== Gateways
 if(dds_gateway)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cyclonedds ${CMAKE_BINARY_DIR}/dependencies/cyclonedds/prebuild)
@@ -60,6 +53,14 @@ if(binding_c)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_binding_c ${CMAKE_BINARY_DIR}/iceoryx_binding_c)
 endif(binding_c)
 
+# ===== Examples
+if(examples)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery_on_c)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
+endif(examples)
 
 
 message("")
