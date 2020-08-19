@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -54,9 +55,11 @@ class ChunkSender : public ChunkDistributorType
     /// @brief Allocate a chunk, the ownerhip of the SharedChunk remains in the ChunkSender for being able to cleanup if
     /// the user process disappears
     /// @param[in] payloadSize, size of the user paylaod without additional headers
+    /// @param[in] originId, the unique id of the entity which requested this allocate
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
-    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocate(const uint32_t payloadSize) noexcept;
+    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocate(const uint32_t payloadSize,
+                                                                 const UniquePortId originId) noexcept;
 
     /// @brief Release an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

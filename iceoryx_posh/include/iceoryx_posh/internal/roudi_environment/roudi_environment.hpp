@@ -35,7 +35,8 @@ class RouDiEnvironment
 {
   public:
     RouDiEnvironment(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
-                     MonitoringMode monitoringMode = MonitoringMode::OFF);
+                     MonitoringMode monitoringMode = MonitoringMode::OFF,
+                     const uint16_t uniqueRouDiId = 0u);
     virtual ~RouDiEnvironment();
 
     RouDiEnvironment(RouDiEnvironment&& rhs) = default;
@@ -56,7 +57,7 @@ class RouDiEnvironment
         BASE,
     };
     /// @brief for implementations on top of RouDiEnvironment
-    RouDiEnvironment(BaseCTor);
+    RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId = 0u);
 
     void CleanupRuntimes();
 

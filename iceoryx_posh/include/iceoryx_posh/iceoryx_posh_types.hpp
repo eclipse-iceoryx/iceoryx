@@ -26,6 +26,10 @@ namespace iox
 {
 namespace popo
 {
+template <typename>
+class TypedUniqueId;
+struct BasePortData;
+
 class SenderPort;
 class ReceiverPort;
 } // namespace popo
@@ -37,8 +41,10 @@ class MessageQueue;
 
 using SenderPortType = iox::popo::SenderPort;
 using ReceiverPortType = iox::popo::ReceiverPort;
+using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
+
 /// @brief The socket is created in the current path if no absolute path is given hence
 ///      we need an absolut path so that every application knows where our sockets can
 ///      be found.
@@ -132,7 +138,7 @@ struct DefaultChunkDistributorConfig
 // Default properties of ChunkQueueData
 struct DefaultChunkQueueConfig
 {
-    static constexpr uint32_t MAX_QUEUE_CAPACITY = MAX_RECEIVER_QUEUE_CAPACITY;
+    static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_RECEIVER_QUEUE_CAPACITY;
 };
 
 // alias for cxx::string

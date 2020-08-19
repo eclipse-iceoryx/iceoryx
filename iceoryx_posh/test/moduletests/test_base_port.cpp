@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "test.hpp"
 
@@ -86,6 +87,7 @@ class BasePortParamtest : public TestWithParam<CreatePort*>
     }
     ~BasePortParamtest()
     {
+        uniquePortIds.emplace_back(sut->getUniqueID());
         delete sut;
     }
     virtual void SetUp()
@@ -96,37 +98,18 @@ class BasePortParamtest : public TestWithParam<CreatePort*>
     {
     }
 
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     BasePort* sut;
+    static std::vector<iox::UniquePortId> uniquePortIds;
 };
+std::vector<iox::UniquePortId> BasePortParamtest::uniquePortIds;
 
 TEST_P(BasePortParamtest, getUniqueID)
 {
-    if (this->GetParam() == CreateCaProPort)
+    for (auto& id : uniquePortIds)
     {
-        // we have already created 5 CaProPorts in the previous test, so we expect as uniqueid = 6
-        EXPECT_THAT(sut->getUniqueID(), Ne(0u));
-    }
-    else if (this->GetParam() == CreateReceiverPort)
-    {
-        EXPECT_THAT(sut->getUniqueID(), Ne(0u));
-    }
-    else if (this->GetParam() == CreateSenderPort)
-    {
-        EXPECT_THAT(sut->getUniqueID(), Ne(0u));
-    }
-    else if (this->GetParam() == CreateInterfacePort)
-    {
-        EXPECT_THAT(sut->getUniqueID(), Ne(0u));
-    }
-    else if (this->GetParam() == CreateApplicationPort)
-    {
-        EXPECT_THAT(sut->getUniqueID(), Ne(0u));
-    }
-    else
-    {
-        // We should not be here
-        std::cout << "CaPro UniqueId test failed!" << std::endl;
-        exit(EXIT_FAILURE);
+        EXPECT_THAT(sut->getUniqueID(), Ne(id));
     }
 }
 

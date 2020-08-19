@@ -287,7 +287,7 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addReceiver(typename
 }
 
 template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeSender(const std::string& name[[gnu::unused]],
+bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeSender(const std::string& name [[gnu::unused]],
                                                                          const capro::ServiceDescription& service)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
@@ -431,7 +431,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
             auto& senderInfo = m_senderContainer[m_senderIndex];
             SenderPortData senderData;
             SenderPort port(senderInfo.portData);
-            senderData.m_senderPortID = port.getUniqueID();
+            senderData.m_senderPortID = static_cast<uint64_t>(port.getUniqueID());
             senderData.m_sourceInterface = senderInfo.service.getSourceInterface();
             senderData.m_name = cxx::string<100>(cxx::TruncateToCapacity, senderInfo.name.c_str());
             senderData.m_runnable = cxx::string<100>(cxx::TruncateToCapacity, senderInfo.runnable.c_str());
@@ -496,7 +496,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortThr
 
             SenderPort port(senderInfo.portData);
             auto introData = port.getThroughput();
-            throughputData.m_senderPortID = port.getUniqueID();
+            throughputData.m_senderPortID = static_cast<uint64_t>(port.getUniqueID());
             throughputData.m_isField = port.doesDeliverOnSubscribe();
             throughputData.m_sampleSize = introData.payloadSize;
             throughputData.m_chunkSize = introData.chunkSize;

@@ -26,15 +26,64 @@ SubscriberPortMultiProducer::SubscriberPortMultiProducer(
 
 cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::getCaProMessage() noexcept
 {
-    /// @todo
-    return cxx::nullopt_t();
+    // get subscribe request from user side
+    const auto currentSubscribeRequest = getMembers()->m_subscribeRequested.load(std::memory_order_relaxed);
+
+    const auto currentSubscriptionState = getMembers()->m_subscriptionState.load(std::memory_order_relaxed);
+
+    if (currentSubscribeRequest && (SubscribeState::NOT_SUBSCRIBED == currentSubscriptionState))
+    {
+        getMembers()->m_subscriptionState.store(SubscribeState::SUBSCRIBED, std::memory_order_relaxed);
+
+        capro::CaproMessage caproMessage(capro::CaproMessageType::SUB, BasePort::getMembers()->m_serviceDescription);
+        caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
+        caproMessage.m_historyCapacity = getMembers()->m_historyRequest;
+
+        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+    }
+    else if (!currentSubscribeRequest && (SubscribeState::SUBSCRIBED == currentSubscriptionState))
+    {
+        getMembers()->m_subscriptionState.store(SubscribeState::NOT_SUBSCRIBED, std::memory_order_relaxed);
+
+        capro::CaproMessage caproMessage(capro::CaproMessageType::UNSUB, BasePort::getMembers()->m_serviceDescription);
+        caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
+
+        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+    }
+    else
+    {
+        // nothing to change
+        return cxx::nullopt_t();
+    }
 }
 
 cxx::optional<capro::CaproMessage>
-SubscriberPortMultiProducer::dispatchCaProMessage(const capro::CaproMessage& caProMessage [[gnu::unused]]) noexcept
+SubscriberPortMultiProducer::dispatchCaProMessage(const capro::CaproMessage& caProMessage[[gnu::unused]]) noexcept
 {
-    /// @todo
-    return cxx::nullopt_t();
+    const auto currentSubscriptionState = getMembers()->m_subscriptionState.load(std::memory_order_relaxed);
+
+    if ((capro::CaproMessageType::OFFER == caProMessage.m_type)
+        && (SubscribeState::SUBSCRIBED == currentSubscriptionState))
+    {
+        capro::CaproMessage caproMessage(capro::CaproMessageType::SUB, BasePort::getMembers()->m_serviceDescription);
+        caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
+        caproMessage.m_historyCapacity = getMembers()->m_historyRequest;
+
+        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+    }
+    else if ((capro::CaproMessageType::ACK == caProMessage.m_type)
+             || (capro::CaproMessageType::NACK == caProMessage.m_type)
+             || (capro::CaproMessageType::STOP_OFFER == caProMessage.m_type))
+    {
+        // we ignore all these messages for multi-producer
+        return cxx::nullopt_t();
+    }
+    else
+    {
+        // but others should not be received here
+        errorHandler(Error::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
+        return cxx::nullopt_t();
+    }
 }
 
 } // namespace popo

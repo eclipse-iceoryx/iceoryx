@@ -12,17 +12,58 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/cxx/typed_unique_id.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
+using namespace iox::popo;
 using namespace iox::cxx;
+
+TEST(TypedUniqueId_RouDiId, SettingTheRouDiIdWorks)
+{
+    uint16_t someId = 1243u;
+    iox::popo::internal::setUniqueRouDiId(someId);
+    EXPECT_EQ(iox::popo::internal::getUniqueRouDiId(), someId);
+    iox::popo::internal::unsetUniqueRouDiId();
+}
+
+TEST(TypedUniqueId_RouDiId, SettingTheRouDiIdTwiceFails)
+{
+    uint16_t someId = 1243u;
+    bool errorHandlerCalled = false;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
+                              const std::function<void()>,
+                              const iox::ErrorLevel) { errorHandlerCalled = true; });
+
+    iox::popo::internal::setUniqueRouDiId(someId);
+    EXPECT_FALSE(errorHandlerCalled);
+    iox::popo::internal::setUniqueRouDiId(someId);
+    EXPECT_TRUE(errorHandlerCalled);
+    iox::popo::internal::unsetUniqueRouDiId();
+}
+
+TEST(TypedUniqueId_RouDiId, GettingTheRouDiIdWithoutSettingFails)
+{
+    bool errorHandlerCalled = false;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
+                              const std::function<void()>,
+                              const iox::ErrorLevel) { errorHandlerCalled = true; });
+
+    iox::popo::internal::getUniqueRouDiId();
+    EXPECT_TRUE(errorHandlerCalled);
+}
 
 template <typename T>
 class TypedUniqueId_test : public Test
 {
   protected:
     using UniqueIDType = T;
+
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 };
 
 using Implementations = Types<TypedUniqueId<int>, TypedUniqueId<float>>;
@@ -109,5 +150,17 @@ TYPED_TEST(TypedUniqueId_test, ConversionToUint64)
     uint64_t id = static_cast<uint64_t>(a);
     b = a;
     EXPECT_EQ(id, static_cast<uint64_t>(b));
+}
+
+TYPED_TEST(TypedUniqueId_test, CreatingAnUniqueIdWithDefaultCTorIsValid)
+{
+    typename TestFixture::UniqueIDType a;
+    EXPECT_TRUE(a.isValid());
+}
+
+TYPED_TEST(TypedUniqueId_test, InvalidIdIsInvalid)
+{
+    typename TestFixture::UniqueIDType a(CreateInvalidId);
+    EXPECT_FALSE(a.isValid());
 }
 

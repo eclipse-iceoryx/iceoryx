@@ -29,12 +29,13 @@ namespace popo
 template <typename ChunkQueueDataProperties, typename LockingPolicy>
 struct ChunkQueueData : public LockingPolicy
 {
-    using LockGuard_t = std::lock_guard<const ChunkQueueData<ChunkQueueDataProperties, LockingPolicy>>;
+    using ThisType_t = ChunkQueueData<ChunkQueueDataProperties, LockingPolicy>;
+    using LockGuard_t = std::lock_guard<const ThisType_t>;
     using ChunkQueueDataProperties_t = ChunkQueueDataProperties;
 
     explicit ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept;
 
-    static constexpr uint32_t MAX_CAPACITY = ChunkQueueDataProperties_t::MAX_QUEUE_CAPACITY;
+    static constexpr uint64_t MAX_CAPACITY = ChunkQueueDataProperties_t::MAX_QUEUE_CAPACITY;
     cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasOverflown{false};
 

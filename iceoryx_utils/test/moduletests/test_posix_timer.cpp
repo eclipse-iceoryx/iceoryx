@@ -25,6 +25,7 @@
 
 using namespace ::testing;
 
+using namespace iox::units;
 using namespace iox::units::duration_literals;
 
 using Timer = iox::posix::Timer;
@@ -42,19 +43,19 @@ class Timer_test : public Test
     {
     }
 
-    iox::units::Duration second{1_s};
+    Duration second{1_s};
 
     std::atomic<int> numberOfCalls{0};
-    static const iox::units::Duration TIMEOUT;
+    static const Duration TIMEOUT;
 };
 
 class TimerStopWatch_test : public Test
 {
   public:
-    static const iox::units::Duration TIMEOUT;
+    static const Duration TIMEOUT;
 };
-const iox::units::Duration TimerStopWatch_test::TIMEOUT{10_ms};
-const iox::units::Duration Timer_test::TIMEOUT{TimerStopWatch_test::TIMEOUT};
+const Duration TimerStopWatch_test::TIMEOUT{10_ms};
+const Duration Timer_test::TIMEOUT{TimerStopWatch_test::TIMEOUT};
 
 TEST_F(TimerStopWatch_test, DurationOfZeroCausesError)
 {
@@ -123,15 +124,14 @@ TIMING_TEST_F(Timer_test, CallbackNotExecutedWhenNotStarted, Repeat(5), [&] {
     TIMING_TEST_EXPECT_ALWAYS_FALSE(callbackExecuted);
 });
 
-TEST_F(Timer_test, CallbackExecutedOnceAfterStart)
-{
+TIMING_TEST_F(Timer_test, CallbackExecutedOnceAfterStart, Repeat(5), [&] {
     std::atomic_int counter{0};
     Timer sut(1_ns, [&] { counter++; });
     sut.start(Timer::RunMode::ONCE, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    EXPECT_TRUE(counter.load() == 1);
-}
+    TIMING_TEST_EXPECT_TRUE(counter.load() == 1);
+});
 
 TIMING_TEST_F(Timer_test, CallbackExecutedPeriodicallyAfterStart, Repeat(5), [&] {
     std::atomic_int counter{0};
@@ -520,3 +520,32 @@ TIMING_TEST_F(Timer_test, CatchUpPolicySkipToNextBeatCallsLessCallbacksThanASAPT
 
     TIMING_TEST_EXPECT_TRUE(softTimerCounter < asapTimerCounter);
 });
+
+/// Unit tests which segfaults (issue #243). If the segfault is fixed this unit test has
+/// to be adjusted but for the moment it seems that it causes the segfault
+/// reliable.
+TEST_F(Timer_test, DISABLED_SelfTriggeringTimerWorksAndDoesNotCauseSegFault)
+{
+    Duration selfTriggerTimeout = 1_ns;
+    int repetitions = 100;
+    std::atomic_int counter{0};
+    {
+        Timer sut{selfTriggerTimeout, [&] {
+                      /// this timing is set to provoke the segfault. if the timing is
+                      /// decreased the segfault is more unlikely to occure but with a
+                      /// value of 100 ms it always happens. see issue #243
+                      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                      if (counter < repetitions)
+                      {
+                          EXPECT_FALSE(
+                              sut.restart(selfTriggerTimeout, Timer::RunMode::ONCE, Timer::CatchUpPolicy::IMMEDIATE)
+                                  .has_error());
+                      }
+                      ++counter;
+                  }};
+        sut.start(Timer::RunMode::ONCE, Timer::CatchUpPolicy::IMMEDIATE);
+
+        /// this time seems to be sufficient to cause the segfault
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+}
