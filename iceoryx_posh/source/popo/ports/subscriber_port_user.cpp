@@ -108,7 +108,7 @@ void SubscriberPortUser::attachConditionVariable() noexcept
 {
 }
 
-void SubscriberPortUser::detachConditionVaribale() noexcept
+void SubscriberPortUser::detachConditionVariable() noexcept
 {
 }
 
