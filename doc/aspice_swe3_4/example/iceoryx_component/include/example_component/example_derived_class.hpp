@@ -50,13 +50,13 @@ class ExampleDerivedClass : public ExampleBaseClass<T>
     void simpleMethod() const noexcept;
 
     /// @brief Short description
-    /// @param[in] c 	Description of input parameter c
-    /// @param[out] d 	Description of output parameter d
-    /// @return      	Description of return value
-    int complexMethod(const uint32_t c, const uint32_t* d) noexcept;
+    /// @param[in] c Description of input parameter c
+    /// @param[out] d Description of output parameter d
+    /// @return Description of return value
+    uint64_t complexMethod(const uint32_t c, const uint32_t* d) noexcept;
 
     /// @brief A good example method which sets some kind of speed
-    /// @param[in] speed 	Description of input parameter speed
+    /// @param[in] speed Description of input parameter speed
     /// @code
     ///     myClass.goodExampleMethod(200_kmh); // sets it to 200 km/h
     ///     myClass.goodExampleMethod(40_ms);   // sets it to 40 m/s
@@ -66,9 +66,9 @@ class ExampleDerivedClass : public ExampleBaseClass<T>
     /// @brief Short description
     /// @pre 	Must be called before another method is called
     /// @post 	Cannot be called twice, once it is called everything is done
-    /// @param[in] fuu      some clarification, min and max is also defined here
-    ///                     and not specified with a custom tag.
-    ///                     0 <= fuu <= 1000
+    /// @param[in] fuu some clarification, min and max is also defined here 
+    ///            and not specified with a custom tag. 0 <=
+    ///            fuu <= 1000
     /// @deprecated will be removed when feature iox-#123 is implemented
     void preInitStuff(const uint32_t fuu) noexcept;
 };

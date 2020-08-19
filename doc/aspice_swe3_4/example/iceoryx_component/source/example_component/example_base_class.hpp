@@ -39,8 +39,8 @@ class ExampleBaseClass
   public:
     /// @brief Short description
     /// @details Detailed description
-    /// @param[in] a   Description of input parameter a
-    /// @param[in] b   Description of input parameter b
+    /// @param[in] a Description of input parameter a
+    /// @param[in] b Description of input parameter b
     ExampleBaseClass(const uint32_t a, const uint32_t b);
 
     /// @brief Short description
