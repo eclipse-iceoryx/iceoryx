@@ -15,7 +15,7 @@
 #ifndef IOX_BINDING_C_TYPES_H_
 #define IOX_BINDING_C_TYPES_H_
 
-enum Subscriber_SubscriptionState
+enum iox_SubscribeState
 {
     SubscribeState_NOT_SUBSCRIBED = 0,
     SubscribeState_SUBSCRIBE_REQUESTED,
@@ -24,12 +24,19 @@ enum Subscriber_SubscriptionState
     SubscribeState_WAIT_FOR_OFFER
 };
 
-enum Subscriber_AllocateError
+enum iox_popo_ChunkReceiveError
 {
-    ChunkReceiveError_SUCCESS,
     ChunkReceiveError_TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
     ChunkReceiveError_NO_CHUNK_RECEIVED,
     ChunkReceiveError_INTERNAL_ERROR,
+    ChunkReceiveError_SUCCESS,
+};
+
+enum iox_popo_AllocationError
+{
+    AllocationError_RUNNING_OUT_OF_CHUNKS,
+    AllocationError_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
+    AllocationError_SUCCESS,
 };
 
 

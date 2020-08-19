@@ -13,7 +13,6 @@
 // limitations under the License.
 
 
-#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
@@ -55,12 +54,12 @@ void Subscriber_unsubscribe(SubscriberPortData* const self)
     SubscriberPortUser(self).unsubscribe();
 }
 
-Subscriber_SubscriptionState Subscriber_getSubscriptionState(SubscriberPortData* const self)
+iox_SubscribeState Subscriber_getSubscriptionState(SubscriberPortData* const self)
 {
-    return static_cast<Subscriber_SubscriptionState>(static_cast<int>(SubscriberPortUser(self).getSubscriptionState()));
+    return static_cast<iox_SubscribeState>(static_cast<int>(SubscriberPortUser(self).getSubscriptionState()));
 }
 
-Subscriber_AllocateError Subscriber_getChunk(SubscriberPortData* const self, const void** const header)
+iox_popo_ChunkReceiveError Subscriber_getChunk(SubscriberPortData* const self, const void** const header)
 {
     auto result = SubscriberPortUser(self).getChunk();
     if (result.has_error())

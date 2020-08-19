@@ -48,8 +48,9 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 #
 add_library(${PROJECT_NAME}
     STATIC
-    source/binding_c_subscriber.cpp
     source/binding_c_posh_runtime.cpp
+    source/binding_c_publisher.cpp
+    source/binding_c_subscriber.cpp
 )
 add_library(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
