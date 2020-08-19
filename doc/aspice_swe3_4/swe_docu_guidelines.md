@@ -6,9 +6,8 @@ This document defines the documentation guidelines for SWE 3 (Detailed Design) a
 
 
 ## ToDo
- - which doxygen tags needs to be set
+ - provide which doxygen tags needs to be set
  - clarify alias for concurrent and error
- - Doxygen plantuml example
  - write documentation guideline
 
 ##  Tags
@@ -60,3 +59,10 @@ The include guard is placed directly under the file header and needs to have the
    * IOX_[COMPONENT_W/O_ICEORYX][SUB_COMPONENT][SUB_COMPONENT]_[FILE_NAME]
 
 See the header files under iceoryx/doc/aspice_swe3_4/example.
+
+### PlantUML
+
+if you want to make complex aspects of your implementation visible, you can write plantuml directly into the 
+doxygen description of your class. An example can be found at example_base_class.hpp
+
+For good examples on PlantUML checkout https://plantuml.com.
