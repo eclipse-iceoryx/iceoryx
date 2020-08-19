@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_binding_c/posh_runtime.h"
 #include "iceoryx_binding_c/subscriber.h"
 
 void receiving()
@@ -20,6 +21,8 @@ void receiving()
 
 int main()
 {
+    PoshRuntime_getInstance("/iox-c-publisher");
+
     struct SubscriberPortData* subscriber = Subscriber_new();
     Subscriber_subscribe(subscriber, 10);
     Subscriber_delete(subscriber);
