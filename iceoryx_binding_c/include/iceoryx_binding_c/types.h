@@ -15,7 +15,7 @@
 #ifndef IOX_BINDING_C_TYPES_H_
 #define IOX_BINDING_C_TYPES_H_
 
-enum subscriber_SubscriptionState
+enum Subscriber_SubscriptionState
 {
     NOT_SUBSCRIBED = 0,
     SUBSCRIBE_REQUESTED,
@@ -24,7 +24,7 @@ enum subscriber_SubscriptionState
     WAIT_FOR_OFFER
 };
 
-enum subscriber_AllocateError
+enum Subscriber_AllocateError
 {
     SUCCESS,
     TOO_MANY_CHUNKS_HELD_IN_PARALLEL,

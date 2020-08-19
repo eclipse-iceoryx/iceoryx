@@ -12,3 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+
+using namespace iox;
+using namespace iox::runtime;
+
+extern "C" {
+#include "iceoryx_binding_c/posh_runtime.h"
+}
+
+void PoshRuntime_getInstance(const char* const name)
+{
+    PoshRuntime::getInstance(name);
+}
+
+uint64_t PoshRuntime_getInstanceName(char* const name, const uint64_t nameLength)
+{
+    auto instanceName = PoshRuntime::getInstance().getInstanceName();
+    uint64_t instanceNameSize = instanceName.size();
+    strncpy(name, instanceName.c_str(), std::min(nameLength, instanceNameSize));
+    return instanceNameSize;
+}
+

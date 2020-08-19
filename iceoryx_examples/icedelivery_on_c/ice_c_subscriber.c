@@ -20,8 +20,8 @@ void receiving()
 
 int main()
 {
-    struct SubscriberPortData* subscriber = subscriber_new();
-    subscriber_subscribe(subscriber, 10);
-    subscriber_delete(subscriber);
+    struct SubscriberPortData* subscriber = Subscriber_new();
+    Subscriber_subscribe(subscriber, 10);
+    Subscriber_delete(subscriber);
     return 0;
 }
