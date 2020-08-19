@@ -15,36 +15,8 @@
 #ifndef IOX_BINDING_C_SUBSCRIBER_H_
 #define IOX_BINDING_C_SUBSCRIBER_H_
 
-
-#ifdef __cplusplus
-#include <cstdint>
-
-#define CLASS
-#define ENUM
-#else
-#include <stdbool.h>
-#include <stdint.h>
-
-#define CLASS struct
-#define ENUM enum
-#endif
-
-enum subscriber_SubscriptionState
-{
-    NOT_SUBSCRIBED = 0,
-    SUBSCRIBE_REQUESTED,
-    SUBSCRIBED,
-    UNSUBSCRIBE_REQUESTED,
-    WAIT_FOR_OFFER
-};
-
-enum subscriber_AllocateError
-{
-    SUCCESS,
-    TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
-    NO_CHUNK_RECEIVED,
-    INTERNAL_ERROR,
-};
+#include "iceoryx_binding_c/internal/c2cpp_bridge.h"
+#include "iceoryx_binding_c/types.h"
 
 CLASS SubscriberPortData* subscriber_new();
 void subscriber_delete(CLASS SubscriberPortData* const self);

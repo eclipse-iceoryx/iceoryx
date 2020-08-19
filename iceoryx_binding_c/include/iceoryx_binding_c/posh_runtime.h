@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
+#ifndef IOX_BINDING_C_INTERNAL_C2CPP_BRIDGE_H_
+#define IOX_BINDING_C_INTERNAL_C2CPP_BRIDGE_H_
 
-using SubscriberPortData = iox::popo::SubscriberPortData;
-using ChunkHeader = iox::mepoo::ChunkHeader;
+#include "internal/c2cpp_bridge.h"
 
-extern "C" {
-#include "iceoryx_binding_c/subscriber.h"
-}
+#endif

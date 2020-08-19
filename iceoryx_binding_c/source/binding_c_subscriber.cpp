@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_binding_c/internal/subscriber.hpp"
+#include "iceoryx_binding_c/internal/binding_c_subscriber.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 
 using namespace iox;
