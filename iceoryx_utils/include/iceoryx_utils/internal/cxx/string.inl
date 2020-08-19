@@ -458,12 +458,9 @@ inline string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> operato
 
 template <uint64_t Capacity>
 template <typename T>
-inline bool string<Capacity>::unsafe_append(const T& t) noexcept
+inline typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, bool>::type
+string<Capacity>::unsafe_append(const T& t) noexcept
 {
-    static_assert(std::is_same<T, char[internal::GetCapa<T>::capa + 1]>::value
-                      || std::is_same<T, string<internal::GetCapa<T>::capa>>::value,
-                  "The character sequence must be a cxx::string or string literal.");
-
     uint64_t tSize = internal::GetSize<T>::call(t);
     if (Capacity < (m_rawstringSize + tSize))
     {
@@ -478,12 +475,10 @@ inline bool string<Capacity>::unsafe_append(const T& t) noexcept
 
 template <uint64_t Capacity>
 template <typename T>
-inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
+inline
+    typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, string<Capacity>&>::type
+    string<Capacity>::append(TruncateToCapacity_t, const T& t) noexcept
 {
-    static_assert(std::is_same<T, char[internal::GetCapa<T>::capa + 1]>::value
-                      || std::is_same<T, string<internal::GetCapa<T>::capa>>::value,
-                  "The character sequence must be a cxx::string or string literal.");
-
     uint64_t tSize = internal::GetSize<T>::call(t);
     const char* tData = internal::GetData<T>::call(t);
     if (Capacity < (m_rawstringSize + tSize))

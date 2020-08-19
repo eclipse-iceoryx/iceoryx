@@ -411,7 +411,8 @@ class string
     ///     fuu.append(TruncateToCapacity, "fgahc");
     /// @endcode
     template <typename T>
-    string& append(TruncateToCapacity_t, const T& t) noexcept;
+    typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, string&>::type
+    append(TruncateToCapacity_t, const T& t) noexcept;
 
     /// @brief appends a fixed string or string literal to the end of this. The appending fails if the sum of both sizes
     /// is greater than this' capacity.
@@ -420,7 +421,8 @@ class string
     ///
     /// @return true if the appending succeeds, otherwise false
     template <typename T>
-    bool unsafe_append(const T& t) noexcept;
+    typename std::enable_if<internal::IsCharArray<T>::value || internal::IsCxxString<T>::value, bool>::type
+    unsafe_append(const T& t) noexcept;
 
     /// @brief creates a substring containing the characters from pos until count; if pos+count is greater than the size
     /// of the original string the returned substring only contains the characters from pos until size();
