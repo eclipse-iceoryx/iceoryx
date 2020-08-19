@@ -37,7 +37,7 @@ double IcePerfBase::pingPongLeader(int64_t numRoundTrips) noexcept
     auto start = std::chrono::high_resolution_clock::now();
 
     // run the performance test
-    for (auto i = 0; i < numRoundTrips; ++i)
+    for (auto i = 0U; i < numRoundTrips; ++i)
     {
         auto perfTopic = receivePerfTopic();
         sendPerfTopic(perfTopic.payloadSize, true);

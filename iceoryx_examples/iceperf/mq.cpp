@@ -113,7 +113,7 @@ void MQ::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
     else
     {
         sample->subPacktes = payloadSizeInBytes / MAX_MESSAGE_SIZE;
-        for (uint32_t i = 0; i < sample->subPacktes; ++i)
+        for (uint32_t i = 0U; i < sample->subPacktes; ++i)
         {
             send(&buffer[0], MAX_MESSAGE_SIZE);
         }
@@ -129,7 +129,7 @@ PerfTopic MQ::receivePerfTopic() noexcept
 
     if (receivedSample->subPacktes > 1)
     {
-        for (uint32_t i = 0; i < receivedSample->subPacktes - 1; ++i)
+        for (uint32_t i = 0U; i < receivedSample->subPacktes - 1; ++i)
         {
             receive(&m_message[0]);
         }

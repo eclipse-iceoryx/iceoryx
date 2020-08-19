@@ -1,4 +1,3 @@
-
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,7 +50,7 @@ int main()
     followerDo(mq);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // ensure leader first
 #endif
-    
+
     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
     followerDo(uds);
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
