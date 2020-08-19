@@ -22,6 +22,7 @@ option(test "Build tests" ON)
 option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
 option(dds_gateway "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
+option(binding_c "builds the C language bindings" OFF)
 
 # ===== Dependencies
 if(TOML_CONFIG)
@@ -53,6 +54,12 @@ if(dds_gateway)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cyclonedds ${CMAKE_BINARY_DIR}/dependencies/cyclonedds/prebuild)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dds ${CMAKE_BINARY_DIR}/iceoryx_dds)
 endif(dds_gateway)
+
+# ===== Language binding for C
+if(binding_c) 
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_binding_c ${CMAKE_BINARY_DIR}/iceoryx_binding_c)
+endif(binding_c)
+
 
 
 message("")
