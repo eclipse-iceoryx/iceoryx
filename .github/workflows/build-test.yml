@@ -27,8 +27,7 @@ jobs:
          uses: actions/checkout@v2
  
        - name: Build sources
-         run: |
-           cmake -Bbuild -Hiceoryx_meta -Dtest=ON -Dbinding_c=ON -Dexamples=ON -Dintrospection=ON && cmake --build build
+         run: cmake -Bbuild -Hiceoryx_meta -Dtest=ON -Dbinding_c=ON -Dexamples=ON -Dintrospection=ON && cmake --build build
 
        - name: Run tests
          run: |
