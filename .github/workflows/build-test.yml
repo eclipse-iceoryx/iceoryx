@@ -12,34 +12,28 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This job builds & runs iceoryx tests in ubuntu-18.04
-  # ubuntu-18.04-iceoryx-meta:
-  #   # The type of runner that the job will run on
-  #   runs-on: ubuntu-18.04
+   ubuntu-18.04-iceoryx-meta:
+     # The type of runner that the job will run on
+     runs-on: ubuntu-18.04
 
-  #   # Steps represent a sequence of tasks that will be executed as part of the job
-  #   steps:
-  #     - name: Install iceoryx dependencies
-  #       # Softwares installed in ubuntu-18.04 instance 
-  #       # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
-  #       run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
+     # Steps represent a sequence of tasks that will be executed as part of the job
+     steps:
+       - name: Install iceoryx dependencies
+         # Softwares installed in ubuntu-18.04 instance 
+         # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
+         run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
 
-  #     - name : Checkout
-  #       uses: actions/checkout@v2
+       - name : Checkout
+         uses: actions/checkout@v2
  
-  #     - name: Build sources
-  #       run: |
-  #         cmake -Bbuild -Hiceoryx_meta -Dtest=ON -Dbinding_c=ON -Dexamples=ON -Dintrospection=ON && cmake --build build
+       - name: Build sources
+         run: |
+           cmake -Bbuild -Hiceoryx_meta -Dtest=ON -Dbinding_c=ON -Dexamples=ON -Dintrospection=ON && cmake --build build
 
-  #     - name: Run tests
-  #       run: |
-  #         cd $GITHUB_WORKSPACE/build
-  #         ./posh/test/posh_componenttests          
-  #         ./posh/test/posh_integrationtests          
-  #         ./posh/test/posh_moduletests          
-  #         ./utils/test/utils_componenttests          
-  #         ./utils/test/utils_integrationtests          
-  #         ./utils/test/utils_moduletests          
-  #         ./binding_c/test/binding_c_integrationtests          
+       - name: Run tests
+         run: |
+           cd $GITHUB_WORKSPACE/build
+           make test
 
   build-test-ubuntu:
     # The type of runner that the job will run on

@@ -65,7 +65,7 @@ endif(binding_c)
 endif(examples)
 
 if (test)
-    add_custom_target( test 
+    add_custom_target( test
         COMMAND ./posh/test/posh_moduletests 
         COMMAND ./posh/test/posh_integrationtests 
         COMMAND ./posh/test/posh_componenttests
