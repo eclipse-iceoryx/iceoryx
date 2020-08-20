@@ -1,4 +1,4 @@
-# Ice0ryx C Language binding
+# [NOT YET IMPLEMENTED] Ice0ryx C Language binding
 
 If you are looking for an example take a look at the
 [icedelivery on c example](../iceoryx_examples/icedelivery_on_c).
