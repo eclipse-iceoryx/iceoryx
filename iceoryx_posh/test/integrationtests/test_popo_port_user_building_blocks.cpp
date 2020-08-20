@@ -13,10 +13,14 @@
 // limitations under the License.
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
+
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "test.hpp"
@@ -46,36 +50,18 @@ static constexpr uint32_t SMALL_CHUNK = 128;
 static constexpr uint32_t CHUNK_META_INFO_SIZE = 256;
 static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
 alignas(64) static uint8_t g_memory[MEMORY_SIZE];
-static constexpr uint32_t ITERATIONS = 10;
-static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
+static constexpr uint32_t ITERATIONS = 1000;
 
-struct ChunkDistributorConfig
-{
-    static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
-    static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
-};
-
-struct ChunkQueueConfig
-{
-    static constexpr uint64_t MAX_QUEUE_CAPACITY = NUM_CHUNKS_IN_POOL;
-};
-
-using ChunkQueueData_t = ChunkQueueData<ChunkQueueConfig, ThreadSafePolicy>;
-using ChunkDistributorData_t =
-    ChunkDistributorData<ChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
-using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
-using ChunkQueuePopper_t = ChunkQueuePopper<ChunkQueueData_t>;
-
-class PortUser_SingleProducer_IntegrationTest : public Test
+class PortUserIntegrationTest_SingleProducer : public Test
 {
   public:
-    PortUser_SingleProducer_IntegrationTest()
+    PortUserIntegrationTest_SingleProducer()
     {
         m_mempoolConfig.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolConfig, &m_memoryAllocator, &m_memoryAllocator);
     }
 
-    ~PortUser_SingleProducer_IntegrationTest()
+    ~PortUserIntegrationTest_SingleProducer()
     {
     }
 
@@ -89,7 +75,7 @@ class PortUser_SingleProducer_IntegrationTest : public Test
         m_publisherUserSide.destroy();
 
         m_subscriberPortUserSingleProducer.unsubscribe();
-        m_subscriberPortUserSingleProducer.detachConditionVaribale();
+        m_subscriberPortUserSingleProducer.detachConditionVariable();
 
         m_waiter.reset();
     }
@@ -108,7 +94,11 @@ class PortUser_SingleProducer_IntegrationTest : public Test
     ConditionVariableData m_condVarData;
     ConditionVariableWaiter m_waiter{&m_condVarData};
 
-    ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    using ConcurrentCaproMessageVector_t = iox::concurrent::smart_lock<iox::cxx::vector<iox::capro::CaproMessage, 1>>;
+    ConcurrentCaproMessageVector_t m_concurrentCaproMessageVector;
+
+    iox::popo::SubscriberPortData::ChunkQueueData_t m_chunkQueueData{
+        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 
     // subscriber port
     iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
@@ -116,26 +106,75 @@ class PortUser_SingleProducer_IntegrationTest : public Test
         TEST_SUBSCRIBER_APP_NAME,
         iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::popo::SubscriberPortUser m_subscriberPortUserSingleProducer{&m_subscriberPortDataSingleProducer};
+    iox::popo::SubscriberPortSingleProducer m_subscriberPortRouDiSideSingleProducer{
+        &m_subscriberPortDataSingleProducer};
 
     // publisher port w/o history
     iox::popo::PublisherPortData m_publisherPortData{
         TEST_SERVICE_DESCRIPTION, TEST_PUBLISHER_APP_NAME, &m_memoryManager};
     iox::popo::PublisherPortUser m_publisherUserSide{&m_publisherPortData};
+    iox::popo::PublisherPortRouDi m_publisherRouDiSide{&m_publisherPortData};
+
+    inline iox::capro::CaproMessage
+    waitForCaproMessage(const ConcurrentCaproMessageVector_t& concurrentCaproMessageVector,
+                        const iox::capro::CaproMessageType& caproMessageType)
+    {
+        bool finished{false};
+        iox::capro::CaproMessage caproMessage;
+
+        do
+        {
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
+            {
+                auto guardedVector = concurrentCaproMessageVector.GetScopeGuard();
+                if (guardedVector->size() != 0)
+                {
+                    caproMessage = guardedVector->back();
+
+                    if (caproMessage.m_type == caproMessageType)
+                    {
+                        guardedVector->pop_back();
+                        finished = true;
+                    }
+                }
+            }
+        } while (!finished);
+
+        return caproMessage;
+    }
 
     void subscriberThread()
     {
         bool finished{false};
-        // this is to prevent a race condition on thread shutdown; there must be two consecutive empty pops after the
-        // forward thread finished
-        bool newChunkReceivedInLastIteration{true};
+        iox::cxx::optional<iox::capro::CaproMessage> maybeCaproMessage;
+        iox::capro::CaproMessage caproMessage;
 
         m_subscriberPortUserSingleProducer.attachConditionVariable(&m_condVarData);
-        m_subscriberPortUserSingleProducer.subscribe();
 
+        // Wait for publisher to be ready
+        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, iox::capro::CaproMessageType::OFFER);
+
+        // Subscribe to publisher
+        m_subscriberPortUserSingleProducer.subscribe();
+        maybeCaproMessage = m_subscriberPortRouDiSideSingleProducer.getCaProMessage();
+        if (maybeCaproMessage.has_value())
+        {
+            caproMessage = maybeCaproMessage.value();
+            m_concurrentCaproMessageVector->push_back(caproMessage);
+        }
+
+        // Wait for subscription ACK from publisher
+        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, iox::capro::CaproMessageType::ACK);
+
+        // Let RouDi change state to finish subscription
+        static_cast<void>(m_subscriberPortRouDiSideSingleProducer.dispatchCaProMessage(caproMessage));
+
+        // Subscription done and ready to receive samples
         while (!finished)
         {
-            if (m_waiter.timedWait(1_ms))
+            if (m_waiter.timedWait(100_ms))
             {
+                // Condition variable triggered
                 m_subscriberPortUserSingleProducer.getChunk()
                     .and_then([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
                         if (maybeChunkHeader.has_value())
@@ -146,18 +185,6 @@ class PortUser_SingleProducer_IntegrationTest : public Test
                             EXPECT_THAT(dummySample.m_dummy, Eq(m_receiveCounter));
                             m_receiveCounter++;
                             m_subscriberPortUserSingleProducer.releaseChunk(chunkHeader);
-                            newChunkReceivedInLastIteration = true;
-                        }
-                        else if (!m_publisherRun.load(std::memory_order_relaxed))
-                        {
-                            if (newChunkReceivedInLastIteration)
-                            {
-                                newChunkReceivedInLastIteration = false;
-                            }
-                            else
-                            {
-                                finished = true;
-                            }
                         }
                     })
                     .or_else([](ChunkReceiveError) {
@@ -167,14 +194,44 @@ class PortUser_SingleProducer_IntegrationTest : public Test
             }
             else
             {
+                // Timeout -> check if publisher is still going
+                if (!m_publisherRun.load(std::memory_order_relaxed))
+                {
+                    finished = true;
+                }
             }
         }
     }
 
     void publisherThread()
     {
+        iox::cxx::optional<iox::capro::CaproMessage> maybeCaproMessage;
+        iox::capro::CaproMessage caproMessage;
+
+        // Publisher offers its service
         m_publisherUserSide.offer();
 
+        // Let RouDi change state and send OFFER to subscriber
+        maybeCaproMessage = m_publisherRouDiSide.getCaProMessage();
+        if (maybeCaproMessage.has_value())
+        {
+            caproMessage = maybeCaproMessage.value();
+            auto guardedVector = m_concurrentCaproMessageVector.GetScopeGuard();
+            guardedVector->push_back(caproMessage);
+        }
+
+        // Wait for subscriber to subscribe
+        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, iox::capro::CaproMessageType::SUB);
+
+        // Send ACK to subscriber
+        maybeCaproMessage = m_publisherRouDiSide.dispatchCaProMessage(caproMessage);
+        if (maybeCaproMessage.has_value())
+        {
+            caproMessage = maybeCaproMessage.value();
+            m_concurrentCaproMessageVector->push_back(caproMessage);
+        }
+
+        // Subscriber is ready to receive -> start sending samples
         for (size_t i = 0; i < ITERATIONS; i++)
         {
             m_publisherUserSide.allocateChunk(sizeof(DummySample))
@@ -193,15 +250,16 @@ class PortUser_SingleProducer_IntegrationTest : public Test
             /// Add some jitter to make thread breathe
             std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
         }
-        // Signal the next threads we're done
+
+        // Signal the subscriber thread we're done
         m_publisherRun = false;
     }
 };
 
-TEST_F(PortUser_SingleProducer_IntegrationTest, test1)
+TEST_F(PortUserIntegrationTest_SingleProducer, test1)
 {
-    std::thread subscribingThread(&PortUser_SingleProducer_IntegrationTest::subscriberThread, this);
-    std::thread publishingThread(&PortUser_SingleProducer_IntegrationTest::publisherThread, this);
+    std::thread subscribingThread(&PortUserIntegrationTest_SingleProducer::subscriberThread, this);
+    std::thread publishingThread(&PortUserIntegrationTest_SingleProducer::publisherThread, this);
 
     if (publishingThread.joinable())
     {
