@@ -64,6 +64,22 @@ endif(binding_c)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
 endif(examples)
 
+if (test)
+    add_custom_target( test 
+        COMMAND ./posh/test/posh_moduletests 
+        COMMAND ./posh/test/posh_integrationtests 
+        COMMAND ./posh/test/posh_componenttests
+        COMMAND ./utils/test/utils_componenttests
+        COMMAND ./utils/test/utils_componenttests
+        COMMAND ./utils/test/utils_componenttests
+    if (binding_c)
+        COMMAND ./binding_c/test/binding_c_integrationtests
+    endif(binding_c)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        VERBATIM
+    )
+endif(test)
+
 
 message("")
 message("       Configured Options")

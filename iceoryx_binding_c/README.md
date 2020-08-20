@@ -17,6 +17,10 @@ Therefore, we have the following coding conventions exclusively in the C API.
     - The first parameter is always the handle to the corresponding class.
     - If possible, the arguments should stay the same in the C API.
 
+ - Every C++ class has the prefix keyword `CLASS` in the C header.
+   The reason is that C requires the `struct` keyword and in C++ we
+   only require the type. Hence, we defined a macro which adds 
+   `struct` before every C++ class when building a C project.
  - Enum values are named like `EnumName_EnumValue`
  - Enum names follow the rule `namespace_EnumName`
 
@@ -46,8 +50,8 @@ enum iox_Color {
     Color_BLUE,
 };
 
-struct MyTransmitterHandle* MyTransmitter_new(const char * name);
-void MyTransmitter_delete(struct MyTransmitterHandle * self);
+CLASS MyTransmitterHandle* MyTransmitter_new(const char * name);
+void MyTransmitter_delete(CLASS MyTransmitterHandle * self);
 bool MyTransmitter_receive(void * const data);
 bool MyTransmitter_send(void * const data);
 ```
