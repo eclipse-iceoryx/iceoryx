@@ -65,15 +65,29 @@ endif(binding_c)
 endif(examples)
 
 if (test)
-    add_custom_target( test
-        COMMAND ./posh/test/posh_moduletests 
-        COMMAND ./posh/test/posh_integrationtests 
-        COMMAND ./posh/test/posh_componenttests
-        COMMAND ./utils/test/utils_componenttests
-        COMMAND ./utils/test/utils_componenttests
-        COMMAND ./utils/test/utils_componenttests
+    add_custom_target( tests
+        COMMAND ./posh/test/posh_moduletests --gtest_filter=-*.TimingTest_*
+        COMMAND ./posh/test/posh_integrationtests --gtest_filter=-*.TimingTest_*
+        COMMAND ./posh/test/posh_componenttests --gtest_filter=-*.TimingTest_*
+        COMMAND ./utils/test/utils_moduletests --gtest_filter=-*.TimingTest_*
+        COMMAND ./utils/test/utils_integrationtests --gtest_filter=-*.TimingTest_*
+        COMMAND ./utils/test/utils_componenttests --gtest_filter=-*.TimingTest_*
     if (binding_c)
-        COMMAND ./binding_c/test/binding_c_integrationtests
+        COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=-*.TimingTest_*
+    endif(binding_c)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        VERBATIM
+    )
+
+    add_custom_target( timing_tests
+        COMMAND ./posh/test/posh_moduletests --gtest_filter=*.TimingTest_*
+        COMMAND ./posh/test/posh_integrationtests --gtest_filter=*.TimingTest_*
+        COMMAND ./posh/test/posh_componenttests --gtest_filter=*.TimingTest_*
+        COMMAND ./utils/test/utils_moduletests --gtest_filter=*.TimingTest_*
+        COMMAND ./utils/test/utils_integrationtests --gtest_filter=*.TimingTest_*
+        COMMAND ./utils/test/utils_componenttests --gtest_filter=*.TimingTest_*
+    if (binding_c)
+        COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=*.TimingTest_*
     endif(binding_c)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
