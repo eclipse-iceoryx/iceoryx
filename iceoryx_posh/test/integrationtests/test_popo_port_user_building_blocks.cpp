@@ -72,10 +72,11 @@ class PortUserIntegrationTest_SingleProducer : public Test
     void TearDown()
     {
         m_publisherUserSide.stopOffer();
-        m_publisherUserSide.destroy();
+        static_cast<void>(m_publisherRouDiSide.getCaProMessage());
 
         m_subscriberPortUserSingleProducer.unsubscribe();
-        m_subscriberPortUserSingleProducer.detachConditionVariable();
+        static_cast<void>(m_subscriberPortRouDiSideSingleProducer.getCaProMessage());
+        EXPECT_THAT(m_subscriberPortUserSingleProducer.detachConditionVariable(), Eq(true));
 
         m_waiter.reset();
     }
