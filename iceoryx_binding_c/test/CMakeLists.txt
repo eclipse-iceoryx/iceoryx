@@ -41,9 +41,13 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-unused -Wno-pedantic)
 endif()
 
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+if(LINUX)
     set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl)
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+elseif(QNX)
+elseif(APPLE)
+    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl)
+elseif(WIN32)
+endif()
 
 # unittests
 add_executable(${PROJECT_PREFIX}_integrationtests ${MODULETESTS_SRC})
