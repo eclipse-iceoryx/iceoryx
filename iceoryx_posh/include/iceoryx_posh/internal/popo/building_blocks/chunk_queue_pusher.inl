@@ -65,6 +65,9 @@ inline cxx::expected<ChunkQueueError> ChunkQueuePusher<ChunkQueueDataType>::push
                 iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
             // this will release the chunk
             auto returnedChunk = mepoo::SharedChunk(chunkManagement);
+            /// we have to set this to true to inform the higher levels that there
+            /// was a chunk lost
+            getMembers()->m_queueHasOverflown.store(true, std::memory_order_relaxed);
         }
 
         {

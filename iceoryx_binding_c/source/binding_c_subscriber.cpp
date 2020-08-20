@@ -59,7 +59,7 @@ iox_SubscribeState Subscriber_getSubscriptionState(SubscriberPortData* const sel
     return static_cast<iox_SubscribeState>(static_cast<int>(SubscriberPortUser(self).getSubscriptionState()));
 }
 
-iox_popo_ChunkReceiveError Subscriber_getChunk(SubscriberPortData* const self, const void** const header)
+iox_popo_ChunkReceiveError Subscriber_getChunk(SubscriberPortData* const self, const void** const payload)
 {
     auto result = SubscriberPortUser(self).getChunk();
     if (result.has_error())
@@ -74,7 +74,7 @@ iox_popo_ChunkReceiveError Subscriber_getChunk(SubscriberPortData* const self, c
         return ChunkReceiveError_NO_CHUNK_RECEIVED;
     }
 
-    *header = (**result)->payload();
+    *payload = (**result)->payload();
     return ChunkReceiveError_SUCCESS;
 }
 
