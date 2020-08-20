@@ -29,12 +29,17 @@ jobs:
        - name: Build sources
          run: cmake -Bbuild -Hiceoryx_meta -Dtest=ON -Dbinding_c=ON -Dexamples=ON -Dintrospection=ON && cmake --build build
 
-       - name: Run tests
+       - name: Run timeless tests
          run: |
            cd $GITHUB_WORKSPACE/build
-           make test
+           make tests
 
-  build-test-ubuntu:
+       - name: Run timing tests
+         run: |
+           cd $GITHUB_WORKSPACE/build
+           make timing_tests
+
+  ubuntu-build-script:
     # The type of runner that the job will run on
     runs-on: ubuntu-18.04
 
@@ -66,7 +71,7 @@ jobs:
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test with-dds-gateway clean strict -j $NUM_CORES
 
  # This job builds & runs iceoryx tests in macos-10.15
-  build-test-macos:
+  macos-build-script:
     runs-on: macos-10.15
     # Softwares installed in macos-10.15 instance
     # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md     
@@ -98,7 +103,7 @@ jobs:
           ../tools/run_all_tests.sh disable-timing-tests
 
  # This job builds & runs iceoryx tests in Windows 2019
-  build-test-windows:
+  windows-iceoryx-meta:
     runs-on: windows-latest
     # Softwares installed in windows instance
     # https://github.com/actions/virtual-environments/blob/master/images/win/Windows2019-Readme.md
@@ -110,4 +115,4 @@ jobs:
 
       - name: Build sources
         run: |
-          cmake -Bbuild -Hiceoryx_meta -Dtest=ON -Dbinding_c=ON -Dexamples=ON && cmake --build build
+          cmake -Bbuild -Hiceoryx_meta -Ddds_gateway=OFF -Dtest=ON -Dbinding_c=ON -Dexamples=ON && cmake --build build
