@@ -82,7 +82,7 @@ class SubscriberPortUser
 
     /// @todo we first need the new condition variable
     bool attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
-    void detachConditionVaribale() noexcept;
+    bool detachConditionVariable() noexcept;
     bool isConditionVariableAttached() noexcept;
 
   private:
