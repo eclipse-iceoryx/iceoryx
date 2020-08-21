@@ -144,20 +144,22 @@ class PortUserIntegrationTest_SingleProducer : public Test
         return caproMessage;
     }
 
-    void subscriberThread()
+    template <typename SubscriberPortProducerType>
+    void subscriberThread(SubscriberPortProducerType& subscriberPortProducer,
+                          iox::popo::SubscriberPortUser& subscriberPortUser)
     {
         bool finished{false};
         iox::cxx::optional<iox::capro::CaproMessage> maybeCaproMessage;
         iox::capro::CaproMessage caproMessage;
 
-        m_subscriberPortUserSingleProducer.attachConditionVariable(&m_condVarData);
+        subscriberPortUser.attachConditionVariable(&m_condVarData);
 
         // Wait for publisher to be ready
         caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, iox::capro::CaproMessageType::OFFER);
 
         // Subscribe to publisher
-        m_subscriberPortUserSingleProducer.subscribe();
-        maybeCaproMessage = m_subscriberPortRouDiSideSingleProducer.getCaProMessage();
+        subscriberPortUser.subscribe();
+        maybeCaproMessage = subscriberPortProducer.getCaProMessage();
         if (maybeCaproMessage.has_value())
         {
             caproMessage = maybeCaproMessage.value();
@@ -168,7 +170,7 @@ class PortUserIntegrationTest_SingleProducer : public Test
         caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, iox::capro::CaproMessageType::ACK);
 
         // Let RouDi change state to finish subscription
-        static_cast<void>(m_subscriberPortRouDiSideSingleProducer.dispatchCaProMessage(caproMessage));
+        static_cast<void>(subscriberPortProducer.dispatchCaProMessage(caproMessage));
 
         // Subscription done and ready to receive samples
         while (!finished)
@@ -176,7 +178,7 @@ class PortUserIntegrationTest_SingleProducer : public Test
             if (m_waiter.timedWait(100_ms))
             {
                 // Condition variable triggered
-                m_subscriberPortUserSingleProducer.getChunk()
+                subscriberPortUser.getChunk()
                     .and_then([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
                         if (maybeChunkHeader.has_value())
                         {
@@ -185,7 +187,7 @@ class PortUserIntegrationTest_SingleProducer : public Test
                             // Check if monotonically increasing
                             EXPECT_THAT(dummySample.m_dummy, Eq(m_receiveCounter));
                             m_receiveCounter++;
-                            m_subscriberPortUserSingleProducer.releaseChunk(chunkHeader);
+                            subscriberPortUser.releaseChunk(chunkHeader);
                         }
                     })
                     .or_else([](ChunkReceiveError) {
@@ -259,7 +261,11 @@ class PortUserIntegrationTest_SingleProducer : public Test
 
 TEST_F(PortUserIntegrationTest_SingleProducer, test1)
 {
-    std::thread subscribingThread(&PortUserIntegrationTest_SingleProducer::subscriberThread, this);
+    std::thread subscribingThread(
+        std::bind(&PortUserIntegrationTest_SingleProducer::subscriberThread<iox::popo::SubscriberPortSingleProducer>,
+                  this,
+                  std::ref(PortUserIntegrationTest_SingleProducer::m_subscriberPortRouDiSideSingleProducer),
+                  std::ref(PortUserIntegrationTest_SingleProducer::m_subscriberPortUserSingleProducer)));
     std::thread publishingThread(&PortUserIntegrationTest_SingleProducer::publisherThread, this);
 
     if (publishingThread.joinable())
