@@ -52,16 +52,16 @@ static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_
 alignas(64) static uint8_t g_memory[MEMORY_SIZE];
 static constexpr uint32_t ITERATIONS = 1000;
 
-class PortUserIntegrationTest_SingleProducer : public Test
+class PortUser_IntegrationTest : public Test
 {
   public:
-    PortUserIntegrationTest_SingleProducer()
+    PortUser_IntegrationTest()
     {
         m_mempoolConfig.addMemPool({SMALL_CHUNK, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolConfig, &m_memoryAllocator, &m_memoryAllocator);
     }
 
-    ~PortUserIntegrationTest_SingleProducer()
+    ~PortUser_IntegrationTest()
     {
     }
 
@@ -259,14 +259,14 @@ class PortUserIntegrationTest_SingleProducer : public Test
     }
 };
 
-TEST_F(PortUserIntegrationTest_SingleProducer, test1)
+TEST_F(PortUser_IntegrationTest, SingleProducer)
 {
     std::thread subscribingThread(
-        std::bind(&PortUserIntegrationTest_SingleProducer::subscriberThread<iox::popo::SubscriberPortSingleProducer>,
+        std::bind(&PortUser_IntegrationTest::subscriberThread<iox::popo::SubscriberPortSingleProducer>,
                   this,
-                  std::ref(PortUserIntegrationTest_SingleProducer::m_subscriberPortRouDiSideSingleProducer),
-                  std::ref(PortUserIntegrationTest_SingleProducer::m_subscriberPortUserSingleProducer)));
-    std::thread publishingThread(&PortUserIntegrationTest_SingleProducer::publisherThread, this);
+                  std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiSideSingleProducer),
+                  std::ref(PortUser_IntegrationTest::m_subscriberPortUserSingleProducer)));
+    std::thread publishingThread(&PortUser_IntegrationTest::publisherThread, this);
 
     if (publishingThread.joinable())
     {
