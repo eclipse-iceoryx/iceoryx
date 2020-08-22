@@ -80,6 +80,7 @@ enum class MqMessageErrorType : int32_t
     NO_UNIQUE_CREATED,
     /// Not enough space to create another one
     SENDERLIST_FULL,
+    CONDITION_VARIABLE_LIST_FULL,
     END,
 };
 

@@ -89,6 +89,21 @@ PortPool::addRunnableData(const iox::cxx::CString100& process,
     }
 }
 
+cxx::expected<popo::ConditionVariableData*, PortPoolError>
+PortPool::addConditionVariableData(const iox::cxx::CString100& process)
+{
+    if (m_portPoolDataBase->m_conditionVariableMembers.hasFreeSpace())
+    {
+        auto conditionVariableData = m_portPoolDataBase->m_conditionVariableMembers.insert();
+        return cxx::success<popo::ConditionVariableData*>(conditionVariableData);
+    }
+    else
+    {
+        errorHandler(Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::CONDITION_VARIABLE_LIST_FULL);
+    }
+}
+
 void PortPool::removeInterfacePort(popo::InterfacePortData* const portData) noexcept
 {
     m_portPoolDataBase->m_interfacePortMembers.erase(portData);

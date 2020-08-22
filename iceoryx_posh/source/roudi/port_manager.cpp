@@ -635,7 +635,7 @@ runtime::RunnableData* PortManager::acquireRunnableData(const cxx::CString100& p
 cxx::expected<popo::ConditionVariableData*, PortPoolError>
 PortManager::acquireConditionVariableData(const cxx::CString100& processName)
 {
-    //return m_portPool->addConditionVariableData(processName);
+    return m_portPool->addConditionVariableData(processName);
 }
 
 } // namespace roudi

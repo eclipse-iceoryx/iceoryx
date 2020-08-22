@@ -543,21 +543,31 @@ void ProcessManager::addConditionVariableForProcess(const cxx::CString100& proce
     RouDiProcess* process = getProcessFromList(processName);
     if (nullptr != process)
     {
-        // create a condition variable
-
-        auto maybeConditionVariableData =
-            m_portManager.acquireConditionVariableData(processName).and_then([&](popo::ConditionVariableData* condVar) {
+        // Try to create a condition variable
+        m_portManager.acquireConditionVariableData(processName)
+            .and_then([&](popo::ConditionVariableData* condVar) {
                 // popo::ConditionVariableData*
+                auto offset = RelativePointer::getOffset(m_mgmtSegmentId, condVar);
+
+                runtime::MqMessage sendBuffer;
+                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_CONDITION_VARIABLE_ACK)
+                           << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+                process->sendToMQ(sendBuffer);
+
+                LogDebug() << "Created new ConditionVariableImpl for application " << processName;
+            })
+            .or_else([&](PortPoolError error) {
+                runtime::MqMessage sendBuffer;
+                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
+                if (error == PortPoolError::CONDITION_VARIABLE_LIST_FULL)
+                {
+                    sendBuffer << runtime::mqMessageErrorTypeToString(
+                        runtime::MqMessageErrorType::CONDITION_VARIABLE_LIST_FULL);
+                }
+                process->sendToMQ(sendBuffer);
+
+                LogDebug() << "Could not create new ConditionVariableImpl for application " << processName;
             });
-        // send ReceiverPort to app as a serialized relative pointer
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeConditionVariableData.get_value());
-
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_CONDITION_VARIABLE_ACK)
-                   << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-        process->sendToMQ(sendBuffer);
-
-        LogDebug() << "Created new ConditionVariableImpl for application " << processName;
     }
     else
     {

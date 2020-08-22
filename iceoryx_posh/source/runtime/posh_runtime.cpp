@@ -401,10 +401,11 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
     }
 }
 
-popo::ConditionVariableData* PoshRuntime::requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept
+cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
+PoshRuntime::requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept
 {
     MqMessage receiveBuffer;
-    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (1 == receiveBuffer.getNumberOfElements()))
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3 == receiveBuffer.getNumberOfElements()))
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
@@ -415,20 +416,31 @@ popo::ConditionVariableData* PoshRuntime::requestConditionVariableFromRoudi(cons
             RelativePointer::offset_t offset;
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
             auto ptr = RelativePointer::getPtr(segmentId, offset);
-            return reinterpret_cast<popo::ConditionVariableData*>(ptr);
+            return cxx::success<popo::ConditionVariableData*>(reinterpret_cast<popo::ConditionVariableData*>(ptr));
         }
         else
         {
             LogError() << "Wrong response from message queue " << mqMessage;
             assert(false);
-            return nullptr;
+            return cxx::success<popo::ConditionVariableData*>(nullptr);
         }
     }
     else
     {
+        if (receiveBuffer.getNumberOfElements() == 2)
+        {
+            std::string mqMessage1 = receiveBuffer.getElementAtIndex(0);
+            std::string mqMessage2 = receiveBuffer.getElementAtIndex(1);
+            if (stringToMqMessageType(mqMessage1.c_str()) == MqMessageType::ERROR)
+            {
+                LogError() << "No valid condition variable received from RouDi.";
+                return cxx::error<MqMessageErrorType>(stringToMqMessageErrorType(mqMessage2.c_str()));
+            }
+        }
+
         LogError() << "Wrong response from message queue";
         assert(false);
-        return nullptr;
+        return cxx::success<popo::ConditionVariableData*>(nullptr);
     }
 }
 
@@ -437,7 +449,8 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_CONDITION_VARIABLE) << m_appName;
 
-    return requestConditionVariableFromRoudi(sendBuffer);
+    popo::ConditionVariableData* conditionVariable{nullptr};
+    requestConditionVariableFromRoudi(sendBuffer);
 }
 
 bool PoshRuntime::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept

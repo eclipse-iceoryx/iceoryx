@@ -337,13 +337,14 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
 {
     auto conditionVariableListOverflowDetected{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&conditionVariableListOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+        [&conditionVariableListOverflowDetected](
+            const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             conditionVariableListOverflowDetected = true;
             EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW));
         });
 
-    uint32_t i = 0u;
-    for (; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
+
+    for (uint32_t i = 0u; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
     {
         auto conditionVariable = m_runtime->getMiddlewareConditionVariable();
         ASSERT_NE(nullptr, conditionVariable);
