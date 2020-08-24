@@ -31,6 +31,7 @@
 
 using namespace ::testing;
 using namespace iox::popo;
+using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox::mepoo;
 using namespace iox::posix;
@@ -41,7 +42,7 @@ struct DummySample
     uint64_t m_dummy{42};
 };
 
-static const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION("x", "y", "z");
+static const ServiceDescription TEST_SERVICE_DESCRIPTION("x", "y", "z");
 static const iox::ProcessName_t TEST_SUBSCRIBER_APP_NAME("mySubscriberApp");
 static const iox::ProcessName_t TEST_PUBLISHER_APP_NAME("myPublisherApp");
 
@@ -81,8 +82,8 @@ class PortUser_IntegrationTest : public Test
         m_waiter.reset();
     }
 
-    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
-                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
+    GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     uint64_t m_sendCounter{0};
     uint64_t m_receiveCounter{0};
     std::atomic<bool> m_publisherRun{true};
@@ -95,33 +96,27 @@ class PortUser_IntegrationTest : public Test
     ConditionVariableData m_condVarData;
     ConditionVariableWaiter m_waiter{&m_condVarData};
 
-    using ConcurrentCaproMessageVector_t = iox::concurrent::smart_lock<iox::cxx::vector<iox::capro::CaproMessage, 1>>;
+    using ConcurrentCaproMessageVector_t = iox::concurrent::smart_lock<vector<CaproMessage, 1>>;
     ConcurrentCaproMessageVector_t m_concurrentCaproMessageVector;
 
-    iox::popo::SubscriberPortData::ChunkQueueData_t m_chunkQueueData{
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    SubscriberPortData::ChunkQueueData_t m_chunkQueueData{VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 
     // subscriber port
-    iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
-        TEST_SERVICE_DESCRIPTION,
-        TEST_SUBSCRIBER_APP_NAME,
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-    iox::popo::SubscriberPortUser m_subscriberPortUserSingleProducer{&m_subscriberPortDataSingleProducer};
-    iox::popo::SubscriberPortSingleProducer m_subscriberPortRouDiSideSingleProducer{
-        &m_subscriberPortDataSingleProducer};
+    SubscriberPortData m_subscriberPortDataSingleProducer{
+        TEST_SERVICE_DESCRIPTION, TEST_SUBSCRIBER_APP_NAME, VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+    SubscriberPortUser m_subscriberPortUserSingleProducer{&m_subscriberPortDataSingleProducer};
+    SubscriberPortSingleProducer m_subscriberPortRouDiSideSingleProducer{&m_subscriberPortDataSingleProducer};
 
     // publisher port w/o history
-    iox::popo::PublisherPortData m_publisherPortData{
-        TEST_SERVICE_DESCRIPTION, TEST_PUBLISHER_APP_NAME, &m_memoryManager};
-    iox::popo::PublisherPortUser m_publisherUserSide{&m_publisherPortData};
-    iox::popo::PublisherPortRouDi m_publisherRouDiSide{&m_publisherPortData};
+    PublisherPortData m_publisherPortData{TEST_SERVICE_DESCRIPTION, TEST_PUBLISHER_APP_NAME, &m_memoryManager};
+    PublisherPortUser m_publisherUserSide{&m_publisherPortData};
+    PublisherPortRouDi m_publisherRouDiSide{&m_publisherPortData};
 
-    inline iox::capro::CaproMessage
-    waitForCaproMessage(const ConcurrentCaproMessageVector_t& concurrentCaproMessageVector,
-                        const iox::capro::CaproMessageType& caproMessageType)
+    inline CaproMessage waitForCaproMessage(const ConcurrentCaproMessageVector_t& concurrentCaproMessageVector,
+                                            const CaproMessageType& caproMessageType)
     {
         bool finished{false};
-        iox::capro::CaproMessage caproMessage;
+        CaproMessage caproMessage;
 
         do
         {
@@ -145,17 +140,16 @@ class PortUser_IntegrationTest : public Test
     }
 
     template <typename SubscriberPortProducerType>
-    void subscriberThread(SubscriberPortProducerType& subscriberPortProducer,
-                          iox::popo::SubscriberPortUser& subscriberPortUser)
+    void subscriberThread(SubscriberPortProducerType& subscriberPortProducer, SubscriberPortUser& subscriberPortUser)
     {
         bool finished{false};
-        iox::cxx::optional<iox::capro::CaproMessage> maybeCaproMessage;
-        iox::capro::CaproMessage caproMessage;
+        optional<CaproMessage> maybeCaproMessage;
+        CaproMessage caproMessage;
 
         subscriberPortUser.attachConditionVariable(&m_condVarData);
 
         // Wait for publisher to be ready
-        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, iox::capro::CaproMessageType::OFFER);
+        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::OFFER);
 
         // Subscribe to publisher
         subscriberPortUser.subscribe();
@@ -167,7 +161,7 @@ class PortUser_IntegrationTest : public Test
         }
 
         // Wait for subscription ACK from publisher
-        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, iox::capro::CaproMessageType::ACK);
+        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::ACK);
 
         // Let RouDi change state to finish subscription
         static_cast<void>(subscriberPortProducer.dispatchCaProMessage(caproMessage));
@@ -179,7 +173,7 @@ class PortUser_IntegrationTest : public Test
             {
                 // Condition variable triggered
                 subscriberPortUser.getChunk()
-                    .and_then([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
+                    .and_then([&](optional<const ChunkHeader*>& maybeChunkHeader) {
                         if (maybeChunkHeader.has_value())
                         {
                             auto chunkHeader = maybeChunkHeader.value();
@@ -208,8 +202,8 @@ class PortUser_IntegrationTest : public Test
 
     void publisherThread()
     {
-        iox::cxx::optional<iox::capro::CaproMessage> maybeCaproMessage;
-        iox::capro::CaproMessage caproMessage;
+        optional<CaproMessage> maybeCaproMessage;
+        CaproMessage caproMessage;
 
         // Publisher offers its service
         m_publisherUserSide.offer();
@@ -224,7 +218,7 @@ class PortUser_IntegrationTest : public Test
         }
 
         // Wait for subscriber to subscribe
-        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, iox::capro::CaproMessageType::SUB);
+        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::SUB);
 
         // Send ACK to subscriber
         maybeCaproMessage = m_publisherRouDiSide.dispatchCaProMessage(caproMessage);
@@ -238,7 +232,7 @@ class PortUser_IntegrationTest : public Test
         for (size_t i = 0; i < ITERATIONS; i++)
         {
             m_publisherUserSide.allocateChunk(sizeof(DummySample))
-                .and_then([&](iox::mepoo::ChunkHeader* chunkHeader) {
+                .and_then([&](ChunkHeader* chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
@@ -261,11 +255,10 @@ class PortUser_IntegrationTest : public Test
 
 TEST_F(PortUser_IntegrationTest, SingleProducer)
 {
-    std::thread subscribingThread(
-        std::bind(&PortUser_IntegrationTest::subscriberThread<iox::popo::SubscriberPortSingleProducer>,
-                  this,
-                  std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiSideSingleProducer),
-                  std::ref(PortUser_IntegrationTest::m_subscriberPortUserSingleProducer)));
+    std::thread subscribingThread(std::bind(&PortUser_IntegrationTest::subscriberThread<SubscriberPortSingleProducer>,
+                                            this,
+                                            std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiSideSingleProducer),
+                                            std::ref(PortUser_IntegrationTest::m_subscriberPortUserSingleProducer)));
     std::thread publishingThread(&PortUser_IntegrationTest::publisherThread, this);
 
     if (publishingThread.joinable())
