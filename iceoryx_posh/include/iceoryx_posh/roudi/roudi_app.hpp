@@ -38,8 +38,8 @@ class RouDiApp
     /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
     static RouDiConfig_t generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept;
 
-    /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
-    RouDiApp(int argc, char* argv[], const mepoo::MePooConfig* mePooConfig = nullptr) noexcept;
+    /// @deprecated Please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
+    [[gnu::deprecated]]  RouDiApp(int argc, char* argv[], const mepoo::MePooConfig* mePooConfig = nullptr) noexcept;
 
     /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
     RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept;
