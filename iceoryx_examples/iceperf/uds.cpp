@@ -75,7 +75,14 @@ void UDS::init() noexcept
 
     m_sockfdSubscriber = socketCallSubscriber.getReturnValue();
 
-    unlink(m_sockAddrSubscriber.sun_path);
+    auto unlinkCall = iox::cxx::makeSmartC(
+        unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {ENOENT}, m_sockAddrSubscriber.sun_path);
+
+    if (unlinkCall.hasErrors())
+    {
+        std::cout << "unlink error" << std::endl;
+        exit(1);
+    }
 
     auto bindCall = iox::cxx::makeSmartC(bind,
                                          iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
@@ -120,7 +127,14 @@ void UDS::shutdown() noexcept
             exit(1);
         }
 
-        unlink(m_sockAddrSubscriber.sun_path);
+        auto unlinkCall = iox::cxx::makeSmartC(
+            unlink, iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {ERROR_CODE}, {}, m_sockAddrSubscriber.sun_path);
+
+        if (unlinkCall.hasErrors())
+        {
+            std::cout << "unlink error" << std::endl;
+            exit(1);
+        }
     }
 }
 
