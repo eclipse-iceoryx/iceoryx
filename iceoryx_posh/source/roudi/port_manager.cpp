@@ -45,18 +45,16 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface)
     auto maybePortPool = m_roudiMemoryInterface->portPool();
     if (!maybePortPool.has_value())
     {
-        /// @todo errorHandler
         LogFatal() << "Could not get PortPool!";
-        std::terminate();
+        errorHandler(Error::kPORT_MANAGER__PORT_POOL_UNAVAILABLE, nullptr, iox::ErrorLevel::SEVERE);
     }
     m_portPool = maybePortPool.value();
 
     auto maybeIntrospectionMemoryManager = m_roudiMemoryInterface->introspectionMemoryManager();
     if (!maybeIntrospectionMemoryManager.has_value())
     {
-        /// @todo errorHandler
         LogFatal() << "Could not get MemoryManager for introspection!";
-        std::terminate();
+        errorHandler(Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::SEVERE);
     }
     auto& introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
