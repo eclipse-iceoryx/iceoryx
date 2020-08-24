@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
+#include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_property.hpp"
@@ -26,7 +26,7 @@ namespace iox
 {
 namespace roudi
 {
-RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
+RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
                                      PortManager& portManager,
                                      const MonitoringMode monitoringMode,
                                      const bool killProcessesInDestructor,
@@ -52,7 +52,7 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
     m_processIntrospection.addProcess(getpid(), MQ_ROUDI_NAME);
 
     // run the threads
-    m_processManagementThread = std::thread(&RouDiMultiProcess::processThread, this);
+    m_processManagementThread = std::thread(&RouDi::processThread, this);
     pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
 
     if (mqThreadStart == MQThreadStart::IMMEDIATE)
@@ -61,18 +61,18 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
     }
 }
 
-RouDiMultiProcess::~RouDiMultiProcess()
+RouDi::~RouDi()
 {
     shutdown();
 }
 
-void RouDiMultiProcess::startMQThread()
+void RouDi::startMQThread()
 {
-    m_processMQThread = std::thread(&RouDiMultiProcess::mqThread, this);
+    m_processMQThread = std::thread(&RouDi::mqThread, this);
     pthread_setname_np(m_processMQThread.native_handle(), "MQ-processing");
 }
 
-void RouDiMultiProcess::shutdown()
+void RouDi::shutdown()
 {
     m_processIntrospection.stop();
     m_portManager->stopPortIntrospection();
@@ -98,12 +98,12 @@ void RouDiMultiProcess::shutdown()
     }
 }
 
-void RouDiMultiProcess::cyclicUpdateHook()
+void RouDi::cyclicUpdateHook()
 {
     // default implementation; do nothing
 }
 
-void RouDiMultiProcess::processThread()
+void RouDi::processThread()
 {
     while (m_runThreads)
     {
@@ -113,7 +113,7 @@ void RouDiMultiProcess::processThread()
     }
 }
 
-void RouDiMultiProcess::mqThread()
+void RouDi::mqThread()
 {
     runtime::MqInterfaceCreator roudiMqInterface{MQ_ROUDI_NAME};
 
@@ -140,7 +140,7 @@ void RouDiMultiProcess::mqThread()
     }
 }
 
-void RouDiMultiProcess::parseRegisterMessage(const runtime::MqMessage& message,
+void RouDi::parseRegisterMessage(const runtime::MqMessage& message,
                                              int& pid,
                                              uid_t& userId,
                                              int64_t& transmissionTimestamp)
@@ -151,7 +151,7 @@ void RouDiMultiProcess::parseRegisterMessage(const runtime::MqMessage& message,
 }
 
 
-void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
+void RouDi::processMessage(const runtime::MqMessage& message,
                                        const iox::runtime::MqMessageType& cmd,
                                        const std::string& processName)
 {
@@ -306,7 +306,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     }
 }
 
-bool RouDiMultiProcess::registerProcess(
+bool RouDi::registerProcess(
     const std::string& name, int pid, posix::PosixUser user, int64_t transmissionTimestamp, const uint64_t sessionId)
 {
     bool monitorProcess = (m_monitoringMode == MonitoringMode::ON);
@@ -314,13 +314,13 @@ bool RouDiMultiProcess::registerProcess(
     return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId);
 }
 
-uint64_t RouDiMultiProcess::getUniqueSessionIdForProcess()
+uint64_t RouDi::getUniqueSessionIdForProcess()
 {
     static uint64_t sessionId = 0;
     return ++sessionId;
 }
 
-void RouDiMultiProcess::mqMessageErrorHandler()
+void RouDi::mqMessageErrorHandler()
 {
 }
 
