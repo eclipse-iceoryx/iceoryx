@@ -450,7 +450,6 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_CONDITION_VARIABLE) << m_appName;
 
-    popo::ConditionVariableData* conditionVariable{nullptr};
     auto maybeConditionVariable = requestConditionVariableFromRoudi(sendBuffer);
     if (maybeConditionVariable.has_error())
     {
