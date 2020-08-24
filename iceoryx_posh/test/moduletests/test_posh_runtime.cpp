@@ -339,8 +339,10 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&conditionVariableListOverflowDetected](
             const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            conditionVariableListOverflowDetected = true;
-            EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW));
+            if (error == iox::Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW)
+            {
+                conditionVariableListOverflowDetected = true;
+            }
         });
 
 

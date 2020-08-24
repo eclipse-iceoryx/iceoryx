@@ -138,17 +138,18 @@ SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::Serv
         case MqMessageErrorType::NO_UNIQUE_CREATED:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
                       << "' already in use by another process.";
-            errorHandler(Error::kPOSH__SENDERPORT_NOT_UNIQUE);
+            errorHandler(Error::kPOSH__RUNTIME_SENDERPORT_NOT_UNIQUE, nullptr, iox::ErrorLevel::MODERATE);
             break;
         case MqMessageErrorType::SENDERLIST_FULL:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
                       << "' could not be created since we are out of memory.";
-            errorHandler(Error::kPOSH__SENDERPORT_ROUDI_MIDDLEWARESENDERLIST_FULL);
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_SENDERLIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
             break;
         default:
             LogWarn() << "Undefined behavior occurred while creating service '"
                       << service.operator cxx::Serialization().toString() << "'.";
-            errorHandler(Error::kPOSH__SENDERPORT_CREATION_UNDEFINED_BEHAVIOR);
+            errorHandler(
+                Error::kPOSH__RUNTIME_SENDERPORT_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
             break;
         }
         return nullptr;
@@ -450,7 +451,24 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
     sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_CONDITION_VARIABLE) << m_appName;
 
     popo::ConditionVariableData* conditionVariable{nullptr};
-    requestConditionVariableFromRoudi(sendBuffer);
+    auto maybeConditionVariable = requestConditionVariableFromRoudi(sendBuffer);
+    if (maybeConditionVariable.has_error())
+    {
+        switch (maybeConditionVariable.get_error())
+        {
+        case MqMessageErrorType::CONDITION_VARIABLE_LIST_FULL:
+            LogWarn() << "Could not create another condition variable as we are out of memory";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        default:
+            LogWarn() << "Undefined behavior occurred while creating condition variable";
+            errorHandler(
+                Error::kPOSH__RUNTIME_CONDITION_VARIABLE_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        }
+        return nullptr;
+    }
+    return maybeConditionVariable.get_value();
 }
 
 bool PoshRuntime::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept

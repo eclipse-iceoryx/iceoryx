@@ -537,7 +537,7 @@ PortManager::acquireSenderPortData(const capro::ServiceDescription& service,
                       << service.operator cxx::Serialization().toString() << "'.";
             if (senderPort.isUnique())
             {
-                errorHandler(Error::kPOSH__SENDERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+                errorHandler(Error::kPOSH__PORT_MANAGER_SENDERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
                 return cxx::error<PortPoolError>(PortPoolError::UNIQUE_SENDER_PORT_ALREADY_EXISTS);
             }
             else
