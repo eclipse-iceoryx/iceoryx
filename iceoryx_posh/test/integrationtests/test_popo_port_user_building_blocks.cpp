@@ -78,21 +78,24 @@ class PortUser_IntegrationTest : public Test
             iox::cxx::string<100> processName(TruncateToCapacity, publisherAppName.str().c_str());
 
             m_publisherPortDataVector.emplace_back(TEST_SERVICE_DESCRIPTION, processName, &m_memoryManager);
-            m_publisherUserSideVector.emplace_back(&m_publisherPortDataVector.back());
-            m_publisherRouDiSideVector.emplace_back(&m_publisherPortDataVector.back());
+            m_publisherPortUserVector.emplace_back(&m_publisherPortDataVector.back());
+            m_publisherPortRouDiVector.emplace_back(&m_publisherPortDataVector.back());
         }
     }
 
     void TearDown()
     {
-        m_publisherUserSide.stopOffer();
+        for (uint32_t i = 0; i < NUMBER_OF_PUBLISHERS; i++)
+        {
+            m_publisherPortUserVector[i].stopOffer();
+            static_cast<void>(m_publisherPortRouDiVector[i].getCaProMessage());
+        }
 
         m_subscriberPortUserSingleProducer.unsubscribe();
         m_subscriberPortUserMultiProducer.unsubscribe();
 
-        static_cast<void>(m_publisherRouDiSide.getCaProMessage());
-        static_cast<void>(m_subscriberPortRouDiSideSingleProducer.getCaProMessage());
-        static_cast<void>(m_subscriberPortRouDiMultiSingleProducer.getCaProMessage());
+        static_cast<void>(m_subscriberPortRouDiSingleProducer.getCaProMessage());
+        static_cast<void>(m_subscriberPortRouDiMultiProducer.getCaProMessage());
 
         if (m_subscriberPortUserSingleProducer.isConditionVariableAttached())
         {
@@ -129,22 +132,18 @@ class PortUser_IntegrationTest : public Test
     SubscriberPortData m_subscriberPortDataSingleProducer{
         TEST_SERVICE_DESCRIPTION, TEST_SUBSCRIBER_APP_NAME, VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     SubscriberPortUser m_subscriberPortUserSingleProducer{&m_subscriberPortDataSingleProducer};
-    SubscriberPortSingleProducer m_subscriberPortRouDiSideSingleProducer{&m_subscriberPortDataSingleProducer};
+    SubscriberPortSingleProducer m_subscriberPortRouDiSingleProducer{&m_subscriberPortDataSingleProducer};
 
     // subscriber port for multi producer
     SubscriberPortData m_subscriberPortDataMultiProducer{
         TEST_SERVICE_DESCRIPTION, TEST_SUBSCRIBER_APP_NAME, VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
     SubscriberPortUser m_subscriberPortUserMultiProducer{&m_subscriberPortDataMultiProducer};
-    SubscriberPortMultiProducer m_subscriberPortRouDiMultiSingleProducer{&m_subscriberPortDataMultiProducer};
+    SubscriberPortMultiProducer m_subscriberPortRouDiMultiProducer{&m_subscriberPortDataMultiProducer};
 
-    // publisher port w/o history
-    PublisherPortData m_publisherPortData{TEST_SERVICE_DESCRIPTION, TEST_PUBLISHER_APP_NAME, &m_memoryManager};
-    PublisherPortUser m_publisherUserSide{&m_publisherPortData};
-    PublisherPortRouDi m_publisherRouDiSide{&m_publisherPortData};
-
+    // publisher port
     vector<PublisherPortData, NUMBER_OF_PUBLISHERS> m_publisherPortDataVector;
-    vector<PublisherPortUser, NUMBER_OF_PUBLISHERS> m_publisherUserSideVector;
-    vector<PublisherPortRouDi, NUMBER_OF_PUBLISHERS> m_publisherRouDiSideVector;
+    vector<PublisherPortUser, NUMBER_OF_PUBLISHERS> m_publisherPortUserVector;
+    vector<PublisherPortRouDi, NUMBER_OF_PUBLISHERS> m_publisherPortRouDiVector;
 
     inline CaproMessage waitForCaproMessage(const ConcurrentCaproMessageVector_t& concurrentCaproMessageVector,
                                             const CaproMessageType& caproMessageType)
@@ -174,7 +173,7 @@ class PortUser_IntegrationTest : public Test
     }
 
     template <typename SubscriberPortProducerType>
-    void subscriberThread(SubscriberPortProducerType& subscriberPortProducer, SubscriberPortUser& subscriberPortUser)
+    void subscriberThread(SubscriberPortProducerType& subscriberPortRouDi, SubscriberPortUser& subscriberPortUser)
     {
         bool finished{false};
         optional<CaproMessage> maybeCaproMessage;
@@ -187,7 +186,7 @@ class PortUser_IntegrationTest : public Test
 
         // Subscribe to publisher
         subscriberPortUser.subscribe();
-        maybeCaproMessage = subscriberPortProducer.getCaProMessage();
+        maybeCaproMessage = subscriberPortRouDi.getCaProMessage();
         if (maybeCaproMessage.has_value())
         {
             caproMessage = maybeCaproMessage.value();
@@ -198,12 +197,12 @@ class PortUser_IntegrationTest : public Test
         caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::ACK);
 
         // Let RouDi change state to finish subscription
-        static_cast<void>(subscriberPortProducer.dispatchCaProMessage(caproMessage));
+        static_cast<void>(subscriberPortRouDi.dispatchCaProMessage(caproMessage));
 
         // Subscription done and ready to receive samples
         while (!finished)
         {
-            if (m_waiter.timedWait(1000_ms))
+            if (m_waiter.timedWait(100_ms))
             {
                 // Condition variable triggered
                 subscriberPortUser.getChunk()
@@ -311,13 +310,13 @@ TEST_F(PortUser_IntegrationTest, SingleProducer)
 {
     std::thread subscribingThread(std::bind(&PortUser_IntegrationTest::subscriberThread<SubscriberPortSingleProducer>,
                                             this,
-                                            std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiSideSingleProducer),
+                                            std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiSingleProducer),
                                             std::ref(PortUser_IntegrationTest::m_subscriberPortUserSingleProducer)));
     std::thread publishingThread(std::bind(&PortUser_IntegrationTest::publisherThread,
                                            this,
                                            0,
-                                           std::ref(PortUser_IntegrationTest::m_publisherRouDiSide),
-                                           std::ref(PortUser_IntegrationTest::m_publisherUserSide)));
+                                           std::ref(PortUser_IntegrationTest::m_publisherPortRouDiVector.front()),
+                                           std::ref(PortUser_IntegrationTest::m_publisherPortUserVector.front())));
 
     if (subscribingThread.joinable())
     {
@@ -334,11 +333,10 @@ TEST_F(PortUser_IntegrationTest, SingleProducer)
 
 TEST_F(PortUser_IntegrationTest, MultiProducer)
 {
-    std::thread subscribingThread(
-        std::bind(&PortUser_IntegrationTest::subscriberThread<SubscriberPortMultiProducer>,
-                  this,
-                  std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiMultiSingleProducer),
-                  std::ref(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer)));
+    std::thread subscribingThread(std::bind(&PortUser_IntegrationTest::subscriberThread<SubscriberPortMultiProducer>,
+                                            this,
+                                            std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiMultiProducer),
+                                            std::ref(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer)));
 
     vector<std::thread, NUMBER_OF_PUBLISHERS> publisherThreadVector;
     for (uint32_t i = 0; i < NUMBER_OF_PUBLISHERS; i++)
@@ -346,8 +344,8 @@ TEST_F(PortUser_IntegrationTest, MultiProducer)
         publisherThreadVector.emplace_back(std::bind(&PortUser_IntegrationTest::publisherThread,
                                                      this,
                                                      i,
-                                                     std::ref(PortUser_IntegrationTest::m_publisherRouDiSideVector[i]),
-                                                     std::ref(PortUser_IntegrationTest::m_publisherUserSideVector[i])));
+                                                     std::ref(PortUser_IntegrationTest::m_publisherPortRouDiVector[i]),
+                                                     std::ref(PortUser_IntegrationTest::m_publisherPortUserVector[i])));
     }
 
     if (subscribingThread.joinable())
