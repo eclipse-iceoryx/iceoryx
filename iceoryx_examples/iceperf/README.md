@@ -33,8 +33,8 @@ of iceperf-laurel (e.g. ./iceperf-laurel 100000)
 ## Expected output
 
 The numbers will differ depending on parameters and the performance of the hardware.
-Which technologies are measured depends on the operating system (e.g. no message queue on MacOS)
-Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2.
+Which technologies are measured depends on the operating system (e.g. no message queue on MacOS).
+Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2.80GHz.
 
 ### iceperf-laurel application
 
@@ -170,7 +170,7 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
 ## Code walkthrough
 
 Here we roughly describe the setup for performing the measurements. Things like initialization, sending and receiving of data are technology specific and can be found in the respective files (e.g. uds.cpp for 
-unix doamin socket). Our focus here is on the abstraction layer on top which allows us to add new IPC tecehnologies or you to extend and compare with whatever.
+unix domain socket). Our focus here is on the abstraction layer on top which allows us to add new IPC technologies or you to extend and compare with whatever.
 
 ### iceperf-laurel application
 
@@ -195,7 +195,7 @@ Let's set some constants to prevent magic values. The default number of round tr
     constexpr char SUBSCRIBER[] = "Hardy";
 ```
 
-The `leaderDo()` functions executes a measurement for the provided IPC technology and number of round trips. For being able to always perform the same steps and avoiding code duplications, we use a base class with the interface to implement for each technology and the technology independent functionality. 
+The `leaderDo()` function executes a measurement for the provided IPC technology and number of round trips. For being able to always perform the same steps and avoiding code duplications, we use a base class with the interface to implement for each technology and the technology independent functionality. 
 
 ```cpp
     void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
