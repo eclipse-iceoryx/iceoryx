@@ -13,8 +13,6 @@
 // limitations under the License.
 
 #include "iceoryx.hpp"
-#include "iceoryx_posh/popo/publisher.hpp"
-#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "mq.hpp"
@@ -83,21 +81,19 @@ int main(int argc, char* argv[])
         }
     }
 
-    // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::getInstance(APP_NAME);
-
-    Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
-    UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
-
 #ifndef __APPLE__
-    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
     std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
+    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
     leaderDo(mq, numRoundtrips);
 #endif
 
     std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+    UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
     leaderDo(uds, numRoundtrips);
+
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
+    iox::runtime::PoshRuntime::getInstance(APP_NAME); // runtime for registering with the RouDi daemon
+    Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
     leaderDo(iceoryx, numRoundtrips);
 
     return (EXIT_SUCCESS);

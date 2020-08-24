@@ -134,13 +134,13 @@ void UDS::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
     sample->run = runFlag;
     if (payloadSizeInBytes <= MAX_MESSAGE_SIZE)
     {
-        sample->subPacktes = 1;
+        sample->subPackets = 1;
         send(&buffer[0], payloadSizeInBytes);
     }
     else
     {
-        sample->subPacktes = payloadSizeInBytes / MAX_MESSAGE_SIZE;
-        for (uint32_t i = 0U; i < sample->subPacktes; ++i)
+        sample->subPackets = payloadSizeInBytes / MAX_MESSAGE_SIZE;
+        for (uint32_t i = 0U; i < sample->subPackets; ++i)
         {
             send(&buffer[0], MAX_MESSAGE_SIZE);
         }
@@ -154,9 +154,9 @@ PerfTopic UDS::receivePerfTopic() noexcept
 
     auto receivedSample = reinterpret_cast<const PerfTopic*>(&m_message[0]);
 
-    if (receivedSample->subPacktes > 1)
+    if (receivedSample->subPackets > 1)
     {
-        for (uint32_t i = 0U; i < receivedSample->subPacktes - 1; ++i)
+        for (uint32_t i = 0U; i < receivedSample->subPackets - 1; ++i)
         {
             receive(&m_message[0]);
         }

@@ -71,7 +71,7 @@ void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
     auto sendSample = static_cast<PerfTopic*>(m_publisher.allocateChunk(payloadSizeInBytes, true));
     sendSample->payloadSize = payloadSizeInBytes;
     sendSample->run = runFlag;
-    sendSample->subPacktes = 1;
+    sendSample->subPackets = 1;
 
     m_publisher.sendChunk(sendSample);
 }
