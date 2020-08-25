@@ -307,14 +307,17 @@ class PortUser_IntegrationTest : public Test
 
 TEST_F(PortUser_IntegrationTest, SingleProducer)
 {
+    constexpr uint32_t NUMBER_OF_PUBLISHERS_SINGLE_PRODUCER = 1u;
+    constexpr uint32_t INDEX_OF_PUBLISHER_SINGLE_PRODUCER = 0u;
+
     std::thread subscribingThread(std::bind(&PortUser_IntegrationTest::subscriberThread<SubscriberPortSingleProducer>,
                                             this,
-                                            1,
+                                            NUMBER_OF_PUBLISHERS_SINGLE_PRODUCER,
                                             std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiSingleProducer),
                                             std::ref(PortUser_IntegrationTest::m_subscriberPortUserSingleProducer)));
     std::thread publishingThread(std::bind(&PortUser_IntegrationTest::publisherThread,
                                            this,
-                                           0,
+                                           INDEX_OF_PUBLISHER_SINGLE_PRODUCER,
                                            std::ref(PortUser_IntegrationTest::m_publisherPortRouDiVector.front()),
                                            std::ref(PortUser_IntegrationTest::m_publisherPortUserVector.front())));
 
