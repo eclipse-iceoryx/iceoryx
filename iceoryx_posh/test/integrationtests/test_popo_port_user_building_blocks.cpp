@@ -136,8 +136,11 @@ class PortUser_IntegrationTest : public Test
         bool finished{false};
         CaproMessage caproMessage;
 
+        // Wait until the expected CaPro message has arrived in the shared message vector between subscriber and the
+        // first publisher thread
         do
         {
+            // Add delay to allow other thread accessing the shared resource
             std::this_thread::sleep_for(std::chrono::microseconds(10));
             {
                 auto guardedVector = concurrentCaproMessageVector.GetScopeGuard();
@@ -187,7 +190,7 @@ class PortUser_IntegrationTest : public Test
         // Subscription done and ready to receive samples
         while (!finished)
         {
-            // Condition variable triggered
+            // Try to receive chunk
             subscriberPortUser.getChunk()
                 .and_then([&](optional<const ChunkHeader*>& maybeChunkHeader) {
                     if (maybeChunkHeader.has_value())
@@ -227,6 +230,7 @@ class PortUser_IntegrationTest : public Test
 
         if (publisherThreadIndex == 0)
         {
+            // First publisher thread will sync with subscriber
             if (maybeCaproMessage.has_value())
             {
                 caproMessage = maybeCaproMessage.value();
@@ -248,6 +252,8 @@ class PortUser_IntegrationTest : public Test
         }
         else
         {
+            // All other publisher threads wait for the first thread to be synced with subscriber (indicated by
+            // receiving a SUB message) to continue
             CaproMessage caproMessageRouDi(CaproMessageType::UNSUB, TEST_SERVICE_DESCRIPTION);
             do
             {
