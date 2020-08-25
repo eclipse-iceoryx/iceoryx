@@ -110,8 +110,8 @@ class PortUser_IntegrationTest : public Test
     MemoryManager m_memoryManager;
 
     using ConcurrentCaproMessageVector_t = iox::concurrent::smart_lock<vector<CaproMessage, 1>>;
-    ConcurrentCaproMessageVector_t m_concurrentCaproMessageVector;
-    iox::concurrent::smart_lock<vector<CaproMessage, 1>> m_caproMessageRx;
+    ConcurrentCaproMessageVector_t m_concurrentCaproMessageExchange;
+    ConcurrentCaproMessageVector_t m_concurrentCaproMessageRx;
 
     // subscriber port for single producer
     SubscriberPortData m_subscriberPortDataSingleProducer{
@@ -168,7 +168,7 @@ class PortUser_IntegrationTest : public Test
         bool finished{false};
 
         // Wait for publisher to be ready
-        auto caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::OFFER);
+        auto caproMessage = waitForCaproMessage(m_concurrentCaproMessageExchange, CaproMessageType::OFFER);
 
         // Subscribe to publisher
         subscriberPortUser.subscribe();
@@ -176,7 +176,7 @@ class PortUser_IntegrationTest : public Test
         if (maybeCaproMessage.has_value())
         {
             caproMessage = maybeCaproMessage.value();
-            m_concurrentCaproMessageVector->push_back(caproMessage);
+            m_concurrentCaproMessageExchange->push_back(caproMessage);
         }
         else
         {
@@ -185,7 +185,7 @@ class PortUser_IntegrationTest : public Test
         }
 
         // Wait for subscription ACK from publisher
-        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::ACK);
+        caproMessage = waitForCaproMessage(m_concurrentCaproMessageExchange, CaproMessageType::ACK);
 
         // Let RouDi change state to finish subscription
         static_cast<void>(subscriberPortRouDi.dispatchCaProMessage(caproMessage));
@@ -236,7 +236,7 @@ class PortUser_IntegrationTest : public Test
             if (maybeCaproMessage.has_value())
             {
                 caproMessage = maybeCaproMessage.value();
-                m_concurrentCaproMessageVector->push_back(caproMessage);
+                m_concurrentCaproMessageExchange->push_back(caproMessage);
             }
             else
             {
@@ -245,15 +245,15 @@ class PortUser_IntegrationTest : public Test
             }
 
             // Wait for subscriber to subscribe
-            caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::SUB);
-            m_caproMessageRx->push_back(caproMessage);
+            caproMessage = waitForCaproMessage(m_concurrentCaproMessageExchange, CaproMessageType::SUB);
+            m_concurrentCaproMessageRx->push_back(caproMessage);
 
             // Send ACK to subscriber
-            maybeCaproMessage = publisherPortRouDi.dispatchCaProMessage(m_caproMessageRx->back());
+            maybeCaproMessage = publisherPortRouDi.dispatchCaProMessage(m_concurrentCaproMessageRx->back());
             if (maybeCaproMessage.has_value())
             {
                 caproMessage = maybeCaproMessage.value();
-                m_concurrentCaproMessageVector->push_back(caproMessage);
+                m_concurrentCaproMessageExchange->push_back(caproMessage);
             }
             else
             {
@@ -270,9 +270,9 @@ class PortUser_IntegrationTest : public Test
             {
                 std::this_thread::sleep_for(std::chrono::microseconds(10));
 
-                if (m_caproMessageRx->size() != 0)
+                if (m_concurrentCaproMessageRx->size() != 0)
                 {
-                    caproMessageRouDi = m_caproMessageRx->back();
+                    caproMessageRouDi = m_concurrentCaproMessageRx->back();
                 }
 
             } while (caproMessageRouDi.m_type != CaproMessageType::SUB);
