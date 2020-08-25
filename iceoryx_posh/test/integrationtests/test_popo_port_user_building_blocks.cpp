@@ -19,7 +19,6 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/concurrent/smart_lock.hpp"
@@ -100,8 +99,9 @@ class PortUser_IntegrationTest : public Test
 
     GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                 [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-    std::atomic<uint64_t> m_sendCounter{0};
+
     uint64_t m_receiveCounter{0};
+    std::atomic<uint64_t> m_sendCounter{0};
     std::atomic<uint64_t> m_publisherRunFinished{0};
 
     // Memory objects
