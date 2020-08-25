@@ -51,6 +51,9 @@ class SubscriberPortSingleProducer_test : public Test
     void TearDown()
     {
     }
+
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
         TEST_SERVICE_DESCRIPTION, "myApp", iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::popo::SubscriberPortUser m_sutUserSideSingleProducer{&m_subscriberPortDataSingleProducer};
@@ -267,8 +270,10 @@ TEST_F(SubscriberPortSingleProducer_test, nackInUnsubscribeRequestedResultsInNot
 TEST_F(SubscriberPortSingleProducer_test, invalidMessageResultsInError)
 {
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
@@ -281,8 +286,10 @@ TEST_F(SubscriberPortSingleProducer_test, invalidMessageResultsInError)
 TEST_F(SubscriberPortSingleProducer_test, ackWhenNotWaitingForResultsInError)
 {
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
@@ -296,11 +303,12 @@ TEST_F(SubscriberPortSingleProducer_test, nackWhenNotWaitingForResultsInError)
 {
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled, &receivedError](
-        const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-        errorHandlerCalled = true;
-        receivedError = error;
-    });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
@@ -330,6 +338,8 @@ class SubscriberPortMultiProducer_test : public Test
     {
     }
 
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     iox::popo::SubscriberPortData m_subscriberPortDataMultiProducer{
         SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION,
         "myApp",
@@ -465,11 +475,12 @@ TEST_F(SubscriberPortMultiProducer_test, invalidMessageResultsInError)
 {
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled, &receivedError](
-        const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-        errorHandlerCalled = true;
-        receivedError = error;
-    });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::UNSUB,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 

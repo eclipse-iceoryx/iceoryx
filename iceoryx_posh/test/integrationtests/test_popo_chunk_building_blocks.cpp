@@ -16,7 +16,9 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 
 #include "test.hpp"
 
@@ -86,7 +88,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     {
         for (size_t i = 0; i < ITERATIONS; i++)
         {
-            m_chunkSender.allocate(sizeof(DummySample))
+            m_chunkSender.allocate(sizeof(DummySample), iox::UniquePortId())
                 .and_then([&](iox::mepoo::ChunkHeader* chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();
@@ -186,6 +188,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         }
     }
 
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     uint64_t m_sendCounter{0};
     uint64_t m_receiveCounter{0};
     std::atomic<bool> m_publisherRun{true};

@@ -11,21 +11,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_TYPED_UNIQUE_ID_INL
-#define IOX_UTILS_CXX_TYPED_UNIQUE_ID_INL
+#ifndef EXAMPLE_BASE_CLASS_INL_INCLUDED
+#define EXAMPLE_BASE_CLASS_INL_INCLUDED
 
-namespace iox
-{
-namespace cxx
+
+namespace example
 {
 template <typename T>
-std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{0u};
-
-template <typename T>
-inline TypedUniqueId<T>::TypedUniqueId() noexcept
-    : ThisType(newtype::internal::ProtectedConstructor, globalIDCounter.fetch_add(1u, std::memory_order_relaxed))
+inline ExampleBaseClass<T>::ExampleBaseClass(const uint32_t a, const uint32_t b)
 {
+    // example code
 }
-} // namespace cxx
-} // namespace iox
-#endif
+
+template <typename T>
+inline void ExampleBaseClass<T>::simplerMethod() const noexcept
+{
+    // example code
+}
+
+} // namespace example
+
+#endif // EXAMPLE_BASE_CLASS_INL_INCLUDED

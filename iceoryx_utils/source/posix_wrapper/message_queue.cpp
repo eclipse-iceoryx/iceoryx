@@ -17,9 +17,10 @@
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
-
 #include <chrono>
 #include <cstdlib>
+#include <string>
+
 
 namespace iox
 {

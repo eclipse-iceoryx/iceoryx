@@ -19,7 +19,8 @@ namespace iox
 namespace popo
 {
 PublisherPortUser::PublisherPortUser(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept
-    : m_publisherPortDataPtr(publisherPortDataPtr)
+    : BasePort(publisherPortDataPtr)
+    , m_publisherPortDataPtr(publisherPortDataPtr)
     , m_chunkSender(&m_publisherPortDataPtr->m_chunkSenderData)
 
 {
@@ -38,7 +39,7 @@ PublisherPortUser::MemberType_t* PublisherPortUser::getMembers() noexcept
 cxx::expected<mepoo::ChunkHeader*, AllocationError>
 PublisherPortUser::allocateChunk(const uint32_t payloadSize) noexcept
 {
-    return m_chunkSender.allocate(payloadSize);
+    return m_chunkSender.allocate(payloadSize, getUniqueID());
 }
 
 void PublisherPortUser::freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept

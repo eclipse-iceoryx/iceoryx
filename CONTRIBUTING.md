@@ -100,6 +100,8 @@ The following doxygen comments are required for public API headers:
     /// @param[in] / [out] / [in,out] name description
     /// @return description
 
+A good example for code formatting and doxygen structure is at [swe_docu_guidelines.md (WIP)](./doc/aspice_swe3_4/swe_docu_guidelines.md)
+
 ## Folder structure
 
 The folder structure boils down to:

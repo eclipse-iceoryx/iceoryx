@@ -14,6 +14,7 @@
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "test.hpp"
+#include "testutils/timing_test.hpp"
 
 using namespace ::testing;
 using namespace iox::runtime;
@@ -130,15 +131,12 @@ TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 
 TEST_F(PoshRuntime_test, GetMiddlewareApplicationIsSuccessful)
 {
-    uint32_t uniqueIdCounter = iox::popo::BasePortData::s_uniqueIdCounter;
-
     const auto applicationPortData = m_runtime->getMiddlewareApplication();
 
     ASSERT_NE(nullptr, applicationPortData);
     EXPECT_EQ(m_runtimeName, applicationPortData->m_processName);
     EXPECT_EQ(iox::capro::ServiceDescription(0u, 0u, 0u), applicationPortData->m_serviceDescription);
     EXPECT_EQ(false, applicationPortData->m_toBeDestroyed);
-    EXPECT_EQ(uniqueIdCounter, applicationPortData->m_uniqueId);
 }
 
 
@@ -358,21 +356,20 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
     EXPECT_TRUE(conditionVariableListOverflowDetected);
 }
 
-TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounterOfferStopOfferService)
-{
+TIMING_TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounterOfferStopOfferService, Repeat(5), [&] {
     auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
     auto initialCout = serviceCounter->load();
 
     m_runtime->offerService({"service1", "instance1"});
     this->InterOpWait();
 
-    EXPECT_EQ(initialCout + 1, serviceCounter->load());
+    TIMING_TEST_EXPECT_TRUE(initialCout + 1 == serviceCounter->load());
 
     m_runtime->stopOfferService({"service1", "instance1"});
     this->InterOpWait();
 
-    EXPECT_EQ(initialCout + 2, serviceCounter->load());
-}
+    TIMING_TEST_EXPECT_TRUE(initialCout + 2 == serviceCounter->load());
+});
 
 
 TEST_F(PoshRuntime_test, CreateRunnableReturnValue)
