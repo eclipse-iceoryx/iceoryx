@@ -26,7 +26,7 @@ namespace iox
 {
 namespace roudi
 {
-capro::Interfaces StringToCaProInterface(const std::string& str)
+capro::Interfaces StringToCaProInterface(const cxx::CString100& str)
 {
     int32_t i;
     cxx::convert::fromString(str.c_str(), i);
@@ -379,7 +379,7 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
     }
 }
 
-bool PortManager::areAllReceiverPortsSubscribed(std::string appName)
+bool PortManager::areAllReceiverPortsSubscribed(const cxx::CString100& appName)
 {
     int32_t numberOfReceiverPorts{0};
     int32_t numberOfConnectedReceiverPorts{0};
@@ -396,7 +396,7 @@ bool PortManager::areAllReceiverPortsSubscribed(std::string appName)
     return numberOfReceiverPorts == numberOfConnectedReceiverPorts;
 }
 
-void PortManager::deletePortsOfProcess(std::string processName)
+void PortManager::deletePortsOfProcess(const cxx::CString100& processName)
 {
     for (auto port : m_portPool->senderPortDataList())
     {
@@ -518,9 +518,9 @@ const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter()
 
 cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSenderPortData(const capro::ServiceDescription& service,
-                                   const std::string& processName,
+                                   const cxx::CString100& processName,
                                    mepoo::MemoryManager* payloadMemoryManager,
-                                   const std::string& runnable,
+                                   const cxx::CString100& runnable,
                                    const PortConfigInfo& portConfigInfo)
 {
     // check if already in list, we currently do not support multi publisher for one CaPro ID
@@ -557,8 +557,8 @@ PortManager::acquireSenderPortData(const capro::ServiceDescription& service,
 
 /// @todo return a cxx::expected
 ReceiverPortType::MemberType_t* PortManager::acquireReceiverPortData(const capro::ServiceDescription& service,
-                                                                     const std::string& processName,
-                                                                     const std::string& runnable,
+                                                                     const cxx::CString100& processName,
+                                                                     const cxx::CString100& runnable,
                                                                      const PortConfigInfo& portConfigInfo)
 {
     auto result = m_portPool->addReceiverPort(service, processName, portConfigInfo.memoryInfo);
@@ -575,8 +575,8 @@ ReceiverPortType::MemberType_t* PortManager::acquireReceiverPortData(const capro
 
 /// @todo return a cxx::expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
-                                                               const std::string& processName,
-                                                               const std::string& /*runnable*/)
+                                                               const cxx::CString100& processName,
+                                                               const cxx::CString100& /*runnable*/)
 {
     auto result = m_portPool->addInterfacePort(processName, interface);
     if (!result.has_error())
@@ -590,7 +590,7 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
 }
 
 /// @todo return a cxx::expected
-popo::ApplicationPortData* PortManager::acquireApplicationPortData(const std::string& processName)
+popo::ApplicationPortData* PortManager::acquireApplicationPortData(const cxx::CString100& processName)
 {
     auto result = m_portPool->addApplicationPort(processName);
     if (!result.has_error())
@@ -603,14 +603,14 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const std::st
     }
 }
 
-void PortManager::addEntryToServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept
+void PortManager::addEntryToServiceRegistry(const cxx::CString100& service, const cxx::CString100& instance) noexcept
 {
     m_serviceRegistry.add(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
-void PortManager::removeEntryFromServiceRegistry(const capro::IdString& service,
-                                                 const capro::IdString& instance) noexcept
+void PortManager::removeEntryFromServiceRegistry(const cxx::CString100& service,
+                                                 const cxx::CString100& instance) noexcept
 {
     m_serviceRegistry.remove(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);

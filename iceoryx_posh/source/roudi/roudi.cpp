@@ -27,10 +27,10 @@ namespace iox
 namespace roudi
 {
 RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
-                                     PortManager& portManager,
-                                     const MonitoringMode monitoringMode,
-                                     const bool killProcessesInDestructor,
-                                     const MQThreadStart mqThreadStart)
+             PortManager& portManager,
+             const MonitoringMode monitoringMode,
+             const bool killProcessesInDestructor,
+             const MQThreadStart mqThreadStart)
     : m_killProcessesInDestructor(killProcessesInDestructor)
     , m_runThreads(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
@@ -141,9 +141,9 @@ void RouDi::mqThread()
 }
 
 void RouDi::parseRegisterMessage(const runtime::MqMessage& message,
-                                             int& pid,
-                                             uid_t& userId,
-                                             int64_t& transmissionTimestamp)
+                                 int& pid,
+                                 uid_t& userId,
+                                 int64_t& transmissionTimestamp)
 {
     cxx::convert::fromString(message.getElementAtIndex(2).c_str(), pid);
     cxx::convert::fromString(message.getElementAtIndex(3).c_str(), userId);
@@ -152,14 +152,14 @@ void RouDi::parseRegisterMessage(const runtime::MqMessage& message,
 
 
 void RouDi::processMessage(const runtime::MqMessage& message,
-                                       const iox::runtime::MqMessageType& cmd,
-                                       const std::string& processName)
+                           const iox::runtime::MqMessageType& cmd,
+                           const std::string& processName)
 {
     switch (cmd)
     {
     case runtime::MqMessageType::SERVICE_REGISTRY_CHANGE_COUNTER:
     {
-        m_prcMgr.sendServiceRegistryChangeCounterToProcess(processName);
+        m_prcMgr.sendServiceRegistryChangeCounterToProcess(cxx::CString100(cxx::TruncateToCapacity, processName));
         break;
     }
     case runtime::MqMessageType::REG:
@@ -193,9 +193,9 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
 
-            m_prcMgr.addSenderForProcess(processName,
+            m_prcMgr.addSenderForProcess(cxx::CString100(cxx::TruncateToCapacity, processName),
                                          service,
-                                         message.getElementAtIndex(3),
+                                         cxx::CString100(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
                                          iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -212,9 +212,9 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
 
-            m_prcMgr.addReceiverForProcess(processName,
+            m_prcMgr.addReceiverForProcess(cxx::CString100(cxx::TruncateToCapacity, processName),
                                            service,
-                                           message.getElementAtIndex(3),
+                                           cxx::CString100(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
                                            iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -228,8 +228,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            auto processNameTrucated = iox::cxx::CString100(iox::cxx::TruncateToCapacity, processName);
-            m_prcMgr.addConditionVariableForProcess(processNameTrucated);
+            m_prcMgr.addConditionVariableForProcess(cxx::CString100(iox::cxx::TruncateToCapacity, processName));
         }
         break;
         break;
@@ -243,9 +242,12 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            capro::Interfaces interface = StringToCaProInterface(message.getElementAtIndex(2));
+            capro::Interfaces interface =
+                StringToCaProInterface(cxx::CString100(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
 
-            m_prcMgr.addInterfaceForProcess(processName, interface, message.getElementAtIndex(3));
+            m_prcMgr.addInterfaceForProcess(cxx::CString100(cxx::TruncateToCapacity, processName),
+                                            interface,
+                                            cxx::CString100(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
         }
         break;
     }
@@ -258,7 +260,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            m_prcMgr.addApplicationForProcess(processName);
+            m_prcMgr.addApplicationForProcess(cxx::CString100(iox::cxx::TruncateToCapacity, processName));
         }
         break;
     }
@@ -271,8 +273,10 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            runtime::RunnableProperty runnableProperty(message.getElementAtIndex(2));
-            m_prcMgr.addRunnableForProcess(processName, runnableProperty.m_name);
+            runtime::RunnableProperty runnableProperty(
+                cxx::CString100(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
+            m_prcMgr.addRunnableForProcess(cxx::CString100(cxx::TruncateToCapacity, processName),
+                                           runnableProperty.m_name);
         }
         break;
     }
@@ -285,22 +289,23 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
+            capro::ServiceDescription service(
+                cxx::Serialization(cxx::CString100(cxx::TruncateToCapacity, message.getElementAtIndex(2))));
 
-            m_prcMgr.findServiceForProcess(processName, service);
+            m_prcMgr.findServiceForProcess(cxx::CString100(cxx::TruncateToCapacity, processName), service);
         }
         break;
     }
     case runtime::MqMessageType::KEEPALIVE:
     {
-        m_prcMgr.updateLivlinessOfProcess(processName);
+        m_prcMgr.updateLivlinessOfProcess(cxx::CString100(cxx::TruncateToCapacity, processName));
         break;
     }
     default:
     {
         LogError() << "Unknown MQ Command [" << runtime::mqMessageTypeToString(cmd) << "]";
 
-        m_prcMgr.sendMessageNotSupportedToRuntime(processName);
+        m_prcMgr.sendMessageNotSupportedToRuntime(cxx::CString100(cxx::TruncateToCapacity, processName));
         break;
     }
     }
@@ -310,8 +315,8 @@ bool RouDi::registerProcess(
     const std::string& name, int pid, posix::PosixUser user, int64_t transmissionTimestamp, const uint64_t sessionId)
 {
     bool monitorProcess = (m_monitoringMode == MonitoringMode::ON);
-
-    return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId);
+    auto truncatedName = cxx::CString100(cxx::TruncateToCapacity, name);
+    return m_prcMgr.registerProcess(truncatedName, pid, user, monitorProcess, transmissionTimestamp, sessionId);
 }
 
 uint64_t RouDi::getUniqueSessionIdForProcess()

@@ -41,7 +41,7 @@ namespace iox
 {
 namespace roudi
 {
-capro::Interfaces StringToCaProInterface(const std::string& str);
+capro::Interfaces StringToCaProInterface(const cxx::CString100& str);
 
 class PortManager
 {
@@ -58,31 +58,31 @@ class PortManager
 
     virtual cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
     acquireSenderPortData(const capro::ServiceDescription& service,
-                          const std::string& processName,
+                          const cxx::CString100& processName,
                           mepoo::MemoryManager* payloadMemoryManager,
-                          const std::string& runnable = "",
+                          const cxx::CString100& runnable = "",
                           const PortConfigInfo& portConfigInfo = PortConfigInfo());
 
     virtual ReceiverPortType::MemberType_t*
     acquireReceiverPortData(const capro::ServiceDescription& service,
-                            const std::string& processName,
-                            const std::string& runnable = "",
+                            const cxx::CString100& processName,
+                            const cxx::CString100& runnable = "",
                             const PortConfigInfo& portConfigInfo = PortConfigInfo());
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
-                                                      const std::string& processName,
-                                                      const std::string& runnable = "");
+                                                      const cxx::CString100& processName,
+                                                      const cxx::CString100& runnable = "");
 
-    popo::ApplicationPortData* acquireApplicationPortData(const std::string& processName);
+    popo::ApplicationPortData* acquireApplicationPortData(const cxx::CString100& processName);
 
     runtime::RunnableData* acquireRunnableData(const cxx::CString100& process, const cxx::CString100& runnable);
 
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
     acquireConditionVariableData(const cxx::CString100& processName);
 
-    bool areAllReceiverPortsSubscribed(std::string appName);
+    bool areAllReceiverPortsSubscribed(const cxx::CString100& appName);
 
-    void deletePortsOfProcess(std::string processName);
+    void deletePortsOfProcess(const cxx::CString100& processName);
 
     void destroySenderPort(SenderPortType::MemberType_t* const senderPortData);
 

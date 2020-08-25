@@ -27,7 +27,7 @@ namespace iox
 {
 namespace roudi
 {
-RouDiProcess::RouDiProcess(std::string name,
+RouDiProcess::RouDiProcess(cxx::CString100 name,
                            int32_t pid,
                            mepoo::MemoryManager* payloadMemoryManager,
                            bool isMonitored,
@@ -48,9 +48,9 @@ int32_t RouDiProcess::getPid() const noexcept
     return m_pid;
 }
 
-const std::string& RouDiProcess::getName() const noexcept
+const cxx::CString100 RouDiProcess::getName() const noexcept
 {
-    return m_mq.getInterfaceName();
+    return cxx::CString100(cxx::TruncateToCapacity, m_mq.getInterfaceName());
 }
 
 void RouDiProcess::sendToMQ(const runtime::MqMessage& data) noexcept
@@ -140,7 +140,7 @@ void ProcessManager::killAllProcesses() noexcept
     }
 }
 
-bool ProcessManager::registerProcess(const std::string& name,
+bool ProcessManager::registerProcess(const cxx::CString100& name,
                                      int32_t pid,
                                      posix::PosixUser user,
                                      bool isMonitored,
@@ -217,7 +217,7 @@ bool ProcessManager::registerProcess(const std::string& name,
     return false;
 }
 
-bool ProcessManager::addProcess(const std::string& name,
+bool ProcessManager::addProcess(const cxx::CString100& name,
                                 int32_t pid,
                                 mepoo::MemoryManager* payloadMemoryManager,
                                 bool isMonitored,
@@ -248,13 +248,13 @@ bool ProcessManager::addProcess(const std::string& name,
     // set current timestamp again (already done in RouDiProcess's constructor
     m_processList.back().setTimestamp(mepoo::BaseClock::now());
 
-    m_processIntrospection->addProcess(pid, cxx::string<100>(cxx::TruncateToCapacity, name.c_str()));
+    m_processIntrospection->addProcess(pid, cxx::CString100(cxx::TruncateToCapacity, name.c_str()));
 
     LogDebug() << "Registered new application " << name;
     return true;
 }
 
-bool ProcessManager::removeProcess(const std::string& name) noexcept
+bool ProcessManager::removeProcess(const cxx::CString100& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     // we need to search for the process (currently linear search)
@@ -280,7 +280,7 @@ bool ProcessManager::removeProcess(const std::string& name) noexcept
     return false;
 }
 
-bool ProcessManager::sendMessageToProcess(const std::string& name,
+bool ProcessManager::sendMessageToProcess(const cxx::CString100& name,
                                           const iox::runtime::MqMessage& message,
                                           const uint64_t sessionId) noexcept
 {
@@ -307,7 +307,7 @@ bool ProcessManager::sendMessageToProcess(const std::string& name,
     return true;
 }
 
-void ProcessManager::updateLivlinessOfProcess(const std::string& name) noexcept
+void ProcessManager::updateLivlinessOfProcess(const cxx::CString100& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -323,7 +323,8 @@ void ProcessManager::updateLivlinessOfProcess(const std::string& name) noexcept
     }
 }
 
-void ProcessManager::findServiceForProcess(const std::string& name, const capro::ServiceDescription& service) noexcept
+void ProcessManager::findServiceForProcess(const cxx::CString100& name,
+                                           const capro::ServiceDescription& service) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -340,9 +341,9 @@ void ProcessManager::findServiceForProcess(const std::string& name, const capro:
     }
 }
 
-void ProcessManager::addInterfaceForProcess(const std::string& name,
+void ProcessManager::addInterfaceForProcess(const cxx::CString100& name,
                                             capro::Interfaces interface,
-                                            const std::string& runnable) noexcept
+                                            const cxx::CString100& runnable) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -368,7 +369,7 @@ void ProcessManager::addInterfaceForProcess(const std::string& name,
     }
 }
 
-void ProcessManager::sendServiceRegistryChangeCounterToProcess(const std::string& processName) noexcept
+void ProcessManager::sendServiceRegistryChangeCounterToProcess(const cxx::CString100& processName) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     RouDiProcess* process = getProcessFromList(processName);
@@ -387,7 +388,7 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const std::string
     }
 }
 
-void ProcessManager::addApplicationForProcess(const std::string& name) noexcept
+void ProcessManager::addApplicationForProcess(const cxx::CString100& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -411,7 +412,8 @@ void ProcessManager::addApplicationForProcess(const std::string& name) noexcept
     }
 }
 
-void ProcessManager::addRunnableForProcess(const std::string& processName, const std::string& runnableName) noexcept
+void ProcessManager::addRunnableForProcess(const cxx::CString100& processName,
+                                           const cxx::CString100& runnableName) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -439,7 +441,7 @@ void ProcessManager::addRunnableForProcess(const std::string& processName, const
     }
 }
 
-void ProcessManager::sendMessageNotSupportedToRuntime(const std::string& name) noexcept
+void ProcessManager::sendMessageNotSupportedToRuntime(const cxx::CString100& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -454,9 +456,9 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const std::string& name) n
     }
 }
 
-void ProcessManager::addReceiverForProcess(const std::string& name,
+void ProcessManager::addReceiverForProcess(const cxx::CString100& name,
                                            const capro::ServiceDescription& service,
-                                           const std::string& runnable,
+                                           const cxx::CString100& runnable,
                                            const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -492,9 +494,9 @@ void ProcessManager::addReceiverForProcess(const std::string& name,
     }
 }
 
-void ProcessManager::addSenderForProcess(const std::string& name,
+void ProcessManager::addSenderForProcess(const cxx::CString100& name,
                                          const capro::ServiceDescription& service,
-                                         const std::string& runnable,
+                                         const cxx::CString100& runnable,
                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -588,7 +590,7 @@ void ProcessManager::run() noexcept
 }
 
 SenderPortType ProcessManager::addIntrospectionSenderPort(const capro::ServiceDescription& service,
-                                                          const std::string& process_name) noexcept
+                                                          const cxx::CString100& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -597,14 +599,14 @@ SenderPortType ProcessManager::addIntrospectionSenderPort(const capro::ServiceDe
 }
 
 ReceiverPortType ProcessManager::addInternalReceiverPort(const capro::ServiceDescription& service,
-                                                         const std::string& process_name) noexcept
+                                                         const cxx::CString100& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
     return ReceiverPortType(m_portManager.acquireReceiverPortData(service, process_name));
 }
 
-void ProcessManager::removeInternalPorts(const std::string& process_name) noexcept
+void ProcessManager::removeInternalPorts(const cxx::CString100& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -612,7 +614,7 @@ void ProcessManager::removeInternalPorts(const std::string& process_name) noexce
 }
 
 
-bool ProcessManager::areAllReceiverPortsSubscribed(const std::string& process_name) noexcept
+bool ProcessManager::areAllReceiverPortsSubscribed(const cxx::CString100& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -620,7 +622,7 @@ bool ProcessManager::areAllReceiverPortsSubscribed(const std::string& process_na
 }
 
 SenderPortType ProcessManager::addInternalSenderPort(const capro::ServiceDescription& service,
-                                                     const std::string& process_name) noexcept
+                                                     const cxx::CString100& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -629,7 +631,7 @@ SenderPortType ProcessManager::addInternalSenderPort(const capro::ServiceDescrip
 }
 
 
-RouDiProcess* ProcessManager::getProcessFromList(const std::string& name) noexcept
+RouDiProcess* ProcessManager::getProcessFromList(const cxx::CString100& name) noexcept
 {
     RouDiProcess* processPtr = nullptr;
 
