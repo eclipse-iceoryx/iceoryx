@@ -69,7 +69,6 @@ class PortManager_test : public Test
         // starting at {1,1,1}
 
         auto config = iox::RouDiConfig_t().setDefaults();
-        config.roudi.m_verifySharedMemoryPlacement = false;
         m_roudiMemoryManager = new IceOryxRouDiMemoryManager(config);
         m_roudiMemoryManager->createAndAnnounceMemory();
         m_shmManager = new CShmMangerTester(m_roudiMemoryManager);
