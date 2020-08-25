@@ -114,7 +114,7 @@ class PortUser_IntegrationTest : public Test
                                 [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     std::atomic<uint64_t> m_sendCounter{0};
     uint64_t m_receiveCounter{0};
-    std::atomic<bool> m_publisherRun{true};
+    std::atomic<uint64_t> m_publisherRunFinished{0};
 
     // Memory objects
     Allocator m_memoryAllocator{g_memory, MEMORY_SIZE};
@@ -173,7 +173,9 @@ class PortUser_IntegrationTest : public Test
     }
 
     template <typename SubscriberPortProducerType>
-    void subscriberThread(SubscriberPortProducerType& subscriberPortRouDi, SubscriberPortUser& subscriberPortUser)
+    void subscriberThread(uint32_t numberOfPublishers,
+                          SubscriberPortProducerType& subscriberPortRouDi,
+                          SubscriberPortUser& subscriberPortUser)
     {
         bool finished{false};
         optional<CaproMessage> maybeCaproMessage;
@@ -222,7 +224,7 @@ class PortUser_IntegrationTest : public Test
             else
             {
                 // Timeout -> check if publisher is still going
-                if (!m_publisherRun.load(std::memory_order_relaxed))
+                if (m_publisherRunFinished.load(std::memory_order_relaxed) == numberOfPublishers)
                 {
                     finished = true;
                 }
@@ -302,7 +304,7 @@ class PortUser_IntegrationTest : public Test
         }
 
         // Signal the subscriber thread we're done
-        m_publisherRun = false;
+        m_publisherRunFinished++;
     }
 };
 
@@ -310,6 +312,7 @@ TEST_F(PortUser_IntegrationTest, SingleProducer)
 {
     std::thread subscribingThread(std::bind(&PortUser_IntegrationTest::subscriberThread<SubscriberPortSingleProducer>,
                                             this,
+                                            1,
                                             std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiSingleProducer),
                                             std::ref(PortUser_IntegrationTest::m_subscriberPortUserSingleProducer)));
     std::thread publishingThread(std::bind(&PortUser_IntegrationTest::publisherThread,
@@ -335,6 +338,7 @@ TEST_F(PortUser_IntegrationTest, MultiProducer)
 {
     std::thread subscribingThread(std::bind(&PortUser_IntegrationTest::subscriberThread<SubscriberPortMultiProducer>,
                                             this,
+                                            NUMBER_OF_PUBLISHERS,
                                             std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiMultiProducer),
                                             std::ref(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer)));
 
