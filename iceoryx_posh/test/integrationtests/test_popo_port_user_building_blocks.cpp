@@ -46,10 +46,10 @@ static const ServiceDescription TEST_SERVICE_DESCRIPTION("x", "y", "z");
 static const iox::ProcessName_t TEST_SUBSCRIBER_APP_NAME("mySubscriberApp");
 static const iox::ProcessName_t TEST_PUBLISHER_APP_NAME("myPublisherApp");
 
-static constexpr uint32_t NUMBER_OF_PUBLISHERS = 42u;
+static constexpr uint32_t NUMBER_OF_PUBLISHERS = 27u;
 static constexpr uint32_t ITERATIONS = 1000u;
 
-static constexpr uint32_t NUM_CHUNKS_IN_POOL = NUMBER_OF_PUBLISHERS * 3u * iox::MAX_RECEIVER_QUEUE_CAPACITY;
+static constexpr uint32_t NUM_CHUNKS_IN_POOL = NUMBER_OF_PUBLISHERS * ITERATIONS;
 static constexpr uint32_t SMALL_CHUNK = 128u;
 static constexpr uint32_t CHUNK_META_INFO_SIZE = 256u;
 static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
@@ -300,7 +300,7 @@ class PortUser_IntegrationTest : public Test
                 });
 
             /// Add some jitter to make thread breathe
-            std::this_thread::sleep_for(std::chrono::nanoseconds(rand() % 100));
+            std::this_thread::sleep_for(std::chrono::microseconds(rand() % 500));
         }
 
         // Signal the subscriber thread we're done
