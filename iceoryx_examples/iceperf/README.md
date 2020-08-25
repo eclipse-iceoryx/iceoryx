@@ -95,7 +95,6 @@ Here an example output with Ubuntu 18.04 on Intel(R) Xeon(R) CPU E3-1505M v5 @ 2
     100000 round trips for each payload.
 
     | Payload Size [kB] | Average Latency [µs] |
-    | Payload Size [kB] | Average Latency [µs] |
     |------------------:|---------------------:|
     |                 1 |                  4.3 |
     |                 2 |                  4.3 |
@@ -185,7 +184,7 @@ Besides includes for the different IPC technologies, the topic_data.hpp file is 
     };
 ```
 
-With `payloadSize` as the payload size used for the current measurement, `subPackets` as the number of sub-packets the payload is divided into when it is not possible to transfer it with one packet and `run` to shutdown iceperf-hardy at the end of the benchmark.
+With `payloadSize` as the payload size used for the current measurement. In case it is not possible to transfer the `payloadSize` with a single data transfer (e.g. OS limit for the payload of a single socket send), the payload is divided in several sub-packets. This is indicated with `subPackets`. The `run` flag is used to shutdown iceperf-hardy at the end of the benchmark.
 
 Let's set some constants to prevent magic values. The default number of round trips is set and names for the communication resources that are used. 
 ```cpp
