@@ -96,18 +96,6 @@ class PortUser_IntegrationTest : public Test
 
         static_cast<void>(m_subscriberPortRouDiSingleProducer.getCaProMessage());
         static_cast<void>(m_subscriberPortRouDiMultiProducer.getCaProMessage());
-
-        if (m_subscriberPortUserSingleProducer.isConditionVariableAttached())
-        {
-            static_cast<void>(m_subscriberPortUserSingleProducer.detachConditionVariable());
-        }
-
-        if (m_subscriberPortUserMultiProducer.isConditionVariableAttached())
-        {
-            static_cast<void>(m_subscriberPortUserMultiProducer.detachConditionVariable());
-        }
-
-        m_waiter.reset();
     }
 
     GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
@@ -120,9 +108,6 @@ class PortUser_IntegrationTest : public Test
     Allocator m_memoryAllocator{g_memory, MEMORY_SIZE};
     MePooConfig m_mempoolConfig;
     MemoryManager m_memoryManager;
-
-    ConditionVariableData m_condVarData;
-    ConditionVariableWaiter m_waiter{&m_condVarData};
 
     using ConcurrentCaproMessageVector_t = iox::concurrent::smart_lock<vector<CaproMessage, 1>>;
     ConcurrentCaproMessageVector_t m_concurrentCaproMessageVector;
@@ -181,8 +166,6 @@ class PortUser_IntegrationTest : public Test
         optional<CaproMessage> maybeCaproMessage;
         CaproMessage caproMessage;
 
-        subscriberPortUser.attachConditionVariable(&m_condVarData);
-
         // Wait for publisher to be ready
         caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::OFFER);
 
@@ -204,31 +187,28 @@ class PortUser_IntegrationTest : public Test
         // Subscription done and ready to receive samples
         while (!finished)
         {
-            if (m_waiter.timedWait(100_ms))
-            {
-                // Condition variable triggered
-                subscriberPortUser.getChunk()
-                    .and_then([&](optional<const ChunkHeader*>& maybeChunkHeader) {
-                        if (maybeChunkHeader.has_value())
+            // Condition variable triggered
+            subscriberPortUser.getChunk()
+                .and_then([&](optional<const ChunkHeader*>& maybeChunkHeader) {
+                    if (maybeChunkHeader.has_value())
+                    {
+                        auto chunkHeader = maybeChunkHeader.value();
+                        m_receiveCounter++;
+                        subscriberPortUser.releaseChunk(chunkHeader);
+                    }
+                    else
+                    {
+                        // Nothing received -> check if publisher(s) still running
+                        if (m_publisherRunFinished.load(std::memory_order_relaxed) == numberOfPublishers)
                         {
-                            auto chunkHeader = maybeChunkHeader.value();
-                            m_receiveCounter++;
-                            subscriberPortUser.releaseChunk(chunkHeader);
+                            finished = true;
                         }
-                    })
-                    .or_else([](ChunkReceiveError) {
-                        // Errors shall never occur
-                        FAIL();
-                    });
-            }
-            else
-            {
-                // Timeout -> check if publisher is still going
-                if (m_publisherRunFinished.load(std::memory_order_relaxed) == numberOfPublishers)
-                {
-                    finished = true;
-                }
-            }
+                    }
+                })
+                .or_else([](ChunkReceiveError) {
+                    // Errors shall never occur
+                    FAIL();
+                });
         }
     }
 
@@ -332,6 +312,7 @@ TEST_F(PortUser_IntegrationTest, SingleProducer)
     }
 
     EXPECT_EQ(m_sendCounter.load(std::memory_order_relaxed), m_receiveCounter);
+    EXPECT_EQ(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunks(), false);
 }
 
 TEST_F(PortUser_IntegrationTest, MultiProducer)
@@ -366,4 +347,5 @@ TEST_F(PortUser_IntegrationTest, MultiProducer)
     }
 
     EXPECT_EQ(m_sendCounter.load(std::memory_order_relaxed), m_receiveCounter);
+    EXPECT_EQ(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunks(), false);
 }
