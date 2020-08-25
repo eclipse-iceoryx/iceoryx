@@ -297,7 +297,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     }
     case runtime::MqMessageType::KEEPALIVE:
     {
-        m_prcMgr.updateLivlinessOfProcess(cxx::CString100(cxx::TruncateToCapacity, processName));
+        m_prcMgr.updateLivelinessOfProcess(cxx::CString100(cxx::TruncateToCapacity, processName));
         break;
     }
     default:
