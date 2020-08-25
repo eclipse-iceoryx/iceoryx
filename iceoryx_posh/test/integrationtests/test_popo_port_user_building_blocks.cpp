@@ -178,6 +178,11 @@ class PortUser_IntegrationTest : public Test
             caproMessage = maybeCaproMessage.value();
             m_concurrentCaproMessageVector->push_back(caproMessage);
         }
+        else
+        {
+            // Error shall never occur
+            FAIL() << "Error in subscriber SUB CaPro message!";
+        }
 
         // Wait for subscription ACK from publisher
         caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::ACK);
@@ -206,9 +211,9 @@ class PortUser_IntegrationTest : public Test
                         }
                     }
                 })
-                .or_else([](ChunkReceiveError) {
+                .or_else([](ChunkReceiveError error) {
                     // Errors shall never occur
-                    FAIL();
+                    FAIL() << "Error in getChunk(): " << static_cast<uint32_t>(error);
                 });
         }
     }
@@ -233,6 +238,11 @@ class PortUser_IntegrationTest : public Test
                 caproMessage = maybeCaproMessage.value();
                 m_concurrentCaproMessageVector->push_back(caproMessage);
             }
+            else
+            {
+                // Error shall never occur
+                FAIL() << "Error in publisher OFFER CaPro message!";
+            }
 
             // Wait for subscriber to subscribe
             caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::SUB);
@@ -244,6 +254,11 @@ class PortUser_IntegrationTest : public Test
             {
                 caproMessage = maybeCaproMessage.value();
                 m_concurrentCaproMessageVector->push_back(caproMessage);
+            }
+            else
+            {
+                // Error shall never occur
+                FAIL() << "Error in publisher ACK CaPro message!";
             }
         }
         else
@@ -276,13 +291,13 @@ class PortUser_IntegrationTest : public Test
                     publisherPortUser.sendChunk(chunkHeader);
                     m_sendCounter++;
                 })
-                .or_else([](AllocationError) {
+                .or_else([](AllocationError error) {
                     // Errors shall never occur
-                    FAIL();
+                    FAIL() << "Error in allocateChunk(): " << static_cast<uint32_t>(error);
                 });
 
             /// Add some jitter to make thread breathe
-            std::this_thread::sleep_for(std::chrono::microseconds(rand() % 500));
+            std::this_thread::sleep_for(std::chrono::microseconds(rand() % 750));
         }
 
         // Signal the subscriber thread we're done
