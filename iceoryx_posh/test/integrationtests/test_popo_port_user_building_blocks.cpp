@@ -166,15 +166,13 @@ class PortUser_IntegrationTest : public Test
                           SubscriberPortUser& subscriberPortUser)
     {
         bool finished{false};
-        optional<CaproMessage> maybeCaproMessage;
-        CaproMessage caproMessage;
 
         // Wait for publisher to be ready
-        caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::OFFER);
+        auto caproMessage = waitForCaproMessage(m_concurrentCaproMessageVector, CaproMessageType::OFFER);
 
         // Subscribe to publisher
         subscriberPortUser.subscribe();
-        maybeCaproMessage = subscriberPortRouDi.getCaProMessage();
+        auto maybeCaproMessage = subscriberPortRouDi.getCaProMessage();
         if (maybeCaproMessage.has_value())
         {
             caproMessage = maybeCaproMessage.value();
@@ -219,14 +217,13 @@ class PortUser_IntegrationTest : public Test
                          PublisherPortRouDi& publisherPortRouDi,
                          PublisherPortUser& publisherPortUser)
     {
-        optional<CaproMessage> maybeCaproMessage;
         CaproMessage caproMessage;
 
         // Publisher offers its service
         publisherPortUser.offer();
 
         // Let RouDi change state and send OFFER to subscriber
-        maybeCaproMessage = publisherPortRouDi.getCaProMessage();
+        auto maybeCaproMessage = publisherPortRouDi.getCaProMessage();
 
         if (publisherThreadIndex == 0)
         {
