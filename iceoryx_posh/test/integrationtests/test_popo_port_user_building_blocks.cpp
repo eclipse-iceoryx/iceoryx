@@ -231,8 +231,7 @@ class PortUser_IntegrationTest : public Test
             if (maybeCaproMessage.has_value())
             {
                 caproMessage = maybeCaproMessage.value();
-                auto guardedVector = m_concurrentCaproMessageVector.GetScopeGuard();
-                guardedVector->push_back(caproMessage);
+                m_concurrentCaproMessageVector->push_back(caproMessage);
             }
 
             // Wait for subscriber to subscribe
