@@ -19,6 +19,7 @@
 struct PerfTopic
 {
     uint32_t payloadSize{0};
+    uint32_t subPackets{0};
     bool run{true};
 };
 
