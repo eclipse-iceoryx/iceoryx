@@ -95,8 +95,9 @@ class ProcessManagerInterface
     /// @param [in] message which shall be delivered
     /// @param [in] sessionId the sender expects to be currently valid
     /// @return true if the message was delivered, false otherwise
-    virtual bool
-    sendMessageToProcess(const cxx::CString100& name, const iox::runtime::MqMessage& message, const uint64_t sessionId) = 0;
+    virtual bool sendMessageToProcess(const cxx::CString100& name,
+                                      const iox::runtime::MqMessage& message,
+                                      const uint64_t sessionId) = 0;
 
     // port handling
     virtual ReceiverPortType addInternalReceiverPort(const capro::ServiceDescription& service,
@@ -144,12 +145,13 @@ class ProcessManager : public ProcessManagerInterface
 
     void killAllProcesses() noexcept;
 
-    void updateLivlinessOfProcess(const cxx::CString100& name) noexcept;
+    void updateLivelinessOfProcess(const cxx::CString100& name) noexcept;
 
     void findServiceForProcess(const cxx::CString100& name, const capro::ServiceDescription& service) noexcept;
 
-    void
-    addInterfaceForProcess(const cxx::CString100& name, capro::Interfaces interface, const cxx::CString100& runnable) noexcept;
+    void addInterfaceForProcess(const cxx::CString100& name,
+                                capro::Interfaces interface,
+                                const cxx::CString100& runnable) noexcept;
 
     void addApplicationForProcess(const cxx::CString100& name) noexcept;
 

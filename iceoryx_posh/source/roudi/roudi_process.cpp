@@ -307,7 +307,7 @@ bool ProcessManager::sendMessageToProcess(const cxx::CString100& name,
     return true;
 }
 
-void ProcessManager::updateLivlinessOfProcess(const cxx::CString100& name) noexcept
+void ProcessManager::updateLivelinessOfProcess(const cxx::CString100& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -548,7 +548,6 @@ void ProcessManager::addConditionVariableForProcess(const cxx::CString100& proce
         // Try to create a condition variable
         m_portManager.acquireConditionVariableData(processName)
             .and_then([&](popo::ConditionVariableData* condVar) {
-                // popo::ConditionVariableData*
                 auto offset = RelativePointer::getOffset(m_mgmtSegmentId, condVar);
 
                 runtime::MqMessage sendBuffer;

@@ -231,7 +231,6 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             m_prcMgr.addConditionVariableForProcess(cxx::CString100(iox::cxx::TruncateToCapacity, processName));
         }
         break;
-        break;
     }
     case runtime::MqMessageType::IMPL_INTERFACE:
     {
