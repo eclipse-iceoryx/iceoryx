@@ -42,7 +42,7 @@ ProcessIntrospection<SenderPort>::~ProcessIntrospection()
 }
 
 template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::addProcess(int f_pid, const cxx::CString100& f_name)
+void ProcessIntrospection<SenderPort>::addProcess(int f_pid, const ProcessName_t& f_name)
 {
     ProcessIntrospectionData procIntrData;
     procIntrData.m_pid = f_pid;
@@ -72,7 +72,7 @@ void ProcessIntrospection<SenderPort>::removeProcess(int f_pid)
 }
 
 template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::addRunnable(const cxx::CString100& f_process, const cxx::CString100& f_runnable)
+void ProcessIntrospection<SenderPort>::addRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -107,8 +107,8 @@ void ProcessIntrospection<SenderPort>::addRunnable(const cxx::CString100& f_proc
 }
 
 template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::removeRunnable(const cxx::CString100& f_process,
-                                                      const cxx::CString100& f_runnable)
+void ProcessIntrospection<SenderPort>::removeRunnable(const ProcessName_t& f_process,
+                                                      const RunnableName_t& f_runnable)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 

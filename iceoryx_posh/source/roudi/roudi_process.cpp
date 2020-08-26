@@ -27,7 +27,7 @@ namespace iox
 {
 namespace roudi
 {
-RouDiProcess::RouDiProcess(cxx::CString100 name,
+RouDiProcess::RouDiProcess(const ProcessName_t& name,
                            int32_t pid,
                            mepoo::MemoryManager* payloadMemoryManager,
                            bool isMonitored,
@@ -48,9 +48,9 @@ int32_t RouDiProcess::getPid() const noexcept
     return m_pid;
 }
 
-const cxx::CString100 RouDiProcess::getName() const noexcept
+const ProcessName_t RouDiProcess::getName() const noexcept
 {
-    return cxx::CString100(cxx::TruncateToCapacity, m_mq.getInterfaceName());
+    return ProcessName_t(cxx::TruncateToCapacity, m_mq.getInterfaceName());
 }
 
 void RouDiProcess::sendToMQ(const runtime::MqMessage& data) noexcept
@@ -143,7 +143,7 @@ void ProcessManager::killAllProcesses() noexcept
     }
 }
 
-bool ProcessManager::registerProcess(const cxx::CString100& name,
+bool ProcessManager::registerProcess(const ProcessName_t& name,
                                      int32_t pid,
                                      posix::PosixUser user,
                                      bool isMonitored,
@@ -223,7 +223,7 @@ bool ProcessManager::registerProcess(const cxx::CString100& name,
     return false;
 }
 
-bool ProcessManager::addProcess(const cxx::CString100& name,
+bool ProcessManager::addProcess(const ProcessName_t& name,
                                 int32_t pid,
                                 mepoo::MemoryManager* payloadMemoryManager,
                                 bool isMonitored,
@@ -264,13 +264,13 @@ bool ProcessManager::addProcess(const cxx::CString100& name,
     // set current timestamp again (already done in RouDiProcess's constructor
     m_processList.back().setTimestamp(mepoo::BaseClock::now());
 
-    m_processIntrospection->addProcess(pid, cxx::CString100(cxx::TruncateToCapacity, name.c_str()));
+    m_processIntrospection->addProcess(pid, ProcessName_t(cxx::TruncateToCapacity, name.c_str()));
 
     LogDebug() << "Registered new application " << name;
     return true;
 }
 
-bool ProcessManager::removeProcess(const cxx::CString100& name) noexcept
+bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     // we need to search for the process (currently linear search)

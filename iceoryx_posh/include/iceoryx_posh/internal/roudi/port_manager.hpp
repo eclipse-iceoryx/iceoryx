@@ -41,7 +41,7 @@ namespace iox
 {
 namespace roudi
 {
-capro::Interfaces StringToCaProInterface(const cxx::CString100& str);
+capro::Interfaces StringToCaProInterface(const capro::IdString& str);
 
 class PortManager
 {
