@@ -24,13 +24,6 @@ namespace roudi
 {
 struct RouDiConfig
 {
-    struct
-    {
-        /// @todo since we are now fully relocatable, this can be removed
-        uint64_t m_sharedMemoryBaseAddressOffset = 0u;
-        bool m_verifySharedMemoryPlacement = false;
-    } roudi;
-
     RouDiConfig& setDefaults();
     RouDiConfig& optimize();
 };

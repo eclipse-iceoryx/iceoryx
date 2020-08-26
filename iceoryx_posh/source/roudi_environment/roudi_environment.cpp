@@ -14,7 +14,7 @@
 
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
-#include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
+#include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
@@ -37,8 +37,8 @@ RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig,
     : RouDiEnvironment(BaseCTor::BASE, uniqueRouDiId)
 {
     m_roudiComponents = std::unique_ptr<IceOryxRouDiComponents>(new IceOryxRouDiComponents(roudiConfig));
-    m_roudiApp = std::unique_ptr<RouDiMultiProcess>(new RouDiMultiProcess(
-        m_roudiComponents->m_rouDiMemoryManager, m_roudiComponents->m_portManager, monitoringMode, false));
+    m_roudiApp = std::unique_ptr<RouDi>(
+        new RouDi(m_roudiComponents->m_rouDiMemoryManager, m_roudiComponents->m_portManager, monitoringMode, false));
 }
 
 RouDiEnvironment::~RouDiEnvironment()

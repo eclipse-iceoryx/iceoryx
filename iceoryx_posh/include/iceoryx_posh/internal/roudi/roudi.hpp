@@ -38,7 +38,7 @@ namespace roudi
 {
 using namespace iox::units::duration_literals;
 
-class RouDiMultiProcess
+class RouDi
 {
   public:
     // indicate whether the message queue thread will start directly or deferred
@@ -49,23 +49,21 @@ class RouDiMultiProcess
         DEFER_START
     };
 
+    RouDi& operator=(const RouDi& other) = delete;
+    RouDi(const RouDi& other) = delete;
 
-    RouDiMultiProcess& operator=(const RouDiMultiProcess& other) = delete;
-    RouDiMultiProcess(const RouDiMultiProcess& other) = delete;
+    RouDi(RouDiMemoryInterface& roudiMemoryInteface,
+          PortManager& portManager,
+          const MonitoringMode f_monitoringMode = MonitoringMode::ON,
+          const bool f_killProcessesInDestructor = true,
+          const MQThreadStart mqThreadStart = MQThreadStart::IMMEDIATE,
+          const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH);
 
-    RouDiMultiProcess(
-        RouDiMemoryInterface& roudiMemoryInteface,
-        PortManager& portManager,
-        const MonitoringMode f_monitoringMode = MonitoringMode::ON,
-        const bool f_killProcessesInDestructor = true,
-        const MQThreadStart mqThreadStart = MQThreadStart::IMMEDIATE,
-        const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH);
-
-    virtual ~RouDiMultiProcess();
+    virtual ~RouDi();
 
   protected:
-    /// @brief Starts the RouDi message queue thread
-    /// Once this is done, applications can register and RouDi is fully operational.
+    /// @brief Starts the roudi message queue thread
+    /// Once this is done, applications can register and Roudi is fully operational.
     void startMQThread();
 
     /// @brief Stops threads and kills all process known to RouDi
@@ -117,7 +115,7 @@ class RouDiMultiProcess
   protected:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
     /// @note destroy the memory right at the end of the dTor, since the memory is not needed anymore and we know that
-    /// the lifetime of the MemoryBlocks must be at least as long as RouDiMultiProcess; this saves us from issues if the
+    /// the lifetime of the MemoryBlocks must be at least as long as RouDi; this saves us from issues if the
     /// RouDiMemoryManager outlives some MemoryBlocks
     cxx::GenericRAII m_roudiMemoryManagerCleaner{[]() {}, [this]() { this->m_roudiMemoryInterface->destroyMemory(); }};
     PortManager* m_portManager;

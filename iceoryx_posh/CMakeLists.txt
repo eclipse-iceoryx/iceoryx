@@ -170,7 +170,7 @@ add_library(iceoryx_posh_roudi
     source/roudi/roudi_config.cpp
     source/roudi/roudi_cmd_line_parser.cpp
     source/roudi/roudi_cmd_line_parser_config_file_option.cpp
-    source/roudi/roudi_multi_process.cpp
+    source/roudi/roudi.cpp
     source/roudi/roudi_lock.cpp
     source/roudi/roudi_process.cpp
     source/roudi/service_registry.cpp
