@@ -30,12 +30,13 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
                                      PortManager& portManager,
                                      const MonitoringMode monitoringMode,
                                      const bool killProcessesInDestructor,
-                                     const MQThreadStart mqThreadStart)
+                                     const MQThreadStart mqThreadStart,
+                                     const version::CompatibilityCheckLevel compatibilityCheckLevel)
     : m_killProcessesInDestructor(killProcessesInDestructor)
     , m_runThreads(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
-    , m_prcMgr(*m_roudiMemoryInterface, portManager)
+    , m_prcMgr(*m_roudiMemoryInterface, portManager, compatibilityCheckLevel)
     , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
                                   .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
                              *m_roudiMemoryInterface->segmentManager().value(),
@@ -55,10 +56,10 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
     m_processManagementThread = std::thread(&RouDiMultiProcess::processThread, this);
     pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
 
-    if(mqThreadStart == MQThreadStart::IMMEDIATE) {
+    if (mqThreadStart == MQThreadStart::IMMEDIATE)
+    {
         startMQThread();
     }
-
 }
 
 RouDiMultiProcess::~RouDiMultiProcess()
@@ -66,7 +67,7 @@ RouDiMultiProcess::~RouDiMultiProcess()
     shutdown();
 }
 
-void RouDiMultiProcess::startMQThread() 
+void RouDiMultiProcess::startMQThread()
 {
     m_processMQThread = std::thread(&RouDiMultiProcess::mqThread, this);
     pthread_setname_np(m_processMQThread.native_handle(), "MQ-processing");
@@ -140,14 +141,16 @@ void RouDiMultiProcess::mqThread()
     }
 }
 
-void RouDiMultiProcess::parseRegisterMessage(const runtime::MqMessage& message,
-                                             int& pid,
-                                             uid_t& userId,
-                                             int64_t& transmissionTimestamp)
+version::VersionInfo RouDiMultiProcess::parseRegisterMessage(const runtime::MqMessage& message,
+                                                             int& pid,
+                                                             uid_t& userId,
+                                                             int64_t& transmissionTimestamp)
 {
     cxx::convert::fromString(message.getElementAtIndex(2).c_str(), pid);
     cxx::convert::fromString(message.getElementAtIndex(3).c_str(), userId);
     cxx::convert::fromString(message.getElementAtIndex(4).c_str(), transmissionTimestamp);
+    cxx::Serialization serializationVersionInfo(message.getElementAtIndex(5));
+    return serializationVersionInfo;
 }
 
 
@@ -164,7 +167,7 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     }
     case runtime::MqMessageType::REG:
     {
-        if (message.getNumberOfElements() != 5)
+        if (message.getNumberOfElements() != 6)
         {
             LogError() << "Wrong number of parameter for \"MqMessageType::REG\" from \"" << processName
                        << "\"received!";
@@ -174,10 +177,10 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
             int pid;
             uid_t userId;
             int64_t transmissionTimestamp;
+            version::VersionInfo versionInfo = parseRegisterMessage(message, pid, userId, transmissionTimestamp);
 
-            parseRegisterMessage(message, pid, userId, transmissionTimestamp);
-
-            registerProcess(processName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess());
+            registerProcess(
+                processName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess(), versionInfo);
         }
         break;
     }
@@ -291,12 +294,16 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
     }
 }
 
-bool RouDiMultiProcess::registerProcess(
-    const std::string& name, int pid, posix::PosixUser user, int64_t transmissionTimestamp, const uint64_t sessionId)
+bool RouDiMultiProcess::registerProcess(const std::string& name,
+                                        int pid,
+                                        posix::PosixUser user,
+                                        int64_t transmissionTimestamp,
+                                        const uint64_t sessionId,
+                                        const version::VersionInfo& versionInfo)
 {
     bool monitorProcess = (m_monitoringMode == MonitoringMode::ON);
 
-    return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId);
+    return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo);
 }
 
 uint64_t RouDiMultiProcess::getUniqueSessionIdForProcess()

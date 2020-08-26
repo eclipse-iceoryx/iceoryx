@@ -177,6 +177,16 @@ auto enumTypeAsUnderlyingType(enum_type const value) -> typename std::underlying
     return static_cast<typename std::underlying_type<enum_type>::type>(value);
 }
 
+/// @brief Get the size of a string represented by a char array at compile time.
+/// @tparam The size of the char array filled out by the compiler.
+/// @param[in] The actual content of the char array is not of interest. Its just the size of the array that matters.
+/// @return Returns the size of a char array at compile time.
+template <uint64_t SizeValue>
+static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue])
+{
+    return SizeValue - 1;
+}
+
 } // namespace cxx
 } // namespace iox
 

@@ -90,9 +90,12 @@ bool RouDiProcess::isMonitored() const
 
 //--------------------------------------------------------------------------------------------------
 
-ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface, PortManager& portManager)
+ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
+                               PortManager& portManager,
+                               const version::CompatibilityCheckLevel compatibilityCheckLevel)
     : m_roudiMemoryInterface(roudiMemoryInterface)
     , m_portManager(portManager)
+    , m_compatibilityCheckLevel(compatibilityCheckLevel)
 {
     auto maybeSegmentManager = m_roudiMemoryInterface.segmentManager();
     if (!maybeSegmentManager.has_value())
@@ -145,7 +148,8 @@ bool ProcessManager::registerProcess(const std::string& name,
                                      posix::PosixUser user,
                                      bool isMonitored,
                                      int64_t transmissionTimestamp,
-                                     const uint64_t sessionId)
+                                     const uint64_t sessionId,
+                                     const version::VersionInfo& versionInfo)
 {
     bool wasPreviouslyMonitored = false; // must be in outer scope but is only initialized before use
     bool processExists = false;
@@ -176,7 +180,8 @@ bool ProcessManager::registerProcess(const std::string& name,
                           isMonitored,
                           transmissionTimestamp,
                           segmentInfo.m_segmentID,
-                          sessionId);
+                          sessionId,
+                          versionInfo);
     }
 
     // process is already in list (i.e. registered)
@@ -211,7 +216,8 @@ bool ProcessManager::registerProcess(const std::string& name,
                           isMonitored,
                           transmissionTimestamp,
                           segmentInfo.m_segmentID,
-                          sessionId); // call will acquire lock
+                          sessionId,
+                          versionInfo); // call will acquire lock
     }
 
     return false;
@@ -223,13 +229,23 @@ bool ProcessManager::addProcess(const std::string& name,
                                 bool isMonitored,
                                 int64_t transmissionTimestamp,
                                 const uint64_t payloadSegmentId,
-                                const uint64_t sessionId)
+                                const uint64_t sessionId,
+                                const version::VersionInfo& versionInfo)
 {
+    if (!version::VersionInfo::getCurrentVersion().checkCompatibility(versionInfo, m_compatibilityCheckLevel))
+    {
+        LogError()
+            << "Version mismatch from '" << name
+            << "'! Please build your app and RouDi against the same iceoryx version (version & commitID). RouDi: "
+            << version::VersionInfo::getCurrentVersion().operator iox::cxx::Serialization().toString()
+            << " App: " << versionInfo.operator iox::cxx::Serialization().toString();
+        return false;
+    }
     std::lock_guard<std::mutex> g(m_mutex);
     // overflow check
     if (m_processList.size() >= MAX_PROCESS_NUMBER)
     {
-        LogError() << "Could not register process - too many processes";
+        LogError() << "Could not register process '" << name << "' - too many processes";
         return false;
     }
 

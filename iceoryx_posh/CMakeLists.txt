@@ -91,6 +91,7 @@ add_library(iceoryx_posh
     source/popo/condition.cpp
     source/popo/guard_condition.cpp
     source/popo/wait_set.cpp
+    source/version/version_info.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
@@ -126,6 +127,7 @@ target_include_directories(iceoryx_posh
     source/log
     source/mepoo
     source/popo
+    source/version
     source/runtime
 )
 target_link_libraries(iceoryx_posh
@@ -191,6 +193,7 @@ endif(PERFORM_CLANG_TIDY)
 
 target_include_directories(iceoryx_posh_roudi PRIVATE
     source/runtime
+    source/version
     source/popo
     source/capro
     source/roudi
