@@ -13,16 +13,16 @@ Think of RouDi as the switchboard operator of iceoryx. One of his other major ta
 which the applications are using to talk to each other. We currently use memory pools with different chunk sizes,
 called in literature a segregated free-list approach. RouDi is delivered with a built-in default memory config. You can
 change the memory configration using a [TOML config file](../../doc/usage-guide.md). To view the available command
-line options call `RouDi --help`.
+line options call `iox-roudi --help`.
 
 ## Run icedelivery
 
 Create three terminals and run one command in each of them. Either choose to run the normal or simplified version.
 
     # If installed and available in PATH environment variable
-    RouDi
+    iox-roudi
     # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/posh/RouDi
+    $ICEORYX_ROOT/build/posh/iox-roudi
 
 
     ./build/iceoryx_examples/icedelivery/ice-publisher-bare-metal

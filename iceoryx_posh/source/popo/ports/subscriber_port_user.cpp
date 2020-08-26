@@ -104,17 +104,19 @@ bool SubscriberPortUser::hasLostChunks() noexcept
     return m_chunkReceiver.hasOverflown();
 }
 
-void SubscriberPortUser::attachConditionVariable() noexcept
+bool SubscriberPortUser::attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
+    return m_chunkReceiver.attachConditionVariable(conditionVariableDataPtr);
 }
 
-void SubscriberPortUser::detachConditionVaribale() noexcept
+bool SubscriberPortUser::detachConditionVariable() noexcept
 {
+    return m_chunkReceiver.detachConditionVariable();
 }
 
 bool SubscriberPortUser::isConditionVariableAttached() noexcept
 {
-    return false;
+    return m_chunkReceiver.isConditionVariableAttached();
 }
 
 } // namespace popo

@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/version/version_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -267,13 +268,14 @@ MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
             transmissionTimestamp = timestamp;
 
             // send MqMessageType::REG to RouDi
-            bool successfullySent =
-                m_RoudiMqInterface.timedSend({mqMessageTypeToString(MqMessageType::REG),
-                                              m_appName,
-                                              std::to_string(getpid()),
-                                              std::to_string(posix::PosixUser::getUserOfCurrentProcess().getID()),
-                                              std::to_string(transmissionTimestamp)},
-                                             100_ms);
+
+            MqMessage sendBuffer;
+            sendBuffer << mqMessageTypeToString(MqMessageType::REG) << m_appName << std::to_string(getpid())
+                       << std::to_string(posix::PosixUser::getUserOfCurrentProcess().getID())
+                       << std::to_string(transmissionTimestamp)
+                       << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
+
+            bool successfullySent = m_RoudiMqInterface.timedSend(sendBuffer, 100_ms);
 
             if (successfullySent)
             {

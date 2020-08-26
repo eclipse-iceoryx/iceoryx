@@ -30,12 +30,13 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
              const MonitoringMode monitoringMode,
              const bool killProcessesInDestructor,
-             const MQThreadStart mqThreadStart)
+             const MQThreadStart mqThreadStart,
+             const version::CompatibilityCheckLevel compatibilityCheckLevel)
     : m_killProcessesInDestructor(killProcessesInDestructor)
     , m_runThreads(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
-    , m_prcMgr(*m_roudiMemoryInterface, portManager)
+    , m_prcMgr(*m_roudiMemoryInterface, portManager, compatibilityCheckLevel)
     , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
                                   .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
                              *m_roudiMemoryInterface->segmentManager().value(),
@@ -140,14 +141,14 @@ void RouDi::mqThread()
     }
 }
 
-void RouDi::parseRegisterMessage(const runtime::MqMessage& message,
-                                 int& pid,
-                                 uid_t& userId,
-                                 int64_t& transmissionTimestamp)
+version::VersionInfo
+RouDi::parseRegisterMessage(const runtime::MqMessage& message, int& pid, uid_t& userId, int64_t& transmissionTimestamp)
 {
     cxx::convert::fromString(message.getElementAtIndex(2).c_str(), pid);
     cxx::convert::fromString(message.getElementAtIndex(3).c_str(), userId);
     cxx::convert::fromString(message.getElementAtIndex(4).c_str(), transmissionTimestamp);
+    cxx::Serialization serializationVersionInfo(message.getElementAtIndex(5));
+    return serializationVersionInfo;
 }
 
 
@@ -164,7 +165,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     }
     case runtime::MqMessageType::REG:
     {
-        if (message.getNumberOfElements() != 5)
+        if (message.getNumberOfElements() != 6)
         {
             LogError() << "Wrong number of parameter for \"MqMessageType::REG\" from \"" << processName
                        << "\"received!";
@@ -174,10 +175,10 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             int pid;
             uid_t userId;
             int64_t transmissionTimestamp;
+            version::VersionInfo versionInfo = parseRegisterMessage(message, pid, userId, transmissionTimestamp);
 
-            parseRegisterMessage(message, pid, userId, transmissionTimestamp);
-
-            registerProcess(processName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess());
+            registerProcess(
+                processName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess(), versionInfo);
         }
         break;
     }
@@ -310,12 +311,17 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     }
 }
 
-bool RouDi::registerProcess(
-    const std::string& name, int pid, posix::PosixUser user, int64_t transmissionTimestamp, const uint64_t sessionId)
+bool RouDi::registerProcess(const std::string& name,
+                            int pid,
+                            posix::PosixUser user,
+                            int64_t transmissionTimestamp,
+                            const uint64_t sessionId,
+                            const version::VersionInfo& versionInfo)
 {
     bool monitorProcess = (m_monitoringMode == MonitoringMode::ON);
     auto truncatedName = cxx::CString100(cxx::TruncateToCapacity, name);
-    return m_prcMgr.registerProcess(truncatedName, pid, user, monitorProcess, transmissionTimestamp, sessionId);
+    return m_prcMgr.registerProcess(
+        truncatedName, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo);
 }
 
 uint64_t RouDi::getUniqueSessionIdForProcess()

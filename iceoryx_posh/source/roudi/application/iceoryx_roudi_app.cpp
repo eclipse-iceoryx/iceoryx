@@ -40,10 +40,11 @@ void IceOryxRouDiApp::run() noexcept
                                                      m_rouDiComponents.value().m_rouDiMemoryManager,
                                                      m_rouDiComponents.value().m_portManager,
                                                      m_monitoringMode,
-                                                     true);
+                                                     true,
+                                                     RouDi::MQThreadStart::IMMEDIATE,
+                                                     m_compatibilityCheckLevel);
         waitForSignal();
     }
 }
 } // namespace roudi
 } // namespace iox
-

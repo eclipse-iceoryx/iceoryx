@@ -12,133 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/publisher.hpp"
-#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
+#include "mq.hpp"
 #include "topic_data.hpp"
+#include "uds.hpp"
 
 #include <chrono>
 #include <iomanip>
 #include <iostream>
 
-constexpr int64_t NUMBER_OF_ROUNDTRIPS{1000000};
+constexpr int64_t NUMBER_OF_ROUNDTRIPS{10000};
 constexpr char APP_NAME[] = "/laurel";
 constexpr char PUBLISHER[] = "Laurel";
 constexpr char SUBSCRIBER[] = "Hardy";
 
-double measureLatency(iox::popo::Publisher& publisher, iox::popo::Subscriber& subscriber)
+
+void leaderDo(IcePerfBase& ipcTechnology, int64_t numRoundtrips)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-    // run the performance test
-    for (auto i = 0; i < NUMBER_OF_ROUNDTRIPS; ++i)
-    {
-        const void* receivedChunk;
-        while (!subscriber.getChunk(&receivedChunk))
-        {
-            // poll as fast as possible
-        }
-
-        auto receivedSample = static_cast<const PerfTopic*>(receivedChunk);
-
-        auto sendSample = static_cast<PerfTopic*>(publisher.allocateChunk(receivedSample->payloadSize, true));
-        sendSample->payloadSize = receivedSample->payloadSize;
-        sendSample->run = true;
-
-        publisher.sendChunk(sendSample);
-
-        subscriber.releaseChunk(receivedChunk);
-    }
-
-    auto finish = std::chrono::high_resolution_clock::now();
-
-    constexpr int64_t TRANSMISSIONS_PER_ROUNDTRIP{2};
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start);
-    auto latencyInNanoSeconds = (duration.count() / (NUMBER_OF_ROUNDTRIPS * TRANSMISSIONS_PER_ROUNDTRIP));
-    auto latencyInMicroSeconds = static_cast<double>(latencyInNanoSeconds) / 1000;
-    return latencyInMicroSeconds;
-}
-
-int main()
-{
-    // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::getInstance(APP_NAME);
-
-    // Create a publisher and offer the service
-    iox::popo::Publisher myPublisher({"Comedians", "Duo", PUBLISHER});
-    myPublisher.offer();
-
-    // Create the subscriber and subscribe to the service
-    iox::popo::Subscriber mySubscriber({"Comedians", "Duo", SUBSCRIBER});
-    mySubscriber.subscribe(1);
-
-    std::cout << "Waiting to subscribe to " << SUBSCRIBER << " ... " << std::flush;
-    while (mySubscriber.getSubscriptionState() != iox::popo::SubscriptionState::SUBSCRIBED)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    std::cout << "done" << std::endl;
-
-    std::cout << "Waiting for subscriber to " << PUBLISHER << " ... " << std::flush;
-    while (!myPublisher.hasSubscribers())
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    std::cout << "done" << std::endl;
+    ipcTechnology.initLeader();
 
     std::vector<double> latencyInMicroSeconds;
     const std::vector<uint32_t> payloadSizesInKB{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
     for (const auto payloadSizeInKB : payloadSizesInKB)
     {
         std::cout << "Measurement for " << payloadSizeInKB << " kB payload ... " << std::flush;
-        auto payloadSizeInBytes = payloadSizeInKB * 1024;
-        // Allocate a memory chunk for the sample to be sent and allow dynamic sample size, as we dynamically change the
-        // payload
-        auto sample = static_cast<PerfTopic*>(myPublisher.allocateChunk(payloadSizeInBytes, true));
+        auto payloadSizeInBytes = payloadSizeInKB * IcePerfBase::ONE_KILOBYTE;
 
-        // Specify the payload size for the measurement
-        sample->payloadSize = payloadSizeInBytes;
-        sample->run = true;
+        ipcTechnology.prePingPongLeader(payloadSizeInBytes);
 
-        // Send the initial sample to start the round-trips
-        myPublisher.sendChunk(sample);
+        auto latency = ipcTechnology.pingPongLeader(numRoundtrips);
 
-        auto latency = measureLatency(myPublisher, mySubscriber);
         latencyInMicroSeconds.push_back(latency);
 
-        // Wait for hardy to send the last response
-        const void* receivedChunk;
-        while (!mySubscriber.getChunk(&receivedChunk))
-        {
-            // poll as fast as possible
-        }
-        mySubscriber.releaseChunk(receivedChunk);
-        std::cout << "done" << std::endl;
+        ipcTechnology.postPingPongLeader();
     }
 
-    const int64_t payloadSize = sizeof(PerfTopic);
-    auto stopSample = static_cast<PerfTopic*>(myPublisher.allocateChunk(payloadSize, true));
+    ipcTechnology.releaseFollower();
 
-    // stop iceoryx-hardy
-    // Write sample data
-    stopSample->payloadSize = payloadSize;
-    stopSample->run = false;
-    myPublisher.sendChunk(stopSample);
-
-    mySubscriber.unsubscribe();
-
-    std::cout << "Waiting for subscriber to unsubscribe from " << PUBLISHER << " ... " << std::flush;
-    while (!myPublisher.hasSubscribers())
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    std::cout << "done" << std::endl;
-
-    // with stopOffer we disconnect all subscribers and the publisher is no more visible
-    myPublisher.stopOffer();
+    ipcTechnology.shutdown();
 
     std::cout << std::endl;
     std::cout << "#### Measurement Result ####" << std::endl;
-    std::cout << NUMBER_OF_ROUNDTRIPS << " round trips for each payload." << std::endl;
+    std::cout << numRoundtrips << " round trips for each payload." << std::endl;
     std::cout << std::endl;
     std::cout << "| Payload Size [kB] | Average Latency [µs] |" << std::endl;
     std::cout << "|------------------:|---------------------:|" << std::endl;
@@ -150,6 +67,34 @@ int main()
 
     std::cout << std::endl;
     std::cout << "Finished!" << std::endl;
+}
+
+int main(int argc, char* argv[])
+{
+    uint64_t numRoundtrips = NUMBER_OF_ROUNDTRIPS;
+    if (argc > 1)
+    {
+        if (!iox::cxx::convert::fromString(argv[1], numRoundtrips))
+        {
+            std::cout << "error command line parameter" << std::endl;
+            exit(1);
+        }
+    }
+
+#ifndef __APPLE__
+    std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
+    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
+    leaderDo(mq, numRoundtrips);
+#endif
+
+    std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+    UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
+    leaderDo(uds, numRoundtrips);
+
+    std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
+    iox::runtime::PoshRuntime::getInstance(APP_NAME); // runtime for registering with the RouDi daemon
+    Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
+    leaderDo(iceoryx, numRoundtrips);
 
     return (EXIT_SUCCESS);
 }
