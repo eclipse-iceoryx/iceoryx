@@ -203,7 +203,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
 
 TEST_F(PoshRuntime_test, SendRequestToRouDiValidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_runtimeName
+    m_sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_runnableName;
 
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
@@ -215,7 +215,7 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiValidMessage)
 
 TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_runtimeName
+    m_sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_invalidRunnableName;
 
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);

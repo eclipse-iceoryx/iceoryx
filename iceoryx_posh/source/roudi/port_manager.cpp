@@ -26,7 +26,7 @@ namespace iox
 {
 namespace roudi
 {
-capro::Interfaces StringToCaProInterface(const cxx::CString100& str)
+capro::Interfaces StringToCaProInterface(const capro::IdString& str)
 {
     int32_t i;
     cxx::convert::fromString(str.c_str(), i);
@@ -46,7 +46,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface)
     if (!maybePortPool.has_value())
     {
         LogFatal() << "Could not get PortPool!";
-        errorHandler(Error::kPORT_MANAGER__PORT_POOL_UNAVAILABLE, nullptr, iox::ErrorLevel::SEVERE);
+        errorHandler(Error::kPORT_MANAGER__PORT_POOL_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
     }
     m_portPool = maybePortPool.value();
 
@@ -54,7 +54,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface)
     if (!maybeIntrospectionMemoryManager.has_value())
     {
         LogFatal() << "Could not get MemoryManager for introspection!";
-        errorHandler(Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::SEVERE);
+        errorHandler(Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
     }
     auto& introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
@@ -291,8 +291,8 @@ void PortManager::handleRunnables()
 {
     /// @todo we have to update the introspection but runnable information is in process introspection which is not
     // accessible here. So currently runnables will be removed not before a process is removed
-    // m_processIntrospection->removeRunnable(cxx::CString100(process.c_str()),
-    // cxx::CString100(runnable.c_str()));
+    // m_processIntrospection->removeRunnable(ProcessName_t(process.c_str()),
+    // RunnableName_t(runnable.c_str()));
 
     for (auto runnableData : m_portPool->runnableDataList())
     {
@@ -379,14 +379,14 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
     }
 }
 
-bool PortManager::areAllReceiverPortsSubscribed(const cxx::CString100& appName)
+bool PortManager::areAllReceiverPortsSubscribed(const ProcessName_t& processName)
 {
     int32_t numberOfReceiverPorts{0};
     int32_t numberOfConnectedReceiverPorts{0};
     for (auto receiverPortData : m_portPool->receiverPortDataList())
     {
         ReceiverPortType receiver(receiverPortData);
-        if (receiver.getProcessName() == iox::cxx::string<100>(iox::cxx::TruncateToCapacity, appName))
+        if (receiver.getProcessName() == processName)
         {
             numberOfReceiverPorts++;
             numberOfConnectedReceiverPorts += receiver.isSubscribed() ? 1 : 0;
@@ -396,7 +396,7 @@ bool PortManager::areAllReceiverPortsSubscribed(const cxx::CString100& appName)
     return numberOfReceiverPorts == numberOfConnectedReceiverPorts;
 }
 
-void PortManager::deletePortsOfProcess(const cxx::CString100& processName)
+void PortManager::deletePortsOfProcess(const ProcessName_t& processName)
 {
     for (auto port : m_portPool->senderPortDataList())
     {
@@ -518,9 +518,9 @@ const std::atomic<uint64_t>* PortManager::serviceRegistryChangeCounter()
 
 cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSenderPortData(const capro::ServiceDescription& service,
-                                   const cxx::CString100& processName,
+                                   const ProcessName_t& processName,
                                    mepoo::MemoryManager* payloadMemoryManager,
-                                   const cxx::CString100& runnable,
+                                   const RunnableName_t& runnable,
                                    const PortConfigInfo& portConfigInfo)
 {
     // check if already in list, we currently do not support multi publisher for one CaPro ID
@@ -557,8 +557,8 @@ PortManager::acquireSenderPortData(const capro::ServiceDescription& service,
 
 /// @todo return a cxx::expected
 ReceiverPortType::MemberType_t* PortManager::acquireReceiverPortData(const capro::ServiceDescription& service,
-                                                                     const cxx::CString100& processName,
-                                                                     const cxx::CString100& runnable,
+                                                                     const ProcessName_t& processName,
+                                                                     const RunnableName_t& runnable,
                                                                      const PortConfigInfo& portConfigInfo)
 {
     auto result = m_portPool->addReceiverPort(service, processName, portConfigInfo.memoryInfo);
@@ -575,8 +575,8 @@ ReceiverPortType::MemberType_t* PortManager::acquireReceiverPortData(const capro
 
 /// @todo return a cxx::expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
-                                                               const cxx::CString100& processName,
-                                                               const cxx::CString100& /*runnable*/)
+                                                               const ProcessName_t& processName,
+                                                               const RunnableName_t& /*runnable*/)
 {
     auto result = m_portPool->addInterfacePort(processName, interface);
     if (!result.has_error())
@@ -590,7 +590,7 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
 }
 
 /// @todo return a cxx::expected
-popo::ApplicationPortData* PortManager::acquireApplicationPortData(const cxx::CString100& processName)
+popo::ApplicationPortData* PortManager::acquireApplicationPortData(const ProcessName_t& processName)
 {
     auto result = m_portPool->addApplicationPort(processName);
     if (!result.has_error())
@@ -603,21 +603,21 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const cxx::CS
     }
 }
 
-void PortManager::addEntryToServiceRegistry(const cxx::CString100& service, const cxx::CString100& instance) noexcept
+void PortManager::addEntryToServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept
 {
     m_serviceRegistry.add(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
-void PortManager::removeEntryFromServiceRegistry(const cxx::CString100& service,
-                                                 const cxx::CString100& instance) noexcept
+void PortManager::removeEntryFromServiceRegistry(const capro::IdString& service,
+                                                 const capro::IdString& instance) noexcept
 {
     m_serviceRegistry.remove(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
 /// @todo return a cxx::expected
-runtime::RunnableData* PortManager::acquireRunnableData(const cxx::CString100& process, const cxx::CString100& runnable)
+runtime::RunnableData* PortManager::acquireRunnableData(const ProcessName_t& process, const RunnableName_t& runnable)
 {
     auto result = m_portPool->addRunnableData(process, runnable, 0);
     if (!result.has_error())
@@ -631,7 +631,7 @@ runtime::RunnableData* PortManager::acquireRunnableData(const cxx::CString100& p
 }
 
 cxx::expected<popo::ConditionVariableData*, PortPoolError>
-PortManager::acquireConditionVariableData(const cxx::CString100& processName)
+PortManager::acquireConditionVariableData(const ProcessName_t& processName)
 {
     return m_portPool->addConditionVariableData(processName);
 }

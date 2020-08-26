@@ -97,9 +97,9 @@ class ProcessManagerInterface
     /// @param [in] message which shall be delivered
     /// @param [in] sessionId the sender expects to be currently valid
     /// @return true if the message was delivered, false otherwise
-    virtual bool sendMessageToProcess(const cxx::CString100& name,
-                                      const iox::runtime::MqMessage& message,
-                                      const uint64_t sessionId) = 0;
+    [[gnu::deprecated]] virtual bool sendMessageToProcess(const cxx::CString100& name,
+                                                          const iox::runtime::MqMessage& message,
+                                                          const uint64_t sessionId) = 0;
 
     // port handling
     virtual ReceiverPortType addInternalReceiverPort(const capro::ServiceDescription& service,
@@ -192,9 +192,9 @@ class ProcessManager : public ProcessManagerInterface
     /// @param [in] message which shall be delivered
     /// @param [in] sessionId the sender expects to be currently valid
     /// @return true if the message was delivered, false otherwise
-    bool sendMessageToProcess(const cxx::CString100& name,
-                              const iox::runtime::MqMessage& message,
-                              const uint64_t sessionId) noexcept override;
+    [[gnu::deprecated]] bool sendMessageToProcess(const cxx::CString100& name,
+                                                  const iox::runtime::MqMessage& message,
+                                                  const uint64_t sessionId) noexcept override;
     // END
 
     // BEGIN PortHandling interface

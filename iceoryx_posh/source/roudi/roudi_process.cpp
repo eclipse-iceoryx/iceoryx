@@ -296,7 +296,7 @@ bool ProcessManager::removeProcess(const cxx::CString100& name) noexcept
     return false;
 }
 
-bool ProcessManager::sendMessageToProcess(const cxx::CString100& name,
+bool ProcessManager::sendMessageToProcess(const ProcessName_t& name,
                                           const iox::runtime::MqMessage& message,
                                           const uint64_t sessionId) noexcept
 {
@@ -323,7 +323,7 @@ bool ProcessManager::sendMessageToProcess(const cxx::CString100& name,
     return true;
 }
 
-void ProcessManager::updateLivelinessOfProcess(const cxx::CString100& name) noexcept
+void ProcessManager::updateLivelinessOfProcess(const ProcessName_t& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -339,8 +339,7 @@ void ProcessManager::updateLivelinessOfProcess(const cxx::CString100& name) noex
     }
 }
 
-void ProcessManager::findServiceForProcess(const cxx::CString100& name,
-                                           const capro::ServiceDescription& service) noexcept
+void ProcessManager::findServiceForProcess(const ProcessName_t& name, const capro::ServiceDescription& service) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -357,9 +356,9 @@ void ProcessManager::findServiceForProcess(const cxx::CString100& name,
     }
 }
 
-void ProcessManager::addInterfaceForProcess(const cxx::CString100& name,
+void ProcessManager::addInterfaceForProcess(const ProcessName_t& name,
                                             capro::Interfaces interface,
-                                            const cxx::CString100& runnable) noexcept
+                                            const RunnableName_t& runnable) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -373,7 +372,7 @@ void ProcessManager::addInterfaceForProcess(const cxx::CString100& name,
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, port);
 
         runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_INTERFACE_ACK)
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_INTERFACE_ACK)
                    << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
         process->sendToMQ(sendBuffer);
 
@@ -385,7 +384,7 @@ void ProcessManager::addInterfaceForProcess(const cxx::CString100& name,
     }
 }
 
-void ProcessManager::sendServiceRegistryChangeCounterToProcess(const cxx::CString100& processName) noexcept
+void ProcessManager::sendServiceRegistryChangeCounterToProcess(const ProcessName_t& processName) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     RouDiProcess* process = getProcessFromList(processName);
@@ -404,7 +403,7 @@ void ProcessManager::sendServiceRegistryChangeCounterToProcess(const cxx::CStrin
     }
 }
 
-void ProcessManager::addApplicationForProcess(const cxx::CString100& name) noexcept
+void ProcessManager::addApplicationForProcess(const ProcessName_t& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -416,7 +415,7 @@ void ProcessManager::addApplicationForProcess(const cxx::CString100& name) noexc
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, port);
 
         runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_APPLICATION_ACK)
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_APPLICATION_ACK)
                    << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
         process->sendToMQ(sendBuffer);
 
@@ -428,8 +427,8 @@ void ProcessManager::addApplicationForProcess(const cxx::CString100& name) noexc
     }
 }
 
-void ProcessManager::addRunnableForProcess(const cxx::CString100& processName,
-                                           const cxx::CString100& runnableName) noexcept
+void ProcessManager::addRunnableForProcess(const ProcessName_t& processName,
+                                           const RunnableName_t& runnableName) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -457,7 +456,7 @@ void ProcessManager::addRunnableForProcess(const cxx::CString100& processName,
     }
 }
 
-void ProcessManager::sendMessageNotSupportedToRuntime(const cxx::CString100& name) noexcept
+void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -472,9 +471,9 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const cxx::CString100& nam
     }
 }
 
-void ProcessManager::addReceiverForProcess(const cxx::CString100& name,
+void ProcessManager::addReceiverForProcess(const ProcessName_t& name,
                                            const capro::ServiceDescription& service,
-                                           const cxx::CString100& runnable,
+                                           const RunnableName_t& runnable,
                                            const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -498,7 +497,7 @@ void ProcessManager::addReceiverForProcess(const cxx::CString100& name,
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, receiver);
 
         runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_RECEIVER_ACK)
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_RECEIVER_ACK)
                    << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
         process->sendToMQ(sendBuffer);
 
@@ -510,9 +509,9 @@ void ProcessManager::addReceiverForProcess(const cxx::CString100& name,
     }
 }
 
-void ProcessManager::addSenderForProcess(const cxx::CString100& name,
+void ProcessManager::addSenderForProcess(const ProcessName_t& name,
                                          const capro::ServiceDescription& service,
-                                         const cxx::CString100& runnable,
+                                         const RunnableName_t& runnable,
                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -530,7 +529,7 @@ void ProcessManager::addSenderForProcess(const cxx::CString100& name,
             auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSender.get_value());
 
             runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_SENDER_ACK)
+            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_SENDER_ACK)
                        << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
             process->sendToMQ(sendBuffer);
 
@@ -554,7 +553,7 @@ void ProcessManager::addSenderForProcess(const cxx::CString100& name,
     }
 }
 
-void ProcessManager::addConditionVariableForProcess(const cxx::CString100& processName) noexcept
+void ProcessManager::addConditionVariableForProcess(const ProcessName_t& processName) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -567,7 +566,7 @@ void ProcessManager::addConditionVariableForProcess(const cxx::CString100& proce
                 auto offset = RelativePointer::getOffset(m_mgmtSegmentId, condVar);
 
                 runtime::MqMessage sendBuffer;
-                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::IMPL_CONDITION_VARIABLE_ACK)
+                sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_CONDITION_VARIABLE_ACK)
                            << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
                 process->sendToMQ(sendBuffer);
 
@@ -605,7 +604,7 @@ void ProcessManager::run() noexcept
 }
 
 SenderPortType ProcessManager::addIntrospectionSenderPort(const capro::ServiceDescription& service,
-                                                          const cxx::CString100& process_name) noexcept
+                                                          const ProcessName_t& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -614,14 +613,14 @@ SenderPortType ProcessManager::addIntrospectionSenderPort(const capro::ServiceDe
 }
 
 ReceiverPortType ProcessManager::addInternalReceiverPort(const capro::ServiceDescription& service,
-                                                         const cxx::CString100& process_name) noexcept
+                                                         const ProcessName_t& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
     return ReceiverPortType(m_portManager.acquireReceiverPortData(service, process_name));
 }
 
-void ProcessManager::removeInternalPorts(const cxx::CString100& process_name) noexcept
+void ProcessManager::removeInternalPorts(const ProcessName_t& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -629,7 +628,7 @@ void ProcessManager::removeInternalPorts(const cxx::CString100& process_name) no
 }
 
 
-bool ProcessManager::areAllReceiverPortsSubscribed(const cxx::CString100& process_name) noexcept
+bool ProcessManager::areAllReceiverPortsSubscribed(const ProcessName_t& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -637,7 +636,7 @@ bool ProcessManager::areAllReceiverPortsSubscribed(const cxx::CString100& proces
 }
 
 SenderPortType ProcessManager::addInternalSenderPort(const capro::ServiceDescription& service,
-                                                     const cxx::CString100& process_name) noexcept
+                                                     const ProcessName_t& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -646,7 +645,7 @@ SenderPortType ProcessManager::addInternalSenderPort(const capro::ServiceDescrip
 }
 
 
-RouDiProcess* ProcessManager::getProcessFromList(const cxx::CString100& name) noexcept
+RouDiProcess* ProcessManager::getProcessFromList(const ProcessName_t& name) noexcept
 {
     RouDiProcess* processPtr = nullptr;
 

@@ -73,12 +73,12 @@ class PortPool
     addApplicationPort(const std::string& applicationName) noexcept;
 
     cxx::expected<runtime::RunnableData*, PortPoolError>
-    addRunnableData(const iox::cxx::CString100& process,
-                    const iox::cxx::CString100& runnable,
+    addRunnableData(const ProcessName_t& process,
+                    const RunnableName_t& runnable,
                     const uint64_t runnableDeviceIdentifier) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
-    addConditionVariableData(const iox::cxx::CString100& process);
+    addConditionVariableData(const ProcessName_t& process);
 
     virtual void removeSenderPort(SenderPortType::MemberType_t* const portData) noexcept = 0;
     virtual void removeReceiverPort(ReceiverPortType::MemberType_t* const portData) noexcept = 0;

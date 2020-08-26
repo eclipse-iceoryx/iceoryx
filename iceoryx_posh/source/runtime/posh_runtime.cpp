@@ -126,7 +126,7 @@ SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::Serv
                                                                const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
-    sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_SENDER) << m_appName
+    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SENDER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << runnableName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
@@ -165,7 +165,7 @@ PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
-        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::IMPL_SENDER_ACK)
+        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_SENDER_ACK)
 
         {
             RelativePointer::id_t segmentId;
@@ -206,7 +206,7 @@ ReceiverPortType::MemberType_t* PoshRuntime::getMiddlewareReceiver(const capro::
                                                                    const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
-    sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_RECEIVER) << m_appName
+    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_RECEIVER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << runnableName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
@@ -220,7 +220,7 @@ ReceiverPortType::MemberType_t* PoshRuntime::requestReceiverFromRoudi(const MqMe
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
-        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::IMPL_RECEIVER_ACK)
+        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_RECEIVER_ACK)
         {
             RelativePointer::id_t segmentId;
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
@@ -232,14 +232,14 @@ ReceiverPortType::MemberType_t* PoshRuntime::requestReceiverFromRoudi(const MqMe
         else
         {
             LogError() << "Wrong response from message queue " << mqMessage;
-            assert(false);
+            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
             return nullptr;
         }
     }
     else
     {
         LogError() << "Wrong response from message queue";
-        assert(false);
+        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
         return nullptr;
     }
 }
@@ -248,8 +248,8 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interf
                                                              const cxx::CString100& runnableName) noexcept
 {
     MqMessage sendBuffer;
-    sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_appName << static_cast<uint32_t>(interface)
-               << runnableName;
+    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_appName
+               << static_cast<uint32_t>(interface) << runnableName;
 
     MqMessage receiveBuffer;
 
@@ -257,7 +257,7 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interf
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
-        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::IMPL_INTERFACE_ACK)
+        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_INTERFACE_ACK)
         {
             RelativePointer::id_t segmentId;
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
@@ -269,14 +269,14 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interf
         else
         {
             LogError() << "Wrong response from message queue " << mqMessage;
-            assert(false);
+            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
             return nullptr;
         }
     }
     else
     {
         LogError() << "Wrong response from message queue";
-        assert(false);
+        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
         return nullptr;
     }
 }
@@ -305,14 +305,14 @@ RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProper
         else
         {
             LogError() << "Wrong response from message queue " << mqMessage;
-            assert(false);
+            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
             return nullptr;
         }
     }
     else
     {
         LogError() << "Wrong response from message queue";
-        assert(false);
+        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
         return nullptr;
     }
 }
@@ -370,7 +370,7 @@ void PoshRuntime::stopOfferService(const capro::ServiceDescription& serviceDescr
 popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
 {
     MqMessage sendBuffer;
-    sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_APPLICATION) << m_appName;
+    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_APPLICATION) << m_appName;
 
     MqMessage receiveBuffer;
 
@@ -378,7 +378,7 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
-        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::IMPL_APPLICATION_ACK)
+        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_APPLICATION_ACK)
         {
             RelativePointer::id_t segmentId;
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
@@ -397,7 +397,7 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
     else
     {
         LogError() << "Wrong response from message queue";
-        assert(false);
+        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
         return nullptr;
     }
 }
@@ -410,7 +410,7 @@ PoshRuntime::requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noex
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
-        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::IMPL_CONDITION_VARIABLE_ACK)
+        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_CONDITION_VARIABLE_ACK)
         {
             RelativePointer::id_t segmentId;
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
@@ -422,7 +422,7 @@ PoshRuntime::requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noex
         else
         {
             LogError() << "Wrong response from message queue " << mqMessage;
-            assert(false);
+            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
             return cxx::success<popo::ConditionVariableData*>(nullptr);
         }
     }
@@ -435,12 +435,14 @@ PoshRuntime::requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noex
             if (stringToMqMessageType(mqMessage1.c_str()) == MqMessageType::ERROR)
             {
                 LogError() << "No valid condition variable received from RouDi.";
+                errorHandler(
+                    Error::kPOSH__RUNTIME_NO_VALID_CONDITION_VARIABLE_RECEIVED, nullptr, iox::ErrorLevel::MODERATE);
                 return cxx::error<MqMessageErrorType>(stringToMqMessageErrorType(mqMessage2.c_str()));
             }
         }
 
         LogError() << "Wrong response from message queue";
-        assert(false);
+        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
         return cxx::success<popo::ConditionVariableData*>(nullptr);
     }
 }
@@ -448,7 +450,7 @@ PoshRuntime::requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noex
 popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexcept
 {
     MqMessage sendBuffer;
-    sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_CONDITION_VARIABLE) << m_appName;
+    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_CONDITION_VARIABLE) << m_appName;
 
     auto maybeConditionVariable = requestConditionVariableFromRoudi(sendBuffer);
     if (maybeConditionVariable.has_error())

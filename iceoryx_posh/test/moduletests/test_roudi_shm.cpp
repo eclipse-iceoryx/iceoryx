@@ -330,25 +330,17 @@ TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
 
 TEST_F(PortManager_test, PortDestroy)
 {
-    std::string p1 = "/myProcess1";
-    std::string p2 = "/myProcess2";
+    iox::cxx::CString100 p1 = "/myProcess1";
+    iox::cxx::CString100 p2 = "/myProcess2";
     iox::capro::ServiceDescription cap1(1, 1, 1);
     iox::capro::ServiceDescription cap2(2, 2, 2);
 
     // two processes p1 and p2 each with a sender and receiver that match to the other process
-    auto senderData1 = m_shmManager
-                           ->acquireSenderPortData(
-                               cap1, iox::cxx::CString100(iox::cxx::TruncateToCapacity, p1), m_payloadMemoryManager)
-                           .get_value();
-    auto receiverData1 =
-        m_shmManager->acquireReceiverPortData(cap2, iox::cxx::CString100(iox::cxx::TruncateToCapacity, p1));
+    auto senderData1 = m_shmManager->acquireSenderPortData(cap1, p1, m_payloadMemoryManager).get_value();
+    auto receiverData1 = m_shmManager->acquireReceiverPortData(cap2, p1);
 
-    auto senderData2 = m_shmManager
-                           ->acquireSenderPortData(
-                               cap2, iox::cxx::CString100(iox::cxx::TruncateToCapacity, p2), m_payloadMemoryManager)
-                           .get_value();
-    auto receiverData2 =
-        m_shmManager->acquireReceiverPortData(cap1, iox::cxx::CString100(iox::cxx::TruncateToCapacity, p2));
+    auto senderData2 = m_shmManager->acquireSenderPortData(cap2, p2, m_payloadMemoryManager).get_value();
+    auto receiverData2 = m_shmManager->acquireReceiverPortData(cap1, p2);
 
     // let them connect
     {
@@ -396,11 +388,8 @@ TEST_F(PortManager_test, PortDestroy)
     }
 
     // re-create the ports of process p2
-    senderData2 = m_shmManager
-                      ->acquireSenderPortData(
-                          cap2, iox::cxx::CString100(iox::cxx::TruncateToCapacity, p2), m_payloadMemoryManager)
-                      .get_value();
-    receiverData2 = m_shmManager->acquireReceiverPortData(cap1, iox::cxx::CString100(iox::cxx::TruncateToCapacity, p2));
+    senderData2 = m_shmManager->acquireSenderPortData(cap2, p2, m_payloadMemoryManager).get_value();
+    receiverData2 = m_shmManager->acquireReceiverPortData(cap1, p2);
 
     // let them connect
     {
@@ -427,7 +416,7 @@ TEST_F(PortManager_test, PortDestroy)
 
     // cleanup process p2 and check if states of ports in p1 changed  as expected
     {
-        m_shmManager->deletePortsOfProcess(iox::cxx::CString100(iox::cxx::TruncateToCapacity, p2));
+        m_shmManager->deletePortsOfProcess(p2);
         SenderPort sender1(senderData1);
         ASSERT_TRUE(sender1);
         ReceiverPort receiver1(receiverData1);

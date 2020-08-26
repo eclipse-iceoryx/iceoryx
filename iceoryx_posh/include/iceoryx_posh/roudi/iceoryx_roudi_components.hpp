@@ -50,7 +50,7 @@ struct IceOryxRouDiComponents
 
             m_rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
                 LogFatal() << "Could not create SharedMemory! Error: " << static_cast<uint64_t>(error);
-                errorHandler(Error::kROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, nullptr, iox::ErrorLevel::SEVERE);
+                errorHandler(Error::kROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
             });
             return true;
         },
