@@ -46,7 +46,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 )
 
 #
-########## build posh lib for ##########
+########## posh core lib ##########
 #
 
 add_library(iceoryx_posh
@@ -148,12 +148,19 @@ else()
 endif()
 
 #
-########## build lib for gateway support ##########
+########## posh lib for gateway support ##########
 #
 add_library(iceoryx_posh_gateway
     source/gateway/gateway_base.cpp
 )
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh_gateway ALIAS iceoryx_posh_gateway)
+
+set_target_properties(iceoryx_posh_gateway PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
 
 target_include_directories(iceoryx_posh
     PUBLIC
@@ -172,7 +179,7 @@ target_link_libraries(iceoryx_posh_gateway
 target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS})
 
 #
-########## build roudi lib ##########
+########## posh roudi lib ##########
 #
 add_library(iceoryx_posh_roudi
     source/roudi/application/iceoryx_roudi_app.cpp
@@ -196,11 +203,11 @@ add_library(iceoryx_posh_roudi
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi ALIAS iceoryx_posh_roudi)
+
 set_target_properties(iceoryx_posh_roudi PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
-    OUTPUT_NAME "iceoryx_posh_roudi"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
@@ -238,7 +245,9 @@ if(TOML_CONFIG)
     endif(NOT cpptoml_FOUND)
     message("-- Build with TOML config file support.")
 
-    # This library contains utilities used for configuration at runtime
+    #
+    ######### posh config utils lib ##########
+    #
     add_library(iceoryx_posh_config
         source/log/posh_config_logging.cpp
         source/gateway/gateway_config.cpp
@@ -249,22 +258,31 @@ if(TOML_CONFIG)
         source/roudi/roudi_cmd_line_parser_config_file_option.cpp
     )
     add_library(${PROJECT_NAMESPACE}::iceoryx_posh_config ALIAS iceoryx_posh_config)
+
+    set_target_properties(iceoryx_posh_config PROPERTIES
+        CXX_STANDARD_REQUIRED ON
+        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+        POSITION_INDEPENDENT_CODE ON
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    )
+
     target_include_directories(iceoryx_posh_config PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
         $<INSTALL_INTERFACE:include/${PREFIX}>
     )
+
     target_link_libraries(iceoryx_posh_config PRIVATE
         iceoryx_utils::iceoryx_utils
         cpptoml
     )
-    set_target_properties(iceoryx_posh_config PROPERTIES
-        CXX_STANDARD_REQUIRED ON
-        CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    )
+
     target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS})
 
+    #
+    ######### posh roudi daemon ##########
+    #
     add_executable(iox-roudi
         source/roudi/application/roudi_main.cpp
     )
@@ -274,17 +292,20 @@ if(TOML_CONFIG)
         POSITION_INDEPENDENT_CODE ON
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     )
+
     target_link_libraries(iox-roudi
         PRIVATE
         iceoryx_utils::iceoryx_utils
         ${PROJECT_NAMESPACE}::iceoryx_posh_roudi
         ${PROJECT_NAMESPACE}::iceoryx_posh_config
     )
+
     target_include_directories(iox-roudi PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
         $<INSTALL_INTERFACE:include/${PREFIX}>
     )
+
     target_compile_options(iox-roudi PRIVATE ${ICEORYX_WARNINGS})
     if(PERFORM_CLANG_TIDY)
         set_target_properties(
@@ -295,12 +316,17 @@ if(TOML_CONFIG)
 endif(TOML_CONFIG)
 
 if(roudi_environment OR test)
+    
+    #
+    ######### posh roudi environment ##########
+    #
     add_library(iceoryx_posh_roudi_environment
         source/roudi_environment/runtime_test_interface.cpp
         source/roudi_environment/roudi_environment.cpp
     )
 
     add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi_environment ALIAS iceoryx_posh_roudi_environment)
+    
     set_target_properties(iceoryx_posh_roudi_environment PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -320,6 +346,7 @@ if(roudi_environment OR test)
     )
 
     target_compile_options(iceoryx_posh_roudi_environment PRIVATE ${ICEORYX_WARNINGS})
+
 endif(roudi_environment OR test)
 
 #
