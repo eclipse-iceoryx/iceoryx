@@ -129,6 +129,31 @@ Unit tests are black box tests that test the public interface of a class. They a
 
 Integration tests are composition of more than one class and test their interaction. They are optional for new code.
 
+## Coverage Scan
+
+To ensure that the provided testcode covers the productive code you can do a coverage scan with gcov. The reporting is done with gcovr as html page.
+You will need to install the following packages:
+    ```
+    sudo apt install gcovr
+    ```
+
+In iceoryx we have multiple levels for testcoverage: 'unit', 'integration', 'component' and ’all’ for all levels together. You can create reports for these different testlevels or for all tests. Coverage is only done with gcc.
+
+For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
+You can do this with one command like this:
+    ```
+    ./tools/iceoryx_build_test.sh clean -c <testlevel> -j 4
+    ```
+
+The -c flag indicates that you want to have a coverage report and you can pass there the needed testlevel. Per default the testlevel is set to 'all'.
+example:
+    ```
+    ./tools/iceoryx_build_test.sh clean -c unit -j 4
+    ```
+For having only unittest reports.
+
+All reports are stored in build/gcov as html report.
+
 ## Legal & Compliance
 
 ### Dependencies
