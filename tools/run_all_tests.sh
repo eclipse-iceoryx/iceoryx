@@ -19,6 +19,7 @@
 COMPONENTS="utils posh"
 GTEST_FILTER="*"
 BASE_DIR=$PWD
+GCOV_SCOPE="all"
 
 for arg in "$@"
 do 
@@ -31,6 +32,9 @@ do
             ;;
         "only-timing-tests")
             GTEST_FILTER="*.TimingTest_*"
+            ;;
+        "all" | "component" | "unit" | "integration")
+            GCOV_SCOPE="$arg"
             ;;
         *)
             echo ""
@@ -70,10 +74,18 @@ for COMPONENT in $COMPONENTS; do
     cd $BASE_DIR/$COMPONENT/test
 
     # Runs only tests available for the given component
-    [ -f ./"$COMPONENT"_moduletests ]      && ./"$COMPONENT"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ModuleTestResults.xml"
-    [ -f ./"$COMPONENT"_componenttests ]   && ./"$COMPONENT"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ComponenttestTestResults.xml"
-    [ -f ./"$COMPONENT"_integrationtests ] && ./"$COMPONENT"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_IntegrationTestResults.xml"
 
+    case $GCOV_SCOPE in    
+        "unit" | "all")
+            [ -f ./"$COMPONENT"_moduletests ] && ./"$COMPONENT"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ModuleTestResults.xml"
+            ;;
+        "component" | "all")
+            [ -f ./"$COMPONENT"_componenttests ] && ./"$COMPONENT"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ComponenttestTestResults.xml"
+            ;;
+        "integration" | "all") 
+            [ -f ./"$COMPONENT"_integrationtests ] && ./"$COMPONENT"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_IntegrationTestResults.xml"
+            ;;
+      esac
 done
 
 # do not start RouDi while the module and componenttests are running;
