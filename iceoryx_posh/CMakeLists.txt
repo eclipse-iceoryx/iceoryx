@@ -103,6 +103,7 @@ add_library(iceoryx_posh
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh ALIAS iceoryx_posh)
+
 set_target_properties(iceoryx_posh PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
@@ -246,7 +247,7 @@ if(TOML_CONFIG)
     message("-- Build with TOML config file support.")
 
     #
-    ######### posh config utils lib ##########
+    ######### posh config lib ##########
     #
     add_library(iceoryx_posh_config
         source/log/posh_config_logging.cpp
