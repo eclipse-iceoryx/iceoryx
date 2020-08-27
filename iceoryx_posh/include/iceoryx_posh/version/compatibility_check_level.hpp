@@ -11,21 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_CXX_TYPED_UNIQUE_ID_INL
-#define IOX_UTILS_CXX_TYPED_UNIQUE_ID_INL
+#ifndef IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP
+#define IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP
 
 namespace iox
 {
-namespace cxx
+namespace version
 {
-template <typename T>
-std::atomic<uint64_t> TypedUniqueId<T>::globalIDCounter{0u};
+enum class CompatibilityCheckLevel
+{
+    OFF,
+    MAJOR,
+    MINOR,
+    PATCH,
+    COMMIT_ID,
+    BUILD_DATE
+};
 
-template <typename T>
-inline TypedUniqueId<T>::TypedUniqueId() noexcept
-    : ThisType(newtype::internal::ProtectedConstructor, globalIDCounter.fetch_add(1u, std::memory_order_relaxed))
-{
-}
-} // namespace cxx
+} // namespace version
 } // namespace iox
-#endif
+#endif // IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP

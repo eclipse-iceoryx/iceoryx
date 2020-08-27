@@ -30,14 +30,17 @@
 
 using namespace ::testing;
 
-class SubscriberPort_test : public Test
+class SubscriberPortSingleProducer_test : public Test
 {
+  public:
+    static const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION;
+
   protected:
-    SubscriberPort_test()
+    SubscriberPortSingleProducer_test()
     {
     }
 
-    ~SubscriberPort_test()
+    ~SubscriberPortSingleProducer_test()
     {
     }
 
@@ -49,20 +52,22 @@ class SubscriberPort_test : public Test
     {
     }
 
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     iox::popo::SubscriberPortData m_subscriberPortDataSingleProducer{
-        iox::capro::ServiceDescription("x", "y", "z"),
-        "myApp",
-        iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
+        TEST_SERVICE_DESCRIPTION, "myApp", iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     iox::popo::SubscriberPortUser m_sutUserSideSingleProducer{&m_subscriberPortDataSingleProducer};
     iox::popo::SubscriberPortSingleProducer m_sutRouDiSideSingleProducer{&m_subscriberPortDataSingleProducer};
 };
 
-TEST_F(SubscriberPort_test, initialStateNotSubscribed)
+const iox::capro::ServiceDescription SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION("x", "y", "z");
+
+TEST_F(SubscriberPortSingleProducer_test, initialStateNotSubscribed)
 {
     EXPECT_THAT(m_sutUserSideSingleProducer.getSubscriptionState(), Eq(iox::SubscribeState::NOT_SUBSCRIBED));
 }
 
-TEST_F(SubscriberPort_test, initialStateNoChunksAvailable)
+TEST_F(SubscriberPortSingleProducer_test, initialStateNoChunksAvailable)
 {
     auto maybeChunk = m_sutUserSideSingleProducer.getChunk();
 
@@ -71,19 +76,19 @@ TEST_F(SubscriberPort_test, initialStateNoChunksAvailable)
     EXPECT_FALSE(m_sutUserSideSingleProducer.hasNewChunks());
 }
 
-TEST_F(SubscriberPort_test, initialStateNoChunksLost)
+TEST_F(SubscriberPortSingleProducer_test, initialStateNoChunksLost)
 {
     EXPECT_FALSE(m_sutUserSideSingleProducer.hasLostChunks());
 }
 
-TEST_F(SubscriberPort_test, initialStateReturnsNoCaProMessage)
+TEST_F(SubscriberPortSingleProducer_test, initialStateReturnsNoCaProMessage)
 {
     auto maybeCaproMessage = m_sutRouDiSideSingleProducer.getCaProMessage();
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
 }
 
-TEST_F(SubscriberPort_test, subscribeCallResultsInSubCaProMessage)
+TEST_F(SubscriberPortSingleProducer_test, subscribeCallResultsInSubCaProMessage)
 {
     m_sutUserSideSingleProducer.subscribe();
 
@@ -92,11 +97,11 @@ TEST_F(SubscriberPort_test, subscribeCallResultsInSubCaProMessage)
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::SUB));
-    EXPECT_THAT(caproMessage.m_serviceDescription, Eq(iox::capro::ServiceDescription("x", "y", "z")));
+    EXPECT_THAT(caproMessage.m_serviceDescription, Eq(SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION));
     EXPECT_THAT(caproMessage.m_historyCapacity, Eq(0u));
 }
 
-TEST_F(SubscriberPort_test, subscribeRequestedWhenCallingSubscribe)
+TEST_F(SubscriberPortSingleProducer_test, subscribeRequestedWhenCallingSubscribe)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
@@ -106,12 +111,12 @@ TEST_F(SubscriberPort_test, subscribeRequestedWhenCallingSubscribe)
     EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::SUBSCRIBE_REQUESTED));
 }
 
-TEST_F(SubscriberPort_test, nackResponseOnSubResultsInWaitForOffer)
+TEST_F(SubscriberPortSingleProducer_test, nackResponseOnSubResultsInWaitForOffer)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
 
     const auto subscriptionState = m_sutUserSideSingleProducer.getSubscriptionState();
@@ -119,12 +124,12 @@ TEST_F(SubscriberPort_test, nackResponseOnSubResultsInWaitForOffer)
     EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::WAIT_FOR_OFFER));
 }
 
-TEST_F(SubscriberPort_test, ackResponseOnSubResultsInSubscribed)
+TEST_F(SubscriberPortSingleProducer_test, ackResponseOnSubResultsInSubscribed)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
 
     const auto subscriptionState = m_sutUserSideSingleProducer.getSubscriptionState();
@@ -132,12 +137,12 @@ TEST_F(SubscriberPort_test, ackResponseOnSubResultsInSubscribed)
     EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(SubscriberPort_test, offerInWaitForOfferTriggersSubMessage)
+TEST_F(SubscriberPortSingleProducer_test, offerInWaitForOfferTriggersSubMessage)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     caproMessage.m_type = iox::capro::CaproMessageType::OFFER;
 
@@ -146,16 +151,17 @@ TEST_F(SubscriberPort_test, offerInWaitForOfferTriggersSubMessage)
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::SUB));
-    EXPECT_THAT(caproMessageResponse.m_serviceDescription, Eq(iox::capro::ServiceDescription("x", "y", "z")));
+    EXPECT_THAT(caproMessageResponse.m_serviceDescription,
+                Eq(SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION));
     EXPECT_THAT(caproMessageResponse.m_historyCapacity, Eq(0u));
 }
 
-TEST_F(SubscriberPort_test, offerInWaitForOfferResultsInSubscribeRequested)
+TEST_F(SubscriberPortSingleProducer_test, offerInWaitForOfferResultsInSubscribeRequested)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     caproMessage.m_type = iox::capro::CaproMessageType::OFFER;
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
@@ -165,12 +171,12 @@ TEST_F(SubscriberPort_test, offerInWaitForOfferResultsInSubscribeRequested)
     EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::SUBSCRIBE_REQUESTED));
 }
 
-TEST_F(SubscriberPort_test, unsubscribeInWaitForOfferResultsInNotSubscribed)
+TEST_F(SubscriberPortSingleProducer_test, unsubscribeInWaitForOfferResultsInNotSubscribed)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideSingleProducer.unsubscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
@@ -180,12 +186,12 @@ TEST_F(SubscriberPort_test, unsubscribeInWaitForOfferResultsInNotSubscribed)
     EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::NOT_SUBSCRIBED));
 }
 
-TEST_F(SubscriberPort_test, StopOfferInSubscribedResultsInWaitForOffer)
+TEST_F(SubscriberPortSingleProducer_test, StopOfferInSubscribedResultsInWaitForOffer)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     caproMessage.m_type = iox::capro::CaproMessageType::STOP_OFFER;
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
@@ -195,12 +201,12 @@ TEST_F(SubscriberPort_test, StopOfferInSubscribedResultsInWaitForOffer)
     EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::WAIT_FOR_OFFER));
 }
 
-TEST_F(SubscriberPort_test, unsubscribeInSubscribedTriggersUnsubMessage)
+TEST_F(SubscriberPortSingleProducer_test, unsubscribeInSubscribedTriggersUnsubMessage)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideSingleProducer.unsubscribe();
 
@@ -209,15 +215,16 @@ TEST_F(SubscriberPort_test, unsubscribeInSubscribedTriggersUnsubMessage)
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();
     EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::UNSUB));
-    EXPECT_THAT(caproMessageResponse.m_serviceDescription, Eq(iox::capro::ServiceDescription("x", "y", "z")));
+    EXPECT_THAT(caproMessageResponse.m_serviceDescription,
+                Eq(SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION));
 }
 
-TEST_F(SubscriberPort_test, unsubscribeInSubscribedResultsInUnsubscribeRequested)
+TEST_F(SubscriberPortSingleProducer_test, unsubscribeInSubscribedResultsInUnsubscribeRequested)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideSingleProducer.unsubscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
@@ -227,12 +234,12 @@ TEST_F(SubscriberPort_test, unsubscribeInSubscribedResultsInUnsubscribeRequested
     EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::UNSUBSCRIBE_REQUESTED));
 }
 
-TEST_F(SubscriberPort_test, ackInUnsubscribeRequestedResultsInNotSubscribed)
+TEST_F(SubscriberPortSingleProducer_test, ackInUnsubscribeRequestedResultsInNotSubscribed)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideSingleProducer.unsubscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
@@ -243,12 +250,12 @@ TEST_F(SubscriberPort_test, ackInUnsubscribeRequestedResultsInNotSubscribed)
     EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::NOT_SUBSCRIBED));
 }
 
-TEST_F(SubscriberPort_test, nackInUnsubscribeRequestedResultsInNotSubscribed)
+TEST_F(SubscriberPortSingleProducer_test, nackInUnsubscribeRequestedResultsInNotSubscribed)
 {
     m_sutUserSideSingleProducer.subscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideSingleProducer.unsubscribe();
     m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
@@ -260,13 +267,15 @@ TEST_F(SubscriberPort_test, nackInUnsubscribeRequestedResultsInNotSubscribed)
     EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::NOT_SUBSCRIBED));
 }
 
-TEST_F(SubscriberPort_test, invalidMessageResultsInError)
+TEST_F(SubscriberPortSingleProducer_test, invalidMessageResultsInError)
 {
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
     auto maybeCaproMessage = m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
 
@@ -274,13 +283,15 @@ TEST_F(SubscriberPort_test, invalidMessageResultsInError)
     EXPECT_TRUE(errorHandlerCalled);
 }
 
-TEST_F(SubscriberPort_test, ackWhenNotWaitingForResultsInError)
+TEST_F(SubscriberPortSingleProducer_test, ackWhenNotWaitingForResultsInError)
 {
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
     auto maybeCaproMessage = m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
 
@@ -288,16 +299,194 @@ TEST_F(SubscriberPort_test, ackWhenNotWaitingForResultsInError)
     EXPECT_TRUE(errorHandlerCalled);
 }
 
-TEST_F(SubscriberPort_test, nackWhenNotWaitingForResultsInError)
+TEST_F(SubscriberPortSingleProducer_test, nackWhenNotWaitingForResultsInError)
 {
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    iox::Error receivedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
-                                          iox::capro::ServiceDescription("x", "y", "z"));
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
     auto maybeCaproMessage = m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
     EXPECT_TRUE(errorHandlerCalled);
+    ASSERT_THAT(receivedError, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
+}
+
+class SubscriberPortMultiProducer_test : public Test
+{
+  protected:
+    SubscriberPortMultiProducer_test()
+    {
+    }
+
+    ~SubscriberPortMultiProducer_test()
+    {
+    }
+
+    void SetUp()
+    {
+    }
+
+    void TearDown()
+    {
+    }
+
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
+    iox::popo::SubscriberPortData m_subscriberPortDataMultiProducer{
+        SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION,
+        "myApp",
+        iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer};
+    iox::popo::SubscriberPortUser m_sutUserSideMultiProducer{&m_subscriberPortDataMultiProducer};
+    iox::popo::SubscriberPortMultiProducer m_sutRouDiSideMultiProducer{&m_subscriberPortDataMultiProducer};
+};
+
+TEST_F(SubscriberPortMultiProducer_test, initialStateNotSubscribed)
+{
+    EXPECT_THAT(m_sutUserSideMultiProducer.getSubscriptionState(), Eq(iox::SubscribeState::NOT_SUBSCRIBED));
+}
+
+TEST_F(SubscriberPortMultiProducer_test, initialStateReturnsNoCaProMessage)
+{
+    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.getCaProMessage();
+
+    EXPECT_FALSE(maybeCaproMessage.has_value());
+}
+
+TEST_F(SubscriberPortMultiProducer_test, subscribeCallResultsInSubCaProMessage)
+{
+    m_sutUserSideMultiProducer.subscribe();
+
+    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.getCaProMessage();
+
+    EXPECT_TRUE(maybeCaproMessage.has_value());
+    auto caproMessage = maybeCaproMessage.value();
+    EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::SUB));
+    EXPECT_THAT(caproMessage.m_serviceDescription, Eq(SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION));
+    EXPECT_THAT(caproMessage.m_historyCapacity, Eq(0u));
+}
+
+TEST_F(SubscriberPortMultiProducer_test, subscribedWhenCallingSubscribe)
+{
+    m_sutUserSideMultiProducer.subscribe();
+    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+
+    const auto subscriptionState = m_sutUserSideMultiProducer.getSubscriptionState();
+
+    EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(SubscriberPortMultiProducer_test, nackResponseOnSubStillSubscribed)
+{
+    m_sutUserSideMultiProducer.subscribe();
+    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
+    m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
+
+    const auto subscriptionState = m_sutUserSideMultiProducer.getSubscriptionState();
+
+    EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(SubscriberPortMultiProducer_test, ackResponseOnSubStillSubscribed)
+{
+    m_sutUserSideMultiProducer.subscribe();
+    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
+    m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
+
+    const auto subscriptionState = m_sutUserSideMultiProducer.getSubscriptionState();
+
+    EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(SubscriberPortMultiProducer_test, offerInSubscribedTriggersSubMessage)
+{
+    m_sutUserSideMultiProducer.subscribe();
+    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::OFFER,
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
+
+    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
+
+    EXPECT_TRUE(maybeCaproMessage.has_value());
+    auto caproMessageResponse = maybeCaproMessage.value();
+    EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::SUB));
+    EXPECT_THAT(caproMessageResponse.m_serviceDescription,
+                Eq(SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION));
+    EXPECT_THAT(caproMessageResponse.m_historyCapacity, Eq(0u));
+}
+
+TEST_F(SubscriberPortMultiProducer_test, unsubscribeInSubscribedResultsInNotSubscribed)
+{
+    m_sutUserSideMultiProducer.subscribe();
+    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    m_sutUserSideMultiProducer.unsubscribe();
+    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+
+    const auto subscriptionState = m_sutUserSideMultiProducer.getSubscriptionState();
+
+    EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::NOT_SUBSCRIBED));
+}
+
+TEST_F(SubscriberPortMultiProducer_test, StopOfferInSubscribedRemainsInSubscribed)
+{
+    m_sutUserSideMultiProducer.subscribe();
+    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
+    m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
+    caproMessage.m_type = iox::capro::CaproMessageType::STOP_OFFER;
+    m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
+
+    const auto subscriptionState = m_sutUserSideMultiProducer.getSubscriptionState();
+
+    EXPECT_THAT(subscriptionState, Eq(iox::SubscribeState::SUBSCRIBED));
+}
+
+TEST_F(SubscriberPortMultiProducer_test, unsubscribeInSubscribedTriggersUnsubMessage)
+{
+    m_sutUserSideMultiProducer.subscribe();
+    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
+    m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
+    m_sutUserSideMultiProducer.unsubscribe();
+
+    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.getCaProMessage();
+
+    EXPECT_TRUE(maybeCaproMessage.has_value());
+    auto caproMessageResponse = maybeCaproMessage.value();
+    EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::UNSUB));
+    EXPECT_THAT(caproMessageResponse.m_serviceDescription,
+                Eq(SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION));
+}
+
+TEST_F(SubscriberPortMultiProducer_test, invalidMessageResultsInError)
+{
+    auto errorHandlerCalled{false};
+    iox::Error receivedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled,
+         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+            receivedError = error;
+        });
+    iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::UNSUB,
+                                          SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
+
+    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
+
+    EXPECT_FALSE(maybeCaproMessage.has_value());
+    EXPECT_TRUE(errorHandlerCalled);
+    ASSERT_THAT(receivedError, Eq(iox::Error::kPOPO__CAPRO_PROTOCOL_ERROR));
 }

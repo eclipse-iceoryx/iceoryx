@@ -87,11 +87,7 @@ inline uint64_t ChunkQueuePopper<ChunkQueueDataType>::size() noexcept
 template <typename ChunkQueueDataType>
 inline void ChunkQueuePopper<ChunkQueueDataType>::setCapacity(const uint64_t newCapacity) noexcept
 {
-    /// @todo fix getCapacity and setCapacity issue in queues (uint32 vs uint64)
-    // this needs to be properly fixed by harmonizing the types across the functions, but currently this cast is also
-    // sufficient
-    getMembers()->m_queue.setCapacity(
-        static_cast<typename std::remove_const<decltype(MemberType_t::MAX_CAPACITY)>::type>(newCapacity));
+    getMembers()->m_queue.setCapacity(newCapacity);
 }
 
 template <typename ChunkQueueDataType>
@@ -109,22 +105,14 @@ inline uint64_t ChunkQueuePopper<ChunkQueueDataType>::getMaximumCapacity() const
 template <typename ChunkQueueDataType>
 inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
 {
-    do
+    while (auto maybeChunkTuple = getMembers()->m_queue.pop())
     {
-        auto retVal = getMembers()->m_queue.pop();
-        if (retVal.has_value())
-        {
-            // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
-            auto chunkTupleOut = *retVal;
-            auto chunkManagement =
-                iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
-            auto chunk = mepoo::SharedChunk(chunkManagement);
-        }
-        else
-        {
-            break;
-        }
-    } while (true);
+        // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
+        auto chunkTupleOut = maybeChunkTuple.value();
+        auto chunkManagement =
+            iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+        auto chunk = mepoo::SharedChunk(chunkManagement);
+    }
 }
 
 template <typename ChunkQueueDataType>
@@ -135,7 +123,7 @@ ChunkQueuePopper<ChunkQueueDataType>::attachConditionVariable(ConditionVariableD
 
     if (isConditionVariableAttached())
     {
-        LogWarn() << "Condition variable signaler already set. Attaching a second time will be ignored!";
+        LogWarn() << "Condition variable already set. Attaching a second time will be ignored!";
         return false;
     }
     else
@@ -157,7 +145,7 @@ inline bool ChunkQueuePopper<ChunkQueueDataType>::detachConditionVariable() noex
     }
     else
     {
-        LogWarn() << "Condition variable signaler not set yet.";
+        LogWarn() << "Condition variable not set yet.";
         return false;
     }
 }

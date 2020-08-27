@@ -342,7 +342,7 @@ TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingASingleElement)
 {
     int ret;
     m_sofi.push(123, ret);
-    EXPECT_EQ(m_sofi.resize(4), false);
+    EXPECT_EQ(m_sofi.setCapacity(4), false);
 }
 
 TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingAMultipleElements)
@@ -351,7 +351,7 @@ TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingAMultipleElements)
     m_sofi.push(123, ret);
     m_sofi.push(13, ret);
     m_sofi.push(23, ret);
-    EXPECT_EQ(m_sofi.resize(4), false);
+    EXPECT_EQ(m_sofi.setCapacity(4), false);
 }
 
 TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenFull)
@@ -359,29 +359,29 @@ TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenFull)
     for (int ret; !m_sofi.push(123, ret);)
     {
     }
-    EXPECT_EQ(m_sofi.resize(4), false);
+    EXPECT_EQ(m_sofi.setCapacity(4), false);
 }
 
 TEST_F(CUnitTestContainerSoFi, ResizingLargeThanCapacityFails)
 {
-    EXPECT_EQ(m_sofi.resize(TEST_SOFI_CAPACITY + 1), false);
+    EXPECT_EQ(m_sofi.setCapacity(TEST_SOFI_CAPACITY + 1), false);
 }
 
 TEST_F(CUnitTestContainerSoFi, ResizingToZeroIsValid)
 {
-    EXPECT_EQ(m_sofi.resize(0), true);
+    EXPECT_EQ(m_sofi.setCapacity(0), true);
 }
 
 TEST_F(CUnitTestContainerSoFi, ResizingDefault)
 {
-    EXPECT_EQ(m_sofi.resize(TEST_SOFI_CAPACITY - 1), true);
+    EXPECT_EQ(m_sofi.setCapacity(TEST_SOFI_CAPACITY - 1), true);
 }
 
 TEST_F(CUnitTestContainerSoFi, ResizeAndSizeCheck)
 {
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY; ++i)
     {
-        EXPECT_EQ(m_sofi.resize(i), true);
+        EXPECT_EQ(m_sofi.setCapacity(i), true);
         EXPECT_EQ(m_sofi.capacity(), i);
     }
 }
@@ -390,7 +390,7 @@ TEST_F(CUnitTestContainerSoFi, ResizeAndSizeFillUp)
 {
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY - 1; ++i)
     {
-        EXPECT_EQ(m_sofi.resize(i), true);
+        EXPECT_EQ(m_sofi.setCapacity(i), true);
         for (uint32_t k = 0; k < i; ++k)
         {
             int temp;

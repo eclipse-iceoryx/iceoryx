@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
-#include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
+#include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
@@ -91,7 +91,7 @@ int main()
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
-    iox::roudi::RouDiMultiProcess roudi(
+    iox::roudi::RouDi roudi(
         roudiComponents.m_rouDiMemoryManager, roudiComponents.m_portManager, iox::roudi::MonitoringMode::OFF, false);
 
     // create a single process runtime for inter thread communication

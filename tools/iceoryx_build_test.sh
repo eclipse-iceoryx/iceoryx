@@ -184,7 +184,12 @@ mkdir -p tools
 cp $WORKSPACE/tools/run_all_tests.sh $BUILD_DIR/tools/run_all_tests.sh
 
 echo " [i] Running all tests"
-$BUILD_DIR/tools/run_all_tests.sh
+if [ "$DDS_GATEWAY_FLAG" == "ON" ]
+then
+    $BUILD_DIR/tools/run_all_tests.sh with-dds-gateway-tests
+else
+    $BUILD_DIR/tools/run_all_tests.sh
+fi
 
 for COMPONENT in $COMPONENTS; do
 

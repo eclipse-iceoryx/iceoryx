@@ -27,7 +27,7 @@ GatewayBase::GatewayBase(const capro::Interfaces f_interface) noexcept
 
 GatewayBase::~GatewayBase() noexcept
 {
-    if(m_interfaceImpl)
+    if (m_interfaceImpl)
     {
         m_interfaceImpl.destroy();
     }
@@ -35,7 +35,17 @@ GatewayBase::~GatewayBase() noexcept
 
 bool GatewayBase::getCaProMessage(CaproMessage& msg) noexcept
 {
-    return m_interfaceImpl.getCaProMessage(msg);
+    auto maybeCaproMessage = m_interfaceImpl.getCaProMessage();
+    if (maybeCaproMessage.has_value())
+    {
+        msg = maybeCaproMessage.value();
+        return true;
+    }
+    else
+    {
+        msg.m_type = capro::CaproMessageType::NOTYPE;
+        return false;
+    }
 }
 
 } // namespace gw

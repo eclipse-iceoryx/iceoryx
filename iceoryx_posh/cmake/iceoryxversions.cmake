@@ -5,10 +5,7 @@ execute_process(COMMAND
   OUTPUT_VARIABLE ICEORYX_SHA1
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND
-  date -u -R
-  OUTPUT_VARIABLE ICEORYX_BUILDDATE
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
+string(TIMESTAMP ICEORYX_BUILDDATE UTC)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_versions.hpp.in"
   "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_versions.hpp" @ONLY)

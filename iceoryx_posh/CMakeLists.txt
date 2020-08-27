@@ -86,9 +86,11 @@ add_library(iceoryx_posh
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
     source/popo/building_blocks/locking_policy.cpp
+    source/popo/building_blocks/typed_unique_id.cpp
     source/popo/condition.cpp
     source/popo/guard_condition.cpp
     source/popo/wait_set.cpp
+    source/version/version_info.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
@@ -124,6 +126,7 @@ target_include_directories(iceoryx_posh
     source/log
     source/mepoo
     source/popo
+    source/version
     source/runtime
 )
 target_link_libraries(iceoryx_posh
@@ -186,7 +189,7 @@ add_library(iceoryx_posh_roudi
     source/roudi/iceoryx_port_pool.cpp
     source/roudi/port_manager.cpp
     source/roudi/port_pool.cpp
-    source/roudi/roudi_multi_process.cpp
+    source/roudi/roudi.cpp
     source/roudi/roudi_lock.cpp
     source/roudi/roudi_process.cpp
     source/roudi/service_registry.cpp
@@ -209,6 +212,7 @@ endif(PERFORM_CLANG_TIDY)
 
 target_include_directories(iceoryx_posh_roudi PRIVATE
     source/runtime
+    source/version
     source/popo
     source/capro
     source/roudi

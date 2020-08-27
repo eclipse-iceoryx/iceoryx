@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -31,7 +32,7 @@ namespace popo
 /// is divided in the three parts PublisherPortData, PublisherPortRouDi and PublisherPortUser. The PublisherPortUser
 /// uses the functionality of a ChunkSender for sending shared memory chunks. Additionally it provides the offer /
 /// stopOffer API which controls whether the publisher port is discoverable for subscriber ports
-class PublisherPortUser
+class PublisherPortUser : public BasePort
 {
   public:
     using MemberType_t = PublisherPortData;
