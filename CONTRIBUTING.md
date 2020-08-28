@@ -131,13 +131,14 @@ Integration tests are composition of more than one class and test their interact
 
 ## Coverage Scan
 
-To ensure that the provided testcode covers the productive code you can do a coverage scan with gcov. The reporting is done with gcovr as html page.
+To ensure that the provided testcode covers the productive code you can do a coverage scan with gcov. The reporting is done with lcov and htmlgen.
 You will need to install the following packages:
     ```
-    sudo apt install gcovr
+    sudo apt install lcov
     ```
 
-In iceoryx we have multiple levels for testcoverage: 'unit', 'integration', 'component' and ’all’ for all levels together. You can create reports for these different testlevels or for all tests. Coverage is only done with gcc.
+In iceoryx we have multiple levels for testcoverage: 'unit', 'integration', 'component' and ’all’ for all levels together. You can create reports for these different testlevels or for all tests. Coverage is here done with gcc.
+The coverage scan applies to Quality level 3 - 5 and partly 4.
 
 For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
 You can do this with one command like this:
@@ -150,9 +151,9 @@ example:
     ```
     ./tools/iceoryx_build_test.sh clean -c unit -j 4
     ```
-For having only unittest reports.
+For having only unittest reports. In the script tools/gcov/lcov_generate.sh is the initial scan, filtering and report generation automatically done.
 
-All reports are stored in build/gcov as html report.
+All reports are stored in build/lcov as html report.
 
 ## Legal & Compliance
 

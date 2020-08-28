@@ -196,6 +196,8 @@ then
     cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
     cmake --build . --target install -- -j$NUM_JOBS
     echo ">>>>>> Finished building iceoryx examples <<<<<<"
+else
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial #make an initial scan to cover also files with no coverage
 fi
 
 #====================================================================================================
@@ -248,8 +250,13 @@ fi
 if [ "$COV_FLAG" == "ON" ] 
 then
     echo ">>>>>> Generate Gcov Report <<<<<<"
-    mkdir -p $BUILD_DIR/gcov
     cd $WORKSPACE
-    gcovr -r $WORKSPACE --config $COV_OUTPUT
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE capture #scan all files after test execution
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE combine #combine tracefiles from initial scan with the latest one
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE remove #exclude all unnecessary files
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE genhtml #generate html
     echo ">>>>>> Report Generation complete <<<<<<"
+    #alternative with gcov currently disabled
+    #mkdir -p $BUILD_DIR/gcov
+    #gcovr -r $WORKSPACE --config $COV_OUTPUT
 fi
