@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/experimental/popo/publisher.hpp"
+#include "iceoryx_posh/experimental/popo/typed_publisher.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -42,22 +43,29 @@ void getVehiclePosition(Position* allocation)
 int main(int argc, char *argv[])
 {
     iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-modern");
-    auto publisher = iox::popo::Publisher<Position>({"Odometry", "Position", "Vehicle"});
-    publisher.offer();
+
+    auto typedPublisher = iox::popo::TypedPublisher<Position>({"Odometry", "Position", "Vehicle"});
+    //auto untypedPublisher = iox::popo::Publisher<iox::popo::Untyped>({"Odometry", "Position", "Vehicle"});
+
+    typedPublisher.offer();
+    //untypedPublisher.offer();
 
     float_t ct = 0.0;
     while(!killswitch)
     {
-        publisher.loan()
+        typedPublisher.loan()
             .and_then([&](iox::popo::Sample<Position>& sample){
-                std::cout << "Got sample" << std::endl;
                 ++ct;
                 sample.emplace(ct, ct, ct);
                 sample.publish();
             });
             std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        publisher.publishResultOf(getVehiclePosition);
+//        typedPublisher.publishResultOf(getVehiclePosition);
+
+        //untypedPublisher.loan();
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
     }
 
     return 0;

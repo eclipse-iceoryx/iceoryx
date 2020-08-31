@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_INL
+#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
+#define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
 
-#include "iceoryx_posh/experimental/popo/publisher.hpp"
+#include "iceoryx_posh/experimental/popo/base_publisher.hpp"
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -32,13 +32,13 @@ using SamplePtr = iox::cxx::unique_ptr<T>;
 using uid_t = uint64_t;
 
 template<typename T, typename port_t>
-Publisher<T, port_t>::Publisher(const capro::ServiceDescription& service)
+BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
     : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, ""))
 {}
 
 template<typename T, typename port_t>
 inline uid_t
-Publisher<T, port_t>::uid() const noexcept
+BasePublisher<T, port_t>::uid() const noexcept
 {
     std::cout << "uid()" << std::endl;
     return 0u;
@@ -46,15 +46,15 @@ Publisher<T, port_t>::uid() const noexcept
 
 template<typename T, typename port_t>
 inline cxx::expected<Sample<T>, AllocationError>
-Publisher<T, port_t>::loan() noexcept
+BasePublisher<T, port_t>::loan(uint64_t size) noexcept
 {
-    auto header = m_port.reserveChunk(sizeof(T), m_useDynamicPayloadSize);
+    auto header = m_port.reserveChunk(size, m_useDynamicPayloadSize);
     if (header == nullptr)
     {
         // Old API does not provide error handling, so return unknown error.
-        return iox::cxx::error<AllocationError>(AllocationError::UNKNOWN);
+        return cxx::error<AllocationError>(AllocationError::UNKNOWN);
     }
-    return iox::cxx::success<Sample<T>>(
+    return cxx::success<Sample<T>>(
                 cxx::unique_ptr<T>(
                     header->payload(),
                     [this](T* const p){
@@ -66,18 +66,19 @@ Publisher<T, port_t>::loan() noexcept
             );
 }
 
+// Need a specialization where T = untyped to return a void sample
+
 template<typename T, typename port_t>
-inline cxx::expected<AllocationError>
-Publisher<T, port_t>::release(Sample<T>& sample) noexcept
+inline void
+BasePublisher<T, port_t>::release(Sample<T>& sample) noexcept
 {
     auto header = iox::mepoo::convertPayloadPointerToChunkHeader(sample.allocation());
     m_port.freeChunk(header);
-    return iox::cxx::success<>();
 }
 
 template<typename T, typename port_t>
 inline cxx::expected<AllocationError>
-Publisher<T, port_t>::publish(Sample<T>& sample) noexcept
+BasePublisher<T, port_t>::publish(Sample<T>& sample) noexcept
 {
     /// @todo - ensure sample points to valid shared memory location
     auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.allocation()));
@@ -87,7 +88,7 @@ Publisher<T, port_t>::publish(Sample<T>& sample) noexcept
 
 template<typename T, typename port_t>
 inline cxx::expected<AllocationError>
-Publisher<T, port_t>::publishResultOf(cxx::function_ref<void(T*)> f) noexcept
+BasePublisher<T, port_t>::publishResultOf(cxx::function_ref<void(T*)> f) noexcept
 {
     loan()
         .and_then([&](Sample<T>& sample){
@@ -98,7 +99,7 @@ Publisher<T, port_t>::publishResultOf(cxx::function_ref<void(T*)> f) noexcept
 
 template<typename T, typename port_t>
 inline cxx::expected<AllocationError>
-Publisher<T, port_t>::publishCopyOf(const T& val) noexcept
+BasePublisher<T, port_t>::publishCopyOf(const T& val) noexcept
 {
     loan()
         .and_then([&](Sample<T>& sample){
@@ -109,7 +110,7 @@ Publisher<T, port_t>::publishCopyOf(const T& val) noexcept
 
 template<typename T, typename port_t>
 inline cxx::expected<SampleRecallError>
-Publisher<T, port_t>::previousSample() const noexcept
+BasePublisher<T, port_t>::previousSample() const noexcept
 {
     assert(false && "Not yet supported");
     return iox::cxx::error<SampleRecallError>(SampleRecallError::NO_PREVIOUS_CHUNK);
@@ -117,28 +118,28 @@ Publisher<T, port_t>::previousSample() const noexcept
 
 template<typename T, typename port_t>
 inline void
-Publisher<T, port_t>::offer() noexcept
+BasePublisher<T, port_t>::offer() noexcept
 {
     m_port.activate();
 }
 
 template<typename T, typename port_t>
 inline void
-Publisher<T, port_t>::stopOffer() noexcept
+BasePublisher<T, port_t>::stopOffer() noexcept
 {
     m_port.deactivate();
 }
 
 template<typename T, typename port_t>
 inline bool
-Publisher<T, port_t>::isOffered() noexcept
+BasePublisher<T, port_t>::isOffered() noexcept
 {
     assert(false && "Not yet supported");
 }
 
 template<typename T, typename port_t>
 inline bool
-Publisher<T, port_t>::hasSubscribers() noexcept
+BasePublisher<T, port_t>::hasSubscribers() noexcept
 {
     return m_port.hasSubscribers();
 }
@@ -146,4 +147,4 @@ Publisher<T, port_t>::hasSubscribers() noexcept
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_INL
+#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL

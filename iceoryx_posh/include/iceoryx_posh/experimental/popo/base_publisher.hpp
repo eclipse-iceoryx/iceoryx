@@ -12,31 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
-#define IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
+#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
+#define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
 
+#include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
-#include "iceoryx_utils/cxx/unique_ptr.hpp"
-#include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/function_ref.hpp"
 
-#include <atomic>
+namespace iox {
+namespace popo {
 
-namespace iox
-{
-namespace popo
-{
+struct Untyped {};
 
-template <typename T, typename port_t = iox::popo::SenderPort>
-class Publisher;
+template<typename T, typename port_t = iox::popo::SenderPort>
+class BasePublisher;
 
 template <typename T>
 class Sample
 {
 public:
 
-    Sample(cxx::unique_ptr<T>&& samplePtr, Publisher<T>& publisher)
+    Sample(cxx::unique_ptr<T>&& samplePtr, BasePublisher<T>& publisher)
         : m_samplePtr(std::move(samplePtr)), m_publisher(publisher)
     {};
 
@@ -106,20 +103,21 @@ public:
         if(m_isValid && !m_isEmpty)
         {
             m_publisher.publish(*this);
-            m_samplePtr.release(); // Release ownership of the sample since it has been published.
-            m_isValid = false; // Mark as invalid to prevent re-use.
+            m_samplePtr.release();  // Release ownership of the sample since it has been published.
+            m_isValid = false;      // Mark as invalid to prevent re-use.
         }
         else
         {
-            /// @todo Notify caller of attemptto publish invalid chunk.
+            /// @todo Notify caller of attempt to publish invalid chunk.
         }
     }
+
 private:
     bool m_isEmpty = true;
     bool m_isValid = true;
 
     cxx::unique_ptr<T> m_samplePtr = nullptr;
-    Publisher<T>& m_publisher;
+    BasePublisher<T>& m_publisher;
 };
 
 enum class SampleRecallError : uint8_t
@@ -128,25 +126,19 @@ enum class SampleRecallError : uint8_t
     CHUNK_ALREADY_CLAIMED
 };
 
-struct Untyped{};
-
 template<typename T, typename port_t>
-class Publisher
+class BasePublisher
 {
 public:
     using uid_t = uint64_t;
 
-    ///
-    /// @brief Publisher Create publisher for specified service [legacy].
-    /// @param service Service to publish to.
-    ///
-    Publisher(const capro::ServiceDescription& service);
+    BasePublisher(const capro::ServiceDescription& service);
 
-    Publisher(const Publisher& other) = delete;
-    Publisher& operator=(const Publisher&) = delete;
-    Publisher(Publisher&& rhs) = default;
-    Publisher& operator=(Publisher&& rhs) = default;
-    ~Publisher() = default;
+    BasePublisher(const BasePublisher& other) = delete;
+    BasePublisher& operator=(const BasePublisher&) = delete;
+    BasePublisher(BasePublisher&& rhs) = default;
+    BasePublisher& operator=(BasePublisher&& rhs) = default;
+    ~BasePublisher() = default;
 
     ///
     /// @brief uid Get the unique id of the publisher.
@@ -158,7 +150,7 @@ public:
     /// @brief loan Loan an empty sample from the shared memory pool.
     /// @return Pointer to the successfully loaned sample, otherwise an allocation error.
     ///
-    cxx::expected<Sample<T>, AllocationError> loan() noexcept;
+    cxx::expected<Sample<T>, AllocationError> loan(uint64_t size) noexcept;
 
     ///
     /// @brief release Releases ownership of an unused allocated chunk.
@@ -166,14 +158,13 @@ public:
     /// to it in the system.
     /// @param sample
     ///
-    cxx::expected<AllocationError> release(Sample<T>& sample) noexcept;
+    void release(Sample<T>& sample) noexcept;
 
     ///
     /// @brief publish Publishes the loaned sample to all subscribers.
     /// @param sample
     ///
     cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
-
     ///
     /// @brief publish Publishes the argument produced by the given function.
     /// @details Sample is automatically loaned and released.
@@ -203,16 +194,20 @@ public:
     bool hasSubscribers() noexcept;
 
 protected:
+
+
+protected:
     port_t m_port{nullptr};
     bool m_useDynamicPayloadSize = true;
 
 private:
 
+
 };
 
-} // namespace popo
-} // namespace iox
+}
+}
 
-#include "iceoryx_posh/experimental/internal/popo/publisher.inl"
+#include "iceoryx_posh/experimental/internal/popo/base_publisher.inl"
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
+#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
