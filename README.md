@@ -1,10 +1,11 @@
-# iceoryx - an IPC middleware for POSIX-based systems
+# Eclipse iceoryx - true zero-copy inter-process-communication
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/8661268/70233652-4aa6d180-175f-11ea-8524-2344e0d3935c.png" width="50%">
 </p>
 
 [![Build & Test](https://github.com/eclipse/iceoryx/workflows/Build%20&%20Test/badge.svg?branch=master)](https://github.com/eclipse/iceoryx/actions)
+[![Gitter](https://badges.gitter.im/eclipse/iceoryx.svg)](https://gitter.im/eclipse/iceoryx)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Introduction
@@ -14,16 +15,22 @@ tour, introducing the project scope and guide you through the examples.
 
 So first off: What is iceoryx?
 
+iceoryx is an inter-process-communication (IPC) middleware for various operating systems (currently we support Linux, MacOS and QNX).
+It has its origins in the automotive industry, where large amounts of data have to be transferred between different processes
+when it comes to driver assistance or automated driving systems. However, the efficient communication mechanisms can also be applied
+to a wider range of use cases, e.g. in the field of robotics or game development. 
+
 <p align="center">
 <img src="https://user-images.githubusercontent.com/8661268/74612998-b962bc80-510a-11ea-97f0-62f41c5d287b.gif" width="100%">
 </p>
 
-Iceoryx is an inter-process communication (IPC) middleware for [POSIX](https://en.wikipedia.org/wiki/POSIX) based
-operating systems. It features shared memory capabilities that allow a true zero-copy data transfer. For more information have a look at the [1000 words iceoryx introduction in the eclipse newsletter.](https://www.eclipse.org/community/eclipse_newsletter/2019/december/4.php)
+iceoryx uses a true zero-copy, shared memory approach that allows to transfer data from publishers to subscribers without a single copy. 
+This ensures data transmissions with constant latency, regardless of the size of the payload. For more information have a look at the 
+[1000 words iceoryx introduction](https://www.eclipse.org/community/eclipse_newsletter/2019/december/4.php)
 
-Originating from the automotive domain, it is crucial to transfer a huge amount of data between multiple processes to
-realize driver assistance systems or automated driving applications. Moreover, the same efficient communication
-mechanism can be applied to a broader range of use cases, e.g. in the field of robotics or game development.
+<p align="center">
+<img src="https://user-images.githubusercontent.com/55156294/91751530-35af7f80-ebc5-11ea-9aed-eed590b229df.png" width="80%">
+</p>
 
 It's all about the API!
 
@@ -39,50 +46,6 @@ An example for a "porcelain" API would be [ROS2](https://www.ros.org/). Others a
 | [eCAL](https://github.com/continental/ecal) | Open-source middleware from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
-
-### Targeted quality levels & platforms
-
-> [Quality level](./CONTRIBUTING.md#quality-levels) are 5..1, where 1 is highest
-
-|CMake project/target   | QNX  | Linux, Windows, MacOS | Comment                             |
-|-----------------------|:----:|:---------------------:|:-----------------------------------:|
-| example_icedelivery   | 5    | 5                     |                                     |
-| example_iceperf       | 5    | 5                     |                                     |
-| example_singleprocess | 5    | 5                     |                                     |
-| iceoryx_dds           | 4    | 4                     |                                     |
-| iceoryx_meta          | 5    | 5                     |                                     |
-| iceoryx_posh          | 1, 2 | 4                     | Will be split into separate targets |
-| iceoryx_utils         | 1    | 4                     |                                     |
-| iceoryx_introspection | 5    | 5                     |                                     |
-
-### Scope
-
-Who can benefit of using iceoryx? What's in for those folks?
-
-#### User personas
-
-**Andrew, the HAD developer**
-Andrew is a software developer at a startup working on autonomous cars. Currently their project is using ROS, because
-it's easy to get the car driving. After some months, he's realizing that sending gigabytes around, leads to high runtime
-demands with ROS. A college mentions iceoryx during lunch, which might be interesting because it has a zero-copy
-mechanism and offers a ROS RMW implementation. Soon after giving iceoryx a try, Andrew is thrilled about it. He cannot only feel
-the runtime performance boost, but also still keep using his beloved ROS visualization tools!
-
-**Martha, the indie game developer**
-Martha always had troubles with those silly game engines. Some are slow but free, others are fast but too expensive.
-It's a hard life if you're independent. When a friend who works in the automotive industry mentions he has just started
-using iceoryx, which offers fast shared memory communication she listens up. Iceoryx is solely passing pointers around
-and does avoid copies to the utmost? "I'll definitely try iceoryx in my new project and see if I can speed up the
-performance with my low cost engine" she thinks while wandering home at night after the meetup with her friend.
-
-**Robby, the lonely robot**
-Robby is autonomous robot built during a research project at a university. He has a great set of features and can
-astonish the crowds by creating a detailed map of the university building in under an hour. However, they made him use
-that slow self-made IPC to communicate with his sensors because his parents wanted to get started fast. Though that
-makes it hard for him to react in real-time to dangerous incidents like flying coffee cups. When strolling through
-the interwebs on a lonely evening, he finds out about iceoryx: Free-to-use, high-performance data transfer with low
-runtime overhead, real-time support! Brilliant! Maybe even Robby's biggest wish for a network binding will come true,
-so he can stream his favorite [video](https://www.youtube.com/watch?v=g5NkgZXWl0w) even faster!
 
 ## Installation
 
@@ -161,7 +124,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
  |  switch  |  description |
  |:---------|:-------------|
- | `IOX_MAX_PORT_NUMBER` | the maximum number of ports `RouDi` can distribute to the clients |
+ | `IOX_MAX_PORT_NUMBER` | the maximum number of publisher and subscriber ports `RouDi` can distribute to the clients |
  | `IOX_MAX_INTERFACE_NUMBER` | the maximum number for interface ports, which are used for e.g. gateways |
  | `IOX_MAX_SUBSCRIBERS_PER_PUBLISHER` | the maximum number of subscriber a publisher can deliver chunks |
  | `IOX_MAX_CHUNKS_ALLOCATE_PER_SENDER` | the maximum number of chunks a sender can hold at a given time |
@@ -208,6 +171,10 @@ This build method makes the most sense in combination with [rmw_iceoryx](https:/
 
 Congrats! You've build all the necessary things to continue playing around with the examples.
 
+### Examples
+
+You can find our examples [here](./iceoryx_examples).
+
 ### Build and run in a Docker environment
 
 If you want to avoid installing anything on your host machine but you have Docker installed, it is possible to use it to build and run iceoryx applications.
@@ -220,9 +187,20 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 * [Usage Guide](doc/usage-guide.md)
 * [Ice0ryx Utils Hacker Guide](iceoryx_utils/README.md)
 
-## Examples
+### Targeted quality levels & platforms
 
-You can find our examples [here](./iceoryx_examples).
+> [Quality level](./CONTRIBUTING.md#quality-levels) are 5..1, where 1 is highest
+
+|CMake project/target   | QNX  | Linux, Windows, MacOS | Comment                             |
+|-----------------------|:----:|:---------------------:|:-----------------------------------:|
+| example_icedelivery   | 5    | 5                     |                                     |
+| example_iceperf       | 5    | 5                     |                                     |
+| example_singleprocess | 5    | 5                     |                                     |
+| iceoryx_dds           | 4    | 4                     |                                     |
+| iceoryx_meta          | 5    | 5                     |                                     |
+| iceoryx_posh          | 1, 2 | 4                     | Will be split into separate targets |
+| iceoryx_utils         | 1    | 4                     |                                     |
+| iceoryx_introspection | 5    | 5                     |                                     |
 
 ## Innovations enabled by iceoryx
 
