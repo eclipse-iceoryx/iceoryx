@@ -1,4 +1,4 @@
-# Eclipse iceoryx - true zero-copy inter-process-communication
+# iceoryx - true zero-copy inter-process-communication
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/8661268/70233652-4aa6d180-175f-11ea-8524-2344e0d3935c.png" width="50%">
