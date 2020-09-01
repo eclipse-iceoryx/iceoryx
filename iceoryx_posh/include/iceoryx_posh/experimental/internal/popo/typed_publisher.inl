@@ -52,6 +52,28 @@ TypedPublisher<T>::publish(Sample<T>& sample) noexcept
 }
 
 template<typename T>
+inline cxx::expected<AllocationError>
+TypedPublisher<T>::publishResultOf(cxx::function_ref<void(T*)> f) noexcept
+{
+    loan()
+        .and_then([&](Sample<T>& sample){
+            f(sample.allocation()); // Populate the sample with the given function.
+            publish(sample);
+        });
+}
+
+template<typename T>
+inline cxx::expected<AllocationError>
+TypedPublisher<T>::publishCopyOf(const T& val) noexcept
+{
+    loan()
+        .and_then([&](Sample<T>& sample){
+            sample.emplace(val);
+            publish(std::move(sample));
+        });
+}
+
+template<typename T>
 inline void
 TypedPublisher<T>::offer() noexcept
 {

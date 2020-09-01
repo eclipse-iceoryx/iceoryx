@@ -31,7 +31,6 @@ class unique_ptr{
 public:
 
     using ptr_t = T*;
-    typedef void (*Deleter)(ptr_t const);
 
     unique_ptr() = delete;
 
@@ -65,7 +64,7 @@ public:
     /// @param allocation The allocation of memory where managed object will reside once created.
     /// @param deleter The deleter function for cleaning up the allocated memory.
     ///
-    unique_ptr(void* allocation, std::function<void(T*)>&& deleter) noexcept;
+//    unique_ptr(void* allocation, std::function<void(T*)>&& deleter) noexcept;
 
     // Not copy-able to ensure uniqueness.
     unique_ptr(const unique_ptr& other) = delete;

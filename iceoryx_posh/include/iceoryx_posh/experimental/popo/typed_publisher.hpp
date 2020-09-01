@@ -17,7 +17,6 @@
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/experimental/popo/base_publisher.hpp"
-#include "iceoryx_posh/experimental/popo/sample.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 
 
@@ -49,6 +48,8 @@ public:
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
     void release(Sample<T>& sample) noexcept;
     cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
+    cxx::expected<AllocationError> publishResultOf(cxx::function_ref<void(T*)> f) noexcept;
+    cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept; /// @todo - move to typed API
 
     void offer() noexcept;
     void stopOffer() noexcept;

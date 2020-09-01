@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/experimental/popo/typed_publisher.hpp"
+#include "iceoryx_posh/experimental/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
@@ -45,25 +46,30 @@ int main(int argc, char *argv[])
     iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-modern");
 
     auto typedPublisher = iox::popo::TypedPublisher<Position>({"Odometry", "Position", "Vehicle"});
-    //auto untypedPublisher = iox::popo::Publisher<iox::popo::Untyped>({"Odometry", "Position", "Vehicle"});
+    auto untypedPublisher = iox::popo::UntypedPublisher({"Odometry", "Position", "Vehicle"});
 
     typedPublisher.offer();
-    //untypedPublisher.offer();
+    untypedPublisher.offer();
 
     float_t ct = 0.0;
     while(!killswitch)
     {
-        typedPublisher.loan()
-            .and_then([&](iox::popo::Sample<Position>& sample){
-                ++ct;
-                sample.emplace(ct, ct, ct);
-                sample.publish();
-            });
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+//        typedPublisher.loan()
+//            .and_then([&](iox::popo::Sample<Position>& sample){
+//                ++ct;
+//                sample.emplace(ct, ct, ct);
+//                sample.publish();
+//            });
+//            std::this_thread::sleep_for(std::chrono::seconds(1));
 
 //        typedPublisher.publishResultOf(getVehiclePosition);
 
-        //untypedPublisher.loan();
+        untypedPublisher.loan(sizeof(Position))
+                .and_then([&](iox::popo::Sample<void>& sample){
+                    ++ct;
+                    new (sample.allocation()) Position(ct, ct, ct);
+                    sample.publish();
+                });
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
     }
