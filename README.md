@@ -32,13 +32,14 @@ This ensures data transmissions with constant latency, regardless of the size of
 <img src="https://user-images.githubusercontent.com/55156294/91751530-35af7f80-ebc5-11ea-9aed-eed590b229df.png" width="80%">
 </p>
 
-You're right, middleware is a cluttered term and can somehow be all or nothing, so let's talk about the [goals and non-goals](doc/goals-non-goals.md) of iceoryx
+You're right, middleware is a cluttered term and can somehow be all or nothing, so let's talk about the [goals and non-goals](doc/goals-non-goals.md) of iceoryx.
 
 It's all about the API?!
 
 Don't get too frighten of the API when strolling through the codebase. Think of iceoryx's API as a "plumbing" one
 ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" API ourselves, but instead a typed API.
-An example for a "porcelain" API would be [ROS2](https://www.ros.org/). Others are listed in the next section.
+The normal use case is that iceoryx is integrated as high-performance IPC transport layer in a bigger framework with additional API layers. 
+An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Others are listed in the next section.
 
 ### Where is Eclipse iceoryx already used?
 
