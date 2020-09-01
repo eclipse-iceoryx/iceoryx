@@ -179,8 +179,8 @@ Results will be available on this [Helix QAC dashboard](https://qaverify.program
 of the maintainers, if you're interested in getting access.
 
 It is possible that not the whole codebase follows these rules, things are work in progress. But this is where we want
-go. As of now we don't have any continous integration checks implemented but will rely on reviews during the pull
-requests. We're planning to introduce continous integration checks in the near future.
+go. As of now we don't have any continuos integration checks implemented but will rely on reviews during the pull
+requests. We're planning to introduce continuos integration checks in the near future.
 
 ### Header
 
