@@ -1,7 +1,7 @@
 # Contents
 1. [Prerequisites](#Prerequisites)
 2. [Building with CMake](#Build-with-CMake)
-3. [Building with the build scriot](#Build-with-the-build-script,-only-Linux-and-QNX)
+3. [Building with the build script](#Build-with-the-build-script)
 3. [Building with colcon](#Build-with-colcon)
 
 iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh is using some functions from utils and is depending on it. You are able to build posh and utils and integrate in into existing cmake projects.
@@ -88,9 +88,10 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
 Have a look at `iceoryx_posh/cmake/iceoryx_posh_deployment.cmake` for the default values of this constants.
 
-## Build with the build script, only Linux and QNX
+## Build with the build script
 
 As an alternative we provide our build-test script which we use to integrate iceoryx into our infrastructure.
+This currently only works for Linux and QNX.
 
  1. Clone the repository
     ```

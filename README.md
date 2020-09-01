@@ -32,7 +32,9 @@ This ensures data transmissions with constant latency, regardless of the size of
 <img src="https://user-images.githubusercontent.com/55156294/91751530-35af7f80-ebc5-11ea-9aed-eed590b229df.png" width="80%">
 </p>
 
-It's all about the API!
+You're right, middleware is a cluttered term and can somehow be all or nothing, so let's talk about the [goals and non-goals](doc/goals-non-goals.md) of iceoryx
+
+It's all about the API?!
 
 Don't get too frighten of the API when strolling through the codebase. Think of iceoryx's API as a "plumbing" one
 ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" API ourselves, but instead a typed API.
@@ -42,8 +44,8 @@ An example for a "porcelain" API would be [ROS2](https://www.ros.org/). Others a
 
 |Framework | Description |
 |---|---|
-| [ROS2](https://github.com/ros2/rmw_iceoryx) | Eclipse iceoryx can be used inside the [robot operating system](https://www.ros.org/) with rmw_iceoryx |
-| [eCAL](https://github.com/continental/ecal) | Open-source middleware from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
+| [ROS2](https://github.com/ros2/rmw_iceoryx) | Eclipse iceoryx can be used inside the [robot operating system](https://www.ros.org/) with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git) |
+| [eCAL](https://github.com/continental/ecal) | Open-source framework from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
 
@@ -53,7 +55,7 @@ You can find the installation guidelines [here](doc/installation-guide.md).
 
 ## Examples
 
-After you've build all the necessary things, you can continue playing around with the [examples](./iceoryx_examples).
+After you've built all the necessary things, you can continue playing around with the [examples](./iceoryx_examples).
 
 ## Build and run in a Docker environment
 
@@ -82,6 +84,14 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 | iceoryx_utils         | 1    | 4                     |                                     |
 | iceoryx_introspection | 5    | 5                     |                                     |
 
+## Contribute
+
+Please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) for a quick read-up about what to consider if you want to contribute.
+
+## Planned features
+
+Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md](./PLANNED_FEATURES.md).
+
 ## Innovations enabled by iceoryx
 
 |Name | Description | Technologies |
@@ -91,14 +101,6 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 | [IceRay](https://github.com/elBoberido/iceray) | An iceoryx instrospection client written in Rust | Rust |
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
-
-## Contribute
-
-Please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) for a quick read-up about what to consider if you want to contribute.
-
-### Planned features
-
-Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md](./PLANNED_FEATURES.md).
 
 ## Maintainers
 
