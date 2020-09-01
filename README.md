@@ -50,9 +50,9 @@ An example for such a "porcelain" API would be [ROS2](https://www.ros.org/). Oth
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [Adaptive AUTOSAR](https://www.autosar.org/standards/adaptive-platform/) platform software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ADLINK Technology Inc.](https://www.adlinktech.com/) |
 
-## Installation
+## Build and install
 
-You can find the installation guidelines [here](doc/installation-guide.md).
+You can find the build and installation guidelines [here](doc/installation-guide.md).
 
 ## Examples
 
