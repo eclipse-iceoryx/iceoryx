@@ -1,8 +1,8 @@
 
 # Contents
-- [Goals](#Goals)
-- [Non-Goals](#Non-Goals)
-- [User personas](#User-personas)
+- [Goals](#goals)
+- [Non-Goals](#non-goals)
+- [User personas](#user-personas)
 
 # Goals
 * first

@@ -1,8 +1,8 @@
 # Contents
-1. [Prerequisites](#Prerequisites)
-2. [Building with CMake](#Build-with-CMake)
-3. [Building with the build script](#Build-with-the-build-script)
-3. [Building with colcon](#Build-with-colcon)
+1. [Prerequisites](#prerequisites)
+2. [Building with CMake](#build-with-cmake)
+3. [Building with the build script](#build-with-the-build-script)
+3. [Building with colcon](#build-with-colcon)
 
 iceoryx_utils and iceoryx_posh are deployed as independent cmake packages. Posh is using some functions from utils and is depending on it. You are able to build posh and utils and integrate in into existing cmake projects.
 
