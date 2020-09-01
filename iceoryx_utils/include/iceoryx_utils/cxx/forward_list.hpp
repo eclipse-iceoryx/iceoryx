@@ -55,11 +55,11 @@ class forward_list
     // forward declarations, private
     struct ListLink;
     template <bool>
-    class iterator_base;
+    class IteratorBase;
 
   public:
-    using iterator = iterator_base<false>;
-    using const_iterator = iterator_base<true>;
+    using iterator = IteratorBase<false>;
+    using const_iterator = IteratorBase<true>;
     using value_type = T;
     using size_type = decltype(Capacity);
 
@@ -98,7 +98,7 @@ class forward_list
     /// @return iterator to fictional element before first data element
     iterator before_begin() noexcept;
 
-    /// @brief retrieve an const_iterator before first element
+    /// @brief retrieve a const_iterator before first element
     ///         only allowed for usage in erase_after, insert_after, emplace_after
     /// @return iterator to fictional element before first data element
     const_iterator before_begin() const noexcept;
@@ -213,7 +213,7 @@ class forward_list
     template <typename... ConstructorArgs>
     T& emplace_front(ConstructorArgs&&... args) noexcept;
 
-    /// @brief construct element inplace at begining of list
+    /// @brief construct element inplace after the pointed-to element
     /// @param[in] args T-typed construction parameters (initializer list)
     /// @param[in] afterToBeEmplacedIter position in list to (construct)insert after
     /// @return iterator to the newly added element
@@ -226,7 +226,7 @@ class forward_list
     /// @return iterator to the newly added element
     iterator insert_after(const_iterator citer, const T& data) noexcept;
 
-    /// @brief construct element inplace at begining of list
+    /// @brief construct element inplace after the pointed-to element
     /// @param[in] citer iterator with the position to insert after
     /// @param[in] data universal reference perfectly forwarded to client class
     /// @return iterator to the newly added element
@@ -236,27 +236,27 @@ class forward_list
   private:
     /// @brief nested iterator class for list element operations including element access
     ///         comparison of iterator from different list is rejected by terminate()
-    template <bool is_const_iterator = true>
-    class iterator_base
+    template <bool IsConstIterator = true>
+    class IteratorBase
     {
       public:
         // provide the following public types for a std::iterator compatible iterator_category interface
         using iterator_category = std::forward_iterator_tag;
-        using value_type = typename std::conditional<is_const_iterator, const T, T>::type;
+        using value_type = typename std::conditional<IsConstIterator, const T, T>::type;
         using difference_type = void;
-        using pointer = typename std::conditional<is_const_iterator, const T*, T*>::type;
-        using reference = typename std::conditional<is_const_iterator, const T&, T&>::type;
+        using pointer = typename std::conditional<IsConstIterator, const T*, T*>::type;
+        using reference = typename std::conditional<IsConstIterator, const T&, T&>::type;
 
 
         /// @brief construct a const_iterator from an iterator
         /// @param[in] iter is the iterator which will deliver list and index info for the const_iterator
-        iterator_base(const iterator_base<false>& iter);
+        IteratorBase(const IteratorBase<false>& iter) noexcept;
 
         /// @brief prefix increment iterator, so it points to the next list element
         ///         when trying to increment beyond the end of the list, iterator stays pointing at the end, a
         ///         message is forwarded to the error_message handler / cerr stream
         /// @return reference to this iterator object
-        iterator_base& operator++() noexcept;
+        IteratorBase& operator++() noexcept;
 
         /// @brief comparing list iterators for equality
         ///         the referenced list position is compared, not the content of the list element (T-typed)
@@ -264,8 +264,8 @@ class forward_list
         ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
         /// @param[in] rhs is the 2nd iterator to compare to
         /// @return list position for two iterators is the same (true) or different (false)
-        template <bool is_const_iterator_other>
-        bool operator==(const iterator_base<is_const_iterator_other>& rhs) const noexcept;
+        template <bool IsConstIteratorOther>
+        bool operator==(const IteratorBase<IsConstIteratorOther>& rhs) const noexcept;
 
         /// @brief comparing list iterators for non-equality
         ///         the referenced list position is compared, not the content of the list element (T-typed)
@@ -273,8 +273,8 @@ class forward_list
         ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
         /// @param[in] rhs is the 2nd iterator to compare to
         /// @return list position for two iterators is the same (true) or different (false)
-        template <bool is_const_iterator_other>
-        bool operator!=(const iterator_base<is_const_iterator_other>& rhs) const noexcept;
+        template <bool IsConstIteratorOther>
+        bool operator!=(const IteratorBase<IsConstIteratorOther>& rhs) const noexcept;
 
         /// @brief dereferencing element content via iterator-position element
         /// @return reference to list element data
@@ -287,18 +287,18 @@ class forward_list
 
       private:
         using parentListPointer = typename std::
-            conditional<is_const_iterator, const forward_list<T, Capacity>*, forward_list<T, Capacity>*>::type;
+            conditional<IsConstIterator, const forward_list<T, Capacity>*, forward_list<T, Capacity>*>::type;
 
         /// @brief private construct for an iterator, the iterator is bundled to
         ///         an existing parent (object) of type forward_list,
         ///         an iterator is only constructed through calls to before_begin(), begin() or end()
         /// @param[in] parent is the const forward_list the this iterator operates on
         /// @param[in] idx is the index of the list element (within allocated memory of parent list)
-        explicit iterator_base(parentListPointer parent, size_type idx) noexcept;
+        explicit IteratorBase(parentListPointer parent, size_type idx) noexcept;
 
-        // Make iterator_base<true> a friend class of iterator_base<false> so the copy constructor can access the
+        // Make IteratorBase<true> a friend class of IteratorBase<false> so the copy constructor can access the
         // private member variables.
-        friend class iterator_base<true>;
+        friend class IteratorBase<true>;
         friend class forward_list<T, Capacity>;
         parentListPointer m_list;
         size_type m_iterListNodeIdx;
@@ -307,7 +307,7 @@ class forward_list
     struct NodeLink
     {
         size_type nextIdx;
-        bool freedElement;
+        bool invalidElement;
     };
 
     void init() noexcept;
@@ -317,7 +317,7 @@ class forward_list
     bool isValidElementIdx(const size_type idx) const noexcept;
     bool handleInvalidElement(const size_type idx) const noexcept;
     bool handleInvalidIterator(const const_iterator& iter) const noexcept;
-    bool invalidIterOrDifferentLists(const const_iterator& iter) const noexcept;
+    bool isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept;
     bool isInvalidElement(const size_type idx) const noexcept;
     void setInvalidElement(const size_type idx, const bool value) noexcept;
     size_type& getNextIdx(const size_type idx) noexcept;
@@ -334,13 +334,13 @@ class forward_list
     // two extra slots in the list to handle the 'before_begin' and 'end' element
     // the necessity for 'before_begin' elements stems from the way a forward_list removes elements at an arbitrary
     // position. Removing the front-most list element (aka begin()) requires an element pointing towards this position,
-    // hence 'before_begin'. The before_begin index is the head of ythe list.
+    // hence 'before_begin'. The before_begin index is the head of the list.
     static constexpr size_type BEFORE_BEGIN_INDEX{Capacity};
     static constexpr size_type END_INDEX{size_type(Capacity) + 1U};
     static constexpr size_type NODE_LINK_COUNT{size_type(Capacity) + 2U};
 
-    // two member variables point to head of freeList and usedList
-    // available elements are moved between freeList and usedList when inserted or removed
+    // available storage-indices are moved between a 'freeList' (m_freeListHeadIdx) and 'usedList' where elements
+    // are inserted by the user (starting from BEFORE_BEGIN_INDEX)
     size_type m_freeListHeadIdx{0U};
 
     NodeLink m_links[NODE_LINK_COUNT];

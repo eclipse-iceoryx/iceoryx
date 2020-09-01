@@ -19,52 +19,54 @@
 using namespace ::testing;
 using namespace iox::cxx;
 
+namespace
+{
 static constexpr uint64_t TESTLISTCAPACITY{10u};
-static constexpr int C_TOR_TEST_VALUE_DEFAULT_VALUE{-99};
+static constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99};
 
 class forward_list_test : public Test
 {
   public:
-    static int cTor;
-    static int customCTor;
-    static int copyCTor;
-    static int moveCTor;
-    static int moveAssignment;
-    static int copyAssignment;
-    static int dTor;
-    static int classValue;
+    static int64_t cTor;
+    static int64_t customCTor;
+    static int64_t copyCTor;
+    static int64_t moveCTor;
+    static int64_t moveAssignment;
+    static int64_t copyAssignment;
+    static int64_t dTor;
+    static int64_t classValue;
 
-    class CTorTest
+    class TestListElement
     {
       public:
-        CTorTest()
+        TestListElement()
         {
             cTor++;
             classValue = m_value;
         }
 
-        CTorTest(const int value)
+        TestListElement(const int64_t value)
             : m_value(value)
         {
             customCTor++;
             classValue = m_value;
         }
 
-        CTorTest(const CTorTest& rhs)
+        TestListElement(const TestListElement& rhs)
         {
             copyCTor++;
             m_value = rhs.m_value;
             classValue = m_value;
         }
 
-        CTorTest(CTorTest&& rhs)
+        TestListElement(TestListElement&& rhs)
         {
             moveCTor++;
             m_value = rhs.m_value;
             classValue = m_value;
         }
 
-        CTorTest& operator=(const CTorTest& rhs)
+        TestListElement& operator=(const TestListElement& rhs)
         {
             copyAssignment++;
             m_value = rhs.m_value;
@@ -72,7 +74,7 @@ class forward_list_test : public Test
             return *this;
         }
 
-        CTorTest& operator=(CTorTest&& rhs)
+        TestListElement& operator=(TestListElement&& rhs)
         {
             moveAssignment++;
             m_value = rhs.m_value;
@@ -80,18 +82,18 @@ class forward_list_test : public Test
             return *this;
         }
 
-        bool operator==(const CTorTest& rhs) const
+        bool operator==(const TestListElement& rhs) const
         {
             return rhs.m_value == m_value;
         }
 
-        ~CTorTest()
+        ~TestListElement()
         {
             dTor++;
             classValue = m_value;
         }
 
-        int m_value = C_TOR_TEST_VALUE_DEFAULT_VALUE;
+        int64_t m_value = TEST_LIST_ELEMENT_DEFAULT_VALUE;
     };
 
 
@@ -120,24 +122,23 @@ class forward_list_test : public Test
         }
     }
 
-    forward_list<CTorTest, TESTLISTCAPACITY> sut;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut;
 };
 
 // forward_list_test statics
-int forward_list_test::cTor;
-int forward_list_test::customCTor;
-int forward_list_test::copyCTor;
-int forward_list_test::moveCTor;
-int forward_list_test::moveAssignment;
-int forward_list_test::copyAssignment;
-int forward_list_test::dTor;
-int forward_list_test::classValue;
+int64_t forward_list_test::cTor;
+int64_t forward_list_test::customCTor;
+int64_t forward_list_test::copyCTor;
+int64_t forward_list_test::moveCTor;
+int64_t forward_list_test::moveAssignment;
+int64_t forward_list_test::copyAssignment;
+int64_t forward_list_test::dTor;
+int64_t forward_list_test::classValue;
 
-namespace
-{
+
 // test function for iterator_traits testing
 template <typename IterType>
-int iteratorTraitReturnDoubleValue(IterType iter)
+int64_t iteratorTraitReturnDoubleValue(IterType iter)
 {
     typedef typename std::iterator_traits<IterType>::value_type IterValueType;
     IterValueType m_value = *iter;
@@ -179,8 +180,8 @@ TEST_F(forward_list_test, NewListCTorWithZeroElements)
 {
     constexpr uint64_t CAPACITY{42u};
     EXPECT_THAT(isSetupState(), Eq(true));
-    const forward_list<int, CAPACITY> cut;
-    EXPECT_THAT(cut.empty(), Eq(true));
+    const forward_list<int, CAPACITY> sut1;
+    EXPECT_THAT(sut1.empty(), Eq(true));
     EXPECT_THAT(isSetupState(), Eq(true));
 }
 
@@ -220,7 +221,7 @@ TEST_F(forward_list_test, beforeBeginAndCbeginAreDifferentWhenEmpty)
 
 TEST_F(forward_list_test, CbeginCendAreDifferentWhenFilled)
 {
-    EXPECT_THAT(sut.emplace_front().m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT(sut.emplace_front().m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     EXPECT_THAT(sut.cbegin() != sut.cend(), Eq(true));
 }
 TEST_F(forward_list_test, BeginEndAreDifferentWhenFilled)
@@ -260,7 +261,7 @@ TEST_F(forward_list_test, FullWhenFilledWithCapacityElements)
     for (uint64_t i = 0; i < sut.capacity(); ++i)
     {
         auto ref = sut.emplace_front();
-        EXPECT_THAT(ref, Eq(CTorTest{C_TOR_TEST_VALUE_DEFAULT_VALUE}));
+        EXPECT_THAT(ref, Eq(TestListElement{TEST_LIST_ELEMENT_DEFAULT_VALUE}));
     }
     EXPECT_THAT(sut.full(), Eq(true));
 }
@@ -274,7 +275,7 @@ TEST_F(forward_list_test, FullWhenFilledWithMoreThanCapacityElements)
     EXPECT_THAT(sut.full(), Eq(true));
     EXPECT_DEATH(sut.emplace_front(), "");
 }
-TEST_F(forward_list_test, NotFullWhenFilledWithCapacityAnEraseOneElements)
+TEST_F(forward_list_test, NotFullWhenFilledWithCapacityAndEraseOneElements)
 {
     for (uint64_t i = 0; i < sut.capacity(); ++i)
     {
@@ -319,15 +320,15 @@ TEST_F(forward_list_test, CTorWithOneElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{1};
-    forward_list<CTorTest, CAPACITY> cut;
+    forward_list<TestListElement, CAPACITY> sut1;
 
     EXPECT_THAT(cTor, Eq(0));
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        cut.emplace_front();
+        sut1.emplace_front();
     }
 
-    EXPECT_THAT(cut.size(), Eq(ELEMENT_COUNT));
+    EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(cTor, Eq(ELEMENT_COUNT));
 }
 
@@ -336,14 +337,14 @@ TEST_F(forward_list_test, CustomCTorWithOneElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{1};
     constexpr uint64_t DEFAULT_VALUE{3};
-    forward_list<CTorTest, CAPACITY> cut;
+    forward_list<TestListElement, CAPACITY> sut1;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        cut.emplace_front(DEFAULT_VALUE);
+        sut1.emplace_front(DEFAULT_VALUE);
     }
 
-    EXPECT_THAT(cut.size(), Eq(ELEMENT_COUNT));
+    EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
     EXPECT_THAT(classValue, Eq(DEFAULT_VALUE));
@@ -353,14 +354,14 @@ TEST_F(forward_list_test, CTorWithSomeElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{37};
-    forward_list<CTorTest, CAPACITY> cut;
+    forward_list<TestListElement, CAPACITY> sut1;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        cut.emplace_front();
+        sut1.emplace_front();
     }
 
-    EXPECT_THAT(cut.size(), Eq(ELEMENT_COUNT));
+    EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(cTor, Eq(ELEMENT_COUNT));
 }
 
@@ -368,14 +369,14 @@ TEST_F(forward_list_test, CTorWithCapacityElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY};
-    forward_list<CTorTest, CAPACITY> cut;
+    forward_list<TestListElement, CAPACITY> sut1;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        cut.emplace_front();
+        sut1.emplace_front();
     }
 
-    EXPECT_THAT(cut.size(), Eq(ELEMENT_COUNT));
+    EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(cTor, Eq(ELEMENT_COUNT));
 }
 
@@ -383,15 +384,15 @@ TEST_F(forward_list_test, CTorWithMoreThanCapacityElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY};
-    forward_list<CTorTest, CAPACITY> cut;
+    forward_list<TestListElement, CAPACITY> sut1;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        cut.push_front({});
+        sut1.push_front({});
     }
-    cut.emplace_after(cut.cbefore_begin(), 2);
+    sut1.emplace_after(sut1.cbefore_begin(), 2);
 
-    EXPECT_THAT(cut.size(), Eq(CAPACITY));
+    EXPECT_THAT(sut1.size(), Eq(CAPACITY));
     EXPECT_THAT(cTor, Eq(CAPACITY));
     EXPECT_THAT(customCTor, Eq(0));
 }
@@ -401,27 +402,27 @@ TEST_F(forward_list_test, EmplaceAfterWithOneElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{1};
-    forward_list<CTorTest, CAPACITY> cut;
-    auto iter = cut.before_begin();
-    decltype(CTorTest::m_value) cnt = 0;
+    forward_list<TestListElement, CAPACITY> sut1;
+    auto iter = sut1.before_begin();
+    decltype(TestListElement::m_value) cnt = 0;
 
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(0));
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        iter = cut.emplace_after(iter, cnt);
+        iter = sut1.emplace_after(iter, cnt);
         ++cnt;
     }
 
     cnt = 0;
-    for (auto& fl : cut)
+    for (auto& listElement : sut1)
     {
-        EXPECT_THAT(fl.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.m_value, Eq(cnt));
         ++cnt;
     }
 
-    EXPECT_THAT(cut.size(), Eq(ELEMENT_COUNT));
+    EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
 }
@@ -430,8 +431,8 @@ TEST_F(forward_list_test, EmplaceAfterWithSomeElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{37};
-    forward_list<CTorTest, CAPACITY> cut;
-    auto iter = cut.before_begin();
+    forward_list<TestListElement, CAPACITY> sut1;
+    auto iter = sut1.before_begin();
     uint64_t cnt = 0;
 
     EXPECT_THAT(cTor, Eq(0));
@@ -439,18 +440,18 @@ TEST_F(forward_list_test, EmplaceAfterWithSomeElements)
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        iter = cut.emplace_after(iter, cnt);
+        iter = sut1.emplace_after(iter, cnt);
         ++cnt;
     }
 
     cnt = 0;
-    for (auto& fl : cut)
+    for (auto& listElement : sut1)
     {
-        EXPECT_THAT(fl.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.m_value, Eq(cnt));
         ++cnt;
     }
 
-    EXPECT_THAT(cut.size(), Eq(ELEMENT_COUNT));
+    EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
 }
@@ -459,24 +460,24 @@ TEST_F(forward_list_test, EmplaceAfterWithCapacityElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY};
-    forward_list<CTorTest, CAPACITY> cut;
-    auto iter = cut.before_begin();
+    forward_list<TestListElement, CAPACITY> sut1;
+    auto iter = sut1.before_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        iter = cut.emplace_after(iter, cnt);
+        iter = sut1.emplace_after(iter, cnt);
         ++cnt;
     }
 
     cnt = 0;
-    for (auto& fl : cut)
+    for (auto& listElement : sut1)
     {
-        EXPECT_THAT(fl.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.m_value, Eq(cnt));
         ++cnt;
     }
 
-    EXPECT_THAT(cut.size(), Eq(ELEMENT_COUNT));
+    EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
 }
@@ -485,24 +486,24 @@ TEST_F(forward_list_test, EmplaceAfterWithMoreThanCapacityElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY + 1};
-    forward_list<CTorTest, CAPACITY> cut;
-    auto iter = cut.before_begin();
+    forward_list<TestListElement, CAPACITY> sut1;
+    auto iter = sut1.before_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        iter = cut.emplace_after(iter, cnt);
+        iter = sut1.emplace_after(iter, cnt);
         ++cnt;
     }
 
     cnt = 0;
-    for (auto& fl : cut)
+    for (auto& listElement : sut1)
     {
-        EXPECT_THAT(fl.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.m_value, Eq(cnt));
         ++cnt;
     }
 
-    EXPECT_THAT(cut.size(), Eq(CAPACITY));
+    EXPECT_THAT(sut1.size(), Eq(CAPACITY));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(CAPACITY));
 }
@@ -512,24 +513,24 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithOneElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{1};
-    forward_list<CTorTest, CAPACITY> cut;
-    auto iter = cut.before_begin();
+    forward_list<TestListElement, CAPACITY> sut1;
+    auto iter = sut1.before_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        cut.emplace_after(iter, cnt);
+        sut1.emplace_after(iter, cnt);
         ++cnt;
     }
 
     --cnt;
-    for (auto& fl : cut)
+    for (auto& listElement : sut1)
     {
-        EXPECT_THAT(fl.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.m_value, Eq(cnt));
         --cnt;
     }
 
-    EXPECT_THAT(cut.size(), Eq(ELEMENT_COUNT));
+    EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
 }
@@ -538,24 +539,24 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithSomeElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{37};
-    forward_list<CTorTest, CAPACITY> cut;
-    auto iter = cut.before_begin();
+    forward_list<TestListElement, CAPACITY> sut1;
+    auto iter = sut1.before_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        cut.emplace_after(iter, cnt);
+        sut1.emplace_after(iter, cnt);
         ++cnt;
     }
 
     --cnt;
-    for (auto& fl : cut)
+    for (auto& listElement : sut1)
     {
-        EXPECT_THAT(fl.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.m_value, Eq(cnt));
         --cnt;
     }
 
-    EXPECT_THAT(cut.size(), Eq(ELEMENT_COUNT));
+    EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
 }
@@ -564,24 +565,24 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithCapacityElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY};
-    forward_list<CTorTest, CAPACITY> cut;
-    auto iter = cut.before_begin();
+    forward_list<TestListElement, CAPACITY> sut1;
+    auto iter = sut1.before_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        cut.emplace_after(iter, cnt);
+        sut1.emplace_after(iter, cnt);
         ++cnt;
     }
 
     cnt = CAPACITY - 1;
-    for (auto& fl : cut)
+    for (auto& listElement : sut1)
     {
-        EXPECT_THAT(fl.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.m_value, Eq(cnt));
         --cnt;
     }
 
-    EXPECT_THAT(cut.size(), Eq(ELEMENT_COUNT));
+    EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
 }
@@ -590,24 +591,24 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithWithMoreThanCapacityElements)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY + 1};
-    forward_list<CTorTest, CAPACITY> cut;
-    auto iter = cut.before_begin();
+    forward_list<TestListElement, CAPACITY> sut1;
+    auto iter = sut1.before_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        cut.emplace_after(iter, cnt);
+        sut1.emplace_after(iter, cnt);
         ++cnt;
     }
 
     cnt = CAPACITY - 1;
-    for (auto& fl : cut)
+    for (auto& listElement : sut1)
     {
-        EXPECT_THAT(fl.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.m_value, Eq(cnt));
         --cnt;
     }
 
-    EXPECT_THAT(cut.size(), Eq(CAPACITY));
+    EXPECT_THAT(sut1.size(), Eq(CAPACITY));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(CAPACITY));
 }
@@ -616,35 +617,24 @@ TEST_F(forward_list_test, EmplaceAfterWithWrongListIterator)
 {
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{13};
-    forward_list<CTorTest, CAPACITY> cut1, cut2;
-    auto iterOfCut1 = cut1.before_begin();
-    auto iterOfCut2 = cut2.before_begin();
+    forward_list<TestListElement, CAPACITY> sut11, sut12;
+    auto iterOfsut11 = sut11.before_begin();
+    auto iterOfsut12 = sut12.before_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        cut1.emplace_after(iterOfCut1, cnt);
+        sut11.emplace_after(iterOfsut11, cnt);
         ++cnt;
     }
 
-    EXPECT_DEATH(cut1.emplace_after(iterOfCut2, cnt), "");
+    EXPECT_DEATH(sut11.emplace_after(iterOfsut12, cnt), "");
 }
 
 TEST_F(forward_list_test, PushFrontConstCustomSuccessfullWhenSpaceAvailableLValue)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
-    EXPECT_TRUE(sut.push_front(a));
-    ASSERT_THAT(sut.size(), Eq(1u));
-    EXPECT_THAT(cTor, Eq(0));
-    EXPECT_THAT(customCTor, Eq(1u));
-    EXPECT_THAT((*sut.begin()).m_value, Eq(DEFAULT_VALUE));
-}
-
-TEST_F(forward_list_test, PushFrontCustomSuccessfullWhenSpaceAvailableLValue)
-{
-    constexpr int DEFAULT_VALUE{13};
-    CTorTest a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
     EXPECT_TRUE(sut.push_front(a));
     ASSERT_THAT(sut.size(), Eq(1u));
     EXPECT_THAT(cTor, Eq(0));
@@ -654,18 +644,18 @@ TEST_F(forward_list_test, PushFrontCustomSuccessfullWhenSpaceAvailableLValue)
 
 TEST_F(forward_list_test, PushFrontConstSuccessfullWhenSpaceAvailableLValue)
 {
-    const CTorTest a{};
+    const TestListElement a{};
     EXPECT_TRUE(sut.push_front(a));
     ASSERT_THAT(sut.size(), Eq(1u));
     EXPECT_THAT(cTor, Eq(1));
     EXPECT_THAT(customCTor, Eq(0u));
-    EXPECT_THAT((*sut.begin()).m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((*sut.begin()).m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
 }
 
 TEST_F(forward_list_test, PushFrontFailsWhenSpaceNotAvailableLValue)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
 
     EXPECT_THAT(sut.size(), Eq(0));
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
@@ -679,7 +669,7 @@ TEST_F(forward_list_test, PushFrontFailsWhenSpaceNotAvailableLValue)
 
 TEST_F(forward_list_test, PushFrontSuccessfullWhenSpaceAvailableRValue)
 {
-    constexpr int DEFAULT_VALUE{13};
+    constexpr int64_t DEFAULT_VALUE{13};
 
     EXPECT_THAT(sut.size(), Eq(0));
 
@@ -690,53 +680,52 @@ TEST_F(forward_list_test, PushFrontSuccessfullWhenSpaceAvailableRValue)
 
 TEST_F(forward_list_test, PushFrontFailsWhenSpaceNotAvailableRValue)
 {
-    constexpr int DEFAULT_VALUE{13};
+    constexpr int64_t DEFAULT_VALUE{13};
 
     EXPECT_THAT(sut.size(), Eq(0));
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
         EXPECT_TRUE(sut.push_front(DEFAULT_VALUE));
-        EXPECT_THAT(sut.size(), Eq(i + 1));
     }
 
     EXPECT_FALSE(sut.push_front(DEFAULT_VALUE));
 
     EXPECT_THAT(sut.size(), Eq(TESTLISTCAPACITY));
 
-    for (auto& fl : sut)
+    for (auto& listElement : sut)
     {
-        EXPECT_THAT(fl.m_value, Eq(DEFAULT_VALUE));
+        EXPECT_THAT(listElement.m_value, Eq(DEFAULT_VALUE));
     }
 }
 
 
 TEST_F(forward_list_test, AccessFrontElement)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
 
     sut.push_front({});
     sut.push_front(a);
 
-    CTorTest& b{sut.front()};
-    const CTorTest& c{sut.front()};
+    TestListElement& b{sut.front()};
+    const TestListElement& c{sut.front()};
     EXPECT_THAT(b.m_value, Eq(DEFAULT_VALUE));
     EXPECT_THAT(c.m_value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(forward_list_test, AccessFrontElementFromConstList)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
 
     sut.push_front({});
     sut.push_front(a);
 
-    const forward_list<CTorTest, TESTLISTCAPACITY> cut{sut};
-    const CTorTest& c = cut.front();
+    const forward_list<TestListElement, TESTLISTCAPACITY> sut1{sut};
+    const TestListElement& c = sut1.front();
 
     EXPECT_THAT(c.m_value, Eq(DEFAULT_VALUE));
-    EXPECT_THAT(cut.front().m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(sut1.front().m_value, Eq(DEFAULT_VALUE));
 }
 
 
@@ -762,7 +751,6 @@ TEST_F(forward_list_test, PopFrontNonEmptyList)
 
 TEST_F(forward_list_test, PopFrontFullToEmptyList)
 {
-    // fill even more than size
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
         sut.emplace_front();
@@ -782,7 +770,6 @@ TEST_F(forward_list_test, PopFrontFullToEmptyList)
 
 TEST_F(forward_list_test, PopFrontFullPlusOneToEmptyList)
 {
-    // fill even more than size
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
         sut.emplace_front();
@@ -806,20 +793,24 @@ TEST_F(forward_list_test, PopFrontFullPlusOneToEmptyList)
 
 TEST_F(forward_list_test, InsertAfterEmptyListAsLValue)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
 
     sut.insert_after(sut.before_begin(), a);
 
     ASSERT_THAT(sut.size(), Eq(1u));
     ASSERT_THAT(cTor, Eq(0u));
     ASSERT_THAT(customCTor, Eq(1u));
+    ASSERT_THAT(copyCTor, Eq(1u));
+    ASSERT_THAT(moveCTor, Eq(0u));
+    ASSERT_THAT(copyAssignment, Eq(0u));
+    ASSERT_THAT(moveAssignment, Eq(0u));
 }
 
 TEST_F(forward_list_test, InsertAfterLValueCheckReturn)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
 
     auto iter = sut.insert_after(sut.before_begin(), a);
 
@@ -833,6 +824,10 @@ TEST_F(forward_list_test, InsertAfterEmptyListAsRValue)
     ASSERT_THAT(sut.size(), Eq(1u));
     ASSERT_THAT(cTor, Eq(0u));
     ASSERT_THAT(customCTor, Eq(1u));
+    ASSERT_THAT(copyCTor, Eq(0u));
+    ASSERT_THAT(moveCTor, Eq(1u));
+    ASSERT_THAT(copyAssignment, Eq(0u));
+    ASSERT_THAT(moveAssignment, Eq(0u));
 }
 
 TEST_F(forward_list_test, InsertAfterRValueCheckReturn)
@@ -845,8 +840,8 @@ TEST_F(forward_list_test, InsertAfterRValueCheckReturn)
 
 TEST_F(forward_list_test, InsertAfterBeginListLValue)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
 
     sut.emplace_front();
     sut.insert_after(sut.begin(), a);
@@ -855,15 +850,15 @@ TEST_F(forward_list_test, InsertAfterBeginListLValue)
     ASSERT_THAT(cTor, Eq(1u));
     ASSERT_THAT(customCTor, Eq(1u));
     auto iter = sut.begin();
-    EXPECT_THAT(iter->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT(iter->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     EXPECT_THAT((++iter)->m_value, Eq(DEFAULT_VALUE));
 }
 
 
 TEST_F(forward_list_test, InsertAfterBeforeBeginListLValue)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
 
     sut.emplace_front();
     sut.insert_after(sut.before_begin(), a);
@@ -873,13 +868,13 @@ TEST_F(forward_list_test, InsertAfterBeforeBeginListLValue)
     ASSERT_THAT(customCTor, Eq(1u));
     auto iter = sut.begin();
     EXPECT_THAT((*iter).m_value, Eq(DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
 }
 
 TEST_F(forward_list_test, InsertAfterBeforeBeginListRValue)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
 
     sut.emplace_front(a);
     sut.insert_after(sut.before_begin(), {});
@@ -888,14 +883,14 @@ TEST_F(forward_list_test, InsertAfterBeforeBeginListRValue)
     ASSERT_THAT(cTor, Eq(1u));
     ASSERT_THAT(customCTor, Eq(1u));
     auto iter = sut.begin();
-    EXPECT_THAT((*iter).m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((*iter).m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     EXPECT_THAT((++iter)->m_value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
     uint64_t loopCounter = 0;
 
     // this tests the test case setup (the following code needs a minimum testlist capacity)
@@ -937,9 +932,10 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
 
 TEST_F(forward_list_test, InsertAfterSomeElementsListRValue)
 {
-    constexpr int DEFAULT_VALUE{13};
+    constexpr int64_t DEFAULT_VALUE{13};
 
-    ASSERT_THAT(TESTLISTCAPACITY, Ge(10u)); // for the rest of magic numbers to fit
+    // test requires a minimum capacity
+    ASSERT_THAT(TESTLISTCAPACITY, Ge(10u));
 
     // fill half
     for (uint64_t i = 0; i < 5; ++i)
@@ -972,9 +968,9 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListRValue)
 
 TEST_F(forward_list_test, InsertAfterFullElementsListLValue)
 {
-    constexpr int DEFAULT_VALUE{13};
-    const CTorTest a{DEFAULT_VALUE};
-    int cnt = 0;
+    constexpr int64_t DEFAULT_VALUE{13};
+    const TestListElement a{DEFAULT_VALUE};
+    int64_t cnt = 0;
 
     auto iter = sut.before_begin();
 
@@ -991,9 +987,9 @@ TEST_F(forward_list_test, InsertAfterFullElementsListLValue)
     ASSERT_THAT(cTor, Eq(0u));
     ASSERT_THAT(customCTor, Eq(TESTLISTCAPACITY));
 
-    for (auto& fl : sut)
+    for (auto& listElement : sut)
     {
-        EXPECT_THAT(fl.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.m_value, Eq(cnt));
         ++cnt;
         if (TESTLISTCAPACITY - 1 == cnt)
         {
@@ -1005,8 +1001,8 @@ TEST_F(forward_list_test, InsertAfterFullElementsListLValue)
 
 TEST_F(forward_list_test, InsertAfterFullElementsListRValue)
 {
-    constexpr int DEFAULT_VALUE{13};
-    int cnt = 0;
+    constexpr int64_t DEFAULT_VALUE{13};
+    int64_t cnt = 0;
 
     auto iter = sut.before_begin();
 
@@ -1023,9 +1019,9 @@ TEST_F(forward_list_test, InsertAfterFullElementsListRValue)
     ASSERT_THAT(cTor, Eq(0u));
     ASSERT_THAT(customCTor, Eq(TESTLISTCAPACITY));
 
-    for (auto& fl : sut)
+    for (auto& listElement : sut)
     {
-        EXPECT_THAT(fl.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.m_value, Eq(cnt));
         ++cnt;
         if (TESTLISTCAPACITY - 1 == cnt)
         {
@@ -1037,7 +1033,7 @@ TEST_F(forward_list_test, InsertAfterFullElementsListRValue)
 
 TEST_F(forward_list_test, IteratorArrowOperator)
 {
-    constexpr int DEFAULT_VALUE{13};
+    constexpr int64_t DEFAULT_VALUE{13};
 
     ASSERT_THAT(TESTLISTCAPACITY, Ge(10u)); // for the rest of magic numbers to fit
 
@@ -1072,9 +1068,8 @@ TEST_F(forward_list_test, IteratorArrowOperator)
 
 TEST_F(forward_list_test, IteratorIncrementOperatorBeyondEnd)
 {
-    constexpr int DEFAULT_VALUE{13};
+    constexpr int64_t DEFAULT_VALUE{13};
 
-    // fill
     sut.push_front(DEFAULT_VALUE);
 
     auto iter = sut.begin();
@@ -1085,9 +1080,8 @@ TEST_F(forward_list_test, IteratorIncrementOperatorBeyondEnd)
 
 TEST_F(forward_list_test, ConstIteratorIncrementOperatorBeyondEnd)
 {
-    constexpr int DEFAULT_VALUE{13};
+    constexpr int64_t DEFAULT_VALUE{13};
 
-    // fill
     sut.push_front(DEFAULT_VALUE);
 
     auto iter = sut.cbegin();
@@ -1099,73 +1093,73 @@ TEST_F(forward_list_test, ConstIteratorIncrementOperatorBeyondEnd)
 
 TEST_F(forward_list_test, IteratorComparisonOfDifferentLists)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1, cut2;
-    cut1.emplace_front(15842);
-    cut1.emplace_front(1584122);
-    cut1.emplace_front(158432);
-    cut1.emplace_front(158432);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    sut11.emplace_front(15842);
+    sut11.emplace_front(1584122);
+    sut11.emplace_front(158432);
+    sut11.emplace_front(158432);
 
-    cut2.emplace_front(1313);
-    cut2.emplace_front(13131);
+    sut12.emplace_front(1313);
+    sut12.emplace_front(13131);
 
 
-    auto iter_sut1 = cut1.begin();
-    auto iter_sut2 = cut2.begin();
-    EXPECT_DEATH(dummyFunc(iter_sut1 == iter_sut2), "");
+    auto iterSut1 = sut11.begin();
+    auto iterSut2 = sut12.begin();
+    EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
-    iter_sut1 = cut1.before_begin();
-    iter_sut2 = cut2.before_begin();
-    EXPECT_DEATH(dummyFunc(iter_sut1 == iter_sut2), "");
+    iterSut1 = sut11.before_begin();
+    iterSut2 = sut12.before_begin();
+    EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
-    iter_sut1 = cut1.end();
-    iter_sut2 = cut2.end();
-    EXPECT_DEATH(dummyFunc(iter_sut1 == iter_sut2), "");
+    iterSut1 = sut11.end();
+    iterSut2 = sut12.end();
+    EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
-    iter_sut1 = cut1.begin();
-    iter_sut2 = cut2.begin();
-    EXPECT_DEATH(dummyFunc(iter_sut1 != iter_sut2), "");
+    iterSut1 = sut11.begin();
+    iterSut2 = sut12.begin();
+    EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 
-    iter_sut1 = cut1.before_begin();
-    iter_sut2 = cut2.before_begin();
-    EXPECT_DEATH(dummyFunc(iter_sut1 != iter_sut2), "");
+    iterSut1 = sut11.before_begin();
+    iterSut2 = sut12.before_begin();
+    EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 
-    iter_sut1 = cut1.end();
-    iter_sut2 = cut2.end();
-    EXPECT_DEATH(dummyFunc(iter_sut1 != iter_sut2), "");
+    iterSut1 = sut11.end();
+    iterSut2 = sut12.end();
+    EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 }
 
 
 TEST_F(forward_list_test, ComparingConstIteratorAndIterator)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1, cut2;
-    cut1.emplace_front(15842);
-    cut1.emplace_front(1584122);
-    cut1.emplace_front(158432);
-    cut1.emplace_front(158432);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    sut11.emplace_front(15842);
+    sut11.emplace_front(1584122);
+    sut11.emplace_front(158432);
+    sut11.emplace_front(158432);
 
-    cut2.emplace_front(1313);
-    cut2.emplace_front(13131);
+    sut12.emplace_front(1313);
+    sut12.emplace_front(13131);
 
 
-    forward_list<CTorTest, TESTLISTCAPACITY>::const_iterator iter_sut1 = cut1.cbefore_begin();
-    forward_list<CTorTest, TESTLISTCAPACITY>::const_iterator iter_sut2 = cut1.cbefore_begin();
-    forward_list<CTorTest, TESTLISTCAPACITY>::iterator iter_sut3 = cut1.begin();
-    forward_list<CTorTest, TESTLISTCAPACITY>::iterator iter_sut4 = cut1.end();
+    forward_list<TestListElement, TESTLISTCAPACITY>::const_iterator iterSut1 = sut11.cbefore_begin();
+    forward_list<TestListElement, TESTLISTCAPACITY>::const_iterator iterSut2 = sut11.cbefore_begin();
+    forward_list<TestListElement, TESTLISTCAPACITY>::iterator iterSut3 = sut11.begin();
+    forward_list<TestListElement, TESTLISTCAPACITY>::iterator iter_sut4 = sut11.end();
 
-    ASSERT_THAT(iter_sut1 == iter_sut3, Eq(false));
-    ASSERT_THAT(iter_sut3 == iter_sut1, Eq(false));
+    ASSERT_THAT(iterSut1 == iterSut3, Eq(false));
+    ASSERT_THAT(iterSut3 == iterSut1, Eq(false));
 
-    ASSERT_THAT(iter_sut1 == iter_sut2, Eq(true));
-    ASSERT_THAT(iter_sut4 == iter_sut3, Eq(false));
+    ASSERT_THAT(iterSut1 == iterSut2, Eq(true));
+    ASSERT_THAT(iter_sut4 == iterSut3, Eq(false));
 }
 
 
 TEST_F(forward_list_test, IteratorTraitsGetValueType)
 {
-    forward_list<int, 10> cut;
+    forward_list<int, 10> sut1;
 
-    cut.emplace_front(5);
-    auto iter{cut.begin()};
+    sut1.emplace_front(5);
+    auto iter{sut1.begin()};
 
     // using a function call here is closer to the actual use case (-> intentionally did not inline all code here)
     auto ret = iteratorTraitReturnDoubleValue(iter);
@@ -1175,18 +1169,9 @@ TEST_F(forward_list_test, IteratorTraitsGetValueType)
 
 TEST_F(forward_list_test, IteratorTraitsCheckIteratorCategoryOnConstIterator)
 {
-    int cnt = 0;
     auto iter = sut.cbefore_begin();
-    if (typeid(std::iterator_traits<decltype(iter)>::iterator_category) == typeid(std::random_access_iterator_tag))
-    {
-        ASSERT_TRUE(1);
-    }
-    else if (typeid(std::iterator_traits<decltype(iter)>::iterator_category) == typeid(std::forward_iterator_tag))
-    {
-        cnt = 1;
-    }
-
-    EXPECT_THAT(cnt, Eq(1));
+    ASSERT_NE(typeid(std::iterator_traits<decltype(iter)>::iterator_category), typeid(std::random_access_iterator_tag));
+    EXPECT_EQ(typeid(std::iterator_traits<decltype(iter)>::iterator_category), typeid(std::forward_iterator_tag));
 }
 
 TEST_F(forward_list_test, EmptyAfterClear)
@@ -1205,65 +1190,65 @@ TEST_F(forward_list_test, SizeZeroAfterClear)
 
 TEST_F(forward_list_test, CopyConstructor)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1;
-    cut1.emplace_front(101);
-    cut1.emplace_front(102);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    sut11.emplace_front(101);
+    sut11.emplace_front(102);
     EXPECT_THAT(customCTor, Eq(2));
 
-    forward_list<CTorTest, TESTLISTCAPACITY> cut2(cut1);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
 
     EXPECT_THAT(customCTor, Eq(2));
     EXPECT_THAT(copyCTor, Eq(2));
     EXPECT_THAT(moveCTor, Eq(0));
     EXPECT_THAT(moveAssignment, Eq(0));
     EXPECT_THAT(copyAssignment, Eq(0));
-    auto iter = cut2.begin();
+    auto iter = sut12.begin();
     EXPECT_THAT(iter->m_value, Eq(102));
     ++iter;
     EXPECT_THAT(iter->m_value, Eq(101));
-    EXPECT_THAT(cut2.empty(), Eq(false));
-    EXPECT_THAT(cut2.size(), Eq(2));
+    EXPECT_THAT(sut12.empty(), Eq(false));
+    EXPECT_THAT(sut12.size(), Eq(2));
 }
 
 TEST_F(forward_list_test, CopyConstructorWithEmptyForwardList)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1;
-    forward_list<CTorTest, TESTLISTCAPACITY> cut2(cut1);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
     EXPECT_THAT(copyCTor, Eq(0));
-    EXPECT_THAT(cut2.size(), Eq(0));
-    EXPECT_THAT(cut2.empty(), Eq(true));
+    EXPECT_THAT(sut12.size(), Eq(0));
+    EXPECT_THAT(sut12.empty(), Eq(true));
 }
 
 TEST_F(forward_list_test, CopyConstructorWithFullForwardList)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1;
-    decltype(CTorTest::m_value) i = 0;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    decltype(TestListElement::m_value) i = 0;
 
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        cut1.emplace_front(i);
+        sut11.emplace_front(i);
     }
 
-    forward_list<CTorTest, TESTLISTCAPACITY> cut2(cut1);
-    for (auto& fl : cut2)
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
+    for (auto& listElement : sut12)
     {
-        fl.m_value = i;
+        listElement.m_value = i;
         ++i;
     }
 
     EXPECT_THAT(copyCTor, Eq(TESTLISTCAPACITY));
     EXPECT_THAT(i, Eq(TESTLISTCAPACITY));
-    EXPECT_THAT(cut2.size(), Eq(TESTLISTCAPACITY));
-    EXPECT_THAT(cut2.empty(), Eq(false));
+    EXPECT_THAT(sut12.size(), Eq(TESTLISTCAPACITY));
+    EXPECT_THAT(sut12.empty(), Eq(false));
 }
 
 TEST_F(forward_list_test, MoveConstructor)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1;
-    cut1.emplace_front(8101);
-    cut1.emplace_front(8102);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    sut11.emplace_front(8101);
+    sut11.emplace_front(8102);
 
-    forward_list<CTorTest, TESTLISTCAPACITY> cut2(std::move(cut1));
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12(std::move(sut11));
 
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(2));
@@ -1272,47 +1257,47 @@ TEST_F(forward_list_test, MoveConstructor)
     EXPECT_THAT(copyAssignment, Eq(0));
     EXPECT_THAT(moveAssignment, Eq(0));
     EXPECT_THAT(dTor, Eq(2));
-    auto iter = cut2.begin();
+    auto iter = sut12.begin();
     EXPECT_THAT(iter->m_value, Eq(8102));
     EXPECT_THAT((++iter)->m_value, Eq(8101));
-    EXPECT_THAT(cut2.empty(), Eq(false));
-    EXPECT_THAT(cut2.size(), Eq(2));
-    EXPECT_THAT(cut1.empty(), Eq(true));
+    EXPECT_THAT(sut12.empty(), Eq(false));
+    EXPECT_THAT(sut12.size(), Eq(2));
+    EXPECT_THAT(sut11.empty(), Eq(true));
 }
 
 TEST_F(forward_list_test, MoveConstructorWithEmptyForwardList)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1;
-    forward_list<CTorTest, TESTLISTCAPACITY> cut2(cut1);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
     EXPECT_THAT(moveCTor, Eq(0));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(0));
-    EXPECT_THAT(cut2.size(), Eq(0));
-    EXPECT_THAT(cut2.empty(), Eq(true));
+    EXPECT_THAT(sut12.size(), Eq(0));
+    EXPECT_THAT(sut12.empty(), Eq(true));
 }
 
 TEST_F(forward_list_test, MoveConstructorWithFullForwardList)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        cut1.emplace_front(i);
+        sut11.emplace_front(i);
     }
 
-    forward_list<CTorTest, TESTLISTCAPACITY> cut2(std::move(cut1));
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12(std::move(sut11));
 
     EXPECT_THAT(moveCTor, Eq(TESTLISTCAPACITY));
     EXPECT_THAT(copyCTor, Eq(0));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(TESTLISTCAPACITY));
-    EXPECT_THAT(cut2.size(), Eq(TESTLISTCAPACITY));
-    EXPECT_THAT(cut2.empty(), Eq(false));
+    EXPECT_THAT(sut12.size(), Eq(TESTLISTCAPACITY));
+    EXPECT_THAT(sut12.empty(), Eq(false));
 }
 
 TEST_F(forward_list_test, DestructorWithEmptyForwardList)
 {
     {
-        forward_list<CTorTest, TESTLISTCAPACITY> cut1;
+        forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     }
     EXPECT_THAT(dTor, Eq(0));
 }
@@ -1320,10 +1305,10 @@ TEST_F(forward_list_test, DestructorWithEmptyForwardList)
 TEST_F(forward_list_test, DestructorSomeElements)
 {
     {
-        forward_list<CTorTest, TESTLISTCAPACITY> cut1;
-        cut1.emplace_front(891);
-        cut1.emplace_front(9191);
-        cut1.emplace_front(1);
+        forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+        sut11.emplace_front(891);
+        sut11.emplace_front(9191);
+        sut11.emplace_front(1);
     }
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(3));
@@ -1333,10 +1318,10 @@ TEST_F(forward_list_test, DestructorSomeElements)
 TEST_F(forward_list_test, DestructorWithFullForwardList)
 {
     {
-        forward_list<CTorTest, TESTLISTCAPACITY> cut1;
-        for (uint64_t i = 0; i < cut1.capacity(); ++i)
+        forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+        for (uint64_t i = 0; i < sut11.capacity(); ++i)
         {
-            cut1.emplace_front(1231);
+            sut11.emplace_front(1231);
         }
     }
 
@@ -1347,36 +1332,36 @@ TEST_F(forward_list_test, DestructorWithFullForwardList)
 
 TEST_F(forward_list_test, CopyAssignmentWithEmptySource)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1, cut2;
-    cut1.emplace_front(812);
-    cut1.emplace_front(81122);
-    cut1.emplace_front(8132);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    sut11.emplace_front(812);
+    sut11.emplace_front(81122);
+    sut11.emplace_front(8132);
 
-    cut1 = cut2;
+    sut11 = sut12;
     EXPECT_THAT(dTor, Eq(3));
     EXPECT_THAT(copyAssignment, Eq(0));
     EXPECT_THAT(copyCTor, Eq(0));
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(3));
-    EXPECT_THAT(cut1.size(), Eq(0));
-    EXPECT_THAT(cut1.empty(), Eq(true));
+    EXPECT_THAT(sut11.size(), Eq(0));
+    EXPECT_THAT(sut11.empty(), Eq(true));
 }
 
 TEST_F(forward_list_test, CopyAssignmentWithEmptyDestination)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1, cut2;
-    cut1.emplace_front(5812);
-    cut1.emplace_front(581122);
-    cut1.emplace_front(58132);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    sut11.emplace_front(5812);
+    sut11.emplace_front(581122);
+    sut11.emplace_front(58132);
 
-    cut2 = cut1;
+    sut12 = sut11;
     EXPECT_THAT(dTor, Eq(0));
     EXPECT_THAT(copyAssignment, Eq(0));
     EXPECT_THAT(copyCTor, Eq(3));
-    EXPECT_THAT(cut2.size(), Eq(3));
-    EXPECT_THAT(cut2.empty(), Eq(false));
+    EXPECT_THAT(sut12.size(), Eq(3));
+    EXPECT_THAT(sut12.empty(), Eq(false));
 
-    auto iter = cut2.cbefore_begin();
+    auto iter = sut12.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(58132));
     EXPECT_THAT((++iter)->m_value, Eq(581122));
     EXPECT_THAT((++iter)->m_value, Eq(5812));
@@ -1385,48 +1370,48 @@ TEST_F(forward_list_test, CopyAssignmentWithEmptyDestination)
 
 TEST_F(forward_list_test, CopyAssignmentWithLargerDestination)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1, cut2;
-    cut1.emplace_front(5842);
-    cut1.emplace_front(584122);
-    cut1.emplace_front(58432);
-    cut1.emplace_front(58432);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    sut11.emplace_front(5842);
+    sut11.emplace_front(584122);
+    sut11.emplace_front(58432);
+    sut11.emplace_front(58432);
 
-    cut2.emplace_front(313);
-    cut2.emplace_front(3131);
+    sut12.emplace_front(313);
+    sut12.emplace_front(3131);
 
-    cut1 = cut2;
+    sut11 = sut12;
 
     EXPECT_THAT(dTor, Eq(2));
     EXPECT_THAT(copyAssignment, Eq(2));
     EXPECT_THAT(copyCTor, Eq(0));
-    EXPECT_THAT(cut1.size(), Eq(2));
-    EXPECT_THAT(cut1.empty(), Eq(false));
+    EXPECT_THAT(sut11.size(), Eq(2));
+    EXPECT_THAT(sut11.empty(), Eq(false));
 
-    auto iter = cut1.cbefore_begin();
+    auto iter = sut11.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(3131));
     EXPECT_THAT((++iter)->m_value, Eq(313));
 }
 
 TEST_F(forward_list_test, CopyAssignmentWithLargerSource)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1, cut2;
-    cut1.emplace_front(15842);
-    cut1.emplace_front(1584122);
-    cut1.emplace_front(158432);
-    cut1.emplace_front(158432);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    sut11.emplace_front(15842);
+    sut11.emplace_front(1584122);
+    sut11.emplace_front(158432);
+    sut11.emplace_front(158432);
 
-    cut2.emplace_front(1313);
-    cut2.emplace_front(13131);
+    sut12.emplace_front(1313);
+    sut12.emplace_front(13131);
 
-    cut2 = cut1;
+    sut12 = sut11;
 
     EXPECT_THAT(dTor, Eq(0));
     EXPECT_THAT(copyAssignment, Eq(2));
     EXPECT_THAT(copyCTor, Eq(2));
-    EXPECT_THAT(cut2.size(), Eq(4));
-    EXPECT_THAT(cut2.empty(), Eq(false));
+    EXPECT_THAT(sut12.size(), Eq(4));
+    EXPECT_THAT(sut12.empty(), Eq(false));
 
-    auto iter = cut2.cbefore_begin();
+    auto iter = sut12.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(1584122));
@@ -1436,28 +1421,28 @@ TEST_F(forward_list_test, CopyAssignmentWithLargerSource)
 
 TEST_F(forward_list_test, MoveAssignmentWithEmptySource)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1, cut2;
-    cut1.emplace_front(812);
-    cut1.emplace_front(81122);
-    cut1.emplace_front(8132);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    sut11.emplace_front(812);
+    sut11.emplace_front(81122);
+    sut11.emplace_front(8132);
 
-    cut1 = std::move(cut2);
+    sut11 = std::move(sut12);
 
     EXPECT_THAT(dTor, Eq(3));
     EXPECT_THAT(moveAssignment, Eq(0));
     EXPECT_THAT(moveCTor, Eq(0));
-    EXPECT_THAT(cut1.size(), Eq(0));
-    EXPECT_THAT(cut1.empty(), Eq(true));
+    EXPECT_THAT(sut11.size(), Eq(0));
+    EXPECT_THAT(sut11.empty(), Eq(true));
 }
 
 TEST_F(forward_list_test, MoveAssignmentWithEmptyDestination)
 {
-    forward_list<CTorTest, TESTLISTCAPACITY> cut1, cut2;
-    cut1.emplace_front(5812);
-    cut1.emplace_front(581122);
-    cut1.emplace_front(58132);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    sut11.emplace_front(5812);
+    sut11.emplace_front(581122);
+    sut11.emplace_front(58132);
 
-    cut2 = std::move(cut1);
+    sut12 = std::move(sut11);
 
     EXPECT_THAT(dTor, Eq(3));
     EXPECT_THAT(moveAssignment, Eq(0));
@@ -1466,10 +1451,10 @@ TEST_F(forward_list_test, MoveAssignmentWithEmptyDestination)
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(3));
 
-    EXPECT_THAT(cut2.size(), Eq(3));
-    EXPECT_THAT(cut2.empty(), Eq(false));
+    EXPECT_THAT(sut12.size(), Eq(3));
+    EXPECT_THAT(sut12.empty(), Eq(false));
 
-    auto iter = cut2.cbefore_begin();
+    auto iter = sut12.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(58132));
     EXPECT_THAT((++iter)->m_value, Eq(581122));
     EXPECT_THAT((++iter)->m_value, Eq(5812));
@@ -1478,49 +1463,49 @@ TEST_F(forward_list_test, MoveAssignmentWithEmptyDestination)
 
 TEST_F(forward_list_test, MoveAssignmentWithLargerDestination)
 {
-    forward_list<CTorTest, 10> cut1, cut2;
-    cut1.emplace_front(5842);
-    cut1.emplace_front(584122);
-    cut1.emplace_front(58432);
-    cut1.emplace_front(58432);
+    forward_list<TestListElement, 10> sut11, sut12;
+    sut11.emplace_front(5842);
+    sut11.emplace_front(584122);
+    sut11.emplace_front(58432);
+    sut11.emplace_front(58432);
 
-    cut2.emplace_front(313);
-    cut2.emplace_front(3131);
+    sut12.emplace_front(313);
+    sut12.emplace_front(3131);
 
-    cut1 = std::move(cut2);
+    sut11 = std::move(sut12);
 
     EXPECT_THAT(dTor, Eq(4));
     EXPECT_THAT(moveAssignment, Eq(2));
     EXPECT_THAT(moveCTor, Eq(0));
-    EXPECT_THAT(cut1.size(), Eq(2));
-    EXPECT_THAT(cut1.empty(), Eq(false));
+    EXPECT_THAT(sut11.size(), Eq(2));
+    EXPECT_THAT(sut11.empty(), Eq(false));
 
-    auto iter = cut1.cbefore_begin();
+    auto iter = sut11.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(3131));
     EXPECT_THAT((++iter)->m_value, Eq(313));
 }
 
 TEST_F(forward_list_test, MoveAssignmentWithLargerSource)
 {
-    forward_list<CTorTest, 10> cut1, cut2;
-    cut1.emplace_front(15842);
-    cut1.emplace_front(1584122);
-    cut1.emplace_front(158432);
-    cut1.emplace_front(158432);
+    forward_list<TestListElement, 10> sut11, sut12;
+    sut11.emplace_front(15842);
+    sut11.emplace_front(1584122);
+    sut11.emplace_front(158432);
+    sut11.emplace_front(158432);
 
-    cut2.emplace_front(1313);
-    cut2.emplace_front(13131);
+    sut12.emplace_front(1313);
+    sut12.emplace_front(13131);
 
-    cut2 = std::move(cut1);
+    sut12 = std::move(sut11);
 
     EXPECT_THAT(dTor, Eq(4));
     EXPECT_THAT(moveAssignment, Eq(2));
     EXPECT_THAT(moveCTor, Eq(2));
-    EXPECT_THAT(cut2.size(), Eq(4));
-    EXPECT_THAT(cut2.empty(), Eq(false));
+    EXPECT_THAT(sut12.size(), Eq(4));
+    EXPECT_THAT(sut12.empty(), Eq(false));
 
 
-    auto iter = cut2.cbefore_begin();
+    auto iter = sut12.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(1584122));
@@ -1549,23 +1534,23 @@ TEST_F(forward_list_test, RemoveCustomElementFromEmptyList)
 }
 TEST_F(forward_list_test, RemoveOneDefaultElementFromList)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
-    cut1.emplace_front();
-    cut1.emplace_front();
-    cut1.emplace_front(1584122);
-    cut1.emplace_front(158432);
-    cut1.emplace_front(158432);
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
+    sut11.emplace_front();
+    sut11.emplace_front();
+    sut11.emplace_front(1584122);
+    sut11.emplace_front(158432);
+    sut11.emplace_front(158432);
 
-    auto cnt = cut1.remove({});
+    auto cnt = sut11.remove({});
 
     EXPECT_THAT(cTor, Eq(3));
     EXPECT_THAT(customCTor, Eq(4));
     EXPECT_THAT(dTor, Eq(3));
-    EXPECT_THAT(cut1.size(), Eq(4));
+    EXPECT_THAT(sut11.size(), Eq(4));
     EXPECT_THAT(cnt, Eq(2));
 
-    auto iter = cut1.cbefore_begin();
+    auto iter = sut11.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(1584122));
@@ -1573,123 +1558,123 @@ TEST_F(forward_list_test, RemoveOneDefaultElementFromList)
 }
 TEST_F(forward_list_test, RemoveOneCustomElementFromList)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
-    cut1.emplace_front();
-    cut1.emplace_front();
-    cut1.emplace_front(1584122);
-    cut1.emplace_front(158432);
-    cut1.emplace_front(158432);
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
+    sut11.emplace_front();
+    sut11.emplace_front();
+    sut11.emplace_front(1584122);
+    sut11.emplace_front(158432);
+    sut11.emplace_front(158432);
 
-    auto cnt = cut1.remove({1584122});
+    auto cnt = sut11.remove({1584122});
 
     EXPECT_THAT(cTor, Eq(2));
     EXPECT_THAT(customCTor, Eq(5));
     EXPECT_THAT(dTor, Eq(2));
-    EXPECT_THAT(cut1.size(), Eq(5));
+    EXPECT_THAT(sut11.size(), Eq(5));
     EXPECT_THAT(cnt, Eq(1));
 
-    auto iter = cut1.cbefore_begin();
+    auto iter = sut11.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(158432));
-    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     EXPECT_THAT((++iter)->m_value, Eq(15842));
 }
 TEST_F(forward_list_test, RemoveNotExistentElementFromList)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
-    cut1.emplace_front();
-    cut1.emplace_front();
-    cut1.emplace_front(1584122);
-    cut1.emplace_front(158432);
-    cut1.emplace_front(158432);
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
+    sut11.emplace_front();
+    sut11.emplace_front();
+    sut11.emplace_front(1584122);
+    sut11.emplace_front(158432);
+    sut11.emplace_front(158432);
 
-    auto cnt = cut1.remove({1243});
+    auto cnt = sut11.remove({1243});
 
     EXPECT_THAT(cTor, Eq(2));
     EXPECT_THAT(customCTor, Eq(5));
     EXPECT_THAT(dTor, Eq(1));
     EXPECT_THAT(classValue, Eq(1243));
-    EXPECT_THAT(cut1.size(), Eq(6));
+    EXPECT_THAT(sut11.size(), Eq(6));
     EXPECT_THAT(cnt, Eq(0));
 
-    auto iter = cut1.cbefore_begin();
+    auto iter = sut11.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(1584122));
-    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     EXPECT_THAT((++iter)->m_value, Eq(15842));
 }
 
 TEST_F(forward_list_test, RemoveOnetoEmptyList)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
 
-    auto cnt = cut1.remove({15842});
+    auto cnt = sut11.remove({15842});
 
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(2));
     EXPECT_THAT(dTor, Eq(2));
-    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(sut11.size(), Eq(0));
     EXPECT_THAT(cnt, Eq(1));
 }
 
 TEST_F(forward_list_test, RemoveWithFewMatches)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
-    cut1.emplace_front();
-    cut1.emplace_front();
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
+    sut11.emplace_front();
+    sut11.emplace_front();
 
-    auto cnt = cut1.remove({});
+    auto cnt = sut11.remove({});
 
     EXPECT_THAT(cTor, Eq(3));
     EXPECT_THAT(customCTor, Eq(1));
     EXPECT_THAT(dTor, Eq(3));
-    EXPECT_THAT(cut1.size(), Eq(1));
+    EXPECT_THAT(sut11.size(), Eq(1));
     EXPECT_THAT(cnt, Eq(2));
 }
 
 TEST_F(forward_list_test, RemoveWithAllMatches)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front();
-    cut1.emplace_front();
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front();
+    sut11.emplace_front();
 
-    auto cnt = cut1.remove({});
+    auto cnt = sut11.remove({});
 
     EXPECT_THAT(cTor, Eq(3));
     EXPECT_THAT(customCTor, Eq(0));
     EXPECT_THAT(dTor, Eq(3));
-    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(sut11.size(), Eq(0));
     EXPECT_THAT(cnt, Eq(2));
 }
 
 TEST_F(forward_list_test, RemoveAllFromList)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
-    cut1.emplace_front();
-    cut1.emplace_front();
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
+    sut11.emplace_front();
+    sut11.emplace_front();
 
-    auto cnt = cut1.remove({15842});
-    cnt += cut1.remove({});
+    auto cnt = sut11.remove({15842});
+    cnt += sut11.remove({});
 
     EXPECT_THAT(cTor, Eq(3));
     EXPECT_THAT(customCTor, Eq(2));
     EXPECT_THAT(dTor, Eq(5));
-    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(sut11.size(), Eq(0));
     EXPECT_THAT(cnt, Eq(3));
 }
 
 
 TEST_F(forward_list_test, RemoveIfFromEmptyList)
 {
-    auto cnt = sut.remove_if([](const CTorTest& cut) { return true; });
+    auto cnt = sut.remove_if([](const TestListElement& sut1) { return true; });
 
     EXPECT_THAT(isSetupState(), Eq(true));
     EXPECT_THAT(sut.size(), Eq(0));
@@ -1699,24 +1684,25 @@ TEST_F(forward_list_test, RemoveIfFromEmptyList)
 
 TEST_F(forward_list_test, RemoveIfOneDefaultElementFromList)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
-    cut1.emplace_front();
-    cut1.emplace_front();
-    cut1.emplace_front(1584122);
-    cut1.emplace_front(158432);
-    cut1.emplace_front(158432);
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
+    sut11.emplace_front();
+    sut11.emplace_front();
+    sut11.emplace_front(1584122);
+    sut11.emplace_front(158432);
+    sut11.emplace_front(158432);
 
-    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == C_TOR_TEST_VALUE_DEFAULT_VALUE; });
+    auto cnt =
+        sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
 
     EXPECT_THAT(cTor, Eq(2));
     EXPECT_THAT(customCTor, Eq(4));
     EXPECT_THAT(dTor, Eq(2));
-    EXPECT_THAT(classValue, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
-    EXPECT_THAT(cut1.size(), Eq(4));
+    EXPECT_THAT(classValue, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT(sut11.size(), Eq(4));
     EXPECT_THAT(cnt, Eq(2));
 
-    auto iter = cut1.cbefore_begin();
+    auto iter = sut11.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(1584122));
@@ -1725,138 +1711,141 @@ TEST_F(forward_list_test, RemoveIfOneDefaultElementFromList)
 
 TEST_F(forward_list_test, RemoveIfOneCustomElementFromList)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
-    cut1.emplace_front();
-    cut1.emplace_front();
-    cut1.emplace_front(1584122);
-    cut1.emplace_front(158432);
-    cut1.emplace_front(158432);
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
+    sut11.emplace_front();
+    sut11.emplace_front();
+    sut11.emplace_front(1584122);
+    sut11.emplace_front(158432);
+    sut11.emplace_front(158432);
 
-    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == 1584122; });
+    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == 1584122; });
 
     EXPECT_THAT(cTor, Eq(2));
     EXPECT_THAT(customCTor, Eq(4));
     EXPECT_THAT(dTor, Eq(1));
-    EXPECT_THAT(cut1.size(), Eq(5));
+    EXPECT_THAT(sut11.size(), Eq(5));
     EXPECT_THAT(cnt, Eq(1));
 
-    auto iter = cut1.cbefore_begin();
+    auto iter = sut11.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(158432));
-    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     EXPECT_THAT((++iter)->m_value, Eq(15842));
 }
 
 TEST_F(forward_list_test, RemoveIfNotExistentElementFromList)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
-    cut1.emplace_front();
-    cut1.emplace_front();
-    cut1.emplace_front(1584122);
-    cut1.emplace_front(158432);
-    cut1.emplace_front(158432);
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
+    sut11.emplace_front();
+    sut11.emplace_front();
+    sut11.emplace_front(1584122);
+    sut11.emplace_front(158432);
+    sut11.emplace_front(158432);
 
-    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == 1234; });
+    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == 1234; });
 
     EXPECT_THAT(cTor, Eq(2));
     EXPECT_THAT(customCTor, Eq(4));
     EXPECT_THAT(dTor, Eq(0));
-    EXPECT_THAT(cut1.size(), Eq(6));
+    EXPECT_THAT(sut11.size(), Eq(6));
     EXPECT_THAT(cnt, Eq(0));
 
-    auto iter = cut1.cbefore_begin();
+    auto iter = sut11.cbefore_begin();
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(158432));
     EXPECT_THAT((++iter)->m_value, Eq(1584122));
-    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(C_TOR_TEST_VALUE_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     EXPECT_THAT((++iter)->m_value, Eq(15842));
 }
 
 TEST_F(forward_list_test, RemoveIfOnetoEmptyList)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
 
-    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == 15842; });
+    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == 15842; });
 
     EXPECT_THAT(cTor, Eq(0));
     EXPECT_THAT(customCTor, Eq(1));
     EXPECT_THAT(dTor, Eq(1));
-    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(sut11.size(), Eq(0));
     EXPECT_THAT(cnt, Eq(1));
 }
 
 TEST_F(forward_list_test, RemoveIfWithFewMatches)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
-    cut1.emplace_front();
-    cut1.emplace_front();
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
+    sut11.emplace_front();
+    sut11.emplace_front();
 
-    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == C_TOR_TEST_VALUE_DEFAULT_VALUE; });
+    auto cnt =
+        sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
 
     EXPECT_THAT(cTor, Eq(2));
     EXPECT_THAT(customCTor, Eq(1));
     EXPECT_THAT(dTor, Eq(2));
-    EXPECT_THAT(cut1.size(), Eq(1));
+    EXPECT_THAT(sut11.size(), Eq(1));
     EXPECT_THAT(cnt, Eq(2));
 }
 
 TEST_F(forward_list_test, RemoveIfWithAllMatches)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front();
-    cut1.emplace_front();
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front();
+    sut11.emplace_front();
 
-    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == C_TOR_TEST_VALUE_DEFAULT_VALUE; });
+    auto cnt =
+        sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
 
     EXPECT_THAT(cTor, Eq(2));
     EXPECT_THAT(customCTor, Eq(0));
     EXPECT_THAT(dTor, Eq(2));
-    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(sut11.size(), Eq(0));
     EXPECT_THAT(cnt, Eq(2));
 }
 
 TEST_F(forward_list_test, RemoveIfAllFromList)
 {
-    forward_list<CTorTest, 10> cut1;
-    cut1.emplace_front(15842);
-    cut1.emplace_front();
-    cut1.emplace_front();
+    forward_list<TestListElement, 10> sut11;
+    sut11.emplace_front(15842);
+    sut11.emplace_front();
+    sut11.emplace_front();
 
-    auto cnt = cut1.remove_if([](const CTorTest& cut) { return cut.m_value == 15842; });
-    cnt += cut1.remove_if([](const CTorTest& cut) { return cut.m_value == C_TOR_TEST_VALUE_DEFAULT_VALUE; });
+    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == 15842; });
+    cnt += sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
 
     EXPECT_THAT(cTor, Eq(2));
     EXPECT_THAT(customCTor, Eq(1));
     EXPECT_THAT(dTor, Eq(3));
-    EXPECT_THAT(cut1.size(), Eq(0));
+    EXPECT_THAT(sut11.size(), Eq(0));
     EXPECT_THAT(cnt, Eq(3));
 }
 
 TEST_F(forward_list_test, writeContentViaDereferencedIterator)
 {
+    constexpr uint64_t TEST_VALUE{356u};
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
         sut.emplace_front((const uint64_t)i);
     }
 
-    auto cut{sut};
-    auto iter = cut.begin();
-    CTorTest element{TESTLISTCAPACITY + 1};
+    auto sut1{sut};
+    auto iter = sut1.begin();
+    TestListElement element{TEST_VALUE};
     *iter = element;
-    EXPECT_THAT(cut.front().m_value, Eq(TESTLISTCAPACITY + 1));
+    EXPECT_THAT(sut1.front().m_value, Eq(TEST_VALUE));
 }
 
 TEST_F(forward_list_test, invalidIteratorErase)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front((const uint64_t)i);
+        sut.emplace_front(static_cast<const uint64_t>(i));
     }
 
     auto iter = sut.begin();
@@ -1869,7 +1858,7 @@ TEST_F(forward_list_test, invalidIteratorIncrement)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front((const uint64_t)i);
+        sut.emplace_front(static_cast<const uint64_t>(i));
     }
 
     auto iter = sut.cbegin();
