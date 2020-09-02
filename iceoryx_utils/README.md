@@ -52,7 +52,7 @@ class should be used.
 |`serialization`      |   | X | Implements a simple serialization concept for classes based on the idea presented here [ISOCPP serialization](https://isocpp.org/wiki/faq/serialization#serialize-text-format). |
 |`set`                | i | X | Templated helper functions to create a fake `std::set` from a vector. |
 |`smart_c`            |   |   | Wrapper around C and POSIX function calls which performs a full error handling. Additionally, this wrapper makes sure that `EINTR` handling is performed correctly by repeating the system call. |
-|`string`             |   |   | Heap and exception free implementation of `std::string`. |
+|`string`             |   |   | Heap and exception free implementation of `std::string`. Attention, since the string is stack based, std::string or char array which are assigned to this string will be truncated and zero-terminated if they exceed the string capacity. |
 |`types`              |   |   | Declares essential building block types like `byte_t`. |
 |`UniqueTypedID<T>`   |   |   | Provides a unique ids depending on the type. It does not provide a unique id for a type T! |
 |`variant`            |   |   | C++11 implementation of the C++17 feature `std::variant` |
