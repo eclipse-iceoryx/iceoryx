@@ -119,9 +119,17 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
     {
         return *this;
     }
-    std::memcpy(m_rawstring, rhs, N - 1u);
-    m_rawstring[N - 1u] = '\0';
-    m_rawstringSize = N - 1u;
+
+    m_rawstringSize = strnlen(rhs, Capacity);
+    std::memcpy(m_rawstring, rhs, m_rawstringSize);
+    m_rawstring[m_rawstringSize] = '\0';
+
+    if (rhs[m_rawstringSize] != '\0')
+    {
+        std::cerr << "iox::cxx::string: Assignment of array which is not zero-terminated! Last value of array "
+                     "overwritten with 0!"
+                  << std::endl;
+    }
     return *this;
 }
 
