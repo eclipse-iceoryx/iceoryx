@@ -20,6 +20,10 @@ target_link_libraries(iceperf-laurel
     iceoryx_posh::iceoryx_posh
 )
 
+if(CMAKE_SYSTEM_NAME MATCHES QNX)
+    target_link_libraries(iceperf-laurel PRIVATE socket)
+endif(CMAKE_SYSTEM_NAME MATCHES QNX)
+
 add_executable(iceperf-hardy iceperf_hardy.cpp base.cpp iceoryx.cpp uds.cpp mq.cpp)
 set_target_properties(iceperf-hardy PROPERTIES
     CXX_STANDARD_REQUIRED ON
@@ -29,10 +33,6 @@ set_target_properties(iceperf-hardy PROPERTIES
 target_link_libraries(iceperf-hardy
     iceoryx_posh::iceoryx_posh
 )
-
-if(CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceperf-laurel PRIVATE socket)
-endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceperf-hardy PRIVATE socket)
