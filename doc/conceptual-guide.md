@@ -66,7 +66,7 @@ A single segment may be mapped to multiple processes, however the addresses to w
 ![](fig/shared-memory-mapping.svg)
 
 The POSIX API provides the [utilities](http://man7.org/linux/man-pages/man7/shm_overview.7.html) for working with 
-shared memory segements. 
+shared memory segments. 
 
 ## Organization
 An iceoryx system utilizes one "management" segment for administration purposes and any number of "user" segments for 
@@ -145,7 +145,7 @@ Memory chunks are returned to the pool once all attached `ReceiverPort`s indicat
 ### A Note on Pointers
 As already discussed, shared memory segments may be mapped to different memory areas in the virtual address space of a 
 process. 
-To deal with this, iceoryx utilises specialized pointer types: the `iox::RelativePointer` and 
+To deal with this, iceoryx utilizes specialized pointer types: the `iox::RelativePointer` and 
 the `iox::RelocatablePointer`.
 
 Using these types, the difference in memory mapping is not a factor when it comes to locating a memory chunk.

@@ -45,7 +45,7 @@ static const ServiceDescription TEST_SERVICE_DESCRIPTION("x", "y", "z");
 static const iox::ProcessName_t TEST_SUBSCRIBER_APP_NAME("mySubscriberApp");
 static const iox::ProcessName_t TEST_PUBLISHER_APP_NAME("myPublisherApp");
 
-static constexpr uint32_t NUMBER_OF_PUBLISHERS = 27u;
+static constexpr uint32_t NUMBER_OF_PUBLISHERS = 17u;
 static constexpr uint32_t ITERATIONS = 1000u;
 
 static constexpr uint32_t NUM_CHUNKS_IN_POOL = NUMBER_OF_PUBLISHERS * ITERATIONS;
@@ -141,7 +141,7 @@ class PortUser_IntegrationTest : public Test
         do
         {
             // Add delay to allow other thread accessing the shared resource
-            std::this_thread::sleep_for(std::chrono::microseconds(10));
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
             {
                 auto guardedVector = concurrentCaproMessageVector.GetScopeGuard();
                 if (guardedVector->size() != 0)
@@ -268,7 +268,7 @@ class PortUser_IntegrationTest : public Test
             CaproMessage caproMessageRouDi(CaproMessageType::UNSUB, TEST_SERVICE_DESCRIPTION);
             do
             {
-                std::this_thread::sleep_for(std::chrono::microseconds(10));
+                std::this_thread::sleep_for(std::chrono::microseconds(100));
 
                 if (m_concurrentCaproMessageRx->size() != 0)
                 {
@@ -297,7 +297,7 @@ class PortUser_IntegrationTest : public Test
                 });
 
             /// Add some jitter to make thread breathe
-            std::this_thread::sleep_for(std::chrono::microseconds(rand() % 750));
+            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 10));
         }
 
         // Signal the subscriber thread we're done

@@ -1,6 +1,5 @@
 
 # Contents
-- [Contents](#contents)
 - [Configuring RouDi](#configuring-roudi)
 
 # Configuring RouDi
