@@ -1831,7 +1831,7 @@ TEST_F(forward_list_test, writeContentViaDereferencedIterator)
     constexpr uint64_t TEST_VALUE{356u};
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front((const uint64_t)i);
+        sut.emplace_front(static_cast<const uint64_t>(i));
     }
 
     auto sut1{sut};
@@ -1871,7 +1871,7 @@ TEST_F(forward_list_test, invalidIteratorComparison)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front((const uint64_t)i);
+        sut.emplace_front(static_cast<const uint64_t>(i));
     }
 
     auto iter = sut.cbegin();
@@ -1884,7 +1884,7 @@ TEST_F(forward_list_test, invalidIteratorComparisonUnequal)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front((const uint64_t)i);
+        sut.emplace_front(static_cast<const uint64_t>(i));
     }
     auto iter = sut.cbegin();
     sut.pop_front();
@@ -1897,7 +1897,7 @@ TEST_F(forward_list_test, invalidIteratorDereferencing)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front((const uint64_t)i);
+        sut.emplace_front(static_cast<const uint64_t>(i));
     }
 
     auto iter = sut.cbegin();
@@ -1910,11 +1910,41 @@ TEST_F(forward_list_test, invalidIteratorAddressOfOperator)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front((const uint64_t)i);
+        sut.emplace_front(static_cast<const uint64_t>(i));
     }
 
     auto iter = sut.cbegin();
     sut.pop_front();
 
     EXPECT_DEATH(dummyFunc(iter->m_value == 12), "");
+}
+
+TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
+{
+    uint64_t i = 0;
+    uint8_t* otherSutPtr = new uint8_t[sizeof(forward_list<TestListElement, TESTLISTCAPACITY>)];
+
+    {
+        forward_list<TestListElement, TESTLISTCAPACITY> sut1;
+
+        for (; i < TESTLISTCAPACITY; ++i)
+        {
+            sut1.emplace_front(static_cast<const uint64_t>(i));
+        }
+
+        memcpy(reinterpret_cast<void*>(otherSutPtr), reinterpret_cast<const void*>(&sut1), sizeof(sut1));
+
+        // sanity measure: overwrite copied-from list before it's being destroyed
+        sut1.clear();
+        for (uint64_t k = 0; k < TESTLISTCAPACITY; ++k)
+        {
+            sut1.emplace_front(static_cast<const uint64_t>(k + i));
+        }
+    }
+
+    for (auto& listElement : *reinterpret_cast<forward_list<TestListElement, TESTLISTCAPACITY>*>(otherSutPtr))
+    {
+        --i;
+        EXPECT_THAT(listElement.m_value, Eq(i));
+    }
 }
