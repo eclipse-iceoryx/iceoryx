@@ -28,21 +28,36 @@ struct Untyped {};
 template<typename T, typename port_t = iox::popo::SenderPort>
 class BasePublisher;
 
+// ======================================== Sample ======================================== //
+
+// Sample needs to be specialized when T = void, since we are working with an untyped publisher in this case ..?
 template <typename T>
 class Sample
 {
 public:
-
     Sample(cxx::unique_ptr<T>&& samplePtr, BasePublisher<T>& publisher)
-        : m_samplePtr(std::move(samplePtr)), m_publisher(publisher)
+        : m_samplePtr(std::move(samplePtr)), m_publisherRef(publisher)
     {};
 
     Sample(std::nullptr_t) noexcept {};
 
-    Sample(const Sample& other) = delete;
+    Sample(const Sample&) = delete;
     Sample& operator=(const Sample&) = delete;
-    Sample(Sample&& rhs) = default;
-    Sample& operator=(Sample&& rhs) = default;
+
+    Sample& operator=(Sample<T>&& rhs)
+    {
+        if(this != &rhs)
+        {
+            m_samplePtr.reset(rhs.m_samplePtr.release());
+            m_publisherRef = rhs.m_publisherRef;
+            m_hasOwnership = rhs.m_hasOwnership;
+        }
+        return *this;
+    }
+    Sample(Sample<T>&& rhs) : m_publisherRef(rhs.m_publisherRef) // Need to initialize references in initializer list.
+    {
+        *this = std::move(rhs);
+    }
 
     ~Sample()
     {
@@ -54,9 +69,8 @@ public:
     ///
     Sample& operator=(std::nullptr_t) noexcept
     {
-      m_samplePtr = nullptr;
-      m_isEmpty = true;
-      m_isValid = false;
+      m_samplePtr = nullptr;    // The pointer will take care of cleaning up resources.
+      m_hasOwnership = false;
       return *this;
     }
     ///
@@ -65,15 +79,15 @@ public:
     ///
     T* operator->() noexcept
     {
-        return allocation();
+        return get();
     }
     ///
     /// @brief allocation Access to the memory allocated to the sample.
     /// @return
     ///
-    T* allocation() noexcept
+    T* get() noexcept
     {
-        if(m_isValid)
+        if(m_hasOwnership)
         {
             return m_samplePtr.get();
         }
@@ -100,12 +114,13 @@ public:
     ///
     void publish() noexcept
     {
-        if(m_isValid && !m_isEmpty)
+        if(m_hasOwnership)
         {
-            m_publisher.publish(*this);
-            m_samplePtr.release();  // Release ownership of the sample since it has been published.
-            m_isValid = false;      // Mark as invalid to prevent re-use.
+            m_publisherRef.get().publish(*this);
+            m_samplePtr.release();      // Release ownership of the sample since it has been published.
+            m_hasOwnership = false;
         }
+
         else
         {
             /// @todo Notify caller of attempt to publish invalid chunk.
@@ -113,12 +128,12 @@ public:
     }
 
 private:
-    bool m_isEmpty = true;
-    bool m_isValid = true;
-
+    bool m_hasOwnership = true;
     cxx::unique_ptr<T> m_samplePtr = nullptr;
-    BasePublisher<T>& m_publisher;
+    std::reference_wrapper<BasePublisher<T>> m_publisherRef;
 };
+
+// ======================================== Generic Publisher ======================================== //
 
 enum class SampleRecallError : uint8_t
 {
@@ -132,8 +147,6 @@ class BasePublisher
 public:
     using uid_t = uint64_t;
 
-    BasePublisher(const capro::ServiceDescription& service);
-
     BasePublisher(const BasePublisher& other) = delete;
     BasePublisher& operator=(const BasePublisher&) = delete;
     BasePublisher(BasePublisher&& rhs) = default;
@@ -141,20 +154,7 @@ public:
     ~BasePublisher() = default;
 
     uid_t uid() const noexcept;
-
-    // We need to ensure this type is NOT picked when Untyped is used.
     cxx::expected<Sample<T>, AllocationError> loan(uint64_t size) noexcept;
-
-    // We need a specialization of loan for where T = Untyped.
-    // The specialization must return a Sample<void>.
-    //
-    // This is required since we cannot directly use void as the template type.
-    //
-    // This is not being selected because substituting Untyped in the above function is not an error ... might need to disable it for that type.
-
-    //    template <typename U = T>
-    //    cxx::expected<Sample<void>, AllocationError> loan(uint64_t size, typename std::enable_if<std::is_same<U, Untyped>::value>::type* = nullptr) noexcept;
-
     void release(Sample<T>& sample) noexcept;
     cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
     cxx::expected<SampleRecallError> previousSample() const noexcept;
@@ -165,43 +165,7 @@ public:
     bool hasSubscribers() noexcept;
 
 protected:
-
-
-protected:
-    port_t m_port{nullptr};
-    bool m_useDynamicPayloadSize = true;
-
-private:
-
-};
-
-template<typename port_t>
-class BasePublisher<Untyped, port_t>
-{
-public:
-    using uid_t = uint64_t;
-
     BasePublisher(const capro::ServiceDescription& service);
-    BasePublisher(const BasePublisher& other) = delete;
-    BasePublisher& operator=(const BasePublisher&) = delete;
-    BasePublisher(BasePublisher&& rhs) = default;
-    BasePublisher& operator=(BasePublisher&& rhs) = default;
-    ~BasePublisher() = default;
-
-    uid_t uid() const noexcept;
-    cxx::expected<Sample<void>, AllocationError> loan(uint64_t size) noexcept;
-//    void release(Sample<void>& sample) noexcept;
-//    cxx::expected<AllocationError> publish(Sample<void>& sample) noexcept;
-//    cxx::expected<AllocationError> publishResultOf(cxx::function_ref<void(void*)> f) noexcept;
-//    cxx::expected<SampleRecallError> previousSample() const noexcept;
-
-    void offer() noexcept;
-    void stopOffer() noexcept;
-    bool isOffered() noexcept;
-    bool hasSubscribers() noexcept;
-
-protected:
-
 
 protected:
     port_t m_port{nullptr};

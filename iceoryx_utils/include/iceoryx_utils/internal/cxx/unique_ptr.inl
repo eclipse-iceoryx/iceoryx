@@ -24,6 +24,11 @@ unique_ptr<T>::unique_ptr(ptr_t ptr, std::function<void(T*)>&& deleter) noexcept
 //    : m_ptr(reinterpret_cast<T*>(allocation)), m_deleter(deleter)
 //{}
 
+template<typename T>
+unique_ptr<T>::unique_ptr(std::nullptr_t)  noexcept
+{
+  reset();
+}
 
 template<typename T>
 unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
@@ -34,6 +39,13 @@ unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
         m_deleter = std::move(rhs.m_deleter);
     }
     return *this;
+}
+
+template<typename T>
+unique_ptr<T>& unique_ptr<T>::operator=(std::nullptr_t) noexcept
+{
+  reset();
+  return *this;
 }
 
 

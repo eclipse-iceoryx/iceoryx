@@ -55,22 +55,28 @@ template<typename T>
 inline cxx::expected<AllocationError>
 TypedPublisher<T>::publishResultOf(cxx::function_ref<void(T*)> f) noexcept
 {
-    loan()
-        .and_then([&](Sample<T>& sample){
-            f(sample.allocation()); // Populate the sample with the given function.
-            publish(sample);
-        });
+    auto result = loan();
+    if(!result.has_error())
+    {
+        auto& sample = result.get_value();
+        f(sample.get());
+        return publish(sample);
+    }
+    else
+    {
+        return result;
+    }
 }
 
 template<typename T>
 inline cxx::expected<AllocationError>
 TypedPublisher<T>::publishCopyOf(const T& val) noexcept
 {
-    loan()
-        .and_then([&](Sample<T>& sample){
-            sample.emplace(val);
-            publish(std::move(sample));
-        });
+//    loan()
+//        .and_then([&](Sample<T>& sample){
+//            sample.emplace(val);
+//            publish(std::move(sample));
+//        });
 }
 
 template<typename T>

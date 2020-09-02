@@ -35,16 +35,6 @@ public:
     unique_ptr() = delete;
 
     ///
-    /// @brief operator = Reset to empty pointer when setting to nullptr.
-    /// @return An empty unique pointer.
-    ///
-    unique_ptr& operator=(std::nullptr_t) noexcept
-    {
-      reset();
-      return *this;
-    }
-
-    ///
     /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later via reset.
     ///
     unique_ptr(std::function<void(T*)>&& deleter) noexcept;
@@ -66,12 +56,20 @@ public:
     ///
 //    unique_ptr(void* allocation, std::function<void(T*)>&& deleter) noexcept;
 
+    unique_ptr(std::nullptr_t) noexcept;
+
     // Not copy-able to ensure uniqueness.
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
 
     unique_ptr(unique_ptr&& rhs) noexcept;
     unique_ptr& operator=(unique_ptr&& rhs) noexcept;
+
+    ///
+    /// @brief operator = Reset to empty pointer when setting to nullptr.
+    /// @return An empty unique pointer.
+    ///
+    unique_ptr& operator=(std::nullptr_t) noexcept;
 
     ///
     /// Automatically deletes the owned object on destruction.

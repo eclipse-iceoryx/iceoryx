@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "iceoryx_posh/experimental/popo/typed_publisher.hpp"
-#include "iceoryx_posh/experimental/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
@@ -38,7 +37,7 @@ static void sigHandler(int f_sig[[gnu::unused]])
 
 void getVehiclePosition(Position* allocation)
 {
-    new (allocation) Position(11.11, 22.22, 33.33);
+    new (allocation) Position(77.77, 77.77, 77.77);
 }
 
 int main(int argc, char *argv[])
@@ -46,32 +45,45 @@ int main(int argc, char *argv[])
     iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-modern");
 
     auto typedPublisher = iox::popo::TypedPublisher<Position>({"Odometry", "Position", "Vehicle"});
-    auto untypedPublisher = iox::popo::UntypedPublisher({"Odometry", "Position", "Vehicle"});
-
     typedPublisher.offer();
-    untypedPublisher.offer();
 
     float_t ct = 0.0;
     while(!killswitch)
     {
-//        typedPublisher.loan()
-//            .and_then([&](iox::popo::Sample<Position>& sample){
-//                ++ct;
-//                sample.emplace(ct, ct, ct);
-//                sample.publish();
-//            });
-//            std::this_thread::sleep_for(std::chrono::seconds(1));
+        ++ct;
 
-//        typedPublisher.publishResultOf(getVehiclePosition);
+        // Retrieve a typed sample from shared memory.
+        // Sample can be held until ready to publish.
+        auto result = typedPublisher.loan();
+        if(!result.has_error())
+        {
+            auto& sample = result.get_value();
+            auto val = sample.get();
+            val->x = ct;
+            val->y = ct;
+            val->z = ct;
+            typedPublisher.publish(sample);
+        }
 
-        untypedPublisher.loan(sizeof(Position))
-                .and_then([&](iox::popo::Sample<void>& sample){
-                    ++ct;
-                    new (sample.allocation()) Position(ct, ct, ct);
-                    sample.publish();
-                });
+        // Retrieve a sample and provide logic to immediately populate and publish via a lambda.
+        typedPublisher.loan()
+            .and_then([&](iox::popo::Sample<Position>& sample){
+                auto allocation = sample.get();
+                // Do some stuff leading to eventually generating the data in the provided sample's shared memory...
+                new (allocation) Position(ct * 11.11, ct * 11.11, ct * 11.11);
+                // ...then publish the bytes
+                sample.publish();
+            });
+
+        // Provide the logic for populating a sample via a named function.
+        // The sample is then immediately published.
+        typedPublisher.publishResultOf(getVehiclePosition);
+
+        // Simple copy-and-publish. Useful for smaller data types.
+        auto position = Position(ct * 111.11, ct * 111.11, ct * 111.11);
+        typedPublisher.publishCopyOf(position);
+
         std::this_thread::sleep_for(std::chrono::seconds(1));
-
     }
 
     return 0;

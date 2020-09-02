@@ -58,7 +58,7 @@ BasePublisher<T, port_t>::loan(uint64_t size) noexcept
     }
     return cxx::success<Sample<T>>(
                 cxx::unique_ptr<T>(
-                    header->payload(),
+                    reinterpret_cast<T*>(header->payload()),
                     [this](T* const p){
                         auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
                         this->m_port.freeChunk(header);
@@ -72,7 +72,7 @@ template<typename T, typename port_t>
 inline void
 BasePublisher<T, port_t>::release(Sample<T>& sample) noexcept
 {
-    auto header = iox::mepoo::convertPayloadPointerToChunkHeader(sample.allocation());
+    auto header = iox::mepoo::convertPayloadPointerToChunkHeader(sample.get());
     m_port.freeChunk(header);
 }
 
@@ -81,7 +81,7 @@ inline cxx::expected<AllocationError>
 BasePublisher<T, port_t>::publish(Sample<T>& sample) noexcept
 {
     /// @todo - ensure sample points to valid shared memory location
-    auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.allocation()));
+    auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.get()));
     m_port.deliverChunk(header);
     return iox::cxx::success<>();
 }
@@ -122,62 +122,6 @@ BasePublisher<T, port_t>::hasSubscribers() noexcept
     return m_port.hasSubscribers();
 }
 
-// ======================================== Untyped Specialization ======================================== //
-
-template<typename port_t>
-BasePublisher<Untyped, port_t>::BasePublisher(const capro::ServiceDescription& service)
-    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, ""))
-{}
-
-template<typename port_t>
-inline cxx::expected<Sample<void>, AllocationError>
-BasePublisher<Untyped, port_t>::loan(uint64_t size) noexcept
-{
-//    auto header = m_port.reserveChunk(size, m_useDynamicPayloadSize);
-//    if (header == nullptr)
-//    {
-//        // Old API does not provide error handling, so return unknown error.
-//        return cxx::error<AllocationError>(AllocationError::UNKNOWN);
-//    }
-//    return cxx::success<Sample<void>>(
-//                cxx::unique_ptr<void>(
-//                    header->payload(),
-//                    [this](void* const p){
-//                        auto header = iox::mepoo::convertPayloadPointerToChunkHeader(p);
-//                        this->m_port.freeChunk(header);
-//                    }
-//                ),
-//                *this
-//            );
-}
-
-template<typename port_t>
-inline void
-BasePublisher<Untyped, port_t>::offer() noexcept
-{
-    m_port.activate();
-}
-
-template<typename port_t>
-inline void
-BasePublisher<Untyped, port_t>::stopOffer() noexcept
-{
-    m_port.deactivate();
-}
-
-template<typename port_t>
-inline bool
-BasePublisher<Untyped, port_t>::isOffered() noexcept
-{
-    assert(false && "Not yet supported");
-}
-
-template<typename port_t>
-inline bool
-BasePublisher<Untyped, port_t>::hasSubscribers() noexcept
-{
-    return m_port.hasSubscribers();
-}
 
 } // namespace popo
 } // namespace iox

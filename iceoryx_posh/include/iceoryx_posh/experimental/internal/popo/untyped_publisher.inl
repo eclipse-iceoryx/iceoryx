@@ -28,49 +28,49 @@ namespace popo
 {
 
 UntypedPublisher::UntypedPublisher(const capro::ServiceDescription& service)
-    : BasePublisher<Untyped>(service)
+    : BasePublisher<void>(service)
 {}
 
 inline cxx::expected<Sample<void>, AllocationError>
 UntypedPublisher::loan(uint64_t size) noexcept
 {
-    return BasePublisher<Untyped>::loan(size);
+    return BasePublisher<void>::loan(size);
 }
 
-//inline void
-//UntypedPublisher::release(Sample<void>& sample) noexcept
-//{
-//    return BasePublisher<Untyped>::release(sample);
-//}
+inline void
+UntypedPublisher::release(Sample<void>& sample) noexcept
+{
+    return BasePublisher<void>::release(sample);
+}
 
-//inline cxx::expected<AllocationError>
-//UntypedPublisher::publish(Sample<void>& sample) noexcept
-//{
-//    return BasePublisher<Untyped>::publish(sample);
-//}
+inline cxx::expected<AllocationError>
+UntypedPublisher::publish(Sample<void>& sample) noexcept
+{
+    return BasePublisher<void>::publish(sample);
+}
 
 inline void
 UntypedPublisher::offer() noexcept
 {
-    return BasePublisher<Untyped>::offer();
+    return BasePublisher<void>::offer();
 }
 
 inline void
 UntypedPublisher::stopOffer() noexcept
 {
-    return BasePublisher<Untyped>::stopOffer();
+    return BasePublisher<void>::stopOffer();
 }
 
 inline bool
 UntypedPublisher::isOffered() noexcept
 {
-    return BasePublisher<Untyped>::isOffered();
+    return BasePublisher<void>::isOffered();
 }
 
 inline bool
 UntypedPublisher::hasSubscribers() noexcept
 {
-    return BasePublisher<Untyped>::hasSubscribers();
+    return BasePublisher<void>::hasSubscribers();
 }
 
 } // namespace popo

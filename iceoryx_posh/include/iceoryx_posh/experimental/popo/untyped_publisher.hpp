@@ -25,7 +25,7 @@ namespace iox
 namespace popo
 {
 
-class UntypedPublisher : protected iox::popo::BasePublisher<iox::popo::Untyped>
+class UntypedPublisher : protected iox::popo::BasePublisher<void>
 {
 public:
 
@@ -41,10 +41,6 @@ public:
     UntypedPublisher& operator=(UntypedPublisher&& rhs) = default;
     ~UntypedPublisher() = default;
 
-    ///
-    /// @brief loan Loan an empty sample from the shared memory pool.
-    /// @return Pointer to the successfully loaned sample, otherwise an allocation error.
-    ///
     cxx::expected<Sample<void>, AllocationError> loan(uint64_t size) noexcept;
     void release(Sample<void>& sample) noexcept;
     cxx::expected<AllocationError> publish(Sample<void>& sample) noexcept;
