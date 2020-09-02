@@ -1922,10 +1922,11 @@ TEST_F(forward_list_test, invalidIteratorAddressOfOperator)
 TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
 {
     uint64_t i = 0;
-    uint8_t* otherSutPtr = new uint8_t[sizeof(forward_list<TestListElement, TESTLISTCAPACITY>)];
+    using TestFwdList = forward_list<TestListElement, TESTLISTCAPACITY>;
+    alignas(alignof(TestFwdList)) uint8_t* otherSutPtr = new uint8_t[sizeof(TestFwdList)];
 
     {
-        forward_list<TestListElement, TESTLISTCAPACITY> sut1;
+        TestFwdList sut1;
 
         for (; i < TESTLISTCAPACITY; ++i)
         {
@@ -1934,7 +1935,7 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
 
         memcpy(reinterpret_cast<void*>(otherSutPtr), reinterpret_cast<const void*>(&sut1), sizeof(sut1));
 
-        // sanity measure: overwrite copied-from list before it's being destroyed
+        // overwrite copied-from list before it's being destroyed
         sut1.clear();
         for (uint64_t k = 0; k < TESTLISTCAPACITY; ++k)
         {
@@ -1942,9 +1943,11 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
         }
     }
 
-    for (auto& listElement : *reinterpret_cast<forward_list<TestListElement, TESTLISTCAPACITY>*>(otherSutPtr))
+    for (auto& listElement : *reinterpret_cast<TestFwdList*>(otherSutPtr))
     {
         --i;
         EXPECT_THAT(listElement.m_value, Eq(i));
     }
+
+    delete[] otherSutPtr;
 }
