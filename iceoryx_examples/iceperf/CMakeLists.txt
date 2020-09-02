@@ -31,7 +31,11 @@ target_link_libraries(iceperf-hardy
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES QNX)
-    target_link_libraries(iceperf-hardy iceperf-laurel PRIVATE socket)
+    target_link_libraries(iceperf-laurel PRIVATE socket)
+endif(CMAKE_SYSTEM_NAME MATCHES QNX)
+
+if(CMAKE_SYSTEM_NAME MATCHES QNX)
+    target_link_libraries(iceperf-hardy PRIVATE socket)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
 install(
