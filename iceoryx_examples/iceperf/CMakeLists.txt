@@ -30,6 +30,10 @@ target_link_libraries(iceperf-hardy
     iceoryx_posh::iceoryx_posh
 )
 
+if(CMAKE_SYSTEM_NAME MATCHES QNX)
+    target_link_libraries(iceperf-hardy iceperf-laurel PRIVATE socket)
+endif(CMAKE_SYSTEM_NAME MATCHES QNX)
+
 install(
     TARGETS iceperf-laurel iceperf-hardy
     RUNTIME DESTINATION bin
