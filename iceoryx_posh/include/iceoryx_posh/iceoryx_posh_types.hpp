@@ -101,7 +101,7 @@ constexpr uint32_t APP_MAX_MESSAGES = 5u;
 constexpr uint32_t APP_MESSAGE_SIZE = 512u;
 
 // Waitset
-constexpr uint32_t NUMBER_OF_SEMAPHORES = 1024u;
+constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024u;
 constexpr uint32_t MAX_NUMBER_OF_CONDITIONS = 128u;
 
 // Processes
@@ -144,6 +144,7 @@ struct DefaultChunkQueueConfig
 // alias for cxx::string
 using ConfigFilePathString_t = cxx::string<1024>;
 using ProcessName_t = cxx::string<100>;
+using RunnableName_t = cxx::string<100>;
 
 namespace runtime
 {

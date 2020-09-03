@@ -20,8 +20,6 @@ namespace roudi
 {
 RouDiConfig& RouDiConfig::setDefaults()
 {
-    roudi.m_sharedMemoryBaseAddressOffset = 0ull;
-    roudi.m_verifySharedMemoryPlacement = false;
     return *this;
 }
 

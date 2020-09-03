@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "mq.hpp"
 #include "topic_data.hpp"
+#include "uds.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -24,66 +27,32 @@ constexpr char APP_NAME[] = "/hardy";
 constexpr char PUBLISHER[] = "Hardy";
 constexpr char SUBSCRIBER[] = "Laurel";
 
+void followerDo(IcePerfBase& ipcTechnology)
+{
+    ipcTechnology.initFollower();
+
+    ipcTechnology.pingPongFollower();
+
+    ipcTechnology.shutdown();
+}
+
 int main()
 {
-    // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::getInstance(APP_NAME);
+#ifndef __APPLE__
+    MQ mq("/" + std::string(PUBLISHER), "/" + std::string(SUBSCRIBER));
+    std::cout << std::endl << "******   MESSAGE QUEUE    ********" << std::endl;
+    followerDo(mq);
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000)); // ensure leader first
+#endif
 
-    // Create a publisher and offer the service
-    iox::popo::Publisher myPublisher({"Comedians", "Duo", PUBLISHER});
-    myPublisher.offer();
+    std::cout << std::endl << "****** UNIX DOMAIN SOCKET ********" << std::endl;
+    UDS uds("/tmp/" + std::string(PUBLISHER), "/tmp/" + std::string(SUBSCRIBER));
+    followerDo(uds);
 
-    // Create the subscriber and subscribe to the service
-    iox::popo::Subscriber mySubscriber({"Comedians", "Duo", SUBSCRIBER});
-    mySubscriber.subscribe(1);
-
-    std::cout << "Waiting to subscribe to " << SUBSCRIBER << " ... " << std::flush;
-    while (mySubscriber.getSubscriptionState() != iox::popo::SubscriptionState::SUBSCRIBED)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    std::cout << "done" << std::endl;
-
-    std::cout << "Waiting for subscriber to " << PUBLISHER << " ... " << std::flush;
-    while (!myPublisher.hasSubscribers())
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    std::cout << "done" << std::endl;
-
-    bool run{true};
-    while (run)
-    {
-        const void* receivedChunk;
-        while (!mySubscriber.getChunk(&receivedChunk))
-        {
-            // poll as fast as possible
-        }
-
-        auto receivedSample = static_cast<const PerfTopic*>(receivedChunk);
-
-        auto sendSample = static_cast<PerfTopic*>(myPublisher.allocateChunk(receivedSample->payloadSize, true));
-        sendSample->payloadSize = receivedSample->payloadSize;
-
-        myPublisher.sendChunk(sendSample);
-
-        run = receivedSample->run;
-        mySubscriber.releaseChunk(receivedChunk);
-    }
-
-    mySubscriber.unsubscribe();
-
-    std::cout << "Waiting for subscriber to unsubscribe from " << PUBLISHER << " ... " << std::flush;
-    while (!myPublisher.hasSubscribers())
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-    std::cout << "done" << std::endl;
-
-    // with stopOffer we disconnect all subscribers and the publisher is no more visible
-    myPublisher.stopOffer();
-
-    std::cout << "Finished!" << std::endl;
+    std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
+    iox::runtime::PoshRuntime::getInstance(APP_NAME); // runtime for registering with the RouDi daemon
+    Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
+    followerDo(iceoryx);
 
     return (EXIT_SUCCESS);
 }

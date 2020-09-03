@@ -52,9 +52,12 @@ architectural changes, we'd kindly ask you to get in touch with one of the maint
 report a bug or propose a new feature, please raise an issue before raising a pull request. This makes it easier to
 track. Please make sure you have:
 
-1. Signed the [ECA](http://www.eclipse.org/legal/ECA.php)
-2. All commits have been commited with `git commit -s`
-3. You open your pull request towards the base branch `staging`
+1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
+2. All branches have the following naming format: `iox-#123-this-is-a-branch`
+3. All commits have the following naming format: `iox-#123 commit text`
+4. All commits have been signed with `git commit -s`
+5. You open your pull request towards the base branch `staging`
+6. Link the pull request to the according Github issue and set the label accordingly
 
 ## Coding style
 
@@ -99,6 +102,8 @@ The following doxygen comments are required for public API headers:
     /// @brief short description
     /// @param[in] / [out] / [in,out] name description
     /// @return description
+
+A good example for code formatting and doxygen structure is at [swe_docu_guidelines.md (WIP)](./doc/aspice_swe3_4/swe_docu_guidelines.md)
 
 ## Folder structure
 
@@ -200,8 +205,8 @@ Results will be available on this [Helix QAC dashboard](https://qaverify.program
 of the maintainers, if you're interested in getting access.
 
 It is possible that not the whole codebase follows these rules, things are work in progress. But this is where we want
-go. As of now we don't have any continous integration checks implemented but will rely on reviews during the pull
-requests. We're planning to introduce continous integration checks in the near future.
+go. As of now we don't have any continuos integration checks implemented but will rely on reviews during the pull
+requests. We're planning to introduce continuos integration checks in the near future.
 
 ### Header
 

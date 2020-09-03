@@ -27,7 +27,7 @@
 #define private public
 #define protected public
 
-#include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
+#include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/internal/roudi_environment/roudi_environment.hpp"
 
 #undef private

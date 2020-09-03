@@ -11,9 +11,9 @@ registered processes. Additionally, it shows the sender and receiver ports that 
 We reuse the binaries from [icedelivery](../icedelivery/). Create four terminals and run one command in each of them.
 
     # If installed and available in PATH environment variable
-    RouDi
+    iox-roudi
     # If build from scratch with script in tools
-    $ICEORYX_ROOT/build/posh/RouDi
+    $ICEORYX_ROOT/build/posh/iox-roudi
 
     ./build/iceoryx_examples/icedelivery/ice-publisher-bare-metal
 

@@ -80,9 +80,16 @@ class SubscriberPortUser
     /// @return true if the underlying queue overflowed since last call of this method, otherwise false
     bool hasLostChunks() noexcept;
 
-    /// @todo we first need the new condition variable
-    void attachConditionVariable() noexcept;
-    void detachConditionVaribale() noexcept;
+    /// @brief attach a condition variable (via its pointer) to subscriber
+    /// @return true if attachment worked, otherwise false
+    bool attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+
+    /// @brief detach a condition variable from subscriber
+    /// @return true if detachment worked, otherwise false
+    bool detachConditionVariable() noexcept;
+
+    /// @brief check if there's a condition variable attached
+    /// @return true if a condition variable attached, otherwise false
     bool isConditionVariableAttached() noexcept;
 
   private:
