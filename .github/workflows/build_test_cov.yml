@@ -34,5 +34,5 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
-          file:  $GITHUB_WORKSPACE/build/lcov/iceoryx_filter.info
+          file:  ./build/lcov/iceoryx_filter.info
           name: iceoryx
