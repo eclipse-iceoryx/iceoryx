@@ -33,7 +33,7 @@ namespace cxx
 ///
 ///      overview of cxx::forward_list deviations to std::forward_list(C++11)
 ///         - list declaration with mandatory max list size argument
-///         - memeber functions don't throw exception but will trigger different failure handling
+///         - member functions don't throw exception but will trigger different failure handling
 ///         - push_front/~_back returns a bool (instead of void) informing on successful insertion (true)
 ///         - pop_front/~_back returns a bool (instead of void) informing on successful removal (true), otherwise empty
 ///         (false)
@@ -56,11 +56,11 @@ class list
     // forward declarations, private
     struct ListLink;
     template <bool>
-    class iterator_base;
+    class IteratorBase;
 
   public:
-    using iterator = iterator_base<false>;
-    using const_iterator = iterator_base<true>;
+    using iterator = IteratorBase<false>;
+    using const_iterator = IteratorBase<true>;
     using value_type = T;
     using size_type = decltype(Capacity);
 
@@ -168,7 +168,7 @@ class list
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
     bool push_front(const T& data) noexcept;
 
-    /// @brief create element inplace at the begining of the list
+    /// @brief add element to the beginning of the list via move
     /// @param[in] data universal reference perfectly forwarded to client class
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
     bool push_front(T&& data) noexcept;
@@ -178,7 +178,7 @@ class list
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
     bool push_back(const T& data) noexcept;
 
-    /// @brief create element inplace at the end of the list
+    /// @brief add element to the end of the list via move
     /// @param[in] data universal reference perfectly forwarded to client class
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
     bool push_back(T&& data) noexcept;
@@ -252,33 +252,31 @@ class list
   private:
     /// @brief nested iterator class for list element operations including element access
     ///         comparison of iterator from different list is rejected by terminate()
-    template <bool is_const_iterator = true>
-    class iterator_base
+    template <bool IsConstIterator = true>
+    class IteratorBase
     {
       public:
         // provide the following public types for a std::iterator compatible iterator_category interface
         using iterator_category = std::bidirectional_iterator_tag;
-        using value_type = typename std::conditional<is_const_iterator, const T, T>::type;
+        using value_type = typename std::conditional<IsConstIterator, const T, T>::type;
         using difference_type = void;
-        using pointer = typename std::conditional<is_const_iterator, const T*, T*>::type;
-        using reference = typename std::conditional<is_const_iterator, const T&, T&>::type;
+        using pointer = typename std::conditional<IsConstIterator, const T*, T*>::type;
+        using reference = typename std::conditional<IsConstIterator, const T&, T&>::type;
 
 
         /// @brief construct a const_iterator from an iterator
         /// @param[in] iter is the iterator which will deliver list and index info for the const_iterator
-        iterator_base(const iterator_base<false>& iter);
+        IteratorBase(const IteratorBase<false>& iter) noexcept;
 
         /// @brief prefix increment iterator, so it points to the next list element
-        ///         when trying to increment beyond the end of the list, iterator stays pointing at the end, a
-        ///         message is forwarded to the error_message handler / cerr stream
+        ///         when trying to increment beyond the end of the list, iterator stays pointing at the end
         /// @return reference to this iterator object
-        iterator_base& operator++() noexcept;
+        IteratorBase& operator++() noexcept;
 
         /// @brief prefix decrement iterator, so it points to the previous list element
-        ///         when trying to increment beyond the end of the list, iterator stays pointing at the end, a
-        ///         message is forwarded to the error_message handler / cerr stream
+        ///         decrementing an iterator pointing already towards begin() has no effect (iterator stays at begin())
         /// @return reference to this iterator object
-        iterator_base& operator--() noexcept;
+        IteratorBase& operator--() noexcept;
 
 
         /// @brief comparing list iterators for equality
@@ -287,8 +285,8 @@ class list
         ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
         /// @param[in] rhs is the 2nd iterator to compare to
         /// @return list position for two iterators is the same (true) or different (false)
-        template <bool is_const_iterator_other>
-        bool operator==(const iterator_base<is_const_iterator_other>& rhs) const noexcept;
+        template <bool IsConstIteratorOther>
+        bool operator==(const IteratorBase<IsConstIteratorOther>& rhs) const noexcept;
 
         /// @brief comparing list iterators for non-equality
         ///         the referenced list position is compared, not the content of the list element (T-typed)
@@ -296,8 +294,8 @@ class list
         ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
         /// @param[in] rhs is the 2nd iterator to compare to
         /// @return list position for two iterators is the same (true) or different (false)
-        template <bool is_const_iterator_other>
-        bool operator!=(const iterator_base<is_const_iterator_other>& rhs) const noexcept;
+        template <bool IsConstIteratorOther>
+        bool operator!=(const IteratorBase<IsConstIteratorOther>& rhs) const noexcept;
 
         /// @brief dereferencing element content via iterator-position element
         /// @return reference to list element data
@@ -310,18 +308,18 @@ class list
 
       private:
         using parentListPointer =
-            typename std::conditional<is_const_iterator, const list<T, Capacity>*, list<T, Capacity>*>::type;
+            typename std::conditional<IsConstIterator, const list<T, Capacity>*, list<T, Capacity>*>::type;
 
         /// @brief private construct for an iterator, the iterator is bundled to
         ///         an existing parent (object) of type list,
         ///         an iterator is only constructed through calls to begin() or end()
         /// @param[in] parent is the const list the this iterator operates on
         /// @param[in] idx is the index of the list element (within allocated memory of parent list)
-        explicit iterator_base(parentListPointer parent, size_type idx) noexcept;
+        explicit IteratorBase(parentListPointer parent, size_type idx) noexcept;
 
-        // Make iterator_base<true> a friend class of iterator_base<false> so the copy constructor can access the
+        // Make IteratorBase<true> a friend class of IteratorBase<false> so the copy constructor can access the
         // private member variables.
-        friend class iterator_base<true>;
+        friend class IteratorBase<true>;
         friend class list<T, Capacity>;
         parentListPointer m_list;
         size_type m_iterListNodeIdx;
@@ -340,7 +338,7 @@ class list
     bool isValidElementIdx(const size_type idx) const noexcept;
     bool handleInvalidElement(const size_type idx) const noexcept;
     bool handleInvalidIterator(const const_iterator& iter) const noexcept;
-    bool invalidIterOrDifferentLists(const const_iterator& iter) const noexcept;
+    bool isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept;
     size_type& getPrevIdx(const size_type idx) noexcept;
     size_type& getNextIdx(const size_type idx) noexcept;
     size_type& getPrevIdx(const const_iterator& iter) noexcept;
@@ -362,8 +360,9 @@ class list
     static constexpr size_type NODE_LINK_COUNT{size_type(Capacity) + 1U};
     static constexpr size_type INVALID_INDEX{NODE_LINK_COUNT};
 
-    // two member variables point to head of freeList and usedList
-    // available elements are moved between freeList and usedList when inserted or removed
+    // unused/free elements are stored in an internal list (freeList), this freeList is accessed via the
+    // member variable m_freeListHeadIdx; user insert- and erase- operations move elements between the freeList and
+    // active list
     size_type m_freeListHeadIdx{0U};
 
     // m_links array is one element bigger than request element count. In this additional element links are stored
