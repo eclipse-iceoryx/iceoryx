@@ -142,8 +142,8 @@ You will need to install the following packages:
     sudo apt install lcov
     ```
 
-In iceoryx we have multiple levels for testcoverage: 'unit', 'integration', 'component' and ’all’ for all levels together. You can create reports for these different testlevels or for all tests. Coverage is here done with gcc.
-The coverage scan applies to Quality level 3 - 5 and partly 4.
+In iceoryx we have multiple testlevels for testcoverage: 'unit', 'integration', 'component' and ’all’ for all testlevels together. You can create reports for these different testlevels or for all tests. Coverage is done with gcc.
+The coverage scan applies to Quality level 3 and partly level 2 with branch coverage.
 
 For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
 You can do this with one command like this:
