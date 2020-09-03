@@ -357,6 +357,14 @@ TEST(String100, UnsafeCharToStringConstrIncludingNullCharWithCountResultsInSizeC
     EXPECT_THAT(testSubject.c_str(), StrEq("ice\0ryx"));
 }
 
+TEST(CharArrayAssignment, AssignCharArrayWithStringSizeLessThanArraySize)
+{
+    char testString[20] = "iceoryx";
+    string<20> testSubject(testString);
+    EXPECT_THAT(testSubject.size(), Eq(7));
+    EXPECT_THAT(testSubject.c_str(), StrEq("iceoryx"));
+}
+
 TEST(CharArrayAssignment, AssignZeroTerminatedCharArrayOfSizeForFullCapa)
 {
     char testString[8] = "iceoryx";
