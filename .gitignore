@@ -3,3 +3,5 @@ install/
 /CMakeLists.txt
 .vscode
 /**/*.user
+iceoryx_utils/doc/html/
+iceoryx_utils/doc/latex/
