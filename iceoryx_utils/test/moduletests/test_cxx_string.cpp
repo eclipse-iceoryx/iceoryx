@@ -361,6 +361,31 @@ TEST(String100, UnsafeCharToStringConstrIncludingNullCharWithCountResultsInSizeC
     EXPECT_THAT(testSubject.c_str(), StrEq("ice\0ryx"));
 }
 
+TEST(CharArrayAssignment, AssignCharArrayWithStringSizeLessThanArraySize)
+{
+    char testString[20] = "iceoryx";
+    string<20> testSubject(testString);
+    EXPECT_THAT(testSubject.size(), Eq(7));
+    EXPECT_THAT(testSubject.c_str(), StrEq("iceoryx"));
+}
+
+TEST(CharArrayAssignment, AssignZeroTerminatedCharArrayOfSizeForFullCapa)
+{
+    char testString[8] = "iceoryx";
+    string<7> testSubject(testString);
+    EXPECT_THAT(testSubject.size(), Eq(7));
+    EXPECT_THAT(testSubject.c_str(), StrEq("iceoryx"));
+}
+
+TEST(CharArrayAssignment, AssignNonZeroTerminatedCharArrayOfSizeForFullCapa)
+{
+    char testString[8] = "iceoryx";
+    testString[7] = 'x'; // overwrite the 0 termination
+    string<7> testSubject(testString);
+    EXPECT_THAT(testSubject.size(), Eq(7));
+    EXPECT_THAT(testSubject.c_str(), StrEq("iceoryx"));
+}
+
 TYPED_TEST(stringTyped_test, UnsafeCharToStringConstrWithNullPtrResultsEmptyString)
 {
     using myString = typename TestFixture::stringType;
