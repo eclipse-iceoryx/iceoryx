@@ -23,6 +23,8 @@
 namespace iox {
 namespace popo {
 
+using uid_t = uint64_t;
+
 struct Untyped {};
 
 template<typename T, typename port_t = iox::popo::SenderPort>
@@ -132,7 +134,6 @@ template<typename T, typename port_t>
 class BasePublisher
 {
 public:
-    using uid_t = uint64_t;
 
     BasePublisher(const BasePublisher& other) = delete;
     BasePublisher& operator=(const BasePublisher&) = delete;
@@ -168,31 +169,24 @@ template<typename T>
 class TypedPublisher : protected iox::popo::BasePublisher<T>
 {
 public:
-    ///
-    /// @brief Publisher Create publisher for specified service [legacy].
-    /// @param service Service to publish to.
-    ///
-    TypedPublisher(const capro::ServiceDescription& service);
 
+    TypedPublisher(const capro::ServiceDescription& service);
     TypedPublisher(const TypedPublisher& other) = delete;
     TypedPublisher& operator=(const TypedPublisher&) = delete;
     TypedPublisher(TypedPublisher&& rhs) = default;
     TypedPublisher& operator=(TypedPublisher&& rhs) = default;
     ~TypedPublisher() = default;
 
-    ///
-    /// @brief loan Loan an empty sample from the shared memory pool.
-    /// @return Pointer to the successfully loaned sample, otherwise an allocation error.
-    ///
+    uid_t uid() const noexcept;
+
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
     void release(Sample<T>& sample) noexcept;
     cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
-
     // Coming soon.
 //    template<typename Callable, typename... ArgTypes>
 //    cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
-
     cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept; /// @todo - move to typed API
+    cxx::expected<SampleRecallError> previousSample() const noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;
@@ -207,21 +201,19 @@ class UntypedPublisher : protected iox::popo::BasePublisher<void>
 {
 public:
 
-    ///
-    /// @brief Publisher Create publisher for specified service [legacy].
-    /// @param service Service to publish to.
-    ///
     UntypedPublisher(const capro::ServiceDescription& service);
-
     UntypedPublisher(const UntypedPublisher& other) = delete;
     UntypedPublisher& operator=(const UntypedPublisher&) = delete;
     UntypedPublisher(UntypedPublisher&& rhs) = default;
     UntypedPublisher& operator=(UntypedPublisher&& rhs) = default;
     ~UntypedPublisher() = default;
 
+    uid_t uid() const noexcept;
+
     cxx::expected<Sample<void>, AllocationError> loan(uint64_t size) noexcept;
     void release(Sample<void>& sample) noexcept;
     cxx::expected<AllocationError> publish(Sample<void>& sample) noexcept;
+    cxx::expected<SampleRecallError> previousSample() const noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;

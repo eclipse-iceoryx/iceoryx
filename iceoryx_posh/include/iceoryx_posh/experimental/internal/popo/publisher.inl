@@ -127,6 +127,13 @@ TypedPublisher<T>::TypedPublisher(const capro::ServiceDescription& service)
 {}
 
 template<typename T>
+inline uid_t
+TypedPublisher<T>::uid() const noexcept
+{
+    return BasePublisher<T>::uid();
+}
+
+template<typename T>
 inline cxx::expected<Sample<T>, AllocationError>
 TypedPublisher<T>::loan() noexcept
 {
@@ -176,6 +183,13 @@ TypedPublisher<T>::publishCopyOf(const T& val) noexcept
 }
 
 template<typename T>
+inline cxx::expected<SampleRecallError>
+TypedPublisher<T>::previousSample() const noexcept
+{
+    return BasePublisher<T>::previousSample();
+}
+
+template<typename T>
 inline void
 TypedPublisher<T>::offer() noexcept
 {
@@ -209,6 +223,13 @@ UntypedPublisher::UntypedPublisher(const capro::ServiceDescription& service)
     : BasePublisher<void>(service)
 {}
 
+inline uid_t
+UntypedPublisher::uid() const noexcept
+{
+    return BasePublisher<void>::uid();
+}
+
+
 inline cxx::expected<Sample<void>, AllocationError>
 UntypedPublisher::loan(uint64_t size) noexcept
 {
@@ -225,6 +246,12 @@ inline cxx::expected<AllocationError>
 UntypedPublisher::publish(Sample<void>& sample) noexcept
 {
     return BasePublisher<void>::publish(sample);
+}
+
+inline cxx::expected<SampleRecallError>
+UntypedPublisher::previousSample() const noexcept
+{
+    return BasePublisher<void>::previousSample();
 }
 
 inline void
