@@ -26,7 +26,7 @@ jobs:
       - name : Checkout
         uses: actions/checkout@v2
  
-      - name: Build sources
+      - name: Build, test and generate gcov report
         run: |
           export NUM_CORES=`nproc`
           # add flag to include coverage
