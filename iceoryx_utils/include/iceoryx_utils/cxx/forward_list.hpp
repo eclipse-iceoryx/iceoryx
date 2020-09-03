@@ -33,7 +33,7 @@ namespace cxx
 ///
 ///      overview of cxx::forward_list deviations to std::forward_list(C++11)
 ///         - list declaration with mandatory max list size argument
-///         - memeber functions don't throw exception but will trigger different failure handling
+///         - member functions don't throw exception but will trigger different failure handling
 ///         - push_front returns a bool (instead of void) informing on successful insertion (true)
 ///         - pop_front returns a bool (instead of void) informing on successful removal (true), otherwise empty (false)
 ///         - emplace_front returns a reference to the inserted element (instead of void), this is C++17-conform
@@ -172,7 +172,7 @@ class forward_list
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
     bool push_front(const T& data) noexcept;
 
-    /// @brief create element inplace at the begining of the list
+    /// @brief add element to the beginning of the list via move
     /// @param[in] data universal reference perfectly forwarded to client class
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
     bool push_front(T&& data) noexcept;
@@ -226,12 +226,11 @@ class forward_list
     /// @return iterator to the newly added element
     iterator insert_after(const_iterator citer, const T& data) noexcept;
 
-    /// @brief construct element inplace after the pointed-to element
+    /// @brief add element after the pointed-to element via move
     /// @param[in] citer iterator with the position to insert after
     /// @param[in] data universal reference perfectly forwarded to client class
     /// @return iterator to the newly added element
     iterator insert_after(const_iterator citer, T&& data) noexcept;
-
 
   private:
     /// @brief nested iterator class for list element operations including element access
@@ -253,8 +252,7 @@ class forward_list
         IteratorBase(const IteratorBase<false>& iter) noexcept;
 
         /// @brief prefix increment iterator, so it points to the next list element
-        ///         when trying to increment beyond the end of the list, iterator stays pointing at the end, a
-        ///         message is forwarded to the error_message handler / cerr stream
+        ///         when trying to increment beyond the end of the list, iterator stays pointing at the end
         /// @return reference to this iterator object
         IteratorBase& operator++() noexcept;
 

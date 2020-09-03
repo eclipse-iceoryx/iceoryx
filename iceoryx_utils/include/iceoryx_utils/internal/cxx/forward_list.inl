@@ -298,20 +298,20 @@ typename forward_list<T, Capacity>::size_type forward_list<T, Capacity>::remove_
 {
     size_type removedCount = 0;
 
-    auto it = before_begin();
-    auto next_it = begin();
+    auto iter = before_begin();
+    auto next_iter = begin();
 
-    while (next_it != cend())
+    while (next_iter != cend())
     {
-        if (pred(*next_it))
+        if (pred(*next_iter))
         {
-            next_it = erase_after(it);
+            next_iter = erase_after(iter);
             ++removedCount;
         }
         else
         {
-            it = next_it;
-            ++next_it;
+            iter = next_iter;
+            ++next_iter;
         }
     }
     return removedCount;
@@ -388,7 +388,6 @@ void forward_list<T, Capacity>::clear() noexcept
     }
 }
 
-
 /*************************/
 // iterator
 
@@ -449,7 +448,6 @@ template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
 typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator>::reference
     forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator*() const noexcept
-
 {
     return *operator->();
 }
@@ -471,9 +469,6 @@ typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator>::poin
 template <typename T, uint64_t Capacity>
 void forward_list<T, Capacity>::init() noexcept
 {
-    // initial link empty-list elements
-    m_freeListHeadIdx = 0U;
-
     for (size_type i = m_freeListHeadIdx; (i + 1U) < Capacity; ++i)
     {
         setInvalidElement(i, true);
@@ -489,6 +484,7 @@ void forward_list<T, Capacity>::init() noexcept
     // 'end' element, only pointing to itself
     setInvalidElement(Capacity + 1U, false);
     setNextIdx(Capacity + 1U, END_INDEX);
+    m_freeListHeadIdx = 0U;
 
     m_size = 0;
 }
@@ -586,8 +582,6 @@ inline bool forward_list<T, Capacity>::handleInvalidElement(const size_type idx)
     }
 }
 
-// iterator validition on iterator operations or iterators are function arguments
-// not coherent-save, as not each single iterator dereferencing operation is checked for validity.
 template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::handleInvalidIterator(const const_iterator& iter) const noexcept
 {

@@ -136,7 +136,6 @@ int64_t forward_list_test::dTor;
 int64_t forward_list_test::classValue;
 
 
-// test function for iterator_traits testing
 template <typename IterType>
 int64_t iteratorTraitReturnDoubleValue(IterType iter)
 {
@@ -260,8 +259,7 @@ TEST_F(forward_list_test, FullWhenFilledWithCapacityElements)
 {
     for (uint64_t i = 0; i < sut.capacity(); ++i)
     {
-        auto ref = sut.emplace_front();
-        EXPECT_THAT(ref, Eq(TestListElement{TEST_LIST_ELEMENT_DEFAULT_VALUE}));
+        EXPECT_THAT(sut.emplace_front().m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     }
     EXPECT_THAT(sut.full(), Eq(true));
 }
@@ -618,17 +616,17 @@ TEST_F(forward_list_test, EmplaceAfterWithWrongListIterator)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{13};
     forward_list<TestListElement, CAPACITY> sut11, sut12;
-    auto iterOfsut11 = sut11.before_begin();
-    auto iterOfsut12 = sut12.before_begin();
+    auto iterOfSut11 = sut11.before_begin();
+    auto iterOfSut12 = sut12.before_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
     {
-        sut11.emplace_after(iterOfsut11, cnt);
+        sut11.emplace_after(iterOfSut11, cnt);
         ++cnt;
     }
 
-    EXPECT_DEATH(sut11.emplace_after(iterOfsut12, cnt), "");
+    EXPECT_DEATH(sut11.emplace_after(iterOfSut12, cnt), "");
 }
 
 TEST_F(forward_list_test, PushFrontConstCustomSuccessfullWhenSpaceAvailableLValue)
@@ -1065,7 +1063,6 @@ TEST_F(forward_list_test, IteratorArrowOperator)
     EXPECT_THAT((++iter)->m_value, Eq(0));
 }
 
-
 TEST_F(forward_list_test, IteratorIncrementOperatorBeyondEnd)
 {
     constexpr int64_t DEFAULT_VALUE{13};
@@ -1144,13 +1141,13 @@ TEST_F(forward_list_test, ComparingConstIteratorAndIterator)
     forward_list<TestListElement, TESTLISTCAPACITY>::const_iterator iterSut1 = sut11.cbefore_begin();
     forward_list<TestListElement, TESTLISTCAPACITY>::const_iterator iterSut2 = sut11.cbefore_begin();
     forward_list<TestListElement, TESTLISTCAPACITY>::iterator iterSut3 = sut11.begin();
-    forward_list<TestListElement, TESTLISTCAPACITY>::iterator iter_sut4 = sut11.end();
+    forward_list<TestListElement, TESTLISTCAPACITY>::iterator iterSut4 = sut11.end();
 
     ASSERT_THAT(iterSut1 == iterSut3, Eq(false));
     ASSERT_THAT(iterSut3 == iterSut1, Eq(false));
 
     ASSERT_THAT(iterSut1 == iterSut2, Eq(true));
-    ASSERT_THAT(iter_sut4 == iterSut3, Eq(false));
+    ASSERT_THAT(iterSut4 == iterSut3, Eq(false));
 }
 
 
