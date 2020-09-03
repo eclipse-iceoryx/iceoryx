@@ -12,14 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
-
-#include "iceoryx_posh/experimental/popo/base_publisher.hpp"
+#ifndef IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_INL
+#define IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_INL
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-
-#include <iostream>
 
 namespace iox
 {
@@ -31,7 +27,7 @@ using SamplePtr = iox::cxx::unique_ptr<T>;
 
 using uid_t = uint64_t;
 
-// ======================================== Generic ======================================== //
+// ======================================== Base Publisher ======================================== //
 
 template<typename T, typename port_t>
 BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
@@ -123,7 +119,139 @@ BasePublisher<T, port_t>::hasSubscribers() noexcept
 }
 
 
+// ======================================== Typed Publisher ======================================== //
+
+template<typename T>
+TypedPublisher<T>::TypedPublisher(const capro::ServiceDescription& service)
+    : BasePublisher<T>(service)
+{}
+
+template<typename T>
+inline cxx::expected<Sample<T>, AllocationError>
+TypedPublisher<T>::loan() noexcept
+{
+    return BasePublisher<T>::loan(sizeof(T));
+}
+
+template<typename T>
+inline void
+TypedPublisher<T>::release(Sample<T>& sample) noexcept
+{
+    return BasePublisher<T>::release(sample);
+}
+
+template<typename T>
+inline cxx::expected<AllocationError>
+TypedPublisher<T>::publish(Sample<T>& sample) noexcept
+{
+    return BasePublisher<T>::publish(sample);
+}
+
+//template<typename T>
+//template<typename Callable, typename... ArgTypes>
+//inline cxx::expected<AllocationError>
+//TypedPublisher<T>::publishResultOf(Callable c, ArgTypes... args) noexcept
+//{
+//    auto result = loan();
+//    if(!result.has_error())
+//    {
+//        auto& sample = result.get_value();
+//        return publish(sample);
+//    }
+//    else
+//    {
+//        return result;
+//    }
+//}
+
+template<typename T>
+inline cxx::expected<AllocationError>
+TypedPublisher<T>::publishCopyOf(const T& val) noexcept
+{
+    return BasePublisher<T>::loan(sizeof(T))
+            .and_then([&](Sample<T>& sample){
+                *sample.get() = val;
+                BasePublisher<T>::publish(sample);
+            });
+}
+
+template<typename T>
+inline void
+TypedPublisher<T>::offer() noexcept
+{
+    return BasePublisher<T>::offer();
+}
+
+template<typename T>
+inline void
+TypedPublisher<T>::stopOffer() noexcept
+{
+    return BasePublisher<T>::stopOffer();
+}
+
+template<typename T>
+inline bool
+TypedPublisher<T>::isOffered() noexcept
+{
+    return BasePublisher<T>::isOffered();
+}
+
+template<typename T>
+inline bool
+TypedPublisher<T>::hasSubscribers() noexcept
+{
+    return BasePublisher<T>::hasSubscribers();
+}
+
+// ======================================== Untyped Publisher ======================================== //
+
+UntypedPublisher::UntypedPublisher(const capro::ServiceDescription& service)
+    : BasePublisher<void>(service)
+{}
+
+inline cxx::expected<Sample<void>, AllocationError>
+UntypedPublisher::loan(uint64_t size) noexcept
+{
+    return BasePublisher<void>::loan(size);
+}
+
+inline void
+UntypedPublisher::release(Sample<void>& sample) noexcept
+{
+    return BasePublisher<void>::release(sample);
+}
+
+inline cxx::expected<AllocationError>
+UntypedPublisher::publish(Sample<void>& sample) noexcept
+{
+    return BasePublisher<void>::publish(sample);
+}
+
+inline void
+UntypedPublisher::offer() noexcept
+{
+    return BasePublisher<void>::offer();
+}
+
+inline void
+UntypedPublisher::stopOffer() noexcept
+{
+    return BasePublisher<void>::stopOffer();
+}
+
+inline bool
+UntypedPublisher::isOffered() noexcept
+{
+    return BasePublisher<void>::isOffered();
+}
+
+inline bool
+UntypedPublisher::hasSubscribers() noexcept
+{
+    return BasePublisher<void>::hasSubscribers();
+}
+
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
+#endif // IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_INL

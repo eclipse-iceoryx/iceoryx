@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
-#define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
+#ifndef IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
+#define IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
 
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -96,19 +96,6 @@ public:
             return nullptr;
         }
     }
-//    ///
-//    /// Placement new of the type T in the memory allocated to the sample.
-//    ///
-//    template <typename Arg, typename... Args>
-//    auto emplace(Arg arg, Args... args)
-//        -> typename std::enable_if<!std::is_same<std::decay<Arg>, cxx::function_ref<void(T*)>>::value>::type
-//    {
-//        if(m_samplePtr != nullptr)
-//        {
-//            new (allocation()) T(std::forward<Arg>(arg), std::forward<Args>(args)...);
-//            m_isEmpty = false;
-//        }
-//    }
     ///
     /// @brief publish Publish the sample.
     ///
@@ -133,7 +120,7 @@ private:
     std::reference_wrapper<BasePublisher<T>> m_publisherRef;
 };
 
-// ======================================== Generic Publisher ======================================== //
+// ======================================== Base Publisher ======================================== //
 
 enum class SampleRecallError : uint8_t
 {
@@ -175,9 +162,77 @@ private:
 
 };
 
+// ======================================== Typed Publisher ======================================== //
+
+template<typename T>
+class TypedPublisher : protected iox::popo::BasePublisher<T>
+{
+public:
+    ///
+    /// @brief Publisher Create publisher for specified service [legacy].
+    /// @param service Service to publish to.
+    ///
+    TypedPublisher(const capro::ServiceDescription& service);
+
+    TypedPublisher(const TypedPublisher& other) = delete;
+    TypedPublisher& operator=(const TypedPublisher&) = delete;
+    TypedPublisher(TypedPublisher&& rhs) = default;
+    TypedPublisher& operator=(TypedPublisher&& rhs) = default;
+    ~TypedPublisher() = default;
+
+    ///
+    /// @brief loan Loan an empty sample from the shared memory pool.
+    /// @return Pointer to the successfully loaned sample, otherwise an allocation error.
+    ///
+    cxx::expected<Sample<T>, AllocationError> loan() noexcept;
+    void release(Sample<T>& sample) noexcept;
+    cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
+
+    // Coming soon.
+//    template<typename Callable, typename... ArgTypes>
+//    cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
+
+    cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept; /// @todo - move to typed API
+
+    void offer() noexcept;
+    void stopOffer() noexcept;
+    bool isOffered() noexcept;
+    bool hasSubscribers() noexcept;
+
+};
+
+// ======================================== Untyped Publisher ======================================== //
+
+class UntypedPublisher : protected iox::popo::BasePublisher<void>
+{
+public:
+
+    ///
+    /// @brief Publisher Create publisher for specified service [legacy].
+    /// @param service Service to publish to.
+    ///
+    UntypedPublisher(const capro::ServiceDescription& service);
+
+    UntypedPublisher(const UntypedPublisher& other) = delete;
+    UntypedPublisher& operator=(const UntypedPublisher&) = delete;
+    UntypedPublisher(UntypedPublisher&& rhs) = default;
+    UntypedPublisher& operator=(UntypedPublisher&& rhs) = default;
+    ~UntypedPublisher() = default;
+
+    cxx::expected<Sample<void>, AllocationError> loan(uint64_t size) noexcept;
+    void release(Sample<void>& sample) noexcept;
+    cxx::expected<AllocationError> publish(Sample<void>& sample) noexcept;
+
+    void offer() noexcept;
+    void stopOffer() noexcept;
+    bool isOffered() noexcept;
+    bool hasSubscribers() noexcept;
+
+};
+
 }
 }
 
-#include "iceoryx_posh/experimental/internal/popo/base_publisher.inl"
+#include "iceoryx_posh/experimental/internal/popo/publisher.inl"
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
+#endif // IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP

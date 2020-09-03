@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/experimental/popo/typed_publisher.hpp"
+#include "iceoryx_posh/experimental/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
@@ -37,7 +37,7 @@ static void sigHandler(int f_sig[[gnu::unused]])
 
 void getVehiclePosition(Position* allocation)
 {
-    new (allocation) Position(77.77, 77.77, 77.77);
+    new (allocation) Position(1111.1111, 1111.1111, 1111.1111);
 }
 
 int main(int argc, char *argv[])
@@ -59,9 +59,9 @@ int main(int argc, char *argv[])
         {
             auto& sample = result.get_value();
             auto val = sample.get();
-            val->x = ct;
-            val->y = ct;
-            val->z = ct;
+            val->x = ct * 1.1;
+            val->y = ct * 1.1;
+            val->z = ct * 1.1;
             typedPublisher.publish(sample);
         }
 
@@ -77,10 +77,11 @@ int main(int argc, char *argv[])
 
         // Provide the logic for populating a sample via a named function.
         // The sample is then immediately published.
-        typedPublisher.publishResultOf(getVehiclePosition);
+        // Issue here - the function cannot have any additional arguments... Is there a way ?
+//        typedPublisher.publishResultOf(getVehiclePosition);
 
         // Simple copy-and-publish. Useful for smaller data types.
-        auto position = Position(ct * 111.11, ct * 111.11, ct * 111.11);
+        auto position = Position(ct * 111.111, ct * 111.111, ct * 111.111);
         typedPublisher.publishCopyOf(position);
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
