@@ -32,6 +32,9 @@ struct BasePortData;
 
 class SenderPort;
 class ReceiverPort;
+
+class PublisherPortUser;
+class SubscriberPortUser;
 } // namespace popo
 namespace posix
 {
@@ -41,6 +44,8 @@ class MessageQueue;
 
 using SenderPortType = iox::popo::SenderPort;
 using ReceiverPortType = iox::popo::ReceiverPort;
+using PublisherPortUserType = iox::popo::PublisherPortUser;
+using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
