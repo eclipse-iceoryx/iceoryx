@@ -69,6 +69,8 @@ class string
     /// @tparam N is the implicit template parameter for the char array size
     /// @param [in] other is the char array
     ///
+    /// @note if the array is not zero-terminated, the last value will be overwritten with 0
+    ///
     /// @code
     ///     #include "iceoryx_utils/cxx/string.hpp"
     ///     using namespace iox::cxx;
@@ -148,6 +150,8 @@ class string
     ///
     /// @return reference to self
     ///
+    /// @note if the array is not zero-terminated, the last value will be overwritten with 0
+    ///
     /// @code
     ///     #include "iceoryx_utils/cxx/string.hpp"
     ///     using namespace iox::cxx;
@@ -174,6 +178,9 @@ class string
     /// @param [in] str is the char array
     ///
     /// @return reference to self
+    ///
+    /// @note if the array is not zero-terminated, the last value will be overwritten with 0
+    ///
     /// @code
     ///
     ///     #include "iceoryx_utils/cxx/string.hpp"
