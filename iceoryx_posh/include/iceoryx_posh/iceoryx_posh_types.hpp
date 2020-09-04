@@ -84,38 +84,49 @@ constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER;
 /// regarding how many chunks they are allowed to hold, then the queue size needs not be bigger. We
 /// can provide this number of newest chunks, more the user would not be allowed to hold anyway
 constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PORT_NUMBER;
-constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128u;
+constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;
 
-// Memory
-constexpr uint64_t SHARED_MEMORY_ALIGNMENT = 32u;
-constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32u;
-constexpr uint32_t MAX_SHM_SEGMENTS = 100u;
+// Client
+constexpr uint32_t MAX_REQUESTS_ALLOCATED_SIMULTANEOUSLY = 4U;
+constexpr uint32_t MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY = 16U;
+constexpr uint32_t MAX_RESPONSE_QUEUE_CAPACITY = 16U;
 
-constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8u;
-constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64u;
-
-// Message Queue
-constexpr uint32_t ROUDI_MAX_MESSAGES = 5u;
-constexpr uint32_t ROUDI_MESSAGE_SIZE = 512u;
-constexpr uint32_t APP_MAX_MESSAGES = 5u;
-constexpr uint32_t APP_MESSAGE_SIZE = 512u;
+// Server
+constexpr uint32_t MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY = 4U;
+constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY;
+constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 256U;
 
 // Waitset
-constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024u;
-constexpr uint32_t MAX_NUMBER_OF_CONDITIONS = 128u;
+constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
+constexpr uint32_t MAX_NUMBER_OF_CONDITIONS = 128U;
+
+// Memory
+constexpr uint64_t SHARED_MEMORY_ALIGNMENT = 32U;
+constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32U;
+constexpr uint32_t MAX_SHM_SEGMENTS = 100U;
+
+constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8U;
+constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64U;
+
+// Message Queue
+constexpr uint32_t ROUDI_MAX_MESSAGES = 5U;
+constexpr uint32_t ROUDI_MESSAGE_SIZE = 512U;
+constexpr uint32_t APP_MAX_MESSAGES = 5U;
+constexpr uint32_t APP_MESSAGE_SIZE = 512U;
+
 
 // Processes
-constexpr uint32_t MAX_PROCESS_NUMBER = 300u;
+constexpr uint32_t MAX_PROCESS_NUMBER = 300U;
 /// Maximum number of instances of a given service, which can be found.
 /// This limitation is coming due to the fixed capacity of the cxx::vector (This doesn't limit the offered number of
 /// instances)
-constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50u;
+constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50U;
 
 // Runnables
-constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000u;
-constexpr uint32_t MAX_RUNNABLE_PER_PROCESS = 50u;
+constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000U;
+constexpr uint32_t MAX_RUNNABLE_PER_PROCESS = 50U;
 
-constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100u;
+constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100U;
 static_assert(MAX_PROCESS_NUMBER * MAX_RUNNABLE_PER_PROCESS > MAX_RUNNABLE_NUMBER,
               "Invalid configuration for runnables");
 
@@ -125,6 +136,15 @@ enum class SubscribeState : uint32_t
     SUBSCRIBE_REQUESTED,
     SUBSCRIBED,
     UNSUBSCRIBE_REQUESTED,
+    WAIT_FOR_OFFER
+};
+
+enum class ConnectionState : uint32_t
+{
+    NOT_CONNECTED = 0,
+    CONNECT_REQUESTED,
+    CONNNECTED,
+    DISCONNECT_REQUESTED,
     WAIT_FOR_OFFER
 };
 
