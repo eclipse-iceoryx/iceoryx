@@ -18,6 +18,8 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_data.hpp"
@@ -51,6 +53,8 @@ class PortPool
     /// this member if the sender ports actually changed
     virtual cxx::vector<SenderPortType::MemberType_t*, MAX_PORT_NUMBER> senderPortDataList() noexcept = 0;
     virtual cxx::vector<ReceiverPortType::MemberType_t*, MAX_PORT_NUMBER> receiverPortDataList() noexcept = 0;
+    virtual cxx::vector<PublisherPortUserType::MemberType_t*, MAX_PORT_NUMBER> publisherPortUserList() noexcept = 0;
+    virtual cxx::vector<SubscriberPortUserType::MemberType_t*, MAX_PORT_NUMBER> subscriberPortUserList() noexcept = 0;
     cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> interfacePortDataList() noexcept;
     cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> appliactionPortDataList() noexcept;
     cxx::vector<runtime::RunnableData*, MAX_RUNNABLE_NUMBER> runnableDataList() noexcept;
@@ -66,22 +70,34 @@ class PortPool
                     const std::string& applicationName,
                     const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept = 0;
 
+    virtual cxx::expected<PublisherPortUserType::MemberType_t*, PortPoolError>
+    addPublisherPort(const capro::ServiceDescription& serviceDescription,
+                     const uint64_t& historyCapacity,
+                     mepoo::MemoryManager* const memoryManager,
+                     const std::string& applicationName,
+                     const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept = 0;
+
+    virtual cxx::expected<SubscriberPortUserType::MemberType_t*, PortPoolError>
+    addSubscriberPort(const capro::ServiceDescription& serviceDescription,
+                      const uint64_t& historyRequest,
+                      const std::string& applicationName,
+                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept = 0;
+
     cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const std::string& applicationName,
                                                                             const capro::Interfaces interface) noexcept;
 
     cxx::expected<popo::ApplicationPortData*, PortPoolError>
     addApplicationPort(const std::string& applicationName) noexcept;
 
-    cxx::expected<runtime::RunnableData*, PortPoolError>
-    addRunnableData(const ProcessName_t& process,
-                    const RunnableName_t& runnable,
-                    const uint64_t runnableDeviceIdentifier) noexcept;
+    cxx::expected<runtime::RunnableData*, PortPoolError> addRunnableData(
+        const ProcessName_t& process, const RunnableName_t& runnable, const uint64_t runnableDeviceIdentifier) noexcept;
 
-    cxx::expected<popo::ConditionVariableData*, PortPoolError>
-    addConditionVariableData(const ProcessName_t& process);
+    cxx::expected<popo::ConditionVariableData*, PortPoolError> addConditionVariableData(const ProcessName_t& process);
 
     virtual void removeSenderPort(SenderPortType::MemberType_t* const portData) noexcept = 0;
     virtual void removeReceiverPort(ReceiverPortType::MemberType_t* const portData) noexcept = 0;
+    virtual void removePublisherPort(PublisherPortUserType::MemberType_t* const portData) noexcept = 0;
+    virtual void removeSubscriberPort(SubscriberPortUserType::MemberType_t* const portData) noexcept = 0;
     void removeInterfacePort(popo::InterfacePortData* const portData) noexcept;
     void removeApplicationPort(popo::ApplicationPortData* const portData) noexcept;
     void removeRunnableData(runtime::RunnableData* const runnableData) noexcept;
