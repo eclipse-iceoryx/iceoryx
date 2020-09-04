@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "topic_data.hpp"
+#include "iceoryx_posh/experimental/popo/subscriber.hpp"
 
 #include <chrono>
 #include <csignal>
@@ -30,29 +29,13 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 void receiving()
 {
-//    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-modern");
-//    iox::popo::Subscriber mySubscriber({"Odometry", "Position", "Vehicle"});
-//    mySubscriber.subscribe(10);
-//    while (!killswitch)
-//    {
-//        if (iox::popo::SubscriptionState::SUBSCRIBED == mySubscriber.getSubscriptionState())
-//        {
-//            const void* chunk = nullptr;
-//            while (mySubscriber.getChunk(&chunk))
-//            {
-//                std::cout << "Got chunk" << std::endl;
-//                auto sample = static_cast<const Position*>(chunk);
-//                std::cout << "Received val: (" << sample->x << ", " << sample->y << ", " << sample->z << ")" << std::endl;
-//                mySubscriber.releaseChunk(chunk);
-//            }
-//        }
-//        else
-//        {
-//            std::cout << "Not subscribed" << std::endl;
-//        }
-//        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-//    }
-//    mySubscriber.unsubscribe();
+    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-modern");
+    while (!killswitch)
+    {
+
+    }
+
+    //mySubscriber.unsubscribe();
 }
 
 int main()

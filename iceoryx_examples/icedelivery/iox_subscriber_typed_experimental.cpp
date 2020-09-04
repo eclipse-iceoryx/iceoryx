@@ -12,7 +12,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/experimental/popo/subscriber.hpp"
+
+#include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
+
+#include <thread>
+#include <chrono>
+#include <csignal>
+#include <iostream>
+
+struct Position {
+    Position(double_t x, double_t y, double_t z) : x(x), y(y), z(z)
+    {};
+    double_t x = 0.0;
+    double_t y = 0.0;
+    double_t z = 0.0;
+};
+
+bool killswitch = false;
+
+static void sigHandler(int f_sig [[gnu::unused]])
+{
+    // caught SIGINT, now exit gracefully
+    killswitch = true;
+}
+
+void receiving()
+{
+    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-modern");
+    iox::popo::TypedSubscriber<Position> mySubscriber({"Odometry", "Position", "Vehicle"});
+    mySubscriber.subscribe(10);
+
+    while (!killswitch)
+    {
+        auto result = mySubscriber.receive();
+        if(result.has_value())
+        {
+            std::cout << "Got val: " << result->get() << std::endl;
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    //mySubscriber.unsubscribe();
+}
+
 int main()
 {
+    // register sigHandler for SIGINT
+    signal(SIGINT, sigHandler);
 
+    std::thread rx(receiving);
+    rx.join();
+
+    return (EXIT_SUCCESS);
 }

@@ -182,11 +182,12 @@ public:
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
     void release(Sample<T>& sample) noexcept;
     cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
-    // Coming soon.
-//    template<typename Callable, typename... ArgTypes>
-//    cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
     cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept; /// @todo - move to typed API
     cxx::expected<SampleRecallError> previousSample() const noexcept;
+
+    // This does not quite work yet. Need to understand how to identify generic callables in C++11.
+    template<typename Callable, typename... ArgTypes>
+    cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;
