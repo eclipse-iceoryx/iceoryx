@@ -79,7 +79,8 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
  |  switch  |  description |
  |:---------|:-------------|
- | `IOX_MAX_PORT_NUMBER` | the maximum number of publisher and subscriber ports `RouDi` can distribute to the clients |
+ | `IOX_MAX_PUBLISHERS` | the maximum number of publishers one `RouDi` instance can manage |
+ | `IOX_MAX_SUBSCRIBERS` | the maximum number of subscribers one `RouDi` instance can manage |
  | `IOX_MAX_INTERFACE_NUMBER` | the maximum number for interface ports, which are used for e.g. gateways |
  | `IOX_MAX_SUBSCRIBERS_PER_PUBLISHER` | the maximum number of subscriber a publisher can deliver chunks |
  | `IOX_MAX_CHUNKS_ALLOCATE_PER_SENDER` | the maximum number of chunks a sender can hold at a given time |

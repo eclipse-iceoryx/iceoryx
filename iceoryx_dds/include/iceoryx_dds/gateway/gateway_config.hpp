@@ -32,7 +32,7 @@ struct GatewayConfig
     {
         iox::capro::ServiceDescription m_serviceDescription;
     };
-    iox::cxx::vector<ServiceEntry, iox::MAX_PORT_NUMBER> m_configuredServices;
+    iox::cxx::vector<ServiceEntry, iox::MAX_PUBLISHERS + iox::MAX_SUBSCRIBERS> m_configuredServices; 
 
     void setDefaults() noexcept;
 };
