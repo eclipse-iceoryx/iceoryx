@@ -59,8 +59,7 @@ class PublisherPortRouDi : public BasePort
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    using ChunkDistributor_t = ChunkDistributor<PublisherPortData::ChunkDistributorData_t>;
-    ChunkSender<ChunkDistributor_t> m_chunkSender;
+    ChunkSender<PublisherPortData::ChunkSenderData_t> m_chunkSender;
 };
 
 } // namespace popo

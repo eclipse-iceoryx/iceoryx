@@ -84,8 +84,7 @@ class PublisherPortUser : public BasePort
 
     MemberType_t* m_publisherPortDataPtr;
 
-    using ChunkDistributor_t = ChunkDistributor<PublisherPortData::ChunkDistributorData_t>;
-    ChunkSender<ChunkDistributor_t> m_chunkSender;
+    ChunkSender<PublisherPortData::ChunkSenderData_t> m_chunkSender;
 };
 
 } // namespace popo

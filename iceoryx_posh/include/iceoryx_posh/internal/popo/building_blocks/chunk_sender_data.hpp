@@ -34,6 +34,8 @@ struct ChunkSenderData : public ChunkDistributorDataType
                              const uint64_t historyCapacity = 0u,
                              const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
+    using ChunkDistributorData_t = ChunkDistributorDataType;
+
     const relative_ptr<mepoo::MemoryManager> m_memoryMgr;
     mepoo::MemoryInfo m_memoryInfo;
     UsedChunkList<MaxChunksAllocatedSimultaneously> m_chunksInUse;

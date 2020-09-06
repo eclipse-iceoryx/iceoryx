@@ -62,6 +62,8 @@ using ChunkDistributorData_t =
     ChunkDistributorData<ChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
 using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
 using ChunkQueuePopper_t = ChunkQueuePopper<ChunkQueueData_t>;
+using ChunkSenderData_t = ChunkSenderData<iox::MAX_CHUNKS_ALLOCATE_PER_SENDER, ChunkDistributorData_t>;
+using ChunkReceiverData_t = ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t>;
 
 class ChunkBuildingBlocks_IntegrationTest : public Test
 {
@@ -201,8 +203,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     MemoryManager m_memoryManager;
 
     // Objects used by publishing thread
-    ChunkSenderData<iox::MAX_CHUNKS_ALLOCATE_PER_SENDER, ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
-    ChunkSender<ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
+    ChunkSenderData_t m_chunkSenderData{&m_memoryManager};
+    ChunkSender<ChunkSenderData_t> m_chunkSender{&m_chunkSenderData};
 
     // Objects used by forwarding thread
     ChunkDistributorData_t m_chunkDistributorData;
@@ -212,9 +214,9 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     ChunkQueuePopper_t m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
-    ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t> m_chunkReceiverData{
+    ChunkReceiverData_t m_chunkReceiverData{
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
-    ChunkReceiver<ChunkQueuePopper_t> m_chunkReceiver{&m_chunkReceiverData};
+    ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{&m_chunkReceiverData};
 };
 
 TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)

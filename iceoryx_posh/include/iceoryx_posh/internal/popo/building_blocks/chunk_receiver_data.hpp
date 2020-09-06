@@ -31,6 +31,8 @@ struct ChunkReceiverData : public ChunkQueueDataType
     explicit ChunkReceiverData(const cxx::VariantQueueTypes queueType,
                                const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
+    using ChunkQueueData_t = ChunkQueueDataType;
+
     mepoo::MemoryInfo m_memoryInfo;
 
     /// we use one more than MaxChunksHeldSimultaneously for being able to provide one new chunk
