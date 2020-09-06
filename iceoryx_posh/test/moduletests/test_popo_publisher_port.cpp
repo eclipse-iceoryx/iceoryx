@@ -81,7 +81,7 @@ class PublisherPort_test : public Test
     iox::popo::PublisherPortData m_publisherPortDataHistory{iox::capro::ServiceDescription("x", "y", "z"),
                                                             "myApp",
                                                             &m_memoryManager,
-                                                            iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR};
+                                                            iox::MAX_PUBLISHER_HISTORY};
     iox::popo::PublisherPortUser m_sutWithHistoryUseriSide{&m_publisherPortDataHistory};
     iox::popo::PublisherPortRouDi m_sutWithHistoryRouDiSide{&m_publisherPortDataHistory};
 };
@@ -170,7 +170,7 @@ TEST_F(PublisherPort_test,
     EXPECT_THAT(caproMessage.m_type, Eq(iox::capro::CaproMessageType::OFFER));
     EXPECT_THAT(caproMessage.m_serviceDescription, Eq(iox::capro::ServiceDescription("x", "y", "z")));
     EXPECT_THAT(caproMessage.m_subType, Eq(iox::capro::CaproMessageSubType::FIELD));
-    EXPECT_THAT(caproMessage.m_historyCapacity, Eq(iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR));
+    EXPECT_THAT(caproMessage.m_historyCapacity, Eq(iox::MAX_PUBLISHER_HISTORY));
 }
 
 TEST_F(PublisherPort_test, allocatingAChunk)
@@ -433,7 +433,7 @@ TEST_F(PublisherPort_test, lastChunkAvailableAfterSend)
 TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
 {
     // push some chunks to history
-    for (size_t i = 0; i < iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR; i++)
+    for (size_t i = 0; i < iox::MAX_PUBLISHER_HISTORY; i++)
     {
         auto maybeChunkHeader = m_sutWithHistoryUseriSide.allocateChunk(sizeof(DummySample));
         auto chunkHeader = maybeChunkHeader.get_value();

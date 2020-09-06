@@ -69,17 +69,17 @@ constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_IN
 /// @todo remove MAX_RECEIVERS_PER_SENDERPORT when the new port building blocks are used
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;
 
-//--------- Communication Resources Start--------------------- 
+//--------- Communication Resources Start---------------------
 // Publisher
 constexpr uint32_t MAX_PUBLISHERS = build::IOX_MAX_PUBLISHERS;
 constexpr uint32_t MAX_SUBSCRIBERS_PER_PUBLISHER = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;
-constexpr uint32_t MAX_CHUNKS_ALLOCATE_PER_SENDER = build::IOX_MAX_CHUNKS_ALLOCATE_PER_SENDER;
-constexpr uint64_t MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR = build::IOX_MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+constexpr uint32_t MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY = build::IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY;
+constexpr uint64_t MAX_PUBLISHER_HISTORY = build::IOX_MAX_PUBLISHER_HISTORY;
 // Subscriber
 constexpr uint32_t MAX_SUBSCRIBERS = build::IOX_MAX_SUBSCRIBERS;
-constexpr uint32_t MAX_CHUNKS_HELD_PER_RECEIVER = build::IOX_MAX_CHUNKS_HELD_PER_RECEIVER;
-constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER;
-/// With MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER we couple the maximum number of chunks a user is
+constexpr uint32_t MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY = build::IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
+constexpr uint32_t MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
+/// With MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY we couple the maximum number of chunks a user is
 /// allowed to hold with the maximum queue capacity.
 /// This allows that a polling user can replace all the held chunks in one execution with all new ones
 /// from a completely filled queue. Or the other way round, when we have a contract with the user
@@ -89,20 +89,20 @@ constexpr uint32_t MAX_RECEIVER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_RECEIVER;
 constexpr uint32_t MAX_INTERFACE_NUMBER = build::IOX_MAX_INTERFACE_NUMBER;
 constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PUBLISHERS;
 // Client
-constexpr uint32_t MAX_CLIENTS = build::IOX_MAX_PUBLISHERS; /// @todo 
+constexpr uint32_t MAX_CLIENTS = build::IOX_MAX_SUBSCRIBERS; /// @todo
 constexpr uint32_t MAX_REQUESTS_ALLOCATED_SIMULTANEOUSLY = 4U;
 constexpr uint32_t MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY = 16U;
 constexpr uint32_t MAX_RESPONSE_QUEUE_CAPACITY = 16U;
 // Server
-constexpr uint32_t MAX_SERVERS = build::IOX_MAX_PUBLISHERS; /// @todo 
+constexpr uint32_t MAX_SERVERS = build::IOX_MAX_PUBLISHERS; /// @todo
 constexpr uint32_t MAX_CLIENTS_PER_SERVER = 256U;
 constexpr uint32_t MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY = 4U;
 constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY;
 constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
-constexpr uint32_t MAX_NUMBER_OF_CONDITIONS = 128U;
-//--------- Communication Resources End--------------------- 
+constexpr uint32_t MAX_NUMBER_OF_CONDITIONS_PER_WAITSET = 128U;
+//--------- Communication Resources End---------------------
 
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;
 
@@ -158,13 +158,13 @@ enum class ConnectionState : uint32_t
 struct DefaultChunkDistributorConfig
 {
     static constexpr uint32_t MAX_QUEUES = MAX_SUBSCRIBERS_PER_PUBLISHER;
-    static constexpr uint64_t MAX_HISTORY_CAPACITY = MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+    static constexpr uint64_t MAX_HISTORY_CAPACITY = MAX_PUBLISHER_HISTORY;
 };
 
 // Default properties of ChunkQueueData
 struct DefaultChunkQueueConfig
 {
-    static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_RECEIVER_QUEUE_CAPACITY;
+    static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_SUBSCRIBER_QUEUE_CAPACITY;
 };
 
 // alias for cxx::string

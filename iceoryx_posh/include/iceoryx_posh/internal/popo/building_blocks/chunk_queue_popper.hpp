@@ -61,7 +61,7 @@ class ChunkQueuePopper
     uint64_t size() noexcept;
 
     /// @brief set the capacity of the queue
-    /// @param[in] newCapacity valid values are 0 < newCapacity < MAX_RECEIVER_QUEUE_CAPACITY
+    /// @param[in] newCapacity valid values are 0 < newCapacity < MAX_SUBSCRIBER_QUEUE_CAPACITY
     /// @pre it is important that no pop or push calls occur during this call
     /// @concurrent not thread safe
     void setCapacity(const uint64_t newCapacity) noexcept;

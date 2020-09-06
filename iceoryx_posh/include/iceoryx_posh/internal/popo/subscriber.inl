@@ -47,11 +47,11 @@ inline void Subscriber_t<ReceiverPortType>::subscribe(const uint32_t cacheSize) 
 {
     m_subscribeDemand = true;
     uint32_t size = cacheSize;
-    if (size > MAX_RECEIVER_QUEUE_CAPACITY)
+    if (size > MAX_SUBSCRIBER_QUEUE_CAPACITY)
     {
         LogWarn() << "Cache size for subscribe too large " << size
-                  << ", limiting to MAX_RECEIVER_QUEUE_CAPACITY = " << MAX_RECEIVER_QUEUE_CAPACITY;
-        size = MAX_RECEIVER_QUEUE_CAPACITY;
+                  << ", limiting to MAX_SUBSCRIBER_QUEUE_CAPACITY = " << MAX_SUBSCRIBER_QUEUE_CAPACITY;
+        size = MAX_SUBSCRIBER_QUEUE_CAPACITY;
     }
     m_receiver.subscribe(true, size);
 }

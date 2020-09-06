@@ -48,8 +48,8 @@ class ChunkQueue_testBase
     static constexpr size_t MEMORY_SIZE = 4 * MEGABYTE;
     std::unique_ptr<char[]> memory{new char[MEMORY_SIZE]};
     iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
-    MemPool mempool{128, 2 * iox::MAX_RECEIVER_QUEUE_CAPACITY, &allocator, &allocator};
-    MemPool chunkMgmtPool{128, 2 * iox::MAX_RECEIVER_QUEUE_CAPACITY, &allocator, &allocator};
+    MemPool mempool{128, 2 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
+    MemPool chunkMgmtPool{128, 2 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
 
     static constexpr uint32_t RESIZED_CAPACITY{5u};
 };
@@ -237,7 +237,7 @@ TYPED_TEST(ChunkQueueFiFo_test, DISABLED_InitialSize)
 /// @note API currently not supported
 TYPED_TEST(ChunkQueueFiFo_test, DISABLED_Capacity)
 {
-    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
+    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY));
 }
 
 /// @note API currently not supported
@@ -249,7 +249,7 @@ TYPED_TEST(ChunkQueueFiFo_test, DISABLED_SetCapacity)
 
 TYPED_TEST(ChunkQueueFiFo_test, PushFull)
 {
-    for (auto i = 0u; i < iox::MAX_RECEIVER_QUEUE_CAPACITY; ++i)
+    for (auto i = 0u; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; ++i)
     {
         auto chunk = this->allocateChunk();
         this->m_pusher.push(chunk);
@@ -290,7 +290,7 @@ TYPED_TEST(ChunkQueueSoFi_test, InitialSize)
 
 TYPED_TEST(ChunkQueueSoFi_test, Capacity)
 {
-    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
+    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY));
 }
 
 
@@ -302,7 +302,7 @@ TYPED_TEST(ChunkQueueSoFi_test, SetCapacity)
 
 TYPED_TEST(ChunkQueueSoFi_test, PushFull)
 {
-    for (auto i = 0u; i < iox::MAX_RECEIVER_QUEUE_CAPACITY * 2; ++i)
+    for (auto i = 0u; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY * 2; ++i)
     {
         auto chunk = this->allocateChunk();
         this->m_pusher.push(chunk);

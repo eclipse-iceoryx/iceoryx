@@ -60,8 +60,8 @@ class ReceiverPort : public BasePort
     // BEGIN REGION__APPLICATION // /* access from Application-------------------------------
 
     virtual void subscribe(const bool f_autoResubscribe = false,
-                           const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY); // deprecated
-    virtual void subscribe(const uint32_t f_deliverySize = MAX_RECEIVER_QUEUE_CAPACITY);
+                           const uint32_t f_deliverySize = MAX_SUBSCRIBER_QUEUE_CAPACITY); // deprecated
+    virtual void subscribe(const uint32_t f_deliverySize = MAX_SUBSCRIBER_QUEUE_CAPACITY);
     void unsubscribe();
     bool isSubscribed() const;
     SubscribeState getSubscribeState() const;

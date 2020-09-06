@@ -38,7 +38,7 @@ struct DummySample
     uint64_t m_dummy{42};
 };
 
-static constexpr uint32_t NUM_CHUNKS_IN_POOL = 3 * iox::MAX_RECEIVER_QUEUE_CAPACITY;
+static constexpr uint32_t NUM_CHUNKS_IN_POOL = 3 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
 static constexpr uint32_t SMALL_CHUNK = 128;
 static constexpr uint32_t CHUNK_META_INFO_SIZE = 256;
 static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
@@ -49,7 +49,7 @@ static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
 struct ChunkDistributorConfig
 {
     static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
-    static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+    static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_PUBLISHER_HISTORY;
 };
 
 struct ChunkQueueConfig
@@ -62,8 +62,8 @@ using ChunkDistributorData_t =
     ChunkDistributorData<ChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
 using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
 using ChunkQueuePopper_t = ChunkQueuePopper<ChunkQueueData_t>;
-using ChunkSenderData_t = ChunkSenderData<iox::MAX_CHUNKS_ALLOCATE_PER_SENDER, ChunkDistributorData_t>;
-using ChunkReceiverData_t = ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t>;
+using ChunkSenderData_t = ChunkSenderData<iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, ChunkDistributorData_t>;
+using ChunkReceiverData_t = ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, ChunkQueueData_t>;
 
 class ChunkBuildingBlocks_IntegrationTest : public Test
 {

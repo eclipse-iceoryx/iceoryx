@@ -77,7 +77,7 @@ class ChunkSender_test : public Test
     struct ChunkDistributorConfig
     {
         static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
-        static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+        static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_PUBLISHER_HISTORY;
     };
 
     struct ChunkQueueConfig
@@ -90,7 +90,7 @@ class ChunkSender_test : public Test
                                                                    iox::popo::ThreadSafePolicy,
                                                                    iox::popo::ChunkQueuePusher<ChunkQueueData_t>>;
     using ChunkDistributor_t = iox::popo::ChunkDistributor<ChunkDistributorData_t>;
-    using ChunkSenderData_t = iox::popo::ChunkSenderData<iox::MAX_CHUNKS_ALLOCATE_PER_SENDER, ChunkDistributorData_t>;
+    using ChunkSenderData_t = iox::popo::ChunkSenderData<iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, ChunkDistributorData_t>;
 
     ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     ChunkSenderData_t m_chunkSenderData{&m_memoryManager, 0}; // must be 0 for test
@@ -132,8 +132,8 @@ TEST_F(ChunkSender_test, allocate_Overflow)
 {
     std::vector<iox::mepoo::ChunkHeader*> chunks;
 
-    // allocate chunks until MAX_CHUNKS_ALLOCATE_PER_SENDER level
-    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
+    // allocate chunks until MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY level
+    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; i++)
     {
         auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample), iox::UniquePortId());
         if (!maybeChunkHeader.has_error())
@@ -142,25 +142,25 @@ TEST_F(ChunkSender_test, allocate_Overflow)
         }
     }
 
-    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
+    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; i++)
     {
         EXPECT_THAT(chunks[i], Ne(nullptr));
     }
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
 
     // Allocate one more sample for overflow
     auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample), iox::UniquePortId());
     EXPECT_TRUE(maybeChunkHeader.has_error());
     EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL));
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
 }
 
 TEST_F(ChunkSender_test, freeChunk)
 {
     std::vector<iox::mepoo::ChunkHeader*> chunks;
 
-    // allocate chunks until MAX_CHUNKS_ALLOCATE_PER_SENDER level
-    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
+    // allocate chunks until MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY level
+    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; i++)
     {
         auto maybeChunkHeader = m_chunkSender.allocate(sizeof(DummySample), iox::UniquePortId());
         if (!maybeChunkHeader.has_error())
@@ -169,10 +169,10 @@ TEST_F(ChunkSender_test, freeChunk)
         }
     }
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
 
     // release them all
-    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
+    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; i++)
     {
         m_chunkSender.release(chunks[i]);
     }
@@ -566,7 +566,7 @@ TEST_F(ChunkSender_test, ReuseOfLastIfBiggerButFitsInChunk)
 
 TEST_F(ChunkSender_test, Cleanup)
 {
-    EXPECT_TRUE((HISTORY_CAPACITY + iox::MAX_CHUNKS_ALLOCATE_PER_SENDER) <= NUM_CHUNKS_IN_POOL);
+    EXPECT_TRUE((HISTORY_CAPACITY + iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY) <= NUM_CHUNKS_IN_POOL);
 
     for (size_t i = 0; i < HISTORY_CAPACITY; i++)
     {
@@ -575,14 +575,14 @@ TEST_F(ChunkSender_test, Cleanup)
         m_chunkSenderWithHistory.send(*maybeChunkHeader);
     }
 
-    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
+    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; i++)
     {
         auto maybeChunkHeader = m_chunkSenderWithHistory.allocate(SMALL_CHUNK, iox::UniquePortId());
         EXPECT_FALSE(maybeChunkHeader.has_error());
     }
 
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks,
-                Eq(HISTORY_CAPACITY + iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
+                Eq(HISTORY_CAPACITY + iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
 
     m_chunkSenderWithHistory.releaseAll();
 
