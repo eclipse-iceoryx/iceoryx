@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_PORTS_CLIENT_PORT_DATA_HPP
-#define IOX_POSH_POPO_PORTS_CLIENT_PORT_DATA_HPP
+#ifndef IOX_POSH_POPO_PORTS_SERVER_PORT_DATA_HPP
+#define IOX_POSH_POPO_PORTS_SERVER_PORT_DATA_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -27,21 +27,21 @@ namespace iox
 {
 namespace popo
 {
-struct ClientPortData : public BasePortData
+struct ServerPortData : public BasePortData
 {
-    ClientPortData(const capro::ServiceDescription& serviceDescription,
+    ServerPortData(const capro::ServiceDescription& serviceDescription,
                    const ProcessName_t& processName,
                    mepoo::MemoryManager* const memoryManager,
                    const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
 
-    ClientChunkSenderData_t m_chunkSenderData;
-    ClientChunkReceiverData_t m_chunkReceiverData;
-    std::atomic_bool m_connectRequested{false};
-    std::atomic<ConnectionState> m_connectionState{ConnectionState::NOT_CONNECTED};
+    ServerChunkSenderData_t m_chunkSenderData;
+    ServerChunkReceiverData_t m_chunkReceiverData;
+    std::atomic_bool m_offeringRequested{false};
+    std::atomic_bool m_offered{false};
 };
 
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_POSH_POPO_PORTS_CLIENT_PORT_DATA_HPP
+#endif // IOX_POSH_POPO_PORTS_SERVER_PORT_DATA_HPP

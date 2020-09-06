@@ -15,63 +15,55 @@
 #define IOX_POSH_POPO_PORTS_CLIENT_SERVER_PORT_TYPES_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
-#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
-#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 
-#include <atomic>
 #include <cstdint>
 
 namespace iox
 {
 namespace popo
 {
-struct ClientServerPortTypes
+struct ClientChunkDistributorConfig
 {
-    struct ClientChunkDistributorConfig
-    {
-        static constexpr uint32_t MAX_QUEUES = 1;
-        static constexpr uint64_t MAX_HISTORY_CAPACITY = 1; // could be 0, but this would be a problem for the container then
-    };
-
-    struct ServerChunkDistributorConfig
-    {
-        static constexpr uint32_t MAX_QUEUES = 1; // could be 0, but this would be a problem for the container then
-        static constexpr uint64_t MAX_HISTORY_CAPACITY = 1; // could be 0, but this would be a problem for the container then
-    };
-
-    struct ClientChunkQueueConfig
-    {
-        static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_RESPONSE_QUEUE_CAPACITY;
-    };
-
-    struct ServerChunkQueueConfig
-    {
-        static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_REQUEST_QUEUE_CAPACITY;
-    };
-
-    using ClientChunkQueueData_t = ChunkQueueData<ClientChunkQueueConfig, ThreadSafePolicy>;
-
-    using ServerChunkQueueData_t = ChunkQueueData<ServerChunkQueueConfig, ThreadSafePolicy>;
-
-    using ClientChunkDistributorData_t =
-        ChunkDistributorData<ClientChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ServerChunkQueueData_t>>;
-
-    using ServerChunkDistributorData_t =
-        ChunkDistributorData<ServerChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ClientChunkQueueData_t>>;
-
-    using ClientChunkReceiverData_t = ChunkReceiverData<MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY, ClientChunkQueueData_t>;
-
-    using ServerChunkReceiverData_t = ChunkReceiverData<MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY, ServerChunkQueueData_t>;
-
-    using ClientChunkSenderData_t = ChunkSenderData<MAX_REQUESTS_ALLOCATED_SIMULTANEOUSLY, ClientChunkDistributorData_t>;
-
-    using ServerChunkSenderData_t = ChunkSenderData<MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY, ServerChunkDistributorData_t>;
-
+    static constexpr uint32_t MAX_QUEUES = 1;
+    static constexpr uint64_t MAX_HISTORY_CAPACITY = 1; // could be 0, but problem for the container then
 };
+
+struct ServerChunkDistributorConfig
+{
+    static constexpr uint32_t MAX_QUEUES = MAX_CLIENTS_PER_SERVER; // could be 0, but problem for the container then
+    static constexpr uint64_t MAX_HISTORY_CAPACITY = 1;            // could be 0, but problem for the container then
+};
+
+struct ClientChunkQueueConfig
+{
+    static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_RESPONSE_QUEUE_CAPACITY;
+};
+
+struct ServerChunkQueueConfig
+{
+    static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_REQUEST_QUEUE_CAPACITY;
+};
+
+using ClientChunkQueueData_t = ChunkQueueData<ClientChunkQueueConfig, ThreadSafePolicy>;
+
+using ServerChunkQueueData_t = ChunkQueueData<ServerChunkQueueConfig, ThreadSafePolicy>;
+
+using ClientChunkDistributorData_t =
+    ChunkDistributorData<ClientChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ServerChunkQueueData_t>>;
+
+using ServerChunkDistributorData_t =
+    ChunkDistributorData<ServerChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ClientChunkQueueData_t>>;
+
+using ClientChunkReceiverData_t = ChunkReceiverData<MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY, ClientChunkQueueData_t>;
+
+using ServerChunkReceiverData_t = ChunkReceiverData<MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY, ServerChunkQueueData_t>;
+
+using ClientChunkSenderData_t = ChunkSenderData<MAX_REQUESTS_ALLOCATED_SIMULTANEOUSLY, ClientChunkDistributorData_t>;
+
+using ServerChunkSenderData_t = ChunkSenderData<MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY, ServerChunkDistributorData_t>;
 
 } // namespace popo
 } // namespace iox
