@@ -50,11 +50,11 @@ class ServerPortUser : public BasePort
     /// request in the queue is returned (FiFo queue)
     /// @return optional that has a new chunk header or no value if there are no new requests in the underlying queue,
     /// ChunkReceiveError on error
-    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> getRequest() noexcept;
+    cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveError> getRequest() noexcept;
 
     /// @brief Release a request that was obtained with getRequest
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
-    void releaseRequest(const mepoo::ChunkHeader* chunkHeader) noexcept;
+    void releaseRequest(const RequestHeader* requestHeader) noexcept;
 
     /// @brief check if there are requests in the queue
     /// @return if there are requests in the queue return true, otherwise false
@@ -69,15 +69,15 @@ class ServerPortUser : public BasePort
     /// @param[in] payloadSize, size of the user paylaod without additional headers
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
-    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocateResponse(const uint32_t payloadSize) noexcept;
+    cxx::expected<ResponseHeader*, AllocationError> allocateResponse(const uint32_t payloadSize) noexcept;
 
     /// @brief Free an allocated reesponse without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
-    void freeResponse(mepoo::ChunkHeader* const chunkHeader) noexcept;
+    void freeResponse(ResponseHeader* const responseHeader) noexcept;
 
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
-    void sendResponse(mepoo::ChunkHeader* const chunkHeader) noexcept;
+    void sendResponse(ResponseHeader* const responseHeader) noexcept;
 
     /// @brief offer this server port in the system
     void offer() noexcept;

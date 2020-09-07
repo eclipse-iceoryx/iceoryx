@@ -37,14 +37,14 @@ ServerPortUser::MemberType_t* ServerPortUser::getMembers() noexcept
 }
 
 
-cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> ServerPortUser::getRequest() noexcept
+cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveError> ServerPortUser::getRequest() noexcept
 {
-    return m_chunkReceiver.get();
+    return cxx::success<cxx::optional<const RequestHeader*>>(cxx::nullopt_t());
 }
 
-void ServerPortUser::releaseRequest(const mepoo::ChunkHeader* chunkHeader) noexcept
+void ServerPortUser::releaseRequest(const RequestHeader* requestHeader) noexcept
 {
-    m_chunkReceiver.release(chunkHeader);
+    /// @todo
 }
 
 bool ServerPortUser::hasNewRequests() noexcept
@@ -57,18 +57,18 @@ bool ServerPortUser::hasLostRequests() noexcept
     return m_chunkReceiver.hasOverflown();
 }
 
-cxx::expected<mepoo::ChunkHeader*, AllocationError>
-ServerPortUser::allocateResponse(const uint32_t payloadSize) noexcept
+cxx::expected<ResponseHeader*, AllocationError> ServerPortUser::allocateResponse(const uint32_t payloadSize) noexcept
 {
-    return m_chunkSender.allocate(payloadSize, getUniqueID());
+    /// @todo
+    return cxx::error<AllocationError>(AllocationError::RUNNING_OUT_OF_CHUNKS);
 }
 
-void ServerPortUser::freeResponse(mepoo::ChunkHeader* const chunkHeader) noexcept
+void ServerPortUser::freeResponse(ResponseHeader* const responseHeader) noexcept
 {
-    m_chunkSender.release(chunkHeader);
+    /// @todo
 }
 
-void ServerPortUser::sendResponse(mepoo::ChunkHeader* const chunkHeader) noexcept
+void ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
 {
     /// @todo
 }

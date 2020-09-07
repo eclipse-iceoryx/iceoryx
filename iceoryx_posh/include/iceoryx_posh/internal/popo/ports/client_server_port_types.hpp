@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <cstdint>
 
@@ -64,6 +65,94 @@ using ServerChunkReceiverData_t = ChunkReceiverData<MAX_REQUESTS_PROCESSED_SIMUL
 using ClientChunkSenderData_t = ChunkSenderData<MAX_REQUESTS_ALLOCATED_SIMULTANEOUSLY, ClientChunkDistributorData_t>;
 
 using ServerChunkSenderData_t = ChunkSenderData<MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY, ServerChunkDistributorData_t>;
+
+class RequestHeader
+{
+  public:
+    explicit RequestHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr) noexcept
+        : m_responseQueue(chunkQueueDataPtr)
+    {
+    }
+
+    RequestHeader(const RequestHeader& other) = delete;
+    RequestHeader& operator=(const RequestHeader&) = delete;
+    RequestHeader(RequestHeader&& rhs) = default;
+    RequestHeader& operator=(RequestHeader&& rhs) = default;
+    virtual ~RequestHeader() = default;
+
+    void setSequenceNumber(int64_t sequenceNumber) noexcept
+    {
+        m_sequenceNumber = sequenceNumber;
+    }
+    void setFireAndForget(bool fireAndForget) noexcept
+    {
+        m_isFireAndForget = fireAndForget;
+    }
+
+    mepoo::ChunkHeader* getChunkHeader() noexcept
+    {
+        /// todo
+        return nullptr;
+    }
+    void* getPayload() noexcept
+    {
+        /// todo
+        return nullptr;
+    }
+
+  private:
+    int64_t m_sequenceNumber{0};
+    bool m_isFireAndForget{false};
+    relative_ptr<ClientChunkQueueData_t> m_responseQueue;
+};
+
+class ResponseHeader
+{
+  public:
+    ResponseHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr, int64_t sequenceNumber) noexcept
+        : m_sequenceNumber(sequenceNumber)
+        , m_destinationQueue(chunkQueueDataPtr)
+    {
+    }
+
+    ResponseHeader(const ResponseHeader& other) = delete;
+    ResponseHeader& operator=(const ResponseHeader&) = delete;
+    ResponseHeader(ResponseHeader&& rhs) = default;
+    ResponseHeader& operator=(ResponseHeader&& rhs) = default;
+    virtual ~ResponseHeader() = default;
+
+    void setServerError(bool serverError) noexcept
+    {
+        m_hasServerError = serverError;
+    }
+
+    const mepoo::ChunkHeader* getChunkHeader() const noexcept
+    {
+        /// todo
+        return nullptr;
+    }
+    const void* getPayload() const noexcept
+    {
+        /// todo
+        return nullptr;
+    }
+
+    int64_t getSequenceNumber() const noexcept
+    {
+        return m_sequenceNumber;
+    }
+
+    bool hasServerError() const noexcept
+    {
+        return m_hasServerError;
+    }
+
+  private:
+    int64_t m_sequenceNumber{0};
+    bool m_hasServerError{false};
+    relative_ptr<ClientChunkQueueData_t> m_destinationQueue;
+};
+
 
 } // namespace popo
 } // namespace iox

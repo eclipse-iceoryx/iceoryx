@@ -36,18 +36,17 @@ ClientPortUser::MemberType_t* ClientPortUser::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::expected<mepoo::ChunkHeader*, AllocationError>
-ClientPortUser::allocateRequest(const uint32_t payloadSize) noexcept
+cxx::expected<RequestHeader*, AllocationError> ClientPortUser::allocateRequest(const uint32_t payloadSize) noexcept
 {
-    return m_chunkSender.allocate(payloadSize, getUniqueID());
+    return cxx::error<AllocationError>(AllocationError::RUNNING_OUT_OF_CHUNKS);
 }
 
-void ClientPortUser::freeRequest(mepoo::ChunkHeader* const chunkHeader) noexcept
+void ClientPortUser::freeRequest(RequestHeader* const requestHeader) noexcept
 {
-    m_chunkSender.release(chunkHeader);
+    /// @todo
 }
 
-void ClientPortUser::sendRequest(mepoo::ChunkHeader* const chunkHeader) noexcept
+void ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
 {
     /// @todo
 }
@@ -67,14 +66,15 @@ ConnectionState ClientPortUser::getConnectionState() const noexcept
     return getMembers()->m_connectionState;
 }
 
-cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> ClientPortUser::getResponse() noexcept
+cxx::expected<cxx::optional<const ResponseHeader*>, ChunkReceiveError> ClientPortUser::getResponse() noexcept
 {
-    return m_chunkReceiver.get();
+    /// @todo
+    return cxx::success<cxx::optional<const ResponseHeader*>>(cxx::nullopt_t());
 }
 
-void ClientPortUser::releaseResponse(const mepoo::ChunkHeader* chunkHeader) noexcept
+void ClientPortUser::releaseResponse(const ResponseHeader* responseHeader) noexcept
 {
-    m_chunkReceiver.release(chunkHeader);
+    /// @todo
 }
 
 bool ClientPortUser::hasNewResponses() noexcept
