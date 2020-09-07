@@ -35,9 +35,9 @@ static void sigHandler(int f_sig[[gnu::unused]])
     killswitch = true;
 }
 
-void getVehiclePosition(Position* allocation)
+void getVehiclePosition(Position* allocation, uint64_t multiplier)
 {
-    new (allocation) Position(1111.1111, 1111.1111, 1111.1111);
+    new (allocation) Position(1111.1111 * multiplier, 1111.1111 * multiplier, 1111.1111* multiplier);
 }
 
 int main(int argc, char *argv[])
@@ -75,14 +75,17 @@ int main(int argc, char *argv[])
                 sample.publish();
             });
 
-        // Provide the logic for populating a sample via a named function.
-        // The sample is then immediately published.
-        // Issue here - the function cannot have any additional arguments... Is there a way ?
-//        typedPublisher.publishResultOf(getVehiclePosition);
-
         // Simple copy-and-publish. Useful for smaller data types.
         auto position = Position(ct * 111.111, ct * 111.111, ct * 111.111);
         typedPublisher.publishCopyOf(position);
+
+        // Samples can be generated within any callable and written directly to the loaned memory
+        // allocation. The first argument of the callable must be T*, this will point to the memory
+        // allocation.
+        typedPublisher.publishResultOf(getVehiclePosition, ct);
+        typedPublisher.publishResultOf([](Position* allocation){
+            new (allocation) Position(0, 0, 0);
+        });
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

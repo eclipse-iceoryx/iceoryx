@@ -27,6 +27,41 @@ using SamplePtr = iox::cxx::unique_ptr<T>;
 
 using uid_t = uint64_t;
 
+// ======================================== Helpers ======================================== //
+
+template<typename Callable, typename... Args>
+struct is_callable {
+
+    // This variant is chosen when Callable(Args) successfully resolves to a valid type, i.e. is callable.
+    template<typename _Callable, typename... _Args>
+    static constexpr std::true_type test(decltype(std::declval<_Callable>()(std::declval<_Args>()...))*)
+    {
+        return {};
+    }
+
+    // This is chosen if Callable(Args) does not resolve to a valid type.
+    template<typename _Callable, typename... _Args>
+    static constexpr std::false_type test(...)
+    {
+        return {};
+    }
+
+    // Test with nullptr as this can stand in for a pointer to any type.
+    static constexpr bool value = decltype(test<Callable, Args...>(nullptr))::value;
+};
+
+template <typename, typename, typename = void>
+struct has_signature : std::false_type {};
+
+template <typename Callable, typename Ret, typename... Args>
+struct has_signature<Callable, Ret(Args...),
+    typename std::enable_if<
+        std::is_convertible<
+            decltype(std::declval<Callable>()(std::declval<Args>()...)),
+            Ret
+        >::value, void>::type>
+    : std::true_type {};
+
 // ======================================== Base Publisher ======================================== //
 
 template<typename T, typename port_t>
@@ -154,22 +189,26 @@ TypedPublisher<T>::publish(Sample<T>& sample) noexcept
     return BasePublisher<T>::publish(sample);
 }
 
-//template<typename T>
-//template<typename Callable, typename... ArgTypes>
-//inline cxx::expected<AllocationError>
-//TypedPublisher<T>::publishResultOf(Callable c, ArgTypes... args) noexcept
-//{
-//    auto result = loan();
-//    if(!result.has_error())
-//    {
-//        auto& sample = result.get_value();
-//        return publish(sample);
-//    }
-//    else
-//    {
-//        return result;
-//    }
-//}
+template<typename T>
+template<typename Callable, typename... ArgTypes>
+inline cxx::expected<AllocationError>
+TypedPublisher<T>::publishResultOf(Callable c, ArgTypes... args) noexcept
+{
+    static_assert(is_callable<Callable, T*, ArgTypes...>::value, "TypedPublisher<T>::publishResultOf expects a valid callable as the first argument");
+    static_assert(has_signature<Callable, void(T*, ArgTypes...)>::value, "callable provided to TypedPublisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
+
+    auto result = loan();
+    if(!result.has_error())
+    {
+        auto& sample = result.get_value();
+        c(sample.get(), args...);
+        return publish(sample);
+    }
+    else
+    {
+        return result;
+    }
+}
 
 template<typename T>
 inline cxx::expected<AllocationError>
