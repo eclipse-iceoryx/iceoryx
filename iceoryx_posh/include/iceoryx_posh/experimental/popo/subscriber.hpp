@@ -91,6 +91,9 @@ public:
     SubscriptionState getSubscriptionState() const noexcept;
     void unsubscribe() noexcept;
 
+
+    bool hasData() const noexcept;
+
     ///
     /// @brief receive Receive the next sample if available.
     /// @return
@@ -129,6 +132,9 @@ public:
 protected:
     BaseSubscriber(const capro::ServiceDescription& service);
 
+protected:
+    bool m_subscriptionRequested;
+
 private:
     recvport_t m_port{nullptr};
 
@@ -148,6 +154,8 @@ public:
     cxx::expected<SubscriberError> subscribe(const uint64_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
     SubscriptionState getSubscriptionState() const noexcept;
     void unsubscribe() noexcept;
+
+    bool hasData() const noexcept;
     cxx::optional<cxx::unique_ptr<T>> receive() noexcept;
 };
 

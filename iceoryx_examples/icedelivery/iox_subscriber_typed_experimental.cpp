@@ -45,14 +45,18 @@ void receiving()
     iox::popo::TypedSubscriber<Position> mySubscriber({"Odometry", "Position", "Vehicle"});
     mySubscriber.subscribe(10);
 
+    // Setting receiver handler
+
+
+    // Polling receiver
     while (!killswitch)
     {
         auto result = mySubscriber.receive();
         if(result.has_value())
         {
-            std::cout << "Got val: " << result->get() << std::endl;
+            auto position = result->get();
+            std::cout << "Got val: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
         }
-        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     mySubscriber.unsubscribe();

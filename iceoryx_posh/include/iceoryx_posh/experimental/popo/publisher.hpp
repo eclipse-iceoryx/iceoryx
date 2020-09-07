@@ -169,7 +169,6 @@ template<typename T>
 class TypedPublisher : protected iox::popo::BasePublisher<T>
 {
 public:
-
     TypedPublisher(const capro::ServiceDescription& service);
     TypedPublisher(const TypedPublisher& other) = delete;
     TypedPublisher& operator=(const TypedPublisher&) = delete;
@@ -182,18 +181,16 @@ public:
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
     void release(Sample<T>& sample) noexcept;
     cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
-    cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept; /// @todo - move to typed API
-    cxx::expected<SampleRecallError> previousSample() const noexcept;
-
-    // This does not quite work yet. Need to understand how to identify generic callables in C++11.
+    cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept;
     template<typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
+
+    cxx::expected<SampleRecallError> previousSample() const noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;
     bool isOffered() noexcept;
     bool hasSubscribers() noexcept;
-
 };
 
 // ======================================== Untyped Publisher ======================================== //
@@ -201,7 +198,6 @@ public:
 class UntypedPublisher : protected iox::popo::BasePublisher<void>
 {
 public:
-
     UntypedPublisher(const capro::ServiceDescription& service);
     UntypedPublisher(const UntypedPublisher& other) = delete;
     UntypedPublisher& operator=(const UntypedPublisher&) = delete;
@@ -220,7 +216,6 @@ public:
     void stopOffer() noexcept;
     bool isOffered() noexcept;
     bool hasSubscribers() noexcept;
-
 };
 
 }

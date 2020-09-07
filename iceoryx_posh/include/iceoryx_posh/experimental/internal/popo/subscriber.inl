@@ -31,7 +31,15 @@ template<typename T, typename recvport_t>
 inline cxx::expected<SubscriberError>
 BaseSubscriber<T, recvport_t>::subscribe(const uint64_t cacheSize) noexcept
 {
-    std::cout << "subscribe" << std::endl;
+    m_subscriptionRequested = true;
+    uint32_t size = cacheSize;
+    if (size > MAX_RECEIVER_QUEUE_CAPACITY)
+    {
+        LogWarn() << "Cache size for subscribe too large " << size
+                  << ", limiting to MAX_RECEIVER_QUEUE_CAPACITY = " << MAX_RECEIVER_QUEUE_CAPACITY;
+        size = MAX_RECEIVER_QUEUE_CAPACITY;
+    }
+    m_port.subscribe(true, size);
     return cxx::success<>();
 }
 
@@ -39,23 +47,58 @@ template<typename T, typename recvport_t>
 inline SubscriptionState
 BaseSubscriber<T, recvport_t>::getSubscriptionState() const noexcept
 {
-    std::cout << "getSubscriptionState" << std::endl;
-    return SubscriptionState::NOT_SUBSCRIBED;
+    if (!m_subscriptionRequested)
+    {
+        return SubscriptionState::NOT_SUBSCRIBED;
+    }
+    else
+    {
+        if (m_port.isSubscribed())
+        {
+            return SubscriptionState::SUBSCRIBED;
+        }
+        else
+        {
+            return SubscriptionState::SUBSCRIPTION_PENDING;
+        }
+    }
 }
 
 template<typename T, typename recvport_t>
 inline void
 BaseSubscriber<T, recvport_t>::unsubscribe() noexcept
 {
-    std::cout << "unsubscribe" << std::endl;
+    m_port.unsubscribe();
+    m_subscriptionRequested = false;
+}
+
+template<typename T, typename recvport_t>
+inline bool
+BaseSubscriber<T, recvport_t>::hasData() const noexcept
+{
+    return m_port.newData();
 }
 
 template<typename T, typename recvport_t>
 inline cxx::optional<cxx::unique_ptr<T>>
 BaseSubscriber<T, recvport_t>::receive() noexcept
 {
-    std::cout << "receive" << std::endl;
-    return cxx::nullopt_t();
+
+    const mepoo::ChunkHeader* header = nullptr;
+    if (m_port.getChunk(header))
+    {
+        return cxx::optional<cxx::unique_ptr<T>>(cxx::unique_ptr<T>(
+                                    reinterpret_cast<T*>(header->payload()),
+                                    [this](T* const p){
+                                        auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
+                                        this->m_port.releaseChunk(header);
+                                    }
+                                ));
+    }
+    else
+    {
+        return cxx::nullopt_t();
+    }
 }
 
 // ======================================== Typed Subscriber ======================================== //
@@ -84,6 +127,13 @@ inline void
 TypedSubscriber<T>::unsubscribe() noexcept
 {
     return BaseSubscriber<T>::unsubscribe();
+}
+
+template<typename T>
+inline bool
+TypedSubscriber<T>::hasData() const noexcept
+{
+    return BaseSubscriber<T>::hasData();
 }
 
 template<typename T>
