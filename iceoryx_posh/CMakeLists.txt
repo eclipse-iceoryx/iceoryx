@@ -84,7 +84,8 @@ add_library(iceoryx_posh
     source/popo/ports/subscriber_port_multi_producer.cpp
     source/popo/ports/subscriber_port_data.cpp
     source/popo/ports/client_port_data.cpp
-    source/popo/ports/client_port_roudi.cpp    
+    source/popo/ports/client_port_roudi.cpp
+    source/popo/ports/client_port_user.cpp        
     source/popo/ports/server_port_data.cpp
     source/popo/ports/server_port_roudi.cpp      
     source/popo/building_blocks/chunk_queue_types.cpp

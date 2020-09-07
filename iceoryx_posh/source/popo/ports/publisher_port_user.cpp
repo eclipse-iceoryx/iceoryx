@@ -20,20 +20,19 @@ namespace popo
 {
 PublisherPortUser::PublisherPortUser(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept
     : BasePort(publisherPortDataPtr)
-    , m_publisherPortDataPtr(publisherPortDataPtr)
-    , m_chunkSender(&m_publisherPortDataPtr->m_chunkSenderData)
+    , m_chunkSender(&getMembers()->m_chunkSenderData)
 
 {
 }
 
 const PublisherPortUser::MemberType_t* PublisherPortUser::getMembers() const noexcept
 {
-    return m_publisherPortDataPtr;
+    return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
 }
 
 PublisherPortUser::MemberType_t* PublisherPortUser::getMembers() noexcept
 {
-    return m_publisherPortDataPtr;
+    return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
 cxx::expected<mepoo::ChunkHeader*, AllocationError>

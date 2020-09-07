@@ -38,6 +38,8 @@ ClientPortRouDi::MemberType_t* ClientPortRouDi::getMembers() noexcept
 
 cxx::optional<capro::CaproMessage> ClientPortRouDi::getCaProMessage() noexcept
 {
+    /// @todo
+
     // nothing to change
     return cxx::nullopt_t();
 }
@@ -45,6 +47,8 @@ cxx::optional<capro::CaproMessage> ClientPortRouDi::getCaProMessage() noexcept
 cxx::optional<capro::CaproMessage>
 ClientPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
 {
+    /// @todo
+    
     capro::CaproMessage responseMessage(
         capro::CaproMessageType::NACK, this->getCaProServiceDescription(), capro::CaproMessageSubType::NOSUBTYPE);
 

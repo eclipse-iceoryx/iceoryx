@@ -20,20 +20,20 @@ namespace iox
 namespace popo
 {
 SubscriberPortUser::SubscriberPortUser(cxx::not_null<MemberType_t* const> subscriberPortDataPtr) noexcept
-    : m_subscriberPortDataPtr(subscriberPortDataPtr)
-    , m_chunkReceiver(&m_subscriberPortDataPtr->m_chunkReceiverData)
+    : BasePort(subscriberPortDataPtr)
+    , m_chunkReceiver(&getMembers()->m_chunkReceiverData)
 
 {
 }
 
 const SubscriberPortUser::MemberType_t* SubscriberPortUser::getMembers() const noexcept
 {
-    return m_subscriberPortDataPtr;
+    return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
 }
 
 SubscriberPortUser::MemberType_t* SubscriberPortUser::getMembers() noexcept
 {
-    return m_subscriberPortDataPtr;
+    return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
 

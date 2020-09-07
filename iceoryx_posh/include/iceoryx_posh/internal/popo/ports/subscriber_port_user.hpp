@@ -16,6 +16,7 @@
 #define IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -32,7 +33,7 @@ namespace popo
 /// The SubscriberPortUser uses the functionality of a ChunkReceiver for receiving shared memory chunks. Additionally it
 /// provides the subscribe / unsubscribe API which controls whether the subscriber ports shall try to subscribe to
 /// matching publisher ports
-class SubscriberPortUser
+class SubscriberPortUser : public BasePort
 {
   public:
     using MemberType_t = SubscriberPortData;
@@ -95,8 +96,6 @@ class SubscriberPortUser
   private:
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
-
-    MemberType_t* m_subscriberPortDataPtr;
 
     ChunkReceiver<SubscriberPortData::ChunkReceiverData_t> m_chunkReceiver;
 };
