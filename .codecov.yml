@@ -17,4 +17,4 @@ coverage:
         enabled: yes
         target: auto # auto % coverage target
         threshold: 100%  # we allow here 100% change to unblock PRs (will be set later)
-    changes: yes
+    changes: no
