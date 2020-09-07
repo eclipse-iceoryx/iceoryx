@@ -29,9 +29,10 @@ void Subscriber_releaseChunk(CLASS SubscriberPortData* const self, const void* c
 void Subscriber_releaseQueuedChunks(CLASS SubscriberPortData* const self);
 bool Subscriber_hasNewChunks(CLASS SubscriberPortData* const self);
 bool Subscriber_hasLostChunks(CLASS SubscriberPortData* const self);
-void Subscriber_attachConditionVariable(CLASS SubscriberPortData* const self);
-void Subscriber_detachConditionVariable(CLASS SubscriberPortData* const self);
-bool Subscriber_isConditionVariableAttached(CLASS SubscriberPortData* const self);
+bool Subscriber_attachConditionVariable(CLASS SubscriberPortData* const self);
+bool Subscriber_detachConditionVariable(CLASS SubscriberPortData* const self);
+bool Subscriber_isConditionVariableAttached(CLASS SubscriberPortData* const self,
+                                            CLASS ConditionVariableData* const cvHandle);
 
 #endif
 

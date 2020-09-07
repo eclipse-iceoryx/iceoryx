@@ -1,6 +1,5 @@
 
 # Contents
-- [Contents](#contents)
 - [Configuring RouDi](#configuring-roudi)
 
 # Configuring RouDi
@@ -10,7 +9,7 @@ To build the feature, the cmake option `-DTOML_CONFIG=on` must be used.
 
 The file must be passed to RouDi with the `-c` command line option.
 ```
-./RouDi -c /absolute/path/to/config/file.toml
+./iox-roudi -c /absolute/path/to/config/file.toml
 ```
 
 RouDi support several shared memory segments with different access right, to limit the read and write access between different applications.

@@ -203,7 +203,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareInterfaceInterfacelistOverflow)
 
 TEST_F(PoshRuntime_test, SendRequestToRouDiValidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_runtimeName
+    m_sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_runnableName;
 
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
@@ -215,7 +215,7 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiValidMessage)
 
 TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
 {
-    m_sendBuffer << mqMessageTypeToString(MqMessageType::IMPL_INTERFACE) << m_runtimeName
+    m_sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_runtimeName
                  << static_cast<uint32_t>(iox::capro::Interfaces::INTERNAL) << m_invalidRunnableName;
 
     const auto successfullySent = m_runtime->sendRequestToRouDi(m_sendBuffer, m_receiveBuffer);
@@ -324,6 +324,37 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiverReceiverlistOverflow)
     EXPECT_TRUE(receiverlistOverflowDetected);
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
+{
+    auto conditionVariable = m_runtime->getMiddlewareConditionVariable();
+
+    ASSERT_NE(nullptr, conditionVariable);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
+{
+    auto conditionVariableListOverflowDetected{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&conditionVariableListOverflowDetected](
+            const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            if (error == iox::Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW)
+            {
+                conditionVariableListOverflowDetected = true;
+            }
+        });
+
+
+    for (uint32_t i = 0u; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
+    {
+        auto conditionVariable = m_runtime->getMiddlewareConditionVariable();
+        ASSERT_NE(nullptr, conditionVariable);
+    }
+    EXPECT_FALSE(conditionVariableListOverflowDetected);
+
+    auto conditionVariable = m_runtime->getMiddlewareConditionVariable();
+    EXPECT_EQ(nullptr, conditionVariable);
+    EXPECT_TRUE(conditionVariableListOverflowDetected);
+}
 
 TIMING_TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounterOfferStopOfferService, Repeat(5), [&] {
     auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();

@@ -14,7 +14,7 @@
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 
-#include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
+#include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -35,16 +35,16 @@ void IceOryxRouDiApp::run() noexcept
         static cxx::optional<IceOryxRouDiComponents> m_rouDiComponents;
         auto componentsScopeGuard = cxx::makeScopedStatic(m_rouDiComponents, m_config);
 
-        /// @todo Rename RouDiMultiProcesss to something sane
-        static cxx::optional<RouDiMultiProcess> roudi;
+        static cxx::optional<RouDi> roudi;
         auto roudiScopeGuard = cxx::makeScopedStatic(roudi,
                                                      m_rouDiComponents.value().m_rouDiMemoryManager,
                                                      m_rouDiComponents.value().m_portManager,
                                                      m_monitoringMode,
-                                                     true);
+                                                     true,
+                                                     RouDi::MQThreadStart::IMMEDIATE,
+                                                     m_compatibilityCheckLevel);
         waitForSignal();
     }
 }
 } // namespace roudi
 } // namespace iox
-

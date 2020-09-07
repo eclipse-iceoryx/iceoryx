@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
+#include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_property.hpp"
@@ -26,16 +26,17 @@ namespace iox
 {
 namespace roudi
 {
-RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
-                                     PortManager& portManager,
-                                     const MonitoringMode monitoringMode,
-                                     const bool killProcessesInDestructor,
-                                     const MQThreadStart mqThreadStart)
+RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
+             PortManager& portManager,
+             const MonitoringMode monitoringMode,
+             const bool killProcessesInDestructor,
+             const MQThreadStart mqThreadStart,
+             const version::CompatibilityCheckLevel compatibilityCheckLevel)
     : m_killProcessesInDestructor(killProcessesInDestructor)
     , m_runThreads(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
-    , m_prcMgr(*m_roudiMemoryInterface, portManager)
+    , m_prcMgr(*m_roudiMemoryInterface, portManager, compatibilityCheckLevel)
     , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
                                   .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
                              *m_roudiMemoryInterface->segmentManager().value(),
@@ -52,27 +53,27 @@ RouDiMultiProcess::RouDiMultiProcess(RouDiMemoryInterface& roudiMemoryInterface,
     m_processIntrospection.addProcess(getpid(), MQ_ROUDI_NAME);
 
     // run the threads
-    m_processManagementThread = std::thread(&RouDiMultiProcess::processThread, this);
+    m_processManagementThread = std::thread(&RouDi::processThread, this);
     pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
 
-    if(mqThreadStart == MQThreadStart::IMMEDIATE) {
+    if (mqThreadStart == MQThreadStart::IMMEDIATE)
+    {
         startMQThread();
     }
-
 }
 
-RouDiMultiProcess::~RouDiMultiProcess()
+RouDi::~RouDi()
 {
     shutdown();
 }
 
-void RouDiMultiProcess::startMQThread() 
+void RouDi::startMQThread()
 {
-    m_processMQThread = std::thread(&RouDiMultiProcess::mqThread, this);
+    m_processMQThread = std::thread(&RouDi::mqThread, this);
     pthread_setname_np(m_processMQThread.native_handle(), "MQ-processing");
 }
 
-void RouDiMultiProcess::shutdown()
+void RouDi::shutdown()
 {
     m_processIntrospection.stop();
     m_portManager->stopPortIntrospection();
@@ -98,12 +99,12 @@ void RouDiMultiProcess::shutdown()
     }
 }
 
-void RouDiMultiProcess::cyclicUpdateHook()
+void RouDi::cyclicUpdateHook()
 {
     // default implementation; do nothing
 }
 
-void RouDiMultiProcess::processThread()
+void RouDi::processThread()
 {
     while (m_runThreads)
     {
@@ -113,7 +114,7 @@ void RouDiMultiProcess::processThread()
     }
 }
 
-void RouDiMultiProcess::mqThread()
+void RouDi::mqThread()
 {
     runtime::MqInterfaceCreator roudiMqInterface{MQ_ROUDI_NAME};
 
@@ -140,31 +141,31 @@ void RouDiMultiProcess::mqThread()
     }
 }
 
-void RouDiMultiProcess::parseRegisterMessage(const runtime::MqMessage& message,
-                                             int& pid,
-                                             uid_t& userId,
-                                             int64_t& transmissionTimestamp)
+version::VersionInfo
+RouDi::parseRegisterMessage(const runtime::MqMessage& message, int& pid, uid_t& userId, int64_t& transmissionTimestamp)
 {
     cxx::convert::fromString(message.getElementAtIndex(2).c_str(), pid);
     cxx::convert::fromString(message.getElementAtIndex(3).c_str(), userId);
     cxx::convert::fromString(message.getElementAtIndex(4).c_str(), transmissionTimestamp);
+    cxx::Serialization serializationVersionInfo(message.getElementAtIndex(5));
+    return serializationVersionInfo;
 }
 
 
-void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
-                                       const iox::runtime::MqMessageType& cmd,
-                                       const std::string& processName)
+void RouDi::processMessage(const runtime::MqMessage& message,
+                           const iox::runtime::MqMessageType& cmd,
+                           const std::string& processName)
 {
     switch (cmd)
     {
     case runtime::MqMessageType::SERVICE_REGISTRY_CHANGE_COUNTER:
     {
-        m_prcMgr.sendServiceRegistryChangeCounterToProcess(processName);
+        m_prcMgr.sendServiceRegistryChangeCounterToProcess(ProcessName_t(cxx::TruncateToCapacity, processName));
         break;
     }
     case runtime::MqMessageType::REG:
     {
-        if (message.getNumberOfElements() != 5)
+        if (message.getNumberOfElements() != 6)
         {
             LogError() << "Wrong number of parameter for \"MqMessageType::REG\" from \"" << processName
                        << "\"received!";
@@ -174,18 +175,18 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
             int pid;
             uid_t userId;
             int64_t transmissionTimestamp;
+            version::VersionInfo versionInfo = parseRegisterMessage(message, pid, userId, transmissionTimestamp);
 
-            parseRegisterMessage(message, pid, userId, transmissionTimestamp);
-
-            registerProcess(processName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess());
+            registerProcess(
+                processName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess(), versionInfo);
         }
         break;
     }
-    case runtime::MqMessageType::IMPL_SENDER:
+    case runtime::MqMessageType::CREATE_SENDER:
     {
         if (message.getNumberOfElements() != 5)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::IMPL_SENDER\" from \"" << processName
+            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_SENDER\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -193,18 +194,18 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
 
-            m_prcMgr.addSenderForProcess(processName,
+            m_prcMgr.addSenderForProcess(ProcessName_t(cxx::TruncateToCapacity, processName),
                                          service,
-                                         message.getElementAtIndex(3),
+                                         RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
                                          iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }
-    case runtime::MqMessageType::IMPL_RECEIVER:
+    case runtime::MqMessageType::CREATE_RECEIVER:
     {
         if (message.getNumberOfElements() != 5)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::IMPL_RECEIVER\" from \"" << processName
+            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_RECEIVER\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -212,38 +213,56 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
             capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
             cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
 
-            m_prcMgr.addReceiverForProcess(processName,
+            m_prcMgr.addReceiverForProcess(ProcessName_t(cxx::TruncateToCapacity, processName),
                                            service,
-                                           message.getElementAtIndex(3),
+                                           RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
                                            iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }
-    case runtime::MqMessageType::IMPL_INTERFACE:
-    {
-        if (message.getNumberOfElements() != 4)
-        {
-            LogError() << "Wrong number of parameter for \"MqMessageType::IMPL_INTERFACE\" from \"" << processName
-                       << "\"received!";
-        }
-        else
-        {
-            capro::Interfaces interface = StringToCaProInterface(message.getElementAtIndex(2));
-
-            m_prcMgr.addInterfaceForProcess(processName, interface, message.getElementAtIndex(3));
-        }
-        break;
-    }
-    case runtime::MqMessageType::IMPL_APPLICATION:
+    case runtime::MqMessageType::CREATE_CONDITION_VARIABLE:
     {
         if (message.getNumberOfElements() != 2)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::IMPL_APPLICATION\" from \"" << processName
+            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_CONDITION_VARIABLE\" from \""
+                       << processName << "\"received!";
+            errorHandler(
+                Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::MODERATE);
+        }
+        else
+        {
+            m_prcMgr.addConditionVariableForProcess(ProcessName_t(iox::cxx::TruncateToCapacity, processName));
+        }
+        break;
+    }
+    case runtime::MqMessageType::CREATE_INTERFACE:
+    {
+        if (message.getNumberOfElements() != 4)
+        {
+            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_INTERFACE\" from \"" << processName
                        << "\"received!";
         }
         else
         {
-            m_prcMgr.addApplicationForProcess(processName);
+            capro::Interfaces interface =
+                StringToCaProInterface(capro::IdString(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
+
+            m_prcMgr.addInterfaceForProcess(ProcessName_t(cxx::TruncateToCapacity, processName),
+                                            interface,
+                                            RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
+        }
+        break;
+    }
+    case runtime::MqMessageType::CREATE_APPLICATION:
+    {
+        if (message.getNumberOfElements() != 2)
+        {
+            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_APPLICATION\" from \"" << processName
+                       << "\"received!";
+        }
+        else
+        {
+            m_prcMgr.addApplicationForProcess(ProcessName_t(iox::cxx::TruncateToCapacity, processName));
         }
         break;
     }
@@ -256,8 +275,10 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            runtime::RunnableProperty runnableProperty(message.getElementAtIndex(2));
-            m_prcMgr.addRunnableForProcess(processName, runnableProperty.m_name);
+            runtime::RunnableProperty runnableProperty(
+                RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
+            m_prcMgr.addRunnableForProcess(ProcessName_t(cxx::TruncateToCapacity, processName),
+                                           runnableProperty.m_name);
         }
         break;
     }
@@ -270,42 +291,48 @@ void RouDiMultiProcess::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
+            capro::ServiceDescription service(
+                cxx::Serialization(cxx::CString100(cxx::TruncateToCapacity, message.getElementAtIndex(2))));
 
-            m_prcMgr.findServiceForProcess(processName, service);
+            m_prcMgr.findServiceForProcess(ProcessName_t(cxx::TruncateToCapacity, processName), service);
         }
         break;
     }
     case runtime::MqMessageType::KEEPALIVE:
     {
-        m_prcMgr.updateLivlinessOfProcess(processName);
+        m_prcMgr.updateLivelinessOfProcess(ProcessName_t(cxx::TruncateToCapacity, processName));
         break;
     }
     default:
     {
         LogError() << "Unknown MQ Command [" << runtime::mqMessageTypeToString(cmd) << "]";
 
-        m_prcMgr.sendMessageNotSupportedToRuntime(processName);
+        m_prcMgr.sendMessageNotSupportedToRuntime(ProcessName_t(cxx::TruncateToCapacity, processName));
         break;
     }
     }
 }
 
-bool RouDiMultiProcess::registerProcess(
-    const std::string& name, int pid, posix::PosixUser user, int64_t transmissionTimestamp, const uint64_t sessionId)
+bool RouDi::registerProcess(const std::string& name,
+                            int pid,
+                            posix::PosixUser user,
+                            int64_t transmissionTimestamp,
+                            const uint64_t sessionId,
+                            const version::VersionInfo& versionInfo)
 {
     bool monitorProcess = (m_monitoringMode == MonitoringMode::ON);
-
-    return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId);
+    auto truncatedName = ProcessName_t(cxx::TruncateToCapacity, name);
+    return m_prcMgr.registerProcess(
+        truncatedName, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo);
 }
 
-uint64_t RouDiMultiProcess::getUniqueSessionIdForProcess()
+uint64_t RouDi::getUniqueSessionIdForProcess()
 {
     static uint64_t sessionId = 0;
     return ++sessionId;
 }
 
-void RouDiMultiProcess::mqMessageErrorHandler()
+void RouDi::mqMessageErrorHandler()
 {
 }
 

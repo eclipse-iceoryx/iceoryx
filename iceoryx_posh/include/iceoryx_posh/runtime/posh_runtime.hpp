@@ -151,6 +151,9 @@ class PoshRuntime
 
     ReceiverPortType::MemberType_t* requestReceiverFromRoudi(const MqMessage& sendBuffer) noexcept;
 
+    cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
+    requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept;
+
     /// @brief checks the given application name for certain constraints like length(100 chars) or leading slash
     /// @todo replace length check with fixedstring when its integrated
     const std::string& verifyInstanceName(const std::string& name) noexcept;
