@@ -59,6 +59,7 @@ public:
     BaseSubscriber& operator=(BaseSubscriber&& rhs) = default;
     ~BaseSubscriber() = default;
 
+    capro::ServiceDescription getServiceDescription() const noexcept;
     uid_t uid() const noexcept;
 
     ///
@@ -72,6 +73,10 @@ public:
     /// @brief subscribe
     /// @param cb A callable with the signature void(unique_ptr<T>) to be used to process incoming data
     /// @param cacheSize
+    ///
+    /// @details The provided callback should be as simple as possible to prevent backing up the receive thread. If more
+    /// costly processing is required, the callback should delegate this to a separate thread.
+    ///
     /// @return
     ///
     template<typename Callback>
@@ -91,7 +96,10 @@ public:
     SubscriptionState getSubscriptionState() const noexcept;
     void unsubscribe() noexcept;
 
-
+    ///
+    /// @brief hasData Check if sample is available.
+    /// @return True if a new sample is available.
+    ///
     bool hasData() const noexcept;
 
     ///
@@ -100,24 +108,34 @@ public:
     ///
     cxx::optional<cxx::unique_ptr<T>> receive() noexcept;
 
-    // capro::ServiceDescription getServiceDescription() const noexcept;
+    ///
+    /// @brief clearReceiveBuffer Releases all unread items in the receive buffer.
+    ///
+    void clearReceiveBuffer() noexcept;
 
-    // These need to be modernized.
-    // bool getChunk(const mepoo::ChunkHeader** chunkHeader) noexcept;
-    // bool getChunk(const void** payload) noexcept;
-    // void deleteNewChunks() noexcept;
-    // bool releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept;
-    // bool releaseChunk(const void* const payload) noexcept;
-    // bool hasNewChunks() const noexcept;
+    ///
+    /// @brief setCallback Sets a callback to execute on the received data
+    /// @param cb Callback to execute
+    ///
+    template<typename Callback>
+    void setCallback(Callback cb) noexcept;
 
-    // Do we still want this functionality ?
-    //
-    // void setReceiveHandler(ReceiveHandler_t handler) noexcept;
-    // void unsetReceiveHandler() noexcept;
-    // void overrideCallbackReference(const Subscriber_t& receiverWithRererenceToUse) noexcept;
+    ///
+    /// @brief setCallback Sets a callback to execute on the received data if the provided predicate evaluates to true
+    /// @param cb Callback to execute
+    /// @param p A predicate to evaluate with each incoming data point
+    ///
+    template<typename Callback, typename Predicate>
+    void setCallback(Callback cb, Predicate p) noexcept;
+
+    ///
+    /// @brief unsetCallback
+    ///
+    void unsetCallback() noexcept;
 
     // Are these functions still relevant with the new API ?
     //
+    // void overrideCallbackReference(const Subscriber_t& receiverWithRererenceToUse) noexcept;
     // posix::Semaphore* getSemaphore() const noexcept;
     // void setChunkReceiveSemaphore(posix::Semaphore* semaphore) noexcept;
     // bool isChunkReceiveSemaphoreSet() noexcept;
@@ -128,6 +146,12 @@ public:
     //
     // bool waitForChunk(const uint32_t timeoutMs) noexcept;
     // bool tryWaitForChunk() noexcept;
+
+    // ===== Discard Pile ===== //
+    //
+    // bool getChunk(const mepoo::ChunkHeader** chunkHeader) noexcept;
+    // bool releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept;
+    // bool releaseChunk(const void* const payload) noexcept;
 
 protected:
     BaseSubscriber(const capro::ServiceDescription& service);

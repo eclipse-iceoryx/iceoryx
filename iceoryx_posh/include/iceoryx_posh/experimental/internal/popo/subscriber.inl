@@ -101,6 +101,14 @@ BaseSubscriber<T, recvport_t>::receive() noexcept
     }
 }
 
+template<typename T, typename recvport_t>
+inline void
+BaseSubscriber<T, recvport_t>::clearReceiveBuffer() noexcept
+{
+    m_port.clearDeliveryFiFo();
+}
+
+
 // ======================================== Typed Subscriber ======================================== //
 
 template<typename T>
@@ -141,6 +149,13 @@ inline cxx::optional<cxx::unique_ptr<T>>
 TypedSubscriber<T>::receive() noexcept
 {
     return BaseSubscriber<T>::receive();
+}
+
+template<typename T>
+inline void
+TypedSubscriber<T>::clearReceiveBuffer() noexcept
+{
+    BaseSubscriber<T>::clearReceiveBuffer();
 }
 
 // ======================================== Untyped Subscriber ======================================== //
