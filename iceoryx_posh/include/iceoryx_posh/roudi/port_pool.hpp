@@ -56,7 +56,7 @@ class PortPool
     virtual cxx::vector<PublisherPortUserType::MemberType_t*, MAX_PORT_NUMBER> publisherPortUserList() noexcept = 0;
     virtual cxx::vector<SubscriberPortUserType::MemberType_t*, MAX_PORT_NUMBER> subscriberPortUserList() noexcept = 0;
     cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> interfacePortDataList() noexcept;
-    cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> appliactionPortDataList() noexcept;
+    cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> applicationPortDataList() noexcept;
     cxx::vector<runtime::RunnableData*, MAX_RUNNABLE_NUMBER> runnableDataList() noexcept;
 
     virtual cxx::expected<SenderPortType::MemberType_t*, PortPoolError>

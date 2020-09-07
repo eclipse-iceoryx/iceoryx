@@ -30,7 +30,7 @@ cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> PortPool::interfaceP
     return m_portPoolDataBase->m_interfacePortMembers.content();
 }
 
-cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> PortPool::appliactionPortDataList() noexcept
+cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> PortPool::applicationPortDataList() noexcept
 {
     return m_portPoolDataBase->m_applicationPortMembers.content();
 }
@@ -72,10 +72,8 @@ PortPool::addApplicationPort(const std::string& applicationName) noexcept
     }
 }
 
-cxx::expected<runtime::RunnableData*, PortPoolError>
-PortPool::addRunnableData(const ProcessName_t& process,
-                          const RunnableName_t& runnable,
-                          const uint64_t runnableDeviceIdentifier) noexcept
+cxx::expected<runtime::RunnableData*, PortPoolError> PortPool::addRunnableData(
+    const ProcessName_t& process, const RunnableName_t& runnable, const uint64_t runnableDeviceIdentifier) noexcept
 {
     if (m_portPoolDataBase->m_runnableMembers.hasFreeSpace())
     {

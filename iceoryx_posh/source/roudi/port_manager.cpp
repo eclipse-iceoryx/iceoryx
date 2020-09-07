@@ -244,7 +244,7 @@ void PortManager::handleApplications()
 {
     capro::CaproMessage caproMessage;
 
-    for (auto applicationPortData : m_portPool->appliactionPortDataList())
+    for (auto applicationPortData : m_portPool->applicationPortDataList())
     {
         iox::popo::ApplicationPort applicationPort(applicationPortData);
 
@@ -426,7 +426,7 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName)
         }
     }
 
-    for (auto port : m_portPool->appliactionPortDataList())
+    for (auto port : m_portPool->applicationPortDataList())
     {
         popo::ApplicationPort application(port);
         if (processName == application.getProcessName())
