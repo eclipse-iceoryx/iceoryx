@@ -14,8 +14,7 @@
 #ifndef IOX_POSH_RUNTIME_RUNNABLE_PROPERTY_HPP
 #define IOX_POSH_RUNTIME_RUNNABLE_PROPERTY_HPP
 
-#include "iceoryx_utils/fixed_string/string100.hpp"
-#include <string>
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox
 {
@@ -28,7 +27,7 @@ struct RunnableProperty
     /// @brief constructor
     /// @param[in] name name of the runnable
     /// @param[in] runnableDeviceIdentifier identifier of the device on which the runnable will run
-    RunnableProperty(const iox::cxx::CString100& name, const uint64_t runnableDeviceIdentifier) noexcept;
+    RunnableProperty(const iox::RunnableName_t& name, const uint64_t runnableDeviceIdentifier) noexcept;
 
     /// @brief serialization constructor, used by the message queue message to create RunnableProperty
     ///         from a received message
@@ -38,7 +37,7 @@ struct RunnableProperty
     /// @brief string conversion operator
     operator std::string() const noexcept;
 
-    cxx::CString100 m_name;
+    iox::RunnableName_t m_name;
     uint64_t m_runnableDeviceIdentifier;
 };
 } // namespace runtime

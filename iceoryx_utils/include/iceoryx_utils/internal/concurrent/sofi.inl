@@ -18,18 +18,18 @@ namespace iox
 {
 namespace concurrent
 {
-template <class ValueType, uint32_t CapacityValue>
+template <class ValueType, uint64_t CapacityValue>
 SoFi<ValueType, CapacityValue>::SoFi() noexcept
 {
 }
 
-template <class ValueType, uint32_t CapacityValue>
+template <class ValueType, uint64_t CapacityValue>
 uint64_t SoFi<ValueType, CapacityValue>::capacity() const noexcept
 {
     return m_size - INTERNAL_SIZE_ADD_ON;
 }
 
-template <class ValueType, uint32_t CapacityValue>
+template <class ValueType, uint64_t CapacityValue>
 uint64_t SoFi<ValueType, CapacityValue>::size() const noexcept
 {
     uint64_t readPosition;
@@ -44,8 +44,8 @@ uint64_t SoFi<ValueType, CapacityValue>::size() const noexcept
     return writePosition - readPosition;
 }
 
-template <class ValueType, uint32_t CapacityValue>
-bool SoFi<ValueType, CapacityValue>::resize(const uint32_t newSize) noexcept
+template <class ValueType, uint64_t CapacityValue>
+bool SoFi<ValueType, CapacityValue>::setCapacity(const uint64_t newSize) noexcept
 {
     uint64_t newInternalSize = newSize + INTERNAL_SIZE_ADD_ON;
     if (empty() && (newInternalSize <= INTERNAL_SOFI_SIZE))
@@ -61,7 +61,7 @@ bool SoFi<ValueType, CapacityValue>::resize(const uint32_t newSize) noexcept
     return false;
 }
 
-template <class ValueType, uint32_t CapacityValue>
+template <class ValueType, uint64_t CapacityValue>
 bool SoFi<ValueType, CapacityValue>::empty() const noexcept
 {
     uint64_t currentReadPosition;
@@ -81,13 +81,13 @@ bool SoFi<ValueType, CapacityValue>::empty() const noexcept
     return isEmpty;
 }
 
-template <class ValueType, uint32_t CapacityValue>
+template <class ValueType, uint64_t CapacityValue>
 bool SoFi<ValueType, CapacityValue>::pop(ValueType& valueOut) noexcept
 {
     return popIf(valueOut, [](ValueType) { return true; });
 }
 
-template <class ValueType, uint32_t CapacityValue>
+template <class ValueType, uint64_t CapacityValue>
 template <typename Verificator_T>
 inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Verificator_T& verificator) noexcept
 {
@@ -138,7 +138,7 @@ inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Ver
     return popWasSuccessful;
 }
 
-template <class ValueType, uint32_t CapacityValue>
+template <class ValueType, uint64_t CapacityValue>
 bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueOut, ValueType& f_paramOut_r) noexcept
 {
     constexpr bool SOFI_OVERFLOW{false};

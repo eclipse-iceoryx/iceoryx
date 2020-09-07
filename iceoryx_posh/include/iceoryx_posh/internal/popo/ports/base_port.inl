@@ -14,8 +14,6 @@
 #ifndef IOX_POSH_POPO_PORTS_BASE_PORT_INL
 #define IOX_POSH_POPO_PORTS_BASE_PORT_INL
 
-#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
-
 namespace iox
 {
 namespace popo

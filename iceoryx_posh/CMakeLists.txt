@@ -75,26 +75,23 @@ add_library(iceoryx_posh
     source/popo/ports/application_port_data.cpp
     source/popo/ports/base_port_data.cpp
     source/popo/ports/base_port.cpp
+    source/popo/ports/publisher_port_data.cpp
     source/popo/ports/publisher_port_user.cpp
     source/popo/ports/publisher_port_roudi.cpp
-    source/popo/ports/publisher_port_data.cpp
     source/popo/ports/subscriber_port_user.cpp
     source/popo/ports/subscriber_port_roudi.cpp
     source/popo/ports/subscriber_port_single_producer.cpp
     source/popo/ports/subscriber_port_multi_producer.cpp
     source/popo/ports/subscriber_port_data.cpp
-    source/popo/building_blocks/chunk_distributor_data.cpp
-    source/popo/building_blocks/chunk_queue_pusher.cpp
-    source/popo/building_blocks/chunk_queue_popper.cpp
-    source/popo/building_blocks/chunk_queue_data.cpp
     source/popo/building_blocks/chunk_queue_types.cpp
-    source/popo/building_blocks/chunk_receiver.cpp
-    source/popo/building_blocks/chunk_receiver_data.cpp
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
+    source/popo/building_blocks/locking_policy.cpp
+    source/popo/building_blocks/typed_unique_id.cpp
     source/popo/condition.cpp
     source/popo/guard_condition.cpp
     source/popo/wait_set.cpp
+    source/version/version_info.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
     source/runtime/port_config_info.cpp
@@ -130,6 +127,7 @@ target_include_directories(iceoryx_posh
     source/log
     source/mepoo
     source/popo
+    source/version
     source/runtime
 )
 target_link_libraries(iceoryx_posh
@@ -172,7 +170,7 @@ add_library(iceoryx_posh_roudi
     source/roudi/roudi_config.cpp
     source/roudi/roudi_cmd_line_parser.cpp
     source/roudi/roudi_cmd_line_parser_config_file_option.cpp
-    source/roudi/roudi_multi_process.cpp
+    source/roudi/roudi.cpp
     source/roudi/roudi_lock.cpp
     source/roudi/roudi_process.cpp
     source/roudi/service_registry.cpp
@@ -195,6 +193,7 @@ endif(PERFORM_CLANG_TIDY)
 
 target_include_directories(iceoryx_posh_roudi PRIVATE
     source/runtime
+    source/version
     source/popo
     source/capro
     source/roudi

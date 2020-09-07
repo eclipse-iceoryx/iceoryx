@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "mocks/chunk_mock.hpp"
 #include "mocks/receiverport_mock.hpp"
 #include "mocks/senderport_mock.hpp"
@@ -120,6 +121,8 @@ class PortIntrospection_test : public Test
         return true;
     }
 
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     std::shared_ptr<SenderPort_MOCK::mock_t> m_senderPortImpl_mock;
     std::shared_ptr<SenderPort_MOCK::mock_t> m_portThroughput_mock;
     std::shared_ptr<SenderPort_MOCK::mock_t> m_receiverPortData_mock;

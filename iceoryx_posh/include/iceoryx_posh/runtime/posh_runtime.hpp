@@ -129,11 +129,6 @@ class PoshRuntime
     /// @return true if sucessful request/response, false on error
     bool sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept;
 
-    /// @brief sends a message to the RouDi daemon
-    /// @param[in] msg request message to send
-    /// @return true if sucessful send message, false on error
-    bool sendMessageToRouDi(const MqMessage& msg) noexcept;
-
   public:
     PoshRuntime(const PoshRuntime&) = delete;
     PoshRuntime& operator=(const PoshRuntime&) = delete;
@@ -155,6 +150,9 @@ class PoshRuntime
     requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept;
 
     ReceiverPortType::MemberType_t* requestReceiverFromRoudi(const MqMessage& sendBuffer) noexcept;
+
+    cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
+    requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept;
 
     /// @brief checks the given application name for certain constraints like length(100 chars) or leading slash
     /// @todo replace length check with fixedstring when its integrated

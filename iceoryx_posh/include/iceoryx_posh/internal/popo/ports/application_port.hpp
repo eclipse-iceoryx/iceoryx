@@ -34,8 +34,14 @@ class ApplicationPort : public BasePort
     ApplicationPort& operator=(ApplicationPort&& other) = default;
     ~ApplicationPort() = default;
 
-    bool dispatchCaProMessage(const capro::CaproMessage& message) noexcept;
-    bool getCaProMessage(capro::CaproMessage& message) noexcept;
+
+    /// @brief get an optional CaPro message that was provided by the application
+    /// @return CaPro message, empty optional if no new messages
+    cxx::optional<capro::CaproMessage> getCaProMessage() noexcept;
+
+    /// @brief dispatch a CaPro message from the application side to the daemon
+    /// @param[in] caProMessage
+    void dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept;
 
   private:
     const MemberType_t* getMembers() const noexcept;

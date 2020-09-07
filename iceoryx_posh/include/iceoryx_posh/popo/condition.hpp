@@ -40,12 +40,12 @@ class Condition
   private:
     friend class WaitSet;
     /// @brief User interface for specific attach of condition variable
-    virtual bool setConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept = 0;
+    virtual bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept = 0;
     /// @brief User interface for specific detach of condition variable
     virtual bool unsetConditionVariable() noexcept = 0;
 
     /// @brief Called by a WaitSet to announce the condition variable pointer that usually lives in shared memory
-    bool attachConditionVariable(ConditionVariableData* const ConditionVariableDataPtr) noexcept;
+    bool attachConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept;
     /// @brief Called when removing the condition from a WaitSet
     bool detachConditionVariable() noexcept;
 

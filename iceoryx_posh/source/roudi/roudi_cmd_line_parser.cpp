@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_versions.hpp"
 
 #include "iceoryx_utils/platform/getopt.hpp"
@@ -29,13 +30,15 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
                                       {"version", no_argument, nullptr, 'v'},
                                       {"monitoring-mode", required_argument, nullptr, 'm'},
                                       {"log-level", required_argument, nullptr, 'l'},
+                                      {"ignore-version", required_argument, nullptr, 'i'},
+                                      {"unique-roudi-id", required_argument, nullptr, 'u'},
                                       {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* shortOptions = "hvm:l:";
+    constexpr const char* shortOptions = "hvm:l:u:";
     int32_t index;
     int32_t opt{-1};
-    while (opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1)
+    while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1))
     {
         switch (opt)
         {
@@ -44,6 +47,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             std::cout << "Options:" << std::endl;
             std::cout << "-h, --help                        Display help." << std::endl;
             std::cout << "-v, --version                     Display version." << std::endl;
+            std::cout << "-u, --unique-roudi-id <INT>       Set the unique RouDi id." << std::endl;
             std::cout << "-m, --monitoring-mode <MODE>      Set process alive monitoring mode." << std::endl;
             std::cout << "                                  <MODE> {on, off}" << std::endl;
             std::cout << "                                  default = 'on'" << std::endl;
@@ -52,14 +56,36 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             std::cout << "-l, --log-level <LEVEL>           Set log level." << std::endl;
             std::cout << "                                  <LEVEL> {off, fatal, error, warning, info, debug, verbose}"
                       << std::endl;
+            std::cout << "-c, --compatibility               Set compatibility check level between runtime and RouDi"
+                      << std::endl;
+            std::cout << "                                  off: no check" << std::endl;
+            std::cout << "                                  major: same major version " << std::endl;
+            std::cout << "                                  minor: same minor version + major check" << std::endl;
+            std::cout << "                                  patch: same patch version + minor check" << std::endl;
+            std::cout << "                                  commitId: same commit ID + patch check" << std::endl;
+            std::cout << "                                  buildDate: same build date + commId check" << std::endl;
             m_run = false;
             break;
         case 'v':
             std::cout << "RouDi version: " << ICEORYX_LATEST_RELEASE_VERSION << std::endl;
             std::cout << "Build date: " << ICEORYX_BUILDDATE << std::endl;
+            std::cout << "Commit ID: " << ICEORYX_SHA1 << std::endl;
             m_run = false;
             break;
 
+        case 'u':
+        {
+            uint16_t roudiId{0u};
+            constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
+            if (!cxx::convert::fromString(optarg, roudiId))
+            {
+                LogError() << "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]";
+                m_run = false;
+            }
+
+            m_uniqueRouDiId.emplace(roudiId);
+            break;
+        }
         case 'm':
         {
             if (strcmp(optarg, "on") == 0)
@@ -116,6 +142,40 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             }
             break;
         }
+        case 'x':
+        {
+            if (strcmp(optarg, "off") == 0)
+            {
+                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::OFF;
+            }
+            else if (strcmp(optarg, "major") == 0)
+            {
+                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::MAJOR;
+            }
+            else if (strcmp(optarg, "minor") == 0)
+            {
+                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::MINOR;
+            }
+            else if (strcmp(optarg, "patch") == 0)
+            {
+                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::PATCH;
+            }
+            else if (strcmp(optarg, "commitId") == 0)
+            {
+                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::COMMIT_ID;
+            }
+            else if (strcmp(optarg, "buildDate") == 0)
+            {
+                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::BUILD_DATE;
+            }
+            else
+            {
+                m_run = false;
+                LogError()
+                    << "Options for compatibility are 'off', 'major', 'minor', 'patch', 'commitId' and 'buildDate'!";
+            }
+            break;
+        }
         default:
         {
             // CmdLineParser did not understand the parameters, don't run
@@ -128,7 +188,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             break;
         }
     }
-}
+} // namespace roudi
 bool CmdLineParser::getRun() const
 {
     return m_run;
@@ -140,6 +200,16 @@ iox::log::LogLevel CmdLineParser::getLogLevel() const
 MonitoringMode CmdLineParser::getMonitoringMode() const
 {
     return m_monitoringMode;
+}
+
+version::CompatibilityCheckLevel CmdLineParser::getCompatibilityCheckLevel() const
+{
+    return m_compatibilityCheckLevel;
+}
+
+cxx::optional<uint16_t> CmdLineParser::getUniqueRouDiId() const noexcept
+{
+    return m_uniqueRouDiId;
 }
 } // namespace roudi
 } // namespace iox

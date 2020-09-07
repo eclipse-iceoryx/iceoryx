@@ -11,18 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_data.hpp"
+#ifndef IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP
+#define IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP
 
 namespace iox
 {
-namespace popo
+namespace version
 {
+enum class CompatibilityCheckLevel
+{
+    OFF,
+    MAJOR,
+    MINOR,
+    PATCH,
+    COMMIT_ID,
+    BUILD_DATE
+};
 
-    ChunkQueueData::ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept
-        : m_queue(queueType)
-    {
-    }
-
-} // namespace popo
+} // namespace version
 } // namespace iox
+#endif // IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP

@@ -65,7 +65,7 @@ class BasePort
 
     /// @brief Gets Id of thethe active port
     /// @return             UniqueId name as Integer
-    uint64_t getUniqueID() const noexcept;
+    UniquePortId getUniqueID() const noexcept;
 
     /// @brief Indicate that this port can be destroyed
     void destroy() noexcept;

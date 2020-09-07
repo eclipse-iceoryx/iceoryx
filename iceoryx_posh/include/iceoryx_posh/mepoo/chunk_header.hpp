@@ -14,6 +14,8 @@
 #ifndef IOX_POSH_MEPOO_CHUNK_HEADER_HPP
 #define IOX_POSH_MEPOO_CHUNK_HEADER_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_info.hpp"
 
 #include <atomic>
@@ -31,7 +33,7 @@ struct alignas(32) ChunkHeader
     /// @brief ALlocates memory to store the information about the chunks.
     ChunkHeader() noexcept;
 
-    std::uint32_t m_mtaHeader[2];
+    UniquePortId m_originId{popo::CreateInvalidId};
     ChunkInfo m_info;
 
     void* payload() const

@@ -49,9 +49,8 @@ struct IceOryxRouDiComponents
             runtime::MqBase::cleanupOutdatedMessageQueue(MQ_ROUDI_NAME);
 
             m_rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
-                /// @todo errorHandler
                 LogFatal() << "Could not create SharedMemory! Error: " << static_cast<uint64_t>(error);
-                std::terminate();
+                errorHandler(Error::kROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
             });
             return true;
         },

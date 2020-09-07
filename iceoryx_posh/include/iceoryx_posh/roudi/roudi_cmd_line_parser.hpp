@@ -15,7 +15,9 @@
 #define IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/log/logcommon.hpp"
 
 namespace iox
@@ -61,11 +63,15 @@ class CmdLineParser
     bool getRun() const;
     iox::log::LogLevel getLogLevel() const;
     MonitoringMode getMonitoringMode() const;
+    version::CompatibilityCheckLevel getCompatibilityCheckLevel() const;
+    cxx::optional<uint16_t> getUniqueRouDiId() const noexcept;
 
   protected:
     bool m_run{true};
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
     MonitoringMode m_monitoringMode{MonitoringMode::ON};
+    version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
+    cxx::optional<uint16_t> m_uniqueRouDiId;
 };
 
 } // namespace roudi

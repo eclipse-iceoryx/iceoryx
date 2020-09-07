@@ -28,10 +28,11 @@ namespace popo
 /// Together with the ChunkDistributor and ChunkQueuePopper the ChunkQueuePusher builds the infrastructure
 /// to exchange memory chunks between different data producers and consumers that could be located in different
 /// processes. A ChunkQueuePusher is the part of the chunk queue that is knwon by the ChunkDistributor
+template <typename ChunkQueueDataType>
 class ChunkQueuePusher
 {
   public:
-    using MemberType_t = ChunkQueueData;
+    using MemberType_t = ChunkQueueDataType;
 
     explicit ChunkQueuePusher(cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept;
 
@@ -52,10 +53,12 @@ class ChunkQueuePusher
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* m_chunkQueueDataPtr;
+    MemberType_t* m_chunkQueueDataPtr{nullptr};
 };
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.inl"
 
 #endif // IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_QUEUE_PUSHER_HPP

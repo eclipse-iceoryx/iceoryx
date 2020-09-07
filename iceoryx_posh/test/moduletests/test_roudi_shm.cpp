@@ -25,6 +25,7 @@
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
@@ -37,8 +38,8 @@ using ::testing::Return;
 using iox::popo::ReceiverPort;
 using iox::popo::SenderPort;
 using iox::roudi::IceOryxRouDiMemoryManager;
-using iox::roudi::PortPoolError;
 using iox::roudi::PortManager;
+using iox::roudi::PortPoolError;
 
 class CShmMangerTester : public PortManager
 {
@@ -69,7 +70,6 @@ class PortManager_test : public Test
         // starting at {1,1,1}
 
         auto config = iox::RouDiConfig_t().setDefaults();
-        config.roudi.m_verifySharedMemoryPlacement = false;
         m_roudiMemoryManager = new IceOryxRouDiMemoryManager(config);
         m_roudiMemoryManager->createAndAnnounceMemory();
         m_shmManager = new CShmMangerTester(m_roudiMemoryManager);
@@ -117,6 +117,9 @@ class PortManager_test : public Test
         }
         return {m_sIdCounter, m_eventIdCounter, m_instIdCounter};
     }
+
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 };
 
 
@@ -230,10 +233,15 @@ TEST_F(PortManager_test, SenderReceiverOverflow)
 
     for (unsigned int i = 0; i < forP1; i++)
     {
-        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), p1, r1);
+        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(),
+                                                         iox::cxx::CString100(iox::cxx::TruncateToCapacity, p1),
+                                                         iox::cxx::CString100(iox::cxx::TruncateToCapacity, r1));
         ASSERT_THAT(rec, Ne(nullptr));
         avaReceiver1[i] = rec;
-        auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(), p1, m_payloadMemoryManager, r1);
+        auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(),
+                                                       iox::cxx::CString100(iox::cxx::TruncateToCapacity, p1),
+                                                       m_payloadMemoryManager,
+                                                       iox::cxx::CString100(iox::cxx::TruncateToCapacity, r1));
         ASSERT_FALSE(sen.has_error());
         avaSender1[i] = sen.get_value();
     }
@@ -245,12 +253,17 @@ TEST_F(PortManager_test, SenderReceiverOverflow)
             [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
-        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), p1, r1);
+        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(),
+                                                         iox::cxx::CString100(iox::cxx::TruncateToCapacity, p1),
+                                                         iox::cxx::CString100(iox::cxx::TruncateToCapacity, r1));
         EXPECT_TRUE(errorHandlerCalled);
         EXPECT_THAT(rec, Eq(nullptr));
 
         errorHandlerCalled = false;
-        auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(), p1, m_payloadMemoryManager, r1);
+        auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(),
+                                                       iox::cxx::CString100(iox::cxx::TruncateToCapacity, p1),
+                                                       m_payloadMemoryManager,
+                                                       iox::cxx::CString100(iox::cxx::TruncateToCapacity, r1));
         EXPECT_TRUE(errorHandlerCalled);
         ASSERT_TRUE(sen.has_error());
         EXPECT_THAT(sen.get_error(), Eq(PortPoolError::SENDER_PORT_LIST_FULL));
@@ -265,12 +278,16 @@ TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
 
     for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
     {
-        auto interp = m_shmManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, itf + std::to_string(i));
+        auto newItfName = itf + std::to_string(i);
+        auto interp = m_shmManager->acquireInterfacePortData(
+            iox::capro::Interfaces::INTERNAL, iox::cxx::CString100(iox::cxx::TruncateToCapacity, newItfName));
         EXPECT_THAT(interp, Ne(nullptr));
     }
     for (unsigned int i = 0; i < iox::MAX_PROCESS_NUMBER; i++)
     {
-        auto appp = m_shmManager->acquireApplicationPortData(app + std::to_string(i));
+        auto newAppName = app + std::to_string(i);
+        auto appp =
+            m_shmManager->acquireApplicationPortData(iox::cxx::CString100(iox::cxx::TruncateToCapacity, newAppName));
         EXPECT_THAT(appp, Ne(nullptr));
     }
 
@@ -283,35 +300,38 @@ TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
             });
 
         errorHandlerCalled = false;
-        auto interp = m_shmManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "/itfPenguin");
-        EXPECT_THAT(interp, Eq(nullptr));
+        auto interfacePointer = m_shmManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, "/itfPenguin");
+        EXPECT_THAT(interfacePointer, Eq(nullptr));
         EXPECT_TRUE(errorHandlerCalled);
 
         errorHandlerCalled = false;
-        auto appp = m_shmManager->acquireApplicationPortData("/appPenguin");
-        EXPECT_THAT(appp, Eq(nullptr));
+        auto appPointer = m_shmManager->acquireApplicationPortData("/appPenguin");
+        EXPECT_THAT(appPointer, Eq(nullptr));
         EXPECT_TRUE(errorHandlerCalled);
     }
 
     // delete one and add one should be possible now
     {
         unsigned int testi = 0;
-        m_shmManager->deletePortsOfProcess(itf + std::to_string(testi));
-        m_shmManager->deletePortsOfProcess(app + std::to_string(testi));
+        auto newItfName = itf + std::to_string(testi);
+        auto newAppName = app + std::to_string(testi);
+        m_shmManager->deletePortsOfProcess(iox::cxx::CString100(iox::cxx::TruncateToCapacity, newItfName));
+        m_shmManager->deletePortsOfProcess(iox::cxx::CString100(iox::cxx::TruncateToCapacity, newAppName));
 
-        auto interp =
-            m_shmManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL, itf + std::to_string(testi));
-        EXPECT_THAT(interp, Ne(nullptr));
+        auto interfacePointer = m_shmManager->acquireInterfacePortData(
+            iox::capro::Interfaces::INTERNAL, iox::cxx::CString100(iox::cxx::TruncateToCapacity, newItfName));
+        EXPECT_THAT(interfacePointer, Ne(nullptr));
 
-        auto appp = m_shmManager->acquireApplicationPortData(app + std::to_string(testi));
-        EXPECT_THAT(appp, Ne(nullptr));
+        auto appPointer =
+            m_shmManager->acquireApplicationPortData(iox::cxx::CString100(iox::cxx::TruncateToCapacity, newAppName));
+        EXPECT_THAT(appPointer, Ne(nullptr));
     }
 }
 
 TEST_F(PortManager_test, PortDestroy)
 {
-    std::string p1 = "/myProcess1";
-    std::string p2 = "/myProcess2";
+    iox::cxx::CString100 p1 = "/myProcess1";
+    iox::cxx::CString100 p2 = "/myProcess2";
     iox::capro::ServiceDescription cap1(1, 1, 1);
     iox::capro::ServiceDescription cap2(2, 2, 2);
 

@@ -40,8 +40,6 @@ struct ConditionVariableData
                                        ErrorLevel::FATAL);
                       })
                       .get_value());
-
-    std::atomic<uint64_t> m_referenceCounter{0u};
 };
 
 } // namespace popo
