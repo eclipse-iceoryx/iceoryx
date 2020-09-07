@@ -87,7 +87,8 @@ add_library(iceoryx_posh
     source/popo/ports/client_port_roudi.cpp
     source/popo/ports/client_port_user.cpp        
     source/popo/ports/server_port_data.cpp
-    source/popo/ports/server_port_roudi.cpp      
+    source/popo/ports/server_port_roudi.cpp  
+    source/popo/ports/server_port_user.cpp          
     source/popo/building_blocks/chunk_queue_types.cpp
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp

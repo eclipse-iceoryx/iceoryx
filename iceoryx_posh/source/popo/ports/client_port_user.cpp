@@ -37,17 +37,17 @@ ClientPortUser::MemberType_t* ClientPortUser::getMembers() noexcept
 }
 
 cxx::expected<mepoo::ChunkHeader*, AllocationError>
-ClientPortUser::allocateRequestChunk(const uint32_t payloadSize) noexcept
+ClientPortUser::allocateRequest(const uint32_t payloadSize) noexcept
 {
     return m_chunkSender.allocate(payloadSize, getUniqueID());
 }
 
-void ClientPortUser::freeRequestChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
+void ClientPortUser::freeRequest(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     m_chunkSender.release(chunkHeader);
 }
 
-void ClientPortUser::sendRequestChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
+void ClientPortUser::sendRequest(mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     /// @todo
 }
@@ -67,22 +67,22 @@ ConnectionState ClientPortUser::getConnectionState() const noexcept
     return getMembers()->m_connectionState;
 }
 
-cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> ClientPortUser::getResponseChunk() noexcept
+cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> ClientPortUser::getResponse() noexcept
 {
     return m_chunkReceiver.get();
 }
 
-void ClientPortUser::releaseResponseChunk(const mepoo::ChunkHeader* chunkHeader) noexcept
+void ClientPortUser::releaseResponse(const mepoo::ChunkHeader* chunkHeader) noexcept
 {
     m_chunkReceiver.release(chunkHeader);
 }
 
-bool ClientPortUser::hasNewResponseChunks() noexcept
+bool ClientPortUser::hasNewResponses() noexcept
 {
     return !m_chunkReceiver.empty();
 }
 
-bool ClientPortUser::hasLostResponseChunks() noexcept
+bool ClientPortUser::hasLostResponses() noexcept
 {
     return m_chunkReceiver.hasOverflown();
 }

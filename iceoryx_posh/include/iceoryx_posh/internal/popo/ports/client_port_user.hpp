@@ -51,15 +51,15 @@ class ClientPortUser : public BasePort
     /// @param[in] payloadSize, size of the user paylaod without additional headers
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
-    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocateRequestChunk(const uint32_t payloadSize) noexcept;
+    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocateRequest(const uint32_t payloadSize) noexcept;
 
-    /// @brief Free an allocated chunk without sending it
+    /// @brief Free an allocated request without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
-    void freeRequestChunk(mepoo::ChunkHeader* const chunkHeader) noexcept;
+    void freeRequest(mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
-    void sendRequestChunk(mepoo::ChunkHeader* const chunkHeader) noexcept;
+    void sendRequest(mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief try to connect to the server
     void connect() noexcept;
@@ -77,19 +77,19 @@ class ClientPortUser : public BasePort
     /// response in the queue is returned (FiFo queue)
     /// @return optional that has a new chunk header or no value if there are no new responses in the underlying queue,
     /// ChunkReceiveError on error
-    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> getResponseChunk() noexcept;
+    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> getResponse() noexcept;
 
     /// @brief Release a response that was obtained with getResponseChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
-    void releaseResponseChunk(const mepoo::ChunkHeader* chunkHeader) noexcept;
+    void releaseResponse(const mepoo::ChunkHeader* chunkHeader) noexcept;
 
     /// @brief check if there are responses in the queue
     /// @return if there are responses in the queue return true, otherwise false
-    bool hasNewResponseChunks() noexcept;
+    bool hasNewResponses() noexcept;
 
     /// @brief check if there was a queue overflow since the last call of hasLostResponseChunks
     /// @return true if the underlying queue overflowed since last call of this method, otherwise false
-    bool hasLostResponseChunks() noexcept;
+    bool hasLostResponses() noexcept;
 
     /// @brief set a condition variable (via its pointer) to the client
     /// @return true if attachment worked, otherwise false

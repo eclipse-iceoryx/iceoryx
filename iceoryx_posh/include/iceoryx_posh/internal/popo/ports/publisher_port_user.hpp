@@ -71,7 +71,7 @@ class PublisherPortUser : public BasePort
     void stopOffer() noexcept;
 
     /// @brief Checks whether the publisher port is currently offered
-    /// @return true if there are subscribers otherwise false
+    /// @return true if currently offered otherwise false
     bool isOffered() const noexcept;
 
     /// @brief Checks whether there are currently subscribers connected to this publisher
