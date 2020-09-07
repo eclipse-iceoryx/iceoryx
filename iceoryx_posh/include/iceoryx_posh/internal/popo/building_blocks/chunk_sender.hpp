@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"

@@ -33,8 +33,8 @@ struct ClientChunkDistributorConfig
 
 struct ServerChunkDistributorConfig
 {
-    static constexpr uint32_t MAX_QUEUES = MAX_CLIENTS_PER_SERVER; // could be 0, but problem for the container then
-    static constexpr uint64_t MAX_HISTORY_CAPACITY = 1;            // could be 0, but problem for the container then
+    static constexpr uint32_t MAX_QUEUES = MAX_CLIENTS_PER_SERVER;
+    static constexpr uint64_t MAX_HISTORY_CAPACITY = 1; // could be 0, but problem for the container then
 };
 
 struct ClientChunkQueueConfig
