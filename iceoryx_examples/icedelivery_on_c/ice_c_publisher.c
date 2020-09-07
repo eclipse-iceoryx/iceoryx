@@ -14,7 +14,7 @@
 
 #include "iceoryx_binding_c/posh_runtime.h"
 #include "iceoryx_binding_c/publisher.h"
-#include "iceoryx_binding_c/sleep_for.h"
+#include "sleep_for.h"
 #include "topic_data.h"
 
 #include <signal.h>
@@ -44,7 +44,7 @@ void sending()
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationError_SUCCESS == Publisher_allocateChunk(publisher, &chunk, sizeof(struct CounterTopic)))
+        if (AllocationResult_SUCCESS == Publisher_allocateChunk(publisher, &chunk, sizeof(struct CounterTopic)))
         {
             struct CounterTopic* sample = (struct CounterTopic*)chunk;
 

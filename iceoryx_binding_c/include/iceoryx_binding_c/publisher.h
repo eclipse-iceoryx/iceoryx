@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_PUBLISHER_H_
-#define IOX_BINDING_C_PUBLISHER_H_
+#ifndef IOX_BINDING_C_PUBLISHER_H
+#define IOX_BINDING_C_PUBLISHER_H
 
-#include "iceoryx_binding_c/internal/c2cpp_bridge.h"
+#include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/types.h"
 
 CLASS PublisherPortData*
 Publisher_new(const char* service, const char* instance, const char* event, const uint64_t historyCapacity);
 void Publisher_delete(CLASS PublisherPortData* const self);
-ENUM iox_popo_AllocationError Publisher_allocateChunk(CLASS PublisherPortData* const self,
-                                                      void** const chunk,
-                                                      const uint32_t payloadSize);
+ENUM iox_popo_AllocationResult Publisher_allocateChunk(CLASS PublisherPortData* const self,
+                                                       void** const chunk,
+                                                       const uint32_t payloadSize);
 void Publisher_freeChunk(CLASS PublisherPortData* const self, void* const chunk);
 void Publisher_sendChunk(CLASS PublisherPortData* const self, void* const chunk);
-const void* Publisher_getLastChunk(CLASS PublisherPortData* const self);
+const void* Publisher_tryGetPreviousChunk(CLASS PublisherPortData* const self);
 void Publisher_offer(CLASS PublisherPortData* const self);
 void Publisher_stopOffer(CLASS PublisherPortData* const self);
 bool Publisher_isOffered(CLASS PublisherPortData* const self);

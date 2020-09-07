@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_TYPES_H_
-#define IOX_BINDING_C_TYPES_H_
+#ifndef IOX_BINDING_C_TYPES_H
+#define IOX_BINDING_C_TYPES_H
 
 enum iox_SubscribeState
 {
@@ -21,22 +21,24 @@ enum iox_SubscribeState
     SubscribeState_SUBSCRIBE_REQUESTED,
     SubscribeState_SUBSCRIBED,
     SubscribeState_UNSUBSCRIBE_REQUESTED,
-    SubscribeState_WAIT_FOR_OFFER
+    SubscribeState_WAIT_FOR_OFFER,
+    SubscribeState_UNDEFINED,
 };
 
-enum iox_popo_ChunkReceiveError
+enum iox_popo_ChunkReceiveResult
 {
-    ChunkReceiveError_TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
-    ChunkReceiveError_NO_CHUNK_RECEIVED,
-    ChunkReceiveError_INTERNAL_ERROR,
-    ChunkReceiveError_SUCCESS,
+    ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
+    ChunkReceiveResult_NO_CHUNK_RECEIVED,
+    ChunkReceiveResult_INTERNAL_ERROR,
+    ChunkReceiveResult_SUCCESS,
 };
 
-enum iox_popo_AllocationError
+enum iox_popo_AllocationResult
 {
-    AllocationError_RUNNING_OUT_OF_CHUNKS,
-    AllocationError_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
-    AllocationError_SUCCESS,
+    AllocationResult_RUNNING_OUT_OF_CHUNKS,
+    AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
+    AllocationResult_UNDEFINED_ERROR,
+    AllocationResult_SUCCESS,
 };
 
 

@@ -17,11 +17,14 @@
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/windows.hpp"
 
+#include <cstdint>
 #include <io.h>
 #include <vector>
 
 #define _SC_PAGESIZE 1
 #define STDERR_FILENO 2
+
+using useconds_t = uint64_t;
 
 class HandleTranslator
 {

@@ -123,7 +123,7 @@ Let's take a look at the `sending` function which comes with the
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationError_SUCCESS == Publisher_allocateChunk(publisher, &chunk, sizeof(struct CounterTopic)))
+        if (AllocationResult_SUCCESS == Publisher_allocateChunk(publisher, &chunk, sizeof(struct CounterTopic)))
         {
             struct CounterTopic* sample = (struct CounterTopic*)chunk;
     

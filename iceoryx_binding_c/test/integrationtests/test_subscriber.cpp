@@ -34,19 +34,19 @@ extern "C" {
 
 using namespace ::testing;
 
-class binding_c_Subscriber_test : public Test
+class c_Subscriber_test : public Test
 {
   public:
     const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
 
   protected:
-    binding_c_Subscriber_test()
+    c_Subscriber_test()
     {
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
     }
 
-    ~binding_c_Subscriber_test()
+    ~c_Subscriber_test()
     {
     }
 
@@ -84,12 +84,12 @@ class binding_c_Subscriber_test : public Test
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
 };
 
-TEST_F(binding_c_Subscriber_test, initialStateNotSubscribed)
+TEST_F(c_Subscriber_test, initialStateNotSubscribed)
 {
     EXPECT_EQ(Subscriber_getSubscriptionState(&m_portPtr), SubscribeState_NOT_SUBSCRIBED);
 }
 
-TEST_F(binding_c_Subscriber_test, offerLeadsToSubscibeRequestedState)
+TEST_F(c_Subscriber_test, offerLeadsToSubscibeRequestedState)
 {
     uint64_t queueCapacity = 1u;
     Subscriber_subscribe(&m_portPtr, queueCapacity);
@@ -99,7 +99,7 @@ TEST_F(binding_c_Subscriber_test, offerLeadsToSubscibeRequestedState)
     EXPECT_EQ(Subscriber_getSubscriptionState(&m_portPtr), SubscribeState_SUBSCRIBE_REQUESTED);
 }
 
-TEST_F(binding_c_Subscriber_test, NACKResponseLeadsToSubscribeWaitForOfferState)
+TEST_F(c_Subscriber_test, NACKResponseLeadsToSubscribeWaitForOfferState)
 {
     uint64_t queueCapacity = 1u;
     Subscriber_subscribe(&m_portPtr, queueCapacity);
@@ -111,7 +111,7 @@ TEST_F(binding_c_Subscriber_test, NACKResponseLeadsToSubscribeWaitForOfferState)
     EXPECT_EQ(Subscriber_getSubscriptionState(&m_portPtr), SubscribeState_WAIT_FOR_OFFER);
 }
 
-TEST_F(binding_c_Subscriber_test, ACKResponseLeadsToSubscribedState)
+TEST_F(c_Subscriber_test, ACKResponseLeadsToSubscribedState)
 {
     uint64_t queueCapacity = 1u;
     Subscriber_subscribe(&m_portPtr, queueCapacity);
@@ -123,7 +123,7 @@ TEST_F(binding_c_Subscriber_test, ACKResponseLeadsToSubscribedState)
     EXPECT_EQ(Subscriber_getSubscriptionState(&m_portPtr), SubscribeState_SUBSCRIBED);
 }
 
-TEST_F(binding_c_Subscriber_test, UnsubscribeLeadsToUnscribeRequestedState)
+TEST_F(c_Subscriber_test, UnsubscribeLeadsToUnscribeRequestedState)
 {
     uint64_t queueCapacity = 1u;
     Subscriber_subscribe(&m_portPtr, queueCapacity);
@@ -139,22 +139,22 @@ TEST_F(binding_c_Subscriber_test, UnsubscribeLeadsToUnscribeRequestedState)
     EXPECT_EQ(Subscriber_getSubscriptionState(&m_portPtr), SubscribeState_UNSUBSCRIBE_REQUESTED);
 }
 
-TEST_F(binding_c_Subscriber_test, initialStateNoChunksAvailable)
+TEST_F(c_Subscriber_test, initialStateNoChunksAvailable)
 {
     const void* chunk = nullptr;
-    EXPECT_EQ(Subscriber_getChunk(&m_portPtr, &chunk), ChunkReceiveError_NO_CHUNK_RECEIVED);
+    EXPECT_EQ(Subscriber_getChunk(&m_portPtr, &chunk), ChunkReceiveResult_NO_CHUNK_RECEIVED);
 }
 
-TEST_F(binding_c_Subscriber_test, receiveChunkWhenThereIsOne)
+TEST_F(c_Subscriber_test, receiveChunkWhenThereIsOne)
 {
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(100));
 
     const void* chunk = nullptr;
-    EXPECT_EQ(Subscriber_getChunk(&m_portPtr, &chunk), ChunkReceiveError_SUCCESS);
+    EXPECT_EQ(Subscriber_getChunk(&m_portPtr, &chunk), ChunkReceiveResult_SUCCESS);
 }
 
-TEST_F(binding_c_Subscriber_test, DISABLED_receiveChunkWithContent)
+TEST_F(c_Subscriber_test, DISABLED_receiveChunkWithContent)
 {
     this->Subscribe(&m_portPtr);
     struct data_t
@@ -168,11 +168,11 @@ TEST_F(binding_c_Subscriber_test, DISABLED_receiveChunkWithContent)
 
     const void* chunk = nullptr;
 
-    ASSERT_EQ(Subscriber_getChunk(&m_portPtr, &chunk), ChunkReceiveError_SUCCESS);
+    ASSERT_EQ(Subscriber_getChunk(&m_portPtr, &chunk), ChunkReceiveResult_SUCCESS);
     EXPECT_THAT(static_cast<const data_t*>(chunk)->value, Eq(1234));
 }
 
-TEST_F(binding_c_Subscriber_test, receiveChunkWhenToManyChunksAreHold)
+TEST_F(c_Subscriber_test, receiveChunkWhenToManyChunksAreHold)
 {
     this->Subscribe(&m_portPtr);
     const void* chunk = nullptr;
@@ -183,10 +183,10 @@ TEST_F(binding_c_Subscriber_test, receiveChunkWhenToManyChunksAreHold)
     }
 
     m_chunkPusher.push(m_memoryManager.getChunk(100));
-    EXPECT_EQ(Subscriber_getChunk(&m_portPtr, &chunk), ChunkReceiveError_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
+    EXPECT_EQ(Subscriber_getChunk(&m_portPtr, &chunk), ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
 }
 
-TEST_F(binding_c_Subscriber_test, releaseChunkWorks)
+TEST_F(c_Subscriber_test, releaseChunkWorks)
 {
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(100));
@@ -199,7 +199,7 @@ TEST_F(binding_c_Subscriber_test, releaseChunkWorks)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
-TEST_F(binding_c_Subscriber_test, releaseChunkQueuedChunksWorks)
+TEST_F(c_Subscriber_test, releaseChunkQueuedChunksWorks)
 {
     this->Subscribe(&m_portPtr);
     for (int i = 0; i < MAX_CHUNKS_HELD_PER_RECEIVER; ++i)
@@ -212,12 +212,12 @@ TEST_F(binding_c_Subscriber_test, releaseChunkQueuedChunksWorks)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
-TEST_F(binding_c_Subscriber_test, initialStateHasNewChunksFalse)
+TEST_F(c_Subscriber_test, initialStateHasNewChunksFalse)
 {
     EXPECT_FALSE(Subscriber_hasNewChunks(&m_portPtr));
 }
 
-TEST_F(binding_c_Subscriber_test, receivingChunkLeadsToHasNewChunksTrue)
+TEST_F(c_Subscriber_test, receivingChunkLeadsToHasNewChunksTrue)
 {
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(100));
@@ -225,12 +225,12 @@ TEST_F(binding_c_Subscriber_test, receivingChunkLeadsToHasNewChunksTrue)
     EXPECT_TRUE(Subscriber_hasNewChunks(&m_portPtr));
 }
 
-TEST_F(binding_c_Subscriber_test, initialStateHasNoLostChunks)
+TEST_F(c_Subscriber_test, initialStateHasNoLostChunks)
 {
     EXPECT_FALSE(Subscriber_hasLostChunks(&m_portPtr));
 }
 
-TEST_F(binding_c_Subscriber_test, sendingTooMuchLeadsToLostChunks)
+TEST_F(c_Subscriber_test, sendingTooMuchLeadsToLostChunks)
 {
     this->Subscribe(&m_portPtr);
     for (int i = 0; i < DefaultChunkQueueConfig::MAX_QUEUE_CAPACITY + 1; ++i)

@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/posh_runtime.h"
-#include "iceoryx_binding_c/sleep_for.h"
 #include "iceoryx_binding_c/subscriber.h"
+#include "sleep_for.h"
 #include "topic_data.h"
 
 #include <signal.h>
@@ -43,7 +43,7 @@ void receiving()
         if (SubscribeState_SUBSCRIBED == Subscriber_getSubscriptionState(subscriber))
         {
             const void* chunk = NULL;
-            while (ChunkReceiveError_SUCCESS == Subscriber_getChunk(subscriber, &chunk))
+            while (ChunkReceiveResult_SUCCESS == Subscriber_getChunk(subscriber, &chunk))
             {
                 const struct CounterTopic* sample = (const struct CounterTopic*)(chunk);
                 printf("Receiving: %u\n", sample->counter);

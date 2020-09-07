@@ -15,6 +15,8 @@
 #include "iceoryx_utils/platform/unistd.hpp"
 #include "iceoryx_utils/platform/win32_errorHandling.hpp"
 
+#include <chrono>
+
 HandleTranslator& HandleTranslator::getInstance() noexcept
 {
     static HandleTranslator globalHandleTranslator;
