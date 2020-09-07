@@ -175,12 +175,23 @@ public:
     TypedSubscriber& operator=(TypedSubscriber&& rhs) = default;
     ~TypedSubscriber() = default;
 
+    capro::ServiceDescription getServiceDescription() const noexcept;
+    uid_t uid() const noexcept;
+
     cxx::expected<SubscriberError> subscribe(const uint64_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
     SubscriptionState getSubscriptionState() const noexcept;
     void unsubscribe() noexcept;
 
     bool hasData() const noexcept;
     cxx::optional<cxx::unique_ptr<T>> receive() noexcept;
+    void clearReceiveBuffer() noexcept;
+
+    template<typename Callback>
+    void setCallback(Callback cb) noexcept;
+    template<typename Callback, typename Predicate>
+    void setCallback(Callback cb, Predicate p) noexcept;
+    void unsetCallback() noexcept;
+
 };
 
 } // namespace popo

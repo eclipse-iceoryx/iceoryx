@@ -17,6 +17,7 @@
 
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 #include <thread>
 #include <chrono>
@@ -46,7 +47,9 @@ void receiving()
     mySubscriber.subscribe(10);
 
     // Setting receiver handler
-
+    mySubscriber.setCallback([](iox::cxx::unique_ptr<Position> position){
+        std::cout << "[Callback] Got val: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
+    });
 
     // Polling receiver
     while (!killswitch)
@@ -55,7 +58,7 @@ void receiving()
         if(result.has_value())
         {
             auto position = result->get();
-            std::cout << "Got val: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
+            std::cout << "[Polled] Got val: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
         }
     }
 

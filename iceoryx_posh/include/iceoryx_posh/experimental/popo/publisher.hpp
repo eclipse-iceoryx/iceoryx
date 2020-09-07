@@ -130,6 +130,9 @@ enum class SampleRecallError : uint8_t
     CHUNK_ALREADY_CLAIMED
 };
 
+///
+/// @todo T must not be void.
+///
 template<typename T, typename port_t>
 class BasePublisher
 {
