@@ -55,7 +55,7 @@ void iox_sub_unsubscribe(SubscriberPortData* const self)
     SubscriberPortUser(self).unsubscribe();
 }
 
-iox_SubscribeState iox_sub_getSubscriptionState(SubscriberPortData* const self)
+iox_SubscribeState iox_sub_get_subscription_state(SubscriberPortData* const self)
 {
     switch (SubscriberPortUser(self).getSubscriptionState())
     {
@@ -74,7 +74,7 @@ iox_SubscribeState iox_sub_getSubscriptionState(SubscriberPortData* const self)
     }
 }
 
-iox_popo_ChunkReceiveResult iox_sub_getChunk(SubscriberPortData* const self, const void** const payload)
+iox_popo_ChunkReceiveResult iox_sub_get_chunk(SubscriberPortData* const self, const void** const payload)
 {
     auto result = SubscriberPortUser(self).getChunk();
     if (result.has_error())
@@ -93,37 +93,37 @@ iox_popo_ChunkReceiveResult iox_sub_getChunk(SubscriberPortData* const self, con
     return ChunkReceiveResult_SUCCESS;
 }
 
-void iox_sub_releaseChunk(SubscriberPortData* const self, const void* const chunk)
+void iox_sub_release_chunk(SubscriberPortData* const self, const void* const chunk)
 {
     SubscriberPortUser(self).releaseChunk(convertPayloadPointerToChunkHeader(chunk));
 }
 
-void iox_sub_releaseQueuedChunks(SubscriberPortData* const self)
+void iox_sub_release_queued_chunks(SubscriberPortData* const self)
 {
     SubscriberPortUser(self).releaseQueuedChunks();
 }
 
-bool iox_sub_hasNewChunks(SubscriberPortData* const self)
+bool iox_sub_has_new_chunks(SubscriberPortData* const self)
 {
     return SubscriberPortUser(self).hasNewChunks();
 }
 
-bool iox_sub_hasLostChunks(SubscriberPortData* const self)
+bool iox_sub_has_lost_chunks(SubscriberPortData* const self)
 {
     return SubscriberPortUser(self).hasLostChunks();
 }
 
-bool iox_sub_attachConditionVariable(SubscriberPortData* const self, ConditionVariableData* const cvHandle)
+bool iox_sub_attach_condition_variable(SubscriberPortData* const self, ConditionVariableData* const cvHandle)
 {
     return SubscriberPortUser(self).attachConditionVariable(cvHandle);
 }
 
-bool iox_sub_detachConditionVariable(SubscriberPortData* const self)
+bool iox_sub_detach_condition_variable(SubscriberPortData* const self)
 {
     return SubscriberPortUser(self).detachConditionVariable();
 }
 
-bool iox_sub_isConditionVariableAttached(SubscriberPortData* const self)
+bool iox_sub_is_condition_variable_attached(SubscriberPortData* const self)
 {
     return SubscriberPortUser(self).isConditionVariableAttached();
 }

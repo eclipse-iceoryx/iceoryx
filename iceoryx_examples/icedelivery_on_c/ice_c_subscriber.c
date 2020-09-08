@@ -32,7 +32,7 @@ static void sigHandler(int signalValue)
 
 void receiving()
 {
-    iox_rt_getInstance("/iox-c-subscriber");
+    iox_runtime_getInstance("/iox-c-subscriber");
 
     uint64_t historyRequest = 0U;
     struct SubscriberPortData* subscriber = iox_sub_create("Radar", "FrontLeft", "Counter", historyRequest);
@@ -40,14 +40,14 @@ void receiving()
 
     while (!killswitch)
     {
-        if (SubscribeState_SUBSCRIBED == iox_sub_getSubscriptionState(subscriber))
+        if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
         {
             const void* chunk = NULL;
-            while (ChunkReceiveResult_SUCCESS == iox_sub_getChunk(subscriber, &chunk))
+            while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
             {
                 const struct CounterTopic* sample = (const struct CounterTopic*)(chunk);
                 printf("Receiving: %u\n", sample->counter);
-                iox_sub_releaseChunk(subscriber, chunk);
+                iox_sub_release_chunk(subscriber, chunk);
             }
         }
         else

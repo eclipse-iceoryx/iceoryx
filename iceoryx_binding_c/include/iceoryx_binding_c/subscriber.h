@@ -44,38 +44,38 @@ void iox_sub_unsubscribe(CLASS SubscriberPortData* const self);
 /// @param[in] self handle to the subscriber
 /// @return SubscribeState_SUBSCRIBED when successfully subscribed otherwise an enum which
 ///         describes the current state
-ENUM iox_SubscribeState iox_sub_getSubscriptionState(CLASS SubscriberPortData* const self);
+ENUM iox_SubscribeState iox_sub_get_subscription_state(CLASS SubscriberPortData* const self);
 
 /// @brief retrieve a received chunk
 /// @param[in] self handle to the subscriber
 /// @param[in] chunk pointer in which the pointer to the chunk is stored
 /// @return if a chunk could be received it returns ChunkReceiveResult_SUCCESS otherwise
 ///         an enum which describes the error
-ENUM iox_popo_ChunkReceiveResult iox_sub_getChunk(CLASS SubscriberPortData* const self, const void** const chunk);
+ENUM iox_popo_ChunkReceiveResult iox_sub_get_chunk(CLASS SubscriberPortData* const self, const void** const chunk);
 
 /// @brief release a previously acquired chunk (via iox_sub_getChunk)
 /// @param[in] self handle to the subscriber
 /// @param[in] chunk pointer to the chunk which should be released
-void iox_sub_releaseChunk(CLASS SubscriberPortData* const self, const void* const chunk);
+void iox_sub_release_chunk(CLASS SubscriberPortData* const self, const void* const chunk);
 
 /// @brief release all chunks which are stored in the chunk queue
 /// @param[in] self handle to the subscriber
-void iox_sub_releaseQueuedChunks(CLASS SubscriberPortData* const self);
+void iox_sub_release_queued_chunks(CLASS SubscriberPortData* const self);
 
 /// @brief are new chunks available?
 /// @param[in] self handle to the subscriber
 /// @return true if there are new chunks otherwise false
-bool iox_sub_hasNewChunks(CLASS SubscriberPortData* const self);
+bool iox_sub_has_new_chunks(CLASS SubscriberPortData* const self);
 
 /// @brief are chunks lost?
 /// @param[in] self handle to the subscriber
 /// @return true if there are lost chunks otherwise false
-bool iox_sub_hasLostChunks(CLASS SubscriberPortData* const self);
+bool iox_sub_has_lost_chunks(CLASS SubscriberPortData* const self);
 
-bool iox_sub_attachConditionVariable(CLASS SubscriberPortData* const self);
-bool iox_sub_detachConditionVariable(CLASS SubscriberPortData* const self);
-bool iox_sub_isConditionVariableAttached(CLASS SubscriberPortData* const self,
-                                         CLASS ConditionVariableData* const cvHandle);
+bool iox_sub_attach_condition_variable(CLASS SubscriberPortData* const self);
+bool iox_sub_detach_condition_variable(CLASS SubscriberPortData* const self);
+bool iox_sub_is_condition_variable_attached(CLASS SubscriberPortData* const self,
+                                            CLASS ConditionVariableData* const cvHandle);
 
 #endif
 

@@ -21,12 +21,12 @@ extern "C" {
 #include "iceoryx_binding_c/posh_runtime.h"
 }
 
-void iox_rt_getInstance(const char* const name)
+void iox_runtime_getInstance(const char* const name)
 {
     PoshRuntime::getInstance(name);
 }
 
-uint64_t iox_rt_getInstanceName(char* const name, const uint64_t nameLength)
+uint64_t iox_runtime_getInstanceName(char* const name, const uint64_t nameLength)
 {
     auto instanceName = PoshRuntime::getInstance().getInstanceName();
     uint64_t instanceNameSize = instanceName.size();

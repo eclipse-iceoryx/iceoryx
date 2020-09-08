@@ -32,7 +32,7 @@ static void sigHandler(int signalValue)
 
 void sending()
 {
-    iox_rt_getInstance("/iox-c-publisher");
+    iox_runtime_getInstance("/iox-c-publisher");
 
     uint64_t historyRequest = 0U;
     struct PublisherPortData* publisher = iox_pub_create("Radar", "FrontLeft", "Counter", historyRequest);
@@ -44,7 +44,7 @@ void sending()
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_allocateChunk(publisher, &chunk, sizeof(struct CounterTopic)))
+        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct CounterTopic)))
         {
             struct CounterTopic* sample = (struct CounterTopic*)chunk;
 
@@ -52,7 +52,7 @@ void sending()
 
             printf("Sending: %u\n", ct);
 
-            iox_pub_sendChunk(publisher, chunk);
+            iox_pub_send_chunk(publisher, chunk);
 
             ++ct;
 
@@ -64,7 +64,7 @@ void sending()
         }
     }
 
-    iox_pub_stopOffer(publisher);
+    iox_pub_stop_offer(publisher);
     iox_pub_destroy(publisher);
 }
 
