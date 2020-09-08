@@ -35,7 +35,7 @@ void receiving()
     PoshRuntime_getInstance("/iox-c-subscriber");
 
     uint64_t historyRequest = 0u;
-    struct SubscriberPortData* subscriber = Subscriber_new("Radar", "FrontLeft", "Counter", historyRequest);
+    struct SubscriberPortData* subscriber = Subscriber_create("Radar", "FrontLeft", "Counter", historyRequest);
     Subscriber_subscribe(subscriber, 10);
 
     while (!killswitch)
@@ -59,7 +59,7 @@ void receiving()
     }
 
     Subscriber_unsubscribe(subscriber);
-    Subscriber_delete(subscriber);
+    Subscriber_destroy(subscriber);
 }
 
 int main()

@@ -14,7 +14,7 @@ Therefore, we have the following coding conventions exclusively in the C API.
  - C functions are named like `ClassName_MethodName`
     - The constructor is always named like `ClassName_create` and the
       destructor `ClassName_destroy`
-    - The first parameter is always the handle to the corresponding class.
+    - The first parameter is always the handle to the corresponding object.
     - If possible, the arguments should stay the same in the C API.
 
  - Every C++ class has the prefix keyword `CLASS` in the C header.
@@ -50,8 +50,8 @@ enum iox_Color {
     Color_BLUE,
 };
 
-CLASS MyTransmitterHandle* MyTransmitter_new(const char * name);
-void MyTransmitter_delete(CLASS MyTransmitterHandle * self);
+CLASS MyTransmitterHandle* MyTransmitter_create(const char * name);
+void MyTransmitter_destroy(CLASS MyTransmitterHandle * self);
 bool MyTransmitter_receive(void * const data);
 bool MyTransmitter_send(void * const data);
 ```
