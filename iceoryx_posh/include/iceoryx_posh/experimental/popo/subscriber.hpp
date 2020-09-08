@@ -43,12 +43,6 @@ enum class SubscriberError : uint8_t
     UNKNOWN
 };
 
-///
-/// Subscribe to a particular service in the iceoryx system.
-/// Data can be retrieved by either:
-/// * Registering a callback to process the incoming samples
-/// * Manually polling for available samples
-///
 template<typename T, typename recvport_t = iox::popo::ReceiverPort>
 class BaseSubscriber {
 public:
@@ -59,8 +53,17 @@ public:
     BaseSubscriber& operator=(BaseSubscriber&& rhs) = default;
     ~BaseSubscriber() = default;
 
-    capro::ServiceDescription getServiceDescription() const noexcept;
+    ///
+    /// @brief uid Get the unique ID of the subscriber.
+    /// @return The subscriber's unique ID.
+    ///
     uid_t uid() const noexcept;
+
+    ///
+    /// @brief getServiceDescription Get the service description of the subscriber.
+    /// @return The service description.
+    ///
+    capro::ServiceDescription getServiceDescription() const noexcept;
 
     ///
     /// @brief subscribe Initiate subscription.
@@ -82,7 +85,6 @@ public:
     template<typename Callback>
     cxx::expected<SubscriberError> subscribe(Callback cb, const uint64_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
 
-    // Note this might need revision. How costly is it to evaluate a predicate for every incoming pt ?
     ///
     /// @brief subscribe
     /// @param cb A callable with the signature void(unique_ptr<T>) to be used to process incoming data
@@ -93,7 +95,15 @@ public:
     template<typename Callback, typename Predicate>
     cxx::expected<SubscriberError> subscribe(Callback cb,  Predicate p, const uint64_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
 
+    ///
+    /// @brief getSubscriptionState Get current subscription state.
+    /// @return The current subscription state.
+    ///
     SubscriptionState getSubscriptionState() const noexcept;
+
+    ///
+    /// @brief unsubscribe Unsubscribes if currently subscribed, otherwise do nothing.
+    ///
     void unsubscribe() noexcept;
 
     ///
@@ -105,8 +115,16 @@ public:
     ///
     /// @brief receive Receive the next sample if available.
     /// @return
+    /// @details Sample is automatically released when it goes out of scope.
     ///
     cxx::optional<cxx::unique_ptr<T>> receive() noexcept;
+
+    ///
+    /// @brief receiveWithHeader Receive the next sample including it's memory chunk header.
+    /// @return
+    /// @details Sample is automatically released when it goes out of scope.
+    ///
+    cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveWithHeader() noexcept;
 
     ///
     /// @brief clearReceiveBuffer Releases all unread items in the receive buffer.
@@ -132,26 +150,6 @@ public:
     /// @brief unsetCallback
     ///
     void unsetCallback() noexcept;
-
-    // Are these functions still relevant with the new API ?
-    //
-    // void overrideCallbackReference(const Subscriber_t& receiverWithRererenceToUse) noexcept;
-    // posix::Semaphore* getSemaphore() const noexcept;
-    // void setChunkReceiveSemaphore(posix::Semaphore* semaphore) noexcept;
-    // bool isChunkReceiveSemaphoreSet() noexcept;
-    // void unsetChunkReceiveSemaphore() noexcept;
-    // void setNotifyOnOverflow(const bool value) noexcept;
-
-    // What is the use-case for these two functions ?
-    //
-    // bool waitForChunk(const uint32_t timeoutMs) noexcept;
-    // bool tryWaitForChunk() noexcept;
-
-    // ===== Discard Pile ===== //
-    //
-    // bool getChunk(const mepoo::ChunkHeader** chunkHeader) noexcept;
-    // bool releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept;
-    // bool releaseChunk(const void* const payload) noexcept;
 
 protected:
     BaseSubscriber(const capro::ServiceDescription& service);
@@ -184,8 +182,10 @@ public:
 
     bool hasData() const noexcept;
     cxx::optional<cxx::unique_ptr<T>> receive() noexcept;
+    cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveWithHeader() noexcept;
     void clearReceiveBuffer() noexcept;
 
+    // May be removed.
     template<typename Callback>
     void setCallback(Callback cb) noexcept;
     template<typename Callback, typename Predicate>

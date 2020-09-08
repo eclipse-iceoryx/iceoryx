@@ -101,6 +101,28 @@ BaseSubscriber<T, recvport_t>::receive() noexcept
     }
 }
 
+
+template<typename T, typename recvport_t>
+inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
+BaseSubscriber<T, recvport_t>::receiveWithHeader() noexcept
+{
+    const mepoo::ChunkHeader* header = nullptr;
+    if (m_port.getChunk(header))
+    {
+        return cxx::optional<cxx::unique_ptr<T>>(cxx::unique_ptr<T>(
+                                    reinterpret_cast<T*>(header),
+                                    [this](T* const header){
+                                        this->m_port.releaseChunk(header);
+                                    }
+                                ));
+    }
+    else
+    {
+        return cxx::nullopt_t();
+    }
+}
+
+
 template<typename T, typename recvport_t>
 inline void
 BaseSubscriber<T, recvport_t>::clearReceiveBuffer() noexcept
@@ -149,6 +171,13 @@ inline cxx::optional<cxx::unique_ptr<T>>
 TypedSubscriber<T>::receive() noexcept
 {
     return BaseSubscriber<T>::receive();
+}
+
+template<typename T>
+inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
+TypedSubscriber<T>::receiveWithHeader() noexcept
+{
+    return BaseSubscriber<T>::receiveWithHeader();
 }
 
 template<typename T>
