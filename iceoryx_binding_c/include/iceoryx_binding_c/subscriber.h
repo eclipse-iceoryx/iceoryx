@@ -18,23 +18,21 @@
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/types.h"
 
-CLASS SubscriberPortData* Subscriber_create(const char* const service,
-                                            const char* const instance,
-                                            const char* const event,
-                                            uint64_t historyRequest);
-void Subscriber_destroy(CLASS SubscriberPortData* const self);
-void Subscriber_subscribe(CLASS SubscriberPortData* const self, const uint64_t queueCapacity);
-void Subscriber_unsubscribe(CLASS SubscriberPortData* const self);
-ENUM iox_SubscribeState Subscriber_getSubscriptionState(CLASS SubscriberPortData* const self);
-ENUM iox_popo_ChunkReceiveResult Subscriber_getChunk(CLASS SubscriberPortData* const self, const void** const);
-void Subscriber_releaseChunk(CLASS SubscriberPortData* const self, const void* const);
-void Subscriber_releaseQueuedChunks(CLASS SubscriberPortData* const self);
-bool Subscriber_hasNewChunks(CLASS SubscriberPortData* const self);
-bool Subscriber_hasLostChunks(CLASS SubscriberPortData* const self);
-bool Subscriber_attachConditionVariable(CLASS SubscriberPortData* const self);
-bool Subscriber_detachConditionVariable(CLASS SubscriberPortData* const self);
-bool Subscriber_isConditionVariableAttached(CLASS SubscriberPortData* const self,
-                                            CLASS ConditionVariableData* const cvHandle);
+CLASS SubscriberPortData*
+iox_sub_create(const char* const service, const char* const instance, const char* const event, uint64_t historyRequest);
+void iox_sub_destroy(CLASS SubscriberPortData* const self);
+void iox_sub_subscribe(CLASS SubscriberPortData* const self, const uint64_t queueCapacity);
+void iox_sub_unsubscribe(CLASS SubscriberPortData* const self);
+ENUM iox_SubscribeState iox_sub_getSubscriptionState(CLASS SubscriberPortData* const self);
+ENUM iox_popo_ChunkReceiveResult iox_sub_getChunk(CLASS SubscriberPortData* const self, const void** const);
+void iox_sub_releaseChunk(CLASS SubscriberPortData* const self, const void* const);
+void iox_sub_releaseQueuedChunks(CLASS SubscriberPortData* const self);
+bool iox_sub_hasNewChunks(CLASS SubscriberPortData* const self);
+bool iox_sub_hasLostChunks(CLASS SubscriberPortData* const self);
+bool iox_sub_attachConditionVariable(CLASS SubscriberPortData* const self);
+bool iox_sub_detachConditionVariable(CLASS SubscriberPortData* const self);
+bool iox_sub_isConditionVariableAttached(CLASS SubscriberPortData* const self,
+                                         CLASS ConditionVariableData* const cvHandle);
 
 #endif
 

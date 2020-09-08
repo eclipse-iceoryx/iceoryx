@@ -32,19 +32,19 @@ static void sigHandler(int signalValue)
 
 void sending()
 {
-    PoshRuntime_getInstance("/iox-c-publisher");
+    iox_rt_getInstance("/iox-c-publisher");
 
     uint64_t historyRequest = 0U;
-    struct PublisherPortData* publisher = Publisher_create("Radar", "FrontLeft", "Counter", historyRequest);
+    struct PublisherPortData* publisher = iox_pub_create("Radar", "FrontLeft", "Counter", historyRequest);
 
-    Publisher_offer(publisher);
+    iox_pub_offer(publisher);
 
     uint32_t ct = 0U;
 
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == Publisher_allocateChunk(publisher, &chunk, sizeof(struct CounterTopic)))
+        if (AllocationResult_SUCCESS == iox_pub_allocateChunk(publisher, &chunk, sizeof(struct CounterTopic)))
         {
             struct CounterTopic* sample = (struct CounterTopic*)chunk;
 
@@ -52,7 +52,7 @@ void sending()
 
             printf("Sending: %u\n", ct);
 
-            Publisher_sendChunk(publisher, chunk);
+            iox_pub_sendChunk(publisher, chunk);
 
             ++ct;
 
@@ -64,8 +64,8 @@ void sending()
         }
     }
 
-    Publisher_stopOffer(publisher);
-    Publisher_destroy(publisher);
+    iox_pub_stopOffer(publisher);
+    iox_pub_destroy(publisher);
 }
 
 int main()

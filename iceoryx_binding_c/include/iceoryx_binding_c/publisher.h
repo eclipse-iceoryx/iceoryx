@@ -19,17 +19,17 @@
 #include "iceoryx_binding_c/types.h"
 
 CLASS PublisherPortData*
-Publisher_create(const char* service, const char* instance, const char* event, const uint64_t historyCapacity);
-void Publisher_destroy(CLASS PublisherPortData* const self);
-ENUM iox_popo_AllocationResult Publisher_allocateChunk(CLASS PublisherPortData* const self,
-                                                       void** const chunk,
-                                                       const uint32_t payloadSize);
-void Publisher_freeChunk(CLASS PublisherPortData* const self, void* const chunk);
-void Publisher_sendChunk(CLASS PublisherPortData* const self, void* const chunk);
-const void* Publisher_tryGetPreviousChunk(CLASS PublisherPortData* const self);
-void Publisher_offer(CLASS PublisherPortData* const self);
-void Publisher_stopOffer(CLASS PublisherPortData* const self);
-bool Publisher_isOffered(CLASS PublisherPortData* const self);
-bool Publisher_hasSubscribers(CLASS PublisherPortData* const self);
+iox_pub_create(const char* service, const char* instance, const char* event, const uint64_t historyCapacity);
+void iox_pub_destroy(CLASS PublisherPortData* const self);
+ENUM iox_popo_AllocationResult iox_pub_allocateChunk(CLASS PublisherPortData* const self,
+                                                     void** const chunk,
+                                                     const uint32_t payloadSize);
+void iox_pub_freeChunk(CLASS PublisherPortData* const self, void* const chunk);
+void iox_pub_sendChunk(CLASS PublisherPortData* const self, void* const chunk);
+const void* iox_pub_tryGetPreviousChunk(CLASS PublisherPortData* const self);
+void iox_pub_offer(CLASS PublisherPortData* const self);
+void iox_pub_stopOffer(CLASS PublisherPortData* const self);
+bool iox_pub_isOffered(CLASS PublisherPortData* const self);
+bool iox_pub_hasSubscribers(CLASS PublisherPortData* const self);
 
 #endif

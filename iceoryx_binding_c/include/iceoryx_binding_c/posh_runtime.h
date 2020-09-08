@@ -17,7 +17,7 @@
 
 #include "internal/c2cpp_binding.h"
 
-void PoshRuntime_getInstance(const char* const name);
+void iox_rt_getInstance(const char* const name);
 
 /// @brief retrieves the instance-name of the current posh runtime instance
 /// @param[in] name char pointer to preallocated memory
@@ -25,6 +25,6 @@ void PoshRuntime_getInstance(const char* const name);
 /// @return The length of the instance-name. If the instance-name is longer then nameLength a
 ///         number greater nameLength is returned and the instance-name, truncated
 ///         to nameLength, is written into the memory location of name.
-uint64_t PoshRuntime_getInstanceName(char* const name, const uint64_t nameLength);
+uint64_t iox_rt_getInstanceName(char* const name, const uint64_t nameLength);
 
 #endif

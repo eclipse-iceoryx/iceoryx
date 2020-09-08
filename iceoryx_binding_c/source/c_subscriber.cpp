@@ -27,10 +27,10 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
-SubscriberPortData* Subscriber_create(const char* const service,
-                                      const char* const instance,
-                                      const char* const event,
-                                      const uint64_t historyRequest)
+SubscriberPortData* iox_sub_create(const char* const service,
+                                   const char* const instance,
+                                   const char* const event,
+                                   const uint64_t historyRequest)
 {
     return new SubscriberPortData(ServiceDescription{IdString(TruncateToCapacity, service),
                                                      IdString(TruncateToCapacity, instance),
@@ -40,22 +40,22 @@ SubscriberPortData* Subscriber_create(const char* const service,
                                   historyRequest);
 }
 
-void Subscriber_destroy(SubscriberPortData* const self)
+void iox_sub_destroy(SubscriberPortData* const self)
 {
     delete self;
 }
 
-void Subscriber_subscribe(SubscriberPortData* const self, const uint64_t queueCapacity)
+void iox_sub_subscribe(SubscriberPortData* const self, const uint64_t queueCapacity)
 {
     SubscriberPortUser(self).subscribe(queueCapacity);
 }
 
-void Subscriber_unsubscribe(SubscriberPortData* const self)
+void iox_sub_unsubscribe(SubscriberPortData* const self)
 {
     SubscriberPortUser(self).unsubscribe();
 }
 
-iox_SubscribeState Subscriber_getSubscriptionState(SubscriberPortData* const self)
+iox_SubscribeState iox_sub_getSubscriptionState(SubscriberPortData* const self)
 {
     switch (SubscriberPortUser(self).getSubscriptionState())
     {
@@ -74,7 +74,7 @@ iox_SubscribeState Subscriber_getSubscriptionState(SubscriberPortData* const sel
     }
 }
 
-iox_popo_ChunkReceiveResult Subscriber_getChunk(SubscriberPortData* const self, const void** const payload)
+iox_popo_ChunkReceiveResult iox_sub_getChunk(SubscriberPortData* const self, const void** const payload)
 {
     auto result = SubscriberPortUser(self).getChunk();
     if (result.has_error())
@@ -93,37 +93,37 @@ iox_popo_ChunkReceiveResult Subscriber_getChunk(SubscriberPortData* const self, 
     return ChunkReceiveResult_SUCCESS;
 }
 
-void Subscriber_releaseChunk(SubscriberPortData* const self, const void* const chunk)
+void iox_sub_releaseChunk(SubscriberPortData* const self, const void* const chunk)
 {
     SubscriberPortUser(self).releaseChunk(convertPayloadPointerToChunkHeader(chunk));
 }
 
-void Subscriber_releaseQueuedChunks(SubscriberPortData* const self)
+void iox_sub_releaseQueuedChunks(SubscriberPortData* const self)
 {
     SubscriberPortUser(self).releaseQueuedChunks();
 }
 
-bool Subscriber_hasNewChunks(SubscriberPortData* const self)
+bool iox_sub_hasNewChunks(SubscriberPortData* const self)
 {
     return SubscriberPortUser(self).hasNewChunks();
 }
 
-bool Subscriber_hasLostChunks(SubscriberPortData* const self)
+bool iox_sub_hasLostChunks(SubscriberPortData* const self)
 {
     return SubscriberPortUser(self).hasLostChunks();
 }
 
-bool Subscriber_attachConditionVariable(SubscriberPortData* const self, ConditionVariableData* const cvHandle)
+bool iox_sub_attachConditionVariable(SubscriberPortData* const self, ConditionVariableData* const cvHandle)
 {
     return SubscriberPortUser(self).attachConditionVariable(cvHandle);
 }
 
-bool Subscriber_detachConditionVariable(SubscriberPortData* const self)
+bool iox_sub_detachConditionVariable(SubscriberPortData* const self)
 {
     return SubscriberPortUser(self).detachConditionVariable();
 }
 
-bool Subscriber_isConditionVariableAttached(SubscriberPortData* const self)
+bool iox_sub_isConditionVariableAttached(SubscriberPortData* const self)
 {
     return SubscriberPortUser(self).isConditionVariableAttached();
 }

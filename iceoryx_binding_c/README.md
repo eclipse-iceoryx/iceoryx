@@ -11,9 +11,11 @@ to learn Ice0ryx from scratch if you would like to use the C API.
 
 Therefore, we have the following coding conventions exclusively in the C API.
 
- - C functions are named like `ClassName_MethodName`
-    - The constructor is always named like `ClassName_create` and the
-      destructor `ClassName_destroy`
+ - C functions are using an abbreviation of the `ClassName` for instance `cn` and
+      are named like `iox_cn_MethodName`
+    - The constructor has always a suffix `_create` and is called for instance 
+        `cn_create`. Analog to the constructor the destructor has the suffix `_destroy` 
+        and is named like `cn_destroy`.
     - The first parameter is always the handle to the corresponding object.
     - If possible, the arguments should stay the same in the C API.
 
@@ -33,9 +35,9 @@ enum class Color {
     BLUE
 };
 
-class MyTransmitter {
+class Subscriber {
     public:
-        MyTransmitter(const std::string &name);
+        Subscriber(const std::string &name);
         cxx::optional<void*> receive();
         bool send(void * data);
 };
@@ -50,9 +52,9 @@ enum iox_Color {
     Color_BLUE,
 };
 
-CLASS MyTransmitterHandle* MyTransmitter_create(const char * name);
-void MyTransmitter_destroy(CLASS MyTransmitterHandle * self);
-bool MyTransmitter_receive(void * const data);
-bool MyTransmitter_send(void * const data);
+CLASS MyTransmitterHandle* iox_sub_create(const char * name);
+void iox_sub_destroy(CLASS MyTransmitterHandle * self);
+bool iox_sub_receive(void * const data);
+bool iox_sub_send(void * const data);
 ```
 

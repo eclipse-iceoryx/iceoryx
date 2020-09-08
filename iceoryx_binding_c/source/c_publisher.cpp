@@ -25,7 +25,7 @@ extern "C" {
 }
 
 PublisherPortData*
-Publisher_create(const char* service, const char* instance, const char* event, const uint64_t historyCapacity)
+iox_pub_create(const char* service, const char* instance, const char* event, const uint64_t historyCapacity)
 {
     return new PublisherPortData(
         ServiceDescription{
@@ -38,13 +38,13 @@ Publisher_create(const char* service, const char* instance, const char* event, c
         historyCapacity);
 }
 
-void Publisher_destroy(PublisherPortData* const self)
+void iox_pub_destroy(PublisherPortData* const self)
 {
     delete self;
 }
 
 iox_popo_AllocationResult
-Publisher_allocateChunk(PublisherPortData* const self, void** const chunk, const uint32_t payloadSize)
+iox_pub_allocateChunk(PublisherPortData* const self, void** const chunk, const uint32_t payloadSize)
 {
     auto result =
         PublisherPortUser(self).allocateChunk(payloadSize).and_then([&](ChunkHeader* h) { *chunk = h->payload(); });
@@ -64,39 +64,39 @@ Publisher_allocateChunk(PublisherPortData* const self, void** const chunk, const
     return AllocationResult_SUCCESS;
 }
 
-void Publisher_freeChunk(PublisherPortData* const self, void* const chunk)
+void iox_pub_freeChunk(PublisherPortData* const self, void* const chunk)
 {
     PublisherPortUser(self).freeChunk(convertPayloadPointerToChunkHeader(chunk));
 }
 
-void Publisher_sendChunk(PublisherPortData* const self, void* const chunk)
+void iox_pub_sendChunk(PublisherPortData* const self, void* const chunk)
 {
     PublisherPortUser(self).sendChunk(convertPayloadPointerToChunkHeader(chunk));
 }
 
-const void* Publisher_tryGetPreviousChunk(PublisherPortData* const self)
+const void* iox_pub_tryGetPreviousChunk(PublisherPortData* const self)
 {
     const void* returnValue = nullptr;
     PublisherPortUser(self).getLastChunk().and_then([&](const ChunkHeader* h) { returnValue = h->payload(); });
     return returnValue;
 }
 
-void Publisher_offer(PublisherPortData* const self)
+void iox_pub_offer(PublisherPortData* const self)
 {
     PublisherPortUser(self).offer();
 }
 
-void Publisher_stopOffer(PublisherPortData* const self)
+void iox_pub_stopOffer(PublisherPortData* const self)
 {
     PublisherPortUser(self).stopOffer();
 }
 
-bool Publisher_isOffered(PublisherPortData* const self)
+bool iox_pub_isOffered(PublisherPortData* const self)
 {
     return PublisherPortUser(self).isOffered();
 }
 
-bool Publisher_hasSubscribers(PublisherPortData* const self)
+bool iox_pub_hasSubscribers(PublisherPortData* const self)
 {
     return PublisherPortUser(self).hasSubscribers();
 }
