@@ -15,6 +15,7 @@
 #ifndef IOX_BINDING_C_TYPES_H
 #define IOX_BINDING_C_TYPES_H
 
+/// @brief describes the current state of a subscriber
 enum iox_SubscribeState
 {
     SubscribeState_NOT_SUBSCRIBED = 0,
@@ -25,6 +26,7 @@ enum iox_SubscribeState
     SubscribeState_UNDEFINED,
 };
 
+/// @brief describes the state of getChunk in the subscriber
 enum iox_popo_ChunkReceiveResult
 {
     ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
@@ -33,6 +35,7 @@ enum iox_popo_ChunkReceiveResult
     ChunkReceiveResult_SUCCESS,
 };
 
+/// @brief state of allocateChunk
 enum iox_popo_AllocationResult
 {
     AllocationResult_RUNNING_OUT_OF_CHUNKS,
