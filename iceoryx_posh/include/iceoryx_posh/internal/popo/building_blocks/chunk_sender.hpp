@@ -30,6 +30,7 @@ enum class AllocationError
 {
     RUNNING_OUT_OF_CHUNKS,
     TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
+    INVALID_CHUNK,
     UNKNOWN
 };
 

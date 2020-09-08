@@ -29,36 +29,42 @@ using uid_t = uint64_t;
 
 // ======================================== Helpers ======================================== //
 
-template<typename Callable, typename... Args>
+///
+/// @brief Verifies whether the passed Callable type is in fact callable
+///
+template<typename Callable, typename... ArgTypes>
 struct is_callable {
 
-    // This variant is chosen when Callable(Args) successfully resolves to a valid type, i.e. is callable.
-    template<typename _Callable, typename... _Args>
-    static constexpr std::true_type test(decltype(std::declval<_Callable>()(std::declval<_Args>()...))*)
+    // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is callable.
+    template<typename C, typename... A>
+    static constexpr std::true_type test(decltype(std::declval<C>()(std::declval<A>()...))*)
     {
         return {};
     }
 
-    // This is chosen if Callable(Args) does not resolve to a valid type.
-    template<typename _Callable, typename... _Args>
+    // This is chosen if Callable(ArgTypes) does not resolve to a valid type.
+    template<typename C, typename... A>
     static constexpr std::false_type test(...)
     {
         return {};
     }
 
     // Test with nullptr as this can stand in for a pointer to any type.
-    static constexpr bool value = decltype(test<Callable, Args...>(nullptr))::value;
+    static constexpr bool value = decltype(test<Callable, ArgTypes...>(nullptr))::value;
 };
 
-template <typename, typename, typename = void>
+///
+/// @brief Verfies the signature of the provided callable type
+///
+template <typename Callable = void, typename ReturnType = void, typename ArgTypes = void>
 struct has_signature : std::false_type {};
 
-template <typename Callable, typename Ret, typename... Args>
-struct has_signature<Callable, Ret(Args...),
+template <typename Callable, typename ReturnType, typename... ArgTypes>
+struct has_signature<Callable, ReturnType(ArgTypes...),
     typename std::enable_if<
         std::is_convertible<
-            decltype(std::declval<Callable>()(std::declval<Args>()...)),
-            Ret
+            decltype(std::declval<Callable>()(std::declval<ArgTypes>()...)),
+            ReturnType
         >::value, void>::type>
     : std::true_type {};
 
@@ -111,7 +117,10 @@ template<typename T, typename port_t>
 inline cxx::expected<AllocationError>
 BasePublisher<T, port_t>::publish(Sample<T>& sample) noexcept
 {
-    /// @todo - ensure sample points to valid shared memory location
+    if(!isOffered())
+    {
+        offer();
+    }
     auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.get()));
     m_port.deliverChunk(header);
     return iox::cxx::success<>();
@@ -143,7 +152,8 @@ template<typename T, typename port_t>
 inline bool
 BasePublisher<T, port_t>::isOffered() noexcept
 {
-    assert(false && "Not yet supported");
+    // Implementation coming with new ports.
+    return true;
 }
 
 template<typename T, typename port_t>
@@ -201,7 +211,7 @@ TypedPublisher<T>::publishResultOf(Callable c, ArgTypes... args) noexcept
     if(!result.has_error())
     {
         auto& sample = result.get_value();
-        c(sample.get(), args...);
+        c(sample.get(), std::forward<ArgTypes>(args)...);
         return publish(sample);
     }
     else
@@ -285,6 +295,14 @@ inline cxx::expected<AllocationError>
 UntypedPublisher::publish(Sample<void>& sample) noexcept
 {
     return BasePublisher<void>::publish(sample);
+}
+
+inline cxx::expected<AllocationError>
+UntypedPublisher::publish(void* allocatedMemory) noexcept
+{
+    auto header = iox::mepoo::convertPayloadPointerToChunkHeader(allocatedMemory);
+    m_port.deliverChunk(header);
+    return iox::cxx::success<>();
 }
 
 inline cxx::expected<SampleRecallError>

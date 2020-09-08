@@ -191,7 +191,6 @@ public:
     template<typename Callback, typename Predicate>
     void setCallback(Callback cb, Predicate p) noexcept;
     void unsetCallback() noexcept;
-
 };
 
 } // namespace popo

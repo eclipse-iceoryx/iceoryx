@@ -25,14 +25,11 @@ namespace popo {
 
 using uid_t = uint64_t;
 
-struct Untyped {};
-
 template<typename T, typename port_t = iox::popo::SenderPort>
 class BasePublisher;
 
 // ======================================== Sample ======================================== //
 
-// Sample needs to be specialized when T = void, since we are working with an untyped publisher in this case ..?
 template <typename T>
 class Sample
 {
@@ -144,15 +141,59 @@ public:
     BasePublisher& operator=(BasePublisher&& rhs) = default;
     ~BasePublisher() = default;
 
+    ///
+    /// @brief uid Get the UID of the publisher.
+    /// @return The publisher's UID.
+    ///
     uid_t uid() const noexcept;
+
+    ///
+    /// @brief loan Get a sample from loaned shared memory.
+    /// @param size The expected size of the sample.
+    /// @return An instance of the sample that resides in shared memory or an error if unable ot allocate memory to laon.
+    /// @details The loaned sample is automatically released when it goes out of scope.
+    ///
     cxx::expected<Sample<T>, AllocationError> loan(uint64_t size) noexcept;
+
+    ///
+    /// @brief release Release the loan to the provided sample.
+    /// @param sample Sample to release.
+    ///
     void release(Sample<T>& sample) noexcept;
+
+    ///
+    /// @brief publish Publish the provide sample.
+    /// @param sample The sample to publish.
+    /// @return Error if unable to publish.
+    ///
     cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
+
+    ///
+    /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
+    /// @return The previously loaned sample.
+    ///
     cxx::expected<SampleRecallError> previousSample() const noexcept;
 
+    ///
+    /// @brief offer Offer the service.
+    ///
     void offer() noexcept;
+
+    ///
+    /// @brief stopOffer Stop offering the service.
+    ///
     void stopOffer() noexcept;
+
+    ///
+    /// @brief isOffered
+    /// @return True if service is currently being offered.
+    ///
     bool isOffered() noexcept;
+
+    ///
+    /// @brief hasSubscribers
+    /// @return True if currently has subscribers to the service.
+    ///
     bool hasSubscribers() noexcept;
 
 protected:
@@ -184,7 +225,19 @@ public:
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
     void release(Sample<T>& sample) noexcept;
     cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
+    ///
+    /// @brief publishCopyOf Copy the provided value into a loaned shared memory chunk and publish it.
+    /// @param val Value to copy.
+    /// @return Error if unable to allocate memory to loan.
+    ///
     cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept;
+
+    ///
+    /// @brief publishResultOf Loan a sample from memory, execute the provided callable to write to it, then publish it.
+    /// @param c Callable with the signature void(T*, ArgTypes...) that write's it's result to T*.
+    /// @param args The arguments of the callable.
+    /// @return Error if unable to allocate memory to loan.
+    ///
     template<typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
@@ -213,6 +266,12 @@ public:
     cxx::expected<Sample<void>, AllocationError> loan(uint64_t size) noexcept;
     void release(Sample<void>& sample) noexcept;
     cxx::expected<AllocationError> publish(Sample<void>& sample) noexcept;
+    ///
+    /// @brief publish Publish the provided memory chunk.
+    /// @param allocatedMemory Pointer to the allocated shared memory chunk.
+    /// @return Error if provided pointer is not a valid memory chunk.
+    ///
+    cxx::expected<AllocationError> publish(void* allocatedMemory) noexcept;
     cxx::expected<SampleRecallError> previousSample() const noexcept;
 
     void offer() noexcept;

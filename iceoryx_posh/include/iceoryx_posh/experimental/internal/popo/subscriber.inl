@@ -130,6 +130,28 @@ BaseSubscriber<T, recvport_t>::clearReceiveBuffer() noexcept
     m_port.clearDeliveryFiFo();
 }
 
+template<typename T, typename recvport_t>
+template<typename Callback>
+inline void
+BaseSubscriber<T, recvport_t>::setCallback(Callback cb) noexcept
+{
+
+}
+
+template<typename T, typename recvport_t>
+template<typename Callback, typename Predicate>
+inline void
+BaseSubscriber<T, recvport_t>::setCallback(Callback cb, Predicate p) noexcept
+{
+
+}
+
+template<typename T, typename recvport_t>
+inline void
+BaseSubscriber<T, recvport_t>::unsetCallback() noexcept
+{
+
+}
 
 // ======================================== Typed Subscriber ======================================== //
 
@@ -185,6 +207,29 @@ inline void
 TypedSubscriber<T>::clearReceiveBuffer() noexcept
 {
     BaseSubscriber<T>::clearReceiveBuffer();
+}
+
+template<typename T>
+template<typename Callback>
+inline void
+TypedSubscriber<T>::setCallback(Callback cb) noexcept
+{
+
+}
+
+template<typename T>
+template<typename Callback, typename Predicate>
+inline void
+TypedSubscriber<T>::setCallback(Callback cb, Predicate p) noexcept
+{
+
+}
+
+template<typename T>
+inline void
+TypedSubscriber<T>::unsetCallback() noexcept
+{
+
 }
 
 // ======================================== Untyped Subscriber ======================================== //
