@@ -82,6 +82,7 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 | example_icedelivery_on_c                | 5    | 5                     |                                     |
 | example_iceperf                         | 5    | 5                     |                                     |
 | example_singleprocess                   | 5    | 5                     |                                     |
+| iceoryx_binding_c                       | 5    | 5                     | Not final and can change in the near future |
 | iceoryx_dds                             | 4    | 4                     |                                     |
 | iceoryx_meta                            | 5    | 5                     |                                     |
 | iceoryx_posh                            | 1, 2 | 4                     | Will be split into separate targets |
