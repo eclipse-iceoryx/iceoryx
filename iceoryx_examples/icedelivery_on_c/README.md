@@ -23,30 +23,31 @@ we again follow the steps like:
  3. Subscribe to the offered service 
  4. Receive data 
  5. Unsubscribe.
- 6. **C API: Additionally, we have to remove the Subscriber port!**
+ 6. **C API: Additionally, we have to remove the previously allocated Subscriber 
+        port!** 
 
 Let's take a look at the `receiving` function which comes with the
 `ice_c_subscriber.c` example.
 
  1. We register our process at roudi with the name `iox-c-subscriber`
     ```c
-    PoshRuntime_getInstance("/iox-c-subscriber");
+    iox_rt_getInstance("/iox-c-subscriber");
     ```
   
  2. We create a subscriber port and are subscribing to the service 
     {"Radar", "FrontLeft", "Counter" }. Hereby the `historyRequest` 
-    tells the subscriber how many samples it should receive right 
-    after the connection (for the experts: field behavior). These are
+    tells the subscriber how many previously send samples it should receive 
+    right after the connection is established. These are
     samples which the publisher has send before the subscriber was 
     connected.
     ```c
     uint64_t historyRequest = 0u;
-    struct SubscriberPortData* subscriber = Subscriber_new("Radar", "FrontLeft", "Counter", historyRequest);
+    struct SubscriberPortData* subscriber = iox_sub_new("Radar", "FrontLeft", "Counter", historyRequest);
     ```
  
-  3. We subscribe to the service with a sample cache capacity of 10.
+  3. We subscribe to the service with a queue capacity of 10.
      ```c
-     Subscriber_subscribe(subscriber, 10);
+     iox_sub_subscribe(subscriber, 10);
      ```
 
   4. In this loop we receive samples as long the `killswitch` is not
@@ -55,14 +56,14 @@ Let's take a look at the `receiving` function which comes with the
      ```c
      while (!killswitch)
      {
-         if (SubscribeState_SUBSCRIBED == Subscriber_getSubscriptionState(subscriber))
+         if (SubscribeState_SUBSCRIBED == iox_sub_getSubscriptionState(subscriber))
          {
              const void* chunk = NULL;
-             while (ChunkReceiveError_SUCCESS == Subscriber_getChunk(subscriber, &chunk))
+             while (ChunkReceiveError_SUCCESS == iox_sub_getChunk(subscriber, &chunk))
              {
                  const struct CounterTopic* sample = (const struct CounterTopic*)(chunk);
                  printf("Receiving: %u\n", sample->counter);
-                 Subscriber_releaseChunk(subscriber, chunk);
+                 iox_sub_releaseChunk(subscriber, chunk);
              }
          }
          else
@@ -76,13 +77,13 @@ Let's take a look at the `receiving` function which comes with the
   
   5. After we stop receiving samples we would like to unsubscribe.
      ```c
-     Subscriber_unsubscribe(subscriber);
+     iox_sub_unsubscribe(subscriber);
      ```
 
   6. When using the C API we have to cleanup the subscriber after 
      its usage.
      ```c
-     Subscriber_delete(subscriber);
+     iox_sub_delete(subscriber);
      ```
 
 ### Publisher
@@ -94,24 +95,25 @@ The publisher is implemented in a way like in the
  3. Offer the service 
  4. Send data 
  5. Stop offering the service
- 6. **C API: Additionally, we have to remove the Publisher port!**
+ 6. **C API: Additionally, we have to remove the previously allocated Publisher 
+        port!** 
 
 Let's take a look at the `sending` function which comes with the
 `ice_c_publisher.c` example.
 
  1. We register our process at roudi with the name `iox-c-subscriber`
     ```c
-    PoshRuntime_getInstance("/iox-c-publisher");
+    iox_rt_getInstance("/iox-c-publisher");
     ```
  2. We create a publisher with the service 
     {"Radar", "FrontLeft", "Counter"}
     ```c
     uint64_t historyRequest = 0u;
-    struct PublisherPortData* publisher = Publisher_new("Radar", "FrontLeft", "Counter", historyRequest);
+    struct PublisherPortData* publisher = iox_pub_new("Radar", "FrontLeft", "Counter", historyRequest);
     ```
  3. We offer our service to the world.
     ```c
-    Publisher_offer(publisher);
+    iox_pub_offer(publisher);
     ```
 
  4. Till an external signal sets `killswitch` to `true` we will send an
@@ -123,7 +125,7 @@ Let's take a look at the `sending` function which comes with the
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == Publisher_allocateChunk(publisher, &chunk, sizeof(struct CounterTopic)))
+        if (AllocationResult_SUCCESS == iox_pub_allocateChunk(publisher, &chunk, sizeof(struct CounterTopic)))
         {
             struct CounterTopic* sample = (struct CounterTopic*)chunk;
     
@@ -131,7 +133,7 @@ Let's take a look at the `sending` function which comes with the
     
             printf("Sending: %u\n", ct);
     
-            Publisher_sendChunk(publisher, chunk);
+            iox_pub_sendChunk(publisher, chunk);
     
             ++ct;
     
@@ -146,10 +148,10 @@ Let's take a look at the `sending` function which comes with the
 
  5. We stop offering our service.
     ```c
-    Publisher_stopOffer(publisher);
+    iox_pub_stopOffer(publisher);
     ```
 
  6. And we cleanup our publisher port.
     ```c
-    Publisher_delete(publisher);
+    iox_pub_delete(publisher);
     ```
