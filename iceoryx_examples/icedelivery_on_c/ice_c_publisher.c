@@ -34,12 +34,12 @@ void sending()
 {
     PoshRuntime_getInstance("/iox-c-publisher");
 
-    uint64_t historyRequest = 0u;
+    uint64_t historyRequest = 0U;
     struct PublisherPortData* publisher = Publisher_create("Radar", "FrontLeft", "Counter", historyRequest);
 
     Publisher_offer(publisher);
 
-    uint32_t ct = 0u;
+    uint32_t ct = 0U;
 
     while (!killswitch)
     {
