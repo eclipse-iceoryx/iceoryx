@@ -21,7 +21,7 @@ extern "C" {
 #include "iceoryx_binding_c/posh_runtime.h"
 }
 
-void iox_runtime_get_instance(const char* const name)
+void iox_runtime_register(const char* const name)
 {
     PoshRuntime::getInstance(name);
 }

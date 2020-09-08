@@ -19,7 +19,7 @@
 
 /// @brief registers a new posh runtime with a given name
 /// @param[in] name name of the posh runtime
-void iox_runtime_get_instance(const char* const name);
+void iox_runtime_register(const char* const name);
 
 /// @brief retrieves the instance-name of the current posh runtime instance
 /// @param[in] name char pointer to preallocated memory

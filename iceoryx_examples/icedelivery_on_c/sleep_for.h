@@ -18,7 +18,7 @@
 #ifdef _WIN32
 #include <windows.h>
 
-void sleepFor(int milliseconds)
+void sleep_for(int milliseconds)
 {
     Sleep(milliseconds);
 }
@@ -26,7 +26,7 @@ void sleepFor(int milliseconds)
 #else
 #include <unistd.h>
 
-void sleepFor(int milliseconds)
+void sleep_for(int milliseconds)
 {
     useconds_t a;
     usleep(milliseconds * 1000);

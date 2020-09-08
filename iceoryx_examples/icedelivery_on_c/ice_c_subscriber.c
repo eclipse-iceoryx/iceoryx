@@ -32,7 +32,7 @@ static void sigHandler(int signalValue)
 
 void receiving()
 {
-    iox_runtime_get_instance("/iox-c-subscriber");
+    iox_runtime_register("/iox-c-subscriber");
 
     uint64_t historyRequest = 0U;
     struct SubscriberPortData* subscriber = iox_sub_create("Radar", "FrontLeft", "Counter", historyRequest);
@@ -55,7 +55,7 @@ void receiving()
             printf("Not subscribed!\n");
         }
 
-        sleepFor(1000);
+        sleep_for(1000);
     }
 
     iox_sub_unsubscribe(subscriber);

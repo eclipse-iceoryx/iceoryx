@@ -31,7 +31,7 @@ Let's take a look at the `receiving` function which comes with the
 
  1. We register our process at roudi with the name `iox-c-subscriber`
     ```c
-    iox_rt_getInstance("/iox-c-subscriber");
+    iox_rt_register("/iox-c-subscriber");
     ```
   
  2. We create a subscriber port and are subscribing to the service 
@@ -42,7 +42,7 @@ Let's take a look at the `receiving` function which comes with the
     connected.
     ```c
     uint64_t historyRequest = 0u;
-    struct SubscriberPortData* subscriber = iox_sub_new("Radar", "FrontLeft", "Counter", historyRequest);
+    struct SubscriberPortData* subscriber = iox_sub_create("Radar", "FrontLeft", "Counter", historyRequest);
     ```
  
   3. We subscribe to the service with a queue capacity of 10.
@@ -56,14 +56,14 @@ Let's take a look at the `receiving` function which comes with the
      ```c
      while (!killswitch)
      {
-         if (SubscribeState_SUBSCRIBED == iox_sub_getSubscriptionState(subscriber))
+         if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
          {
              const void* chunk = NULL;
-             while (ChunkReceiveError_SUCCESS == iox_sub_getChunk(subscriber, &chunk))
+             while (ChunkReceiveError_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
              {
                  const struct CounterTopic* sample = (const struct CounterTopic*)(chunk);
                  printf("Receiving: %u\n", sample->counter);
-                 iox_sub_releaseChunk(subscriber, chunk);
+                 iox_sub_release_chunk(subscriber, chunk);
              }
          }
          else
@@ -71,7 +71,7 @@ Let's take a look at the `receiving` function which comes with the
              printf("Not subscribed!\n");
          }
 
-         sleepFor(1000);
+         sleep_for(1000);
      }
      ```
   
@@ -83,7 +83,7 @@ Let's take a look at the `receiving` function which comes with the
   6. When using the C API we have to cleanup the subscriber after 
      its usage.
      ```c
-     iox_sub_delete(subscriber);
+     iox_sub_destroy(subscriber);
      ```
 
 ### Publisher
@@ -103,13 +103,13 @@ Let's take a look at the `sending` function which comes with the
 
  1. We register our process at roudi with the name `iox-c-subscriber`
     ```c
-    iox_rt_getInstance("/iox-c-publisher");
+    iox_rt_register("/iox-c-publisher");
     ```
  2. We create a publisher with the service 
     {"Radar", "FrontLeft", "Counter"}
     ```c
     uint64_t historyRequest = 0u;
-    struct PublisherPortData* publisher = iox_pub_new("Radar", "FrontLeft", "Counter", historyRequest);
+    struct PublisherPortData* publisher = iox_pub_create("Radar", "FrontLeft", "Counter", historyRequest);
     ```
  3. We offer our service to the world.
     ```c
@@ -125,7 +125,7 @@ Let's take a look at the `sending` function which comes with the
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_allocateChunk(publisher, &chunk, sizeof(struct CounterTopic)))
+        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct CounterTopic)))
         {
             struct CounterTopic* sample = (struct CounterTopic*)chunk;
     
@@ -133,11 +133,11 @@ Let's take a look at the `sending` function which comes with the
     
             printf("Sending: %u\n", ct);
     
-            iox_pub_sendChunk(publisher, chunk);
+            iox_pub_send_chunk(publisher, chunk);
     
             ++ct;
     
-            sleepFor(1000);
+            sleep_for(1000);
         }
         else
         {
@@ -148,10 +148,10 @@ Let's take a look at the `sending` function which comes with the
 
  5. We stop offering our service.
     ```c
-    iox_pub_stopOffer(publisher);
+    iox_pub_stop_offer(publisher);
     ```
 
  6. And we cleanup our publisher port.
     ```c
-    iox_pub_delete(publisher);
+    iox_pub_destroy(publisher);
     ```
