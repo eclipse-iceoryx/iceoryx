@@ -25,7 +25,7 @@ extern "C" {
 }
 
 PublisherPortData*
-Publisher_new(const char* service, const char* instance, const char* event, const uint64_t historyCapacity)
+Publisher_create(const char* service, const char* instance, const char* event, const uint64_t historyCapacity)
 {
     return new PublisherPortData(
         ServiceDescription{
@@ -38,7 +38,7 @@ Publisher_new(const char* service, const char* instance, const char* event, cons
         historyCapacity);
 }
 
-void Publisher_delete(PublisherPortData* const self)
+void Publisher_destroy(PublisherPortData* const self)
 {
     delete self;
 }

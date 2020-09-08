@@ -18,9 +18,11 @@
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/types.h"
 
-CLASS SubscriberPortData*
-Subscriber_new(const char* const service, const char* const instance, const char* const event, uint64_t historyRequest);
-void Subscriber_delete(CLASS SubscriberPortData* const self);
+CLASS SubscriberPortData* Subscriber_create(const char* const service,
+                                            const char* const instance,
+                                            const char* const event,
+                                            uint64_t historyRequest);
+void Subscriber_destroy(CLASS SubscriberPortData* const self);
 void Subscriber_subscribe(CLASS SubscriberPortData* const self, const uint64_t queueCapacity);
 void Subscriber_unsubscribe(CLASS SubscriberPortData* const self);
 ENUM iox_SubscribeState Subscriber_getSubscriptionState(CLASS SubscriberPortData* const self);

@@ -27,10 +27,10 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
-SubscriberPortData* Subscriber_new(const char* const service,
-                                   const char* const instance,
-                                   const char* const event,
-                                   const uint64_t historyRequest)
+SubscriberPortData* Subscriber_create(const char* const service,
+                                      const char* const instance,
+                                      const char* const event,
+                                      const uint64_t historyRequest)
 {
     return new SubscriberPortData(ServiceDescription{IdString(TruncateToCapacity, service),
                                                      IdString(TruncateToCapacity, instance),
@@ -40,7 +40,7 @@ SubscriberPortData* Subscriber_new(const char* const service,
                                   historyRequest);
 }
 
-void Subscriber_delete(SubscriberPortData* const self)
+void Subscriber_destroy(SubscriberPortData* const self)
 {
     delete self;
 }

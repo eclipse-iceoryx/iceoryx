@@ -19,8 +19,8 @@
 #include "iceoryx_binding_c/types.h"
 
 CLASS PublisherPortData*
-Publisher_new(const char* service, const char* instance, const char* event, const uint64_t historyCapacity);
-void Publisher_delete(CLASS PublisherPortData* const self);
+Publisher_create(const char* service, const char* instance, const char* event, const uint64_t historyCapacity);
+void Publisher_destroy(CLASS PublisherPortData* const self);
 ENUM iox_popo_AllocationResult Publisher_allocateChunk(CLASS PublisherPortData* const self,
                                                        void** const chunk,
                                                        const uint32_t payloadSize);

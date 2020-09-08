@@ -12,8 +12,8 @@ to learn Ice0ryx from scratch if you would like to use the C API.
 Therefore, we have the following coding conventions exclusively in the C API.
 
  - C functions are named like `ClassName_MethodName`
-    - The constructor is always named liek `ClassName_new` and the
-      destructor `ClassName_delete`
+    - The constructor is always named like `ClassName_create` and the
+      destructor `ClassName_destroy`
     - The first parameter is always the handle to the corresponding class.
     - If possible, the arguments should stay the same in the C API.
 
