@@ -32,7 +32,7 @@ static void sigHandler(int signalValue)
 
 void sending()
 {
-    iox_runtime_getInstance("/iox-c-publisher");
+    iox_runtime_get_instance("/iox-c-publisher");
 
     uint64_t historyRequest = 0U;
     struct PublisherPortData* publisher = iox_pub_create("Radar", "FrontLeft", "Counter", historyRequest);

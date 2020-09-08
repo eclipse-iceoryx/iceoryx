@@ -12,7 +12,8 @@ to learn Ice0ryx from scratch if you would like to use the C API.
 Therefore, we have the following coding conventions exclusively in the C API.
 
  - C functions are using an abbreviation of the `ClassName` for instance `cn` and
-      are named like `iox_cn_MethodName`
+      are named like `iox_cn_method_name` where the camelCase is converted into 
+      snake_case.
     - The constructor has always a suffix `_create` and is called for instance 
         `cn_create`. Analog to the constructor the destructor has the suffix `_destroy` 
         and is named like `cn_destroy`.
@@ -40,6 +41,7 @@ class Subscriber {
         Subscriber(const std::string &name);
         cxx::optional<void*> receive();
         bool send(void * data);
+        void allHailHypnotoad();
 };
 }
 ```
@@ -56,5 +58,6 @@ CLASS MyTransmitterHandle* iox_sub_create(const char * name);
 void iox_sub_destroy(CLASS MyTransmitterHandle * self);
 bool iox_sub_receive(void * const data);
 bool iox_sub_send(void * const data);
+void iox_sub_all_hail_hypnotoad();
 ```
 
