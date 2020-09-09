@@ -44,20 +44,20 @@ namespace iox
 {
 namespace roudi
 {
-capro::Interfaces StringToCaProInterface(const capro::IdString& str);
+capro::Interfaces StringToCaProInterface(const capro::IdString& str) noexcept;
 
 class PortManager
 {
   public:
     using PortConfigInfo = iox::runtime::PortConfigInfo;
-    PortManager(RouDiMemoryInterface* roudiMemoryInterface);
+    PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept;
 
     virtual ~PortManager() = default;
 
     /// @todo Remove this later
-    void stopPortIntrospection();
+    void stopPortIntrospection() noexcept;
 
-    void doDiscovery();
+    void doDiscovery() noexcept;
 
     /// @deprecated #25
     virtual cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
@@ -80,26 +80,26 @@ class PortManager
                              const ProcessName_t& processName,
                              mepoo::MemoryManager* payloadMemoryManager,
                              const RunnableName_t& runnable,
-                             const PortConfigInfo& portConfigInfo);
+                             const PortConfigInfo& portConfigInfo) noexcept;
 
     SubscriberPortProducerType::MemberType_t* acquireSubscriberPortData(const capro::ServiceDescription& service,
                                                                         const uint64_t& historyRequest,
                                                                         const ProcessName_t& processName,
                                                                         const RunnableName_t& runnable,
-                                                                        const PortConfigInfo& portConfigInfo);
+                                                                        const PortConfigInfo& portConfigInfo) noexcept;
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const ProcessName_t& processName,
-                                                      const RunnableName_t& runnable = "");
+                                                      const RunnableName_t& runnable = "") noexcept;
 
-    popo::ApplicationPortData* acquireApplicationPortData(const ProcessName_t& processName);
+    popo::ApplicationPortData* acquireApplicationPortData(const ProcessName_t& processName) noexcept;
 
-    runtime::RunnableData* acquireRunnableData(const ProcessName_t& process, const RunnableName_t& runnable);
+    runtime::RunnableData* acquireRunnableData(const ProcessName_t& process, const RunnableName_t& runnable) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
-    acquireConditionVariableData(const ProcessName_t& processName);
+    acquireConditionVariableData(const ProcessName_t& processName) noexcept;
 
-    void deletePortsOfProcess(const ProcessName_t& processName);
+    void deletePortsOfProcess(const ProcessName_t& processName) noexcept;
 
     /// @deprecated #25
     void destroySenderPort(SenderPortType::MemberType_t* const senderPortData);
@@ -107,12 +107,12 @@ class PortManager
     /// @deprecated #25
     void destroyReceiverPort(ReceiverPortType::MemberType_t* const receiverPortData);
 
-    void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData);
+    void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept;
 
-    void destroySubscriberPort(SubscriberPortProducerType::MemberType_t* const subscriberPortData);
+    void destroySubscriberPort(SubscriberPortProducerType::MemberType_t* const subscriberPortData) noexcept;
 
-    const std::atomic<uint64_t>* serviceRegistryChangeCounter();
-    runtime::MqMessage findService(const capro::ServiceDescription& service);
+    const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
+    runtime::MqMessage findService(const capro::ServiceDescription& service) noexcept;
 
   protected:
     /// @deprecated #25
@@ -121,15 +121,15 @@ class PortManager
     /// @deprecated #25
     void handleReceiverPorts();
 
-    void handlePublisherPorts();
+    void handlePublisherPorts() noexcept;
 
-    void handleSubscriberPorts();
+    void handleSubscriberPorts() noexcept;
 
-    void handleInterfaces();
+    void handleInterfaces() noexcept;
 
-    void handleApplications();
+    void handleApplications() noexcept;
 
-    void handleRunnables();
+    void handleRunnables() noexcept;
 
     /// @deprecated #25
     bool sendToAllMatchingSenderPorts(const capro::CaproMessage& message, ReceiverPortType& receiverSource);
@@ -138,11 +138,12 @@ class PortManager
     void sendToAllMatchingReceiverPorts(const capro::CaproMessage& message, SenderPortType& senderSource);
 
     bool sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
-                                         SubscriberPortProducerType& subscriberSource);
+                                         SubscriberPortProducerType& subscriberSource) noexcept;
 
-    void sendToAllMatchingSubscriberPorts(const capro::CaproMessage& message, PublisherPortRouDiType& publisherSource);
+    void sendToAllMatchingSubscriberPorts(const capro::CaproMessage& message,
+                                          PublisherPortRouDiType& publisherSource) noexcept;
 
-    void sendToAllMatchingInterfacePorts(const capro::CaproMessage& message);
+    void sendToAllMatchingInterfacePorts(const capro::CaproMessage& message) noexcept;
 
     void addEntryToServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
     void removeEntryFromServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
