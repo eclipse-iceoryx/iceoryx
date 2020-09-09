@@ -12,16 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_TYPES_H
-#define IOX_BINDING_C_TYPES_H
+#include "iceoryx_posh/popo/wait_set.hpp"
 
-#include "internal/c2cpp_binding.h"
+using namespace iox;
+using namespace iox::popo;
 
-struct wait_set_storage_t
+
+extern "C" {
+#include "iceoryx_binding_c/types.h"
+}
+
+#include "test.hpp"
+
+using namespace ::testing;
+
+TEST(types_test, WaitSetStorageSizeFits)
 {
-    // the value of the array size is the result of the following formula:
-    // sizeof(WaitSet) / 8
-    uint64_t do_not_touch_me[133];
-};
+    EXPECT_THAT(sizeof(WaitSet), Eq(sizeof(wait_set_storage_t)));
+    EXPECT_THAT(alignof(WaitSet), Le(alignof(wait_set_storage_t)));
+}
 
-#endif

@@ -16,7 +16,7 @@
 #define IOX_BINDING_C_PUBLISHER_H
 
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
-#include "iceoryx_binding_c/types.h"
+#include "iceoryx_binding_c/states.h"
 
 /// @brief publisher handle
 typedef struct PublisherPortData* pub_t;

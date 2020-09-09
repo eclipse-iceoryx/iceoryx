@@ -17,7 +17,7 @@
 
 #include "iceoryx_binding_c/condition.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
-#include "iceoryx_binding_c/types.h"
+#include "iceoryx_binding_c/states.h"
 
 /// @brief Subscriber handle
 typedef struct SubscriberPortData* sub_t;
