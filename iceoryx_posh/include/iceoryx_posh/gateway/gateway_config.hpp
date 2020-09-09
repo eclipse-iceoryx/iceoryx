@@ -21,7 +21,7 @@
 
 namespace iox
 {
-namespace gw
+namespace config
 {
 ///
 /// @brief Generic configuration for gateways.

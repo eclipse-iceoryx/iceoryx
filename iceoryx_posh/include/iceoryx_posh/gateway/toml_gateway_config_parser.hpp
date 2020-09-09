@@ -24,7 +24,7 @@
 
 namespace iox
 {
-namespace gw
+namespace config
 {
 enum TomlGatewayConfigParseError
 {

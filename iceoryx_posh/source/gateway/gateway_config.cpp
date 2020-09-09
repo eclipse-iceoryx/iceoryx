@@ -14,7 +14,7 @@
 
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 
-void iox::gw::GatewayConfig::setDefaults() noexcept
+void iox::config::GatewayConfig::setDefaults() noexcept
 {
     // Nothing to do. Yet.
 }

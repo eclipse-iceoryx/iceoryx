@@ -25,7 +25,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(CmdLineParserConfigFileOption& cmdLineParser)
 {

@@ -21,7 +21,7 @@
 
 namespace iox
 {
-namespace gw
+namespace config
 {
 ///
 /// @brief The StubbedTomlGatewayConfigParser class exposes protected methods in the TomlGatewayConfigParser os that

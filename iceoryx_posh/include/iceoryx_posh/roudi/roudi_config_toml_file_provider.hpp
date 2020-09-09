@@ -19,7 +19,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 static constexpr char defaultConfigFilePath[] = "/etc/iceoryx/roudi_config.toml";
 

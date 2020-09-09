@@ -22,7 +22,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {

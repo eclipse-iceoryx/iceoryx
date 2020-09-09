@@ -69,7 +69,7 @@ class GatewayGeneric : public gateway_t
     /// @brief loadConfiguration Load the provided configuration.
     /// @param config A generic gateway implementation.
     ///
-    virtual void loadConfiguration(const GatewayConfig& config) noexcept = 0;
+    virtual void loadConfiguration(const config::GatewayConfig& config) noexcept = 0;
     ///
     /// @brief discover Process discovery messages coming from iceoryx.
     /// @param msg The discovery message.

@@ -18,16 +18,16 @@
 
 #include <regex>
 
-iox::cxx::expected<iox::gw::GatewayConfig, iox::gw::TomlGatewayConfigParseError>
-iox::gw::TomlGatewayConfigParser::parse()
+iox::cxx::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>
+iox::config::TomlGatewayConfigParser::parse()
 {
-    return iox::gw::TomlGatewayConfigParser::parse(DEFAULT_CONFIG_FILE_PATH);
+    return iox::config::TomlGatewayConfigParser::parse(DEFAULT_CONFIG_FILE_PATH);
 }
 
-iox::cxx::expected<iox::gw::GatewayConfig, iox::gw::TomlGatewayConfigParseError>
-iox::gw::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
+iox::cxx::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>
+iox::config::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
 {
-    iox::gw::GatewayConfig config;
+    iox::config::GatewayConfig config;
 
     // Set defaults if no path provided.
     if (path.size() == 0)
@@ -72,8 +72,8 @@ iox::gw::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
     return iox::cxx::success<GatewayConfig>(config);
 }
 
-iox::cxx::expected<iox::gw::TomlGatewayConfigParseError>
-iox::gw::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) noexcept
+iox::cxx::expected<iox::config::TomlGatewayConfigParseError>
+iox::config::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) noexcept
 {
     // Check for expected fields
     auto serviceArray = parsedToml.get_table_array(GATEWAY_CONFIG_SERVICE_TABLE_NAME);
@@ -109,7 +109,7 @@ iox::gw::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) noe
     return iox::cxx::success<>();
 }
 
-bool iox::gw::TomlGatewayConfigParser::hasInvalidCharacter(std::string s) noexcept
+bool iox::config::TomlGatewayConfigParser::hasInvalidCharacter(std::string s) noexcept
 {
     // See: https://design.ros2.org/articles/topic_and_service_names.html
     const std::regex regex(REGEX_VALID_CHARACTERS);

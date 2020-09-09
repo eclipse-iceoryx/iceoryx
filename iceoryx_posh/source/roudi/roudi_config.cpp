@@ -16,7 +16,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 RouDiConfig& RouDiConfig::setDefaults()
 {

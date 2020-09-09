@@ -84,7 +84,7 @@ TEST_F(TomlGatewayConfigParserTest, PassesValidationIfValidCharactersUsedInServi
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::gw::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(false, result.has_error());
 }
 
@@ -103,11 +103,11 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoServiceNameInServiceDescr
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::gw::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::gw::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
     }
 }
 
@@ -126,11 +126,11 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoInstanceNameInServiceDesc
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::gw::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::gw::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
     }
 }
 
@@ -149,11 +149,11 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoEventNameInServiceDescrip
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::gw::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::gw::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
     }
 }
 
@@ -173,11 +173,11 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfServiceDescriptionBeginsWit
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::gw::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::gw::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
     }
 }
 
@@ -196,11 +196,11 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfHyphenInServiceDescription)
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::gw::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::gw::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
     }
 }
 
@@ -211,10 +211,10 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoServicesInConfig)
     auto toml = cpptoml::make_table();
 
     // ===== Test
-    auto result = iox::gw::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::gw::TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
     }
 }

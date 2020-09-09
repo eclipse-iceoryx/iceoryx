@@ -20,6 +20,8 @@
 
 namespace iox
 {
+namespace config {
+
 struct LoggingComponent
 {
     static constexpr char Ctx[] = "POSH Config";
@@ -33,6 +35,7 @@ static constexpr auto LogInfo = iox::log::ffbb::LogInfo<LoggingComponent>;
 static constexpr auto LogDebug = iox::log::ffbb::LogDebug<LoggingComponent>;
 static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<LoggingComponent>;
 
+} // namespace config
 } // namespace iox
 
 #endif // IOX_POSH_LOG_POSH_CONFIG_LOGGING_HPP
