@@ -113,7 +113,7 @@ bool iox_sub_has_lost_chunks(sub_t const self)
     return SubscriberPortUser(self).hasLostChunks();
 }
 
-bool iox_sub_attach_condition_variable(sub_t const self, condition_t const cvHandle)
+bool iox_sub_attach_condition_variable(sub_t const self, cond_var_t const cvHandle)
 {
     return SubscriberPortUser(self).attachConditionVariable(cvHandle);
 }

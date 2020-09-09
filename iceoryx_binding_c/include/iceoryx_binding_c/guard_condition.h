@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_CONDITION_H
-#define IOX_BINDING_C_CONDITION_H
+#ifndef IOX_BINDING_C_GUARD_CONDITION_H
+#define IOX_BINDING_C_GUARD_CONDITION_H
 
-/// @brief condition variable handle
-typedef struct ConditionVariableData* cond_var_t;
+/// @brief guard condition handle
+typedef struct GuardCondition* guard_cond_t;
 
-/// @brief condition handle
-typedef struct Condition* cond_t;
+void iox_guard_cond_init(guard_cond_t const self);
 
-bool iox_cond_has_triggered(cond_t const self);
-bool iox_cond_is_condition_variable_attached(cond_t const self);
+/// @todo naming?
+void iox_guard_cond_deinit(guard_cond_t const self);
+
+void iox_guard_cond_set_trigger(guard_cond_t const self);
+bool iox_guard_cond_has_triggered(guard_cond_t const self);
+void iox_guard_cond_reset_trigger(guard_cond_t const self);
 
 #endif

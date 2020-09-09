@@ -80,7 +80,7 @@ bool iox_sub_has_lost_chunks(sub_t const self);
 
 bool iox_sub_attach_condition_variable(sub_t const self);
 bool iox_sub_detach_condition_variable(sub_t const self);
-bool iox_sub_is_condition_variable_attached(sub_t const self, condition_t const cvHandle);
+bool iox_sub_is_condition_variable_attached(sub_t const self, cond_var_t const cvHandle);
 
 #endif
 

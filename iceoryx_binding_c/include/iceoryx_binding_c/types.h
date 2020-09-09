@@ -44,5 +44,14 @@ enum iox_popo_AllocationResult
     AllocationResult_SUCCESS,
 };
 
+enum iox_popo_WaitSetResult
+{
+    WaitSetResult_CONDITION_VECTOR_OVERFLOW,
+    WaitSetResult_CONDITION_VARIABLE_ALREADY_SET,
+    WaitSetResult_CONDITION_VARIABLE_ATTACH_FAILED,
+    WaitSetResult_UNDEFINED_ERROR,
+    WaitSetResult_SUCCESS
+};
+
 
 #endif
