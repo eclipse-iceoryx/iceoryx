@@ -18,7 +18,7 @@
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "test.hpp"
-#include "timing_test.hpp"
+#include "testutils/timing_test.hpp"
 
 #include <memory>
 

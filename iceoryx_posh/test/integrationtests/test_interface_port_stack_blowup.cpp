@@ -15,7 +15,7 @@
 #include "iceoryx_posh/gateway/gateway_base.hpp"
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "roudi_gtest.hpp"
+#include "testutils/roudi_gtest.hpp"
 
 #include "test.hpp"
 

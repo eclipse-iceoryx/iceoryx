@@ -163,7 +163,7 @@ set_target_properties(iceoryx_posh_gateway PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
-target_include_directories(iceoryx_posh
+target_include_directories(iceoryx_posh_gateway
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/iceoryx/include>
