@@ -255,7 +255,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_PUBLISHER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << runnableName
+               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyCapacity) << runnableName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto requestedPublisherPort = requestPublisherFromRoudi(sendBuffer);
@@ -339,7 +339,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SUBSCRIBER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << runnableName
+               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyRequest) << runnableName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     return requestSubscriberFromRoudi(sendBuffer);
