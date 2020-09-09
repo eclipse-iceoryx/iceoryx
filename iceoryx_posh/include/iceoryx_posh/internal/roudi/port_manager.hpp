@@ -96,8 +96,7 @@ class PortManager
 
     runtime::RunnableData* acquireRunnableData(const ProcessName_t& process, const RunnableName_t& runnable) noexcept;
 
-    cxx::expected<popo::ConditionVariableData*, PortPoolError>
-    acquireConditionVariableData(const ProcessName_t& processName) noexcept;
+    cxx::expected<popo::ConditionVariableData*, PortPoolError> acquireConditionVariableData();
 
     void deletePortsOfProcess(const ProcessName_t& processName) noexcept;
 

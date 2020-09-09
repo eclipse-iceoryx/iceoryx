@@ -88,7 +88,7 @@ cxx::expected<runtime::RunnableData*, PortPoolError> PortPool::addRunnableData(
 }
 
 cxx::expected<popo::ConditionVariableData*, PortPoolError>
-PortPool::addConditionVariableData(const ProcessName_t& process)
+PortPool::addConditionVariableData()
 {
     if (m_portPoolDataBase->m_conditionVariableMembers.hasFreeSpace())
     {

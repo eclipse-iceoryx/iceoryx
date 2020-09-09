@@ -19,8 +19,6 @@
 using namespace ::testing;
 using namespace iox::cxx;
 
-namespace
-{
 static constexpr uint64_t TESTLISTCAPACITY{10u};
 static constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99};
 
@@ -152,7 +150,6 @@ bool dummyFunc(bool whatever)
     std::cerr << "Never get here - ever " << whatever << std::endl;
     return whatever;
 }
-} // namespace
 
 
 TEST_F(forward_list_test, NewlyCreatedListIsEmpty)
@@ -909,7 +906,7 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
     }
     sut.insert_after(iter, a);
 
-    for (auto& x : sut)
+    for (auto& x[[gnu::unused]]: sut)
     {
         ++loopCounter;
     }
@@ -1671,7 +1668,7 @@ TEST_F(forward_list_test, RemoveAllFromList)
 
 TEST_F(forward_list_test, RemoveIfFromEmptyList)
 {
-    auto cnt = sut.remove_if([](const TestListElement& sut1) { return true; });
+    auto cnt = sut.remove_if([](const TestListElement&) { return true; });
 
     EXPECT_THAT(isSetupState(), Eq(true));
     EXPECT_THAT(sut.size(), Eq(0));

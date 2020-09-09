@@ -101,7 +101,7 @@ class PortPool
     cxx::expected<runtime::RunnableData*, PortPoolError> addRunnableData(
         const ProcessName_t& process, const RunnableName_t& runnable, const uint64_t runnableDeviceIdentifier) noexcept;
 
-    cxx::expected<popo::ConditionVariableData*, PortPoolError> addConditionVariableData(const ProcessName_t& process);
+    cxx::expected<popo::ConditionVariableData*, PortPoolError> addConditionVariableData();
 
     /// @deprecated #25
     virtual void removeSenderPort(SenderPortType::MemberType_t* const portData) noexcept = 0;
