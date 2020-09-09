@@ -74,7 +74,7 @@ class PortManager
                             const RunnableName_t& runnable = "",
                             const PortConfigInfo& portConfigInfo = PortConfigInfo());
 
-    virtual cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
+    cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     acquirePublisherPortData(const capro::ServiceDescription& service,
                              const uint64_t& historyCapacity,
                              const ProcessName_t& processName,
@@ -82,12 +82,11 @@ class PortManager
                              const RunnableName_t& runnable,
                              const PortConfigInfo& portConfigInfo);
 
-    virtual SubscriberPortProducerType::MemberType_t*
-    acquireSubscriberPortData(const capro::ServiceDescription& service,
-                              const uint64_t& historyRequest,
-                              const ProcessName_t& processName,
-                              const RunnableName_t& runnable,
-                              const PortConfigInfo& portConfigInfo);
+    SubscriberPortProducerType::MemberType_t* acquireSubscriberPortData(const capro::ServiceDescription& service,
+                                                                        const uint64_t& historyRequest,
+                                                                        const ProcessName_t& processName,
+                                                                        const RunnableName_t& runnable,
+                                                                        const PortConfigInfo& portConfigInfo);
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const ProcessName_t& processName,
