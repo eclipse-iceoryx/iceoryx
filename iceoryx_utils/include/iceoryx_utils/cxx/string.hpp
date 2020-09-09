@@ -113,20 +113,20 @@ class string
     string& operator=(string&& rhs) noexcept;
 
     /// @brief creates a new string of given capacity as a copy of other with compile time check whether the capacity of
-    /// other is lesser than or equal to this' capacity
+    /// other is less than or equal to this' capacity
     ///
     /// @param [in] other is the copy origin
     template <uint64_t N>
     string(const string<N>& other) noexcept;
 
-    /// @brief moves other to this with compile time check whether the capacity of other is lesser than or equal to
+    /// @brief moves other to this with compile time check whether the capacity of other is less than or equal to
     /// this' capacity
     ///
     /// @param [in] other is the move origin
     template <uint64_t N>
     string(string<N>&& other) noexcept;
 
-    /// @brief assigns rhs fixed string to this with compile time check whether the capacity of rhs is lesser than or
+    /// @brief assigns rhs fixed string to this with compile time check whether the capacity of rhs is less than or
     /// equal to this' capacity
     ///
     /// @param [in] rhs is the copy origin
@@ -135,7 +135,7 @@ class string
     template <uint64_t N>
     string& operator=(const string<N>& rhs) noexcept;
 
-    /// @brief moves rhs fixed string to this with compile time check whether the capacity of rhs is lesser than or
+    /// @brief moves rhs fixed string to this with compile time check whether the capacity of rhs is less than or
     /// equal to this' capacity
     ///
     /// @param [in] rhs is the move origin
@@ -144,7 +144,7 @@ class string
     template <uint64_t N>
     string& operator=(string<N>&& rhs) noexcept;
 
-    /// @brief conversion constructor for char array with compile time check if the array size is lesser than or equal
+    /// @brief conversion constructor for char array with compile time check if the array size is less than or equal
     /// to the string capacity
     ///
     /// @tparam N is the implicit template parameter for the char array size
@@ -223,7 +223,7 @@ class string
     /// @endcode
     string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept;
 
-    /// @brief assigns a char array to string with compile time check if the array size is lesser than or equal
+    /// @brief assigns a char array to string with compile time check if the array size is less than or equal
     /// to the string capacity
     ///
     /// @tparam [in] N is the implicit template parameter for the char array size
@@ -245,7 +245,7 @@ class string
     template <uint64_t N>
     string& operator=(const char (&rhs)[N]) noexcept;
 
-    /// @brief fixed string assignment with compile time check if capacity of str is lesser than or equal to this'
+    /// @brief fixed string assignment with compile time check if capacity of str is less than or equal to this'
     /// capacity
     ///
     /// @param [in] str is the fixed string object to assign
@@ -254,7 +254,7 @@ class string
     template <uint64_t N>
     string& assign(const string<N>& str) noexcept;
 
-    /// @brief assigns a char array to string with compile time check if the array size is lesser than or equal to the
+    /// @brief assigns a char array to string with compile time check if the array size is less than or equal to the
     /// string capacity
     ///
     /// @tparam [in] N is the implicit template parameter for the char array size
@@ -321,19 +321,19 @@ class string
     template <uint64_t N>
     bool operator!=(const string<N>& rhs) const noexcept;
 
-    /// @brief checks if self is lesser than rhs, in lexicographical order
+    /// @brief checks if self is less than rhs, in lexicographical order
     ///
     /// @param [in] rhs is the string to compare with self
     ///
-    /// @return true if self is lesser than rhs, otherwise false
+    /// @return true if self is less than rhs, otherwise false
     template <uint64_t N>
     bool operator<(const string<N>& rhs) const noexcept;
 
-    /// @brief checks if self is lesser than or equal to rhs, in lexicographical order
+    /// @brief checks if self is less than or equal to rhs, in lexicographical order
     ///
     /// @param [in] rhs is the string to compare with self
     ///
-    /// @return true if self is lesser than or equal to rhs, otherwise false
+    /// @return true if self is less than or equal to rhs, otherwise false
     template <uint64_t N>
     bool operator<=(const string<N>& rhs) const noexcept;
 
@@ -448,18 +448,18 @@ class string
     /// @param [in] pos is the position of the first character used for the substring
     /// @param [in] count is the requested length of the substring
     ///
-    /// @return an optional containing the substring, iox::cc::nullopt if pos is greater than the size of the original
+    /// @return an optional containing the substring, iox::cxx::nullopt if pos is greater than the size of the original
     /// string
-    iox::cxx::optional<string<Capacity>> substr(uint64_t pos, uint64_t count) const noexcept;
+    iox::cxx::optional<string<Capacity>> substr(const uint64_t pos, const uint64_t count) const noexcept;
 
     /// @brief creates a substring containing the characters from pos until size(); iox::cxx::nullopt is returned if pos
     /// is greater than the size of the original string
     ///
     /// @param [in] pos is the position of the first character used for the substring
     ///
-    /// @return an optional containing the substring, iox::cc::nullopt if pos is greater than the size of the original
+    /// @return an optional containing the substring, iox::cxx::nullopt if pos is greater than the size of the original
     /// string
-    iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
+    iox::cxx::optional<string<Capacity>> substr(const uint64_t pos = 0) const noexcept;
 
     /// @brief finds the first occurence of the given character sequence; returns the position of the first character of
     /// the found substring, returns iox::cxx::nullopt if no substring is found or if pos is greater than this' size
@@ -467,13 +467,13 @@ class string
     /// @param [in] t is the character sequence to search for; must be a cxx::string, string literal or std::string
     /// @param [in] pos is the position at which to start the search
     ///
-    /// @return an optional containing the position of the first character of the found substring, iox::cxx::optional if
+    /// @return an optional containing the position of the first character of the found substring, iox::cxx::nullopt if
     /// no substring is found
     template <typename T>
     typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                 || internal::IsCxxString<T>::value,
                             iox::cxx::optional<uint64_t>>::type
-    find(const T& t, uint64_t pos = 0) const noexcept;
+    find(const T& t, const uint64_t pos = 0) const noexcept;
 
     /// @brief finds the first occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found or if pos is greater than this'
@@ -483,12 +483,12 @@ class string
     /// @param [in] pos is the position at which to start the search
     ///
     /// @return an optional containing the position of the first character equal to one of the characters of the given
-    /// character sequence, iox::cxx::optional if no character is found
+    /// character sequence, iox::cxx::nullopt if no character is found
     template <typename T>
     typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                 || internal::IsCxxString<T>::value,
                             iox::cxx::optional<uint64_t>>::type
-    find_first_of(const T& t, uint64_t pos = 0) const noexcept;
+    find_first_of(const T& t, const uint64_t pos = 0) const noexcept;
 
     /// @brief finds the last occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found
@@ -497,12 +497,12 @@ class string
     /// @param [in] pos is the position at which to finish the search
     ///
     /// @return an optional containing the position of the last character equal to one of the characters of the given
-    /// character sequence, iox::cxx::optional if no character is found
+    /// character sequence, iox::cxx::nullopt if no character is found
     template <typename T>
     typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                 || internal::IsCxxString<T>::value,
                             iox::cxx::optional<uint64_t>>::type
-    find_last_of(const T& t, uint64_t pos = Capacity) const noexcept;
+    find_last_of(const T& t, const uint64_t pos = Capacity) const noexcept;
 
     template <uint64_t N>
     friend class string;
@@ -514,8 +514,8 @@ class string
     concatenate(const T1& t1, const T2& t2);
 
   private:
-    /// @brief copies rhs fixed string to lhs fixed string with compile time check whether rhs capacity is lesser than
-    /// or equal to lhs capacity
+    /// @brief copies rhs fixed string to this with compile time check whether rhs capacity is less than or equal to
+    /// this' capacity
     ///
     /// @param [in] rhs is the copy origin
     ///
@@ -523,8 +523,8 @@ class string
     template <uint64_t N>
     string& copy(const string<N>& rhs) noexcept;
 
-    /// @brief moves rhs fixed string to lhs fixed string with compile time check whether rhs capacity is lesser than or
-    /// equal to lhs capacity
+    /// @brief moves rhs fixed string to this with compile time check whether rhs capacity is less than or equal to
+    /// this' capacity
     ///
     /// @param [in] rhs is the move origin
     ///

@@ -28,7 +28,7 @@ class string;
 namespace internal
 {
 template <uint64_t N>
-using charTemp = char[N];
+using charArray = char[N];
 
 /// @brief struct to get capacity of fixed string/string literal
 /// @note capa is a dummy value for any type other than cxx::string and char
@@ -47,7 +47,7 @@ struct GetCapa<string<N>>
 template <uint64_t N>
 struct GetCapa<char[N]>
 {
-    static constexpr uint64_t capa = N - 1;
+    static constexpr uint64_t capa = N - 1u;
 };
 
 /// @brief struct to get size of fixed string/string literal/std::string
@@ -66,9 +66,9 @@ struct GetSize<string<N>>
 template <uint64_t N>
 struct GetSize<char[N]>
 {
-    static uint64_t call(const charTemp<N>&)
+    static uint64_t call(const charArray<N>& data)
     {
-        return N - 1u;
+        return strnlen(data, N);
     }
 };
 
@@ -97,7 +97,7 @@ struct GetData<string<N>>
 template <uint64_t N>
 struct GetData<char[N]>
 {
-    static const char* call(const charTemp<N>& data)
+    static const char* call(const charArray<N>& data)
     {
         return &data[0];
     }

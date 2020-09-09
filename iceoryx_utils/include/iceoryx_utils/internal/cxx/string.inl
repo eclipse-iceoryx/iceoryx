@@ -433,8 +433,8 @@ concatenate(const T1& t1, const T2& t2)
 {
     uint64_t size1 = internal::GetSize<T1>::call(t1);
     uint64_t size2 = internal::GetSize<T2>::call(t2);
-    typedef string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa> newStringType;
-    newStringType newString;
+    using NewStringType = string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>;
+    NewStringType newString;
     std::memcpy(newString.m_rawstring, internal::GetData<T1>::call(t1), size1);
     std::memcpy(newString.m_rawstring + size1, internal::GetData<T2>::call(t2), size2);
     newString.m_rawstring[size1 + size2] = '\0';
@@ -505,25 +505,28 @@ inline
 }
 
 template <uint64_t Capacity>
-inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(uint64_t pos, uint64_t count) const noexcept
+inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos, const uint64_t count) const
+    noexcept
 {
     if (pos > m_rawstringSize)
     {
         return iox::cxx::nullopt;
     }
+
+    uint64_t length = count;
     if (m_rawstringSize < (pos + count))
     {
-        count = m_rawstringSize - pos;
+        length = m_rawstringSize - pos;
     }
     string subString;
-    std::memcpy(subString.m_rawstring, &m_rawstring[pos], count);
-    subString.m_rawstring[count] = '\0';
-    subString.m_rawstringSize = count;
+    std::memcpy(subString.m_rawstring, &m_rawstring[pos], length);
+    subString.m_rawstring[length] = '\0';
+    subString.m_rawstringSize = length;
     return subString;
 }
 
 template <uint64_t Capacity>
-inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(uint64_t pos) const noexcept
+inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos) const noexcept
 {
     return substr(pos, m_rawstringSize);
 }
@@ -533,7 +536,7 @@ template <typename T>
 inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                    || internal::IsCxxString<T>::value,
                                iox::cxx::optional<uint64_t>>::type
-string<Capacity>::find(const T& t, uint64_t pos) const noexcept
+string<Capacity>::find(const T& t, const uint64_t pos) const noexcept
 {
     if (pos > m_rawstringSize)
     {
@@ -552,19 +555,20 @@ template <typename T>
 inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                    || internal::IsCxxString<T>::value,
                                iox::cxx::optional<uint64_t>>::type
-string<Capacity>::find_first_of(const T& t, uint64_t pos) const noexcept
+string<Capacity>::find_first_of(const T& t, const uint64_t pos) const noexcept
 {
     if (pos > m_rawstringSize)
     {
         return iox::cxx::nullopt;
     }
     const char* found = nullptr;
-    for (; pos < m_rawstringSize; ++pos)
+    const char* data = internal::GetData<T>::call(t);
+    for (auto p = pos; p < m_rawstringSize; ++p)
     {
-        found = std::strstr(internal::GetData<T>::call(t), substr(pos, 1).value().c_str());
+        found = std::strchr(data, m_rawstring[p]);
         if (found != nullptr)
         {
-            return pos;
+            return p;
         }
     }
     return iox::cxx::nullopt;
@@ -575,26 +579,29 @@ template <typename T>
 inline typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                    || internal::IsCxxString<T>::value,
                                iox::cxx::optional<uint64_t>>::type
-string<Capacity>::find_last_of(const T& t, uint64_t pos) const noexcept
+string<Capacity>::find_last_of(const T& t, const uint64_t pos) const noexcept
 {
     if (m_rawstringSize == 0)
     {
         return iox::cxx::nullopt;
     }
-    if (m_rawstringSize - 1 < pos)
+
+    auto p = pos;
+    if (m_rawstringSize - 1 < p)
     {
-        pos = m_rawstringSize - 1;
+        p = m_rawstringSize - 1;
     }
     const char* found = nullptr;
-    for (; pos > 0; --pos)
+    const char* data = internal::GetData<T>::call(t);
+    for (; p > 0; --p)
     {
-        found = std::strstr(internal::GetData<T>::call(t), substr(pos, 1).value().c_str());
+        found = std::strchr(data, m_rawstring[p]);
         if (found != nullptr)
         {
-            return pos;
+            return p;
         }
     }
-    found = std::strstr(internal::GetData<T>::call(t), substr(pos, 1).value().c_str());
+    found = std::strchr(data, m_rawstring[p]);
     if (found != nullptr)
     {
         return 0u;
