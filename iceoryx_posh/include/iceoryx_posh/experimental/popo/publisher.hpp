@@ -175,7 +175,7 @@ public:
     cxx::expected<SampleRecallError> previousSample() const noexcept;
 
     ///
-    /// @brief offer Offer the service.
+    /// @brief offer Offer the service to be subscribed to.
     ///
     void offer() noexcept;
 
