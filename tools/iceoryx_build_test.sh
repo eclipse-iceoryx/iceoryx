@@ -31,6 +31,9 @@ CLEAN_BUILD=false
 BUILD_TYPE=""
 STRICT_FLAG="OFF"
 TEST_FLAG="OFF"
+COV_FLAG="OFF"
+GCOV_SCOPE="all" #possible values for gcov test scope: 'all', 'unit', 'integration', 'component'
+COV_OUTPUT="$WORKSPACE/tools/gcov/gcovr_html.conf"
 QACPP_JSON="OFF"
 RUN_TEST=false
 INTROSPECTION_FLAG="ON"
@@ -45,6 +48,20 @@ while (( "$#" )); do
     -j|--jobs)
         NUM_JOBS=$2
         shift 2
+        ;;
+    -c|--coverage)
+        echo "$2"
+        GCOV_SCOPE="$2"
+        BUILD_TYPE="Debug"
+        RUN_TEST=true
+        COV_FLAG="ON"
+
+        if [ -z "$2" ]
+        then
+            shift 1
+        else
+            shift 2
+        fi
         ;;
     "clean")
         CLEAN_BUILD=true
@@ -72,6 +89,10 @@ while (( "$#" )); do
         TEST_FLAG="ON"
         shift 1
         ;;
+    "gcov-sonarqube")
+        COV_OUTPUT="$WORKSPACE/tools/gcov/gcovr_sonarqube.conf"
+        shift 1
+        ;;
     "with-dds-gateway")
         echo " [i] Including DDS gateway in build"
         DDS_GATEWAY_FLAG="ON"
@@ -96,6 +117,7 @@ while (( "$#" )); do
         echo "Options:"
         echo "    -b --builddir         Specify a non-default build directory"
         echo "    -j --jobs             Specify the number of jobs to run simultaneously"
+        echo "    -c --coverage         Builds gcov and generate a html/xml report. Possible arguments: 'all', 'unit', 'integration', 'component'"
         echo "Args:"
         echo "    clean                 Cleans the build directory"
         echo "    release               Build release configuration"
@@ -109,6 +131,7 @@ while (( "$#" )); do
         echo "    help                  Prints this help"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test release"
+        echo "for gcov report: iceoryx_build_test.sh clean -c unit -j 4"
         exit 0
         ;;
     *)
@@ -150,26 +173,32 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
-echo ">>>>>> Start building iceoryx examples <<<<<<"
-cd $BUILD_DIR
-mkdir -p iceoryx_examples
-echo ">>>>>>>> icedelivery"
-cd $BUILD_DIR/iceoryx_examples
-mkdir -p icedelivery
-cd icedelivery
-cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
-cmake --build . --target install -- -j$NUM_JOBS
-echo ">>>>>>>> iceperf"
-cd $BUILD_DIR/iceoryx_examples
-mkdir -p iceperf
-cd iceperf
-cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
-cmake --build . --target install -- -j$NUM_JOBS
-echo ">>>>>> Finished building iceoryx examples <<<<<<"
+
+if [ "$COV_FLAG" == "OFF" ]
+then
+    echo ">>>>>> Start building iceoryx examples <<<<<<"
+    cd $BUILD_DIR
+    mkdir -p iceoryx_examples
+    echo ">>>>>>>> icedelivery"
+    cd $BUILD_DIR/iceoryx_examples
+    mkdir -p icedelivery
+    cd icedelivery
+    cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
+    cmake --build . --target install -- -j$NUM_JOBS
+    echo ">>>>>>>> iceperf"
+    cd $BUILD_DIR/iceoryx_examples
+    mkdir -p iceperf
+    cd iceperf
+    cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
+    cmake --build . --target install -- -j$NUM_JOBS
+    echo ">>>>>> Finished building iceoryx examples <<<<<<"
+else
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial #make an initial scan to cover also files with no coverage
+fi
 
 #====================================================================================================
 #==== Step 2 : Run all Tests  =======================================================================
@@ -186,28 +215,48 @@ cp $WORKSPACE/tools/run_all_tests.sh $BUILD_DIR/tools/run_all_tests.sh
 echo " [i] Running all tests"
 if [ "$DDS_GATEWAY_FLAG" == "ON" ]
 then
-    $BUILD_DIR/tools/run_all_tests.sh with-dds-gateway-tests
+    $BUILD_DIR/tools/run_all_tests.sh $GCOV_SCOPE with-dds-gateway-tests
 else
-    $BUILD_DIR/tools/run_all_tests.sh
+    $BUILD_DIR/tools/run_all_tests.sh $GCOV_SCOPE
 fi
 
 for COMPONENT in $COMPONENTS; do
 
-    if [ ! -f testresults/"$COMPONENT"_ModuleTestResults.xml ]; then
-        echo "xml:"$COMPONENT"_ModuletestTestResults.xml not found!"
-        exit 1
-    fi
-
-    if [ ! -f testresults/"$COMPONENT"_ComponenttestTestResults.xml ]; then
-        echo "xml:"$COMPONENT"_ComponenttestTestResults.xml not found!"
-        exit 1
-    fi
-
-    if [ ! -f testresults/"$COMPONENT"_IntegrationTestResults.xml ]; then
-        echo "xml:"$COMPONENT"_IntegrationTestResults.xml not found!"
-        exit 1
-    fi
-
+    case "$1" in    
+        "unit" | "all")
+            if [ ! -f testresults/"$COMPONENT"_ModuleTestResults.xml ]; then
+                echo "xml:"$COMPONENT"_ModuletestTestResults.xml not found!"
+                exit 1
+            fi
+            ;;
+        "component" | "all")    
+            if [ ! -f testresults/"$COMPONENT"_ComponenttestTestResults.xml ]; then
+                echo "xml:"$COMPONENT"_ComponenttestTestResults.xml not found!"
+                exit 1
+            fi
+            ;;
+        "integration" | "all") 
+            if [ ! -f testresults/"$COMPONENT"_IntegrationTestResults.xml ]; then
+                echo "xml:"$COMPONENT"_IntegrationTestResults.xml not found!"
+                exit 1
+            fi
+            ;;
+    esac
 done
 
+fi
+
+
+if [ "$COV_FLAG" == "ON" ] 
+then
+    echo ">>>>>> Generate Gcov Report <<<<<<"
+    cd $WORKSPACE
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE capture #scan all files after test execution
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE combine #combine tracefiles from initial scan with the latest one
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE remove #exclude all unnecessary files
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE genhtml #generate html
+    echo ">>>>>> Report Generation complete <<<<<<"
+    #alternative with gcov currently disabled
+    #mkdir -p $BUILD_DIR/gcov
+    #gcovr -r $WORKSPACE --config $COV_OUTPUT
 fi

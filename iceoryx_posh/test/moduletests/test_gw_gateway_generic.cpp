@@ -30,12 +30,12 @@ using IdString = iox::cxx::string<100>;
 // We do not need real channel terminals to test the base class.
 struct StubbedIceoryxTerminal
 {
-    StubbedIceoryxTerminal(iox::capro::ServiceDescription sd){};
+    StubbedIceoryxTerminal(iox::capro::ServiceDescription){};
 };
 
 struct StubbedExternalTerminal
 {
-    StubbedExternalTerminal(IdString sid, IdString iid, IdString eid){};
+    StubbedExternalTerminal(IdString, IdString, IdString){};
 };
 
 using TestChannel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
@@ -237,7 +237,7 @@ TEST_F(GatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredChanne
     auto testServiceC = iox::capro::ServiceDescription("serviceC", "instanceC", "eventC");
 
     auto count = 0u;
-    auto f = [&count](TestChannel& channel) { count++; };
+    auto f = [&count](TestChannel&) { count++; };
 
     TestGatewayGeneric gw{};
 

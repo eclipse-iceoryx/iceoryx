@@ -39,17 +39,17 @@ class StubbedGatewayGeneric : public TestGatewayGeneric<channel_t>
 
     StubbedGatewayGeneric() : TestGatewayGeneric<channel_t>(iox::capro::Interfaces::INTERNAL) {};
 
-    void loadConfiguration(const GatewayConfig& config) noexcept
+    void loadConfiguration(const GatewayConfig&) noexcept
     {
         // Stubbed.
     }
 
-    void discover(const iox::capro::CaproMessage& msg) noexcept
+    void discover(const iox::capro::CaproMessage&) noexcept
     {
         // Stubbed.
     }
 
-    void forward(const channel_t& channel) noexcept
+    void forward(const channel_t&) noexcept
     {
         // Stubbed.
     }

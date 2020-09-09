@@ -33,7 +33,7 @@ using ::testing::_;
 class MockPublisher
 {
   public:
-    MockPublisher(const iox::capro::ServiceDescription& sd){};
+    MockPublisher(const iox::capro::ServiceDescription&){};
     MOCK_METHOD0(offer, void(void));
     MOCK_METHOD1(allocateChunk, void*(uint32_t));
     MOCK_METHOD1(sendChunk, void(const void* const));
@@ -42,7 +42,7 @@ class MockPublisher
 class MockSubscriber
 {
   public:
-    MockSubscriber(const iox::capro::ServiceDescription& sd){};
+    MockSubscriber(const iox::capro::ServiceDescription&){};
     MOCK_METHOD0(isDestroyed, void()); // Allows testing for destruction
     virtual ~MockSubscriber()
     {
@@ -58,7 +58,7 @@ class MockSubscriber
 class MockDataReader
 {
   public:
-    MockDataReader(const iox::capro::ServiceDescription& sd){};
+    MockDataReader(const iox::capro::ServiceDescription&){};
     MOCK_METHOD0(connect, void(void));
     MOCK_METHOD0(peekNextSize, iox::cxx::optional<uint64_t>(void));
     MOCK_METHOD2(takeNext, iox::cxx::expected<iox::dds::DataReaderError>(uint8_t* const, const uint64_t&));
@@ -74,7 +74,7 @@ class MockDataReader
 class MockDataWriter
 {
   public:
-    MockDataWriter(const iox::capro::ServiceDescription& sd){};
+    MockDataWriter(const iox::capro::ServiceDescription&){};
     MOCK_METHOD0(connect, void(void));
     MOCK_METHOD2(write, bool(uint8_t*, uint64_t));
     MOCK_CONST_METHOD0(getServiceId, std::string(void));
@@ -87,7 +87,7 @@ class MockGenericGateway
 {
   public:
     MockGenericGateway(){};
-    MockGenericGateway(const iox::capro::Interfaces i, iox::units::Duration discoveryPeriod, iox::units::Duration forwardingPeriod){};
+    MockGenericGateway(const iox::capro::Interfaces , iox::units::Duration, iox::units::Duration){};
     MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
     MOCK_METHOD1_T(addChannel,
                    iox::cxx::expected<channel_t, iox::gw::GatewayError>(const iox::capro::ServiceDescription&));
