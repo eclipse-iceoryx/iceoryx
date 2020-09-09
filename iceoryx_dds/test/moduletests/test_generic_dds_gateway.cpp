@@ -27,12 +27,12 @@ using ::testing::_;
 // We do not need real channel terminals to test the base class.
 struct StubbedIceoryxTerminal
 {
-    StubbedIceoryxTerminal(iox::capro::ServiceDescription sd){};
+    StubbedIceoryxTerminal(iox::capro::ServiceDescription){};
 };
 
 struct StubbedDDSTerminal
 {
-    StubbedDDSTerminal(iox::dds::IdString sid, iox::dds::IdString iid, iox::dds::IdString eid){};
+    StubbedDDSTerminal(iox::dds::IdString, iox::dds::IdString, iox::dds::IdString){};
 };
 
 using TestChannel = iox::dds::Channel<StubbedIceoryxTerminal, StubbedDDSTerminal>;
@@ -234,7 +234,7 @@ TEST_F(DDSGatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredCha
     auto testServiceC = iox::capro::ServiceDescription("serviceC", "instanceC", "eventC");
 
     auto count = 0u;
-    auto f = [&count](TestChannel& channel) { count++; };
+    auto f = [&count](TestChannel&) { count++; };
 
     TestDDSGatewayGeneric gw{};
 

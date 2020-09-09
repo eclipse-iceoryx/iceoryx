@@ -278,8 +278,7 @@ bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
     auto it = m_processList.begin();
     while (it != m_processList.end())
     {
-        auto name = it->getName();
-        if (name == name)
+        if (it->getName() == name)
         {
             m_portManager.deletePortsOfProcess(name);
 
@@ -561,7 +560,7 @@ void ProcessManager::addConditionVariableForProcess(const ProcessName_t& process
     if (nullptr != process)
     {
         // Try to create a condition variable
-        m_portManager.acquireConditionVariableData(processName)
+        m_portManager.acquireConditionVariableData()
             .and_then([&](popo::ConditionVariableData* condVar) {
                 auto offset = RelativePointer::getOffset(m_mgmtSegmentId, condVar);
 

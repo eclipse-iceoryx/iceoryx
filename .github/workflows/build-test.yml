@@ -12,7 +12,34 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This job builds & runs iceoryx tests in ubuntu-18.04
-  build-test-ubuntu:
+  ubuntu-iceoryx-meta:
+     # The type of runner that the job will run on
+     runs-on: ubuntu-18.04
+
+     # Steps represent a sequence of tasks that will be executed as part of the job
+     steps:
+       - name: Install iceoryx dependencies
+         # Softwares installed in ubuntu-18.04 instance 
+         # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
+         run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
+
+       - name : Checkout
+         uses: actions/checkout@v2
+ 
+       - name: Build sources
+         run: cmake -Bbuild -Hiceoryx_meta -Dtest=ON -Dbinding_c=ON -Dexamples=ON -Dintrospection=ON && cmake --build build
+
+       - name: Run timeless tests
+         run: |
+           cd $GITHUB_WORKSPACE/build
+           make tests
+
+       - name: Run timing tests
+         run: |
+           cd $GITHUB_WORKSPACE/build
+           make timing_tests
+
+  ubuntu-build-script:
     # The type of runner that the job will run on
     runs-on: ubuntu-18.04
 
@@ -44,7 +71,7 @@ jobs:
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test with-dds-gateway clean strict -j $NUM_CORES
 
  # This job builds & runs iceoryx tests in macos-10.15
-  build-test-mac:
+  macos-build-script:
     runs-on: macos-10.15
     # Softwares installed in macos-10.15 instance
     # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md     
@@ -76,7 +103,7 @@ jobs:
           ../tools/run_all_tests.sh disable-timing-tests
 
  # This job builds & runs iceoryx tests in Windows 2019
-  build-test-windows:
+  windows-iceoryx-meta:
     runs-on: windows-latest
     # Softwares installed in windows instance
     # https://github.com/actions/virtual-environments/blob/master/images/win/Windows2019-Readme.md
@@ -88,4 +115,4 @@ jobs:
 
       - name: Build sources
         run: |
-          cmake -Bbuild -Hiceoryx_meta -Dtest=ON && cmake --build build
+          cmake -Bbuild -Hiceoryx_meta -Ddds_gateway=OFF -Dtest=ON -Dbinding_c=ON -Dexamples=ON && cmake --build build

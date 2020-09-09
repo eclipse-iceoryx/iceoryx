@@ -251,6 +251,12 @@ class forward_list
         /// @param[in] iter is the iterator which will deliver list and index info for the const_iterator
         IteratorBase(const IteratorBase<false>& iter) noexcept;
 
+        /// @brief assings a const_iterator from an iterator; needs to be implemented because the copy c'tor is also
+        /// explicitly implemented
+        /// @param[in] rhs is the iterator which will deliver list and index info for the const_iterator
+        /// @return reference to this iterator object
+        IteratorBase& operator=(const IteratorBase<false>& rhs) noexcept;
+
         /// @brief prefix increment iterator, so it points to the next list element
         ///         when trying to increment beyond the end of the list, iterator stays pointing at the end
         /// @return reference to this iterator object
