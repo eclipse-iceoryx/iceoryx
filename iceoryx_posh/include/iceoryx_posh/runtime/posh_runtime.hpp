@@ -79,6 +79,7 @@ class PoshRuntime
     /// @param[in] serviceDescription of the service that shall be no more offered
     void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
 
+    /// @deprecated #25
     /// @brief request the RouDi daemon to create a sender port
     /// @param[in] serviceDescription service description for the new sender port
     /// @param[in] runnableName name of the runnable where the sender should belong to
@@ -89,6 +90,7 @@ class PoshRuntime
                                                       const cxx::CString100& runnableName = cxx::CString100(""),
                                                       const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
+    /// @deprecated #25
     /// @brief request the RouDi daemon to create a receiver port
     /// @param[in] serviceDescription service description for the new receiver port
     /// @param[in] runnableName name of the runnable where the receiver should belong to
@@ -174,9 +176,11 @@ class PoshRuntime
     static PoshRuntime& defaultRuntimeFactory(const std::string& name) noexcept;
 
   private:
+    /// @deprecated #25
     cxx::expected<SenderPortType::MemberType_t*, MqMessageErrorType>
     requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept;
 
+    /// @deprecated #25
     ReceiverPortType::MemberType_t* requestReceiverFromRoudi(const MqMessage& sendBuffer) noexcept;
 
     cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>

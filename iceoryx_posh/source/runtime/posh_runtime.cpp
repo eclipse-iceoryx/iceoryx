@@ -121,6 +121,7 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
     }
 }
 
+/// @deprecated #25
 SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::ServiceDescription& service,
                                                                const cxx::CString100& runnableName,
                                                                const PortConfigInfo& portConfigInfo) noexcept
@@ -157,6 +158,7 @@ SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::Serv
     return requestedSenderPort.get_value();
 }
 
+/// @deprecated #25
 cxx::expected<SenderPortType::MemberType_t*, MqMessageErrorType>
 PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
 {
@@ -201,6 +203,7 @@ PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
     }
 }
 
+/// @deprecated #25
 ReceiverPortType::MemberType_t* PoshRuntime::getMiddlewareReceiver(const capro::ServiceDescription& service,
                                                                    const cxx::CString100& runnableName,
                                                                    const PortConfigInfo& portConfigInfo) noexcept
@@ -213,6 +216,7 @@ ReceiverPortType::MemberType_t* PoshRuntime::getMiddlewareReceiver(const capro::
     return requestReceiverFromRoudi(sendBuffer);
 }
 
+/// @deprecated #25
 ReceiverPortType::MemberType_t* PoshRuntime::requestReceiverFromRoudi(const MqMessage& sendBuffer) noexcept
 {
     MqMessage receiveBuffer;
@@ -250,7 +254,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
                                                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
-    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SENDER) << m_appName
+    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_PUBLISHER) << m_appName
                << static_cast<cxx::Serialization>(service).toString() << runnableName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
@@ -262,18 +266,18 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
         case MqMessageErrorType::NO_UNIQUE_CREATED:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
                       << "' already in use by another process.";
-            errorHandler(Error::kPOSH__RUNTIME_SENDERPORT_NOT_UNIQUE, nullptr, iox::ErrorLevel::MODERATE);
+            errorHandler(Error::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE, nullptr, iox::ErrorLevel::MODERATE);
             break;
-        case MqMessageErrorType::SENDERLIST_FULL:
+        case MqMessageErrorType::PUBLISHERLIST_FULL:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
                       << "' could not be created since we are out of memory.";
-            errorHandler(Error::kPOSH__RUNTIME_ROUDI_SENDERLIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_PUBLISHER_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
             break;
         default:
             LogWarn() << "Undefined behavior occurred while creating service '"
                       << service.operator cxx::Serialization().toString() << "'.";
             errorHandler(
-                Error::kPOSH__RUNTIME_SENDERPORT_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
+                Error::kPOSH__RUNTIME_PUBLISHER_PORT_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
             break;
         }
         return nullptr;
@@ -289,7 +293,7 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
-        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_SENDER_ACK)
+        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_PUBLISHER_ACK)
 
         {
             RelativePointer::id_t segmentId;
@@ -303,7 +307,7 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
         else
         {
             LogError() << "Wrong response from message queue" << mqMessage;
-            assert(false);
+            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
             return cxx::success<PublisherPortUserType::MemberType_t*>(nullptr);
         }
     }
@@ -315,17 +319,17 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
             std::string mqMessage2 = receiveBuffer.getElementAtIndex(1);
             if (stringToMqMessageType(mqMessage1.c_str()) == MqMessageType::ERROR)
             {
-                LogError() << "No valid sender port received from RouDi.";
+                LogError() << "No valid publisher port received from RouDi.";
+                errorHandler(Error::kPOSH__RUNTIME_NO_VALID_PUBLISHER_RECEIVED, nullptr, iox::ErrorLevel::MODERATE);
                 return cxx::error<MqMessageErrorType>(stringToMqMessageErrorType(mqMessage2.c_str()));
             }
         }
 
         LogError() << "Wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
-        assert(false);
+        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
         return cxx::success<PublisherPortUserType::MemberType_t*>(nullptr);
     }
 }
-
 
 SubscriberPortUserType::MemberType_t*
 PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
