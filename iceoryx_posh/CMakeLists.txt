@@ -48,6 +48,9 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 #
 ########## build posh lib for ##########
 #
+if(ENABLE_MULTI_PRODUCER)
+    add_definitions(-DENABLE_MULTI_PRODUCER)
+endif()
 
 add_library(iceoryx_posh
     source/log/posh_logging.cpp

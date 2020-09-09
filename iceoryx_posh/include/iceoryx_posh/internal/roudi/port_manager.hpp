@@ -20,6 +20,9 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
@@ -56,6 +59,7 @@ class PortManager
 
     void doDiscovery();
 
+    /// @deprecated #25
     virtual cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
     acquireSenderPortData(const capro::ServiceDescription& service,
                           const ProcessName_t& processName,
@@ -63,11 +67,27 @@ class PortManager
                           const RunnableName_t& runnable = "",
                           const PortConfigInfo& portConfigInfo = PortConfigInfo());
 
+    /// @deprecated #25
     virtual ReceiverPortType::MemberType_t*
     acquireReceiverPortData(const capro::ServiceDescription& service,
                             const ProcessName_t& processName,
                             const RunnableName_t& runnable = "",
                             const PortConfigInfo& portConfigInfo = PortConfigInfo());
+
+    virtual cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
+    acquirePublisherPortData(const capro::ServiceDescription& service,
+                             const uint64_t& historyCapacity,
+                             const ProcessName_t& processName,
+                             mepoo::MemoryManager* payloadMemoryManager,
+                             const RunnableName_t& runnable,
+                             const PortConfigInfo& portConfigInfo);
+
+    virtual SubscriberPortProducerType::MemberType_t*
+    acquireSubscriberPortData(const capro::ServiceDescription& service,
+                              const uint64_t& historyRequest,
+                              const ProcessName_t& processName,
+                              const RunnableName_t& runnable,
+                              const PortConfigInfo& portConfigInfo);
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const ProcessName_t& processName,
@@ -80,21 +100,31 @@ class PortManager
     cxx::expected<popo::ConditionVariableData*, PortPoolError>
     acquireConditionVariableData(const ProcessName_t& processName);
 
-    bool areAllReceiverPortsSubscribed(const ProcessName_t& appName);
-
     void deletePortsOfProcess(const ProcessName_t& processName);
 
+    /// @deprecated #25
     void destroySenderPort(SenderPortType::MemberType_t* const senderPortData);
 
+    /// @deprecated #25
     void destroyReceiverPort(ReceiverPortType::MemberType_t* const receiverPortData);
+
+    void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData);
+
+    void destroySubscriberPort(SubscriberPortProducerType::MemberType_t* const subscriberPortData);
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter();
     runtime::MqMessage findService(const capro::ServiceDescription& service);
 
   protected:
+    /// @deprecated #25
     void handleSenderPorts();
 
+    /// @deprecated #25
     void handleReceiverPorts();
+
+    void handlePublisherPorts();
+
+    void handleSubscriberPorts();
 
     void handleInterfaces();
 
@@ -102,9 +132,16 @@ class PortManager
 
     void handleRunnables();
 
+    /// @deprecated #25
     bool sendToAllMatchingSenderPorts(const capro::CaproMessage& message, ReceiverPortType& receiverSource);
 
+    /// @deprecated #25
     void sendToAllMatchingReceiverPorts(const capro::CaproMessage& message, SenderPortType& senderSource);
+
+    bool sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
+                                         SubscriberPortProducerType& subscriberSource);
+
+    void sendToAllMatchingSubscriberPorts(const capro::CaproMessage& message, PublisherPortRouDiType& publisherSource);
 
     void sendToAllMatchingInterfacePorts(const capro::CaproMessage& message);
 

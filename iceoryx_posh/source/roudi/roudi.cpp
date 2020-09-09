@@ -182,6 +182,8 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
+
+    /// @deprecated #25
     case runtime::MqMessageType::CREATE_SENDER:
     {
         if (message.getNumberOfElements() != 5)
@@ -201,6 +203,8 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
+
+    /// @deprecated #25
     case runtime::MqMessageType::CREATE_RECEIVER:
     {
         if (message.getNumberOfElements() != 5)

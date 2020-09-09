@@ -25,17 +25,17 @@ PortPool::PortPool(PortPoolDataBase& portPoolDataBase) noexcept
 {
 }
 
-cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> PortPool::interfacePortDataList() noexcept
+cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> PortPool::getInterfacePortDataList() noexcept
 {
     return m_portPoolDataBase->m_interfacePortMembers.content();
 }
 
-cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> PortPool::applicationPortDataList() noexcept
+cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> PortPool::getApplicationPortDataList() noexcept
 {
     return m_portPoolDataBase->m_applicationPortMembers.content();
 }
 
-cxx::vector<runtime::RunnableData*, MAX_RUNNABLE_NUMBER> PortPool::runnableDataList() noexcept
+cxx::vector<runtime::RunnableData*, MAX_RUNNABLE_NUMBER> PortPool::getRunnableDataList() noexcept
 {
     return m_portPoolDataBase->m_runnableMembers.content();
 }

@@ -28,41 +28,48 @@ class IceOryxPortPool : public PortPool
   public:
     IceOryxPortPool(PortPoolData& portPool) noexcept;
 
+    /// @deprecated #25
     cxx::vector<SenderPortType::MemberType_t*, MAX_PORT_NUMBER> senderPortDataList() noexcept override;
+    /// @deprecated #25
     cxx::vector<ReceiverPortType::MemberType_t*, MAX_PORT_NUMBER> receiverPortDataList() noexcept override;
 
+    /// @deprecated #25
     cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
     addSenderPort(const capro::ServiceDescription& serviceDescription,
                   mepoo::MemoryManager* const memoryManager,
                   const std::string& applicationName,
                   const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept override;
 
+    /// @deprecated #25
     cxx::expected<ReceiverPortType::MemberType_t*, PortPoolError>
     addReceiverPort(const capro::ServiceDescription& serviceDescription,
                     const std::string& applicationName,
                     const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept override;
 
+    /// @deprecated #25
     void removeSenderPort(SenderPortType::MemberType_t* const portData) noexcept override;
+    /// @deprecated #25
     void removeReceiverPort(ReceiverPortType::MemberType_t* const portData) noexcept override;
 
-    cxx::vector<PublisherPortUserType::MemberType_t*, MAX_PORT_NUMBER> publisherPortUserList() noexcept override;
-    cxx::vector<SubscriberPortUserType::MemberType_t*, MAX_PORT_NUMBER> subscriberPortUserList() noexcept override;
+    cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PORT_NUMBER> getPublisherPortDataList() noexcept override;
+    cxx::vector<SubscriberPortProducerType::MemberType_t*, MAX_PORT_NUMBER>
+    getSubscriberPortDataList() noexcept override;
 
-    cxx::expected<PublisherPortUserType::MemberType_t*, PortPoolError>
+    cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     addPublisherPort(const capro::ServiceDescription& serviceDescription,
                      const uint64_t& historyCapacity,
                      mepoo::MemoryManager* const memoryManager,
-                     const std::string& applicationName,
+                     const ProcessName_t& applicationName,
                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept override;
 
-    cxx::expected<SubscriberPortUserType::MemberType_t*, PortPoolError>
+    cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
     addSubscriberPort(const capro::ServiceDescription& serviceDescription,
                       const uint64_t& historyRequest,
-                      const std::string& applicationName,
+                      const ProcessName_t& applicationName,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept override;
 
-    void removePublisherPort(PublisherPortUserType::MemberType_t* const portData) noexcept override;
-    void removeSubscriberPort(SubscriberPortUserType::MemberType_t* const portData) noexcept override;
+    void removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept override;
+    void removeSubscriberPort(SubscriberPortProducerType::MemberType_t* const portData) noexcept override;
 
   private:
     PortPoolData* m_portPoolData;
