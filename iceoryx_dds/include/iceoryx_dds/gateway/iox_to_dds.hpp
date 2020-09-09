@@ -33,7 +33,7 @@ class Iceoryx2DDSGateway : public gateway_t
 {
   public:
     Iceoryx2DDSGateway() noexcept;
-    void loadConfiguration(const gw::GatewayConfig& config) noexcept;
+    void loadConfiguration(const config::GatewayConfig& config) noexcept;
     void discover(const capro::CaproMessage& msg) noexcept;
     void forward(const channel_t& channel) noexcept;
 

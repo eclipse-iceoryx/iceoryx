@@ -21,7 +21,7 @@
 class MockGatewayBase
 {
   public:
-    MockGatewayBase(const iox::capro::Interfaces i){};
+    MockGatewayBase(const iox::capro::Interfaces){};
     MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
 };
 

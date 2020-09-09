@@ -34,7 +34,7 @@ template <typename IceoryxTerminal, typename ExternalTerminal>
 ExternalTerminalPool<ExternalTerminal> Channel<IceoryxTerminal, ExternalTerminal>::s_externalTerminals = ExternalTerminalPool();
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
-inline Channel<IceoryxTerminal, ExternalTerminal>::Channel(const capro::ServiceDescription& service,
+inline constexpr Channel<IceoryxTerminal, ExternalTerminal>::Channel(const capro::ServiceDescription& service,
                                                       const IceoryxTerminalPtr iceoryxTerminal,
                                                       const ExternalTerminalPtr externalTerminal) noexcept
     : m_service(service)

@@ -61,13 +61,13 @@ int main()
 
     iox::dds::DDS2IceoryxGateway<> gw;
 
-    iox::gw::TomlGatewayConfigParser::parse()
-        .and_then([&](iox::gw::GatewayConfig config) { gw.loadConfiguration(config); })
-        .or_else([&](iox::gw::TomlGatewayConfigParseError err) {
+    iox::config::TomlGatewayConfigParser::parse()
+        .and_then([&](iox::config::GatewayConfig config) { gw.loadConfiguration(config); })
+        .or_else([&](iox::config::TomlGatewayConfigParseError err) {
             iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
-                                << iox::gw::TomlGatewayConfigParseErrorString[err];
+                                << iox::config::TomlGatewayConfigParseErrorString[err];
             iox::dds::LogWarn() << "[Main] Using default configuration.";
-            iox::gw::GatewayConfig defaultConfig;
+            iox::config::GatewayConfig defaultConfig;
             defaultConfig.setDefaults();
             gw.loadConfiguration(defaultConfig);
         });

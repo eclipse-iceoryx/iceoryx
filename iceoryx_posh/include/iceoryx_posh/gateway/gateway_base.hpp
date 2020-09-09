@@ -55,10 +55,8 @@ class GatewayBase
     bool getCaProMessage(CaproMessage& msg) noexcept;
 
   protected:
-    // needed for unit testing
-    GatewayBase() noexcept
-    {
-    }
+    // Needed for unit testing
+    GatewayBase() noexcept = default;
 
   protected:
     popo::InterfacePort m_interfaceImpl{nullptr};

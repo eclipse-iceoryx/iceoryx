@@ -36,7 +36,7 @@ inline Iceoryx2DDSGateway<channel_t, gateway_t>::Iceoryx2DDSGateway() noexcept
 }
 
 template <typename channel_t, typename gateway_t>
-inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const gw::GatewayConfig& config) noexcept
+inline void Iceoryx2DDSGateway<channel_t, gateway_t>::loadConfiguration(const config::GatewayConfig& config) noexcept
 {
     LogDebug() << "[Iceoryx2DDSGateway] Configuring gateway...";
     for (const auto& service : config.m_configuredServices)

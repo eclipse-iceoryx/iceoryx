@@ -37,7 +37,7 @@ class DDS2IceoryxGateway : public gateway_t
   public:
     DDS2IceoryxGateway() noexcept;
     DDS2IceoryxGateway(ChannelFactory channelFactory) noexcept;
-    void loadConfiguration(const gw::GatewayConfig& config) noexcept;
+    void loadConfiguration(const config::GatewayConfig& config) noexcept;
     void discover(const capro::CaproMessage& msg) noexcept;
     void forward(const channel_t& channel) noexcept;
 

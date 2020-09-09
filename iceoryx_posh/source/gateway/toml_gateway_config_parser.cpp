@@ -25,7 +25,7 @@ iox::config::TomlGatewayConfigParser::parse()
 }
 
 iox::cxx::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>
-iox::config::TomlGatewayConfigParser::parse(ConfigFilePathString_t path)
+iox::config::TomlGatewayConfigParser::parse(const ConfigFilePathString_t& path)
 {
     iox::config::GatewayConfig config;
 
@@ -109,7 +109,7 @@ iox::config::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml)
     return iox::cxx::success<>();
 }
 
-bool iox::config::TomlGatewayConfigParser::hasInvalidCharacter(std::string s) noexcept
+bool iox::config::TomlGatewayConfigParser::hasInvalidCharacter(const std::string& s) noexcept
 {
     // See: https://design.ros2.org/articles/topic_and_service_names.html
     const std::regex regex(REGEX_VALID_CHARACTERS);

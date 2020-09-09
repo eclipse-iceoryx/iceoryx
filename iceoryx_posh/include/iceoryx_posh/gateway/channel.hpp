@@ -58,9 +58,9 @@ class Channel
     using ExternalTerminalPool = cxx::ObjectPool<ExternalTerminal, MAX_CHANNEL_NUMBER>;
 
   public:
-    Channel(const capro::ServiceDescription& service,
-            const IceoryxTerminalPtr iceoryxTerminal,
-            const ExternalTerminalPtr externalTerminal) noexcept;
+    constexpr Channel(const capro::ServiceDescription& service,
+                        const IceoryxTerminalPtr iceoryxTerminal,
+                        const ExternalTerminalPtr externalTerminal) noexcept;
 
     constexpr bool operator==(const Channel<IceoryxTerminal, ExternalTerminal>& rhs) const noexcept;
 

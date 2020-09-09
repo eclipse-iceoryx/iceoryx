@@ -19,7 +19,7 @@
 
 #include "mocks/chunk_mock.hpp"
 #include "mocks/google_mocks.hpp"
-#include "roudi_gtest.hpp"
+#include "testutils/roudi_gtest.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -39,8 +39,8 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
 {
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
-    iox::gw::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::gw::GatewayConfig::ServiceEntry{testService});
+    iox::config::GatewayConfig config{};
+    config.m_configuredServices.push_back(iox::config::GatewayConfig::ServiceEntry{testService});
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
@@ -55,8 +55,8 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyOffersConfiguredPublishers)
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
-    iox::gw::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::gw::GatewayConfig::ServiceEntry{testService});
+    iox::config::GatewayConfig config{};
+    config.m_configuredServices.push_back(iox::config::GatewayConfig::ServiceEntry{testService});
 
     auto mockPublisher = createMockIceoryxTerminal(testService);
     EXPECT_CALL(*mockPublisher, offer).Times(1);
@@ -75,8 +75,8 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
     // === Setup
     auto testService = iox::capro::ServiceDescription({"Radar", "Front-Right", "Reflections"});
 
-    iox::gw::GatewayConfig config{};
-    config.m_configuredServices.push_back(iox::gw::GatewayConfig::ServiceEntry{testService});
+    iox::config::GatewayConfig config{};
+    config.m_configuredServices.push_back(iox::config::GatewayConfig::ServiceEntry{testService});
 
     auto mockDataReader = createMockDDSTerminal(testService);
     EXPECT_CALL(*mockDataReader, connect).Times(1);
