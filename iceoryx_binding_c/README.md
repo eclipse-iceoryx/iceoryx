@@ -14,6 +14,8 @@ Therefore, we have the following coding conventions exclusively in the C API.
  - C functions are using an abbreviation of the `ClassName` for instance `cn` and
       are named like `iox_cn_method_name` where the camelCase is converted into 
       snake_case.
+    - A typedef for the handle is created with the abbreviation as name and a 
+        `_t` suffix, like `cn_t`
     - The constructor has always a suffix `_create` and is called for instance 
         `cn_create`. Analog to the constructor the destructor has the suffix `_destroy` 
         and is named like `cn_destroy`.
@@ -54,10 +56,10 @@ enum iox_Color {
     Color_BLUE,
 };
 
-CLASS MyTransmitterHandle* iox_sub_create(const char * name);
-void iox_sub_destroy(CLASS MyTransmitterHandle * self);
-bool iox_sub_receive(void * const data);
-bool iox_sub_send(void * const data);
-void iox_sub_all_hail_hypnotoad();
+sub_t iox_sub_create(const char * name);
+void iox_sub_destroy(sub_t const self);
+bool iox_sub_receive(sub_t const self, void * const data);
+bool iox_sub_send(sub_t const self, void * const data);
+void iox_sub_all_hail_hypnotoad(sub_t const self);
 ```
 
