@@ -76,7 +76,7 @@ iox_SubscribeState iox_sub_get_subscription_state(SubscriberPortData* const self
 
 iox_popo_ChunkReceiveResult iox_sub_get_chunk(SubscriberPortData* const self, const void** const payload)
 {
-    auto result = SubscriberPortUser(self).getChunk();
+    auto result = SubscriberPortUser(self).tryGetChunk();
     if (result.has_error())
     {
         return (result.get_error() == ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL)

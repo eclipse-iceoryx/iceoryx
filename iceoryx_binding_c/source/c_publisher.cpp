@@ -47,7 +47,7 @@ iox_popo_AllocationResult
 iox_pub_allocate_chunk(PublisherPortData* const self, void** const chunk, const uint32_t payloadSize)
 {
     auto result =
-        PublisherPortUser(self).allocateChunk(payloadSize).and_then([&](ChunkHeader* h) { *chunk = h->payload(); });
+        PublisherPortUser(self).tryAllocateChunk(payloadSize).and_then([&](ChunkHeader* h) { *chunk = h->payload(); });
     if (result.has_error())
     {
         switch (result.get_error())
@@ -77,7 +77,7 @@ void iox_pub_send_chunk(PublisherPortData* const self, void* const chunk)
 const void* iox_pub_try_get_previous_chunk(PublisherPortData* const self)
 {
     const void* returnValue = nullptr;
-    PublisherPortUser(self).getLastChunk().and_then([&](const ChunkHeader* h) { returnValue = h->payload(); });
+    PublisherPortUser(self).tryGetPreviousChunk().and_then([&](const ChunkHeader* h) { returnValue = h->payload(); });
     return returnValue;
 }
 
