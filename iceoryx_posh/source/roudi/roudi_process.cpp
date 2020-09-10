@@ -554,7 +554,7 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, subscriber);
 
         runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_RECEIVER_ACK)
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_SUBSCRIBER_ACK)
                    << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
         process->sendToMQ(sendBuffer);
 
