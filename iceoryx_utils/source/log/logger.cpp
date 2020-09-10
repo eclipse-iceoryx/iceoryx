@@ -116,15 +116,6 @@ void Logger::Print(const LogEntry entry) const
     std::clog << buffer.str();
 }
 
-bool Logger::IsEnabled(const LogLevel logLevel) const noexcept
-{
-    if (logLevel <= m_logLevel.load(std::memory_order_relaxed))
-    {
-        return true;
-    }
-    return false;
-}
-
 void Logger::Log(const LogEntry& entry) const
 {
     /// @todo do we want a ringbuffer where we store the last e.g. 100 logs

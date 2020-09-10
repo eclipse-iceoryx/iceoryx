@@ -66,6 +66,15 @@ class Logger
     std::atomic<LogMode> m_logMode{LogMode::kConsole};
 };
 
+inline bool Logger::IsEnabled(const LogLevel logLevel) const noexcept
+{
+    if (logLevel <= m_logLevel.load(std::memory_order_relaxed))
+    {
+        return true;
+    }
+    return false;
+}
+
 } // namespace log
 } // namespace iox
 
