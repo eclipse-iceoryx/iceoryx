@@ -36,7 +36,7 @@ ServerPortRouDi::MemberType_t* ServerPortRouDi::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::optional<capro::CaproMessage> ServerPortRouDi::getCaProMessage() noexcept
+cxx::optional<capro::CaproMessage> ServerPortRouDi::tryGetCaProMessage() noexcept
 {
     // nothing to change
     return cxx::nullopt_t();

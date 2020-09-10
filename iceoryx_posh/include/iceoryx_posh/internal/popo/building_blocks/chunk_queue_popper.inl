@@ -42,7 +42,7 @@ ChunkQueuePopper<ChunkQueueDataType>::getMembers() noexcept
 }
 
 template <typename ChunkQueueDataType>
-inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::pop() noexcept
+inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::tryPop() noexcept
 {
     auto retVal = getMembers()->m_queue.pop();
 

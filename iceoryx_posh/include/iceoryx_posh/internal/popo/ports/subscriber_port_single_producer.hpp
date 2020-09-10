@@ -41,7 +41,7 @@ class SubscriberPortSingleProducer : public SubscriberPortRouDi
 
     /// @brief get an optional CaPro message that changes the subscription state of the subscriber
     /// @return CaPro message with new subscription requet, empty optional if no state change
-    cxx::optional<capro::CaproMessage> getCaProMessage() noexcept override;
+    cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept override;
 
     /// @brief dispatch a CaPro message to the subscriber for processing
     /// @param[in] caProMessage to process

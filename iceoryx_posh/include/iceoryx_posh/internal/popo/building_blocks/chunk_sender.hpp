@@ -54,13 +54,13 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     ChunkSender& operator=(ChunkSender&& rhs) = default;
     ~ChunkSender() = default;
 
-    /// @brief Allocate a chunk, the ownerhip of the SharedChunk remains in the ChunkSender for being able to cleanup if
+    /// @brief allocate a chunk, the ownerhip of the SharedChunk remains in the ChunkSender for being able to cleanup if
     /// the user process disappears
     /// @param[in] payloadSize, size of the user paylaod without additional headers
     /// @param[in] originId, the unique id of the entity which requested this allocate
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
-    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocate(const uint32_t payloadSize,
+    cxx::expected<mepoo::ChunkHeader*, AllocationError> tryAllocate(const uint32_t payloadSize,
                                                                  const UniquePortId originId) noexcept;
 
     /// @brief Release an allocated chunk without sending it
@@ -77,7 +77,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
 
     /// @brief Returns the last sent chunk if there is one
     /// @return pointer to the ChunkHeader of the last sent Chunk if there is one, empty optional if not
-    cxx::optional<const mepoo::ChunkHeader*> getLast() const noexcept;
+    cxx::optional<const mepoo::ChunkHeader*> tryGetPreviousChunk() const noexcept;
 
     /// @brief Release all the chunks that are currently held. Caution: Only call this if the user process is no more
     /// running E.g. This cleans up chunks that were held by a user process that died unexpectetly, for avoiding lost

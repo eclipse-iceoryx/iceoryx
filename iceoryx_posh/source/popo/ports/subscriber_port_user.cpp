@@ -79,9 +79,9 @@ SubscribeState SubscriberPortUser::getSubscriptionState() const noexcept
     return getMembers()->m_subscriptionState;
 }
 
-cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> SubscriberPortUser::getChunk() noexcept
+cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> SubscriberPortUser::tryGetChunk() noexcept
 {
-    return m_chunkReceiver.get();
+    return m_chunkReceiver.tryGet();
 }
 
 void SubscriberPortUser::releaseChunk(const mepoo::ChunkHeader* chunkHeader) noexcept

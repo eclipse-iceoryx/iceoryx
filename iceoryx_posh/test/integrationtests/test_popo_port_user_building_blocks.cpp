@@ -87,14 +87,14 @@ class PortUser_IntegrationTest : public Test
         for (uint32_t i = 0; i < NUMBER_OF_PUBLISHERS; i++)
         {
             m_publisherPortUserVector[i].stopOffer();
-            static_cast<void>(m_publisherPortRouDiVector[i].getCaProMessage());
+            static_cast<void>(m_publisherPortRouDiVector[i].tryGetCaProMessage());
         }
 
         m_subscriberPortUserSingleProducer.unsubscribe();
         m_subscriberPortUserMultiProducer.unsubscribe();
 
-        static_cast<void>(m_subscriberPortRouDiSingleProducer.getCaProMessage());
-        static_cast<void>(m_subscriberPortRouDiMultiProducer.getCaProMessage());
+        static_cast<void>(m_subscriberPortRouDiSingleProducer.tryGetCaProMessage());
+        static_cast<void>(m_subscriberPortRouDiMultiProducer.tryGetCaProMessage());
     }
 
     GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
@@ -172,7 +172,7 @@ class PortUser_IntegrationTest : public Test
 
         // Subscribe to publisher
         subscriberPortUser.subscribe();
-        auto maybeCaproMessage = subscriberPortRouDi.getCaProMessage();
+        auto maybeCaproMessage = subscriberPortRouDi.tryGetCaProMessage();
         if (maybeCaproMessage.has_value())
         {
             caproMessage = maybeCaproMessage.value();
@@ -194,7 +194,7 @@ class PortUser_IntegrationTest : public Test
         while (!finished)
         {
             // Try to receive chunk
-            subscriberPortUser.getChunk()
+            subscriberPortUser.tryGetChunk()
                 .and_then([&](optional<const ChunkHeader*>& maybeChunkHeader) {
                     if (maybeChunkHeader.has_value())
                     {
@@ -213,7 +213,7 @@ class PortUser_IntegrationTest : public Test
                 })
                 .or_else([](ChunkReceiveError error) {
                     // Errors shall never occur
-                    FAIL() << "Error in getChunk(): " << static_cast<uint32_t>(error);
+                    FAIL() << "Error in tryGetChunk(): " << static_cast<uint32_t>(error);
                 });
         }
     }
@@ -228,7 +228,7 @@ class PortUser_IntegrationTest : public Test
         publisherPortUser.offer();
 
         // Let RouDi change state and send OFFER to subscriber
-        auto maybeCaproMessage = publisherPortRouDi.getCaProMessage();
+        auto maybeCaproMessage = publisherPortRouDi.tryGetCaProMessage();
 
         if (publisherThreadIndex == 0)
         {
@@ -283,7 +283,7 @@ class PortUser_IntegrationTest : public Test
         // Subscriber is ready to receive -> start sending samples
         for (size_t i = 0; i < ITERATIONS; i++)
         {
-            publisherPortUser.allocateChunk(sizeof(DummySample))
+            publisherPortUser.tryAllocateChunk(sizeof(DummySample))
                 .and_then([&](ChunkHeader* chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();
@@ -293,7 +293,7 @@ class PortUser_IntegrationTest : public Test
                 })
                 .or_else([](AllocationError error) {
                     // Errors shall never occur
-                    FAIL() << "Error in allocateChunk(): " << static_cast<uint32_t>(error);
+                    FAIL() << "Error in tryAllocateChunk(): " << static_cast<uint32_t>(error);
                 });
 
             /// Add some jitter to make thread breathe

@@ -48,7 +48,7 @@ class SubscriberPortUser : public BasePort
 
     /// @brief try to subscribe to all matching publishers
     /// @param[in] queueCapacity, capacity of the queue where chunks are stored before they are passed to the user with
-    /// getChunk. Caution: Depending on the underlying queue there can be a different overflow behavior
+    /// tryGetChunk. Caution: Depending on the underlying queue there can be a different overflow behavior
     void subscribe(const uint64_t queueCapacity = MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
 
     /// @brief unsubscribe from publishers, if there are any to which we are currently subscribed
@@ -64,9 +64,9 @@ class SubscriberPortUser : public BasePort
     /// the queue is returned (FiFo queue)
     /// @return optional that has a new chunk header or no value if there are no new chunks in the underlying queue,
     /// ChunkReceiveError on error
-    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> getChunk() noexcept;
+    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> tryGetChunk() noexcept;
 
-    /// @brief Release a chunk that was obtained with getChunk
+    /// @brief Release a chunk that was obtained with tryGetChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
     void releaseChunk(const mepoo::ChunkHeader* chunkHeader) noexcept;
 

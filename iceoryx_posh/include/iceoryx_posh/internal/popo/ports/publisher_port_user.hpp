@@ -50,7 +50,7 @@ class PublisherPortUser : public BasePort
     /// @param[in] payloadSize, size of the user paylaod without additional headers
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
-    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocateChunk(const uint32_t payloadSize) noexcept;
+    cxx::expected<mepoo::ChunkHeader*, AllocationError> tryAllocateChunk(const uint32_t payloadSize) noexcept;
 
     /// @brief Free an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
@@ -62,7 +62,7 @@ class PublisherPortUser : public BasePort
 
     /// @brief Returns the last sent chunk if there is one
     /// @return pointer to the ChunkHeader of the last sent Chunk if there is one, empty optional if not
-    cxx::optional<const mepoo::ChunkHeader*> getLastChunk() const noexcept;
+    cxx::optional<const mepoo::ChunkHeader*> tryGetPreviousChunk() const noexcept;
 
     /// @brief offer this publiher port in the system
     void offer() noexcept;

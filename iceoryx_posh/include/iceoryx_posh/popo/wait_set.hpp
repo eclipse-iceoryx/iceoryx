@@ -79,7 +79,7 @@ enum class WaitSetError : uint8_t
 /// 		{
 /// 			// Subscriber1 has received new data
 /// 			ChunkHeader myData;
-/// 			mySubscriber1.getChunk(myData);
+/// 			mySubscriber1.tryGetChunk(myData);
 /// 			doSomeThingWithTheNewData(myData);
 /// 		}
 /// 	}

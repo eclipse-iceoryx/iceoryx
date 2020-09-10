@@ -34,7 +34,7 @@ PublisherPortRouDi::MemberType_t* PublisherPortRouDi::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcept
+cxx::optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noexcept
 {
     // get offer state request from user side
     const auto offeringRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
@@ -84,7 +84,7 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
         if (capro::CaproMessageType::SUB == caProMessage.m_type)
         {
             const auto ret =
-                m_chunkSender.addQueue(static_cast<PublisherPortData::ChunkQueueData_t*>(caProMessage.m_chunkQueueData),
+                m_chunkSender.tryAddQueue(static_cast<PublisherPortData::ChunkQueueData_t*>(caProMessage.m_chunkQueueData),
                                        caProMessage.m_historyCapacity);
             if (!ret.has_error())
             {
@@ -93,7 +93,7 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
         }
         else if (capro::CaproMessageType::UNSUB == caProMessage.m_type)
         {
-            const auto ret = m_chunkSender.removeQueue(
+            const auto ret = m_chunkSender.tryRemoveQueue(
                 static_cast<PublisherPortData::ChunkQueueData_t*>(caProMessage.m_chunkQueueData));
             if (!ret.has_error())
             {

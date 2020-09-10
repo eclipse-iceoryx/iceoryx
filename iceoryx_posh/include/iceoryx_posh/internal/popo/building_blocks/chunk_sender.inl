@@ -39,7 +39,7 @@ inline typename ChunkSender<ChunkSenderDataType>::MemberType_t* ChunkSender<Chun
 
 template <typename ChunkSenderDataType>
 inline cxx::expected<mepoo::ChunkHeader*, AllocationError>
-ChunkSender<ChunkSenderDataType>::allocate(const uint32_t payloadSize, const UniquePortId originId) noexcept
+ChunkSender<ChunkSenderDataType>::tryAllocate(const uint32_t payloadSize, const UniquePortId originId) noexcept
 {
     // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
     const uint32_t neededChunkSize = getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
@@ -125,7 +125,7 @@ inline void ChunkSender<ChunkSenderDataType>::pushToHistory(mepoo::ChunkHeader* 
 }
 
 template <typename ChunkSenderDataType>
-inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkSenderDataType>::getLast() const noexcept
+inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkSenderDataType>::tryGetPreviousChunk() const noexcept
 {
     if (getMembers()->m_lastChunk)
     {

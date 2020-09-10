@@ -44,7 +44,7 @@ class SubscriberPortRouDi : public BasePort
 
     /// @brief get an optional CaPro message that requests changes to the subscription state of the subscriber
     /// @return CaPro message with new subscription requet, empty optional if no state change
-    virtual cxx::optional<capro::CaproMessage> getCaProMessage() noexcept = 0;
+    virtual cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept = 0;
 
     /// @brief dispatch a CaPro message to the subscriber for processing
     /// @param[in] caProMessage to process

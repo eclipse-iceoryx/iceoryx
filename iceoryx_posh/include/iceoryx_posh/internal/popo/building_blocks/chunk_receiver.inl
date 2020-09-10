@@ -44,9 +44,9 @@ ChunkReceiver<ChunkReceiverDataType>::getMembers() noexcept
 
 template <typename ChunkReceiverDataType>
 inline cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError>
-ChunkReceiver<ChunkReceiverDataType>::get() noexcept
+ChunkReceiver<ChunkReceiverDataType>::tryGet() noexcept
 {
-    auto popRet = this->pop();
+    auto popRet = this->tryPop();
 
     if (popRet.has_value())
     {

@@ -24,7 +24,7 @@ SubscriberPortMultiProducer::SubscriberPortMultiProducer(
 {
 }
 
-cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::getCaProMessage() noexcept
+cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::tryGetCaProMessage() noexcept
 {
     // get subscribe request from user side
     const auto currentSubscribeRequest = getMembers()->m_subscribeRequested.load(std::memory_order_relaxed);

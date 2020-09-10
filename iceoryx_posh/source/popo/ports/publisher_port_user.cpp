@@ -36,9 +36,9 @@ PublisherPortUser::MemberType_t* PublisherPortUser::getMembers() noexcept
 }
 
 cxx::expected<mepoo::ChunkHeader*, AllocationError>
-PublisherPortUser::allocateChunk(const uint32_t payloadSize) noexcept
+PublisherPortUser::tryAllocateChunk(const uint32_t payloadSize) noexcept
 {
-    return m_chunkSender.allocate(payloadSize, getUniqueID());
+    return m_chunkSender.tryAllocate(payloadSize, getUniqueID());
 }
 
 void PublisherPortUser::freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
@@ -64,9 +64,9 @@ void PublisherPortUser::sendChunk(mepoo::ChunkHeader* const chunkHeader) noexcep
     }
 }
 
-cxx::optional<const mepoo::ChunkHeader*> PublisherPortUser::getLastChunk() const noexcept
+cxx::optional<const mepoo::ChunkHeader*> PublisherPortUser::tryGetPreviousChunk() const noexcept
 {
-    return m_chunkSender.getLast();
+    return m_chunkSender.tryGetPreviousChunk();
 }
 
 void PublisherPortUser::offer() noexcept

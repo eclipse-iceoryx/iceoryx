@@ -248,7 +248,7 @@ void PortManager::handleApplications()
     {
         iox::popo::ApplicationPort applicationPort(applicationPortData);
 
-        while (auto maybeCaproMessage = applicationPort.getCaProMessage())
+        while (auto maybeCaproMessage = applicationPort.tryGetCaProMessage())
         {
             auto& caproMessage = maybeCaproMessage.value();
             switch (caproMessage.m_type)

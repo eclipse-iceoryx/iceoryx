@@ -69,7 +69,7 @@ TEST_F(SubscriberPortSingleProducer_test, initialStateNotSubscribed)
 
 TEST_F(SubscriberPortSingleProducer_test, initialStateNoChunksAvailable)
 {
-    auto maybeChunk = m_sutUserSideSingleProducer.getChunk();
+    auto maybeChunk = m_sutUserSideSingleProducer.tryGetChunk();
 
     EXPECT_FALSE(maybeChunk.has_error());
     EXPECT_FALSE(maybeChunk.get_value().has_value());
@@ -83,7 +83,7 @@ TEST_F(SubscriberPortSingleProducer_test, initialStateNoChunksLost)
 
 TEST_F(SubscriberPortSingleProducer_test, initialStateReturnsNoCaProMessage)
 {
-    auto maybeCaproMessage = m_sutRouDiSideSingleProducer.getCaProMessage();
+    auto maybeCaproMessage = m_sutRouDiSideSingleProducer.tryGetCaProMessage();
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
 }
@@ -92,7 +92,7 @@ TEST_F(SubscriberPortSingleProducer_test, subscribeCallResultsInSubCaProMessage)
 {
     m_sutUserSideSingleProducer.subscribe();
 
-    auto maybeCaproMessage = m_sutRouDiSideSingleProducer.getCaProMessage();
+    auto maybeCaproMessage = m_sutRouDiSideSingleProducer.tryGetCaProMessage();
 
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
@@ -104,7 +104,7 @@ TEST_F(SubscriberPortSingleProducer_test, subscribeCallResultsInSubCaProMessage)
 TEST_F(SubscriberPortSingleProducer_test, subscribeRequestedWhenCallingSubscribe)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
 
     const auto subscriptionState = m_sutUserSideSingleProducer.getSubscriptionState();
 
@@ -114,7 +114,7 @@ TEST_F(SubscriberPortSingleProducer_test, subscribeRequestedWhenCallingSubscribe
 TEST_F(SubscriberPortSingleProducer_test, nackResponseOnSubResultsInWaitForOffer)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
@@ -127,7 +127,7 @@ TEST_F(SubscriberPortSingleProducer_test, nackResponseOnSubResultsInWaitForOffer
 TEST_F(SubscriberPortSingleProducer_test, ackResponseOnSubResultsInSubscribed)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
@@ -140,7 +140,7 @@ TEST_F(SubscriberPortSingleProducer_test, ackResponseOnSubResultsInSubscribed)
 TEST_F(SubscriberPortSingleProducer_test, offerInWaitForOfferTriggersSubMessage)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
@@ -159,7 +159,7 @@ TEST_F(SubscriberPortSingleProducer_test, offerInWaitForOfferTriggersSubMessage)
 TEST_F(SubscriberPortSingleProducer_test, offerInWaitForOfferResultsInSubscribeRequested)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
@@ -174,12 +174,12 @@ TEST_F(SubscriberPortSingleProducer_test, offerInWaitForOfferResultsInSubscribeR
 TEST_F(SubscriberPortSingleProducer_test, unsubscribeInWaitForOfferResultsInNotSubscribed)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideSingleProducer.unsubscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
 
     const auto subscriptionState = m_sutUserSideSingleProducer.getSubscriptionState();
 
@@ -189,7 +189,7 @@ TEST_F(SubscriberPortSingleProducer_test, unsubscribeInWaitForOfferResultsInNotS
 TEST_F(SubscriberPortSingleProducer_test, StopOfferInSubscribedResultsInWaitForOffer)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
@@ -204,13 +204,13 @@ TEST_F(SubscriberPortSingleProducer_test, StopOfferInSubscribedResultsInWaitForO
 TEST_F(SubscriberPortSingleProducer_test, unsubscribeInSubscribedTriggersUnsubMessage)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideSingleProducer.unsubscribe();
 
-    auto maybeCaproMessage = m_sutRouDiSideSingleProducer.getCaProMessage();
+    auto maybeCaproMessage = m_sutRouDiSideSingleProducer.tryGetCaProMessage();
 
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();
@@ -222,12 +222,12 @@ TEST_F(SubscriberPortSingleProducer_test, unsubscribeInSubscribedTriggersUnsubMe
 TEST_F(SubscriberPortSingleProducer_test, unsubscribeInSubscribedResultsInUnsubscribeRequested)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideSingleProducer.unsubscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
 
     const auto subscriptionState = m_sutUserSideSingleProducer.getSubscriptionState();
 
@@ -237,12 +237,12 @@ TEST_F(SubscriberPortSingleProducer_test, unsubscribeInSubscribedResultsInUnsubs
 TEST_F(SubscriberPortSingleProducer_test, ackInUnsubscribeRequestedResultsInNotSubscribed)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideSingleProducer.unsubscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
 
     const auto subscriptionState = m_sutUserSideSingleProducer.getSubscriptionState();
@@ -253,12 +253,12 @@ TEST_F(SubscriberPortSingleProducer_test, ackInUnsubscribeRequestedResultsInNotS
 TEST_F(SubscriberPortSingleProducer_test, nackInUnsubscribeRequestedResultsInNotSubscribed)
 {
     m_sutUserSideSingleProducer.subscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideSingleProducer.unsubscribe();
-    m_sutRouDiSideSingleProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideSingleProducer.tryGetCaProMessage(); // only RouDi changes state
     caproMessage.m_type = iox::capro::CaproMessageType::NACK;
     m_sutRouDiSideSingleProducer.dispatchCaProMessage(caproMessage);
 
@@ -355,7 +355,7 @@ TEST_F(SubscriberPortMultiProducer_test, initialStateNotSubscribed)
 
 TEST_F(SubscriberPortMultiProducer_test, initialStateReturnsNoCaProMessage)
 {
-    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.getCaProMessage();
+    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.tryGetCaProMessage();
 
     EXPECT_FALSE(maybeCaproMessage.has_value());
 }
@@ -364,7 +364,7 @@ TEST_F(SubscriberPortMultiProducer_test, subscribeCallResultsInSubCaProMessage)
 {
     m_sutUserSideMultiProducer.subscribe();
 
-    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.getCaProMessage();
+    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.tryGetCaProMessage();
 
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessage = maybeCaproMessage.value();
@@ -376,7 +376,7 @@ TEST_F(SubscriberPortMultiProducer_test, subscribeCallResultsInSubCaProMessage)
 TEST_F(SubscriberPortMultiProducer_test, subscribedWhenCallingSubscribe)
 {
     m_sutUserSideMultiProducer.subscribe();
-    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideMultiProducer.tryGetCaProMessage(); // only RouDi changes state
 
     const auto subscriptionState = m_sutUserSideMultiProducer.getSubscriptionState();
 
@@ -386,7 +386,7 @@ TEST_F(SubscriberPortMultiProducer_test, subscribedWhenCallingSubscribe)
 TEST_F(SubscriberPortMultiProducer_test, nackResponseOnSubStillSubscribed)
 {
     m_sutUserSideMultiProducer.subscribe();
-    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideMultiProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
@@ -399,7 +399,7 @@ TEST_F(SubscriberPortMultiProducer_test, nackResponseOnSubStillSubscribed)
 TEST_F(SubscriberPortMultiProducer_test, ackResponseOnSubStillSubscribed)
 {
     m_sutUserSideMultiProducer.subscribe();
-    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideMultiProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
@@ -412,7 +412,7 @@ TEST_F(SubscriberPortMultiProducer_test, ackResponseOnSubStillSubscribed)
 TEST_F(SubscriberPortMultiProducer_test, offerInSubscribedTriggersSubMessage)
 {
     m_sutUserSideMultiProducer.subscribe();
-    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideMultiProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::OFFER,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
 
@@ -429,9 +429,9 @@ TEST_F(SubscriberPortMultiProducer_test, offerInSubscribedTriggersSubMessage)
 TEST_F(SubscriberPortMultiProducer_test, unsubscribeInSubscribedResultsInNotSubscribed)
 {
     m_sutUserSideMultiProducer.subscribe();
-    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideMultiProducer.tryGetCaProMessage(); // only RouDi changes state
     m_sutUserSideMultiProducer.unsubscribe();
-    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideMultiProducer.tryGetCaProMessage(); // only RouDi changes state
 
     const auto subscriptionState = m_sutUserSideMultiProducer.getSubscriptionState();
 
@@ -441,7 +441,7 @@ TEST_F(SubscriberPortMultiProducer_test, unsubscribeInSubscribedResultsInNotSubs
 TEST_F(SubscriberPortMultiProducer_test, StopOfferInSubscribedRemainsInSubscribed)
 {
     m_sutUserSideMultiProducer.subscribe();
-    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideMultiProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
@@ -456,13 +456,13 @@ TEST_F(SubscriberPortMultiProducer_test, StopOfferInSubscribedRemainsInSubscribe
 TEST_F(SubscriberPortMultiProducer_test, unsubscribeInSubscribedTriggersUnsubMessage)
 {
     m_sutUserSideMultiProducer.subscribe();
-    m_sutRouDiSideMultiProducer.getCaProMessage(); // only RouDi changes state
+    m_sutRouDiSideMultiProducer.tryGetCaProMessage(); // only RouDi changes state
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK,
                                           SubscriberPortSingleProducer_test::TEST_SERVICE_DESCRIPTION);
     m_sutRouDiSideMultiProducer.dispatchCaProMessage(caproMessage);
     m_sutUserSideMultiProducer.unsubscribe();
 
-    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.getCaProMessage();
+    auto maybeCaproMessage = m_sutRouDiSideMultiProducer.tryGetCaProMessage();
 
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();

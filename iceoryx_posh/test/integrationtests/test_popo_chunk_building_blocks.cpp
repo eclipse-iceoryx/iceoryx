@@ -81,8 +81,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
     void SetUp()
     {
-        m_chunkSender.addQueue(&m_chunkQueueData);
-        m_chunkDistributor.addQueue(&m_chunkReceiverData);
+        m_chunkSender.tryAddQueue(&m_chunkQueueData);
+        m_chunkDistributor.tryAddQueue(&m_chunkReceiverData);
     }
     void TearDown(){};
 
@@ -90,7 +90,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     {
         for (size_t i = 0; i < ITERATIONS; i++)
         {
-            m_chunkSender.allocate(sizeof(DummySample), iox::UniquePortId())
+            m_chunkSender.tryAllocate(sizeof(DummySample), iox::UniquePortId())
                 .and_then([&](iox::mepoo::ChunkHeader* chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();
@@ -121,7 +121,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         {
             ASSERT_FALSE(m_popper.hasOverflown());
 
-            m_popper.pop()
+            m_popper.tryPop()
                 .and_then([&](SharedChunk& chunk) {
                     auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
                     // Check if monotonically increasing
@@ -159,7 +159,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         {
             ASSERT_FALSE(m_chunkReceiver.hasOverflown());
 
-            m_chunkReceiver.get()
+            m_chunkReceiver.tryGet()
                 .and_then([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
                     if (maybeChunkHeader.has_value())
                     {

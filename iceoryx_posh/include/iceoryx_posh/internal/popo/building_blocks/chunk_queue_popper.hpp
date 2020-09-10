@@ -45,7 +45,7 @@ class ChunkQueuePopper
 
     /// @brief pop a chunk from the chunk queue
     /// @return optional for a shared chunk that is set if the queue is not empty
-    cxx::optional<mepoo::SharedChunk> pop() noexcept;
+    cxx::optional<mepoo::SharedChunk> tryPop() noexcept;
 
     /// @brief check overflow and reset flag
     /// @return true if the underlying queue overflowed since last call of this method

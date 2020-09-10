@@ -44,7 +44,7 @@ class ClientPortRouDi : public BasePort
 
     /// @brief get an optional CaPro message that requests changes to the desired connection state of the client
     /// @return CaPro message with desired connection state, empty optional if no state change
-    cxx::optional<capro::CaproMessage> getCaProMessage() noexcept;
+    cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept;
 
     /// @brief dispatch a CaPro message to the client for processing
     /// @param[in] caProMessage to process

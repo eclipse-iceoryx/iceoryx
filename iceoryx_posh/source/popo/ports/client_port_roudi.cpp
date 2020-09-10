@@ -36,7 +36,7 @@ ClientPortRouDi::MemberType_t* ClientPortRouDi::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::optional<capro::CaproMessage> ClientPortRouDi::getCaProMessage() noexcept
+cxx::optional<capro::CaproMessage> ClientPortRouDi::tryGetCaProMessage() noexcept
 {
     /// @todo
 
