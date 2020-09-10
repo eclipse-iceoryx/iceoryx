@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 using namespace iox;
@@ -32,3 +33,8 @@ TEST(types_test, WaitSetStorageSizeFits)
     EXPECT_THAT(alignof(WaitSet), Le(alignof(wait_set_storage_t)));
 }
 
+TEST(types_test, GuardConditionStorageSizeFits)
+{
+    EXPECT_THAT(sizeof(GuardCondition), Eq(sizeof(guard_cond_storage_t)));
+    EXPECT_THAT(alignof(GuardCondition), Le(alignof(guard_cond_storage_t)));
+}

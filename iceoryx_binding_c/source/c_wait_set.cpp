@@ -22,6 +22,30 @@ extern "C" {
 #include "iceoryx_binding_c/wait_set.h"
 }
 
+static void condition_vector_to_c_array(const WaitSet::ConditionVector& conditionVector,
+                                        cond_t* const conditionArray,
+                                        const uint64_t conditionArrayCapacity,
+                                        uint64_t& conditionArraySize,
+                                        uint64_t& missedElements)
+{
+    uint64_t conditionVectorSize = conditionVector.size();
+    if (conditionVectorSize > conditionArrayCapacity)
+    {
+        missedElements = conditionVectorSize - conditionArrayCapacity;
+        conditionArraySize = conditionArrayCapacity;
+    }
+    else
+    {
+        missedElements = 0U;
+        conditionArraySize = conditionVectorSize;
+    }
+
+    for (uint64_t i = 0; i < conditionArraySize; ++i)
+    {
+        conditionArray[i] = conditionVector[i];
+    }
+}
+
 void iox_wait_set_init(wait_set_t const self, cond_var_t const conditionVariable)
 {
     new (self) WaitSet(conditionVariable);
@@ -43,24 +67,37 @@ iox_WaitSetResult iox_wait_set_attach_condition(wait_set_t const self, cond_t co
 
 bool iox_wait_set_detach_condition(wait_set_t const self, cond_t const condition)
 {
+    return self->detachCondition(*condition);
 }
 
 void iox_wait_set_detach_all_conditions(wait_set_t const self)
 {
+    self->detachAllConditions();
 }
 
 void iox_wait_set_timed_wait(wait_set_t const self,
                              struct timespec timeout,
                              cond_t* const conditionArray,
                              const uint64_t conditionArrayCapacity,
-                             uint64_t& conditionArraySize)
+                             uint64_t& conditionArraySize,
+                             uint64_t& missedElements)
 {
+    condition_vector_to_c_array(
+        self->timedWait(units::Duration::nanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
+                        + units::Duration::seconds(static_cast<unsigned long long int>(timeout.tv_sec))),
+        conditionArray,
+        conditionArrayCapacity,
+        conditionArraySize,
+        missedElements);
 }
 
 void iox_wait_set_wait(wait_set_t const self,
                        cond_t* const conditionArray,
                        const uint64_t conditionArrayCapacity,
-                       uint64_t& conditionArraySize)
+                       uint64_t& conditionArraySize,
+                       uint64_t& missedElements)
 {
+    condition_vector_to_c_array(
+        self->wait(), conditionArray, conditionArrayCapacity, conditionArraySize, missedElements);
 }
 

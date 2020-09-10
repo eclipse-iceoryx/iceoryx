@@ -34,12 +34,14 @@ void iox_wait_set_timed_wait(wait_set_t const self,
                              struct timespec timeout,
                              cond_t* const conditionArray,
                              const uint64_t conditionArrayCapacity,
-                             uint64_t& conditionArraySize);
+                             uint64_t& conditionArraySize,
+                             uint64_t& missedElements);
 
 void iox_wait_set_wait(wait_set_t const self,
                        cond_t* const conditionArray,
                        const uint64_t conditionArrayCapacity,
-                       uint64_t& conditionArraySize);
+                       uint64_t& conditionArraySize,
+                       uint64_t& missedElements);
 
 
 #endif

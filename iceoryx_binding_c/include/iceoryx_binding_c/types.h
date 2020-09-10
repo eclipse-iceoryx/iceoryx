@@ -24,4 +24,12 @@ struct wait_set_storage_t
     uint64_t do_not_touch_me[133];
 };
 
+struct guard_cond_storage_t
+{
+    // the value of the array size is the result of the following formula:
+    // sizeof(GuardCondition) / 8
+    uint64_t do_not_touch_me[9];
+};
+
+
 #endif
