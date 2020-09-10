@@ -73,7 +73,7 @@ inline bool ChunkQueuePopper<ChunkQueueDataType>::hasOverflown() noexcept
 }
 
 template <typename ChunkQueueDataType>
-inline bool ChunkQueuePopper<ChunkQueueDataType>::empty() noexcept
+inline bool ChunkQueuePopper<ChunkQueueDataType>::empty() const noexcept
 {
     return getMembers()->m_queue.empty();
 }

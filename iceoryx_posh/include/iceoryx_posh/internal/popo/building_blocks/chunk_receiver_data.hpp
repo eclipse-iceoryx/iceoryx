@@ -38,7 +38,7 @@ struct ChunkReceiverData : public ChunkQueueDataType
     /// we use one more than MaxChunksHeldSimultaneously for being able to provide one new chunk
     /// to the user if they already have the allowed MaxChunksHeldSimultaneously. But then the user
     /// has to return one to not brake the contract. This is aligned with AUTOSAR Adaptive ara::com
-    static constexpr uint32_t MAX_CHUNKS_IN_USE = MaxChunksHeldSimultaneously + 1u;
+    static constexpr uint32_t MAX_CHUNKS_IN_USE = MaxChunksHeldSimultaneously + 1U;
     UsedChunkList<MAX_CHUNKS_IN_USE> m_chunksInUse;
 };
 

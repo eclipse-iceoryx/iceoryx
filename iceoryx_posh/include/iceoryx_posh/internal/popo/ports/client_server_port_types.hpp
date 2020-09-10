@@ -80,16 +80,16 @@ class RequestHeader
     RequestHeader& operator=(RequestHeader&& rhs) = default;
     virtual ~RequestHeader() = default;
 
-    void setSequenceNumber(int64_t sequenceNumber) noexcept
+    void setSequenceNumber(const int64_t sequenceNumber) noexcept
     {
         m_sequenceNumber = sequenceNumber;
     }
-    void setFireAndForget(bool fireAndForget) noexcept
+    void setFireAndForget(const bool fireAndForget) noexcept
     {
         m_isFireAndForget = fireAndForget;
     }
 
-    mepoo::ChunkHeader* getChunkHeader() noexcept
+    mepoo::ChunkHeader* getChunkHeader() const noexcept
     {
         /// todo
         return nullptr;
@@ -103,7 +103,7 @@ class RequestHeader
   private:
     int64_t m_sequenceNumber{0};
     bool m_isFireAndForget{false};
-    relative_ptr<ClientChunkQueueData_t> m_responseQueue;
+    const relative_ptr<ClientChunkQueueData_t> m_responseQueue;
 };
 
 class ResponseHeader
@@ -148,9 +148,9 @@ class ResponseHeader
     }
 
   private:
-    int64_t m_sequenceNumber{0};
+    const int64_t m_sequenceNumber{0};
     bool m_hasServerError{false};
-    relative_ptr<ClientChunkQueueData_t> m_destinationQueue;
+    const relative_ptr<ClientChunkQueueData_t> m_destinationQueue;
 };
 
 

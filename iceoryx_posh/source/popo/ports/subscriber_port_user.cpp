@@ -84,7 +84,7 @@ cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> Subsc
     return m_chunkReceiver.tryGet();
 }
 
-void SubscriberPortUser::releaseChunk(const mepoo::ChunkHeader* chunkHeader) noexcept
+void SubscriberPortUser::releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     m_chunkReceiver.release(chunkHeader);
 }
@@ -94,7 +94,7 @@ void SubscriberPortUser::releaseQueuedChunks() noexcept
     m_chunkReceiver.clear();
 }
 
-bool SubscriberPortUser::hasNewChunks() noexcept
+bool SubscriberPortUser::hasNewChunks() const noexcept
 {
     return !m_chunkReceiver.empty();
 }

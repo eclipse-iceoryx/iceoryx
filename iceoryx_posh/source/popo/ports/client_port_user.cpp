@@ -36,17 +36,17 @@ ClientPortUser::MemberType_t* ClientPortUser::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::expected<RequestHeader*, AllocationError> ClientPortUser::allocateRequest(const uint32_t payloadSize) noexcept
+cxx::expected<RequestHeader*, AllocationError> ClientPortUser::allocateRequest(const uint32_t /*payloadSize*/) noexcept
 {
     return cxx::error<AllocationError>(AllocationError::RUNNING_OUT_OF_CHUNKS);
 }
 
-void ClientPortUser::freeRequest(RequestHeader* const requestHeader) noexcept
+void ClientPortUser::freeRequest(RequestHeader* const /*requestHeader*/) noexcept
 {
     /// @todo
 }
 
-void ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
+void ClientPortUser::sendRequest(RequestHeader* const /*requestHeader*/) noexcept
 {
     /// @todo
 }
@@ -72,12 +72,12 @@ cxx::expected<cxx::optional<const ResponseHeader*>, ChunkReceiveError> ClientPor
     return cxx::success<cxx::optional<const ResponseHeader*>>(cxx::nullopt_t());
 }
 
-void ClientPortUser::releaseResponse(const ResponseHeader* responseHeader) noexcept
+void ClientPortUser::releaseResponse(const ResponseHeader* const /*responseHeader*/) noexcept
 {
     /// @todo
 }
 
-bool ClientPortUser::hasNewResponses() noexcept
+bool ClientPortUser::hasNewResponses() const noexcept
 {
     return !m_chunkReceiver.empty();
 }
@@ -97,7 +97,7 @@ bool ClientPortUser::unsetConditionVariable() noexcept
     return m_chunkReceiver.detachConditionVariable();
 }
 
-bool ClientPortUser::isConditionVariableSet() noexcept
+bool ClientPortUser::isConditionVariableSet() const noexcept
 {
     return m_chunkReceiver.isConditionVariableAttached();
 }

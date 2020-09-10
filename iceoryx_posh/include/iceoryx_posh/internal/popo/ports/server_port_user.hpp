@@ -54,11 +54,11 @@ class ServerPortUser : public BasePort
 
     /// @brief Release a request that was obtained with getRequest
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
-    void releaseRequest(const RequestHeader* requestHeader) noexcept;
+    void releaseRequest(const RequestHeader* const requestHeader) noexcept;
 
     /// @brief check if there are requests in the queue
     /// @return if there are requests in the queue return true, otherwise false
-    bool hasNewRequests() noexcept;
+    bool hasNewRequests() const noexcept;
 
     /// @brief check if there was a queue overflow since the last call of hasLostRequests
     /// @return true if the underlying queue overflowed since last call of this method, otherwise false
@@ -71,7 +71,7 @@ class ServerPortUser : public BasePort
     /// not
     cxx::expected<ResponseHeader*, AllocationError> allocateResponse(const uint32_t payloadSize) noexcept;
 
-    /// @brief Free an allocated reesponse without sending it
+    /// @brief Free an allocated response without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
     void freeResponse(ResponseHeader* const responseHeader) noexcept;
 
@@ -103,7 +103,7 @@ class ServerPortUser : public BasePort
 
     /// @brief check if there's a condition variable set
     /// @return true if a condition variable attached, otherwise false
-    bool isConditionVariableSet() noexcept;
+    bool isConditionVariableSet() const noexcept;
 
   private:
     const MemberType_t* getMembers() const noexcept;

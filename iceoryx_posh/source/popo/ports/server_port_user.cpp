@@ -42,12 +42,12 @@ cxx::expected<cxx::optional<const RequestHeader*>, ChunkReceiveError> ServerPort
     return cxx::success<cxx::optional<const RequestHeader*>>(cxx::nullopt_t());
 }
 
-void ServerPortUser::releaseRequest(const RequestHeader* requestHeader) noexcept
+void ServerPortUser::releaseRequest(const RequestHeader* const /*requestHeader*/) noexcept
 {
     /// @todo
 }
 
-bool ServerPortUser::hasNewRequests() noexcept
+bool ServerPortUser::hasNewRequests() const noexcept
 {
     return !m_chunkReceiver.empty();
 }
@@ -57,18 +57,18 @@ bool ServerPortUser::hasLostRequests() noexcept
     return m_chunkReceiver.hasOverflown();
 }
 
-cxx::expected<ResponseHeader*, AllocationError> ServerPortUser::allocateResponse(const uint32_t payloadSize) noexcept
+cxx::expected<ResponseHeader*, AllocationError> ServerPortUser::allocateResponse(const uint32_t /*payloadSize*/) noexcept
 {
     /// @todo
     return cxx::error<AllocationError>(AllocationError::RUNNING_OUT_OF_CHUNKS);
 }
 
-void ServerPortUser::freeResponse(ResponseHeader* const responseHeader) noexcept
+void ServerPortUser::freeResponse(ResponseHeader* const /*responseHeader*/) noexcept
 {
     /// @todo
 }
 
-void ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
+void ServerPortUser::sendResponse(ResponseHeader* const /*responseHeader*/) noexcept
 {
     /// @todo
 }
@@ -109,7 +109,7 @@ bool ServerPortUser::unsetConditionVariable() noexcept
     return m_chunkReceiver.detachConditionVariable();
 }
 
-bool ServerPortUser::isConditionVariableSet() noexcept
+bool ServerPortUser::isConditionVariableSet() const noexcept
 {
     return m_chunkReceiver.isConditionVariableAttached();
 }

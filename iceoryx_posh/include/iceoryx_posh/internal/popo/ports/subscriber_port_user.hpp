@@ -68,14 +68,14 @@ class SubscriberPortUser : public BasePort
 
     /// @brief Release a chunk that was obtained with tryGetChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
-    void releaseChunk(const mepoo::ChunkHeader* chunkHeader) noexcept;
+    void releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief Release all the chunks that are currently queued up.
     void releaseQueuedChunks() noexcept;
 
     /// @brief check if there are chunks in the queue
     /// @return if there are chunks in the queue return true, otherwise false
-    bool hasNewChunks() noexcept;
+    bool hasNewChunks() const noexcept;
 
     /// @brief check if there was a queue overflow since the last call of hasLostChunks
     /// @return true if the underlying queue overflowed since last call of this method, otherwise false

@@ -43,7 +43,7 @@ cxx::optional<capro::CaproMessage> ServerPortRouDi::tryGetCaProMessage() noexcep
 }
 
 cxx::optional<capro::CaproMessage>
-ServerPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
+ServerPortRouDi::dispatchCaProMessage(const capro::CaproMessage& /*caProMessage*/) noexcept
 {
     capro::CaproMessage responseMessage(
         capro::CaproMessageType::NACK, this->getCaProServiceDescription(), capro::CaproMessageSubType::NOSUBTYPE);

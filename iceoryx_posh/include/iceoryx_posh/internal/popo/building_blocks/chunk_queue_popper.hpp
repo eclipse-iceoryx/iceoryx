@@ -53,7 +53,7 @@ class ChunkQueuePopper
 
     /// @brief pop a chunk from the chunk queue
     /// @return if the queue is empty return true, otherwise false
-    bool empty() noexcept;
+    bool empty() const noexcept;
 
     /// @brief get the current size of the queue. Caution, another thread can have changed the size just after reading
     /// it

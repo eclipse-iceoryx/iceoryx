@@ -81,11 +81,11 @@ class ClientPortUser : public BasePort
 
     /// @brief Release a response that was obtained with getResponseChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
-    void releaseResponse(const ResponseHeader* responseHeader) noexcept;
+    void releaseResponse(const ResponseHeader* const responseHeader) noexcept;
 
     /// @brief check if there are responses in the queue
     /// @return if there are responses in the queue return true, otherwise false
-    bool hasNewResponses() noexcept;
+    bool hasNewResponses() const noexcept;
 
     /// @brief check if there was a queue overflow since the last call of hasLostResponseChunks
     /// @return true if the underlying queue overflowed since last call of this method, otherwise false
@@ -101,7 +101,7 @@ class ClientPortUser : public BasePort
 
     /// @brief check if there's a condition variable set
     /// @return true if a condition variable attached, otherwise false
-    bool isConditionVariableSet() noexcept;
+    bool isConditionVariableSet() const noexcept;
 
   private:
     const MemberType_t* getMembers() const noexcept;
