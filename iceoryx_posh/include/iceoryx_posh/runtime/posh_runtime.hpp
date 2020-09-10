@@ -111,7 +111,7 @@ class PoshRuntime
     /// @return pointer to a created publisher port user
     PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const capro::ServiceDescription& service,
-                           const uint64_t& historyCapacity,
+                           const uint64_t& historyCapacity = 0U,
                            const cxx::CString100& runnableName = cxx::CString100(""),
                            const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
@@ -124,7 +124,7 @@ class PoshRuntime
     /// @return pointer to a created subscriber port data
     SubscriberPortUserType::MemberType_t*
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
-                            const uint64_t& historyRequest,
+                            const uint64_t& historyRequest = 0U,
                             const cxx::CString100& runnableName = cxx::CString100(""),
                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
