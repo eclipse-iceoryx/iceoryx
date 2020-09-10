@@ -365,6 +365,7 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
     for (; i < iox::MAX_PORT_NUMBER; ++i)
     {
         auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
+        ASSERT_NE(nullptr, publisherPort);
     }
     EXPECT_FALSE(publisherlistOverflowDetected);
 
@@ -411,6 +412,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
     for (; i < iox::MAX_PORT_NUMBER; ++i)
     {
         auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
+        ASSERT_NE(nullptr, subscriberPort);
     }
     EXPECT_FALSE(subscriberlistOverflowDetected);
 
@@ -442,6 +444,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
     for (uint32_t i = 0u; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
     {
         auto conditionVariable = m_runtime->getMiddlewareConditionVariable();
+        EXPECT_NE(nullptr, conditionVariable);
     }
     EXPECT_FALSE(conditionVariableListOverflowDetected);
 

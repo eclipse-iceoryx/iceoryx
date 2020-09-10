@@ -751,7 +751,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const uint64_t& historyCapacity,
                                       const ProcessName_t& processName,
                                       mepoo::MemoryManager* payloadMemoryManager,
-                                      const RunnableName_t& runnable,
+                                      const RunnableName_t& runnable __attribute__((unused)),
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     // check if already in list, we currently do not support multi publisher for one CaPro ID
@@ -795,7 +795,7 @@ SubscriberPortProducerType::MemberType_t*
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const uint64_t& historyRequest,
                                        const ProcessName_t& processName,
-                                       const RunnableName_t& runnable,
+                                       const RunnableName_t& runnable __attribute__((unused)),
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto result = m_portPool->addSubscriberPort(service, historyRequest, processName, portConfigInfo.memoryInfo);
