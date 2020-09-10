@@ -184,10 +184,12 @@ TEST_P(IoxLoggerLogLevel_test, LogLevel)
         {
             EXPECT_THAT(outBuffer.str().empty(), Eq(false));
             EXPECT_THAT(outBuffer.str().find(logEntryLogLevel.string), Ne(std::string::npos));
+            EXPECT_THAT(m_sut.IsEnabled(entry.level), Eq(true));
         }
         else
         {
             EXPECT_THAT(outBuffer.str().empty(), Eq(true));
+            EXPECT_THAT(m_sut.IsEnabled(entry.level), Eq(false));
         }
     }
 }
