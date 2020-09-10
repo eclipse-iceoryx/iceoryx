@@ -49,14 +49,14 @@ class PoshRuntime_test : public Test
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
+    const iox::cxx::string<100> m_runtimeName{"/publisher"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
-    PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::getInstance("/sender")};
+    PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::getInstance(m_runtimeName)};
     MqMessage m_sendBuffer;
     MqMessage m_receiveBuffer;
     const iox::cxx::string<100> m_runnableName{"testRunnable"};
     const iox::cxx::string<100> m_invalidRunnableName{"invalidRunnable,"};
     static bool m_errorHandlerCalled;
-    const iox::cxx::string<100> m_runtimeName{"/sender"};
 };
 
 bool PoshRuntime_test::m_errorHandlerCalled{false};
@@ -223,7 +223,7 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
     EXPECT_FALSE(successfullySent);
 }
 
-
+/// @deprecated #25
 TEST_F(PoshRuntime_test, GetMiddlewareSenderIsSuccessful)
 {
     const auto senderPort = m_runtime->getMiddlewareSender(
@@ -235,7 +235,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSenderIsSuccessful)
     EXPECT_EQ(33u, senderPort->m_memoryInfo.memoryType);
 }
 
-
+/// @deprecated #25
 TEST_F(PoshRuntime_test, GetMiddlewareSenderDefaultArgs)
 {
     const auto senderPort = m_runtime->getMiddlewareSender(iox::capro::ServiceDescription(99u, 1u, 20u));
@@ -244,7 +244,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSenderDefaultArgs)
     EXPECT_EQ(0u, senderPort->m_memoryInfo.memoryType);
 }
 
-
+/// @deprecated #25
 TEST_F(PoshRuntime_test, GetMiddlewareSenderSenderlistOverflow)
 {
     auto senderlistOverflowDetected{false};
@@ -277,7 +277,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSenderSenderlistOverflow)
     EXPECT_TRUE(senderlistOverflowDetected);
 }
 
-
+/// @deprecated #25
 TEST_F(PoshRuntime_test, GetMiddlewareReceiverIsSuccessful)
 {
     auto receiverPort = m_runtime->getMiddlewareReceiver(
@@ -289,7 +289,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiverIsSuccessful)
     EXPECT_EQ(33u, receiverPort->m_memoryInfo.memoryType);
 }
 
-
+/// @deprecated #25
 TEST_F(PoshRuntime_test, GetMiddlewareReceiverDefaultArgs)
 {
     auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(99u, 1u, 20u));
@@ -299,7 +299,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiverDefaultArgs)
     EXPECT_EQ(0u, receiverPort->m_memoryInfo.memoryType);
 }
 
-
+/// @deprecated #25
 TEST_F(PoshRuntime_test, GetMiddlewareReceiverReceiverlistOverflow)
 {
     auto receiverlistOverflowDetected{false};
@@ -324,6 +324,102 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiverReceiverlistOverflow)
     EXPECT_TRUE(receiverlistOverflowDetected);
 }
 
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
+{
+    const auto publisherPort = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_runnableName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    ASSERT_NE(nullptr, publisherPort);
+    EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), publisherPort->m_serviceDescription);
+    /// @todo #25 historyCapacity no member?
+    /// @todo #25 memoryInfo not used in publisher port right now
+    // EXPECT_EQ(22u, publisherPort->m_memoryInfo.deviceId);
+    // EXPECT_EQ(33u, publisherPort->m_memoryInfo.memoryType);
+}
+
+TEST_F(PoshRuntime_test, getMiddlewarePublisherDefaultArgs)
+{
+    const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U));
+
+    ASSERT_NE(nullptr, publisherPort);
+
+    /// @todo #25 memoryInfo not used in publisher port right now
+    // EXPECT_EQ(0u, publisherPort->m_memoryInfo.deviceId);
+    // EXPECT_EQ(0u, publisherPort->m_memoryInfo.memoryType);
+}
+
+
+TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
+{
+    auto publisherlistOverflowDetected{false};
+
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&publisherlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            if (error == iox::Error::kPORT_POOL__PUBLISHERLIST_OVERFLOW)
+            {
+                publisherlistOverflowDetected = true;
+            }
+        });
+
+    uint32_t i{0U};
+    for (; i < iox::MAX_PORT_NUMBER; ++i)
+    {
+        auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
+    }
+    EXPECT_FALSE(publisherlistOverflowDetected);
+
+    auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
+    EXPECT_EQ(nullptr, publisherPort);
+    EXPECT_TRUE(publisherlistOverflowDetected);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
+{
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(
+        iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_runnableName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    ASSERT_NE(nullptr, subscriberPort);
+    EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), subscriberPort->m_serviceDescription);
+    EXPECT_EQ(0U, subscriberPort->m_historyRequest);
+
+    /// @todo #25 memoryInfo not used in subscriber port right now
+    // EXPECT_EQ(22u, subscriberPort->> m_memoryInfo.deviceId);
+    // EXPECT_EQ(33u, subscriberPort->m_memoryInfo.memoryType);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberDefaultArgs)
+{
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U));
+
+    ASSERT_NE(nullptr, subscriberPort);
+
+    /// @todo #25 memoryInfo not used in subscriber port right now
+    // EXPECT_EQ(0u, subscriberPort->m_memoryInfo.deviceId);
+    // EXPECT_EQ(0u, subscriberPort->m_memoryInfo.memoryType);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
+{
+    auto subscriberlistOverflowDetected{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&subscriberlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            subscriberlistOverflowDetected = true;
+            EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW));
+        });
+
+    uint32_t i{0U};
+    for (; i < iox::MAX_PORT_NUMBER; ++i)
+    {
+        auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
+    }
+    EXPECT_FALSE(subscriberlistOverflowDetected);
+
+    auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
+
+    EXPECT_EQ(nullptr, subscriberPort);
+    EXPECT_TRUE(subscriberlistOverflowDetected);
+}
+
 TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableIsSuccessful)
 {
     auto conditionVariable = m_runtime->getMiddlewareConditionVariable();
@@ -343,11 +439,9 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
             }
         });
 
-
     for (uint32_t i = 0u; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
     {
         auto conditionVariable = m_runtime->getMiddlewareConditionVariable();
-        ASSERT_NE(nullptr, conditionVariable);
     }
     EXPECT_FALSE(conditionVariableListOverflowDetected);
 
@@ -375,12 +469,12 @@ TIMING_TEST_F(PoshRuntime_test, GetServiceRegistryChangeCounterOfferStopOfferSer
 TEST_F(PoshRuntime_test, CreateRunnableReturnValue)
 {
     const uint32_t runnableDeviceIdentifier = 1u;
-    iox::runtime::RunnableProperty runnableProperty(iox::cxx::string<100>("testRunnable"), runnableDeviceIdentifier);
+    iox::runtime::RunnableProperty runnableProperty(m_runnableName, runnableDeviceIdentifier);
 
     auto runableData = m_runtime->createRunnable(runnableProperty);
 
-    EXPECT_EQ(iox::cxx::string<100>("/sender"), runableData->m_process);
-    EXPECT_EQ(iox::cxx::string<100>("testRunnable"), runableData->m_runnable);
+    EXPECT_EQ(m_runtimeName, runableData->m_process);
+    EXPECT_EQ(m_runnableName, runableData->m_runnable);
 
     /// @todo I am passing runnableDeviceIdentifier as 1, but it returns 0, is this expected?
     // EXPECT_EQ(runnableDeviceIdentifier, runableData->m_runnableDeviceIdentifier);
