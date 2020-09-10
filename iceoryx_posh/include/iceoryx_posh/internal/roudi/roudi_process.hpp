@@ -92,8 +92,8 @@ class RouDiProcess
 class ProcessManagerInterface
 {
   public:
-    virtual void sendServiceRegistryChangeCounterToProcess(const ProcessName_t& process_name) = 0;
-    virtual void discoveryUpdate() = 0;
+    virtual void sendServiceRegistryChangeCounterToProcess(const ProcessName_t& process_name) noexcept = 0;
+    virtual void discoveryUpdate() noexcept = 0;
 
     virtual ~ProcessManagerInterface() noexcept = default;
 };

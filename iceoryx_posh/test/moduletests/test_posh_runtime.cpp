@@ -444,7 +444,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareConditionVariableListOverflow)
     for (uint32_t i = 0u; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
     {
         auto conditionVariable = m_runtime->getMiddlewareConditionVariable();
-        EXPECT_NE(nullptr, conditionVariable);
+        ASSERT_NE(nullptr, conditionVariable);
     }
     EXPECT_FALSE(conditionVariableListOverflowDetected);
 
