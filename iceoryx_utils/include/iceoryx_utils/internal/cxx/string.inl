@@ -115,8 +115,8 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
 {
     if (other == nullptr)
     {
-        m_rawstring[0] = '\0';
-        m_rawstringSize = 0u;
+        m_rawstring[0U] = '\0';
+        m_rawstringSize = 0U;
     }
     else if (Capacity < count)
     {
@@ -138,7 +138,7 @@ template <uint64_t Capacity>
 template <uint64_t N>
 inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexcept
 {
-    static_assert((N - 1u) <= Capacity,
+    static_assert((N - 1U) <= Capacity,
                   "Assignment failed. The given char array is larger than the capacity of the fixed string.");
 
     if (c_str() == rhs)
@@ -292,7 +292,7 @@ inline constexpr uint64_t string<Capacity>::capacity() const noexcept
 template <uint64_t Capacity>
 inline constexpr bool string<Capacity>::empty() const noexcept
 {
-    return m_rawstringSize == 0;
+    return m_rawstringSize == 0U;
 }
 
 template <uint64_t Capacity>
@@ -324,8 +324,8 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
     std::memcpy(m_rawstring, rhs.c_str(), strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
-    rhs.m_rawstring[0] = '\0';
-    rhs.m_rawstringSize = 0u;
+    rhs.m_rawstring[0U] = '\0';
+    rhs.m_rawstringSize = 0U;
     return *this;
 }
 
@@ -581,19 +581,19 @@ inline typename std::enable_if<std::is_same<T, std::string>::value || internal::
                                iox::cxx::optional<uint64_t>>::type
 string<Capacity>::find_last_of(const T& t, const uint64_t pos) const noexcept
 {
-    if (m_rawstringSize == 0)
+    if (m_rawstringSize == 0U)
     {
         return iox::cxx::nullopt;
     }
 
     auto p = pos;
-    if (m_rawstringSize - 1 < p)
+    if (m_rawstringSize - 1U < p)
     {
-        p = m_rawstringSize - 1;
+        p = m_rawstringSize - 1U;
     }
     const char* found = nullptr;
     const char* data = internal::GetData<T>::call(t);
-    for (; p > 0; --p)
+    for (; p > 0U; --p)
     {
         found = std::strchr(data, m_rawstring[p]);
         if (found != nullptr)
@@ -604,7 +604,7 @@ string<Capacity>::find_last_of(const T& t, const uint64_t pos) const noexcept
     found = std::strchr(data, m_rawstring[p]);
     if (found != nullptr)
     {
-        return 0u;
+        return 0U;
     }
     return iox::cxx::nullopt;
 }

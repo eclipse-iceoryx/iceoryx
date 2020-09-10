@@ -82,7 +82,7 @@ constexpr TruncateToCapacity_t TruncateToCapacity{};
 template <uint64_t Capacity>
 class string
 {
-    static_assert(Capacity > 0, "The capacity of the fixed string must be greater than 0!");
+    static_assert(Capacity > 0U, "The capacity of the fixed string must be greater than 0!");
 
   public:
     /// @brief creates an empty string with size 0
@@ -459,7 +459,7 @@ class string
     ///
     /// @return an optional containing the substring, iox::cxx::nullopt if pos is greater than the size of the original
     /// string
-    iox::cxx::optional<string<Capacity>> substr(const uint64_t pos = 0) const noexcept;
+    iox::cxx::optional<string<Capacity>> substr(const uint64_t pos = 0U) const noexcept;
 
     /// @brief finds the first occurence of the given character sequence; returns the position of the first character of
     /// the found substring, returns iox::cxx::nullopt if no substring is found or if pos is greater than this' size
@@ -473,7 +473,7 @@ class string
     typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                 || internal::IsCxxString<T>::value,
                             iox::cxx::optional<uint64_t>>::type
-    find(const T& t, const uint64_t pos = 0) const noexcept;
+    find(const T& t, const uint64_t pos = 0U) const noexcept;
 
     /// @brief finds the first occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found or if pos is greater than this'
@@ -488,7 +488,7 @@ class string
     typename std::enable_if<std::is_same<T, std::string>::value || internal::IsCharArray<T>::value
                                 || internal::IsCxxString<T>::value,
                             iox::cxx::optional<uint64_t>>::type
-    find_first_of(const T& t, const uint64_t pos = 0) const noexcept;
+    find_first_of(const T& t, const uint64_t pos = 0U) const noexcept;
 
     /// @brief finds the last occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found
@@ -532,8 +532,8 @@ class string
     template <uint64_t N>
     string& move(string<N>&& rhs) noexcept;
 
-    char m_rawstring[Capacity + 1]{'\0'};
-    uint64_t m_rawstringSize{0u};
+    char m_rawstring[Capacity + 1U]{'\0'};
+    uint64_t m_rawstringSize{0U};
 };
 
 /// @brief checks if a rhs fixed string is equal to a lhs std::string

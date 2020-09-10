@@ -35,7 +35,7 @@ using charArray = char[N];
 template <typename T>
 struct GetCapa
 {
-    static constexpr uint64_t capa = 0;
+    static constexpr uint64_t capa = 0U;
 };
 
 template <uint64_t N>
@@ -47,7 +47,7 @@ struct GetCapa<string<N>>
 template <uint64_t N>
 struct GetCapa<char[N]>
 {
-    static constexpr uint64_t capa = N - 1u;
+    static constexpr uint64_t capa = N - 1U;
 };
 
 /// @brief struct to get size of fixed string/string literal/std::string
@@ -119,7 +119,7 @@ struct SumCapa;
 template <>
 struct SumCapa<>
 {
-    static constexpr uint64_t value = 0;
+    static constexpr uint64_t value = 0U;
 };
 
 template <typename T, typename... Targs>
