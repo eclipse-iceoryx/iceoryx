@@ -754,61 +754,58 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const RunnableName_t& runnable __attribute__((unused)),
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
-    // check if already in list, we currently do not support multi publisher for one CaPro ID
-    for (auto publisherPortData : m_portPool->getPublisherPortDataList())
-    {
-        PublisherPortRouDiType publisherPort(publisherPortData);
-        if (service == publisherPort.getCaProServiceDescription())
-        {
-            LogWarn() << "Process '" << processName
-                      << "' tried to register an unique PublisherPort which is already used by '"
-                      << publisherPortData->m_processName << "' with service '"
-                      << service.operator cxx::Serialization().toString() << "'.";
+    /// @todo unique check only required for single producer type
+    // // check if already in list, we currently do not support multi publisher for one CaPro ID
+    // for (auto publisherPortData : m_portPool->getPublisherPortDataList())
+    // {
+    //     PublisherPortRouDiType publisherPort(publisherPortData);
+    //     if (service == publisherPort.getCaProServiceDescription())
+    //     {
+    //         LogWarn() << "Process '" << processName
+    //                   << "' tried to register an unique PublisherPort which is already used by '"
+    //                   << publisherPortData->m_processName << "' with service '"
+    //                   << service.operator cxx::Serialization().toString() << "'.";
 
-            /// @todo unique check only required for single producer type
-            // if (publisherPort.isUnique())
-            // {
-            //     errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
-            //     return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
-            // }
-            // else
-            // {
-            //     break;
-            // }
-        }
-    }
+    //         if (publisherPort.isUnique())
+    //         {
+    //             errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+    //             return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
+    //         }
+    //         else
+    //         {
+    //             break;
+    //         }
+    //     }
+    // }
 
     // we can create a new port
-    auto result = m_portPool->addPublisherPort(
+    auto maybePublisherPortData = m_portPool->addPublisherPort(
         service, historyCapacity, payloadMemoryManager, processName, portConfigInfo.memoryInfo);
-    if (!result.has_error())
+    if (!maybePublisherPortData.has_error())
     {
         /// @todo #25 Fix introspection
         // m_portIntrospection.addSender(result.get_value(), processName, service, runnable);
     }
 
-    return result;
+    return maybePublisherPortData;
 }
 
-/// @todo return a cxx::expected
-SubscriberPortProducerType::MemberType_t*
+cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const uint64_t& historyRequest,
                                        const ProcessName_t& processName,
                                        const RunnableName_t& runnable __attribute__((unused)),
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
-    auto result = m_portPool->addSubscriberPort(service, historyRequest, processName, portConfigInfo.memoryInfo);
-    if (!result.has_error())
+    auto maybeSubscriberPortData =
+        m_portPool->addSubscriberPort(service, historyRequest, processName, portConfigInfo.memoryInfo);
+    if (!maybeSubscriberPortData.has_error())
     {
         /// @todo Fix introspection
         // m_portIntrospection.addReceiver(result.get_value(), processName, service, runnable);
-        return result.get_value();
     }
-    else
-    {
-        return nullptr;
-    }
+
+    return maybeSubscriberPortData;
 }
 
 

@@ -258,10 +258,10 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyCapacity) << runnableName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
-    auto requestedPublisherPort = requestPublisherFromRoudi(sendBuffer);
-    if (requestedPublisherPort.has_error())
+    auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
+    if (maybePublisher.has_error())
     {
-        switch (requestedPublisherPort.get_error())
+        switch (maybePublisher.get_error())
         {
         case MqMessageErrorType::NO_UNIQUE_CREATED:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
@@ -282,7 +282,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
         }
         return nullptr;
     }
-    return requestedPublisherPort.get_value();
+    return maybePublisher.get_value();
 }
 
 cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
@@ -304,12 +304,6 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
             return cxx::success<PublisherPortUserType::MemberType_t*>(
                 reinterpret_cast<PublisherPortUserType::MemberType_t*>(ptr));
         }
-        else
-        {
-            LogError() << "Wrong response from message queue" << mqMessage;
-            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-            return cxx::success<PublisherPortUserType::MemberType_t*>(nullptr);
-        }
     }
     else
     {
@@ -324,11 +318,11 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
                 return cxx::error<MqMessageErrorType>(stringToMqMessageErrorType(mqMessage2.c_str()));
             }
         }
-
-        LogError() << "Wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
-        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-        return cxx::success<PublisherPortUserType::MemberType_t*>(nullptr);
     }
+
+    LogError() << "Wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    return cxx::success<PublisherPortUserType::MemberType_t*>(nullptr);
 }
 
 SubscriberPortUserType::MemberType_t*
@@ -342,10 +336,31 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
                << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyRequest) << runnableName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
-    return requestSubscriberFromRoudi(sendBuffer);
+    auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
+
+    if (maybeSubscriber.has_error())
+    {
+        switch (maybeSubscriber.get_error())
+        {
+        case MqMessageErrorType::SUBSCRIBERLIST_FULL:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created since we are out of memory.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_SUBSCRIBER_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        default:
+            LogWarn() << "Undefined behavior occurred while creating service '"
+                      << service.operator cxx::Serialization().toString() << "'.";
+            errorHandler(
+                Error::kPOSH__RUNTIME_SUBSCRIBER_PORT_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        }
+        return nullptr;
+    }
+    return maybeSubscriber.get_value();
 }
 
-SubscriberPortUserType::MemberType_t* PoshRuntime::requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept
+cxx::expected<SubscriberPortUserType::MemberType_t*, MqMessageErrorType>
+PoshRuntime::requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept
 {
     MqMessage receiveBuffer;
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3 == receiveBuffer.getNumberOfElements()))
@@ -359,21 +374,29 @@ SubscriberPortUserType::MemberType_t* PoshRuntime::requestSubscriberFromRoudi(co
             RelativePointer::offset_t offset;
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
             auto ptr = RelativePointer::getPtr(segmentId, offset);
-            return reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr);
-        }
-        else
-        {
-            LogError() << "Wrong response from message queue " << mqMessage;
-            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-            return nullptr;
+            return cxx::success<SubscriberPortUserType::MemberType_t*>(
+                reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr));
         }
     }
     else
     {
-        LogError() << "Wrong response from message queue";
-        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-        return nullptr;
+        if (receiveBuffer.getNumberOfElements() == 2)
+        {
+            std::string mqMessage1 = receiveBuffer.getElementAtIndex(0);
+            std::string mqMessage2 = receiveBuffer.getElementAtIndex(1);
+
+            if (stringToMqMessageType(mqMessage1.c_str()) == MqMessageType::ERROR)
+            {
+                LogError() << "No valid subscriber port received from RouDi.";
+                errorHandler(Error::kPOSH__RUNTIME_NO_VALID_SUBSCRIBER_RECEIVED, nullptr, iox::ErrorLevel::MODERATE);
+                return cxx::error<MqMessageErrorType>(stringToMqMessageErrorType(mqMessage2.c_str()));
+            }
+        }
     }
+
+    LogError() << "Wrong response from message queue";
+    errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    return cxx::success<SubscriberPortUserType::MemberType_t*>(nullptr);
 }
 
 popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interfaces interface,

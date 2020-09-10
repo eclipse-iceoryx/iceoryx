@@ -185,7 +185,9 @@ class PoshRuntime
 
     cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
     requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept;
-    SubscriberPortUserType::MemberType_t* requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept;
+
+    cxx::expected<SubscriberPortUserType::MemberType_t*, MqMessageErrorType>
+    requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
     requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept;

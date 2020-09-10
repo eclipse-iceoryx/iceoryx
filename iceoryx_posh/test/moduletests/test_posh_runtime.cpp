@@ -404,8 +404,10 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
     auto subscriberlistOverflowDetected{false};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&subscriberlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            subscriberlistOverflowDetected = true;
-            EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW));
+            if (error == iox::Error::kPORT_POOL__SUBSCRIBERLIST_OVERFLOW)
+            {
+                subscriberlistOverflowDetected = true;
+            }
         });
 
     uint32_t i{0U};

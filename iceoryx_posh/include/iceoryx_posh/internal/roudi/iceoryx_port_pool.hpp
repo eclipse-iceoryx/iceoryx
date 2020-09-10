@@ -15,6 +15,8 @@
 #define IOX_POSH_ROUDI_ICEORYX_PORT_POOL_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
 
 namespace iox

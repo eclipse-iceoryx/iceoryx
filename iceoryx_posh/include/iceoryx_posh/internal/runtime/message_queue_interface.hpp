@@ -85,6 +85,7 @@ enum class MqMessageErrorType : int32_t
     /// Not enough space to create another one
     SENDERLIST_FULL, /// @deprecated #25
     PUBLISHERLIST_FULL,
+    SUBSCRIBERLIST_FULL,
     CONDITION_VARIABLE_LIST_FULL,
     END,
 };

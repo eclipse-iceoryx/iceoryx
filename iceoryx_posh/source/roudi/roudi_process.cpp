@@ -547,18 +547,29 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
         /// which could support queries like: find all ports with a given service or some other
         /// specific attribute (to allow efficient and well encapsulated lookup)
 
-        SubscriberPortProducerType::MemberType_t* subscriber =
+        auto maybeSubscriber =
             m_portManager.acquireSubscriberPortData(service, historyRequest, name, runnable, portConfigInfo);
 
-        // send ReceiverPort to app as a serialized relative pointer
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, subscriber);
+        if (!maybeSubscriber.has_error())
+        {
+            // send ReceiverPort to app as a serialized relative pointer
+            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSubscriber.get_value());
 
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_SUBSCRIBER_ACK)
-                   << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-        process->sendToMQ(sendBuffer);
+            runtime::MqMessage sendBuffer;
+            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_SUBSCRIBER_ACK)
+                       << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+            process->sendToMQ(sendBuffer);
 
-        LogDebug() << "Created new SubscriberPort for application " << name;
+            LogDebug() << "Created new SubscriberPort for application " << name;
+        }
+        else
+        {
+            runtime::MqMessage sendBuffer;
+            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
+            sendBuffer << runtime::mqMessageErrorTypeToString(runtime::MqMessageErrorType::SUBSCRIBERLIST_FULL);
+            process->sendToMQ(sendBuffer);
+            LogError() << "Could not create SubscriberPort for application " << name;
+        }
     }
     else
     {

@@ -82,11 +82,12 @@ class PortManager
                              const RunnableName_t& runnable,
                              const PortConfigInfo& portConfigInfo) noexcept;
 
-    SubscriberPortProducerType::MemberType_t* acquireSubscriberPortData(const capro::ServiceDescription& service,
-                                                                        const uint64_t& historyRequest,
-                                                                        const ProcessName_t& processName,
-                                                                        const RunnableName_t& runnable,
-                                                                        const PortConfigInfo& portConfigInfo) noexcept;
+    cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
+    acquireSubscriberPortData(const capro::ServiceDescription& service,
+                              const uint64_t& historyRequest,
+                              const ProcessName_t& processName,
+                              const RunnableName_t& runnable,
+                              const PortConfigInfo& portConfigInfo) noexcept;
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const ProcessName_t& processName,
