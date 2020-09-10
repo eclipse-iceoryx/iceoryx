@@ -50,8 +50,9 @@ add_library(${PROJECT_NAME}
     STATIC
     source/c_condition.cpp
     source/c_guard_condition.cpp
-    source/c_posh_runtime.cpp
     source/c_publisher.cpp
+    source/c_runnable.cpp
+    source/c_runtime.cpp
     source/c_subscriber.cpp
     source/c_wait_set.cpp
     source/cpp2c_enum_translation.cpp

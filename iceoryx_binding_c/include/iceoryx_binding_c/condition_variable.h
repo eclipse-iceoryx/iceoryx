@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_CONDITION_H
-#define IOX_BINDING_C_CONDITION_H
+#ifndef IOX_BINDING_C_CONDITION_VARIABLE_H
+#define IOX_BINDING_C_CONDITION_VARIABLE_H
 
-/// @brief condition handle
-typedef struct Condition* cond_t;
+/// @brief condition variable handle
+typedef struct ConditionVariableData* cond_var_t;
 
-bool iox_cond_has_triggered(cond_t const self);
-bool iox_cond_is_condition_variable_attached(cond_t const self);
+cond_var_t iox_cond_var_create();
+void iox_cond_var_destroy(cond_var_t const self);
 
 #endif

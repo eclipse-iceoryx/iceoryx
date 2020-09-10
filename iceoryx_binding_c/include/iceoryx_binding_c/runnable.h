@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_CONDITION_H
-#define IOX_BINDING_C_CONDITION_H
+#ifndef IOX_BINDING_C_RUNNABLE_H
+#define IOX_BINDING_C_RUNNABLE_H
 
-/// @brief condition handle
-typedef struct Condition* cond_t;
+#include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
-bool iox_cond_has_triggered(cond_t const self);
-bool iox_cond_is_condition_variable_attached(cond_t const self);
+typedef struct RunnableData* runnable_t;
+
+runnable_t iox_runnable_create(const char* const runnableName);
+void iox_runnable_destroy(runnable_t const self);
+
+uint64_t iox_runnable_get_name(runnable_t const self, char* const name, const uint64_t nameCapacity);
+uint64_t iox_runnable_get_process_name(runnable_t const self, char* const name, const uint64_t nameCapacity);
 
 #endif

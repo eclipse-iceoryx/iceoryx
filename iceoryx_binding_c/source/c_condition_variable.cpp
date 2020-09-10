@@ -12,13 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_CONDITION_H
-#define IOX_BINDING_C_CONDITION_H
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-/// @brief condition handle
-typedef struct Condition* cond_t;
+using namespace iox;
+using namespace iox::popo;
 
-bool iox_cond_has_triggered(cond_t const self);
-bool iox_cond_is_condition_variable_attached(cond_t const self);
+extern "C" {
+#include "iceoryx_binding_c/condition_variable.h"
+}
 
-#endif
+cond_var_t iox_cond_var_create()
+{
+    return runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable();
+}
+
+void iox_cond_var_destroy(cond_var_t const self)
+{
+    (void)self;
+}

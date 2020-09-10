@@ -23,7 +23,7 @@ option(coverage "Build iceoryx with gcov" OFF)
 option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
 option(dds_gateway "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
-option(binding_c "builds the C language bindings" OFF)
+option(binding_c "builds the C language bindings" ON)
 
 # ===== Dependencies
 if(TOML_CONFIG)
