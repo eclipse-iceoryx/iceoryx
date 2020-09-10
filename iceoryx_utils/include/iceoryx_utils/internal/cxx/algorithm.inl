@@ -53,6 +53,20 @@ inline constexpr T min(const T& left, const T& right, const Targs&... args) noex
 {
     return min(min(left, right), args...);
 }
+
+template <typename T, typename CompareType>
+inline constexpr bool doesContainType() noexcept
+{
+    return std::is_same<T, CompareType>::value;
+}
+
+template <typename T, typename CompareType, typename Next, typename... Remainder>
+inline constexpr bool doesContainType() noexcept
+{
+    return doesContainType<T, CompareType>() || doesContainType<T, Next, Remainder...>();
+}
+
+
 } // namespace algorithm
 } // namespace iox
 

@@ -33,11 +33,21 @@ set(TEST_LINK_LIBS
     iceoryx_dds::iceoryx_dds
 )
 
-set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-unused -Wno-pedantic)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS} /W3)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-unused -Wno-pedantic)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} -Wno-unused -Wno-pedantic)
+endif()
 
-if(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+if(LINUX)
     set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl)
-endif(NOT CMAKE_SYSTEM_NAME MATCHES QNX)
+elseif(QNX)
+elseif(APPLE)
+    set(TEST_LINK_LIBS ${TEST_LINK_LIBS} dl)
+elseif(WIN32)
+endif()
 
 # unittests
 add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC})

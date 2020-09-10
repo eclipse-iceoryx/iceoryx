@@ -48,7 +48,7 @@ class SubscriberPortUser
     /// @brief try to subscribe to all matching publishers
     /// @param[in] queueCapacity, capacity of the queue where chunks are stored before they are passed to the user with
     /// getChunk. Caution: Depending on the underlying queue there can be a different overflow behavior
-    void subscribe(const uint32_t queueCapacity = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
+    void subscribe(const uint64_t queueCapacity = MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
 
     /// @brief unsubscribe from publishers, if there are any to which we are currently subscribed
     void unsubscribe() noexcept;
@@ -80,9 +80,16 @@ class SubscriberPortUser
     /// @return true if the underlying queue overflowed since last call of this method, otherwise false
     bool hasLostChunks() noexcept;
 
-    /// @todo we first need the new condition variable
-    void attachConditionVariable() noexcept;
-    void detachConditionVaribale() noexcept;
+    /// @brief attach a condition variable (via its pointer) to subscriber
+    /// @return true if attachment worked, otherwise false
+    bool attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+
+    /// @brief detach a condition variable from subscriber
+    /// @return true if detachment worked, otherwise false
+    bool detachConditionVariable() noexcept;
+
+    /// @brief check if there's a condition variable attached
+    /// @return true if a condition variable attached, otherwise false
     bool isConditionVariableAttached() noexcept;
 
   private:
@@ -91,7 +98,8 @@ class SubscriberPortUser
 
     MemberType_t* m_subscriberPortDataPtr;
 
-    ChunkReceiver m_chunkReceiver;
+    using ChunkQueuePopper_t = ChunkQueuePopper<SubscriberPortData::ChunkQueueData_t>;
+    ChunkReceiver<ChunkQueuePopper_t> m_chunkReceiver;
 };
 
 } // namespace popo

@@ -11,19 +11,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
+#ifndef IOX_UTILS_CXX_NEWTYPE_CONVERTABLE_HPP
+#define IOX_UTILS_CXX_NEWTYPE_CONVERTABLE_HPP
 
 namespace iox
 {
-namespace popo
+namespace cxx
 {
-ChunkReceiverData::ChunkReceiverData(const cxx::VariantQueueTypes queueType,
-                                     const mepoo::MemoryInfo& memoryInfo) noexcept
-    : ChunkQueueData(queueType)
-    , m_memoryInfo(memoryInfo)
+namespace newtype
 {
-}
+template <typename T>
+struct Convertable
+{
+};
 
-} // namespace popo
+} // namespace newtype
+} // namespace cxx
 } // namespace iox
+
+#endif

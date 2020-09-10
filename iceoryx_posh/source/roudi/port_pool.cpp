@@ -73,8 +73,8 @@ PortPool::addApplicationPort(const std::string& applicationName) noexcept
 }
 
 cxx::expected<runtime::RunnableData*, PortPoolError>
-PortPool::addRunnableData(const iox::cxx::CString100& process,
-                          const iox::cxx::CString100& runnable,
+PortPool::addRunnableData(const ProcessName_t& process,
+                          const RunnableName_t& runnable,
                           const uint64_t runnableDeviceIdentifier) noexcept
 {
     if (m_portPoolDataBase->m_runnableMembers.hasFreeSpace())
@@ -86,6 +86,21 @@ PortPool::addRunnableData(const iox::cxx::CString100& process,
     {
         errorHandler(Error::kPORT_POOL__RUNNABLELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
         return cxx::error<PortPoolError>(PortPoolError::RUNNABLE_DATA_LIST_FULL);
+    }
+}
+
+cxx::expected<popo::ConditionVariableData*, PortPoolError>
+PortPool::addConditionVariableData()
+{
+    if (m_portPoolDataBase->m_conditionVariableMembers.hasFreeSpace())
+    {
+        auto conditionVariableData = m_portPoolDataBase->m_conditionVariableMembers.insert();
+        return cxx::success<popo::ConditionVariableData*>(conditionVariableData);
+    }
+    else
+    {
+        errorHandler(Error::kPORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::CONDITION_VARIABLE_LIST_FULL);
     }
 }
 

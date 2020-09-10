@@ -55,7 +55,7 @@ class ProcessIntrospection
      * @param f_pid is the PID of the process to add
      * @param f_name is the name of the process
      */
-    void addProcess(int f_pid, const cxx::CString100& f_name);
+    void addProcess(int f_pid, const ProcessName_t& f_name);
 
     /*!
      * @brief This function is used to remove process to the process introspection
@@ -70,7 +70,7 @@ class ProcessIntrospection
      * @param f_processName is the name of the proces
      * @param f_runnableName is the name of the runnable to add
      */
-    void addRunnable(const cxx::CString100& f_process, const cxx::CString100& f_runnable);
+    void addRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable);
 
     /*!
      * @brief This function is used to remove a runnable to the process introspection
@@ -78,7 +78,7 @@ class ProcessIntrospection
      * @param f_processName is the name of the proces
      * @param f_runnableName is the name of the runnable to remove
      */
-    void removeRunnable(const cxx::CString100& f_process, const cxx::CString100& f_runnable);
+    void removeRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable);
 
     /*!
      * @brief This functions registers the POSH sender port which is used

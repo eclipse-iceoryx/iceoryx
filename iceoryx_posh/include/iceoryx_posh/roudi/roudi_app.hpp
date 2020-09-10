@@ -18,6 +18,7 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 #include "iceoryx_posh/roudi/roudi_config_file_provider.hpp"
+#include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_utils/log/logcommon.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
@@ -38,8 +39,8 @@ class RouDiApp
     /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
     static RouDiConfig_t generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept;
 
-    /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
-    RouDiApp(int argc, char* argv[], const mepoo::MePooConfig* mePooConfig = nullptr) noexcept;
+    /// @deprecated Please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
+    [[gnu::deprecated]]  RouDiApp(int argc, char* argv[], const mepoo::MePooConfig* mePooConfig = nullptr) noexcept;
 
     /// @deprecated Will be deprecated soon, please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
     RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept;
@@ -88,6 +89,7 @@ class RouDiApp
                                                      std::terminate();
                                                  })
                                                  .get_value());
+    version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
 
   private:
     bool checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept;
