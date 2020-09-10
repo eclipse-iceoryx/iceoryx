@@ -61,14 +61,20 @@ class ClientPortUser : public BasePort
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
     void sendRequest(RequestHeader* const requestHeader) noexcept;
 
-    /// @brief try to connect to the server
+    /// @brief try to connect to the server Caution: There can be delays between calling connect and a change
+    /// in the connection state
+    /// @code
+    ///   myPort.connect();
+    ///   while(myPort.getConnectionState() != ConnectionState::CONNECTED)
+    ///       sleep(1_s);
+    /// @endcode
     void connect() noexcept;
 
     /// @brief disconnect from the server
     void disconnect() noexcept;
 
     /// @brief get the current connection state. Caution: There can be delays between calling connect and a change
-    /// in the conenction state. The connection state can also change without user interaction if the server comes
+    /// in the connection state. The connection state can also change without user interaction if the server comes
     /// and goes
     /// @return ConnectionState
     ConnectionState getConnectionState() const noexcept;

@@ -63,7 +63,7 @@ class c_iox_sub_test : public Test
         uint64_t queueCapacity = MAX_CHUNKS_HELD_PER_RECEIVER;
         iox_sub_subscribe(ptr, queueCapacity);
 
-        SubscriberPortSingleProducer(ptr).getCaProMessage();
+        SubscriberPortSingleProducer(ptr).tryGetCaProMessage();
         iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK, TEST_SERVICE_DESCRIPTION);
         SubscriberPortSingleProducer(ptr).dispatchCaProMessage(caproMessage);
     }
