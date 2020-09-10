@@ -751,7 +751,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const uint64_t& historyCapacity,
                                       const ProcessName_t& processName,
                                       mepoo::MemoryManager* payloadMemoryManager,
-                                      const RunnableName_t& runnable __attribute__((unused)),
+                                      const RunnableName_t& runnable [[gnu::unused]], // @todo Fix introspection
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     /// @todo unique check only required for single producer type
@@ -794,7 +794,7 @@ cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const uint64_t& historyRequest,
                                        const ProcessName_t& processName,
-                                       const RunnableName_t& runnable __attribute__((unused)),
+                                       const RunnableName_t& runnable [[gnu::unused]], // @todo Fix introspection
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto maybeSubscriberPortData =
