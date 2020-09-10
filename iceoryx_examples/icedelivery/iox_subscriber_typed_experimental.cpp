@@ -14,6 +14,8 @@
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/experimental/popo/subscriber.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -46,20 +48,20 @@ void receiving()
     iox::popo::TypedSubscriber<Position> mySubscriber({"Odometry", "Position", "Vehicle"});
     mySubscriber.subscribe(10);
 
-    // Setting receiver handler
-    mySubscriber.setCallback([](iox::cxx::unique_ptr<Position> position){
-        std::cout << "[Callback] Got val: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
-    });
-
-    // Polling receiver
     while (!killswitch)
     {
-        auto result = mySubscriber.receive();
-        if(result.has_value())
-        {
-            auto position = result->get();
-            std::cout << "[Polled] Got val: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
-        }
+//        auto result = mySubscriber.receive();
+//        if(result.has_value())
+//        {
+//            auto position = result->get();
+//            std::cout << "Got val: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
+//        }
+
+        iox::popo::ConditionVariableData m_condVarData;
+        iox::popo::WaitSet waitSet{&m_condVarData};
+
+
+
     }
 
     mySubscriber.unsubscribe();

@@ -18,6 +18,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
+#include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -43,8 +44,11 @@ enum class SubscriberError : uint8_t
     UNKNOWN
 };
 
+// ======================================== Base Subscriber ======================================== //
+
 template<typename T, typename recvport_t = iox::popo::ReceiverPort>
-class BaseSubscriber {
+class BaseSubscriber : public Condition
+{
 public:
 
     BaseSubscriber(const BaseSubscriber& other) = delete;
@@ -131,25 +135,10 @@ public:
     ///
     void clearReceiveBuffer() noexcept;
 
-    ///
-    /// @brief setCallback Sets a callback to execute on the received data
-    /// @param cb Callback to execute
-    ///
-    template<typename Callback>
-    void setCallback(Callback cb) noexcept;
-
-    ///
-    /// @brief setCallback Sets a callback to execute on the received data if the provided predicate evaluates to true
-    /// @param cb Callback to execute
-    /// @param p A predicate to evaluate with each incoming data point
-    ///
-    template<typename Callback, typename Predicate>
-    void setCallback(Callback cb, Predicate p) noexcept;
-
-    ///
-    /// @brief unsetCallback
-    ///
-    void unsetCallback() noexcept;
+    // Condition overrides
+    virtual bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
+    virtual bool unsetConditionVariable() noexcept override;
+    virtual bool hasTriggered() const noexcept override;
 
 protected:
     BaseSubscriber(const capro::ServiceDescription& service);
@@ -161,6 +150,8 @@ private:
     recvport_t m_port{nullptr};
 
 };
+
+// ======================================== Typed Subscriber ======================================== //
 
 template<typename T>
 class TypedSubscriber : protected BaseSubscriber<T>
@@ -185,12 +176,6 @@ public:
     cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveWithHeader() noexcept;
     void clearReceiveBuffer() noexcept;
 
-    // May be removed.
-    template<typename Callback>
-    void setCallback(Callback cb) noexcept;
-    template<typename Callback, typename Predicate>
-    void setCallback(Callback cb, Predicate p) noexcept;
-    void unsetCallback() noexcept;
 };
 
 } // namespace popo
