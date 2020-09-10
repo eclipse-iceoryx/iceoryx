@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -46,16 +46,16 @@ enum class SubscriberError : uint8_t
 
 // ======================================== Base Subscriber ======================================== //
 
-template<typename T, typename recvport_t = iox::popo::ReceiverPort>
+template<typename T, typename port_t = iox::popo::SubscriberPortUser>
 class BaseSubscriber : public Condition
 {
 public:
 
     BaseSubscriber(const BaseSubscriber& other) = delete;
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
-    BaseSubscriber(BaseSubscriber&& rhs) = default;
-    BaseSubscriber& operator=(BaseSubscriber&& rhs) = default;
-    ~BaseSubscriber() = default;
+    BaseSubscriber(BaseSubscriber&& rhs) = delete;
+    BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
+    ~BaseSubscriber();
 
     ///
     /// @brief uid Get the unique ID of the subscriber.
@@ -74,36 +74,13 @@ public:
     /// @param cacheSize
     /// @return
     ///
-    cxx::expected<SubscriberError> subscribe(const uint64_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
-
-    ///
-    /// @brief subscribe
-    /// @param cb A callable with the signature void(unique_ptr<T>) to be used to process incoming data
-    /// @param cacheSize
-    ///
-    /// @details The provided callback should be as simple as possible to prevent backing up the receive thread. If more
-    /// costly processing is required, the callback should delegate this to a separate thread.
-    ///
-    /// @return
-    ///
-    template<typename Callback>
-    cxx::expected<SubscriberError> subscribe(Callback cb, const uint64_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
-
-    ///
-    /// @brief subscribe
-    /// @param cb A callable with the signature void(unique_ptr<T>) to be used to process incoming data
-    /// @param p A callable with the signature void(unique_ptr<T>) to be used as a predicate that selects data to consider
-    /// @param cacheSize
-    /// @return
-    ///
-    template<typename Callback, typename Predicate>
-    cxx::expected<SubscriberError> subscribe(Callback cb,  Predicate p, const uint64_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
+    cxx::expected<SubscriberError> subscribe(const uint64_t queueCapacity = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
 
     ///
     /// @brief getSubscriptionState Get current subscription state.
     /// @return The current subscription state.
     ///
-    SubscriptionState getSubscriptionState() const noexcept;
+    SubscribeState getSubscriptionState() const noexcept;
 
     ///
     /// @brief unsubscribe Unsubscribes if currently subscribed, otherwise do nothing.
@@ -114,7 +91,7 @@ public:
     /// @brief hasData Check if sample is available.
     /// @return True if a new sample is available.
     ///
-    bool hasData() const noexcept;
+    bool hasData() noexcept;
 
     ///
     /// @brief receive Receive the next sample if available.
@@ -144,10 +121,16 @@ protected:
     BaseSubscriber(const capro::ServiceDescription& service);
 
 protected:
-    bool m_subscriptionRequested;
+    bool m_subscriptionRequested = false;
 
 private:
-    recvport_t m_port{nullptr};
+
+    // To be enabled when port API is properly integrated into shared memory.
+    // Will allow swapping out of different port implementations with the same interface.
+    // port_t m_port{nullptr};
+
+    SubscriberPortData* m_portDataPtr = nullptr;
+    SubscriberPortUser m_port;
 
 };
 
@@ -157,11 +140,12 @@ template<typename T>
 class TypedSubscriber : protected BaseSubscriber<T>
 {
 public:
+
     TypedSubscriber(const capro::ServiceDescription& service);
     TypedSubscriber(const TypedSubscriber& other) = delete;
     TypedSubscriber& operator=(const TypedSubscriber&) = delete;
-    TypedSubscriber(TypedSubscriber&& rhs) = default;
-    TypedSubscriber& operator=(TypedSubscriber&& rhs) = default;
+    TypedSubscriber(TypedSubscriber&& rhs) = delete;
+    TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
     ~TypedSubscriber() = default;
 
     capro::ServiceDescription getServiceDescription() const noexcept;

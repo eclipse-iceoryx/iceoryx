@@ -108,6 +108,8 @@ public:
 
 };
 
+// ========================= Tests ========================= //
+
 TEST_F(ExperimentalPublisherTest, OffersIfTryingToPublishBeforeOffer)
 {
 

@@ -18,6 +18,7 @@
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 
 namespace iox {
@@ -25,7 +26,7 @@ namespace popo {
 
 using uid_t = uint64_t;
 
-template<typename T, typename port_t = iox::popo::SenderPort>
+template<typename T, typename port_t = iox::popo::PublisherPortUser>
 class BasePublisher;
 
 // ======================================== Sample ======================================== //
@@ -139,7 +140,7 @@ public:
     BasePublisher& operator=(const BasePublisher&) = delete;
     BasePublisher(BasePublisher&& rhs) = default;
     BasePublisher& operator=(BasePublisher&& rhs) = default;
-    ~BasePublisher() = default;
+    ~BasePublisher();
 
     ///
     /// @brief uid Get the UID of the publisher.
@@ -166,7 +167,7 @@ public:
     /// @param sample The sample to publish.
     /// @return Error if unable to publish.
     ///
-    cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
+    void publish(Sample<T>& sample) noexcept;
 
     ///
     /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
@@ -197,10 +198,18 @@ public:
     bool hasSubscribers() noexcept;
 
 protected:
-    BasePublisher(const capro::ServiceDescription& service);
+//    BasePublisher(const capro::ServiceDescription& service);
+    BasePublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager);
 
 protected:
-    port_t m_port{nullptr};
+
+    // To be enabled when port API is properly integrated into shared memory.
+    // Will allow swapping out of different port implementations with the same interface.
+    // port_t m_port{nullptr};
+
+    PublisherPortData* m_portDataPtr = nullptr;
+    PublisherPortUser m_port;
+
     bool m_useDynamicPayloadSize = true;
 
 private:
@@ -213,7 +222,8 @@ template<typename T>
 class TypedPublisher : protected iox::popo::BasePublisher<T>
 {
 public:
-    TypedPublisher(const capro::ServiceDescription& service);
+//    TypedPublisher(const capro::ServiceDescription& service);
+    TypedPublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager);
     TypedPublisher(const TypedPublisher& other) = delete;
     TypedPublisher& operator=(const TypedPublisher&) = delete;
     TypedPublisher(TypedPublisher&& rhs) = default;
@@ -224,7 +234,7 @@ public:
 
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
     void release(Sample<T>& sample) noexcept;
-    cxx::expected<AllocationError> publish(Sample<T>& sample) noexcept;
+    void publish(Sample<T>& sample) noexcept;
     ///
     /// @brief publishCopyOf Copy the provided value into a loaned shared memory chunk and publish it.
     /// @param val Value to copy.
@@ -254,7 +264,8 @@ public:
 class UntypedPublisher : protected iox::popo::BasePublisher<void>
 {
 public:
-    UntypedPublisher(const capro::ServiceDescription& service);
+//    UntypedPublisher(const capro::ServiceDescription& service);
+    UntypedPublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager);
     UntypedPublisher(const UntypedPublisher& other) = delete;
     UntypedPublisher& operator=(const UntypedPublisher&) = delete;
     UntypedPublisher(UntypedPublisher&& rhs) = default;
@@ -265,13 +276,13 @@ public:
 
     cxx::expected<Sample<void>, AllocationError> loan(uint64_t size) noexcept;
     void release(Sample<void>& sample) noexcept;
-    cxx::expected<AllocationError> publish(Sample<void>& sample) noexcept;
+    void publish(Sample<void>& sample) noexcept;
     ///
     /// @brief publish Publish the provided memory chunk.
     /// @param allocatedMemory Pointer to the allocated shared memory chunk.
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
-    cxx::expected<AllocationError> publish(void* allocatedMemory) noexcept;
+    void publish(void* allocatedMemory) noexcept;
     cxx::expected<SampleRecallError> previousSample() const noexcept;
 
     void offer() noexcept;

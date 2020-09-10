@@ -16,6 +16,10 @@
 #define IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_INL
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+
+#include "iceoryx_posh/experimental/popo/publisher.hpp"
 
 namespace iox
 {
@@ -36,14 +40,14 @@ template<typename Callable, typename... ArgTypes>
 struct is_callable {
 
     // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is callable.
-    template<typename C, typename... A>
-    static constexpr std::true_type test(decltype(std::declval<C>()(std::declval<A>()...))*)
+    template<typename C, typename... As>
+    static constexpr std::true_type test(decltype(std::declval<C>()(std::declval<As>()...))*)
     {
         return {};
     }
 
     // This is chosen if Callable(ArgTypes) does not resolve to a valid type.
-    template<typename C, typename... A>
+    template<typename C, typename... As>
     static constexpr std::false_type test(...)
     {
         return {};
@@ -70,10 +74,22 @@ struct has_signature<Callable, ReturnType(ArgTypes...),
 
 // ======================================== Base Publisher ======================================== //
 
+//template<typename T, typename port_t>
+//BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
+//    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, ""))
+//{}
+
 template<typename T, typename port_t>
-BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
-    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, ""))
+BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager)
+    : m_portDataPtr(new iox::popo::PublisherPortData(service, "HailHypnotoad", memoryManager)),
+      m_port(m_portDataPtr)
 {}
+
+template<typename T, typename port_t>
+BasePublisher<T, port_t>::~BasePublisher()
+{
+    delete m_portDataPtr;
+}
 
 template<typename T, typename port_t>
 inline uid_t
@@ -87,22 +103,25 @@ template<typename T, typename port_t>
 inline cxx::expected<Sample<T>, AllocationError>
 BasePublisher<T, port_t>::loan(uint64_t size) noexcept
 {
-    auto header = m_port.reserveChunk(size, m_useDynamicPayloadSize);
-    if (header == nullptr)
+    auto result = m_port.allocateChunk(size);
+    if(result.has_error())
     {
-        // Old API does not provide error handling, so return unknown error.
-        return cxx::error<AllocationError>(AllocationError::UNKNOWN);
+        return cxx::error<AllocationError>(result.get_error());
     }
-    return cxx::success<Sample<T>>(
-                cxx::unique_ptr<T>(
-                    reinterpret_cast<T*>(header->payload()),
-                    [this](T* const p){
-                        auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
-                        this->m_port.freeChunk(header);
-                    }
-                ),
-                *this
-            );
+    else
+    {
+        auto header = result.get_value();
+        return cxx::success<Sample<T>>(
+                    cxx::unique_ptr<T>(
+                        reinterpret_cast<T*>(header->payload()),
+                        [this](T* const p){
+                            auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
+                            this->m_port.freeChunk(header);
+                        }
+                    ),
+                    *this
+                );
+    }
 }
 
 template<typename T, typename port_t>
@@ -114,7 +133,7 @@ BasePublisher<T, port_t>::release(Sample<T>& sample) noexcept
 }
 
 template<typename T, typename port_t>
-inline cxx::expected<AllocationError>
+inline void
 BasePublisher<T, port_t>::publish(Sample<T>& sample) noexcept
 {
     if(!isOffered())
@@ -122,8 +141,7 @@ BasePublisher<T, port_t>::publish(Sample<T>& sample) noexcept
         offer();
     }
     auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.get()));
-    m_port.deliverChunk(header);
-    return iox::cxx::success<>();
+    m_port.sendChunk(header);
 }
 
 template<typename T, typename port_t>
@@ -138,22 +156,21 @@ template<typename T, typename port_t>
 inline void
 BasePublisher<T, port_t>::offer() noexcept
 {
-    m_port.activate();
+    m_port.offer();
 }
 
 template<typename T, typename port_t>
 inline void
 BasePublisher<T, port_t>::stopOffer() noexcept
 {
-    m_port.deactivate();
+    m_port.stopOffer();
 }
 
 template<typename T, typename port_t>
 inline bool
 BasePublisher<T, port_t>::isOffered() noexcept
 {
-    // Implementation coming with new ports.
-    return true;
+    return m_port.isOffered();
 }
 
 template<typename T, typename port_t>
@@ -166,9 +183,14 @@ BasePublisher<T, port_t>::hasSubscribers() noexcept
 
 // ======================================== Typed Publisher ======================================== //
 
+//template<typename T>
+//TypedPublisher<T>::TypedPublisher(const capro::ServiceDescription& service)
+//    : BasePublisher<T>(service)
+//{}
+
 template<typename T>
-TypedPublisher<T>::TypedPublisher(const capro::ServiceDescription& service)
-    : BasePublisher<T>(service)
+TypedPublisher<T>::TypedPublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager)
+    : BasePublisher<T>(service, memoryManager)
 {}
 
 template<typename T>
@@ -193,7 +215,7 @@ TypedPublisher<T>::release(Sample<T>& sample) noexcept
 }
 
 template<typename T>
-inline cxx::expected<AllocationError>
+inline void
 TypedPublisher<T>::publish(Sample<T>& sample) noexcept
 {
     return BasePublisher<T>::publish(sample);
@@ -208,15 +230,15 @@ TypedPublisher<T>::publishResultOf(Callable c, ArgTypes... args) noexcept
     static_assert(has_signature<Callable, void(T*, ArgTypes...)>::value, "callable provided to TypedPublisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 
     auto result = loan();
-    if(!result.has_error())
+    if(result.has_error())
+    {
+        return result;
+    }
+    else
     {
         auto& sample = result.get_value();
         c(sample.get(), std::forward<ArgTypes>(args)...);
         return publish(sample);
-    }
-    else
-    {
-        return result;
     }
 }
 
@@ -224,11 +246,18 @@ template<typename T>
 inline cxx::expected<AllocationError>
 TypedPublisher<T>::publishCopyOf(const T& val) noexcept
 {
-    return BasePublisher<T>::loan(sizeof(T))
-            .and_then([&](Sample<T>& sample){
-                *sample.get() = val;
-                BasePublisher<T>::publish(sample);
-            });
+    auto result = BasePublisher<T>::loan(sizeof(T));
+    if(result.has_error())
+    {
+        return result;
+    }
+    else
+    {
+        auto sample = result.get_value();
+        *sample = val;
+        BasePublisher<T>::publish(sample);
+        return cxx::success<>();
+    }
 }
 
 template<typename T>
@@ -268,8 +297,12 @@ TypedPublisher<T>::hasSubscribers() noexcept
 
 // ======================================== Untyped Publisher ======================================== //
 
-UntypedPublisher::UntypedPublisher(const capro::ServiceDescription& service)
-    : BasePublisher<void>(service)
+//UntypedPublisher::UntypedPublisher(const capro::ServiceDescription& service)
+//    : BasePublisher<void>(service)
+//{}
+
+UntypedPublisher::UntypedPublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager)
+    : BasePublisher<void>(service, memoryManager)
 {}
 
 inline uid_t
@@ -291,18 +324,17 @@ UntypedPublisher::release(Sample<void>& sample) noexcept
     return BasePublisher<void>::release(sample);
 }
 
-inline cxx::expected<AllocationError>
+inline void
 UntypedPublisher::publish(Sample<void>& sample) noexcept
 {
-    return BasePublisher<void>::publish(sample);
+    BasePublisher<void>::publish(sample);
 }
 
-inline cxx::expected<AllocationError>
+inline void
 UntypedPublisher::publish(void* allocatedMemory) noexcept
 {
     auto header = iox::mepoo::convertPayloadPointerToChunkHeader(allocatedMemory);
-    m_port.deliverChunk(header);
-    return iox::cxx::success<>();
+    m_port.sendChunk(header);
 }
 
 inline cxx::expected<SampleRecallError>

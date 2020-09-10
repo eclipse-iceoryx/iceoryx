@@ -17,138 +17,143 @@
 
 #include <iostream>
 
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/experimental/popo/subscriber.hpp"
+
 namespace iox {
 namespace popo {
 
 // ======================================== Base Subscriber ======================================== //
 
-template<typename T, typename recvport_t>
-BaseSubscriber<T, recvport_t>::BaseSubscriber(const capro::ServiceDescription& service)
-    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, ""))
+//template<typename T, typename port_t>
+//BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
+//    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, ""))
+//{}
+
+template<typename T, typename port_t>
+BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
+    : m_portDataPtr(new iox::popo::SubscriberPortData(service, "HailHypnotoad", cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer)),
+      m_port(m_portDataPtr)
 {}
 
-template<typename T, typename recvport_t>
+template<typename T, typename port_t>
+BaseSubscriber<T, port_t>::~BaseSubscriber()
+{
+    delete m_portDataPtr;
+}
+
+template<typename T, typename port_t>
 inline cxx::expected<SubscriberError>
-BaseSubscriber<T, recvport_t>::subscribe(const uint64_t cacheSize) noexcept
+BaseSubscriber<T, port_t>::subscribe(const uint64_t queueCapacity) noexcept
 {
     m_subscriptionRequested = true;
-    uint32_t size = cacheSize;
+    uint32_t size = queueCapacity;
     if (size > MAX_RECEIVER_QUEUE_CAPACITY)
     {
         LogWarn() << "Cache size for subscribe too large " << size
                   << ", limiting to MAX_RECEIVER_QUEUE_CAPACITY = " << MAX_RECEIVER_QUEUE_CAPACITY;
         size = MAX_RECEIVER_QUEUE_CAPACITY;
     }
-    m_port.subscribe(true, size);
+    m_port.subscribe(size);
     return cxx::success<>();
 }
 
-template<typename T, typename recvport_t>
-inline SubscriptionState
-BaseSubscriber<T, recvport_t>::getSubscriptionState() const noexcept
+template<typename T, typename port_t>
+inline SubscribeState
+BaseSubscriber<T, port_t>::getSubscriptionState() const noexcept
 {
-    if (!m_subscriptionRequested)
-    {
-        return SubscriptionState::NOT_SUBSCRIBED;
-    }
-    else
-    {
-        if (m_port.isSubscribed())
-        {
-            return SubscriptionState::SUBSCRIBED;
-        }
-        else
-        {
-            return SubscriptionState::SUBSCRIPTION_PENDING;
-        }
-    }
+   return m_port.getSubscriptionState();
 }
 
-template<typename T, typename recvport_t>
+template<typename T, typename port_t>
 inline void
-BaseSubscriber<T, recvport_t>::unsubscribe() noexcept
+BaseSubscriber<T, port_t>::unsubscribe() noexcept
 {
     m_port.unsubscribe();
     m_subscriptionRequested = false;
 }
 
-template<typename T, typename recvport_t>
+template<typename T, typename port_t>
 inline bool
-BaseSubscriber<T, recvport_t>::hasData() const noexcept
+BaseSubscriber<T, port_t>::hasData() noexcept
 {
-    return m_port.newData();
+    return m_port.hasNewChunks();
 }
 
-template<typename T, typename recvport_t>
+template<typename T, typename port_t>
 inline cxx::optional<cxx::unique_ptr<T>>
-BaseSubscriber<T, recvport_t>::receive() noexcept
+BaseSubscriber<T, port_t>::receive() noexcept
 {
-
-    const mepoo::ChunkHeader* header = nullptr;
-    if (m_port.getChunk(header))
+    auto result = receiveWithHeader();
+    if(result.has_error())
     {
+        return result;
+    }
+    else
+    {
+        auto header = result.get_value();
         return cxx::optional<cxx::unique_ptr<T>>(cxx::unique_ptr<T>(
-                                    reinterpret_cast<T*>(header->payload()),
-                                    [this](T* const p){
-                                        auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
+                                    reinterpret_cast<T*>(header.payload()),
+                                    [this](T* const val){
+                                        auto header = mepoo::convertPayloadPointerToChunkHeader(val);
                                         this->m_port.releaseChunk(header);
                                     }
                                 ));
     }
-    else
-    {
-        return cxx::nullopt_t();
-    }
 }
 
-
-template<typename T, typename recvport_t>
+template<typename T, typename port_t>
 inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
-BaseSubscriber<T, recvport_t>::receiveWithHeader() noexcept
+BaseSubscriber<T, port_t>::receiveWithHeader() noexcept
 {
-    const mepoo::ChunkHeader* header = nullptr;
-    if (m_port.getChunk(header))
+    auto result = m_port.getChunk();
+    if(result.has_error())
     {
-        return cxx::optional<cxx::unique_ptr<T>>(cxx::unique_ptr<T>(
-                                    reinterpret_cast<T*>(header),
-                                    [this](T* const header){
-                                        this->m_port.releaseChunk(header);
-                                    }
-                                ));
+        /// @todo - what should we do when getting ChunkReceiveError ?
     }
     else
     {
+        auto optionalHeader = result.get_value();
+        if(optionalHeader.has_value())
+        {
+            auto header = optionalHeader.value();
+            return cxx::optional<cxx::unique_ptr<T>>(cxx::unique_ptr<T>(
+                                        reinterpret_cast<T*>(header),
+                                        [this](mepoo::ChunkHeader* const header){
+                                            this->m_port.releaseChunk(header);
+                                        }
+                                    ));
+        }
         return cxx::nullopt_t();
     }
 }
 
 
-template<typename T, typename recvport_t>
+template<typename T, typename port_t>
 inline void
-BaseSubscriber<T, recvport_t>::clearReceiveBuffer() noexcept
+BaseSubscriber<T, port_t>::clearReceiveBuffer() noexcept
 {
-    m_port.clearDeliveryFiFo();
+    m_port.releaseQueuedChunks();
 }
 
-template<typename T, typename recvport_t>
+template<typename T, typename port_t>
 inline bool
-BaseSubscriber<T, recvport_t>::setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept
+BaseSubscriber<T, port_t>::setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
-
+    return m_port.attachConditionVariable(conditionVariableDataPtr);
 }
 
-template<typename T, typename recvport_t>
+template<typename T, typename port_t>
 inline bool
-BaseSubscriber<T, recvport_t>::unsetConditionVariable() noexcept
+BaseSubscriber<T, port_t>::unsetConditionVariable() noexcept
 {
-
+    return m_port.detachConditionVariable();
 }
 
-template<typename T, typename recvport_t>
+template<typename T, typename port_t>
 inline bool
-BaseSubscriber<T, recvport_t>::hasTriggered() const noexcept
+BaseSubscriber<T, port_t>::hasTriggered() const noexcept
 {
-
 }
 
 // ======================================== Typed Subscriber ======================================== //
