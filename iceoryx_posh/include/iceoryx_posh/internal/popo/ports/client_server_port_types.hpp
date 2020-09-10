@@ -109,7 +109,7 @@ class RequestHeader
 class ResponseHeader
 {
   public:
-    ResponseHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr, int64_t sequenceNumber) noexcept
+    ResponseHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr, const int64_t sequenceNumber) noexcept
         : m_sequenceNumber(sequenceNumber)
         , m_destinationQueue(chunkQueueDataPtr)
     {

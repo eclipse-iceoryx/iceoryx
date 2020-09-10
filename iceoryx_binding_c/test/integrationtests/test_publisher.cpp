@@ -69,7 +69,7 @@ class c_iox_pub_test : public Test
         PublisherPortUser userPort(ptr);
         PublisherPortRouDi roudiPort(ptr);
 
-        roudiPort.getCaProMessage();
+        roudiPort.tryGetCaProMessage();
         iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                               iox::capro::ServiceDescription("a", "b", "c"));
         caproMessage.m_chunkQueueData = &m_chunkQueueData;
@@ -106,7 +106,7 @@ class c_iox_pub_test : public Test
 
     // publisher port w/ history
     PublisherPortData m_publisherPortDataHistory{
-        capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR};
+        capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, IOX_MAX_PUBLISHER_HISTORY};
 };
 
 TEST_F(c_iox_pub_test, initialStateIsNotOffered)
@@ -222,7 +222,7 @@ TEST_F(c_iox_pub_test, sendDeliversChunk)
     iox_pub_send_chunk(&m_publisherPortData, chunk);
 
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> m_chunkQueuePopper(&m_chunkQueueData);
-    auto maybeSharedChunk = m_chunkQueuePopper.pop();
+    auto maybeSharedChunk = m_chunkQueuePopper.tryPop();
 
     ASSERT_TRUE(maybeSharedChunk.has_value());
     EXPECT_TRUE(*maybeSharedChunk == chunk);
