@@ -34,19 +34,19 @@ extern "C" {
 
 using namespace ::testing;
 
-class c_iox_sub_test : public Test
+class iox_sub_test : public Test
 {
   public:
     const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
 
   protected:
-    c_iox_sub_test()
+    iox_sub_test()
     {
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
     }
 
-    ~c_iox_sub_test()
+    ~iox_sub_test()
     {
     }
 
@@ -84,12 +84,12 @@ class c_iox_sub_test : public Test
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
 };
 
-TEST_F(c_iox_sub_test, initialStateNotSubscribed)
+TEST_F(iox_sub_test, initialStateNotSubscribed)
 {
     EXPECT_EQ(iox_sub_get_subscription_state(&m_portPtr), SubscribeState_NOT_SUBSCRIBED);
 }
 
-TEST_F(c_iox_sub_test, offerLeadsToSubscibeRequestedState)
+TEST_F(iox_sub_test, offerLeadsToSubscibeRequestedState)
 {
     uint64_t queueCapacity = 1u;
     iox_sub_subscribe(&m_portPtr, queueCapacity);
@@ -99,7 +99,7 @@ TEST_F(c_iox_sub_test, offerLeadsToSubscibeRequestedState)
     EXPECT_EQ(iox_sub_get_subscription_state(&m_portPtr), SubscribeState_SUBSCRIBE_REQUESTED);
 }
 
-TEST_F(c_iox_sub_test, NACKResponseLeadsToSubscribeWaitForOfferState)
+TEST_F(iox_sub_test, NACKResponseLeadsToSubscribeWaitForOfferState)
 {
     uint64_t queueCapacity = 1u;
     iox_sub_subscribe(&m_portPtr, queueCapacity);
@@ -111,7 +111,7 @@ TEST_F(c_iox_sub_test, NACKResponseLeadsToSubscribeWaitForOfferState)
     EXPECT_EQ(iox_sub_get_subscription_state(&m_portPtr), SubscribeState_WAIT_FOR_OFFER);
 }
 
-TEST_F(c_iox_sub_test, ACKResponseLeadsToSubscribedState)
+TEST_F(iox_sub_test, ACKResponseLeadsToSubscribedState)
 {
     uint64_t queueCapacity = 1u;
     iox_sub_subscribe(&m_portPtr, queueCapacity);
@@ -123,7 +123,7 @@ TEST_F(c_iox_sub_test, ACKResponseLeadsToSubscribedState)
     EXPECT_EQ(iox_sub_get_subscription_state(&m_portPtr), SubscribeState_SUBSCRIBED);
 }
 
-TEST_F(c_iox_sub_test, UnsubscribeLeadsToUnscribeRequestedState)
+TEST_F(iox_sub_test, UnsubscribeLeadsToUnscribeRequestedState)
 {
     uint64_t queueCapacity = 1u;
     iox_sub_subscribe(&m_portPtr, queueCapacity);
@@ -139,13 +139,13 @@ TEST_F(c_iox_sub_test, UnsubscribeLeadsToUnscribeRequestedState)
     EXPECT_EQ(iox_sub_get_subscription_state(&m_portPtr), SubscribeState_UNSUBSCRIBE_REQUESTED);
 }
 
-TEST_F(c_iox_sub_test, initialStateNoChunksAvailable)
+TEST_F(iox_sub_test, initialStateNoChunksAvailable)
 {
     const void* chunk = nullptr;
     EXPECT_EQ(iox_sub_get_chunk(&m_portPtr, &chunk), ChunkReceiveResult_NO_CHUNK_RECEIVED);
 }
 
-TEST_F(c_iox_sub_test, receiveChunkWhenThereIsOne)
+TEST_F(iox_sub_test, receiveChunkWhenThereIsOne)
 {
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(100));
@@ -154,7 +154,7 @@ TEST_F(c_iox_sub_test, receiveChunkWhenThereIsOne)
     EXPECT_EQ(iox_sub_get_chunk(&m_portPtr, &chunk), ChunkReceiveResult_SUCCESS);
 }
 
-TEST_F(c_iox_sub_test, DISABLED_receiveChunkWithContent)
+TEST_F(iox_sub_test, receiveChunkWithContent)
 {
     this->Subscribe(&m_portPtr);
     struct data_t
@@ -164,7 +164,7 @@ TEST_F(c_iox_sub_test, DISABLED_receiveChunkWithContent)
 
     auto sharedChunk = m_memoryManager.getChunk(100);
     static_cast<data_t*>(sharedChunk.getPayload())->value = 1234;
-    m_chunkPusher.push(m_memoryManager.getChunk(100));
+    m_chunkPusher.push(sharedChunk);
 
     const void* chunk = nullptr;
 
@@ -172,7 +172,7 @@ TEST_F(c_iox_sub_test, DISABLED_receiveChunkWithContent)
     EXPECT_THAT(static_cast<const data_t*>(chunk)->value, Eq(1234));
 }
 
-TEST_F(c_iox_sub_test, receiveChunkWhenToManyChunksAreHold)
+TEST_F(iox_sub_test, receiveChunkWhenToManyChunksAreHold)
 {
     this->Subscribe(&m_portPtr);
     const void* chunk = nullptr;
@@ -186,7 +186,7 @@ TEST_F(c_iox_sub_test, receiveChunkWhenToManyChunksAreHold)
     EXPECT_EQ(iox_sub_get_chunk(&m_portPtr, &chunk), ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
 }
 
-TEST_F(c_iox_sub_test, releaseChunkWorks)
+TEST_F(iox_sub_test, releaseChunkWorks)
 {
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(100));
@@ -199,7 +199,7 @@ TEST_F(c_iox_sub_test, releaseChunkWorks)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
-TEST_F(c_iox_sub_test, releaseChunkQueuedChunksWorks)
+TEST_F(iox_sub_test, releaseChunkQueuedChunksWorks)
 {
     this->Subscribe(&m_portPtr);
     for (uint64_t i = 0; i < MAX_CHUNKS_HELD_PER_RECEIVER; ++i)
@@ -212,12 +212,12 @@ TEST_F(c_iox_sub_test, releaseChunkQueuedChunksWorks)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
-TEST_F(c_iox_sub_test, initialStateHasNewChunksFalse)
+TEST_F(iox_sub_test, initialStateHasNewChunksFalse)
 {
     EXPECT_FALSE(iox_sub_has_new_chunks(&m_portPtr));
 }
 
-TEST_F(c_iox_sub_test, receivingChunkLeadsToHasNewChunksTrue)
+TEST_F(iox_sub_test, receivingChunkLeadsToHasNewChunksTrue)
 {
     this->Subscribe(&m_portPtr);
     m_chunkPusher.push(m_memoryManager.getChunk(100));
@@ -225,12 +225,12 @@ TEST_F(c_iox_sub_test, receivingChunkLeadsToHasNewChunksTrue)
     EXPECT_TRUE(iox_sub_has_new_chunks(&m_portPtr));
 }
 
-TEST_F(c_iox_sub_test, initialStateHasNoLostChunks)
+TEST_F(iox_sub_test, initialStateHasNoLostChunks)
 {
     EXPECT_FALSE(iox_sub_has_lost_chunks(&m_portPtr));
 }
 
-TEST_F(c_iox_sub_test, sendingTooMuchLeadsToLostChunks)
+TEST_F(iox_sub_test, sendingTooMuchLeadsToLostChunks)
 {
     this->Subscribe(&m_portPtr);
     for (uint64_t i = 0; i < DefaultChunkQueueConfig::MAX_QUEUE_CAPACITY + 1; ++i)

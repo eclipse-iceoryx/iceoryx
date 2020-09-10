@@ -32,7 +32,7 @@ extern "C" {
 
 using namespace ::testing;
 
-class c_iox_pub_test : public Test
+class iox_pub_test : public Test
 {
   protected:
     struct DummySample
@@ -40,13 +40,13 @@ class c_iox_pub_test : public Test
         uint64_t dummy{42};
     };
 
-    c_iox_pub_test()
+    iox_pub_test()
     {
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
     }
 
-    ~c_iox_pub_test()
+    ~iox_pub_test()
     {
     }
 
@@ -109,37 +109,37 @@ class c_iox_pub_test : public Test
         capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR};
 };
 
-TEST_F(c_iox_pub_test, initialStateIsNotOffered)
+TEST_F(iox_pub_test, initialStateIsNotOffered)
 {
     EXPECT_FALSE(iox_pub_is_offered(&m_publisherPortData));
 }
 
-TEST_F(c_iox_pub_test, is_offeredAfterOffer)
+TEST_F(iox_pub_test, is_offeredAfterOffer)
 {
     iox_pub_offer(&m_publisherPortData);
     EXPECT_TRUE(iox_pub_is_offered(&m_publisherPortData));
 }
 
-TEST_F(c_iox_pub_test, isNotOfferedAfterStopOffer)
+TEST_F(iox_pub_test, isNotOfferedAfterStopOffer)
 {
     iox_pub_offer(&m_publisherPortData);
     iox_pub_stop_offer(&m_publisherPortData);
     EXPECT_FALSE(iox_pub_is_offered(&m_publisherPortData));
 }
 
-TEST_F(c_iox_pub_test, initialStateIsNoSubscribers)
+TEST_F(iox_pub_test, initialStateIsNoSubscribers)
 {
     EXPECT_FALSE(iox_pub_has_subscribers(&m_publisherPortData));
 }
 
-TEST_F(c_iox_pub_test, has_subscribersAfterSubscription)
+TEST_F(iox_pub_test, has_subscribersAfterSubscription)
 {
     iox_pub_offer(&m_publisherPortData);
     this->Subscribe(&m_publisherPortData);
     EXPECT_TRUE(iox_pub_has_subscribers(&m_publisherPortData));
 }
 
-TEST_F(c_iox_pub_test, noSubscribersAfterUnsubscribe)
+TEST_F(iox_pub_test, noSubscribersAfterUnsubscribe)
 {
     iox_pub_offer(&m_publisherPortData);
     this->Subscribe(&m_publisherPortData);
@@ -147,13 +147,13 @@ TEST_F(c_iox_pub_test, noSubscribersAfterUnsubscribe)
     EXPECT_FALSE(iox_pub_has_subscribers(&m_publisherPortData));
 }
 
-TEST_F(c_iox_pub_test, allocateChunkForOneChunkIsSuccessful)
+TEST_F(iox_pub_test, allocateChunkForOneChunkIsSuccessful)
 {
     void* chunk = nullptr;
     EXPECT_EQ(AllocationResult_SUCCESS, iox_pub_allocate_chunk(&m_publisherPortData, &chunk, sizeof(DummySample)));
 }
 
-TEST_F(c_iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
+TEST_F(iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
 {
     void* chunk = nullptr;
     for (int i = 0; i < 8 /* ///@todo actually it should be MAX_CHUNKS_HELD_PER_RECEIVER but it does not work*/; ++i)
@@ -165,7 +165,7 @@ TEST_F(c_iox_pub_test, allocate_chunkFailsWhenHoldingToManyChunksInParallel)
               iox_pub_allocate_chunk(&m_publisherPortData, &chunk, 100));
 }
 
-TEST_F(c_iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
+TEST_F(iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
 {
     std::vector<SharedChunk> chunkBucket;
     while (true)
@@ -181,14 +181,14 @@ TEST_F(c_iox_pub_test, allocate_chunkFailsWhenOutOfChunks)
     EXPECT_EQ(AllocationResult_RUNNING_OUT_OF_CHUNKS, iox_pub_allocate_chunk(&m_publisherPortData, &chunk, 100));
 }
 
-TEST_F(c_iox_pub_test, allocatingChunkAcquiresMemory)
+TEST_F(iox_pub_test, allocatingChunkAcquiresMemory)
 {
     void* chunk = nullptr;
     iox_pub_allocate_chunk(&m_publisherPortData, &chunk, 100);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 }
 
-TEST_F(c_iox_pub_test, freeingAnAllocatedChunkReleasesTheMemory)
+TEST_F(iox_pub_test, freeingAnAllocatedChunkReleasesTheMemory)
 {
     void* chunk = nullptr;
     iox_pub_allocate_chunk(&m_publisherPortData, &chunk, 100);
@@ -196,12 +196,12 @@ TEST_F(c_iox_pub_test, freeingAnAllocatedChunkReleasesTheMemory)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }
 
-TEST_F(c_iox_pub_test, noLastChunkWhenNothingSent)
+TEST_F(iox_pub_test, noLastChunkWhenNothingSent)
 {
     EXPECT_EQ(iox_pub_try_get_previous_chunk(&m_publisherPortData), nullptr);
 }
 
-TEST_F(c_iox_pub_test, lastChunkAvailableAfterSend)
+TEST_F(iox_pub_test, lastChunkAvailableAfterSend)
 {
     void* chunk = nullptr;
     iox_pub_allocate_chunk(&m_publisherPortData, &chunk, 100);
@@ -212,7 +212,7 @@ TEST_F(c_iox_pub_test, lastChunkAvailableAfterSend)
     EXPECT_EQ(chunk, lastChunk);
 }
 
-TEST_F(c_iox_pub_test, sendDeliversChunk)
+TEST_F(iox_pub_test, sendDeliversChunk)
 {
     void* chunk = nullptr;
     iox_pub_offer(&m_publisherPortData);

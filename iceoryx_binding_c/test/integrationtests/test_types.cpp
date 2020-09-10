@@ -27,13 +27,13 @@ extern "C" {
 
 using namespace ::testing;
 
-TEST(types_test, WaitSetStorageSizeFits)
+TEST(iox_types_test, WaitSetStorageSizeFits)
 {
     EXPECT_THAT(sizeof(WaitSet), Eq(sizeof(wait_set_storage_t)));
     EXPECT_THAT(alignof(WaitSet), Le(alignof(wait_set_storage_t)));
 }
 
-TEST(types_test, GuardConditionStorageSizeFits)
+TEST(iox_types_test, GuardConditionStorageSizeFits)
 {
     EXPECT_THAT(sizeof(GuardCondition), Eq(sizeof(guard_cond_storage_t)));
     EXPECT_THAT(alignof(GuardCondition), Le(alignof(guard_cond_storage_t)));

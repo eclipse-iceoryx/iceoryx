@@ -19,6 +19,7 @@
 #include "iceoryx_binding_c/condition_variable.h"
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_binding_c/subscriber.h"
 
 /// @brief wait set handle
 typedef struct WaitSet* wait_set_t;
@@ -27,6 +28,7 @@ void iox_wait_set_init(wait_set_t const self, cond_var_t const conditionVariable
 void iox_wait_set_deinit(wait_set_t const self);
 
 ENUM iox_WaitSetResult iox_wait_set_attach_condition(wait_set_t const self, cond_t const condition);
+
 bool iox_wait_set_detach_condition(wait_set_t const self, cond_t const condition);
 
 void iox_wait_set_detach_all_conditions(wait_set_t const self);
