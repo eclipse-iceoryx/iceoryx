@@ -13,6 +13,7 @@
 // limitations under the License.
 
 
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -57,31 +58,15 @@ void iox_sub_unsubscribe(sub_t const self)
 
 iox_SubscribeState iox_sub_get_subscription_state(sub_t const self)
 {
-    switch (SubscriberPortUser(self).getSubscriptionState())
-    {
-    case SubscribeState::NOT_SUBSCRIBED:
-        return iox_SubscribeState::SubscribeState_NOT_SUBSCRIBED;
-    case SubscribeState::SUBSCRIBE_REQUESTED:
-        return iox_SubscribeState::SubscribeState_SUBSCRIBE_REQUESTED;
-    case SubscribeState::SUBSCRIBED:
-        return iox_SubscribeState::SubscribeState_SUBSCRIBED;
-    case SubscribeState::UNSUBSCRIBE_REQUESTED:
-        return iox_SubscribeState::SubscribeState_UNSUBSCRIBE_REQUESTED;
-    case SubscribeState::WAIT_FOR_OFFER:
-        return iox_SubscribeState::SubscribeState_WAIT_FOR_OFFER;
-    default:
-        return iox_SubscribeState::SubscribeState_UNDEFINED;
-    }
+    return cpp2c::SubscribeState(SubscriberPortUser(self).getSubscriptionState());
 }
 
-iox_popo_ChunkReceiveResult iox_sub_get_chunk(sub_t const self, const void** const payload)
+iox_ChunkReceiveResult iox_sub_get_chunk(sub_t const self, const void** const payload)
 {
     auto result = SubscriberPortUser(self).getChunk();
     if (result.has_error())
     {
-        return (result.get_error() == ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL)
-                   ? ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL
-                   : ChunkReceiveResult_INTERNAL_ERROR;
+        return cpp2c::ChunkReceiveResult(result.get_error());
     }
 
     if (!result->has_value())

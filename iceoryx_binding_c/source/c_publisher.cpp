@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 
 using namespace iox;
@@ -42,21 +43,13 @@ void iox_pub_destroy(pub_t const self)
     delete self;
 }
 
-iox_popo_AllocationResult iox_pub_allocate_chunk(pub_t const self, void** const chunk, const uint32_t payloadSize)
+iox_AllocationResult iox_pub_allocate_chunk(pub_t const self, void** const chunk, const uint32_t payloadSize)
 {
     auto result =
         PublisherPortUser(self).allocateChunk(payloadSize).and_then([&](ChunkHeader* h) { *chunk = h->payload(); });
     if (result.has_error())
     {
-        switch (result.get_error())
-        {
-        case AllocationError::RUNNING_OUT_OF_CHUNKS:
-            return AllocationResult_RUNNING_OUT_OF_CHUNKS;
-        case AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL:
-            return AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL;
-        default:
-            return AllocationResult_UNDEFINED_ERROR;
-        }
+        return cpp2c::AllocationResult(result.get_error());
     }
 
     return AllocationResult_SUCCESS;

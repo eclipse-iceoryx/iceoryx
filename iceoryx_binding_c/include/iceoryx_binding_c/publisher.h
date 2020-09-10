@@ -15,8 +15,8 @@
 #ifndef IOX_BINDING_C_PUBLISHER_H
 #define IOX_BINDING_C_PUBLISHER_H
 
+#include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
-#include "iceoryx_binding_c/states.h"
 
 /// @brief publisher handle
 typedef struct PublisherPortData* pub_t;
@@ -39,7 +39,7 @@ void iox_pub_destroy(pub_t const self);
 /// @param[in] payloadSize size of the allocated chunk
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_popo_AllocationResult iox_pub_allocate_chunk(pub_t const self, void** const chunk, const uint32_t payloadSize);
+ENUM iox_AllocationResult iox_pub_allocate_chunk(pub_t const self, void** const chunk, const uint32_t payloadSize);
 
 /// @brief frees a previously allocated chunk without sending it
 /// @param[in] self handle of the publisher

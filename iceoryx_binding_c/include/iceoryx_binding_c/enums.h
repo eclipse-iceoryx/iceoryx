@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_STATES_H
-#define IOX_BINDING_C_STATES_H
+#ifndef IOX_BINDING_C_ENUMS_H
+#define IOX_BINDING_C_ENUMS_H
 
 /// @brief describes the current state of a subscriber
 enum iox_SubscribeState
@@ -23,20 +23,20 @@ enum iox_SubscribeState
     SubscribeState_SUBSCRIBED,
     SubscribeState_UNSUBSCRIBE_REQUESTED,
     SubscribeState_WAIT_FOR_OFFER,
-    SubscribeState_UNDEFINED,
+    SubscribeState_UNDEFINED_ERROR,
 };
 
 /// @brief describes the state of getChunk in the subscriber
-enum iox_popo_ChunkReceiveResult
+enum iox_ChunkReceiveResult
 {
     ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
     ChunkReceiveResult_NO_CHUNK_RECEIVED,
-    ChunkReceiveResult_INTERNAL_ERROR,
+    ChunkReceiveResult_UNDEFINED_ERROR,
     ChunkReceiveResult_SUCCESS,
 };
 
 /// @brief state of allocateChunk
-enum iox_popo_AllocationResult
+enum iox_AllocationResult
 {
     AllocationResult_RUNNING_OUT_OF_CHUNKS,
     AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
@@ -44,7 +44,7 @@ enum iox_popo_AllocationResult
     AllocationResult_SUCCESS,
 };
 
-enum iox_popo_WaitSetResult
+enum iox_WaitSetResult
 {
     WaitSetResult_CONDITION_VECTOR_OVERFLOW,
     WaitSetResult_CONDITION_VARIABLE_ALREADY_SET,

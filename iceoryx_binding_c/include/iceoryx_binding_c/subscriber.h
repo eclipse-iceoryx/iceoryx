@@ -16,8 +16,8 @@
 #define IOX_BINDING_C_SUBSCRIBER_H
 
 #include "iceoryx_binding_c/condition.h"
+#include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
-#include "iceoryx_binding_c/states.h"
 
 /// @brief Subscriber handle
 typedef struct SubscriberPortData* sub_t;
@@ -57,7 +57,7 @@ ENUM iox_SubscribeState iox_sub_get_subscription_state(sub_t const self);
 /// @param[in] chunk pointer in which the pointer to the chunk is stored
 /// @return if a chunk could be received it returns ChunkReceiveResult_SUCCESS otherwise
 ///         an enum which describes the error
-ENUM iox_popo_ChunkReceiveResult iox_sub_get_chunk(sub_t const self, const void** const chunk);
+ENUM iox_ChunkReceiveResult iox_sub_get_chunk(sub_t const self, const void** const chunk);
 
 /// @brief release a previously acquired chunk (via iox_sub_getChunk)
 /// @param[in] self handle to the subscriber
