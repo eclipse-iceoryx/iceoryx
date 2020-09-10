@@ -77,8 +77,7 @@ class PortManager
 
     runtime::RunnableData* acquireRunnableData(const ProcessName_t& process, const RunnableName_t& runnable);
 
-    cxx::expected<popo::ConditionVariableData*, PortPoolError>
-    acquireConditionVariableData(const ProcessName_t& processName);
+    cxx::expected<popo::ConditionVariableData*, PortPoolError> acquireConditionVariableData();
 
     bool areAllReceiverPortsSubscribed(const ProcessName_t& appName);
 

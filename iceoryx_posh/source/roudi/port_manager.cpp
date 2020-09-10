@@ -630,10 +630,9 @@ runtime::RunnableData* PortManager::acquireRunnableData(const ProcessName_t& pro
     }
 }
 
-cxx::expected<popo::ConditionVariableData*, PortPoolError>
-PortManager::acquireConditionVariableData(const ProcessName_t& processName)
+cxx::expected<popo::ConditionVariableData*, PortPoolError> PortManager::acquireConditionVariableData()
 {
-    return m_portPool->addConditionVariableData(processName);
+    return m_portPool->addConditionVariableData();
 }
 
 } // namespace roudi

@@ -13,24 +13,24 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.5)
-project(test_iox_to_dds VERSION 0)
+project(test_binding_c VERSION 0)
 
 find_package(iceoryx_utils_testing REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
-set(PROJECT_PREFIX "dds_gateway")
+set(PROJECT_PREFIX "binding_c")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
-file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
+file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
 
 set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
     GTest::gtest
     GTest::gmock
+    iceoryx_binding_c::iceoryx_binding_c
     iceoryx_utils::iceoryx_utils
     iceoryx_utils_testing::iceoryx_utils_testing
     iceoryx_posh::iceoryx_posh
-    iceoryx_dds::iceoryx_dds
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -50,8 +50,8 @@ elseif(WIN32)
 endif()
 
 # unittests
-add_executable(${PROJECT_PREFIX}_moduletests ${MODULETESTS_SRC})
-set_property(TARGET ${PROJECT_PREFIX}_moduletests PROPERTY CXX_STANDARD 11)
-target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE .)
-target_compile_options(${PROJECT_PREFIX}_moduletests PUBLIC -fPIC PRIVATE ${TEST_CXX_FLAGS})
-target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
+add_executable(${PROJECT_PREFIX}_integrationtests ${MODULETESTS_SRC})
+set_property(TARGET ${PROJECT_PREFIX}_integrationtests PROPERTY CXX_STANDARD 11)
+target_include_directories(${PROJECT_PREFIX}_integrationtests PRIVATE .)
+target_compile_options(${PROJECT_PREFIX}_integrationtests PUBLIC -fPIC PRIVATE ${TEST_CXX_FLAGS})
+target_link_libraries(${PROJECT_PREFIX}_integrationtests ${TEST_LINK_LIBS})
