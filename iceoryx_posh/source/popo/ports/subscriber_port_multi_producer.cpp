@@ -58,7 +58,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::tryGetCaProMessa
 }
 
 cxx::optional<capro::CaproMessage>
-SubscriberPortMultiProducer::dispatchCaProMessage(const capro::CaproMessage& caProMessage[[gnu::unused]]) noexcept
+SubscriberPortMultiProducer::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage[[gnu::unused]]) noexcept
 {
     const auto currentSubscriptionState = getMembers()->m_subscriptionState.load(std::memory_order_relaxed);
 

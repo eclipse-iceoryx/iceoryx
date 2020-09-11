@@ -236,7 +236,7 @@ TEST_F(PublisherPort_test, subscribeWhenNotOfferedReturnsNACK)
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0u;
 
-    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_TRUE(maybeCaProMessage.has_value());
     auto caproMessageResponse = maybeCaProMessage.value();
@@ -253,7 +253,7 @@ TEST_F(PublisherPort_test, unsubscribeWhenNotSubscribedReturnsNACK)
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0u;
 
-    auto maybeCaproMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+    auto maybeCaproMessage = m_sutRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_TRUE(maybeCaproMessage.has_value());
     auto caproMessageResponse = maybeCaproMessage.value();
@@ -270,7 +270,7 @@ TEST_F(PublisherPort_test, subscribeWhenOfferedReturnsACKAndWeHaveSubscribers)
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0u;
 
-    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_TRUE(maybeCaProMessage.has_value());
     auto caproMessageResponse = maybeCaProMessage.value();
@@ -287,11 +287,11 @@ TEST_F(PublisherPort_test, unsubscribeWhenSubscribedReturnsACKAndWeHaveNoMoreSub
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0u;
-    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     // set CaPro message to UNSUB, the other members are reused
     caproMessage.m_type = iox::capro::CaproMessageType::UNSUB;
 
-    maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+    maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_TRUE(maybeCaProMessage.has_value());
     auto caproMessageResponse = maybeCaProMessage.value();
@@ -314,7 +314,7 @@ TEST_F(PublisherPort_test, subscribeManyIsFine)
 
     for (size_t i = 0; i < iox::MAX_SUBSCRIBERS_PER_PUBLISHER; i++)
     {
-        auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+        auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
         EXPECT_TRUE(maybeCaProMessage.has_value());
         auto caproMessageResponse = maybeCaProMessage.value();
         EXPECT_THAT(caproMessageResponse.m_type, Eq(iox::capro::CaproMessageType::ACK));
@@ -337,12 +337,12 @@ TEST_F(PublisherPort_test, subscribeTillOverflowReturnsNACK)
     caproMessage.m_historyCapacity = 0u;
     for (size_t i = 0; i < iox::MAX_SUBSCRIBERS_PER_PUBLISHER; i++)
     {
-        m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+        m_sutRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
         dummyPtr++;
         caproMessage.m_chunkQueueData = reinterpret_cast<ChunkQueueData_t*>(dummyPtr);
     }
 
-    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+    auto maybeCaProMessage = m_sutRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_TRUE(maybeCaProMessage.has_value());
     auto caproMessageResponse = maybeCaProMessage.value();
@@ -358,7 +358,7 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 0u;
-    m_sutRouDiSide.dispatchCaProMessage(caproMessage);
+    m_sutRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     auto maybeChunkHeader = m_sutUserSide.tryAllocateChunk(sizeof(DummySample));
     auto chunkHeader = maybeChunkHeader.get_value();
     auto sample = chunkHeader->payload();
@@ -398,7 +398,7 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
                                           iox::capro::ServiceDescription("a", "b", "c"));
     caproMessage.m_chunkQueueData = &m_chunkQueueData;
     caproMessage.m_historyCapacity = 1u; // request history of 1
-    m_sutWithHistoryRouDiSide.dispatchCaProMessage(caproMessage);
+    m_sutWithHistoryRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     iox::popo::ChunkQueuePopper<ChunkQueueData_t> m_chunkQueuePopper(&m_chunkQueueData);
 
     // 4. We get the history value on subscribe

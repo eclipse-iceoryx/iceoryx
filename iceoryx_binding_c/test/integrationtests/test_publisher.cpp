@@ -73,7 +73,7 @@ class c_iox_pub_test : public Test
         iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::SUB,
                                               iox::capro::ServiceDescription("a", "b", "c"));
         caproMessage.m_chunkQueueData = &m_chunkQueueData;
-        auto maybeCaProMessage = roudiPort.dispatchCaProMessage(caproMessage);
+        auto maybeCaProMessage = roudiPort.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     }
 
     void Unsubscribe(popo::PublisherPortData* ptr)
@@ -83,7 +83,7 @@ class c_iox_pub_test : public Test
         iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::UNSUB,
                                               iox::capro::ServiceDescription("a", "b", "c"));
         caproMessage.m_chunkQueueData = &m_chunkQueueData;
-        auto maybeCaProMessage = roudiPort.dispatchCaProMessage(caproMessage);
+        auto maybeCaProMessage = roudiPort.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     }
 
     static constexpr size_t MEMORY_SIZE = 1024 * 1024;

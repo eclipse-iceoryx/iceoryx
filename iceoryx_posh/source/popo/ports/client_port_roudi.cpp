@@ -45,7 +45,7 @@ cxx::optional<capro::CaproMessage> ClientPortRouDi::tryGetCaProMessage() noexcep
 }
 
 cxx::optional<capro::CaproMessage>
-ClientPortRouDi::dispatchCaProMessage(const capro::CaproMessage& /*caProMessage*/) noexcept
+ClientPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& /*caProMessage*/) noexcept
 {
     /// @todo
     

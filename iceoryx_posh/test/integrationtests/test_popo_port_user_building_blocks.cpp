@@ -188,7 +188,7 @@ class PortUser_IntegrationTest : public Test
         caproMessage = waitForCaproMessage(m_concurrentCaproMessageExchange, CaproMessageType::ACK);
 
         // Let RouDi change state to finish subscription
-        static_cast<void>(subscriberPortRouDi.dispatchCaProMessage(caproMessage));
+        static_cast<void>(subscriberPortRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage));
 
         // Subscription done and ready to receive samples
         while (!finished)
@@ -249,7 +249,7 @@ class PortUser_IntegrationTest : public Test
             m_concurrentCaproMessageRx->push_back(caproMessage);
 
             // Send ACK to subscriber
-            maybeCaproMessage = publisherPortRouDi.dispatchCaProMessage(m_concurrentCaproMessageRx->back());
+            maybeCaproMessage = publisherPortRouDi.dispatchCaProMessageAndGetPossibleResponse(m_concurrentCaproMessageRx->back());
             if (maybeCaproMessage.has_value())
             {
                 caproMessage = maybeCaproMessage.value();
@@ -277,7 +277,7 @@ class PortUser_IntegrationTest : public Test
 
             } while (caproMessageRouDi.m_type != CaproMessageType::SUB);
 
-            static_cast<void>(publisherPortRouDi.dispatchCaProMessage(caproMessageRouDi));
+            static_cast<void>(publisherPortRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessageRouDi));
         }
 
         // Subscriber is ready to receive -> start sending samples

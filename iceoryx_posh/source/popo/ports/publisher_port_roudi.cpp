@@ -74,7 +74,7 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noex
 }
 
 cxx::optional<capro::CaproMessage>
-PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
+PublisherPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept
 {
     capro::CaproMessage responseMessage(
         capro::CaproMessageType::NACK, this->getCaProServiceDescription(), capro::CaproMessageSubType::NOSUBTYPE);
