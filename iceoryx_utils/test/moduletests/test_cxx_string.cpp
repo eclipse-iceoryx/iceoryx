@@ -573,6 +573,11 @@ TYPED_TEST(stringTyped_test, UnsafeAssignOfCharPointerPointingToSameAddress)
     EXPECT_THAT(this->testSubject.unsafe_assign(fuu), Eq(false));
 }
 
+TYPED_TEST(stringTyped_test, UnsafeAssignOfNullptrFails)
+{
+    EXPECT_THAT(this->testSubject.unsafe_assign(nullptr), Eq(false));
+}
+
 /// @note bool unsafe_assign(const std::string& str) noexcept
 TYPED_TEST(stringTyped_test, UnsafeAssignOfSTDStringOfSize0ResultsInSize0)
 {

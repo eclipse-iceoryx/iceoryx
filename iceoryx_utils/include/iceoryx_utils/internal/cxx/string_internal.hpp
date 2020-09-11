@@ -57,7 +57,7 @@ struct GetSize;
 template <uint64_t N>
 struct GetSize<string<N>>
 {
-    static uint64_t call(const string<N>& data)
+    static uint64_t call(const string<N>& data) noexcept
     {
         return data.size();
     }
@@ -66,7 +66,7 @@ struct GetSize<string<N>>
 template <uint64_t N>
 struct GetSize<char[N]>
 {
-    static uint64_t call(const charArray<N>& data)
+    static uint64_t call(const charArray<N>& data) noexcept
     {
         return strnlen(data, N);
     }
@@ -75,7 +75,7 @@ struct GetSize<char[N]>
 template <>
 struct GetSize<std::string>
 {
-    static uint64_t call(const std::string& data)
+    static uint64_t call(const std::string& data) noexcept
     {
         return data.size();
     }
@@ -88,7 +88,7 @@ struct GetData;
 template <uint64_t N>
 struct GetData<string<N>>
 {
-    static const char* call(const string<N>& data)
+    static const char* call(const string<N>& data) noexcept
     {
         return data.c_str();
     }
@@ -97,7 +97,7 @@ struct GetData<string<N>>
 template <uint64_t N>
 struct GetData<char[N]>
 {
-    static const char* call(const charArray<N>& data)
+    static const char* call(const charArray<N>& data) noexcept
     {
         return &data[0];
     }
@@ -106,7 +106,7 @@ struct GetData<char[N]>
 template <>
 struct GetData<std::string>
 {
-    static const char* call(const std::string& data)
+    static const char* call(const std::string& data) noexcept
     {
         return data.data();
     }

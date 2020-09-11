@@ -86,7 +86,7 @@ class string
 
   public:
     /// @brief creates an empty string with size 0
-    constexpr string() noexcept;
+    constexpr string() noexcept = default;
 
     /// @brief copy constructor
     ///

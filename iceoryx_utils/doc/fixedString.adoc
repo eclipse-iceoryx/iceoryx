@@ -61,7 +61,7 @@ In the second step, the functionality has been extended:
 		static_assert(Capacity > 0, "The capacity of the fixed string must be greater than 0!");
 
 	  public:
-		constexpr string() noexcept;
+		constexpr string() noexcept = default;
 
 		string(const string& other) noexcept;
 

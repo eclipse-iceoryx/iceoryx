@@ -19,11 +19,6 @@ namespace iox
 namespace cxx
 {
 template <uint64_t Capacity>
-inline constexpr string<Capacity>::string() noexcept
-{
-}
-
-template <uint64_t Capacity>
 inline string<Capacity>::string(const string& other) noexcept
 {
     copy(other);
@@ -100,7 +95,7 @@ inline string<Capacity>::string(const char (&other)[N]) noexcept
 
 template <uint64_t Capacity>
 inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept
-    : string(TruncateToCapacity, other, strlen(other))
+    : string(TruncateToCapacity, other, strnlen(other, Capacity + 1U))
 {
 }
 
@@ -120,7 +115,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     }
     else if (Capacity < count)
     {
-        std::memcpy(m_rawstring, other, Capacity);
+        std::memcpy(&(m_rawstring[0]), other, Capacity);
         m_rawstring[Capacity] = '\0';
         m_rawstringSize = Capacity;
         std::cerr << "Constructor truncates the last " << count - Capacity << " characters of " << other
@@ -128,7 +123,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     }
     else
     {
-        std::memcpy(m_rawstring, other, count);
+        std::memcpy(&(m_rawstring[0]), other, count);
         m_rawstring[count] = '\0';
         m_rawstringSize = count;
     }
@@ -147,7 +142,7 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
     }
 
     m_rawstringSize = strnlen(rhs, Capacity);
-    std::memcpy(m_rawstring, rhs, m_rawstringSize);
+    std::memcpy(&(m_rawstring[0]), rhs, m_rawstringSize);
     m_rawstring[m_rawstringSize] = '\0';
 
     if (rhs[m_rawstringSize] != '\0')
@@ -180,18 +175,18 @@ inline string<Capacity>& string<Capacity>::assign(const char (&str)[N]) noexcept
 template <uint64_t Capacity>
 inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
 {
-    if (c_str() == str)
+    if ((c_str() == str) || (str == nullptr))
     {
         return false;
     }
-    uint64_t strSize = strlen(str);
+    const uint64_t strSize = strnlen(str, Capacity + 1U);
     if (Capacity < strSize)
     {
         std::cerr << "Assignment failed. The given cstring is larger than the capacity of the fixed string."
                   << std::endl;
         return false;
     }
-    std::memcpy(m_rawstring, str, strSize);
+    std::memcpy(&(m_rawstring[0]), str, strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
     return true;
@@ -207,7 +202,7 @@ inline bool string<Capacity>::unsafe_assign(const std::string& str) noexcept
                   << std::endl;
         return false;
     }
-    std::memcpy(m_rawstring, str.c_str(), strSize);
+    std::memcpy(&(m_rawstring[0]), str.c_str(), strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
     return true;
@@ -308,7 +303,7 @@ inline string<Capacity>& string<Capacity>::copy(const string<N>& rhs) noexcept
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
     uint64_t strSize = rhs.size();
-    std::memcpy(m_rawstring, rhs.c_str(), strSize);
+    std::memcpy(&(m_rawstring[0]), rhs.c_str(), strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
     return *this;
@@ -321,7 +316,7 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
     uint64_t strSize = rhs.size();
-    std::memcpy(m_rawstring, rhs.c_str(), strSize);
+    std::memcpy(&(m_rawstring[0]), rhs.c_str(), strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
     rhs.m_rawstring[0U] = '\0';
@@ -435,8 +430,8 @@ concatenate(const T1& t1, const T2& t2)
     uint64_t size2 = internal::GetSize<T2>::call(t2);
     using NewStringType = string<internal::GetCapa<T1>::capa + internal::GetCapa<T2>::capa>;
     NewStringType newString;
-    std::memcpy(newString.m_rawstring, internal::GetData<T1>::call(t1), size1);
-    std::memcpy(newString.m_rawstring + size1, internal::GetData<T2>::call(t2), size2);
+    std::memcpy(&(newString.m_rawstring[0]), internal::GetData<T1>::call(t1), size1);
+    std::memcpy(&(newString.m_rawstring[0]) + size1, internal::GetData<T2>::call(t2), size2);
     newString.m_rawstring[size1 + size2] = '\0';
     newString.m_rawstringSize = size1 + size2;
 
@@ -473,7 +468,7 @@ string<Capacity>::unsafe_append(const T& t) noexcept
         std::cerr << "Appending failed because the sum of sizes exceeds this' capacity." << std::endl;
         return false;
     }
-    std::memcpy(m_rawstring + m_rawstringSize, internal::GetData<T>::call(t), tSize);
+    std::memcpy(&(m_rawstring[0]) + m_rawstringSize, internal::GetData<T>::call(t), tSize);
     m_rawstring[m_rawstringSize + tSize] = '\0';
     m_rawstringSize += tSize;
     return true;
@@ -491,13 +486,13 @@ inline
     {
         std::cerr << "The last " << tSize - Capacity + m_rawstringSize << " characters of " << tData
                   << " are truncated, because the length is larger than the capacity." << std::endl;
-        std::memcpy(m_rawstring + m_rawstringSize, tData, Capacity - m_rawstringSize);
+        std::memcpy(&(m_rawstring[0]) + m_rawstringSize, tData, Capacity - m_rawstringSize);
         m_rawstring[Capacity] = '\0';
         m_rawstringSize = Capacity;
     }
     else
     {
-        std::memcpy(m_rawstring + m_rawstringSize, tData, tSize);
+        std::memcpy(&(m_rawstring[0]) + m_rawstringSize, tData, tSize);
         m_rawstring[m_rawstringSize + tSize] = '\0';
         m_rawstringSize += tSize;
     }
@@ -519,7 +514,7 @@ inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(const uint6
         length = m_rawstringSize - pos;
     }
     string subString;
-    std::memcpy(subString.m_rawstring, &m_rawstring[pos], length);
+    std::memcpy(&(subString.m_rawstring[0]), &m_rawstring[pos], length);
     subString.m_rawstring[length] = '\0';
     subString.m_rawstringSize = length;
     return subString;
