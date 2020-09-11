@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
@@ -29,12 +30,18 @@ using namespace ::testing;
 
 TEST(iox_types_test, WaitSetStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(WaitSet), Eq(sizeof(wait_set_storage_t)));
-    EXPECT_THAT(alignof(WaitSet), Le(alignof(wait_set_storage_t)));
+    EXPECT_THAT(sizeof(WaitSet), Eq(sizeof(iox_wait_set_storage_t)));
+    EXPECT_THAT(alignof(WaitSet), Le(alignof(iox_wait_set_storage_t)));
 }
 
 TEST(iox_types_test, GuardConditionStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(GuardCondition), Eq(sizeof(guard_cond_storage_t)));
-    EXPECT_THAT(alignof(GuardCondition), Le(alignof(guard_cond_storage_t)));
+    EXPECT_THAT(sizeof(GuardCondition), Eq(sizeof(iox_guard_cond_storage_t)));
+    EXPECT_THAT(alignof(GuardCondition), Le(alignof(iox_guard_cond_storage_t)));
+}
+
+TEST(iox_types_test, cpp2c_SubscriberStorageSizeFits)
+{
+    EXPECT_THAT(sizeof(cpp2c_Subscriber), Eq(sizeof(iox_sub_storage_t)));
+    EXPECT_THAT(alignof(cpp2c_Subscriber), Le(alignof(iox_sub_storage_t)));
 }

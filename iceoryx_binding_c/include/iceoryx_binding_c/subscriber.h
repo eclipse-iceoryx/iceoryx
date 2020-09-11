@@ -22,18 +22,21 @@
 /// @brief Subscriber handle
 typedef struct cpp2c_Subscriber* iox_sub_t;
 
-/// @brief creates a subscriber handle in the default runtime runnable
+/// @brief initialize a subscriber handle in the default runtime runnable
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
 /// @param[in] historyCapacity size of the history chunk queue
 /// @return handle of the subscriber
-iox_sub_t
-iox_sub_create(const char* const service, const char* const instance, const char* const event, uint64_t historyRequest);
+iox_sub_t iox_sub_init(iox_sub_t const self,
+                       const char* const service,
+                       const char* const instance,
+                       const char* const event,
+                       uint64_t historyRequest);
 
-/// @brief removes a subscriber handle
+/// @brief deinitialize a subscriber handle
 /// @param[in] self the handle which should be removed
-void iox_sub_destroy(iox_sub_t const self);
+void iox_sub_deinit(iox_sub_t const self);
 
 /// @brief subscribes to the service
 /// @param[in] self handle to the subscriber

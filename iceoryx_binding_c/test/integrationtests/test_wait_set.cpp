@@ -61,7 +61,7 @@ class iox_wait_set_test : public Test
     }
 
     ConditionVariableData m_condVar;
-    struct wait_set_storage_t sutStorage;
+    struct iox_wait_set_storage_t sutStorage;
     wait_set_t sut = (wait_set_t)&sutStorage;
 };
 

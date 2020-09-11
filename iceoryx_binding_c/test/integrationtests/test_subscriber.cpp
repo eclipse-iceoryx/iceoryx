@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
+#include "iceoryx_binding_c/types.h"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
@@ -87,6 +88,13 @@ class iox_sub_test : public Test
     cpp2c_Subscriber m_subscriber;
     iox_sub_t m_sut = &m_subscriber;
 };
+
+TEST_F(iox_sub_test, initPerformsPlacementNew)
+{
+    iox_sub_storage_t subStorage;
+    iox_sub_t sut = iox_sub_init((iox_sub_t)&subStorage, "myService", "myInstance", "myEvent", 1);
+    EXPECT_EQ(iox_sub_get_subscription_state(sut), SubscribeState_NOT_SUBSCRIBED);
+}
 
 TEST_F(iox_sub_test, initialStateNotSubscribed)
 {

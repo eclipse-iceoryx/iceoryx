@@ -30,27 +30,26 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
-iox_sub_t iox_sub_create(const char* const service,
-                         const char* const instance,
-                         const char* const event,
-                         const uint64_t historyRequest)
+iox_sub_t iox_sub_init(iox_sub_t const self,
+                       const char* const service,
+                       const char* const instance,
+                       const char* const event,
+                       uint64_t historyRequest)
 {
+    new (self) cpp2c_Subscriber();
     auto data = new SubscriberPortData(ServiceDescription{IdString(TruncateToCapacity, service),
                                                           IdString(TruncateToCapacity, instance),
                                                           IdString(TruncateToCapacity, event)},
                                        "AllHailHypnotoad!",
                                        VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                        historyRequest);
-
-    cpp2c_Subscriber* port = new cpp2c_Subscriber;
-    port->m_portData = data;
-    return port;
+    self->m_portData = data;
+    return self;
 }
 
-void iox_sub_destroy(iox_sub_t const self)
+void iox_sub_deinit(iox_sub_t const self)
 {
     delete self->m_portData;
-    delete self;
 }
 
 void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity)

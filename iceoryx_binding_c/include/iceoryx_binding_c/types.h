@@ -17,14 +17,14 @@
 
 #include "internal/c2cpp_binding.h"
 
-struct wait_set_storage_t
+struct iox_wait_set_storage_t
 {
     // the value of the array size is the result of the following formula:
     // sizeof(WaitSet) / 8
     uint64_t do_not_touch_me[133];
 };
 
-struct guard_cond_storage_t
+struct iox_guard_cond_storage_t
 {
     // the value of the array size is the result of the following formula:
     // sizeof(GuardCondition) / 8
@@ -33,6 +33,9 @@ struct guard_cond_storage_t
 
 struct iox_sub_storage_t
 {
+    // the value of the array size is the result of the following formula:
+    // sizeof(GuardCondition) / 8
+    uint64_t do_not_touch_me[4];
 };
 
 
