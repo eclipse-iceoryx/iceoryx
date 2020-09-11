@@ -60,7 +60,7 @@ class c_iox_sub_test : public Test
 
     void Subscribe(SubscriberPortData* ptr)
     {
-        uint64_t queueCapacity = MAX_CHUNKS_HELD_PER_RECEIVER;
+        uint64_t queueCapacity = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
         iox_sub_subscribe(ptr, queueCapacity);
 
         SubscriberPortSingleProducer(ptr).tryGetCaProMessage();
@@ -70,7 +70,7 @@ class c_iox_sub_test : public Test
 
     static constexpr size_t MEMORY_SIZE = 1024 * 1024 * 100;
     uint8_t m_memory[MEMORY_SIZE];
-    static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_RECEIVER + 2;
+    static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2;
     static constexpr uint32_t CHUNK_SIZE = 128;
 
     Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
@@ -176,7 +176,7 @@ TEST_F(c_iox_sub_test, receiveChunkWhenToManyChunksAreHold)
 {
     this->Subscribe(&m_portPtr);
     const void* chunk = nullptr;
-    for (uint64_t i = 0; i < IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 1; ++i)
+    for (uint64_t i = 0; i < MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 1; ++i)
     {
         m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
         iox_sub_get_chunk(&m_portPtr, &chunk);
@@ -202,12 +202,12 @@ TEST_F(c_iox_sub_test, releaseChunkWorks)
 TEST_F(c_iox_sub_test, releaseChunkQueuedChunksWorks)
 {
     this->Subscribe(&m_portPtr);
-    for (uint64_t i = 0; i < IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY; ++i)
+    for (uint64_t i = 0; i < MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY; ++i)
     {
         m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
     }
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY));
     iox_sub_release_queued_chunks(&m_portPtr);
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
 }

@@ -106,7 +106,7 @@ class c_iox_pub_test : public Test
 
     // publisher port w/ history
     PublisherPortData m_publisherPortDataHistory{
-        capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, IOX_MAX_PUBLISHER_HISTORY};
+        capro::ServiceDescription("x", "y", "z"), "myApp", &m_memoryManager, MAX_PUBLISHER_HISTORY};
 };
 
 TEST_F(c_iox_pub_test, initialStateIsNotOffered)
