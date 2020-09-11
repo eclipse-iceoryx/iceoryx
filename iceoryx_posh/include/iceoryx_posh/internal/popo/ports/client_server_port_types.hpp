@@ -103,7 +103,7 @@ class RequestHeader
   private:
     int64_t m_sequenceNumber{0};
     bool m_isFireAndForget{false};
-    const relative_ptr<ClientChunkQueueData_t> m_responseQueue;
+    relative_ptr<ClientChunkQueueData_t> m_responseQueue;
 };
 
 class ResponseHeader
@@ -148,9 +148,9 @@ class ResponseHeader
     }
 
   private:
-    const int64_t m_sequenceNumber{0};
+    int64_t m_sequenceNumber{0};
     bool m_hasServerError{false};
-    const relative_ptr<ClientChunkQueueData_t> m_destinationQueue;
+    relative_ptr<ClientChunkQueueData_t> m_destinationQueue;
 };
 
 
