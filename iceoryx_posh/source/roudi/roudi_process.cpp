@@ -544,7 +544,7 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
 
         if (!maybeSubscriber.has_error())
         {
-            // send ReceiverPort to app as a serialized relative pointer
+            // send SubscriberPort to app as a serialized relative pointer
             auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSubscriber.get_value());
 
             runtime::MqMessage sendBuffer;
