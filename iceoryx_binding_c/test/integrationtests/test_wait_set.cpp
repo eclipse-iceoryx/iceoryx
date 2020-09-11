@@ -41,6 +41,10 @@ class iox_wait_set_test : public Test
     void TearDown() override
     {
         iox_wait_set_deinit(sut);
+        for (auto s : m_subscriber)
+        {
+            delete s;
+        }
     }
 
     iox_sub_t CreateSubscriber()
@@ -51,6 +55,7 @@ class iox_wait_set_test : public Test
         subscriber->m_portData = new SubscriberPortData{
             TEST_SERVICE_DESCRIPTION, "myApp", iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 
+        m_subscriber.emplace_back(subscriber);
         return subscriber;
     }
 
@@ -61,13 +66,21 @@ class iox_wait_set_test : public Test
     }
 
     ConditionVariableData m_condVar;
-    struct iox_wait_set_storage_t sutStorage;
-    wait_set_t sut = (wait_set_t)&sutStorage;
+    struct iox_wait_set_storage_t m_sutStorage;
+    wait_set_t sut = (wait_set_t)&m_sutStorage;
+    std::vector<iox_sub_t> m_subscriber;
 };
 
 TEST_F(iox_wait_set_test, AttachSingleConditionSuccessfully)
 {
     iox_sub_t subscriber = CreateSubscriber();
-    //    iox_wait_set_attach_condition(sut, subscriber);
-    RemoveSubscriber(subscriber);
+    EXPECT_THAT(iox_wait_set_attach_condition(sut, subscriber), Eq(WaitSetResult_SUCCESS));
+}
+
+TEST_F(iox_wait_set_test, AttachSingleConditionTwiceResultsInFailure)
+{
+    iox_sub_t subscriber = CreateSubscriber();
+    iox_wait_set_attach_condition(sut, subscriber), Eq(WaitSetResult_SUCCESS);
+
+    EXPECT_THAT(iox_wait_set_attach_condition(sut, subscriber), Eq(WaitSetResult_CONDITION_VARIABLE_ALREADY_SET));
 }
