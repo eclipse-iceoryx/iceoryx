@@ -65,7 +65,7 @@ class c_iox_sub_test : public Test
 
         SubscriberPortSingleProducer(ptr).tryGetCaProMessage();
         iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK, TEST_SERVICE_DESCRIPTION);
-        SubscriberPortSingleProducer(ptr).dispatchCaProMessage(caproMessage);
+        SubscriberPortSingleProducer(ptr).dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     }
 
     static constexpr size_t MEMORY_SIZE = 1024 * 1024 * 100;
@@ -106,7 +106,7 @@ TEST_F(c_iox_sub_test, NACKResponseLeadsToSubscribeWaitForOfferState)
 
     SubscriberPortSingleProducer(&m_portPtr).tryGetCaProMessage();
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::NACK, TEST_SERVICE_DESCRIPTION);
-    SubscriberPortSingleProducer(&m_portPtr).dispatchCaProMessage(caproMessage);
+    SubscriberPortSingleProducer(&m_portPtr).dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_EQ(iox_sub_get_subscription_state(&m_portPtr), SubscribeState_WAIT_FOR_OFFER);
 }
@@ -118,7 +118,7 @@ TEST_F(c_iox_sub_test, ACKResponseLeadsToSubscribedState)
 
     SubscriberPortSingleProducer(&m_portPtr).tryGetCaProMessage();
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK, TEST_SERVICE_DESCRIPTION);
-    SubscriberPortSingleProducer(&m_portPtr).dispatchCaProMessage(caproMessage);
+    SubscriberPortSingleProducer(&m_portPtr).dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     EXPECT_EQ(iox_sub_get_subscription_state(&m_portPtr), SubscribeState_SUBSCRIBED);
 }
@@ -130,7 +130,7 @@ TEST_F(c_iox_sub_test, UnsubscribeLeadsToUnscribeRequestedState)
 
     SubscriberPortSingleProducer(&m_portPtr).tryGetCaProMessage();
     iox::capro::CaproMessage caproMessage(iox::capro::CaproMessageType::ACK, TEST_SERVICE_DESCRIPTION);
-    SubscriberPortSingleProducer(&m_portPtr).dispatchCaProMessage(caproMessage);
+    SubscriberPortSingleProducer(&m_portPtr).dispatchCaProMessageAndGetPossibleResponse(caproMessage);
 
     iox_sub_unsubscribe(&m_portPtr);
 
