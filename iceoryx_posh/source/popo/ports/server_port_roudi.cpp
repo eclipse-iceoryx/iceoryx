@@ -21,7 +21,7 @@ namespace popo
 ServerPortRouDi::ServerPortRouDi(cxx::not_null<MemberType_t* const> serverPortDataPtr) noexcept
     : BasePort(serverPortDataPtr)
     , m_chunkSender(&getMembers()->m_chunkSenderData)
-    , m_chunkReceiver(&getMembers()->m_chunkReceiverData) 
+    , m_chunkReceiver(&getMembers()->m_chunkReceiverData)
 
 {
 }

@@ -49,7 +49,8 @@ class ServerPortRouDi : public BasePort
     /// @brief dispatch a CaPro message to the server for processing
     /// @param[in] caProMessage to process
     /// @return CaPro message with an immediate response the provided CaPro message, empty optional if no response
-    cxx::optional<capro::CaproMessage> dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept;
+    cxx::optional<capro::CaproMessage>
+    dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept;
 
     /// @brief cleanup the server and release all the chunks it currently holds
     /// Caution: Contract is that user process is no more running when cleanup is called

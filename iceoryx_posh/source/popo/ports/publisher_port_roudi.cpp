@@ -83,9 +83,9 @@ PublisherPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::Capr
     {
         if (capro::CaproMessageType::SUB == caProMessage.m_type)
         {
-            const auto ret =
-                m_chunkSender.tryAddQueue(static_cast<PublisherPortData::ChunkQueueData_t*>(caProMessage.m_chunkQueueData),
-                                       caProMessage.m_historyCapacity);
+            const auto ret = m_chunkSender.tryAddQueue(
+                static_cast<PublisherPortData::ChunkQueueData_t*>(caProMessage.m_chunkQueueData),
+                caProMessage.m_historyCapacity);
             if (!ret.has_error())
             {
                 responseMessage.m_type = capro::CaproMessageType::ACK;

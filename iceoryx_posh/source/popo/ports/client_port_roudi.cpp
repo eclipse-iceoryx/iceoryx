@@ -21,7 +21,7 @@ namespace popo
 ClientPortRouDi::ClientPortRouDi(cxx::not_null<MemberType_t* const> clientPortDataPtr) noexcept
     : BasePort(clientPortDataPtr)
     , m_chunkSender(&getMembers()->m_chunkSenderData)
-    , m_chunkReceiver(&getMembers()->m_chunkReceiverData) 
+    , m_chunkReceiver(&getMembers()->m_chunkReceiverData)
 
 {
 }
@@ -48,7 +48,7 @@ cxx::optional<capro::CaproMessage>
 ClientPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& /*caProMessage*/) noexcept
 {
     /// @todo
-    
+
     capro::CaproMessage responseMessage(
         capro::CaproMessageType::NACK, this->getCaProServiceDescription(), capro::CaproMessageSubType::NOSUBTYPE);
 
