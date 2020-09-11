@@ -25,22 +25,10 @@ namespace popo {
 
 // ======================================== Base Subscriber ======================================== //
 
-//template<typename T, typename port_t>
-//BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
-//    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, ""))
-//{}
-
 template<typename T, typename port_t>
 BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
-    : m_portDataPtr(new iox::popo::SubscriberPortData(service, "HailHypnotoad", cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer)),
-      m_port(m_portDataPtr)
+    /* : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, "")) */
 {}
-
-template<typename T, typename port_t>
-BaseSubscriber<T, port_t>::~BaseSubscriber()
-{
-    delete m_portDataPtr;
-}
 
 template<typename T, typename port_t>
 inline cxx::expected<SubscriberError>
@@ -165,9 +153,9 @@ TypedSubscriber<T>::TypedSubscriber(const capro::ServiceDescription& service)
 
 template<typename T>
 inline cxx::expected<SubscriberError>
-TypedSubscriber<T>::subscribe(const uint64_t cacheSize) noexcept
+TypedSubscriber<T>::subscribe(const uint64_t queueCapacity) noexcept
 {
-    return BaseSubscriber<T>::subscribe(cacheSize);
+    return BaseSubscriber<T>::subscribe(queueCapacity);
 }
 
 template<typename T>

@@ -26,8 +26,17 @@ namespace popo {
 
 using uid_t = uint64_t;
 
-template<typename T, typename port_t = iox::popo::PublisherPortUser>
-class BasePublisher;
+template<typename Publisher>
+struct get_port_type;
+
+template<template<typename, typename> class Publisher, typename T, typename PortType>
+struct get_port_type<Publisher<T, PortType>>
+{
+    using type = PortType;
+};
+
+template<typename T>
+class PublisherInterface;
 
 // ======================================== Sample ======================================== //
 
@@ -35,7 +44,7 @@ template <typename T>
 class Sample
 {
 public:
-    Sample(cxx::unique_ptr<T>&& samplePtr, BasePublisher<T>& publisher)
+    Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
         : m_samplePtr(std::move(samplePtr)), m_publisherRef(publisher)
     {};
 
@@ -117,7 +126,7 @@ public:
 private:
     bool m_hasOwnership = true;
     cxx::unique_ptr<T> m_samplePtr = nullptr;
-    std::reference_wrapper<BasePublisher<T>> m_publisherRef;
+    std::reference_wrapper<PublisherInterface<T>> m_publisherRef;
 };
 
 // ======================================== Base Publisher ======================================== //
@@ -129,10 +138,24 @@ enum class SampleRecallError : uint8_t
 };
 
 ///
-/// @todo T must not be void.
+/// @brief The Publisher class defines the publisher interface used by the Sample class to make it generic.
+/// This allows any publisher specialization to be stored as a reference by the Sample class.
 ///
-template<typename T, typename port_t>
-class BasePublisher
+template<typename T>
+class PublisherInterface
+{
+public:
+    virtual void publish(Sample<T>& sample) noexcept = 0;
+protected:
+    PublisherInterface() = default;
+};
+
+
+///
+/// @brief The BasePublisher class contains the common implementation for the different publisher specializations.
+///
+template<typename T, typename port_t = iox::popo::PublisherPortUser>
+class BasePublisher : public PublisherInterface<T>
 {
 public:
 
@@ -154,7 +177,7 @@ public:
     /// @return An instance of the sample that resides in shared memory or an error if unable ot allocate memory to laon.
     /// @details The loaned sample is automatically released when it goes out of scope.
     ///
-    cxx::expected<Sample<T>, AllocationError> loan(uint64_t size) noexcept;
+    cxx::expected<Sample<T>, AllocationError> loan(uint32_t size) noexcept;
 
     ///
     /// @brief release Release the loan to the provided sample.
@@ -167,7 +190,7 @@ public:
     /// @param sample The sample to publish.
     /// @return Error if unable to publish.
     ///
-    void publish(Sample<T>& sample) noexcept;
+    void publish(Sample<T>& sample) noexcept override;
 
     ///
     /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
@@ -265,7 +288,7 @@ public:
 
     uid_t uid() const noexcept;
 
-    cxx::expected<Sample<void>, AllocationError> loan(uint64_t size) noexcept;
+    cxx::expected<Sample<void>, AllocationError> loan(uint32_t size) noexcept;
     void release(Sample<void>& sample) noexcept;
     void publish(Sample<void>& sample) noexcept;
     ///

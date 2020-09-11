@@ -89,7 +89,7 @@ BasePublisher<T, port_t>::uid() const noexcept
 
 template<typename T, typename port_t>
 inline cxx::expected<Sample<T>, AllocationError>
-BasePublisher<T, port_t>::loan(uint64_t size) noexcept
+BasePublisher<T, port_t>::loan(uint32_t size) noexcept
 {
     auto result = m_port.allocateChunk(size);
     if(result.has_error())
@@ -292,7 +292,7 @@ UntypedPublisher::uid() const noexcept
 
 
 inline cxx::expected<Sample<void>, AllocationError>
-UntypedPublisher::loan(uint64_t size) noexcept
+UntypedPublisher::loan(uint32_t size) noexcept
 {
     return BasePublisher<void>::loan(size);
 }

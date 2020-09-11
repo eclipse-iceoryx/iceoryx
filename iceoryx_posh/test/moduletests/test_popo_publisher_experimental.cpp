@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/experimental/popo/publisher.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 
 #include "test.hpp"
 
@@ -24,29 +28,35 @@ using ::testing::_;
 
 // ========================= Test Helpers ========================= //
 
-class MockSenderPort
+class MockPublisherPortUser
 {
 public:
-    MOCK_METHOD2(reserveChunk, void(const uint32_t, bool));
-    MOCK_METHOD1(deliverChunk, void(iox::mepoo::ChunkHeader* const));
+    MockPublisherPortUser(std::nullptr_t)
+    {}
+    MOCK_METHOD1(allocateChunk, iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
     MOCK_METHOD1(freeChunk, void(iox::mepoo::ChunkHeader* const));
-    MOCK_METHOD0(activate, void());
-    MOCK_METHOD0(deactivate, void());
+    MOCK_METHOD1(sendChunk, void(iox::mepoo::ChunkHeader* const));
+    MOCK_METHOD0(getLastChunk, iox::cxx::optional<iox::mepoo::ChunkHeader*>());
+    MOCK_METHOD0(offer, void());
+    MOCK_METHOD0(stopOffer, void());
+    MOCK_METHOD0(isOffered, bool());
     MOCK_METHOD0(hasSubscribers, bool());
-    MOCK_METHOD0(enableDoDeliverOnSubscription, void());
-    MOCK_METHOD0(doesDeliverOnSubscribe, bool());
-    MOCK_METHOD0(isPortActive, bool());
-    MOCK_METHOD0(isUnique, bool());
-
 };
 
-///
-/// @brief The TestBasePublisher class exposes protected methods of BasePublisher so they can be tested.
-///
+struct DummyData{
+    uint64_t val = 42;
+};
+
+#define protected public
+#define private public
+
 template<typename T, typename port_t>
-class TestBasePublisher : protected iox::popo::BasePublisher<T, port_t>
+class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
 {
 public:
+    StubbedBasePublisher(iox::capro::ServiceDescription sd)
+        : iox::popo::BasePublisher<T, port_t>::BasePublisher(sd)
+    {};
     uid_t uid() const noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::uid();
@@ -59,7 +69,7 @@ public:
     {
         return iox::popo::BasePublisher<T, port_t>::release(sample);
     }
-    iox::cxx::expected<iox::popo::AllocationError> publish(iox::popo::Sample<T>& sample) noexcept
+    void publish(iox::popo::Sample<T>& sample) noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::publish(sample);
     }
@@ -83,10 +93,13 @@ public:
     {
         return iox::popo::BasePublisher<T, port_t>::hasSubscribers();
     }
+    port_t& getPort()
+    {
+        return iox::popo::BasePublisher<T, port_t>::m_port;
+    }
 };
 
-template<typename T>
-using TestPublisher = TestBasePublisher<T, MockSenderPort>;
+using TestBasePublisher = StubbedBasePublisher<DummyData, MockPublisherPortUser>;
 
 // ========================= Test Setup ========================= //
 
@@ -106,31 +119,30 @@ public:
     {
     }
 
+protected:
+    TestBasePublisher sut{{"", "", ""}};
 };
 
 // ========================= Tests ========================= //
 
-TEST_F(ExperimentalPublisherTest, OffersIfTryingToPublishBeforeOffer)
+TEST_F(ExperimentalPublisherTest, OffersIfTryingToPublishBeforeOffering)
 {
+    ON_CALL(sut.getPort(), allocateChunk).WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>())));
+    EXPECT_CALL(sut.getPort(), offer).Times(1);
 
+    sut.loan(sizeof(DummyData)).and_then([](iox::popo::Sample<DummyData>& sample){
+        sample.publish();
+    });
 }
 
 TEST_F(ExperimentalPublisherTest, LoanReturnsAllocationErrorIfMempoolExhausted)
 {
-
 }
 
 TEST_F(ExperimentalPublisherTest, LoanReturnsAllocationErrorIfNoAppropriatelySizedMemchunks)
 {
-
 }
 
 TEST_F(ExperimentalPublisherTest, LoanReturnsAllocatedSampleOnSuccess)
 {
-
 }
-
-
-
-
-

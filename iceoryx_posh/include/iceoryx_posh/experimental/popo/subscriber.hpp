@@ -55,7 +55,7 @@ public:
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
     BaseSubscriber(BaseSubscriber&& rhs) = delete;
     BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
-    ~BaseSubscriber();
+    ~BaseSubscriber() = default;
 
     ///
     /// @brief uid Get the unique ID of the subscriber.
@@ -125,12 +125,7 @@ protected:
 
 private:
 
-    // To be enabled when port API is properly integrated into shared memory.
-    // Will allow swapping out of different port implementations with the same interface.
-    // port_t m_port{nullptr};
-
-    SubscriberPortData* m_portDataPtr = nullptr;
-    SubscriberPortUser m_port;
+    port_t m_port{nullptr};
 
 };
 
@@ -151,7 +146,7 @@ public:
     capro::ServiceDescription getServiceDescription() const noexcept;
     uid_t uid() const noexcept;
 
-    cxx::expected<SubscriberError> subscribe(const uint64_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
+    cxx::expected<SubscriberError> subscribe(const uint64_t queueCapacity = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
     SubscriptionState getSubscriptionState() const noexcept;
     void unsubscribe() noexcept;
 
