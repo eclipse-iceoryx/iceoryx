@@ -110,21 +110,21 @@ bool iox_sub_has_new_chunks(SubscriberPortData* const self)
 
 bool iox_sub_has_lost_chunks(SubscriberPortData* const self)
 {
-    return SubscriberPortUser(self).hasLostChunks();
+    return SubscriberPortUser(self).hasLostChunksSinceLastCall();
 }
 
 bool iox_sub_attach_condition_variable(SubscriberPortData* const self, ConditionVariableData* const cvHandle)
 {
-    return SubscriberPortUser(self).attachConditionVariable(cvHandle);
+    return SubscriberPortUser(self).setConditionVariable(cvHandle);
 }
 
 bool iox_sub_detach_condition_variable(SubscriberPortData* const self)
 {
-    return SubscriberPortUser(self).detachConditionVariable();
+    return SubscriberPortUser(self).unsetConditionVariable();
 }
 
 bool iox_sub_is_condition_variable_attached(SubscriberPortData* const self)
 {
-    return SubscriberPortUser(self).isConditionVariableAttached();
+    return SubscriberPortUser(self).isConditionVariableSet();
 }
 

@@ -82,24 +82,24 @@ bool ClientPortUser::hasNewResponses() const noexcept
     return !m_chunkReceiver.empty();
 }
 
-bool ClientPortUser::hasLostResponses() noexcept
+bool ClientPortUser::hasLostResponsesSinceLastCall() noexcept
 {
     return m_chunkReceiver.hasOverflown();
 }
 
 bool ClientPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
-    return m_chunkReceiver.attachConditionVariable(conditionVariableDataPtr);
+    return m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
 }
 
 bool ClientPortUser::unsetConditionVariable() noexcept
 {
-    return m_chunkReceiver.detachConditionVariable();
+    return m_chunkReceiver.unsetConditionVariable();
 }
 
 bool ClientPortUser::isConditionVariableSet() const noexcept
 {
-    return m_chunkReceiver.isConditionVariableAttached();
+    return m_chunkReceiver.isConditionVariableSet();
 }
 
 } // namespace popo

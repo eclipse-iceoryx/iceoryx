@@ -52,7 +52,7 @@ bool ServerPortUser::hasNewRequests() const noexcept
     return !m_chunkReceiver.empty();
 }
 
-bool ServerPortUser::hasLostRequests() noexcept
+bool ServerPortUser::hasLostRequestsSinceLastCall() noexcept
 {
     return m_chunkReceiver.hasOverflown();
 }
@@ -101,17 +101,17 @@ bool ServerPortUser::hasClients() const noexcept
 
 bool ServerPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
-    return m_chunkReceiver.attachConditionVariable(conditionVariableDataPtr);
+    return m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
 }
 
 bool ServerPortUser::unsetConditionVariable() noexcept
 {
-    return m_chunkReceiver.detachConditionVariable();
+    return m_chunkReceiver.unsetConditionVariable();
 }
 
 bool ServerPortUser::isConditionVariableSet() const noexcept
 {
-    return m_chunkReceiver.isConditionVariableAttached();
+    return m_chunkReceiver.isConditionVariableSet();
 }
 
 } // namespace popo

@@ -60,9 +60,9 @@ class ServerPortUser : public BasePort
     /// @return if there are requests in the queue return true, otherwise false
     bool hasNewRequests() const noexcept;
 
-    /// @brief check if there was a queue overflow since the last call of hasLostRequests
+    /// @brief check if there was a queue overflow since the last call of hasLostRequestsSinceLastCall
     /// @return true if the underlying queue overflowed since last call of this method, otherwise false
-    bool hasLostRequests() noexcept;
+    bool hasLostRequestsSinceLastCall() noexcept;
 
     /// @brief Allocate a response, the ownerhip of the SharedChunk remains in the ServerPortUser for being able to
     /// cleanup if the user process disappears

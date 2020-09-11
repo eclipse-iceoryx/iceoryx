@@ -80,15 +80,15 @@ class ChunkQueuePopper
     /// @brief Attaches a condition variable
     /// @param[in] ConditionVariableDataPtr, pointer to an condition variable data object
     /// @return True if successful, false if not
-    bool attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    bool setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
 
     /// @brief Detaches a condition variable
     /// @return true if condition variable was detached, false if not
-    bool detachConditionVariable() noexcept;
+    bool unsetConditionVariable() noexcept;
 
     /// @brief Returns the information whether a condition variable is attached
     /// @return true if condition variable is set, false if not
-    bool isConditionVariableAttached() const noexcept;
+    bool isConditionVariableSet() const noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

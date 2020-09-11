@@ -66,11 +66,36 @@ using ClientChunkSenderData_t = ChunkSenderData<MAX_REQUESTS_ALLOCATED_SIMULTANE
 
 using ServerChunkSenderData_t = ChunkSenderData<MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY, ServerChunkDistributorData_t>;
 
-class RequestHeader
+class RPCBaseHeader
+{
+  public:
+    explicit RPCBaseHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr, const int64_t sequenceNumber)
+        : m_clientQueueDataPtr(chunkQueueDataPtr)
+        , m_sequenceNumber(sequenceNumber)
+    {
+    }
+
+    RPCBaseHeader(const RPCBaseHeader& other) = delete;
+    RPCBaseHeader& operator=(const RPCBaseHeader&) = delete;
+    RPCBaseHeader(RPCBaseHeader&& rhs) = default;
+    RPCBaseHeader& operator=(RPCBaseHeader&& rhs) = default;
+    virtual ~RPCBaseHeader() = default;
+
+    int64_t getSequenceNumber() const noexcept
+    {
+        return m_sequenceNumber;
+    }
+
+  protected:
+    relative_ptr<ClientChunkQueueData_t> m_clientQueueDataPtr;
+    int64_t m_sequenceNumber{0};
+};
+
+class RequestHeader : public RPCBaseHeader
 {
   public:
     explicit RequestHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr) noexcept
-        : m_responseQueue(chunkQueueDataPtr)
+        : RPCBaseHeader(chunkQueueDataPtr, 0)
     {
     }
 
@@ -82,8 +107,9 @@ class RequestHeader
 
     void setSequenceNumber(const int64_t sequenceNumber) noexcept
     {
-        m_sequenceNumber = sequenceNumber;
+        this->m_sequenceNumber = sequenceNumber;
     }
+
     void setFireAndForget(const bool fireAndForget) noexcept
     {
         m_isFireAndForget = fireAndForget;
@@ -101,17 +127,15 @@ class RequestHeader
     }
 
   private:
-    int64_t m_sequenceNumber{0};
     bool m_isFireAndForget{false};
-    relative_ptr<ClientChunkQueueData_t> m_responseQueue;
 };
 
-class ResponseHeader
+class ResponseHeader : public RPCBaseHeader
 {
   public:
-    ResponseHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr, const int64_t sequenceNumber) noexcept
-        : m_sequenceNumber(sequenceNumber)
-        , m_destinationQueue(chunkQueueDataPtr)
+    ResponseHeader(cxx::not_null<ClientChunkQueueData_t* const> chunkQueueDataPtr,
+                   const int64_t sequenceNumber) noexcept
+        : RPCBaseHeader(chunkQueueDataPtr, sequenceNumber)
     {
     }
 
@@ -126,6 +150,11 @@ class ResponseHeader
         m_hasServerError = serverError;
     }
 
+    bool hasServerError() const noexcept
+    {
+        return m_hasServerError;
+    }
+
     const mepoo::ChunkHeader* getChunkHeader() const noexcept
     {
         /// todo
@@ -137,20 +166,8 @@ class ResponseHeader
         return nullptr;
     }
 
-    int64_t getSequenceNumber() const noexcept
-    {
-        return m_sequenceNumber;
-    }
-
-    bool hasServerError() const noexcept
-    {
-        return m_hasServerError;
-    }
-
   private:
-    int64_t m_sequenceNumber{0};
     bool m_hasServerError{false};
-    relative_ptr<ClientChunkQueueData_t> m_destinationQueue;
 };
 
 

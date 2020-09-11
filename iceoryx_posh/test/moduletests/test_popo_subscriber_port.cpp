@@ -78,7 +78,7 @@ TEST_F(SubscriberPortSingleProducer_test, initialStateNoChunksAvailable)
 
 TEST_F(SubscriberPortSingleProducer_test, initialStateNoChunksLost)
 {
-    EXPECT_FALSE(m_sutUserSideSingleProducer.hasLostChunks());
+    EXPECT_FALSE(m_sutUserSideSingleProducer.hasLostChunksSinceLastCall());
 }
 
 TEST_F(SubscriberPortSingleProducer_test, initialStateReturnsNoCaProMessage)

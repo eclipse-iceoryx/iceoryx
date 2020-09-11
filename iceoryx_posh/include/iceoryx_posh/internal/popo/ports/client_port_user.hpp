@@ -95,7 +95,7 @@ class ClientPortUser : public BasePort
 
     /// @brief check if there was a queue overflow since the last call of hasLostResponseChunks
     /// @return true if the underlying queue overflowed since last call of this method, otherwise false
-    bool hasLostResponses() noexcept;
+    bool hasLostResponsesSinceLastCall() noexcept;
 
     /// @brief set a condition variable (via its pointer) to the client
     /// @return true if attachment worked, otherwise false

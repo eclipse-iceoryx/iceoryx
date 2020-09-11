@@ -332,7 +332,7 @@ TEST_F(PortUser_IntegrationTest, SingleProducer)
     }
 
     EXPECT_EQ(m_sendCounter.load(std::memory_order_relaxed), m_receiveCounter);
-    EXPECT_EQ(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunks(), false);
+    EXPECT_EQ(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunksSinceLastCall(), false);
 }
 
 TEST_F(PortUser_IntegrationTest, MultiProducer)
@@ -367,5 +367,5 @@ TEST_F(PortUser_IntegrationTest, MultiProducer)
     }
 
     EXPECT_EQ(m_sendCounter.load(std::memory_order_relaxed), m_receiveCounter);
-    EXPECT_EQ(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunks(), false);
+    EXPECT_EQ(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunksSinceLastCall(), false);
 }

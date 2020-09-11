@@ -77,21 +77,21 @@ class SubscriberPortUser : public BasePort
     /// @return if there are chunks in the queue return true, otherwise false
     bool hasNewChunks() const noexcept;
 
-    /// @brief check if there was a queue overflow since the last call of hasLostChunks
+    /// @brief check if there was a queue overflow since the last call of hasLostChunksSinceLastCall
     /// @return true if the underlying queue overflowed since last call of this method, otherwise false
-    bool hasLostChunks() noexcept;
+    bool hasLostChunksSinceLastCall() noexcept;
 
     /// @brief attach a condition variable (via its pointer) to subscriber
     /// @return true if attachment worked, otherwise false
-    bool attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    bool setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
 
     /// @brief detach a condition variable from subscriber
     /// @return true if detachment worked, otherwise false
-    bool detachConditionVariable() noexcept;
+    bool unsetConditionVariable() noexcept;
 
     /// @brief check if there's a condition variable attached
     /// @return true if a condition variable attached, otherwise false
-    bool isConditionVariableAttached() noexcept;
+    bool isConditionVariableSet() noexcept;
 
   private:
     const MemberType_t* getMembers() const noexcept;
