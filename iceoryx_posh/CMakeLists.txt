@@ -48,6 +48,11 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 #
 ########## build posh lib for ##########
 #
+# If requested, enable 1:n communication only
+if(one-to-many)
+     message("[i] Using 1:n communication only!")
+    add_definitions(-DENABLE_1_TO_N_COMMUNICATION_ONLY)
+endif()
 
 add_library(iceoryx_posh
     source/log/posh_logging.cpp
