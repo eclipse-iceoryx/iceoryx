@@ -140,7 +140,7 @@ public:
     BasePublisher& operator=(const BasePublisher&) = delete;
     BasePublisher(BasePublisher&& rhs) = default;
     BasePublisher& operator=(BasePublisher&& rhs) = default;
-    ~BasePublisher();
+    ~BasePublisher() = default;
 
     ///
     /// @brief uid Get the UID of the publisher.
@@ -198,18 +198,11 @@ public:
     bool hasSubscribers() noexcept;
 
 protected:
-//    BasePublisher(const capro::ServiceDescription& service);
-    BasePublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager);
+    BasePublisher(const capro::ServiceDescription& service);
 
 protected:
 
-    // To be enabled when port API is properly integrated into shared memory.
-    // Will allow swapping out of different port implementations with the same interface.
-    // port_t m_port{nullptr};
-
-    PublisherPortData* m_portDataPtr = nullptr;
-    PublisherPortUser m_port;
-
+    port_t m_port{nullptr};
     bool m_useDynamicPayloadSize = true;
 
 private:
@@ -222,8 +215,7 @@ template<typename T>
 class TypedPublisher : protected iox::popo::BasePublisher<T>
 {
 public:
-//    TypedPublisher(const capro::ServiceDescription& service);
-    TypedPublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager);
+    TypedPublisher(const capro::ServiceDescription& service);
     TypedPublisher(const TypedPublisher& other) = delete;
     TypedPublisher& operator=(const TypedPublisher&) = delete;
     TypedPublisher(TypedPublisher&& rhs) = default;
@@ -264,8 +256,7 @@ public:
 class UntypedPublisher : protected iox::popo::BasePublisher<void>
 {
 public:
-//    UntypedPublisher(const capro::ServiceDescription& service);
-    UntypedPublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager);
+    UntypedPublisher(const capro::ServiceDescription& service);
     UntypedPublisher(const UntypedPublisher& other) = delete;
     UntypedPublisher& operator=(const UntypedPublisher&) = delete;
     UntypedPublisher(UntypedPublisher&& rhs) = default;

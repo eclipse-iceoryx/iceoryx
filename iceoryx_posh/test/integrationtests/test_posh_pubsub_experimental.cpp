@@ -71,7 +71,7 @@ protected:
 TEST_F(PubSubExperimentalIntegrationTest, DataTransferFromPublisherToSubscriber)
 {
 
-    iox::popo::TypedPublisher<Position> typedPublisher{{"Odometry", "Position", "Vehicle"}, &m_memoryManager};
+    iox::popo::TypedPublisher<Position> typedPublisher{{"Odometry", "Position", "Vehicle"}};
     typedPublisher.offer();
 
     iox::popo::TypedSubscriber<Position> typedSubscriber{{"Odometry", "Position", "Vehicle"}};

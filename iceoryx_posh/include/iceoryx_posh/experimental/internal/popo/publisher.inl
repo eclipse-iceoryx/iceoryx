@@ -74,22 +74,10 @@ struct has_signature<Callable, ReturnType(ArgTypes...),
 
 // ======================================== Base Publisher ======================================== //
 
-//template<typename T, typename port_t>
-//BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
-//    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, ""))
-//{}
-
 template<typename T, typename port_t>
-BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager)
-    : m_portDataPtr(new iox::popo::PublisherPortData(service, "HailHypnotoad", memoryManager)),
-      m_port(m_portDataPtr)
+BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
+    /* : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, "")) */
 {}
-
-template<typename T, typename port_t>
-BasePublisher<T, port_t>::~BasePublisher()
-{
-    delete m_portDataPtr;
-}
 
 template<typename T, typename port_t>
 inline uid_t
@@ -183,14 +171,9 @@ BasePublisher<T, port_t>::hasSubscribers() noexcept
 
 // ======================================== Typed Publisher ======================================== //
 
-//template<typename T>
-//TypedPublisher<T>::TypedPublisher(const capro::ServiceDescription& service)
-//    : BasePublisher<T>(service)
-//{}
-
 template<typename T>
-TypedPublisher<T>::TypedPublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager)
-    : BasePublisher<T>(service, memoryManager)
+TypedPublisher<T>::TypedPublisher(const capro::ServiceDescription& service)
+    : BasePublisher<T>(service)
 {}
 
 template<typename T>
@@ -297,12 +280,8 @@ TypedPublisher<T>::hasSubscribers() noexcept
 
 // ======================================== Untyped Publisher ======================================== //
 
-//UntypedPublisher::UntypedPublisher(const capro::ServiceDescription& service)
-//    : BasePublisher<void>(service)
-//{}
-
-UntypedPublisher::UntypedPublisher(const capro::ServiceDescription& service, mepoo::MemoryManager* memoryManager)
-    : BasePublisher<void>(service, memoryManager)
+UntypedPublisher::UntypedPublisher(const capro::ServiceDescription& service)
+    : BasePublisher<void>(service)
 {}
 
 inline uid_t
