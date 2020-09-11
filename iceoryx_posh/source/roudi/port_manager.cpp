@@ -751,32 +751,10 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const uint64_t& historyCapacity,
                                       const ProcessName_t& processName,
                                       mepoo::MemoryManager* payloadMemoryManager,
-                                      const RunnableName_t& runnable [[gnu::unused]], // @todo Fix introspection
+                                      const RunnableName_t& runnable [[gnu::unused]], // @todo #25 Fix introspection
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
-    /// @todo unique check only required for single producer type
-    // // check if already in list, we currently do not support multi publisher for one CaPro ID
-    // for (auto publisherPortData : m_portPool->getPublisherPortDataList())
-    // {
-    //     PublisherPortRouDiType publisherPort(publisherPortData);
-    //     if (service == publisherPort.getCaProServiceDescription())
-    //     {
-    //         LogWarn() << "Process '" << processName
-    //                   << "' tried to register an unique PublisherPort which is already used by '"
-    //                   << publisherPortData->m_processName << "' with service '"
-    //                   << service.operator cxx::Serialization().toString() << "'.";
-
-    //         if (publisherPort.isUnique())
-    //         {
-    //             errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
-    //             return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
-    //         }
-    //         else
-    //         {
-    //             break;
-    //         }
-    //     }
-    // }
+    /// @todo #25 Add unique check for single producer type - see acquireSenderPortData()
 
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
@@ -794,14 +772,14 @@ cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const uint64_t& historyRequest,
                                        const ProcessName_t& processName,
-                                       const RunnableName_t& runnable [[gnu::unused]], // @todo Fix introspection
+                                       const RunnableName_t& runnable [[gnu::unused]], // @todo #25 Fix introspection
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto maybeSubscriberPortData =
         m_portPool->addSubscriberPort(service, historyRequest, processName, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
-        /// @todo Fix introspection
+        /// @todo #25 Fix introspection
         // m_portIntrospection.addReceiver(result.get_value(), processName, service, runnable);
     }
 

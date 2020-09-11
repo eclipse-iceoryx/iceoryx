@@ -539,14 +539,6 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
     if (nullptr != process)
     {
         // create a SubscriberPort
-
-        /// @todo: it might be useful to encapsulate this into some kind of port factory
-        /// (which maybe contains a m_shmMgr)
-        /// main goal would be to isolate the port creation logic as it becomes more complex
-        /// pursuing this further could lead to a separate management entity for ports
-        /// which could support queries like: find all ports with a given service or some other
-        /// specific attribute (to allow efficient and well encapsulated lookup)
-
         auto maybeSubscriber =
             m_portManager.acquireSubscriberPortData(service, historyRequest, name, runnable, portConfigInfo);
 

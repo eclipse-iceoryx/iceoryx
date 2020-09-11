@@ -331,10 +331,6 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
 
     ASSERT_NE(nullptr, publisherPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), publisherPort->m_serviceDescription);
-    /// @todo #25 historyCapacity no member?
-    /// @todo #25 memoryInfo not used in publisher port right now
-    // EXPECT_EQ(22u, publisherPort->m_memoryInfo.deviceId);
-    // EXPECT_EQ(33u, publisherPort->m_memoryInfo.memoryType);
 }
 
 TEST_F(PoshRuntime_test, getMiddlewarePublisherDefaultArgs)
@@ -342,10 +338,6 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherDefaultArgs)
     const auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(99U, 1U, 20U));
 
     ASSERT_NE(nullptr, publisherPort);
-
-    /// @todo #25 memoryInfo not used in publisher port right now
-    // EXPECT_EQ(0u, publisherPort->m_memoryInfo.deviceId);
-    // EXPECT_EQ(0u, publisherPort->m_memoryInfo.memoryType);
 }
 
 
@@ -382,10 +374,6 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
     ASSERT_NE(nullptr, subscriberPort);
     EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), subscriberPort->m_serviceDescription);
     EXPECT_EQ(0U, subscriberPort->m_historyRequest);
-
-    /// @todo #25 memoryInfo not used in subscriber port right now
-    // EXPECT_EQ(22u, subscriberPort->> m_memoryInfo.deviceId);
-    // EXPECT_EQ(33u, subscriberPort->m_memoryInfo.memoryType);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberDefaultArgs)
@@ -393,10 +381,6 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberDefaultArgs)
     auto subscriberPort = m_runtime->getMiddlewareSubscriber(iox::capro::ServiceDescription(99U, 1U, 20U));
 
     ASSERT_NE(nullptr, subscriberPort);
-
-    /// @todo #25 memoryInfo not used in subscriber port right now
-    // EXPECT_EQ(0u, subscriberPort->m_memoryInfo.deviceId);
-    // EXPECT_EQ(0u, subscriberPort->m_memoryInfo.memoryType);
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
