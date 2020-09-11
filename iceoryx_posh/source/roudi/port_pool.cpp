@@ -88,7 +88,7 @@ cxx::expected<runtime::RunnableData*, PortPoolError> PortPool::addRunnableData(
 }
 
 cxx::expected<popo::ConditionVariableData*, PortPoolError>
-PortPool::addConditionVariableData()
+PortPool::addConditionVariableData() noexcept
 {
     if (m_portPoolDataBase->m_conditionVariableMembers.hasFreeSpace())
     {

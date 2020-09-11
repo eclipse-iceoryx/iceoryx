@@ -867,7 +867,7 @@ runtime::RunnableData* PortManager::acquireRunnableData(const ProcessName_t& pro
     }
 }
 
-cxx::expected<popo::ConditionVariableData*, PortPoolError> PortManager::acquireConditionVariableData()
+cxx::expected<popo::ConditionVariableData*, PortPoolError> PortManager::acquireConditionVariableData() noexcept
 {
     return m_portPool->addConditionVariableData();
 }
