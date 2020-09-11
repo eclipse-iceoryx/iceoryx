@@ -19,7 +19,7 @@
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
 /// @brief publisher handle
-typedef struct PublisherPortData* pub_t;
+typedef struct PublisherPortData* iox_pub_t;
 
 /// @brief creates a publisher handle in the default runtime runnable
 /// @param[in] service serviceString
@@ -27,11 +27,11 @@ typedef struct PublisherPortData* pub_t;
 /// @param[in] event eventString
 /// @param[in] historyCapacity size of the history chunk queue
 /// @return handle of the publisher
-pub_t iox_pub_create(const char* service, const char* instance, const char* event, const uint64_t historyCapacity);
+iox_pub_t iox_pub_create(const char* service, const char* instance, const char* event, const uint64_t historyCapacity);
 
 /// @brief removes a publisher handle
 /// @param[in] self the handle which should be removed
-void iox_pub_destroy(pub_t const self);
+void iox_pub_destroy(iox_pub_t const self);
 
 /// @brief allocates a chunk in the shared memory
 /// @param[in] self handle of the publisher
@@ -39,40 +39,40 @@ void iox_pub_destroy(pub_t const self);
 /// @param[in] payloadSize size of the allocated chunk
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-ENUM iox_AllocationResult iox_pub_allocate_chunk(pub_t const self, void** const chunk, const uint32_t payloadSize);
+ENUM iox_AllocationResult iox_pub_allocate_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize);
 
 /// @brief frees a previously allocated chunk without sending it
 /// @param[in] self handle of the publisher
 /// @param[in] chunk chunk which should be free'd
-void iox_pub_free_chunk(pub_t const self, void* const chunk);
+void iox_pub_free_chunk(iox_pub_t const self, void* const chunk);
 
 /// @brief sends a previously allocated chunk
 /// @param[in] self handle of the publisher
 /// @param[in] chunk chunk which should be send
-void iox_pub_send_chunk(pub_t const self, void* const chunk);
+void iox_pub_send_chunk(iox_pub_t const self, void* const chunk);
 
 /// @brief returns the previously sended chunk
 /// @param[in] self handle of the publisher
 /// @return nullptr if no chunk was previously send otherwise a pointer to the
 ///           previous chunk
-const void* iox_pub_try_get_previous_chunk(pub_t const self);
+const void* iox_pub_try_get_previous_chunk(iox_pub_t const self);
 
 /// @brief offers the service
 /// @param[in] self handle of the publisher
-void iox_pub_offer(pub_t const self);
+void iox_pub_offer(iox_pub_t const self);
 
 /// @brief stop offering the service
 /// @param[in] self handle of the publisher
-void iox_pub_stop_offer(pub_t const self);
+void iox_pub_stop_offer(iox_pub_t const self);
 
 /// @brief is the service still offered
 /// @param[in] self handle of the publisher
 /// @return true is the service is offered otherwise false
-bool iox_pub_is_offered(pub_t const self);
+bool iox_pub_is_offered(iox_pub_t const self);
 
 /// @brief does the service have subscribers
 /// @param[in] self handle of the publisher
 /// @return true if there are subscribers otherwise false
-bool iox_pub_has_subscribers(pub_t const self);
+bool iox_pub_has_subscribers(iox_pub_t const self);
 
 #endif

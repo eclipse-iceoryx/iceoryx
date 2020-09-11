@@ -21,12 +21,12 @@ extern "C" {
 #include "iceoryx_binding_c/condition.h"
 }
 
-bool iox_cond_has_triggered(cond_t const self)
+bool iox_cond_has_triggered(iox_cond_t const self)
 {
     return self->hasTriggered();
 }
 
-bool iox_cond_is_condition_variable_attached(cond_t const self)
+bool iox_cond_is_condition_variable_attached(iox_cond_t const self)
 {
     return self->isConditionVariableAttached();
 }

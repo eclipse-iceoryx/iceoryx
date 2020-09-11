@@ -21,27 +21,27 @@ extern "C" {
 #include "iceoryx_binding_c/guard_condition.h"
 }
 
-void iox_guard_cond_init(guard_cond_t const self)
+void iox_guard_cond_init(iox_guard_cond_t const self)
 {
     new (self) GuardCondition();
 }
 
-void iox_guard_cond_deinit(guard_cond_t const self)
+void iox_guard_cond_deinit(iox_guard_cond_t const self)
 {
     self->~GuardCondition();
 }
 
-void iox_guard_cond_set_trigger(guard_cond_t const self)
+void iox_guard_cond_set_trigger(iox_guard_cond_t const self)
 {
     self->setTrigger();
 }
 
-bool iox_guard_cond_has_triggered(guard_cond_t const self)
+bool iox_guard_cond_has_triggered(iox_guard_cond_t const self)
 {
     return self->hasTriggered();
 }
 
-void iox_guard_cond_reset_trigger(guard_cond_t const self)
+void iox_guard_cond_reset_trigger(iox_guard_cond_t const self)
 {
     self->resetTrigger();
 }

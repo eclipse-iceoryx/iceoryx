@@ -16,15 +16,15 @@
 #define IOX_BINDING_C_GUARD_CONDITION_H
 
 /// @brief guard condition handle
-typedef struct GuardCondition* guard_cond_t;
+typedef struct GuardCondition* iox_guard_cond_t;
 
-void iox_guard_cond_init(guard_cond_t const self);
+void iox_guard_cond_init(iox_guard_cond_t const self);
 
 /// @todo naming?
-void iox_guard_cond_deinit(guard_cond_t const self);
+void iox_guard_cond_deinit(iox_guard_cond_t const self);
 
-void iox_guard_cond_set_trigger(guard_cond_t const self);
-bool iox_guard_cond_has_triggered(guard_cond_t const self);
-void iox_guard_cond_reset_trigger(guard_cond_t const self);
+void iox_guard_cond_set_trigger(iox_guard_cond_t const self);
+bool iox_guard_cond_has_triggered(iox_guard_cond_t const self);
+void iox_guard_cond_reset_trigger(iox_guard_cond_t const self);
 
 #endif

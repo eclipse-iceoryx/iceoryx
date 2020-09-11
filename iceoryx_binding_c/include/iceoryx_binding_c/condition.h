@@ -16,9 +16,9 @@
 #define IOX_BINDING_C_CONDITION_H
 
 /// @brief condition handle
-typedef struct Condition* cond_t;
+typedef struct Condition* iox_cond_t;
 
-bool iox_cond_has_triggered(cond_t const self);
-bool iox_cond_is_condition_variable_attached(cond_t const self);
+bool iox_cond_has_triggered(iox_cond_t const self);
+bool iox_cond_is_condition_variable_attached(iox_cond_t const self);
 
 #endif

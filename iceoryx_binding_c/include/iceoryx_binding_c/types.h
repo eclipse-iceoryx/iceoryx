@@ -31,5 +31,9 @@ struct guard_cond_storage_t
     uint64_t do_not_touch_me[9];
 };
 
+struct iox_sub_storage_t
+{
+};
+
 
 #endif

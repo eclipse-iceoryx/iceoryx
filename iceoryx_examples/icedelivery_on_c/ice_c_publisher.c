@@ -35,7 +35,7 @@ void sending()
     iox_runtime_register("/iox-c-publisher");
 
     uint64_t historyRequest = 0U;
-    struct PublisherPortData* publisher = iox_pub_create("Radar", "FrontLeft", "Counter", historyRequest);
+    iox_pub_t publisher = iox_pub_create("Radar", "FrontLeft", "Counter", historyRequest);
 
     iox_pub_offer(publisher);
 

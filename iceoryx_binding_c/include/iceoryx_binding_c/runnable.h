@@ -17,12 +17,12 @@
 
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
-typedef struct RunnableData* runnable_t;
+typedef struct RunnableData* iox_runnable_t;
 
-runnable_t iox_runnable_create(const char* const runnableName);
-void iox_runnable_destroy(runnable_t const self);
+iox_runnable_t iox_runnable_create(const char* const runnableName);
+void iox_runnable_destroy(iox_runnable_t const self);
 
-uint64_t iox_runnable_get_name(runnable_t const self, char* const name, const uint64_t nameCapacity);
-uint64_t iox_runnable_get_process_name(runnable_t const self, char* const name, const uint64_t nameCapacity);
+uint64_t iox_runnable_get_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity);
+uint64_t iox_runnable_get_process_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity);
 
 #endif

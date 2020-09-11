@@ -43,25 +43,25 @@ class RunnableBindingExtension : public iox::runtime::Runnable
     }
 };
 
-runnable_t iox_runnable_create(const char* const runnableName)
+iox_runnable_t iox_runnable_create(const char* const runnableName)
 {
     return PoshRuntime::getInstance().createRunnable(
         RunnableProperty(RunnableName_t(iox::cxx::TruncateToCapacity, runnableName), 0u));
 }
 
-void iox_runnable_destroy(runnable_t const self)
+void iox_runnable_destroy(iox_runnable_t const self)
 {
     RunnableBindingExtension(self).destroy();
 }
 
-uint64_t iox_runnable_get_name(runnable_t const self, char* const name, const uint64_t nameCapacity)
+uint64_t iox_runnable_get_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity)
 {
     auto nameAsString = RunnableBindingExtension(self).getRunnableName();
     strncpy(name, nameAsString.c_str(), nameCapacity);
     return nameAsString.size();
 }
 
-uint64_t iox_runnable_get_process_name(runnable_t const self, char* const name, const uint64_t nameCapacity)
+uint64_t iox_runnable_get_process_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity)
 {
     auto nameAsString = RunnableBindingExtension(self).getProcessName();
     strncpy(name, nameAsString.c_str(), nameCapacity);

@@ -22,12 +22,12 @@ extern "C" {
 #include "iceoryx_binding_c/condition_variable.h"
 }
 
-cond_var_t iox_cond_var_create()
+iox_cond_var_t iox_cond_var_create()
 {
     return runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable();
 }
 
-void iox_cond_var_destroy(cond_var_t const self)
+void iox_cond_var_destroy(iox_cond_var_t const self)
 {
     (void)self;
 }

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
@@ -42,17 +43,20 @@ class iox_wait_set_test : public Test
         iox_wait_set_deinit(sut);
     }
 
-    sub_t CreateSubscriber()
+    iox_sub_t CreateSubscriber()
     {
         const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
 
-        SubscriberPortData* m_portPtr = new SubscriberPortData{
+        cpp2c_Subscriber* subscriber = new cpp2c_Subscriber();
+        subscriber->m_portData = new SubscriberPortData{
             TEST_SERVICE_DESCRIPTION, "myApp", iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
-        return m_portPtr;
+
+        return subscriber;
     }
 
-    void RemoveSubscriber(sub_t subscriber)
+    void RemoveSubscriber(iox_sub_t subscriber)
     {
+        delete subscriber->m_portData;
         delete subscriber;
     }
 
@@ -63,7 +67,7 @@ class iox_wait_set_test : public Test
 
 TEST_F(iox_wait_set_test, AttachSingleConditionSuccessfully)
 {
-    sub_t subscriber = CreateSubscriber();
+    iox_sub_t subscriber = CreateSubscriber();
     //    iox_wait_set_attach_condition(sut, subscriber);
     RemoveSubscriber(subscriber);
 }

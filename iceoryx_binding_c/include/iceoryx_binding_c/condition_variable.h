@@ -16,9 +16,9 @@
 #define IOX_BINDING_C_CONDITION_VARIABLE_H
 
 /// @brief condition variable handle
-typedef struct ConditionVariableData* cond_var_t;
+typedef struct ConditionVariableData* iox_cond_var_t;
 
-cond_var_t iox_cond_var_create();
-void iox_cond_var_destroy(cond_var_t const self);
+iox_cond_var_t iox_cond_var_create();
+void iox_cond_var_destroy(iox_cond_var_t const self);
 
 #endif

@@ -14,9 +14,11 @@
 
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/popo/condition.hpp"
 
 using namespace iox;
 using namespace iox::cxx;
@@ -28,42 +30,46 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
-sub_t iox_sub_create(const char* const service,
-                     const char* const instance,
-                     const char* const event,
-                     const uint64_t historyRequest)
+iox_sub_t iox_sub_create(const char* const service,
+                         const char* const instance,
+                         const char* const event,
+                         const uint64_t historyRequest)
 {
-    return new SubscriberPortData(ServiceDescription{IdString(TruncateToCapacity, service),
-                                                     IdString(TruncateToCapacity, instance),
-                                                     IdString(TruncateToCapacity, event)},
-                                  "AllHailHypnotoad!",
-                                  VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                  historyRequest);
+    auto data = new SubscriberPortData(ServiceDescription{IdString(TruncateToCapacity, service),
+                                                          IdString(TruncateToCapacity, instance),
+                                                          IdString(TruncateToCapacity, event)},
+                                       "AllHailHypnotoad!",
+                                       VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
+                                       historyRequest);
+
+    cpp2c_Subscriber* port = new cpp2c_Subscriber;
+    port->m_portData = data;
+    return port;
 }
 
-void iox_sub_destroy(sub_t const self)
+void iox_sub_destroy(iox_sub_t const self)
 {
     delete self;
 }
 
-void iox_sub_subscribe(sub_t const self, const uint64_t queueCapacity)
+void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity)
 {
-    SubscriberPortUser(self).subscribe(queueCapacity);
+    SubscriberPortUser(self->m_portData).subscribe(queueCapacity);
 }
 
-void iox_sub_unsubscribe(sub_t const self)
+void iox_sub_unsubscribe(iox_sub_t const self)
 {
-    SubscriberPortUser(self).unsubscribe();
+    SubscriberPortUser(self->m_portData).unsubscribe();
 }
 
-iox_SubscribeState iox_sub_get_subscription_state(sub_t const self)
+iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self)
 {
-    return cpp2c::SubscribeState(SubscriberPortUser(self).getSubscriptionState());
+    return cpp2c::SubscribeState(SubscriberPortUser(self->m_portData).getSubscriptionState());
 }
 
-iox_ChunkReceiveResult iox_sub_get_chunk(sub_t const self, const void** const payload)
+iox_ChunkReceiveResult iox_sub_get_chunk(iox_sub_t const self, const void** const payload)
 {
-    auto result = SubscriberPortUser(self).getChunk();
+    auto result = SubscriberPortUser(self->m_portData).getChunk();
     if (result.has_error())
     {
         return cpp2c::ChunkReceiveResult(result.get_error());
@@ -78,38 +84,23 @@ iox_ChunkReceiveResult iox_sub_get_chunk(sub_t const self, const void** const pa
     return ChunkReceiveResult_SUCCESS;
 }
 
-void iox_sub_release_chunk(sub_t const self, const void* const chunk)
+void iox_sub_release_chunk(iox_sub_t const self, const void* const chunk)
 {
-    SubscriberPortUser(self).releaseChunk(convertPayloadPointerToChunkHeader(chunk));
+    SubscriberPortUser(self->m_portData).releaseChunk(convertPayloadPointerToChunkHeader(chunk));
 }
 
-void iox_sub_release_queued_chunks(sub_t const self)
+void iox_sub_release_queued_chunks(iox_sub_t const self)
 {
-    SubscriberPortUser(self).releaseQueuedChunks();
+    SubscriberPortUser(self->m_portData).releaseQueuedChunks();
 }
 
-bool iox_sub_has_new_chunks(sub_t const self)
+bool iox_sub_has_new_chunks(iox_sub_t const self)
 {
-    return SubscriberPortUser(self).hasNewChunks();
+    return SubscriberPortUser(self->m_portData).hasNewChunks();
 }
 
-bool iox_sub_has_lost_chunks(sub_t const self)
+bool iox_sub_has_lost_chunks(iox_sub_t const self)
 {
-    return SubscriberPortUser(self).hasLostChunks();
-}
-
-bool iox_sub_attach_condition_variable(sub_t const self, cond_var_t const cvHandle)
-{
-    return SubscriberPortUser(self).attachConditionVariable(cvHandle);
-}
-
-bool iox_sub_detach_condition_variable(sub_t const self)
-{
-    return SubscriberPortUser(self).detachConditionVariable();
-}
-
-bool iox_sub_is_condition_variable_attached(sub_t const self)
-{
-    return SubscriberPortUser(self).isConditionVariableAttached();
+    return SubscriberPortUser(self->m_portData).hasLostChunks();
 }
 

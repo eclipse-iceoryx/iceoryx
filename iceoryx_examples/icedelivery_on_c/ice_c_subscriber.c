@@ -35,7 +35,7 @@ void receiving()
     iox_runtime_register("/iox-c-subscriber");
 
     uint64_t historyRequest = 0U;
-    struct SubscriberPortData* subscriber = iox_sub_create("Radar", "FrontLeft", "Counter", historyRequest);
+    iox_sub_t subscriber = iox_sub_create("Radar", "FrontLeft", "Counter", historyRequest);
     iox_sub_subscribe(subscriber, 10);
 
     while (!killswitch)

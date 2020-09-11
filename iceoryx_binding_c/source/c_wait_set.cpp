@@ -23,7 +23,7 @@ extern "C" {
 }
 
 static void condition_vector_to_c_array(const WaitSet::ConditionVector& conditionVector,
-                                        cond_t* const conditionArray,
+                                        iox_cond_t* const conditionArray,
                                         const uint64_t conditionArrayCapacity,
                                         uint64_t& conditionArraySize,
                                         uint64_t& missedElements)
@@ -46,7 +46,7 @@ static void condition_vector_to_c_array(const WaitSet::ConditionVector& conditio
     }
 }
 
-void iox_wait_set_init(wait_set_t const self, cond_var_t const conditionVariable)
+void iox_wait_set_init(wait_set_t const self, iox_cond_var_t const conditionVariable)
 {
     new (self) WaitSet(conditionVariable);
 }
@@ -56,7 +56,7 @@ void iox_wait_set_deinit(wait_set_t const self)
     self->~WaitSet();
 }
 
-iox_WaitSetResult iox_wait_set_attach_condition(wait_set_t const self, cond_t const condition)
+iox_WaitSetResult iox_wait_set_attach_condition(wait_set_t const self, iox_cond_t const condition)
 {
     auto result = self->attachCondition(*condition);
     if (!result.has_error())
@@ -65,7 +65,7 @@ iox_WaitSetResult iox_wait_set_attach_condition(wait_set_t const self, cond_t co
     return cpp2c::WaitSetResult(result.get_error());
 }
 
-bool iox_wait_set_detach_condition(wait_set_t const self, cond_t const condition)
+bool iox_wait_set_detach_condition(wait_set_t const self, iox_cond_t const condition)
 {
     return self->detachCondition(*condition);
 }
@@ -77,7 +77,7 @@ void iox_wait_set_detach_all_conditions(wait_set_t const self)
 
 void iox_wait_set_timed_wait(wait_set_t const self,
                              struct timespec timeout,
-                             cond_t* const conditionArray,
+                             iox_cond_t* const conditionArray,
                              const uint64_t conditionArrayCapacity,
                              uint64_t& conditionArraySize,
                              uint64_t& missedElements)
@@ -92,7 +92,7 @@ void iox_wait_set_timed_wait(wait_set_t const self,
 }
 
 void iox_wait_set_wait(wait_set_t const self,
-                       cond_t* const conditionArray,
+                       iox_cond_t* const conditionArray,
                        const uint64_t conditionArrayCapacity,
                        uint64_t& conditionArraySize,
                        uint64_t& missedElements)
