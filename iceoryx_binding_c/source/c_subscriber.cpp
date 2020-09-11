@@ -49,6 +49,7 @@ iox_sub_t iox_sub_create(const char* const service,
 
 void iox_sub_destroy(iox_sub_t const self)
 {
+    delete self->m_portData;
     delete self;
 }
 
