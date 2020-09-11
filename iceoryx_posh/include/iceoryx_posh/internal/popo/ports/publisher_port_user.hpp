@@ -82,8 +82,6 @@ class PublisherPortUser : public BasePort
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    MemberType_t* m_publisherPortDataPtr;
-
     ChunkSender<PublisherPortData::ChunkSenderData_t> m_chunkSender;
 };
 
