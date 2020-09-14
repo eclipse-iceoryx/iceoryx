@@ -54,7 +54,7 @@ class SoFiStress : public Test
     /// @return bool: if true, setting the affinity was successfull
     bool setCpuAffinity(unsigned int cpu, std::thread::native_handle_type nativeHandle)
     {
-#ifndef __QNX__
+#ifdef __linux__
         // Create a cpu_set_t object representing a set of CPUs. Clear it and markonly cpu as set.
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -83,6 +83,9 @@ class SoFiStress : public Test
 /// Consecutive values (starting with 0) are pushed into the SoFi, so the popped out values should also be consecutive.
 ///
 /// push and pop thread should run with the same priority to have an equal chance to interrupt each other.
+///
+/// @note This test doesn't check for the correct memory ordering of the FIFO, but assumes that the used memory ordering
+/// is correct and tests the algorithm in general, e.g. if a load/store is used instead of a compare_exchange
 TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
 {
     iox::concurrent::SoFi<SoFiData, 10> sofi;
@@ -96,9 +99,9 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
     std::atomic<bool> stopPopThread{false};
 
     auto popThread = std::thread([&] {
-        allowPush.store(true, std::memory_order_relaxed);
+        allowPush = true;
         SoFiData valOut{INVALID_SOFI_DATA};
-        while (!stopPopThread.load(std::memory_order_relaxed))
+        while (!stopPopThread)
         {
             valOut = INVALID_SOFI_DATA;
             if (sofi.pop(valOut))
@@ -109,23 +112,23 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
                 {
                     // there should be only consecutive values
                     EXPECT_THAT(popCounter, Eq(valOut));
-                    stopPushThread.store(true, std::memory_order_relaxed);
-                    stopPopThread.store(true, std::memory_order_relaxed);
+                    stopPushThread = true;
+                    stopPopThread = true;
                 }
                 popCounter++;
-                while (isPushing.load(std::memory_order_relaxed))
+                while (isPushing)
                 {
                     // busy waiting is useless, let the other thread continue it's work
                     std::this_thread::yield();
                 }
 
-                allowPush.store(true, std::memory_order_acq_rel);
+                allowPush = true;
             }
             else if (valOut >= 0)
             {
                 EXPECT_THAT(valOut, Lt(0)) << "SoFi told us to be empty, but returned a value!";
-                stopPushThread.store(true, std::memory_order_relaxed);
-                stopPopThread.store(true, std::memory_order_relaxed);
+                stopPushThread = true;
+                stopPopThread = true;
             }
             tryPopCounter++;
         }
@@ -133,35 +136,35 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
 
     auto pushThread = std::thread([&] {
         SoFiData valOut{INVALID_SOFI_DATA};
-        while (!stopPushThread.load(std::memory_order_relaxed))
+        while (!stopPushThread)
         {
             // we try to trigger a push into an empty SoFi, so wait until the pop thread tells us the SoFi is empty
-            if (!allowPush.load(std::memory_order_relaxed))
+            if (!allowPush)
             {
                 std::this_thread::yield(); // allow other threads to run -> slows this thread down
                 continue;
             }
 
             // allowPush is also set in the pop thread, so we need to block the access in the pop thread
-            isPushing.store(true, std::memory_order_acq_rel);
+            isPushing = true;
             valOut = INVALID_SOFI_DATA;
             auto pushResult = sofi.push(pushCounter, valOut);
             pushCounter++;
-            allowPush.store(false, std::memory_order_acq_rel);
-            isPushing.store(false, std::memory_order_relaxed);
+            allowPush = false;
+            isPushing = false;
 
             // if we do not get an expected value, perform the test for logging and stop the threads
             if (pushResult == false || valOut >= 0)
             {
                 EXPECT_THAT(pushResult, Eq(true)) << "Pushing is slower than popping! No overflow should occur!";
                 EXPECT_THAT(valOut, Lt(0)) << "Pushing is slower than popping! No value should be returned!";
-                stopPushThread.store(true, std::memory_order_relaxed);
-                stopPopThread.store(true, std::memory_order_relaxed);
+                stopPushThread = true;
+                stopPopThread = true;
             }
 
             std::this_thread::yield(); // allow other threads to run -> slows this thread down
         }
-        stopPopThread.store(true, std::memory_order_relaxed);
+        stopPopThread = true;
     });
 
     if (std::thread::hardware_concurrency() > 1)
@@ -173,7 +176,7 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
     // let the games begin ... stress empty SoFi pop while pushing
     std::this_thread::sleep_for(STRESS_TIME);
 
-    stopPushThread.store(true, std::memory_order_relaxed); // stop the push thread -> this will also stop the pop thread
+    stopPushThread = true; // stop the push thread -> this will also stop the pop thread
 
     pushThread.join();
     popThread.join();
@@ -212,6 +215,9 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
 /// be consecutive.
 ///
 /// push and pop thread should run with the same priority to have an equal chance to interrupt each other.
+///
+/// @note This test doesn't check for the correct memory ordering of the FIFO, but assumes that the used memory ordering
+/// is correct and tests the algorithm in general, e.g. if a load/store is used instead of a compare_exchange
 TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
 {
     iox::concurrent::SoFi<SoFiData, 10> sofi;
@@ -227,7 +233,7 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
 
     auto pushThread = std::thread([&] {
         SoFiData valOut{INVALID_SOFI_DATA};
-        while (!stopPushThread.load(std::memory_order_relaxed))
+        while (!stopPushThread)
         {
             valOut = INVALID_SOFI_DATA;
             auto pushResult = sofi.push(pushCounter, valOut);
@@ -237,15 +243,15 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
             if (pushResult == true && valOut >= 0)
             {
                 EXPECT_THAT(valOut, Lt(0)) << "There was no overfow, but we still got data!";
-                stopPushThread.store(true, std::memory_order_relaxed);
-                stopPopThread.store(true, std::memory_order_relaxed);
+                stopPushThread = true;
+                stopPopThread = true;
             }
 
             if (pushResult == false && valOut < 0)
             {
                 EXPECT_THAT(valOut, Gt(INVALID_SOFI_DATA)) << "There was an overfow, but we did not get data!";
-                stopPushThread.store(true, std::memory_order_relaxed);
-                stopPopThread.store(true, std::memory_order_relaxed);
+                stopPushThread = true;
+                stopPopThread = true;
             }
 
             // for the sake of completeness
@@ -257,7 +263,7 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
                 // we had our first overflow -> allow popping
                 if (dataCounter == 0)
                 {
-                    allowPop.store(true, std::memory_order_relaxed);
+                    allowPop = true;
                 }
 
                 // there was no pop in between
@@ -267,7 +273,7 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
                 }
                 else // there must have been a pop in between
                 {
-                    while (isPopping.load(std::memory_order_relaxed))
+                    while (isPopping)
                     {
                         // busy waiting is useless, let the other thread continue it's work
                         std::this_thread::yield();
@@ -275,38 +281,38 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
 
                     // the popped value must match our data counter, because our data counter already didn't match with
                     // the overflow value
-                    if (lastPopValue.load(std::memory_order_relaxed) != dataCounter)
+                    if (lastPopValue != dataCounter)
                     {
                         EXPECT_THAT(lastPopValue, Eq(dataCounter)) << "There was a data loss!";
-                        stopPushThread.store(true, std::memory_order_relaxed);
-                        stopPopThread.store(true, std::memory_order_relaxed);
+                        stopPushThread = true;
+                        stopPopThread = true;
                     }
-                    lastPopValue.store(INVALID_SOFI_DATA, std::memory_order_relaxed);
+                    lastPopValue = INVALID_SOFI_DATA;
                     dataCounter++;
-                    allowPop.store(true, std::memory_order_acq_rel);
+                    allowPop = true;
 
                     // there is at most only one pop, so our overflow value must now match the incremented data counter
                     if (valOut != dataCounter)
                     {
                         EXPECT_THAT(valOut, Eq(dataCounter)) << "There was a data loss!";
-                        stopPushThread.store(true, std::memory_order_relaxed);
-                        stopPopThread.store(true, std::memory_order_relaxed);
+                        stopPushThread = true;
+                        stopPopThread = true;
                     }
 
                     dataCounter++;
                 }
             }
         }
-        stopPopThread.store(true, std::memory_order_relaxed);
+        stopPopThread = true;
     });
 
     auto popThread = std::thread([&] {
         SoFiData valOut{INVALID_SOFI_DATA};
-        while (!stopPopThread.load(std::memory_order_relaxed))
+        while (!stopPopThread)
         {
             // we try to trigger a pop from an overflowing SoFi, so wait until the push thread tells us the SoFi is
             // overflowing
-            if (!allowPop.load(std::memory_order_relaxed))
+            if (!allowPop)
             {
                 std::this_thread::yield(); // allow other threads to run -> slows this thread down
                 continue;
@@ -317,11 +323,11 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
             if (emptyResult == true)
             {
                 EXPECT_THAT(emptyResult, Eq(false)) << "SoFi is continuously overflowing and shouldn't be empty!";
-                stopPushThread.store(true, std::memory_order_relaxed);
-                stopPopThread.store(true, std::memory_order_relaxed);
+                stopPushThread = true;
+                stopPopThread = true;
             }
 
-            isPopping.store(true, std::memory_order_acq_rel);
+            isPopping = true;
             valOut = INVALID_SOFI_DATA;
             auto popResult = sofi.pop(valOut);
             // SoFi is continuously overflowing, so the pop should always succeed
@@ -331,22 +337,21 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
                 {
                     EXPECT_THAT(valOut, Gt(INVALID_SOFI_DATA))
                         << "This should not happen! SoFi promised to give us data, but we didn't get data!";
-                    stopPushThread.store(true, std::memory_order_relaxed);
-                    stopPopThread.store(true, std::memory_order_relaxed);
+                    stopPushThread = true;
+                    stopPopThread = true;
                 }
                 popCounter++;
-                lastPopValue.store(valOut, std::memory_order_relaxed); // save the value for the push thread, to be able
-                                                                       // to perform the data check
-                allowPop.store(false, std::memory_order_acq_rel);
+                lastPopValue = valOut; // save the value for the push thread, to be able to perform the data check
+                allowPop = false;
             }
             else
             {
                 EXPECT_THAT(popResult, Eq(true)) << "SoFi is continuously overflowing and shouldn't be empty!";
                 EXPECT_THAT(valOut, Lt(0)) << "SoFi told us to be empty, but returned a value!";
-                stopPushThread.store(true, std::memory_order_relaxed);
-                stopPopThread.store(true, std::memory_order_relaxed);
+                stopPushThread = true;
+                stopPopThread = true;
             }
-            isPopping.store(false, std::memory_order_acq_rel);
+            isPopping = false;
 
             std::this_thread::yield(); // allow other threads to run -> slows this thread down
             std::this_thread::yield(); // allow other threads to run -> slows this thread down
@@ -362,7 +367,7 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
     // let the games begin ... stress SoFi push overflow while popping
     std::this_thread::sleep_for(STRESS_TIME);
 
-    stopPushThread.store(true, std::memory_order_relaxed); // stop the push thread -> this will also stop the pop thread
+    stopPushThread = true; // stop the push thread -> this will also stop the pop thread
 
     pushThread.join();
     popThread.join();
@@ -405,6 +410,9 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
 /// Consecutive values (starting with 0) are pushed into the SoFi, so the popped out values should also be consecutive.
 ///
 /// push and pop thread should run with the same priority to have an equal chance to interrupt each other.
+///
+/// @note This test doesn't check for the correct memory ordering of the FIFO, but assumes that the used memory ordering
+/// is correct and tests the algorithm in general, e.g. if a load/store is used instead of a compare_exchange
 TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
 {
     // SoFi is quite big in this test -> put it on the heap
@@ -419,11 +427,11 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
     std::atomic<bool> stopPopThread{false};
 
     auto pushThread = std::thread([&] {
-        auto localPushCounter = pushCounter.load(std::memory_order_relaxed);
-        while (!stopPushThread.load(std::memory_order_relaxed))
+        auto localPushCounter = pushCounter.load();
+        while (!stopPushThread)
         {
             // if the SoFi is almost full, slow down
-            auto fillLevel = localPushCounter - popCounter.load(std::memory_order_relaxed);
+            auto fillLevel = localPushCounter - popCounter.load();
             if (fillLevel > static_cast<int64_t>(sofi->capacity()) - 10)
             {
                 slowDownPush = true;
@@ -441,18 +449,18 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
             else if (valOut >= 0)
             {
                 EXPECT_THAT(valOut, Lt(0)) << "There was no overfow, but we still got data!";
-                stopPushThread.store(true, std::memory_order_relaxed);
-                stopPopThread.store(true, std::memory_order_relaxed);
+                stopPushThread = true;
+                stopPopThread = true;
             }
 
             ++localPushCounter;
-            pushCounter.store(localPushCounter, std::memory_order_relaxed);
+            pushCounter = localPushCounter;
 
             // we are pushing to fast, slow down until the SoFi is half empty
             if (slowDownPush)
             {
                 std::this_thread::yield(); // allow other threads to run -> slows this thread down
-                auto fillLevel = localPushCounter - popCounter.load(std::memory_order_relaxed);
+                auto fillLevel = localPushCounter - popCounter.load();
                 if (fillLevel < static_cast<int64_t>(sofi->capacity()) / 2)
                 {
                     slowDownPush = false;
@@ -460,15 +468,15 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
             }
         }
 
-        stopPopThread.store(true, std::memory_order_relaxed);
+        stopPopThread = true;
     });
 
     auto popThread = std::thread([&] {
-        auto localPopCounter = popCounter.load(std::memory_order_relaxed);
-        while (!stopPopThread.load(std::memory_order_relaxed))
+        auto localPopCounter = popCounter.load();
+        while (!stopPopThread)
         {
             // if the SoFi is almost empty, slow down
-            auto fillLevel = pushCounter.load(std::memory_order_relaxed) - localPopCounter;
+            auto fillLevel = pushCounter.load() - localPopCounter;
             if (fillLevel < 10)
             {
                 slowDownPop = true;
@@ -490,13 +498,13 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
                 EXPECT_THAT(valOut, Eq(localPopCounter)) << "There was a data loss!";
             }
             ++localPopCounter;
-            popCounter.store(localPopCounter, std::memory_order_relaxed);
+            popCounter = localPopCounter;
 
             // we are popping to fast, slow down until the SoFi is half full
             if (slowDownPop)
             {
                 std::this_thread::yield(); // allow other threads to run -> slows this thread down
-                auto fillLevel = pushCounter.load(std::memory_order_relaxed) - localPopCounter;
+                auto fillLevel = pushCounter.load() - localPopCounter;
                 if (fillLevel > static_cast<int64_t>(sofi->capacity()) / 2)
                 {
                     slowDownPop = false;
@@ -514,7 +522,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
     // let the games begin ... stress SoFi push and pop
     std::this_thread::sleep_for(STRESS_TIME);
 
-    stopPushThread.store(true, std::memory_order_relaxed); // stop the push thread -> this will also stop the pop thread
+    stopPushThread = true; // stop the push thread -> this will also stop the pop thread
 
     pushThread.join();
     popThread.join();
