@@ -16,7 +16,9 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 
 #include "test.hpp"
 
@@ -40,7 +42,7 @@ static constexpr uint32_t NUM_CHUNKS_IN_POOL = 3 * iox::MAX_RECEIVER_QUEUE_CAPAC
 static constexpr uint32_t SMALL_CHUNK = 128;
 static constexpr uint32_t CHUNK_META_INFO_SIZE = 256;
 static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
-alignas(64) uint8_t g_memory[MEMORY_SIZE];
+alignas(64) static uint8_t g_memory[MEMORY_SIZE];
 static constexpr uint32_t ITERATIONS = 10000;
 static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
 
@@ -86,7 +88,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     {
         for (size_t i = 0; i < ITERATIONS; i++)
         {
-            m_chunkSender.allocate(sizeof(DummySample))
+            m_chunkSender.allocate(sizeof(DummySample), iox::UniquePortId())
                 .and_then([&](iox::mepoo::ChunkHeader* chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();
@@ -186,6 +188,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         }
     }
 
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
     uint64_t m_sendCounter{0};
     uint64_t m_receiveCounter{0};
     std::atomic<bool> m_publisherRun{true};

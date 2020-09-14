@@ -52,9 +52,12 @@ architectural changes, we'd kindly ask you to get in touch with one of the maint
 report a bug or propose a new feature, please raise an issue before raising a pull request. This makes it easier to
 track. Please make sure you have:
 
-1. Signed the [ECA](http://www.eclipse.org/legal/ECA.php)
-2. All commits have been commited with `git commit -s`
-3. You open your pull request towards the base branch `staging`
+1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
+2. All branches have the following naming format: `iox-#123-this-is-a-branch`
+3. All commits have the following naming format: `iox-#123 commit text`
+4. All commits have been signed with `git commit -s`
+5. You open your pull request towards the base branch `staging`
+6. Link the pull request to the according Github issue and set the label accordingly
 
 ## Coding style
 
@@ -100,6 +103,8 @@ The following doxygen comments are required for public API headers:
     /// @param[in] / [out] / [in,out] name description
     /// @return description
 
+A good example for code formatting and doxygen structure is at [swe_docu_guidelines.md (WIP)](./doc/aspice_swe3_4/swe_docu_guidelines.md)
+
 ## Folder structure
 
 The folder structure boils down to:
@@ -128,6 +133,32 @@ Unit tests are black box tests that test the public interface of a class. They a
 ### Integration tests
 
 Integration tests are composition of more than one class and test their interaction. They are optional for new code.
+
+## Coverage Scan
+
+To ensure that the provided testcode covers the productive code you can do a coverage scan with gcov. The reporting is done with lcov and htmlgen.
+You will need to install the following packages:
+    ```
+    sudo apt install lcov
+    ```
+
+In iceoryx we have multiple testlevels for testcoverage: 'unit', 'integration', 'component' and ’all’ for all testlevels together. You can create reports for these different testlevels or for all tests. Coverage is done with gcc.
+The coverage scan applies to Quality level 3 and partly level 2 with branch coverage.
+
+For having a coverage report iceoryx needs to be compiled with coverage flags and the tests needs to be executed.
+You can do this with one command like this:
+    ```
+    ./tools/iceoryx_build_test.sh clean -c <testlevel> -j 4
+    ```
+
+The -c flag indicates that you want to have a coverage report and you can pass there the needed testlevel. Per default the testlevel is set to 'all'.
+example:
+    ```
+    ./tools/iceoryx_build_test.sh clean -c unit -j 4
+    ```
+For having only unittest reports. In the script tools/gcov/lcov_generate.sh is the initial scan, filtering and report generation automatically done.
+
+All reports are stored in build/lcov as html report.
 
 ## Legal & Compliance
 
@@ -174,8 +205,8 @@ Results will be available on this [Helix QAC dashboard](https://qaverify.program
 of the maintainers, if you're interested in getting access.
 
 It is possible that not the whole codebase follows these rules, things are work in progress. But this is where we want
-go. As of now we don't have any continous integration checks implemented but will rely on reviews during the pull
-requests. We're planning to introduce continous integration checks in the near future.
+go. As of now we don't have any continuos integration checks implemented but will rely on reviews during the pull
+requests. We're planning to introduce continuos integration checks in the near future.
 
 ### Header
 

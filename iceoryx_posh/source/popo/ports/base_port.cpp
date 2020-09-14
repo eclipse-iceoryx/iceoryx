@@ -18,8 +18,6 @@ namespace iox
 {
 namespace popo
 {
-std::atomic<uint64_t> BasePort::MemberType_t::s_uniqueIdCounter{1u};
-
 BasePort::BasePort(MemberType_t* const basePortDataPtr) noexcept
     : m_basePortDataPtr(basePortDataPtr)
 {
@@ -50,9 +48,9 @@ ProcessName_t BasePort::getProcessName() const noexcept
     return getMembers()->m_processName;
 }
 
-uint64_t BasePort::getUniqueID() const noexcept
+UniquePortId BasePort::getUniqueID() const noexcept
 {
-    return getMembers()->m_uniqueId.load(std::memory_order_relaxed);
+    return getMembers()->m_uniqueId;
 }
 
 BasePort::operator bool() const noexcept

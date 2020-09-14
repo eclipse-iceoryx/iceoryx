@@ -22,6 +22,7 @@
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/mutex.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 
 #include <cstdint>
 #include <mutex>
@@ -33,8 +34,8 @@ namespace popo
 template <typename ChunkDistributorDataProperties, typename LockingPolicy, typename ChunkQueuePusherType>
 struct ChunkDistributorData : public LockingPolicy
 {
-    using LockGuard_t = std::lock_guard<
-        const ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>>;
+    using ThisType_t = ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>;
+    using LockGuard_t = std::lock_guard<const ThisType_t>;
     using ChunkQueuePusher_t = ChunkQueuePusherType;
     using ChunkQueueData_t = typename ChunkQueuePusherType::MemberType_t;
     using ChunkDistributorDataProperties_t = ChunkDistributorDataProperties;
@@ -43,7 +44,7 @@ struct ChunkDistributorData : public LockingPolicy
 
     const uint64_t m_historyCapacity;
 
-    using QueueContainer_t = cxx::vector<ChunkQueueData_t*, ChunkDistributorDataProperties_t::MAX_QUEUES>;
+    using QueueContainer_t = cxx::vector<relative_ptr<ChunkQueueData_t>, ChunkDistributorDataProperties_t::MAX_QUEUES>;
     QueueContainer_t m_queues;
 
     /// @todo using ChunkManagement instead of SharedChunk as in UsedChunkList?

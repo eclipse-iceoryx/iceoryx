@@ -1,0 +1,20 @@
+# codecov yaml
+comment: yes # do not comment PR with the result
+
+coverage:
+  range: 50..90 
+
+  status:
+    project: # settings affecting project coverage
+      default:
+        enabled: yes
+        target: auto # auto % coverage target
+        threshold: 100%  # we allow here 100% change to unblock PRs (will be set later)
+
+    # do not run coverage on patch nor changes
+    patch:
+      default:
+        enabled: yes
+        target: auto # auto % coverage target
+        threshold: 100%  # we allow here 100% change to unblock PRs (will be set later)
+    changes: no

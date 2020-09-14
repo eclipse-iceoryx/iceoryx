@@ -41,6 +41,7 @@ class should be used.
 |`algorithm`          |   |   | Implements `min` and `max` for an arbitrary number of values of the same type. For instance `min(1,2,3,4,5);` |
 |`convert`            |   |   | Converting a number into a string is easy, converting it back can be hard. You can use functions like `strtoll` but you still have to handle errors like under- and overflow, or converting invalid strings into number. Here we abstract all the error handling so that you can convert strings into numbers safely. |
 |`expected`           |   |   | Our base class used in error handling. Every function which can fail should return an expected. With this the user knows that this function can fail and that they have to do some kind of error handling. We got inspired by the [C++ expected proposal]( http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0323r7.html) and by the [rust error handling concept](https://doc.rust-lang.org/std/result/enum.Result.html). |
+|`forward_list`       |   |   | Heap and exception free, relocatable implementation of `std::forward_list` |
 |`function_ref`       |   |   | C++11 implementation of the next-gen C++ feature `std::function_ref` see [function_ref proposal](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0792r2.html). It behaves like `std::function` but does not own the callable. |
 |`GenericRAII`        |   |   | This is an abstraction of the C++ RAII idiom. Sometimes you have constructs where you would like to perform a certain task on creation and then again when they are getting out of scope, this is where `GenericRAII` comes in. It is like a `std::lock_guard` or a `std::shared_ptr` but more generic. |
 |`helplets`           |   |   | Implementations of [C++ Core Guideline](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) concepts like `not_null` `Ensures` `Expects` are contained here. Additionally, we are providing some types to verify preconditions at compile time. Think of an int which has to be always greater 5, here we provide types like `greater_or_equal<int, 6>`.|
@@ -53,7 +54,7 @@ class should be used.
 |`serialization`      |   | X | Implements a simple serialization concept for classes based on the idea presented here [ISOCPP serialization](https://isocpp.org/wiki/faq/serialization#serialize-text-format). |
 |`set`                | i | X | Templated helper functions to create a fake `std::set` from a vector. |
 |`smart_c`            |   |   | Wrapper around C and POSIX function calls which performs a full error handling. Additionally, this wrapper makes sure that `EINTR` handling is performed correctly by repeating the system call. |
-|`string`             |   |   | Heap and exception free implementation of `std::string`. |
+|`string`             |   |   | Heap and exception free implementation of `std::string`. Attention, since the string is stack based, std::string or char array which are assigned to this string will be truncated and zero-terminated if they exceed the string capacity. |
 |`types`              |   |   | Declares essential building block types like `byte_t`. |
 |`UniqueTypedID<T>`   |   |   | Provides a unique ids depending on the type. It does not provide a unique id for a type T! |
 |`variant`            |   |   | C++11 implementation of the C++17 feature `std::variant` |

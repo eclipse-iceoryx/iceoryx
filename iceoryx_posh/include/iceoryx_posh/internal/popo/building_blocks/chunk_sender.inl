@@ -40,7 +40,7 @@ ChunkSender<ChunkDistributorType>::getMembers() noexcept
 
 template <typename ChunkDistributorType>
 inline cxx::expected<mepoo::ChunkHeader*, AllocationError>
-ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
+ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize, const UniquePortId originId) noexcept
 {
     // use the chunk stored in m_lastChunk if there is one, there is no other owner and the new payload still fits in it
     const uint32_t neededChunkSize = getMembers()->m_memoryMgr->sizeWithChunkHeaderStruct(payloadSize);
@@ -71,6 +71,7 @@ ChunkSender<ChunkDistributorType>::allocate(const uint32_t payloadSize) noexcept
             if (getMembers()->m_chunksInUse.insert(chunk))
             {
                 // END of critical section, chunk will be lost if process gets hard terminated in between
+                chunk.getChunkHeader()->m_originId = originId;
                 return cxx::success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
             }
             else

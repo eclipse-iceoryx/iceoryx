@@ -124,7 +124,7 @@ class ChunkDistributor
     MemberType_t* getMembers() noexcept;
 
   private:
-    MemberType_t* m_chunkDistrubutorDataPtr;
+    MemberType_t* m_chunkDistrubutorDataPtr{nullptr};
 };
 
 } // namespace popo

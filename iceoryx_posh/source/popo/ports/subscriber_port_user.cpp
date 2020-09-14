@@ -55,7 +55,12 @@ void SubscriberPortUser::subscribe(const uint64_t queueCapacity) noexcept
                       << ", limiting to " << m_chunkReceiver.getMaximumCapacity();
             capacity = m_chunkReceiver.getMaximumCapacity();
         }
-        m_chunkReceiver.setCapacity(capacity);
+
+        // only change the capacity if it has to be changed
+        if (m_chunkReceiver.getCurrentCapacity() != capacity)
+        {
+            m_chunkReceiver.setCapacity(capacity);
+        }
 
         getMembers()->m_subscribeRequested.store(true, std::memory_order_relaxed);
     }
@@ -99,17 +104,19 @@ bool SubscriberPortUser::hasLostChunks() noexcept
     return m_chunkReceiver.hasOverflown();
 }
 
-void SubscriberPortUser::attachConditionVariable() noexcept
+bool SubscriberPortUser::attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
+    return m_chunkReceiver.attachConditionVariable(conditionVariableDataPtr);
 }
 
-void SubscriberPortUser::detachConditionVaribale() noexcept
+bool SubscriberPortUser::detachConditionVariable() noexcept
 {
+    return m_chunkReceiver.detachConditionVariable();
 }
 
 bool SubscriberPortUser::isConditionVariableAttached() noexcept
 {
-    return false;
+    return m_chunkReceiver.isConditionVariableAttached();
 }
 
 } // namespace popo

@@ -15,6 +15,7 @@
 #define IOX_POSH_ROUDI_PORT_POOL_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
@@ -35,6 +36,7 @@ enum class PortPoolError : uint8_t
     INTERFACE_PORT_LIST_FULL,
     APPLICATION_PORT_LIST_FULL,
     RUNNABLE_DATA_LIST_FULL,
+    CONDITION_VARIABLE_LIST_FULL,
 };
 
 class PortPool
@@ -71,15 +73,19 @@ class PortPool
     addApplicationPort(const std::string& applicationName) noexcept;
 
     cxx::expected<runtime::RunnableData*, PortPoolError>
-    addRunnableData(const iox::cxx::CString100& process,
-                    const iox::cxx::CString100& runnable,
+    addRunnableData(const ProcessName_t& process,
+                    const RunnableName_t& runnable,
                     const uint64_t runnableDeviceIdentifier) noexcept;
+
+    cxx::expected<popo::ConditionVariableData*, PortPoolError>
+    addConditionVariableData();
 
     virtual void removeSenderPort(SenderPortType::MemberType_t* const portData) noexcept = 0;
     virtual void removeReceiverPort(ReceiverPortType::MemberType_t* const portData) noexcept = 0;
     void removeInterfacePort(popo::InterfacePortData* const portData) noexcept;
     void removeApplicationPort(popo::ApplicationPortData* const portData) noexcept;
     void removeRunnableData(runtime::RunnableData* const runnableData) noexcept;
+    void removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept;
 
     std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
 

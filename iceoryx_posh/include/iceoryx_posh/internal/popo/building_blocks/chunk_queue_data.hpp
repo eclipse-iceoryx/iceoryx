@@ -29,7 +29,8 @@ namespace popo
 template <typename ChunkQueueDataProperties, typename LockingPolicy>
 struct ChunkQueueData : public LockingPolicy
 {
-    using LockGuard_t = std::lock_guard<const ChunkQueueData<ChunkQueueDataProperties, LockingPolicy>>;
+    using ThisType_t = ChunkQueueData<ChunkQueueDataProperties, LockingPolicy>;
+    using LockGuard_t = std::lock_guard<const ThisType_t>;
     using ChunkQueueDataProperties_t = ChunkQueueDataProperties;
 
     explicit ChunkQueueData(cxx::VariantQueueTypes queueType) noexcept;

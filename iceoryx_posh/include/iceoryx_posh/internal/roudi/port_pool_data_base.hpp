@@ -15,6 +15,7 @@
 #define IOX_POSH_ROUDI_PORT_POOL_DATA_BASE_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_data.hpp"
@@ -50,6 +51,7 @@ struct PortPoolDataBase
     FixedPositionContainer<popo::InterfacePortData, MAX_INTERFACE_NUMBER> m_interfacePortMembers;
     FixedPositionContainer<popo::ApplicationPortData, MAX_PROCESS_NUMBER> m_applicationPortMembers;
     FixedPositionContainer<runtime::RunnableData, MAX_RUNNABLE_NUMBER> m_runnableMembers;
+    FixedPositionContainer<popo::ConditionVariableData, MAX_NUMBER_OF_CONDITION_VARIABLES> m_conditionVariableMembers;
 
     // required to be atomic since a service can be offered or stopOffered while reading
     // this variable in a user application

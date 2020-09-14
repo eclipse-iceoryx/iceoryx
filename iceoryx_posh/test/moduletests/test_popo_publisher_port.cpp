@@ -22,6 +22,7 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "test.hpp"
@@ -62,6 +63,9 @@ class PublisherPort_test : public Test
     static constexpr uint32_t CHUNK_SIZE = 128;
 
     using ChunkQueueData_t = iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig, iox::popo::ThreadSafePolicy>;
+
+    iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
+                                          [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 
     iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     iox::mepoo::MePooConfig m_mempoolconf;
@@ -186,6 +190,15 @@ TEST_F(PublisherPort_test, freeingAnAllocatedChunkReleasesTheMemory)
 
     // this one is not stored in the last chunk, so all chunks must be free again
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(0u));
+}
+
+TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
+{
+    auto maybeChunkHeader = m_sutUserSide.allocateChunk(10u);
+    auto chunkHeader = maybeChunkHeader.get_value();
+
+    EXPECT_THAT(chunkHeader->m_originId, Eq(m_sutUserSide.getUniqueID()));
+    m_sutUserSide.freeChunk(chunkHeader);
 }
 
 TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)

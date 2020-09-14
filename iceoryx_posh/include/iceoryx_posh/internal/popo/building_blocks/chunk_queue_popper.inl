@@ -123,7 +123,7 @@ ChunkQueuePopper<ChunkQueueDataType>::attachConditionVariable(ConditionVariableD
 
     if (isConditionVariableAttached())
     {
-        LogWarn() << "Condition variable signaler already set. Attaching a second time will be ignored!";
+        LogWarn() << "Condition variable already set. Attaching a second time will be ignored!";
         return false;
     }
     else
@@ -145,7 +145,7 @@ inline bool ChunkQueuePopper<ChunkQueueDataType>::detachConditionVariable() noex
     }
     else
     {
-        LogWarn() << "Condition variable signaler not set yet.";
+        LogWarn() << "Condition variable not set yet.";
         return false;
     }
 }

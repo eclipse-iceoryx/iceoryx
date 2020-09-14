@@ -15,7 +15,7 @@
 #define IOX_POSH_ROUDI_ENVIRONMENT_ROUDI_ENVIRONMENT_HPP
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
-#include "iceoryx_posh/internal/roudi/roudi_multi_process.hpp"
+#include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/internal/roudi_environment/runtime_test_interface.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
@@ -29,13 +29,14 @@ namespace iox
 {
 namespace roudi
 {
-class RouDiMultiProcess;
+class RouDi;
 
 class RouDiEnvironment
 {
   public:
     RouDiEnvironment(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
-                     MonitoringMode monitoringMode = MonitoringMode::OFF);
+                     MonitoringMode monitoringMode = MonitoringMode::OFF,
+                     const uint16_t uniqueRouDiId = 0u);
     virtual ~RouDiEnvironment();
 
     RouDiEnvironment(RouDiEnvironment&& rhs) = default;
@@ -56,7 +57,7 @@ class RouDiEnvironment
         BASE,
     };
     /// @brief for implementations on top of RouDiEnvironment
-    RouDiEnvironment(BaseCTor);
+    RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId = 0u);
 
     void CleanupRuntimes();
 
@@ -68,7 +69,7 @@ class RouDiEnvironment
     std::chrono::milliseconds m_interOpWaitingTime = std::chrono::milliseconds(200);
 #endif
     std::unique_ptr<IceOryxRouDiComponents> m_roudiComponents;
-    std::unique_ptr<RouDiMultiProcess> m_roudiApp;
+    std::unique_ptr<RouDi> m_roudiApp;
 };
 
 } // namespace roudi

@@ -21,7 +21,7 @@ namespace iox
 {
 namespace runtime
 {
-RunnableProperty::RunnableProperty(const iox::cxx::CString100& name, const uint64_t runnableDeviceIdentifier) noexcept
+RunnableProperty::RunnableProperty(const iox::RunnableName_t& name, const uint64_t runnableDeviceIdentifier) noexcept
     : m_name(name)
     , m_runnableDeviceIdentifier(runnableDeviceIdentifier)
 {

@@ -41,8 +41,9 @@ struct PublisherPortData : public BasePortData
     using ChunkQueueData_t = SubscriberPortData::ChunkQueueData_t;
     using ChunkDistributorData_t =
         ChunkDistributorData<DefaultChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
+    using ChunkSenderData_t = ChunkSenderData<MAX_CHUNKS_ALLOCATE_PER_SENDER, ChunkDistributorData_t>;
 
-    ChunkSenderData<MAX_CHUNKS_ALLOCATE_PER_SENDER, ChunkDistributorData_t> m_chunkSenderData;
+    ChunkSenderData_t m_chunkSenderData;
     std::atomic_bool m_offeringRequested{false};
     std::atomic_bool m_offered{false};
 };
