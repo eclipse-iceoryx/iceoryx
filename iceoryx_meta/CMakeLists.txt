@@ -23,6 +23,7 @@ option(coverage "Build iceoryx with gcov" OFF)
 option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
 option(dds_gateway "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
+option(binding_c "builds the C language bindings" OFF)
 
 # ===== Dependencies
 if(TOML_CONFIG)
@@ -55,18 +56,57 @@ if(introspection)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tools/introspection ${CMAKE_BINARY_DIR}/iceoryx_introspection)
 endif(introspection)
 
-if(examples)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
-endif(examples)
-
 # ===== Gateways
 if(dds_gateway)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cyclonedds ${CMAKE_BINARY_DIR}/dependencies/cyclonedds/prebuild)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dds ${CMAKE_BINARY_DIR}/iceoryx_dds)
 endif(dds_gateway)
+
+# ===== Language binding for C
+if(binding_c) 
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_binding_c ${CMAKE_BINARY_DIR}/iceoryx_binding_c)
+endif(binding_c)
+
+# ===== Examples
+if(examples)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
+if(binding_c)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery_on_c)
+endif(binding_c)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
+endif(examples)
+
+if (test)
+    add_custom_target( tests
+        COMMAND ./posh/test/posh_moduletests --gtest_filter=-*.TimingTest_*
+        COMMAND ./posh/test/posh_integrationtests --gtest_filter=-*.TimingTest_*
+        COMMAND ./posh/test/posh_componenttests --gtest_filter=-*.TimingTest_*
+        COMMAND ./utils/test/utils_moduletests --gtest_filter=-*.TimingTest_*
+        COMMAND ./utils/test/utils_integrationtests --gtest_filter=-*.TimingTest_*
+        COMMAND ./utils/test/utils_componenttests --gtest_filter=-*.TimingTest_*
+    if (binding_c)
+        COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=-*.TimingTest_*
+    endif(binding_c)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        VERBATIM
+    )
+
+    add_custom_target( timing_tests
+        COMMAND ./posh/test/posh_moduletests --gtest_filter=*.TimingTest_*
+        COMMAND ./posh/test/posh_integrationtests --gtest_filter=*.TimingTest_*
+        COMMAND ./posh/test/posh_componenttests --gtest_filter=*.TimingTest_*
+        COMMAND ./utils/test/utils_moduletests --gtest_filter=*.TimingTest_*
+        COMMAND ./utils/test/utils_integrationtests --gtest_filter=*.TimingTest_*
+        COMMAND ./utils/test/utils_componenttests --gtest_filter=*.TimingTest_*
+    if (binding_c)
+        COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=*.TimingTest_*
+    endif(binding_c)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        VERBATIM
+    )
+endif(test)
 
 
 message("")
