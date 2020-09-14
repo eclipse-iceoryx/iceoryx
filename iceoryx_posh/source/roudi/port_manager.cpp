@@ -486,7 +486,7 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
             if (subscriberResponse.has_value())
             {
                 // we only expect reaction on OFFER
-                assert(capro::CaproMessageType::OFFER == message.m_type);
+                cxx::Expects(capro::CaproMessageType::OFFER == message.m_type);
 
                 // inform introspection
                 m_portIntrospection.reportMessage(subscriberResponse.value());
