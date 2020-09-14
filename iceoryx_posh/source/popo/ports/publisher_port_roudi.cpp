@@ -34,7 +34,7 @@ PublisherPortRouDi::MemberType_t* PublisherPortRouDi::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcept
+cxx::optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noexcept
 {
     // get offer state request from user side
     const auto offeringRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
@@ -74,7 +74,7 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::getCaProMessage() noexcep
 }
 
 cxx::optional<capro::CaproMessage>
-PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept
+PublisherPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept
 {
     capro::CaproMessage responseMessage(
         capro::CaproMessageType::NACK, this->getCaProServiceDescription(), capro::CaproMessageSubType::NOSUBTYPE);
@@ -83,9 +83,9 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
     {
         if (capro::CaproMessageType::SUB == caProMessage.m_type)
         {
-            const auto ret =
-                m_chunkSender.addQueue(static_cast<PublisherPortData::ChunkQueueData_t*>(caProMessage.m_chunkQueueData),
-                                       caProMessage.m_historyCapacity);
+            const auto ret = m_chunkSender.tryAddQueue(
+                static_cast<PublisherPortData::ChunkQueueData_t*>(caProMessage.m_chunkQueueData),
+                caProMessage.m_historyCapacity);
             if (!ret.has_error())
             {
                 responseMessage.m_type = capro::CaproMessageType::ACK;
@@ -93,7 +93,7 @@ PublisherPortRouDi::dispatchCaProMessage(const capro::CaproMessage& caProMessage
         }
         else if (capro::CaproMessageType::UNSUB == caProMessage.m_type)
         {
-            const auto ret = m_chunkSender.removeQueue(
+            const auto ret = m_chunkSender.tryRemoveQueue(
                 static_cast<PublisherPortData::ChunkQueueData_t*>(caProMessage.m_chunkQueueData));
             if (!ret.has_error())
             {

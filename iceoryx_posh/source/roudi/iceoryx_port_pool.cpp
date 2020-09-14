@@ -25,12 +25,12 @@ IceOryxPortPool::IceOryxPortPool(PortPoolData& portPoolData) noexcept
 {
 }
 
-cxx::vector<SenderPortType::MemberType_t*, MAX_PORT_NUMBER> IceOryxPortPool::senderPortDataList() noexcept
+cxx::vector<SenderPortType::MemberType_t*, MAX_PUBLISHERS> IceOryxPortPool::senderPortDataList() noexcept
 {
     return m_portPoolData->m_senderPortMembers.content();
 }
 
-cxx::vector<ReceiverPortType::MemberType_t*, MAX_PORT_NUMBER> IceOryxPortPool::receiverPortDataList() noexcept
+cxx::vector<ReceiverPortType::MemberType_t*, MAX_SUBSCRIBERS> IceOryxPortPool::receiverPortDataList() noexcept
 {
     return m_portPoolData->m_receiverPortMembers.content();
 }

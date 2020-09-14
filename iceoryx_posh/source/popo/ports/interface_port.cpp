@@ -24,7 +24,7 @@ InterfacePort::InterfacePort(InterfacePortData* const interfacePortDataPtr) noex
 {
 }
 
-cxx::optional<capro::CaproMessage> InterfacePort::getCaProMessage() noexcept
+cxx::optional<capro::CaproMessage> InterfacePort::tryGetCaProMessage() noexcept
 {
     return getMembers()->m_caproMessageFiFo.pop();
 }

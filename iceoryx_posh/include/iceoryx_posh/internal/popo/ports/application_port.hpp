@@ -37,7 +37,7 @@ class ApplicationPort : public BasePort
 
     /// @brief get an optional CaPro message that was provided by the application
     /// @return CaPro message, empty optional if no new messages
-    cxx::optional<capro::CaproMessage> getCaProMessage() noexcept;
+    cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept;
 
     /// @brief dispatch a CaPro message from the application side to the daemon
     /// @param[in] caProMessage

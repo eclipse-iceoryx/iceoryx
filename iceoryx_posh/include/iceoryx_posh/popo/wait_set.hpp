@@ -73,16 +73,16 @@ enum class WaitSetError : uint8_t
 ///     // Wait till new data has arrived (any condition has become true)
 ///     auto vectorOfFulfilledConditions = myWaitSet.wait();
 ///
-///     for(auto& element : vectorOfFulfilledConditions)
-///     {
-///         if(element == &mySubscriber1)
-///         {
-///             // Subscriber1 has received new data
-///             ChunkHeader myData;
-///             mySubscriber1.getChunk(myData);
-///             doSomeThingWithTheNewData(myData);
-///         }
-///     }
+/// 	for(auto& element : vectorOfFulfilledConditions)
+/// 	{
+/// 		if(element == &mySubscriber1)
+/// 		{
+/// 			// Subscriber1 has received new data
+/// 			ChunkHeader myData;
+/// 			mySubscriber1.tryGetChunk(myData);
+/// 			doSomeThingWithTheNewData(myData);
+/// 		}
+/// 	}
 /// }
 /// someOtherThread.join();
 ///
@@ -94,7 +94,7 @@ enum class WaitSetError : uint8_t
 class WaitSet
 {
   public:
-    using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS>;
+    using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
     enum class WaitPolicy : uint16_t
     {

@@ -69,7 +69,7 @@ iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self)
 
 iox_ChunkReceiveResult iox_sub_get_chunk(iox_sub_t const self, const void** const payload)
 {
-    auto result = SubscriberPortUser(self->m_portData).getChunk();
+    auto result = SubscriberPortUser(self->m_portData).tryGetChunk();
     if (result.has_error())
     {
         return cpp2c::ChunkReceiveResult(result.get_error());
@@ -101,6 +101,5 @@ bool iox_sub_has_new_chunks(iox_sub_t const self)
 
 bool iox_sub_has_lost_chunks(iox_sub_t const self)
 {
-    return SubscriberPortUser(self->m_portData).hasLostChunks();
+    return SubscriberPortUser(self->m_portData).hasLostChunksSinceLastCall();
 }
-

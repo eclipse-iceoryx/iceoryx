@@ -45,7 +45,7 @@ class ChunkQueuePopper
 
     /// @brief pop a chunk from the chunk queue
     /// @return optional for a shared chunk that is set if the queue is not empty
-    cxx::optional<mepoo::SharedChunk> pop() noexcept;
+    cxx::optional<mepoo::SharedChunk> tryPop() noexcept;
 
     /// @brief check overflow and reset flag
     /// @return true if the underlying queue overflowed since last call of this method
@@ -53,7 +53,7 @@ class ChunkQueuePopper
 
     /// @brief pop a chunk from the chunk queue
     /// @return if the queue is empty return true, otherwise false
-    bool empty() noexcept;
+    bool empty() const noexcept;
 
     /// @brief get the current size of the queue. Caution, another thread can have changed the size just after reading
     /// it
@@ -61,7 +61,7 @@ class ChunkQueuePopper
     uint64_t size() noexcept;
 
     /// @brief set the capacity of the queue
-    /// @param[in] newCapacity valid values are 0 < newCapacity < MAX_RECEIVER_QUEUE_CAPACITY
+    /// @param[in] newCapacity valid values are 0 < newCapacity < MAX_SUBSCRIBER_QUEUE_CAPACITY
     /// @pre it is important that no pop or push calls occur during this call
     /// @concurrent not thread safe
     void setCapacity(const uint64_t newCapacity) noexcept;
@@ -80,15 +80,15 @@ class ChunkQueuePopper
     /// @brief Attaches a condition variable
     /// @param[in] ConditionVariableDataPtr, pointer to an condition variable data object
     /// @return True if successful, false if not
-    bool attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    bool setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
 
     /// @brief Detaches a condition variable
     /// @return true if condition variable was detached, false if not
-    bool detachConditionVariable() noexcept;
+    bool unsetConditionVariable() noexcept;
 
     /// @brief Returns the information whether a condition variable is attached
     /// @return true if condition variable is set, false if not
-    bool isConditionVariableAttached() const noexcept;
+    bool isConditionVariableSet() const noexcept;
 
   protected:
     const MemberType_t* getMembers() const noexcept;

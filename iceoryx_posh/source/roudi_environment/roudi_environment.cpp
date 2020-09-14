@@ -32,7 +32,7 @@ RouDiEnvironment::RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId)
 }
 
 RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig,
-                                   MonitoringMode monitoringMode,
+                                   config::MonitoringMode monitoringMode,
                                    const uint16_t uniqueRouDiId)
     : RouDiEnvironment(BaseCTor::BASE, uniqueRouDiId)
 {

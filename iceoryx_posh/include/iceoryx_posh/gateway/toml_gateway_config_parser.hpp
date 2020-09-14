@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_GATEWAY_FILE_CONFIG_PARSER_HPP
-#define IOX_DDS_GATEWAY_FILE_CONFIG_PARSER_HPP
+#ifndef IOX_POSH_GW_TOML_FILE_CONFIG_PARSER_HPP
+#define IOX_POSH_GW_TOML_FILE_CONFIG_PARSER_HPP
 
-#include "iceoryx_dds/gateway/gateway_config.hpp"
+#include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 
-#include "cpptoml.h"
+#include <cpptoml.h>
 
 
 namespace iox
 {
-namespace dds
+namespace config
 {
 enum TomlGatewayConfigParseError
 {
@@ -51,17 +51,17 @@ static constexpr const char GATEWAY_CONFIG_SERVICE_EVENT_NAME[] = "event";
 class TomlGatewayConfigParser
 {
   public:
-    static iox::cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse();
-    static iox::cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse(ConfigFilePathString_t path);
+    static cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse();
+    static cxx::expected<GatewayConfig, TomlGatewayConfigParseError> parse(const ConfigFilePathString_t& path);
 
   protected:
-    static iox::cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept;
+    static cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept;
 
   private:
-    static bool hasInvalidCharacter(std::string s) noexcept;
+    static bool hasInvalidCharacter(const std::string& s) noexcept;
 };
 
-} // namespace dds
+} // namespace gw
 } // namespace iox
 
-#endif // IOX_DDS_GATEWAY_FILE_CONFIG_PARSER_HPP
+#endif // IOX_POSH_GW_TOML_FILE_CONFIG_PARSER_HPP

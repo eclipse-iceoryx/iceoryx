@@ -98,7 +98,7 @@ RouDiApp::RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept
     init();
 }
 
-RouDiApp::RouDiApp(const CmdLineParser& cmdLineParser, const RouDiConfig_t& config) noexcept
+RouDiApp::RouDiApp(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& config) noexcept
     : RouDiApp(config)
 {
     setCmdLineParserResults(cmdLineParser);
@@ -163,7 +163,7 @@ bool RouDiApp::waitForSignal() const noexcept
     return m_semaphore.wait();
 }
 
-void RouDiApp::setCmdLineParserResults(const CmdLineParser& cmdLineParser) noexcept
+void RouDiApp::setCmdLineParserResults(const config::CmdLineParser& cmdLineParser) noexcept
 {
     m_monitoringMode = cmdLineParser.getMonitoringMode();
     m_logLevel = cmdLineParser.getLogLevel();
@@ -179,11 +179,11 @@ void RouDiApp::setCmdLineParserResults(const CmdLineParser& cmdLineParser) noexc
 
 void RouDiApp::parseCmdLineArguments(int argc,
                                      char* argv[],
-                                     CmdLineParser::CmdLineArgumentParsingMode cmdLineParsingMode
+                                     config::CmdLineParser::CmdLineArgumentParsingMode cmdLineParsingMode
                                      [[gnu::unused]]) noexcept
 {
     /// @todo Remove this from RouDi once the deprecated c'tors taking argc and argv have been removed
-    CmdLineParser cmdLineParser;
+    config::CmdLineParser cmdLineParser;
     cmdLineParser.parse(argc, argv);
     setCmdLineParserResults(cmdLineParser);
 }

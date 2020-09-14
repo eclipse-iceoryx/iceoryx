@@ -16,7 +16,7 @@
 
 bool cpp2c_Subscriber::setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
-    return iox::popo::SubscriberPortUser(m_portData).attachConditionVariable(conditionVariableDataPtr);
+    return iox::popo::SubscriberPortUser(m_portData).setConditionVariable(conditionVariableDataPtr);
 }
 
 bool cpp2c_Subscriber::hasTriggered() const noexcept
@@ -26,6 +26,5 @@ bool cpp2c_Subscriber::hasTriggered() const noexcept
 
 bool cpp2c_Subscriber::unsetConditionVariable() noexcept
 {
-    return iox::popo::SubscriberPortUser(m_portData).detachConditionVariable();
+    return iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
 }
-

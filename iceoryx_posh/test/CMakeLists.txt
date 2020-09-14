@@ -27,6 +27,8 @@ set(TEST_LINK_LIBS
     iceoryx_utils::iceoryx_platform
     iceoryx_utils_testing::iceoryx_utils_testing
     iceoryx_posh::iceoryx_posh
+    iceoryx_posh::iceoryx_posh_config
+    iceoryx_posh::iceoryx_posh_gateway
     iceoryx_posh::iceoryx_posh_roudi
     iceoryx_posh::iceoryx_posh_roudi_environment
 )

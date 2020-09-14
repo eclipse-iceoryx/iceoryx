@@ -38,7 +38,7 @@ struct DummySample
     uint64_t m_dummy{42};
 };
 
-static constexpr uint32_t NUM_CHUNKS_IN_POOL = 3 * iox::MAX_RECEIVER_QUEUE_CAPACITY;
+static constexpr uint32_t NUM_CHUNKS_IN_POOL = 3 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
 static constexpr uint32_t SMALL_CHUNK = 128;
 static constexpr uint32_t CHUNK_META_INFO_SIZE = 256;
 static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
@@ -49,7 +49,7 @@ static constexpr uint32_t MAX_NUMBER_QUEUES = 128;
 struct ChunkDistributorConfig
 {
     static constexpr uint32_t MAX_QUEUES = MAX_NUMBER_QUEUES;
-    static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR;
+    static constexpr uint64_t MAX_HISTORY_CAPACITY = iox::MAX_PUBLISHER_HISTORY;
 };
 
 struct ChunkQueueConfig
@@ -62,6 +62,8 @@ using ChunkDistributorData_t =
     ChunkDistributorData<ChunkDistributorConfig, ThreadSafePolicy, ChunkQueuePusher<ChunkQueueData_t>>;
 using ChunkDistributor_t = ChunkDistributor<ChunkDistributorData_t>;
 using ChunkQueuePopper_t = ChunkQueuePopper<ChunkQueueData_t>;
+using ChunkSenderData_t = ChunkSenderData<iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, ChunkDistributorData_t>;
+using ChunkReceiverData_t = ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, ChunkQueueData_t>;
 
 class ChunkBuildingBlocks_IntegrationTest : public Test
 {
@@ -79,8 +81,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
 
     void SetUp()
     {
-        m_chunkSender.addQueue(&m_chunkQueueData);
-        m_chunkDistributor.addQueue(&m_chunkReceiverData);
+        m_chunkSender.tryAddQueue(&m_chunkQueueData);
+        m_chunkDistributor.tryAddQueue(&m_chunkReceiverData);
     }
     void TearDown(){};
 
@@ -88,7 +90,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     {
         for (size_t i = 0; i < ITERATIONS; i++)
         {
-            m_chunkSender.allocate(sizeof(DummySample), iox::UniquePortId())
+            m_chunkSender.tryAllocate(sizeof(DummySample), iox::UniquePortId())
                 .and_then([&](iox::mepoo::ChunkHeader* chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();
@@ -119,7 +121,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         {
             ASSERT_FALSE(m_popper.hasOverflown());
 
-            m_popper.pop()
+            m_popper.tryPop()
                 .and_then([&](SharedChunk& chunk) {
                     auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
                     // Check if monotonically increasing
@@ -157,7 +159,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         {
             ASSERT_FALSE(m_chunkReceiver.hasOverflown());
 
-            m_chunkReceiver.get()
+            m_chunkReceiver.tryGet()
                 .and_then([&](iox::cxx::optional<const iox::mepoo::ChunkHeader*>& maybeChunkHeader) {
                     if (maybeChunkHeader.has_value())
                     {
@@ -201,8 +203,8 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     MemoryManager m_memoryManager;
 
     // Objects used by publishing thread
-    ChunkSenderData<iox::MAX_CHUNKS_ALLOCATE_PER_SENDER, ChunkDistributorData_t> m_chunkSenderData{&m_memoryManager};
-    ChunkSender<ChunkDistributor_t> m_chunkSender{&m_chunkSenderData};
+    ChunkSenderData_t m_chunkSenderData{&m_memoryManager};
+    ChunkSender<ChunkSenderData_t> m_chunkSender{&m_chunkSenderData};
 
     // Objects used by forwarding thread
     ChunkDistributorData_t m_chunkDistributorData;
@@ -212,9 +214,9 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     ChunkQueuePopper_t m_popper{&m_chunkQueueData};
 
     // Objects used by subscribing thread
-    ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t> m_chunkReceiverData{
+    ChunkReceiverData_t m_chunkReceiverData{
         iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer}; // SoFi intentionally not used
-    ChunkReceiver<ChunkQueuePopper_t> m_chunkReceiver{&m_chunkReceiverData};
+    ChunkReceiver<ChunkReceiverData_t> m_chunkReceiver{&m_chunkReceiverData};
 };
 
 TEST_F(ChunkBuildingBlocks_IntegrationTest, TwoHopsThreeThreadsNoSoFi)

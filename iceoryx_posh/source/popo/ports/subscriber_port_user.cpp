@@ -20,20 +20,20 @@ namespace iox
 namespace popo
 {
 SubscriberPortUser::SubscriberPortUser(cxx::not_null<MemberType_t* const> subscriberPortDataPtr) noexcept
-    : m_subscriberPortDataPtr(subscriberPortDataPtr)
-    , m_chunkReceiver(&m_subscriberPortDataPtr->m_chunkReceiverData)
+    : BasePort(subscriberPortDataPtr)
+    , m_chunkReceiver(&getMembers()->m_chunkReceiverData)
 
 {
 }
 
 const SubscriberPortUser::MemberType_t* SubscriberPortUser::getMembers() const noexcept
 {
-    return m_subscriberPortDataPtr;
+    return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
 }
 
 SubscriberPortUser::MemberType_t* SubscriberPortUser::getMembers() noexcept
 {
-    return m_subscriberPortDataPtr;
+    return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
 
@@ -79,12 +79,12 @@ SubscribeState SubscriberPortUser::getSubscriptionState() const noexcept
     return getMembers()->m_subscriptionState;
 }
 
-cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> SubscriberPortUser::getChunk() noexcept
+cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> SubscriberPortUser::tryGetChunk() noexcept
 {
-    return m_chunkReceiver.get();
+    return m_chunkReceiver.tryGet();
 }
 
-void SubscriberPortUser::releaseChunk(const mepoo::ChunkHeader* chunkHeader) noexcept
+void SubscriberPortUser::releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     m_chunkReceiver.release(chunkHeader);
 }
@@ -94,29 +94,29 @@ void SubscriberPortUser::releaseQueuedChunks() noexcept
     m_chunkReceiver.clear();
 }
 
-bool SubscriberPortUser::hasNewChunks() noexcept
+bool SubscriberPortUser::hasNewChunks() const noexcept
 {
     return !m_chunkReceiver.empty();
 }
 
-bool SubscriberPortUser::hasLostChunks() noexcept
+bool SubscriberPortUser::hasLostChunksSinceLastCall() noexcept
 {
     return m_chunkReceiver.hasOverflown();
 }
 
-bool SubscriberPortUser::attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
+bool SubscriberPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
-    return m_chunkReceiver.attachConditionVariable(conditionVariableDataPtr);
+    return m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
 }
 
-bool SubscriberPortUser::detachConditionVariable() noexcept
+bool SubscriberPortUser::unsetConditionVariable() noexcept
 {
-    return m_chunkReceiver.detachConditionVariable();
+    return m_chunkReceiver.unsetConditionVariable();
 }
 
-bool SubscriberPortUser::isConditionVariableAttached() noexcept
+bool SubscriberPortUser::isConditionVariableSet() noexcept
 {
-    return m_chunkReceiver.isConditionVariableAttached();
+    return m_chunkReceiver.isConditionVariableSet();
 }
 
 } // namespace popo

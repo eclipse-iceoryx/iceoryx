@@ -37,8 +37,9 @@ struct SubscriberPortData : public BasePortData
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
     using ChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig, ThreadSafePolicy>;
+    using ChunkReceiverData_t = ChunkReceiverData<MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, ChunkQueueData_t>;
 
-    ChunkReceiverData<MAX_CHUNKS_HELD_PER_RECEIVER, ChunkQueueData_t> m_chunkReceiverData;
+    ChunkReceiverData_t m_chunkReceiverData;
     const uint64_t m_historyRequest;
     std::atomic_bool m_subscribeRequested{false};
     std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
