@@ -53,7 +53,7 @@ using PublisherPortUserType = iox::popo::PublisherPortUser;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
-#if defined(ENABLE_1_TO_N_COMMUNICATION_ONLY)
+#if defined(RESTRICT_TO_1_TO_N_COMMUNICATION)
 using SubscriberPortProducerType = iox::popo::SubscriberPortSingleProducer;
 #else
 using SubscriberPortProducerType = iox::popo::SubscriberPortMultiProducer;

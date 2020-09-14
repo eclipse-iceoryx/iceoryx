@@ -134,7 +134,7 @@ while (( "$#" )); do
         echo "    with-dds-gateway      Builds the iceoryx dds gateway"
         echo "    build-test            Builds the tests (doesn't run)"
         echo "    skip-introspection    Skips building iceoryx introspection"
-        echo "    one-to-many           Enables 1:n communication only"
+        echo "    one-to-many           Restricts to 1:n communication only"
         echo "    help                  Prints this help"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test release"

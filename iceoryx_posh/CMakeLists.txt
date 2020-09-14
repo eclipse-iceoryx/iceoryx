@@ -51,7 +51,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 # If requested, enable 1:n communication only
 if(one-to-many)
      message("[i] Using 1:n communication only!")
-    add_definitions(-DENABLE_1_TO_N_COMMUNICATION_ONLY)
+    add_definitions(-DRESTRICT_TO_1_TO_N_COMMUNICATION)
 endif()
 
 add_library(iceoryx_posh

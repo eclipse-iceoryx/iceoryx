@@ -127,7 +127,7 @@ IceOryxPortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescr
 {
     if (m_portPoolData->m_subscriberPortMembers.hasFreeSpace())
     {
-#if defined(ENABLE_1_TO_N_COMMUNICATION_ONLY)
+#if defined(RESTRICT_TO_1_TO_N_COMMUNICATION)
         auto queueType = cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer;
 #else
         auto queueType = cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer;
