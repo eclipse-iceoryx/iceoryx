@@ -14,8 +14,7 @@
 
 #include "iceoryx_utils/internal/concurrent/sofi.hpp"
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include "test.hpp"
 
 #include <cstdint>
 #include <mutex>
