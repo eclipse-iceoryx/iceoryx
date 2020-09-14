@@ -65,7 +65,7 @@ class Subscriber_t
 
     /// @brief Function for subscribing to event
     /// @param[in] cacheSize Size of the receiver queue
-    void subscribe(const uint32_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
+    void subscribe(const uint32_t cacheSize = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
 
     /// @brief Get function for retrieving subsription state
     /// @return enum value of subsription state

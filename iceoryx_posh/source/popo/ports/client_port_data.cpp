@@ -10,33 +10,23 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License.
+// limitations under the License
 
-#ifndef IOX_POSH_GW_GATEWAY_CONFIG_HPP
-#define IOX_POSH_GW_GATEWAY_CONFIG_HPP
-
-#include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_port_data.hpp"
 
 namespace iox
 {
-namespace config
+namespace popo
 {
-///
-/// @brief Generic configuration for gateways.
-///
-struct GatewayConfig
+ClientPortData::ClientPortData(const capro::ServiceDescription& serviceDescription,
+                               const ProcessName_t& processName,
+                               mepoo::MemoryManager* const memoryManager,
+                               const mepoo::MemoryInfo& memoryInfo) noexcept
+    : BasePortData(serviceDescription, processName)
+    , m_chunkSenderData(memoryManager, 0, memoryInfo)
+    , m_chunkReceiverData(cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
 {
-    struct ServiceEntry
-    {
-        capro::ServiceDescription m_serviceDescription;
-    };
-    iox::cxx::vector<ServiceEntry, MAX_GATEWAY_SERVICES> m_configuredServices; 
+}
 
-    void setDefaults() noexcept;
-};
-} // namespace gw
+} // namespace popo
 } // namespace iox
-
-#endif // IOX_POSH_GW_GATEWAY_CONFIG_HPP

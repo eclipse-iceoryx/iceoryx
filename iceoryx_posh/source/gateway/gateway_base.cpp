@@ -35,7 +35,7 @@ GatewayBase::~GatewayBase() noexcept
 
 bool GatewayBase::getCaProMessage(CaproMessage& msg) noexcept
 {
-    auto maybeCaproMessage = m_interfaceImpl.getCaProMessage();
+    auto maybeCaproMessage = m_interfaceImpl.tryGetCaProMessage();
     if (maybeCaproMessage.has_value())
     {
         msg = maybeCaproMessage.value();

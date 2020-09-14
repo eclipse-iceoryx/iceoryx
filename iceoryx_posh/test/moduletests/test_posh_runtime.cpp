@@ -261,7 +261,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareSenderSenderlistOverflow)
     /// hence getServiceRegistryChangeCounter() is used
     auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
     auto usedSenderPort = serviceCounter->load();
-    for (; usedSenderPort < iox::MAX_PORT_NUMBER; ++usedSenderPort)
+    for (; usedSenderPort < iox::MAX_PUBLISHERS; ++usedSenderPort)
     {
         auto senderPort = m_runtime->getMiddlewareSender(
             iox::capro::ServiceDescription(usedSenderPort, usedSenderPort + 1u, usedSenderPort + 2u));
@@ -310,7 +310,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareReceiverReceiverlistOverflow)
         });
 
     uint32_t i = 0u;
-    for (; i < iox::MAX_PORT_NUMBER; ++i)
+    for (; i < iox::MAX_SUBSCRIBERS; ++i)
     {
         auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(i, i + 1u, i + 2u));
         ASSERT_NE(nullptr, receiverPort);

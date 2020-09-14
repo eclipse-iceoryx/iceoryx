@@ -76,7 +76,7 @@ iox_SubscribeState iox_sub_get_subscription_state(SubscriberPortData* const self
 
 iox_popo_ChunkReceiveResult iox_sub_get_chunk(SubscriberPortData* const self, const void** const payload)
 {
-    auto result = SubscriberPortUser(self).getChunk();
+    auto result = SubscriberPortUser(self).tryGetChunk();
     if (result.has_error())
     {
         return (result.get_error() == ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL)
@@ -110,21 +110,21 @@ bool iox_sub_has_new_chunks(SubscriberPortData* const self)
 
 bool iox_sub_has_lost_chunks(SubscriberPortData* const self)
 {
-    return SubscriberPortUser(self).hasLostChunks();
+    return SubscriberPortUser(self).hasLostChunksSinceLastCall();
 }
 
 bool iox_sub_attach_condition_variable(SubscriberPortData* const self, ConditionVariableData* const cvHandle)
 {
-    return SubscriberPortUser(self).attachConditionVariable(cvHandle);
+    return SubscriberPortUser(self).setConditionVariable(cvHandle);
 }
 
 bool iox_sub_detach_condition_variable(SubscriberPortData* const self)
 {
-    return SubscriberPortUser(self).detachConditionVariable();
+    return SubscriberPortUser(self).unsetConditionVariable();
 }
 
 bool iox_sub_is_condition_variable_attached(SubscriberPortData* const self)
 {
-    return SubscriberPortUser(self).isConditionVariableAttached();
+    return SubscriberPortUser(self).isConditionVariableSet();
 }
 
