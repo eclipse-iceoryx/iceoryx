@@ -21,6 +21,8 @@
 
 #include "iceoryx_posh/experimental/popo/publisher.hpp"
 
+#include <iostream>
+
 namespace iox
 {
 namespace popo
@@ -98,26 +100,8 @@ BasePublisher<T, port_t>::loan(uint32_t size) noexcept
     }
     else
     {
-        auto header = result.get_value();
-        return cxx::success<Sample<T>>(
-                    cxx::unique_ptr<T>(
-                        reinterpret_cast<T*>(header->payload()),
-                        [this](T* const p){
-                            auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
-                            this->m_port.freeChunk(header);
-                        }
-                    ),
-                    *this
-                );
+        return cxx::success<Sample<T>>(convertChunkHeaderToSample(result.get_value()));
     }
-}
-
-template<typename T, typename port_t>
-inline void
-BasePublisher<T, port_t>::release(Sample<T>& sample) noexcept
-{
-    auto header = iox::mepoo::convertPayloadPointerToChunkHeader(sample.get());
-    m_port.freeChunk(header);
 }
 
 template<typename T, typename port_t>
@@ -133,11 +117,15 @@ BasePublisher<T, port_t>::publish(Sample<T>& sample) noexcept
 }
 
 template<typename T, typename port_t>
-inline cxx::expected<SampleRecallError>
-BasePublisher<T, port_t>::previousSample() const noexcept
+inline cxx::optional<Sample<T>>
+BasePublisher<T, port_t>::previousSample() noexcept
 {
-    assert(false && "Not yet supported");
-    return iox::cxx::error<SampleRecallError>(SampleRecallError::NO_PREVIOUS_CHUNK);
+    auto result = m_port.getLastChunk();
+    if(result.has_value())
+    {
+        return cxx::make_optional<Sample<T>>(convertChunkHeaderToSample(result.value()));
+    }
+    return cxx::nullopt;
 }
 
 template<typename T, typename port_t>
@@ -168,6 +156,22 @@ BasePublisher<T, port_t>::hasSubscribers() noexcept
     return m_port.hasSubscribers();
 }
 
+template<typename T, typename port_t>
+inline Sample<T>
+BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* header) noexcept
+{
+    return Sample<T>(
+                cxx::unique_ptr<T>(
+                    reinterpret_cast<T*>(header->payload()),
+                    [this](T* const p){
+                        auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
+                        this->m_port.freeChunk(header);
+                        // Somehow need to release ownership of the chunk ...
+                    }
+                ),
+                *this
+            );
+}
 
 // ======================================== Typed Publisher ======================================== //
 
@@ -188,13 +192,6 @@ inline cxx::expected<Sample<T>, AllocationError>
 TypedPublisher<T>::loan() noexcept
 {
     return BasePublisher<T>::loan(sizeof(T));
-}
-
-template<typename T>
-inline void
-TypedPublisher<T>::release(Sample<T>& sample) noexcept
-{
-    return BasePublisher<T>::release(sample);
 }
 
 template<typename T>
@@ -244,8 +241,8 @@ TypedPublisher<T>::publishCopyOf(const T& val) noexcept
 }
 
 template<typename T>
-inline cxx::expected<SampleRecallError>
-TypedPublisher<T>::previousSample() const noexcept
+inline cxx::optional<Sample<T>>
+TypedPublisher<T>::previousSample() noexcept
 {
     return BasePublisher<T>::previousSample();
 }
@@ -298,12 +295,6 @@ UntypedPublisher::loan(uint32_t size) noexcept
 }
 
 inline void
-UntypedPublisher::release(Sample<void>& sample) noexcept
-{
-    return BasePublisher<void>::release(sample);
-}
-
-inline void
 UntypedPublisher::publish(Sample<void>& sample) noexcept
 {
     BasePublisher<void>::publish(sample);
@@ -316,8 +307,8 @@ UntypedPublisher::publish(void* allocatedMemory) noexcept
     m_port.sendChunk(header);
 }
 
-inline cxx::expected<SampleRecallError>
-UntypedPublisher::previousSample() const noexcept
+inline cxx::optional<Sample<void>>
+UntypedPublisher::previousSample() noexcept
 {
     return BasePublisher<void>::previousSample();
 }

@@ -120,7 +120,7 @@ public:
 
 private:
     ptr_t m_ptr = nullptr;
-    std::function<void(T*)> m_deleter = [](T* const){};
+    std::function<void(T* const)> m_deleter;
 };
 
 

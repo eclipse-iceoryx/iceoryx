@@ -14,7 +14,7 @@ unique_ptr<T>::unique_ptr(std::function<void(T*)>&& deleter) noexcept : m_delete
 {}
 
 template<typename T>
-unique_ptr<T>::unique_ptr(ptr_t ptr, std::function<void(T*)>&& deleter) noexcept : m_ptr(ptr), m_deleter(deleter)
+unique_ptr<T>::unique_ptr(ptr_t ptr, std::function<void(T*)>&& deleter) noexcept : m_ptr(ptr), m_deleter(std::move(deleter))
 {}
 
 // Can't have this function because the signature clashes with the case where T = void.

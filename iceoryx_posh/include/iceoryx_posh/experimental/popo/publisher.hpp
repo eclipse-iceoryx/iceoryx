@@ -57,7 +57,7 @@ public:
     {
         if(this != &rhs)
         {
-            m_samplePtr.reset(rhs.m_samplePtr.release());
+            m_samplePtr = std::move(rhs.m_samplePtr);
             m_publisherRef = rhs.m_publisherRef;
             m_hasOwnership = rhs.m_hasOwnership;
         }
@@ -113,8 +113,8 @@ public:
         if(m_hasOwnership)
         {
             m_publisherRef.get().publish(*this);
-            m_samplePtr.release();      // Release ownership of the sample since it has been published.
             m_hasOwnership = false;
+            m_samplePtr.release();      // Release ownership of the sample since it has been published.
         }
 
         else
@@ -124,18 +124,12 @@ public:
     }
 
 private:
-    bool m_hasOwnership = true;
-    cxx::unique_ptr<T> m_samplePtr = nullptr;
+    bool m_hasOwnership{true};
+    cxx::unique_ptr<T> m_samplePtr{nullptr};
     std::reference_wrapper<PublisherInterface<T>> m_publisherRef;
 };
 
 // ======================================== Base Publisher ======================================== //
-
-enum class SampleRecallError : uint8_t
-{
-    NO_PREVIOUS_CHUNK,
-    CHUNK_ALREADY_CLAIMED
-};
 
 ///
 /// @brief The Publisher class defines the publisher interface used by the Sample class to make it generic.
@@ -180,23 +174,16 @@ public:
     cxx::expected<Sample<T>, AllocationError> loan(uint32_t size) noexcept;
 
     ///
-    /// @brief release Release the loan to the provided sample.
-    /// @param sample Sample to release.
-    ///
-    void release(Sample<T>& sample) noexcept;
-
-    ///
-    /// @brief publish Publish the provide sample.
+    /// @brief publish Publish the given sample.
     /// @param sample The sample to publish.
-    /// @return Error if unable to publish.
     ///
     void publish(Sample<T>& sample) noexcept override;
 
     ///
     /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
-    /// @return The previously loaned sample.
+    /// @return The previously loaned sample if retrieved.
     ///
-    cxx::expected<SampleRecallError> previousSample() const noexcept;
+    cxx::optional<Sample<T>> previousSample() noexcept;
 
     ///
     /// @brief offer Offer the service to be subscribed to.
@@ -223,12 +210,13 @@ public:
 protected:
     BasePublisher(const capro::ServiceDescription& service);
 
+private:
+    Sample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* header) noexcept;
+
 protected:
 
     port_t m_port{nullptr};
     bool m_useDynamicPayloadSize = true;
-
-private:
 
 };
 
@@ -248,7 +236,6 @@ public:
     uid_t uid() const noexcept;
 
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
-    void release(Sample<T>& sample) noexcept;
     void publish(Sample<T>& sample) noexcept;
     ///
     /// @brief publishCopyOf Copy the provided value into a loaned shared memory chunk and publish it.
@@ -266,7 +253,7 @@ public:
     template<typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
-    cxx::expected<SampleRecallError> previousSample() const noexcept;
+    cxx::optional<Sample<T>> previousSample() noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;
@@ -289,7 +276,6 @@ public:
     uid_t uid() const noexcept;
 
     cxx::expected<Sample<void>, AllocationError> loan(uint32_t size) noexcept;
-    void release(Sample<void>& sample) noexcept;
     void publish(Sample<void>& sample) noexcept;
     ///
     /// @brief publish Publish the provided memory chunk.
@@ -297,7 +283,7 @@ public:
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
     void publish(void* allocatedMemory) noexcept;
-    cxx::expected<SampleRecallError> previousSample() const noexcept;
+    cxx::optional<Sample<void>> previousSample() noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;
