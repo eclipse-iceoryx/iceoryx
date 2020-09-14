@@ -224,7 +224,7 @@ class list
     template <typename... ConstructorArgs>
     T& emplace_front(ConstructorArgs&&... args) noexcept;
 
-    /// @brief construct element inplace at end of list
+    /// @brief construct element inplace after the pointed-to element
     /// @param[in] args T-typed construction parameters (initializer list)
     /// @return referene to generated element, return is C++17-conform
     template <typename... ConstructorArgs>
@@ -243,7 +243,7 @@ class list
     /// @return iterator to the newly added element
     iterator insert(const_iterator citer, const T& data) noexcept;
 
-    /// @brief construct element inplace at begining of list
+    /// @brief add element after the pointed-to element via move
     /// @param[in] citer iterator with the position to insert after
     /// @param[in] data universal reference perfectly forwarded to client class
     /// @return iterator to the newly added element
@@ -267,6 +267,12 @@ class list
         /// @brief construct a const_iterator from an iterator
         /// @param[in] iter is the iterator which will deliver list and index info for the const_iterator
         IteratorBase(const IteratorBase<false>& iter) noexcept;
+
+        /// @brief assigns a const_iterator from an iterator; needs to be implemented because the copy c'tor is also
+        /// explicitly implemented
+        /// @param[in] rhs is the iterator which will deliver list and index info for the const_iterator
+        /// @return reference to this iterator object
+        IteratorBase& operator=(const IteratorBase<false>& rhs) noexcept;
 
         /// @brief prefix increment iterator, so it points to the next list element
         ///         when trying to increment beyond the end of the list, iterator stays pointing at the end

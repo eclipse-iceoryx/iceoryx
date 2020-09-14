@@ -24,20 +24,20 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
-list<T, Capacity>::list() noexcept
+inline list<T, Capacity>::list() noexcept
 {
     init();
 }
 
 template <typename T, uint64_t Capacity>
-list<T, Capacity>::list(const list& rhs) noexcept
+inline list<T, Capacity>::list(const list& rhs) noexcept
 {
     init();
     *this = rhs;
 }
 
 template <typename T, uint64_t Capacity>
-list<T, Capacity>::list(list&& rhs) noexcept
+inline list<T, Capacity>::list(list&& rhs) noexcept
 {
     init();
 
@@ -53,7 +53,7 @@ list<T, Capacity>::list(list&& rhs) noexcept
 
 
 template <typename T, uint64_t Capacity>
-list<T, Capacity>& list<T, Capacity>::list::operator=(const list& rhs) noexcept
+inline list<T, Capacity>& list<T, Capacity>::list::operator=(const list& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -88,7 +88,7 @@ list<T, Capacity>& list<T, Capacity>::list::operator=(const list& rhs) noexcept
 }
 
 template <typename T, uint64_t Capacity>
-list<T, Capacity>& list<T, Capacity>::list::operator=(list&& rhs) noexcept
+inline list<T, Capacity>& list<T, Capacity>::list::operator=(list&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -126,41 +126,41 @@ list<T, Capacity>& list<T, Capacity>::list::operator=(list&& rhs) noexcept
 
 
 template <typename T, uint64_t Capacity>
-list<T, Capacity>::~list()
+inline list<T, Capacity>::~list()
 {
     clear();
 }
 
 
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::iterator list<T, Capacity>::begin() noexcept
+inline typename list<T, Capacity>::iterator list<T, Capacity>::begin() noexcept
 {
     return iterator{this, getNextIdx(BEGIN_END_LINK_INDEX)};
 }
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::const_iterator list<T, Capacity>::begin() const noexcept
+inline typename list<T, Capacity>::const_iterator list<T, Capacity>::begin() const noexcept
 {
     return cbegin();
 }
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::const_iterator list<T, Capacity>::cbegin() const noexcept
+inline typename list<T, Capacity>::const_iterator list<T, Capacity>::cbegin() const noexcept
 {
     return const_iterator{this, getNextIdx(BEGIN_END_LINK_INDEX)};
 }
 
 
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::iterator list<T, Capacity>::end() noexcept
+inline typename list<T, Capacity>::iterator list<T, Capacity>::end() noexcept
 {
     return iterator{this, BEGIN_END_LINK_INDEX};
 }
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::const_iterator list<T, Capacity>::end() const noexcept
+inline typename list<T, Capacity>::const_iterator list<T, Capacity>::end() const noexcept
 {
     return cend();
 }
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::const_iterator list<T, Capacity>::cend() const noexcept
+inline typename list<T, Capacity>::const_iterator list<T, Capacity>::cend() const noexcept
 {
     return const_iterator{this, BEGIN_END_LINK_INDEX};
 }
@@ -199,21 +199,22 @@ inline typename list<T, Capacity>::size_type list<T, Capacity>::max_size() const
 
 template <typename T, uint64_t Capacity>
 template <typename... ConstructorArgs>
-T& list<T, Capacity>::emplace_front(ConstructorArgs&&... args) noexcept
+inline T& list<T, Capacity>::emplace_front(ConstructorArgs&&... args) noexcept
 {
     return *emplace(cbegin(), std::forward<ConstructorArgs>(args)...);
 }
 
 template <typename T, uint64_t Capacity>
 template <typename... ConstructorArgs>
-T& list<T, Capacity>::emplace_back(ConstructorArgs&&... args) noexcept
+inline T& list<T, Capacity>::emplace_back(ConstructorArgs&&... args) noexcept
 {
     return *emplace(cend(), std::forward<ConstructorArgs>(args)...);
 }
 
 template <typename T, uint64_t Capacity>
 template <typename... ConstructorArgs>
-typename list<T, Capacity>::iterator list<T, Capacity>::emplace(const_iterator iter, ConstructorArgs&&... args) noexcept
+inline typename list<T, Capacity>::iterator list<T, Capacity>::emplace(const_iterator iter,
+                                                                       ConstructorArgs&&... args) noexcept
 {
     if (isInvalidIterOrDifferentLists(iter))
     {
@@ -249,7 +250,7 @@ typename list<T, Capacity>::iterator list<T, Capacity>::emplace(const_iterator i
 
 
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::iterator list<T, Capacity>::erase(const_iterator iter) noexcept
+inline typename list<T, Capacity>::iterator list<T, Capacity>::erase(const_iterator iter) noexcept
 {
     if (isInvalidIterOrDifferentLists(iter))
     {
@@ -286,7 +287,7 @@ typename list<T, Capacity>::iterator list<T, Capacity>::erase(const_iterator ite
 }
 
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::size_type list<T, Capacity>::remove(const T& data) noexcept
+inline typename list<T, Capacity>::size_type list<T, Capacity>::remove(const T& data) noexcept
 {
     return remove_if([&data](T& eachListElementData) { return eachListElementData == data; });
 }
@@ -294,7 +295,7 @@ typename list<T, Capacity>::size_type list<T, Capacity>::remove(const T& data) n
 
 template <typename T, uint64_t Capacity>
 template <typename UnaryPredicate>
-typename list<T, Capacity>::size_type list<T, Capacity>::remove_if(UnaryPredicate pred) noexcept
+inline typename list<T, Capacity>::size_type list<T, Capacity>::remove_if(UnaryPredicate pred) noexcept
 {
     size_type removedCount = 0;
 
@@ -317,7 +318,7 @@ typename list<T, Capacity>::size_type list<T, Capacity>::remove_if(UnaryPredicat
 
 
 template <typename T, uint64_t Capacity>
-T& list<T, Capacity>::front() noexcept
+inline T& list<T, Capacity>::front() noexcept
 {
     auto iter = begin();
     handleInvalidElement(iter.m_iterListNodeIdx);
@@ -325,7 +326,7 @@ T& list<T, Capacity>::front() noexcept
 }
 
 template <typename T, uint64_t Capacity>
-const T& list<T, Capacity>::front() const noexcept
+inline const T& list<T, Capacity>::front() const noexcept
 {
     auto citer = cbegin();
     handleInvalidElement(citer.m_iterListNodeIdx);
@@ -333,7 +334,7 @@ const T& list<T, Capacity>::front() const noexcept
 }
 
 template <typename T, uint64_t Capacity>
-T& list<T, Capacity>::back() noexcept
+inline T& list<T, Capacity>::back() noexcept
 {
     auto iter = end();
     handleInvalidElement((--iter).m_iterListNodeIdx);
@@ -341,7 +342,7 @@ T& list<T, Capacity>::back() noexcept
 }
 
 template <typename T, uint64_t Capacity>
-const T& list<T, Capacity>::back() const noexcept
+inline const T& list<T, Capacity>::back() const noexcept
 {
     auto citer = cend();
     handleInvalidElement((--citer).m_iterListNodeIdx);
@@ -410,20 +411,20 @@ inline bool list<T, Capacity>::pop_back() noexcept
 }
 
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::iterator list<T, Capacity>::insert(const_iterator citer, const T& data) noexcept
+inline typename list<T, Capacity>::iterator list<T, Capacity>::insert(const_iterator citer, const T& data) noexcept
 {
     return emplace(citer, data);
 }
 
 template <typename T, uint64_t Capacity>
-typename list<T, Capacity>::iterator list<T, Capacity>::insert(const_iterator citer, T&& data) noexcept
+inline typename list<T, Capacity>::iterator list<T, Capacity>::insert(const_iterator citer, T&& data) noexcept
 {
     return emplace(citer, std::forward<T>(data));
 }
 
 
 template <typename T, uint64_t Capacity>
-void list<T, Capacity>::clear() noexcept
+inline void list<T, Capacity>::clear() noexcept
 {
     while (m_size)
     {
@@ -436,7 +437,7 @@ void list<T, Capacity>::clear() noexcept
 
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
-list<T, Capacity>::IteratorBase<IsConstIterator>::IteratorBase(parentListPointer parent, size_type idx) noexcept
+inline list<T, Capacity>::IteratorBase<IsConstIterator>::IteratorBase(parentListPointer parent, size_type idx) noexcept
     : m_list(parent)
     , m_iterListNodeIdx(idx)
 {
@@ -444,7 +445,7 @@ list<T, Capacity>::IteratorBase<IsConstIterator>::IteratorBase(parentListPointer
 
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
-list<T, Capacity>::IteratorBase<IsConstIterator>::IteratorBase(const IteratorBase<false>& iter) noexcept
+inline list<T, Capacity>::IteratorBase<IsConstIterator>::IteratorBase(const IteratorBase<false>& iter) noexcept
     : m_list(iter.m_list)
     , m_iterListNodeIdx(iter.m_iterListNodeIdx)
 {
@@ -452,7 +453,21 @@ list<T, Capacity>::IteratorBase<IsConstIterator>::IteratorBase(const IteratorBas
 
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
-typename list<T, Capacity>::template IteratorBase<IsConstIterator>&
+inline typename list<T, Capacity>::template IteratorBase<IsConstIterator>&
+list<T, Capacity>::IteratorBase<IsConstIterator>::operator=(const IteratorBase<false>& rhs) noexcept
+{
+    if (reinterpret_cast<const void*>(this) != reinterpret_cast<const void*>(&rhs))
+    {
+        m_list = rhs.m_list;
+        m_iterListNodeIdx = rhs.m_iterListNodeIdx;
+    }
+
+    return *this;
+}
+
+template <typename T, uint64_t Capacity>
+template <bool IsConstIterator>
+inline typename list<T, Capacity>::template IteratorBase<IsConstIterator>&
 list<T, Capacity>::IteratorBase<IsConstIterator>::operator++() noexcept
 {
     if (!m_list->handleInvalidIterator(*this))
@@ -468,7 +483,7 @@ list<T, Capacity>::IteratorBase<IsConstIterator>::operator++() noexcept
 
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
-typename list<T, Capacity>::template IteratorBase<IsConstIterator>&
+inline typename list<T, Capacity>::template IteratorBase<IsConstIterator>&
 list<T, Capacity>::IteratorBase<IsConstIterator>::operator--() noexcept
 
 {
@@ -487,7 +502,7 @@ list<T, Capacity>::IteratorBase<IsConstIterator>::operator--() noexcept
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
 template <bool IsConstIteratorOther>
-bool list<T, Capacity>::IteratorBase<IsConstIterator>::operator==(
+inline bool list<T, Capacity>::IteratorBase<IsConstIterator>::operator==(
     const list<T, Capacity>::IteratorBase<IsConstIteratorOther>& rhs) const noexcept
 {
     if (m_list->isInvalidIterOrDifferentLists(rhs) || m_list->handleInvalidIterator(*this))
@@ -501,7 +516,7 @@ bool list<T, Capacity>::IteratorBase<IsConstIterator>::operator==(
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
 template <bool IsConstIteratorOther>
-bool list<T, Capacity>::IteratorBase<IsConstIterator>::operator!=(
+inline bool list<T, Capacity>::IteratorBase<IsConstIterator>::operator!=(
     const list<T, Capacity>::IteratorBase<IsConstIteratorOther>& rhs) const noexcept
 {
     return !operator==(rhs);
@@ -510,7 +525,7 @@ bool list<T, Capacity>::IteratorBase<IsConstIterator>::operator!=(
 
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
-typename list<T, Capacity>::template IteratorBase<IsConstIterator>::reference
+inline typename list<T, Capacity>::template IteratorBase<IsConstIterator>::reference
     list<T, Capacity>::IteratorBase<IsConstIterator>::operator*() const noexcept
 {
     return *operator->();
@@ -519,7 +534,7 @@ typename list<T, Capacity>::template IteratorBase<IsConstIterator>::reference
 
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
-typename list<T, Capacity>::template IteratorBase<IsConstIterator>::pointer
+inline typename list<T, Capacity>::template IteratorBase<IsConstIterator>::pointer
     list<T, Capacity>::IteratorBase<IsConstIterator>::operator->() const noexcept
 
 {
@@ -531,7 +546,7 @@ typename list<T, Capacity>::template IteratorBase<IsConstIterator>::pointer
 // private member functions
 
 template <typename T, uint64_t Capacity>
-void list<T, Capacity>::init() noexcept
+inline void list<T, Capacity>::init() noexcept
 {
     // all list elements are concatenated and become accessible via the 'freeListHead'
     setPrevIdx(0U, INVALID_INDEX);

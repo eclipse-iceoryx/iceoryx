@@ -619,7 +619,6 @@ TEST_F(list_test, EmplaceBackWithSomeElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{37};
     list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.cbegin();
     decltype(TestListElement::m_value) cnt = 0;
 
     EXPECT_THAT(cTor, Eq(0));
@@ -648,7 +647,6 @@ TEST_F(list_test, EmplaceBackWithCapacityElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY};
     list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.cbegin();
     decltype(TestListElement::m_value) cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
@@ -674,7 +672,6 @@ TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY + 1};
     list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.cbegin();
     decltype(TestListElement::m_value) cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
@@ -859,7 +856,6 @@ TEST_F(list_test, PushBackFailsWhenSpaceNotAvailableRValue)
 
 TEST_F(list_test, PushBackCheckInsertPosition)
 {
-    constexpr int64_t DEFAULT_VALUE{13};
     uint64_t i = 0;
 
     for (; i < TESTLISTCAPACITY; ++i)
@@ -1177,7 +1173,7 @@ TEST_F(list_test, InsertSomeElementsListLValue)
     }
     sut.insert(iter, a);
 
-    for (auto& x : sut)
+    for (auto& x [[gnu::unused]] : sut)
     {
         ++loopCounter;
     }
@@ -1381,8 +1377,6 @@ TEST_F(list_test, ConstIteratorDecrementOperatorBeyondBegin)
 
 TEST_F(list_test, IteratorDecrementOperatorBeyondBeginWithFullList)
 {
-    constexpr int64_t DEFAULT_VALUE{13};
-
     for (uint64_t i = 0; i < sut.capacity(); ++i)
     {
         sut.emplace_front(i);
@@ -1980,7 +1974,7 @@ TEST_F(list_test, RemoveAllFromList)
 
 TEST_F(list_test, RemoveIfFromEmptyList)
 {
-    auto cnt = sut.remove_if([](const TestListElement& sut1) { return true; });
+    auto cnt = sut.remove_if([](const TestListElement&) { return true; });
 
     EXPECT_THAT(isSetupState(), Eq(true));
     EXPECT_THAT(sut.size(), Eq(0));
@@ -2137,7 +2131,8 @@ TEST_F(list_test, writeContentViaDereferencedIterator)
     constexpr uint64_t TEST_VALUE{356u};
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_front(j);
     }
 
     auto sut1{sut};
@@ -2151,7 +2146,8 @@ TEST_F(list_test, invalidIteratorErase)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_back(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_back(j);
     }
 
     auto iter = sut.cbegin();
@@ -2165,7 +2161,8 @@ TEST_F(list_test, invalidIteratorIncrement)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_back(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_back(j);
     }
 
     auto iter = sut.cbegin();
@@ -2179,7 +2176,8 @@ TEST_F(list_test, invalidIteratorDecrement)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_back(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_back(j);
     }
 
     auto iter = sut.cbegin();
@@ -2193,12 +2191,13 @@ TEST_F(list_test, invalidIteratorComparison)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_back(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_back(j);
     }
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 = sut.erase(iter);
+    auto iter2 [[gnu::unused]] = sut.erase(iter);
 
     EXPECT_DEATH(dummyFunc(sut.cbegin() == iter), "");
 }
@@ -2207,7 +2206,8 @@ TEST_F(list_test, invalidIteratorComparisonUnequal)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_back(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_back(j);
     }
 
     auto iter = sut.cbegin();
@@ -2221,12 +2221,13 @@ TEST_F(list_test, invalidIteratorDereferencing)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_back(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_back(j);
     }
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 = sut.erase(iter);
+    auto iter2 [[gnu::unused]] = sut.erase(iter);
 
     EXPECT_DEATH(dummyFunc((*iter).m_value), "");
 }
@@ -2235,12 +2236,13 @@ TEST_F(list_test, invalidIteratorAddressOfOperator)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_back(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_back(j);
     }
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 = sut.erase(iter);
+    auto iter2 [[gnu::unused]] = sut.erase(iter);
 
     EXPECT_DEATH(dummyFunc(iter->m_value == 12), "");
 }
@@ -2256,7 +2258,8 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
 
         for (; i < TESTLISTCAPACITY; ++i)
         {
-            sut1.emplace_front(static_cast<const uint64_t>(i));
+            const uint64_t j{i};
+            sut1.emplace_front(j);
         }
 
         memcpy(reinterpret_cast<void*>(otherSutPtr), reinterpret_cast<const void*>(&sut1), sizeof(sut1));
@@ -2265,7 +2268,8 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
         sut1.clear();
         for (uint64_t k = 0; k < TESTLISTCAPACITY; ++k)
         {
-            sut1.emplace_front(static_cast<const uint64_t>(k + i));
+            const uint64_t j{k + i};
+            sut1.emplace_front(j);
         }
     }
 

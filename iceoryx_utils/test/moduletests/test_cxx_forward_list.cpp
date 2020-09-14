@@ -15,7 +15,8 @@
 #include "iceoryx_utils/cxx/forward_list.hpp"
 #include "test.hpp"
 
-
+namespace
+{
 using namespace ::testing;
 using namespace iox::cxx;
 
@@ -150,6 +151,7 @@ bool dummyFunc(bool whatever)
     std::cerr << "Never get here - ever " << whatever << std::endl;
     return whatever;
 }
+} // namespace
 
 
 TEST_F(forward_list_test, NewlyCreatedListIsEmpty)
@@ -398,7 +400,7 @@ TEST_F(forward_list_test, EmplaceAfterWithOneElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{1};
     forward_list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.before_begin();
+    auto iter = sut1.cbefore_begin();
     decltype(TestListElement::m_value) cnt = 0;
 
     EXPECT_THAT(cTor, Eq(0));
@@ -427,7 +429,7 @@ TEST_F(forward_list_test, EmplaceAfterWithSomeElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{37};
     forward_list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.before_begin();
+    auto iter = sut1.cbefore_begin();
     uint64_t cnt = 0;
 
     EXPECT_THAT(cTor, Eq(0));
@@ -456,7 +458,7 @@ TEST_F(forward_list_test, EmplaceAfterWithCapacityElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY};
     forward_list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.before_begin();
+    auto iter = sut1.cbefore_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
@@ -482,7 +484,7 @@ TEST_F(forward_list_test, EmplaceAfterWithMoreThanCapacityElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY + 1};
     forward_list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.before_begin();
+    auto iter = sut1.cbefore_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
@@ -509,7 +511,7 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithOneElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{1};
     forward_list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.before_begin();
+    auto iter = sut1.cbefore_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
@@ -535,7 +537,7 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithSomeElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{37};
     forward_list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.before_begin();
+    auto iter = sut1.cbefore_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
@@ -561,7 +563,7 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithCapacityElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY};
     forward_list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.before_begin();
+    auto iter = sut1.cbefore_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
@@ -587,7 +589,7 @@ TEST_F(forward_list_test, EmplaceAfterReverseWithWithMoreThanCapacityElements)
     constexpr uint64_t CAPACITY{42u};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY + 1};
     forward_list<TestListElement, CAPACITY> sut1;
-    auto iter = sut1.before_begin();
+    auto iter = sut1.cbefore_begin();
     uint64_t cnt = 0;
 
     for (uint64_t i = 0; i < ELEMENT_COUNT; ++i)
@@ -906,7 +908,7 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
     }
     sut.insert_after(iter, a);
 
-    for (auto& x[[gnu::unused]]: sut)
+    for (auto& x [[gnu::unused]] : sut)
     {
         ++loopCounter;
     }
@@ -1825,7 +1827,8 @@ TEST_F(forward_list_test, writeContentViaDereferencedIterator)
     constexpr uint64_t TEST_VALUE{356u};
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_front(j);
     }
 
     auto sut1{sut};
@@ -1839,7 +1842,8 @@ TEST_F(forward_list_test, invalidIteratorErase)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_front(j);
     }
 
     auto iter = sut.begin();
@@ -1852,7 +1856,8 @@ TEST_F(forward_list_test, invalidIteratorIncrement)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_front(j);
     }
 
     auto iter = sut.cbegin();
@@ -1865,7 +1870,8 @@ TEST_F(forward_list_test, invalidIteratorComparison)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_front(j);
     }
 
     auto iter = sut.cbegin();
@@ -1878,7 +1884,8 @@ TEST_F(forward_list_test, invalidIteratorComparisonUnequal)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_front(j);
     }
     auto iter = sut.cbegin();
     sut.pop_front();
@@ -1891,7 +1898,8 @@ TEST_F(forward_list_test, invalidIteratorDereferencing)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_front(j);
     }
 
     auto iter = sut.cbegin();
@@ -1904,7 +1912,8 @@ TEST_F(forward_list_test, invalidIteratorAddressOfOperator)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        const uint64_t j{i};
+        sut.emplace_front(j);
     }
 
     auto iter = sut.cbegin();
@@ -1924,7 +1933,8 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
 
         for (; i < TESTLISTCAPACITY; ++i)
         {
-            sut1.emplace_front(static_cast<const uint64_t>(i));
+            const uint64_t j{i};
+            sut1.emplace_front(j);
         }
 
         memcpy(reinterpret_cast<void*>(otherSutPtr), reinterpret_cast<const void*>(&sut1), sizeof(sut1));
@@ -1933,7 +1943,8 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
         sut1.clear();
         for (uint64_t k = 0; k < TESTLISTCAPACITY; ++k)
         {
-            sut1.emplace_front(static_cast<const uint64_t>(k + i));
+            const uint64_t j{k + i};
+            sut1.emplace_front(j);
         }
     }
 
