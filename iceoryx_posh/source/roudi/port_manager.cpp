@@ -174,37 +174,35 @@ void PortManager::handlePublisherPorts() noexcept
     for (auto publisherPortData : m_portPool->getPublisherPortDataList())
     {
         PublisherPortRouDiType publisherPort(publisherPortData);
-        auto maybeCaproMessage = publisherPort.getCaProMessage();
-        if (maybeCaproMessage.has_value())
-        {
-            auto& caproMessage = maybeCaproMessage.value();
 
-            m_portIntrospection.reportMessage(caproMessage);
+        publisherPort.getCaProMessage()
+            .and_then([&](capro::CaproMessage caproMessage) {
+                m_portIntrospection.reportMessage(caproMessage);
 
-            if ((capro::CaproMessageType::OFFER == caproMessage.m_type)
-                || (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type))
-            {
-                addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
-                                          caproMessage.m_serviceDescription.getInstanceIDString());
+                if ((capro::CaproMessageType::OFFER == caproMessage.m_type)
+                    || (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type))
+                {
+                    addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
+                                              caproMessage.m_serviceDescription.getInstanceIDString());
 
-                sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
-            }
-            else
-            {
-                // protocol error
-                errorHandler(Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE,
+                    sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
+                }
+                else
+                {
+                    // protocol error
+                    errorHandler(Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_INVALID_CAPRO_MESSAGE,
+                                 nullptr,
+                                 iox::ErrorLevel::MODERATE);
+                }
+
+                // forward to interfaces
+                sendToAllMatchingInterfacePorts(caproMessage);
+            })
+            .or_else([]() {
+                errorHandler(Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_NOT_A_CAPRO_MESSAGE,
                              nullptr,
                              iox::ErrorLevel::MODERATE);
-            }
-
-            // forward to interfaces
-            sendToAllMatchingInterfacePorts(caproMessage);
-        }
-        else
-        {
-            errorHandler(
-                Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_NOT_A_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
-        }
+            });
 
         // check if we have to destroy this publisher port
         if (publisherPort.toBeDestroyed())
@@ -220,11 +218,8 @@ void PortManager::handleSubscriberPorts() noexcept
     for (auto subscriberPortData : m_portPool->getSubscriberPortDataList())
     {
         SubscriberPortProducerType subscriberPort(subscriberPortData);
-        auto returnedCaproMessage = subscriberPort.getCaProMessage();
-        if (returnedCaproMessage.has_value())
-        {
-            auto& caproMessage = returnedCaproMessage.value();
 
+        subscriberPort.getCaProMessage().and_then([&](capro::CaproMessage caproMessage) {
             m_portIntrospection.reportMessage(caproMessage);
 
             if (!sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
@@ -234,7 +229,7 @@ void PortManager::handleSubscriberPorts() noexcept
                                                 subscriberPort.getCaProServiceDescription());
                 subscriberPort.dispatchCaProMessage(nackMessage);
             }
-        }
+        });
 
         // check if we have to destroy this subscriber port
         if (subscriberPort.toBeDestroyed())
