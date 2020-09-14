@@ -268,11 +268,7 @@ Timer::OsTimer::~OsTimer() noexcept
 
         m_timerId = INVALID_TIMER_ID;
 
-        // note that some of those relaxed loads and stores could be potential problems since they might
-        // be reordered within certain constraints which may lead to subtle but serious logical errors due to races
-        // (especially on architectures with weaker memory model)
-        // this cannot be fixed without detailed analysis and a redesign is advised
-        callbackHandle.m_inUse.store(false, std::memory_order_relaxed);
+        callbackHandle.m_inUse.store(false, std::memory_order_seq_cst);
     }
 }
 

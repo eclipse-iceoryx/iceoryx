@@ -67,6 +67,14 @@ using namespace iox::units::duration_literals;
 ///     TiborTheTimer.stop();
 ///
 /// @endcode
+
+/// This class will be DEPRECATED in the near future. In its current form there may still be potential races when
+/// start/stop/restart are called concurrently (this includes the callback, which is executed in a separate thread).
+/// The implementation also has too much overhead in the callback execution (due to execution logic and potentially
+/// multiple callback threads).
+///
+/// It will be replaced with simpler versions for individual use cases, such as a CountdownTimer which can be used for
+/// watchdog/keepalive purposes.
 class Timer
 {
   public:
@@ -122,6 +130,7 @@ class Timer
         OsTimer* m_timer{nullptr};
     };
 
+    /// This class will be DEPRECATED in the near future.
     class OsTimer
     {
 #ifdef __QNX__
