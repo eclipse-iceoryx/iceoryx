@@ -44,7 +44,7 @@ class Logger
 
     void SetLogLevel(const LogLevel logLevel) noexcept;
     void SetLogMode(const LogMode logMode) noexcept;
-    inline bool IsEnabled(const LogLevel logLevel) const noexcept;
+    bool IsEnabled(const LogLevel logLevel) const noexcept;
 
     LogStream LogFatal() noexcept;
     LogStream LogError() noexcept;
@@ -66,16 +66,9 @@ class Logger
     std::atomic<LogMode> m_logMode{LogMode::kConsole};
 };
 
-inline bool Logger::IsEnabled(const LogLevel logLevel) const noexcept
-{
-    if (logLevel <= m_logLevel.load(std::memory_order_relaxed))
-    {
-        return true;
-    }
-    return false;
-}
-
 } // namespace log
 } // namespace iox
+
+#include "iceoryx_utils/log/logger.inl"
 
 #endif // IOX_UTILS_LOG_LOGGER_HPP
