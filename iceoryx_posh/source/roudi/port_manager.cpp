@@ -206,7 +206,7 @@ void PortManager::handlePublisherPorts() noexcept
                 Error::kPORT_MANAGER__HANDLE_PUBLISHER_PORTS_NOT_A_CAPRO_MESSAGE, nullptr, iox::ErrorLevel::MODERATE);
         }
 
-        // check if we have to destroy this sender port
+        // check if we have to destroy this publisher port
         if (publisherPort.toBeDestroyed())
         {
             destroyPublisherPort(publisherPortData);
