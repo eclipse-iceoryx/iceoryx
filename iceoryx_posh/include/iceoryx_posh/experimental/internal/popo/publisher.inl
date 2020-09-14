@@ -77,7 +77,7 @@ struct has_signature<Callable, ReturnType(ArgTypes...),
 // ======================================== Base Publisher ======================================== //
 
 template<typename T, typename port_t>
-BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
+BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription&)
     /* : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, "")) */
 {}
 
@@ -251,7 +251,7 @@ template<typename T, typename base_publisher_t>
 inline void
 TypedPublisher<T, base_publisher_t>::offer() noexcept
 {
-    return BasePublisher<T>::offer();
+    return base_publisher_t::offer();
 }
 
 template<typename T, typename base_publisher_t>
@@ -277,64 +277,73 @@ TypedPublisher<T, base_publisher_t>::hasSubscribers() noexcept
 
 // ======================================== Untyped Publisher ======================================== //
 
-UntypedPublisher::UntypedPublisher(const capro::ServiceDescription& service)
-    : BasePublisher<void>(service)
+template<typename base_publisher_t>
+UntypedPublisher<base_publisher_t>::UntypedPublisher(const capro::ServiceDescription& service)
+    : base_publisher_t(service)
 {}
 
+template<typename base_publisher_t>
 inline uid_t
-UntypedPublisher::uid() const noexcept
+UntypedPublisher<base_publisher_t>::uid() const noexcept
 {
-    return BasePublisher<void>::uid();
+    return base_publisher_t::uid();
 }
 
-
+template<typename base_publisher_t>
 inline cxx::expected<Sample<void>, AllocationError>
-UntypedPublisher::loan(uint32_t size) noexcept
+UntypedPublisher<base_publisher_t>::loan(uint32_t size) noexcept
 {
-    return BasePublisher<void>::loan(size);
+    return base_publisher_t::loan(size);
 }
 
+template<typename base_publisher_t>
 inline void
-UntypedPublisher::publish(Sample<void>& sample) noexcept
+UntypedPublisher<base_publisher_t>::publish(Sample<void>& sample) noexcept
 {
-    BasePublisher<void>::publish(sample);
+    base_publisher_t::publish(sample);
 }
 
+template<typename base_publisher_t>
 inline void
-UntypedPublisher::publish(void* allocatedMemory) noexcept
+UntypedPublisher<base_publisher_t>::publish(void* allocatedMemory) noexcept
 {
     auto header = iox::mepoo::convertPayloadPointerToChunkHeader(allocatedMemory);
-    m_port.sendChunk(header);
+    base_publisher_t::m_port.sendChunk(header);
 }
 
+template<typename base_publisher_t>
 inline cxx::optional<Sample<void>>
-UntypedPublisher::previousSample() noexcept
+UntypedPublisher<base_publisher_t>::previousSample() noexcept
 {
-    return BasePublisher<void>::previousSample();
+    return base_publisher_t::previousSample();
 }
 
+template<typename base_publisher_t>
 inline void
-UntypedPublisher::offer() noexcept
+UntypedPublisher<base_publisher_t>::offer() noexcept
 {
-    return BasePublisher<void>::offer();
+    return base_publisher_t::offer();
 }
 
+template<typename base_publisher_t>
 inline void
-UntypedPublisher::stopOffer() noexcept
+UntypedPublisher<base_publisher_t>::stopOffer() noexcept
 {
-    return BasePublisher<void>::stopOffer();
+    return base_publisher_t::stopOffer();
 }
 
+template<typename base_publisher_t>
 inline bool
-UntypedPublisher::isOffered() noexcept
+UntypedPublisher<base_publisher_t>::isOffered() noexcept
 {
-    return BasePublisher<void>::isOffered();
+    return base_publisher_t::isOffered();
 }
 
+template<typename base_publisher_t>
 inline bool
-UntypedPublisher::hasSubscribers() noexcept
+UntypedPublisher<base_publisher_t>::hasSubscribers() noexcept
 {
-    return BasePublisher<void>::hasSubscribers();
+    return base_publisher_t::hasSubscribers();
 }
 
 } // namespace popo

@@ -19,6 +19,7 @@
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 #include "test.hpp"
 
@@ -32,6 +33,7 @@ using ::testing::_;
 class MockPublisherPortUser
 {
 public:
+    MockPublisherPortUser() = default;
     MockPublisherPortUser(std::nullptr_t)
     {}
     MOCK_METHOD1(allocateChunk, iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
@@ -48,12 +50,7 @@ template<typename T>
 class MockBasePublisher : public iox::popo::PublisherInterface<T>
 {
 public:
-    void publish(iox::popo::Sample<T>& sample) noexcept
-    {
-        return publishMocked(sample);
-    };
-
-    MockBasePublisher(const iox::capro::ServiceDescription& service){};
+    MockBasePublisher(const iox::capro::ServiceDescription&){};
     MOCK_CONST_METHOD0(uid, iox::popo::uid_t());
     MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError>(uint32_t));
     MOCK_METHOD1_T(publishMocked, void(iox::popo::Sample<T>&) noexcept);
@@ -62,6 +59,11 @@ public:
     MOCK_METHOD0(stopOffer, void(void));
     MOCK_METHOD0(isOffered, bool(void));
     MOCK_METHOD0(hasSubscribers, bool(void));
+    void publish(iox::popo::Sample<T>& sample) noexcept
+    {
+        return publishMocked(sample);
+    };
+    MockPublisherPortUser m_port;
 };
 
 struct DummyData{
@@ -122,7 +124,7 @@ public:
 
 using TestBasePublisher = StubbedBasePublisher<DummyData, MockPublisherPortUser>;
 using TestTypedPublisher = iox::popo::TypedPublisher<DummyData, MockBasePublisher<DummyData>>;
-using TestUntypedPublisher = iox::popo::UntypedPublisher;
+using TestUntypedPublisher = iox::popo::UntypedPublisher<MockBasePublisher<void>>;
 
 // ========================= Base Publisher Tests ========================= //
 
@@ -161,33 +163,33 @@ TEST_F(ExperimentalBasePublisherTest, LoanForwardsAllocationErrorsToCaller)
 TEST_F(ExperimentalBasePublisherTest, LoanReturnsAllocatedSampleOnSuccess)
 {
     // ===== Setup ===== //
-    auto chunkHeader = new iox::mepoo::ChunkHeader();
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
     ON_CALL(sut.getMockedPort(), allocateChunk)
-            .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkHeader))));
+            .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk))));
     // ===== Test ===== //
     auto result = sut.loan(sizeof(DummyData));
     // ===== Verify ===== //
     // The memory location of the sample should be the same as the chunk payload.
-    EXPECT_EQ(chunkHeader->payload(), result.get_value().get());
+    EXPECT_EQ(chunk->payload(), result.get_value().get());
     // ===== Cleanup ===== //
-    delete chunkHeader;
+    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(ExperimentalBasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOfScope)
 {
     // ===== Setup ===== //
-    auto chunkHeader = new iox::mepoo::ChunkHeader();
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
 
     ON_CALL(sut.getMockedPort(), allocateChunk)
-            .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkHeader))));
-    EXPECT_CALL(sut.getMockedPort(), freeChunk(chunkHeader)).Times(1);
+            .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk))));
+    EXPECT_CALL(sut.getMockedPort(), freeChunk(chunk)).Times(1);
     // ===== Test ===== //
     {
         auto result = sut.loan(sizeof(DummyData));
     }
     // ===== Verify ===== //
     // ===== Cleanup ===== //
-    delete chunkHeader;
+    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(ExperimentalBasePublisherTest, OffersServiceWhenTryingToPublishOnUnofferedService)
@@ -300,10 +302,82 @@ protected:
     TestTypedPublisher sut{{"", "", ""}};
 };
 
-TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublisheTheResultOfALambdaWithNoAdditionalArguments)
+TEST_F(ExperimentalTypedPublisherTest, LoansSamplesLargeEnoughForTheType)
 {
     // ===== Setup ===== //
-    auto chunk = new iox::mepoo::ChunkHeader();
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+    auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
+                                                        reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
+                                                        [](DummyData* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    EXPECT_CALL(sut, loan(sizeof(DummyData))).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
+
+    // ===== Test ===== //
+    auto result = sut.loan();
+    // ===== Verify ===== //
+    EXPECT_EQ(false, result.has_error());
+    // ===== Cleanup ===== //
+    delete sample;
+    iox::cxx::alignedFree(chunk);
+}
+
+TEST_F(ExperimentalTypedPublisherTest, GetsUIDViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, uid).Times(1);
+    // ===== Test ===== //
+    sut.uid();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(ExperimentalTypedPublisherTest, PublishesSampleViaBasePublisher)
+{
+    // ===== Setup ===== //
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+    auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
+                                                        reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
+                                                        [](DummyData* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
+    EXPECT_CALL(sut, publishMocked).Times(1);
+    // ===== Test ===== //
+    auto loanResult = sut.loan();
+    sut.publish(loanResult.get_value());
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+    iox::cxx::alignedFree(chunk);
+}
+
+TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambdaWithAdditionalArguments)
+{
+    // ===== Setup ===== //
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+    auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
+                                                        reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
+                                                        [](DummyData* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
+    EXPECT_CALL(sut, publishMocked).Times(1);
+    // ===== Test ===== //
+    auto result = sut.publishResultOf([](DummyData* allocation, int, float){
+        auto data = new (allocation) DummyData();
+        data->val = 777;
+    }, 42, 77.77);
+    // ===== Verify ===== //
+    EXPECT_EQ(false, result.has_error());
+    // ===== Cleanup ===== //
+    delete sample;
+    iox::cxx::alignedFree(chunk);
+}
+
+TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambdaWithNoAdditionalArguments)
+{
+    // ===== Setup ===== //
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
     auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
                                                         reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                                         [](DummyData* const){} // Placeholder deleter.
@@ -320,7 +394,7 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublisheTheResultOfALamb
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
     delete sample;
-    delete chunk;
+    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWithNoAdditionalArguments)
@@ -332,7 +406,7 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACalla
             data->val = 777;
         };
     };
-    auto chunk = new iox::mepoo::ChunkHeader();
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
     auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
                                                         reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                                         [](DummyData* const){} // Placeholder deleter.
@@ -346,19 +420,19 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACalla
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
     delete sample;
-    delete chunk;
+    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWithAdditionalArguments)
 {
     // ===== Setup ===== //
     struct CallableStruct{
-        void operator()(DummyData* allocation, int intVal, float floatVal){
+        void operator()(DummyData* allocation, int, float){
             auto data = new (allocation) DummyData();
             data->val = 777;
         };
     };
-    auto chunk = new iox::mepoo::ChunkHeader();
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
     auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
                                                         reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                                         [](DummyData* const){} // Placeholder deleter.
@@ -372,7 +446,7 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACalla
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
     delete sample;
-    delete chunk;
+    iox::cxx::alignedFree(chunk);
 }
 
 void freeFunctionNoAdditionalArgs(DummyData* allocation)
@@ -380,7 +454,7 @@ void freeFunctionNoAdditionalArgs(DummyData* allocation)
     auto data = new (allocation) DummyData();
     data->val = 777;
 }
-void freeFunctionWithAdditionalArgs(DummyData* allocation, int intVal, float floatVal)
+void freeFunctionWithAdditionalArgs(DummyData* allocation, int, float)
 {
     auto data = new (allocation) DummyData();
     data->val = 777;
@@ -389,7 +463,7 @@ void freeFunctionWithAdditionalArgs(DummyData* allocation, int intVal, float flo
 TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFunctionPointerWithNoAdditionalArguments)
 {
     // ===== Setup ===== //
-    auto chunk = new iox::mepoo::ChunkHeader();
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
     auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
                                                         reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                                         [](DummyData* const){} // Placeholder deleter.
@@ -403,13 +477,13 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFuncti
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
     delete sample;
-    delete chunk;
+    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFunctionPointerWithAdditionalArguments)
 {
     // ===== Setup ===== //
-    auto chunk = new iox::mepoo::ChunkHeader();
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
     auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
                                                         reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                                         [](DummyData* const){} // Placeholder deleter.
@@ -423,13 +497,13 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFuncti
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
     delete sample;
-    delete chunk;
+    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishCopiesOfProvidedValues)
 {
     // ===== Setup ===== //
-    auto chunk = new iox::mepoo::ChunkHeader();
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
     auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
                                                         reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                                         [](DummyData* const){} // Placeholder deleter.
@@ -445,9 +519,184 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishCopiesOfProvidedV
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
     delete sample;
-    delete chunk;
+    iox::cxx::alignedFree(chunk);
+}
+
+TEST_F(ExperimentalTypedPublisherTest, GetsPreviousSampleViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, previousSample).Times(1);
+    // ===== Test ===== //
+    sut.previousSample();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(ExperimentalTypedPublisherTest, OffersViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, offer).Times(1);
+    // ===== Test ===== //
+    sut.offer();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(ExperimentalTypedPublisherTest, StopsOffersViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, stopOffer).Times(1);
+    // ===== Test ===== //
+    sut.stopOffer();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(ExperimentalTypedPublisherTest, checksIfOfferedViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, isOffered).Times(1);
+    // ===== Test ===== //
+    sut.isOffered();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(ExperimentalTypedPublisherTest, ChecksIfHasSubscribersViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, hasSubscribers).Times(1);
+    // ===== Test ===== //
+    sut.hasSubscribers();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
 }
 
 // ========================= Untyped Publisher Tests ========================= //
 
+class ExperimentalUntypedPublisherTest : public Test {
 
+public:
+    ExperimentalUntypedPublisherTest()
+    {
+    }
+
+    void SetUp()
+    {
+    }
+
+    void TearDown()
+    {
+    }
+
+protected:
+    TestUntypedPublisher sut{{"", "", ""}};
+};
+
+TEST_F(ExperimentalUntypedPublisherTest, GetsUIDViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, uid).Times(1);
+    // ===== Test ===== //
+    sut.uid();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(ExperimentalUntypedPublisherTest, LoansViaBasePublisher)
+{
+    // ===== Setup ===== //
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+    auto sample = new iox::popo::Sample<void>(iox::cxx::unique_ptr<void>(
+                                                        reinterpret_cast<void*>(chunk->payload()),
+                                                        [](void* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    EXPECT_CALL(sut, loan(42)).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<void>>(std::move(*sample)))));
+    // ===== Test ===== //
+    sut.loan(42);
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+    iox::cxx::alignedFree(chunk);
+}
+
+TEST_F(ExperimentalUntypedPublisherTest, PublishesSampleViaBasePublisher)
+{
+    // ===== Setup ===== //
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+    auto sample = new iox::popo::Sample<void>(iox::cxx::unique_ptr<void>(
+                                                        reinterpret_cast<void*>(chunk->payload()),
+                                                        [](void* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    EXPECT_CALL(sut, loan(42)).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<void>>(std::move(*sample)))));
+    EXPECT_CALL(sut, publishMocked).Times(1);
+    // ===== Test ===== //
+    auto loanResult = sut.loan(42);
+    sut.publish(loanResult.get_value());
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+    iox::cxx::alignedFree(chunk);
+}
+
+TEST_F(ExperimentalUntypedPublisherTest, PublishesVoidPointerViaUnderlyingPort)
+{
+    // ===== Setup ===== //
+    void* chunk = iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader));
+    EXPECT_CALL(sut.m_port, sendChunk).Times(1); // m_port is mocked.
+    // ===== Test ===== //
+    sut.publish(chunk);
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+    iox::cxx::alignedFree(chunk);
+}
+
+TEST_F(ExperimentalUntypedPublisherTest, GetsPreviousSampleViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, previousSample).Times(1);
+    // ===== Test ===== //
+    sut.previousSample();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(ExperimentalUntypedPublisherTest, OffersViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, offer).Times(1);
+    // ===== Test ===== //
+    sut.offer();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(ExperimentalUntypedPublisherTest, StopsOffersViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, stopOffer).Times(1);
+    // ===== Test ===== //
+    sut.stopOffer();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(ExperimentalUntypedPublisherTest, checksIfOfferedViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, isOffered).Times(1);
+    // ===== Test ===== //
+    sut.isOffered();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(ExperimentalUntypedPublisherTest, ChecksIfHasSubscribersViaBasePublisher)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, hasSubscribers).Times(1);
+    // ===== Test ===== //
+    sut.hasSubscribers();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}

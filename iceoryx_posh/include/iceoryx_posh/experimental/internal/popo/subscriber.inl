@@ -26,7 +26,7 @@ namespace popo {
 // ======================================== Base Subscriber ======================================== //
 
 template<typename T, typename port_t>
-BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
+BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription&)
     /* : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, "")) */
 {}
 
@@ -142,6 +142,8 @@ template<typename T, typename port_t>
 inline bool
 BaseSubscriber<T, port_t>::hasTriggered() const noexcept
 {
+    /// @todo Add implementation
+    return false;
 }
 
 // ======================================== Typed Subscriber ======================================== //

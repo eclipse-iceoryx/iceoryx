@@ -211,6 +211,11 @@ protected:
     BasePublisher(const capro::ServiceDescription& service);
 
 private:
+    ///
+    /// @brief convertChunkHeaderToSample Helper function that wraps the payload of a ChunkHeader in an Sample.
+    /// @param header The chunk header describing the allocated memory chunk to use in the sample.
+    /// @return A sample that uses the ChunkHeader's payload as its memory allocation.
+    ///
     Sample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* header) noexcept;
 
 protected:
@@ -263,7 +268,8 @@ public:
 
 // ======================================== Untyped Publisher ======================================== //
 
-class UntypedPublisher : protected iox::popo::BasePublisher<void>
+template<typename base_publisher_t = iox::popo::BasePublisher<void>>
+class UntypedPublisher : public base_publisher_t
 {
 public:
     UntypedPublisher(const capro::ServiceDescription& service);
