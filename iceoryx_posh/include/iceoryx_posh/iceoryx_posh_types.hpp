@@ -30,8 +30,15 @@ template <typename>
 class TypedUniqueId;
 struct BasePortData;
 
-class SenderPort;
-class ReceiverPort;
+class SenderPort;   /// @deprecated #25
+class ReceiverPort; /// @deprecated #25
+
+class PublisherPortUser;
+class PublisherPortRouDi;
+
+class SubscriberPortUser;
+class SubscriberPortSingleProducer;
+class SubscriberPortMultiProducer;
 } // namespace popo
 namespace posix
 {
@@ -39,9 +46,18 @@ class UnixDomainSocket;
 class MessageQueue;
 } // namespace posix
 
-using SenderPortType = iox::popo::SenderPort;
-using ReceiverPortType = iox::popo::ReceiverPort;
+using SenderPortType = iox::popo::SenderPort;     /// @deprecated #25
+using ReceiverPortType = iox::popo::ReceiverPort; /// @deprecated #25
+using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
+using PublisherPortUserType = iox::popo::PublisherPortUser;
+using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
+
+#if defined(RESTRICT_TO_1_TO_N_COMMUNICATION)
+using SubscriberPortProducerType = iox::popo::SubscriberPortSingleProducer;
+#else
+using SubscriberPortProducerType = iox::popo::SubscriberPortMultiProducer;
+#endif
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
 

@@ -19,6 +19,8 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
@@ -77,6 +79,7 @@ class PoshRuntime
     /// @param[in] serviceDescription of the service that shall be no more offered
     void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
 
+    /// @deprecated #25
     /// @brief request the RouDi daemon to create a sender port
     /// @param[in] serviceDescription service description for the new sender port
     /// @param[in] runnableName name of the runnable where the sender should belong to
@@ -87,6 +90,7 @@ class PoshRuntime
                                                       const cxx::CString100& runnableName = cxx::CString100(""),
                                                       const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
+    /// @deprecated #25
     /// @brief request the RouDi daemon to create a receiver port
     /// @param[in] serviceDescription service description for the new receiver port
     /// @param[in] runnableName name of the runnable where the receiver should belong to
@@ -97,6 +101,32 @@ class PoshRuntime
     getMiddlewareReceiver(const capro::ServiceDescription& service,
                           const cxx::CString100& runnableName = cxx::CString100(""),
                           const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
+
+    /// @brief request the RouDi daemon to create a publisher port
+    /// @param[in] serviceDescription service description for the new publisher port
+    /// @param[in] historyCapacity history capacity of a publisher
+    /// @param[in] runnableName name of the runnable where the publisher should belong to
+    /// @param[in] portConfigInfo configuration information for the port
+    /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
+    /// @return pointer to a created publisher port user
+    PublisherPortUserType::MemberType_t*
+    getMiddlewarePublisher(const capro::ServiceDescription& service,
+                           const uint64_t& historyCapacity = 0U,
+                           const cxx::CString100& runnableName = cxx::CString100(""),
+                           const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
+
+    /// @brief request the RouDi daemon to create a subscriber port
+    /// @param[in] serviceDescription service description for the new subscriber port
+    /// @param[in] historyRequest history requested by a subscriber
+    /// @param[in] runnableName name of the runnable where the subscriber should belong to
+    /// @param[in] portConfigInfo configuration information for the port
+    /// (what type of port is requested, device where its payload memory is located on etc.)
+    /// @return pointer to a created subscriber port data
+    SubscriberPortUserType::MemberType_t*
+    getMiddlewareSubscriber(const capro::ServiceDescription& service,
+                            const uint64_t& historyRequest = 0U,
+                            const cxx::CString100& runnableName = cxx::CString100(""),
+                            const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create an interface port
     /// @param[in] interface interface to create
@@ -146,10 +176,18 @@ class PoshRuntime
     static PoshRuntime& defaultRuntimeFactory(const std::string& name) noexcept;
 
   private:
+    /// @deprecated #25
     cxx::expected<SenderPortType::MemberType_t*, MqMessageErrorType>
     requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept;
 
+    /// @deprecated #25
     ReceiverPortType::MemberType_t* requestReceiverFromRoudi(const MqMessage& sendBuffer) noexcept;
+
+    cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
+    requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept;
+
+    cxx::expected<SubscriberPortUserType::MemberType_t*, MqMessageErrorType>
+    requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
     requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noexcept;
