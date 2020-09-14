@@ -18,6 +18,7 @@
 #include "iceoryx_binding_c/condition_variable.h"
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_binding_c/types.h"
 
 /// @brief Subscriber handle
 typedef struct cpp2c_Subscriber* iox_sub_t;
@@ -28,7 +29,7 @@ typedef struct cpp2c_Subscriber* iox_sub_t;
 /// @param[in] event eventString
 /// @param[in] historyCapacity size of the history chunk queue
 /// @return handle of the subscriber
-iox_sub_t iox_sub_init(iox_sub_t const self,
+iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,

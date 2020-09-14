@@ -30,7 +30,7 @@ extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
-iox_sub_t iox_sub_init(iox_sub_t const self,
+iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        const char* const service,
                        const char* const instance,
                        const char* const event,
@@ -43,8 +43,9 @@ iox_sub_t iox_sub_init(iox_sub_t const self,
                                        "AllHailHypnotoad!",
                                        VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
                                        historyRequest);
-    self->m_portData = data;
-    return self;
+    iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
+    me->m_portData = data;
+    return me;
 }
 
 void iox_sub_deinit(iox_sub_t const self)

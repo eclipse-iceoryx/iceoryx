@@ -92,7 +92,7 @@ class iox_sub_test : public Test
 TEST_F(iox_sub_test, initPerformsPlacementNew)
 {
     iox_sub_storage_t subStorage;
-    iox_sub_t sut = iox_sub_init((iox_sub_t)&subStorage, "myService", "myInstance", "myEvent", 1);
+    iox_sub_t sut = iox_sub_init(&subStorage, "myService", "myInstance", "myEvent", 1);
     EXPECT_EQ(iox_sub_get_subscription_state(sut), SubscribeState_NOT_SUBSCRIBED);
 }
 
