@@ -166,7 +166,6 @@ BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* h
                     [this](T* const p){
                         auto header = iox::mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
                         this->m_port.freeChunk(header);
-                        // Somehow need to release ownership of the chunk ...
                     }
                 ),
                 *this
@@ -175,36 +174,36 @@ BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* h
 
 // ======================================== Typed Publisher ======================================== //
 
-template<typename T>
-TypedPublisher<T>::TypedPublisher(const capro::ServiceDescription& service)
-    : BasePublisher<T>(service)
+template<typename T, typename base_publisher_t>
+TypedPublisher<T, base_publisher_t>::TypedPublisher(const capro::ServiceDescription& service)
+    : base_publisher_t(service)
 {}
 
-template<typename T>
+template<typename T, typename base_publisher_t>
 inline uid_t
-TypedPublisher<T>::uid() const noexcept
+TypedPublisher<T, base_publisher_t>::uid() const noexcept
 {
-    return BasePublisher<T>::uid();
+    return base_publisher_t::uid();
 }
 
-template<typename T>
+template<typename T, typename base_publisher_t>
 inline cxx::expected<Sample<T>, AllocationError>
-TypedPublisher<T>::loan() noexcept
+TypedPublisher<T, base_publisher_t>::loan() noexcept
 {
-    return BasePublisher<T>::loan(sizeof(T));
+    return base_publisher_t::loan(sizeof(T));
 }
 
-template<typename T>
+template<typename T, typename base_publisher_t>
 inline void
-TypedPublisher<T>::publish(Sample<T>& sample) noexcept
+TypedPublisher<T, base_publisher_t>::publish(Sample<T>& sample) noexcept
 {
-    return BasePublisher<T>::publish(sample);
+    return base_publisher_t::publish(sample);
 }
 
-template<typename T>
+template<typename T, typename base_publisher_t>
 template<typename Callable, typename... ArgTypes>
 inline cxx::expected<AllocationError>
-TypedPublisher<T>::publishResultOf(Callable c, ArgTypes... args) noexcept
+TypedPublisher<T, base_publisher_t>::publishResultOf(Callable c, ArgTypes... args) noexcept
 {
     static_assert(is_callable<Callable, T*, ArgTypes...>::value, "TypedPublisher<T>::publishResultOf expects a valid callable as the first argument");
     static_assert(has_signature<Callable, void(T*, ArgTypes...)>::value, "callable provided to TypedPublisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
@@ -218,61 +217,62 @@ TypedPublisher<T>::publishResultOf(Callable c, ArgTypes... args) noexcept
     {
         auto& sample = result.get_value();
         c(sample.get(), std::forward<ArgTypes>(args)...);
-        return publish(sample);
+        publish(sample);
+        return iox::cxx::success<>();
     }
 }
 
-template<typename T>
+template<typename T, typename base_publisher_t>
 inline cxx::expected<AllocationError>
-TypedPublisher<T>::publishCopyOf(const T& val) noexcept
+TypedPublisher<T, base_publisher_t>::publishCopyOf(const T& val) noexcept
 {
-    auto result = BasePublisher<T>::loan(sizeof(T));
+    auto result = loan();
     if(result.has_error())
     {
         return result;
     }
     else
     {
-        auto sample = result.get_value();
-        *sample = val;
-        BasePublisher<T>::publish(sample);
+        auto sample = std::move(result.get_value());
+        *sample.get() = val; // Copy assignment of value into sample's memory allocation.
+        publish(sample);
         return cxx::success<>();
     }
 }
 
-template<typename T>
+template<typename T, typename base_publisher_t>
 inline cxx::optional<Sample<T>>
-TypedPublisher<T>::previousSample() noexcept
+TypedPublisher<T, base_publisher_t>::previousSample() noexcept
 {
-    return BasePublisher<T>::previousSample();
+    return base_publisher_t::previousSample();
 }
 
-template<typename T>
+template<typename T, typename base_publisher_t>
 inline void
-TypedPublisher<T>::offer() noexcept
+TypedPublisher<T, base_publisher_t>::offer() noexcept
 {
     return BasePublisher<T>::offer();
 }
 
-template<typename T>
+template<typename T, typename base_publisher_t>
 inline void
-TypedPublisher<T>::stopOffer() noexcept
+TypedPublisher<T, base_publisher_t>::stopOffer() noexcept
 {
-    return BasePublisher<T>::stopOffer();
+    return base_publisher_t::stopOffer();
 }
 
-template<typename T>
+template<typename T, typename base_publisher_t>
 inline bool
-TypedPublisher<T>::isOffered() noexcept
+TypedPublisher<T, base_publisher_t>::isOffered() noexcept
 {
-    return BasePublisher<T>::isOffered();
+    return base_publisher_t::isOffered();
 }
 
-template<typename T>
+template<typename T, typename base_publisher_t>
 inline bool
-TypedPublisher<T>::hasSubscribers() noexcept
+TypedPublisher<T, base_publisher_t>::hasSubscribers() noexcept
 {
-    return BasePublisher<T>::hasSubscribers();
+    return base_publisher_t::hasSubscribers();
 }
 
 // ======================================== Untyped Publisher ======================================== //

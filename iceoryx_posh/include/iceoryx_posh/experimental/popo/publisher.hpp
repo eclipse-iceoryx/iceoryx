@@ -151,7 +151,7 @@ protected:
 template<typename T, typename port_t = iox::popo::PublisherPortUser>
 class BasePublisher : public PublisherInterface<T>
 {
-public:
+protected:
 
     BasePublisher(const BasePublisher& other) = delete;
     BasePublisher& operator=(const BasePublisher&) = delete;
@@ -222,8 +222,8 @@ protected:
 
 // ======================================== Typed Publisher ======================================== //
 
-template<typename T>
-class TypedPublisher : protected iox::popo::BasePublisher<T>
+template<typename T, typename base_publisher_t = iox::popo::BasePublisher<T>>
+class TypedPublisher : public base_publisher_t
 {
 public:
     TypedPublisher(const capro::ServiceDescription& service);

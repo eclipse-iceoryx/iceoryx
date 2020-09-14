@@ -18,6 +18,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 #include "test.hpp"
 
@@ -26,7 +27,7 @@
 using namespace ::testing;
 using ::testing::_;
 
-// ========================= Test Helpers ========================= //
+// ========================= Mocks ========================= //
 
 class MockPublisherPortUser
 {
@@ -43,9 +44,31 @@ public:
     MOCK_METHOD0(hasSubscribers, bool());
 };
 
+template<typename T>
+class MockBasePublisher : public iox::popo::PublisherInterface<T>
+{
+public:
+    void publish(iox::popo::Sample<T>& sample) noexcept
+    {
+        return publishMocked(sample);
+    };
+
+    MockBasePublisher(const iox::capro::ServiceDescription& service){};
+    MOCK_CONST_METHOD0(uid, iox::popo::uid_t());
+    MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError>(uint32_t));
+    MOCK_METHOD1_T(publishMocked, void(iox::popo::Sample<T>&) noexcept);
+    MOCK_METHOD0_T(previousSample, iox::cxx::optional<iox::popo::Sample<T>>());
+    MOCK_METHOD0(offer, void(void));
+    MOCK_METHOD0(stopOffer, void(void));
+    MOCK_METHOD0(isOffered, bool(void));
+    MOCK_METHOD0(hasSubscribers, bool(void));
+};
+
 struct DummyData{
     uint64_t val = 42;
 };
+
+// ========================= Tested Classes ========================= //
 
 template<typename T, typename port_t>
 class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
@@ -96,14 +119,17 @@ public:
     }
 };
 
+
 using TestBasePublisher = StubbedBasePublisher<DummyData, MockPublisherPortUser>;
+using TestTypedPublisher = iox::popo::TypedPublisher<DummyData, MockBasePublisher<DummyData>>;
+using TestUntypedPublisher = iox::popo::UntypedPublisher;
 
-// ========================= Test Setup ========================= //
+// ========================= Base Publisher Tests ========================= //
 
-class ExperimentalPublisherTest : public Test {
+class ExperimentalBasePublisherTest : public Test {
 
 public:
-    ExperimentalPublisherTest()
+    ExperimentalBasePublisherTest()
     {
 
     }
@@ -120,9 +146,7 @@ protected:
     TestBasePublisher sut{{"", "", ""}};
 };
 
-// ========================= Tests ========================= //
-
-TEST_F(ExperimentalPublisherTest, LoanForwardsAllocationErrorsToCaller)
+TEST_F(ExperimentalBasePublisherTest, LoanForwardsAllocationErrorsToCaller)
 {
     // ===== Setup ===== //
     ON_CALL(sut.getMockedPort(), allocateChunk).WillByDefault(Return(ByMove(iox::cxx::error<iox::popo::AllocationError>(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS))));
@@ -134,7 +158,7 @@ TEST_F(ExperimentalPublisherTest, LoanForwardsAllocationErrorsToCaller)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalPublisherTest, LoanReturnsAllocatedSampleOnSuccess)
+TEST_F(ExperimentalBasePublisherTest, LoanReturnsAllocatedSampleOnSuccess)
 {
     // ===== Setup ===== //
     auto chunkHeader = new iox::mepoo::ChunkHeader();
@@ -149,7 +173,7 @@ TEST_F(ExperimentalPublisherTest, LoanReturnsAllocatedSampleOnSuccess)
     delete chunkHeader;
 }
 
-TEST_F(ExperimentalPublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOfScope)
+TEST_F(ExperimentalBasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOfScope)
 {
     // ===== Setup ===== //
     auto chunkHeader = new iox::mepoo::ChunkHeader();
@@ -166,7 +190,7 @@ TEST_F(ExperimentalPublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOf
     delete chunkHeader;
 }
 
-TEST_F(ExperimentalPublisherTest, OffersServiceWhenTryingToPublishOnUnofferedService)
+TEST_F(ExperimentalBasePublisherTest, OffersServiceWhenTryingToPublishOnUnofferedService)
 {
     // ===== Setup ===== //
     ON_CALL(sut.getMockedPort(), allocateChunk).WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>())));
@@ -179,7 +203,7 @@ TEST_F(ExperimentalPublisherTest, OffersServiceWhenTryingToPublishOnUnofferedSer
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalPublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublisherPort)
+TEST_F(ExperimentalBasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublisherPort)
 {
     // ===== Setup ===== //
     ON_CALL(sut.getMockedPort(), allocateChunk).WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>())));
@@ -192,7 +216,7 @@ TEST_F(ExperimentalPublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublishe
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalPublisherTest, PreviousSampleReturnsSampleWhenPreviousChunkIsRetrievable)
+TEST_F(ExperimentalBasePublisherTest, PreviousSampleReturnsSampleWhenPreviousChunkIsRetrievable)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), getLastChunk).WillOnce(Return(ByMove(iox::cxx::make_optional<iox::mepoo::ChunkHeader*>())));
@@ -203,7 +227,7 @@ TEST_F(ExperimentalPublisherTest, PreviousSampleReturnsSampleWhenPreviousChunkIs
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalPublisherTest, PreviousSampleReturnsEmptyOptionalWhenChunkNotRetrievable)
+TEST_F(ExperimentalBasePublisherTest, PreviousSampleReturnsEmptyOptionalWhenChunkNotRetrievable)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), getLastChunk).WillOnce(Return(ByMove(iox::cxx::nullopt)));
@@ -214,7 +238,7 @@ TEST_F(ExperimentalPublisherTest, PreviousSampleReturnsEmptyOptionalWhenChunkNot
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalPublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
+TEST_F(ExperimentalBasePublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), offer).Times(1);
@@ -224,7 +248,7 @@ TEST_F(ExperimentalPublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalPublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingPort)
+TEST_F(ExperimentalBasePublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), stopOffer).Times(1);
@@ -234,7 +258,7 @@ TEST_F(ExperimentalPublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingPort)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalPublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingPort)
+TEST_F(ExperimentalBasePublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), isOffered).Times(1);
@@ -244,7 +268,7 @@ TEST_F(ExperimentalPublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingP
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalPublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
+TEST_F(ExperimentalBasePublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), hasSubscribers).Times(1);
@@ -254,10 +278,176 @@ TEST_F(ExperimentalPublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribe
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalPublisherTest, Template)
+// ========================= Typed Publisher Tests ========================= //
+
+class ExperimentalTypedPublisherTest : public Test {
+
+public:
+    ExperimentalTypedPublisherTest()
+    {
+
+    }
+
+    void SetUp()
+    {
+    }
+
+    void TearDown()
+    {
+    }
+
+protected:
+    TestTypedPublisher sut{{"", "", ""}};
+};
+
+TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublisheTheResultOfALambdaWithNoAdditionalArguments)
 {
     // ===== Setup ===== //
+    auto chunk = new iox::mepoo::ChunkHeader();
+    auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
+                                                        reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
+                                                        [](DummyData* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
+    EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
+    auto result = sut.publishResultOf([](DummyData* allocation){
+        auto data = new (allocation) DummyData();
+        data->val = 777;
+    });
     // ===== Verify ===== //
+    EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
+    delete sample;
+    delete chunk;
 }
+
+TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWithNoAdditionalArguments)
+{
+    // ===== Setup ===== //
+    struct CallableStruct{
+        void operator()(DummyData* allocation){
+            auto data = new (allocation) DummyData();
+            data->val = 777;
+        };
+    };
+    auto chunk = new iox::mepoo::ChunkHeader();
+    auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
+                                                        reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
+                                                        [](DummyData* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
+    EXPECT_CALL(sut, publishMocked).Times(1);
+    // ===== Test ===== //
+    auto result = sut.publishResultOf(CallableStruct{});
+    // ===== Verify ===== //
+    EXPECT_EQ(false, result.has_error());
+    // ===== Cleanup ===== //
+    delete sample;
+    delete chunk;
+}
+
+TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWithAdditionalArguments)
+{
+    // ===== Setup ===== //
+    struct CallableStruct{
+        void operator()(DummyData* allocation, int intVal, float floatVal){
+            auto data = new (allocation) DummyData();
+            data->val = 777;
+        };
+    };
+    auto chunk = new iox::mepoo::ChunkHeader();
+    auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
+                                                        reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
+                                                        [](DummyData* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
+    EXPECT_CALL(sut, publishMocked).Times(1);
+    // ===== Test ===== //
+    auto result = sut.publishResultOf(CallableStruct{}, 42, 77.77);
+    // ===== Verify ===== //
+    EXPECT_EQ(false, result.has_error());
+    // ===== Cleanup ===== //
+    delete sample;
+    delete chunk;
+}
+
+void freeFunctionNoAdditionalArgs(DummyData* allocation)
+{
+    auto data = new (allocation) DummyData();
+    data->val = 777;
+}
+void freeFunctionWithAdditionalArgs(DummyData* allocation, int intVal, float floatVal)
+{
+    auto data = new (allocation) DummyData();
+    data->val = 777;
+}
+
+TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFunctionPointerWithNoAdditionalArguments)
+{
+    // ===== Setup ===== //
+    auto chunk = new iox::mepoo::ChunkHeader();
+    auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
+                                                        reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
+                                                        [](DummyData* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
+    EXPECT_CALL(sut, publishMocked).Times(1);
+    // ===== Test ===== //
+    auto result = sut.publishResultOf(freeFunctionNoAdditionalArgs);
+    // ===== Verify ===== //
+    EXPECT_EQ(false, result.has_error());
+    // ===== Cleanup ===== //
+    delete sample;
+    delete chunk;
+}
+
+TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFunctionPointerWithAdditionalArguments)
+{
+    // ===== Setup ===== //
+    auto chunk = new iox::mepoo::ChunkHeader();
+    auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
+                                                        reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
+                                                        [](DummyData* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
+    EXPECT_CALL(sut, publishMocked).Times(1);
+    // ===== Test ===== //
+    auto result = sut.publishResultOf(freeFunctionWithAdditionalArgs, 42, 77.77);
+    // ===== Verify ===== //
+    EXPECT_EQ(false, result.has_error());
+    // ===== Cleanup ===== //
+    delete sample;
+    delete chunk;
+}
+
+TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishCopiesOfProvidedValues)
+{
+    // ===== Setup ===== //
+    auto chunk = new iox::mepoo::ChunkHeader();
+    auto sample = new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(
+                                                        reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
+                                                        [](DummyData* const){} // Placeholder deleter.
+                                                    ),
+                                                    sut);
+    auto data = DummyData();
+    data.val = 777;
+    EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
+    EXPECT_CALL(sut, publishMocked).Times(1);
+    // ===== Test ===== //
+    auto result = sut.publishCopyOf(data);
+    // ===== Verify ===== //
+    EXPECT_EQ(false, result.has_error());
+    // ===== Cleanup ===== //
+    delete sample;
+    delete chunk;
+}
+
+// ========================= Untyped Publisher Tests ========================= //
+
+
