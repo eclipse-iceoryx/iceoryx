@@ -322,7 +322,7 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
 
     LogError() << "Wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
     errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-    return cxx::success<PublisherPortUserType::MemberType_t*>(nullptr);
+    return cxx::error<MqMessageErrorType>(MqMessageErrorType::REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE);
 }
 
 SubscriberPortUserType::MemberType_t*
@@ -396,7 +396,7 @@ PoshRuntime::requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept
 
     LogError() << "Wrong response from message queue";
     errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-    return cxx::success<SubscriberPortUserType::MemberType_t*>(nullptr);
+    return cxx::error<MqMessageErrorType>(MqMessageErrorType::REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE);
 }
 
 popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interfaces interface,
