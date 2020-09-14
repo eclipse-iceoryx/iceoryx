@@ -632,9 +632,9 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
     /// @todo #25 Fix introspection
     // m_portIntrospection.removePublisher(publisherPort.getProcessName(), serviceDescription);
 
-    // delete publisher impl from list after StopOffer was processed
+    // delete publisher port from list after StopOffer was processed
     m_portPool->removePublisherPort(publisherPortData);
-    LogDebug() << "Destroyed PublisherPortImpl";
+    LogDebug() << "Destroyed publisher port";
 }
 
 void PortManager::destroySubscriberPort(SubscriberPortProducerType::MemberType_t* const subscriberPortData) noexcept
@@ -654,9 +654,9 @@ void PortManager::destroySubscriberPort(SubscriberPortProducerType::MemberType_t
     /// @todo #25 Fix introspection
     // m_portIntrospection.removeSubscriber(subscriberPort.getProcessName(), serviceDescription);
 
-    // delete subscriber impl from list after unsubscribe was processed
+    // delete subscriber port from list after unsubscribe was processed
     m_portPool->removeSubscriberPort(subscriberPortData);
-    LogDebug() << "Destroyed SubscriberPortImpl";
+    LogDebug() << "Destroyed subscriber port";
 }
 
 runtime::MqMessage PortManager::findService(const capro::ServiceDescription& service) noexcept
