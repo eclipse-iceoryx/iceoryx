@@ -115,8 +115,6 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
 {
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    WaitSetMock m_sut2{&m_condVarData};
-
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
@@ -125,12 +123,21 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
         });
 
     {
-        MockSubscriber scopedCondition;
-        m_sut2.attachCondition(scopedCondition);
+        WaitSetMock m_sut2{&m_condVarData};
+
+        {
+            MockSubscriber scopedCondition;
+            m_sut2.attachCondition(scopedCondition);
+        }
+
+        EXPECT_TRUE(errorHandlerCalled);
+        EXPECT_THAT(receivedError, Eq(iox::Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE));
+
+        errorHandlerCalled = false;
     }
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_THAT(receivedError, Eq(iox::Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE));
+    EXPECT_THAT(receivedError, Eq(iox::Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION));
 }
 
 TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
