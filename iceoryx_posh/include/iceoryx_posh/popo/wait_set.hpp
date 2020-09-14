@@ -73,16 +73,16 @@ enum class WaitSetError : uint8_t
 ///     // Wait till new data has arrived (any condition has become true)
 ///     auto vectorOfFulfilledConditions = myWaitSet.wait();
 ///
-/// 	for(auto& element : vectorOfFulfilledConditions)
-/// 	{
-/// 		if(element == &mySubscriber1)
-/// 		{
-/// 			// Subscriber1 has received new data
-/// 			ChunkHeader myData;
-/// 			mySubscriber1.tryGetChunk(myData);
-/// 			doSomeThingWithTheNewData(myData);
-/// 		}
-/// 	}
+///     for(auto& element : vectorOfFulfilledConditions)
+///     {
+///         if(element == &mySubscriber1)
+///         {
+///             // Subscriber1 has received new data
+///             ChunkHeader myData;
+///             mySubscriber1.tryGetChunk(myData);
+///             doSomeThingWithTheNewData(myData);
+///         }
+///     }
 /// }
 /// someOtherThread.join();
 ///
@@ -102,8 +102,7 @@ class WaitSet
         TIMED_WAIT
     };
 
-    explicit WaitSet(cxx::not_null<ConditionVariableData* const> =
-                         runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable()) noexcept;
+    WaitSet() noexcept;
     virtual ~WaitSet() noexcept;
     WaitSet(const WaitSet& rhs) = delete;
     WaitSet(WaitSet&& rhs) = delete;
@@ -133,6 +132,9 @@ class WaitSet
     /// @return ConditionVector vector of condition pointers that have become
     /// fulfilled
     ConditionVector wait() noexcept;
+
+  protected:
+    explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
     template <WaitPolicy policy>

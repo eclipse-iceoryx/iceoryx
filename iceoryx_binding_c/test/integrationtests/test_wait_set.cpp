@@ -33,13 +33,21 @@ using namespace ::testing;
 class iox_wait_set_test : public Test
 {
   public:
+    class WaitSetMock : public WaitSet
+    {
+      public:
+        WaitSetMock(ConditionVariableData* data)
+            : WaitSet(data)
+        {
+        }
+    };
+
     void SetUp() override
     {
     }
 
     void TearDown() override
     {
-        iox_wait_set_deinit(sut);
         for (auto s : m_subscriber)
         {
             delete s;
@@ -66,20 +74,20 @@ class iox_wait_set_test : public Test
 
     ConditionVariableData m_condVar;
     iox_wait_set_storage_t m_sutStorage;
-    iox_wait_set_t sut = iox_wait_set_init(&m_sutStorage, &m_condVar);
+    WaitSetMock m_sut{&m_condVar};
     std::vector<iox_sub_t> m_subscriber;
 };
 
 TEST_F(iox_wait_set_test, AttachSingleConditionSuccessfully)
 {
     iox_sub_t subscriber = CreateSubscriber();
-    EXPECT_THAT(iox_wait_set_attach_condition(sut, subscriber), Eq(WaitSetResult_SUCCESS));
+    EXPECT_THAT(iox_wait_set_attach_condition(&m_sut, subscriber), Eq(WaitSetResult_SUCCESS));
 }
 
 TEST_F(iox_wait_set_test, AttachSingleConditionTwiceResultsInFailure)
 {
     iox_sub_t subscriber = CreateSubscriber();
-    iox_wait_set_attach_condition(sut, subscriber), Eq(WaitSetResult_SUCCESS);
+    iox_wait_set_attach_condition(&m_sut, subscriber), Eq(WaitSetResult_SUCCESS);
 
-    EXPECT_THAT(iox_wait_set_attach_condition(sut, subscriber), Eq(WaitSetResult_CONDITION_VARIABLE_ALREADY_SET));
+    EXPECT_THAT(iox_wait_set_attach_condition(&m_sut, subscriber), Eq(WaitSetResult_CONDITION_VARIABLE_ALREADY_SET));
 }

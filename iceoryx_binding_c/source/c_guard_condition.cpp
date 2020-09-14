@@ -21,9 +21,10 @@ extern "C" {
 #include "iceoryx_binding_c/guard_condition.h"
 }
 
-void iox_guard_cond_init(iox_guard_cond_t const self)
+iox_guard_cond_t iox_guard_cond_init(iox_guard_cond_storage_t* self)
 {
     new (self) GuardCondition();
+    return reinterpret_cast<iox_guard_cond_t>(self);
 }
 
 void iox_guard_cond_deinit(iox_guard_cond_t const self)

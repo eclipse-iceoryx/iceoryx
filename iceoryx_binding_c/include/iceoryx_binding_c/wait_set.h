@@ -25,7 +25,7 @@
 /// @brief wait set handle
 typedef struct WaitSet* iox_wait_set_t;
 
-iox_wait_set_t iox_wait_set_init(iox_wait_set_storage_t* self, iox_cond_var_t const conditionVariable);
+iox_wait_set_t iox_wait_set_init(iox_wait_set_storage_t* self);
 void iox_wait_set_deinit(iox_wait_set_t const self);
 
 ENUM iox_WaitSetResult iox_wait_set_attach_condition(iox_wait_set_t const self, iox_cond_t const condition);

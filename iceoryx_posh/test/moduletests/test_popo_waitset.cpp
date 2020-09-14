@@ -66,8 +66,17 @@ class MockSubscriber : public Condition
 class WaitSet_test : public Test
 {
   public:
+    class WaitSetMock : public WaitSet
+    {
+      public:
+        WaitSetMock(ConditionVariableData* condVarDataPtr) noexcept
+            : WaitSet(condVarDataPtr)
+        {
+        }
+    };
+
     ConditionVariableData m_condVarData;
-    WaitSet m_sut{&m_condVarData};
+    WaitSetMock m_sut{&m_condVarData};
     vector<MockSubscriber, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> m_subscriberVector;
 
     iox::posix::Semaphore m_syncSemaphore = iox::posix::Semaphore::create(0u).get_value();
@@ -106,8 +115,7 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
 {
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    WaitSet* m_sut2 = static_cast<WaitSet*>(malloc(sizeof(WaitSet)));
-    new (m_sut2) WaitSet{&m_condVarData};
+    WaitSetMock m_sut2{&m_condVarData};
 
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&errorHandlerCalled,
@@ -118,18 +126,17 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
 
     {
         MockSubscriber scopedCondition;
-        m_sut2->attachCondition(scopedCondition);
+        m_sut2.attachCondition(scopedCondition);
     }
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(receivedError, Eq(iox::Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE));
-    free(m_sut2);
 }
 
 TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
 {
     {
-        WaitSet m_sut2{&m_condVarData};
+        WaitSetMock m_sut2{&m_condVarData};
         m_sut2.attachCondition(m_subscriberVector.front());
     }
     EXPECT_FALSE(m_subscriberVector.front().isConditionVariableAttached());
@@ -196,7 +203,7 @@ TEST_F(WaitSet_test, DetachUnknownConditionResultsInFailure)
 
 TEST_F(WaitSet_test, AttachConditionInTwoWaitSetsResultsInAlreadySetError)
 {
-    WaitSet m_sut2{&m_condVarData};
+    WaitSetMock m_sut2{&m_condVarData};
     m_sut.attachCondition(m_subscriberVector.front());
     EXPECT_THAT(m_sut2.attachCondition(m_subscriberVector.front()).get_error(),
                 Eq(WaitSetError::CONDITION_VARIABLE_ALREADY_SET));

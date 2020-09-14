@@ -18,6 +18,11 @@ namespace iox
 {
 namespace popo
 {
+WaitSet::WaitSet() noexcept
+    : WaitSet(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
+{
+}
+
 WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
     : m_conditionVariableDataPtr(condVarDataPtr)
     , m_conditionVariableWaiter(m_conditionVariableDataPtr)

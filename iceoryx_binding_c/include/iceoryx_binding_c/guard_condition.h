@@ -15,12 +15,12 @@
 #ifndef IOX_BINDING_C_GUARD_CONDITION_H
 #define IOX_BINDING_C_GUARD_CONDITION_H
 
+#include "iceoryx_binding_c/types.h"
+
 /// @brief guard condition handle
 typedef struct GuardCondition* iox_guard_cond_t;
 
-void iox_guard_cond_init(iox_guard_cond_t const self);
-
-/// @todo naming?
+iox_guard_cond_t iox_guard_cond_init(iox_guard_cond_storage_t* self);
 void iox_guard_cond_deinit(iox_guard_cond_t const self);
 
 void iox_guard_cond_set_trigger(iox_guard_cond_t const self);

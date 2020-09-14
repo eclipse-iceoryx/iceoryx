@@ -46,9 +46,9 @@ static void condition_vector_to_c_array(const WaitSet::ConditionVector& conditio
     }
 }
 
-iox_wait_set_t iox_wait_set_init(iox_wait_set_storage_t* self, iox_cond_var_t const conditionVariable)
+iox_wait_set_t iox_wait_set_init(iox_wait_set_storage_t* self)
 {
-    new (self) WaitSet(conditionVariable);
+    new (self) WaitSet();
     return reinterpret_cast<iox_wait_set_t>(self);
 }
 

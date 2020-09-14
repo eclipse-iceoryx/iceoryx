@@ -29,6 +29,15 @@ using namespace ::testing;
 class iox_cond_test : public Test
 {
   public:
+    class WaitSetMock : public WaitSet
+    {
+      public:
+        WaitSetMock(ConditionVariableData* data)
+            : WaitSet(data)
+        {
+        }
+    };
+
     class : public Condition
     {
       public:
@@ -73,7 +82,7 @@ TEST_F(iox_cond_test, ConditionVariableNotAttachedAfterConstruction)
 TEST_F(iox_cond_test, AttachingConditionVariable)
 {
     ConditionVariableData data;
-    WaitSet ws(&data);
+    WaitSetMock ws(&data);
     ws.attachCondition(sut);
 
     EXPECT_TRUE(iox_cond_is_condition_variable_attached(&sut));
