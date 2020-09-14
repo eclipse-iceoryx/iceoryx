@@ -35,7 +35,8 @@ void sending()
     iox_runtime_register("/iox-c-publisher");
 
     uint64_t historyRequest = 0U;
-    iox_pub_t publisher = iox_pub_create("Radar", "FrontLeft", "Counter", historyRequest);
+    iox_pub_storage_t publisherStorage;
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest);
 
     iox_pub_offer(publisher);
 
@@ -65,7 +66,7 @@ void sending()
     }
 
     iox_pub_stop_offer(publisher);
-    iox_pub_destroy(publisher);
+    iox_pub_deinit(publisher);
 }
 
 int main()

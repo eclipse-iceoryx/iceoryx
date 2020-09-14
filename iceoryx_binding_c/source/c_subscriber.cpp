@@ -50,7 +50,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
 
 void iox_sub_deinit(iox_sub_t const self)
 {
-    delete self->m_portData;
+    self->~cpp2c_Subscriber();
 }
 
 void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity)

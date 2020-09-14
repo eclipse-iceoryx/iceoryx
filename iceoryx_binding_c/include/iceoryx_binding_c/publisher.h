@@ -17,21 +17,27 @@
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_binding_c/types.h"
 
 /// @brief publisher handle
-typedef struct PublisherPortData* iox_pub_t;
+typedef struct cpp2c_Publisher* iox_pub_t;
 
 /// @brief creates a publisher handle in the default runtime runnable
+/// @param[in] self pointer to preallocated memory of size = sizeof(iox_pub_storage_t)
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString
 /// @param[in] historyCapacity size of the history chunk queue
 /// @return handle of the publisher
-iox_pub_t iox_pub_create(const char* service, const char* instance, const char* event, const uint64_t historyCapacity);
+iox_pub_t iox_pub_init(iox_pub_storage_t* self,
+                       const char* service,
+                       const char* instance,
+                       const char* event,
+                       const uint64_t historyCapacity);
 
 /// @brief removes a publisher handle
 /// @param[in] self the handle which should be removed
-void iox_pub_destroy(iox_pub_t const self);
+void iox_pub_deinit(iox_pub_t const self);
 
 /// @brief allocates a chunk in the shared memory
 /// @param[in] self handle of the publisher

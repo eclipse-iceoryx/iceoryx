@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 
 using namespace iox;
@@ -25,9 +26,15 @@ extern "C" {
 #include "iceoryx_binding_c/publisher.h"
 }
 
-iox_pub_t iox_pub_create(const char* service, const char* instance, const char* event, const uint64_t historyCapacity)
+iox_pub_t iox_pub_init(iox_pub_storage_t* self,
+                       const char* service,
+                       const char* instance,
+                       const char* event,
+                       const uint64_t historyCapacity)
 {
-    return new PublisherPortData(
+    new (self) cpp2c_Publisher();
+    iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
+    me->m_portData = new PublisherPortData(
         ServiceDescription{
             IdString(TruncateToCapacity, service),
             IdString(TruncateToCapacity, instance),
@@ -36,17 +43,20 @@ iox_pub_t iox_pub_create(const char* service, const char* instance, const char* 
         "JoinTheChurchOfHypnotoad!",
         nullptr,
         historyCapacity);
+    return me;
 }
 
-void iox_pub_destroy(iox_pub_t const self)
+void iox_pub_deinit(iox_pub_t const self)
 {
-    delete self;
+    delete self->m_portData;
+    self->~cpp2c_Publisher();
 }
 
 iox_AllocationResult iox_pub_allocate_chunk(iox_pub_t const self, void** const chunk, const uint32_t payloadSize)
 {
-    auto result =
-        PublisherPortUser(self).tryAllocateChunk(payloadSize).and_then([&](ChunkHeader* h) { *chunk = h->payload(); });
+    auto result = PublisherPortUser(self->m_portData).tryAllocateChunk(payloadSize).and_then([&](ChunkHeader* h) {
+        *chunk = h->payload();
+    });
     if (result.has_error())
     {
         return cpp2c::AllocationResult(result.get_error());
@@ -57,38 +67,40 @@ iox_AllocationResult iox_pub_allocate_chunk(iox_pub_t const self, void** const c
 
 void iox_pub_free_chunk(iox_pub_t const self, void* const chunk)
 {
-    PublisherPortUser(self).freeChunk(convertPayloadPointerToChunkHeader(chunk));
+    PublisherPortUser(self->m_portData).freeChunk(convertPayloadPointerToChunkHeader(chunk));
 }
 
 void iox_pub_send_chunk(iox_pub_t const self, void* const chunk)
 {
-    PublisherPortUser(self).sendChunk(convertPayloadPointerToChunkHeader(chunk));
+    PublisherPortUser(self->m_portData).sendChunk(convertPayloadPointerToChunkHeader(chunk));
 }
 
 const void* iox_pub_try_get_previous_chunk(iox_pub_t const self)
 {
     const void* returnValue = nullptr;
-    PublisherPortUser(self).tryGetPreviousChunk().and_then([&](const ChunkHeader* h) { returnValue = h->payload(); });
+    PublisherPortUser(self->m_portData).tryGetPreviousChunk().and_then([&](const ChunkHeader* h) {
+        returnValue = h->payload();
+    });
     return returnValue;
 }
 
 void iox_pub_offer(iox_pub_t const self)
 {
-    PublisherPortUser(self).offer();
+    PublisherPortUser(self->m_portData).offer();
 }
 
 void iox_pub_stop_offer(iox_pub_t const self)
 {
-    PublisherPortUser(self).stopOffer();
+    PublisherPortUser(self->m_portData).stopOffer();
 }
 
 bool iox_pub_is_offered(iox_pub_t const self)
 {
-    return PublisherPortUser(self).isOffered();
+    return PublisherPortUser(self->m_portData).isOffered();
 }
 
 bool iox_pub_has_subscribers(iox_pub_t const self)
 {
-    return PublisherPortUser(self).hasSubscribers();
+    return PublisherPortUser(self->m_portData).hasSubscribers();
 }
 

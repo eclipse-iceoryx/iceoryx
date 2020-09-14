@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
@@ -44,4 +45,10 @@ TEST(iox_types_test, cpp2c_SubscriberStorageSizeFits)
 {
     EXPECT_THAT(sizeof(cpp2c_Subscriber), Eq(sizeof(iox_sub_storage_t)));
     EXPECT_THAT(alignof(cpp2c_Subscriber), Le(alignof(iox_sub_storage_t)));
+}
+
+TEST(iox_types_test, cpp2c_PublisherStorageSizeFits)
+{
+    EXPECT_THAT(sizeof(cpp2c_Publisher), Eq(sizeof(iox_pub_storage_t)));
+    EXPECT_THAT(alignof(cpp2c_Publisher), Le(alignof(iox_pub_storage_t)));
 }

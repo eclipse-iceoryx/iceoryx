@@ -23,6 +23,7 @@
 typedef struct cpp2c_Subscriber* iox_sub_t;
 
 /// @brief initialize a subscriber handle in the default runtime runnable
+/// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
 /// @param[in] event eventString

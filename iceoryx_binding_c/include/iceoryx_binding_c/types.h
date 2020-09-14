@@ -41,5 +41,13 @@ struct iox_sub_storage_t_
 };
 typedef struct iox_sub_storage_t_ iox_sub_storage_t;
 
+struct iox_pub_storage_t_
+{
+    // the value of the array size is the result of the following formula:
+    // sizeof(cpp2c_Publisher) / 8
+    uint64_t do_not_touch_me[1];
+};
+typedef struct iox_pub_storage_t_ iox_pub_storage_t;
+
 
 #endif
