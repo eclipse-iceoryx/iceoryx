@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_GATEWAY_GATEWAY_CONFIG_HPP
-#define IOX_DDS_GATEWAY_GATEWAY_CONFIG_HPP
+#ifndef IOX_POSH_GW_GATEWAY_CONFIG_HPP
+#define IOX_POSH_GW_GATEWAY_CONFIG_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -21,7 +21,7 @@
 
 namespace iox
 {
-namespace dds
+namespace config
 {
 ///
 /// @brief Generic configuration for gateways.
@@ -30,13 +30,13 @@ struct GatewayConfig
 {
     struct ServiceEntry
     {
-        iox::capro::ServiceDescription m_serviceDescription;
+        capro::ServiceDescription m_serviceDescription;
     };
-    iox::cxx::vector<ServiceEntry, iox::MAX_GATEWAY_SERVICES> m_configuredServices; 
+    iox::cxx::vector<ServiceEntry, MAX_GATEWAY_SERVICES> m_configuredServices; 
 
     void setDefaults() noexcept;
 };
-} // namespace dds
+} // namespace gw
 } // namespace iox
 
-#endif // IOX_DDS_GATEWAY_GATEWAY_CONFIG_HPP
+#endif // IOX_POSH_GW_GATEWAY_CONFIG_HPP

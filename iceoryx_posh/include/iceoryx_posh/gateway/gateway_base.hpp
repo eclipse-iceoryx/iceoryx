@@ -11,54 +11,58 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_GATEWAY_DISCOVERY_HPP
-#define IOX_POSH_POPO_GATEWAY_DISCOVERY_HPP
+#ifndef IOX_POSH_GW_GATEWAY_BASE_HPP
+#define IOX_POSH_GW_GATEWAY_BASE_HPP
 
-#include "gateway_generic.hpp"
+#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
+
+#include <memory>
 
 namespace iox
 {
+
 namespace capro
 {
 class CaproMessage;
 }
+
 namespace popo
 {
 class InterfacePort;
+}
 
-/// @brief Discover the gateway
-template <typename Impl_T = GatewayGeneric>
-class GatewayDiscovery
+namespace gw {
+/// @brief Generic gateway for communication events
+class GatewayBase
 {
   public:
     using CaproMessage = capro::CaproMessage;
 
-    /// @brief Constructor for discovering gateway based on type of interface
+    /// @brief Constructor for creating generic gateway based on type of interface
     /// @param[in] f_interface Type of interface
-    GatewayDiscovery(const capro::Interfaces f_interface) noexcept
-        : m_impl(f_interface)
-    {
-    }
+    GatewayBase(const capro::Interfaces f_interface) noexcept;
 
+    GatewayBase& operator=(const GatewayBase& other) = delete;
+    GatewayBase(const GatewayBase& other) = delete;
+    GatewayBase(GatewayBase&& other) = default;
+    GatewayBase& operator=(GatewayBase&&) = default;
+
+    virtual ~GatewayBase() noexcept;
     /// @brief Get function for type of capro message - service or event or field
-    /// @param[in] msg Type of capro message
-    bool getCaproMessage(CaproMessage& msg) noexcept
-    {
-        return m_impl.getCaProMessage(msg);
-    }
+    /// @param[in] msg Type of caro message
+    bool getCaProMessage(CaproMessage& msg) noexcept;
 
   protected:
-    // needed for unit testing
-    GatewayDiscovery(Impl_T interfacePortImpl) noexcept
-        : m_impl(interfacePortImpl)
-    {
-    }
+    // Needed for unit testing
+    GatewayBase() noexcept = default;
 
-  private:
-    Impl_T m_impl;
+  protected:
+    popo::InterfacePort m_interfaceImpl{nullptr};
 };
-} // namespace popo
+
+} // namespace gw
 } // namespace iox
 
-#endif // IOX_POSH_POPO_GATEWAY_DISCOVERY_HPP
+#endif // IOX_POSH_GW_GATEWAY_BASE_HPP

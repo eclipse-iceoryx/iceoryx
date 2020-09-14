@@ -18,7 +18,7 @@
 #define protected public
 
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
-#include "iceoryx_posh/popo/gateway_discovery.hpp"
+#include "iceoryx_posh/gateway/gateway_discovery.hpp"
 
 #undef private
 #undef protected
@@ -53,7 +53,7 @@ class GatewayDiscovery_test : public Test
 TEST_F(GatewayDiscovery_test, GetCaproMessage)
 {
     InterfacePort_mock interfacePortImplMock;
-    iox::popo::GatewayDiscovery<InterfacePort_mock> GatewayDiscovery(interfacePortImplMock);
+    iox::gw::GatewayDiscovery<InterfacePort_mock> GatewayDiscovery(interfacePortImplMock);
     CaproMessage msg;
     GatewayDiscovery.getCaproMessage(msg);
     EXPECT_EQ(iox::capro::CaproMessageType::ACK, msg.m_type);

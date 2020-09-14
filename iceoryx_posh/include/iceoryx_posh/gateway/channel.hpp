@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_GATEWAY_CHANNEL_HPP
-#define IOX_DDS_GATEWAY_CHANNEL_HPP
+#ifndef IOX_POSH_GW_CHANNEL_HPP
+#define IOX_POSH_GW_CHANNEL_HPP
 
-#include "iceoryx_dds/dds/dds_config.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -25,7 +25,7 @@
 
 namespace iox
 {
-namespace dds
+namespace gw
 {
 enum class ChannelError : uint8_t
 {
@@ -34,13 +34,11 @@ enum class ChannelError : uint8_t
 
 ///
 /// @class Channel
-/// @brief A data structure representing a channel between Iceoryx and DDS.
+/// @brief A data structure representing a channel between Iceoryx and an external system.
 ///
-/// The class couples related iceoryx and dds entities that communicate with eachother to form the communication
+/// The class couples related iceoryx and external interfaces that communicate with eachother to form the communication
 /// channel.
-/// For example: An Iceoryx subscriber and its corresponding DDS data writer, which communicate eachother to form
-///              an outbound communication channel.
-/// These entites are conceptualized as channel "Terminals".
+/// These interfaces are conceptualized as channel "Terminals".
 ///
 /// The structure holds pointers to the instances of the terminals.
 /// The terminals can be created and managed externally, in which case the structure only serves as a means of coupling
@@ -51,44 +49,44 @@ enum class ChannelError : uint8_t
 /// cleaning them up when the channel is discarded.
 /// This can be achieved via the Channel::create method.
 ///
-template <typename IceoryxTerminal, typename DDSTerminal>
+template <typename IceoryxTerminal, typename ExternalTerminal>
 class Channel
 {
     using IceoryxTerminalPtr = std::shared_ptr<IceoryxTerminal>;
-    using IceoryxTerminalPool = iox::cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
-    using DDSTerminalPtr = std::shared_ptr<DDSTerminal>;
-    using DDSTerminalPool = iox::cxx::ObjectPool<DDSTerminal, MAX_CHANNEL_NUMBER>;
+    using IceoryxTerminalPool = cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
+    using ExternalTerminalPtr = std::shared_ptr<ExternalTerminal>;
+    using ExternalTerminalPool = cxx::ObjectPool<ExternalTerminal, MAX_CHANNEL_NUMBER>;
 
   public:
-    Channel(const iox::capro::ServiceDescription& service,
-            const IceoryxTerminalPtr iceoryxTerminal,
-            const DDSTerminalPtr ddsTerminal) noexcept;
+    constexpr Channel(const capro::ServiceDescription& service,
+                        const IceoryxTerminalPtr iceoryxTerminal,
+                        const ExternalTerminalPtr externalTerminal) noexcept;
 
-    constexpr bool operator==(const Channel<IceoryxTerminal, DDSTerminal>& rhs) const noexcept;
+    constexpr bool operator==(const Channel<IceoryxTerminal, ExternalTerminal>& rhs) const noexcept;
 
     ///
     /// @brief create Creates a channel for the given service whose terminals reside in a static object pool.
     /// @param service The service to create the channel for.
     /// @return A copy of the created channel, if successful.
     ///
-    static iox::cxx::expected<Channel, ChannelError> create(const iox::capro::ServiceDescription& service) noexcept;
+    static cxx::expected<Channel, ChannelError> create(const capro::ServiceDescription& service) noexcept;
 
-    iox::capro::ServiceDescription getServiceDescription() const noexcept;
+    capro::ServiceDescription getServiceDescription() const noexcept;
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;
-    DDSTerminalPtr getDDSTerminal() const noexcept;
+    ExternalTerminalPtr getExternalTerminal() const noexcept;
 
   private:
     static IceoryxTerminalPool s_iceoryxTerminals;
-    static DDSTerminalPool s_ddsTerminals;
+    static ExternalTerminalPool s_externalTerminals;
 
-    iox::capro::ServiceDescription m_service;
+    capro::ServiceDescription m_service;
     IceoryxTerminalPtr m_iceoryxTerminal;
-    DDSTerminalPtr m_ddsTerminal;
+    ExternalTerminalPtr m_externalTerminal;
 };
 
-} // namespace dds
+} // namespace gw
 } // namespace iox
 
-#include "iceoryx_dds/internal/gateway/channel.inl"
+#include "iceoryx_posh/internal/gateway/channel.inl"
 
-#endif // IOX_DDS_DDS_DDS_TYPES_HPP
+#endif // IOX_POSH_GW_CHANNEL_HPP

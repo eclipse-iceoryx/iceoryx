@@ -12,9 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/gateway/gateway_config.hpp"
+#ifndef IOX_POSH_MOCKS_GATEWAY_BASE_HPP
+#define IOX_POSH_MOCKS_GATEWAY_BASE_HPP
 
-void iox::dds::GatewayConfig::setDefaults() noexcept
+#include "iceoryx_posh/internal/capro/capro_message.hpp"
+#include "test.hpp"
+
+class MockGatewayBase
 {
-    // Nothing to do. Yet.
-}
+  public:
+    MockGatewayBase(const iox::capro::Interfaces){};
+    MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
+};
+
+#endif // IOX_POSH_MOCKS_GATEWAY_BASE_HPP

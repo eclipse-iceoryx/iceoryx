@@ -93,7 +93,7 @@ struct Config : public ConfigParts...
     }
 };
 
-using RouDiConfig_t = Config<mepoo::SegmentConfig, roudi::RouDiConfig>;
+using RouDiConfig_t = Config<mepoo::SegmentConfig, config::RouDiConfig>;
 } // namespace iox
 
 #endif // IOX_POSH_ICEORYX_POSH_CONFIG_HPP

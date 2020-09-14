@@ -15,10 +15,10 @@
 #ifndef TEST_HELPERS_FIXTURE_DDS_GATEWAY_H
 #define TEST_HELPERS_FIXTURE_DDS_GATEWAY_H
 
-#include "iceoryx_dds/gateway/channel.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
 
 #include "mocks/google_mocks.hpp"
-#include "roudi_gtest.hpp"
+#include "testutils/roudi_gtest.hpp"
 #include "test.hpp"
 
 template <typename IceoryxTerminal, typename DDSTerminal>
@@ -68,7 +68,7 @@ class DDSGatewayTestFixture : public Test
     // Creates channels to be used in tests.
     // Channels will contain staged mocks, or empty mocks if none are staged.
     // The factory method can be passed to test gateways, allowing injection of mocks.
-    iox::cxx::expected<iox::dds::Channel<IceoryxTerminal, DDSTerminal>, iox::dds::GatewayError>
+    iox::cxx::expected<iox::gw::Channel<IceoryxTerminal, DDSTerminal>, iox::gw::GatewayError>
     channelFactory(iox::capro::ServiceDescription sd) noexcept
     {
         // Get or create a mock iceoryx terminal
@@ -95,8 +95,8 @@ class DDSGatewayTestFixture : public Test
             mockDataWriter = createMockDDSTerminal(sd);
         }
 
-        return iox::cxx::success<iox::dds::Channel<IceoryxTerminal, DDSTerminal>>(
-            iox::dds::Channel<IceoryxTerminal, DDSTerminal>(
+        return iox::cxx::success<iox::gw::Channel<IceoryxTerminal, DDSTerminal>>(
+            iox::gw::Channel<IceoryxTerminal, DDSTerminal>(
                 sd, std::move(mockIceoryxTerminal), std::move(mockDataWriter)));
     }
 };

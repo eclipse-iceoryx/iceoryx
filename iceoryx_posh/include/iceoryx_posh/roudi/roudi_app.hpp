@@ -48,7 +48,7 @@ class RouDiApp
     /// @brief C'tor with command line parser, which has already parsed the command line parameters
     /// @param[in] cmdLineParser reference to a command line parser object
     /// @param[in] config the configuration to use
-    RouDiApp(const CmdLineParser& cmdLineParser, const RouDiConfig_t& config) noexcept;
+    RouDiApp(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& config) noexcept;
 
     virtual ~RouDiApp() noexcept {};
 
@@ -65,11 +65,11 @@ class RouDiApp
 
     void parseCmdLineArguments(int argc,
                                char* argv[],
-                               CmdLineParser::CmdLineArgumentParsingMode cmdLineParsingMode =
-                                   CmdLineParser::CmdLineArgumentParsingMode::ALL) noexcept;
+                               config::CmdLineParser::CmdLineArgumentParsingMode cmdLineParsingMode =
+                                   config::CmdLineParser::CmdLineArgumentParsingMode::ALL) noexcept;
 
     /// @brief Extracts from CmdLineParser and sets them
-    void setCmdLineParserResults(const CmdLineParser& cmdLineParser) noexcept;
+    void setCmdLineParserResults(const config::CmdLineParser& cmdLineParser) noexcept;
 
     /// @brief initialize the RouDi daemon
     void init() noexcept;
@@ -78,7 +78,7 @@ class RouDiApp
     bool waitForSignal() const noexcept;
 
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
-    MonitoringMode m_monitoringMode{MonitoringMode::ON};
+    config::MonitoringMode m_monitoringMode{config::MonitoringMode::ON};
     bool m_run{true};
     RouDiConfig_t m_config;
 
