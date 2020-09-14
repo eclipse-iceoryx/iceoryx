@@ -16,7 +16,6 @@
 #define IOX_BINDING_C_WAIT_SET_H
 
 #include "iceoryx_binding_c/condition.h"
-#include "iceoryx_binding_c/condition_variable.h"
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/subscriber.h"
