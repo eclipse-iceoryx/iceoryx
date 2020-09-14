@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_GATEWAY_IOX_TO_DDS_HPP
-#define IOX_DDS_GATEWAY_IOX_TO_DDS_HPP
+#ifndef IOX_DDS_IOX_TO_DDS_HPP
+#define IOX_DDS_IOX_TO_DDS_HPP
 
 #include "iceoryx_dds/dds/dds_types.hpp"
-#include "iceoryx_dds/gateway/channel.hpp"
-#include "iceoryx_dds/gateway/dds_gateway_generic.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
+#include "iceoryx_posh/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 
 namespace iox
@@ -27,19 +27,19 @@ namespace dds
 ///
 /// @brief DDS Gateway implementation for the iceoryx to DDS direction.
 ///
-template <typename channel_t = iox::dds::Channel<iox::popo::Subscriber, iox::dds::data_writer_t>,
-          typename gateway_t = iox::dds::DDSGatewayGeneric<channel_t>>
+template <typename channel_t = gw::Channel<popo::Subscriber, dds::data_writer_t>,
+          typename gateway_t = gw::GatewayGeneric<channel_t>>
 class Iceoryx2DDSGateway : public gateway_t
 {
   public:
     Iceoryx2DDSGateway() noexcept;
-    void loadConfiguration(const GatewayConfig& config) noexcept;
-    void discover(const iox::capro::CaproMessage& msg) noexcept;
+    void loadConfiguration(const config::GatewayConfig& config) noexcept;
+    void discover(const capro::CaproMessage& msg) noexcept;
     void forward(const channel_t& channel) noexcept;
 
   private:
-    iox::cxx::expected<channel_t, iox::dds::GatewayError>
-    setupChannel(const iox::capro::ServiceDescription& service) noexcept;
+    cxx::expected<channel_t, gw::GatewayError>
+    setupChannel(const capro::ServiceDescription& service) noexcept;
 };
 
 } // namespace dds
@@ -47,4 +47,4 @@ class Iceoryx2DDSGateway : public gateway_t
 
 #include "iceoryx_dds/internal/gateway/iox_to_dds.inl"
 
-#endif // IOX_DDS_GATEWAY_IOX_TO_DDS_HPP
+#endif // IOX_DDS_IOX_TO_DDS_HPP

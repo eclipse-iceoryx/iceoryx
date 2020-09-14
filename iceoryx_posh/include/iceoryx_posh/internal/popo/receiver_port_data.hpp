@@ -46,7 +46,7 @@ struct ReceiverPortData : public BasePortData
     std::atomic<SubscribeState> m_subscriptionState{SubscribeState::NOT_SUBSCRIBED};
 
     DeliveryFiFo m_deliveryFiFo;
-    static constexpr uint32_t DELIVERED_LIST_SIZE = 2u * MAX_RECEIVER_QUEUE_CAPACITY;
+    static constexpr uint32_t DELIVERED_LIST_SIZE = 2u * MAX_SUBSCRIBER_QUEUE_CAPACITY;
     UsedChunkList<DELIVERED_LIST_SIZE> m_deliveredChunkList;
 
     // event callback related

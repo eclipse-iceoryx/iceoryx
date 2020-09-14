@@ -175,7 +175,7 @@ void PortManager::handlePublisherPorts() noexcept
     {
         PublisherPortRouDiType publisherPort(publisherPortData);
 
-        publisherPort.getCaProMessage()
+        publisherPort.tryGetCaProMessage()
             .and_then([&](capro::CaproMessage caproMessage) {
                 m_portIntrospection.reportMessage(caproMessage);
 
@@ -219,7 +219,7 @@ void PortManager::handleSubscriberPorts() noexcept
     {
         SubscriberPortProducerType subscriberPort(subscriberPortData);
 
-        subscriberPort.getCaProMessage().and_then([&](capro::CaproMessage caproMessage) {
+        subscriberPort.tryGetCaProMessage().and_then([&](capro::CaproMessage caproMessage) {
             m_portIntrospection.reportMessage(caproMessage);
 
             if (!sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
@@ -227,7 +227,7 @@ void PortManager::handleSubscriberPorts() noexcept
                 LogDebug() << "capro::SUB/UNSUB, no matching sender!!";
                 capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
                                                 subscriberPort.getCaProServiceDescription());
-                subscriberPort.dispatchCaProMessage(nackMessage);
+                subscriberPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage);
             }
         });
 
@@ -321,7 +321,7 @@ void PortManager::handleApplications() noexcept
     {
         iox::popo::ApplicationPort applicationPort(applicationPortData);
 
-        while (auto maybeCaproMessage = applicationPort.getCaProMessage())
+        while (auto maybeCaproMessage = applicationPort.tryGetCaProMessage())
         {
             auto& caproMessage = maybeCaproMessage.value();
             switch (caproMessage.m_type)
@@ -449,11 +449,12 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
         PublisherPortRouDiType publisherPort(publisherPortData);
         if (subscriberSource.getCaProServiceDescription() == publisherPort.getCaProServiceDescription())
         {
-            auto publisherResponse = publisherPort.dispatchCaProMessage(message);
+            auto publisherResponse = publisherPort.dispatchCaProMessageAndGetPossibleResponse(message);
             if (publisherResponse.has_value())
             {
                 // send response to subscriber port
-                auto returnMessage = subscriberSource.dispatchCaProMessage(publisherResponse.value());
+                auto returnMessage =
+                    subscriberSource.dispatchCaProMessageAndGetPossibleResponse(publisherResponse.value());
 
                 // ACK or NACK are sent back to the subscriber port, no further response from this one expected
                 cxx::Ensures(!returnMessage.has_value());
@@ -475,7 +476,7 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
         SubscriberPortProducerType subscriberPort(subscriberPortData);
         if (subscriberPort.getCaProServiceDescription() == publisherSource.getCaProServiceDescription())
         {
-            auto subscriberResponse = subscriberPort.dispatchCaProMessage(message);
+            auto subscriberResponse = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(message);
 
             // if the subscribers react on the change, process it immediately on publisher side
             if (subscriberResponse.has_value())
@@ -486,11 +487,13 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
                 // inform introspection
                 m_portIntrospection.reportMessage(subscriberResponse.value());
 
-                auto publisherResponse = publisherSource.dispatchCaProMessage(subscriberResponse.value());
+                auto publisherResponse =
+                    publisherSource.dispatchCaProMessageAndGetPossibleResponse(subscriberResponse.value());
                 if (publisherResponse.has_value())
                 {
                     // sende responsee to subscriber port
-                    auto returnMessage = subscriberPort.dispatchCaProMessage(publisherResponse.value());
+                    auto returnMessage =
+                        subscriberPort.dispatchCaProMessageAndGetPossibleResponse(publisherResponse.value());
 
                     // ACK or NACK are sent back to the subscriber port, no further response from this one expected
                     cxx::Ensures(!returnMessage.has_value());

@@ -87,8 +87,8 @@ struct SenderPortData : public PortData
 /// @brief the topic for the port introspection that a user can subscribe to
 struct PortIntrospectionFieldTopic
 {
-    cxx::vector<ReceiverPortData, MAX_PORT_NUMBER> m_receiverList;
-    cxx::vector<SenderPortData, MAX_PORT_NUMBER> m_senderList;
+    cxx::vector<ReceiverPortData, MAX_SUBSCRIBERS> m_receiverList;
+    cxx::vector<SenderPortData, MAX_PUBLISHERS> m_senderList;
 };
 
 const capro::ServiceDescription IntrospectionPortThroughputService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "PortThroughput");
@@ -106,7 +106,7 @@ struct PortThroughputData
 /// @brief the topic for the port throughput that a user can subscribe to
 struct PortThroughputIntrospectionFieldTopic
 {
-    cxx::vector<PortThroughputData, MAX_PORT_NUMBER> m_throughputList;
+    cxx::vector<PortThroughputData, MAX_PUBLISHERS> m_throughputList;
 };
 
 const capro::ServiceDescription
@@ -124,7 +124,7 @@ struct ReceiverPortChangingData
 
 struct ReceiverPortChangingIntrospectionFieldTopic
 {
-    cxx::vector<ReceiverPortChangingData, MAX_PORT_NUMBER> receiverPortChangingDataList;
+    cxx::vector<ReceiverPortChangingData, MAX_SUBSCRIBERS> receiverPortChangingDataList;
 };
 
 const capro::ServiceDescription IntrospectionProcessService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Process");

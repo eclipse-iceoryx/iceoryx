@@ -48,6 +48,8 @@ enum class Interfaces : uint16_t
     SOMEIP,
     /// @brief Advanced Message Queuing Protocol
     AMQP,
+    /// @brief Message Queuing Telemetry Transport
+    MQTT,
     /// @brief Data Distribution Service
     DDS,
     /// @brief Universal Measurement and Calibration Protocol (XCP)

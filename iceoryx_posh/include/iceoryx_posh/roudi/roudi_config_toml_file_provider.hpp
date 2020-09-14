@@ -15,14 +15,11 @@
 #define IOX_POSH_ROUDI_ROUDI_CONFIG_TOML_FILE_PROVIDER_HPP
 
 #include "iceoryx_posh/roudi/roudi_config_file_provider.hpp"
-
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
-
-#include "cpptoml.h"
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 static constexpr char defaultConfigFilePath[] = "/etc/iceoryx/roudi_config.toml";
 

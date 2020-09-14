@@ -22,7 +22,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 /// @brief Controls process alive monitoring. Upon timeout, a monitored process is removed
 /// and its resources are made available. The process can then start and register itself again.

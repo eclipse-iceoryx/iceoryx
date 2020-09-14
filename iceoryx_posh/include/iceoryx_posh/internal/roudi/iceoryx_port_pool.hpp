@@ -31,9 +31,9 @@ class IceOryxPortPool : public PortPool
     IceOryxPortPool(PortPoolData& portPool) noexcept;
 
     /// @deprecated #25
-    cxx::vector<SenderPortType::MemberType_t*, MAX_PORT_NUMBER> senderPortDataList() noexcept override;
+    cxx::vector<SenderPortType::MemberType_t*, MAX_PUBLISHERS> senderPortDataList() noexcept override;
     /// @deprecated #25
-    cxx::vector<ReceiverPortType::MemberType_t*, MAX_PORT_NUMBER> receiverPortDataList() noexcept override;
+    cxx::vector<ReceiverPortType::MemberType_t*, MAX_SUBSCRIBERS> receiverPortDataList() noexcept override;
 
     /// @deprecated #25
     cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
@@ -53,8 +53,8 @@ class IceOryxPortPool : public PortPool
     /// @deprecated #25
     void removeReceiverPort(ReceiverPortType::MemberType_t* const portData) noexcept override;
 
-    cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PORT_NUMBER> getPublisherPortDataList() noexcept override;
-    cxx::vector<SubscriberPortProducerType::MemberType_t*, MAX_PORT_NUMBER>
+    cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept override;
+    cxx::vector<SubscriberPortProducerType::MemberType_t*, MAX_SUBSCRIBERS>
     getSubscriberPortDataList() noexcept override;
 
     cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>

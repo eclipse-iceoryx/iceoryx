@@ -26,13 +26,13 @@ IceOryxPortPool::IceOryxPortPool(PortPoolData& portPoolData) noexcept
 }
 
 /// @deprecated #25
-cxx::vector<SenderPortType::MemberType_t*, MAX_PORT_NUMBER> IceOryxPortPool::senderPortDataList() noexcept
+cxx::vector<SenderPortType::MemberType_t*, MAX_PUBLISHERS> IceOryxPortPool::senderPortDataList() noexcept
 {
     return m_portPoolData->m_senderPortMembers.content();
 }
 
 /// @deprecated #25
-cxx::vector<ReceiverPortType::MemberType_t*, MAX_PORT_NUMBER> IceOryxPortPool::receiverPortDataList() noexcept
+cxx::vector<ReceiverPortType::MemberType_t*, MAX_SUBSCRIBERS> IceOryxPortPool::receiverPortDataList() noexcept
 {
     return m_portPoolData->m_receiverPortMembers.content();
 }
@@ -88,12 +88,12 @@ void IceOryxPortPool::removeReceiverPort(ReceiverPortType::MemberType_t* const p
     m_portPoolData->m_receiverPortMembers.erase(portData);
 }
 
-cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PORT_NUMBER> IceOryxPortPool::getPublisherPortDataList() noexcept
+cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> IceOryxPortPool::getPublisherPortDataList() noexcept
 {
     return m_portPoolData->m_publisherPortMembers.content();
 }
 
-cxx::vector<SubscriberPortProducerType::MemberType_t*, MAX_PORT_NUMBER>
+cxx::vector<SubscriberPortProducerType::MemberType_t*, MAX_SUBSCRIBERS>
 IceOryxPortPool::getSubscriberPortDataList() noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.content();

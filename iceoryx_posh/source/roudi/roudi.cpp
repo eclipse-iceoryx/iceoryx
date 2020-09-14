@@ -28,7 +28,7 @@ namespace roudi
 {
 RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
-             const MonitoringMode monitoringMode,
+             const config::MonitoringMode monitoringMode,
              const bool killProcessesInDestructor,
              const MQThreadStart mqThreadStart,
              const version::CompatibilityCheckLevel compatibilityCheckLevel)
@@ -364,7 +364,7 @@ bool RouDi::registerProcess(const std::string& name,
                             const uint64_t sessionId,
                             const version::VersionInfo& versionInfo)
 {
-    bool monitorProcess = (m_monitoringMode == MonitoringMode::ON);
+    bool monitorProcess = (m_monitoringMode == config::MonitoringMode::ON);
     auto truncatedName = ProcessName_t(cxx::TruncateToCapacity, name);
     return m_prcMgr.registerProcess(
         truncatedName, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo);

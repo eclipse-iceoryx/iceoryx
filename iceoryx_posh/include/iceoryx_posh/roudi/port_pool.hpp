@@ -56,11 +56,11 @@ class PortPool
     /// there could be a member "cxx::vector<popo::SenderPortData* m_senderPorts;" and senderPorts() would just update
     /// this member if the sender ports actually changed
     /// @deprecated #25
-    virtual cxx::vector<SenderPortType::MemberType_t*, MAX_PORT_NUMBER> senderPortDataList() noexcept = 0;
+    virtual cxx::vector<SenderPortType::MemberType_t*, MAX_PUBLISHERS> senderPortDataList() noexcept = 0;
     /// @deprecated #25
-    virtual cxx::vector<ReceiverPortType::MemberType_t*, MAX_PORT_NUMBER> receiverPortDataList() noexcept = 0;
-    virtual cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PORT_NUMBER> getPublisherPortDataList() noexcept = 0;
-    virtual cxx::vector<SubscriberPortProducerType::MemberType_t*, MAX_PORT_NUMBER>
+    virtual cxx::vector<ReceiverPortType::MemberType_t*, MAX_SUBSCRIBERS> receiverPortDataList() noexcept = 0;
+    virtual cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept = 0;
+    virtual cxx::vector<SubscriberPortProducerType::MemberType_t*, MAX_SUBSCRIBERS>
     getSubscriberPortDataList() noexcept = 0;
     cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;
     cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> getApplicationPortDataList() noexcept;

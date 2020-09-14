@@ -227,26 +227,26 @@ TEST_F(SenderPort_test, reserveSample_Overflow)
 {
     std::vector<ChunkHeader*> samples;
 
-    // allocate samples until MAX_CHUNKS_ALLOCATE_PER_SENDER level
-    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
+    // allocate samples until MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY level
+    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; i++)
     {
         samples.push_back(m_sender->reserveChunk(sizeof(DummySample)));
     }
 
-    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATE_PER_SENDER; i++)
+    for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; i++)
     {
         EXPECT_THAT(samples[i], Ne(nullptr));
     }
-    EXPECT_THAT(m_memPoolHandler.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
+    EXPECT_THAT(m_memPoolHandler.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
 
 // Allocate one more sample for overflow
 #if defined(NDEBUG)
     auto sample = m_sender->reserveChunk(sizeof(DummySample));
     EXPECT_EQ(sample, nullptr);
-    EXPECT_THAT(m_memPoolHandler.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
+    EXPECT_THAT(m_memPoolHandler.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
 #else
     ASSERT_DEATH({ m_sender->reserveChunk(sizeof(DummySample)); }, "Application allocates too much chunks");
-    EXPECT_THAT(m_memPoolHandler.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATE_PER_SENDER));
+    EXPECT_THAT(m_memPoolHandler.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
 #endif
 }
 

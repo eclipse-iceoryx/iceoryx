@@ -11,14 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_GATEWAY_GENERIC_HPP
-#define IOX_POSH_POPO_GATEWAY_GENERIC_HPP
+#ifndef IOX_POSH_GW_GATEWAY_DISCOVERY_HPP
+#define IOX_POSH_GW_GATEWAY_DISCOVERY_HPP
 
-#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/gateway/gateway_base.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
-
-#include <memory>
 
 namespace iox
 {
@@ -26,41 +23,42 @@ namespace capro
 {
 class CaproMessage;
 }
-namespace popo
+namespace gw
 {
 class InterfacePort;
 
-/// @brief Generic gateway for communication events
-class GatewayGeneric
+/// @brief Discover the gateway
+template <typename Impl_T = GatewayBase>
+class GatewayDiscovery
 {
   public:
     using CaproMessage = capro::CaproMessage;
 
-    /// @brief Constructor for creating generic gateway based on type of interface
+    /// @brief Constructor for discovering gateway based on type of interface
     /// @param[in] f_interface Type of interface
-    GatewayGeneric(const capro::Interfaces f_interface) noexcept;
-
-    GatewayGeneric& operator=(const GatewayGeneric& other) = delete;
-    GatewayGeneric(const GatewayGeneric& other) = delete;
-    GatewayGeneric(GatewayGeneric&& other) = default;
-    GatewayGeneric& operator=(GatewayGeneric&&) = default;
-
-    virtual ~GatewayGeneric() noexcept;
-    /// @brief Get function for type of capro message - service or event or field
-    /// @param[in] msg Type of caro message
-    bool getCaProMessage(CaproMessage& msg) noexcept;
-
-  protected:
-    // needed for unit testing
-    GatewayGeneric() noexcept
+    GatewayDiscovery(const capro::Interfaces f_interface) noexcept
+        : m_impl(f_interface)
     {
     }
 
-  protected:
-    InterfacePort m_interfaceImpl{nullptr};
-};
+    /// @brief Get function for type of capro message - service or event or field
+    /// @param[in] msg Type of capro message
+    bool getCaproMessage(CaproMessage& msg) noexcept
+    {
+        return m_impl.getCaProMessage(msg);
+    }
 
-} // namespace popo
+  protected:
+    // needed for unit testing
+    GatewayDiscovery(Impl_T interfacePortImpl) noexcept
+        : m_impl(interfacePortImpl)
+    {
+    }
+
+  private:
+    Impl_T m_impl;
+};
+} // namespace gw
 } // namespace iox
 
-#endif // IOX_POSH_POPO_GATEWAY_GENERIC_HPP
+#endif // IOX_POSH_GW_GATEWAY_DISCOVERY_HPP

@@ -12,34 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/dds/dds_types.hpp"
-#include "iceoryx_dds/gateway/channel.hpp"
-#include "iceoryx_dds/gateway/gateway_config.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
+#include "iceoryx_posh/gateway/gateway_config.hpp"
 
 #include "test.hpp"
 
-#include "stubs/stubbed_dds_gateway_generic.hpp"
+#include "stubs/stub_gateway_generic.hpp"
 
 using namespace ::testing;
 using ::testing::_;
 
 // ======================================== Helpers ======================================== //
+
+using IdString = iox::cxx::string<100>;
+
 // We do not need real channel terminals to test the base class.
 struct StubbedIceoryxTerminal
 {
     StubbedIceoryxTerminal(iox::capro::ServiceDescription){};
 };
 
-struct StubbedDDSTerminal
+struct StubbedExternalTerminal
 {
-    StubbedDDSTerminal(iox::dds::IdString, iox::dds::IdString, iox::dds::IdString){};
+    StubbedExternalTerminal(IdString, IdString, IdString){};
 };
 
-using TestChannel = iox::dds::Channel<StubbedIceoryxTerminal, StubbedDDSTerminal>;
-using TestDDSGatewayGeneric = iox::dds::StubbedDDSGatewayGeneric<TestChannel>;
+using TestChannel = iox::gw::Channel<StubbedIceoryxTerminal, StubbedExternalTerminal>;
+using TestGatewayGeneric = iox::gw::StubbedGatewayGeneric<TestChannel>;
 
 // ======================================== Fixture ======================================== //
-class DDSGatewayGenericTest : public Test
+class GatewayGenericTest : public Test
 {
   public:
     void SetUp(){};
@@ -47,12 +50,12 @@ class DDSGatewayGenericTest : public Test
 };
 
 // ======================================== Tests ======================================== //
-TEST_F(DDSGatewayGenericTest, AddedChannelsAreStored)
+TEST_F(GatewayGenericTest, AddedChannelsAreStored)
 {
     // ===== Setup
     auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(testService);
@@ -60,12 +63,12 @@ TEST_F(DDSGatewayGenericTest, AddedChannelsAreStored)
     EXPECT_EQ(1, gw.getNumberOfChannels());
 }
 
-TEST_F(DDSGatewayGenericTest, DoesNotAddDuplicateChannels)
+TEST_F(GatewayGenericTest, DoesNotAddDuplicateChannels)
 {
     // ===== Setup
     auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(testService);
@@ -74,7 +77,7 @@ TEST_F(DDSGatewayGenericTest, DoesNotAddDuplicateChannels)
     EXPECT_EQ(1, gw.getNumberOfChannels());
 }
 
-TEST_F(DDSGatewayGenericTest, IgnoresWildcardServices)
+TEST_F(GatewayGenericTest, IgnoresWildcardServices)
 {
     // ===== Setup
     auto completeWildcardService = iox::capro::ServiceDescription(
@@ -83,7 +86,7 @@ TEST_F(DDSGatewayGenericTest, IgnoresWildcardServices)
     auto wildcardInstanceService = iox::capro::ServiceDescription("service", iox::capro::AnyInstanceString, "event");
     auto wildcardEventService = iox::capro::ServiceDescription("service", "instance", iox::capro::AnyEventString);
 
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
     auto resultOne = gw.addChannel(completeWildcardService);
@@ -91,15 +94,15 @@ TEST_F(DDSGatewayGenericTest, IgnoresWildcardServices)
     auto resultThree = gw.addChannel(wildcardInstanceService);
     auto resultFour = gw.addChannel(wildcardEventService);
 
-    EXPECT_EQ(iox::dds::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultOne.get_error());
-    EXPECT_EQ(iox::dds::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultTwo.get_error());
-    EXPECT_EQ(iox::dds::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultThree.get_error());
-    EXPECT_EQ(iox::dds::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultFour.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultOne.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultTwo.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultThree.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultFour.get_error());
 
     EXPECT_EQ(0, gw.getNumberOfChannels());
 }
 
-TEST_F(DDSGatewayGenericTest, ProperlyManagesMultipleChannels)
+TEST_F(GatewayGenericTest, ProperlyManagesMultipleChannels)
 {
     // ===== Setup
     auto serviceOne = iox::capro::ServiceDescription("serviceOne", "instanceOne", "eventOne");
@@ -107,7 +110,7 @@ TEST_F(DDSGatewayGenericTest, ProperlyManagesMultipleChannels)
     auto serviceThree = iox::capro::ServiceDescription("serviceThree", "instanceThree", "eventThree");
     auto serviceFour = iox::capro::ServiceDescription("serviceFour", "instanceFour", "eventFour");
 
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(serviceOne);
@@ -123,13 +126,13 @@ TEST_F(DDSGatewayGenericTest, ProperlyManagesMultipleChannels)
     EXPECT_EQ(true, gw.findChannel(serviceFour).has_value());
 }
 
-TEST_F(DDSGatewayGenericTest, HandlesMaxmimumChannelCapacity)
+TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
 {
     // ===== Setup
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
-    for (auto i = 0u; i < iox::dds::MAX_CHANNEL_NUMBER; i++)
+    for (auto i = 0u; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = gw.addChannel(
             iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
@@ -138,16 +141,16 @@ TEST_F(DDSGatewayGenericTest, HandlesMaxmimumChannelCapacity)
         EXPECT_EQ(false, result.has_error());
     }
 
-    EXPECT_EQ(iox::dds::MAX_CHANNEL_NUMBER, gw.getNumberOfChannels());
+    EXPECT_EQ(iox::MAX_CHANNEL_NUMBER, gw.getNumberOfChannels());
 }
 
-TEST_F(DDSGatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
+TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
 {
     // ===== Setup
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
-    for (auto i = 0u; i < iox::dds::MAX_CHANNEL_NUMBER; i++)
+    for (auto i = 0u; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = gw.addChannel(
             iox::capro::ServiceDescription(iox::capro::IdString(iox::cxx::TruncateToCapacity, std::to_string(i)),
@@ -158,17 +161,17 @@ TEST_F(DDSGatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
 
     auto result = gw.addChannel({"oneTooMany", "oneTooMany", "oneTooMany"});
     EXPECT_EQ(true, result.has_error());
-    EXPECT_EQ(iox::dds::GatewayError::UNSUCCESSFUL_CHANNEL_CREATION, result.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUCCESSFUL_CHANNEL_CREATION, result.get_error());
 }
 
-TEST_F(DDSGatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChannel)
+TEST_F(GatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChannel)
 {
     // ===== Setup
     auto testServiceA = iox::capro::ServiceDescription("serviceA", "instanceA", "eventA");
     auto testServiceB = iox::capro::ServiceDescription("serviceB", "instanceB", "eventB");
     auto testServiceC = iox::capro::ServiceDescription("serviceC", "instanceC", "eventC");
 
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(testServiceA);
@@ -180,12 +183,12 @@ TEST_F(DDSGatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChanne
     EXPECT_EQ(2, gw.getNumberOfChannels());
 }
 
-TEST_F(DDSGatewayGenericTest, DiscardedChannelsAreNotStored)
+TEST_F(GatewayGenericTest, DiscardedChannelsAreNotStored)
 {
     // ===== Setup
     auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(testService);
@@ -195,12 +198,12 @@ TEST_F(DDSGatewayGenericTest, DiscardedChannelsAreNotStored)
     EXPECT_EQ(0, gw.getNumberOfChannels());
 }
 
-TEST_F(DDSGatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
+TEST_F(GatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
 {
     // ===== Setup
     auto testService = iox::capro::ServiceDescription("service", "instance", "event");
 
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(testService);
@@ -212,13 +215,13 @@ TEST_F(DDSGatewayGenericTest, FindChannelReturnsCopyOfFoundChannel)
     }
 }
 
-TEST_F(DDSGatewayGenericTest, FindChannelGivesEmptyOptionalIfNoneFound)
+TEST_F(GatewayGenericTest, FindChannelGivesEmptyOptionalIfNoneFound)
 {
     // ===== Setup
     auto storedChannelService = iox::capro::ServiceDescription("service", "instance", "event");
     auto notStoredChannelService = iox::capro::ServiceDescription("otherService", "otherInstance", "otherEvent");
 
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(storedChannelService);
@@ -226,7 +229,7 @@ TEST_F(DDSGatewayGenericTest, FindChannelGivesEmptyOptionalIfNoneFound)
     EXPECT_EQ(false, foundChannel.has_value());
 }
 
-TEST_F(DDSGatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredChannels)
+TEST_F(GatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredChannels)
 {
     // ===== Setup
     auto testServiceA = iox::capro::ServiceDescription("serviceA", "instanceA", "eventA");
@@ -236,7 +239,7 @@ TEST_F(DDSGatewayGenericTest, ForEachChannelExecutesGivenFunctionForAllStoredCha
     auto count = 0u;
     auto f = [&count](TestChannel&) { count++; };
 
-    TestDDSGatewayGeneric gw{};
+    TestGatewayGeneric gw{};
 
     // ===== Test
     gw.addChannel(testServiceA);

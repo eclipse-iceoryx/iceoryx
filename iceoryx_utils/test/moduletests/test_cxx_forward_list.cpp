@@ -1825,7 +1825,7 @@ TEST_F(forward_list_test, writeContentViaDereferencedIterator)
     constexpr uint64_t TEST_VALUE{356u};
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        sut.emplace_front(i);
     }
 
     auto sut1{sut};
@@ -1839,7 +1839,7 @@ TEST_F(forward_list_test, invalidIteratorErase)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        sut.emplace_front(i);
     }
 
     auto iter = sut.begin();
@@ -1852,7 +1852,7 @@ TEST_F(forward_list_test, invalidIteratorIncrement)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        sut.emplace_front(i);
     }
 
     auto iter = sut.cbegin();
@@ -1865,7 +1865,7 @@ TEST_F(forward_list_test, invalidIteratorComparison)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        sut.emplace_front(i);
     }
 
     auto iter = sut.cbegin();
@@ -1878,7 +1878,7 @@ TEST_F(forward_list_test, invalidIteratorComparisonUnequal)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        sut.emplace_front(i);
     }
     auto iter = sut.cbegin();
     sut.pop_front();
@@ -1891,7 +1891,7 @@ TEST_F(forward_list_test, invalidIteratorDereferencing)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        sut.emplace_front(i);
     }
 
     auto iter = sut.cbegin();
@@ -1904,7 +1904,7 @@ TEST_F(forward_list_test, invalidIteratorAddressOfOperator)
 {
     for (uint64_t i = 0; i < TESTLISTCAPACITY; ++i)
     {
-        sut.emplace_front(static_cast<const uint64_t>(i));
+        sut.emplace_front(i);
     }
 
     auto iter = sut.cbegin();
@@ -1924,7 +1924,7 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
 
         for (; i < TESTLISTCAPACITY; ++i)
         {
-            sut1.emplace_front(static_cast<const uint64_t>(i));
+            sut1.emplace_front(i);
         }
 
         memcpy(reinterpret_cast<void*>(otherSutPtr), reinterpret_cast<const void*>(&sut1), sizeof(sut1));
@@ -1933,7 +1933,7 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
         sut1.clear();
         for (uint64_t k = 0; k < TESTLISTCAPACITY; ++k)
         {
-            sut1.emplace_front(static_cast<const uint64_t>(k + i));
+            sut1.emplace_front(k + i);
         }
     }
 

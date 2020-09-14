@@ -18,7 +18,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 class CmdLineParserConfigFileOption : public CmdLineParser
 {

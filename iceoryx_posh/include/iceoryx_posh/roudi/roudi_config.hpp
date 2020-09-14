@@ -20,7 +20,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 struct RouDiConfig
 {
