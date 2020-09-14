@@ -20,27 +20,28 @@
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/subscriber.h"
+#include "iceoryx_binding_c/types.h"
 
 /// @brief wait set handle
-typedef struct WaitSet* wait_set_t;
+typedef struct WaitSet* iox_wait_set_t;
 
-void iox_wait_set_init(wait_set_t const self, iox_cond_var_t const conditionVariable);
-void iox_wait_set_deinit(wait_set_t const self);
+iox_wait_set_t iox_wait_set_init(iox_wait_set_storage_t* self, iox_cond_var_t const conditionVariable);
+void iox_wait_set_deinit(iox_wait_set_t const self);
 
-ENUM iox_WaitSetResult iox_wait_set_attach_condition(wait_set_t const self, iox_cond_t const condition);
+ENUM iox_WaitSetResult iox_wait_set_attach_condition(iox_wait_set_t const self, iox_cond_t const condition);
 
-bool iox_wait_set_detach_condition(wait_set_t const self, iox_cond_t const condition);
+bool iox_wait_set_detach_condition(iox_wait_set_t const self, iox_cond_t const condition);
 
-void iox_wait_set_detach_all_conditions(wait_set_t const self);
+void iox_wait_set_detach_all_conditions(iox_wait_set_t const self);
 
-void iox_wait_set_timed_wait(wait_set_t const self,
+void iox_wait_set_timed_wait(iox_wait_set_t const self,
                              struct timespec timeout,
                              iox_cond_t* const conditionArray,
                              const uint64_t conditionArrayCapacity,
                              uint64_t& conditionArraySize,
                              uint64_t& missedElements);
 
-void iox_wait_set_wait(wait_set_t const self,
+void iox_wait_set_wait(iox_wait_set_t const self,
                        iox_cond_t* const conditionArray,
                        const uint64_t conditionArrayCapacity,
                        uint64_t& conditionArraySize,

@@ -35,7 +35,6 @@ class iox_wait_set_test : public Test
   public:
     void SetUp() override
     {
-        iox_wait_set_init(sut, &m_condVar);
     }
 
     void TearDown() override
@@ -66,8 +65,8 @@ class iox_wait_set_test : public Test
     }
 
     ConditionVariableData m_condVar;
-    struct iox_wait_set_storage_t m_sutStorage;
-    wait_set_t sut = (wait_set_t)&m_sutStorage;
+    iox_wait_set_storage_t m_sutStorage;
+    iox_wait_set_t sut = iox_wait_set_init(&m_sutStorage, &m_condVar);
     std::vector<iox_sub_t> m_subscriber;
 };
 

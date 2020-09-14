@@ -46,17 +46,18 @@ static void condition_vector_to_c_array(const WaitSet::ConditionVector& conditio
     }
 }
 
-void iox_wait_set_init(wait_set_t const self, iox_cond_var_t const conditionVariable)
+iox_wait_set_t iox_wait_set_init(iox_wait_set_storage_t* self, iox_cond_var_t const conditionVariable)
 {
     new (self) WaitSet(conditionVariable);
+    return reinterpret_cast<iox_wait_set_t>(self);
 }
 
-void iox_wait_set_deinit(wait_set_t const self)
+void iox_wait_set_deinit(iox_wait_set_t const self)
 {
     self->~WaitSet();
 }
 
-iox_WaitSetResult iox_wait_set_attach_condition(wait_set_t const self, iox_cond_t const condition)
+iox_WaitSetResult iox_wait_set_attach_condition(iox_wait_set_t const self, iox_cond_t const condition)
 {
     auto result = self->attachCondition(*condition);
     if (!result.has_error())
@@ -65,17 +66,17 @@ iox_WaitSetResult iox_wait_set_attach_condition(wait_set_t const self, iox_cond_
     return cpp2c::WaitSetResult(result.get_error());
 }
 
-bool iox_wait_set_detach_condition(wait_set_t const self, iox_cond_t const condition)
+bool iox_wait_set_detach_condition(iox_wait_set_t const self, iox_cond_t const condition)
 {
     return self->detachCondition(*condition);
 }
 
-void iox_wait_set_detach_all_conditions(wait_set_t const self)
+void iox_wait_set_detach_all_conditions(iox_wait_set_t const self)
 {
     self->detachAllConditions();
 }
 
-void iox_wait_set_timed_wait(wait_set_t const self,
+void iox_wait_set_timed_wait(iox_wait_set_t const self,
                              struct timespec timeout,
                              iox_cond_t* const conditionArray,
                              const uint64_t conditionArrayCapacity,
@@ -91,7 +92,7 @@ void iox_wait_set_timed_wait(wait_set_t const self,
         missedElements);
 }
 
-void iox_wait_set_wait(wait_set_t const self,
+void iox_wait_set_wait(iox_wait_set_t const self,
                        iox_cond_t* const conditionArray,
                        const uint64_t conditionArrayCapacity,
                        uint64_t& conditionArraySize,
