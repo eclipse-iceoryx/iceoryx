@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/roudi/roudi_config.hpp"
+#include "iceoryx_posh/gateway/gateway_config.hpp"
 
-namespace iox
+void iox::config::GatewayConfig::setDefaults() noexcept
 {
-namespace config
-{
-RouDiConfig& RouDiConfig::setDefaults()
-{
-    return *this;
+    // Nothing to do. Yet.
 }
-
-RouDiConfig& RouDiConfig::optimize()
-{
-    return *this;
-}
-} // namespace roudi
-} // namespace iox

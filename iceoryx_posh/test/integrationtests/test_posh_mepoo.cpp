@@ -18,7 +18,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
-#include "timing_test.hpp"
+#include "testutils/timing_test.hpp"
 
 #include <algorithm>
 #include <chrono>

@@ -12,31 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_DDS_GATEWAY_GATEWAY_CONFIG_HPP
-#define IOX_DDS_GATEWAY_GATEWAY_CONFIG_HPP
+#ifndef IOX_POSH_MOCKS_GATEWAY_BASE_HPP
+#define IOX_POSH_MOCKS_GATEWAY_BASE_HPP
 
-#include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_posh/internal/capro/capro_message.hpp"
+#include "test.hpp"
 
-namespace iox
+class MockGatewayBase
 {
-namespace dds
-{
-///
-/// @brief Generic configuration for gateways.
-///
-struct GatewayConfig
-{
-    struct ServiceEntry
-    {
-        iox::capro::ServiceDescription m_serviceDescription;
-    };
-    iox::cxx::vector<ServiceEntry, iox::MAX_PORT_NUMBER> m_configuredServices;
-
-    void setDefaults() noexcept;
+  public:
+    MockGatewayBase(const iox::capro::Interfaces){};
+    MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
 };
-} // namespace dds
-} // namespace iox
 
-#endif // IOX_DDS_GATEWAY_GATEWAY_CONFIG_HPP
+#endif // IOX_POSH_MOCKS_GATEWAY_BASE_HPP

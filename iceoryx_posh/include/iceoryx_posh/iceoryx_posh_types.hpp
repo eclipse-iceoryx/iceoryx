@@ -69,6 +69,7 @@ constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_IN
 
 // Communication Resources
 constexpr uint32_t MAX_PORT_NUMBER = build::IOX_MAX_PORT_NUMBER;
+constexpr uint32_t MAX_CHANNEL_NUMBER = MAX_PORT_NUMBER;
 constexpr uint32_t MAX_INTERFACE_NUMBER = build::IOX_MAX_INTERFACE_NUMBER;
 /// @todo remove MAX_RECEIVERS_PER_SENDERPORT when the new port building blocks are used
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;

@@ -19,6 +19,7 @@ project(iceoryx_dds VERSION ${iceoryx_dds_VERSION})
 
 option(test "build test binaries")
 
+find_package(cpptoml REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
@@ -51,8 +52,6 @@ endif()
 add_library(iceoryx_dds
     STATIC
     source/iceoryx_dds/log/logging.cpp
-    source/iceoryx_dds/gateway/gateway_config.cpp
-    source/iceoryx_dds/gateway/toml_gateway_config_parser.cpp
 )
 add_library(${PROJECT_NAMESPACE}::iceoryx_dds ALIAS iceoryx_dds)
 
@@ -61,11 +60,14 @@ target_compile_options(iceoryx_dds PUBLIC -std=c++11)
 target_include_directories(iceoryx_dds
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/dependencies/install/include>
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 target_link_libraries(iceoryx_dds
     PRIVATE
     iceoryx_posh::iceoryx_posh
+    iceoryx_posh::iceoryx_posh_config
+    iceoryx_posh::iceoryx_posh_gateway
     iceoryx_utils::iceoryx_utils
 )
 

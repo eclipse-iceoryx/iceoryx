@@ -54,7 +54,7 @@ class RouDi
 
     RouDi(RouDiMemoryInterface& roudiMemoryInteface,
           PortManager& portManager,
-          const MonitoringMode f_monitoringMode = MonitoringMode::ON,
+          const config::MonitoringMode f_monitoringMode = config::MonitoringMode::ON,
           const bool f_killProcessesInDestructor = true,
           const MQThreadStart mqThreadStart = MQThreadStart::IMMEDIATE,
           const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH);
@@ -130,7 +130,7 @@ class RouDi
     MemPoolIntrospectionType m_mempoolIntrospection;
 
   private:
-    MonitoringMode m_monitoringMode{MonitoringMode::ON};
+    config::MonitoringMode m_monitoringMode{config::MonitoringMode::ON};
 };
 
 } // namespace roudi

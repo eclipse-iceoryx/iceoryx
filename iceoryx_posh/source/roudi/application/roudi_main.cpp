@@ -23,10 +23,10 @@ int main(int argc, char* argv[])
 {
     using iox::roudi::IceOryxRouDiApp;
 
-    iox::roudi::CmdLineParserConfigFileOption cmdLineParser;
+    iox::config::CmdLineParserConfigFileOption cmdLineParser;
     cmdLineParser.parse(argc, argv);
 
-    iox::roudi::TomlRouDiConfigFileProvider configFileProvider(cmdLineParser);
+    iox::config::TomlRouDiConfigFileProvider configFileProvider(cmdLineParser);
 
     iox::RouDiConfig_t roudiConfig =
         configFileProvider.parse()

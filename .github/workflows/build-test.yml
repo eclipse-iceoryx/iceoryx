@@ -27,7 +27,9 @@ jobs:
          uses: actions/checkout@v2
  
        - name: Build sources
-         run: cmake -Bbuild -Hiceoryx_meta -Dtest=ON -Dbinding_c=ON -Dexamples=ON -Dintrospection=ON && cmake --build build
+         run: |
+            export NUM_CORES=`nproc`
+            cmake -Bbuild -Hiceoryx_meta -Dtest=ON -Dbinding_c=ON -Dexamples=ON -Dintrospection=ON && cmake --build build -j$NUM_CORES
 
        - name: Run timeless tests
          run: |

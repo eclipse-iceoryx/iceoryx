@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/gateway/gateway_config.hpp"
+#include "iceoryx_posh/internal/log/posh_config_logging.hpp"
 
-void iox::dds::GatewayConfig::setDefaults() noexcept
+namespace iox
 {
-    // Nothing to do. Yet.
+namespace config {
+constexpr char LoggingComponent::Ctx[];
+constexpr char LoggingComponent::Description[];
 }
+} // namespace iox
