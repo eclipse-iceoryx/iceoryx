@@ -1307,6 +1307,7 @@ TEST_F(forward_list_test, DestructorSomeElements)
         sut11.emplace_front(1);
     }
     EXPECT_THAT(cTor, Eq(0));
+  
     EXPECT_THAT(customCTor, Eq(3));
     EXPECT_THAT(dTor, Eq(3));
 }

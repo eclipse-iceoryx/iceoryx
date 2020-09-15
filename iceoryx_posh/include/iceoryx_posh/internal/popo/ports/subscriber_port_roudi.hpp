@@ -42,15 +42,15 @@ class SubscriberPortRouDi : public BasePort
     SubscriberPortRouDi& operator=(SubscriberPortRouDi&& rhs) = default;
     virtual ~SubscriberPortRouDi() = default;
 
-    /// @brief get an optional CaPro message that changes the subscription state of the subscriber
+    /// @brief get an optional CaPro message that requests changes to the subscription state of the subscriber
     /// @return CaPro message with new subscription requet, empty optional if no state change
-    virtual cxx::optional<capro::CaproMessage> getCaProMessage() noexcept = 0;
+    virtual cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept = 0;
 
     /// @brief dispatch a CaPro message to the subscriber for processing
     /// @param[in] caProMessage to process
     /// @return CaPro message with an immediate response the provided CaPro message, empty optional if no response
     virtual cxx::optional<capro::CaproMessage>
-    dispatchCaProMessage(const capro::CaproMessage& caProMessage) noexcept = 0;
+    dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept = 0;
 
     /// @brief cleanup the subscriber and release all the chunks it currently holds
     /// Caution: Contract is that user process is no more running when cleanup is called
@@ -60,8 +60,7 @@ class SubscriberPortRouDi : public BasePort
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    using ChunkQueuePopper_t = ChunkQueuePopper<SubscriberPortData::ChunkQueueData_t>;
-    ChunkReceiver<ChunkQueuePopper_t> m_chunkReceiver;
+    ChunkReceiver<SubscriberPortData::ChunkReceiverData_t> m_chunkReceiver;
 };
 
 } // namespace popo

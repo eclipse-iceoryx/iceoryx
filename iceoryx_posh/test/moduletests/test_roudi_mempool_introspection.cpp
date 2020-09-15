@@ -16,7 +16,7 @@
 #include "mocks/mepoo_memory_manager_mock.hpp"
 #include "mocks/senderport_mock.hpp"
 #include "test.hpp"
-#include "timing_test.hpp"
+#include "testutils/timing_test.hpp"
 
 using namespace ::testing;
 using ::testing::Return;

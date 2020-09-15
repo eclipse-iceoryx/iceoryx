@@ -16,6 +16,7 @@
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -38,11 +39,12 @@ enum class AllocationError
 /// For getting chunks of memory the MemoryManger is used. Together with the ChunkReceiver, they are the next
 /// abstraction layer on top of ChunkDistributor and ChunkQueuePopper. The ChunkSender holds the ownership of the
 /// SharedChunks and does a bookkeeping which chunks are currently passed to the user side.
-template <typename ChunkDistributorType>
-class ChunkSender : public ChunkDistributorType
+template <typename ChunkSenderDataType>
+class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkDistributorData_t>
 {
   public:
-    using MemberType_t = ChunkSenderData<MAX_CHUNKS_ALLOCATE_PER_SENDER, typename ChunkDistributorType::MemberType_t>;
+    using MemberType_t = ChunkSenderDataType;
+    using Base_t = ChunkDistributor<typename ChunkSenderDataType::ChunkDistributorData_t>;
 
     explicit ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
 
@@ -52,13 +54,13 @@ class ChunkSender : public ChunkDistributorType
     ChunkSender& operator=(ChunkSender&& rhs) = default;
     ~ChunkSender() = default;
 
-    /// @brief Allocate a chunk, the ownerhip of the SharedChunk remains in the ChunkSender for being able to cleanup if
+    /// @brief allocate a chunk, the ownerhip of the SharedChunk remains in the ChunkSender for being able to cleanup if
     /// the user process disappears
     /// @param[in] payloadSize, size of the user paylaod without additional headers
     /// @param[in] originId, the unique id of the entity which requested this allocate
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
-    cxx::expected<mepoo::ChunkHeader*, AllocationError> allocate(const uint32_t payloadSize,
+    cxx::expected<mepoo::ChunkHeader*, AllocationError> tryAllocate(const uint32_t payloadSize,
                                                                  const UniquePortId originId) noexcept;
 
     /// @brief Release an allocated chunk without sending it
@@ -75,7 +77,7 @@ class ChunkSender : public ChunkDistributorType
 
     /// @brief Returns the last sent chunk if there is one
     /// @return pointer to the ChunkHeader of the last sent Chunk if there is one, empty optional if not
-    cxx::optional<const mepoo::ChunkHeader*> getLast() const noexcept;
+    cxx::optional<const mepoo::ChunkHeader*> tryGetPreviousChunk() const noexcept;
 
     /// @brief Release all the chunks that are currently held. Caution: Only call this if the user process is no more
     /// running E.g. This cleans up chunks that were held by a user process that died unexpectetly, for avoiding lost

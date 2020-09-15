@@ -71,6 +71,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
  |:---------|:-------------|
  | `dds_gateway` | builds the iceoryx dds gateway using the cyclonedds dds stack, cyclonedds will be fetched and built as part of the build, see [cyclonedds](https://github.com/eclipse-cyclonedds/cyclonedds) for details |
  | `examples` | builds all examples |
+ | `one-to-many` | Restricts to 1:n communication. If not set the default communication is n:m |
  | `introspection` | the console introspection client which requires an installed ncurses library with terminfo support |
  | `test` | enables module-, integration- and component-tests |
  | `TOML_CONFIG` | activates config file support by using toml, if this is deactivated the central broker `RouDi` is not being build |
@@ -79,12 +80,13 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
 
  |  switch  |  description |
  |:---------|:-------------|
- | `IOX_MAX_PORT_NUMBER` | the maximum number of publisher and subscriber ports `RouDi` can distribute to the clients |
+ | `IOX_MAX_PUBLISHERS` | the maximum number of publishers one `RouDi` instance can manage |
+ | `IOX_MAX_SUBSCRIBERS_PER_PUBLISHER` | the maximum number of subscriber a publisher can deliver chunks to|
+ | `IOX_MAX_PUBLISHER_HISTORY` | the maximum number chunks available for the publisher history |
+ | `IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY` | the maximum number of chunks a sender can allocate at a given time |
+ | `IOX_MAX_SUBSCRIBERS` | the maximum number of subscribers one `RouDi` instance can manage |
+ | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | the maximum number of chunks a subscriber can hold at a given time |
  | `IOX_MAX_INTERFACE_NUMBER` | the maximum number for interface ports, which are used for e.g. gateways |
- | `IOX_MAX_SUBSCRIBERS_PER_PUBLISHER` | the maximum number of subscriber a publisher can deliver chunks |
- | `IOX_MAX_CHUNKS_ALLOCATE_PER_SENDER` | the maximum number of chunks a sender can hold at a given time |
- | `IOX_MAX_HISTORY_CAPACITY_OF_CHUNK_DISTRIBUTOR` | the maximum number chunks available for the chunk history |
- | `IOX_MAX_CHUNKS_HELD_PER_RECEIVER` | the maximum number of chunks a receiver can hold at a given time |
 
 Have a look at `iceoryx_posh/cmake/iceoryx_posh_deployment.cmake` for the default values of this constants.
 

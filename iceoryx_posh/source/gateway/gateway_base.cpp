@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/gateway_generic.hpp"
-
+#include "iceoryx_posh/gateway/gateway_base.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 namespace iox
 {
-namespace popo
+namespace gw
 {
-GatewayGeneric::GatewayGeneric(const capro::Interfaces f_interface) noexcept
+GatewayBase::GatewayBase(const capro::Interfaces f_interface) noexcept
     : m_interfaceImpl(runtime::PoshRuntime::getInstance().getMiddlewareInterface(f_interface))
 {
 }
 
-GatewayGeneric::~GatewayGeneric() noexcept
+GatewayBase::~GatewayBase() noexcept
 {
     if (m_interfaceImpl)
     {
@@ -34,9 +33,9 @@ GatewayGeneric::~GatewayGeneric() noexcept
     }
 }
 
-bool GatewayGeneric::getCaProMessage(CaproMessage& msg) noexcept
+bool GatewayBase::getCaProMessage(CaproMessage& msg) noexcept
 {
-    auto maybeCaproMessage = m_interfaceImpl.getCaProMessage();
+    auto maybeCaproMessage = m_interfaceImpl.tryGetCaProMessage();
     if (maybeCaproMessage.has_value())
     {
         msg = maybeCaproMessage.value();
@@ -49,5 +48,5 @@ bool GatewayGeneric::getCaProMessage(CaproMessage& msg) noexcept
     }
 }
 
-} // namespace popo
+} // namespace gw
 } // namespace iox

@@ -13,10 +13,9 @@
 // limitations under the License.
 
 #include "iceoryx_dds/dds/data_reader.hpp"
-
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
-#include "iceoryx_dds/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
@@ -62,13 +61,13 @@ int main()
 
     iox::dds::DDS2IceoryxGateway<> gw;
 
-    iox::dds::TomlGatewayConfigParser::parse()
-        .and_then([&](iox::dds::GatewayConfig config) { gw.loadConfiguration(config); })
-        .or_else([&](iox::dds::TomlGatewayConfigParseError err) {
+    iox::config::TomlGatewayConfigParser::parse()
+        .and_then([&](iox::config::GatewayConfig config) { gw.loadConfiguration(config); })
+        .or_else([&](iox::config::TomlGatewayConfigParseError err) {
             iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
-                                << iox::dds::TomlGatewayConfigParseErrorString[err];
+                                << iox::config::TomlGatewayConfigParseErrorString[err];
             iox::dds::LogWarn() << "[Main] Using default configuration.";
-            iox::dds::GatewayConfig defaultConfig;
+            iox::config::GatewayConfig defaultConfig;
             defaultConfig.setDefaults();
             gw.loadConfiguration(defaultConfig);
         });

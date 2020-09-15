@@ -31,8 +31,10 @@ template <uint32_t MaxChunksAllocatedSimultaneously, typename ChunkDistributorDa
 struct ChunkSenderData : public ChunkDistributorDataType
 {
     explicit ChunkSenderData(cxx::not_null<mepoo::MemoryManager* const> memoryManager,
-                             const uint64_t historyCapacity = 0u,
+                             const uint64_t historyCapacity = 0U,
                              const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
+
+    using ChunkDistributorData_t = ChunkDistributorDataType;
 
     const relative_ptr<mepoo::MemoryManager> m_memoryMgr;
     mepoo::MemoryInfo m_memoryInfo;

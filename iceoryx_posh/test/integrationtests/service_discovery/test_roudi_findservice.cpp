@@ -209,7 +209,7 @@ TEST_F(RoudiFindService_test, InterfacePort)
 
     bool serviceFound = false;
 
-    while (auto maybeCaProMessage = interfacePort.getCaProMessage())
+    while (auto maybeCaProMessage = interfacePort.tryGetCaProMessage())
     {
         auto caproMessage = maybeCaProMessage.value();
         if ((caproMessage.m_serviceDescription.getServiceIDString() == IdString("service1"))

@@ -92,29 +92,10 @@ class RouDiProcess
 class ProcessManagerInterface
 {
   public:
-    /// @brief This is an interface to send messages to processes handled by a ProcessManager
-    /// @param [in] name of the process the message shall be delivered
-    /// @param [in] message which shall be delivered
-    /// @param [in] sessionId the sender expects to be currently valid
-    /// @return true if the message was delivered, false otherwise
-    [[gnu::deprecated]] virtual bool sendMessageToProcess(const ProcessName_t& name,
-                                                          const iox::runtime::MqMessage& message,
-                                                          const uint64_t sessionId) = 0;
+    virtual void sendServiceRegistryChangeCounterToProcess(const ProcessName_t& process_name) noexcept = 0;
+    virtual void discoveryUpdate() noexcept = 0;
 
-    // port handling
-    virtual ReceiverPortType addInternalReceiverPort(const capro::ServiceDescription& service,
-                                                     const ProcessName_t& process_name) = 0;
-    virtual SenderPortType addInternalSenderPort(const capro::ServiceDescription& service,
-                                                 const ProcessName_t& process_name) = 0;
-    virtual void removeInternalPorts(const ProcessName_t& process_name) = 0;
-    virtual void sendServiceRegistryChangeCounterToProcess(const ProcessName_t& process_name) = 0;
-    virtual bool areAllReceiverPortsSubscribed(const ProcessName_t& process_name) = 0;
-    virtual void discoveryUpdate() = 0;
-
-    // enable data-triggering -> based on receiver port
-    virtual ~ProcessManagerInterface()
-    {
-    }
+    virtual ~ProcessManagerInterface() noexcept = default;
 };
 
 class ProcessManager : public ProcessManagerInterface
@@ -164,15 +145,29 @@ class ProcessManager : public ProcessManagerInterface
 
     void addRunnableForProcess(const ProcessName_t& process, const RunnableName_t& runnable) noexcept;
 
+    /// @deprecated #25
     void addReceiverForProcess(const ProcessName_t& name,
                                const capro::ServiceDescription& service,
                                const RunnableName_t& runnable,
                                const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
+    /// @deprecated #25
     void addSenderForProcess(const ProcessName_t& name,
                              const capro::ServiceDescription& service,
                              const RunnableName_t& runnable,
                              const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
+
+    void addSubscriberForProcess(const ProcessName_t& name,
+                                 const capro::ServiceDescription& service,
+                                 const uint64_t& historyRequest,
+                                 const RunnableName_t& runnable,
+                                 const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
+
+    void addPublisherForProcess(const ProcessName_t& name,
+                                const capro::ServiceDescription& service,
+                                const uint64_t& historyCapacity,
+                                const RunnableName_t& runnable,
+                                const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addConditionVariableForProcess(const ProcessName_t& processName) noexcept;
 
@@ -186,27 +181,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Notify the application that it sent an unsupported message
     void sendMessageNotSupportedToRuntime(const ProcessName_t& name) noexcept;
 
-    // BEGIN ProcessActivationInterface
-    /// @brief This is an interface to send messages to processes handled by a ProcessManager
-    /// @param [in] name of the process the message shall be delivered
-    /// @param [in] message which shall be delivered
-    /// @param [in] sessionId the sender expects to be currently valid
-    /// @return true if the message was delivered, false otherwise
-    [[gnu::deprecated]] bool sendMessageToProcess(const ProcessName_t& name,
-                                                  const iox::runtime::MqMessage& message,
-                                                  const uint64_t sessionId) noexcept override;
-    // END
-
-    // BEGIN PortHandling interface
-    ReceiverPortType addInternalReceiverPort(const capro::ServiceDescription& service,
-                                             const ProcessName_t& process_name) noexcept override;
-    SenderPortType addInternalSenderPort(const capro::ServiceDescription& service,
-                                         const ProcessName_t& process_name) noexcept override;
-    void removeInternalPorts(const ProcessName_t& process_name) noexcept override;
     void sendServiceRegistryChangeCounterToProcess(const ProcessName_t& process_name) noexcept override;
-
-    bool areAllReceiverPortsSubscribed(const ProcessName_t& process_name) noexcept override;
-    // END
 
   private:
     RouDiProcess* getProcessFromList(const ProcessName_t& name) noexcept;

@@ -74,13 +74,13 @@ class ChunkDistributor
     /// @param[in] requestedHistory number of last chunks from history to send if available. If history size is smaller
     /// then the available history size chunks are provided
     /// @return if the queue could be added it returns success, otherwiese a ChunkDistributor error
-    cxx::expected<ChunkDistributorError> addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
+    cxx::expected<ChunkDistributorError> tryAddQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
                                                   const uint64_t requestedHistory = 0u) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] chunk queue to remove from the list
     /// @return if the queue could be removed it returns success, otherwiese a ChunkDistributor error
-    cxx::expected<ChunkDistributorError> removeQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
+    cxx::expected<ChunkDistributorError> tryRemoveQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
 
     /// @brief Delete all the stored chunk queues
     void removeAllQueues() noexcept;

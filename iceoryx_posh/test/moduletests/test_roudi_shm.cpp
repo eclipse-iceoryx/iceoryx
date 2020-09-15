@@ -21,7 +21,7 @@
 #undef protected
 #undef private
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp" // MAX_PORT_NUMBER
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
@@ -226,24 +226,30 @@ TEST_F(PortManager_test, SenderReceiverOverflow)
 {
     std::string p1 = "/test1";
     std::string r1 = "run1";
-    decltype(iox::MAX_PORT_NUMBER) forP1 = iox::MAX_PORT_NUMBER;
-    std::vector<iox::popo::SenderPortData*> avaSender1(forP1);
-    std::vector<iox::popo::ReceiverPortData*> avaReceiver1(forP1);
+    decltype(iox::MAX_PUBLISHERS) pubForP1 = iox::MAX_PUBLISHERS;
+    decltype(iox::MAX_SUBSCRIBERS) subForP1 = iox::MAX_SUBSCRIBERS;
+    std::vector<iox::popo::SenderPortData*> avaSender1(pubForP1);
+    std::vector<iox::popo::ReceiverPortData*> avaReceiver1(subForP1);
 
 
-    for (unsigned int i = 0; i < forP1; i++)
+    for (unsigned int i = 0; i < pubForP1; i++)
     {
-        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(),
-                                                         iox::cxx::CString100(iox::cxx::TruncateToCapacity, p1),
-                                                         iox::cxx::CString100(iox::cxx::TruncateToCapacity, r1));
-        ASSERT_THAT(rec, Ne(nullptr));
-        avaReceiver1[i] = rec;
+
         auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(),
                                                        iox::cxx::CString100(iox::cxx::TruncateToCapacity, p1),
                                                        m_payloadMemoryManager,
                                                        iox::cxx::CString100(iox::cxx::TruncateToCapacity, r1));
         ASSERT_FALSE(sen.has_error());
         avaSender1[i] = sen.get_value();
+    }
+
+    for (unsigned int i = 0; i < subForP1; i++)
+    {
+        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(),
+                                                         iox::cxx::CString100(iox::cxx::TruncateToCapacity, p1),
+                                                         iox::cxx::CString100(iox::cxx::TruncateToCapacity, r1));
+        ASSERT_THAT(rec, Ne(nullptr));
+        avaReceiver1[i] = rec;
     }
 
     { // test if overflow errors get hit

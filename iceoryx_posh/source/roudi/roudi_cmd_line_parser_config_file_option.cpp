@@ -21,7 +21,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 void CmdLineParserConfigFileOption::parse(int argc,
                                           char* argv[],

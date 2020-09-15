@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_dds/gateway/toml_gateway_config_parser.hpp"
-#include "stubs/stubbed_toml_gateway_config_parser.hpp"
+#include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
+#include "stubs/stub_toml_gateway_config_parser.hpp"
 
 #include "test.hpp"
 
@@ -84,7 +84,7 @@ TEST_F(TomlGatewayConfigParserTest, PassesValidationIfValidCharactersUsedInServi
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(false, result.has_error());
 }
 
@@ -103,11 +103,11 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoServiceNameInServiceDescr
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
     }
 }
 
@@ -126,11 +126,11 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoInstanceNameInServiceDesc
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
     }
 }
 
@@ -149,11 +149,11 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoEventNameInServiceDescrip
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
     }
 }
 
@@ -173,15 +173,14 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfServiceDescriptionBeginsWit
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
     }
 }
 
-// This is a common error due to a typo in the DDS spec, therefore tested for explicitly.
 TEST_F(TomlGatewayConfigParserTest, FailsValidationIfHyphenInServiceDescription)
 {
     // ===== Setup
@@ -197,11 +196,11 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfHyphenInServiceDescription)
     toml->insert("services", serviceArray);
 
     // ===== Test
-    auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
     }
 }
 
@@ -212,10 +211,10 @@ TEST_F(TomlGatewayConfigParserTest, FailsValidationIfNoServicesInConfig)
     auto toml = cpptoml::make_table();
 
     // ===== Test
-    auto result = iox::dds::StubbedTomlGatewayConfigParser::validate(*toml);
+    auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
     EXPECT_EQ(true, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(iox::dds::TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
+        EXPECT_EQ(iox::config::TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
     }
 }
