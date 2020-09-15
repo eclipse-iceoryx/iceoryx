@@ -41,7 +41,7 @@ ChunkDistributor<ChunkDistributorDataType>::getMembers() noexcept
 
 template <typename ChunkDistributorDataType>
 inline cxx::expected<ChunkDistributorError>
-ChunkDistributor<ChunkDistributorDataType>::addQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
+ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
                                                      const uint64_t requestedHistory) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
@@ -87,7 +87,7 @@ ChunkDistributor<ChunkDistributorDataType>::addQueue(cxx::not_null<ChunkQueueDat
 
 template <typename ChunkDistributorDataType>
 inline cxx::expected<ChunkDistributorError>
-ChunkDistributor<ChunkDistributorDataType>::removeQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept
+ChunkDistributor<ChunkDistributorDataType>::tryRemoveQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
@@ -142,7 +142,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(cxx::not_
 {
     // PRQA S 3803 2 # We intentionally do not return anything here as from a ChunkDistributor
     // point of view it doesn't matter if the push succeeds or fails
-    ChunkQueuePusher_t(queue).push(chunk);
+    ChunkQueuePusher_t(queue).tryPush(chunk);
 }
 
 template <typename ChunkDistributorDataType>

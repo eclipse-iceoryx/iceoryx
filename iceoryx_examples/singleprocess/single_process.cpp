@@ -92,7 +92,7 @@ int main()
     iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
     iox::roudi::RouDi roudi(
-        roudiComponents.m_rouDiMemoryManager, roudiComponents.m_portManager, iox::roudi::MonitoringMode::OFF, false);
+        roudiComponents.m_rouDiMemoryManager, roudiComponents.m_portManager, iox::config::MonitoringMode::OFF, false);
 
     // create a single process runtime for inter thread communication
     iox::runtime::PoshRuntimeSingleProcess runtime("/singleProcessDemo");

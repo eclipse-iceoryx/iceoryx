@@ -20,26 +20,25 @@ namespace popo
 {
 PublisherPortUser::PublisherPortUser(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept
     : BasePort(publisherPortDataPtr)
-    , m_publisherPortDataPtr(publisherPortDataPtr)
-    , m_chunkSender(&m_publisherPortDataPtr->m_chunkSenderData)
+    , m_chunkSender(&getMembers()->m_chunkSenderData)
 
 {
 }
 
 const PublisherPortUser::MemberType_t* PublisherPortUser::getMembers() const noexcept
 {
-    return m_publisherPortDataPtr;
+    return reinterpret_cast<const MemberType_t*>(BasePort::getMembers());
 }
 
 PublisherPortUser::MemberType_t* PublisherPortUser::getMembers() noexcept
 {
-    return m_publisherPortDataPtr;
+    return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
 cxx::expected<mepoo::ChunkHeader*, AllocationError>
-PublisherPortUser::allocateChunk(const uint32_t payloadSize) noexcept
+PublisherPortUser::tryAllocateChunk(const uint32_t payloadSize) noexcept
 {
-    return m_chunkSender.allocate(payloadSize, getUniqueID());
+    return m_chunkSender.tryAllocate(payloadSize, getUniqueID());
 }
 
 void PublisherPortUser::freeChunk(mepoo::ChunkHeader* const chunkHeader) noexcept
@@ -65,9 +64,9 @@ void PublisherPortUser::sendChunk(mepoo::ChunkHeader* const chunkHeader) noexcep
     }
 }
 
-cxx::optional<const mepoo::ChunkHeader*> PublisherPortUser::getLastChunk() const noexcept
+cxx::optional<const mepoo::ChunkHeader*> PublisherPortUser::tryGetPreviousChunk() const noexcept
 {
-    return m_chunkSender.getLast();
+    return m_chunkSender.tryGetPreviousChunk();
 }
 
 void PublisherPortUser::offer() noexcept

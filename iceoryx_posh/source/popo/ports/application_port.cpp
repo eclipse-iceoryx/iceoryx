@@ -24,7 +24,7 @@ ApplicationPort::ApplicationPort(ApplicationPortData* const applicationPortDataP
 {
 }
 
-cxx::optional<capro::CaproMessage> ApplicationPort::getCaProMessage() noexcept
+cxx::optional<capro::CaproMessage> ApplicationPort::tryGetCaProMessage() noexcept
 {
    return getMembers()->m_caproMessageFiFo.pop();
 }

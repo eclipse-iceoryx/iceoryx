@@ -18,7 +18,7 @@
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "test.hpp"
-#include "timing_test.hpp"
+#include "testutils/timing_test.hpp"
 
 #include <memory>
 
@@ -68,7 +68,7 @@ class WaitSet_test : public Test
   public:
     ConditionVariableData m_condVarData;
     WaitSet m_sut{&m_condVarData};
-    vector<MockSubscriber, iox::MAX_NUMBER_OF_CONDITIONS> m_subscriberVector;
+    vector<MockSubscriber, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> m_subscriberVector;
 
     iox::posix::Semaphore m_syncSemaphore = iox::posix::Semaphore::create(0u).get_value();
 
@@ -222,7 +222,7 @@ TEST_F(WaitSet_test, TimedWaitWithMaximumNumberOfConditionsResultsInReturnOfMaxi
         currentSubscriber.notify();
     }
     auto fulfilledConditions = m_sut.timedWait(1_ms);
-    EXPECT_THAT(fulfilledConditions.size(), Eq(iox::MAX_NUMBER_OF_CONDITIONS));
+    EXPECT_THAT(fulfilledConditions.size(), Eq(iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET));
 }
 
 TEST_F(WaitSet_test, TimedWaitWithNotificationResultsInImmediateTrigger)

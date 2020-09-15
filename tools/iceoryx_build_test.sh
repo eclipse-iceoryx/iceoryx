@@ -38,6 +38,7 @@ QACPP_JSON="OFF"
 RUN_TEST=false
 INTROSPECTION_FLAG="ON"
 DDS_GATEWAY_FLAG="OFF"
+ONE_TO_MANY_FLAG="OFF"
 
 while (( "$#" )); do
   case "$1" in
@@ -108,6 +109,11 @@ while (( "$#" )); do
         INTROSPECTION_FLAG="OFF"
         shift 1
         ;;
+    "one-to-many")
+        echo " [i] Using 1:n communication only"
+        ONE_TO_MANY_FLAG="ON"
+        shift 1
+        ;;
     "help")
         echo "Build script for iceoryx."
         echo "By default, iceoryx, the dds gateway and the examples are built."
@@ -128,6 +134,7 @@ while (( "$#" )); do
         echo "    with-dds-gateway      Builds the iceoryx dds gateway"
         echo "    build-test            Builds the tests (doesn't run)"
         echo "    skip-introspection    Skips building iceoryx introspection"
+        echo "    one-to-many           Restricts to 1:n communication only"
         echo "    help                  Prints this help"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test release"
@@ -173,10 +180,9 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Done-to-many=$ONE_TO_MANY_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
-
 
 if [ "$COV_FLAG" == "OFF" ]
 then
@@ -222,20 +228,20 @@ fi
 
 for COMPONENT in $COMPONENTS; do
 
-    case "$1" in    
+    case "$1" in
         "unit" | "all")
             if [ ! -f testresults/"$COMPONENT"_ModuleTestResults.xml ]; then
                 echo "xml:"$COMPONENT"_ModuletestTestResults.xml not found!"
                 exit 1
             fi
             ;;
-        "component" | "all")    
+        "component" | "all")
             if [ ! -f testresults/"$COMPONENT"_ComponenttestTestResults.xml ]; then
                 echo "xml:"$COMPONENT"_ComponenttestTestResults.xml not found!"
                 exit 1
             fi
             ;;
-        "integration" | "all") 
+        "integration" | "all")
             if [ ! -f testresults/"$COMPONENT"_IntegrationTestResults.xml ]; then
                 echo "xml:"$COMPONENT"_IntegrationTestResults.xml not found!"
                 exit 1
@@ -247,7 +253,7 @@ done
 fi
 
 
-if [ "$COV_FLAG" == "ON" ] 
+if [ "$COV_FLAG" == "ON" ]
 then
     echo ">>>>>> Generate Gcov Report <<<<<<"
     cd $WORKSPACE

@@ -16,6 +16,7 @@
 #define IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -32,7 +33,7 @@ namespace popo
 /// The SubscriberPortUser uses the functionality of a ChunkReceiver for receiving shared memory chunks. Additionally it
 /// provides the subscribe / unsubscribe API which controls whether the subscriber ports shall try to subscribe to
 /// matching publisher ports
-class SubscriberPortUser
+class SubscriberPortUser : public BasePort
 {
   public:
     using MemberType_t = SubscriberPortData;
@@ -47,7 +48,7 @@ class SubscriberPortUser
 
     /// @brief try to subscribe to all matching publishers
     /// @param[in] queueCapacity, capacity of the queue where chunks are stored before they are passed to the user with
-    /// getChunk. Caution: Depending on the underlying queue there can be a different overflow behavior
+    /// tryGetChunk. Caution: Depending on the underlying queue there can be a different overflow behavior
     void subscribe(const uint64_t queueCapacity = MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
 
     /// @brief unsubscribe from publishers, if there are any to which we are currently subscribed
@@ -63,43 +64,40 @@ class SubscriberPortUser
     /// the queue is returned (FiFo queue)
     /// @return optional that has a new chunk header or no value if there are no new chunks in the underlying queue,
     /// ChunkReceiveError on error
-    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> getChunk() noexcept;
+    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> tryGetChunk() noexcept;
 
-    /// @brief Release a chunk that was obtained with getChunk
+    /// @brief Release a chunk that was obtained with tryGetChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
-    void releaseChunk(const mepoo::ChunkHeader* chunkHeader) noexcept;
+    void releaseChunk(const mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     /// @brief Release all the chunks that are currently queued up.
     void releaseQueuedChunks() noexcept;
 
     /// @brief check if there are chunks in the queue
     /// @return if there are chunks in the queue return true, otherwise false
-    bool hasNewChunks() noexcept;
+    bool hasNewChunks() const noexcept;
 
-    /// @brief check if there was a queue overflow since the last call of hasLostChunks
+    /// @brief check if there was a queue overflow since the last call of hasLostChunksSinceLastCall
     /// @return true if the underlying queue overflowed since last call of this method, otherwise false
-    bool hasLostChunks() noexcept;
+    bool hasLostChunksSinceLastCall() noexcept;
 
     /// @brief attach a condition variable (via its pointer) to subscriber
     /// @return true if attachment worked, otherwise false
-    bool attachConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    bool setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
 
     /// @brief detach a condition variable from subscriber
     /// @return true if detachment worked, otherwise false
-    bool detachConditionVariable() noexcept;
+    bool unsetConditionVariable() noexcept;
 
     /// @brief check if there's a condition variable attached
     /// @return true if a condition variable attached, otherwise false
-    bool isConditionVariableAttached() noexcept;
+    bool isConditionVariableSet() noexcept;
 
   private:
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    MemberType_t* m_subscriberPortDataPtr;
-
-    using ChunkQueuePopper_t = ChunkQueuePopper<SubscriberPortData::ChunkQueueData_t>;
-    ChunkReceiver<ChunkQueuePopper_t> m_chunkReceiver;
+    ChunkReceiver<SubscriberPortData::ChunkReceiverData_t> m_chunkReceiver;
 };
 
 } // namespace popo

@@ -83,8 +83,20 @@ TEST(NewType, CopyAssignableDoesCompile)
 {
     Sut<cxx::NewType<int, newtype::ConstructByValueCopy, newtype::CopyAssignable, newtype::Comparable>> a(491), b(492),
         c(423);
+
+    // Ignore false positive
+    // See: https://isocpp.org/wiki/faq/strange-inheritance#hiding-rule
+
+#if (__GNUC__ == 9 && (__GNUC_MINOR__ > 1 || (__GNUC_MINOR__ == 1 && __GNUC_PATCHLEVEL__ > 0)))
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
     b = a;
+#pragma GCC diagnostic pop
     EXPECT_TRUE(a == b);
+#else
+    // Test disabled.
+#endif
 }
 
 TEST(NewType, MoveConstructableDoesCompile)

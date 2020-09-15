@@ -79,7 +79,7 @@ enum class WaitSetError : uint8_t
 /// 		{
 /// 			// Subscriber1 has received new data
 /// 			ChunkHeader myData;
-/// 			mySubscriber1.getChunk(myData);
+/// 			mySubscriber1.tryGetChunk(myData);
 /// 			doSomeThingWithTheNewData(myData);
 /// 		}
 /// 	}
@@ -94,7 +94,7 @@ enum class WaitSetError : uint8_t
 class WaitSet
 {
   public:
-    using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS>;
+    using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
     enum class WaitPolicy : uint16_t
     {
