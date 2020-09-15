@@ -366,6 +366,20 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
     EXPECT_TRUE(publisherlistOverflowDetected);
 }
 
+#if defined(RESTRICT_TO_1_TO_N_COMMUNICATION)
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsFails)
+{
+    // const auto publisherPort1 = m_runtime->getMiddlewarePublisher(
+    //     iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_runnableName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    // const auto publisherPort2 = m_runtime->getMiddlewarePublisher(
+    //     iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_runnableName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    // ASSERT_NE(nullptr, publisherPort1);
+    // ASSERT_EQ(nullptr, publisherPort2);
+}
+#endif
+
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
 {
     auto subscriberPort = m_runtime->getMiddlewareSubscriber(

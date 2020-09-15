@@ -764,7 +764,31 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const RunnableName_t& runnable [[gnu::unused]], // @todo #25 Fix introspection
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
-    /// @todo #25 Add unique check for single producer type - see acquireSenderPortData()
+#if defined(RESTRICT_TO_1_TO_N_COMMUNICATION)
+    // check if the publisher is already in the list
+    for (auto publisherPortData : m_portPool->getPublisherPortDataList())
+    {
+        popo::PublisherPortRouDi publisherPort(publisherPortData);
+        if (service == publisherPort.getCaProServiceDescription())
+        {
+            LogWarn() << "Process '" << processName
+                      << "' tried to register an unique PublisherPort which is already used by '"
+                      << publisherPortData->m_processName << "' with service '"
+                      << service.operator cxx::Serialization().toString() << "'.";
+
+            // Do we really need isUnique()?
+            // if (publisherPort.isUnique())
+            // {
+            //     errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+            //     return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
+            // }
+            // else
+            // {
+            //     break;
+            // }
+        }
+    }
+#endif
 
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
