@@ -38,8 +38,7 @@ class Iceoryx2DDSGateway : public gateway_t
     void forward(const channel_t& channel) noexcept;
 
   private:
-    cxx::expected<channel_t, gw::GatewayError>
-    setupChannel(const capro::ServiceDescription& service) noexcept;
+    cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service) noexcept;
 };
 
 } // namespace dds

@@ -461,7 +461,7 @@ inline bool forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator!=
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
 inline typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator>::reference
-forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator*() const noexcept
+    forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator*() const noexcept
 {
     return *operator->();
 }
@@ -470,7 +470,7 @@ forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator*() const noex
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
 inline typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator>::pointer
-forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator->() const noexcept
+    forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator->() const noexcept
 
 {
     return m_list->getDataPtrFromIdx(m_iterListNodeIdx);

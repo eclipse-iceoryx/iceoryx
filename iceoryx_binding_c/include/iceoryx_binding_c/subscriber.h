@@ -78,4 +78,3 @@ bool iox_sub_is_condition_variable_attached(CLASS SubscriberPortData* const self
                                             CLASS ConditionVariableData* const cvHandle);
 
 #endif
-

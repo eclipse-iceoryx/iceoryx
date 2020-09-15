@@ -14,9 +14,9 @@
 #ifndef IOX_UTILS_MOCKS_LOGGER_MOCK_HPP
 #define IOX_UTILS_MOCKS_LOGGER_MOCK_HPP
 
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/log/logger.hpp"
 #include "iceoryx_utils/log/logstream.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 
 #include <vector>
 

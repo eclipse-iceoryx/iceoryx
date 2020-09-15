@@ -45,7 +45,7 @@ struct MemoryInfo
     /// @param[in] memoryType encodes additional information about the memory
     MemoryInfo(uint32_t deviceId = DEFAULT_DEVICE_ID, uint32_t memoryType = DEFAULT_MEMORY_TYPE);
 };
-}
-}
+} // namespace mepoo
+} // namespace iox
 
 #endif // IOX_POSH_MEPOO_MEMORY_INFO_HPP

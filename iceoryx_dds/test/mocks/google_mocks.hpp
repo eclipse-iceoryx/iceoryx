@@ -17,9 +17,9 @@
 
 #include "iceoryx_dds/dds/data_reader.hpp"
 #include "iceoryx_dds/dds/data_writer.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -87,7 +87,7 @@ class MockGenericGateway
 {
   public:
     MockGenericGateway(){};
-    MockGenericGateway(const iox::capro::Interfaces , iox::units::Duration, iox::units::Duration){};
+    MockGenericGateway(const iox::capro::Interfaces, iox::units::Duration, iox::units::Duration){};
     MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
     MOCK_METHOD1_T(addChannel,
                    iox::cxx::expected<channel_t, iox::gw::GatewayError>(const iox::capro::ServiceDescription&));

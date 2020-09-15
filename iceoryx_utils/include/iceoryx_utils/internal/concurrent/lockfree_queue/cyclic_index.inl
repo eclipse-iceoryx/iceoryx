@@ -82,4 +82,4 @@ bool CyclicIndex<CycleLength, ValueType>::isOneCycleBehind(const CyclicIndex& ot
     return (thisCycle + 1 == otherCycle);
 }
 } // namespace concurrent
-}
+} // namespace iox

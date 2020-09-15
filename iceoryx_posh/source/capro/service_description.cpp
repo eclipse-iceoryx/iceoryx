@@ -305,4 +305,3 @@ bool serviceMatch(const ServiceDescription& first, const ServiceDescription& sec
 
 } // namespace capro
 } // namespace iox
-

@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 #include "test.hpp"
 

@@ -28,7 +28,7 @@ inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> f_
                                      posix::Allocator* f_managementAllocator,
                                      posix::Allocator* f_payloadAllocator) noexcept
     : m_memPool(
-          static_cast<uint32_t>(getAdjustedPayloadSize()), f_numberOfChunks, f_managementAllocator, f_payloadAllocator)
+        static_cast<uint32_t>(getAdjustedPayloadSize()), f_numberOfChunks, f_managementAllocator, f_payloadAllocator)
     , m_chunkManagementPool(sizeof(ChunkManagement), f_numberOfChunks, f_managementAllocator, f_managementAllocator)
 {
 }
@@ -132,8 +132,9 @@ template <typename T>
 inline uint64_t TypedMemPool<T>::requiredManagementMemorySize(const uint64_t f_numberOfChunks) noexcept
 {
     return f_numberOfChunks * sizeof(ChunkManagement)
-           + 2 * cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredMemorySize(f_numberOfChunks)),
-                            SHARED_MEMORY_ALIGNMENT);
+           + 2
+                 * cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredMemorySize(f_numberOfChunks)),
+                              SHARED_MEMORY_ALIGNMENT);
 }
 
 template <typename T>
