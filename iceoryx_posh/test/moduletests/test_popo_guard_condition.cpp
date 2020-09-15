@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/guard_condition.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
+#include "mocks/wait_set_mock.hpp"
 
 #include "test.hpp"
 
@@ -24,15 +24,6 @@ using namespace iox::popo;
 class GuardCondition_test : public Test
 {
   public:
-    class WaitSetMock : public WaitSet
-    {
-      public:
-        WaitSetMock(ConditionVariableData* condVarDataPtr) noexcept
-            : WaitSet(condVarDataPtr)
-        {
-        }
-    };
-
     GuardCondition m_sut;
     ConditionVariableData m_condVar;
     WaitSetMock m_waitSet{&m_condVar};

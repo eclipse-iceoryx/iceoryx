@@ -15,7 +15,7 @@
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
+#include "mocks/wait_set_mock.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -33,15 +33,6 @@ using namespace ::testing;
 class iox_wait_set_test : public Test
 {
   public:
-    class WaitSetMock : public WaitSet
-    {
-      public:
-        WaitSetMock(ConditionVariableData* data)
-            : WaitSet(data)
-        {
-        }
-    };
-
     void SetUp() override
     {
     }

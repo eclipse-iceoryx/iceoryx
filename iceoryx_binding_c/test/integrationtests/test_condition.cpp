@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "mocks/wait_set_mock.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -29,15 +30,6 @@ using namespace ::testing;
 class iox_cond_test : public Test
 {
   public:
-    class WaitSetMock : public WaitSet
-    {
-      public:
-        WaitSetMock(ConditionVariableData* data)
-            : WaitSet(data)
-        {
-        }
-    };
-
     class : public Condition
     {
       public:

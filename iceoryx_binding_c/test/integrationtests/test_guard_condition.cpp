@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/guard_condition.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
+#include "mocks/wait_set_mock.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -21,29 +23,16 @@ extern "C" {
 #include "iceoryx_binding_c/guard_condition.h"
 }
 
-iox_guard_cond_t iox_guard_cond_init(iox_guard_cond_storage_t* self)
-{
-    new (self) GuardCondition();
-    return reinterpret_cast<iox_guard_cond_t>(self);
-}
+#include "test.hpp"
 
-void iox_guard_cond_deinit(iox_guard_cond_t const self)
-{
-    self->~GuardCondition();
-}
+using namespace ::testing;
 
-void iox_guard_cond_trigger(iox_guard_cond_t const self)
+class iox_guard_cond_test : public Test
 {
-    self->trigger();
-}
+  public:
+};
 
-bool iox_guard_cond_has_triggered(iox_guard_cond_t const self)
+TEST_F(iox_guard_cond_test, asd)
 {
-    return self->hasTriggered();
-}
-
-void iox_guard_cond_reset_trigger(iox_guard_cond_t const self)
-{
-    self->resetTrigger();
 }
 

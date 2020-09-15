@@ -17,6 +17,7 @@
 #include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 
@@ -64,16 +65,6 @@ class WaitSet_test : public Test
         /// @note members reside in ChunkQueueData in SHM
         bool m_wasTriggered{false};
         ConditionVariableData* m_condVarPtr{nullptr};
-    };
-
-
-    class WaitSetMock : public WaitSet
-    {
-      public:
-        WaitSetMock(ConditionVariableData* condVarDataPtr) noexcept
-            : WaitSet(condVarDataPtr)
-        {
-        }
     };
 
     ConditionVariableData m_condVarData;

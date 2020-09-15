@@ -23,7 +23,7 @@ typedef struct GuardCondition* iox_guard_cond_t;
 iox_guard_cond_t iox_guard_cond_init(iox_guard_cond_storage_t* self);
 void iox_guard_cond_deinit(iox_guard_cond_t const self);
 
-void iox_guard_cond_set_trigger(iox_guard_cond_t const self);
+void iox_guard_cond_trigger(iox_guard_cond_t const self);
 bool iox_guard_cond_has_triggered(iox_guard_cond_t const self);
 void iox_guard_cond_reset_trigger(iox_guard_cond_t const self);
 
