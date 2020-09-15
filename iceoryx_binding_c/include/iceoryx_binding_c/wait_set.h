@@ -33,18 +33,16 @@ bool iox_wait_set_detach_condition(iox_wait_set_t const self, iox_cond_t const c
 
 void iox_wait_set_detach_all_conditions(iox_wait_set_t const self);
 
-void iox_wait_set_timed_wait(iox_wait_set_t const self,
-                             struct timespec timeout,
-                             iox_cond_t* const conditionArray,
-                             const uint64_t conditionArrayCapacity,
-                             uint64_t& conditionArraySize,
-                             uint64_t& missedElements);
+uint64_t iox_wait_set_timed_wait(iox_wait_set_t const self,
+                                 struct timespec timeout,
+                                 iox_cond_t* const conditionArray,
+                                 const uint64_t conditionArrayCapacity,
+                                 uint64_t* missedElements);
 
-void iox_wait_set_wait(iox_wait_set_t const self,
-                       iox_cond_t* const conditionArray,
-                       const uint64_t conditionArrayCapacity,
-                       uint64_t& conditionArraySize,
-                       uint64_t& missedElements);
+uint64_t iox_wait_set_wait(iox_wait_set_t const self,
+                           iox_cond_t* const conditionArray,
+                           const uint64_t conditionArrayCapacity,
+                           uint64_t* missedElements);
 
 
 #endif
