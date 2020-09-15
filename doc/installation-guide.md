@@ -71,6 +71,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
  |:---------|:-------------|
  | `dds_gateway` | builds the iceoryx dds gateway using the cyclonedds dds stack, cyclonedds will be fetched and built as part of the build, see [cyclonedds](https://github.com/eclipse-cyclonedds/cyclonedds) for details |
  | `examples` | builds all examples |
+ | `one-to-many` | Restricts to 1:n communication. If not set the default communication is n:m |
  | `introspection` | the console introspection client which requires an installed ncurses library with terminfo support |
  | `test` | enables module-, integration- and component-tests |
  | `TOML_CONFIG` | activates config file support by using toml, if this is deactivated the central broker `RouDi` is not being build |

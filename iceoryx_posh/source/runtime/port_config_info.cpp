@@ -33,5 +33,5 @@ PortConfigInfo::operator cxx::Serialization() const noexcept
 {
     return cxx::Serialization::create(portType, memoryInfo.deviceId, memoryInfo.memoryType);
 }
-}
-}
+} // namespace runtime
+} // namespace iox

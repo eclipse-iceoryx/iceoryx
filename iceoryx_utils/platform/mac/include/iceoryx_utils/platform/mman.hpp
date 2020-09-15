@@ -14,6 +14,6 @@
 #ifndef IOX_UTILS_MAC_PLATFORM_MMAN_HPP
 #define IOX_UTILS_MAC_PLATFORM_MMAN_HPP
 
-#include <sys/mman.h> 
+#include <sys/mman.h>
 
 #endif // IOX_UTILS_MAC_PLATFORM_MMAN_HPP

@@ -156,8 +156,8 @@ TEST_F(AtomicRelocatablePointer_test, dereferenceOperator)
 // copied location
 TEST_F(AtomicRelocatablePointer_test, memoryRelocation)
 {
-    constexpr uint64_t ALIGNMENT_OF_PTR {alignof(Ptr<byte_t>)};
-    constexpr size_t INDEX_OF_PTR {ALIGNMENT_OF_PTR};
+    constexpr uint64_t ALIGNMENT_OF_PTR{alignof(Ptr<byte_t>)};
+    constexpr size_t INDEX_OF_PTR{ALIGNMENT_OF_PTR};
     Memory<1024, ALIGNMENT_OF_PTR> memory;
     memory[1000] = 37;
     // EXPECT_EQ(memory[1000], 37);
@@ -184,4 +184,4 @@ TEST_F(AtomicRelocatablePointer_test, memoryRelocation)
     EXPECT_EQ(*rp, dest.ptr(1000));
     EXPECT_EQ(**rp, 37);
 }
-}
+} // namespace

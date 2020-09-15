@@ -33,4 +33,3 @@ uint64_t iox_runtime_get_instance_name(char* const name, const uint64_t nameLeng
     strncpy(name, instanceName.c_str(), std::min(nameLength, instanceNameSize));
     return instanceNameSize;
 }
-

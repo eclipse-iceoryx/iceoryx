@@ -182,6 +182,8 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
+
+    /// @deprecated #25
     case runtime::MqMessageType::CREATE_SENDER:
     {
         if (message.getNumberOfElements() != 5)
@@ -201,6 +203,8 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
+
+    /// @deprecated #25
     case runtime::MqMessageType::CREATE_RECEIVER:
     {
         if (message.getNumberOfElements() != 5)
@@ -217,6 +221,46 @@ void RouDi::processMessage(const runtime::MqMessage& message,
                                            service,
                                            RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
                                            iox::runtime::PortConfigInfo(portConfigInfoSerialization));
+        }
+        break;
+    }
+    case runtime::MqMessageType::CREATE_PUBLISHER:
+    {
+        if (message.getNumberOfElements() != 6)
+        {
+            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_PUBLISHER\" from \"" << processName
+                       << "\"received!";
+        }
+        else
+        {
+            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(5));
+
+            m_prcMgr.addPublisherForProcess(ProcessName_t(cxx::TruncateToCapacity, processName),
+                                            service,
+                                            std::stoull(message.getElementAtIndex(3)),
+                                            RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
+                                            iox::runtime::PortConfigInfo(portConfigInfoSerialization));
+        }
+        break;
+    }
+    case runtime::MqMessageType::CREATE_SUBSCRIBER:
+    {
+        if (message.getNumberOfElements() != 6)
+        {
+            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_SUBSCRIBER\" from \"" << processName
+                       << "\"received!";
+        }
+        else
+        {
+            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
+            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(5));
+
+            m_prcMgr.addSubscriberForProcess(ProcessName_t(cxx::TruncateToCapacity, processName),
+                                             service,
+                                             std::stoull(message.getElementAtIndex(3)),
+                                             RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
+                                             iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }

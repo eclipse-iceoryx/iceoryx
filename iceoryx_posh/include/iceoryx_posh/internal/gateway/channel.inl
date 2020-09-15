@@ -29,14 +29,17 @@ using ExternalTerminalPool = cxx::ObjectPool<ExternalTerminal, MAX_CHANNEL_NUMBE
 
 // Statics
 template <typename IceoryxTerminal, typename ExternalTerminal>
-IceoryxTerminalPool<IceoryxTerminal> Channel<IceoryxTerminal, ExternalTerminal>::s_iceoryxTerminals = IceoryxTerminalPool();
+IceoryxTerminalPool<IceoryxTerminal>
+    Channel<IceoryxTerminal, ExternalTerminal>::s_iceoryxTerminals = IceoryxTerminalPool();
 template <typename IceoryxTerminal, typename ExternalTerminal>
-ExternalTerminalPool<ExternalTerminal> Channel<IceoryxTerminal, ExternalTerminal>::s_externalTerminals = ExternalTerminalPool();
+ExternalTerminalPool<ExternalTerminal>
+    Channel<IceoryxTerminal, ExternalTerminal>::s_externalTerminals = ExternalTerminalPool();
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
-inline constexpr Channel<IceoryxTerminal, ExternalTerminal>::Channel(const capro::ServiceDescription& service,
-                                                      const IceoryxTerminalPtr iceoryxTerminal,
-                                                      const ExternalTerminalPtr externalTerminal) noexcept
+inline constexpr Channel<IceoryxTerminal, ExternalTerminal>::Channel(
+    const capro::ServiceDescription& service,
+    const IceoryxTerminalPtr iceoryxTerminal,
+    const ExternalTerminalPtr externalTerminal) noexcept
     : m_service(service)
     , m_iceoryxTerminal(iceoryxTerminal)
     , m_externalTerminal(externalTerminal)
@@ -45,7 +48,8 @@ inline constexpr Channel<IceoryxTerminal, ExternalTerminal>::Channel(const capro
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
 constexpr inline bool
-Channel<IceoryxTerminal, ExternalTerminal>::operator==(const Channel<IceoryxTerminal, ExternalTerminal>& rhs) const noexcept
+Channel<IceoryxTerminal, ExternalTerminal>::operator==(const Channel<IceoryxTerminal, ExternalTerminal>& rhs) const
+    noexcept
 {
     return m_service == rhs.getService();
 }
@@ -60,8 +64,8 @@ Channel<IceoryxTerminal, ExternalTerminal>::create(const capro::ServiceDescripti
     {
         return cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
     }
-    auto rawExternalTerminalPtr =
-        s_externalTerminals.create(service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
+    auto rawExternalTerminalPtr = s_externalTerminals.create(
+        service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
     if (rawExternalTerminalPtr == nullptr)
     {
         return cxx::error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
@@ -70,7 +74,8 @@ Channel<IceoryxTerminal, ExternalTerminal>::create(const capro::ServiceDescripti
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
     auto iceoryxTerminalPtr =
         IceoryxTerminalPtr(rawIceoryxTerminalPtr, [](IceoryxTerminal* const p) { s_iceoryxTerminals.free(p); });
-    auto externalTerminalPtr = ExternalTerminalPtr(rawExternalTerminalPtr, [](ExternalTerminal* const p) { s_externalTerminals.free(p); });
+    auto externalTerminalPtr =
+        ExternalTerminalPtr(rawExternalTerminalPtr, [](ExternalTerminal* const p) { s_externalTerminals.free(p); });
 
     return cxx::success<Channel>(Channel(service, iceoryxTerminalPtr, externalTerminalPtr));
 }
@@ -88,7 +93,8 @@ inline std::shared_ptr<IceoryxTerminal> Channel<IceoryxTerminal, ExternalTermina
 }
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
-inline std::shared_ptr<ExternalTerminal> Channel<IceoryxTerminal, ExternalTerminal>::getExternalTerminal() const noexcept
+inline std::shared_ptr<ExternalTerminal> Channel<IceoryxTerminal, ExternalTerminal>::getExternalTerminal() const
+    noexcept
 {
     return m_externalTerminal;
 }

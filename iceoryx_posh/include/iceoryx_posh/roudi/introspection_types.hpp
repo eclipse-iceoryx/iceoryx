@@ -91,7 +91,8 @@ struct PortIntrospectionFieldTopic
     cxx::vector<SenderPortData, MAX_PUBLISHERS> m_senderList;
 };
 
-const capro::ServiceDescription IntrospectionPortThroughputService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "PortThroughput");
+const capro::ServiceDescription
+    IntrospectionPortThroughputService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "PortThroughput");
 
 struct PortThroughputData
 {

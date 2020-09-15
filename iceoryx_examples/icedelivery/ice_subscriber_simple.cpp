@@ -23,7 +23,7 @@
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig[[gnu::unused]])
+static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
     killswitch = true;

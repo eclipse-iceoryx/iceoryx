@@ -81,4 +81,3 @@ bool iox_sub_has_new_chunks(iox_sub_t const self);
 bool iox_sub_has_lost_chunks(iox_sub_t const self);
 
 #endif
-

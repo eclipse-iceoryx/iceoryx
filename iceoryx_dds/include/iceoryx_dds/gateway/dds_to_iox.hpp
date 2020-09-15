@@ -17,8 +17,8 @@
 
 #include "iceoryx_dds/dds/dds_types.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
-#include "iceoryx_posh/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
+#include "iceoryx_posh/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 
 namespace iox
@@ -43,8 +43,7 @@ class DDS2IceoryxGateway : public gateway_t
 
   private:
     void* m_reservedChunk = nullptr;
-    cxx::expected<channel_t, gw::GatewayError>
-    setupChannel(const capro::ServiceDescription& service) noexcept;
+    cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service) noexcept;
 };
 
 } // namespace dds

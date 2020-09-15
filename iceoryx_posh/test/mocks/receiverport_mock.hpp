@@ -23,7 +23,7 @@
 class ReceiverPort_MOCK
 {
   public:
-      using MemberType_t = iox::popo::ReceiverPortData;
+    using MemberType_t = iox::popo::ReceiverPortData;
 
     ReceiverPort_MOCK()
     {
@@ -44,7 +44,8 @@ class ReceiverPort_MOCK
     MOCK_METHOD0(cleanup, void());
 
     MOCK_METHOD1(subscribe_impl, void(const uint32_t));
-    void subscribe(const bool f_autoResubscribe = false, const uint32_t f_deliverySize = iox::MAX_SUBSCRIBER_QUEUE_CAPACITY)
+    void subscribe(const bool f_autoResubscribe = false,
+                   const uint32_t f_deliverySize = iox::MAX_SUBSCRIBER_QUEUE_CAPACITY)
     {
         (void)f_autoResubscribe;
         subscribe_impl(f_deliverySize);

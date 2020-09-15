@@ -30,8 +30,15 @@ template <typename>
 class TypedUniqueId;
 struct BasePortData;
 
-class SenderPort;
-class ReceiverPort;
+class SenderPort;   /// @deprecated #25
+class ReceiverPort; /// @deprecated #25
+
+class PublisherPortUser;
+class PublisherPortRouDi;
+
+class SubscriberPortUser;
+class SubscriberPortSingleProducer;
+class SubscriberPortMultiProducer;
 } // namespace popo
 namespace posix
 {
@@ -39,9 +46,18 @@ class UnixDomainSocket;
 class MessageQueue;
 } // namespace posix
 
-using SenderPortType = iox::popo::SenderPort;
-using ReceiverPortType = iox::popo::ReceiverPort;
+using SenderPortType = iox::popo::SenderPort;     /// @deprecated #25
+using ReceiverPortType = iox::popo::ReceiverPort; /// @deprecated #25
+using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
+using PublisherPortUserType = iox::popo::PublisherPortUser;
+using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
+
+#if defined(RESTRICT_TO_1_TO_N_COMMUNICATION)
+using SubscriberPortProducerType = iox::popo::SubscriberPortSingleProducer;
+#else
+using SubscriberPortProducerType = iox::popo::SubscriberPortMultiProducer;
+#endif
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
 
@@ -73,18 +89,19 @@ constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = build::IOX_MAX_SUBSCRIBERS_PER
 // Publisher
 constexpr uint32_t MAX_PUBLISHERS = build::IOX_MAX_PUBLISHERS;
 constexpr uint32_t MAX_SUBSCRIBERS_PER_PUBLISHER = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;
-constexpr uint32_t MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY = build::IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY;
+constexpr uint32_t MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY =
+    build::IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY;
 constexpr uint64_t MAX_PUBLISHER_HISTORY = build::IOX_MAX_PUBLISHER_HISTORY;
 // Subscriber
 constexpr uint32_t MAX_SUBSCRIBERS = build::IOX_MAX_SUBSCRIBERS;
-constexpr uint32_t MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY = build::IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
+constexpr uint32_t MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY =
+    build::IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
 constexpr uint32_t MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
-/// With MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY we couple the maximum number of chunks a user is
-/// allowed to hold with the maximum queue capacity.
-/// This allows that a polling user can replace all the held chunks in one execution with all new ones
-/// from a completely filled queue. Or the other way round, when we have a contract with the user
-/// regarding how many chunks they are allowed to hold, then the queue size needs not be bigger. We
-/// can provide this number of newest chunks, more the user would not be allowed to hold anyway
+/// With MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY we couple the maximum number of
+/// chunks a user is allowed to hold with the maximum queue capacity. This allows that a polling user can replace all
+/// the held chunks in one execution with all new ones from a completely filled queue. Or the other way round, when we
+/// have a contract with the user regarding how many chunks they are allowed to hold, then the queue size needs not be
+/// bigger. We can provide this number of newest chunks, more the user would not be allowed to hold anyway
 // Gateway
 constexpr uint32_t MAX_INTERFACE_NUMBER = build::IOX_MAX_INTERFACE_NUMBER;
 constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PUBLISHERS;
