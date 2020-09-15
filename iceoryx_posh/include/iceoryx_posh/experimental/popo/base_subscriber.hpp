@@ -27,13 +27,6 @@ namespace popo {
 
 using uid_t = uint64_t;
 
-enum class SubscriptionState
-{
-    SUBSCRIBED,
-    NOT_SUBSCRIBED,
-    SUBSCRIPTION_PENDING
-};
-
 enum class SubscriberError : uint8_t
 {
     UNKNOWN
@@ -67,7 +60,7 @@ public:
     /// @param cacheSize
     /// @return
     ///
-    cxx::expected<SubscriberError> subscribe(const uint64_t queueCapacity = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
+    cxx::expected<SubscriberError> subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
 
     ///
     /// @brief getSubscriptionState Get current subscription state.
@@ -84,7 +77,7 @@ public:
     /// @brief hasData Check if sample is available.
     /// @return True if a new sample is available.
     ///
-    bool hasData() noexcept;
+    bool hasData() const noexcept;
 
     ///
     /// @brief receive Receive the next sample if available.
@@ -94,11 +87,11 @@ public:
     cxx::optional<cxx::unique_ptr<T>> receive() noexcept;
 
     ///
-    /// @brief receiveWithHeader Receive the next sample including it's memory chunk header.
+    /// @brief receiveHeader Receive the next sample including it's memory chunk header.
     /// @return
     /// @details Sample is automatically released when it goes out of scope.
     ///
-    cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveWithHeader() noexcept;
+    cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveHeader() noexcept;
 
     ///
     /// @brief clearReceiveBuffer Releases all unread items in the receive buffer.

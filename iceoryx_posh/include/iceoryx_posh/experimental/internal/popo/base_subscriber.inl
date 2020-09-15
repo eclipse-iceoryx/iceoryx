@@ -29,11 +29,11 @@ BaseSubscriber<T, port_t>::subscribe(const uint64_t queueCapacity) noexcept
 {
     m_subscriptionRequested = true;
     uint32_t size = queueCapacity;
-    if (size > MAX_RECEIVER_QUEUE_CAPACITY)
+    if (size > MAX_SUBSCRIBER_QUEUE_CAPACITY)
     {
         LogWarn() << "Cache size for subscribe too large " << size
-                  << ", limiting to MAX_RECEIVER_QUEUE_CAPACITY = " << MAX_RECEIVER_QUEUE_CAPACITY;
-        size = MAX_RECEIVER_QUEUE_CAPACITY;
+                  << ", limiting to MAX_RECEIVER_QUEUE_CAPACITY = " << MAX_SUBSCRIBER_QUEUE_CAPACITY;
+        size = MAX_SUBSCRIBER_QUEUE_CAPACITY;
     }
     m_port.subscribe(size);
     return cxx::success<>();
@@ -56,7 +56,7 @@ BaseSubscriber<T, port_t>::unsubscribe() noexcept
 
 template<typename T, typename port_t>
 inline bool
-BaseSubscriber<T, port_t>::hasData() noexcept
+BaseSubscriber<T, port_t>::hasData() const noexcept
 {
     return m_port.hasNewChunks();
 }
@@ -65,29 +65,7 @@ template<typename T, typename port_t>
 inline cxx::optional<cxx::unique_ptr<T>>
 BaseSubscriber<T, port_t>::receive() noexcept
 {
-    auto result = receiveWithHeader();
-    if(result.has_error())
-    {
-        return result;
-    }
-    else
-    {
-        auto header = result.get_value();
-        return cxx::optional<cxx::unique_ptr<T>>(cxx::unique_ptr<T>(
-                                    reinterpret_cast<T*>(header.payload()),
-                                    [this](T* const val){
-                                        auto header = mepoo::convertPayloadPointerToChunkHeader(val);
-                                        this->m_port.releaseChunk(header);
-                                    }
-                                ));
-    }
-}
-
-template<typename T, typename port_t>
-inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
-BaseSubscriber<T, port_t>::receiveWithHeader() noexcept
-{
-    auto result = m_port.getChunk();
+    auto result = m_port.tryGetChunk();
     if(result.has_error())
     {
         /// @todo - what should we do when getting ChunkReceiveError ?
@@ -99,13 +77,46 @@ BaseSubscriber<T, port_t>::receiveWithHeader() noexcept
         {
             auto header = optionalHeader.value();
             return cxx::optional<cxx::unique_ptr<T>>(cxx::unique_ptr<T>(
-                                        reinterpret_cast<T*>(header),
+                                        const_cast<T*>(header->payload()),
+                                        [this](T* const allocation){
+                                            auto header = mepoo::convertPayloadPointerToChunkHeader(allocation);
+                                            this->m_port.releaseChunk(header);
+                                        }
+                                    ));
+        }
+        else
+        {
+            return cxx::nullopt_t();
+        }
+    }
+}
+
+template<typename T, typename port_t>
+inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
+BaseSubscriber<T, port_t>::receiveHeader() noexcept
+{
+    auto result = m_port.tryGetChunk();
+    if(result.has_error())
+    {
+        /// @todo - what should we do when getting ChunkReceiveError ?
+    }
+    else
+    {
+        auto optionalHeader = result.get_value();
+        if(optionalHeader.has_value())
+        {
+            auto header = optionalHeader.value();
+            return cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>(cxx::unique_ptr<mepoo::ChunkHeader>(
+                                        const_cast<mepoo::ChunkHeader*>(header),
                                         [this](mepoo::ChunkHeader* const header){
                                             this->m_port.releaseChunk(header);
                                         }
                                     ));
         }
-        return cxx::nullopt_t();
+        else
+        {
+            return cxx::nullopt_t();
+        }
     }
 }
 
@@ -121,22 +132,21 @@ template<typename T, typename port_t>
 inline bool
 BaseSubscriber<T, port_t>::setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
-    return m_port.attachConditionVariable(conditionVariableDataPtr);
+    return m_port.setConditionVariable(conditionVariableDataPtr);
 }
 
 template<typename T, typename port_t>
 inline bool
 BaseSubscriber<T, port_t>::unsetConditionVariable() noexcept
 {
-    return m_port.detachConditionVariable();
+    return m_port.unsetConditionVariable();
 }
 
 template<typename T, typename port_t>
 inline bool
 BaseSubscriber<T, port_t>::hasTriggered() const noexcept
 {
-    /// @todo Add implementation
-    return false;
+    return m_port.hasNewChunks();
 }
 
 } // namespace popo

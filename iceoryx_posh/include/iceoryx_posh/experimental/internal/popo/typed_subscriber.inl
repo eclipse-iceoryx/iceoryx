@@ -31,7 +31,7 @@ TypedSubscriber<T>::subscribe(const uint64_t queueCapacity) noexcept
 }
 
 template<typename T>
-inline SubscriptionState
+inline SubscribeState
 TypedSubscriber<T>::getSubscriptionState() const noexcept
 {
     return BaseSubscriber<T>::getSubscriptionState();
@@ -60,9 +60,9 @@ TypedSubscriber<T>::receive() noexcept
 
 template<typename T>
 inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
-TypedSubscriber<T>::receiveWithHeader() noexcept
+TypedSubscriber<T>::receiveHeader() noexcept
 {
-    return BaseSubscriber<T>::receiveWithHeader();
+    return BaseSubscriber<T>::receiveHeader();
 }
 
 template<typename T>

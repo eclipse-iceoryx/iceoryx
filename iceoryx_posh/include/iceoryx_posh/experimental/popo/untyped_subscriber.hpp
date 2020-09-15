@@ -15,13 +15,42 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 
+#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/experimental/popo/base_subscriber.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 namespace iox {
 namespace popo {
 
+class UntypedSubscriber : protected BaseSubscriber<void>
+{
+public:
 
+    UntypedSubscriber(const capro::ServiceDescription& service);
+    UntypedSubscriber(const UntypedSubscriber& other) = delete;
+    UntypedSubscriber& operator=(const UntypedSubscriber&) = delete;
+    UntypedSubscriber(UntypedSubscriber&& rhs) = delete;
+    UntypedSubscriber& operator=(UntypedSubscriber&& rhs) = delete;
+    ~UntypedSubscriber() = default;
+
+    capro::ServiceDescription getServiceDescription() const noexcept;
+    uid_t uid() const noexcept;
+
+    cxx::expected<SubscriberError> subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
+    SubscribeState getSubscriptionState() const noexcept;
+    void unsubscribe() noexcept;
+
+    bool hasData() const noexcept;
+    cxx::optional<cxx::unique_ptr<void>> receive() noexcept;
+    cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveHeader() noexcept;
+    void clearReceiveBuffer() noexcept;
+
+};
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/experimental/internal/popo/untyped_subscriber.inl"
 
 #endif // IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_HPP

@@ -18,7 +18,51 @@
 namespace iox {
 namespace popo {
 
+UntypedSubscriber::UntypedSubscriber(const capro::ServiceDescription& service)
+    : BaseSubscriber<void>(service)
+{}
 
+inline cxx::expected<SubscriberError>
+UntypedSubscriber::subscribe(const uint64_t queueCapacity) noexcept
+{
+    return BaseSubscriber<void>::subscribe(queueCapacity);
+}
+
+inline SubscribeState
+UntypedSubscriber::getSubscriptionState() const noexcept
+{
+    return BaseSubscriber<void>::getSubscriptionState();
+}
+
+inline void
+UntypedSubscriber::unsubscribe() noexcept
+{
+    return BaseSubscriber<void>::unsubscribe();
+}
+
+inline bool
+UntypedSubscriber::hasData() const noexcept
+{
+    return BaseSubscriber<void>::hasData();
+}
+
+inline cxx::optional<cxx::unique_ptr<void>>
+UntypedSubscriber::receive() noexcept
+{
+    return BaseSubscriber<void>::receive();
+}
+
+inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
+UntypedSubscriber::receiveHeader() noexcept
+{
+    return BaseSubscriber<void>::receiveHeader();
+}
+
+inline void
+UntypedSubscriber::clearReceiveBuffer() noexcept
+{
+    BaseSubscriber<void>::clearReceiveBuffer();
+}
 
 } // namespace popo
 } // namespace iox

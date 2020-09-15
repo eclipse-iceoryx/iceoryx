@@ -35,13 +35,13 @@ public:
     capro::ServiceDescription getServiceDescription() const noexcept;
     uid_t uid() const noexcept;
 
-    cxx::expected<SubscriberError> subscribe(const uint64_t queueCapacity = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
-    SubscriptionState getSubscriptionState() const noexcept;
+    cxx::expected<SubscriberError> subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
+    SubscribeState getSubscriptionState() const noexcept;
     void unsubscribe() noexcept;
 
     bool hasData() const noexcept;
     cxx::optional<cxx::unique_ptr<T>> receive() noexcept;
-    cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveWithHeader() noexcept;
+    cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveHeader() noexcept;
     void clearReceiveBuffer() noexcept;
 
 };
