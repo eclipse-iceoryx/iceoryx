@@ -20,11 +20,28 @@
 /// @brief guard condition handle
 typedef struct GuardCondition* iox_guard_cond_t;
 
+/// @brief initialize guard condition handle
+/// @param[in] self pointer to preallocated memory of size = sizeof(iox_guard_cond_storage_t)
+/// @return handle to guard condition
 iox_guard_cond_t iox_guard_cond_init(iox_guard_cond_storage_t* self);
+
+/// @brief deinitialize guard condition handle
+/// @param[in] self handle to guard condition
 void iox_guard_cond_deinit(iox_guard_cond_t const self);
 
+/// @brief trigger a guard condition
+/// @param[in] self handle to guard condition
 void iox_guard_cond_trigger(iox_guard_cond_t const self);
+
+/// @brief was the guard condition triggered
+/// @param[in] self handle to guard condition
+/// @return returns true if the guard condition was triggered, otherwise false
 bool iox_guard_cond_has_triggered(iox_guard_cond_t const self);
+
+/// @brief resets the guard condition triggering state. after that call
+///         iox_guard_cond_has_triggered will return false until it was
+///         triggered again
+/// @param[in] self handle to guard condition
 void iox_guard_cond_reset_trigger(iox_guard_cond_t const self);
 
 #endif
