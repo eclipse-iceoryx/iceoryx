@@ -76,6 +76,7 @@ BaseSubscriber<T, port_t>::receive() noexcept
     if(result.has_error())
     {
         /// @todo - what should we do when getting ChunkReceiveError ?
+        return cxx::nullopt;
     }
     else
     {
@@ -84,7 +85,7 @@ BaseSubscriber<T, port_t>::receive() noexcept
         {
             auto header = optionalHeader.value();
             return cxx::optional<cxx::unique_ptr<T>>(cxx::unique_ptr<T>(
-                                        const_cast<T*>(header->payload()),
+                                        reinterpret_cast<T*>(header->payload()),
                                         [this](T* const allocation){
                                             auto header = mepoo::convertPayloadPointerToChunkHeader(allocation);
                                             this->m_port.releaseChunk(header);
@@ -93,7 +94,7 @@ BaseSubscriber<T, port_t>::receive() noexcept
         }
         else
         {
-            return cxx::nullopt_t();
+            return cxx::nullopt;
         }
     }
 }
@@ -106,6 +107,7 @@ BaseSubscriber<T, port_t>::receiveHeader() noexcept
     if(result.has_error())
     {
         /// @todo - what should we do when getting ChunkReceiveError ?
+        return cxx::nullopt;
     }
     else
     {
@@ -122,7 +124,7 @@ BaseSubscriber<T, port_t>::receiveHeader() noexcept
         }
         else
         {
-            return cxx::nullopt_t();
+            return cxx::nullopt;
         }
     }
 }

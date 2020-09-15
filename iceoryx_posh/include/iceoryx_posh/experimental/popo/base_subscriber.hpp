@@ -107,11 +107,9 @@ protected:
     BaseSubscriber(const capro::ServiceDescription& service);
 
 protected:
-    bool m_subscriptionRequested = false;
-
-private:
     uid_t m_uid = 0U;
     capro::ServiceDescription m_serviceDescription{};
+    bool m_subscriptionRequested = false;
     port_t m_port{nullptr};
 
 };
