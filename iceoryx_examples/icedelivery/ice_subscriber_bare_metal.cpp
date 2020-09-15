@@ -34,7 +34,7 @@ void receiving()
     iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-bare-metal");
 
     // Create a subscriber
-    iox::popo::Subscriber mySubscriber({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Subscriber mySubscriber({"RADAR", "Video", "Some1"});
 
     // The subscriber will not do the subscription before we call subscribe(). The queue size of the subscriber is
     // provided as parameter
@@ -52,9 +52,10 @@ void receiving()
             while (mySubscriber.getChunk(&chunk))
             {
                 // we know what we expect for the CaPro ID we provided with the subscriber c'tor. So we do a cast here
-                auto sample = static_cast<const CounterTopic*>(chunk);
+                auto sample = static_cast<const PoshPub1*>(chunk);
 
-                std::cout << "Receiving: " << sample->counter << std::endl;
+                std::cout << "Receiving: " << sample->doubleValue << " : " << sample->integer << " : " << sample->floating_pt << " : "
+                << sample->word << std::endl;
 
                 // signal the middleware that this chunk was processed and in no more accesssed by the user side
                 mySubscriber.releaseChunk(chunk);

@@ -40,6 +40,8 @@ class eth2IceoryxGateway : public gateway_t
     void loadConfiguration(const iox::config::GatewayConfig& config) noexcept;
     void discover(const iox::capro::CaproMessage& msg) noexcept;
     void forward(const channel_t& channel) noexcept;
+    void loadConfigurationEth(const std::vector<iox::popo::EthGatewayConf>& config) noexcept;
+    void forwardLocal() noexcept;
     ~eth2IceoryxGateway() noexcept;
   private:
     void* m_reservedChunk = nullptr;

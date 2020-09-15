@@ -60,6 +60,7 @@ int main()
     iox::runtime::PoshRuntime::getInstance("/iox-gw-eth2iceoryx");
 
     iox::eth::eth2IceoryxGateway<> gw;
+    gw.loadConfigurationEth(pMap);
 
     // iox::popo::TomlGatewayConfigParser::parse()
     //     .and_then([&](iox::popo::GatewayConfig config) { gw.loadConfiguration(config); })

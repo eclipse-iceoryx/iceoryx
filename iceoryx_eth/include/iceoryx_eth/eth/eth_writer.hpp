@@ -22,6 +22,15 @@
 
 #include <string>
 
+/* Tcp headers */
+#include <string>
+#include <stdio.h> 
+#include <sys/socket.h> 
+#include <arpa/inet.h> 
+#include <unistd.h> 
+#include <string.h> 
+#define PORT 8080 
+
 namespace iox
 {
 namespace eth
@@ -47,6 +56,10 @@ class ethDataWriter : public iox::eth::DataWriter
     IdString m_serviceId{""};
     IdString m_instanceId{""};
     IdString m_eventId{""};
+    int client_handle;
+    const char* serverIP = {"192.168.21.129"};
+    struct sockaddr_in serv_addr;
+    uint8_t unique_code{0};
 
     //Unique code here
 };

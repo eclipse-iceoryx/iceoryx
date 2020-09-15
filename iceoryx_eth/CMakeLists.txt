@@ -82,7 +82,7 @@ if(USE_CYCLONE_DDS)
         source/iceoryx_eth/eth/eth_context.cpp
         source/iceoryx_eth/eth/eth_writer.cpp
         source/iceoryx_eth/eth/eth_reader.cpp
-        #source/iceoryx_eth/eth/eth_if.cpp
+        source/iceoryx_eth/eth/eth_gatewayconf.cpp
     )
     target_compile_definitions(iceoryx_eth PUBLIC -DUSE_CYCLONE_DDS)
     target_include_directories(iceoryx_eth

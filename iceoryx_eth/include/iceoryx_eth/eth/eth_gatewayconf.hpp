@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,20 +11,29 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
 
-struct CounterTopic
-{
-    uint32_t counter;
-};
+#ifndef IOX_ETH_GATEWAY_CONFIG_HPP
+#define IOX_ETH_GATEWAY_CONFIG_HPP
 
-struct  PoshPub1{
+#include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include <vector>
 
-    double doubleValue;
-    uint32_t integer;
-    float floating_pt;
-    char word[30];
-};//__attribute__((__packed__));
+namespace iox{
 
-#endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
+    namespace popo{
+
+        struct EthGatewayConf
+        {
+            iox::capro::ServiceDescription m_serviceDescription;
+            uint8_t unique_id;
+        };
+
+        
+    }
+}
+
+
+extern std::vector<iox::popo::EthGatewayConf> pMap;
+
+#endif

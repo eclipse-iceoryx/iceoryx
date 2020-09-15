@@ -16,6 +16,7 @@
 #define IOX_eth_eth_CYCLONE_DATA_READER_HPP
 
 #include "eth/data_reader.hpp"
+#include "iceoryx_eth/eth/eth_gatewayconf.hpp"
 
 
 namespace iox
@@ -39,6 +40,9 @@ class ethDataReader : public DataReader
 
     void connect() noexcept override;
 
+    uint8_t setUniqueCode(const iox::capro::ServiceDescription&);
+    uint8_t getUniqueCode();
+
     iox::cxx::optional<uint64_t> peekNextSize() override;
 
     iox::cxx::expected<DataReaderError> takeNext(uint8_t* const buffer, const uint64_t& bufferSize) override;
@@ -54,6 +58,7 @@ class ethDataReader : public DataReader
     IdString m_serviceId{""};
     IdString m_instanceId{""};
     IdString m_eventId{""};
+    uint8_t unique_code{};
 
     
 

@@ -34,7 +34,7 @@ void sending()
     iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-bare-metal");
 
     // Create a publisher
-    iox::popo::Publisher myPublisher({"Radar", "FrontLeft", "Counter"});
+    iox::popo::Publisher myPublisher({"RADAR", "Video", "Some1"});
 
     // With offer() the publisher gets visible to potential subscribers
     myPublisher.offer();
@@ -44,12 +44,17 @@ void sending()
     while (!killswitch)
     {
         // Allocate a memory chunk for the sample to be sent
-        auto sample = static_cast<CounterTopic*>(myPublisher.allocateChunk(sizeof(CounterTopic)));
+        auto sample = static_cast<PoshPub1*>(myPublisher.allocateChunk(sizeof(PoshPub1)));
 
         // Write sample data
-        sample->counter = ct;
+        sample->doubleValue = ct* (-21.0);
+        sample->integer = ct;
+        sample->floating_pt = ct * 5.28;
+        strcpy(sample->word, "CSK MI KKR SRH RCB");
 
-        std::cout << "Sending: " << ct << std::endl;
+
+        std::cout << "Sending: " << sample->doubleValue << " : " << sample->integer << " : " << sample->floating_pt << " : "
+        << sample->word << std::endl;
 
         // Send the sample
         myPublisher.sendChunk(sample);
