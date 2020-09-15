@@ -38,6 +38,7 @@ QACPP_JSON="OFF"
 RUN_TEST=false
 INTROSPECTION_FLAG="ON"
 DDS_GATEWAY_FLAG="OFF"
+ETH_GATEWAY_FLAG="OFF"
 
 while (( "$#" )); do
   case "$1" in
@@ -96,6 +97,11 @@ while (( "$#" )); do
     "with-dds-gateway")
         echo " [i] Including DDS gateway in build"
         DDS_GATEWAY_FLAG="ON"
+        shift 1
+        ;;
+    "with-eth-gateway")
+        echo " [i] Including eth gateway in build"
+        ETH_GATEWAY_FLAG="ON"
         shift 1
         ;;
     "build-test")
@@ -173,7 +179,7 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Deth_gateway=$ETH_GATEWAY_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
