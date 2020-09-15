@@ -76,8 +76,6 @@ public:
 
 using TestBasePublisher = StubbedBasePublisher<DummyData, MockPublisherPortUser>;
 
-// ========================= Base Publisher Tests ========================= //
-
 class ExperimentalBasePublisherTest : public Test {
 
 public:

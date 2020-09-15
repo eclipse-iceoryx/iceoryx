@@ -19,9 +19,16 @@ namespace iox {
 namespace popo {
 
 template<typename T, typename port_t>
-BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription&)
+BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& sd) : m_serviceDescription(sd)
     /* : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, "")) */
 {}
+
+template<typename T, typename port_t>
+inline uid_t
+BaseSubscriber<T, port_t>::uid() const noexcept
+{
+    return m_uid;
+}
 
 template<typename T, typename port_t>
 inline cxx::expected<SubscriberError>

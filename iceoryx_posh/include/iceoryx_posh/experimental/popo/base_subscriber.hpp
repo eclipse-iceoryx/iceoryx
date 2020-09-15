@@ -110,7 +110,8 @@ protected:
     bool m_subscriptionRequested = false;
 
 private:
-
+    uid_t m_uid = 0U;
+    capro::ServiceDescription m_serviceDescription{};
     port_t m_port{nullptr};
 
 };
