@@ -15,8 +15,8 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -61,7 +61,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     /// @return on success pointer to a ChunkHeader which can be used to access the payload and header fields, error if
     /// not
     cxx::expected<mepoo::ChunkHeader*, AllocationError> tryAllocate(const uint32_t payloadSize,
-                                                                 const UniquePortId originId) noexcept;
+                                                                    const UniquePortId originId) noexcept;
 
     /// @brief Release an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

@@ -58,6 +58,6 @@ class Command<void>
 };
 
 using Action = Command<void>;
-}
+} // namespace DesignPattern
 
 #endif // IOX_UTILS_DESIGN_PATTERN_ACTION_HPP

@@ -23,5 +23,5 @@ MemoryInfo::MemoryInfo(uint32_t deviceId, uint32_t memoryType)
     , memoryType(memoryType)
 {
 }
-}
-}
+} // namespace mepoo
+} // namespace iox

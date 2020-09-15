@@ -18,7 +18,6 @@ namespace iox
 {
 namespace popo
 {
-
 PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
                                      const ProcessName_t& processName,
                                      mepoo::MemoryManager* const memoryManager,

@@ -14,13 +14,13 @@
 
 #include "helpers/fixture_dds_gateway.hpp"
 
-#include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
 
 #include "mocks/chunk_mock.hpp"
 #include "mocks/google_mocks.hpp"
-#include "testutils/roudi_gtest.hpp"
 #include "test.hpp"
+#include "testutils/roudi_gtest.hpp"
 
 using namespace ::testing;
 using ::testing::_;

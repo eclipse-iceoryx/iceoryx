@@ -18,9 +18,9 @@
 
 #include <bitset>
 #include <chrono>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <iostream>
 
 namespace iox
 {

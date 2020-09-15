@@ -292,7 +292,7 @@ TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushes)
     {
         EXPECT_EQ(m_sofi.size(), i);
         m_sofi.push(i, ret);
-        EXPECT_EQ(m_sofi.size(), i+1);
+        EXPECT_EQ(m_sofi.size(), i + 1);
     }
 }
 
@@ -310,7 +310,7 @@ TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushesOverflow)
     {
         EXPECT_EQ(m_sofi.size(), i);
         m_sofi.push(i, ret);
-        EXPECT_EQ(m_sofi.size(), i+1);
+        EXPECT_EQ(m_sofi.size(), i + 1);
     }
 }
 

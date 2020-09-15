@@ -61,7 +61,7 @@ class TomlGatewayConfigParser
     static bool hasInvalidCharacter(const std::string& s) noexcept;
 };
 
-} // namespace gw
+} // namespace config
 } // namespace iox
 
 #endif // IOX_POSH_GW_TOML_FILE_CONFIG_PARSER_HPP

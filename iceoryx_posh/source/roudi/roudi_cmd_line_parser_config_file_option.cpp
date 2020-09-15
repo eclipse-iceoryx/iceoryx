@@ -48,7 +48,8 @@ void CmdLineParserConfigFileOption::parse(int argc,
             std::cout << "-c, --config-file                 Path to the RouDi Config File." << std::endl;
             std::cout << "                                  Have a look at the documentation for the format."
                       << std::endl;
-            std::cout << "                                  If option is not given, fallbacks in descending order:" << std::endl;
+            std::cout << "                                  If option is not given, fallbacks in descending order:"
+                      << std::endl;
             std::cout << "                                  1) /etc/iceoryx/roudi_config.toml" << std::endl;
             std::cout << "                                  2) hard-coded config" << std::endl;
             m_run = false;
@@ -76,5 +77,5 @@ ConfigFilePathString_t CmdLineParserConfigFileOption::getConfigFilePath() const
 {
     return m_customConfigFilePath;
 }
-} // namespace roudi
+} // namespace config
 } // namespace iox

@@ -32,11 +32,11 @@ struct GatewayConfig
     {
         capro::ServiceDescription m_serviceDescription;
     };
-    iox::cxx::vector<ServiceEntry, MAX_GATEWAY_SERVICES> m_configuredServices; 
+    iox::cxx::vector<ServiceEntry, MAX_GATEWAY_SERVICES> m_configuredServices;
 
     void setDefaults() noexcept;
 };
-} // namespace gw
+} // namespace config
 } // namespace iox
 
 #endif // IOX_POSH_GW_GATEWAY_CONFIG_HPP

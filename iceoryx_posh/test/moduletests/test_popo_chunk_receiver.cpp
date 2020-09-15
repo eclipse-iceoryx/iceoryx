@@ -56,7 +56,8 @@ class ChunkReceiver_test : public Test
     static constexpr size_t MEGABYTE = 1 << 20;
     static constexpr size_t MEMORY_SIZE = 4 * MEGABYTE;
     std::unique_ptr<char[]> m_memory{new char[MEMORY_SIZE]};
-    static constexpr uint32_t NUM_CHUNKS_IN_POOL = iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
+    static constexpr uint32_t NUM_CHUNKS_IN_POOL =
+        iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + iox::MAX_SUBSCRIBER_QUEUE_CAPACITY;
     static constexpr uint32_t CHUNK_SIZE = 128;
 
     iox::posix::Allocator m_memoryAllocator{m_memory.get(), MEMORY_SIZE};
@@ -64,7 +65,8 @@ class ChunkReceiver_test : public Test
     iox::mepoo::MemoryManager m_memoryManager;
 
     using ChunkQueueData_t = iox::popo::ChunkQueueData<iox::DefaultChunkQueueConfig, iox::popo::ThreadSafePolicy>;
-    using ChunkReceiverData_t = iox::popo::ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, ChunkQueueData_t>;
+    using ChunkReceiverData_t =
+        iox::popo::ChunkReceiverData<iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, ChunkQueueData_t>;
     using ChunkQueuePopper_t = iox::popo::ChunkQueuePopper<ChunkQueueData_t>;
 
     ChunkReceiverData_t m_chunkReceiverData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
@@ -183,8 +185,10 @@ TEST_F(ChunkReceiver_test, releaseInvalidChunk)
     }
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
     m_chunkReceiver.release(myCrazyChunk.get());

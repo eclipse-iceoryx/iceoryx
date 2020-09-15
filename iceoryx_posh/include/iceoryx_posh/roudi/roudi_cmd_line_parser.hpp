@@ -74,7 +74,7 @@ class CmdLineParser
     cxx::optional<uint16_t> m_uniqueRouDiId;
 };
 
-} // namespace roudi
+} // namespace config
 } // namespace iox
 
 #endif // IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_HPP

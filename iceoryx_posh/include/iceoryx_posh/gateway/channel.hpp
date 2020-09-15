@@ -15,8 +15,8 @@
 #ifndef IOX_POSH_GW_CHANNEL_HPP
 #define IOX_POSH_GW_CHANNEL_HPP
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/objectpool/objectpool.hpp"
@@ -59,8 +59,8 @@ class Channel
 
   public:
     constexpr Channel(const capro::ServiceDescription& service,
-                        const IceoryxTerminalPtr iceoryxTerminal,
-                        const ExternalTerminalPtr externalTerminal) noexcept;
+                      const IceoryxTerminalPtr iceoryxTerminal,
+                      const ExternalTerminalPtr externalTerminal) noexcept;
 
     constexpr bool operator==(const Channel<IceoryxTerminal, ExternalTerminal>& rhs) const noexcept;
 

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/gateway/channel.hpp"
 
 #include "test.hpp"
 

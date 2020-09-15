@@ -44,7 +44,7 @@ class CmdLineParserConfigFileOption : public CmdLineParser
     ConfigFilePathString_t m_customConfigFilePath;
 };
 
-} // namespace roudi
+} // namespace config
 } // namespace iox
 
 #endif // IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_CONFIG_FILE_OPTION_HPP

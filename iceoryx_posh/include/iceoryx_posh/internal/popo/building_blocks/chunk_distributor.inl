@@ -42,7 +42,7 @@ ChunkDistributor<ChunkDistributorDataType>::getMembers() noexcept
 template <typename ChunkDistributorDataType>
 inline cxx::expected<ChunkDistributorError>
 ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
-                                                     const uint64_t requestedHistory) noexcept
+                                                        const uint64_t requestedHistory) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
@@ -86,8 +86,8 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
 }
 
 template <typename ChunkDistributorDataType>
-inline cxx::expected<ChunkDistributorError>
-ChunkDistributor<ChunkDistributorDataType>::tryRemoveQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept
+inline cxx::expected<ChunkDistributorError> ChunkDistributor<ChunkDistributorDataType>::tryRemoveQueue(
+    cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
