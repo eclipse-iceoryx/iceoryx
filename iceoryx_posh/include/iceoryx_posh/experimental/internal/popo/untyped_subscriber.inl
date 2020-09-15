@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_SUBSCRIBER_HPP
-#define IOX_EXPERIMENTAL_POSH_POPO_SUBSCRIBER_HPP
+#ifndef IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_INL
+#define IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_INL
 
-#include "iceoryx_posh/experimental/popo/typed_subscriber.hpp"
-#include "iceoryx_posh/experimental/popo/untyped_subscriber.hpp"
+namespace iox {
+namespace popo {
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_SUBSCRIBER_HPP
+
+
+} // namespace popo
+} // namespace iox
+
+#endif // IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_INL

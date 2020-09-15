@@ -12,18 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_SUBSCRIBER_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_SUBSCRIBER_INL
-
-#include <iostream>
-
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_posh/experimental/popo/subscriber.hpp"
+#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL
+#define IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL
 
 namespace iox {
 namespace popo {
-
-// ======================================== Base Subscriber ======================================== //
 
 template<typename T, typename port_t>
 BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription&)
@@ -146,66 +139,7 @@ BaseSubscriber<T, port_t>::hasTriggered() const noexcept
     return false;
 }
 
-// ======================================== Typed Subscriber ======================================== //
-
-template<typename T>
-TypedSubscriber<T>::TypedSubscriber(const capro::ServiceDescription& service)
-    : BaseSubscriber<T>(service)
-{}
-
-template<typename T>
-inline cxx::expected<SubscriberError>
-TypedSubscriber<T>::subscribe(const uint64_t queueCapacity) noexcept
-{
-    return BaseSubscriber<T>::subscribe(queueCapacity);
-}
-
-template<typename T>
-inline SubscriptionState
-TypedSubscriber<T>::getSubscriptionState() const noexcept
-{
-    return BaseSubscriber<T>::getSubscriptionState();
-}
-
-template<typename T>
-inline void
-TypedSubscriber<T>::unsubscribe() noexcept
-{
-    return BaseSubscriber<T>::unsubscribe();
-}
-
-template<typename T>
-inline bool
-TypedSubscriber<T>::hasData() const noexcept
-{
-    return BaseSubscriber<T>::hasData();
-}
-
-template<typename T>
-inline cxx::optional<cxx::unique_ptr<T>>
-TypedSubscriber<T>::receive() noexcept
-{
-    return BaseSubscriber<T>::receive();
-}
-
-template<typename T>
-inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
-TypedSubscriber<T>::receiveWithHeader() noexcept
-{
-    return BaseSubscriber<T>::receiveWithHeader();
-}
-
-template<typename T>
-inline void
-TypedSubscriber<T>::clearReceiveBuffer() noexcept
-{
-    BaseSubscriber<T>::clearReceiveBuffer();
-}
-
-// ======================================== Untyped Subscriber ======================================== //
-
-
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_SUBSCRIBER_INL
+#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL

@@ -29,10 +29,10 @@ enum class ChunkQueueError
 struct ChunkTuple
 {
     ChunkTuple() = default;
-    explicit ChunkTuple(iox::relative_ptr<mepoo::ChunkManagement> f_chunk) noexcept;
+    explicit ChunkTuple(relative_ptr<mepoo::ChunkManagement> f_chunk) noexcept;
 
-    RelativePointer::id_t m_segmentId{iox::RelativePointer::NULL_POINTER_ID};
-    RelativePointer::offset_t m_chunkOffset{iox::RelativePointer::NULL_POINTER_OFFSET};
+    RelativePointer::id_t m_segmentId{RelativePointer::NULL_POINTER_ID};
+    RelativePointer::offset_t m_chunkOffset{RelativePointer::NULL_POINTER_OFFSET};
 };
 
 } // namespace popo
