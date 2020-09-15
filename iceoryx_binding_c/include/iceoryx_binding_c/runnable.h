@@ -19,10 +19,29 @@
 
 typedef struct RunnableData* iox_runnable_t;
 
+/// @brief creates a runnable in the shared memory
+/// @param[in] runnableName name of the runnable
+/// @return handle to the runnable
 iox_runnable_t iox_runnable_create(const char* const runnableName);
+
+/// @brief removes a runnable from the shared memory
+/// @param[in] self handle to the runnable
 void iox_runnable_destroy(iox_runnable_t const self);
 
+/// @brief acquires the name of the runnable
+/// @param[in] self handle to the runnable
+/// @param[in] name pointer to a memory location where the name can be written to
+/// @param[in] nameCapacity size of the memory location where the name is written to
+/// @return the actual length of the runnable name, if the return value is greater
+///         then nameCapacity the name is truncated
 uint64_t iox_runnable_get_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity);
+
+/// @brief acquires the name of the process in which the runnable is stored
+/// @param[in] self handle to the runnable
+/// @param[in] name pointer to a memory location where the name can be written to
+/// @param[in] nameCapacity size of the memory location where the name is written to
+/// @return the actual length of the process name, if the return value is greater
+///         then nameCapacity the name is truncated
 uint64_t iox_runnable_get_process_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity);
 
 #endif
