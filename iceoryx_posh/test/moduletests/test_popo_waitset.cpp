@@ -28,44 +28,45 @@ using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::units::duration_literals;
 
-class MockSubscriber : public Condition
-{
-  public:
-    bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
-    {
-        m_condVarPtr = conditionVariableDataPtr;
-        return true;
-    }
-
-    bool hasTriggered() const noexcept override
-    {
-        return m_wasTriggered;
-    }
-
-    bool unsetConditionVariable() noexcept override
-    {
-        m_condVarPtr = nullptr;
-        return true;
-    }
-
-    /// @note done in ChunkQueuePusher
-    void notify()
-    {
-        // We don't need to check if the WaitSet is still alive as it follows RAII and will inform every Condition about
-        // a possible destruction
-        m_wasTriggered = true;
-        ConditionVariableSignaler signaler{m_condVarPtr};
-        signaler.notifyOne();
-    }
-
-    /// @note members reside in ChunkQueueData in SHM
-    bool m_wasTriggered{false};
-    ConditionVariableData* m_condVarPtr{nullptr};
-};
-
 class WaitSet_test : public Test
 {
   public:
+    class MockSubscriber : public Condition
+    {
+      public:
+        bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
+        {
+            m_condVarPtr = conditionVariableDataPtr;
+            return true;
+        }
+
+        bool hasTriggered() const noexcept override
+        {
+            return m_wasTriggered;
+        }
+
+        bool unsetConditionVariable() noexcept override
+        {
+            m_condVarPtr = nullptr;
+            return true;
+        }
+
+        /// @note done in ChunkQueuePusher
+        void notify()
+        {
+            // We don't need to check if the WaitSet is still alive as it follows RAII and will inform every Condition
+            // about a possible destruction
+            m_wasTriggered = true;
+            ConditionVariableSignaler signaler{m_condVarPtr};
+            signaler.notifyOne();
+        }
+
+        /// @note members reside in ChunkQueueData in SHM
+        bool m_wasTriggered{false};
+        ConditionVariableData* m_condVarPtr{nullptr};
+    };
+
+
     class WaitSetMock : public WaitSet
     {
       public:
@@ -368,7 +369,7 @@ TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThread
     });
     m_syncSemaphore.wait();
     counter++;
-    guardCond.setTrigger();
+    guardCond.trigger();
     waiter.join();
     m_sut.detachCondition(guardCond);
 }
@@ -377,7 +378,7 @@ TEST_F(WaitSet_test, NotifyGuardConditionOnceTimedWaitResultsInResetOfTrigger)
 {
     GuardCondition guardCond;
     m_sut.attachCondition(guardCond);
-    guardCond.setTrigger();
+    guardCond.trigger();
     auto fulfilledConditions1 = m_sut.timedWait(1_ms);
     EXPECT_THAT(fulfilledConditions1.size(), Eq(1));
     EXPECT_THAT(fulfilledConditions1.front(), &guardCond);
