@@ -49,7 +49,7 @@ inline forward_list<T, Capacity>& forward_list<T, Capacity>::forward_list::opera
 {
     if (this != &rhs)
     {
-        uint64_t i = 0u;
+        uint64_t i = 0U;
         auto iterThis = before_begin();
         auto citerRhs = rhs.cbefore_begin();
         auto startSize = size();
@@ -84,7 +84,7 @@ inline forward_list<T, Capacity>& forward_list<T, Capacity>::forward_list::opera
 {
     if (this != &rhs)
     {
-        uint64_t i = 0u;
+        uint64_t i = 0U;
         auto iterThis = before_begin();
         auto iterRhs = rhs.before_begin();
         auto startSize = size();
@@ -177,7 +177,7 @@ inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capaci
 template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::empty() const noexcept
 {
-    return (m_size == 0);
+    return (m_size == 0U);
 }
 
 template <typename T, uint64_t Capacity>
@@ -296,7 +296,7 @@ template <typename T, uint64_t Capacity>
 template <typename UnaryPredicate>
 inline typename forward_list<T, Capacity>::size_type forward_list<T, Capacity>::remove_if(UnaryPredicate pred) noexcept
 {
-    size_type removedCount = 0;
+    size_type removedCount = 0U;
 
     auto iter = before_begin();
     auto next_iter = begin();
@@ -361,7 +361,7 @@ inline bool forward_list<T, Capacity>::pop_front() noexcept
 {
     auto sizeBeforeErase = m_size;
     erase_after(before_begin());
-    return ((m_size + 1) == sizeBeforeErase);
+    return ((m_size + 1U) == sizeBeforeErase);
 }
 
 template <typename T, uint64_t Capacity>
@@ -483,7 +483,7 @@ inline typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator
 template <typename T, uint64_t Capacity>
 inline void forward_list<T, Capacity>::init() noexcept
 {
-    for (size_type i = m_freeListHeadIdx; (i + 1U) < Capacity; ++i)
+    for (size_type i = m_freeListHeadIdx; i < (Capacity - 1U); ++i)
     {
         setInvalidElement(i, true);
         setNextIdx(i, i + 1U);
@@ -500,7 +500,7 @@ inline void forward_list<T, Capacity>::init() noexcept
     setNextIdx(Capacity + 1U, END_INDEX);
     m_freeListHeadIdx = 0U;
 
-    m_size = 0;
+    m_size = 0U;
 }
 
 

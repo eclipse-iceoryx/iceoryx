@@ -57,7 +57,7 @@ inline list<T, Capacity>& list<T, Capacity>::list::operator=(const list& rhs) no
 {
     if (this != &rhs)
     {
-        uint64_t i = 0u;
+        uint64_t i = 0U;
         auto iterThis = begin();
         auto citerRhs = rhs.cbegin();
         auto startSize = size();
@@ -92,7 +92,7 @@ inline list<T, Capacity>& list<T, Capacity>::list::operator=(list&& rhs) noexcep
 {
     if (this != &rhs)
     {
-        uint64_t i = 0u;
+        uint64_t i = 0U;
         auto iterThis = begin();
         auto citerRhs = rhs.begin();
         auto startSize = size();
@@ -169,7 +169,7 @@ inline typename list<T, Capacity>::const_iterator list<T, Capacity>::cend() cons
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::empty() const noexcept
 {
-    return (m_size == 0);
+    return (m_size == 0U);
 }
 
 template <typename T, uint64_t Capacity>
@@ -297,7 +297,7 @@ template <typename T, uint64_t Capacity>
 template <typename UnaryPredicate>
 inline typename list<T, Capacity>::size_type list<T, Capacity>::remove_if(UnaryPredicate pred) noexcept
 {
-    size_type removedCount = 0;
+    size_type removedCount = 0U;
 
     auto iter = begin();
 
@@ -399,7 +399,7 @@ inline bool list<T, Capacity>::pop_front() noexcept
 {
     auto sizeBeforeErase = m_size;
     erase(begin());
-    return ((m_size + 1) == sizeBeforeErase);
+    return ((m_size + 1U) == sizeBeforeErase);
 }
 
 template <typename T, uint64_t Capacity>
@@ -407,7 +407,7 @@ inline bool list<T, Capacity>::pop_back() noexcept
 {
     auto sizeBeforeErase = m_size;
     erase(--end());
-    return ((m_size + 1) == sizeBeforeErase);
+    return ((m_size + 1U) == sizeBeforeErase);
 }
 
 template <typename T, uint64_t Capacity>
@@ -552,7 +552,7 @@ inline void list<T, Capacity>::init() noexcept
     setPrevIdx(0U, INVALID_INDEX);
     setNextIdx(0U, 1U);
 
-    for (size_type i = 1; (i + 1U) < BEGIN_END_LINK_INDEX; ++i)
+    for (size_type i = 1U; i < (BEGIN_END_LINK_INDEX - 1U); ++i)
     {
         setPrevIdx(i, INVALID_INDEX);
         setNextIdx(i, i + 1U);
@@ -566,7 +566,7 @@ inline void list<T, Capacity>::init() noexcept
     setNextIdx(Capacity, BEGIN_END_LINK_INDEX);
     m_freeListHeadIdx = 0U;
 
-    m_size = 0;
+    m_size = 0U;
 }
 
 
