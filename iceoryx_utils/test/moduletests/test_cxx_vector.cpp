@@ -14,7 +14,7 @@
 
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "test.hpp"
-
+#include <list>
 
 using namespace ::testing;
 using namespace iox::cxx;
@@ -109,6 +109,92 @@ int vector_test::moveAssignment;
 int vector_test::copyAssignment;
 int vector_test::dTor;
 int vector_test::classValue;
+
+class vector_dtor_test : public Test
+{
+  public:
+    static uint64_t cTor;
+    static uint64_t customCTor;
+    static uint64_t copyCTor;
+    static uint64_t moveCTor;
+    static uint64_t moveAssignment;
+    static uint64_t copyAssignment;
+    static std::list<int64_t> dTorList;
+    static int64_t classValue;
+
+    class VectorTest
+    {
+      public:
+        VectorTest()
+        {
+            ++cTor;
+        }
+
+        VectorTest(const int64_t m_value)
+            : m_value(m_value)
+        {
+            ++customCTor;
+        }
+
+        VectorTest(const VectorTest& rhs)
+        {
+            ++copyCTor;
+            m_value = rhs.m_value;
+        }
+
+        VectorTest(VectorTest&& rhs)
+        {
+            ++moveCTor;
+            m_value = rhs.m_value;
+        }
+
+        VectorTest& operator=(const VectorTest& rhs)
+        {
+            ++copyAssignment;
+            m_value = rhs.m_value;
+            return *this;
+        }
+
+        VectorTest& operator=(VectorTest&& rhs)
+        {
+            ++moveAssignment;
+            m_value = rhs.m_value;
+            return *this;
+        }
+
+        ~VectorTest()
+        {
+            dTorList.emplace_back(m_value);
+            classValue = m_value;
+        }
+
+        int64_t m_value = 0U;
+    };
+
+    void SetUp()
+    {
+        cTor = 0U;
+        customCTor = 0U;
+        copyCTor = 0U;
+        moveCTor = 0U;
+        moveAssignment = 0U;
+        copyAssignment = 0U;
+        dTorList.clear();
+        classValue = 0U;
+    }
+
+    vector<VectorTest, 10U> sut;
+};
+
+
+uint64_t vector_dtor_test::cTor;
+uint64_t vector_dtor_test::customCTor;
+uint64_t vector_dtor_test::copyCTor;
+uint64_t vector_dtor_test::moveCTor;
+uint64_t vector_dtor_test::moveAssignment;
+uint64_t vector_dtor_test::copyAssignment;
+std::list<int64_t> vector_dtor_test::dTorList;
+int64_t vector_dtor_test::classValue;
 
 
 TEST_F(vector_test, NewlyCreatedVectorIsEmpty)
@@ -775,8 +861,8 @@ TEST_F(vector_test, EraseOfMiddleElementCallsDTorAndMove)
 
     sut1.erase(sut1.begin() + 2);
 
-    EXPECT_THAT(dTor, Eq(1));
-    EXPECT_THAT(moveAssignment, Eq(2));
+    EXPECT_THAT(dTor, Eq(3));
+    EXPECT_THAT(moveCTor, Eq(2));
 }
 
 TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
@@ -790,8 +876,8 @@ TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
 
     sut1.erase(sut1.begin());
 
-    EXPECT_THAT(dTor, Eq(1));
-    EXPECT_THAT(moveAssignment, Eq(4));
+    EXPECT_THAT(dTor, Eq(5));
+    EXPECT_THAT(moveCTor, Eq(4));
 }
 
 TEST_F(vector_test, EraseMiddleElementDataCorrectAfterwards)
@@ -855,7 +941,7 @@ TEST_F(vector_test, EraseLastElementOfFullVectorDataCorrectAfterwards)
 }
 
 
-TEST_F(vector_test, CheckEraseReturnValue)
+TEST_F(vector_test, CheckEraseAtEndReturnValue)
 {
     for (int i = 0; i < static_cast<int>(sut.capacity()); ++i)
     {
@@ -863,9 +949,48 @@ TEST_F(vector_test, CheckEraseReturnValue)
     }
 
     decltype(sut)::iterator iter1 = sut.erase(sut.begin() + sut.size() - 1);
-    decltype(sut)::iterator iter2 = sut.erase(sut.begin() + sut.capacity());
 
     EXPECT_THAT(iter1, Eq(sut.end()));
+}
+
+
+TEST_F(vector_test, CheckEraseAtBeginReturnValue)
+{
+    for (int i = 0; i < static_cast<int>(sut.capacity()); ++i)
+    {
+        sut.emplace_back(i * 123);
+    }
+
+    decltype(sut)::iterator iter1 = sut.erase(sut.begin());
+
+    EXPECT_THAT(iter1, Eq(sut.begin()));
+}
+
+
+TEST_F(vector_test, CheckEraseInTheMiddleReturnValue)
+{
+    for (int i = 0; i < static_cast<int>(sut.capacity()); ++i)
+    {
+        sut.emplace_back(i * 123);
+    }
+
+    auto iter = sut.begin();
+    ++iter;
+    decltype(sut)::iterator iter1 = sut.erase(iter);
+
+    EXPECT_THAT(iter1, Eq(iter));
+}
+
+
+TEST_F(vector_test, CheckInvalidEraseReturnValue)
+{
+    for (int i = 0; i < static_cast<int>(sut.capacity()); ++i)
+    {
+        sut.emplace_back(i * 123);
+    }
+
+    decltype(sut)::iterator iter2 = sut.erase(sut.begin() + sut.capacity());
+
     EXPECT_THAT(iter2, Eq(nullptr));
 }
 
@@ -1049,4 +1174,26 @@ TEST_F(vector_test, PartiallyEqualVectorsWithDifferentCapacityAreNotEqual)
 
     EXPECT_FALSE(a == b);
     EXPECT_TRUE(a != b);
+}
+
+
+TEST_F(vector_dtor_test, DestructorOnErase)
+{
+    for (uint64_t i = 0U; i < 10U; ++i)
+    {
+        sut.emplace_back(i);
+    }
+    auto iter = sut.begin(); // element w/ value ==0
+    ++iter;                  // element w/ value ==1
+    ++iter;                  // element w/ value ==2
+    sut.erase(iter);
+
+    EXPECT_THAT(cTor, Eq(0U));
+    EXPECT_THAT(customCTor, Eq(10U));
+    EXPECT_THAT(copyCTor, Eq(0U));
+    EXPECT_THAT(moveCTor, Eq(7U));
+    EXPECT_THAT(moveAssignment, Eq(0U));
+    EXPECT_THAT(copyAssignment, Eq(0U));
+    EXPECT_THAT(dTorList.front(), Eq(2U));
+    EXPECT_THAT(dTorList.size(), Eq(8U));
 }

@@ -158,6 +158,7 @@ class vector
     /// @brief removes an element at the given position. if this element is in
     ///         the middle of the vector every element is moved one place to the
     ///         left to ensure that the elements are stored contiguously
+    /// @return return an iterator to the next element, returns nullptr if erase position is out-of-range
     iterator erase(iterator position);
 
   private:

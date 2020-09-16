@@ -303,7 +303,8 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
         at(n).~T();
         for (; n + 1u < size(); ++n)
         {
-            at(n) = std::move(at(n + 1u));
+            new (&at(n)) T(std::move(at(n + 1u)));
+            at(n + 1u).~T();
         }
         ret = position;
 
