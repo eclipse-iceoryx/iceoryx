@@ -27,7 +27,7 @@ class SenderPort : public BasePort
 {
   public:
     using MemberType_t = SenderPortData;
-    using MemoryInfo = iox::mepoo::MemoryInfo;
+    using MemoryInfo = mepoo::MemoryInfo;
 
     SenderPort(SenderPortData* const member);
 

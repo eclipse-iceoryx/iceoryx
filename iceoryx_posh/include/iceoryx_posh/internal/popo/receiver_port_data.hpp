@@ -33,7 +33,7 @@ namespace popo
 struct ReceiverPortData : public BasePortData
 {
     using mutex_t = posix::mutex; // std::mutex
-    using MemoryInfo = iox::mepoo::MemoryInfo;
+    using MemoryInfo = mepoo::MemoryInfo;
 
     ReceiverPortData() noexcept;
     ReceiverPortData(const capro::ServiceDescription& serviceDescription,
@@ -52,7 +52,7 @@ struct ReceiverPortData : public BasePortData
     // event callback related
     mutable std::atomic_bool m_chunkSendCallbackActive{false};
     mutable mutex_t m_chunkSendCallbackMutex{false};
-    iox::relative_ptr<posix::Semaphore> m_chunkSendSemaphore{nullptr};
+    relative_ptr<posix::Semaphore> m_chunkSendSemaphore{nullptr};
 
     // offer semaphore that is stored in shared memory
     iox_sem_t m_shmSemaphoreHandle;

@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 {
     iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-modern");
 
-    auto untypedPublisher = iox::popo::UntypedPublisher({"Odometry", "Position", "Vehicle"});
+    auto untypedPublisher = iox::popo::UntypedPublisher<>({"Odometry", "Position", "Vehicle"});
     untypedPublisher.offer();
 
     float_t ct = 0.0;

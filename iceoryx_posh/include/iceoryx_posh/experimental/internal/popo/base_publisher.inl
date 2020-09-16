@@ -37,7 +37,7 @@ template<typename T, typename port_t>
 inline cxx::expected<Sample<T>, AllocationError>
 BasePublisher<T, port_t>::loan(uint32_t size) noexcept
 {
-    auto result = m_port.allocateChunk(size);
+    auto result = m_port.tryAllocateChunk(size);
     if(result.has_error())
     {
         return cxx::error<AllocationError>(result.get_error());
