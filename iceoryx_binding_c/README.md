@@ -14,18 +14,25 @@ Therefore, we have the following coding conventions exclusively in the C API.
  - C functions are using an abbreviation of the `ClassName` for instance `cn` and
       are named like `iox_cn_method_name` where the camelCase is converted into 
       snake_case.
-    - A typedef for the handle is created with the abbreviation as name and a 
-        `_t` suffix, like `cn_t`
-    - The constructor has always a suffix `_create` and is called for instance 
-        `cn_create`. Analog to the constructor the destructor has the suffix `_destroy` 
-        and is named like `cn_destroy`.
-    - The first parameter is always the handle to the corresponding object.
-    - If possible, the arguments should stay the same in the C API.
+ - A typedef for the handle is created with the abbreviation as name, a `iox` 
+     prefix and a `_t` suffix, like `iox_cn_t`
+ - If the constructor allocates an element it has the suffix `_create` and is 
+     called for instance `iox_cn_create`. Analog to the constructor the destructor 
+     has the suffix `_destroy` and is named like `iox_cn_destroy`.
+ - If the constructor requires preallocated memory it has the suffix `_init`
+     and is called for instance `iox_cn_init`. The corresponding destructor would 
+     then have the suffix `_deinit` and is named like `iox_cn_deinit`.
+     - We provide structs to preallocate memory on the stack easily. They are 
+         having the suffix `_storage_t` and are named like `iox_cn_storage_t`. This
+         allows you to use them like.
+         ```c
+         iox_cn_storage_t cnStorage;
+         iox_cn_t = iox_cn_init(&cnStorage);
+         ```
+ 
+ - The first parameter is always the handle to the corresponding object.
+ - If possible, the arguments should stay the same in the C API.
 
- - Every C++ class has the prefix keyword `CLASS` in the C header.
-   The reason is that C requires the `struct` keyword and in C++ we
-   only require the type. Hence, we defined a macro which adds 
-   `struct` before every C++ class when building a C project.
  - Enum values are named like `EnumName_EnumValue`
  - Enum names follow the rule `namespace_EnumName`
 
@@ -45,6 +52,12 @@ class Subscriber {
         bool send(void * data);
         void allHailHypnotoad();
 };
+
+class MyOtherClass {
+    public:
+        MyOtherClass(const int a);
+        void youSpinMeRoundLikeARecord();
+};
 }
 ```
 
@@ -56,10 +69,25 @@ enum iox_Color {
     Color_BLUE,
 };
 
+
+typedef struct Subscriber * sub_t;
+
 sub_t iox_sub_create(const char * name);
 void iox_sub_destroy(sub_t const self);
 bool iox_sub_receive(sub_t const self, void * const data);
 bool iox_sub_send(sub_t const self, void * const data);
 void iox_sub_all_hail_hypnotoad(sub_t const self);
+
+
+struct iox_other_class_storage_t_ {
+    uint64_t do_not_touch_me[8]; // lets assume 8 * 8 is the size of MyOtherClass
+};
+typedef iox_other_class_storage_t_ iox_other_class_storage_t;
+
+typedef struct MyOtherClass * iox_other_class_t;
+iox_other_class_t iox_other_class_init(iox_other_class_storage_t * self,const int a);
+void iox_other_class_deinit(iox_other_class_t * self);
+void iox_other_class_you_spin_me_round_like_a_record(iox_other_class_t * self);
+
 ```
 

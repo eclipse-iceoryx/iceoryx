@@ -78,6 +78,7 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 |CMake project/target                     | QNX  | Linux, Windows, MacOS | Comment                             |
 |-----------------------------------------|:----:|:---------------------:|:-----------------------------------:|
 | example_benchmark_optional_and_expected | 5    | 5                     |                                     |
+| example_icecallback_on_c                | 5    | 5                     |                                     |
 | example_icedelivery                     | 5    | 5                     |                                     |
 | example_icedelivery_on_c                | 5    | 5                     |                                     |
 | example_iceperf                         | 5    | 5                     |                                     |
