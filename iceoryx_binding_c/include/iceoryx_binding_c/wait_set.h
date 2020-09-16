@@ -21,6 +21,8 @@
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
 
+#include <time.h>
+
 /// @brief wait set handle
 typedef struct WaitSet* iox_wait_set_t;
 
