@@ -854,6 +854,22 @@ TEST_F(vector_test, EraseLastElementOfFullVectorDataCorrectAfterwards)
     }
 }
 
+
+TEST_F(vector_test, CheckEraseReturnValue)
+{
+    for (int i = 0; i < static_cast<int>(sut.capacity()); ++i)
+    {
+        sut.emplace_back(i * 123);
+    }
+
+    decltype(sut)::iterator iter1 = sut.erase(sut.begin() + sut.size() - 1);
+    decltype(sut)::iterator iter2 = sut.erase(sut.begin() + sut.capacity());
+
+    EXPECT_THAT(iter1, Eq(sut.end()));
+    EXPECT_THAT(iter2, Eq(nullptr));
+}
+
+
 TEST_F(vector_test, FrontPointsToFirstElement)
 {
     sut.emplace_back(1);

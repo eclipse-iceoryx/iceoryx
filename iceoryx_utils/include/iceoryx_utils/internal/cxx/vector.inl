@@ -293,18 +293,23 @@ inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() c
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterator position)
 {
+    iterator ret = nullptr;
+
     if (begin() <= position && position < end())
     {
         uint64_t index = static_cast<uint64_t>(position - begin()) % (sizeof(element_t) * Capacity);
         size_t n = index;
+
+        at(n).~T();
         for (; n + 1u < size(); ++n)
         {
             at(n) = std::move(at(n + 1u));
         }
-        at(n).~T();
+        ret = position;
+
         m_size--;
     }
-    return nullptr;
+    return ret;
 }
 
 } // namespace cxx
