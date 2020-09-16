@@ -369,14 +369,14 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
 #if defined(RESTRICT_TO_1_TO_N_COMMUNICATION)
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsFails)
 {
-    // const auto publisherPort1 = m_runtime->getMiddlewarePublisher(
-    //     iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_runnableName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    const auto publisherPort1 = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_runnableName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
-    // const auto publisherPort2 = m_runtime->getMiddlewarePublisher(
-    //     iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_runnableName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+    const auto publisherPort2 = m_runtime->getMiddlewarePublisher(
+        iox::capro::ServiceDescription(99U, 1U, 20U), 0U, m_runnableName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
 
-    // ASSERT_NE(nullptr, publisherPort1);
-    // ASSERT_EQ(nullptr, publisherPort2);
+    ASSERT_NE(nullptr, publisherPort1);
+    ASSERT_EQ(nullptr, publisherPort2);
 }
 #endif
 

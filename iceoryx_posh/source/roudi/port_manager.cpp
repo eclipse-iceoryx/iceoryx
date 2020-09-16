@@ -776,16 +776,8 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                       << publisherPortData->m_processName << "' with service '"
                       << service.operator cxx::Serialization().toString() << "'.";
 
-            // Do we really need isUnique()?
-            // if (publisherPort.isUnique())
-            // {
-            //     errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
-            //     return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
-            // }
-            // else
-            // {
-            //     break;
-            // }
+            errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+            return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
         }
     }
 #endif
