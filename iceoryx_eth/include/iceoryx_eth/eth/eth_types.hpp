@@ -15,12 +15,9 @@
 #ifndef IOX_DDS_DDS_DDS_TYPES_HPP
 #define IOX_DDS_DDS_DDS_TYPES_HPP
 
-#ifdef USE_CYCLONE_DDS
 #include "eth/eth_writer.hpp"
 #include "eth/eth_reader.hpp"
-#else
-#error "A eth implementation must be provided."
-#endif
+
 
 namespace iox
 {
@@ -30,13 +27,11 @@ namespace eth
 using IdString = iox::cxx::string<100u>;
 
 // DDS implementation defined with compiler flags
-#ifdef USE_CYCLONE_DDS
+
 using data_reader_t = iox::eth::ethDataReader;
 using data_writer_t = iox::eth::ethDataWriter;
-#else
-#error "A DDS implementation must be set."
-#endif
-} // namespace ipcf
+
+} // namespace eth
 } // namespace iox
 
 #endif // IOX_DDS_DDS_DDS_TYPES_HPP

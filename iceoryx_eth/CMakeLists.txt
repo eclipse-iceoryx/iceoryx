@@ -15,7 +15,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 file (STRINGS "../VERSION" iceoryx_dds_VERSION)
-project(iceoryx_dds VERSION ${iceoryx_dds_VERSION})
+project(iceoryx_eth VERSION ${iceoryx_dds_VERSION})
 
 option(test "build test binaries")
 
@@ -31,15 +31,9 @@ include(IceoryxPlatformDetection)
 #
 setup_package_name_and_create_files(
     NAME ${PROJECT_NAME}
-    NAMESPACE iceoryx_dds
+    NAMESPACE iceoryx_eth
     PROJECT_PREFIX ${PREFIX}
 )
-
-#
-########## feature flags ##########
-#
-option(USE_CYCLONE_DDS "Bind to CycloneDDS implementation" on)
-
 
 #
 ########## build building-block library ##########
@@ -75,8 +69,6 @@ target_link_libraries(iceoryx_eth
 
 ################################################
 
-
-if(USE_CYCLONE_DDS)
     target_sources(iceoryx_eth
         PRIVATE
         source/iceoryx_eth/eth/eth_context.cpp
@@ -84,21 +76,6 @@ if(USE_CYCLONE_DDS)
         source/iceoryx_eth/eth/eth_reader.cpp
         source/iceoryx_eth/eth/eth_gatewayconf.cpp
     )
-    target_compile_definitions(iceoryx_eth PUBLIC -DUSE_CYCLONE_DDS)
-    target_include_directories(iceoryx_eth
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/iceoryx_dds_messages>
-    )
-  #  target_link_libraries(iceoryx_eth
-  #      PUBLIC
-        #CycloneDDS_CXX_API::ddscxx
-        #${IDLPP_GENERATE_DIR}/libiceoryx_dds_messages.a
-  #  )
-endif()
-
-################################################
-
-#target_compile_options(iceoryx_dds PRIVATE ${ICEORYX_WARNINGS})
 
 #
 ########## build gateway apps ##########
@@ -110,8 +87,6 @@ add_executable(iox-gw-iceoryx2eth
 target_link_libraries(iox-gw-iceoryx2eth
     PRIVATE
     iceoryx_posh::iceoryx_posh
-    iceoryx_posh::iceoryx_posh_config
-    iceoryx_posh::iceoryx_posh_gateway
     iceoryx_eth
 )
 
@@ -126,8 +101,6 @@ add_executable(iox-gw-eth2iceoryx
 target_link_libraries(iox-gw-eth2iceoryx
     PRIVATE
     iceoryx_posh::iceoryx_posh
-    iceoryx_posh::iceoryx_posh_config
-    iceoryx_posh::iceoryx_posh_gateway
     iceoryx_eth
 )
 
