@@ -78,9 +78,11 @@ void receiving()
 {
     iox_runtime_register("/iox-c-subscriber");
 
+    // initialize wait set and guard condition
     waitSet = iox_wait_set_init(&waitSetStorage);
     guardCondition = iox_guard_cond_init(&guardConditionStorage);
 
+    // register signal after guard condition since we are using it in the handler
     signal(SIGINT, sigHandler);
 
     uint64_t historyRequest = 0U;
@@ -89,7 +91,12 @@ void receiving()
     subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", historyRequest);
     iox_sub_subscribe(subscriber, 10);
 
+    // attach guard condition to our wait set, used to signal the wait set that
+    // we would like to terminate the process
     iox_wait_set_attach_condition(waitSet, (iox_cond_t)guardCondition);
+
+    // attach subscriber to our wait set. if the subscriber receives a sample
+    // it will trigger the wait set
     iox_wait_set_attach_condition(waitSet, (iox_cond_t)subscriber);
 
 
@@ -98,17 +105,19 @@ void receiving()
     uint64_t numberOfTriggeredConditions = 0U;
     do
     {
+        // wait until an event has occurred
         numberOfTriggeredConditions = iox_wait_set_wait(waitSet, conditionArray, NUMBER_OF_CONDITIONS, &missedElements);
 
+        // call our callback, if the guard condition was triggered it returns false
     } while (callback(conditionArray, numberOfTriggeredConditions));
 
-
-    iox_wait_set_detach_all_conditions(waitSet);
-    iox_wait_set_deinit(waitSet);
-
-    iox_guard_cond_deinit(guardCondition);
-
     iox_sub_unsubscribe(subscriber);
+
+    // detach all conditions before we deinitialize and destroy them
+    iox_wait_set_detach_all_conditions(waitSet);
+
+    iox_wait_set_deinit(waitSet);
+    iox_guard_cond_deinit(guardCondition);
     iox_sub_deinit(subscriber);
 }
 
