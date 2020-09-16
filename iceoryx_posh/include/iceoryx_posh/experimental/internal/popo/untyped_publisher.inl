@@ -19,34 +19,34 @@ namespace iox {
 namespace popo {
 
 template<typename base_publisher_t>
-UntypedPublisher<base_publisher_t>::UntypedPublisher(const capro::ServiceDescription& service)
+UntypedPublisherImpl<base_publisher_t>::UntypedPublisherImpl(const capro::ServiceDescription& service)
     : base_publisher_t(service)
 {}
 
 template<typename base_publisher_t>
 inline uid_t
-UntypedPublisher<base_publisher_t>::uid() const noexcept
+UntypedPublisherImpl<base_publisher_t>::uid() const noexcept
 {
     return base_publisher_t::uid();
 }
 
 template<typename base_publisher_t>
 inline cxx::expected<Sample<void>, AllocationError>
-UntypedPublisher<base_publisher_t>::loan(uint32_t size) noexcept
+UntypedPublisherImpl<base_publisher_t>::loan(uint32_t size) noexcept
 {
     return base_publisher_t::loan(size);
 }
 
 template<typename base_publisher_t>
 inline void
-UntypedPublisher<base_publisher_t>::publish(Sample<void>& sample) noexcept
+UntypedPublisherImpl<base_publisher_t>::publish(Sample<void>& sample) noexcept
 {
     base_publisher_t::publish(sample);
 }
 
 template<typename base_publisher_t>
 inline void
-UntypedPublisher<base_publisher_t>::publish(void* allocatedMemory) noexcept
+UntypedPublisherImpl<base_publisher_t>::publish(void* allocatedMemory) noexcept
 {
     auto header = mepoo::convertPayloadPointerToChunkHeader(allocatedMemory);
     base_publisher_t::m_port.sendChunk(header);
@@ -54,35 +54,35 @@ UntypedPublisher<base_publisher_t>::publish(void* allocatedMemory) noexcept
 
 template<typename base_publisher_t>
 inline cxx::optional<Sample<void>>
-UntypedPublisher<base_publisher_t>::previousSample() noexcept
+UntypedPublisherImpl<base_publisher_t>::previousSample() noexcept
 {
     return base_publisher_t::previousSample();
 }
 
 template<typename base_publisher_t>
 inline void
-UntypedPublisher<base_publisher_t>::offer() noexcept
+UntypedPublisherImpl<base_publisher_t>::offer() noexcept
 {
     return base_publisher_t::offer();
 }
 
 template<typename base_publisher_t>
 inline void
-UntypedPublisher<base_publisher_t>::stopOffer() noexcept
+UntypedPublisherImpl<base_publisher_t>::stopOffer() noexcept
 {
     return base_publisher_t::stopOffer();
 }
 
 template<typename base_publisher_t>
 inline bool
-UntypedPublisher<base_publisher_t>::isOffered() noexcept
+UntypedPublisherImpl<base_publisher_t>::isOffered() noexcept
 {
     return base_publisher_t::isOffered();
 }
 
 template<typename base_publisher_t>
 inline bool
-UntypedPublisher<base_publisher_t>::hasSubscribers() noexcept
+UntypedPublisherImpl<base_publisher_t>::hasSubscribers() noexcept
 {
     return base_publisher_t::hasSubscribers();
 }

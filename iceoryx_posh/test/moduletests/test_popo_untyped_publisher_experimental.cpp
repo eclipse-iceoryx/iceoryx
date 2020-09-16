@@ -20,7 +20,7 @@
 using namespace ::testing;
 using ::testing::_;
 
-using TestUntypedPublisher = iox::popo::UntypedPublisher<MockBasePublisher<void>>;
+using TestUntypedPublisher = iox::popo::UntypedPublisherImpl<MockBasePublisher<void>>;
 
 class ExperimentalUntypedPublisherTest : public Test {
 

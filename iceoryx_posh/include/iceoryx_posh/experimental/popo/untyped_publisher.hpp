@@ -22,15 +22,15 @@ namespace iox {
 namespace popo {
 
 template<typename base_publisher_t = BasePublisher<void>>
-class UntypedPublisher : public base_publisher_t
+class UntypedPublisherImpl : public base_publisher_t
 {
 public:
-    UntypedPublisher(const capro::ServiceDescription& service);
-    UntypedPublisher(const UntypedPublisher& other) = delete;
-    UntypedPublisher& operator=(const UntypedPublisher&) = delete;
-    UntypedPublisher(UntypedPublisher&& rhs) = default;
-    UntypedPublisher& operator=(UntypedPublisher&& rhs) = default;
-    ~UntypedPublisher() = default;
+    UntypedPublisherImpl(const capro::ServiceDescription& service);
+    UntypedPublisherImpl(const UntypedPublisherImpl& other) = delete;
+    UntypedPublisherImpl& operator=(const UntypedPublisherImpl&) = delete;
+    UntypedPublisherImpl(UntypedPublisherImpl&& rhs) = default;
+    UntypedPublisherImpl& operator=(UntypedPublisherImpl&& rhs) = default;
+    ~UntypedPublisherImpl() = default;
 
     uid_t uid() const noexcept;
 
@@ -49,6 +49,8 @@ public:
     bool isOffered() noexcept;
     bool hasSubscribers() noexcept;
 };
+
+using UntypedPublisher = UntypedPublisherImpl<>;
 
 } // namespace popo
 } // namespace iox
