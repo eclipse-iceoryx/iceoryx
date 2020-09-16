@@ -108,7 +108,7 @@ TEST_F(ExperimentalBasePublisherTest, LoanForwardsAllocationErrorsToCaller)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBasePublisherTest, LoanReturnsAllocatedSampleOnSuccess)
+TEST_F(ExperimentalBasePublisherTest, LoanReturnsAllocatedTypedSampleOnSuccess)
 {
     // ===== Setup ===== //
     auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
@@ -119,6 +119,20 @@ TEST_F(ExperimentalBasePublisherTest, LoanReturnsAllocatedSampleOnSuccess)
     // ===== Verify ===== //
     // The memory location of the sample should be the same as the chunk payload.
     EXPECT_EQ(chunk->payload(), result.get_value().get());
+    // ===== Cleanup ===== //
+    iox::cxx::alignedFree(chunk);
+}
+
+TEST_F(ExperimentalBasePublisherTest, LoanedSamplesContainPointerToChunkHeader)
+{
+    // ===== Setup ===== //
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+    ON_CALL(sut.getMockedPort(), tryAllocateChunk)
+            .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk))));
+    // ===== Test ===== //
+    auto result = sut.loan(sizeof(DummyData));
+    // ===== Verify ===== //
+    EXPECT_EQ(chunk, result.get_value().header());
     // ===== Cleanup ===== //
     iox::cxx::alignedFree(chunk);
 }

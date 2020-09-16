@@ -15,6 +15,7 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_HPP
 
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 namespace iox {
@@ -28,7 +29,7 @@ class Sample
 {
 public:
     Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
-        : m_samplePtr(std::move(samplePtr)), m_publisherRef(publisher)
+         : m_headerPtr(mepoo::convertPayloadPointerToChunkHeader(samplePtr.get())), m_samplePtr(std::move(samplePtr)), m_publisherRef(publisher)
     {};
 
     Sample(std::nullptr_t) noexcept {};
@@ -40,6 +41,7 @@ public:
     {
         if(this != &rhs)
         {
+            m_headerPtr = rhs.m_headerPtr;
             m_samplePtr = std::move(rhs.m_samplePtr);
             m_publisherRef = rhs.m_publisherRef;
             m_hasOwnership = rhs.m_hasOwnership;
@@ -88,6 +90,12 @@ public:
             return nullptr;
         }
     }
+
+    mepoo::ChunkHeader* header()
+    {
+        return m_headerPtr;
+    }
+
     ///
     /// @brief publish Publish the sample.
     ///
@@ -108,6 +116,7 @@ public:
 
 private:
     bool m_hasOwnership{true};
+    mepoo::ChunkHeader* m_headerPtr{nullptr};
     cxx::unique_ptr<T> m_samplePtr{nullptr};
     std::reference_wrapper<PublisherInterface<T>> m_publisherRef;
 };

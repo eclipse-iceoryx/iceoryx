@@ -35,6 +35,7 @@ public:
     uid_t uid() const noexcept;
 
     cxx::expected<Sample<void>, AllocationError> loan(uint32_t size) noexcept;
+    cxx::expected<Sample<mepoo::ChunkHeader>, AllocationError> loanHeader(uint32_t size) noexcept;
     void publish(Sample<void>& sample) noexcept;
     ///
     /// @brief publish Publish the provided memory chunk.
