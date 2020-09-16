@@ -50,17 +50,9 @@ void receiving()
 
     while (!killswitch)
     {
-//        auto result = mySubscriber.receive();
-//        if(result.has_value())
-//        {
-//            auto position = result->get();
-//            std::cout << "Got val: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
-//        }
 
         iox::popo::ConditionVariableData m_condVarData;
         iox::popo::WaitSet waitSet{&m_condVarData};
-
-
 
     }
 

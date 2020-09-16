@@ -25,6 +25,8 @@ namespace popo {
 template<typename T, typename base_publisher_t = BasePublisher<T>>
 class TypedPublisher : public base_publisher_t
 {
+    static_assert (!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
+
 public:
     TypedPublisher(const capro::ServiceDescription& service);
     TypedPublisher(const TypedPublisher& other) = delete;

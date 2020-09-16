@@ -23,6 +23,8 @@ namespace popo {
 template<typename T>
 class TypedSubscriber : protected BaseSubscriber<T>
 {
+    static_assert (!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
+
 public:
 
     TypedSubscriber(const capro::ServiceDescription& service);
