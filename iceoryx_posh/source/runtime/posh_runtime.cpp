@@ -431,19 +431,12 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interf
             auto ptr = RelativePointer::getPtr(segmentId, offset);
             return reinterpret_cast<popo::InterfacePortData*>(ptr);
         }
-        else
-        {
-            LogError() << "Wrong response from message queue " << mqMessage;
-            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-            return nullptr;
-        }
     }
-    else
-    {
-        LogError() << "Wrong response from message queue";
-        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-        return nullptr;
-    }
+
+    LogError() << "Get mw interface got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    errorHandler(
+        Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    return nullptr;
 }
 
 RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProperty) noexcept
@@ -467,19 +460,12 @@ RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProper
             auto ptr = RelativePointer::getPtr(segmentId, offset);
             return reinterpret_cast<RunnableData*>(ptr);
         }
-        else
-        {
-            LogError() << "Wrong response from message queue " << mqMessage;
-            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-            return nullptr;
-        }
     }
-    else
-    {
-        LogError() << "Wrong response from message queue";
-        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-        return nullptr;
-    }
+
+    LogError() << "Create runnable got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    errorHandler(
+        Error::kPOSH__RUNTIME_ROUDI_CREATE_RUNNABLE_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    return nullptr;
 }
 
 cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& serviceDescription,
@@ -552,19 +538,12 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
             auto ptr = RelativePointer::getPtr(segmentId, offset);
             return reinterpret_cast<popo::ApplicationPortData*>(ptr);
         }
-        else
-        {
-            LogError() << "Wrong response from message queue" << mqMessage;
-            assert(false);
-            return nullptr;
-        }
     }
-    else
-    {
-        LogError() << "Wrong response from message queue";
-        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-        return nullptr;
-    }
+
+    LogError() << "Get mw application got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    errorHandler(
+        Error::kPOSH__RUNTIME_ROUDI_GET_MW_APPLICATION_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    return nullptr;
 }
 
 cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
@@ -626,8 +605,9 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
             break;
         default:
             LogWarn() << "Undefined behavior occurred while creating condition variable";
-            errorHandler(
-                Error::kPOSH__RUNTIME_CONDITION_VARIABLE_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_CREATION_UNDEFINED_BEHAVIOR,
+                         nullptr,
+                         iox::ErrorLevel::SEVERE);
             break;
         }
         return nullptr;
