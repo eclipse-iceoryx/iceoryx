@@ -70,7 +70,6 @@ endif(binding_c)
 # ===== Examples
 if(examples)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icecallback ${CMAKE_BINARY_DIR}/iceoryx_examples/icecallback)
     if(binding_c)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery_on_c)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icecallback_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icecallback_on_c)
