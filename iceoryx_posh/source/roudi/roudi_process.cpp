@@ -558,7 +558,7 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
         {
             runtime::MqMessage sendBuffer;
             sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
-            sendBuffer << runtime::mqMessageErrorTypeToString(runtime::MqMessageErrorType::SUBSCRIBERLIST_FULL);
+            sendBuffer << runtime::mqMessageErrorTypeToString(runtime::MqMessageErrorType::SUBSCRIBER_LIST_FULL);
             process->sendToMQ(sendBuffer);
             LogError() << "Could not create SubscriberPort for application " << name;
         }
@@ -603,7 +603,7 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
             sendBuffer << runtime::mqMessageErrorTypeToString( // map error codes
                 (maybePublisher.get_error() == PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS
                      ? runtime::MqMessageErrorType::NO_UNIQUE_CREATED
-                     : runtime::MqMessageErrorType::PUBLISHERLIST_FULL));
+                     : runtime::MqMessageErrorType::PUBLISHER_LIST_FULL));
             process->sendToMQ(sendBuffer);
             LogError() << "Could not create PublisherPort for application " << name;
         }
