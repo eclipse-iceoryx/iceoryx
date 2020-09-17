@@ -114,22 +114,16 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
             receivedError = error;
         });
 
+    WaitSetMock* m_sut2 = static_cast<WaitSetMock*>(malloc(sizeof(WaitSetMock)));
+    new (m_sut2) WaitSetMock{&m_condVarData};
+
     {
-        WaitSetMock m_sut2{&m_condVarData};
-
-        {
-            MockSubscriber scopedCondition;
-            m_sut2.attachCondition(scopedCondition);
-        }
-
-        EXPECT_TRUE(errorHandlerCalled);
-        EXPECT_THAT(receivedError, Eq(iox::Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE));
-
-        errorHandlerCalled = false;
+        MockSubscriber scopedCondition;
+        m_sut2->attachCondition(scopedCondition);
     }
 
     EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_THAT(receivedError, Eq(iox::Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION));
+    EXPECT_THAT(receivedError, Eq(iox::Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE));
 }
 
 TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
