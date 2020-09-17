@@ -55,7 +55,7 @@ PublishableSample<T>& PublishableSample<T>::operator=(std::nullptr_t) noexcept
 }
 
 template <typename T>
-T* PublishableSample<T>::get() noexcept
+T* PublishableSample<T>::get() const noexcept
 {
     if (m_hasOwnership)
     {
@@ -65,6 +65,12 @@ T* PublishableSample<T>::get() noexcept
     {
         return nullptr;
     }
+}
+
+template <typename T>
+mepoo::ChunkHeader* PublishableSample<T>::header() const noexcept
+{
+    return mepoo::convertPayloadPointerToChunkHeader(Sample<T>::m_samplePtr.get());
 }
 
 template <typename T>

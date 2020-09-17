@@ -37,7 +37,12 @@ class PublishableSample : public Sample<T>
 
     PublishableSample& operator=(std::nullptr_t) noexcept;
 
-    T* get() noexcept;
+    T* get() const noexcept;
+    mepoo::ChunkHeader* header() const noexcept;
+
+    ///
+    /// @brief publish Publish the sample via the publisher from which it was loaned.
+    ///
     void publish() noexcept;
 
   private:

@@ -102,7 +102,6 @@ class BaseSubscriber : public Condition
 
   protected:
     uid_t m_uid = 0U;
-    bool m_subscriptionRequested = false;
     port_t m_port{nullptr};
 };
 

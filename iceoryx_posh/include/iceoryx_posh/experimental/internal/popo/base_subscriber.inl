@@ -42,7 +42,6 @@ BaseSubscriber<T, port_t>::getServiceDescription() const noexcept
 template <typename T, typename port_t>
 inline void BaseSubscriber<T, port_t>::subscribe(const uint64_t queueCapacity) noexcept
 {
-    m_subscriptionRequested = true;
     m_port.subscribe(queueCapacity);
 }
 
@@ -56,7 +55,6 @@ template <typename T, typename port_t>
 inline void BaseSubscriber<T, port_t>::unsubscribe() noexcept
 {
     m_port.unsubscribe();
-    m_subscriptionRequested = false;
 }
 
 template <typename T, typename port_t>

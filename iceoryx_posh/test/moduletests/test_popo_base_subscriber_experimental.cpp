@@ -89,10 +89,6 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
     {
         return iox::popo::BaseSubscriber<T, port_t>::m_port;
     }
-    bool getUnderlyingSubscriptionRequestState()
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::m_subscriptionRequested;
-    }
 };
 
 using TestBaseSubscriber = StubbedBaseSubscriber<DummyData, MockSubscriberPortUser>;
@@ -117,17 +113,6 @@ class ExperimentalBaseSubscriberTest : public Test
   protected:
     TestBaseSubscriber sut{{"", "", ""}};
 };
-
-TEST_F(ExperimentalBaseSubscriberTest, SubscriptionRequestIsSetOnSubscribe)
-{
-    // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), subscribe(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY)).Times(1);
-    // ===== Test ===== //
-    sut.subscribe();
-    // ===== Verify ===== //
-    EXPECT_EQ(true, sut.getUnderlyingSubscriptionRequestState());
-    // ===== Cleanup ===== //
-}
 
 TEST_F(ExperimentalBaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscriberPort)
 {
@@ -156,17 +141,6 @@ TEST_F(ExperimentalBaseSubscriberTest, UnsubscribeCallForwardedToUnderlyingSubsc
     // ===== Test ===== //
     sut.unsubscribe();
     // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(ExperimentalBaseSubscriberTest, SubscriptionRequestIsResetOnUnsubscribe)
-{
-    // ===== Setup ===== //
-    // ===== Test ===== //
-    sut.subscribe();
-    sut.unsubscribe();
-    // ===== Verify ===== //
-    EXPECT_EQ(false, sut.getUnderlyingSubscriptionRequestState());
     // ===== Cleanup ===== //
 }
 

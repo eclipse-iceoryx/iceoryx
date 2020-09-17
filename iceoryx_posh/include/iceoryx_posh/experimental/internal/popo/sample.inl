@@ -21,8 +21,7 @@ namespace popo
 {
 template <typename T>
 Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr) noexcept
-    : m_headerPtr(mepoo::convertPayloadPointerToChunkHeader(samplePtr.get()))
-    , m_samplePtr(std::move(samplePtr)){};
+    : m_samplePtr(std::move(samplePtr)){};
 
 template <typename T>
 Sample<T>::Sample(std::nullptr_t) noexcept {};
@@ -32,7 +31,6 @@ Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
 {
     if (this != &rhs)
     {
-        m_headerPtr = rhs.m_headerPtr;
         m_samplePtr = std::move(rhs.m_samplePtr);
     }
     return *this;
@@ -58,21 +56,21 @@ Sample<T>& Sample<T>::operator=(std::nullptr_t) noexcept
 }
 
 template <typename T>
-T* Sample<T>::operator->() noexcept
+T* Sample<T>::operator->() const noexcept
 {
     return get();
 }
 
 template <typename T>
-T* Sample<T>::get() noexcept
+T* Sample<T>::get() const noexcept
 {
     return m_samplePtr.get();
 }
 
 template <typename T>
-mepoo::ChunkHeader* Sample<T>::header()
+const mepoo::ChunkHeader* Sample<T>::header() const noexcept
 {
-    return m_headerPtr;
+    return mepoo::convertPayloadPointerToChunkHeader(m_samplePtr.get());
 }
 
 } // namespace popo

@@ -48,18 +48,21 @@ class Sample
     /// @brief operator -> Transparent access to the underlying pointer.
     /// @return
     ///
-    T* operator->() noexcept;
+    T* operator->() const noexcept;
 
     ///
     /// @brief allocation Access to the memory allocated to the sample.
     /// @return
     ///
-    T* get() noexcept;
+    T* get() const noexcept;
 
-    mepoo::ChunkHeader* header();
+    ///
+    /// @brief header Retrieve the header of the underlying memory chunk used by the sample.
+    /// @return The ChunkHeader of the underlying memory chunk.
+    ///
+    const mepoo::ChunkHeader* header() const noexcept;
 
   protected:
-    mepoo::ChunkHeader* m_headerPtr{nullptr}; // Only a raw pointer here. The m_samplePtr manages the lifecycle.
     cxx::unique_ptr<T> m_samplePtr{nullptr};
 };
 
