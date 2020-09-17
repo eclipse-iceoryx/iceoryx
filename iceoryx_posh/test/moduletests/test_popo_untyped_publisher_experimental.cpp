@@ -102,9 +102,9 @@ TEST_F(ExperimentalUntypedPublisherTest, PublishesVoidPointerViaUnderlyingPort)
 TEST_F(ExperimentalUntypedPublisherTest, GetsPreviousSampleViaBasePublisher)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, previousSample).Times(1);
+    EXPECT_CALL(sut, loanPreviousSample).Times(1);
     // ===== Test ===== //
-    sut.previousSample();
+    sut.loanPreviousSample();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

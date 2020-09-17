@@ -60,7 +60,7 @@ public:
     /// @param queueCapacity
     /// @return
     ///
-    void subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
+    void subscribe(const uint64_t queueCapacity = SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
 
     ///
     /// @brief getSubscriptionState Get current subscription state.
@@ -101,7 +101,6 @@ protected:
 
 protected:
     uid_t m_uid = 0U;
-    capro::ServiceDescription m_serviceDescription{};
     bool m_subscriptionRequested = false;
     port_t m_port{nullptr};
 

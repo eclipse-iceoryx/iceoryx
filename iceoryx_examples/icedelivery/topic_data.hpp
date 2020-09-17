@@ -14,17 +14,19 @@
 #ifndef IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
 #define IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
 
+#include <cstdint>
+
 struct CounterTopic
 {
     uint32_t counter;
 };
 
 struct Position {
-    Position(double_t x, double_t y, double_t z) : x(x), y(y), z(z)
+    Position(double x, double y, double z) : x(x), y(y), z(z)
     {};
-    double_t x = 0.0;
-    double_t y = 0.0;
-    double_t z = 0.0;
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
 };
 
 #endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP

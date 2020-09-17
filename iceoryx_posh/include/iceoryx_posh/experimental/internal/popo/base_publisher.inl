@@ -51,19 +51,15 @@ template<typename T, typename port_t>
 inline void
 BasePublisher<T, port_t>::publish(PublishableSample<T>& sample) noexcept
 {
-    if(!isOffered())
-    {
-        offer();
-    }
     auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.get()));
     m_port.sendChunk(header);
 }
 
 template<typename T, typename port_t>
 inline cxx::optional<PublishableSample<T>>
-BasePublisher<T, port_t>::previousSample() noexcept
+BasePublisher<T, port_t>::loanPreviousSample() noexcept
 {
-    auto result = m_port.getLastChunk();
+    auto result = m_port.tryGetPreviousChunk();
     if(result.has_value())
     {
         return cxx::make_optional<PublishableSample<T>>(convertChunkHeaderToSample(result.value()));

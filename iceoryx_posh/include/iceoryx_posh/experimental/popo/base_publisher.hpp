@@ -24,7 +24,7 @@ namespace popo {
 using uid_t = uint64_t;
 
 ///
-/// @brief The Publisher class defines the publisher interface used by the Sample class to make it generic.
+/// @brief The PublisherInterface class defines the publisher interface used by the Sample class to make it generic.
 /// This allows any publisher specialization to be stored as a reference by the Sample class.
 ///
 template<typename T>
@@ -75,7 +75,7 @@ protected:
     /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
     /// @return The previously loaned sample if retrieved.
     ///
-    cxx::optional<PublishableSample<T>> previousSample() noexcept;
+    cxx::optional<PublishableSample<T>> loanPreviousSample() noexcept;
 
     ///
     /// @brief offer Offer the service to be subscribed to.

@@ -42,7 +42,7 @@ public:
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
     void publish(void* allocatedMemory) noexcept;
-    cxx::optional<PublishableSample<void>> previousSample() noexcept;
+    cxx::optional<PublishableSample<void>> loanPreviousSample() noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;

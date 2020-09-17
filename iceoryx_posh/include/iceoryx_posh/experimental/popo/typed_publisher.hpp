@@ -55,7 +55,7 @@ public:
     template<typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
-    cxx::optional<PublishableSample<T>> previousSample() noexcept;
+    cxx::optional<PublishableSample<T>> loanPreviousSample() noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;

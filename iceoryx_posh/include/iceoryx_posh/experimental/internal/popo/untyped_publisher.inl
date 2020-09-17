@@ -54,9 +54,9 @@ UntypedPublisherImpl<base_publisher_t>::publish(void* allocatedMemory) noexcept
 
 template<typename base_publisher_t>
 inline cxx::optional<PublishableSample<void>>
-UntypedPublisherImpl<base_publisher_t>::previousSample() noexcept
+UntypedPublisherImpl<base_publisher_t>::loanPreviousSample() noexcept
 {
-    return base_publisher_t::previousSample();
+    return base_publisher_t::loanPreviousSample();
 }
 
 template<typename base_publisher_t>

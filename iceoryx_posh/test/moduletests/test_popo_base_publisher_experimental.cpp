@@ -48,9 +48,9 @@ public:
     {
         return iox::popo::BasePublisher<T, port_t>::publish(sample);
     }
-    iox::cxx::optional<iox::popo::PublishableSample<T>> previousSample() noexcept
+    iox::cxx::optional<iox::popo::PublishableSample<T>> loanPreviousSample() noexcept
     {
-        return iox::popo::BasePublisher<T, port_t>::previousSample();
+        return iox::popo::BasePublisher<T, port_t>::loanPreviousSample();
     }
     void offer() noexcept
     {
@@ -154,19 +154,6 @@ TEST_F(ExperimentalBasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenO
     iox::cxx::alignedFree(chunk);
 }
 
-TEST_F(ExperimentalBasePublisherTest, OffersServiceWhenTryingToPublishOnUnofferedService)
-{
-    // ===== Setup ===== //
-    ON_CALL(sut.getMockedPort(), tryAllocateChunk).WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>())));
-    EXPECT_CALL(sut.getMockedPort(), offer).Times(1);
-    // ===== Test ===== //
-    sut.loan(sizeof(DummyData)).and_then([](iox::popo::PublishableSample<DummyData>& sample){
-        sample.publish();
-    });
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
 TEST_F(ExperimentalBasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublisherPort)
 {
     // ===== Setup ===== //
@@ -183,9 +170,9 @@ TEST_F(ExperimentalBasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPubl
 TEST_F(ExperimentalBasePublisherTest, PreviousSampleReturnsSampleWhenPreviousChunkIsRetrievable)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), getLastChunk).WillOnce(Return(ByMove(iox::cxx::make_optional<iox::mepoo::ChunkHeader*>())));
+    EXPECT_CALL(sut.getMockedPort(), tryGetPreviousChunk).WillOnce(Return(ByMove(iox::cxx::make_optional<iox::mepoo::ChunkHeader*>())));
     // ===== Test ===== //
-    auto result = sut.previousSample();
+    auto result = sut.loanPreviousSample();
     // ===== Verify ===== //
     EXPECT_EQ(true, result.has_value());
     // ===== Cleanup ===== //
@@ -194,9 +181,9 @@ TEST_F(ExperimentalBasePublisherTest, PreviousSampleReturnsSampleWhenPreviousChu
 TEST_F(ExperimentalBasePublisherTest, PreviousSampleReturnsEmptyOptionalWhenChunkNotRetrievable)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), getLastChunk).WillOnce(Return(ByMove(iox::cxx::nullopt)));
+    EXPECT_CALL(sut.getMockedPort(), tryGetPreviousChunk).WillOnce(Return(ByMove(iox::cxx::nullopt)));
     // ===== Test ===== //
-    auto result = sut.previousSample();
+    auto result = sut.loanPreviousSample();
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_value());
     // ===== Cleanup ===== //

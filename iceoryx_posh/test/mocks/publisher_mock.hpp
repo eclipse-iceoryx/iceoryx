@@ -29,7 +29,7 @@ public:
     MOCK_METHOD1(tryAllocateChunk, iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
     MOCK_METHOD1(freeChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD1(sendChunk, void(iox::mepoo::ChunkHeader* const));
-    MOCK_METHOD0(getLastChunk, iox::cxx::optional<iox::mepoo::ChunkHeader*>());
+    MOCK_METHOD0(tryGetPreviousChunk, iox::cxx::optional<iox::mepoo::ChunkHeader*>());
     MOCK_METHOD0(offer, void());
     MOCK_METHOD0(stopOffer, void());
     MOCK_METHOD0(isOffered, bool());
@@ -44,7 +44,7 @@ public:
     MOCK_CONST_METHOD0(uid, iox::popo::uid_t());
     MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::PublishableSample<T>, iox::popo::AllocationError>(uint32_t));
     MOCK_METHOD1_T(publishMocked, void(iox::popo::PublishableSample<T>&) noexcept);
-    MOCK_METHOD0_T(previousSample, iox::cxx::optional<iox::popo::PublishableSample<T>>());
+    MOCK_METHOD0_T(loanPreviousSample, iox::cxx::optional<iox::popo::PublishableSample<T>>());
     MOCK_METHOD0(offer, void(void));
     MOCK_METHOD0(stopOffer, void(void));
     MOCK_METHOD0(isOffered, bool(void));

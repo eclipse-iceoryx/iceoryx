@@ -12,20 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "topic_data.hpp"
+
 #include "iceoryx_posh/experimental/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
 #include <chrono>
 #include <thread>
-
-struct Position {
-    Position(double_t x, double_t y, double_t z) : x(x), y(y), z(z)
-    {};
-    double_t x = 0.0;
-    double_t y = 0.0;
-    double_t z = 0.0;
-};
 
 bool killswitch = false;
 
@@ -35,13 +29,11 @@ static void sigHandler(int f_sig[[gnu::unused]])
     killswitch = true;
 }
 
-void getVehiclePosition(Position* allocation)
-{
-    new (allocation) Position(11.11, 22.22, 33.33);
-}
-
 int main(int argc, char *argv[])
 {
+    // Register sigHandler for SIGINT
+    signal(SIGINT, sigHandler);
+
     iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-modern");
 
     auto untypedPublisher = iox::popo::UntypedPublisher({"Odometry", "Position", "Vehicle"});

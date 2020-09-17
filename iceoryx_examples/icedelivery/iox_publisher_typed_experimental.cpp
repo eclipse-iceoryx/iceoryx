@@ -12,20 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "topic_data.hpp"
+
 #include "iceoryx_posh/experimental/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>
 #include <chrono>
 #include <thread>
-
-struct Position {
-    Position(double_t x, double_t y, double_t z) : x(x), y(y), z(z)
-    {};
-    double_t x = 0.0;
-    double_t y = 0.0;
-    double_t z = 0.0;
-};
 
 bool killswitch = false;
 
@@ -42,6 +36,9 @@ void getVehiclePosition(Position* allocation, uint64_t multiplier)
 
 int main(int argc, char *argv[])
 {
+    // Register sigHandler for SIGINT
+    signal(SIGINT, sigHandler);
+
     iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-modern");
 
     auto typedPublisher = iox::popo::TypedPublisher<Position>({"Odometry", "Position", "Vehicle"});
@@ -58,10 +55,9 @@ int main(int argc, char *argv[])
         if(!result.has_error())
         {
             auto& sample = result.get_value();
-            auto val = sample.get();
-            val->x = ct * 1.1;
-            val->y = ct * 1.1;
-            val->z = ct * 1.1;
+            sample->x = ct * 1.1;
+            sample->y = ct * 1.1;
+            sample->z = ct * 1.1;
             typedPublisher.publish(sample);
         }
 

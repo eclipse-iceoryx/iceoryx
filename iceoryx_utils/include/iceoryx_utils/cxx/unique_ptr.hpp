@@ -48,14 +48,6 @@ public:
     ///
     unique_ptr(ptr_t ptr, std::function<void(T*)>&& deleter) noexcept;
 
-    ///
-    /// @brief unique_ptr Creates an empty unique pointer that points to an allocated memory location.
-    /// @details The contents of the pointeris initially undefined thus must be defined before accessing.
-    /// @param allocation The allocation of memory where managed object will reside once created.
-    /// @param deleter The deleter function for cleaning up the allocated memory.
-    ///
-//    unique_ptr(void* allocation, std::function<void(T*)>&& deleter) noexcept;
-
     unique_ptr(std::nullptr_t) noexcept;
 
     // Not copy-able to ensure uniqueness.

@@ -88,9 +88,9 @@ TypedPublisher<T, base_publisher_t>::publishCopyOf(const T& val) noexcept
 
 template<typename T, typename base_publisher_t>
 inline cxx::optional<PublishableSample<T>>
-TypedPublisher<T, base_publisher_t>::previousSample() noexcept
+TypedPublisher<T, base_publisher_t>::loanPreviousSample() noexcept
 {
-    return base_publisher_t::previousSample();
+    return base_publisher_t::loanPreviousSample();
 }
 
 template<typename T, typename base_publisher_t>

@@ -19,7 +19,7 @@ namespace iox {
 namespace popo {
 
 template<typename T, typename port_t>
-BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& sd) : m_serviceDescription(sd)
+BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription&)
 /// @todo #25  : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, ""))
 {}
 
@@ -28,6 +28,14 @@ inline uid_t
 BaseSubscriber<T, port_t>::uid() const noexcept
 {
     return m_uid;
+}
+
+template<typename T, typename port_t>
+inline capro::ServiceDescription /// todo #25 make this a reference.
+BaseSubscriber<T, port_t>::getServiceDescription() const noexcept
+{
+    /// @todo #25 return reference to ServiceDescription from base port.
+    return capro::ServiceDescription{};
 }
 
 template<typename T, typename port_t>
