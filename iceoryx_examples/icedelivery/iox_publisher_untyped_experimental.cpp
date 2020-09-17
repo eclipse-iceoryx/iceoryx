@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     while(!killswitch)
     {
         untypedPublisher.loan(sizeof(Position))
-                .and_then([&](iox::popo::Sample<void>& sample){
+                .and_then([&](iox::popo::PublishableSample<void>& sample){
                     ++ct;
                     new (sample.get()) Position(ct, ct, ct);
                     sample.publish();
