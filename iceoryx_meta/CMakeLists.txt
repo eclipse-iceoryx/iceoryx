@@ -87,9 +87,9 @@ if (test)
         COMMAND ./utils/test/utils_moduletests --gtest_filter=-*.TimingTest_*
         COMMAND ./utils/test/utils_integrationtests --gtest_filter=-*.TimingTest_*
         COMMAND ./utils/test/utils_componenttests --gtest_filter=-*.TimingTest_*
-    if (binding_c)
-        COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=-*.TimingTest_*
-    endif(binding_c)
+        if (binding_c)
+            COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=-*.TimingTest_*
+        endif(binding_c)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
     )
@@ -101,9 +101,9 @@ if (test)
         COMMAND ./utils/test/utils_moduletests --gtest_filter=*.TimingTest_*
         COMMAND ./utils/test/utils_integrationtests --gtest_filter=*.TimingTest_*
         COMMAND ./utils/test/utils_componenttests --gtest_filter=*.TimingTest_*
-    if (binding_c)
-        COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=*.TimingTest_*
-    endif(binding_c)
+        if (binding_c)
+            COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=*.TimingTest_*
+        endif(binding_c)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
     )

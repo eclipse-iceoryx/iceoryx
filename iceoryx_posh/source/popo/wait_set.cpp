@@ -60,6 +60,7 @@ bool WaitSet::detachCondition(Condition& condition) noexcept
         if (!condition.detachConditionVariable())
         {
             errorHandler(Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION, nullptr, ErrorLevel::FATAL);
+            return false;
         }
 
         for (auto& currentCondition : m_conditionVector)

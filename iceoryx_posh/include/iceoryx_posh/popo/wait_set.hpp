@@ -133,7 +133,7 @@ class WaitSet
     /// fulfilled
     ConditionVector wait() noexcept;
 
-  protected:
+    // protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
