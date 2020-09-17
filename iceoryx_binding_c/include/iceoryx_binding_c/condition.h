@@ -20,9 +20,7 @@
 /// @brief condition handle
 typedef CLASS Condition* iox_cond_t;
 
-/// @brief Was the condition fulfilled since last call. If the condition was
-///         fulfilled and you call it repeatedly it returns true once and then
-///         false until the condition is again fulfilled.
+/// @brief Was the condition fulfilled since last call.
 /// @param[in] self handle to condition
 /// @return returns true if the condition was fulfilled, otherwise false
 bool iox_cond_has_triggered(iox_cond_t const self);

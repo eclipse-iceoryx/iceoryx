@@ -15,12 +15,14 @@
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 using namespace iox;
 using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox::mepoo;
+using namespace iox::runtime;
 
 extern "C" {
 #include "iceoryx_binding_c/publisher.h"
@@ -34,21 +36,19 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
 {
     new (self) cpp2c_Publisher();
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
-    me->m_portData = new PublisherPortData(
+    me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
         ServiceDescription{
             IdString(TruncateToCapacity, service),
             IdString(TruncateToCapacity, instance),
             IdString(TruncateToCapacity, event),
         },
-        "JoinTheChurchOfHypnotoad!",
-        nullptr,
         historyCapacity);
     return me;
 }
 
 void iox_pub_deinit(iox_pub_t const self)
 {
-    delete self->m_portData;
+    self->m_portData->m_toBeDestroyed.store(true);
     self->~cpp2c_Publisher();
 }
 

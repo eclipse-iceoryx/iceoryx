@@ -19,12 +19,14 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 using namespace iox;
 using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox::mepoo;
+using namespace iox::runtime;
 
 extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
@@ -37,14 +39,13 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
                        uint64_t historyRequest)
 {
     new (self) cpp2c_Subscriber();
-    auto data = new SubscriberPortData(ServiceDescription{IdString(TruncateToCapacity, service),
-                                                          IdString(TruncateToCapacity, instance),
-                                                          IdString(TruncateToCapacity, event)},
-                                       "AllHailHypnotoad!",
-                                       VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                       historyRequest);
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
-    me->m_portData = data;
+    me->m_portData =
+        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString(TruncateToCapacity, service),
+                                                                              IdString(TruncateToCapacity, instance),
+                                                                              IdString(TruncateToCapacity, event)},
+                                                           historyRequest);
+
     return me;
 }
 
