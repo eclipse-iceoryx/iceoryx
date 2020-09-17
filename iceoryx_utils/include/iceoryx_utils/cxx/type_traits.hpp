@@ -17,24 +17,25 @@
 
 #include <type_traits>
 
-namespace iox {
-namespace cxx {
-
+namespace iox
+{
+namespace cxx
+{
 ///
 /// @brief Verifies whether the passed Callable type is in fact callable
 ///
-template<typename Callable, typename... ArgTypes>
-struct is_callable {
-
+template <typename Callable, typename... ArgTypes>
+struct is_callable
+{
     // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is callable.
-    template<typename C, typename... As>
+    template <typename C, typename... As>
     static constexpr std::true_type test(decltype(std::declval<C>()(std::declval<As>()...))*)
     {
         return {};
     }
 
     // This is chosen if Callable(ArgTypes) does not resolve to a valid type.
-    template<typename C, typename... As>
+    template <typename C, typename... As>
     static constexpr std::false_type test(...)
     {
         return {};
@@ -48,16 +49,19 @@ struct is_callable {
 /// @brief Verfies the signature of the provided callable type
 ///
 template <typename Callable = void, typename ReturnType = void, typename ArgTypes = void>
-struct has_signature : std::false_type {};
+struct has_signature : std::false_type
+{
+};
 
 template <typename Callable, typename ReturnType, typename... ArgTypes>
-struct has_signature<Callable, ReturnType(ArgTypes...),
+struct has_signature<
+    Callable,
+    ReturnType(ArgTypes...),
     typename std::enable_if<
-        std::is_convertible<
-            decltype(std::declval<Callable>()(std::declval<ArgTypes>()...)),
-            ReturnType
-        >::value, void>::type>
-    : std::true_type {};
+        std::is_convertible<decltype(std::declval<Callable>()(std::declval<ArgTypes>()...)), ReturnType>::value,
+        void>::type> : std::true_type
+{
+};
 
 } // namespace cxx
 } // namespace iox

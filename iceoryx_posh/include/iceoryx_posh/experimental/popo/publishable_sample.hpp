@@ -17,16 +17,17 @@
 
 #include "iceoryx_posh/experimental/popo/sample.hpp"
 
-namespace iox {
-namespace popo {
-
-template<typename T>
+namespace iox
+{
+namespace popo
+{
+template <typename T>
 class PublisherInterface;
 
 template <typename T>
 class PublishableSample : public Sample<T>
 {
-public:
+  public:
     PublishableSample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher);
     PublishableSample(std::nullptr_t) noexcept;
     PublishableSample(const PublishableSample&) = delete;
@@ -39,7 +40,7 @@ public:
     T* get() noexcept;
     void publish() noexcept;
 
-private:
+  private:
     bool m_hasOwnership{true};
     std::reference_wrapper<PublisherInterface<T>> m_publisherRef;
 };
@@ -50,4 +51,3 @@ private:
 #include "iceoryx_posh/experimental/internal/popo/publishable_sample.inl"
 
 #endif // IOX_EXPERIMENTAL_POSH_POPO_PUBLISHABLE_SAMPLE_HPP
-

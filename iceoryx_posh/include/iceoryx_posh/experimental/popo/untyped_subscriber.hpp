@@ -20,13 +20,13 @@
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
-namespace iox {
-namespace popo {
-
+namespace iox
+{
+namespace popo
+{
 class UntypedSubscriber : protected BaseSubscriber<void>
 {
-public:
-
+  public:
     UntypedSubscriber(const capro::ServiceDescription& service);
     UntypedSubscriber(const UntypedSubscriber& other) = delete;
     UntypedSubscriber& operator=(const UntypedSubscriber&) = delete;
@@ -44,7 +44,6 @@ public:
     bool hasNewSamples() const noexcept;
     cxx::expected<cxx::optional<Sample<void>>> receive() noexcept;
     void clearReceiveBuffer() noexcept;
-
 };
 
 } // namespace popo

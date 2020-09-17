@@ -15,16 +15,17 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_PUBLISHER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_PUBLISHER_HPP
 
-#include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
 #include "iceoryx_posh/experimental/popo/base_publisher.hpp"
+#include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
 
-namespace iox {
-namespace popo {
-
-template<typename base_publisher_t = BasePublisher<void>>
+namespace iox
+{
+namespace popo
+{
+template <typename base_publisher_t = BasePublisher<void>>
 class UntypedPublisherImpl : public base_publisher_t
 {
-public:
+  public:
     UntypedPublisherImpl(const capro::ServiceDescription& service);
     UntypedPublisherImpl(const UntypedPublisherImpl& other) = delete;
     UntypedPublisherImpl& operator=(const UntypedPublisherImpl&) = delete;

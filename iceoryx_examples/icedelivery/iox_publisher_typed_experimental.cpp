@@ -17,13 +17,13 @@
 #include "iceoryx_posh/experimental/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig[[gnu::unused]])
+static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
     killswitch = true;
@@ -31,10 +31,10 @@ static void sigHandler(int f_sig[[gnu::unused]])
 
 void getVehiclePosition(Position* allocation, uint64_t multiplier)
 {
-    new (allocation) Position(1111.1111 * multiplier, 1111.1111 * multiplier, 1111.1111* multiplier);
+    new (allocation) Position(1111.1111 * multiplier, 1111.1111 * multiplier, 1111.1111 * multiplier);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
@@ -45,14 +45,14 @@ int main(int argc, char *argv[])
     typedPublisher.offer();
 
     float_t ct = 0.0;
-    while(!killswitch)
+    while (!killswitch)
     {
         ++ct;
 
         // Retrieve a typed sample from shared memory.
         // Sample can be held until ready to publish.
         auto result = typedPublisher.loan();
-        if(!result.has_error())
+        if (!result.has_error())
         {
             auto& sample = result.get_value();
             sample->x = ct * 1.1;
@@ -62,14 +62,13 @@ int main(int argc, char *argv[])
         }
 
         // Retrieve a sample and provide logic to immediately populate and publish via a lambda.
-        typedPublisher.loan()
-            .and_then([&](iox::popo::PublishableSample<Position>& sample){
-                auto allocation = sample.get();
-                // Do some stuff leading to eventually generating the data in the provided sample's shared memory...
-                new (allocation) Position(ct * 11.11, ct * 11.11, ct * 11.11);
-                // ...then publish the bytes
-                sample.publish();
-            });
+        typedPublisher.loan().and_then([&](iox::popo::PublishableSample<Position>& sample) {
+            auto allocation = sample.get();
+            // Do some stuff leading to eventually generating the data in the provided sample's shared memory...
+            new (allocation) Position(ct * 11.11, ct * 11.11, ct * 11.11);
+            // ...then publish the bytes
+            sample.publish();
+        });
 
         // Simple copy-and-publish. Useful for smaller data types.
         auto position = Position(ct * 111.111, ct * 111.111, ct * 111.111);
@@ -79,9 +78,7 @@ int main(int argc, char *argv[])
         // allocation. The first argument of the callable must be T*, this will point to the memory
         // allocation.
         typedPublisher.publishResultOf(getVehiclePosition, ct);
-        typedPublisher.publishResultOf([](Position* allocation){
-            new (allocation) Position(0, 0, 0);
-        });
+        typedPublisher.publishResultOf([](Position* allocation) { new (allocation) Position(0, 0, 0); });
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

@@ -15,20 +15,22 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_PUBLISHABLE_SAMPLE_INL
 #define IOX_EXPERIMENTAL_POSH_POPO_PUBLISHABLE_SAMPLE_INL
 
-namespace iox {
-namespace popo {
+namespace iox
+{
+namespace popo
+{
+template <typename T>
+PublishableSample<T>::PublishableSample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
+    : Sample<T>(std::move(samplePtr))
+    , m_publisherRef(publisher){};
 
-template<typename T>
-PublishableSample<T>::PublishableSample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher) : Sample<T>(std::move(samplePtr)), m_publisherRef(publisher)
-{};
-
-template<typename T>
+template <typename T>
 PublishableSample<T>::PublishableSample(std::nullptr_t) noexcept {};
 
-template<typename T>
+template <typename T>
 PublishableSample<T>& PublishableSample<T>::operator=(PublishableSample<T>&& rhs)
 {
-    if(this != &rhs)
+    if (this != &rhs)
     {
         m_publisherRef = rhs.m_publisherRef;
         m_hasOwnership = rhs.m_hasOwnership;
@@ -36,24 +38,26 @@ PublishableSample<T>& PublishableSample<T>::operator=(PublishableSample<T>&& rhs
     return *this;
 }
 
-template<typename T>
-PublishableSample<T>::PublishableSample(PublishableSample<T>&& rhs) : Sample<T>(std::move(rhs)), m_publisherRef(rhs.m_publisherRef) // Need to initialize references in initializer list.
+template <typename T>
+PublishableSample<T>::PublishableSample(PublishableSample<T>&& rhs)
+    : Sample<T>(std::move(rhs))
+    , m_publisherRef(rhs.m_publisherRef) // Need to initialize references in initializer list.
 {
     *this = std::move(rhs);
 }
 
-template<typename T>
+template <typename T>
 PublishableSample<T>& PublishableSample<T>::operator=(std::nullptr_t) noexcept
 {
-  m_hasOwnership = false;
-  Sample<T>::m_samplePtr = nullptr;    // The pointer will take care of cleaning up resources.
-  return *this;
+    m_hasOwnership = false;
+    Sample<T>::m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
+    return *this;
 }
 
-template<typename T>
+template <typename T>
 T* PublishableSample<T>::get() noexcept
 {
-    if(m_hasOwnership)
+    if (m_hasOwnership)
     {
         return Sample<T>::get();
     }
@@ -63,14 +67,14 @@ T* PublishableSample<T>::get() noexcept
     }
 }
 
-template<typename T>
+template <typename T>
 void PublishableSample<T>::publish() noexcept
 {
-    if(m_hasOwnership)
+    if (m_hasOwnership)
     {
         m_publisherRef.get().publish(*this);
         m_hasOwnership = false;
-        Sample<T>::m_samplePtr.release();      // Release ownership of the sample since it has been published.
+        Sample<T>::m_samplePtr.release(); // Release ownership of the sample since it has been published.
     }
 
     else

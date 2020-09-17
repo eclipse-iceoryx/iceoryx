@@ -21,9 +21,12 @@ struct CounterTopic
     uint32_t counter;
 };
 
-struct Position {
-    Position(double x, double y, double z) : x(x), y(y), z(z)
-    {};
+struct Position
+{
+    Position(double x, double y, double z)
+        : x(x)
+        , y(y)
+        , z(z){};
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;

@@ -19,18 +19,18 @@
 
 using namespace ::testing;
 
-struct Position {
+struct Position
+{
     double_t x = 0.0;
     double_t y = 0.0;
     double_t z = 0.0;
 };
 
-class UniquePtrTest : public Test {
-
-public:
+class UniquePtrTest : public Test
+{
+  public:
     UniquePtrTest()
     {
-
     }
 
     void SetUp()
@@ -40,13 +40,12 @@ public:
     void TearDown()
     {
     }
-
 };
 
 TEST_F(UniquePtrTest, DeleterIsCalledWhenPtrGoesOutOfScope)
 {
     bool deleterCalled = false;
-    auto deleter = [&deleterCalled](Position* const p){
+    auto deleter = [&deleterCalled](Position* const p) {
         deleterCalled = true;
         delete p;
     };
@@ -61,25 +60,20 @@ TEST_F(UniquePtrTest, DeleterIsCalledWhenPtrGoesOutOfScope)
 
 TEST_F(UniquePtrTest, DeleterIsProperlySet)
 {
-
 }
 
 TEST_F(UniquePtrTest, DeleterNotCalledOnReleasedPointers)
 {
-
 }
 
 TEST_F(UniquePtrTest, DeleterNotCalledOnNullptrs)
 {
-
 }
 
 TEST_F(UniquePtrTest, CanResetToNullptr)
 {
-
 }
 
 TEST_F(UniquePtrTest, CanResetToAnExistingRawPtr)
 {
-
 }

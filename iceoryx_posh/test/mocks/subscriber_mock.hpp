@@ -24,13 +24,17 @@ using ::testing::_;
 
 class MockSubscriberPortUser
 {
-public:
+  public:
     MockSubscriberPortUser() = default;
-    MockSubscriberPortUser(std::nullptr_t){}
+    MockSubscriberPortUser(std::nullptr_t)
+    {
+    }
     MOCK_METHOD1(subscribe, void(const uint64_t));
     MOCK_METHOD0(unsubscribe, void());
     MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
-    MOCK_METHOD0(tryGetChunk, iox::cxx::expected<iox::cxx::optional<const iox::mepoo::ChunkHeader*>, iox::popo::ChunkReceiveError>());
+    MOCK_METHOD0(
+        tryGetChunk,
+        iox::cxx::expected<iox::cxx::optional<const iox::mepoo::ChunkHeader*>, iox::popo::ChunkReceiveError>());
     MOCK_METHOD1(releaseChunk, void(iox::mepoo::ChunkHeader*));
     MOCK_METHOD0(releaseQueuedChunks, void());
     MOCK_CONST_METHOD0(hasNewChunks, bool());
@@ -39,4 +43,3 @@ public:
     MOCK_METHOD0(unsetConditionVariable, bool());
     MOCK_METHOD0(isConditionVariableSet, bool());
 };
-

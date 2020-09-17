@@ -17,16 +17,16 @@
 
 #include "iceoryx_posh/experimental/popo/base_subscriber.hpp"
 
-namespace iox {
-namespace popo {
-
-template<typename T>
+namespace iox
+{
+namespace popo
+{
+template <typename T>
 class TypedSubscriber : protected BaseSubscriber<T>
 {
-    static_assert (!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
+    static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
 
-public:
-
+  public:
     TypedSubscriber(const capro::ServiceDescription& service);
     TypedSubscriber(const TypedSubscriber& other) = delete;
     TypedSubscriber& operator=(const TypedSubscriber&) = delete;
@@ -44,7 +44,6 @@ public:
     bool hasNewSamples() const noexcept;
     cxx::expected<cxx::optional<Sample<T>>> receive() noexcept;
     void clearReceiveBuffer() noexcept;
-
 };
 
 } // namespace popo

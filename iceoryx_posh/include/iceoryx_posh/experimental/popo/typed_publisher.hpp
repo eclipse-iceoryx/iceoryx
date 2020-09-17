@@ -15,19 +15,20 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_TYPED_PUBLISHER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_TYPED_PUBLISHER_HPP
 
-#include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
 #include "iceoryx_posh/experimental/popo/base_publisher.hpp"
+#include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 
-namespace iox {
-namespace popo {
-
-template<typename T, typename base_publisher_t = BasePublisher<T>>
+namespace iox
+{
+namespace popo
+{
+template <typename T, typename base_publisher_t = BasePublisher<T>>
 class TypedPublisher : public base_publisher_t
 {
-    static_assert (!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
+    static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
 
-public:
+  public:
     TypedPublisher(const capro::ServiceDescription& service);
     TypedPublisher(const TypedPublisher& other) = delete;
     TypedPublisher& operator=(const TypedPublisher&) = delete;
@@ -52,7 +53,7 @@ public:
     /// @param args The arguments of the callable.
     /// @return Error if unable to allocate memory to loan.
     ///
-    template<typename Callable, typename... ArgTypes>
+    template <typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
     cxx::optional<PublishableSample<T>> loanPreviousSample() noexcept;

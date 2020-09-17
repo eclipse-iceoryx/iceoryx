@@ -15,45 +15,41 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_INL
 #define IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_INL
 
-namespace iox {
-namespace popo {
-
+namespace iox
+{
+namespace popo
+{
 UntypedSubscriber::UntypedSubscriber(const capro::ServiceDescription& service)
     : BaseSubscriber<void>(service)
-{}
+{
+}
 
-inline void
-UntypedSubscriber::subscribe(const uint64_t queueCapacity) noexcept
+inline void UntypedSubscriber::subscribe(const uint64_t queueCapacity) noexcept
 {
     BaseSubscriber<void>::subscribe(queueCapacity);
 }
 
-inline SubscribeState
-UntypedSubscriber::getSubscriptionState() const noexcept
+inline SubscribeState UntypedSubscriber::getSubscriptionState() const noexcept
 {
     return BaseSubscriber<void>::getSubscriptionState();
 }
 
-inline void
-UntypedSubscriber::unsubscribe() noexcept
+inline void UntypedSubscriber::unsubscribe() noexcept
 {
     return BaseSubscriber<void>::unsubscribe();
 }
 
-inline bool
-UntypedSubscriber::hasNewSamples() const noexcept
+inline bool UntypedSubscriber::hasNewSamples() const noexcept
 {
     return BaseSubscriber<void>::hasNewSamples();
 }
 
-inline cxx::expected<cxx::optional<Sample<void>>>
-UntypedSubscriber::receive() noexcept
+inline cxx::expected<cxx::optional<Sample<void>>> UntypedSubscriber::receive() noexcept
 {
     return BaseSubscriber<void>::receive();
 }
 
-inline void
-UntypedSubscriber::clearReceiveBuffer() noexcept
+inline void UntypedSubscriber::clearReceiveBuffer() noexcept
 {
     BaseSubscriber<void>::clearReceiveBuffer();
 }

@@ -15,52 +15,48 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_TYPED_SUBSCRIBER_INL
 #define IOX_EXPERIMENTAL_POSH_POPO_TYPED_SUBSCRIBER_INL
 
-namespace iox {
-namespace popo {
-
-template<typename T>
+namespace iox
+{
+namespace popo
+{
+template <typename T>
 TypedSubscriber<T>::TypedSubscriber(const capro::ServiceDescription& service)
     : BaseSubscriber<T>(service)
-{}
+{
+}
 
-template<typename T>
-inline void
-TypedSubscriber<T>::subscribe(const uint64_t queueCapacity) noexcept
+template <typename T>
+inline void TypedSubscriber<T>::subscribe(const uint64_t queueCapacity) noexcept
 {
     BaseSubscriber<T>::subscribe(queueCapacity);
 }
 
-template<typename T>
-inline SubscribeState
-TypedSubscriber<T>::getSubscriptionState() const noexcept
+template <typename T>
+inline SubscribeState TypedSubscriber<T>::getSubscriptionState() const noexcept
 {
     return BaseSubscriber<T>::getSubscriptionState();
 }
 
-template<typename T>
-inline void
-TypedSubscriber<T>::unsubscribe() noexcept
+template <typename T>
+inline void TypedSubscriber<T>::unsubscribe() noexcept
 {
     return BaseSubscriber<T>::unsubscribe();
 }
 
-template<typename T>
-inline bool
-TypedSubscriber<T>::hasNewSamples() const noexcept
+template <typename T>
+inline bool TypedSubscriber<T>::hasNewSamples() const noexcept
 {
     return BaseSubscriber<T>::hasNewSamples();
 }
 
-template<typename T>
-inline cxx::expected<cxx::optional<Sample<T>>>
-TypedSubscriber<T>::receive() noexcept
+template <typename T>
+inline cxx::expected<cxx::optional<Sample<T>>> TypedSubscriber<T>::receive() noexcept
 {
     return BaseSubscriber<T>::receive();
 }
 
-template<typename T>
-inline void
-TypedSubscriber<T>::clearReceiveBuffer() noexcept
+template <typename T>
+inline void TypedSubscriber<T>::clearReceiveBuffer() noexcept
 {
     BaseSubscriber<T>::clearReceiveBuffer();
 }

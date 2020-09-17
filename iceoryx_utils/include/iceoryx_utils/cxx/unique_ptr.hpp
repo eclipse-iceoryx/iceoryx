@@ -22,14 +22,13 @@ namespace iox
 {
 namespace cxx
 {
-
 ///
 /// @todo document how it differs to STL
 ///
-template<typename T>
-class unique_ptr{
-public:
-
+template <typename T>
+class unique_ptr
+{
+  public:
     using ptr_t = T*;
 
     unique_ptr() = delete;
@@ -82,7 +81,9 @@ public:
     /// @brief operator bool Returns true if it points to something.
     ///
     explicit operator bool() const noexcept
-    { return get() == ptr_t() ? false : true; }
+    {
+        return get() == ptr_t() ? false : true;
+    }
 
     ///
     /// @brief get Retrieve the underlying raw pointer.
@@ -110,7 +111,7 @@ public:
     ///
     void swap(unique_ptr& other) noexcept;
 
-private:
+  private:
     ptr_t m_ptr = nullptr;
     std::function<void(T* const)> m_deleter;
 };

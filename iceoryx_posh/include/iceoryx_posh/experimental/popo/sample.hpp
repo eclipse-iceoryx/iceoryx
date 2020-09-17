@@ -18,14 +18,14 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
-namespace iox {
-namespace popo {
-
+namespace iox
+{
+namespace popo
+{
 template <typename T>
 class Sample
 {
-public:
-
+  public:
     Sample(cxx::unique_ptr<T>&& samplePtr) noexcept;
 
     /// Creates an empty sample.
@@ -58,7 +58,7 @@ public:
 
     mepoo::ChunkHeader* header();
 
-protected:
+  protected:
     mepoo::ChunkHeader* m_headerPtr{nullptr}; // Only a raw pointer here. The m_samplePtr manages the lifecycle.
     cxx::unique_ptr<T> m_samplePtr{nullptr};
 };
@@ -69,4 +69,3 @@ protected:
 #include "iceoryx_posh/experimental/internal/popo/sample.inl"
 
 #endif // IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_HPP
-

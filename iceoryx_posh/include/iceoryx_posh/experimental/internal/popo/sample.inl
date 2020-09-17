@@ -15,21 +15,22 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_INL
 #define IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_INL
 
-namespace iox {
-namespace popo {
-
-template<typename T>
+namespace iox
+{
+namespace popo
+{
+template <typename T>
 Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr) noexcept
-     : m_headerPtr(mepoo::convertPayloadPointerToChunkHeader(samplePtr.get())), m_samplePtr(std::move(samplePtr))
-{};
+    : m_headerPtr(mepoo::convertPayloadPointerToChunkHeader(samplePtr.get()))
+    , m_samplePtr(std::move(samplePtr)){};
 
-template<typename T>
+template <typename T>
 Sample<T>::Sample(std::nullptr_t) noexcept {};
 
-template<typename T>
+template <typename T>
 Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
 {
-    if(this != &rhs)
+    if (this != &rhs)
     {
         m_headerPtr = rhs.m_headerPtr;
         m_samplePtr = std::move(rhs.m_samplePtr);
@@ -37,38 +38,38 @@ Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
     return *this;
 }
 
-template<typename T>
+template <typename T>
 Sample<T>::Sample(Sample<T>&& rhs)
 {
     *this = std::move(rhs);
 }
 
-template<typename T>
+template <typename T>
 Sample<T>::~Sample()
 {
     m_samplePtr = nullptr;
 }
 
-template<typename T>
+template <typename T>
 Sample<T>& Sample<T>::operator=(std::nullptr_t) noexcept
 {
-  m_samplePtr = nullptr;    // The pointer will take care of cleaning up resources.
-  return *this;
+    m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
+    return *this;
 }
 
-template<typename T>
+template <typename T>
 T* Sample<T>::operator->() noexcept
 {
     return get();
 }
 
-template<typename T>
+template <typename T>
 T* Sample<T>::get() noexcept
 {
     return m_samplePtr.get();
 }
 
-template<typename T>
+template <typename T>
 mepoo::ChunkHeader* Sample<T>::header()
 {
     return m_headerPtr;

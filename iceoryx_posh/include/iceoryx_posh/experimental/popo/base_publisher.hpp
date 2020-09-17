@@ -18,21 +18,23 @@
 #include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 
-namespace iox {
-namespace popo {
-
+namespace iox
+{
+namespace popo
+{
 using uid_t = uint64_t;
 
 ///
 /// @brief The PublisherInterface class defines the publisher interface used by the Sample class to make it generic.
 /// This allows any publisher specialization to be stored as a reference by the Sample class.
 ///
-template<typename T>
+template <typename T>
 class PublisherInterface
 {
-public:
+  public:
     virtual void publish(PublishableSample<T>& sample) noexcept = 0;
-protected:
+
+  protected:
     PublisherInterface() = default;
 };
 
@@ -40,11 +42,10 @@ protected:
 ///
 /// @brief The BasePublisher class contains the common implementation for the different publisher specializations.
 ///
-template<typename T, typename port_t = PublisherPortUser>
+template <typename T, typename port_t = PublisherPortUser>
 class BasePublisher : public PublisherInterface<T>
 {
-protected:
-
+  protected:
     BasePublisher(const BasePublisher& other) = delete;
     BasePublisher& operator=(const BasePublisher&) = delete;
     BasePublisher(BasePublisher&& rhs) = default;
@@ -60,7 +61,8 @@ protected:
     ///
     /// @brief loan Get a sample from loaned shared memory.
     /// @param size The expected size of the sample.
-    /// @return An instance of the sample that resides in shared memory or an error if unable ot allocate memory to laon.
+    /// @return An instance of the sample that resides in shared memory or an error if unable ot allocate memory to
+    /// laon.
     /// @details The loaned sample is automatically released when it goes out of scope.
     ///
     cxx::expected<PublishableSample<T>, AllocationError> loan(uint32_t size) noexcept;
@@ -99,10 +101,10 @@ protected:
     ///
     bool hasSubscribers() noexcept;
 
-protected:
+  protected:
     BasePublisher(const capro::ServiceDescription& service);
 
-private:
+  private:
     ///
     /// @brief convertChunkHeaderToSample Helper function that wraps the payload of a ChunkHeader in an Sample.
     /// @param header The chunk header describing the allocated memory chunk to use in the sample.
@@ -110,11 +112,9 @@ private:
     ///
     PublishableSample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* header) noexcept;
 
-protected:
-
+  protected:
     port_t m_port{nullptr};
     bool m_useDynamicPayloadSize = true;
-
 };
 
 } // namespace popo

@@ -22,9 +22,10 @@
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
-namespace iox {
-namespace popo {
-
+namespace iox
+{
+namespace popo
+{
 using uid_t = uint64_t;
 
 enum class SubscriberError : uint8_t
@@ -32,11 +33,10 @@ enum class SubscriberError : uint8_t
     UNKNOWN
 };
 
-template<typename T, typename port_t = popo::SubscriberPortUser>
+template <typename T, typename port_t = popo::SubscriberPortUser>
 class BaseSubscriber : public Condition
 {
-public:
-
+  public:
     BaseSubscriber(const BaseSubscriber& other) = delete;
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
     BaseSubscriber(BaseSubscriber&& rhs) = delete;
@@ -60,7 +60,8 @@ public:
     /// @param queueCapacity
     /// @return
     ///
-    void subscribe(const uint64_t queueCapacity = SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
+    void
+    subscribe(const uint64_t queueCapacity = SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
 
     ///
     /// @brief getSubscriptionState Get current subscription state.
@@ -96,14 +97,13 @@ public:
     virtual bool unsetConditionVariable() noexcept override;
     virtual bool hasTriggered() const noexcept override;
 
-protected:
+  protected:
     BaseSubscriber(const capro::ServiceDescription& service);
 
-protected:
+  protected:
     uid_t m_uid = 0U;
     bool m_subscriptionRequested = false;
     port_t m_port{nullptr};
-
 };
 
 } // namespace popo

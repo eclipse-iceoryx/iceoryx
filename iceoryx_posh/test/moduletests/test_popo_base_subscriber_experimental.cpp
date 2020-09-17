@@ -14,8 +14,8 @@
 
 #include "iceoryx_posh/experimental/popo/base_subscriber.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 #include "mocks/subscriber_mock.hpp"
@@ -24,15 +24,17 @@
 using namespace ::testing;
 using ::testing::_;
 
-struct DummyData{
+struct DummyData
+{
     uint64_t val = 42;
 };
 
-template<typename T, typename port_t>
+template <typename T, typename port_t>
 class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
 {
-public:
-    StubbedBaseSubscriber(iox::capro::ServiceDescription sd) : iox::popo::BaseSubscriber<T, port_t>::BaseSubscriber(sd)
+  public:
+    StubbedBaseSubscriber(iox::capro::ServiceDescription sd)
+        : iox::popo::BaseSubscriber<T, port_t>::BaseSubscriber(sd)
     {
     }
     uid_t uid() const noexcept
@@ -97,12 +99,11 @@ using TestBaseSubscriber = StubbedBaseSubscriber<DummyData, MockSubscriberPortUs
 
 // ========================= Base Publisher Tests ========================= //
 
-class ExperimentalBaseSubscriberTest : public Test {
-
-public:
+class ExperimentalBaseSubscriberTest : public Test
+{
+  public:
     ExperimentalBaseSubscriberTest()
     {
-
     }
 
     void SetUp()
@@ -113,7 +114,7 @@ public:
     {
     }
 
-protected:
+  protected:
     TestBaseSubscriber sut{{"", "", ""}};
 };
 
@@ -182,25 +183,27 @@ TEST_F(ExperimentalBaseSubscriberTest, HasNewSamplesCallForwardedToUnderlyingSub
 TEST_F(ExperimentalBaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksInSamples)
 {
     // ===== Setup ===== //
-    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    EXPECT_CALL(sut.getMockedPort(), tryGetChunk).WillOnce(Return(ByMove(
-                                                                      iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(const_cast<const iox::mepoo::ChunkHeader*>(chunk))
-                                                                      )));
+    auto chunk =
+        reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+    EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
+        .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(
+            const_cast<const iox::mepoo::ChunkHeader*>(chunk)))));
     // ===== Test ===== //
     auto result = sut.receive();
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
     EXPECT_EQ(true, result.get_value().has_value());
-    EXPECT_EQ(reinterpret_cast<DummyData*>(chunk->payload()), result.get_value().value().get()); // Checks they point to the same memory location.
+    EXPECT_EQ(reinterpret_cast<DummyData*>(chunk->payload()),
+              result.get_value().value().get()); // Checks they point to the same memory location.
     // ===== Cleanup ===== //
 }
 
 TEST_F(ExperimentalBaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), tryGetChunk).WillOnce(Return(ByMove(
-                                                                      iox::cxx::error<iox::popo::ChunkReceiveError>(iox::popo::ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL)
-                                                                      )));
+    EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
+        .WillOnce(Return(ByMove(iox::cxx::error<iox::popo::ChunkReceiveError>(
+            iox::popo::ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL))));
     // ===== Test ===== //
     auto result = sut.receive();
     // ===== Verify ===== //
@@ -211,9 +214,9 @@ TEST_F(ExperimentalBaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
 TEST_F(ExperimentalBaseSubscriberTest, ReceiveReturnsEmptyOptionalIfUnderlyingPortReturnsEmptyOptional)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), tryGetChunk).WillOnce(Return(ByMove(
-                                                                      iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(iox::cxx::nullopt)
-                                                                      )));
+    EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
+        .WillOnce(
+            Return(ByMove(iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(iox::cxx::nullopt))));
     // ===== Test ===== //
     auto result = sut.receive();
     // ===== Verify ===== //
@@ -263,6 +266,3 @@ TEST_F(ExperimentalBaseSubscriberTest, HasTriggeredCallForwardedToUnderlyingSubs
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
-
-
-

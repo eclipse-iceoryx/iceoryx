@@ -17,19 +17,19 @@
 #include "iceoryx_posh/experimental/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig[[gnu::unused]])
+static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
     killswitch = true;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
@@ -40,16 +40,14 @@ int main(int argc, char *argv[])
     untypedPublisher.offer();
 
     float_t ct = 0.0;
-    while(!killswitch)
+    while (!killswitch)
     {
-        untypedPublisher.loan(sizeof(Position))
-                .and_then([&](iox::popo::PublishableSample<void>& sample){
-                    ++ct;
-                    new (sample.get()) Position(ct, ct, ct);
-                    sample.publish();
-                });
+        untypedPublisher.loan(sizeof(Position)).and_then([&](iox::popo::PublishableSample<void>& sample) {
+            ++ct;
+            new (sample.get()) Position(ct, ct, ct);
+            sample.publish();
+        });
         std::this_thread::sleep_for(std::chrono::seconds(1));
-
     }
 
     return 0;

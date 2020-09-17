@@ -22,11 +22,13 @@ using ::testing::_;
 
 class MockPublisherPortUser
 {
-public:
+  public:
     MockPublisherPortUser() = default;
     MockPublisherPortUser(std::nullptr_t)
-    {}
-    MOCK_METHOD1(tryAllocateChunk, iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
+    {
+    }
+    MOCK_METHOD1(tryAllocateChunk,
+                 iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
     MOCK_METHOD1(freeChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD1(sendChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD0(tryGetPreviousChunk, iox::cxx::optional<iox::mepoo::ChunkHeader*>());
@@ -36,10 +38,10 @@ public:
     MOCK_METHOD0(hasSubscribers, bool());
 };
 
-template<typename T>
+template <typename T>
 class MockBasePublisher : public iox::popo::PublisherInterface<T>
 {
-public:
+  public:
     MockBasePublisher(const iox::capro::ServiceDescription&){};
     MOCK_CONST_METHOD0(uid, iox::popo::uid_t());
     MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::PublishableSample<T>, iox::popo::AllocationError>(uint32_t));
