@@ -15,8 +15,10 @@
 #ifndef IOX_BINDING_C_CONDITION_H
 #define IOX_BINDING_C_CONDITION_H
 
+#include "iceoryx_binding_c/internal/c2cpp_binding.h"
+
 /// @brief condition handle
-typedef struct Condition* iox_cond_t;
+typedef CLASS Condition* iox_cond_t;
 
 /// @brief Was the condition fulfilled since last call. If the condition was
 ///         fulfilled and you call it repeatedly it returns true once and then

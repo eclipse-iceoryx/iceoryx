@@ -15,10 +15,11 @@
 #ifndef IOX_BINDING_C_GUARD_CONDITION_H
 #define IOX_BINDING_C_GUARD_CONDITION_H
 
+#include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/types.h"
 
 /// @brief guard condition handle
-typedef struct GuardCondition* iox_guard_cond_t;
+typedef CLASS GuardCondition* iox_guard_cond_t;
 
 /// @brief initialize guard condition handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_guard_cond_storage_t)

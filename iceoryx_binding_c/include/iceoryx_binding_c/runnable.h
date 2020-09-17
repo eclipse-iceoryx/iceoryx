@@ -17,7 +17,7 @@
 
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
-typedef struct RunnableData* iox_runnable_t;
+typedef CLASS RunnableData* iox_runnable_t;
 
 /// @brief creates a runnable in the shared memory
 /// @param[in] runnableName name of the runnable

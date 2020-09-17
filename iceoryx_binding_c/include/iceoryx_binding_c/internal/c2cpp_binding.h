@@ -16,14 +16,20 @@
 #define IOX_BINDING_C_INTERNAL_C2CPP_BINDING_H
 
 #ifdef __cplusplus
+
 #include <cstdint>
 
+#define CLASS class
 #define ENUM
+
 #else
+
 #include <stdbool.h>
 #include <stdint.h>
 
+#define CLASS struct
 #define ENUM enum
+
 #endif
 
 #endif
