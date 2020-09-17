@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/experimental/popo/base_publisher.hpp"
+#include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 
 #include "test.hpp"
