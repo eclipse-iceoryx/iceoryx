@@ -46,7 +46,7 @@ UntypedSubscriber::hasData() const noexcept
     return BaseSubscriber<void>::hasData();
 }
 
-inline cxx::optional<cxx::unique_ptr<void>>
+inline cxx::expected<cxx::optional<cxx::unique_ptr<void>>>
 UntypedSubscriber::receive() noexcept
 {
     return BaseSubscriber<void>::receive();

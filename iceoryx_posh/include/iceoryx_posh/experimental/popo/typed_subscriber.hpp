@@ -42,7 +42,7 @@ public:
     void unsubscribe() noexcept;
 
     bool hasData() const noexcept;
-    cxx::optional<cxx::unique_ptr<T>> receive() noexcept;
+    cxx::expected<cxx::optional<cxx::unique_ptr<T>>> receive() noexcept;
     cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveHeader() noexcept;
     void clearReceiveBuffer() noexcept;
 

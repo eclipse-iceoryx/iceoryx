@@ -116,7 +116,7 @@ public:
 
 private:
     bool m_hasOwnership{true};
-    mepoo::ChunkHeader* m_headerPtr{nullptr};
+    mepoo::ChunkHeader* m_headerPtr{nullptr}; // Only a raw pointer here. The m_samplePtr manages the lifecycle.
     cxx::unique_ptr<T> m_samplePtr{nullptr};
     std::reference_wrapper<PublisherInterface<T>> m_publisherRef;
 };

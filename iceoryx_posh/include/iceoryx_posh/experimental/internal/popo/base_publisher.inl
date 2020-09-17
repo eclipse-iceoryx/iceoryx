@@ -22,7 +22,7 @@ using uid_t = uint64_t;
 
 template<typename T, typename port_t>
 BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription&)
-    /* : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, "")) */
+/// @todo #25 : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, ""))
 {}
 
 template<typename T, typename port_t>

@@ -20,7 +20,7 @@ namespace popo {
 
 template<typename T, typename port_t>
 BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& sd) : m_serviceDescription(sd)
-    /* : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, "")) */
+/// @todo #25  : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, ""))
 {}
 
 template<typename T, typename port_t>
@@ -69,14 +69,13 @@ BaseSubscriber<T, port_t>::hasData() const noexcept
 }
 
 template<typename T, typename port_t>
-inline cxx::optional<cxx::unique_ptr<T>>
+inline cxx::expected<cxx::optional<cxx::unique_ptr<T>>, ChunkReceiveError>
 BaseSubscriber<T, port_t>::receive() noexcept
 {
     auto result = m_port.tryGetChunk();
     if(result.has_error())
     {
-        /// @todo - what should we do when getting ChunkReceiveError ?
-        return cxx::nullopt;
+        return cxx::error<ChunkReceiveError>(result.get_error());
     }
     else
     {
@@ -84,51 +83,48 @@ BaseSubscriber<T, port_t>::receive() noexcept
         if(optionalHeader.has_value())
         {
             auto header = optionalHeader.value();
-            return cxx::optional<cxx::unique_ptr<T>>(cxx::unique_ptr<T>(
-                                        reinterpret_cast<T*>(header->payload()),
-                                        [this](T* const allocation){
-                                            auto header = mepoo::convertPayloadPointerToChunkHeader(allocation);
-                                            this->m_port.releaseChunk(header);
-                                        }
-                                    ));
+            return cxx::success<cxx::optional<cxx::unique_ptr<T>>>(cxx::make_optional<cxx::unique_ptr<T>>(reinterpret_cast<T*>(header->payload()),
+                                                                                                          [this](T* const allocation){
+                                                                                                             auto header = mepoo::convertPayloadPointerToChunkHeader(allocation);
+                                                                                                             this->m_port.releaseChunk(header);
+                                                                                                          }));
         }
         else
         {
-            return cxx::nullopt;
+            return cxx::success<cxx::optional<cxx::unique_ptr<T>>>(cxx::nullopt);
         }
     }
 }
 
-template<typename T, typename port_t>
-inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
-BaseSubscriber<T, port_t>::receiveHeader() noexcept
-{
-    auto result = m_port.tryGetChunk();
-    if(result.has_error())
-    {
-        /// @todo - what should we do when getting ChunkReceiveError ?
-        return cxx::nullopt;
-    }
-    else
-    {
-        auto optionalHeader = result.get_value();
-        if(optionalHeader.has_value())
-        {
-            auto header = optionalHeader.value();
-            return cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>(cxx::unique_ptr<mepoo::ChunkHeader>(
-                                        const_cast<mepoo::ChunkHeader*>(header),
-                                        [this](mepoo::ChunkHeader* const header){
-                                            this->m_port.releaseChunk(header);
-                                        }
-                                    ));
-        }
-        else
-        {
-            return cxx::nullopt;
-        }
-    }
-}
-
+//template<typename T, typename port_t>
+//inline cxx::expected<cxx::optional<cxx::unique_ptr<T>>, ChunkReceiveError>
+//BaseSubscriber<T, port_t>::receiveHeader() noexcept
+//{
+//    auto result = m_port.tryGetChunk();
+//    if(result.has_error())
+//    {
+//        /// @todo - what should we do when getting ChunkReceiveError ?
+//        return cxx::nullopt;
+//    }
+//    else
+//    {
+//        auto optionalHeader = result.get_value();
+//        if(optionalHeader.has_value())
+//        {
+//            auto header = optionalHeader.value();
+//            return cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>(cxx::unique_ptr<mepoo::ChunkHeader>(
+//                                        const_cast<mepoo::ChunkHeader*>(header),
+//                                        [this](mepoo::ChunkHeader* const header){
+//                                            this->m_port.releaseChunk(header);
+//                                        }
+//                                    ));
+//        }
+//        else
+//        {
+//            return cxx::nullopt;
+//        }
+//    }
+//}
 
 template<typename T, typename port_t>
 inline void

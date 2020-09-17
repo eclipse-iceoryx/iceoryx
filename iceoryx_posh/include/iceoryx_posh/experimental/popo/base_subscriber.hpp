@@ -84,7 +84,7 @@ public:
     /// @return
     /// @details Sample is automatically released when it goes out of scope.
     ///
-    cxx::optional<cxx::unique_ptr<T>> receive() noexcept;
+    cxx::expected<cxx::optional<cxx::unique_ptr<T>>, ChunkReceiveError> receive() noexcept;
 
     ///
     /// @brief receiveHeader Receive the next sample including it's memory chunk header.

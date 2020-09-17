@@ -52,7 +52,7 @@ TypedSubscriber<T>::hasData() const noexcept
 }
 
 template<typename T>
-inline cxx::optional<cxx::unique_ptr<T>>
+inline cxx::expected<cxx::optional<cxx::unique_ptr<T>>>
 TypedSubscriber<T>::receive() noexcept
 {
     return BaseSubscriber<T>::receive();
