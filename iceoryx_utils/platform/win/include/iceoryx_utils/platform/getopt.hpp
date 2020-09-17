@@ -31,8 +31,7 @@ struct option
     int val;
 };
 
-inline int
-getopt_long(int , char* const [], const char* , const struct option* , int* )
+inline int getopt_long(int, char* const[], const char*, const struct option*, int*)
 {
     return 0;
 }

@@ -22,7 +22,6 @@
 
 namespace iox
 {
-
 namespace capro
 {
 class CaproMessage;
@@ -33,7 +32,8 @@ namespace popo
 class InterfacePort;
 }
 
-namespace gw {
+namespace gw
+{
 /// @brief Generic gateway for communication events
 class GatewayBase
 {

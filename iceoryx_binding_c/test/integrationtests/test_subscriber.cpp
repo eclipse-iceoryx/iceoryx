@@ -240,4 +240,3 @@ TEST_F(c_iox_sub_test, sendingTooMuchLeadsToLostChunks)
 
     EXPECT_TRUE(iox_sub_has_lost_chunks(&m_portPtr));
 }
-

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/internal/cxx/reference_counter.hpp"
+#include "test.hpp"
 
 
 using namespace ::testing;

@@ -234,7 +234,6 @@ TEST_F(PortManager_test, SenderReceiverOverflow)
 
     for (unsigned int i = 0; i < pubForP1; i++)
     {
-
         auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(),
                                                        iox::cxx::CString100(iox::cxx::TruncateToCapacity, p1),
                                                        m_payloadMemoryManager,

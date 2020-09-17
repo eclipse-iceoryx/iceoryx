@@ -30,7 +30,7 @@ Runnable::Runnable(const iox::cxx::CString100& runnableName) noexcept
 
 Runnable::~Runnable() noexcept
 {
-    if(m_data)
+    if (m_data)
     {
         m_data->m_toBeDestroyed.store(true, std::memory_order_relaxed);
     }

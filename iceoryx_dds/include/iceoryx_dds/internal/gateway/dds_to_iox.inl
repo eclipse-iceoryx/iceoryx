@@ -38,19 +38,17 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const co
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
-            auto serviceDescription =  service.m_serviceDescription;
+            auto serviceDescription = service.m_serviceDescription;
             LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
-                            << serviceDescription.getServiceIDString() << ", "
-                            << serviceDescription.getInstanceIDString() << ", "
-                            << serviceDescription.getEventIDString() << "}";
+                       << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
+                       << ", " << serviceDescription.getEventIDString() << "}";
             setupChannel(serviceDescription);
         }
     }
 }
 
 template <typename channel_t, typename gateway_t>
-inline void
-DDS2IceoryxGateway<channel_t, gateway_t>::discover([[gnu::unused]] const capro::CaproMessage& msg) noexcept
+inline void DDS2IceoryxGateway<channel_t, gateway_t>::discover([[gnu::unused]] const capro::CaproMessage& msg) noexcept
 {
     /// @note not implemented - requires dds discovery which is currently not implemented in the used dds stack.
 }

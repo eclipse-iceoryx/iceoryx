@@ -21,9 +21,10 @@
 
 // ================================================== Public ================================================== //
 
-namespace iox {
-namespace gw {
-
+namespace iox
+{
+namespace gw
+{
 template <typename channel_t, typename gateway_t>
 inline GatewayGeneric<channel_t, gateway_t>::~GatewayGeneric() noexcept
 {
@@ -60,10 +61,13 @@ inline uint64_t GatewayGeneric<channel_t, gateway_t>::getNumberOfChannels() cons
 
 template <typename channel_t, typename gateway_t>
 inline GatewayGeneric<channel_t, gateway_t>::GatewayGeneric(capro::Interfaces interface,
-                                                                       units::Duration discoveryPeriod,
-                                                                       units::Duration forwardingPeriod) noexcept
-    : gateway_t(interface), m_discoveryPeriod(discoveryPeriod), m_forwardingPeriod(forwardingPeriod)
-{}
+                                                            units::Duration discoveryPeriod,
+                                                            units::Duration forwardingPeriod) noexcept
+    : gateway_t(interface)
+    , m_discoveryPeriod(discoveryPeriod)
+    , m_forwardingPeriod(forwardingPeriod)
+{
+}
 
 template <typename channel_t, typename gateway_t>
 inline cxx::expected<channel_t, GatewayError>
@@ -100,8 +104,7 @@ GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription
 
 template <typename channel_t, typename gateway_t>
 inline cxx::optional<channel_t>
-GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescription& service) const
-    noexcept
+GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescription& service) const noexcept
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
@@ -118,8 +121,8 @@ GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescr
 }
 
 template <typename channel_t, typename gateway_t>
-inline void GatewayGeneric<channel_t, gateway_t>::forEachChannel(
-    const cxx::function_ref<void(channel_t&)> f) const noexcept
+inline void GatewayGeneric<channel_t, gateway_t>::forEachChannel(const cxx::function_ref<void(channel_t&)> f) const
+    noexcept
 {
     auto guardedVector = m_channels.GetScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
@@ -129,8 +132,8 @@ inline void GatewayGeneric<channel_t, gateway_t>::forEachChannel(
 }
 
 template <typename channel_t, typename gateway_t>
-inline cxx::expected<GatewayError> GatewayGeneric<channel_t, gateway_t>::discardChannel(
-    const capro::ServiceDescription& service) noexcept
+inline cxx::expected<GatewayError>
+GatewayGeneric<channel_t, gateway_t>::discardChannel(const capro::ServiceDescription& service) noexcept
 {
     auto guardedVector = this->m_channels.GetScopeGuard();
     auto channel = std::find_if(guardedVector->begin(), guardedVector->end(), [&service](const channel_t& channel) {
@@ -171,7 +174,8 @@ inline void GatewayGeneric<channel_t, gateway_t>::forwardingLoop() noexcept
     {
         auto startTime = std::chrono::steady_clock::now();
         forEachChannel([this](channel_t channel) { this->forward(channel); });
-        std::this_thread::sleep_until(startTime + std::chrono::milliseconds(m_forwardingPeriod.milliSeconds<int64_t>()));
+        std::this_thread::sleep_until(startTime
+                                      + std::chrono::milliseconds(m_forwardingPeriod.milliSeconds<int64_t>()));
     };
 }
 

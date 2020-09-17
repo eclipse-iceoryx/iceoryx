@@ -34,8 +34,8 @@ LogManager& LogManager::GetLogManager()
     return manager;
 }
 
-Logger& LogManager::CreateLogContext(std::string ctxId[[gnu::unused]],
-                                     std::string ctxDescription[[gnu::unused]],
+Logger& LogManager::CreateLogContext(std::string ctxId [[gnu::unused]],
+                                     std::string ctxDescription [[gnu::unused]],
                                      LogLevel appDefLogLevel) noexcept
 {
     static std::mutex mtx;

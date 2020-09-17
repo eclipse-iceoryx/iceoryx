@@ -30,7 +30,7 @@ class UDS : public IcePerfBase
   public:
     /// @brief Max message size is on linux = 4096 and on mac os = 2048. To have
     ///  the same behavior on every platform we use 2048.
-#ifdef __APPLE__    
+#ifdef __APPLE__
     static constexpr uint32_t MAX_MESSAGE_SIZE = 2 * IcePerfBase::ONE_KILOBYTE;
 #else
     static constexpr uint32_t MAX_MESSAGE_SIZE = 4 * IcePerfBase::ONE_KILOBYTE;

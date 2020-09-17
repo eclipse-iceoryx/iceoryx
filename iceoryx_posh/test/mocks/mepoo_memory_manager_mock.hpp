@@ -14,8 +14,8 @@
 #ifndef IOX_POSH_MOCKS_MEPOO_MEMORY_MANAGER_MOCK_HPP
 #define IOX_POSH_MOCKS_MEPOO_MEMORY_MANAGER_MOCK_HPP
 
-#include "test.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
+#include "test.hpp"
 
 class MePooMemoryManager_MOCK
 {

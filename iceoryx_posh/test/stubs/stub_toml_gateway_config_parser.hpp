@@ -36,7 +36,7 @@ class StubbedTomlGatewayConfigParser : public TomlGatewayConfigParser
     }
 };
 
-} // namespace popo
+} // namespace config
 } // namespace iox
 
 #endif // IOX_POSH_STUBS_TOML_GATEWAY_CONFIG_PARSER_HPP

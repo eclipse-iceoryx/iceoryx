@@ -64,12 +64,12 @@ MemoryMap::MemoryMap(const void* f_baseAddressHint,
                                     // is defined as (void*) -1; see man mmap for that definition
                                     {reinterpret_cast<void*>(MAP_FAILED)},
                                     {},
-                                    const_cast<void*>(f_baseAddressHint), 
+                                    const_cast<void*>(f_baseAddressHint),
                                     f_length,
                                     l_memoryProtection,
                                     f_flags,
                                     f_fileDescriptor,
-                                    f_offset); 
+                                    f_offset);
 
     if (mmapCall.hasErrors())
     {

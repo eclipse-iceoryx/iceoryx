@@ -100,4 +100,3 @@ bool iox_pub_has_subscribers(PublisherPortData* const self)
 {
     return PublisherPortUser(self).hasSubscribers();
 }
-

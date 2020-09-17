@@ -15,9 +15,9 @@
 #include "helpers/fixture_dds_gateway.hpp"
 
 #include "iceoryx_dds/dds/data_writer.hpp"
+#include "iceoryx_dds/gateway/iox_to_dds.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
-#include "iceoryx_dds/gateway/iox_to_dds.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -25,8 +25,8 @@
 
 #include "mocks/chunk_mock.hpp"
 #include "mocks/google_mocks.hpp"
-#include "testutils/roudi_gtest.hpp"
 #include "test.hpp"
+#include "testutils/roudi_gtest.hpp"
 
 #include <limits>
 
@@ -193,9 +193,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
 
     // Set up subscriber to provide the chunk
     auto mockSubscriber = createMockIceoryxTerminal(testService);
-    EXPECT_CALL(*mockSubscriber, hasNewChunks)
-            .WillOnce(Return(true))
-            .WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSubscriber, hasNewChunks).WillOnce(Return(true)).WillRepeatedly(Return(false));
     EXPECT_CALL(*mockSubscriber, getChunk).WillOnce(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
     stageMockIceoryxTerminal(std::move(mockSubscriber));
 
@@ -224,9 +222,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
 
     // Set up subscriber to provide the chunk
     auto mockSubscriber = createMockIceoryxTerminal(testService);
-    EXPECT_CALL(*mockSubscriber, hasNewChunks)
-            .WillOnce(Return(true))
-            .WillRepeatedly(Return(false));
+    EXPECT_CALL(*mockSubscriber, hasNewChunks).WillOnce(Return(true)).WillRepeatedly(Return(false));
     EXPECT_CALL(*mockSubscriber, getChunk).WillOnce(DoAll(SetArgPointee<0>(mockChunk.chunkHeader()), Return(true)));
     stageMockIceoryxTerminal(std::move(mockSubscriber));
 

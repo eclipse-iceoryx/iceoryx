@@ -18,8 +18,8 @@
 #include "iceoryx_posh/gateway/channel.hpp"
 
 #include "mocks/google_mocks.hpp"
-#include "testutils/roudi_gtest.hpp"
 #include "test.hpp"
+#include "testutils/roudi_gtest.hpp"
 
 template <typename IceoryxTerminal, typename DDSTerminal>
 class DDSGatewayTestFixture : public Test

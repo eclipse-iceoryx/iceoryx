@@ -17,9 +17,9 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 
 #include "test.hpp"
+#include <atomic>
 #include <memory>
 #include <thread>
-#include <atomic>
 
 using namespace ::testing;
 using ::testing::Return;

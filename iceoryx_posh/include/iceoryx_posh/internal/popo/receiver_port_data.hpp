@@ -14,9 +14,9 @@
 #ifndef IOX_POSH_POPO_RECEIVER_PORT_DATA_HPP
 #define IOX_POSH_POPO_RECEIVER_PORT_DATA_HPP
 
-#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/delivery_fifo.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"

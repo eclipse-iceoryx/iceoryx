@@ -17,8 +17,8 @@
 #define private public
 #define protected public
 
-#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/gateway/gateway_discovery.hpp"
+#include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 
 #undef private
 #undef protected

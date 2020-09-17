@@ -90,7 +90,8 @@ class ChunkSender_test : public Test
                                                                    iox::popo::ThreadSafePolicy,
                                                                    iox::popo::ChunkQueuePusher<ChunkQueueData_t>>;
     using ChunkDistributor_t = iox::popo::ChunkDistributor<ChunkDistributorData_t>;
-    using ChunkSenderData_t = iox::popo::ChunkSenderData<iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, ChunkDistributorData_t>;
+    using ChunkSenderData_t =
+        iox::popo::ChunkSenderData<iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY, ChunkDistributorData_t>;
 
     ChunkQueueData_t m_chunkQueueData{iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     ChunkSenderData_t m_chunkSenderData{&m_memoryManager, 0}; // must be 0 for test
@@ -146,13 +147,15 @@ TEST_F(ChunkSender_test, allocate_Overflow)
     {
         EXPECT_THAT(chunks[i], Ne(nullptr));
     }
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks,
+                Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
 
     // Allocate one more sample for overflow
     auto maybeChunkHeader = m_chunkSender.tryAllocate(sizeof(DummySample), iox::UniquePortId());
     EXPECT_TRUE(maybeChunkHeader.has_error());
     EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL));
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks,
+                Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
 }
 
 TEST_F(ChunkSender_test, freeChunk)
@@ -169,7 +172,8 @@ TEST_F(ChunkSender_test, freeChunk)
         }
     }
 
-    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
+    EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks,
+                Eq(iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY));
 
     // release them all
     for (size_t i = 0; i < iox::MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY; i++)
@@ -187,8 +191,10 @@ TEST_F(ChunkSender_test, freeInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
     m_chunkSender.release(myCrazyChunk.get());
@@ -377,8 +383,10 @@ TEST_F(ChunkSender_test, sendTillRunningOutOfChunks)
     }
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     auto maybeChunkHeader = m_chunkSender.tryAllocate(sizeof(DummySample), iox::UniquePortId());
     EXPECT_TRUE(maybeChunkHeader.has_error());
@@ -392,8 +400,10 @@ TEST_F(ChunkSender_test, sendInvalidChunk)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
     m_chunkSender.send(myCrazyChunk.get());
@@ -422,8 +432,10 @@ TEST_F(ChunkSender_test, pushInvalidChunkToHistory)
     EXPECT_THAT(m_memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1u));
 
     auto errorHandlerCalled{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler([&errorHandlerCalled](
-        const iox::Error, const std::function<void()>, const iox::ErrorLevel) { errorHandlerCalled = true; });
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&errorHandlerCalled](const iox::Error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerCalled = true;
+        });
 
     auto myCrazyChunk = std::make_shared<iox::mepoo::ChunkHeader>();
     m_chunkSender.pushToHistory(myCrazyChunk.get());

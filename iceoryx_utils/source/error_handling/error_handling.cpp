@@ -29,9 +29,7 @@ HandlerFunction ErrorHandler::handler = {ErrorHandler::DefaultHandler};
 
 std::mutex ErrorHandler::handler_mutex;
 
-void ErrorHandler::DefaultHandler(const Error error,
-                                  const std::function<void()> errorCallBack,
-                                  const ErrorLevel level)
+void ErrorHandler::DefaultHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level)
 {
     if (errorCallBack)
     {
@@ -85,9 +83,7 @@ const char* ErrorHandler::ToString(const Error error)
     return ErrorHandler::errorNames[static_cast<uint32_t>(error)];
 }
 
-void errorHandler(const Error error,
-                  const std::function<void()> errorCallBack,
-                  const ErrorLevel level)
+void errorHandler(const Error error, const std::function<void()> errorCallBack, const ErrorLevel level)
 {
     ErrorHandler::handler(error, errorCallBack, level);
 }
