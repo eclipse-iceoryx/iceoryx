@@ -37,7 +37,7 @@ public:
     capro::ServiceDescription getServiceDescription() const noexcept;
     uid_t uid() const noexcept;
 
-    cxx::expected<SubscriberError> subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
+    void subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
     SubscribeState getSubscriptionState() const noexcept;
     void unsubscribe() noexcept;
 

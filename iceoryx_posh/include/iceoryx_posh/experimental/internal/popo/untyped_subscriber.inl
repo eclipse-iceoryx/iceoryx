@@ -22,10 +22,10 @@ UntypedSubscriber::UntypedSubscriber(const capro::ServiceDescription& service)
     : BaseSubscriber<void>(service)
 {}
 
-inline cxx::expected<SubscriberError>
+inline void
 UntypedSubscriber::subscribe(const uint64_t queueCapacity) noexcept
 {
-    return BaseSubscriber<void>::subscribe(queueCapacity);
+    BaseSubscriber<void>::subscribe(queueCapacity);
 }
 
 inline SubscribeState

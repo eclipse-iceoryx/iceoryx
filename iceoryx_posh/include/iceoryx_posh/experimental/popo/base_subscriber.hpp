@@ -57,10 +57,10 @@ public:
 
     ///
     /// @brief subscribe Initiate subscription.
-    /// @param cacheSize
+    /// @param queueCapacity
     /// @return
     ///
-    cxx::expected<SubscriberError> subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
+    void subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
 
     ///
     /// @brief getSubscriptionState Get current subscription state.

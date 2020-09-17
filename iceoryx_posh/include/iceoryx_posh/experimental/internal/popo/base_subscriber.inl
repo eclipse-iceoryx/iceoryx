@@ -31,12 +31,11 @@ BaseSubscriber<T, port_t>::uid() const noexcept
 }
 
 template<typename T, typename port_t>
-inline cxx::expected<SubscriberError>
+inline void
 BaseSubscriber<T, port_t>::subscribe(const uint64_t queueCapacity) noexcept
 {
     m_subscriptionRequested = true;
     m_port.subscribe(queueCapacity);
-    return cxx::success<>();
 }
 
 template<typename T, typename port_t>

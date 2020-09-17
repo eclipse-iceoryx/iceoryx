@@ -29,7 +29,6 @@ template<typename T, typename port_t>
 inline uid_t
 BasePublisher<T, port_t>::uid() const noexcept
 {
-    std::cout << "uid()" << std::endl;
     return 0u;
 }
 

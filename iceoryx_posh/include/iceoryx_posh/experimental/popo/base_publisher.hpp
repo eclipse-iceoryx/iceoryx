@@ -15,7 +15,7 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
 
-#include "iceoryx_posh/experimental/popo/sample.hpp"
+#include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 
 namespace iox {

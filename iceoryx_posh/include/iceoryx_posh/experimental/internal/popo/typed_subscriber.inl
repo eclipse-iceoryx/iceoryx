@@ -24,10 +24,10 @@ TypedSubscriber<T>::TypedSubscriber(const capro::ServiceDescription& service)
 {}
 
 template<typename T>
-inline cxx::expected<SubscriberError>
+inline void
 TypedSubscriber<T>::subscribe(const uint64_t queueCapacity) noexcept
 {
-    return BaseSubscriber<T>::subscribe(queueCapacity);
+    BaseSubscriber<T>::subscribe(queueCapacity);
 }
 
 template<typename T>

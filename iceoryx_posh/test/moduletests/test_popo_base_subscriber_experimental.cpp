@@ -43,7 +43,7 @@ public:
     {
         return iox::popo::BaseSubscriber<T, port_t>::getServiceDescription();
     }
-    iox::cxx::expected<iox::popo::SubscriberError> subscribe(const uint64_t queueCapacity = iox::MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept
+    void subscribe(const uint64_t queueCapacity = iox::MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept
     {
         return iox::popo::BaseSubscriber<T, port_t>::subscribe(queueCapacity);
     }
