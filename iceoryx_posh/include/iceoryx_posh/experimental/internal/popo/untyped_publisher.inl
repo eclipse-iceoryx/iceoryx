@@ -31,31 +31,15 @@ UntypedPublisherImpl<base_publisher_t>::uid() const noexcept
 }
 
 template<typename base_publisher_t>
-inline cxx::expected<Sample<void>, AllocationError>
+inline cxx::expected<PublishableSample<void>, AllocationError>
 UntypedPublisherImpl<base_publisher_t>::loan(uint32_t size) noexcept
 {
     return base_publisher_t::loan(size);
 }
 
 template<typename base_publisher_t>
-inline cxx::expected<Sample<mepoo::ChunkHeader>, AllocationError>
-UntypedPublisherImpl<base_publisher_t>::loanHeader(uint32_t size) noexcept
-{
-    auto result = base_publisher_t::m_port.tryAllocateChunk(size);
-    if(result.has_error())
-    {
-        return cxx::error<AllocationError>(result.get_error());
-    }
-    else
-    {
-        return cxx::success<Sample<mepoo::ChunkHeader>>(std::move(result.get_value()));
-    }
-}
-
-
-template<typename base_publisher_t>
 inline void
-UntypedPublisherImpl<base_publisher_t>::publish(Sample<void>& sample) noexcept
+UntypedPublisherImpl<base_publisher_t>::publish(PublishableSample<void>& sample) noexcept
 {
     base_publisher_t::publish(sample);
 }
@@ -69,7 +53,7 @@ UntypedPublisherImpl<base_publisher_t>::publish(void* allocatedMemory) noexcept
 }
 
 template<typename base_publisher_t>
-inline cxx::optional<Sample<void>>
+inline cxx::optional<PublishableSample<void>>
 UntypedPublisherImpl<base_publisher_t>::previousSample() noexcept
 {
     return base_publisher_t::previousSample();

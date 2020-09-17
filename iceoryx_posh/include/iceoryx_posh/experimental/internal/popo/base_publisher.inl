@@ -34,7 +34,7 @@ BasePublisher<T, port_t>::uid() const noexcept
 }
 
 template<typename T, typename port_t>
-inline cxx::expected<Sample<T>, AllocationError>
+inline cxx::expected<PublishableSample<T>, AllocationError>
 BasePublisher<T, port_t>::loan(uint32_t size) noexcept
 {
     auto result = m_port.tryAllocateChunk(size);
@@ -44,13 +44,13 @@ BasePublisher<T, port_t>::loan(uint32_t size) noexcept
     }
     else
     {
-        return cxx::success<Sample<T>>(convertChunkHeaderToSample(result.get_value()));
+        return cxx::success<PublishableSample<T>>(convertChunkHeaderToSample(result.get_value()));
     }
 }
 
 template<typename T, typename port_t>
 inline void
-BasePublisher<T, port_t>::publish(Sample<T>& sample) noexcept
+BasePublisher<T, port_t>::publish(PublishableSample<T>& sample) noexcept
 {
     if(!isOffered())
     {
@@ -61,13 +61,13 @@ BasePublisher<T, port_t>::publish(Sample<T>& sample) noexcept
 }
 
 template<typename T, typename port_t>
-inline cxx::optional<Sample<T>>
+inline cxx::optional<PublishableSample<T>>
 BasePublisher<T, port_t>::previousSample() noexcept
 {
     auto result = m_port.getLastChunk();
     if(result.has_value())
     {
-        return cxx::make_optional<Sample<T>>(convertChunkHeaderToSample(result.value()));
+        return cxx::make_optional<PublishableSample<T>>(convertChunkHeaderToSample(result.value()));
     }
     return cxx::nullopt;
 }
@@ -101,10 +101,10 @@ BasePublisher<T, port_t>::hasSubscribers() noexcept
 }
 
 template<typename T, typename port_t>
-inline Sample<T>
+inline PublishableSample<T>
 BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* header) noexcept
 {
-    return Sample<T>(
+    return PublishableSample<T>(
                 cxx::unique_ptr<T>(
                     reinterpret_cast<T*>(header->payload()),
                     [this](T* const p){

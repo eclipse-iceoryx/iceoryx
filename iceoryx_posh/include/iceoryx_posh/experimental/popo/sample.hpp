@@ -28,10 +28,11 @@ template <typename T>
 class Sample
 {
 public:
-    Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
-         : m_headerPtr(mepoo::convertPayloadPointerToChunkHeader(samplePtr.get())), m_samplePtr(std::move(samplePtr)), m_publisherRef(publisher)
+    Sample(cxx::unique_ptr<T>&& samplePtr)
+         : m_headerPtr(mepoo::convertPayloadPointerToChunkHeader(samplePtr.get())), m_samplePtr(std::move(samplePtr))
     {};
 
+    /// Creates an empty sample.
     Sample(std::nullptr_t) noexcept {};
 
     Sample(const Sample&) = delete;
@@ -43,12 +44,11 @@ public:
         {
             m_headerPtr = rhs.m_headerPtr;
             m_samplePtr = std::move(rhs.m_samplePtr);
-            m_publisherRef = rhs.m_publisherRef;
-            m_hasOwnership = rhs.m_hasOwnership;
         }
         return *this;
     }
-    Sample(Sample<T>&& rhs) : m_publisherRef(rhs.m_publisherRef) // Need to initialize references in initializer list.
+
+    Sample(Sample<T>&& rhs)
     {
         *this = std::move(rhs);
     }
@@ -64,7 +64,6 @@ public:
     Sample& operator=(std::nullptr_t) noexcept
     {
       m_samplePtr = nullptr;    // The pointer will take care of cleaning up resources.
-      m_hasOwnership = false;
       return *this;
     }
     ///
@@ -81,19 +80,62 @@ public:
     ///
     T* get() noexcept
     {
-        if(m_hasOwnership)
-        {
-            return m_samplePtr.get();
-        }
-        else
-        {
-            return nullptr;
-        }
+        return m_samplePtr.get();
     }
 
     mepoo::ChunkHeader* header()
     {
         return m_headerPtr;
+    }
+
+protected:
+    mepoo::ChunkHeader* m_headerPtr{nullptr}; // Only a raw pointer here. The m_samplePtr manages the lifecycle.
+    cxx::unique_ptr<T> m_samplePtr{nullptr};
+};
+
+template <typename T>
+class PublishableSample : public Sample<T>
+{
+public:
+    PublishableSample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher) : Sample<T>(std::move(samplePtr)), m_publisherRef(publisher)
+    {};
+
+    PublishableSample(std::nullptr_t) noexcept {};
+
+    PublishableSample(const PublishableSample&) = delete;
+    PublishableSample& operator=(const PublishableSample&) = delete;
+
+    PublishableSample& operator=(PublishableSample<T>&& rhs)
+    {
+        if(this != &rhs)
+        {
+            m_publisherRef = rhs.m_publisherRef;
+            m_hasOwnership = rhs.m_hasOwnership;
+        }
+        return *this;
+    }
+
+    PublishableSample(PublishableSample<T>&& rhs) : Sample<T>(std::move(rhs)), m_publisherRef(rhs.m_publisherRef) // Need to initialize references in initializer list.
+    {
+        *this = std::move(rhs);
+    }
+
+    PublishableSample& operator=(std::nullptr_t) noexcept
+    {
+      m_hasOwnership = false;
+      Sample<T>::m_samplePtr = nullptr;    // The pointer will take care of cleaning up resources.
+      return *this;
+    }
+    T* get() noexcept
+    {
+        if(m_hasOwnership)
+        {
+            return Sample<T>::get();
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
     ///
@@ -105,7 +147,7 @@ public:
         {
             m_publisherRef.get().publish(*this);
             m_hasOwnership = false;
-            m_samplePtr.release();      // Release ownership of the sample since it has been published.
+            Sample<T>::m_samplePtr.release();      // Release ownership of the sample since it has been published.
         }
 
         else
@@ -116,8 +158,6 @@ public:
 
 private:
     bool m_hasOwnership{true};
-    mepoo::ChunkHeader* m_headerPtr{nullptr}; // Only a raw pointer here. The m_samplePtr manages the lifecycle.
-    cxx::unique_ptr<T> m_samplePtr{nullptr};
     std::reference_wrapper<PublisherInterface<T>> m_publisherRef;
 };
 

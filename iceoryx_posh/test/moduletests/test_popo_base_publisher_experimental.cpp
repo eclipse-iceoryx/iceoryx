@@ -36,7 +36,7 @@ public:
     {
         return iox::popo::BasePublisher<T, port_t>::uid();
     }
-    iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError> loan(uint64_t size) noexcept
+    iox::cxx::expected<iox::popo::PublishableSample<T>, iox::popo::AllocationError> loan(uint64_t size) noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::loan(size);
     }
@@ -44,11 +44,11 @@ public:
     {
         return iox::popo::BasePublisher<T, port_t>::release(sample);
     }
-    void publish(iox::popo::Sample<T>& sample) noexcept
+    void publish(iox::popo::PublishableSample<T>& sample) noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::publish(sample);
     }
-    iox::cxx::optional<iox::popo::Sample<T>> previousSample() noexcept
+    iox::cxx::optional<iox::popo::PublishableSample<T>> previousSample() noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::previousSample();
     }
@@ -160,7 +160,7 @@ TEST_F(ExperimentalBasePublisherTest, OffersServiceWhenTryingToPublishOnUnoffere
     ON_CALL(sut.getMockedPort(), tryAllocateChunk).WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>())));
     EXPECT_CALL(sut.getMockedPort(), offer).Times(1);
     // ===== Test ===== //
-    sut.loan(sizeof(DummyData)).and_then([](iox::popo::Sample<DummyData>& sample){
+    sut.loan(sizeof(DummyData)).and_then([](iox::popo::PublishableSample<DummyData>& sample){
         sample.publish();
     });
     // ===== Verify ===== //
@@ -173,7 +173,7 @@ TEST_F(ExperimentalBasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPubl
     ON_CALL(sut.getMockedPort(), tryAllocateChunk).WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>())));
     EXPECT_CALL(sut.getMockedPort(), sendChunk).Times(1);
     // ===== Test ===== //
-    sut.loan(sizeof(DummyData)).and_then([](iox::popo::Sample<DummyData>& sample){
+    sut.loan(sizeof(DummyData)).and_then([](iox::popo::PublishableSample<DummyData>& sample){
         sample.publish();
     });
     // ===== Verify ===== //

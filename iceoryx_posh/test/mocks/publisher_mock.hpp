@@ -42,14 +42,14 @@ class MockBasePublisher : public iox::popo::PublisherInterface<T>
 public:
     MockBasePublisher(const iox::capro::ServiceDescription&){};
     MOCK_CONST_METHOD0(uid, iox::popo::uid_t());
-    MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError>(uint32_t));
-    MOCK_METHOD1_T(publishMocked, void(iox::popo::Sample<T>&) noexcept);
-    MOCK_METHOD0_T(previousSample, iox::cxx::optional<iox::popo::Sample<T>>());
+    MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::PublishableSample<T>, iox::popo::AllocationError>(uint32_t));
+    MOCK_METHOD1_T(publishMocked, void(iox::popo::PublishableSample<T>&) noexcept);
+    MOCK_METHOD0_T(previousSample, iox::cxx::optional<iox::popo::PublishableSample<T>>());
     MOCK_METHOD0(offer, void(void));
     MOCK_METHOD0(stopOffer, void(void));
     MOCK_METHOD0(isOffered, bool(void));
     MOCK_METHOD0(hasSubscribers, bool(void));
-    void publish(iox::popo::Sample<T>& sample) noexcept
+    void publish(iox::popo::PublishableSample<T>& sample) noexcept
     {
         return publishMocked(sample);
     };

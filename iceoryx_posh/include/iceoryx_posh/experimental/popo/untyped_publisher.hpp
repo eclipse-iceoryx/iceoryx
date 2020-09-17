@@ -34,16 +34,15 @@ public:
 
     uid_t uid() const noexcept;
 
-    cxx::expected<Sample<void>, AllocationError> loan(uint32_t size) noexcept;
-    cxx::expected<Sample<mepoo::ChunkHeader>, AllocationError> loanHeader(uint32_t size) noexcept;
-    void publish(Sample<void>& sample) noexcept;
+    cxx::expected<PublishableSample<void>, AllocationError> loan(uint32_t size) noexcept;
+    void publish(PublishableSample<void>& sample) noexcept;
     ///
     /// @brief publish Publish the provided memory chunk.
     /// @param allocatedMemory Pointer to the allocated shared memory chunk.
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
     void publish(void* allocatedMemory) noexcept;
-    cxx::optional<Sample<void>> previousSample() noexcept;
+    cxx::optional<PublishableSample<void>> previousSample() noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;
