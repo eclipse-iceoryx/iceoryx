@@ -29,7 +29,11 @@ struct iox_guard_cond_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(GuardCondition) / 8
+#if defined(__APPLE__)
+    uint64_t do_not_touch_me[12];
+#else
     uint64_t do_not_touch_me[9];
+#endif
 };
 typedef struct iox_guard_cond_storage_t_ iox_guard_cond_storage_t;
 
