@@ -62,16 +62,6 @@ set_target_properties(iox-ex-publisher-typed-experimental PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-add_executable(iox-ex-subscriber-typed-experimental ./iox_subscriber_typed_experimental.cpp)
-target_link_libraries(iox-ex-subscriber-typed-experimental
-    iceoryx_posh::iceoryx_posh
-)
-set_target_properties(iox-ex-subscriber-typed-experimental PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
 add_executable(iox-ex-publisher-untyped-experimental ./iox_publisher_untyped_experimental.cpp)
 target_link_libraries(iox-ex-publisher-untyped-experimental
     iceoryx_posh::iceoryx_posh
@@ -81,17 +71,6 @@ set_target_properties(iox-ex-publisher-untyped-experimental PROPERTIES
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
-
-add_executable(iox-ex-subscriber-untyped-experimental ./iox_subscriber_untyped_experimental.cpp)
-target_link_libraries(iox-ex-subscriber-untyped-experimental
-    iceoryx_posh::iceoryx_posh
-)
-set_target_properties(iox-ex-subscriber-untyped-experimental PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
 
 install(
     TARGETS iox-ex-publisher-bare-metal iox-ex-subscriber-bare-metal iox-ex-publisher-simple iox-ex-subscriber-simple
