@@ -41,21 +41,15 @@ UntypedSubscriber::unsubscribe() noexcept
 }
 
 inline bool
-UntypedSubscriber::hasData() const noexcept
+UntypedSubscriber::hasNewSamples() const noexcept
 {
-    return BaseSubscriber<void>::hasData();
+    return BaseSubscriber<void>::hasNewSamples();
 }
 
-inline cxx::expected<cxx::optional<cxx::unique_ptr<void>>>
+inline cxx::expected<cxx::optional<Sample<void>>>
 UntypedSubscriber::receive() noexcept
 {
     return BaseSubscriber<void>::receive();
-}
-
-inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
-UntypedSubscriber::receiveHeader() noexcept
-{
-    return BaseSubscriber<void>::receiveHeader();
 }
 
 inline void

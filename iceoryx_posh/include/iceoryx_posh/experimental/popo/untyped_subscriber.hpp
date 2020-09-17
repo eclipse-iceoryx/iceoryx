@@ -41,9 +41,8 @@ public:
     SubscribeState getSubscriptionState() const noexcept;
     void unsubscribe() noexcept;
 
-    bool hasData() const noexcept;
-    cxx::expected<cxx::optional<cxx::unique_ptr<void>>> receive() noexcept;
-    cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveHeader() noexcept;
+    bool hasNewSamples() const noexcept;
+    cxx::expected<cxx::optional<Sample<void>>> receive() noexcept;
     void clearReceiveBuffer() noexcept;
 
 };

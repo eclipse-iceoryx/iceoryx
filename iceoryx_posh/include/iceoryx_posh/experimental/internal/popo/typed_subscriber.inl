@@ -46,23 +46,16 @@ TypedSubscriber<T>::unsubscribe() noexcept
 
 template<typename T>
 inline bool
-TypedSubscriber<T>::hasData() const noexcept
+TypedSubscriber<T>::hasNewSamples() const noexcept
 {
-    return BaseSubscriber<T>::hasData();
+    return BaseSubscriber<T>::hasNewSamples();
 }
 
 template<typename T>
-inline cxx::expected<cxx::optional<cxx::unique_ptr<T>>>
+inline cxx::expected<cxx::optional<Sample<T>>>
 TypedSubscriber<T>::receive() noexcept
 {
     return BaseSubscriber<T>::receive();
-}
-
-template<typename T>
-inline cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>
-TypedSubscriber<T>::receiveHeader() noexcept
-{
-    return BaseSubscriber<T>::receiveHeader();
 }
 
 template<typename T>

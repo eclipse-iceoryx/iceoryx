@@ -15,7 +15,7 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
 
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/experimental/popo/sample.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -77,21 +77,14 @@ public:
     /// @brief hasData Check if sample is available.
     /// @return True if a new sample is available.
     ///
-    bool hasData() const noexcept;
+    bool hasNewSamples() const noexcept;
 
     ///
     /// @brief receive Receive the next sample if available.
     /// @return
     /// @details Sample is automatically released when it goes out of scope.
     ///
-    cxx::expected<cxx::optional<cxx::unique_ptr<T>>, ChunkReceiveError> receive() noexcept;
-
-    ///
-    /// @brief receiveHeader Receive the next sample including it's memory chunk header.
-    /// @return
-    /// @details Sample is automatically released when it goes out of scope.
-    ///
-    cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>> receiveHeader() noexcept;
+    cxx::expected<cxx::optional<Sample<T>>, ChunkReceiveError> receive() noexcept;
 
     ///
     /// @brief clearReceiveBuffer Releases all unread items in the receive buffer.

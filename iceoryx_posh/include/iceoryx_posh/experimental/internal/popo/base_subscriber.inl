@@ -35,14 +35,7 @@ inline cxx::expected<SubscriberError>
 BaseSubscriber<T, port_t>::subscribe(const uint64_t queueCapacity) noexcept
 {
     m_subscriptionRequested = true;
-    uint32_t size = queueCapacity;
-    if (size > MAX_SUBSCRIBER_QUEUE_CAPACITY)
-    {
-        LogWarn() << "Cache size for subscribe too large " << size
-                  << ", limiting to MAX_RECEIVER_QUEUE_CAPACITY = " << MAX_SUBSCRIBER_QUEUE_CAPACITY;
-        size = MAX_SUBSCRIBER_QUEUE_CAPACITY;
-    }
-    m_port.subscribe(size);
+    m_port.subscribe(queueCapacity);
     return cxx::success<>();
 }
 
@@ -63,13 +56,13 @@ BaseSubscriber<T, port_t>::unsubscribe() noexcept
 
 template<typename T, typename port_t>
 inline bool
-BaseSubscriber<T, port_t>::hasData() const noexcept
+BaseSubscriber<T, port_t>::hasNewSamples() const noexcept
 {
     return m_port.hasNewChunks();
 }
 
 template<typename T, typename port_t>
-inline cxx::expected<cxx::optional<cxx::unique_ptr<T>>, ChunkReceiveError>
+inline cxx::expected<cxx::optional<Sample<T>>, ChunkReceiveError>
 BaseSubscriber<T, port_t>::receive() noexcept
 {
     auto result = m_port.tryGetChunk();
@@ -83,48 +76,19 @@ BaseSubscriber<T, port_t>::receive() noexcept
         if(optionalHeader.has_value())
         {
             auto header = optionalHeader.value();
-            return cxx::success<cxx::optional<cxx::unique_ptr<T>>>(cxx::make_optional<cxx::unique_ptr<T>>(reinterpret_cast<T*>(header->payload()),
-                                                                                                          [this](T* const allocation){
-                                                                                                             auto header = mepoo::convertPayloadPointerToChunkHeader(allocation);
-                                                                                                             this->m_port.releaseChunk(header);
-                                                                                                          }));
+            auto samplePtr = cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()),
+                                             [this](T* const allocation){
+                                                auto header = mepoo::convertPayloadPointerToChunkHeader(allocation);
+                                                this->m_port.releaseChunk(header);
+                                             });
+            return cxx::success<cxx::optional<Sample<T>>>(cxx::make_optional<Sample<T>>(std::move(samplePtr)));
         }
         else
         {
-            return cxx::success<cxx::optional<cxx::unique_ptr<T>>>(cxx::nullopt);
+            return cxx::success<cxx::optional<Sample<T>>>(cxx::nullopt);
         }
     }
 }
-
-//template<typename T, typename port_t>
-//inline cxx::expected<cxx::optional<cxx::unique_ptr<T>>, ChunkReceiveError>
-//BaseSubscriber<T, port_t>::receiveHeader() noexcept
-//{
-//    auto result = m_port.tryGetChunk();
-//    if(result.has_error())
-//    {
-//        /// @todo - what should we do when getting ChunkReceiveError ?
-//        return cxx::nullopt;
-//    }
-//    else
-//    {
-//        auto optionalHeader = result.get_value();
-//        if(optionalHeader.has_value())
-//        {
-//            auto header = optionalHeader.value();
-//            return cxx::optional<cxx::unique_ptr<mepoo::ChunkHeader>>(cxx::unique_ptr<mepoo::ChunkHeader>(
-//                                        const_cast<mepoo::ChunkHeader*>(header),
-//                                        [this](mepoo::ChunkHeader* const header){
-//                                            this->m_port.releaseChunk(header);
-//                                        }
-//                                    ));
-//        }
-//        else
-//        {
-//            return cxx::nullopt;
-//        }
-//    }
-//}
 
 template<typename T, typename port_t>
 inline void
