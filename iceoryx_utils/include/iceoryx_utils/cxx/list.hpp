@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_UTILS_CXX_FORWARD_LIST_HPP
-#define IOX_UTILS_CXX_FORWARD_LIST_HPP
+#ifndef IOX_UTILS_CXX_LIST_HPP
+#define IOX_UTILS_CXX_LIST_HPP
 
 #include <cstdint>
 #include <iostream>
@@ -24,8 +24,8 @@ namespace iox
 {
 namespace cxx
 {
-/// @brief  C++11 compatible uni-directional forward list implementation.
-/// @details  Adjustments in the API were done to not use exceptions and serve the requirement of
+/// @brief  C++11 compatible bi-directional list implementation.
+/// @details Adjustments in the API were done to not use exceptions and serve the requirement of
 ///         a data structure movable over shared memory.
 ///         attempt to add elements to a full list will be ignored.
 ///         Capacity must at least be 1, (unintended) negative initialization is rejected with compile assertion
@@ -34,22 +34,23 @@ namespace cxx
 ///         overview of cxx::forward_list deviations to std::forward_list(C++11)
 ///         - list declaration with mandatory max list size argument
 ///         - member functions don't throw exception but will trigger different failure handling
-///         - push_front returns a bool (instead of void) informing on successful insertion (true)
-///         - pop_front returns a bool (instead of void) informing on successful removal (true), otherwise empty (false)
-///         - emplace_front returns a reference to the inserted element (instead of void), this is C++17-conform
+///         - push_front/~_back returns a bool (instead of void) informing on successful insertion (true)
+///         - pop_front/~_back returns a bool (instead of void) informing on successful removal (true), otherwise empty
+///         (false)
+///         - emplace_front/~_back returns a reference to the inserted element (instead of void), this is C++17-conform
 ///         - remove / remove_if returns a the number of removed elements (instead of void), this is C++20-conform
 ///
 ///         (yet) missing implementations
 ///         -------------------------------
-///         - allocator, difference_type based operations
-///         - assign, resize, swap, merge, splice_after, reverse, unique, sort
+///         - allocator, difference_type / range operations
+///         - assign, resize, swap, merge, splice_after, reverse, rbegin/crbegin, rend/crend, unique, sort
 ///         - list operator==, operator!=, operator<, operator<=, operator>, operator>=
 ///
 ///
 /// @param T type user data to be managed within list
 /// @param Capacity number of maximum list elements a client can push to the list. minimum value is '1'
 template <typename T, uint64_t Capacity>
-class forward_list
+class list
 {
   private:
     // forward declarations, private
@@ -64,49 +65,34 @@ class forward_list
     using size_type = decltype(Capacity);
 
     /// @brief constructor for an empty list (of T-types elements)
-    forward_list() noexcept;
+    list() noexcept;
 
     /// @brief destructs the list and also calls the destructor of all
     ///         contained elements
-    ~forward_list();
+    ~list();
 
     /// @brief copy constructor list including elements
     /// @param[in] rhs is the list to copy from (same capacity)
-    forward_list(const forward_list& rhs) noexcept;
+    list(const list& rhs) noexcept;
 
     /// @brief move constructor list including elements
     /// @param[in] rhs is the list to move-construct elements from (same capacity)
-    forward_list(forward_list&& rhs) noexcept;
+    list(list&& rhs) noexcept;
 
     /// @brief copy assignment, each element is copied (added) to the constructed list
     ///         any existing elements in 'this'/lhs are removed (same behaviour as std::list : Assigns new contents to
     ///         the container, replacing its current contents, and modifying its size accordingly.)
     /// @param[in] rhs is the list to copy from (same capacity)
     /// @return reference to created list
-    forward_list& operator=(const forward_list& rhs) noexcept;
+    list& operator=(const list& rhs) noexcept;
 
     /// @brief move assignment, list is cleared and initialized, elements are moved from source list
     ///         any existing elements in 'this'/lhs are removed (same behaviour as std::list : Assigns new contents to
     ///         the container, replacing its current contents, and modifying its size accordingly.)
     /// @param[in] rhs is the list to move from ('source', same capacity)
     /// @return reference to created list
-    forward_list& operator=(forward_list&& rhs) noexcept;
+    list& operator=(list&& rhs) noexcept;
 
-    /// @brief retrieve an interator before first element
-    ///         only allowed for usage in erase_after, insert_after, emplace_after
-    ///         Terminated when content is attemted to read (operator*, operator->)
-    /// @return iterator to fictional element before first data element
-    iterator before_begin() noexcept;
-
-    /// @brief retrieve a const_iterator before first element
-    ///         only allowed for usage in erase_after, insert_after, emplace_after
-    /// @return iterator to fictional element before first data element
-    const_iterator before_begin() const noexcept;
-
-    /// @brief const_iterator an interator before first element
-    ///         only allowed for usage in erase_after, insert_after, emplace_after
-    /// @return iterator to fictional element before first data element
-    const_iterator cbefore_begin() const noexcept;
 
     /// @brief default list operation to retrieve an interator to first list element
     /// @return iterator to first list element, returns iterator to end() when list is empty
@@ -167,6 +153,16 @@ class forward_list
     /// @return const reference to the first element
     const T& front() const noexcept;
 
+    /// @brief Returns a reference to the last element in the container.
+    ///         calling back() on an empty list will terminate() the processing
+    /// @return reference to the last element
+    T& back() noexcept;
+
+    /// @brief Returns a reference to the last element in the container.
+    ///         calling back() on an empty list will terminate() the processing
+    /// @return const reference to the last element
+    const T& back() const noexcept;
+
     /// @brief add element to the beginning of the list
     /// @param[in] data reference to data element
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
@@ -177,10 +173,25 @@ class forward_list
     /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
     bool push_front(T&& data) noexcept;
 
+    /// @brief add element to the end of the list
+    /// @param[in] data reference to data element
+    /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
+    bool push_back(const T& data) noexcept;
+
+    /// @brief add element to the end of the list via move
+    /// @param[in] data universal reference perfectly forwarded to client class
+    /// @return successful insertion (true), otherwise no element could be added to list (e.g. full -> false)
+    bool push_back(T&& data) noexcept;
+
     /// @brief remove the first element from the begining of the list
     ///         element destructor will be invoked
     /// @return successful removal (true), otherwise no element could be taken from list (e.g. empty -> false)
     bool pop_front() noexcept;
+
+    /// @brief remove the last element from the end of the list
+    ///         element destructor will be invoked
+    /// @return successful removal (true), otherwise no element could be taken from list (e.g. empty -> false)
+    bool pop_back() noexcept;
 
     /// @brief remove all elements from the list, list will be empty
     ///         element destructors will be invoked
@@ -189,10 +200,10 @@ class forward_list
     /// @brief remove next element from linked iterator position
     ///         element destructors will be invoked
     ///         recursive calls to erase_after only delete each 2nd element
-    /// @param[in] beforeToBeErasedIter iterator linking the element before the to-be-removed element
+    /// @param[in] iter iterator linking the to-be-removed element
     /// @return an (non-const_) iterator to the element after the removed element,
     ///         returns end() element when reached end of list
-    iterator erase_after(const_iterator beforeToBeErasedIter) noexcept;
+    iterator erase(const_iterator iter) noexcept;
 
     /// @brief remove all elements which matches the given comparing element (compare by value)
     ///         requires a the template type T to have operator== defined.
@@ -213,24 +224,30 @@ class forward_list
     template <typename... ConstructorArgs>
     T& emplace_front(ConstructorArgs&&... args) noexcept;
 
-    /// @brief construct element inplace after the pointed-to element
+    /// @brief construct element inplace at end of list
     /// @param[in] args T-typed construction parameters (initializer list)
-    /// @param[in] afterToBeEmplacedIter position in list to (construct)insert after
+    /// @return referene to generated element, return is C++17-conform
+    template <typename... ConstructorArgs>
+    T& emplace_back(ConstructorArgs&&... args) noexcept;
+
+    /// @brief construct element inplace at iterator position
+    /// @param[in] args T-typed construction parameters (initializer list)
+    /// @param[in] iter position in list to (construct)insert after
     /// @return iterator to the newly added element
     template <typename... ConstructorArgs>
-    iterator emplace_after(const_iterator afterToBeEmplacedIter, ConstructorArgs&&... args) noexcept;
+    iterator emplace(const_iterator iter, ConstructorArgs&&... args) noexcept;
 
-    /// @brief insert element after iterator position
+    /// @brief insert element before iterator position
     /// @param[in] citer iterator with the position to insert after
     /// @param[in] data reference to element to add
     /// @return iterator to the newly added element
-    iterator insert_after(const_iterator citer, const T& data) noexcept;
+    iterator insert(const_iterator citer, const T& data) noexcept;
 
-    /// @brief add element after the pointed-to element via move
+    /// @brief add element before the pointed-to element via move
     /// @param[in] citer iterator with the position to insert after
     /// @param[in] data universal reference perfectly forwarded to client class
     /// @return iterator to the newly added element
-    iterator insert_after(const_iterator citer, T&& data) noexcept;
+    iterator insert(const_iterator citer, T&& data) noexcept;
 
   private:
     /// @brief nested iterator class for list element operations including element access
@@ -240,7 +257,7 @@ class forward_list
     {
       public:
         // provide the following public types for a std::iterator compatible iterator_category interface
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::bidirectional_iterator_tag;
         using value_type = typename std::conditional<IsConstIterator, const T, T>::type;
         using difference_type = void;
         using pointer = typename std::conditional<IsConstIterator, const T*, T*>::type;
@@ -262,9 +279,15 @@ class forward_list
         /// @return reference to this iterator object
         IteratorBase& operator++() noexcept;
 
+        /// @brief prefix decrement iterator, so it points to the previous list element
+        ///         decrementing an iterator pointing already towards begin() has no effect (iterator stays at begin())
+        /// @return reference to this iterator object
+        IteratorBase& operator--() noexcept;
+
+
         /// @brief comparing list iterators for equality
         ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         -> there is no content for fictional elements like before_begin() and end()
+        ///         -> there is no content for fictional elements at BEGIN_END_LINK_INDEX
         ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
         /// @param[in] rhs is the 2nd iterator to compare to
         /// @return list position for two iterators is the same (true) or different (false)
@@ -273,7 +296,7 @@ class forward_list
 
         /// @brief comparing list iterators for non-equality
         ///         the referenced list position is compared, not the content of the list element (T-typed)
-        ///         -> there is no content for fictional elements like before_begin() and end()
+        ///         -> there is no content for fictional elements at BEGIN_END_LINK_INDEX
         ///         only iterators of the same parent list can be compared; in case of misuse, terminate() is invoked
         /// @param[in] rhs is the 2nd iterator to compare to
         /// @return list position for two iterators is the same (true) or different (false)
@@ -290,20 +313,20 @@ class forward_list
 
 
       private:
-        using parentListPointer = typename std::
-            conditional<IsConstIterator, const forward_list<T, Capacity>*, forward_list<T, Capacity>*>::type;
+        using parentListPointer =
+            typename std::conditional<IsConstIterator, const list<T, Capacity>*, list<T, Capacity>*>::type;
 
         /// @brief private construct for an iterator, the iterator is bundled to
-        ///         an existing parent (object) of type forward_list,
-        ///         an iterator is only constructed through calls to before_begin(), begin() or end()
-        /// @param[in] parent is the const forward_list the this iterator operates on
+        ///         an existing parent (object) of type list,
+        ///         an iterator is only constructed through calls to begin() or end()
+        /// @param[in] parent is the const list the this iterator operates on
         /// @param[in] idx is the index of the list element (within allocated memory of parent list)
         explicit IteratorBase(parentListPointer parent, size_type idx) noexcept;
 
         // Make IteratorBase<true> a friend class of IteratorBase<false> so the copy constructor can access the
         // private member variables.
         friend class IteratorBase<true>;
-        friend class forward_list<T, Capacity>;
+        friend class list<T, Capacity>;
         parentListPointer m_list;
         size_type m_iterListNodeIdx;
     };
@@ -311,7 +334,7 @@ class forward_list
     struct NodeLink
     {
         size_type nextIdx;
-        bool invalidElement;
+        size_type prevIdx;
     };
 
     void init() noexcept;
@@ -322,41 +345,46 @@ class forward_list
     bool handleInvalidElement(const size_type idx) const noexcept;
     bool handleInvalidIterator(const const_iterator& iter) const noexcept;
     bool isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept;
-    bool isInvalidElement(const size_type idx) const noexcept;
-    void setInvalidElement(const size_type idx, const bool value) noexcept;
+    size_type& getPrevIdx(const size_type idx) noexcept;
     size_type& getNextIdx(const size_type idx) noexcept;
-    const size_type& getNextIdx(const size_type idx) const noexcept;
+    size_type& getPrevIdx(const const_iterator& iter) noexcept;
     size_type& getNextIdx(const const_iterator& iter) noexcept;
+    const size_type& getPrevIdx(const size_type idx) const noexcept;
+    const size_type& getNextIdx(const size_type idx) const noexcept;
+    const size_type& getPrevIdx(const const_iterator& iter) const noexcept;
     const size_type& getNextIdx(const const_iterator& iter) const noexcept;
+    void setPrevIdx(const size_type idx, const size_type prevIdx) noexcept;
     void setNextIdx(const size_type idx, const size_type nextIdx) noexcept;
+
     static void errorMessage(const char* source, const char* msg) noexcept;
 
     //***************************************
     //    members
     //***************************************
 
-    // two extra slots in the list to handle the 'before_begin' and 'end' element
-    // the necessity for 'before_begin' elements stems from the way a forward_list removes elements at an arbitrary
-    // position. Removing the front-most list element (aka begin()) requires an element pointing towards this position,
-    // hence 'before_begin'. The before_begin index is the head of the list.
-    static constexpr size_type BEFORE_BEGIN_INDEX{Capacity};
-    static constexpr size_type END_INDEX{size_type(Capacity) + 1U};
-    static constexpr size_type NODE_LINK_COUNT{size_type(Capacity) + 2U};
+    static constexpr size_type BEGIN_END_LINK_INDEX{size_type(Capacity)};
+    static constexpr size_type NODE_LINK_COUNT{size_type(Capacity) + 1U};
+    static constexpr size_type INVALID_INDEX{NODE_LINK_COUNT};
 
-    // available storage-indices are moved between a 'freeList' (m_freeListHeadIdx) and 'usedList' where elements
-    // are inserted by the user (starting from BEFORE_BEGIN_INDEX)
+    // unused/free elements are stored in an internal list (freeList), this freeList is accessed via the
+    // member variable m_freeListHeadIdx; user insert- and erase- operations move elements between the freeList and
+    // active list
     size_type m_freeListHeadIdx{0U};
 
+    // m_links array is one element bigger than request element count. In this additional element links are stored
+    // to the beginning and end of the list. This additional element (index position 'capacity' aka
+    // BEGIN_END_LINK_INDEX) 'previous' will point to the last valid element (end()) and 'next' will point to the
+    // first used list element (begin())
     NodeLink m_links[NODE_LINK_COUNT];
     using element_t = uint8_t[sizeof(T)];
     alignas(alignof(T)) element_t m_data[Capacity];
 
     size_type m_size{0U};
-}; // forward_list
+}; // list
 
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_utils/internal/cxx/forward_list.inl"
+#include "iceoryx_utils/internal/cxx/list.inl"
 
-#endif // IOX_UTILS_CXX_FORWARD_LIST_HPP
+#endif // IOX_UTILS_CXX_LIST_HPP
