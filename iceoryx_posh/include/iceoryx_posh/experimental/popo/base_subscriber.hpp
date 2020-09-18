@@ -26,7 +26,7 @@ namespace iox
 {
 namespace popo
 {
-using uid_t = uint64_t;
+using uid_t = UniquePortId;
 
 enum class SubscriberError : uint8_t
 {
@@ -101,7 +101,6 @@ class BaseSubscriber : public Condition
     BaseSubscriber(const capro::ServiceDescription& service);
 
   protected:
-    uid_t m_uid = 0U;
     port_t m_port{nullptr};
 };
 

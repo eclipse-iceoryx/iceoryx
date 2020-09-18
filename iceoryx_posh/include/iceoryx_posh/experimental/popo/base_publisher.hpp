@@ -22,7 +22,7 @@ namespace iox
 {
 namespace popo
 {
-using uid_t = uint64_t;
+using uid_t = UniquePortId;
 
 ///
 /// @brief The PublisherInterface class defines the publisher interface used by the Sample class to make it generic.

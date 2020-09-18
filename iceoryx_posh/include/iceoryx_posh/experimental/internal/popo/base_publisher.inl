@@ -19,7 +19,6 @@ namespace iox
 {
 namespace popo
 {
-using uid_t = uint64_t;
 
 template <typename T, typename port_t>
 BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription&)
@@ -30,7 +29,7 @@ BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription&)
 template <typename T, typename port_t>
 inline uid_t BasePublisher<T, port_t>::getUid() const noexcept
 {
-    return 0u;
+    return m_port.getUniqueID();
 }
 
 template <typename T, typename port_t>
