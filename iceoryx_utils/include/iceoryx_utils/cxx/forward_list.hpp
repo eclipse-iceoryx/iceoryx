@@ -25,13 +25,13 @@ namespace iox
 namespace cxx
 {
 /// @brief  C++11 compatible uni-directional forward list implementation.
-///         Adjustments in the API were done to not use exceptions and serve the requirement of
+/// @details  Adjustments in the API were done to not use exceptions and serve the requirement of
 ///         a data structure movable over shared memory.
 ///         attempt to add elements to a full list will be ignored.
 ///         Capacity must at least be 1, (unintended) negative initialization is rejected with compile assertion
 ///         limitation: concurrency concerns have to be handled by client side.
 ///
-///      overview of cxx::forward_list deviations to std::forward_list(C++11)
+///         overview of cxx::forward_list deviations to std::forward_list(C++11)
 ///         - list declaration with mandatory max list size argument
 ///         - member functions don't throw exception but will trigger different failure handling
 ///         - push_front returns a bool (instead of void) informing on successful insertion (true)
@@ -194,13 +194,13 @@ class forward_list
     ///         returns end() element when reached end of list
     iterator erase_after(const_iterator beforeToBeErasedIter) noexcept;
 
-    /// @brief remove the first element which matches the given comparing element (compare by value)
+    /// @brief remove all elements which matches the given comparing element (compare by value)
     ///         requires a the template type T to have operator== defined.
     /// @param[in] data value to compare to
     /// @return the number of elements removed, return is C++20-conform
     size_type remove(const T& data) noexcept;
 
-    /// @brief remove the first element which matches the provided comparison function
+    /// @brief remove all elements which matches the provided comparison function
     ///         requires a the template type T to have a operator== defined.
     /// @param[in] pred unary predicate which returns ​true if the element should be removed
     /// @return the number of elements removed, return is C++20-conform

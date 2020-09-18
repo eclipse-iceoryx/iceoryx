@@ -25,13 +25,13 @@ namespace iox
 namespace cxx
 {
 /// @brief  C++11 compatible bi-directional list implementation.
-///         Adjustments in the API were done to not use exceptions and serve the requirement of
+/// @details Adjustments in the API were done to not use exceptions and serve the requirement of
 ///         a data structure movable over shared memory.
 ///         attempt to add elements to a full list will be ignored.
 ///         Capacity must at least be 1, (unintended) negative initialization is rejected with compile assertion
 ///         limitation: concurrency concerns have to be handled by client side.
 ///
-///      overview of cxx::forward_list deviations to std::forward_list(C++11)
+///         overview of cxx::forward_list deviations to std::forward_list(C++11)
 ///         - list declaration with mandatory max list size argument
 ///         - member functions don't throw exception but will trigger different failure handling
 ///         - push_front/~_back returns a bool (instead of void) informing on successful insertion (true)
@@ -200,18 +200,18 @@ class list
     /// @brief remove next element from linked iterator position
     ///         element destructors will be invoked
     ///         recursive calls to erase_after only delete each 2nd element
-    /// @param[in] beforeToBeErasedIter iterator linking the element before the to-be-removed element
+    /// @param[in] iter iterator linking the to-be-removed element
     /// @return an (non-const_) iterator to the element after the removed element,
     ///         returns end() element when reached end of list
-    iterator erase(const_iterator beforeToBeErasedIter) noexcept;
+    iterator erase(const_iterator iter) noexcept;
 
-    /// @brief remove the first element which matches the given comparing element (compare by value)
+    /// @brief remove all elements which matches the given comparing element (compare by value)
     ///         requires a the template type T to have operator== defined.
     /// @param[in] data value to compare to
     /// @return the number of elements removed, return is C++20-conform
     size_type remove(const T& data) noexcept;
 
-    /// @brief remove the first element which matches the provided comparison function
+    /// @brief remove all elements which matches the provided comparison function
     ///         requires a the template type T to have a operator== defined.
     /// @param[in] pred unary predicate which returns ​true if the element should be removed
     /// @return the number of elements removed, return is C++20-conform
@@ -224,26 +224,26 @@ class list
     template <typename... ConstructorArgs>
     T& emplace_front(ConstructorArgs&&... args) noexcept;
 
-    /// @brief construct element inplace after the pointed-to element
+    /// @brief construct element inplace at end of list
     /// @param[in] args T-typed construction parameters (initializer list)
     /// @return referene to generated element, return is C++17-conform
     template <typename... ConstructorArgs>
     T& emplace_back(ConstructorArgs&&... args) noexcept;
 
-    /// @brief construct element inplace at begining of list
+    /// @brief construct element inplace at iterator position
     /// @param[in] args T-typed construction parameters (initializer list)
-    /// @param[in] afterToBeEmplacedIter position in list to (construct)insert after
+    /// @param[in] iter position in list to (construct)insert after
     /// @return iterator to the newly added element
     template <typename... ConstructorArgs>
-    iterator emplace(const_iterator afterToBeEmplacedIter, ConstructorArgs&&... args) noexcept;
+    iterator emplace(const_iterator iter, ConstructorArgs&&... args) noexcept;
 
-    /// @brief insert element after iterator position
+    /// @brief insert element before iterator position
     /// @param[in] citer iterator with the position to insert after
     /// @param[in] data reference to element to add
     /// @return iterator to the newly added element
     iterator insert(const_iterator citer, const T& data) noexcept;
 
-    /// @brief add element after the pointed-to element via move
+    /// @brief add element before the pointed-to element via move
     /// @param[in] citer iterator with the position to insert after
     /// @param[in] data universal reference perfectly forwarded to client class
     /// @return iterator to the newly added element
