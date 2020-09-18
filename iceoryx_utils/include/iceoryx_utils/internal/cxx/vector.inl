@@ -29,7 +29,7 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value)
     {
         std::cerr << "Attemting to initialize a vector with more elements than its capacity!" << std::endl;
     }
-    for (uint64_t i = 0u; i < count && i < Capacity; ++i)
+    for (uint64_t i = 0U; (i < count) && (i < Capacity); ++i)
     {
         emplace_back(value);
     }
@@ -64,7 +64,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs)
 {
     if (this != &rhs)
     {
-        uint64_t i = 0u;
+        uint64_t i = 0U;
         // copy using copy assignment
         for (; i < std::min(rhs.size(), size()); ++i)
         {
@@ -93,7 +93,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs)
 {
     if (this != &rhs)
     {
-        uint64_t i = 0u;
+        uint64_t i = 0U;
         // move using move assignment
         for (; i < std::min(rhs.size(), size()); ++i)
         {
@@ -121,7 +121,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs)
 template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::empty() const
 {
-    return m_size == 0u;
+    return m_size == 0U;
 }
 
 template <typename T, uint64_t Capacity>
@@ -139,11 +139,11 @@ inline uint64_t vector<T, Capacity>::capacity() const
 template <typename T, uint64_t Capacity>
 inline void vector<T, Capacity>::clear()
 {
-    for (uint64_t i = 0u; i < m_size; ++i)
+    for (uint64_t i = 0U; i < m_size; ++i)
     {
         at(i).~T();
     }
-    m_size = 0u;
+    m_size = 0U;
 }
 
 template <typename T, uint64_t Capacity>
@@ -173,10 +173,10 @@ bool vector<T, Capacity>::push_back(T&& value)
 template <typename T, uint64_t Capacity>
 void vector<T, Capacity>::pop_back()
 {
-    if (m_size > 0)
+    if (m_size > 0U)
     {
         back().~T();
-        m_size--;
+        --m_size;
     }
 }
 
@@ -202,7 +202,7 @@ inline T& vector<T, Capacity>::at(const uint64_t index)
 template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::at(const uint64_t index) const
 {
-    if (index + 1u > m_size)
+    if (index + 1U > m_size)
     {
         std::cerr << "out of bounds access, current size is " << m_size << " but given index is " << index << std::endl;
         std::terminate();
@@ -230,7 +230,7 @@ T& vector<T, Capacity>::front() noexcept
         std::cerr << "Attempting to access the front of an empty vector!" << std::endl;
         std::terminate();
     }
-    return at(0);
+    return at(0U);
 }
 
 template <typename T, uint64_t Capacity>
@@ -241,7 +241,7 @@ const T& vector<T, Capacity>::front() const noexcept
         std::cerr << "Attempting to access the front of an empty vector!" << std::endl;
         std::terminate();
     }
-    return at(0);
+    return at(0U);
 }
 
 template <typename T, uint64_t Capacity>
@@ -252,7 +252,7 @@ T& vector<T, Capacity>::back() noexcept
         std::cerr << "Attempting to access the back of an empty vector!" << std::endl;
         std::terminate();
     }
-    return at(size() - 1u);
+    return at(size() - 1U);
 }
 
 template <typename T, uint64_t Capacity>
@@ -263,31 +263,31 @@ const T& vector<T, Capacity>::back() const noexcept
         std::cerr << "Attempting to access the back of an empty vector!" << std::endl;
         std::terminate();
     }
-    return at(size() - 1);
+    return at(size() - 1U);
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::begin()
 {
-    return reinterpret_cast<iterator>(&(m_data[0]));
+    return reinterpret_cast<iterator>(&(m_data[0U]));
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::begin() const
 {
-    return reinterpret_cast<const_iterator>(&(m_data[0]));
+    return reinterpret_cast<const_iterator>(&(m_data[0U]));
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::iterator vector<T, Capacity>::end()
 {
-    return reinterpret_cast<iterator>((&(m_data[0]) + m_size)[0]);
+    return reinterpret_cast<iterator>((&(m_data[0U]) + m_size)[0U]);
 }
 
 template <typename T, uint64_t Capacity>
 inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() const
 {
-    return reinterpret_cast<const_iterator>((&(m_data[0]) + m_size)[0]);
+    return reinterpret_cast<const_iterator>((&(m_data[0U]) + m_size)[0U]);
 }
 
 template <typename T, uint64_t Capacity>
@@ -301,14 +301,14 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
         size_t n = index;
 
         at(n).~T();
-        for (; n + 1u < size(); ++n)
+        for (; n + 1U < size(); ++n)
         {
-            new (&at(n)) T(std::move(at(n + 1u)));
-            at(n + 1u).~T();
+            new (&at(n)) T(std::move(at(n + 1U)));
+            at(n + 1U).~T();
         }
         ret = position;
 
-        m_size--;
+        --m_size;
     }
     return ret;
 }
@@ -325,7 +325,7 @@ bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::ve
         return false;
     }
 
-    for (uint64_t i = 0u; i < vectorSize; ++i)
+    for (uint64_t i = 0U; i < vectorSize; ++i)
     {
         if (lhs[i] != rhs[i])
         {
