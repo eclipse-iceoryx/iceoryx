@@ -34,7 +34,7 @@ class list_test : public Test
     static uint64_t moveAssignment;
     static uint64_t copyAssignment;
     static uint64_t dTor;
-    static uint64_t classValue;
+    static int64_t classValue;
 
     class TestListElement
     {
@@ -133,7 +133,7 @@ uint64_t list_test::moveCTor;
 uint64_t list_test::moveAssignment;
 uint64_t list_test::copyAssignment;
 uint64_t list_test::dTor;
-uint64_t list_test::classValue;
+int64_t list_test::classValue;
 
 
 template <typename IterType>
