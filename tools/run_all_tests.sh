@@ -25,7 +25,7 @@ for arg in "$@"
 do 
     case "$arg" in
         "with-dds-gateway-tests")
-            COMPONENTS="utils posh dds"
+            COMPONENTS="utils posh dds_gateway"
             ;;
         "disable-timing-tests")
             GTEST_FILTER="-*.TimingTest_*"
