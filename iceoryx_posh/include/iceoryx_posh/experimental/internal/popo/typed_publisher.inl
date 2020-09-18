@@ -34,13 +34,13 @@ inline uid_t TypedPublisher<T, base_publisher_t>::uid() const noexcept
 }
 
 template <typename T, typename base_publisher_t>
-inline cxx::expected<PublishableSample<T>, AllocationError> TypedPublisher<T, base_publisher_t>::loan() noexcept
+inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publisher_t>::loan() noexcept
 {
     return base_publisher_t::loan(sizeof(T));
 }
 
 template <typename T, typename base_publisher_t>
-inline void TypedPublisher<T, base_publisher_t>::publish(PublishableSample<T> sample) noexcept
+inline void TypedPublisher<T, base_publisher_t>::publish(Sample<T> sample) noexcept
 {
     return base_publisher_t::publish(sample);
 }
@@ -87,7 +87,7 @@ inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publi
 }
 
 template <typename T, typename base_publisher_t>
-inline cxx::optional<PublishableSample<T>> TypedPublisher<T, base_publisher_t>::loanPreviousSample() noexcept
+inline cxx::optional<Sample<T>> TypedPublisher<T, base_publisher_t>::loanPreviousSample() noexcept
 {
     return base_publisher_t::loanPreviousSample();
 }

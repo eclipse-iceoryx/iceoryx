@@ -50,7 +50,7 @@ inline bool TypedSubscriber<T>::hasNewSamples() const noexcept
 }
 
 template <typename T>
-inline cxx::expected<cxx::optional<Sample<T>>> TypedSubscriber<T>::receive() noexcept
+inline cxx::expected<cxx::optional<Sample<T>>> TypedSubscriber<const T>::receive() noexcept
 {
     return BaseSubscriber<T>::receive();
 }

@@ -32,14 +32,14 @@ inline uid_t UntypedPublisherImpl<base_publisher_t>::uid() const noexcept
 }
 
 template <typename base_publisher_t>
-inline cxx::expected<PublishableSample<void>, AllocationError>
+inline cxx::expected<Sample<void>, AllocationError>
 UntypedPublisherImpl<base_publisher_t>::loan(uint32_t size) noexcept
 {
     return base_publisher_t::loan(size);
 }
 
 template <typename base_publisher_t>
-inline void UntypedPublisherImpl<base_publisher_t>::publish(PublishableSample<void> sample) noexcept
+inline void UntypedPublisherImpl<base_publisher_t>::publish(Sample<void> sample) noexcept
 {
     base_publisher_t::publish(sample);
 }
@@ -52,7 +52,7 @@ inline void UntypedPublisherImpl<base_publisher_t>::publish(void* allocatedMemor
 }
 
 template <typename base_publisher_t>
-inline cxx::optional<PublishableSample<void>> UntypedPublisherImpl<base_publisher_t>::loanPreviousSample() noexcept
+inline cxx::optional<Sample<void>> UntypedPublisherImpl<base_publisher_t>::loanPreviousSample() noexcept
 {
     return base_publisher_t::loanPreviousSample();
 }

@@ -51,13 +51,13 @@ TEST_F(ExperimentalTypedPublisherTest, LoansSamplesLargeEnoughForTheType)
     // ===== Setup ===== //
     auto chunk =
         reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::PublishableSample<DummyData>(
+    auto sample = new iox::popo::Sample<DummyData>(
         iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                         [](DummyData* const) {} // Placeholder deleter.
                                         ),
         sut);
     EXPECT_CALL(sut, loan(sizeof(DummyData)))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::popo::PublishableSample<DummyData>>(std::move(*sample)))));
+        .WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
 
     // ===== Test ===== //
     auto result = sut.loan();
@@ -83,13 +83,13 @@ TEST_F(ExperimentalTypedPublisherTest, PublishesSampleViaBasePublisher)
     // ===== Setup ===== //
     auto chunk =
         reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::PublishableSample<DummyData>(
+    auto sample = new iox::popo::Sample<DummyData>(
         iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                         [](DummyData* const) {} // Placeholder deleter.
                                         ),
         sut);
     EXPECT_CALL(sut, loan).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::popo::PublishableSample<DummyData>>(std::move(*sample)))));
+        Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
     auto loanResult = sut.loan();
@@ -104,13 +104,13 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambd
     // ===== Setup ===== //
     auto chunk =
         reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::PublishableSample<DummyData>(
+    auto sample = new iox::popo::Sample<DummyData>(
         iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                         [](DummyData* const) {} // Placeholder deleter.
                                         ),
         sut);
     EXPECT_CALL(sut, loan).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::popo::PublishableSample<DummyData>>(std::move(*sample)))));
+        Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
     auto result = sut.publishResultOf(
@@ -132,13 +132,13 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambd
     // ===== Setup ===== //
     auto chunk =
         reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::PublishableSample<DummyData>(
+    auto sample = new iox::popo::Sample<DummyData>(
         iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                         [](DummyData* const) {} // Placeholder deleter.
                                         ),
         sut);
     EXPECT_CALL(sut, loan).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::popo::PublishableSample<DummyData>>(std::move(*sample)))));
+        Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
     auto result = sut.publishResultOf([](DummyData* allocation) {
@@ -165,13 +165,13 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACalla
     };
     auto chunk =
         reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::PublishableSample<DummyData>(
+    auto sample = new iox::popo::Sample<DummyData>(
         iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                         [](DummyData* const) {} // Placeholder deleter.
                                         ),
         sut);
     EXPECT_CALL(sut, loan).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::popo::PublishableSample<DummyData>>(std::move(*sample)))));
+        Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
     auto result = sut.publishResultOf(CallableStruct{});
@@ -195,13 +195,13 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACalla
     };
     auto chunk =
         reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::PublishableSample<DummyData>(
+    auto sample = new iox::popo::Sample<DummyData>(
         iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                         [](DummyData* const) {} // Placeholder deleter.
                                         ),
         sut);
     EXPECT_CALL(sut, loan).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::popo::PublishableSample<DummyData>>(std::move(*sample)))));
+        Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
     auto result = sut.publishResultOf(CallableStruct{}, 42, 77.77);
@@ -228,13 +228,13 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFuncti
     // ===== Setup ===== //
     auto chunk =
         reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::PublishableSample<DummyData>(
+    auto sample = new iox::popo::Sample<DummyData>(
         iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                         [](DummyData* const) {} // Placeholder deleter.
                                         ),
         sut);
     EXPECT_CALL(sut, loan).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::popo::PublishableSample<DummyData>>(std::move(*sample)))));
+        Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
     auto result = sut.publishResultOf(freeFunctionNoAdditionalArgs);
@@ -250,13 +250,13 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFuncti
     // ===== Setup ===== //
     auto chunk =
         reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::PublishableSample<DummyData>(
+    auto sample = new iox::popo::Sample<DummyData>(
         iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                         [](DummyData* const) {} // Placeholder deleter.
                                         ),
         sut);
     EXPECT_CALL(sut, loan).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::popo::PublishableSample<DummyData>>(std::move(*sample)))));
+        Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
     auto result = sut.publishResultOf(freeFunctionWithAdditionalArgs, 42, 77.77);
@@ -272,7 +272,7 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishCopiesOfProvidedV
     // ===== Setup ===== //
     auto chunk =
         reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::PublishableSample<DummyData>(
+    auto sample = new iox::popo::Sample<DummyData>(
         iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
                                         [](DummyData* const) {} // Placeholder deleter.
                                         ),
@@ -280,7 +280,7 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishCopiesOfProvidedV
     auto data = DummyData();
     data.val = 777;
     EXPECT_CALL(sut, loan).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::popo::PublishableSample<DummyData>>(std::move(*sample)))));
+        Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
     auto result = sut.publishCopyOf(data);

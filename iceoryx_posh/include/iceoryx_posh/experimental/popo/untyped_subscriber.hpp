@@ -42,7 +42,7 @@ class UntypedSubscriber : protected BaseSubscriber<void>
     void unsubscribe() noexcept;
 
     bool hasNewSamples() const noexcept;
-    cxx::expected<cxx::optional<Sample<void>>> receive() noexcept;
+    cxx::expected<cxx::optional<Sample<const void>>> receive() noexcept;
     void clearReceiveBuffer() noexcept;
 };
 

@@ -64,7 +64,7 @@ inline bool BaseSubscriber<T, port_t>::hasNewSamples() const noexcept
 }
 
 template <typename T, typename port_t>
-inline cxx::expected<cxx::optional<Sample<T>>, ChunkReceiveError> BaseSubscriber<T, port_t>::receive() noexcept
+inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubscriber<T, port_t>::receive() noexcept
 {
     auto result = m_port.tryGetChunk();
     if (result.has_error())
@@ -81,11 +81,11 @@ inline cxx::expected<cxx::optional<Sample<T>>, ChunkReceiveError> BaseSubscriber
                 auto header = mepoo::convertPayloadPointerToChunkHeader(allocation);
                 this->m_port.releaseChunk(header);
             });
-            return cxx::success<cxx::optional<Sample<T>>>(cxx::make_optional<Sample<T>>(std::move(samplePtr)));
+            return cxx::success<cxx::optional<Sample<const T>>>(cxx::make_optional<Sample<const T>>(std::move(samplePtr)));
         }
         else
         {
-            return cxx::success<cxx::optional<Sample<T>>>(cxx::nullopt);
+            return cxx::success<cxx::optional<Sample<const T>>>(cxx::nullopt);
         }
     }
 }

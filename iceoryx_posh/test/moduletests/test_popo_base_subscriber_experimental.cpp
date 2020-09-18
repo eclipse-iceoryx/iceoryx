@@ -61,7 +61,7 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
     {
         return iox::popo::BaseSubscriber<T, port_t>::hasNewSamples();
     }
-    iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<T>>, iox::popo::ChunkReceiveError> receive() noexcept
+    iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError> receive() noexcept
     {
         return iox::popo::BaseSubscriber<T, port_t>::receive();
     }

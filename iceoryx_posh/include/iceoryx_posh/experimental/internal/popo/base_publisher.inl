@@ -34,7 +34,7 @@ inline uid_t BasePublisher<T, port_t>::uid() const noexcept
 }
 
 template <typename T, typename port_t>
-inline cxx::expected<PublishableSample<T>, AllocationError> BasePublisher<T, port_t>::loan(uint32_t size) noexcept
+inline cxx::expected<Sample<T>, AllocationError> BasePublisher<T, port_t>::loan(uint32_t size) noexcept
 {
     auto result = m_port.tryAllocateChunk(size);
     if (result.has_error())
@@ -43,24 +43,24 @@ inline cxx::expected<PublishableSample<T>, AllocationError> BasePublisher<T, por
     }
     else
     {
-        return cxx::success<PublishableSample<T>>(convertChunkHeaderToSample(result.get_value()));
+        return cxx::success<Sample<T>>(convertChunkHeaderToSample(result.get_value()));
     }
 }
 
 template <typename T, typename port_t>
-inline void BasePublisher<T, port_t>::publish(PublishableSample<T> sample) noexcept
+inline void BasePublisher<T, port_t>::publish(Sample<T> sample) noexcept
 {
     auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.get()));
     m_port.sendChunk(header);
 }
 
 template <typename T, typename port_t>
-inline cxx::optional<PublishableSample<T>> BasePublisher<T, port_t>::loanPreviousSample() noexcept
+inline cxx::optional<Sample<T>> BasePublisher<T, port_t>::loanPreviousSample() noexcept
 {
     auto result = m_port.tryGetPreviousChunk();
     if (result.has_value())
     {
-        return cxx::make_optional<PublishableSample<T>>(convertChunkHeaderToSample(result.value()));
+        return cxx::make_optional<Sample<T>>(convertChunkHeaderToSample(result.value()));
     }
     return cxx::nullopt;
 }
@@ -90,10 +90,10 @@ inline bool BasePublisher<T, port_t>::hasSubscribers() noexcept
 }
 
 template <typename T, typename port_t>
-inline PublishableSample<T>
+inline Sample<T>
 BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* header) noexcept
 {
-    return PublishableSample<T>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()),
+    return Sample<T>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()),
                                                    [this](T* const p) {
                                                        auto header = mepoo::convertPayloadPointerToChunkHeader(
                                                            reinterpret_cast<void*>(p));

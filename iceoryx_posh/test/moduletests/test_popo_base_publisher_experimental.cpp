@@ -36,7 +36,7 @@ class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
     {
         return iox::popo::BasePublisher<T, port_t>::uid();
     }
-    iox::cxx::expected<iox::popo::PublishableSample<T>, iox::popo::AllocationError> loan(uint64_t size) noexcept
+    iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError> loan(uint64_t size) noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::loan(size);
     }
@@ -44,11 +44,11 @@ class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
     {
         return iox::popo::BasePublisher<T, port_t>::release(sample);
     }
-    void publish(iox::popo::PublishableSample<T> sample) noexcept
+    void publish(iox::popo::Sample<T> sample) noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::publish(std::move(sample));
     }
-    iox::cxx::optional<iox::popo::PublishableSample<T>> loanPreviousSample() noexcept
+    iox::cxx::optional<iox::popo::Sample<T>> loanPreviousSample() noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::loanPreviousSample();
     }
@@ -135,7 +135,7 @@ TEST_F(ExperimentalBasePublisherTest, LoanedSamplesContainPointerToChunkHeader)
     // ===== Test ===== //
     auto result = sut.loan(sizeof(DummyData));
     // ===== Verify ===== //
-    EXPECT_EQ(chunk, result.get_value().header());
+    EXPECT_EQ(chunk, result.get_value().getHeader());
     // ===== Cleanup ===== //
     iox::cxx::alignedFree(chunk);
 }
@@ -165,7 +165,7 @@ TEST_F(ExperimentalBasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPubl
         .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>())));
     EXPECT_CALL(sut.getMockedPort(), sendChunk).Times(1);
     // ===== Test ===== //
-    sut.loan(sizeof(DummyData)).and_then([](iox::popo::PublishableSample<DummyData>& sample) { sample.publish(); });
+    sut.loan(sizeof(DummyData)).and_then([](iox::popo::Sample<DummyData>& sample) { sample.publish(); });
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

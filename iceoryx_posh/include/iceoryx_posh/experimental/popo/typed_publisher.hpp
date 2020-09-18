@@ -38,8 +38,8 @@ class TypedPublisher : public base_publisher_t
 
     uid_t uid() const noexcept;
 
-    cxx::expected<PublishableSample<T>, AllocationError> loan() noexcept;
-    void publish(PublishableSample<T> sample) noexcept;
+    cxx::expected<Sample<T>, AllocationError> loan() noexcept;
+    void publish(Sample<T> sample) noexcept;
     ///
     /// @brief publishCopyOf Copy the provided value into a loaned shared memory chunk and publish it.
     /// @param val Value to copy.
@@ -56,7 +56,7 @@ class TypedPublisher : public base_publisher_t
     template <typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
-    cxx::optional<PublishableSample<T>> loanPreviousSample() noexcept;
+    cxx::optional<Sample<T>> loanPreviousSample() noexcept;
 
     void offer() noexcept;
     void stopOffer() noexcept;

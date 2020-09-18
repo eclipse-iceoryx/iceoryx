@@ -32,7 +32,7 @@ template <typename T>
 class PublisherInterface
 {
   public:
-    virtual void publish(PublishableSample<T> sample) noexcept = 0;
+    virtual void publish(Sample<T> sample) noexcept = 0;
 
   protected:
     PublisherInterface() = default;
@@ -65,19 +65,19 @@ class BasePublisher : public PublisherInterface<T>
     /// laon.
     /// @details The loaned sample is automatically released when it goes out of scope.
     ///
-    cxx::expected<PublishableSample<T>, AllocationError> loan(uint32_t size) noexcept;
+    cxx::expected<Sample<T>, AllocationError> loan(uint32_t size) noexcept;
 
     ///
     /// @brief publish Publish the given sample.
     /// @param sample The sample to publish.
     ///
-    void publish(PublishableSample<T> sample) noexcept override;
+    void publish(Sample<T> sample) noexcept override;
 
     ///
     /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.
     /// @return The previously loaned sample if retrieved.
     ///
-    cxx::optional<PublishableSample<T>> loanPreviousSample() noexcept;
+    cxx::optional<Sample<T>> loanPreviousSample() noexcept;
 
     ///
     /// @brief offer Offer the service to be subscribed to.
@@ -110,7 +110,7 @@ class BasePublisher : public PublisherInterface<T>
     /// @param header The chunk header describing the allocated memory chunk to use in the sample.
     /// @return A sample that uses the ChunkHeader's payload as its memory allocation.
     ///
-    PublishableSample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* header) noexcept;
+    Sample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* header) noexcept;
 
   protected:
     port_t m_port{nullptr};

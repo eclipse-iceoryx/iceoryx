@@ -44,7 +44,7 @@ inline bool UntypedSubscriber::hasNewSamples() const noexcept
     return BaseSubscriber<void>::hasNewSamples();
 }
 
-inline cxx::expected<cxx::optional<Sample<void>>> UntypedSubscriber::receive() noexcept
+inline cxx::expected<cxx::optional<Sample<const void>>> UntypedSubscriber::receive() noexcept
 {
     return BaseSubscriber<void>::receive();
 }

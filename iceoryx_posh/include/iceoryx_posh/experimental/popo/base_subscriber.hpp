@@ -85,7 +85,7 @@ class BaseSubscriber : public Condition
     /// @return
     /// @details Sample is automatically released when it goes out of scope.
     ///
-    cxx::expected<cxx::optional<Sample<T>>, ChunkReceiveError> receive() noexcept;
+    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> receive() noexcept;
 
     ///
     /// @brief clearReceiveBuffer Releases all unread items in the receive buffer.
