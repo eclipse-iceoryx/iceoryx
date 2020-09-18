@@ -11,23 +11,24 @@ to learn Ice0ryx from scratch if you would like to use the C API.
 
 Therefore, we have the following coding conventions exclusively in the C API.
 
- - C functions are using an abbreviation of the `ClassName` for instance `cn` and
-      are named like `iox_cn_method_name` where the camelCase is converted into 
+ - C functions are using an abbreviation of the class name. For instance `Subscriber` 
+      would use `sub` and the methods 
+      are named like `iox_sub_method_name` where the camelCase is converted into 
       snake_case.
  - A typedef for the handle is created with the abbreviation as name, a `iox` 
-     prefix and a `_t` suffix, like `iox_cn_t`
+     prefix and a `_t` suffix, like `iox_sub_t`
  - If the constructor allocates an element it has the suffix `_create` and is 
-     called for instance `iox_cn_create`. Analog to the constructor the destructor 
-     has the suffix `_destroy` and is named like `iox_cn_destroy`.
+     called for instance `iox_sub_create`. Analog to the constructor the destructor 
+     has the suffix `_destroy` and is named like `iox_sub_destroy`.
  - If the constructor requires preallocated memory it has the suffix `_init`
-     and is called for instance `iox_cn_init`. The corresponding destructor would 
-     then have the suffix `_deinit` and is named like `iox_cn_deinit`.
+     and is called for instance `iox_sub_init`. The corresponding destructor would 
+     then have the suffix `_deinit` and is named like `iox_sub_deinit`.
      - We provide structs to preallocate memory on the stack easily. They are 
-         having the suffix `_storage_t` and are named like `iox_cn_storage_t`. This
+         having the suffix `_storage_t` and are named like `iox_sub_storage_t`. This
          allows you to use them like.
          ```c
-         iox_cn_storage_t cnStorage;
-         iox_cn_t = iox_cn_init(&cnStorage);
+         iox_sub_storage_t subStorage;
+         iox_sub_t = iox_sub_init(&subStorage);
          ```
  
  - The first parameter is always the handle to the corresponding object.

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_INTERNAL_CPP2C_SUBSCRIBER_H
-#define IOX_BINDING_C_INTERNAL_CPP2C_SUBSCRIBER_H
+#ifndef IOX_BINDING_C_CPP2C_SUBSCRIBER_H
+#define IOX_BINDING_C_CPP2C_SUBSCRIBER_H
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/condition.hpp"

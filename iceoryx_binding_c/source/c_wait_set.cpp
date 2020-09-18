@@ -48,18 +48,18 @@ static uint64_t condition_vector_to_c_array(const WaitSet::ConditionVector& cond
     return conditionArraySize;
 }
 
-iox_wait_set_t iox_wait_set_init(iox_wait_set_storage_t* self)
+iox_ws_t iox_ws_init(iox_ws_storage_t* self)
 {
     new (self) WaitSet();
-    return reinterpret_cast<iox_wait_set_t>(self);
+    return reinterpret_cast<iox_ws_t>(self);
 }
 
-void iox_wait_set_deinit(iox_wait_set_t const self)
+void iox_ws_deinit(iox_ws_t const self)
 {
     self->~WaitSet();
 }
 
-iox_WaitSetResult iox_wait_set_attach_condition(iox_wait_set_t const self, iox_cond_t const condition)
+iox_WaitSetResult iox_ws_attach_condition(iox_ws_t const self, iox_cond_t const condition)
 {
     auto result = self->attachCondition(*condition);
     if (!result.has_error())
@@ -68,21 +68,21 @@ iox_WaitSetResult iox_wait_set_attach_condition(iox_wait_set_t const self, iox_c
     return cpp2c::WaitSetResult(result.get_error());
 }
 
-bool iox_wait_set_detach_condition(iox_wait_set_t const self, iox_cond_t const condition)
+bool iox_ws_detach_condition(iox_ws_t const self, iox_cond_t const condition)
 {
     return self->detachCondition(*condition);
 }
 
-void iox_wait_set_detach_all_conditions(iox_wait_set_t const self)
+void iox_ws_detach_all_conditions(iox_ws_t const self)
 {
     self->detachAllConditions();
 }
 
-uint64_t iox_wait_set_timed_wait(iox_wait_set_t const self,
-                                 struct timespec timeout,
-                                 iox_cond_t* const conditionArray,
-                                 const uint64_t conditionArrayCapacity,
-                                 uint64_t* missedElements)
+uint64_t iox_ws_timed_wait(iox_ws_t const self,
+                           struct timespec timeout,
+                           iox_cond_t* const conditionArray,
+                           const uint64_t conditionArrayCapacity,
+                           uint64_t* missedElements)
 {
     return condition_vector_to_c_array(
         self->timedWait(units::Duration::nanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
@@ -92,10 +92,10 @@ uint64_t iox_wait_set_timed_wait(iox_wait_set_t const self,
         missedElements);
 }
 
-uint64_t iox_wait_set_wait(iox_wait_set_t const self,
-                           iox_cond_t* const conditionArray,
-                           const uint64_t conditionArrayCapacity,
-                           uint64_t* missedElements)
+uint64_t iox_ws_wait(iox_ws_t const self,
+                     iox_cond_t* const conditionArray,
+                     const uint64_t conditionArrayCapacity,
+                     uint64_t* missedElements)
 {
     return condition_vector_to_c_array(self->wait(), conditionArray, conditionArrayCapacity, missedElements);
 }

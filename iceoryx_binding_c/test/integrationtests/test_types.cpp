@@ -31,8 +31,8 @@ using namespace ::testing;
 
 TEST(iox_types_test, WaitSetStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(WaitSet), Eq(sizeof(iox_wait_set_storage_t)));
-    EXPECT_THAT(alignof(WaitSet), Le(alignof(iox_wait_set_storage_t)));
+    EXPECT_THAT(sizeof(WaitSet), Eq(sizeof(iox_ws_storage_t)));
+    EXPECT_THAT(alignof(WaitSet), Le(alignof(iox_ws_storage_t)));
 }
 
 TEST(iox_types_test, GuardConditionStorageSizeFits)

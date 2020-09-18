@@ -24,16 +24,16 @@
 #include <time.h>
 
 /// @brief wait set handle
-typedef CLASS WaitSet* iox_wait_set_t;
+typedef CLASS WaitSet* iox_ws_t;
 
 /// @brief initialize wait set handle
-/// @param[in] self pointer to preallocated memory of size = sizeof(iox_wait_set_storage_t)
+/// @param[in] self pointer to preallocated memory of size = sizeof(iox_ws_storage_t)
 /// @return handle to wait set
-iox_wait_set_t iox_wait_set_init(iox_wait_set_storage_t* self);
+iox_ws_t iox_ws_init(iox_ws_storage_t* self);
 
 /// @brief deinitialize wait set handle
 /// @param[in] self the handle which should be deinitialized
-void iox_wait_set_deinit(iox_wait_set_t const self);
+void iox_ws_deinit(iox_ws_t const self);
 
 /// @brief Attach a condition to your wait set. If you would like to destroy the condition
 ///         you have to detach it first from the wait set.
@@ -41,18 +41,18 @@ void iox_wait_set_deinit(iox_wait_set_t const self);
 /// @param[in] condition the condition you would like to attach
 /// @return if the attachment was successful it returns WaitSetResult_SUCCESS, otherwise
 ///          an enum which describes the error
-ENUM iox_WaitSetResult iox_wait_set_attach_condition(iox_wait_set_t const self, iox_cond_t const condition);
+ENUM iox_WaitSetResult iox_ws_attach_condition(iox_ws_t const self, iox_cond_t const condition);
 
 /// @brief detaches a condition.
 /// @param[in] self handle to the wait set
 /// @param[in] condition the condition you would like to detach
 /// @return true if the condition could be detached, otherwise false for instance when the
 ///         condition was not attached before
-bool iox_wait_set_detach_condition(iox_wait_set_t const self, iox_cond_t const condition);
+bool iox_ws_detach_condition(iox_ws_t const self, iox_cond_t const condition);
 
 /// @brief detaches all conditions
 /// @param[in] self handle to the wait set
-void iox_wait_set_detach_all_conditions(iox_wait_set_t const self);
+void iox_ws_detach_all_conditions(iox_ws_t const self);
 
 /// @brief waits until a condition was triggered or the timeout was reached
 /// @param[in] self handle to the wait set
@@ -63,11 +63,11 @@ void iox_wait_set_detach_all_conditions(iox_wait_set_t const self);
 /// @param[in] missedElements if the conditionArray has insufficient size the number of missed elements
 ///             which could not be written into the array are stored here
 /// @return number of elements which were written into the conditionArray
-uint64_t iox_wait_set_timed_wait(iox_wait_set_t const self,
-                                 struct timespec timeout,
-                                 iox_cond_t* const conditionArray,
-                                 const uint64_t conditionArrayCapacity,
-                                 uint64_t* missedElements);
+uint64_t iox_ws_timed_wait(iox_ws_t const self,
+                           struct timespec timeout,
+                           iox_cond_t* const conditionArray,
+                           const uint64_t conditionArrayCapacity,
+                           uint64_t* missedElements);
 
 /// @brief waits until a condition was triggered
 /// @param[in] self handle to the wait set
@@ -77,10 +77,10 @@ uint64_t iox_wait_set_timed_wait(iox_wait_set_t const self,
 /// @param[in] missedElements if the conditionArray has insufficient size the number of missed elements
 ///             which could not be written into the array are stored here
 /// @return number of elements which were written into the conditionArray
-uint64_t iox_wait_set_wait(iox_wait_set_t const self,
-                           iox_cond_t* const conditionArray,
-                           const uint64_t conditionArrayCapacity,
-                           uint64_t* missedElements);
+uint64_t iox_ws_wait(iox_ws_t const self,
+                     iox_cond_t* const conditionArray,
+                     const uint64_t conditionArrayCapacity,
+                     uint64_t* missedElements);
 
 
 #endif

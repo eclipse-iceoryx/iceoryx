@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_INTERNAL_C2CPP_BINDING_H
-#define IOX_BINDING_C_INTERNAL_C2CPP_BINDING_H
+#ifndef IOX_BINDING_C_C2CPP_BINDING_H
+#define IOX_BINDING_C_C2CPP_BINDING_H
 
 #ifdef __cplusplus
 

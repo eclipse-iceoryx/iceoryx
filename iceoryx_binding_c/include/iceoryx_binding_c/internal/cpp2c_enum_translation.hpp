@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_INTERNAL_CPP2C_ENUM_TRANSLATION_H
-#define IOX_BINDING_C_INTERNAL_CPP2C_ENUM_TRANSLATION_H
+#ifndef IOX_BINDING_C_CPP2C_ENUM_TRANSLATION_H
+#define IOX_BINDING_C_CPP2C_ENUM_TRANSLATION_H
 
 #include "iceoryx_binding_c/enums.h"
 

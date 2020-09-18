@@ -31,8 +31,8 @@ bool killswitch = false;
 iox_guard_cond_storage_t guardConditionStorage;
 iox_guard_cond_t guardCondition;
 
-iox_wait_set_storage_t waitSetStorage;
-iox_wait_set_t waitSet;
+iox_ws_storage_t waitSetStorage;
+iox_ws_t waitSet;
 
 iox_sub_t subscriber;
 
@@ -47,11 +47,15 @@ bool callback(iox_cond_t* conditions, const uint64_t numberOfConditions)
 {
     for (uint64_t i = 0; i < numberOfConditions; ++i)
     {
+        // if the guard condition was triggered we return false, leave the loop
+        // and cleanup all resources
         if (conditions[i] == (iox_cond_t)guardCondition)
         {
             printf("Received exit signal!\n");
             return false;
         }
+        // if a subscriber was triggered we receive a sample and print it
+        // to the terminal
         else if (conditions[i] == (iox_cond_t)subscriber)
         {
             if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
@@ -79,7 +83,7 @@ void receiving()
     iox_runtime_register("/iox-c-subscriber");
 
     // initialize wait set and guard condition
-    waitSet = iox_wait_set_init(&waitSetStorage);
+    waitSet = iox_ws_init(&waitSetStorage);
     guardCondition = iox_guard_cond_init(&guardConditionStorage);
 
     // register signal after guard condition since we are using it in the handler
@@ -93,11 +97,11 @@ void receiving()
 
     // attach guard condition to our wait set, used to signal the wait set that
     // we would like to terminate the process
-    iox_wait_set_attach_condition(waitSet, (iox_cond_t)guardCondition);
+    iox_ws_attach_condition(waitSet, (iox_cond_t)guardCondition);
 
     // attach subscriber to our wait set. if the subscriber receives a sample
     // it will trigger the wait set
-    iox_wait_set_attach_condition(waitSet, (iox_cond_t)subscriber);
+    iox_ws_attach_condition(waitSet, (iox_cond_t)subscriber);
 
 
     iox_cond_t conditionArray[NUMBER_OF_CONDITIONS];
@@ -106,7 +110,7 @@ void receiving()
     do
     {
         // wait until an event has occurred
-        numberOfTriggeredConditions = iox_wait_set_wait(waitSet, conditionArray, NUMBER_OF_CONDITIONS, &missedElements);
+        numberOfTriggeredConditions = iox_ws_wait(waitSet, conditionArray, NUMBER_OF_CONDITIONS, &missedElements);
 
         // call our callback, if the guard condition was triggered it returns false
     } while (callback(conditionArray, numberOfTriggeredConditions));
@@ -114,9 +118,9 @@ void receiving()
     iox_sub_unsubscribe(subscriber);
 
     // detach all conditions before we deinitialize and destroy them
-    iox_wait_set_detach_all_conditions(waitSet);
+    iox_ws_detach_all_conditions(waitSet);
 
-    iox_wait_set_deinit(waitSet);
+    iox_ws_deinit(waitSet);
     iox_guard_cond_deinit(guardCondition);
     iox_sub_deinit(subscriber);
 }

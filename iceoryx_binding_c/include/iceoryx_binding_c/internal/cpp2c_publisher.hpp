@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_INTERNAL_CPP2C_PUBLISHER_H
-#define IOX_BINDING_C_INTERNAL_CPP2C_PUBLISHER_H
+#ifndef IOX_BINDING_C_CPP2C_PUBLISHER_H
+#define IOX_BINDING_C_CPP2C_PUBLISHER_H
 
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 

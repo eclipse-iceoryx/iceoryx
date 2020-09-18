@@ -34,7 +34,7 @@ extern "C" {
 
 using namespace ::testing;
 
-class iox_wait_set_test : public Test
+class iox_ws_test : public Test
 {
   public:
     void SetUp() override
@@ -72,7 +72,7 @@ class iox_wait_set_test : public Test
     }
 
     ConditionVariableData m_condVar;
-    iox_wait_set_storage_t m_sutStorage;
+    iox_ws_storage_t m_sutStorage;
 
     iox_guard_cond_storage_t m_guardCondStorage;
     iox_guard_cond_t m_guardCond;
@@ -81,57 +81,57 @@ class iox_wait_set_test : public Test
     std::vector<iox_sub_t> m_subscriber;
 };
 
-TEST_F(iox_wait_set_test, AttachSingleConditionIsSuccessful)
+TEST_F(iox_ws_test, AttachSingleConditionIsSuccessful)
 {
     iox_sub_t subscriber = CreateSubscriber();
-    EXPECT_THAT(iox_wait_set_attach_condition(m_sut, subscriber), Eq(WaitSetResult_SUCCESS));
+    EXPECT_THAT(iox_ws_attach_condition(m_sut, subscriber), Eq(WaitSetResult_SUCCESS));
 }
 
-TEST_F(iox_wait_set_test, AttachSingleConditionTwiceResultsInFailure)
+TEST_F(iox_ws_test, AttachSingleConditionTwiceResultsInFailure)
 {
     iox_sub_t subscriber = CreateSubscriber();
-    iox_wait_set_attach_condition(m_sut, subscriber);
+    iox_ws_attach_condition(m_sut, subscriber);
 
-    EXPECT_THAT(iox_wait_set_attach_condition(m_sut, subscriber), Eq(WaitSetResult_CONDITION_VARIABLE_ALREADY_SET));
+    EXPECT_THAT(iox_ws_attach_condition(m_sut, subscriber), Eq(WaitSetResult_CONDITION_VARIABLE_ALREADY_SET));
 }
 
-TEST_F(iox_wait_set_test, DetachAttachedConditionIsSuccessful)
+TEST_F(iox_ws_test, DetachAttachedConditionIsSuccessful)
 {
     iox_sub_t subscriber = CreateSubscriber();
-    iox_wait_set_attach_condition(m_sut, subscriber);
+    iox_ws_attach_condition(m_sut, subscriber);
 
-    EXPECT_TRUE(iox_wait_set_detach_condition(m_sut, subscriber));
+    EXPECT_TRUE(iox_ws_detach_condition(m_sut, subscriber));
 }
 
-TEST_F(iox_wait_set_test, DetachNotAttachedConditionFails)
+TEST_F(iox_ws_test, DetachNotAttachedConditionFails)
 {
     iox_sub_t subscriber = CreateSubscriber();
 
-    EXPECT_FALSE(iox_wait_set_detach_condition(m_sut, subscriber));
+    EXPECT_FALSE(iox_ws_detach_condition(m_sut, subscriber));
 }
 
-TEST_F(iox_wait_set_test, DetachFailsAfterAllConditionsAreDetached)
+TEST_F(iox_ws_test, DetachFailsAfterAllConditionsAreDetached)
 {
     iox_sub_t subscriber = CreateSubscriber();
-    iox_wait_set_attach_condition(m_sut, subscriber);
-    iox_wait_set_detach_all_conditions(m_sut);
+    iox_ws_attach_condition(m_sut, subscriber);
+    iox_ws_detach_all_conditions(m_sut);
 
-    EXPECT_FALSE(iox_wait_set_detach_condition(m_sut, subscriber));
+    EXPECT_FALSE(iox_ws_detach_condition(m_sut, subscriber));
 }
 
-TEST_F(iox_wait_set_test, AttachConditionsSucceedsAfterAllConditionsAreDetached)
+TEST_F(iox_ws_test, AttachConditionsSucceedsAfterAllConditionsAreDetached)
 {
     iox_sub_t subscriber = CreateSubscriber();
-    iox_wait_set_attach_condition(m_sut, subscriber);
-    iox_wait_set_detach_all_conditions(m_sut);
+    iox_ws_attach_condition(m_sut, subscriber);
+    iox_ws_detach_all_conditions(m_sut);
 
-    EXPECT_THAT(iox_wait_set_attach_condition(m_sut, subscriber), Eq(WaitSetResult_SUCCESS));
+    EXPECT_THAT(iox_ws_attach_condition(m_sut, subscriber), Eq(WaitSetResult_SUCCESS));
 }
 
-TIMING_TEST_F(iox_wait_set_test, TimedWaitBlocksTillTriggered, Repeat(5), [&] {
+TIMING_TEST_F(iox_ws_test, TimedWaitBlocksTillTriggered, Repeat(5), [&] {
     std::atomic_bool waitSetNotified{false};
 
-    iox_wait_set_attach_condition(m_sut, (iox_cond_t)m_guardCond);
+    iox_ws_attach_condition(m_sut, (iox_cond_t)m_guardCond);
 
     std::thread t([&] {
         struct timespec timeout;
@@ -139,7 +139,7 @@ TIMING_TEST_F(iox_wait_set_test, TimedWaitBlocksTillTriggered, Repeat(5), [&] {
         timeout.tv_nsec = 0;
 
         uint64_t missedElements;
-        iox_wait_set_timed_wait(m_sut, timeout, NULL, 0, &missedElements);
+        iox_ws_timed_wait(m_sut, timeout, NULL, 0, &missedElements);
         waitSetNotified.store(true);
     });
 
@@ -154,8 +154,8 @@ TIMING_TEST_F(iox_wait_set_test, TimedWaitBlocksTillTriggered, Repeat(5), [&] {
     t.join();
 });
 
-TIMING_TEST_F(iox_wait_set_test, TimedWaitWritesEmptyConditionArrayWhenNotTriggered, Repeat(5), [&] {
-    iox_wait_set_attach_condition(m_sut, (iox_cond_t)m_guardCond);
+TIMING_TEST_F(iox_ws_test, TimedWaitWritesEmptyConditionArrayWhenNotTriggered, Repeat(5), [&] {
+    iox_ws_attach_condition(m_sut, (iox_cond_t)m_guardCond);
 
     constexpr uint64_t numberOfConditions = 10U;
     iox_cond_t conditions[numberOfConditions];
@@ -167,7 +167,7 @@ TIMING_TEST_F(iox_wait_set_test, TimedWaitWritesEmptyConditionArrayWhenNotTrigge
         timeout.tv_sec = 0;
         timeout.tv_nsec = 1000;
 
-        conditionArraySize = iox_wait_set_timed_wait(m_sut, timeout, conditions, numberOfConditions, &missedElements);
+        conditionArraySize = iox_ws_timed_wait(m_sut, timeout, conditions, numberOfConditions, &missedElements);
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -178,8 +178,8 @@ TIMING_TEST_F(iox_wait_set_test, TimedWaitWritesEmptyConditionArrayWhenNotTrigge
     TIMING_TEST_EXPECT_TRUE(missedElements == 0U);
 });
 
-TIMING_TEST_F(iox_wait_set_test, TimedWaitWritesConditionIntoArrayWhenTriggered, Repeat(5), [&] {
-    iox_wait_set_attach_condition(m_sut, (iox_cond_t)m_guardCond);
+TIMING_TEST_F(iox_ws_test, TimedWaitWritesConditionIntoArrayWhenTriggered, Repeat(5), [&] {
+    iox_ws_attach_condition(m_sut, (iox_cond_t)m_guardCond);
 
     constexpr uint64_t numberOfConditions = 10U;
     iox_cond_t conditions[numberOfConditions];
@@ -191,7 +191,7 @@ TIMING_TEST_F(iox_wait_set_test, TimedWaitWritesConditionIntoArrayWhenTriggered,
         timeout.tv_sec = 10;
         timeout.tv_nsec = 0;
 
-        conditionArraySize = iox_wait_set_timed_wait(m_sut, timeout, conditions, numberOfConditions, &missedElements);
+        conditionArraySize = iox_ws_timed_wait(m_sut, timeout, conditions, numberOfConditions, &missedElements);
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -203,8 +203,8 @@ TIMING_TEST_F(iox_wait_set_test, TimedWaitWritesConditionIntoArrayWhenTriggered,
     TIMING_TEST_EXPECT_TRUE((void*)conditions[0] == (void*)m_guardCond);
 });
 
-TIMING_TEST_F(iox_wait_set_test, TimedWaitWritesMissedElementsIntoArrayWhenTriggered, Repeat(5), [&] {
-    iox_wait_set_attach_condition(m_sut, (iox_cond_t)m_guardCond);
+TIMING_TEST_F(iox_ws_test, TimedWaitWritesMissedElementsIntoArrayWhenTriggered, Repeat(5), [&] {
+    iox_ws_attach_condition(m_sut, (iox_cond_t)m_guardCond);
 
     uint64_t missedElements;
 
@@ -213,7 +213,7 @@ TIMING_TEST_F(iox_wait_set_test, TimedWaitWritesMissedElementsIntoArrayWhenTrigg
         timeout.tv_sec = 10;
         timeout.tv_nsec = 0;
 
-        iox_wait_set_timed_wait(m_sut, timeout, NULL, 0, &missedElements);
+        iox_ws_timed_wait(m_sut, timeout, NULL, 0, &missedElements);
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -224,14 +224,14 @@ TIMING_TEST_F(iox_wait_set_test, TimedWaitWritesMissedElementsIntoArrayWhenTrigg
     TIMING_TEST_EXPECT_TRUE(missedElements == 1U);
 });
 
-TIMING_TEST_F(iox_wait_set_test, WaitBlocksTillTriggered, Repeat(5), [&] {
+TIMING_TEST_F(iox_ws_test, WaitBlocksTillTriggered, Repeat(5), [&] {
     std::atomic_bool waitSetNotified{false};
 
-    iox_wait_set_attach_condition(m_sut, (iox_cond_t)m_guardCond);
+    iox_ws_attach_condition(m_sut, (iox_cond_t)m_guardCond);
 
     std::thread t([&] {
         uint64_t missedElements;
-        iox_wait_set_wait(m_sut, NULL, 0, &missedElements);
+        iox_ws_wait(m_sut, NULL, 0, &missedElements);
         waitSetNotified.store(true);
     });
 
@@ -245,16 +245,15 @@ TIMING_TEST_F(iox_wait_set_test, WaitBlocksTillTriggered, Repeat(5), [&] {
     t.join();
 });
 
-TIMING_TEST_F(iox_wait_set_test, WaitWritesConditionIntoArrayWhenTriggered, Repeat(5), [&] {
-    iox_wait_set_attach_condition(m_sut, (iox_cond_t)m_guardCond);
+TIMING_TEST_F(iox_ws_test, WaitWritesConditionIntoArrayWhenTriggered, Repeat(5), [&] {
+    iox_ws_attach_condition(m_sut, (iox_cond_t)m_guardCond);
 
     constexpr uint64_t numberOfConditions = 10U;
     iox_cond_t conditions[numberOfConditions];
     uint64_t conditionArraySize;
     uint64_t missedElements;
 
-    std::thread t(
-        [&] { conditionArraySize = iox_wait_set_wait(m_sut, conditions, numberOfConditions, &missedElements); });
+    std::thread t([&] { conditionArraySize = iox_ws_wait(m_sut, conditions, numberOfConditions, &missedElements); });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     iox_guard_cond_trigger(m_guardCond);
@@ -265,12 +264,12 @@ TIMING_TEST_F(iox_wait_set_test, WaitWritesConditionIntoArrayWhenTriggered, Repe
     TIMING_TEST_EXPECT_TRUE((void*)conditions[0] == (void*)m_guardCond);
 });
 
-TIMING_TEST_F(iox_wait_set_test, WaitWritesMissedElementsIntoArrayWhenTriggered, Repeat(5), [&] {
-    iox_wait_set_attach_condition(m_sut, (iox_cond_t)m_guardCond);
+TIMING_TEST_F(iox_ws_test, WaitWritesMissedElementsIntoArrayWhenTriggered, Repeat(5), [&] {
+    iox_ws_attach_condition(m_sut, (iox_cond_t)m_guardCond);
 
     uint64_t missedElements;
 
-    std::thread t([&] { iox_wait_set_wait(m_sut, NULL, 0, &missedElements); });
+    std::thread t([&] { iox_ws_wait(m_sut, NULL, 0, &missedElements); });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     iox_guard_cond_trigger(m_guardCond);
