@@ -16,7 +16,7 @@
 
 # This file runs all tests for Ice0ryx
 
-COMPONENTS="utils posh"
+COMPONENTS="utils posh binding_c"
 GTEST_FILTER="*"
 BASE_DIR=$PWD
 GCOV_SCOPE="all"
@@ -25,7 +25,7 @@ for arg in "$@"
 do 
     case "$arg" in
         "with-dds-gateway-tests")
-            COMPONENTS="utils posh dds_gateway"
+            COMPONENTS="utils posh dds"
             ;;
         "disable-timing-tests")
             GTEST_FILTER="-*.TimingTest_*"
