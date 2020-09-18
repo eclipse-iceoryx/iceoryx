@@ -91,7 +91,7 @@ inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubs
 }
 
 template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::clearReceiveBuffer() noexcept
+inline void BaseSubscriber<T, port_t>::releaseQueuedSamples() noexcept
 {
     m_port.releaseQueuedChunks();
 }

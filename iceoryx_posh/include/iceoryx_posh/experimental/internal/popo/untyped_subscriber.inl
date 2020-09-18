@@ -49,9 +49,9 @@ inline cxx::expected<cxx::optional<Sample<const void>>> UntypedSubscriber::recei
     return BaseSubscriber<void>::receive();
 }
 
-inline void UntypedSubscriber::clearReceiveBuffer() noexcept
+inline void UntypedSubscriber::releaseQueuedSamples() noexcept
 {
-    BaseSubscriber<void>::clearReceiveBuffer();
+    BaseSubscriber<void>::releaseQueuedSamples();
 }
 
 } // namespace popo

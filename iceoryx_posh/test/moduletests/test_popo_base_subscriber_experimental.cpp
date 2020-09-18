@@ -69,9 +69,9 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
     {
         return iox::popo::BaseSubscriber<T, port_t>::receiveHeader();
     }
-    void clearReceiveBuffer() noexcept
+    void releaseQueuedSamples() noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::clearReceiveBuffer();
+        return iox::popo::BaseSubscriber<T, port_t>::releaseQueuedSamples();
     }
     bool setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override
     {
@@ -204,7 +204,7 @@ TEST_F(ExperimentalBaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyi
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), releaseQueuedChunks).Times(1);
     // ===== Test ===== //
-    sut.clearReceiveBuffer();
+    sut.releaseQueuedSamples();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

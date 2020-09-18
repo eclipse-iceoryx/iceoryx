@@ -56,9 +56,9 @@ inline cxx::expected<cxx::optional<Sample<T>>> TypedSubscriber<const T>::receive
 }
 
 template <typename T>
-inline void TypedSubscriber<T>::clearReceiveBuffer() noexcept
+inline void TypedSubscriber<T>::releaseQueuedSamples() noexcept
 {
-    BaseSubscriber<T>::clearReceiveBuffer();
+    BaseSubscriber<T>::releaseQueuedSamples();
 }
 
 } // namespace popo

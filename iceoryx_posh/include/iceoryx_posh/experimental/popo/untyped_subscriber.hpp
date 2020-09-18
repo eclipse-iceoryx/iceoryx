@@ -43,7 +43,7 @@ class UntypedSubscriber : protected BaseSubscriber<void>
 
     bool hasNewSamples() const noexcept;
     cxx::expected<cxx::optional<Sample<const void>>> receive() noexcept;
-    void clearReceiveBuffer() noexcept;
+    void releaseQueuedSamples() noexcept;
 };
 
 } // namespace popo

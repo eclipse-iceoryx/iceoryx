@@ -88,9 +88,9 @@ class BaseSubscriber : public Condition
     cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> receive() noexcept;
 
     ///
-    /// @brief clearReceiveBuffer Releases all unread items in the receive buffer.
+    /// @brief releaseQueuedSamples Releases any queued unread samples.
     ///
-    void clearReceiveBuffer() noexcept;
+    void releaseQueuedSamples() noexcept;
 
     // Condition overrides
     virtual bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
