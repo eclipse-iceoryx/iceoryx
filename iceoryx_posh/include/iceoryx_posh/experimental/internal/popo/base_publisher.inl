@@ -48,7 +48,7 @@ inline cxx::expected<PublishableSample<T>, AllocationError> BasePublisher<T, por
 }
 
 template <typename T, typename port_t>
-inline void BasePublisher<T, port_t>::publish(PublishableSample<T>& sample) noexcept
+inline void BasePublisher<T, port_t>::publish(PublishableSample<T> sample) noexcept
 {
     auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.get()));
     m_port.sendChunk(header);

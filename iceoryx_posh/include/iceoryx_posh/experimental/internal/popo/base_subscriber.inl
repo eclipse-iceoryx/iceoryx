@@ -36,7 +36,7 @@ inline capro::ServiceDescription /// todo #25 make this a reference.
 BaseSubscriber<T, port_t>::getServiceDescription() const noexcept
 {
     /// @todo #25 return reference to ServiceDescription from base port.
-    return capro::ServiceDescription{};
+    return m_port.getCaProServiceDescription();
 }
 
 template <typename T, typename port_t>

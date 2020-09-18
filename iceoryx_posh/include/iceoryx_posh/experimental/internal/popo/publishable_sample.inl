@@ -34,6 +34,7 @@ PublishableSample<T>& PublishableSample<T>::operator=(PublishableSample<T>&& rhs
     {
         m_publisherRef = rhs.m_publisherRef;
         m_hasOwnership = rhs.m_hasOwnership;
+        rhs.m_hasOwnership = false;
     }
     return *this;
 }
@@ -78,14 +79,14 @@ void PublishableSample<T>::publish() noexcept
 {
     if (m_hasOwnership)
     {
-        m_publisherRef.get().publish(*this);
+        m_publisherRef.get().publish(std::move(*this));
         m_hasOwnership = false;
         Sample<T>::m_samplePtr.release(); // Release ownership of the sample since it has been published.
     }
 
     else
     {
-        /// @todo Notify caller of attempt to publish invalid chunk.
+        /// @todo Notify caller of attempt to publish invalid chunk. Or something ?
     }
 }
 

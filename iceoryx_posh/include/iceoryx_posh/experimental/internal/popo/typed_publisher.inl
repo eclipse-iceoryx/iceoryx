@@ -40,7 +40,7 @@ inline cxx::expected<PublishableSample<T>, AllocationError> TypedPublisher<T, ba
 }
 
 template <typename T, typename base_publisher_t>
-inline void TypedPublisher<T, base_publisher_t>::publish(PublishableSample<T>& sample) noexcept
+inline void TypedPublisher<T, base_publisher_t>::publish(PublishableSample<T> sample) noexcept
 {
     return base_publisher_t::publish(sample);
 }
@@ -64,7 +64,7 @@ inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publi
     {
         auto& sample = result.get_value();
         c(sample.get(), std::forward<ArgTypes>(args)...);
-        publish(sample);
+        publish(std::move(sample));
         return cxx::success<>();
     }
 }
@@ -81,7 +81,7 @@ inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publi
     {
         auto sample = std::move(result.get_value());
         *sample.get() = val; // Copy assignment of value into sample's memory allocation.
-        publish(sample);
+        publish(std::move(sample));
         return cxx::success<>();
     }
 }

@@ -36,7 +36,7 @@ class UntypedPublisherImpl : public base_publisher_t
     uid_t uid() const noexcept;
 
     cxx::expected<PublishableSample<void>, AllocationError> loan(uint32_t size) noexcept;
-    void publish(PublishableSample<void>& sample) noexcept;
+    void publish(PublishableSample<void> sample) noexcept;
     ///
     /// @brief publish Publish the provided memory chunk.
     /// @param allocatedMemory Pointer to the allocated shared memory chunk.
