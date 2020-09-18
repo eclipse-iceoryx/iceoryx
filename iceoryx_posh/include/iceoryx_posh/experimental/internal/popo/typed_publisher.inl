@@ -28,9 +28,9 @@ TypedPublisher<T, base_publisher_t>::TypedPublisher(const capro::ServiceDescript
 }
 
 template <typename T, typename base_publisher_t>
-inline uid_t TypedPublisher<T, base_publisher_t>::uid() const noexcept
+inline uid_t TypedPublisher<T, base_publisher_t>::getUid() const noexcept
 {
-    return base_publisher_t::uid();
+    return base_publisher_t::getUid();
 }
 
 template <typename T, typename base_publisher_t>

@@ -47,7 +47,7 @@ class BaseSubscriber : public Condition
     /// @brief uid Get the unique ID of the subscriber.
     /// @return The subscriber's unique ID.
     ///
-    uid_t uid() const noexcept;
+    uid_t getUid() const noexcept;
 
     ///
     /// @brief getServiceDescription Get the service description of the subscriber.

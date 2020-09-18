@@ -71,9 +71,9 @@ TEST_F(ExperimentalTypedPublisherTest, LoansSamplesLargeEnoughForTheType)
 TEST_F(ExperimentalTypedPublisherTest, GetsUIDViaBasePublisher)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, uid).Times(1);
+    EXPECT_CALL(sut, getUid).Times(1);
     // ===== Test ===== //
-    sut.uid();
+    sut.getUid();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

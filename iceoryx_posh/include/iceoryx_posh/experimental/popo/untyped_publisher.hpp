@@ -33,7 +33,7 @@ class UntypedPublisherImpl : public base_publisher_t
     UntypedPublisherImpl& operator=(UntypedPublisherImpl&& rhs) = default;
     ~UntypedPublisherImpl() = default;
 
-    uid_t uid() const noexcept;
+    uid_t getUid() const noexcept;
 
     cxx::expected<Sample<void>, AllocationError> loan(uint32_t size) noexcept;
     void publish(Sample<void> sample) noexcept;

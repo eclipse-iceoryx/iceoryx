@@ -28,7 +28,7 @@ BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription&)
 }
 
 template <typename T, typename port_t>
-inline uid_t BasePublisher<T, port_t>::uid() const noexcept
+inline uid_t BasePublisher<T, port_t>::getUid() const noexcept
 {
     return 0u;
 }

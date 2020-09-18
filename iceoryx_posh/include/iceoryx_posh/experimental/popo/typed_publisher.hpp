@@ -36,7 +36,7 @@ class TypedPublisher : public base_publisher_t
     TypedPublisher& operator=(TypedPublisher&& rhs) = default;
     ~TypedPublisher() = default;
 
-    uid_t uid() const noexcept;
+    uid_t getUid() const noexcept;
 
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
     void publish(Sample<T> sample) noexcept;

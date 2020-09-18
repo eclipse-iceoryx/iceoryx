@@ -56,7 +56,7 @@ class BasePublisher : public PublisherInterface<T>
     /// @brief uid Get the UID of the publisher.
     /// @return The publisher's UID.
     ///
-    uid_t uid() const noexcept;
+    uid_t getUid() const noexcept;
 
     ///
     /// @brief loan Get a sample from loaned shared memory.

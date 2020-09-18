@@ -44,7 +44,7 @@ class MockBasePublisher : public iox::popo::PublisherInterface<T>
 {
   public:
     MockBasePublisher(const iox::capro::ServiceDescription&){};
-    MOCK_CONST_METHOD0(uid, iox::popo::uid_t());
+    MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError>(uint32_t));
     MOCK_METHOD1_T(publishMocked, void(iox::popo::Sample<T>&) noexcept);
     MOCK_METHOD0_T(loanPreviousSample, iox::cxx::optional<iox::popo::Sample<T>>());

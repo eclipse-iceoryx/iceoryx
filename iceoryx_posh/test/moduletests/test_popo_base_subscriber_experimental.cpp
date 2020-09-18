@@ -37,9 +37,9 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
         : iox::popo::BaseSubscriber<T, port_t>::BaseSubscriber(sd)
     {
     }
-    uid_t uid() const noexcept
+    uid_t getUid() const noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::uid();
+        return iox::popo::BaseSubscriber<T, port_t>::getUid();
     }
     iox::capro::ServiceDescription getServiceDescription() const noexcept
     {

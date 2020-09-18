@@ -44,9 +44,9 @@ class ExperimentalUntypedPublisherTest : public Test
 TEST_F(ExperimentalUntypedPublisherTest, GetsUIDViaBasePublisher)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, uid).Times(1);
+    EXPECT_CALL(sut, getUid).Times(1);
     // ===== Test ===== //
-    sut.uid();
+    sut.getUid();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

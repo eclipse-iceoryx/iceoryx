@@ -35,7 +35,7 @@ class TypedSubscriber : protected BaseSubscriber<T>
     ~TypedSubscriber() = default;
 
     capro::ServiceDescription getServiceDescription() const noexcept;
-    uid_t uid() const noexcept;
+    uid_t getUid() const noexcept;
 
     void subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
     SubscribeState getSubscriptionState() const noexcept;

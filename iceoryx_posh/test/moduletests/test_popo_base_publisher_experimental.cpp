@@ -32,9 +32,9 @@ class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
   public:
     StubbedBasePublisher(iox::capro::ServiceDescription sd)
         : iox::popo::BasePublisher<T, port_t>::BasePublisher(sd){};
-    uid_t uid() const noexcept
+    uid_t getUid() const noexcept
     {
-        return iox::popo::BasePublisher<T, port_t>::uid();
+        return iox::popo::BasePublisher<T, port_t>::getUid();
     }
     iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError> loan(uint64_t size) noexcept
     {
