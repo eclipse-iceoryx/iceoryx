@@ -87,6 +87,9 @@ if (test)
         COMMAND ./utils/test/utils_moduletests --gtest_filter=-*.TimingTest_*
         COMMAND ./utils/test/utils_integrationtests --gtest_filter=-*.TimingTest_*
         COMMAND ./utils/test/utils_componenttests --gtest_filter=-*.TimingTest_*
+        if (dds_gateway)
+            COMMAND ./dds_gateway/test/dds_gateway_moduletests --gtest_filter=-*.TimingTest_*
+        endif(dds_gateway)
         if (binding_c)
             COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=-*.TimingTest_*
         endif(binding_c)
@@ -101,6 +104,9 @@ if (test)
         COMMAND ./utils/test/utils_moduletests --gtest_filter=*.TimingTest_*
         COMMAND ./utils/test/utils_integrationtests --gtest_filter=*.TimingTest_*
         COMMAND ./utils/test/utils_componenttests --gtest_filter=*.TimingTest_*
+        if (dds_gateway)
+            COMMAND ./dds_gateway/test/dds_gateway_moduletests --gtest_filter=*.TimingTest_*
+        endif(dds_gateway)
         if (binding_c)
             COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=*.TimingTest_*
         endif(binding_c)
