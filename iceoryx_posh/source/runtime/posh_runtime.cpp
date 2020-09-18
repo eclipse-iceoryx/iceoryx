@@ -266,7 +266,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
         case MqMessageErrorType::NO_UNIQUE_CREATED:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
                       << "' already in use by another process.";
-            errorHandler(Error::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE, nullptr, iox::ErrorLevel::MODERATE);
+            errorHandler(Error::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE, nullptr, iox::ErrorLevel::SEVERE);
             break;
         case MqMessageErrorType::PUBLISHER_LIST_FULL:
             LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
