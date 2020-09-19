@@ -39,9 +39,9 @@ UntypedPublisherImpl<base_publisher_t>::loan(uint32_t size) noexcept
 }
 
 template <typename base_publisher_t>
-inline void UntypedPublisherImpl<base_publisher_t>::publish(Sample<void> sample) noexcept
+inline void UntypedPublisherImpl<base_publisher_t>::publish(Sample<void>&& sample) noexcept
 {
-    base_publisher_t::publish(sample);
+    base_publisher_t::publish(std::move(sample));
 }
 
 template <typename base_publisher_t>

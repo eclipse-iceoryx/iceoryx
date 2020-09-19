@@ -32,7 +32,7 @@ template <typename T>
 class PublisherInterface
 {
   public:
-    virtual void publish(Sample<T> sample) noexcept = 0;
+    virtual void publish(Sample<T>&& sample) noexcept = 0;
 
   protected:
     PublisherInterface() = default;
@@ -71,7 +71,7 @@ class BasePublisher : public PublisherInterface<T>
     /// @brief publish Publish the given sample.
     /// @param sample The sample to publish.
     ///
-    void publish(Sample<T> sample) noexcept override;
+    void publish(Sample<T>&& sample) noexcept override;
 
     ///
     /// @brief previousSample Retrieve the previously loaned sample if it has not yet been claimed.

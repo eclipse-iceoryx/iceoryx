@@ -40,9 +40,9 @@ inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publishe
 }
 
 template <typename T, typename base_publisher_t>
-inline void TypedPublisher<T, base_publisher_t>::publish(Sample<T> sample) noexcept
+inline void TypedPublisher<T, base_publisher_t>::publish(Sample<T>&& sample) noexcept
 {
-    return base_publisher_t::publish(sample);
+    return base_publisher_t::publish(std::move(sample));
 }
 
 template <typename T, typename base_publisher_t>

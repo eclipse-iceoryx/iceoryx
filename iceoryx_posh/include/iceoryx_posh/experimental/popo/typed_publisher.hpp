@@ -39,7 +39,7 @@ class TypedPublisher : public base_publisher_t
     uid_t getUid() const noexcept;
 
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
-    void publish(Sample<T> sample) noexcept;
+    void publish(Sample<T>&& sample) noexcept;
     ///
     /// @brief publishCopyOf Copy the provided value into a loaned shared memory chunk and publish it.
     /// @param val Value to copy.

@@ -44,7 +44,7 @@ class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
     {
         return iox::popo::BasePublisher<T, port_t>::release(sample);
     }
-    void publish(iox::popo::Sample<T> sample) noexcept
+    void publish(iox::popo::Sample<T>&& sample) noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::publish(std::move(sample));
     }
