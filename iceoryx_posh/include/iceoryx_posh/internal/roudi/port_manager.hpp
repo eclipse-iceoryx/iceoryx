@@ -150,14 +150,52 @@ class PortManager
     void addEntryToServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
     void removeEntryFromServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
 
+    // @todo move this to cxx type_traits and create inl
+    template <typename T>
+    using IsManyToManyPolicy = typename std::
+        integral_constant<bool, bool(std::is_same<typename std::decay<T>::type, iox::build::ManyToManyPolicy>::value)>;
+
+    template <typename T>
+    using IsOneToManyPolicy = typename std::
+        integral_constant<bool, bool(std::is_same<typename std::decay<T>::type, iox::build::OneToManyPolicy>::value)>;
+
+    template <typename T>
+    using EnableIf = typename std::enable_if<T::value>::type;
+
+    template <typename T, EnableIf<IsOneToManyPolicy<T>>* = nullptr>
+    bool hasDuplicatePublisher(const capro::ServiceDescription& service, const ProcessName_t& processName) noexcept
+    {
+        // check if the publisher is already in the list
+        for (auto publisherPortData : m_portPool->getPublisherPortDataList())
+        {
+            popo::PublisherPortRouDi publisherPort(publisherPortData);
+            if (service == publisherPort.getCaProServiceDescription())
+            {
+                LogWarn() << "Process '" << processName
+                          << "' tried to register an unique PublisherPort which is already used by '"
+                          << publisherPortData->m_processName << "' with service '"
+                          << service.operator cxx::Serialization().toString() << "'.";
+                errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    template <typename T, EnableIf<IsManyToManyPolicy<T>>* = nullptr>
+    bool hasDuplicatePublisher(const capro::ServiceDescription& service [[gnu::unused]],
+                               const ProcessName_t& processName [[gnu::unused]]) noexcept
+    {
+        // Duplicates are allowed when using n:m policy
+        return false;
+    }
+
   private:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
     PortPool* m_portPool{nullptr};
     ServiceRegistry m_serviceRegistry;
     PortIntrospectionType m_portIntrospection;
 };
-
 } // namespace roudi
 } // namespace iox
-
 #endif // IOX_POSH_ROUDI_PORT_MANAGER_HPP

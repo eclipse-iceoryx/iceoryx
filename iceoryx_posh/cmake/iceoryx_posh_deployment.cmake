@@ -1,4 +1,13 @@
 # configure deployment
+if(ONE_TO_MANY)
+     message("[i] Using 1:n communication only!")
+     set(IOX_COMMUNICATION_POLICY OneToManyPolicy)
+endif(ONE_TO_MANY)
+
+if(NOT IOX_COMMUNICATION_POLICY)
+    set(IOX_COMMUNICATION_POLICY ManyToManyPolicy)
+endif()
+
 if(NOT IOX_MAX_PUBLISHERS)
     set(IOX_MAX_PUBLISHERS 512)
 endif()
