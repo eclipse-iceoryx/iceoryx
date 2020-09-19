@@ -16,7 +16,7 @@
 #define IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_PUBLISHER_HPP
 
 #include "iceoryx_posh/experimental/popo/base_publisher.hpp"
-#include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
+#include "iceoryx_posh/experimental/popo/sample.hpp"
 
 namespace iox
 {
@@ -35,7 +35,7 @@ class UntypedPublisherImpl : public base_publisher_t
 
     uid_t getUid() const noexcept;
 
-    cxx::expected<Sample<void>, AllocationError> loan(uint32_t size) noexcept;
+    cxx::expected<Sample<void>, AllocationError> loan(const uint32_t size) noexcept;
     void publish(Sample<void>&& sample) noexcept;
     ///
     /// @brief publish Publish the provided memory chunk.
@@ -47,8 +47,8 @@ class UntypedPublisherImpl : public base_publisher_t
 
     void offer() noexcept;
     void stopOffer() noexcept;
-    bool isOffered() noexcept;
-    bool hasSubscribers() noexcept;
+    bool isOffered() const noexcept;
+    bool hasSubscribers() const noexcept;
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;

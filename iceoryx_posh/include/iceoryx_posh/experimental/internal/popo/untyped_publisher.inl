@@ -33,7 +33,7 @@ inline uid_t UntypedPublisherImpl<base_publisher_t>::getUid() const noexcept
 
 template <typename base_publisher_t>
 inline cxx::expected<Sample<void>, AllocationError>
-UntypedPublisherImpl<base_publisher_t>::loan(uint32_t size) noexcept
+UntypedPublisherImpl<base_publisher_t>::loan(const uint32_t size) noexcept
 {
     return base_publisher_t::loan(size);
 }
@@ -70,13 +70,13 @@ inline void UntypedPublisherImpl<base_publisher_t>::stopOffer() noexcept
 }
 
 template <typename base_publisher_t>
-inline bool UntypedPublisherImpl<base_publisher_t>::isOffered() noexcept
+inline bool UntypedPublisherImpl<base_publisher_t>::isOffered() const noexcept
 {
     return base_publisher_t::isOffered();
 }
 
 template <typename base_publisher_t>
-inline bool UntypedPublisherImpl<base_publisher_t>::hasSubscribers() noexcept
+inline bool UntypedPublisherImpl<base_publisher_t>::hasSubscribers() const noexcept
 {
     return base_publisher_t::hasSubscribers();
 }

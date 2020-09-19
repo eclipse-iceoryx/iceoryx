@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     float_t ct = 0.0;
     while (!killswitch)
     {
-        untypedPublisher.loan(sizeof(Position)).and_then([&](iox::popo::PublishableSample<void>& sample) {
+        untypedPublisher.loan(sizeof(Position)).and_then([&](iox::popo::Sample<void>& sample) {
             ++ct;
             new (sample.get()) Position(ct, ct, ct);
             sample.publish();

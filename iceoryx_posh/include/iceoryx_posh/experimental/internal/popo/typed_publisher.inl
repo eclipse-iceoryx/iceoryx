@@ -42,7 +42,7 @@ inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publishe
 template <typename T, typename base_publisher_t>
 inline void TypedPublisher<T, base_publisher_t>::publish(Sample<T>&& sample) noexcept
 {
-    return base_publisher_t::publish(std::move(sample));
+    return base_publisher_t::publish(std::forward<Sample<T>>(sample));
 }
 
 template <typename T, typename base_publisher_t>
@@ -50,40 +50,25 @@ template <typename Callable, typename... ArgTypes>
 inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publishResultOf(Callable c,
                                                                                            ArgTypes... args) noexcept
 {
-    static_assert(cxx::is_callable<Callable, T*, ArgTypes...>::value,
-                  "TypedPublisher<T>::publishResultOf expects a valid callable as the first argument");
+    static_assert(
+        cxx::is_callable<Callable, T*, ArgTypes...>::value,
+        "TypedPublisher<T>::publishResultOf expects a valid callable with a specific signature as the first argument");
     static_assert(cxx::has_signature<Callable, void(T*, ArgTypes...)>::value,
                   "callable provided to TypedPublisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 
-    auto result = loan();
-    if (result.has_error())
-    {
-        return result;
-    }
-    else
-    {
-        auto& sample = result.get_value();
+    return loan().and_then([&](Sample<T>& sample) {
         c(sample.get(), std::forward<ArgTypes>(args)...);
         publish(std::move(sample));
-        return cxx::success<>();
-    }
+    });
 }
 
 template <typename T, typename base_publisher_t>
 inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publishCopyOf(const T& val) noexcept
 {
-    auto result = loan();
-    if (result.has_error())
-    {
-        return result;
-    }
-    else
-    {
-        auto sample = std::move(result.get_value());
+    return loan().and_then([&](Sample<T>& sample) {
         *sample.get() = val; // Copy assignment of value into sample's memory allocation.
         publish(std::move(sample));
-        return cxx::success<>();
-    }
+    });
 }
 
 template <typename T, typename base_publisher_t>
@@ -105,13 +90,13 @@ inline void TypedPublisher<T, base_publisher_t>::stopOffer() noexcept
 }
 
 template <typename T, typename base_publisher_t>
-inline bool TypedPublisher<T, base_publisher_t>::isOffered() noexcept
+inline bool TypedPublisher<T, base_publisher_t>::isOffered() const noexcept
 {
     return base_publisher_t::isOffered();
 }
 
 template <typename T, typename base_publisher_t>
-inline bool TypedPublisher<T, base_publisher_t>::hasSubscribers() noexcept
+inline bool TypedPublisher<T, base_publisher_t>::hasSubscribers() const noexcept
 {
     return base_publisher_t::hasSubscribers();
 }

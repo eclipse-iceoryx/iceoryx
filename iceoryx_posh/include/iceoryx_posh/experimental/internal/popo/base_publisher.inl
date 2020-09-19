@@ -19,7 +19,6 @@ namespace iox
 {
 namespace popo
 {
-
 template <typename T, typename port_t>
 BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription&)
 /// @todo #25 : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, ""))
@@ -33,7 +32,7 @@ inline uid_t BasePublisher<T, port_t>::getUid() const noexcept
 }
 
 template <typename T, typename port_t>
-inline cxx::expected<Sample<T>, AllocationError> BasePublisher<T, port_t>::loan(uint32_t size) noexcept
+inline cxx::expected<Sample<T>, AllocationError> BasePublisher<T, port_t>::loan(const uint32_t size) noexcept
 {
     auto result = m_port.tryAllocateChunk(size);
     if (result.has_error())
@@ -77,28 +76,27 @@ inline void BasePublisher<T, port_t>::stopOffer() noexcept
 }
 
 template <typename T, typename port_t>
-inline bool BasePublisher<T, port_t>::isOffered() noexcept
+inline bool BasePublisher<T, port_t>::isOffered() const noexcept
 {
     return m_port.isOffered();
 }
 
 template <typename T, typename port_t>
-inline bool BasePublisher<T, port_t>::hasSubscribers() noexcept
+inline bool BasePublisher<T, port_t>::hasSubscribers() const noexcept
 {
     return m_port.hasSubscribers();
 }
 
 template <typename T, typename port_t>
-inline Sample<T>
-BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* header) noexcept
+inline Sample<T> BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept
 {
     return Sample<T>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()),
-                                                   [this](T* const p) {
-                                                       auto header = mepoo::convertPayloadPointerToChunkHeader(
-                                                           reinterpret_cast<void*>(p));
-                                                       this->m_port.freeChunk(header);
-                                                   }),
-                                *this);
+                                        [this](T* const p) {
+                                            auto header =
+                                                mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
+                                            this->m_port.freeChunk(header);
+                                        }),
+                     *this);
 }
 
 } // namespace popo

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/experimental/popo/base_publisher.hpp"
-#include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
+#include "iceoryx_posh/experimental/popo/sample.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 
 #include "test.hpp"
@@ -35,8 +35,8 @@ class MockPublisherPortUser
     MOCK_METHOD0(tryGetPreviousChunk, iox::cxx::optional<iox::mepoo::ChunkHeader*>());
     MOCK_METHOD0(offer, void());
     MOCK_METHOD0(stopOffer, void());
-    MOCK_METHOD0(isOffered, bool());
-    MOCK_METHOD0(hasSubscribers, bool());
+    MOCK_CONST_METHOD0(isOffered, bool());
+    MOCK_CONST_METHOD0(hasSubscribers, bool());
 };
 
 template <typename T>
@@ -50,8 +50,8 @@ class MockBasePublisher : public iox::popo::PublisherInterface<T>
     MOCK_METHOD0_T(loanPreviousSample, iox::cxx::optional<iox::popo::Sample<T>>());
     MOCK_METHOD0(offer, void(void));
     MOCK_METHOD0(stopOffer, void(void));
-    MOCK_METHOD0(isOffered, bool(void));
-    MOCK_METHOD0(hasSubscribers, bool(void));
+    MOCK_CONST_METHOD0(isOffered, bool(void));
+    MOCK_CONST_METHOD0(hasSubscribers, bool(void));
     void publish(iox::popo::Sample<T>&& sample) noexcept
     {
         return publishMocked(std::move(sample));

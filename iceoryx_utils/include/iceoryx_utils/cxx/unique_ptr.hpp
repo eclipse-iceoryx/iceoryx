@@ -57,20 +57,9 @@ class unique_ptr
     unique_ptr& operator=(unique_ptr&& rhs) noexcept;
 
     ///
-    /// @brief operator = Reset to empty pointer when setting to nullptr.
-    /// @return An empty unique pointer.
-    ///
-    unique_ptr& operator=(std::nullptr_t) noexcept;
-
-    ///
     /// Automatically deletes the owned object on destruction.
     ///
     ~unique_ptr() noexcept;
-
-    ///
-    /// Dereference the stored pointer.
-    ///
-    T operator*() noexcept;
 
     ///
     /// Return the stored pointer.
@@ -80,10 +69,7 @@ class unique_ptr
     ///
     /// @brief operator bool Returns true if it points to something.
     ///
-    explicit operator bool() const noexcept
-    {
-        return get() == ptr_t() ? false : true;
-    }
+    explicit operator bool() const noexcept;
 
     ///
     /// @brief get Retrieve the underlying raw pointer.

@@ -16,7 +16,7 @@
 #define IOX_EXPERIMENTAL_POSH_POPO_TYPED_PUBLISHER_HPP
 
 #include "iceoryx_posh/experimental/popo/base_publisher.hpp"
-#include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
+#include "iceoryx_posh/experimental/popo/sample.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 
 namespace iox
@@ -60,8 +60,8 @@ class TypedPublisher : public base_publisher_t
 
     void offer() noexcept;
     void stopOffer() noexcept;
-    bool isOffered() noexcept;
-    bool hasSubscribers() noexcept;
+    bool isOffered() const noexcept;
+    bool hasSubscribers() const noexcept;
 };
 
 } // namespace popo

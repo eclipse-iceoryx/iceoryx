@@ -22,7 +22,6 @@ namespace iox
 {
 namespace popo
 {
-
 template <typename T>
 class PublisherInterface;
 
@@ -36,18 +35,13 @@ class Sample
   public:
     Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher);
     /// Creates an empty sample.
-    Sample(std::nullptr_t) noexcept;
     Sample(const Sample<T>&) = delete;
     Sample<T>& operator=(const Sample<T>&) = delete;
     Sample<T>& operator=(Sample<T>&& rhs);
     Sample(Sample<T>&& rhs);
     ~Sample();
 
-    ///
-    /// @brief operator =nullptr Clears the sample.
-    /// @return
-    ///
-    Sample<T>& operator=(std::nullptr_t) noexcept;
+    Sample(std::nullptr_t) noexcept;
 
     ///
     /// @brief operator -> Transparent access to the underlying pointer.
@@ -85,24 +79,23 @@ class Sample
 template <typename T>
 class Sample<const T>
 {
-public:
-      /// Creates an empty sample.
+  public:
+    /// Creates an empty sample.
     Sample(cxx::unique_ptr<T>&& samplePtr) noexcept;
 
-    Sample(std::nullptr_t) noexcept;
     Sample(const Sample&) = delete;
     Sample& operator=(const Sample&) = delete;
     Sample(Sample<const T>&& rhs);
     Sample& operator=(Sample<const T>&& rhs);
     ~Sample();
 
-    Sample& operator=(std::nullptr_t) noexcept;
+    Sample(std::nullptr_t) noexcept;
 
     const T* operator->() noexcept;
     const T* get() noexcept;
     const mepoo::ChunkHeader* getHeader() noexcept;
 
-private:
+  private:
     cxx::unique_ptr<T> m_samplePtr{nullptr};
 };
 

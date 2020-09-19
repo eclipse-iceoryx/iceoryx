@@ -28,11 +28,6 @@ namespace popo
 {
 using uid_t = UniquePortId;
 
-enum class SubscriberError : uint8_t
-{
-    UNKNOWN
-};
-
 template <typename T, typename port_t = popo::SubscriberPortUser>
 class BaseSubscriber : public Condition
 {

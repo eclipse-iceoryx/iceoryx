@@ -19,21 +19,11 @@ namespace iox
 {
 namespace popo
 {
-
 // ============================== Sample<T> ========================= //
 template <typename T>
 Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
     : m_samplePtr(std::move(samplePtr))
-    , m_publisherRef(publisher)
-{
-    if(samplePtr)
-    {
-        m_hasOwnership = true;
-    }
-};
-
-template <typename T>
-Sample<T>::Sample(std::nullptr_t) noexcept {};
+    , m_publisherRef(publisher){};
 
 template <typename T>
 Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
@@ -41,9 +31,8 @@ Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
     if (this != &rhs)
     {
         m_samplePtr = std::move(rhs.m_samplePtr);
+        m_samplePtr = nullptr;
         m_publisherRef = rhs.m_publisherRef;
-        m_hasOwnership = rhs.m_hasOwnership;
-        rhs.m_hasOwnership = false;
     }
     return *this;
 }
@@ -62,12 +51,10 @@ Sample<T>::~Sample()
 }
 
 template <typename T>
-Sample<T>& Sample<T>::operator=(std::nullptr_t) noexcept
+Sample<T>::Sample(std::nullptr_t) noexcept
 {
-    m_hasOwnership = false;
-    Sample<T>::m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
-    return *this;
-}
+    m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
+};
 
 template <typename T>
 T* Sample<T>::operator->() noexcept
@@ -78,14 +65,7 @@ T* Sample<T>::operator->() noexcept
 template <typename T>
 T* Sample<T>::get() noexcept
 {
-    if (m_hasOwnership)
-    {
-        return m_samplePtr.get();
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_samplePtr.get();
 }
 
 template <typename T>
@@ -97,11 +77,10 @@ mepoo::ChunkHeader* Sample<T>::getHeader() noexcept
 template <typename T>
 void Sample<T>::publish() noexcept
 {
-    if (m_hasOwnership)
+    if (m_samplePtr)
     {
         m_publisherRef.get().publish(std::move(*this));
         m_samplePtr.release(); // Release ownership of the sample since it has been published.
-        m_hasOwnership = false;
     }
 
     else
@@ -117,7 +96,10 @@ Sample<const T>::Sample(cxx::unique_ptr<T>&& samplePtr) noexcept
     : m_samplePtr(std::move(samplePtr)){};
 
 template <typename T>
-Sample<const T>::Sample(std::nullptr_t) noexcept {};
+Sample<const T>::Sample(std::nullptr_t) noexcept
+{
+    m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
+};
 
 template <typename T>
 Sample<const T>& Sample<const T>::operator=(Sample<const T>&& rhs)
@@ -125,6 +107,7 @@ Sample<const T>& Sample<const T>::operator=(Sample<const T>&& rhs)
     if (this != &rhs)
     {
         m_samplePtr = std::move(rhs.m_samplePtr);
+        rhs.m_samplePtr = nullptr;
     }
     return *this;
 }
@@ -139,13 +122,6 @@ template <typename T>
 Sample<const T>::~Sample()
 {
     m_samplePtr = nullptr;
-}
-
-template <typename T>
-Sample<const T>& Sample<const T>::operator=(std::nullptr_t) noexcept
-{
-    m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
-    return *this;
 }
 
 template <typename T>

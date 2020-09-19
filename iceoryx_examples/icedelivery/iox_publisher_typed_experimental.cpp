@@ -58,11 +58,11 @@ int main(int argc, char* argv[])
             sample->x = ct * 1.1;
             sample->y = ct * 1.1;
             sample->z = ct * 1.1;
-            typedPublisher.publish(sample);
+            sample.publish();
         }
 
         // Retrieve a sample and provide logic to immediately populate and publish via a lambda.
-        typedPublisher.loan().and_then([&](iox::popo::PublishableSample<Position>& sample) {
+        typedPublisher.loan().and_then([&](iox::popo::Sample<Position>& sample) {
             auto allocation = sample.get();
             // Do some stuff leading to eventually generating the data in the provided sample's shared memory...
             new (allocation) Position(ct * 11.11, ct * 11.11, ct * 11.11);

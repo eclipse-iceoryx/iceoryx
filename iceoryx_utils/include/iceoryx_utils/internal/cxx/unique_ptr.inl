@@ -39,14 +39,6 @@ unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
 }
 
 template <typename T>
-unique_ptr<T>& unique_ptr<T>::operator=(std::nullptr_t) noexcept
-{
-    reset();
-    return *this;
-}
-
-
-template <typename T>
 unique_ptr<T>::unique_ptr(unique_ptr&& rhs) noexcept
 {
     *this = std::move(rhs);
@@ -58,13 +50,6 @@ unique_ptr<T>::~unique_ptr() noexcept
     reset();
 }
 
-/// Dereference the stored pointer.
-template <typename T>
-T unique_ptr<T>::operator*() noexcept
-{
-    return *get();
-}
-
 /// Return the stored pointer.
 template <typename T>
 T* unique_ptr<T>::operator->() noexcept
@@ -72,6 +57,11 @@ T* unique_ptr<T>::operator->() noexcept
     return get();
 }
 
+template <typename T>
+unique_ptr<T>::operator bool() const noexcept
+{
+    return get() == ptr_t() ? false : true;
+}
 
 template <typename T>
 T* unique_ptr<T>::get() const noexcept
@@ -145,13 +135,13 @@ bool operator!=(const unique_ptr<T>& x, const unique_ptr<U>& y)
 template <typename T>
 bool operator!=(const unique_ptr<T>& x, std::nullptr_t)
 {
-    return (bool)x;
+    return static_cast<bool>(x);
 }
 
 template <typename T>
 bool operator!=(std::nullptr_t, const unique_ptr<T>& x)
 {
-    return (bool)x;
+    return static_cast<bool>(x);
 }
 
 } // namespace cxx

@@ -81,7 +81,8 @@ inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubs
                 auto header = mepoo::convertPayloadPointerToChunkHeader(allocation);
                 this->m_port.releaseChunk(header);
             });
-            return cxx::success<cxx::optional<Sample<const T>>>(cxx::make_optional<Sample<const T>>(std::move(samplePtr)));
+            return cxx::success<cxx::optional<Sample<const T>>>(
+                cxx::make_optional<Sample<const T>>(std::move(samplePtr)));
         }
         else
         {

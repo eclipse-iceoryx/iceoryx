@@ -15,7 +15,7 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
 
-#include "iceoryx_posh/experimental/popo/publishable_sample.hpp"
+#include "iceoryx_posh/experimental/popo/sample.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 
 namespace iox
@@ -65,7 +65,7 @@ class BasePublisher : public PublisherInterface<T>
     /// laon.
     /// @details The loaned sample is automatically released when it goes out of scope.
     ///
-    cxx::expected<Sample<T>, AllocationError> loan(uint32_t size) noexcept;
+    cxx::expected<Sample<T>, AllocationError> loan(const uint32_t size) noexcept;
 
     ///
     /// @brief publish Publish the given sample.
@@ -93,13 +93,13 @@ class BasePublisher : public PublisherInterface<T>
     /// @brief isOffered
     /// @return True if service is currently being offered.
     ///
-    bool isOffered() noexcept;
+    bool isOffered() const noexcept;
 
     ///
     /// @brief hasSubscribers
     /// @return True if currently has subscribers to the service.
     ///
-    bool hasSubscribers() noexcept;
+    bool hasSubscribers() const noexcept;
 
   protected:
     BasePublisher(const capro::ServiceDescription& service);
@@ -110,7 +110,7 @@ class BasePublisher : public PublisherInterface<T>
     /// @param header The chunk header describing the allocated memory chunk to use in the sample.
     /// @return A sample that uses the ChunkHeader's payload as its memory allocation.
     ///
-    Sample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* header) noexcept;
+    Sample<T> convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept;
 
   protected:
     port_t m_port{nullptr};

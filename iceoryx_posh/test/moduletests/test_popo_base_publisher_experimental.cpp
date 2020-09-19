@@ -60,11 +60,11 @@ class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
     {
         return iox::popo::BasePublisher<T, port_t>::stopOffer();
     }
-    bool isOffered() noexcept
+    bool isOffered() const noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::isOffered();
     }
-    bool hasSubscribers() noexcept
+    bool hasSubscribers() const noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::hasSubscribers();
     }
