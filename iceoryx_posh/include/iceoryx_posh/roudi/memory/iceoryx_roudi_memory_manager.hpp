@@ -16,9 +16,9 @@
 
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 
-#include "iceoryx_posh/internal/roudi/iceoryx_port_pool.hpp"
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
+#include "iceoryx_posh/roudi/port_pool.hpp"
 
 namespace iox
 {
@@ -54,7 +54,7 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
 
   private:
     PortPoolMemoryBlock m_portPoolBlock;
-    cxx::optional<IceOryxPortPool> m_portPool;
+    cxx::optional<PortPool> m_portPool;
     DefaultRouDiMemory m_defaultMemory;
     RouDiMemoryManager m_memoryManager;
 };
