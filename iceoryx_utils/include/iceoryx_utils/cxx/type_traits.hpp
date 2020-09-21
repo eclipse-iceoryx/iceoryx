@@ -22,12 +22,12 @@ namespace iox
 namespace cxx
 {
 ///
-/// @brief Verifies whether the passed Callable type is in fact callable
+/// @brief Verifies whether the passed Callable type is in fact invocable
 ///
 template <typename Callable, typename... ArgTypes>
-struct is_callable
+struct is_invocable
 {
-    // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is callable.
+    // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is invocable.
     template <typename C, typename... As>
     static constexpr std::true_type test(decltype(std::declval<C>()(std::declval<As>()...))*)
     {
@@ -62,6 +62,21 @@ struct has_signature<
         void>::type> : std::true_type
 {
 };
+
+///
+/// @brief enable_if helper type
+/// @note can be removed once switched to C++14
+///
+template <bool B, class T = void>
+using enable_if_t = typename std::enable_if<B, T>::type;
+
+///
+/// @brief Negation of is_same
+///
+template <typename T1, typename T2>
+using not_same =
+    typename std::integral_constant<bool,
+                                    !bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>>::value)>;
 
 } // namespace cxx
 } // namespace iox
