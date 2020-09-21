@@ -45,3 +45,15 @@ TEST(TypeTraitsTest, HasSignatureResolvesToFalse)
     auto sut = has_signature<decltype(lambda), void, void>::value;
     EXPECT_FALSE(sut);
 }
+
+TEST(TypeTraitsTest, NotSameIsTrue)
+{
+    auto sut = not_same<int, float>::value;
+    EXPECT_TRUE(sut);
+}
+
+TEST(TypeTraitsTest, NotSameIsFalse)
+{
+    auto sut = not_same<int, int>::value;
+    EXPECT_FALSE(sut);
+}
