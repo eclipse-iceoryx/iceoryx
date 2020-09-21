@@ -109,7 +109,7 @@ inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Ver
             // invalid object); memcpy is also not thread safe, but we discard the object anyway and read it
             // again if its overwritten in between; this is only relevant for types larger than pointer size
             // assign the user data
-            std::memcpy(&valueOut, &m_data[static_cast<int32_t>(currentReadPosition) % m_size], sizeof(ValueType));
+            std::memcpy(&valueOut, &m_data[currentReadPosition % m_size], sizeof(ValueType));
 
             /// @brief first we need to peak valueOut if it is fitting the condition and then we have to verify
             ///        if valueOut is not am invalid object, this could be the case if the read position has
@@ -146,7 +146,7 @@ bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueOut, ValueType& 
     uint64_t currentWritePosition = m_writePosition.load(std::memory_order_relaxed);
     uint64_t nextWritePosition = currentWritePosition + 1U;
 
-    m_data[static_cast<int32_t>(currentWritePosition) % m_size] = valueOut;
+    m_data[currentWritePosition % m_size] = valueOut;
     m_writePosition.store(nextWritePosition, std::memory_order_release);
 
     uint64_t currentReadPosition = m_readPosition.load(std::memory_order_acquire);
@@ -179,7 +179,7 @@ bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueOut, ValueType& 
     if (m_readPosition.compare_exchange_strong(
             currentReadPosition, nextReadPosition, std::memory_order_acq_rel, std::memory_order_relaxed))
     {
-        std::memcpy(&f_paramOut_r, &m_data[static_cast<int32_t>(currentReadPosition) % m_size], sizeof(ValueType));
+        std::memcpy(&f_paramOut_r, &m_data[currentReadPosition % m_size], sizeof(ValueType));
         return SOFI_OVERFLOW;
     }
 

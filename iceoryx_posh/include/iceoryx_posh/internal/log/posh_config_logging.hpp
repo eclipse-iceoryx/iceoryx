@@ -20,8 +20,8 @@
 
 namespace iox
 {
-namespace config {
-
+namespace config
+{
 struct LoggingComponent
 {
     static constexpr char Ctx[] = "POSH Config";

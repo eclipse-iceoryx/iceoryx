@@ -15,8 +15,8 @@
 #define IOX_POSH_POPO_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
@@ -151,7 +151,6 @@ class Subscriber_t
     Subscriber_t() noexcept;
 
   private:
-
     capro::ServiceDescription m_serviceDescription{};
 
     // callback main method

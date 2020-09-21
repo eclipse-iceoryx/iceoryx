@@ -66,7 +66,7 @@ class ExampleDerivedClass : public ExampleBaseClass<T>
     /// @brief Short description
     /// @pre 	Must be called before another method is called
     /// @post 	Cannot be called twice, once it is called everything is done
-    /// @param[in] fuu some clarification, min and max is also defined here 
+    /// @param[in] fuu some clarification, min and max is also defined here
     ///            and not specified with a custom tag. 0 <=
     ///            fuu <= 1000
     /// @deprecated will be removed when feature iox-#123 is implemented

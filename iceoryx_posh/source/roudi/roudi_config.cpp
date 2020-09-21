@@ -27,5 +27,5 @@ RouDiConfig& RouDiConfig::optimize()
 {
     return *this;
 }
-} // namespace roudi
+} // namespace config
 } // namespace iox

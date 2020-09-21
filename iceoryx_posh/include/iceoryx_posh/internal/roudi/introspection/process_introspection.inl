@@ -107,8 +107,7 @@ void ProcessIntrospection<SenderPort>::addRunnable(const ProcessName_t& f_proces
 }
 
 template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::removeRunnable(const ProcessName_t& f_process,
-                                                      const RunnableName_t& f_runnable)
+void ProcessIntrospection<SenderPort>::removeRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 

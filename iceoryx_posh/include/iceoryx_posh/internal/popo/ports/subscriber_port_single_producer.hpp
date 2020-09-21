@@ -46,7 +46,8 @@ class SubscriberPortSingleProducer : public SubscriberPortRouDi
     /// @brief dispatch a CaPro message to the subscriber for processing
     /// @param[in] caProMessage to process
     /// @return CaPro message with an immediate response the provided CaPro message, empty optional if no response
-    cxx::optional<capro::CaproMessage> dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept override;
+    cxx::optional<capro::CaproMessage>
+    dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept override;
 };
 
 } // namespace popo

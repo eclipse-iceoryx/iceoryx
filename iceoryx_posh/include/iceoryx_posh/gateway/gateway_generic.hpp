@@ -15,11 +15,11 @@
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_HPP
 #define IOX_POSH_GW_GATEWAY_GENERIC_HPP
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/gateway/gateway_base.hpp"
+#include "iceoryx_posh/gateway/gateway_config.hpp"
+#include "iceoryx_posh/iceoryx_posh_config.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -84,10 +84,9 @@ class GatewayGeneric : public gateway_t
     uint64_t getNumberOfChannels() const noexcept;
 
   protected:
-    GatewayGeneric(
-            capro::Interfaces interface,
-            units::Duration discoveryPeriod = 1000_ms,
-            units::Duration forwardingPeriod = 50_ms) noexcept;
+    GatewayGeneric(capro::Interfaces interface,
+                   units::Duration discoveryPeriod = 1000_ms,
+                   units::Duration forwardingPeriod = 50_ms) noexcept;
 
     ///
     /// @brief addChannel Creates a channel for the given service and stores a copy of it in an internal collection for
@@ -105,8 +104,7 @@ class GatewayGeneric : public gateway_t
     /// The service description is perhaps too large for copying since they contain strings, however this should be
     /// addressed with a service description repository feature.
     ///
-    cxx::expected<channel_t, GatewayError>
-    addChannel(const capro::ServiceDescription& service) noexcept;
+    cxx::expected<channel_t, GatewayError> addChannel(const capro::ServiceDescription& service) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns

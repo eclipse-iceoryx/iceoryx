@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "test.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
+#include "test.hpp"
 
 #include <cstdlib>
 #include <fstream>

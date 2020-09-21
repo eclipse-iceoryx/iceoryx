@@ -127,4 +127,3 @@ bool iox_sub_is_condition_variable_attached(SubscriberPortData* const self)
 {
     return SubscriberPortUser(self).isConditionVariableSet();
 }
-

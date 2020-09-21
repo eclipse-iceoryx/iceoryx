@@ -14,8 +14,8 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_CONFIG_TOML_FILE_PROVIDER_HPP
 #define IOX_POSH_ROUDI_ROUDI_CONFIG_TOML_FILE_PROVIDER_HPP
 
-#include "iceoryx_posh/roudi/roudi_config_file_provider.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
+#include "iceoryx_posh/roudi/roudi_config_file_provider.hpp"
 
 namespace iox
 {
@@ -30,7 +30,7 @@ class TomlRouDiConfigFileProvider : public iox::roudi::RouDiConfigFileProvider
 
     iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> parse() override;
 };
-} // namespace roudi
+} // namespace config
 } // namespace iox
 
 #endif // IOX_POSH_ROUDI_ROUDI_CONFIG_TOML_FILE_PROVIDER_HPP

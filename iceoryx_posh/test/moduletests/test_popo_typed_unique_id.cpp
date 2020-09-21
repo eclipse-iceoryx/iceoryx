@@ -163,4 +163,3 @@ TYPED_TEST(TypedUniqueId_test, InvalidIdIsInvalid)
     typename TestFixture::UniqueIDType a(CreateInvalidId);
     EXPECT_FALSE(a.isValid());
 }
-
