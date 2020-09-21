@@ -17,6 +17,13 @@
 
 #include "internal/c2cpp_binding.h"
 
+/// The issue iox-308: https://github.com/eclipse/iceoryx/issues/308
+/// was created to explore other options then a magic number to create
+/// the structs of a specific size in C.
+
+/// The size and the alignment of all structs are verified by the
+/// binding c integration test iox_types_test
+
 struct iox_ws_storage_t_
 {
     // the value of the array size is the result of the following formula:
