@@ -16,6 +16,8 @@
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 
+#include <type_traits>
+
 using namespace ::testing;
 using namespace iox::runtime;
 using iox::roudi::RouDiEnvironment;
@@ -368,13 +370,14 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
 
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOneToManyPolicyFails)
 {
-    // Used to determine the compile switch IOX_COMMUNICATION_POLICY
-    iox::build::CommunicationPolicy::MemberType_t subscriberPortDataPtr{
-        iox::capro::ServiceDescription(99U, 1U, 20U),
-        "Foo",
-        iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
-        0U};
-    iox::build::CommunicationPolicy policy{&subscriberPortDataPtr};
+    auto publisherDuplicateDetected{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&publisherDuplicateDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            if (error == iox::Error::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE)
+            {
+                publisherDuplicateDetected = true;
+            }
+        });
 
     auto sameServiceDescription = iox::capro::ServiceDescription(99U, 1U, 20U);
 
@@ -386,11 +389,12 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOne
 
     ASSERT_NE(nullptr, publisherPort1);
 
-    if (typeid(policy) == typeid(iox::build::OneToManyPolicy))
+    if (std::is_same<iox::build::CommunicationPolicy, iox::build::OneToManyPolicy>::value)
     {
         ASSERT_EQ(nullptr, publisherPort2);
+        EXPECT_TRUE(publisherDuplicateDetected);
     }
-    else if (typeid(policy) == typeid(iox::build::ManyToManyPolicy))
+    else if (std::is_same<iox::build::CommunicationPolicy, iox::build::ManyToManyPolicy>::value)
     {
         ASSERT_NE(nullptr, publisherPort2);
     }
