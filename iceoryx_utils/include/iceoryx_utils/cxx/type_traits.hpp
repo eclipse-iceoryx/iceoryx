@@ -65,7 +65,7 @@ struct has_signature<
 
 ///
 /// @brief enable_if helper type
-/// @note can be removed once switched to C++14
+/// @note Remove once switched to C++14
 ///
 template <bool B, class T = void>
 using enable_if_t = typename std::enable_if<B, T>::type;
