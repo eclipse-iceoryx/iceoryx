@@ -19,39 +19,59 @@ namespace iox
 {
 namespace popo
 {
-UntypedSubscriber::UntypedSubscriber(const capro::ServiceDescription& service)
-    : BaseSubscriber<void>(service)
+
+template <typename base_subscriber_t>
+UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service)
+    : base_subscriber_t(service)
 {
 }
 
-inline void UntypedSubscriber::subscribe(const uint64_t queueCapacity) noexcept
+template <typename base_subscriber_t>
+inline uid_t UntypedSubscriberImpl<base_subscriber_t>::getUid() const noexcept
 {
-    BaseSubscriber<void>::subscribe(queueCapacity);
+    return base_subscriber_t::getUid();
 }
 
-inline SubscribeState UntypedSubscriber::getSubscriptionState() const noexcept
+template <typename base_subscriber_t>
+inline capro::ServiceDescription UntypedSubscriberImpl<base_subscriber_t>::getServiceDescription() const noexcept
 {
-    return BaseSubscriber<void>::getSubscriptionState();
+    return base_subscriber_t::getServiceDescription();
 }
 
-inline void UntypedSubscriber::unsubscribe() noexcept
+template <typename base_subscriber_t>
+inline void UntypedSubscriberImpl<base_subscriber_t>::subscribe(const uint64_t queueCapacity) noexcept
 {
-    return BaseSubscriber<void>::unsubscribe();
+    base_subscriber_t::subscribe(queueCapacity);
 }
 
-inline bool UntypedSubscriber::hasNewSamples() const noexcept
+template <typename base_subscriber_t>
+inline SubscribeState UntypedSubscriberImpl<base_subscriber_t>::getSubscriptionState() const noexcept
 {
-    return BaseSubscriber<void>::hasNewSamples();
+    return base_subscriber_t::getSubscriptionState();
 }
 
-inline cxx::expected<cxx::optional<Sample<const void>>> UntypedSubscriber::receive() noexcept
+template <typename base_subscriber_t>
+inline void UntypedSubscriberImpl<base_subscriber_t>::unsubscribe() noexcept
 {
-    return BaseSubscriber<void>::receive();
+    return base_subscriber_t::unsubscribe();
 }
 
-inline void UntypedSubscriber::releaseQueuedSamples() noexcept
+template <typename base_subscriber_t>
+inline bool UntypedSubscriberImpl<base_subscriber_t>::hasNewSamples() const noexcept
 {
-    BaseSubscriber<void>::releaseQueuedSamples();
+    return base_subscriber_t::hasNewSamples();
+}
+
+template <typename base_subscriber_t>
+inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError> UntypedSubscriberImpl<base_subscriber_t>::receive() noexcept
+{
+    return base_subscriber_t::receive();
+}
+
+template <typename base_subscriber_t>
+inline void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedSamples() noexcept
+{
+    base_subscriber_t::releaseQueuedSamples();
 }
 
 } // namespace popo

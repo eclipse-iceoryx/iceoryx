@@ -24,15 +24,17 @@ namespace iox
 {
 namespace popo
 {
-class UntypedSubscriber : protected BaseSubscriber<void>
+
+template <typename base_subscriber_t = BaseSubscriber<void>>
+class UntypedSubscriberImpl : public base_subscriber_t
 {
   public:
-    UntypedSubscriber(const capro::ServiceDescription& service);
-    UntypedSubscriber(const UntypedSubscriber& other) = delete;
-    UntypedSubscriber& operator=(const UntypedSubscriber&) = delete;
-    UntypedSubscriber(UntypedSubscriber&& rhs) = delete;
-    UntypedSubscriber& operator=(UntypedSubscriber&& rhs) = delete;
-    ~UntypedSubscriber() = default;
+    UntypedSubscriberImpl(const capro::ServiceDescription& service);
+    UntypedSubscriberImpl(const UntypedSubscriberImpl& other) = delete;
+    UntypedSubscriberImpl& operator=(const UntypedSubscriberImpl&) = delete;
+    UntypedSubscriberImpl(UntypedSubscriberImpl&& rhs) = delete;
+    UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
+    ~UntypedSubscriberImpl() = default;
 
     capro::ServiceDescription getServiceDescription() const noexcept;
     uid_t getUid() const noexcept;
@@ -42,9 +44,11 @@ class UntypedSubscriber : protected BaseSubscriber<void>
     void unsubscribe() noexcept;
 
     bool hasNewSamples() const noexcept;
-    cxx::expected<cxx::optional<Sample<const void>>> receive() noexcept;
+    cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError> receive() noexcept;
     void releaseQueuedSamples() noexcept;
 };
+
+using UntypedSubscriber = UntypedSubscriberImpl<>;
 
 } // namespace popo
 } // namespace iox

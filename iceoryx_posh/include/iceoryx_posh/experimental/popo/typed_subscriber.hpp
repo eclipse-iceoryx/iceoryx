@@ -21,8 +21,8 @@ namespace iox
 {
 namespace popo
 {
-template <typename T>
-class TypedSubscriber : protected BaseSubscriber<T>
+template <typename T, typename base_subscriber_t = BaseSubscriber<T>>
+class TypedSubscriber : public base_subscriber_t
 {
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
 
@@ -42,7 +42,7 @@ class TypedSubscriber : protected BaseSubscriber<T>
     void unsubscribe() noexcept;
 
     bool hasNewSamples() const noexcept;
-    cxx::expected<cxx::optional<Sample<const T>>> receive() noexcept;
+    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> receive() noexcept;
     void releaseQueuedSamples() noexcept;
 };
 

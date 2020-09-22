@@ -21,6 +21,7 @@ namespace iox
 {
 namespace cxx
 {
+
 ///
 /// @brief Verifies whether the passed Callable type is in fact callable
 ///
