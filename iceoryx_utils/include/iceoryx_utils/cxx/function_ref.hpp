@@ -57,12 +57,6 @@ class function_ref<ReturnType(ArgTypes...)>
 {
     using SignatureType = ReturnType(ArgTypes...);
 
-    /// @note result_of is deprecated, switch to invoke_result in C++17
-    template <typename T, typename = typename std::result_of<T(ArgTypes...)>::type>
-    struct is_callable : std::true_type
-    {
-    };
-
   public:
     /// @brief Creates an empty function_ref in an invalid state
     /// @note Handle with care, program will terminate when calling an invalid function_ref
@@ -78,7 +72,7 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @param[in] callable that is not a function_ref
     template <typename CallableType,
               typename = enable_if_t<not_same<CallableType, function_ref>::value>,
-              typename = enable_if_t<is_callable<CallableType>::value>>
+              typename = enable_if_t<is_invocable<CallableType, ArgTypes...>::value>>
     function_ref(CallableType&& callable) noexcept;
 
     function_ref(function_ref&& rhs) noexcept;

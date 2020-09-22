@@ -22,14 +22,15 @@ namespace iox
 namespace cxx
 {
 ///
-/// @brief Verifies whether the passed Callable type is in fact invocable
+/// @brief Verifies whether the passed Callable type is in fact invocable with the given arguments
 ///
 template <typename Callable, typename... ArgTypes>
 struct is_invocable
 {
     // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is invocable.
+    /// @note result_of is deprecated, switch to invoke_result in C++17
     template <typename C, typename... As>
-    static constexpr std::true_type test(decltype(std::declval<C>()(std::declval<As>()...))*)
+    static constexpr std::true_type test(typename std::result_of<C(As...)>::type*)
     {
         return {};
     }
@@ -46,7 +47,7 @@ struct is_invocable
 };
 
 ///
-/// @brief Verfies the signature of the provided callable type
+/// @brief Verfies the signature ReturnType(ArgTypes...) of the provided Callable type
 ///
 template <typename Callable = void, typename ReturnType = void, typename ArgTypes = void>
 struct has_signature : std::false_type
@@ -54,12 +55,11 @@ struct has_signature : std::false_type
 };
 
 template <typename Callable, typename ReturnType, typename... ArgTypes>
-struct has_signature<
-    Callable,
-    ReturnType(ArgTypes...),
-    typename std::enable_if<
-        std::is_convertible<decltype(std::declval<Callable>()(std::declval<ArgTypes>()...)), ReturnType>::value,
-        void>::type> : std::true_type
+struct has_signature<Callable,
+                     ReturnType(ArgTypes...),
+                     typename std::enable_if<
+                         std::is_convertible<typename std::result_of<Callable(ArgTypes...)>::type, ReturnType>::value,
+                         void>::type> : std::true_type
 {
 };
 
