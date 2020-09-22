@@ -118,11 +118,7 @@ void Logger::Print(const LogEntry entry) const
 
 bool Logger::IsEnabled(const LogLevel logLevel) const noexcept
 {
-    if (logLevel <= m_logLevel.load(std::memory_order_relaxed))
-    {
-        return true;
-    }
-    return false;
+    return (logLevel <= m_logLevel.load(std::memory_order_relaxed));
 }
 
 void Logger::Log(const LogEntry& entry) const
