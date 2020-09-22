@@ -17,6 +17,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 
@@ -53,11 +54,14 @@ using PublisherPortUserType = iox::popo::PublisherPortUser;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
-#if defined(RESTRICT_TO_1_TO_N_COMMUNICATION)
+/// @brief 1 to m communication enabled
+///     for n to m communication use
+///         iox::popo::SubscriberPortMultiProducer
+///         iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer;
 using SubscriberPortProducerType = iox::popo::SubscriberPortSingleProducer;
-#else
-using SubscriberPortProducerType = iox::popo::SubscriberPortMultiProducer;
-#endif
+constexpr cxx::VariantQueueTypes SUBSCRIBER_PORT_QUEUE_TYPE =
+    iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer;
+
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
 

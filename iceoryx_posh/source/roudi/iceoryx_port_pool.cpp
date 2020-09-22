@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/roudi/iceoryx_port_pool.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 
 namespace iox
@@ -127,14 +128,8 @@ IceOryxPortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescr
 {
     if (m_portPoolData->m_subscriberPortMembers.hasFreeSpace())
     {
-#if defined(RESTRICT_TO_1_TO_N_COMMUNICATION)
-        auto queueType = cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer;
-#else
-        auto queueType = cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer;
-#endif
-
         auto subscriberPortData = m_portPoolData->m_subscriberPortMembers.insert(
-            serviceDescription, applicationName, queueType, historyRequest, memoryInfo);
+            serviceDescription, applicationName, SUBSCRIBER_PORT_QUEUE_TYPE, historyRequest, memoryInfo);
         return cxx::success<SubscriberPortProducerType::MemberType_t*>(subscriberPortData);
     }
     else

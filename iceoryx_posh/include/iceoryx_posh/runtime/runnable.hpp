@@ -28,7 +28,7 @@ class Runnable
 {
   public:
     /// @brief constructor which requires the name of the runnable
-    /// @param[in] data pointer to the data
+    /// @param[in] runnableName name of the runnable
     Runnable(const iox::cxx::CString100& runnableName) noexcept;
 
     /// @brief destructor
@@ -53,8 +53,10 @@ class Runnable
     /// @return string which contains the process name
     cxx::CString100 getProcessName() const noexcept;
 
-  private:
-    RunnableData* m_data;
+  protected:
+    Runnable(RunnableData* const data) noexcept;
+
+    RunnableData* m_data = nullptr;
 };
 } // namespace runtime
 } // namespace iox

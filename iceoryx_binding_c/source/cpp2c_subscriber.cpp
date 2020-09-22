@@ -12,24 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_C2CPP_BINDING_H
-#define IOX_BINDING_C_C2CPP_BINDING_H
+#include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 
-#ifdef __cplusplus
+bool cpp2c_Subscriber::setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept
+{
+    return iox::popo::SubscriberPortUser(m_portData).setConditionVariable(conditionVariableDataPtr);
+}
 
-#include <cstdint>
+bool cpp2c_Subscriber::hasTriggered() const noexcept
+{
+    return m_wasTriggered;
+}
 
-#define CLASS class
-#define ENUM
-
-#else
-
-#include <stdbool.h>
-#include <stdint.h>
-
-#define CLASS struct
-#define ENUM enum
-
-#endif
-
-#endif
+bool cpp2c_Subscriber::unsetConditionVariable() noexcept
+{
+    return iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
+}

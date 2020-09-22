@@ -20,8 +20,16 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 bool killswitch = false;
+
+char funFacts[4][128] = {
+    "We all love hypnotoad!",
+    "The most popular snake jazz song is: tzzzz tz tz tzzzz tz tz",
+    "Liger = Hybrid of male lion and female tiger. There is also a pumapard and a pizzly!",
+    "Belinda and Rosalind are moons of Uranus discovered by Voyager 2",
+};
 
 static void sigHandler(int signalValue)
 {
@@ -45,13 +53,13 @@ void sending()
     while (!killswitch)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct CounterTopic)))
+        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct TopicData)))
         {
-            struct CounterTopic* sample = (struct CounterTopic*)chunk;
+            struct TopicData* sample = (struct TopicData*)chunk;
 
-            sample->counter = ct;
+            strncpy(sample->message, funFacts[ct % 4], 128);
 
-            printf("Sending: %u\n", ct);
+            printf("Sending fun fact number %u\n", ct % 4);
 
             iox_pub_send_chunk(publisher, chunk);
 

@@ -13,75 +13,68 @@
 // limitations under the License.
 
 
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/popo/condition.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 using namespace iox;
 using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox::mepoo;
+using namespace iox::runtime;
 
 extern "C" {
 #include "iceoryx_binding_c/subscriber.h"
 }
 
-SubscriberPortData* iox_sub_create(const char* const service,
-                                   const char* const instance,
-                                   const char* const event,
-                                   const uint64_t historyRequest)
+iox_sub_t iox_sub_init(iox_sub_storage_t* self,
+                       const char* const service,
+                       const char* const instance,
+                       const char* const event,
+                       uint64_t historyRequest)
 {
-    return new SubscriberPortData(ServiceDescription{IdString(TruncateToCapacity, service),
-                                                     IdString(TruncateToCapacity, instance),
-                                                     IdString(TruncateToCapacity, event)},
-                                  "AllHailHypnotoad!",
-                                  VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                  historyRequest);
+    new (self) cpp2c_Subscriber();
+    iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
+    me->m_portData =
+        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString(TruncateToCapacity, service),
+                                                                              IdString(TruncateToCapacity, instance),
+                                                                              IdString(TruncateToCapacity, event)},
+                                                           historyRequest);
+
+    return me;
 }
 
-void iox_sub_destroy(SubscriberPortData* const self)
+void iox_sub_deinit(iox_sub_t const self)
 {
-    delete self;
+    self->~cpp2c_Subscriber();
 }
 
-void iox_sub_subscribe(SubscriberPortData* const self, const uint64_t queueCapacity)
+void iox_sub_subscribe(iox_sub_t const self, const uint64_t queueCapacity)
 {
-    SubscriberPortUser(self).subscribe(queueCapacity);
+    SubscriberPortUser(self->m_portData).subscribe(queueCapacity);
 }
 
-void iox_sub_unsubscribe(SubscriberPortData* const self)
+void iox_sub_unsubscribe(iox_sub_t const self)
 {
-    SubscriberPortUser(self).unsubscribe();
+    SubscriberPortUser(self->m_portData).unsubscribe();
 }
 
-iox_SubscribeState iox_sub_get_subscription_state(SubscriberPortData* const self)
+iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self)
 {
-    switch (SubscriberPortUser(self).getSubscriptionState())
-    {
-    case SubscribeState::NOT_SUBSCRIBED:
-        return iox_SubscribeState::SubscribeState_NOT_SUBSCRIBED;
-    case SubscribeState::SUBSCRIBE_REQUESTED:
-        return iox_SubscribeState::SubscribeState_SUBSCRIBE_REQUESTED;
-    case SubscribeState::SUBSCRIBED:
-        return iox_SubscribeState::SubscribeState_SUBSCRIBED;
-    case SubscribeState::UNSUBSCRIBE_REQUESTED:
-        return iox_SubscribeState::SubscribeState_UNSUBSCRIBE_REQUESTED;
-    case SubscribeState::WAIT_FOR_OFFER:
-        return iox_SubscribeState::SubscribeState_WAIT_FOR_OFFER;
-    default:
-        return iox_SubscribeState::SubscribeState_UNDEFINED;
-    }
+    return cpp2c::SubscribeState(SubscriberPortUser(self->m_portData).getSubscriptionState());
 }
 
-iox_popo_ChunkReceiveResult iox_sub_get_chunk(SubscriberPortData* const self, const void** const payload)
+iox_ChunkReceiveResult iox_sub_get_chunk(iox_sub_t const self, const void** const payload)
 {
-    auto result = SubscriberPortUser(self).tryGetChunk();
+    auto result = SubscriberPortUser(self->m_portData).tryGetChunk();
     if (result.has_error())
     {
-        return (result.get_error() == ChunkReceiveError::TOO_MANY_CHUNKS_HELD_IN_PARALLEL)
-                   ? ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL
-                   : ChunkReceiveResult_INTERNAL_ERROR;
+        return cpp2c::ChunkReceiveResult(result.get_error());
     }
 
     if (!result->has_value())
@@ -93,37 +86,22 @@ iox_popo_ChunkReceiveResult iox_sub_get_chunk(SubscriberPortData* const self, co
     return ChunkReceiveResult_SUCCESS;
 }
 
-void iox_sub_release_chunk(SubscriberPortData* const self, const void* const chunk)
+void iox_sub_release_chunk(iox_sub_t const self, const void* const chunk)
 {
-    SubscriberPortUser(self).releaseChunk(convertPayloadPointerToChunkHeader(chunk));
+    SubscriberPortUser(self->m_portData).releaseChunk(convertPayloadPointerToChunkHeader(chunk));
 }
 
-void iox_sub_release_queued_chunks(SubscriberPortData* const self)
+void iox_sub_release_queued_chunks(iox_sub_t const self)
 {
-    SubscriberPortUser(self).releaseQueuedChunks();
+    SubscriberPortUser(self->m_portData).releaseQueuedChunks();
 }
 
-bool iox_sub_has_new_chunks(SubscriberPortData* const self)
+bool iox_sub_has_new_chunks(iox_sub_t const self)
 {
-    return SubscriberPortUser(self).hasNewChunks();
+    return SubscriberPortUser(self->m_portData).hasNewChunks();
 }
 
-bool iox_sub_has_lost_chunks(SubscriberPortData* const self)
+bool iox_sub_has_lost_chunks(iox_sub_t const self)
 {
-    return SubscriberPortUser(self).hasLostChunksSinceLastCall();
-}
-
-bool iox_sub_attach_condition_variable(SubscriberPortData* const self, ConditionVariableData* const cvHandle)
-{
-    return SubscriberPortUser(self).setConditionVariable(cvHandle);
-}
-
-bool iox_sub_detach_condition_variable(SubscriberPortData* const self)
-{
-    return SubscriberPortUser(self).unsetConditionVariable();
-}
-
-bool iox_sub_is_condition_variable_attached(SubscriberPortData* const self)
-{
-    return SubscriberPortUser(self).isConditionVariableSet();
+    return SubscriberPortUser(self->m_portData).hasLostChunksSinceLastCall();
 }

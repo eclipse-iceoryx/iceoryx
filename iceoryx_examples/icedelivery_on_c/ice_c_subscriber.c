@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_binding_c/posh_runtime.h"
+#include "iceoryx_binding_c/runtime.h"
 #include "iceoryx_binding_c/subscriber.h"
+#include "iceoryx_binding_c/types.h"
 #include "sleep_for.h"
 #include "topic_data.h"
 
@@ -35,7 +36,9 @@ void receiving()
     iox_runtime_register("/iox-c-subscriber");
 
     uint64_t historyRequest = 0U;
-    struct SubscriberPortData* subscriber = iox_sub_create("Radar", "FrontLeft", "Counter", historyRequest);
+    iox_sub_storage_t subscriberStorage;
+
+    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", historyRequest);
     iox_sub_subscribe(subscriber, 10);
 
     while (!killswitch)
@@ -59,7 +62,7 @@ void receiving()
     }
 
     iox_sub_unsubscribe(subscriber);
-    iox_sub_destroy(subscriber);
+    iox_sub_deinit(subscriber);
 }
 
 int main()

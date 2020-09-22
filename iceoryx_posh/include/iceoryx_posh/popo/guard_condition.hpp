@@ -36,10 +36,12 @@ class GuardCondition final : public Condition
     GuardCondition& operator=(GuardCondition&& rhs) = delete;
 
     /// @brief Wakes up a waiting WaitSet
-    void setTrigger() noexcept;
+    void trigger() noexcept;
+
     /// @brief Checks if trigger was set
     /// @return True if trigger is set, false if otherwise
     bool hasTriggered() const noexcept override;
+
     /// @brief Sets trigger to false
     void resetTrigger() noexcept;
 

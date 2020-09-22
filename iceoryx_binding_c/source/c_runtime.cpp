@@ -12,24 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_C2CPP_BINDING_H
-#define IOX_BINDING_C_C2CPP_BINDING_H
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-#ifdef __cplusplus
+using namespace iox;
+using namespace iox::runtime;
 
-#include <cstdint>
+extern "C" {
+#include "iceoryx_binding_c/runtime.h"
+}
 
-#define CLASS class
-#define ENUM
+void iox_runtime_register(const char* const name)
+{
+    PoshRuntime::getInstance(name);
+}
 
-#else
-
-#include <stdbool.h>
-#include <stdint.h>
-
-#define CLASS struct
-#define ENUM enum
-
-#endif
-
-#endif
+uint64_t iox_runtime_get_instance_name(char* const name, const uint64_t nameLength)
+{
+    auto instanceName = PoshRuntime::getInstance().getInstanceName();
+    uint64_t instanceNameSize = instanceName.size();
+    strncpy(name, instanceName.c_str(), std::min(nameLength, instanceNameSize));
+    return instanceNameSize;
+}
