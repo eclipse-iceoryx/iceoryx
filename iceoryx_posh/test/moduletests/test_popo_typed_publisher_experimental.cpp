@@ -103,9 +103,9 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambd
 {
     // ===== Setup ===== //
     auto chunk =
-        reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+        reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader) + sizeof(DummyData)));
     auto sample = new iox::popo::Sample<DummyData>(
-        iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
+        iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(chunk->payload()),
                                         [](DummyData* const) {} // Placeholder deleter.
                                         ),
         sut);
@@ -114,12 +114,11 @@ TEST_F(ExperimentalTypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambd
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
     auto result = sut.publishResultOf(
-        [](DummyData* allocation, int, float) {
+        [](DummyData* allocation, int intVal) {
             auto data = new (allocation) DummyData();
-            data->val = 777;
+            data->val = intVal;
         },
-        42,
-        77.77);
+        42);
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //

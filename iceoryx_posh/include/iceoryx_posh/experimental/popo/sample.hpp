@@ -67,7 +67,6 @@ class Sample
     void publish() noexcept;
 
   protected:
-    bool m_hasOwnership{true};
     cxx::unique_ptr<T> m_samplePtr{nullptr};
     std::reference_wrapper<PublisherInterface<T>> m_publisherRef;
 };

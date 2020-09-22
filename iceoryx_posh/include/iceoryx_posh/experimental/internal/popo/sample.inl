@@ -31,7 +31,7 @@ Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
     if (this != &rhs)
     {
         m_samplePtr = std::move(rhs.m_samplePtr);
-        m_samplePtr = nullptr;
+        rhs.m_samplePtr = nullptr;
         m_publisherRef = rhs.m_publisherRef;
     }
     return *this;
