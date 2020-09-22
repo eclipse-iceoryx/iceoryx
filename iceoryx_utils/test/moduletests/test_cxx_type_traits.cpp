@@ -35,14 +35,14 @@ TEST(TypeTraitsTest, IsInvocableResolvesToFalse)
 TEST(TypeTraitsTest, HasSignatureResolvesToTrue)
 {
     auto lambda = [](int foo) -> int { return foo++; };
-    auto sut = has_signature<decltype(lambda), int, int>::value;
+    auto sut = has_signature<decltype(lambda), int(int)>::value;
     EXPECT_TRUE(sut);
 }
 
 TEST(TypeTraitsTest, HasSignatureResolvesToFalse)
 {
     auto lambda = [](float foo) -> float { return foo++; };
-    auto sut = has_signature<decltype(lambda), void, void>::value;
+    auto sut = has_signature<decltype(lambda), void(void)>::value;
     EXPECT_FALSE(sut);
 }
 
