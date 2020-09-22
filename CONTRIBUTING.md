@@ -178,6 +178,8 @@ We aim for [ASIL-D](https://en.wikipedia.org/wiki/Automotive_Safety_Integrity_Le
 [ISO26262](https://en.wikipedia.org/wiki/ISO_26262) is also a good read-up if you want to learn more about automotive
 safety. A nice introduction [video](https://www.youtube.com/watch?v=F4GzsA00s5I) was presented on CppCon 2019.
 
+If you want to report a vulnerability, please use the [Eclipse process](https://www.eclipse.org/security/).
+
 We have a [partnership](https://www.perforce.com/blog/qac/why-eclipse-iceoryx-uses-helix-qac) with [Perforce](https://www.perforce.com) and use
 [Helix QAC++ 2019.2](https://www.perforce.com/products/helix-qac) to perform a static-code analysis.
 
@@ -192,9 +194,11 @@ Github [labels](https://github.com/eclipse/iceoryx/labels) are used to group iss
 If one of the rules is not followed, a rationale is added in the following manner:
 
 With a comment in the same line:
+
     *mynullptr = foo; // PRQA S 4242 # Short description why
 
 With a comment one line above (with the number after the warning number, next ’n’ lines are inclusive)
+
     // PRQA S 4242 1 # Short description why
     *mynullptr = foo;
 
