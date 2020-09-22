@@ -27,6 +27,7 @@
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_data.hpp"
+#include "iceoryx_utils/cxx/type_traits.hpp"
 
 namespace iox
 {
@@ -94,44 +95,17 @@ class PortPool
                       const ProcessName_t& applicationName,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-
-    // @todo move this to cxx type_traits and create inl
-    template <typename T>
-    using IsManyToManyPolicy = typename std::
-        integral_constant<bool, bool(std::is_same<typename std::decay<T>::type, iox::build::ManyToManyPolicy>::value)>;
-
-    template <typename T>
-    using IsOneToManyPolicy = typename std::
-        integral_constant<bool, bool(std::is_same<typename std::decay<T>::type, iox::build::OneToManyPolicy>::value)>;
-
-    template <typename T>
-    using EnableIf = typename std::enable_if<T::value>::type;
-
-    template <typename T, EnableIf<IsManyToManyPolicy<T>>* = nullptr>
+    template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
                                                        const uint64_t& historyRequest,
                                                        const ProcessName_t& applicationName,
-                                                       const mepoo::MemoryInfo& memoryInfo) noexcept
-    {
-        return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
-                                                              applicationName,
-                                                              cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer,
-                                                              historyRequest,
-                                                              memoryInfo);
-    }
+                                                       const mepoo::MemoryInfo& memoryInfo) noexcept;
 
-    template <typename T, EnableIf<IsOneToManyPolicy<T>>* = nullptr>
+    template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
                                                        const uint64_t& historyRequest,
                                                        const ProcessName_t& applicationName,
-                                                       const mepoo::MemoryInfo& memoryInfo) noexcept
-    {
-        return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
-                                                              applicationName,
-                                                              cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer,
-                                                              historyRequest,
-                                                              memoryInfo);
-    }
+                                                       const mepoo::MemoryInfo& memoryInfo) noexcept;
 
     cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const std::string& applicationName,
                                                                             const capro::Interfaces interface) noexcept;
@@ -163,5 +137,7 @@ class PortPool
 
 } // namespace roudi
 } // namespace iox
+
+#include "iceoryx_posh/roudi/port_pool.inl"
 
 #endif // IOX_POSH_ROUDI_PORT_POOL_HPP

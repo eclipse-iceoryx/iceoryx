@@ -37,6 +37,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/type_traits.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
@@ -150,45 +151,12 @@ class PortManager
     void addEntryToServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
     void removeEntryFromServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
 
-    // @todo move this to cxx type_traits and create inl
-    template <typename T>
-    using IsManyToManyPolicy = typename std::
-        integral_constant<bool, bool(std::is_same<typename std::decay<T>::type, iox::build::ManyToManyPolicy>::value)>;
+    template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
+    bool hasDuplicatePublisher(const capro::ServiceDescription& service, const ProcessName_t& processName) noexcept;
 
-    template <typename T>
-    using IsOneToManyPolicy = typename std::
-        integral_constant<bool, bool(std::is_same<typename std::decay<T>::type, iox::build::OneToManyPolicy>::value)>;
-
-    template <typename T>
-    using EnableIf = typename std::enable_if<T::value>::type;
-
-    template <typename T, EnableIf<IsOneToManyPolicy<T>>* = nullptr>
-    bool hasDuplicatePublisher(const capro::ServiceDescription& service, const ProcessName_t& processName) noexcept
-    {
-        // check if the publisher is already in the list
-        for (auto publisherPortData : m_portPool->getPublisherPortDataList())
-        {
-            popo::PublisherPortRouDi publisherPort(publisherPortData);
-            if (service == publisherPort.getCaProServiceDescription())
-            {
-                LogWarn() << "Process '" << processName
-                          << "' tried to register an unique PublisherPort which is already used by '"
-                          << publisherPortData->m_processName << "' with service '"
-                          << service.operator cxx::Serialization().toString() << "'.";
-                errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    template <typename T, EnableIf<IsManyToManyPolicy<T>>* = nullptr>
+    template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     bool hasDuplicatePublisher(const capro::ServiceDescription& service [[gnu::unused]],
-                               const ProcessName_t& processName [[gnu::unused]]) noexcept
-    {
-        // Duplicates are allowed when using n:m policy
-        return false;
-    }
+                               const ProcessName_t& processName [[gnu::unused]]) noexcept;
 
   private:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
@@ -198,4 +166,7 @@ class PortManager
 };
 } // namespace roudi
 } // namespace iox
+
+#include "iceoryx_posh/internal/roudi/port_manager.inl"
+
 #endif // IOX_POSH_ROUDI_PORT_MANAGER_HPP
