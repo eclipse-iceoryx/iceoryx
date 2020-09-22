@@ -12,24 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_C2CPP_BINDING_H
-#define IOX_BINDING_C_C2CPP_BINDING_H
+#include "iceoryx_posh/popo/condition.hpp"
 
-#ifdef __cplusplus
+using namespace iox;
+using namespace iox::popo;
 
-#include <cstdint>
+extern "C" {
+#include "iceoryx_binding_c/condition.h"
+}
 
-#define CLASS class
-#define ENUM
+bool iox_cond_has_triggered(iox_cond_t const self)
+{
+    return self->hasTriggered();
+}
 
-#else
-
-#include <stdbool.h>
-#include <stdint.h>
-
-#define CLASS struct
-#define ENUM enum
-
-#endif
-
-#endif
+bool iox_cond_is_condition_variable_attached(iox_cond_t const self)
+{
+    return self->isConditionVariableAttached();
+}

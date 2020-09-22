@@ -17,6 +17,7 @@
 #include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 
@@ -28,46 +29,46 @@ using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::units::duration_literals;
 
-class MockSubscriber : public Condition
-{
-  public:
-    bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
-    {
-        m_condVarPtr = conditionVariableDataPtr;
-        return true;
-    }
-
-    bool hasTriggered() const noexcept override
-    {
-        return m_wasTriggered;
-    }
-
-    bool unsetConditionVariable() noexcept override
-    {
-        m_condVarPtr = nullptr;
-        return true;
-    }
-
-    /// @note done in ChunkQueuePusher
-    void notify()
-    {
-        // We don't need to check if the WaitSet is still alive as it follows RAII and will inform every Condition about
-        // a possible destruction
-        m_wasTriggered = true;
-        ConditionVariableSignaler signaler{m_condVarPtr};
-        signaler.notifyOne();
-    }
-
-    /// @note members reside in ChunkQueueData in SHM
-    bool m_wasTriggered{false};
-    ConditionVariableData* m_condVarPtr{nullptr};
-};
-
 class WaitSet_test : public Test
 {
   public:
+    class MockSubscriber : public Condition
+    {
+      public:
+        bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
+        {
+            m_condVarPtr = conditionVariableDataPtr;
+            return true;
+        }
+
+        bool hasTriggered() const noexcept override
+        {
+            return m_wasTriggered;
+        }
+
+        bool unsetConditionVariable() noexcept override
+        {
+            m_condVarPtr = nullptr;
+            return true;
+        }
+
+        /// @note done in ChunkQueuePusher
+        void notify()
+        {
+            // We don't need to check if the WaitSet is still alive as it follows RAII and will inform every Condition
+            // about a possible destruction
+            m_wasTriggered = true;
+            ConditionVariableSignaler signaler{m_condVarPtr};
+            signaler.notifyOne();
+        }
+
+        /// @note members reside in ChunkQueueData in SHM
+        bool m_wasTriggered{false};
+        ConditionVariableData* m_condVarPtr{nullptr};
+    };
+
     ConditionVariableData m_condVarData;
-    WaitSet m_sut{&m_condVarData};
+    WaitSetMock m_sut{&m_condVarData};
     vector<MockSubscriber, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> m_subscriberVector;
 
     iox::posix::Semaphore m_syncSemaphore = iox::posix::Semaphore::create(0u).get_value();
@@ -106,15 +107,15 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
 {
     auto errorHandlerCalled{false};
     iox::Error receivedError;
-    WaitSet* m_sut2 = static_cast<WaitSet*>(malloc(sizeof(WaitSet)));
-    new (m_sut2) WaitSet{&m_condVarData};
-
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
             errorHandlerCalled = true;
             receivedError = error;
         });
+
+    WaitSetMock* m_sut2 = static_cast<WaitSetMock*>(malloc(sizeof(WaitSetMock)));
+    new (m_sut2) WaitSetMock{&m_condVarData};
 
     {
         MockSubscriber scopedCondition;
@@ -123,13 +124,12 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_THAT(receivedError, Eq(iox::Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE));
-    free(m_sut2);
 }
 
 TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
 {
     {
-        WaitSet m_sut2{&m_condVarData};
+        WaitSetMock m_sut2{&m_condVarData};
         m_sut2.attachCondition(m_subscriberVector.front());
     }
     EXPECT_FALSE(m_subscriberVector.front().isConditionVariableAttached());
@@ -196,7 +196,7 @@ TEST_F(WaitSet_test, DetachUnknownConditionResultsInFailure)
 
 TEST_F(WaitSet_test, AttachConditionInTwoWaitSetsResultsInAlreadySetError)
 {
-    WaitSet m_sut2{&m_condVarData};
+    WaitSetMock m_sut2{&m_condVarData};
     m_sut.attachCondition(m_subscriberVector.front());
     EXPECT_THAT(m_sut2.attachCondition(m_subscriberVector.front()).get_error(),
                 Eq(WaitSetError::CONDITION_VARIABLE_ALREADY_SET));
@@ -354,7 +354,7 @@ TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThread
     });
     m_syncSemaphore.wait();
     counter++;
-    guardCond.setTrigger();
+    guardCond.trigger();
     waiter.join();
     m_sut.detachCondition(guardCond);
 }
@@ -363,7 +363,7 @@ TEST_F(WaitSet_test, NotifyGuardConditionOnceTimedWaitResultsInResetOfTrigger)
 {
     GuardCondition guardCond;
     m_sut.attachCondition(guardCond);
-    guardCond.setTrigger();
+    guardCond.trigger();
     auto fulfilledConditions1 = m_sut.timedWait(1_ms);
     EXPECT_THAT(fulfilledConditions1.size(), Eq(1));
     EXPECT_THAT(fulfilledConditions1.front(), &guardCond);

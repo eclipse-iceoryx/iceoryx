@@ -17,6 +17,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 

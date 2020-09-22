@@ -16,7 +16,7 @@
 
 # This file runs all tests for Ice0ryx
 
-COMPONENTS="utils posh"
+COMPONENTS="utils posh binding_c"
 GTEST_FILTER="*"
 BASE_DIR=$PWD
 GCOV_SCOPE="all"
