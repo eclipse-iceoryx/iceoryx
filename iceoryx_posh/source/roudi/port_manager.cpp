@@ -622,12 +622,14 @@ void PortManager::destroyReceiverPort(ReceiverPortType::MemberType_t* const rece
 
 void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept
 {
+    // create temporary publisher ports to orderly shut this publisher down
     PublisherPortRouDiType publisherPortRoudi{publisherPortData};
     PublisherPortUserType publisherPortUser{publisherPortData};
 
     publisherPortRoudi.releaseAllChunks();
     publisherPortUser.stopOffer();
 
+    // process STOP_OFFER for this publisher in RouDi and distribute it
     publisherPortRoudi.tryGetCaProMessage().and_then([&](capro::CaproMessage caproMessage) {
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER);
 
@@ -641,19 +643,22 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
     /// @todo #25 Fix introspection
     // m_portIntrospection.removePublisher(publisherPort.getProcessName(), serviceDescription);
 
-    // delete publisher port from list after StopOffer was processed
+    // delete publisher port from list after STOP_OFFER was processed
     m_portPool->removePublisherPort(publisherPortData);
+
     LogDebug() << "Destroyed publisher port";
 }
 
 void PortManager::destroySubscriberPort(SubscriberPortProducerType::MemberType_t* const subscriberPortData) noexcept
 {
+    // create temporary subscriber ports to orderly shut this subscriber down
     SubscriberPortProducerType subscriberPortRoudi(subscriberPortData);
     SubscriberPortUserType subscriberPortUser(subscriberPortData);
 
     subscriberPortRoudi.releaseAllChunks();
     subscriberPortUser.unsubscribe();
 
+    // process UNSUB for this subscriber in RouDi and distribute it
     subscriberPortRoudi.tryGetCaProMessage().and_then([&](capro::CaproMessage caproMessage) {
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::UNSUB);
 
@@ -664,8 +669,9 @@ void PortManager::destroySubscriberPort(SubscriberPortProducerType::MemberType_t
     /// @todo #25 Fix introspection
     // m_portIntrospection.removeSubscriber(subscriberPort.getProcessName(), serviceDescription);
 
-    // delete subscriber port from list after unsubscribe was processed
+    // delete subscriber port from list after UNSUB was processed
     m_portPool->removeSubscriberPort(subscriberPortData);
+
     LogDebug() << "Destroyed subscriber port";
 }
 
