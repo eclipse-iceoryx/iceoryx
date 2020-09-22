@@ -22,10 +22,10 @@ using ::testing::_;
 
 using TestUntypedPublisher = iox::popo::UntypedPublisherImpl<MockBasePublisher<void>>;
 
-class ExperimentalUntypedPublisherTest : public Test
+class UntypedPublisherTest : public Test
 {
   public:
-    ExperimentalUntypedPublisherTest()
+    UntypedPublisherTest()
     {
     }
 
@@ -41,7 +41,7 @@ class ExperimentalUntypedPublisherTest : public Test
     TestUntypedPublisher sut{{"", "", ""}};
 };
 
-TEST_F(ExperimentalUntypedPublisherTest, GetsUIDViaBasePublisher)
+TEST_F(UntypedPublisherTest, GetsUIDViaBasePublisher)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, getUid).Times(1);
@@ -51,7 +51,7 @@ TEST_F(ExperimentalUntypedPublisherTest, GetsUIDViaBasePublisher)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalUntypedPublisherTest, LoansViaBasePublisher)
+TEST_F(UntypedPublisherTest, LoansViaBasePublisher)
 {
     // ===== Setup ===== //
     auto chunk =
@@ -68,7 +68,7 @@ TEST_F(ExperimentalUntypedPublisherTest, LoansViaBasePublisher)
     iox::cxx::alignedFree(chunk);
 }
 
-TEST_F(ExperimentalUntypedPublisherTest, PublishesSampleViaBasePublisher)
+TEST_F(UntypedPublisherTest, PublishesSampleViaBasePublisher)
 {
     // ===== Setup ===== //
     auto chunk =
@@ -87,7 +87,7 @@ TEST_F(ExperimentalUntypedPublisherTest, PublishesSampleViaBasePublisher)
     iox::cxx::alignedFree(chunk);
 }
 
-TEST_F(ExperimentalUntypedPublisherTest, PublishesVoidPointerViaUnderlyingPort)
+TEST_F(UntypedPublisherTest, PublishesVoidPointerViaUnderlyingPort)
 {
     // ===== Setup ===== //
     void* chunk = iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader));
@@ -99,7 +99,7 @@ TEST_F(ExperimentalUntypedPublisherTest, PublishesVoidPointerViaUnderlyingPort)
     iox::cxx::alignedFree(chunk);
 }
 
-TEST_F(ExperimentalUntypedPublisherTest, GetsPreviousSampleViaBasePublisher)
+TEST_F(UntypedPublisherTest, GetsPreviousSampleViaBasePublisher)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, loanPreviousSample).Times(1);
@@ -109,7 +109,7 @@ TEST_F(ExperimentalUntypedPublisherTest, GetsPreviousSampleViaBasePublisher)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalUntypedPublisherTest, OffersViaBasePublisher)
+TEST_F(UntypedPublisherTest, OffersViaBasePublisher)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, offer).Times(1);
@@ -119,7 +119,7 @@ TEST_F(ExperimentalUntypedPublisherTest, OffersViaBasePublisher)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalUntypedPublisherTest, StopsOffersViaBasePublisher)
+TEST_F(UntypedPublisherTest, StopsOffersViaBasePublisher)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, stopOffer).Times(1);
@@ -129,7 +129,7 @@ TEST_F(ExperimentalUntypedPublisherTest, StopsOffersViaBasePublisher)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalUntypedPublisherTest, checksIfOfferedViaBasePublisher)
+TEST_F(UntypedPublisherTest, checksIfOfferedViaBasePublisher)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, isOffered).Times(1);
@@ -139,7 +139,7 @@ TEST_F(ExperimentalUntypedPublisherTest, checksIfOfferedViaBasePublisher)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalUntypedPublisherTest, ChecksIfHasSubscribersViaBasePublisher)
+TEST_F(UntypedPublisherTest, ChecksIfHasSubscribersViaBasePublisher)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, hasSubscribers).Times(1);

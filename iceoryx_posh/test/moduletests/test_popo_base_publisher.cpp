@@ -25,7 +25,6 @@ struct DummyData
     uint64_t val = 42;
 };
 
-
 template <typename T, typename port_t>
 class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
 {
@@ -76,10 +75,10 @@ class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
 
 using TestBasePublisher = StubbedBasePublisher<DummyData, MockPublisherPortUser>;
 
-class ExperimentalBasePublisherTest : public Test
+class BasePublisherTest : public Test
 {
   public:
-    ExperimentalBasePublisherTest()
+    BasePublisherTest()
     {
     }
 
@@ -95,7 +94,7 @@ class ExperimentalBasePublisherTest : public Test
     TestBasePublisher sut{{"", "", ""}};
 };
 
-TEST_F(ExperimentalBasePublisherTest, LoanForwardsAllocationErrorsToCaller)
+TEST_F(BasePublisherTest, LoanForwardsAllocationErrorsToCaller)
 {
     // ===== Setup ===== //
     ON_CALL(sut.getMockedPort(), tryAllocateChunk)
@@ -109,7 +108,7 @@ TEST_F(ExperimentalBasePublisherTest, LoanForwardsAllocationErrorsToCaller)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBasePublisherTest, LoanReturnsAllocatedTypedSampleOnSuccess)
+TEST_F(BasePublisherTest, LoanReturnsAllocatedTypedSampleOnSuccess)
 {
     // ===== Setup ===== //
     auto chunk =
@@ -125,7 +124,7 @@ TEST_F(ExperimentalBasePublisherTest, LoanReturnsAllocatedTypedSampleOnSuccess)
     iox::cxx::alignedFree(chunk);
 }
 
-TEST_F(ExperimentalBasePublisherTest, LoanedSamplesContainPointerToChunkHeader)
+TEST_F(BasePublisherTest, LoanedSamplesContainPointerToChunkHeader)
 {
     // ===== Setup ===== //
     auto chunk =
@@ -140,7 +139,7 @@ TEST_F(ExperimentalBasePublisherTest, LoanedSamplesContainPointerToChunkHeader)
     iox::cxx::alignedFree(chunk);
 }
 
-TEST_F(ExperimentalBasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOfScope)
+TEST_F(BasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOfScope)
 {
     // ===== Setup ===== //
     auto chunk =
@@ -158,7 +157,7 @@ TEST_F(ExperimentalBasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenO
     iox::cxx::alignedFree(chunk);
 }
 
-TEST_F(ExperimentalBasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublisherPort)
+TEST_F(BasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublisherPort)
 {
     // ===== Setup ===== //
     ON_CALL(sut.getMockedPort(), tryAllocateChunk)
@@ -170,7 +169,7 @@ TEST_F(ExperimentalBasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPubl
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBasePublisherTest, PreviousSampleReturnsSampleWhenPreviousChunkIsRetrievable)
+TEST_F(BasePublisherTest, PreviousSampleReturnsSampleWhenPreviousChunkIsRetrievable)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), tryGetPreviousChunk)
@@ -182,7 +181,7 @@ TEST_F(ExperimentalBasePublisherTest, PreviousSampleReturnsSampleWhenPreviousChu
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBasePublisherTest, PreviousSampleReturnsEmptyOptionalWhenChunkNotRetrievable)
+TEST_F(BasePublisherTest, PreviousSampleReturnsEmptyOptionalWhenChunkNotRetrievable)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), tryGetPreviousChunk).WillOnce(Return(ByMove(iox::cxx::nullopt)));
@@ -193,7 +192,7 @@ TEST_F(ExperimentalBasePublisherTest, PreviousSampleReturnsEmptyOptionalWhenChun
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBasePublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
+TEST_F(BasePublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), offer).Times(1);
@@ -203,7 +202,7 @@ TEST_F(ExperimentalBasePublisherTest, OfferDoesOfferServiceOnUnderlyingPort)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBasePublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingPort)
+TEST_F(BasePublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), stopOffer).Times(1);
@@ -213,7 +212,7 @@ TEST_F(ExperimentalBasePublisherTest, StopOfferDoesStopOfferServiceOnUnderlyingP
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBasePublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingPort)
+TEST_F(BasePublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderlyingPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), isOffered).Times(1);
@@ -223,7 +222,7 @@ TEST_F(ExperimentalBasePublisherTest, isOfferedDoesCheckIfPortIsOfferedOnUnderly
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBasePublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
+TEST_F(BasePublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), hasSubscribers).Times(1);

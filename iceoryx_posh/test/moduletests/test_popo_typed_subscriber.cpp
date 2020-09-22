@@ -27,10 +27,10 @@ struct DummyData
 
 using TestTypedSubscriber = iox::popo::TypedSubscriber<DummyData, MockBaseSubscriber<DummyData>>;
 
-class ExperimentalTypedSubscriberTest : public Test
+class TypedSubscriberTest : public Test
 {
   public:
-    ExperimentalTypedSubscriberTest()
+    TypedSubscriberTest()
     {
     }
 
@@ -46,7 +46,7 @@ class ExperimentalTypedSubscriberTest : public Test
     TestTypedSubscriber sut{{"", "", ""}};
 };
 
-TEST_F(ExperimentalTypedSubscriberTest, GetsUIDViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, GetsUIDViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, getUid).Times(1);
@@ -56,7 +56,7 @@ TEST_F(ExperimentalTypedSubscriberTest, GetsUIDViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalTypedSubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, getServiceDescription).Times(1);
@@ -66,7 +66,7 @@ TEST_F(ExperimentalTypedSubscriberTest, GetsServiceDescriptionViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalTypedSubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, getSubscriptionState).Times(1);
@@ -76,7 +76,7 @@ TEST_F(ExperimentalTypedSubscriberTest, GetsSubscriptionStateViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalTypedSubscriberTest, SubscribesViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, SubscribesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, subscribe).Times(1);
@@ -86,7 +86,7 @@ TEST_F(ExperimentalTypedSubscriberTest, SubscribesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalTypedSubscriberTest, UnsubscribesViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, UnsubscribesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, unsubscribe).Times(1);
@@ -96,7 +96,7 @@ TEST_F(ExperimentalTypedSubscriberTest, UnsubscribesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalTypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, hasNewSamples).Times(1);
@@ -106,7 +106,7 @@ TEST_F(ExperimentalTypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalTypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, receive).Times(1).WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const DummyData>>>())));
@@ -116,7 +116,7 @@ TEST_F(ExperimentalTypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalTypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, releaseQueuedSamples).Times(1);
@@ -126,7 +126,7 @@ TEST_F(ExperimentalTypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalTypedSubscriberTest, SetsConditionVariableViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, SetsConditionVariableViaBaseSubscriber)
 {
     // ===== Setup ===== //
     auto conditionVariable = new iox::popo::ConditionVariableData();
@@ -138,7 +138,7 @@ TEST_F(ExperimentalTypedSubscriberTest, SetsConditionVariableViaBaseSubscriber)
     delete conditionVariable;
 }
 
-TEST_F(ExperimentalTypedSubscriberTest, UnsetsConditionVariableViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, UnsetsConditionVariableViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, unsetConditionVariable).Times(1);
@@ -148,7 +148,7 @@ TEST_F(ExperimentalTypedSubscriberTest, UnsetsConditionVariableViaBaseSubscriber
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalTypedSubscriberTest, ChecksIfConditionIsTriggeredViaBaseSubscriber)
+TEST_F(TypedSubscriberTest, ChecksIfConditionIsTriggeredViaBaseSubscriber)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut, hasTriggered).Times(1);

@@ -95,10 +95,10 @@ using TestBaseSubscriber = StubbedBaseSubscriber<DummyData, MockSubscriberPortUs
 
 // ========================= Base Publisher Tests ========================= //
 
-class ExperimentalBaseSubscriberTest : public Test
+class BaseSubscriberTest : public Test
 {
   public:
-    ExperimentalBaseSubscriberTest()
+    BaseSubscriberTest()
     {
     }
 
@@ -114,7 +114,7 @@ class ExperimentalBaseSubscriberTest : public Test
     TestBaseSubscriber sut{{"", "", ""}};
 };
 
-TEST_F(ExperimentalBaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), subscribe(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY)).Times(1);
@@ -124,7 +124,7 @@ TEST_F(ExperimentalBaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscri
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBaseSubscriberTest, GetSubscriptionStateCallForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, GetSubscriptionStateCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), getSubscriptionState).Times(1);
@@ -134,7 +134,7 @@ TEST_F(ExperimentalBaseSubscriberTest, GetSubscriptionStateCallForwardedToUnderl
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBaseSubscriberTest, UnsubscribeCallForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, UnsubscribeCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), unsubscribe).Times(1);
@@ -144,7 +144,7 @@ TEST_F(ExperimentalBaseSubscriberTest, UnsubscribeCallForwardedToUnderlyingSubsc
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBaseSubscriberTest, HasNewSamplesCallForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, HasNewSamplesCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), hasNewChunks).Times(1);
@@ -154,7 +154,7 @@ TEST_F(ExperimentalBaseSubscriberTest, HasNewSamplesCallForwardedToUnderlyingSub
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksInSamples)
+TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksInSamples)
 {
     // ===== Setup ===== //
     auto chunk =
@@ -172,7 +172,7 @@ TEST_F(ExperimentalBaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksInSamp
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
+TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
@@ -185,7 +185,7 @@ TEST_F(ExperimentalBaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBaseSubscriberTest, ReceiveReturnsEmptyOptionalIfUnderlyingPortReturnsEmptyOptional)
+TEST_F(BaseSubscriberTest, ReceiveReturnsEmptyOptionalIfUnderlyingPortReturnsEmptyOptional)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
@@ -199,7 +199,7 @@ TEST_F(ExperimentalBaseSubscriberTest, ReceiveReturnsEmptyOptionalIfUnderlyingPo
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), releaseQueuedChunks).Times(1);
@@ -209,7 +209,7 @@ TEST_F(ExperimentalBaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyi
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBaseSubscriberTest, SetConditionVariableCallForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, SetConditionVariableCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
     auto conditionVariable = new iox::popo::ConditionVariableData();
@@ -221,7 +221,7 @@ TEST_F(ExperimentalBaseSubscriberTest, SetConditionVariableCallForwardedToUnderl
     delete conditionVariable;
 }
 
-TEST_F(ExperimentalBaseSubscriberTest, UnsetConditionVariableCallForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, UnsetConditionVariableCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
@@ -231,7 +231,7 @@ TEST_F(ExperimentalBaseSubscriberTest, UnsetConditionVariableCallForwardedToUnde
     // ===== Cleanup ===== //
 }
 
-TEST_F(ExperimentalBaseSubscriberTest, HasTriggeredCallForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, HasTriggeredCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), hasNewChunks).Times(1);
