@@ -51,7 +51,7 @@ inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publi
                                                                                            ArgTypes... args) noexcept
 {
     static_assert(
-        cxx::is_callable<Callable, T*, ArgTypes...>::value,
+        cxx::is_invocable<Callable, T*, ArgTypes...>::value,
         "TypedPublisher<T>::publishResultOf expects a valid callable with a specific signature as the first argument");
     static_assert(cxx::has_signature<Callable, void(T*, ArgTypes...)>::value,
                   "callable provided to TypedPublisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
