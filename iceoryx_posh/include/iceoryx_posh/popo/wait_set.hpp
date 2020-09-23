@@ -96,12 +96,6 @@ class WaitSet
   public:
     using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
-    enum class WaitPolicy : uint16_t
-    {
-        BLOCKING_WAIT,
-        TIMED_WAIT
-    };
-
     WaitSet() noexcept;
     virtual ~WaitSet() noexcept;
     WaitSet(const WaitSet& rhs) = delete;
