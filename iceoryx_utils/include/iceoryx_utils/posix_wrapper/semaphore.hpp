@@ -14,6 +14,7 @@
 #ifndef IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_HPP
 #define IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_HPP
 
+#include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
@@ -31,6 +32,10 @@ namespace posix
 enum class SemaphoreError
 {
     CREATION_FAILED,
+    NAME_TOO_LONG,
+    UNABLE_TO_OPEN_HANDLE,
+    NOT_A_VALID_SEMAPHORE,
+    SEMAPHORE_OVERFLOW,
     UNDEFINED
 };
 

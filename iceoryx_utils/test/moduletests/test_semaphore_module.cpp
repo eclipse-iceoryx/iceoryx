@@ -30,7 +30,7 @@ using namespace iox::units::duration_literals;
 
 typedef iox::posix::Semaphore* CreateSemaphore();
 
-iox::posix::Semaphore* CreateNamedSemaphore()
+iox::posix::Semaphore* createNamedSemaphore()
 {
     static int i = 10;
     auto semaphore =
@@ -38,7 +38,7 @@ iox::posix::Semaphore* CreateNamedSemaphore()
     return (semaphore.has_error()) ? nullptr : new iox::posix::Semaphore(std::move(*semaphore));
 }
 
-iox::posix::Semaphore* CreateUnnamedSemaphore()
+iox::posix::Semaphore* createUnnamedSemaphore()
 {
     auto semaphore = iox::posix::Semaphore::create(0);
     return (semaphore.has_error()) ? nullptr : new iox::posix::Semaphore(std::move(*semaphore));
@@ -104,7 +104,7 @@ class SemaphoreCreate_test : public Test
 /// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-INSTANTIATE_TEST_CASE_P(Semaphore_test, Semaphore_test, Values(&CreateNamedSemaphore, &CreateUnnamedSemaphore));
+INSTANTIATE_TEST_CASE_P(Semaphore_test, Semaphore_test, Values(&createNamedSemaphore, &createUnnamedSemaphore));
 #pragma GCC diagnostic pop
 
 TEST_F(SemaphoreCreate_test, CreateNamedSemaphore)
@@ -289,7 +289,6 @@ TEST_P(Semaphore_test, MoveAssignment)
     iox::posix::Semaphore b;
     {
         b = std::move(*sut);
-        EXPECT_THAT(sut->post(), Eq(false));
     }
 
     EXPECT_THAT(b.post(), Eq(true));
@@ -300,7 +299,6 @@ TEST_P(Semaphore_test, MoveCTor)
     iox::posix::Semaphore b(std::move(*sut));
 
     EXPECT_THAT(b.post(), Eq(true));
-    EXPECT_THAT(sut->post(), Eq(false));
 }
 
 TIMING_TEST_P(Semaphore_test, TimedWaitWithTimeout, Repeat(3), [&] {

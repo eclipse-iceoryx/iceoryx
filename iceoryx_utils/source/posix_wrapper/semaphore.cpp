@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
 namespace iox
@@ -81,25 +82,17 @@ void Semaphore::closeHandle() noexcept
 
 bool Semaphore::getValue(int& value) const noexcept
 {
-    return m_isInitialized
-           && !cxx::makeSmartC(iox_sem_getvalue, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr, &value)
-                   .hasErrors();
+    return !cxx::makeSmartC(iox_sem_getvalue, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr, &value)
+                .hasErrors();
 }
 
 bool Semaphore::post() noexcept
 {
-    return m_isInitialized
-           && !cxx::makeSmartC(iox_sem_post, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr)
-                   .hasErrors();
+    return !cxx::makeSmartC(iox_sem_post, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr).hasErrors();
 }
 
 bool Semaphore::timedWait(const struct timespec* abs_timeout, const bool doContinueOnInterrupt) const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return false;
-    }
-
     if (doContinueOnInterrupt)
     {
         // we wait so long until iox_sem_timedwait returns without an
@@ -143,11 +136,6 @@ bool Semaphore::timedWait(const struct timespec* abs_timeout, const bool doConti
 
 bool Semaphore::tryWait() const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return false;
-    }
-
     auto cCall = cxx::makeSmartC(iox_sem_trywait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {EAGAIN}, m_handlePtr);
 
     if (cCall.hasErrors() || cCall.getErrNum() == EAGAIN)
@@ -162,9 +150,7 @@ bool Semaphore::tryWait() const noexcept
 
 bool Semaphore::wait() const noexcept
 {
-    return m_isInitialized
-           && !cxx::makeSmartC(iox_sem_wait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr)
-                   .hasErrors();
+    return !cxx::makeSmartC(iox_sem_wait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr).hasErrors();
 }
 
 iox_sem_t* Semaphore::getHandle() noexcept
@@ -190,6 +176,11 @@ Semaphore::Semaphore(const unsigned int value) noexcept
     {
         m_isInitialized = true;
     }
+    else
+    {
+        m_isInitialized = false;
+        m_errorValue = SemaphoreError::CREATION_FAILED;
+    }
 }
 
 Semaphore::Semaphore(iox_sem_t* handle, const unsigned int value) noexcept
@@ -201,30 +192,53 @@ Semaphore::Semaphore(iox_sem_t* handle, const unsigned int value) noexcept
     {
         m_isInitialized = true;
     }
+    else
+    {
+        m_isInitialized = false;
+        m_errorValue = SemaphoreError::CREATION_FAILED;
+    }
 }
 
 Semaphore::Semaphore(const char* name, const int oflag) noexcept
     : m_isCreated(false)
 {
-    if (!hasSemaphoreNameOverflow(name))
+    if (hasSemaphoreNameOverflow(name))
     {
-        strncpy(m_name, name, m_nameSize);
-        if (open(oflag))
-        {
-            m_isInitialized = true;
-        }
+        m_isInitialized = false;
+        m_errorValue = SemaphoreError::NAME_TOO_LONG;
+        return;
+    }
+
+    strncpy(m_name, name, m_nameSize);
+    if (open(oflag))
+    {
+        m_isInitialized = true;
+    }
+    else
+    {
+        m_errorValue = SemaphoreError::UNABLE_TO_OPEN_HANDLE;
+        m_isInitialized = false;
     }
 }
 
 Semaphore::Semaphore(const char* name, const mode_t mode, const unsigned int value) noexcept
 {
-    if (!hasSemaphoreNameOverflow(name))
+    if (hasSemaphoreNameOverflow(name))
     {
-        strncpy(m_name, name, m_nameSize);
-        if (open(O_CREAT | O_EXCL, mode, value))
-        {
-            m_isInitialized = true;
-        }
+        m_isInitialized = false;
+        m_errorValue = SemaphoreError::NAME_TOO_LONG;
+        return;
+    }
+
+    strncpy(m_name, name, m_nameSize);
+    if (open(O_CREAT | O_EXCL, mode, value))
+    {
+        m_isInitialized = true;
+    }
+    else
+    {
+        m_errorValue = SemaphoreError::CREATION_FAILED;
+        m_isInitialized = false;
     }
 }
 
