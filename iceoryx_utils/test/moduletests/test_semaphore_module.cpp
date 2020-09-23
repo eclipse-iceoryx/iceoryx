@@ -33,14 +33,14 @@ typedef iox::posix::Semaphore* CreateSemaphore();
 iox::posix::Semaphore* createNamedSemaphore()
 {
     static int i = 10;
-    auto semaphore =
-        iox::posix::Semaphore::create(std::string("/fuuSem" + std::to_string(i++)).c_str(), S_IRUSR | S_IWUSR, 0);
+    auto semaphore = iox::posix::Semaphore::create(
+        iox::posix::CreateNamedSemaphore, std::string("/fuuSem" + std::to_string(i++)).c_str(), S_IRUSR | S_IWUSR, 0);
     return (semaphore.has_error()) ? nullptr : new iox::posix::Semaphore(std::move(*semaphore));
 }
 
 iox::posix::Semaphore* createUnnamedSemaphore()
 {
-    auto semaphore = iox::posix::Semaphore::create(0);
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0);
     return (semaphore.has_error()) ? nullptr : new iox::posix::Semaphore(std::move(*semaphore));
 }
 
@@ -78,7 +78,7 @@ class Semaphore_test : public TestWithParam<CreateSemaphore*>
 
     iox::posix::Semaphore* sut{nullptr};
     iox::posix::Semaphore* syncSemaphore = [] {
-        auto semaphore = iox::posix::Semaphore::create(0);
+        auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0);
         return (semaphore.has_error()) ? nullptr : new iox::posix::Semaphore(std::move(*semaphore));
     }();
 };
@@ -109,41 +109,42 @@ INSTANTIATE_TEST_CASE_P(Semaphore_test, Semaphore_test, Values(&createNamedSemap
 
 TEST_F(SemaphoreCreate_test, CreateNamedSemaphore)
 {
-    auto semaphore = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR, 10);
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR, 10);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
 }
 
 TEST_F(SemaphoreCreate_test, CreateExistingNamedSemaphore)
 {
-    auto semaphore = iox::posix::Semaphore::create("/fuuSem1", S_IRUSR | S_IWUSR, 10);
-    auto semaphore2 = iox::posix::Semaphore::create("/fuuSem1", S_IRUSR | S_IWUSR, 10);
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "/fuuSem1", S_IRUSR | S_IWUSR, 10);
+    auto semaphore2 =
+        iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "/fuuSem1", S_IRUSR | S_IWUSR, 10);
     ASSERT_EQ(semaphore.has_error(), false);
     ASSERT_EQ(semaphore2.has_error(), true);
 }
 
 TEST_F(SemaphoreCreate_test, CreateLocalUnnamedSemaphore)
 {
-    auto semaphore = iox::posix::Semaphore::create(10);
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 10);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
 }
 
 TEST_F(SemaphoreCreate_test, OpenNamedSemaphore)
 {
-    auto semaphore = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR, 10);
-    auto semaphore2 = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR);
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR, 10);
+    auto semaphore2 = iox::posix::Semaphore::create(iox::posix::OpenNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR);
     EXPECT_THAT(semaphore.has_error(), Eq(false));
     EXPECT_THAT(semaphore2.has_error(), Eq(false));
 }
 
 TEST_F(SemaphoreCreate_test, OpenNamedSemaphoreWithEmptyNameFails)
 {
-    auto semaphore = iox::posix::Semaphore::create("", S_IRUSR | S_IWUSR, 10);
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore, "", S_IRUSR | S_IWUSR, 10);
     EXPECT_THAT(semaphore.has_error(), Eq(true));
 }
 
 TEST_F(SemaphoreCreate_test, OpenNonExistingNamedSemaphore)
 {
-    auto semaphore2 = iox::posix::Semaphore::create("/fuuSem", S_IRUSR | S_IWUSR);
+    auto semaphore2 = iox::posix::Semaphore::create(iox::posix::OpenNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR);
     EXPECT_THAT(semaphore2.has_error(), Eq(true));
 }
 

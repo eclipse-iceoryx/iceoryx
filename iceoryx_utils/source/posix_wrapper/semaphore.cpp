@@ -192,7 +192,7 @@ bool Semaphore::hasSemaphoreNameOverflow(const char* name) noexcept
     return false;
 }
 
-Semaphore::Semaphore(const unsigned int value) noexcept
+Semaphore::Semaphore(CreateUnnamedSingleProcessSemaphore_t, const unsigned int value) noexcept
     : m_isNamedSemaphore(false)
 {
     if (init(&m_handle, 0, value))
@@ -206,7 +206,7 @@ Semaphore::Semaphore(const unsigned int value) noexcept
     }
 }
 
-Semaphore::Semaphore(iox_sem_t* handle, const unsigned int value) noexcept
+Semaphore::Semaphore(CreateUnnamedSharedMemorySemaphore_t, iox_sem_t* handle, const unsigned int value) noexcept
     : m_isNamedSemaphore(false)
     , m_isShared(true)
     , m_handlePtr(handle)
@@ -222,7 +222,7 @@ Semaphore::Semaphore(iox_sem_t* handle, const unsigned int value) noexcept
     }
 }
 
-Semaphore::Semaphore(const char* name, const int oflag) noexcept
+Semaphore::Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) noexcept
     : m_isCreated(false)
 {
     if (hasSemaphoreNameOverflow(name))
@@ -244,7 +244,7 @@ Semaphore::Semaphore(const char* name, const int oflag) noexcept
     }
 }
 
-Semaphore::Semaphore(const char* name, const mode_t mode, const unsigned int value) noexcept
+Semaphore::Semaphore(CreateNamedSemaphore_t, const char* name, const mode_t mode, const unsigned int value) noexcept
 {
     if (hasSemaphoreNameOverflow(name))
     {

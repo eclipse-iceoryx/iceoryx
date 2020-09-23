@@ -82,7 +82,7 @@ class RouDiApp
     bool m_run{true};
     RouDiConfig_t m_config;
 
-    posix::Semaphore m_semaphore = std::move(posix::Semaphore::create(0u)
+    posix::Semaphore m_semaphore = std::move(posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0u)
                                                  .or_else([](posix::SemaphoreError&) {
                                                      std::cerr << "Unable to create the semaphore for RouDi"
                                                                << std::endl;

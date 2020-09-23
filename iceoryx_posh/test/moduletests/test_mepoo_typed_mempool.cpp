@@ -109,14 +109,14 @@ class alignas(32) TypedMemPool_Semaphore_test : public Test
 
 TEST_F(TypedMemPool_Semaphore_test, CreateValidSemaphore)
 {
-    auto semaphorePtr =
-        sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>("/fuuSem", S_IRUSR | S_IWUSR, 10);
+    auto semaphorePtr = sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(
+        iox::posix::CreateNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR, 10);
     EXPECT_THAT(semaphorePtr.has_error(), Eq(false));
 }
 
 TEST_F(TypedMemPool_Semaphore_test, CreateInvalidSemaphore)
 {
-    auto semaphorePtr =
-        sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>("", S_IRUSR | S_IWUSR, 10);
+    auto semaphorePtr = sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(
+        iox::posix::CreateNamedSemaphore, "", S_IRUSR | S_IWUSR, 10);
     EXPECT_THAT(semaphorePtr.has_error(), Eq(true));
 }

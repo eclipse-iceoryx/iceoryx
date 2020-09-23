@@ -46,6 +46,25 @@ enum class SemaphoreWaitState
     NO_TIMEOUT,
 };
 
+struct CreateUnnamedSingleProcessSemaphore_t
+{
+};
+struct CreateUnnamedSharedMemorySemaphore_t
+{
+};
+struct CreateNamedSemaphore_t
+{
+};
+struct OpenNamedSemaphore_t
+{
+};
+static constexpr CreateUnnamedSingleProcessSemaphore_t CreateUnnamedSingleProcessSemaphore =
+    CreateUnnamedSingleProcessSemaphore_t();
+static constexpr CreateUnnamedSharedMemorySemaphore_t CreateUnnamedSharedMemorySemaphore =
+    CreateUnnamedSharedMemorySemaphore_t();
+static constexpr CreateNamedSemaphore_t CreateNamedSemaphore = CreateNamedSemaphore_t();
+static constexpr OpenNamedSemaphore_t OpenNamedSemaphore = OpenNamedSemaphore_t();
+
 /// @brief Posix semaphore C++ Wrapping class
 /// @code
 ///     auto semaphore = posix::Semaphore::CreateUnnamed(false, 5);
@@ -187,7 +206,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///         via IsInitialized()
     ///         For details see man sem_init.
     /// @param[in] value initial value of the semaphore
-    Semaphore(const unsigned int value) noexcept;
+    Semaphore(CreateUnnamedSingleProcessSemaphore_t, const unsigned int value) noexcept;
 
     /// @brief Creates unnamed semaphore in the shared memory.
     ///         The Semaphore should be initialized but that has to be verified
@@ -195,7 +214,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///         For details see man sem_init.
     /// @param[in] handle pointer to a handle which is in the shared memory
     /// @param[in] value initial value of the semaphore
-    Semaphore(iox_sem_t* handle, const unsigned int value) noexcept;
+    Semaphore(CreateUnnamedSharedMemorySemaphore_t, iox_sem_t* handle, const unsigned int value) noexcept;
 
     /// @brief Opens an already existing named semaphore. If a semaphore with
     ///         name does not exist an uninitialized Semaphore is returned
@@ -205,7 +224,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// @param[in] name name of the semaphore
     /// @param[in] oflag specifies flags that control the operation of the call
     ///                 O_CREAT flag is not allowed here
-    Semaphore(const char* name, const int oflag) noexcept;
+    Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) noexcept;
 
     /// @brief Creates an exclusive named semaphore. If a semaphore with name
     ///         already exists then the Semaphore returned is not initialized
@@ -220,7 +239,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// @param[in] value the initial value of the semaphore
     /// @return Semaphore object which can be initialized, if a semaphore
     ///         named name exists it is definitly an uninitialized semaphore.
-    Semaphore(const char* name, const mode_t mode, const unsigned int value) noexcept;
+    Semaphore(CreateNamedSemaphore_t, const char* name, const mode_t mode, const unsigned int value) noexcept;
 
     /// @brief calls sem_close which closes a named semaphore
     /// From the sem_close manpage: sem_close() closes the named semaphore

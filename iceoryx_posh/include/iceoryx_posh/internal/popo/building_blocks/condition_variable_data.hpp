@@ -34,7 +34,7 @@ struct ConditionVariableData
 
     iox_sem_t m_semaphoreHandle;
     posix::Semaphore m_semaphore =
-        std::move(posix::Semaphore::create(&m_semaphoreHandle, 0u)
+        std::move(posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, &m_semaphoreHandle, 0u)
                       .or_else([](posix::SemaphoreError&) {
                           errorHandler(Error::kPOPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE,
                                        nullptr,
