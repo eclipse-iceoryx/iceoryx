@@ -160,9 +160,9 @@ class PortUser_IntegrationTest : public Test
         return caproMessage;
     }
 
-    template <typename SubscriberPortProducerType>
+    template <typename SubscriberPortType>
     void subscriberThread(uint32_t numberOfPublishers,
-                          SubscriberPortProducerType& subscriberPortRouDi,
+                          SubscriberPortType& subscriberPortRouDi,
                           SubscriberPortUser& subscriberPortUser)
     {
         bool finished{false};

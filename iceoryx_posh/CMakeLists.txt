@@ -6,6 +6,7 @@ find_package(Threads REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
 option(TOML_CONFIG "activates or deactivates TOML support - without TOML RouDi will not be build" ON)
+option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 
 include(cmake/iceoryxversions.cmake)
 include(cmake/install_help_and_config.cmake)
@@ -83,10 +84,10 @@ add_library(iceoryx_posh
     source/popo/ports/subscriber_port_data.cpp
     source/popo/ports/client_port_data.cpp
     source/popo/ports/client_port_roudi.cpp
-    source/popo/ports/client_port_user.cpp        
+    source/popo/ports/client_port_user.cpp
     source/popo/ports/server_port_data.cpp
-    source/popo/ports/server_port_roudi.cpp  
-    source/popo/ports/server_port_user.cpp          
+    source/popo/ports/server_port_roudi.cpp
+    source/popo/ports/server_port_user.cpp
     source/popo/building_blocks/chunk_queue_types.cpp
     source/popo/building_blocks/condition_variable_signaler.cpp
     source/popo/building_blocks/condition_variable_waiter.cpp
@@ -199,7 +200,6 @@ add_library(iceoryx_posh_roudi
     source/roudi/memory/default_roudi_memory.cpp
     source/roudi/memory/roudi_memory_manager.cpp
     source/roudi/memory/iceoryx_roudi_memory_manager.cpp
-    source/roudi/iceoryx_port_pool.cpp
     source/roudi/port_manager.cpp
     source/roudi/port_pool.cpp
     source/roudi/roudi.cpp
@@ -322,7 +322,6 @@ if(TOML_CONFIG)
 endif(TOML_CONFIG)
 
 if(roudi_environment OR test)
-    
     #
     ######### posh roudi environment ##########
     #
@@ -332,7 +331,6 @@ if(roudi_environment OR test)
     )
 
     add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi_environment ALIAS iceoryx_posh_roudi_environment)
-    
     set_target_properties(iceoryx_posh_roudi_environment PROPERTIES
         CXX_STANDARD_REQUIRED ON
         CXX_STANDARD ${ICEORYX_CXX_STANDARD}

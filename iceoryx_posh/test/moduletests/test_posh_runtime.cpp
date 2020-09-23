@@ -16,6 +16,8 @@
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 
+#include <type_traits>
+
 using namespace ::testing;
 using namespace iox::runtime;
 using iox::roudi::RouDiEnvironment;
@@ -364,6 +366,38 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
     auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
     EXPECT_EQ(nullptr, publisherPort);
     EXPECT_TRUE(publisherlistOverflowDetected);
+}
+
+TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithSameServiceDescriptionsAndOneToManyPolicyFails)
+{
+    auto publisherDuplicateDetected{false};
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&publisherDuplicateDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            if (error == iox::Error::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE)
+            {
+                publisherDuplicateDetected = true;
+            }
+        });
+
+    auto sameServiceDescription = iox::capro::ServiceDescription(99U, 1U, 20U);
+
+    const auto publisherPort1 = m_runtime->getMiddlewarePublisher(
+        sameServiceDescription, 0U, m_runnableName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    const auto publisherPort2 = m_runtime->getMiddlewarePublisher(
+        sameServiceDescription, 0U, m_runnableName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
+
+    ASSERT_NE(nullptr, publisherPort1);
+
+    if (std::is_same<iox::build::CommunicationPolicy, iox::build::OneToManyPolicy>::value)
+    {
+        ASSERT_EQ(nullptr, publisherPort2);
+        EXPECT_TRUE(publisherDuplicateDetected);
+    }
+    else if (std::is_same<iox::build::CommunicationPolicy, iox::build::ManyToManyPolicy>::value)
+    {
+        ASSERT_NE(nullptr, publisherPort2);
+    }
 }
 
 TEST_F(PoshRuntime_test, GetMiddlewareSubscriberIsSuccessful)
