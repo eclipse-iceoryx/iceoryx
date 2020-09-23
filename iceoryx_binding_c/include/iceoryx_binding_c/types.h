@@ -48,7 +48,7 @@ struct iox_sub_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(cpp2c_Subscriber) / 8
-    uint64_t do_not_touch_me[4];
+    uint64_t do_not_touch_me[3];
 };
 typedef struct iox_sub_storage_t_ iox_sub_storage_t;
 

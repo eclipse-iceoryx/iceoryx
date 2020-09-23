@@ -160,7 +160,7 @@ void RouDiApp::init() noexcept
 
 bool RouDiApp::waitForSignal() const noexcept
 {
-    return m_semaphore.wait();
+    return !m_semaphore.wait().has_error();
 }
 
 void RouDiApp::setCmdLineParserResults(const config::CmdLineParser& cmdLineParser) noexcept

@@ -50,6 +50,7 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
         }
 
         rhs.m_isInitialized = false;
+        rhs.m_handlePtr = &rhs.m_handle;
     }
 
     return *this;
@@ -80,18 +81,32 @@ void Semaphore::closeHandle() noexcept
     }
 }
 
-bool Semaphore::getValue(int& value) const noexcept
+cxx::expected<int, SemaphoreError> Semaphore::getValue() const noexcept
 {
-    return !cxx::makeSmartC(iox_sem_getvalue, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr, &value)
-                .hasErrors();
+    int value;
+    auto call =
+        cxx::makeSmartC(iox_sem_getvalue, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr, &value);
+    if (call.hasErrors())
+    {
+        return cxx::error<SemaphoreError>(errnoToEnum(call.getErrNum()));
+    }
+
+    return cxx::success<int>(value);
 }
 
-bool Semaphore::post() noexcept
+cxx::expected<SemaphoreError> Semaphore::post() noexcept
 {
-    return !cxx::makeSmartC(iox_sem_post, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr).hasErrors();
+    auto call = cxx::makeSmartC(iox_sem_post, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr);
+    if (call.hasErrors())
+    {
+        return cxx::error<SemaphoreError>(errnoToEnum(call.getErrNum()));
+    }
+
+    return cxx::success<>();
 }
 
-bool Semaphore::timedWait(const struct timespec* abs_timeout, const bool doContinueOnInterrupt) const noexcept
+cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const struct timespec* abs_timeout,
+                                                                       const bool doContinueOnInterrupt) const noexcept
 {
     if (doContinueOnInterrupt)
     {
@@ -107,15 +122,15 @@ bool Semaphore::timedWait(const struct timespec* abs_timeout, const bool doConti
                                          abs_timeout);
             if (cCall.hasErrors())
             {
-                return false;
+                return cxx::error<SemaphoreError>(errnoToEnum(cCall.getErrNum()));
             }
             else if (cCall.getErrNum() == ETIMEDOUT)
             {
-                return false;
+                return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::TIMEOUT);
             }
             else
             {
-                return true;
+                return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::NO_TIMEOUT);
             }
         }
     }
@@ -125,32 +140,40 @@ bool Semaphore::timedWait(const struct timespec* abs_timeout, const bool doConti
             iox_sem_timedwait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ETIMEDOUT}, m_handlePtr, abs_timeout);
         if (cCall.hasErrors() || cCall.getErrNum() == ETIMEDOUT)
         {
-            return false;
+            return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::TIMEOUT);
         }
         else
         {
-            return true;
+            return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::NO_TIMEOUT);
         }
     }
 }
 
-bool Semaphore::tryWait() const noexcept
+cxx::expected<bool, SemaphoreError> Semaphore::tryWait() const noexcept
 {
     auto cCall = cxx::makeSmartC(iox_sem_trywait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {EAGAIN}, m_handlePtr);
 
-    if (cCall.hasErrors() || cCall.getErrNum() == EAGAIN)
+    if (cCall.hasErrors() && cCall.getErrNum() != EAGAIN)
     {
-        return false;
+        return cxx::error<SemaphoreError>(errnoToEnum(cCall.getErrNum()));
     }
-    else
+    else if (cCall.getErrNum() == EAGAIN)
     {
-        return true;
+        return cxx::success<bool>(false);
     }
+
+    return cxx::success<bool>(true);
 }
 
-bool Semaphore::wait() const noexcept
+cxx::expected<SemaphoreError> Semaphore::wait() const noexcept
 {
-    return !cxx::makeSmartC(iox_sem_wait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr).hasErrors();
+    auto call = cxx::makeSmartC(iox_sem_wait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr);
+    if (call.hasErrors())
+    {
+        return cxx::error<SemaphoreError>(errnoToEnum(call.getErrNum()));
+    }
+
+    return cxx::success<>();
 }
 
 iox_sem_t* Semaphore::getHandle() noexcept
@@ -300,5 +323,25 @@ bool Semaphore::isNamedSemaphore() noexcept
 {
     return m_isNamedSemaphore;
 }
+
+SemaphoreError Semaphore::errnoToEnum(const int errnoValue) const noexcept
+{
+    switch (errnoValue)
+    {
+    case EINVAL:
+        std::cerr << "semaphore object is in an inconsistent state" << std::endl;
+        return SemaphoreError::INVALID_SEMAPHORE_HANDLE;
+    case EOVERFLOW:
+        std::cerr << "semaphore is overflowing" << std::endl;
+        return SemaphoreError::SEMAPHORE_OVERFLOW;
+    case EINTR:
+        std::cerr << "call was interrupted by signal handler" << std::endl;
+        return SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER;
+    default:
+        std::cerr << "an undefined error occurred in semaphore - this should never happen!" << std::endl;
+        return SemaphoreError::UNDEFINED;
+    }
+}
+
 } // namespace posix
 } // namespace iox

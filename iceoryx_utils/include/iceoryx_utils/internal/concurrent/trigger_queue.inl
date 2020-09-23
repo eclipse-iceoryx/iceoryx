@@ -60,7 +60,9 @@ inline bool TriggerQueue<T, CAPACITY>::blocking_pop(T& out)
 template <typename T, uint64_t CAPACITY>
 inline bool TriggerQueue<T, CAPACITY>::try_pop(T& out)
 {
-    if (!m_semaphore->tryWait())
+    if (!m_semaphore->tryWait()
+             .or_else([](posix::SemaphoreError) { std::cerr << "working on corrupted semaphore"; })
+             .get_value())
     {
         return false;
     }

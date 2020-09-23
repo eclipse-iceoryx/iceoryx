@@ -166,7 +166,9 @@ inline bool Subscriber_t<ReceiverPortType>::tryWaitForChunk() noexcept
     const auto semaphore = m_receiver.GetShmSemaphore();
     assert(semaphore != nullptr && "TryWaitForChunk: semaphore is not set");
 
-    return semaphore->tryWait();
+    auto call = semaphore->tryWait();
+    assert(call.has_error() && "Semaphore is corrupted");
+    return call.get_value();
 }
 
 template <typename ReceiverPortType>
