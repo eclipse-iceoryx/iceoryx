@@ -15,8 +15,8 @@
 #define IOX_POSH_POPO_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
@@ -65,7 +65,7 @@ class Subscriber_t
 
     /// @brief Function for subscribing to event
     /// @param[in] cacheSize Size of the receiver queue
-    void subscribe(const uint32_t cacheSize = MAX_RECEIVER_QUEUE_CAPACITY) noexcept;
+    void subscribe(const uint32_t cacheSize = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
 
     /// @brief Get function for retrieving subsription state
     /// @return enum value of subsription state
@@ -151,7 +151,6 @@ class Subscriber_t
     Subscriber_t() noexcept;
 
   private:
-
     capro::ServiceDescription m_serviceDescription{};
 
     // callback main method

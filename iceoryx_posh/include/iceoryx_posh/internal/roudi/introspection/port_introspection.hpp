@@ -253,9 +253,8 @@ class PortIntrospection
         void setNew(bool value);
 
       private:
-        // MAX_PORT_NUMBER needs to be a compile time constant
-        using SenderContainer = FixedSizeContainer<SenderInfo, MAX_PORT_NUMBER>;
-        using ConnectionContainer = FixedSizeContainer<ConnectionInfo, MAX_PORT_NUMBER>;
+        using SenderContainer = FixedSizeContainer<SenderInfo, MAX_PUBLISHERS>;
+        using ConnectionContainer = FixedSizeContainer<ConnectionInfo, MAX_SUBSCRIBERS>;
 
         // index sender and connections by capro Ids
         std::map<std::string, typename SenderContainer::Index_t> m_senderMap;

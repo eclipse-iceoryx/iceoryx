@@ -2,7 +2,7 @@
 #define IOX_POSH_SERVICE_DISCOVERY_TEST_ROUDI_SERVICE_DISCOVERY_HPP
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "roudi_gtest.hpp"
+#include "testutils/roudi_gtest.hpp"
 
 using IdString = iox::capro::IdString;
 using InstanceContainer = iox::runtime::InstanceContainer;

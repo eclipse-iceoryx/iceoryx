@@ -28,8 +28,7 @@ SenderPortData::SenderPortData(const capro::ServiceDescription& serviceDescripti
                                mepoo::MemoryManager* const memMgr,
                                const std::string& applicationName,
                                const MemoryInfo& memoryInfo) noexcept
-    : BasePortData(serviceDescription,
-                   iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
+    : BasePortData(serviceDescription, iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName))
     , m_memoryMgr(memMgr)
     , m_memoryInfo(memoryInfo)
 {

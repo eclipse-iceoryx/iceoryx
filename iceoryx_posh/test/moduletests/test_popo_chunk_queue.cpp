@@ -48,8 +48,8 @@ class ChunkQueue_testBase
     static constexpr size_t MEMORY_SIZE = 4 * MEGABYTE;
     std::unique_ptr<char[]> memory{new char[MEMORY_SIZE]};
     iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
-    MemPool mempool{128, 2 * iox::MAX_RECEIVER_QUEUE_CAPACITY, &allocator, &allocator};
-    MemPool chunkMgmtPool{128, 2 * iox::MAX_RECEIVER_QUEUE_CAPACITY, &allocator, &allocator};
+    MemPool mempool{128, 2 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
+    MemPool chunkMgmtPool{128, 2 * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, &allocator, &allocator};
 
     static constexpr uint32_t RESIZED_CAPACITY{5u};
 };
@@ -95,13 +95,13 @@ TYPED_TEST(ChunkQueue_test, InitialEmpty)
 
 TYPED_TEST(ChunkQueue_test, InitialConditionVariableAttached)
 {
-    EXPECT_THAT(this->m_popper.isConditionVariableAttached(), Eq(false));
+    EXPECT_THAT(this->m_popper.isConditionVariableSet(), Eq(false));
 }
 
 TYPED_TEST(ChunkQueue_test, PushOneChunk)
 {
     auto chunk = this->allocateChunk();
-    auto ret = this->m_pusher.push(chunk);
+    auto ret = this->m_pusher.tryPush(chunk);
     EXPECT_FALSE(ret.has_error());
     EXPECT_THAT(this->m_popper.empty(), Eq(false));
     /// @note size not implemented on FIFO
@@ -114,9 +114,9 @@ TYPED_TEST(ChunkQueue_test, PushOneChunk)
 TYPED_TEST(ChunkQueue_test, PopOneChunk)
 {
     auto chunk = this->allocateChunk();
-    this->m_pusher.push(chunk);
+    this->m_pusher.tryPush(chunk);
 
-    EXPECT_THAT(this->m_popper.pop().has_value(), Eq(true));
+    EXPECT_THAT(this->m_popper.tryPop().has_value(), Eq(true));
     EXPECT_THAT(this->m_popper.empty(), Eq(true));
     /// @note size not implemented on FIFO
     if (this->m_variantQueueType != iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer)
@@ -132,12 +132,12 @@ TYPED_TEST(ChunkQueue_test, PushedChunksMustBePoppedInTheSameOrder)
     {
         auto chunk = this->allocateChunk();
         *reinterpret_cast<int32_t*>(chunk.getPayload()) = i;
-        this->m_pusher.push(chunk);
+        this->m_pusher.tryPush(chunk);
     }
 
     for (int i = 0; i < NUMBER_CHUNKS; ++i)
     {
-        auto maybeSharedChunk = this->m_popper.pop();
+        auto maybeSharedChunk = this->m_popper.tryPop();
         ASSERT_THAT(maybeSharedChunk.has_value(), Eq(true));
         auto data = *reinterpret_cast<int32_t*>((*maybeSharedChunk).getPayload());
         EXPECT_THAT(data, Eq(i));
@@ -153,7 +153,7 @@ TYPED_TEST(ChunkQueue_test, ClearOnEmpty)
 TYPED_TEST(ChunkQueue_test, ClearWithData)
 {
     auto chunk = this->allocateChunk();
-    this->m_pusher.push(chunk);
+    this->m_pusher.tryPush(chunk);
     this->m_popper.clear();
     EXPECT_THAT(this->m_popper.empty(), Eq(true));
 }
@@ -162,10 +162,10 @@ TYPED_TEST(ChunkQueue_test, AttachConditionVariable)
 {
     ConditionVariableData condVar;
 
-    auto ret = this->m_popper.attachConditionVariable(&condVar);
+    auto ret = this->m_popper.setConditionVariable(&condVar);
     EXPECT_TRUE(ret);
 
-    EXPECT_THAT(this->m_popper.isConditionVariableAttached(), Eq(true));
+    EXPECT_THAT(this->m_popper.isConditionVariableSet(), Eq(true));
 }
 
 TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
@@ -173,11 +173,11 @@ TYPED_TEST(ChunkQueue_test, PushAndNotifyConditionVariable)
     ConditionVariableData condVar;
     ConditionVariableWaiter condVarWaiter{&condVar};
 
-    auto ret = this->m_popper.attachConditionVariable(&condVar);
+    auto ret = this->m_popper.setConditionVariable(&condVar);
     EXPECT_TRUE(ret);
 
     auto chunk = this->allocateChunk();
-    this->m_pusher.push(chunk);
+    this->m_pusher.tryPush(chunk);
 
     EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(true));
     EXPECT_THAT(condVarWaiter.timedWait(1_ns), Eq(false)); // shouldn't trigger a second time
@@ -190,17 +190,17 @@ TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
     ConditionVariableWaiter condVarWaiter1{&condVar1};
     ConditionVariableWaiter condVarWaiter2{&condVar1};
 
-    auto ret1 = this->m_popper.attachConditionVariable(&condVar1);
+    auto ret1 = this->m_popper.setConditionVariable(&condVar1);
     EXPECT_TRUE(ret1);
 
-    auto ret2 = this->m_popper.attachConditionVariable(&condVar2);
+    auto ret2 = this->m_popper.setConditionVariable(&condVar2);
     EXPECT_FALSE(ret2);
 
     EXPECT_THAT(condVarWaiter1.timedWait(1_ns), Eq(false));
     EXPECT_THAT(condVarWaiter2.timedWait(1_ns), Eq(false));
 
     auto chunk = this->allocateChunk();
-    this->m_pusher.push(chunk);
+    this->m_pusher.tryPush(chunk);
 
     EXPECT_THAT(condVarWaiter1.timedWait(1_ms), Eq(true));
     EXPECT_THAT(condVarWaiter2.timedWait(1_ms), Eq(false));
@@ -237,7 +237,7 @@ TYPED_TEST(ChunkQueueFiFo_test, DISABLED_InitialSize)
 /// @note API currently not supported
 TYPED_TEST(ChunkQueueFiFo_test, DISABLED_Capacity)
 {
-    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
+    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY));
 }
 
 /// @note API currently not supported
@@ -249,13 +249,13 @@ TYPED_TEST(ChunkQueueFiFo_test, DISABLED_SetCapacity)
 
 TYPED_TEST(ChunkQueueFiFo_test, PushFull)
 {
-    for (auto i = 0u; i < iox::MAX_RECEIVER_QUEUE_CAPACITY; ++i)
+    for (auto i = 0u; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY; ++i)
     {
         auto chunk = this->allocateChunk();
-        this->m_pusher.push(chunk);
+        this->m_pusher.tryPush(chunk);
     }
     auto chunk = this->allocateChunk();
-    auto ret = this->m_pusher.push(chunk);
+    auto ret = this->m_pusher.tryPush(chunk);
     EXPECT_TRUE(ret.has_error());
     EXPECT_THAT(ret.get_error(), Eq(iox::popo::ChunkQueueError::QUEUE_OVERFLOW));
     EXPECT_THAT(this->m_popper.empty(), Eq(false));
@@ -290,7 +290,7 @@ TYPED_TEST(ChunkQueueSoFi_test, InitialSize)
 
 TYPED_TEST(ChunkQueueSoFi_test, Capacity)
 {
-    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_RECEIVER_QUEUE_CAPACITY));
+    EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(iox::MAX_SUBSCRIBER_QUEUE_CAPACITY));
 }
 
 
@@ -302,21 +302,21 @@ TYPED_TEST(ChunkQueueSoFi_test, SetCapacity)
 
 TYPED_TEST(ChunkQueueSoFi_test, PushFull)
 {
-    for (auto i = 0u; i < iox::MAX_RECEIVER_QUEUE_CAPACITY * 2; ++i)
+    for (auto i = 0u; i < iox::MAX_SUBSCRIBER_QUEUE_CAPACITY * 2; ++i)
     {
         auto chunk = this->allocateChunk();
-        this->m_pusher.push(chunk);
+        this->m_pusher.tryPush(chunk);
     }
 
     {
         // pushing is still fine
         auto chunk = this->allocateChunk();
-        auto ret = this->m_pusher.push(chunk);
+        auto ret = this->m_pusher.tryPush(chunk);
         EXPECT_FALSE(ret.has_error());
         EXPECT_THAT(this->m_popper.empty(), Eq(false));
     }
     // get al the chunks in the queue
-    while (this->m_popper.pop().has_value())
+    while (this->m_popper.tryPop().has_value())
     {
     }
 

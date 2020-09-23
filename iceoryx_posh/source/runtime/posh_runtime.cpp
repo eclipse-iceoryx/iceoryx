@@ -121,6 +121,7 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
     }
 }
 
+/// @deprecated #25
 SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::ServiceDescription& service,
                                                                const cxx::CString100& runnableName,
                                                                const PortConfigInfo& portConfigInfo) noexcept
@@ -157,6 +158,7 @@ SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::Serv
     return requestedSenderPort.get_value();
 }
 
+/// @deprecated #25
 cxx::expected<SenderPortType::MemberType_t*, MqMessageErrorType>
 PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
 {
@@ -201,6 +203,7 @@ PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
     }
 }
 
+/// @deprecated #25
 ReceiverPortType::MemberType_t* PoshRuntime::getMiddlewareReceiver(const capro::ServiceDescription& service,
                                                                    const cxx::CString100& runnableName,
                                                                    const PortConfigInfo& portConfigInfo) noexcept
@@ -213,6 +216,7 @@ ReceiverPortType::MemberType_t* PoshRuntime::getMiddlewareReceiver(const capro::
     return requestReceiverFromRoudi(sendBuffer);
 }
 
+/// @deprecated #25
 ReceiverPortType::MemberType_t* PoshRuntime::requestReceiverFromRoudi(const MqMessage& sendBuffer) noexcept
 {
     MqMessage receiveBuffer;
@@ -244,6 +248,167 @@ ReceiverPortType::MemberType_t* PoshRuntime::requestReceiverFromRoudi(const MqMe
     }
 }
 
+PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const capro::ServiceDescription& service,
+                                                                         const uint64_t& historyCapacity,
+                                                                         const cxx::CString100& runnableName,
+                                                                         const PortConfigInfo& portConfigInfo) noexcept
+{
+    MqMessage sendBuffer;
+    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_PUBLISHER) << m_appName
+               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyCapacity) << runnableName
+               << static_cast<cxx::Serialization>(portConfigInfo).toString();
+
+    auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
+    if (maybePublisher.has_error())
+    {
+        switch (maybePublisher.get_error())
+        {
+        case MqMessageErrorType::NO_UNIQUE_CREATED:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' already in use by another process.";
+            errorHandler(Error::kPOSH__RUNTIME_PUBLISHER_PORT_NOT_UNIQUE, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        case MqMessageErrorType::PUBLISHER_LIST_FULL:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created since we are out of memory for publishers.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_PUBLISHER_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        case MqMessageErrorType::REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created. Request publisher got wrong message queue response.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE,
+                         nullptr,
+                         iox::ErrorLevel::SEVERE);
+            break;
+        default:
+            LogWarn() << "Undefined behavior occurred while creating service '"
+                      << service.operator cxx::Serialization().toString() << "'.";
+            errorHandler(
+                Error::kPOSH__RUNTIME_PUBLISHER_PORT_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        }
+        return nullptr;
+    }
+    return maybePublisher.get_value();
+}
+
+cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
+PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
+{
+    MqMessage receiveBuffer;
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3 == receiveBuffer.getNumberOfElements()))
+    {
+        std::string mqMessage = receiveBuffer.getElementAtIndex(0);
+
+        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_PUBLISHER_ACK)
+
+        {
+            RelativePointer::id_t segmentId;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
+            RelativePointer::offset_t offset;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
+            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            return cxx::success<PublisherPortUserType::MemberType_t*>(
+                reinterpret_cast<PublisherPortUserType::MemberType_t*>(ptr));
+        }
+    }
+    else
+    {
+        if (receiveBuffer.getNumberOfElements() == 2)
+        {
+            std::string mqMessage1 = receiveBuffer.getElementAtIndex(0);
+            std::string mqMessage2 = receiveBuffer.getElementAtIndex(1);
+            if (stringToMqMessageType(mqMessage1.c_str()) == MqMessageType::ERROR)
+            {
+                LogError() << "Request publisher received no valid publisher port from RouDi.";
+                return cxx::error<MqMessageErrorType>(stringToMqMessageErrorType(mqMessage2.c_str()));
+            }
+        }
+    }
+
+    LogError() << "Request publisher got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    return cxx::error<MqMessageErrorType>(MqMessageErrorType::REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE);
+}
+
+SubscriberPortUserType::MemberType_t*
+PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
+                                     const uint64_t& historyRequest,
+                                     const cxx::CString100& runnableName,
+                                     const PortConfigInfo& portConfigInfo) noexcept
+{
+    MqMessage sendBuffer;
+    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SUBSCRIBER) << m_appName
+               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyRequest) << runnableName
+               << static_cast<cxx::Serialization>(portConfigInfo).toString();
+
+    auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
+
+    if (maybeSubscriber.has_error())
+    {
+        switch (maybeSubscriber.get_error())
+        {
+        case MqMessageErrorType::SUBSCRIBER_LIST_FULL:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created since we are out of memory for subscribers.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_SUBSCRIBER_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        case MqMessageErrorType::REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE:
+            LogWarn() << "Service '" << service.operator cxx::Serialization().toString()
+                      << "' could not be created. Request subscriber got wrong message queue response.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE,
+                         nullptr,
+                         iox::ErrorLevel::SEVERE);
+            break;
+        default:
+            LogWarn() << "Undefined behavior occurred while creating service '"
+                      << service.operator cxx::Serialization().toString() << "'.";
+            errorHandler(
+                Error::kPOSH__RUNTIME_SUBSCRIBER_PORT_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        }
+        return nullptr;
+    }
+    return maybeSubscriber.get_value();
+}
+
+cxx::expected<SubscriberPortUserType::MemberType_t*, MqMessageErrorType>
+PoshRuntime::requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept
+{
+    MqMessage receiveBuffer;
+    if (sendRequestToRouDi(sendBuffer, receiveBuffer) && (3 == receiveBuffer.getNumberOfElements()))
+    {
+        std::string mqMessage = receiveBuffer.getElementAtIndex(0);
+
+        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_SUBSCRIBER_ACK)
+        {
+            RelativePointer::id_t segmentId;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
+            RelativePointer::offset_t offset;
+            cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
+            auto ptr = RelativePointer::getPtr(segmentId, offset);
+            return cxx::success<SubscriberPortUserType::MemberType_t*>(
+                reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr));
+        }
+    }
+    else
+    {
+        if (receiveBuffer.getNumberOfElements() == 2)
+        {
+            std::string mqMessage1 = receiveBuffer.getElementAtIndex(0);
+            std::string mqMessage2 = receiveBuffer.getElementAtIndex(1);
+
+            if (stringToMqMessageType(mqMessage1.c_str()) == MqMessageType::ERROR)
+            {
+                LogError() << "Request subscriber received no valid subscriber port from RouDi.";
+                return cxx::error<MqMessageErrorType>(stringToMqMessageErrorType(mqMessage2.c_str()));
+            }
+        }
+    }
+
+    LogError() << "Request subscriber got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    return cxx::error<MqMessageErrorType>(MqMessageErrorType::REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE);
+}
+
 popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interfaces interface,
                                                              const cxx::CString100& runnableName) noexcept
 {
@@ -266,19 +431,12 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interf
             auto ptr = RelativePointer::getPtr(segmentId, offset);
             return reinterpret_cast<popo::InterfacePortData*>(ptr);
         }
-        else
-        {
-            LogError() << "Wrong response from message queue " << mqMessage;
-            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-            return nullptr;
-        }
     }
-    else
-    {
-        LogError() << "Wrong response from message queue";
-        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-        return nullptr;
-    }
+
+    LogError() << "Get mw interface got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    errorHandler(
+        Error::kPOSH__RUNTIME_ROUDI_GET_MW_INTERFACE_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    return nullptr;
 }
 
 RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProperty) noexcept
@@ -302,19 +460,12 @@ RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProper
             auto ptr = RelativePointer::getPtr(segmentId, offset);
             return reinterpret_cast<RunnableData*>(ptr);
         }
-        else
-        {
-            LogError() << "Wrong response from message queue " << mqMessage;
-            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-            return nullptr;
-        }
     }
-    else
-    {
-        LogError() << "Wrong response from message queue";
-        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-        return nullptr;
-    }
+
+    LogError() << "Create runnable got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    errorHandler(
+        Error::kPOSH__RUNTIME_ROUDI_CREATE_RUNNABLE_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    return nullptr;
 }
 
 cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& serviceDescription,
@@ -387,19 +538,12 @@ popo::ApplicationPortData* PoshRuntime::getMiddlewareApplication() noexcept
             auto ptr = RelativePointer::getPtr(segmentId, offset);
             return reinterpret_cast<popo::ApplicationPortData*>(ptr);
         }
-        else
-        {
-            LogError() << "Wrong response from message queue" << mqMessage;
-            assert(false);
-            return nullptr;
-        }
     }
-    else
-    {
-        LogError() << "Wrong response from message queue";
-        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-        return nullptr;
-    }
+
+    LogError() << "Get mw application got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    errorHandler(
+        Error::kPOSH__RUNTIME_ROUDI_GET_MW_APPLICATION_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+    return nullptr;
 }
 
 cxx::expected<popo::ConditionVariableData*, MqMessageErrorType>
@@ -419,12 +563,6 @@ PoshRuntime::requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noex
             auto ptr = RelativePointer::getPtr(segmentId, offset);
             return cxx::success<popo::ConditionVariableData*>(reinterpret_cast<popo::ConditionVariableData*>(ptr));
         }
-        else
-        {
-            LogError() << "Wrong response from message queue " << mqMessage;
-            errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-            return cxx::success<popo::ConditionVariableData*>(nullptr);
-        }
     }
     else
     {
@@ -434,17 +572,15 @@ PoshRuntime::requestConditionVariableFromRoudi(const MqMessage& sendBuffer) noex
             std::string mqMessage2 = receiveBuffer.getElementAtIndex(1);
             if (stringToMqMessageType(mqMessage1.c_str()) == MqMessageType::ERROR)
             {
-                LogError() << "No valid condition variable received from RouDi.";
-                errorHandler(
-                    Error::kPOSH__RUNTIME_NO_VALID_CONDITION_VARIABLE_RECEIVED, nullptr, iox::ErrorLevel::MODERATE);
+                LogError() << "Request condition variable received no valid condition variable port from RouDi.";
                 return cxx::error<MqMessageErrorType>(stringToMqMessageErrorType(mqMessage2.c_str()));
             }
         }
-
-        LogError() << "Wrong response from message queue";
-        errorHandler(Error::kPOSH__RUNTIME_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
-        return cxx::success<popo::ConditionVariableData*>(nullptr);
     }
+
+    LogError() << "Request condition variable got wrong response from message queue :'" << receiveBuffer.getMessage()
+               << "'";
+    return cxx::error<MqMessageErrorType>(MqMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE);
 }
 
 popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexcept
@@ -458,13 +594,20 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
         switch (maybeConditionVariable.get_error())
         {
         case MqMessageErrorType::CONDITION_VARIABLE_LIST_FULL:
-            LogWarn() << "Could not create another condition variable as we are out of memory";
+            LogWarn() << "Could not create condition variable as we are out of memory for condition variables.";
             errorHandler(Error::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_LIST_FULL, nullptr, iox::ErrorLevel::SEVERE);
+            break;
+        case MqMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE:
+            LogWarn() << "Could not create condition variables; received wrong message queue response.";
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE,
+                         nullptr,
+                         iox::ErrorLevel::SEVERE);
             break;
         default:
             LogWarn() << "Undefined behavior occurred while creating condition variable";
-            errorHandler(
-                Error::kPOSH__RUNTIME_CONDITION_VARIABLE_CREATION_UNDEFINED_BEHAVIOR, nullptr, iox::ErrorLevel::SEVERE);
+            errorHandler(Error::kPOSH__RUNTIME_ROUDI_CONDITION_VARIABLE_CREATION_UNDEFINED_BEHAVIOR,
+                         nullptr,
+                         iox::ErrorLevel::SEVERE);
             break;
         }
         return nullptr;

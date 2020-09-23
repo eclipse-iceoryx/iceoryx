@@ -76,52 +76,93 @@ void Timer::OsTimer::callbackHelper(sigval data)
         return;
     }
 
-    handle.m_timerInvocationCounter.fetch_add(1u, std::memory_order_relaxed);
+    // signal that we intend to call the callback (but we may not start it ourself, it may be done
+    // by another invocation of this function)
+    auto invocationCounter = handle.m_timerInvocationCounter.fetch_add(1u, std::memory_order_relaxed);
 
-    do
+    // avoid the spurious failures of try_lock with this flag end still reduce contention
+    // if another thread is in this section we return but we already stated our intention to call the callback
+    // via m_timerInvocationCounter and the other thread will do this for us
+    // note that thte invocation may be lost if the callback is already running, this is intentional
+    // to avoid an unlimited number of callback invocations to pile up
+
+    // note: if we can tolerate those calls to pile up we can get rid of this flag and the while loop as well
+
+    if (!handle.m_callbackIsAboutToBeExecuted.test_and_set(std::memory_order_acq_rel))
     {
-        if (handle.m_accessMutex.try_lock() == false)
+        // flag protected region
+
+        // the mutex is needed to protect against concurrent deletion of the timer in the destructor
+        std::lock_guard<std::mutex> lockGuard(handle.m_accessMutex);
+
+        // clear the flag regardless of how we leave the function
+        cxx::GenericRAII clearCallbackFlag(
+            []() {}, [&]() { handle.m_callbackIsAboutToBeExecuted.clear(std::memory_order_release); });
+
+        do
         {
-            if (handle.m_catchUpPolicy == CatchUpPolicy::TERMINATE)
+            // prohibits other threads from entering the flag protected region
+            handle.m_callbackIsAboutToBeExecuted.test_and_set(std::memory_order_acq_rel);
+
+            if (handle.m_timer == nullptr)
             {
-                errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
+                errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
+                return;
             }
-            return;
-        }
-        iox::cxx::GenericRAII lockGuard([] {}, [&handle] { handle.m_accessMutex.unlock(); });
 
-        if (handle.m_timer == nullptr)
+            if (!handle.m_inUse.load(std::memory_order::memory_order_relaxed))
+            {
+                return;
+            }
+
+            if (descriptor != handle.m_descriptor.load(std::memory_order::memory_order_relaxed))
+            {
+                return;
+            }
+
+            if (!handle.m_isTimerActive.load(std::memory_order::memory_order_relaxed))
+            {
+                return;
+            }
+
+            invocationCounter = handle.m_timerInvocationCounter.exchange(0u, std::memory_order_acq_rel);
+
+            // did someone else execute the callback for us?
+            if (invocationCounter != 0u)
+            {
+                handle.m_timer->executeCallback();
+            }
+
+            handle.m_callbackIsAboutToBeExecuted.clear(std::memory_order_release);
+            // another thread can try to enter the flag protected region by setting the flag now but will still need to
+            // wait for the mutex (they can pile up in theory)
+            // the point is: it must be set to false before the counter comparison of the while loop,
+            //  otherwise: another thread could increment the counter *after* this
+            // comparison, see the flag is still true, leave and rely on this thread to perform the callback, but for
+            // this thread the comparison has seen 0 and it will therefore leave the loop
+
+            // by clearing the flag temporarily this cannot happen (but it has other drawbacks)
+
+            // get the latest value (can be outdated after the call, but this is not important here,
+            // we just need updates from concurrent threads which may have incremented the counter)
+            handle.m_timerInvocationCounter.compare_exchange_strong(
+                invocationCounter, invocationCounter, std::memory_order_acq_rel, std::memory_order_acquire);
+
+            // if the counter is positive it means some other thread has incremented it in the meantime
+            // otherwise some thread may be about to do so but then will either find the flag to be cleared
+            // and be able to enter the region or the flag to be set again, in which case this thread
+            // will take care of the call
+
+        } while (handle.m_catchUpPolicy == CatchUpPolicy::IMMEDIATE && invocationCounter > 0u);
+    }
+    else
+    {
+        if (handle.m_catchUpPolicy == CatchUpPolicy::TERMINATE)
         {
-            errorHandler(Error::kPOSIX_TIMER__INCONSISTENT_STATE);
-            return;
+            errorHandler(Error::kPOSIX_TIMER__CALLBACK_RUNTIME_EXCEEDS_RETRIGGER_TIME);
         }
-
-        if (!handle.m_inUse.load(std::memory_order::memory_order_relaxed))
-        {
-            return;
-        }
-
-        if (descriptor != handle.m_descriptor.load(std::memory_order::memory_order_relaxed))
-        {
-            return;
-        }
-
-        if (!handle.m_isTimerActive.load(std::memory_order::memory_order_relaxed))
-        {
-            return;
-        }
-
-        if (handle.m_timerInvocationCounter.load(std::memory_order_relaxed)
-            != handle.m_callbackExecutionCycle.load(std::memory_order_relaxed))
-        {
-            handle.m_callbackExecutionCycle.store(handle.m_timerInvocationCounter.load(std::memory_order_relaxed),
-                                                  std::memory_order_relaxed);
-            handle.m_timer->executeCallback();
-        }
-
-    } while (handle.m_catchUpPolicy == CatchUpPolicy::IMMEDIATE
-             && handle.m_timerInvocationCounter.load(std::memory_order_relaxed)
-                    != handle.m_callbackExecutionCycle.load(std::memory_order_relaxed));
+        return;
+    }
 }
 
 Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
@@ -155,6 +196,11 @@ Timer::OsTimer::OsTimer(const units::Duration timeToWait, const std::function<vo
             callbackHandle.m_isTimerActive.store(true, std::memory_order_relaxed);
             callbackHandle.m_inUse.store(true, std::memory_order_relaxed);
             callbackHandle.m_timer = this;
+
+            // it is sufficient to set the counter in the constructor
+            // (setting it in start leads to a subtle race in the loop of callbackHelper
+            // were they are checked should the callback call start)
+            callbackHandle.m_timerInvocationCounter.store(0u, std::memory_order_relaxed);
 
             callbackHandleFound = true;
             callbackHandleDescriptor = callbackHandle.m_descriptor.load(std::memory_order_relaxed);
@@ -208,6 +254,10 @@ Timer::OsTimer::~OsTimer() noexcept
     {
         stop();
 
+        // do not delete the timer while the callback is running, it could access the timer which is about to be deleted
+        auto& callbackHandle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
+        std::lock_guard<std::mutex> lock(callbackHandle.m_accessMutex);
+
         auto result = cxx::makeSmartC(timer_delete, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_timerId);
 
         if (result.hasErrors())
@@ -218,9 +268,7 @@ Timer::OsTimer::~OsTimer() noexcept
 
         m_timerId = INVALID_TIMER_ID;
 
-        auto& callbackHandle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
-        std::lock_guard<std::mutex> lock(callbackHandle.m_accessMutex);
-        callbackHandle.m_inUse.store(false, std::memory_order_relaxed);
+        callbackHandle.m_inUse.store(false, std::memory_order_seq_cst);
     }
 }
 
@@ -254,21 +302,26 @@ cxx::expected<TimerError> Timer::OsTimer::start(const RunMode runMode, const Cat
         interval.it_interval.tv_nsec = 0;
     }
 
+    auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
+    // setting m_isTimerActive after timer_settime could lead to false negatives in a check which decides whether
+    // the callback should be executed,
+    // setting it beforehand leads to false positives which can be dealt with and avoid this problem
+    auto wasActive = handle.m_isTimerActive.exchange(true, std::memory_order_relaxed);
+    handle.m_catchUpPolicy = catchUpPolicy;
+
     // Set the timer
     auto result = cxx::makeSmartC(
         timer_settime, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_timerId, 0, &interval, nullptr);
 
     if (result.hasErrors())
     {
+        // undo optimistically setting m_isTimerActive before
+        // not entirely safe against concurrent starts, we cannot detect these in this way
+        // needs extensive refactoring to achieve this (e.g. start and stop with mutex protection?)
+        handle.m_isTimerActive.exchange(wasActive, std::memory_order_relaxed);
         return createErrorFromErrno(result.getErrNum());
     }
 
-    auto& handle = OsTimer::s_callbackHandlePool[m_callbackHandleIndex];
-
-    handle.m_catchUpPolicy = catchUpPolicy;
-    handle.m_timerInvocationCounter.store(0u, std::memory_order_relaxed);
-    handle.m_callbackExecutionCycle.store(0u, std::memory_order_relaxed);
-    handle.m_isTimerActive.store(true, std::memory_order_relaxed);
 
     return cxx::success<void>();
 }

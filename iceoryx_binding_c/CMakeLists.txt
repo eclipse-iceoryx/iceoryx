@@ -48,9 +48,15 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 #
 add_library(${PROJECT_NAME}
     STATIC
-    source/c_posh_runtime.cpp
+    source/c_condition.cpp
+    source/c_guard_condition.cpp
     source/c_publisher.cpp
+    source/c_runnable.cpp
+    source/c_runtime.cpp
     source/c_subscriber.cpp
+    source/c_wait_set.cpp
+    source/cpp2c_enum_translation.cpp
+    source/cpp2c_subscriber.cpp
 )
 add_library(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 

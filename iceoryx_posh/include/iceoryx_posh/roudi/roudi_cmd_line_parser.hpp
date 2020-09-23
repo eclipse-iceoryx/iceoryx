@@ -22,7 +22,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 /// @brief Controls process alive monitoring. Upon timeout, a monitored process is removed
 /// and its resources are made available. The process can then start and register itself again.
@@ -74,7 +74,7 @@ class CmdLineParser
     cxx::optional<uint16_t> m_uniqueRouDiId;
 };
 
-} // namespace roudi
+} // namespace config
 } // namespace iox
 
 #endif // IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_HPP

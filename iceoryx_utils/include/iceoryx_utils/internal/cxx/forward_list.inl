@@ -49,7 +49,7 @@ inline forward_list<T, Capacity>& forward_list<T, Capacity>::forward_list::opera
 {
     if (this != &rhs)
     {
-        uint64_t i = 0u;
+        uint64_t i = 0U;
         auto iterThis = before_begin();
         auto citerRhs = rhs.cbefore_begin();
         auto startSize = size();
@@ -84,7 +84,7 @@ inline forward_list<T, Capacity>& forward_list<T, Capacity>::forward_list::opera
 {
     if (this != &rhs)
     {
-        uint64_t i = 0u;
+        uint64_t i = 0U;
         auto iterThis = before_begin();
         auto iterRhs = rhs.before_begin();
         auto startSize = size();
@@ -177,7 +177,7 @@ inline typename forward_list<T, Capacity>::const_iterator forward_list<T, Capaci
 template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::empty() const noexcept
 {
-    return (m_size == 0);
+    return (m_size == 0U);
 }
 
 template <typename T, uint64_t Capacity>
@@ -296,7 +296,7 @@ template <typename T, uint64_t Capacity>
 template <typename UnaryPredicate>
 inline typename forward_list<T, Capacity>::size_type forward_list<T, Capacity>::remove_if(UnaryPredicate pred) noexcept
 {
-    size_type removedCount = 0;
+    size_type removedCount = 0U;
 
     auto iter = before_begin();
     auto next_iter = begin();
@@ -361,7 +361,7 @@ inline bool forward_list<T, Capacity>::pop_front() noexcept
 {
     auto sizeBeforeErase = m_size;
     erase_after(before_begin());
-    return ((m_size + 1) == sizeBeforeErase);
+    return ((m_size + 1U) == sizeBeforeErase);
 }
 
 template <typename T, uint64_t Capacity>
@@ -413,7 +413,7 @@ template <bool IsConstIterator>
 inline typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator>&
 forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator=(const IteratorBase<false>& rhs) noexcept
 {
-    if (this != &rhs)
+    if (reinterpret_cast<const void*>(this) != reinterpret_cast<const void*>(&rhs))
     {
         m_list = rhs.m_list;
         m_iterListNodeIdx = rhs.m_iterListNodeIdx;
@@ -461,7 +461,7 @@ inline bool forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator!=
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
 inline typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator>::reference
-forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator*() const noexcept
+    forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator*() const noexcept
 {
     return *operator->();
 }
@@ -470,7 +470,7 @@ forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator*() const noex
 template <typename T, uint64_t Capacity>
 template <bool IsConstIterator>
 inline typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator>::pointer
-forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator->() const noexcept
+    forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator->() const noexcept
 
 {
     return m_list->getDataPtrFromIdx(m_iterListNodeIdx);
@@ -483,7 +483,7 @@ forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator->() const noe
 template <typename T, uint64_t Capacity>
 inline void forward_list<T, Capacity>::init() noexcept
 {
-    for (size_type i = m_freeListHeadIdx; (i + 1U) < Capacity; ++i)
+    for (size_type i = m_freeListHeadIdx; i < (Capacity - 1U); ++i)
     {
         setInvalidElement(i, true);
         setNextIdx(i, i + 1U);
@@ -500,7 +500,7 @@ inline void forward_list<T, Capacity>::init() noexcept
     setNextIdx(Capacity + 1U, END_INDEX);
     m_freeListHeadIdx = 0U;
 
-    m_size = 0;
+    m_size = 0U;
 }
 
 

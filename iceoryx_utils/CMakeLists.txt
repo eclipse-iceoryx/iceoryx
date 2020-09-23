@@ -46,7 +46,7 @@ if(GTest_FOUND) # only GTest_FOUND, just in case someone want's to use iceoryx_u
     setup_package_name_and_create_files(
         NAME ${PROJECT_NAME}_testing
         NAMESPACE iceoryx_utils_testing
-        PROJECT_PREFIX ${PREFIX}
+        PROJECT_PREFIX testutils
     )
 
     add_library(iceoryx_utils_testing

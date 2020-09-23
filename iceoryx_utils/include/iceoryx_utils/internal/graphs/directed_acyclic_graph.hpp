@@ -14,9 +14,9 @@
 #ifndef IOX_UTILS_GRAPHS_DIRECTED_ACYCLIC_GRAPH_HPP
 #define IOX_UTILS_GRAPHS_DIRECTED_ACYCLIC_GRAPH_HPP
 
-#include <cassert>
 #include "iceoryx_utils/internal/cxx/set.hpp"
 #include "iceoryx_utils/internal/graphs/directed_graph.hpp"
+#include <cassert>
 
 #include <cstdint>
 

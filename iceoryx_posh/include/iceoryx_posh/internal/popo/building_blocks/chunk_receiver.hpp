@@ -36,11 +36,12 @@ enum class ChunkReceiveError
 /// The
 /// ChunkRceiver holds the ownership of the SharedChunks and does a bookkeeping which chunks are currently passed to the
 /// user side.
-template <typename ChunkQueuePopperType>
-class ChunkReceiver : public ChunkQueuePopperType
+template <typename ChunkReceiverDataType>
+class ChunkReceiver : public ChunkQueuePopper<typename ChunkReceiverDataType::ChunkQueueData_t>
 {
   public:
-    using MemberType_t = ChunkReceiverData<MAX_CHUNKS_HELD_PER_RECEIVER, typename ChunkQueuePopperType::MemberType_t>;
+    using MemberType_t = ChunkReceiverDataType;
+    using Base_t = ChunkQueuePopper<typename ChunkReceiverDataType::ChunkQueueData_t>;
 
     explicit ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
 
@@ -55,7 +56,7 @@ class ChunkReceiver : public ChunkQueuePopperType
     /// disappears
     /// @return optional that has a new chunk header or no value if there are no new chunks in the underlying queue,
     /// ChunkReceiveError on error
-    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> get() noexcept;
+    cxx::expected<cxx::optional<const mepoo::ChunkHeader*>, ChunkReceiveError> tryGet() noexcept;
 
     /// @brief Release a chunk that was obtained with get
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

@@ -50,4 +50,3 @@ void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units:
     std::cout << std::setw(16) << compiler << " [ " << duration << " ] " << std::setw(15) << numberOfCalls << " : "
               << functionName << std::endl;
 }
-

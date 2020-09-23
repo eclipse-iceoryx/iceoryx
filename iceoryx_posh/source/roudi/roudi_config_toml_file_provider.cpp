@@ -17,15 +17,15 @@
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/file_reader/file_reader.hpp"
+#include "iceoryx_utils/platform/getopt.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
-#include "cpptoml.h"
-#include "iceoryx_utils/platform/getopt.hpp"
+#include <cpptoml.h>
 #include <string>
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(CmdLineParserConfigFileOption& cmdLineParser)
 {
@@ -131,5 +131,5 @@ iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> To
 
     return iox::cxx::success<iox::RouDiConfig_t>(parsedConfig);
 }
-} // namespace roudi
+} // namespace config
 } // namespace iox

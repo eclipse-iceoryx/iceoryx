@@ -20,14 +20,14 @@
 
 namespace iox
 {
-namespace roudi
+namespace config
 {
 struct RouDiConfig
 {
     RouDiConfig& setDefaults();
     RouDiConfig& optimize();
 };
-} // namespace roudi
+} // namespace config
 } // namespace iox
 
 #endif // IOX_POSH_ROUDI_ROUDI_CONFIG_HPP

@@ -56,7 +56,7 @@ class DeliveryFiFo
     uint64_t getSize() const;
 
   private:
-    concurrent::SoFi<ChunkManagementTransport, MAX_RECEIVER_QUEUE_CAPACITY> m_fifo;
+    concurrent::SoFi<ChunkManagementTransport, MAX_SUBSCRIBER_QUEUE_CAPACITY> m_fifo;
 };
 
 } // namespace popo

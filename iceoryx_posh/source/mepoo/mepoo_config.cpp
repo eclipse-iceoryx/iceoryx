@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 
 namespace iox
 {

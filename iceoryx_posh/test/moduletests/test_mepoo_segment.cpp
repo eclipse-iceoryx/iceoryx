@@ -20,7 +20,7 @@
 #include "iceoryx_utils/platform/stat.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "test.hpp"
-#include "test_definitions.hpp"
+#include "testutils/test_definitions.hpp"
 
 
 #include <functional>

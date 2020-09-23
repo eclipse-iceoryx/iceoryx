@@ -15,34 +15,50 @@
 #ifndef IOX_BINDING_C_TYPES_H
 #define IOX_BINDING_C_TYPES_H
 
-/// @brief describes the current state of a subscriber
-enum iox_SubscribeState
-{
-    SubscribeState_NOT_SUBSCRIBED = 0,
-    SubscribeState_SUBSCRIBE_REQUESTED,
-    SubscribeState_SUBSCRIBED,
-    SubscribeState_UNSUBSCRIBE_REQUESTED,
-    SubscribeState_WAIT_FOR_OFFER,
-    SubscribeState_UNDEFINED,
-};
+#include "internal/c2cpp_binding.h"
 
-/// @brief describes the state of getChunk in the subscriber
-enum iox_popo_ChunkReceiveResult
-{
-    ChunkReceiveResult_TOO_MANY_CHUNKS_HELD_IN_PARALLEL,
-    ChunkReceiveResult_NO_CHUNK_RECEIVED,
-    ChunkReceiveResult_INTERNAL_ERROR,
-    ChunkReceiveResult_SUCCESS,
-};
+/// The issue iox-308: https://github.com/eclipse/iceoryx/issues/308
+/// was created to explore other options then a magic number to create
+/// the structs of a specific size in C.
 
-/// @brief state of allocateChunk
-enum iox_popo_AllocationResult
+/// The size and the alignment of all structs are verified by the
+/// binding c integration test iox_types_test
+
+struct iox_ws_storage_t_
 {
-    AllocationResult_RUNNING_OUT_OF_CHUNKS,
-    AllocationResult_TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL,
-    AllocationResult_UNDEFINED_ERROR,
-    AllocationResult_SUCCESS,
+    // the value of the array size is the result of the following formula:
+    // sizeof(WaitSet) / 8
+    uint64_t do_not_touch_me[133];
 };
+typedef struct iox_ws_storage_t_ iox_ws_storage_t;
+
+struct iox_guard_cond_storage_t_
+{
+    // the value of the array size is the result of the following formula:
+    // sizeof(GuardCondition) / 8
+#if defined(__APPLE__)
+    uint64_t do_not_touch_me[12];
+#else
+    uint64_t do_not_touch_me[9];
+#endif
+};
+typedef struct iox_guard_cond_storage_t_ iox_guard_cond_storage_t;
+
+struct iox_sub_storage_t_
+{
+    // the value of the array size is the result of the following formula:
+    // sizeof(cpp2c_Subscriber) / 8
+    uint64_t do_not_touch_me[4];
+};
+typedef struct iox_sub_storage_t_ iox_sub_storage_t;
+
+struct iox_pub_storage_t_
+{
+    // the value of the array size is the result of the following formula:
+    // sizeof(cpp2c_Publisher) / 8
+    uint64_t do_not_touch_me[1];
+};
+typedef struct iox_pub_storage_t_ iox_pub_storage_t;
 
 
 #endif

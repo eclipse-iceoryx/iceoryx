@@ -17,6 +17,8 @@
 #include "iceoryx_posh/internal/roudi/port_pool_data_base.hpp"
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 
@@ -26,8 +28,13 @@ namespace roudi
 {
 struct PortPoolData : public PortPoolDataBase
 {
-    FixedPositionContainer<iox::popo::SenderPortData, MAX_PORT_NUMBER> m_senderPortMembers;
-    FixedPositionContainer<iox::popo::ReceiverPortData, MAX_PORT_NUMBER> m_receiverPortMembers;
+    /// @deprecated #25
+    FixedPositionContainer<iox::popo::SenderPortData, MAX_PUBLISHERS> m_senderPortMembers;
+    /// @deprecated #25
+    FixedPositionContainer<iox::popo::ReceiverPortData, MAX_SUBSCRIBERS> m_receiverPortMembers;
+
+    FixedPositionContainer<iox::popo::PublisherPortData, MAX_PUBLISHERS> m_publisherPortMembers;
+    FixedPositionContainer<iox::popo::SubscriberPortData, MAX_SUBSCRIBERS> m_subscriberPortMembers;
 };
 
 } // namespace roudi

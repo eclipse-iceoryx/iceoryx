@@ -21,7 +21,7 @@
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "test.hpp"
-#include "test_definitions.hpp"
+#include "testutils/test_definitions.hpp"
 
 
 using namespace ::testing;
