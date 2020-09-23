@@ -1,4 +1,4 @@
-# [NOT YET IMPLEMENTED] icecallback_on_c - Using the WaitSet to implement callbacks
+# icecallback_on_c - Using the WaitSet to implement callbacks
 
 **Hint** This example shows a work in progress and is not yet working.
 

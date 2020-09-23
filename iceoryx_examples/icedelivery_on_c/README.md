@@ -1,4 +1,4 @@
-# [NOT YET IMPLEMENTED] icedelivery in C - Transfer data between POSIX applications
+# icedelivery in C - Transfer data between POSIX applications
 
 **Hint** This example shows a work in progress. The API for the `publisher` and 
 `subscriber` is finished but we still have to integrate the new building blocks
