@@ -152,14 +152,12 @@ class PortManager
     void removeEntryFromServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
 
     template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
-    cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service,
-                                                                const ProcessName_t& processName) const noexcept;
+    cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const
+        noexcept;
 
     template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service
-                                                                [[gnu::unused]],
-                                                                const ProcessName_t& processName [[gnu::unused]]) const
-        noexcept;
+                                                                [[gnu::unused]]) const noexcept;
 
   private:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};

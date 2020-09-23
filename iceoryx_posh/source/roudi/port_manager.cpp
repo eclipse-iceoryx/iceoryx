@@ -770,8 +770,8 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const RunnableName_t& runnable [[gnu::unused]], // @todo #25 Fix introspection
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
-    if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service, processName)
-            .and_then([&](const ProcessName_t& usedByProcess) {
+    if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
+            [&](const ProcessName_t& usedByProcess) {
                 LogWarn()
                     << "Process '" << processName
                     << "' violates the communication policy by requesting a PublisherPort which is already used by '"
