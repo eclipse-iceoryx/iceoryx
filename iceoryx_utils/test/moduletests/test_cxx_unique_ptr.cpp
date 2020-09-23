@@ -39,17 +39,17 @@ class UniquePtrTest : public Test
 
     void SetUp()
     {
-        m_deleterCalled = false;
+        m_deleterCalls = 0;
     }
 
     void TearDown()
     {
     }
 
-    bool m_deleterCalled;
+    uint32_t m_deleterCalls;
 
     std::function<void(Position* const)> deleter = [this](Position* const p) {
-        m_deleterCalled = true;
+        m_deleterCalls++;
         delete p;
     };
 };
@@ -70,7 +70,7 @@ TEST_F(UniquePtrTest, CtorWithOnlyDeleterSetsPtrToNullAndDoesntCallDeleter)
         EXPECT_EQ(sut.get(), nullptr);
     }
 
-    EXPECT_FALSE(m_deleterCalled);
+    EXPECT_EQ(m_deleterCalls, 0U);
 }
 
 TEST_F(UniquePtrTest, CtorWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)
@@ -82,7 +82,7 @@ TEST_F(UniquePtrTest, CtorWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)
         EXPECT_EQ(sut.get(), object);
     }
 
-    EXPECT_TRUE(m_deleterCalled);
+    EXPECT_EQ(m_deleterCalls, 1U);
 }
 
 TEST_F(UniquePtrTest, CtorWithObjectPtrToNullAndDeleterSetsPtrToObjectAndDoesntCallsDeleter)
@@ -94,7 +94,7 @@ TEST_F(UniquePtrTest, CtorWithObjectPtrToNullAndDeleterSetsPtrToObjectAndDoesntC
         EXPECT_EQ(sut.get(), object);
     }
 
-    EXPECT_FALSE(m_deleterCalled);
+    EXPECT_EQ(m_deleterCalls, 0U);
 }
 
 // TEST_F(UniquePtrTest, CtorWithObjectPtrToNullAndDeleterSetsPtrToObjectAndDoesntCallsDeleter2)
@@ -105,7 +105,7 @@ TEST_F(UniquePtrTest, CtorWithObjectPtrToNullAndDeleterSetsPtrToObjectAndDoesntC
 //         EXPECT_EQ(sut.get(), object);
 //     }
 
-//     EXPECT_FALSE(m_deleterCalled);
+//     EXPECT_FALSE(m_deleterCalls);
 // }
 
 TEST_F(UniquePtrTest, AccessUnderlyingObject)
@@ -150,6 +150,33 @@ TEST_F(UniquePtrTest, ReleaseNullObject2)
     EXPECT_FALSE(sut);
 }
 
-TEST_F(UniquePtrTest, CanResetToAnExistingRawPtr)
+TEST_F(UniquePtrTest, ResetToAnExistingRawPtr)
 {
+    auto object = new Position();
+    auto anotherObject = new Position();
+
+    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+
+    sut.reset(anotherObject);
+
+    EXPECT_EQ(m_deleterCalls, 1U);
+    EXPECT_EQ(sut.get(), anotherObject);
+    EXPECT_TRUE(sut);
+}
+
+TEST_F(UniquePtrTest, SwapUniquePtrs)
+{
+    auto object = new Position();
+    auto anotherObject = new Position();
+
+    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, deleter);
+
+    sut.swap(anotherSut);
+
+    // EXPECT_EQ(m_deleterCalls, 2U);
+    EXPECT_EQ(sut.get(), anotherObject);
+    EXPECT_EQ(anotherSut.get(), object);
+    EXPECT_TRUE(sut);
+    EXPECT_TRUE(anotherSut);
 }

@@ -102,7 +102,6 @@ class unique_ptr
     cxx::function_ref<void(ptr_t const)> m_deleter;
 };
 
-
 } // namespace cxx
 } // namespace iox
 
