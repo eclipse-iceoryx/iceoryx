@@ -19,8 +19,9 @@ namespace iox
 namespace roudi
 {
 template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
-inline bool PortManager::violatesCommunicationPolicy(const capro::ServiceDescription& service,
-                                                     const ProcessName_t& processName) const noexcept
+inline cxx::optional<ProcessName_t>
+PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service,
+                                            const ProcessName_t& processName) const noexcept
 {
     // check if the publisher is already in the list
     for (auto publisherPortData : m_portPool->getPublisherPortDataList())
@@ -28,22 +29,19 @@ inline bool PortManager::violatesCommunicationPolicy(const capro::ServiceDescrip
         popo::PublisherPortRouDi publisherPort(publisherPortData);
         if (service == publisherPort.getCaProServiceDescription())
         {
-            LogWarn() << "Process '" << processName
-                      << "' tried to register an unique PublisherPort which is already used by '"
-                      << publisherPortData->m_processName << "' with service '"
-                      << service.operator cxx::Serialization().toString() << "'.";
-            return true;
+            return publisherPortData->m_processName;
         }
     }
-    return false;
+    return cxx::nullopt;
 }
 
 template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
-inline bool PortManager::violatesCommunicationPolicy(const capro::ServiceDescription& service [[gnu::unused]],
-                                                     const ProcessName_t& processName [[gnu::unused]]) const noexcept
+inline cxx::optional<ProcessName_t>
+PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service [[gnu::unused]],
+                                            const ProcessName_t& processName [[gnu::unused]]) const noexcept
 {
     // Duplicates are allowed when using n:m policy
-    return false;
+    return cxx::nullopt;
 }
 
 } // namespace roudi
