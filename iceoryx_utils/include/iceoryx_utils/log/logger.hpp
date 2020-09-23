@@ -69,6 +69,4 @@ class Logger
 } // namespace log
 } // namespace iox
 
-#include "iceoryx_utils/log/logger.inl"
-
 #endif // IOX_UTILS_LOG_LOGGER_HPP
