@@ -86,6 +86,10 @@ void PortManager::doDiscovery() noexcept
 
     handleReceiverPorts();
 
+    handlePublisherPorts();
+
+    handleSubscriberPorts();
+
     handleApplications();
 
     handleInterfaces();
