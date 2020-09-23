@@ -25,6 +25,5 @@ struct cpp2c_Subscriber : public iox::popo::Condition
     bool unsetConditionVariable() noexcept override;
 
     iox::popo::SubscriberPortData* m_portData{nullptr};
-    bool m_wasTriggered{false};
 };
 #endif
