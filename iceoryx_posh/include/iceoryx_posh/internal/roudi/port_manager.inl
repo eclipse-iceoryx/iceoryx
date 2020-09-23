@@ -19,8 +19,8 @@ namespace iox
 namespace roudi
 {
 template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
-inline bool PortManager::hasDuplicatePublisher(const capro::ServiceDescription& service,
-                                               const ProcessName_t& processName) noexcept
+inline bool PortManager::violatesCommunicationPolicy(const capro::ServiceDescription& service,
+                                                     const ProcessName_t& processName) const noexcept
 {
     // check if the publisher is already in the list
     for (auto publisherPortData : m_portPool->getPublisherPortDataList())
@@ -32,7 +32,6 @@ inline bool PortManager::hasDuplicatePublisher(const capro::ServiceDescription& 
                       << "' tried to register an unique PublisherPort which is already used by '"
                       << publisherPortData->m_processName << "' with service '"
                       << service.operator cxx::Serialization().toString() << "'.";
-            errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
             return true;
         }
     }
@@ -40,8 +39,8 @@ inline bool PortManager::hasDuplicatePublisher(const capro::ServiceDescription& 
 }
 
 template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
-inline bool PortManager::hasDuplicatePublisher(const capro::ServiceDescription& service [[gnu::unused]],
-                                               const ProcessName_t& processName [[gnu::unused]]) noexcept
+inline bool PortManager::violatesCommunicationPolicy(const capro::ServiceDescription& service [[gnu::unused]],
+                                                     const ProcessName_t& processName [[gnu::unused]]) const noexcept
 {
     // Duplicates are allowed when using n:m policy
     return false;

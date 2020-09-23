@@ -52,7 +52,7 @@ using PublisherPortUserType = iox::popo::PublisherPortUser;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
-using SubscriberPortProducerType = iox::build::CommunicationPolicy;
+using SubscriberPortType = iox::build::CommunicationPolicy;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
 

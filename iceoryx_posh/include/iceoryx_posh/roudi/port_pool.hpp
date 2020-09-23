@@ -64,7 +64,7 @@ class PortPool
     /// @deprecated #25
     cxx::vector<ReceiverPortType::MemberType_t*, MAX_SUBSCRIBERS> receiverPortDataList() noexcept;
     cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept;
-    cxx::vector<SubscriberPortProducerType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
+    cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
     cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;
     cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> getApplicationPortDataList() noexcept;
     cxx::vector<runtime::RunnableData*, MAX_RUNNABLE_NUMBER> getRunnableDataList() noexcept;
@@ -89,7 +89,7 @@ class PortPool
                      const ProcessName_t& applicationName,
                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
+    cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     addSubscriberPort(const capro::ServiceDescription& serviceDescription,
                       const uint64_t& historyRequest,
                       const ProcessName_t& applicationName,
@@ -123,7 +123,7 @@ class PortPool
     /// @deprecated #25
     void removeReceiverPort(ReceiverPortType::MemberType_t* const portData) noexcept;
     void removePublisherPort(PublisherPortRouDiType::MemberType_t* const portData) noexcept;
-    void removeSubscriberPort(SubscriberPortProducerType::MemberType_t* const portData) noexcept;
+    void removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept;
     void removeInterfacePort(popo::InterfacePortData* const portData) noexcept;
     void removeApplicationPort(popo::ApplicationPortData* const portData) noexcept;
     void removeRunnableData(runtime::RunnableData* const runnableData) noexcept;

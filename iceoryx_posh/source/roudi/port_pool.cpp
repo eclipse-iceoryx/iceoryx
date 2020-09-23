@@ -189,7 +189,7 @@ cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> PortPool::get
     return m_portPoolData->m_publisherPortMembers.content();
 }
 
-cxx::vector<SubscriberPortProducerType::MemberType_t*, MAX_SUBSCRIBERS> PortPool::getSubscriberPortDataList() noexcept
+cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> PortPool::getSubscriberPortDataList() noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.content();
 }
@@ -214,7 +214,7 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
     }
 }
 
-cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
+cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
                             const uint64_t& historyRequest,
                             const ProcessName_t& applicationName,
@@ -225,7 +225,7 @@ PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
         auto subscriberPortData = constructSubscriber<iox::build::CommunicationPolicy>(
             serviceDescription, historyRequest, applicationName, memoryInfo);
 
-        return cxx::success<SubscriberPortProducerType::MemberType_t*>(subscriberPortData);
+        return cxx::success<SubscriberPortType::MemberType_t*>(subscriberPortData);
     }
     else
     {
@@ -239,7 +239,7 @@ void PortPool::removePublisherPort(PublisherPortRouDiType::MemberType_t* const p
     m_portPoolData->m_publisherPortMembers.erase(portData);
 }
 
-void PortPool::removeSubscriberPort(SubscriberPortProducerType::MemberType_t* const portData) noexcept
+void PortPool::removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept
 {
     m_portPoolData->m_subscriberPortMembers.erase(portData);
 }

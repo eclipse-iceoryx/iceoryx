@@ -6,7 +6,7 @@ find_package(Threads REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
 option(TOML_CONFIG "activates or deactivates TOML support - without TOML RouDi will not be build" ON)
-option(ONE_TO_MANY "Restricts communication to 1:n pattern" OFF)
+option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 
 include(cmake/iceoryxversions.cmake)
 include(cmake/install_help_and_config.cmake)

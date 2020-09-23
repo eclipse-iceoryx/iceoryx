@@ -1,8 +1,8 @@
 # configure deployment
-if(ONE_TO_MANY)
+if(ONE_TO_MANY_ONLY)
      message("[i] Using 1:n communication only!")
      set(IOX_COMMUNICATION_POLICY OneToManyPolicy)
-endif(ONE_TO_MANY)
+endif(ONE_TO_MANY_ONLY)
 
 if(NOT IOX_COMMUNICATION_POLICY)
     set(IOX_COMMUNICATION_POLICY ManyToManyPolicy)

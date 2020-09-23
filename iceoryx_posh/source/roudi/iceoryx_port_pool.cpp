@@ -94,7 +94,7 @@ cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> IceOryxPortPo
     return m_portPoolData->m_publisherPortMembers.content();
 }
 
-cxx::vector<SubscriberPortProducerType::MemberType_t*, MAX_SUBSCRIBERS>
+cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS>
 IceOryxPortPool::getSubscriberPortDataList() noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.content();
@@ -120,7 +120,7 @@ IceOryxPortPool::addPublisherPort(const capro::ServiceDescription& serviceDescri
     }
 }
 
-cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
+cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 IceOryxPortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
                                    const uint64_t& historyRequest,
                                    const ProcessName_t& applicationName,
@@ -130,7 +130,7 @@ IceOryxPortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescr
     {
         auto subscriberPortData = m_portPoolData->m_subscriberPortMembers.insert(
             serviceDescription, applicationName, SUBSCRIBER_PORT_QUEUE_TYPE, historyRequest, memoryInfo);
-        return cxx::success<SubscriberPortProducerType::MemberType_t*>(subscriberPortData);
+        return cxx::success<SubscriberPortType::MemberType_t*>(subscriberPortData);
     }
     else
     {
@@ -144,7 +144,7 @@ void IceOryxPortPool::removePublisherPort(PublisherPortRouDiType::MemberType_t* 
     m_portPoolData->m_publisherPortMembers.erase(portData);
 }
 
-void IceOryxPortPool::removeSubscriberPort(SubscriberPortProducerType::MemberType_t* const portData) noexcept
+void IceOryxPortPool::removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept
 {
     m_portPoolData->m_subscriberPortMembers.erase(portData);
 }

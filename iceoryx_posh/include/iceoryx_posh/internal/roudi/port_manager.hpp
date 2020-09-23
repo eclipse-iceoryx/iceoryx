@@ -85,7 +85,7 @@ class PortManager
                              const RunnableName_t& runnable,
                              const PortConfigInfo& portConfigInfo) noexcept;
 
-    cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
+    cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     acquireSubscriberPortData(const capro::ServiceDescription& service,
                               const uint64_t& historyRequest,
                               const ProcessName_t& processName,
@@ -112,7 +112,7 @@ class PortManager
 
     void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept;
 
-    void destroySubscriberPort(SubscriberPortProducerType::MemberType_t* const subscriberPortData) noexcept;
+    void destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept;
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
     runtime::MqMessage findService(const capro::ServiceDescription& service) noexcept;
@@ -141,7 +141,7 @@ class PortManager
     void sendToAllMatchingReceiverPorts(const capro::CaproMessage& message, SenderPortType& senderSource);
 
     bool sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
-                                         SubscriberPortProducerType& subscriberSource) noexcept;
+                                         SubscriberPortType& subscriberSource) noexcept;
 
     void sendToAllMatchingSubscriberPorts(const capro::CaproMessage& message,
                                           PublisherPortRouDiType& publisherSource) noexcept;
@@ -152,11 +152,12 @@ class PortManager
     void removeEntryFromServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
 
     template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
-    bool hasDuplicatePublisher(const capro::ServiceDescription& service, const ProcessName_t& processName) noexcept;
+    bool violatesCommunicationPolicy(const capro::ServiceDescription& service, const ProcessName_t& processName) const
+        noexcept;
 
     template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
-    bool hasDuplicatePublisher(const capro::ServiceDescription& service [[gnu::unused]],
-                               const ProcessName_t& processName [[gnu::unused]]) noexcept;
+    bool violatesCommunicationPolicy(const capro::ServiceDescription& service [[gnu::unused]],
+                                     const ProcessName_t& processName [[gnu::unused]]) const noexcept;
 
   private:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};

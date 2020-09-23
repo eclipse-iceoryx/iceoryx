@@ -17,7 +17,7 @@ file (STRINGS "../VERSION" iceoryx_VERSION)
 project(iceoryx_meta VERSION ${iceoryx_VERSION})
 
 option(TOML_CONFIG "activates or deactivates TOML support - without TOML RouDi will not be build" ON)
-option(ONE_TO_MANY "Restricts communication to 1:n pattern" OFF)
+option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 option(BUILD_STRICT "Build is performed with '-Werror'" OFF)
 option(test "Build tests" ON)
 option(coverage "Build iceoryx with gcov" OFF)
