@@ -35,27 +35,48 @@ class UniquePtrTest : public Test
 
     void SetUp()
     {
+        m_deleterCalled = false;
     }
 
     void TearDown()
     {
     }
-};
 
-TEST_F(UniquePtrTest, DeleterIsCalledWhenPtrGoesOutOfScope)
-{
-    bool deleterCalled = false;
-    auto deleter = [&deleterCalled](Position* const p) {
-        deleterCalled = true;
+    bool m_deleterCalled;
+
+    std::function<void(Position* const)> deleter = [this](Position* const p) {
+        m_deleterCalled = true;
         delete p;
     };
+};
 
+
+TEST_F(UniquePtrTest, CtorWithNullptrSetsPtrToNull)
+{
+    auto ptr = iox::cxx::unique_ptr<Position>(nullptr);
+    EXPECT_EQ(ptr.get(), nullptr);
+}
+
+TEST_F(UniquePtrTest, CtorWithOnlyDeleterSetsPtrToNullAndDoesntCallDeleter)
+{
+    {
+        auto ptr = iox::cxx::unique_ptr<Position>(deleter);
+        EXPECT_EQ(ptr.get(), nullptr);
+    }
+
+    EXPECT_FALSE(m_deleterCalled);
+}
+
+
+TEST_F(UniquePtrTest, CtorWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)
+{
     {
         auto object = new Position();
         auto ptr = iox::cxx::unique_ptr<Position>(object, deleter);
+        EXPECT_EQ(ptr.get(), object);
     }
 
-    ASSERT_EQ(true, deleterCalled);
+    EXPECT_TRUE(m_deleterCalled);
 }
 
 TEST_F(UniquePtrTest, DeleterIsProperlySet)
