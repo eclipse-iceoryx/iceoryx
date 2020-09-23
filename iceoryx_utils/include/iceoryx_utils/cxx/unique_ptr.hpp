@@ -36,7 +36,7 @@ class unique_ptr
     ///
     /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later via reset.
     ///
-    unique_ptr(std::function<void(T*)>&& deleter) noexcept;
+    unique_ptr(cxx::function_ref<void(ptr_t)>&& deleter) noexcept;
 
     ///
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
@@ -45,7 +45,7 @@ class unique_ptr
     /// @param ptr The raw pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(ptr_t ptr, std::function<void(T*)>&& deleter) noexcept;
+    unique_ptr(ptr_t ptr, cxx::function_ref<void(ptr_t)>&& deleter) noexcept;
 
     unique_ptr(std::nullptr_t) noexcept;
 
@@ -99,7 +99,7 @@ class unique_ptr
 
   private:
     ptr_t m_ptr = nullptr;
-    std::function<void(T* const)> m_deleter;
+    cxx::function_ref<void(ptr_t const)> m_deleter;
 };
 
 
