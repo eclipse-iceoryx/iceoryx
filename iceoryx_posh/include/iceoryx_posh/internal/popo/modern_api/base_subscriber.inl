@@ -15,13 +15,15 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL
 #define IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL
 
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+
 namespace iox
 {
 namespace popo
 {
 template <typename T, typename port_t>
-BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription&)
-/// @todo #25  : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, ""))
+BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
+    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service))
 {
 }
 

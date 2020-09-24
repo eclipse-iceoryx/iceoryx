@@ -33,8 +33,8 @@ template <typename T, typename port_t>
 class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
 {
   public:
-    StubbedBaseSubscriber(iox::capro::ServiceDescription sd)
-        : iox::popo::BaseSubscriber<T, port_t>::BaseSubscriber(sd)
+    StubbedBaseSubscriber(iox::capro::ServiceDescription)
+        : iox::popo::BaseSubscriber<T, port_t>::BaseSubscriber()
     {
     }
     uid_t getUid() const noexcept

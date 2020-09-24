@@ -82,9 +82,9 @@ void PortManager::stopPortIntrospection() noexcept
 
 void PortManager::doDiscovery() noexcept
 {
-    handleSenderPorts();
+    handlePublisherPorts();
 
-    handleReceiverPorts();
+    handleSubscriberPorts();
 
     handleApplications();
 

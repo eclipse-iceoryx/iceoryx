@@ -15,13 +15,16 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
 #define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
 
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+
 namespace iox
 {
 namespace popo
 {
+
 template <typename T, typename port_t>
-BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription&)
-/// @todo #25 : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, ""))
+BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
+ : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewarePublisher(service))
 {
 }
 

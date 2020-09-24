@@ -104,6 +104,7 @@ class BasePublisher : public PublisherInterface<T>
     bool hasSubscribers() const noexcept;
 
   protected:
+    BasePublisher() = default; // Required for testing.
     BasePublisher(const capro::ServiceDescription& service);
 
   private:

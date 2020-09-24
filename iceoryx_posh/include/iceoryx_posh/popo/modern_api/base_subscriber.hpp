@@ -93,6 +93,7 @@ class BaseSubscriber : public Condition
     virtual bool hasTriggered() const noexcept override;
 
   protected:
+    BaseSubscriber() = default; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service);
 
   protected:

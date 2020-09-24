@@ -29,8 +29,8 @@ template <typename T, typename port_t>
 class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
 {
   public:
-    StubbedBasePublisher(iox::capro::ServiceDescription sd)
-        : iox::popo::BasePublisher<T, port_t>::BasePublisher(sd){};
+    StubbedBasePublisher(iox::capro::ServiceDescription)
+        : iox::popo::BasePublisher<T, port_t>::BasePublisher(){};
     uid_t getUid() const noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::getUid();
