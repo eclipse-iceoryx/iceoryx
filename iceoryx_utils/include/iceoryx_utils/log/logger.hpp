@@ -44,6 +44,7 @@ class Logger
 
     void SetLogLevel(const LogLevel logLevel) noexcept;
     void SetLogMode(const LogMode logMode) noexcept;
+    bool IsEnabled(const LogLevel logLevel) const noexcept;
 
     LogStream LogFatal() noexcept;
     LogStream LogError() noexcept;
