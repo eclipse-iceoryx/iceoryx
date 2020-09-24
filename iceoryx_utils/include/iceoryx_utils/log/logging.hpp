@@ -93,7 +93,7 @@ inline constexpr LogBin64 BinFormat(int64_t value)
     return LogBin64(static_cast<uint64_t>(value));
 }
 
-template <typename T>
+template <typename T, typename std::enable_if<!std::is_pointer<T>::value, std::nullptr_t>::type = nullptr>
 inline constexpr LogRawBuffer RawBuffer(const T& value) noexcept
 {
     // LogRawBuffer is used with the streaming operator which converts the data into a string,
