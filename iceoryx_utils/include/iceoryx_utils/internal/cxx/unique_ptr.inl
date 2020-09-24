@@ -135,13 +135,13 @@ bool operator!=(const unique_ptr<T>& x, const unique_ptr<U>& y)
 template <typename T>
 bool operator!=(const unique_ptr<T>& x, std::nullptr_t)
 {
-    return static_cast<bool>(x);
+    return x;
 }
 
 template <typename T>
 bool operator!=(std::nullptr_t, const unique_ptr<T>& x)
 {
-    return static_cast<bool>(x);
+    return x;
 }
 
 } // namespace cxx

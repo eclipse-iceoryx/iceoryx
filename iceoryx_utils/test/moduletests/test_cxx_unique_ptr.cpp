@@ -285,3 +285,23 @@ TEST_F(UniquePtrTest, CompareAUniquePtrWithAnotherOneOfAnotherObjectIsFalse)
 
     EXPECT_FALSE(sut == anotherSut);
 }
+
+TEST_F(UniquePtrTest, NotEqualCompareOfAUniquePtrWithItselfIsFalse)
+{
+    auto object = new Position();
+
+    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+
+    EXPECT_FALSE(sut != sut);
+}
+
+TEST_F(UniquePtrTest, NotEqualCompareOfAUniquePtrWithAnotherOneOfAnotherObjectIsTrue)
+{
+    auto object = new Position;
+    auto anotherObject = new Position;
+
+    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, deleter);
+
+    EXPECT_TRUE(sut != anotherSut);
+}
