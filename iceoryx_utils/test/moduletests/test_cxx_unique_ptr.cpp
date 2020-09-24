@@ -40,6 +40,7 @@ class UniquePtrTest : public Test
     void SetUp()
     {
         m_deleterCalled = false;
+        m_anotherDeleterCalled = false;
     }
 
     void TearDown()
@@ -47,9 +48,15 @@ class UniquePtrTest : public Test
     }
 
     bool m_deleterCalled;
+    bool m_anotherDeleterCalled;
 
     std::function<void(Position* const)> deleter = [this](Position* const p) {
         m_deleterCalled = true;
+        delete p;
+    };
+
+    std::function<void(Position* const)> anotherDeleter = [this](Position* const p) {
+        m_anotherDeleterCalled = true;
         delete p;
     };
 };
@@ -117,6 +124,23 @@ TEST_F(UniquePtrTest, MoveAssignmentUniquePtrs)
     EXPECT_TRUE(m_deleterCalled);
 }
 
+TEST_F(UniquePtrTest, MoveAssignmentOverwriteAUniquePtrWithAnotherOne)
+{
+    {
+        auto object = new Position();
+        auto anotherObject = new Position();
+        auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+        auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
+
+        anotherSut = std::move(sut);
+
+        EXPECT_TRUE(m_anotherDeleterCalled);
+        EXPECT_FALSE(m_deleterCalled);
+        EXPECT_FALSE(sut);
+        EXPECT_EQ(anotherSut.get(), object);
+    }
+    EXPECT_TRUE(m_deleterCalled);
+}
 
 TEST_F(UniquePtrTest, CtorWithObjectPtrToNullAndDeleterSetsPtrToObjectAndDoesntCallsDeleter)
 {
@@ -192,7 +216,7 @@ TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsSucceeds)
     auto anotherObject = new Position();
 
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, deleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
     sut.swap(anotherSut);
 
@@ -224,7 +248,7 @@ TEST_F(UniquePtrTest, SwapUniquePtrWithADeleterOnlyUniquePtrLeadsToDeletedUnique
     auto object = new Position();
 
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(deleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherDeleter);
 
     sut.swap(anotherSut);
 
@@ -239,7 +263,7 @@ TEST_F(UniquePtrTest, SwapANullptrUniquePtrWithUniquePtrLeadsToOneValidAndOneInv
     auto object = new Position();
 
     auto sut = iox::cxx::unique_ptr<Position>(nullptr);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(object, deleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(object, anotherDeleter);
 
     sut.swap(anotherSut);
 
@@ -255,7 +279,7 @@ TEST_F(UniquePtrTest, SwapAADeleterOnlyUniquePtrWithUniquePtrLeadsToOneValidAndO
     auto object = new Position();
 
     auto sut = iox::cxx::unique_ptr<Position>(deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(object, deleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(object, anotherDeleter);
 
     sut.swap(anotherSut);
 
@@ -281,7 +305,7 @@ TEST_F(UniquePtrTest, CompareAUniquePtrWithAnotherOneOfAnotherObjectIsFalse)
     auto anotherObject = new Position;
 
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, deleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
     EXPECT_FALSE(sut == anotherSut);
 }
@@ -301,7 +325,7 @@ TEST_F(UniquePtrTest, NotEqualCompareOfAUniquePtrWithAnotherOneOfAnotherObjectIs
     auto anotherObject = new Position;
 
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, deleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
     EXPECT_TRUE(sut != anotherSut);
 }
