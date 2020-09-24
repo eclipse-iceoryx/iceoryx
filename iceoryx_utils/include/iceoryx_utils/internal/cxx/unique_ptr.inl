@@ -32,7 +32,7 @@ unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        reset(rhs.m_ptr);
+        reset(rhs.release());
         m_deleter = std::move(rhs.m_deleter);
     }
     return *this;
