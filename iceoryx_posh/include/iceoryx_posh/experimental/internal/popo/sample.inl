@@ -30,9 +30,9 @@ Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
 {
     if (this != &rhs)
     {
+        m_publisherRef = rhs.m_publisherRef;
         m_samplePtr = std::move(rhs.m_samplePtr);
         rhs.m_samplePtr = nullptr;
-        m_publisherRef = rhs.m_publisherRef;
     }
     return *this;
 }

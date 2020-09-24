@@ -147,7 +147,9 @@ TEST_F(BasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOfScope)
 
     ON_CALL(sut.getMockedPort(), tryAllocateChunk)
         .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk))));
-    EXPECT_CALL(sut.getMockedPort(), freeChunk(chunk)).Times(1);
+
+    EXPECT_CALL(sut.getMockedPort(), freeChunk(chunk)).Times(AtLeast(1));
+
     // ===== Test ===== //
     {
         auto result = sut.loan(sizeof(DummyData));

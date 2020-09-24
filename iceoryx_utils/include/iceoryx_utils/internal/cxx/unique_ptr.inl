@@ -50,7 +50,6 @@ unique_ptr<T>::~unique_ptr() noexcept
     reset();
 }
 
-/// Return the stored pointer.
 template <typename T>
 T* unique_ptr<T>::operator->() noexcept
 {
