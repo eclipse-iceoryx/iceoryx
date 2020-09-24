@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/experimental/popo/sample.hpp"
+#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "test.hpp"
 
 using namespace ::testing;

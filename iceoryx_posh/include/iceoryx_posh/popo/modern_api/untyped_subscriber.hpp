@@ -16,7 +16,7 @@
 #define IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/experimental/popo/base_subscriber.hpp"
+#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
@@ -53,6 +53,6 @@ using UntypedSubscriber = UntypedSubscriberImpl<>;
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/experimental/internal/popo/untyped_subscriber.inl"
+#include "iceoryx_posh/internal/popo/modern_api/untyped_subscriber.inl"
 
 #endif // IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_HPP

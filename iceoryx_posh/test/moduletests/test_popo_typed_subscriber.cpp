@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/experimental/popo/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
 #include "mocks/subscriber_mock.hpp"
 
 #include "test.hpp"

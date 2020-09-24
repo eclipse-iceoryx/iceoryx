@@ -14,7 +14,7 @@
 
 #include "topic_data.hpp"
 
-#include "iceoryx_posh/experimental/popo/publisher.hpp"
+#include "iceoryx_posh/popo/modern_api/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <chrono>

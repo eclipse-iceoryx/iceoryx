@@ -15,8 +15,8 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_PUBLISHER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_PUBLISHER_HPP
 
-#include "iceoryx_posh/experimental/popo/base_publisher.hpp"
-#include "iceoryx_posh/experimental/popo/sample.hpp"
+#include "iceoryx_posh/popo/modern_api/base_publisher.hpp"
+#include "iceoryx_posh/popo/modern_api/sample.hpp"
 
 namespace iox
 {
@@ -56,6 +56,6 @@ using UntypedPublisher = UntypedPublisherImpl<>;
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/experimental/internal/popo/untyped_publisher.inl"
+#include "iceoryx_posh/internal/popo/modern_api/untyped_publisher.inl"
 
 #endif // IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_PUBLISHER_HPP

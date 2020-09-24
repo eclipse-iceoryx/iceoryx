@@ -15,7 +15,7 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
 
-#include "iceoryx_posh/experimental/popo/sample.hpp"
+#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
@@ -102,6 +102,6 @@ class BaseSubscriber : public Condition
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/experimental/internal/popo/base_subscriber.inl"
+#include "iceoryx_posh/internal/popo/modern_api/base_subscriber.inl"
 
 #endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP

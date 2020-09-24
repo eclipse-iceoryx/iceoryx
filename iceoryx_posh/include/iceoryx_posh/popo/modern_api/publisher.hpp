@@ -15,7 +15,7 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP
 
-#include "iceoryx_posh/experimental/popo/typed_publisher.hpp"
-#include "iceoryx_posh/experimental/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/modern_api/typed_publisher.hpp"
+#include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
 
 #endif // IOX_EXPERIMENTAL_POSH_POPO_PUBLISHER_HPP

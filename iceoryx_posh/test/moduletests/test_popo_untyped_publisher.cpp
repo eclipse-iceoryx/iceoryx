@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/experimental/popo/untyped_publisher.hpp"
+#include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
 #include "mocks/publisher_mock.hpp"
 
 #include "test.hpp"
