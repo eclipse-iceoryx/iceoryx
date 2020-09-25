@@ -107,16 +107,22 @@ TEST_F(UniquePtrTest, CtorUsingMoveWithObjectPtrAndDeleterSetsPtrToObjectAndCall
     {
         auto object = new Position();
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+        {
+            auto anotherSut = iox::cxx::unique_ptr<Position>(std::move(sut));
 
-        auto anotherSut = iox::cxx::unique_ptr<Position>(std::move(sut));
+            // no deleter called during move
+            EXPECT_FALSE(m_deleterCalled);
+            EXPECT_FALSE(sut);
+            EXPECT_EQ(anotherSut.get(), object);
+        }
+        // anotherSUT is out of scope and should have called deleter
+        EXPECT_TRUE(m_deleterCalled);
 
-        // no deleter call during move
-        EXPECT_FALSE(m_deleterCalled);
-        EXPECT_FALSE(sut);
-        EXPECT_EQ(anotherSut.get(), object);
+        // reset deleter as it shouldn't be called again when SUT goes out of scope
+        m_deleterCalled = false;
     }
-    // SUT is out of scope and should have called deleter
-    EXPECT_TRUE(m_deleterCalled);
+    // no deleter called when SUT goes out of scope as it was moved
+    EXPECT_FALSE(m_deleterCalled);
 }
 
 TEST_F(UniquePtrTest, MoveAssignmentUniquePtrsSetsPtrToObjectAndCallsDeleter)
@@ -124,36 +130,50 @@ TEST_F(UniquePtrTest, MoveAssignmentUniquePtrsSetsPtrToObjectAndCallsDeleter)
     {
         auto object = new Position();
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+        {
+            auto anotherSut = std::move(sut);
 
-        auto anotherSut = std::move(sut);
+            // no deleter called during move
+            EXPECT_FALSE(m_deleterCalled);
+            EXPECT_FALSE(sut);
+            EXPECT_EQ(anotherSut.get(), object);
+        }
+        // anotherSUT is out of scope and should have called deleter
+        EXPECT_TRUE(m_deleterCalled);
 
-        // no deleter call during movie
-        EXPECT_FALSE(m_deleterCalled);
-        EXPECT_FALSE(sut);
-        EXPECT_EQ(anotherSut.get(), object);
+        // reset deleter as it shouldn't be called again when SUT goes out of scope
+        m_deleterCalled = false;
     }
-    // anotherSUT is out of scope and should have called deleter
-    EXPECT_TRUE(m_deleterCalled);
+    // no deleter called when SUT goes out of scope as it was moved
+    EXPECT_FALSE(m_deleterCalled);
 }
 
 TEST_F(UniquePtrTest, MoveAssignmentOverwriteAUniquePtrWithAnotherOneAndCallsAnotherDeleterOnMove)
 {
     {
         auto object = new Position();
-        auto anotherObject = new Position();
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-        auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
+        {
+            auto anotherObject = new Position();
+            auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
-        anotherSut = std::move(sut);
+            anotherSut = std::move(sut);
 
-        // anotherSUT is overwritten so it should have called its anotherDeleter
-        EXPECT_TRUE(m_anotherDeleterCalled);
-        EXPECT_FALSE(m_deleterCalled);
-        EXPECT_FALSE(sut);
-        EXPECT_EQ(anotherSut.get(), object);
+            // anotherSUT is overwritten so it should have called its anotherDeleter
+            EXPECT_TRUE(m_anotherDeleterCalled);
+            // SUT deleter not called during move
+            EXPECT_FALSE(m_deleterCalled);
+            EXPECT_FALSE(sut);
+            EXPECT_EQ(anotherSut.get(), object);
+        }
+        // anotherSUT is out of scope and should have called deleter that has been moved to it
+        EXPECT_TRUE(m_deleterCalled);
+
+        // reset deleter as it shouldn't be called again when SUT goes out of scope
+        m_deleterCalled = false;
     }
-    // SUT is out of scope and should have called deleter
-    EXPECT_TRUE(m_deleterCalled);
+    // no deleter called when SUT goes out of scope as it was moved
+    EXPECT_FALSE(m_deleterCalled);
 }
 
 TEST_F(UniquePtrTest, AccessUnderlyingObjectResultsInCorrectValue)
@@ -221,7 +241,7 @@ TEST_F(UniquePtrTest, ResetToAnExistingObjectPtrResultsInDeleterCalledTwice)
         EXPECT_TRUE(m_deleterCalled);
         EXPECT_EQ(sut.get(), anotherObject);
 
-        // reset deleter as it is called again when SUT goes out of scope
+        // reset deleter as it's called again when SUT goes out of scope
         m_deleterCalled = false;
     }
     // deleter called second time when SUT is going of scope
