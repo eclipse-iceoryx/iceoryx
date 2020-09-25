@@ -64,6 +64,7 @@ TEST_F(UniquePtrTest, CtorWithNullptrSetsPtrToNullAndDoesntCallDeleter)
         EXPECT_FALSE(sut);
         EXPECT_EQ(sut.get(), nullptr);
     }
+    // SUT is out of scope but shouldn't have called deleter as SUT is NULL
     EXPECT_FALSE(m_deleterCalled);
 }
 
@@ -74,6 +75,7 @@ TEST_F(UniquePtrTest, CtorWithOnlyDeleterSetsPtrToNullAndDoesntCallDeleter)
         EXPECT_FALSE(sut);
         EXPECT_EQ(sut.get(), nullptr);
     }
+    // SUT is out of scope but shouldn't have called deleter as SUT is NULL
     EXPECT_FALSE(m_deleterCalled);
 }
 
@@ -85,6 +87,7 @@ TEST_F(UniquePtrTest, CtorWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)
         EXPECT_TRUE(sut);
         EXPECT_EQ(sut.get(), object);
     }
+    // SUT is out of scope and should have called deleter
     EXPECT_TRUE(m_deleterCalled);
 }
 
@@ -95,6 +98,7 @@ TEST_F(UniquePtrTest, CtorWithObjectPtrToNullAndDeleterSetsPtrToObjectAndDoesntC
         EXPECT_FALSE(sut);
         EXPECT_EQ(sut.get(), nullptr);
     }
+    // SUT is out of scope but shouldn't have called deleter as SUT is NULL
     EXPECT_FALSE(m_deleterCalled);
 }
 
@@ -106,10 +110,12 @@ TEST_F(UniquePtrTest, CtorUsingMoveWithObjectPtrAndDeleterSetsPtrToObjectAndCall
 
         auto anotherSut = iox::cxx::unique_ptr<Position>(std::move(sut));
 
+        // no deleter call during move
         EXPECT_FALSE(m_deleterCalled);
         EXPECT_FALSE(sut);
         EXPECT_EQ(anotherSut.get(), object);
     }
+    // SUT is out of scope and should have called deleter
     EXPECT_TRUE(m_deleterCalled);
 }
 
@@ -121,10 +127,12 @@ TEST_F(UniquePtrTest, MoveAssignmentUniquePtrsSetsPtrToObjectAndCallsDeleter)
 
         auto anotherSut = std::move(sut);
 
+        // no deleter call during movie
         EXPECT_FALSE(m_deleterCalled);
         EXPECT_FALSE(sut);
         EXPECT_EQ(anotherSut.get(), object);
     }
+    // anotherSUT is out of scope and should have called deleter
     EXPECT_TRUE(m_deleterCalled);
 }
 
@@ -138,11 +146,13 @@ TEST_F(UniquePtrTest, MoveAssignmentOverwriteAUniquePtrWithAnotherOneAndCallsAno
 
         anotherSut = std::move(sut);
 
+        // anotherSUT is overwritten so it should have called its anotherDeleter
         EXPECT_TRUE(m_anotherDeleterCalled);
         EXPECT_FALSE(m_deleterCalled);
         EXPECT_FALSE(sut);
         EXPECT_EQ(anotherSut.get(), object);
     }
+    // SUT is out of scope and should have called deleter
     EXPECT_TRUE(m_deleterCalled);
 }
 
@@ -229,13 +239,16 @@ TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsWithDifferentDeletersSucceeds)
 
             sut.swap(anotherSut);
 
+            // no deleter calls during swap
             EXPECT_FALSE(m_deleterCalled);
             EXPECT_EQ(sut.get(), anotherObject);
             EXPECT_EQ(anotherSut.get(), object);
         }
+        // anotherSUT is out of scope and calls its deleter, which has been swapped and is now 'deleter'
         EXPECT_TRUE(m_deleterCalled);
         EXPECT_FALSE(m_anotherDeleterCalled);
     }
+    // SUT is out of scope calling its anotherDeleter as it was swapped
     EXPECT_TRUE(m_anotherDeleterCalled);
 }
 
@@ -249,12 +262,15 @@ TEST_F(UniquePtrTest, SwapUniquePtrWithANullptrUniquePtrLeadsToDeletedUniquePtr)
 
             sut.swap(anotherSut);
 
+            // no deleter calls during swap
             EXPECT_FALSE(m_deleterCalled);
             EXPECT_FALSE(sut);
             EXPECT_EQ(anotherSut.get(), object);
         }
+        // anotherSUT is out of scope and calls its deleter, which has been swapped and is now 'deleter'
         EXPECT_TRUE(m_deleterCalled);
     }
+    // SUT is out of scope not calling its anotherDeleter as it's NULL
     EXPECT_FALSE(m_anotherDeleterCalled);
 }
 
@@ -268,12 +284,15 @@ TEST_F(UniquePtrTest, SwapUniquePtrWithADeleterOnlyUniquePtrLeadsToDeletedUnique
 
             sut.swap(anotherSut);
 
+            // no deleter calls during swap
             EXPECT_FALSE(m_deleterCalled);
             EXPECT_FALSE(sut);
             EXPECT_EQ(anotherSut.get(), object);
         }
+        // anotherSUT is out of scope and calls its deleter, which has been swapped and is now 'deleter'
         EXPECT_TRUE(m_deleterCalled);
     }
+    // SUT is out of scope not calling its anotherDeleter as it's NULL
     EXPECT_FALSE(m_anotherDeleterCalled);
 }
 
@@ -287,11 +306,15 @@ TEST_F(UniquePtrTest, SwapANullptrUniquePtrWithUniquePtrLeadsToOneValidAndOneInv
 
             sut.swap(anotherSut);
 
+            // no deleter calls during swap
+            EXPECT_FALSE(m_anotherDeleterCalled);
             EXPECT_FALSE(anotherSut);
             EXPECT_EQ(sut.get(), anotherObject);
         }
+        // SUT is out of scope and calls its anotherDeleter, which has been swapped
         EXPECT_TRUE(m_anotherDeleterCalled);
     }
+    // anotherSUT is out of scope not calling its deleter as it's NULL
     EXPECT_FALSE(m_deleterCalled);
 }
 
@@ -305,12 +328,15 @@ TEST_F(UniquePtrTest, SwapADeleterOnlyUniquePtrWithUniquePtrLeadsToOneValidAndOn
 
             sut.swap(anotherSut);
 
+            // no deleter calls during swap
             EXPECT_FALSE(m_anotherDeleterCalled);
             EXPECT_FALSE(anotherSut);
             EXPECT_EQ(sut.get(), anotherObject);
         }
+        // SUT is out of scope and calls its anotherDeleter, which has been swapped
         EXPECT_TRUE(m_anotherDeleterCalled);
     }
+    // anotherSUT is out of scope not calling its deleter as it's NULL
     EXPECT_FALSE(m_deleterCalled);
 }
 
