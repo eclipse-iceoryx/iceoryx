@@ -16,6 +16,7 @@
 #define IOX_UTILS_CXX_UNIQUE_PTR_HPP
 
 #include "iceoryx_utils/cxx/function_ref.hpp"
+
 #include <functional>
 
 namespace iox
@@ -23,7 +24,9 @@ namespace iox
 namespace cxx
 {
 ///
-/// @todo document how it differs to STL
+/// Only a subset of STL's 'std::unique_ptr' has been implemented so far.
+/// Main difference is that 'Deleter' is a function reference ('cxx:function_ref') here compared to a 'std::function' in
+/// the STL implementation.
 ///
 template <typename T>
 class unique_ptr

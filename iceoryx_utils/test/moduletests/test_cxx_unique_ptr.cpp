@@ -33,10 +33,6 @@ struct Position
 class UniquePtrTest : public Test
 {
   public:
-    UniquePtrTest()
-    {
-    }
-
     void SetUp()
     {
         m_deleterCalled = false;
