@@ -41,6 +41,8 @@ int main()
     iox::popo::TypedSubscriber<Position> typedSubscriber({"Odometry", "Position", "Vehicle"});
     typedSubscriber.subscribe();
 
+    std::cout << "0" << std::endl;
+
     // set up waitset
     iox::popo::WaitSet waitSet{};
     waitSet.attachCondition(typedSubscriber);
@@ -48,20 +50,25 @@ int main()
     // run until interrupted
     while(!killswitch)
     {
+        std::cout << "1" << std::endl;
         // wake up on new data
         auto triggeredConditions = waitSet.wait();
+        std::cout << "2" << std::endl;
+        std::cout << triggeredConditions.size() << " condition(s) have been triggered." << std::endl;
         for(auto& condition : triggeredConditions)
         {
             auto subscriber = dynamic_cast<iox::popo::TypedSubscriber<Position>*>(condition);
             subscriber->receive().and_then([](iox::cxx::optional<iox::popo::Sample<const Position>>& maybePosition){
                 if(maybePosition.has_value())
                 {
+                    std::cout << "3" << std::endl;
                     auto& position = maybePosition.value();
                     std::cout << "Got Position: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
                 }
             });
 
         }
+        std::cout << "4" << std::endl;
     }
 
     waitSet.detachAllConditions();
