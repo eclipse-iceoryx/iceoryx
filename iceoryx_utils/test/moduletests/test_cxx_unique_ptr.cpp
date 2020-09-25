@@ -212,79 +212,101 @@ TEST_F(UniquePtrTest, ResetToAnExistingRawPtr)
     EXPECT_EQ(sut.get(), anotherObject);
 }
 
-TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsSucceeds)
+TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsWithDifferentDeletersSucceeds)
 {
-    auto object = new Position();
-    auto anotherObject = new Position();
+    {
+        auto object = new Position();
+        auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+        {
+            auto anotherObject = new Position();
+            auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
-    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
+            sut.swap(anotherSut);
 
-    sut.swap(anotherSut);
-
-    EXPECT_FALSE(m_deleterCalled);
-    EXPECT_FALSE(m_anotherDeleterCalled);
-    EXPECT_EQ(sut.get(), anotherObject);
-    EXPECT_EQ(anotherSut.get(), object);
+            EXPECT_FALSE(m_deleterCalled);
+            EXPECT_EQ(sut.get(), anotherObject);
+            EXPECT_EQ(anotherSut.get(), object);
+        }
+        EXPECT_TRUE(m_deleterCalled);
+        EXPECT_FALSE(m_anotherDeleterCalled);
+    }
+    EXPECT_TRUE(m_anotherDeleterCalled);
 }
 
 
 TEST_F(UniquePtrTest, SwapUniquePtrWithANullptrUniquePtrLeadsToDeletedUniquePtr)
 {
-    auto object = new Position();
+    {
+        auto object = new Position();
+        auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+        {
+            auto anotherSut = iox::cxx::unique_ptr<Position>(nullptr);
 
-    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(nullptr);
+            sut.swap(anotherSut);
 
-    sut.swap(anotherSut);
-
-    EXPECT_FALSE(m_deleterCalled);
-    EXPECT_FALSE(sut);
-    EXPECT_EQ(anotherSut.get(), object);
+            EXPECT_FALSE(m_deleterCalled);
+            EXPECT_FALSE(sut);
+            EXPECT_EQ(anotherSut.get(), object);
+        }
+        EXPECT_TRUE(m_deleterCalled);
+    }
+    EXPECT_FALSE(m_anotherDeleterCalled);
 }
 
 TEST_F(UniquePtrTest, SwapUniquePtrWithADeleterOnlyUniquePtrLeadsToDeletedUniquePtr)
 {
-    auto object = new Position();
+    {
+        auto object = new Position();
+        auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+        {
+            auto anotherSut = iox::cxx::unique_ptr<Position>(anotherDeleter);
 
-    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherDeleter);
+            sut.swap(anotherSut);
 
-    sut.swap(anotherSut);
-
-    EXPECT_FALSE(m_deleterCalled);
+            EXPECT_FALSE(m_deleterCalled);
+            EXPECT_FALSE(sut);
+            EXPECT_EQ(anotherSut.get(), object);
+        }
+        EXPECT_TRUE(m_deleterCalled);
+    }
     EXPECT_FALSE(m_anotherDeleterCalled);
-    EXPECT_FALSE(sut);
-    EXPECT_EQ(anotherSut.get(), object);
 }
 
 TEST_F(UniquePtrTest, SwapANullptrUniquePtrWithUniquePtrLeadsToOneValidAndOneInvalidUniquePtrs)
 {
-    auto object = new Position();
+    {
+        auto anotherObject = new Position();
+        auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
+        {
+            auto sut = iox::cxx::unique_ptr<Position>(nullptr);
 
-    auto sut = iox::cxx::unique_ptr<Position>(nullptr);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(object, anotherDeleter);
+            sut.swap(anotherSut);
 
-    sut.swap(anotherSut);
-
-    EXPECT_FALSE(m_anotherDeleterCalled);
-    EXPECT_FALSE(anotherSut);
-    EXPECT_EQ(sut.get(), object);
+            EXPECT_FALSE(anotherSut);
+            EXPECT_EQ(sut.get(), anotherObject);
+        }
+        EXPECT_TRUE(m_anotherDeleterCalled);
+    }
+    EXPECT_FALSE(m_deleterCalled);
 }
 
-TEST_F(UniquePtrTest, SwapAADeleterOnlyUniquePtrWithUniquePtrLeadsToOneValidAndOneInvalidUniquePtrs)
+TEST_F(UniquePtrTest, SwapADeleterOnlyUniquePtrWithUniquePtrLeadsToOneValidAndOneInvalidUniquePtrs)
 {
-    auto anotherObject = new Position();
+    {
+        auto anotherObject = new Position();
+        auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
+        {
+            auto sut = iox::cxx::unique_ptr<Position>(deleter);
 
-    auto sut = iox::cxx::unique_ptr<Position>(deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
+            sut.swap(anotherSut);
 
-    sut.swap(anotherSut);
-
+            EXPECT_FALSE(m_anotherDeleterCalled);
+            EXPECT_FALSE(anotherSut);
+            EXPECT_EQ(sut.get(), anotherObject);
+        }
+        EXPECT_TRUE(m_anotherDeleterCalled);
+    }
     EXPECT_FALSE(m_deleterCalled);
-    EXPECT_FALSE(m_anotherDeleterCalled);
-    EXPECT_FALSE(anotherSut);
-    EXPECT_EQ(sut.get(), anotherObject);
 }
 
 TEST_F(UniquePtrTest, CompareAUniquePtrWithItselfIsTrue)

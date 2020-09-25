@@ -97,13 +97,13 @@ void unique_ptr<T>::swap(unique_ptr<T>& other) noexcept
     // Set new pointers on both instances.
     reset(otherPtr);
     other.reset(thisPtr);
+
+    // Move deleters
+    auto thisDeleter = m_deleter;
+    m_deleter = other.m_deleter;
+    other.m_deleter = thisDeleter;
 }
 
-template <typename T>
-cxx::function_ref<void(T* const)> unique_ptr<T>::getDeleter() noexcept
-{
-    return m_deleter;
-}
 
 // Comparison Operators
 
