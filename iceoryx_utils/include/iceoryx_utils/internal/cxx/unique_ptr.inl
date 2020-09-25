@@ -20,13 +20,13 @@ namespace iox
 namespace cxx
 {
 template <typename T>
-unique_ptr<T>::unique_ptr(cxx::function_ref<void(ptr_t)>&& deleter) noexcept
+unique_ptr<T>::unique_ptr(function_ref<void(ptr_t)>&& deleter) noexcept
     : m_deleter(deleter)
 {
 }
 
 template <typename T>
-unique_ptr<T>::unique_ptr(ptr_t ptr, cxx::function_ref<void(ptr_t)>&& deleter) noexcept
+unique_ptr<T>::unique_ptr(ptr_t ptr, function_ref<void(ptr_t)>&& deleter) noexcept
     : m_ptr(ptr)
     , m_deleter(std::move(deleter))
 {

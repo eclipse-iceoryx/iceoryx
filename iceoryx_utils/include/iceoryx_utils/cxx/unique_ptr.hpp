@@ -39,16 +39,17 @@ class unique_ptr
     ///
     /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later via reset.
     ///
-    unique_ptr(cxx::function_ref<void(ptr_t)>&& deleter) noexcept;
+    unique_ptr(function_ref<void(ptr_t)>&& deleter) noexcept;
 
     ///
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
-    /// @details A deleter must always be provided as no default can be provided given that no head is used.
-    /// The unique_ptr must know how to delete the managed object when pointer out of scope.
+    /// @details A deleter must always be provided as no default can be provided given that no heap is used.
+    /// The unique_ptr must know how to delete the managed object when the pointer goes out of scope.
     /// @param ptr The raw pointer to the object to be managed.
-    /// @param deleter The deleter function for cleaning up the managed object.
+    /// @param deleter The deleter function for cleaning up the managed object. As cxx:function_ref used for the deleter
+    ///                is non-owning the user needs to care about the lifetime of the callable!
     ///
-    unique_ptr(ptr_t ptr, cxx::function_ref<void(ptr_t)>&& deleter) noexcept;
+    unique_ptr(ptr_t ptr, function_ref<void(ptr_t)>&& deleter) noexcept;
 
     unique_ptr(std::nullptr_t) noexcept;
 
@@ -95,14 +96,14 @@ class unique_ptr
     void reset(ptr_t ptr = nullptr) noexcept;
 
     ///
-    /// @brief swap Swaps object ownership with another unique_ptr.
+    /// @brief swap Swaps object ownership with another unique_ptr (incl. deleters)
     /// @param other The unique_ptr with which to swap owned objects.
     ///
     void swap(unique_ptr& other) noexcept;
 
   private:
     ptr_t m_ptr = nullptr;
-    cxx::function_ref<void(ptr_t const)> m_deleter;
+    function_ref<void(ptr_t const)> m_deleter;
 };
 
 } // namespace cxx
