@@ -133,34 +133,153 @@ Error handler as well as logger shall be able to use or redirect to 3rd party er
 # Usage
 
 ## Logger
+The logger can be used similar to the streams in the C++ standard API.
+To select the log level, the corresponding logger has to be used, e.g. LogErr, LogWarn etc.
 
+```
+LogWarn() << "log message " << someValue << "log message continued";
+```
 
 ## Error Handler
+The most general use case is the following
+```
+if(noError()) {
+    //handle the regular case
+} else {
+    auto callback = []() { //some error handling callback};
+    errorHandler(Error::kSOME_ERROR_CODE, callback, ErrorLevel::SEVERE);
+}
+```
 
+If no callback or error level are specified, the error level is assumed to be FATAL by default.
+```
+errorHandler(Error::kSOME_ERROR_CODE)
+```
+
+If no callback but an error level is desired, a nullptr has to be provided for the callback.
+```
+errorHandler(Error::kSOME_ERROR_CODE, nullptr, ErrorLevel::MODERATE);
+```
+We should consider changing the order of arguments in a future design (callback and additional arguments last). This can be done in a redesign were we provide additional information about the error location as well.
 
 ## Expects and Ensures
 
-## cxx::expected
- 
+Assume func is part of an inner API and not supposed to be called with a nullptr. We may have used a reference here, this is just for illustration.
+In addition the value pointed to is assumed to be in the range (-1024, 1024). While we could check this everytime, this may not be necessary if we specify that the caller is responsible to ensure that these conditions hold.
 
+```
+int myAlgorithm(int* ptr) {
+    Expects(ptr!=nullptr);
+    //observe the order, we only dereference after the nullptr check
+    Expects(*ptr > -1024 && *ptr < 1024);
+
+    int intermediate = timesTwo(*ptr);
+    //this may not be necessary here to ensure that the next function call is valid,
+    //but it states our expectations clearly
+    Ensures(intermediate % 2 == 0);
+
+    int result = abs(intermediate);
+
+    Ensures(result % 2 == 0);
+    Ensures(result >= 0);
+    Ensures(result < 2048);
+
+    return result;
+}
+```
+Note that in the case of nullptr checks it may be an option to use references in arguments (or **not_null** if it is supposed to be stored since references are not copyable). It should be considered that not_null incurs a runtime cost, which may be undesirable.
+When Expects and Ensures are implemented to leave no trace in Release Mode, we do not incur a runtime cost using them.
+
+## cxx::expected
+This example checks the arguments and if they are valid proceeds to compute a result and returns it.
+Otherwise it creates an Error object from an erroCode and returns this.
+ 
+```
+std::expected<SomeType, Error>::func(Arg arg) {
+    int errorCode = checkArg(arg);
+    if(noError()) {
+        SomeType result = computeResult(arg);
+        // optionally do something with result
+        return result;
+    }
+    return Error(errorCode);
+}
+```
+The caller is responsible for handling (or propagating) the error.
+
+```
+auto result = func(arg);
+if(result.has_value()) {
+    auto value = result.value();
+    //proceed by using the value
+} else {
+    auto error = result.error();
+    //handle or propagate the error
+}
+```
+
+Alternatively a functional approach can be used.
+
+```
+auto successFunc = [](std::expected<SomeType, Error>& result) { 
+    auto value = result.value();
+    //proceed by using the value
+};
+
+auto errorFunc = [](std::expected<SomeType, Error>& result) { 
+    auto error = result.error();
+    //handle the error
+};
+
+func(arg).on_success(successFunc).on_error(errorFunc);
+```
 
 # Open Points
 
-3rd party error handling
-centralized error handling
-Overriding specific error reaction based on error codes
-Backtrace, distinguih between debug and release (or release build with extended information usable for debug purposes)
+## Centralized Error Handling
 
-Handle errors in runtime in a configurable way (hooks)
+It may be desirable to have centralized error handling instance were runtime errors on application side are logged and (maybe) handled.
+This could also be done in RouDi (by sending information to RouDi), but RouDi already has to much responsibility. Preferably this should be done by a separate application with this sole purpose.
+If the application cannot reach the central handler, it shall try to handle the error locally if possible (at least log it).
 
-use of expected/optional
+However, it might be too slow if this would rely on error transmission and responses. If this is to be implemented, the exact mechanism has to be decided on.
 
-return in case of fatal error
+## 3rd Party Error Handling
+We need to decide how to provide an interface for 3rd party error handling, especially for the runtime. This interface will probably rely on hooks/callbacks. The signature and callsites of these needs to be discussed.
+This is related to centralized error handling as well.
 
-debug/release mode
+## Overriding Specific Error Reaction
+* Do we want to provide the ability to override error reaction based on e.g. error codes?
+* Do we want to disable ceratin error levels? (if so, this should preferably happen at compile 
+time with no or few runtime artifacts). It could be an option to e.g. disable all MODERATE error reaction at compile time.
+* It is probably not reasonable to allow disabling reaction on FATAL errors.
 
-assert
+This is also related to the hooks for 3rd party error handling we may want to provide.
 
-## Future Requirements
+## Return in Case of Fatal Error
+The reporting code does not need to be able to continue properly in case of a FATAL error, but there needs to be a return after the error handler call. While the error handler is not *required* to return, it still might under certain circumstances (e.g. a mock error handler in a test case). 
 
-LogErr without error handler?
+The (complete) intended behavior of the error handler requires some further clarification, especially in the case of FATAL errors. In the case of non-FATAL errors the code invoking the error handler must be able to continue after the error handler returns.
+
+## Error Handling vs. Logging
+Does it make sense to have LogErr without and error handler call? If an error occurs it should probably be enforced that the handler is called and not just lead to a log entry.
+One reason for this is that currently it is not possible to provide an additional error message to the error handler.
+
+## Additional Error Information
+It would be desirable to allow the possibility to provide additional messages (or even general functions/arguments) to the error handler, which is currently missing.
+This can be combined with the addition of error location to the error handler.
+
+An optional stack-trace (at least in Debug Mode) may also prove very useful. 
+What is needed to have a limited stack-trace even in Release Mode?
+
+## Debug vs. Release Mode
+We need to further clarify behavior in Release and Debug Mode of the error handler and Expects and Ensures (and maybe the logger as well). Can we have a release build with additional information? (e.g. symbols for a stack-trace).
+
+## Assert
+Do we want an Assert in addition to Expects and Ensures? If so, shall it possibly be active in Release Mode or only Debug Mode?
+
+In principle with an sufficiently powerful Assert or Expects (resp. Ensures), this should not be needed (they are equivalent in their functionality).
+
+## Errors in utils
+Currently there are a few occurences in utils were terminate is called directly in case of an error. We need to evaluate whether it is possible to replace them all with assert-like constructs such as Expects, Ensures or Assert or something else.
+
