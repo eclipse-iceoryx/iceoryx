@@ -152,7 +152,8 @@ class TriggerQueue
     /// and the factory method handles that case with an optional
     TriggerQueue() = default;
 
-    cxx::expected<posix::Semaphore, posix::SemaphoreError> m_semaphore = posix::Semaphore::create(0);
+    cxx::expected<posix::Semaphore, posix::SemaphoreError> m_semaphore =
+        posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0);
     bool m_isInitialized = !m_semaphore.has_error();
 
     /// @todo remove with lockfree fifo implementation

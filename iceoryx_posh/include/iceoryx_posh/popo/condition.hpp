@@ -37,7 +37,7 @@ class Condition
     /// @brief Called by a WaitSet before attaching a Condition to see whether it was already added
     bool isConditionVariableAttached() const noexcept;
 
-  private:
+  protected:
     friend class WaitSet;
     /// @brief User interface for specific attach of condition variable
     virtual bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept = 0;

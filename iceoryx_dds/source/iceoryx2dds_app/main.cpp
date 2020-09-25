@@ -41,7 +41,7 @@ class ShutdownManager
     static iox::posix::Semaphore s_semaphore;
     ShutdownManager() = default;
 };
-iox::posix::Semaphore ShutdownManager::s_semaphore = iox::posix::Semaphore::create(0u).get_value();
+iox::posix::Semaphore ShutdownManager::s_semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).get_value();
 
 int main()
 {

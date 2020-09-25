@@ -56,33 +56,33 @@ enum class WaitSetError : uint8_t
 /// myWaitSet.attachCondition(myGuardCond);
 ///
 /// std::thread someOtherThread{[&](){
-/// 	while(true)
-/// 	{
-/// 	  if(IWantToWakeUpTheWaitSet)
-/// 	  {
-/// 		  // Let the WaitSet return
-/// 		  myGuardCond.setTrigger();
-/// 	  }
-/// 	  // Don't forget to reset the trigger
-/// 	  myGuardCond.resetTrigger();
-/// 	}
+///     while(true)
+///     {
+///       if(IWantToWakeUpTheWaitSet)
+///       {
+///           // Let the WaitSet return
+///           myGuardCond.setTrigger();
+///       }
+///       // Don't forget to reset the trigger
+///       myGuardCond.resetTrigger();
+///     }
 /// }};
 ///
 /// while (true)
 /// {
-/// 	// Wait till new data has arrived (any condition has become true)
-/// 	auto vectorOfFulfilledConditions = myWaitSet.wait();
+///     // Wait till new data has arrived (any condition has become true)
+///     auto vectorOfFulfilledConditions = myWaitSet.wait();
 ///
-/// 	for(auto& element : vectorOfFulfilledConditions)
-/// 	{
-/// 		if(element == &mySubscriber1)
-/// 		{
-/// 			// Subscriber1 has received new data
-/// 			ChunkHeader myData;
-/// 			mySubscriber1.tryGetChunk(myData);
-/// 			doSomeThingWithTheNewData(myData);
-/// 		}
-/// 	}
+///     for(auto& element : vectorOfFulfilledConditions)
+///     {
+///         if(element == &mySubscriber1)
+///         {
+///             // Subscriber1 has received new data
+///             ChunkHeader myData;
+///             mySubscriber1.tryGetChunk(myData);
+///             doSomeThingWithTheNewData(myData);
+///         }
+///     }
 /// }
 /// someOtherThread.join();
 ///
@@ -96,14 +96,7 @@ class WaitSet
   public:
     using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
-    enum class WaitPolicy : uint16_t
-    {
-        BLOCKING_WAIT,
-        TIMED_WAIT
-    };
-
-    explicit WaitSet(cxx::not_null<ConditionVariableData* const> =
-                         runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable()) noexcept;
+    WaitSet() noexcept;
     virtual ~WaitSet() noexcept;
     WaitSet(const WaitSet& rhs) = delete;
     WaitSet(WaitSet&& rhs) = delete;
@@ -134,9 +127,16 @@ class WaitSet
     /// fulfilled
     ConditionVector wait() noexcept;
 
+  protected:
+    explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
+
   private:
-    template <WaitPolicy policy>
-    ConditionVector waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout = cxx::nullopt) noexcept;
+    ConditionVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
+    template <typename WaitFunction>
+    ConditionVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
+    ConditionVector createVectorWithFullfilledConditions() noexcept;
+
+  private:
     ConditionVector m_conditionVector;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionVariableWaiter m_conditionVariableWaiter;
@@ -144,7 +144,5 @@ class WaitSet
 
 } // namespace popo
 } // namespace iox
-
-#include "iceoryx_posh/internal/popo/wait_set.inl"
 
 #endif // IOX_POSH_POPO_WAIT_SET_HPP

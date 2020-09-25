@@ -18,7 +18,7 @@ using namespace iox;
 using namespace iox::runtime;
 
 extern "C" {
-#include "iceoryx_binding_c/posh_runtime.h"
+#include "iceoryx_binding_c/runtime.h"
 }
 
 void iox_runtime_register(const char* const name)

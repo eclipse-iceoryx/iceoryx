@@ -23,7 +23,7 @@ option(coverage "Build iceoryx with gcov" OFF)
 option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
 option(dds_gateway "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
-option(binding_c "builds the C language bindings" OFF)
+option(binding_c "builds the C language bindings" ON)
 
 # ===== Dependencies
 if(TOML_CONFIG)
@@ -70,9 +70,10 @@ endif(binding_c)
 # ===== Examples
 if(examples)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
-if(binding_c)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery_on_c)
-endif(binding_c)
+    if(binding_c)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery_on_c)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icecallback_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icecallback_on_c)
+    endif(binding_c)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/singleprocess ${CMAKE_BINARY_DIR}/iceoryx_examples/singleprocess)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/benchmark_optional_and_expected ${CMAKE_BINARY_DIR}/iceoryx_examples/benchmark_optional_and_expected)
@@ -86,9 +87,9 @@ if (test)
         COMMAND ./utils/test/utils_moduletests --gtest_filter=-*.TimingTest_*
         COMMAND ./utils/test/utils_integrationtests --gtest_filter=-*.TimingTest_*
         COMMAND ./utils/test/utils_componenttests --gtest_filter=-*.TimingTest_*
-    if (binding_c)
-        COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=-*.TimingTest_*
-    endif(binding_c)
+        if (binding_c)
+            COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=-*.TimingTest_*
+        endif(binding_c)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
     )
@@ -100,9 +101,9 @@ if (test)
         COMMAND ./utils/test/utils_moduletests --gtest_filter=*.TimingTest_*
         COMMAND ./utils/test/utils_integrationtests --gtest_filter=*.TimingTest_*
         COMMAND ./utils/test/utils_componenttests --gtest_filter=*.TimingTest_*
-    if (binding_c)
-        COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=*.TimingTest_*
-    endif(binding_c)
+        if (binding_c)
+            COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=*.TimingTest_*
+        endif(binding_c)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
     )
@@ -111,12 +112,13 @@ endif(test)
 
 message("")
 message("       Configured Options")
-message("          TOML_CONFIG...............: " ${TOML_CONFIG})
 message("          BUILD_STRICT..............: " ${BUILD_STRICT})
-message("          test......................: " ${test})
+message("          TOML_CONFIG...............: " ${TOML_CONFIG})
+message("          binding_c.................: " ${binding_c})
+message("          dds_gateway...............: " ${dds_gateway})
 message("          examples..................: " ${examples})
 message("          introspection.............: " ${introspection})
-message("          dds_gateway...............: " ${dds_gateway})
+message("          test......................: " ${test})
 
 message("")
 message("       Build Properties")

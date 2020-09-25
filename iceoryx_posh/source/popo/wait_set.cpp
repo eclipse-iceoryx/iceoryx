@@ -18,6 +18,11 @@ namespace iox
 {
 namespace popo
 {
+WaitSet::WaitSet() noexcept
+    : WaitSet(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
+{
+}
+
 WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
     : m_conditionVariableDataPtr(condVarDataPtr)
     , m_conditionVariableWaiter(m_conditionVariableDataPtr)
@@ -55,6 +60,7 @@ bool WaitSet::detachCondition(Condition& condition) noexcept
         if (!condition.detachConditionVariable())
         {
             errorHandler(Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION, nullptr, ErrorLevel::FATAL);
+            return false;
         }
 
         for (auto& currentCondition : m_conditionVector)
@@ -83,12 +89,47 @@ void WaitSet::detachAllConditions() noexcept
 
 WaitSet::ConditionVector WaitSet::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnFulfilledConditions<WaitPolicy::TIMED_WAIT>(cxx::make_optional<units::Duration>(timeout));
+    return waitAndReturnFulfilledConditions([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
 }
 
 WaitSet::ConditionVector WaitSet::wait() noexcept
 {
-    return waitAndReturnFulfilledConditions<WaitPolicy::BLOCKING_WAIT>(cxx::nullopt);
+    return waitAndReturnFulfilledConditions([this] {
+        m_conditionVariableWaiter.wait();
+        return false;
+    });
+}
+
+WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions() noexcept
+{
+    ConditionVector conditions;
+    for (auto& currentCondition : m_conditionVector)
+    {
+        if (currentCondition->hasTriggered())
+        {
+            if (!conditions.push_back(currentCondition))
+            {
+                errorHandler(Error::kPOPO__WAITSET_CONDITION_VECTOR_OVERFLOW, nullptr, ErrorLevel::FATAL);
+            }
+        }
+    }
+    return conditions;
+}
+
+template <typename WaitFunction>
+WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept
+{
+    /// @note Inbetween here and last wait someone could have set the trigger to true, hence reset it
+    m_conditionVariableWaiter.reset();
+
+    // Is one of the conditons true?
+    auto conditions = createVectorWithFullfilledConditions();
+    if (!conditions.empty())
+    {
+        return conditions;
+    }
+
+    return (wait()) ? conditions : createVectorWithFullfilledConditions();
 }
 
 } // namespace popo
