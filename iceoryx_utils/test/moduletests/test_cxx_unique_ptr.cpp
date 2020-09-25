@@ -243,7 +243,6 @@ TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsWithDifferentDeletersSucceeds)
     EXPECT_TRUE(m_anotherDeleterCalled);
 }
 
-
 TEST_F(UniquePtrTest, SwapUniquePtrWithANullptrUniquePtrLeadsToDeletedUniquePtr)
 {
     {
@@ -327,6 +326,33 @@ TEST_F(UniquePtrTest, CompareAUniquePtrWithItselfIsTrue)
     EXPECT_TRUE(sut == sut);
 }
 
+TEST_F(UniquePtrTest, CompareANullUniquePtrWithNullUniquePtrIsTrue)
+{
+    auto sut = iox::cxx::unique_ptr<Position>(nullptr);
+
+    EXPECT_TRUE(sut == nullptr);
+    EXPECT_TRUE(nullptr == sut);
+}
+
+TEST_F(UniquePtrTest, CompareAUniquePtrWithNullIsFalse)
+{
+    auto object = new Position();
+    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+
+    EXPECT_FALSE(sut == nullptr);
+    EXPECT_FALSE(nullptr == sut);
+}
+
+TEST_F(UniquePtrTest, CompareAUniquePtrWithNullUniquePtrIsFalse)
+{
+    auto object = new Position();
+    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(nullptr);
+
+    EXPECT_FALSE(sut == anotherSut);
+    EXPECT_FALSE(anotherSut == sut);
+}
+
 TEST_F(UniquePtrTest, CompareAUniquePtrWithAnotherOneOfAnotherObjectIsFalse)
 {
     auto object = new Position;
@@ -335,6 +361,7 @@ TEST_F(UniquePtrTest, CompareAUniquePtrWithAnotherOneOfAnotherObjectIsFalse)
     auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
     EXPECT_FALSE(sut == anotherSut);
+    EXPECT_FALSE(anotherSut == sut);
 }
 
 TEST_F(UniquePtrTest, NotEqualCompareOfAUniquePtrWithItselfIsFalse)
@@ -353,4 +380,32 @@ TEST_F(UniquePtrTest, NotEqualCompareOfAUniquePtrWithAnotherOneOfAnotherObjectIs
     auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
     EXPECT_TRUE(sut != anotherSut);
+    EXPECT_TRUE(anotherSut != sut);
+}
+
+TEST_F(UniquePtrTest, NotEqualCompareANullUniquePtrWithNullUniquePtrIsFalse)
+{
+    auto sut = iox::cxx::unique_ptr<Position>(nullptr);
+
+    EXPECT_FALSE(sut != nullptr);
+    EXPECT_FALSE(nullptr != sut);
+}
+
+TEST_F(UniquePtrTest, NotEqualCompareAUniquePtrWithNullIsTrue)
+{
+    auto object = new Position();
+    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+
+    EXPECT_TRUE(sut != nullptr);
+    EXPECT_TRUE(nullptr != sut);
+}
+
+TEST_F(UniquePtrTest, NotEqualCompareAUniquePtrWithNullUniquePtrIsTrue)
+{
+    auto object = new Position();
+    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(nullptr);
+
+    EXPECT_TRUE(sut != anotherSut);
+    EXPECT_TRUE(anotherSut != sut);
 }
