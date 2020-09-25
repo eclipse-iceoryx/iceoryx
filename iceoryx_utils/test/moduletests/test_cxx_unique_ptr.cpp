@@ -138,6 +138,9 @@ TEST_F(UniquePtrTest, MoveAssignmentOverwriteAUniquePtrWithAnotherOne)
         EXPECT_FALSE(m_deleterCalled);
         EXPECT_FALSE(sut);
         EXPECT_EQ(anotherSut.get(), object);
+
+        // EXPECT_EQ(sut.getDeleter(), deleter);
+        // EXPECT_EQ(anotherSut.getDeleter(), anotherDeleter);
     }
     EXPECT_TRUE(m_deleterCalled);
 }
@@ -207,7 +210,6 @@ TEST_F(UniquePtrTest, ResetToAnExistingRawPtr)
 
     EXPECT_TRUE(m_deleterCalled);
     EXPECT_EQ(sut.get(), anotherObject);
-    EXPECT_TRUE(sut);
 }
 
 TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsSucceeds)
@@ -221,10 +223,9 @@ TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsSucceeds)
     sut.swap(anotherSut);
 
     EXPECT_FALSE(m_deleterCalled);
+    EXPECT_FALSE(m_anotherDeleterCalled);
     EXPECT_EQ(sut.get(), anotherObject);
     EXPECT_EQ(anotherSut.get(), object);
-    EXPECT_TRUE(sut);
-    EXPECT_TRUE(anotherSut);
 }
 
 
@@ -237,10 +238,9 @@ TEST_F(UniquePtrTest, SwapUniquePtrWithANullptrUniquePtrLeadsToDeletedUniquePtr)
 
     sut.swap(anotherSut);
 
-    EXPECT_TRUE(m_deleterCalled);
-    EXPECT_EQ(sut.get(), nullptr);
+    EXPECT_FALSE(m_deleterCalled);
     EXPECT_FALSE(sut);
-    EXPECT_FALSE(anotherSut);
+    EXPECT_EQ(anotherSut.get(), object);
 }
 
 TEST_F(UniquePtrTest, SwapUniquePtrWithADeleterOnlyUniquePtrLeadsToDeletedUniquePtr)
@@ -252,10 +252,10 @@ TEST_F(UniquePtrTest, SwapUniquePtrWithADeleterOnlyUniquePtrLeadsToDeletedUnique
 
     sut.swap(anotherSut);
 
-    EXPECT_TRUE(m_deleterCalled);
-    EXPECT_EQ(sut.get(), nullptr);
+    EXPECT_FALSE(m_deleterCalled);
+    EXPECT_FALSE(m_anotherDeleterCalled);
     EXPECT_FALSE(sut);
-    EXPECT_FALSE(anotherSut);
+    EXPECT_EQ(anotherSut.get(), object);
 }
 
 TEST_F(UniquePtrTest, SwapANullptrUniquePtrWithUniquePtrLeadsToOneValidAndOneInvalidUniquePtrs)
@@ -267,27 +267,24 @@ TEST_F(UniquePtrTest, SwapANullptrUniquePtrWithUniquePtrLeadsToOneValidAndOneInv
 
     sut.swap(anotherSut);
 
-    EXPECT_FALSE(m_deleterCalled);
-    EXPECT_EQ(sut.get(), object);
-    EXPECT_EQ(anotherSut.get(), nullptr);
-    EXPECT_TRUE(sut);
+    EXPECT_FALSE(m_anotherDeleterCalled);
     EXPECT_FALSE(anotherSut);
+    EXPECT_EQ(sut.get(), object);
 }
 
 TEST_F(UniquePtrTest, SwapAADeleterOnlyUniquePtrWithUniquePtrLeadsToOneValidAndOneInvalidUniquePtrs)
 {
-    auto object = new Position();
+    auto anotherObject = new Position();
 
     auto sut = iox::cxx::unique_ptr<Position>(deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(object, anotherDeleter);
+    auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
     sut.swap(anotherSut);
 
     EXPECT_FALSE(m_deleterCalled);
-    EXPECT_EQ(sut.get(), object);
-    EXPECT_EQ(anotherSut.get(), nullptr);
-    EXPECT_TRUE(sut);
+    EXPECT_FALSE(m_anotherDeleterCalled);
     EXPECT_FALSE(anotherSut);
+    EXPECT_EQ(sut.get(), anotherObject);
 }
 
 TEST_F(UniquePtrTest, CompareAUniquePtrWithItselfIsTrue)

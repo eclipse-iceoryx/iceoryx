@@ -97,6 +97,9 @@ class unique_ptr
     ///
     void swap(unique_ptr& other) noexcept;
 
+
+    cxx::function_ref<void(ptr_t const)> getDeleter() noexcept;
+
   private:
     ptr_t m_ptr = nullptr;
     cxx::function_ref<void(ptr_t const)> m_deleter;
