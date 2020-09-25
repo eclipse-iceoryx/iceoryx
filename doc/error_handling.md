@@ -89,18 +89,46 @@ Note that this may not be the long term solution, as file, line and function inf
 In addition a user callback may be provided. It cannot take arguments at the moment but this may also be extended.
 
 
-
 ## Expects and Ensures
 
+These assert-like constructs are used to document assumptions in the code which are checked (at least) in Debug Mode. It should be possible to leave them active in Release Mode as well if desired. If the condition is violated they print the condition, the location of occurence in the code and terminate the program execution.
+
+Since they are not necessarily active in Release Mode, they cannot be used to handle errors (currently they are, but this might change in the future). Their purpose is to detect misuse or bugs of the API early in Debug Mode or to verify a result of an algorithm before returning. In this way, assumptions of the developer are made explicit without causing overhead when not needed. Therefore errors to be caught by Expected and Ensures are considered bugs and need to be fixed or the underlying assumptions and algorithms changed. This is in contrast to errors which are expected to occur during runtime which are handled by the error handler (i.e. a system resource cannot be obtained).
+
+Although Expects end Ensures behave the same, the former is used to signify a precondition (e.g. arguments of a function) is checked, while the latter indicates a postcondition check (e.g. result of a function before returning)
+
+Examples include expecting pointers that are not null (as input, intermediate or final result) or range checks of variables.
+
+## cxx::expected
+
+**cxx::expected<T, E>** is a template which either holds the result of the computation of type **T** or an object of error type **E**. The latter can be used to obtain additional information about the error, e.g. an error code.
+In a way this extends error codes and may act as kind of an replacement of exceptions. It is usually used as return type of functions which may fail for various reasons and should be used if the error is supposed to be delegated to the caller and handled in the caller context.
+It is also possible to further propagate the error to the next function in the call-stack (since this must be done explicitly, this is comparable to rethrowing an exception).
+
+It is possible to use the *nodiscard* option to force the user to handle the returned cxx::expected.
+If the error cannot be handled at a higher level by the caller, the error handler needs to be used.
+
+Examples include wrapping third party API functions that return error codes or obtaining a value from a container when this can fail for some reason (e.g. container is empty). If no additional information about the error is available or required, **cxx::optional<T>** can be used instead.
+
+It may be worth to consider renaming cxx::expected to cxx::result in the future, which is more in line with languages such as *Rust* and conveys the meaning more clearly.
 
 ## Error Handling in posh
+Error logging shall be done by the logger only, no calls to std::cerr or similar should be performed.
 
+All the methods presented (cxx::expected, Expects and Ensures and the error handler) can be used in posh. The appropriate way depends on the type of error scenario (cf. the respective sections for examples). The error handler should be considered the last option.
 
 ## Error Handling in utils
+Error logging is currently done by calls to cerr. In the future those might be redirected to the logger.
 
+The error handler cannot be used in utils. 
+
+Whether it is appropriate to use std::expected even if STL compatility is broken by doing so depends on the circumstances and needs to be discussed on a case-by-case basis. If the function has no STL counterpart std::expected can be used freely to communicate potential failure to the caller.
+
+It should be noted that since currently Expects and Ensures are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developers intentions.
 
 ## Interface for 3rd Party Code
 
+Error handler as well as logger shall be able to use or redirect to 3rd party error handling or logging libraries in the future. Currently this is not supported.
 
 # Usage
 
@@ -111,6 +139,8 @@ In addition a user callback may be provided. It cannot take arguments at the mom
 
 
 ## Expects and Ensures
+
+## cxx::expected
  
 
 
@@ -126,6 +156,10 @@ Handle errors in runtime in a configurable way (hooks)
 use of expected/optional
 
 return in case of fatal error
+
+debug/release mode
+
+assert
 
 ## Future Requirements
 
