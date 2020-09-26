@@ -80,13 +80,18 @@ void Sample<T>::publish() noexcept
     if (m_samplePtr)
     {
         m_publisherRef.get().publish(std::move(*this));
-        m_samplePtr.release(); // Release ownership of the sample since it has been published.
     }
 
     else
     {
         /// @todo Notify caller of attempt to publish invalid chunk. Or something ?
     }
+}
+
+template <typename T>
+void Sample<T>::release() noexcept
+{
+    m_samplePtr.release();
 }
 
 // ============================== Sample<const T> ========================= //

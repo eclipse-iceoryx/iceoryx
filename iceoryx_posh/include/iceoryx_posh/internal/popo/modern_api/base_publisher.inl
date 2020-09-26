@@ -53,6 +53,7 @@ inline void BasePublisher<T, port_t>::publish(Sample<T>&& sample) noexcept
 {
     auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.get()));
     m_port.sendChunk(header);
+    sample.release(); // Must release ownership of the sample as the sender port takes it when publishing.
 }
 
 template <typename T, typename port_t>

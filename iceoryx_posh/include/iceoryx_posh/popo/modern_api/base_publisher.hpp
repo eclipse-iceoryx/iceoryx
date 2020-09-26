@@ -70,7 +70,7 @@ class BasePublisher : public PublisherInterface<T>
     cxx::expected<Sample<T>, AllocationError> loan(const uint32_t size) noexcept;
 
     ///
-    /// @brief publish Publish the given sample.
+    /// @brief publish Publishess the given sample and then releases its loan.
     /// @param sample The sample to publish.
     ///
     void publish(Sample<T>&& sample) noexcept override;

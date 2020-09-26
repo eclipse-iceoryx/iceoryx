@@ -58,7 +58,7 @@ inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publi
 
     return loan().and_then([&](Sample<T>& sample) {
         c(sample.get(), std::forward<ArgTypes>(args)...);
-        publish(std::move(sample));
+        sample.publish();
     });
 }
 
@@ -67,7 +67,7 @@ inline cxx::expected<AllocationError> TypedPublisher<T, base_publisher_t>::publi
 {
     return loan().and_then([&](Sample<T>& sample) {
         *sample.get() = val; // Copy assignment of value into sample's memory allocation.
-        publish(std::move(sample));
+        sample.publish();
     });
 }
 

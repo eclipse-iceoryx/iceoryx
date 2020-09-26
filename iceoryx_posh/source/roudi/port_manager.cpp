@@ -86,10 +86,6 @@ void PortManager::doDiscovery() noexcept
 
     handleSubscriberPorts();
 
-    handlePublisherPorts();
-
-    handleSubscriberPorts();
-
     handleApplications();
 
     handleInterfaces();
@@ -533,6 +529,7 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
 
 void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcept
 {
+    /// @todo #25 deprecated
     for (auto port : m_portPool->senderPortDataList())
     {
         SenderPortType sender(port);
@@ -542,12 +539,31 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
         }
     }
 
+    /// @todo #25 deprecated
     for (auto port : m_portPool->receiverPortDataList())
     {
         ReceiverPortType receiver(port);
         if (processName == receiver.getProcessName())
         {
             destroyReceiverPort(port);
+        }
+    }
+
+    for (auto port : m_portPool->getPublisherPortDataList())
+    {
+        PublisherPortUserType publisher(port);
+        if (processName == publisher.getProcessName())
+        {
+            destroyPublisherPort(port);
+        }
+    }
+
+    for (auto port : m_portPool->getSubscriberPortDataList())
+    {
+        SubscriberPortUserType subscriber(port);
+        if (processName == subscriber.getProcessName())
+        {
+            destroySubscriberPort(port);
         }
     }
 
