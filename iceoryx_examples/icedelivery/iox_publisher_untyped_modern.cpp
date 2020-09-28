@@ -29,12 +29,12 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-int main(int argc, char* argv[])
+int main()
 {
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-modern");
+    iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-untyped-modern");
 
     auto untypedPublisher = iox::popo::UntypedPublisher({"Odometry", "Position", "Vehicle"});
     untypedPublisher.offer();
@@ -42,11 +42,23 @@ int main(int argc, char* argv[])
     float_t ct = 0.0;
     while (!killswitch)
     {
+        ++ct;
+
+        // loaned sample can be held until ready to publish
+        auto maybeSample = untypedPublisher.loan(128);
+        if(!maybeSample.has_error())
+        {
+            auto& sample = maybeSample.get_value();
+            new (sample.get()) Position(ct, ct, ct);
+            sample.publish();
+        }
+
+        // or loan sample an work with it immediately in a lambda
         untypedPublisher.loan(sizeof(Position)).and_then([&](iox::popo::Sample<void>& sample) {
-            ++ct;
             new (sample.get()) Position(ct, ct, ct);
             sample.publish();
         });
+
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 

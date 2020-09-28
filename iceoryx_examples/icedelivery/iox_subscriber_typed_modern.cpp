@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
 #include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -32,7 +33,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownGuard.trigger(); // unblock waitsets
 }
 
-void handler(iox::popo::WaitSet& waitSet)
+void subscriberHandler(iox::popo::WaitSet& waitSet)
 {
     // run until interrupted
     while(!killswitch)
@@ -43,8 +44,6 @@ void handler(iox::popo::WaitSet& waitSet)
             auto subscriber = dynamic_cast<iox::popo::TypedSubscriber<Position>*>(condition);
             if(subscriber)
             {
-                // new data received on an attached subscriber
-
                 subscriber->receive().and_then([](iox::cxx::optional<iox::popo::Sample<const Position>>& maybePosition){
                     if(maybePosition.has_value())
                     {
@@ -52,11 +51,6 @@ void handler(iox::popo::WaitSet& waitSet)
                         std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
                     }
                 });
-            }
-            else
-            {
-                // shutdown guard has triggered
-                std::cout << "Shutdown Guard triggered. Shutting down." << std::endl;
             }
         }
     }
@@ -80,8 +74,8 @@ int main()
     waitSet.attachCondition(shutdownGuard);
 
     // delegate handling of received data to another thread
-    std::thread handlerThread(handler, std::ref(waitSet));
-    handlerThread.join();
+    std::thread subscriberHandlerThread(subscriberHandler, std::ref(waitSet));
+    subscriberHandlerThread.join();
 
     // clean up
     waitSet.detachAllConditions();

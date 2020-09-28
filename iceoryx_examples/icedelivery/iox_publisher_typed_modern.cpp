@@ -31,7 +31,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 void getVehiclePosition(Position* allocation, uint64_t multiplier)
 {
-    new (allocation) Position(1111.1111 * multiplier, 1111.1111 * multiplier, 1111.1111 * multiplier);
+    new (allocation) Position(1111 * multiplier, 1111 * multiplier, 1111 * multiplier);
 }
 
 int main(int argc, char* argv[])
@@ -65,13 +65,13 @@ int main(int argc, char* argv[])
         typedPublisher.loan().and_then([&](iox::popo::Sample<Position>& sample) {
             auto allocation = sample.get();
             // Do some stuff leading to eventually generating the data in the samples loaned memory...
-            new (allocation) Position(ct * 10.1, ct * 10.1, ct * 10.1);
+            new (allocation) Position(ct * 10, ct * 10, ct * 10);
             // ...then publish the sample
             sample.publish();
         });
 
         // Simple copy-and-publish. Useful for smaller data types.
-        auto position = Position(ct * 100.1, ct * 100.1, ct * 100.1);
+        auto position = Position(ct * 1000, ct * 1000, ct * 1000);
         typedPublisher.publishCopyOf(position);
 
         // Samples can be generated within any callable and written directly to the loaned memory
