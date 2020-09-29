@@ -19,23 +19,25 @@ namespace iox
 {
 namespace cxx
 {
-template <typename T>
-unique_ptr<T>::unique_ptr(function_ref<void(ptr_t)>&& deleter) noexcept
-    : m_deleter(deleter)
-{
-}
 
 template <typename T>
-unique_ptr<T>::unique_ptr(ptr_t ptr, function_ref<void(ptr_t)>&& deleter) noexcept
+unique_ptr<T>::unique_ptr(T* const ptr, function_ref<void(T*)>&& deleter) noexcept
     : m_ptr(ptr)
     , m_deleter(std::move(deleter))
 {
 }
 
 template <typename T>
-unique_ptr<T>::unique_ptr(std::nullptr_t) noexcept
+unique_ptr<T>::unique_ptr(function_ref<void(T*)>&& deleter) noexcept
+    : unique_ptr(nullptr, std::move(deleter))
+{
+}
+
+template <typename T>
+unique_ptr<T>& unique_ptr<T>::operator=(std::nullptr_t) noexcept
 {
     reset();
+    return *this;
 }
 
 template <typename T>
@@ -61,7 +63,6 @@ unique_ptr<T>::~unique_ptr() noexcept
     reset();
 }
 
-/// Return the stored pointer.
 template <typename T>
 T* unique_ptr<T>::operator->() noexcept
 {
@@ -69,15 +70,27 @@ T* unique_ptr<T>::operator->() noexcept
 }
 
 template <typename T>
-unique_ptr<T>::operator bool() const noexcept
+const T* unique_ptr<T>::operator->() const noexcept
 {
-    return get() == ptr_t() ? false : true;
+    return const_cast<const T*>(get());
 }
 
 template <typename T>
-T* unique_ptr<T>::get() const noexcept
+unique_ptr<T>::operator bool() const noexcept
+{
+    return get() != nullptr ? true : false;
+}
+
+template <typename T>
+T* unique_ptr<T>::get() noexcept
 {
     return m_ptr;
+}
+
+template <typename T>
+const T* unique_ptr<T>::get() const noexcept
+{
+    return const_cast<const T*>(m_ptr);
 }
 
 template <typename T>
@@ -89,7 +102,7 @@ T* unique_ptr<T>::release() noexcept
 }
 
 template <typename T>
-void unique_ptr<T>::reset(T* ptr) noexcept
+void unique_ptr<T>::reset(T* const ptr) noexcept
 {
     if (m_ptr && m_deleter)
     {

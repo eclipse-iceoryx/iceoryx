@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,17 +56,6 @@ class UniquePtrTest : public Test
         delete p;
     };
 };
-
-TEST_F(UniquePtrTest, CtorWithNullptrSetsPtrToNullAndDoesntCallDeleter)
-{
-    {
-        auto sut = iox::cxx::unique_ptr<Position>(nullptr);
-        EXPECT_FALSE(sut);
-        EXPECT_EQ(sut.get(), nullptr);
-    }
-    // SUT is out of scope but shouldn't have called deleter as SUT is NULL
-    EXPECT_FALSE(m_deleterCalled);
-}
 
 TEST_F(UniquePtrTest, CtorWithOnlyDeleterSetsPtrToNullAndDoesntCallDeleter)
 {
@@ -211,14 +200,6 @@ TEST_F(UniquePtrTest, ReleaseNullObjectResultsInUniquePtrBeingInvalidAndReturnOf
     EXPECT_FALSE(sut);
 }
 
-TEST_F(UniquePtrTest, ReleaseNullUniquePtrResultsInUniquePtrBeingInvalidAndReturnOfNull)
-{
-    auto sut = iox::cxx::unique_ptr<Position>(nullptr);
-
-    EXPECT_EQ(sut.release(), nullptr);
-    EXPECT_FALSE(sut);
-}
-
 TEST_F(UniquePtrTest, ReleaseDeleterOnlyUniquePtrResultsInUniquePtrBeingInvalidAndReturnOfNull)
 {
     auto sut = iox::cxx::unique_ptr<Position>(deleter);
@@ -272,28 +253,6 @@ TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsWithDifferentDeletersSucceeds)
     EXPECT_TRUE(m_anotherDeleterCalled);
 }
 
-TEST_F(UniquePtrTest, SwapUniquePtrWithANullptrUniquePtrLeadsToDeletedUniquePtr)
-{
-    {
-        auto object = new Position();
-        auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-        {
-            auto anotherSut = iox::cxx::unique_ptr<Position>(nullptr);
-
-            sut.swap(anotherSut);
-
-            // no deleter calls during swap
-            EXPECT_FALSE(m_deleterCalled);
-            EXPECT_FALSE(sut);
-            EXPECT_EQ(anotherSut.get(), object);
-        }
-        // anotherSUT is out of scope and calls its deleter, which has been swapped and is now 'deleter'
-        EXPECT_TRUE(m_deleterCalled);
-    }
-    // SUT is out of scope not calling its anotherDeleter as it's NULL
-    EXPECT_FALSE(m_anotherDeleterCalled);
-}
-
 TEST_F(UniquePtrTest, SwapUniquePtrWithADeleterOnlyUniquePtrLeadsToDeletedUniquePtr)
 {
     {
@@ -314,28 +273,6 @@ TEST_F(UniquePtrTest, SwapUniquePtrWithADeleterOnlyUniquePtrLeadsToDeletedUnique
     }
     // SUT is out of scope not calling its anotherDeleter as it's NULL
     EXPECT_FALSE(m_anotherDeleterCalled);
-}
-
-TEST_F(UniquePtrTest, SwapANullptrUniquePtrWithUniquePtrLeadsToOneValidAndOneInvalidUniquePtrs)
-{
-    {
-        auto anotherObject = new Position();
-        auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
-        {
-            auto sut = iox::cxx::unique_ptr<Position>(nullptr);
-
-            sut.swap(anotherSut);
-
-            // no deleter calls during swap
-            EXPECT_FALSE(m_anotherDeleterCalled);
-            EXPECT_FALSE(anotherSut);
-            EXPECT_EQ(sut.get(), anotherObject);
-        }
-        // SUT is out of scope and calls its anotherDeleter, which has been swapped
-        EXPECT_TRUE(m_anotherDeleterCalled);
-    }
-    // anotherSUT is out of scope not calling its deleter as it's NULL
-    EXPECT_FALSE(m_deleterCalled);
 }
 
 TEST_F(UniquePtrTest, SwapADeleterOnlyUniquePtrWithUniquePtrLeadsToOneValidAndOneInvalidUniquePtrs)
@@ -368,14 +305,6 @@ TEST_F(UniquePtrTest, CompareAUniquePtrWithItselfIsTrue)
     EXPECT_TRUE(sut == sut);
 }
 
-TEST_F(UniquePtrTest, CompareANullUniquePtrWithNullUniquePtrIsTrue)
-{
-    auto sut = iox::cxx::unique_ptr<Position>(nullptr);
-
-    EXPECT_TRUE(sut == nullptr);
-    EXPECT_TRUE(nullptr == sut);
-}
-
 TEST_F(UniquePtrTest, CompareAUniquePtrWithNullIsFalse)
 {
     auto object = new Position();
@@ -383,16 +312,6 @@ TEST_F(UniquePtrTest, CompareAUniquePtrWithNullIsFalse)
 
     EXPECT_FALSE(sut == nullptr);
     EXPECT_FALSE(nullptr == sut);
-}
-
-TEST_F(UniquePtrTest, CompareAUniquePtrWithNullUniquePtrIsFalse)
-{
-    auto object = new Position();
-    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(nullptr);
-
-    EXPECT_FALSE(sut == anotherSut);
-    EXPECT_FALSE(anotherSut == sut);
 }
 
 TEST_F(UniquePtrTest, CompareAUniquePtrWithAnotherOneOfAnotherObjectIsFalse)
@@ -425,14 +344,6 @@ TEST_F(UniquePtrTest, NotEqualCompareOfAUniquePtrWithAnotherOneOfAnotherObjectIs
     EXPECT_TRUE(anotherSut != sut);
 }
 
-TEST_F(UniquePtrTest, NotEqualCompareANullUniquePtrWithNullUniquePtrIsFalse)
-{
-    auto sut = iox::cxx::unique_ptr<Position>(nullptr);
-
-    EXPECT_FALSE(sut != nullptr);
-    EXPECT_FALSE(nullptr != sut);
-}
-
 TEST_F(UniquePtrTest, NotEqualCompareAUniquePtrWithNullIsTrue)
 {
     auto object = new Position();
@@ -442,12 +353,34 @@ TEST_F(UniquePtrTest, NotEqualCompareAUniquePtrWithNullIsTrue)
     EXPECT_TRUE(nullptr != sut);
 }
 
-TEST_F(UniquePtrTest, NotEqualCompareAUniquePtrWithNullUniquePtrIsTrue)
+TEST_F(UniquePtrTest, CanGetUnderlyingPtrFromConstUniquePtr)
+{
+    auto object = new Position();
+    const auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+    EXPECT_TRUE(sut.get() != nullptr);
+}
+
+TEST_F(UniquePtrTest, CanUseArrowOperatorToAccessObjectInConstUniquePtr)
+{
+    auto object = new Position();
+    const auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+    EXPECT_EQ(X_POS, sut->x);
+    EXPECT_EQ(Y_POS, sut->y);
+    EXPECT_EQ(Z_POS, sut->z);
+}
+
+TEST_F(UniquePtrTest, AssigningUniquePtrToNullptrDeletesTheManagedObject)
 {
     auto object = new Position();
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    auto anotherSut = iox::cxx::unique_ptr<Position>(nullptr);
+    sut = nullptr;
+    EXPECT_TRUE(m_deleterCalled);
+}
 
-    EXPECT_TRUE(sut != anotherSut);
-    EXPECT_TRUE(anotherSut != sut);
+TEST_F(UniquePtrTest, AssigningUniquePtrToNullptrSetsUnderlyingObjectToNullptr)
+{
+    auto object = new Position();
+    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+    sut = nullptr;
+    EXPECT_EQ(nullptr, sut.get());
 }

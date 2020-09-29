@@ -17,29 +17,30 @@
 
 #include "iceoryx_utils/cxx/function_ref.hpp"
 
-#include <functional>
-
 namespace iox
 {
 namespace cxx
 {
+
 ///
-/// Only a subset of STL's 'std::unique_ptr' has been implemented so far.
-/// Main difference is that 'Deleter' is a function reference ('cxx:function_ref') here compared to a 'std::function' in
-/// the STL implementation.
+/// @brief The unique_ptr class is a heap-less unique ptr implementation, unlike the STL.
+/// @details To avoid using the heap, deleters are not managed by the pointer itself, and instead must be provided as
+/// function references ('cxx:function_ref'). The functions must exist at least as long as the pointers that use them.
+///
+/// Also unlike the STL implementation, the deleters are not encoded in the unique_ptr type, allowing unique_ptr instances
+/// with different deleters to be stored in the same containers.
 ///
 template <typename T>
 class unique_ptr
 {
   public:
-    using ptr_t = T*;
 
     unique_ptr() = delete;
 
     ///
     /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later via reset.
     ///
-    unique_ptr(function_ref<void(ptr_t)>&& deleter) noexcept;
+    unique_ptr(function_ref<void(T*)>&& deleter) noexcept;
 
     ///
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
@@ -49,26 +50,32 @@ class unique_ptr
     /// @param deleter The deleter function for cleaning up the managed object. As cxx:function_ref used for the deleter
     ///                is non-owning the user needs to care about the lifetime of the callable!
     ///
-    unique_ptr(ptr_t ptr, function_ref<void(ptr_t)>&& deleter) noexcept;
+    unique_ptr(T* const ptr, function_ref<void(T*)>&& deleter) noexcept;
 
-    unique_ptr(std::nullptr_t) noexcept;
-
-    // Not copy-able to ensure uniqueness.
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
-
     unique_ptr(unique_ptr&& rhs) noexcept;
     unique_ptr& operator=(unique_ptr&& rhs) noexcept;
 
     ///
-    /// Automatically deletes the owned object on destruction.
+    /// Automatically deletes the managed object on destruction.
     ///
     ~unique_ptr() noexcept;
 
+
+    unique_ptr<T>& operator=(std::nullptr_t) noexcept;
+
     ///
-    /// Return the stored pointer.
+    /// @brief operator -> Transparent access to the managed object.
+    /// @return
     ///
-    ptr_t operator->() noexcept;
+    T* operator->() noexcept;
+
+    ///
+    /// @brief operator -> Transparent access to the managed object.
+    /// @return
+    ///
+    const T* operator->() const noexcept;
 
     ///
     /// @brief operator bool Returns true if it points to something.
@@ -80,20 +87,27 @@ class unique_ptr
     /// @details The unique_ptr retains ownership, therefore the "borrowed" pointer must not be deleted.
     /// @return Pointer to managed object or nullptr if none owned.
     ///
-    ptr_t get() const noexcept;
+    T* get() noexcept;
+
+    ///
+    /// @brief get Retrieve the underlying raw pointer.
+    /// @details The unique_ptr retains ownership, therefore the "borrowed" pointer must not be deleted.
+    /// @return Pointer to managed object or nullptr if none owned.
+    ///
+    const T* get() const noexcept;
 
     ///
     /// @brief release Release ownership of the underlying pointer.
     /// @return Pointer to the managed object or nullptr if none owned.
     ///
-    ptr_t release() noexcept;
+    T* release() noexcept;
 
     ///
     /// @brief reset Reset the unique pointer to take ownership of the given pointer.
     /// @details Any previously owned objects will be deleted. If no pointer given then points to nullptr.
     /// @param ptr Pointer to object to take ownership on.
     ///
-    void reset(ptr_t ptr = nullptr) noexcept;
+    void reset(T* const ptr = nullptr) noexcept;
 
     ///
     /// @brief swap Swaps object ownership with another unique_ptr (incl. deleters)
@@ -102,8 +116,8 @@ class unique_ptr
     void swap(unique_ptr& other) noexcept;
 
   private:
-    ptr_t m_ptr = nullptr;
-    function_ref<void(ptr_t const)> m_deleter;
+    T* m_ptr = nullptr;
+    function_ref<void(T* const)> m_deleter;
 };
 
 } // namespace cxx
