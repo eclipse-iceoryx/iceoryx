@@ -66,7 +66,7 @@ class Sample
     void publish() noexcept;
 
   protected:
-    cxx::unique_ptr<T> m_samplePtr{nullptr};
+    cxx::unique_ptr<T> m_samplePtr{[](T* const){}}; // Placeholder. This is overwritten on sample construction.
     std::reference_wrapper<PublisherInterface<T>> m_publisherRef;
 };
 
@@ -93,7 +93,7 @@ class Sample<const T>
     const mepoo::ChunkHeader* getHeader() noexcept;
 
   private:
-    cxx::unique_ptr<T> m_samplePtr{nullptr};
+    cxx::unique_ptr<T> m_samplePtr{[](T* const){}}; // Placeholder. This is overwritten on sample construction.
 };
 
 } // namespace popo

@@ -28,7 +28,7 @@ namespace popo
 {
 using uid_t = UniquePortId;
 
-template <typename T, typename port_t = popo::SubscriberPortUser>
+template <typename T, typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber : public Condition
 {
   public:
@@ -95,8 +95,28 @@ class BaseSubscriber : public Condition
   protected:
     BaseSubscriber(const capro::ServiceDescription& service);
 
+  private:
+
+    ///
+    /// @brief The SubscriberSampleDeleter struct is a custom deleter in functor form which releases laons to a sample's
+    /// underlying memory chunk via a subscriber's subscriber port.
+    /// Each subscriber should create its own instance of this deleter struct to work with its specific port.
+    ///
+    /// @note As this deleter is coupled to the Subscriber implementation, it should only be used within the subscriber
+    /// context.
+    ///
+    struct SubscriberSampleDeleter
+    {
+    public:
+        SubscriberSampleDeleter(port_t& port);
+        void operator()(T* const ptr) const;
+    private:
+        std::reference_wrapper<port_t> m_port;
+    };
+
   protected:
     port_t m_port{nullptr};
+    SubscriberSampleDeleter m_sampleDeleter{m_port};
 };
 
 } // namespace popo

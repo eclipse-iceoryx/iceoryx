@@ -40,11 +40,10 @@ class PublisherInterface
     PublisherInterface() = default;
 };
 
-
 ///
 /// @brief The BasePublisher class contains the common implementation for the different publisher specializations.
 ///
-template <typename T, typename port_t = PublisherPortUser>
+template <typename T, typename port_t = iox::PublisherPortUserType>
 class BasePublisher : public PublisherInterface<T>
 {
   protected:
@@ -107,6 +106,24 @@ class BasePublisher : public PublisherInterface<T>
     BasePublisher(const capro::ServiceDescription& service);
 
   private:
+
+    ///
+    /// @brief The PublisherSampleDeleter struct is a custom deleter in functor form which releases laons to a sample's
+    /// underlying memory chunk via a publishers publisher port.
+    /// Each publisher should create its own instance of this deleter struct to work with its specific port.
+    ///
+    /// @note As this deleter is coupled to the Publisher implementation, it should only be used within the publisher
+    /// context.
+    ///
+    struct PublisherSampleDeleter
+    {
+    public:
+        PublisherSampleDeleter(port_t& port);
+        void operator()(T* const ptr) const;
+    private:
+        std::reference_wrapper<port_t> m_port;
+    };
+
     ///
     /// @brief convertChunkHeaderToSample Helper function that wraps the payload of a ChunkHeader in an Sample.
     /// @param header The chunk header describing the allocated memory chunk to use in the sample.
@@ -117,6 +134,8 @@ class BasePublisher : public PublisherInterface<T>
   protected:
     port_t m_port{nullptr};
     bool m_useDynamicPayloadSize = true;
+
+    PublisherSampleDeleter m_sampleDeleter{m_port};
 };
 
 } // namespace popo

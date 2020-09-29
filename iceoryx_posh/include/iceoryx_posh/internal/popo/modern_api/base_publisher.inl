@@ -19,8 +19,11 @@ namespace iox
 {
 namespace popo
 {
+
+// ============================== BasePublisher ============================== //
+
 template <typename T, typename port_t>
-BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription&)
+inline BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription&)
 /// @todo #25 : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, ""))
 {
 }
@@ -90,13 +93,24 @@ inline bool BasePublisher<T, port_t>::hasSubscribers() const noexcept
 template <typename T, typename port_t>
 inline Sample<T> BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept
 {
-    return Sample<T>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()),
-                                        [this](T* const p) {
-                                            auto header =
-                                                mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
-                                            this->m_port.freeChunk(header);
-                                        }),
-                     *this);
+    return Sample<T>(
+                cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()), m_sampleDeleter),
+                *this);
+}
+
+// ============================== Sample Deleter ============================== //
+
+template <typename T, typename port_t>
+inline BasePublisher<T, port_t>::PublisherSampleDeleter::PublisherSampleDeleter(port_t& port)
+    : m_port(std::ref(port))
+{}
+
+template <typename T, typename port_t>
+inline void BasePublisher<T, port_t>::PublisherSampleDeleter::operator()(T* const ptr) const
+{
+    auto header =
+        mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
+    m_port.get().freeChunk(header);
 }
 
 } // namespace popo
