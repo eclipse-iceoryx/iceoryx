@@ -15,8 +15,8 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
 
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 
@@ -106,9 +106,8 @@ class BasePublisher : public PublisherInterface<T>
     BasePublisher(const capro::ServiceDescription& service);
 
   private:
-
     ///
-    /// @brief The PublisherSampleDeleter struct is a custom deleter in functor form which releases laons to a sample's
+    /// @brief The PublisherSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
     /// underlying memory chunk via a publishers publisher port.
     /// Each publisher should create its own instance of this deleter struct to work with its specific port.
     ///
@@ -117,10 +116,11 @@ class BasePublisher : public PublisherInterface<T>
     ///
     struct PublisherSampleDeleter
     {
-    public:
+      public:
         PublisherSampleDeleter(port_t& port);
         void operator()(T* const ptr) const;
-    private:
+
+      private:
         std::reference_wrapper<port_t> m_port;
     };
 

@@ -102,13 +102,13 @@ TEST_F(TypedPublisherTest, PublishesSampleViaBasePublisher)
 TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambdaWithAdditionalArguments)
 {
     // ===== Setup ===== //
-    auto chunk =
-        reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader) + sizeof(DummyData)));
-    auto sample = new iox::popo::Sample<DummyData>(
-        iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(chunk->payload()),
-                                        [](DummyData* const) {} // Placeholder deleter.
-                                        ),
-        sut);
+    auto chunk = reinterpret_cast<iox::mepoo::ChunkHeader*>(
+        iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader) + sizeof(DummyData)));
+    auto sample =
+        new iox::popo::Sample<DummyData>(iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(chunk->payload()),
+                                                                         [](DummyData* const) {} // Placeholder deleter.
+                                                                         ),
+                                         sut);
     EXPECT_CALL(sut, loan).WillOnce(
         Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);

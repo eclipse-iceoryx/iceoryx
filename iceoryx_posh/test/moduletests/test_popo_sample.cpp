@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_posh/popo/modern_api/base_publisher.hpp"
+#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 #include "test.hpp"
 
@@ -26,10 +26,10 @@ struct DummyData
     int val = 42;
 };
 
-template<typename T>
+template <typename T>
 class MockPublisherInterface : public iox::popo::PublisherInterface<T>
 {
-public:
+  public:
     void publish(iox::popo::Sample<T>&& sample) noexcept
     {
         return publishMock(std::move(sample));
@@ -58,7 +58,7 @@ class SampleTest : public Test
 TEST_F(SampleTest, PublishesSampleViaPublisherInterface)
 {
     // ===== Setup ===== //
-    iox::cxx::unique_ptr<DummyData> testSamplePtr{new DummyData(), [](DummyData* ptr){delete ptr;}};
+    iox::cxx::unique_ptr<DummyData> testSamplePtr{new DummyData(), [](DummyData* ptr) { delete ptr; }};
     MockPublisherInterface<DummyData> mockPublisherInterface{};
 
     auto sut = iox::popo::Sample<DummyData>(std::move(testSamplePtr), mockPublisherInterface);
@@ -79,4 +79,3 @@ TEST_F(SampleTest, Template)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
-

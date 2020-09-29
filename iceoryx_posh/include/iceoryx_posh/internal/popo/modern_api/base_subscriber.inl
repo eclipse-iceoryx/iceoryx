@@ -19,7 +19,6 @@ namespace iox
 {
 namespace popo
 {
-
 // ============================== BaseSubscriber ============================== //
 
 template <typename T, typename port_t>
@@ -121,13 +120,13 @@ inline bool BaseSubscriber<T, port_t>::hasTriggered() const noexcept
 template <typename T, typename port_t>
 inline BaseSubscriber<T, port_t>::SubscriberSampleDeleter::SubscriberSampleDeleter(port_t& port)
     : m_port(std::ref(port))
-{}
+{
+}
 
 template <typename T, typename port_t>
 inline void BaseSubscriber<T, port_t>::SubscriberSampleDeleter::operator()(T* const ptr) const
 {
-    auto header =
-        mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
+    auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
     m_port.get().releaseChunk(header);
 }
 

@@ -19,7 +19,6 @@ namespace iox
 {
 namespace popo
 {
-
 template <typename base_subscriber_t>
 UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service)
     : base_subscriber_t(service)
@@ -63,7 +62,8 @@ inline bool UntypedSubscriberImpl<base_subscriber_t>::hasNewSamples() const noex
 }
 
 template <typename base_subscriber_t>
-inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError> UntypedSubscriberImpl<base_subscriber_t>::receive() noexcept
+inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError>
+UntypedSubscriberImpl<base_subscriber_t>::receive() noexcept
 {
     return base_subscriber_t::receive();
 }

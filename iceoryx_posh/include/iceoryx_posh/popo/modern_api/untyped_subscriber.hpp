@@ -24,7 +24,6 @@ namespace iox
 {
 namespace popo
 {
-
 template <typename base_subscriber_t = BaseSubscriber<void>>
 class UntypedSubscriberImpl : public base_subscriber_t
 {

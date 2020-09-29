@@ -19,7 +19,6 @@ namespace iox
 {
 namespace popo
 {
-
 // ============================== BasePublisher ============================== //
 
 template <typename T, typename port_t>
@@ -93,9 +92,7 @@ inline bool BasePublisher<T, port_t>::hasSubscribers() const noexcept
 template <typename T, typename port_t>
 inline Sample<T> BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept
 {
-    return Sample<T>(
-                cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()), m_sampleDeleter),
-                *this);
+    return Sample<T>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()), m_sampleDeleter), *this);
 }
 
 // ============================== Sample Deleter ============================== //
@@ -103,13 +100,13 @@ inline Sample<T> BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepo
 template <typename T, typename port_t>
 inline BasePublisher<T, port_t>::PublisherSampleDeleter::PublisherSampleDeleter(port_t& port)
     : m_port(std::ref(port))
-{}
+{
+}
 
 template <typename T, typename port_t>
 inline void BasePublisher<T, port_t>::PublisherSampleDeleter::operator()(T* const ptr) const
 {
-    auto header =
-        mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
+    auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
     m_port.get().freeChunk(header);
 }
 

@@ -15,9 +15,9 @@
 #ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
 #define IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
 
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
+#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -96,9 +96,8 @@ class BaseSubscriber : public Condition
     BaseSubscriber(const capro::ServiceDescription& service);
 
   private:
-
     ///
-    /// @brief The SubscriberSampleDeleter struct is a custom deleter in functor form which releases laons to a sample's
+    /// @brief The SubscriberSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
     /// underlying memory chunk via a subscriber's subscriber port.
     /// Each subscriber should create its own instance of this deleter struct to work with its specific port.
     ///
@@ -107,10 +106,11 @@ class BaseSubscriber : public Condition
     ///
     struct SubscriberSampleDeleter
     {
-    public:
+      public:
         SubscriberSampleDeleter(port_t& port);
         void operator()(T* const ptr) const;
-    private:
+
+      private:
         std::reference_wrapper<port_t> m_port;
     };
 
