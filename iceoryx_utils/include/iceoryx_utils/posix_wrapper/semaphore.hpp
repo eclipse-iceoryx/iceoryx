@@ -214,9 +214,8 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///         For details see man sem_init.
     /// @param[in] value initial value of the semaphore
     Semaphore(CreateUnnamedSharedMemorySemaphore_t, const unsigned int value) noexcept;
-    [[gnu::deprecated]] Semaphore(CreateUnnamedSharedMemorySemaphore_t,
-                                  iox_sem_t* handle,
-                                  const unsigned int value) noexcept;
+    /// @deprecated do not use this constructor
+    Semaphore(CreateUnnamedSharedMemorySemaphore_t, iox_sem_t* handle, const unsigned int value) noexcept;
 
     /// @brief Opens an already existing named semaphore. If a semaphore with
     ///         name does not exist an uninitialized Semaphore is returned
