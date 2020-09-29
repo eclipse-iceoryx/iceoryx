@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
-#define IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
+#ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_HPP
+#define IOX_POSH_POPO_BASE_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
@@ -124,4 +124,4 @@ class BaseSubscriber : public Condition
 
 #include "iceoryx_posh/internal/popo/modern_api/base_subscriber.inl"
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
+#endif // IOX_POSH_POPO_BASE_SUBSCRIBER_HPP

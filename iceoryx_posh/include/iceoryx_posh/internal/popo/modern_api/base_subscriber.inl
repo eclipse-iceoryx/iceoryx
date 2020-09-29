@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL
+#ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_INL
+#define IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 
 namespace iox
 {
@@ -133,4 +133,4 @@ inline void BaseSubscriber<T, port_t>::SubscriberSampleDeleter::operator()(T* co
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL
+#endif // IOX_POSH_POPO_BASE_SUBSCRIBER_INL

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_HPP
-#define IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_HPP
+#ifndef IOX_POSH_POPO_SAMPLE_HPP
+#define IOX_POSH_POPO_SAMPLE_HPP
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -101,4 +101,4 @@ class Sample<const T>
 
 #include "iceoryx_posh/internal/popo/modern_api/sample.inl"
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_HPP
+#endif // IOX_POSH_POPO_SAMPLE_HPP

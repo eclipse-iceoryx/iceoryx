@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_TYPED_SUBSCRIBER_HPP
-#define IOX_EXPERIMENTAL_POSH_POPO_TYPED_SUBSCRIBER_HPP
+#ifndef IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
+#define IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 
@@ -51,4 +51,4 @@ class TypedSubscriber : public base_subscriber_t
 
 #include "iceoryx_posh/internal/popo/modern_api/typed_subscriber.inl"
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_TYPED_SUBSCRIBER_HPP
+#endif // IOX_POSH_POPO_TYPED_SUBSCRIBER_HPP

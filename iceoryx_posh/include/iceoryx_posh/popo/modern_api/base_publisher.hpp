@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
-#define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
+#ifndef IOX_POSH_POPO_BASE_PUBLISHER_HPP
+#define IOX_POSH_POPO_BASE_PUBLISHER_HPP
 
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/popo/modern_api/sample.hpp"
@@ -143,4 +143,4 @@ class BasePublisher : public PublisherInterface<T>
 
 #include "iceoryx_posh/internal/popo/modern_api/base_publisher.inl"
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
+#endif // IOX_POSH_POPO_BASE_PUBLISHER_HPP

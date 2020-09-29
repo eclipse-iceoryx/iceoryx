@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
+#ifndef IOX_POSH_POPO_BASE_PUBLISHER_INL
+#define IOX_POSH_POPO_BASE_PUBLISHER_INL
 
 namespace iox
 {
@@ -113,4 +113,4 @@ inline void BasePublisher<T, port_t>::PublisherSampleDeleter::operator()(T* cons
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
+#endif // IOX_POSH_POPO_BASE_PUBLISHER_INL
