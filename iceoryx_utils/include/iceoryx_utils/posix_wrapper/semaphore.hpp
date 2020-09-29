@@ -212,9 +212,11 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///         The Semaphore should be initialized but that has to be verified
     ///         via IsInitialized()
     ///         For details see man sem_init.
-    /// @param[in] handle pointer to a handle which is in the shared memory
     /// @param[in] value initial value of the semaphore
-    Semaphore(CreateUnnamedSharedMemorySemaphore_t, iox_sem_t* handle, const unsigned int value) noexcept;
+    Semaphore(CreateUnnamedSharedMemorySemaphore_t, const unsigned int value) noexcept;
+    [[gnu::deprecated]] Semaphore(CreateUnnamedSharedMemorySemaphore_t,
+                                  iox_sem_t* handle,
+                                  const unsigned int value) noexcept;
 
     /// @brief Opens an already existing named semaphore. If a semaphore with
     ///         name does not exist an uninitialized Semaphore is returned
