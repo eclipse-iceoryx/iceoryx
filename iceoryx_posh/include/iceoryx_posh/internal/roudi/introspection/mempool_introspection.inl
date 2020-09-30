@@ -134,33 +134,44 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::send() noe
     if (m_senderPort.hasSubscribers())
     {
         uint32_t id = 0;
-
         auto chunkHeader = m_senderPort.reserveChunk(sizeof(Topic));
         auto sample = static_cast<Topic*>(chunkHeader->payload());
         new (sample) Topic;
 
         if (sample->emplace_back())
         {
+            // RouDi's shm segment
             auto& memPoolIntrospectionInfo = sample->back();
-
             prepareIntrospectionSample(memPoolIntrospectionInfo,
                                        posix::PosixGroup::getGroupOfCurrentProcess(),
                                        posix::PosixGroup::getGroupOfCurrentProcess(),
                                        id);
             copyMemPoolInfo(*m_rouDiInternalMemoryManager, memPoolIntrospectionInfo.m_mempoolInfo);
+            ++id;
 
+            // User shm segments
             for (auto& segment : m_segmentManager->m_segmentContainer)
             {
+                if (sample->emplace_back())
+                {
+                    auto& memPoolIntrospectionInfo = sample->back();
+                    prepareIntrospectionSample(
+                        memPoolIntrospectionInfo, segment.getReaderGroup(), segment.getWriterGroup(), id);
+                    copyMemPoolInfo(segment.getMemoryManager(), memPoolIntrospectionInfo.m_mempoolInfo);
+                }
+                else
+                {
+                    LogWarn() << "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
+                              << (id + 1) << " of " << m_segmentManager->m_segmentContainer.size()
+                              << " memory segments sent.";
+                    break;
+                }
                 ++id;
-
-                prepareIntrospectionSample(
-                    memPoolIntrospectionInfo, segment.getReaderGroup(), segment.getWriterGroup(), id);
-                copyMemPoolInfo(segment.getMemoryManager(), memPoolIntrospectionInfo.m_mempoolInfo);
             }
         }
         else
         {
-            LogError() << "Mempool Introspection Container full, Mempool Introspection Data not updated!";
+            LogWarn() << "Mempool Introspection Container full, Mempool Introspection Data not updated!";
         }
 
         m_senderPort.deliverChunk(chunkHeader);

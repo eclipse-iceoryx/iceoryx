@@ -617,7 +617,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     SubscriberType memPoolSubscriber(IntrospectionMempoolService);
     if (introspectionSelection.mempool == true)
     {
-        memPoolSubscriber.subscribe(iox::MAX_SHM_SEGMENTS + 1u);
+        memPoolSubscriber.subscribe(1u);
 
         if (waitForSubscription(memPoolSubscriber) == false)
         {
@@ -625,7 +625,6 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
                         PrettyOptions::error);
         }
     }
-
 
     // process
     SubscriberType processSubscriber(IntrospectionProcessService);
