@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/platform/platform_correction.hpp"
 
 namespace iox
@@ -49,6 +50,7 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
         }
 
         rhs.m_isInitialized = false;
+        rhs.m_handlePtr = &rhs.m_handle;
     }
 
     return *this;
@@ -79,27 +81,33 @@ void Semaphore::closeHandle() noexcept
     }
 }
 
-bool Semaphore::getValue(int& value) const noexcept
+cxx::expected<int, SemaphoreError> Semaphore::getValue() const noexcept
 {
-    return m_isInitialized
-           && !cxx::makeSmartC(iox_sem_getvalue, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr, &value)
-                   .hasErrors();
-}
-
-bool Semaphore::post() noexcept
-{
-    return m_isInitialized
-           && !cxx::makeSmartC(iox_sem_post, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr)
-                   .hasErrors();
-}
-
-bool Semaphore::timedWait(const struct timespec* abs_timeout, const bool doContinueOnInterrupt) const noexcept
-{
-    if (!m_isInitialized)
+    int value;
+    auto call =
+        cxx::makeSmartC(iox_sem_getvalue, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr, &value);
+    if (call.hasErrors())
     {
-        return false;
+        return cxx::error<SemaphoreError>(errnoToEnum(call.getErrNum()));
     }
 
+    return cxx::success<int>(value);
+}
+
+cxx::expected<SemaphoreError> Semaphore::post() noexcept
+{
+    auto call = cxx::makeSmartC(iox_sem_post, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr);
+    if (call.hasErrors())
+    {
+        return cxx::error<SemaphoreError>(errnoToEnum(call.getErrNum()));
+    }
+
+    return cxx::success<>();
+}
+
+cxx::expected<SemaphoreWaitState, SemaphoreError> Semaphore::timedWait(const struct timespec* abs_timeout,
+                                                                       const bool doContinueOnInterrupt) const noexcept
+{
     if (doContinueOnInterrupt)
     {
         // we wait so long until iox_sem_timedwait returns without an
@@ -114,15 +122,15 @@ bool Semaphore::timedWait(const struct timespec* abs_timeout, const bool doConti
                                          abs_timeout);
             if (cCall.hasErrors())
             {
-                return false;
+                return cxx::error<SemaphoreError>(errnoToEnum(cCall.getErrNum()));
             }
             else if (cCall.getErrNum() == ETIMEDOUT)
             {
-                return false;
+                return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::TIMEOUT);
             }
             else
             {
-                return true;
+                return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::NO_TIMEOUT);
             }
         }
     }
@@ -132,39 +140,40 @@ bool Semaphore::timedWait(const struct timespec* abs_timeout, const bool doConti
             iox_sem_timedwait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {ETIMEDOUT}, m_handlePtr, abs_timeout);
         if (cCall.hasErrors() || cCall.getErrNum() == ETIMEDOUT)
         {
-            return false;
+            return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::TIMEOUT);
         }
         else
         {
-            return true;
+            return cxx::success<SemaphoreWaitState>(SemaphoreWaitState::NO_TIMEOUT);
         }
     }
 }
 
-bool Semaphore::tryWait() const noexcept
+cxx::expected<bool, SemaphoreError> Semaphore::tryWait() const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return false;
-    }
-
     auto cCall = cxx::makeSmartC(iox_sem_trywait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {EAGAIN}, m_handlePtr);
 
-    if (cCall.hasErrors() || cCall.getErrNum() == EAGAIN)
+    if (cCall.hasErrors() && cCall.getErrNum() != EAGAIN)
     {
-        return false;
+        return cxx::error<SemaphoreError>(errnoToEnum(cCall.getErrNum()));
     }
-    else
+    else if (cCall.getErrNum() == EAGAIN)
     {
-        return true;
+        return cxx::success<bool>(false);
     }
+
+    return cxx::success<bool>(true);
 }
 
-bool Semaphore::wait() const noexcept
+cxx::expected<SemaphoreError> Semaphore::wait() const noexcept
 {
-    return m_isInitialized
-           && !cxx::makeSmartC(iox_sem_wait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr)
-                   .hasErrors();
+    auto call = cxx::makeSmartC(iox_sem_wait, cxx::ReturnMode::PRE_DEFINED_ERROR_CODE, {-1}, {}, m_handlePtr);
+    if (call.hasErrors())
+    {
+        return cxx::error<SemaphoreError>(errnoToEnum(call.getErrNum()));
+    }
+
+    return cxx::success<>();
 }
 
 iox_sem_t* Semaphore::getHandle() noexcept
@@ -183,16 +192,35 @@ bool Semaphore::hasSemaphoreNameOverflow(const char* name) noexcept
     return false;
 }
 
-Semaphore::Semaphore(const unsigned int value) noexcept
+Semaphore::Semaphore(CreateUnnamedSingleProcessSemaphore_t, const unsigned int value) noexcept
     : m_isNamedSemaphore(false)
 {
     if (init(&m_handle, 0, value))
     {
         m_isInitialized = true;
     }
+    else
+    {
+        m_isInitialized = false;
+        m_errorValue = SemaphoreError::CREATION_FAILED;
+    }
 }
 
-Semaphore::Semaphore(iox_sem_t* handle, const unsigned int value) noexcept
+Semaphore::Semaphore(CreateUnnamedSharedMemorySemaphore_t, const unsigned int value) noexcept
+    : m_isNamedSemaphore(false)
+{
+    if (init(&m_handle, 1, value))
+    {
+        m_isInitialized = true;
+    }
+    else
+    {
+        m_isInitialized = false;
+        m_errorValue = SemaphoreError::CREATION_FAILED;
+    }
+}
+
+Semaphore::Semaphore(CreateUnnamedSharedMemorySemaphore_t, iox_sem_t* handle, const unsigned int value) noexcept
     : m_isNamedSemaphore(false)
     , m_isShared(true)
     , m_handlePtr(handle)
@@ -201,30 +229,53 @@ Semaphore::Semaphore(iox_sem_t* handle, const unsigned int value) noexcept
     {
         m_isInitialized = true;
     }
-}
-
-Semaphore::Semaphore(const char* name, const int oflag) noexcept
-    : m_isCreated(false)
-{
-    if (!hasSemaphoreNameOverflow(name))
+    else
     {
-        strncpy(m_name, name, m_nameSize);
-        if (open(oflag))
-        {
-            m_isInitialized = true;
-        }
+        m_isInitialized = false;
+        m_errorValue = SemaphoreError::CREATION_FAILED;
     }
 }
 
-Semaphore::Semaphore(const char* name, const mode_t mode, const unsigned int value) noexcept
+Semaphore::Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) noexcept
+    : m_isCreated(false)
 {
-    if (!hasSemaphoreNameOverflow(name))
+    if (hasSemaphoreNameOverflow(name))
     {
-        strncpy(m_name, name, m_nameSize);
-        if (open(O_CREAT | O_EXCL, mode, value))
-        {
-            m_isInitialized = true;
-        }
+        m_isInitialized = false;
+        m_errorValue = SemaphoreError::NAME_TOO_LONG;
+        return;
+    }
+
+    strncpy(m_name, name, m_nameSize);
+    if (open(oflag))
+    {
+        m_isInitialized = true;
+    }
+    else
+    {
+        m_errorValue = SemaphoreError::UNABLE_TO_OPEN_HANDLE;
+        m_isInitialized = false;
+    }
+}
+
+Semaphore::Semaphore(CreateNamedSemaphore_t, const char* name, const mode_t mode, const unsigned int value) noexcept
+{
+    if (hasSemaphoreNameOverflow(name))
+    {
+        m_isInitialized = false;
+        m_errorValue = SemaphoreError::NAME_TOO_LONG;
+        return;
+    }
+
+    strncpy(m_name, name, m_nameSize);
+    if (open(O_CREAT | O_EXCL, mode, value))
+    {
+        m_isInitialized = true;
+    }
+    else
+    {
+        m_errorValue = SemaphoreError::CREATION_FAILED;
+        m_isInitialized = false;
     }
 }
 
@@ -286,5 +337,25 @@ bool Semaphore::isNamedSemaphore() noexcept
 {
     return m_isNamedSemaphore;
 }
+
+SemaphoreError Semaphore::errnoToEnum(const int errnoValue) const noexcept
+{
+    switch (errnoValue)
+    {
+    case EINVAL:
+        std::cerr << "semaphore object is in an inconsistent state" << std::endl;
+        return SemaphoreError::INVALID_SEMAPHORE_HANDLE;
+    case EOVERFLOW:
+        std::cerr << "semaphore is overflowing" << std::endl;
+        return SemaphoreError::SEMAPHORE_OVERFLOW;
+    case EINTR:
+        std::cerr << "call was interrupted by signal handler" << std::endl;
+        return SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER;
+    default:
+        std::cerr << "an undefined error occurred in semaphore - this should never happen!" << std::endl;
+        return SemaphoreError::UNDEFINED;
+    }
+}
+
 } // namespace posix
 } // namespace iox

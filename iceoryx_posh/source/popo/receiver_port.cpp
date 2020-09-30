@@ -287,7 +287,8 @@ posix::Semaphore* ReceiverPort::GetShmSemaphore()
 {
     if (getMembers()->m_shmSemaphore.has_error())
     {
-        getMembers()->m_shmSemaphore = posix::Semaphore::create(&getMembers()->m_shmSemaphoreHandle, 0);
+        getMembers()->m_shmSemaphore =
+            posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, &getMembers()->m_shmSemaphoreHandle, 0);
         if (getMembers()->m_shmSemaphore.has_error())
         {
             return nullptr;

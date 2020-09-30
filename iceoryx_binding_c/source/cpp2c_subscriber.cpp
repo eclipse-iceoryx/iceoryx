@@ -21,7 +21,7 @@ bool cpp2c_Subscriber::setConditionVariable(iox::popo::ConditionVariableData* co
 
 bool cpp2c_Subscriber::hasTriggered() const noexcept
 {
-    return m_wasTriggered;
+    return iox::popo::SubscriberPortUser(m_portData).hasNewChunks();
 }
 
 bool cpp2c_Subscriber::unsetConditionVariable() noexcept

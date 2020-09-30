@@ -33,7 +33,7 @@ struct ConditionVariableData
     ConditionVariableData& operator=(ConditionVariableData&& rhs) = delete;
 
     posix::Semaphore m_semaphore =
-        std::move(posix::Semaphore::create(0u)
+        std::move(posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0u)
                       .or_else([](posix::SemaphoreError&) {
                           errorHandler(Error::kPOPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE,
                                        nullptr,

@@ -14,6 +14,7 @@
 #ifndef IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_HPP
 #define IOX_UTILS_POSIX_WRAPPER_SEMAPHORE_HPP
 
+#include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
@@ -31,8 +32,38 @@ namespace posix
 enum class SemaphoreError
 {
     CREATION_FAILED,
+    NAME_TOO_LONG,
+    UNABLE_TO_OPEN_HANDLE,
+    INVALID_SEMAPHORE_HANDLE,
+    SEMAPHORE_OVERFLOW,
+    INTERRUPTED_BY_SIGNAL_HANDLER,
     UNDEFINED
 };
+
+enum class SemaphoreWaitState
+{
+    TIMEOUT,
+    NO_TIMEOUT,
+};
+
+struct CreateUnnamedSingleProcessSemaphore_t
+{
+};
+struct CreateUnnamedSharedMemorySemaphore_t
+{
+};
+struct CreateNamedSemaphore_t
+{
+};
+struct OpenNamedSemaphore_t
+{
+};
+static constexpr CreateUnnamedSingleProcessSemaphore_t CreateUnnamedSingleProcessSemaphore =
+    CreateUnnamedSingleProcessSemaphore_t();
+static constexpr CreateUnnamedSharedMemorySemaphore_t CreateUnnamedSharedMemorySemaphore =
+    CreateUnnamedSharedMemorySemaphore_t();
+static constexpr CreateNamedSemaphore_t CreateNamedSemaphore = CreateNamedSemaphore_t();
+static constexpr OpenNamedSemaphore_t OpenNamedSemaphore = OpenNamedSemaphore_t();
 
 /// @brief Posix semaphore C++ Wrapping class
 /// @code
@@ -81,9 +112,9 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// @param[in] value reference in which the value of the semaphore is
     ///                     written to
     ///
-    /// @return the optional is set if sem_getvalue succeeded otherwise an unset
-    /// optional<int> is returned
-    bool getValue(int& value) const noexcept;
+    /// @return expected which contains either the value of the semaphore or
+    ///         the cause why the value could not be retrieved
+    cxx::expected<int, SemaphoreError> getValue() const noexcept;
 
     /// @brief calls sem_post which unlocks a semaphore
     /// From the sem_post manpage: sem_post()  increments  (unlocks) the
@@ -91,8 +122,8 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// becomes greater than zero, then another process or thread blocked in a
     /// sem_wait(3) call will be woken up and proceed to lock the semaphore.
     ///
-    /// @return returns false when sem_post fails otherwise true
-    bool post() noexcept;
+    /// @return if post fails the expected contains the error which occurred
+    cxx::expected<SemaphoreError> post() noexcept;
 
     /// @brief see wait()
     /// @param[in] abs_timeout timeout of the wait
@@ -102,11 +133,15 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///      continue; /* Restart if interrupted by handler */
     ///             true = restart till we aren't interrupted anymore
     ///             false = return on any error
-    /// @return returns false when not initialized,has errors and timed out otherwise true
-    bool timedWait(const struct timespec* abs_timeout, const bool doContinueOnInterrupt) const noexcept;
+    /// @return when successful the SemaphoreWaitState states if a timeout happened
+    ///         or not otherwise the SemaphoreError contains the error
+    cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const struct timespec* abs_timeout,
+                                                                const bool doContinueOnInterrupt) const noexcept;
 
     /// @brief see wait()
-    bool tryWait() const noexcept;
+    /// @return if the semaphore was decremented the expected contains the value true
+    ///         otherwise false. if an error occurred it is stored inside the expected
+    cxx::expected<bool, SemaphoreError> tryWait() const noexcept;
 
     /// @brief calls sem_wait which locks a semaphore
     /// From the sem_wait manpage: sem_wait()  decrements  (locks) the semaphore
@@ -142,8 +177,8 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// abs_timeout.  Furthermore, the validity of abs_timeout is not checked in
     /// this case.
     ///
-    /// @return returns false if sem_wait fails otherwise true
-    bool wait() const noexcept;
+    /// @return if an error during the call occurs the error value is set
+    cxx::expected<SemaphoreError> wait() const noexcept;
 
     /// @brief returns the pointer to the managed semaphore. You can use this
     ///         pointer with all the sem_** functions.
@@ -171,15 +206,16 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     ///         via IsInitialized()
     ///         For details see man sem_init.
     /// @param[in] value initial value of the semaphore
-    Semaphore(const unsigned int value) noexcept;
+    Semaphore(CreateUnnamedSingleProcessSemaphore_t, const unsigned int value) noexcept;
 
     /// @brief Creates unnamed semaphore in the shared memory.
     ///         The Semaphore should be initialized but that has to be verified
     ///         via IsInitialized()
     ///         For details see man sem_init.
-    /// @param[in] handle pointer to a handle which is in the shared memory
     /// @param[in] value initial value of the semaphore
-    Semaphore(iox_sem_t* handle, const unsigned int value) noexcept;
+    Semaphore(CreateUnnamedSharedMemorySemaphore_t, const unsigned int value) noexcept;
+    /// @deprecated do not use this constructor
+    Semaphore(CreateUnnamedSharedMemorySemaphore_t, iox_sem_t* handle, const unsigned int value) noexcept;
 
     /// @brief Opens an already existing named semaphore. If a semaphore with
     ///         name does not exist an uninitialized Semaphore is returned
@@ -189,7 +225,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// @param[in] name name of the semaphore
     /// @param[in] oflag specifies flags that control the operation of the call
     ///                 O_CREAT flag is not allowed here
-    Semaphore(const char* name, const int oflag) noexcept;
+    Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) noexcept;
 
     /// @brief Creates an exclusive named semaphore. If a semaphore with name
     ///         already exists then the Semaphore returned is not initialized
@@ -204,7 +240,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     /// @param[in] value the initial value of the semaphore
     /// @return Semaphore object which can be initialized, if a semaphore
     ///         named name exists it is definitly an uninitialized semaphore.
-    Semaphore(const char* name, const mode_t mode, const unsigned int value) noexcept;
+    Semaphore(CreateNamedSemaphore_t, const char* name, const mode_t mode, const unsigned int value) noexcept;
 
     /// @brief calls sem_close which closes a named semaphore
     /// From the sem_close manpage: sem_close() closes the named semaphore
@@ -303,6 +339,8 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
 
     template <typename SmartC>
     bool setHandleFromCall(const SmartC& call) noexcept;
+
+    SemaphoreError errnoToEnum(const int errnoValue) const noexcept;
 };
 } // namespace posix
 } // namespace iox

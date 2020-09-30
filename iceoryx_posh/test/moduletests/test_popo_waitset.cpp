@@ -71,7 +71,8 @@ class WaitSet_test : public Test
     WaitSetMock m_sut{&m_condVarData};
     vector<MockSubscriber, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> m_subscriberVector;
 
-    iox::posix::Semaphore m_syncSemaphore = iox::posix::Semaphore::create(0u).get_value();
+    iox::posix::Semaphore m_syncSemaphore =
+        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).get_value();
 
     void SetUp()
     {

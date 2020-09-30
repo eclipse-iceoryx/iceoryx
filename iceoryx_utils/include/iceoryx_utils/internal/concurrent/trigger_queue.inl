@@ -14,6 +14,7 @@
 #ifndef IOX_UTILS_CONCURRENT_TRIGGER_QUEUE_INL
 #define IOX_UTILS_CONCURRENT_TRIGGER_QUEUE_INL
 
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/internal/concurrent/trigger_queue.hpp"
 
 namespace iox
@@ -41,7 +42,7 @@ inline bool TriggerQueue<T, CAPACITY>::push(const T& in)
 {
     if (stl_queue_push(in))
     {
-        m_semaphore->post();
+        cxx::Expects(!m_semaphore->post().has_error());
         return true;
     }
     else
@@ -53,14 +54,17 @@ inline bool TriggerQueue<T, CAPACITY>::push(const T& in)
 template <typename T, uint64_t CAPACITY>
 inline bool TriggerQueue<T, CAPACITY>::blocking_pop(T& out)
 {
-    m_semaphore->wait();
+    cxx::Expects(!m_semaphore->wait().has_error());
     return stl_queue_pop(out);
 }
 
 template <typename T, uint64_t CAPACITY>
 inline bool TriggerQueue<T, CAPACITY>::try_pop(T& out)
 {
-    if (!m_semaphore->tryWait())
+    auto result = m_semaphore->tryWait();
+    cxx::Expects(!result.has_error());
+
+    if (!*result)
     {
         return false;
     }
@@ -89,7 +93,7 @@ inline uint64_t TriggerQueue<T, CAPACITY>::capacity()
 template <typename T, uint64_t CAPACITY>
 inline void TriggerQueue<T, CAPACITY>::send_wakeup_trigger()
 {
-    m_semaphore->post();
+    cxx::Expects(!m_semaphore->post().has_error());
 }
 
 /// @todo remove with lockfree fifo START

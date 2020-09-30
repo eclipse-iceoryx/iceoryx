@@ -96,12 +96,6 @@ class WaitSet
   public:
     using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
-    enum class WaitPolicy : uint16_t
-    {
-        BLOCKING_WAIT,
-        TIMED_WAIT
-    };
-
     WaitSet() noexcept;
     virtual ~WaitSet() noexcept;
     WaitSet(const WaitSet& rhs) = delete;
@@ -137,8 +131,12 @@ class WaitSet
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
-    template <WaitPolicy policy>
-    ConditionVector waitAndReturnFulfilledConditions(cxx::optional<units::Duration> timeout = cxx::nullopt) noexcept;
+    ConditionVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
+    template <typename WaitFunction>
+    ConditionVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
+    ConditionVector createVectorWithFullfilledConditions() noexcept;
+
+  private:
     ConditionVector m_conditionVector;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionVariableWaiter m_conditionVariableWaiter;
@@ -146,7 +144,5 @@ class WaitSet
 
 } // namespace popo
 } // namespace iox
-
-#include "iceoryx_posh/internal/popo/wait_set.inl"
 
 #endif // IOX_POSH_POPO_WAIT_SET_HPP
