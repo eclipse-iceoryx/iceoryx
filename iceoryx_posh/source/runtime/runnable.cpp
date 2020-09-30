@@ -23,8 +23,13 @@ namespace iox
 {
 namespace runtime
 {
+Runnable::Runnable(RunnableData* const data) noexcept
+    : m_data(data)
+{
+}
+
 Runnable::Runnable(const iox::cxx::CString100& runnableName) noexcept
-    : m_data(PoshRuntime::getInstance().createRunnable(RunnableProperty(runnableName, 0u)))
+    : Runnable(PoshRuntime::getInstance().createRunnable(RunnableProperty(runnableName, 0u)))
 {
 }
 

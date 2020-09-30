@@ -17,6 +17,7 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
+#include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 
@@ -37,8 +38,6 @@ class PublisherPortUser;
 class PublisherPortRouDi;
 
 class SubscriberPortUser;
-class SubscriberPortSingleProducer;
-class SubscriberPortMultiProducer;
 } // namespace popo
 namespace posix
 {
@@ -53,11 +52,7 @@ using PublisherPortUserType = iox::popo::PublisherPortUser;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
-#if defined(RESTRICT_TO_1_TO_N_COMMUNICATION)
-using SubscriberPortProducerType = iox::popo::SubscriberPortSingleProducer;
-#else
-using SubscriberPortProducerType = iox::popo::SubscriberPortMultiProducer;
-#endif
+using SubscriberPortType = iox::build::CommunicationPolicy;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
 

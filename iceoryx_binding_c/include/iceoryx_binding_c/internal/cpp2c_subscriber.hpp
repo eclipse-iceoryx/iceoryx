@@ -12,24 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#ifndef IOX_BINDING_C_CPP2C_SUBSCRIBER_H
+#define IOX_BINDING_C_CPP2C_SUBSCRIBER_H
 
-using namespace iox;
-using namespace iox::runtime;
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
+#include "iceoryx_posh/popo/condition.hpp"
 
-extern "C" {
-#include "iceoryx_binding_c/posh_runtime.h"
-}
-
-void iox_runtime_register(const char* const name)
+struct cpp2c_Subscriber : public iox::popo::Condition
 {
-    PoshRuntime::getInstance(name);
-}
+    bool setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override;
+    bool hasTriggered() const noexcept override;
+    bool unsetConditionVariable() noexcept override;
 
-uint64_t iox_runtime_get_instance_name(char* const name, const uint64_t nameLength)
-{
-    auto instanceName = PoshRuntime::getInstance().getInstanceName();
-    uint64_t instanceNameSize = instanceName.size();
-    strncpy(name, instanceName.c_str(), std::min(nameLength, instanceNameSize));
-    return instanceNameSize;
-}
+    iox::popo::SubscriberPortData* m_portData{nullptr};
+    bool m_wasTriggered{false};
+};
+#endif

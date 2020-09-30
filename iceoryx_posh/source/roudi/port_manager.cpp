@@ -211,7 +211,7 @@ void PortManager::handleSubscriberPorts() noexcept
     // get requests for change of subscription state of subscribers
     for (auto subscriberPortData : m_portPool->getSubscriberPortDataList())
     {
-        SubscriberPortProducerType subscriberPort(subscriberPortData);
+        SubscriberPortType subscriberPort(subscriberPortData);
 
         subscriberPort.tryGetCaProMessage().and_then([&](capro::CaproMessage caproMessage) {
             m_portIntrospection.reportMessage(caproMessage);
@@ -448,7 +448,7 @@ void PortManager::sendToAllMatchingReceiverPorts(const capro::CaproMessage& mess
 }
 
 bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
-                                                  SubscriberPortProducerType& subscriberSource) noexcept
+                                                  SubscriberPortType& subscriberSource) noexcept
 {
     bool publisherFound = false;
     for (auto publisherPortData : m_portPool->getPublisherPortDataList())
@@ -480,7 +480,7 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
 {
     for (auto subscriberPortData : m_portPool->getSubscriberPortDataList())
     {
-        SubscriberPortProducerType subscriberPort(subscriberPortData);
+        SubscriberPortType subscriberPort(subscriberPortData);
         if (subscriberPort.getCaProServiceDescription() == publisherSource.getCaProServiceDescription())
         {
             auto subscriberResponse = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(message);
@@ -649,10 +649,10 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
     LogDebug() << "Destroyed publisher port";
 }
 
-void PortManager::destroySubscriberPort(SubscriberPortProducerType::MemberType_t* const subscriberPortData) noexcept
+void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept
 {
     // create temporary subscriber ports to orderly shut this subscriber down
-    SubscriberPortProducerType subscriberPortRoudi(subscriberPortData);
+    SubscriberPortType subscriberPortRoudi(subscriberPortData);
     SubscriberPortUserType subscriberPortUser(subscriberPortData);
 
     subscriberPortRoudi.releaseAllChunks();
@@ -770,7 +770,17 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const RunnableName_t& runnable [[gnu::unused]], // @todo #25 Fix introspection
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
-    /// @todo #25 Add unique check for single producer type - see acquireSenderPortData()
+    if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
+            [&](const ProcessName_t& usedByProcess) {
+                LogWarn()
+                    << "Process '" << processName
+                    << "' violates the communication policy by requesting a PublisherPort which is already used by '"
+                    << usedByProcess << "' with service '" << service.operator cxx::Serialization().toString() << "'.";
+            }))
+    {
+        errorHandler(Error::kPOSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
+    }
 
     // we can create a new port
     auto maybePublisherPortData = m_portPool->addPublisherPort(
@@ -784,7 +794,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
     return maybePublisherPortData;
 }
 
-cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
+cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const uint64_t& historyRequest,
                                        const ProcessName_t& processName,

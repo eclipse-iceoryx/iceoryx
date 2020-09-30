@@ -31,7 +31,7 @@ Let's take a look at the `receiving` function which comes with the
 
  1. We register our process at roudi with the name `iox-c-subscriber`
     ```c
-    iox_rt_register("/iox-c-subscriber");
+    iox_runtime_register("/iox-c-subscriber");
     ```
   
  2. We create a subscriber port and are subscribing to the service 
@@ -40,9 +40,12 @@ Let's take a look at the `receiving` function which comes with the
     right after the connection is established. These are
     samples which the publisher has send before the subscriber was 
     connected.
+    The `subscriberStorage` is the place where the subscriber is stored in 
+    memory and `subscriber` is actually a pointer to that location.
     ```c
     uint64_t historyRequest = 0u;
-    struct SubscriberPortData* subscriber = iox_sub_create("Radar", "FrontLeft", "Counter", historyRequest);
+    iox_sub_storage_t subscriberStorage;
+    iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", historyRequest);
     ```
  
   3. We subscribe to the service with a queue capacity of 10.
@@ -83,7 +86,7 @@ Let's take a look at the `receiving` function which comes with the
   6. When using the C API we have to cleanup the subscriber after 
      its usage.
      ```c
-     iox_sub_destroy(subscriber);
+     iox_sub_deinit(subscriber);
      ```
 
 ### Publisher
@@ -103,13 +106,14 @@ Let's take a look at the `sending` function which comes with the
 
  1. We register our process at roudi with the name `iox-c-subscriber`
     ```c
-    iox_rt_register("/iox-c-publisher");
+    iox_runtime_register("/iox-c-publisher");
     ```
  2. We create a publisher with the service 
     {"Radar", "FrontLeft", "Counter"}
     ```c
     uint64_t historyRequest = 0u;
-    struct PublisherPortData* publisher = iox_pub_create("Radar", "FrontLeft", "Counter", historyRequest);
+    iox_pub_storage_t publisherStorage;
+    iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", historyRequest);
     ```
  3. We offer our service to the world.
     ```c

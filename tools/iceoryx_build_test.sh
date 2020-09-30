@@ -38,7 +38,7 @@ QACPP_JSON="OFF"
 RUN_TEST=false
 INTROSPECTION_FLAG="ON"
 DDS_GATEWAY_FLAG="OFF"
-ONE_TO_MANY_FLAG="OFF"
+ONE_TO_MANY_ONLY_FLAG="OFF"
 
 while (( "$#" )); do
   case "$1" in
@@ -111,7 +111,7 @@ while (( "$#" )); do
         ;;
     "one-to-many")
         echo " [i] Using 1:n communication only"
-        ONE_TO_MANY_FLAG="ON"
+        ONE_TO_MANY_ONLY_FLAG="ON"
         shift 1
         ;;
     "help")
@@ -180,7 +180,7 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Done-to-many=$ONE_TO_MANY_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dbinding_c=ON -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
