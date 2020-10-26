@@ -134,9 +134,9 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::send() noe
     if (m_senderPort.hasSubscribers())
     {
         uint32_t id = 0;
-        auto chunkHeader = m_senderPort.reserveChunk(sizeof(Topic));
-        auto sample = static_cast<Topic*>(chunkHeader->payload());
-        new (sample) Topic;
+        auto chunkHeader = m_senderPort.reserveChunk(sizeof(MemPoolIntrospectionInfoContainer));
+        auto sample = static_cast<MemPoolIntrospectionInfoContainer*>(chunkHeader->payload());
+        new (sample) MemPoolIntrospectionInfoContainer;
 
         if (sample->emplace_back())
         {
