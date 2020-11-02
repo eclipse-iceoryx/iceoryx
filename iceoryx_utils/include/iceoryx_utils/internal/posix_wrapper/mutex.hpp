@@ -108,3 +108,4 @@ class mutex
 } // namespace posix
 } // namespace iox
 
+#endif // IOX_UTILS_POSIX_WRAPPER_MUTEX_HPP

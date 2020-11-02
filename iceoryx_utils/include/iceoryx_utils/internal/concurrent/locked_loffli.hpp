@@ -66,3 +66,4 @@ class LockedLoFFLi
 } // namespace concurrent
 } // namespace iox
 
+#endif // IOX_UTILS_CONCURRENT_LOCKED_LOFFLI_HPP
