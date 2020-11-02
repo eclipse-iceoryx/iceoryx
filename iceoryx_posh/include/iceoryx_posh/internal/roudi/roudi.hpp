@@ -57,7 +57,8 @@ class RouDi
           const config::MonitoringMode f_monitoringMode = config::MonitoringMode::ON,
           const bool f_killProcessesInDestructor = true,
           const MQThreadStart mqThreadStart = MQThreadStart::IMMEDIATE,
-          const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH);
+          const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
+          const units::Duration finalKillTime = PROCESS_FINAL_KILL_TIME);
 
     virtual ~RouDi();
 
@@ -131,6 +132,7 @@ class RouDi
 
   private:
     config::MonitoringMode m_monitoringMode{config::MonitoringMode::ON};
+    units::Duration m_finalKillTime;
 };
 
 } // namespace roudi

@@ -131,7 +131,14 @@ class ProcessManager : public ProcessManagerInterface
                          const uint64_t sessionId,
                          const version::VersionInfo& versionInfo) noexcept;
 
-    void killAllProcesses() noexcept;
+    /// @brief Kills all registered processes. First try with a SIGTERM and if they have not terminated after
+    /// finallKillTime they are killed with SIGKILL. If RouDi doesn't have sufficient rights to kill the process, the
+    /// process is considered killed.
+    /// @param [in] finalKillTime RouDi On termination RouDi kills the applications and watches for the specified time,
+    /// if they have shut down. If they have not terminated after the specified time, RouDi sends a SIGKILL to the
+    /// processes. If the processes have finished after a normal kill with SIGTERM before the specified time, RouDi goes
+    /// on directly.
+    void killAllProcesses(const units::Duration finalKillTime) noexcept;
 
     void updateLivelinessOfProcess(const ProcessName_t& name) noexcept;
 
@@ -206,7 +213,42 @@ class ProcessManager : public ProcessManagerInterface
                     const uint64_t sessionId,
                     const version::VersionInfo& versionInfo) noexcept;
 
+    /// @brief Removes the process from the managed client process list, identified by its id.
+    /// @param [in] name The process name which should be removed.
+    /// @return Returns true if the process was found and removed from the internal list.
     bool removeProcess(const ProcessName_t& name) noexcept;
+
+    /// @brief Removes the given process from the managed client process list without taking the list's lock!
+    /// @param [in] processIter The process which should be removed.
+    /// @return Returns true if the process was found and removed from the internal list.
+    bool removeProcess(ProcessList_t::iterator& processIter) noexcept;
+
+    enum class ShutdownPolicy
+    {
+        SIG_TERM,
+        SIG_KILL
+    };
+
+    enum class ShudownLog
+    {
+        NONE,
+        FULL
+    };
+
+    /// @brief Kills the given process in m_processList with the given signal.
+    /// @param [in] process The process to kill.
+    /// @param [in] shutdownPolicy The kill signal passed to the system kill function.
+    /// @param [in] shudownLog Defines the logging detail.
+    /// @return Returns true if the sent kill signal was successful.
+    bool requestShutdownOfProcess(const RouDiProcess& process,
+                                  ShutdownPolicy shutdownPolicy,
+                                  ShudownLog shudownLog) noexcept;
+
+    /// @brief Checks if the given process has terminated.
+    /// @param [in] process The process to be checked.
+    /// @return True, if the process has terminated.
+    bool isProcessGone(const RouDiProcess& process) noexcept;
+
     RouDiMemoryInterface& m_roudiMemoryInterface;
     PortManager& m_portManager;
     mepoo::SegmentManager<>* m_segmentManager{nullptr};

@@ -32,10 +32,12 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
                                       {"log-level", required_argument, nullptr, 'l'},
                                       {"ignore-version", required_argument, nullptr, 'i'},
                                       {"unique-roudi-id", required_argument, nullptr, 'u'},
+                                      {"compatibility", required_argument, nullptr, 'c'},
+                                      {"final-kill-time", required_argument, nullptr, 'f'},
                                       {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* shortOptions = "hvm:l:u:";
+    constexpr const char* shortOptions = "hvm:l:u:c:f:";
     int32_t index;
     int32_t opt{-1};
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1))
@@ -56,7 +58,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             std::cout << "-l, --log-level <LEVEL>           Set log level." << std::endl;
             std::cout << "                                  <LEVEL> {off, fatal, error, warning, info, debug, verbose}"
                       << std::endl;
-            std::cout << "-c, --compatibility               Set compatibility check level between runtime and RouDi"
+            std::cout << "-c, --compatibility               Set compatibility check level between runtime and RouDi."
                       << std::endl;
             std::cout << "                                  off: no check" << std::endl;
             std::cout << "                                  major: same major version " << std::endl;
@@ -64,6 +66,11 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             std::cout << "                                  patch: same patch version + minor check" << std::endl;
             std::cout << "                                  commitId: same commit ID + patch check" << std::endl;
             std::cout << "                                  buildDate: same build date + commId check" << std::endl;
+            std::cout << "-f, --final-kill-time <UINT>      Sets the time when RouDi kills the apps hard, if they"
+                      << std::endl;
+            std::cout << "                                  have't responded after the first soft kill, in seconds."
+                      << std::endl;
+
             m_run = false;
             break;
         case 'v':
@@ -72,7 +79,6 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             std::cout << "Commit ID: " << ICEORYX_SHA1 << std::endl;
             m_run = false;
             break;
-
         case 'u':
         {
             uint16_t roudiId{0u};
@@ -103,7 +109,6 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             }
             break;
         }
-
         case 'l':
         {
             if (strcmp(optarg, "off") == 0)
@@ -139,6 +144,21 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
                 m_run = false;
                 LogError() << "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and "
                               "'verbose'!";
+            }
+            break;
+        }
+        case 'f':
+        {
+            uint32_t finalKillTimeInSeconds{0u};
+            constexpr uint64_t MAX_FINAL_KILL_TIME = ((1ul << 32) - 1);
+            if (!cxx::convert::fromString(optarg, finalKillTimeInSeconds))
+            {
+                LogError() << "The final kill time must be in the range of [0, " << MAX_FINAL_KILL_TIME << "]";
+                m_run = false;
+            }
+            else
+            {
+                m_finalKillTime = units::Duration::seconds(static_cast<unsigned long long int>(finalKillTimeInSeconds));
             }
             break;
         }
@@ -189,20 +209,20 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
         }
     }
 } // namespace roudi
-bool CmdLineParser::getRun() const
+bool CmdLineParser::getRun() const noexcept
 {
     return m_run;
 }
-iox::log::LogLevel CmdLineParser::getLogLevel() const
+iox::log::LogLevel CmdLineParser::getLogLevel() const noexcept
 {
     return m_logLevel;
 }
-MonitoringMode CmdLineParser::getMonitoringMode() const
+MonitoringMode CmdLineParser::getMonitoringMode() const noexcept
 {
     return m_monitoringMode;
 }
 
-version::CompatibilityCheckLevel CmdLineParser::getCompatibilityCheckLevel() const
+version::CompatibilityCheckLevel CmdLineParser::getCompatibilityCheckLevel() const noexcept
 {
     return m_compatibilityCheckLevel;
 }
@@ -211,5 +231,11 @@ cxx::optional<uint16_t> CmdLineParser::getUniqueRouDiId() const noexcept
 {
     return m_uniqueRouDiId;
 }
+
+units::Duration CmdLineParser::getFinalKillTime() const noexcept
+{
+    return m_finalKillTime;
+}
+
 } // namespace config
 } // namespace iox

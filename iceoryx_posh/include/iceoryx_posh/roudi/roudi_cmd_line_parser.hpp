@@ -18,6 +18,7 @@
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/log/logcommon.hpp"
 
 namespace iox
@@ -60,11 +61,12 @@ class CmdLineParser
                        char* argv[],
                        const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
 
-    bool getRun() const;
-    iox::log::LogLevel getLogLevel() const;
-    MonitoringMode getMonitoringMode() const;
-    version::CompatibilityCheckLevel getCompatibilityCheckLevel() const;
+    bool getRun() const noexcept;
+    iox::log::LogLevel getLogLevel() const noexcept;
+    MonitoringMode getMonitoringMode() const noexcept;
+    version::CompatibilityCheckLevel getCompatibilityCheckLevel() const noexcept;
     cxx::optional<uint16_t> getUniqueRouDiId() const noexcept;
+    units::Duration getFinalKillTime() const noexcept;
 
   protected:
     bool m_run{true};
@@ -72,6 +74,7 @@ class CmdLineParser
     MonitoringMode m_monitoringMode{MonitoringMode::ON};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     cxx::optional<uint16_t> m_uniqueRouDiId;
+    units::Duration m_finalKillTime{PROCESS_FINAL_KILL_TIME};
 };
 
 } // namespace config

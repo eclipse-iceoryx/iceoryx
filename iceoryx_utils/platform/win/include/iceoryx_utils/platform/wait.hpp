@@ -19,4 +19,9 @@ inline int WEXITSTATUS(int)
     return 0;
 }
 
+inline int waitpid(int pid, int* stat_loc, int options)
+{
+    return 1;
+}
+
 #endif
