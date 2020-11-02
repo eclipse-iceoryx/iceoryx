@@ -53,8 +53,6 @@ class MemPoolIntrospection
         TERMINATE
     };
 
-    using Topic = MemPoolIntrospectionInfoContainer;
-
   public:
     /**
      * @brief The constructor for the MemPoolIntrospection.
