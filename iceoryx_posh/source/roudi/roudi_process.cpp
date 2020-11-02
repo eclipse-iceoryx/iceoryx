@@ -21,6 +21,7 @@
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/platform/signal.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 #include "iceoryx_utils/platform/wait.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
