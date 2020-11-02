@@ -68,11 +68,11 @@ class mutex
 
     /// @brief The construction of the mutex can fail, which will lead to a call to std::terminate, which is alright
     /// for the moment since we are intending to get rid of the mutex sooner or later.
-    /// @param[in] recursive Sets the recursive attribute of the mutex. If recursive is ON, a the same thread, which has
-    /// already locked the mutex, can lock the mutex without getting blocked.
+    /// @param[in] recursive Sets the recursive attribute of the mutex. If recursive is ON, the same thread, which has
+    /// already locked the mutex, can lock the mutex again without getting blocked.
     /// @param[in] robust If robust is set ON, a process or thread can exit while having the lock without causing an
-    /// invalid mutex. In the next lock call the system recognizes the mutex is locked by a dead process or thread and
-    /// allows it to restore it.
+    /// invalid mutex. In the next lock call to this mutex the system recognizes the mutex is locked by a dead process
+    /// or thread and allows the mutex to be restored.
     mutex(const Recursive recursive, const Robust robust);
 
     ~mutex();
