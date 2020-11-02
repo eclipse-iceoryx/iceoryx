@@ -164,6 +164,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::send() noe
                     LogWarn() << "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
                               << (id + 1) << " of " << m_segmentManager->m_segmentContainer.size()
                               << " memory segments sent.";
+                    errorHandler(Error::kMEPOO__INTROSPECTION_CONTAINER_FULL, nullptr, ErrorLevel::MODERATE);
                     break;
                 }
                 ++id;
