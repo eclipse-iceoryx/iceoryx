@@ -31,7 +31,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              const config::MonitoringMode monitoringMode,
              const bool killProcessesInDestructor,
              const MQThreadStart mqThreadStart,
-             const version::CompatibilityCheckLevel compatibilityCheckLevel)
+             const version::CompatibilityCheckLevel compatibilityCheckLevel,
+             const units::Duration finalKillTime)
     : m_killProcessesInDestructor(killProcessesInDestructor)
     , m_runThreads(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
@@ -42,6 +43,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
                              *m_roudiMemoryInterface->segmentManager().value(),
                              m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MQ_ROUDI_NAME))
     , m_monitoringMode(monitoringMode)
+    , m_finalKillTime(finalKillTime)
 {
     m_processIntrospection.registerSenderPort(
         m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, MQ_ROUDI_NAME));
@@ -82,7 +84,7 @@ void RouDi::shutdown()
 
     if (m_killProcessesInDestructor)
     {
-        m_prcMgr.killAllProcesses();
+        m_prcMgr.killAllProcesses(m_finalKillTime);
     }
 
     if (m_processManagementThread.joinable())

@@ -32,13 +32,13 @@
 /// and __PRETTY_FUNCTION__ defines.
 /// Creates a smart_c c function call and executes the call. Depending on
 /// how successful the c function call was it either returns via std::cerr an
-/// error message containing the source of this make_smart_c or it stores the
+/// error message containing the source of this makeSmartC or it stores the
 /// return value. We can retrieve it later by calling GetReturnValue() or
 /// casting since smart_c has an casting operator to the returnValue.
 ///
 /// @code
 ///     auto memoryCall =
-///         cxx::make_smart_c(malloc, cxx::returnMode::PreDefinedErrorCode, {static_cast< void* >(nu
+///         cxx::makeSmartC(malloc, cxx::returnMode::PreDefinedErrorCode, {static_cast< void* >(nu
 ///         >(nullptr)}, 10); 10);
 ///         {}, 10); void * pointer; if ( !memoryCall.HasErrors() ) {
 ///             pointer = memoryCall.GetReturnValue();
@@ -85,7 +85,7 @@ enum class ReturnMode
 ///     #include "smart_c.hpp"
 ///
 ///     auto memoryCall =
-///         cxx::make_smart_c(malloc, cxx::returnModenModenModenMode::PreDefinedErrorCode, {static_cast< void*
+///         cxx::makeSmartC(malloc, cxx::returnModenModenModenMode::PreDefinedErrorCode, {static_cast< void*
 ///         >( 10l; 10);
 ///         {}, 10); void * pointer; if ( !memoryCall.HasErrors() ) {
 ///             pointer = memoryCall.GetReturnValue();
@@ -94,7 +94,7 @@ enum class ReturnMode
 ///     ...
 ///
 ///     auto semaphoreCall  =
-///         cxx::make_smart_c(sem_open, cxx::returnModenMode::PreDefinedErrorCode, {SEM_FAILED}, {}, "param1",
+///         cxx::makeSmartC(sem_open, cxx::returnModenMode::PreDefinedErrorCode, {SEM_FAILED}, {}, "param1",
 ///         12);
 ///
 ///     // if an error has occurred the optional has no value
