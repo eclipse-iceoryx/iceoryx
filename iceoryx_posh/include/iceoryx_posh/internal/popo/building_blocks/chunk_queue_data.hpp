@@ -39,7 +39,7 @@ struct ChunkQueueData : public LockingPolicy
     cxx::VariantQueue<ChunkTuple, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasOverflown{false};
 
-    relative_ptr<iox::popo::ConditionVariableData> m_conditionVariableDataPtr{nullptr};
+    relative_ptr<ConditionVariableData> m_conditionVariableDataPtr{nullptr};
 };
 
 } // namespace popo

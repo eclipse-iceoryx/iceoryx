@@ -33,15 +33,15 @@ class DeliveryFiFo
     struct ChunkManagementTransport
     {
         ChunkManagementTransport() = default;
-        ChunkManagementTransport(iox::relative_ptr<mepoo::ChunkManagement> chunk, VisibilityIndexType visibilityIndex)
+        ChunkManagementTransport(relative_ptr<mepoo::ChunkManagement> chunk, VisibilityIndexType visibilityIndex)
             : m_segmentId(chunk.getId())
             , m_chunkOffset(chunk.getOffset())
             , m_visibilityIndex(visibilityIndex)
         {
         }
 
-        RelativePointer::id_t m_segmentId{iox::RelativePointer::NULL_POINTER_ID};
-        RelativePointer::offset_t m_chunkOffset{iox::RelativePointer::NULL_POINTER_OFFSET};
+        RelativePointer::id_t m_segmentId{RelativePointer::NULL_POINTER_ID};
+        RelativePointer::offset_t m_chunkOffset{RelativePointer::NULL_POINTER_OFFSET};
         VisibilityIndexType m_visibilityIndex;
     };
 

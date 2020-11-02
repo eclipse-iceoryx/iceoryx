@@ -11,25 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
 
-#include <cstdint>
+#ifndef IOX_POSH_POPO_SUBSCRIBER_HPP
+#define IOX_POSH_POPO_SUBSCRIBER_HPP
 
-struct CounterTopic
-{
-    uint32_t counter;
-};
+#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
 
-struct Position
-{
-    Position(double x, double y, double z)
-        : x(x)
-        , y(y)
-        , z(z){};
-    double x = 0.0;
-    double y = 0.0;
-    double z = 0.0;
-};
-
-#endif // IOX_EXAMPLES_ICEDELIVERY_TOPIC_DATA_HPP
+#endif // IOX_POSH_POPO_SUBSCRIBER_HPP

@@ -51,7 +51,7 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::t
     {
         auto chunkTupleOut = *retVal;
         auto chunkManagement =
-            iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         auto chunk = mepoo::SharedChunk(chunkManagement);
         return cxx::make_optional<mepoo::SharedChunk>(chunk);
     }
@@ -110,7 +110,7 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
         // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
         auto chunkTupleOut = maybeChunkTuple.value();
         auto chunkManagement =
-            iox::relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
+            relative_ptr<mepoo::ChunkManagement>(chunkTupleOut.m_chunkOffset, chunkTupleOut.m_segmentId);
         auto chunk = mepoo::SharedChunk(chunkManagement);
     }
 }

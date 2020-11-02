@@ -38,7 +38,7 @@ class ReceiverPort : public BasePort
   public:
     using MemberType_t = ReceiverPortData;
     using mutex_t = posix::mutex;
-    using MemoryInfo = iox::mepoo::MemoryInfo;
+    using MemoryInfo = mepoo::MemoryInfo;
 
     // BEGIN REGION__ROUDI // /* access from RouDi------------------------------------
 
