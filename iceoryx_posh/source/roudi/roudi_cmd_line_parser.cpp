@@ -150,7 +150,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
         case 'f':
         {
             uint32_t finalKillTimeInSeconds{0u};
-            constexpr uint64_t MAX_FINAL_KILL_TIME = ((1ul << 32) - 1);
+            constexpr uint64_t MAX_FINAL_KILL_TIME = std::numeric_limits<uint32_t>::max();
             if (!cxx::convert::fromString(optarg, finalKillTimeInSeconds))
             {
                 LogError() << "The final kill time must be in the range of [0, " << MAX_FINAL_KILL_TIME << "]";
