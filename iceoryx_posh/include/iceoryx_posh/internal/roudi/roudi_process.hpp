@@ -247,7 +247,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Checks if the given process has terminated.
     /// @param [in] process The process to be checked.
     /// @return True, if the process has terminated.
-    bool isProcessGone(const RouDiProcess& process) noexcept;
+    bool isProcessTerminated(const RouDiProcess& process) noexcept;
 
     RouDiMemoryInterface& m_roudiMemoryInterface;
     PortManager& m_portManager;

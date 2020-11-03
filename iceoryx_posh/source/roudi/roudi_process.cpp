@@ -164,7 +164,7 @@ void ProcessManager::killAllProcesses(const units::Duration finalKillTime) noexc
             i = 0;
             for (auto& process : m_processList)
             {
-                if (processStillRunning[i] && isProcessGone(process))
+                if (processStillRunning[i] && isProcessTerminated(process))
                 {
                     processStillRunning[i] = false;
                     processStateChanged = true;
@@ -279,7 +279,7 @@ bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process,
     return true;
 }
 
-bool ProcessManager::isProcessGone(const RouDiProcess& process) noexcept
+bool ProcessManager::isProcessTerminated(const RouDiProcess& process) noexcept
 {
     return !requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShudownLog::NONE);
 }
