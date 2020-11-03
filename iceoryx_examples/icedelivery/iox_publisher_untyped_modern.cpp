@@ -44,7 +44,8 @@ int main()
     {
         ++ct;
 
-        // loaned sample can be held until ready to publish
+        // API Usage #1
+        //  * Loaned sample can be held until ready to publish
         auto maybeSample = untypedPublisher.loan(128);
         if(!maybeSample.has_error())
         {
@@ -53,13 +54,15 @@ int main()
             sample.publish();
         }
 
-        // or loan sample an work with it immediately in a lambda
+        // API Usage #2
+        // * Loan sample and provide logic for it immediately with via a lambda
         untypedPublisher.loan(sizeof(Position)).and_then([&](iox::popo::Sample<void>& sample) {
             new (sample.get()) Position(ct, ct, ct);
             sample.publish();
         });
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
+
     }
 
     return 0;
