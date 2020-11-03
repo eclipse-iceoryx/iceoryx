@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
-#define IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
+#ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_HPP
+#define IOX_POSH_POPO_BASE_SUBSCRIBER_HPP
 
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
+#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -28,7 +28,7 @@ namespace popo
 {
 using uid_t = UniquePortId;
 
-template <typename T, typename port_t = popo::SubscriberPortUser>
+template <typename T, typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber : public Condition
 {
   public:
@@ -96,8 +96,28 @@ class BaseSubscriber : public Condition
     BaseSubscriber() = default; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service);
 
+  private:
+    ///
+    /// @brief The SubscriberSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
+    /// underlying memory chunk via a subscriber's subscriber port.
+    /// Each subscriber should create its own instance of this deleter struct to work with its specific port.
+    ///
+    /// @note As this deleter is coupled to the Subscriber implementation, it should only be used within the subscriber
+    /// context.
+    ///
+    struct SubscriberSampleDeleter
+    {
+      public:
+        SubscriberSampleDeleter(port_t& port);
+        void operator()(T* const ptr) const;
+
+      private:
+        std::reference_wrapper<port_t> m_port;
+    };
+
   protected:
     port_t m_port{nullptr};
+    SubscriberSampleDeleter m_sampleDeleter{m_port};
 };
 
 } // namespace popo
@@ -105,4 +125,4 @@ class BaseSubscriber : public Condition
 
 #include "iceoryx_posh/internal/popo/modern_api/base_subscriber.inl"
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_HPP
+#endif // IOX_POSH_POPO_BASE_SUBSCRIBER_HPP

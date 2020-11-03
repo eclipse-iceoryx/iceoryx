@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_TYPED_PUBLISHER_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_TYPED_PUBLISHER_INL
+#ifndef IOX_POSH_POPO_TYPED_PUBLISHER_INL
+#define IOX_POSH_POPO_TYPED_PUBLISHER_INL
 
 #include <cstdint>
 
@@ -104,4 +104,4 @@ inline bool TypedPublisher<T, base_publisher_t>::hasSubscribers() const noexcept
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_TYPED_PUBLISHER_INL
+#endif // IOX_POSH_POPO_TYPED_PUBLISHER_INL

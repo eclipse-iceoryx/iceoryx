@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -154,7 +154,7 @@ TEST_F(BaseSubscriberTest, HasNewSamplesCallForwardedToUnderlyingSubscriberPort)
     // ===== Cleanup ===== //
 }
 
-TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksInSamples)
+TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksWrappedInSample)
 {
     // ===== Setup ===== //
     auto chunk =
@@ -169,6 +169,23 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksInSamples)
     EXPECT_EQ(true, result.get_value().has_value());
     EXPECT_EQ(reinterpret_cast<DummyData*>(chunk->payload()),
               result.get_value().value().get()); // Checks they point to the same memory location.
+    // ===== Cleanup ===== //
+}
+
+TEST_F(BaseSubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
+{
+    // ===== Setup ===== //
+    auto chunk =
+        reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+    EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
+        .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(
+            const_cast<const iox::mepoo::ChunkHeader*>(chunk)))));
+    EXPECT_CALL(sut.getMockedPort(), releaseChunk).Times(AtLeast(1));
+    // ===== Test ===== //
+    {
+        auto result = sut.receive();
+    }
+    // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
 

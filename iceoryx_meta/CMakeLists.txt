@@ -17,6 +17,7 @@ file (STRINGS "../VERSION" iceoryx_VERSION)
 project(iceoryx_meta VERSION ${iceoryx_VERSION})
 
 option(TOML_CONFIG "activates or deactivates TOML support - without TOML RouDi will not be build" ON)
+option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 option(BUILD_STRICT "Build is performed with '-Werror'" OFF)
 option(test "Build tests" ON)
 option(coverage "Build iceoryx with gcov" OFF)
@@ -63,7 +64,7 @@ if(dds_gateway)
 endif(dds_gateway)
 
 # ===== Language binding for C
-if(binding_c) 
+if(binding_c)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_binding_c ${CMAKE_BINARY_DIR}/iceoryx_binding_c)
 endif(binding_c)
 

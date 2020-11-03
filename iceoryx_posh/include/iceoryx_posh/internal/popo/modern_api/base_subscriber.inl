@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL
+#ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_INL
+#define IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -21,6 +21,8 @@ namespace iox
 {
 namespace popo
 {
+// ============================== BaseSubscriber ============================== //
+
 template <typename T, typename port_t>
 BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
     : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service))
@@ -79,10 +81,7 @@ inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubs
         if (optionalHeader.has_value())
         {
             auto header = optionalHeader.value();
-            auto samplePtr = cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()), [this](T* const allocation) {
-                auto header = mepoo::convertPayloadPointerToChunkHeader(allocation);
-                this->m_port.releaseChunk(header);
-            });
+            auto samplePtr = cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()), m_sampleDeleter);
             return cxx::success<cxx::optional<Sample<const T>>>(
                 cxx::make_optional<Sample<const T>>(std::move(samplePtr)));
         }
@@ -118,7 +117,22 @@ inline bool BaseSubscriber<T, port_t>::hasTriggered() const noexcept
     return m_port.hasNewChunks();
 }
 
+// ============================== Sample Deleter ============================== //
+
+template <typename T, typename port_t>
+inline BaseSubscriber<T, port_t>::SubscriberSampleDeleter::SubscriberSampleDeleter(port_t& port)
+    : m_port(std::ref(port))
+{
+}
+
+template <typename T, typename port_t>
+inline void BaseSubscriber<T, port_t>::SubscriberSampleDeleter::operator()(T* const ptr) const
+{
+    auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
+    m_port.get().releaseChunk(header);
+}
+
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_SUBSCRIBER_INL
+#endif // IOX_POSH_POPO_BASE_SUBSCRIBER_INL

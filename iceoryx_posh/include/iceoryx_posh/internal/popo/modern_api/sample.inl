@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_INL
+#ifndef IOX_POSH_POPO_SAMPLE_INL
+#define IOX_POSH_POPO_SAMPLE_INL
 
 namespace iox
 {
@@ -150,4 +150,4 @@ const mepoo::ChunkHeader* Sample<const T>::getHeader() noexcept
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_SAMPLE_INL
+#endif // IOX_POSH_POPO_SAMPLE_INL

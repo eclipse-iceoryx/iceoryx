@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_INL
+#ifndef IOX_POSH_POPO_UNTYPED_SUBSCRIBER_INL
+#define IOX_POSH_POPO_UNTYPED_SUBSCRIBER_INL
 
 namespace iox
 {
 namespace popo
 {
-
 template <typename base_subscriber_t>
 UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service)
     : base_subscriber_t(service)
@@ -63,7 +62,8 @@ inline bool UntypedSubscriberImpl<base_subscriber_t>::hasNewSamples() const noex
 }
 
 template <typename base_subscriber_t>
-inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError> UntypedSubscriberImpl<base_subscriber_t>::receive() noexcept
+inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError>
+UntypedSubscriberImpl<base_subscriber_t>::receive() noexcept
 {
     return base_subscriber_t::receive();
 }
@@ -77,4 +77,4 @@ inline void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedSamples() noe
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_UNTYPED_SUBSCRIBER_INL
+#endif // IOX_POSH_POPO_UNTYPED_SUBSCRIBER_INL

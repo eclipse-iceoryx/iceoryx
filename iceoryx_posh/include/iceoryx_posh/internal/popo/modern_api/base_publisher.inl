@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
+#ifndef IOX_POSH_POPO_BASE_PUBLISHER_INL
+#define IOX_POSH_POPO_BASE_PUBLISHER_INL
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -94,16 +94,25 @@ inline bool BasePublisher<T, port_t>::hasSubscribers() const noexcept
 template <typename T, typename port_t>
 inline Sample<T> BasePublisher<T, port_t>::convertChunkHeaderToSample(const mepoo::ChunkHeader* const header) noexcept
 {
-    return Sample<T>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()),
-                                        [this](T* const p) {
-                                            auto header =
-                                                mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(p));
-                                            this->m_port.freeChunk(header);
-                                        }),
-                     *this);
+    return Sample<T>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->payload()), m_sampleDeleter), *this);
+}
+
+// ============================== Sample Deleter ============================== //
+
+template <typename T, typename port_t>
+inline BasePublisher<T, port_t>::PublisherSampleDeleter::PublisherSampleDeleter(port_t& port)
+    : m_port(std::ref(port))
+{
+}
+
+template <typename T, typename port_t>
+inline void BasePublisher<T, port_t>::PublisherSampleDeleter::operator()(T* const ptr) const
+{
+    auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
+    m_port.get().freeChunk(header);
 }
 
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_INL
+#endif // IOX_POSH_POPO_BASE_PUBLISHER_INL

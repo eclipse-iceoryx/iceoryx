@@ -38,8 +38,6 @@ class PublisherPortUser;
 class PublisherPortRouDi;
 
 class SubscriberPortUser;
-class SubscriberPortSingleProducer;
-class SubscriberPortMultiProducer;
 } // namespace popo
 namespace posix
 {
@@ -54,14 +52,7 @@ using PublisherPortUserType = iox::popo::PublisherPortUser;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
-/// @brief 1 to m communication enabled
-///     for n to m communication use
-///         iox::popo::SubscriberPortMultiProducer
-///         iox::cxx::VariantQueueTypes::SoFi_MultiProducerSingleConsumer;
-using SubscriberPortProducerType = iox::popo::SubscriberPortSingleProducer;
-constexpr cxx::VariantQueueTypes SUBSCRIBER_PORT_QUEUE_TYPE =
-    iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer;
-
+using SubscriberPortType = iox::build::CommunicationPolicy;
 
 constexpr char MQ_ROUDI_NAME[] = "/roudi";
 

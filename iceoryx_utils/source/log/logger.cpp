@@ -116,11 +116,16 @@ void Logger::Print(const LogEntry entry) const
     std::clog << buffer.str();
 }
 
+bool Logger::IsEnabled(const LogLevel logLevel) const noexcept
+{
+    return (logLevel <= m_logLevel.load(std::memory_order_relaxed));
+}
+
 void Logger::Log(const LogEntry& entry) const
 {
     /// @todo do we want a ringbuffer where we store the last e.g. 100 logs
     /// event if they are below the current log level and print them if case of kFatal?
-    if (entry.level <= m_logLevel.load(std::memory_order_relaxed))
+    if (IsEnabled(entry.level))
     {
         Print(entry);
     }

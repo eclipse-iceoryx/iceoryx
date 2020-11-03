@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_TYPED_SUBSCRIBER_INL
-#define IOX_EXPERIMENTAL_POSH_POPO_TYPED_SUBSCRIBER_INL
+#ifndef IOX_POSH_POPO_TYPED_SUBSCRIBER_INL
+#define IOX_POSH_POPO_TYPED_SUBSCRIBER_INL
 
 namespace iox
 {
@@ -77,4 +77,4 @@ inline void TypedSubscriber<T, base_subscriber_t>::releaseQueuedSamples() noexce
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_TYPED_SUBSCRIBER_INL
+#endif // IOX_POSH_POPO_TYPED_SUBSCRIBER_INL

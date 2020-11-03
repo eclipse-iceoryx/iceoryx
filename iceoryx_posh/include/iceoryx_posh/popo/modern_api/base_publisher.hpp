@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
-#define IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
+#ifndef IOX_POSH_POPO_BASE_PUBLISHER_HPP
+#define IOX_POSH_POPO_BASE_PUBLISHER_HPP
 
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 
@@ -40,11 +40,10 @@ class PublisherInterface
     PublisherInterface() = default;
 };
 
-
 ///
 /// @brief The BasePublisher class contains the common implementation for the different publisher specializations.
 ///
-template <typename T, typename port_t = PublisherPortUser>
+template <typename T, typename port_t = iox::PublisherPortUserType>
 class BasePublisher : public PublisherInterface<T>
 {
   protected:
@@ -109,6 +108,24 @@ class BasePublisher : public PublisherInterface<T>
 
   private:
     ///
+    /// @brief The PublisherSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
+    /// underlying memory chunk via a publishers publisher port.
+    /// Each publisher should create its own instance of this deleter struct to work with its specific port.
+    ///
+    /// @note As this deleter is coupled to the Publisher implementation, it should only be used within the publisher
+    /// context.
+    ///
+    struct PublisherSampleDeleter
+    {
+      public:
+        PublisherSampleDeleter(port_t& port);
+        void operator()(T* const ptr) const;
+
+      private:
+        std::reference_wrapper<port_t> m_port;
+    };
+
+    ///
     /// @brief convertChunkHeaderToSample Helper function that wraps the payload of a ChunkHeader in an Sample.
     /// @param header The chunk header describing the allocated memory chunk to use in the sample.
     /// @return A sample that uses the ChunkHeader's payload as its memory allocation.
@@ -118,6 +135,8 @@ class BasePublisher : public PublisherInterface<T>
   protected:
     port_t m_port{nullptr};
     bool m_useDynamicPayloadSize = true;
+
+    PublisherSampleDeleter m_sampleDeleter{m_port};
 };
 
 } // namespace popo
@@ -125,4 +144,4 @@ class BasePublisher : public PublisherInterface<T>
 
 #include "iceoryx_posh/internal/popo/modern_api/base_publisher.inl"
 
-#endif // IOX_EXPERIMENTAL_POSH_POPO_BASE_PUBLISHER_HPP
+#endif // IOX_POSH_POPO_BASE_PUBLISHER_HPP

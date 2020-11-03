@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_posh/popo/modern_api/sample.hpp"
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 
@@ -45,10 +45,10 @@ class MockSubscriberPortUser
     MOCK_METHOD0(isConditionVariableSet, bool());
 };
 
-template<typename T>
+template <typename T>
 class MockBaseSubscriber
 {
-public:
+  public:
     MockBaseSubscriber(const iox::capro::ServiceDescription&){};
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
@@ -56,10 +56,10 @@ public:
     MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
     MOCK_METHOD0(unsubscribe, void());
     MOCK_CONST_METHOD0(hasNewSamples, bool());
-    MOCK_METHOD0_T(receive, iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError>());
+    MOCK_METHOD0_T(receive,
+                   iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError>());
     MOCK_METHOD0(releaseQueuedSamples, void());
     MOCK_METHOD1(setConditionVariable, bool(iox::popo::ConditionVariableData*));
     MOCK_METHOD0(unsetConditionVariable, bool(void));
     MOCK_METHOD0(hasTriggered, bool(void));
 };
-

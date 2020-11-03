@@ -37,6 +37,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/type_traits.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
@@ -84,7 +85,7 @@ class PortManager
                              const RunnableName_t& runnable,
                              const PortConfigInfo& portConfigInfo) noexcept;
 
-    cxx::expected<SubscriberPortProducerType::MemberType_t*, PortPoolError>
+    cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     acquireSubscriberPortData(const capro::ServiceDescription& service,
                               const uint64_t& historyRequest,
                               const ProcessName_t& processName,
@@ -111,7 +112,7 @@ class PortManager
 
     void destroyPublisherPort(PublisherPortRouDiType::MemberType_t* const publisherPortData) noexcept;
 
-    void destroySubscriberPort(SubscriberPortProducerType::MemberType_t* const subscriberPortData) noexcept;
+    void destroySubscriberPort(SubscriberPortType::MemberType_t* const subscriberPortData) noexcept;
 
     const std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;
     runtime::MqMessage findService(const capro::ServiceDescription& service) noexcept;
@@ -140,7 +141,7 @@ class PortManager
     void sendToAllMatchingReceiverPorts(const capro::CaproMessage& message, SenderPortType& senderSource);
 
     bool sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
-                                         SubscriberPortProducerType& subscriberSource) noexcept;
+                                         SubscriberPortType& subscriberSource) noexcept;
 
     void sendToAllMatchingSubscriberPorts(const capro::CaproMessage& message,
                                           PublisherPortRouDiType& publisherSource) noexcept;
@@ -150,14 +151,23 @@ class PortManager
     void addEntryToServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
     void removeEntryFromServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept;
 
+    template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
+    cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const
+        noexcept;
+
+    template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
+    cxx::optional<ProcessName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service
+                                                                [[gnu::unused]]) const noexcept;
+
   private:
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
     PortPool* m_portPool{nullptr};
     ServiceRegistry m_serviceRegistry;
     PortIntrospectionType m_portIntrospection;
 };
-
 } // namespace roudi
 } // namespace iox
+
+#include "iceoryx_posh/internal/roudi/port_manager.inl"
 
 #endif // IOX_POSH_ROUDI_PORT_MANAGER_HPP
