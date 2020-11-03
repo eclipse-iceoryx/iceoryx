@@ -29,9 +29,9 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-void getVehiclePosition(Position* allocation, uint64_t multiplier)
+void getVehiclePosition(Position* allocation, uint64_t val)
 {
-    new (allocation) Position(1111 * multiplier, 1111 * multiplier, 1111 * multiplier);
+    new (allocation) Position(val, val, val);
 }
 
 int main(int argc, char* argv[])
@@ -49,36 +49,44 @@ int main(int argc, char* argv[])
     {
         ++ct;
 
-        // Retrieve a typed sample from shared memory.
-        // Sample can be held until ready to publish.
+        // API Usage #1
+        //  * Retrieve a typed sample from shared memory.
+        //  * Sample can be held until ready to publish.
+        //
         auto result = typedPublisher.loan();
         if (!result.has_error())
         {
             auto& sample = result.get_value();
-            sample->x = ct * 0.1;
-            sample->y = ct * 0.1;
-            sample->z = ct * 0.1;
+            sample->x = ct;
+            sample->y = ct;
+            sample->z = ct;
             sample.publish();
         }
 
-        // Retrieve a sample and provide logic to immediately populate and publish via a lambda.
+        // API Usage #2
+        //  * Retrieve a sample and provide the logic to immediately populate and publish it via a lambda.
+        //
         typedPublisher.loan().and_then([&](iox::popo::Sample<Position>& sample) {
             auto allocation = sample.get();
             // Do some stuff leading to eventually generating the data in the samples loaned memory...
-            new (allocation) Position(ct * 10, ct * 10, ct * 10);
+            new (allocation) Position(ct, ct, ct);
             // ...then publish the sample
             sample.publish();
         });
 
-        // Simple copy-and-publish. Useful for smaller data types.
-        auto position = Position(ct * 1000, ct * 1000, ct * 1000);
+        // API Usage #3
+        //  * Basic copy-and-publish. Useful for smaller data types.
+        //
+        auto position = Position(ct, ct, ct);
         typedPublisher.publishCopyOf(position);
 
-        // Samples can be generated within any callable and written directly to the loaned memory
-        // allocation. The first argument of the callable must be T*, this will point to the memory
-        // allocation. The callable must write its output to this allocation.
+        // API Usage #4
+        //  * Provide a callable that will be used to populate the loaned sample.
+        //  * The first argument of the callable must be T* and is the location that the callable should
+        //      write its result to.
+        //
         typedPublisher.publishResultOf(getVehiclePosition, ct);
-        typedPublisher.publishResultOf([](Position* allocation) { new (allocation) Position(0, 0, 0); });
+        typedPublisher.publishResultOf([&ct](Position* allocation) { new (allocation) Position(ct, ct, ct); });
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

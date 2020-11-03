@@ -71,11 +71,3 @@ TEST_F(SampleTest, PublishesSampleViaPublisherInterface)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
-
-TEST_F(SampleTest, Template)
-{
-    // ===== Setup ===== //
-    // ===== Test ===== //
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
