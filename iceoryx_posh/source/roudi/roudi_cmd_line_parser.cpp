@@ -37,7 +37,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
                                       {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* shortOptions = "hvm:l:u:c:f:";
+    constexpr const char* shortOptions = "hvm:l:u:c:k:";
     int32_t index;
     int32_t opt{-1};
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index), opt != -1))
@@ -66,7 +66,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             std::cout << "                                  patch: same patch version + minor check" << std::endl;
             std::cout << "                                  commitId: same commit ID + patch check" << std::endl;
             std::cout << "                                  buildDate: same build date + commId check" << std::endl;
-            std::cout << "-f, --final-kill-time <UINT>      Sets the time when RouDi kills the apps hard, if they"
+            std::cout << "-k, --kill-delay <UINT>           Sets the delay when RouDi kills the apps hard, if they"
                       << std::endl;
             std::cout << "                                  have't responded after the first soft kill, in seconds."
                       << std::endl;
@@ -149,16 +149,17 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
         }
         case 'f':
         {
-            uint32_t finalKillTimeInSeconds{0u};
-            constexpr uint64_t MAX_FINAL_KILL_TIME = std::numeric_limits<uint32_t>::max();
-            if (!cxx::convert::fromString(optarg, finalKillTimeInSeconds))
+            uint32_t processKillDelayInSeconds{0u};
+            constexpr uint64_t MAX_PROCESS_KILL_DELAY = std::numeric_limits<uint32_t>::max();
+            if (!cxx::convert::fromString(optarg, processKillDelayInSeconds))
             {
-                LogError() << "The final kill time must be in the range of [0, " << MAX_FINAL_KILL_TIME << "]";
+                LogError() << "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]";
                 m_run = false;
             }
             else
             {
-                m_finalKillTime = units::Duration::seconds(static_cast<unsigned long long int>(finalKillTimeInSeconds));
+                m_processKillDelay =
+                    units::Duration::seconds(static_cast<unsigned long long int>(processKillDelayInSeconds));
             }
             break;
         }
@@ -232,9 +233,9 @@ cxx::optional<uint16_t> CmdLineParser::getUniqueRouDiId() const noexcept
     return m_uniqueRouDiId;
 }
 
-units::Duration CmdLineParser::getFinalKillTime() const noexcept
+units::Duration CmdLineParser::getProcessKillDelay() const noexcept
 {
-    return m_finalKillTime;
+    return m_processKillDelay;
 }
 
 } // namespace config

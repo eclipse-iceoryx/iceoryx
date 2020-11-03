@@ -66,7 +66,7 @@ class CmdLineParser
     MonitoringMode getMonitoringMode() const noexcept;
     version::CompatibilityCheckLevel getCompatibilityCheckLevel() const noexcept;
     cxx::optional<uint16_t> getUniqueRouDiId() const noexcept;
-    units::Duration getFinalKillTime() const noexcept;
+    units::Duration getProcessKillDelay() const noexcept;
 
   protected:
     bool m_run{true};
@@ -74,7 +74,7 @@ class CmdLineParser
     MonitoringMode m_monitoringMode{MonitoringMode::ON};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     cxx::optional<uint16_t> m_uniqueRouDiId;
-    units::Duration m_finalKillTime{PROCESS_FINAL_KILL_TIME};
+    units::Duration m_processKillDelay{PROCESS_DEFAULT_KILL_DELAY};
 };
 
 } // namespace config

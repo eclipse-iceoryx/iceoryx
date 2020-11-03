@@ -43,7 +43,7 @@ void IceOryxRouDiApp::run() noexcept
                                                      true,
                                                      RouDi::MQThreadStart::IMMEDIATE,
                                                      m_compatibilityCheckLevel,
-                                                     m_finalKillTime);
+                                                     m_processKillDelay);
         waitForSignal();
     }
 }

@@ -134,7 +134,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     m_memoryManagerOfCurrentProcess = m_segmentInfo.m_memoryManager;
 }
 
-void ProcessManager::killAllProcesses(const units::Duration finalKillTime) noexcept
+void ProcessManager::killAllProcesses(const units::Duration processKillDelay) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
@@ -153,7 +153,7 @@ void ProcessManager::killAllProcesses(const units::Duration finalKillTime) noexc
 
     // wait for process to complete
     bool allProcessFinished = false;
-    posix::Timer finalKillTimer(finalKillTime);
+    posix::Timer finalKillTimer(processKillDelay);
 
     yield();
     auto waitForKillProcessed = [&]() {
@@ -200,7 +200,7 @@ void ProcessManager::killAllProcesses(const units::Duration finalKillTime) noexc
             if (processStillRunning[i])
             {
                 LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' is still running after SIGTERM was sent " << finalKillTime.seconds<int>()
+                          << "' is still running after SIGTERM was sent " << processKillDelay.seconds<int>()
                           << " seconds ago. RouDi is sending SIGKILL now.";
                 processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL, ShudownLog::FULL);
             }
@@ -217,7 +217,7 @@ void ProcessManager::killAllProcesses(const units::Duration finalKillTime) noexc
                 if (processStillRunning[i])
                 {
                     LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                              << "' is still running after SIGKILL was sent " << finalKillTime.seconds<int>()
+                              << "' is still running after SIGKILL was sent " << processKillDelay.seconds<int>()
                               << " seconds ago. RouDi is ignoring this process.";
                 }
                 ++i;

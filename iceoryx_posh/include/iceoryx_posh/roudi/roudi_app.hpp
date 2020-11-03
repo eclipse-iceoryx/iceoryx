@@ -90,7 +90,7 @@ class RouDiApp
                                                  })
                                                  .get_value());
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
-    units::Duration m_finalKillTime{PROCESS_FINAL_KILL_TIME};
+    units::Duration m_processKillDelay{PROCESS_DEFAULT_KILL_DELAY};
 
   private:
     bool checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept;

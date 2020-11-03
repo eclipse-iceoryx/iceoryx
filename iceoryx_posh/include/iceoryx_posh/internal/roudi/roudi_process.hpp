@@ -134,11 +134,11 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Kills all registered processes. First try with a SIGTERM and if they have not terminated after
     /// finallKillTime they are killed with SIGKILL. If RouDi doesn't have sufficient rights to kill the process, the
     /// process is considered killed.
-    /// @param [in] finalKillTime RouDi On termination RouDi kills the applications and watches for the specified time,
-    /// if they have shut down. If they have not terminated after the specified time, RouDi sends a SIGKILL to the
+    /// @param [in] processKillDelay RouDi On termination RouDi kills the applications and watches for the specified
+    /// time, if they have shut down. If they have not terminated after the specified time, RouDi sends a SIGKILL to the
     /// processes. If the processes have finished after a normal kill with SIGTERM before the specified time, RouDi goes
     /// on directly.
-    void killAllProcesses(const units::Duration finalKillTime) noexcept;
+    void killAllProcesses(const units::Duration processKillDelay) noexcept;
 
     void updateLivelinessOfProcess(const ProcessName_t& name) noexcept;
 
