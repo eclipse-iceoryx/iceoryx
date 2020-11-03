@@ -1,7 +1,7 @@
 
 # iceoryx utils
 
-The iceoryx utils are our basic building blocks - the foundation of 
+The iceoryx utils are our basic building blocks - the foundation of
 iceoryx. There are a wide variety of building blocks grouped together in categories
 or namespace, depending on where or how they are used.
 
@@ -29,14 +29,14 @@ or namespace, depending on where or how they are used.
 
 STL constructs which are not in the C++11 standard included are contained here as
 well as constructs which are helping us in our daily life. We differ in
-here from our coding guidelines and follow the C++ STL coding guidelines 
+here from our coding guidelines and follow the C++ STL coding guidelines
 to help the user to have a painless transition from the official STL
 types to ours. The API should also be identical to the corresponding
 STL types but we have to make exceptions here. For instance, we do not
-throw exceptions, try to avoid undefined behavior and we do not use 
-dynamic memory. In these cases we adjusted the API to our use case. 
+throw exceptions, try to avoid undefined behavior and we do not use
+dynamic memory. In these cases we adjusted the API to our use case.
 
-Most of the headers are providing some minimalistic example on how the 
+Most of the headers are providing some minimalistic example on how the
 class should be used.
 
 | class                   | internal | maybe obsolete | description |
@@ -79,18 +79,17 @@ queue which is thread-safe when combined with `smart_lock`. To learn more about 
 |`SoFi`               | i |   | Single Producer, Single Consumer Lock Free Safely overflowing FiFo (SoFi). |
 |`TACO`               | i |   | Thread Aware exChange Ownership (TACO). Solution if you would like to use `std::atomic` with data types larger than 64 bit. Wait free data synchronization mechanism between threads.|
 
-an atrribute overview 
+an attribute overview
 
 | Data Structure | Shared Memory usable  | Thread-Safe | Lock-Free | Concurrent Producers : Consumers | Bounded Capacity | Data Type Restriction |Use Case |
 |----------------|-----------------------|-------------|-----------|----------------------------------|------------------|---|-----------------------|
-|`FiFo`          | Yes | No  | No  | n/a | Yes | Copyable            | FIFO Data transfer | 
-|`smart_lock`    | No  | Yes | No  | n/a | n/a | Copyable            | Wrapper to make classes thread-safe (by using a lock)| 
-|`TriggerQueue`  | No  | Yes | No  | n:m | Yes | Copyable            | Process events in a blocking way| 
-|`LockedLoFFLi`  | Yes | Yes | No  | n:m | Yes | int32               | manage memory access, LIFO order | 
-|`LoFFLi`        | Yes | Yes | Yes | n:m | Yes | int32               | manage memory access, LIFO order | 
-|`SoFi`          | Yes | Yes | Yes | 1:1 | Yes | Trivially Copyable  | lock-free transfer of small data (e.g. pointers) between two contexts in FIFO order with overflow handling (ringbuffer) | 
-|`TACO`          | Yes | Yes | Yes | n:m | Yes | Copyable or Movable | fast lock-free exchange data between threads| 
-|`LockfreeQueue` | Yes | Yes | Yes | n:m | Yes | Copyable or Movable | lock-free transfer of arbitrary data between multiple contexts in FIFO order with overflow handling (ringbuffer) | 
+|`FiFo`          | Yes | Yes | Yes | 1:1 | Yes | Copyable            | FIFO Data transfer |
+|`smart_lock`    | Yes | Yes | No  | n/a | n/a | None                | Wrapper to make classes thread-safe (by using a lock)|
+|`TriggerQueue`  | No  | Yes | No  | n:m | Yes | Copyable            | Process events in a blocking way|
+|`LoFFLi`        | Yes | Yes | Yes | n:m | Yes | int32               | manage memory access, LIFO order |
+|`SoFi`          | Yes | Yes | Yes | 1:1 | Yes | Trivially Copyable  | lock-free transfer of small data (e.g. pointers) between two contexts in FIFO order with overflow handling (ringbuffer) |
+|`TACO`          | Yes | Yes | Yes | n:m | Yes | Copyable or Movable | fast lock-free exchange data between threads|
+|`LockfreeQueue` | Yes | Yes | Yes | n:m | Yes | Copyable or Movable | lock-free transfer of arbitrary data between multiple contexts in FIFO order with overflow handling (ringbuffer) |
 
 
 
