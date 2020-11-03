@@ -106,14 +106,24 @@ TEST_F(TypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
+TEST_F(TypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, hasMissedSamples).Times(1);
+    // ===== Test ===== //
+    sut.hasMissedSamples();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
 TEST_F(TypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, receive)
+    EXPECT_CALL(sut, take)
         .Times(1)
         .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const DummyData>>>())));
     // ===== Test ===== //
-    sut.receive();
+    sut.take();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

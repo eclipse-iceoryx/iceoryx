@@ -34,6 +34,7 @@ class UntypedPublisherImpl : public base_publisher_t
     ~UntypedPublisherImpl() = default;
 
     uid_t getUid() const noexcept;
+    capro::ServiceDescription getServiceDescription() const noexcept;
 
     cxx::expected<Sample<void>, AllocationError> loan(const uint32_t size) noexcept;
     void publish(Sample<void>&& sample) noexcept;

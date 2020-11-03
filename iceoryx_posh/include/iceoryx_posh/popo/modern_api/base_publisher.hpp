@@ -60,6 +60,12 @@ class BasePublisher : public PublisherInterface<T>
     uid_t getUid() const noexcept;
 
     ///
+    /// @brief getServiceDescription Get the service description of the subscriber.
+    /// @return The service description.
+    ///
+    capro::ServiceDescription getServiceDescription() const noexcept;
+
+    ///
     /// @brief loan Get a sample from loaned shared memory.
     /// @param size The expected size of the sample.
     /// @return An instance of the sample that resides in shared memory or an error if unable ot allocate memory to
@@ -109,7 +115,7 @@ class BasePublisher : public PublisherInterface<T>
   private:
     ///
     /// @brief The PublisherSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
-    /// underlying memory chunk via a publishers publisher port.
+    /// underlying memory chunk via a publisher's publisher port.
     /// Each publisher should create its own instance of this deleter struct to work with its specific port.
     ///
     /// @note As this deleter is coupled to the Publisher implementation, it should only be used within the publisher

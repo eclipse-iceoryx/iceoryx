@@ -75,11 +75,18 @@ class BaseSubscriber : public Condition
     bool hasNewSamples() const noexcept;
 
     ///
-    /// @brief receive Receive the next sample if available.
-    /// @return
-    /// @details Sample is automatically released when it goes out of scope.
+    /// @brief hasMissedSamples Check if samples have been missed since the last subscriber call.
+    /// @return True if there are lost samples.
+    /// @details Samples may be missed due to overflowing receive queue.
     ///
-    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> receive() noexcept;
+    bool hasMissedSamples() noexcept;
+
+    ///
+    /// @brief take Take the a sample from the top of the receive queue.
+    /// @return An expected containing populated optional if there is a sample available, otherwise empty.
+    /// @details The memory loan for the sample is automatically released when it goes out of scope.
+    ///
+    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> take() noexcept;
 
     ///
     /// @brief releaseQueuedSamples Releases any unread queued samples.

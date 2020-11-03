@@ -35,6 +35,10 @@ class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
     {
         return iox::popo::BasePublisher<T, port_t>::getUid();
     }
+    iox::capro::ServiceDescription getServiceDescription() const noexcept
+    {
+        return iox::popo::BasePublisher<T, port_t>::getServiceDescription();
+    }
     iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError> loan(uint64_t size) noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::loan(size);
@@ -230,6 +234,16 @@ TEST_F(BasePublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
     EXPECT_CALL(sut.getMockedPort(), hasSubscribers).Times(1);
     // ===== Test ===== //
     sut.hasSubscribers();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(BasePublisherTest, GetServiceDescriptionCallForwardedToUnderlyingPublisherPort)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut.getMockedPort(), getServiceDescription).Times(1);
+    // ===== Test ===== //
+    sut.getServiceDescription();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

@@ -39,7 +39,6 @@ template <typename T, typename port_t>
 inline capro::ServiceDescription /// todo #25 make this a reference.
 BaseSubscriber<T, port_t>::getServiceDescription() const noexcept
 {
-    /// @todo #25 return reference to ServiceDescription from base port.
     return m_port.getCaProServiceDescription();
 }
 
@@ -68,7 +67,13 @@ inline bool BaseSubscriber<T, port_t>::hasNewSamples() const noexcept
 }
 
 template <typename T, typename port_t>
-inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubscriber<T, port_t>::receive() noexcept
+inline bool BaseSubscriber<T, port_t>::hasMissedSamples() noexcept
+{
+    return m_port.hasLostChunksSinceLastCall();
+}
+
+template <typename T, typename port_t>
+inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubscriber<T, port_t>::take() noexcept
 {
     auto result = m_port.tryGetChunk();
     if (result.has_error())

@@ -43,7 +43,7 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
             auto untypedSubscriber = dynamic_cast<iox::popo::UntypedSubscriber*>(condition);
             if(untypedSubscriber)
             {
-                untypedSubscriber->receive().and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample){
+                untypedSubscriber->take().and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample){
                     if(maybeSample.has_value())
                     {
                         auto position = reinterpret_cast<const Position*>(maybeSample->get());

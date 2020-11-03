@@ -44,7 +44,7 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
             auto subscriber = dynamic_cast<iox::popo::TypedSubscriber<Position>*>(condition);
             if(subscriber)
             {
-                subscriber->receive().and_then([](iox::cxx::optional<iox::popo::Sample<const Position>>& maybePosition){
+                subscriber->take().and_then([](iox::cxx::optional<iox::popo::Sample<const Position>>& maybePosition){
                     if(maybePosition.has_value())
                     {
                         auto& position = maybePosition.value();

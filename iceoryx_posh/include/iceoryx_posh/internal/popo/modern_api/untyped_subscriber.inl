@@ -62,10 +62,16 @@ inline bool UntypedSubscriberImpl<base_subscriber_t>::hasNewSamples() const noex
 }
 
 template <typename base_subscriber_t>
-inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError>
-UntypedSubscriberImpl<base_subscriber_t>::receive() noexcept
+inline bool UntypedSubscriberImpl<base_subscriber_t>::hasMissedSamples() noexcept
 {
-    return base_subscriber_t::receive();
+    return base_subscriber_t::hasMissedSamples();
+}
+
+template <typename base_subscriber_t>
+inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError>
+UntypedSubscriberImpl<base_subscriber_t>::take() noexcept
+{
+    return base_subscriber_t::take();
 }
 
 template <typename base_subscriber_t>

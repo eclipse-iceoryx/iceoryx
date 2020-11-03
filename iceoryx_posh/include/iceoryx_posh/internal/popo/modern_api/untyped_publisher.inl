@@ -32,6 +32,13 @@ inline uid_t UntypedPublisherImpl<base_publisher_t>::getUid() const noexcept
 }
 
 template <typename base_publisher_t>
+inline capro::ServiceDescription
+UntypedPublisherImpl<base_publisher_t>::getServiceDescription() const noexcept
+{
+    return base_publisher_t::getServiceDescription();
+}
+
+template <typename base_publisher_t>
 inline cxx::expected<Sample<void>, AllocationError>
 UntypedPublisherImpl<base_publisher_t>::loan(const uint32_t size) noexcept
 {

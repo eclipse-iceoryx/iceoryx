@@ -37,6 +37,7 @@ class TypedPublisher : public base_publisher_t
     ~TypedPublisher() = default;
 
     uid_t getUid() const noexcept;
+    capro::ServiceDescription getServiceDescription() const noexcept;
 
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
     void publish(Sample<T>&& sample) noexcept;
