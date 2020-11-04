@@ -114,9 +114,8 @@ TEST_F(UntypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
 TEST_F(UntypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, take)
-        .Times(1)
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const void>>>())));
+    EXPECT_CALL(sut, take).Times(1).WillOnce(
+        Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const void>>>())));
     // ===== Test ===== //
     sut.take();
     // ===== Verify ===== //

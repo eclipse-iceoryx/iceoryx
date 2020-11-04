@@ -21,30 +21,26 @@ namespace iox
 {
 namespace popo
 {
-
 template <typename T, typename port_t>
 BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
- : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewarePublisher(service))
+    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewarePublisher(service))
 {
 }
 
 template <typename T, typename port_t>
-inline uid_t
-BasePublisher<T, port_t>::getUid() const noexcept
+inline uid_t BasePublisher<T, port_t>::getUid() const noexcept
 {
     return m_port.getUniqueID();
 }
 
 template <typename T, typename port_t>
-inline capro::ServiceDescription /// todo #25 make this a reference.
-BasePublisher<T, port_t>::getServiceDescription() const noexcept
+inline capro::ServiceDescription BasePublisher<T, port_t>::getServiceDescription() const noexcept
 {
     return m_port.getCaProServiceDescription();
 }
 
 template <typename T, typename port_t>
-inline cxx::expected<Sample<T>, AllocationError>
-BasePublisher<T, port_t>::loan(const uint32_t size) noexcept
+inline cxx::expected<Sample<T>, AllocationError> BasePublisher<T, port_t>::loan(const uint32_t size) noexcept
 {
     auto result = m_port.tryAllocateChunk(size);
     if (result.has_error())

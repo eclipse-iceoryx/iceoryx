@@ -82,6 +82,12 @@ void PortManager::stopPortIntrospection() noexcept
 
 void PortManager::doDiscovery() noexcept
 {
+    /// @todo remove deprecated port #25
+    handleSenderPorts();
+
+    /// @todo remove deprecated port #25
+    handleReceiverPorts();
+
     handlePublisherPorts();
 
     handleSubscriberPorts();

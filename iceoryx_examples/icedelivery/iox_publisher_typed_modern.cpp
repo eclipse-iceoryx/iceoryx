@@ -34,7 +34,7 @@ void getVehiclePosition(Position* allocation, uint64_t val)
     new (allocation) Position(val, val, val);
 }
 
-int main(int argc, char* argv[])
+int main()
 {
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);

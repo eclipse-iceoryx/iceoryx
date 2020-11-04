@@ -27,7 +27,7 @@ template <typename T, typename base_publisher_t = BasePublisher<T>>
 class TypedPublisher : public base_publisher_t
 {
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
-    static_assert(std::is_default_constructible<T>::value, "Published type must be default constructable.");
+    static_assert(std::is_default_constructible<T>::value, "The TypedPublisher requires default-constructable types.");
 
   public:
     TypedPublisher(const capro::ServiceDescription& service);

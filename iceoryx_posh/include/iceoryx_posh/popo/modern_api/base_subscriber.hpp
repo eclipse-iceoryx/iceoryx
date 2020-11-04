@@ -55,7 +55,8 @@ class BaseSubscriber : public Condition
     /// @param queueCapacity
     /// @return
     ///
-    void subscribe(const uint64_t queueCapacity = SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
+    void
+    subscribe(const uint64_t queueCapacity = SubscriberPortUser::MemberType_t::ChunkQueueData_t::MAX_CAPACITY) noexcept;
 
     ///
     /// @brief getSubscriptionState Get current subscription state.

@@ -32,8 +32,7 @@ inline uid_t UntypedPublisherImpl<base_publisher_t>::getUid() const noexcept
 }
 
 template <typename base_publisher_t>
-inline capro::ServiceDescription
-UntypedPublisherImpl<base_publisher_t>::getServiceDescription() const noexcept
+inline capro::ServiceDescription UntypedPublisherImpl<base_publisher_t>::getServiceDescription() const noexcept
 {
     return base_publisher_t::getServiceDescription();
 }

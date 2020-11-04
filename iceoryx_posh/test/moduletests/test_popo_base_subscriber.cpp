@@ -281,4 +281,3 @@ TEST_F(BaseSubscriberTest, HasMissedSamplesCallForwardedToUnderlyingSubscriberPo
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
-
