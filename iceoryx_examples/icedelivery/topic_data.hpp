@@ -23,6 +23,7 @@ struct CounterTopic
 
 struct Position
 {
+    Position() = default;
     Position(double x, double y, double z)
         : x(x)
         , y(y)

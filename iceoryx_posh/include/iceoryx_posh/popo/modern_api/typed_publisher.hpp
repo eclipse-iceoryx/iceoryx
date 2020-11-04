@@ -27,6 +27,7 @@ template <typename T, typename base_publisher_t = BasePublisher<T>>
 class TypedPublisher : public base_publisher_t
 {
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedPublisher for void types.");
+    static_assert(std::is_default_constructible<T>::value, "Published type must be default constructable.");
 
   public:
     TypedPublisher(const capro::ServiceDescription& service);
@@ -47,7 +48,6 @@ class TypedPublisher : public base_publisher_t
     /// @return Error if unable to allocate memory to loan.
     ///
     cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept;
-
     ///
     /// @brief publishResultOf Loan a sample from memory, execute the provided callable to write to it, then publish it.
     /// @param c Callable with the signature void(T*, ArgTypes...) that write's it's result to T*.
@@ -56,7 +56,6 @@ class TypedPublisher : public base_publisher_t
     ///
     template <typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
-
     cxx::optional<Sample<T>> loanPreviousSample() noexcept;
 
     void offer() noexcept;

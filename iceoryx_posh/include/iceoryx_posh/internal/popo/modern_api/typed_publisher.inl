@@ -44,7 +44,12 @@ inline uid_t TypedPublisher<T, base_publisher_t>::getUid() const noexcept
 template <typename T, typename base_publisher_t>
 inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publisher_t>::loan() noexcept
 {
-    return base_publisher_t::loan(sizeof(T));
+    // Call default constructor here to ensure type is immediately ready to use by the caller.
+    // There is a risk that the type will be re-constructed by the user (e.g. by using a placement new in
+    // publioshResultOf(), however the overhead is considered to be insignificant and worth the additional safety.
+    return std::move(base_publisher_t::loan(sizeof(T)).and_then([](Sample<T>& sample){
+                         new (sample.get()) T();
+                     }));
 }
 
 template <typename T, typename base_publisher_t>
