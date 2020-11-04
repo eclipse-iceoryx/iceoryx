@@ -74,8 +74,7 @@ queue which is thread-safe when combined with `smart_lock`. To learn more about 
 |`FiFo`               | i |   | Single Producer, Single Consumer Lock Free FiFo |
 |`smart_lock`         | i |   | Creates arbitrary thread safe constructs which then can be used like smart pointers. If some STL type should be thread safe use the smart_lock to create the thread safe version in one line. Based on some ideas presented in [Wrapping C++ Member Function Calls](https://stroustrup.com/wrapper.pdf) |
 |`TriggerQueue`       | i | X | Queue with a `push` - `pop` interface where `pop` is blocking as long as the queue is empty. Can be used as a building block for active objects. |
-|`LockedLoFFLi`       | i | X | LIFO based index manager (Lock Free Free List). One building block of our memory manager. After construction it contains the indices {0 ... n} which you can acquire and release. |
-|`LoFFLi`             | i |   | Lock-free version of LockedLoFFLi. |
+|`LoFFLi`             | i |   | Lock-free LIFO based index manager (Lock Free Free List). One building block of our memory manager. After construction it contains the indices {0 ... n} which you can acquire and release. |
 |`SoFi`               | i |   | Single Producer, Single Consumer Lock Free Safely overflowing FiFo (SoFi). |
 |`TACO`               | i |   | Thread Aware exChange Ownership (TACO). Solution if you would like to use `std::atomic` with data types larger than 64 bit. Wait free data synchronization mechanism between threads.|
 
