@@ -36,6 +36,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Check copyrights
+        run: |
+          source /opt/ros/foxy/setup.bash
+          cd $GITHUB_WORKSPACE
+          ament_copyright --exclude LICENSE CONTRIBUTING.md
+
       - name: Build & Test
         run: |
           cd $GITHUB_WORKSPACE
