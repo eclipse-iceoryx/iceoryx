@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,7 +72,10 @@ int main()
             new (allocation) Position(ct, ct, ct);
             // ...then publish the sample
             sample.publish();
+        }).or_else([](iox::popo::AllocationError){
+            // Do something with error.
         });
+
 
         // API Usage #3
         //  * Basic copy-and-publish. Useful for smaller data types.

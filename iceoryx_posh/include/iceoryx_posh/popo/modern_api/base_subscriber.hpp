@@ -76,7 +76,7 @@ class BaseSubscriber : public Condition
     bool hasNewSamples() const noexcept;
 
     ///
-    /// @brief hasMissedSamples Check if samples have been missed since the last subscriber call.
+    /// @brief hasMissedSamples Check if samples have been missed since the last take() call.
     /// @return True if there are lost samples.
     /// @details Samples may be missed due to overflowing receive queue.
     ///
@@ -100,13 +100,14 @@ class BaseSubscriber : public Condition
     virtual bool hasTriggered() const noexcept override;
 
   protected:
-    BaseSubscriber() = default; // Required for testing.
+    BaseSubscriber() noexcept // Required for testing.
+    {};
     BaseSubscriber(const capro::ServiceDescription& service);
 
   private:
     ///
     /// @brief The SubscriberSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
-    /// underlying memory chunk via a subscriber's subscriber port.
+    /// underlying memory chunk via the subscriber port.
     /// Each subscriber should create its own instance of this deleter struct to work with its specific port.
     ///
     /// @note As this deleter is coupled to the Subscriber implementation, it should only be used within the subscriber

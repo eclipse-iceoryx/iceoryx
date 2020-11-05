@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,10 +46,10 @@ int main()
 
         // API Usage #1
         //  * Loaned sample can be held until ready to publish
-        auto maybeSample = untypedPublisher.loan(128);
-        if(!maybeSample.has_error())
+        auto result = untypedPublisher.loan(128);
+        if(!result.has_error())
         {
-            auto& sample = maybeSample.get_value();
+            auto& sample = result.get_value();
             new (sample.get()) Position(ct, ct, ct);
             sample.publish();
         }

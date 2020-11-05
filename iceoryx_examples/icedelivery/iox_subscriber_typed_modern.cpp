@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -76,9 +76,6 @@ int main()
     // delegate handling of received data to another thread
     std::thread subscriberHandlerThread(subscriberHandler, std::ref(waitSet));
     subscriberHandlerThread.join();
-
-    // clean up
-    waitSet.detachAllConditions();
 
     return (EXIT_SUCCESS);
 }
