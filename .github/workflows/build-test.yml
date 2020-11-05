@@ -19,13 +19,13 @@ jobs:
      # Steps represent a sequence of tasks that will be executed as part of the job
      steps:
        - name: Install iceoryx dependencies
-         # Softwares installed in ubuntu-18.04 instance 
+         # Softwares installed in ubuntu-18.04 instance
          # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
          run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
 
        - name : Checkout
          uses: actions/checkout@v2
- 
+
        - name: Build sources
          run: |
             export NUM_CORES=`nproc`
@@ -48,13 +48,13 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install iceoryx dependencies
-        # Softwares installed in ubuntu-18.04 instance 
+        # Softwares installed in ubuntu-18.04 instance
         # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
         run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
 
       - name : Checkout
         uses: actions/checkout@v2
- 
+
       - name: Build sources
         run: |
           export NUM_CORES=`nproc`
@@ -76,7 +76,7 @@ jobs:
   macos-build-script:
     runs-on: macos-10.15
     # Softwares installed in macos-10.15 instance
-    # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md     
+    # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -89,10 +89,10 @@ jobs:
           cd $GITHUB_WORKSPACE
           mkdir -p build
           cd build
-          git clone https://github.com/mirror/ncurses.git 
+          git clone https://github.com/mirror/ncurses.git
           cd ncurses
           git checkout v6.2
-          ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/ --with-termlib 
+          ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/ --with-termlib
           make
           make install
 
