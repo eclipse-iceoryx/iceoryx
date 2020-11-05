@@ -54,7 +54,7 @@ class SoFiStress : public Test
     bool setCpuAffinity(unsigned int cpu, std::thread::native_handle_type nativeHandle)
     {
 #ifdef __linux__
-        // Create a cpu_set_t object representing a set of CPUs. Clear it and markonly cpu as set.
+        // Create a cpu_set_t object representing a set of CPUs. Clear it and mark only cpu as set.
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
         CPU_SET(cpu, &cpuset);
@@ -202,7 +202,7 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
     std::cout << "pop counter    : " << pushCounter << std::endl;
 }
 
-/// @brief This tests a fast pusher and slop popper.
+/// @brief This tests a fast pusher and slow popper.
 ///
 /// In this case, we have a full SoFi where continuously a push is performed, which results in continuously overflowing.
 /// From time to time there is a pop.
@@ -241,14 +241,14 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
             // if we do not get an expected value, perform the test for logging and stop the threads
             if (pushResult == true && valOut >= 0)
             {
-                EXPECT_THAT(valOut, Lt(0)) << "There was no overfow, but we still got data!";
+                EXPECT_THAT(valOut, Lt(0)) << "There was no overflow, but we still got data!";
                 stopPushThread = true;
                 stopPopThread = true;
             }
 
             if (pushResult == false && valOut < 0)
             {
-                EXPECT_THAT(valOut, Gt(INVALID_SOFI_DATA)) << "There was an overfow, but we did not get data!";
+                EXPECT_THAT(valOut, Gt(INVALID_SOFI_DATA)) << "There was an overflow, but we did not get data!";
                 stopPushThread = true;
                 stopPopThread = true;
             }
@@ -447,7 +447,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
             }
             else if (valOut >= 0)
             {
-                EXPECT_THAT(valOut, Lt(0)) << "There was no overfow, but we still got data!";
+                EXPECT_THAT(valOut, Lt(0)) << "There was no overflow, but we still got data!";
                 stopPushThread = true;
                 stopPopThread = true;
             }
@@ -499,7 +499,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
             ++localPopCounter;
             popCounter = localPopCounter;
 
-            // we are popping to fast, slow down until the SoFi is half full
+            // we are popping too fast, slow down until the SoFi is half full
             if (slowDownPop)
             {
                 std::this_thread::yield(); // allow other threads to run -> slows this thread down
