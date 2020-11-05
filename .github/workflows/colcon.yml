@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
           os: [ubuntu-20.04]
-             
+
     steps:
       - name: Setup ROS
         uses: ros-tooling/setup-ros@0.0.23
@@ -32,10 +32,10 @@ jobs:
           sudo apt-get update && sudo apt-get install -y cmake libacl1-dev libncurses5-dev pkg-config
           mkdir -p src/iceoryx
           cd $GITHUB_WORKSPACE/src/iceoryx
-        
+
       - name: Checkout
         uses: actions/checkout@v2
- 
+
       - name: Build & Test
         run: |
           cd $GITHUB_WORKSPACE
