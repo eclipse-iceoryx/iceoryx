@@ -430,7 +430,7 @@ bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
     return false;
 }
 
-bool ProcessManager::removeProcess(std::lock_guard<std::mutex>& lockGuard [[gnu::unused]],
+bool ProcessManager::removeProcess(const std::lock_guard<std::mutex>& lockGuard [[gnu::unused]],
                                    ProcessList_t::iterator& processIter) noexcept
 {
     // don't take the lock, else it needs to be recursive

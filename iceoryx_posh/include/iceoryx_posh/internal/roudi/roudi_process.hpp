@@ -223,7 +223,7 @@ class ProcessManager : public ProcessManagerInterface
     ///                       ensures it can't be called without a lock guard in place.
     /// @param [in] processIter The process which should be removed.
     /// @return Returns true if the process was found and removed from the internal list.
-    bool removeProcess(std::lock_guard<std::mutex>& lockGuard, ProcessList_t::iterator& processIter) noexcept;
+    bool removeProcess(const std::lock_guard<std::mutex>& lockGuard, ProcessList_t::iterator& processIter) noexcept;
 
     enum class ShutdownPolicy
     {
