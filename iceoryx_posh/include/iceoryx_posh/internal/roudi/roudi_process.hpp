@@ -229,7 +229,7 @@ class ProcessManager : public ProcessManagerInterface
         SIG_KILL
     };
 
-    enum class ShudownLog
+    enum class ShutdownLog
     {
         NONE,
         FULL
@@ -238,16 +238,11 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Kills the given process in m_processList with the given signal.
     /// @param [in] process The process to kill.
     /// @param [in] shutdownPolicy The kill signal passed to the system kill function.
-    /// @param [in] shudownLog Defines the logging detail.
+    /// @param [in] shutdownLog Defines the logging detail.
     /// @return Returns true if the sent kill signal was successful.
     bool requestShutdownOfProcess(const RouDiProcess& process,
                                   ShutdownPolicy shutdownPolicy,
-                                  ShudownLog shudownLog) noexcept;
-
-    /// @brief Checks if the given process has terminated.
-    /// @param [in] process The process to be checked.
-    /// @return True, if the process has terminated.
-    bool isProcessTerminated(const RouDiProcess& process) noexcept;
+                                  ShutdownLog shutdownLog) noexcept;
 
     RouDiMemoryInterface& m_roudiMemoryInterface;
     PortManager& m_portManager;

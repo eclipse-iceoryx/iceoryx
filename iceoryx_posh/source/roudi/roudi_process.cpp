@@ -138,58 +138,58 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
 {
     std::lock_guard<std::mutex> g(m_mutex);
     cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
-    int i = 0;
-
-    auto yield = []() { std::this_thread::sleep_for(std::chrono::milliseconds(250)); };
-
-    // send SIGTERM to all running applications
-    for (auto& process : m_processList)
-    {
-        // if it was killed we need to check if it really has terminated, if we can't kill it, we consider it
-        // terminated
-        processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShudownLog::FULL);
-        ++i;
-    }
-
-    // wait for process to complete
-    bool allProcessFinished = false;
+    uint64_t i{0};
+    bool haveAllProcessesFinished{false};
     posix::Timer finalKillTimer(processKillDelay);
 
-    yield();
-    auto waitForKillProcessed = [&]() {
-        bool processStateChanged = true;
+    auto awaitProcessTermination = [&]() {
+        bool shouldCheckProcessState = true;
         finalKillTimer.resetCreationTime();
-        while (!allProcessFinished && !finalKillTimer.hasExpiredComparedToCreationTime())
+
+        while (!haveAllProcessesFinished && !finalKillTimer.hasExpiredComparedToCreationTime())
         {
             i = 0;
+
+            // give processes some time to terminate before checking their state
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.milliSeconds<int64_t>()));
+
             for (auto& process : m_processList)
             {
-                if (processStillRunning[i] && isProcessTerminated(process))
+                if (processStillRunning[i]
+                    && !requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShutdownLog::NONE))
                 {
                     processStillRunning[i] = false;
-                    processStateChanged = true;
+                    shouldCheckProcessState = true;
                 }
                 ++i;
             }
 
             // check if we are done
-            if (processStateChanged)
+            if (shouldCheckProcessState)
             {
-                processStateChanged = false;
-                allProcessFinished = true;
+                shouldCheckProcessState = false;
+                haveAllProcessesFinished = true;
                 for (bool isRunning : processStillRunning)
                 {
-                    allProcessFinished &= !isRunning;
+                    haveAllProcessesFinished &= !isRunning;
                 }
-            }
-
-            if (!allProcessFinished)
-            {
-                yield();
             }
         }
     };
-    waitForKillProcessed();
+
+    i = 0;
+    // send SIG_TERM to all running applications and wait for process to complete
+    for (auto& process : m_processList)
+    {
+        // if it was killed we need to check if it really has terminated, if we can't kill it, we consider it
+        // terminated
+        processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShutdownLog::FULL);
+        ++i;
+    }
+
+    // we sent SIG_TERM, now wait till they have terminated
+    awaitProcessTermination();
 
     // any processes still alive? Time to send SIG_KILL to kill.
     if (finalKillTimer.hasExpiredComparedToCreationTime())
@@ -202,13 +202,15 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
                 LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
                           << "' is still running after SIGTERM was sent " << processKillDelay.seconds<int>()
                           << " seconds ago. RouDi is sending SIGKILL now.";
-                processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL, ShudownLog::FULL);
+                processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL, ShutdownLog::FULL);
             }
             ++i;
         }
 
         // we sent SIG_KILL to kill, now wait till they have terminated
-        waitForKillProcessed();
+        awaitProcessTermination();
+
+        // any processes still alive? Time to ignore them.
         if (finalKillTimer.hasExpiredComparedToCreationTime())
         {
             i = 0;
@@ -234,7 +236,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
 
 bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process,
                                               ShutdownPolicy shutdownPolicy,
-                                              ShudownLog shudownLog) noexcept
+                                              ShutdownLog shutdownLog) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
     auto killC = iox::cxx::makeSmartC(kill,
@@ -245,7 +247,7 @@ bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process,
                                       (shutdownPolicy == ShutdownPolicy::SIG_KILL ? SIGKILL : SIGTERM));
     if (killC.hasErrors())
     {
-        if (shudownLog == ShudownLog::FULL)
+        if (shutdownLog == ShutdownLog::FULL)
         {
             switch (killC.getErrNum())
             {
@@ -277,11 +279,6 @@ bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process,
         return false;
     }
     return true;
-}
-
-bool ProcessManager::isProcessTerminated(const RouDiProcess& process) noexcept
-{
-    return !requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShudownLog::NONE);
 }
 
 bool ProcessManager::registerProcess(const ProcessName_t& name,
