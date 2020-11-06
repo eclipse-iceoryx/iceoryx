@@ -136,7 +136,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
 
 void ProcessManager::killAllProcesses(const units::Duration processKillDelay) noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex);
+    std::lock_guard<std::mutex> lockGuard(m_mutex);
     cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
     uint64_t i{0};
     bool haveAllProcessesFinished{false};
@@ -228,7 +228,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     }
 
     auto it = m_processList.begin();
-    while (removeProcess(it))
+    while (removeProcess(lockGuard, it))
     {
         it = m_processList.begin();
     }
@@ -410,7 +410,7 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
 
 bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex);
+    std::lock_guard<std::mutex> lockGuard(m_mutex);
     // we need to search for the process (currently linear search)
 
     auto it = m_processList.begin();
@@ -419,7 +419,7 @@ bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
         auto otherName = it->getName();
         if (name == otherName)
         {
-            if (removeProcess(it))
+            if (removeProcess(lockGuard, it))
             {
                 LogDebug() << "New Registration - removed existing application " << name;
             }
@@ -430,7 +430,8 @@ bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
     return false;
 }
 
-bool ProcessManager::removeProcess(ProcessList_t::iterator& processIter) noexcept
+bool ProcessManager::removeProcess(std::lock_guard<std::mutex>& lockGuard [[gnu::unused]],
+                                   ProcessList_t::iterator& processIter) noexcept
 {
     // don't take the lock, else it needs to be recursive
     if (processIter != m_processList.end())

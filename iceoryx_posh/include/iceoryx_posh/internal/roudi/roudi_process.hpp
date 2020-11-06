@@ -219,9 +219,11 @@ class ProcessManager : public ProcessManagerInterface
     bool removeProcess(const ProcessName_t& name) noexcept;
 
     /// @brief Removes the given process from the managed client process list without taking the list's lock!
+    /// @param [in] lockGuard This method has to be called within a lock guard context. By providing this lock guard it
+    ///                       ensures it can't be called without a lock guard in place.
     /// @param [in] processIter The process which should be removed.
     /// @return Returns true if the process was found and removed from the internal list.
-    bool removeProcess(ProcessList_t::iterator& processIter) noexcept;
+    bool removeProcess(std::lock_guard<std::mutex>& lockGuard, ProcessList_t::iterator& processIter) noexcept;
 
     enum class ShutdownPolicy
     {
