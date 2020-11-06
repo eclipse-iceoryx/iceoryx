@@ -39,11 +39,11 @@ void IceOryxRouDiApp::run() noexcept
         auto roudiScopeGuard = cxx::makeScopedStatic(roudi,
                                                      m_rouDiComponents.value().m_rouDiMemoryManager,
                                                      m_rouDiComponents.value().m_portManager,
-                                                     m_monitoringMode,
-                                                     true,
-                                                     RouDi::MQThreadStart::IMMEDIATE,
-                                                     m_compatibilityCheckLevel,
-                                                     m_processKillDelay);
+                                                     RouDi::RoudiStartupParameters{m_monitoringMode,
+                                                                                   true,
+                                                                                   RouDi::MQThreadStart::IMMEDIATE,
+                                                                                   m_compatibilityCheckLevel,
+                                                                                   m_processKillDelay});
         waitForSignal();
     }
 }

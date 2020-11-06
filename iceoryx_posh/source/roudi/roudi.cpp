@@ -28,22 +28,18 @@ namespace roudi
 {
 RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
-             const config::MonitoringMode monitoringMode,
-             const bool killProcessesInDestructor,
-             const MQThreadStart mqThreadStart,
-             const version::CompatibilityCheckLevel compatibilityCheckLevel,
-             const units::Duration processKillDelay)
-    : m_killProcessesInDestructor(killProcessesInDestructor)
+             RoudiStartupParameters roudiStartupParameters)
+    : m_killProcessesInDestructor(roudiStartupParameters.m_killProcessesInDestructor)
     , m_runThreads(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
-    , m_prcMgr(*m_roudiMemoryInterface, portManager, compatibilityCheckLevel)
+    , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
     , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
                                   .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
                              *m_roudiMemoryInterface->segmentManager().value(),
                              m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MQ_ROUDI_NAME))
-    , m_monitoringMode(monitoringMode)
-    , m_processKillDelay(processKillDelay)
+    , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
+    , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
     m_processIntrospection.registerSenderPort(
         m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, MQ_ROUDI_NAME));
@@ -58,7 +54,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     m_processManagementThread = std::thread(&RouDi::processThread, this);
     pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
 
-    if (mqThreadStart == MQThreadStart::IMMEDIATE)
+    if (roudiStartupParameters.m_mqThreadStart == MQThreadStart::IMMEDIATE)
     {
         startMQThread();
     }
