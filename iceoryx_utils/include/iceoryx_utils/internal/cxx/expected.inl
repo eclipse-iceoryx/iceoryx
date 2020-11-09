@@ -348,6 +348,14 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(ValueType&
 
 template <typename ValueType, typename ErrorType>
 template<typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+inline const expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const noexcept
+{
+    return const_cast<expected*>(this)->and_then(callable);
+}
+
+template <typename ValueType, typename ErrorType>
+template<typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept
 {
@@ -361,6 +369,14 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename O
     }
 
     return *this;
+}
+
+template <typename ValueType, typename ErrorType>
+template<typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+inline const expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) const noexcept
+{
+    return const_cast<expected*>(this)->if_empty(callable);
 }
 
 template <typename ValueType, typename ErrorType>
