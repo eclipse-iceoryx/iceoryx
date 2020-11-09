@@ -20,7 +20,7 @@ namespace iox
 namespace popo
 {
 template <typename base_publisher_t>
-UntypedPublisherImpl<base_publisher_t>::UntypedPublisherImpl(const capro::ServiceDescription& service)
+inline UntypedPublisherImpl<base_publisher_t>::UntypedPublisherImpl(const capro::ServiceDescription& service)
     : base_publisher_t(service)
 {
 }

@@ -21,8 +21,9 @@ namespace iox
 {
 namespace popo
 {
+
 template <typename T, typename base_publisher_t>
-TypedPublisher<T, base_publisher_t>::TypedPublisher(const capro::ServiceDescription& service)
+inline TypedPublisher<T, base_publisher_t>::TypedPublisher(const capro::ServiceDescription& service)
     : base_publisher_t(service)
 {
 }
@@ -43,9 +44,9 @@ inline uid_t TypedPublisher<T, base_publisher_t>::getUid() const noexcept
 template <typename T, typename base_publisher_t>
 inline cxx::expected<Sample<T>, AllocationError> TypedPublisher<T, base_publisher_t>::loan() noexcept
 {
-    // Call default constructor here to ensure type is immediately ready to use by the caller.
+    // Call default constructor here to ensure the type is immediately ready to use by the caller.
     // There is a risk that the type will be re-constructed by the user (e.g. by using a placement new in
-    // publioshResultOf(), however the overhead is considered to be insignificant and worth the additional safety.
+    // publishResultOf(), however the overhead is considered to be insignificant and worth the additional safety.
     return std::move(base_publisher_t::loan(sizeof(T)).and_then([](Sample<T>& sample) { new (sample.get()) T(); }));
 }
 

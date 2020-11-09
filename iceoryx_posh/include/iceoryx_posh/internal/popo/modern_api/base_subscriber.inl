@@ -24,7 +24,7 @@ namespace popo
 // ============================== BaseSubscriber ============================== //
 
 template <typename T, typename port_t>
-BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
+inline BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
     : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service))
 {
 }

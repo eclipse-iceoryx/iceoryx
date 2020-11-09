@@ -22,7 +22,7 @@ namespace iox
 namespace popo
 {
 template <typename T, typename port_t>
-BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
+inline BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
     : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewarePublisher(service))
 {
 }

@@ -29,7 +29,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-void getVehiclePosition(Position* allocation, uint64_t val)
+void getVehiclePosition(Position* const allocation, const uint64_t& val) noexcept
 {
     new (allocation) Position(val, val, val);
 }

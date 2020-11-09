@@ -20,7 +20,7 @@ namespace iox
 namespace popo
 {
 template <typename base_subscriber_t>
-UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service)
+inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service)
     : base_subscriber_t(service)
 {
 }
