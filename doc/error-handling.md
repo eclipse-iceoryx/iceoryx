@@ -3,18 +3,17 @@ Contents
 2. [Error Handling](#Error-Handling)
 3. [Usage](#Usage)
 4. [Open Points](#Open-Points)
+5. [Future Improvements](#Future-Improvements)
 
 
 # Logging
 Logging is performed by the iceoryx internal logger. The logger API implements a subset of the Autosar log and trace interface ara::log.
-The logger is used internally for error logging but can be used by the user as well in application code.
+The logger is used internally to record errors and general system runtime information. It can also be used by the user in application code for the same purpose.
 
 ## Logger
 The logger is responsible for logging information about the state of the system to a configurable stream (includes files). 
-In the future it may be extended to include logging over a network to a remote server or similar. 
 
-The logger is thread-safe and can hence be safely used from multiple threads concurrently.
-Currently the logger is synchronous but may support asynchronous logging in the future.
+The logger is thread-safe and can hence be safely used from multiple threads concurrently. Currently the logger is synchronous.
 
 ## Log Levels
 
@@ -31,14 +30,19 @@ For ERR and FATAL see also error levels MODERATE, SEVERE (logged with LogErr) an
 
 
 # Error Handling
-Errors are considered to be system states that should not be reached regularly and usually are the result of an external failure, such as when the OS is unable to provide a certain resource such as a semaphore or an application does not respond. In contrast, regular behaviour such as a receiver receiving no data when none was sent is not an error. On the other hand, losing data that was sent would be considered an error.
+Errors are considered to be system states that should not be reached regularly and usually are the result of an external failure, such as when the OS is unable to provide a certain resource (e.g. a semaphore) or an application does not respond. In contrast, regular behaviour such as a receiver receiving no data when none was sent is not an error. On the other hand, losing data that was sent would be considered an error.
 
-There are two general approaches of dealing with errors, using exceptions or return codes combined with control flow statements and a central instance of handling errors that cannot be mitigated otherwise (the error handler). In Iceoryx we use the latter approach.
+There are two general approaches to deal with errors:
+1. using exceptions 
+
+2. return codes combined with control flow statements and a central instance to handle errors that cannot be mitigated otherwise (the error handler). 
+
+In Iceoryx we use the latter approach.
 
 ## Exceptions
 The use of exceptions in Iceoryx is prohibited, including third party code that may throw them. This is due to the following reasons:
 * In many implementations exception handling requires dynamic memory (even when the exceptions themselves are not generated dynamically via e.g. new).
-* Exception handling runtime is not determistic.
+* Exception handling is not deterministic with respect to runtime.
 * Exception handling may cause a (slight) runtime overhead even when no exceptions are thrown.
 * In general it is not possible to incorporate (complete) information about all exceptions that can be thrown in the signature of functions. This makes it hard for the caller to decide whether something some exception needs to be handled.
 * Overuse of exceptions often leads to convoluted try-catch blocks everywhere which makes the code hard to maintain.
@@ -49,7 +53,7 @@ All functions are marked as *noexcept*. Note that this does not mean that except
 To this end it is necessary to eliminate the use of all potentially throwing (third party) functions throughout the codebase. Since many STL functions may throw, these cannot be used either and their functionality needs to be reimplemented without the use of exceptions. In particular anything allocating dynamic memory may throw a *std::bad_alloc* exception when memory is exhausted.
 
 ### Alternatives to exceptions
-As an alternative to exceptions we use the error handler and a variation of return codes in the form of *cxx::expected*, described below. cxx::expected can be used to communicate the error to the caller, who has to decide whether to handle the error itself or propagate it further (e.g. as another cxx::expected). Error handling itself is performed by the error handler which handles errors occuring in the subcomponents of iceoryx::posh.
+As an alternative to exceptions we use the error handler and a variation of return codes in the form of **cxx::expected**, described below. cxx::expected can be used to communicate the error to the caller, who has to decide whether to handle the error itself or propagate it further (e.g. as another cxx::expected). Error handling itself is performed by the error handler which handles errors occuring in the subcomponents of iceoryx::posh.
 
 ## Error Handler
 The error handler is called internally when an error is detected in the iceoryx middleware daemon (RouDi) or the iceoryx runtime. The error handler should only be called in exceptional situations (invalid access errors, out of resources etc.) and not in circumstances that occur regularly (it is sort of an exception replacement).
@@ -89,7 +93,7 @@ A message queue is overflowing and messages are lost. RouDi can continue but los
 
 
 ### FATAL
-RouDi cannot continue and will shut down. Leads to an error log entry (LogErr), assert and std::terminate, terminating execution in Debug and Release Mode. 
+RouDi cannot continue and will shut down. Leads to an error log entry (LogErr), assert and calls std::terminate, terminating execution in Debug and Release Mode. 
 Before calling terminate, a 3rd party error is informed (if configured).
 The handler is not required to return here (since this may not be always possible or reasonable). The reporting code should still try to proceed to a safe state if possible in order to improve testability in case of such errors.
 
@@ -136,7 +140,7 @@ Error logging is currently done by calls to cerr. In the future those might be r
 
 The error handler cannot be used in utils. 
 
-Whether it is appropriate to use std::expected even if STL compatibility is broken by doing so depends on the circumstances and needs to be decided on a case-by-case basis. If the function has no STL counterpart std::expected can be used freely to communicate potential failure to the caller.
+Whether it is appropriate to use cxx::expected even if STL compatibility is broken by doing so depends on the circumstances and needs to be decided on a case-by-case basis. If the function has no STL counterpart cxx::expected can be used freely to communicate potential failure to the caller.
 
 It should be noted that since currently Expects and Ensures are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developers intentions.
 
@@ -153,6 +157,7 @@ To select the log level, the corresponding logger has to be used, e.g. LogErr, L
 ```
 LogWarn() << "log message " << someValue << "log message continued";
 ```
+A line break is inserted implicitly at the end (after "log message continued" in the example).
 
 ## Error Handler
 The most general use case is the following
@@ -222,24 +227,24 @@ The caller is responsible for handling (or propagating) the error.
 
 ```
 auto result = func(arg);
-if(result.has_value()) {
-    auto value = result.value();
-    //proceed by using the value
-} else {
+if(result.has_error()) {
     auto error = result.error();
     //handle or propagate the error
+} else {
+    auto value = result.value();
+    //proceed by using the value
 }
 ```
 
 Alternatively a functional approach can be used.
 
 ```
-auto successFunc = [](std::expected<SomeType, Error>& result) { 
+auto successFunc = [](SomeType& result) { 
     auto value = result.value();
     //proceed by using the value
 };
 
-auto errorFunc = [](std::expected<SomeType, Error>& result) { 
+auto errorFunc = [](Error& result) { 
     auto error = result.error();
     //handle the error
 };
@@ -297,19 +302,23 @@ In principle with an sufficiently powerful Assert or Expects (resp. Ensures), th
 Currently there are a few occurences in utils where terminate is called directly in case of an error. We need to evaluate whether it is possible to replace them all with assert-like constructs such as Expects, Ensures or Assert or something else.
 
 # Future improvements
-In this section we briefly describe ways to potentially improve or extend functionality of existing error handling components or concepts. This list is by no means exhaustive and all suggestions are up for discussion and may be refined further.
+In this section we briefly describe ways to potentially improve or extend functionality of existing error handling components. This list is by no means exhaustive and all suggestions are up for discussion and may be refined further.
 
-## Errorhandler
-1. MODERATE: In the future a customizable configuartion is supposed to decide whether and how to continue, but this option is not fully integrated yet.
-2. SEVERE: In the application continue according to a customizable configuration.
-3. Codes: Note that this may not be the long term solution, as file, line and function information may be added (using \_\_FILE\_\_, \_\_LINE\_\_ and \_\_func\_\_). This would require using macros for the error handler call in a future implementation.
-4. We should consider changing the order of arguments in a future design (callback and additional arguments last). This can be done in a redesign were we provide additional information about the error location as well.
-5. Generalized callback with variadic arguments.
+## Logger
+1. The logger could be extended to include logging over a network to a remote server or similar. 
+2. Support asynchronous logging.
+
+## Error Handler
+1. Allow customization for MODERATE and SEVERE errors to continue according to a user defined configuartion.
+2. Add file, line and function information (using \_\_FILE\_\_, \_\_LINE\_\_ and \_\_func\_\_). This would require using macros for the error handler call in a future implementation.
+3. Allow generalized callbacks with variadic arguments.
+4. Change the order of arguments in a future design (callback and additional arguments last). Providing the callback and potential arguments can be made fully optional this way.
+5. If deactivation or reduced operation (e.g. not handling MODERATE errors) is desired, this partial deactivation should cause no (or at least very little) runtime overhead in the deactivated cases.
 
 ## Expects and Ensures
-Deactivation in Release mode must be possible.
-It should be possible to leave them active in Release Mode as well if desired.
+Allow deactivation in Release mode, but it should still be possible to leave them active in Release mode as well if desired. Deactivation in Debug mode can also be considered but is less critical. Deactivation should eliminate all runtime overhead (i.e. condition evaluation).
 
 ## cxx::expected
-1. It may be worth to consider renaming cxx::expected to cxx::result in the future, which is more in line with languages such as *Rust* and conveys the meaning more clearly.
-2. Improve monadic error  handling to allow for pipelining:
+1. Consider renaming cxx::expected to cxx::result, which is more in line with languages such as *Rust* and conveys the meaning more clearly.
+2. Add has_value (in addition to has_error) for consistency with *cxx::optional*.
+3. Improve the monadic error handling (beyond *and_then*, *or_else*) to allow for better pipelining of multiplie consecutive calls (especially in the success case). This requires careful consideration of supported use cases and intended behaviour but can reduce control flow code (if ... else ...) in error cases considerably.

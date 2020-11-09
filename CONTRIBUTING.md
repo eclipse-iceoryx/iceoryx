@@ -84,6 +84,8 @@ codebase follows these rules, things are work in progress.
 7) **Always use `iox::log::Logger`**, instead of `printf()`
 8) **Always use `iox::ErrorHandler()`**, instead of the direct STL calls
 
+See [error-handling.md](./doc/error-handling.md) for additional information about logging and error handling. 
+
 ### Naming conventions
 
 * File names with `lower_snake_case`: `my_thing.hpp`
