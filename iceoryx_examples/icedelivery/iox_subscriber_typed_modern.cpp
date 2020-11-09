@@ -44,13 +44,13 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
             auto subscriber = dynamic_cast<iox::popo::TypedSubscriber<Position>*>(condition);
             if(subscriber)
             {
-                subscriber->take().and_then([](iox::cxx::optional<iox::popo::Sample<const Position>>& maybePosition){
-                    if(maybePosition.has_value())
-                    {
-                        auto& position = maybePosition.value();
-                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
-                    }
-                });
+                subscriber->take()
+                        .and_then([](iox::popo::Sample<const Position>& position){
+                            std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
+                        })
+                        .if_empty([]{
+                            std::cout << "Didn't get a value, but do something anyway." << std::endl;
+                        });
             }
         }
     }
