@@ -2,7 +2,7 @@ Contents
 1. [Logging](#Logging)
 2. [Error Handling](#Error-Handling)
 3. [Usage](#Usage)
-3. [Open Points](#Open-Points)
+4. [Open Points](#Open-Points)
 
 
 # Logging
@@ -31,7 +31,24 @@ For ERR and FATAL see also error levels MODERATE, SEVERE (logged with LogErr) an
 
 
 # Error Handling
-Error handling is performed by the error handler which handles errors occuring in the subcomponents of iceoryx::posh.
+Errors are considered to be system states that should not be reached regularly and usually are the result of an external failure, such as when the OS is unable to provide a certain resource such as a semaphore or an application does not respond. In contrast, regular behaviour such as a receiver receiving no data when none was sent is not an error. On the other hand, losing data that was sent would be considered an error.
+
+There are two general approaches of dealing with errors, using exceptions or return codes combined with control flow statements and a central instance of handling errors that cannot be mitigated otherwise (the error handler). In Iceoryx we use the latter approach.
+
+## Exceptions
+The use of exceptions in Iceoryx is prohibited, including third party code that may throw them. This is due to the following reasons:
+* In many implementations exception handling requires dynamic memory (even when the exceptions themselves are not generated dynamically via e.g. new).
+* Exception handling runtime is not determistic.
+* Exception handling may cause a (slight) runtime overhead even when no exceptions are thrown.
+* In general it is not possible to incorporate (complete) information about all exceptions that can be thrown in the signature of functions. This makes it hard for the caller to decide whether something some exception needs to be handled.
+* Overuse of exceptions often leads to convoluted try-catch blocks everywhere which makes the code hard to maintain.
+
+### Use of noexcept
+All functions are marked as *noexcept*. Note that this does not mean that exceptions cannot be thrown inside such a function. Instead when an exeption is thrown inside the function (either directly or indirectly by another function) this exception is not handled and *std::terminate* will be invoked, calling the terminate handler.
+It is therefore necessary to eliminate the use of all potentially throwing (third party) functions throughout the codebase. Since many STL functions may throw, these cannot be used either and their functionality needs to be reimplemented without the use of exceptions. In particular everything that allocates dynamic memory may throw a *std::bad_alloc* exception when memory is exhausted.
+
+### Alternatives to exceptions
+As an alternative to exceptions we use the error handler and a variation of return codes in the form of *cxx::expected*, described below. cxx::expected can be used to communicate the error to the caller, who has to decide whether to handle the error itself or propagate it further (e.g. as another cxx::expected). Error handling itself is performed by the error handler which handles errors occuring in the subcomponents of iceoryx::posh.
 
 ## Error Handler
 The error handler is called internally when an error is detected in the iceoryx middleware daemon (RouDi) or the iceoryx runtime. The error handler should only be called in exceptional situations (invalid access errors, out of resources etc.) and not in circumstances that occur regularly (it is sort of an exception replacement).
@@ -57,7 +74,7 @@ The following error levels are supported.
 * FATAL 
 
 ### MODERATE
-A recoverable error. Leads to a error log entry (LogErr) and continues execution. In the future a customizable configuartion is supposed to decide whether and how to continue, but this option is not fully integrated yet.
+A recoverable error. Leads to an error log entry (LogErr) and continues execution. In the future a customizable configuartion is supposed to decide whether and how to continue, but this option is not fully integrated yet.
 
 **Example:**
 1) Roudi receives an unexpected message and discards it. The remaining communication proceeds normally.
