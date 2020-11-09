@@ -210,12 +210,12 @@ When Expects and Ensures are implemented to leave no trace in Release Mode, we d
 
 ## cxx::expected
 This example checks the arguments and if they are valid proceeds to compute a result and returns it.
-Otherwise it creates an Error object from an erroCode and returns this.
+Otherwise it creates an Error object from an errorCode and returns it.
  
 ```
 std::expected<SomeType, Error>::func(Arg arg) {
     int errorCode = checkArg(arg);
-    if(noError()) {
+    if(isNoError(errorCode)) {
         SomeType result = computeResult(arg);
         // optionally do something with result
         return result;
