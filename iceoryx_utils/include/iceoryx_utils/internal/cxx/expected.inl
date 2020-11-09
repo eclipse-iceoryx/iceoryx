@@ -347,6 +347,25 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(ValueType&
 }
 
 template <typename ValueType, typename ErrorType>
+template<typename _ValueType = ValueType, typename std::enable_if<is_optional<_ValueType>::value, int>::type = 0>
+inline expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename _ValueType::type&)>& callable) noexcept
+{
+    std::cout << "THIS IS AN OPTIONAL" << std::endl;
+
+    if (!this->has_error())
+    {
+        auto optional = get_value();
+        if(optional.has_value())
+        {
+            callable(optional.value());
+        }
+    }
+
+    return *this;
+}
+
+template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::on_success(const cxx::function_ref<void()>& callable) noexcept
 {

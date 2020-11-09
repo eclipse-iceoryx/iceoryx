@@ -24,6 +24,7 @@ namespace iox
 {
 namespace cxx
 {
+
 /// @brief helper struct to create an expected which is signalling success more easily
 /// @param T type which the success helper class should contain
 /// @code
@@ -100,6 +101,13 @@ struct error
 
 template <typename... T>
 class expected;
+
+template<typename... T>
+struct is_optional : std::false_type { };
+
+template<typename T>
+struct is_optional<iox::cxx::optional<T>> : std::true_type { };
+
 
 /// @brief expected implementation from the C++20 proposal with C++11. The interface
 ///         is inspired by the proposal but it has changes since we are not allowed to
@@ -657,6 +665,9 @@ class expected<ValueType, ErrorType>
     /// @endcode
     [[gnu::deprecated]] expected& on_success(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
     expected& and_then(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
+
+    template<typename _ValueType = ValueType, typename std::enable_if<is_optional<_ValueType>::value, int>::type = 0>
+    expected& and_then(const cxx::function_ref<void(typename _ValueType::type&)>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
