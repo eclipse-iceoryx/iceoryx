@@ -666,8 +666,8 @@ class expected<ValueType, ErrorType>
     [[gnu::deprecated]] expected& on_success(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
     expected& and_then(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
 
-    template<typename _ValueType = ValueType, typename std::enable_if<is_optional<_ValueType>::value, int>::type = 0>
-    expected& and_then(const cxx::function_ref<void(typename _ValueType::type&)>& callable) noexcept;
+    template<typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -678,7 +678,7 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "we are successful!" << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_success(const cxx::function_ref<void()>& callable) const noexcept;
+    [[gnu::deprecated]] const expected& on_success(const cxx::function_ref<void(void)>& callable) const noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -690,6 +690,9 @@ class expected<ValueType, ErrorType>
     ///     })
     /// @endcode
     [[gnu::deprecated]] expected& on_success(const cxx::function_ref<void()>& callable) noexcept;
+
+    template<typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
 
     optional<ValueType> to_optional() const noexcept;
 
