@@ -1,4 +1,4 @@
-# Contents
+Contents
 1. [Logging](#Logging)
 2. [Error Handling](#Error-Handling)
 3. [Usage](#Usage)
@@ -34,7 +34,7 @@ For ERR and FATAL see also error levels MODERATE, SEVERE (logged with LogErr) an
 Error handling is performed by the error handler which handles errors occuring in the subcomponents of iceoryx::posh.
 
 ## Error Handler
-The error handler is called internally when an error is detected in the iceoryx middleware dameon (RouDi) or the iceoryx runtime. The error handler should only be called in exceptional situations (invalid access errors, out of resources etc.) and not in circumstances that occur regularly (it is sort of an exception replacement).
+The error handler is called internally when an error is detected in the iceoryx middleware daemon (RouDi) or the iceoryx runtime. The error handler should only be called in exceptional situations (invalid access errors, out of resources etc.) and not in circumstances that occur regularly (it is sort of an exception replacement).
 
 If the exceptional situation can be resolved without calling the error handler (e.g. by delegating an appropriate return value to the caller), this should be preferred (since the error handler is a last resort mechanism).
 
@@ -64,14 +64,14 @@ A recoverable error. Leads to a error log entry (LogErr) and continues execution
 2) A port requested by an application cannot be provided due to e.g. resource exhaustion.
 
 ### SEVERE
-RouDi may continue but applications may be compromised or the functionality reduced. Leads to a error log entry (LogErr) and assert, terminating execution in Debug Mode. The handler must return to be able to continue execution in Release Mode. In the application continue according to a customizable configuration.
+RouDi may continue but applications may be compromised or the functionality reduced. Leads to an error log entry (LogErr) and assert, terminating execution in Debug Mode. The handler must return to be able to continue execution in Release Mode. In the application continue according to a customizable configuration.
 
 **Example:**
 A message queue is overflowing and messages are lost. RouDi can continue but lost data may affect applications.
 
 
 ### FATAL
-RouDi cannot continue and will shut down. Leads to a error log entry (LogErr), assert and std::terminate, terminating execution in Debug and Release Mode. 
+RouDi cannot continue and will shut down. Leads to an error log entry (LogErr), assert and std::terminate, terminating execution in Debug and Release Mode. 
 Before calling terminate, a 3rd party error is informed (if configured).
 The handler is not required to return here (since this may not be always possible or reasonable). The reporting code should still try to proceed to a safe state if possible in order to improve testability in case of such errors.
 
@@ -93,7 +93,7 @@ In addition a user callback may be provided. It cannot take arguments at the mom
 
 These assert-like constructs are used to document assumptions in the code which are checked (at least) in Debug Mode. It should be possible to leave them active in Release Mode as well if desired. If the condition is violated they print the condition, the location of occurence in the code and terminate the program execution.
 
-Since they are not necessarily active in Release Mode, they cannot be used to handle errors (currently they are, but this might change in the future). Their purpose is to detect misuse or bugs of the API early in Debug Mode or to verify a result of an algorithm before returning. In this way, assumptions of the developer are made explicit without causing overhead when not needed. Therefore errors to be caught by Expected and Ensures are considered bugs and need to be fixed or the underlying assumptions and algorithms changed. This is in contrast to errors which are expected to occur during runtime which are handled by the error handler (i.e. a system resource cannot be obtained).
+Since they are not necessarily active in Release Mode, they cannot be used to handle errors (currently they are, but this might change in the future). Their purpose is to detect misuse or bugs of the API early in Debug Mode or to verify a result of an algorithm before returning. In this way, assumptions of the developer are made explicit without causing overhead when not needed. Therefore errors to be caught by Expects and Ensures are considered bugs and need to be fixed or the underlying assumptions and algorithms changed. This is in contrast to errors which are expected to occur during runtime which are handled by the error handler (i.e. a system resource cannot be obtained).
 
 Although Expects end Ensures behave the same, the former is used to signify a precondition (e.g. arguments of a function) is checked, while the latter indicates a postcondition check (e.g. result of a function before returning)
 
@@ -122,7 +122,7 @@ Error logging is currently done by calls to cerr. In the future those might be r
 
 The error handler cannot be used in utils. 
 
-Whether it is appropriate to use std::expected even if STL compatility is broken by doing so depends on the circumstances and needs to be discussed on a case-by-case basis. If the function has no STL counterpart std::expected can be used freely to communicate potential failure to the caller.
+Whether it is appropriate to use std::expected even if STL compatibility is broken by doing so depends on the circumstances and needs to be discussed on a case-by-case basis. If the function has no STL counterpart std::expected can be used freely to communicate potential failure to the caller.
 
 It should be noted that since currently Expects and Ensures are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developers intentions.
 
@@ -231,15 +231,15 @@ auto errorFunc = [](std::expected<SomeType, Error>& result) {
     //handle the error
 };
 
-func(arg).on_success(successFunc).on_error(errorFunc);
+func(arg).and_then(successFunc).or_else(errorFunc);
 ```
 
 # Open Points
 
 ## Centralized Error Handling
 
-It may be desirable to have centralized error handling instance were runtime errors on application side are logged and (maybe) handled.
-This could also be done in RouDi (by sending information to RouDi), but RouDi already has to much responsibility. Preferably this should be done by a separate application with this sole purpose.
+It may be desirable to have centralized error handling instance where runtime errors on application side are logged and (maybe) handled.
+This could also be done in RouDi (by sending information to RouDi), but RouDi already has too much responsibility. Preferably this should be done by a separate application with this sole purpose.
 If the application cannot reach the central handler, it shall try to handle the error locally if possible (at least log it).
 
 However, it might be too slow if this would rely on error transmission and responses. If this is to be implemented, the exact mechanism has to be decided on.
@@ -281,5 +281,4 @@ Do we want an Assert in addition to Expects and Ensures? If so, shall it possibl
 In principle with an sufficiently powerful Assert or Expects (resp. Ensures), this should not be needed (they are equivalent in their functionality).
 
 ## Errors in utils
-Currently there are a few occurences in utils were terminate is called directly in case of an error. We need to evaluate whether it is possible to replace them all with assert-like constructs such as Expects, Ensures or Assert or something else.
-
+Currently there are a few occurences in utils where terminate is called directly in case of an error. We need to evaluate whether it is possible to replace them all with assert-like constructs such as Expects, Ensures or Assert or something else.
