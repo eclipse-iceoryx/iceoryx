@@ -76,8 +76,8 @@ class BaseSubscriber : public Condition
     bool hasNewSamples() const noexcept;
 
     ///
-    /// @brief hasMissedSamples Check if samples have been missed since the last take() call.
-    /// @return True if there are lost samples.
+    /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.
+    /// @return True if samples have been missed.
     /// @details Samples may be missed due to overflowing receive queue.
     ///
     bool hasMissedSamples() noexcept;
