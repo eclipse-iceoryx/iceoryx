@@ -7,7 +7,7 @@
 
 
 # Logging
-Logging is performed by the Iceoryx internal logger. The logger API implements a subset of the Autosar log and trace interface ara::log.
+Logging is performed by the Iceoryx internal logger. The logger API implements a subset of the Autosar log and trace interface *ara::log*.
 The logger is used internally to record errors and general system runtime information. It can also be used by the user in application code for the same purpose.
 
 ## Logger
@@ -27,7 +27,7 @@ The following log levels are supported, ordered by the amount of information dis
 * FATAL - an error occurred and RouDi is unable to continue
 * OFF - no logging information
 
-For ERR and FATAL see also error levels MODERATE, SEVERE (logged with LogErr) and FATAL (logged with LogFatal) in [Error Levels](#Error-Levels). The levels ERR and FATAL are only supposed to be used together with the error handler, i.e. need to be accompanied with a corresponding error handler call (currently this cannot be enforced).
+For ERR and FATAL see also error levels MODERATE, SEVERE (logged with *LogErr*) and FATAL (logged with *LogFatal*) in [Error Levels](#Error-Levels). The levels ERR and FATAL are only supposed to be used together with the error handler, i.e. need to be accompanied with a corresponding error handler call (currently this cannot be enforced).
 
 
 # Error Handling
@@ -54,7 +54,7 @@ All functions are marked as *noexcept*. Note that this does not mean that except
 To this end it is necessary to eliminate the use of all potentially throwing (third party) functions throughout the codebase. Since many STL functions may throw, these cannot be used either and their functionality needs to be reimplemented without the use of exceptions. In particular anything allocating dynamic memory may throw a *std::bad_alloc* exception when memory is exhausted.
 
 ### Alternatives to exceptions
-As an alternative to exceptions we use the error handler and a variation of return codes in the form of **cxx::expected**, described below. cxx::expected can be used to communicate the error to the caller, who has to decide whether to handle the error itself or propagate it further (e.g. as another cxx::expected). Error handling itself is performed by the error handler which handles errors occurring in the subcomponents of Iceoryx::posh.
+As an alternative to exceptions we use the error handler and a variation of return codes in the form of *cxx::expected*, described below. *cxx::expected* can be used to communicate the error to the caller, who has to decide whether to handle the error itself or propagate it further (e.g. as another *cxx::expected*). Error handling itself is performed by the error handler which handles errors occurring in the subcomponents of *iceoryx::posh*.
 
 ## Error Handler
 The error handler is called internally when an error is detected in the Iceoryx middleware daemon (RouDi) or the Iceoryx runtime. The error handler should only be called in exceptional situations (invalid access errors, out of resources etc.) and not in circumstances that occur regularly (it is sort of an exception replacement).
@@ -80,21 +80,21 @@ The following error levels are supported.
 * FATAL 
 
 ### MODERATE
-A recoverable error. Leads to an error log entry (LogErr) and continues execution.
+A recoverable error. Leads to an error log entry (*LogErr*) and continues execution.
 
 **Example:**
 1) Roudi receives an unexpected message and discards it. The remaining communication proceeds normally.
 2) A port requested by an application cannot be provided due to e.g. resource exhaustion.
 
 ### SEVERE
-RouDi may continue but applications may be compromised or the functionality reduced. Leads to an error log entry (LogErr) and assert, terminating execution in Debug Mode. The handler must return to be able to continue execution in Release Mode.
+RouDi may continue but applications may be compromised or the functionality reduced. Leads to an error log entry (*LogErr*) and assert, terminating execution in debug mode. The handler must return to be able to continue execution in release mode.
 
 **Example:**
 A message queue is overflowing and messages are lost. RouDi can continue but lost data may affect applications.
 
 
 ### FATAL
-RouDi cannot continue and will shut down. Leads to an error log entry (LogFatal), assert and calls std::terminate, terminating execution in Debug and Release Mode. 
+RouDi cannot continue and will shut down. Leads to an error log entry (*LogFatal*), assert and calls *std::terminate*, terminating execution in Debug and release mode. 
 Before calling terminate, a callback is invoked (if configured), which can execute specific error handling code (e.g. call a 3rd party error handler).
 The handler is not required to return here (since this may not be always possible or reasonable). The reporting code should still try to proceed to a safe state if possible in order to improve testability in case of such errors.
 
@@ -105,15 +105,15 @@ RouDi is unable to allocate sufficient shared memory.
 
 ## Error Codes and Additional Information
 
-Currently error codes are used to identify the location of an error. These are provided as an enum in *error_handling.hpp*. To uniquely identify an error location, these have to be different for each error. While this does not necessarily have to be the case, it is currently advised as there is no additional information (i.e. line, file) yet which allows to distinguish between different errors with the same code.
+Currently error codes are used to identify the location of an error. These are provided as an enum in error_handling.hpp. To uniquely identify an error location, these have to be different for each error. While this does not necessarily have to be the case, it is currently advised as there is no additional information (i.e. line, file) yet which allows to distinguish between different errors with the same code.
 
 In addition a user callback may be provided. Currently it cannot take arguments directly but since passing a generic callable with signature *void(void)* is possible, a lambda or functor object containing additional arguments can be provided.
 
 ## Expects and Ensures
 
-These assert-like constructs are used to document assumptions in the code which are checked (at least) in Debug Mode. Currently they are always active, i.e. also checked in Release Mode. If the condition is violated they print the condition, the location of occurrence in the code and terminate the program execution.
+These assert-like constructs are used to document assumptions in the code which are checked (at least) in debug mode. Currently they are always active, i.e. also checked in release mode. If the condition is violated they print the condition, the location of occurrence in the code and terminate the program execution.
 
-Since they are not necessarily active in Release Mode, they cannot be used to handle errors. Their purpose is to detect misuse or bugs of the API early in Debug Mode or to verify a result of an algorithm before returning. In this way, assumptions of the developer are made explicit without causing overhead when not needed. Therefore errors to be caught by Expects and Ensures are considered bugs and need to be fixed or the underlying assumptions and algorithms changed. This is in contrast to errors which are expected to occur during runtime which are handled by the error handler (i.e. a system resource cannot be obtained).
+Since they are not necessarily active in release mode, they cannot be used to handle errors. Their purpose is to detect misuse or bugs of the API early in debug mode or to verify a result of an algorithm before returning. In this way, assumptions of the developer are made explicit without causing overhead when not needed. Therefore errors to be caught by Expects and Ensures are considered bugs and need to be fixed or the underlying assumptions and algorithms changed. This is in contrast to errors which are expected to occur during runtime which are handled by the error handler (i.e. a system resource cannot be obtained).
 
 Although Expects end Ensures behave the same, the former is used to signify a precondition (e.g. arguments of a function) is checked, while the latter indicates a postcondition check (e.g. result of a function before returning)
 
@@ -121,20 +121,20 @@ Examples include expecting pointers that are not null (as input, intermediate or
 
 ## cxx::expected
 
-**cxx::expected<T, E>** is a template which either holds the result of the computation of type **T** or an object of error type **E**. The latter can be used to obtain additional information about the error, e.g. an error code.
+*cxx::expected<T, E>* is a template which either holds the result of the computation of type *T* or an object of error type *E*. The latter can be used to obtain additional information about the error, e.g. an error code.
 In a way this extends error codes and may act as kind of a replacement of exceptions. It is usually used as return type of functions which may fail for various reasons and should be used if the error is supposed to be delegated to the caller and handled in the caller context.
 It is also possible to further propagate the error to the next function in the call-stack (since this must be done explicitly, which is comparable to rethrowing an exception).
 
-It is possible to use the *nodiscard* option to force the user to handle the returned cxx::expected.
+It is possible to use the *nodiscard* option to force the user to handle the returned *cxx::expected*.
 If the error cannot be handled at a higher level by the caller, the error handler needs to be used.
 
-Examples include wrapping third party API functions that return error codes or obtaining a value from a container when this can fail for some reason (e.g. container is empty). If no additional information about the error is available or required, **cxx::optional<T>** can be used instead.
+Examples include wrapping third party API functions that return error codes or obtaining a value from a container when this can fail for some reason (e.g. container is empty). If no additional information about the error is available or required, *cxx::optional<T>* can be used instead.
 
 
 ## Error Handling in posh
 Error logging shall be done by the logger only, no calls to std::cerr or similar should be performed.
 
-All the methods presented (cxx::expected, Expects and Ensures and the error handler) can be used in posh. The appropriate way depends on the type of error scenario (cf. the respective sections for examples). The error handler should be considered the last option.
+All the methods presented (*cxx::expected*, *Expects* and *Ensures* and the error handler) can be used in posh. The appropriate way depends on the type of error scenario (cf. the respective sections for examples). The error handler should be considered the last option.
 
 ## Error Handling in utils
 Error logging is currently done by calls to std::cerr. In the future those might be redirected to the logger.
@@ -143,17 +143,17 @@ The error handler cannot be used in utils.
 
 Whether it is appropriate to use cxx::expected even if STL compatibility is broken by doing so depends on the circumstances and needs to be decided on a case-by-case basis. If the function has no STL counterpart cxx::expected can be used freely to communicate potential failure to the caller.
 
-It should be noted that since currently Expects and Ensures are active at Release Mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developer's intentions.
+It should be noted that since currently Expects and Ensures are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developer's intentions.
 
 ## Interface for 3rd Party Code
 
-Error handler as well as logger shall be able to use or redirect to 3rd party error handling or logging libraries in the future. Currently this is neither fully supported nor used. The error handler has a callback function which can in principle be used to call 3rd party code.
+The Error handler as well as logger shall be able to use or redirect to 3rd party error handling or logging libraries in the future. Currently this is neither fully supported nor used. The error handler has a callback function which can in principle be used to call 3rd party code.
 
 # Usage
 
 ## Logger
 The logger can be used similar to the streams in the C++ standard API.
-To select the log level, the corresponding logger has to be used, e.g. LogErr, LogWarn etc.
+To select the log level, the corresponding logger has to be used, e.g. *LogErr*, *LogWarn* etc.
 
 ```
 LogWarn() << "log message " << someValue << "log message continued";
@@ -176,7 +176,7 @@ If no callback or error level are specified, the error level is assumed to be FA
 errorHandler(Error::kSOME_ERROR_CODE)
 ```
 
-If no callback but an error level is desired, a nullptr has to be provided for the callback.
+If no callback but an error level is desired, a *nullptr* has to be provided for the callback.
 ```
 errorHandler(Error::kSOME_ERROR_CODE, nullptr, ErrorLevel::MODERATE);
 ```
@@ -206,8 +206,8 @@ int32_t myAlgorithm(int32_t* ptr) {
     return result;
 }
 ```
-Note that in the case of nullptr checks it is also an option to use references in arguments (or **not_null** if it is supposed to be stored since references are not copyable). It should be considered that not_null incurs a runtime cost, which may be undesirable.
-When Expects and Ensures are implemented to leave no trace in Release Mode, we do not incur a runtime cost using them. For this reason, it is advised to use them to document and verify assumptions where appropriate.
+Note that in the case of *nullptr* checks it is also an option to use references in arguments (or *not_null* if it is supposed to be stored since references are not copyable). It should be considered that *not_null* incurs a runtime cost, which may be undesirable.
+When Expects and Ensures are implemented to leave no trace in release mode, we do not incur a runtime cost using them. For this reason, it is advised to use them to document and verify assumptions where appropriate.
 
 ## cxx::expected
 This example checks the arguments and if they are valid proceeds to compute a result and returns it.
@@ -286,14 +286,14 @@ One reason for this is that currently it is not possible to provide an additiona
 It would be desirable to allow the possibility to provide additional messages (or even general functions/arguments) to the error handler, which is currently missing.
 This can be combined with the addition of error location to the error handler.
 
-An optional stack-trace (at least in Debug Mode) may also prove very useful. 
-What is needed to have a limited stack-trace even in Release Mode?
+An optional stack-trace (at least in debug mode) may also prove very useful. 
+What is needed to have a limited stack-trace even in release mode?
 
-## Debug vs. Release Mode
-We need to further clarify behavior in Release and Debug Mode of the error handler and Expects and Ensures (and maybe the logger as well). Can we have a release build with additional information? (e.g. symbols for a stack-trace).
+## Debug vs. release mode
+We need to further clarify behavior in Release and debug mode of the error handler and Expects and Ensures (and maybe the logger as well). Can we have a release build with additional information? (e.g. symbols for a stack-trace).
 
 ## Assert
-Do we want an Assert in addition to Expects and Ensures? If so, shall it possibly be active in Release Mode or only Debug Mode?
+Do we want an Assert in addition to Expects and Ensures? If so, shall it possibly be active in release mode or only debug mode?
 
 In principle with a sufficiently powerful Assert or Expects (resp. Ensures), this should not be needed (they are equivalent in their functionality).
 
@@ -315,9 +315,9 @@ In this section we briefly describe ways to potentially improve or extend functi
 5. If deactivation or reduced operation (e.g. not handling MODERATE errors) is desired, this partial deactivation should cause no (or at least very little) runtime overhead in the deactivated cases.
 
 ## Expects and Ensures
-Allow deactivation in Release Mode, but it should still be possible to leave them active in Release Mode as well if desired. Deactivation in Debug Mode can also be considered but is less critical. Deactivation should eliminate all runtime overhead (i.e. condition evaluation).
+Allow deactivation in release mode, but it should still be possible to leave them active in release mode as well if desired. Deactivation in debug mode can also be considered but is less critical. Deactivation should eliminate all runtime overhead (i.e. condition evaluation).
 
 ## cxx::expected
-1. Consider renaming cxx::expected to cxx::result, which is more in line with languages such as *Rust* and conveys the meaning more clearly.
-2. Add has_value (in addition to has_error) for consistency with *cxx::optional*.
+1. Consider renaming *cxx::expected* to *cxx::result*, which is more in line with languages such as Rust and conveys the meaning more clearly.
+2. Add *has_value* (in addition to *has_error*) for consistency with *cxx::optional*.
 3. Improve the monadic error handling (beyond *and_then*, *or_else*) to allow for better pipelining of multiple consecutive calls (especially in the success case). This requires careful consideration of supported use cases and intended behavior but can reduce control flow code (if ... else ...) in error cases considerably.
