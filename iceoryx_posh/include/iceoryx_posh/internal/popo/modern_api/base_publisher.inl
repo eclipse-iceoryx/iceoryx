@@ -15,15 +15,15 @@
 #ifndef IOX_POSH_POPO_BASE_PUBLISHER_INL
 #define IOX_POSH_POPO_BASE_PUBLISHER_INL
 
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+
 namespace iox
 {
 namespace popo
 {
-// ============================== BasePublisher ============================== //
-
 template <typename T, typename port_t>
-inline BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription&)
-/// @todo #25 : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSender(service, ""))
+inline BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& service)
+    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewarePublisher(service))
 {
 }
 
@@ -31,6 +31,12 @@ template <typename T, typename port_t>
 inline uid_t BasePublisher<T, port_t>::getUid() const noexcept
 {
     return m_port.getUniqueID();
+}
+
+template <typename T, typename port_t>
+inline capro::ServiceDescription BasePublisher<T, port_t>::getServiceDescription() const noexcept
+{
+    return m_port.getCaProServiceDescription();
 }
 
 template <typename T, typename port_t>
@@ -52,6 +58,7 @@ inline void BasePublisher<T, port_t>::publish(Sample<T>&& sample) noexcept
 {
     auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.get()));
     m_port.sendChunk(header);
+    sample.release(); // Must release ownership of the sample as the sender port takes it when publishing.
 }
 
 template <typename T, typename port_t>

@@ -15,6 +15,8 @@
 #ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 #define IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+
 namespace iox
 {
 namespace popo
@@ -22,8 +24,8 @@ namespace popo
 // ============================== BaseSubscriber ============================== //
 
 template <typename T, typename port_t>
-BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription&)
-/// @todo #25  : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, ""))
+inline BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
+    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service))
 {
 }
 
@@ -37,7 +39,6 @@ template <typename T, typename port_t>
 inline capro::ServiceDescription /// todo #25 make this a reference.
 BaseSubscriber<T, port_t>::getServiceDescription() const noexcept
 {
-    /// @todo #25 return reference to ServiceDescription from base port.
     return m_port.getCaProServiceDescription();
 }
 
@@ -66,7 +67,13 @@ inline bool BaseSubscriber<T, port_t>::hasNewSamples() const noexcept
 }
 
 template <typename T, typename port_t>
-inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubscriber<T, port_t>::receive() noexcept
+inline bool BaseSubscriber<T, port_t>::hasMissedSamples() noexcept
+{
+    return m_port.hasLostChunksSinceLastCall();
+}
+
+template <typename T, typename port_t>
+inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubscriber<T, port_t>::take() noexcept
 {
     auto result = m_port.tryGetChunk();
     if (result.has_error())

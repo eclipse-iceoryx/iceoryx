@@ -20,7 +20,7 @@ namespace iox
 namespace popo
 {
 template <typename T, typename base_subscriber_t>
-TypedSubscriber<T, base_subscriber_t>::TypedSubscriber(const capro::ServiceDescription& service)
+inline TypedSubscriber<T, base_subscriber_t>::TypedSubscriber(const capro::ServiceDescription& service)
     : base_subscriber_t(service)
 {
 }
@@ -62,10 +62,16 @@ inline bool TypedSubscriber<T, base_subscriber_t>::hasNewSamples() const noexcep
 }
 
 template <typename T, typename base_subscriber_t>
-inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError>
-TypedSubscriber<T, base_subscriber_t>::receive() noexcept
+inline bool TypedSubscriber<T, base_subscriber_t>::hasMissedSamples() noexcept
 {
-    return base_subscriber_t::receive();
+    return base_subscriber_t::hasMissedSamples();
+}
+
+template <typename T, typename base_subscriber_t>
+inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError>
+TypedSubscriber<T, base_subscriber_t>::take() noexcept
+{
+    return base_subscriber_t::take();
 }
 
 template <typename T, typename base_subscriber_t>

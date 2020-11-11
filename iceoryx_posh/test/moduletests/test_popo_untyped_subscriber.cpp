@@ -101,14 +101,23 @@ TEST_F(UntypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
+TEST_F(UntypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, hasMissedSamples).Times(1);
+    // ===== Test ===== //
+    sut.hasMissedSamples();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
 TEST_F(UntypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, receive)
-        .Times(1)
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const void>>>())));
+    EXPECT_CALL(sut, take).Times(1).WillOnce(
+        Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const void>>>())));
     // ===== Test ===== //
-    sut.receive();
+    sut.take();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

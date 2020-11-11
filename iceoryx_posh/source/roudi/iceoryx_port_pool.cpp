@@ -94,8 +94,7 @@ cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> IceOryxPortPo
     return m_portPoolData->m_publisherPortMembers.content();
 }
 
-cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS>
-IceOryxPortPool::getSubscriberPortDataList() noexcept
+cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> IceOryxPortPool::getSubscriberPortDataList() noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.content();
 }

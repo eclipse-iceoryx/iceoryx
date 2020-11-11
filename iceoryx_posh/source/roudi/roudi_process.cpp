@@ -722,6 +722,8 @@ void ProcessManager::monitorProcesses() noexcept
                 // @todo Check if ShmManager and Process Manager end up in unintended condition
                 m_portManager.deletePortsOfProcess(processIterator->getName());
 
+                /// @todo #25 Need to delete condition variables used by terminating processes...
+
                 m_processIntrospection->removeProcess(processIterator->getPid());
 
                 // delete application
