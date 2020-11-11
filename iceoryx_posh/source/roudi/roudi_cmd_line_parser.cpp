@@ -33,7 +33,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
                                       {"ignore-version", required_argument, nullptr, 'i'},
                                       {"unique-roudi-id", required_argument, nullptr, 'u'},
                                       {"compatibility", required_argument, nullptr, 'c'},
-                                      {"final-kill-time", required_argument, nullptr, 'f'},
+                                      {"kill-delay", required_argument, nullptr, 'k'},
                                       {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
@@ -66,9 +66,9 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             std::cout << "                                  patch: same patch version + minor check" << std::endl;
             std::cout << "                                  commitId: same commit ID + patch check" << std::endl;
             std::cout << "                                  buildDate: same build date + commId check" << std::endl;
-            std::cout << "-k, --kill-delay <UINT>           Sets the delay when RouDi kills the apps hard, if they"
+            std::cout << "-k, --kill-delay <UINT>           Sets the delay when RouDi sends SIG_KILL, if apps"
                       << std::endl;
-            std::cout << "                                  have't responded after the first soft kill, in seconds."
+            std::cout << "                                  have't responded after trying SIG_TERM first, in seconds."
                       << std::endl;
 
             m_run = false;
@@ -147,7 +147,7 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
             }
             break;
         }
-        case 'f':
+        case 'k':
         {
             uint32_t processKillDelayInSeconds{0u};
             constexpr uint64_t MAX_PROCESS_KILL_DELAY = std::numeric_limits<uint32_t>::max();
