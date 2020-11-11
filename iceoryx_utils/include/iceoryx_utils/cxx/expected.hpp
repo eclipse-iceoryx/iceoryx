@@ -24,7 +24,6 @@ namespace iox
 {
 namespace cxx
 {
-
 /// @brief helper struct to create an expected which is signalling success more easily
 /// @param T type which the success helper class should contain
 /// @code
@@ -102,11 +101,15 @@ struct error
 template <typename... T>
 class expected;
 
-template<typename... T>
-struct is_optional : std::false_type { };
+template <typename... T>
+struct is_optional : std::false_type
+{
+};
 
-template<typename T>
-struct is_optional<iox::cxx::optional<T>> : std::true_type { };
+template <typename T>
+struct is_optional<iox::cxx::optional<T>> : std::true_type
+{
+};
 
 
 /// @brief expected implementation from the C++20 proposal with C++11. The interface
@@ -677,7 +680,7 @@ class expected<ValueType, ErrorType>
     ///     })
     /// @endcode
     ///
-    template<typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
     const expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const noexcept;
 
     ///
@@ -691,7 +694,7 @@ class expected<ValueType, ErrorType>
     ///     })
     /// @endcode
     ///
-    template<typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
     expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
@@ -729,7 +732,7 @@ class expected<ValueType, ErrorType>
     ///         })
     /// @endcode
     ///
-    template<typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
     const expected& if_empty(const cxx::function_ref<void()>& callable) const noexcept;
 
     ///
@@ -745,7 +748,7 @@ class expected<ValueType, ErrorType>
     ///         })
     /// @endcode
     ///
-    template<typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
     expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
 
     optional<ValueType> to_optional() const noexcept;

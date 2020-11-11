@@ -18,8 +18,9 @@
 using namespace ::testing;
 using namespace iox::cxx;
 
-class MockCallables {
-public:
+class MockCallables
+{
+  public:
     MockCallables() = default;
     MOCK_METHOD0(onSuccess, void());
     MOCK_METHOD0(onEmpty, void());
@@ -263,7 +264,7 @@ TEST_F(expected_test, AndThenUnpacksOptionalWhenNonEmptyOptionalValue)
     MockCallables mocks{};
     EXPECT_CALL(mocks, onSuccess).Times(1);
 
-    sut.and_then([&mocks](int& val){
+    sut.and_then([&mocks](int& val) {
         mocks.onSuccess();
         ASSERT_THAT(val, Eq(123));
     });
@@ -275,9 +276,7 @@ TEST_F(expected_test, AndThenNotCalledWhenEmptyOptionalValue)
     MockCallables mocks{};
     EXPECT_CALL(mocks, onSuccess).Times(0);
 
-    sut.and_then([&mocks](int&){
-        mocks.onSuccess();
-    });
+    sut.and_then([&mocks](int&) { mocks.onSuccess(); });
 }
 
 TEST_F(expected_test, IfEmptyCalledWhenEmptyOptionalValue)
@@ -286,9 +285,7 @@ TEST_F(expected_test, IfEmptyCalledWhenEmptyOptionalValue)
     MockCallables mocks{};
     EXPECT_CALL(mocks, onEmpty).Times(1);
 
-    sut.if_empty([&mocks](){
-        mocks.onEmpty();
-    });
+    sut.if_empty([&mocks]() { mocks.onEmpty(); });
 }
 
 TEST_F(expected_test, IfEmptyNotCalledWhenValueTypeIsNonEmptyOptionalValue)
@@ -297,9 +294,7 @@ TEST_F(expected_test, IfEmptyNotCalledWhenValueTypeIsNonEmptyOptionalValue)
     MockCallables mocks{};
     EXPECT_CALL(mocks, onEmpty).Times(0);
 
-    sut.if_empty([&mocks](){
-        mocks.onEmpty();
-    });
+    sut.if_empty([&mocks]() { mocks.onEmpty(); });
 }
 
 TEST_F(expected_test, IfEmptyNotCalledWhenErrorOccurs)
@@ -308,8 +303,5 @@ TEST_F(expected_test, IfEmptyNotCalledWhenErrorOccurs)
     MockCallables mocks{};
     EXPECT_CALL(mocks, onEmpty).Times(0);
 
-    sut.if_empty([&mocks](){
-        mocks.onEmpty();
-    });
+    sut.if_empty([&mocks]() { mocks.onEmpty(); });
 }
-

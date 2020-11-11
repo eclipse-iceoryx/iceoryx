@@ -19,7 +19,6 @@ namespace iox
 {
 namespace cxx
 {
-
 template <typename T>
 unique_ptr<T>::unique_ptr(T* const ptr, function_ref<void(T*)>&& deleter) noexcept
     : m_ptr(ptr)
