@@ -703,7 +703,7 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "we are successful!" << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_success(const cxx::function_ref<void(void)>& callable) const noexcept;
+    [[gnu::deprecated]] const expected& on_success(const cxx::function_ref<void()>& callable) const noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
