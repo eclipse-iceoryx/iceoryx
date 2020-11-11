@@ -132,12 +132,9 @@ class ProcessManager : public ProcessManagerInterface
                          const version::VersionInfo& versionInfo) noexcept;
 
     /// @brief Kills all registered processes. First try with a SIGTERM and if they have not terminated after
-    /// finallKillTime they are killed with SIGKILL. If RouDi doesn't have sufficient rights to kill the process, the
+    /// processKillDelay they are killed with SIGKILL. If RouDi doesn't have sufficient rights to kill the process, the
     /// process is considered killed.
-    /// @param [in] processKillDelay RouDi On termination RouDi kills the applications and watches for the specified
-    /// time, if they have shut down. If they have not terminated after the specified time, RouDi sends a SIGKILL to the
-    /// processes. If the processes have finished after a normal kill with SIGTERM before the specified time, RouDi goes
-    /// on directly.
+    /// @param [in] processKillDelay Amount of time RouDi will wait before killing
     void killAllProcesses(const units::Duration processKillDelay) noexcept;
 
     void updateLivelinessOfProcess(const ProcessName_t& name) noexcept;
@@ -219,8 +216,9 @@ class ProcessManager : public ProcessManagerInterface
     bool removeProcess(const ProcessName_t& name) noexcept;
 
     /// @brief Removes the given process from the managed client process list without taking the list's lock!
-    /// @param [in] lockGuard This method has to be called within a lock guard context. By providing this lock guard it
-    ///                       ensures it can't be called without a lock guard in place.
+    /// @param [in] lockGuard This method has to be called within a lock guard context. Providing this lock guard
+    ///                       ensures it can't be called without a lock guard in place. The lock guard is the one
+    ///                       associated with the process list.
     /// @param [in] processIter The process which should be removed.
     /// @return Returns true if the process was found and removed from the internal list.
     bool removeProcess(const std::lock_guard<std::mutex>& lockGuard, ProcessList_t::iterator& processIter) noexcept;
@@ -237,11 +235,11 @@ class ProcessManager : public ProcessManagerInterface
         FULL
     };
 
-    /// @brief Kills the given process in m_processList with the given signal.
-    /// @param [in] process The process to kill.
-    /// @param [in] shutdownPolicy The kill signal passed to the system kill function.
+    /// @brief Shuts down the given process in m_processList with the given signal.
+    /// @param [in] process The process to shut down.
+    /// @param [in] shutdownPolicy Signal passed to the system to shut down the process
     /// @param [in] shutdownLog Defines the logging detail.
-    /// @return Returns true if the sent kill signal was successful.
+    /// @return Returns true if the sent signal was successful.
     bool requestShutdownOfProcess(const RouDiProcess& process,
                                   ShutdownPolicy shutdownPolicy,
                                   ShutdownLog shutdownLog) noexcept;

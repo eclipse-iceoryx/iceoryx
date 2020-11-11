@@ -146,6 +146,8 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
         bool shouldCheckProcessState = true;
         finalKillTimer.resetCreationTime();
 
+        // try to shut down all processes until either all processes have terminated or a timer set to processKillDelay
+        // has expired
         while (!haveAllProcessesFinished && !finalKillTimer.hasExpiredComparedToCreationTime())
         {
             i = 0;
