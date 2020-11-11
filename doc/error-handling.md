@@ -31,7 +31,7 @@ For ERR and FATAL see also error levels MODERATE, SEVERE (logged with *LogErr*) 
 
 
 # Error Handling
-Errors are considered to be system states that should not be reached regularly and usually are the result of an external failure, such as when the OS is unable to provide a certain resource (e.g. a semaphore) or an application does not respond. In contrast, regular behaviour such as a receiver receiving no data when none was sent is not an error. On the other hand, losing data that was sent would be considered an error.
+Errors are considered to be system states that should not be reached regularly and usually are the result of an external failure, such as when the OS is unable to provide a certain resource (e.g. a semaphore) or an application does not respond. In contrast, regular behavior such as a receiver receiving no data when none was sent is not an error. On the other hand, losing data that was sent would be considered an error.
 
 There are two general approaches to deal with errrs:
 1. using exceptions 
