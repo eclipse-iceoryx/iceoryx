@@ -217,7 +217,7 @@ requests. We're planning to introduce continuos integration checks in the near f
 Each source file needs to have this header:
 
 ```
-    // Copyright (c) [year] by [INITIAL COPYRIGHT OWNER] [OTHER COPYRIGHT OWNERS]. All rights reserved.
+    // Copyright (c) [DATE] by [INITIAL COPYRIGHT OWNER] [OTHER COPYRIGHT OWNERS]. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
