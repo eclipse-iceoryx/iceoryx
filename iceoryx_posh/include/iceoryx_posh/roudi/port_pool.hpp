@@ -23,8 +23,6 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
-//#include "iceoryx_posh/internal/popo/receiver_port.hpp"
-//#include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_data.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"

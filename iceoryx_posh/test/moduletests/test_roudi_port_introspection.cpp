@@ -379,7 +379,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
 
     sample->~PortIntrospectionFieldTopic();
 
-    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(AtLeast(4));
+    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(4);
 }
 
 TEST_F(PortIntrospection_test, addAndRemoveReceiver)
@@ -490,7 +490,7 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
 
     sample->~PortIntrospectionFieldTopic();
 
-    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(AtLeast(4));
+    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(4);
 }
 
 

@@ -718,8 +718,6 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
                         }
                     });
             }
-            // Automatic cleanup?
-            // memPoolSubscriber.releaseChunk(rawMempoolSample);
         }
 
         // print process information
@@ -746,7 +744,6 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
                         {
                             typedProcessSample = static_cast<const ProcessIntrospectionFieldTopic*>(maybeSample->get());
                             printProcessIntrospectionData(typedProcessSample);
-                            // processSubscriber.releaseChunk(rawProcessSample);
                         }
                     });
             }
@@ -800,19 +797,6 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
             {
                 prettyPrint("Waiting for port introspection data ...\n");
             }
-            /*
-            if (newPortSampleArrived)
-            {
-                portSubscriber.releaseChunk(rawPortSample);
-            }
-            if (newPortThroughputSampleeArrived)
-            {
-                portThroughputSubscriber.releaseChunk(rawPortThroughputSample);
-            }
-            if (newReceiverPortChangingDataSamplesArrived)
-            {
-                receiverPortChangingDataSubscriber.releaseChunk(rawReceiverPortChangingDataSamples);
-            }*/
         }
 
         prettyPrint("\n");

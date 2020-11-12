@@ -16,7 +16,6 @@
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
-//#include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -137,7 +136,8 @@ class MemPoolIntrospection
  * @brief typedef for the templated mempool introspection class that is used by RouDi for the
  * actual mempool introspection functionality.
  */
-using MemPoolIntrospectionType = MemPoolIntrospection<mepoo::MemoryManager, mepoo::SegmentManager<>, PublisherPortUserType>;
+using MemPoolIntrospectionType =
+    MemPoolIntrospection<mepoo::MemoryManager, mepoo::SegmentManager<>, PublisherPortUserType>;
 
 
 } // namespace roudi

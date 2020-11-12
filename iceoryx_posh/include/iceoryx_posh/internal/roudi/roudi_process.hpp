@@ -15,8 +15,6 @@
 #define IOX_POSH_ROUDI_ROUDI_PROCESS_HPP
 
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
-//#include "iceoryx_posh/internal/popo/receiver_port.hpp"
-//#include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
