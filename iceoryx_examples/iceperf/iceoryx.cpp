@@ -15,6 +15,7 @@
 #include "iceoryx.hpp"
 
 #include <chrono>
+#include <thread>
 
 Iceoryx::Iceoryx(const iox::capro::IdString& publisherName, const iox::capro::IdString& subscriberName) noexcept
     : m_publisher({"Comedians", publisherName, "Duo"})
@@ -38,7 +39,7 @@ void Iceoryx::init() noexcept
     m_subscriber.subscribe();
 
     std::cout << "Waiting till subscribed ... " << std::endl << std::flush;
-    while (m_subscriber.getSubscriptionState() != iox::popo::SubscriptionState::SUBSCRIBED)
+    while (m_subscriber.getSubscriptionState() != iox::SubscribeState::SUBSCRIBED)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -68,24 +69,29 @@ void Iceoryx::shutdown() noexcept
 
 void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    auto sendSample = static_cast<PerfTopic*>(m_publisher.allocateChunk(payloadSizeInBytes, true));
-    sendSample->payloadSize = payloadSizeInBytes;
-    sendSample->run = runFlag;
-    sendSample->subPackets = 1;
-
-    m_publisher.sendChunk(sendSample);
+    m_publisher.loan(payloadSizeInBytes).and_then([&](iox::popo::Sample<void>& sample) {
+        auto sendSample = static_cast<PerfTopic*>(sample.get());
+        sendSample->payloadSize = payloadSizeInBytes;
+        sendSample->run = runFlag;
+        sendSample->subPackets = 1;
+        sample.publish();
+    });
 }
 
 PerfTopic Iceoryx::receivePerfTopic() noexcept
 {
     const void* receivedChunk;
-    while (!m_subscriber.getChunk(&receivedChunk))
+    PerfTopic receivedSample;
+    while (!m_subscriber.receive().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+        if (maybeSample.has_value())
+        {
+            receivedSample = *(static_cast<const PerfTopic*>(maybeSample.value().get()));
+        }
+    }))
     {
         // poll as fast as possible
     }
 
-    auto receivedSample = *(static_cast<const PerfTopic*>(receivedChunk));
-    m_subscriber.releaseChunk(receivedChunk);
 
     return receivedSample;
 }
