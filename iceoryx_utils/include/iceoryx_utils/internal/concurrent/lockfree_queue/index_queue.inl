@@ -221,40 +221,11 @@ bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-void IndexQueue<Capacity, ValueType>::push(UniqueIndex& index) noexcept
-{
-    push(index.release());
-}
-
-template <uint64_t Capacity, typename ValueType>
-typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, ValueType>::pop() noexcept
-{
-    ValueType value;
-    if (pop(value))
-    {
-        return UniqueIndex(value);
-    }
-    return UniqueIndex::invalid;
-}
-
-template <uint64_t Capacity, typename ValueType>
-typename IndexQueue<Capacity, ValueType>::UniqueIndex IndexQueue<Capacity, ValueType>::popIfFull() noexcept
-{
-    ValueType value;
-    if (popIfFull(value))
-    {
-        return UniqueIndex(value);
-    }
-    return UniqueIndex::invalid;
-}
-
-template <uint64_t Capacity, typename ValueType>
 typename IndexQueue<Capacity, ValueType>::Index
 IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, std::memory_order memoryOrder) const
 {
     return m_cells[position.getIndex()].load(memoryOrder);
 }
-
 
 } // namespace concurrent
 } // namespace iox
