@@ -116,12 +116,14 @@ WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions() noexcep
     {
         if (currentCondition->hasTriggered())
         {
-            if (!conditions.push_back(currentCondition))
-            {
-                errorHandler(Error::kPOPO__WAITSET_CONDITION_VECTOR_OVERFLOW, nullptr, ErrorLevel::FATAL);
-            }
+            // We do not need to verify if push_back was successful since
+            // m_conditionVector and conditions are having the same type, a
+            // vector with the same guaranteed capacity.
+            // Therefore it is guaranteed that push_back works!
+            static_cast<void>(conditions.push_back(currentCondition));
         }
     }
+
     return conditions;
 }
 
