@@ -450,33 +450,71 @@ class expected<ValueType, ErrorType>
 
     /// @brief  returns a reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
+    /// @deprecated replaced by ValueType& value() & noexcept;
     /// @return reference to the internally contained value
-    ValueType& get_value() & noexcept;
+    [[gnu::deprecated]] ValueType& get_value() & noexcept;
+
+    /// @brief  returns a const reference to the contained success value, if the expected
+    ///         does not contain a success value this is undefined behavior
+    /// @deprecated replaced by const ValueType& value() const& noexcept
+    /// @return const reference to the internally contained value
+    [[gnu::deprecated]] const ValueType& get_value() const& noexcept;
+
+    /// @brief  returns a reference to the contained success value, if the expected
+    ///         does not contain a success value this is undefined behavior
+    /// @deprecated replaced by ValueType&& get_value() && noexcept
+    /// @return rvalue reference to the internally contained value
+    [[gnu::deprecated]] ValueType&& get_value() && noexcept;
+
+    /// @brief  returns a const rvalue reference to the contained success value, if the expected
+    ///         does not contain a success value this is undefined behavior
+    /// @deprecated replaced by const ValueType&& get_value() const&& noexcept
+    /// @return const rvalue reference to the internally contained value
+    [[gnu::deprecated]] const ValueType&& get_value() const&& noexcept;
+
+    /// @brief  returns a copy of the contained success value if the expected does
+    ///         contain a success value, otherwise it returns a copy of value
+    /// @deprecated replaced by ValueType get_value_or(const ValueType& value) const noexcept
+    /// @return copy of the internally contained value or copy of value
+    [[gnu::deprecated]] ValueType get_value_or(const ValueType& value) const noexcept;
+
+    /// @brief  returns a copy of the contained success value if the expected does
+    ///         contain a success value, otherwise it returns a copy of value
+    /// @deprecated replaced by ValueType get_value_or(const ValueType& value) noexcept
+    /// @return copy of the internally contained value or copy of value
+    [[gnu::deprecated]] ValueType get_value_or(const ValueType& value) noexcept;
+
+    /// @brief  returns a reference to the contained success value, if the expected
+    ///         does not contain a success value this is undefined behavior
+    /// @return reference to the internally contained value
+    ValueType& value() & noexcept;
 
     /// @brief  returns a const reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
     /// @return const reference to the internally contained value
-    const ValueType& get_value() const& noexcept;
+    const ValueType& value() const& noexcept;
 
     /// @brief  returns a reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
     /// @return rvalue reference to the internally contained value
-    ValueType&& get_value() && noexcept;
+    ValueType&& value() && noexcept;
 
     /// @brief  returns a const rvalue reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
     /// @return const rvalue reference to the internally contained value
-    const ValueType&& get_value() const&& noexcept;
+    const ValueType&& value() const&& noexcept;
 
     /// @brief  returns a copy of the contained success value if the expected does
     ///         contain a success value, otherwise it returns a copy of value
     /// @return copy of the internally contained value or copy of value
-    ValueType get_value_or(const ValueType& value) const noexcept;
+    ValueType value_or(const ValueType& value) const noexcept;
 
     /// @brief  returns a copy of the contained success value if the expected does
     ///         contain a success value, otherwise it returns a copy of value
     /// @return copy of the internally contained value or copy of value
-    ValueType get_value_or(const ValueType& value) noexcept;
+    ValueType value_or(const ValueType& value) noexcept;
+
+
 
     /// @brief dereferencing operator which returns a reference to the contained
     ///         success value. if the expected contains an error the behavior is

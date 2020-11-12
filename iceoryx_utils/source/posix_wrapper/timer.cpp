@@ -450,7 +450,7 @@ cxx::expected<units::Duration, TimerError> Timer::now() noexcept
 
 Timer::Timer(const units::Duration timeToWait) noexcept
     : m_timeToWait(timeToWait)
-    , m_creationTime(now().get_value())
+    , m_creationTime(now().value())
 {
     if (m_timeToWait.nanoSeconds<uint64_t>() == 0u)
     {
@@ -460,7 +460,7 @@ Timer::Timer(const units::Duration timeToWait) noexcept
 
 Timer::Timer(const units::Duration timeToWait, const std::function<void()>& callback) noexcept
     : m_timeToWait(timeToWait)
-    , m_creationTime(now().get_value())
+    , m_creationTime(now().value())
 {
     if (m_timeToWait.nanoSeconds<uint64_t>() == 0u)
     {
@@ -537,7 +537,7 @@ void Timer::resetCreationTime() noexcept
     // Get the current time
     auto now = this->now();
 
-    m_creationTime = now.get_value();
+    m_creationTime = now.value();
 }
 
 bool Timer::hasExpiredComparedToCreationTime() noexcept
@@ -546,7 +546,7 @@ bool Timer::hasExpiredComparedToCreationTime() noexcept
     auto now = this->now();
 
     // Calc the elapsed time, since Timer object was created
-    auto elapsedTime = now.get_value() - m_creationTime;
+    auto elapsedTime = now.value() - m_creationTime;
 
     if (elapsedTime >= m_timeToWait)
     {

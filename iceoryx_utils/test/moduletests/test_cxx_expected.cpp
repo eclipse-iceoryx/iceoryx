@@ -49,7 +49,7 @@ TEST_F(expected_test, CreateWithValue)
 {
     auto sut = expected<int, float>::create_value(123);
     ASSERT_THAT(sut.has_error(), Eq(false));
-    EXPECT_THAT(sut.get_value(), Eq(123));
+    EXPECT_THAT(sut.value(), Eq(123));
 }
 
 TEST_F(expected_test, CreateWitherror)
@@ -63,7 +63,7 @@ TEST_F(expected_test, CreateValue)
 {
     auto sut = expected<Test, int>::create_value(12, 222);
     ASSERT_THAT(sut.has_error(), Eq(false));
-    EXPECT_THAT(sut.get_value().m_a, Eq(12));
+    EXPECT_THAT(sut.value().m_a, Eq(12));
 }
 
 TEST_F(expected_test, CreateError)
@@ -76,25 +76,25 @@ TEST_F(expected_test, CreateError)
 TEST_F(expected_test, GetValueOrWithError)
 {
     auto sut = expected<int, float>::create_error(16523.12f);
-    EXPECT_THAT(sut.get_value_or(90), Eq(90));
+    EXPECT_THAT(sut.value_or(90), Eq(90));
 }
 
 TEST_F(expected_test, GetValueOrWithSuccess)
 {
     auto sut = expected<int, float>::create_value(165);
-    EXPECT_THAT(sut.get_value_or(90), Eq(165));
+    EXPECT_THAT(sut.value_or(90), Eq(165));
 }
 
 TEST_F(expected_test, ConstGetValueOrWithError)
 {
     auto sut = expected<int, float>::create_error(1652.12f);
-    EXPECT_THAT(sut.get_value_or(15), Eq(15));
+    EXPECT_THAT(sut.value_or(15), Eq(15));
 }
 
 TEST_F(expected_test, ConstGetValueOrWithSuccess)
 {
     auto sut = expected<int, float>::create_value(652);
-    EXPECT_THAT(sut.get_value_or(15), Eq(652));
+    EXPECT_THAT(sut.value_or(15), Eq(652));
 }
 
 TEST_F(expected_test, ArrowOperator)
@@ -148,7 +148,7 @@ TEST_F(expected_test, CreateFromSuccessType)
 {
     expected<int, float> sut{success<int>(55)};
     ASSERT_THAT(sut.has_error(), Eq(false));
-    EXPECT_THAT(sut.get_value(), Eq(55));
+    EXPECT_THAT(sut.value(), Eq(55));
 }
 
 TEST_F(expected_test, VoidCreateFromErrorType)

@@ -75,7 +75,7 @@ MessageQueue::MessageQueue(const std::string& name,
         {
             this->m_isInitialized = true;
             this->m_errorValue = IpcChannelError::UNDEFINED;
-            this->m_mqDescriptor = openResult.get_value();
+            this->m_mqDescriptor = openResult.value();
         }
         else
         {

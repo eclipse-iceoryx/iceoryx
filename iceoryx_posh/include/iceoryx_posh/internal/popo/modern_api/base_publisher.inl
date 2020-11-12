@@ -43,7 +43,7 @@ inline cxx::expected<Sample<T>, AllocationError> BasePublisher<T, port_t>::loan(
     }
     else
     {
-        return cxx::success<Sample<T>>(convertChunkHeaderToSample(result.get_value()));
+        return cxx::success<Sample<T>>(convertChunkHeaderToSample(result.value()));
     }
 }
 

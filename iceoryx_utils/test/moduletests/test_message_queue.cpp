@@ -43,13 +43,13 @@ class MessageQueue_test : public Test
         auto serverResult = IpcChannelType::create(
             goodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
-        server = std::move(serverResult.get_value());
+        server = std::move(serverResult.value());
         internal::CaptureStderr();
 
         auto clientResult = IpcChannelType::create(
             goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
-        client = std::move(clientResult.get_value());
+        client = std::move(clientResult.value());
     }
 
     void TearDown()
@@ -104,11 +104,11 @@ TEST_F(MessageQueue_test, createAgainAndEmpty)
 
     auto serverResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
-    auto server = std::move(serverResult.get_value());
+    auto server = std::move(serverResult.value());
 
     auto clientResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
-    auto client = std::move(clientResult.get_value());
+    auto client = std::move(clientResult.value());
 
     // send and receive as usual
     std::string message = "Hey, I'm talking to you";
@@ -126,7 +126,7 @@ TEST_F(MessageQueue_test, createAgainAndEmpty)
 
     auto second = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(second.has_error());
-    server = std::move(second.get_value());
+    server = std::move(second.value());
 
     Duration timeout = 100_ms;
     auto received = server.timedReceive(timeout);
@@ -146,15 +146,15 @@ TEST_F(MessageQueue_test, NotOutdatedOne)
 {
     auto serverResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
-    auto server = std::move(serverResult.get_value());
+    auto server = std::move(serverResult.value());
 
     auto clientResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
-    auto client = std::move(clientResult.get_value());
+    auto client = std::move(clientResult.value());
 
     auto outdated = client.isOutdated();
     EXPECT_FALSE(outdated.has_error());
-    EXPECT_FALSE(outdated.get_value());
+    EXPECT_FALSE(outdated.value());
 }
 
 
@@ -168,11 +168,11 @@ TEST_F(MessageQueue_test, OutdatedOne)
 
     auto serverResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
-    auto server = std::move(serverResult.get_value());
+    auto server = std::move(serverResult.value());
 
     auto clientResult = IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
-    auto client = std::move(clientResult.get_value());
+    auto client = std::move(clientResult.value());
 
     // destroy the server and the client is outdated
     auto dest = server.destroy();
@@ -180,7 +180,7 @@ TEST_F(MessageQueue_test, OutdatedOne)
 
     auto outdated = client.isOutdated();
     EXPECT_FALSE(outdated.has_error());
-    EXPECT_TRUE(outdated.get_value());
+    EXPECT_TRUE(outdated.value());
 }
 
 TEST_F(MessageQueue_test, unlinkExistingOne)
@@ -189,14 +189,14 @@ TEST_F(MessageQueue_test, unlinkExistingOne)
     EXPECT_FALSE(first.has_error());
     auto ret = IpcChannelType::unlinkIfExists(anotherGoodName);
     EXPECT_FALSE(ret.has_error());
-    EXPECT_TRUE(ret.get_value());
+    EXPECT_TRUE(ret.value());
 }
 
 TEST_F(MessageQueue_test, unlinkNonExistingOne)
 {
     auto ret = IpcChannelType::unlinkIfExists(theUnknown);
     EXPECT_FALSE(ret.has_error());
-    EXPECT_FALSE(ret.get_value());
+    EXPECT_FALSE(ret.value());
 }
 
 TEST_F(MessageQueue_test, sendAndReceive)
@@ -277,7 +277,7 @@ TEST_F(MessageQueue_test, sendMoreThanAllowed)
 
     auto receivedMessage = server.receive();
     ASSERT_THAT(receivedMessage.has_error(), Eq(false));
-    EXPECT_EQ(shortMessage, receivedMessage.get_value());
+    EXPECT_EQ(shortMessage, receivedMessage.value());
 }
 
 TEST_F(MessageQueue_test, sendMaxMessageSize)
@@ -288,7 +288,7 @@ TEST_F(MessageQueue_test, sendMaxMessageSize)
 
     auto receivedMessage = server.receive();
     ASSERT_THAT(receivedMessage.has_error(), Eq(false));
-    EXPECT_EQ(message, receivedMessage.get_value());
+    EXPECT_EQ(message, receivedMessage.value());
 }
 
 TEST_F(MessageQueue_test, wildCreate)
@@ -348,7 +348,7 @@ TEST_F(MessageQueue_test, timedReceive)
     auto received = server.timedReceive(timeout);
     ASSERT_FALSE(received.has_error());
 
-    EXPECT_EQ(received.get_value(), msg);
+    EXPECT_EQ(received.value(), msg);
 
     auto before = system_clock::now();
     received = server.timedReceive(timeout);

@@ -208,7 +208,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ForwardsChunkFromSubscriberToDataWriter)
     TestGateway gw{};
 
     // === Test
-    gw.forward(testChannel.get_value());
+    gw.forward(testChannel.value());
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
@@ -235,7 +235,7 @@ TEST_F(Iceoryx2DDSGatewayTest, IgnoresMemoryChunksWithNoPayload)
     TestGateway gw{};
 
     // === Test
-    gw.forward(testChannel.get_value());
+    gw.forward(testChannel.value());
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
@@ -265,7 +265,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ReleasesReferenceToMemoryChunkAfterSend)
     TestGateway gw{};
 
     // === Test
-    gw.forward(testChannel.get_value());
+    gw.forward(testChannel.value());
 }
 
 TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStopsOffering)
@@ -299,7 +299,7 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
     EXPECT_CALL(gw, findChannel)
         .WillOnce(Return(iox::cxx::nullopt_t()))
         .WillOnce(Return(
-            iox::cxx::make_optional<iox::gw::Channel<MockSubscriber, MockDataWriter>>(testChannelOne.get_value())))
+            iox::cxx::make_optional<iox::gw::Channel<MockSubscriber, MockDataWriter>>(testChannelOne.value())))
         .WillOnce(Return(iox::cxx::nullopt_t()));
     EXPECT_CALL(gw, addChannel(_)).WillOnce(Return(testChannelOne)).WillOnce(Return(testChannelTwo));
     EXPECT_CALL(gw, discardChannel).WillOnce(Return(iox::cxx::success<>()));

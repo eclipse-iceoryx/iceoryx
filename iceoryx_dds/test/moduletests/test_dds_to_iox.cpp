@@ -110,6 +110,6 @@ TEST_F(DDS2IceoryxGatewayTest, PublishesMemoryChunksContainingSamplesToNetwork)
     TestGateway gw{};
 
     // === Test
-    auto testChannel = channelFactory(testService).get_value();
+    auto testChannel = channelFactory(testService).value();
     gw.forward(testChannel);
 }

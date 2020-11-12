@@ -445,7 +445,7 @@ TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5)
     auto stop = Timer::now();
 
     // Calc the difference
-    iox::units::Duration timediff = stop.get_value() - start.get_value();
+    iox::units::Duration timediff = stop.value() - start.value();
 
     PrintTiming(timediff);
 
@@ -470,7 +470,7 @@ TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolCreationTime2GBConfig)
     auto stop = Timer::now();
 
     // Calc the difference
-    iox::units::Duration timediff = stop.get_value() - start.get_value();
+    iox::units::Duration timediff = stop.value() - start.value();
 
     PrintTiming(timediff);
 

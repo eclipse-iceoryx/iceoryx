@@ -81,7 +81,7 @@ TEST_F(UntypedPublisherTest, PublishesSampleViaBasePublisher)
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
     auto loanResult = sut.loan(42);
-    sut.publish(std::move(loanResult.get_value()));
+    sut.publish(std::move(loanResult.value()));
     // ===== Verify ===== //
     // ===== Cleanup ===== //
     iox::cxx::alignedFree(chunk);

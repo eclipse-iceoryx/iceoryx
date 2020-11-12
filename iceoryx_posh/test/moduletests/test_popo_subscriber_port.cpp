@@ -72,7 +72,7 @@ TEST_F(SubscriberPortSingleProducer_test, initialStateNoChunksAvailable)
     auto maybeChunk = m_sutUserSideSingleProducer.tryGetChunk();
 
     EXPECT_FALSE(maybeChunk.has_error());
-    EXPECT_FALSE(maybeChunk.get_value().has_value());
+    EXPECT_FALSE(maybeChunk.value().has_value());
     EXPECT_FALSE(m_sutUserSideSingleProducer.hasNewChunks());
 }
 

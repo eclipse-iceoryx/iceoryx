@@ -39,7 +39,7 @@ struct ConditionVariableData
                                        nullptr,
                                        ErrorLevel::FATAL);
                       })
-                      .get_value());
+                      .value());
 };
 
 } // namespace popo

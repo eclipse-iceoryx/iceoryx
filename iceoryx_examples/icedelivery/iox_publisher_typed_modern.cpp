@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
         auto result = typedPublisher.loan();
         if (!result.has_error())
         {
-            auto& sample = result.get_value();
+            auto& sample = result.value();
             sample->x = ct * 1.1;
             sample->y = ct * 1.1;
             sample->z = ct * 1.1;
