@@ -33,7 +33,6 @@ WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noe
 
 WaitSet::~WaitSet() noexcept
 {
-    // Notify all conditions in the vector that the condition variable data will be destroyed
     detachAllConditions();
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
@@ -46,7 +45,7 @@ cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexc
         {
             return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
         }
-        if (!condition.attachConditionVariable(m_conditionVariableDataPtr))
+        if (!condition.attachConditionVariable(this, m_conditionVariableDataPtr))
         {
             return cxx::error<WaitSetError>(WaitSetError::CONDITION_VARIABLE_ATTACH_FAILED);
         }
@@ -57,23 +56,31 @@ cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexc
 
 bool WaitSet::detachCondition(Condition& condition) noexcept
 {
-    if (condition.isConditionVariableAttached())
+    if (!condition.isConditionVariableAttached())
     {
-        if (!condition.detachConditionVariable())
-        {
-            errorHandler(Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION, nullptr, ErrorLevel::FATAL);
-            return false;
-        }
+        return false;
+    }
 
-        for (auto& currentCondition : m_conditionVector)
+    if (!condition.detachConditionVariable())
+    {
+        errorHandler(Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION, nullptr, ErrorLevel::FATAL);
+        return false;
+    }
+
+    return removeCondition(condition);
+}
+
+bool WaitSet::removeCondition(const Condition& condition) noexcept
+{
+    for (auto& currentCondition : m_conditionVector)
+    {
+        if (currentCondition == &condition)
         {
-            if (currentCondition == &condition)
-            {
-                m_conditionVector.erase(&currentCondition);
-                return true;
-            }
+            m_conditionVector.erase(&currentCondition);
+            return true;
         }
     }
+
     return false;
 }
 
@@ -133,6 +140,19 @@ WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(const WaitFun
 
     return (wait()) ? conditions : createVectorWithFullfilledConditions();
 }
+
+bool WaitSet::isConditionAttached(const Condition& condition) noexcept
+{
+    for (auto& currentCondition : m_conditionVector)
+    {
+        if (currentCondition == &condition)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 } // namespace popo
 } // namespace iox

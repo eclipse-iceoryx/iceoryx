@@ -51,11 +51,12 @@ class Condition
     virtual bool unsetConditionVariable() noexcept = 0;
 
     /// @brief Called by a WaitSet to announce the condition variable pointer that usually lives in shared memory
-    bool attachConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept;
+    bool attachConditionVariable(WaitSet* const waitSet,
+                                 ConditionVariableData* const conditionVariableDataPtr) noexcept;
     /// @brief Called when removing the condition from a WaitSet
     bool detachConditionVariable() noexcept;
 
-    std::atomic_bool m_conditionVariableAttached{false};
+    std::atomic<WaitSet*> m_waitSet{nullptr};
 };
 
 } // namespace popo

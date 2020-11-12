@@ -15,6 +15,7 @@
 #include "iceoryx_posh/popo/condition.hpp"
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
 
@@ -24,31 +25,23 @@ namespace popo
 {
 Condition::~Condition() noexcept
 {
-    // WaitSet is still alive as it uses RAII, hence our contract with the user isn't fulfilled anymore (no dangling
-    // condition allowed)
     if (isConditionVariableAttached())
     {
-        errorHandler(Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE, nullptr, ErrorLevel::FATAL);
+        m_waitSet.load(std::memory_order_relaxed)->removeCondition(*this);
     }
 }
 
 bool Condition::isConditionVariableAttached() const noexcept
 {
-    return m_conditionVariableAttached.load(std::memory_order_relaxed);
+    return m_waitSet.load(std::memory_order_relaxed) != nullptr;
 }
 
-bool Condition::attachConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept
+bool Condition::attachConditionVariable(WaitSet* const waitSet,
+                                        ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
-    if (isConditionVariableAttached())
+    if (!isConditionVariableAttached() && setConditionVariable(conditionVariableDataPtr))
     {
-        return false;
-    }
-
-    // Call user implementation
-    if (setConditionVariable(conditionVariableDataPtr))
-    {
-        // Save the info so we can notify the user on illegal destruction
-        m_conditionVariableAttached.store(true, std::memory_order_relaxed);
+        m_waitSet.store(waitSet, std::memory_order_relaxed);
         return true;
     }
     return false;
@@ -56,15 +49,9 @@ bool Condition::attachConditionVariable(ConditionVariableData* const conditionVa
 
 bool Condition::detachConditionVariable() noexcept
 {
-    if (!isConditionVariableAttached())
+    if (isConditionVariableAttached() && unsetConditionVariable())
     {
-        return false;
-    }
-
-    // Call user implementation
-    if (unsetConditionVariable())
-    {
-        m_conditionVariableAttached.store(false, std::memory_order_relaxed);
+        m_waitSet.store(nullptr, std::memory_order_relaxed);
         return true;
     }
     return false;

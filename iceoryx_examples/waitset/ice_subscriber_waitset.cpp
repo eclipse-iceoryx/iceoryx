@@ -62,6 +62,7 @@ void receiving()
     }
 
     mySubscriber.unsubscribe();
+    waitset.detachCondition(mySubscriber);
 }
 
 int main()

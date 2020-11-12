@@ -95,6 +95,7 @@ class WaitSet_test : public Test
 TEST_F(WaitSet_test, AttachSingleConditionSuccessful)
 {
     EXPECT_FALSE(m_sut.attachCondition(m_subscriberVector.front()).has_error());
+    EXPECT_TRUE(m_sut.isConditionAttached(m_subscriberVector.front()));
 }
 
 TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInFailure)
@@ -104,27 +105,27 @@ TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInFailure)
                 Eq(WaitSetError::CONDITION_VARIABLE_ALREADY_SET));
 }
 
-TEST_F(WaitSet_test, AttachConditionAndDestroyResultsInLifetimeFailure)
+TEST_F(WaitSet_test, ConditionIsAttachedAfterAttaching)
 {
-    auto errorHandlerCalled{false};
-    iox::Error receivedError;
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&errorHandlerCalled,
-         &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-            receivedError = error;
-        });
+    MockSubscriber condition;
+    m_sut.attachCondition(condition);
 
-    WaitSetMock* m_sut2 = static_cast<WaitSetMock*>(malloc(sizeof(WaitSetMock)));
-    new (m_sut2) WaitSetMock{&m_condVarData};
+    EXPECT_TRUE(m_sut.isConditionAttached(condition));
+}
 
+TEST_F(WaitSet_test, AttachedConditionDetachesItselfInDestructor)
+{
     {
-        MockSubscriber scopedCondition;
-        m_sut2->attachCondition(scopedCondition);
-    }
+        MockSubscriber* scopedCondition = new MockSubscriber();
+        m_sut.attachCondition(*scopedCondition);
 
-    EXPECT_TRUE(errorHandlerCalled);
-    EXPECT_THAT(receivedError, Eq(iox::Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE));
+        delete scopedCondition;
+
+        scopedCondition = new MockSubscriber();
+
+        EXPECT_FALSE(m_sut.isConditionAttached(*scopedCondition));
+        delete scopedCondition;
+    }
 }
 
 TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)

@@ -127,14 +127,22 @@ class WaitSet
     /// fulfilled
     ConditionVector wait() noexcept;
 
+    /// @brief Is a given condition attached to this WaitSet
+    /// @return true if the condition is attached otherwise false
+    bool isConditionAttached(const Condition& condition) noexcept;
+
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
+
+    friend class Condition;
 
   private:
     ConditionVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
     template <typename WaitFunction>
     ConditionVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
     ConditionVector createVectorWithFullfilledConditions() noexcept;
+
+    bool removeCondition(const Condition& condition) noexcept;
 
   private:
     ConditionVector m_conditionVector;
