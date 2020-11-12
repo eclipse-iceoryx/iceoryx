@@ -27,6 +27,11 @@ Condition::~Condition() noexcept
 {
     if (isConditionVariableAttached())
     {
+        // In this particular case we can skip unsetConditionVariable since in
+        // dtor the object already degraded to a class which is only a condition
+        // and has no more vtable pointer to the method unsetConditionVariable
+        // which was once part of this object
+        // If we assume that
         m_waitSet.load(std::memory_order_relaxed)->removeCondition(*this);
     }
 }

@@ -137,17 +137,6 @@ TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
     EXPECT_FALSE(m_subscriberVector.front().isConditionVariableAttached());
 }
 
-TEST_F(WaitSet_test, DISABLED_AttachConditionAndMoveIsSuccessful)
-{
-    /// @todo move c'tor currently deleted
-}
-
-
-TEST_F(WaitSet_test, DISABLED_AttachConditionAndMoveAssignIsSuccessful)
-{
-    /// @todo move assign currently deleted
-}
-
 TEST_F(WaitSet_test, AttachMaximumAllowedConditionsSuccessful)
 {
     for (auto& currentSubscriber : m_subscriberVector)

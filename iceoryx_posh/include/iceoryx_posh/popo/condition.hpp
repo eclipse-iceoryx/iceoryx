@@ -27,6 +27,10 @@ class Condition
 {
   public:
     Condition() noexcept = default;
+
+    /// @brief Removes the condition from the WaitSet safely but does not detach it.
+    ///        This means unsetConditionVariable is not called since this falls
+    ///        in the responsibility of the class dtor of the child.
     virtual ~Condition() noexcept;
 
     /// @brief copy and move operations are deleted since the WaitSet stores
