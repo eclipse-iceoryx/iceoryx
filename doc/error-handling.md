@@ -268,8 +268,8 @@ This is related to centralized error handling as well.
 ## Overriding Specific Error Reaction
 * Do we want to provide the ability to override error reaction based on e.g. error codes?
 * Do we want to disable certain error levels? (if so, this should preferably happen at compile 
-time with no or few runtime artifacts). It could be an option to e.g. disable all MODERATE error reaction at compile time.
-* It is probably not reasonable to allow disabling reaction on FATAL errors.
+time with no or few runtime artifacts). It could be an option to e.g. disable all ``MODERATE`` error reaction at compile time.
+* It is probably not reasonable to allow disabling reaction on fatal errors.
 
 This is also related to the hooks for 3rd party error handling we may want to provide.
 
@@ -279,7 +279,7 @@ The reporting code does not need to be able to continue properly in case of a fa
 The (complete) intended behavior of the error handler requires some further clarification, especially in the case of fatal errors. In the case of non-fatal errors the code invoking the error handler must be able to continue after the error handler returns.
 
 ## Error Handling vs. Logging
-Does it make sense to have LogErr without an error handler call? If an error occurs it should probably be enforced that the handler is called and not just lead to a log entry.
+Does it make sense to have ``LogErr`` without an error handler call? If an error occurs it should probably be enforced that the handler is called and not just lead to a log entry.
 One reason for this is that currently it is not possible to provide an additional error message to the error handler.
 
 ## Additional Error Information
@@ -290,15 +290,15 @@ An optional stack-trace (at least in debug mode) may also prove very useful.
 What is needed to have a limited stack-trace even in release mode?
 
 ## Debug vs. release mode
-We need to further clarify behavior in Release and debug mode of the error handler and Expects and Ensures (and maybe the logger as well). Can we have a release build with additional information? (e.g. symbols for a stack-trace).
+We need to further clarify behavior in Release and debug mode of the error handler and ``Expects`` and ``Ensures`` (and maybe the logger as well). Can we have a release build with additional information? (e.g. symbols for a stack-trace).
 
 ## Assert
-Do we want an Assert in addition to Expects and Ensures? If so, shall it possibly be active in release mode or only debug mode?
+Do we want an Assert in addition to ``Expects`` and ``Ensures``? If so, shall it possibly be active in release mode or only debug mode?
 
-In principle with a sufficiently powerful Assert or Expects (resp. Ensures), this should not be needed (they are equivalent in their functionality).
+In principle with a sufficiently powerful Assert or ``Expects`` (resp. ``Ensures``), this should not be needed (they are equivalent in their functionality).
 
 ## Errors in utils
-Currently there are a few occurrences in utils where terminate is called directly in case of an error. We need to evaluate whether it is possible to replace them all with assert-like constructs such as Expects, Ensures or Assert or something else.
+Currently there are a few occurrences in utils where terminate is called directly in case of an error. We need to evaluate whether it is possible to replace them all with assert-like constructs such as ``Expects``, ``Ensures`` or ``assert`` or something else.
 
 # Future improvements
 In this section we briefly describe ways to potentially improve or extend functionality of existing error handling components. This list is by no means exhaustive and all suggestions are up for discussion and may be refined further.
