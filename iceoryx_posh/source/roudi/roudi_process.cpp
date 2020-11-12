@@ -15,7 +15,7 @@
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port_data.hpp"
+//#include "iceoryx_posh/internal/popo/receiver_port_data.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
@@ -443,90 +443,6 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name)
     }
 }
 
-/// @deprecated #25
-void ProcessManager::addReceiverForProcess(const ProcessName_t& name,
-                                           const capro::ServiceDescription& service,
-                                           const RunnableName_t& runnable,
-                                           const PortConfigInfo& portConfigInfo) noexcept
-{
-    std::lock_guard<std::mutex> g(m_mutex);
-
-    RouDiProcess* process = getProcessFromList(name);
-    if (nullptr != process)
-    {
-        // create a ReceiverPort
-
-        /// @todo: it might be useful to encapsulate this into some kind of port factory
-        /// (which maybe contains a m_shmMgr)
-        /// main goal would be to isolate the port creation logic as it becomes more complex
-        /// pursuing this further could lead to a separate management entity for ports
-        /// which could support queries like: find all ports with a given service or some other
-        /// specific attribute (to allow efficient and well encapsulated lookup)
-
-        ReceiverPortType::MemberType_t* receiver =
-            m_portManager.acquireReceiverPortData(service, name, runnable, portConfigInfo);
-
-        // send ReceiverPort to app as a serialized relative pointer
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, receiver);
-
-        runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_RECEIVER_ACK)
-                   << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-        process->sendToMQ(sendBuffer);
-
-        LogDebug() << "Created new ReceiverPortImpl for application " << name;
-    }
-    else
-    {
-        LogWarn() << "Unknown application " << name << " requested a ReceiverPortImpl.";
-    }
-}
-
-/// @deprecated #25
-void ProcessManager::addSenderForProcess(const ProcessName_t& name,
-                                         const capro::ServiceDescription& service,
-                                         const RunnableName_t& runnable,
-                                         const PortConfigInfo& portConfigInfo) noexcept
-{
-    std::lock_guard<std::mutex> g(m_mutex);
-
-    RouDiProcess* process = getProcessFromList(name);
-    if (nullptr != process)
-    {
-        // create a SenderPort
-        auto maybeSender = m_portManager.acquireSenderPortData(
-            service, name, process->getPayloadMemoryManager(), runnable, portConfigInfo);
-
-        if (!maybeSender.has_error())
-        {
-            // send SenderPort to app as a serialized relative pointer
-            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSender.get_value());
-
-            runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_SENDER_ACK)
-                       << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
-            process->sendToMQ(sendBuffer);
-
-            LogDebug() << "Created new SenderPortImpl for application " << name;
-        }
-        else
-        {
-            runtime::MqMessage sendBuffer;
-            sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::ERROR);
-            sendBuffer << runtime::mqMessageErrorTypeToString( // map error codes
-                (maybeSender.get_error() == PortPoolError::UNIQUE_SENDER_PORT_ALREADY_EXISTS
-                     ? runtime::MqMessageErrorType::NO_UNIQUE_CREATED
-                     : runtime::MqMessageErrorType::SENDERLIST_FULL));
-            process->sendToMQ(sendBuffer);
-            LogError() << "Could not create SenderPortImpl for application " << name;
-        }
-    }
-    else
-    {
-        LogWarn() << "Unknown application " << name << " requested a SenderPortImpl.";
-    }
-}
-
 void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
                                              const capro::ServiceDescription& service,
                                              const uint64_t& historyRequest,
@@ -721,8 +637,6 @@ void ProcessManager::monitorProcesses() noexcept
                 // memory and the associated RouDi discovery ports
                 // @todo Check if ShmManager and Process Manager end up in unintended condition
                 m_portManager.deletePortsOfProcess(processIterator->getName());
-
-                /// @todo #25 Need to delete condition variables used by terminating processes...
 
                 m_processIntrospection->removeProcess(processIterator->getPid());
 

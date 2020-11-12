@@ -182,48 +182,6 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-
-    /// @deprecated #25
-    case runtime::MqMessageType::CREATE_SENDER:
-    {
-        if (message.getNumberOfElements() != 5)
-        {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_SENDER\" from \"" << processName
-                       << "\"received!";
-        }
-        else
-        {
-            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
-
-            m_prcMgr.addSenderForProcess(ProcessName_t(cxx::TruncateToCapacity, processName),
-                                         service,
-                                         RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
-                                         iox::runtime::PortConfigInfo(portConfigInfoSerialization));
-        }
-        break;
-    }
-
-    /// @deprecated #25
-    case runtime::MqMessageType::CREATE_RECEIVER:
-    {
-        if (message.getNumberOfElements() != 5)
-        {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_RECEIVER\" from \"" << processName
-                       << "\"received!";
-        }
-        else
-        {
-            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
-
-            m_prcMgr.addReceiverForProcess(ProcessName_t(cxx::TruncateToCapacity, processName),
-                                           service,
-                                           RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
-                                           iox::runtime::PortConfigInfo(portConfigInfoSerialization));
-        }
-        break;
-    }
     case runtime::MqMessageType::CREATE_PUBLISHER:
     {
         if (message.getNumberOfElements() != 6)

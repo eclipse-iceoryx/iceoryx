@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
+//#include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/internal/roudi/roudi_process.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"

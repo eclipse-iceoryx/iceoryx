@@ -21,8 +21,8 @@
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
+//#include "iceoryx_posh/internal/popo/receiver_port.hpp"
+//#include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/internal/runtime/runnable_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
@@ -78,29 +78,6 @@ class PoshRuntime
     /// @brief stop offering the provided service
     /// @param[in] serviceDescription of the service that shall be no more offered
     void stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept;
-
-    /// @deprecated #25
-    /// @brief request the RouDi daemon to create a sender port
-    /// @param[in] serviceDescription service description for the new sender port
-    /// @param[in] runnableName name of the runnable where the sender should belong to
-    /// @param[in] portConfigInfo configuration information for the port
-    /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
-    /// @return pointer to a created sender port data
-    SenderPortType::MemberType_t* getMiddlewareSender(const capro::ServiceDescription& service,
-                                                      const cxx::CString100& runnableName = cxx::CString100(""),
-                                                      const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
-
-    /// @deprecated #25
-    /// @brief request the RouDi daemon to create a receiver port
-    /// @param[in] serviceDescription service description for the new receiver port
-    /// @param[in] runnableName name of the runnable where the receiver should belong to
-    /// @param[in] portConfigInfo configuration information for the port
-    /// (what type of port is requested, device where its payload memory is located on etc.)
-    /// @return pointer to a created receiver port data
-    ReceiverPortType::MemberType_t*
-    getMiddlewareReceiver(const capro::ServiceDescription& service,
-                          const cxx::CString100& runnableName = cxx::CString100(""),
-                          const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a publisher port
     /// @param[in] serviceDescription service description for the new publisher port
@@ -176,13 +153,6 @@ class PoshRuntime
     static PoshRuntime& defaultRuntimeFactory(const std::string& name) noexcept;
 
   private:
-    /// @deprecated #25
-    cxx::expected<SenderPortType::MemberType_t*, MqMessageErrorType>
-    requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept;
-
-    /// @deprecated #25
-    ReceiverPortType::MemberType_t* requestReceiverFromRoudi(const MqMessage& sendBuffer) noexcept;
-
     cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
     requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept;
 

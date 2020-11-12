@@ -31,9 +31,6 @@ template <typename>
 class TypedUniqueId;
 struct BasePortData;
 
-class SenderPort;   /// @deprecated #25
-class ReceiverPort; /// @deprecated #25
-
 class PublisherPortUser;
 class PublisherPortRouDi;
 
@@ -45,8 +42,6 @@ class UnixDomainSocket;
 class MessageQueue;
 } // namespace posix
 
-using SenderPortType = iox::popo::SenderPort;     /// @deprecated #25
-using ReceiverPortType = iox::popo::ReceiverPort; /// @deprecated #25
 using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
 using PublisherPortUserType = iox::popo::PublisherPortUser;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;

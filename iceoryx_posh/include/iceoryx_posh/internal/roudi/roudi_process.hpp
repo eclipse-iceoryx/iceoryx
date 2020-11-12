@@ -15,8 +15,8 @@
 #define IOX_POSH_ROUDI_ROUDI_PROCESS_HPP
 
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
+//#include "iceoryx_posh/internal/popo/receiver_port.hpp"
+//#include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
@@ -144,18 +144,6 @@ class ProcessManager : public ProcessManagerInterface
     void addApplicationForProcess(const ProcessName_t& name) noexcept;
 
     void addRunnableForProcess(const ProcessName_t& process, const RunnableName_t& runnable) noexcept;
-
-    /// @deprecated #25
-    void addReceiverForProcess(const ProcessName_t& name,
-                               const capro::ServiceDescription& service,
-                               const RunnableName_t& runnable,
-                               const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
-
-    /// @deprecated #25
-    void addSenderForProcess(const ProcessName_t& name,
-                             const capro::ServiceDescription& service,
-                             const RunnableName_t& runnable,
-                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addSubscriberForProcess(const ProcessName_t& name,
                                  const capro::ServiceDescription& service,

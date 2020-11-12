@@ -15,7 +15,7 @@
 #define IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
+//#include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 
 #include <atomic>

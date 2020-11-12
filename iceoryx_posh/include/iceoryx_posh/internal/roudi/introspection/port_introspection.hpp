@@ -16,8 +16,8 @@
 
 #include "fixed_size_container.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
-#include "iceoryx_posh/internal/popo/sender_port_data.hpp"
+//#include "iceoryx_posh/internal/popo/sender_port.hpp"
+//#include "iceoryx_posh/internal/popo/sender_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
