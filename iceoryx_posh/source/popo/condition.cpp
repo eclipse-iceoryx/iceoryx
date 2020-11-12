@@ -14,6 +14,10 @@
 
 #include "iceoryx_posh/popo/condition.hpp"
 
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
+
+
 namespace iox
 {
 namespace popo
@@ -26,11 +30,6 @@ Condition::~Condition() noexcept
     {
         errorHandler(Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE, nullptr, ErrorLevel::FATAL);
     }
-}
-
-Condition::Condition(const Condition& rhs) noexcept
-{
-    m_conditionVariableAttached.store(rhs.m_conditionVariableAttached, std::memory_order_relaxed);
 }
 
 bool Condition::isConditionVariableAttached() const noexcept

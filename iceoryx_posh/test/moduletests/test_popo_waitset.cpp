@@ -22,6 +22,7 @@
 #include "testutils/timing_test.hpp"
 
 #include <memory>
+#include <thread>
 
 using namespace ::testing;
 using ::testing::Return;
@@ -76,10 +77,9 @@ class WaitSet_test : public Test
 
     void SetUp()
     {
-        MockSubscriber subscriber;
         while (m_subscriberVector.size() != m_subscriberVector.capacity())
         {
-            m_subscriberVector.push_back(subscriber);
+            m_subscriberVector.emplace_back();
         }
     };
 

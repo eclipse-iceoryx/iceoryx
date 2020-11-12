@@ -16,14 +16,14 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
 namespace iox
 {
 namespace popo
 {
+class Condition;
+
 enum class WaitSetError : uint8_t
 {
     CONDITION_VECTOR_OVERFLOW,

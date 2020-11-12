@@ -14,12 +14,13 @@
 #ifndef IOX_POSH_POPO_CONDITION_HPP
 #define IOX_POSH_POPO_CONDITION_HPP
 
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include <atomic>
 
 namespace iox
 {
 namespace popo
 {
+struct ConditionVariableData;
 class WaitSet;
 /// @brief Base class representing a generic condition that can be stored in a WaitSet
 class Condition
@@ -27,7 +28,12 @@ class Condition
   public:
     Condition() noexcept = default;
     virtual ~Condition() noexcept;
-    Condition(const Condition& rhs) noexcept;
+
+    /// @brief copy and move operations are deleted since the WaitSet stores
+    ///        pointers to conditions. If we would allow copy and move it would
+    ///        be possible that the waitset contains dangling pointers after a
+    ///        condition was copied or moved.
+    Condition(const Condition& rhs) noexcept = delete;
     Condition(Condition&& rhs) = delete;
     Condition& operator=(const Condition& rhs) = delete;
     Condition& operator=(Condition&& rhs) = delete;

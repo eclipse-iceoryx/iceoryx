@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
@@ -21,28 +23,42 @@
 #include <iostream>
 
 bool killswitch = false;
+iox::popo::GuardCondition shutdownGuard;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     killswitch = true;
+    shutdownGuard.trigger();
 }
 
 void receiving()
 {
     iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
 
+    iox::popo::WaitSet waitset;
+
     iox::popo::TypedSubscriber<CounterTopic> mySubscriber({"Radar", "FrontLeft", "Counter"});
+    waitset.attachCondition(shutdownGuard);
+    waitset.attachCondition(mySubscriber);
 
     mySubscriber.subscribe();
 
     while (!killswitch)
     {
-        mySubscriber.take().and_then([](iox::cxx::optional<iox::popo::Sample<const CounterTopic>>& maybeSample) {
-            maybeSample.and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-                std::cout << "Received: " << sample->counter << std::endl;
-            });
-        });
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        auto triggeredConditions = waitset.wait();
+
+        for (auto& condition : triggeredConditions)
+        {
+            if (condition == &mySubscriber)
+            {
+                mySubscriber.take().and_then(
+                    [](iox::cxx::optional<iox::popo::Sample<const CounterTopic>>& maybeSample) {
+                        maybeSample.and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+                            std::cout << "Received: " << sample->counter << std::endl;
+                        });
+                    });
+            }
+        }
     }
 
     mySubscriber.unsubscribe();

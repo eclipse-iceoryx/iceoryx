@@ -31,6 +31,7 @@ extern "C" {
 #include "test.hpp"
 
 #include <atomic>
+#include <thread>
 
 using namespace ::testing;
 
