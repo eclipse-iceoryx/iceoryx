@@ -27,13 +27,13 @@ The following log levels are supported, ordered by the amount of information dis
 * ``FATAL`` - an error occurred and RouDi is unable to continue
 * ``OFF`` - no logging information
 
-For ``ERR`` and ``FATAL`` see also error levels MODERATE, SEVERE (logged with ``LogErr``) and ``FATAL`` (logged with ``LogFatal``) in [Error Levels](#Error-Levels). The levels ERR and ``FATAL`` are only supposed to be used together with the error handler, i.e. need to be accompanied with a corresponding error handler call (currently this cannot be enforced).
+For ``ERR`` and ``FATAL`` see also error levels ``MODERATE``, ``SEVERE`` (logged with ``LogErr``) and ``FATAL`` (logged with ``LogFatal``) in [Error Levels](#Error-Levels). The levels ``ERR`` and ``FATAL`` are only supposed to be used together with the error handler, i.e. need to be accompanied with a corresponding error handler call (currently this cannot be enforced).
 
 
 # Error Handling
 Errors are considered to be system states that should not be reached regularly and usually are the result of an external failure, such as when the OS is unable to provide a certain resource (e.g. a semaphore) or an application does not respond. In contrast, regular behavior such as a receiver receiving no data when none was sent is not an error. On the other hand, losing data that was sent would be considered an error.
 
-There are two general approaches to deal with errrs:
+There are two general approaches to deal with errors:
 1. using exceptions 
 
 2. return codes combined with control flow statements and a central instance to handle errors that cannot be mitigated otherwise (the error handler). 
@@ -83,7 +83,7 @@ The following error levels are supported.
 A recoverable error. Leads to an error log entry (``LogErr``) and continues execution.
 
 **Example:**
-1) Roudi receives an unexpected message and discards it. The remaining communication proceeds normally.
+1) RouDi receives an unexpected message and discards it. The remaining communication proceeds normally.
 2) A port requested by an application cannot be provided due to e.g. resource exhaustion.
 
 ### SEVERE
@@ -94,7 +94,7 @@ A message queue is overflowing and messages are lost. RouDi can continue but los
 
 
 ### FATAL
-RouDi cannot continue and will shut down. Leads to an error log entry (``LogFatal``), assert and calls ``std::terminate``, terminating execution in Debug and release mode. 
+RouDi cannot continue and will shut down. Leads to an error log entry (``LogFatal``), assert and calls ``std::terminate``, terminating execution in debug and release mode. 
 Before calling terminate, a callback is invoked (if configured), which can execute specific error handling code (e.g. call a 3rd party error handler).
 The handler is not required to return here (since this may not be always possible or reasonable). The reporting code should still try to proceed to a safe state if possible in order to improve testability in case of such errors.
 
@@ -132,16 +132,16 @@ Examples include wrapping third party API functions that return error codes or o
 
 
 ## Error Handling in posh
-Error logging shall be done by the logger only, no calls to std::cerr or similar should be performed.
+Error logging shall be done by the logger only, no calls to ``std::cerr`` or similar should be performed.
 
 All the methods presented (``cxx::expected``, ``Expects`` and ``Ensures`` and the error handler) can be used in posh. The appropriate way depends on the type of error scenario (cf. the respective sections for examples). The error handler should be considered the last option.
 
 ## Error Handling in utils
-Error logging is currently done by calls to std::cerr. In the future those might be redirected to the logger.
+Error logging is currently done by calls to ``std::cerr``. In the future those might be redirected to the logger.
 
 The error handler cannot be used in utils. 
 
-Whether it is appropriate to use cxx::expected even if STL compatibility is broken by doing so depends on the circumstances and needs to be decided on a case-by-case basis. If the function has no STL counterpart cxx::expected can be used freely to communicate potential failure to the caller.
+Whether it is appropriate to use ``cxx::expected`` even if STL compatibility is broken by doing so depends on the circumstances and needs to be decided on a case-by-case basis. If the function has no STL counterpart ``cxx::expected`` can be used freely to communicate potential failure to the caller.
 
 It should be noted that since currently Expects and Ensures are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developer's intentions.
 
@@ -290,7 +290,7 @@ An optional stack-trace (at least in debug mode) may also prove very useful.
 What is needed to have a limited stack-trace even in release mode?
 
 ## Debug vs. release mode
-We need to further clarify behavior in Release and debug mode of the error handler and ``Expects`` and ``Ensures`` (and maybe the logger as well). Can we have a release build with additional information? (e.g. symbols for a stack-trace).
+We need to further clarify behavior in release and debug mode of the error handler and ``Expects`` and ``Ensures`` (and maybe the logger as well). Can we have a release build with additional information? (e.g. symbols for a stack-trace).
 
 ## Assert
 Do we want an Assert in addition to ``Expects`` and ``Ensures``? If so, shall it possibly be active in release mode or only debug mode?
