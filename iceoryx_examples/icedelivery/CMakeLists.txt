@@ -31,6 +31,28 @@ set_target_properties(iox-ex-publisher-untyped-modern PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
+add_executable(iox-ex-subscriber-typed-modern ./iox_subscriber_typed_modern.cpp)
+target_link_libraries(iox-ex-subscriber-typed-modern
+    iceoryx_posh::iceoryx_posh
+)
+set_target_properties(iox-ex-subscriber-typed-modern PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
+
+add_executable(iox-ex-subscriber-untyped-modern ./iox_subscriber_untyped_modern.cpp)
+target_link_libraries(iox-ex-subscriber-untyped-modern
+    iceoryx_posh::iceoryx_posh
+)
+set_target_properties(iox-ex-subscriber-untyped-modern PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
+
+# ========================================================== //
+
 install(
     TARGETS iox-ex-publisher-untyped-modern iox-ex-publisher-typed-modern
     RUNTIME DESTINATION bin
