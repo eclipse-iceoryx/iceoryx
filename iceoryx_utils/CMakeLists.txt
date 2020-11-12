@@ -141,7 +141,6 @@ add_library(iceoryx_utils
     source/log/logging_internal.cpp
     source/log/logmanager.cpp
     source/log/logstream.cpp
-    source/log/ac3log_shim/simplelogger.cpp
     source/posix_wrapper/access_control.cpp
     source/posix_wrapper/mutex.cpp
     source/posix_wrapper/semaphore.cpp

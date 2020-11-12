@@ -20,10 +20,6 @@
 
 #include <mutex>
 
-// just to synchronize with ac3log debug level
-#include "ac3log/simplelogger.hpp"
-extern uint8_t debuglevel;
-
 namespace iox
 {
 namespace log
@@ -72,32 +68,6 @@ void LogManager::SetDefaultLogLevel(const LogLevel logLevel, const LogLevelOutpu
     {
         std::clog << "Log level set to: " << LogLevelColor[cxx::enumTypeAsUnderlyingType(logLevel)]
                   << LogLevelText[cxx::enumTypeAsUnderlyingType(logLevel)] << "\033[m" << std::endl;
-    }
-
-    /// @todo remove this once we get rid of the ac3log compatibility layer
-    switch (logLevel)
-    {
-    case LogLevel::kOff:
-        debuglevel = L_ERR;
-        break;
-    case LogLevel::kFatal:
-        debuglevel = L_ERR;
-        break;
-    case LogLevel::kError:
-        debuglevel = L_ERR;
-        break;
-    case LogLevel::kWarn:
-        debuglevel = L_WARN;
-        break;
-    case LogLevel::kInfo:
-        debuglevel = L_INFO;
-        break;
-    case LogLevel::kDebug:
-        debuglevel = L_DEBUG;
-        break;
-    case LogLevel::kVerbose:
-        debuglevel = L_DEBUG;
-        break;
     }
 }
 
