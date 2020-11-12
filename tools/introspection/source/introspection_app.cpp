@@ -697,26 +697,25 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
 
             while (!mempoolSample)
             {
-                memPoolSubscriber.receive().and_then(
-                    [&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
-                        if (maybeSample.has_value())
-                        {
-                            const MemPoolIntrospectionInfoContainer* mempoolSample =
-                                static_cast<const MemPoolIntrospectionInfoContainer*>(maybeSample->get());
+                memPoolSubscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+                    if (maybeSample.has_value())
+                    {
+                        const MemPoolIntrospectionInfoContainer* mempoolSample =
+                            static_cast<const MemPoolIntrospectionInfoContainer*>(maybeSample->get());
 
-                            if (mempoolSample->empty())
+                        if (mempoolSample->empty())
+                        {
+                            prettyPrint("Waiting for mempool introspection data ...\n");
+                        }
+                        else
+                        {
+                            for (const auto& i : *mempoolSample)
                             {
-                                prettyPrint("Waiting for mempool introspection data ...\n");
-                            }
-                            else
-                            {
-                                for (const auto& i : *mempoolSample)
-                                {
-                                    printMemPoolInfo(i);
-                                }
+                                printMemPoolInfo(i);
                             }
                         }
-                    });
+                    }
+                });
             }
         }
 
@@ -738,14 +737,13 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
             }
             else
             {
-                processSubscriber.receive().and_then(
-                    [&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
-                        if (maybeSample.has_value())
-                        {
-                            typedProcessSample = static_cast<const ProcessIntrospectionFieldTopic*>(maybeSample->get());
-                            printProcessIntrospectionData(typedProcessSample);
-                        }
-                    });
+                processSubscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+                    if (maybeSample.has_value())
+                    {
+                        typedProcessSample = static_cast<const ProcessIntrospectionFieldTopic*>(maybeSample->get());
+                        printProcessIntrospectionData(typedProcessSample);
+                    }
+                });
             }
         }
 
@@ -756,14 +754,14 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
             bool newPortThroughputSampleeArrived{false};
             bool newReceiverPortChangingDataSamplesArrived{false};
 
-            portSubscriber.receive().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+            portSubscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
                 if (maybeSample.has_value())
                 {
                     typedPortSample = static_cast<const PortIntrospectionFieldTopic*>(maybeSample->get());
                     newPortSampleArrived = true;
                 }
             });
-            portThroughputSubscriber.receive().and_then(
+            portThroughputSubscriber.take().and_then(
                 [&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
                     if (maybeSample.has_value())
                     {
@@ -772,7 +770,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
                         newPortThroughputSampleeArrived = true;
                     }
                 });
-            receiverPortChangingDataSubscriber.receive().and_then(
+            receiverPortChangingDataSubscriber.take().and_then(
                 [&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
                     if (maybeSample.has_value())
                     {
