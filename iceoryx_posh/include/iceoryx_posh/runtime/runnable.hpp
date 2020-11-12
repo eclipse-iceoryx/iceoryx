@@ -51,7 +51,7 @@ class Runnable
 
     /// @brief returns the name of the process
     /// @return string which contains the process name
-    RunnableName_t getProcessName() const noexcept;
+    ProcessName_t getProcessName() const noexcept;
 
   protected:
     Runnable(RunnableData* const data) noexcept;

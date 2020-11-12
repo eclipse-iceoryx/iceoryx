@@ -62,7 +62,7 @@ RunnableName_t Runnable::getRunnableName() const noexcept
     return m_data->m_runnable;
 }
 
-RunnableName_t Runnable::getProcessName() const noexcept
+ProcessName_t Runnable::getProcessName() const noexcept
 {
     return m_data->m_process;
 }
