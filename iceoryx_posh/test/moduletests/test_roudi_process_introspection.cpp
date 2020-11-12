@@ -23,19 +23,19 @@ using ::testing::Return;
 #undef private
 #undef protected
 
+#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_utils/fixed_string/string100.hpp"
 #include "mocks/chunk_mock.hpp"
-#include "mocks/senderport_mock.hpp"
+#include "mocks/publisher_mock.hpp"
 
 class ProcessIntrospection_test : public Test
 {
   public:
-    using ProcessIntrospection = iox::roudi::ProcessIntrospection<SenderPort_MOCK>;
+    using ProcessIntrospection = iox::roudi::ProcessIntrospection<MockPublisherPortUser>;
     using Topic = iox::roudi::ProcessIntrospectionFieldTopic;
 
     ProcessIntrospection_test()
     {
-        m_senderPortImpl_mock = m_senderPortImpl.details;
     }
 
     ~ProcessIntrospection_test()
@@ -45,6 +45,7 @@ class ProcessIntrospection_test : public Test
     virtual void SetUp()
     {
         internal::CaptureStdout();
+        // m_publisherPortData.PublisherPortData(m_serviceDescription, "Foo", &m_memoryManager);
     }
 
     virtual void TearDown()
@@ -54,67 +55,65 @@ class ProcessIntrospection_test : public Test
         {
             std::cout << output << std::endl;
         }
+        m_publisherPortData.~PublisherPortData();
     }
 
     std::unique_ptr<ChunkMock<Topic>> createMemoryChunkAndSend(ProcessIntrospection& introspection)
     {
         std::unique_ptr<ChunkMock<Topic>> chunk{new ChunkMock<Topic>};
 
-        m_senderPortImpl_mock->reserveSampleReturn = chunk->chunkHeader();
-        m_senderPortImpl_mock->deliverChunk = 0;
+        EXPECT_CALL(m_senderPortImpl_mock, sendChunk(_)).Times(1);
 
         introspection.send();
-
-        EXPECT_THAT(m_senderPortImpl_mock->deliverChunk, Eq(1));
-        m_senderPortImpl_mock->deliverChunk = 0;
 
         return chunk;
     }
 
-    SenderPort_MOCK m_senderPortImpl;
-    std::shared_ptr<SenderPort_MOCK::mock_t> m_senderPortImpl_mock = m_senderPortImpl.details;
+    MockPublisherPortUser m_senderPortImpl_mock;
+    iox::mepoo::MemoryManager m_memoryManager;
+    iox::capro::ServiceDescription m_serviceDescription;
+    iox::popo::PublisherPortData m_publisherPortData{m_serviceDescription, "Foo", &m_memoryManager};
 };
 
 TEST_F(ProcessIntrospection_test, CTOR)
 {
     ProcessIntrospection m_introspection;
-    EXPECT_THAT(m_senderPortImpl_mock->deactivate, Eq(0));
+    EXPECT_CALL(m_senderPortImpl_mock, stopOffer()).Times(1);
 }
 
 TEST_F(ProcessIntrospection_test, registerSenderPort)
 {
     {
         ProcessIntrospection m_introspection;
-        m_senderPortImpl_mock->isConnectedToMembersReturn = true;
-        m_introspection.registerSenderPort(std::move(m_senderPortImpl));
+        m_introspection.registerSenderPort(&m_publisherPortData);
     }
-    EXPECT_THAT(m_senderPortImpl_mock->deactivate, Eq(1));
+    // stopOffer was called
+    EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
 TEST_F(ProcessIntrospection_test, send)
 {
     {
         ProcessIntrospection m_introspection;
-        m_senderPortImpl_mock->isConnectedToMembersReturn = true;
-        m_introspection.registerSenderPort(std::move(m_senderPortImpl));
+        m_introspection.registerSenderPort(&m_publisherPortData);
 
         auto chunk = createMemoryChunkAndSend(m_introspection);
         EXPECT_THAT(chunk->sample()->m_processList.size(), Eq(0));
     }
-    EXPECT_THAT(m_senderPortImpl_mock->deactivate, Eq(1));
+    // stopOffer was called
+    EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
 TEST_F(ProcessIntrospection_test, addRemoveProcess)
 {
     {
         ProcessIntrospection m_introspection;
-        m_senderPortImpl_mock->isConnectedToMembersReturn = true;
-        m_introspection.registerSenderPort(std::move(m_senderPortImpl));
+        m_introspection.registerSenderPort(&m_publisherPortData);
 
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
 
-        m_senderPortImpl_mock->hasSubscribersReturn = true;
+        // m_senderPortImpl_mock->hasSubscribersReturn = true;
 
         // invalid removal doesn't cause problems
         m_introspection.removeProcess(PID);
@@ -135,9 +134,10 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
 
         // if there isn't any change, no data are deliverd
         m_introspection.send();
-        EXPECT_THAT(m_senderPortImpl_mock->deliverChunk, Eq(0));
+        EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(0);
     }
-    EXPECT_THAT(m_senderPortImpl_mock->deactivate, Eq(1));
+    // stopOffer was called
+    EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
 TEST_F(ProcessIntrospection_test, thread)
@@ -149,13 +149,10 @@ TEST_F(ProcessIntrospection_test, thread)
         const char PROCESS_NAME[] = "/chuck_norris";
 
         ProcessIntrospection m_introspection;
-        m_senderPortImpl_mock->isConnectedToMembersReturn = true;
 
-        m_introspection.registerSenderPort(std::move(m_senderPortImpl));
+        m_introspection.registerSenderPort(&m_publisherPortData);
 
-        m_senderPortImpl_mock->reserveSampleReturn = chunk.chunkHeader();
         // we use the deliverChunk call to check how often the thread calls the send method
-
         std::chrono::milliseconds& sendIntervalSleep =
             const_cast<std::chrono::milliseconds&>(m_introspection.m_sendIntervalSleep);
         sendIntervalSleep = std::chrono::milliseconds(10);
@@ -181,26 +178,25 @@ TEST_F(ProcessIntrospection_test, thread)
             m_introspection.removeProcess(PID);
         }
         // if the thread doesn't stop, we have 12 runs after the sleep period
-        EXPECT_THAT(m_senderPortImpl_mock->activate, Eq(1));
-        EXPECT_THAT(4 <= m_senderPortImpl_mock->deliverChunk && m_senderPortImpl_mock->deliverChunk <= 8, Eq(true));
+        EXPECT_CALL(m_senderPortImpl_mock, offer).Times(1);
+        EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(AtLeast(4));
     }
-    EXPECT_THAT(m_senderPortImpl_mock->deactivate, Eq(1));
+    // stopOffer was called
+    EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
 TEST_F(ProcessIntrospection_test, addRemoveRunnable)
 {
     {
         ProcessIntrospection m_introspection;
-        m_senderPortImpl_mock->isConnectedToMembersReturn = true;
-        m_introspection.registerSenderPort(std::move(m_senderPortImpl));
+
+        m_introspection.registerSenderPort(&m_publisherPortData);
 
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
         const char RUNNABLE_1[] = "the_wrecking_crew";
         const char RUNNABLE_2[] = "the_octagon";
         const char RUNNABLE_3[] = "the_hitman";
-
-        m_senderPortImpl_mock->hasSubscribersReturn = true;
 
         // invalid removal of unknown runnable of unknown process
         m_introspection.removeRunnable(iox::cxx::CString100(PROCESS_NAME), iox::cxx::CString100(RUNNABLE_1));
@@ -249,5 +245,6 @@ TEST_F(ProcessIntrospection_test, addRemoveRunnable)
         EXPECT_THAT(chunk7->sample()->m_processList.size(), Eq(1));
         EXPECT_THAT(chunk7->sample()->m_processList[0].m_runnables.size(), Eq(0));
     }
-    EXPECT_THAT(m_senderPortImpl_mock->deactivate, Eq(1));
+    // stopOffer was called
+    EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }

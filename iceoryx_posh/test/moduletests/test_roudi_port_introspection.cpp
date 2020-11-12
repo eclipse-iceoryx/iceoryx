@@ -14,8 +14,8 @@
 
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "mocks/chunk_mock.hpp"
-#include "mocks/receiverport_mock.hpp"
-#include "mocks/senderport_mock.hpp"
+#include "mocks/publisher_mock.hpp"
+#include "mocks/subscriber_mock.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -48,7 +48,7 @@ class PortIntrospection_test : public Test
   public:
     PortIntrospection_test()
         : m_introspectionAccess(
-            static_cast<PortIntrospectionAccess<SenderPort_MOCK, ReceiverPort_MOCK>&>(*m_introspection))
+            static_cast<PortIntrospectionAccess<MockPublisherPortUser, MockSubscriberPortUser>&>(*m_introspection))
     {
     }
 
@@ -59,17 +59,10 @@ class PortIntrospection_test : public Test
     virtual void SetUp()
     {
         internal::CaptureStdout();
-        m_senderPortImpl_mock = m_senderPortImpl.details;
-        m_portThroughput_mock = m_portThroughput.details;
-        m_receiverPortData_mock = m_portreceiverPortData.details;
-        m_senderPortImpl_mock->isConnectedToMembersReturn = true;
-        m_portThroughput_mock->isConnectedToMembersReturn = true;
-        m_receiverPortData_mock->isConnectedToMembersReturn = true;
-        ASSERT_THAT(m_introspection->registerSenderPort(
-                        std::move(m_senderPortImpl), std::move(m_portThroughput), std::move(m_portreceiverPortData)),
+        ASSERT_THAT(m_introspection->registerSenderPort(&m_publisherPortDataPortGeneric,
+                                                        &m_publisherPortDataThroughput,
+                                                        &m_publisherPortDataReceiverData),
                     Eq(true));
-        EXPECT_THAT(m_senderPortImpl_mock->enableDoDeliverOnSubscription, Eq(1));
-        EXPECT_THAT(m_portThroughput_mock->enableDoDeliverOnSubscription, Eq(1));
     }
 
     virtual void TearDown()
@@ -123,44 +116,43 @@ class PortIntrospection_test : public Test
 
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-    std::shared_ptr<SenderPort_MOCK::mock_t> m_senderPortImpl_mock;
-    std::shared_ptr<SenderPort_MOCK::mock_t> m_portThroughput_mock;
-    std::shared_ptr<SenderPort_MOCK::mock_t> m_receiverPortData_mock;
-    SenderPort_MOCK m_senderPortImpl;
-    SenderPort_MOCK m_portThroughput;
-    SenderPort_MOCK m_portreceiverPortData;
-    std::unique_ptr<iox::roudi::PortIntrospection<SenderPort_MOCK, ReceiverPort_MOCK>> m_introspection{
-        new iox::roudi::PortIntrospection<SenderPort_MOCK, ReceiverPort_MOCK>};
-    PortIntrospectionAccess<SenderPort_MOCK, ReceiverPort_MOCK>& m_introspectionAccess;
+
+    iox::mepoo::MemoryManager m_memoryManager;
+    iox::capro::ServiceDescription m_serviceDescription;
+    iox::popo::PublisherPortData m_publisherPortDataPortGeneric{m_serviceDescription, "Foo", &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataThroughput{m_serviceDescription, "Foo", &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataReceiverData{m_serviceDescription, "Foo", &m_memoryManager};
+
+    MockPublisherPortUser m_senderPortImpl_mock;
+    MockPublisherPortUser m_portThroughput_mock;
+    MockPublisherPortUser m_receiverPortData_mock;
+    std::unique_ptr<iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>> m_introspection{
+        new iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>};
+    PortIntrospectionAccess<MockPublisherPortUser, MockSubscriberPortUser>& m_introspectionAccess;
 };
 
 
 TEST_F(PortIntrospection_test, registerSenderPort)
 {
-    SenderPort_MOCK senderPortImpl_mock;
-    SenderPort_MOCK portThroughput_mock;
-    SenderPort_MOCK portreceiverPortData_mock;
-    auto introspection = std::unique_ptr<iox::roudi::PortIntrospection<SenderPort_MOCK, ReceiverPort_MOCK>>(
-        new iox::roudi::PortIntrospection<SenderPort_MOCK, ReceiverPort_MOCK>);
+    iox::popo::PublisherPortData m_publisherPortDataPortGeneric{m_serviceDescription, "Foo", &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataThroughput{m_serviceDescription, "Foo", &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataReceiverData{m_serviceDescription, "Foo", &m_memoryManager};
 
-    auto mockSender = senderPortImpl_mock.details;
-    auto mockPort = portThroughput_mock.details;
-    mockSender->isConnectedToMembersReturn = true;
-    mockPort->isConnectedToMembersReturn = true;
-    EXPECT_THAT(introspection->registerSenderPort(std::move(senderPortImpl_mock),
-                                                  std::move(portThroughput_mock),
-                                                  std::move(portreceiverPortData_mock)),
+    auto introspection = std::unique_ptr<iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>>(
+        new iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>);
+
+    EXPECT_THAT(introspection->registerSenderPort(
+                    &m_publisherPortDataPortGeneric, &m_publisherPortDataThroughput, &m_publisherPortDataReceiverData),
                 Eq(true));
 
-    SenderPort_MOCK senderPortImpl_mock2;
-    SenderPort_MOCK portThroughput_mock2;
-    SenderPort_MOCK portreceiverPortData_mock2;
-    EXPECT_THAT(introspection->registerSenderPort(std::move(senderPortImpl_mock2),
-                                                  std::move(portThroughput_mock2),
-                                                  std::move(portreceiverPortData_mock2)),
+    iox::popo::PublisherPortData m_publisherPortDataPortGeneric2{m_serviceDescription, "Foo", &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataThroughput2{m_serviceDescription, "Foo", &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataReceiverData2{m_serviceDescription, "Foo", &m_memoryManager};
+
+    EXPECT_THAT(introspection->registerSenderPort(&m_publisherPortDataPortGeneric2,
+                                                  &m_publisherPortDataThroughput2,
+                                                  &m_publisherPortDataReceiverData2),
                 Eq(false));
-    EXPECT_THAT(mockSender->enableDoDeliverOnSubscription, Eq(1));
-    EXPECT_THAT(mockPort->enableDoDeliverOnSubscription, Eq(1));
 }
 
 TEST_F(PortIntrospection_test, sendPortData_EmptyList)
@@ -169,128 +161,118 @@ TEST_F(PortIntrospection_test, sendPortData_EmptyList)
 
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
 
-    m_senderPortImpl_mock->reserveSampleReturn = chunk->chunkHeader();
-
     m_introspectionAccess.sendPortData();
 
     // topic contains no sender or receiver ports but 0xFF bytes are overwritten
 
-    EXPECT_THAT(m_senderPortImpl_mock->deliverChunk, Eq(1));
+    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(1);
     EXPECT_THAT(chunk->sample()->m_senderList.size(), Eq(0));
     EXPECT_THAT(chunk->sample()->m_receiverList.size(), Eq(0));
 }
 
 TEST_F(PortIntrospection_test, sendThroughputData_EmptyList)
 {
+    /// @todo #252 re-add port throughput for v1.0?
     using Topic = iox::roudi::PortThroughputIntrospectionFieldTopic;
 
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
-
-    m_portThroughput_mock->reserveSampleReturn = chunk->chunkHeader();
 
     m_introspectionAccess.sendThroughputData();
 
     // topic contains no sender or receiver ports but 0xFF bytes are overwritten
 
     EXPECT_THAT(chunk->sample()->m_throughputList.size(), Eq(0));
-    EXPECT_THAT(m_portThroughput_mock->deliverChunk, Eq(1));
+    EXPECT_CALL(m_portThroughput_mock, sendChunk).Times(1);
 }
 
 TEST_F(PortIntrospection_test, sendData_OneSender)
 {
-    using PortData = iox::roudi::SenderPortData;
-    using ThroughputData = iox::roudi::PortThroughputData;
+    /// @todo #252 re-add port throughput for v1.0?
 
-    using PortDataTopic = iox::roudi::PortIntrospectionFieldTopic;
-    using ThroughputTopic = iox::roudi::PortThroughputIntrospectionFieldTopic;
+    // using PortData = iox::roudi::SenderPortData;
+    // using ThroughputData = iox::roudi::PortThroughputData;
 
-    using PortDataChunk = ChunkMock<PortDataTopic>;
-    using ThroughputChunk = ChunkMock<ThroughputTopic>;
+    // using PortDataTopic = iox::roudi::PortIntrospectionFieldTopic;
+    // using ThroughputTopic = iox::roudi::PortThroughputIntrospectionFieldTopic;
 
-    auto portDataTopic = std::unique_ptr<PortDataChunk>(new PortDataChunk);
-    auto throughputTopic = std::unique_ptr<ThroughputChunk>(new ThroughputChunk);
+    // using PortDataChunk = ChunkMock<PortDataTopic>;
+    // using ThroughputChunk = ChunkMock<ThroughputTopic>;
 
-    m_senderPortImpl_mock->reserveSampleReturn = portDataTopic->chunkHeader();
-    m_portThroughput_mock->reserveSampleReturn = throughputTopic->chunkHeader();
+    // auto portDataTopic = std::unique_ptr<PortDataChunk>(new PortDataChunk);
+    // auto throughputTopic = std::unique_ptr<ThroughputChunk>(new ThroughputChunk);
 
-    SenderPort_MOCK senderPort;
-    auto mockSenderPort = senderPort.details;
-    std::string senderPortName("name");
+    // MockPublisherPortUser senderPort;
+    // std::string senderPortName("name");
 
-    PortData expectedSenderPortData;
-    expectedSenderPortData.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, senderPortName.c_str());
-    expectedSenderPortData.m_caproInstanceID = "1";
-    expectedSenderPortData.m_caproServiceID = "2";
-    expectedSenderPortData.m_caproEventMethodID = "3";
+    // PortData expectedSenderPortData;
+    // expectedSenderPortData.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, senderPortName.c_str());
+    // expectedSenderPortData.m_caproInstanceID = "1";
+    // expectedSenderPortData.m_caproServiceID = "2";
+    // expectedSenderPortData.m_caproEventMethodID = "3";
 
-    constexpr uint64_t ExpectedUniqueID{1337};
-    constexpr double NsPerSecond{1000000000.};
-    constexpr uint64_t durationNs{100000000};
-    SenderPort_MOCK::Throughput expectedThroughput;
-    expectedThroughput.payloadSize = 73;
-    expectedThroughput.chunkSize = 128;
-    expectedThroughput.sequenceNumber = 13;
-    expectedThroughput.lastDeliveryTimestamp = TimePointNs(DurationNs(0));
-    expectedThroughput.currentDeliveryTimestamp = TimePointNs(DurationNs(durationNs));
-    ThroughputData expectedThroughputData;
-    expectedThroughputData.m_senderPortID = ExpectedUniqueID;
-    expectedThroughputData.m_sampleSize = expectedThroughput.payloadSize;
-    expectedThroughputData.m_chunkSize = expectedThroughput.chunkSize;
-    expectedThroughputData.m_chunksPerMinute = 60. / (static_cast<double>(durationNs) / NsPerSecond);
-    expectedThroughputData.m_lastSendIntervalInNanoseconds = durationNs;
+    // constexpr uint64_t ExpectedUniqueID{1337};
+    // constexpr double NsPerSecond{1000000000.};
+    // constexpr uint64_t durationNs{100000000};
+    // MockPublisherPortUser::Throughput expectedThroughput;
+    // expectedThroughput.payloadSize = 73;
+    // expectedThroughput.chunkSize = 128;
+    // expectedThroughput.sequenceNumber = 13;
+    // expectedThroughput.lastDeliveryTimestamp = TimePointNs(DurationNs(0));
+    // expectedThroughput.currentDeliveryTimestamp = TimePointNs(DurationNs(durationNs));
+    // ThroughputData expectedThroughputData;
+    // expectedThroughputData.m_senderPortID = ExpectedUniqueID;
+    // expectedThroughputData.m_sampleSize = expectedThroughput.payloadSize;
+    // expectedThroughputData.m_chunkSize = expectedThroughput.chunkSize;
+    // expectedThroughputData.m_chunksPerMinute = 60. / (static_cast<double>(durationNs) / NsPerSecond);
+    // expectedThroughputData.m_lastSendIntervalInNanoseconds = durationNs;
 
-    iox::capro::ServiceDescription service(expectedSenderPortData.m_caproServiceID,
-                                           expectedSenderPortData.m_caproInstanceID,
-                                           expectedSenderPortData.m_caproEventMethodID);
+    // iox::capro::ServiceDescription service(expectedSenderPortData.m_caproServiceID,
+    //                                        expectedSenderPortData.m_caproInstanceID,
+    //                                        expectedSenderPortData.m_caproEventMethodID);
 
-    iox::popo::SenderPortData senderPortData;
-    senderPortData.m_throughputReadCache = expectedThroughput;
-    senderPortData.m_processName = expectedSenderPortData.m_name;
+    // iox::popo::SenderPortData senderPortData;
+    // senderPortData.m_throughputReadCache = expectedThroughput;
+    // senderPortData.m_processName = expectedSenderPortData.m_name;
 
-    EXPECT_THAT(m_introspection->addSender(&senderPortData, senderPortName, service, ""), Eq(true));
+    // EXPECT_THAT(m_introspection->addSender(&senderPortData, senderPortName, service, ""), Eq(true));
 
-    SenderPort_MOCK::globalDetails = std::make_shared<SenderPort_MOCK::mock_t>();
-    SenderPort_MOCK::globalDetails->reserveSampleReturn = throughputTopic->chunkHeader();
-    SenderPort_MOCK::globalDetails->getThroughputReturn = expectedThroughput;
-    m_introspectionAccess.sendThroughputData();
-    SenderPort_MOCK::globalDetails.reset();
+    // SenderPort_MOCK::globalDetails = std::make_shared<SenderPort_MOCK::mock_t>();
+    // SenderPort_MOCK::globalDetails->reserveSampleReturn = throughputTopic->chunkHeader();
+    // SenderPort_MOCK::globalDetails->getThroughputReturn = expectedThroughput;
+    // m_introspectionAccess.sendThroughputData();
 
-    expectedThroughput.sequenceNumber++;
-    expectedThroughput.lastDeliveryTimestamp = TimePointNs(DurationNs(durationNs));
-    expectedThroughput.currentDeliveryTimestamp = TimePointNs(DurationNs(2 * durationNs));
+    // expectedThroughput.sequenceNumber++;
+    // expectedThroughput.lastDeliveryTimestamp = TimePointNs(DurationNs(durationNs));
+    // expectedThroughput.currentDeliveryTimestamp = TimePointNs(DurationNs(2 * durationNs));
 
-    SenderPort_MOCK::globalDetails = std::make_shared<SenderPort_MOCK::mock_t>();
-    SenderPort_MOCK::globalDetails->getUniqueIDReturn = ExpectedUniqueID;
-    SenderPort_MOCK::globalDetails->reserveSampleReturn = portDataTopic->chunkHeader();
-    m_introspectionAccess.sendPortData();
-    SenderPort_MOCK::globalDetails.reset();
+    // m_introspectionAccess.sendPortData();
 
     // topic contains no sender or receiver ports but 0xFF bytes are overwritten
 
-    ASSERT_THAT(portDataTopic->sample()->m_senderList.size(), Eq(1));
-    auto sentSenderPortData = portDataTopic->sample()->m_senderList[0];
-    EXPECT_THAT(sentSenderPortData.m_senderPortID, Eq(ExpectedUniqueID));
-    EXPECT_THAT(sentSenderPortData.m_name, Eq(expectedSenderPortData.m_name));
-    EXPECT_THAT(sentSenderPortData.m_caproInstanceID, Eq(expectedSenderPortData.m_caproInstanceID));
-    EXPECT_THAT(sentSenderPortData.m_caproServiceID, Eq(expectedSenderPortData.m_caproServiceID));
-    EXPECT_THAT(sentSenderPortData.m_caproEventMethodID, Eq(expectedSenderPortData.m_caproEventMethodID));
+    // ASSERT_THAT(portDataTopic->sample()->m_senderList.size(), Eq(1));
+    // auto sentSenderPortData = portDataTopic->sample()->m_senderList[0];
+    // EXPECT_THAT(sentSenderPortData.m_senderPortID, Eq(ExpectedUniqueID));
+    // EXPECT_THAT(sentSenderPortData.m_name, Eq(expectedSenderPortData.m_name));
+    // EXPECT_THAT(sentSenderPortData.m_caproInstanceID, Eq(expectedSenderPortData.m_caproInstanceID));
+    // EXPECT_THAT(sentSenderPortData.m_caproServiceID, Eq(expectedSenderPortData.m_caproServiceID));
+    // EXPECT_THAT(sentSenderPortData.m_caproEventMethodID, Eq(expectedSenderPortData.m_caproEventMethodID));
 
-    SenderPort_MOCK::globalDetails = std::make_shared<SenderPort_MOCK::mock_t>();
-    SenderPort_MOCK::globalDetails->getUniqueIDReturn = ExpectedUniqueID;
-    SenderPort_MOCK::globalDetails->reserveSampleReturn = throughputTopic->chunkHeader();
-    SenderPort_MOCK::globalDetails->getThroughputReturn = expectedThroughput;
-    m_introspectionAccess.sendThroughputData();
-    SenderPort_MOCK::globalDetails.reset();
+    // SenderPort_MOCK::globalDetails = std::make_shared<SenderPort_MOCK::mock_t>();
+    // SenderPort_MOCK::globalDetails->getUniqueIDReturn = ExpectedUniqueID;
+    // SenderPort_MOCK::globalDetails->reserveSampleReturn = throughputTopic->chunkHeader();
+    // SenderPort_MOCK::globalDetails->getThroughputReturn = expectedThroughput;
+    // m_introspectionAccess.sendThroughputData();
+    // SenderPort_MOCK::globalDetails.reset();
 
 
-    ASSERT_THAT(throughputTopic->sample()->m_throughputList.size(), Eq(1));
-    auto sentThroughputData = throughputTopic->sample()->m_throughputList[0];
-    EXPECT_THAT(sentThroughputData.m_senderPortID, Eq(ExpectedUniqueID));
-    EXPECT_THAT(sentThroughputData.m_sampleSize, Eq(expectedThroughputData.m_sampleSize));
-    EXPECT_THAT(sentThroughputData.m_chunkSize, Eq(expectedThroughputData.m_chunkSize));
-    EXPECT_THAT(sentThroughputData.m_chunksPerMinute, DoubleEq(expectedThroughputData.m_chunksPerMinute));
-    EXPECT_THAT(sentThroughputData.m_lastSendIntervalInNanoseconds,
-                Eq(expectedThroughputData.m_lastSendIntervalInNanoseconds));
+    // ASSERT_THAT(throughputTopic->sample()->m_throughputList.size(), Eq(1));
+    // auto sentThroughputData = throughputTopic->sample()->m_throughputList[0];
+    // EXPECT_THAT(sentThroughputData.m_senderPortID, Eq(ExpectedUniqueID));
+    // EXPECT_THAT(sentThroughputData.m_sampleSize, Eq(expectedThroughputData.m_sampleSize));
+    // EXPECT_THAT(sentThroughputData.m_chunkSize, Eq(expectedThroughputData.m_chunkSize));
+    // EXPECT_THAT(sentThroughputData.m_chunksPerMinute, DoubleEq(expectedThroughputData.m_chunksPerMinute));
+    // EXPECT_THAT(sentThroughputData.m_lastSendIntervalInNanoseconds,
+    //             Eq(expectedThroughputData.m_lastSendIntervalInNanoseconds));
 }
 
 
@@ -300,13 +282,6 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
     using PortData = iox::roudi::SenderPortData;
 
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
-
-    m_senderPortImpl_mock->reserveSampleReturn = chunk->chunkHeader();
-
-    SenderPort_MOCK port1;
-    SenderPort_MOCK port2;
-    auto mockPort1 = port1.details;
-    auto mockPort2 = port2.details;
 
     iox::cxx::string<100> name1("name1");
     iox::cxx::string<100> name2("name2");
@@ -336,14 +311,12 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
 
     // remark: duplicate sender port insertions are not possible
 
-    iox::popo::SenderPortData portData1, portData2;
+    iox::popo::PublisherPortData portData1{m_serviceDescription, "Foo", &m_memoryManager};
+    iox::popo::PublisherPortData portData2{m_serviceDescription, "Foo", &m_memoryManager};
     EXPECT_THAT(m_introspection->addSender(&portData1, name1, service1, "4"), Eq(true));
     EXPECT_THAT(m_introspection->addSender(&portData1, name1, service1, "4"), Eq(false));
     EXPECT_THAT(m_introspection->addSender(&portData2, name2, service2, "jkl"), Eq(true));
     EXPECT_THAT(m_introspection->addSender(&portData2, name2, service2, "jkl"), Eq(false));
-
-    mockPort1->getUniqueIDReturn = 1;
-    mockPort2->getUniqueIDReturn = 2;
 
     m_introspectionAccess.sendPortData();
 
@@ -406,7 +379,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
 
     sample->~PortIntrospectionFieldTopic();
 
-    EXPECT_THAT(m_senderPortImpl_mock->deliverChunk, Eq(4u));
+    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(AtLeast(4));
 }
 
 TEST_F(PortIntrospection_test, addAndRemoveReceiver)
@@ -415,8 +388,6 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
     using PortData = iox::roudi::ReceiverPortData;
 
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
-
-    m_senderPortImpl_mock->reserveSampleReturn = chunk->chunkHeader();
 
     iox::cxx::string<100> name1("name1");
     iox::cxx::string<100> name2("name2");
@@ -447,8 +418,10 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
     // test adding of ports
 
     // remark: duplicate receiver insertions are possible but will not be transmitted via send
-    iox::popo::ReceiverPortData recData1;
-    iox::popo::ReceiverPortData recData2;
+    iox::popo::ReceiverPortData recData1{
+        m_serviceDescription, "Foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
+    iox::popo::ReceiverPortData recData2{
+        m_serviceDescription, "Foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
     EXPECT_THAT(m_introspection->addReceiver(&recData1, name1, service1, "4"), Eq(true));
     EXPECT_THAT(m_introspection->addReceiver(&recData1, name1, service1, "4"), Eq(true));
     EXPECT_THAT(m_introspection->addReceiver(&recData2, name2, service2, "7"), Eq(true));
@@ -517,7 +490,7 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
 
     sample->~PortIntrospectionFieldTopic();
 
-    EXPECT_THAT(m_senderPortImpl_mock->deliverChunk, Eq(4u));
+    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(AtLeast(4));
 }
 
 
@@ -528,8 +501,6 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     using SenderPortData = iox::roudi::SenderPortData;
 
     auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
-
-    m_senderPortImpl_mock->reserveSampleReturn = chunk->chunkHeader();
 
     std::string nameReceiver("receiver");
     std::string nameSender("sender");
@@ -553,13 +524,11 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
         expectedSender.m_caproServiceID, expectedSender.m_caproInstanceID, expectedSender.m_caproEventMethodID);
 
     // test adding of sender and receiver port of same service to establish a connection (requires same service id)
-    m_senderPortImpl.details = m_senderPortImpl_mock;
-    iox::popo::ReceiverPortData recData1;
+    iox::popo::ReceiverPortData recData1{
+        m_serviceDescription, "Foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
     EXPECT_THAT(m_introspection->addReceiver(&recData1, nameReceiver, service, ""), Eq(true));
-    iox::popo::SenderPortData senderPortData;
+    iox::popo::PublisherPortData senderPortData{m_serviceDescription, "Foo", &m_memoryManager};
     EXPECT_THAT(m_introspection->addSender(&senderPortData, nameSender, service, ""), Eq(true));
-
-    m_senderPortImpl_mock->getUniqueIDReturn = 42;
 
     m_introspectionAccess.sendPortData();
 
@@ -722,15 +691,12 @@ TEST_F(PortIntrospection_test, thread)
 {
     using PortData = iox::roudi::PortIntrospectionFieldTopic;
     auto chunkPortData = std::unique_ptr<ChunkMock<PortData>>(new ChunkMock<PortData>);
-    m_senderPortImpl_mock->reserveSampleReturn = chunkPortData->chunkHeader();
 
     using PortThroughput = iox::roudi::PortThroughputIntrospectionFieldTopic;
     ChunkMock<PortThroughput> chunkPortThroughput;
-    m_portThroughput_mock->reserveSampleReturn = chunkPortThroughput.chunkHeader();
 
     using ReceiverPortChanging = iox::roudi::ReceiverPortChangingIntrospectionFieldTopic;
     ChunkMock<ReceiverPortChanging> chunkReceiverPortChanging;
-    m_receiverPortData_mock->reserveSampleReturn = chunkReceiverPortChanging.chunkHeader();
 
     // we use the deliverChunk call to check how often the thread calls the send method
     m_introspection->setSendInterval(10);
@@ -741,7 +707,7 @@ TEST_F(PortIntrospection_test, thread)
     m_introspection->stop();
     std::this_thread::sleep_for(
         std::chrono::milliseconds(555)); // if the thread doesn't stop, we have 12 runs after the sleep period
-    EXPECT_THAT(m_senderPortImpl_mock->deliverChunk, Eq(1));
-    EXPECT_TRUE(4 <= m_portThroughput_mock->deliverChunk && m_portThroughput_mock->deliverChunk <= 8);
-    EXPECT_TRUE(4 <= m_receiverPortData_mock->deliverChunk && m_receiverPortData_mock->deliverChunk <= 8);
+    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(1);
+    EXPECT_CALL(m_portThroughput_mock, sendChunk).Times(AtLeast(4));
+    EXPECT_CALL(m_receiverPortData_mock, sendChunk).Times(AtLeast(4));
 }

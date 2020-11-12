@@ -20,7 +20,8 @@ namespace iox
 {
 namespace popo
 {
-struct ReceiverPortData;
+struct SubscriberPortData;
+using ReceiverPortData = SubscriberPortData;
 } // namespace popo
 
 namespace capro

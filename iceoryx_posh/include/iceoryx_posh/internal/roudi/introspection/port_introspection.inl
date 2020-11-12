@@ -488,7 +488,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
 template <typename SenderPort, typename ReceiverPort>
 void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic)
 {
-    // @todo #252 re-add port throughput for v1.0?
+    /// @todo #252 re-add port throughput for v1.0?
     auto& m_throughputList = topic.m_throughputList;
 
     std::lock_guard<std::mutex> lock(m_mutex); // we need to lock the internal data structs
@@ -549,7 +549,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(
                     // receiverData.fifoSize = port.getDeliveryFiFoSize();
                     receiverData.subscriptionState = port.getSubscriptionState();
                     // receiverData.sampleSendCallbackActive = port.AreCallbackReferencesSet();
-                    receiverData.propagationScope = port.getCaProServiceDescription().getScope();
+                    // receiverData.propagationScope = port.getCaProServiceDescription().getScope();
                 }
                 else
                 {

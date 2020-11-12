@@ -78,7 +78,7 @@ class Mepoo_IntegrationTest : public Test
 
     virtual void TearDown()
     {
-        senderPort.deactivate();
+        senderPort.stopOffer();
         receiverPort.unsubscribe();
 
         std::string output = internal::GetCapturedStderr();
@@ -144,10 +144,10 @@ class Mepoo_IntegrationTest : public Test
         iox::capro::ServiceDescription m_service_description{99, 1, 20};
 
         auto& senderRuntime = iox::runtime::PoshRuntime::getInstance("/sender");
-        senderPort = iox::popo::SenderPort(senderRuntime.getMiddlewareSender(m_service_description));
+        senderPort = iox::popo::PublisherPortUser(senderRuntime.getMiddlewarePublisher(m_service_description));
 
         auto& receiverRuntime = iox::runtime::PoshRuntime::getInstance("/receiver");
-        receiverPort = iox::popo::ReceiverPort(receiverRuntime.getMiddlewareReceiver(m_service_description));
+        receiverPort = iox::popo::SubscriberPortUser(receiverRuntime.getMiddlewareSubscriber(m_service_description));
     }
 
     void SetUpRouDiOnly(MemPoolInfoContainer& memPoolTestContainer,
@@ -283,29 +283,30 @@ class Mepoo_IntegrationTest : public Test
         using Topic = MemPoolTestTopic<size>;
         constexpr auto topicSize = sizeof(Topic);
 
-        if (!(senderPort.isPortActive()))
+        if (!(senderPort.isOffered()))
         {
-            senderPort.activate();
+            senderPort.offer();
         }
 
-        if (receiverPort.isSubscribed())
+        if (receiverPort.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
             receiverPort.unsubscribe();
         }
 
         m_roudiEnv->InterOpWait();
-        receiverPort.subscribe(true, topicSize);
+        receiverPort.subscribe(1);
         m_roudiEnv->InterOpWait();
 
         for (int idx = 0; idx < times; ++idx)
         {
-            auto sample = senderPort.reserveChunk(topicSize);
-            new (sample->payload()) Topic;
-            sample->m_info.m_payloadSize = topicSize;
-            senderPort.deliverChunk(sample);
-            m_roudiEnv->InterOpWait();
+            senderPort.tryAllocateChunk(topicSize).and_then([&](iox::mepoo::ChunkHeader* sample) {
+                new (sample->payload()) Topic;
+                sample->m_info.m_payloadSize = topicSize;
+                senderPort.sendChunk(sample);
+                m_roudiEnv->InterOpWait();
+            });
         }
-        senderPort.deactivate();
+        senderPort.stopOffer();
 
         return true;
     }
@@ -330,8 +331,8 @@ class Mepoo_IntegrationTest : public Test
 
     MePooConfig memconf;
 
-    iox::popo::SenderPort senderPort{nullptr};
-    iox::popo::ReceiverPort receiverPort{nullptr};
+    iox::popo::PublisherPortUser senderPort{nullptr};
+    iox::popo::SubscriberPortUser receiverPort{nullptr};
 
     iox::cxx::optional<RouDiEnvironment> m_roudiEnv;
 };

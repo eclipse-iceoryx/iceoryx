@@ -24,15 +24,24 @@ using ::testing::_;
 class MockPublisherPortUser
 {
   public:
+    using MemberType_t = iox::popo::PublisherPortData;
     MockPublisherPortUser() = default;
     MockPublisherPortUser(std::nullptr_t)
     {
     }
-    iox::capro::ServiceDescription getCaProServiceDescription() const noexcept
+    MockPublisherPortUser(iox::popo::PublisherPortData*){};
+
+    MockPublisherPortUser(const MockPublisherPortUser& rhs [[gnu::unused]]){};
+    MockPublisherPortUser(MockPublisherPortUser&& rhs [[gnu::unused]]){};
+    MockPublisherPortUser& operator=(const MockPublisherPortUser& rhs [[gnu::unused]])
     {
-        return getServiceDescription();
-    }
-    MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
+        return *this;
+    };
+    MockPublisherPortUser& operator=(MockPublisherPortUser&& rhs [[gnu::unused]])
+    {
+        return *this;
+    };
+
     MOCK_METHOD1(tryAllocateChunk,
                  iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
     MOCK_METHOD1(freeChunk, void(iox::mepoo::ChunkHeader* const));
@@ -42,6 +51,16 @@ class MockPublisherPortUser
     MOCK_METHOD0(stopOffer, void());
     MOCK_CONST_METHOD0(isOffered, bool());
     MOCK_CONST_METHOD0(hasSubscribers, bool());
+
+    operator bool() const
+    {
+        return true;
+    }
+
+    iox::UniquePortId getUniqueID()
+    {
+        return iox::UniquePortId();
+    };
 };
 
 template <typename T>

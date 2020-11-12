@@ -35,7 +35,7 @@ TEST_F(CaproMessage_test, CTorSetsParametersCorrectly)
     constexpr uint16_t testEventID{2u};
     constexpr uint16_t testInstanceID{3u};
     ServiceDescription sd(testServiceID, testEventID, testInstanceID);
-    iox::popo::ReceiverPortData recData;
+    iox::popo::SubscriberPortData recData{sd, "foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer, 1};
 
     CaproMessage testObj(CaproMessageType::OFFER, sd, CaproMessageSubType::SERVICE, &recData);
 
