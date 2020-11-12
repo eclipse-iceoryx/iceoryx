@@ -15,7 +15,7 @@
 #define IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-//#include "iceoryx_posh/internal/popo/sender_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 
 #include <atomic>
@@ -84,9 +84,9 @@ class ProcessIntrospection
      * @brief This functions registers the POSH sender port which is used
      *        to send the data to the instrospcetion client
      *
-     * @param f_senderPort is the sender port for transmission
+     * @param senderPort is the sender port for transmission
      */
-    void registerSenderPort(SenderPort&& f_senderPort);
+    void registerSenderPort(popo::PublisherPortData* senderPort);
 
     /**
      * @brief This function starts a thread which periodically sends
@@ -134,7 +134,7 @@ class ProcessIntrospection
  * @brief typedef for the templated process introspection class that is used by RouDi for the
  * actual process introspection functionality.
  */
-using ProcessIntrospectionType = ProcessIntrospection<SenderPortType>;
+using ProcessIntrospectionType = ProcessIntrospection<PublisherPortUserType>;
 
 } // namespace roudi
 } // namespace iox

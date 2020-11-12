@@ -163,8 +163,8 @@ class ProcessManager : public ProcessManagerInterface
 
     void run() noexcept;
 
-    SenderPortType addIntrospectionSenderPort(const capro::ServiceDescription& service,
-                                              const ProcessName_t& process_name) noexcept;
+    popo::PublisherPortData* addIntrospectionSenderPort(const capro::ServiceDescription& service,
+                                                        const ProcessName_t& process_name) noexcept;
 
     /// @brief Notify the application that it sent an unsupported message
     void sendMessageNotSupportedToRuntime(const ProcessName_t& name) noexcept;

@@ -37,7 +37,7 @@ ProcessIntrospection<SenderPort>::~ProcessIntrospection()
     stop();
     if (m_senderPort)
     {
-        m_senderPort.deactivate(); // stop offer
+        m_senderPort.stopOffer();
     }
 }
 
@@ -142,13 +142,12 @@ void ProcessIntrospection<SenderPort>::removeRunnable(const ProcessName_t& f_pro
 }
 
 template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::registerSenderPort(SenderPort&& f_senderPort)
+void ProcessIntrospection<SenderPort>::registerSenderPort(popo::PublisherPortData* senderPort)
 {
     // we do not want to call this twice
     if (!m_senderPort)
     {
-        m_senderPort = std::move(f_senderPort);
-        m_senderPort.enableDoDeliverOnSubscription();
+        m_senderPort = SenderPort(senderPort);
     }
 }
 
@@ -160,7 +159,7 @@ void ProcessIntrospection<SenderPort>::run()
 
     // this is a field, there needs to be a sample before activate is called
     send();
-    m_senderPort.activate(); // corresponds to offer
+    m_senderPort.offer();
 
     m_runThread = true;
     static uint32_t ct = 0;
@@ -187,17 +186,20 @@ void ProcessIntrospection<SenderPort>::send()
     std::lock_guard<std::mutex> guard(m_mutex);
     if (m_processListNewData)
     {
-        auto chunkHeader = m_senderPort.reserveChunk(sizeof(ProcessIntrospectionFieldTopic));
-        auto sample = static_cast<ProcessIntrospectionFieldTopic*>(chunkHeader->payload());
-        new (sample) ProcessIntrospectionFieldTopic;
-
-        for (auto& intrData : m_processList)
+        auto maybeChunkHeader = m_senderPort.tryAllocateChunk(sizeof(ProcessIntrospectionFieldTopic));
+        if (!maybeChunkHeader.has_error())
         {
-            sample->m_processList.emplace_back(intrData);
-        }
-        m_processListNewData = false;
+            auto sample = static_cast<ProcessIntrospectionFieldTopic*>(maybeChunkHeader.get_value()->payload());
+            new (sample) ProcessIntrospectionFieldTopic;
 
-        m_senderPort.deliverChunk(chunkHeader);
+            for (auto& intrData : m_processList)
+            {
+                sample->m_processList.emplace_back(intrData);
+            }
+            m_processListNewData = false;
+
+            m_senderPort.sendChunk(maybeChunkHeader.get_value());
+        }
     }
 }
 

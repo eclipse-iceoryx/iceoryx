@@ -31,9 +31,9 @@ template <typename>
 class TypedUniqueId;
 struct BasePortData;
 
-class PublisherPortUser;
 class PublisherPortRouDi;
-
+class PublisherPortUser;
+class SubscriberPortRouDi;
 class SubscriberPortUser;
 } // namespace popo
 namespace posix
@@ -44,6 +44,7 @@ class MessageQueue;
 
 using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
 using PublisherPortUserType = iox::popo::PublisherPortUser;
+using SubscriberPortRouDiType = iox::popo::SubscriberPortRouDi;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 

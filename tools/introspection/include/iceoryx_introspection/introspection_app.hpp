@@ -15,7 +15,7 @@
 #define IOX_TOOLS_ICEORYX_INTROSPECTION_INTROSPECTION_APP_HPP
 
 #include "iceoryx_introspection/introspection_types.hpp"
-//#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/popo/modern_api/subscriber.hpp"
 #include "iceoryx_utils/platform/getopt.hpp"
 
 #include <map>
@@ -64,7 +64,7 @@ static const std::map<PrettyOptions, uint32_t> prettyMap = {
 class IntrospectionApp
 {
   public:
-    using SubscriberType = iox::popo::Subscriber;
+    using SubscriberType = iox::popo::UntypedSubscriber;
 
     /// @brief constructor to create a introspection
     /// @param[in] argc forwarding of command line arguments

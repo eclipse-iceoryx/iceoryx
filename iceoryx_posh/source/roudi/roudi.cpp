@@ -37,10 +37,11 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
     , m_prcMgr(*m_roudiMemoryInterface, portManager, compatibilityCheckLevel)
-    , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
-                                  .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
-                             *m_roudiMemoryInterface->segmentManager().value(),
-                             m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MQ_ROUDI_NAME))
+    , m_mempoolIntrospection(
+          *m_roudiMemoryInterface->introspectionMemoryManager()
+               .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
+          *m_roudiMemoryInterface->segmentManager().value(),
+          PublisherPortUserType(m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MQ_ROUDI_NAME)))
     , m_monitoringMode(monitoringMode)
 {
     m_processIntrospection.registerSenderPort(

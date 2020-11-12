@@ -137,7 +137,7 @@ class MemPoolIntrospection
  * @brief typedef for the templated mempool introspection class that is used by RouDi for the
  * actual mempool introspection functionality.
  */
-using MemPoolIntrospectionType = MemPoolIntrospection<mepoo::MemoryManager, mepoo::SegmentManager<>, popo::SenderPort>;
+using MemPoolIntrospectionType = MemPoolIntrospection<mepoo::MemoryManager, mepoo::SegmentManager<>, PublisherPortUserType>;
 
 
 } // namespace roudi

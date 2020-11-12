@@ -43,23 +43,19 @@ void PortIntrospection<SenderPort, ReceiverPort>::reportMessage(const capro::Cap
 }
 
 template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::registerSenderPort(SenderPort&& f_senderPortGeneric,
-                                                                     SenderPort&& f_senderPortThroughput,
-                                                                     SenderPort&& f_senderPortReceiverPortsData)
+bool PortIntrospection<SenderPort, ReceiverPort>::registerSenderPort(
+    popo::PublisherPortData* senderPortGeneric,
+    popo::PublisherPortData* senderPortThroughput,
+    popo::PublisherPortData* senderPortReceiverPortsData)
 {
-    if (m_senderPort || m_senderPortThroughput)
+    if (m_senderPort || m_senderPortThroughput || m_senderPortReceiverPortsData)
     {
         return false;
     }
 
-    m_senderPort = std::move(f_senderPortGeneric);
-    m_senderPort.enableDoDeliverOnSubscription();
-
-    m_senderPortThroughput = std::move(f_senderPortThroughput);
-    m_senderPortThroughput.enableDoDeliverOnSubscription();
-
-    m_senderPortReceiverPortsData = std::move(f_senderPortReceiverPortsData);
-    m_senderPortReceiverPortsData.enableDoDeliverOnSubscription();
+    m_senderPort = SenderPort(senderPortGeneric);
+    m_senderPortThroughput = SenderPort(senderPortThroughput);
+    m_senderPortReceiverPortsData = SenderPort(senderPortReceiverPortsData);
 
     return true;
 }
@@ -74,9 +70,9 @@ void PortIntrospection<SenderPort, ReceiverPort>::run()
     sendPortData();
     sendThroughputData();
     sendReceiverPortsData();
-    m_senderPort.activate();
-    m_senderPortThroughput.activate();
-    m_senderPortReceiverPortsData.activate();
+    m_senderPort.offer();
+    m_senderPortThroughput.offer();
+    m_senderPortReceiverPortsData.offer();
 
     /// @todo the thread sleep mechanism needs to be redone with a trigger queue with a try_pop with timeout
     /// functionality
@@ -108,38 +104,49 @@ void PortIntrospection<SenderPort, ReceiverPort>::run()
 template <typename SenderPort, typename ReceiverPort>
 void PortIntrospection<SenderPort, ReceiverPort>::sendPortData()
 {
-    auto chunkHeader = m_senderPort.reserveChunk(sizeof(PortIntrospectionFieldTopic));
-    auto sample = static_cast<PortIntrospectionFieldTopic*>(chunkHeader->payload());
-    new (sample) PortIntrospectionFieldTopic();
+    auto maybeChunkHeader = m_senderPort.tryAllocateChunk(sizeof(PortIntrospectionFieldTopic));
+    if (!maybeChunkHeader.has_error())
+    {
+        auto sample = static_cast<PortIntrospectionFieldTopic*>(maybeChunkHeader.get_value()->payload());
+        new (sample) PortIntrospectionFieldTopic();
 
-    m_portData.prepareTopic(*sample); // requires internal mutex (blocks
-                                      // further introspection events)
-    m_senderPort.deliverChunk(chunkHeader);
+        m_portData.prepareTopic(*sample); // requires internal mutex (blocks
+                                          // further introspection events)
+        m_senderPort.sendChunk(maybeChunkHeader.get_value());
+    }
 }
 
 template <typename SenderPort, typename ReceiverPort>
 void PortIntrospection<SenderPort, ReceiverPort>::sendThroughputData()
 {
-    auto chunkHeader = m_senderPortThroughput.reserveChunk(sizeof(PortThroughputIntrospectionFieldTopic));
-    auto throughputSample = static_cast<PortThroughputIntrospectionFieldTopic*>(chunkHeader->payload());
-    new (throughputSample) PortThroughputIntrospectionFieldTopic();
+    auto maybeChunkHeader = m_senderPortThroughput.tryAllocateChunk(sizeof(PortThroughputIntrospectionFieldTopic));
+    if (!maybeChunkHeader.has_error())
+    {
+        auto throughputSample =
+            static_cast<PortThroughputIntrospectionFieldTopic*>(maybeChunkHeader.get_value()->payload());
+        new (throughputSample) PortThroughputIntrospectionFieldTopic();
 
-    m_portData.prepareTopic(*throughputSample); // requires internal mutex (blocks
-    // further introspection events)
-    m_senderPortThroughput.deliverChunk(chunkHeader);
+        m_portData.prepareTopic(*throughputSample); // requires internal mutex (blocks
+        // further introspection events)
+        m_senderPortThroughput.sendChunk(maybeChunkHeader.get_value());
+    }
 }
 
 template <typename SenderPort, typename ReceiverPort>
 void PortIntrospection<SenderPort, ReceiverPort>::sendReceiverPortsData()
 {
-    auto chunkInfo = m_senderPortReceiverPortsData.reserveChunk(sizeof(ReceiverPortChangingIntrospectionFieldTopic));
-    auto receiverPortChangingDataSample =
-        static_cast<ReceiverPortChangingIntrospectionFieldTopic*>(chunkInfo->payload());
-    new (receiverPortChangingDataSample) ReceiverPortChangingIntrospectionFieldTopic();
+    auto maybeChunkHeader =
+        m_senderPortReceiverPortsData.tryAllocateChunk(sizeof(ReceiverPortChangingIntrospectionFieldTopic));
+    if (!maybeChunkHeader.has_error())
+    {
+        auto receiverPortChangingDataSample =
+            static_cast<ReceiverPortChangingIntrospectionFieldTopic*>(maybeChunkHeader.get_value()->payload());
+        new (receiverPortChangingDataSample) ReceiverPortChangingIntrospectionFieldTopic();
 
-    m_portData.prepareTopic(*receiverPortChangingDataSample); // requires internal mutex (blocks
-    // further introspection events)
-    m_senderPortReceiverPortsData.deliverChunk(chunkInfo);
+        m_portData.prepareTopic(*receiverPortChangingDataSample); // requires internal mutex (blocks
+        // further introspection events)
+        m_senderPortReceiverPortsData.sendChunk(maybeChunkHeader.get_value());
+    }
 }
 
 template <typename SenderPort, typename ReceiverPort>
@@ -481,6 +488,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
 template <typename SenderPort, typename ReceiverPort>
 void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic)
 {
+    // @todo #252 re-add port throughput for v1.0?
     auto& m_throughputList = topic.m_throughputList;
 
     std::lock_guard<std::mutex> lock(m_mutex); // we need to lock the internal data structs
@@ -495,26 +503,26 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortThr
             PortThroughputData throughputData;
 
             SenderPort port(senderInfo.portData);
-            auto introData = port.getThroughput();
+            // auto introData = port.getThroughput();
             throughputData.m_senderPortID = static_cast<uint64_t>(port.getUniqueID());
-            throughputData.m_isField = port.doesDeliverOnSubscribe();
-            throughputData.m_sampleSize = introData.payloadSize;
-            throughputData.m_chunkSize = introData.chunkSize;
-            using Minutes_t = std::chrono::duration<double, std::ratio<60>>;
-            Minutes_t deltaTime = introData.currentDeliveryTimestamp - senderInfo.m_sequenceNumberTimestamp;
-            auto minutes = deltaTime.count();
+            throughputData.m_sampleSize = 0; // introData.payloadSize;
+            throughputData.m_chunkSize = 0;  // introData.chunkSize;
+            // using Minutes_t = std::chrono::duration<double, std::ratio<60>>;
+            // Minutes_t deltaTime = introData.currentDeliveryTimestamp - senderInfo.m_sequenceNumberTimestamp;
+            // auto minutes = deltaTime.count();
             throughputData.m_chunksPerMinute = 0;
-            if (minutes != 0)
-            {
-                throughputData.m_chunksPerMinute = (introData.sequenceNumber - senderInfo.m_sequenceNumber) / minutes;
-            }
-            auto sendInterval = introData.currentDeliveryTimestamp - introData.lastDeliveryTimestamp;
-            throughputData.m_lastSendIntervalInNanoseconds = sendInterval.count();
+            // if (minutes != 0)
+            //{
+            // throughputData.m_chunksPerMinute = (introData.sequenceNumber - senderInfo.m_sequenceNumber) /
+            // minutes;
+            //}
+            // auto sendInterval = introData.currentDeliveryTimestamp - introData.lastDeliveryTimestamp;
+            // throughputData.m_lastSendIntervalInNanoseconds = sendInterval.count();
             m_throughputList.emplace_back(throughputData);
             senderInfo.index = index++;
 
-            senderInfo.m_sequenceNumberTimestamp = introData.currentDeliveryTimestamp;
-            senderInfo.m_sequenceNumber = introData.sequenceNumber;
+            // senderInfo.m_sequenceNumberTimestamp = introData.currentDeliveryTimestamp;
+            // senderInfo.m_sequenceNumber = introData.sequenceNumber;
         }
     }
 }
@@ -537,10 +545,10 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(
                 if (receiverInfo.portData != nullptr)
                 {
                     ReceiverPort port(receiverInfo.portData);
-                    receiverData.fifoCapacity = port.getDeliveryFiFoCapacity();
-                    receiverData.fifoSize = port.getDeliveryFiFoSize();
-                    receiverData.subscriptionState = port.getSubscribeState();
-                    receiverData.sampleSendCallbackActive = port.AreCallbackReferencesSet();
+                    // receiverData.fifoCapacity = port.getDeliveryFiFoCapacity();
+                    // receiverData.fifoSize = port.getDeliveryFiFoSize();
+                    receiverData.subscriptionState = port.getSubscriptionState();
+                    // receiverData.sampleSendCallbackActive = port.AreCallbackReferencesSet();
                     receiverData.propagationScope = port.getCaProServiceDescription().getScope();
                 }
                 else

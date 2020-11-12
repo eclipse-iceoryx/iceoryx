@@ -17,7 +17,7 @@
 #include "fixed_size_container.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 //#include "iceoryx_posh/internal/popo/sender_port.hpp"
-//#include "iceoryx_posh/internal/popo/sender_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -358,9 +358,9 @@ class PortIntrospection
      *
      * @return true if registration was successful, false otherwise
      */
-    bool registerSenderPort(SenderPort&& f_senderPortGeneric,
-                            SenderPort&& f_senderPortThroughput,
-                            SenderPort&& f_senderPortReceiverPortsData);
+    bool registerSenderPort(popo::PublisherPortData* senderPortGeneric,
+                            popo::PublisherPortData* senderPortThroughput,
+                            popo::PublisherPortData* senderPortReceiverPortsData);
 
     /*!
      * @brief set the time interval used to send new introspection data
@@ -416,7 +416,7 @@ class PortIntrospection
  * @brief typedef for the templated port introspection class that is used by RouDi for the
  * actual port introspection functionality.
  */
-using PortIntrospectionType = PortIntrospection<SenderPortType, ReceiverPortType>;
+using PortIntrospectionType = PortIntrospection<PublisherPortUserType, SubscriberPortUserType>;
 
 
 } // namespace roudi

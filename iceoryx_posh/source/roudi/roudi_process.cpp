@@ -580,13 +580,14 @@ void ProcessManager::run() noexcept
     std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.milliSeconds<int64_t>()));
 }
 
-SenderPortType ProcessManager::addIntrospectionSenderPort(const capro::ServiceDescription& service,
-                                                          const ProcessName_t& process_name) noexcept
+popo::PublisherPortData* ProcessManager::addIntrospectionSenderPort(const capro::ServiceDescription& service,
+                                                                    const ProcessName_t& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    return SenderPortType(
-        m_portManager.acquireSenderPortData(service, process_name, m_introspectionMemoryManager).get_value());
+    return m_portManager
+        .acquirePublisherPortData(service, 1, process_name, m_introspectionMemoryManager, "runnable", PortConfigInfo())
+        .get_value();
 }
 
 RouDiProcess* ProcessManager::getProcessFromList(const ProcessName_t& name) noexcept

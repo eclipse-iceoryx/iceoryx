@@ -56,20 +56,30 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
         LogFatal() << "Could not get MemoryManager for introspection!";
         errorHandler(Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
     }
-    auto& introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
+    auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active senderport)
     // are there used instances of RouDiBase?
-    auto portGeneric =
-        acquireSenderPortData(IntrospectionPortService, MQ_ROUDI_NAME, introspectionMemoryManager).get_value();
-
-    auto portThroughput =
-        acquireSenderPortData(IntrospectionPortThroughputService, MQ_ROUDI_NAME, introspectionMemoryManager)
+    popo::PublisherPortData* portGeneric =
+        acquirePublisherPortData(
+            IntrospectionPortService, 1, MQ_ROUDI_NAME, introspectionMemoryManager, "introspection", PortConfigInfo())
             .get_value();
 
-    auto receiverPortsData =
-        acquireSenderPortData(IntrospectionReceiverPortChangingDataService, MQ_ROUDI_NAME, introspectionMemoryManager)
-            .get_value();
+    popo::PublisherPortData* portThroughput = acquirePublisherPortData(IntrospectionPortThroughputService,
+                                                                       1,
+                                                                       MQ_ROUDI_NAME,
+                                                                       introspectionMemoryManager,
+                                                                       "introspection",
+                                                                       PortConfigInfo())
+                                                  .get_value();
+
+    popo::PublisherPortData* receiverPortsData = acquirePublisherPortData(IntrospectionReceiverPortChangingDataService,
+                                                                          1,
+                                                                          MQ_ROUDI_NAME,
+                                                                          introspectionMemoryManager,
+                                                                          "introspection",
+                                                                          PortConfigInfo())
+                                                     .get_value();
 
     m_portIntrospection.registerSenderPort(portGeneric, portThroughput, receiverPortsData);
     m_portIntrospection.run();
@@ -198,19 +208,11 @@ void PortManager::handleInterfaces() noexcept
         // provide offer information from all active sender ports to all new interfaces
         capro::CaproMessage caproMessage;
         caproMessage.m_type = capro::CaproMessageType::OFFER;
-        for (auto senderPortData : m_portPool->senderPortDataList())
+        for (auto senderPortData : m_portPool->getPublisherPortDataList())
         {
-            SenderPortType senderPort(senderPortData);
-            if (senderPort.isPortActive())
+            PublisherPortUserType senderPort(senderPortData);
+            if (senderPort.isOffered())
             {
-                if (senderPort.doesDeliverOnSubscribe())
-                {
-                    caproMessage.m_subType = capro::CaproMessageSubType::FIELD;
-                }
-                else
-                {
-                    caproMessage.m_subType = capro::CaproMessageSubType::EVENT;
-                }
                 caproMessage.m_serviceDescription = senderPort.getCaProServiceDescription();
                 for (auto& interfacePortData : interfacePortsForInitialForwarding)
                 {
@@ -391,21 +393,21 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
 
 void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcept
 {
-    for (auto port : m_portPool->senderPortDataList())
+    for (auto port : m_portPool->getPublisherPortDataList())
     {
-        SenderPortType sender(port);
+        PublisherPortRouDiType sender(port);
         if (processName == sender.getProcessName())
         {
-            destroySenderPort(port);
+            destroyPublisherPort(port);
         }
     }
 
-    for (auto port : m_portPool->receiverPortDataList())
+    for (auto port : m_portPool->getSubscriberPortDataList())
     {
-        ReceiverPortType receiver(port);
+        SubscriberPortUserType receiver(port);
         if (processName == receiver.getProcessName())
         {
-            destroyReceiverPort(port);
+            destroySubscriberPort(port);
         }
     }
 

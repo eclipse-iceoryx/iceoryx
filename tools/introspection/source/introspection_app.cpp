@@ -14,6 +14,7 @@
 
 #include "iceoryx_introspection/introspection_app.hpp"
 #include "iceoryx_introspection/introspection_types.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_versions.hpp"
@@ -515,7 +516,7 @@ bool IntrospectionApp::waitForSubscription(SubscriberType& port)
 {
     uint32_t numberOfLoopsTillTimeout{100};
     bool subscribed{false};
-    while ((subscribed = (port.getSubscriptionState() == iox::popo::SubscriptionState::SUBSCRIBED)),
+    while ((subscribed = (port.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)),
            !subscribed && numberOfLoopsTillTimeout > 0)
     {
         numberOfLoopsTillTimeout--;
@@ -671,16 +672,9 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     // Refresh once in case of timeout messages
     refreshTerminal();
 
-    const void* rawProcessSample{nullptr};
     const ProcessIntrospectionFieldTopic* typedProcessSample{nullptr};
-
-    const void* rawPortSample{nullptr};
     const PortIntrospectionFieldTopic* typedPortSample{nullptr};
-
-    const void* rawPortThroughputSample{nullptr};
     const PortThroughputIntrospectionFieldTopic* typedPortThroughputSample{nullptr};
-
-    const void* rawReceiverPortChangingDataSamples{nullptr};
     const ReceiverPortChangingIntrospectionFieldTopic* typedReceiverPortChangingDataSamples{nullptr};
 
     while (true)
@@ -699,36 +693,40 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            const void* rawMempoolSample{nullptr};
+            const MemPoolIntrospectionInfoContainer* mempoolSample{nullptr};
 
-            while (!rawMempoolSample)
+            while (!mempoolSample)
             {
-                memPoolSubscriber.getChunk(&rawMempoolSample);
-            }
+                memPoolSubscriber.receive().and_then(
+                    [&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+                        if (maybeSample.has_value())
+                        {
+                            const MemPoolIntrospectionInfoContainer* mempoolSample =
+                                static_cast<const MemPoolIntrospectionInfoContainer*>(maybeSample->get());
 
-            const MemPoolIntrospectionInfoContainer* mempoolSample =
-                static_cast<const MemPoolIntrospectionInfoContainer*>(rawMempoolSample);
-
-            if (mempoolSample->empty())
-            {
-                prettyPrint("Waiting for mempool introspection data ...\n");
+                            if (mempoolSample->empty())
+                            {
+                                prettyPrint("Waiting for mempool introspection data ...\n");
+                            }
+                            else
+                            {
+                                for (const auto& i : *mempoolSample)
+                                {
+                                    printMemPoolInfo(i);
+                                }
+                            }
+                        }
+                    });
             }
-            else
-            {
-                for (const auto& i : *mempoolSample)
-                {
-                    printMemPoolInfo(i);
-                }
-            }
-
-            memPoolSubscriber.releaseChunk(rawMempoolSample);
+            // Automatic cleanup?
+            // memPoolSubscriber.releaseChunk(rawMempoolSample);
         }
 
         // print process information
         if (introspectionSelection.process == true)
         {
             prettyPrint("### Processes ###\n\n", PrettyOptions::highlight);
-            if (!processSubscriber.hasNewChunks())
+            if (!processSubscriber.hasNewSamples())
             {
                 // No new data sent, hence print the old data
                 if (typedProcessSample != nullptr)
@@ -742,12 +740,15 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
             }
             else
             {
-                if (processSubscriber.getChunk(&rawProcessSample))
-                {
-                    typedProcessSample = static_cast<const ProcessIntrospectionFieldTopic*>(rawProcessSample);
-                    printProcessIntrospectionData(typedProcessSample);
-                    processSubscriber.releaseChunk(rawProcessSample);
-                }
+                processSubscriber.receive().and_then(
+                    [&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+                        if (maybeSample.has_value())
+                        {
+                            typedProcessSample = static_cast<const ProcessIntrospectionFieldTopic*>(maybeSample->get());
+                            printProcessIntrospectionData(typedProcessSample);
+                            // processSubscriber.releaseChunk(rawProcessSample);
+                        }
+                    });
             }
         }
 
@@ -758,23 +759,31 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
             bool newPortThroughputSampleeArrived{false};
             bool newReceiverPortChangingDataSamplesArrived{false};
 
-            if (portSubscriber.getChunk(&rawPortSample))
-            {
-                typedPortSample = static_cast<const PortIntrospectionFieldTopic*>(rawPortSample);
-                newPortSampleArrived = true;
-            }
-            if (portThroughputSubscriber.getChunk(&rawPortThroughputSample))
-            {
-                typedPortThroughputSample =
-                    static_cast<const PortThroughputIntrospectionFieldTopic*>(rawPortThroughputSample);
-                newPortThroughputSampleeArrived = true;
-            }
-            if (receiverPortChangingDataSubscriber.getChunk(&rawReceiverPortChangingDataSamples))
-            {
-                typedReceiverPortChangingDataSamples =
-                    static_cast<const ReceiverPortChangingIntrospectionFieldTopic*>(rawReceiverPortChangingDataSamples);
-                newReceiverPortChangingDataSamplesArrived = true;
-            }
+            portSubscriber.receive().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+                if (maybeSample.has_value())
+                {
+                    typedPortSample = static_cast<const PortIntrospectionFieldTopic*>(maybeSample->get());
+                    newPortSampleArrived = true;
+                }
+            });
+            portThroughputSubscriber.receive().and_then(
+                [&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+                    if (maybeSample.has_value())
+                    {
+                        typedPortThroughputSample =
+                            static_cast<const PortThroughputIntrospectionFieldTopic*>(maybeSample->get());
+                        newPortThroughputSampleeArrived = true;
+                    }
+                });
+            receiverPortChangingDataSubscriber.receive().and_then(
+                [&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+                    if (maybeSample.has_value())
+                    {
+                        typedReceiverPortChangingDataSamples =
+                            static_cast<const ReceiverPortChangingIntrospectionFieldTopic*>(maybeSample->get());
+                        newReceiverPortChangingDataSamplesArrived = true;
+                    }
+                });
 
             if (typedPortSample != nullptr && typedPortThroughputSample != nullptr
                 && typedReceiverPortChangingDataSamples != nullptr)
@@ -791,7 +800,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
             {
                 prettyPrint("Waiting for port introspection data ...\n");
             }
-
+            /*
             if (newPortSampleArrived)
             {
                 portSubscriber.releaseChunk(rawPortSample);
@@ -803,7 +812,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
             if (newReceiverPortChangingDataSamplesArrived)
             {
                 receiverPortChangingDataSubscriber.releaseChunk(rawReceiverPortChangingDataSamples);
-            }
+            }*/
         }
 
         prettyPrint("\n");
