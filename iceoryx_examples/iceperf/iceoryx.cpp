@@ -82,7 +82,7 @@ PerfTopic Iceoryx::receivePerfTopic() noexcept
 {
     const void* receivedChunk;
     PerfTopic receivedSample;
-    while (!m_subscriber.receive().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+    while (!m_subscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
         if (maybeSample.has_value())
         {
             receivedSample = *(static_cast<const PerfTopic*>(maybeSample.value().get()));

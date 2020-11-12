@@ -41,7 +41,11 @@ class MockPublisherPortUser
     {
         return *this;
     };
-
+    iox::capro::ServiceDescription getCaProServiceDescription() const noexcept
+    {
+        return getServiceDescription();
+    }
+    MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD1(tryAllocateChunk,
                  iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
     MOCK_METHOD1(freeChunk, void(iox::mepoo::ChunkHeader* const));
