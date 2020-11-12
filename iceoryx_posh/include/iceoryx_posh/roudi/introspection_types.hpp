@@ -61,11 +61,11 @@ const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_I
 /// @todo if future fixed string is aligned to 8 byte, the alignment here can be removed
 struct PortData
 {
-    alignas(8) cxx::CString100 m_name;
-    alignas(8) cxx::CString100 m_caproInstanceID;
-    alignas(8) cxx::CString100 m_caproServiceID;
-    alignas(8) cxx::CString100 m_caproEventMethodID;
-    alignas(8) cxx::CString100 m_runnable;
+    alignas(8) ProcessName_t m_name;
+    alignas(8) capro::IdString m_caproInstanceID;
+    alignas(8) capro::IdString m_caproServiceID;
+    alignas(8) capro::IdString m_caproEventMethodID;
+    alignas(8) RunnableName_t m_runnable;
 };
 
 
@@ -133,8 +133,8 @@ const capro::ServiceDescription IntrospectionProcessService(INTROSPECTION_SERVIC
 struct ProcessIntrospectionData
 {
     int m_pid{0};
-    cxx::CString100 m_name;
-    cxx::vector<iox::cxx::CString100, MAX_RUNNABLE_PER_PROCESS> m_runnables;
+    ProcessName_t m_name;
+    cxx::vector<RunnableName_t, MAX_RUNNABLE_PER_PROCESS> m_runnables;
 };
 
 /// @brief the topic for the process introspection that a user can subscribe to

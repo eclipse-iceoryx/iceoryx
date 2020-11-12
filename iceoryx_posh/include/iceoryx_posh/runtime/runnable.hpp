@@ -29,7 +29,7 @@ class Runnable
   public:
     /// @brief constructor which requires the name of the runnable
     /// @param[in] runnableName name of the runnable
-    Runnable(const iox::cxx::CString100& runnableName) noexcept;
+    Runnable(const RunnableName_t& runnableName) noexcept;
 
     /// @brief destructor
     ~Runnable() noexcept;
@@ -47,11 +47,11 @@ class Runnable
 
     /// @brief returns the name of the runnable
     /// @return string which contains the runnable name
-    cxx::CString100 getRunnableName() const noexcept;
+    RunnableName_t getRunnableName() const noexcept;
 
     /// @brief returns the name of the process
     /// @return string which contains the process name
-    cxx::CString100 getProcessName() const noexcept;
+    RunnableName_t getProcessName() const noexcept;
 
   protected:
     Runnable(RunnableData* const data) noexcept;

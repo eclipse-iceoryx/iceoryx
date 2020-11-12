@@ -27,7 +27,6 @@
 #include "iceoryx_posh/internal/runtime/runnable_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
 
 #include <atomic>
 #include <map>
@@ -87,7 +86,7 @@ class PoshRuntime
     /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created sender port data
     SenderPortType::MemberType_t* getMiddlewareSender(const capro::ServiceDescription& service,
-                                                      const cxx::CString100& runnableName = cxx::CString100(""),
+                                                      const RunnableName_t& runnableName = RunnableName_t(""),
                                                       const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @deprecated #25
@@ -99,7 +98,7 @@ class PoshRuntime
     /// @return pointer to a created receiver port data
     ReceiverPortType::MemberType_t*
     getMiddlewareReceiver(const capro::ServiceDescription& service,
-                          const cxx::CString100& runnableName = cxx::CString100(""),
+                          const RunnableName_t& runnableName = RunnableName_t(""),
                           const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a publisher port
@@ -112,7 +111,7 @@ class PoshRuntime
     PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const capro::ServiceDescription& service,
                            const uint64_t& historyCapacity = 0U,
-                           const cxx::CString100& runnableName = cxx::CString100(""),
+                           const RunnableName_t& runnableName = RunnableName_t(""),
                            const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a subscriber port
@@ -125,7 +124,7 @@ class PoshRuntime
     SubscriberPortUserType::MemberType_t*
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
                             const uint64_t& historyRequest = 0U,
-                            const cxx::CString100& runnableName = cxx::CString100(""),
+                            const RunnableName_t& runnableName = RunnableName_t(""),
                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create an interface port
@@ -133,7 +132,7 @@ class PoshRuntime
     /// @param[in] runnableName name of the runnable where the interface should belong to
     /// @return pointer to a created interface port data
     popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
-                                                    const cxx::CString100& runnableName = cxx::CString100("")) noexcept;
+                                                    const RunnableName_t& runnableName = RunnableName_t("")) noexcept;
 
     /// @brief request the RouDi daemon to create an application port
     /// @return pointer to a created application port data
