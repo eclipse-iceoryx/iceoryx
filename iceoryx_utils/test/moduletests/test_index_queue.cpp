@@ -150,18 +150,11 @@ TYPED_TEST(IndexQueueTest, pushAndPopSingleElement)
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
 
-    // we need to store a raw index to compare it,
-    // but we cannot copy nor move it since we want to push it back
-    // which invalidates the index
-    // but we can copy the raw index
-    // (but not create a index to return to the queue from it again)
     index_t rawIndex = index.value();
 
     EXPECT_TRUE(index.has_value());
 
     q.push(index.value());
-
-    EXPECT_FALSE(index.has_value());
 
     auto popped = q.pop();
 
