@@ -58,14 +58,15 @@ using MemPoolIntrospectionInfoContainer = cxx::vector<MemPoolIntrospectionInfo, 
 /// @brief sender/receiver port information consisting of a process name,a capro service description string
 /// and a runnable name
 const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Port");
-/// @todo if future fixed string is aligned to 8 byte, the alignment here can be removed
+
+/// @brief container for common port data which is related to the receiver port as well as the sender port
 struct PortData
 {
-    alignas(8) ProcessName_t m_name;
-    alignas(8) capro::IdString m_caproInstanceID;
-    alignas(8) capro::IdString m_caproServiceID;
-    alignas(8) capro::IdString m_caproEventMethodID;
-    alignas(8) RunnableName_t m_runnable;
+    ProcessName_t m_name;
+    capro::IdString m_caproInstanceID;
+    capro::IdString m_caproServiceID;
+    capro::IdString m_caproEventMethodID;
+    RunnableName_t m_runnable;
 };
 
 
