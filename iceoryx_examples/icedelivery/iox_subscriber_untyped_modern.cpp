@@ -43,13 +43,17 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
             auto untypedSubscriber = dynamic_cast<iox::popo::UntypedSubscriber*>(condition);
             if(untypedSubscriber)
             {
-                untypedSubscriber->take().and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample){
-                    if(maybeSample.has_value())
-                    {
-                        auto position = reinterpret_cast<const Position*>(maybeSample->get());
-                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
-                    }
-                });
+                untypedSubscriber->take()
+                        .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation){
+                                auto position = reinterpret_cast<const Position*>(allocation->get());
+                                std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
+                        })
+                        .if_empty([]{
+                            std::cout << "Didn't get a value, but do something anyway." << std::endl;
+                        })
+                        .or_else([](iox::popo::ChunkReceiveError){
+                            std::cout << "Error receiving chunk." << std::endl;
+                        });
             }
         }
     }

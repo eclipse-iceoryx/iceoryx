@@ -58,6 +58,8 @@ template <typename T>
 class optional
 {
   public:
+    using type = T;
+
     /// @brief Creates an optional which has no value. If you access such an
     ///         optional via .value() or the arrow operator the behavior is
     ///         undefined.
