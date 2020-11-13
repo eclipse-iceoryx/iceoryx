@@ -123,7 +123,7 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
 
 PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const capro::ServiceDescription& service,
                                                                          const uint64_t& historyCapacity,
-                                                                         const cxx::CString100& runnableName,
+                                                                         const RunnableName_t& runnableName,
                                                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
@@ -206,7 +206,7 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
 SubscriberPortUserType::MemberType_t*
 PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
                                      const uint64_t& historyRequest,
-                                     const cxx::CString100& runnableName,
+                                     const RunnableName_t& runnableName,
                                      const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
@@ -283,7 +283,7 @@ PoshRuntime::requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept
 }
 
 popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interfaces interface,
-                                                             const cxx::CString100& runnableName) noexcept
+                                                             const RunnableName_t& runnableName) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_appName

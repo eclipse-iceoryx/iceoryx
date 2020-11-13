@@ -29,16 +29,16 @@
 using namespace ::testing;
 using namespace iox::capro;
 using namespace iox::popo;
-using CString100 = iox::cxx::CString100;
 
 
-const iox::capro::ServiceDescription m_servicedesc("Radar", "FrontRight", "ChuckNorrisDetected");
-const iox::capro::ServiceDescription m_emptyservicedesc(0, 0, 0);
-CString100 m_receiverportname = {"RecPort"};
-CString100 m_senderportname = {"SendPort"};
-iox::ProcessName_t m_applicationportname = {"AppPort"};
-iox::ProcessName_t m_interfaceportname = {"InterfacePort"};
-CString100 m_emptyappname = {""};
+const iox::capro::ServiceDescription SERVICE_DESCRIPTION_VALID("Radar", "FrontRight", "ChuckNorrisDetected");
+const iox::capro::ServiceDescription SERVICE_DESCRIPTION_EMPTY(0, 0, 0);
+const iox::ProcessName_t APP_NAME_FOR_RECEIVER_PORTS = {"RecPort"};
+const iox::ProcessName_t APP_NAME_FOR_SENDER_PORTS = {"SendPort"};
+const iox::ProcessName_t APP_NAME_FOR_APPLICATION_PORTS = {"AppPort"};
+const iox::ProcessName_t APP_NAME_FOR_INTERFACE_PORTS = {"InterfacePort"};
+const iox::ProcessName_t APP_NAME_EMPTY = {""};
+
 typedef BasePort* CreatePort();
 iox::mepoo::MemoryManager m_memoryManager;
 
@@ -50,15 +50,16 @@ BasePort* CreateCaProPort()
 
 BasePort* CreateSenderPort()
 {
-    PublisherPortData* senderPortData = new PublisherPortData(m_servicedesc, "SendPort", &m_memoryManager, 1);
+    PublisherPortData* senderPortData =
+        new PublisherPortData(SERVICE_DESCRIPTION_VALID, APP_NAME_FOR_SENDER_PORTS, &m_memoryManager, 1);
     return new PublisherPortUser(senderPortData);
 }
 
 BasePort* CreateReceiverPort()
 {
     SubscriberPortData* receiverPortData =
-        new SubscriberPortData(m_servicedesc,
-                               "RecPort",
+        new SubscriberPortData(SERVICE_DESCRIPTION_VALID,
+                               APP_NAME_FOR_RECEIVER_PORTS,
                                iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
                                1,
                                iox::mepoo::MemoryInfo());
@@ -67,13 +68,14 @@ BasePort* CreateReceiverPort()
 
 BasePort* CreateInterfacePort()
 {
-    InterfacePortData* interfacePortData = new InterfacePortData("InterfacePort", iox::capro::Interfaces::INTERNAL);
+    InterfacePortData* interfacePortData =
+        new InterfacePortData(APP_NAME_FOR_INTERFACE_PORTS, iox::capro::Interfaces::INTERNAL);
     return new InterfacePort(interfacePortData);
 }
 
 BasePort* CreateApplicationPort()
 {
-    ApplicationPortData* applicationPortData = new ApplicationPortData("AppPort");
+    ApplicationPortData* applicationPortData = new ApplicationPortData(APP_NAME_FOR_APPLICATION_PORTS);
     return new ApplicationPort(applicationPortData);
 }
 
@@ -126,23 +128,23 @@ TEST_P(BasePortParamtest, getCaProServiceDescription)
 {
     if (this->GetParam() == CreateCaProPort)
     {
-        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(m_emptyservicedesc));
+        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(SERVICE_DESCRIPTION_EMPTY));
     }
     else if (this->GetParam() == CreateReceiverPort)
     {
-        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(m_servicedesc));
+        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(SERVICE_DESCRIPTION_VALID));
     }
     else if (this->GetParam() == CreateSenderPort)
     {
-        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(m_servicedesc));
+        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(SERVICE_DESCRIPTION_VALID));
     }
     else if (this->GetParam() == CreateInterfacePort)
     {
-        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(m_emptyservicedesc));
+        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(SERVICE_DESCRIPTION_EMPTY));
     }
     else if (this->GetParam() == CreateApplicationPort)
     {
-        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(m_emptyservicedesc));
+        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(SERVICE_DESCRIPTION_EMPTY));
     }
     else
     {
@@ -156,23 +158,23 @@ TEST_P(BasePortParamtest, getApplicationname)
 {
     if (this->GetParam() == CreateCaProPort)
     {
-        EXPECT_THAT(sut->getProcessName(), Eq(m_emptyappname));
+        EXPECT_THAT(sut->getProcessName(), Eq(APP_NAME_EMPTY));
     }
     else if (this->GetParam() == CreateReceiverPort)
     {
-        EXPECT_THAT(sut->getProcessName(), Eq(m_receiverportname));
+        EXPECT_THAT(sut->getProcessName(), Eq(APP_NAME_FOR_RECEIVER_PORTS));
     }
     else if (this->GetParam() == CreateSenderPort)
     {
-        EXPECT_THAT(sut->getProcessName(), Eq(m_senderportname));
+        EXPECT_THAT(sut->getProcessName(), Eq(APP_NAME_FOR_SENDER_PORTS));
     }
     else if (this->GetParam() == CreateInterfacePort)
     {
-        EXPECT_THAT(sut->getProcessName(), Eq(m_interfaceportname));
+        EXPECT_THAT(sut->getProcessName(), Eq(APP_NAME_FOR_INTERFACE_PORTS));
     }
     else if (this->GetParam() == CreateApplicationPort)
     {
-        EXPECT_THAT(sut->getProcessName(), Eq(m_applicationportname));
+        EXPECT_THAT(sut->getProcessName(), Eq(APP_NAME_FOR_APPLICATION_PORTS));
     }
     else
     {

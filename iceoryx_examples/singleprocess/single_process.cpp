@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
 #include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
@@ -44,16 +45,18 @@ void consoleOutput(const std::string& output)
 
 void sender()
 {
-    iox::popo::Publisher publisher({"Single", "Process", "Demo"});
+    iox::popo::UntypedPublisher publisher({"Single", "Process", "Demo"});
     publisher.offer();
 
     uint64_t counter{0};
     while (keepRunning.load())
     {
-        auto sample = static_cast<TransmissionData_t*>(publisher.allocateChunk(sizeof(TransmissionData_t)));
-        sample->counter = counter++;
-        consoleOutput(std::string("Sending: " + std::to_string(sample->counter)));
-        publisher.sendChunk(sample);
+        publisher.loan(sizeof(TransmissionData_t)).and_then([&](iox::popo::Sample<void>& sample) {
+            auto rawSample = static_cast<TransmissionData_t*>(sample.get());
+            rawSample->counter = counter++;
+            consoleOutput(std::string("Sending: " + std::to_string(rawSample->counter)));
+            sample.publish();
+        });
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -61,21 +64,25 @@ void sender()
 
 void receiver()
 {
-    iox::popo::Subscriber subscriber({"Single", "Process", "Demo"});
+    iox::popo::UntypedSubscriber subscriber({"Single", "Process", "Demo"});
 
     uint64_t cacheQueueSize = 10;
     subscriber.subscribe(cacheQueueSize);
 
     while (keepRunning.load())
     {
-        if (iox::popo::SubscriptionState::SUBSCRIBED == subscriber.getSubscriptionState())
+        if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
         {
             const void* rawSample = nullptr;
-            while (subscriber.getChunk(&rawSample))
+            while (subscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+                if (maybeSample.has_value())
+                {
+                    auto sample = static_cast<const TransmissionData_t*>(rawSample);
+                    consoleOutput(std::string("Receiving : " + std::to_string(sample->counter)));
+                }
+            }))
             {
-                auto sample = static_cast<const TransmissionData_t*>(rawSample);
-                consoleOutput(std::string("Receiving : " + std::to_string(sample->counter)));
-                subscriber.releaseChunk(rawSample);
+                // loop as long as there are samples to take
             }
         }
 
@@ -91,8 +98,9 @@ int main()
     iox::RouDiConfig_t defaultRouDiConfig = iox::RouDiConfig_t().setDefaults();
     iox::roudi::IceOryxRouDiComponents roudiComponents(defaultRouDiConfig);
 
-    iox::roudi::RouDi roudi(
-        roudiComponents.m_rouDiMemoryManager, roudiComponents.m_portManager, iox::config::MonitoringMode::OFF, false);
+    iox::roudi::RouDi roudi(roudiComponents.m_rouDiMemoryManager,
+                            roudiComponents.m_portManager,
+                            iox::roudi::RouDi::RoudiStartupParameters{iox::config::MonitoringMode::OFF, false});
 
     // create a single process runtime for inter thread communication
     iox::runtime::PoshRuntimeSingleProcess runtime("/singleProcessDemo");

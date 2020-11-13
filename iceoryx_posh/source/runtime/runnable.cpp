@@ -28,7 +28,7 @@ Runnable::Runnable(RunnableData* const data) noexcept
 {
 }
 
-Runnable::Runnable(const iox::cxx::CString100& runnableName) noexcept
+Runnable::Runnable(const RunnableName_t& runnableName) noexcept
     : Runnable(PoshRuntime::getInstance().createRunnable(RunnableProperty(runnableName, 0u)))
 {
 }
@@ -57,12 +57,12 @@ Runnable& Runnable::operator=(Runnable&& rhs) noexcept
     return *this;
 }
 
-cxx::CString100 Runnable::getRunnableName() const noexcept
+RunnableName_t Runnable::getRunnableName() const noexcept
 {
     return m_data->m_runnable;
 }
 
-cxx::CString100 Runnable::getProcessName() const noexcept
+ProcessName_t Runnable::getProcessName() const noexcept
 {
     return m_data->m_process;
 }

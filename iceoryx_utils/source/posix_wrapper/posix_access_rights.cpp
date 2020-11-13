@@ -89,7 +89,7 @@ cxx::optional<PosixGroup::string_t> PosixGroup::getGroupName(gid_t f_id)
         return cxx::nullopt_t();
     }
 
-    return cxx::make_optional<string_t>(getgrgidCall.getReturnValue()->gr_name);
+    return cxx::make_optional<string_t>(string_t(iox::cxx::TruncateToCapacity, getgrgidCall.getReturnValue()->gr_name));
 }
 
 PosixGroup::string_t PosixGroup::getName() const
@@ -138,7 +138,7 @@ cxx::optional<PosixUser::string_t> PosixUser::getUserName(uid_t f_id)
         std::cerr << "Error: Could not find user with id'" << f_id << "'." << std::endl;
         return cxx::nullopt_t();
     }
-    return cxx::make_optional<string_t>(getpwnamCall.getReturnValue()->pw_name);
+    return cxx::make_optional<string_t>(string_t(iox::cxx::TruncateToCapacity, getpwnamCall.getReturnValue()->pw_name));
 }
 
 PosixUser::groupVector_t PosixUser::getGroups() const

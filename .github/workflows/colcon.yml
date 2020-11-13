@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Setup ROS
-        uses: ros-tooling/setup-ros@0.0.23
+        uses: ros-tooling/setup-ros@0.0.26
         with:
           required-ros-distributions: foxy
       - name: Install Iceoryx Dependencies

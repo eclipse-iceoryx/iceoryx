@@ -20,7 +20,6 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
 
 namespace iox
 {
@@ -28,21 +27,19 @@ namespace roudi
 {
 RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
              PortManager& portManager,
-             const config::MonitoringMode monitoringMode,
-             const bool killProcessesInDestructor,
-             const MQThreadStart mqThreadStart,
-             const version::CompatibilityCheckLevel compatibilityCheckLevel)
-    : m_killProcessesInDestructor(killProcessesInDestructor)
+             RoudiStartupParameters roudiStartupParameters)
+    : m_killProcessesInDestructor(roudiStartupParameters.m_killProcessesInDestructor)
     , m_runThreads(true)
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
-    , m_prcMgr(*m_roudiMemoryInterface, portManager, compatibilityCheckLevel)
+    , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
     , m_mempoolIntrospection(
           *m_roudiMemoryInterface->introspectionMemoryManager()
                .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
           *m_roudiMemoryInterface->segmentManager().value(),
           PublisherPortUserType(m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MQ_ROUDI_NAME)))
-    , m_monitoringMode(monitoringMode)
+    , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
+    , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
     m_processIntrospection.registerSenderPort(
         m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, MQ_ROUDI_NAME));
@@ -57,7 +54,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     m_processManagementThread = std::thread(&RouDi::processThread, this);
     pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
 
-    if (mqThreadStart == MQThreadStart::IMMEDIATE)
+    if (roudiStartupParameters.m_mqThreadStart == MQThreadStart::IMMEDIATE)
     {
         startMQThread();
     }
@@ -83,7 +80,7 @@ void RouDi::shutdown()
 
     if (m_killProcessesInDestructor)
     {
-        m_prcMgr.killAllProcesses();
+        m_prcMgr.killAllProcesses(m_processKillDelay);
     }
 
     if (m_processManagementThread.joinable())
@@ -294,8 +291,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            capro::ServiceDescription service(
-                cxx::Serialization(cxx::CString100(cxx::TruncateToCapacity, message.getElementAtIndex(2))));
+            capro::ServiceDescription service(cxx::Serialization(std::string(message.getElementAtIndex(2))));
 
             m_prcMgr.findServiceForProcess(ProcessName_t(cxx::TruncateToCapacity, processName), service);
         }

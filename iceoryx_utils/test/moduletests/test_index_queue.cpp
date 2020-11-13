@@ -84,7 +84,7 @@ TYPED_TEST(IndexQueueTest, queueIsNotEmptyAfterPush)
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
 
-    q.push(index);
+    q.push(index.value());
     EXPECT_FALSE(q.empty());
 }
 
@@ -94,7 +94,7 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyAgainAfterPushFollowedByPop)
 
     auto index = this->fullQueue.pop();
 
-    q.push(index);
+    q.push(index.value());
     EXPECT_FALSE(q.empty());
     q.pop();
     EXPECT_TRUE(q.empty());
@@ -110,9 +110,9 @@ TYPED_TEST(IndexQueueTest, IndicesAreIncreasingWhenConstructedFull)
 
     index_t expected{0};
     auto index = q.pop();
-    while (index.isValid())
+    while (index.has_value())
     {
-        EXPECT_EQ(index, expected++);
+        EXPECT_EQ(index.value(), expected++);
         index = q.pop();
     }
 }
@@ -136,7 +136,7 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyWhenPopFails)
     EXPECT_FALSE(q.empty());
 
     auto index = q.pop();
-    while (index.isValid())
+    while (index.has_value())
     {
         index = q.pop();
     }
@@ -150,23 +150,16 @@ TYPED_TEST(IndexQueueTest, pushAndPopSingleElement)
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
 
-    // we need to store a raw index to compare it,
-    // but we cannot copy nor move it since we want to push it back
-    // which invalidates the index
-    // but we can copy the raw index
-    // (but not create a index to return to the queue from it again)
-    index_t rawIndex = index;
+    index_t rawIndex = index.value();
 
-    EXPECT_TRUE(index.isValid());
+    EXPECT_TRUE(index.has_value());
 
-    q.push(index);
-
-    EXPECT_FALSE(index.isValid());
+    q.push(index.value());
 
     auto popped = q.pop();
 
-    ASSERT_TRUE(popped.isValid());
-    EXPECT_EQ(popped, rawIndex);
+    ASSERT_TRUE(popped.has_value());
+    EXPECT_EQ(popped.value(), rawIndex);
 }
 
 TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
@@ -180,30 +173,30 @@ TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
     for (uint64_t i = 0; i < capacity; ++i)
     {
         auto index = this->fullQueue.pop();
-        EXPECT_EQ(index, expected++);
-        q.push(index);
+        EXPECT_EQ(index.value(), expected++);
+        q.push(index.value());
     }
 
     expected = 0;
     for (uint64_t i = 0; i < capacity; ++i)
     {
         auto popped = q.pop();
-        ASSERT_TRUE(popped.isValid());
-        EXPECT_EQ(popped, expected++);
+        ASSERT_TRUE(popped.has_value());
+        EXPECT_EQ(popped.value(), expected++);
     }
 }
 
 TYPED_TEST(IndexQueueTest, popReturnsNothingWhenQueueIsEmpty)
 {
     auto& q = this->queue;
-    EXPECT_FALSE(q.pop().isValid());
+    EXPECT_FALSE(q.pop().has_value());
 }
 
 
 TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsEmpty)
 {
     auto& q = this->queue;
-    EXPECT_FALSE(q.popIfFull().isValid());
+    EXPECT_FALSE(q.popIfFull().has_value());
 }
 
 
@@ -213,8 +206,8 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsOldestElementWhenQueueIsFull)
     Queue& q = this->fullQueue;
 
     auto index = q.popIfFull();
-    EXPECT_TRUE(index.isValid());
-    EXPECT_EQ(index, 0);
+    EXPECT_TRUE(index.has_value());
+    EXPECT_EQ(index.value(), 0);
 }
 
 TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsNotFull)
@@ -223,8 +216,8 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsNotFull)
     Queue& q = this->fullQueue;
 
     auto index = q.pop();
-    EXPECT_TRUE(index.isValid());
-    EXPECT_FALSE(q.popIfFull().isValid());
+    EXPECT_TRUE(index.has_value());
+    EXPECT_FALSE(q.popIfFull().has_value());
 }
 
 } // namespace
