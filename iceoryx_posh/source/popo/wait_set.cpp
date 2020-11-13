@@ -54,44 +54,34 @@ cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexc
     return cxx::error<WaitSetError>(WaitSetError::CONDITION_VARIABLE_ALREADY_SET);
 }
 
-bool WaitSet::detachCondition(Condition& condition) noexcept
+void WaitSet::detachCondition(Condition& condition) noexcept
 {
     if (!condition.isConditionVariableAttached())
     {
-        return false;
+        return;
     }
 
-    if (!condition.detachConditionVariable())
-    {
-        errorHandler(Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION, nullptr, ErrorLevel::FATAL);
-        return false;
-    }
-
-    return removeCondition(condition);
+    condition.detachConditionVariable();
+    removeCondition(condition);
 }
 
-bool WaitSet::removeCondition(const Condition& condition) noexcept
+void WaitSet::removeCondition(const Condition& condition) noexcept
 {
     for (auto& currentCondition : m_conditionVector)
     {
         if (currentCondition == &condition)
         {
             m_conditionVector.erase(&currentCondition);
-            return true;
+            return;
         }
     }
-
-    return false;
 }
 
 void WaitSet::detachAllConditions() noexcept
 {
     for (auto& currentCondition : m_conditionVector)
     {
-        if (!currentCondition->detachConditionVariable())
-        {
-            errorHandler(Error::kPOPO__WAITSET_COULD_NOT_DETACH_CONDITION, nullptr, ErrorLevel::FATAL);
-        }
+        currentCondition->detachConditionVariable();
     }
     m_conditionVector.clear();
 }

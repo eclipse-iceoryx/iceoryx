@@ -24,7 +24,7 @@ bool cpp2c_Subscriber::hasTriggered() const noexcept
     return iox::popo::SubscriberPortUser(m_portData).hasNewChunks();
 }
 
-bool cpp2c_Subscriber::unsetConditionVariable() noexcept
+void cpp2c_Subscriber::unsetConditionVariable() noexcept
 {
-    return iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
+    iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
 }

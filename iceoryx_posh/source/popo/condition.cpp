@@ -52,14 +52,15 @@ bool Condition::attachConditionVariable(WaitSet* const waitSet,
     return false;
 }
 
-bool Condition::detachConditionVariable() noexcept
+void Condition::detachConditionVariable() noexcept
 {
-    if (isConditionVariableAttached() && unsetConditionVariable())
+    if (!isConditionVariableAttached())
     {
-        m_waitSet.store(nullptr, std::memory_order_relaxed);
-        return true;
+        return;
     }
-    return false;
+
+    unsetConditionVariable();
+    m_waitSet.store(nullptr, std::memory_order_relaxed);
 }
 
 } // namespace popo

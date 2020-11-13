@@ -22,7 +22,7 @@ struct cpp2c_Subscriber : public iox::popo::Condition
 {
     bool setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override;
     bool hasTriggered() const noexcept override;
-    bool unsetConditionVariable() noexcept override;
+    void unsetConditionVariable() noexcept override;
 
     iox::popo::SubscriberPortData* m_portData{nullptr};
 };

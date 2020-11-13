@@ -47,10 +47,9 @@ class WaitSet_test : public Test
             return m_wasTriggered;
         }
 
-        bool unsetConditionVariable() noexcept override
+        void unsetConditionVariable() noexcept override
         {
             m_condVarPtr = nullptr;
-            return true;
         }
 
         /// @note done in ChunkQueuePusher
@@ -159,7 +158,7 @@ TEST_F(WaitSet_test, AttachTooManyConditionsResultsInFailure)
 TEST_F(WaitSet_test, DetachSingleConditionSuccessful)
 {
     m_sut.attachCondition(m_subscriberVector.front());
-    EXPECT_TRUE(m_sut.detachCondition(m_subscriberVector.front()));
+    EXPECT_TRUE(m_sut.isConditionAttached(m_subscriberVector.front()));
 }
 
 TEST_F(WaitSet_test, DetachMultipleConditionsSuccessful)
@@ -170,19 +169,8 @@ TEST_F(WaitSet_test, DetachMultipleConditionsSuccessful)
     }
     for (auto& currentSubscriber : m_subscriberVector)
     {
-        EXPECT_TRUE(m_sut.detachCondition(currentSubscriber));
+        EXPECT_TRUE(m_sut.isConditionAttached(currentSubscriber));
     }
-}
-
-TEST_F(WaitSet_test, DetachConditionNotInListResultsInFailure)
-{
-    EXPECT_FALSE(m_sut.detachCondition(m_subscriberVector.front()));
-}
-
-TEST_F(WaitSet_test, DetachUnknownConditionResultsInFailure)
-{
-    m_sut.attachCondition(m_subscriberVector.front());
-    EXPECT_FALSE(m_sut.detachCondition(m_subscriberVector.back()));
 }
 
 TEST_F(WaitSet_test, AttachConditionInTwoWaitSetsResultsInAlreadySetError)

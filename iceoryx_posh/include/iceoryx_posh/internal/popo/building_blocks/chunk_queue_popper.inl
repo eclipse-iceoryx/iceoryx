@@ -134,20 +134,10 @@ ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(ConditionVariableData
 }
 
 template <typename ChunkQueueDataType>
-inline bool ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexcept
+inline void ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
-
-    if (isConditionVariableSet())
-    {
-        getMembers()->m_conditionVariableDataPtr = nullptr;
-        return true;
-    }
-    else
-    {
-        LogWarn() << "Condition variable not set yet.";
-        return false;
-    }
+    getMembers()->m_conditionVariableDataPtr = nullptr;
 }
 
 template <typename ChunkQueueDataType>

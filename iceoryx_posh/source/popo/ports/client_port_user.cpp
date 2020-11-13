@@ -92,9 +92,9 @@ bool ClientPortUser::setConditionVariable(ConditionVariableData* conditionVariab
     return m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
 }
 
-bool ClientPortUser::unsetConditionVariable() noexcept
+void ClientPortUser::unsetConditionVariable() noexcept
 {
-    return m_chunkReceiver.unsetConditionVariable();
+    m_chunkReceiver.unsetConditionVariable();
 }
 
 bool ClientPortUser::isConditionVariableSet() const noexcept

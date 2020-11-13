@@ -44,13 +44,11 @@ class iox_cond_test : public Test
             return hasTriggeredReturn;
         }
 
-        bool unsetConditionVariable() noexcept override
+        void unsetConditionVariable() noexcept override
         {
-            return unsetConditionVariableReturn;
         }
 
         bool hasTriggeredReturn = true;
-        bool unsetConditionVariableReturn = true;
         bool setConditionVariableReturn = true;
 
         ConditionVariableData* setConditionVariableArgument = nullptr;

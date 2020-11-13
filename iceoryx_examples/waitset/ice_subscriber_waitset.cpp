@@ -35,9 +35,9 @@ void receiving()
 {
     iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
 
-    iox::popo::WaitSet waitset;
 
     iox::popo::TypedSubscriber<CounterTopic> mySubscriber({"Radar", "FrontLeft", "Counter"});
+    iox::popo::WaitSet waitset;
     waitset.attachCondition(shutdownGuard);
     waitset.attachCondition(mySubscriber);
 
@@ -62,7 +62,6 @@ void receiving()
     }
 
     mySubscriber.unsubscribe();
-    waitset.detachCondition(mySubscriber);
 }
 
 int main()

@@ -84,7 +84,7 @@ class ChunkQueuePopper
 
     /// @brief Detaches a condition variable
     /// @return true if condition variable was detached, false if not
-    bool unsetConditionVariable() noexcept;
+    void unsetConditionVariable() noexcept;
 
     /// @brief Returns the information whether a condition variable is attached
     /// @return true if condition variable is set, false if not

@@ -96,12 +96,12 @@ class BaseSubscriber : public Condition
 
     // Condition overrides
     virtual bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
-    virtual bool unsetConditionVariable() noexcept override;
+    virtual void unsetConditionVariable() noexcept override;
     virtual bool hasTriggered() const noexcept override;
 
   protected:
     BaseSubscriber() noexcept // Required for testing.
-    {};
+        {};
     BaseSubscriber(const capro::ServiceDescription& service);
 
   private:

@@ -47,11 +47,10 @@ bool GuardCondition::setConditionVariable(ConditionVariableData* conditionVariab
     return true;
 }
 
-bool GuardCondition::unsetConditionVariable() noexcept
+void GuardCondition::unsetConditionVariable() noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_conditionVariableDataPtr = nullptr;
-    return true;
 }
 
 } // namespace popo

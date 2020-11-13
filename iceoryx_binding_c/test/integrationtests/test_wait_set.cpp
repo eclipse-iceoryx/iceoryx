@@ -82,6 +82,19 @@ class iox_ws_test : public Test
     std::vector<iox_sub_t> m_subscriber;
 };
 
+TEST_F(iox_ws_test, UnattachedConditionIsNotAttached)
+{
+    iox_sub_t subscriber = CreateSubscriber();
+    EXPECT_FALSE(iox_ws_is_condition_attached(m_sut, subscriber));
+}
+
+TEST_F(iox_ws_test, AttachedConditionIsAttached)
+{
+    iox_sub_t subscriber = CreateSubscriber();
+    iox_ws_attach_condition(m_sut, subscriber);
+    EXPECT_TRUE(iox_ws_is_condition_attached(m_sut, subscriber));
+}
+
 TEST_F(iox_ws_test, AttachSingleConditionIsSuccessful)
 {
     iox_sub_t subscriber = CreateSubscriber();
@@ -100,24 +113,8 @@ TEST_F(iox_ws_test, DetachAttachedConditionIsSuccessful)
 {
     iox_sub_t subscriber = CreateSubscriber();
     iox_ws_attach_condition(m_sut, subscriber);
-
-    EXPECT_TRUE(iox_ws_detach_condition(m_sut, subscriber));
-}
-
-TEST_F(iox_ws_test, DetachNotAttachedConditionFails)
-{
-    iox_sub_t subscriber = CreateSubscriber();
-
-    EXPECT_FALSE(iox_ws_detach_condition(m_sut, subscriber));
-}
-
-TEST_F(iox_ws_test, DetachFailsAfterAllConditionsAreDetached)
-{
-    iox_sub_t subscriber = CreateSubscriber();
-    iox_ws_attach_condition(m_sut, subscriber);
-    iox_ws_detach_all_conditions(m_sut);
-
-    EXPECT_FALSE(iox_ws_detach_condition(m_sut, subscriber));
+    iox_ws_detach_condition(m_sut, subscriber);
+    EXPECT_FALSE(iox_ws_is_condition_attached(m_sut, subscriber));
 }
 
 TEST_F(iox_ws_test, AttachConditionsSucceedsAfterAllConditionsAreDetached)

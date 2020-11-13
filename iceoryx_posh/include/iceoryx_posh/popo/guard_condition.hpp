@@ -51,7 +51,7 @@ class GuardCondition final : public Condition
     bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
     /// @brief Deletes the condition variable data pointer
     /// @return True if pointer could be set to nullptr, false if otherwise
-    bool unsetConditionVariable() noexcept override;
+    void unsetConditionVariable() noexcept override;
 
   private:
     ConditionVariableData* m_conditionVariableDataPtr;

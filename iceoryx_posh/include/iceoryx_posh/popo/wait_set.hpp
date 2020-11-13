@@ -111,7 +111,7 @@ class WaitSet
     /// @brief Removes a condition from the internal vector
     /// @param[in] condition, condition to be detached
     /// @return True if successful, false if unsuccessful
-    bool detachCondition(Condition& condition) noexcept;
+    void detachCondition(Condition& condition) noexcept;
 
     /// @brief Clears all conditions from the waitset
     void detachAllConditions() noexcept;
@@ -142,7 +142,7 @@ class WaitSet
     ConditionVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
     ConditionVector createVectorWithFullfilledConditions() noexcept;
 
-    bool removeCondition(const Condition& condition) noexcept;
+    void removeCondition(const Condition& condition) noexcept;
 
   private:
     ConditionVector m_conditionVector;

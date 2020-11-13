@@ -109,9 +109,9 @@ bool SubscriberPortUser::setConditionVariable(ConditionVariableData* conditionVa
     return m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
 }
 
-bool SubscriberPortUser::unsetConditionVariable() noexcept
+void SubscriberPortUser::unsetConditionVariable() noexcept
 {
-    return m_chunkReceiver.unsetConditionVariable();
+    m_chunkReceiver.unsetConditionVariable();
 }
 
 bool SubscriberPortUser::isConditionVariableSet() noexcept
