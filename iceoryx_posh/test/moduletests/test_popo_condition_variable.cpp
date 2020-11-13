@@ -61,6 +61,24 @@ TEST_F(ConditionVariable_test, NotifyOnceResultsInNoTimeoutSingleThreaded)
     EXPECT_TRUE(m_waiter.timedWait(10_ms));
 }
 
+TEST_F(ConditionVariable_test, NotifyOnceResultsInBeingTriggered)
+{
+    m_signaler.notifyOne();
+    EXPECT_TRUE(m_waiter.wasTriggered());
+}
+
+TEST_F(ConditionVariable_test, NoNotifyResultsInNotBeingTriggered)
+{
+    EXPECT_FALSE(m_waiter.wasTriggered());
+}
+
+TEST_F(ConditionVariable_test, WasTriggerCallDoesNotChangeTheState)
+{
+    m_signaler.notifyOne();
+    m_waiter.wasTriggered();
+    EXPECT_TRUE(m_waiter.timedWait(10_ms));
+}
+
 TEST_F(ConditionVariable_test, NotifyOnceResultsInNoWaitSingleThreaded)
 {
     m_signaler.notifyOne();
@@ -142,22 +160,3 @@ TEST_F(ConditionVariable_test, NotifyWhileWaitingResultsNoTimeoutMultiThreaded)
     waiter.join();
 }
 
-TEST_F(ConditionVariable_test, DISABLED_MoveConditionVariableSignalerIsSuccessful)
-{
-    /// @todo move c'tor currently deleted
-}
-
-TEST_F(ConditionVariable_test, DISABLED_MoveConditionVariableWaiterIsSuccessful)
-{
-    /// @todo move c'tor currently deleted
-}
-
-TEST_F(ConditionVariable_test, DISABLED_MoveAssignConditionVariableSignalerIsSuccessful)
-{
-    /// @todo move assign currently deleted
-}
-
-TEST_F(ConditionVariable_test, DISABLED_MoveAssignConditionVariableWaiterIsSuccessful)
-{
-    /// @todo move assign currently deleted
-}

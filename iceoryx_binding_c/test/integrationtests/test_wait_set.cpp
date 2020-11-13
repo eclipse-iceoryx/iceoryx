@@ -73,7 +73,6 @@ class iox_ws_test : public Test
     }
 
     ConditionVariableData m_condVar;
-    iox_ws_storage_t m_sutStorage;
 
     iox_guard_cond_storage_t m_guardCondStorage;
     iox_guard_cond_t m_guardCond;
@@ -101,12 +100,17 @@ TEST_F(iox_ws_test, AttachSingleConditionIsSuccessful)
     EXPECT_THAT(iox_ws_attach_condition(m_sut, subscriber), Eq(WaitSetResult_SUCCESS));
 }
 
-TEST_F(iox_ws_test, AttachSingleConditionTwiceResultsInFailure)
+TEST_F(iox_ws_test, AttachSingleConditionTwiceResultsInDetachFromOrigin)
 {
+    ConditionVariableData condVar2;
+    WaitSetMock* sut2 = new WaitSetMock(&condVar2);
+
     iox_sub_t subscriber = CreateSubscriber();
     iox_ws_attach_condition(m_sut, subscriber);
+    iox_ws_attach_condition(sut2, subscriber);
 
-    EXPECT_THAT(iox_ws_attach_condition(m_sut, subscriber), Eq(WaitSetResult_CONDITION_VARIABLE_ALREADY_SET));
+    EXPECT_FALSE(iox_ws_is_condition_attached(m_sut, subscriber));
+    EXPECT_TRUE(iox_ws_is_condition_attached(sut2, subscriber));
 }
 
 TEST_F(iox_ws_test, DetachAttachedConditionIsSuccessful)
