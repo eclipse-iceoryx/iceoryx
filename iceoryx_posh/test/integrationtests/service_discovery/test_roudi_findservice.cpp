@@ -41,12 +41,13 @@ TEST_F(RoudiFindService_test, OfferSingleMethodServiceSingleInstance)
 }
 
 
-///@todo offere service should return bool signalling success/failure
+///@todo #359 offereService should return bool signalling success/failure
 TEST_F(RoudiFindService_test, DISABLED_OfferServiceWithDefaultServiceDescriptionFails)
 {
     iox::runtime::InstanceContainer instanceContainer;
     bool isServiceOffered;
 
+    ///@todo #359 offerService should not allow invalid ServiceDescriptions
     // isServiceOffered = senderRuntime->offerService(iox::capro::ServiceDescription());
     this->InterOpWait();
 
