@@ -86,7 +86,7 @@ class PoshRuntime
     /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created sender port data
     SenderPortType::MemberType_t* getMiddlewareSender(const capro::ServiceDescription& service,
-                                                      const RunnableName_t& runnableName = RunnableName_t(""),
+                                                      const RunnableName_t& runnableName = "",
                                                       const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @deprecated #25
@@ -98,7 +98,7 @@ class PoshRuntime
     /// @return pointer to a created receiver port data
     ReceiverPortType::MemberType_t*
     getMiddlewareReceiver(const capro::ServiceDescription& service,
-                          const RunnableName_t& runnableName = RunnableName_t(""),
+                          const RunnableName_t& runnableName = "",
                           const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a publisher port
@@ -111,7 +111,7 @@ class PoshRuntime
     PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const capro::ServiceDescription& service,
                            const uint64_t& historyCapacity = 0U,
-                           const RunnableName_t& runnableName = RunnableName_t(""),
+                           const RunnableName_t& runnableName = "",
                            const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a subscriber port
@@ -124,7 +124,7 @@ class PoshRuntime
     SubscriberPortUserType::MemberType_t*
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
                             const uint64_t& historyRequest = 0U,
-                            const RunnableName_t& runnableName = RunnableName_t(""),
+                            const RunnableName_t& runnableName = "",
                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create an interface port
@@ -132,7 +132,7 @@ class PoshRuntime
     /// @param[in] runnableName name of the runnable where the interface should belong to
     /// @return pointer to a created interface port data
     popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
-                                                    const RunnableName_t& runnableName = RunnableName_t("")) noexcept;
+                                                    const RunnableName_t& runnableName = "") noexcept;
 
     /// @brief request the RouDi daemon to create an application port
     /// @return pointer to a created application port data
