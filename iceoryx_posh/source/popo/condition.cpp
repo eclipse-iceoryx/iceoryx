@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/popo/condition.hpp"
 
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -41,15 +42,19 @@ bool Condition::isConditionVariableAttached() const noexcept
     return m_waitSet.load(std::memory_order_relaxed) != nullptr;
 }
 
-bool Condition::attachConditionVariable(WaitSet* const waitSet,
+void Condition::attachConditionVariable(WaitSet* const waitSet,
                                         ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
-    if (!isConditionVariableAttached() && setConditionVariable(conditionVariableDataPtr))
+    if (isConditionVariableAttached())
     {
-        m_waitSet.store(waitSet, std::memory_order_relaxed);
-        return true;
+        LogWarn()
+            << "Attaching an already attached condition leads to a detach from the current WaitSet. Best practice "
+               "is to detach Condition first before attaching it.";
+        detachConditionVariable();
     }
-    return false;
+
+    setConditionVariable(conditionVariableDataPtr);
+    m_waitSet.store(waitSet, std::memory_order_relaxed);
 }
 
 void Condition::detachConditionVariable() noexcept
@@ -60,6 +65,7 @@ void Condition::detachConditionVariable() noexcept
     }
 
     unsetConditionVariable();
+    m_waitSet.load(std::memory_order_relaxed)->removeCondition(*this);
     m_waitSet.store(nullptr, std::memory_order_relaxed);
 }
 

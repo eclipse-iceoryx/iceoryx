@@ -95,7 +95,7 @@ class BaseSubscriber : public Condition
     void releaseQueuedSamples() noexcept;
 
     // Condition overrides
-    virtual bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
+    virtual void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
     virtual void unsetConditionVariable() noexcept override;
     virtual bool hasTriggered() const noexcept override;
 

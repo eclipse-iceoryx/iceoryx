@@ -39,19 +39,17 @@ WaitSet::~WaitSet() noexcept
 
 cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexcept
 {
-    if (!condition.isConditionVariableAttached())
+    if (!isConditionAttached(condition))
     {
         if (!m_conditionVector.push_back(&condition))
         {
             return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
         }
-        if (!condition.attachConditionVariable(this, m_conditionVariableDataPtr))
-        {
-            return cxx::error<WaitSetError>(WaitSetError::CONDITION_VARIABLE_ATTACH_FAILED);
-        }
-        return iox::cxx::success<>();
+
+        condition.attachConditionVariable(this, m_conditionVariableDataPtr);
     }
-    return cxx::error<WaitSetError>(WaitSetError::CONDITION_VARIABLE_ALREADY_SET);
+
+    return iox::cxx::success<>();
 }
 
 void WaitSet::detachCondition(Condition& condition) noexcept
@@ -62,7 +60,6 @@ void WaitSet::detachCondition(Condition& condition) noexcept
     }
 
     condition.detachConditionVariable();
-    removeCondition(condition);
 }
 
 void WaitSet::removeCondition(const Condition& condition) noexcept

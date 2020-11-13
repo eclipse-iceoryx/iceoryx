@@ -33,10 +33,9 @@ class iox_cond_test : public Test
     class : public Condition
     {
       public:
-        bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
+        void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
         {
             setConditionVariableArgument = conditionVariableDataPtr;
-            return setConditionVariableReturn;
         }
 
         bool hasTriggered() const noexcept override
@@ -49,7 +48,6 @@ class iox_cond_test : public Test
         }
 
         bool hasTriggeredReturn = true;
-        bool setConditionVariableReturn = true;
 
         ConditionVariableData* setConditionVariableArgument = nullptr;
     } sut;

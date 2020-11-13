@@ -77,9 +77,9 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
     {
         return iox::popo::BaseSubscriber<T, port_t>::releaseQueuedSamples();
     }
-    bool setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override
+    void setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override
     {
-        return iox::popo::BaseSubscriber<T, port_t>::setConditionVariable(conditionVariableDataPtr);
+        iox::popo::BaseSubscriber<T, port_t>::setConditionVariable(conditionVariableDataPtr);
     }
     void unsetConditionVariable() noexcept override
     {

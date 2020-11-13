@@ -104,10 +104,10 @@ inline void BaseSubscriber<T, port_t>::releaseQueuedSamples() noexcept
 }
 
 template <typename T, typename port_t>
-inline bool
+inline void
 BaseSubscriber<T, port_t>::setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
-    return m_port.setConditionVariable(conditionVariableDataPtr);
+    m_port.setConditionVariable(conditionVariableDataPtr);
 }
 
 template <typename T, typename port_t>

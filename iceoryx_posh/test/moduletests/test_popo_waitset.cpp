@@ -36,10 +36,9 @@ class WaitSet_test : public Test
     class MockSubscriber : public Condition
     {
       public:
-        bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
+        void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
         {
             m_condVarPtr = conditionVariableDataPtr;
-            return true;
         }
 
         bool hasTriggered() const noexcept override
@@ -97,11 +96,16 @@ TEST_F(WaitSet_test, AttachSingleConditionSuccessful)
     EXPECT_TRUE(m_sut.isConditionAttached(m_subscriberVector.front()));
 }
 
-TEST_F(WaitSet_test, AttachSameConditionTwiceResultsInFailure)
+TEST_F(WaitSet_test, AttachConditionToDifferentWaitsetDetachesConditionFromOrigin)
 {
+    ConditionVariableData condVarData2;
+    WaitSetMock sut2{&condVarData2};
+
     m_sut.attachCondition(m_subscriberVector.front());
-    EXPECT_THAT(m_sut.attachCondition(m_subscriberVector.front()).get_error(),
-                Eq(WaitSetError::CONDITION_VARIABLE_ALREADY_SET));
+    sut2.attachCondition(m_subscriberVector.front());
+
+    EXPECT_FALSE(m_sut.isConditionAttached(m_subscriberVector.front()));
+    EXPECT_TRUE(sut2.isConditionAttached(m_subscriberVector.front()));
 }
 
 TEST_F(WaitSet_test, ConditionIsAttachedAfterAttaching)
@@ -171,14 +175,6 @@ TEST_F(WaitSet_test, DetachMultipleConditionsSuccessful)
     {
         EXPECT_TRUE(m_sut.isConditionAttached(currentSubscriber));
     }
-}
-
-TEST_F(WaitSet_test, AttachConditionInTwoWaitSetsResultsInAlreadySetError)
-{
-    WaitSetMock m_sut2{&m_condVarData};
-    m_sut.attachCondition(m_subscriberVector.front());
-    EXPECT_THAT(m_sut2.attachCondition(m_subscriberVector.front()).get_error(),
-                Eq(WaitSetError::CONDITION_VARIABLE_ALREADY_SET));
 }
 
 TEST_F(WaitSet_test, TimedWaitWithInvalidTimeResultsInEmptyVector)

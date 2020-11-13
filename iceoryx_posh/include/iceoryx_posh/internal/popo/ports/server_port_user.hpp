@@ -95,7 +95,7 @@ class ServerPortUser : public BasePort
 
     /// @brief set a condition variable (via its pointer) to the client
     /// @return true if attachment worked, otherwise false
-    bool setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    void setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
 
     /// @brief unset a condition variable from the client
     void unsetConditionVariable() noexcept;

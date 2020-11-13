@@ -27,8 +27,6 @@ class Condition;
 enum class WaitSetError : uint8_t
 {
     CONDITION_VECTOR_OVERFLOW,
-    CONDITION_VARIABLE_ALREADY_SET,
-    CONDITION_VARIABLE_ATTACH_FAILED
 };
 
 /// @brief Logical disjunction of a certain number of Conditions
