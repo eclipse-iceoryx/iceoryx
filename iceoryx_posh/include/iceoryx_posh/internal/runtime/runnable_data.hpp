@@ -14,7 +14,7 @@
 #ifndef IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP
 #define IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP
 
-#include "iceoryx_utils/fixed_string/string100.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 #include <atomic>
 
@@ -29,8 +29,8 @@ class RunnableData
     /// @brief constructor
     /// @param[in] name name of the runnable
     /// @param[in] runnableDeviceIdentifier identifier of the device on which the runnable will run
-    RunnableData(const iox::cxx::CString100& process,
-                 const iox::cxx::CString100& runnable,
+    RunnableData(const ProcessName_t& process,
+                 const RunnableName_t& runnable,
                  const uint64_t runnableDeviceIdentifier) noexcept;
 
     RunnableData(const RunnableData&) = delete;
@@ -39,8 +39,8 @@ class RunnableData
     RunnableData& operator=(RunnableData&&) = delete;
 
 
-    iox::cxx::CString100 m_process;
-    iox::cxx::CString100 m_runnable;
+    ProcessName_t m_process;
+    RunnableName_t m_runnable;
     uint64_t m_runnableDeviceIdentifier;
     std::atomic_bool m_toBeDestroyed{false};
 };

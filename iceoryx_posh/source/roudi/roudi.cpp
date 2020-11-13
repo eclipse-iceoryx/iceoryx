@@ -20,7 +20,6 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
 
 namespace iox
 {
@@ -335,8 +334,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            capro::ServiceDescription service(
-                cxx::Serialization(cxx::CString100(cxx::TruncateToCapacity, message.getElementAtIndex(2))));
+            capro::ServiceDescription service(cxx::Serialization(std::string(message.getElementAtIndex(2))));
 
             m_prcMgr.findServiceForProcess(ProcessName_t(cxx::TruncateToCapacity, processName), service);
         }

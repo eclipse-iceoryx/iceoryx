@@ -17,7 +17,7 @@
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/serialization.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_versions.hpp"
 
 #include <cstdint>
