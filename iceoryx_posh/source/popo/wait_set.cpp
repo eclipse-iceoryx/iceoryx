@@ -117,11 +117,19 @@ WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions() noexcep
 template <typename WaitFunction>
 WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept
 {
-    /// @note Inbetween here and last wait someone could have set the trigger to true, hence reset it
-    m_conditionVariableWaiter.reset();
+    WaitSet::ConditionVector conditions;
 
-    // Is one of the conditons true?
-    auto conditions = createVectorWithFullfilledConditions();
+    if (m_conditionVariableWaiter.wasTriggered())
+    {
+        /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
+        m_conditionVariableWaiter.reset();
+        conditions = createVectorWithFullfilledConditions();
+    }
+
+    // It is possible that after the reset call and before the createVectorWithFullfilledConditions call
+    // another trigger came in. Then createVectorWithFullfilledConditions would have already handled it.
+    // But this would lead to an empty conditions vector in the next run if no other trigger
+    // came in.
     if (!conditions.empty())
     {
         return conditions;
