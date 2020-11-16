@@ -5,11 +5,17 @@
     - [ ] Commit messages have the issue ID (`iox-#123 commit text`)
     - [ ] Commit messages are signed (`git commit -s`)
     - [ ] Commit author matches [Eclipse Contributor Agreement][eca] (and ECA is signed)
-2. [ ] Update the PR title
+1. [ ] Code according to our coding style and naming conventions
+1. [ ] Unit tests have been written for new behavior
+1. [ ] Public Code changes are documented via doxygen
+1. [ ] Copyright owner are updated in the changed files
+1. [ ] Update the PR title
    - Follow the same conventions as for commit messages
    - Link to the relevant issue
-3. [ ] Add sensible notes for the reviewer
-4. [ ] Assign PR to reviewer
+1. [ ] Relevant issues are linked
+1. [ ] Add sensible notes for the reviewer
+1. [ ] All checks have passed
+1. [ ] Assign PR to reviewer
 
 [commit-guidelines]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [eca]: http://www.eclipse.org/legal/ECA.php
@@ -21,13 +27,16 @@
 
 - [ ] Commits are properly organized and messages are according to the guideline
 - [ ] PR title describes the changes
-- [ ] Approve
 
 ## Post-review Checklist for the PR Author
 
+1. [ ] All open points are addressed and tracked via issues
+
+## Post-review Checklist for the Eclipse Committer
+
 1. [ ] All checkboxes in the PR checklist are checked or crossed out
-2. [ ] Merge
+1. [ ] Merge
 
 ## References
 
-- Closes TBD
+- Closes **TBD**
