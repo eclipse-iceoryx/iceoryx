@@ -39,7 +39,7 @@ void ConditionVariableWaiter::reset() noexcept
     }
 }
 
-bool ConditionVariableWaiter::wasTriggered() const noexcept
+bool ConditionVariableWaiter::wasNotified() const noexcept
 {
     auto result = getMembers()->m_semaphore.getValue();
     if (result.has_error())

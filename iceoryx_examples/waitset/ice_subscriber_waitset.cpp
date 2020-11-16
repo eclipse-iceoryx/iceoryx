@@ -22,12 +22,10 @@
 #include <csignal>
 #include <iostream>
 
-bool killswitch = false;
 iox::popo::GuardCondition shutdownGuard;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    killswitch = true;
     shutdownGuard.trigger();
 }
 
@@ -43,7 +41,7 @@ void receiving()
 
     mySubscriber.subscribe();
 
-    while (!killswitch)
+    while (true)
     {
         auto triggeredConditions = waitset.wait();
 
@@ -58,10 +56,13 @@ void receiving()
                         });
                     });
             }
+            else if (condition == &shutdownGuard)
+            {
+                mySubscriber.unsubscribe();
+                return;
+            }
         }
     }
-
-    mySubscriber.unsubscribe();
 }
 
 int main()

@@ -116,8 +116,8 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
 }
 
 template <typename ChunkQueueDataType>
-inline void
-ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
+inline void ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(
+    cxx::not_null<ConditionVariableData*> conditionVariableDataPtr) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 

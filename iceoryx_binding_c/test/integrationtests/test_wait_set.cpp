@@ -81,7 +81,7 @@ class iox_ws_test : public Test
     std::vector<iox_sub_t> m_subscriber;
 };
 
-TEST_F(iox_ws_test, UnattachedConditionIsNotAttached)
+TEST_F(iox_ws_test, DetachedConditionIsNotAttached)
 {
     iox_sub_t subscriber = CreateSubscriber();
     EXPECT_FALSE(iox_ws_is_condition_attached(m_sut, subscriber));
@@ -100,7 +100,7 @@ TEST_F(iox_ws_test, AttachSingleConditionIsSuccessful)
     EXPECT_THAT(iox_ws_attach_condition(m_sut, subscriber), Eq(WaitSetResult_SUCCESS));
 }
 
-TEST_F(iox_ws_test, AttachSingleConditionTwiceResultsInDetachFromOrigin)
+TEST_F(iox_ws_test, AttachSingleConditionToOtherWaitsetResultsInDetachFromOriginalWaitset)
 {
     ConditionVariableData condVar2;
     WaitSetMock* sut2 = new WaitSetMock(&condVar2);

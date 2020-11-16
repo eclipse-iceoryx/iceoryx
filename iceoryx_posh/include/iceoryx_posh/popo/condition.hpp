@@ -30,7 +30,7 @@ class Condition
 
     /// @brief Removes the condition from the WaitSet safely but does not detach it.
     ///        This means unsetConditionVariable is not called since this falls
-    ///        in the responsibility of the class dtor of the child.
+    ///        in the responsibility of the class dtor of the derived class.
     virtual ~Condition() noexcept;
 
     /// @brief copy and move operations are deleted since the WaitSet stores
@@ -49,18 +49,14 @@ class Condition
 
   protected:
     friend class WaitSet;
-    /// @brief User interface for specific attach of condition variable
     virtual void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept = 0;
-    /// @brief User interface for specific detach of condition variable
     virtual void unsetConditionVariable() noexcept = 0;
 
-    /// @brief Called by a WaitSet to announce the condition variable pointer that usually lives in shared memory
     void attachConditionVariable(WaitSet* const waitSet,
                                  ConditionVariableData* const conditionVariableDataPtr) noexcept;
-    /// @brief Called when removing the condition from a WaitSet
     void detachConditionVariable() noexcept;
 
-    std::atomic<WaitSet*> m_waitSet{nullptr};
+    WaitSet* m_waitSet{nullptr};
 };
 
 } // namespace popo

@@ -79,7 +79,7 @@ class ChunkQueuePopper
 
     /// @brief Attaches a condition variable
     /// @param[in] ConditionVariableDataPtr, pointer to an condition variable data object
-    void setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    void setConditionVariable(cxx::not_null<ConditionVariableData*> conditionVariableDataPtr) noexcept;
 
     /// @brief Detaches a condition variable
     void unsetConditionVariable() noexcept;

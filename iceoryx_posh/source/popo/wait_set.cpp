@@ -107,7 +107,7 @@ WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions() noexcep
             // m_conditionVector and conditions are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            static_cast<void>(conditions.push_back(currentCondition));
+            conditions.push_back(currentCondition);
         }
     }
 
@@ -119,7 +119,7 @@ WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(const WaitFun
 {
     WaitSet::ConditionVector conditions;
 
-    if (m_conditionVariableWaiter.wasTriggered())
+    if (m_conditionVariableWaiter.wasNotified())
     {
         /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
         m_conditionVariableWaiter.reset();

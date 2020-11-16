@@ -28,18 +28,20 @@ Condition::~Condition() noexcept
 {
     if (isConditionVariableAttached())
     {
-        // In this particular case we can skip unsetConditionVariable since in
+        // In this particular case we can skip unsetConditionVariable since in the
         // dtor the object already degraded to a class which is only a condition
         // and has no more vtable pointer to the method unsetConditionVariable
-        // which was once part of this object
-        // If we assume that
-        m_waitSet.load(std::memory_order_relaxed)->removeCondition(*this);
+        // which was once part of this object.
+        // We can safely assume that the class which inherits from this class takes
+        // care of its resources since it is the responsibility of that class and the
+        // destructor was already called at this point.
+        m_waitSet->removeCondition(*this);
     }
 }
 
 bool Condition::isConditionVariableAttached() const noexcept
 {
-    return m_waitSet.load(std::memory_order_relaxed) != nullptr;
+    return m_waitSet != nullptr;
 }
 
 void Condition::attachConditionVariable(WaitSet* const waitSet,
@@ -54,7 +56,7 @@ void Condition::attachConditionVariable(WaitSet* const waitSet,
     }
 
     setConditionVariable(conditionVariableDataPtr);
-    m_waitSet.store(waitSet, std::memory_order_relaxed);
+    m_waitSet = waitSet;
 }
 
 void Condition::detachConditionVariable() noexcept
@@ -65,8 +67,8 @@ void Condition::detachConditionVariable() noexcept
     }
 
     unsetConditionVariable();
-    m_waitSet.load(std::memory_order_relaxed)->removeCondition(*this);
-    m_waitSet.store(nullptr, std::memory_order_relaxed);
+    m_waitSet->removeCondition(*this);
+    m_waitSet = nullptr;
 }
 
 } // namespace popo

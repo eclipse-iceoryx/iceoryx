@@ -42,10 +42,9 @@ class ConditionVariableWaiter
     /// @brief Waits until notify is called on the ConditionVariableSignaler
     void wait() noexcept;
 
-    /// @brief Was the ConditionVariableWaiter triggered by a ConditionVariableSignaler. Does not change the state in
-    /// contrast to wait or timedWait!
-    /// @return true if it was triggered otherwise false
-    bool wasTriggered() const noexcept;
+    /// @brief Was the ConditionVariableWaiter notified by a ConditionVariableSignaler?
+    /// @return true if it was notified otherwise false
+    bool wasNotified() const noexcept;
 
   protected:
     const ConditionVariableData* getMembers() const noexcept;

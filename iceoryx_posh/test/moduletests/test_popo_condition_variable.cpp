@@ -64,18 +64,18 @@ TEST_F(ConditionVariable_test, NotifyOnceResultsInNoTimeoutSingleThreaded)
 TEST_F(ConditionVariable_test, NotifyOnceResultsInBeingTriggered)
 {
     m_signaler.notifyOne();
-    EXPECT_TRUE(m_waiter.wasTriggered());
+    EXPECT_TRUE(m_waiter.wasNotified());
 }
 
 TEST_F(ConditionVariable_test, NoNotifyResultsInNotBeingTriggered)
 {
-    EXPECT_FALSE(m_waiter.wasTriggered());
+    EXPECT_FALSE(m_waiter.wasNotified());
 }
 
 TEST_F(ConditionVariable_test, WasTriggerCallDoesNotChangeTheState)
 {
     m_signaler.notifyOne();
-    m_waiter.wasTriggered();
+    m_waiter.wasNotified();
     EXPECT_TRUE(m_waiter.timedWait(10_ms));
 }
 
