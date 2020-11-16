@@ -36,7 +36,7 @@ class BaseSubscriber : public Condition
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
     BaseSubscriber(BaseSubscriber&& rhs) = delete;
     BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
-    ~BaseSubscriber() = default;
+    ~BaseSubscriber();
 
     ///
     /// @brief uid Get the unique ID of the subscriber.

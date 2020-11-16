@@ -30,6 +30,13 @@ inline BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription
 }
 
 template <typename T, typename port_t>
+inline BaseSubscriber<T, port_t>::~BaseSubscriber()
+{
+    m_port.destroy();
+}
+
+
+template <typename T, typename port_t>
 inline uid_t BaseSubscriber<T, port_t>::getUid() const noexcept
 {
     return m_port.getUniqueID();

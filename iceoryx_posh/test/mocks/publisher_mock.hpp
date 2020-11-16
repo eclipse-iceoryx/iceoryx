@@ -42,6 +42,7 @@ class MockPublisherPortUser
     MOCK_METHOD0(stopOffer, void());
     MOCK_CONST_METHOD0(isOffered, bool());
     MOCK_CONST_METHOD0(hasSubscribers, bool());
+    MOCK_METHOD0(destroy, void());
 };
 
 template <typename T>
