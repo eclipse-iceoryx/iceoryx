@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 
 #include "iceoryx_posh/popo/condition.hpp"
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -35,28 +34,13 @@ Condition::~Condition() noexcept
         // We can safely assume that the class which inherits from this class takes
         // care of its resources since it is the responsibility of that class and the
         // destructor was already called at this point.
-        m_waitSet->removeCondition(*this);
+        m_cleanupCall(m_origin, this);
     }
 }
 
 bool Condition::isConditionVariableAttached() const noexcept
 {
-    return m_waitSet != nullptr;
-}
-
-void Condition::attachConditionVariable(WaitSet* const waitSet,
-                                        ConditionVariableData* const conditionVariableDataPtr) noexcept
-{
-    if (isConditionVariableAttached())
-    {
-        LogWarn()
-            << "Attaching an already attached condition leads to a detach from the current WaitSet. Best practice "
-               "is to detach Condition first before attaching it.";
-        detachConditionVariable();
-    }
-
-    setConditionVariable(conditionVariableDataPtr);
-    m_waitSet = waitSet;
+    return m_origin != nullptr;
 }
 
 void Condition::detachConditionVariable() noexcept
@@ -67,8 +51,8 @@ void Condition::detachConditionVariable() noexcept
     }
 
     unsetConditionVariable();
-    m_waitSet->removeCondition(*this);
-    m_waitSet = nullptr;
+    m_cleanupCall(m_origin, this);
+    m_origin = nullptr;
 }
 
 } // namespace popo

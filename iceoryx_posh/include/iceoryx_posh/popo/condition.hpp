@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,8 @@
 #ifndef IOX_POSH_POPO_CONDITION_HPP
 #define IOX_POSH_POPO_CONDITION_HPP
 
-#include <atomic>
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_utils/cxx/function_ref.hpp"
 
 namespace iox
 {
@@ -48,18 +49,24 @@ class Condition
     bool isConditionVariableAttached() const noexcept;
 
   protected:
-    friend class WaitSet;
     virtual void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept = 0;
     virtual void unsetConditionVariable() noexcept = 0;
 
-    void attachConditionVariable(WaitSet* const waitSet,
-                                 ConditionVariableData* const conditionVariableDataPtr) noexcept;
+    friend class WaitSet;
+
+  private:
+    template <typename T>
+    void attachConditionVariable(T* const origin, ConditionVariableData* const conditionVariableDataPtr) noexcept;
     void detachConditionVariable() noexcept;
 
-    WaitSet* m_waitSet{nullptr};
+  private:
+    void* m_origin{nullptr};
+    cxx::function_ref<void(void*, void*)> m_cleanupCall;
 };
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/condition.inl"
 
 #endif // IOX_POSH_POPO_CONDITION_HPP

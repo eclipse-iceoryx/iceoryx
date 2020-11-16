@@ -62,11 +62,11 @@ void WaitSet::detachCondition(Condition& condition) noexcept
     condition.detachConditionVariable();
 }
 
-void WaitSet::removeCondition(const Condition& condition) noexcept
+void WaitSet::remove(void* const entry) noexcept
 {
     for (auto& currentCondition : m_conditionVector)
     {
-        if (currentCondition == &condition)
+        if (currentCondition == entry)
         {
             m_conditionVector.erase(&currentCondition);
             return;

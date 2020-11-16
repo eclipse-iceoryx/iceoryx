@@ -132,7 +132,8 @@ class WaitSet
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
-    friend class Condition;
+    template <typename>
+    friend void internalConditionCleanupCall(void* const, void* const) noexcept;
 
   private:
     ConditionVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
@@ -140,7 +141,7 @@ class WaitSet
     ConditionVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
     ConditionVector createVectorWithFullfilledConditions() noexcept;
 
-    void removeCondition(const Condition& condition) noexcept;
+    void remove(void* const entry) noexcept;
 
   private:
     ConditionVector m_conditionVector;
