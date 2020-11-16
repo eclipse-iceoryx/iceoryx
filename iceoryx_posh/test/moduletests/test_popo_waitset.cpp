@@ -278,21 +278,27 @@ TIMING_TEST_F(WaitSet_test, AttachManyNotifyManyBeforeWaitingResultsInTriggerMul
 
 
 TIMING_TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThreaded, Repeat(10), [&] {
+    iox::posix::Semaphore notifyCalledSemaphore =
+        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).get_value();
+
     std::atomic<int> counter{0};
     m_sut.attachCondition(m_subscriberVector[0]);
     m_sut.attachCondition(m_subscriberVector[1]);
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
         m_syncSemaphore.post();
+        notifyCalledSemaphore.wait();
         auto fulfilledConditions = m_sut.wait();
         EXPECT_THAT(fulfilledConditions.size(), Eq(2));
         EXPECT_THAT(fulfilledConditions[0], &m_subscriberVector[0]);
         EXPECT_THAT(fulfilledConditions[1], &m_subscriberVector[1]);
         EXPECT_THAT(counter, Eq(1));
     });
+
     m_syncSemaphore.wait();
     m_subscriberVector[0].notify();
     m_subscriberVector[1].notify();
+    notifyCalledSemaphore.post();
     counter++;
     waiter.join();
 });
