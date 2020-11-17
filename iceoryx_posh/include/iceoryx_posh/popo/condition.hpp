@@ -49,7 +49,7 @@ class Condition
     template <typename W, typename T>
     bool attachTo(W* const waitSet, bool (T::*triggerMethod)() const) noexcept
     {
-        auto trigger = waitSet->attach(*this);
+        auto trigger = waitSet->acquireTrigger(*this);
         attachConditionVariable(waitSet, trigger->m_conditionVariableDataPtr);
         return true;
     }

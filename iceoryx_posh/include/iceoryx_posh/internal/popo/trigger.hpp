@@ -26,6 +26,7 @@ class Condition;
 class Trigger
 {
   public:
+    Trigger() = default;
     template <typename T>
     Trigger(Condition* condition,
             bool (T::*triggerMethod)() const,

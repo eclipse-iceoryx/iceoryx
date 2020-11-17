@@ -15,6 +15,7 @@
 #ifndef IOX_UTILS_CXX_METHOD_CALLBACK_INL
 #define IOX_UTILS_CXX_METHOD_CALLBACK_INL
 
+#include "iceoryx_utils/cxx/method_callback.hpp"
 namespace iox
 {
 namespace cxx
@@ -47,6 +48,28 @@ inline ConstMethodCallback<ReturnValue, Args...>::ConstMethodCallback(ClassType*
 }
 
 template <typename ReturnValue, typename... Args>
+inline ConstMethodCallback<ReturnValue, Args...>::ConstMethodCallback(ConstMethodCallback&& rhs) noexcept
+{
+    *this = std::move(rhs);
+}
+
+template <typename ReturnValue, typename... Args>
+inline ConstMethodCallback<ReturnValue, Args...>&
+ConstMethodCallback<ReturnValue, Args...>::operator=(ConstMethodCallback&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        m_classPtr = rhs.m_classPtr;
+        m_methodPtr = rhs.m_methodPtr;
+        m_callback = rhs.m_callback;
+
+        rhs.m_classPtr = nullptr;
+    }
+
+    return *this;
+}
+
+template <typename ReturnValue, typename... Args>
 inline ReturnValue ConstMethodCallback<ReturnValue, Args...>::operator()(Args... args) const noexcept
 {
     return m_callback(m_classPtr, m_methodPtr, args...);
@@ -59,6 +82,13 @@ inline bool ConstMethodCallback<ReturnValue, Args...>::operator==(const ConstMet
 }
 
 template <typename ReturnValue, typename... Args>
+inline ConstMethodCallback<ReturnValue, Args...>::operator bool() const noexcept
+{
+    return m_classPtr != nullptr;
+}
+
+
+template <typename ReturnValue, typename... Args>
 template <typename ClassType>
 inline MethodCallback<ReturnValue, Args...>::MethodCallback(ClassType* classPtr,
                                                             ReturnValue (ClassType::*methodPtr)(Args...)) noexcept
@@ -66,6 +96,28 @@ inline MethodCallback<ReturnValue, Args...>::MethodCallback(ClassType* classPtr,
     , m_methodPtr(reinterpret_cast<ReturnValue (GenericClass::*)(Args...)>(methodPtr))
     , m_callback(methodCallbackCaller<ReturnValue, ClassType, Args...>)
 {
+}
+
+template <typename ReturnValue, typename... Args>
+inline MethodCallback<ReturnValue, Args...>::MethodCallback(MethodCallback&& rhs) noexcept
+{
+    *this = std::move(rhs);
+}
+
+template <typename ReturnValue, typename... Args>
+inline MethodCallback<ReturnValue, Args...>&
+MethodCallback<ReturnValue, Args...>::operator=(MethodCallback&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        m_classPtr = rhs.m_classPtr;
+        m_methodPtr = rhs.m_methodPtr;
+        m_callback = rhs.m_callback;
+
+        rhs.m_classPtr = nullptr;
+    }
+
+    return *this;
 }
 
 template <typename ReturnValue, typename... Args>
@@ -78,6 +130,12 @@ template <typename ReturnValue, typename... Args>
 inline bool MethodCallback<ReturnValue, Args...>::operator==(const MethodCallback& rhs) const noexcept
 {
     return (m_classPtr == rhs.m_classPtr && m_methodPtr == rhs.m_methodPtr);
+}
+
+template <typename ReturnValue, typename... Args>
+inline MethodCallback<ReturnValue, Args...>::operator bool() const noexcept
+{
+    return m_classPtr != nullptr;
 }
 
 

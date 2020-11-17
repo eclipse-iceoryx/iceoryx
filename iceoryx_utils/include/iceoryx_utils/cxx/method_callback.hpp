@@ -29,10 +29,22 @@ template <typename ReturnValue, typename... Args>
 class ConstMethodCallback
 {
   public:
+    ConstMethodCallback() = default;
     template <typename ClassType>
     ConstMethodCallback(ClassType* classPtr, ReturnValue (ClassType::*methodPtr)(Args...) const) noexcept;
+
+    ConstMethodCallback(const ConstMethodCallback& rhs) = default;
+    ConstMethodCallback& operator=(const ConstMethodCallback& rhs) = default;
+
+    ConstMethodCallback(ConstMethodCallback&& rhs) noexcept;
+    ConstMethodCallback& operator=(ConstMethodCallback&& rhs) noexcept;
+
+    ~ConstMethodCallback() = default;
+
     ReturnValue operator()(Args... args) const noexcept;
     bool operator==(const ConstMethodCallback& rhs) const noexcept;
+
+    explicit operator bool() const noexcept;
 
   private:
     void* m_classPtr{nullptr};
@@ -44,10 +56,23 @@ template <typename ReturnValue, typename... Args>
 class MethodCallback
 {
   public:
+    MethodCallback() = default;
     template <typename ClassType>
     MethodCallback(ClassType* classPtr, ReturnValue (ClassType::*methodPtr)(Args...)) noexcept;
+
+    MethodCallback(const MethodCallback& rhs) = default;
+    MethodCallback& operator=(const MethodCallback& rhs) = default;
+
+    MethodCallback(MethodCallback&& rhs) noexcept;
+    MethodCallback& operator=(MethodCallback&& rhs) noexcept;
+
+    ~MethodCallback() = default;
+
+
     ReturnValue operator()(Args... args) noexcept;
     bool operator==(const MethodCallback& rhs) const noexcept;
+
+    explicit operator bool() const noexcept;
 
   private:
     void* m_classPtr{nullptr};

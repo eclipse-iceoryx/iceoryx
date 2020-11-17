@@ -37,7 +37,7 @@ WaitSet::~WaitSet() noexcept
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-cxx::expected<Trigger, WaitSetError> WaitSet::attach(Condition& condition) noexcept
+cxx::expected<Trigger, WaitSetError> WaitSet::acquireTrigger(Condition& condition) noexcept
 {
     if (!isConditionAttached(condition))
     {

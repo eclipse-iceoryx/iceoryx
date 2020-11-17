@@ -107,7 +107,7 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
-    cxx::expected<Trigger, WaitSetError> attach(Condition& condition) noexcept;
+    cxx::expected<Trigger, WaitSetError> acquireTrigger(Condition& condition) noexcept;
 
     /// @brief Adds a condition to the internal vector
     /// @param[in] condition, condition to be attached
