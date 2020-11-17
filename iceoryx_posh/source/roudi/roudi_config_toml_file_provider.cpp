@@ -15,6 +15,7 @@
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/file_reader/file_reader.hpp"
 #include "iceoryx_utils/platform/getopt.hpp"
@@ -126,7 +127,10 @@ iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> To
             }
             mempoolConfig.addMemPool({*chunkSize, *chunkCount});
         }
-        parsedConfig.m_sharedMemorySegments.push_back({reader, writer, mempoolConfig});
+        parsedConfig.m_sharedMemorySegments.push_back(
+            {iox::posix::PosixGroup::string_t(iox::cxx::TruncateToCapacity, reader),
+             iox::posix::PosixGroup::string_t(iox::cxx::TruncateToCapacity, writer),
+             mempoolConfig});
     }
 
     return iox::cxx::success<iox::RouDiConfig_t>(parsedConfig);
