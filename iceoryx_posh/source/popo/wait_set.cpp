@@ -20,6 +20,17 @@ namespace iox
 {
 namespace popo
 {
+bool WaitSet::Trigger::hasTriggered() const noexcept
+{
+    return m_hasTriggeredCall();
+}
+
+bool WaitSet::Trigger::operator==(const void* value) const noexcept
+{
+    return m_condition == value;
+}
+// END TRIGGER
+
 WaitSet::WaitSet() noexcept
     : WaitSet(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
 {
@@ -37,11 +48,24 @@ WaitSet::~WaitSet() noexcept
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
+cxx::expected<WaitSet::Trigger, WaitSetError> WaitSet::attach(Condition& condition) noexcept
+{
+    if (!isConditionAttached(condition))
+    {
+        if (!m_conditionVector.push_back(Trigger{&condition, &Condition::hasTriggered, m_conditionVariableDataPtr}))
+        {
+            return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
+        }
+    }
+
+    return iox::cxx::success<Trigger>(m_conditionVector.back());
+}
+
 cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexcept
 {
     if (!isConditionAttached(condition))
     {
-        if (!m_conditionVector.push_back(&condition))
+        if (!m_conditionVector.push_back(Trigger{&condition, &Condition::hasTriggered, m_conditionVariableDataPtr}))
         {
             return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
         }
@@ -78,7 +102,7 @@ void WaitSet::detachAllConditions() noexcept
 {
     for (auto& currentCondition : m_conditionVector)
     {
-        currentCondition->detachConditionVariable();
+        currentCondition.m_condition->detachConditionVariable();
     }
     m_conditionVector.clear();
 }
@@ -101,13 +125,13 @@ typename WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions(
     ConditionVector conditions;
     for (auto& currentCondition : m_conditionVector)
     {
-        if (currentCondition->hasTriggered())
+        if (currentCondition.m_hasTriggeredCall())
         {
             // We do not need to verify if push_back was successful since
             // m_conditionVector and conditions are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            conditions.push_back(currentCondition);
+            conditions.push_back(currentCondition.m_condition);
         }
     }
 

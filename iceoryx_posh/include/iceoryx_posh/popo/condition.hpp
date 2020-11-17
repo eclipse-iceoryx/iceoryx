@@ -46,6 +46,21 @@ class Condition
     Condition& operator=(const Condition& rhs) = delete;
     Condition& operator=(Condition&& rhs) = delete;
 
+    template <typename W, typename T>
+    bool attachTo(W* const waitSet, bool (T::*triggerMethod)() const) noexcept
+    {
+        auto trigger = waitSet->attach(*this);
+        attachConditionVariable(waitSet, trigger->m_conditionVariableDataPtr);
+        return true;
+    }
+
+    void detach() noexcept
+    {
+        unsetConditionVariable();
+        m_cleanupCall(m_origin, this);
+    }
+
+
     /// @brief Was the condition fulfilled since last call?
     virtual bool hasTriggered() const noexcept = 0;
 
@@ -60,6 +75,7 @@ class Condition
 
     virtual void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept = 0;
     virtual void unsetConditionVariable() noexcept = 0;
+
 
     friend class WaitSet;
 

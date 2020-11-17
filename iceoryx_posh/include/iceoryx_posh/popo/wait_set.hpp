@@ -15,7 +15,9 @@
 #define IOX_POSH_POPO_WAIT_SET_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include <mutex>
 
@@ -90,9 +92,61 @@ enum class WaitSetError : uint8_t
 /// myWaitSet.detachCondition(mySubscriber1);
 ///
 /// @endcode
+class GenericClass
+{
+};
+
+template <typename ReturnValue, typename ClassType, typename... Args>
+ReturnValue methodCallbackCaller(void* classPtr, ReturnValue (GenericClass::*methodPtr)(Args...) const, Args... args)
+{
+    return ((*reinterpret_cast<ClassType*>(classPtr))
+            .*reinterpret_cast<ReturnValue (ClassType::*)(Args...)>(methodPtr))(args...);
+}
+
+template <typename ReturnValue, typename... Args>
+class ConstMethodCallback
+{
+  public:
+    template <typename ClassType>
+    ConstMethodCallback(ClassType* classPtr, ReturnValue (ClassType::*methodPtr)(Args...) const) noexcept
+        : m_classPtr(classPtr)
+        , m_methodPtr(reinterpret_cast<ReturnValue (GenericClass::*)(Args...) const>(methodPtr))
+        , m_callback(methodCallbackCaller<ReturnValue, ClassType, Args...>)
+    {
+    }
+
+    ReturnValue operator()(Args... args) const noexcept
+    {
+        return m_callback(m_classPtr, m_methodPtr, args...);
+    }
+
+  private:
+    void* m_classPtr{nullptr};
+    ReturnValue (GenericClass::*m_methodPtr)(Args...) const;
+    cxx::function_ref<ReturnValue(void*, ReturnValue (GenericClass::*)(Args...) const, Args...)> m_callback;
+};
+
 class WaitSet
 {
   public:
+    class Trigger
+    {
+      public:
+        template <typename T>
+        Trigger(Condition* condition,
+                bool (T::*triggerMethod)() const,
+                ConditionVariableData* conditionVariableDataPtr) noexcept;
+        bool hasTriggered() const noexcept;
+        bool operator==(const void*) const noexcept;
+
+        // private:
+
+        Condition* m_condition;
+        ConditionVariableData* m_conditionVariableDataPtr{nullptr};
+
+        ConstMethodCallback<bool> m_hasTriggeredCall;
+    };
+    using ManagedConditionVector = cxx::vector<Trigger, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
     using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
     WaitSet() noexcept;
@@ -101,6 +155,8 @@ class WaitSet
     WaitSet(WaitSet&& rhs) = delete;
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
+
+    cxx::expected<Trigger, WaitSetError> attach(Condition& condition) noexcept;
 
     /// @brief Adds a condition to the internal vector
     /// @param[in] condition, condition to be attached
@@ -145,12 +201,14 @@ class WaitSet
     void remove(void* const entry) noexcept;
 
   private:
-    ConditionVector m_conditionVector;
+    ManagedConditionVector m_conditionVector;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionVariableWaiter m_conditionVariableWaiter;
 };
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/wait_set.inl"
 
 #endif // IOX_POSH_POPO_WAIT_SET_HPP
