@@ -51,6 +51,7 @@ class MockSubscriberPortUser
     MOCK_METHOD1(setConditionVariable, bool(iox::popo::ConditionVariableData*));
     MOCK_METHOD0(unsetConditionVariable, bool());
     MOCK_METHOD0(isConditionVariableSet, bool());
+    MOCK_METHOD0(destroy, bool());
 };
 
 template <typename T>

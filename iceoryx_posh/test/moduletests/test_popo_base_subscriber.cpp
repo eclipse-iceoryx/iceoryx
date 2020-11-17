@@ -281,3 +281,12 @@ TEST_F(BaseSubscriberTest, HasMissedSamplesCallForwardedToUnderlyingSubscriberPo
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
+
+TEST_F(BaseSubscriberTest, DestroysUnderlyingPortOnDestruction)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut.getMockedPort(), destroy).Times(1);
+    // ===== Test ===== //
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}

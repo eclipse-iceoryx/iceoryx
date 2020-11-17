@@ -65,6 +65,7 @@ class MockPublisherPortUser
     {
         return iox::UniquePortId();
     };
+    MOCK_METHOD0(destroy, void());
 };
 
 template <typename T>
