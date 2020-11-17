@@ -1,0 +1,212 @@
+#include "resizeable_lockfree_queue.hpp"
+
+namespace iox
+{
+namespace concurrent
+{
+
+template <typename ElementType, uint64_t Capacity>
+ResizeableLockFreeQueue<ElementType, Capacity>::ResizeableLockFreeQueue(uint64_t initialCapacity) noexcept
+{
+    setCapacity(initialCapacity);
+}
+
+template <typename ElementType, uint64_t Capacity>
+constexpr uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::maxCapacity() noexcept
+{
+    return MAX_CAPACITY;
+}
+
+template <typename ElementType, uint64_t Capacity>
+uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::capacity() const noexcept
+{
+    return m_capacity.load(std::memory_order_relaxed);
+}
+
+template <typename ElementType, uint64_t Capacity>
+template <typename ContainerType>
+bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacity(uint64_t newCapacity, ContainerType &removedElements) noexcept
+{
+    auto removeHandler = [&](const ElementType &value) { removedElements.push_back(std::move(value)); };
+    return setCapacityImpl(newCapacity, removeHandler);
+}
+
+template <typename ElementType, uint64_t Capacity>
+bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacity(uint64_t newCapacity) noexcept
+{
+    auto removeHandler = [](const ElementType &value) {};
+    return setCapacityImpl(newCapacity, removeHandler);
+}
+
+template <typename ElementType, uint64_t Capacity>
+template <typename Function>
+bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacityImpl(uint64_t newCapacity, Function &&removeHandler) noexcept
+{
+    if (newCapacity > MAX_CAPACITY)
+    {
+        return false;
+    }
+
+    if (m_resizeInProgress.test_and_set(std::memory_order_acquire))
+    {
+        //at most one resize can be in progress at any time
+        return false;
+    }
+
+    auto cap = capacity();
+
+    while (cap != newCapacity)
+    {
+        if (cap < newCapacity)
+        {
+            auto toIncrease = newCapacity - cap;
+            increaseCapacity(toIncrease); // return value does not matter, we check the capacity later
+        }
+        else
+        {
+            auto toDecrease = cap - newCapacity;
+            decreaseCapacity(toDecrease, removeHandler); // return value does not matter, we check the capacity later
+        }
+
+        cap = capacity();
+    }
+
+    //sync everything related to capacity change, e.g. the new capacity stored in m_capacity
+    m_resizeInProgress.clear(std::memory_order_release);
+    return true;
+}
+
+template <typename ElementType, uint64_t Capacity>
+uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::increaseCapacity(uint64_t toIncrease) noexcept
+{
+    //we can be sure this is not called concurrently due to the m_resizeInProgress flag
+    //(this must be ensured as the vector is modified)
+    uint64_t increased = 0;
+    while (increased < toIncrease)
+    {
+        if (m_unusedIndices.empty())
+        {
+            //no indices left to increase capacity
+            return increased;
+        }
+        ++increased;
+        m_capacity.fetch_add(1);
+        Base::m_freeIndices.push(m_unusedIndices.back());
+        m_unusedIndices.pop_back();
+    }
+
+    return increased;
+}
+
+template <typename ElementType, uint64_t Capacity>
+template <typename Function>
+uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::decreaseCapacity(uint64_t toDecrease, Function &&removeHandler) noexcept
+{
+    uint64_t decreased = 0;
+    while (decreased < toDecrease)
+    {
+        BufferIndex index;
+        while (decreased < toDecrease)
+        {
+            if (!Base::m_freeIndices.pop(index))
+            {
+                break;
+            }
+
+            m_unusedIndices.push_back(index);
+            ++decreased;
+            if (m_capacity.fetch_sub(1) == 1)
+            {
+                // we reached capacity 0 and cannot further decrease it
+                return decreased;
+            }
+        }
+
+        // no free indices, try the used ones
+        while (decreased < toDecrease)
+        {
+            // remark: just calling pop to create free space is not sufficent in a concurrent scenario
+            // we want to make sure no one else gets the index once we have it
+            if (!tryGetUsedIndex(index))
+            {
+                //try the free ones again
+                break;
+            }
+
+            auto result = Base::readBufferAt(index);
+            removeHandler(result.value());
+            m_unusedIndices.push_back(index);
+
+            ++decreased;
+            if (m_capacity.fetch_sub(1) == 1)
+            {
+                // we reached capacity 0 and cannot further decrease it
+                return decreased;
+            }
+        }
+    }
+    return decreased;
+}
+
+template <typename ElementType, uint64_t Capacity>
+bool ResizeableLockFreeQueue<ElementType, Capacity>::tryGetUsedIndex(BufferIndex &index) noexcept
+{
+    //note: we have a problem here if we lose an index entirely, since the queue
+    //can then never be full again (or, more generally contain capacity indices)
+    //to lessen this problem, we could use a regular pop if we fail to often here
+    //instead of a variation of popIfFull (which will never work then)
+
+    auto cap = capacity();
+    if (cap == 0)
+    {
+        //this should in principle return false for a zero capacity queue unless capacity changed inbetween
+        //(therefore we call the method)
+        return Base::m_usedIndices.pop(index);
+    }
+    return Base::m_usedIndices.popIfSizeIsAtLeast(cap, index);
+}
+
+template <typename ElementType, uint64_t Capacity>
+iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::push(const ElementType &value) noexcept
+{
+    return pushImpl(std::forward<const ElementType>(value));
+}
+
+template <typename ElementType, uint64_t Capacity>
+iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::push(ElementType &&value) noexcept
+{
+    return pushImpl(std::forward<ElementType>(value));
+}
+
+template <typename ElementType, uint64_t Capacity>
+template <typename T>
+iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::pushImpl(T &&value) noexcept
+{
+    cxx::optional<ElementType> evictedValue;
+
+    BufferIndex index;
+
+    while (!Base::m_freeIndices.pop(index))
+    {
+        if (tryGetUsedIndex(index))
+        {
+            evictedValue = Base::readBufferAt(index);
+            break;
+        }
+        // if m_usedIndices was not full we try again (m_freeIndices should contain an index in this case)
+        // note that it is theoretically possible to be unsuccessful indefinitely
+        // (and thus we would have an infinite loop)
+        // but this requires a timing of concurrent pushes and pops which is exceptionally unlikely in practice
+    }
+
+    // if we removed from a full queue via popIfFull it might not be full anymore when a concurrent pop occurs
+
+    Base::writeBufferAt(index, value);
+
+    Base::m_usedIndices.push(index);
+
+    return evictedValue; // value was moved into the queue, if a value was evicted to do so return it
+}
+
+} // namespace concurrent
+} // namespace iox
