@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
@@ -47,13 +48,13 @@ void receiving()
 
         for (auto& condition : triggeredConditions)
         {
-            if (condition == &mySubscriber)
+            if (condition->getType() == iox::popo::ConditionType::SUBSCRIBER)
             {
                 mySubscriber.take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << "Received: " << sample->counter << std::endl;
                 });
             }
-            else if (condition == &shutdownGuard)
+            else if (condition->getType() == iox::popo::ConditionType::GUARD_CONDITION)
             {
                 mySubscriber.unsubscribe();
                 return;
