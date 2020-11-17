@@ -15,10 +15,10 @@
 #define IOX_POSH_POPO_PUBLISHER_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
 
 #include <memory>
 
@@ -33,8 +33,7 @@ class Publisher_t
     /// @brief Constructor
     /// @param[in] service Information on service , service, instance, event Id
     /// @param[in] runnableName optional name of the runnable the publisher belongs to
-    Publisher_t(const capro::ServiceDescription& service,
-                const cxx::CString100& runnableName = cxx::CString100("")) noexcept;
+    Publisher_t(const capro::ServiceDescription& service, const RunnableName_t& runnableName = "") noexcept;
 
     Publisher_t& operator=(const Publisher_t& other) = delete;
     Publisher_t(const Publisher_t& other) = delete;
@@ -104,8 +103,7 @@ class Publisher_t
 class Publisher : public Publisher_t<iox::popo::SenderPort>
 {
   public:
-    Publisher(const capro::ServiceDescription& service,
-              const cxx::CString100& runnableName = cxx::CString100("")) noexcept
+    Publisher(const capro::ServiceDescription& service, const RunnableName_t& runnableName = "") noexcept
         : Publisher_t<iox::popo::SenderPort>(service, runnableName)
     {
     }

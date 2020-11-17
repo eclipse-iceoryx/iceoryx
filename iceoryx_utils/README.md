@@ -1,6 +1,7 @@
+
 # iceoryx utils
 
-The iceoryx utils are our basic building blocks - the foundation of 
+The iceoryx utils are our basic building blocks - the foundation of
 iceoryx. There are a wide variety of building blocks grouped together in categories
 or namespace, depending on where or how they are used.
 
@@ -17,6 +18,7 @@ or namespace, depending on where or how they are used.
 | other | There are even more namespaces inside the iceoryx utils but they will either become obsolete in the future, will be integrated into existing names or are established as another namespace and documented here. We are unsure where they will end up in the future. |
 
 ## structure
+
  The following sections have a column called `internal` to indicate that the API
  is not stable and can change anytime. You should never rely on it and you get no
  support if you do and your code does not compile after a pull request.
@@ -24,16 +26,17 @@ or namespace, depending on where or how they are used.
  The column `maybe obsolete` marks classes which can be removed anytime soon.
 
 ### cxx
+
 STL constructs which are not in the C++11 standard included are contained here as
 well as constructs which are helping us in our daily life. We differ in
-here from our coding guidelines and follow the C++ STL coding guidelines 
+here from our coding guidelines and follow the C++ STL coding guidelines
 to help the user to have a painless transition from the official STL
 types to ours. The API should also be identical to the corresponding
 STL types but we have to make exceptions here. For instance, we do not
-throw exceptions, try to avoid undefined behavior and we do not use 
-dynamic memory. In these cases we adjusted the API to our use case. 
+throw exceptions, try to avoid undefined behavior and we do not use
+dynamic memory. In these cases we adjusted the API to our use case.
 
-Most of the headers are providing some minimalistic example on how the 
+Most of the headers are providing some minimalistic example on how the
 class should be used.
 
 | class                   | internal | maybe obsolete | description |
@@ -69,12 +72,25 @@ queue which is thread-safe when combined with `smart_lock`. To learn more about 
 |:-----------------------:|:--------:|:--------------:|:------------|
 |`ActiveObject`       | i | X | Active object base skeleton implementation inspired by [Prefer Using Active Objects Instead Of Naked Threads](https://www.drdobbs.com/parallel/prefer-using-active-objects-instead-of-n/225700095)  |
 |`FiFo`               | i |   | Single Producer, Single Consumer Lock Free FiFo |
-|`LockedLoFFLi`       | i | X | LIFO based index manager (Lock Free Free List). One building block of our memory manager. After construction it contains the indices {0 ... n} which you can acquire and release. |
-|`LoFFLi`             | i |   | Lock-free version of LockedLoFFLi. |
+|`LoFFLi`             | i |   | Lock-free LIFO based index manager (Lock Free Free List). One building block of our memory manager. After construction it contains the indices {0 ... n} which you can acquire and release. |
 |`smart_lock`         | i |   | Creates arbitrary thread safe constructs which then can be used like smart pointers. If some STL type should be thread safe use the smart_lock to create the thread safe version in one line. Based on some ideas presented in [Wrapping C++ Member Function Calls](https://stroustrup.com/wrapper.pdf) |
 |`SoFi`               | i |   | Single Producer, Single Consumer Lock Free Safely overflowing FiFo (SoFi). |
 |`TACO`               | i |   | Thread Aware exChange Ownership (TACO). Solution if you would like to use `std::atomic` with data types larger than 64 bit. Wait free data synchronization mechanism between threads.|
 |`TriggerQueue`       | i | X | Queue with a `push` - `pop` interface where `pop` is blocking as long as the queue is empty. Can be used as a building block for active objects. |
+
+an attribute overview
+
+| Data Structure | Shared Memory usable  | Thread-Safe | Lock-Free | Concurrent Producers : Consumers | Bounded Capacity | Data Type Restriction |Use Case |
+|----------------|-----------------------|-------------|-----------|----------------------------------|------------------|---|-----------------------|
+|`FiFo`          | Yes | Yes | Yes | 1:1 | Yes | Copyable            | FIFO Data transfer |
+|`LockfreeQueue` | Yes | Yes | Yes | n:m | Yes | Copyable or Movable | lock-free transfer of arbitrary data between multiple contexts in FIFO order with overflow handling (ringbuffer) |
+|`LoFFLi`        | Yes | Yes | Yes | n:m | Yes | int32               | manage memory access, LIFO order |
+|`smart_lock`    | Yes | Yes | No  | n/a | n/a | None                | Wrapper to make classes thread-safe (by using a lock)|
+|`SoFi`          | Yes | Yes | Yes | 1:1 | Yes | Trivially Copyable  | lock-free transfer of small data (e.g. pointers) between two contexts in FIFO order with overflow handling (ringbuffer) |
+|`TACO`          | Yes | Yes | Yes | n:m | Yes | Copyable or Movable | fast lock-free exchange data between threads|
+|`TriggerQueue`  | No  | Yes | No  | n:m | Yes | Copyable            | Process events in a blocking way|
+
+
 
 ### design pattern
 
@@ -111,6 +127,7 @@ abstractions or add a new one when using POSIX resources like semaphores, shared
 |`UnixDomainSocket`   | i | | Interface for unix domain sockets. |
 
 ### units
+
 Never use physical properties like speed or time directly as integer or float in your code.
 Otherwise you encounter problems like this function `void setTimeout(int timeout)`. What is the unit of the argument, seconds? minutes? If you use our `Duration` you see it directly in the code.
 ```

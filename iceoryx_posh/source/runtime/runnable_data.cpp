@@ -18,8 +18,8 @@ namespace iox
 {
 namespace runtime
 {
-RunnableData::RunnableData(const iox::cxx::CString100& process,
-                           const iox::cxx::CString100& runnable,
+RunnableData::RunnableData(const ProcessName_t& process,
+                           const RunnableName_t& runnable,
                            const uint64_t runnableDeviceIdentifier) noexcept
     : m_process(process)
     , m_runnable(runnable)

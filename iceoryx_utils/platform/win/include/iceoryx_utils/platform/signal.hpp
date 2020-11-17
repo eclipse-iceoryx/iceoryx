@@ -21,6 +21,7 @@
 #define SIGEV_THREAD 0
 #define SIGBUS 1
 #define SIGHUP 2
+#define SIGKILL 9
 
 using sigset_t = int;
 using siginfo_t = int;

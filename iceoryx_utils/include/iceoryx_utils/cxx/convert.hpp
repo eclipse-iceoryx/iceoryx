@@ -15,7 +15,6 @@
 #define IOX_UTILS_CXX_CONVERT_HPP
 
 #include "iceoryx_utils/cxx/smart_c.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
 
 #include <climits>
 #include <cmath>
