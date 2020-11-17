@@ -17,6 +17,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include <mutex>
 
 namespace iox
 {
@@ -28,6 +29,39 @@ enum class WaitSetError : uint8_t
 {
     CONDITION_VECTOR_OVERFLOW,
 };
+
+enum class WaitSetPolicy
+{
+    DEFAULT,
+    THREAD_SAFE
+};
+
+class LockStub
+{
+  public:
+    void lock() noexcept
+    {
+    }
+    void unlock() noexcept
+    {
+    }
+};
+
+template <WaitSetPolicy>
+struct PolicyToMutex;
+
+template <>
+struct PolicyToMutex<WaitSetPolicy::DEFAULT>
+{
+    using type = LockStub;
+};
+
+template <>
+struct PolicyToMutex<WaitSetPolicy::THREAD_SAFE>
+{
+    using type = std::recursive_mutex;
+};
+
 
 /// @brief Logical disjunction of a certain number of Conditions
 ///
@@ -89,9 +123,11 @@ enum class WaitSetError : uint8_t
 /// myWaitSet.detachCondition(mySubscriber1);
 ///
 /// @endcode
+template <WaitSetPolicy Policy = WaitSetPolicy::DEFAULT>
 class WaitSet
 {
   public:
+    using WaitSetMutex = typename PolicyToMutex<Policy>::type;
     using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
     WaitSet() noexcept;
@@ -144,6 +180,7 @@ class WaitSet
     void remove(void* const entry) noexcept;
 
   private:
+    WaitSetMutex m_mutex;
     ConditionVector m_conditionVector;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionVariableWaiter m_conditionVariableWaiter;

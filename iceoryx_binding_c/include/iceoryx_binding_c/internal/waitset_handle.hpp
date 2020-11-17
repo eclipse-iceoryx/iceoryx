@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,19 +11,21 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_MOCKS_WAITSET_MOCK_HPP
-#define IOX_POSH_MOCKS_WAITSET_MOCK_HPP
+
+#ifndef IOX_BINDING_C_WAIT_SET_HANDLE_HPP
+#define IOX_BINDING_C_WAIT_SET_HANDLE_HPP
 
 #include "iceoryx_posh/popo/wait_set.hpp"
 
-class WaitSetMock : public iox::popo::WaitSet<>
+namespace iox
+{
+namespace popo
+{
+class WaitSetHandle : public WaitSet<WaitSetPolicy::DEFAULT>
 {
   public:
-    WaitSetMock(iox::popo::ConditionVariableData* condVarDataPtr) noexcept
-        : WaitSet(condVarDataPtr)
-    {
-    }
+    using WaitSet::WaitSet;
 };
-
-
+} // namespace popo
+} // namespace iox
 #endif

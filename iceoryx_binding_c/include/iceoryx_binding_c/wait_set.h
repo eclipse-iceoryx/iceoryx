@@ -24,7 +24,7 @@
 #include <time.h>
 
 /// @brief wait set handle
-typedef CLASS WaitSet* iox_ws_t;
+typedef CLASS WaitSetHandle* iox_ws_t;
 
 /// @brief initialize wait set handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_ws_storage_t)

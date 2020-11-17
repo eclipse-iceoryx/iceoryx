@@ -13,13 +13,14 @@
 // limitations under the License.
 #ifndef IOX_BINDING_C_MOCKS_WAITSET_MOCK_HPP
 #define IOX_BINDING_C_MOCKS_WAITSET_MOCK_HPP
-#include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_binding_c/internal/waitset_handle.hpp"
 
-class WaitSetMock : public iox::popo::WaitSet
+
+class WaitSetMock : public iox::popo::WaitSetHandle
 {
   public:
     WaitSetMock(iox::popo::ConditionVariableData* condVarDataPtr) noexcept
-        : WaitSet(condVarDataPtr)
+        : WaitSetHandle(condVarDataPtr)
     {
     }
 };

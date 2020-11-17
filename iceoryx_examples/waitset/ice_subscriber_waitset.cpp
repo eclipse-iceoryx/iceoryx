@@ -36,9 +36,11 @@ void receiving()
 
 
     iox::popo::TypedSubscriber<CounterTopic> mySubscriber({"Radar", "FrontLeft", "Counter"});
-    iox::popo::WaitSet waitset;
+    iox::popo::WaitSet<> waitset;
     waitset.attachCondition(shutdownGuard);
     waitset.attachCondition(mySubscriber);
+
+    iox::popo::WaitSet<iox::popo::WaitSetPolicy::THREAD_SAFE> tws;
 
     mySubscriber.subscribe();
 

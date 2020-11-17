@@ -20,25 +20,33 @@ namespace iox
 {
 namespace popo
 {
-WaitSet::WaitSet() noexcept
+template class WaitSet<WaitSetPolicy::DEFAULT>;
+template class WaitSet<WaitSetPolicy::THREAD_SAFE>;
+
+template <WaitSetPolicy Policy>
+WaitSet<Policy>::WaitSet() noexcept
     : WaitSet(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
 {
 }
 
-WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
+template <WaitSetPolicy Policy>
+WaitSet<Policy>::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
     : m_conditionVariableDataPtr(condVarDataPtr)
     , m_conditionVariableWaiter(m_conditionVariableDataPtr)
 {
 }
 
-WaitSet::~WaitSet() noexcept
+template <WaitSetPolicy Policy>
+WaitSet<Policy>::~WaitSet() noexcept
 {
     detachAllConditions();
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexcept
+template <WaitSetPolicy Policy>
+cxx::expected<WaitSetError> WaitSet<Policy>::attachCondition(Condition& condition) noexcept
 {
+    std::lock_guard<WaitSetMutex> lock(m_mutex);
     if (!isConditionAttached(condition))
     {
         if (!m_conditionVector.push_back(&condition))
@@ -52,8 +60,10 @@ cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexc
     return iox::cxx::success<>();
 }
 
-void WaitSet::detachCondition(Condition& condition) noexcept
+template <WaitSetPolicy Policy>
+void WaitSet<Policy>::detachCondition(Condition& condition) noexcept
 {
+    std::lock_guard<WaitSetMutex> lock(m_mutex);
     if (!condition.isConditionVariableAttached())
     {
         return;
@@ -62,8 +72,10 @@ void WaitSet::detachCondition(Condition& condition) noexcept
     condition.detachConditionVariable();
 }
 
-void WaitSet::remove(void* const entry) noexcept
+template <WaitSetPolicy Policy>
+void WaitSet<Policy>::remove(void* const entry) noexcept
 {
+    std::lock_guard<WaitSetMutex> lock(m_mutex);
     for (auto& currentCondition : m_conditionVector)
     {
         if (currentCondition == entry)
@@ -74,8 +86,10 @@ void WaitSet::remove(void* const entry) noexcept
     }
 }
 
-void WaitSet::detachAllConditions() noexcept
+template <WaitSetPolicy Policy>
+void WaitSet<Policy>::detachAllConditions() noexcept
 {
+    std::lock_guard<WaitSetMutex> lock(m_mutex);
     for (auto& currentCondition : m_conditionVector)
     {
         currentCondition->detachConditionVariable();
@@ -83,12 +97,14 @@ void WaitSet::detachAllConditions() noexcept
     m_conditionVector.clear();
 }
 
-WaitSet::ConditionVector WaitSet::timedWait(const units::Duration timeout) noexcept
+template <WaitSetPolicy Policy>
+typename WaitSet<Policy>::ConditionVector WaitSet<Policy>::timedWait(const units::Duration timeout) noexcept
 {
     return waitAndReturnFulfilledConditions([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
 }
 
-WaitSet::ConditionVector WaitSet::wait() noexcept
+template <WaitSetPolicy Policy>
+typename WaitSet<Policy>::ConditionVector WaitSet<Policy>::wait() noexcept
 {
     return waitAndReturnFulfilledConditions([this] {
         m_conditionVariableWaiter.wait();
@@ -96,8 +112,10 @@ WaitSet::ConditionVector WaitSet::wait() noexcept
     });
 }
 
-WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions() noexcept
+template <WaitSetPolicy Policy>
+typename WaitSet<Policy>::ConditionVector WaitSet<Policy>::createVectorWithFullfilledConditions() noexcept
 {
+    std::lock_guard<WaitSetMutex> lock(m_mutex);
     ConditionVector conditions;
     for (auto& currentCondition : m_conditionVector)
     {
@@ -114,10 +132,12 @@ WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions() noexcep
     return conditions;
 }
 
+template <WaitSetPolicy Policy>
 template <typename WaitFunction>
-WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept
+typename WaitSet<Policy>::ConditionVector
+WaitSet<Policy>::waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept
 {
-    WaitSet::ConditionVector conditions;
+    WaitSet<Policy>::ConditionVector conditions;
 
     if (m_conditionVariableWaiter.wasNotified())
     {
@@ -138,8 +158,10 @@ WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(const WaitFun
     return (wait()) ? conditions : createVectorWithFullfilledConditions();
 }
 
-bool WaitSet::isConditionAttached(const Condition& condition) noexcept
+template <WaitSetPolicy Policy>
+bool WaitSet<Policy>::isConditionAttached(const Condition& condition) noexcept
 {
+    std::lock_guard<WaitSetMutex> lock(m_mutex);
     for (auto& currentCondition : m_conditionVector)
     {
         if (currentCondition == &condition)
