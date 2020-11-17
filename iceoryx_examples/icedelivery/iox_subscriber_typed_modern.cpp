@@ -33,7 +33,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownGuard.trigger(); // unblock waitsets
 }
 
-void subscriberHandler(iox::popo::WaitSet<>& waitSet)
+void subscriberHandler(iox::popo::WaitSet& waitSet)
 {
     // run until interrupted
     while (!killswitch)
@@ -69,7 +69,7 @@ int main()
     typedSubscriber.subscribe();
 
     // set up waitset
-    iox::popo::WaitSet<> waitSet{};
+    iox::popo::WaitSet waitSet{};
     waitSet.attachCondition(typedSubscriber);
     waitSet.attachCondition(shutdownGuard);
 

@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/popo/wait_set.hpp"
 
-class WaitSetMock : public iox::popo::WaitSet<>
+class WaitSetMock : public iox::popo::WaitSet
 {
   public:
     WaitSetMock(iox::popo::ConditionVariableData* condVarDataPtr) noexcept

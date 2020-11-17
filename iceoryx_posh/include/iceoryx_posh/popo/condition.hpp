@@ -26,7 +26,6 @@ enum class ConditionType
     GUARD_CONDITION,
     SUBSCRIBER
 };
-enum class WaitSetPolicy;
 
 struct ConditionVariableData;
 /// @brief Base class representing a generic condition that can be stored in a WaitSet
@@ -62,7 +61,6 @@ class Condition
     virtual void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept = 0;
     virtual void unsetConditionVariable() noexcept = 0;
 
-    template <WaitSetPolicy>
     friend class WaitSet;
 
   private:

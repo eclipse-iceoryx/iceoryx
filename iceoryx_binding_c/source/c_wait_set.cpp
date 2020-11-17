@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
-#include "iceoryx_binding_c/internal/waitset_handle.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -22,7 +22,7 @@ extern "C" {
 #include "iceoryx_binding_c/wait_set.h"
 }
 
-static uint64_t condition_vector_to_c_array(const WaitSet<WaitSetPolicy::DEFAULT>::ConditionVector& conditionVector,
+static uint64_t condition_vector_to_c_array(const WaitSet::ConditionVector& conditionVector,
                                             iox_cond_t* const conditionArray,
                                             const uint64_t conditionArrayCapacity,
                                             uint64_t* missedElements)
@@ -50,13 +50,13 @@ static uint64_t condition_vector_to_c_array(const WaitSet<WaitSetPolicy::DEFAULT
 
 iox_ws_t iox_ws_init(iox_ws_storage_t* self)
 {
-    new (self) WaitSet<WaitSetPolicy::DEFAULT>();
+    new (self) WaitSet();
     return reinterpret_cast<iox_ws_t>(self);
 }
 
 void iox_ws_deinit(iox_ws_t const self)
 {
-    self->~WaitSet<WaitSetPolicy::DEFAULT>();
+    self->~WaitSet();
 }
 
 bool iox_ws_is_condition_attached(iox_ws_t const self, iox_cond_t const condition)
