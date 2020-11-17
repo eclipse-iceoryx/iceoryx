@@ -130,7 +130,6 @@ setup_package_name_and_create_files(
 add_library(iceoryx_utils
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
-    source/concurrent/locked_loffli.cpp
     source/cxx/helplets.cpp
     source/cxx/generic_raii.cpp
     source/error_handling/error_handling.cpp
@@ -141,7 +140,6 @@ add_library(iceoryx_utils
     source/log/logging_internal.cpp
     source/log/logmanager.cpp
     source/log/logstream.cpp
-    source/log/ac3log_shim/simplelogger.cpp
     source/posix_wrapper/access_control.cpp
     source/posix_wrapper/mutex.cpp
     source/posix_wrapper/semaphore.cpp

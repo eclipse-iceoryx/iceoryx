@@ -49,12 +49,9 @@ void receiving()
         {
             if (condition == &mySubscriber)
             {
-                mySubscriber.take().and_then(
-                    [](iox::cxx::optional<iox::popo::Sample<const CounterTopic>>& maybeSample) {
-                        maybeSample.and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-                            std::cout << "Received: " << sample->counter << std::endl;
-                        });
-                    });
+                mySubscriber.take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+                    std::cout << "Received: " << sample->counter << std::endl;
+                });
             }
             else if (condition == &shutdownGuard)
             {

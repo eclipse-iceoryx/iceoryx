@@ -111,10 +111,4 @@ Is something missing or you've got ideas for other nifty examples? Jump right aw
 
 ## Maintainers
 
-* Michael Pöhnl (michael.poehnl@de.bosch.com)
-* Christian Eltzschig (christian.eltzschig2@de.bosch.com)
-* Dietrich Krönke (dietrich.kroenke2@de.bosch.com)
-* Mathias Kraus (mathias.kraus2@de.bosch.com)
-* Matthias Killat (matthias.killat2@de.bosch.com)
-* Martin Hintz (martin.hintz@de.bosch.com)
-* Simon Hoinkis (simon.hoinkis2@de.bosch.com)
+An up to date list of the maintainers can be found at the [Eclipse project page](https://projects.eclipse.org/projects/technology.iceoryx/who).

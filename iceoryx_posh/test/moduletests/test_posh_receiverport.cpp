@@ -24,7 +24,6 @@
 using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::capro;
-using CString100 = iox::cxx::CString100;
 using CaproMessage = iox::capro::CaproMessage;
 
 class ReceiverPort_test : public Test

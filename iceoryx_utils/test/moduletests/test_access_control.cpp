@@ -98,7 +98,7 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
     // no name specified
     EXPECT_FALSE(entryAdded);
 
-    std::string currentUserName(getpwuid(geteuid())->pw_name);
+    AccessController::string_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
 
     entryAdded = m_accessController.addPermissionEntry(
         AccessController::Category::SPECIFIC_USER, AccessController::Permission::READWRITE, currentUserName);
@@ -136,7 +136,7 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
     // no name specified
     EXPECT_FALSE(entryAdded);
 
-    std::string groupName = "root";
+    AccessController::string_t groupName = "root";
 
     entryAdded = m_accessController.addPermissionEntry(
         AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READWRITE, groupName);
@@ -205,7 +205,7 @@ TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 
 TEST_F(AccessController_test, addNameInWrongPlace)
 {
-    std::string currentUserName(getpwuid(geteuid())->pw_name);
+    AccessController::string_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
 
     // this is not allowed as the default user should not be named explicitly
     m_accessController.addPermissionEntry(
@@ -220,7 +220,7 @@ TEST_F(AccessController_test, addNameInWrongPlace)
 
 TEST_F(AccessController_test, addManyPermissions)
 {
-    std::string groupName = "root";
+    AccessController::string_t groupName = "root";
 
     bool entryAdded;
     for (int i = 0; i < AccessController::MaxNumOfPermissions; ++i)
