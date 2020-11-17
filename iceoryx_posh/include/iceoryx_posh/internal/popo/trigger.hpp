@@ -26,11 +26,18 @@ class Condition;
 class Trigger
 {
   public:
-    Trigger() = default;
+    Trigger() noexcept = default;
     template <typename T>
     Trigger(Condition* condition,
             bool (T::*triggerMethod)() const,
             ConditionVariableData* conditionVariableDataPtr) noexcept;
+
+    Trigger(const Trigger&) = delete;
+    Trigger& operator=(const Trigger&) = delete;
+    Trigger(Trigger&& rhs) noexcept;
+    Trigger& operator=(Trigger&& rhs) noexcept;
+
+    ~Trigger() = default;
 
     bool hasTriggered() const noexcept;
 
@@ -42,7 +49,9 @@ class Trigger
     Condition* m_condition;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
 
-    cxx::ConstMethodCallback<bool> m_hasTriggeredCall;
+    cxx::MethodCallback<void> m_removalCallback;
+    cxx::MethodCallback<void> m_invalidationCallback;
+    cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
 };
 
 } // namespace popo

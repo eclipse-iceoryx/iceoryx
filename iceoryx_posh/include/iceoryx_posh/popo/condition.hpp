@@ -15,6 +15,7 @@
 #define IOX_POSH_POPO_CONDITION_HPP
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/trigger.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 
 namespace iox
@@ -49,8 +50,8 @@ class Condition
     template <typename W, typename T>
     bool attachTo(W* const waitSet, bool (T::*triggerMethod)() const) noexcept
     {
-        auto trigger = waitSet->acquireTrigger(*this);
-        attachConditionVariable(waitSet, trigger->m_conditionVariableDataPtr);
+        m_trigger = std::move(waitSet->acquireTrigger(*this).get_value());
+        attachConditionVariable(waitSet, m_trigger.m_conditionVariableDataPtr);
         return true;
     }
 
@@ -86,6 +87,8 @@ class Condition
 
   private:
     ConditionType m_type;
+    Trigger m_trigger;
+
     void* m_origin{nullptr};
     cxx::function_ref<void(void*, void*)> m_cleanupCall;
 };

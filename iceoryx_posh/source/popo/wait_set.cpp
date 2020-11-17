@@ -39,15 +39,12 @@ WaitSet::~WaitSet() noexcept
 
 cxx::expected<Trigger, WaitSetError> WaitSet::acquireTrigger(Condition& condition) noexcept
 {
-    if (!isConditionAttached(condition))
+    if (!m_conditionVector.push_back(Trigger{&condition, &Condition::hasTriggered, m_conditionVariableDataPtr}))
     {
-        if (!m_conditionVector.push_back(Trigger{&condition, &Condition::hasTriggered, m_conditionVariableDataPtr}))
-        {
-            return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
-        }
+        return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
     }
 
-    return iox::cxx::success<Trigger>(m_conditionVector.back());
+    return iox::cxx::success<Trigger>(Trigger{&condition, &Condition::hasTriggered, m_conditionVariableDataPtr});
 }
 
 cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexcept
@@ -114,7 +111,7 @@ typename WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions(
     ConditionVector conditions;
     for (auto& currentCondition : m_conditionVector)
     {
-        if (currentCondition.m_hasTriggeredCall())
+        if (currentCondition.hasTriggered())
         {
             // We do not need to verify if push_back was successful since
             // m_conditionVector and conditions are having the same type, a

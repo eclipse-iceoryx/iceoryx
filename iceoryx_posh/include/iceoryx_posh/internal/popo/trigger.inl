@@ -24,7 +24,7 @@ inline Trigger::Trigger(Condition* condition,
                         ConditionVariableData* conditionVariableDataPtr) noexcept
     : m_condition(condition)
     , m_conditionVariableDataPtr(conditionVariableDataPtr)
-    , m_hasTriggeredCall(condition, triggerMethod)
+    , m_hasTriggeredCallback(condition, triggerMethod)
 {
 }
 
