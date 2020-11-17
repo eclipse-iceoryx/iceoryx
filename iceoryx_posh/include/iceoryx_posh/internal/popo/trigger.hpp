@@ -27,19 +27,25 @@ class Trigger
 {
   public:
     Trigger() noexcept = default;
-    template <typename T>
     Trigger(Condition* condition,
-            bool (T::*triggerMethod)() const,
+            const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
+            const cxx::MethodCallback<void>& invalidationCallback,
             ConditionVariableData* conditionVariableDataPtr) noexcept;
+    Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept;
 
     Trigger(const Trigger&) = delete;
     Trigger& operator=(const Trigger&) = delete;
     Trigger(Trigger&& rhs) noexcept;
     Trigger& operator=(Trigger&& rhs) noexcept;
 
-    ~Trigger() = default;
+    ~Trigger();
+
+    explicit operator bool() const noexcept;
+    bool isValid() const noexcept;
 
     bool hasTriggered() const noexcept;
+    void invalidate() noexcept;
+    void reset() noexcept;
 
     bool operator==(const Trigger& rhs) const noexcept;
     bool operator==(const void*) const noexcept;
@@ -49,7 +55,7 @@ class Trigger
     Condition* m_condition;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
 
-    cxx::MethodCallback<void> m_removalCallback;
+    cxx::MethodCallback<void, Trigger&> m_removalCallback;
     cxx::MethodCallback<void> m_invalidationCallback;
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
 };
@@ -57,5 +63,4 @@ class Trigger
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/trigger.inl"
 #endif

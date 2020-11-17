@@ -47,20 +47,16 @@ class Condition
     Condition& operator=(const Condition& rhs) = delete;
     Condition& operator=(Condition&& rhs) = delete;
 
-    template <typename W, typename T>
-    bool attachTo(W* const waitSet, bool (T::*triggerMethod)() const) noexcept
+    template <typename W>
+    bool attachTo(W* const waitSet, const cxx::ConstMethodCallback<bool>& triggerMethod) noexcept
     {
-        m_trigger = std::move(waitSet->acquireTrigger(*this).get_value());
-        attachConditionVariable(waitSet, m_trigger.m_conditionVariableDataPtr);
+        attach(waitSet->acquireTrigger(*this, triggerMethod, {this, &Condition::detach}).get_value());
         return true;
     }
 
-    void detach() noexcept
-    {
-        unsetConditionVariable();
-        m_cleanupCall(m_origin, this);
-    }
+    void attach(Trigger&& trigger) noexcept;
 
+    void detach() noexcept;
 
     /// @brief Was the condition fulfilled since last call?
     virtual bool hasTriggered() const noexcept = 0;

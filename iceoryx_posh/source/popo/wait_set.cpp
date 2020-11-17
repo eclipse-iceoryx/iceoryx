@@ -37,21 +37,47 @@ WaitSet::~WaitSet() noexcept
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-cxx::expected<Trigger, WaitSetError> WaitSet::acquireTrigger(Condition& condition) noexcept
+cxx::expected<Trigger, WaitSetError>
+WaitSet::acquireTrigger(Condition& condition,
+                        const cxx::ConstMethodCallback<bool>& triggerCallback,
+                        const cxx::MethodCallback<void>& invalidationCallback) noexcept
 {
-    if (!m_conditionVector.push_back(Trigger{&condition, &Condition::hasTriggered, m_conditionVariableDataPtr}))
+    if (!m_conditionVector.push_back(
+            Trigger(&condition, triggerCallback, invalidationCallback, m_conditionVariableDataPtr)))
     {
         return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
     }
 
-    return iox::cxx::success<Trigger>(Trigger{&condition, &Condition::hasTriggered, m_conditionVariableDataPtr});
+    return iox::cxx::success<Trigger>(Trigger(m_conditionVector.back(), {this, &WaitSet::removeTrigger}));
+}
+
+void WaitSet::removeTrigger(Trigger& trigger) noexcept
+{
+    bool wasDeleted = false;
+    for (auto& currentCondition : m_conditionVector)
+    {
+        if (currentCondition == trigger)
+        {
+            m_conditionVector.erase(&currentCondition);
+            wasDeleted = true;
+            break;
+        }
+    }
+
+    if (wasDeleted)
+    {
+        trigger.invalidate();
+    }
 }
 
 cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexcept
 {
     if (!isConditionAttached(condition))
     {
-        if (!m_conditionVector.push_back(Trigger{&condition, &Condition::hasTriggered, m_conditionVariableDataPtr}))
+        if (!m_conditionVector.push_back(Trigger(&condition,
+                                                 {&condition, &Condition::hasTriggered},
+                                                 {&condition, &Condition::detach},
+                                                 m_conditionVariableDataPtr)))
         {
             return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
         }

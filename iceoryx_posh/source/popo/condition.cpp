@@ -43,6 +43,21 @@ Condition::~Condition() noexcept
     }
 }
 
+void Condition::attach(Trigger&& trigger) noexcept
+{
+    m_trigger = std::move(trigger);
+    setConditionVariable(m_trigger.m_conditionVariableDataPtr);
+}
+
+void Condition::detach() noexcept
+{
+    if (m_trigger)
+    {
+        unsetConditionVariable();
+        m_trigger.reset();
+    }
+}
+
 bool Condition::isConditionVariableAttached() const noexcept
 {
     return m_origin != nullptr;

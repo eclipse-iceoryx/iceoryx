@@ -19,6 +19,8 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
+/// TODO trigger type?
+
 #include <chrono>
 #include <csignal>
 #include <iostream>
@@ -38,9 +40,8 @@ void receiving()
     iox::popo::TypedSubscriber<CounterTopic> mySubscriber({"Radar", "FrontLeft", "Counter"});
     iox::popo::WaitSet waitset;
     waitset.attachCondition(shutdownGuard);
-    // waitset.attachCondition(mySubscriber);
 
-    mySubscriber.attachTo(&waitset, &Subscriber::hasNewSamples);
+    mySubscriber.attachTo(&waitset, {&mySubscriber, &Subscriber::hasNewSamples});
 
     mySubscriber.subscribe();
 
