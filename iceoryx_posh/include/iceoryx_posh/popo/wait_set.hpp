@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include <mutex>
 
@@ -92,40 +93,6 @@ enum class WaitSetError : uint8_t
 /// myWaitSet.detachCondition(mySubscriber1);
 ///
 /// @endcode
-class GenericClass
-{
-};
-
-template <typename ReturnValue, typename ClassType, typename... Args>
-ReturnValue methodCallbackCaller(void* classPtr, ReturnValue (GenericClass::*methodPtr)(Args...) const, Args... args)
-{
-    return ((*reinterpret_cast<ClassType*>(classPtr))
-            .*reinterpret_cast<ReturnValue (ClassType::*)(Args...)>(methodPtr))(args...);
-}
-
-template <typename ReturnValue, typename... Args>
-class ConstMethodCallback
-{
-  public:
-    template <typename ClassType>
-    ConstMethodCallback(ClassType* classPtr, ReturnValue (ClassType::*methodPtr)(Args...) const) noexcept
-        : m_classPtr(classPtr)
-        , m_methodPtr(reinterpret_cast<ReturnValue (GenericClass::*)(Args...) const>(methodPtr))
-        , m_callback(methodCallbackCaller<ReturnValue, ClassType, Args...>)
-    {
-    }
-
-    ReturnValue operator()(Args... args) const noexcept
-    {
-        return m_callback(m_classPtr, m_methodPtr, args...);
-    }
-
-  private:
-    void* m_classPtr{nullptr};
-    ReturnValue (GenericClass::*m_methodPtr)(Args...) const;
-    cxx::function_ref<ReturnValue(void*, ReturnValue (GenericClass::*)(Args...) const, Args...)> m_callback;
-};
-
 class WaitSet
 {
   public:
@@ -136,7 +103,10 @@ class WaitSet
         Trigger(Condition* condition,
                 bool (T::*triggerMethod)() const,
                 ConditionVariableData* conditionVariableDataPtr) noexcept;
+
         bool hasTriggered() const noexcept;
+
+        bool operator==(const Trigger& rhs) const noexcept;
         bool operator==(const void*) const noexcept;
 
         // private:
@@ -144,7 +114,7 @@ class WaitSet
         Condition* m_condition;
         ConditionVariableData* m_conditionVariableDataPtr{nullptr};
 
-        ConstMethodCallback<bool> m_hasTriggeredCall;
+        cxx::ConstMethodCallback<bool> m_hasTriggeredCall;
     };
     using ManagedConditionVector = cxx::vector<Trigger, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
     using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;

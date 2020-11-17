@@ -25,9 +25,14 @@ bool WaitSet::Trigger::hasTriggered() const noexcept
     return m_hasTriggeredCall();
 }
 
-bool WaitSet::Trigger::operator==(const void* value) const noexcept
+bool WaitSet::Trigger::operator==(const Trigger& rhs) const noexcept
 {
-    return m_condition == value;
+    return (m_condition == rhs.m_condition && m_hasTriggeredCall == rhs.m_hasTriggeredCall);
+}
+
+bool WaitSet::Trigger::operator==(const void* rhs) const noexcept
+{
+    return (m_condition == rhs);
 }
 // END TRIGGER
 
