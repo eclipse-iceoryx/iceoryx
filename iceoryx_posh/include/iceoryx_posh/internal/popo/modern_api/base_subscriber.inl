@@ -24,8 +24,15 @@ namespace popo
 // ============================== BaseSubscriber ============================== //
 
 template <typename T, typename port_t>
-inline BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
-    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service))
+inline BaseSubscriber<T, port_t>::BaseSubscriber() noexcept
+    : Condition(ConditionType::SUBSCRIBER)
+{
+}
+
+template <typename T, typename port_t>
+inline BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service) noexcept
+    : Condition(ConditionType::SUBSCRIBER)
+    , m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service))
 {
 }
 

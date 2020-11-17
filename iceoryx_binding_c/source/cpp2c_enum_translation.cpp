@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/enums.h"
+#include "iceoryx_posh/popo/condition.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -72,4 +74,18 @@ iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
         return WaitSetResult_UNDEFINED_ERROR;
     }
 }
+
+iox_ConditionType ConditionType(const iox::popo::ConditionType value)
+{
+    switch (value)
+    {
+    case iox::popo::ConditionType::GUARD_CONDITION:
+        return ConditionType_GUARD_CONDITION;
+    case iox::popo::ConditionType::SUBSCRIBER:
+        return ConditionType_SUBSCRIBER;
+    default:
+        return ConditionType_UNDEFINED;
+    }
+}
+
 } // namespace cpp2c

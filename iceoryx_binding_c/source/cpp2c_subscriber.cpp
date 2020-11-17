@@ -13,6 +13,12 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
+#include "iceoryx_posh/popo/condition.hpp"
+
+cpp2c_Subscriber::cpp2c_Subscriber() noexcept
+    : iox::popo::Condition(iox::popo::ConditionType::SUBSCRIBER)
+{
+}
 
 void cpp2c_Subscriber::setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept
 {

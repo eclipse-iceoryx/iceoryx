@@ -36,6 +36,11 @@ class WaitSet_test : public Test
     class MockSubscriber : public Condition
     {
       public:
+        MockSubscriber()
+            : Condition(ConditionType::SUBSCRIBER)
+        {
+        }
+
         void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
         {
             m_condVarPtr = conditionVariableDataPtr;

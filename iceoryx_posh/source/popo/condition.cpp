@@ -23,6 +23,11 @@ namespace iox
 {
 namespace popo
 {
+Condition::Condition(const ConditionType type) noexcept
+    : m_type{type}
+{
+}
+
 Condition::~Condition() noexcept
 {
     if (isConditionVariableAttached())
@@ -53,6 +58,11 @@ void Condition::detachConditionVariable() noexcept
     unsetConditionVariable();
     m_cleanupCall(m_origin, this);
     m_origin = nullptr;
+}
+
+ConditionType Condition::getType() const noexcept
+{
+    return m_type;
 }
 
 } // namespace popo

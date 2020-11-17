@@ -29,7 +29,7 @@ namespace popo
 class GuardCondition final : public Condition
 {
   public:
-    explicit GuardCondition() noexcept = default;
+    explicit GuardCondition() noexcept;
     GuardCondition(const GuardCondition& rhs) = delete;
     GuardCondition(GuardCondition&& rhs) = delete;
     GuardCondition& operator=(const GuardCondition& rhs) = delete;

@@ -53,5 +53,12 @@ enum iox_WaitSetResult
     WaitSetResult_SUCCESS
 };
 
+enum iox_ConditionType
+{
+    ConditionType_GUARD_CONDITION,
+    ConditionType_SUBSCRIBER,
+    ConditionType_UNDEFINED
+};
+
 
 #endif

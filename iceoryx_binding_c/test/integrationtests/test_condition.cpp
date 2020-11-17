@@ -30,9 +30,14 @@ using namespace ::testing;
 class iox_cond_test : public Test
 {
   public:
-    class : public Condition
+    class Sut : public Condition
     {
       public:
+        Sut()
+            : Condition(ConditionType::SUBSCRIBER)
+        {
+        }
+
         void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
         {
             setConditionVariableArgument = conditionVariableDataPtr;

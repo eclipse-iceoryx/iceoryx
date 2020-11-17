@@ -19,6 +19,11 @@ namespace iox
 {
 namespace popo
 {
+GuardCondition::GuardCondition() noexcept
+    : Condition(ConditionType::GUARD_CONDITION)
+{
+}
+
 void GuardCondition::trigger() noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);

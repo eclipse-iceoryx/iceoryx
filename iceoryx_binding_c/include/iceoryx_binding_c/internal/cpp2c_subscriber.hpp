@@ -20,6 +20,7 @@
 
 struct cpp2c_Subscriber : public iox::popo::Condition
 {
+    cpp2c_Subscriber() noexcept;
     void setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override;
     bool hasTriggered() const noexcept override;
     void unsetConditionVariable() noexcept override;

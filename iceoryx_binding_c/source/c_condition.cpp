@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
 
 using namespace iox;
@@ -30,3 +31,9 @@ bool iox_cond_is_condition_variable_attached(iox_cond_t const self)
 {
     return self->isConditionVariableAttached();
 }
+
+iox_ConditionType iox_cond_get_type(iox_cond_t const self)
+{
+    return cpp2c::ConditionType(self->getType());
+}
+

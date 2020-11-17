@@ -15,6 +15,7 @@
 #ifndef IOX_BINDING_C_CONDITION_H
 #define IOX_BINDING_C_CONDITION_H
 
+#include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
 /// @brief condition handle
@@ -29,5 +30,10 @@ bool iox_cond_has_triggered(iox_cond_t const self);
 /// @param[in] self handle to condition
 /// @return returns true if the condition is attached, otherwise false
 bool iox_cond_is_condition_variable_attached(iox_cond_t const self);
+
+/// @brief returns the type of the condition
+/// @param[in] self handle to condition
+/// @return the type of the condition
+ENUM iox_ConditionType iox_cond_get_type(iox_cond_t const self);
 
 #endif

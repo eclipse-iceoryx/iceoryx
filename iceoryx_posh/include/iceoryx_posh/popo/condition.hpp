@@ -21,14 +21,17 @@ namespace iox
 {
 namespace popo
 {
+enum class ConditionType
+{
+    GUARD_CONDITION,
+    SUBSCRIBER
+};
+
 struct ConditionVariableData;
-class WaitSet;
 /// @brief Base class representing a generic condition that can be stored in a WaitSet
 class Condition
 {
   public:
-    Condition() noexcept = default;
-
     /// @brief Removes the condition from the WaitSet safely but does not detach it.
     ///        This means unsetConditionVariable is not called since this falls
     ///        in the responsibility of the class dtor of the derived class.
@@ -45,10 +48,16 @@ class Condition
 
     /// @brief Was the condition fulfilled since last call?
     virtual bool hasTriggered() const noexcept = 0;
+
     /// @brief Called by a WaitSet before attaching a Condition to see whether it was already added
     bool isConditionVariableAttached() const noexcept;
 
+    /// @brief returns the condition type
+    ConditionType getType() const noexcept;
+
   protected:
+    Condition(const ConditionType type) noexcept;
+
     virtual void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept = 0;
     virtual void unsetConditionVariable() noexcept = 0;
 
@@ -60,6 +69,7 @@ class Condition
     void detachConditionVariable() noexcept;
 
   private:
+    ConditionType m_type;
     void* m_origin{nullptr};
     cxx::function_ref<void(void*, void*)> m_cleanupCall;
 };
