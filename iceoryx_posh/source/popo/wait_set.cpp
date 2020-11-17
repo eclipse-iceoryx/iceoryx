@@ -20,22 +20,6 @@ namespace iox
 {
 namespace popo
 {
-bool WaitSet::Trigger::hasTriggered() const noexcept
-{
-    return m_hasTriggeredCall();
-}
-
-bool WaitSet::Trigger::operator==(const Trigger& rhs) const noexcept
-{
-    return (m_condition == rhs.m_condition && m_hasTriggeredCall == rhs.m_hasTriggeredCall);
-}
-
-bool WaitSet::Trigger::operator==(const void* rhs) const noexcept
-{
-    return (m_condition == rhs);
-}
-// END TRIGGER
-
 WaitSet::WaitSet() noexcept
     : WaitSet(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
 {
@@ -53,7 +37,7 @@ WaitSet::~WaitSet() noexcept
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-cxx::expected<WaitSet::Trigger, WaitSetError> WaitSet::attach(Condition& condition) noexcept
+cxx::expected<Trigger, WaitSetError> WaitSet::attach(Condition& condition) noexcept
 {
     if (!isConditionAttached(condition))
     {

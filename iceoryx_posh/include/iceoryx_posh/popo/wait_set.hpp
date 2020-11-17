@@ -17,6 +17,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
+#include "iceoryx_posh/internal/popo/trigger.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -96,26 +97,6 @@ enum class WaitSetError : uint8_t
 class WaitSet
 {
   public:
-    class Trigger
-    {
-      public:
-        template <typename T>
-        Trigger(Condition* condition,
-                bool (T::*triggerMethod)() const,
-                ConditionVariableData* conditionVariableDataPtr) noexcept;
-
-        bool hasTriggered() const noexcept;
-
-        bool operator==(const Trigger& rhs) const noexcept;
-        bool operator==(const void*) const noexcept;
-
-        // private:
-
-        Condition* m_condition;
-        ConditionVariableData* m_conditionVariableDataPtr{nullptr};
-
-        cxx::ConstMethodCallback<bool> m_hasTriggeredCall;
-    };
     using ManagedConditionVector = cxx::vector<Trigger, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
     using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
@@ -178,7 +159,5 @@ class WaitSet
 
 } // namespace popo
 } // namespace iox
-
-#include "iceoryx_posh/internal/popo/wait_set.inl"
 
 #endif // IOX_POSH_POPO_WAIT_SET_HPP

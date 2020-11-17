@@ -95,6 +95,7 @@ add_library(iceoryx_posh
     source/popo/building_blocks/typed_unique_id.cpp
     source/popo/condition.cpp
     source/popo/guard_condition.cpp
+    source/popo/trigger.cpp
     source/popo/wait_set.cpp
     source/version/version_info.cpp
     source/runtime/message_queue_interface.cpp

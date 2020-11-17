@@ -12,23 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_WAIT_SET_INL
-#define IOX_POSH_POPO_WAIT_SET_INL
+#include "iceoryx_posh/internal/popo/trigger.hpp"
 
 namespace iox
 {
 namespace popo
 {
-template <typename T>
-inline WaitSet::Trigger::Trigger(Condition* condition,
-                                 bool (T::*triggerMethod)() const,
-                                 ConditionVariableData* conditionVariableDataPtr) noexcept
-    : m_condition(condition)
-    , m_conditionVariableDataPtr(conditionVariableDataPtr)
-    , m_hasTriggeredCall(condition, triggerMethod)
+bool Trigger::hasTriggered() const noexcept
 {
+    return m_hasTriggeredCall();
 }
 
+bool Trigger::operator==(const Trigger& rhs) const noexcept
+{
+    return (m_condition == rhs.m_condition && m_hasTriggeredCall == rhs.m_hasTriggeredCall);
+}
+
+bool Trigger::operator==(const void* rhs) const noexcept
+{
+    return (m_condition == rhs);
+}
 } // namespace popo
 } // namespace iox
-#endif
