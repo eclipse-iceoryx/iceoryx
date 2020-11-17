@@ -135,13 +135,7 @@ class ServiceDescription
     ServiceDescription& operator=(ServiceDescription&&) = default;
 
     /// @brief serialization of the capro description.
-    /// @todo operator Serialization() replaces getServiceString()
     operator cxx::Serialization() const;
-
-    /// @brief Generate a servicestring filled with the member variables for
-    /// service communication
-    /// @return stringstream filled with member vars ()
-    std::string getServiceString() const noexcept;
 
     /// @brief Returns true if it contains a service description which does not have
     ///             events, otherwise it returns false
