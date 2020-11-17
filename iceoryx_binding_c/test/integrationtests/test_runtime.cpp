@@ -89,12 +89,13 @@ TEST_F(BindingC_Runtime_test, GetInstanceNameLengthIsLessThanAppNameLength)
     constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "/chuck";
     iox_runtime_register(ACTUAL_APP_NAME);
 
-    constexpr uint64_t TRUNCATED_APP_NAME_LENGTH{6};
-    char truncatedAppName[TRUNCATED_APP_NAME_LENGTH + 1];
-    for(auto& c: truncatedAppName) {
+    constexpr uint64_t APP_NAME_BUFFER_LENGTH{7};
+    char truncatedAppName[APP_NAME_BUFFER_LENGTH];
+    for (auto& c : truncatedAppName)
+    {
         c = '#';
     }
-    auto nameLength = iox_runtime_get_instance_name(truncatedAppName, TRUNCATED_APP_NAME_LENGTH + 1);
+    auto nameLength = iox_runtime_get_instance_name(truncatedAppName, APP_NAME_BUFFER_LENGTH);
 
     ASSERT_THAT(nameLength, Eq(strnlen(ACTUAL_APP_NAME, iox::MAX_PROCESS_NAME_LENGTH + 1)));
     EXPECT_THAT(truncatedAppName, StrEq(EXPECTED_APP_NAME));

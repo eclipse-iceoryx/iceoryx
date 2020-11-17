@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,9 +50,55 @@ TEST_F(iox_runnable_test, createdRunnableHasCorrectRunnableName)
     EXPECT_EQ(std::string(name), m_runnableName);
 }
 
+TEST_F(iox_runnable_test, getRunnableNameBufferIsNullptr)
+{
+    auto nameLength = iox_runnable_get_name(m_sut, nullptr, 100);
+
+    ASSERT_THAT(nameLength, Eq(0U));
+}
+
+TEST_F(iox_runnable_test, getRunnableNameBufferIsLessThanRunnableNameLength)
+{
+    constexpr uint64_t RUNNABLE_NAME_BUFFER_LENGTH{10};
+    char truncatedRunnableName[RUNNABLE_NAME_BUFFER_LENGTH];
+    for (auto& c : truncatedRunnableName)
+    {
+        c = '#';
+    }
+    auto nameLength = iox_runnable_get_name(m_sut, truncatedRunnableName, RUNNABLE_NAME_BUFFER_LENGTH);
+
+    std::string expectedRunnableName = "hypnotoad";
+
+    ASSERT_THAT(nameLength, Eq(m_runnableName.size()));
+    EXPECT_THAT(truncatedRunnableName, StrEq(expectedRunnableName));
+}
+
 TEST_F(iox_runnable_test, createdRunnableHasCorrectProcessName)
 {
     char name[100];
     ASSERT_EQ(iox_runnable_get_process_name(m_sut, name, 100), m_processName.size());
     EXPECT_EQ(std::string(name), m_processName);
+}
+
+TEST_F(iox_runnable_test, getRunnableProcessNameBufferIsNullptr)
+{
+    auto nameLength = iox_runnable_get_process_name(m_sut, nullptr, 100);
+
+    ASSERT_THAT(nameLength, Eq(0U));
+}
+
+TEST_F(iox_runnable_test, getRunnableProcessNameBufferIsLessThanRunnableProcessNameLength)
+{
+    constexpr uint64_t PROCESS_NAME_BUFFER_LENGTH{10};
+    char truncatedProcessName[PROCESS_NAME_BUFFER_LENGTH];
+    for (auto& c : truncatedProcessName)
+    {
+        c = '#';
+    }
+    auto nameLength = iox_runnable_get_process_name(m_sut, truncatedProcessName, PROCESS_NAME_BUFFER_LENGTH);
+
+    std::string expectedProcessName = "/stoepsel";
+
+    ASSERT_THAT(nameLength, Eq(m_processName.size()));
+    EXPECT_THAT(truncatedProcessName, StrEq(expectedProcessName));
 }
