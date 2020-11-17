@@ -53,11 +53,12 @@ report a bug or propose a new feature, please raise an issue before raising a pu
 track. Please make sure you have:
 
 1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
-2. All branches have the following naming format: `iox-#123-this-is-a-branch`
-3. All commits have the following naming format: `iox-#123 commit text`
-4. All commits have been signed with `git commit -s`
-5. You open your pull request towards the base branch `staging`
-6. Link the pull request to the according Github issue and set the label accordingly
+1. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
+1. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
+1. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
+1. All commits have been signed with `git commit -s`
+1. You open your pull request towards the base branch `staging`
+1. Link the pull request to the according Github issue and set the label accordingly
 
 ## Coding style
 
