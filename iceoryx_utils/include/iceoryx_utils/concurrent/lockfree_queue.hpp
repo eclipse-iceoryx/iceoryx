@@ -95,7 +95,7 @@ class LockFreeQueue
     /// during concurrent operation but will always be at most capacity
     uint64_t size() const noexcept;
 
-  private:
+  protected:
     using Queue = IndexQueue<Capacity>;
     using BufferIndex = typename Queue::value_t;
 

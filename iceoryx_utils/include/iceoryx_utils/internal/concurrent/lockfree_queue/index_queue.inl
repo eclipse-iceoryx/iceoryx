@@ -210,25 +210,57 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::pop() noexcept
+bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(uint64_t requiredSize, ValueType& index) noexcept
 {
-    ValueType value;
-    if (pop(value))
+    if (requiredSize == 0)
     {
-        return value;
+        return false;
     }
-    return cxx::nullopt;
-}
 
-template <uint64_t Capacity, typename ValueType>
-cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfFull() noexcept
-{
-    ValueType value;
-    if (popIfFull(value))
+    // which to load first is up to discussion, for correctness it should make no difference
+    // but for performance it might
+    // note that without sync mechanisms (such as seq_cst), reordering is possible
+    auto writePosition = m_writePosition.load(std::memory_order_relaxed);
+    auto readPosition = m_readPosition.load(std::memory_order_relaxed);
+
+    // note: In principle it should be possible to load this just before the value
+    // is required in a successful return.
+    // However, doing this leads to failure of some stress tests for unkwown reasons
+    // This suggests that there is an issue which is not understood and needs to be investigated.
+    auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
+
+    // if readPosition + n = readPosition for some n>=0, the queue contains n elements
+    // at this instant (!) but slightly later may contain more or less elements
+    // while the m_readPosition and m_writePosition can grow during this operation,
+    // we detect this for readPosition with compare_exchange and for writePosition it does not matter,
+    // the queue will contain even more elements then ( > n)
+    int64_t delta = writePosition - readPosition;
+
+    // delta < 0 can actually happen (atomic values may not be up to date, i.e. detect writePosition as smaller than
+    // readPosition leading to negative delta)
+    // since we cannot conclude that the queue is filled with requiredSize elements in this case we just return
+    //
+    // note that delta is signed and we cannot compare it to requiredSize (unsigned) when it is negative
+    // without getting unexpected results (it will be converted to large positive numbers)
+    if (delta < 0)
     {
-        return value;
+        return false;
     }
-    return cxx::nullopt;
+
+    // delta is positive, therefore the conversion is fine (it surely fits into uint64_t)
+    if (static_cast<uint64_t>(delta) >= requiredSize)
+    {
+        Index newReadPosition(readPosition + 1);
+        auto ownershipGained = m_readPosition.compare_exchange_strong(
+            readPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
+        if (ownershipGained)
+        {
+            index = value.getIndex();
+            return true;
+        }
+    }
+
+    return false;
 }
 
 template <uint64_t Capacity, typename ValueType>

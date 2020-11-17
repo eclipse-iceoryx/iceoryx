@@ -78,14 +78,6 @@ class IndexQueue
     void push(const ValueType index) noexcept;
 
     /// @brief pop an index from the queue in FIFO order if the queue not empty
-    /// @return index if the queue was is empty, nullopt oterwise
-    cxx::optional<ValueType> pop() noexcept;
-
-    /// @brief pop an index from the queue in FIFO order if the queue is full
-    /// @return index if the queue was full, nullopt otherwise
-    cxx::optional<ValueType> popIfFull() noexcept;
-
-    /// @brief pop an index from the queue in FIFO order if the queue not empty
     /// @param index that was obtained, undefined if false is returned
     /// @return true if an index was obtained, false otherwise
     bool pop(ValueType& index) noexcept;
@@ -94,6 +86,12 @@ class IndexQueue
     /// @param index that was obtained, undefined if false is returned
     /// @return true if an index was obtained, false otherwise
     bool popIfFull(ValueType& index) noexcept;
+
+    /// @brief pop an index from the queue in FIFO order if the queue contains at least minSize indices
+    /// @param minSize minimum number of indices required in the queue to successfully obtain the first index
+    /// @param index that was obtained, undefined if false is returned
+    /// @return true if an index was obtained, false otherwise
+    bool popIfSizeIsAtLeast(uint64_t minSize, ValueType& index) noexcept;
 
   private:
     // remark: a compile time check whether Index is actually lock free would be nice
