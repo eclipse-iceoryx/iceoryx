@@ -38,20 +38,6 @@ WaitSet::~WaitSet() noexcept
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-cxx::expected<Trigger, WaitSetError> WaitSet::acquireTrigger(const void* const origin,
-                                                             const cxx::ConstMethodCallback<bool>& triggerCallback,
-                                                             const cxx::MethodCallback<void>& invalidationCallback,
-                                                             const uint64_t classId) noexcept
-{
-    if (!m_triggerVector.emplace_back(
-            origin, m_conditionVariableDataPtr, triggerCallback, invalidationCallback, classId))
-    {
-        return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
-    }
-
-    return iox::cxx::success<Trigger>(Trigger(m_triggerVector.back(), {this, &WaitSet::removeTrigger}));
-}
-
 void WaitSet::removeTrigger(Trigger& trigger) noexcept
 {
     bool wasDeleted = false;
@@ -105,7 +91,7 @@ typename WaitSet::TriggerIdVector WaitSet::createVectorWithFullfilledConditions(
             // m_conditionVector and conditions are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            conditions.push_back(currentTrigger.getTriggerId());
+            conditions.push_back(currentTrigger);
         }
     }
 

@@ -98,7 +98,7 @@ class WaitSet
 {
   public:
     using TriggerVector = cxx::vector<Trigger, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
-    using TriggerIdVector = cxx::vector<TriggerId, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
+    using TriggerIdVector = cxx::vector<TriggerBase, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
     WaitSet() noexcept;
     virtual ~WaitSet() noexcept;
@@ -107,10 +107,12 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
-    cxx::expected<Trigger, WaitSetError> acquireTrigger(const void* const origin,
+    template <typename T>
+    cxx::expected<Trigger, WaitSetError> acquireTrigger(T* const origin,
                                                         const cxx::ConstMethodCallback<bool>& triggerCallback,
                                                         const cxx::MethodCallback<void>& invalidationCallback,
-                                                        const uint64_t classId) noexcept;
+                                                        const uint64_t triggerId,
+                                                        void (*callback)(T* const)) noexcept;
 
     /// @brief Blocking wait with time limit till one or more of the condition become true
     /// @param[in] timeout How long shall be waited for a signalling condition
@@ -143,5 +145,7 @@ class WaitSet
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/wait_set.inl"
 
 #endif // IOX_POSH_POPO_WAIT_SET_HPP

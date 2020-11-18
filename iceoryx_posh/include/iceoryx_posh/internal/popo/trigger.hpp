@@ -16,6 +16,7 @@
 #define IOX_POSH_POPO_TRIGGER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 #include <limits>
 
@@ -23,34 +24,44 @@ namespace iox
 {
 namespace popo
 {
-class Condition;
-struct TriggerId
+class TriggerBase
 {
   public:
-    TriggerId() = default;
-    TriggerId(const uint64_t value) noexcept
-        : m_value(value)
-    {
-    }
+    static constexpr uint64_t INVALID_TRIGGER_ID = std::numeric_limits<uint64_t>::max();
 
-    operator uint64_t() const noexcept
-    {
-        return m_value;
-    }
+    TriggerBase() = default;
 
-  private:
-    uint64_t m_value = std::numeric_limits<uint64_t>::max();
+    template <typename T>
+    TriggerBase(T* const origin, const uint64_t triggerId, void (*callback)(T* const) = nullptr) noexcept;
+
+    const uint64_t& getTriggerId() const noexcept;
+
+    template <typename T>
+    bool doesOriginateFrom(T* const origin) const noexcept;
+
+    void operator()() const noexcept;
+
+  protected:
+    void* m_origin = nullptr;
+    uint64_t m_triggerId = INVALID_TRIGGER_ID;
+
+    void (*m_callbackPtr)(void* const);
+    cxx::function_ref<void(void* const, void (*)(void* const))> m_callback;
 };
 
-class Trigger
+class Trigger : public TriggerBase
 {
   public:
+    using TriggerBase::INVALID_TRIGGER_ID;
+
     Trigger() noexcept = default;
-    Trigger(const void* const origin,
+    template <typename T>
+    Trigger(T* const origin,
             ConditionVariableData* conditionVariableDataPtr,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void>& invalidationCallback,
-            const uint64_t triggerId = TriggerId()) noexcept;
+            const uint64_t triggerId,
+            void (*callback)(T* const)) noexcept;
 
     Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept;
 
@@ -69,23 +80,20 @@ class Trigger
     void reset() noexcept;
     ConditionVariableData* getConditionVariableData() noexcept;
 
-    const TriggerId& getTriggerId() const noexcept;
-
     bool operator==(const Trigger& rhs) const noexcept;
 
   private:
-    const void* m_origin;
-    ConditionVariableData* m_conditionVariableDataPtr{nullptr};
+    ConditionVariableData* m_conditionVariableDataPtr = nullptr;
 
-    cxx::MethodCallback<void, Trigger&> m_removalCallback;
-    cxx::MethodCallback<void> m_invalidationCallback;
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
-
-    TriggerId m_triggerId;
+    cxx::MethodCallback<void> m_invalidationCallback;
+    cxx::MethodCallback<void, Trigger&> m_removalCallback;
 };
 
 
 } // namespace popo
 } // namespace iox
+
+#include "iceoryx_posh/internal/popo/trigger.inl"
 
 #endif

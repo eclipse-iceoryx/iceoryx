@@ -26,21 +26,28 @@
 #include <iostream>
 
 iox::popo::GuardCondition shutdownGuard;
+using Subscriber = iox::popo::TypedSubscriber<CounterTopic>;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     shutdownGuard.trigger();
 }
 
+void subscriberCallback(iox::popo::Condition* const subscriber)
+{
+    reinterpret_cast<Subscriber*>(subscriber)->take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+        std::cout << "Received: " << sample->counter << std::endl;
+    });
+}
+
 void receiving()
 {
     iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
 
-    using Subscriber = iox::popo::TypedSubscriber<CounterTopic>;
     iox::popo::TypedSubscriber<CounterTopic> mySubscriber({"Radar", "FrontLeft", "Counter"});
     iox::popo::WaitSet waitset;
 
-    mySubscriber.attachTo(&waitset, {&mySubscriber, &Subscriber::hasNewSamples}, 5);
+    mySubscriber.attachTo(&waitset, {&mySubscriber, &Subscriber::hasNewSamples}, 5, subscriberCallback);
 
     mySubscriber.subscribe();
 
@@ -50,16 +57,28 @@ void receiving()
 
         for (auto& condition : triggeredConditions)
         {
-            if (condition == 5)
+            // if (condition.getTriggerId() == 5)
+            //{
+            //    mySubscriber.take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+            //        std::cout << "Received: " << sample->counter << std::endl;
+            //    });
+            //}
+            if (condition.doesOriginateFrom(&mySubscriber))
             {
-                mySubscriber.take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-                    std::cout << "Received: " << sample->counter << std::endl;
-                });
+                // mySubscriber.take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+                //    std::cout << "Received: " << sample->counter << std::endl;
+                //});
+                condition();
             }
-            else if (condition == 4)
+
+            else if (condition.getTriggerId() == 4)
             {
                 mySubscriber.unsubscribe();
                 return;
+            }
+            else
+            {
+                std::cout << "UNDEFINED\n";
             }
         }
     }
