@@ -51,7 +51,9 @@ void receiving()
 
     mySubscriber.subscribe();
 
-    while (true)
+    bool keepRunning = true;
+
+    while (keepRunning)
     {
         auto triggeredConditions = waitset.wait();
 
@@ -70,11 +72,16 @@ void receiving()
                 //});
                 condition();
             }
-
             else if (condition.getTriggerId() == 4)
             {
                 mySubscriber.unsubscribe();
-                return;
+                keepRunning = false;
+            }
+            else if (condition.getTriggerId() == 123)
+            {
+                std::cout << "guard called\n";
+                mySubscriber.unsubscribe();
+                keepRunning = false;
             }
             else
             {

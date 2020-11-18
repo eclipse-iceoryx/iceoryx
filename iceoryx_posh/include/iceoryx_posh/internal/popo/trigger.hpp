@@ -24,15 +24,15 @@ namespace iox
 {
 namespace popo
 {
-class TriggerBase
+class TriggerState
 {
   public:
     static constexpr uint64_t INVALID_TRIGGER_ID = std::numeric_limits<uint64_t>::max();
 
-    TriggerBase() = default;
+    TriggerState() = default;
 
     template <typename T>
-    TriggerBase(T* const origin, const uint64_t triggerId, void (*callback)(T* const) = nullptr) noexcept;
+    TriggerState(T* const origin, const uint64_t triggerId, void (*callback)(T* const) = nullptr) noexcept;
 
     const uint64_t& getTriggerId() const noexcept;
 
@@ -49,10 +49,10 @@ class TriggerBase
     cxx::function_ref<void(void* const, void (*)(void* const))> m_callback;
 };
 
-class Trigger : public TriggerBase
+class Trigger : public TriggerState
 {
   public:
-    using TriggerBase::INVALID_TRIGGER_ID;
+    using TriggerState::INVALID_TRIGGER_ID;
 
     Trigger() noexcept = default;
     template <typename T>
@@ -74,6 +74,7 @@ class Trigger : public TriggerBase
 
     explicit operator bool() const noexcept;
     bool isValid() const noexcept;
+    void notify() noexcept;
 
     bool hasTriggered() const noexcept;
     void invalidate() noexcept;

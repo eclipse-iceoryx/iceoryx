@@ -13,17 +13,18 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/trigger.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
 
 namespace iox
 {
 namespace popo
 {
-const uint64_t& TriggerBase::getTriggerId() const noexcept
+const uint64_t& TriggerState::getTriggerId() const noexcept
 {
     return m_triggerId;
 }
 
-void TriggerBase::operator()() const noexcept
+void TriggerState::operator()() const noexcept
 {
     if (m_origin != nullptr && m_callbackPtr != nullptr)
         m_callback(m_origin, m_callbackPtr);
@@ -68,6 +69,14 @@ void Trigger::reset() noexcept
         m_removalCallback(*this);
     }
     m_conditionVariableDataPtr = nullptr;
+}
+
+void Trigger::notify() noexcept
+{
+    if (m_conditionVariableDataPtr)
+    {
+        ConditionVariableSignaler(m_conditionVariableDataPtr).notifyOne();
+    }
 }
 
 Trigger::operator bool() const noexcept

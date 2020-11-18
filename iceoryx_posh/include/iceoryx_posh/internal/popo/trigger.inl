@@ -26,7 +26,7 @@ inline void myCallback(void* const origin, void (*callbackPtr)(void* const)) noe
 }
 
 template <typename T>
-inline TriggerBase::TriggerBase(T* const origin, const uint64_t triggerId, void (*callback)(T* const)) noexcept
+inline TriggerState::TriggerState(T* const origin, const uint64_t triggerId, void (*callback)(T* const)) noexcept
     : m_origin(origin)
     , m_triggerId(triggerId)
     , m_callbackPtr(reinterpret_cast<void (*)(void* const)>(callback))
@@ -35,7 +35,7 @@ inline TriggerBase::TriggerBase(T* const origin, const uint64_t triggerId, void 
 }
 
 template <typename T>
-inline bool TriggerBase::doesOriginateFrom(T* const origin) const noexcept
+inline bool TriggerState::doesOriginateFrom(T* const origin) const noexcept
 {
     return m_origin == origin;
 }
@@ -47,7 +47,7 @@ inline Trigger::Trigger(T* const origin,
                         const cxx::MethodCallback<void>& invalidationCallback,
                         const uint64_t triggerId,
                         void (*callback)(T* const)) noexcept
-    : TriggerBase(origin, triggerId, callback)
+    : TriggerState(origin, triggerId, callback)
     , m_conditionVariableDataPtr(conditionVariableDataPtr)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_invalidationCallback(invalidationCallback)

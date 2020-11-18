@@ -98,7 +98,7 @@ class WaitSet
 {
   public:
     using TriggerVector = cxx::vector<Trigger, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
-    using TriggerIdVector = cxx::vector<TriggerBase, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
+    using TriggerIdVector = cxx::vector<TriggerState, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
     WaitSet() noexcept;
     virtual ~WaitSet() noexcept;
