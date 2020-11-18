@@ -19,7 +19,16 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
-/// TODO trigger type?
+/// TODO adapt subscriber to new design
+/// TODO remove condition class
+/// TODO make trigger thread safe -- recursive mutex
+/// TODO remove mutex from guard condition
+/// TODO ?? remove mutex from chunk queue pusher??
+/// TODO explain 4 use cases in readme and write examples:
+///         - gateway every subscriber is the same
+///         - check by pointer
+///         - check by trigger id
+///         - WaitForNextActivation / guard
 
 #include <chrono>
 #include <csignal>
