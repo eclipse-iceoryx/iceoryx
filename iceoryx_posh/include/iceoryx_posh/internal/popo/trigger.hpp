@@ -23,6 +23,21 @@ namespace iox
 namespace popo
 {
 class Condition;
+struct TriggerId
+{
+    TriggerId() = default;
+
+    TriggerId(uint64_t classId)
+        : m_classId(classId)
+    {
+        static uint64_t currentInstanceId = 0U;
+        m_instanceId = currentInstanceId++;
+    }
+
+    uint64_t m_classId = 0U;
+    uint64_t m_instanceId = 0U;
+};
+
 class Trigger
 {
   public:
@@ -30,7 +45,8 @@ class Trigger
     Trigger(Condition* condition,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void>& invalidationCallback,
-            ConditionVariableData* conditionVariableDataPtr) noexcept;
+            ConditionVariableData* conditionVariableDataPtr,
+            const uint64_t classId) noexcept;
     Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept;
 
     Trigger(const Trigger&) = delete;
@@ -47,6 +63,8 @@ class Trigger
     void invalidate() noexcept;
     void reset() noexcept;
 
+    TriggerId getTriggerId() const noexcept;
+
     bool operator==(const Trigger& rhs) const noexcept;
     bool operator==(const void*) const noexcept;
 
@@ -58,6 +76,8 @@ class Trigger
     cxx::MethodCallback<void, Trigger&> m_removalCallback;
     cxx::MethodCallback<void> m_invalidationCallback;
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
+
+    TriggerId m_triggerId;
 };
 
 } // namespace popo

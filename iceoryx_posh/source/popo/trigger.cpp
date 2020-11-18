@@ -21,18 +21,24 @@ namespace popo
 Trigger::Trigger(Condition* condition,
                  const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                  const cxx::MethodCallback<void>& invalidationCallback,
-                 ConditionVariableData* conditionVariableDataPtr) noexcept
+                 ConditionVariableData* conditionVariableDataPtr,
+                 const uint64_t classId) noexcept
     : m_condition(condition)
     , m_conditionVariableDataPtr(conditionVariableDataPtr)
     , m_invalidationCallback(invalidationCallback)
     , m_hasTriggeredCallback(hasTriggeredCallback)
+    , m_triggerId(classId)
 {
 }
 
 Trigger::Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept
-    : Trigger(
-        other.m_condition, other.m_hasTriggeredCallback, other.m_invalidationCallback, other.m_conditionVariableDataPtr)
+    : Trigger(other.m_condition,
+              other.m_hasTriggeredCallback,
+              other.m_invalidationCallback,
+              other.m_conditionVariableDataPtr,
+              other.m_triggerId.m_classId)
 {
+    m_triggerId = other.m_triggerId;
     m_removalCallback = removalCallback;
 }
 

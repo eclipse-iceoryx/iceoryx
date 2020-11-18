@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_posh/internal/popo/trigger.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
@@ -34,16 +35,17 @@ WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noe
 WaitSet::~WaitSet() noexcept
 {
     detachAllConditions();
+    removeAllTrigger();
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-cxx::expected<Trigger, WaitSetError>
-WaitSet::acquireTrigger(Condition& condition,
-                        const cxx::ConstMethodCallback<bool>& triggerCallback,
-                        const cxx::MethodCallback<void>& invalidationCallback) noexcept
+cxx::expected<Trigger, WaitSetError> WaitSet::acquireTrigger(Condition& condition,
+                                                             const cxx::ConstMethodCallback<bool>& triggerCallback,
+                                                             const cxx::MethodCallback<void>& invalidationCallback,
+                                                             const uint64_t classId) noexcept
 {
     if (!m_conditionVector.push_back(
-            Trigger(&condition, triggerCallback, invalidationCallback, m_conditionVariableDataPtr)))
+            Trigger(&condition, triggerCallback, invalidationCallback, m_conditionVariableDataPtr, classId)))
     {
         return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
     }
@@ -54,11 +56,11 @@ WaitSet::acquireTrigger(Condition& condition,
 void WaitSet::removeTrigger(Trigger& trigger) noexcept
 {
     bool wasDeleted = false;
-    for (auto& currentCondition : m_conditionVector)
+    for (auto& currentTrigger : m_conditionVector)
     {
-        if (currentCondition == trigger)
+        if (currentTrigger == trigger)
         {
-            m_conditionVector.erase(&currentCondition);
+            m_conditionVector.erase(&currentTrigger);
             wasDeleted = true;
             break;
         }
@@ -70,6 +72,16 @@ void WaitSet::removeTrigger(Trigger& trigger) noexcept
     }
 }
 
+void WaitSet::removeAllTrigger() noexcept
+{
+    for (auto& trigger : m_conditionVector)
+    {
+        trigger.invalidate();
+    }
+
+    m_conditionVector.clear();
+}
+
 cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexcept
 {
     if (!isConditionAttached(condition))
@@ -77,7 +89,8 @@ cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexc
         if (!m_conditionVector.push_back(Trigger(&condition,
                                                  {&condition, &Condition::hasTriggered},
                                                  {&condition, &Condition::detach},
-                                                 m_conditionVariableDataPtr)))
+                                                 m_conditionVariableDataPtr,
+                                                 0)))
         {
             return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
         }

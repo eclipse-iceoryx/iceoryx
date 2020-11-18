@@ -109,7 +109,10 @@ class WaitSet
 
     cxx::expected<Trigger, WaitSetError> acquireTrigger(Condition& condition,
                                                         const cxx::ConstMethodCallback<bool>& triggerCallback,
-                                                        const cxx::MethodCallback<void>& invalidationCallback) noexcept;
+                                                        const cxx::MethodCallback<void>& invalidationCallback,
+                                                        const uint64_t classId) noexcept;
+
+    void removeAllTrigger() noexcept;
 
     /// @brief Adds a condition to the internal vector
     /// @param[in] condition, condition to be attached

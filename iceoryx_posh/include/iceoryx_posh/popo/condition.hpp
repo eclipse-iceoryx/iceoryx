@@ -50,7 +50,7 @@ class Condition
     template <typename W>
     bool attachTo(W* const waitSet, const cxx::ConstMethodCallback<bool>& triggerMethod) noexcept
     {
-        attach(waitSet->acquireTrigger(*this, triggerMethod, {this, &Condition::detach}).get_value());
+        attach(waitSet->acquireTrigger(*this, triggerMethod, {this, &Condition::detach}, 0).get_value());
         return true;
     }
 
