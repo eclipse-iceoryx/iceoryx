@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/platform/socket.hpp"
 #include "iceoryx_utils/platform/unistd.hpp"
@@ -188,8 +189,8 @@ cxx::expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) co
     return timedSend(msg, units::Duration::seconds(0ULL));
 }
 
-cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg, const units::Duration& timeout) const
-    noexcept
+cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
+                                                           const units::Duration& timeout) const noexcept
 {
     if (msg.size() >= m_maxMessageSize) // message sizes with null termination must be smaller than m_maxMessageSize
     {
@@ -263,8 +264,8 @@ cxx::expected<std::string, IpcChannelError> UnixDomainSocket::receive() const no
 }
 
 
-cxx::expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const units::Duration& timeout) const
-    noexcept
+cxx::expected<std::string, IpcChannelError>
+UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 {
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
@@ -326,6 +327,11 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddr, 0, sizeof(m_sockAddr));
     m_sockAddr.sun_family = AF_LOCAL;
+    const uint64_t maxDestinationLength = cxx::strlen2(m_sockAddr.sun_path);
+    if (m_name.length() > maxDestinationLength)
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
     strncpy(m_sockAddr.sun_path, m_name.c_str(), m_name.size());
 
     // we currently don't support a IpcChannelMode::NON_BLOCKING, for send and receive timouts can be used, the other

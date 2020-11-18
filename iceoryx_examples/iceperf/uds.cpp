@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "uds.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 
 #include <chrono>
@@ -46,6 +47,8 @@ void UDS::init() noexcept
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddrPublisher, 0, sizeof(m_sockAddrPublisher));
     m_sockAddrPublisher.sun_family = AF_LOCAL;
+    const uint64_t maxDestinationLength = iox::cxx::strlen2(m_sockAddrPublisher.sun_path);
+    assert(maxDestinationLength >= m_publisherName.size() && "Socketname too large!");
     strncpy(m_sockAddrPublisher.sun_path, m_publisherName.c_str(), m_publisherName.size());
 
     auto socketCallPublisher = iox::cxx::makeSmartC(
@@ -62,6 +65,7 @@ void UDS::init() noexcept
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddrSubscriber, 0, sizeof(m_sockAddrSubscriber));
     m_sockAddrSubscriber.sun_family = AF_LOCAL;
+    assert(maxDestinationLength >= m_subscriberName.size() && "Socketname too large!");
     strncpy(m_sockAddrSubscriber.sun_path, m_subscriberName.c_str(), m_subscriberName.size());
 
     auto socketCallSubscriber = iox::cxx::makeSmartC(
