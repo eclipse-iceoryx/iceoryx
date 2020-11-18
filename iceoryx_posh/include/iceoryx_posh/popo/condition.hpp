@@ -51,7 +51,7 @@ class Condition
     bool
     attachTo(W* const waitSet, const cxx::ConstMethodCallback<bool>& triggerMethod, const uint64_t classId) noexcept
     {
-        attach(waitSet->acquireTrigger(*this, triggerMethod, {this, &Condition::detach}, classId).get_value());
+        attach(waitSet->acquireTrigger(triggerMethod, {this, &Condition::detach}, classId).get_value());
         return true;
     }
 
@@ -61,9 +61,6 @@ class Condition
 
     /// @brief Was the condition fulfilled since last call?
     virtual bool hasTriggered() const noexcept = 0;
-
-    /// @brief Called by a WaitSet before attaching a Condition to see whether it was already added
-    bool isConditionVariableAttached() const noexcept;
 
     /// @brief returns the condition type
     ConditionType getType() const noexcept;
@@ -78,16 +75,8 @@ class Condition
     friend class WaitSet;
 
   private:
-    template <typename T>
-    void attachConditionVariable(T* const origin, ConditionVariableData* const conditionVariableDataPtr) noexcept;
-    void detachConditionVariable() noexcept;
-
-  private:
     ConditionType m_type;
     Trigger m_trigger;
-
-    void* m_origin{nullptr};
-    cxx::function_ref<void(void*, void*)> m_cleanupCall;
 };
 
 } // namespace popo

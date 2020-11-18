@@ -29,7 +29,7 @@ bool iox_cond_has_triggered(iox_cond_t const self)
 
 bool iox_cond_is_condition_variable_attached(iox_cond_t const self)
 {
-    return self->isConditionVariableAttached();
+    //    return self->isConditionVariableAttached();
 }
 
 iox_ConditionType iox_cond_get_type(iox_cond_t const self)

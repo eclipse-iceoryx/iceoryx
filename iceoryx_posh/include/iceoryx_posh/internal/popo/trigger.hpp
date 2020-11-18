@@ -54,8 +54,7 @@ class Trigger
 {
   public:
     Trigger() noexcept = default;
-    Trigger(Condition* condition,
-            const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
+    Trigger(const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void>& invalidationCallback,
             ConditionVariableData* conditionVariableDataPtr,
             const uint64_t classId) noexcept;
@@ -75,15 +74,13 @@ class Trigger
     bool hasTriggered() const noexcept;
     void invalidate() noexcept;
     void reset() noexcept;
+    ConditionVariableData* getConditionVariableData() noexcept;
 
     const TriggerId& getTriggerId() const noexcept;
 
     bool operator==(const Trigger& rhs) const noexcept;
-    bool operator==(const void*) const noexcept;
 
-    // private:
-
-    Condition* m_condition;
+  private:
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
 
     cxx::MethodCallback<void, Trigger&> m_removalCallback;

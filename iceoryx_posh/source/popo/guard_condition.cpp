@@ -27,7 +27,7 @@ GuardCondition::GuardCondition() noexcept
 void GuardCondition::trigger() noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
-    if (isConditionVariableAttached() && m_conditionVariableDataPtr)
+    if (m_conditionVariableDataPtr)
     {
         m_wasTriggered.store(true, std::memory_order_relaxed);
         ConditionVariableSignaler condVarSignaler{m_conditionVariableDataPtr};

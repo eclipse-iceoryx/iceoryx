@@ -30,23 +30,12 @@ Condition::Condition(const ConditionType type) noexcept
 
 Condition::~Condition() noexcept
 {
-    if (isConditionVariableAttached())
-    {
-        // In this particular case we can skip unsetConditionVariable since in the
-        // dtor the object already degraded to a class which is only a condition
-        // and has no more vtable pointer to the method unsetConditionVariable
-        // which was once part of this object.
-        // We can safely assume that the class which inherits from this class takes
-        // care of its resources since it is the responsibility of that class and the
-        // destructor was already called at this point.
-        m_cleanupCall(m_origin, this);
-    }
 }
 
 void Condition::attach(Trigger&& trigger) noexcept
 {
     m_trigger = std::move(trigger);
-    setConditionVariable(m_trigger.m_conditionVariableDataPtr);
+    setConditionVariable(m_trigger.getConditionVariableData());
 }
 
 void Condition::detach() noexcept
@@ -56,23 +45,6 @@ void Condition::detach() noexcept
         unsetConditionVariable();
         m_trigger.reset();
     }
-}
-
-bool Condition::isConditionVariableAttached() const noexcept
-{
-    return m_origin != nullptr;
-}
-
-void Condition::detachConditionVariable() noexcept
-{
-    if (!isConditionVariableAttached())
-    {
-        return;
-    }
-
-    unsetConditionVariable();
-    m_cleanupCall(m_origin, this);
-    m_origin = nullptr;
 }
 
 ConditionType Condition::getType() const noexcept

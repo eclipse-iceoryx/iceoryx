@@ -18,13 +18,11 @@ namespace iox
 {
 namespace popo
 {
-Trigger::Trigger(Condition* condition,
-                 const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
+Trigger::Trigger(const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                  const cxx::MethodCallback<void>& invalidationCallback,
                  ConditionVariableData* conditionVariableDataPtr,
                  const uint64_t classId) noexcept
-    : m_condition(condition)
-    , m_conditionVariableDataPtr(conditionVariableDataPtr)
+    : m_conditionVariableDataPtr(conditionVariableDataPtr)
     , m_invalidationCallback(invalidationCallback)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_triggerId(classId)
@@ -33,8 +31,7 @@ Trigger::Trigger(Condition* condition,
 }
 
 Trigger::Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept
-    : Trigger(other.m_condition,
-              other.m_hasTriggeredCallback,
+    : Trigger(other.m_hasTriggeredCallback,
               other.m_invalidationCallback,
               other.m_conditionVariableDataPtr,
               other.getTriggerId().getClassId())
@@ -81,6 +78,11 @@ bool Trigger::isValid() const noexcept
     return m_conditionVariableDataPtr != nullptr;
 }
 
+ConditionVariableData* Trigger::getConditionVariableData() noexcept
+{
+    return m_conditionVariableDataPtr;
+}
+
 const TriggerId& Trigger::getTriggerId() const noexcept
 {
     return m_triggerId;
@@ -88,12 +90,7 @@ const TriggerId& Trigger::getTriggerId() const noexcept
 
 bool Trigger::operator==(const Trigger& rhs) const noexcept
 {
-    return (m_condition == rhs.m_condition && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback);
-}
-
-bool Trigger::operator==(const void* rhs) const noexcept
-{
-    return (m_condition == rhs);
+    return (m_hasTriggeredCallback == rhs.m_hasTriggeredCallback);
 }
 
 Trigger::Trigger(Trigger&& rhs) noexcept
@@ -105,11 +102,11 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        m_condition = rhs.m_condition;
         m_conditionVariableDataPtr = rhs.m_conditionVariableDataPtr;
         m_removalCallback = rhs.m_removalCallback;
         m_invalidationCallback = rhs.m_invalidationCallback;
         m_hasTriggeredCallback = rhs.m_hasTriggeredCallback;
+        m_triggerId = rhs.m_triggerId;
 
         rhs.m_conditionVariableDataPtr = nullptr;
     }

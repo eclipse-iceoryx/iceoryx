@@ -38,28 +38,26 @@ WaitSet::~WaitSet() noexcept
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-cxx::expected<Trigger, WaitSetError> WaitSet::acquireTrigger(Condition& condition,
-                                                             const cxx::ConstMethodCallback<bool>& triggerCallback,
+cxx::expected<Trigger, WaitSetError> WaitSet::acquireTrigger(const cxx::ConstMethodCallback<bool>& triggerCallback,
                                                              const cxx::MethodCallback<void>& invalidationCallback,
                                                              const uint64_t classId) noexcept
 {
-    if (!m_conditionVector.emplace_back(
-            &condition, triggerCallback, invalidationCallback, m_conditionVariableDataPtr, classId))
+    if (!m_triggerVector.emplace_back(triggerCallback, invalidationCallback, m_conditionVariableDataPtr, classId))
     {
         return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
     }
 
-    return iox::cxx::success<Trigger>(Trigger(m_conditionVector.back(), {this, &WaitSet::removeTrigger}));
+    return iox::cxx::success<Trigger>(Trigger(m_triggerVector.back(), {this, &WaitSet::removeTrigger}));
 }
 
 void WaitSet::removeTrigger(Trigger& trigger) noexcept
 {
     bool wasDeleted = false;
-    for (auto& currentTrigger : m_conditionVector)
+    for (auto& currentTrigger : m_triggerVector)
     {
         if (currentTrigger == trigger)
         {
-            m_conditionVector.erase(&currentTrigger);
+            m_triggerVector.erase(&currentTrigger);
             wasDeleted = true;
             break;
         }
@@ -73,20 +71,20 @@ void WaitSet::removeTrigger(Trigger& trigger) noexcept
 
 void WaitSet::removeAllTrigger() noexcept
 {
-    for (auto& trigger : m_conditionVector)
+    for (auto& trigger : m_triggerVector)
     {
         trigger.invalidate();
     }
 
-    m_conditionVector.clear();
+    m_triggerVector.clear();
 }
 
-typename WaitSet::ConditionVector WaitSet::timedWait(const units::Duration timeout) noexcept
+typename WaitSet::TriggerIdVector WaitSet::timedWait(const units::Duration timeout) noexcept
 {
     return waitAndReturnFulfilledConditions([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
 }
 
-typename WaitSet::ConditionVector WaitSet::wait() noexcept
+typename WaitSet::TriggerIdVector WaitSet::wait() noexcept
 {
     return waitAndReturnFulfilledConditions([this] {
         m_conditionVariableWaiter.wait();
@@ -94,18 +92,18 @@ typename WaitSet::ConditionVector WaitSet::wait() noexcept
     });
 }
 
-typename WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions() noexcept
+typename WaitSet::TriggerIdVector WaitSet::createVectorWithFullfilledConditions() noexcept
 {
-    ConditionVector conditions;
-    for (auto& currentCondition : m_conditionVector)
+    TriggerIdVector conditions;
+    for (auto& currentTrigger : m_triggerVector)
     {
-        if (currentCondition.hasTriggered())
+        if (currentTrigger.hasTriggered())
         {
             // We do not need to verify if push_back was successful since
             // m_conditionVector and conditions are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            conditions.push_back(currentCondition.getTriggerId());
+            conditions.push_back(currentTrigger.getTriggerId());
         }
     }
 
@@ -113,9 +111,9 @@ typename WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions(
 }
 
 template <typename WaitFunction>
-typename WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept
+typename WaitSet::TriggerIdVector WaitSet::waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept
 {
-    WaitSet::ConditionVector conditions;
+    WaitSet::TriggerIdVector conditions;
 
     if (m_conditionVariableWaiter.wasNotified())
     {

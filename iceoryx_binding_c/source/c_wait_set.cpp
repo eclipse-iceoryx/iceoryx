@@ -22,7 +22,7 @@ extern "C" {
 #include "iceoryx_binding_c/wait_set.h"
 }
 
-static uint64_t condition_vector_to_c_array(const WaitSet::ConditionVector& conditionVector,
+static uint64_t condition_vector_to_c_array(const WaitSet::TriggerVector& conditionVector,
                                             iox_cond_t* const conditionArray,
                                             const uint64_t conditionArrayCapacity,
                                             uint64_t* missedElements)
@@ -89,12 +89,12 @@ uint64_t iox_ws_timed_wait(iox_ws_t const self,
                            const uint64_t conditionArrayCapacity,
                            uint64_t* missedElements)
 {
-    return condition_vector_to_c_array(
-        self->timedWait(units::Duration::nanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
-                        + units::Duration::seconds(static_cast<unsigned long long int>(timeout.tv_sec))),
-        conditionArray,
-        conditionArrayCapacity,
-        missedElements);
+    // return condition_vector_to_c_array(
+    //    self->timedWait(units::Duration::nanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
+    //                    + units::Duration::seconds(static_cast<unsigned long long int>(timeout.tv_sec))),
+    //    conditionArray,
+    //    conditionArrayCapacity,
+    //    missedElements);
 }
 
 uint64_t iox_ws_wait(iox_ws_t const self,
@@ -102,6 +102,6 @@ uint64_t iox_ws_wait(iox_ws_t const self,
                      const uint64_t conditionArrayCapacity,
                      uint64_t* missedElements)
 {
-    return condition_vector_to_c_array(self->wait(), conditionArray, conditionArrayCapacity, missedElements);
+    // return condition_vector_to_c_array(self->wait(), conditionArray, conditionArrayCapacity, missedElements);
 }
 

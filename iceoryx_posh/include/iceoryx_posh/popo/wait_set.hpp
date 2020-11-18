@@ -97,8 +97,8 @@ enum class WaitSetError : uint8_t
 class WaitSet
 {
   public:
-    using ManagedConditionVector = cxx::vector<Trigger, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
-    using ConditionVector = cxx::vector<TriggerId, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
+    using TriggerVector = cxx::vector<Trigger, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
+    using TriggerIdVector = cxx::vector<TriggerId, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
     WaitSet() noexcept;
     virtual ~WaitSet() noexcept;
@@ -107,8 +107,7 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
-    cxx::expected<Trigger, WaitSetError> acquireTrigger(Condition& condition,
-                                                        const cxx::ConstMethodCallback<bool>& triggerCallback,
+    cxx::expected<Trigger, WaitSetError> acquireTrigger(const cxx::ConstMethodCallback<bool>& triggerCallback,
                                                         const cxx::MethodCallback<void>& invalidationCallback,
                                                         const uint64_t classId) noexcept;
 
@@ -116,27 +115,27 @@ class WaitSet
     /// @param[in] timeout How long shall be waited for a signalling condition
     /// @return ConditionVector vector of condition pointers that have become
     /// fulfilled
-    ConditionVector timedWait(const units::Duration timeout) noexcept;
+    TriggerIdVector timedWait(const units::Duration timeout) noexcept;
 
     /// @brief Blocking wait till one or more of the condition become true
     /// @return ConditionVector vector of condition pointers that have become
     /// fulfilled
-    ConditionVector wait() noexcept;
+    TriggerIdVector wait() noexcept;
 
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
-    ConditionVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
+    TriggerIdVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
     template <typename WaitFunction>
-    ConditionVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
-    ConditionVector createVectorWithFullfilledConditions() noexcept;
+    TriggerIdVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
+    TriggerIdVector createVectorWithFullfilledConditions() noexcept;
 
     void removeTrigger(Trigger& trigger) noexcept;
     void removeAllTrigger() noexcept;
 
   private:
-    ManagedConditionVector m_conditionVector;
+    TriggerVector m_triggerVector;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionVariableWaiter m_conditionVariableWaiter;
 };

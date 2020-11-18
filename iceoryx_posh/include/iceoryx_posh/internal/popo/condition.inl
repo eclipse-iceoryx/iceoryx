@@ -19,27 +19,6 @@ namespace iox
 {
 namespace popo
 {
-template <typename T>
-void internalConditionCleanupCall(void* const origin, void* const entry) noexcept
-{
-    reinterpret_cast<T*>(origin)->remove(entry);
-}
-
-template <typename T>
-void Condition::attachConditionVariable(T* const origin, ConditionVariableData* const conditionVariableDataPtr) noexcept
-{
-    if (isConditionVariableAttached())
-    {
-        LogWarn()
-            << "Attaching an already attached condition leads to a detach from the current WaitSet. Best practice "
-               "is to detach Condition first before attaching it.";
-        detachConditionVariable();
-    }
-
-    m_origin = origin;
-    m_cleanupCall = internalConditionCleanupCall<T>;
-    setConditionVariable(conditionVariableDataPtr);
-}
 } // namespace popo
 } // namespace iox
 
