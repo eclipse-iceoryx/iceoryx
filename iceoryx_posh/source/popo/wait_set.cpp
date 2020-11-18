@@ -38,11 +38,13 @@ WaitSet::~WaitSet() noexcept
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-cxx::expected<Trigger, WaitSetError> WaitSet::acquireTrigger(const cxx::ConstMethodCallback<bool>& triggerCallback,
+cxx::expected<Trigger, WaitSetError> WaitSet::acquireTrigger(const void* const origin,
+                                                             const cxx::ConstMethodCallback<bool>& triggerCallback,
                                                              const cxx::MethodCallback<void>& invalidationCallback,
                                                              const uint64_t classId) noexcept
 {
-    if (!m_triggerVector.emplace_back(triggerCallback, invalidationCallback, m_conditionVariableDataPtr, classId))
+    if (!m_triggerVector.emplace_back(
+            origin, m_conditionVariableDataPtr, triggerCallback, invalidationCallback, classId))
     {
         return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
     }

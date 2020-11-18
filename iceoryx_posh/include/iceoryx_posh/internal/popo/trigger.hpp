@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
+#include <limits>
 
 namespace iox
 {
@@ -27,37 +28,29 @@ struct TriggerId
 {
   public:
     TriggerId() = default;
-
-    TriggerId(uint64_t classId)
-        : m_classId(classId)
+    TriggerId(const uint64_t value) noexcept
+        : m_value(value)
     {
-        static uint64_t currentInstanceId = 0U;
-        m_instanceId = currentInstanceId++;
     }
 
-    uint64_t getClassId() const noexcept
+    operator uint64_t() const noexcept
     {
-        return m_classId;
-    }
-
-    uint64_t getInstanceId() const noexcept
-    {
-        return m_instanceId;
+        return m_value;
     }
 
   private:
-    uint64_t m_classId = 0U;
-    uint64_t m_instanceId = 0U;
+    uint64_t m_value = std::numeric_limits<uint64_t>::max();
 };
 
 class Trigger
 {
   public:
     Trigger() noexcept = default;
-    Trigger(const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-            const cxx::MethodCallback<void>& invalidationCallback,
+    Trigger(const void* const origin,
             ConditionVariableData* conditionVariableDataPtr,
-            const uint64_t classId) noexcept;
+            const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
+            const cxx::MethodCallback<void>& invalidationCallback,
+            const uint64_t triggerId = TriggerId()) noexcept;
 
     Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept;
 
@@ -81,6 +74,7 @@ class Trigger
     bool operator==(const Trigger& rhs) const noexcept;
 
   private:
+    const void* m_origin;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
 
     cxx::MethodCallback<void, Trigger&> m_removalCallback;

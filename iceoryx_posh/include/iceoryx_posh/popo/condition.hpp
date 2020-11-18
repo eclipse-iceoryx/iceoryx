@@ -51,7 +51,7 @@ class Condition
     bool
     attachTo(W* const waitSet, const cxx::ConstMethodCallback<bool>& triggerMethod, const uint64_t classId) noexcept
     {
-        attach(waitSet->acquireTrigger(triggerMethod, {this, &Condition::detach}, classId).get_value());
+        attach(waitSet->acquireTrigger(this, triggerMethod, {this, &Condition::detach}, classId).get_value());
         return true;
     }
 

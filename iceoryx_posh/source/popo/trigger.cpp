@@ -18,11 +18,13 @@ namespace iox
 {
 namespace popo
 {
-Trigger::Trigger(const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-                 const cxx::MethodCallback<void>& invalidationCallback,
+Trigger::Trigger(const void* const origin,
                  ConditionVariableData* conditionVariableDataPtr,
+                 const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
+                 const cxx::MethodCallback<void>& invalidationCallback,
                  const uint64_t classId) noexcept
-    : m_conditionVariableDataPtr(conditionVariableDataPtr)
+    : m_origin(origin)
+    , m_conditionVariableDataPtr(conditionVariableDataPtr)
     , m_invalidationCallback(invalidationCallback)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_triggerId(classId)
@@ -31,12 +33,12 @@ Trigger::Trigger(const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
 }
 
 Trigger::Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept
-    : Trigger(other.m_hasTriggeredCallback,
-              other.m_invalidationCallback,
+    : Trigger(other.m_origin,
               other.m_conditionVariableDataPtr,
-              other.getTriggerId().getClassId())
+              other.m_hasTriggeredCallback,
+              other.m_invalidationCallback,
+              other.getTriggerId())
 {
-    m_triggerId = other.m_triggerId;
     m_removalCallback = removalCallback;
 }
 

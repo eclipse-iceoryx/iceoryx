@@ -50,13 +50,13 @@ void receiving()
 
         for (auto& condition : triggeredConditions)
         {
-            if (condition.getClassId() == 5)
+            if (condition == 5)
             {
                 mySubscriber.take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << "Received: " << sample->counter << std::endl;
                 });
             }
-            else if (condition.getClassId() == 4)
+            else if (condition == 4)
             {
                 mySubscriber.unsubscribe();
                 return;

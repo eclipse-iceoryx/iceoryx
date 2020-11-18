@@ -107,7 +107,8 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
-    cxx::expected<Trigger, WaitSetError> acquireTrigger(const cxx::ConstMethodCallback<bool>& triggerCallback,
+    cxx::expected<Trigger, WaitSetError> acquireTrigger(const void* const origin,
+                                                        const cxx::ConstMethodCallback<bool>& triggerCallback,
                                                         const cxx::MethodCallback<void>& invalidationCallback,
                                                         const uint64_t classId) noexcept;
 
