@@ -182,8 +182,8 @@ inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
     const uint64_t strSize = strnlen(str, Capacity + 1U);
     if (Capacity < strSize)
     {
-        std::cerr << "Assignment failed. The given cstring is larger than the capacity of the fixed string."
-                  << std::endl;
+        std::cerr << "Assignment failed. The given cstring is larger (" << strSize << ") than the capacity ("
+                  << Capacity << ") of the fixed string." << std::endl;
         return false;
     }
     std::memcpy(&(m_rawstring[0]), str, strSize);
@@ -500,8 +500,8 @@ inline
 }
 
 template <uint64_t Capacity>
-inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos, const uint64_t count) const
-    noexcept
+inline iox::cxx::optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos,
+                                                                     const uint64_t count) const noexcept
 {
     if (pos > m_rawstringSize)
     {

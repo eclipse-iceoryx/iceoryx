@@ -17,6 +17,7 @@
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
@@ -185,8 +186,7 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
     iox_sem_t* getHandle() noexcept;
 
   private:
-    static constexpr int m_nameSize = 128;
-    char m_name[m_nameSize] = {'\0'};
+    cxx::string<128> m_name;
     bool m_isCreated = true;
     bool m_isNamedSemaphore = true;
     bool m_isShared = false;
@@ -196,10 +196,6 @@ class Semaphore : public DesignPattern::Creation<Semaphore, SemaphoreError>
 
   private:
     friend class DesignPattern::Creation<Semaphore, SemaphoreError>;
-
-    /// @brief Returns false if the given name length is smaller than m_nameSize
-    ///         otherwise true.
-    bool hasSemaphoreNameOverflow(const char* name) noexcept;
 
     /// @brief Creates a local unnamed semaphore.
     ///         The Semaphore should be initialized but that has to be verified
