@@ -29,6 +29,7 @@ Trigger::Trigger(Condition* condition,
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_triggerId(classId)
 {
+    getTriggerId();
 }
 
 Trigger::Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept
@@ -36,7 +37,7 @@ Trigger::Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>
               other.m_hasTriggeredCallback,
               other.m_invalidationCallback,
               other.m_conditionVariableDataPtr,
-              other.m_triggerId.m_classId)
+              other.getTriggerId().getClassId())
 {
     m_triggerId = other.m_triggerId;
     m_removalCallback = removalCallback;
@@ -78,6 +79,11 @@ Trigger::operator bool() const noexcept
 bool Trigger::isValid() const noexcept
 {
     return m_conditionVariableDataPtr != nullptr;
+}
+
+const TriggerId& Trigger::getTriggerId() const noexcept
+{
+    return m_triggerId;
 }
 
 bool Trigger::operator==(const Trigger& rhs) const noexcept

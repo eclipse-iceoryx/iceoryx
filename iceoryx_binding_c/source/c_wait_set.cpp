@@ -42,7 +42,7 @@ static uint64_t condition_vector_to_c_array(const WaitSet::ConditionVector& cond
 
     for (uint64_t i = 0; i < conditionArraySize; ++i)
     {
-        conditionArray[i] = conditionVector[i];
+        // conditionArray[i] = conditionVector[i];
     }
 
     return conditionArraySize;

@@ -41,17 +41,19 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
         auto triggeredConditions = waitSet.wait();
         for (auto& condition : triggeredConditions)
         {
-            auto subscriber = dynamic_cast<iox::popo::TypedSubscriber<Position>*>(condition);
-            if (subscriber)
-            {
-                subscriber->take()
-                    .and_then([](iox::popo::Sample<const Position>& position) {
-                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
-                                  << std::endl;
-                    })
-                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
-                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
-            }
+            // auto subscriber = dynamic_cast<iox::popo::TypedSubscriber<Position>*>(condition);
+            // if (subscriber)
+            //{
+            //    subscriber->take()
+            //        .and_then([](iox::popo::Sample<const Position>& position) {
+            //            std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z <<
+            //            ")"
+            //                      << std::endl;
+            //        })
+            //        .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+            //        .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl;
+            //        });
+            //}
         }
     }
 }

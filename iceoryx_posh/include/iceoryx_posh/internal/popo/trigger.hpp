@@ -25,6 +25,7 @@ namespace popo
 class Condition;
 struct TriggerId
 {
+  public:
     TriggerId() = default;
 
     TriggerId(uint64_t classId)
@@ -34,6 +35,17 @@ struct TriggerId
         m_instanceId = currentInstanceId++;
     }
 
+    uint64_t getClassId() const noexcept
+    {
+        return m_classId;
+    }
+
+    uint64_t getInstanceId() const noexcept
+    {
+        return m_instanceId;
+    }
+
+  private:
     uint64_t m_classId = 0U;
     uint64_t m_instanceId = 0U;
 };
@@ -47,20 +59,6 @@ class Trigger
             const cxx::MethodCallback<void>& invalidationCallback,
             ConditionVariableData* conditionVariableDataPtr,
             const uint64_t classId) noexcept;
-
-    // TODO remove
-    Trigger(Condition* condition,
-            const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-            const cxx::MethodCallback<void>& invalidationCallback,
-            ConditionVariableData* conditionVariableDataPtr,
-            const TriggerId& trigger) noexcept
-        : m_condition(condition)
-        , m_conditionVariableDataPtr(conditionVariableDataPtr)
-        , m_invalidationCallback(invalidationCallback)
-        , m_hasTriggeredCallback(hasTriggeredCallback)
-        , m_triggerId(trigger)
-    {
-    }
 
     Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept;
 
@@ -78,7 +76,7 @@ class Trigger
     void invalidate() noexcept;
     void reset() noexcept;
 
-    TriggerId getTriggerId() const noexcept;
+    const TriggerId& getTriggerId() const noexcept;
 
     bool operator==(const Trigger& rhs) const noexcept;
     bool operator==(const void*) const noexcept;

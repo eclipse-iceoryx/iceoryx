@@ -43,8 +43,8 @@ cxx::expected<Trigger, WaitSetError> WaitSet::acquireTrigger(Condition& conditio
                                                              const cxx::MethodCallback<void>& invalidationCallback,
                                                              const uint64_t classId) noexcept
 {
-    if (!m_conditionVector.push_back(
-            Trigger(&condition, triggerCallback, invalidationCallback, m_conditionVariableDataPtr, classId)))
+    if (!m_conditionVector.emplace_back(
+            &condition, triggerCallback, invalidationCallback, m_conditionVariableDataPtr, classId))
     {
         return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
     }
@@ -105,7 +105,7 @@ typename WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions(
             // m_conditionVector and conditions are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            conditions.push_back(currentCondition.m_condition);
+            conditions.push_back(currentCondition.getTriggerId());
         }
     }
 

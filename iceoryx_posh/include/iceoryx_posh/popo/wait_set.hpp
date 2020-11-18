@@ -98,7 +98,7 @@ class WaitSet
 {
   public:
     using ManagedConditionVector = cxx::vector<Trigger, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
-    using ConditionVector = cxx::vector<Condition*, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
+    using ConditionVector = cxx::vector<TriggerId, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
 
     WaitSet() noexcept;
     virtual ~WaitSet() noexcept;
@@ -125,7 +125,6 @@ class WaitSet
 
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
-
 
   private:
     ConditionVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
