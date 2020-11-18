@@ -58,12 +58,12 @@ uint64_t iox_runnable_get_name(iox_runnable_t const self, char* const name, cons
 {
     if (name == nullptr)
     {
-        return 0;
+        return 0U;
     }
 
     auto nameAsString = RunnableBindingExtension(self).getRunnableName();
     strncpy(name, nameAsString.c_str(), nameCapacity);
-    name[nameCapacity - 1] = '\0'; // strncpy doesn't add a null-termination if destination is smaller than source
+    name[nameCapacity - 1U] = '\0'; // strncpy doesn't add a null-termination if destination is smaller than source
 
     return nameAsString.size();
 }
@@ -72,12 +72,12 @@ uint64_t iox_runnable_get_process_name(iox_runnable_t const self, char* const na
 {
     if (name == nullptr)
     {
-        return 0;
+        return 0U;
     }
 
     auto nameAsString = RunnableBindingExtension(self).getProcessName();
     strncpy(name, nameAsString.c_str(), nameCapacity);
-    name[nameCapacity - 1] = '\0'; // strncpy doesn't add a null-termination if destination is smaller than source
+    name[nameCapacity - 1U] = '\0'; // strncpy doesn't add a null-termination if destination is smaller than source
 
     return nameAsString.size();
 }
