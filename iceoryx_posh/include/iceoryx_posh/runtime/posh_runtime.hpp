@@ -58,6 +58,10 @@ class PoshRuntime
     /// @param[in] name name that is used for registering the process with the RouDi daemon
     static PoshRuntime& getInstance(const std::string& name = DEFAULT_RUNTIME_INSTANCE_NAME) noexcept;
 
+    static std::function<PoshRuntime&(const std::string& name)>& getRuntimeFactory() noexcept;
+
+    static void setRuntimeFactory(std::function<PoshRuntime&(const std::string& name)> factory) noexcept;
+
     /// @brief get the name that was used to register with RouDi
     /// @return name of the reistered application
     std::string getInstanceName() const noexcept;
@@ -172,7 +176,6 @@ class PoshRuntime
     // Protected constructor for IPC setup
     PoshRuntime(const std::string& name, const bool doMapSharedMemoryIntoThread = true) noexcept;
 
-    static std::function<PoshRuntime&(const std::string& name)> s_runtimeFactory; // = DefaultRuntimeFactory;
     static PoshRuntime& defaultRuntimeFactory(const std::string& name) noexcept;
 
   private:

@@ -29,8 +29,23 @@ namespace iox
 {
 namespace runtime
 {
-std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+std::function<PoshRuntime&(const std::string& name)>& PoshRuntime::getRuntimeFactory() noexcept
+{
+    static std::function<PoshRuntime&(const std::string& name)> s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+    return s_runtimeFactory;
+}
 
+void PoshRuntime::setRuntimeFactory(std::function<PoshRuntime&(const std::string& name)> factory) noexcept
+{
+    if (factory)
+    {
+        PoshRuntime::getRuntimeFactory() = factory;
+    }
+    else
+    {
+        PoshRuntime::getRuntimeFactory() = PoshRuntime::defaultRuntimeFactory;
+    }
+}
 
 PoshRuntime& PoshRuntime::defaultRuntimeFactory(const std::string& name) noexcept
 {
@@ -41,7 +56,7 @@ PoshRuntime& PoshRuntime::defaultRuntimeFactory(const std::string& name) noexcep
 // singleton access
 PoshRuntime& PoshRuntime::getInstance(const std::string& name) noexcept
 {
-    return PoshRuntime::s_runtimeFactory(name);
+    return getRuntimeFactory()(name);
 }
 
 PoshRuntime::PoshRuntime(const std::string& name, const bool doMapSharedMemoryIntoThread) noexcept
