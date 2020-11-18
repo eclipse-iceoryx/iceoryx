@@ -34,7 +34,6 @@ WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noe
 
 WaitSet::~WaitSet() noexcept
 {
-    detachAllConditions();
     removeAllTrigger();
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
@@ -79,56 +78,6 @@ void WaitSet::removeAllTrigger() noexcept
         trigger.invalidate();
     }
 
-    m_conditionVector.clear();
-}
-
-cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexcept
-{
-    if (!isConditionAttached(condition))
-    {
-        if (!m_conditionVector.push_back(Trigger(&condition,
-                                                 {&condition, &Condition::hasTriggered},
-                                                 {&condition, &Condition::detach},
-                                                 m_conditionVariableDataPtr,
-                                                 0)))
-        {
-            return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
-        }
-
-        condition.attachConditionVariable(this, m_conditionVariableDataPtr);
-    }
-
-    return iox::cxx::success<>();
-}
-
-void WaitSet::detachCondition(Condition& condition) noexcept
-{
-    if (!condition.isConditionVariableAttached())
-    {
-        return;
-    }
-
-    condition.detachConditionVariable();
-}
-
-void WaitSet::remove(void* const entry) noexcept
-{
-    for (auto& currentCondition : m_conditionVector)
-    {
-        if (currentCondition == entry)
-        {
-            m_conditionVector.erase(&currentCondition);
-            return;
-        }
-    }
-}
-
-void WaitSet::detachAllConditions() noexcept
-{
-    for (auto& currentCondition : m_conditionVector)
-    {
-        currentCondition.m_condition->detachConditionVariable();
-    }
     m_conditionVector.clear();
 }
 
@@ -186,19 +135,6 @@ typename WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(cons
 
     return (wait()) ? conditions : createVectorWithFullfilledConditions();
 }
-
-bool WaitSet::isConditionAttached(const Condition& condition) noexcept
-{
-    for (auto& currentCondition : m_conditionVector)
-    {
-        if (currentCondition == &condition)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 
 } // namespace popo
 } // namespace iox

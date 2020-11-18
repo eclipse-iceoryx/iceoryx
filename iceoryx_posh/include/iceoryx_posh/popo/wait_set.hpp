@@ -112,21 +112,6 @@ class WaitSet
                                                         const cxx::MethodCallback<void>& invalidationCallback,
                                                         const uint64_t classId) noexcept;
 
-    void removeAllTrigger() noexcept;
-
-    /// @brief Adds a condition to the internal vector
-    /// @param[in] condition, condition to be attached
-    /// @return Returns an expected, that can contain on error from WaitSetError
-    cxx::expected<WaitSetError> attachCondition(Condition& condition) noexcept;
-
-    /// @brief Removes a condition from the internal vector
-    /// @param[in] condition, condition to be detached
-    /// @return True if successful, false if unsuccessful
-    void detachCondition(Condition& condition) noexcept;
-
-    /// @brief Clears all conditions from the waitset
-    void detachAllConditions() noexcept;
-
     /// @brief Blocking wait with time limit till one or more of the condition become true
     /// @param[in] timeout How long shall be waited for a signalling condition
     /// @return ConditionVector vector of condition pointers that have become
@@ -138,15 +123,9 @@ class WaitSet
     /// fulfilled
     ConditionVector wait() noexcept;
 
-    /// @brief Is a given condition attached to this WaitSet
-    /// @return true if the condition is attached otherwise false
-    bool isConditionAttached(const Condition& condition) noexcept;
-
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
-    template <typename>
-    friend void internalConditionCleanupCall(void* const, void* const) noexcept;
 
   private:
     ConditionVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
@@ -154,9 +133,8 @@ class WaitSet
     ConditionVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
     ConditionVector createVectorWithFullfilledConditions() noexcept;
 
-    void remove(void* const entry) noexcept;
-
     void removeTrigger(Trigger& trigger) noexcept;
+    void removeAllTrigger() noexcept;
 
   private:
     ManagedConditionVector m_conditionVector;

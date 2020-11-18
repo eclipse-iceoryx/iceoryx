@@ -70,8 +70,8 @@ int main()
 
     // set up waitset
     iox::popo::WaitSet waitSet{};
-    waitSet.attachCondition(typedSubscriber);
-    waitSet.attachCondition(shutdownGuard);
+    // waitSet.attachCondition(typedSubscriber);
+    // waitSet.attachCondition(shutdownGuard);
 
     // delegate handling of received data to another thread
     std::thread subscriberHandlerThread(subscriberHandler, std::ref(waitSet));

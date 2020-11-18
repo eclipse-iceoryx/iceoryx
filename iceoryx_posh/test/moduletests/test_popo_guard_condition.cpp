@@ -51,14 +51,14 @@ TEST_F(GuardCondition_test, cannotBeTriggeredMultipleTimesWhenNotAttached)
 
 TEST_F(GuardCondition_test, canBeTriggeredWhenAttached)
 {
-    m_waitSet.attachCondition(m_sut);
+    // m_waitSet.attachCondition(m_sut);
     m_sut.trigger();
     EXPECT_TRUE(m_sut.hasTriggered());
 }
 
 TEST_F(GuardCondition_test, canBeTriggeredMultipleTimesWhenAttached)
 {
-    m_waitSet.attachCondition(m_sut);
+    // m_waitSet.attachCondition(m_sut);
     m_sut.trigger();
     m_sut.trigger();
     m_sut.trigger();
@@ -75,7 +75,7 @@ TEST_F(GuardCondition_test, resetTriggerWhenNotTriggeredIsNotTriggered)
 
 TEST_F(GuardCondition_test, resetTriggerWhenTriggeredResultsInNotTriggered)
 {
-    m_waitSet.attachCondition(m_sut);
+    // m_waitSet.attachCondition(m_sut);
     m_sut.trigger();
     m_sut.resetTrigger();
 
@@ -84,7 +84,7 @@ TEST_F(GuardCondition_test, resetTriggerWhenTriggeredResultsInNotTriggered)
 
 TEST_F(GuardCondition_test, resetTriggerMultipleTimesWhenTriggeredResultsInNotTriggered)
 {
-    m_waitSet.attachCondition(m_sut);
+    // m_waitSet.attachCondition(m_sut);
     m_sut.trigger();
     m_sut.resetTrigger();
     m_sut.resetTrigger();

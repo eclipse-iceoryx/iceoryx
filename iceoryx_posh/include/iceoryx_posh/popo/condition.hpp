@@ -48,9 +48,10 @@ class Condition
     Condition& operator=(Condition&& rhs) = delete;
 
     template <typename W>
-    bool attachTo(W* const waitSet, const cxx::ConstMethodCallback<bool>& triggerMethod) noexcept
+    bool
+    attachTo(W* const waitSet, const cxx::ConstMethodCallback<bool>& triggerMethod, const uint64_t classId) noexcept
     {
-        attach(waitSet->acquireTrigger(*this, triggerMethod, {this, &Condition::detach}, 0).get_value());
+        attach(waitSet->acquireTrigger(*this, triggerMethod, {this, &Condition::detach}, classId).get_value());
         return true;
     }
 

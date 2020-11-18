@@ -39,9 +39,8 @@ void receiving()
     using Subscriber = iox::popo::TypedSubscriber<CounterTopic>;
     iox::popo::TypedSubscriber<CounterTopic> mySubscriber({"Radar", "FrontLeft", "Counter"});
     iox::popo::WaitSet waitset;
-    waitset.attachCondition(shutdownGuard);
 
-    mySubscriber.attachTo(&waitset, {&mySubscriber, &Subscriber::hasNewSamples});
+    mySubscriber.attachTo(&waitset, {&mySubscriber, &Subscriber::hasNewSamples}, 5);
 
     mySubscriber.subscribe();
 

@@ -47,6 +47,21 @@ class Trigger
             const cxx::MethodCallback<void>& invalidationCallback,
             ConditionVariableData* conditionVariableDataPtr,
             const uint64_t classId) noexcept;
+
+    // TODO remove
+    Trigger(Condition* condition,
+            const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
+            const cxx::MethodCallback<void>& invalidationCallback,
+            ConditionVariableData* conditionVariableDataPtr,
+            const TriggerId& trigger) noexcept
+        : m_condition(condition)
+        , m_conditionVariableDataPtr(conditionVariableDataPtr)
+        , m_invalidationCallback(invalidationCallback)
+        , m_hasTriggeredCallback(hasTriggeredCallback)
+        , m_triggerId(trigger)
+    {
+    }
+
     Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept;
 
     Trigger(const Trigger&) = delete;
@@ -79,6 +94,7 @@ class Trigger
 
     TriggerId m_triggerId;
 };
+
 
 } // namespace popo
 } // namespace iox

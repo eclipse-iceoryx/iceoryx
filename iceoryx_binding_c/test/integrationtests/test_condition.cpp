@@ -76,7 +76,7 @@ TEST_F(iox_cond_test, AttachingConditionVariable)
 {
     ConditionVariableData data;
     WaitSetMock ws(&data);
-    ws.attachCondition(sut);
+    // ws.attachCondition(sut);
 
     EXPECT_TRUE(iox_cond_is_condition_variable_attached(&sut));
 }

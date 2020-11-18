@@ -61,26 +61,26 @@ void iox_ws_deinit(iox_ws_t const self)
 
 bool iox_ws_is_condition_attached(iox_ws_t const self, iox_cond_t const condition)
 {
-    return self->isConditionAttached(*condition);
+    // return self->isConditionAttached(*condition);
 }
 
 iox_WaitSetResult iox_ws_attach_condition(iox_ws_t const self, iox_cond_t const condition)
 {
-    auto result = self->attachCondition(*condition);
-    if (!result.has_error())
-        return WaitSetResult_SUCCESS;
+    // auto result = self->attachCondition(*condition);
+    // if (!result.has_error())
+    //    return WaitSetResult_SUCCESS;
 
-    return cpp2c::WaitSetResult(result.get_error());
+    // return cpp2c::WaitSetResult(result.get_error());
 }
 
 void iox_ws_detach_condition(iox_ws_t const self, iox_cond_t const condition)
 {
-    self->detachCondition(*condition);
+    //    self->detachCondition(*condition);
 }
 
 void iox_ws_detach_all_conditions(iox_ws_t const self)
 {
-    self->detachAllConditions();
+    //  self->detachAllConditions();
 }
 
 uint64_t iox_ws_timed_wait(iox_ws_t const self,
