@@ -13,25 +13,33 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/guard_condition.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 
 namespace iox
 {
 namespace popo
 {
-GuardCondition::GuardCondition() noexcept
-    : Condition(ConditionType::GUARD_CONDITION)
+void GuardCondition::attachToWaitset(WaitSet& waitset,
+                                     const uint64_t triggerId,
+                                     const Trigger::Callback<GuardCondition> callback) noexcept
 {
+    std::lock_guard<std::recursive_mutex> g(m_mutex);
+    m_trigger = waitset
+                    .acquireTrigger(this,
+                                    {this, &GuardCondition::hasTriggered},
+                                    {this, &GuardCondition::unsetConditionVariable},
+                                    triggerId,
+                                    callback)
+                    .get_value();
 }
 
 void GuardCondition::trigger() noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex);
-    if (m_conditionVariableDataPtr)
+    std::lock_guard<std::recursive_mutex> g(m_mutex);
+    if (m_trigger)
     {
         m_wasTriggered.store(true, std::memory_order_relaxed);
-        ConditionVariableSignaler condVarSignaler{m_conditionVariableDataPtr};
-        condVarSignaler.notifyOne();
+        m_trigger.notify();
     }
 }
 
@@ -45,16 +53,10 @@ void GuardCondition::resetTrigger() noexcept
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
-void GuardCondition::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
-{
-    std::lock_guard<std::mutex> g(m_mutex);
-    m_conditionVariableDataPtr = conditionVariableDataPtr;
-}
-
 void GuardCondition::unsetConditionVariable() noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex);
-    m_conditionVariableDataPtr = nullptr;
+    std::lock_guard<std::recursive_mutex> g(m_mutex);
+    m_trigger.reset();
 }
 
 } // namespace popo

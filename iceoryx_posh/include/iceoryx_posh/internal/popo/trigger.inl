@@ -20,16 +20,16 @@ namespace iox
 namespace popo
 {
 template <typename T>
-inline void myCallback(void* const origin, void (*callbackPtr)(void* const)) noexcept
+inline void myCallback(void* const origin, TriggerState::Callback<void> callbackPtr) noexcept
 {
-    (*reinterpret_cast<void (*)(T* const)>(callbackPtr))(reinterpret_cast<T*>(origin));
+    (*reinterpret_cast<TriggerState::Callback<T>>(callbackPtr))(reinterpret_cast<T*>(origin));
 }
 
 template <typename T>
-inline TriggerState::TriggerState(T* const origin, const uint64_t triggerId, void (*callback)(T* const)) noexcept
+inline TriggerState::TriggerState(T* const origin, const uint64_t triggerId, const Callback<T> callback) noexcept
     : m_origin(origin)
     , m_triggerId(triggerId)
-    , m_callbackPtr(reinterpret_cast<void (*)(void* const)>(callback))
+    , m_callbackPtr(reinterpret_cast<Callback<void>>(callback))
     , m_callback(myCallback<T>)
 {
 }
@@ -46,7 +46,7 @@ inline Trigger::Trigger(T* const origin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void>& invalidationCallback,
                         const uint64_t triggerId,
-                        void (*callback)(T* const)) noexcept
+                        const Callback<T> callback) noexcept
     : TriggerState(origin, triggerId, callback)
     , m_conditionVariableDataPtr(conditionVariableDataPtr)
     , m_hasTriggeredCallback(hasTriggeredCallback)

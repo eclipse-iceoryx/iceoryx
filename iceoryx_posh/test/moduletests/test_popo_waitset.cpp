@@ -62,8 +62,8 @@ class WaitSet_test : public Test
             // We don't need to check if the WaitSet is still alive as it follows RAII and will inform every Condition
             // about a possible destruction
             m_wasTriggered = true;
-            ConditionVariableSignaler signaler{m_condVarPtr};
-            signaler.notifyOne();
+            // ConditionVariableSignaler signaler{m_condVarPtr};
+            // signaler.notifyOne();
         }
 
         /// @note members reside in ChunkQueueData in SHM

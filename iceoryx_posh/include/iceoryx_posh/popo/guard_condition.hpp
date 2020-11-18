@@ -14,8 +14,7 @@
 #ifndef IOX_POSH_POPO_GUARD_CONDITION_HPP
 #define IOX_POSH_POPO_GUARD_CONDITION_HPP
 
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_signaler.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
+#include "iceoryx_posh/internal/popo/trigger.hpp"
 
 #include <atomic>
 #include <mutex>
@@ -24,37 +23,40 @@ namespace iox
 {
 namespace popo
 {
+class WaitSet;
 /// @brief Allows the user to manually notify inside of one application
 /// @note Contained in every WaitSet
-class GuardCondition final : public Condition
+class GuardCondition
 {
   public:
-    explicit GuardCondition() noexcept;
+    GuardCondition() noexcept = default;
     GuardCondition(const GuardCondition& rhs) = delete;
     GuardCondition(GuardCondition&& rhs) = delete;
     GuardCondition& operator=(const GuardCondition& rhs) = delete;
     GuardCondition& operator=(GuardCondition&& rhs) = delete;
+
+    void attachToWaitset(WaitSet& waitset,
+                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
+                         const Trigger::Callback<GuardCondition> callback = nullptr) noexcept;
 
     /// @brief Wakes up a waiting WaitSet
     void trigger() noexcept;
 
     /// @brief Checks if trigger was set
     /// @return True if trigger is set, false if otherwise
-    bool hasTriggered() const noexcept override;
+    bool hasTriggered() const noexcept;
 
     /// @brief Sets trigger to false
     void resetTrigger() noexcept;
 
   private:
-    /// @brief Stores a condition variable data pointer
-    void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
     /// @brief Deletes the condition variable data pointer
-    void unsetConditionVariable() noexcept override;
+    void unsetConditionVariable() noexcept;
 
   private:
-    ConditionVariableData* m_conditionVariableDataPtr;
+    Trigger m_trigger;
     std::atomic_bool m_wasTriggered{false};
-    std::mutex m_mutex;
+    std::recursive_mutex m_mutex;
 };
 
 } // namespace popo

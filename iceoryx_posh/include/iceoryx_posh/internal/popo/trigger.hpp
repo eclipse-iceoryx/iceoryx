@@ -28,11 +28,13 @@ class TriggerState
 {
   public:
     static constexpr uint64_t INVALID_TRIGGER_ID = std::numeric_limits<uint64_t>::max();
+    template <typename T>
+    using Callback = void (*)(T* const);
 
     TriggerState() = default;
 
     template <typename T>
-    TriggerState(T* const origin, const uint64_t triggerId, void (*callback)(T* const) = nullptr) noexcept;
+    TriggerState(T* const origin, const uint64_t triggerId, const Callback<T> callback) noexcept;
 
     const uint64_t& getTriggerId() const noexcept;
 
@@ -45,14 +47,16 @@ class TriggerState
     void* m_origin = nullptr;
     uint64_t m_triggerId = INVALID_TRIGGER_ID;
 
-    void (*m_callbackPtr)(void* const);
-    cxx::function_ref<void(void* const, void (*)(void* const))> m_callback;
+    Callback<void> m_callbackPtr;
+    cxx::function_ref<void(void* const, Callback<void>)> m_callback;
 };
 
 class Trigger : public TriggerState
 {
   public:
     using TriggerState::INVALID_TRIGGER_ID;
+    template <typename T>
+    using Callback = TriggerState::Callback<T>;
 
     Trigger() noexcept = default;
     template <typename T>
@@ -61,7 +65,7 @@ class Trigger : public TriggerState
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void>& invalidationCallback,
             const uint64_t triggerId,
-            void (*callback)(T* const)) noexcept;
+            const Callback<T> callback) noexcept;
 
     Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept;
 

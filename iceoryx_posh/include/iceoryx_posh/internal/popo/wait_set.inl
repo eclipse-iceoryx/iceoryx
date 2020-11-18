@@ -25,7 +25,7 @@ WaitSet::acquireTrigger(T* const origin,
                         const cxx::ConstMethodCallback<bool>& triggerCallback,
                         const cxx::MethodCallback<void>& invalidationCallback,
                         const uint64_t triggerId,
-                        void (*callback)(T* const)) noexcept
+                        const Trigger::Callback<T> callback) noexcept
 {
     if (!m_triggerVector.emplace_back(
             origin, m_conditionVariableDataPtr, triggerCallback, invalidationCallback, triggerId, callback))

@@ -111,8 +111,8 @@ class WaitSet
     cxx::expected<Trigger, WaitSetError> acquireTrigger(T* const origin,
                                                         const cxx::ConstMethodCallback<bool>& triggerCallback,
                                                         const cxx::MethodCallback<void>& invalidationCallback,
-                                                        const uint64_t triggerId,
-                                                        void (*callback)(T* const)) noexcept;
+                                                        const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
+                                                        const Trigger::Callback<T> = nullptr) noexcept;
 
     /// @brief Blocking wait with time limit till one or more of the condition become true
     /// @param[in] timeout How long shall be waited for a signalling condition

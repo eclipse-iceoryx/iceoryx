@@ -60,7 +60,7 @@ TEST_F(iox_guard_cond_test, cannotBeTriggeredWhenNotAttached)
 
 TEST_F(iox_guard_cond_test, canBeTriggeredWhenAttached)
 {
-    iox_ws_attach_condition(&m_waitSet, m_sut);
+    // iox_ws_attach_condition(&m_waitSet, m_sut);
     iox_guard_cond_trigger(m_sut);
     EXPECT_TRUE(iox_guard_cond_has_triggered(m_sut));
     iox_ws_detach_all_conditions(&m_waitSet);
@@ -74,7 +74,7 @@ TEST_F(iox_guard_cond_test, resetTriggerWhenNotTriggeredIsNotTriggered)
 
 TEST_F(iox_guard_cond_test, resetTriggerWhenTriggeredIsResultsInTriggered)
 {
-    iox_ws_attach_condition(&m_waitSet, m_sut);
+    // iox_ws_attach_condition(&m_waitSet, m_sut);
     iox_guard_cond_trigger(m_sut);
     iox_guard_cond_reset_trigger(m_sut);
     EXPECT_FALSE(iox_guard_cond_has_triggered(m_sut));

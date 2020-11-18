@@ -51,7 +51,15 @@ void receiving()
 
     mySubscriber.subscribe();
 
+    iox::popo::GuardCondition guard;
+    guard.attachToWaitset(waitset);
+
     bool keepRunning = true;
+
+    std::thread t1([&] {
+        std::this_thread::sleep_for(std::chrono::seconds(4));
+        guard.trigger();
+    });
 
     while (keepRunning)
     {
@@ -77,7 +85,7 @@ void receiving()
                 mySubscriber.unsubscribe();
                 keepRunning = false;
             }
-            else if (condition.getTriggerId() == 123)
+            else if (condition.doesOriginateFrom(&guard))
             {
                 std::cout << "guard called\n";
                 mySubscriber.unsubscribe();
@@ -89,6 +97,9 @@ void receiving()
             }
         }
     }
+
+    printf("waiting for thread\n");
+    t1.join();
 }
 
 int main()
