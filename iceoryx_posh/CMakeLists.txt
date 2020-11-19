@@ -93,7 +93,6 @@ add_library(iceoryx_posh
     source/popo/building_blocks/condition_variable_waiter.cpp
     source/popo/building_blocks/locking_policy.cpp
     source/popo/building_blocks/typed_unique_id.cpp
-    source/popo/condition.cpp
     source/popo/guard_condition.cpp
     source/popo/trigger.cpp
     source/popo/wait_set.cpp

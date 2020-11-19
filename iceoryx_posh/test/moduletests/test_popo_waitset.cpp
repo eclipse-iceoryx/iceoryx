@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -33,25 +32,19 @@ using namespace iox::units::duration_literals;
 class WaitSet_test : public Test
 {
   public:
-    class MockSubscriber : public Condition
+    class MockSubscriber
     {
       public:
         MockSubscriber()
-            : Condition(ConditionType::SUBSCRIBER)
         {
         }
 
-        void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override
-        {
-            m_condVarPtr = conditionVariableDataPtr;
-        }
-
-        bool hasTriggered() const noexcept override
+        bool hasTriggered() const noexcept
         {
             return m_wasTriggered;
         }
 
-        void unsetConditionVariable() noexcept override
+        void unsetConditionVariable() noexcept
         {
             m_condVarPtr = nullptr;
         }

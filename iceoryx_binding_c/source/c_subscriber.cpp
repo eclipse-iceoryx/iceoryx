@@ -18,7 +18,6 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 using namespace iox;

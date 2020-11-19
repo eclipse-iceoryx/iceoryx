@@ -13,24 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
 
 cpp2c_Subscriber::cpp2c_Subscriber() noexcept
-    : iox::popo::Condition(iox::popo::ConditionType::SUBSCRIBER)
 {
 }
 
-void cpp2c_Subscriber::setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept
-{
-    iox::popo::SubscriberPortUser(m_portData).setConditionVariable(conditionVariableDataPtr);
-}
-
-bool cpp2c_Subscriber::hasTriggered() const noexcept
-{
-    return iox::popo::SubscriberPortUser(m_portData).hasNewChunks();
-}
-
-void cpp2c_Subscriber::unsetConditionVariable() noexcept
-{
-    iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
-}

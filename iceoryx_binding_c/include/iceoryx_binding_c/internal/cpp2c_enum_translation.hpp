@@ -20,7 +20,6 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 namespace cpp2c
@@ -29,7 +28,6 @@ iox_SubscribeState SubscribeState(const iox::SubscribeState value);
 iox_ChunkReceiveResult ChunkReceiveResult(const iox::popo::ChunkReceiveError value);
 iox_AllocationResult AllocationResult(const iox::popo::AllocationError value);
 iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value);
-iox_ConditionType ConditionType(const iox::popo::ConditionType value);
 } // namespace cpp2c
 
 #endif

@@ -43,40 +43,40 @@ static void sigHandler(int signalValue)
     iox_guard_cond_trigger(guardCondition);
 }
 
-bool callback(iox_cond_t* conditions, const uint64_t numberOfConditions)
-{
-    for (uint64_t i = 0; i < numberOfConditions; ++i)
-    {
-        // if the guard condition was triggered we return false, leave the loop
-        // and cleanup all resources
-        if (conditions[i] == (iox_cond_t)guardCondition)
-        {
-            printf("Received exit signal!\n");
-            return false;
-        }
-        // if a subscriber was triggered we receive a sample and print it
-        // to the terminal
-        else if (conditions[i] == (iox_cond_t)subscriber)
-        {
-            if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
-            {
-                const void* chunk = NULL;
-                while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
-                {
-                    const struct TopicData* sample = (const struct TopicData*)(chunk);
-                    printf("Receiving: %s\n", sample->message);
-                    iox_sub_release_chunk(subscriber, chunk);
-                }
-            }
-            else
-            {
-                printf("Not subscribed!\n");
-            }
-        }
-    }
-
-    return true;
-}
+// bool callback(iox_cond_t* conditions, const uint64_t numberOfConditions)
+// {
+//     for (uint64_t i = 0; i < numberOfConditions; ++i)
+//     {
+//         // if the guard condition was triggered we return false, leave the loop
+//         // and cleanup all resources
+//         if (conditions[i] == (iox_cond_t)guardCondition)
+//         {
+//             printf("Received exit signal!\n");
+//             return false;
+//         }
+//         // if a subscriber was triggered we receive a sample and print it
+//         // to the terminal
+//         else if (conditions[i] == (iox_cond_t)subscriber)
+//         {
+//             if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
+//             {
+//                 const void* chunk = NULL;
+//                 while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
+//                 {
+//                     const struct TopicData* sample = (const struct TopicData*)(chunk);
+//                     printf("Receiving: %s\n", sample->message);
+//                     iox_sub_release_chunk(subscriber, chunk);
+//                 }
+//             }
+//             else
+//             {
+//                 printf("Not subscribed!\n");
+//             }
+//         }
+//     }
+//
+//     return true;
+// }
 
 void receiving()
 {
@@ -97,23 +97,23 @@ void receiving()
 
     // attach guard condition to our wait set, used to signal the wait set that
     // we would like to terminate the process
-    iox_ws_attach_condition(waitSet, (iox_cond_t)guardCondition);
-
-    // attach subscriber to our wait set. if the subscriber receives a sample
-    // it will trigger the wait set
-    iox_ws_attach_condition(waitSet, (iox_cond_t)subscriber);
-
-
-    iox_cond_t conditionArray[NUMBER_OF_CONDITIONS];
-    uint64_t missedElements = 0U;
-    uint64_t numberOfTriggeredConditions = 0U;
-    do
-    {
-        // wait until an event has occurred
-        numberOfTriggeredConditions = iox_ws_wait(waitSet, conditionArray, NUMBER_OF_CONDITIONS, &missedElements);
-
-        // call our callback, if the guard condition was triggered it returns false
-    } while (callback(conditionArray, numberOfTriggeredConditions));
+    //    iox_ws_attach_condition(waitSet, (iox_cond_t)guardCondition);
+    //
+    //    // attach subscriber to our wait set. if the subscriber receives a sample
+    //    // it will trigger the wait set
+    //    iox_ws_attach_condition(waitSet, (iox_cond_t)subscriber);
+    //
+    //
+    //    iox_cond_t conditionArray[NUMBER_OF_CONDITIONS];
+    //    uint64_t missedElements = 0U;
+    //    uint64_t numberOfTriggeredConditions = 0U;
+    //    do
+    //    {
+    //        // wait until an event has occurred
+    //        numberOfTriggeredConditions = iox_ws_wait(waitSet, conditionArray, NUMBER_OF_CONDITIONS, &missedElements);
+    //
+    //        // call our callback, if the guard condition was triggered it returns false
+    //    } while (callback(conditionArray, numberOfTriggeredConditions));
 
     iox_sub_unsubscribe(subscriber);
 

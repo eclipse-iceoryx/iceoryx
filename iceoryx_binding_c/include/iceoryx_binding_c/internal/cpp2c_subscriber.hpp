@@ -16,14 +16,10 @@
 #define IOX_BINDING_C_CPP2C_SUBSCRIBER_H
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
 
-struct cpp2c_Subscriber : public iox::popo::Condition
+struct cpp2c_Subscriber
 {
     cpp2c_Subscriber() noexcept;
-    void setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override;
-    bool hasTriggered() const noexcept override;
-    void unsetConditionVariable() noexcept override;
 
     iox::popo::SubscriberPortData* m_portData{nullptr};
 };

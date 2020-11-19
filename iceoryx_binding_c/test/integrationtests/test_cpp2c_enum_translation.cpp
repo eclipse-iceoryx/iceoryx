@@ -73,14 +73,3 @@ TEST(cpp2c_enum_translation_test, WaitSetResult)
 #pragma GCC diagnostic pop
 }
 
-TEST(cpp2c_enum_translation_test, ConditionType)
-{
-    EXPECT_EQ(cpp2c::ConditionType(iox::popo::ConditionType::GUARD_CONDITION), ConditionType_GUARD_CONDITION);
-    EXPECT_EQ(cpp2c::ConditionType(iox::popo::ConditionType::SUBSCRIBER), ConditionType_SUBSCRIBER);
-
-    // ignore the warning since we would like to test the behavior of an invalid enum value
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-    EXPECT_EQ(cpp2c::ConditionType(static_cast<iox::popo::ConditionType>(-1)), ConditionType_UNDEFINED);
-#pragma GCC diagnostic pop
-}

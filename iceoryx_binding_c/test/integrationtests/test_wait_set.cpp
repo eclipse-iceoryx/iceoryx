@@ -81,6 +81,7 @@ class iox_ws_test : public Test
     std::vector<iox_sub_t> m_subscriber;
 };
 
+#if 0
 TEST_F(iox_ws_test, DetachedConditionIsNotAttached)
 {
     iox_sub_t subscriber = CreateSubscriber();
@@ -280,4 +281,5 @@ TIMING_TEST_F(iox_ws_test, WaitWritesMissedElementsIntoArrayWhenTriggered, Repea
 
     TIMING_TEST_EXPECT_TRUE(missedElements == 1U);
 });
+#endif
 
