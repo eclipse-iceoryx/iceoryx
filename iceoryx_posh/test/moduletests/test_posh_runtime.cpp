@@ -502,3 +502,40 @@ TEST_F(PoshRuntime_test, CreateRunnableReturnValue)
     /// @todo I am passing runnableDeviceIdentifier as 1, but it returns 0, is this expected?
     // EXPECT_EQ(runnableDeviceIdentifier, runableData->m_runnableDeviceIdentifier);
 }
+
+class PoshRuntimeTestAccess : public PoshRuntime
+{
+  public:
+    using PoshRuntime::setRuntimeFactory;
+
+    PoshRuntimeTestAccess(const std::string& s)
+        : PoshRuntime(s)
+    {
+    }
+};
+
+TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
+{
+    bool callbackWasCalled = false;
+    iox::cxx::optional<PoshRuntimeTestAccess> runtime;
+    PoshRuntime::factory_t factory = [&](const std::string& name) -> PoshRuntime& {
+        callbackWasCalled = true;
+        if (!runtime.has_value())
+        {
+            runtime.emplace(name);
+        }
+        return runtime.value();
+    };
+
+    PoshRuntimeTestAccess::setRuntimeFactory(factory);
+    PoshRuntimeTestAccess::getInstance("/instance");
+
+    EXPECT_TRUE(callbackWasCalled);
+}
+
+TEST_F(PoshRuntime_test, SetEmptyRuntimeFactoryFails)
+{
+    EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntime::factory_t()); },
+                 "Cannot set runtime factory. Passed factory must not be empty!");
+}
+

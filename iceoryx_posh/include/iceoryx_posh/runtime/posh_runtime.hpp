@@ -54,13 +54,11 @@ constexpr char DEFAULT_RUNTIME_INSTANCE_NAME[] = "dummy";
 class PoshRuntime
 {
   public:
+    using factory_t = std::function<PoshRuntime&(const std::string&)>;
+
     /// @brief creates the runtime or return the already existing one -> Singleton
     /// @param[in] name name that is used for registering the process with the RouDi daemon
     static PoshRuntime& getInstance(const std::string& name = DEFAULT_RUNTIME_INSTANCE_NAME) noexcept;
-
-    static std::function<PoshRuntime&(const std::string& name)>& getRuntimeFactory() noexcept;
-
-    static void setRuntimeFactory(std::function<PoshRuntime&(const std::string& name)> factory) noexcept;
 
     /// @brief get the name that was used to register with RouDi
     /// @return name of the reistered application
@@ -177,6 +175,10 @@ class PoshRuntime
     PoshRuntime(const std::string& name, const bool doMapSharedMemoryIntoThread = true) noexcept;
 
     static PoshRuntime& defaultRuntimeFactory(const std::string& name) noexcept;
+
+    static factory_t& getRuntimeFactory() noexcept;
+
+    static void setRuntimeFactory(const factory_t& factory) noexcept;
 
   private:
     /// @deprecated #25
