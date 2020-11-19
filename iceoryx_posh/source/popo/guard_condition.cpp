@@ -33,7 +33,7 @@ cxx::expected<WaitSetError> GuardCondition::attachToWaitset(WaitSet& waitset,
         .and_then([this](Trigger& trigger) { m_trigger = std::move(trigger); });
 }
 
-void GuardCondition::detach() noexcept
+void GuardCondition::detachWaitset() noexcept
 {
     std::lock_guard<std::recursive_mutex> g(m_mutex);
     m_trigger.reset();

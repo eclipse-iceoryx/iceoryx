@@ -105,7 +105,7 @@ class BaseSubscriber
                                                 const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
                                                 const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
 
-    void detach() noexcept;
+    void detachWaitset() noexcept;
 
   protected:
     BaseSubscriber() noexcept; // Required for testing.

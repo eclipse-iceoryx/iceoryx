@@ -153,7 +153,7 @@ BaseSubscriber<T, Subscriber, port_t>::attachToWaitset(WaitSet& waitset,
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::detach() noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::detachWaitset() noexcept
 {
     m_trigger.reset();
 }
