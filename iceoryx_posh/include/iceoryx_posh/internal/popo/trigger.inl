@@ -41,6 +41,18 @@ inline bool TriggerState::doesOriginateFrom(T* const origin) const noexcept
 }
 
 template <typename T>
+inline T* TriggerState::getOrigin() noexcept
+{
+    return static_cast<T*>(m_origin);
+}
+
+template <typename T>
+inline const T* TriggerState::getOrigin() const noexcept
+{
+    return static_cast<T*>(m_origin);
+}
+
+template <typename T>
 inline Trigger::Trigger(T* const origin,
                         ConditionVariableData* conditionVariableDataPtr,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,

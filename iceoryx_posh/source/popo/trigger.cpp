@@ -74,7 +74,7 @@ void Trigger::reset() noexcept
     }
 }
 
-void Trigger::notify() noexcept
+void Trigger::trigger() noexcept
 {
     if (m_conditionVariableDataPtr)
     {

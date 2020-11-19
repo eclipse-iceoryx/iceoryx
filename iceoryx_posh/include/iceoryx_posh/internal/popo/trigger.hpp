@@ -44,6 +44,9 @@ class TriggerState
     template <typename T>
     T* getOrigin() noexcept;
 
+    template <typename T>
+    const T* getOrigin() const noexcept;
+
     void operator()() const noexcept;
 
   protected:
@@ -81,7 +84,7 @@ class Trigger : public TriggerState
 
     explicit operator bool() const noexcept;
     bool isValid() const noexcept;
-    void notify() noexcept;
+    void trigger() noexcept;
 
     bool hasTriggered() const noexcept;
     void invalidate() noexcept;

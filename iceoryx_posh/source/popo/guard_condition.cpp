@@ -45,7 +45,7 @@ void GuardCondition::trigger() noexcept
     if (m_trigger)
     {
         m_wasTriggered.store(true, std::memory_order_relaxed);
-        m_trigger.notify();
+        m_trigger.trigger();
     }
 }
 
