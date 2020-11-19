@@ -15,6 +15,7 @@
 #define IOX_POSH_POPO_GUARD_CONDITION_HPP
 
 #include "iceoryx_posh/internal/popo/trigger.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 
 #include <atomic>
 #include <mutex>
@@ -35,9 +36,9 @@ class GuardCondition
     GuardCondition& operator=(const GuardCondition& rhs) = delete;
     GuardCondition& operator=(GuardCondition&& rhs) = delete;
 
-    void attachToWaitset(WaitSet& waitset,
-                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                         const Trigger::Callback<GuardCondition> callback = nullptr) noexcept;
+    cxx::expected<WaitSetError> attachToWaitset(WaitSet& waitset,
+                                                const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
+                                                const Trigger::Callback<GuardCondition> callback = nullptr) noexcept;
 
     void detach() noexcept;
 

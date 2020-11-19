@@ -19,18 +19,18 @@ namespace iox
 {
 namespace popo
 {
-void GuardCondition::attachToWaitset(WaitSet& waitset,
-                                     const uint64_t triggerId,
-                                     const Trigger::Callback<GuardCondition> callback) noexcept
+cxx::expected<WaitSetError> GuardCondition::attachToWaitset(WaitSet& waitset,
+                                                            const uint64_t triggerId,
+                                                            const Trigger::Callback<GuardCondition> callback) noexcept
 {
     std::lock_guard<std::recursive_mutex> g(m_mutex);
-    m_trigger = waitset
-                    .acquireTrigger(this,
-                                    {this, &GuardCondition::hasTriggered},
-                                    {this, &GuardCondition::unsetConditionVariable},
-                                    triggerId,
-                                    callback)
-                    .get_value();
+    return waitset
+        .acquireTrigger(this,
+                        {this, &GuardCondition::hasTriggered},
+                        {this, &GuardCondition::unsetConditionVariable},
+                        triggerId,
+                        callback)
+        .and_then([this](Trigger& trigger) { m_trigger = std::move(trigger); });
 }
 
 void GuardCondition::detach() noexcept
