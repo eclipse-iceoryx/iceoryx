@@ -25,14 +25,12 @@ namespace popo
 
 template <typename T, typename Subscriber, typename port_t>
 inline BaseSubscriber<T, Subscriber, port_t>::BaseSubscriber() noexcept
-    : Condition(ConditionType::SUBSCRIBER)
 {
 }
 
 template <typename T, typename Subscriber, typename port_t>
 inline BaseSubscriber<T, Subscriber, port_t>::BaseSubscriber(const capro::ServiceDescription& service) noexcept
-    : Condition(ConditionType::SUBSCRIBER)
-    , m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service))
+    : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service))
 {
 }
 
@@ -112,23 +110,10 @@ inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedSamples() noexce
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::setConditionVariable(
-    ConditionVariableData* const conditionVariableDataPtr) noexcept
-{
-    m_port.setConditionVariable(conditionVariableDataPtr);
-}
-
-template <typename T, typename Subscriber, typename port_t>
 inline void BaseSubscriber<T, Subscriber, port_t>::unsetConditionVariable() noexcept
 {
     m_port.unsetConditionVariable();
     m_trigger.invalidate();
-}
-
-template <typename T, typename Subscriber, typename port_t>
-inline bool BaseSubscriber<T, Subscriber, port_t>::hasTriggered() const noexcept
-{
-    return m_port.hasNewChunks();
 }
 
 // ============================== Sample Deleter ============================== //
@@ -165,6 +150,12 @@ BaseSubscriber<T, Subscriber, port_t>::attachToWaitset(WaitSet& waitset,
             m_trigger = std::move(trigger);
             m_port.setConditionVariable(m_trigger.getConditionVariableData());
         });
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline void BaseSubscriber<T, Subscriber, port_t>::detach() noexcept
+{
+    m_trigger.reset();
 }
 
 

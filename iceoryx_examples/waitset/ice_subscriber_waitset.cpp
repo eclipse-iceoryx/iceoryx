@@ -42,13 +42,6 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownGuard.trigger();
 }
 
-void subscriberCallback(iox::popo::Condition* const subscriber)
-{
-    reinterpret_cast<Subscriber*>(subscriber)->take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-        std::cout << "Received: " << sample->counter << std::endl;
-    });
-}
-
 void subscriberCallback(Subscriber* const subscriber)
 {
     subscriber->take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {

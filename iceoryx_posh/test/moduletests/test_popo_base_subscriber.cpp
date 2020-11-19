@@ -79,18 +79,7 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
     {
         return SubscriberParent::releaseQueuedSamples();
     }
-    void setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override
-    {
-        SubscriberParent::setConditionVariable(conditionVariableDataPtr);
-    }
-    void unsetConditionVariable() noexcept override
-    {
-        SubscriberParent::unsetConditionVariable();
-    }
-    virtual bool hasTriggered() const noexcept override
-    {
-        return SubscriberParent::hasTriggered();
-    }
+
     port_t& getMockedPort()
     {
         return SubscriberParent::m_port;
@@ -238,7 +227,7 @@ TEST_F(BaseSubscriberTest, SetConditionVariableCallForwardedToUnderlyingSubscrib
     auto conditionVariable = new iox::popo::ConditionVariableData();
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(conditionVariable)).Times(1);
     // ===== Test ===== //
-    sut.setConditionVariable(conditionVariable);
+    // sut.setConditionVariable(conditionVariable);
     // ===== Verify ===== //
     // ===== Cleanup ===== //
     delete conditionVariable;
@@ -249,7 +238,7 @@ TEST_F(BaseSubscriberTest, UnsetConditionVariableCallForwardedToUnderlyingSubscr
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
     // ===== Test ===== //
-    sut.unsetConditionVariable();
+    // sut.unsetConditionVariable();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -259,7 +248,7 @@ TEST_F(BaseSubscriberTest, HasTriggeredCallForwardedToUnderlyingSubscriberPort)
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), hasNewChunks).Times(1);
     // ===== Test ===== //
-    sut.hasTriggered();
+    // sut.hasTriggered();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
