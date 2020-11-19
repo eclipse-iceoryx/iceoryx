@@ -33,8 +33,8 @@ static void sigHandler(int f_sig [[gnu::unused]])
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 {
     subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
-        const CounterTopic* data = reinterpret_cast<const CounterTopic*>(sample.get());
-        std::cout << "subscriber: " << std::hex << subscriber << " received: " << std::dec << data->counter
+        std::cout << "subscriber: " << std::hex << subscriber << " length: " << std::dec
+                  << sample.getHeader()->m_info.m_payloadSize << " ptr: " << std::hex << sample.getHeader()->payload()
                   << std::endl;
     });
 }
@@ -60,17 +60,17 @@ void receiving()
 
     while (true)
     {
-        auto triggeredConditions = waitset.wait();
+        auto triggerVector = waitset.wait();
 
-        for (auto& condition : triggeredConditions)
+        for (auto& trigger : triggerVector)
         {
-            if (condition.doesOriginateFrom(&shutdownGuard))
+            if (trigger.doesOriginateFrom(&shutdownGuard))
             {
                 return;
             }
             else
             {
-                condition();
+                trigger();
             }
         }
 

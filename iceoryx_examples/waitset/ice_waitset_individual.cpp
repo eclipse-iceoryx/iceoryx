@@ -49,21 +49,21 @@ void receiving()
 
     while (true)
     {
-        auto triggeredConditions = waitset.wait();
+        auto triggerVector = waitset.wait();
 
-        for (auto& condition : triggeredConditions)
+        for (auto& trigger : triggerVector)
         {
-            if (condition.doesOriginateFrom(&subscriber1))
+            if (trigger.doesOriginateFrom(&subscriber1))
             {
                 subscriber1.take().and_then([&](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << " subscriber 1 received: " << sample->counter << std::endl;
                 });
             }
-            if (condition.doesOriginateFrom(&subscriber2))
+            if (trigger.doesOriginateFrom(&subscriber2))
             {
                 std::cout << "subscriber 2 received something - dont care\n";
             }
-            else if (condition.doesOriginateFrom(&shutdownGuard))
+            else if (trigger.doesOriginateFrom(&shutdownGuard))
             {
                 return;
             }

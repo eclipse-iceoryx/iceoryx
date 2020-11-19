@@ -69,23 +69,23 @@ void receiving()
 
     while (true)
     {
-        auto triggeredConditions = waitset.wait();
+        auto triggerVector = waitset.wait();
 
-        for (auto& condition : triggeredConditions)
+        for (auto& trigger : triggerVector)
         {
-            if (condition.doesOriginateFrom(&shutdownGuard))
+            if (trigger.doesOriginateFrom(&shutdownGuard))
             {
                 return;
             }
-            else if (condition.getTriggerId() == FIRST_GROUP_ID)
+            else if (trigger.getTriggerId() == FIRST_GROUP_ID)
             {
                 std::cout << "First group element\n";
-                condition();
+                trigger();
             }
-            else if (condition.getTriggerId() == SECOND_GROUP_ID)
+            else if (trigger.getTriggerId() == SECOND_GROUP_ID)
             {
                 std::cout << "Second group element\n";
-                condition();
+                trigger();
             }
         }
 

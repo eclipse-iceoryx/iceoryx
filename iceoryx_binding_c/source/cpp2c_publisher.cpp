@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,28 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 
-cpp2c_Subscriber::~cpp2c_Subscriber()
-{
-    if (m_portData)
-    {
-        iox::popo::SubscriberPortUser(m_portData).destroy();
-    }
-}
-
-cpp2c_Subscriber::cpp2c_Subscriber(cpp2c_Subscriber&& rhs) noexcept
+cpp2c_Publisher::cpp2c_Publisher(cpp2c_Publisher&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-cpp2c_Subscriber& cpp2c_Subscriber::operator=(cpp2c_Subscriber&& rhs) noexcept
+cpp2c_Publisher::~cpp2c_Publisher()
+{
+    if (m_portData)
+    {
+        iox::popo::PublisherPortUser(m_portData).destroy();
+    }
+}
+
+cpp2c_Publisher& cpp2c_Publisher::operator=(cpp2c_Publisher&& rhs) noexcept
 {
     if (this != &rhs)
     {
         if (m_portData)
         {
-            iox::popo::SubscriberPortUser(m_portData).destroy();
+            iox::popo::PublisherPortUser(m_portData).destroy();
         }
 
         m_portData = rhs.m_portData;

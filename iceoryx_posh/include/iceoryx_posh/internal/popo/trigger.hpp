@@ -41,6 +41,9 @@ class TriggerState
     template <typename T>
     bool doesOriginateFrom(T* const origin) const noexcept;
 
+    template <typename T>
+    T* getOrigin() noexcept;
+
     void operator()() const noexcept;
 
   protected:

@@ -29,7 +29,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownGuard.trigger();
 }
 
-void waitForNextActivation(iox::popo::GuardCondition*)
+void myCyclicRun(iox::popo::GuardCondition*)
 {
     std::cout << "activation callback\n";
 }
@@ -40,8 +40,8 @@ void receiving()
 
     iox::popo::WaitSet waitset;
 
-    iox::popo::GuardCondition waitForNextActivationTrigger;
-    waitForNextActivationTrigger.attachToWaitset(waitset, 0, waitForNextActivation);
+    iox::popo::GuardCondition runGuard;
+    runGuard.attachToWaitset(waitset, 0, myCyclicRun);
 
     shutdownGuard.attachToWaitset(waitset);
 
@@ -49,23 +49,23 @@ void receiving()
         while (true)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            waitForNextActivationTrigger.trigger();
+            runGuard.trigger();
         }
     });
 
     while (true)
     {
-        auto triggeredConditions = waitset.wait();
+        auto triggerVector = waitset.wait();
 
-        for (auto& condition : triggeredConditions)
+        for (auto& trigger : triggerVector)
         {
-            if (condition.doesOriginateFrom(&shutdownGuard))
+            if (trigger.doesOriginateFrom(&shutdownGuard))
             {
                 return;
             }
             else
             {
-                condition();
+                trigger();
             }
         }
 
