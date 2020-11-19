@@ -20,7 +20,7 @@
 using namespace ::testing;
 using ::testing::_;
 
-using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<void, MockBaseSubscriber>;
+using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber>;
 
 class UntypedSubscriberTest : public Test
 {

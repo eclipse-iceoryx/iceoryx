@@ -19,63 +19,63 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline UntypedSubscriberImpl<T, base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service)
+template <template <typename, typename, typename> class base_subscriber_t>
+inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service)
     : SubscriberParent(service)
 {
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline uid_t UntypedSubscriberImpl<T, base_subscriber_t>::getUid() const noexcept
+template <template <typename, typename, typename> class base_subscriber_t>
+inline uid_t UntypedSubscriberImpl<base_subscriber_t>::getUid() const noexcept
 {
     return SubscriberParent::getUid();
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline capro::ServiceDescription UntypedSubscriberImpl<T, base_subscriber_t>::getServiceDescription() const noexcept
+template <template <typename, typename, typename> class base_subscriber_t>
+inline capro::ServiceDescription UntypedSubscriberImpl<base_subscriber_t>::getServiceDescription() const noexcept
 {
     return SubscriberParent::getServiceDescription();
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline void UntypedSubscriberImpl<T, base_subscriber_t>::subscribe(const uint64_t queueCapacity) noexcept
+template <template <typename, typename, typename> class base_subscriber_t>
+inline void UntypedSubscriberImpl<base_subscriber_t>::subscribe(const uint64_t queueCapacity) noexcept
 {
     SubscriberParent::subscribe(queueCapacity);
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline SubscribeState UntypedSubscriberImpl<T, base_subscriber_t>::getSubscriptionState() const noexcept
+template <template <typename, typename, typename> class base_subscriber_t>
+inline SubscribeState UntypedSubscriberImpl<base_subscriber_t>::getSubscriptionState() const noexcept
 {
     return SubscriberParent::getSubscriptionState();
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline void UntypedSubscriberImpl<T, base_subscriber_t>::unsubscribe() noexcept
+template <template <typename, typename, typename> class base_subscriber_t>
+inline void UntypedSubscriberImpl<base_subscriber_t>::unsubscribe() noexcept
 {
     return SubscriberParent::unsubscribe();
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline bool UntypedSubscriberImpl<T, base_subscriber_t>::hasNewSamples() const noexcept
+template <template <typename, typename, typename> class base_subscriber_t>
+inline bool UntypedSubscriberImpl<base_subscriber_t>::hasNewSamples() const noexcept
 {
     return SubscriberParent::hasNewSamples();
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline bool UntypedSubscriberImpl<T, base_subscriber_t>::hasMissedSamples() noexcept
+template <template <typename, typename, typename> class base_subscriber_t>
+inline bool UntypedSubscriberImpl<base_subscriber_t>::hasMissedSamples() noexcept
 {
     return SubscriberParent::hasMissedSamples();
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
+template <template <typename, typename, typename> class base_subscriber_t>
 inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError>
-UntypedSubscriberImpl<T, base_subscriber_t>::take() noexcept
+UntypedSubscriberImpl<base_subscriber_t>::take() noexcept
 {
     return SubscriberParent::take();
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline void UntypedSubscriberImpl<T, base_subscriber_t>::releaseQueuedSamples() noexcept
+template <template <typename, typename, typename> class base_subscriber_t>
+inline void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedSamples() noexcept
 {
     SubscriberParent::releaseQueuedSamples();
 }

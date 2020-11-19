@@ -29,15 +29,13 @@ class Void
 {
 };
 
-template <typename T = void, template <typename, typename, typename> class base_subscriber_t = BaseSubscriber>
-class UntypedSubscriberImpl final
-    : public base_subscriber_t<void, UntypedSubscriberImpl<void, base_subscriber_t>, iox::SubscriberPortUserType>
+template <template <typename, typename, typename> class base_subscriber_t = BaseSubscriber>
+class UntypedSubscriberImpl
+    : public base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, iox::SubscriberPortUserType>
 {
   public:
-    static_assert(std::is_same<T, void>::value, "untyped subscriber requires type void");
-
     using SubscriberParent =
-        base_subscriber_t<T, UntypedSubscriberImpl<T, base_subscriber_t>, iox::SubscriberPortUserType>;
+        base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, iox::SubscriberPortUserType>;
 
     UntypedSubscriberImpl(const capro::ServiceDescription& service);
     UntypedSubscriberImpl(const UntypedSubscriberImpl& other) = delete;
