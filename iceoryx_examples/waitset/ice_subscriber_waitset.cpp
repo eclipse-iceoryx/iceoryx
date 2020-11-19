@@ -64,7 +64,7 @@ void receiving()
     iox::popo::WaitSet waitset;
 
 
-    mySubscriber.attachToWaitset(waitset, 5, subscriberCallback);
+    mySubscriber.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 5, subscriberCallback);
 
     mySubscriber.subscribe();
 

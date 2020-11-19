@@ -147,11 +147,16 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline cxx::expected<WaitSetError> BaseSubscriber<T, Subscriber, port_t>::attachToWaitset(
-    WaitSet& waitset, const uint64_t triggerId, const Trigger::Callback<Subscriber> callback) noexcept
+inline cxx::expected<WaitSetError>
+BaseSubscriber<T, Subscriber, port_t>::attachToWaitset(WaitSet& waitset,
+                                                       const SubscriberEvent subscriberEvent,
+                                                       const uint64_t triggerId,
+                                                       const Trigger::Callback<Subscriber> callback) noexcept
 {
     using SelfType = BaseSubscriber<T, Subscriber, port_t>;
     Subscriber* self = reinterpret_cast<Subscriber*>(this);
+
+    static_cast<void>(subscriberEvent);
 
     return waitset
         .acquireTrigger(

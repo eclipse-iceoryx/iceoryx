@@ -29,6 +29,11 @@ namespace popo
 {
 using uid_t = UniquePortId;
 
+enum class SubscriberEvent
+{
+    HAS_NEW_SAMPLES
+};
+
 template <typename T, typename Subscriber, typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber : public Condition
 {
@@ -101,6 +106,7 @@ class BaseSubscriber : public Condition
     virtual bool hasTriggered() const noexcept override;
 
     cxx::expected<WaitSetError> attachToWaitset(WaitSet& waitset,
+                                                const SubscriberEvent subscriberEvent,
                                                 const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
                                                 const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
 
