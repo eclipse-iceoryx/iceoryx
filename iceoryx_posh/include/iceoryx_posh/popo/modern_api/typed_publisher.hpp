@@ -37,14 +37,14 @@ class TypedPublisher : public base_publisher_t
     TypedPublisher& operator=(TypedPublisher&& rhs) = default;
     virtual ~TypedPublisher() = default;
 
-    using base_publisher_t::getUid;
     using base_publisher_t::getServiceDescription;
-    using base_publisher_t::publish;
+    using base_publisher_t::getUid;
+    using base_publisher_t::hasSubscribers;
+    using base_publisher_t::isOffered;
     using base_publisher_t::loanPreviousSample;
     using base_publisher_t::offer;
+    using base_publisher_t::publish;
     using base_publisher_t::stopOffer;
-    using base_publisher_t::isOffered;
-    using base_publisher_t::hasSubscribers;
 
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
     ///
@@ -61,7 +61,6 @@ class TypedPublisher : public base_publisher_t
     ///
     template <typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
-
 };
 
 } // namespace popo

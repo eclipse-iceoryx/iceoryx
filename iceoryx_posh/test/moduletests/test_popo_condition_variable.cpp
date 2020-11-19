@@ -159,4 +159,3 @@ TEST_F(ConditionVariable_test, NotifyWhileWaitingResultsNoTimeoutMultiThreaded)
     m_signaler.notifyOne();
     waiter.join();
 }
-

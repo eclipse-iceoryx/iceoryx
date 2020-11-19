@@ -21,7 +21,6 @@ namespace iox
 {
 namespace popo
 {
-
 template <typename T, typename base_publisher_t>
 inline TypedPublisher<T, base_publisher_t>::TypedPublisher(const capro::ServiceDescription& service)
     : base_publisher_t(service)

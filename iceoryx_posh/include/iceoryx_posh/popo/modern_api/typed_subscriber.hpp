@@ -32,21 +32,20 @@ class TypedSubscriber : public base_subscriber_t
     TypedSubscriber& operator=(const TypedSubscriber&) = delete;
     TypedSubscriber(TypedSubscriber&& rhs) = delete;
     TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
-    ~TypedSubscriber() = default;
+    virtual ~TypedSubscriber() = default;
 
-    using base_subscriber_t::getUid;
     using base_subscriber_t::getServiceDescription;
-    using base_subscriber_t::subscribe;
     using base_subscriber_t::getSubscriptionState;
-    using base_subscriber_t::unsubscribe;
-    using base_subscriber_t::hasNewSamples;
+    using base_subscriber_t::getUid;
     using base_subscriber_t::hasMissedSamples;
-    using base_subscriber_t::take;
+    using base_subscriber_t::hasNewSamples;
+    using base_subscriber_t::hasTriggered;
     using base_subscriber_t::releaseQueuedSamples;
     using base_subscriber_t::setConditionVariable;
+    using base_subscriber_t::subscribe;
+    using base_subscriber_t::take;
     using base_subscriber_t::unsetConditionVariable;
-    using base_subscriber_t::hasTriggered;
-
+    using base_subscriber_t::unsubscribe;
 };
 
 } // namespace popo

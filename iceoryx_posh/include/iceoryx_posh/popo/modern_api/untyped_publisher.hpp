@@ -33,15 +33,15 @@ class UntypedPublisherImpl : public base_publisher_t
     UntypedPublisherImpl& operator=(UntypedPublisherImpl&& rhs) = default;
     virtual ~UntypedPublisherImpl() = default;
 
-    using base_publisher_t::getUid;
     using base_publisher_t::getServiceDescription;
-    using base_publisher_t::publish;
+    using base_publisher_t::getUid;
+    using base_publisher_t::hasSubscribers;
+    using base_publisher_t::isOffered;
     using base_publisher_t::loan;
     using base_publisher_t::loanPreviousSample;
     using base_publisher_t::offer;
+    using base_publisher_t::publish;
     using base_publisher_t::stopOffer;
-    using base_publisher_t::isOffered;
-    using base_publisher_t::hasSubscribers;
 
     ///
     /// @brief publish Publish the provided memory chunk.
@@ -49,7 +49,6 @@ class UntypedPublisherImpl : public base_publisher_t
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
     void publish(void* allocatedMemory) noexcept;
-
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;
