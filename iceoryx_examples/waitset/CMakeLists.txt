@@ -44,7 +44,52 @@ set_target_properties(iox-ex-subscriber-waitset PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
+
+add_executable(iox-ex-waitset-gateway ./ice_waitset_gateway.cpp)
+target_link_libraries(iox-ex-waitset-gateway
+    iceoryx_posh::iceoryx_posh
+)
+set_target_properties(iox-ex-waitset-gateway PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
+
+add_executable(iox-ex-waitset-grouping ./ice_waitset_grouping.cpp)
+target_link_libraries(iox-ex-waitset-grouping
+    iceoryx_posh::iceoryx_posh
+)
+set_target_properties(iox-ex-waitset-grouping PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
+
+add_executable(iox-ex-waitset-individual ./ice_waitset_individual.cpp)
+target_link_libraries(iox-ex-waitset-individual
+    iceoryx_posh::iceoryx_posh
+)
+set_target_properties(iox-ex-waitset-individual PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
+
+add_executable(iox-ex-waitset-sync ./ice_waitset_sync.cpp)
+target_link_libraries(iox-ex-waitset-sync
+    iceoryx_posh::iceoryx_posh
+)
+set_target_properties(iox-ex-waitset-sync PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
+
+
+
+
+
 install(
-    TARGETS iox-ex-publisher-waitset iox-ex-subscriber-waitset
+    TARGETS iox-ex-publisher-waitset iox-ex-subscriber-waitset iox-ex-waitset-gateway iox-ex-waitset-grouping iox-ex-waitset-individual iox-ex-waitset-sync
     RUNTIME DESTINATION bin
 )
