@@ -15,10 +15,13 @@
 #ifndef IOX_POSH_POPO_TRIGGER_HPP
 #define IOX_POSH_POPO_TRIGGER_HPP
 
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
+
 #include <limits>
+#include <typeinfo>
 
 namespace iox
 {
@@ -51,6 +54,7 @@ class TriggerState
 
   protected:
     void* m_origin = nullptr;
+    uint64_t m_originTypeHash = 0U;
     uint64_t m_triggerId = INVALID_TRIGGER_ID;
 
     Callback<void> m_callbackPtr;

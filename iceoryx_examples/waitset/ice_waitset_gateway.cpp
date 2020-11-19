@@ -70,6 +70,7 @@ void receiving()
             }
             else
             {
+                auto ptr = trigger.getOrigin<iox::popo::UntypedSubscriber>();
                 trigger();
             }
         }

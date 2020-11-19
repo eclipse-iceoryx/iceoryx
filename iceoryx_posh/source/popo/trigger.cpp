@@ -27,7 +27,9 @@ const uint64_t& TriggerState::getTriggerId() const noexcept
 void TriggerState::operator()() const noexcept
 {
     if (m_origin != nullptr && m_callbackPtr != nullptr)
+    {
         m_callback(m_origin, m_callbackPtr);
+    }
 }
 
 Trigger::Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept
@@ -38,6 +40,7 @@ Trigger::Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>
               other.getTriggerId(),
               other.m_callbackPtr)
 {
+    m_originTypeHash = other.m_originTypeHash;
     m_callbackPtr = other.m_callbackPtr;
     m_callback = other.m_callback;
     m_removalCallback = removalCallback;
@@ -111,11 +114,16 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
 {
     if (this != &rhs)
     {
+        m_origin = rhs.m_origin;
+        m_originTypeHash = rhs.m_originTypeHash;
+        m_triggerId = rhs.m_triggerId;
+        m_callbackPtr = rhs.m_callbackPtr;
+        m_callback = rhs.m_callback;
+
         m_conditionVariableDataPtr = rhs.m_conditionVariableDataPtr;
         m_removalCallback = rhs.m_removalCallback;
         m_invalidationCallback = rhs.m_invalidationCallback;
         m_hasTriggeredCallback = rhs.m_hasTriggeredCallback;
-        m_triggerId = rhs.m_triggerId;
 
         rhs.m_conditionVariableDataPtr = nullptr;
     }

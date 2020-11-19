@@ -28,6 +28,7 @@ inline void myCallback(void* const origin, TriggerState::Callback<void> callback
 template <typename T>
 inline TriggerState::TriggerState(T* const origin, const uint64_t triggerId, const Callback<T> callback) noexcept
     : m_origin(origin)
+    , m_originTypeHash(typeid(T).hash_code())
     , m_triggerId(triggerId)
     , m_callbackPtr(reinterpret_cast<Callback<void>>(callback))
     , m_callback(myCallback<T>)
@@ -43,13 +44,20 @@ inline bool TriggerState::doesOriginateFrom(T* const origin) const noexcept
 template <typename T>
 inline T* TriggerState::getOrigin() noexcept
 {
+    if (m_originTypeHash != typeid(T).hash_code())
+    {
+        LogFatal() << "Runtime type check failed! Cannot cast underlying type to anything but to the correct one. "
+                      "Segmentation Fault will most likely occure soon.";
+        return nullptr;
+    }
+
     return static_cast<T*>(m_origin);
 }
 
 template <typename T>
 inline const T* TriggerState::getOrigin() const noexcept
 {
-    return static_cast<T*>(m_origin);
+    return const_cast<const T*>(const_cast<TriggerState*>(this)->getOrigin<T>());
 }
 
 template <typename T>
