@@ -7,7 +7,7 @@ project(idlpp-cxx-generator)
 
 find_package(CycloneDDS CONFIG REQUIRED)
 find_package(Idlpp-cxx CONFIG REQUIRED)
-find_package(CycloneDDS_CXX_API CONFIG REQUIRED)
+find_package(CycloneDDS-CXX CONFIG REQUIRED)
 
 add_library(iceoryx_dds_messages
     STATIC
@@ -15,6 +15,6 @@ add_library(iceoryx_dds_messages
 idl_ddscxx_generate(mempool_messages "${MESSAGE_DEFINITION_DIR}/Mempool.idl")
 target_link_libraries(iceoryx_dds_messages
     PUBLIC
-    CycloneDDS_CXX_API::ddscxx
+    CycloneDDS-CXX::ddscxx
     mempool_messages
 )
