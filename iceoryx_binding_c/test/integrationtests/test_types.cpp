@@ -14,7 +14,7 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
-#include "iceoryx_posh/popo/guard_condition.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 using namespace iox;
@@ -35,10 +35,10 @@ TEST(iox_types_test, WaitSetStorageSizeFits)
     EXPECT_THAT(alignof(WaitSet), Le(alignof(iox_ws_storage_t)));
 }
 
-TEST(iox_types_test, GuardConditionStorageSizeFits)
+TEST(iox_types_test, UserTriggerStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(GuardCondition), Eq(sizeof(iox_guard_cond_storage_t)));
-    EXPECT_THAT(alignof(GuardCondition), Le(alignof(iox_guard_cond_storage_t)));
+    EXPECT_THAT(sizeof(UserTrigger), Eq(sizeof(iox_guard_cond_storage_t)));
+    EXPECT_THAT(alignof(UserTrigger), Le(alignof(iox_guard_cond_storage_t)));
 }
 
 TEST(iox_types_test, cpp2c_SubscriberStorageSizeFits)

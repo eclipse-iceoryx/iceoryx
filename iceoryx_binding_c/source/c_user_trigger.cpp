@@ -12,24 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/guard_condition.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 
 using namespace iox;
 using namespace iox::popo;
 
 extern "C" {
-#include "iceoryx_binding_c/guard_condition.h"
+#include "iceoryx_binding_c/user_trigger.h"
 }
 
 iox_guard_cond_t iox_guard_cond_init(iox_guard_cond_storage_t* self)
 {
-    new (self) GuardCondition();
+    new (self) UserTrigger();
     return reinterpret_cast<iox_guard_cond_t>(self);
 }
 
 void iox_guard_cond_deinit(iox_guard_cond_t const self)
 {
-    self->~GuardCondition();
+    self->~UserTrigger();
 }
 
 void iox_guard_cond_trigger(iox_guard_cond_t const self)

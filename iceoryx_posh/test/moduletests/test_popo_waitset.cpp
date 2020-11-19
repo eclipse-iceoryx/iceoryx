@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/popo/guard_condition.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "mocks/wait_set_mock.hpp"
@@ -318,10 +318,10 @@ TEST_F(WaitSet_test, WaitWithoutNotifyResultsInBlockingMultiThreaded)
     waiter.join();
 }
 
-TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThreaded)
+TEST_F(WaitSet_test, NotifyUserTriggerWhileWaitingResultsInTriggerMultiThreaded)
 {
     std::atomic<int> counter{0};
-    GuardCondition guardCond;
+    UserTrigger guardCond;
     // m_sut.attachCondition(guardCond);
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
@@ -338,9 +338,9 @@ TEST_F(WaitSet_test, NotifyGuardConditionWhileWaitingResultsInTriggerMultiThread
     //    m_sut.detachCondition(guardCond);
 }
 
-TEST_F(WaitSet_test, NotifyGuardConditionOnceTimedWaitResultsInResetOfTrigger)
+TEST_F(WaitSet_test, NotifyUserTriggerOnceTimedWaitResultsInResetOfTrigger)
 {
-    GuardCondition guardCond;
+    UserTrigger guardCond;
     //   m_sut.attachCondition(guardCond);
     guardCond.trigger();
     auto fulfilledConditions1 = m_sut.timedWait(1_ms);

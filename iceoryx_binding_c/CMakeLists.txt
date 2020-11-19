@@ -48,7 +48,7 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 #
 add_library(${PROJECT_NAME}
     STATIC
-    source/c_guard_condition.cpp
+    source/c_user_trigger.cpp
     source/c_publisher.cpp
     source/c_runnable.cpp
     source/c_runtime.cpp

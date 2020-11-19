@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_POPO_GUARD_CONDITION_HPP
-#define IOX_POSH_POPO_GUARD_CONDITION_HPP
+#ifndef IOX_POSH_POPO_USER_TRIGGER_HPP
+#define IOX_POSH_POPO_USER_TRIGGER_HPP
 
 #include "iceoryx_posh/internal/popo/trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
@@ -24,21 +24,20 @@ namespace iox
 {
 namespace popo
 {
-class WaitSet;
 /// @brief Allows the user to manually notify inside of one application
 /// @note Contained in every WaitSet
-class GuardCondition
+class UserTrigger
 {
   public:
-    GuardCondition() noexcept = default;
-    GuardCondition(const GuardCondition& rhs) = delete;
-    GuardCondition(GuardCondition&& rhs) = delete;
-    GuardCondition& operator=(const GuardCondition& rhs) = delete;
-    GuardCondition& operator=(GuardCondition&& rhs) = delete;
+    UserTrigger() noexcept = default;
+    UserTrigger(const UserTrigger& rhs) = delete;
+    UserTrigger(UserTrigger&& rhs) = delete;
+    UserTrigger& operator=(const UserTrigger& rhs) = delete;
+    UserTrigger& operator=(UserTrigger&& rhs) = delete;
 
     cxx::expected<WaitSetError> attachToWaitset(WaitSet& waitset,
                                                 const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                                                const Trigger::Callback<GuardCondition> callback = nullptr) noexcept;
+                                                const Trigger::Callback<UserTrigger> callback = nullptr) noexcept;
 
     void detachWaitset() noexcept;
 
@@ -65,4 +64,4 @@ class GuardCondition
 } // namespace popo
 } // namespace iox
 
-#endif // IOX_POSH_POPO_GUARD_CONDITION_HPP
+#endif // IOX_POSH_POPO_USER_TRIGGER_HPP

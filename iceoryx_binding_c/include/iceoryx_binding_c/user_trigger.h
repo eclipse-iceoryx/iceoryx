@@ -19,7 +19,7 @@
 #include "iceoryx_binding_c/types.h"
 
 /// @brief guard condition handle
-typedef CLASS GuardCondition* iox_guard_cond_t;
+typedef CLASS UserTrigger* iox_guard_cond_t;
 
 /// @brief initialize guard condition handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_guard_cond_storage_t)

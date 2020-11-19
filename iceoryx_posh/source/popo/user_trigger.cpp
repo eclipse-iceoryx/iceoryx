@@ -12,34 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/guard_condition.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 namespace iox
 {
 namespace popo
 {
-cxx::expected<WaitSetError> GuardCondition::attachToWaitset(WaitSet& waitset,
-                                                            const uint64_t triggerId,
-                                                            const Trigger::Callback<GuardCondition> callback) noexcept
+cxx::expected<WaitSetError> UserTrigger::attachToWaitset(WaitSet& waitset,
+                                                         const uint64_t triggerId,
+                                                         const Trigger::Callback<UserTrigger> callback) noexcept
 {
     std::lock_guard<std::recursive_mutex> g(m_mutex);
     return waitset
-        .acquireTrigger(this,
-                        {this, &GuardCondition::hasTriggered},
-                        {this, &GuardCondition::unsetConditionVariable},
-                        triggerId,
-                        callback)
+        .acquireTrigger(
+            this, {this, &UserTrigger::hasTriggered}, {this, &UserTrigger::unsetConditionVariable}, triggerId, callback)
         .and_then([this](Trigger& trigger) { m_trigger = std::move(trigger); });
 }
 
-void GuardCondition::detachWaitset() noexcept
+void UserTrigger::detachWaitset() noexcept
 {
     std::lock_guard<std::recursive_mutex> g(m_mutex);
     m_trigger.reset();
 }
 
-void GuardCondition::trigger() noexcept
+void UserTrigger::trigger() noexcept
 {
     std::lock_guard<std::recursive_mutex> g(m_mutex);
     if (m_trigger)
@@ -49,17 +46,17 @@ void GuardCondition::trigger() noexcept
     }
 }
 
-bool GuardCondition::hasTriggered() const noexcept
+bool UserTrigger::hasTriggered() const noexcept
 {
     return m_wasTriggered.load(std::memory_order_relaxed);
 }
 
-void GuardCondition::resetTrigger() noexcept
+void UserTrigger::resetTrigger() noexcept
 {
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
-void GuardCondition::unsetConditionVariable() noexcept
+void UserTrigger::unsetConditionVariable() noexcept
 {
     std::lock_guard<std::recursive_mutex> g(m_mutex);
     m_trigger.invalidate();

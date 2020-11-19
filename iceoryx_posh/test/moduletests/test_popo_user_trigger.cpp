@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/guard_condition.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "mocks/wait_set_mock.hpp"
 
 #include "test.hpp"
@@ -21,26 +21,26 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::popo;
 
-class GuardCondition_test : public Test
+class UserTrigger_test : public Test
 {
   public:
-    GuardCondition m_sut;
+    UserTrigger m_sut;
     ConditionVariableData m_condVar;
     WaitSetMock m_waitSet{&m_condVar};
 };
 
-TEST_F(GuardCondition_test, isNotTriggeredWhenCreated)
+TEST_F(UserTrigger_test, isNotTriggeredWhenCreated)
 {
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(GuardCondition_test, cannotBeTriggeredWhenNotAttached)
+TEST_F(UserTrigger_test, cannotBeTriggeredWhenNotAttached)
 {
     m_sut.trigger();
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(GuardCondition_test, cannotBeTriggeredMultipleTimesWhenNotAttached)
+TEST_F(UserTrigger_test, cannotBeTriggeredMultipleTimesWhenNotAttached)
 {
     m_sut.trigger();
     m_sut.trigger();
@@ -49,14 +49,14 @@ TEST_F(GuardCondition_test, cannotBeTriggeredMultipleTimesWhenNotAttached)
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(GuardCondition_test, canBeTriggeredWhenAttached)
+TEST_F(UserTrigger_test, canBeTriggeredWhenAttached)
 {
     // m_waitSet.attachCondition(m_sut);
     m_sut.trigger();
     EXPECT_TRUE(m_sut.hasTriggered());
 }
 
-TEST_F(GuardCondition_test, canBeTriggeredMultipleTimesWhenAttached)
+TEST_F(UserTrigger_test, canBeTriggeredMultipleTimesWhenAttached)
 {
     // m_waitSet.attachCondition(m_sut);
     m_sut.trigger();
@@ -66,14 +66,14 @@ TEST_F(GuardCondition_test, canBeTriggeredMultipleTimesWhenAttached)
     EXPECT_TRUE(m_sut.hasTriggered());
 }
 
-TEST_F(GuardCondition_test, resetTriggerWhenNotTriggeredIsNotTriggered)
+TEST_F(UserTrigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
 {
     m_sut.resetTrigger();
 
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(GuardCondition_test, resetTriggerWhenTriggeredResultsInNotTriggered)
+TEST_F(UserTrigger_test, resetTriggerWhenTriggeredResultsInNotTriggered)
 {
     // m_waitSet.attachCondition(m_sut);
     m_sut.trigger();
@@ -82,7 +82,7 @@ TEST_F(GuardCondition_test, resetTriggerWhenTriggeredResultsInNotTriggered)
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(GuardCondition_test, resetTriggerMultipleTimesWhenTriggeredResultsInNotTriggered)
+TEST_F(UserTrigger_test, resetTriggerMultipleTimesWhenTriggeredResultsInNotTriggered)
 {
     // m_waitSet.attachCondition(m_sut);
     m_sut.trigger();

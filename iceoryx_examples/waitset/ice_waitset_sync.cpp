@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
@@ -22,14 +22,14 @@
 #include <csignal>
 #include <iostream>
 
-iox::popo::GuardCondition shutdownGuard;
+iox::popo::UserTrigger shutdownGuard;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     shutdownGuard.trigger();
 }
 
-void myCyclicRun(iox::popo::GuardCondition*)
+void myCyclicRun(iox::popo::UserTrigger*)
 {
     std::cout << "activation callback\n";
 }
@@ -40,7 +40,7 @@ void receiving()
 
     iox::popo::WaitSet waitset;
 
-    iox::popo::GuardCondition runGuard;
+    iox::popo::UserTrigger runGuard;
     runGuard.attachToWaitset(waitset, 0, myCyclicRun);
 
     shutdownGuard.attachToWaitset(waitset);

@@ -22,9 +22,9 @@ using namespace iox;
 using namespace iox::popo;
 
 extern "C" {
-#include "iceoryx_binding_c/guard_condition.h"
 #include "iceoryx_binding_c/subscriber.h"
 #include "iceoryx_binding_c/types.h"
+#include "iceoryx_binding_c/user_trigger.h"
 #include "iceoryx_binding_c/wait_set.h"
 }
 

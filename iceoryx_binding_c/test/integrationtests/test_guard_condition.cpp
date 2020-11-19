@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/guard_condition.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "mocks/wait_set_mock.hpp"
 
 using namespace iox;
 using namespace iox::popo;
 
 extern "C" {
-#include "iceoryx_binding_c/guard_condition.h"
+#include "iceoryx_binding_c/user_trigger.h"
 #include "iceoryx_binding_c/wait_set.h"
 }
 
