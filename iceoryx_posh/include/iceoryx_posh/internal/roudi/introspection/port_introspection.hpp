@@ -68,9 +68,9 @@ class PortIntrospection
             SenderInfo() = default;
 
             SenderInfo(typename SenderPort::MemberType_t* portData,
-                       const std::string& name,
+                       const ProcessName_t& name,
                        const capro::ServiceDescription& service,
-                       const std::string& runnable)
+                       const RunnableName_t& runnable)
                 : portData(portData)
                 , name(name)
                 , service(service)
@@ -79,9 +79,9 @@ class PortIntrospection
             }
 
             typename SenderPort::MemberType_t* portData{nullptr};
-            std::string name;
+            ProcessName_t name;
             capro::ServiceDescription service;
-            std::string runnable;
+            RunnableName_t runnable;
 
             using TimePointNs = mepoo::TimePointNs;
             using DurationNs = mepoo::DurationNs;
@@ -100,9 +100,9 @@ class PortIntrospection
             }
 
             ReceiverInfo(typename ReceiverPort::MemberType_t* const portData,
-                         const std::string& name,
+                         const ProcessName_t& name,
                          const capro::ServiceDescription& service,
-                         const std::string& runnable)
+                         const RunnableName_t& runnable)
                 : portData(portData)
                 , name(name)
                 , service(service)
@@ -111,9 +111,9 @@ class PortIntrospection
             }
 
             typename ReceiverPort::MemberType_t* portData{nullptr};
-            std::string name;
+            ProcessName_t name;
             capro::ServiceDescription service;
-            std::string runnable;
+            RunnableName_t runnable;
         };
 
         struct ConnectionInfo
@@ -123,9 +123,9 @@ class PortIntrospection
             }
 
             ConnectionInfo(typename ReceiverPort::MemberType_t* const portData,
-                           const std::string& name,
+                           const ProcessName_t& name,
                            const capro::ServiceDescription& service,
-                           const std::string& runnable)
+                           const RunnableName_t& runnable)
                 : receiverInfo(portData, name, service, runnable)
                 , state(ConnectionState::DEFAULT)
             {
@@ -162,9 +162,9 @@ class PortIntrospection
          * @return returns false if the port could not be added and true otherwise
          */
         bool addSender(typename SenderPort::MemberType_t* port,
-                       const std::string& name,
+                       const ProcessName_t& name,
                        const capro::ServiceDescription& service,
-                       const std::string& runnable);
+                       const RunnableName_t& runnable);
 
 
         /*!
@@ -179,9 +179,9 @@ class PortIntrospection
          * @return returns false if the port could not be added and true otherwise
          */
         bool addReceiver(typename ReceiverPort::MemberType_t* const portData,
-                         const std::string& name,
+                         const ProcessName_t& name,
                          const capro::ServiceDescription& service,
-                         const std::string& runnable);
+                         const RunnableName_t& runnable);
 
         /*!
          * @brief remove a sender port from introspection
@@ -192,7 +192,7 @@ class PortIntrospection
          * @return returns false if the port could not be removed (since it did not exist)
          *              and true otherwise
          */
-        bool removeSender(const std::string& name, const capro::ServiceDescription& service);
+        bool removeSender(const ProcessName_t& name, const capro::ServiceDescription& service);
 
         /*!
          * @brief remove a receiver port from introspection
@@ -203,7 +203,7 @@ class PortIntrospection
          * @return returns false if the port could not be removed (since it did not exist)
          *              and true otherwise
          */
-        bool removeReceiver(const std::string& name, const capro::ServiceDescription& service);
+        bool removeReceiver(const RunnableName_t& name, const capro::ServiceDescription& service);
 
         /*!
          * @brief update the state of any connection identified by the capro id of a given message
@@ -257,11 +257,12 @@ class PortIntrospection
         using ConnectionContainer = FixedSizeContainer<ConnectionInfo, MAX_SUBSCRIBERS>;
 
         // index sender and connections by capro Ids
-        std::map<std::string, typename SenderContainer::Index_t> m_senderMap;
+        std::map<capro::ServiceDescription, typename SenderContainer::Index_t> m_senderMap;
 
         // TODO: replace inner map wih more approriate structure if possible
-        // inner map maps from port names to indices in the ConnectionContainer
-        std::map<std::string, std::map<std::string, typename ConnectionContainer::Index_t>> m_connectionMap;
+        // inner map maps from process names to indices in the ConnectionContainer
+        std::map<capro::ServiceDescription, std::map<ProcessName_t, typename ConnectionContainer::Index_t>>
+            m_connectionMap;
 
         // Rationale: we avoid allocating the objects on the heap but can still use a map
         // to locate/remove them fast(er)
@@ -300,9 +301,9 @@ class PortIntrospection
      * @return returns false if the port could not be added and true otherwise
      */
     bool addSender(typename SenderPort::MemberType_t* port,
-                   const std::string& name,
+                   const ProcessName_t& name,
                    const capro::ServiceDescription& service,
-                   const std::string& runnable);
+                   const RunnableName_t& runnable);
 
     /*!
      * @brief add a receiver port to be tracked by introspection
@@ -316,9 +317,9 @@ class PortIntrospection
      * @return returns false if the port could not be added and true otherwise
      */
     bool addReceiver(typename ReceiverPort::MemberType_t* const portData,
-                     const std::string& name,
+                     const ProcessName_t& name,
                      const capro::ServiceDescription& service,
-                     const std::string& runnable);
+                     const RunnableName_t& runnable);
 
 
     /*!
@@ -330,7 +331,7 @@ class PortIntrospection
      * @return returns false if the port could not be removed (since it did not exist)
      *              and true otherwise
      */
-    bool removeSender(const std::string& name, const capro::ServiceDescription& service);
+    bool removeSender(const ProcessName_t& name, const capro::ServiceDescription& service);
 
     /*!
      * @brief remove a receiver port from introspection
@@ -341,7 +342,7 @@ class PortIntrospection
      * @return returns false if the port could not be removed (since it did not exist)
      *              and true otherwise
      */
-    bool removeReceiver(const std::string& name, const capro::ServiceDescription& service);
+    bool removeReceiver(const ProcessName_t& name, const capro::ServiceDescription& service);
 
     /*!
      * @brief report a capro message to introspection (since this could change the state of active connections)
