@@ -31,6 +31,7 @@ extern "C" {
 #include "test.hpp"
 
 #include <atomic>
+#include <thread>
 
 using namespace ::testing;
 
@@ -72,7 +73,6 @@ class iox_ws_test : public Test
     }
 
     ConditionVariableData m_condVar;
-    iox_ws_storage_t m_sutStorage;
 
     iox_guard_cond_storage_t m_guardCondStorage;
     iox_guard_cond_t m_guardCond;
@@ -81,42 +81,44 @@ class iox_ws_test : public Test
     std::vector<iox_sub_t> m_subscriber;
 };
 
+TEST_F(iox_ws_test, DetachedConditionIsNotAttached)
+{
+    iox_sub_t subscriber = CreateSubscriber();
+    EXPECT_FALSE(iox_ws_is_condition_attached(m_sut, subscriber));
+}
+
+TEST_F(iox_ws_test, AttachedConditionIsAttached)
+{
+    iox_sub_t subscriber = CreateSubscriber();
+    iox_ws_attach_condition(m_sut, subscriber);
+    EXPECT_TRUE(iox_ws_is_condition_attached(m_sut, subscriber));
+}
+
 TEST_F(iox_ws_test, AttachSingleConditionIsSuccessful)
 {
     iox_sub_t subscriber = CreateSubscriber();
     EXPECT_THAT(iox_ws_attach_condition(m_sut, subscriber), Eq(WaitSetResult_SUCCESS));
 }
 
-TEST_F(iox_ws_test, AttachSingleConditionTwiceResultsInFailure)
+TEST_F(iox_ws_test, AttachSingleConditionToOtherWaitsetResultsInDetachFromOriginalWaitset)
 {
+    ConditionVariableData condVar2;
+    WaitSetMock* sut2 = new WaitSetMock(&condVar2);
+
     iox_sub_t subscriber = CreateSubscriber();
     iox_ws_attach_condition(m_sut, subscriber);
+    iox_ws_attach_condition(sut2, subscriber);
 
-    EXPECT_THAT(iox_ws_attach_condition(m_sut, subscriber), Eq(WaitSetResult_CONDITION_VARIABLE_ALREADY_SET));
+    EXPECT_FALSE(iox_ws_is_condition_attached(m_sut, subscriber));
+    EXPECT_TRUE(iox_ws_is_condition_attached(sut2, subscriber));
 }
 
 TEST_F(iox_ws_test, DetachAttachedConditionIsSuccessful)
 {
     iox_sub_t subscriber = CreateSubscriber();
     iox_ws_attach_condition(m_sut, subscriber);
-
-    EXPECT_TRUE(iox_ws_detach_condition(m_sut, subscriber));
-}
-
-TEST_F(iox_ws_test, DetachNotAttachedConditionFails)
-{
-    iox_sub_t subscriber = CreateSubscriber();
-
-    EXPECT_FALSE(iox_ws_detach_condition(m_sut, subscriber));
-}
-
-TEST_F(iox_ws_test, DetachFailsAfterAllConditionsAreDetached)
-{
-    iox_sub_t subscriber = CreateSubscriber();
-    iox_ws_attach_condition(m_sut, subscriber);
-    iox_ws_detach_all_conditions(m_sut);
-
-    EXPECT_FALSE(iox_ws_detach_condition(m_sut, subscriber));
+    iox_ws_detach_condition(m_sut, subscriber);
+    EXPECT_FALSE(iox_ws_is_condition_attached(m_sut, subscriber));
 }
 
 TEST_F(iox_ws_test, AttachConditionsSucceedsAfterAllConditionsAreDetached)

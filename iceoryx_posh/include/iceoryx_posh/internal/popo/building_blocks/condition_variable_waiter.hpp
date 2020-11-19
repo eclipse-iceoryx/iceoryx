@@ -29,9 +29,9 @@ class ConditionVariableWaiter
     explicit ConditionVariableWaiter(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
     virtual ~ConditionVariableWaiter() noexcept = default;
     ConditionVariableWaiter(const ConditionVariableWaiter& rhs) = delete;
-    ConditionVariableWaiter(ConditionVariableWaiter&& rhs) noexcept = default;
+    ConditionVariableWaiter(ConditionVariableWaiter&& rhs) noexcept = delete;
     ConditionVariableWaiter& operator=(const ConditionVariableWaiter& rhs) = delete;
-    ConditionVariableWaiter& operator=(ConditionVariableWaiter&& rhs) noexcept = default;
+    ConditionVariableWaiter& operator=(ConditionVariableWaiter&& rhs) noexcept = delete;
 
     /// @brief Reinitialises the condition variable
     void reset() noexcept;
@@ -41,6 +41,10 @@ class ConditionVariableWaiter
     bool timedWait(const units::Duration timeToWait) noexcept;
     /// @brief Waits until notify is called on the ConditionVariableSignaler
     void wait() noexcept;
+
+    /// @brief Was the ConditionVariableWaiter notified by a ConditionVariableSignaler?
+    /// @return true if it was notified otherwise false
+    bool wasNotified() const noexcept;
 
   protected:
     const ConditionVariableData* getMembers() const noexcept;

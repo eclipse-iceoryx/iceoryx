@@ -30,6 +30,13 @@ inline BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription
 }
 
 template <typename T, typename port_t>
+inline BaseSubscriber<T, port_t>::~BaseSubscriber()
+{
+    m_port.destroy();
+}
+
+
+template <typename T, typename port_t>
 inline uid_t BaseSubscriber<T, port_t>::getUid() const noexcept
 {
     return m_port.getUniqueID();
@@ -104,16 +111,16 @@ inline void BaseSubscriber<T, port_t>::releaseQueuedSamples() noexcept
 }
 
 template <typename T, typename port_t>
-inline bool
+inline void
 BaseSubscriber<T, port_t>::setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
-    return m_port.setConditionVariable(conditionVariableDataPtr);
+    m_port.setConditionVariable(conditionVariableDataPtr);
 }
 
 template <typename T, typename port_t>
-inline bool BaseSubscriber<T, port_t>::unsetConditionVariable() noexcept
+inline void BaseSubscriber<T, port_t>::unsetConditionVariable() noexcept
 {
-    return m_port.unsetConditionVariable();
+    m_port.unsetConditionVariable();
 }
 
 template <typename T, typename port_t>

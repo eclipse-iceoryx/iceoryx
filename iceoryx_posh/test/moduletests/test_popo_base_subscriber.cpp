@@ -77,13 +77,13 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
     {
         return iox::popo::BaseSubscriber<T, port_t>::releaseQueuedSamples();
     }
-    bool setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override
+    void setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override
     {
-        return iox::popo::BaseSubscriber<T, port_t>::setConditionVariable(conditionVariableDataPtr);
+        iox::popo::BaseSubscriber<T, port_t>::setConditionVariable(conditionVariableDataPtr);
     }
-    bool unsetConditionVariable() noexcept override
+    void unsetConditionVariable() noexcept override
     {
-        return iox::popo::BaseSubscriber<T, port_t>::unsetConditionVariable();
+        iox::popo::BaseSubscriber<T, port_t>::unsetConditionVariable();
     }
     virtual bool hasTriggered() const noexcept override
     {
@@ -278,6 +278,15 @@ TEST_F(BaseSubscriberTest, HasMissedSamplesCallForwardedToUnderlyingSubscriberPo
     EXPECT_CALL(sut.getMockedPort(), hasLostChunksSinceLastCall).Times(1);
     // ===== Test ===== //
     sut.hasMissedSamples();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(BaseSubscriberTest, DestroysUnderlyingPortOnDestruction)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut.getMockedPort(), destroy).Times(1);
+    // ===== Test ===== //
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

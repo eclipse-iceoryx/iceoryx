@@ -51,7 +51,7 @@ class BasePublisher : public PublisherInterface<T>
     BasePublisher& operator=(const BasePublisher&) = delete;
     BasePublisher(BasePublisher&& rhs) = default;
     BasePublisher& operator=(BasePublisher&& rhs) = default;
-    ~BasePublisher() = default;
+    ~BasePublisher();
 
     ///
     /// @brief uid Get the UID of the publisher.

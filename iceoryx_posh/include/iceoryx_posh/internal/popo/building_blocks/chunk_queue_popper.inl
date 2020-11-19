@@ -116,38 +116,19 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
 }
 
 template <typename ChunkQueueDataType>
-inline bool
-ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
+inline void ChunkQueuePopper<ChunkQueueDataType>::setConditionVariable(
+    cxx::not_null<ConditionVariableData*> conditionVariableDataPtr) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
-    if (isConditionVariableSet())
-    {
-        LogWarn() << "Condition variable already set. Attaching a second time will be ignored!";
-        return false;
-    }
-    else
-    {
-        getMembers()->m_conditionVariableDataPtr = conditionVariableDataPtr;
-        return true;
-    }
+    getMembers()->m_conditionVariableDataPtr = conditionVariableDataPtr;
 }
 
 template <typename ChunkQueueDataType>
-inline bool ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexcept
+inline void ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
-
-    if (isConditionVariableSet())
-    {
-        getMembers()->m_conditionVariableDataPtr = nullptr;
-        return true;
-    }
-    else
-    {
-        LogWarn() << "Condition variable not set yet.";
-        return false;
-    }
+    getMembers()->m_conditionVariableDataPtr = nullptr;
 }
 
 template <typename ChunkQueueDataType>

@@ -82,12 +82,10 @@ class SubscriberPortUser : public BasePort
     bool hasLostChunksSinceLastCall() noexcept;
 
     /// @brief attach a condition variable (via its pointer) to subscriber
-    /// @return true if attachment worked, otherwise false
-    bool setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    void setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
 
     /// @brief detach a condition variable from subscriber
-    /// @return true if detachment worked, otherwise false
-    bool unsetConditionVariable() noexcept;
+    void unsetConditionVariable() noexcept;
 
     /// @brief check if there's a condition variable attached
     /// @return true if a condition variable attached, otherwise false

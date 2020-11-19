@@ -89,4 +89,4 @@ endfunction()
 
 fetch_and_install(idlpp-cxx)
 fetch_and_install(cyclonedds)
-fetch_and_install(cdds-cxx -DBUILD_TESTING=OFF)
+fetch_and_install(cyclonedds-cxx -DBUILD_TESTING=OFF)

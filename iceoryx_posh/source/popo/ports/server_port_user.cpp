@@ -100,14 +100,14 @@ bool ServerPortUser::hasClients() const noexcept
     return m_chunkSender.hasStoredQueues();
 }
 
-bool ServerPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
+void ServerPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
-    return m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
+    m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
 }
 
-bool ServerPortUser::unsetConditionVariable() noexcept
+void ServerPortUser::unsetConditionVariable() noexcept
 {
-    return m_chunkReceiver.unsetConditionVariable();
+    m_chunkReceiver.unsetConditionVariable();
 }
 
 bool ServerPortUser::isConditionVariableSet() const noexcept

@@ -66,10 +66,6 @@ iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
 {
     switch (value)
     {
-    case WaitSetError::CONDITION_VARIABLE_ALREADY_SET:
-        return WaitSetResult_CONDITION_VARIABLE_ALREADY_SET;
-    case WaitSetError::CONDITION_VARIABLE_ATTACH_FAILED:
-        return WaitSetResult_CONDITION_VARIABLE_ATTACH_FAILED;
     case WaitSetError::CONDITION_VECTOR_OVERFLOW:
         return WaitSetResult_CONDITION_VECTOR_OVERFLOW;
     default:

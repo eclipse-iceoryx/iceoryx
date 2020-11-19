@@ -247,3 +247,9 @@ TEST_F(BasePublisherTest, GetServiceDescriptionCallForwardedToUnderlyingPublishe
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
+
+TEST_F(BasePublisherTest, DestroysUnderlyingPortOnDestruction)
+{
+    EXPECT_CALL(sut.getMockedPort(), destroy).Times(1);
+}
+
