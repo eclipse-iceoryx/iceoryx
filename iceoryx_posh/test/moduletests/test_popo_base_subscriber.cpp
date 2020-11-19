@@ -30,68 +30,70 @@ struct DummyData
 };
 
 template <typename T, typename port_t>
-class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
+class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>
 {
   public:
+    using SubscriberParent = iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>;
+
     StubbedBaseSubscriber(iox::capro::ServiceDescription)
-        : iox::popo::BaseSubscriber<T, port_t>::BaseSubscriber()
+        : SubscriberParent::BaseSubscriber()
     {
     }
     uid_t getUid() const noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::getUid();
+        return SubscriberParent::getUid();
     }
     iox::capro::ServiceDescription getServiceDescription() const noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::getServiceDescription();
+        return SubscriberParent::getServiceDescription();
     }
     void subscribe(const uint64_t queueCapacity = iox::MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::subscribe(queueCapacity);
+        return SubscriberParent::subscribe(queueCapacity);
     }
     iox::SubscribeState getSubscriptionState() const noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::getSubscriptionState();
+        return SubscriberParent::getSubscriptionState();
     }
     void unsubscribe() noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::unsubscribe();
+        return SubscriberParent::unsubscribe();
     }
     bool hasNewSamples() const noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::hasNewSamples();
+        return SubscriberParent::hasNewSamples();
     }
     bool hasMissedSamples() noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::hasMissedSamples();
+        return SubscriberParent::hasMissedSamples();
     }
     iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError> take() noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::take();
+        return SubscriberParent::take();
     }
     iox::cxx::optional<iox::cxx::unique_ptr<iox::mepoo::ChunkHeader>> receiveHeader() noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::receiveHeader();
+        return SubscriberParent::receiveHeader();
     }
     void releaseQueuedSamples() noexcept
     {
-        return iox::popo::BaseSubscriber<T, port_t>::releaseQueuedSamples();
+        return SubscriberParent::releaseQueuedSamples();
     }
     void setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override
     {
-        iox::popo::BaseSubscriber<T, port_t>::setConditionVariable(conditionVariableDataPtr);
+        SubscriberParent::setConditionVariable(conditionVariableDataPtr);
     }
     void unsetConditionVariable() noexcept override
     {
-        iox::popo::BaseSubscriber<T, port_t>::unsetConditionVariable();
+        SubscriberParent::unsetConditionVariable();
     }
     virtual bool hasTriggered() const noexcept override
     {
-        return iox::popo::BaseSubscriber<T, port_t>::hasTriggered();
+        return SubscriberParent::hasTriggered();
     }
     port_t& getMockedPort()
     {
-        return iox::popo::BaseSubscriber<T, port_t>::m_port;
+        return SubscriberParent::m_port;
     }
 };
 

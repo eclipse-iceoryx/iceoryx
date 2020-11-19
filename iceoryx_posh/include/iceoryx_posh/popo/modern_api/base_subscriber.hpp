@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/popo/modern_api/sample.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -28,7 +29,7 @@ namespace popo
 {
 using uid_t = UniquePortId;
 
-template <typename T, typename port_t = iox::SubscriberPortUserType>
+template <typename T, typename Subscriber, typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber : public Condition
 {
   public:
@@ -98,6 +99,10 @@ class BaseSubscriber : public Condition
     virtual void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
     virtual void unsetConditionVariable() noexcept override;
     virtual bool hasTriggered() const noexcept override;
+
+    cxx::expected<WaitSetError> attachToWaitset(WaitSet& waitset,
+                                                const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
+                                                const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
 
   protected:
     BaseSubscriber() noexcept; // Required for testing.

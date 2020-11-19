@@ -16,6 +16,7 @@
 #define IOX_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -24,10 +25,20 @@ namespace iox
 {
 namespace popo
 {
-template <typename base_subscriber_t = BaseSubscriber<void>>
-class UntypedSubscriberImpl : public base_subscriber_t
+class Void
+{
+};
+
+template <typename T = void, template <typename, typename, typename> class base_subscriber_t = BaseSubscriber>
+class UntypedSubscriberImpl final
+    : public base_subscriber_t<void, UntypedSubscriberImpl<void, base_subscriber_t>, iox::SubscriberPortUserType>
 {
   public:
+    static_assert(std::is_same<T, void>::value, "untyped subscriber requires type void");
+
+    using SubscriberParent =
+        base_subscriber_t<T, UntypedSubscriberImpl<T, base_subscriber_t>, iox::SubscriberPortUserType>;
+
     UntypedSubscriberImpl(const capro::ServiceDescription& service);
     UntypedSubscriberImpl(const UntypedSubscriberImpl& other) = delete;
     UntypedSubscriberImpl& operator=(const UntypedSubscriberImpl&) = delete;

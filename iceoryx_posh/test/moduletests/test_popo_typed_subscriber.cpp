@@ -25,7 +25,7 @@ struct DummyData
     uint64_t val = 42;
 };
 
-using TestTypedSubscriber = iox::popo::TypedSubscriber<DummyData, MockBaseSubscriber<DummyData>>;
+using TestTypedSubscriber = iox::popo::TypedSubscriber<DummyData, MockBaseSubscriber>;
 
 class TypedSubscriberTest : public Test
 {

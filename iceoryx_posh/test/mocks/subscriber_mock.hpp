@@ -51,7 +51,7 @@ class MockSubscriberPortUser
     MOCK_METHOD0(isConditionVariableSet, bool());
 };
 
-template <typename T>
+template <typename T, typename Child, typename Port>
 class MockBaseSubscriber
 {
   public:

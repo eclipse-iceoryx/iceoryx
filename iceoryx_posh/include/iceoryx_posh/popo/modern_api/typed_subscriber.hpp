@@ -21,9 +21,11 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename base_subscriber_t = BaseSubscriber<T>>
-class TypedSubscriber : public base_subscriber_t
+template <typename T, template <typename, typename, typename> class base_subscriber_t = BaseSubscriber>
+class TypedSubscriber final
+    : public base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, iox::SubscriberPortUserType>
 {
+    using SubscriberParent = base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, iox::SubscriberPortUserType>;
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
 
   public:
