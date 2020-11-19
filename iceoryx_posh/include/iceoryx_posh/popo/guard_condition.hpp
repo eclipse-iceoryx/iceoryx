@@ -39,6 +39,8 @@ class GuardCondition
                          const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
                          const Trigger::Callback<GuardCondition> callback = nullptr) noexcept;
 
+    void detach() noexcept;
+
     /// @brief Wakes up a waiting WaitSet
     void trigger() noexcept;
 

@@ -57,18 +57,21 @@ void Trigger::invalidate() noexcept
 {
     if (isValid() && m_invalidationCallback)
     {
+        m_conditionVariableDataPtr = nullptr;
         m_invalidationCallback();
     }
 }
 
 void Trigger::reset() noexcept
 {
-    invalidate();
-    if (isValid() && m_removalCallback)
+    if (isValid())
     {
-        m_removalCallback(*this);
+        invalidate();
+        if (m_removalCallback)
+        {
+            m_removalCallback(*this);
+        }
     }
-    m_conditionVariableDataPtr = nullptr;
 }
 
 void Trigger::notify() noexcept

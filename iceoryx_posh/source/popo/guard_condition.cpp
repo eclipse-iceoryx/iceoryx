@@ -33,6 +33,12 @@ void GuardCondition::attachToWaitset(WaitSet& waitset,
                     .get_value();
 }
 
+void GuardCondition::detach() noexcept
+{
+    std::lock_guard<std::recursive_mutex> g(m_mutex);
+    m_trigger.reset();
+}
+
 void GuardCondition::trigger() noexcept
 {
     std::lock_guard<std::recursive_mutex> g(m_mutex);
@@ -56,7 +62,7 @@ void GuardCondition::resetTrigger() noexcept
 void GuardCondition::unsetConditionVariable() noexcept
 {
     std::lock_guard<std::recursive_mutex> g(m_mutex);
-    m_trigger.reset();
+    m_trigger.invalidate();
 }
 
 } // namespace popo
