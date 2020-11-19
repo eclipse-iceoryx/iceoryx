@@ -223,6 +223,11 @@ MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
     , m_AppMqInterface(appName)
     , m_RoudiMqInterface(roudiName)
 {
+    if (!m_AppMqInterface.isInitialized()) {
+        errorHandler(Error::kMQ_INTERFACE__UNABLE_TO_CREATE_APPLICATION_MQ);
+        return;
+    }
+
     posix::Timer timer(roudiWaitingTimeout);
 
     enum class RegState
