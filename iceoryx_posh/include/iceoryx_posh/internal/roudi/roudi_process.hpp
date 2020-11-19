@@ -240,7 +240,7 @@ class ProcessManager : public ProcessManagerInterface
 
     ProcessIntrospectionType* m_processIntrospection{nullptr};
 
-    // this is currently used for the internal sender/receiver ports
+    // this is currently used for the internal publisher/subscriber ports
     mepoo::MemoryManager* m_memoryManagerOfCurrentProcess{nullptr};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel;
 };

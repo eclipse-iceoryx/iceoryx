@@ -395,8 +395,8 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
 {
     for (auto port : m_portPool->getPublisherPortDataList())
     {
-        PublisherPortRouDiType publisherPortRoudi(port);
-        if (processName == publisherPortRoudi.getProcessName())
+        PublisherPortRouDiType sender(port);
+        if (processName == sender.getProcessName())
         {
             destroyPublisherPort(port);
         }

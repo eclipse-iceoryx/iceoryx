@@ -79,7 +79,7 @@ class Mepoo_IntegrationTest : public Test
     virtual void TearDown()
     {
         publisherPort.stopOffer();
-        receiverPort.unsubscribe();
+        subscriberPort.unsubscribe();
 
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -147,7 +147,7 @@ class Mepoo_IntegrationTest : public Test
         publisherPort = iox::popo::PublisherPortUser(senderRuntime.getMiddlewarePublisher(m_service_description));
 
         auto& receiverRuntime = iox::runtime::PoshRuntime::getInstance("/receiver");
-        receiverPort = iox::popo::SubscriberPortUser(receiverRuntime.getMiddlewareSubscriber(m_service_description));
+        subscriberPort = iox::popo::SubscriberPortUser(receiverRuntime.getMiddlewareSubscriber(m_service_description));
     }
 
     void SetUpRouDiOnly(MemPoolInfoContainer& memPoolTestContainer,
@@ -288,13 +288,13 @@ class Mepoo_IntegrationTest : public Test
             publisherPort.offer();
         }
 
-        if (receiverPort.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
+        if (subscriberPort.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            receiverPort.unsubscribe();
+            subscriberPort.unsubscribe();
         }
 
         m_roudiEnv->InterOpWait();
-        receiverPort.subscribe(1);
+        subscriberPort.subscribe(1);
         m_roudiEnv->InterOpWait();
 
         for (int idx = 0; idx < times; ++idx)
@@ -332,7 +332,7 @@ class Mepoo_IntegrationTest : public Test
     MePooConfig memconf;
 
     iox::popo::PublisherPortUser publisherPort{nullptr};
-    iox::popo::SubscriberPortUser receiverPort{nullptr};
+    iox::popo::SubscriberPortUser subscriberPort{nullptr};
 
     iox::cxx::optional<RouDiEnvironment> m_roudiEnv;
 };
