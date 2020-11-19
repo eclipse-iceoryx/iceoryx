@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -176,8 +176,15 @@ class PoshRuntime
 
     static PoshRuntime& defaultRuntimeFactory(const std::string& name) noexcept;
 
+    /// @brief gets current runtime factory. If the runtime factory is not yet initialized it is set to
+    /// defaultRuntimeFactory.
+    ///
+    /// @return current runtime factory
     static factory_t& getRuntimeFactory() noexcept;
 
+    /// @brief sets runtime factory, terminates if given factory is empty
+    ///
+    /// @param[in] factory std::function to which the runtime factory should be set
     static void setRuntimeFactory(const factory_t& factory) noexcept;
 
   private:
