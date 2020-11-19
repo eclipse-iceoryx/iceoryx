@@ -75,10 +75,6 @@ void receiving()
         {
             if (condition.doesOriginateFrom(&shutdownGuard))
             {
-                for (auto& s : subscriberVector)
-                {
-                    s.unsubscribe();
-                }
                 return;
             }
             else if (condition.getTriggerId() == FIRST_GROUP_ID)
@@ -92,6 +88,8 @@ void receiving()
                 condition();
             }
         }
+
+        std::cout << std::endl;
     }
 }
 
