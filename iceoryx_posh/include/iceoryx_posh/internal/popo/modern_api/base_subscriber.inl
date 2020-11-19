@@ -122,6 +122,7 @@ template <typename T, typename Subscriber, typename port_t>
 inline void BaseSubscriber<T, Subscriber, port_t>::unsetConditionVariable() noexcept
 {
     m_port.unsetConditionVariable();
+    m_trigger.invalidate();
 }
 
 template <typename T, typename Subscriber, typename port_t>
@@ -144,6 +145,23 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
     auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
     m_port.get().releaseChunk(header);
 }
+
+template <typename T, typename Subscriber, typename port_t>
+inline cxx::expected<WaitSetError> BaseSubscriber<T, Subscriber, port_t>::attachToWaitset(
+    WaitSet& waitset, const uint64_t triggerId, const Trigger::Callback<Subscriber> callback) noexcept
+{
+    using SelfType = BaseSubscriber<T, Subscriber, port_t>;
+    Subscriber* self = reinterpret_cast<Subscriber*>(this);
+
+    return waitset
+        .acquireTrigger(
+            self, {self, &Subscriber::hasNewSamples}, {this, &SelfType::unsetConditionVariable}, triggerId, callback)
+        .and_then([this](Trigger& trigger) {
+            m_trigger = std::move(trigger);
+            m_port.setConditionVariable(m_trigger.getConditionVariableData());
+        });
+}
+
 
 } // namespace popo
 } // namespace iox

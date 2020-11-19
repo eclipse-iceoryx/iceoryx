@@ -49,6 +49,13 @@ void subscriberCallback(iox::popo::Condition* const subscriber)
     });
 }
 
+void subscriberCallback(Subscriber* const subscriber)
+{
+    subscriber->take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+        std::cout << "Received: " << sample->counter << std::endl;
+    });
+}
+
 void receiving()
 {
     iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
@@ -56,7 +63,8 @@ void receiving()
     iox::popo::TypedSubscriber<CounterTopic> mySubscriber({"Radar", "FrontLeft", "Counter"});
     iox::popo::WaitSet waitset;
 
-    mySubscriber.attachTo(&waitset, {&mySubscriber, &Subscriber::hasNewSamples}, 5, subscriberCallback);
+
+    mySubscriber.attachToWaitset(waitset, 5, subscriberCallback);
 
     mySubscriber.subscribe();
 
@@ -107,7 +115,6 @@ void receiving()
         }
     }
 
-    printf("waiting for thread\n");
     t1.join();
 }
 

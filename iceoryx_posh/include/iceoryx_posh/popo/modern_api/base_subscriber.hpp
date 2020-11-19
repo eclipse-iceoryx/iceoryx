@@ -130,6 +130,7 @@ class BaseSubscriber : public Condition
   protected:
     port_t m_port{nullptr};
     SubscriberSampleDeleter m_sampleDeleter{m_port};
+    Trigger m_trigger;
 };
 
 } // namespace popo
