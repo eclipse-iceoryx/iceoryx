@@ -23,10 +23,6 @@ namespace iox
 {
 namespace concurrent
 {
-// The resize functionality does not work fully concurrently and lockfree to other operations
-// To make it concurrently resizable we could use another indexqueue but this may not be allowed (clarify)
-// so we provide a solution with a simplified approach which avoids that problem.
-
 // Design Goal: have both a fixed size queue and a  resizable queue to be chosen when needed.
 //(i.e. no unnecessary "one size fits all" solution)
 
@@ -95,8 +91,6 @@ class ResizeableLockFreeQueue : public LockFreeQueue<ElementType, Capacity>
 
     std::atomic<uint64_t> m_capacity{Capacity};
 
-    // needed if we cannot use a lockfree structure to store the unused indices(clarify),
-    // which would make resizing lockfree
     // we also sync m_capacity with this
     std::atomic_flag m_resizeInProgress{false};
 
@@ -106,12 +100,6 @@ class ResizeableLockFreeQueue : public LockFreeQueue<ElementType, Capacity>
     // always eventually complete (which is true when the application does not die and the relevant thread is scheduled
     // eventually. The latter is the case for any OS and mandatory for a Realtime OS.
 
-    // Major remark: if this is changed into a lockfree structure (e.g. a index queue) together with some other
-    // minor modifications (atomic m_capacity etc.), the resize can be made truly lockfree
-    // Note that then the m_resizeInProgress flag would then also not strictly be needed, but it may be useful
-    // for synchronization (with the caveat that a rpocess dying while resizing can block resizes and leave
-    // the queue with an undesired capacity).
-    //(TODO: clarify whether we are allowed to do so and want that)
     iox::cxx::vector<BufferIndex, Capacity> m_unusedIndices;
 
     /// @brief      Increase the capacity by some value.

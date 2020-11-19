@@ -48,7 +48,7 @@ bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacity(uint64_t newCap
 template <typename ElementType, uint64_t Capacity>
 bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacity(uint64_t newCapacity) noexcept
 {
-    auto removeHandler = [](const ElementType& value) {};
+    auto removeHandler = [](const ElementType&) {};
     return setCapacityImpl(newCapacity, removeHandler);
 }
 
