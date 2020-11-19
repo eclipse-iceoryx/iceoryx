@@ -31,25 +31,25 @@ class UntypedPublisherImpl : public base_publisher_t
     UntypedPublisherImpl& operator=(const UntypedPublisherImpl&) = delete;
     UntypedPublisherImpl(UntypedPublisherImpl&& rhs) = default;
     UntypedPublisherImpl& operator=(UntypedPublisherImpl&& rhs) = default;
-    ~UntypedPublisherImpl() = default;
+    virtual ~UntypedPublisherImpl() = default;
 
-    uid_t getUid() const noexcept;
-    capro::ServiceDescription getServiceDescription() const noexcept;
+    using base_publisher_t::getUid;
+    using base_publisher_t::getServiceDescription;
+    using base_publisher_t::publish;
+    using base_publisher_t::loan;
+    using base_publisher_t::loanPreviousSample;
+    using base_publisher_t::offer;
+    using base_publisher_t::stopOffer;
+    using base_publisher_t::isOffered;
+    using base_publisher_t::hasSubscribers;
 
-    cxx::expected<Sample<void>, AllocationError> loan(const uint32_t size) noexcept;
-    void publish(Sample<void>&& sample) noexcept;
     ///
     /// @brief publish Publish the provided memory chunk.
     /// @param allocatedMemory Pointer to the allocated shared memory chunk.
     /// @return Error if provided pointer is not a valid memory chunk.
     ///
     void publish(void* allocatedMemory) noexcept;
-    cxx::optional<Sample<void>> loanPreviousSample() noexcept;
 
-    void offer() noexcept;
-    void stopOffer() noexcept;
-    bool isOffered() const noexcept;
-    bool hasSubscribers() const noexcept;
 };
 
 using UntypedPublisher = UntypedPublisherImpl<>;

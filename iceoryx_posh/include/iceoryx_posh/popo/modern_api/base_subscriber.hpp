@@ -31,12 +31,17 @@ using uid_t = UniquePortId;
 template <typename T, typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber : public Condition
 {
-  public:
+protected:
+
+    BaseSubscriber(const capro::ServiceDescription& service);
     BaseSubscriber(const BaseSubscriber& other) = delete;
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
     BaseSubscriber(BaseSubscriber&& rhs) = delete;
     BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
     ~BaseSubscriber();
+
+    // Required for testing. Allows BaseSubscriber instance to be constructed without a PoshRuntime.
+    BaseSubscriber() noexcept {};
 
     ///
     /// @brief uid Get the unique ID of the subscriber.
@@ -98,11 +103,6 @@ class BaseSubscriber : public Condition
     virtual void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
     virtual void unsetConditionVariable() noexcept override;
     virtual bool hasTriggered() const noexcept override;
-
-  protected:
-    BaseSubscriber() noexcept // Required for testing.
-        {};
-    BaseSubscriber(const capro::ServiceDescription& service);
 
   private:
     ///
