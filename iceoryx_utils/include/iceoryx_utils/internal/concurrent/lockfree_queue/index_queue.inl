@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH, 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -276,6 +275,28 @@ bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(uint64_t requiredSize, 
     }
 
     return false;
+}
+
+template <uint64_t Capacity, typename ValueType>
+cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::pop() noexcept
+{
+    ValueType value;
+    if (pop(value))
+    {
+        return value;
+    }
+    return cxx::nullopt;
+}
+
+template <uint64_t Capacity, typename ValueType>
+cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfFull() noexcept
+{
+    ValueType value;
+    if (popIfFull(value))
+    {
+        return value;
+    }
+    return cxx::nullopt;
 }
 
 template <uint64_t Capacity, typename ValueType>

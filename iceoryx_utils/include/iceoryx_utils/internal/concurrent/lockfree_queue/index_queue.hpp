@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH, 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -77,6 +76,14 @@ class IndexQueue
     /// we cannot overflow (the number of indices available is bounded
     /// and the capacity is large enough to hold them all)
     void push(const ValueType index) noexcept;
+
+    /// @brief pop an index from the queue in FIFO order if the queue not empty
+    /// @return index if the queue was is empty, nullopt oterwise
+    cxx::optional<ValueType> pop() noexcept;
+
+    /// @brief pop an index from the queue in FIFO order if the queue is full
+    /// @return index if the queue was full, nullopt otherwise
+    cxx::optional<ValueType> popIfFull() noexcept;
 
     /// @brief pop an index from the queue in FIFO order if the queue not empty
     /// @param index that was obtained, undefined if false is returned

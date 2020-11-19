@@ -1,10 +1,23 @@
-#include "resizeable_lockfree_queue.hpp"
+// Copyright (c) 2020 Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "iceoryx_utils/concurrent/resizeable_lockfree_queue.hpp"
 
 namespace iox
 {
 namespace concurrent
 {
-
 template <typename ElementType, uint64_t Capacity>
 ResizeableLockFreeQueue<ElementType, Capacity>::ResizeableLockFreeQueue(uint64_t initialCapacity) noexcept
 {
@@ -25,22 +38,24 @@ uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::capacity() const noexce
 
 template <typename ElementType, uint64_t Capacity>
 template <typename ContainerType>
-bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacity(uint64_t newCapacity, ContainerType &removedElements) noexcept
+bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacity(uint64_t newCapacity,
+                                                                 ContainerType& removedElements) noexcept
 {
-    auto removeHandler = [&](const ElementType &value) { removedElements.push_back(std::move(value)); };
+    auto removeHandler = [&](const ElementType& value) { removedElements.push_back(std::move(value)); };
     return setCapacityImpl(newCapacity, removeHandler);
 }
 
 template <typename ElementType, uint64_t Capacity>
 bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacity(uint64_t newCapacity) noexcept
 {
-    auto removeHandler = [](const ElementType &value) {};
+    auto removeHandler = [](const ElementType& value) {};
     return setCapacityImpl(newCapacity, removeHandler);
 }
 
 template <typename ElementType, uint64_t Capacity>
 template <typename Function>
-bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacityImpl(uint64_t newCapacity, Function &&removeHandler) noexcept
+bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacityImpl(uint64_t newCapacity,
+                                                                     Function&& removeHandler) noexcept
 {
     if (newCapacity > MAX_CAPACITY)
     {
@@ -49,7 +64,7 @@ bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacityImpl(uint64_t ne
 
     if (m_resizeInProgress.test_and_set(std::memory_order_acquire))
     {
-        //at most one resize can be in progress at any time
+        // at most one resize can be in progress at any time
         return false;
     }
 
@@ -71,7 +86,7 @@ bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacityImpl(uint64_t ne
         cap = capacity();
     }
 
-    //sync everything related to capacity change, e.g. the new capacity stored in m_capacity
+    // sync everything related to capacity change, e.g. the new capacity stored in m_capacity
     m_resizeInProgress.clear(std::memory_order_release);
     return true;
 }
@@ -79,14 +94,14 @@ bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacityImpl(uint64_t ne
 template <typename ElementType, uint64_t Capacity>
 uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::increaseCapacity(uint64_t toIncrease) noexcept
 {
-    //we can be sure this is not called concurrently due to the m_resizeInProgress flag
+    // we can be sure this is not called concurrently due to the m_resizeInProgress flag
     //(this must be ensured as the vector is modified)
     uint64_t increased = 0;
     while (increased < toIncrease)
     {
         if (m_unusedIndices.empty())
         {
-            //no indices left to increase capacity
+            // no indices left to increase capacity
             return increased;
         }
         ++increased;
@@ -100,7 +115,8 @@ uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::increaseCapacity(uint64
 
 template <typename ElementType, uint64_t Capacity>
 template <typename Function>
-uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::decreaseCapacity(uint64_t toDecrease, Function &&removeHandler) noexcept
+uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::decreaseCapacity(uint64_t toDecrease,
+                                                                          Function&& removeHandler) noexcept
 {
     uint64_t decreased = 0;
     while (decreased < toDecrease)
@@ -129,7 +145,7 @@ uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::decreaseCapacity(uint64
             // we want to make sure no one else gets the index once we have it
             if (!tryGetUsedIndex(index))
             {
-                //try the free ones again
+                // try the free ones again
                 break;
             }
 
@@ -149,17 +165,17 @@ uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::decreaseCapacity(uint64
 }
 
 template <typename ElementType, uint64_t Capacity>
-bool ResizeableLockFreeQueue<ElementType, Capacity>::tryGetUsedIndex(BufferIndex &index) noexcept
+bool ResizeableLockFreeQueue<ElementType, Capacity>::tryGetUsedIndex(BufferIndex& index) noexcept
 {
-    //note: we have a problem here if we lose an index entirely, since the queue
-    //can then never be full again (or, more generally contain capacity indices)
-    //to lessen this problem, we could use a regular pop if we fail to often here
-    //instead of a variation of popIfFull (which will never work then)
+    // note: we have a problem here if we lose an index entirely, since the queue
+    // can then never be full again (or, more generally contain capacity indices)
+    // to lessen this problem, we could use a regular pop if we fail to often here
+    // instead of a variation of popIfFull (which will never work then)
 
     auto cap = capacity();
     if (cap == 0)
     {
-        //this should in principle return false for a zero capacity queue unless capacity changed inbetween
+        // this should in principle return false for a zero capacity queue unless capacity changed inbetween
         //(therefore we call the method)
         return Base::m_usedIndices.pop(index);
     }
@@ -167,20 +183,20 @@ bool ResizeableLockFreeQueue<ElementType, Capacity>::tryGetUsedIndex(BufferIndex
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::push(const ElementType &value) noexcept
+iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::push(const ElementType& value) noexcept
 {
     return pushImpl(std::forward<const ElementType>(value));
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::push(ElementType &&value) noexcept
+iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::push(ElementType&& value) noexcept
 {
     return pushImpl(std::forward<ElementType>(value));
 }
 
 template <typename ElementType, uint64_t Capacity>
 template <typename T>
-iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::pushImpl(T &&value) noexcept
+iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::pushImpl(T&& value) noexcept
 {
     cxx::optional<ElementType> evictedValue;
 
