@@ -78,7 +78,7 @@ class Mepoo_IntegrationTest : public Test
 
     virtual void TearDown()
     {
-        senderPort.stopOffer();
+        publisherPort.stopOffer();
         receiverPort.unsubscribe();
 
         std::string output = internal::GetCapturedStderr();
@@ -144,7 +144,7 @@ class Mepoo_IntegrationTest : public Test
         iox::capro::ServiceDescription m_service_description{99, 1, 20};
 
         auto& senderRuntime = iox::runtime::PoshRuntime::getInstance("/sender");
-        senderPort = iox::popo::PublisherPortUser(senderRuntime.getMiddlewarePublisher(m_service_description));
+        publisherPort = iox::popo::PublisherPortUser(senderRuntime.getMiddlewarePublisher(m_service_description));
 
         auto& receiverRuntime = iox::runtime::PoshRuntime::getInstance("/receiver");
         receiverPort = iox::popo::SubscriberPortUser(receiverRuntime.getMiddlewareSubscriber(m_service_description));
@@ -283,9 +283,9 @@ class Mepoo_IntegrationTest : public Test
         using Topic = MemPoolTestTopic<size>;
         constexpr auto topicSize = sizeof(Topic);
 
-        if (!(senderPort.isOffered()))
+        if (!(publisherPort.isOffered()))
         {
-            senderPort.offer();
+            publisherPort.offer();
         }
 
         if (receiverPort.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
@@ -299,14 +299,14 @@ class Mepoo_IntegrationTest : public Test
 
         for (int idx = 0; idx < times; ++idx)
         {
-            senderPort.tryAllocateChunk(topicSize).and_then([&](iox::mepoo::ChunkHeader* sample) {
+            publisherPort.tryAllocateChunk(topicSize).and_then([&](iox::mepoo::ChunkHeader* sample) {
                 new (sample->payload()) Topic;
                 sample->m_info.m_payloadSize = topicSize;
-                senderPort.sendChunk(sample);
+                publisherPort.sendChunk(sample);
                 m_roudiEnv->InterOpWait();
             });
         }
-        senderPort.stopOffer();
+        publisherPort.stopOffer();
 
         return true;
     }
@@ -331,7 +331,7 @@ class Mepoo_IntegrationTest : public Test
 
     MePooConfig memconf;
 
-    iox::popo::PublisherPortUser senderPort{nullptr};
+    iox::popo::PublisherPortUser publisherPort{nullptr};
     iox::popo::SubscriberPortUser receiverPort{nullptr};
 
     iox::cxx::optional<RouDiEnvironment> m_roudiEnv;

@@ -123,7 +123,7 @@ class PortIntrospection_test : public Test
     iox::popo::PublisherPortData m_publisherPortDataThroughput{m_serviceDescription, "Foo", &m_memoryManager};
     iox::popo::PublisherPortData m_publisherPortDataReceiverData{m_serviceDescription, "Foo", &m_memoryManager};
 
-    MockPublisherPortUser m_senderPortImpl_mock;
+    MockPublisherPortUser m_publisherPortImpl_mock;
     MockPublisherPortUser m_portThroughput_mock;
     MockPublisherPortUser m_receiverPortData_mock;
     std::unique_ptr<iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>> m_introspection{
@@ -163,9 +163,9 @@ TEST_F(PortIntrospection_test, sendPortData_EmptyList)
 
     m_introspectionAccess.sendPortData();
 
-    // topic contains no sender or receiver ports but 0xFF bytes are overwritten
+    // topic contains no publisher or subscriber ports but 0xFF bytes are overwritten
 
-    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(1);
+    EXPECT_CALL(m_publisherPortImpl_mock, sendChunk).Times(1);
     EXPECT_THAT(chunk->sample()->m_senderList.size(), Eq(0));
     EXPECT_THAT(chunk->sample()->m_receiverList.size(), Eq(0));
 }
@@ -179,7 +179,7 @@ TEST_F(PortIntrospection_test, sendThroughputData_EmptyList)
 
     m_introspectionAccess.sendThroughputData();
 
-    // topic contains no sender or receiver ports but 0xFF bytes are overwritten
+    // topic contains no publisher or subscriber ports but 0xFF bytes are overwritten
 
     EXPECT_THAT(chunk->sample()->m_throughputList.size(), Eq(0));
     EXPECT_CALL(m_portThroughput_mock, sendChunk).Times(1);
@@ -201,11 +201,11 @@ TEST_F(PortIntrospection_test, sendData_OneSender)
     // auto portDataTopic = std::unique_ptr<PortDataChunk>(new PortDataChunk);
     // auto throughputTopic = std::unique_ptr<ThroughputChunk>(new ThroughputChunk);
 
-    // MockPublisherPortUser senderPort;
-    // std::string senderPortName("name");
+    // MockPublisherPortUser publisherPort;
+    // std::string publisherPortName("name");
 
     // PortData expectedSenderPortData;
-    // expectedSenderPortData.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, senderPortName.c_str());
+    // expectedSenderPortData.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, publisherPortName.c_str());
     // expectedSenderPortData.m_caproInstanceID = "1";
     // expectedSenderPortData.m_caproServiceID = "2";
     // expectedSenderPortData.m_caproEventMethodID = "3";
@@ -220,7 +220,7 @@ TEST_F(PortIntrospection_test, sendData_OneSender)
     // expectedThroughput.lastDeliveryTimestamp = TimePointNs(DurationNs(0));
     // expectedThroughput.currentDeliveryTimestamp = TimePointNs(DurationNs(durationNs));
     // ThroughputData expectedThroughputData;
-    // expectedThroughputData.m_senderPortID = ExpectedUniqueID;
+    // expectedThroughputData.m_publisherPortID = ExpectedUniqueID;
     // expectedThroughputData.m_sampleSize = expectedThroughput.payloadSize;
     // expectedThroughputData.m_chunkSize = expectedThroughput.chunkSize;
     // expectedThroughputData.m_chunksPerMinute = 60. / (static_cast<double>(durationNs) / NsPerSecond);
@@ -230,11 +230,11 @@ TEST_F(PortIntrospection_test, sendData_OneSender)
     //                                        expectedSenderPortData.m_caproInstanceID,
     //                                        expectedSenderPortData.m_caproEventMethodID);
 
-    // iox::popo::SenderPortData senderPortData;
-    // senderPortData.m_throughputReadCache = expectedThroughput;
-    // senderPortData.m_processName = expectedSenderPortData.m_name;
+    // iox::popo::SenderPortData publisherPortData;
+    // publisherPortData.m_throughputReadCache = expectedThroughput;
+    // publisherPortData.m_processName = expectedSenderPortData.m_name;
 
-    // EXPECT_THAT(m_introspection->addSender(&senderPortData, senderPortName, service, ""), Eq(true));
+    // EXPECT_THAT(m_introspection->addSender(&publisherPortData, publisherPortName, service, ""), Eq(true));
 
     // SenderPort_MOCK::globalDetails = std::make_shared<SenderPort_MOCK::mock_t>();
     // SenderPort_MOCK::globalDetails->reserveSampleReturn = throughputTopic->chunkHeader();
@@ -247,11 +247,11 @@ TEST_F(PortIntrospection_test, sendData_OneSender)
 
     // m_introspectionAccess.sendPortData();
 
-    // topic contains no sender or receiver ports but 0xFF bytes are overwritten
+    // topic contains no publisher or subscriber ports but 0xFF bytes are overwritten
 
     // ASSERT_THAT(portDataTopic->sample()->m_senderList.size(), Eq(1));
     // auto sentSenderPortData = portDataTopic->sample()->m_senderList[0];
-    // EXPECT_THAT(sentSenderPortData.m_senderPortID, Eq(ExpectedUniqueID));
+    // EXPECT_THAT(sentSenderPortData.m_publisherPortID, Eq(ExpectedUniqueID));
     // EXPECT_THAT(sentSenderPortData.m_name, Eq(expectedSenderPortData.m_name));
     // EXPECT_THAT(sentSenderPortData.m_caproInstanceID, Eq(expectedSenderPortData.m_caproInstanceID));
     // EXPECT_THAT(sentSenderPortData.m_caproServiceID, Eq(expectedSenderPortData.m_caproServiceID));
@@ -267,7 +267,7 @@ TEST_F(PortIntrospection_test, sendData_OneSender)
 
     // ASSERT_THAT(throughputTopic->sample()->m_throughputList.size(), Eq(1));
     // auto sentThroughputData = throughputTopic->sample()->m_throughputList[0];
-    // EXPECT_THAT(sentThroughputData.m_senderPortID, Eq(ExpectedUniqueID));
+    // EXPECT_THAT(sentThroughputData.m_publisherPortID, Eq(ExpectedUniqueID));
     // EXPECT_THAT(sentThroughputData.m_sampleSize, Eq(expectedThroughputData.m_sampleSize));
     // EXPECT_THAT(sentThroughputData.m_chunkSize, Eq(expectedThroughputData.m_chunkSize));
     // EXPECT_THAT(sentThroughputData.m_chunksPerMinute, DoubleEq(expectedThroughputData.m_chunksPerMinute));
@@ -309,7 +309,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
 
     // test adding of ports
 
-    // remark: duplicate sender port insertions are not possible
+    // remark: duplicate publisher port insertions are not possible
 
     iox::popo::PublisherPortData portData1{m_serviceDescription, "Foo", &m_memoryManager};
     iox::popo::PublisherPortData portData2{m_serviceDescription, "Foo", &m_memoryManager};
@@ -379,7 +379,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
 
     sample->~PortIntrospectionFieldTopic();
 
-    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(4);
+    EXPECT_CALL(m_publisherPortImpl_mock, sendChunk).Times(4);
 }
 
 TEST_F(PortIntrospection_test, addAndRemoveReceiver)
@@ -490,7 +490,7 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
 
     sample->~PortIntrospectionFieldTopic();
 
-    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(4);
+    EXPECT_CALL(m_publisherPortImpl_mock, sendChunk).Times(4);
 }
 
 
@@ -523,19 +523,19 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     iox::capro::ServiceDescription service(
         expectedSender.m_caproServiceID, expectedSender.m_caproInstanceID, expectedSender.m_caproEventMethodID);
 
-    // test adding of sender and receiver port of same service to establish a connection (requires same service id)
+    // test adding of publisher or subscriber port of same service to establish a connection (requires same service id)
     iox::popo::ReceiverPortData recData1{
         m_serviceDescription, "Foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
     EXPECT_THAT(m_introspection->addReceiver(&recData1, nameReceiver, service, ""), Eq(true));
-    iox::popo::PublisherPortData senderPortData{m_serviceDescription, "Foo", &m_memoryManager};
-    EXPECT_THAT(m_introspection->addSender(&senderPortData, nameSender, service, ""), Eq(true));
+    iox::popo::PublisherPortData publisherPortData{m_serviceDescription, "Foo", &m_memoryManager};
+    EXPECT_THAT(m_introspection->addSender(&publisherPortData, nameSender, service, ""), Eq(true));
 
     m_introspectionAccess.sendPortData();
 
     auto sample = chunk->sample();
 
     {
-        // expect unconnected sender and receiver (service is equal but m_senderIndex == -1 in receiver)
+        // expect unconnected publisher or subscriber (service is equal but m_senderIndex == -1 in receiver)
 
         ASSERT_THAT(sample->m_senderList.size(), Eq(1));
         ASSERT_THAT(sample->m_receiverList.size(), Eq(1));
@@ -553,7 +553,7 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     m_introspectionAccess.sendPortData();
 
     {
-        // expect unconnected sender and receiver, since there was a SUB but no ACK
+        // expect unconnected publisher or subscriber, since there was a SUB but no ACK
         expectedReceiver.m_senderIndex = -1;
 
         ASSERT_THAT(sample->m_senderList.size(), Eq(1));
@@ -568,7 +568,7 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     m_introspectionAccess.sendPortData();
 
     {
-        // expect connected sender and receiver, since there was a SUB followed by ACK
+        // expect connected publisher or subscriber, since there was a SUB followed by ACK
         expectedReceiver.m_senderIndex = 0;
 
         ASSERT_THAT(sample->m_senderList.size(), Eq(1));
@@ -583,7 +583,7 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     m_introspectionAccess.sendPortData();
 
     {
-        // expect connected sender and receiver, since there was a SUB followed by ACK
+        // expect connected publisher or subscriber, since there was a SUB followed by ACK
         expectedReceiver.m_senderIndex = -1;
 
         ASSERT_THAT(sample->m_senderList.size(), Eq(1));
@@ -598,7 +598,7 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     m_introspectionAccess.sendPortData();
 
     {
-        // expect unconnected sender and receiver, since there was a SUB without ACK
+        // expect unconnected publisher or subscriber, since there was a SUB without ACK
         expectedReceiver.m_senderIndex = -1;
 
         ASSERT_THAT(sample->m_senderList.size(), Eq(1));
@@ -613,7 +613,7 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     m_introspectionAccess.sendPortData();
 
     {
-        // expect unconnected sender and receiver, since there was a SUB followed by NACK
+        // expect unconnected publisher or subscriber, since there was a SUB followed by NACK
         expectedReceiver.m_senderIndex = -1;
 
         ASSERT_THAT(sample->m_senderList.size(), Eq(1));
@@ -628,7 +628,7 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     m_introspectionAccess.sendPortData();
 
     {
-        // expect unconnected sender and receiver, since there was a SUB without ACK
+        // expect unconnected publisher or subscriber, since there was a SUB without ACK
         expectedReceiver.m_senderIndex = -1;
 
         ASSERT_THAT(sample->m_senderList.size(), Eq(1));
@@ -643,7 +643,7 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     m_introspectionAccess.sendPortData();
 
     {
-        // expect connected sender and receiver, since there was a SUB followed by ACK
+        // expect connected publisher or subscriber, since there was a SUB followed by ACK
         expectedReceiver.m_senderIndex = 0;
 
         ASSERT_THAT(sample->m_senderList.size(), Eq(1));
@@ -658,7 +658,8 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     m_introspectionAccess.sendPortData();
 
     {
-        // expect connected sender and receiver, since there was a SUB followed by ACK followed by another message (SUB)
+        // expect connected publisher or subscriber, since there was a SUB followed by ACK followed by another message
+        // (SUB)
         expectedReceiver.m_senderIndex = 0;
 
         ASSERT_THAT(sample->m_senderList.size(), Eq(1));
@@ -673,7 +674,7 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     m_introspectionAccess.sendPortData();
 
     {
-        // expect disconnected sender and receiver, since there was a STOP_OFFER
+        // expect disconnected publisher or subscriber, since there was a STOP_OFFER
         expectedReceiver.m_senderIndex = -1;
 
         ASSERT_THAT(sample->m_senderList.size(), Eq(1));
@@ -707,7 +708,7 @@ TEST_F(PortIntrospection_test, thread)
     m_introspection->stop();
     std::this_thread::sleep_for(
         std::chrono::milliseconds(555)); // if the thread doesn't stop, we have 12 runs after the sleep period
-    EXPECT_CALL(m_senderPortImpl_mock, sendChunk).Times(1);
+    EXPECT_CALL(m_publisherPortImpl_mock, sendChunk).Times(1);
     EXPECT_CALL(m_portThroughput_mock, sendChunk).Times(AtLeast(4));
     EXPECT_CALL(m_receiverPortData_mock, sendChunk).Times(AtLeast(4));
 }

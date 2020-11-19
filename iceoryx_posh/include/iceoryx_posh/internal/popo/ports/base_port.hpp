@@ -55,7 +55,7 @@ class BasePort
     /// @return if the memberpointer is not null it returns true, otherwise false
     operator bool() const noexcept;
 
-    /// @brief Reads Type of actual CaPro Port (sender/receiver...)
+    /// @brief Reads Type of actual CaPro Port (publisher/subscriber...)
     /// @return m_portType  Type of Port in struct BasePortType
     capro::ServiceDescription getCaProServiceDescription() const noexcept;
 

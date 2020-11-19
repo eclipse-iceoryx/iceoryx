@@ -58,7 +58,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     }
     auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
-    // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active senderport)
+    // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active publisher port)
     // are there used instances of RouDiBase?
     popo::PublisherPortData* portGeneric =
         acquirePublisherPortData(
@@ -156,7 +156,7 @@ void PortManager::handleSubscriberPorts() noexcept
             {
                 if (!sendToAllMatchingPublisherPorts(caproMessage, subscriberPort))
                 {
-                    LogDebug() << "capro::SUB/UNSUB, no matching sender!!";
+                    LogDebug() << "capro::SUB/UNSUB, no matching publisher!!";
                     capro::CaproMessage nackMessage(capro::CaproMessageType::NACK,
                                                     subscriberPort.getCaProServiceDescription());
                     auto returnMessage = subscriberPort.dispatchCaProMessageAndGetPossibleResponse(nackMessage);
@@ -205,20 +205,20 @@ void PortManager::handleInterfaces() noexcept
 
     if (interfacePortsForInitialForwarding.size() > 0)
     {
-        // provide offer information from all active sender ports to all new interfaces
+        // provide offer information from all active publisher ports to all new interfaces
         capro::CaproMessage caproMessage;
         caproMessage.m_type = capro::CaproMessageType::OFFER;
-        for (auto senderPortData : m_portPool->getPublisherPortDataList())
+        for (auto publisherPortData : m_portPool->getPublisherPortDataList())
         {
-            PublisherPortUserType senderPort(senderPortData);
-            if (senderPort.isOffered())
+            PublisherPortUserType publisherPort(publisherPortData);
+            if (publisherPort.isOffered())
             {
-                caproMessage.m_serviceDescription = senderPort.getCaProServiceDescription();
+                caproMessage.m_serviceDescription = publisherPort.getCaProServiceDescription();
                 for (auto& interfacePortData : interfacePortsForInitialForwarding)
                 {
                     auto interfacePort = popo::InterfacePort(interfacePortData);
                     // do not offer on same interface
-                    if (senderPort.getCaProServiceDescription().getSourceInterface()
+                    if (publisherPort.getCaProServiceDescription().getSourceInterface()
                         != interfacePort.getCaProServiceDescription().getSourceInterface())
                     {
                         interfacePort.dispatchCaProMessage(caproMessage);
@@ -395,8 +395,8 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
 {
     for (auto port : m_portPool->getPublisherPortDataList())
     {
-        PublisherPortRouDiType sender(port);
-        if (processName == sender.getProcessName())
+        PublisherPortRouDiType publisherPortRoudi(port);
+        if (processName == publisherPortRoudi.getProcessName())
         {
             destroyPublisherPort(port);
         }

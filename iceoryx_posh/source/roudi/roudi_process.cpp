@@ -784,7 +784,7 @@ void ProcessManager::monitorProcesses() noexcept
                 // note: if we would want to use the removeProcess function, it would search for the process again
                 // (but we already found it and have an iterator to remove it)
 
-                // delete all associated receiver and sender impl in shared
+                // delete all associated subscriber and publisher ports in shared
                 // memory and the associated RouDi discovery ports
                 // @todo Check if ShmManager and Process Manager end up in unintended condition
                 m_portManager.deletePortsOfProcess(processIterator->getName());

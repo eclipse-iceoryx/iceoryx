@@ -52,8 +52,8 @@ class PortPool
     virtual ~PortPool() noexcept = default;
 
     /// @todo don't create the vector with each call but only when the data really change
-    /// there could be a member "cxx::vector<popo::SenderPortData* m_senderPorts;" and senderPorts() would just update
-    /// this member if the sender ports actually changed
+    /// there could be a member "cxx::vector<popo::PublisherPortData* m_publisherPorts;" and publisherPorts() would just
+    /// update this member if the publisher ports actually changed
     cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept;
     cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
     cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;

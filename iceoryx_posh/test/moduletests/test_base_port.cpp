@@ -50,20 +50,20 @@ BasePort* CreateCaProPort()
 
 BasePort* CreateSenderPort()
 {
-    PublisherPortData* senderPortData =
+    PublisherPortData* publisherPortData =
         new PublisherPortData(SERVICE_DESCRIPTION_VALID, APP_NAME_FOR_SENDER_PORTS, &m_memoryManager, 1);
-    return new PublisherPortUser(senderPortData);
+    return new PublisherPortUser(publisherPortData);
 }
 
 BasePort* CreateReceiverPort()
 {
-    SubscriberPortData* receiverPortData =
+    SubscriberPortData* subscriberPortData =
         new SubscriberPortData(SERVICE_DESCRIPTION_VALID,
                                APP_NAME_FOR_RECEIVER_PORTS,
                                iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
                                1,
                                iox::mepoo::MemoryInfo());
-    return new SubscriberPortUser(receiverPortData);
+    return new SubscriberPortUser(subscriberPortData);
 }
 
 BasePort* CreateInterfacePort()

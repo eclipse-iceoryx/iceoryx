@@ -61,14 +61,14 @@ class ProcessIntrospection_test : public Test
     {
         std::unique_ptr<ChunkMock<Topic>> chunk{new ChunkMock<Topic>};
 
-        EXPECT_CALL(m_senderPortImpl_mock, sendChunk(_)).Times(1);
+        EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(1);
 
         introspection.send();
 
         return chunk;
     }
 
-    MockPublisherPortUser m_senderPortImpl_mock;
+    MockPublisherPortUser m_publisherPortImpl_mock;
     iox::mepoo::MemoryManager m_memoryManager;
     iox::capro::ServiceDescription m_serviceDescription;
     iox::popo::PublisherPortData m_publisherPortData{m_serviceDescription, "Foo", &m_memoryManager};
@@ -77,7 +77,7 @@ class ProcessIntrospection_test : public Test
 TEST_F(ProcessIntrospection_test, CTOR)
 {
     ProcessIntrospection m_introspection;
-    EXPECT_CALL(m_senderPortImpl_mock, stopOffer()).Times(1);
+    EXPECT_CALL(m_publisherPortImpl_mock, stopOffer()).Times(1);
 }
 
 TEST_F(ProcessIntrospection_test, registerSenderPort)
@@ -112,7 +112,7 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
 
-        // m_senderPortImpl_mock->hasSubscribersReturn = true;
+        // m_publisherPortImpl_mock->hasSubscribersReturn = true;
 
         // invalid removal doesn't cause problems
         m_introspection.removeProcess(PID);
@@ -133,7 +133,7 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
 
         // if there isn't any change, no data are deliverd
         m_introspection.send();
-        EXPECT_CALL(m_senderPortImpl_mock, sendChunk(_)).Times(0);
+        EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(0);
     }
     // stopOffer was called
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
@@ -177,8 +177,8 @@ TEST_F(ProcessIntrospection_test, thread)
             m_introspection.removeProcess(PID);
         }
         // if the thread doesn't stop, we have 12 runs after the sleep period
-        EXPECT_CALL(m_senderPortImpl_mock, offer()).Times(1);
-        EXPECT_CALL(m_senderPortImpl_mock, sendChunk(_)).Times(AtLeast(4));
+        EXPECT_CALL(m_publisherPortImpl_mock, offer()).Times(1);
+        EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(AtLeast(4));
     }
     // stopOffer was called
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
