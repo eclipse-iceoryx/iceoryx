@@ -12,6 +12,95 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/popo/guard_condition.hpp"
+#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "topic_data.hpp"
+
+#include <chrono>
+#include <csignal>
+#include <iostream>
+
+iox::popo::GuardCondition shutdownGuard;
+using Subscriber = iox::popo::UntypedSubscriber;
+
+static void sigHandler(int f_sig [[gnu::unused]])
+{
+    shutdownGuard.trigger();
+}
+
+void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
+{
+    subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
+        const CounterTopic* data = reinterpret_cast<const CounterTopic*>(sample.get());
+        std::cout << "subscriber: " << std::hex << subscriber << " received: " << std::dec << data->counter
+                  << std::endl;
+    });
+}
+
+void receiving()
+{
+    constexpr uint64_t FIRST_GROUP_ID = 123;
+    constexpr uint64_t SECOND_GROUP_ID = 456;
+
+    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
+    iox::popo::WaitSet waitset;
+
+    iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
+
+    for (auto i = 0; i < 4; ++i)
+    {
+        subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
+        auto& subscriber = subscriberVector.back();
+
+        subscriber.subscribe();
+    }
+
+    for (auto i = 0; i < 2; ++i)
+        subscriberVector[i].attachToWaitset(
+            waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID, subscriberCallback);
+
+    for (auto i = 2; i < 4; ++i)
+        subscriberVector[i].attachToWaitset(
+            waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID, subscriberCallback);
+
+    shutdownGuard.attachToWaitset(waitset);
+
+    while (true)
+    {
+        auto triggeredConditions = waitset.wait();
+
+        for (auto& condition : triggeredConditions)
+        {
+            if (condition.doesOriginateFrom(&shutdownGuard))
+            {
+                for (auto& s : subscriberVector)
+                {
+                    s.unsubscribe();
+                }
+                return;
+            }
+            else if (condition.getTriggerId() == FIRST_GROUP_ID)
+            {
+                std::cout << "First group element\n";
+                condition();
+            }
+            else if (condition.getTriggerId() == SECOND_GROUP_ID)
+            {
+                std::cout << "Second group element\n";
+                condition();
+            }
+        }
+    }
+}
+
 int main()
 {
+    signal(SIGINT, sigHandler);
+
+    std::thread rx(receiving);
+    rx.join();
+
+    return (EXIT_SUCCESS);
 }
