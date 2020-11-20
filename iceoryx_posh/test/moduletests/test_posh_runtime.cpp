@@ -51,13 +51,13 @@ class PoshRuntime_test : public Test
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
-    const iox::cxx::string<100> m_runtimeName{"/publisher"};
+    const iox::ProcessName_t m_runtimeName{"/publisher"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::getInstance(m_runtimeName)};
     MqMessage m_sendBuffer;
     MqMessage m_receiveBuffer;
-    const iox::cxx::string<100> m_runnableName{"testRunnable"};
-    const iox::cxx::string<100> m_invalidRunnableName{"invalidRunnable,"};
+    const iox::RunnableName_t m_runnableName{"testRunnable"};
+    const iox::RunnableName_t m_invalidRunnableName{"invalidRunnable,"};
     static bool m_errorHandlerCalled;
 };
 
