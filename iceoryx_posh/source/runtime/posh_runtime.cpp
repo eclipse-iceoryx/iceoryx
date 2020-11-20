@@ -56,8 +56,8 @@ PoshRuntime::PoshRuntime(const ProcessName_t& name, const bool doMapSharedMemory
     , m_MqInterface(MQ_ROUDI_NAME, name, PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface(doMapSharedMemoryIntoThread,
                      m_MqInterface.getShmTopicSize(),
-                     m_MqInterface.getSegmentManagerAddr(),
-                     m_MqInterface.getSegmentId())
+                     m_MqInterface.getSegmentId(),
+                     m_MqInterface.getSegmentManagerAddressOffset())
     , m_applicationPort(getMiddlewareApplication())
 {
     m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC, posix::Timer::CatchUpPolicy::IMMEDIATE);

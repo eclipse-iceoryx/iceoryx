@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -328,9 +328,11 @@ bool MqRuntimeInterface::sendKeepalive() noexcept
     return m_RoudiMqInterface.send({mqMessageTypeToString(MqMessageType::KEEPALIVE), m_appName});
 }
 
-std::string MqRuntimeInterface::getSegmentManagerAddr() const noexcept
+RelativePointer::offset_t MqRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
 {
-    return m_segmentManager;
+    cxx::Ensures(m_segmentManagerAddressOffset.has_value()
+                 && "No segment manager available! Should have been fetched in the c'tor");
+    return m_segmentManagerAddressOffset.value();
 }
 
 bool MqRuntimeInterface::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept
@@ -418,8 +420,10 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
                 }
 
                 // read out the shared memory base address and save it
-                m_shmTopicSize = strtoull(receiveBuffer.getElementAtIndex(1).c_str(), nullptr, 10);
-                m_segmentManager = receiveBuffer.getElementAtIndex(2);
+                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), m_shmTopicSize);
+                RelativePointer::offset_t offset;
+                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), offset);
+                m_segmentManagerAddressOffset.emplace(offset);
 
                 int64_t receivedTimestamp;
                 cxx::convert::fromString(receiveBuffer.getElementAtIndex(3).c_str(), receivedTimestamp);
