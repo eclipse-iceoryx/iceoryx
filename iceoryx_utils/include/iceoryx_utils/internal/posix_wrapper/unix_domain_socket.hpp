@@ -42,7 +42,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     static constexpr size_t MAX_MESSAGE_SIZE = 2048u;
     static constexpr size_t SHORTEST_VALID_NAME = 2u;
     /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the path prefix
-    static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - sizeof(PATH_PREFIX) - 1;
+    static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
 
