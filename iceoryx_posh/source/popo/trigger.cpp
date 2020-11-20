@@ -31,18 +31,25 @@ bool Trigger::hasTriggered() const noexcept
 
 void Trigger::reset() noexcept
 {
-    if (isValid() && m_resetCallback)
+    if (!isValid())
     {
-        // It is possible that the reset call calls itself again therefore
-        // we have to invalidate the trigger first before calling reset.
-        m_conditionVariableDataPtr = nullptr;
+        return;
+    }
+
+    // It is possible that the reset call calls itself again therefore
+    // we have to invalidate the trigger first before calling reset.
+    m_conditionVariableDataPtr = nullptr;
+    m_origin = nullptr;
+
+    if (m_resetCallback)
+    {
         m_resetCallback(*this);
     }
 }
 
 void Trigger::trigger() noexcept
 {
-    if (m_conditionVariableDataPtr)
+    if (isValid())
     {
         ConditionVariableSignaler(m_conditionVariableDataPtr).notifyOne();
     }
@@ -55,7 +62,7 @@ Trigger::operator bool() const noexcept
 
 bool Trigger::isValid() const noexcept
 {
-    return m_conditionVariableDataPtr != nullptr;
+    return m_origin != nullptr && m_conditionVariableDataPtr != nullptr && m_hasTriggeredCallback;
 }
 
 ConditionVariableData* Trigger::getConditionVariableData() noexcept
@@ -65,8 +72,15 @@ ConditionVariableData* Trigger::getConditionVariableData() noexcept
 
 bool Trigger::operator==(const Trigger& rhs) const noexcept
 {
-    return (m_origin == rhs.m_origin && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback);
+    return (m_origin == rhs.m_origin && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback
+            && m_conditionVariableDataPtr == rhs.m_conditionVariableDataPtr);
 }
+
+bool Trigger::operator!=(const Trigger& rhs) const noexcept
+{
+    return !(*this == rhs);
+}
+
 
 Trigger::Trigger(Trigger&& rhs) noexcept
 {

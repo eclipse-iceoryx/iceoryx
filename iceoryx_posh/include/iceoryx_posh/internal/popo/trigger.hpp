@@ -57,6 +57,7 @@ class Trigger : public TriggerState
     ConditionVariableData* getConditionVariableData() noexcept;
 
     bool operator==(const Trigger& rhs) const noexcept;
+    bool operator!=(const Trigger& rhs) const noexcept;
 
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
