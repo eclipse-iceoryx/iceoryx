@@ -33,19 +33,20 @@ class UntypedSubscriberImpl : public base_subscriber_t
     UntypedSubscriberImpl& operator=(const UntypedSubscriberImpl&) = delete;
     UntypedSubscriberImpl(UntypedSubscriberImpl&& rhs) = delete;
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
-    ~UntypedSubscriberImpl() = default;
+    virtual ~UntypedSubscriberImpl() = default;
 
-    capro::ServiceDescription getServiceDescription() const noexcept;
-    uid_t getUid() const noexcept;
-
-    void subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
-    SubscribeState getSubscriptionState() const noexcept;
-    void unsubscribe() noexcept;
-
-    bool hasNewSamples() const noexcept;
-    bool hasMissedSamples() noexcept;
-    cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError> take() noexcept;
-    void releaseQueuedSamples() noexcept;
+    using base_subscriber_t::getServiceDescription;
+    using base_subscriber_t::getSubscriptionState;
+    using base_subscriber_t::getUid;
+    using base_subscriber_t::hasMissedSamples;
+    using base_subscriber_t::hasNewSamples;
+    using base_subscriber_t::hasTriggered;
+    using base_subscriber_t::releaseQueuedSamples;
+    using base_subscriber_t::setConditionVariable;
+    using base_subscriber_t::subscribe;
+    using base_subscriber_t::take;
+    using base_subscriber_t::unsetConditionVariable;
+    using base_subscriber_t::unsubscribe;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;

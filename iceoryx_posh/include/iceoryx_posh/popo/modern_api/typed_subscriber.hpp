@@ -32,19 +32,20 @@ class TypedSubscriber : public base_subscriber_t
     TypedSubscriber& operator=(const TypedSubscriber&) = delete;
     TypedSubscriber(TypedSubscriber&& rhs) = delete;
     TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
-    ~TypedSubscriber() = default;
+    virtual ~TypedSubscriber() = default;
 
-    capro::ServiceDescription getServiceDescription() const noexcept;
-    uid_t getUid() const noexcept;
-
-    void subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
-    SubscribeState getSubscriptionState() const noexcept;
-    void unsubscribe() noexcept;
-
-    bool hasNewSamples() const noexcept;
-    bool hasMissedSamples() noexcept;
-    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> take() noexcept;
-    void releaseQueuedSamples() noexcept;
+    using base_subscriber_t::getServiceDescription;
+    using base_subscriber_t::getSubscriptionState;
+    using base_subscriber_t::getUid;
+    using base_subscriber_t::hasMissedSamples;
+    using base_subscriber_t::hasNewSamples;
+    using base_subscriber_t::hasTriggered;
+    using base_subscriber_t::releaseQueuedSamples;
+    using base_subscriber_t::setConditionVariable;
+    using base_subscriber_t::subscribe;
+    using base_subscriber_t::take;
+    using base_subscriber_t::unsetConditionVariable;
+    using base_subscriber_t::unsubscribe;
 };
 
 } // namespace popo

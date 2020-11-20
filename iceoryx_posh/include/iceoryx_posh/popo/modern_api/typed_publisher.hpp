@@ -35,13 +35,18 @@ class TypedPublisher : public base_publisher_t
     TypedPublisher& operator=(const TypedPublisher&) = delete;
     TypedPublisher(TypedPublisher&& rhs) = default;
     TypedPublisher& operator=(TypedPublisher&& rhs) = default;
-    ~TypedPublisher() = default;
+    virtual ~TypedPublisher() = default;
 
-    uid_t getUid() const noexcept;
-    capro::ServiceDescription getServiceDescription() const noexcept;
+    using base_publisher_t::getServiceDescription;
+    using base_publisher_t::getUid;
+    using base_publisher_t::hasSubscribers;
+    using base_publisher_t::isOffered;
+    using base_publisher_t::loanPreviousSample;
+    using base_publisher_t::offer;
+    using base_publisher_t::publish;
+    using base_publisher_t::stopOffer;
 
     cxx::expected<Sample<T>, AllocationError> loan() noexcept;
-    void publish(Sample<T>&& sample) noexcept;
     ///
     /// @brief publishCopyOf Copy the provided value into a loaned shared memory chunk and publish it.
     /// @param val Value to copy.
@@ -56,12 +61,6 @@ class TypedPublisher : public base_publisher_t
     ///
     template <typename Callable, typename... ArgTypes>
     cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
-    cxx::optional<Sample<T>> loanPreviousSample() noexcept;
-
-    void offer() noexcept;
-    void stopOffer() noexcept;
-    bool isOffered() const noexcept;
-    bool hasSubscribers() const noexcept;
 };
 
 } // namespace popo
