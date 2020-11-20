@@ -18,44 +18,44 @@ namespace iox
 {
 namespace concurrent
 {
-template <typename ElementType, uint64_t Capacity>
-ResizeableLockFreeQueue<ElementType, Capacity>::ResizeableLockFreeQueue(uint64_t initialCapacity) noexcept
+template <typename ElementType, uint64_t MaxCapacity>
+ResizeableLockFreeQueue<ElementType, MaxCapacity>::ResizeableLockFreeQueue(uint64_t initialCapacity) noexcept
 {
     setCapacity(initialCapacity);
 }
 
-template <typename ElementType, uint64_t Capacity>
-constexpr uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::maxCapacity() noexcept
+template <typename ElementType, uint64_t MaxCapacity>
+constexpr uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::maxCapacity() noexcept
 {
     return MAX_CAPACITY;
 }
 
-template <typename ElementType, uint64_t Capacity>
-uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::capacity() const noexcept
+template <typename ElementType, uint64_t MaxCapacity>
+uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::capacity() const noexcept
 {
     return m_capacity.load(std::memory_order_relaxed);
 }
 
-template <typename ElementType, uint64_t Capacity>
+template <typename ElementType, uint64_t MaxCapacity>
 template <typename ContainerType>
-bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacity(uint64_t newCapacity,
-                                                                 ContainerType& removedElements) noexcept
+bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t newCapacity,
+                                                                    ContainerType& removedElements) noexcept
 {
     auto removeHandler = [&](const ElementType& value) { removedElements.push_back(std::move(value)); };
     return setCapacityImpl(newCapacity, removeHandler);
 }
 
-template <typename ElementType, uint64_t Capacity>
-bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacity(uint64_t newCapacity) noexcept
+template <typename ElementType, uint64_t MaxCapacity>
+bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t newCapacity) noexcept
 {
     auto removeHandler = [](const ElementType&) {};
     return setCapacityImpl(newCapacity, removeHandler);
 }
 
-template <typename ElementType, uint64_t Capacity>
+template <typename ElementType, uint64_t MaxCapacity>
 template <typename Function>
-bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacityImpl(uint64_t newCapacity,
-                                                                     Function&& removeHandler) noexcept
+bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacityImpl(uint64_t newCapacity,
+                                                                        Function&& removeHandler) noexcept
 {
     if (newCapacity > MAX_CAPACITY)
     {
@@ -91,8 +91,8 @@ bool ResizeableLockFreeQueue<ElementType, Capacity>::setCapacityImpl(uint64_t ne
     return true;
 }
 
-template <typename ElementType, uint64_t Capacity>
-uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::increaseCapacity(uint64_t toIncrease) noexcept
+template <typename ElementType, uint64_t MaxCapacity>
+uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::increaseCapacity(uint64_t toIncrease) noexcept
 {
     // we can be sure this is not called concurrently due to the m_resizeInProgress flag
     //(this must be ensured as the vector is modified)
@@ -113,10 +113,10 @@ uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::increaseCapacity(uint64
     return increased;
 }
 
-template <typename ElementType, uint64_t Capacity>
+template <typename ElementType, uint64_t MaxCapacity>
 template <typename Function>
-uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::decreaseCapacity(uint64_t toDecrease,
-                                                                          Function&& removeHandler) noexcept
+uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(uint64_t toDecrease,
+                                                                             Function&& removeHandler) noexcept
 {
     uint64_t decreased = 0;
     while (decreased < toDecrease)
@@ -164,8 +164,8 @@ uint64_t ResizeableLockFreeQueue<ElementType, Capacity>::decreaseCapacity(uint64
     return decreased;
 }
 
-template <typename ElementType, uint64_t Capacity>
-bool ResizeableLockFreeQueue<ElementType, Capacity>::tryGetUsedIndex(BufferIndex& index) noexcept
+template <typename ElementType, uint64_t MaxCapacity>
+bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::tryGetUsedIndex(BufferIndex& index) noexcept
 {
     // note: we have a problem here if we lose an index entirely, since the queue
     // can then never be full again (or, more generally contain capacity indices)
@@ -182,21 +182,22 @@ bool ResizeableLockFreeQueue<ElementType, Capacity>::tryGetUsedIndex(BufferIndex
     return Base::m_usedIndices.popIfSizeIsAtLeast(cap, index);
 }
 
-template <typename ElementType, uint64_t Capacity>
-iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::push(const ElementType& value) noexcept
+template <typename ElementType, uint64_t MaxCapacity>
+iox::cxx::optional<ElementType>
+ResizeableLockFreeQueue<ElementType, MaxCapacity>::push(const ElementType& value) noexcept
 {
     return pushImpl(std::forward<const ElementType>(value));
 }
 
-template <typename ElementType, uint64_t Capacity>
-iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::push(ElementType&& value) noexcept
+template <typename ElementType, uint64_t MaxCapacity>
+iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity>::push(ElementType&& value) noexcept
 {
     return pushImpl(std::forward<ElementType>(value));
 }
 
-template <typename ElementType, uint64_t Capacity>
+template <typename ElementType, uint64_t MaxCapacity>
 template <typename T>
-iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, Capacity>::pushImpl(T&& value) noexcept
+iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity>::pushImpl(T&& value) noexcept
 {
     cxx::optional<ElementType> evictedValue;
 

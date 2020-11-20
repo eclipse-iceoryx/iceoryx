@@ -30,14 +30,14 @@ namespace concurrent
 // but if the code requires (major) interface changes this may be needed
 // for now we prefer inheritance here since we (mainly) extend functionality
 // We do not want to use virtual functions to be able to use the class in shared memory.
-template <typename ElementType, uint64_t Capacity>
-class ResizeableLockFreeQueue : public LockFreeQueue<ElementType, Capacity>
+template <typename ElementType, uint64_t MaxCapacity>
+class ResizeableLockFreeQueue : public LockFreeQueue<ElementType, MaxCapacity>
 {
   private:
-    using Base = LockFreeQueue<ElementType, Capacity>;
+    using Base = LockFreeQueue<ElementType, MaxCapacity>;
 
   public:
-    static constexpr uint64_t MAX_CAPACITY = Capacity;
+    static constexpr uint64_t MAX_CAPACITY = MaxCapacity;
 
     ResizeableLockFreeQueue() = default;
 
@@ -71,25 +71,25 @@ class ResizeableLockFreeQueue : public LockFreeQueue<ElementType, Capacity>
     // extend interface with the resize functionaility
     //********************************************************************************
 
-    /// @brief Set the capacity to a new Capacity between 0 and Capacity, if the capacity is reduced
+    /// @brief Set the capacity to a new MaxCapacity between 0 and MaxCapacity, if the capacity is reduced
     /// it may be necessary to remove the least recent elements.
-    /// @param[in] newCapacity new capacity to be set, if it is larger than Capacity the call fails
+    /// @param[in] newCapacity new capacity to be set, if it is larger than MaxCapacity the call fails
     /// @param[out] removedElements container were potentially removed elements can be stored.
-    /// @return true setting if the new capacity was successful, false otherwise (newCapacity > Capacity)
-    template <typename ContainerType = iox::cxx::vector<ElementType, Capacity>>
+    /// @return true setting if the new capacity was successful, false otherwise (newCapacity > MaxCapacity)
+    template <typename ContainerType = iox::cxx::vector<ElementType, MaxCapacity>>
     bool setCapacity(uint64_t newCapacity, ContainerType& removedElements) noexcept;
 
-    /// @brief Set the capacity to a new Capacity between 0 and Capacity, if the capacity is reduced
+    /// @brief Set the capacity to a new MaxCapacity between 0 and MaxCapacity, if the capacity is reduced
     /// it may be necessary to remove the least recent elements which are then discarded.
-    /// @param[in] newCapacity new capacity to be set, if it is larger than Capacity the call fails
-    /// @return true setting if the new capacity was successful, false otherwise (newCapacity > Capacity)
+    /// @param[in] newCapacity new capacity to be set, if it is larger than MaxCapacity the call fails
+    /// @return true setting if the new capacity was successful, false otherwise (newCapacity > MaxCapacity)
     bool setCapacity(uint64_t newCapacity) noexcept;
 
   private:
-    using Queue = typename iox::concurrent::LockFreeQueue<ElementType, Capacity>;
+    using Queue = typename iox::concurrent::LockFreeQueue<ElementType, MaxCapacity>;
     using BufferIndex = typename Queue::BufferIndex;
 
-    std::atomic<uint64_t> m_capacity{Capacity};
+    std::atomic<uint64_t> m_capacity{MaxCapacity};
 
     // we also sync m_capacity with this
     std::atomic_flag m_resizeInProgress{false};
@@ -100,12 +100,12 @@ class ResizeableLockFreeQueue : public LockFreeQueue<ElementType, Capacity>
     // always eventually complete (which is true when the application does not die and the relevant thread is scheduled
     // eventually. The latter is the case for any OS and mandatory for a Realtime OS.
 
-    iox::cxx::vector<BufferIndex, Capacity> m_unusedIndices;
+    iox::cxx::vector<BufferIndex, MaxCapacity> m_unusedIndices;
 
     /// @brief      Increase the capacity by some value.
     /// @param[in]  toIncrease value by which the capacity is to be increased
     /// @return     value by which the capacity was actually increased
-    /// @note       If incrementing cannot be carried out (because the Capacity was reached),
+    /// @note       If incrementing cannot be carried out (because the MaxCapacity was reached),
     ///             this value will be smaller than toIncrease.
     uint64_t increaseCapacity(uint64_t toIncrease) noexcept;
 

@@ -17,6 +17,13 @@
 #include "iceoryx_utils/concurrent/resizeable_lockfree_queue.hpp"
 using namespace ::testing;
 
+//*********************************************************
+// Test the added functionaility of ResizeableLockFreeQueue
+// to change the capacity (setCapacity).
+// The remaining functionality is identical to LockFreeQueue
+// and tested in test_lockfree_queue.cpp (as a typed test).
+//*********************************************************
+
 namespace
 {
 // use a non-POD type for testing (just a boxed version of int)
@@ -37,14 +44,14 @@ struct Integer
 };
 
 template <typename T>
-class ResizableLockFreeQueueSetCapacityTest : public ::testing::Test
+class ResizeableLockFreeQueueTest : public ::testing::Test
 {
   protected:
-    ResizableLockFreeQueueSetCapacityTest()
+    ResizeableLockFreeQueueTest()
     {
     }
 
-    ~ResizableLockFreeQueueSetCapacityTest()
+    ~ResizeableLockFreeQueueTest()
     {
     }
 
@@ -76,49 +83,57 @@ using IntegerQueue = iox::concurrent::ResizeableLockFreeQueue<Integer, Capacity>
 template <size_t Capacity>
 using IntQueue = iox::concurrent::ResizeableLockFreeQueue<int, Capacity>;
 
-// typedef ::testing::Types < IntegerQueue < 1>, IntegerQueue < 10>, IntQueue < 10>> TestQueues;
-typedef ::testing::Types<IntQueue<10>> TestQueues;
+typedef ::testing::Types<IntegerQueue<1>, IntegerQueue<10>, IntQueue<10>> TestQueues;
+
 
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(ResizableLockFreeQueueSetCapacityTest, TestQueues);
+TYPED_TEST_CASE(ResizeableLockFreeQueueTest, TestQueues);
 #pragma GCC diagnostic pop
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, initialCapacityIsMaximalbyDefault)
+TEST(ResizeableLockFreeQueueTest, maxCapacityIsConsistent)
 {
-    auto& q = this->queue;
-    EXPECT_EQ(q.capacity(), q.maxCapacity());
+    using Queue = IntegerQueue<37>;
+    EXPECT_EQ(Queue::maxCapacity(), 37);
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, constructWithMaxCapacity)
+TYPED_TEST(ResizeableLockFreeQueueTest, initialCapacityIsMaximalbyDefault)
+{
+    using Queue = typename TestFixture::Queue;
+    auto& q = this->queue;
+    EXPECT_EQ(q.capacity(), q.maxCapacity());
+    EXPECT_EQ(q.capacity(), Queue::maxCapacity());
+}
+
+TYPED_TEST(ResizeableLockFreeQueueTest, constructWithMaxCapacity)
 {
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     typename TestFixture::Queue q(MAX_CAP);
     EXPECT_EQ(q.capacity(), q.maxCapacity());
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, constructWithMoreThanMaxCapacitySaturatesAtMaxCapacity)
+TYPED_TEST(ResizeableLockFreeQueueTest, constructWithMoreThanMaxCapacitySaturatesAtMaxCapacity)
 {
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     typename TestFixture::Queue q(MAX_CAP + 1);
     EXPECT_EQ(q.capacity(), q.maxCapacity());
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, constructWithNoCapacity)
+TYPED_TEST(ResizeableLockFreeQueueTest, constructWithNoCapacity)
 {
     typename TestFixture::Queue q(0);
     EXPECT_EQ(q.capacity(), 0);
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, constructWithHalfOfMaxCapacity)
+TYPED_TEST(ResizeableLockFreeQueueTest, constructWithHalfOfMaxCapacity)
 {
     constexpr auto cap = TestFixture::Queue::MAX_CAPACITY / 2;
     typename TestFixture::Queue q(cap);
     EXPECT_EQ(q.capacity(), cap);
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, decreaseCapacityToZeroOneByOne)
+TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOne)
 {
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -131,7 +146,7 @@ TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, decreaseCapacityToZeroOneByOne
     }
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, increaseToMaxCapacity)
+TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacity)
 {
     typename TestFixture::Queue q(0);
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -140,7 +155,7 @@ TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, increaseToMaxCapacity)
     EXPECT_EQ(q.capacity(), MAX_CAP);
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, increaseToMaxCapacityOneByOne)
+TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOne)
 {
     typename TestFixture::Queue q(0);
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -153,21 +168,21 @@ TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, increaseToMaxCapacityOneByOne)
     }
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, setCapacityToZero)
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZero)
 {
     auto& q = this->queue;
     EXPECT_TRUE(q.setCapacity(0));
     EXPECT_EQ(q.capacity(), 0);
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, setCapacityToOne)
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOne)
 {
     auto& q = this->queue;
     EXPECT_TRUE(q.setCapacity(1));
     EXPECT_EQ(q.capacity(), 1);
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, setCapacityToMaxCapacity)
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacity)
 {
     typename TestFixture::Queue q(0);
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -175,7 +190,7 @@ TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, setCapacityToMaxCapacity)
     EXPECT_EQ(q.capacity(), MAX_CAP);
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, setCapacityToHalfOfMaxCapacityAndFillIt)
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillIt)
 {
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -192,7 +207,7 @@ TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, setCapacityToHalfOfMaxCapacity
     EXPECT_EQ(element, newCap + 1);
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, setCapacityFromHalfOfMaxCapacityToMaxCapacity)
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCapacity)
 {
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -225,7 +240,7 @@ TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, setCapacityFromHalfOfMaxCapaci
     }
 }
 
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, SetCapacityOfFullQueueToHalfOfMaxCapacity)
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacity)
 {
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
@@ -241,6 +256,10 @@ TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, SetCapacityOfFullQueueToHalfOf
     EXPECT_EQ(q.capacity(), cap);
     EXPECT_EQ(q.size(), cap);
 
+    if (cap == 0)
+    {
+        return;
+    }
     // the least recent values are removed due to the capacity being decreased
     for (element = cap; element < MAX_CAP; ++element)
     {
@@ -253,7 +272,7 @@ TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, SetCapacityOfFullQueueToHalfOf
 // note this is one of the most general cases and necessary to test:
 // decreasing the capacity starting with a partially filled queue and checking whether the last values
 // remain (and the others are removed)
-TYPED_TEST(ResizableLockFreeQueueSetCapacityTest, DecreaseCapacityOfAPartiallyFilledQueue)
+TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
 {
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
