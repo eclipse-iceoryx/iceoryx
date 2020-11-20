@@ -60,7 +60,7 @@ class UserTrigger
     void resetTrigger() noexcept;
 
   private:
-    void unsetConditionVariable(const Trigger&) noexcept;
+    void unsetTrigger(const Trigger&) noexcept;
 
   private:
     Trigger m_trigger;

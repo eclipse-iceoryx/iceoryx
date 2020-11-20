@@ -110,7 +110,7 @@ inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedSamples() noexce
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::unsetConditionVariable(const Trigger& trigger) noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::unsetTrigger(const Trigger& trigger) noexcept
 {
     m_port.unsetConditionVariable();
     m_trigger.reset();
@@ -144,8 +144,7 @@ BaseSubscriber<T, Subscriber, port_t>::attachToWaitset(WaitSet& waitset,
     static_cast<void>(subscriberEvent);
 
     return waitset
-        .acquireTrigger(
-            self, {self, &Subscriber::hasNewSamples}, {this, &SelfType::unsetConditionVariable}, triggerId, callback)
+        .acquireTrigger(self, {self, &Subscriber::hasNewSamples}, {this, &SelfType::unsetTrigger}, triggerId, callback)
         .and_then([this](Trigger& trigger) {
             m_trigger = std::move(trigger);
             m_port.setConditionVariable(m_trigger.getConditionVariableData());
