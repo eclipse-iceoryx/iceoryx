@@ -26,6 +26,8 @@ namespace iox
 {
 namespace posix
 {
+constexpr char UnixDomainSocket::PATH_PREFIX[];
+
 UnixDomainSocket::UnixDomainSocket() noexcept
 {
     this->m_isInitialized = false;
@@ -526,7 +528,7 @@ cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int32_
     }
     default:
     {
-        std::cerr << "internal logic error in message queue \"" << m_name << "\" occurred" << std::endl;
+        std::cerr << "internal logic error in unix domain socket \"" << m_name << "\" occurred" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
     }
