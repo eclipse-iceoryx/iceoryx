@@ -18,17 +18,21 @@ namespace iox
 {
 namespace popo
 {
-const uint64_t& TriggerState::getTriggerId() const noexcept
+constexpr uint64_t TriggerState::INVALID_TRIGGER_ID;
+
+uint64_t TriggerState::getTriggerId() const noexcept
 {
     return m_triggerId;
 }
 
-void TriggerState::operator()() const noexcept
+bool TriggerState::operator()() const noexcept
 {
     if (m_origin != nullptr && m_callbackPtr != nullptr)
     {
         m_callback(m_origin, m_callbackPtr);
+        return true;
     }
+    return false;
 }
 
 } // namespace popo

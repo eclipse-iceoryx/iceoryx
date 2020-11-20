@@ -38,6 +38,10 @@ inline TriggerState::TriggerState(T* const origin, const uint64_t triggerId, con
 template <typename T>
 inline bool TriggerState::doesOriginateFrom(T* const origin) const noexcept
 {
+    if (m_origin == nullptr)
+    {
+        return false;
+    }
     return m_origin == origin;
 }
 

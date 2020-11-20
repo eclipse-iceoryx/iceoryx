@@ -37,7 +37,7 @@ class TriggerState
     template <typename T>
     TriggerState(T* const origin, const uint64_t triggerId, const Callback<T> callback) noexcept;
 
-    const uint64_t& getTriggerId() const noexcept;
+    uint64_t getTriggerId() const noexcept;
 
     template <typename T>
     bool doesOriginateFrom(T* const origin) const noexcept;
@@ -48,7 +48,7 @@ class TriggerState
     template <typename T>
     const T* getOrigin() const noexcept;
 
-    void operator()() const noexcept;
+    bool operator()() const noexcept;
 
   protected:
     void* m_origin = nullptr;
