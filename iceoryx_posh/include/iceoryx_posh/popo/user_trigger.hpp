@@ -24,8 +24,9 @@ namespace iox
 {
 namespace popo
 {
-/// @brief Allows the user to manually notify inside of one application
-/// @note Contained in every WaitSet
+/// @brief A trigger which can be used by the application developer directly.
+///        If you would like to trigger a WaitSet through an event of your class
+///        you should use the Trigger class.
 class UserTrigger
 {
   public:
@@ -35,24 +36,30 @@ class UserTrigger
     UserTrigger& operator=(const UserTrigger& rhs) = delete;
     UserTrigger& operator=(UserTrigger&& rhs) = delete;
 
+    /// @brief attaches the UserTrigger to a WaitSet
+    /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
+    /// @param[in] triggerId optional parameter, the id of the trigger
+    /// @param[in] callback optional parameter, the callback of the trigger
+    /// @param[in] if the trigger could not be attached to the given waitset the expected contains the error, otherwise
+    /// the expected signals success
     cxx::expected<WaitSetError> attachToWaitset(WaitSet& waitset,
                                                 const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
                                                 const Trigger::Callback<UserTrigger> callback = nullptr) noexcept;
 
+    /// @brief detaches the UserTrigger from the waitset. If it was not attached to a waitset nothing happens.
     void detachWaitset() noexcept;
 
-    /// @brief Wakes up a waiting WaitSet
+    /// @brief If it is attached it will trigger otherwise it will do nothing
     void trigger() noexcept;
 
-    /// @brief Checks if trigger was set
-    /// @return True if trigger is set, false if otherwise
+    /// @brief Checks if the UserTrigger was triggered
+    /// @return true if the UserTrigger is trigger, otherwise false
     bool hasTriggered() const noexcept;
 
-    /// @brief Sets trigger to false
+    /// @brief Resets the UserTrigger state to not triggered
     void resetTrigger() noexcept;
 
   private:
-    /// @brief Deletes the condition variable data pointer
     void unsetConditionVariable(const Trigger&) noexcept;
 
   private:
