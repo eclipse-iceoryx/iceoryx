@@ -203,7 +203,7 @@ class PortIntrospection
          * @return returns false if the port could not be removed (since it did not exist)
          *              and true otherwise
          */
-        bool removeReceiver(const RunnableName_t& name, const capro::ServiceDescription& service);
+        bool removeReceiver(const ProcessName_t& name, const capro::ServiceDescription& service);
 
         /*!
          * @brief update the state of any connection identified by the capro id of a given message
