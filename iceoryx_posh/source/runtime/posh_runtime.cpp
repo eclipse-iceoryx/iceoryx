@@ -445,7 +445,7 @@ RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProper
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_RUNNABLE) << m_appName
-               << static_cast<std::string>(runnableProperty);
+               << static_cast<cxx::Serialization>(runnableProperty).toString();
 
     MqMessage receiveBuffer;
 

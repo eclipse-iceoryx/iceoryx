@@ -315,8 +315,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         else
         {
-            runtime::RunnableProperty runnableProperty(
-                RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
+            runtime::RunnableProperty runnableProperty(cxx::Serialization(message.getElementAtIndex(2)));
             m_prcMgr.addRunnableForProcess(processName, runnableProperty.m_name);
         }
         break;
