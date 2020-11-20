@@ -111,7 +111,7 @@ class BaseSubscriber
     BaseSubscriber() noexcept; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service) noexcept;
 
-    void unsetConditionVariable() noexcept;
+    void unsetConditionVariable(const Trigger& trigger) noexcept;
 
   private:
     ///

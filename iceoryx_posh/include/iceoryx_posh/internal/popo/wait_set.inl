@@ -23,7 +23,7 @@ template <typename T>
 inline cxx::expected<Trigger, WaitSetError>
 WaitSet::acquireTrigger(T* const origin,
                         const cxx::ConstMethodCallback<bool>& triggerCallback,
-                        const cxx::MethodCallback<void>& invalidationCallback,
+                        const cxx::MethodCallback<void, const Trigger&>& invalidationCallback,
                         const uint64_t triggerId,
                         const Trigger::Callback<T> callback) noexcept
 {

@@ -53,7 +53,7 @@ class UserTrigger
 
   private:
     /// @brief Deletes the condition variable data pointer
-    void unsetConditionVariable() noexcept;
+    void unsetConditionVariable(const Trigger&) noexcept;
 
   private:
     Trigger m_trigger;

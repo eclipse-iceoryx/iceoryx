@@ -64,7 +64,7 @@ template <typename T>
 inline Trigger::Trigger(T* const origin,
                         ConditionVariableData* conditionVariableDataPtr,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-                        const cxx::MethodCallback<void>& invalidationCallback,
+                        const cxx::MethodCallback<void, const Trigger&>& invalidationCallback,
                         const uint64_t triggerId,
                         const Callback<T> callback) noexcept
     : TriggerState(origin, triggerId, callback)

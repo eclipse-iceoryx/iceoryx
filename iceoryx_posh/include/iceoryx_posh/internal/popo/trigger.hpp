@@ -73,7 +73,7 @@ class Trigger : public TriggerState
     Trigger(T* const origin,
             ConditionVariableData* conditionVariableDataPtr,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-            const cxx::MethodCallback<void>& invalidationCallback,
+            const cxx::MethodCallback<void, const Trigger&>& invalidationCallback,
             const uint64_t triggerId,
             const Callback<T> callback) noexcept;
 
@@ -101,7 +101,7 @@ class Trigger : public TriggerState
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
-    cxx::MethodCallback<void> m_invalidationCallback;
+    cxx::MethodCallback<void, const Trigger&> m_invalidationCallback;
     cxx::MethodCallback<void, Trigger&> m_removalCallback;
 };
 

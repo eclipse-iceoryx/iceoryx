@@ -61,7 +61,7 @@ void Trigger::invalidate() noexcept
     if (isValid() && m_invalidationCallback)
     {
         m_conditionVariableDataPtr = nullptr;
-        m_invalidationCallback();
+        m_invalidationCallback(*this);
     }
 }
 

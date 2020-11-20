@@ -56,7 +56,7 @@ void UserTrigger::resetTrigger() noexcept
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
-void UserTrigger::unsetConditionVariable() noexcept
+void UserTrigger::unsetConditionVariable(const Trigger&) noexcept
 {
     std::lock_guard<std::recursive_mutex> g(m_mutex);
     m_trigger.invalidate();
