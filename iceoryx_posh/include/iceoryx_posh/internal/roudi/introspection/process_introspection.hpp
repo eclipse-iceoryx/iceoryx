@@ -35,7 +35,7 @@ namespace roudi
  *        The class tracks the adding and removal of processes and sends it to
  *        the introspection client if subscribed.
  */
-template <typename SenderPort>
+template <typename PublisherPort>
 class ProcessIntrospection
 {
   public:
@@ -81,19 +81,19 @@ class ProcessIntrospection
     void removeRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable);
 
     /*!
-     * @brief This functions registers the POSH sender port which is used
+     * @brief This functions registers the POSH publisher port which is used
      *        to send the data to the instrospcetion client
      *
-     * @param senderPort is the sender port for transmission
+     * @param publisherPort is the publisher port for transmission
      */
-    void registerSenderPort(popo::PublisherPortData* senderPort);
+    void registerPublisherPort(popo::PublisherPortData* publisherPort);
 
     /**
      * @brief This function starts a thread which periodically sends
      *        the introspection data to the client. The send interval
      *        can be set by @ref setSendInterval "setSendInterval(...)".
-     *        Before this function is called, the sender port hast to be
-     *        registerd with @ref registerSenderPort "registerSenderPort()".
+     *        Before this function is called, the publisher port hast to be
+     *        registerd with @ref registerPublisherPort "registerPublisherPort()".
      */
     void run();
     /**
@@ -117,7 +117,7 @@ class ProcessIntrospection
     ProcessList_t m_processList;
     bool m_processListNewData{true}; // true because we want to have a valid field, even with an empty list
 
-    SenderPort m_senderPort{nullptr};
+    PublisherPort m_publisherPort{nullptr};
 
     std::atomic<bool> m_runThread;
     std::thread m_thread;

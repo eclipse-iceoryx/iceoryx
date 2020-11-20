@@ -18,61 +18,61 @@ namespace iox
 {
 namespace roudi
 {
-template <typename SenderPort, typename ReceiverPort>
-PortIntrospection<SenderPort, ReceiverPort>::PortIntrospection()
+template <typename PublisherPort, typename SubscriberPort>
+PortIntrospection<PublisherPort, SubscriberPort>::PortIntrospection()
     : m_runThread(false)
 {
 }
 
-template <typename SenderPort, typename ReceiverPort>
-PortIntrospection<SenderPort, ReceiverPort>::PortData::PortData()
+template <typename PublisherPort, typename SubscriberPort>
+PortIntrospection<PublisherPort, SubscriberPort>::PortData::PortData()
     : m_newData(true)
 {
 }
 
-template <typename SenderPort, typename ReceiverPort>
-PortIntrospection<SenderPort, ReceiverPort>::~PortIntrospection()
+template <typename PublisherPort, typename SubscriberPort>
+PortIntrospection<PublisherPort, SubscriberPort>::~PortIntrospection()
 {
     stop();
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::reportMessage(const capro::CaproMessage& message)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(const capro::CaproMessage& message)
 {
     m_portData.updateConnectionState(message);
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::registerSenderPort(
-    popo::PublisherPortData* senderPortGeneric,
-    popo::PublisherPortData* senderPortThroughput,
-    popo::PublisherPortData* senderPortReceiverPortsData)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::registerPublisherPort(
+    popo::PublisherPortData* publisherPortGeneric,
+    popo::PublisherPortData* publisherPortThroughput,
+    popo::PublisherPortData* publisherPortSubscriberPortsData)
 {
-    if (m_senderPort || m_senderPortThroughput || m_senderPortReceiverPortsData)
+    if (m_publisherPort || m_publisherPortThroughput || m_publisherPortSubscriberPortsData)
     {
         return false;
     }
 
-    m_senderPort = SenderPort(senderPortGeneric);
-    m_senderPortThroughput = SenderPort(senderPortThroughput);
-    m_senderPortReceiverPortsData = SenderPort(senderPortReceiverPortsData);
+    m_publisherPort = PublisherPort(publisherPortGeneric);
+    m_publisherPortThroughput = PublisherPort(publisherPortThroughput);
+    m_publisherPortSubscriberPortsData = PublisherPort(publisherPortSubscriberPortsData);
 
     return true;
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::run()
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::run()
 {
-    cxx::Expects(m_senderPort);
-    cxx::Expects(m_senderPortThroughput);
+    cxx::Expects(m_publisherPort);
+    cxx::Expects(m_publisherPortThroughput);
 
     // this is a field, there needs to be a sample before activate is called
     sendPortData();
     sendThroughputData();
-    sendReceiverPortsData();
-    m_senderPort.offer();
-    m_senderPortThroughput.offer();
-    m_senderPortReceiverPortsData.offer();
+    sendSubscriberPortsData();
+    m_publisherPort.offer();
+    m_publisherPortThroughput.offer();
+    m_publisherPortSubscriberPortsData.offer();
 
     /// @todo the thread sleep mechanism needs to be redone with a trigger queue with a try_pop with timeout
     /// functionality
@@ -88,7 +88,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::run()
                     sendPortData();
                 }
                 sendThroughputData();
-                sendReceiverPortsData();
+                sendSubscriberPortsData();
             }
 
             ++ct;
@@ -101,10 +101,10 @@ void PortIntrospection<SenderPort, ReceiverPort>::run()
     pthread_setname_np(m_thread.native_handle(), "PortIntr");
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::sendPortData()
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::sendPortData()
 {
-    auto maybeChunkHeader = m_senderPort.tryAllocateChunk(sizeof(PortIntrospectionFieldTopic));
+    auto maybeChunkHeader = m_publisherPort.tryAllocateChunk(sizeof(PortIntrospectionFieldTopic));
     if (!maybeChunkHeader.has_error())
     {
         auto sample = static_cast<PortIntrospectionFieldTopic*>(maybeChunkHeader.get_value()->payload());
@@ -112,14 +112,14 @@ void PortIntrospection<SenderPort, ReceiverPort>::sendPortData()
 
         m_portData.prepareTopic(*sample); // requires internal mutex (blocks
                                           // further introspection events)
-        m_senderPort.sendChunk(maybeChunkHeader.get_value());
+        m_publisherPort.sendChunk(maybeChunkHeader.get_value());
     }
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::sendThroughputData()
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::sendThroughputData()
 {
-    auto maybeChunkHeader = m_senderPortThroughput.tryAllocateChunk(sizeof(PortThroughputIntrospectionFieldTopic));
+    auto maybeChunkHeader = m_publisherPortThroughput.tryAllocateChunk(sizeof(PortThroughputIntrospectionFieldTopic));
     if (!maybeChunkHeader.has_error())
     {
         auto throughputSample =
@@ -128,29 +128,29 @@ void PortIntrospection<SenderPort, ReceiverPort>::sendThroughputData()
 
         m_portData.prepareTopic(*throughputSample); // requires internal mutex (blocks
         // further introspection events)
-        m_senderPortThroughput.sendChunk(maybeChunkHeader.get_value());
+        m_publisherPortThroughput.sendChunk(maybeChunkHeader.get_value());
     }
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::sendReceiverPortsData()
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::sendSubscriberPortsData()
 {
     auto maybeChunkHeader =
-        m_senderPortReceiverPortsData.tryAllocateChunk(sizeof(ReceiverPortChangingIntrospectionFieldTopic));
+        m_publisherPortSubscriberPortsData.tryAllocateChunk(sizeof(SubscriberPortChangingIntrospectionFieldTopic));
     if (!maybeChunkHeader.has_error())
     {
-        auto receiverPortChangingDataSample =
-            static_cast<ReceiverPortChangingIntrospectionFieldTopic*>(maybeChunkHeader.get_value()->payload());
-        new (receiverPortChangingDataSample) ReceiverPortChangingIntrospectionFieldTopic();
+        auto subscriberPortChangingDataSample =
+            static_cast<SubscriberPortChangingIntrospectionFieldTopic*>(maybeChunkHeader.get_value()->payload());
+        new (subscriberPortChangingDataSample) SubscriberPortChangingIntrospectionFieldTopic();
 
-        m_portData.prepareTopic(*receiverPortChangingDataSample); // requires internal mutex (blocks
+        m_portData.prepareTopic(*subscriberPortChangingDataSample); // requires internal mutex (blocks
         // further introspection events)
-        m_senderPortReceiverPortsData.sendChunk(maybeChunkHeader.get_value());
+        m_publisherPortSubscriberPortsData.sendChunk(maybeChunkHeader.get_value());
     }
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::setSendInterval(unsigned int interval_ms)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::setSendInterval(unsigned int interval_ms)
 {
     if (std::chrono::milliseconds(interval_ms) >= m_sendIntervalSleep)
     {
@@ -162,8 +162,8 @@ void PortIntrospection<SenderPort, ReceiverPort>::setSendInterval(unsigned int i
     }
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::stop()
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::stop()
 {
     m_runThread.store(false, std::memory_order_relaxed);
     if (m_thread.joinable())
@@ -172,8 +172,9 @@ void PortIntrospection<SenderPort, ReceiverPort>::stop()
     }
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::PortData::updateConnectionState(const capro::CaproMessage& message)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateConnectionState(
+    const capro::CaproMessage& message)
 {
     const capro::ServiceDescription& service = message.m_serviceDescription;
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
@@ -192,8 +193,8 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::updateConnectionStat
     for (auto& pair : map)
     {
         auto& connection = m_connectionContainer[pair.second];
-        auto receiverServiceId = static_cast<cxx::Serialization>(connection.receiverInfo.service).toString();
-        if (serviceId == receiverServiceId)
+        auto subscriberServiceId = static_cast<cxx::Serialization>(connection.subscriberInfo.service).toString();
+        if (serviceId == subscriberServiceId)
         {
             // should always be true if its in the map stored at this serviceId
             connection.state = getNextState(connection.state, messageType);
@@ -204,30 +205,31 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::updateConnectionStat
     return true;
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addSender(typename SenderPort::MemberType_t* port,
-                                                                      const std::string& name,
-                                                                      const capro::ServiceDescription& service,
-                                                                      const std::string& runnable)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
+    typename PublisherPort::MemberType_t* port,
+    const std::string& name,
+    const capro::ServiceDescription& service,
+    const std::string& runnable)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto iter = m_senderMap.find(serviceId);
-    if (iter != m_senderMap.end())
+    auto iter = m_publisherMap.find(serviceId);
+    if (iter != m_publisherMap.end())
         return false;
 
-    auto index = m_senderContainer.add(SenderInfo(port, name, service, runnable));
+    auto index = m_publisherContainer.add(PublisherInfo(port, name, service, runnable));
     if (index < 0)
         return false;
 
-    m_senderMap.insert(std::make_pair(serviceId, index));
+    m_publisherMap.insert(std::make_pair(serviceId, index));
 
-    // connect sender to all receivers with the same Id
-    SenderInfo* sender = m_senderContainer.get(index);
+    // connect publisher to all subscribers with the same Id
+    PublisherInfo* publisher = m_publisherContainer.get(index);
 
-    // find corresponding receivers
+    // find corresponding subscribers
     auto connIter = m_connectionMap.find(serviceId);
     if (connIter != m_connectionMap.end())
     {
@@ -236,10 +238,10 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addSender(typename S
         {
             auto& connection = m_connectionContainer[pair.second];
             // TODO: maybe save the service string instead for efficiency
-            auto receiverServiceId = static_cast<cxx::Serialization>(connection.receiverInfo.service).toString();
-            if (serviceId == receiverServiceId)
+            auto subscriberServiceId = static_cast<cxx::Serialization>(connection.subscriberInfo.service).toString();
+            if (serviceId == subscriberServiceId)
             {
-                connection.senderInfo = sender;
+                connection.publisherInfo = publisher;
             }
         }
     }
@@ -248,11 +250,12 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addSender(typename S
     return true;
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addReceiver(typename ReceiverPort::MemberType_t* portData,
-                                                                        const std::string& name,
-                                                                        const capro::ServiceDescription& service,
-                                                                        const std::string& runnable)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubscriber(
+    typename SubscriberPort::MemberType_t* portData,
+    const std::string& name,
+    const capro::ServiceDescription& service,
+    const std::string& runnable)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
@@ -283,49 +286,49 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addReceiver(typename
 
     auto& connection = m_connectionContainer[index];
 
-    auto sendIter = m_senderMap.find(serviceId);
-    if (sendIter != m_senderMap.end())
+    auto sendIter = m_publisherMap.find(serviceId);
+    if (sendIter != m_publisherMap.end())
     {
-        auto sender = m_senderContainer.get(sendIter->second);
-        connection.senderInfo = sender; // set corresponding sender if it exists
+        auto publisher = m_publisherContainer.get(sendIter->second);
+        connection.publisherInfo = publisher; // set corresponding publisher if it exists
     }
 
     return true;
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeSender(const std::string& name [[gnu::unused]],
-                                                                         const capro::ServiceDescription& service)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher(
+    const std::string& name [[gnu::unused]], const capro::ServiceDescription& service)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto iter = m_senderMap.find(serviceId);
-    if (iter == m_senderMap.end())
+    auto iter = m_publisherMap.find(serviceId);
+    if (iter == m_publisherMap.end())
         return false;
 
-    auto m_senderIndex = iter->second;
-    auto& sender = m_senderContainer[m_senderIndex];
+    auto m_publisherIndex = iter->second;
+    auto& publisher = m_publisherContainer[m_publisherIndex];
 
-    // disconnect sender from all its receivers
-    for (auto& pair : sender.connectionMap)
+    // disconnect publisher from all its subscribers
+    for (auto& pair : publisher.connectionMap)
     {
-        pair.second->senderInfo = nullptr;             // sender is disconnected
+        pair.second->publisherInfo = nullptr;          // publisher is disconnected
         pair.second->state = ConnectionState::DEFAULT; // connection state is now default
     }
 
-    m_senderMap.erase(iter);
-    m_senderContainer.remove(m_senderIndex);
+    m_publisherMap.erase(iter);
+    m_publisherContainer.remove(m_publisherIndex);
     setNew(true); // indicates we have to send new data because
                   // something changed
 
     return true;
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeReceiver(const std::string& name,
-                                                                           const capro::ServiceDescription& service)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSubscriber(
+    const std::string& name, const capro::ServiceDescription& service)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
@@ -345,17 +348,17 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeReceiver(const
         return false; // not found and therefore not removed
     }
 
-    // remove receiver in corresponding sender
+    // remove subscriber in corresponding publisher
     auto connectionIndex = mapIter->second;
     auto& connection = m_connectionContainer[connectionIndex];
-    auto& sender = connection.senderInfo;
+    auto& publisher = connection.publisherInfo;
 
-    if (sender)
+    if (publisher)
     {
-        auto connIter = sender->connectionMap.find(connectionIndex);
-        if (connIter != sender->connectionMap.end())
+        auto connIter = publisher->connectionMap.find(connectionIndex);
+        if (connIter != publisher->connectionMap.end())
         {
-            sender->connectionMap.erase(connIter);
+            publisher->connectionMap.erase(connIter);
         }
     }
 
@@ -366,16 +369,16 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeReceiver(const
     return true;
 }
 
-template <typename SenderPort, typename ReceiverPort>
-typename PortIntrospection<SenderPort, ReceiverPort>::ConnectionState
-PortIntrospection<SenderPort, ReceiverPort>::PortData::getNextState(ConnectionState currentState,
-                                                                    capro::CaproMessageType messageType)
+template <typename PublisherPort, typename SubscriberPort>
+typename PortIntrospection<PublisherPort, SubscriberPort>::ConnectionState
+PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(ConnectionState currentState,
+                                                                         capro::CaproMessageType messageType)
 {
     ConnectionState nextState = currentState; // stay in currentState as default transition
 
-    // sender and receiver can only send a subset of messages (e.g. no
-    // sub request from sender), so it is not required to check whether
-    // sender or receiver has sent the message...
+    // publisher and subscriber can only send a subset of messages (e.g. no
+    // sub request from publisher), so it is not required to check whether
+    // publisher or subscriber has sent the message...
 
     switch (currentState)
     {
@@ -422,37 +425,37 @@ PortIntrospection<SenderPort, ReceiverPort>::PortData::getNextState(ConnectionSt
     return nextState;
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortIntrospectionTopic& topic)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortIntrospectionTopic& topic)
 {
-    auto& m_senderList = topic.m_senderList;
+    auto& m_publisherList = topic.m_publisherList;
 
     std::lock_guard<std::mutex> lock(m_mutex); // we need to lock the internal data structs
 
     int index = 0;
-    for (auto& pair : m_senderMap)
+    for (auto& pair : m_publisherMap)
     {
-        auto m_senderIndex = pair.second;
-        if (m_senderIndex >= 0)
+        auto m_publisherIndex = pair.second;
+        if (m_publisherIndex >= 0)
         {
-            auto& senderInfo = m_senderContainer[m_senderIndex];
-            SenderPortData senderData;
-            SenderPort port(senderInfo.portData);
-            senderData.m_senderPortID = static_cast<uint64_t>(port.getUniqueID());
-            senderData.m_sourceInterface = senderInfo.service.getSourceInterface();
-            senderData.m_name = cxx::string<100>(cxx::TruncateToCapacity, senderInfo.name.c_str());
-            senderData.m_runnable = cxx::string<100>(cxx::TruncateToCapacity, senderInfo.runnable.c_str());
+            auto& publisherInfo = m_publisherContainer[m_publisherIndex];
+            PublisherPortData publisherData;
+            PublisherPort port(publisherInfo.portData);
+            publisherData.m_publisherPortID = static_cast<uint64_t>(port.getUniqueID());
+            publisherData.m_sourceInterface = publisherInfo.service.getSourceInterface();
+            publisherData.m_name = cxx::string<100>(cxx::TruncateToCapacity, publisherInfo.name.c_str());
+            publisherData.m_runnable = cxx::string<100>(cxx::TruncateToCapacity, publisherInfo.runnable.c_str());
 
-            senderData.m_caproInstanceID = senderInfo.service.getInstanceIDString();
-            senderData.m_caproServiceID = senderInfo.service.getServiceIDString();
-            senderData.m_caproEventMethodID = senderInfo.service.getEventIDString();
+            publisherData.m_caproInstanceID = publisherInfo.service.getInstanceIDString();
+            publisherData.m_caproServiceID = publisherInfo.service.getServiceIDString();
+            publisherData.m_caproEventMethodID = publisherInfo.service.getEventIDString();
 
-            m_senderList.emplace_back(senderData);
-            senderInfo.index = index++;
+            m_publisherList.emplace_back(publisherData);
+            publisherInfo.index = index++;
         }
     }
 
-    auto& m_receiverList = topic.m_receiverList;
+    auto& m_subscriberList = topic.m_subscriberList;
     for (auto& connPair : m_connectionMap)
     {
         for (auto& pair : connPair.second)
@@ -461,22 +464,22 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
             if (connectionIndex >= 0)
             {
                 auto& connection = m_connectionContainer[connectionIndex];
-                ReceiverPortData receiverData;
+                SubscriberPortData subscriberData;
                 bool connected = connection.isConnected();
-                auto& receiverInfo = connection.receiverInfo;
+                auto& subscriberInfo = connection.subscriberInfo;
 
-                receiverData.m_name = cxx::string<100>(cxx::TruncateToCapacity, receiverInfo.name.c_str());
-                receiverData.m_runnable = cxx::string<100>(cxx::TruncateToCapacity, receiverInfo.runnable.c_str());
+                subscriberData.m_name = cxx::string<100>(cxx::TruncateToCapacity, subscriberInfo.name.c_str());
+                subscriberData.m_runnable = cxx::string<100>(cxx::TruncateToCapacity, subscriberInfo.runnable.c_str());
 
-                receiverData.m_caproInstanceID = receiverInfo.service.getInstanceIDString();
-                receiverData.m_caproServiceID = receiverInfo.service.getServiceIDString();
-                receiverData.m_caproEventMethodID = receiverInfo.service.getEventIDString();
+                subscriberData.m_caproInstanceID = subscriberInfo.service.getInstanceIDString();
+                subscriberData.m_caproServiceID = subscriberInfo.service.getServiceIDString();
+                subscriberData.m_caproEventMethodID = subscriberInfo.service.getEventIDString();
                 if (connected)
-                { // senderInfo is not nullptr, otherwise we would not be
+                { // publisherInfo is not nullptr, otherwise we would not be
                     // connected
-                    receiverData.m_senderIndex = connection.senderInfo->index;
+                    subscriberData.m_publisherIndex = connection.publisherInfo->index;
                 } // remark: index is -1 for not connected
-                m_receiverList.emplace_back(receiverData);
+                m_subscriberList.emplace_back(subscriberData);
             }
         }
     }
@@ -485,8 +488,8 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
     setNew(false);
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic)
 {
     /// @todo #252 re-add port throughput for v1.0?
     auto& m_throughputList = topic.m_throughputList;
@@ -494,42 +497,42 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortThr
     std::lock_guard<std::mutex> lock(m_mutex); // we need to lock the internal data structs
 
     int index = 0;
-    for (auto& pair : m_senderMap)
+    for (auto& pair : m_publisherMap)
     {
-        auto m_senderIndex = pair.second;
-        if (m_senderIndex >= 0)
+        auto m_publisherIndex = pair.second;
+        if (m_publisherIndex >= 0)
         {
-            auto& senderInfo = m_senderContainer[m_senderIndex];
+            auto& publisherInfo = m_publisherContainer[m_publisherIndex];
             PortThroughputData throughputData;
 
-            SenderPort port(senderInfo.portData);
+            PublisherPort port(publisherInfo.portData);
             // auto introData = port.getThroughput();
-            throughputData.m_senderPortID = static_cast<uint64_t>(port.getUniqueID());
+            throughputData.m_publisherPortID = static_cast<uint64_t>(port.getUniqueID());
             throughputData.m_sampleSize = 0; // introData.payloadSize;
             throughputData.m_chunkSize = 0;  // introData.chunkSize;
             // using Minutes_t = std::chrono::duration<double, std::ratio<60>>;
-            // Minutes_t deltaTime = introData.currentDeliveryTimestamp - senderInfo.m_sequenceNumberTimestamp;
+            // Minutes_t deltaTime = introData.currentDeliveryTimestamp - publisherInfo.m_sequenceNumberTimestamp;
             // auto minutes = deltaTime.count();
             throughputData.m_chunksPerMinute = 0;
             // if (minutes != 0)
             //{
-            // throughputData.m_chunksPerMinute = (introData.sequenceNumber - senderInfo.m_sequenceNumber) /
+            // throughputData.m_chunksPerMinute = (introData.sequenceNumber - publisherInfo.m_sequenceNumber) /
             // minutes;
             //}
             // auto sendInterval = introData.currentDeliveryTimestamp - introData.lastDeliveryTimestamp;
             // throughputData.m_lastSendIntervalInNanoseconds = sendInterval.count();
             m_throughputList.emplace_back(throughputData);
-            senderInfo.index = index++;
+            publisherInfo.index = index++;
 
-            // senderInfo.m_sequenceNumberTimestamp = introData.currentDeliveryTimestamp;
-            // senderInfo.m_sequenceNumber = introData.sequenceNumber;
+            // publisherInfo.m_sequenceNumberTimestamp = introData.currentDeliveryTimestamp;
+            // publisherInfo.m_sequenceNumber = introData.sequenceNumber;
         }
     }
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(
-    ReceiverPortChangingIntrospectionFieldTopic& topic)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(
+    SubscriberPortChangingIntrospectionFieldTopic& topic)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     for (auto& connPair : m_connectionMap)
@@ -540,73 +543,73 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(
             if (connectionIndex >= 0)
             {
                 auto& connection = m_connectionContainer[connectionIndex];
-                auto& receiverInfo = connection.receiverInfo;
-                ReceiverPortChangingData receiverData;
-                if (receiverInfo.portData != nullptr)
+                auto& subscriberInfo = connection.subscriberInfo;
+                SubscriberPortChangingData subscriberData;
+                if (subscriberInfo.portData != nullptr)
                 {
-                    ReceiverPort port(receiverInfo.portData);
-                    // receiverData.fifoCapacity = port.getDeliveryFiFoCapacity();
-                    // receiverData.fifoSize = port.getDeliveryFiFoSize();
-                    receiverData.subscriptionState = port.getSubscriptionState();
-                    // receiverData.sampleSendCallbackActive = port.AreCallbackReferencesSet();
-                    // receiverData.propagationScope = port.getCaProServiceDescription().getScope();
+                    SubscriberPort port(subscriberInfo.portData);
+                    // subscriberData.fifoCapacity = port.getDeliveryFiFoCapacity();
+                    // subscriberData.fifoSize = port.getDeliveryFiFoSize();
+                    subscriberData.subscriptionState = port.getSubscriptionState();
+                    // subscriberData.sampleSendCallbackActive = port.AreCallbackReferencesSet();
+                    // subscriberData.propagationScope = port.getCaProServiceDescription().getScope();
                 }
                 else
                 {
-                    receiverData.fifoCapacity = 0u;
-                    receiverData.fifoSize = 0u;
-                    receiverData.subscriptionState = iox::SubscribeState::NOT_SUBSCRIBED;
-                    receiverData.sampleSendCallbackActive = false;
-                    receiverData.propagationScope = capro::Scope::INVALID;
+                    subscriberData.fifoCapacity = 0u;
+                    subscriberData.fifoSize = 0u;
+                    subscriberData.subscriptionState = iox::SubscribeState::NOT_SUBSCRIBED;
+                    subscriberData.sampleSendCallbackActive = false;
+                    subscriberData.propagationScope = capro::Scope::INVALID;
                 }
-                topic.receiverPortChangingDataList.push_back(receiverData);
+                topic.subscriberPortChangingDataList.push_back(subscriberData);
             }
         }
     }
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::PortData::isNew()
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::isNew()
 {
     return m_newData.load(std::memory_order_acquire);
 }
 
-template <typename SenderPort, typename ReceiverPort>
-void PortIntrospection<SenderPort, ReceiverPort>::PortData::setNew(bool value)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::PortData::setNew(bool value)
 {
     m_newData.store(value, std::memory_order_release);
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::addSender(typename SenderPort::MemberType_t* port,
-                                                            const std::string& name,
-                                                            const capro::ServiceDescription& service,
-                                                            const std::string& runnable)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t* port,
+                                                                    const std::string& name,
+                                                                    const capro::ServiceDescription& service,
+                                                                    const std::string& runnable)
 {
-    return m_portData.addSender(port, name, service, runnable);
+    return m_portData.addPublisher(port, name, service, runnable);
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::addReceiver(typename ReceiverPort::MemberType_t* portData,
-                                                              const std::string& name,
-                                                              const capro::ServiceDescription& service,
-                                                              const std::string& runnable)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename SubscriberPort::MemberType_t* portData,
+                                                                     const std::string& name,
+                                                                     const capro::ServiceDescription& service,
+                                                                     const std::string& runnable)
 {
-    return m_portData.addReceiver(portData, name, service, runnable);
+    return m_portData.addSubscriber(portData, name, service, runnable);
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::removeSender(const std::string& name,
-                                                               const capro::ServiceDescription& service)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::removePublisher(const std::string& name,
+                                                                       const capro::ServiceDescription& service)
 {
-    return m_portData.removeSender(name, service);
+    return m_portData.removePublisher(name, service);
 }
 
-template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::removeReceiver(const std::string& name,
-                                                                 const capro::ServiceDescription& service)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::removeSubscriber(const std::string& name,
+                                                                        const capro::ServiceDescription& service)
 {
-    return m_portData.removeReceiver(name, service);
+    return m_portData.removeSubscriber(name, service);
 }
 
 

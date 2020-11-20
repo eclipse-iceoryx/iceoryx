@@ -80,11 +80,11 @@ TEST_F(ProcessIntrospection_test, CTOR)
     EXPECT_CALL(m_publisherPortImpl_mock, stopOffer()).Times(1);
 }
 
-TEST_F(ProcessIntrospection_test, registerSenderPort)
+TEST_F(ProcessIntrospection_test, registerPublisherPort)
 {
     {
         ProcessIntrospection m_introspection;
-        m_introspection.registerSenderPort(&m_publisherPortData);
+        m_introspection.registerPublisherPort(&m_publisherPortData);
     }
     // stopOffer was called
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
@@ -94,7 +94,7 @@ TEST_F(ProcessIntrospection_test, send)
 {
     {
         ProcessIntrospection m_introspection;
-        m_introspection.registerSenderPort(&m_publisherPortData);
+        m_introspection.registerPublisherPort(&m_publisherPortData);
 
         auto chunk = createMemoryChunkAndSend(m_introspection);
         EXPECT_THAT(chunk->sample()->m_processList.size(), Eq(0U));
@@ -107,7 +107,7 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
 {
     {
         ProcessIntrospection m_introspection;
-        m_introspection.registerSenderPort(&m_publisherPortData);
+        m_introspection.registerPublisherPort(&m_publisherPortData);
 
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
@@ -149,7 +149,7 @@ TEST_F(ProcessIntrospection_test, thread)
 
         ProcessIntrospection m_introspection;
 
-        m_introspection.registerSenderPort(&m_publisherPortData);
+        m_introspection.registerPublisherPort(&m_publisherPortData);
 
         // we use the deliverChunk call to check how often the thread calls the send method
         std::chrono::milliseconds& sendIntervalSleep =
@@ -189,7 +189,7 @@ TEST_F(ProcessIntrospection_test, addRemoveRunnable)
     {
         ProcessIntrospection m_introspection;
 
-        m_introspection.registerSenderPort(&m_publisherPortData);
+        m_introspection.registerPublisherPort(&m_publisherPortData);
 
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";

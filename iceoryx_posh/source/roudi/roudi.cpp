@@ -41,7 +41,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
-    m_processIntrospection.registerSenderPort(
+    m_processIntrospection.registerPublisherPort(
         m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, MQ_ROUDI_NAME));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();

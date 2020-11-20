@@ -135,19 +135,19 @@ class IntrospectionApp
     /// @brief Waits till port is subscribed
     bool waitForSubscription(SubscriberType& port);
 
-    /// @brief Prepares the sender port data before printing
-    std::vector<ComposedSenderPortData>
-    composeSenderPortData(const PortIntrospectionFieldTopic* portData,
-                          const PortThroughputIntrospectionFieldTopic* throughputData);
+    /// @brief Prepares the publisher port data before printing
+    std::vector<ComposedPublisherPortData>
+    composePublisherPortData(const PortIntrospectionFieldTopic* portData,
+                             const PortThroughputIntrospectionFieldTopic* throughputData);
 
-    /// @brief Prepares the receiver port data before printing
-    std::vector<ComposedReceiverPortData>
-    composeReceiverPortData(const PortIntrospectionFieldTopic* portData,
-                            const ReceiverPortChangingIntrospectionFieldTopic* receiverPortChangingData);
+    /// @brief Prepares the subscriber port data before printing
+    std::vector<ComposedSubscriberPortData>
+    composeSubscriberPortData(const PortIntrospectionFieldTopic* portData,
+                              const SubscriberPortChangingIntrospectionFieldTopic* subscriberPortChangingData);
 
-    /// @brief Print the prepared sender and receiver port data
-    void printPortIntrospectionData(const std::vector<ComposedSenderPortData>& senderPortData,
-                                    const std::vector<ComposedReceiverPortData>& receiverPortData);
+    /// @brief Print the prepared publisher and subscriber port data
+    void printPortIntrospectionData(const std::vector<ComposedPublisherPortData>& publisherPortData,
+                                    const std::vector<ComposedSubscriberPortData>& subscriberPortData);
 
     /// @brief Prints help to the command line
     void printHelp() noexcept;

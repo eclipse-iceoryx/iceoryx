@@ -73,15 +73,16 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                                                                        PortConfigInfo())
                                                   .get_value();
 
-    popo::PublisherPortData* receiverPortsData = acquirePublisherPortData(IntrospectionReceiverPortChangingDataService,
-                                                                          1,
-                                                                          MQ_ROUDI_NAME,
-                                                                          introspectionMemoryManager,
-                                                                          "introspection",
-                                                                          PortConfigInfo())
-                                                     .get_value();
+    popo::PublisherPortData* subscriberPortsData =
+        acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
+                                 1,
+                                 MQ_ROUDI_NAME,
+                                 introspectionMemoryManager,
+                                 "introspection",
+                                 PortConfigInfo())
+            .get_value();
 
-    m_portIntrospection.registerSenderPort(portGeneric, portThroughput, receiverPortsData);
+    m_portIntrospection.registerPublisherPort(portGeneric, portThroughput, subscriberPortsData);
     m_portIntrospection.run();
 }
 
@@ -404,8 +405,8 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
 
     for (auto port : m_portPool->getSubscriberPortDataList())
     {
-        SubscriberPortUserType receiver(port);
-        if (processName == receiver.getProcessName())
+        SubscriberPortUserType subscriber(port);
+        if (processName == subscriber.getProcessName())
         {
             destroySubscriberPort(port);
         }
@@ -551,7 +552,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
     if (!maybePublisherPortData.has_error())
     {
         /// @todo #25 Fix introspection
-        // m_portIntrospection.addSender(result.get_value(), processName, service, runnable);
+        // m_portIntrospection.addPublisher(result.get_value(), processName, service, runnable);
     }
 
     return maybePublisherPortData;
@@ -569,7 +570,7 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
     if (!maybeSubscriberPortData.has_error())
     {
         /// @todo #25 Fix introspection
-        // m_portIntrospection.addReceiver(result.get_value(), processName, service, runnable);
+        // m_portIntrospection.addSubscriber(result.get_value(), processName, service, runnable);
     }
 
     return maybeSubscriberPortData;
