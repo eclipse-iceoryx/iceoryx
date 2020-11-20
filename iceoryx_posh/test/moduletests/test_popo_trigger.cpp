@@ -14,7 +14,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
-#include "iceoryx_posh/internal/popo/trigger.hpp"
+#include "iceoryx_posh/popo/trigger.hpp"
 
 #include "test.hpp"
 #include <thread>

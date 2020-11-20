@@ -18,8 +18,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
-/// TODO rename unsetConditionVariable to unsetTrigger in BaseSubscriber and UserTrigger
-/// TODO move Trigger and TriggerState into public API
+/// TODO readme, explain nature of waitset, trigger can come twice or not since they are already handled
 
 #include <chrono>
 #include <csignal>

@@ -14,7 +14,7 @@
 #ifndef IOX_POSH_POPO_USER_TRIGGER_HPP
 #define IOX_POSH_POPO_USER_TRIGGER_HPP
 
-#include "iceoryx_posh/internal/popo/trigger.hpp"
+#include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 #include <atomic>

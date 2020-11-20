@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/wait_set.hpp"
-#include "iceoryx_posh/internal/popo/trigger.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 namespace iox
