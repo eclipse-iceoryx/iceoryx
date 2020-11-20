@@ -19,10 +19,10 @@ namespace runtime
 {
 constexpr bool DO_NOT_MAP_SHARED_MEMORY_INTO_THREAD{false};
 
-PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const std::string& name) noexcept
+PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const ProcessName_t& name) noexcept
     : PoshRuntime(name, DO_NOT_MAP_SHARED_MEMORY_INTO_THREAD)
 {
-    auto currentFactory = PoshRuntime::getRuntimeFactory().target<PoshRuntime& (*)(const std::string&)>();
+    auto currentFactory = PoshRuntime::getRuntimeFactory().target<PoshRuntime& (*)(const ProcessName_t&)>();
     if (currentFactory != nullptr && *currentFactory == PoshRuntime::defaultRuntimeFactory)
     {
         PoshRuntime::setRuntimeFactory(

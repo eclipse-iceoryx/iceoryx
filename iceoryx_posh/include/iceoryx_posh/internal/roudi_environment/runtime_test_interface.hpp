@@ -14,6 +14,8 @@
 #ifndef IOX_POSH_ROUDI_ENVIRONMENT_RUNTIME_TEST_INTERFACE_HPP
 #define IOX_POSH_ROUDI_ENVIRONMENT_RUNTIME_TEST_INTERFACE_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
+
 #include <atomic>
 #include <map>
 #include <mutex>
@@ -39,10 +41,10 @@ class RuntimeTestInterface
 
     static std::mutex s_runtimeAccessMutex;
 
-    static std::map<std::string, runtime::PoshRuntime*> s_runtimes;
+    static std::map<ProcessName_t, runtime::PoshRuntime*> s_runtimes;
 
     /// This is a replacement for the PoshRuntime::GetInstance factory method
-    /// @param [in] f_name ist the name of the runtime
+    /// @param [in] name ist the name of the runtime
     /// @return a reference to a PoshRuntime
     /// @note The runtime is stored in a vector and a thread local storage.
     ///
@@ -60,7 +62,7 @@ class RuntimeTestInterface
     ///         - FindService, OfferService and StopOfferService
     ///       This means that iox::runtime::PoshRuntimeImp::GetInstance(...) must be called before the above classes
     ///       are created or functions are called, to make the correct runtime active.
-    static runtime::PoshRuntime& runtimeFactoryGetInstance(const std::string& f_name);
+    static runtime::PoshRuntime& runtimeFactoryGetInstance(const ProcessName_t& name);
 
   public:
     RuntimeTestInterface(RuntimeTestInterface&& rhs);
@@ -75,7 +77,7 @@ class RuntimeTestInterface
 
     void cleanupRuntimes();
 
-    void eraseRuntime(const std::string& f_name);
+    void eraseRuntime(const ProcessName_t& name);
 };
 
 } // namespace roudi

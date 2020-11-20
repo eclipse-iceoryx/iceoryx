@@ -66,34 +66,25 @@ bool PoshRuntime_test::m_errorHandlerCalled{false};
 
 TEST_F(PoshRuntime_test, ValidAppName)
 {
-    std::string appName("/valid_name");
+    iox::ProcessName_t appName("/valid_name");
 
     EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(appName); });
 }
-
-
-TEST_F(PoshRuntime_test, AppNameLength_OutOfLimit)
-{
-    std::string tooLongName(iox::MAX_PROCESS_NAME_LENGTH, 's');
-    tooLongName.insert(0, 1, '/');
-
-    EXPECT_DEATH({ PoshRuntime::getInstance(tooLongName); },
-                 "Application name has more than 100 characters, including null termination!");
-}
-
 
 TEST_F(PoshRuntime_test, MaxAppNameLength)
 {
     std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH - 1, 's');
     maxValidName.insert(0, 1, '/');
 
-    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(maxValidName); });
+    auto& runtime = PoshRuntime::getInstance(iox::ProcessName_t(iox::cxx::TruncateToCapacity, maxValidName));
+
+    EXPECT_THAT(maxValidName, StrEq(runtime.getInstanceName().c_str()));
 }
 
 
 TEST_F(PoshRuntime_test, NoAppName)
 {
-    const std::string invalidAppName("");
+    const iox::ProcessName_t invalidAppName("");
 
     EXPECT_DEATH({ PoshRuntime::getInstance(invalidAppName); },
                  "Cannot initialize runtime. Application name must not be empty!");
@@ -102,7 +93,7 @@ TEST_F(PoshRuntime_test, NoAppName)
 
 TEST_F(PoshRuntime_test, NoLeadingSlashAppName)
 {
-    const std::string invalidAppName = "invalidname";
+    const iox::ProcessName_t invalidAppName = "invalidname";
 
     EXPECT_DEATH(
         { PoshRuntime::getInstance(invalidAppName); },
@@ -123,7 +114,7 @@ TEST_F(PoshRuntime_test, DISABLED_AppNameEmpty)
 
 TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 {
-    const std::string appname = "/app";
+    const iox::ProcessName_t appname = "/app";
 
     auto& sut = PoshRuntime::getInstance(appname);
 
@@ -508,7 +499,7 @@ class PoshRuntimeTestAccess : public PoshRuntime
   public:
     using PoshRuntime::setRuntimeFactory;
 
-    PoshRuntimeTestAccess(const std::string& s)
+    PoshRuntimeTestAccess(const iox::ProcessName_t& s)
         : PoshRuntime(s)
     {
     }
@@ -518,7 +509,7 @@ TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
 {
     bool callbackWasCalled = false;
     iox::cxx::optional<PoshRuntimeTestAccess> runtime;
-    PoshRuntime::factory_t factory = [&](const std::string& name) -> PoshRuntime& {
+    PoshRuntime::factory_t factory = [&](const iox::ProcessName_t& name) -> PoshRuntime& {
         callbackWasCalled = true;
         if (!runtime.has_value())
         {
