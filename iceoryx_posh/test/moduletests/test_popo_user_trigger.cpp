@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "mocks/wait_set_mock.hpp"
 
@@ -101,4 +102,16 @@ TEST_F(UserTrigger_test, resetTriggerMultipleTimesWhenTriggeredResultsInNotTrigg
     m_sut.resetTrigger();
 
     EXPECT_FALSE(m_sut.hasTriggered());
+}
+
+TEST_F(UserTrigger_test, ExceedingCapacityOfWaitsetLeadsToConditionVectorOverflow)
+{
+    for (uint64_t i = 0; i < MAX_NUMBER_OF_CONDITIONS_PER_WAITSET; ++i)
+    {
+        EXPECT_FALSE(m_sut.attachToWaitset(m_waitSet).has_error());
+    }
+
+    auto result = m_sut.attachToWaitset(m_waitSet);
+    EXPECT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(WaitSetError::CONDITION_VECTOR_OVERFLOW));
 }
