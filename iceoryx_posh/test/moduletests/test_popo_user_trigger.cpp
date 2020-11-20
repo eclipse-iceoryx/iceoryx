@@ -51,14 +51,14 @@ TEST_F(UserTrigger_test, cannotBeTriggeredMultipleTimesWhenNotAttached)
 
 TEST_F(UserTrigger_test, canBeTriggeredWhenAttached)
 {
-    // m_waitSet.attachCondition(m_sut);
+    m_sut.attachToWaitset(m_waitSet);
     m_sut.trigger();
     EXPECT_TRUE(m_sut.hasTriggered());
 }
 
 TEST_F(UserTrigger_test, canBeTriggeredMultipleTimesWhenAttached)
 {
-    // m_waitSet.attachCondition(m_sut);
+    m_sut.attachToWaitset(m_waitSet);
     m_sut.trigger();
     m_sut.trigger();
     m_sut.trigger();
@@ -75,16 +75,26 @@ TEST_F(UserTrigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
 
 TEST_F(UserTrigger_test, resetTriggerWhenTriggeredResultsInNotTriggered)
 {
-    // m_waitSet.attachCondition(m_sut);
+    m_sut.attachToWaitset(m_waitSet);
     m_sut.trigger();
     m_sut.resetTrigger();
 
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
+TEST_F(UserTrigger_test, resetTriggerAndTriggerAgainResultsInTriggered)
+{
+    m_sut.attachToWaitset(m_waitSet);
+    m_sut.trigger();
+    m_sut.resetTrigger();
+    m_sut.trigger();
+
+    EXPECT_TRUE(m_sut.hasTriggered());
+}
+
 TEST_F(UserTrigger_test, resetTriggerMultipleTimesWhenTriggeredResultsInNotTriggered)
 {
-    // m_waitSet.attachCondition(m_sut);
+    m_sut.attachToWaitset(m_waitSet);
     m_sut.trigger();
     m_sut.resetTrigger();
     m_sut.resetTrigger();
