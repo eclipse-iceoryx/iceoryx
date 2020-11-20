@@ -113,7 +113,7 @@ template <typename T, typename Subscriber, typename port_t>
 inline void BaseSubscriber<T, Subscriber, port_t>::unsetConditionVariable(const Trigger& trigger) noexcept
 {
     m_port.unsetConditionVariable();
-    m_trigger.invalidate();
+    m_trigger.reset();
 }
 
 // ============================== Sample Deleter ============================== //

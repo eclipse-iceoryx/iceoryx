@@ -32,20 +32,6 @@ void TriggerState::operator()() const noexcept
     }
 }
 
-Trigger::Trigger(const Trigger& other, const cxx::MethodCallback<void, Trigger&>& removalCallback) noexcept
-    : Trigger(other.m_origin,
-              other.m_conditionVariableDataPtr,
-              other.m_hasTriggeredCallback,
-              other.m_invalidationCallback,
-              other.getTriggerId(),
-              other.m_callbackPtr)
-{
-    m_originTypeHash = other.m_originTypeHash;
-    m_callbackPtr = other.m_callbackPtr;
-    m_callback = other.m_callback;
-    m_removalCallback = removalCallback;
-}
-
 Trigger::~Trigger()
 {
     reset();
@@ -56,24 +42,14 @@ bool Trigger::hasTriggered() const noexcept
     return (isValid() && m_hasTriggeredCallback) ? m_hasTriggeredCallback() : false;
 }
 
-void Trigger::invalidate() noexcept
-{
-    if (isValid() && m_invalidationCallback)
-    {
-        m_conditionVariableDataPtr = nullptr;
-        m_invalidationCallback(*this);
-    }
-}
-
 void Trigger::reset() noexcept
 {
-    if (isValid())
+    if (isValid() && m_resetCallback)
     {
-        invalidate();
-        if (m_removalCallback)
-        {
-            m_removalCallback(*this);
-        }
+        // It is possible that the reset call calls itself again therefore
+        // we have to invalidate the trigger first before calling reset.
+        m_conditionVariableDataPtr = nullptr;
+        m_resetCallback(*this);
     }
 }
 
@@ -102,7 +78,7 @@ ConditionVariableData* Trigger::getConditionVariableData() noexcept
 
 bool Trigger::operator==(const Trigger& rhs) const noexcept
 {
-    return (m_hasTriggeredCallback == rhs.m_hasTriggeredCallback);
+    return (m_origin == rhs.m_origin && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback);
 }
 
 Trigger::Trigger(Trigger&& rhs) noexcept
@@ -114,6 +90,8 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
 {
     if (this != &rhs)
     {
+        reset();
+
         m_origin = rhs.m_origin;
         m_originTypeHash = rhs.m_originTypeHash;
         m_triggerId = rhs.m_triggerId;
@@ -121,8 +99,7 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
         m_callback = rhs.m_callback;
 
         m_conditionVariableDataPtr = rhs.m_conditionVariableDataPtr;
-        m_removalCallback = rhs.m_removalCallback;
-        m_invalidationCallback = rhs.m_invalidationCallback;
+        m_resetCallback = rhs.m_resetCallback;
         m_hasTriggeredCallback = rhs.m_hasTriggeredCallback;
 
         rhs.m_conditionVariableDataPtr = nullptr;

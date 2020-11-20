@@ -33,7 +33,8 @@ WaitSet::acquireTrigger(T* const origin,
         return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
     }
 
-    return iox::cxx::success<Trigger>(Trigger(m_triggerVector.back(), {this, &WaitSet::removeTrigger}));
+    return iox::cxx::success<Trigger>(Trigger(
+        origin, m_conditionVariableDataPtr, triggerCallback, {this, &WaitSet::removeTrigger}, triggerId, callback));
 }
 } // namespace popo
 } // namespace iox

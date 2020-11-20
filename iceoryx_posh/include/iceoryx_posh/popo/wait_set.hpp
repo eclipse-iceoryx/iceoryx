@@ -135,7 +135,7 @@ class WaitSet
     TriggerIdVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
     TriggerIdVector createVectorWithFullfilledConditions() noexcept;
 
-    void removeTrigger(Trigger& trigger) noexcept;
+    void removeTrigger(const Trigger& trigger) noexcept;
     void removeAllTrigger() noexcept;
 
   private:

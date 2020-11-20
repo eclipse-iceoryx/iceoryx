@@ -37,22 +37,16 @@ WaitSet::~WaitSet() noexcept
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-void WaitSet::removeTrigger(Trigger& trigger) noexcept
+void WaitSet::removeTrigger(const Trigger& trigger) noexcept
 {
-    bool wasDeleted = false;
     for (auto& currentTrigger : m_triggerVector)
     {
         if (currentTrigger == trigger)
         {
             m_triggerVector.erase(&currentTrigger);
-            wasDeleted = true;
-            break;
+            currentTrigger.reset();
+            return;
         }
-    }
-
-    if (wasDeleted)
-    {
-        trigger.invalidate();
     }
 }
 
@@ -60,7 +54,7 @@ void WaitSet::removeAllTrigger() noexcept
 {
     for (auto& trigger : m_triggerVector)
     {
-        trigger.invalidate();
+        trigger.reset();
     }
 
     m_triggerVector.clear();

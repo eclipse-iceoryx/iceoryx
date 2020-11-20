@@ -32,8 +32,7 @@ cxx::expected<WaitSetError> UserTrigger::attachToWaitset(WaitSet& waitset,
 
 void UserTrigger::detachWaitset() noexcept
 {
-    std::lock_guard<std::recursive_mutex> g(m_mutex);
-    m_trigger.reset();
+    unsetConditionVariable(m_trigger);
 }
 
 void UserTrigger::trigger() noexcept
@@ -59,7 +58,7 @@ void UserTrigger::resetTrigger() noexcept
 void UserTrigger::unsetConditionVariable(const Trigger&) noexcept
 {
     std::lock_guard<std::recursive_mutex> g(m_mutex);
-    m_trigger.invalidate();
+    m_trigger.reset();
 }
 
 } // namespace popo
