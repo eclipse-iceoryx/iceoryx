@@ -43,27 +43,34 @@ class Sample
     Sample(std::nullptr_t) noexcept;
 
     ///
-    /// @brief operator -> Transparent access to the underlying pointer.
+    /// @brief operator -> Transparent access to the encapsulated type.
     /// @return
     ///
     T* operator->() noexcept;
 
     ///
-    /// @brief allocation Access to the memory allocated to the sample.
+    /// @brief allocation Access to the memory chunk loaned to the sample.
     /// @return
     ///
     T* get() noexcept;
 
     ///
-    /// @brief header Retrieve the header of the underlying memory chunk used by the sample.
+    /// @brief header Retrieve the header of the underlying memory chunk loaned to the sample.
     /// @return The ChunkHeader of the underlying memory chunk.
     ///
     mepoo::ChunkHeader* getHeader() noexcept;
 
     ///
-    /// @brief publish Publish the sample via the publisher from which it was loaned.
+    /// @brief publish Publish the sample via the publisher from which it was loaned and automatically
+    /// release ownership to it.
     ///
     void publish() noexcept;
+
+    ///
+    /// @brief release Manually release ownership of the loaned memory chunk.
+    /// @details This prevents the sample from automatically releasing ownership on destruction.
+    ///
+    void release() noexcept;
 
   protected:
     cxx::unique_ptr<T> m_samplePtr{[](T* const) {}}; // Placeholder. This is overwritten on sample construction.

@@ -49,15 +49,35 @@ class RouDi
         DEFER_START
     };
 
+    struct RoudiStartupParameters
+    {
+        RoudiStartupParameters(
+            const config::MonitoringMode monitoringMode = config::MonitoringMode::ON,
+            const bool killProcessesInDestructor = true,
+            const MQThreadStart mqThreadStart = MQThreadStart::IMMEDIATE,
+            const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
+            const units::Duration processKillDelay = PROCESS_DEFAULT_KILL_DELAY) noexcept
+            : m_monitoringMode(monitoringMode)
+            , m_killProcessesInDestructor(killProcessesInDestructor)
+            , m_mqThreadStart(mqThreadStart)
+            , m_compatibilityCheckLevel(compatibilityCheckLevel)
+            , m_processKillDelay(processKillDelay)
+        {
+        }
+
+        const config::MonitoringMode m_monitoringMode;
+        const bool m_killProcessesInDestructor;
+        const MQThreadStart m_mqThreadStart;
+        const version::CompatibilityCheckLevel m_compatibilityCheckLevel;
+        const units::Duration m_processKillDelay;
+    };
+
     RouDi& operator=(const RouDi& other) = delete;
     RouDi(const RouDi& other) = delete;
 
     RouDi(RouDiMemoryInterface& roudiMemoryInteface,
           PortManager& portManager,
-          const config::MonitoringMode f_monitoringMode = config::MonitoringMode::ON,
-          const bool f_killProcessesInDestructor = true,
-          const MQThreadStart mqThreadStart = MQThreadStart::IMMEDIATE,
-          const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH);
+          RoudiStartupParameters roudiStartupParameters);
 
     virtual ~RouDi();
 
@@ -131,6 +151,7 @@ class RouDi
 
   private:
     config::MonitoringMode m_monitoringMode{config::MonitoringMode::ON};
+    units::Duration m_processKillDelay;
 };
 
 } // namespace roudi

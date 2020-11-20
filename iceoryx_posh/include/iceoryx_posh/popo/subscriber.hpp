@@ -15,11 +15,11 @@
 #define IOX_POSH_POPO_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/timespec.hpp"
 #include "iceoryx_utils/posix_wrapper/semaphore.hpp"
 
@@ -50,8 +50,7 @@ class Subscriber_t
     /// @brief Constructor
     /// @param[in] service Information on service , service, instance, event Id
     /// @param[in] runnableName optional name of the runnable the subscriber belongs to
-    explicit Subscriber_t(const capro::ServiceDescription& service,
-                          const cxx::CString100& runnableName = cxx::CString100("")) noexcept;
+    explicit Subscriber_t(const capro::ServiceDescription& service, const RunnableName_t& runnableName = "") noexcept;
 
     /// @brief Destructor for event receiver
     virtual ~Subscriber_t() noexcept;
@@ -174,8 +173,7 @@ class Subscriber_t
 class Subscriber : public Subscriber_t<iox::popo::ReceiverPort>
 {
   public:
-    Subscriber(const capro::ServiceDescription& service,
-               const cxx::CString100& runnableName = cxx::CString100("")) noexcept
+    Subscriber(const capro::ServiceDescription& service, const RunnableName_t& runnableName = "") noexcept
         : Subscriber_t<iox::popo::ReceiverPort>(service, runnableName)
     {
     }

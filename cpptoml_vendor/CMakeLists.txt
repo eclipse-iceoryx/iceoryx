@@ -14,6 +14,14 @@ macro(build_cpptoml)
     list(APPEND extra_cmake_args -DCMAKE_C_FLAGS=${win_c_flags})
   endif()
 
+  # choose whether to use libcxx with clang
+  if(DEFINED ENABLE_LIBCXX)
+    list(APPEND extra_cmake_args -DENABLE_LIBCXX=${ENABLE_LIBCXX})
+  endif()
+
+  # disable examples
+  list(APPEND extra_cmake_args -DCPPTOML_BUILD_EXAMPLES=OFF)
+
   if(DEFINED CMAKE_TOOLCHAIN_FILE)
     list(APPEND extra_cmake_args "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}")
     if(ANDROID)

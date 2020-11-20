@@ -97,7 +97,6 @@ class LockFreeQueue
 
   private:
     using Queue = IndexQueue<Capacity>;
-    using UniqueIndex = typename Queue::UniqueIndex;
     using BufferIndex = typename Queue::value_t;
 
     // remark: actually m_freeIndices do not have to be in a queue, it could be another
@@ -114,13 +113,13 @@ class LockFreeQueue
     // template is needed to distinguish between lvalue and rvalue T references
     // (universal reference type deduction)
     template <typename T>
-    void writeBufferAt(const UniqueIndex&, T&&);
+    void writeBufferAt(const BufferIndex&, T&&);
 
     // needed to avoid code duplication (via universal reference type deduction)
     template <typename T>
     iox::cxx::optional<ElementType> pushImpl(T&& value) noexcept;
 
-    cxx::optional<ElementType> readBufferAt(const UniqueIndex&);
+    cxx::optional<ElementType> readBufferAt(const BufferIndex&);
 };
 } // namespace concurrent
 } // namespace iox

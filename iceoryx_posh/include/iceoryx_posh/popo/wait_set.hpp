@@ -16,19 +16,17 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
 namespace iox
 {
 namespace popo
 {
+class Condition;
+
 enum class WaitSetError : uint8_t
 {
     CONDITION_VECTOR_OVERFLOW,
-    CONDITION_VARIABLE_ALREADY_SET,
-    CONDITION_VARIABLE_ATTACH_FAILED
 };
 
 /// @brief Logical disjunction of a certain number of Conditions
@@ -111,7 +109,7 @@ class WaitSet
     /// @brief Removes a condition from the internal vector
     /// @param[in] condition, condition to be detached
     /// @return True if successful, false if unsuccessful
-    bool detachCondition(Condition& condition) noexcept;
+    void detachCondition(Condition& condition) noexcept;
 
     /// @brief Clears all conditions from the waitset
     void detachAllConditions() noexcept;
@@ -127,14 +125,22 @@ class WaitSet
     /// fulfilled
     ConditionVector wait() noexcept;
 
+    /// @brief Is a given condition attached to this WaitSet
+    /// @return true if the condition is attached otherwise false
+    bool isConditionAttached(const Condition& condition) noexcept;
+
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
+
+    friend class Condition;
 
   private:
     ConditionVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
     template <typename WaitFunction>
     ConditionVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
     ConditionVector createVectorWithFullfilledConditions() noexcept;
+
+    void removeCondition(const Condition& condition) noexcept;
 
   private:
     ConditionVector m_conditionVector;

@@ -82,8 +82,10 @@ void PortManager::stopPortIntrospection() noexcept
 
 void PortManager::doDiscovery() noexcept
 {
+    /// @todo remove deprecated port #25
     handleSenderPorts();
 
+    /// @todo remove deprecated port #25
     handleReceiverPorts();
 
     handlePublisherPorts();
@@ -533,6 +535,7 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
 
 void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcept
 {
+    /// @todo #25 deprecated
     for (auto port : m_portPool->senderPortDataList())
     {
         SenderPortType sender(port);
@@ -542,12 +545,31 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
         }
     }
 
+    /// @todo #25 deprecated
     for (auto port : m_portPool->receiverPortDataList())
     {
         ReceiverPortType receiver(port);
         if (processName == receiver.getProcessName())
         {
             destroyReceiverPort(port);
+        }
+    }
+
+    for (auto port : m_portPool->getPublisherPortDataList())
+    {
+        PublisherPortUserType publisher(port);
+        if (processName == publisher.getProcessName())
+        {
+            destroyPublisherPort(port);
+        }
+    }
+
+    for (auto port : m_portPool->getSubscriberPortDataList())
+    {
+        SubscriberPortUserType subscriber(port);
+        if (processName == subscriber.getProcessName())
+        {
+            destroySubscriberPort(port);
         }
     }
 

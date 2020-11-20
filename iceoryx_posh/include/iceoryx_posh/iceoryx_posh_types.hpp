@@ -72,6 +72,8 @@ constexpr char SHM_NAME[] = "/iceoryx_mgmt";
 using namespace units::duration_literals;
 
 // Timeout
+constexpr units::Duration PROCESS_DEFAULT_KILL_DELAY = 45_s;
+constexpr units::Duration PROCESS_TERMINATED_CHECK_INTERVAL = 250_ms;
 constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
 constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
 constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * DISCOVERY_INTERVAL;         // > DISCOVERY_INTERVAL

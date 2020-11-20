@@ -21,12 +21,12 @@ namespace popo
 {
 // ============================== Sample<T> ========================= //
 template <typename T>
-Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
+inline Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
     : m_samplePtr(std::move(samplePtr))
     , m_publisherRef(publisher){};
 
 template <typename T>
-Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
+inline Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
 {
     if (this != &rhs)
     {
@@ -38,49 +38,48 @@ Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
 }
 
 template <typename T>
-Sample<T>::Sample(Sample<T>&& rhs)
+inline Sample<T>::Sample(Sample<T>&& rhs)
     : m_publisherRef(rhs.m_publisherRef) // Need to initialize references in initializer list.
 {
     *this = std::move(rhs);
 }
 
 template <typename T>
-Sample<T>::~Sample()
+inline Sample<T>::~Sample()
 {
     m_samplePtr = nullptr;
 }
 
 template <typename T>
-Sample<T>::Sample(std::nullptr_t) noexcept
+inline Sample<T>::Sample(std::nullptr_t) noexcept
 {
     m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
 };
 
 template <typename T>
-T* Sample<T>::operator->() noexcept
+inline T* Sample<T>::operator->() noexcept
 {
     return get();
 }
 
 template <typename T>
-T* Sample<T>::get() noexcept
+inline T* Sample<T>::get() noexcept
 {
     return m_samplePtr.get();
 }
 
 template <typename T>
-mepoo::ChunkHeader* Sample<T>::getHeader() noexcept
+inline mepoo::ChunkHeader* Sample<T>::getHeader() noexcept
 {
     return mepoo::convertPayloadPointerToChunkHeader(m_samplePtr.get());
 }
 
 template <typename T>
-void Sample<T>::publish() noexcept
+inline void Sample<T>::publish() noexcept
 {
     if (m_samplePtr)
     {
         m_publisherRef.get().publish(std::move(*this));
-        m_samplePtr.release(); // Release ownership of the sample since it has been published.
     }
 
     else
@@ -89,20 +88,26 @@ void Sample<T>::publish() noexcept
     }
 }
 
+template <typename T>
+inline void Sample<T>::release() noexcept
+{
+    m_samplePtr.release();
+}
+
 // ============================== Sample<const T> ========================= //
 
 template <typename T>
-Sample<const T>::Sample(cxx::unique_ptr<T>&& samplePtr) noexcept
+inline Sample<const T>::Sample(cxx::unique_ptr<T>&& samplePtr) noexcept
     : m_samplePtr(std::move(samplePtr)){};
 
 template <typename T>
-Sample<const T>::Sample(std::nullptr_t) noexcept
+inline Sample<const T>::Sample(std::nullptr_t) noexcept
 {
     m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
 };
 
 template <typename T>
-Sample<const T>& Sample<const T>::operator=(Sample<const T>&& rhs)
+inline Sample<const T>& Sample<const T>::operator=(Sample<const T>&& rhs)
 {
     if (this != &rhs)
     {
@@ -113,31 +118,31 @@ Sample<const T>& Sample<const T>::operator=(Sample<const T>&& rhs)
 }
 
 template <typename T>
-Sample<const T>::Sample(Sample<const T>&& rhs)
+inline Sample<const T>::Sample(Sample<const T>&& rhs)
 {
     *this = std::move(rhs);
 }
 
 template <typename T>
-Sample<const T>::~Sample()
+inline Sample<const T>::~Sample()
 {
     m_samplePtr = nullptr;
 }
 
 template <typename T>
-const T* Sample<const T>::operator->() noexcept
+inline const T* Sample<const T>::operator->() noexcept
 {
     return get();
 }
 
 template <typename T>
-const T* Sample<const T>::get() noexcept
+inline const T* Sample<const T>::get() noexcept
 {
     return m_samplePtr.get();
 }
 
 template <typename T>
-const mepoo::ChunkHeader* Sample<const T>::getHeader() noexcept
+inline const mepoo::ChunkHeader* Sample<const T>::getHeader() noexcept
 {
     return mepoo::convertPayloadPointerToChunkHeader(m_samplePtr.get());
 }

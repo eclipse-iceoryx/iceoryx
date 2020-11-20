@@ -25,7 +25,7 @@ inline Subscriber_t<ReceiverPortType>::Subscriber_t() noexcept
 
 template <typename ReceiverPortType>
 inline Subscriber_t<ReceiverPortType>::Subscriber_t(const capro::ServiceDescription& service,
-                                                    const cxx::CString100& runnableName) noexcept
+                                                    const RunnableName_t& runnableName) noexcept
     : m_serviceDescription(service)
     , m_receiver(runtime::PoshRuntime::getInstance().getMiddlewareReceiver(service, runnableName))
 {

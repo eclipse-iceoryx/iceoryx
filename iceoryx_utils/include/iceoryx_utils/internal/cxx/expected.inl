@@ -388,6 +388,58 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(ValueType&
 }
 
 template <typename ValueType, typename ErrorType>
+template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+inline const expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const
+    noexcept
+{
+    return const_cast<expected*>(this)->and_then(callable);
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+inline expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept
+{
+    if (!this->has_error())
+    {
+        auto& optional = get_value();
+        if (optional.has_value())
+        {
+            callable(optional.value());
+        }
+    }
+
+    return *this;
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+inline const expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) const noexcept
+{
+    return const_cast<expected*>(this)->if_empty(callable);
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+inline expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) noexcept
+{
+    if (!this->has_error())
+    {
+        auto& optional = get_value();
+        if (!optional.has_value())
+        {
+            callable();
+        }
+    }
+
+    return *this;
+}
+
+
+template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::on_success(const cxx::function_ref<void()>& callable) noexcept
 {

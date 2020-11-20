@@ -36,9 +36,9 @@ constexpr uint64_t LockFreeQueue<ElementType, Capacity>::capacity() const noexce
 template <typename ElementType, uint64_t Capacity>
 bool LockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noexcept
 {
-    UniqueIndex index = m_freeIndices.pop();
+    BufferIndex index;
 
-    if (!index.isValid())
+    if (!m_freeIndices.pop(index))
     {
         return false; // detected full queue, value is unchanged (as demanded by const)
     }
@@ -53,9 +53,9 @@ bool LockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noe
 template <typename ElementType, uint64_t Capacity>
 bool LockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
 {
-    UniqueIndex index = m_freeIndices.pop();
+    BufferIndex index;
 
-    if (!index.isValid())
+    if (!m_freeIndices.pop(index))
     {
         return false; // detected full queue
     }
@@ -73,13 +73,12 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T
 {
     cxx::optional<ElementType> evictedValue;
 
-    UniqueIndex index = m_freeIndices.pop();
+    BufferIndex index;
 
-    while (!index.isValid())
+    while (!m_freeIndices.pop(index))
     {
         // only pop the index if the queue is still full
-        index = m_usedIndices.popIfFull();
-        if (index.isValid())
+        if (m_usedIndices.popIfFull(index))
         {
             evictedValue = readBufferAt(index);
             break;
@@ -88,8 +87,6 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T
         // note that it is theoretically possible to be unsuccessful indefinitely
         // (and thus we would have an infinite loop)
         // but this requires a timing of concurrent pushes and pops which is exceptionally unlikely in practice
-
-        index = m_freeIndices.pop();
     }
 
     // if we removed from a full queue via popIfFull it might not be full anymore when a concurrent pop occurs
@@ -116,11 +113,11 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(Eleme
 template <typename ElementType, uint64_t Capacity>
 iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pop() noexcept
 {
-    UniqueIndex index = m_usedIndices.pop();
+    BufferIndex index;
 
-    if (!index.isValid())
+    if (!m_usedIndices.pop(index))
     {
-        return cxx::nullopt_t(); // detected empty queue
+        return cxx::nullopt; // detected empty queue
     }
 
     auto result = readBufferAt(index);
@@ -143,7 +140,7 @@ uint64_t LockFreeQueue<ElementType, Capacity>::size() const noexcept
 }
 
 template <typename ElementType, uint64_t Capacity>
-cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const UniqueIndex& index)
+cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const BufferIndex& index)
 {
     // also used for buffer synchronization
     m_size.fetch_sub(1u, std::memory_order_acquire);
@@ -156,7 +153,7 @@ cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(co
 
 template <typename ElementType, uint64_t Capacity>
 template <typename T>
-void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const UniqueIndex& index, T&& value)
+void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const BufferIndex& index, T&& value)
 {
     auto elementPtr = m_buffer.ptr(index);
     new (elementPtr) ElementType(std::forward<T>(value)); // move ctor invoked when available, copy ctor otherwise

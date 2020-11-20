@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,12 +29,12 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-int main(int argc, char* argv[])
+int main()
 {
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-modern");
+    iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-untyped-modern");
 
     auto untypedPublisher = iox::popo::UntypedPublisher({"Odometry", "Position", "Vehicle"});
     untypedPublisher.offer();
@@ -42,11 +42,27 @@ int main(int argc, char* argv[])
     float_t ct = 0.0;
     while (!killswitch)
     {
+        ++ct;
+
+        // API Usage #1
+        //  * Loaned sample can be held until ready to publish
+        auto result = untypedPublisher.loan(128);
+        if(!result.has_error())
+        {
+            auto& sample = result.get_value();
+            // In the untyped API, the returned sample is a void pointer, therefore the data must be constructed
+            // in place.
+            new (sample.get()) Position(ct, ct, ct);
+            sample.publish();
+        }
+
+        // API Usage #2
+        // * Loan sample and provide logic to use it immediately via a lambda
         untypedPublisher.loan(sizeof(Position)).and_then([&](iox::popo::Sample<void>& sample) {
-            ++ct;
             new (sample.get()) Position(ct, ct, ct);
             sample.publish();
         });
+
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 

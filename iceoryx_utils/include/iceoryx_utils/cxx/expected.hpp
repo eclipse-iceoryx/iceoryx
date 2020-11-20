@@ -101,6 +101,17 @@ struct error
 template <typename... T>
 class expected;
 
+template <typename... T>
+struct is_optional : std::false_type
+{
+};
+
+template <typename T>
+struct is_optional<iox::cxx::optional<T>> : std::true_type
+{
+};
+
+
 /// @brief expected implementation from the C++20 proposal with C++11. The interface
 ///         is inspired by the proposal but it has changes since we are not allowed to
 ///         throw an exception.
@@ -696,6 +707,34 @@ class expected<ValueType, ErrorType>
     [[gnu::deprecated]] expected& on_success(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
     expected& and_then(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
 
+    ///
+    /// @brief if the expected contains a success value and its type is a non-empty optional, retrieve the value from
+    ///         the optional and provide it as the argument to the provided callable
+    /// @param[in] callable the callable to be called with the contents of the optional
+    /// @return reference to the expected
+    /// @code
+    ///     anExpectedOptional.and_then([](int& value){
+    ///         std::cout << "the optional contains the value: " << result << std::endl;
+    ///     })
+    /// @endcode
+    ///
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    const expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const noexcept;
+
+    ///
+    /// @brief if the expected contains a success value and its type is a non-empty optional, retrieve the value from
+    ///         the optional and provide it as the argument to the provided callable
+    /// @param[in] callable the callable to be called with the contents of the optional
+    /// @return reference to the expected
+    /// @code
+    ///     anExpectedOptional.and_then([](int& value){
+    ///         std::cout << "the optional contains the value: " << result << std::endl;
+    ///     })
+    /// @endcode
+    ///
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept;
+
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
     /// @param[in] callable callable which will be called if the expected contains a success value
@@ -717,6 +756,38 @@ class expected<ValueType, ErrorType>
     ///     })
     /// @endcode
     [[gnu::deprecated]] expected& on_success(const cxx::function_ref<void()>& callable) noexcept;
+
+    ///
+    /// @brief if the expected contains a success value and its type is an empty optional, calls the provided callable
+    /// @param[in] callable the callable to be called if the contained optional is empty
+    /// @return reference to the expected
+    /// @code
+    ///     anExpectedOptional.and_then([](SomeType& value){
+    ///             std::cout << "we got something in the optional: " << value << std::endl;
+    ///         })
+    ///         .if_empty([](){
+    ///             std::cout << "the optional was empty, but do something anyway!" << result << std::endl;
+    ///         })
+    /// @endcode
+    ///
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    const expected& if_empty(const cxx::function_ref<void()>& callable) const noexcept;
+
+    ///
+    /// @brief if the expected contains a success value and its type is an empty optional, calls the provided callable
+    /// @param[in] callable the callable to be called if the contained optional is empty
+    /// @return reference to the expected
+    /// @code
+    ///     anExpectedOptional.and_then([](SomeType& value){
+    ///             std::cout << "we got something in the optional: " << value << std::endl;
+    ///         })
+    ///         .if_empty([](){
+    ///             std::cout << "the optional was empty, but do something anyway!" << result << std::endl;
+    ///         })
+    /// @endcode
+    ///
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
 
     optional<ValueType> to_optional() const noexcept;
 

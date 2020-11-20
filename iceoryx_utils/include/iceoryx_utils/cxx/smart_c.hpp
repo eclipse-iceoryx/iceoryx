@@ -32,21 +32,22 @@
 /// and __PRETTY_FUNCTION__ defines.
 /// Creates a smart_c c function call and executes the call. Depending on
 /// how successful the c function call was it either returns via std::cerr an
-/// error message containing the source of this make_smart_c or it stores the
-/// return value. We can retrieve it later by calling GetReturnValue() or
+/// error message containing the source of this makeSmartC or it stores the
+/// return value. We can retrieve it later by calling getReturnValue() or
 /// casting since smart_c has an casting operator to the returnValue.
 ///
 /// @code
 ///     auto memoryCall =
-///         cxx::make_smart_c(malloc, cxx::returnMode::PreDefinedErrorCode, {static_cast< void* >(nu
-///         >(nullptr)}, 10); 10);
-///         {}, 10); void * pointer; if ( !memoryCall.HasErrors() ) {
-///             pointer = memoryCall.GetReturnValue();
+///         cxx::makeSmartC(malloc, cxx::returnMode::PRE_DEFINED_ERROR_CODE, {static_cast<void*>(nullptr)}, 10);
 ///
-///             // it is also possible to assign it directly since it has an
-///             // cast operator to the ReturnType
-///             pointer = memoryCall;
-///         }
+///     void * pointer;
+///     if ( !memoryCall.hasErrors() ) {
+///         pointer = memoryCall.getReturnValue();
+///
+///         // it is also possible to assign it directly since it has an
+///         // cast operator to the ReturnType
+///         pointer = memoryCall;
+///     }
 /// @endcode
 #define makeSmartC(f_function, f_returnMode, f_returnValues, f_ignoredValues, ...)                                     \
     makeSmartCImpl(__FILE__,                                                                                           \
@@ -85,21 +86,22 @@ enum class ReturnMode
 ///     #include "smart_c.hpp"
 ///
 ///     auto memoryCall =
-///         cxx::make_smart_c(malloc, cxx::returnModenModenModenMode::PreDefinedErrorCode, {static_cast< void*
-///         >( 10l; 10);
-///         {}, 10); void * pointer; if ( !memoryCall.HasErrors() ) {
-///             pointer = memoryCall.GetReturnValue();
-///         }
+///         cxx::makeSmartC(malloc, cxx::returnMode::PRE_DEFINED_ERROR_CODE, {static_cast<void*>(nullptr)}, 10);
+///
+///     void * pointer;
+///     if ( !memoryCall.hasErrors() ) {
+///         pointer = memoryCall.getReturnValue();
+///     }
 ///
 ///     ...
 ///
 ///     auto semaphoreCall  =
-///         cxx::make_smart_c(sem_open, cxx::returnModenMode::PreDefinedErrorCode, {SEM_FAILED}, {}, "param1",
+///         cxx::makeSmartC(sem_open, cxx::returnMode::PRE_DEFINED_ERROR_CODE, {SEM_FAILED}, {}, "param1",
 ///         12);
 ///
 ///     // if an error has occurred the optional has no value
-///     if ( semaphoreCall.HasErrors() ) {
-///         DoStuffWithSemaphore(semaphore.GetReturnValue());
+///     if ( !semaphoreCall.hasErrors() ) {
+///         DoStuffWithSemaphore(semaphore.getReturnValue());
 ///     }
 /// @endcode
 template <typename Function, typename ReturnType, typename... FunctionArguments>
@@ -109,7 +111,7 @@ class SmartC
     /// @brief Returns the returnValue of the c function call. If an error
     ///         has occurred the error code is returned.
     ///         If you use it in your code you should probably check with
-    ///         HasErrors() if an actual error has occurred during the call.
+    ///         hasErrors() if an actual error has occurred during the call.
     /// @return returnValue of the c call
     ReturnType getReturnValue() const noexcept;
 
@@ -118,9 +120,8 @@ class SmartC
     operator ReturnType() const noexcept;
 
     /// @brief If one of the given error codes was returned during the c
-    ///         function call and the c function failed it returns false,
-    ///         otherwise true
-    /// @return false if the c call failed, otherwise true
+    ///         function call and the c function failed
+    /// @return true if the c call failed, otherwise false
     bool hasErrors() const noexcept;
 
     /// @brief If no error occurred it returns a string like "no errors"

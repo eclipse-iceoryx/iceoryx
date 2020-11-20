@@ -15,6 +15,7 @@
 #define IOX_UTILS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/platform/types.hpp"
 
@@ -37,7 +38,7 @@ struct PosixRights
 class PosixGroup
 {
   public:
-    using string_t = std::string;
+    using string_t = cxx::string<100>;
     PosixGroup(gid_t f_id);
     PosixGroup(string_t f_name);
 
@@ -62,7 +63,7 @@ class PosixUser
 {
   public:
     using groupVector_t = cxx::vector<PosixGroup, MaxNumberOfGroups>;
-    using string_t = std::string;
+    using string_t = cxx::string<100>;
 
     PosixUser(uid_t f_id);
     PosixUser(const string_t& f_name);

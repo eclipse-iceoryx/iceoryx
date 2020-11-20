@@ -19,8 +19,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
-
-#include <string>
+#include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 namespace iox
 {
@@ -30,8 +29,8 @@ struct SegmentConfig
 {
     struct SegmentEntry
     {
-        SegmentEntry(const std::string& readerGroup,
-                     const std::string& writerGroup,
+        SegmentEntry(const posix::PosixGroup::string_t& readerGroup,
+                     const posix::PosixGroup::string_t& writerGroup,
                      const MePooConfig& memPoolConfig,
                      iox::mepoo::MemoryInfo memoryInfo = iox::mepoo::MemoryInfo())
             : m_readerGroup(readerGroup)
@@ -42,8 +41,8 @@ struct SegmentConfig
         {
         }
 
-        std::string m_readerGroup;
-        std::string m_writerGroup;
+        posix::PosixGroup::string_t m_readerGroup;
+        posix::PosixGroup::string_t m_writerGroup;
         MePooConfig m_mempoolConfig;
         iox::mepoo::MemoryInfo m_memoryInfo;
     };

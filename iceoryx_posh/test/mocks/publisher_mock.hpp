@@ -28,6 +28,11 @@ class MockPublisherPortUser
     MockPublisherPortUser(std::nullptr_t)
     {
     }
+    iox::capro::ServiceDescription getCaProServiceDescription() const noexcept
+    {
+        return getServiceDescription();
+    }
+    MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD1(tryAllocateChunk,
                  iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
     MOCK_METHOD1(freeChunk, void(iox::mepoo::ChunkHeader* const));
@@ -37,6 +42,7 @@ class MockPublisherPortUser
     MOCK_METHOD0(stopOffer, void());
     MOCK_CONST_METHOD0(isOffered, bool());
     MOCK_CONST_METHOD0(hasSubscribers, bool());
+    MOCK_METHOD0(destroy, void());
 };
 
 template <typename T>
