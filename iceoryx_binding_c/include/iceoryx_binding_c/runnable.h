@@ -33,7 +33,8 @@ void iox_runnable_destroy(iox_runnable_t const self);
 /// @param[in] name pointer to a memory location where the name can be written to
 /// @param[in] nameCapacity size of the memory location where the name is written to
 /// @return the actual length of the runnable name, if the return value is greater
-///         then nameCapacity the name is truncated
+///         then nameCapacity the name is truncated.
+///         If name is a nullptr, 0 will be returned.
 uint64_t iox_runnable_get_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity);
 
 /// @brief acquires the name of the process in which the runnable is stored
@@ -41,7 +42,8 @@ uint64_t iox_runnable_get_name(iox_runnable_t const self, char* const name, cons
 /// @param[in] name pointer to a memory location where the name can be written to
 /// @param[in] nameCapacity size of the memory location where the name is written to
 /// @return the actual length of the process name, if the return value is greater
-///         then nameCapacity the name is truncated
+///         then nameCapacity the name is truncated.
+///         If name is a nullptr, 0 will be returned.
 uint64_t iox_runnable_get_process_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity);
 
 #endif

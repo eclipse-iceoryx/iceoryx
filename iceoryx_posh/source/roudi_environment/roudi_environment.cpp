@@ -61,7 +61,7 @@ void RouDiEnvironment::InterOpWait()
     std::this_thread::sleep_for(m_interOpWaitingTime);
 }
 
-void RouDiEnvironment::CleanupAppResources(const std::string& name)
+void RouDiEnvironment::CleanupAppResources(const ProcessName_t& name)
 {
     m_runtimes.eraseRuntime(name);
 }

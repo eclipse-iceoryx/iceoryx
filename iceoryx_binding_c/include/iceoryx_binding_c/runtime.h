@@ -27,6 +27,7 @@ void iox_runtime_register(const char* const name);
 /// @return The length of the instance-name. If the instance-name is longer then nameLength a
 ///         number greater nameLength is returned and the instance-name, truncated
 ///         to nameLength, is written into the memory location of name.
+///         If name is a nullptr, 0 will be returned.
 uint64_t iox_runtime_get_instance_name(char* const name, const uint64_t nameLength);
 
 #endif
