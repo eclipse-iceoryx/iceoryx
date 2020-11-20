@@ -84,18 +84,23 @@ TEST_F(RoudiFindService_test, OfferExsistingServiceMultipleTimesIsRedundant)
     ASSERT_THAT(*instanceContainer.begin(), Eq(IdString("instance1")));
 }
 
-TEST_F(RoudiFindService_test, FindSameServiceMultipleTimesSuccessfully)
+TEST_F(RoudiFindService_test, FindSameServiceMultipleTimesReturnsSingleInstance)
 {
     InstanceContainer instanceContainer;
     senderRuntime->offerService({"service1", "instance1"});
     this->InterOpWait();
 
     receiverRuntime->findService({"service1", "instance1"}, instanceContainer);
-    receiverRuntime->findService({"service1", "instance1"}, instanceContainer);
+    this->InterOpWait();
 
-    ASSERT_THAT(instanceContainer.size(), Eq(2u));
+    ASSERT_THAT(instanceContainer.size(), Eq(1u));
     ASSERT_THAT(instanceContainer.at(0), Eq(IdString("instance1")));
-    ASSERT_THAT(instanceContainer.at(1), Eq(IdString("instance1")));
+
+    receiverRuntime->findService({"service1", "instance1"}, instanceContainer);
+    this->InterOpWait();
+
+    ASSERT_THAT(instanceContainer.size(), Eq(1u));
+    ASSERT_THAT(instanceContainer.at(0), Eq(IdString("instance1")));
 }
 
 TEST_F(RoudiFindService_test, DISABLED_OfferMultiMethodServiceSingleInstance_PERFORMANCETEST42)

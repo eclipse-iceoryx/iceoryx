@@ -484,6 +484,7 @@ cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& s
         return cxx::error<Error>(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ);
     }
 
+    instanceContainer.clear();
     uint32_t numberOfElements = requestResponse.getNumberOfElements();
     uint32_t capacity = static_cast<uint32_t>(instanceContainer.capacity());
 
