@@ -36,15 +36,20 @@ void Trigger::reset() noexcept
         return;
     }
 
-    // It is possible that the reset call calls itself again therefore
-    // we have to invalidate the trigger first before calling reset.
-    m_conditionVariableDataPtr = nullptr;
-    m_origin = nullptr;
-
-    if (m_resetCallback)
+    if (m_resetCallback && !m_resetCallbackWasCalled)
     {
+        // It is possible that the reset call calls itself again therefore
+        // we have to indicate that it is already running
+        // This can happen when the waitset goes out of scope.
+        // 1. The WaitSet calls the origin to invalidate his trigger when removing the trigger
+        // 2. The origin resets the trigger which removes it from the waitset
+        // 3. The WaitSet remove calls again the origin reset
+        m_resetCallbackWasCalled = true;
         m_resetCallback(*this);
     }
+
+    m_conditionVariableDataPtr = nullptr;
+    m_origin = nullptr;
 }
 
 void Trigger::trigger() noexcept

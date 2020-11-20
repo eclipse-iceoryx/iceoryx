@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
@@ -20,6 +21,7 @@
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 
+#include <chrono>
 #include <memory>
 #include <thread>
 
@@ -32,322 +34,347 @@ using namespace iox::units::duration_literals;
 class WaitSet_test : public Test
 {
   public:
-    class MockSubscriber
-    {
-      public:
-        MockSubscriber()
-        {
-        }
-
-        bool hasTriggered() const noexcept
-        {
-            return m_wasTriggered;
-        }
-
-        void unsetConditionVariable() noexcept
-        {
-            m_condVarPtr = nullptr;
-        }
-
-        /// @note done in ChunkQueuePusher
-        void notify()
-        {
-            // We don't need to check if the WaitSet is still alive as it follows RAII and will inform every Condition
-            // about a possible destruction
-            m_wasTriggered = true;
-            // ConditionVariableSignaler signaler{m_condVarPtr};
-            // signaler.notifyOne();
-        }
-
-        /// @note members reside in ChunkQueueData in SHM
-        bool m_wasTriggered{false};
-        ConditionVariableData* m_condVarPtr{nullptr};
-    };
-
     ConditionVariableData m_condVarData;
     WaitSetMock m_sut{&m_condVarData};
-    vector<MockSubscriber, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> m_subscriberVector;
+    uint64_t m_resetTriggerId = 0U;
+    WaitSet_test* m_triggerCallbackArgument1 = nullptr;
+    WaitSet_test* m_triggerCallbackArgument2 = nullptr;
+    mutable uint64_t m_returnTrueCounter = 0U;
 
-    iox::posix::Semaphore m_syncSemaphore =
-        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).get_value();
-
-    void SetUp()
+    expected<Trigger, WaitSetError> acquireTrigger(WaitSetMock& waitset,
+                                                   const uint64_t triggerId,
+                                                   Trigger::Callback<WaitSet_test> callback = triggerCallback1)
     {
-        while (m_subscriberVector.size() != m_subscriberVector.capacity())
+        return waitset.acquireTrigger(
+            this, {this, &WaitSet_test::hasTriggered}, {this, &WaitSet_test::resetCallback}, triggerId, callback);
+    }
+
+    bool hasTriggered() const
+    {
+        if (m_returnTrueCounter == 0U)
         {
-            m_subscriberVector.emplace_back();
+            return false;
         }
-    };
+        else
+        {
+            --m_returnTrueCounter;
+            return true;
+        }
+    }
 
-    void TearDown()
+    void resetCallback(const Trigger& trigger)
     {
-        // m_sut.detachAllConditions();
-        m_subscriberVector.clear();
-        ConditionVariableWaiter waiter{&m_condVarData};
-        waiter.reset();
-    };
+        m_resetTriggerId = trigger.getTriggerId();
+        const_cast<Trigger&>(trigger).reset();
+    }
+
+    static void triggerCallback1(WaitSet_test* const waitset)
+    {
+        waitset->m_triggerCallbackArgument1 = waitset;
+    }
+
+    static void triggerCallback2(WaitSet_test* const waitset)
+    {
+        waitset->m_triggerCallbackArgument2 = waitset;
+    }
+
+    void SetUp(){};
+
+    void TearDown(){};
 };
 
-TEST_F(WaitSet_test, AttachSingleConditionSuccessful)
+TEST_F(WaitSet_test, AcquireTriggerOnceIsSuccessful)
 {
-    // EXPECT_FALSE(m_sut.attachCondition(m_subscriberVector.front()).has_error());
-    // EXPECT_TRUE(m_sut.isConditionAttached(m_subscriberVector.front()));
+    EXPECT_FALSE(acquireTrigger(m_sut, 0).has_error());
 }
 
-TEST_F(WaitSet_test, AttachConditionToDifferentWaitsetDetachesConditionFromOrigin)
+TEST_F(WaitSet_test, AcquireMultipleTriggerIsSuccessful)
 {
-    ConditionVariableData condVarData2;
-    WaitSetMock sut2{&condVarData2};
+    auto trigger1 = acquireTrigger(m_sut, 0);
+    auto trigger2 = acquireTrigger(m_sut, 0);
+    auto trigger3 = acquireTrigger(m_sut, 0);
 
-    // m_sut.attachCondition(m_subscriberVector.front());
-    // sut2.attachCondition(m_subscriberVector.front());
-
-    // EXPECT_FALSE(m_sut.isConditionAttached(m_subscriberVector.front()));
-    // EXPECT_TRUE(sut2.isConditionAttached(m_subscriberVector.front()));
+    EXPECT_FALSE(trigger1.has_error());
+    EXPECT_FALSE(trigger2.has_error());
+    EXPECT_FALSE(trigger3.has_error());
 }
 
-TEST_F(WaitSet_test, ConditionIsAttachedAfterAttaching)
+TEST_F(WaitSet_test, AcquireMaximumAllowedTriggersIsSuccessful)
 {
-    MockSubscriber condition;
-    // m_sut.attachCondition(condition);
-
-    // EXPECT_TRUE(m_sut.isConditionAttached(condition));
-}
-
-TEST_F(WaitSet_test, AttachedConditionDetachesItselfInDestructor)
-{
+    iox::cxx::vector<expected<Trigger, WaitSetError>, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET; ++i)
     {
-        MockSubscriber* scopedCondition = new MockSubscriber();
-        // m_sut.attachCondition(*scopedCondition);
-
-        delete scopedCondition;
-
-        scopedCondition = new MockSubscriber();
-
-        // EXPECT_FALSE(m_sut.isConditionAttached(*scopedCondition));
-        delete scopedCondition;
+        trigger.emplace_back(acquireTrigger(m_sut, 0));
+        EXPECT_FALSE(trigger.back().has_error());
     }
 }
 
-TEST_F(WaitSet_test, AttachConditionAndDestroyWaitSetResultsInDetach)
+TEST_F(WaitSet_test, AcquireMaximumAllowedPlusOneTriggerFails)
 {
+    iox::cxx::vector<expected<Trigger, WaitSetError>, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET; ++i)
     {
-        WaitSetMock m_sut2{&m_condVarData};
-        // m_sut2.attachCondition(m_subscriberVector.front());
+        trigger.emplace_back(acquireTrigger(m_sut, 0));
     }
-    // EXPECT_FALSE(m_subscriberVector.front().isConditionVariableAttached());
+    auto result = acquireTrigger(m_sut, 0);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(WaitSetError::CONDITION_VECTOR_OVERFLOW));
 }
 
-TEST_F(WaitSet_test, AttachMaximumAllowedConditionsSuccessful)
+TEST_F(WaitSet_test, AcquireTriggerReturnsTriggerWithValidOrigin)
 {
-    for (auto& currentSubscriber : m_subscriberVector)
+    auto trigger = acquireTrigger(m_sut, 0);
+    ASSERT_FALSE(trigger.has_error());
+    EXPECT_EQ(trigger->getOrigin<WaitSet_test>(), this);
+}
+
+TEST_F(WaitSet_test, AcquireTriggerReturnsTriggerWithValidTriggerId)
+{
+    auto trigger = acquireTrigger(m_sut, 781);
+    ASSERT_FALSE(trigger.has_error());
+    EXPECT_EQ(trigger->getTriggerId(), 781);
+}
+
+TEST_F(WaitSet_test, AcquireTriggerReturnsTriggerWithValidCallback)
+{
+    auto trigger = acquireTrigger(m_sut, 0);
+    ASSERT_FALSE(trigger.has_error());
+    ASSERT_TRUE((*trigger)());
+    EXPECT_THAT(m_triggerCallbackArgument1, this);
+}
+
+TEST_F(WaitSet_test, AcquireTriggerReturnsTriggerWithValidTriggerCallback)
+{
+    auto trigger = acquireTrigger(m_sut, 0);
+    m_returnTrueCounter = 1;
+    EXPECT_TRUE(trigger->hasTriggered());
+    m_returnTrueCounter = 0;
+    EXPECT_FALSE(trigger->hasTriggered());
+}
+
+TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
+{
+    iox::cxx::expected<Trigger, WaitSetError> trigger =
+        iox::cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
+
     {
-        //        EXPECT_FALSE(m_sut.attachCondition(currentSubscriber).has_error());
+        WaitSetMock sut{&m_condVarData};
+        trigger = acquireTrigger(sut, 421337);
     }
+
+    EXPECT_THAT(m_resetTriggerId, Eq(421337));
 }
 
-TEST_F(WaitSet_test, AttachTooManyConditionsResultsInFailure)
+TEST_F(WaitSet_test, TimerRemovesItselfFromWaitsetWhenGoingOutOfScope)
 {
-    for (auto& currentSubscriber : m_subscriberVector)
+    iox::cxx::vector<expected<Trigger, WaitSetError>, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET - 1; ++i)
     {
-        //       m_sut.attachCondition(currentSubscriber);
+        trigger.emplace_back(acquireTrigger(m_sut, 0));
     }
 
-    MockSubscriber extraCondition;
-    // EXPECT_THAT(m_sut.attachCondition(extraCondition).get_error(), Eq(WaitSetError::CONDITION_VECTOR_OVERFLOW));
-}
-
-TEST_F(WaitSet_test, DetachSingleConditionSuccessful)
-{
-    // m_sut.attachCondition(m_subscriberVector.front());
-    // EXPECT_TRUE(m_sut.isConditionAttached(m_subscriberVector.front()));
-}
-
-TEST_F(WaitSet_test, DetachMultipleConditionsSuccessful)
-{
-    for (auto& currentSubscriber : m_subscriberVector)
     {
-        //  m_sut.attachCondition(currentSubscriber);
+        auto temporaryTrigger = acquireTrigger(m_sut, 0);
+        // goes out of scope here and creates space again for an additional trigger
+        // if this doesn't work we are unable to acquire another trigger since the
+        // waitset is already full
     }
-    for (auto& currentSubscriber : m_subscriberVector)
+
+    auto anotherTrigger = acquireTrigger(m_sut, 0);
+    EXPECT_FALSE(anotherTrigger.has_error());
+}
+
+TEST_F(WaitSet_test, MultipleTimerRemovingThemselfFromWaitsetWhenGoingOutOfScope)
+{
+    iox::cxx::vector<expected<Trigger, WaitSetError>, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET - 3; ++i)
     {
-        // EXPECT_TRUE(m_sut.isConditionAttached(currentSubscriber));
+        trigger.emplace_back(acquireTrigger(m_sut, 0));
     }
-}
 
-TEST_F(WaitSet_test, TimedWaitWithInvalidTimeResultsInEmptyVector)
-{
-    auto emptyVector = m_sut.timedWait(0_ms);
-    EXPECT_TRUE(emptyVector.empty());
-}
-
-TEST_F(WaitSet_test, NoAttachTimedWaitResultsInEmptyVector)
-{
-    auto emptyVector = m_sut.timedWait(1_ms);
-    EXPECT_TRUE(emptyVector.empty());
-}
-
-TEST_F(WaitSet_test, TimedWaitWithMaximumNumberOfConditionsResultsInReturnOfMaximumNumberOfConditions)
-{
-    for (auto& currentSubscriber : m_subscriberVector)
     {
-        //        m_sut.attachCondition(currentSubscriber);
-        currentSubscriber.notify();
+        auto temporaryTrigger1 = acquireTrigger(m_sut, 0);
+        auto temporaryTrigger2 = acquireTrigger(m_sut, 0);
+        auto temporaryTrigger3 = acquireTrigger(m_sut, 0);
     }
-    auto fulfilledConditions = m_sut.timedWait(1_ms);
-    EXPECT_THAT(fulfilledConditions.size(), Eq(iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET));
+
+    auto anotherTrigger1 = acquireTrigger(m_sut, 0);
+    auto anotherTrigger2 = acquireTrigger(m_sut, 0);
+    auto anotherTrigger3 = acquireTrigger(m_sut, 0);
+    EXPECT_FALSE(anotherTrigger3.has_error());
 }
 
-TEST_F(WaitSet_test, TimedWaitWithNotificationResultsInImmediateTrigger)
+TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 {
-    //  m_sut.attachCondition(m_subscriberVector.front());
-    m_subscriberVector.front().notify();
-    auto fulfilledConditions = m_sut.timedWait(1_ms);
-    EXPECT_THAT(fulfilledConditions.size(), Eq(1));
-    // EXPECT_THAT(fulfilledConditions.front(), &m_subscriberVector.front());
-}
+    std::atomic_bool doStartWaiting{false};
+    std::atomic_bool isThreadFinished{false};
+    iox::cxx::vector<expected<Trigger, WaitSetError>, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET; ++i)
+    {
+        trigger.emplace_back(acquireTrigger(m_sut, i + 5));
+    }
 
-TEST_F(WaitSet_test, TimeoutOfTimedWaitResultsInEmptyVector)
-{
-    //    m_sut.attachCondition(m_subscriberVector.front());
-    auto fulfilledConditions = m_sut.timedWait(1_ms);
-    EXPECT_THAT(fulfilledConditions.size(), Eq(0));
-}
+    std::thread t([&] {
+        m_returnTrueCounter = 0;
+        trigger.front()->trigger();
 
-TEST_F(WaitSet_test, NotifyOneWhileWaitingResultsInTriggerMultiThreaded)
-{
-    std::atomic<int> counter{0};
-    //   m_sut.attachCondition(m_subscriberVector.front());
-    std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
-        auto fulfilledConditions = m_sut.wait();
-        EXPECT_THAT(fulfilledConditions.size(), Eq(1));
-        // EXPECT_THAT(fulfilledConditions.front(), &m_subscriberVector.front());
-        EXPECT_THAT(counter, Eq(1));
-    });
-    m_syncSemaphore.wait();
-    counter++;
-    m_subscriberVector.front().notify();
-    waiter.join();
-}
-
-TEST_F(WaitSet_test, AttachManyNotifyOneWhileWaitingResultsInTriggerMultiThreaded)
-{
-    std::atomic<int> counter{0};
-    // m_sut.attachCondition(m_subscriberVector[0]);
-    // m_sut.attachCondition(m_subscriberVector[1]);
-    std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
-        auto fulfilledConditions = m_sut.wait();
-        EXPECT_THAT(fulfilledConditions.size(), Eq(1));
-        // EXPECT_THAT(fulfilledConditions.front(), &m_subscriberVector[0]);
-        EXPECT_THAT(counter, Eq(1));
-    });
-    m_syncSemaphore.wait();
-    counter++;
-    m_subscriberVector[0].notify();
-    waiter.join();
-}
-
-TIMING_TEST_F(WaitSet_test, AttachManyNotifyManyBeforeWaitingResultsInTriggerMultiThreaded, Repeat(5), [&] {
-    std::atomic<int> counter{0};
-    // m_sut.attachCondition(m_subscriberVector[0]);
-    // m_sut.attachCondition(m_subscriberVector[1]);
-    std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        m_syncSemaphore.wait();
-        auto fulfilledConditions = m_sut.wait();
-        TIMING_TEST_ASSERT_TRUE(fulfilledConditions.size() == 2);
-        // EXPECT_THAT(fulfilledConditions[0], &m_subscriberVector[0]);
-        // EXPECT_THAT(fulfilledConditions[1], &m_subscriberVector[1]);
-        EXPECT_THAT(counter, Eq(1));
-    });
-    m_syncSemaphore.wait();
-    m_subscriberVector[0].notify();
-    m_subscriberVector[1].notify();
-    counter++;
-    m_syncSemaphore.post();
-    waiter.join();
-});
-
-
-TIMING_TEST_F(WaitSet_test, AttachManyNotifyManyWhileWaitingResultsInTriggerMultiThreaded, Repeat(10), [&] {
-    iox::posix::Semaphore notifyCalledSemaphore =
-        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).get_value();
-
-    std::atomic<int> counter{0};
-    // m_sut.attachCondition(m_subscriberVector[0]);
-    // m_sut.attachCondition(m_subscriberVector[1]);
-    std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
-        notifyCalledSemaphore.wait();
-        auto fulfilledConditions = m_sut.wait();
-        EXPECT_THAT(fulfilledConditions.size(), Eq(2));
-        // EXPECT_THAT(fulfilledConditions[0], &m_subscriberVector[0]);
-        // EXPECT_THAT(fulfilledConditions[1], &m_subscriberVector[1]);
-        EXPECT_THAT(counter, Eq(1));
+        doStartWaiting.store(true);
+        auto triggerVector = m_sut.wait();
+        isThreadFinished.store(true);
     });
 
-    m_syncSemaphore.wait();
-    m_subscriberVector[0].notify();
-    m_subscriberVector[1].notify();
-    notifyCalledSemaphore.post();
-    counter++;
-    waiter.join();
-});
+    while (!doStartWaiting.load())
+        ;
 
 
-TEST_F(WaitSet_test, WaitWithoutNotifyResultsInBlockingMultiThreaded)
-{
-    std::atomic<int> counter{0};
-    // m_sut.attachCondition(m_subscriberVector.front());
-    std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
-        m_sut.wait();
-        EXPECT_THAT(counter, Eq(1));
-    });
-    m_syncSemaphore.wait();
-    counter++;
-    m_subscriberVector.front().notify();
-    waiter.join();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_FALSE(isThreadFinished.load());
+
+    m_returnTrueCounter = 1;
+    trigger.front()->trigger();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    EXPECT_TRUE(isThreadFinished.load());
+
+    t.join();
 }
 
-TEST_F(WaitSet_test, NotifyUserTriggerWhileWaitingResultsInTriggerMultiThreaded)
+TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 {
-    std::atomic<int> counter{0};
-    UserTrigger guardCond;
-    // m_sut.attachCondition(guardCond);
-    std::thread waiter([&] {
-        EXPECT_THAT(counter, Eq(0));
-        m_syncSemaphore.post();
-        auto fulfilledConditions = m_sut.wait();
-        EXPECT_THAT(fulfilledConditions.size(), Eq(1));
-        //        EXPECT_THAT(fulfilledConditions.front(), &guardCond);
-        EXPECT_THAT(counter, Eq(1));
-    });
-    m_syncSemaphore.wait();
-    counter++;
-    guardCond.trigger();
-    waiter.join();
-    //    m_sut.detachCondition(guardCond);
+    iox::cxx::vector<expected<Trigger, WaitSetError>, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET; ++i)
+    {
+        trigger.emplace_back(acquireTrigger(m_sut, i + 5));
+    }
+
+    m_returnTrueCounter = 0;
+    trigger.front()->trigger();
+
+    auto triggerVector = m_sut.timedWait(10_ms);
+    ASSERT_THAT(triggerVector.size(), Eq(0));
 }
 
-TEST_F(WaitSet_test, NotifyUserTriggerOnceTimedWaitResultsInResetOfTrigger)
+void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test, const std::function<WaitSet::TriggerIdVector()>& waitCall)
 {
-    UserTrigger guardCond;
-    //   m_sut.attachCondition(guardCond);
-    guardCond.trigger();
-    auto fulfilledConditions1 = m_sut.timedWait(1_ms);
-    EXPECT_THAT(fulfilledConditions1.size(), Eq(1));
-    //    EXPECT_THAT(fulfilledConditions1.front(), &guardCond);
-    guardCond.resetTrigger();
-    auto fulfilledConditions2 = m_sut.timedWait(1_ms);
-    EXPECT_THAT(fulfilledConditions2.size(), Eq(0));
-    // m_sut.detachCondition(guardCond);
+    iox::cxx::vector<expected<Trigger, WaitSetError>, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET; ++i)
+    {
+        trigger.emplace_back(test->acquireTrigger(test->m_sut, i + 5));
+    }
+
+    test->m_returnTrueCounter = 1;
+    trigger.front()->trigger();
+
+    auto triggerVector = waitCall();
+    ASSERT_THAT(triggerVector.size(), Eq(1));
+    EXPECT_THAT(triggerVector[0].getTriggerId(), 5);
+    EXPECT_TRUE(triggerVector[0].doesOriginateFrom(test));
+    EXPECT_EQ(triggerVector[0].getOrigin<WaitSet_test>(), test);
+}
+
+TEST_F(WaitSet_test, WaitReturnsTheOneTriggeredCondition)
+{
+    WaitReturnsTheOneTriggeredCondition(this, [&] { return m_sut.wait(); });
+}
+
+TEST_F(WaitSet_test, TimedWaitReturnsTheOneTriggeredCondition)
+{
+    WaitReturnsTheOneTriggeredCondition(this, [&] { return m_sut.timedWait(10_ms); });
+}
+
+void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(WaitSet_test* test,
+                                                              const std::function<WaitSet::TriggerIdVector()>& waitCall)
+{
+    iox::cxx::vector<expected<Trigger, WaitSetError>, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET; ++i)
+    {
+        trigger.emplace_back(test->acquireTrigger(test->m_sut, i * 4));
+    }
+
+    test->m_returnTrueCounter = 24;
+    trigger.front()->trigger();
+
+    auto triggerVector = waitCall();
+    ASSERT_THAT(triggerVector.size(), Eq(24));
+
+    for (uint64_t i = 0; i < 24; ++i)
+    {
+        EXPECT_THAT(triggerVector[i].getTriggerId(), i * 4);
+        EXPECT_TRUE(triggerVector[i].doesOriginateFrom(test));
+        EXPECT_EQ(triggerVector[i].getOrigin<WaitSet_test>(), test);
+    }
+}
+
+TEST_F(WaitSet_test, WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered)
+{
+    WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(this, [&] { return m_sut.wait(); });
+}
+
+TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenMultipleAreTriggered)
+{
+    WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(this, [&] { return m_sut.timedWait(10_ms); });
+}
+
+
+void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
+                                                         const std::function<WaitSet::TriggerIdVector()>& waitCall)
+{
+    iox::cxx::vector<expected<Trigger, WaitSetError>, iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET> trigger;
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET; ++i)
+    {
+        trigger.emplace_back(test->acquireTrigger(test->m_sut, i * 3 + 2));
+    }
+
+    test->m_returnTrueCounter = iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET;
+    trigger.front()->trigger();
+
+    auto triggerVector = waitCall();
+    ASSERT_THAT(triggerVector.size(), Eq(iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET));
+
+    for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_CONDITIONS_PER_WAITSET; ++i)
+    {
+        EXPECT_THAT(triggerVector[i].getTriggerId(), i * 3 + 2);
+        EXPECT_TRUE(triggerVector[i].doesOriginateFrom(test));
+        EXPECT_EQ(triggerVector[i].getOrigin<WaitSet_test>(), test);
+    }
+}
+
+TEST_F(WaitSet_test, WaitReturnsAllTriggeredConditionWhenAllAreTriggered)
+{
+    WaitReturnsAllTriggeredConditionWhenAllAreTriggered(this, [&] { return m_sut.wait(); });
+}
+
+TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
+{
+    WaitReturnsAllTriggeredConditionWhenAllAreTriggered(this, [&] { return m_sut.timedWait(10_ms); });
+}
+
+void WaitReturnsTriggersWithCorrectCallbacks(WaitSet_test* test,
+                                             const std::function<WaitSet::TriggerIdVector()>& waitCall)
+{
+    auto trigger1 = test->acquireTrigger(test->m_sut, 0, WaitSet_test::triggerCallback1);
+    auto trigger2 = test->acquireTrigger(test->m_sut, 0, WaitSet_test::triggerCallback2);
+
+    test->m_returnTrueCounter = 2;
+    trigger1->trigger();
+
+    auto triggerVector = waitCall();
+    ASSERT_THAT(triggerVector.size(), Eq(2));
+
+    test->m_triggerCallbackArgument1 = nullptr;
+    triggerVector[0]();
+    EXPECT_THAT(test->m_triggerCallbackArgument1, Eq(test));
+
+    test->m_triggerCallbackArgument2 = nullptr;
+    triggerVector[1]();
+    EXPECT_THAT(test->m_triggerCallbackArgument2, Eq(test));
+}
+
+TEST_F(WaitSet_test, WaitReturnsTriggersWithCorrectCallbacks)
+{
+    WaitReturnsTriggersWithCorrectCallbacks(this, [&] { return m_sut.wait(); });
+}
+
+TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithCorrectCallbacks)
+{
+    WaitReturnsTriggersWithCorrectCallbacks(this, [&] { return m_sut.timedWait(10_ms); });
 }

@@ -18,6 +18,9 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
+/// TODO add example on howto create own class with trigger
+/// TODO example on what kind of callbacks are valid: static method callback
+
 #include <chrono>
 #include <csignal>
 #include <iostream>
