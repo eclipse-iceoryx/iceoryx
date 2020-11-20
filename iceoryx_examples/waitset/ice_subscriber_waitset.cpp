@@ -19,7 +19,10 @@
 #include "topic_data.hpp"
 
 /// TODO add example on howto create own class with trigger
-/// TODO example on what kind of callbacks are valid: static method callback
+/// TODO grouping example use with getOrigin and without callback
+/// TODO sync example with static method callback
+/// TODO rename unsetConditionVariable to unsetTrigger in BaseSubscriber and UserTrigger
+/// TODO move Trigger and TriggerState into public API
 
 #include <chrono>
 #include <csignal>

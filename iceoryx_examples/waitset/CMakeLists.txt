@@ -85,11 +85,19 @@ set_target_properties(iox-ex-waitset-sync PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-
+add_executable(iox-ex-waitset-trigger ./ice_waitset_trigger.cpp)
+target_link_libraries(iox-ex-waitset-trigger
+    iceoryx_posh::iceoryx_posh
+)
+set_target_properties(iox-ex-waitset-trigger PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
 
 
 
 install(
-    TARGETS iox-ex-publisher-waitset iox-ex-subscriber-waitset iox-ex-waitset-gateway iox-ex-waitset-grouping iox-ex-waitset-individual iox-ex-waitset-sync
+    TARGETS iox-ex-publisher-waitset iox-ex-subscriber-waitset iox-ex-waitset-gateway iox-ex-waitset-grouping iox-ex-waitset-individual iox-ex-waitset-sync iox-ex-waitset-trigger
     RUNTIME DESTINATION bin
 )
