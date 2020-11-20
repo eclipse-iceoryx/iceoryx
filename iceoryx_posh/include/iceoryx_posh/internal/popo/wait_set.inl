@@ -30,7 +30,7 @@ WaitSet::acquireTrigger(T* const origin,
     if (!m_triggerVector.emplace_back(
             origin, m_conditionVariableDataPtr, triggerCallback, invalidationCallback, triggerId, callback))
     {
-        return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
+        return cxx::error<WaitSetError>(WaitSetError::TRIGGER_VECTOR_OVERFLOW);
     }
 
     return iox::cxx::success<Trigger>(Trigger(

@@ -67,8 +67,8 @@ iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
 {
     switch (value)
     {
-    case WaitSetError::CONDITION_VECTOR_OVERFLOW:
-        return WaitSetResult_CONDITION_VECTOR_OVERFLOW;
+    case WaitSetError::TRIGGER_VECTOR_OVERFLOW:
+        return WaitSetResult_TRIGGER_VECTOR_OVERFLOW;
     default:
         return WaitSetResult_UNDEFINED_ERROR;
     }

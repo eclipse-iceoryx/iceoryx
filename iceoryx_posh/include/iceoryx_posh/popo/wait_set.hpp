@@ -31,74 +31,19 @@ class Condition;
 
 enum class WaitSetError : uint8_t
 {
-    CONDITION_VECTOR_OVERFLOW,
+    TRIGGER_VECTOR_OVERFLOW,
 };
 
-/// @brief Logical disjunction of a certain number of Conditions
+/// @brief Logical disjunction of a certain number of Triggers
 ///
-/// The WaitSet stores Conditions and allows the user to wait till those set of Conditions become true. It works over
-/// process borders. With the creation of a WaitSet it requests a condition variable from RouDi and destroys it with the
-/// destructor. Hence the lifetime of the condition variable is bound to the lifetime of the WaitSet. Before destroying
-/// a Condition object the user has to ensure that it was detached from the WaitSet before.
-///
-///
-/// @code
-///
-/// @todo Add gateway use-case to example code
-///
-/// // Create Waitset
-/// WaitSet myWaitSet();
-///
-/// Subscriber mySubscriber1({"Radar", "FrontRight", "Counter"});
-/// Subscriber mySubscriber2({"Radar", "FrontLeft", "Counter"});
-/// GuardCondition myGuardCond;
-///
-///
-/// myWaitSet.attachCondition(mySubscriber1);
-/// myWaitSet.attachCondition(mySubscriber2);
-/// myWaitSet.attachCondition(myGuardCond);
-///
-/// std::thread someOtherThread{[&](){
-///     while(true)
-///     {
-///       if(IWantToWakeUpTheWaitSet)
-///       {
-///           // Let the WaitSet return
-///           myGuardCond.setTrigger();
-///       }
-///       // Don't forget to reset the trigger
-///       myGuardCond.resetTrigger();
-///     }
-/// }};
-///
-/// while (true)
-/// {
-///     // Wait till new data has arrived (any condition has become true)
-///     auto vectorOfFulfilledConditions = myWaitSet.wait();
-///
-///     for(auto& element : vectorOfFulfilledConditions)
-///     {
-///         if(element == &mySubscriber1)
-///         {
-///             // Subscriber1 has received new data
-///             ChunkHeader myData;
-///             mySubscriber1.tryGetChunk(myData);
-///             doSomeThingWithTheNewData(myData);
-///         }
-///     }
-/// }
-/// someOtherThread.join();
-///
-/// myWaitSet.detachCondition(guardCond);
-/// myWaitSet.detachCondition(mySubscriber2);
-/// myWaitSet.detachCondition(mySubscriber1);
-///
-/// @endcode
+/// The WaitSet stores Triggers and allows the user to wait till one or more of those Triggers are triggered. It works
+/// over process borders. With the creation of a WaitSet it requests a condition variable from RouDi and destroys it
+/// with the destructor. Hence the lifetime of the condition variable is bound to the lifetime of the WaitSet.
 class WaitSet
 {
   public:
-    using TriggerVector = cxx::vector<Trigger, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
-    using TriggerIdVector = cxx::vector<TriggerState, MAX_NUMBER_OF_CONDITIONS_PER_WAITSET>;
+    using TriggerVector = cxx::vector<Trigger, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET>;
+    using TriggerStateVector = cxx::vector<TriggerState, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET>;
 
     WaitSet() noexcept;
     virtual ~WaitSet() noexcept;
@@ -107,33 +52,46 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
+    /// @brief Acquires a trigger from the waitset  The trigger is then attached to a class, the origin,
+    ///        which triggers the Trigger if a specific event happens. The class must then signal the
+    ///        trigger that it was triggered via the triggerCallback. If the WaitSet goes out of scope
+    ///        before the class does it calls the invalidationCallback to invalidate the Trigger inside
+    ///        of the class
+    /// @param[in] origin the pointer to the class which will attach the trigger
+    /// @param[in] triggerCallback a method from the class which will signal the Trigger that it was triggered
+    /// @param[in] invalidationCallback callback which will be called in the destructor of the waitset, important when
+    /// the waitset goes out of scope before the origin does.
+    /// @param[in] triggerId an arbitrary id to identify the trigger later when a list of triggers is returned via wait
+    /// or timedWait
+    /// @param[in] callback a callback which is attached to the trigger and can be later called when the trigger will be
+    ///            returned via wait or timedWait
+    /// @return returns the newly created trigger if the WaitSet has space left otherwise it returns
+    /// WaitSetError::TRIGGER_VECTOR_OVERFLOW
     template <typename T>
     cxx::expected<Trigger, WaitSetError>
     acquireTrigger(T* const origin,
                    const cxx::ConstMethodCallback<bool>& triggerCallback,
                    const cxx::MethodCallback<void, const Trigger&>& invalidationCallback,
                    const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                   const Trigger::Callback<T> = nullptr) noexcept;
+                   const Trigger::Callback<T> callback = nullptr) noexcept;
 
-    /// @brief Blocking wait with time limit till one or more of the condition become true
-    /// @param[in] timeout How long shall be waited for a signalling condition
-    /// @return ConditionVector vector of condition pointers that have become
-    /// fulfilled
-    TriggerIdVector timedWait(const units::Duration timeout) noexcept;
+    /// @brief Blocking wait with time limit till one or more of the triggers are triggered
+    /// @param[in] timeout How long shall we waite for a trigger
+    /// @return TriggerStateVector of TriggerStates that have been triggered
+    TriggerStateVector timedWait(const units::Duration timeout) noexcept;
 
-    /// @brief Blocking wait till one or more of the condition become true
-    /// @return ConditionVector vector of condition pointers that have become
-    /// fulfilled
-    TriggerIdVector wait() noexcept;
+    /// @brief Blocking wait till one or more of the triggers are triggered
+    /// @return TriggerStateVector of TriggerStates that have been triggered
+    TriggerStateVector wait() noexcept;
 
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
-    TriggerIdVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
+    TriggerStateVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
     template <typename WaitFunction>
-    TriggerIdVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
-    TriggerIdVector createVectorWithFullfilledConditions() noexcept;
+    TriggerStateVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
+    TriggerStateVector createVectorWithFullfilledConditions() noexcept;
 
     void removeTrigger(const Trigger& trigger) noexcept;
     void removeAllTrigger() noexcept;

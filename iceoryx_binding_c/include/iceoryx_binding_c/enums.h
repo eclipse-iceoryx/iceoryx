@@ -46,18 +46,9 @@ enum iox_AllocationResult
 
 enum iox_WaitSetResult
 {
-    WaitSetResult_CONDITION_VECTOR_OVERFLOW,
-    WaitSetResult_CONDITION_VARIABLE_ALREADY_SET,
-    WaitSetResult_CONDITION_VARIABLE_ATTACH_FAILED,
+    WaitSetResult_TRIGGER_VECTOR_OVERFLOW,
     WaitSetResult_UNDEFINED_ERROR,
     WaitSetResult_SUCCESS
-};
-
-enum iox_ConditionType
-{
-    ConditionType_GUARD_CONDITION,
-    ConditionType_SUBSCRIBER,
-    ConditionType_UNDEFINED
 };
 
 

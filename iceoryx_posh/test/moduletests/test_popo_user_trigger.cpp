@@ -106,12 +106,12 @@ TEST_F(UserTrigger_test, resetTriggerMultipleTimesWhenTriggeredResultsInNotTrigg
 
 TEST_F(UserTrigger_test, ExceedingCapacityOfWaitsetLeadsToConditionVectorOverflow)
 {
-    for (uint64_t i = 0; i < MAX_NUMBER_OF_CONDITIONS_PER_WAITSET; ++i)
+    for (uint64_t i = 0; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
         EXPECT_FALSE(m_sut.attachToWaitset(m_waitSet).has_error());
     }
 
     auto result = m_sut.attachToWaitset(m_waitSet);
     EXPECT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(WaitSetError::CONDITION_VECTOR_OVERFLOW));
+    EXPECT_THAT(result.get_error(), Eq(WaitSetError::TRIGGER_VECTOR_OVERFLOW));
 }

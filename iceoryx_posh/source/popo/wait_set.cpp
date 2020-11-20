@@ -60,12 +60,12 @@ void WaitSet::removeAllTrigger() noexcept
     m_triggerVector.clear();
 }
 
-typename WaitSet::TriggerIdVector WaitSet::timedWait(const units::Duration timeout) noexcept
+typename WaitSet::TriggerStateVector WaitSet::timedWait(const units::Duration timeout) noexcept
 {
     return waitAndReturnFulfilledConditions([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
 }
 
-typename WaitSet::TriggerIdVector WaitSet::wait() noexcept
+typename WaitSet::TriggerStateVector WaitSet::wait() noexcept
 {
     return waitAndReturnFulfilledConditions([this] {
         m_conditionVariableWaiter.wait();
@@ -73,9 +73,9 @@ typename WaitSet::TriggerIdVector WaitSet::wait() noexcept
     });
 }
 
-typename WaitSet::TriggerIdVector WaitSet::createVectorWithFullfilledConditions() noexcept
+typename WaitSet::TriggerStateVector WaitSet::createVectorWithFullfilledConditions() noexcept
 {
-    TriggerIdVector conditions;
+    TriggerStateVector conditions;
     for (auto& currentTrigger : m_triggerVector)
     {
         if (currentTrigger.hasTriggered())
@@ -92,9 +92,9 @@ typename WaitSet::TriggerIdVector WaitSet::createVectorWithFullfilledConditions(
 }
 
 template <typename WaitFunction>
-typename WaitSet::TriggerIdVector WaitSet::waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept
+typename WaitSet::TriggerStateVector WaitSet::waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept
 {
-    WaitSet::TriggerIdVector conditions;
+    WaitSet::TriggerStateVector conditions;
 
     if (m_conditionVariableWaiter.wasNotified())
     {
