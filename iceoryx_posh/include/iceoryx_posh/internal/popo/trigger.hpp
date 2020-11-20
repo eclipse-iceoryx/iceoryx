@@ -25,6 +25,11 @@ namespace iox
 {
 namespace popo
 {
+/// @brief The Trigger class is usually managed by a factory class like a
+///      WaitSet and acquired by classes which would like to signal an
+///      event. Multiple Trigger can share a common ConditionVariableData pointer
+///      so that multiple Trigger can signal a single instance.
+///
 class Trigger : public TriggerState
 {
   public:
@@ -32,8 +37,21 @@ class Trigger : public TriggerState
     template <typename T>
     using Callback = TriggerState::Callback<T>;
 
+    /// @brief Creates an empty Trigger
     Trigger() noexcept = default;
     template <typename T>
+
+    /// @brief Creates a Trigger
+    /// @param[in] origin pointer to the class where the signal originates from, if its set to nullptr the Trigger is in
+    /// a defined but invalid state
+    /// @param[in] conditionVariableDataPtr pointer to the condition variable data, if its set to nullptr the Trigger is
+    /// in a defined but invalid state
+    /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
+    /// empty callback is set the trigger is in a defined but invalid state.
+    /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
+    /// @param[in] triggerId id of the trigger
+    /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
+    /// trigger.
     Trigger(T* const origin,
             ConditionVariableData* conditionVariableDataPtr,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
@@ -46,17 +64,38 @@ class Trigger : public TriggerState
     Trigger(Trigger&& rhs) noexcept;
     Trigger& operator=(Trigger&& rhs) noexcept;
 
+    /// @brief calls reset on destruction
     ~Trigger();
 
+    /// @brief returns true if the Trigger is valid otherwise false
+    ///        A trigger is valid when:
+    ///         - origin != nullptr
+    ///         - conditionVariableDataPtr != nullptr
+    ///         - hasTriggeredCallback is set
     explicit operator bool() const noexcept;
+
+    /// @brief returns true if the trigger is valid otherwise false
     bool isValid() const noexcept;
+
+    /// @brief if the Trigger is valid it triggers the trigger otherwise it does nothing
     void trigger() noexcept;
 
+    /// @brief returns the result of the provided hasTriggeredCallback
     bool hasTriggered() const noexcept;
+
+    /// @brief resets and by that invalidates the Trigger
     void reset() noexcept;
+
+    /// @brief returns the pointer to the underlying condition variable data
     ConditionVariableData* getConditionVariableData() noexcept;
 
+    /// @brief returns true if the Triggers are equal otherwise false. Two Triggers are equal when
+    ///       - origin == rhs.origin
+    ///       - conditionVariableDataPtr == rhs.conditionVariableDataPtr
+    ///       - hasTriggeredCallback == rhs.hasTriggeredCallback
     bool operator==(const Trigger& rhs) const noexcept;
+
+    /// @brief return true if the Triggers are not equal, otherwise false.
     bool operator!=(const Trigger& rhs) const noexcept;
 
   private:
