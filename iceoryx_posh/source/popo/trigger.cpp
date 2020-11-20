@@ -19,19 +19,6 @@ namespace iox
 {
 namespace popo
 {
-const uint64_t& TriggerState::getTriggerId() const noexcept
-{
-    return m_triggerId;
-}
-
-void TriggerState::operator()() const noexcept
-{
-    if (m_origin != nullptr && m_callbackPtr != nullptr)
-    {
-        m_callback(m_origin, m_callbackPtr);
-    }
-}
-
 Trigger::~Trigger()
 {
     reset();

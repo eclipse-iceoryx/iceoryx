@@ -12,29 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_TRIGGER_INL
-#define IOX_POSH_POPO_TRIGGER_INL
+#include "iceoryx_posh/internal/popo/trigger_state.hpp"
 
 namespace iox
 {
 namespace popo
 {
-template <typename T>
-inline Trigger::Trigger(T* const origin,
-                        ConditionVariableData* conditionVariableDataPtr,
-                        const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-                        const cxx::MethodCallback<void, const Trigger&>& resetCallback,
-                        const uint64_t triggerId,
-                        const Callback<T> callback) noexcept
-    : TriggerState(origin, triggerId, callback)
-    , m_conditionVariableDataPtr(conditionVariableDataPtr)
-    , m_hasTriggeredCallback(hasTriggeredCallback)
-    , m_resetCallback(resetCallback)
+const uint64_t& TriggerState::getTriggerId() const noexcept
 {
+    return m_triggerId;
 }
 
+void TriggerState::operator()() const noexcept
+{
+    if (m_origin != nullptr && m_callbackPtr != nullptr)
+    {
+        m_callback(m_origin, m_callbackPtr);
+    }
+}
 
 } // namespace popo
 } // namespace iox
-
-#endif

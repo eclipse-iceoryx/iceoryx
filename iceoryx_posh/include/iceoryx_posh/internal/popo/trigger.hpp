@@ -15,52 +15,16 @@
 #ifndef IOX_POSH_POPO_TRIGGER_HPP
 #define IOX_POSH_POPO_TRIGGER_HPP
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_posh/internal/popo/trigger_state.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
-#include <limits>
 #include <typeinfo>
 
 namespace iox
 {
 namespace popo
 {
-class TriggerState
-{
-  public:
-    static constexpr uint64_t INVALID_TRIGGER_ID = std::numeric_limits<uint64_t>::max();
-    template <typename T>
-    using Callback = void (*)(T* const);
-
-    TriggerState() = default;
-
-    template <typename T>
-    TriggerState(T* const origin, const uint64_t triggerId, const Callback<T> callback) noexcept;
-
-    const uint64_t& getTriggerId() const noexcept;
-
-    template <typename T>
-    bool doesOriginateFrom(T* const origin) const noexcept;
-
-    template <typename T>
-    T* getOrigin() noexcept;
-
-    template <typename T>
-    const T* getOrigin() const noexcept;
-
-    void operator()() const noexcept;
-
-  protected:
-    void* m_origin = nullptr;
-    uint64_t m_originTypeHash = 0U;
-    uint64_t m_triggerId = INVALID_TRIGGER_ID;
-
-    Callback<void> m_callbackPtr;
-    cxx::function_ref<void(void* const, Callback<void>)> m_callback;
-};
-
 class Trigger : public TriggerState
 {
   public:
