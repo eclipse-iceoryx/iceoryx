@@ -29,10 +29,14 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownGuard.trigger();
 }
 
-void myCyclicRun(iox::popo::UserTrigger*)
+class MyClass
 {
-    std::cout << "activation callback\n";
-}
+  public:
+    static void myCyclicRun(iox::popo::UserTrigger*)
+    {
+        std::cout << "activation callback\n";
+    }
+};
 
 void receiving()
 {
@@ -41,7 +45,7 @@ void receiving()
     iox::popo::WaitSet waitset;
 
     iox::popo::UserTrigger runGuard;
-    runGuard.attachToWaitset(waitset, 0, myCyclicRun);
+    runGuard.attachToWaitset(waitset, 0, MyClass::myCyclicRun);
 
     shutdownGuard.attachToWaitset(waitset);
 

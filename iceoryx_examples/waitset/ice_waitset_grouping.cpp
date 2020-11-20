@@ -30,15 +30,6 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownGuard.trigger();
 }
 
-void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
-{
-    subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
-        const CounterTopic* data = reinterpret_cast<const CounterTopic*>(sample.get());
-        std::cout << "subscriber: " << std::hex << subscriber << " received: " << std::dec << data->counter
-                  << std::endl;
-    });
-}
-
 void receiving()
 {
     constexpr uint64_t FIRST_GROUP_ID = 123;
@@ -58,12 +49,14 @@ void receiving()
     }
 
     for (auto i = 0; i < 2; ++i)
-        subscriberVector[i].attachToWaitset(
-            waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID, subscriberCallback);
+    {
+        subscriberVector[i].attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
+    }
 
     for (auto i = 2; i < 4; ++i)
-        subscriberVector[i].attachToWaitset(
-            waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID, subscriberCallback);
+    {
+        subscriberVector[i].attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
+    }
 
     shutdownGuard.attachToWaitset(waitset);
 
@@ -79,13 +72,15 @@ void receiving()
             }
             else if (trigger.getTriggerId() == FIRST_GROUP_ID)
             {
-                std::cout << "First group element\n";
-                trigger();
+                auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+                subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
+                    const CounterTopic* data = reinterpret_cast<const CounterTopic*>(sample.get());
+                    std::cout << "received: " << std::dec << data->counter << std::endl;
+                });
             }
             else if (trigger.getTriggerId() == SECOND_GROUP_ID)
             {
-                std::cout << "Second group element\n";
-                trigger();
+                std::cout << "Second group element - don't care what we receive here!\n";
             }
         }
 
