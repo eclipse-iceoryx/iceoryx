@@ -107,11 +107,11 @@ class PortPool
                                                        const ProcessName_t& applicationName,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
-    cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const std::string& applicationName,
+    cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const ProcessName_t& applicationName,
                                                                             const capro::Interfaces interface) noexcept;
 
     cxx::expected<popo::ApplicationPortData*, PortPoolError>
-    addApplicationPort(const std::string& applicationName) noexcept;
+    addApplicationPort(const ProcessName_t& applicationName) noexcept;
 
     cxx::expected<runtime::RunnableData*, PortPoolError> addRunnableData(
         const ProcessName_t& process, const RunnableName_t& runnable, const uint64_t runnableDeviceIdentifier) noexcept;
