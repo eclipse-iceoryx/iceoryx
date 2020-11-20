@@ -35,17 +35,16 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     {
     };
     static constexpr NoPathPrefix_t NoPathPrefix{};
+    static constexpr char PATH_PREFIX[] = "/tmp/";
 
     /// @brief Max message size is on linux = 4096 and on mac os = 2048. To have
     ///  the same behavior on every platform we use 2048.
     static constexpr size_t MAX_MESSAGE_SIZE = 2048u;
     static constexpr size_t SHORTEST_VALID_NAME = 2u;
-    /// @brief The name has to contain the full path besides the name and has to
-    ///      be therefore much longer then the message queue pendant.
-    static constexpr size_t LONGEST_VALID_NAME = 1024u;
+    /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the path prefix
+    static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - sizeof(PATH_PREFIX) - 1;
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
-    static constexpr char PATH_PREFIX[] = "/tmp/";
 
     /// @brief for calling private constructor in create method
     friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;

@@ -329,8 +329,8 @@ cxx::expected<int32_t, IpcChannelError> UnixDomainSocket::createSocket(const Ipc
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddr, 0, sizeof(m_sockAddr));
     m_sockAddr.sun_family = AF_LOCAL;
-    const uint64_t maxDestinationLength = cxx::strlen2(m_sockAddr.sun_path);
-    if (m_name.length() > maxDestinationLength)
+    const uint64_t maxDestinationSize = sizeof(sockaddr_un::sun_path) - 1;
+    if (m_name.length() > maxDestinationSize)
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
