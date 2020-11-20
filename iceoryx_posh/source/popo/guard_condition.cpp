@@ -10,7 +10,7 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License
+// limitations under the License.
 
 #include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -40,18 +40,16 @@ void GuardCondition::resetTrigger() noexcept
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
-bool GuardCondition::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
+void GuardCondition::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_conditionVariableDataPtr = conditionVariableDataPtr;
-    return true;
 }
 
-bool GuardCondition::unsetConditionVariable() noexcept
+void GuardCondition::unsetConditionVariable() noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_conditionVariableDataPtr = nullptr;
-    return true;
 }
 
 } // namespace popo

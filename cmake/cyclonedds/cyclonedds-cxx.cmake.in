@@ -14,14 +14,14 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(cdds-cxx-download NONE)
+project(cyclonedds-cxx-download NONE)
 
 include(ExternalProject)
-ExternalProject_Add(ext_cdds_cxx
-  GIT_REPOSITORY    https://github.com/ThijsSassen/cdds-cxx.git
-  GIT_TAG           32795f8494195a63478abfa0d9b4d5bc2a2199c5
-  SOURCE_DIR        "${CMAKE_BINARY_DIR}/dependencies/cdds-cxx/src"
-  BINARY_DIR        "${CMAKE_BINARY_DIR}/dependencies/cdds-cxx/build"
+ExternalProject_Add(ext_cyclonedds_cxx
+  GIT_REPOSITORY    https://github.com/eclipse-cyclonedds/cyclonedds-cxx.git
+  GIT_TAG           ad1154afc6f14b43d37f5bfc4c6995c9c59ffeb3
+  SOURCE_DIR        "${CMAKE_BINARY_DIR}/dependencies/cyclonedds-cxx/src"
+  BINARY_DIR        "${CMAKE_BINARY_DIR}/dependencies/cyclonedds-cxx/build"
   CONFIGURE_COMMAND ""
   BUILD_COMMAND     ""
   INSTALL_COMMAND   ""

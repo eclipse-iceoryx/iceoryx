@@ -36,7 +36,7 @@ class BaseSubscriber : public Condition
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
     BaseSubscriber(BaseSubscriber&& rhs) = delete;
     BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
-    ~BaseSubscriber() = default;
+    ~BaseSubscriber();
 
     ///
     /// @brief uid Get the unique ID of the subscriber.
@@ -76,29 +76,38 @@ class BaseSubscriber : public Condition
     bool hasNewSamples() const noexcept;
 
     ///
-    /// @brief receive Receive the next sample if available.
-    /// @return
-    /// @details Sample is automatically released when it goes out of scope.
+    /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.
+    /// @return True if samples have been missed.
+    /// @details Samples may be missed due to overflowing receive queue.
     ///
-    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> receive() noexcept;
+    bool hasMissedSamples() noexcept;
 
     ///
-    /// @brief releaseQueuedSamples Releases any queued unread samples.
+    /// @brief take Take the a sample from the top of the receive queue.
+    /// @return An expected containing populated optional if there is a sample available, otherwise empty.
+    /// @details The memory loan for the sample is automatically released when it goes out of scope.
+    ///
+    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> take() noexcept;
+
+    ///
+    /// @brief releaseQueuedSamples Releases any unread queued samples.
     ///
     void releaseQueuedSamples() noexcept;
 
     // Condition overrides
-    virtual bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
-    virtual bool unsetConditionVariable() noexcept override;
+    virtual void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
+    virtual void unsetConditionVariable() noexcept override;
     virtual bool hasTriggered() const noexcept override;
 
   protected:
+    BaseSubscriber() noexcept // Required for testing.
+        {};
     BaseSubscriber(const capro::ServiceDescription& service);
 
   private:
     ///
     /// @brief The SubscriberSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
-    /// underlying memory chunk via a subscriber's subscriber port.
+    /// underlying memory chunk via the subscriber port.
     /// Each subscriber should create its own instance of this deleter struct to work with its specific port.
     ///
     /// @note As this deleter is coupled to the Subscriber implementation, it should only be used within the subscriber

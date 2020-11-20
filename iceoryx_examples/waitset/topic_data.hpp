@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,17 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_UTILS_FIXED_STRING_STRING100_HPP
-#define IOX_UTILS_FIXED_STRING_STRING100_HPP
 
-#include "iceoryx_utils/cxx/string.hpp"
+#ifndef IOX_EXAMPLES_WAITSET_TOPIC_DATA_HPP
+#define IOX_EXAMPLES_WAITSET_TOPIC_DATA_HPP
 
-namespace iox
+#include <cstdint>
+
+struct CounterTopic
 {
-namespace cxx
-{
-using CString100 = string<100>;
-} // namespace cxx
-} // namespace iox
+    uint32_t counter;
+};
 
-#endif // IOX_UTILS_FIXED_STRING_STRING100_HPP
+#endif // IOX_EXAMPLES_WAITSET_TOPIC_DATA_HPP

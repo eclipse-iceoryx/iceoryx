@@ -21,20 +21,18 @@ namespace iox
 {
 namespace cxx
 {
-
 ///
 /// @brief The unique_ptr class is a heap-less unique ptr implementation, unlike the STL.
 /// @details To avoid using the heap, deleters are not managed by the pointer itself, and instead must be provided as
 /// function references ('cxx:function_ref'). The functions must exist at least as long as the pointers that use them.
 ///
-/// Also unlike the STL implementation, the deleters are not encoded in the unique_ptr type, allowing unique_ptr instances
-/// with different deleters to be stored in the same containers.
+/// Also unlike the STL implementation, the deleters are not encoded in the unique_ptr type, allowing unique_ptr
+/// instances with different deleters to be stored in the same containers.
 ///
 template <typename T>
 class unique_ptr
 {
   public:
-
     unique_ptr() = delete;
 
     ///

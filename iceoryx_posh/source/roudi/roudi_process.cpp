@@ -18,10 +18,18 @@
 #include "iceoryx_posh/internal/popo/receiver_port_data.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_utils/cxx/smart_c.hpp"
+#include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
+#include "iceoryx_utils/platform/signal.hpp"
+#include "iceoryx_utils/platform/types.hpp"
+#include "iceoryx_utils/platform/wait.hpp"
+#include "iceoryx_utils/posix_wrapper/timer.hpp"
 
 #include <chrono>
 #include <thread>
+
+using namespace iox::units::duration_literals;
 
 namespace iox
 {
@@ -126,21 +134,153 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     m_memoryManagerOfCurrentProcess = m_segmentInfo.m_memoryManager;
 }
 
-void ProcessManager::killAllProcesses() noexcept
+void ProcessManager::killAllProcesses(const units::Duration processKillDelay) noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex);
+    std::lock_guard<std::mutex> lockGuard(m_mutex);
+    cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
+    uint64_t i{0};
+    bool haveAllProcessesFinished{false};
+    posix::Timer finalKillTimer(processKillDelay);
 
-    // send SIGTERM to all running applications
-    typename ProcessList_t::iterator it = m_processList.begin();
-    const typename ProcessList_t::iterator itEnd = m_processList.end();
+    auto awaitProcessTermination = [&]() {
+        bool shouldCheckProcessState = true;
+        finalKillTimer.resetCreationTime();
 
-    for (; itEnd != it; ++it)
-    {
-        if (-1 == kill(static_cast<pid_t>(it->getPid()), SIGTERM))
+        // try to shut down all processes until either all processes have terminated or a timer set to processKillDelay
+        // has expired
+        while (!haveAllProcessesFinished && !finalKillTimer.hasExpiredComparedToCreationTime())
         {
-            LogWarn() << "Process " << it->getPid() << " could not be killed";
+            i = 0;
+
+            // give processes some time to terminate before checking their state
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.milliSeconds<int64_t>()));
+
+            for (auto& process : m_processList)
+            {
+                if (processStillRunning[i]
+                    && !requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShutdownLog::NONE))
+                {
+                    processStillRunning[i] = false;
+                    shouldCheckProcessState = true;
+                }
+                ++i;
+            }
+
+            // check if we are done
+            if (shouldCheckProcessState)
+            {
+                shouldCheckProcessState = false;
+                haveAllProcessesFinished = true;
+                for (bool isRunning : processStillRunning)
+                {
+                    haveAllProcessesFinished &= !isRunning;
+                }
+            }
+        }
+    };
+
+    i = 0;
+    // send SIG_TERM to all running applications and wait for process to complete
+    for (auto& process : m_processList)
+    {
+        // if it was killed we need to check if it really has terminated, if we can't kill it, we consider it
+        // terminated
+        processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShutdownLog::FULL);
+        ++i;
+    }
+
+    // we sent SIG_TERM, now wait till they have terminated
+    awaitProcessTermination();
+
+    // any processes still alive? Time to send SIG_KILL to kill.
+    if (finalKillTimer.hasExpiredComparedToCreationTime())
+    {
+        i = 0;
+        for (auto& process : m_processList)
+        {
+            if (processStillRunning[i])
+            {
+                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                          << "' is still running after SIGTERM was sent " << processKillDelay.seconds<int>()
+                          << " seconds ago. RouDi is sending SIGKILL now.";
+                processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL, ShutdownLog::FULL);
+            }
+            ++i;
+        }
+
+        // we sent SIG_KILL to kill, now wait till they have terminated
+        awaitProcessTermination();
+
+        // any processes still alive? Time to ignore them.
+        if (finalKillTimer.hasExpiredComparedToCreationTime())
+        {
+            i = 0;
+            for (auto& process : m_processList)
+            {
+                if (processStillRunning[i])
+                {
+                    LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                              << "' is still running after SIGKILL was sent " << processKillDelay.seconds<int>()
+                              << " seconds ago. RouDi is ignoring this process.";
+                }
+                ++i;
+            }
         }
     }
+
+    auto it = m_processList.begin();
+    while (removeProcess(lockGuard, it))
+    {
+        it = m_processList.begin();
+    }
+}
+
+bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process,
+                                              ShutdownPolicy shutdownPolicy,
+                                              ShutdownLog shutdownLog) noexcept
+{
+    static constexpr int32_t ERROR_CODE = -1;
+    auto killC = iox::cxx::makeSmartC(kill,
+                                      iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                      {ERROR_CODE},
+                                      {},
+                                      static_cast<pid_t>(process.getPid()),
+                                      (shutdownPolicy == ShutdownPolicy::SIG_KILL ? SIGKILL : SIGTERM));
+    if (killC.hasErrors())
+    {
+        if (shutdownLog == ShutdownLog::FULL)
+        {
+            switch (killC.getErrNum())
+            {
+            case EINVAL:
+                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                          << "' could not be killed with "
+                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                          << ", because the signal sent was invalid.";
+                break;
+            case EPERM:
+                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                          << "' could not be killed with "
+                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                          << ", because RouDi doesn't have the permission to send the signal to the target processes.";
+                break;
+            case ESRCH:
+                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                          << "' could not be killed with "
+                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                          << ", because the target process or process group does not exist.";
+                break;
+            default:
+                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                          << "' could not be killed with"
+                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                          << " for unknown reason: ’" << killC.getErrorString() << "'";
+            }
+        }
+        return false;
+    }
+    return true;
 }
 
 bool ProcessManager::registerProcess(const ProcessName_t& name,
@@ -272,25 +412,36 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
 
 bool ProcessManager::removeProcess(const ProcessName_t& name) noexcept
 {
-    std::lock_guard<std::mutex> g(m_mutex);
+    std::lock_guard<std::mutex> lockGuard(m_mutex);
     // we need to search for the process (currently linear search)
 
     auto it = m_processList.begin();
     while (it != m_processList.end())
     {
-        if (it->getName() == name)
+        auto otherName = it->getName();
+        if (name == otherName)
         {
-            m_portManager.deletePortsOfProcess(name);
-
-            m_processIntrospection->removeProcess(it->getPid());
-
-            // delete application
-            it = m_processList.erase(it);
-
-            LogDebug() << "New Registration - removed existing application " << name;
+            if (removeProcess(lockGuard, it))
+            {
+                LogDebug() << "New Registration - removed existing application " << name;
+            }
             return true; // we can assume there are no other processes with this name
         }
         ++it;
+    }
+    return false;
+}
+
+bool ProcessManager::removeProcess(const std::lock_guard<std::mutex>& lockGuard [[gnu::unused]],
+                                   ProcessList_t::iterator& processIter) noexcept
+{
+    // don't take the lock, else it needs to be recursive
+    if (processIter != m_processList.end())
+    {
+        m_portManager.deletePortsOfProcess(processIter->getName());
+        m_processIntrospection->removeProcess(processIter->getPid());
+        processIter = m_processList.erase(processIter); // delete application
+        return true;
     }
     return false;
 }
@@ -714,13 +865,15 @@ void ProcessManager::monitorProcesses() noexcept
                 LogWarn() << "Application " << processIterator->getName() << " not responding (last response "
                           << timediff_ms << " milliseconds ago) --> removing it";
 
-                // note: if we would want to use the removeProcess function, it would search for the process again (but
-                // we already found it and have an iterator to remove it)
+                // note: if we would want to use the removeProcess function, it would search for the process again
+                // (but we already found it and have an iterator to remove it)
 
                 // delete all associated receiver and sender impl in shared
                 // memory and the associated RouDi discovery ports
                 // @todo Check if ShmManager and Process Manager end up in unintended condition
                 m_portManager.deletePortsOfProcess(processIterator->getName());
+
+                /// @todo #25 Need to delete condition variables used by terminating processes...
 
                 m_processIntrospection->removeProcess(processIterator->getPid());
 

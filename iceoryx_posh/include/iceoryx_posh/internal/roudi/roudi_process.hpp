@@ -23,7 +23,6 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <csignal>
@@ -131,7 +130,11 @@ class ProcessManager : public ProcessManagerInterface
                          const uint64_t sessionId,
                          const version::VersionInfo& versionInfo) noexcept;
 
-    void killAllProcesses() noexcept;
+    /// @brief Kills all registered processes. First try with a SIGTERM and if they have not terminated after
+    /// processKillDelay they are killed with SIGKILL. If RouDi doesn't have sufficient rights to kill the process, the
+    /// process is considered killed.
+    /// @param [in] processKillDelay Amount of time RouDi will wait before killing
+    void killAllProcesses(const units::Duration processKillDelay) noexcept;
 
     void updateLivelinessOfProcess(const ProcessName_t& name) noexcept;
 
@@ -206,7 +209,40 @@ class ProcessManager : public ProcessManagerInterface
                     const uint64_t sessionId,
                     const version::VersionInfo& versionInfo) noexcept;
 
+    /// @brief Removes the process from the managed client process list, identified by its id.
+    /// @param [in] name The process name which should be removed.
+    /// @return Returns true if the process was found and removed from the internal list.
     bool removeProcess(const ProcessName_t& name) noexcept;
+
+    /// @brief Removes the given process from the managed client process list without taking the list's lock!
+    /// @param [in] lockGuard This method has to be called within a lock guard context. Providing this lock guard
+    ///                       ensures it can't be called without a lock guard in place. The lock guard is the one
+    ///                       associated with the process list.
+    /// @param [in] processIter The process which should be removed.
+    /// @return Returns true if the process was found and removed from the internal list.
+    bool removeProcess(const std::lock_guard<std::mutex>& lockGuard, ProcessList_t::iterator& processIter) noexcept;
+
+    enum class ShutdownPolicy
+    {
+        SIG_TERM,
+        SIG_KILL
+    };
+
+    enum class ShutdownLog
+    {
+        NONE,
+        FULL
+    };
+
+    /// @brief Shuts down the given process in m_processList with the given signal.
+    /// @param [in] process The process to shut down.
+    /// @param [in] shutdownPolicy Signal passed to the system to shut down the process
+    /// @param [in] shutdownLog Defines the logging detail.
+    /// @return Returns true if the sent signal was successful.
+    bool requestShutdownOfProcess(const RouDiProcess& process,
+                                  ShutdownPolicy shutdownPolicy,
+                                  ShutdownLog shutdownLog) noexcept;
+
     RouDiMemoryInterface& m_roudiMemoryInterface;
     PortManager& m_portManager;
     mepoo::SegmentManager<>* m_segmentManager{nullptr};

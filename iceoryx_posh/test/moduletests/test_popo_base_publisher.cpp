@@ -29,11 +29,15 @@ template <typename T, typename port_t>
 class StubbedBasePublisher : public iox::popo::BasePublisher<T, port_t>
 {
   public:
-    StubbedBasePublisher(iox::capro::ServiceDescription sd)
-        : iox::popo::BasePublisher<T, port_t>::BasePublisher(sd){};
+    StubbedBasePublisher(iox::capro::ServiceDescription)
+        : iox::popo::BasePublisher<T, port_t>::BasePublisher(){};
     uid_t getUid() const noexcept
     {
         return iox::popo::BasePublisher<T, port_t>::getUid();
+    }
+    iox::capro::ServiceDescription getServiceDescription() const noexcept
+    {
+        return iox::popo::BasePublisher<T, port_t>::getServiceDescription();
     }
     iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError> loan(uint64_t size) noexcept
     {
@@ -233,3 +237,19 @@ TEST_F(BasePublisherTest, isOfferedDoesCheckIfUnderylingPortHasSubscribers)
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
+
+TEST_F(BasePublisherTest, GetServiceDescriptionCallForwardedToUnderlyingPublisherPort)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut.getMockedPort(), getServiceDescription).Times(1);
+    // ===== Test ===== //
+    sut.getServiceDescription();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(BasePublisherTest, DestroysUnderlyingPortOnDestruction)
+{
+    EXPECT_CALL(sut.getMockedPort(), destroy).Times(1);
+}
+

@@ -14,9 +14,9 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 
-bool cpp2c_Subscriber::setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept
+void cpp2c_Subscriber::setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
-    return iox::popo::SubscriberPortUser(m_portData).setConditionVariable(conditionVariableDataPtr);
+    iox::popo::SubscriberPortUser(m_portData).setConditionVariable(conditionVariableDataPtr);
 }
 
 bool cpp2c_Subscriber::hasTriggered() const noexcept
@@ -24,7 +24,7 @@ bool cpp2c_Subscriber::hasTriggered() const noexcept
     return iox::popo::SubscriberPortUser(m_portData).hasNewChunks();
 }
 
-bool cpp2c_Subscriber::unsetConditionVariable() noexcept
+void cpp2c_Subscriber::unsetConditionVariable() noexcept
 {
-    return iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
+    iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
 }

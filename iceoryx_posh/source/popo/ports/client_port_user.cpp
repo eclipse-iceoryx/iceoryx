@@ -10,7 +10,7 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License
+// limitations under the License.
 
 #include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 
@@ -87,14 +87,14 @@ bool ClientPortUser::hasLostResponsesSinceLastCall() noexcept
     return m_chunkReceiver.hasOverflown();
 }
 
-bool ClientPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
+void ClientPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
-    return m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
+    m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
 }
 
-bool ClientPortUser::unsetConditionVariable() noexcept
+void ClientPortUser::unsetConditionVariable() noexcept
 {
-    return m_chunkReceiver.unsetConditionVariable();
+    m_chunkReceiver.unsetConditionVariable();
 }
 
 bool ClientPortUser::isConditionVariableSet() const noexcept

@@ -158,3 +158,6 @@ Separate iceoryx systems residing on different hosts can be networked together v
 for synchronizing data published on `SenderPort`s between iceoryx systems residing on different hosts that are networked
 together.
 
+## Logging and Error Handling
+Iceoryx uses its own logger which is based on the Autosar **ara::log** API. For safety reasons it defines its own error handler to deal with errors (instead of using e.g. exceptions).
+Details of the error handling concept can be found in [error-handling.md](./error-handling.md).

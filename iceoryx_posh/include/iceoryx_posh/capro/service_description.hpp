@@ -15,8 +15,8 @@
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
 #include "iceoryx_utils/cxx/serialization.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
 
 #include <cstdint>
 #include <initializer_list>
@@ -25,7 +25,7 @@ namespace iox
 {
 namespace capro
 {
-using IdString = cxx::CString100;
+using IdString = cxx::string<100>;
 
 static constexpr uint16_t InvalidID = 0u;
 static const IdString InvalidIDString{"0"};

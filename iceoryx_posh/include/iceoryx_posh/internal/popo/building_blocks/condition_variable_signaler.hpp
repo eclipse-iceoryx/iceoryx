@@ -28,9 +28,9 @@ class ConditionVariableSignaler
     explicit ConditionVariableSignaler(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept;
     virtual ~ConditionVariableSignaler() noexcept = default;
     ConditionVariableSignaler(const ConditionVariableSignaler& rhs) = delete;
-    ConditionVariableSignaler(ConditionVariableSignaler&& rhs) noexcept = default;
+    ConditionVariableSignaler(ConditionVariableSignaler&& rhs) noexcept = delete;
     ConditionVariableSignaler& operator=(const ConditionVariableSignaler& rhs) = delete;
-    ConditionVariableSignaler& operator=(ConditionVariableSignaler&& rhs) noexcept = default;
+    ConditionVariableSignaler& operator=(ConditionVariableSignaler&& rhs) noexcept = delete;
 
     /// @brief If threads are waiting on the condition variable, this call unblocks one of the waiting threads
     void notifyOne() noexcept;

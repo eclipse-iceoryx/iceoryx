@@ -15,6 +15,7 @@
 #define IOX_UTILS_POSIX_WRAPPER_ACCESS_CONTROL_HPP
 
 #include "iceoryx_utils/cxx/optional.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/platform/acl.hpp"
 
@@ -38,7 +39,7 @@ namespace posix
 class AccessController
 {
   public:
-    using string_t = std::string;
+    using string_t = cxx::string<100>;
 
     /// @brief maximum number of permission entries the AccessController can store
     static constexpr int32_t MaxNumOfPermissions = 20;

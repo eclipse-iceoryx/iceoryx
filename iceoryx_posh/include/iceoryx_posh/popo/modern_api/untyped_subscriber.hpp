@@ -43,7 +43,8 @@ class UntypedSubscriberImpl : public base_subscriber_t
     void unsubscribe() noexcept;
 
     bool hasNewSamples() const noexcept;
-    cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError> receive() noexcept;
+    bool hasMissedSamples() noexcept;
+    cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError> take() noexcept;
     void releaseQueuedSamples() noexcept;
 };
 

@@ -10,9 +10,15 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License
+// limitations under the License.
 
 #include "iceoryx_posh/popo/condition.hpp"
+
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
+
 
 namespace iox
 {
@@ -20,55 +26,49 @@ namespace popo
 {
 Condition::~Condition() noexcept
 {
-    // WaitSet is still alive as it uses RAII, hence our contract with the user isn't fulfilled anymore (no dangling
-    // condition allowed)
     if (isConditionVariableAttached())
     {
-        errorHandler(Error::kPOPO__WAITSET_CONDITION_LIFETIME_ISSUE, nullptr, ErrorLevel::FATAL);
+        // In this particular case we can skip unsetConditionVariable since in the
+        // dtor the object already degraded to a class which is only a condition
+        // and has no more vtable pointer to the method unsetConditionVariable
+        // which was once part of this object.
+        // We can safely assume that the class which inherits from this class takes
+        // care of its resources since it is the responsibility of that class and the
+        // destructor was already called at this point.
+        m_waitSet->removeCondition(*this);
     }
-}
-
-Condition::Condition(const Condition& rhs) noexcept
-{
-    m_conditionVariableAttached.store(rhs.m_conditionVariableAttached, std::memory_order_relaxed);
 }
 
 bool Condition::isConditionVariableAttached() const noexcept
 {
-    return m_conditionVariableAttached.load(std::memory_order_relaxed);
+    return m_waitSet != nullptr;
 }
 
-bool Condition::attachConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept
+void Condition::attachConditionVariable(WaitSet* const waitSet,
+                                        ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
     if (isConditionVariableAttached())
     {
-        return false;
+        LogWarn()
+            << "Attaching an already attached condition leads to a detach from the current WaitSet. Best practice "
+               "is to detach Condition first before attaching it.";
+        detachConditionVariable();
     }
 
-    // Call user implementation
-    if (setConditionVariable(conditionVariableDataPtr))
-    {
-        // Save the info so we can notify the user on illegal destruction
-        m_conditionVariableAttached.store(true, std::memory_order_relaxed);
-        return true;
-    }
-    return false;
+    setConditionVariable(conditionVariableDataPtr);
+    m_waitSet = waitSet;
 }
 
-bool Condition::detachConditionVariable() noexcept
+void Condition::detachConditionVariable() noexcept
 {
     if (!isConditionVariableAttached())
     {
-        return false;
+        return;
     }
 
-    // Call user implementation
-    if (unsetConditionVariable())
-    {
-        m_conditionVariableAttached.store(false, std::memory_order_relaxed);
-        return true;
-    }
-    return false;
+    unsetConditionVariable();
+    m_waitSet->removeCondition(*this);
+    m_waitSet = nullptr;
 }
 
 } // namespace popo
