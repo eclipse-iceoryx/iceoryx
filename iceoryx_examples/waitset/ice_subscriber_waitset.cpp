@@ -18,7 +18,10 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
+/// TODO move has to move this pointer of origin
+/// TODO remove wasNotified in waitSet
 /// TODO readme, explain nature of waitset, trigger can come twice or not since they are already handled
+///         trigger callbacks have to be threadsafe
 
 #include <chrono>
 #include <csignal>
