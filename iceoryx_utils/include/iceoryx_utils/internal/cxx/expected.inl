@@ -590,7 +590,7 @@ inline expected<ErrorType> expected<ErrorType>::create_error(Targs&&... args) no
 template <typename ErrorType>
 inline expected<ErrorType>::operator bool() const noexcept
 {
-    return m_hasError;
+    return !m_hasError;
 }
 
 template <typename ErrorType>

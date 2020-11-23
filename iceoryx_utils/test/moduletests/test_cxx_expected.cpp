@@ -82,6 +82,22 @@ TEST_F(expected_test, CreateError)
     EXPECT_THAT(sut.get_error().m_b, Eq(212));
 }
 
+TEST_F(expected_test, BoolOperatorError)
+{
+    auto sut = expected<int, Test>::create_error(123, 321);
+    ASSERT_THAT(sut.operator bool(), Eq(false));
+    EXPECT_THAT(sut.get_error().m_b, Eq(321));
+}
+
+TEST_F(expected_test, BoolOperatorValue)
+{
+    auto sut = expected<Test, int>::create_value(123, 321);
+
+    ASSERT_THAT(sut.operator bool(), Eq(true));
+    EXPECT_THAT(sut.value().m_a, Eq(123));
+}
+
+
 TEST_F(expected_test, GetValueOrWithError)
 {
     auto sut = expected<int, float>::create_error(16523.12f);
