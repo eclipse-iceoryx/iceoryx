@@ -43,7 +43,7 @@ option(USE_CYCLONE_DDS "Bind to CycloneDDS implementation" on)
 if(USE_CYCLONE_DDS)
     message(INFO " Using CycloneDDS stack")
     find_package(CycloneDDS CONFIG REQUIRED)
-    find_package(CycloneDDS_CXX_API CONFIG REQUIRED)
+    find_package(CycloneDDS-CXX CONFIG REQUIRED)
 endif()
 
 #
@@ -102,7 +102,7 @@ if(USE_CYCLONE_DDS)
     )
     target_link_libraries(iceoryx_dds
         PUBLIC
-        CycloneDDS_CXX_API::ddscxx
+        CycloneDDS-CXX::ddscxx
         ${IDLPP_GENERATE_DIR}/libiceoryx_dds_messages.a
     )
 endif()
