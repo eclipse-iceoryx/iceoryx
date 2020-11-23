@@ -60,27 +60,45 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
 
     // Remark: m_portIntrospection is not fully functional in base class RouDiBase (has no active publisher port)
     // are there used instances of RouDiBase?
-    popo::PublisherPortData* portGeneric =
-        acquirePublisherPortData(
-            IntrospectionPortService, 1, MQ_ROUDI_NAME, introspectionMemoryManager, "introspection", PortConfigInfo())
-            .get_value();
+    auto maybePublisher = acquirePublisherPortData(
+        IntrospectionPortService, 1, MQ_ROUDI_NAME, introspectionMemoryManager, "introspection", PortConfigInfo());
+    if (maybePublisher.has_error())
+    {
+        LogError() << "Could not create PublisherPort for IntrospectionPortService";
+        errorHandler(
+            Error::kPORT_MANAGER__NO_PUBLISHERP_PORT_FOR_INTROSPECTIONPORTSERVICE, nullptr, iox::ErrorLevel::SEVERE);
+    }
+    popo::PublisherPortData* portGeneric = maybePublisher.get_value();
 
-    popo::PublisherPortData* portThroughput = acquirePublisherPortData(IntrospectionPortThroughputService,
-                                                                       1,
-                                                                       MQ_ROUDI_NAME,
-                                                                       introspectionMemoryManager,
-                                                                       "introspection",
-                                                                       PortConfigInfo())
-                                                  .get_value();
+    maybePublisher = acquirePublisherPortData(IntrospectionPortThroughputService,
+                                              1,
+                                              MQ_ROUDI_NAME,
+                                              introspectionMemoryManager,
+                                              "introspection",
+                                              PortConfigInfo());
+    if (maybePublisher.has_error())
+    {
+        LogError() << "Could not create PublisherPort for IntrospectionPortThroughputService";
+        errorHandler(Error::kPORT_MANAGER__NO_PUBLISHERP_PORT_FOR_INTROSPECTIONPORTTHROUGHPUTSERVICE,
+                     nullptr,
+                     iox::ErrorLevel::SEVERE);
+    }
+    popo::PublisherPortData* portThroughput = maybePublisher.get_value();
 
-    popo::PublisherPortData* subscriberPortsData =
-        acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
-                                 1,
-                                 MQ_ROUDI_NAME,
-                                 introspectionMemoryManager,
-                                 "introspection",
-                                 PortConfigInfo())
-            .get_value();
+    maybePublisher = acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
+                                              1,
+                                              MQ_ROUDI_NAME,
+                                              introspectionMemoryManager,
+                                              "introspection",
+                                              PortConfigInfo());
+    if (maybePublisher.has_error())
+    {
+        LogError() << "Could not create PublisherPort for IntrospectionSubscriberPortChangingDataService";
+        errorHandler(Error::kPORT_MANAGER__NO_PUBLISHERP_PORT_FOR_INTROSPECTIONCHANGINGDATASERVICE,
+                     nullptr,
+                     iox::ErrorLevel::SEVERE);
+    }
+    popo::PublisherPortData* subscriberPortsData = maybePublisher.get_value();
 
     m_portIntrospection.registerPublisherPort(portGeneric, portThroughput, subscriberPortsData);
     m_portIntrospection.run();
