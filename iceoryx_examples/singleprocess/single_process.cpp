@@ -73,17 +73,29 @@ void receiver()
     {
         if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
         {
-            const void* rawSample = nullptr;
-            while (subscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
-                if (maybeSample.has_value())
-                {
-                    auto sample = static_cast<const TransmissionData_t*>(rawSample);
-                    consoleOutput(std::string("Receiving : " + std::to_string(sample->counter)));
-                }
-            }))
+            bool hasMoreSamples{true};
+            const TransmissionData_t* receivedSample{nullptr};
+
+            do
             {
-                // loop as long as there are samples to take
-            }
+                subscriber.take()
+                    .and_then([&](iox::popo::Sample<const void>& sample) {
+                        receivedSample = static_cast<const TransmissionData_t*>(sample.get());
+                        consoleOutput(std::string("Receiving : " + std::to_string(receivedSample->counter)));
+                    })
+                    .if_empty([&] { hasMoreSamples = false; });
+            } while (hasMoreSamples);
+
+            // while (subscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
+            //     if (maybeSample.has_value())
+            //     {
+            //         auto sample = static_cast<const TransmissionData_t*>(rawSample);
+            //         consoleOutput(std::string("Receiving : " + std::to_string(sample->counter)));
+            //     }
+            // }))
+            // {
+            //     // loop as long as there are samples to take
+            // }
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
