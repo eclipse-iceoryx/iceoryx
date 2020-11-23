@@ -38,25 +38,25 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::capacity() const noe
 
 
 template <typename ElementType, uint64_t MaxCapacity>
-template <typename ContainerType>
+template <typename ContainerType, typename>
 bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t newCapacity,
                                                                     ContainerType& removedElements) noexcept
 {
     auto removeHandler = [&](const ElementType& value) { removedElements.push_back(std::move(value)); };
-    return setCapacityImpl(newCapacity, removeHandler);
+    return setCapacity(newCapacity, removeHandler);
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
 bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t newCapacity) noexcept
 {
     auto removeHandler = [](const ElementType&) {};
-    return setCapacityImpl(newCapacity, removeHandler);
+    return setCapacity(newCapacity, removeHandler);
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
-template <typename Function>
-bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacityImpl(uint64_t newCapacity,
-                                                                        Function&& removeHandler) noexcept
+template <typename Function, typename>
+bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t newCapacity,
+                                                                    Function&& removeHandler) noexcept
 {
     if (newCapacity > MAX_CAPACITY)
     {

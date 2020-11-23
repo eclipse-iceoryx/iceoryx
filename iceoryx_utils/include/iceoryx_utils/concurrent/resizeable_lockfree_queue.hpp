@@ -16,6 +16,7 @@
 #define IOX_UTILS_CONCURRENT_RESIZEABLE_LOCKFREE_QUEUE_HPP
 
 #include "iceoryx_utils/concurrent/lockfree_queue.hpp"
+#include "iceoryx_utils/cxx/type_traits.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
 #include <atomic>
@@ -37,7 +38,9 @@ namespace concurrent
 // Some of the methods need to be rewritten specifically for this class, others simply redirect
 // the call to the base class.
 //
-// Since supporting the resize (setCapacity) functionality has an impact
+// Since supporting the resize (setCapacity) functionality has an impact on the runtime even
+// if the feature is not used, we provide a queue wihout resize functionality a an additional
+// base class that can be used separately.
 template <typename ElementType, uint64_t MaxCapacity>
 class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity>
 {
@@ -65,7 +68,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
 
     /// @brief returns the current capacity of the queue
     /// @return the current capacity
-    /// threadsafe, lockfree
+    /// @note threadsafe, lockfree
     uint64_t capacity() const noexcept;
 
     /// @brief tries to insert value in FIFO order, moves the value internally
@@ -114,16 +117,32 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     /// @note threadsafe, lockfree
     uint64_t size() const noexcept;
 
-    /// @brief Set the capacity to a new MaxCapacity between 0 and MaxCapacity, if the capacity is reduced
+    // multiple overloads to set the capacity
+    // 1) The most general one allows providing a removeHandler to specify remove behavior.
+    // 2) The overload were a container is provided can be used if the removed elements are to be stored.
+    //    The container must satisfy certain requirements, such as providing push_back
+    // 3) The final overload discards removed elements.
+
+    /// @brief      Set the capacity to some value.
+    /// @param[in]  newCapacity capacity to be set
+    /// @param[in]  removedHandler is a function taking an element which specifies
+    ///             what to do with removed elements should the need for removal arise.
+    /// @return     true if the capacity was successfully set, false otherwise
+    template <typename Function,
+              typename = typename std::enable_if<cxx::is_invocable<Function, ElementType>::value>::type>
+    bool setCapacity(uint64_t newCapacity, Function&& removeHandler) noexcept;
+
+    /// @brief Set the capacity to a new capacity between 0 and MaxCapacity, if the capacity is reduced
     /// it may be necessary to remove the least recent elements.
     /// @param[in] newCapacity new capacity to be set, if it is larger than MaxCapacity the call fails
     /// @param[out] removedElements container were potentially removed elements can be stored.
     /// @return true setting if the new capacity was successful, false otherwise (newCapacity > MaxCapacity)
     /// @note threadsafe, lockfree but multiple concurrent calls may have no effect
-    template <typename ContainerType = iox::cxx::vector<ElementType, MaxCapacity>>
+    template <typename ContainerType = iox::cxx::vector<ElementType, MaxCapacity>,
+              typename = typename std::enable_if<!cxx::is_invocable<ContainerType, ElementType>::value>::type>
     bool setCapacity(uint64_t newCapacity, ContainerType& removedElements) noexcept;
 
-    /// @brief Set the capacity to a new MaxCapacity between 0 and MaxCapacity, if the capacity is reduced
+    /// @brief Set the capacity to a new capacity between 0 and MaxCapacity, if the capacity is reduced
     /// it may be necessary to remove the least recent elements which are then discarded.
     /// @param[in] newCapacity new capacity to be set, if it is larger than MaxCapacity the call fails
     /// @return true setting if the new capacity was successful, false otherwise (newCapacity > MaxCapacity)
@@ -137,8 +156,9 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     // we also sync m_capacity with this flag
     std::atomic_flag m_resizeInProgress{false};
 
-    // The vector is protected by the atomic flag, but this also means dying during a resize
-    // will prevent further resizes.
+    // Remark: The vector m_unusedIndices is protected by the atomic flag, but this also means dying during a resize
+    // will prevent further resizes (This is not a problem for the use case were only the dying receiver itself requests
+    // the resize.)
     // I.e. resize is lockfree, but not in a useful and robust way as it assumes that a concurrent resize will
     // always eventually complete (which is true when the application does not die and the relevant thread is scheduled
     // eventually. The latter is the case for any OS and mandatory for a Realtime OS.
@@ -161,14 +181,6 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     ///             this value will be smaller than toDecrease.
     template <typename Function>
     uint64_t decreaseCapacity(uint64_t toDecrease, Function&& removeHandler) noexcept;
-
-    /// @brief      Set the capacity to some value.
-    /// @param[in]  newCapacity capacity to be set
-    /// @param[in]  removedHandler is a function taking an index which specifies
-    ///             what to do with removed element should the need for removal arise.
-    /// @return     true if the capacity was successfully set, false otherwise
-    template <typename Function>
-    bool setCapacityImpl(uint64_t newCapacity, Function&& removeHandler) noexcept;
 
     /// @brief      try to get a used index
     /// @note the underlying strategy can change later, there are several reasonable alternatives
