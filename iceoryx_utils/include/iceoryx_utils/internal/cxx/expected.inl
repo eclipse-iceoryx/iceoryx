@@ -403,7 +403,7 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename O
 {
     if (!this->has_error())
     {
-        auto& optional = get_value();
+        auto& optional = value();
         if (optional.has_value())
         {
             callable(optional.value());
@@ -428,7 +428,7 @@ expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& ca
 {
     if (!this->has_error())
     {
-        auto& optional = get_value();
+        auto& optional = value();
         if (!optional.has_value())
         {
             callable();
