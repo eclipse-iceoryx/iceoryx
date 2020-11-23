@@ -43,7 +43,7 @@ void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
     }
     else
     {
-        LogError() << "Cannot set runtime factory. Passed factory must not be empty!";
+        LogFatal() << "Cannot set runtime factory. Passed factory must not be empty!";
         std::terminate();
     }
 }

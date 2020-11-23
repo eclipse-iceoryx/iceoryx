@@ -26,7 +26,7 @@ PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const ProcessName_t& name) no
     if (currentFactory != nullptr && *currentFactory == PoshRuntime::defaultRuntimeFactory)
     {
         PoshRuntime::setRuntimeFactory(
-            [&](const std::string&) -> PoshRuntime& { return *static_cast<PoshRuntime*>(this); });
+            [&](const ProcessName_t&) -> PoshRuntime& { return *static_cast<PoshRuntime*>(this); });
     }
     else
     {

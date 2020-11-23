@@ -497,6 +497,7 @@ TEST_F(PoshRuntime_test, CreateRunnableReturnValue)
 class PoshRuntimeTestAccess : public PoshRuntime
 {
   public:
+    using PoshRuntime::factory_t;
     using PoshRuntime::setRuntimeFactory;
 
     PoshRuntimeTestAccess(const iox::ProcessName_t& s)
@@ -509,7 +510,7 @@ TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
 {
     bool callbackWasCalled = false;
     iox::cxx::optional<PoshRuntimeTestAccess> runtime;
-    PoshRuntime::factory_t factory = [&](const iox::ProcessName_t& name) -> PoshRuntime& {
+    PoshRuntimeTestAccess::factory_t factory = [&](const iox::ProcessName_t& name) -> PoshRuntime& {
         callbackWasCalled = true;
         if (!runtime.has_value())
         {
@@ -526,7 +527,7 @@ TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
 
 TEST_F(PoshRuntime_test, SetEmptyRuntimeFactoryFails)
 {
-    EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntime::factory_t()); },
+    EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
                  "Cannot set runtime factory. Passed factory must not be empty!");
 }
 

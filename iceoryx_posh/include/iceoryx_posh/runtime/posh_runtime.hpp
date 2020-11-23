@@ -51,8 +51,6 @@ class RunnableData;
 class PoshRuntime
 {
   public:
-    using factory_t = std::function<PoshRuntime&(const ProcessName_t&)>;
-
     /// @brief creates the runtime or return the already existing one -> Singleton
     /// @param[in] name name that is used for registering the process with the RouDi daemon
     static PoshRuntime& getInstance(const ProcessName_t& name = defaultRuntimeInstanceName()) noexcept;
@@ -168,6 +166,8 @@ class PoshRuntime
     friend class roudi::RuntimeTestInterface;
 
   protected:
+    using factory_t = std::function<PoshRuntime&(const ProcessName_t&)>;
+
     // Protected constructor for IPC setup
     PoshRuntime(const ProcessName_t& name, const bool doMapSharedMemoryIntoThread = true) noexcept;
 
