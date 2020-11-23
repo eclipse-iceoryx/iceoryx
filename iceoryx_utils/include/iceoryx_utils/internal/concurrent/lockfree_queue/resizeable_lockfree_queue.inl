@@ -36,6 +36,7 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::capacity() const noe
     return m_capacity.load(std::memory_order_relaxed);
 }
 
+
 template <typename ElementType, uint64_t MaxCapacity>
 template <typename ContainerType>
 bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t newCapacity,
@@ -183,6 +184,18 @@ bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::tryGetUsedIndex(BufferIn
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
+bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::tryPush(ElementType&& value) noexcept
+{
+    return Base::tryPush(std::forward<ElementType>(value));
+}
+
+template <typename ElementType, uint64_t MaxCapacity>
+bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::tryPush(const ElementType& value) noexcept
+{
+    return Base::tryPush(std::forward<const ElementType>(value));
+}
+
+template <typename ElementType, uint64_t MaxCapacity>
 iox::cxx::optional<ElementType>
 ResizeableLockFreeQueue<ElementType, MaxCapacity>::push(const ElementType& value) noexcept
 {
@@ -193,6 +206,25 @@ template <typename ElementType, uint64_t MaxCapacity>
 iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity>::push(ElementType&& value) noexcept
 {
     return pushImpl(std::forward<ElementType>(value));
+}
+
+
+template <typename ElementType, uint64_t MaxCapacity>
+iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity>::pop() noexcept
+{
+    return Base::pop();
+}
+
+template <typename ElementType, uint64_t MaxCapacity>
+bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::empty() const noexcept
+{
+    return Base::empty();
+}
+
+template <typename ElementType, uint64_t MaxCapacity>
+uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::size() const noexcept
+{
+    return Base::size();
 }
 
 template <typename ElementType, uint64_t MaxCapacity>

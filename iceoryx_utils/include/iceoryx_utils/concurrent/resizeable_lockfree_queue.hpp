@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef IOX_UTILS_CONCURRENT_RESIZEABLE_LOCKFREE_QUEUE_HPP
+#define IOX_UTILS_CONCURRENT_RESIZEABLE_LOCKFREE_QUEUE_HPP
 
 #include "iceoryx_utils/concurrent/lockfree_queue.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -23,15 +24,22 @@ namespace iox
 {
 namespace concurrent
 {
-// Design Goal: have both a fixed size queue and a  resizable queue to be chosen when needed.
-//(i.e. no unnecessary "one size fits all" solution)
+/// @brief implements a lock free queue (i.e. container with FIFO order) of elements of type T
+/// with a maximum capacity MaxCapacity.
+/// The capacity can be defined to be anything between 0 and MaxCapacity at construction time
+/// or later at runtime using setCapacity. This is even possible while concurrent push and pop
+/// operations are executed, i.e. the queue does not have to be empty.
+/// Only one thread will succeed setting its desired capacity if there are more
+/// threads trying to change the capacity at the same time (it is unpredictable which thread).
 
-// we could also use composition (more boilerplate for redirection),
-// but if the code requires (major) interface changes this may be needed
-// for now we prefer inheritance here since we (mainly) extend functionality
-// We do not want to use virtual functions to be able to use the class in shared memory.
+// Remark: We use protected inheritance to make the base class methods inaccessible for the user.
+// We cannot use virtual functions since we need to use this class in shared memory.
+// Some of the methods need to be rewritten specifically for this class, others simply redirect
+// the call to the base class.
+//
+// Since supporting the resize (setCapacity) functionality has an impact
 template <typename ElementType, uint64_t MaxCapacity>
-class ResizeableLockFreeQueue : public LockFreeQueue<ElementType, MaxCapacity>
+class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity>
 {
   private:
     using Base = LockFreeQueue<ElementType, MaxCapacity>;
@@ -40,42 +48,78 @@ class ResizeableLockFreeQueue : public LockFreeQueue<ElementType, MaxCapacity>
     static constexpr uint64_t MAX_CAPACITY = MaxCapacity;
 
     ResizeableLockFreeQueue() = default;
+    ~ResizeableLockFreeQueue() = default;
+
+    // deleted for now, can be implemented later if needed
+    // note: concurrent copying or moving in lockfree fashion is nontrivial
+    ResizeableLockFreeQueue(const ResizeableLockFreeQueue&) = delete;
+    ResizeableLockFreeQueue(ResizeableLockFreeQueue&&) = delete;
+    ResizeableLockFreeQueue& operator=(const ResizeableLockFreeQueue&) = delete;
+    ResizeableLockFreeQueue& operator=(ResizeableLockFreeQueue&&) = delete;
 
     ResizeableLockFreeQueue(uint64_t initialCapacity) noexcept;
 
+    /// @brief returns the maximum capacity of the queue
+    /// @return the maximum capacity
     static constexpr uint64_t maxCapacity() noexcept;
 
-    //********************************************************************************
-    // reimplement the differing parts of the interface (shadowing is intentional)
-    // note that this has to be done since the logic to detect a full queue is different
-    // we also cannot use virtual functions since we want to use the queue in shared memory
-    //********************************************************************************
-
+    /// @brief returns the current capacity of the queue
+    /// @return the current capacity
+    /// threadsafe, lockfree
     uint64_t capacity() const noexcept;
+
+    /// @brief tries to insert value in FIFO order, moves the value internally
+    /// @param[in] value to be inserted
+    /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
+    /// @note threadsafe, lockfree
+    bool tryPush(ElementType&& value) noexcept;
+
+    /// @brief tries to insert value in FIFO order, copies the value internally
+    /// @param[in] value to be inserted
+    /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
+    /// @note threadsafe, lockfree
+    bool tryPush(const ElementType& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
-    /// @param value to be inserted is copied into the queue
+    /// @param[in] value to be inserted is copied into the queue
     /// @return removed value if an overflow occured, empty optional otherwise
-    /// threadsafe, lockfree
+    /// @note threadsafe, lockfree
     iox::cxx::optional<ElementType> push(const ElementType& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
-    /// @param value to be inserted is moved into the queue if possible
+    /// @param[in] value to be inserted is moved into the queue if possible
     /// @return removed value if an overflow occured, empty optional otherwise
-    /// threadsafe, lockfree
+    /// @note threadsafe, lockfree
     iox::cxx::optional<ElementType> push(ElementType&& value) noexcept;
 
-    //********************************************************************************
-    // extend interface with the resize functionaility
-    //********************************************************************************
+    /// @brief tries to remove value in FIFO order
+    /// @return value if removal was successful, empty optional otherwise
+    /// @note threadsafe, lockfree
+    iox::cxx::optional<ElementType> pop() noexcept;
+
+    /// @brief check whether the queue is empty
+    /// @return true iff the queue is empty
+    /// @note that if the queue is used concurrently it might
+    /// not be empty anymore after the call
+    ///  (but it was at some point during the call)
+    /// @note threadsafe, lockfree
+    bool empty() const noexcept;
+
+    /// @brief get the number of stored elements in the queue
+    /// @return number of stored elements in the queue
+    /// @note that this will not be perfectly in sync with the actual number of contained elements
+    /// during concurrent operation but will always be at most capacity
+    /// @note threadsafe, lockfree
+    uint64_t size() const noexcept;
 
     /// @brief Set the capacity to a new MaxCapacity between 0 and MaxCapacity, if the capacity is reduced
     /// it may be necessary to remove the least recent elements.
     /// @param[in] newCapacity new capacity to be set, if it is larger than MaxCapacity the call fails
     /// @param[out] removedElements container were potentially removed elements can be stored.
     /// @return true setting if the new capacity was successful, false otherwise (newCapacity > MaxCapacity)
+    /// @note threadsafe, lockfree but multiple concurrent calls may have no effect
     template <typename ContainerType = iox::cxx::vector<ElementType, MaxCapacity>>
     bool setCapacity(uint64_t newCapacity, ContainerType& removedElements) noexcept;
 
@@ -83,15 +127,14 @@ class ResizeableLockFreeQueue : public LockFreeQueue<ElementType, MaxCapacity>
     /// it may be necessary to remove the least recent elements which are then discarded.
     /// @param[in] newCapacity new capacity to be set, if it is larger than MaxCapacity the call fails
     /// @return true setting if the new capacity was successful, false otherwise (newCapacity > MaxCapacity)
+    /// @note threadsafe, lockfree but multiple concurrent calls may have no effect
     bool setCapacity(uint64_t newCapacity) noexcept;
 
   private:
-    using Queue = typename iox::concurrent::LockFreeQueue<ElementType, MaxCapacity>;
-    using BufferIndex = typename Queue::BufferIndex;
-
+    using BufferIndex = typename Base::BufferIndex;
     std::atomic<uint64_t> m_capacity{MaxCapacity};
 
-    // we also sync m_capacity with this
+    // we also sync m_capacity with this flag
     std::atomic_flag m_resizeInProgress{false};
 
     // The vector is protected by the atomic flag, but this also means dying during a resize
@@ -139,3 +182,5 @@ class ResizeableLockFreeQueue : public LockFreeQueue<ElementType, MaxCapacity>
 } // namespace iox
 
 #include "iceoryx_utils/internal/concurrent/lockfree_queue/resizeable_lockfree_queue.inl"
+
+#endif // IOX_UTILS_CONCURRENT_RESIZEABLE_LOCKFREE_QUEUE_HPP
