@@ -66,7 +66,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortService";
         errorHandler(
-            Error::kPORT_MANAGER__NO_PUBLISHERP_PORT_FOR_INTROSPECTIONPORTSERVICE, nullptr, iox::ErrorLevel::SEVERE);
+            Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONPORTSERVICE, nullptr, iox::ErrorLevel::SEVERE);
     }
     popo::PublisherPortData* portGeneric = maybePublisher.get_value();
 
@@ -79,7 +79,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionPortThroughputService";
-        errorHandler(Error::kPORT_MANAGER__NO_PUBLISHERP_PORT_FOR_INTROSPECTIONPORTTHROUGHPUTSERVICE,
+        errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONPORTTHROUGHPUTSERVICE,
                      nullptr,
                      iox::ErrorLevel::SEVERE);
     }
@@ -94,7 +94,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     if (maybePublisher.has_error())
     {
         LogError() << "Could not create PublisherPort for IntrospectionSubscriberPortChangingDataService";
-        errorHandler(Error::kPORT_MANAGER__NO_PUBLISHERP_PORT_FOR_INTROSPECTIONCHANGINGDATASERVICE,
+        errorHandler(Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONCHANGINGDATASERVICE,
                      nullptr,
                      iox::ErrorLevel::SEVERE);
     }

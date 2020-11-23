@@ -735,9 +735,16 @@ popo::PublisherPortData* ProcessManager::addIntrospectionSenderPort(const capro:
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    return m_portManager
-        .acquirePublisherPortData(service, 1, process_name, m_introspectionMemoryManager, "runnable", PortConfigInfo())
-        .get_value();
+    auto maybePublisher = m_portManager.acquirePublisherPortData(
+        service, 1, process_name, m_introspectionMemoryManager, "runnable", PortConfigInfo());
+
+    if (maybePublisher.has_error())
+    {
+        LogError() << "Could not create PublisherPort for application " << process_name;
+        errorHandler(
+            Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTION_SENDER_PORT, nullptr, iox::ErrorLevel::SEVERE);
+    }
+    return maybePublisher.get_value();
 }
 
 RouDiProcess* ProcessManager::getProcessFromList(const ProcessName_t& name) noexcept
