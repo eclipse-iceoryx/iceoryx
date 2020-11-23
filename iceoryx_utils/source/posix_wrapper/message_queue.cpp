@@ -400,6 +400,11 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const std::strin
         std::cerr << "message queue \"" << name << "\" does not exist" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::NO_SUCH_CHANNEL);
     }
+    case ENAMETOOLONG:
+    {
+        std::cerr << "message queue name \"" << name << "\" is too long" << std::endl;
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
     default:
     {
         std::cerr << "internal logic error in message queue \"" << name << "\" occurred [errno: " << errnum << ": "

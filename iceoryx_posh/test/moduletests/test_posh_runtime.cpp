@@ -42,7 +42,7 @@ class PoshRuntime_test : public Test
         std::string output = internal::GetCapturedStdout();
         if (Test::HasFailure())
         {
-            std::cout << output << std::endl;
+           std::cout << output << std::endl;
         }
     };
 
@@ -73,8 +73,8 @@ TEST_F(PoshRuntime_test, ValidAppName)
 
 TEST_F(PoshRuntime_test, MaxAppNameLength)
 {
-    std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH - 1, 's');
-    maxValidName.insert(0, 1, '/');
+    std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH, 's');
+    maxValidName.front() = '/';
 
     auto& runtime = PoshRuntime::getInstance(iox::ProcessName_t(iox::cxx::TruncateToCapacity, maxValidName));
 
