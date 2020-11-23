@@ -76,7 +76,7 @@ codebase follows these rules, things are work in progress.
     without heap)
 2) **No exception are allowed**, all function and methods need to have `noexcept` in their signature
 3) **No undefined behavior**, zero-cost abstract is not feasible in high safety environments
-4) **Use C++11**, however we try to introduce C++14 as fast as possible
+4) **Use C++14**
 5) **[Rule of Five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))**, if there is a non-default
     destructor needed, the rule of five has to be applied
 6) **[STL](https://en.wikipedia.org/wiki/Standard_Template_Library)**, we aim to be compatible towards the STL, but
