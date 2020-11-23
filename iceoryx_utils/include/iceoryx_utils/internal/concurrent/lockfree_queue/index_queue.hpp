@@ -85,6 +85,12 @@ class IndexQueue
     /// @return index if the queue was full, nullopt otherwise
     cxx::optional<ValueType> popIfFull() noexcept;
 
+    /// @brief pop an index from the queue in FIFO order if the queue contains
+    ///        at least  a specified number number of elements
+    /// @param size the number of elements needed to successfully perform the pop
+    /// @return index if the queue contains size elements, nullopt otherwise
+    cxx::optional<ValueType> popIfSizeIsAtLeast(uint64_t size) noexcept;
+
     /// @brief pop an index from the queue in FIFO order if the queue not empty
     /// @param index that was obtained, undefined if false is returned
     /// @return true if an index was obtained, false otherwise

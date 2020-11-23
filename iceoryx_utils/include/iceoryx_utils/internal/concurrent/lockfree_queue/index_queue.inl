@@ -300,6 +300,17 @@ cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfFull() noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
+cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(uint64_t size) noexcept
+{
+    ValueType value;
+    if (popIfSizeIsAtLeast(size, value))
+    {
+        return value;
+    }
+    return cxx::nullopt;
+}
+
+template <uint64_t Capacity, typename ValueType>
 bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 {
     auto readPosition = m_readPosition.load(std::memory_order_relaxed);
