@@ -84,7 +84,8 @@ TEST_F(RoudiFindService_test, OfferExsistingServiceMultipleTimesIsRedundant)
     ASSERT_THAT(*instanceContainer.begin(), Eq(IdString("instance1")));
 }
 
-TEST_F(RoudiFindService_test, FindSameServiceMultipleTimesReturnsSingleInstance)
+///@todo #387 findService to return InstanceContainer directly
+TEST_F(RoudiFindService_test, DISABLED_FindSameServiceMultipleTimesReturnsSingleInstance)
 {
     InstanceContainer instanceContainer;
     senderRuntime->offerService({"service1", "instance1"});
