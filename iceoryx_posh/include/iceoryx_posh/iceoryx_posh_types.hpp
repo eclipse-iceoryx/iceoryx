@@ -185,7 +185,7 @@ struct DefaultChunkQueueConfig
 
 // alias for cxx::string
 using ConfigFilePathString_t = cxx::string<1024>;
-using ProcessName_t = cxx::string<100>;
+using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
 using RunnableName_t = cxx::string<100>;
 
 namespace runtime

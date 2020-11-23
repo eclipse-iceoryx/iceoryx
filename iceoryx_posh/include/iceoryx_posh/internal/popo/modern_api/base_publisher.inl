@@ -28,6 +28,12 @@ inline BasePublisher<T, port_t>::BasePublisher(const capro::ServiceDescription& 
 }
 
 template <typename T, typename port_t>
+inline BasePublisher<T, port_t>::~BasePublisher()
+{
+    m_port.destroy();
+}
+
+template <typename T, typename port_t>
 inline uid_t BasePublisher<T, port_t>::getUid() const noexcept
 {
     return m_port.getUniqueID();

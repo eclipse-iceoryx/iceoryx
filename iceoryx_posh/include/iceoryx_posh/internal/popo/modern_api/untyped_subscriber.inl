@@ -25,61 +25,6 @@ inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const cap
 {
 }
 
-template <template <typename, typename, typename> class base_subscriber_t>
-inline uid_t UntypedSubscriberImpl<base_subscriber_t>::getUid() const noexcept
-{
-    return SubscriberParent::getUid();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-inline capro::ServiceDescription UntypedSubscriberImpl<base_subscriber_t>::getServiceDescription() const noexcept
-{
-    return SubscriberParent::getServiceDescription();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-inline void UntypedSubscriberImpl<base_subscriber_t>::subscribe(const uint64_t queueCapacity) noexcept
-{
-    SubscriberParent::subscribe(queueCapacity);
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-inline SubscribeState UntypedSubscriberImpl<base_subscriber_t>::getSubscriptionState() const noexcept
-{
-    return SubscriberParent::getSubscriptionState();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-inline void UntypedSubscriberImpl<base_subscriber_t>::unsubscribe() noexcept
-{
-    return SubscriberParent::unsubscribe();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-inline bool UntypedSubscriberImpl<base_subscriber_t>::hasNewSamples() const noexcept
-{
-    return SubscriberParent::hasNewSamples();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-inline bool UntypedSubscriberImpl<base_subscriber_t>::hasMissedSamples() noexcept
-{
-    return SubscriberParent::hasMissedSamples();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError>
-UntypedSubscriberImpl<base_subscriber_t>::take() noexcept
-{
-    return SubscriberParent::take();
-}
-
-template <template <typename, typename, typename> class base_subscriber_t>
-inline void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedSamples() noexcept
-{
-    SubscriberParent::releaseQueuedSamples();
-}
-
 } // namespace popo
 } // namespace iox
 

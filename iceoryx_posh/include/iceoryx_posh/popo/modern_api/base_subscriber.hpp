@@ -36,12 +36,12 @@ enum class SubscriberEvent
 template <typename T, typename Subscriber, typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
-  public:
+  protected:
     BaseSubscriber(const BaseSubscriber& other) = delete;
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
     BaseSubscriber(BaseSubscriber&& rhs) = delete;
     BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
-    ~BaseSubscriber() = default;
+    virtual ~BaseSubscriber();
 
     ///
     /// @brief uid Get the unique ID of the subscriber.

@@ -46,7 +46,7 @@ PortPool::addInterfacePort(const std::string& applicationName, const capro::Inte
     if (m_portPoolData->m_interfacePortMembers.hasFreeSpace())
     {
         auto interfacePortData = m_portPoolData->m_interfacePortMembers.insert(
-            iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName), interface);
+            ProcessName_t(iox::cxx::TruncateToCapacity, applicationName), interface);
         return cxx::success<popo::InterfacePortData*>(interfacePortData);
     }
     else
@@ -62,7 +62,7 @@ PortPool::addApplicationPort(const std::string& applicationName) noexcept
     if (m_portPoolData->m_applicationPortMembers.hasFreeSpace())
     {
         auto applicationPortData = m_portPoolData->m_applicationPortMembers.insert(
-            iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName));
+            ProcessName_t(iox::cxx::TruncateToCapacity, applicationName));
         return cxx::success<popo::ApplicationPortData*>(applicationPortData);
     }
     else

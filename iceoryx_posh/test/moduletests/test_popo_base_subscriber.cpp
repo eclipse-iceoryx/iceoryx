@@ -35,51 +35,16 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
   public:
     using SubscriberParent = iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>;
 
-    StubbedBaseSubscriber(iox::capro::ServiceDescription)
-        : SubscriberParent::BaseSubscriber()
-    {
-    }
-    uid_t getUid() const noexcept
-    {
-        return SubscriberParent::getUid();
-    }
-    iox::capro::ServiceDescription getServiceDescription() const noexcept
-    {
-        return SubscriberParent::getServiceDescription();
-    }
-    void subscribe(const uint64_t queueCapacity = iox::MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept
-    {
-        return SubscriberParent::subscribe(queueCapacity);
-    }
-    iox::SubscribeState getSubscriptionState() const noexcept
-    {
-        return SubscriberParent::getSubscriptionState();
-    }
-    void unsubscribe() noexcept
-    {
-        return SubscriberParent::unsubscribe();
-    }
-    bool hasNewSamples() const noexcept
-    {
-        return SubscriberParent::hasNewSamples();
-    }
-    bool hasMissedSamples() noexcept
-    {
-        return SubscriberParent::hasMissedSamples();
-    }
-    iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError> take() noexcept
-    {
-        return SubscriberParent::take();
-    }
-    iox::cxx::optional<iox::cxx::unique_ptr<iox::mepoo::ChunkHeader>> receiveHeader() noexcept
-    {
-        return SubscriberParent::receiveHeader();
-    }
-    void releaseQueuedSamples() noexcept
-    {
-        return SubscriberParent::releaseQueuedSamples();
-    }
-
+    using SubscriberParent::getServiceDescription;
+    using SubscriberParent::getSubscriptionState;
+    using SubscriberParent::getUid;
+    using SubscriberParent::hasMissedSamples;
+    using SubscriberParent::hasNewSamples;
+    using SubscriberParent::releaseQueuedSamples;
+    using SubscriberParent::subscribe;
+    using SubscriberParent::take;
+    using SubscriberParent::unsetTrigger;
+    using SubscriberParent::unsubscribe;
     port_t& getMockedPort()
     {
         return SubscriberParent::m_port;
@@ -106,7 +71,7 @@ class BaseSubscriberTest : public Test
     }
 
   protected:
-    TestBaseSubscriber sut{{"", "", ""}};
+    TestBaseSubscriber sut{};
 };
 
 TEST_F(BaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscriberPort)
@@ -236,7 +201,7 @@ TEST_F(BaseSubscriberTest, SetConditionVariableCallForwardedToUnderlyingSubscrib
 TEST_F(BaseSubscriberTest, UnsetConditionVariableCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
+    EXPECT_CALL(sut.getMockedPort(), unsetTrigger).Times(1);
     // ===== Test ===== //
     // sut.unsetConditionVariable();
     // ===== Verify ===== //
@@ -269,6 +234,15 @@ TEST_F(BaseSubscriberTest, HasMissedSamplesCallForwardedToUnderlyingSubscriberPo
     EXPECT_CALL(sut.getMockedPort(), hasLostChunksSinceLastCall).Times(1);
     // ===== Test ===== //
     sut.hasMissedSamples();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
+TEST_F(BaseSubscriberTest, DestroysUnderlyingPortOnDestruction)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut.getMockedPort(), destroy).Times(1);
+    // ===== Test ===== //
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

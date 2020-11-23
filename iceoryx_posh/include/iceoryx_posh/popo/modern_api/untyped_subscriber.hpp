@@ -42,19 +42,20 @@ class UntypedSubscriberImpl
     UntypedSubscriberImpl& operator=(const UntypedSubscriberImpl&) = delete;
     UntypedSubscriberImpl(UntypedSubscriberImpl&& rhs) = delete;
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
-    ~UntypedSubscriberImpl() = default;
+    virtual ~UntypedSubscriberImpl() = default;
 
-    capro::ServiceDescription getServiceDescription() const noexcept;
-    uid_t getUid() const noexcept;
-
-    void subscribe(const uint64_t queueCapacity = MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept;
-    SubscribeState getSubscriptionState() const noexcept;
-    void unsubscribe() noexcept;
-
-    bool hasNewSamples() const noexcept;
-    bool hasMissedSamples() noexcept;
-    cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError> take() noexcept;
-    void releaseQueuedSamples() noexcept;
+    using SubscriberParent::attachToWaitset;
+    using SubscriberParent::detachWaitset;
+    using SubscriberParent::getServiceDescription;
+    using SubscriberParent::getSubscriptionState;
+    using SubscriberParent::getUid;
+    using SubscriberParent::hasMissedSamples;
+    using SubscriberParent::hasNewSamples;
+    using SubscriberParent::releaseQueuedSamples;
+    using SubscriberParent::subscribe;
+    using SubscriberParent::take;
+    using SubscriberParent::unsetTrigger;
+    using SubscriberParent::unsubscribe;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;

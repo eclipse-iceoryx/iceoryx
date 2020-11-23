@@ -25,61 +25,6 @@ inline TypedSubscriber<T, base_subscriber_t>::TypedSubscriber(const capro::Servi
 {
 }
 
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline uid_t TypedSubscriber<T, base_subscriber_t>::getUid() const noexcept
-{
-    return SubscriberParent::getUid();
-}
-
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline capro::ServiceDescription TypedSubscriber<T, base_subscriber_t>::getServiceDescription() const noexcept
-{
-    return SubscriberParent::getServiceDescription();
-}
-
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline void TypedSubscriber<T, base_subscriber_t>::subscribe(const uint64_t queueCapacity) noexcept
-{
-    SubscriberParent::subscribe(queueCapacity);
-}
-
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline SubscribeState TypedSubscriber<T, base_subscriber_t>::getSubscriptionState() const noexcept
-{
-    return SubscriberParent::getSubscriptionState();
-}
-
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline void TypedSubscriber<T, base_subscriber_t>::unsubscribe() noexcept
-{
-    return SubscriberParent::unsubscribe();
-}
-
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline bool TypedSubscriber<T, base_subscriber_t>::hasNewSamples() const noexcept
-{
-    return SubscriberParent::hasNewSamples();
-}
-
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline bool TypedSubscriber<T, base_subscriber_t>::hasMissedSamples() noexcept
-{
-    return SubscriberParent::hasMissedSamples();
-}
-
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError>
-TypedSubscriber<T, base_subscriber_t>::take() noexcept
-{
-    return SubscriberParent::take();
-}
-
-template <typename T, template <typename, typename, typename> class base_subscriber_t>
-inline void TypedSubscriber<T, base_subscriber_t>::releaseQueuedSamples() noexcept
-{
-    SubscriberParent::releaseQueuedSamples();
-}
-
 } // namespace popo
 } // namespace iox
 

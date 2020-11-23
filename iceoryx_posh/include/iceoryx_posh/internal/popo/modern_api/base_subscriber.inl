@@ -35,6 +35,12 @@ inline BaseSubscriber<T, Subscriber, port_t>::BaseSubscriber(const capro::Servic
 }
 
 template <typename T, typename Subscriber, typename port_t>
+inline BaseSubscriber<T, Subscriber, port_t>::~BaseSubscriber()
+{
+    m_port.destroy();
+}
+
+template <typename T, typename Subscriber, typename port_t>
 inline uid_t BaseSubscriber<T, Subscriber, port_t>::getUid() const noexcept
 {
     return m_port.getUniqueID();
@@ -144,7 +150,11 @@ BaseSubscriber<T, Subscriber, port_t>::attachToWaitset(WaitSet& waitset,
     static_cast<void>(subscriberEvent);
 
     return waitset
-        .acquireTrigger(self, {self, &Subscriber::hasNewSamples}, {this, &SelfType::unsetTrigger}, triggerId, callback)
+        .acquireTrigger(self,
+                        {this, &BaseSubscriber<T, Subscriber, port_t>::hasNewSamples},
+                        {this, &SelfType::unsetTrigger},
+                        triggerId,
+                        callback)
         .and_then([this](Trigger& trigger) {
             m_trigger = std::move(trigger);
             m_port.setConditionVariable(m_trigger.getConditionVariableData());
