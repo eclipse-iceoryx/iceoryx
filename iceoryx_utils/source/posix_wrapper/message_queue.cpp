@@ -402,7 +402,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const std::strin
     }
     case ENAMETOOLONG:
     {
-        std::cerr << "message queue \"" << name << "\" has too long name" << std::endl;
+        std::cerr << "message queue name \"" << name << "\" is too long" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
     default:

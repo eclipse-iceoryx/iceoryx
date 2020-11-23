@@ -48,7 +48,7 @@ void UDS::init() noexcept
     memset(&m_sockAddrPublisher, 0, sizeof(m_sockAddrPublisher));
     m_sockAddrPublisher.sun_family = AF_LOCAL;
     const uint64_t maxDestinationLength = iox::cxx::strlen2(m_sockAddrPublisher.sun_path);
-    assert(maxDestinationLength >= m_publisherName.size() && "Socketname too large!");
+    iox::cxx::Ensures(maxDestinationLength >= m_publisherName.size() && "Socketname too large!");
     strncpy(m_sockAddrPublisher.sun_path, m_publisherName.c_str(), m_publisherName.size());
 
     auto socketCallPublisher = iox::cxx::makeSmartC(
