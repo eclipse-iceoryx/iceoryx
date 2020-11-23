@@ -44,7 +44,7 @@ void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
     else
     {
         LogFatal() << "Cannot set runtime factory. Passed factory must not be empty!";
-        std::terminate();
+        errorHandler(Error::kPOSH__RUNTIME_FACTORY_IS_NOT_SET);
     }
 }
 
