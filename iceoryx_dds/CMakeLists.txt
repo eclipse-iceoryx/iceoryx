@@ -55,7 +55,11 @@ add_library(iceoryx_dds
 )
 add_library(${PROJECT_NAMESPACE}::iceoryx_dds ALIAS iceoryx_dds)
 
-target_compile_options(iceoryx_dds PUBLIC -std=c++11)
+set_target_properties(iceoryx_utils PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
 
 target_include_directories(iceoryx_dds
     PUBLIC
