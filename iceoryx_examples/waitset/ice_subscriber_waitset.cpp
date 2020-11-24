@@ -18,10 +18,10 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
-/// TODO ?require internal unique id otherwise remove will not work properly in WaitSet?
 /// TODO readme, explain nature of waitset, trigger can come twice or not since they are already handled
 ///         trigger callbacks have to be threadsafe
-
+///         logical equal no double triggers in waitset
+//
 #include <chrono>
 #include <csignal>
 #include <iostream>

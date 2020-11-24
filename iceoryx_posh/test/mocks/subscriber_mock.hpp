@@ -49,8 +49,8 @@ class MockSubscriberPortUser
     MOCK_CONST_METHOD0(hasNewChunks, bool());
     MOCK_METHOD0(hasLostChunksSinceLastCall, bool());
     MOCK_METHOD1(setConditionVariable, bool(iox::popo::ConditionVariableData*));
-    MOCK_METHOD1(unsetTrigger, bool(const iox::popo::Trigger&));
     MOCK_METHOD0(isConditionVariableSet, bool());
+    MOCK_METHOD0(unsetConditionVariable, bool());
     MOCK_METHOD0(destroy, bool());
     MOCK_METHOD4(
         attachToWaitset,

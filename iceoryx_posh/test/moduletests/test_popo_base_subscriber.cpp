@@ -13,12 +13,15 @@
 // limitations under the License.
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 #include "mocks/subscriber_mock.hpp"
+#include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -35,6 +38,8 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
   public:
     using SubscriberParent = iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>;
 
+    using SubscriberParent::attachToWaitset;
+    using SubscriberParent::detachWaitset;
     using SubscriberParent::getServiceDescription;
     using SubscriberParent::getSubscriptionState;
     using SubscriberParent::getUid;
@@ -188,22 +193,26 @@ TEST_F(BaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriber
 
 TEST_F(BaseSubscriberTest, SetConditionVariableCallForwardedToUnderlyingSubscriberPort)
 {
+    iox::popo::ConditionVariableData condVar;
+    WaitSetMock waitSet(&condVar);
     // ===== Setup ===== //
-    auto conditionVariable = new iox::popo::ConditionVariableData();
-    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(conditionVariable)).Times(1);
+    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     // ===== Test ===== //
-    // sut.setConditionVariable(conditionVariable);
+    sut.attachToWaitset(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Verify ===== //
     // ===== Cleanup ===== //
-    delete conditionVariable;
 }
 
 TEST_F(BaseSubscriberTest, UnsetConditionVariableCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), unsetTrigger).Times(1);
+    iox::popo::ConditionVariableData condVar;
+    WaitSetMock* waitSet = new WaitSetMock(&condVar);
+    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
+    sut.attachToWaitset(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
-    // sut.unsetConditionVariable();
+    EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
+    delete waitSet;
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -213,7 +222,7 @@ TEST_F(BaseSubscriberTest, HasTriggeredCallForwardedToUnderlyingSubscriberPort)
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), hasNewChunks).Times(1);
     // ===== Test ===== //
-    // sut.hasTriggered();
+    sut.hasNewSamples();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
