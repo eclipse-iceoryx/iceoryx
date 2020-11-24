@@ -478,10 +478,9 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
                                        caproMessage.m_serviceDescription.getInstanceIDString());
         sendToAllMatchingSubscriberPorts(caproMessage, publisherPortRoudi);
         sendToAllMatchingInterfacePorts(caproMessage);
-    });
 
-    /// @todo #25 Fix introspection
-    // m_portIntrospection.removePublisher(publisherPort.getProcessName(), serviceDescription);
+        m_portIntrospection.removePublisher(publisherPortRoudi.getProcessName(), caproMessage.m_serviceDescription);
+    });
 
     // delete publisher port from list after STOP_OFFER was processed
     m_portPool->removePublisherPort(publisherPortData);
@@ -504,10 +503,9 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
 
         m_portIntrospection.reportMessage(caproMessage);
         sendToAllMatchingPublisherPorts(caproMessage, subscriberPortRoudi);
-    });
 
-    /// @todo #25 Fix introspection
-    // m_portIntrospection.removeSubscriber(subscriberPort.getProcessName(), serviceDescription);
+        m_portIntrospection.removeSubscriber(subscriberPortRoudi.getProcessName(), caproMessage.m_serviceDescription);
+    });
 
     // delete subscriber port from list after UNSUB was processed
     m_portPool->removeSubscriberPort(subscriberPortData);
@@ -549,7 +547,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const uint64_t& historyCapacity,
                                       const ProcessName_t& processName,
                                       mepoo::MemoryManager* payloadMemoryManager,
-                                      const RunnableName_t& runnable [[gnu::unused]], // @todo #25 Fix introspection
+                                      const RunnableName_t& runnable,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
@@ -569,8 +567,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
         service, historyCapacity, payloadMemoryManager, processName, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
-        /// @todo #25 Fix introspection
-        // m_portIntrospection.addPublisher(result.get_value(), processName, service, runnable);
+        m_portIntrospection.addPublisher(maybePublisherPortData.get_value(), processName, service, runnable);
     }
 
     return maybePublisherPortData;
@@ -580,15 +577,14 @@ cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const uint64_t& historyRequest,
                                        const ProcessName_t& processName,
-                                       const RunnableName_t& runnable [[gnu::unused]], // @todo #25 Fix introspection
+                                       const RunnableName_t& runnable,
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto maybeSubscriberPortData =
         m_portPool->addSubscriberPort(service, historyRequest, processName, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
-        /// @todo #25 Fix introspection
-        // m_portIntrospection.addSubscriber(result.get_value(), processName, service, runnable);
+        m_portIntrospection.addSubscriber(maybeSubscriberPortData.get_value(), processName, service, runnable);
     }
 
     return maybeSubscriberPortData;
