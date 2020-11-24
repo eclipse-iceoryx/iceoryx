@@ -96,6 +96,11 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
 {
     if (this != &rhs)
     {
+        if (m_moveCallback)
+        {
+            m_moveCallback(rhs, static_cast<void*>(rhs.m_origin));
+        }
+
         reset();
 
         m_origin = rhs.m_origin;
@@ -107,8 +112,19 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
         m_conditionVariableDataPtr = rhs.m_conditionVariableDataPtr;
         m_resetCallback = rhs.m_resetCallback;
         m_hasTriggeredCallback = rhs.m_hasTriggeredCallback;
+        m_moveCallback = rhs.m_moveCallback;
+
+
+        rhs.m_origin = nullptr;
+        rhs.m_originTypeHash = 0U;
+        rhs.m_triggerId = Trigger::INVALID_TRIGGER_ID;
+        rhs.m_callbackPtr = decltype(m_callbackPtr)();
+        rhs.m_callback = decltype(m_callback)();
 
         rhs.m_conditionVariableDataPtr = nullptr;
+        rhs.m_resetCallback = decltype(m_resetCallback)();
+        rhs.m_hasTriggeredCallback = decltype(m_hasTriggeredCallback)();
+        rhs.m_moveCallback = decltype(m_moveCallback)();
     }
     return *this;
 }

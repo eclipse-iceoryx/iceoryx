@@ -19,6 +19,7 @@
 #include "topic_data.hpp"
 
 /// TODO move has to move this pointer of origin
+/// TODO require internal unique id otherwise remove will not work properly in WaitSet
 /// TODO readme, explain nature of waitset, trigger can come twice or not since they are already handled
 ///         trigger callbacks have to be threadsafe
 

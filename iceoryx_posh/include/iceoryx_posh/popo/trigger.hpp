@@ -108,6 +108,7 @@ class Trigger : public TriggerState
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, const Trigger&> m_resetCallback;
+    cxx::MethodCallback<void, const Trigger&, void*> m_moveCallback;
     bool m_resetCallbackWasCalled{false};
 };
 

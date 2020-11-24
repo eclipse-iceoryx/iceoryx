@@ -47,6 +47,9 @@ class WaitSet
 
     WaitSet() noexcept;
     virtual ~WaitSet() noexcept;
+
+    /// @brief all the Trigger have a pointer pointing to this waitset for cleanup
+    ///        calls, therefore the WaitSet cannot be moved
     WaitSet(const WaitSet& rhs) = delete;
     WaitSet(WaitSet&& rhs) = delete;
     WaitSet& operator=(const WaitSet& rhs) = delete;
