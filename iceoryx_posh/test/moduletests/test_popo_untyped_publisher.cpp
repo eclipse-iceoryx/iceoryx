@@ -41,52 +41,6 @@ class UntypedPublisherTest : public Test
     TestUntypedPublisher sut{{"", "", ""}};
 };
 
-TEST_F(UntypedPublisherTest, GetsUIDViaBasePublisher)
-{
-    // ===== Setup ===== //
-    EXPECT_CALL(sut, getUid).Times(1);
-    // ===== Test ===== //
-    sut.getUid();
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(UntypedPublisherTest, LoansViaBasePublisher)
-{
-    // ===== Setup ===== //
-    auto chunk =
-        reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::Sample<void>(
-        iox::cxx::unique_ptr<void>(reinterpret_cast<void*>(chunk->payload()), [](void* const) {} // Placeholder deleter.
-                                   ),
-        sut);
-    EXPECT_CALL(sut, loan(42)).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<void>>(std::move(*sample)))));
-    // ===== Test ===== //
-    sut.loan(42);
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
-}
-
-TEST_F(UntypedPublisherTest, PublishesSampleViaBasePublisher)
-{
-    // ===== Setup ===== //
-    auto chunk =
-        reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::Sample<void>(
-        iox::cxx::unique_ptr<void>(reinterpret_cast<void*>(chunk->payload()), [](void* const) {} // Placeholder deleter.
-                                   ),
-        sut);
-    EXPECT_CALL(sut, loan(42)).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<void>>(std::move(*sample)))));
-    EXPECT_CALL(sut, publishMocked).Times(1);
-    // ===== Test ===== //
-    auto loanResult = sut.loan(42);
-    sut.publish(std::move(loanResult.value()));
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
-}
-
 TEST_F(UntypedPublisherTest, PublishesVoidPointerViaUnderlyingPort)
 {
     // ===== Setup ===== //

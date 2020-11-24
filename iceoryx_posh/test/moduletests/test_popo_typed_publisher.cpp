@@ -68,37 +68,6 @@ TEST_F(TypedPublisherTest, LoansSamplesLargeEnoughForTheType)
     iox::cxx::alignedFree(chunk);
 }
 
-TEST_F(TypedPublisherTest, GetsUIDViaBasePublisher)
-{
-    // ===== Setup ===== //
-    EXPECT_CALL(sut, getUid).Times(1);
-    // ===== Test ===== //
-    sut.getUid();
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(TypedPublisherTest, PublishesSampleViaBasePublisher)
-{
-    // ===== Setup ===== //
-    auto chunk =
-        reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
-    auto sample = new iox::popo::Sample<DummyData>(
-        iox::cxx::unique_ptr<DummyData>(reinterpret_cast<DummyData*>(reinterpret_cast<DummyData*>(chunk->payload())),
-                                        [](DummyData* const) {} // Placeholder deleter.
-                                        ),
-        sut);
-    EXPECT_CALL(sut, loan).WillOnce(
-        Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(*sample)))));
-    EXPECT_CALL(sut, publishMocked).Times(1);
-    // ===== Test ===== //
-    auto loanResult = sut.loan();
-    sut.publish(std::move(loanResult.value()));
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
-}
-
 TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambdaWithAdditionalArguments)
 {
     // ===== Setup ===== //
