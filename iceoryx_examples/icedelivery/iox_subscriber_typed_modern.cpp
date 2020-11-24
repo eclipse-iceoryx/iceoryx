@@ -40,7 +40,6 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
     while (!killswitch)
     {
         auto triggerVector = waitSet.wait();
-        printf("triggerVector size = %llu\n", triggerVector.size());
         for (auto& trigger : triggerVector)
         {
             if (trigger.getTriggerId() == 1)

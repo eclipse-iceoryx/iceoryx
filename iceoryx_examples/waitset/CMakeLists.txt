@@ -24,26 +24,15 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatformDetection)
 endif ( NOT ICEORYX_CXX_STANDARD )
 
-add_executable(iox-ex-publisher-waitset ./ice_publisher_waitset.cpp)
-target_link_libraries(iox-ex-publisher-waitset
+add_executable(iox-ex-waitset-publisher ./ice_waitset_publisher.cpp)
+target_link_libraries(iox-ex-waitset-publisher
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-ex-publisher-waitset PROPERTIES
+set_target_properties(iox-ex-waitset-publisher PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
-
-add_executable(iox-ex-subscriber-waitset ./ice_subscriber_waitset.cpp)
-target_link_libraries(iox-ex-subscriber-waitset
-    iceoryx_posh::iceoryx_posh
-)
-set_target_properties(iox-ex-subscriber-waitset PROPERTIES
-    CXX_STANDARD_REQUIRED ON
-    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
-    POSITION_INDEPENDENT_CODE ON
-)
-
 
 add_executable(iox-ex-waitset-gateway ./ice_waitset_gateway.cpp)
 target_link_libraries(iox-ex-waitset-gateway
@@ -98,6 +87,6 @@ set_target_properties(iox-ex-waitset-trigger PROPERTIES
 
 
 install(
-    TARGETS iox-ex-publisher-waitset iox-ex-subscriber-waitset iox-ex-waitset-gateway iox-ex-waitset-grouping iox-ex-waitset-individual iox-ex-waitset-sync iox-ex-waitset-trigger
+    TARGETS iox-ex-waitset-publisher iox-ex-waitset-gateway iox-ex-waitset-grouping iox-ex-waitset-individual iox-ex-waitset-sync iox-ex-waitset-trigger
     RUNTIME DESTINATION bin
 )
