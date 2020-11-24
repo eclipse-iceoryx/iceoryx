@@ -53,6 +53,7 @@ class ConstMethodCallback
     expected<ReturnValue, MethodCallbackError> operator()(Args&&... args) const noexcept;
 
     bool operator==(const ConstMethodCallback& rhs) const noexcept;
+    bool operator!=(const ConstMethodCallback& rhs) const noexcept;
 
     explicit operator bool() const noexcept;
     bool isValid() const noexcept;
@@ -84,6 +85,7 @@ class MethodCallback
 
     expected<ReturnValue, MethodCallbackError> operator()(Args&&... args) noexcept;
     bool operator==(const MethodCallback& rhs) const noexcept;
+    bool operator!=(const MethodCallback& rhs) const noexcept;
 
     explicit operator bool() const noexcept;
     bool isValid() const noexcept;

@@ -113,6 +113,12 @@ inline bool ConstMethodCallback<ReturnValue, Args...>::operator==(const ConstMet
 }
 
 template <typename ReturnValue, typename... Args>
+inline bool ConstMethodCallback<ReturnValue, Args...>::operator!=(const ConstMethodCallback& rhs) const noexcept
+{
+    return !(this->operator==(rhs));
+}
+
+template <typename ReturnValue, typename... Args>
 inline bool ConstMethodCallback<ReturnValue, Args...>::isValid() const noexcept
 {
     return m_classPtr != nullptr;
@@ -180,6 +186,12 @@ template <typename ReturnValue, typename... Args>
 inline bool MethodCallback<ReturnValue, Args...>::operator==(const MethodCallback& rhs) const noexcept
 {
     return (m_classPtr == rhs.m_classPtr && m_methodPtr == rhs.m_methodPtr);
+}
+
+template <typename ReturnValue, typename... Args>
+inline bool MethodCallback<ReturnValue, Args...>::operator!=(const MethodCallback& rhs) const noexcept
+{
+    return !(this->operator==(rhs));
 }
 
 template <typename ReturnValue, typename... Args>
