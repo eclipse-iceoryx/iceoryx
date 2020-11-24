@@ -20,6 +20,29 @@ namespace iox
 {
 namespace cxx
 {
+namespace internal
+{
+template <typename ReturnValue>
+struct ReturnSuccess
+{
+    template <typename Callback, typename... Args>
+    static success<ReturnValue> call(Callback& callback, Args&&... args) noexcept
+    {
+        return success<ReturnValue>(callback(std::forward<Args>(args)...));
+    }
+};
+
+template <>
+struct ReturnSuccess<void>
+{
+    template <typename Callback, typename... Args>
+    static success<void> call(Callback& callback, Args&&... args) noexcept
+    {
+        callback(std::forward<Args>(args)...);
+        return success<void>();
+    }
+};
+
 template <typename ReturnValue, typename ClassType, typename... Args>
 ReturnValue
 constMethodCallbackCaller(void* classPtr, ReturnValue (GenericClass::*methodPtr)(Args...) const, Args... args)
@@ -35,15 +58,17 @@ ReturnValue methodCallbackCaller(void* classPtr, ReturnValue (GenericClass::*met
     return ((*reinterpret_cast<ClassType*>(classPtr))
             .*reinterpret_cast<ReturnValue (ClassType::*)(Args...)>(methodPtr))(args...);
 }
+} // namespace internal
+
 
 template <typename ReturnValue, typename... Args>
 template <typename ClassType>
-inline ConstMethodCallback<ReturnValue, Args...>::ConstMethodCallback(ClassType* classPtr,
+inline ConstMethodCallback<ReturnValue, Args...>::ConstMethodCallback(ClassType* const classPtr,
                                                                       ReturnValue (ClassType::*methodPtr)(Args...)
                                                                           const) noexcept
     : m_classPtr(classPtr)
-    , m_methodPtr(reinterpret_cast<ReturnValue (GenericClass::*)(Args...) const>(methodPtr))
-    , m_callback(constMethodCallbackCaller<ReturnValue, ClassType, Args...>)
+    , m_methodPtr(reinterpret_cast<ReturnValue (internal::GenericClass::*)(Args...) const>(methodPtr))
+    , m_callback(internal::constMethodCallbackCaller<ReturnValue, ClassType, Args...>)
 {
 }
 
@@ -70,9 +95,15 @@ ConstMethodCallback<ReturnValue, Args...>::operator=(ConstMethodCallback&& rhs) 
 }
 
 template <typename ReturnValue, typename... Args>
-inline ReturnValue ConstMethodCallback<ReturnValue, Args...>::operator()(Args... args) const noexcept
+inline expected<ReturnValue, MethodCallbackError>
+ConstMethodCallback<ReturnValue, Args...>::operator()(Args&&... args) const noexcept
 {
-    return m_callback(m_classPtr, m_methodPtr, args...);
+    if (!isValid())
+    {
+        return error<MethodCallbackError>(MethodCallbackError::UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR);
+    }
+
+    return internal::ReturnSuccess<ReturnValue>::call(m_callback, m_classPtr, m_methodPtr, std::forward<Args>(args)...);
 }
 
 template <typename ReturnValue, typename... Args>
@@ -82,19 +113,32 @@ inline bool ConstMethodCallback<ReturnValue, Args...>::operator==(const ConstMet
 }
 
 template <typename ReturnValue, typename... Args>
-inline ConstMethodCallback<ReturnValue, Args...>::operator bool() const noexcept
+inline bool ConstMethodCallback<ReturnValue, Args...>::isValid() const noexcept
 {
     return m_classPtr != nullptr;
+}
+
+template <typename ReturnValue, typename... Args>
+inline ConstMethodCallback<ReturnValue, Args...>::operator bool() const noexcept
+{
+    return isValid();
+}
+
+template <typename ReturnValue, typename... Args>
+template <typename ClassType>
+inline void ConstMethodCallback<ReturnValue, Args...>::setClassPtr(ClassType* const classPtr) noexcept
+{
+    m_classPtr = classPtr;
 }
 
 
 template <typename ReturnValue, typename... Args>
 template <typename ClassType>
-inline MethodCallback<ReturnValue, Args...>::MethodCallback(ClassType* classPtr,
+inline MethodCallback<ReturnValue, Args...>::MethodCallback(ClassType* const classPtr,
                                                             ReturnValue (ClassType::*methodPtr)(Args...)) noexcept
     : m_classPtr(classPtr)
-    , m_methodPtr(reinterpret_cast<ReturnValue (GenericClass::*)(Args...)>(methodPtr))
-    , m_callback(methodCallbackCaller<ReturnValue, ClassType, Args...>)
+    , m_methodPtr(reinterpret_cast<ReturnValue (internal::GenericClass::*)(Args...)>(methodPtr))
+    , m_callback(internal::methodCallbackCaller<ReturnValue, ClassType, Args...>)
 {
 }
 
@@ -121,9 +165,15 @@ MethodCallback<ReturnValue, Args...>::operator=(MethodCallback&& rhs) noexcept
 }
 
 template <typename ReturnValue, typename... Args>
-inline ReturnValue MethodCallback<ReturnValue, Args...>::operator()(Args... args) noexcept
+inline expected<ReturnValue, MethodCallbackError>
+MethodCallback<ReturnValue, Args...>::operator()(Args&&... args) noexcept
 {
-    return m_callback(m_classPtr, m_methodPtr, args...);
+    if (!isValid())
+    {
+        return error<MethodCallbackError>(MethodCallbackError::UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR);
+    }
+
+    return internal::ReturnSuccess<ReturnValue>::call(m_callback, m_classPtr, m_methodPtr, args...);
 }
 
 template <typename ReturnValue, typename... Args>
@@ -133,11 +183,23 @@ inline bool MethodCallback<ReturnValue, Args...>::operator==(const MethodCallbac
 }
 
 template <typename ReturnValue, typename... Args>
-inline MethodCallback<ReturnValue, Args...>::operator bool() const noexcept
+inline bool MethodCallback<ReturnValue, Args...>::isValid() const noexcept
 {
     return m_classPtr != nullptr;
 }
 
+template <typename ReturnValue, typename... Args>
+inline MethodCallback<ReturnValue, Args...>::operator bool() const noexcept
+{
+    return isValid();
+}
+
+template <typename ReturnValue, typename... Args>
+template <typename ClassType>
+inline void MethodCallback<ReturnValue, Args...>::setClassPtr(ClassType* const classPtr) noexcept
+{
+    m_classPtr = classPtr;
+}
 
 } // namespace cxx
 } // namespace iox

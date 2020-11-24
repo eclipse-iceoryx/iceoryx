@@ -761,6 +761,14 @@ class expected<ValueType, ErrorType>
     bool m_hasError;
 };
 
+template <typename ErrorType>
+class expected<void, ErrorType> : public expected<ErrorType>
+{
+  public:
+    using expected<ErrorType>::expected;
+};
+
+
 } // namespace cxx
 } // namespace iox
 

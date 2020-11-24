@@ -15,14 +15,23 @@
 #ifndef IOX_UTILS_CXX_METHOD_CALLBACK_HPP
 #define IOX_UTILS_CXX_METHOD_CALLBACK_HPP
 
+#include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 
 namespace iox
 {
 namespace cxx
 {
+namespace internal
+{
 class GenericClass
 {
+};
+} // namespace internal
+
+enum class MethodCallbackError
+{
+    UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR
 };
 
 template <typename ReturnValue, typename... Args>
@@ -31,7 +40,7 @@ class ConstMethodCallback
   public:
     ConstMethodCallback() = default;
     template <typename ClassType>
-    ConstMethodCallback(ClassType* classPtr, ReturnValue (ClassType::*methodPtr)(Args...) const) noexcept;
+    ConstMethodCallback(ClassType* const classPtr, ReturnValue (ClassType::*methodPtr)(Args...) const) noexcept;
 
     ConstMethodCallback(const ConstMethodCallback& rhs) = default;
     ConstMethodCallback& operator=(const ConstMethodCallback& rhs) = default;
@@ -41,15 +50,20 @@ class ConstMethodCallback
 
     ~ConstMethodCallback() = default;
 
-    ReturnValue operator()(Args... args) const noexcept;
+    expected<ReturnValue, MethodCallbackError> operator()(Args&&... args) const noexcept;
+
     bool operator==(const ConstMethodCallback& rhs) const noexcept;
 
     explicit operator bool() const noexcept;
+    bool isValid() const noexcept;
+
+    template <typename ClassType>
+    void setClassPtr(ClassType* const classPtr) noexcept;
 
   private:
     void* m_classPtr{nullptr};
-    ReturnValue (GenericClass::*m_methodPtr)(Args...) const;
-    cxx::function_ref<ReturnValue(void*, ReturnValue (GenericClass::*)(Args...) const, Args...)> m_callback;
+    ReturnValue (internal::GenericClass::*m_methodPtr)(Args...) const;
+    cxx::function_ref<ReturnValue(void*, ReturnValue (internal::GenericClass::*)(Args...) const, Args...)> m_callback;
 };
 
 template <typename ReturnValue, typename... Args>
@@ -58,7 +72,7 @@ class MethodCallback
   public:
     MethodCallback() = default;
     template <typename ClassType>
-    MethodCallback(ClassType* classPtr, ReturnValue (ClassType::*methodPtr)(Args...)) noexcept;
+    MethodCallback(ClassType* const classPtr, ReturnValue (ClassType::*methodPtr)(Args...)) noexcept;
 
     MethodCallback(const MethodCallback& rhs) = default;
     MethodCallback& operator=(const MethodCallback& rhs) = default;
@@ -68,16 +82,20 @@ class MethodCallback
 
     ~MethodCallback() = default;
 
-
-    ReturnValue operator()(Args... args) noexcept;
+    expected<ReturnValue, MethodCallbackError> operator()(Args&&... args) noexcept;
     bool operator==(const MethodCallback& rhs) const noexcept;
 
     explicit operator bool() const noexcept;
+    bool isValid() const noexcept;
+
+    template <typename ClassType>
+    void setClassPtr(ClassType* const classPtr) noexcept;
+
 
   private:
     void* m_classPtr{nullptr};
-    ReturnValue (GenericClass::*m_methodPtr)(Args...);
-    cxx::function_ref<ReturnValue(void*, ReturnValue (GenericClass::*)(Args...), Args...)> m_callback;
+    ReturnValue (internal::GenericClass::*m_methodPtr)(Args...);
+    cxx::function_ref<ReturnValue(void*, ReturnValue (internal::GenericClass::*)(Args...), Args...)> m_callback;
 };
 
 } // namespace cxx
