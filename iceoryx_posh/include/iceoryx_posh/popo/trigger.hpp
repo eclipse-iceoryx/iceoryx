@@ -98,17 +98,11 @@ class Trigger : public TriggerState
     /// @brief return true if the Triggers are not equal, otherwise false.
     bool operator!=(const Trigger& rhs) const noexcept;
 
-    /// @brief sets a new origin for the trigger
-    /// @param[in] newOrigin origin of the trigger
-    template <typename T>
-    void setNewOrigin(T* const newOrigin) noexcept;
-
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, const Trigger&> m_resetCallback;
-    cxx::MethodCallback<void, const Trigger&, void*> m_moveCallback;
     bool m_resetCallbackWasCalled{false};
 };
 

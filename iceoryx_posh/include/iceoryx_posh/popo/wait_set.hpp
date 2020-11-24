@@ -95,8 +95,6 @@ class WaitSet
 
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
-    template <typename T>
-    void moveTriggerOrigin(const Trigger& trigger, T* const newOrigin) noexcept;
 
   private:
     TriggerStateVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;

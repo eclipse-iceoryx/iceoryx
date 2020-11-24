@@ -420,3 +420,20 @@ TEST_F(WaitSet_test, TriggerGoesOutOfScopeReducesSize)
 
     EXPECT_EQ(m_sut.size(), 2);
 }
+
+TEST_F(WaitSet_test, MovingAssignTriggerReducesSize)
+{
+    auto trigger1 = acquireTrigger(m_sut, 0);
+    Trigger trigger2;
+    trigger2 = std::move(*trigger1);
+
+    EXPECT_EQ(m_sut.size(), 1);
+}
+
+TEST_F(WaitSet_test, MoveCTorTriggerDoesNotChangeSize)
+{
+    auto trigger1 = acquireTrigger(m_sut, 0);
+    auto trigger2(std::move(*trigger1));
+
+    EXPECT_EQ(m_sut.size(), 1);
+}

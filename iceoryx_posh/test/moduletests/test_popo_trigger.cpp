@@ -190,6 +190,9 @@ class Trigger_test : public Test
         const Trigger* m_resetCallTriggerArg = nullptr;
         ConditionVariableData* m_condVar = nullptr;
         TriggerClass* m_lastCallbackArgument = nullptr;
+
+        const Trigger* m_moveCallTriggerArg = nullptr;
+        void* m_moveCallNewOriginArg = nullptr;
     };
 
     virtual void SetUp()
@@ -427,80 +430,5 @@ TEST_F(Trigger_test, TriggersAreEqualWhenEqualityRequirementsAreFulfilled)
     EXPECT_TRUE(sut == sut2);
     EXPECT_FALSE(sut != sut2);
 }
-
-TEST_F(Trigger_test, SettingNewOriginChangesOriginForHasTriggerCallback)
-{
-    TriggerClass newTriggerClass;
-    Trigger sut = createValidTrigger();
-
-    sut.setNewOrigin(&newTriggerClass);
-
-    newTriggerClass.m_hasTriggered = true;
-    EXPECT_TRUE(sut.hasTriggered());
-    newTriggerClass.m_hasTriggered = false;
-    EXPECT_FALSE(sut.hasTriggered());
-}
-
-TEST_F(Trigger_test, SettingNewOriginChangesOriginForResetCallback)
-{
-    TriggerClass newTriggerClass;
-    Trigger sut = createValidTrigger();
-
-    sut.setNewOrigin(&newTriggerClass);
-
-    sut.reset();
-
-    EXPECT_EQ(newTriggerClass.m_resetCallTriggerArg, &sut);
-}
-
-TEST_F(Trigger_test, SettingNewOriginChangesCallbackArgument)
-{
-    TriggerClass newTriggerClass;
-    Trigger sut = createValidTrigger();
-
-    sut.setNewOrigin(&newTriggerClass);
-
-    sut();
-
-    EXPECT_EQ(newTriggerClass.m_lastCallbackArgument, &newTriggerClass);
-}
-
-TEST_F(Trigger_test, SettingNewOriginDoesNotChangeHasTriggeredCallbackIfItHasDifferentClassPointer)
-{
-    TriggerClass newTriggerClass, newTriggerClass2;
-    Trigger sut2(&m_triggerClass,
-                 &m_condVar,
-                 {&newTriggerClass2, &TriggerClass::hasTriggered},
-                 {&m_triggerClass, &TriggerClass::resetCall},
-                 123,
-                 TriggerClass::callback);
-
-
-    sut2.setNewOrigin(&newTriggerClass);
-
-    newTriggerClass2.m_hasTriggered = true;
-    EXPECT_TRUE(sut2.hasTriggered());
-    newTriggerClass2.m_hasTriggered = false;
-    EXPECT_FALSE(sut2.hasTriggered());
-}
-
-TEST_F(Trigger_test, SettingNewOriginDoesNotChangeHasResetCallbackIfItHasDifferentClassPointer)
-{
-    TriggerClass newTriggerClass, newTriggerClass2;
-    Trigger sut2(&m_triggerClass,
-                 &m_condVar,
-                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                 {&newTriggerClass2, &TriggerClass::resetCall},
-                 123,
-                 TriggerClass::callback);
-
-
-    sut2.setNewOrigin(&newTriggerClass);
-
-    sut2.reset();
-
-    EXPECT_EQ(newTriggerClass2.m_resetCallTriggerArg, &sut2);
-}
-
 
 } // namespace internalTesting
