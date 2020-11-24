@@ -32,10 +32,10 @@ struct RunnableProperty
     /// @brief serialization constructor, used by the message queue message to create RunnableProperty
     ///         from a received message
     /// @param[in] serialized raw serialized string where all the values are stored
-    RunnableProperty(const std::string& serialized) noexcept;
+    RunnableProperty(const cxx::Serialization& serialized) noexcept;
 
-    /// @brief string conversion operator
-    operator std::string() const noexcept;
+    /// @brief serialization of the runnable properties
+    operator cxx::Serialization() const noexcept;
 
     iox::RunnableName_t m_name;
     uint64_t m_runnableDeviceIdentifier;
