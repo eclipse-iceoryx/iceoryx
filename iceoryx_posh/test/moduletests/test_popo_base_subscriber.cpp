@@ -126,9 +126,9 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksWrappedInSample)
     auto result = sut.take();
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
-    EXPECT_EQ(true, result.get_value().has_value());
+    EXPECT_EQ(true, result.value().has_value());
     EXPECT_EQ(reinterpret_cast<DummyData*>(chunk->payload()),
-              result.get_value().value().get()); // Checks they point to the same memory location.
+              result.value().value().get()); // Checks they point to the same memory location.
     // ===== Cleanup ===== //
 }
 
@@ -172,7 +172,7 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsEmptyOptionalIfUnderlyingPortReturnsEmp
     auto result = sut.take();
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
-    EXPECT_EQ(false, result.get_value().has_value());
+    EXPECT_EQ(false, result.value().has_value());
     // ===== Cleanup ===== //
 }
 

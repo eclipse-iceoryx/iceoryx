@@ -46,13 +46,13 @@ class IpcChannel_test : public Test
         auto serverResult = IpcChannelType::create(
             goodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
-        server = std::move(serverResult.get_value());
+        server = std::move(serverResult.value());
         internal::CaptureStderr();
 
         auto clientResult = IpcChannelType::create(
             goodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
-        client = std::move(clientResult.get_value());
+        client = std::move(clientResult.value());
     }
 
     void TearDown()
@@ -129,12 +129,12 @@ TYPED_TEST(IpcChannel_test, createAgainAndEmpty)
     auto serverResult =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
-    auto server = std::move(serverResult.get_value());
+    auto server = std::move(serverResult.value());
 
     auto clientResult =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
-    auto client = std::move(clientResult.get_value());
+    auto client = std::move(clientResult.value());
 
     // send and receive as usual
     std::string message = "Hey, I'm talking to you";
@@ -153,7 +153,7 @@ TYPED_TEST(IpcChannel_test, createAgainAndEmpty)
     auto second =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(second.has_error());
-    server = std::move(second.get_value());
+    server = std::move(second.value());
 
     Duration timeout = 100_ms;
     auto received = server.timedReceive(timeout);
@@ -175,16 +175,16 @@ TYPED_TEST(IpcChannel_test, NotOutdatedOne)
     auto serverResult =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
-    auto server = std::move(serverResult.get_value());
+    auto server = std::move(serverResult.value());
 
     auto clientResult =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
-    auto client = std::move(clientResult.get_value());
+    auto client = std::move(clientResult.value());
 
     auto outdated = client.isOutdated();
     EXPECT_FALSE(outdated.has_error());
-    EXPECT_FALSE(outdated.get_value());
+    EXPECT_FALSE(outdated.value());
 }
 
 
@@ -199,12 +199,12 @@ TYPED_TEST(IpcChannel_test, OutdatedOne)
     auto serverResult =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_FALSE(serverResult.has_error());
-    auto server = std::move(serverResult.get_value());
+    auto server = std::move(serverResult.value());
 
     auto clientResult =
         TestFixture::IpcChannelType::create(anotherGoodName, IpcChannelMode::BLOCKING, IpcChannelSide::CLIENT);
     EXPECT_FALSE(clientResult.has_error());
-    auto client = std::move(clientResult.get_value());
+    auto client = std::move(clientResult.value());
 
     // destroy the server and the client is outdated
     auto dest = server.destroy();
@@ -212,7 +212,7 @@ TYPED_TEST(IpcChannel_test, OutdatedOne)
 
     auto outdated = client.isOutdated();
     EXPECT_FALSE(outdated.has_error());
-    EXPECT_TRUE(outdated.get_value());
+    EXPECT_TRUE(outdated.value());
 }
 
 TYPED_TEST(IpcChannel_test, unlinkExistingOne)
@@ -221,14 +221,14 @@ TYPED_TEST(IpcChannel_test, unlinkExistingOne)
     EXPECT_FALSE(first.has_error());
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(anotherGoodName);
     EXPECT_FALSE(ret.has_error());
-    EXPECT_TRUE(ret.get_value());
+    EXPECT_TRUE(ret.value());
 }
 
 TYPED_TEST(IpcChannel_test, unlinkNonExistingOne)
 {
     auto ret = TestFixture::IpcChannelType::unlinkIfExists(theUnknown);
     EXPECT_FALSE(ret.has_error());
-    EXPECT_FALSE(ret.get_value());
+    EXPECT_FALSE(ret.value());
 }
 
 TYPED_TEST(IpcChannel_test, sendAndReceive)
@@ -309,7 +309,7 @@ TYPED_TEST(IpcChannel_test, sendMoreThanAllowed)
 
     auto receivedMessage = this->server.receive();
     ASSERT_THAT(receivedMessage.has_error(), Eq(false));
-    EXPECT_EQ(shortMessage, receivedMessage.get_value());
+    EXPECT_EQ(shortMessage, receivedMessage.value());
 }
 
 TYPED_TEST(IpcChannel_test, sendMaxMessageSize)
@@ -320,7 +320,7 @@ TYPED_TEST(IpcChannel_test, sendMaxMessageSize)
 
     auto receivedMessage = this->server.receive();
     ASSERT_THAT(receivedMessage.has_error(), Eq(false));
-    EXPECT_EQ(message, receivedMessage.get_value());
+    EXPECT_EQ(message, receivedMessage.value());
 }
 
 TYPED_TEST(IpcChannel_test, wildCreate)
@@ -380,7 +380,7 @@ TYPED_TEST(IpcChannel_test, timedReceive)
     auto received = this->server.timedReceive(timeout);
     ASSERT_FALSE(received.has_error());
 
-    EXPECT_EQ(received.get_value(), msg);
+    EXPECT_EQ(received.value(), msg);
 
     auto before = system_clock::now();
     received = this->server.timedReceive(timeout);

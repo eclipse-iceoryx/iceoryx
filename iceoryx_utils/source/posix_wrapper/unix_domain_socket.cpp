@@ -88,7 +88,7 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
         {
             this->m_isInitialized = true;
             this->m_errorValue = IpcChannelError::UNDEFINED;
-            this->m_sockfd = createResult.get_value();
+            this->m_sockfd = createResult.value();
         }
         else
         {

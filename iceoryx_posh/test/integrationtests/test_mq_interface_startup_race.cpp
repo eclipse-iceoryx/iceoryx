@@ -124,7 +124,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         // roudi mqueue
         auto request = m_roudiQueue->timedReceive(15_s);
         ASSERT_FALSE(request.has_error());
-        auto msg = getMqMessage(request.get_value());
+        auto msg = getMqMessage(request.value());
         checkRegRequest(msg);
 
         // simulate the restart of RouDi with the mqueue cleanup
@@ -134,7 +134,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         // check if the app retries to register at RouDi
         request = m_roudiQueue2->timedReceive(15_s);
         ASSERT_FALSE(request.has_error());
-        msg = getMqMessage(request.get_value());
+        msg = getMqMessage(request.value());
         checkRegRequest(msg);
 
         sendRegAck(msg);
@@ -183,7 +183,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
             }
         }
         ASSERT_FALSE(request.has_error());
-        auto msg = getMqMessage(request.get_value());
+        auto msg = getMqMessage(request.value());
         checkRegRequest(msg);
 
         sendRegAck(msg);
@@ -215,7 +215,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRegAck)
         // wait for the REG request
         auto request = m_roudiQueue->timedReceive(5_s);
         ASSERT_FALSE(request.has_error());
-        auto msg = getMqMessage(request.get_value());
+        auto msg = getMqMessage(request.value());
         checkRegRequest(msg);
 
         MqMessage obsoleteMsg;

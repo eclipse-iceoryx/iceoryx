@@ -157,7 +157,7 @@ SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::Serv
         }
         return nullptr;
     }
-    return requestedSenderPort.get_value();
+    return requestedSenderPort.value();
 }
 
 /// @deprecated #25
@@ -291,7 +291,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
         }
         return nullptr;
     }
-    return maybePublisher.get_value();
+    return maybePublisher.value();
 }
 
 cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
@@ -370,7 +370,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
         }
         return nullptr;
     }
-    return maybeSubscriber.get_value();
+    return maybeSubscriber.value();
 }
 
 cxx::expected<SubscriberPortUserType::MemberType_t*, MqMessageErrorType>
@@ -614,7 +614,7 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
         }
         return nullptr;
     }
-    return maybeConditionVariable.get_value();
+    return maybeConditionVariable.value();
 }
 
 bool PoshRuntime::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept

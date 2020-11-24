@@ -125,7 +125,7 @@ class PortManager_test : public Test
 
 TEST_F(PortManager_test, doDiscovery_singleShotSenderFirst)
 {
-    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).get_value());
+    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).value());
     ASSERT_TRUE(sender);
     sender.activate();
     // no doDiscovery() at this position is intentional
@@ -153,7 +153,7 @@ TEST_F(PortManager_test, doDiscovery_singleShotReceiverFirst)
     receiver1.subscribe(true);
     // no doDiscovery() at this position is intentional
 
-    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).get_value());
+    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).value());
     ASSERT_TRUE(sender);
     sender.activate();
 
@@ -176,7 +176,7 @@ TEST_F(PortManager_test, doDiscovery_singleShotReceiverFirstWithDiscovery)
     receiver1.subscribe(true);
     m_shmManager->doDiscovery();
 
-    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).get_value());
+    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).value());
     ASSERT_TRUE(sender);
     sender.activate();
 
@@ -199,7 +199,7 @@ TEST_F(PortManager_test, doDiscovery_rightOrdering)
     receiver1.subscribe(true);
     m_shmManager->doDiscovery();
 
-    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).get_value());
+    SenderPort sender(m_shmManager->acquireSenderPortData({1, 1, 1}, "/guiseppe", m_payloadMemoryManager).value());
     ASSERT_TRUE(sender);
     sender.activate();
 
@@ -236,7 +236,7 @@ TEST_F(PortManager_test, SenderReceiverOverflow)
     {
         auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(), p1, m_payloadMemoryManager, r1);
         ASSERT_FALSE(sen.has_error());
-        avaSender1[i] = sen.get_value();
+        avaSender1[i] = sen.value();
     }
 
     for (unsigned int i = 0; i < subForP1; i++)
@@ -331,10 +331,10 @@ TEST_F(PortManager_test, PortDestroy)
     iox::capro::ServiceDescription cap2(2, 2, 2);
 
     // two processes p1 and p2 each with a sender and receiver that match to the other process
-    auto senderData1 = m_shmManager->acquireSenderPortData(cap1, p1, m_payloadMemoryManager).get_value();
+    auto senderData1 = m_shmManager->acquireSenderPortData(cap1, p1, m_payloadMemoryManager).value();
     auto receiverData1 = m_shmManager->acquireReceiverPortData(cap2, p1);
 
-    auto senderData2 = m_shmManager->acquireSenderPortData(cap2, p2, m_payloadMemoryManager).get_value();
+    auto senderData2 = m_shmManager->acquireSenderPortData(cap2, p2, m_payloadMemoryManager).value();
     auto receiverData2 = m_shmManager->acquireReceiverPortData(cap1, p2);
 
     // let them connect
@@ -383,7 +383,7 @@ TEST_F(PortManager_test, PortDestroy)
     }
 
     // re-create the ports of process p2
-    senderData2 = m_shmManager->acquireSenderPortData(cap2, p2, m_payloadMemoryManager).get_value();
+    senderData2 = m_shmManager->acquireSenderPortData(cap2, p2, m_payloadMemoryManager).value();
     receiverData2 = m_shmManager->acquireReceiverPortData(cap1, p2);
 
     // let them connect

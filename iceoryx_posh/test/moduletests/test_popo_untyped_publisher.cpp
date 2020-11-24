@@ -41,7 +41,6 @@ class UntypedPublisherTest : public Test
     TestUntypedPublisher sut{{"", "", ""}};
 };
 
-
 TEST_F(UntypedPublisherTest, PublishesVoidPointerViaUnderlyingPort)
 {
     // ===== Setup ===== //

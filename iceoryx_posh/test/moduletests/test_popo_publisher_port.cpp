@@ -182,7 +182,7 @@ TEST_F(PublisherPort_test, allocatingAChunk)
 TEST_F(PublisherPort_test, freeingAnAllocatedChunkReleasesTheMemory)
 {
     auto maybeChunkHeader = m_sutUserSide.tryAllocateChunk(10u);
-    auto chunkHeader = maybeChunkHeader.get_value();
+    auto chunkHeader = maybeChunkHeader.value();
 
     m_sutUserSide.freeChunk(chunkHeader);
 
@@ -193,7 +193,7 @@ TEST_F(PublisherPort_test, freeingAnAllocatedChunkReleasesTheMemory)
 TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
 {
     auto maybeChunkHeader = m_sutUserSide.tryAllocateChunk(10u);
-    auto chunkHeader = maybeChunkHeader.get_value();
+    auto chunkHeader = maybeChunkHeader.value();
 
     EXPECT_THAT(chunkHeader->m_originId, Eq(m_sutUserSide.getUniqueID()));
     m_sutUserSide.freeChunk(chunkHeader);
@@ -202,7 +202,7 @@ TEST_F(PublisherPort_test, allocatedChunkContainsPublisherIdAsOriginId)
 TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
 {
     auto maybeChunkHeader = m_sutUserSide.tryAllocateChunk(10u);
-    auto chunkHeader = maybeChunkHeader.get_value();
+    auto chunkHeader = maybeChunkHeader.value();
 
     m_sutUserSide.sendChunk(chunkHeader);
 
@@ -213,13 +213,13 @@ TEST_F(PublisherPort_test, allocateAndSendAChunkWithoutSubscriberHoldsTheLast)
 TEST_F(PublisherPort_test, allocateAndSendMultipleChunksWithoutSubscriberHoldsOnlyTheLast)
 {
     auto maybeChunkHeader = m_sutUserSide.tryAllocateChunk(10u);
-    auto chunkHeader = maybeChunkHeader.get_value();
+    auto chunkHeader = maybeChunkHeader.value();
     m_sutUserSide.sendChunk(chunkHeader);
     maybeChunkHeader = m_sutUserSide.tryAllocateChunk(10u);
-    chunkHeader = maybeChunkHeader.get_value();
+    chunkHeader = maybeChunkHeader.value();
     m_sutUserSide.sendChunk(chunkHeader);
     maybeChunkHeader = m_sutUserSide.tryAllocateChunk(10u);
-    chunkHeader = maybeChunkHeader.get_value();
+    chunkHeader = maybeChunkHeader.value();
     m_sutUserSide.sendChunk(chunkHeader);
 
     // the last is stored in the last chunk, so one chunk is still in use
@@ -358,7 +358,7 @@ TEST_F(PublisherPort_test, sendWhenSubscribedDeliversAChunk)
     caproMessage.m_historyCapacity = 0u;
     m_sutRouDiSide.dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     auto maybeChunkHeader = m_sutUserSide.tryAllocateChunk(sizeof(DummySample));
-    auto chunkHeader = maybeChunkHeader.get_value();
+    auto chunkHeader = maybeChunkHeader.value();
     auto sample = chunkHeader->payload();
     new (sample) DummySample();
     static_cast<DummySample*>(sample)->dummy = 17;
@@ -382,7 +382,7 @@ TEST_F(PublisherPort_test, subscribeWithHistoryLikeTheARAField)
     // do it the ara field like way
     // 1. publish a chunk to a not yet offered publisher
     auto maybeChunkHeader = m_sutWithHistoryUseriSide.tryAllocateChunk(sizeof(DummySample));
-    auto chunkHeader = maybeChunkHeader.get_value();
+    auto chunkHeader = maybeChunkHeader.value();
     auto sample = chunkHeader->payload();
     new (sample) DummySample();
     static_cast<DummySample*>(sample)->dummy = 17;
@@ -418,7 +418,7 @@ TEST_F(PublisherPort_test, noLastChunkWhenNothingSent)
 TEST_F(PublisherPort_test, lastChunkAvailableAfterSend)
 {
     auto maybeChunkHeader = m_sutUserSide.tryAllocateChunk(10u);
-    auto chunkHeader = maybeChunkHeader.get_value();
+    auto chunkHeader = maybeChunkHeader.value();
     auto firstPayloadPtr = chunkHeader->payload();
     m_sutUserSide.sendChunk(chunkHeader);
 
@@ -434,7 +434,7 @@ TEST_F(PublisherPort_test, cleanupReleasesAllChunks)
     for (size_t i = 0; i < iox::MAX_PUBLISHER_HISTORY; i++)
     {
         auto maybeChunkHeader = m_sutWithHistoryUseriSide.tryAllocateChunk(sizeof(DummySample));
-        auto chunkHeader = maybeChunkHeader.get_value();
+        auto chunkHeader = maybeChunkHeader.value();
         m_sutWithHistoryUseriSide.sendChunk(chunkHeader);
     }
     // allocate some samples

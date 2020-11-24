@@ -81,7 +81,7 @@ bool MqBase::receive(MqMessage& answer) const noexcept
         return false;
     }
 
-    return MqBase::setMessageFromString(message.get_value().c_str(), answer);
+    return MqBase::setMessageFromString(message.value().c_str(), answer);
 }
 
 bool MqBase::timedReceive(const units::Duration timeout, MqMessage& answer) const noexcept
@@ -177,7 +177,7 @@ bool MqBase::reopen() noexcept
 
 bool MqBase::mqMapsToFile() noexcept
 {
-    return !m_mq.isOutdated().get_value_or(true);
+    return !m_mq.isOutdated().value_or(true);
 }
 
 bool MqBase::hasClosableMessageQueue() const noexcept
@@ -187,7 +187,7 @@ bool MqBase::hasClosableMessageQueue() const noexcept
 
 void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
 {
-    if (posix::MessageQueue::unlinkIfExists(name).get_value_or(false))
+    if (posix::MessageQueue::unlinkIfExists(name).value_or(false))
     {
         LogWarn() << "MQ still there, doing an unlink of " << name;
     }

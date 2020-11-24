@@ -76,7 +76,7 @@ inline cxx::expected<SharedPointer<T>, TypedMemPoolError> TypedMemPool<T>::creat
         return cxx::error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
-    return cxx::success<SharedPointer<T>>(newObject.get_value());
+    return cxx::success<SharedPointer<T>>(newObject.value());
 }
 
 template <typename T>
@@ -105,7 +105,7 @@ TypedMemPool<T>::createObjectWithCreationPattern(Targs&&... args) noexcept
         return cxx::error<errorType_t>(cxx::in_place_index<0>(), TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
-    return cxx::success<SharedPointer<T>>(sharedPointer.get_value());
+    return cxx::success<SharedPointer<T>>(sharedPointer.value());
 }
 
 template <typename T>
