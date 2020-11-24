@@ -88,6 +88,7 @@ TEST_F(WaitSet_test, AcquireTriggerOnceIsSuccessful)
     EXPECT_FALSE(acquireTrigger(m_sut, 0).has_error());
 }
 
+
 TEST_F(WaitSet_test, AcquireMultipleTriggerIsSuccessful)
 {
     auto trigger1 = acquireTrigger(m_sut, 0);
@@ -378,4 +379,44 @@ TEST_F(WaitSet_test, WaitReturnsTriggersWithCorrectCallbacks)
 TEST_F(WaitSet_test, TimedWaitReturnsTriggersWithCorrectCallbacks)
 {
     WaitReturnsTriggersWithCorrectCallbacks(this, [&] { return m_sut.timedWait(10_ms); });
+}
+
+TEST_F(WaitSet_test, InitialWaitSetHasSizeZero)
+{
+    EXPECT_EQ(m_sut.size(), 0);
+}
+
+TEST_F(WaitSet_test, WaitSetCapacity)
+{
+    EXPECT_EQ(m_sut.capacity(), iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
+}
+
+TEST_F(WaitSet_test, OneAcquireTriggerIncreasesSizeByOne)
+{
+    auto trigger1 = acquireTrigger(m_sut, 0);
+    static_cast<void>(trigger1);
+
+    EXPECT_EQ(m_sut.size(), 1);
+}
+
+TEST_F(WaitSet_test, MultipleAcquireTriggerIncreasesSizeCorrectly)
+{
+    auto trigger1 = acquireTrigger(m_sut, 0);
+    auto trigger2 = acquireTrigger(m_sut, 0);
+    auto trigger3 = acquireTrigger(m_sut, 0);
+    auto trigger4 = acquireTrigger(m_sut, 0);
+
+    EXPECT_EQ(m_sut.size(), 4);
+}
+
+TEST_F(WaitSet_test, TriggerGoesOutOfScopeReducesSize)
+{
+    auto trigger1 = acquireTrigger(m_sut, 0);
+    auto trigger2 = acquireTrigger(m_sut, 0);
+    {
+        auto trigger3 = acquireTrigger(m_sut, 0);
+        auto trigger4 = acquireTrigger(m_sut, 0);
+    }
+
+    EXPECT_EQ(m_sut.size(), 2);
 }

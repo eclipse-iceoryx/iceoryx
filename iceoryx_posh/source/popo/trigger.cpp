@@ -31,12 +31,12 @@ bool Trigger::hasTriggered() const noexcept
 
 void Trigger::reset() noexcept
 {
-    if (!isValid())
+    if (!isValid() || m_resetCallbackWasCalled)
     {
         return;
     }
 
-    if (m_resetCallback && !m_resetCallbackWasCalled)
+    if (m_resetCallback)
     {
         // It is possible that the reset call calls itself again therefore
         // we have to indicate that it is already running

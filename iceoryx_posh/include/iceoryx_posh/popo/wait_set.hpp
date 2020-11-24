@@ -84,6 +84,12 @@ class WaitSet
     /// @return TriggerStateVector of TriggerStates that have been triggered
     TriggerStateVector wait() noexcept;
 
+    /// @brief Returns the amount of stored Trigger inside of the WaitSet
+    uint64_t size() const noexcept;
+
+    /// @brief Returns to capacity
+    uint64_t capacity() const noexcept;
+
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
     template <typename T>

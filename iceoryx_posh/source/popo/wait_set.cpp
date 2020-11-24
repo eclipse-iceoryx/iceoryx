@@ -111,5 +111,16 @@ typename WaitSet::TriggerStateVector WaitSet::waitAndReturnFulfilledConditions(c
     return (wait()) ? conditions : createVectorWithFullfilledConditions();
 }
 
+uint64_t WaitSet::size() const noexcept
+{
+    return m_triggerVector.size();
+}
+
+uint64_t WaitSet::capacity() const noexcept
+{
+    return m_triggerVector.capacity();
+}
+
+
 } // namespace popo
 } // namespace iox

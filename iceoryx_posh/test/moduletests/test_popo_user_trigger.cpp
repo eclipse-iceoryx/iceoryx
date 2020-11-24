@@ -14,6 +14,7 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
+#include "iceoryx_utils/internal/units/duration.hpp"
 #include "mocks/wait_set_mock.hpp"
 
 #include "test.hpp"
@@ -27,7 +28,9 @@ class UserTrigger_test : public Test
   public:
     UserTrigger m_sut;
     ConditionVariableData m_condVar;
+    ConditionVariableData m_condVar2;
     WaitSetMock m_waitSet{&m_condVar};
+    WaitSetMock m_waitSet2{&m_condVar2};
 };
 
 TEST_F(UserTrigger_test, isNotTriggeredWhenCreated)
@@ -104,14 +107,46 @@ TEST_F(UserTrigger_test, resetTriggerMultipleTimesWhenTriggeredResultsInNotTrigg
     EXPECT_FALSE(m_sut.hasTriggered());
 }
 
-TEST_F(UserTrigger_test, ExceedingCapacityOfWaitsetLeadsToConditionVectorOverflow)
+TEST_F(UserTrigger_test, UserTriggerGoesOutOfScopeCleansupAtWaitSet)
 {
-    for (uint64_t i = 0; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        EXPECT_FALSE(m_sut.attachToWaitset(m_waitSet).has_error());
+        UserTrigger sut;
+        sut.attachToWaitset(m_waitSet);
     }
 
-    auto result = m_sut.attachToWaitset(m_waitSet);
-    EXPECT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(WaitSetError::TRIGGER_VECTOR_OVERFLOW));
+    EXPECT_EQ(m_waitSet.size(), 0);
+}
+
+TEST_F(UserTrigger_test, AttachingToAnotherWaitSetCleansupFirstWaitset)
+{
+    UserTrigger sut;
+
+    sut.attachToWaitset(m_waitSet);
+    sut.attachToWaitset(m_waitSet2);
+
+    EXPECT_EQ(m_waitSet.size(), 0);
+    EXPECT_EQ(m_waitSet2.size(), 1);
+}
+
+TEST_F(UserTrigger_test, AttachingToSameWaitsetTwiceLeadsToOneAttachment)
+{
+    UserTrigger sut;
+
+    sut.attachToWaitset(m_waitSet);
+    sut.attachToWaitset(m_waitSet);
+
+    EXPECT_EQ(m_waitSet.size(), 1);
+}
+
+TEST_F(UserTrigger_test, TriggersWaitSet)
+{
+    using namespace iox::units::duration_literals;
+    UserTrigger sut;
+
+    sut.attachToWaitset(m_waitSet, 4412);
+    sut.trigger();
+
+    auto result = m_waitSet.timedWait(1_s);
+    ASSERT_THAT(result.size(), Eq(1));
+    EXPECT_THAT(result[0].getTriggerId(), 4412);
 }

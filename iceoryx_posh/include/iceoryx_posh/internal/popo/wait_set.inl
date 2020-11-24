@@ -45,6 +45,7 @@ inline void WaitSet::moveTriggerOrigin(const Trigger& trigger, T* const newOrigi
         if (currentTrigger == trigger)
         {
             currentTrigger.setNewOrigin(newOrigin);
+            return;
         }
     }
 }

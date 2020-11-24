@@ -65,7 +65,6 @@ class UserTrigger
   private:
     Trigger m_trigger;
     std::atomic_bool m_wasTriggered{false};
-    std::recursive_mutex m_mutex;
 };
 
 } // namespace popo

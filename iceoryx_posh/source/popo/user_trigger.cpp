@@ -23,7 +23,6 @@ cxx::expected<WaitSetError> UserTrigger::attachToWaitset(WaitSet& waitset,
                                                          const uint64_t triggerId,
                                                          const Trigger::Callback<UserTrigger> callback) noexcept
 {
-    std::lock_guard<std::recursive_mutex> g(m_mutex);
     return waitset
         .acquireTrigger(
             this, {this, &UserTrigger::hasTriggered}, {this, &UserTrigger::unsetTrigger}, triggerId, callback)
@@ -37,7 +36,6 @@ void UserTrigger::detachWaitset() noexcept
 
 void UserTrigger::trigger() noexcept
 {
-    std::lock_guard<std::recursive_mutex> g(m_mutex);
     if (m_trigger)
     {
         m_wasTriggered.store(true, std::memory_order_relaxed);
@@ -57,7 +55,6 @@ void UserTrigger::resetTrigger() noexcept
 
 void UserTrigger::unsetTrigger(const Trigger&) noexcept
 {
-    std::lock_guard<std::recursive_mutex> g(m_mutex);
     m_trigger.reset();
 }
 
