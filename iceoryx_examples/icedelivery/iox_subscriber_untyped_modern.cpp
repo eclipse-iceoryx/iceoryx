@@ -37,23 +37,18 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
     // run until interrupted
     while (!killswitch)
     {
-        auto triggeredConditions = waitSet.wait();
-        for (auto& condition : triggeredConditions)
+        auto triggerVector = waitSet.wait();
+        for (auto& trigger : triggerVector)
         {
-            // auto untypedSubscriber = dynamic_cast<iox::popo::UntypedSubscriber*>(condition);
-            // if (untypedSubscriber)
-            //{
-            //    untypedSubscriber->take()
-            //        .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation) {
-            //            auto position = reinterpret_cast<const Position*>(allocation->get());
-            //            std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z <<
-            //            ")"
-            //                      << std::endl;
-            //        })
-            //        .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
-            //        .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl;
-            //        });
-            //}
+            auto untypedSubscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+            untypedSubscriber->take()
+                .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation) {
+                    auto position = reinterpret_cast<const Position*>(allocation->get());
+                    std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
+                              << std::endl;
+                })
+                .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
         }
     }
 }
@@ -72,8 +67,8 @@ int main()
 
     // set up waitset
     iox::popo::WaitSet waitSet{};
-    // waitSet.attachCondition(untypedSubscriber);
-    // waitSet.attachCondition(shutdownGuard);
+    untypedSubscriber.attachToWaitset(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1);
+    shutdownGuard.attachToWaitset(waitSet, 2);
 
     // delegate handling of received data to another thread
     std::thread untypedSubscriberThread(subscriberHandler, std::ref(waitSet));

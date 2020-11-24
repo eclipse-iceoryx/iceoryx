@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
 #include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
@@ -38,22 +39,21 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
     // run until interrupted
     while (!killswitch)
     {
-        auto triggeredConditions = waitSet.wait();
-        for (auto& condition : triggeredConditions)
+        auto triggerVector = waitSet.wait();
+        printf("triggerVector size = %llu\n", triggerVector.size());
+        for (auto& trigger : triggerVector)
         {
-            // auto subscriber = dynamic_cast<iox::popo::TypedSubscriber<Position>*>(condition);
-            // if (subscriber)
-            //{
-            //    subscriber->take()
-            //        .and_then([](iox::popo::Sample<const Position>& position) {
-            //            std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z <<
-            //            ")"
-            //                      << std::endl;
-            //        })
-            //        .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
-            //        .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl;
-            //        });
-            //}
+            if (trigger.getTriggerId() == 1)
+            {
+                auto subscriber = trigger.getOrigin<iox::popo::TypedSubscriber<Position>>();
+                subscriber->take()
+                    .and_then([](iox::popo::Sample<const Position>& position) {
+                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
+                                  << std::endl;
+                    })
+                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+            }
         }
     }
 }
@@ -72,8 +72,8 @@ int main()
 
     // set up waitset
     iox::popo::WaitSet waitSet{};
-    // waitSet.attachCondition(typedSubscriber);
-    // waitSet.attachCondition(shutdownGuard);
+    typedSubscriber.attachToWaitset(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1);
+    shutdownGuard.attachToWaitset(waitSet, 2);
 
     // delegate handling of received data to another thread
     std::thread subscriberHandlerThread(subscriberHandler, std::ref(waitSet));
