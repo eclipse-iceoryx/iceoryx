@@ -62,14 +62,24 @@ class PoshRuntime
     /// @return name of the reistered application
     std::string getInstanceName() const noexcept;
 
+    /// @deprecated #240
     /// @brief find all services that match the provided service description
     /// @param[in] serviceDescription service to search for
     /// @param[out] instanceContainer container that is filled with all matching instances
     /// @return cxx::expected<Error> Error, if any, encountered during the operation
     /// Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW : Number of instances can't fit in instanceContainer
     /// Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ : Find Service Request could not be sent to RouDi
-    cxx::expected<Error> findService(const capro::ServiceDescription& serviceDescription,
-                                     InstanceContainer& instanceContainer) noexcept;
+    [[gnu::deprecated]] cxx::expected<Error> findService(const capro::ServiceDescription& serviceDescription,
+                                                         InstanceContainer& instanceContainer) noexcept;
+
+    /// @brief find all services that match the provided service description
+    /// @param[in] serviceDescription service to search for
+    /// @return cxx::expected<InstanceContainer,Error>
+    /// InstanceContainer: on success, container that is filled with all matching instances
+    /// Error: if any, encountered during the operation
+    /// Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW : Number of instances can't fit in instanceContainer
+    /// Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ : Find Service Request could not be sent to RouDi
+    cxx::expected<InstanceContainer, Error> findService(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
     /// @param[in] serviceDescription service to offer
