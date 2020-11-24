@@ -14,9 +14,8 @@
 #ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_SINGLE_PROCESS_HPP
 
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-
-#include <string>
 
 namespace iox
 {
@@ -25,7 +24,7 @@ namespace runtime
 class PoshRuntimeSingleProcess : public PoshRuntime
 {
   public:
-    PoshRuntimeSingleProcess(const std::string& name) noexcept;
+    PoshRuntimeSingleProcess(const ProcessName_t& name) noexcept;
     ~PoshRuntimeSingleProcess();
 };
 } // namespace runtime

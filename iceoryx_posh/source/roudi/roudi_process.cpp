@@ -559,8 +559,8 @@ void ProcessManager::addRunnableForProcess(const ProcessName_t& processName,
     if (nullptr != process)
     {
         runtime::RunnableData* runnable =
-            m_portManager.acquireRunnableData(cxx::string<100>(cxx::TruncateToCapacity, processName),
-                                              cxx::string<100>(cxx::TruncateToCapacity, runnableName));
+            m_portManager.acquireRunnableData(ProcessName_t(cxx::TruncateToCapacity, processName),
+                                              RunnableName_t(cxx::TruncateToCapacity, runnableName));
 
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, runnable);
 
@@ -569,8 +569,8 @@ void ProcessManager::addRunnableForProcess(const ProcessName_t& processName,
                    << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
 
         process->sendToMQ(sendBuffer);
-        m_processIntrospection->addRunnable(cxx::string<100>(cxx::TruncateToCapacity, processName.c_str()),
-                                            cxx::string<100>(cxx::TruncateToCapacity, runnableName.c_str()));
+        m_processIntrospection->addRunnable(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
+                                            RunnableName_t(cxx::TruncateToCapacity, runnableName.c_str()));
         LogDebug() << "Created new runnable " << runnableName << " for application " << processName;
     }
     else
