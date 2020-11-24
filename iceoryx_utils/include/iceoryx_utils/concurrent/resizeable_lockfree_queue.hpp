@@ -67,22 +67,41 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     /// @return the maximum capacity
     static constexpr uint64_t maxCapacity() noexcept;
 
-    /// @brief returns the current capacity of the queue
-    /// @return the current capacity
-    /// @note threadsafe, lockfree
-    uint64_t capacity() const noexcept;
-
-    /// @brief tries to insert value in FIFO order, moves the value internally
-    /// @param[in] value to be inserted
-    /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
-    /// @note threadsafe, lockfree
-    bool tryPush(ElementType&& value) noexcept;
-
     /// @brief tries to insert value in FIFO order, copies the value internally
     /// @param[in] value to be inserted
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// @note threadsafe, lockfree
-    bool tryPush(const ElementType& value) noexcept;
+    /// bool tryPush(ElementType&& value) noexcept;
+    /// bool tryPush(const ElementType& value) noexcept;
+    using Base::tryPush;
+
+    /// @brief tries to remove value in FIFO order
+    /// @return value if removal was successful, empty optional otherwise
+    /// @note threadsafe, lockfree
+    /// iox::cxx::optional<ElementType> pop() noexcept;
+    using Base::pop;
+
+    /// @brief check whether the queue is empty
+    /// @return true iff the queue is empty
+    /// @note that if the queue is used concurrently it might
+    /// not be empty anymore after the call
+    ///  (but it was at some point during the call)
+    /// @note threadsafe, lockfree
+    /// bool empty() const noexcept;
+    using Base::empty;
+
+    /// @brief get the number of stored elements in the queue
+    /// @return number of stored elements in the queue
+    /// @note that this will not be perfectly in sync with the actual number of contained elements
+    /// during concurrent operation but will always be at most capacity
+    /// @note threadsafe, lockfree
+    /// uint64_t size() const noexcept;
+    using Base::size;
+
+    /// @brief returns the current capacity of the queue
+    /// @return the current capacity
+    /// @note threadsafe, lockfree
+    uint64_t capacity() const noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
@@ -97,26 +116,6 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     /// @return removed value if an overflow occured, empty optional otherwise
     /// @note threadsafe, lockfree
     iox::cxx::optional<ElementType> push(ElementType&& value) noexcept;
-
-    /// @brief tries to remove value in FIFO order
-    /// @return value if removal was successful, empty optional otherwise
-    /// @note threadsafe, lockfree
-    iox::cxx::optional<ElementType> pop() noexcept;
-
-    /// @brief check whether the queue is empty
-    /// @return true iff the queue is empty
-    /// @note that if the queue is used concurrently it might
-    /// not be empty anymore after the call
-    ///  (but it was at some point during the call)
-    /// @note threadsafe, lockfree
-    bool empty() const noexcept;
-
-    /// @brief get the number of stored elements in the queue
-    /// @return number of stored elements in the queue
-    /// @note that this will not be perfectly in sync with the actual number of contained elements
-    /// during concurrent operation but will always be at most capacity
-    /// @note threadsafe, lockfree
-    uint64_t size() const noexcept;
 
     // multiple overloads to set the capacity
     // 1) The most general one allows providing a removeHandler to specify remove behavior.
