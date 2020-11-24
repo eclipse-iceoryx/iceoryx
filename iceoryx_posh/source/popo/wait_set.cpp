@@ -95,12 +95,9 @@ typename WaitSet::TriggerStateVector WaitSet::waitAndReturnFulfilledConditions(c
 {
     WaitSet::TriggerStateVector conditions;
 
-    if (m_conditionVariableWaiter.wasNotified())
-    {
-        /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
-        m_conditionVariableWaiter.reset();
-        conditions = createVectorWithFullfilledConditions();
-    }
+    /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
+    m_conditionVariableWaiter.reset();
+    conditions = createVectorWithFullfilledConditions();
 
     // It is possible that after the reset call and before the createVectorWithFullfilledConditions call
     // another trigger came in. Then createVectorWithFullfilledConditions would have already handled it.
