@@ -30,6 +30,9 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownGuard.trigger();
 }
 
+// The callback of the trigger. Every callback must have an argument which is
+// a pointer to the origin of the Trigger. In our case the trigger origin is
+// the untyped subscriber.
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 {
     subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
@@ -44,8 +47,12 @@ void receiving()
     iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
     iox::popo::WaitSet waitset;
 
+    // attach shutdownGuard to handle CTRL+C
+    shutdownGuard.attachToWaitset(waitset);
+
     iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
 
+    // create subscriber and subscribe them to our service
     for (auto i = 0; i < 2; ++i)
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
@@ -55,9 +62,7 @@ void receiving()
         subscriber.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1, subscriberCallback);
     }
 
-
-    shutdownGuard.attachToWaitset(waitset);
-
+    // our eventloop
     while (true)
     {
         auto triggerVector = waitset.wait();
@@ -66,10 +71,12 @@ void receiving()
         {
             if (trigger.doesOriginateFrom(&shutdownGuard))
             {
+                // CTRL+c was pressed -> exit
                 return;
             }
             else
             {
+                // call the callback which was assigned to the trigger
                 trigger();
             }
         }
