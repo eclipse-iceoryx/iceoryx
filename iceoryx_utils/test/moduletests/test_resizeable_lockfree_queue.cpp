@@ -333,4 +333,70 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
         EXPECT_EQ(result.value(), element);
     }
 }
+
+TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueWithRemoveHandler)
+{
+    using element_t = typename TestFixture::Queue::element_t;
+    auto& q = this->queue;
+    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+
+    iox::cxx::vector<int, MAX_CAP> removedElements;
+    auto removeHandler = [&](const element_t& value) { removedElements.push_back(std::move(value)); };
+
+    uint64_t cap = MAX_CAP / 2;
+
+    EXPECT_TRUE(q.setCapacity(cap));
+    EXPECT_EQ(q.capacity(), cap);
+
+    uint64_t element = 0;
+    while (q.tryPush(element++))
+        ;
+
+    EXPECT_EQ(q.capacity(), cap);
+    EXPECT_EQ(q.size(), cap);
+
+    auto cap2 = cap + MAX_CAP / 4; // roughly 3 quarters of max (integer division)
+    EXPECT_TRUE(q.setCapacity(cap2));
+
+    EXPECT_EQ(q.capacity(), cap2);
+    EXPECT_EQ(q.size(), cap);
+
+    auto cap3 = cap2 - cap; // roughly a quarter of max
+
+    EXPECT_TRUE(q.setCapacity(cap3, removeHandler));
+    EXPECT_EQ(q.capacity(), cap3);
+    EXPECT_EQ(q.size(), cap3);
+
+    // cap3 elements remain, the first cap - cap3 elements are removed
+
+    // were the least recent elements removed?
+    EXPECT_EQ(removedElements.size(), cap - cap3);
+    element = 0;
+    for (auto& removedElement : removedElements)
+    {
+        EXPECT_EQ(removedElement, element++);
+    }
+
+    // are the remaining elements correct? (i.e. we did not remove too many elements)
+    for (element = cap - cap3; element < cap; ++element)
+    {
+        auto result = q.pop();
+        ASSERT_TRUE(result.has_value());
+        EXPECT_EQ(result.value(), element);
+    }
+
+    // refill to verify the capacity can really be used
+
+    element = 0;
+    while (q.tryPush(element++))
+        ;
+
+    for (element = 0; element < cap3; ++element)
+    {
+        auto result = q.pop();
+        ASSERT_TRUE(result.has_value());
+        EXPECT_EQ(result.value(), element);
+    }
+}
+
 } // namespace

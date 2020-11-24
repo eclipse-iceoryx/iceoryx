@@ -33,6 +33,8 @@ template <typename ElementType, uint64_t Capacity>
 class LockFreeQueue
 {
   public:
+    using element_t = ElementType;
+
     /// @brief creates and initalizes an empty LockFreeQueue
     LockFreeQueue() noexcept;
 

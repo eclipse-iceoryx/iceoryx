@@ -39,7 +39,7 @@ namespace concurrent
 // the call to the base class.
 //
 // Since supporting the resize (setCapacity) functionality has an impact on the runtime even
-// if the feature is not used, we provide a queue wihout resize functionality a an additional
+// if the feature is not used, we provide a queue wihout resize functionality in an additional
 // base class that can be used separately.
 template <typename ElementType, uint64_t MaxCapacity>
 class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity>
@@ -48,6 +48,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     using Base = LockFreeQueue<ElementType, MaxCapacity>;
 
   public:
+    using element_t = ElementType;
     static constexpr uint64_t MAX_CAPACITY = MaxCapacity;
 
     ResizeableLockFreeQueue() = default;
@@ -119,13 +120,13 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
 
     // multiple overloads to set the capacity
     // 1) The most general one allows providing a removeHandler to specify remove behavior.
-    // 2) The overload were a container is provided can be used if the removed elements are to be stored.
-    //    The container must satisfy certain requirements, such as providing push_back
+    // 2) The overload where a container is provided can be used if the removed elements are to be stored.
+    //    The container must satisfy certain requirements, such as providing push_back.
     // 3) The final overload discards removed elements.
 
     /// @brief      Set the capacity to some value.
     /// @param[in]  newCapacity capacity to be set
-    /// @param[in]  removedHandler is a function taking an element which specifies
+    /// @param[in]  removeHandler is a function taking an element which specifies
     ///             what to do with removed elements should the need for removal arise.
     /// @return     true if the capacity was successfully set, false otherwise
     template <typename Function,
