@@ -27,6 +27,21 @@ WaitSet::acquireTrigger(T* const origin,
                         const uint64_t triggerId,
                         const Trigger::Callback<T> callback) noexcept
 {
+    Trigger logicalEqualTrigger(origin,
+                                m_conditionVariableDataPtr,
+                                triggerCallback,
+                                cxx::MethodCallback<void, const Trigger&>(),
+                                0,
+                                Trigger::Callback<T>());
+
+    for (auto& currentTrigger : m_triggerVector)
+    {
+        if (currentTrigger.isLogicalEqual(logicalEqualTrigger))
+        {
+            return cxx::error<WaitSetError>(WaitSetError::TRIGGER_ALREADY_ACQUIRED);
+        }
+    }
+
     if (!m_triggerVector.emplace_back(
             origin, m_conditionVariableDataPtr, triggerCallback, invalidationCallback, triggerId, callback))
     {

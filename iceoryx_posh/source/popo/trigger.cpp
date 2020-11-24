@@ -75,17 +75,12 @@ ConditionVariableData* Trigger::getConditionVariableData() noexcept
     return m_conditionVariableDataPtr;
 }
 
-bool Trigger::operator==(const Trigger& rhs) const noexcept
+bool Trigger::isLogicalEqual(const Trigger& rhs) const noexcept
 {
-    return (m_origin == rhs.m_origin && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback
-            && m_conditionVariableDataPtr == rhs.m_conditionVariableDataPtr);
+    return (isValid() && rhs.isValid() && m_origin == rhs.m_origin
+            && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback
+            && m_conditionVariableDataPtr == rhs.m_conditionVariableDataPtr && m_triggerId == rhs.m_triggerId);
 }
-
-bool Trigger::operator!=(const Trigger& rhs) const noexcept
-{
-    return !(*this == rhs);
-}
-
 
 Trigger::Trigger(Trigger&& rhs) noexcept
 {

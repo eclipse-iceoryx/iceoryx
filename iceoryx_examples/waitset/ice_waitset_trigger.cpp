@@ -91,15 +91,17 @@ class MyTriggerClass
                 .and_then([this](iox::popo::Trigger& trigger) { m_activateTrigger = std::move(trigger); });
         }
         }
+
+        return iox::cxx::success<>();
     }
 
     void unsetTrigger(const iox::popo::Trigger& trigger)
     {
-        if (trigger == m_actionTrigger)
+        if (trigger.isLogicalEqual(m_actionTrigger))
         {
             m_actionTrigger.reset();
         }
-        else if (trigger == m_activateTrigger)
+        else if (trigger.isLogicalEqual(m_activateTrigger))
         {
             m_activateTrigger.reset();
         }

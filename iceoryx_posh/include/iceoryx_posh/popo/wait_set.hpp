@@ -32,6 +32,7 @@ class Condition;
 enum class WaitSetError : uint8_t
 {
     TRIGGER_VECTOR_OVERFLOW,
+    TRIGGER_ALREADY_ACQUIRED,
 };
 
 /// @brief Logical disjunction of a certain number of Triggers
@@ -60,6 +61,9 @@ class WaitSet
     ///        trigger that it was triggered via the triggerCallback. If the WaitSet goes out of scope
     ///        before the class does it calls the invalidationCallback to invalidate the Trigger inside
     ///        of the class
+    ///        You cannot acquire an already logical equal acquired trigger. This means if you acquire a trigger
+    ///        twice with the same: origin, triggerCallback and triggerId this method will return
+    ///        TRIGGER_ALREADY_ACQUIRED
     /// @param[in] origin the pointer to the class which will attach the trigger
     /// @param[in] triggerCallback a method from the class which will signal the Trigger that it was triggered
     /// @param[in] invalidationCallback callback which will be called in the destructor of the waitset, important when

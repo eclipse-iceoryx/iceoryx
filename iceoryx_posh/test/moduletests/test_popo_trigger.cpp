@@ -208,9 +208,8 @@ class Trigger_test : public Test
         }
     }
 
-    Trigger createValidTrigger()
+    Trigger createValidTrigger(const uint64_t triggerId = 0)
     {
-        uint64_t triggerId = 0U;
         return Trigger(&m_triggerClass,
                        &m_condVar,
                        {&m_triggerClass, &TriggerClass::hasTriggered},
@@ -380,8 +379,7 @@ TEST_F(Trigger_test, TriggersWithDifferentOriginsAreNotEqual)
                  123,
                  TriggerClass::callback);
 
-    EXPECT_FALSE(sut == sut2);
-    EXPECT_TRUE(sut != sut2);
+    EXPECT_FALSE(sut.isLogicalEqual(sut2));
 }
 
 TEST_F(Trigger_test, TriggersWithDifferentHasTriggeredCallsAreNotEqual)
@@ -396,8 +394,7 @@ TEST_F(Trigger_test, TriggersWithDifferentHasTriggeredCallsAreNotEqual)
                  123,
                  TriggerClass::callback);
 
-    EXPECT_FALSE(sut == sut2);
-    EXPECT_TRUE(sut != sut2);
+    EXPECT_FALSE(sut.isLogicalEqual(sut2));
 }
 
 TEST_F(Trigger_test, TriggersWithDifferentConditionVariablesAreNotEqual)
@@ -412,23 +409,21 @@ TEST_F(Trigger_test, TriggersWithDifferentConditionVariablesAreNotEqual)
                  123,
                  TriggerClass::callback);
 
-    EXPECT_FALSE(sut == sut2);
-    EXPECT_TRUE(sut != sut2);
+    EXPECT_FALSE(sut.isLogicalEqual(sut2));
 }
 
 TEST_F(Trigger_test, TriggersAreEqualWhenEqualityRequirementsAreFulfilled)
 {
-    Trigger sut = createValidTrigger();
+    Trigger sut = createValidTrigger(891);
 
     Trigger sut2(&m_triggerClass,
                  &m_condVar,
                  {&m_triggerClass, &TriggerClass::hasTriggered},
                  {&m_triggerClass, &TriggerClass::resetCall},
-                 123,
+                 891,
                  TriggerClass::callback);
 
-    EXPECT_TRUE(sut == sut2);
-    EXPECT_FALSE(sut != sut2);
+    EXPECT_TRUE(sut.isLogicalEqual(sut2));
 }
 
 } // namespace internalTesting

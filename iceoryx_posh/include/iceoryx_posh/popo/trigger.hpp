@@ -89,14 +89,12 @@ class Trigger : public TriggerState
     /// @brief returns the pointer to the underlying condition variable data
     ConditionVariableData* getConditionVariableData() noexcept;
 
-    /// @brief returns true if the Triggers are equal otherwise false. Two Triggers are equal when
+    /// @brief returns true if the Triggers are logical equal otherwise false. Two Triggers are logical equal when
     ///       - origin == rhs.origin
     ///       - conditionVariableDataPtr == rhs.conditionVariableDataPtr
     ///       - hasTriggeredCallback == rhs.hasTriggeredCallback
-    bool operator==(const Trigger& rhs) const noexcept;
-
-    /// @brief return true if the Triggers are not equal, otherwise false.
-    bool operator!=(const Trigger& rhs) const noexcept;
+    ///       - triggerId == rhs.triggerId
+    bool isLogicalEqual(const Trigger& rhs) const noexcept;
 
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
