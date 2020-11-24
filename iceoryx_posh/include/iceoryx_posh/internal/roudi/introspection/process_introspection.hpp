@@ -17,9 +17,9 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
+#include "iceoryx_utils/cxx/list.hpp"
 
 #include <atomic>
-#include <list>
 #include <mutex>
 #include <thread>
 
@@ -111,9 +111,7 @@ class ProcessIntrospection
     void setSendInterval(unsigned int interval_ms);
 
   private:
-    /// @todo use a fixed, stack based list once available
-    // using ProcessList_t = cxx::list<ProcessIntrospectionData, MAX_PROCESS_NUMBER>;
-    using ProcessList_t = std::list<ProcessIntrospectionData>;
+    using ProcessList_t = cxx::list<ProcessIntrospectionData, MAX_PROCESS_NUMBER>;
     ProcessList_t m_processList;
     bool m_processListNewData{true}; // true because we want to have a valid field, even with an empty list
 
