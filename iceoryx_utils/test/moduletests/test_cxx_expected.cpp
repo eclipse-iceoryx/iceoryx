@@ -97,6 +97,12 @@ TEST_F(expected_test, BoolOperatorValue)
     EXPECT_THAT(sut.value().m_a, Eq(123));
 }
 
+TEST_F(expected_test, BoolOperatorExpectedErrorType)
+{
+    auto sut = expected<float>::create_error(5.8f);
+    ASSERT_THAT(sut.operator bool(), Eq(false));
+    ASSERT_THAT(sut.get_error(), Eq(5.8f));
+}
 
 TEST_F(expected_test, GetValueOrWithError)
 {
