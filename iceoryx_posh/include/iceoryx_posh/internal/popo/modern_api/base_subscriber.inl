@@ -118,8 +118,11 @@ inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedSamples() noexce
 template <typename T, typename Subscriber, typename port_t>
 inline void BaseSubscriber<T, Subscriber, port_t>::unsetTrigger(const Trigger& trigger) noexcept
 {
-    m_port.unsetConditionVariable();
-    m_trigger.reset();
+    if (trigger.isLogicalEqual(m_trigger))
+    {
+        m_port.unsetConditionVariable();
+        m_trigger.reset();
+    }
 }
 
 // ============================== Sample Deleter ============================== //
