@@ -33,6 +33,22 @@ inline Trigger::Trigger(T* const origin,
 {
 }
 
+template <typename T>
+void Trigger::setNewOrigin(T* const newOrigin) noexcept
+{
+    if (m_hasTriggeredCallback && m_hasTriggeredCallback.getClassPointer<T>() == m_origin)
+    {
+        m_hasTriggeredCallback.setClassPointer(newOrigin);
+    }
+
+    if (m_resetCallback && m_resetCallback.getClassPointer<T>() == m_origin)
+    {
+        m_resetCallback.setClassPointer(newOrigin);
+    }
+
+    m_origin = newOrigin;
+}
+
 
 } // namespace popo
 } // namespace iox

@@ -36,6 +36,7 @@ class TriggerState
 
     /// @brief constructs an empty TriggerState
     TriggerState() = default;
+    virtual ~TriggerState() = default;
 
     /// @brief constructs a TriggerState object
     /// @param[in] origin pointer to the origin of the TriggerState

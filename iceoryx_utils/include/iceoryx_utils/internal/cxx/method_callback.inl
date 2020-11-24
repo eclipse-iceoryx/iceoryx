@@ -132,11 +132,17 @@ inline ConstMethodCallback<ReturnValue, Args...>::operator bool() const noexcept
 
 template <typename ReturnValue, typename... Args>
 template <typename ClassType>
-inline void ConstMethodCallback<ReturnValue, Args...>::setClassPtr(ClassType* const classPtr) noexcept
+inline void ConstMethodCallback<ReturnValue, Args...>::setClassPointer(ClassType* const classPtr) noexcept
 {
     m_classPtr = classPtr;
 }
 
+template <typename ReturnValue, typename... Args>
+template <typename ClassType>
+inline ClassType* ConstMethodCallback<ReturnValue, Args...>::getClassPointer() const noexcept
+{
+    return reinterpret_cast<ClassType*>(m_classPtr);
+}
 
 template <typename ReturnValue, typename... Args>
 template <typename ClassType>
@@ -208,9 +214,16 @@ inline MethodCallback<ReturnValue, Args...>::operator bool() const noexcept
 
 template <typename ReturnValue, typename... Args>
 template <typename ClassType>
-inline void MethodCallback<ReturnValue, Args...>::setClassPtr(ClassType* const classPtr) noexcept
+inline void MethodCallback<ReturnValue, Args...>::setClassPointer(ClassType* const classPtr) noexcept
 {
     m_classPtr = classPtr;
+}
+
+template <typename ReturnValue, typename... Args>
+template <typename ClassType>
+inline ClassType* MethodCallback<ReturnValue, Args...>::getClassPointer() const noexcept
+{
+    return reinterpret_cast<ClassType*>(m_classPtr);
 }
 
 } // namespace cxx
