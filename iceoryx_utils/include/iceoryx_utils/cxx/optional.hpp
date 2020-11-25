@@ -14,6 +14,7 @@
 #ifndef IOX_UTILS_CXX_OPTIONAL_HPP
 #define IOX_UTILS_CXX_OPTIONAL_HPP
 
+#include "iceoryx_utils/cxx/type_traits.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/types.hpp"
 
@@ -59,6 +60,7 @@ class optional
 {
   public:
     using type = T;
+    using inner_type = typename flatten<T>::type;
 
     /// @brief Creates an optional which has no value. If you access such an
     ///         optional via .value() or the arrow operator the behavior is
@@ -219,6 +221,12 @@ class optional
     /// @param[in] callable which has T as argument
     /// @return reference to this
     const optional& and_then(const cxx::function_ref<void(const T&)>& callable) const noexcept;
+
+    template <typename ChainableType = T, typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
+    optional& and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) noexcept;
+
+    template <typename ChainableType = T, typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
+    const optional& and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) const noexcept;
 
     /// @brief calls the provided callable if the optional does not contain a value
     /// @param[in] callable

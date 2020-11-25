@@ -347,33 +347,30 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(ValueType&
 }
 
 template <typename ValueType, typename ErrorType>
-template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+template <typename ChainableType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type>
 inline const expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const
+expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename flatten<ChainableType>::type &)>& callable) const
     noexcept
 {
     return const_cast<expected*>(this)->and_then(callable);
 }
 
 template <typename ValueType, typename ErrorType>
-template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+template <typename ChainableType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type>
 inline expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept
+expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename flatten<ChainableType>::type &)>& callable) noexcept
 {
     if (!this->has_error())
     {
-        auto& optional = get_value();
-        if (optional.has_value())
-        {
-            callable(optional.value());
-        }
+        // Pass the callback to the next functional type to handle.
+        get_value().and_then(callable);
     }
 
     return *this;
 }
 
 template <typename ValueType, typename ErrorType>
-template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+template <typename OptionalType, typename std::enable_if<is_optional<OptionalType>::value, int>::type>
 inline const expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) const noexcept
 {
@@ -381,17 +378,15 @@ expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& ca
 }
 
 template <typename ValueType, typename ErrorType>
-template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+template <typename OptionalType, typename std::enable_if<is_optional<OptionalType>::value, int>::type>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) noexcept
 {
     if (!this->has_error())
     {
+        // Optional will execute given callable when empty.
         auto& optional = get_value();
-        if (!optional.has_value())
-        {
-            callable();
-        }
+        optional.or_else(callable);
     }
 
     return *this;
