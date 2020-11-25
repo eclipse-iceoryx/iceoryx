@@ -100,7 +100,7 @@ using IntegerQueue = iox::concurrent::LockFreeQueue<Integer, Capacity>;
 
 // define the test configurations with varying types, capacities and dynamically reduced capacities
 
-template <template <typename, uint64_t> typename QueueType_,
+template <template <typename, uint64_t> class QueueType_,
           typename ElementType_,
           uint64_t Capacity_,
           uint64_t DynamicCapacity_ = Capacity_>
