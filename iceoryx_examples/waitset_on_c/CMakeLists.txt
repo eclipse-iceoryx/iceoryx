@@ -13,7 +13,7 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.5)
-project(example_icecallback_on_c)
+project(example_waitset_on_c)
 
 include(GNUInstallDirs)
 
@@ -25,27 +25,27 @@ if ( NOT ICEORYX_CXX_STANDARD )
     include(IceoryxPlatformDetection)
 endif ( NOT ICEORYX_CXX_STANDARD )
 
-add_executable(iox-c-callback-publisher ./ice_c_callback_publisher.c)
-set_source_files_properties(./ice_c_callback_publisher.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-callback-publisher
+add_executable(iox-ex-c-waitset-publisher ./ice_c_waitset_publisher.c)
+set_source_files_properties(./ice_c_waitset_publisher.c PROPERTIES LANGUAGE C)
+target_link_libraries(iox-ex-c-waitset-publisher
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
-set_target_properties(iox-c-callback-publisher PROPERTIES
+set_target_properties(iox-ex-c-waitset-publisher PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-add_executable(iox-c-callback-subscriber ./ice_c_callback_subscriber.c)
-set_source_files_properties(./ice_c_callback_subscriber.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-c-callback-subscriber
+add_executable(iox-ex-c-waitset-subscriber ./ice_c_waitset_subscriber.c)
+set_source_files_properties(./ice_c_waitset_subscriber.c PROPERTIES LANGUAGE C)
+target_link_libraries(iox-ex-c-waitset-subscriber
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
-set_target_properties(iox-c-callback-subscriber PROPERTIES
+set_target_properties(iox-ex-c-waitset-subscriber PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
 install(
-    TARGETS iox-c-callback-publisher iox-c-callback-subscriber
+    TARGETS iox-ex-c-waitset-publisher iox-ex-c-waitset-subscriber
     RUNTIME DESTINATION bin
 )
