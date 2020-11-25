@@ -73,6 +73,7 @@ int main()
         {
             if (trigger.doesOriginateFrom(&shutdownGuard))
             {
+                // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
             }
             // we print the received data for the first group

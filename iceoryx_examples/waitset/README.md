@@ -15,7 +15,9 @@
  - **Triggerable** a class which has attached a _Trigger_ to itself to trigger
      certain events to a _Listener_.
  - **TriggerCallback** a callback attached to a _Trigger_. It must have the 
-     following signature `void ( TriggerOrigin )`.
+     following signature `void ( TriggerOrigin )`. Any free function and static
+     class method is allowed. You have to ensure the lifetime of that callback.
+     This can become important when you would like to use lambdas.
  - **TriggerId** a id which identifies the trigger. It does not follow any 
      restrictions and the user can choose any arbitrary `uint64_t`.
  - **TriggerOrigin** the pointer to the class where the trigger originated from, short
@@ -215,4 +217,76 @@ else if (trigger.getTriggerId() == SECOND_GROUP_ID)
     auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
     subscriber->releaseQueuedSamples();
 }
+```
+
+### Sync
+Lets say we have `SomeClass` and would like to execute a cyclic static call 
+`cyclicRun`
+in that class every second. We could execute any arbitrary algorithm in there
+but for now we just print `activation callback`. The class could look like
+```cpp
+class SomeClass
+{
+  public:
+    static void cyclicRun(iox::popo::UserTrigger*)
+    {
+        std::cout << "activation callback\n";
+    }
+};
+```
+
+We begin as always, by creating a _WaitSet_ and attaching the `shutdownGuard` to 
+it.
+```cpp
+iox::popo::WaitSet waitset;
+
+// attach shutdownGuard to handle CTRL+C
+shutdownGuard.attachToWaitset(waitset);
+```
+
+After that we require a `cyclicTrigger` to trigger our 
+`cyclicRun` every second. Therefore, we attach it to the `waitset` with 
+triggerId `0` and the callback `SomeClass::cyclicRun`
+```cpp
+iox::popo::UserTrigger cyclicTrigger;
+cyclicTrigger.attachToWaitset(waitset, 0, SomeClass::cyclicRun);
+```
+
+The next thing we need is something which will trigger our `cyclicTrigger`
+every second. We use a infinite loop packed inside of a thread.
+```cpp
+std::thread cyclicTriggerThread([&] {
+    while (keepRunning.load())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        cyclicTrigger.trigger();
+    }
+});
+```
+
+Everything is set up and we can implement the event loop. As usual we handle
+`CTRL-c` which is indicated by the `shutdownGuard`.
+```cpp
+while (true)
+{
+    auto triggerVector = waitset.wait();
+
+    for (auto& trigger : triggerVector)
+    {
+        if (trigger.doesOriginateFrom(&shutdownGuard))
+        {
+            // CTRL+c was pressed -> exit
+            keepRunning.store(false);
+            cyclicTriggerThread.join();
+            return (EXIT_SUCCESS);
+        }
+```
+
+The `cyclicTrigger` callback is called in the else part.
+```cpp
+        else
+        {
+            // call SomeClass::myCyclicRun
+            trigger();
+        }
 ```

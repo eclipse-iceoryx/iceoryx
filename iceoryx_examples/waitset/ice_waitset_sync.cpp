@@ -29,34 +29,41 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownGuard.trigger();
 }
 
-class MyClass
+class SomeClass
 {
   public:
-    static void myCyclicRun(iox::popo::UserTrigger*)
+    static void cyclicRun(iox::popo::UserTrigger*)
     {
         std::cout << "activation callback\n";
     }
 };
 
-void receiving()
+int main()
 {
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
+    signal(SIGINT, sigHandler);
+    iox::runtime::PoshRuntime::getInstance("/iox-ex-waitset-sync");
+    std::atomic_bool keepRunning{true};
 
     iox::popo::WaitSet waitset;
 
-    iox::popo::UserTrigger runGuard;
-    runGuard.attachToWaitset(waitset, 0, MyClass::myCyclicRun);
-
+    // attach shutdownGuard to handle CTRL+C
     shutdownGuard.attachToWaitset(waitset);
 
-    std::thread t1([&] {
-        while (true)
+    // create and attach the cyclicTrigger with a callback to
+    // SomeClass::myCyclicRun
+    iox::popo::UserTrigger cyclicTrigger;
+    cyclicTrigger.attachToWaitset(waitset, 0, SomeClass::cyclicRun);
+
+    // start a thread which triggers cyclicTrigger every second
+    std::thread cyclicTriggerThread([&] {
+        while (keepRunning.load())
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            runGuard.trigger();
+            cyclicTrigger.trigger();
         }
     });
 
+    // event loop
     while (true)
     {
         auto triggerVector = waitset.wait();
@@ -65,10 +72,14 @@ void receiving()
         {
             if (trigger.doesOriginateFrom(&shutdownGuard))
             {
-                return;
+                // CTRL+c was pressed -> exit
+                keepRunning.store(false);
+                cyclicTriggerThread.join();
+                return (EXIT_SUCCESS);
             }
             else
             {
+                // call SomeClass::myCyclicRun
                 trigger();
             }
         }
@@ -76,15 +87,7 @@ void receiving()
         std::cout << std::endl;
     }
 
-    t1.join();
-}
-
-int main()
-{
-    signal(SIGINT, sigHandler);
-
-    std::thread rx(receiving);
-    rx.join();
+    cyclicTriggerThread.join();
 
     return (EXIT_SUCCESS);
 }
