@@ -198,7 +198,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillIt)
     EXPECT_EQ(q.setCapacity(newCap), true);
     EXPECT_EQ(q.capacity(), newCap);
 
-    uint element = 0;
+    int element = 0;
     while (q.tryPush(element++))
         ;
 
@@ -215,7 +215,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCap
     EXPECT_EQ(q.setCapacity(cap), true);
     EXPECT_EQ(q.capacity(), cap);
 
-    uint64_t element = 0;
+    int element = 0;
     while (q.tryPush(element++))
         ;
 
@@ -246,7 +246,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacit
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     uint64_t cap = MAX_CAP / 2;
 
-    uint64_t element = 0;
+    int element = 0;
     while (q.tryPush(element++))
         ;
     EXPECT_EQ(q.capacity(), MAX_CAP);
@@ -283,7 +283,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
     EXPECT_TRUE(q.setCapacity(cap));
     EXPECT_EQ(q.capacity(), cap);
 
-    uint64_t element = 0;
+    int element = 0;
     while (q.tryPush(element++))
         ;
 
@@ -348,7 +348,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueW
     EXPECT_TRUE(q.setCapacity(cap));
     EXPECT_EQ(q.capacity(), cap);
 
-    uint64_t element = 0;
+    int element = 0;
     while (q.tryPush(element++))
         ;
 
