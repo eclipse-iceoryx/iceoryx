@@ -63,7 +63,7 @@ class ResizeableLockFreeQueueTest : public ::testing::Test
     {
     }
 
-    void fillQueue(int start = 0)
+    void fillQueue(uint64_t start = 0)
     {
         uint64_t element{start};
         for (uint64_t i = 0; i < queue.capacity(); ++i)
