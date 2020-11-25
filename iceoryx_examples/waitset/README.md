@@ -32,8 +32,10 @@
 
 | task | call |
 |:-----|:-----|
-|attach subscriber to waitset (simple)|`mySubscriber.attachToWaitset(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
-|attach subscriber to waitset (full)|`mySubscriber.attachToWaitset(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someTriggerId, myCallback);`|
+|attach subscriber to waitset (simple)|`subscriber.attachToWaitset(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
+|attach subscriber to waitset (full)|`subscriber.attachToWaitset(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someTriggerId, myCallback);`|
+|attach user trigger to waitset (simple)|`userTrigger.attachToWaitset(myWaitSet)`|
+|attach user trigger to waitset (full)|`userTrigger.attachToWaitset(myWaitSet, someTriggerId, myCallback)`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
 |check if trigger originated from some class|`trigger.doesOriginateFrom(ptrToSomeClass)`|
@@ -217,6 +219,66 @@ else if (trigger.getTriggerId() == SECOND_GROUP_ID)
     auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
     subscriber->releaseQueuedSamples();
 }
+```
+
+### Individual
+When every _Triggerable_ requires a different reaction we need to know the 
+origin of a _Trigger_. We can call `trigger.doesOriginateFrom(TriggerOrigin)`
+which will return true if the trigger originates from _TriggerOrigin_ and
+otherwise false.
+
+We start this example by creating a _WaitSet_ and attaching the `shutdownGuard`
+to handle `CTRL-c`.
+```cpp
+iox::popo::WaitSet waitset;
+
+shutdownGuard.attachToWaitset(waitset);
+```
+
+Additionally, we create two subscriber, subscribe them to our service and attach
+them to the waitset to let them inform us whenever they receive a new sample.
+```cpp
+iox::popo::TypedSubscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
+iox::popo::TypedSubscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
+
+subscriber1.subscribe();
+subscriber2.subscribe();
+
+subscriber1.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+subscriber2.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+```
+
+With that set up we enter the event loop and handle the program termination
+first.
+```cpp
+while (true)
+{
+    auto triggerVector = waitset.wait();
+
+    for (auto& trigger : triggerVector)
+    {
+        if (trigger.doesOriginateFrom(&shutdownGuard))
+        {
+            return (EXIT_SUCCESS);
+        }
+```
+
+If `subscriber1` we would like to state that subscriber 1 has received the 
+following number X. But for `subscriber2` we just dismiss the received samples.
+We accomplish this by asking the `trigger` if it originated from the 
+corresponding subscriber. If so we act.
+```cpp
+        else if (trigger.doesOriginateFrom(&subscriber1))
+        {
+            subscriber1.take().and_then([&](iox::popo::Sample<const CounterTopic>& sample) {
+                std::cout << " subscriber 1 received: " << sample->counter << std::endl;
+            });
+        }
+        if (trigger.doesOriginateFrom(&subscriber2))
+        {
+            subscriber2.releaseQueuedSamples();
+            std::cout << "subscriber 2 received something - dont care\n";
+        }
 ```
 
 ### Sync

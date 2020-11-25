@@ -23,20 +23,26 @@
 #include <iostream>
 
 iox::popo::UserTrigger shutdownGuard;
-using Subscriber = iox::popo::TypedSubscriber<CounterTopic>;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     shutdownGuard.trigger();
 }
 
-void receiving()
+int main()
 {
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
+    signal(SIGINT, sigHandler);
 
+    iox::runtime::PoshRuntime::getInstance("/iox-ex-waitset-individual");
+
+    iox::popo::WaitSet waitset;
+
+    // attach shutdownGuard to handle CTRL+C
+    shutdownGuard.attachToWaitset(waitset);
+
+    // create two subscribers, subscribe to the service and attach them to the waitset
     iox::popo::TypedSubscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
     iox::popo::TypedSubscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Counter"});
-    iox::popo::WaitSet waitset;
 
     subscriber1.subscribe();
     subscriber2.subscribe();
@@ -44,41 +50,35 @@ void receiving()
     subscriber1.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     subscriber2.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
 
-
-    shutdownGuard.attachToWaitset(waitset);
-
+    // event loop
     while (true)
     {
         auto triggerVector = waitset.wait();
 
         for (auto& trigger : triggerVector)
         {
-            if (trigger.doesOriginateFrom(&subscriber1))
+            if (trigger.doesOriginateFrom(&shutdownGuard))
+            {
+                // CTRL+c was pressed -> exit
+                return (EXIT_SUCCESS);
+            }
+            // process sample received by subscriber1
+            else if (trigger.doesOriginateFrom(&subscriber1))
             {
                 subscriber1.take().and_then([&](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << " subscriber 1 received: " << sample->counter << std::endl;
                 });
             }
+            // dismiss sample received by subscriber2
             if (trigger.doesOriginateFrom(&subscriber2))
             {
+                subscriber2.releaseQueuedSamples();
                 std::cout << "subscriber 2 received something - dont care\n";
-            }
-            else if (trigger.doesOriginateFrom(&shutdownGuard))
-            {
-                return;
             }
         }
 
         std::cout << std::endl;
     }
-}
-
-int main()
-{
-    signal(SIGINT, sigHandler);
-
-    std::thread rx(receiving);
-    rx.join();
 
     return (EXIT_SUCCESS);
 }
