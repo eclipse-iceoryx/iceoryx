@@ -36,7 +36,7 @@ WaitSet::acquireTrigger(T* const origin,
 
     for (auto& currentTrigger : m_triggerVector)
     {
-        if (currentTrigger.isLogicalEqual(logicalEqualTrigger))
+        if (currentTrigger.isLogicalEqualTo(logicalEqualTrigger))
         {
             return cxx::error<WaitSetError>(WaitSetError::TRIGGER_ALREADY_ACQUIRED);
         }
@@ -56,4 +56,3 @@ WaitSet::acquireTrigger(T* const origin,
 } // namespace iox
 
 #endif
-

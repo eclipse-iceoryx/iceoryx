@@ -94,7 +94,7 @@ class Trigger : public TriggerState
     ///       - conditionVariableDataPtr == rhs.conditionVariableDataPtr
     ///       - hasTriggeredCallback == rhs.hasTriggeredCallback
     ///       - triggerId == rhs.triggerId
-    bool isLogicalEqual(const Trigger& rhs) const noexcept;
+    bool isLogicalEqualTo(const Trigger& rhs) const noexcept;
 
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;

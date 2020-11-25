@@ -116,11 +116,11 @@ class MyTriggerClass
     // out of scope
     void unsetTrigger(const iox::popo::Trigger& trigger)
     {
-        if (trigger.isLogicalEqual(m_actionTrigger))
+        if (trigger.isLogicalEqualTo(m_actionTrigger))
         {
             m_actionTrigger.reset();
         }
-        else if (trigger.isLogicalEqual(m_activateTrigger))
+        else if (trigger.isLogicalEqualTo(m_activateTrigger))
         {
             m_activateTrigger.reset();
         }

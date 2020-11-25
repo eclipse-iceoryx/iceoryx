@@ -379,7 +379,7 @@ TEST_F(Trigger_test, TriggersWithDifferentOriginsAreNotEqual)
                  123,
                  TriggerClass::callback);
 
-    EXPECT_FALSE(sut.isLogicalEqual(sut2));
+    EXPECT_FALSE(sut.isLogicalEqualTo(sut2));
 }
 
 TEST_F(Trigger_test, TriggersWithDifferentHasTriggeredCallsAreNotEqual)
@@ -394,7 +394,7 @@ TEST_F(Trigger_test, TriggersWithDifferentHasTriggeredCallsAreNotEqual)
                  123,
                  TriggerClass::callback);
 
-    EXPECT_FALSE(sut.isLogicalEqual(sut2));
+    EXPECT_FALSE(sut.isLogicalEqualTo(sut2));
 }
 
 TEST_F(Trigger_test, TriggersWithDifferentConditionVariablesAreNotEqual)
@@ -409,7 +409,7 @@ TEST_F(Trigger_test, TriggersWithDifferentConditionVariablesAreNotEqual)
                  123,
                  TriggerClass::callback);
 
-    EXPECT_FALSE(sut.isLogicalEqual(sut2));
+    EXPECT_FALSE(sut.isLogicalEqualTo(sut2));
 }
 
 TEST_F(Trigger_test, TriggersAreEqualWhenEqualityRequirementsAreFulfilled)
@@ -423,7 +423,7 @@ TEST_F(Trigger_test, TriggersAreEqualWhenEqualityRequirementsAreFulfilled)
                  891,
                  TriggerClass::callback);
 
-    EXPECT_TRUE(sut.isLogicalEqual(sut2));
+    EXPECT_TRUE(sut.isLogicalEqualTo(sut2));
 }
 
 } // namespace internalTesting

@@ -75,7 +75,7 @@ ConditionVariableData* Trigger::getConditionVariableData() noexcept
     return m_conditionVariableDataPtr;
 }
 
-bool Trigger::isLogicalEqual(const Trigger& rhs) const noexcept
+bool Trigger::isLogicalEqualTo(const Trigger& rhs) const noexcept
 {
     return (isValid() && rhs.isValid() && m_origin == rhs.m_origin
             && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback

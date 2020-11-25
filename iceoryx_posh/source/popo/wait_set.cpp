@@ -40,7 +40,7 @@ void WaitSet::removeTrigger(const Trigger& trigger) noexcept
 {
     for (auto& currentTrigger : m_triggerVector)
     {
-        if (currentTrigger.isLogicalEqual(trigger))
+        if (currentTrigger.isLogicalEqualTo(trigger))
         {
             m_triggerVector.erase(&currentTrigger);
             currentTrigger.reset();
