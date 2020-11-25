@@ -28,6 +28,7 @@ namespace iox
 #define ICEORYX_ERRORS(error) \
     error(NO_ERROR)\
     error(FILEREADER__FAILED_TO_OPEN_FILE) \
+    error(POSH__RUNTIME_FACTORY_IS_NOT_SET) \
     error(POSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES) \
     error(POSH__RUNTIME_SENDERPORT_NOT_UNIQUE) /* @deprecated #25 */ \
     error(POSH__RUNTIME_ROUDI_SENDERLIST_FULL) /* @deprecated #25 */ \

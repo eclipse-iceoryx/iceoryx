@@ -29,9 +29,24 @@ namespace iox
 {
 namespace runtime
 {
-std::function<PoshRuntime&(const ProcessName_t& name)> PoshRuntime::s_runtimeFactory =
-    PoshRuntime::defaultRuntimeFactory;
+PoshRuntime::factory_t& PoshRuntime::getRuntimeFactory() noexcept
+{
+    static factory_t runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+    return runtimeFactory;
+}
 
+void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
+{
+    if (factory)
+    {
+        PoshRuntime::getRuntimeFactory() = factory;
+    }
+    else
+    {
+        LogFatal() << "Cannot set runtime factory. Passed factory must not be empty!";
+        errorHandler(Error::kPOSH__RUNTIME_FACTORY_IS_NOT_SET);
+    }
+}
 
 PoshRuntime& PoshRuntime::defaultRuntimeFactory(const ProcessName_t& name) noexcept
 {
@@ -42,7 +57,7 @@ PoshRuntime& PoshRuntime::defaultRuntimeFactory(const ProcessName_t& name) noexc
 // singleton access
 PoshRuntime& PoshRuntime::getInstance(const ProcessName_t& name) noexcept
 {
-    return PoshRuntime::s_runtimeFactory(name);
+    return getRuntimeFactory()(name);
 }
 
 ProcessName_t& PoshRuntime::defaultRuntimeInstanceName() noexcept

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,35 @@
 using namespace ::testing;
 using namespace iox::runtime;
 using iox::roudi::RouDiEnvironment;
+
+class PoshRuntimeTestAccess : public PoshRuntime
+{
+  public:
+    using PoshRuntime::factory_t;
+    using PoshRuntime::setRuntimeFactory;
+
+    PoshRuntimeTestAccess(const iox::ProcessName_t& s)
+        : PoshRuntime(s)
+    {
+    }
+
+    static PoshRuntimeTestAccess*& getTestRuntime()
+    {
+        static PoshRuntimeTestAccess* testRuntime = nullptr;
+        return testRuntime;
+    }
+};
+
+namespace
+{
+bool callbackWasCalled = false;
+PoshRuntime& testFactory(const iox::ProcessName_t&)
+{
+    callbackWasCalled = true;
+    return *PoshRuntimeTestAccess::getTestRuntime();
+}
+} // namespace
+
 class PoshRuntime_test : public Test
 {
   public:
@@ -34,6 +63,7 @@ class PoshRuntime_test : public Test
 
     virtual void SetUp()
     {
+        callbackWasCalled = false;
         internal::CaptureStdout();
     };
 
@@ -493,3 +523,18 @@ TEST_F(PoshRuntime_test, CreateRunnableReturnValue)
     /// @todo I am passing runnableDeviceIdentifier as 1, but it returns 0, is this expected?
     // EXPECT_EQ(runnableDeviceIdentifier, runableData->m_runnableDeviceIdentifier);
 }
+
+TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
+{
+    PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
+    PoshRuntimeTestAccess::getInstance("/instance");
+
+    EXPECT_TRUE(callbackWasCalled);
+}
+
+TEST_F(PoshRuntime_test, SetEmptyRuntimeFactoryFails)
+{
+    EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
+                 "Cannot set runtime factory. Passed factory must not be empty!");
+}
+
