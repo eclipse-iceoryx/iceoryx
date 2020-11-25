@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH, 2020 Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -121,16 +121,16 @@ template <typename T, uint64_t C>
 using RLFQueue = iox::concurrent::ResizeableLockFreeQueue<T, C>;
 
 
-template <template <typename, uint64_t> typename QueueType, typename ElementType, uint64_t Capacity>
+template <template <typename, uint64_t> class QueueType, typename ElementType, uint64_t Capacity>
 using Full = Config<QueueType, ElementType, Capacity>;
 
-template <template <typename, uint64_t> typename QueueType, typename ElementType, uint64_t Capacity>
+template <template <typename, uint64_t> class QueueType, typename ElementType, uint64_t Capacity>
 using AlmostFull = Config<QueueType, ElementType, Capacity, (Capacity > 1) ? (Capacity - 1) : Capacity>;
 
-template <template <typename, uint64_t> typename QueueType, typename ElementType, uint64_t Capacity>
+template <template <typename, uint64_t> class QueueType, typename ElementType, uint64_t Capacity>
 using HalfFull = Config<QueueType, ElementType, Capacity, (Capacity > 1) ? (Capacity / 2) : Capacity>;
 
-template <template <typename, uint64_t> typename QueueType, typename ElementType, uint64_t Capacity>
+template <template <typename, uint64_t> class QueueType, typename ElementType, uint64_t Capacity>
 using AlmostEmpty = Config<QueueType, ElementType, Capacity, 1>;
 
 // configs of the lockfree queue without resize
