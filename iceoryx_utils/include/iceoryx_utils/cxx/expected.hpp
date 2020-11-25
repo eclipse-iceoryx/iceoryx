@@ -521,7 +521,6 @@ class expected<ValueType, ErrorType>
     ValueType value_or(const ValueType& value) noexcept;
 
 
-
     /// @brief dereferencing operator which returns a reference to the contained
     ///         success value. if the expected contains an error the behavior is
     ///         undefined.
@@ -703,11 +702,14 @@ class expected<ValueType, ErrorType>
     expected& and_then(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
 
 
-    template <typename ChainableType = ValueType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
-    const expected& and_then(const cxx::function_ref<void(typename flatten<ChainableType>::type &)>& callable) const noexcept;
+    template <typename ChainableType = ValueType,
+              typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
+    const expected& and_then(const cxx::function_ref<void(typename flatten<ChainableType>::type&)>& callable) const
+        noexcept;
 
-    template <typename ChainableType = ValueType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
-    expected& and_then(const cxx::function_ref<void(typename flatten<ChainableType>::type &)>& callable) noexcept;
+    template <typename ChainableType = ValueType,
+              typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
+    expected& and_then(const cxx::function_ref<void(typename flatten<ChainableType>::type&)>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -744,7 +746,8 @@ class expected<ValueType, ErrorType>
     ///         })
     /// @endcode
     ///
-    template <typename OptionalType = ValueType, typename std::enable_if<is_optional<OptionalType>::value, int>::type = 0>
+    template <typename OptionalType = ValueType,
+              typename std::enable_if<is_optional<OptionalType>::value, int>::type = 0>
     const expected& if_empty(const cxx::function_ref<void()>& callable) const noexcept;
 
     ///
@@ -760,7 +763,8 @@ class expected<ValueType, ErrorType>
     ///         })
     /// @endcode
     ///
-    template <typename OptionalType = ValueType, typename std::enable_if<is_optional<OptionalType>::value, int>::type = 0>
+    template <typename OptionalType = ValueType,
+              typename std::enable_if<is_optional<OptionalType>::value, int>::type = 0>
     expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
 
     optional<ValueType> to_optional() const noexcept;

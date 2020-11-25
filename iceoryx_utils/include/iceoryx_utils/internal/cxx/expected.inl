@@ -389,22 +389,21 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(ValueType&
 
 template <typename ValueType, typename ErrorType>
 template <typename ChainableType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type>
-inline const expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename flatten<ChainableType>::type &)>& callable) const
-    noexcept
+inline const expected<ValueType, ErrorType>& expected<ValueType, ErrorType>::and_then(
+    const cxx::function_ref<void(typename flatten<ChainableType>::type&)>& callable) const noexcept
 {
     return const_cast<expected*>(this)->and_then(callable);
 }
 
 template <typename ValueType, typename ErrorType>
 template <typename ChainableType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type>
-inline expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename flatten<ChainableType>::type &)>& callable) noexcept
+inline expected<ValueType, ErrorType>& expected<ValueType, ErrorType>::and_then(
+    const cxx::function_ref<void(typename flatten<ChainableType>::type&)>& callable) noexcept
 {
     if (!this->has_error())
     {
         // Pass the callback to the next functional type to handle.
-        get_value().and_then(callable);
+        value().and_then(callable);
     }
 
     return *this;
@@ -425,8 +424,8 @@ expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& ca
 {
     if (!this->has_error())
     {
-        // Optional will execute given callable when empty.
-        auto& optional = get_value();
+        // Optional will execute the provided callable when empty.
+        auto& optional = value();
         optional.or_else(callable);
     }
 

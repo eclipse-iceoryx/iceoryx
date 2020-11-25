@@ -14,8 +14,8 @@
 #ifndef IOX_UTILS_CXX_OPTIONAL_HPP
 #define IOX_UTILS_CXX_OPTIONAL_HPP
 
-#include "iceoryx_utils/cxx/type_traits.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/cxx/type_traits.hpp"
 #include "iceoryx_utils/cxx/types.hpp"
 
 #include <new> // needed for placement new in the construct_value member function
@@ -226,7 +226,8 @@ class optional
     optional& and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) noexcept;
 
     template <typename ChainableType = T, typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
-    const optional& and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) const noexcept;
+    const optional& and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) const
+        noexcept;
 
     /// @brief calls the provided callable if the optional does not contain a value
     /// @param[in] callable

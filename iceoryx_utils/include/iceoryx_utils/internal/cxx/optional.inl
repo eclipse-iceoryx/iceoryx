@@ -300,8 +300,7 @@ inline const optional<T>& optional<T>::and_then(const cxx::function_ref<void(con
 template <typename T>
 template <typename ChainableType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type>
 inline const optional<T>&
-optional<T>::and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) const
-    noexcept
+optional<T>::and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) const noexcept
 {
     return const_cast<optional*>(this)->and_then(callable);
 }
@@ -312,7 +311,7 @@ inline optional<T>&
 optional<T>::and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) noexcept
 {
     // Pass the callback to the enclosed chainable type (if one is present).
-    if(has_value())
+    if (has_value())
     {
         value().and_then(callable);
     }

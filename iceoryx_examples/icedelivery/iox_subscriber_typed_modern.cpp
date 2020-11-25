@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
 #include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
-#include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
@@ -36,24 +36,21 @@ static void sigHandler(int f_sig [[gnu::unused]])
 void subscriberHandler(iox::popo::WaitSet& waitSet)
 {
     // run until interrupted
-    while(!killswitch)
+    while (!killswitch)
     {
         auto triggeredConditions = waitSet.wait();
-        for(auto& condition : triggeredConditions)
+        for (auto& condition : triggeredConditions)
         {
             auto subscriber = dynamic_cast<iox::popo::TypedSubscriber<Position>*>(condition);
-            if(subscriber)
+            if (subscriber)
             {
                 subscriber->take()
-                        .and_then([](iox::popo::Sample<const Position>& position){
-                            std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
-                        })
-                        .if_empty([]{
-                            std::cout << "Didn't get a value, but do something anyway." << std::endl;
-                        })
-                        .or_else([](iox::popo::ChunkReceiveError){
-                            std::cout << "Error receiving chunk." << std::endl;
-                        });
+                    .and_then([](iox::popo::Sample<const Position>& position) {
+                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
+                                  << std::endl;
+                    })
+                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
             }
         }
     }

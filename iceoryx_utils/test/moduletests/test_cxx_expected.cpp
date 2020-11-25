@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "iceoryx_utils/cxx/expected.hpp"
-#include "iceoryx_utils/cxx/type_traits.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/cxx/type_traits.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -279,10 +279,10 @@ TEST_F(expected_test, ExpectedWithErrorConvertsToNullopt)
     ASSERT_THAT(value.has_value(), Eq(false));
 }
 
-template<typename T>
+template <typename T>
 class MockChainable
 {
-public:
+  public:
     using type = T;
     using inner_type = typename iox::cxx::flatten<T>::type;
     MockChainable() = default;
@@ -298,13 +298,13 @@ TEST_F(expected_test, IfChainableTypeThenDelegatesAndThenCallbackToNestedChainab
 {
     auto sut = expected<MockChainable<int>, float>::create_value();
 
-    sut.and_then([](int&){});
+    sut.and_then([](int&) {});
 
     ASSERT_THAT(iox::cxx::is_chainable<MockChainable<int>>::value, true);
-    ASSERT_THAT(sut.get_value().m_callbackWasExecuted, true);
+    ASSERT_THAT(sut.value().m_callbackWasExecuted, true);
 }
 
-//TEST_F(expected_test, AndThenNotCalledWhenEmptyOptionalValue)
+// TEST_F(expected_test, AndThenNotCalledWhenEmptyOptionalValue)
 //{
 //    auto sut = expected<iox::cxx::optional<int>, float>::create_value(iox::cxx::nullopt);
 //    MockCallables mocks{};
@@ -313,7 +313,7 @@ TEST_F(expected_test, IfChainableTypeThenDelegatesAndThenCallbackToNestedChainab
 //    sut.and_then([&mocks](int&) { mocks.onSuccess(); });
 //}
 
-//TEST_F(expected_test, IfEmptyCalledWhenEmptyOptionalValue)
+// TEST_F(expected_test, IfEmptyCalledWhenEmptyOptionalValue)
 //{
 //    auto sut = expected<iox::cxx::optional<int>, float>::create_value(iox::cxx::nullopt);
 //    MockCallables mocks{};
@@ -322,7 +322,7 @@ TEST_F(expected_test, IfChainableTypeThenDelegatesAndThenCallbackToNestedChainab
 //    sut.if_empty([&mocks]() { mocks.onEmpty(); });
 //}
 
-//TEST_F(expected_test, IfEmptyNotCalledWhenValueTypeIsNonEmptyOptionalValue)
+// TEST_F(expected_test, IfEmptyNotCalledWhenValueTypeIsNonEmptyOptionalValue)
 //{
 //    auto sut = expected<iox::cxx::optional<int>, float>::create_value(123);
 //    MockCallables mocks{};
@@ -331,7 +331,7 @@ TEST_F(expected_test, IfChainableTypeThenDelegatesAndThenCallbackToNestedChainab
 //    sut.if_empty([&mocks]() { mocks.onEmpty(); });
 //}
 
-//TEST_F(expected_test, IfEmptyNotCalledWhenErrorOccurs)
+// TEST_F(expected_test, IfEmptyNotCalledWhenErrorOccurs)
 //{
 //    auto sut = expected<iox::cxx::optional<int>, float>::create_error(42.42);
 //    MockCallables mocks{};

@@ -21,38 +21,48 @@ namespace iox
 {
 namespace cxx
 {
-
 template <typename SignatureType>
 class function_ref;
 
 ///
 /// @brief Identifies structs as being "optional" by the presence of an "if_empty" method.
 ///
-template<typename T, typename = void>
-struct is_optional : std::false_type { };
+template <typename T, typename = void>
+struct is_optional : std::false_type
+{
+};
 template <typename T>
-struct is_optional<T, std::void_t<decltype(std::declval<T>().has_value())>> : std::true_type { };
+struct is_optional<T, std::void_t<decltype(std::declval<T>().has_value())>> : std::true_type
+{
+};
 
 ///
 /// @brief Identifies structs as being "chainable" by the presence of an "and_then" method.
 ///
 template <typename, typename = void>
-struct is_chainable : std::false_type { };
+struct is_chainable : std::false_type
+{
+};
 template <typename T>
 struct is_chainable<T,
-        std::void_t<decltype(static_cast<T& (T::*)(const cxx::function_ref<void(typename T::inner_type&)>&)>(&T::and_then))>
-    > : std::true_type { };
+                    std::void_t<decltype(
+                        static_cast<T& (T::*)(const cxx::function_ref<void(typename T::inner_type&)>&)>(&T::and_then))>>
+    : std::true_type
+{
+};
 
 ///
 /// @brief Determines the underlying type of a functional chain.
 ///
-template<typename T, typename = void>
-struct flatten {
-  using type = T;
+template <typename T, typename = void>
+struct flatten
+{
+    using type = T;
 };
-template<template<typename, typename...> class T, typename FirstArg, typename... OtherArgs>
-struct flatten<T<FirstArg, OtherArgs...>, typename std::enable_if<is_chainable<T<FirstArg, OtherArgs...>>::value>::type> {
-  using type = typename flatten<FirstArg>::type;
+template <template <typename, typename...> class T, typename FirstArg, typename... OtherArgs>
+struct flatten<T<FirstArg, OtherArgs...>, typename std::enable_if<is_chainable<T<FirstArg, OtherArgs...>>::value>::type>
+{
+    using type = typename flatten<FirstArg>::type;
 };
 
 ///
