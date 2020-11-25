@@ -71,8 +71,8 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @brief Creates a function_ref with a callable whose lifetime has to be longer than function_ref
     /// @param[in] callable that is not a function_ref
     template <typename CallableType,
-              typename = enable_if_t<not_same<CallableType, function_ref>::value>,
-              typename = enable_if_t<is_invocable<CallableType, ArgTypes...>::value>>
+              typename = std::enable_if_t<not_same<CallableType, function_ref>::value>,
+              typename = std::enable_if_t<is_invocable<CallableType, ArgTypes...>::value>>
     function_ref(CallableType&& callable) noexcept;
 
     function_ref(function_ref&& rhs) noexcept;

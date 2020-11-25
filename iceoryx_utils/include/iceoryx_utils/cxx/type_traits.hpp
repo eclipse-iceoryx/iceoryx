@@ -64,13 +64,6 @@ struct has_signature<Callable,
 };
 
 ///
-/// @brief enable_if helper type
-/// @note Remove once switched to C++14
-///
-template <bool B, class T = void>
-using enable_if_t = typename std::enable_if<B, T>::type;
-
-///
 /// @brief Negation of is_same
 ///
 template <typename T1, typename T2>

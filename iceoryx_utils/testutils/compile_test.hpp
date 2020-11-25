@@ -66,7 +66,7 @@ class CompileTest
     std::string m_codePrefix;
     std::string m_compilerPath = "/usr/bin/g++";
     std::string m_includePaths;
-    std::string m_compilerArguments = " -std=c++11 -xc++ - -o /tmp/funkyDoodle";
+    std::string m_compilerArguments = " -std=c++14 -xc++ - -o /tmp/funkyDoodle";
 
     std::string m_embeddedFunctionPre = "void UnitTestFunction() {";
     std::string m_embeddedFunctionPost = "}; int main() { UnitTestFunction(); }";

@@ -95,13 +95,13 @@ class PortPool
                       const ProcessName_t& applicationName,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
+    template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
                                                        const uint64_t& historyRequest,
                                                        const ProcessName_t& applicationName,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
-    template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
+    template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
                                                        const uint64_t& historyRequest,
                                                        const ProcessName_t& applicationName,

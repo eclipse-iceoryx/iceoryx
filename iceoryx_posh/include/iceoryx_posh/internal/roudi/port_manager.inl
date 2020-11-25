@@ -18,7 +18,7 @@ namespace iox
 {
 namespace roudi
 {
-template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
+template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
 inline cxx::optional<ProcessName_t>
 PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service) const noexcept
 {
@@ -34,7 +34,7 @@ PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& ser
     return cxx::nullopt;
 }
 
-template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
+template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
 inline cxx::optional<ProcessName_t> PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service
                                                                                 [[gnu::unused]]) const noexcept
 {
