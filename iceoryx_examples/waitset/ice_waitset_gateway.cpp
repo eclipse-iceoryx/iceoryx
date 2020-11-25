@@ -42,18 +42,22 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
     });
 }
 
-void receiving()
+int main()
 {
+    signal(SIGINT, sigHandler);
+
     iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
+
+
     iox::popo::WaitSet waitset;
 
     // attach shutdownGuard to handle CTRL+C
     shutdownGuard.attachToWaitset(waitset);
 
-    iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
 
     // create subscriber and subscribe them to our service
-    for (auto i = 0; i < 2; ++i)
+    iox::cxx::vector<iox::popo::UntypedSubscriber, 2> subscriberVector;
+    for (auto i = 0; i < subscriberVector.capacity(); ++i)
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
@@ -72,7 +76,7 @@ void receiving()
             if (trigger.doesOriginateFrom(&shutdownGuard))
             {
                 // CTRL+c was pressed -> exit
-                return;
+                return (EXIT_SUCCESS);
             }
             else
             {
@@ -83,14 +87,6 @@ void receiving()
 
         std::cout << std::endl;
     }
-}
-
-int main()
-{
-    signal(SIGINT, sigHandler);
-
-    std::thread rx(receiving);
-    rx.join();
 
     return (EXIT_SUCCESS);
 }
