@@ -504,22 +504,27 @@ class PoshRuntimeTestAccess : public PoshRuntime
         : PoshRuntime(s)
     {
     }
+
+    static PoshRuntimeTestAccess*& getTestRuntime()
+    {
+        static PoshRuntimeTestAccess* testRuntime = nullptr;
+        return testRuntime;
+    }
 };
+
+namespace
+{
+bool callbackWasCalled = false;
+PoshRuntime& testFactory(const iox::ProcessName_t&)
+{
+    callbackWasCalled = true;
+    return *PoshRuntimeTestAccess::getTestRuntime();
+}
+} // namespace
 
 TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
 {
-    bool callbackWasCalled = false;
-    iox::cxx::optional<PoshRuntimeTestAccess> runtime;
-    PoshRuntimeTestAccess::factory_t factory = [&](const iox::ProcessName_t& name) -> PoshRuntime& {
-        callbackWasCalled = true;
-        if (!runtime.has_value())
-        {
-            runtime.emplace(name);
-        }
-        return runtime.value();
-    };
-
-    PoshRuntimeTestAccess::setRuntimeFactory(factory);
+    PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
     PoshRuntimeTestAccess::getInstance("/instance");
 
     EXPECT_TRUE(callbackWasCalled);

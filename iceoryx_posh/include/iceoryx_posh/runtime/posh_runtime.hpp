@@ -166,7 +166,7 @@ class PoshRuntime
     friend class roudi::RuntimeTestInterface;
 
   protected:
-    using factory_t = std::function<PoshRuntime&(const ProcessName_t&)>;
+    using factory_t = PoshRuntime& (*)(const ProcessName_t&);
 
     // Protected constructor for IPC setup
     PoshRuntime(const ProcessName_t& name, const bool doMapSharedMemoryIntoThread = true) noexcept;
