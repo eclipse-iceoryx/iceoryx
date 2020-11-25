@@ -29,15 +29,15 @@ namespace
 // use a non-POD type for testing (just a boxed version of int)
 struct Integer
 {
-    Integer(int value = 0)
+    Integer(uint64_t value = 0)
         : value(value)
     {
     }
 
-    int value{0};
+    uint64_t value{0};
 
     // so that it behaves like an int for comparison purposes
-    operator int() const
+    operator uint64_t() const
     {
         return value;
     }
@@ -65,7 +65,7 @@ class ResizeableLockFreeQueueTest : public ::testing::Test
 
     void fillQueue(int start = 0)
     {
-        int element{start};
+        uint64_t element{start};
         for (uint64_t i = 0; i < queue.capacity(); ++i)
         {
             queue.tryPush(element);
@@ -81,7 +81,7 @@ template <size_t Capacity>
 using IntegerQueue = iox::concurrent::ResizeableLockFreeQueue<Integer, Capacity>;
 
 template <size_t Capacity>
-using IntQueue = iox::concurrent::ResizeableLockFreeQueue<int, Capacity>;
+using IntQueue = iox::concurrent::ResizeableLockFreeQueue<uint64_t, Capacity>;
 
 typedef ::testing::Types<IntegerQueue<1>, IntegerQueue<10>, IntQueue<10>> TestQueues;
 
@@ -198,7 +198,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillIt)
     EXPECT_EQ(q.setCapacity(newCap), true);
     EXPECT_EQ(q.capacity(), newCap);
 
-    int element = 0;
+    uint64_t element = 0;
     while (q.tryPush(element++))
         ;
 
@@ -215,7 +215,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCap
     EXPECT_EQ(q.setCapacity(cap), true);
     EXPECT_EQ(q.capacity(), cap);
 
-    int element = 0;
+    uint64_t element = 0;
     while (q.tryPush(element++))
         ;
 
@@ -232,7 +232,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCap
         ;
 
     // we want to find all elements we pushed
-    for (uint64_t c = 0; c < MAX_CAP; ++c, ++element)
+    for (element = 0; element < MAX_CAP; ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
@@ -246,7 +246,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacit
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
     uint64_t cap = MAX_CAP / 2;
 
-    int element = 0;
+    uint64_t element = 0;
     while (q.tryPush(element++))
         ;
     EXPECT_EQ(q.capacity(), MAX_CAP);
@@ -261,7 +261,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacit
         return;
     }
     // the least recent values are removed due to the capacity being decreased
-    for (uint64_t c = cap; c < MAX_CAP; ++c, ++element)
+    for (element = cap; element < MAX_CAP; ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
@@ -283,7 +283,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
     EXPECT_TRUE(q.setCapacity(cap));
     EXPECT_EQ(q.capacity(), cap);
 
-    int element = 0;
+    uint64_t element = 0;
     while (q.tryPush(element++))
         ;
 
@@ -313,7 +313,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
     }
 
     // are the remaining elements correct? (i.e. we did not remove too many elements)
-    for (uint64_t c = cap - cap3; c < cap; ++c, ++element)
+    for (element = cap - cap3; element < cap; ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
@@ -326,7 +326,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
     while (q.tryPush(element++))
         ;
 
-    for (uint64_t c = 0; c < cap3; ++c, ++element)
+    for (element = 0; element < cap3; ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
@@ -348,7 +348,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueW
     EXPECT_TRUE(q.setCapacity(cap));
     EXPECT_EQ(q.capacity(), cap);
 
-    int element = 0;
+    uint64_t element = 0;
     while (q.tryPush(element++))
         ;
 
@@ -378,7 +378,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueW
     }
 
     // are the remaining elements correct? (i.e. we did not remove too many elements)
-    for (uint64_t c = cap - cap3; c < cap; ++c, ++element)
+    for (element = cap - cap3; element < cap; ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
@@ -391,7 +391,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueW
     while (q.tryPush(element++))
         ;
 
-    for (uint64_t c = 0; c < cap3; ++c, ++element)
+    for (element = 0; element < cap3; ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
