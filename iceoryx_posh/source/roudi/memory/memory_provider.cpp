@@ -81,7 +81,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
         return memoryResult;
     }
 
-    m_memory = memoryResult.get_value();
+    m_memory = memoryResult.value();
     m_size = totalSize;
     m_segmentId = RelativePointer::registerPtr(m_memory, m_size);
 

@@ -559,8 +559,8 @@ void ProcessManager::addRunnableForProcess(const ProcessName_t& processName,
     if (nullptr != process)
     {
         runtime::RunnableData* runnable =
-            m_portManager.acquireRunnableData(cxx::string<100>(cxx::TruncateToCapacity, processName),
-                                              cxx::string<100>(cxx::TruncateToCapacity, runnableName));
+            m_portManager.acquireRunnableData(ProcessName_t(cxx::TruncateToCapacity, processName),
+                                              RunnableName_t(cxx::TruncateToCapacity, runnableName));
 
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, runnable);
 
@@ -569,8 +569,8 @@ void ProcessManager::addRunnableForProcess(const ProcessName_t& processName,
                    << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
 
         process->sendToMQ(sendBuffer);
-        m_processIntrospection->addRunnable(cxx::string<100>(cxx::TruncateToCapacity, processName.c_str()),
-                                            cxx::string<100>(cxx::TruncateToCapacity, runnableName.c_str()));
+        m_processIntrospection->addRunnable(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
+                                            RunnableName_t(cxx::TruncateToCapacity, runnableName.c_str()));
         LogDebug() << "Created new runnable " << runnableName << " for application " << processName;
     }
     else
@@ -651,7 +651,7 @@ void ProcessManager::addSenderForProcess(const ProcessName_t& name,
         if (!maybeSender.has_error())
         {
             // send SenderPort to app as a serialized relative pointer
-            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSender.get_value());
+            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSender.value());
 
             runtime::MqMessage sendBuffer;
             sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_SENDER_ACK)
@@ -696,7 +696,7 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
         if (!maybeSubscriber.has_error())
         {
             // send SubscriberPort to app as a serialized relative pointer
-            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSubscriber.get_value());
+            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybeSubscriber.value());
 
             runtime::MqMessage sendBuffer;
             sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_SUBSCRIBER_ACK)
@@ -738,7 +738,7 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
         if (!maybePublisher.has_error())
         {
             // send PublisherPort to app as a serialized relative pointer
-            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybePublisher.get_value());
+            auto offset = RelativePointer::getOffset(m_mgmtSegmentId, maybePublisher.value());
 
             runtime::MqMessage sendBuffer;
             sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_PUBLISHER_ACK)
@@ -821,7 +821,7 @@ SenderPortType ProcessManager::addIntrospectionSenderPort(const capro::ServiceDe
     std::lock_guard<std::mutex> g(m_mutex);
 
     return SenderPortType(
-        m_portManager.acquireSenderPortData(service, process_name, m_introspectionMemoryManager).get_value());
+        m_portManager.acquireSenderPortData(service, process_name, m_introspectionMemoryManager).value());
 }
 
 RouDiProcess* ProcessManager::getProcessFromList(const ProcessName_t& name) noexcept

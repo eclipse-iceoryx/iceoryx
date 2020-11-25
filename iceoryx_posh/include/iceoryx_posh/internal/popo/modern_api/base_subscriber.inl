@@ -89,7 +89,7 @@ inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubs
     }
     else
     {
-        auto optionalHeader = result.get_value();
+        auto optionalHeader = result.value();
         if (optionalHeader.has_value())
         {
             auto header = optionalHeader.value();

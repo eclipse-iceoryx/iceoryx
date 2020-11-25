@@ -54,7 +54,7 @@ endif()
 
 # unittests
 add_executable(${PROJECT_PREFIX}_integrationtests ${MODULETESTS_SRC})
-set_property(TARGET ${PROJECT_PREFIX}_integrationtests PROPERTY CXX_STANDARD 11)
+set_property(TARGET ${PROJECT_PREFIX}_integrationtests PROPERTY CXX_STANDARD ${ICEORYX_CXX_STANDARD})
 target_include_directories(${PROJECT_PREFIX}_integrationtests PRIVATE .)
 target_compile_options(${PROJECT_PREFIX}_integrationtests PUBLIC -fPIC PRIVATE ${TEST_CXX_FLAGS})
 target_link_libraries(${PROJECT_PREFIX}_integrationtests ${TEST_LINK_LIBS})
