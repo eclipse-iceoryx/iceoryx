@@ -151,7 +151,9 @@ void callOnActivate(MyTriggerClass* const triggerClassPtr)
     std::cout << "activated with code: " << triggerClassPtr->getActivationCode() << std::endl;
 }
 
-void backgroundThread()
+// The global event loop. It will create an infinite loop and
+// will work on the incoming events.
+void eventLoop()
 {
     while (true)
     {
@@ -160,13 +162,17 @@ void backgroundThread()
         {
             if (triggerState.getTriggerId() == ACTIVATE_ID)
             {
-                triggerState();
+                // reset MyTriggerClass instance state
                 triggerState.getOrigin<MyTriggerClass>()->reset();
+                // call the callback attached to the trigger
+                triggerState();
             }
             else if (triggerState.getTriggerId() == ACTION_ID)
             {
-                triggerState();
+                // reset MyTriggerClass instance state
                 triggerState.getOrigin<MyTriggerClass>()->reset();
+                // call the callback attached to the trigger
+                triggerState();
             }
         }
     }
@@ -176,14 +182,20 @@ int main()
 {
     iox::runtime::PoshRuntime::getInstance("/iox-ex-waitset-trigger");
 
+    // we create a waitset and a triggerClass instance inside of the two
+    // global optional's
     waitset.emplace();
     triggerClass.emplace();
 
+    // attach both events to a waitset and assign a callback
     triggerClass->attachToWaitset(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
     triggerClass->attachToWaitset(
         *waitset, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
 
-    std::thread t(backgroundThread);
+    // start the event loop which is handling the events
+    std::thread eventLoopThread(eventLoop);
+
+    // start a thread which will trigger a event every second
     std::thread triggerThread([&] {
         int activationCode = 1;
         while (true)
@@ -196,6 +208,6 @@ int main()
     });
 
     triggerThread.join();
-    t.join();
+    eventLoopThread.join();
     return (EXIT_SUCCESS);
 }

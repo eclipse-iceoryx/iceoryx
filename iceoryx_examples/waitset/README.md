@@ -196,6 +196,7 @@ while (true)
 {
     auto triggerVector = waitset.wait();
 
+:W
     for (auto& trigger : triggerVector)
     {
         if (trigger.doesOriginateFrom(&shutdownGuard))
@@ -363,6 +364,8 @@ can be attached to a _WaitSet_. Our class in this example we be called
 The `PERFORMED_ACTION` event which is triggered whenever someone calls and
 `ACTIVATE` which is triggered when `activate` is called with an `activationCode`.
 
+#### MyTriggerClass
+
 The class implementation of these two methods could like the following.
 ```cpp
 class MyTriggerClass
@@ -453,3 +456,84 @@ for the trigger.
         }
 ```
 
+The next thing on our checklist is the `unsetTrigger` method used by the WaitSet
+to reset the _Trigger_ when it goes out of scope. Therefore we look up the
+correct trigger first by calling `isLogicalEqualTo` and then `reset` it.
+```cpp
+    void unsetTrigger(const iox::popo::Trigger& trigger)
+    {
+        if (trigger.isLogicalEqualTo(m_actionTrigger))
+        {
+            m_actionTrigger.reset();
+        }
+        else if (trigger.isLogicalEqualTo(m_activateTrigger))
+        {
+            m_activateTrigger.reset();
+        }
+    }
+```
+
+#### Using MyTriggerClass
+
+The next thing we define is a free function, our `eventLoop`, which will handle
+all events of our waitset. The action is for every trigger the same, resetting
+the `MyTriggerClass` instance and call the callback which is attached to the
+trigger.
+```cpp
+void eventLoop()
+{
+    while (true)
+    {
+        auto triggerStateVector = waitset->wait();
+        for (auto& triggerState : triggerStateVector)
+        {
+            if (triggerState.getTriggerId() == ACTIVATE_ID)
+            {
+                triggerState.getOrigin<MyTriggerClass>()->reset();
+                triggerState();
+            }
+            else if (triggerState.getTriggerId() == ACTION_ID)
+            {
+                triggerState.getOrigin<MyTriggerClass>()->reset();
+                triggerState();
+            }
+        }
+    }
+}
+```
+
+We start like in every other example by creating the `waitset` first. In this
+case the `waitset` and the `triggerClass` are stored inside of two global
+`optional`'s and have to be created with an `emplace` call.
+```cpp
+waitset.emplace();
+triggerClass.emplace();
+```
+
+After that we can attach both `triggerClass` events to the waitset and provide
+also a callback for them.
+```cpp
+    triggerClass->attachToWaitset(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
+    triggerClass->attachToWaitset(
+        *waitset, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
+```
+
+Now that everything is set up we can start our `eventLoop` in a new thread.
+```cpp
+    std::thread eventLoopThread(eventLoop);
+```
+
+A thread which will trigger an event every second is started with the following 
+lines.
+```cpp
+    std::thread triggerThread([&] {
+        int activationCode = 1;
+        while (true)
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            triggerClass->activate(activationCode++);
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            triggerClass->performAction();
+        }
+    });
+```
