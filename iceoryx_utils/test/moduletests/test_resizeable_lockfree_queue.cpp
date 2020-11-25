@@ -232,7 +232,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCap
         ;
 
     // we want to find all elements we pushed
-    for (element = 0; element < MAX_CAP; ++element)
+    for (uint64_t c = 0; c < MAX_CAP; ++c, ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
@@ -261,7 +261,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacit
         return;
     }
     // the least recent values are removed due to the capacity being decreased
-    for (element = cap; element < MAX_CAP; ++element)
+    for (uint64_t c = cap; c < MAX_CAP; ++c, ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
@@ -313,7 +313,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
     }
 
     // are the remaining elements correct? (i.e. we did not remove too many elements)
-    for (element = cap - cap3; element < cap; ++element)
+    for (uint64_t c = cap - cap3; c < cap; ++c, ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
@@ -326,7 +326,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
     while (q.tryPush(element++))
         ;
 
-    for (element = 0; element < cap3; ++element)
+    for (uint64_t c = 0; c < cap3; ++c, ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
@@ -378,7 +378,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueW
     }
 
     // are the remaining elements correct? (i.e. we did not remove too many elements)
-    for (element = cap - cap3; element < cap; ++element)
+    for (uint64_t c = cap - cap3; c < cap; ++c, ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
@@ -391,7 +391,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueW
     while (q.tryPush(element++))
         ;
 
-    for (element = 0; element < cap3; ++element)
+    for (uint64_t c = 0; c < cap3; ++c, ++element)
     {
         auto result = q.pop();
         ASSERT_TRUE(result.has_value());
