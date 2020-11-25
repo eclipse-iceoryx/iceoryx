@@ -1,5 +1,7 @@
 # WaitSet
 
+- important: waitset is state based
+
 ## Glossary
 
  - **Listener** a class which can be triggered by a _Trigger_, for instance a _WaitSet_.
@@ -42,6 +44,7 @@
 |get id of trigger|`trigger.getTriggerId()`|
 |call triggerCallback|`trigger()`|
 |acquire _TriggerOrigin|`trigger.getOrigin<OriginType>();`|
+|check if 2 trigger are logical equal|`trigger.isLogicalEqualTo(anotherTrigger)`|
 
 ## Use cases
 This example consists of 5 use cases.
@@ -352,3 +355,101 @@ The `cyclicTrigger` callback is called in the else part.
             trigger();
         }
 ```
+
+### Trigger
+In this example we describe how you would implement a _Triggerable_ class which 
+can be attached to a _WaitSet_. Our class in this example we be called 
+`MyTriggerClass` and it signals the _WaitSet_ two events. 
+The `PERFORMED_ACTION` event which is triggered whenever someone calls and
+`ACTIVATE` which is triggered when `activate` is called with an `activationCode`.
+
+The class implementation of these two methods could like the following.
+```cpp
+class MyTriggerClass
+{
+  public:
+    void activate(const int activationCode) noexcept
+    {
+        m_activationCode = activationCode;
+        m_isActivated = true;
+        m_activateTrigger.trigger();
+    }
+
+    void performAction() noexcept
+    {
+        m_hasPerformedAction = true;
+        m_actionTrigger.trigger();
+    }
+```
+
+As you can see we perform some internal action and when they are finished we
+signal the corresponding _Trigger_ that we performed the task. Internally we
+just set a boolean to signal that the method was called.
+
+Every _Trigger_ requires a corresponding class method which returns a boolean
+stating if the _Trigger_ was actually triggered or not. In our case these are
+the two const methods `hasPerformedAction` and `isActivated`.
+```cpp
+    bool hasPerformedAction() const noexcept
+    {
+        return m_hasPerformedAction;
+    }
+
+    bool isActivated() const noexcept
+    {
+        return m_isActivated;
+    }
+```
+
+The method `attachToWaitset` attaches our class to a WaitSet but the user has
+to specify which event they would like to attach. Additionally, they can
+set a `triggerId` and a `callback`.
+
+If the parameter event was set to `PERFORMED_ACTION` we call `acquireTrigger`
+on the waitset which will return an `cxx::expected`. The following parameters
+have to be provided.
+ 
+ 1. The origin of the trigger, e.g. `this`
+ 2. A method of which can be called by the trigger to ask if it was triggered.
+ 3. A method which resets the trigger. Used when the WaitSet goes out of scope. 
+ 4. The id of the trigger.
+ 5. A callback with the signature `void (MyTriggerClass * )`.
+ 
+```cpp
+    iox::cxx::expected<iox::popo::WaitSetError>
+    attachToWaitset(iox::popo::WaitSet& waitset,
+                    const MyTriggerClassEvents event,
+                    const uint64_t triggerId,
+                    const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
+    {
+        switch (event)
+        {
+        case MyTriggerClassEvents::PERFORMED_ACTION:
+        {
+            return waitset
+                .acquireTrigger(this,
+                                {this, &MyTriggerClass::hasPerformedAction},
+                                {this, &MyTriggerClass::unsetTrigger},
+                                triggerId,
+                                callback)
+                .and_then([this](iox::popo::Trigger& trigger) { 
+                    m_actionTrigger = std::move(trigger); });
+        }
+```
+
+When the parameter event has the value `ACTIVATE` we use the `isActivated` method
+for the trigger.
+```cpp
+        case MyTriggerClassEvents::ACTIVATE:
+        {
+            return waitset
+                .acquireTrigger(this,
+                                {this, &MyTriggerClass::isActivated},
+                                {this, &MyTriggerClass::unsetTrigger},
+                                triggerId,
+                                callback)
+                .and_then([this](iox::popo::Trigger& trigger) { 
+                    m_activateTrigger = std::move(trigger); });
+        }
+```
+

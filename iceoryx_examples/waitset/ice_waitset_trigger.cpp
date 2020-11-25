@@ -19,15 +19,19 @@
 #include <iostream>
 #include <thread>
 
+// The two events the MyTriggerClass offers
 enum class MyTriggerClassEvents
 {
     PERFORMED_ACTION,
     ACTIVATE
 };
 
+// Triggerable class which has two events an both events can be
+// attached to a WaitSet.
 class MyTriggerClass
 {
   public:
+    // When you call this method you will trigger the ACTIVATE event
     void activate(const int activationCode) noexcept
     {
         m_activationCode = activationCode;
@@ -35,7 +39,8 @@ class MyTriggerClass
         m_activateTrigger.trigger();
     }
 
-    void performAcion() noexcept
+    // Calling this method will trigger the PERFORMED_ACTION event
+    void performAction() noexcept
     {
         m_hasPerformedAction = true;
         m_actionTrigger.trigger();
@@ -46,22 +51,28 @@ class MyTriggerClass
         return m_activationCode;
     }
 
+    // required by the m_actionTrigger to ask the class if it was triggered
     bool hasPerformedAction() const noexcept
     {
         return m_hasPerformedAction;
     }
 
+    // required by the m_activateTrigger to ask the class if it was triggered
     bool isActivated() const noexcept
     {
         return m_isActivated;
     }
 
+    // reset PERFORMED_ACTION and ACTIVATE event
     void reset() noexcept
     {
         m_hasPerformedAction = false;
         m_isActivated = false;
     }
 
+    // This method attaches an event of the class to a waitset.
+    // The event is choosen by the event parameter. Additionally, you can
+    // set a triggerId to group multiple instances and a custom callback.
     iox::cxx::expected<iox::popo::WaitSetError>
     attachToWaitset(iox::popo::WaitSet& waitset,
                     const MyTriggerClassEvents event,
@@ -74,20 +85,26 @@ class MyTriggerClass
         {
             return waitset
                 .acquireTrigger(this,
+                                // trigger calls this method to ask if it was triggered
                                 {this, &MyTriggerClass::hasPerformedAction},
+                                // method which will be called when the waitset goes out of scope
                                 {this, &MyTriggerClass::unsetTrigger},
                                 triggerId,
                                 callback)
+                // assigning the acquired trigger from the waitset to m_actionTrigger
                 .and_then([this](iox::popo::Trigger& trigger) { m_actionTrigger = std::move(trigger); });
         }
         case MyTriggerClassEvents::ACTIVATE:
         {
             return waitset
                 .acquireTrigger(this,
+                                // trigger calls this method to ask if it was triggered
                                 {this, &MyTriggerClass::isActivated},
+                                // method which will be called when the waitset goes out of scope
                                 {this, &MyTriggerClass::unsetTrigger},
                                 triggerId,
                                 callback)
+                // assigning the acquired trigger from the waitset to m_activateTrigger
                 .and_then([this](iox::popo::Trigger& trigger) { m_activateTrigger = std::move(trigger); });
         }
         }
@@ -95,6 +112,8 @@ class MyTriggerClass
         return iox::cxx::success<>();
     }
 
+    // we offer the waitset a method to invalidate trigger if it goes
+    // out of scope
     void unsetTrigger(const iox::popo::Trigger& trigger)
     {
         if (trigger.isLogicalEqual(m_actionTrigger))
@@ -172,7 +191,7 @@ int main()
             std::this_thread::sleep_for(std::chrono::seconds(1));
             triggerClass->activate(activationCode++);
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            triggerClass->performAcion();
+            triggerClass->performAction();
         }
     });
 
