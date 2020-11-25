@@ -23,7 +23,6 @@
 #include <iostream>
 
 iox::popo::UserTrigger shutdownGuard;
-using Subscriber = iox::popo::UntypedSubscriber;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
@@ -46,7 +45,7 @@ int main()
 {
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
+    iox::runtime::PoshRuntime::getInstance("/iox-ex-waitset-gateway");
 
 
     iox::popo::WaitSet waitset;
@@ -66,7 +65,7 @@ int main()
         subscriber.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1, subscriberCallback);
     }
 
-    // our eventloop
+    // event loop
     while (true)
     {
         auto triggerVector = waitset.wait();

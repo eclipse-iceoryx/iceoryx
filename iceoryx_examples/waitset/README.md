@@ -26,6 +26,19 @@
      the user. If a _WaitSet_ goes out of scope all attached _Triggers_ will be
      invalidated.
 
+## Reference
+
+| task | call |
+|:-----|:-----|
+|attach subscriber to waitset (simple)|`mySubscriber.attachToWaitset(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
+|attach subscriber to waitset (full)|`mySubscriber.attachToWaitset(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someTriggerId, myCallback);`|
+|wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
+|wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
+|check if trigger originated from some class|`trigger.doesOriginateFrom(ptrToSomeClass)`|
+|get id of trigger|`trigger.getTriggerId()`|
+|call triggerCallback|`trigger()`|
+|acquire _TriggerOrigin|`trigger.getOrigin<OriginType>();`|
+
 ## Use cases
 This example consists of 5 use cases.
  
@@ -85,8 +98,8 @@ shutdownGuard.attachToWaitset(waitset);
 ```
 
 After that we create a vector of 2 subscribers, subscribe and attach them to a
-_WaitSet_ with the event `HAS_NEW_SAMPLES`. Everytime one of the subscribers is
-receiving a new sample it will trigger the _WaitSet_.
+_WaitSet_ with the event `HAS_NEW_SAMPLES` and the `subscriberCallback`. Everytime one 
+of the subscribers is receiving a new sample it will trigger the _WaitSet_.
 ```cpp
 iox::cxx::vector<iox::popo::UntypedSubscriber, 2> subscriberVector;
 for (auto i = 0; i < subscriberVector.capacity(); ++i)
@@ -126,4 +139,80 @@ while (true)
             trigger();
         }
 // .... 
+```
+
+### Grouping
+In our next use case we would like to divide the subscribers into two groups
+and we do not want to attach a callback to them. Instead we perform the calls on the
+subscribers directly.
+
+We again start by creating a _WaitSet_ and attach the `shutdownGuard` to handle
+`CTRL+c`.
+```cpp
+iox::popo::WaitSet waitset;
+
+shutdownGuard.attachToWaitset(waitset);
+```
+
+Now we create a vector of 4 subscribers and subscribe them to our service.
+```cpp
+iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
+for (auto i = 0; i < 4; ++i)
+{
+    subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
+    auto& subscriber = subscriberVector.back();
+
+    subscriber.subscribe();
+}
+```
+
+After that we define our two groups with the ids `FIRST_GROUP_ID` and `SECOND_GROUP_ID`
+and attach the first two subscribers to the first group and the remaining subscribers
+to the second group.
+```cpp
+for (auto i = 0; i < 2; ++i)
+{
+    subscriberVector[i].attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
+}
+
+for (auto i = 2; i < 4; ++i)
+{
+    subscriberVector[i].attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
+}
+```
+
+The event loop calls `auto triggerVector = waitset.wait()` in a blocking call to
+receive a vector of all the _Triggers_ which were triggered. If the _Trigger_
+did originate from the `shutdownGuard` we terminate the program.
+```cpp
+while (true)
+{
+    auto triggerVector = waitset.wait();
+
+    for (auto& trigger : triggerVector)
+    {
+        if (trigger.doesOriginateFrom(&shutdownGuard))
+        {
+            return (EXIT_SUCCESS);
+        }
+```
+
+The remaining part of the loop is handling the subscribers. For the first group
+we would like to print the received data to the console and for the second group
+we just dismiss the received data.
+```cpp
+else if (trigger.getTriggerId() == FIRST_GROUP_ID)
+{
+    auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+    subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
+        const CounterTopic* data = reinterpret_cast<const CounterTopic*>(sample.get());
+        std::cout << "received: " << std::dec << data->counter << std::endl;
+    });
+}
+else if (trigger.getTriggerId() == SECOND_GROUP_ID)
+{
+    std::cout << "dismiss data\n";
+    auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+    subscriber->releaseQueuedSamples();
+}
 ```

@@ -23,23 +23,24 @@
 #include <iostream>
 
 iox::popo::UserTrigger shutdownGuard;
-using Subscriber = iox::popo::UntypedSubscriber;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     shutdownGuard.trigger();
 }
 
-void receiving()
+int main()
 {
-    constexpr uint64_t FIRST_GROUP_ID = 123;
-    constexpr uint64_t SECOND_GROUP_ID = 456;
+    signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
+    iox::runtime::PoshRuntime::getInstance("/iox-ex-waitset-grouping");
     iox::popo::WaitSet waitset;
 
-    iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
+    // attach shutdownGuard to handle CTRL+C
+    shutdownGuard.attachToWaitset(waitset);
 
+    // create subscriber and subscribe them to our service
+    iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
     for (auto i = 0; i < 4; ++i)
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
@@ -48,18 +49,22 @@ void receiving()
         subscriber.subscribe();
     }
 
+    constexpr uint64_t FIRST_GROUP_ID = 123;
+    constexpr uint64_t SECOND_GROUP_ID = 456;
+
+    // attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
     for (auto i = 0; i < 2; ++i)
     {
         subscriberVector[i].attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
     }
 
+    // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
     for (auto i = 2; i < 4; ++i)
     {
         subscriberVector[i].attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
     }
 
-    shutdownGuard.attachToWaitset(waitset);
-
+    // event loop
     while (true)
     {
         auto triggerVector = waitset.wait();
@@ -68,8 +73,9 @@ void receiving()
         {
             if (trigger.doesOriginateFrom(&shutdownGuard))
             {
-                return;
+                return (EXIT_SUCCESS);
             }
+            // we print the received data for the first group
             else if (trigger.getTriggerId() == FIRST_GROUP_ID)
             {
                 auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
@@ -78,22 +84,17 @@ void receiving()
                     std::cout << "received: " << std::dec << data->counter << std::endl;
                 });
             }
+            // dismiss the received data for the second group
             else if (trigger.getTriggerId() == SECOND_GROUP_ID)
             {
-                std::cout << "Second group element - don't care what we receive here!\n";
+                std::cout << "dismiss data\n";
+                auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+                subscriber->releaseQueuedSamples();
             }
         }
 
         std::cout << std::endl;
     }
-}
-
-int main()
-{
-    signal(SIGINT, sigHandler);
-
-    std::thread rx(receiving);
-    rx.join();
 
     return (EXIT_SUCCESS);
 }
