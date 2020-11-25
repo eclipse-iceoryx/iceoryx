@@ -146,7 +146,7 @@ class RouDi
     std::thread m_processMQThread;
 
   protected:
-    ProcessIntrospectionType m_processIntrospection;
+    ProcessIntrospection m_processIntrospection;
     MemPoolIntrospectionType m_mempoolIntrospection;
 
   private:

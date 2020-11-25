@@ -41,7 +41,6 @@ namespace roudi
  *        The class manages a thread that periodically updates a field with port
  *        introspection data to which clients may subscribe.
  */
-template <typename PublisherPort, typename SubscriberPort>
 class PortIntrospection
 {
   private:
@@ -66,7 +65,7 @@ class PortIntrospection
         {
             PublisherInfo() = default;
 
-            PublisherInfo(typename PublisherPort::MemberType_t* portData,
+            PublisherInfo(popo::PublisherPortData* portData,
                           const std::string& name,
                           const capro::ServiceDescription& service,
                           const std::string& runnable)
@@ -77,7 +76,7 @@ class PortIntrospection
             {
             }
 
-            typename PublisherPort::MemberType_t* portData{nullptr};
+            popo::PublisherPortData* portData{nullptr};
             std::string name;
             capro::ServiceDescription service;
             std::string runnable;
@@ -98,7 +97,7 @@ class PortIntrospection
             {
             }
 
-            SubscriberInfo(typename SubscriberPort::MemberType_t* const portData,
+            SubscriberInfo(popo::SubscriberPortData* const portData,
                            const std::string& name,
                            const capro::ServiceDescription& service,
                            const std::string& runnable)
@@ -109,7 +108,7 @@ class PortIntrospection
             {
             }
 
-            typename SubscriberPort::MemberType_t* portData{nullptr};
+            popo::SubscriberPortData* portData{nullptr};
             std::string name;
             capro::ServiceDescription service;
             std::string runnable;
@@ -121,7 +120,7 @@ class PortIntrospection
             {
             }
 
-            ConnectionInfo(typename SubscriberPort::MemberType_t* const portData,
+            ConnectionInfo(popo::SubscriberPortData* const portData,
                            const std::string& name,
                            const capro::ServiceDescription& service,
                            const std::string& runnable)
@@ -160,7 +159,7 @@ class PortIntrospection
          *
          * @return returns false if the port could not be added and true otherwise
          */
-        bool addPublisher(typename PublisherPort::MemberType_t* port,
+        bool addPublisher(popo::PublisherPortData* port,
                           const std::string& name,
                           const capro::ServiceDescription& service,
                           const std::string& runnable);
@@ -177,7 +176,7 @@ class PortIntrospection
          *
          * @return returns false if the port could not be added and true otherwise
          */
-        bool addSubscriber(typename SubscriberPort::MemberType_t* const portData,
+        bool addSubscriber(popo::SubscriberPortData* const portData,
                            const std::string& name,
                            const capro::ServiceDescription& service,
                            const std::string& runnable);
@@ -274,7 +273,6 @@ class PortIntrospection
 
     // end of helper classes
 
-
   public:
     PortIntrospection();
 
@@ -298,7 +296,7 @@ class PortIntrospection
      *
      * @return returns false if the port could not be added and true otherwise
      */
-    bool addPublisher(typename PublisherPort::MemberType_t* port,
+    bool addPublisher(popo::PublisherPortData* port,
                       const std::string& name,
                       const capro::ServiceDescription& service,
                       const std::string& runnable);
@@ -314,7 +312,7 @@ class PortIntrospection
      *
      * @return returns false if the port could not be added and true otherwise
      */
-    bool addSubscriber(typename SubscriberPort::MemberType_t* const portData,
+    bool addSubscriber(popo::SubscriberPortData* const portData,
                        const std::string& name,
                        const capro::ServiceDescription& service,
                        const std::string& runnable);
@@ -399,9 +397,9 @@ class PortIntrospection
     void sendSubscriberPortsData();
 
   private:
-    PublisherPort m_publisherPort{nullptr};
-    PublisherPort m_publisherPortThroughput{nullptr};
-    PublisherPort m_publisherPortSubscriberPortsData{nullptr};
+    popo::PublisherPortUser m_publisherPort{nullptr};
+    popo::PublisherPortUser m_publisherPortThroughput{nullptr};
+    popo::PublisherPortUser m_publisherPortSubscriberPortsData{nullptr};
     PortData m_portData;
 
     std::atomic<bool> m_runThread;
@@ -410,13 +408,6 @@ class PortIntrospection
     unsigned int m_sendIntervalCount{10};
     const std::chrono::milliseconds m_sendIntervalSleep{100};
 };
-
-/**
- * @brief typedef for the templated port introspection class that is used by RouDi for the
- * actual port introspection functionality.
- */
-using PortIntrospectionType = PortIntrospection<PublisherPortUserType, SubscriberPortUserType>;
-
 
 } // namespace roudi
 } // namespace iox

@@ -718,7 +718,7 @@ void ProcessManager::addConditionVariableForProcess(const ProcessName_t& process
     }
 }
 
-void ProcessManager::initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept
+void ProcessManager::initIntrospection(ProcessIntrospection* processIntrospection) noexcept
 {
     m_processIntrospection = processIntrospection;
 }

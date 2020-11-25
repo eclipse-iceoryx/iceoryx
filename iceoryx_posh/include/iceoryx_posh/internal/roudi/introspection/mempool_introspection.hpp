@@ -41,7 +41,7 @@ namespace roudi
  *        The class sends snapshots of the mempool usage to the introspection
  *        client if subscribed.
  */
-template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
+template <typename MemoryManager, typename SegmentManager>
 class MemPoolIntrospection
 {
   private:
@@ -63,7 +63,7 @@ class MemPoolIntrospection
      */
     MemPoolIntrospection(MemoryManager& rouDiInternalMemoryManager,
                          SegmentManager& segmentManager,
-                         PublisherPort&& publisherPort);
+                         PublisherPortUserType&& publisherPort);
 
     ~MemPoolIntrospection();
 
@@ -107,7 +107,7 @@ class MemPoolIntrospection
 
     std::chrono::milliseconds m_snapShotInterval{1000};
 
-    PublisherPort m_publisherPort{nullptr};
+    PublisherPortUserType m_publisherPort{nullptr};
 
     std::atomic<RunLevel> m_runLevel{WAIT};
     std::condition_variable m_waitConditionVar;
@@ -136,9 +136,7 @@ class MemPoolIntrospection
  * @brief typedef for the templated mempool introspection class that is used by RouDi for the
  * actual mempool introspection functionality.
  */
-using MemPoolIntrospectionType =
-    MemPoolIntrospection<mepoo::MemoryManager, mepoo::SegmentManager<>, PublisherPortUserType>;
-
+using MemPoolIntrospectionType = MemPoolIntrospection<mepoo::MemoryManager, mepoo::SegmentManager<>>;
 
 } // namespace roudi
 } // namespace iox

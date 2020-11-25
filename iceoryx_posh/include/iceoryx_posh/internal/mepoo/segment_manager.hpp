@@ -27,7 +27,7 @@ namespace iox
 {
 namespace roudi
 {
-template <typename MemoryManager, typename SegmentManager, typename SenderPort>
+template <typename MemoryManager, typename SegmentManager>
 class MemPoolIntrospection;
 }
 

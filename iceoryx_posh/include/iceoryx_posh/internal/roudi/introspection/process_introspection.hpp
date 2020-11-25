@@ -15,7 +15,7 @@
 #define IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 
 #include <atomic>
@@ -29,13 +29,12 @@ namespace roudi
 {
 /**
  * @brief This class handles the process intropection for RouDi.
- *        It is recommended to use the ProcessIntrospectionType alias which sets
+ *        It is recommended to use the ProcessIntrospection alias which sets
  *        the intended template parameter.
  *
  *        The class tracks the adding and removal of processes and sends it to
  *        the introspection client if subscribed.
  */
-template <typename PublisherPort>
 class ProcessIntrospection
 {
   public:
@@ -117,7 +116,7 @@ class ProcessIntrospection
     ProcessList_t m_processList;
     bool m_processListNewData{true}; // true because we want to have a valid field, even with an empty list
 
-    PublisherPort m_publisherPort{nullptr};
+    popo::PublisherPortUser m_publisherPort{nullptr};
 
     std::atomic<bool> m_runThread;
     std::thread m_thread;
@@ -129,12 +128,6 @@ class ProcessIntrospection
   private:
     void send();
 };
-
-/**
- * @brief typedef for the templated process introspection class that is used by RouDi for the
- * actual process introspection functionality.
- */
-using ProcessIntrospectionType = ProcessIntrospection<PublisherPortUserType>;
 
 } // namespace roudi
 } // namespace iox

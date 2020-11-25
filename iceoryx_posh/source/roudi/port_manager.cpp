@@ -68,7 +68,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
         errorHandler(
             Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONPORTSERVICE, nullptr, iox::ErrorLevel::SEVERE);
     }
-    popo::PublisherPortData* portGeneric = maybePublisher.get_value();
+    auto portGeneric = maybePublisher.get_value();
 
     maybePublisher = acquirePublisherPortData(IntrospectionPortThroughputService,
                                               1,
@@ -83,7 +83,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                      nullptr,
                      iox::ErrorLevel::SEVERE);
     }
-    popo::PublisherPortData* portThroughput = maybePublisher.get_value();
+    auto portThroughput = maybePublisher.get_value();
 
     maybePublisher = acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
                                               1,
@@ -98,7 +98,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                      nullptr,
                      iox::ErrorLevel::SEVERE);
     }
-    popo::PublisherPortData* subscriberPortsData = maybePublisher.get_value();
+    auto subscriberPortsData = maybePublisher.get_value();
 
     m_portIntrospection.registerPublisherPort(portGeneric, portThroughput, subscriberPortsData);
     m_portIntrospection.run();

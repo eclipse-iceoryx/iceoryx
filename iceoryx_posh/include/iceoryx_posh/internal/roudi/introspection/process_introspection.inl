@@ -24,14 +24,12 @@ namespace iox
 {
 namespace roudi
 {
-template <typename PublisherPort>
-ProcessIntrospection<PublisherPort>::ProcessIntrospection()
+ProcessIntrospection::ProcessIntrospection()
     : m_runThread(false)
 {
 }
 
-template <typename PublisherPort>
-ProcessIntrospection<PublisherPort>::~ProcessIntrospection()
+ProcessIntrospection::~ProcessIntrospection()
 {
     stop();
     if (m_publisherPort)
@@ -40,8 +38,7 @@ ProcessIntrospection<PublisherPort>::~ProcessIntrospection()
     }
 }
 
-template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::addProcess(int f_pid, const ProcessName_t& f_name)
+void ProcessIntrospection::addProcess(int f_pid, const ProcessName_t& f_name)
 {
     ProcessIntrospectionData procIntrData;
     procIntrData.m_pid = f_pid;
@@ -54,8 +51,7 @@ void ProcessIntrospection<PublisherPort>::addProcess(int f_pid, const ProcessNam
     }
 }
 
-template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::removeProcess(int f_pid)
+void ProcessIntrospection::removeProcess(int f_pid)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -70,8 +66,7 @@ void ProcessIntrospection<PublisherPort>::removeProcess(int f_pid)
     m_processListNewData = true;
 }
 
-template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::addRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable)
+void ProcessIntrospection::addRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -105,9 +100,7 @@ void ProcessIntrospection<PublisherPort>::addRunnable(const ProcessName_t& f_pro
     m_processListNewData = true;
 }
 
-template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::removeRunnable(const ProcessName_t& f_process,
-                                                         const RunnableName_t& f_runnable)
+void ProcessIntrospection::removeRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -141,18 +134,16 @@ void ProcessIntrospection<PublisherPort>::removeRunnable(const ProcessName_t& f_
     m_processListNewData = true;
 }
 
-template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::registerPublisherPort(popo::PublisherPortData* publisherPort)
+void ProcessIntrospection::registerPublisherPort(popo::PublisherPortData* publisherPort)
 {
     // we do not want to call this twice
     if (!m_publisherPort)
     {
-        m_publisherPort = PublisherPort(publisherPort);
+        m_publisherPort = popo::PublisherPortUser(publisherPort);
     }
 }
 
-template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::run()
+void ProcessIntrospection::run()
 {
     // TODO: error handling for non debug builds
     cxx::Expects(m_publisherPort);
@@ -180,8 +171,7 @@ void ProcessIntrospection<PublisherPort>::run()
     pthread_setname_np(m_thread.native_handle(), "ProcessIntr");
 }
 
-template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::send()
+void ProcessIntrospection::send()
 {
     std::lock_guard<std::mutex> guard(m_mutex);
     if (m_processListNewData)
@@ -203,8 +193,7 @@ void ProcessIntrospection<PublisherPort>::send()
     }
 }
 
-template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::stop()
+void ProcessIntrospection::stop()
 {
     m_runThread = false;
     if (m_thread.joinable())
@@ -213,8 +202,7 @@ void ProcessIntrospection<PublisherPort>::stop()
     }
 }
 
-template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::setSendInterval(unsigned int interval_ms)
+void ProcessIntrospection::setSendInterval(unsigned int interval_ms)
 {
     if (std::chrono::milliseconds(interval_ms) >= m_sendIntervalSleep)
     {
