@@ -26,7 +26,7 @@ Trigger::~Trigger()
 
 bool Trigger::hasTriggered() const noexcept
 {
-    return (isValid() && m_hasTriggeredCallback) ? m_hasTriggeredCallback().get_value() : false;
+    return (isValid() && m_hasTriggeredCallback) ? m_hasTriggeredCallback().value() : false;
 }
 
 void Trigger::reset() noexcept

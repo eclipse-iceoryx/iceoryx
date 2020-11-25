@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ bool MqBase::receive(MqMessage& answer) const noexcept
         return false;
     }
 
-    return MqBase::setMessageFromString(message.get_value().c_str(), answer);
+    return MqBase::setMessageFromString(message.value().c_str(), answer);
 }
 
 bool MqBase::timedReceive(const units::Duration timeout, MqMessage& answer) const noexcept
@@ -177,7 +177,7 @@ bool MqBase::reopen() noexcept
 
 bool MqBase::mqMapsToFile() noexcept
 {
-    return !m_mq.isOutdated().get_value_or(true);
+    return !m_mq.isOutdated().value_or(true);
 }
 
 bool MqBase::hasClosableMessageQueue() const noexcept
@@ -187,7 +187,7 @@ bool MqBase::hasClosableMessageQueue() const noexcept
 
 void MqBase::cleanupOutdatedMessageQueue(const std::string& name) noexcept
 {
-    if (posix::MessageQueue::unlinkIfExists(name).get_value_or(false))
+    if (posix::MessageQueue::unlinkIfExists(name).value_or(false))
     {
         LogWarn() << "MQ still there, doing an unlink of " << name;
     }
@@ -223,6 +223,11 @@ MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
     , m_AppMqInterface(appName)
     , m_RoudiMqInterface(roudiName)
 {
+    if (!m_AppMqInterface.isInitialized()) {
+        errorHandler(Error::kMQ_INTERFACE__UNABLE_TO_CREATE_APPLICATION_MQ);
+        return;
+    }
+
     posix::Timer timer(roudiWaitingTimeout);
 
     enum class RegState
@@ -328,9 +333,11 @@ bool MqRuntimeInterface::sendKeepalive() noexcept
     return m_RoudiMqInterface.send({mqMessageTypeToString(MqMessageType::KEEPALIVE), m_appName});
 }
 
-std::string MqRuntimeInterface::getSegmentManagerAddr() const noexcept
+RelativePointer::offset_t MqRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
 {
-    return m_segmentManager;
+    cxx::Ensures(m_segmentManagerAddressOffset.has_value()
+                 && "No segment manager available! Should have been fetched in the c'tor");
+    return m_segmentManagerAddressOffset.value();
 }
 
 bool MqRuntimeInterface::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept
@@ -418,8 +425,10 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
                 }
 
                 // read out the shared memory base address and save it
-                m_shmTopicSize = strtoull(receiveBuffer.getElementAtIndex(1).c_str(), nullptr, 10);
-                m_segmentManager = receiveBuffer.getElementAtIndex(2);
+                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), m_shmTopicSize);
+                RelativePointer::offset_t offset;
+                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), offset);
+                m_segmentManagerAddressOffset.emplace(offset);
 
                 int64_t receivedTimestamp;
                 cxx::convert::fromString(receiveBuffer.getElementAtIndex(3).c_str(), receivedTimestamp);

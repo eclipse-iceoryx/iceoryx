@@ -88,7 +88,6 @@ TEST_F(WaitSet_test, AcquireTriggerOnceIsSuccessful)
     EXPECT_FALSE(acquireTrigger(m_sut, 0).has_error());
 }
 
-
 TEST_F(WaitSet_test, AcquireMultipleTriggerIsSuccessful)
 {
     auto trigger1 = acquireTrigger(m_sut, 10);

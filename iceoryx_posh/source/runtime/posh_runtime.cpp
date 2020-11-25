@@ -29,9 +29,24 @@ namespace iox
 {
 namespace runtime
 {
-std::function<PoshRuntime&(const ProcessName_t& name)> PoshRuntime::s_runtimeFactory =
-    PoshRuntime::defaultRuntimeFactory;
+PoshRuntime::factory_t& PoshRuntime::getRuntimeFactory() noexcept
+{
+    static factory_t runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+    return runtimeFactory;
+}
 
+void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
+{
+    if (factory)
+    {
+        PoshRuntime::getRuntimeFactory() = factory;
+    }
+    else
+    {
+        LogFatal() << "Cannot set runtime factory. Passed factory must not be empty!";
+        errorHandler(Error::kPOSH__RUNTIME_FACTORY_IS_NOT_SET);
+    }
+}
 
 PoshRuntime& PoshRuntime::defaultRuntimeFactory(const ProcessName_t& name) noexcept
 {
@@ -42,7 +57,7 @@ PoshRuntime& PoshRuntime::defaultRuntimeFactory(const ProcessName_t& name) noexc
 // singleton access
 PoshRuntime& PoshRuntime::getInstance(const ProcessName_t& name) noexcept
 {
-    return PoshRuntime::s_runtimeFactory(name);
+    return getRuntimeFactory()(name);
 }
 
 ProcessName_t& PoshRuntime::defaultRuntimeInstanceName() noexcept
@@ -56,8 +71,8 @@ PoshRuntime::PoshRuntime(const ProcessName_t& name, const bool doMapSharedMemory
     , m_MqInterface(MQ_ROUDI_NAME, name, PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface(doMapSharedMemoryIntoThread,
                      m_MqInterface.getShmTopicSize(),
-                     m_MqInterface.getSegmentManagerAddr(),
-                     m_MqInterface.getSegmentId())
+                     m_MqInterface.getSegmentId(),
+                     m_MqInterface.getSegmentManagerAddressOffset())
     , m_applicationPort(getMiddlewareApplication())
 {
     m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC, posix::Timer::CatchUpPolicy::IMMEDIATE);
@@ -157,7 +172,7 @@ SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::Serv
         }
         return nullptr;
     }
-    return requestedSenderPort.get_value();
+    return requestedSenderPort.value();
 }
 
 /// @deprecated #25
@@ -291,7 +306,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
         }
         return nullptr;
     }
-    return maybePublisher.get_value();
+    return maybePublisher.value();
 }
 
 cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
@@ -370,7 +385,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
         }
         return nullptr;
     }
-    return maybeSubscriber.get_value();
+    return maybeSubscriber.value();
 }
 
 cxx::expected<SubscriberPortUserType::MemberType_t*, MqMessageErrorType>
@@ -445,7 +460,7 @@ RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProper
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_RUNNABLE) << m_appName
-               << static_cast<std::string>(runnableProperty);
+               << static_cast<cxx::Serialization>(runnableProperty).toString();
 
     MqMessage receiveBuffer;
 
@@ -614,7 +629,7 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
         }
         return nullptr;
     }
-    return maybeConditionVariable.get_value();
+    return maybeConditionVariable.value();
 }
 
 bool PoshRuntime::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept

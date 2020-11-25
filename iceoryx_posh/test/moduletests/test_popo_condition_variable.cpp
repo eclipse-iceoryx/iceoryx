@@ -35,7 +35,7 @@ class ConditionVariable_test : public Test
     ConditionVariableSignaler m_signaler{&m_condVarData};
 
     iox::posix::Semaphore m_syncSemaphore =
-        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).get_value();
+        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).value();
 
     void SetUp(){};
     void TearDown()

@@ -95,23 +95,23 @@ class PortPool
                       const ProcessName_t& applicationName,
                       const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
+    template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
                                                        const uint64_t& historyRequest,
                                                        const ProcessName_t& applicationName,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
-    template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
+    template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
     iox::popo::SubscriberPortData* constructSubscriber(const capro::ServiceDescription& serviceDescription,
                                                        const uint64_t& historyRequest,
                                                        const ProcessName_t& applicationName,
                                                        const mepoo::MemoryInfo& memoryInfo) noexcept;
 
-    cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const std::string& applicationName,
+    cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const ProcessName_t& applicationName,
                                                                             const capro::Interfaces interface) noexcept;
 
     cxx::expected<popo::ApplicationPortData*, PortPoolError>
-    addApplicationPort(const std::string& applicationName) noexcept;
+    addApplicationPort(const ProcessName_t& applicationName) noexcept;
 
     cxx::expected<runtime::RunnableData*, PortPoolError> addRunnableData(
         const ProcessName_t& process, const RunnableName_t& runnable, const uint64_t runnableDeviceIdentifier) noexcept;

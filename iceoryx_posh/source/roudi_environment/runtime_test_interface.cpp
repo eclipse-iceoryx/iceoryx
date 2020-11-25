@@ -34,7 +34,7 @@ RuntimeTestInterface::RuntimeTestInterface()
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
 
-    PoshRuntime::s_runtimeFactory = RuntimeTestInterface::runtimeFactoryGetInstance;
+    PoshRuntime::setRuntimeFactory(RuntimeTestInterface::runtimeFactoryGetInstance);
 }
 
 RuntimeTestInterface::~RuntimeTestInterface()
@@ -45,7 +45,7 @@ RuntimeTestInterface::~RuntimeTestInterface()
         cleanupRuntimes();
 
         std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
-        PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+        PoshRuntime::setRuntimeFactory(PoshRuntime::defaultRuntimeFactory);
     }
 }
 

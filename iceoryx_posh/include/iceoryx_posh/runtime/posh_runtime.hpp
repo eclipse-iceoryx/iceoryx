@@ -166,13 +166,25 @@ class PoshRuntime
     friend class roudi::RuntimeTestInterface;
 
   protected:
+    using factory_t = PoshRuntime& (*)(const ProcessName_t&);
+
     // Protected constructor for IPC setup
     PoshRuntime(const ProcessName_t& name, const bool doMapSharedMemoryIntoThread = true) noexcept;
 
-    static std::function<PoshRuntime&(const ProcessName_t& name)> s_runtimeFactory; // = DefaultRuntimeFactory;
     static PoshRuntime& defaultRuntimeFactory(const ProcessName_t& name) noexcept;
 
     static ProcessName_t& defaultRuntimeInstanceName() noexcept;
+
+    /// @brief gets current runtime factory. If the runtime factory is not yet initialized it is set to
+    /// defaultRuntimeFactory.
+    ///
+    /// @return current runtime factory
+    static factory_t& getRuntimeFactory() noexcept;
+
+    /// @brief sets runtime factory, terminates if given factory is empty
+    ///
+    /// @param[in] factory std::function to which the runtime factory should be set
+    static void setRuntimeFactory(const factory_t& factory) noexcept;
 
   private:
     /// @deprecated #25
