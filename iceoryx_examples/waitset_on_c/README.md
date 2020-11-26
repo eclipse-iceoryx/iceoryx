@@ -305,3 +305,75 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
 iox_ws_deinit(waitSet);
 iox_user_trigger_deinit(shutdownGuard);
 ```
+
+### Sync
+In this example we demonstrate how you can use the WaitSet to trigger a cyclic
+call every second. We use a user trigger which will be triggered in a separate
+thread every second to signal the WaitSet that its time for the next run.
+Additionally, we attach a callback (`cyclicRun`) to this user trigger
+so that the trigger can directly call the cyclic call.
+
+We begin by creating the waitset and attach the `shutdownGuard`.
+```c
+iox_runtime_register("/iox-c-ex-waitset-sync");
+
+iox_ws_storage_t waitSetStorage;
+iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
+shutdownGuard = iox_user_trigger_init(&shutdowGuardStorage);
+
+iox_user_trigger_attach_to_ws(shutdownGuard, waitSet, 0, NULL);
+```
+
+Now we create our cyclic trigger and attach it to our waitset with a triggerId
+of `0` and the callback `cyclicRun`.
+```c
+cyclicTrigger = iox_user_trigger_init(&cyclicTriggerStorage);
+iox_user_trigger_attach_to_ws(cyclicTrigger, waitSet, 0, cyclicRun);
+```
+
+The thread which will trigger the `cyclicTrigger` every second is started in
+the next lines.
+```c
+pthread_t cyclicTriggerThread;
+if (pthread_create(&cyclicTriggerThread, NULL, cyclicTriggerCallback, NULL))
+{
+    printf("failed to create thread\n");
+    return -1;
+}
+```
+
+Everything is prepared and we enter the event loop. We start by gathering all
+triggered Triggers in an array.
+```c
+while (keepRunning)
+{
+    numberOfTriggeredConditions =
+        iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+```
+
+The `shutdownGuard` is handled as usual and the `cyclicTrigger` is handled by
+just calling the attached callback with `iox_trigger_state_call(trigger)`.
+```c
+    for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
+    {
+        iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
+
+        if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownGuard))
+        {
+            // CTRL+c was pressed -> exit
+            keepRunning = false;
+        }
+        else
+        {
+            // call myCyclicRun
+            iox_trigger_state_call(trigger);
+        }
+    }
+```
+
+The last thing we have to do is to cleanup all the used resources.
+```c
+    pthread_join(cyclicTriggerThread, NULL);
+    iox_ws_deinit(waitSet);
+    iox_user_trigger_deinit(shutdownGuard);
+```

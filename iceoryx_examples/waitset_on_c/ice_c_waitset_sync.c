@@ -67,6 +67,11 @@ void* cyclicTriggerCallback(void* dontCare)
 
 int main()
 {
+#if defined(_WIN32)
+    printf("This example does not work on Windows. But you can easily adapt it for now by starting a windows thread "
+           "which triggers the cyclicTrigger every second.\n");
+#endif
+
     iox_runtime_register("/iox-c-ex-waitset-sync");
 
     iox_ws_storage_t waitSetStorage;
@@ -86,12 +91,14 @@ int main()
     iox_user_trigger_attach_to_ws(cyclicTrigger, waitSet, 0, cyclicRun);
 
     // start a thread which triggers cyclicTrigger every second
+#if !defined(_WIN32)
     pthread_t cyclicTriggerThread;
     if (pthread_create(&cyclicTriggerThread, NULL, cyclicTriggerCallback, NULL))
     {
         printf("failed to create thread\n");
         return -1;
     }
+#endif
 
     uint64_t missedElements = 0U;
     uint64_t numberOfTriggeredConditions = 0U;
@@ -123,7 +130,9 @@ int main()
     }
 
     // cleanup all resources
+#if !defined(_WIN32)
     pthread_join(cyclicTriggerThread, NULL);
+#endif
     iox_ws_deinit(waitSet);
     iox_user_trigger_deinit(shutdownGuard);
 
