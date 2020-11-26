@@ -38,9 +38,9 @@ enum class DummyErrorTwo
 
 TEST_F(ExpectedOptionalChainingTest, TypeTraits)
 {
-    static_assert(is_chainable<expected<int, DummyError>>::value, "expected<int, DummyErrorTwo> is not chainable");
-    static_assert(is_chainable<expected<expected<int, DummyErrorTwo>, DummyError>>::value, "expected<expected<int, DummyErrorTwo>, DummyError> is not chainable");
-    static_assert(is_chainable<optional<expected<expected<int, DummyErrorTwo>, DummyError>>>::value, "optional<expected<expected<int, DummyErrorTwo>, DummyError>> is not chainable");
+    static_assert(has_and_then<expected<int, DummyError>>::value, "expected<int, DummyErrorTwo> is not chainable");
+    static_assert(has_and_then<expected<expected<int, DummyErrorTwo>, DummyError>>::value, "expected<expected<int, DummyErrorTwo>, DummyError> is not chainable");
+    static_assert(has_and_then<optional<expected<expected<int, DummyErrorTwo>, DummyError>>>::value, "optional<expected<expected<int, DummyErrorTwo>, DummyError>> is not chainable");
 
     static_assert(std::is_same<flatten<optional<int>>::type, int>::value, "");
     static_assert(std::is_same<flatten<optional<optional<int>>>::type, int>::value, "");
@@ -70,24 +70,42 @@ TEST_F(ExpectedOptionalChainingTest, ExpectedOptionalHasValue)
 TEST_F(ExpectedOptionalChainingTest, ExpectedOptionalHasError)
 {
     auto andThenWasCalled = false;
-    auto orElseWasCalled = false;
+    auto orElseWithErrorWasCalled = false;
 
     auto expectedOptional = expected<optional<int>, DummyError>::create_error(DummyError::UH_OH);
     expectedOptional.and_then([&andThenWasCalled](int& val){
         andThenWasCalled = true;
         ASSERT_EQ(val, 42);
     })
-    .or_else([&orElseWasCalled](DummyError){
-        orElseWasCalled = true;
+    .or_else([&orElseWithErrorWasCalled](DummyError){
+        orElseWithErrorWasCalled = true;
     });
 
     ASSERT_FALSE(andThenWasCalled);
-    ASSERT_TRUE(orElseWasCalled);
+    ASSERT_TRUE(orElseWithErrorWasCalled);
 }
 
 TEST_F(ExpectedOptionalChainingTest, ExpectedOptionalIsEmpty)
 {
+    auto andThenWasCalled = false;
+    auto orElseWithErrorWasCalled = false;
+    auto orElseWithoutErrorWasCalled = false;
 
+    auto expectedOptional = expected<optional<int>, DummyError>::create_value(optional<int>(nullopt));
+    expectedOptional.and_then([&andThenWasCalled](int& val){
+        andThenWasCalled = true;
+        ASSERT_EQ(val, 42);
+    })
+    .or_else([&orElseWithErrorWasCalled](DummyError){
+        orElseWithErrorWasCalled = true;
+    })
+    .or_else([&orElseWithoutErrorWasCalled]{
+        orElseWithoutErrorWasCalled = true;
+    });
+
+    ASSERT_FALSE(andThenWasCalled);
+    ASSERT_FALSE(orElseWithErrorWasCalled);
+    ASSERT_TRUE(orElseWithoutErrorWasCalled);
 }
 
 // optional<expected<T>>

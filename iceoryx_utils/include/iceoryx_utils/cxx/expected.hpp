@@ -705,12 +705,12 @@ class expected<ValueType, ErrorType>
 
 
     template <typename ChainableType = ValueType,
-              typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
+              typename std::enable_if<has_and_then<ChainableType>::value, int>::type = 0>
     const expected& and_then(const cxx::function_ref<void(typename flatten<ChainableType>::type&)>& callable) const
         noexcept;
 
     template <typename ChainableType = ValueType,
-              typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
+              typename std::enable_if<has_and_then<ChainableType>::value, int>::type = 0>
     expected& and_then(const cxx::function_ref<void(typename flatten<ChainableType>::type&)>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
@@ -734,6 +734,9 @@ class expected<ValueType, ErrorType>
     ///     })
     /// @endcode
     [[deprecated]] expected& on_success(const cxx::function_ref<void()>& callable) noexcept;
+
+    template<typename FunctionalType = ValueType, typename std::enable_if_t<has_or_else_without_error<FunctionalType>::value, int> = 0>
+    expected& or_else(const cxx::function_ref<void()>& callable) noexcept;
 
     ///
     /// @brief if the expected contains a success value and its type is an empty optional, calls the provided callable

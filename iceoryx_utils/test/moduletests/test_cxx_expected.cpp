@@ -300,7 +300,7 @@ TEST_F(expected_test, IfChainableTypeThenDelegatesAndThenCallbackToNestedChainab
 
     sut.and_then([](int&) {});
 
-    ASSERT_THAT(iox::cxx::is_chainable<MockChainable<int>>::value, true);
+    ASSERT_THAT(iox::cxx::has_and_then<MockChainable<int>>::value, true);
     ASSERT_THAT(sut.value().m_callbackWasExecuted, true);
 }
 

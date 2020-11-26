@@ -223,10 +223,10 @@ class optional
     /// @return reference to this
     const optional& and_then(const cxx::function_ref<void(const T&)>& callable) const noexcept;
 
-    template <typename ChainableType = T, typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
+    template <typename ChainableType = T, typename std::enable_if<has_and_then<ChainableType>::value, int>::type = 0>
     optional& and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) noexcept;
 
-    template <typename ChainableType = T, typename std::enable_if<is_chainable<ChainableType>::value, int>::type = 0>
+    template <typename ChainableType = T, typename std::enable_if<has_and_then<ChainableType>::value, int>::type = 0>
     const optional& and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) const
         noexcept;
 
@@ -240,9 +240,7 @@ class optional
     /// @return reference to this
     const optional& or_else(const cxx::function_ref<void()>& callable) const noexcept;
 
-    // The ChainableType also encodes the ErrorType... we need to know this to know which methods to generate.
-    // What's the best way to retrieve this ?
-    template<typename ChainableType = T, typename std::enable_if_t<fails_with_error<ChainableType, typename ChainableType::error_type>::value, int> = 0>
+    template<typename ChainableType = T, typename std::enable_if_t<has_or_else_with_error<ChainableType, typename ChainableType::error_type>::value, int> = 0>
     optional& or_else(const cxx::function_ref<void(typename ChainableType::error_type&)>& callable) noexcept;
 
   private:

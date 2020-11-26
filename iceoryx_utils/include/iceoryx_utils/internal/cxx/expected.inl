@@ -388,7 +388,7 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(ValueType&
 }
 
 template <typename ValueType, typename ErrorType>
-template <typename ChainableType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type>
+template <typename ChainableType, typename std::enable_if<has_and_then<ChainableType>::value, int>::type>
 inline const expected<ValueType, ErrorType>& expected<ValueType, ErrorType>::and_then(
     const cxx::function_ref<void(typename flatten<ChainableType>::type&)>& callable) const noexcept
 {
@@ -396,7 +396,7 @@ inline const expected<ValueType, ErrorType>& expected<ValueType, ErrorType>::and
 }
 
 template <typename ValueType, typename ErrorType>
-template <typename ChainableType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type>
+template <typename ChainableType, typename std::enable_if<has_and_then<ChainableType>::value, int>::type>
 inline expected<ValueType, ErrorType>& expected<ValueType, ErrorType>::and_then(
     const cxx::function_ref<void(typename flatten<ChainableType>::type&)>& callable) noexcept
 {
@@ -404,6 +404,19 @@ inline expected<ValueType, ErrorType>& expected<ValueType, ErrorType>::and_then(
     {
         // Pass the callback to the next functional type to handle.
         value().and_then(callable);
+    }
+
+    return *this;
+}
+
+template <typename ValueType, typename ErrorType>
+template<typename FunctionalType = ValueType, typename std::enable_if_t<has_or_else_without_error<FunctionalType>::value, int> = 0>
+inline expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void()>& callable) noexcept
+{
+    if (!this->has_error())
+    {
+        value().or_else(callable);
     }
 
     return *this;

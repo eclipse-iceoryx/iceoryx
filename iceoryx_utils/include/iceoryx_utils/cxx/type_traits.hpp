@@ -41,11 +41,11 @@ struct is_optional<T, std::void_t<decltype(std::declval<T>().has_value())>> : st
 /// @brief Identifies structs that can be chained on success.
 ///
 template <typename, typename = void>
-struct is_chainable : std::false_type
+struct has_and_then : std::false_type
 {
 };
 template <typename T>
-struct is_chainable<T,
+struct has_and_then<T,
                     std::void_t<decltype(
                         static_cast<T& (T::*)(const cxx::function_ref<void(typename T::type&)>&)>(&T::and_then))>>
     : std::true_type
@@ -53,15 +53,30 @@ struct is_chainable<T,
 };
 
 ///
-/// @brief Identifies types that fail loudly.
+/// @brief Identifies structs that fail silently, without reporting an error.
+///
+template<typename, typename = void>
+struct has_or_else_without_error : std::false_type
+{
+
+};
+
+template<typename T>
+struct has_or_else_without_error<T, std::void_t<decltype (static_cast<T& (T::*)(const cxx::function_ref<void()>&)>(&T::or_else))>> : std::true_type
+{
+
+};
+
+///
+/// @brief Identifies types that fail loudly by reporting an error.
 ///
 template<typename, typename, typename = void>
-struct fails_with_error : std::false_type
+struct has_or_else_with_error : std::false_type
 {
 };
 
 template<typename T, typename ErrorType>
-struct fails_with_error<T, ErrorType, std::void_t<decltype (static_cast<T& (T::*)(const cxx::function_ref<void(ErrorType&)>&)>(&T::or_else))>> : std::true_type
+struct has_or_else_with_error<T, ErrorType, std::void_t<decltype (static_cast<T& (T::*)(const cxx::function_ref<void(ErrorType&)>&)>(&T::or_else))>> : std::true_type
 {
 };
 
@@ -75,7 +90,7 @@ struct flatten
 };
 
 template <template <typename...> class TemplateType, typename... Args>
-struct flatten<TemplateType<Args...>, typename std::enable_if_t<is_chainable<TemplateType<Args...>>::value>>
+struct flatten<TemplateType<Args...>, typename std::enable_if_t<has_and_then<TemplateType<Args...>>::value>>
 {
     // Assumes the intended output type is always the first argument.
     using type = typename flatten<std::tuple_element_t<0, std::tuple<Args...>>>::type;

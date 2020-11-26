@@ -298,7 +298,7 @@ inline const optional<T>& optional<T>::and_then(const cxx::function_ref<void(con
 }
 
 template <typename T>
-template <typename ChainableType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type>
+template <typename ChainableType, typename std::enable_if<has_and_then<ChainableType>::value, int>::type>
 inline const optional<T>&
 optional<T>::and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) const noexcept
 {
@@ -306,7 +306,7 @@ optional<T>::and_then(const cxx::function_ref<void(typename ChainableType::inner
 }
 
 template <typename T>
-template <typename ChainableType, typename std::enable_if<is_chainable<ChainableType>::value, int>::type>
+template <typename ChainableType, typename std::enable_if<has_and_then<ChainableType>::value, int>::type>
 inline optional<T>&
 optional<T>::and_then(const cxx::function_ref<void(typename ChainableType::inner_type&)>& callable) noexcept
 {
@@ -339,7 +339,7 @@ inline const optional<T>& optional<T>::or_else(const cxx::function_ref<void()>& 
 }
 
 template <typename T>
-template <typename ChainableType, typename std::enable_if_t<fails_with_error<ChainableType, typename ChainableType::error_type>::value, int>>
+template <typename ChainableType, typename std::enable_if_t<has_or_else_with_error<ChainableType, typename ChainableType::error_type>::value, int>>
 inline optional<T>&
 optional<T>::or_else(const cxx::function_ref<void(typename ChainableType::error_type&)>& callable) noexcept
 {
