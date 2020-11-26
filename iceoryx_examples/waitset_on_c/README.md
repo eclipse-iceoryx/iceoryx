@@ -220,3 +220,88 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
 iox_ws_deinit(waitSet);
 iox_user_trigger_deinit(shutdownGuard);
 ```
+
+### Individual
+We also can handle every trigger individualy. For instance if you would like
+to have a different reaction for every subscriber which has received a sample.
+One way would be to assign every subscriber a different callback, here we look
+at a different approach.
+
+We start as usual, by creating a WaitSet and attach the `shutdownGuard` to it.
+```c
+iox_runtime_register("/iox-c-ex-waitset-individual");
+
+iox_ws_storage_t waitSetStorage;
+iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
+shutdownGuard = iox_user_trigger_init(&shutdowGuardStorage);
+
+iox_user_trigger_attach_to_ws(shutdownGuard, waitSet, 0, NULL);
+```
+
+Now we create two subscriber, subscribe them to our service and attach them to
+the waitset without a callback and with the same trigger id.
+```c
+uint64_t historyRequest = 1U;
+subscriber[0] = iox_sub_init(&(subscriberStorage[0]), "Radar", "FrontLeft", "Counter", historyRequest);
+subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Counter", historyRequest);
+
+iox_sub_subscribe(subscriber[0], 256);
+iox_sub_subscribe(subscriber[1], 256);
+
+iox_sub_attach_to_ws(subscriber[0], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+iox_sub_attach_to_ws(subscriber[1], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+```
+
+We are ready to start the event loop. We begin with acquiring the array of all
+the triggered triggers.
+```c
+bool keepRunning = true;
+while (keepRunning)
+{
+    numberOfTriggeredConditions =
+        iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+```
+
+The `shutdownGuard` is handled as usual and
+we use `iox_trigger_state_does_originate_from_subscriber` 
+to identify the trigger that originated from a specific subscriber. If it originated
+from the first subscriber we print the received data to the console, if it 
+originated from the second subscriber we discard the data.
+```c
+    for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
+    {
+        iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
+
+        if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownGuard))
+        {
+            keepRunning = false;
+        }
+        else if (iox_trigger_state_does_originate_from_subscriber(trigger, subscriber[0]))
+        {
+            const void* chunk;
+            if (iox_sub_get_chunk(subscriber[0], &chunk))
+            {
+                printf("subscriber 1 received: %u\n", ((struct CounterTopic*)chunk)->counter);
+
+                iox_sub_release_chunk(subscriber[0], chunk);
+            }
+        }
+        else if (iox_trigger_state_does_originate_from_subscriber(trigger, subscriber[1]))
+        {
+            iox_sub_release_queued_chunks(subscriber[1]);
+            printf("subscriber 2 received something - dont care\n");
+        }
+    }
+```
+We conclude the example as always, be cleaning up the resources.
+
+```c
+for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
+{
+    iox_sub_unsubscribe((iox_sub_t) & (subscriberStorage[i]));
+    iox_sub_deinit((iox_sub_t) & (subscriberStorage[i]));
+}
+
+iox_ws_deinit(waitSet);
+iox_user_trigger_deinit(shutdownGuard);
+```
