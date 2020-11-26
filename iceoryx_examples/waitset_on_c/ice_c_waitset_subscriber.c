@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/runtime.h"
 #include "iceoryx_binding_c/subscriber.h"
+#include "iceoryx_binding_c/trigger_state.h"
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
 #include "iceoryx_binding_c/wait_set.h"
@@ -25,8 +27,6 @@
 #include <stdio.h>
 
 #define NUMBER_OF_CONDITIONS 2
-
-bool killswitch = false;
 
 iox_user_trigger_storage_t shutdowGuardStorage;
 iox_user_trigger_t shutdownGuard;
@@ -43,8 +43,13 @@ static void sigHandler(int signalValue)
     iox_user_trigger_trigger(shutdownGuard);
 }
 
-void receiving()
+void subscriberCallback(iox_sub_t const subscriber)
 {
+    const void* chunk;
+    iox_sub_get_chunk(subscriber, &chunk);
+    printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
+
+    iox_sub_release_chunk(subscriber, chunk);
 }
 
 int main()
@@ -64,19 +69,33 @@ int main()
 
     subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", historyRequest);
     iox_sub_subscribe(subscriber, 256);
+    iox_sub_attach_to_ws(subscriber, waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 123, subscriberCallback);
 
     iox_trigger_state_storage_t triggerArray[NUMBER_OF_CONDITIONS];
     uint64_t missedElements = 0U;
     uint64_t numberOfTriggeredConditions = 0U;
-    do
+
+    while (true)
     {
         // wait until an event has occurred
         numberOfTriggeredConditions =
             iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_CONDITIONS, &missedElements);
-    } while (true);
+
+        for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
+        {
+            if (iox_trigger_state_does_originate_from_user_trigger((iox_trigger_state_t) & (triggerArray[i]),
+                                                                   shutdownGuard))
+            {
+                return 0;
+            }
+            else
+            {
+                iox_trigger_state_call((iox_trigger_state_t) & (triggerArray[0]));
+            }
+        }
+    }
 
     iox_sub_unsubscribe(subscriber);
-
 
     iox_ws_deinit(waitSet);
     iox_user_trigger_deinit(shutdownGuard);

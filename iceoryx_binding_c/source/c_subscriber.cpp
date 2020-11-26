@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 using namespace iox;
@@ -104,3 +105,18 @@ bool iox_sub_has_lost_chunks(iox_sub_t const self)
 {
     return SubscriberPortUser(self->m_portData).hasLostChunksSinceLastCall();
 }
+
+iox_WaitSetResult iox_sub_attach_to_ws(iox_sub_t const self,
+                                       iox_ws_t const waitset,
+                                       const iox_SubscriberEvent event,
+                                       const uint64_t triggerId,
+                                       void (*callback)(iox_sub_t))
+{
+    return self->attachToWaitset(*waitset, event, triggerId, callback);
+}
+
+void iox_sub_detach_ws(iox_sub_t const self)
+{
+    return self->detachWaitset();
+}
+

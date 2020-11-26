@@ -15,6 +15,7 @@
 #ifndef IOX_BINDING_C_ENUMS_H
 #define IOX_BINDING_C_ENUMS_H
 
+/// @brief describes events which can be triggered by a subscriber
 enum iox_SubscriberEvent
 {
     SubscriberEvent_HAS_NEW_SAMPLES,
