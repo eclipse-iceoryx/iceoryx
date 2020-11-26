@@ -72,6 +72,9 @@ int main()
             // dismiss sample received by subscriber2
             if (trigger.doesOriginateFrom(&subscriber2))
             {
+                // We need to release the samples to reset the trigger hasNewSamples
+                // otherwise the WaitSet would notify us in `waitset.wait()` again
+                // instantly.
                 subscriber2.releaseQueuedSamples();
                 std::cout << "subscriber 2 received something - dont care\n";
             }

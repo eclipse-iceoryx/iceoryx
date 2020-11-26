@@ -88,7 +88,8 @@ int main()
     iox_trigger_state_storage_t triggerArray[NUMBER_OF_TRIGGER];
 
     // event loop
-    while (true)
+    bool keepRunning = true;
+    while (keepRunning)
     {
         numberOfTriggeredConditions =
             iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
@@ -100,7 +101,7 @@ int main()
             if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownGuard))
             {
                 // CTRL+c was pressed -> exit
-                return 0;
+                keepRunning = false;
             }
             else
             {

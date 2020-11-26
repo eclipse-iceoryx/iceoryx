@@ -89,7 +89,8 @@ int main()
     iox_trigger_state_storage_t triggerArray[NUMBER_OF_TRIGGER];
 
     // event loop
-    while (true)
+    bool keepRunning = true;
+    while (keepRunning)
     {
         numberOfTriggeredConditions =
             iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
@@ -101,7 +102,7 @@ int main()
             if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownGuard))
             {
                 // CTRL+c was pressed -> exit
-                return 0;
+                keepRunning = false;
             }
             // we print the received data for the first group
             else if (iox_trigger_state_get_trigger_id(trigger) == FIRST_GROUP_ID)
@@ -120,6 +121,9 @@ int main()
             {
                 printf("dismiss data\n");
                 iox_sub_t subscriber = iox_trigger_state_get_subscriber_origin(trigger);
+                // We need to release the samples to reset the trigger hasNewSamples
+                // otherwise the WaitSet would notify us in `iox_ws_wait()` again
+                // instantly.
                 iox_sub_release_queued_chunks(subscriber);
             }
         }

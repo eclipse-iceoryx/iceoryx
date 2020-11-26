@@ -1,5 +1,16 @@
 # WaitSet
 
+The WaitSet is a set where you can attach Trigger to signal a wide variety
+of events to one single listener. The typical approach is that one creates a
+WaitSet attaches multiple subscriber or other Trigger to it and then wait till
+one or many of the attach classes signal an event. If that happens one receives
+a list of all the Triggers which were triggered and the program can act accordingly.
+
+The WaitSet is state based which means that it will trigger until the state which
+caused the trigger changed. For instance, when the subscriber reports to the WaitSet
+that a new sample has been received, the WaitSet will notify the user until the
+sample has been taken and released.
+
 ## Glossary
 
  - **Listener** a class which can be triggered by a _Trigger_, for instance a _WaitSet_.
@@ -222,6 +233,9 @@ else if (trigger.getTriggerId() == SECOND_GROUP_ID)
     subscriber->releaseQueuedSamples();
 }
 ```
+**Important** The second group needs to release all queued samples otherwise
+the WaitSet would notify the user again that the subscriber from the second 
+group has new samples.
 
 ### Individual
 When every _Triggerable_ requires a different reaction we need to know the 
@@ -295,9 +309,12 @@ class SomeClass
     static void cyclicRun(iox::popo::UserTrigger*)
     {
         std::cout << "activation callback\n";
+        trigger->resetTrigger();
     }
 };
 ```
+**Important** We need to reset the trigger otherwise the WaitSet would notify
+us immediately again since it is state based.
 
 We begin as always, by creating a _WaitSet_ and attaching the `shutdownGuard` to 
 it.
