@@ -134,31 +134,31 @@ TEST_F(PortManager_test, doDiscovery_singleShotPublisherFirst)
     publisher.offer();
     // no doDiscovery() at this position is intentional
 
-    SubscriberPortUser rubscriber1(
+    SubscriberPortUser subscriber1(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).get_value());
-    ASSERT_TRUE(rubscriber1);
-    rubscriber1.subscribe(true);
+    ASSERT_TRUE(subscriber1);
+    subscriber1.subscribe(true);
 
     m_portManager->doDiscovery();
 
     /// @todo #252 fix re-add receive handler before release 1.0?
-    // ASSERT_THAT(publisher.getMembers()->m_rubscriberHandler.m_rubscriberVector.size(), Eq(1u));
-    // auto it = publisher.getMembers()->m_rubscriberHandler.m_rubscriberVector.begin();
+    // ASSERT_THAT(publisher.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
+    // auto it = publisher.getMembers()->m_subscriberHandler.m_subscriberVector.begin();
 
-    // is the correct rubscriber in the rubscriber list
+    // is the correct subscriber in the subscriber list
     // EXPECT_THAT(iox::popo::SubscriberPortUser(*it).getMembers()->m_processName,
-    // Eq(rubscriber1.getMembers()->m_processName));
+    // Eq(subscriber1.getMembers()->m_processName));
 
-    // is the rubscriber connected
-    // EXPECT_TRUE(rubscriber1.isSubscribed());
+    // is the subscriber connected
+    // EXPECT_TRUE(subscriber1.isSubscribed());
 }
 
 TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirst)
 {
-    SubscriberPortUser rubscriber1(
+    SubscriberPortUser subscriber1(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).get_value());
-    ASSERT_TRUE(rubscriber1);
-    rubscriber1.subscribe(true);
+    ASSERT_TRUE(subscriber1);
+    subscriber1.subscribe(true);
     // no doDiscovery() at this position is intentional
 
     PublisherPortUser publisher(
@@ -170,24 +170,24 @@ TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirst)
 
     m_portManager->doDiscovery();
 
-    /// @todo #252 re-add rubscriber handler for v1.0?
-    // ASSERT_THAT(publisher.getMembers()->m_rubscriberHandler.m_rubscriberVector.size(), Eq(1u));
-    // auto it = publisher.getMembers()->m_rubscriberHandler.m_rubscriberVector.begin();
+    /// @todo #252 re-add subscriber handler for v1.0?
+    // ASSERT_THAT(publisher.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
+    // auto it = publisher.getMembers()->m_subscriberHandler.m_subscriberVector.begin();
 
-    // is the correct rubscriber in the rubscriber list
+    // is the correct subscriber in the subscriber list
     // EXPECT_THAT(iox::popo::SubscriberPortUser(*it).getMembers()->m_processName,
-    // Eq(rubscriber1.getMembers()->m_processName));
+    // Eq(subscriber1.getMembers()->m_processName));
 
-    // is the rubscriber connected
-    // EXPECT_TRUE(rubscriber1.isSubscribed());
+    // is the subscriber connected
+    // EXPECT_TRUE(subscriber1.isSubscribed());
 }
 
 TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirstWithDiscovery)
 {
-    SubscriberPortUser rubscriber1(
+    SubscriberPortUser subscriber1(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).get_value());
-    ASSERT_TRUE(rubscriber1);
-    rubscriber1.subscribe(true);
+    ASSERT_TRUE(subscriber1);
+    subscriber1.subscribe(true);
     m_portManager->doDiscovery();
 
     PublisherPortUser publisher(
@@ -199,24 +199,24 @@ TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirstWithDiscovery)
 
     m_portManager->doDiscovery();
 
-    /// @todo #252 re-add rubscriber handler for v1.0?
-    // ASSERT_THAT(publisher.getMembers()->m_rubscriberHandler.m_rubscriberVector.size(), Eq(1u));
-    // auto it = publisher.getMembers()->m_rubscriberHandler.m_rubscriberVector.begin();
+    /// @todo #252 re-add subscriber handler for v1.0?
+    // ASSERT_THAT(publisher.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
+    // auto it = publisher.getMembers()->m_subscriberHandler.m_subscriberVector.begin();
 
-    // is the correct rubscriber in the rubscriber list
+    // is the correct subscriber in the subscriber list
     // EXPECT_THAT(iox::popo::SubscriberPortUser(*it).getMembers()->m_processName,
-    // Eq(rubscriber1.getMembers()->m_processName));
+    // Eq(subscriber1.getMembers()->m_processName));
 
-    // is the rubscriber connected
-    // EXPECT_TRUE(rubscriber1.isSubscribed());
+    // is the subscriber connected
+    // EXPECT_TRUE(subscriber1.isSubscribed());
 }
 
 TEST_F(PortManager_test, doDiscovery_rightOrdering)
 {
-    SubscriberPortUser rubscriber1(
+    SubscriberPortUser subscriber1(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).get_value());
-    ASSERT_TRUE(rubscriber1);
-    rubscriber1.subscribe(true);
+    ASSERT_TRUE(subscriber1);
+    subscriber1.subscribe(true);
     m_portManager->doDiscovery();
 
     PublisherPortUser publisher(
@@ -226,26 +226,26 @@ TEST_F(PortManager_test, doDiscovery_rightOrdering)
     ASSERT_TRUE(publisher);
     publisher.offer();
 
-    SubscriberPortUser rubscriber2(
+    SubscriberPortUser subscriber2(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/ingnatz", "runnable", PortConfigInfo()).get_value());
-    ASSERT_TRUE(rubscriber2);
-    rubscriber2.subscribe(true);
+    ASSERT_TRUE(subscriber2);
+    subscriber2.subscribe(true);
     m_portManager->doDiscovery();
 
-    /// @todo #252 re-add rubscriber handler for v1.0?
-    // check if all rubscribers are subscribed
-    // ASSERT_THAT(publisher.getMembers()->m_rubscriberHandler.m_rubscriberVector.size(), Eq(2u));
-    // auto it = publisher.getMembers()->m_rubscriberHandler.m_rubscriberVector.begin();
+    /// @todo #252 re-add subscriber handler for v1.0?
+    // check if all subscribers are subscribed
+    // ASSERT_THAT(publisher.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(2u));
+    // auto it = publisher.getMembers()->m_subscriberHandler.m_subscriberVector.begin();
 
-    // check if the rubscribers are in the right order
+    // check if the subscribers are in the right order
     // EXPECT_THAT(iox::popo::SubscriberPortUser(*it).getMembers()->m_processName,
-    // Eq(rubscriber1.getMembers()->m_processName)); it++;
+    // Eq(subscriber1.getMembers()->m_processName)); it++;
     // EXPECT_THAT(iox::popo::SubscriberPortUser(*it).getMembers()->m_processName,
-    // Eq(rubscriber2.getMembers()->m_processName));
+    // Eq(subscriber2.getMembers()->m_processName));
 
-    // check if the rubscribers know that they are subscribed
-    // EXPECT_TRUE(rubscriber1.isSubscribed());
-    // EXPECT_TRUE(rubscriber2.isSubscribed());
+    // check if the subscribers know that they are subscribed
+    // EXPECT_TRUE(subscriber1.isSubscribed());
+    // EXPECT_TRUE(subscriber2.isSubscribed());
 }
 
 TEST_F(PortManager_test, PublisherSubscriberOverflow)
@@ -360,17 +360,17 @@ TEST_F(PortManager_test, PortDestroy)
     iox::capro::ServiceDescription cap1(1, 1, 1);
     iox::capro::ServiceDescription cap2(2, 2, 2);
 
-    // two processes p1 and p2 each with a publisher and rubscriber that match to the other process
+    // two processes p1 and p2 each with a publisher and subscriber that match to the other process
     auto publisherData1 =
         m_portManager->acquirePublisherPortData(cap1, 1, p1, m_payloadMemoryManager, "runnable", PortConfigInfo())
             .get_value();
-    auto rubscriberData1 =
+    auto subscriberData1 =
         m_portManager->acquireSubscriberPortData(cap2, 1, p1, "runnable", PortConfigInfo()).get_value();
 
     auto publisherData2 =
         m_portManager->acquirePublisherPortData(cap2, 1, p2, m_payloadMemoryManager, "runnable", PortConfigInfo())
             .get_value();
-    auto rubscriberData2 =
+    auto subscriberData2 =
         m_portManager->acquireSubscriberPortData(cap1, 1, p2, "runnable", PortConfigInfo()).get_value();
 
     // let them connect
@@ -378,76 +378,76 @@ TEST_F(PortManager_test, PortDestroy)
         PublisherPortUser publisher1(publisherData1);
         ASSERT_TRUE(publisher1);
         publisher1.offer();
-        SubscriberPortUser rubscriber1(rubscriberData1);
-        ASSERT_TRUE(rubscriber1);
-        rubscriber1.subscribe(true);
+        SubscriberPortUser subscriber1(subscriberData1);
+        ASSERT_TRUE(subscriber1);
+        subscriber1.subscribe(true);
 
         PublisherPortUser publisher2(publisherData2);
         ASSERT_TRUE(publisher2);
         publisher2.offer();
-        SubscriberPortUser rubscriber2(rubscriberData2);
-        ASSERT_TRUE(rubscriber2);
-        rubscriber2.subscribe(true);
+        SubscriberPortUser subscriber2(subscriberData2);
+        ASSERT_TRUE(subscriber2);
+        subscriber2.subscribe(true);
 
         m_portManager->doDiscovery();
 
-        /// @todo #252 re-add rubscriber handler for v1.0?
-        // ASSERT_THAT(publisher1.getMembers()->m_rubscriberHandler.m_rubscriberVector.size(), Eq(1u));
-        // EXPECT_TRUE(rubscriber1.isSubscribed());
+        /// @todo #252 re-add subscriber handler for v1.0?
+        // ASSERT_THAT(publisher1.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
+        // EXPECT_TRUE(subscriber1.isSubscribed());
 
-        // ASSERT_THAT(publisher2.getMembers()->m_rubscriberHandler.m_rubscriberVector.size(), Eq(1u));
-        // EXPECT_TRUE(rubscriber1.isSubscribed());
+        // ASSERT_THAT(publisher2.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
+        // EXPECT_TRUE(subscriber1.isSubscribed());
     }
 
     // destroy the ports of process p2 and check if states of ports in p1 changed as expected
     {
         PublisherPortUser publisher1(publisherData1);
         ASSERT_TRUE(publisher1);
-        SubscriberPortUser rubscriber1(rubscriberData1);
-        ASSERT_TRUE(rubscriber1);
+        SubscriberPortUser subscriber1(subscriberData1);
+        ASSERT_TRUE(subscriber1);
 
         PublisherPortUser publisher2(publisherData2);
         ASSERT_TRUE(publisher2);
         publisher2.destroy();
-        SubscriberPortUser rubscriber2(rubscriberData2);
-        ASSERT_TRUE(rubscriber2);
-        rubscriber2.destroy();
+        SubscriberPortUser subscriber2(subscriberData2);
+        ASSERT_TRUE(subscriber2);
+        subscriber2.destroy();
 
         m_portManager->doDiscovery();
 
-        /// @todo #252 re-add rubscriber handler for v1.0?
-        // ASSERT_THAT(publisher1.getMembers()->m_rubscriberHandler.m_rubscriberVector.size(), Eq(0u));
-        // EXPECT_FALSE(rubscriber1.isSubscribed());
+        /// @todo #252 re-add subscriber handler for v1.0?
+        // ASSERT_THAT(publisher1.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(0u));
+        // EXPECT_FALSE(subscriber1.isSubscribed());
     }
 
     // re-create the ports of process p2
     publisherData2 =
         m_portManager->acquirePublisherPortData(cap2, 1, p2, m_payloadMemoryManager, "runnable", PortConfigInfo())
             .get_value();
-    rubscriberData2 = m_portManager->acquireSubscriberPortData(cap1, 1, p2, "runnable", PortConfigInfo()).get_value();
+    subscriberData2 = m_portManager->acquireSubscriberPortData(cap1, 1, p2, "runnable", PortConfigInfo()).get_value();
 
     // let them connect
     {
         PublisherPortUser publisher1(publisherData1);
         ASSERT_TRUE(publisher1);
-        SubscriberPortUser rubscriber1(rubscriberData1);
-        ASSERT_TRUE(rubscriber1);
+        SubscriberPortUser subscriber1(subscriberData1);
+        ASSERT_TRUE(subscriber1);
 
         PublisherPortUser publisher2(publisherData2);
         ASSERT_TRUE(publisher2);
         publisher2.offer();
-        SubscriberPortUser rubscriber2(rubscriberData2);
-        ASSERT_TRUE(rubscriber2);
-        rubscriber2.subscribe(true);
+        SubscriberPortUser subscriber2(subscriberData2);
+        ASSERT_TRUE(subscriber2);
+        subscriber2.subscribe(true);
 
         m_portManager->doDiscovery();
 
-        /// @todo #252 re-add rubscriber handler for v1.0?
-        // ASSERT_THAT(publisher1.getMembers()->m_rubscriberHandler.m_rubscriberVector.size(), Eq(1u));
-        // EXPECT_TRUE(rubscriber1.isSubscribed());
+        /// @todo #252 re-add subscriber handler for v1.0?
+        // ASSERT_THAT(publisher1.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
+        // EXPECT_TRUE(subscriber1.isSubscribed());
 
-        // ASSERT_THAT(publisher2.getMembers()->m_rubscriberHandler.m_rubscriberVector.size(), Eq(1u));
-        // EXPECT_TRUE(rubscriber1.isSubscribed());
+        // ASSERT_THAT(publisher2.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
+        // EXPECT_TRUE(subscriber1.isSubscribed());
     }
 
     // cleanup process p2 and check if states of ports in p1 changed  as expected
@@ -455,11 +455,11 @@ TEST_F(PortManager_test, PortDestroy)
         m_portManager->deletePortsOfProcess(p2);
         PublisherPortUser publisher1(publisherData1);
         ASSERT_TRUE(publisher1);
-        SubscriberPortUser rubscriber1(rubscriberData1);
-        ASSERT_TRUE(rubscriber1);
+        SubscriberPortUser subscriber1(subscriberData1);
+        ASSERT_TRUE(subscriber1);
 
-        /// @todo #252 re-add rubscriber handler for v1.0?
-        // ASSERT_THAT(publisher1.getMembers()->m_rubscriberHandler.m_rubscriberVector.size(), Eq(0u));
-        // EXPECT_FALSE(rubscriber1.isSubscribed());
+        /// @todo #252 re-add subscriber handler for v1.0?
+        // ASSERT_THAT(publisher1.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(0u));
+        // EXPECT_FALSE(subscriber1.isSubscribed());
     }
 }
