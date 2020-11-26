@@ -53,7 +53,10 @@ class PoshRuntime
   public:
     /// @brief creates the runtime or return the already existing one -> Singleton
     /// @param[in] name name that is used for registering the process with the RouDi daemon
-    static PoshRuntime& getInstance(const ProcessName_t& name = defaultRuntimeInstanceName()) noexcept;
+    [[deprecated]] static PoshRuntime& getInstance(const ProcessName_t& name = defaultRuntimeInstanceName()) noexcept;
+
+
+    static PoshRuntime& initRuntime(const ProcessName_t& name) noexcept;
 
     /// @brief get the name that was used to register with RouDi
     /// @return name of the reistered application

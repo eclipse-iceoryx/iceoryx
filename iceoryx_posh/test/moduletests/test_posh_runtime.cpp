@@ -72,7 +72,7 @@ class PoshRuntime_test : public Test
         std::string output = internal::GetCapturedStdout();
         if (Test::HasFailure())
         {
-           std::cout << output << std::endl;
+            std::cout << output << std::endl;
         }
     };
 
@@ -83,7 +83,7 @@ class PoshRuntime_test : public Test
 
     const iox::ProcessName_t m_runtimeName{"/publisher"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
-    PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::getInstance(m_runtimeName)};
+    PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
     MqMessage m_sendBuffer;
     MqMessage m_receiveBuffer;
     const iox::RunnableName_t m_runnableName{"testRunnable"};
@@ -98,7 +98,7 @@ TEST_F(PoshRuntime_test, ValidAppName)
 {
     iox::ProcessName_t appName("/valid_name");
 
-    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(appName); });
+    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::initRuntime(appName); });
 }
 
 TEST_F(PoshRuntime_test, MaxAppNameLength)
@@ -106,7 +106,7 @@ TEST_F(PoshRuntime_test, MaxAppNameLength)
     std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH, 's');
     maxValidName.front() = '/';
 
-    auto& runtime = PoshRuntime::getInstance(iox::ProcessName_t(iox::cxx::TruncateToCapacity, maxValidName));
+    auto& runtime = PoshRuntime::initRuntime(iox::ProcessName_t(iox::cxx::TruncateToCapacity, maxValidName));
 
     EXPECT_THAT(maxValidName, StrEq(runtime.getInstanceName().c_str()));
 }
@@ -116,7 +116,7 @@ TEST_F(PoshRuntime_test, NoAppName)
 {
     const iox::ProcessName_t invalidAppName("");
 
-    EXPECT_DEATH({ PoshRuntime::getInstance(invalidAppName); },
+    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
                  "Cannot initialize runtime. Application name must not be empty!");
 }
 
@@ -126,7 +126,7 @@ TEST_F(PoshRuntime_test, NoLeadingSlashAppName)
     const iox::ProcessName_t invalidAppName = "invalidname";
 
     EXPECT_DEATH(
-        { PoshRuntime::getInstance(invalidAppName); },
+        { PoshRuntime::initRuntime(invalidAppName); },
         "Cannot initialize runtime. Application name invalidname does not have the required leading slash '/'");
 }
 
@@ -146,7 +146,7 @@ TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 {
     const iox::ProcessName_t appname = "/app";
 
-    auto& sut = PoshRuntime::getInstance(appname);
+    auto& sut = PoshRuntime::initRuntime(appname);
 
     EXPECT_EQ(sut.getInstanceName(), appname);
 }
@@ -527,7 +527,7 @@ TEST_F(PoshRuntime_test, CreateRunnableReturnValue)
 TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
 {
     PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
-    PoshRuntimeTestAccess::getInstance("/instance");
+    PoshRuntimeTestAccess::initRuntime("/instance");
 
     EXPECT_TRUE(callbackWasCalled);
 }
