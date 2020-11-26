@@ -338,6 +338,17 @@ inline const optional<T>& optional<T>::or_else(const cxx::function_ref<void()>& 
     return *this;
 }
 
+template <typename T>
+template <typename ChainableType, typename std::enable_if_t<fails_with_error<ChainableType, typename ChainableType::error_type>::value, int>>
+inline optional<T>&
+optional<T>::or_else(const cxx::function_ref<void(typename ChainableType::error_type&)>& callable) noexcept
+{
+    if(has_value())
+    {
+        value().or_else(callable);
+    }
+    return *this;
+}
 
 } // namespace cxx
 } // namespace iox

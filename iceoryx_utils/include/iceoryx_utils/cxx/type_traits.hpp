@@ -16,6 +16,7 @@
 #define IOX_UTILS_CXX_TYPE_TRAITS_HPP
 
 #include <type_traits>
+#include <tuple>
 
 namespace iox
 {
@@ -37,7 +38,7 @@ struct is_optional<T, std::void_t<decltype(std::declval<T>().has_value())>> : st
 };
 
 ///
-/// @brief Identifies structs as being "chainable" by the presence of an "and_then" method.
+/// @brief Identifies structs that can be chained on success.
 ///
 template <typename, typename = void>
 struct is_chainable : std::false_type
@@ -46,23 +47,38 @@ struct is_chainable : std::false_type
 template <typename T>
 struct is_chainable<T,
                     std::void_t<decltype(
-                        static_cast<T& (T::*)(const cxx::function_ref<void(typename T::inner_type&)>&)>(&T::and_then))>>
+                        static_cast<T& (T::*)(const cxx::function_ref<void(typename T::type&)>&)>(&T::and_then))>>
     : std::true_type
 {
 };
 
 ///
-/// @brief Determines the underlying type of a functional chain.
+/// @brief Identifies types that fail loudly.
+///
+template<typename, typename, typename = void>
+struct fails_with_error : std::false_type
+{
+};
+
+template<typename T, typename ErrorType>
+struct fails_with_error<T, ErrorType, std::void_t<decltype (static_cast<T& (T::*)(const cxx::function_ref<void(ErrorType&)>&)>(&T::or_else))>> : std::true_type
+{
+};
+
+///
+/// @brief Determine the output type of a functional chain.
 ///
 template <typename T, typename = void>
 struct flatten
 {
     using type = T;
 };
-template <template <typename, typename...> class T, typename FirstArg, typename... OtherArgs>
-struct flatten<T<FirstArg, OtherArgs...>, typename std::enable_if<is_chainable<T<FirstArg, OtherArgs...>>::value>::type>
+
+template <template <typename...> class TemplateType, typename... Args>
+struct flatten<TemplateType<Args...>, typename std::enable_if_t<is_chainable<TemplateType<Args...>>::value>>
 {
-    using type = typename flatten<FirstArg>::type;
+    // Assumes the intended output type is always the first argument.
+    using type = typename flatten<std::tuple_element_t<0, std::tuple<Args...>>>::type;
 };
 
 ///

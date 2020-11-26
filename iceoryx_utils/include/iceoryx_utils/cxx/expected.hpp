@@ -136,6 +136,7 @@ class expected<ErrorType>
   public:
     using type = void;
     using inner_type = void;
+    using error_type = ErrorType;
 
     /// @brief default ctor is deleted since you have to clearly state if the
     ///         expected contains a success value or an error value
@@ -367,6 +368,7 @@ class expected<ValueType, ErrorType>
   public:
     using type = ValueType;
     using inner_type = typename flatten<ValueType>::type;
+    using error_type = ErrorType;
 
     /// @brief default ctor is deleted since you have to clearly state if the
     ///         expected contains a success value or an error value

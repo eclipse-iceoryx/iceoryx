@@ -61,6 +61,7 @@ class optional
   public:
     using type = T;
     using inner_type = typename flatten<T>::type;
+    using error_type = void;
 
     /// @brief Creates an optional which has no value. If you access such an
     ///         optional via .value() or the arrow operator the behavior is
@@ -238,6 +239,11 @@ class optional
     /// @param[in] callable
     /// @return reference to this
     const optional& or_else(const cxx::function_ref<void()>& callable) const noexcept;
+
+    // The ChainableType also encodes the ErrorType... we need to know this to know which methods to generate.
+    // What's the best way to retrieve this ?
+    template<typename ChainableType = T, typename std::enable_if_t<fails_with_error<ChainableType, typename ChainableType::error_type>::value, int> = 0>
+    optional& or_else(const cxx::function_ref<void(typename ChainableType::error_type&)>& callable) noexcept;
 
   private:
     alignas(alignof(T)) byte_t m_data[sizeof(T)];
