@@ -90,6 +90,11 @@ constexpr uint32_t MAX_SUBSCRIBERS = build::IOX_MAX_SUBSCRIBERS;
 constexpr uint32_t MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY =
     build::IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
 constexpr uint32_t MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
+// Introspection is using the following publisherPorts, which reduced the number of ports available for the user
+// 1x publisherPort mempool introspection
+// 1x publisherPort process introspection
+// 3x publisherPort port introspection
+constexpr uint32_t PUBLISHERS_RESERVED_FOR_INTROSPECTION = 5;
 /// With MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY we couple the maximum number of
 /// chunks a user is allowed to hold with the maximum queue capacity. This allows that a polling user can replace all
 /// the held chunks in one execution with all new ones from a completely filled queue. Or the other way round, when we

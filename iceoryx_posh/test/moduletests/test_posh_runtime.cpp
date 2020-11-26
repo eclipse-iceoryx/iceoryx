@@ -255,7 +255,7 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
         });
 
     uint32_t i{0U};
-    for (; i < iox::MAX_PUBLISHERS; ++i)
+    for (; i < (iox::MAX_PUBLISHERS - iox::PUBLISHERS_RESERVED_FOR_INTROSPECTION); ++i)
     {
         auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
         ASSERT_NE(nullptr, publisherPort);
