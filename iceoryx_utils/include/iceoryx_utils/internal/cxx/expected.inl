@@ -411,6 +411,14 @@ inline expected<ValueType, ErrorType>& expected<ValueType, ErrorType>::and_then(
 
 template <typename ValueType, typename ErrorType>
 template<typename FunctionalType = ValueType, typename std::enable_if_t<has_or_else_without_error<FunctionalType>::value, int> = 0>
+inline const expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void()>& callable) const noexcept
+{
+    return const_cast<expected*>(this)->or_else(callable);
+}
+
+template <typename ValueType, typename ErrorType>
+template<typename FunctionalType = ValueType, typename std::enable_if_t<has_or_else_without_error<FunctionalType>::value, int> = 0>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void()>& callable) noexcept
 {
@@ -421,30 +429,6 @@ expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void()>& callabl
 
     return *this;
 }
-
-template <typename ValueType, typename ErrorType>
-template <typename OptionalType, typename std::enable_if<is_optional<OptionalType>::value, int>::type>
-inline const expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) const noexcept
-{
-    return const_cast<expected*>(this)->if_empty(callable);
-}
-
-template <typename ValueType, typename ErrorType>
-template <typename OptionalType, typename std::enable_if<is_optional<OptionalType>::value, int>::type>
-inline expected<ValueType, ErrorType>&
-expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) noexcept
-{
-    if (!this->has_error())
-    {
-        // Optional will execute the provided callable when empty.
-        auto& optional = value();
-        optional.or_else(callable);
-    }
-
-    return *this;
-}
-
 
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&

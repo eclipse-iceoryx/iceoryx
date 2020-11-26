@@ -36,18 +36,6 @@ enum class DummyErrorTwo
     UH_OH
 };
 
-TEST_F(ExpectedOptionalChainingTest, TypeTraits)
-{
-    static_assert(has_and_then<expected<int, DummyError>>::value, "expected<int, DummyErrorTwo> is not chainable");
-    static_assert(has_and_then<expected<expected<int, DummyErrorTwo>, DummyError>>::value, "expected<expected<int, DummyErrorTwo>, DummyError> is not chainable");
-    static_assert(has_and_then<optional<expected<expected<int, DummyErrorTwo>, DummyError>>>::value, "optional<expected<expected<int, DummyErrorTwo>, DummyError>> is not chainable");
-
-    static_assert(std::is_same<flatten<optional<int>>::type, int>::value, "");
-    static_assert(std::is_same<flatten<optional<optional<int>>>::type, int>::value, "");
-    static_assert(std::is_same<flatten<expected<int, DummyError>>::type, int>::value, "");
-
-}
-
 // expected<optional<T>>
 TEST_F(ExpectedOptionalChainingTest, ExpectedOptionalHasValue)
 {

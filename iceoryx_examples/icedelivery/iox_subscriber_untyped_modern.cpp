@@ -49,8 +49,8 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
                         std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
                                   << std::endl;
                     })
-                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
-                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+                    .or_else([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Got an error receiving chunk." << std::endl; });
             }
         }
     }

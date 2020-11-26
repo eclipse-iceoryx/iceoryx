@@ -738,39 +738,8 @@ class expected<ValueType, ErrorType>
     template<typename FunctionalType = ValueType, typename std::enable_if_t<has_or_else_without_error<FunctionalType>::value, int> = 0>
     expected& or_else(const cxx::function_ref<void()>& callable) noexcept;
 
-    ///
-    /// @brief if the expected contains a success value and its type is an empty optional, calls the provided callable
-    /// @param[in] callable the callable to be called if the contained optional is empty
-    /// @return reference to the expected
-    /// @code
-    ///     anExpectedOptional.and_then([](SomeType& value){
-    ///             std::cout << "we got something in the optional: " << value << std::endl;
-    ///         })
-    ///         .if_empty([](){
-    ///             std::cout << "the optional was empty, but do something anyway!" << result << std::endl;
-    ///         })
-    /// @endcode
-    ///
-    template <typename OptionalType = ValueType,
-              typename std::enable_if<is_optional<OptionalType>::value, int>::type = 0>
-    const expected& if_empty(const cxx::function_ref<void()>& callable) const noexcept;
-
-    ///
-    /// @brief if the expected contains a success value and its type is an empty optional, calls the provided callable
-    /// @param[in] callable the callable to be called if the contained optional is empty
-    /// @return reference to the expected
-    /// @code
-    ///     anExpectedOptional.and_then([](SomeType& value){
-    ///             std::cout << "we got something in the optional: " << value << std::endl;
-    ///         })
-    ///         .if_empty([](){
-    ///             std::cout << "the optional was empty, but do something anyway!" << result << std::endl;
-    ///         })
-    /// @endcode
-    ///
-    template <typename OptionalType = ValueType,
-              typename std::enable_if<is_optional<OptionalType>::value, int>::type = 0>
-    expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
+    template<typename FunctionalType = ValueType, typename std::enable_if_t<has_or_else_without_error<FunctionalType>::value, int> = 0>
+    const expected& or_else(const cxx::function_ref<void()>& callable) const noexcept;
 
     optional<ValueType> to_optional() const noexcept;
 
