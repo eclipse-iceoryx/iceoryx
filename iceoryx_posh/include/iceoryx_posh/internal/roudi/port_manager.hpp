@@ -129,7 +129,7 @@ class PortManager
     RouDiMemoryInterface* m_roudiMemoryInterface{nullptr};
     PortPool* m_portPool{nullptr};
     ServiceRegistry m_serviceRegistry;
-    PortIntrospection m_portIntrospection;
+    PortIntrospectionType m_portIntrospection;
 };
 } // namespace roudi
 } // namespace iox

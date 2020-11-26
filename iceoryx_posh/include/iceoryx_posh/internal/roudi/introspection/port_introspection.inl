@@ -18,54 +18,62 @@ namespace iox
 {
 namespace roudi
 {
-PortIntrospection::PortIntrospection()
+template <typename PublisherPort, typename SubscriberPort>
+PortIntrospection<PublisherPort, SubscriberPort>::PortIntrospection()
     : m_runThread(false)
 {
 }
 
-PortIntrospection::PortData::PortData()
+template <typename PublisherPort, typename SubscriberPort>
+PortIntrospection<PublisherPort, SubscriberPort>::PortData::PortData()
     : m_newData(true)
 {
 }
 
-PortIntrospection::~PortIntrospection()
+template <typename PublisherPort, typename SubscriberPort>
+PortIntrospection<PublisherPort, SubscriberPort>::~PortIntrospection()
 {
     stop();
 }
 
-void PortIntrospection::reportMessage(const capro::CaproMessage& message)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(const capro::CaproMessage& message)
 {
     m_portData.updateConnectionState(message);
 }
 
-bool PortIntrospection::registerPublisherPort(popo::PublisherPortData* publisherPortGeneric,
-                                              popo::PublisherPortData* publisherPortThroughput,
-                                              popo::PublisherPortData* publisherPortSubscriberPortsData)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::registerPublisherPort(
+    typename PublisherPort::MemberType_t* publisherPortGeneric,
+    typename PublisherPort::MemberType_t* publisherPortThroughput,
+    typename PublisherPort::MemberType_t* publisherPortSubscriberPortsData)
 {
     if (m_publisherPort || m_publisherPortThroughput || m_publisherPortSubscriberPortsData)
     {
         return false;
     }
 
-    m_publisherPort = popo::PublisherPortUser(publisherPortGeneric);
-    m_publisherPortThroughput = popo::PublisherPortUser(publisherPortThroughput);
-    m_publisherPortSubscriberPortsData = popo::PublisherPortUser(publisherPortSubscriberPortsData);
+    m_publisherPort.emplace(publisherPortGeneric);
+    m_publisherPortThroughput.emplace(publisherPortThroughput);
+    m_publisherPortSubscriberPortsData.emplace(publisherPortSubscriberPortsData);
 
     return true;
 }
 
-void PortIntrospection::run()
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::run()
 {
-    cxx::Expects(m_publisherPort);
-    cxx::Expects(m_publisherPortThroughput);
+    cxx::Expects(m_publisherPort.has_value());
+    cxx::Expects(m_publisherPortThroughput.has_value());
+    cxx::Expects(m_publisherPortSubscriberPortsData.has_value());
 
     // this is a field, there needs to be a sample before activate is called
     sendPortData();
     sendThroughputData();
     sendSubscriberPortsData();
-    m_publisherPort.offer();
-    m_publisherPortThroughput.offer();
-    m_publisherPortSubscriberPortsData.offer();
+    m_publisherPort->offer();
+    m_publisherPortThroughput->offer();
+    m_publisherPortSubscriberPortsData->offer();
 
     /// @todo the thread sleep mechanism needs to be redone with a trigger queue with a try_pop with timeout
     /// functionality
@@ -94,9 +102,10 @@ void PortIntrospection::run()
     pthread_setname_np(m_thread.native_handle(), "PortIntr");
 }
 
-void PortIntrospection::sendPortData()
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::sendPortData()
 {
-    auto maybeChunkHeader = m_publisherPort.tryAllocateChunk(sizeof(PortIntrospectionFieldTopic));
+    auto maybeChunkHeader = m_publisherPort->tryAllocateChunk(sizeof(PortIntrospectionFieldTopic));
     if (!maybeChunkHeader.has_error())
     {
         auto sample = static_cast<PortIntrospectionFieldTopic*>(maybeChunkHeader.get_value()->payload());
@@ -104,13 +113,14 @@ void PortIntrospection::sendPortData()
 
         m_portData.prepareTopic(*sample); // requires internal mutex (blocks
                                           // further introspection events)
-        m_publisherPort.sendChunk(maybeChunkHeader.get_value());
+        m_publisherPort->sendChunk(maybeChunkHeader.get_value());
     }
 }
 
-void PortIntrospection::sendThroughputData()
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::sendThroughputData()
 {
-    auto maybeChunkHeader = m_publisherPortThroughput.tryAllocateChunk(sizeof(PortThroughputIntrospectionFieldTopic));
+    auto maybeChunkHeader = m_publisherPortThroughput->tryAllocateChunk(sizeof(PortThroughputIntrospectionFieldTopic));
     if (!maybeChunkHeader.has_error())
     {
         auto throughputSample =
@@ -119,14 +129,15 @@ void PortIntrospection::sendThroughputData()
 
         m_portData.prepareTopic(*throughputSample); // requires internal mutex (blocks
         // further introspection events)
-        m_publisherPortThroughput.sendChunk(maybeChunkHeader.get_value());
+        m_publisherPortThroughput->sendChunk(maybeChunkHeader.get_value());
     }
 }
 
-void PortIntrospection::sendSubscriberPortsData()
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::sendSubscriberPortsData()
 {
     auto maybeChunkHeader =
-        m_publisherPortSubscriberPortsData.tryAllocateChunk(sizeof(SubscriberPortChangingIntrospectionFieldTopic));
+        m_publisherPortSubscriberPortsData->tryAllocateChunk(sizeof(SubscriberPortChangingIntrospectionFieldTopic));
     if (!maybeChunkHeader.has_error())
     {
         auto subscriberPortChangingDataSample =
@@ -135,11 +146,12 @@ void PortIntrospection::sendSubscriberPortsData()
 
         m_portData.prepareTopic(*subscriberPortChangingDataSample); // requires internal mutex (blocks
         // further introspection events)
-        m_publisherPortSubscriberPortsData.sendChunk(maybeChunkHeader.get_value());
+        m_publisherPortSubscriberPortsData->sendChunk(maybeChunkHeader.get_value());
     }
 }
 
-void PortIntrospection::setSendInterval(unsigned int interval_ms)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::setSendInterval(unsigned int interval_ms)
 {
     if (std::chrono::milliseconds(interval_ms) >= m_sendIntervalSleep)
     {
@@ -151,8 +163,8 @@ void PortIntrospection::setSendInterval(unsigned int interval_ms)
     }
 }
 
-
-void PortIntrospection::stop()
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::stop()
 {
     m_runThread.store(false, std::memory_order_relaxed);
     if (m_thread.joinable())
@@ -161,7 +173,9 @@ void PortIntrospection::stop()
     }
 }
 
-bool PortIntrospection::PortData::updateConnectionState(const capro::CaproMessage& message)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateConnectionState(
+    const capro::CaproMessage& message)
 {
     const capro::ServiceDescription& service = message.m_serviceDescription;
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
@@ -192,10 +206,12 @@ bool PortIntrospection::PortData::updateConnectionState(const capro::CaproMessag
     return true;
 }
 
-bool PortIntrospection::PortData::addPublisher(popo::PublisherPortData* port,
-                                               const std::string& name,
-                                               const capro::ServiceDescription& service,
-                                               const std::string& runnable)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
+    typename PublisherPort::MemberType_t* port,
+    const std::string& name,
+    const capro::ServiceDescription& service,
+    const std::string& runnable)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
@@ -235,10 +251,12 @@ bool PortIntrospection::PortData::addPublisher(popo::PublisherPortData* port,
     return true;
 }
 
-bool PortIntrospection::PortData::addSubscriber(popo::SubscriberPortData* portData,
-                                                const std::string& name,
-                                                const capro::ServiceDescription& service,
-                                                const std::string& runnable)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubscriber(
+    typename SubscriberPort::MemberType_t* portData,
+    const std::string& name,
+    const capro::ServiceDescription& service,
+    const std::string& runnable)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
@@ -279,8 +297,9 @@ bool PortIntrospection::PortData::addSubscriber(popo::SubscriberPortData* portDa
     return true;
 }
 
-bool PortIntrospection::PortData::removePublisher(const std::string& name [[gnu::unused]],
-                                                  const capro::ServiceDescription& service)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher(
+    const std::string& name [[gnu::unused]], const capro::ServiceDescription& service)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
@@ -308,7 +327,9 @@ bool PortIntrospection::PortData::removePublisher(const std::string& name [[gnu:
     return true;
 }
 
-bool PortIntrospection::PortData::removeSubscriber(const std::string& name, const capro::ServiceDescription& service)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSubscriber(
+    const std::string& name, const capro::ServiceDescription& service)
 {
     std::string serviceId = static_cast<cxx::Serialization>(service).toString();
 
@@ -349,8 +370,10 @@ bool PortIntrospection::PortData::removeSubscriber(const std::string& name, cons
     return true;
 }
 
-typename PortIntrospection::ConnectionState
-PortIntrospection::PortData::getNextState(ConnectionState currentState, capro::CaproMessageType messageType)
+template <typename PublisherPort, typename SubscriberPort>
+typename PortIntrospection<PublisherPort, SubscriberPort>::ConnectionState
+PortIntrospection<PublisherPort, SubscriberPort>::PortData::getNextState(ConnectionState currentState,
+                                                                         capro::CaproMessageType messageType)
 {
     ConnectionState nextState = currentState; // stay in currentState as default transition
 
@@ -403,7 +426,8 @@ PortIntrospection::PortData::getNextState(ConnectionState currentState, capro::C
     return nextState;
 }
 
-void PortIntrospection::PortData::prepareTopic(PortIntrospectionTopic& topic)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortIntrospectionTopic& topic)
 {
     auto& m_publisherList = topic.m_publisherList;
 
@@ -417,7 +441,7 @@ void PortIntrospection::PortData::prepareTopic(PortIntrospectionTopic& topic)
         {
             auto& publisherInfo = m_publisherContainer[m_publisherIndex];
             PublisherPortData publisherData;
-            popo::PublisherPortUser port(publisherInfo.portData);
+            PublisherPort port(publisherInfo.portData);
             publisherData.m_publisherPortID = static_cast<uint64_t>(port.getUniqueID());
             publisherData.m_sourceInterface = publisherInfo.service.getSourceInterface();
             publisherData.m_name = cxx::string<100>(cxx::TruncateToCapacity, publisherInfo.name.c_str());
@@ -465,7 +489,8 @@ void PortIntrospection::PortData::prepareTopic(PortIntrospectionTopic& topic)
     setNew(false);
 }
 
-void PortIntrospection::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic)
 {
     /// @todo #252 re-add port throughput for v1.0?
     auto& m_throughputList = topic.m_throughputList;
@@ -481,7 +506,7 @@ void PortIntrospection::PortData::prepareTopic(PortThroughputIntrospectionTopic&
             auto& publisherInfo = m_publisherContainer[m_publisherIndex];
             PortThroughputData throughputData;
 
-            popo::PublisherPortUser port(publisherInfo.portData);
+            PublisherPort port(publisherInfo.portData);
             // auto introData = port.getThroughput();
             throughputData.m_publisherPortID = static_cast<uint64_t>(port.getUniqueID());
             throughputData.m_sampleSize = 0; // introData.payloadSize;
@@ -506,7 +531,9 @@ void PortIntrospection::PortData::prepareTopic(PortThroughputIntrospectionTopic&
     }
 }
 
-void PortIntrospection::PortData::prepareTopic(SubscriberPortChangingIntrospectionFieldTopic& topic)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(
+    SubscriberPortChangingIntrospectionFieldTopic& topic)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     for (auto& connPair : m_connectionMap)
@@ -521,7 +548,7 @@ void PortIntrospection::PortData::prepareTopic(SubscriberPortChangingIntrospecti
                 SubscriberPortChangingData subscriberData;
                 if (subscriberInfo.portData != nullptr)
                 {
-                    popo::SubscriberPortUser port(subscriberInfo.portData);
+                    SubscriberPort port(subscriberInfo.portData);
                     // subscriberData.fifoCapacity = port.getDeliveryFiFoCapacity();
                     // subscriberData.fifoSize = port.getDeliveryFiFoSize();
                     subscriberData.subscriptionState = port.getSubscriptionState();
@@ -542,38 +569,46 @@ void PortIntrospection::PortData::prepareTopic(SubscriberPortChangingIntrospecti
     }
 }
 
-bool PortIntrospection::PortData::isNew()
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::isNew()
 {
     return m_newData.load(std::memory_order_acquire);
 }
 
-void PortIntrospection::PortData::setNew(bool value)
+template <typename PublisherPort, typename SubscriberPort>
+void PortIntrospection<PublisherPort, SubscriberPort>::PortData::setNew(bool value)
 {
     m_newData.store(value, std::memory_order_release);
 }
 
-bool PortIntrospection::addPublisher(popo::PublisherPortData* port,
-                                     const std::string& name,
-                                     const capro::ServiceDescription& service,
-                                     const std::string& runnable)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t* port,
+                                                                    const std::string& name,
+                                                                    const capro::ServiceDescription& service,
+                                                                    const std::string& runnable)
 {
     return m_portData.addPublisher(port, name, service, runnable);
 }
 
-bool PortIntrospection::addSubscriber(popo::SubscriberPortData* portData,
-                                      const std::string& name,
-                                      const capro::ServiceDescription& service,
-                                      const std::string& runnable)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename SubscriberPort::MemberType_t* portData,
+                                                                     const std::string& name,
+                                                                     const capro::ServiceDescription& service,
+                                                                     const std::string& runnable)
 {
     return m_portData.addSubscriber(portData, name, service, runnable);
 }
 
-bool PortIntrospection::removePublisher(const std::string& name, const capro::ServiceDescription& service)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::removePublisher(const std::string& name,
+                                                                       const capro::ServiceDescription& service)
 {
     return m_portData.removePublisher(name, service);
 }
 
-bool PortIntrospection::removeSubscriber(const std::string& name, const capro::ServiceDescription& service)
+template <typename PublisherPort, typename SubscriberPort>
+bool PortIntrospection<PublisherPort, SubscriberPort>::removeSubscriber(const std::string& name,
+                                                                        const capro::ServiceDescription& service)
 {
     return m_portData.removeSubscriber(name, service);
 }

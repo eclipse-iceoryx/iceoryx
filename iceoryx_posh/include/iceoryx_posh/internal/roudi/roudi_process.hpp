@@ -160,7 +160,7 @@ class ProcessManager : public ProcessManagerInterface
 
     void addConditionVariableForProcess(const ProcessName_t& processName) noexcept;
 
-    void initIntrospection(ProcessIntrospection* processIntrospection) noexcept;
+    void initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept;
 
     void run() noexcept;
 
@@ -238,7 +238,7 @@ class ProcessManager : public ProcessManagerInterface
 
     ProcessList_t m_processList;
 
-    ProcessIntrospection* m_processIntrospection{nullptr};
+    ProcessIntrospectionType* m_processIntrospection{nullptr};
 
     // this is currently used for the internal publisher/subscriber ports
     mepoo::MemoryManager* m_memoryManagerOfCurrentProcess{nullptr};

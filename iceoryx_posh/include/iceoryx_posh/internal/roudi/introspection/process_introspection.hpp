@@ -29,12 +29,13 @@ namespace roudi
 {
 /**
  * @brief This class handles the process intropection for RouDi.
- *        It is recommended to use the ProcessIntrospection alias which sets
+ *        It is recommended to use the ProcessIntrospectionType alias which sets
  *        the intended template parameter.
  *
  *        The class tracks the adding and removal of processes and sends it to
  *        the introspection client if subscribed.
  */
+template <typename PublisherPort>
 class ProcessIntrospection
 {
   public:
@@ -85,7 +86,7 @@ class ProcessIntrospection
      *
      * @param publisherPort is the publisher port for transmission
      */
-    void registerPublisherPort(popo::PublisherPortData* publisherPort);
+    void registerPublisherPort(typename PublisherPort::MemberType_t* publisherPort);
 
     /**
      * @brief This function starts a thread which periodically sends
@@ -116,7 +117,7 @@ class ProcessIntrospection
     ProcessList_t m_processList;
     bool m_processListNewData{true}; // true because we want to have a valid field, even with an empty list
 
-    cxx::optional<popo::PublisherPortUser> m_publisherPort;
+    cxx::optional<PublisherPort> m_publisherPort;
 
     std::atomic<bool> m_runThread;
     std::thread m_thread;
@@ -128,6 +129,12 @@ class ProcessIntrospection
   private:
     void send();
 };
+
+/**
+ * @brief typedef for the templated process introspection class that is used by RouDi for the
+ * actual process introspection functionality.
+ */
+using ProcessIntrospectionType = ProcessIntrospection<PublisherPortUserType>;
 
 } // namespace roudi
 } // namespace iox

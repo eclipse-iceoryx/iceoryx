@@ -28,17 +28,17 @@ using iox::mepoo::DurationNs;
 using iox::mepoo::TimePointNs;
 
 #include <cstdint>
-// MockPublisherPortUser, MockSubscriberPortUser
-class PortIntrospectionAccess : public iox::roudi::PortIntrospection
+template <typename PublisherPort, typename SubscriberPort>
+class PortIntrospectionAccess : public iox::roudi::PortIntrospection<PublisherPort, SubscriberPort>
 {
   public:
     void sendPortData()
     {
-        iox::roudi::PortIntrospection::sendPortData();
+        iox::roudi::PortIntrospection<PublisherPort, SubscriberPort>::sendPortData();
     }
     void sendThroughputData()
     {
-        iox::roudi::PortIntrospection::sendThroughputData();
+        iox::roudi::PortIntrospection<PublisherPort, SubscriberPort>::sendThroughputData();
     }
 };
 
@@ -46,7 +46,8 @@ class PortIntrospection_test : public Test
 {
   public:
     PortIntrospection_test()
-        : m_introspectionAccess(static_cast<PortIntrospectionAccess&>(*m_introspection))
+        : m_introspectionAccess(
+            static_cast<PortIntrospectionAccess<MockPublisherPortUser, MockSubscriberPortUser>&>(*m_introspection))
     {
     }
 
@@ -124,8 +125,9 @@ class PortIntrospection_test : public Test
     MockPublisherPortUser m_publisherPortImpl_mock;
     MockPublisherPortUser m_portThroughput_mock;
     MockPublisherPortUser m_subscriberPortData_mock;
-    std::unique_ptr<iox::roudi::PortIntrospection> m_introspection{new iox::roudi::PortIntrospection};
-    PortIntrospectionAccess& m_introspectionAccess;
+    std::unique_ptr<iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>> m_introspection{
+        new iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>};
+    PortIntrospectionAccess<MockPublisherPortUser, MockSubscriberPortUser>& m_introspectionAccess;
 };
 
 
@@ -135,7 +137,8 @@ TEST_F(PortIntrospection_test, registerPublisherPort)
     iox::popo::PublisherPortData m_publisherPortDataThroughput{m_serviceDescription, "Foo", &m_memoryManager};
     iox::popo::PublisherPortData m_publisherPortDataSubscriberData{m_serviceDescription, "Foo", &m_memoryManager};
 
-    auto introspection = std::unique_ptr<iox::roudi::PortIntrospection>(new iox::roudi::PortIntrospection);
+    auto introspection = std::unique_ptr<iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>>(
+        new iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>);
 
     EXPECT_THAT(introspection->registerPublisherPort(&m_publisherPortDataPortGeneric,
                                                      &m_publisherPortDataThroughput,
