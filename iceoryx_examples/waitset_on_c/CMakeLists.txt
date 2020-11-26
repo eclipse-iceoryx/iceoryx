@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,7 +45,17 @@ set_target_properties(iox-ex-c-waitset-gateway PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
+add_executable(iox-ex-c-waitset-grouping ./ice_c_waitset_grouping.c)
+set_source_files_properties(./ice_c_waitset_grouping.c PROPERTIES LANGUAGE C)
+target_link_libraries(iox-ex-c-waitset-grouping
+    iceoryx_posh::iceoryx_posh
+    iceoryx_binding_c::iceoryx_binding_c
+)
+set_target_properties(iox-ex-c-waitset-grouping PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+)
+
 install(
-    TARGETS iox-ex-c-waitset-publisher iox-ex-c-waitset-gateway
+    TARGETS iox-ex-c-waitset-publisher iox-ex-c-waitset-gateway iox-ex-c-waitset-grouping
     RUNTIME DESTINATION bin
 )

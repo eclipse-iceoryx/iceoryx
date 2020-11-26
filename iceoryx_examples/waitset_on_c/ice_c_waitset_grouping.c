@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define NUMBER_OF_TRIGGER 3
-#define NUMBER_OF_SUBSCRIBER 2
+#define NUMBER_OF_TRIGGER 5
+#define NUMBER_OF_SUBSCRIBER 4
 
 iox_user_trigger_storage_t shutdowGuardStorage;
 iox_user_trigger_t shutdownGuard;
@@ -39,23 +39,9 @@ static void sigHandler(int signalValue)
     iox_user_trigger_trigger(shutdownGuard);
 }
 
-// The callback of the trigger. Every callback must have an argument which is
-// a pointer to the origin of the Trigger. In our case the trigger origin is
-// an iox_sub_t.
-void subscriberCallback(iox_sub_t const subscriber)
-{
-    const void* chunk;
-    if (iox_sub_get_chunk(subscriber, &chunk))
-    {
-        printf("subscriber: %p received %u\n", subscriber, ((struct CounterTopic*)chunk)->counter);
-
-        iox_sub_release_chunk(subscriber, chunk);
-    }
-}
-
 int main()
 {
-    iox_runtime_register("/iox-c-ex-waitset-gateway");
+    iox_runtime_register("/iox-c-ex-waitset-grouping");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
@@ -69,15 +55,30 @@ int main()
 
     // array where the subscriber are stored
     iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBER];
+    iox_sub_t subscriber[NUMBER_OF_SUBSCRIBER];
 
     // create subscriber and subscribe them to our service
     uint64_t historyRequest = 1U;
     for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
     {
-        iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
+        subscriber[i] = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
 
-        iox_sub_subscribe(subscriber, 256);
-        iox_sub_attach_to_ws(subscriber, waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 1, subscriberCallback);
+        iox_sub_subscribe(subscriber[i], 256);
+    }
+
+    const uint64_t FIRST_GROUP_ID = 123;
+    const uint64_t SECOND_GROUP_ID = 456;
+
+    // attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
+    for (uint64_t i = 0U; i < 2U; ++i)
+    {
+        iox_sub_attach_to_ws(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, FIRST_GROUP_ID, NULL);
+    }
+
+    // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
+    for (uint64_t i = 2U; i < 4U; ++i)
+    {
+        iox_sub_attach_to_ws(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, SECOND_GROUP_ID, NULL);
     }
 
 
@@ -102,10 +103,24 @@ int main()
                 // CTRL+c was pressed -> exit
                 return 0;
             }
-            else
+            // we print the received data for the first group
+            else if (iox_trigger_state_get_trigger_id(trigger) == FIRST_GROUP_ID)
             {
-                // call the callback which was assigned to the trigger
-                iox_trigger_state_call(trigger);
+                iox_sub_t subscriber = iox_trigger_state_get_subscriber_origin(trigger);
+                const void* chunk;
+                if (iox_sub_get_chunk(subscriber, &chunk))
+                {
+                    printf("received: %u\n", ((struct CounterTopic*)chunk)->counter);
+
+                    iox_sub_release_chunk(subscriber, chunk);
+                }
+            }
+            // dismiss the received data for the second group
+            else if (iox_trigger_state_get_trigger_id(trigger) == SECOND_GROUP_ID)
+            {
+                printf("dismiss data\n");
+                iox_sub_t subscriber = iox_trigger_state_get_subscriber_origin(trigger);
+                iox_sub_release_queued_chunks(subscriber);
             }
         }
     }
