@@ -17,6 +17,7 @@
 #include "fixed_size_container.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
@@ -397,9 +398,9 @@ class PortIntrospection
     void sendSubscriberPortsData();
 
   private:
-    popo::PublisherPortUser m_publisherPort{nullptr};
-    popo::PublisherPortUser m_publisherPortThroughput{nullptr};
-    popo::PublisherPortUser m_publisherPortSubscriberPortsData{nullptr};
+    cxx::optional<PublisherPortUserType> m_publisherPort;
+    cxx::optional<PublisherPortUserType> m_publisherPortThroughput;
+    cxx::optional<PublisherPortUserType> m_publisherPortSubscriberPortsData;
     PortData m_portData;
 
     std::atomic<bool> m_runThread;

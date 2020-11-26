@@ -116,7 +116,7 @@ class ProcessIntrospection
     ProcessList_t m_processList;
     bool m_processListNewData{true}; // true because we want to have a valid field, even with an empty list
 
-    popo::PublisherPortUser m_publisherPort{nullptr};
+    cxx::optional<popo::PublisherPortUser> m_publisherPort;
 
     std::atomic<bool> m_runThread;
     std::thread m_thread;

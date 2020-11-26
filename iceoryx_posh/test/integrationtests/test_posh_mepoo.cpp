@@ -78,8 +78,8 @@ class Mepoo_IntegrationTest : public Test
 
     virtual void TearDown()
     {
-        publisherPort.stopOffer();
-        subscriberPort.unsubscribe();
+        publisherPort->stopOffer();
+        subscriberPort->unsubscribe();
 
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -144,10 +144,12 @@ class Mepoo_IntegrationTest : public Test
         iox::capro::ServiceDescription m_service_description{99, 1, 20};
 
         auto& senderRuntime = iox::runtime::PoshRuntime::getInstance("/sender");
-        publisherPort = iox::popo::PublisherPortUser(senderRuntime.getMiddlewarePublisher(m_service_description));
+        publisherPort.emplace(
+            iox::popo::PublisherPortUser(senderRuntime.getMiddlewarePublisher(m_service_description)));
 
         auto& receiverRuntime = iox::runtime::PoshRuntime::getInstance("/receiver");
-        subscriberPort = iox::popo::SubscriberPortUser(receiverRuntime.getMiddlewareSubscriber(m_service_description));
+        subscriberPort.emplace(
+            iox::popo::SubscriberPortUser(receiverRuntime.getMiddlewareSubscriber(m_service_description)));
     }
 
     void SetUpRouDiOnly(MemPoolInfoContainer& memPoolTestContainer,
@@ -283,30 +285,30 @@ class Mepoo_IntegrationTest : public Test
         using Topic = MemPoolTestTopic<size>;
         constexpr auto topicSize = sizeof(Topic);
 
-        if (!(publisherPort.isOffered()))
+        if (!(publisherPort->isOffered()))
         {
-            publisherPort.offer();
+            publisherPort->offer();
         }
 
-        if (subscriberPort.getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
+        if (subscriberPort->getSubscriptionState() == iox::SubscribeState::SUBSCRIBED)
         {
-            subscriberPort.unsubscribe();
+            subscriberPort->unsubscribe();
         }
 
         m_roudiEnv->InterOpWait();
-        subscriberPort.subscribe(1);
+        subscriberPort->subscribe(1);
         m_roudiEnv->InterOpWait();
 
         for (int idx = 0; idx < times; ++idx)
         {
-            publisherPort.tryAllocateChunk(topicSize).and_then([&](iox::mepoo::ChunkHeader* sample) {
+            publisherPort->tryAllocateChunk(topicSize).and_then([&](iox::mepoo::ChunkHeader* sample) {
                 new (sample->payload()) Topic;
                 sample->m_info.m_payloadSize = topicSize;
-                publisherPort.sendChunk(sample);
+                publisherPort->sendChunk(sample);
                 m_roudiEnv->InterOpWait();
             });
         }
-        publisherPort.stopOffer();
+        publisherPort->stopOffer();
 
         return true;
     }
@@ -331,8 +333,8 @@ class Mepoo_IntegrationTest : public Test
 
     MePooConfig memconf;
 
-    iox::popo::PublisherPortUser publisherPort{nullptr};
-    iox::popo::SubscriberPortUser subscriberPort{nullptr};
+    iox::cxx::optional<iox::popo::PublisherPortUser> publisherPort;
+    iox::cxx::optional<iox::popo::SubscriberPortUser> subscriberPort;
 
     iox::cxx::optional<RouDiEnvironment> m_roudiEnv;
 };
