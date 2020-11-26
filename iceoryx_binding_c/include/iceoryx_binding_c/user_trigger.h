@@ -18,10 +18,10 @@
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/types.h"
-#include "iceoryx_binding_c/wait_set.h"
 
 /// @brief user trigger handle
 typedef CLASS UserTrigger* iox_user_trigger_t;
+typedef CLASS WaitSet* iox_ws_t;
 
 /// @brief initialize user trigger handle
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_user_trigger_storage_t)

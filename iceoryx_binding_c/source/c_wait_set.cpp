@@ -22,31 +22,31 @@ extern "C" {
 #include "iceoryx_binding_c/wait_set.h"
 }
 
-// static uint64_t condition_vector_to_c_array(const WaitSet::TriggerVector& conditionVector,
-//                                            iox_cond_t* const conditionArray,
-//                                            const uint64_t conditionArrayCapacity,
-//                                            uint64_t* missedElements)
-//{
-//    uint64_t conditionArraySize = 0U;
-//    uint64_t conditionVectorSize = conditionVector.size();
-//    if (conditionVectorSize > conditionArrayCapacity)
-//    {
-//        *missedElements = conditionVectorSize - conditionArrayCapacity;
-//        conditionArraySize = conditionArrayCapacity;
-//    }
-//    else
-//    {
-//        *missedElements = 0U;
-//        conditionArraySize = conditionVectorSize;
-//    }
-//
-//    for (uint64_t i = 0; i < conditionArraySize; ++i)
-//    {
-//        // conditionArray[i] = conditionVector[i];
-//    }
-//
-//    return conditionArraySize;
-//}
+static uint64_t trigger_vector_to_c_array(const WaitSet::TriggerStateVector& triggerVector,
+                                          iox_trigger_state_t const triggerArray,
+                                          const uint64_t triggerArrayCapacity,
+                                          uint64_t* missedElements)
+{
+    uint64_t triggerArraySize = 0U;
+    uint64_t triggerVectorSize = triggerVector.size();
+    if (triggerVectorSize > triggerArrayCapacity)
+    {
+        *missedElements = triggerVectorSize - triggerArrayCapacity;
+        triggerArraySize = triggerArrayCapacity;
+    }
+    else
+    {
+        *missedElements = 0U;
+        triggerArraySize = triggerVectorSize;
+    }
+
+    for (uint64_t i = 0; i < triggerArraySize; ++i)
+    {
+        triggerArray[i] = triggerVector[i];
+    }
+
+    return triggerArraySize;
+}
 
 iox_ws_t iox_ws_init(iox_ws_storage_t* self)
 {
@@ -59,30 +59,25 @@ void iox_ws_deinit(iox_ws_t const self)
     self->~WaitSet();
 }
 
-void iox_ws_detach_all_conditions(iox_ws_t const self)
+uint64_t iox_ws_timed_wait(iox_ws_t const self,
+                           struct timespec timeout,
+                           iox_trigger_state_t const triggerArray,
+                           const uint64_t triggerArrayCapacity,
+                           uint64_t* missedElements)
 {
-    //  self->detachAllConditions();
+    return trigger_vector_to_c_array(
+        self->timedWait(units::Duration::nanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
+                        + units::Duration::seconds(static_cast<unsigned long long int>(timeout.tv_sec))),
+        triggerArray,
+        triggerArrayCapacity,
+        missedElements);
 }
 
-// uint64_t iox_ws_timed_wait(iox_ws_t const self,
-//                           struct timespec timeout,
-//                           iox_cond_t* const conditionArray,
-//                           const uint64_t conditionArrayCapacity,
-//                           uint64_t* missedElements)
-//{
-//    // return condition_vector_to_c_array(
-//    //    self->timedWait(units::Duration::nanoseconds(static_cast<unsigned long long int>(timeout.tv_nsec))
-//    //                    + units::Duration::seconds(static_cast<unsigned long long int>(timeout.tv_sec))),
-//    //    conditionArray,
-//    //    conditionArrayCapacity,
-//    //    missedElements);
-//}
-//
-// uint64_t iox_ws_wait(iox_ws_t const self,
-//                     iox_cond_t* const conditionArray,
-//                     const uint64_t conditionArrayCapacity,
-//                     uint64_t* missedElements)
-//{
-//    // return condition_vector_to_c_array(self->wait(), conditionArray, conditionArrayCapacity, missedElements);
-//}
+uint64_t iox_ws_wait(iox_ws_t const self,
+                     iox_trigger_state_t const triggerArray,
+                     const uint64_t triggerArrayCapacity,
+                     uint64_t* missedElements)
+{
+    return trigger_vector_to_c_array(self->wait(), triggerArray, triggerArrayCapacity, missedElements);
+}
 

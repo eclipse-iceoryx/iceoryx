@@ -18,6 +18,7 @@
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 #include "iceoryx_binding_c/subscriber.h"
+#include "iceoryx_binding_c/trigger_state.h"
 #include "iceoryx_binding_c/types.h"
 
 #include <time.h>
@@ -34,37 +35,36 @@ iox_ws_t iox_ws_init(iox_ws_storage_t* self);
 /// @param[in] self the handle which should be deinitialized
 void iox_ws_deinit(iox_ws_t const self);
 
-/// @brief detaches all conditions
-/// @param[in] self handle to the wait set
-void iox_ws_detach_all_conditions(iox_ws_t const self);
-
-/// @brief waits until a condition was triggered or the timeout was reached
+/// @brief waits until a trigger was triggered or the timeout was reached
 /// @param[in] self handle to the wait set
 /// @param[in] timeout duration how long this method should wait
-/// @param[in] conditionArray preallocated memory to an array of iox_cond_t in which
-///             the conditions which were triggered can be written to
-/// @param[in] conditionArrayCapacity the capacity of the preallocated conditionArray
-/// @param[in] missedElements if the conditionArray has insufficient size the number of missed elements
+/// @param[in] triggerArray preallocated memory to an array of iox_cond_t in which
+///             the triggers which were triggered can be written to
+/// @param[in] triggerArrayCapacity the capacity of the preallocated triggerArray
+/// @param[in] missedElements if the triggerArray has insufficient size the number of missed elements
 ///             which could not be written into the array are stored here
-/// @return number of elements which were written into the conditionArray
-// uint64_t iox_ws_timed_wait(iox_ws_t const self,
-//                           struct timespec timeout,
-//                           iox_cond_t* const conditionArray,
-//                           const uint64_t conditionArrayCapacity,
-//                           uint64_t* missedElements);
+/// @return number of elements which were written into the triggerArray
+uint64_t iox_ws_timed_wait(iox_ws_t const self,
+                           struct timespec timeout,
+                           iox_trigger_state_t const triggerArray,
+                           const uint64_t triggerArrayCapacity,
+                           uint64_t* missedElements);
 
-/// @brief waits until a condition was triggered
+/// @brief waits until a trigger was triggered
 /// @param[in] self handle to the wait set
-/// @param[in] conditionArray preallocated memory to an array of iox_cond_t in which
-///             the conditions which were triggered can be written to
-/// @param[in] conditionArrayCapacity the capacity of the preallocated conditionArray
-/// @param[in] missedElements if the conditionArray has insufficient size the number of missed elements
+/// @param[in] triggerArray preallocated memory to an array of iox_cond_t in which
+///             the triggers which were triggered can be written to
+/// @param[in] triggerArrayCapacity the capacity of the preallocated triggerArray
+/// @param[in] missedElements if the triggerArray has insufficient size the number of missed elements
 ///             which could not be written into the array are stored here
-/// @return number of elements which were written into the conditionArray
-// uint64_t iox_ws_wait(iox_ws_t const self,
-//                     iox_cond_t* const conditionArray,
-//                     const uint64_t conditionArrayCapacity,
-//                     uint64_t* missedElements);
+/// @return number of elements which were written into the triggerArray
+uint64_t iox_ws_wait(iox_ws_t const self,
+                     iox_trigger_state_t const triggerArray,
+                     const uint64_t triggerArrayCapacity,
+                     uint64_t* missedElements);
 
+
+uint64_t iox_ws_size(iox_ws_t const self);
+uint64_t iox_ws_capacity(iox_ws_t const self);
 
 #endif

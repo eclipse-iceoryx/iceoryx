@@ -63,7 +63,6 @@ TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
     // iox_ws_attach_condition(&m_waitSet, m_sut);
     iox_user_trigger_trigger(m_sut);
     EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
-    iox_ws_detach_all_conditions(&m_waitSet);
 }
 
 TEST_F(iox_user_trigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
@@ -78,5 +77,4 @@ TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInTriggered)
     iox_user_trigger_trigger(m_sut);
     iox_user_trigger_reset_trigger(m_sut);
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
-    iox_ws_detach_all_conditions(&m_waitSet);
 }

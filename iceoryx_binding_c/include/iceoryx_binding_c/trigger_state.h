@@ -27,9 +27,9 @@ bool iox_trigger_state_does_originate_from_subscriber(iox_trigger_state_t const 
 bool iox_trigger_state_does_originate_from_user_trigger(iox_trigger_state_t const self,
                                                         iox_user_trigger_t const user_trigger);
 
-iox_sub_t iox_trigger_state_get_subscriber_origin(iox_user_trigger_t const self);
-iox_sub_t iox_trigger_state_get_user_trigger_origin(iox_user_trigger_t const self);
+iox_sub_t iox_trigger_state_get_subscriber_origin(iox_trigger_state_t const self);
+iox_user_trigger_t iox_trigger_state_get_user_trigger_origin(iox_trigger_state_t const self);
 
-void iox_trigger_state_call(iox_user_trigger_t const self);
+void iox_trigger_state_call(iox_trigger_state_t const self);
 
 #endif

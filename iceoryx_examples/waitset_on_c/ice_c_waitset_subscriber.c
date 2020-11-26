@@ -49,47 +49,34 @@ void receiving()
 
 int main()
 {
-    signal(SIGINT, sigHandler);
-
     iox_runtime_register("/iox-c-ex-waitset-gateway");
 
     waitSet = iox_ws_init(&waitSetStorage);
     shutdownGuard = iox_user_trigger_init(&shutdowGuardStorage);
+
     iox_user_trigger_attach_to_ws(shutdownGuard, waitSet, 0, NULL);
 
-    // register signal after guard condition since we are using it in the handler
+    //// register signal after guard condition since we are using it in the handler
     signal(SIGINT, sigHandler);
 
-    uint64_t historyRequest = 0U;
+    uint64_t historyRequest = 1U;
     iox_sub_storage_t subscriberStorage;
 
     subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", historyRequest);
-    iox_sub_subscribe(subscriber, 10);
+    iox_sub_subscribe(subscriber, 1);
 
-    // attach guard condition to our wait set, used to signal the wait set that
-    // we would like to terminate the process
-    //    iox_ws_attach_condition(waitSet, (iox_cond_t)guardCondition);
-    //
-    //    // attach subscriber to our wait set. if the subscriber receives a sample
-    //    // it will trigger the wait set
-    //    iox_ws_attach_condition(waitSet, (iox_cond_t)subscriber);
-    //
-    //
-    //    iox_cond_t conditionArray[NUMBER_OF_CONDITIONS];
-    //    uint64_t missedElements = 0U;
-    //    uint64_t numberOfTriggeredConditions = 0U;
-    //    do
-    //    {
-    //        // wait until an event has occurred
-    //        numberOfTriggeredConditions = iox_ws_wait(waitSet, conditionArray, NUMBER_OF_CONDITIONS, &missedElements);
-    //
-    //        // call our callback, if the guard condition was triggered it returns false
-    //    } while (callback(conditionArray, numberOfTriggeredConditions));
+    iox_trigger_state_storage_t triggerArray[NUMBER_OF_CONDITIONS];
+    uint64_t missedElements = 0U;
+    uint64_t numberOfTriggeredConditions = 0U;
+    do
+    {
+        // wait until an event has occurred
+        numberOfTriggeredConditions =
+            iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_CONDITIONS, &missedElements);
+    } while (true);
 
     iox_sub_unsubscribe(subscriber);
 
-    // detach all conditions before we deinitialize and destroy them
-    iox_ws_detach_all_conditions(waitSet);
 
     iox_ws_deinit(waitSet);
     iox_user_trigger_deinit(shutdownGuard);
