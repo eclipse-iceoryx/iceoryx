@@ -35,17 +35,17 @@ set_target_properties(iox-ex-c-waitset-publisher PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-add_executable(iox-ex-c-waitset-subscriber ./ice_c_waitset_subscriber.c)
-set_source_files_properties(./ice_c_waitset_subscriber.c PROPERTIES LANGUAGE C)
-target_link_libraries(iox-ex-c-waitset-subscriber
+add_executable(iox-ex-c-waitset-gateway ./ice_c_waitset_gateway.c)
+set_source_files_properties(./ice_c_waitset_gateway.c PROPERTIES LANGUAGE C)
+target_link_libraries(iox-ex-c-waitset-gateway
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
-set_target_properties(iox-ex-c-waitset-subscriber PROPERTIES
+set_target_properties(iox-ex-c-waitset-gateway PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
 install(
-    TARGETS iox-ex-c-waitset-publisher iox-ex-c-waitset-subscriber
+    TARGETS iox-ex-c-waitset-publisher iox-ex-c-waitset-gateway
     RUNTIME DESTINATION bin
 )
