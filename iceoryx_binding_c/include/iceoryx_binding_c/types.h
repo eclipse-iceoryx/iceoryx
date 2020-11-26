@@ -28,7 +28,7 @@ struct iox_ws_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(WaitSet) / 8
-    uint64_t do_not_touch_me[133];
+    uint64_t do_not_touch_me[2437];
 };
 typedef struct iox_ws_storage_t_ iox_ws_storage_t;
 
@@ -37,9 +37,9 @@ struct iox_user_trigger_storage_t_
     // the value of the array size is the result of the following formula:
     // sizeof(GuardCondition) / 8
 #if defined(__APPLE__)
-    uint64_t do_not_touch_me[12];
+    uint64_t do_not_touch_me[20];
 #else
-    uint64_t do_not_touch_me[9];
+    uint64_t do_not_touch_me[20];
 #endif
 };
 typedef struct iox_user_trigger_storage_t_ iox_user_trigger_storage_t;
@@ -48,7 +48,7 @@ struct iox_sub_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(cpp2c_Subscriber) / 8
-    uint64_t do_not_touch_me[3];
+    uint64_t do_not_touch_me[1];
 };
 typedef struct iox_sub_storage_t_ iox_sub_storage_t;
 
@@ -59,6 +59,14 @@ struct iox_pub_storage_t_
     uint64_t do_not_touch_me[1];
 };
 typedef struct iox_pub_storage_t_ iox_pub_storage_t;
+
+struct iox_trigger_state_storage_t_
+{
+    // the value of the array size is the result of the following formula:
+    // sizeof(cpp2c_Publisher) / 8
+    uint64_t do_not_touch_me[7];
+};
+typedef struct iox_trigger_state_storage_t_ iox_trigger_state_storage_t;
 
 
 #endif

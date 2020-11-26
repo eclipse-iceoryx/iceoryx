@@ -53,6 +53,7 @@ add_library(${PROJECT_NAME}
     source/c_runnable.cpp
     source/c_runtime.cpp
     source/c_subscriber.cpp
+    source/c_trigger_state.cpp
     source/c_wait_set.cpp
     source/cpp2c_enum_translation.cpp
     source/cpp2c_publisher.cpp
