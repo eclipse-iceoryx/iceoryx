@@ -163,8 +163,8 @@ TEST_F(MemPoolIntrospection_test, CTOR)
             m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_publisherPortImpl_mock));
     }
 
-    EXPECT_CALL(m_publisherPortImpl_mock, offer).Times(1);
-    EXPECT_CALL(m_publisherPortImpl_mock, stopOffer).Times(1);
+    EXPECT_CALL(m_publisherPortImpl_mock, offer()).Times(1);
+    EXPECT_CALL(m_publisherPortImpl_mock, stopOffer()).Times(1);
 }
 
 TEST_F(MemPoolIntrospection_test, send_noSubscribers)
@@ -177,7 +177,7 @@ TEST_F(MemPoolIntrospection_test, send_noSubscribers)
 
     m_introspection.send();
 
-    EXPECT_CALL(m_publisherPortImpl_mock, tryAllocateChunk).Times(0);
+    EXPECT_CALL(m_publisherPortImpl_mock, tryAllocateChunk(_)).Times(0);
 }
 
 /// @todo test with multiple segments and also test the mempool info from RouDiInternalMemoryManager
@@ -203,7 +203,7 @@ TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
 
     m_introspection.send(); /// @todo expect call to MemPoolHandler::getMemPoolInfo
 
-    EXPECT_CALL(m_publisherPortImpl_mock, sendChunk).Times(1);
+    EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(1);
     ASSERT_EQ(sample->size(), 1u);
     EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, chunk.sample()->front().m_mempoolInfo), Eq(true));
 }
