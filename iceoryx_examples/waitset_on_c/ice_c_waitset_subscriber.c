@@ -63,7 +63,7 @@ int main()
     iox_sub_storage_t subscriberStorage;
 
     subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "Counter", historyRequest);
-    iox_sub_subscribe(subscriber, 1);
+    iox_sub_subscribe(subscriber, 256);
 
     iox_trigger_state_storage_t triggerArray[NUMBER_OF_CONDITIONS];
     uint64_t missedElements = 0U;

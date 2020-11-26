@@ -15,6 +15,11 @@
 #ifndef IOX_BINDING_C_ENUMS_H
 #define IOX_BINDING_C_ENUMS_H
 
+enum iox_SubscriberEvent
+{
+    SubscriberEvent_HAS_NEW_SAMPLES,
+};
+
 /// @brief describes the current state of a subscriber
 enum iox_SubscribeState
 {

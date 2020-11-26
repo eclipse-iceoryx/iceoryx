@@ -15,7 +15,9 @@
 #ifndef IOX_BINDING_C_CPP2C_SUBSCRIBER_H
 #define IOX_BINDING_C_CPP2C_SUBSCRIBER_H
 
+#include "iceoryx_binding_c/enums.h"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 
 struct cpp2c_Subscriber
 {
@@ -27,7 +29,19 @@ struct cpp2c_Subscriber
     cpp2c_Subscriber& operator=(const cpp2c_Subscriber&) = delete;
     cpp2c_Subscriber& operator=(cpp2c_Subscriber&& rhs) noexcept;
 
+    iox_WaitSetResult attachToWaitset(iox::popo::WaitSet& waitset,
+                                      const iox_SubscriberEvent event,
+                                      const uint64_t triggerId,
+                                      const iox::popo::Trigger::Callback<cpp2c_Subscriber> callback = nullptr) noexcept;
+
+    void detachWaitset() noexcept;
+
+    void unsetTrigger(const iox::popo::Trigger& trigger) noexcept;
+
+    bool hasNewSamples() const noexcept;
+
 
     iox::popo::SubscriberPortData* m_portData{nullptr};
+    iox::popo::Trigger m_trigger;
 };
 #endif
