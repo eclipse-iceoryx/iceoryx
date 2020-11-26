@@ -27,56 +27,56 @@ extern "C" {
 
 using namespace ::testing;
 
-class iox_guard_cond_test : public Test
+class iox_user_trigger_test : public Test
 {
   public:
     void SetUp()
     {
-        m_sut = iox_guard_cond_init(&m_sutStorage);
+        m_sut = iox_user_trigger_init(&m_sutStorage);
     }
 
     void TearDown()
     {
-        iox_guard_cond_deinit(m_sut);
+        iox_user_trigger_deinit(m_sut);
     }
 
-    iox_guard_cond_storage_t m_sutStorage;
-    iox_guard_cond_t m_sut;
+    iox_user_trigger_storage_t m_sutStorage;
+    iox_user_trigger_t m_sut;
 
     ConditionVariableData m_condVar;
     WaitSetMock m_waitSet{&m_condVar};
 };
 
-TEST_F(iox_guard_cond_test, isNotTriggeredWhenCreated)
+TEST_F(iox_user_trigger_test, isNotTriggeredWhenCreated)
 {
-    EXPECT_FALSE(iox_guard_cond_has_triggered(m_sut));
+    EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
-TEST_F(iox_guard_cond_test, cannotBeTriggeredWhenNotAttached)
+TEST_F(iox_user_trigger_test, cannotBeTriggeredWhenNotAttached)
 {
-    iox_guard_cond_trigger(m_sut);
-    EXPECT_FALSE(iox_guard_cond_has_triggered(m_sut));
+    iox_user_trigger_trigger(m_sut);
+    EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
-TEST_F(iox_guard_cond_test, canBeTriggeredWhenAttached)
+TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
 {
     // iox_ws_attach_condition(&m_waitSet, m_sut);
-    iox_guard_cond_trigger(m_sut);
-    EXPECT_TRUE(iox_guard_cond_has_triggered(m_sut));
+    iox_user_trigger_trigger(m_sut);
+    EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
     iox_ws_detach_all_conditions(&m_waitSet);
 }
 
-TEST_F(iox_guard_cond_test, resetTriggerWhenNotTriggeredIsNotTriggered)
+TEST_F(iox_user_trigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
 {
-    iox_guard_cond_reset_trigger(m_sut);
-    EXPECT_FALSE(iox_guard_cond_has_triggered(m_sut));
+    iox_user_trigger_reset_trigger(m_sut);
+    EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
-TEST_F(iox_guard_cond_test, resetTriggerWhenTriggeredIsResultsInTriggered)
+TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInTriggered)
 {
     // iox_ws_attach_condition(&m_waitSet, m_sut);
-    iox_guard_cond_trigger(m_sut);
-    iox_guard_cond_reset_trigger(m_sut);
-    EXPECT_FALSE(iox_guard_cond_has_triggered(m_sut));
+    iox_user_trigger_trigger(m_sut);
+    iox_user_trigger_reset_trigger(m_sut);
+    EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
     iox_ws_detach_all_conditions(&m_waitSet);
 }

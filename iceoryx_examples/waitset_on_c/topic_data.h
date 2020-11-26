@@ -14,9 +14,11 @@
 #ifndef IOX_EXAMPLES_ICECALLBACK_TOPIC_DATA_H
 #define IOX_EXAMPLES_ICECALLBACK_TOPIC_DATA_H
 
-struct TopicData
+#include <stdint.h>
+
+struct CounterTopic
 {
-    char message[128];
+    uint32_t counter;
 };
 
 #endif // IOX_EXAMPLES_ICECALLBACK_TOPIC_DATA_H

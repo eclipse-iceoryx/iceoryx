@@ -32,7 +32,7 @@ struct iox_ws_storage_t_
 };
 typedef struct iox_ws_storage_t_ iox_ws_storage_t;
 
-struct iox_guard_cond_storage_t_
+struct iox_user_trigger_storage_t_
 {
     // the value of the array size is the result of the following formula:
     // sizeof(GuardCondition) / 8
@@ -42,7 +42,7 @@ struct iox_guard_cond_storage_t_
     uint64_t do_not_touch_me[9];
 #endif
 };
-typedef struct iox_guard_cond_storage_t_ iox_guard_cond_storage_t;
+typedef struct iox_user_trigger_storage_t_ iox_user_trigger_storage_t;
 
 struct iox_sub_storage_t_
 {

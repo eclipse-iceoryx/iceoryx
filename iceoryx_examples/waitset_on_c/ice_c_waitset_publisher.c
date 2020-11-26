@@ -24,13 +24,6 @@
 
 bool killswitch = false;
 
-char funFacts[4][128] = {
-    "We all love hypnotoad!",
-    "The most popular snake jazz song is: tzzzz tz tz tzzzz tz tz",
-    "Liger = Hybrid of male lion and female tiger. There is also a pumapard and a pizzly!",
-    "Belinda and Rosalind are moons of Uranus discovered by Voyager 2",
-};
-
 static void sigHandler(int signalValue)
 {
     (void)signalValue;
@@ -40,7 +33,7 @@ static void sigHandler(int signalValue)
 
 void sending()
 {
-    iox_runtime_register("/iox-c-publisher");
+    iox_runtime_register("/iox-c-ex-waitset-publisher");
 
     uint64_t historyRequest = 0U;
     iox_pub_storage_t publisherStorage;
@@ -48,22 +41,17 @@ void sending()
 
     iox_pub_offer(publisher);
 
-    uint32_t ct = 0U;
-
-    while (!killswitch)
+    for (uint32_t counter = 0U; !killswitch; ++counter)
     {
         void* chunk = NULL;
-        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct TopicData)))
+        if (AllocationResult_SUCCESS == iox_pub_allocate_chunk(publisher, &chunk, sizeof(struct CounterTopic)))
         {
-            struct TopicData* sample = (struct TopicData*)chunk;
+            struct CounterTopic* sample = (struct CounterTopic*)chunk;
+            sample->counter = counter;
 
-            strncpy(sample->message, funFacts[ct % 4], 128);
-
-            printf("Sending fun fact number %u\n", ct % 4);
+            printf("Sending: %u\n", counter);
 
             iox_pub_send_chunk(publisher, chunk);
-
-            ++ct;
 
             sleep_for(1000);
         }

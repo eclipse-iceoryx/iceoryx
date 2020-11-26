@@ -47,6 +47,7 @@ enum iox_AllocationResult
 enum iox_WaitSetResult
 {
     WaitSetResult_TRIGGER_VECTOR_OVERFLOW,
+    WaitSetResult_TRIGGER_ALREADY_ACQUIRED,
     WaitSetResult_UNDEFINED_ERROR,
     WaitSetResult_SUCCESS
 };

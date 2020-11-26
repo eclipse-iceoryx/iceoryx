@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_binding_c/enums.h"
+#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 
 using namespace iox;
@@ -21,29 +23,48 @@ extern "C" {
 #include "iceoryx_binding_c/user_trigger.h"
 }
 
-iox_guard_cond_t iox_guard_cond_init(iox_guard_cond_storage_t* self)
+iox_user_trigger_t iox_user_trigger_init(iox_user_trigger_storage_t* self)
 {
     new (self) UserTrigger();
-    return reinterpret_cast<iox_guard_cond_t>(self);
+    return reinterpret_cast<iox_user_trigger_t>(self);
 }
 
-void iox_guard_cond_deinit(iox_guard_cond_t const self)
+void iox_user_trigger_deinit(iox_user_trigger_t const self)
 {
     self->~UserTrigger();
 }
 
-void iox_guard_cond_trigger(iox_guard_cond_t const self)
+void iox_user_trigger_trigger(iox_user_trigger_t const self)
 {
     self->trigger();
 }
 
-bool iox_guard_cond_has_triggered(iox_guard_cond_t const self)
+bool iox_user_trigger_has_triggered(iox_user_trigger_t const self)
 {
     return self->hasTriggered();
 }
 
-void iox_guard_cond_reset_trigger(iox_guard_cond_t const self)
+void iox_user_trigger_reset_trigger(iox_user_trigger_t const self)
 {
     self->resetTrigger();
+}
+
+iox_WaitSetResult iox_user_trigger_attach_to_ws(iox_user_trigger_t const self,
+                                                iox_ws_t const wait_set,
+                                                const uint64_t trigger_id,
+                                                void (*trigger_callback)(iox_user_trigger_t))
+{
+    auto result = self->attachToWaitset(*wait_set, trigger_id, trigger_callback);
+    if (!result.has_error())
+    {
+        return iox_WaitSetResult::WaitSetResult_SUCCESS;
+    }
+
+    return cpp2c::WaitSetResult(result.get_error());
+}
+
+void iox_user_trigger_detach_ws(iox_user_trigger_t const self)
+{
+    self->detachWaitset();
 }
 

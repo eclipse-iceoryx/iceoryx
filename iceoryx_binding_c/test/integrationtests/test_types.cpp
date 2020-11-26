@@ -37,8 +37,8 @@ TEST(iox_types_test, WaitSetStorageSizeFits)
 
 TEST(iox_types_test, UserTriggerStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(UserTrigger), Eq(sizeof(iox_guard_cond_storage_t)));
-    EXPECT_THAT(alignof(UserTrigger), Le(alignof(iox_guard_cond_storage_t)));
+    EXPECT_THAT(sizeof(UserTrigger), Eq(sizeof(iox_user_trigger_storage_t)));
+    EXPECT_THAT(alignof(UserTrigger), Le(alignof(iox_user_trigger_storage_t)));
 }
 
 TEST(iox_types_test, cpp2c_SubscriberStorageSizeFits)

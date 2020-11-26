@@ -40,14 +40,14 @@ class iox_ws_test : public Test
   public:
     void SetUp() override
     {
-        m_guardCond = iox_guard_cond_init(&m_guardCondStorage);
+        m_guardCond = iox_user_trigger_init(&m_guardCondStorage);
     }
 
     void TearDown() override
     {
         delete m_sut;
 
-        iox_guard_cond_deinit(m_guardCond);
+        iox_user_trigger_deinit(m_guardCond);
         for (auto s : m_subscriber)
         {
             delete s;
@@ -74,8 +74,8 @@ class iox_ws_test : public Test
 
     ConditionVariableData m_condVar;
 
-    iox_guard_cond_storage_t m_guardCondStorage;
-    iox_guard_cond_t m_guardCond;
+    iox_user_trigger_storage_t m_guardCondStorage;
+    iox_user_trigger_t m_guardCond;
 
     WaitSetMock* m_sut = new WaitSetMock{&m_condVar};
     std::vector<iox_sub_t> m_subscriber;
@@ -149,7 +149,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitBlocksTillTriggered, Repeat(5), [&] {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     TIMING_TEST_EXPECT_FALSE(waitSetNotified.load());
-    iox_guard_cond_trigger(m_guardCond);
+    iox_user_trigger_trigger(m_guardCond);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     TIMING_TEST_EXPECT_TRUE(waitSetNotified.load());
@@ -198,7 +198,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitWritesConditionIntoArrayWhenTriggered, Repea
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    iox_guard_cond_trigger(m_guardCond);
+    iox_user_trigger_trigger(m_guardCond);
 
     t.join();
 
@@ -220,7 +220,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitWritesMissedElementsIntoArrayWhenTriggered, 
     });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    iox_guard_cond_trigger(m_guardCond);
+    iox_user_trigger_trigger(m_guardCond);
 
     t.join();
 
@@ -241,7 +241,7 @@ TIMING_TEST_F(iox_ws_test, WaitBlocksTillTriggered, Repeat(5), [&] {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     TIMING_TEST_EXPECT_FALSE(waitSetNotified.load());
-    iox_guard_cond_trigger(m_guardCond);
+    iox_user_trigger_trigger(m_guardCond);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     TIMING_TEST_EXPECT_TRUE(waitSetNotified.load());
 
@@ -259,7 +259,7 @@ TIMING_TEST_F(iox_ws_test, WaitWritesConditionIntoArrayWhenTriggered, Repeat(5),
     std::thread t([&] { conditionArraySize = iox_ws_wait(m_sut, conditions, numberOfConditions, &missedElements); });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    iox_guard_cond_trigger(m_guardCond);
+    iox_user_trigger_trigger(m_guardCond);
 
     t.join();
 
@@ -275,7 +275,7 @@ TIMING_TEST_F(iox_ws_test, WaitWritesMissedElementsIntoArrayWhenTriggered, Repea
     std::thread t([&] { iox_ws_wait(m_sut, NULL, 0, &missedElements); });
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    iox_guard_cond_trigger(m_guardCond);
+    iox_user_trigger_trigger(m_guardCond);
 
     t.join();
 

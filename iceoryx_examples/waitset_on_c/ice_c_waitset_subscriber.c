@@ -28,8 +28,8 @@
 
 bool killswitch = false;
 
-iox_guard_cond_storage_t guardConditionStorage;
-iox_guard_cond_t guardCondition;
+iox_user_trigger_storage_t shutdowGuardStorage;
+iox_user_trigger_t shutdownGuard;
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet;
@@ -40,51 +40,22 @@ static void sigHandler(int signalValue)
 {
     (void)signalValue;
 
-    iox_guard_cond_trigger(guardCondition);
+    iox_user_trigger_trigger(shutdownGuard);
 }
-
-// bool callback(iox_cond_t* conditions, const uint64_t numberOfConditions)
-// {
-//     for (uint64_t i = 0; i < numberOfConditions; ++i)
-//     {
-//         // if the guard condition was triggered we return false, leave the loop
-//         // and cleanup all resources
-//         if (conditions[i] == (iox_cond_t)guardCondition)
-//         {
-//             printf("Received exit signal!\n");
-//             return false;
-//         }
-//         // if a subscriber was triggered we receive a sample and print it
-//         // to the terminal
-//         else if (conditions[i] == (iox_cond_t)subscriber)
-//         {
-//             if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
-//             {
-//                 const void* chunk = NULL;
-//                 while (ChunkReceiveResult_SUCCESS == iox_sub_get_chunk(subscriber, &chunk))
-//                 {
-//                     const struct TopicData* sample = (const struct TopicData*)(chunk);
-//                     printf("Receiving: %s\n", sample->message);
-//                     iox_sub_release_chunk(subscriber, chunk);
-//                 }
-//             }
-//             else
-//             {
-//                 printf("Not subscribed!\n");
-//             }
-//         }
-//     }
-//
-//     return true;
-// }
 
 void receiving()
 {
-    iox_runtime_register("/iox-c-subscriber");
+}
 
-    // initialize wait set and guard condition
+int main()
+{
+    signal(SIGINT, sigHandler);
+
+    iox_runtime_register("/iox-c-ex-waitset-gateway");
+
     waitSet = iox_ws_init(&waitSetStorage);
-    guardCondition = iox_guard_cond_init(&guardConditionStorage);
+    shutdownGuard = iox_user_trigger_init(&shutdowGuardStorage);
+    iox_user_trigger_attach_to_ws(shutdownGuard, waitSet, 0, NULL);
 
     // register signal after guard condition since we are using it in the handler
     signal(SIGINT, sigHandler);
@@ -121,13 +92,9 @@ void receiving()
     iox_ws_detach_all_conditions(waitSet);
 
     iox_ws_deinit(waitSet);
-    iox_guard_cond_deinit(guardCondition);
+    iox_user_trigger_deinit(shutdownGuard);
     iox_sub_deinit(subscriber);
-}
 
-int main()
-{
-    receiving();
 
     return 0;
 }
