@@ -1,7 +1,5 @@
 # WaitSet
 
-- important: waitset is state based
-
 ## Glossary
 
  - **Listener** a class which can be triggered by a _Trigger_, for instance a _WaitSet_.

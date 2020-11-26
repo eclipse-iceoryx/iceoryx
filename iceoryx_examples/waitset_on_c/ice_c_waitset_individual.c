@@ -41,7 +41,7 @@ static void sigHandler(int signalValue)
 
 int main()
 {
-    iox_runtime_register("/iox-c-ex-waitset-grouping");
+    iox_runtime_register("/iox-c-ex-waitset-individual");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);

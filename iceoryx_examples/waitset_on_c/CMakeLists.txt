@@ -65,7 +65,17 @@ set_target_properties(iox-ex-c-waitset-individual PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
+add_executable(iox-ex-c-waitset-sync ./ice_c_waitset_sync.c)
+set_source_files_properties(./ice_c_waitset_sync.c PROPERTIES LANGUAGE C)
+target_link_libraries(iox-ex-c-waitset-sync
+    iceoryx_posh::iceoryx_posh
+    iceoryx_binding_c::iceoryx_binding_c
+)
+set_target_properties(iox-ex-c-waitset-sync PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+)
+
 install(
-    TARGETS iox-ex-c-waitset-publisher iox-ex-c-waitset-gateway iox-ex-c-waitset-grouping iox-ex-c-waitset-individual
+    TARGETS iox-ex-c-waitset-publisher iox-ex-c-waitset-gateway iox-ex-c-waitset-grouping iox-ex-c-waitset-individual iox-ex-c-waitset-sync
     RUNTIME DESTINATION bin
 )

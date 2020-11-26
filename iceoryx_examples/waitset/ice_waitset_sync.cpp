@@ -32,9 +32,14 @@ static void sigHandler(int f_sig [[gnu::unused]])
 class SomeClass
 {
   public:
-    static void cyclicRun(iox::popo::UserTrigger*)
+    static void cyclicRun(iox::popo::UserTrigger* trigger)
     {
         std::cout << "activation callback\n";
+
+        // after every call we have to reset the trigger otherwise the waitset
+        // would immediately call us again since we still signal to the waitset that
+        // we have been triggered (waitset is state based)
+        trigger->resetTrigger();
     }
 };
 
@@ -58,8 +63,8 @@ int main()
     std::thread cyclicTriggerThread([&] {
         while (keepRunning.load())
         {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
             cyclicTrigger.trigger();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     });
 
