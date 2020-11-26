@@ -60,6 +60,11 @@ PoshRuntime& PoshRuntime::getInstance(const ProcessName_t& name) noexcept
     return getRuntimeFactory()(name);
 }
 
+PoshRuntime& PoshRuntime::getInstance() noexcept
+{
+    return getRuntimeFactory()(ProcessName_t("dummy"));
+}
+
 PoshRuntime& PoshRuntime::initRuntime(const ProcessName_t& name) noexcept
 {
     return getRuntimeFactory()(name);
