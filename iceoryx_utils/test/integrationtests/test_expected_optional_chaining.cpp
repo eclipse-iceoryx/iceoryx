@@ -197,13 +197,21 @@ TEST_F(ExpectedOptionalChainingTest, OptionalOptionalIsEmpty)
 //// optional<expected<expected<T>>>
 //TEST_F(ExpectedOptionalChainingTest, OptionalExpectedExpectedHasErrorInFirstExpected)
 //{
+//    auto andThenWasCalled = false;
+//    auto orElseWasCalledWithDummyError = false;
+//    auto orElseWasCalledWithDummyErrorTwo = false;
+
 //    auto optionalExpectedError =
 //            make_optional<
 //                expected<expected<int, DummyErrorTwo>, DummyError>>(expected<expected<int, DummyErrorTwo>, DummyError>::create_value(
 //                        expected<int, DummyErrorTwo>::create_error()));
 
-//    optionalExpectedError.and_then([](int&){
-//    }).or_else([](DummyError&){
+//    optionalExpectedError.and_then([&andThenWasCalled](int&){
+//        andThenWasCalled = true;
+//    }).or_else([&orElseWasCalledWithDummyError](DummyError&){
+//        orElseWasCalledWithDummyError = true;
+//    }).or_else([&orElseWasCalledWithDummyError](DummyErrorTwo&){
+//        orElseWasCalledWithDummyError = true;
 //    });
 
 //    ASSERT_TRUE(true);

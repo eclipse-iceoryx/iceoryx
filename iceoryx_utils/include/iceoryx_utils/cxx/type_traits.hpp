@@ -26,18 +26,6 @@ template <typename SignatureType>
 class function_ref;
 
 ///
-/// @brief Identifies structs as being "optional" by the presence of an "if_empty" method.
-///
-template <typename T, typename = void>
-struct is_optional : std::false_type
-{
-};
-template <typename T>
-struct is_optional<T, std::void_t<decltype(std::declval<T>().has_value())>> : std::true_type
-{
-};
-
-///
 /// @brief Identifies structs that can be chained on success.
 ///
 template <typename, typename = void>
@@ -58,13 +46,11 @@ struct has_and_then<T,
 template<typename, typename = void>
 struct has_or_else_without_error : std::false_type
 {
-
 };
 
 template<typename T>
 struct has_or_else_without_error<T, std::void_t<decltype (static_cast<T& (T::*)(const cxx::function_ref<void()>&)>(&T::or_else))>> : std::true_type
 {
-
 };
 
 ///
