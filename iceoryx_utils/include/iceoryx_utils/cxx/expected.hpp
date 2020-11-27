@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -524,7 +524,6 @@ class expected<ValueType, ErrorType>
     ///         contain a success value, otherwise it returns a copy of value
     /// @return copy of the internally contained value or copy of value
     ValueType value_or(const ValueType& value) noexcept;
-
 
 
     /// @brief dereferencing operator which returns a reference to the contained
