@@ -93,15 +93,18 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
     {
         reset();
 
+        // TriggerState
         m_origin = rhs.m_origin;
         m_originTypeHash = rhs.m_originTypeHash;
         m_triggerId = rhs.m_triggerId;
         m_callbackPtr = rhs.m_callbackPtr;
         m_callback = rhs.m_callback;
 
+        // Trigger
         m_conditionVariableDataPtr = rhs.m_conditionVariableDataPtr;
         m_resetCallback = rhs.m_resetCallback;
         m_hasTriggeredCallback = rhs.m_hasTriggeredCallback;
+        m_resetCallbackWasCalled = rhs.m_resetCallbackWasCalled;
 
 
         rhs.m_origin = nullptr;

@@ -117,6 +117,19 @@ TEST_F(UserTrigger_test, UserTriggerGoesOutOfScopeCleansupAtWaitSet)
     EXPECT_EQ(m_waitSet.size(), 0);
 }
 
+TEST_F(UserTrigger_test, ReattachedUserTriggerCleansUpWhenOutOfScope)
+{
+    {
+        UserTrigger sut;
+
+        sut.attachToWaitset(m_waitSet);
+        sut.attachToWaitset(m_waitSet2);
+    }
+
+    EXPECT_EQ(m_waitSet.size(), 0);
+    EXPECT_EQ(m_waitSet2.size(), 0);
+}
+
 TEST_F(UserTrigger_test, AttachingToAnotherWaitSetCleansupFirstWaitset)
 {
     UserTrigger sut;
