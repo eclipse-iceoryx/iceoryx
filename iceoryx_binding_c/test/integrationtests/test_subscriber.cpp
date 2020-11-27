@@ -20,6 +20,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "mocks/wait_set_mock.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -51,10 +52,12 @@ class iox_sub_test : public Test
 
     ~iox_sub_test()
     {
+        delete m_waitSet;
     }
 
     void SetUp()
     {
+        m_triggerCallbackLatestArgument = nullptr;
     }
 
     void TearDown()
@@ -71,6 +74,12 @@ class iox_sub_test : public Test
         SubscriberPortSingleProducer(ptr).dispatchCaProMessageAndGetPossibleResponse(caproMessage);
     }
 
+    static void triggerCallback(iox_sub_t sub)
+    {
+        m_triggerCallbackLatestArgument = sub;
+    }
+
+    static iox_sub_t m_triggerCallbackLatestArgument;
     static constexpr size_t MEMORY_SIZE = 1024 * 1024 * 100;
     uint8_t m_memory[MEMORY_SIZE];
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2;
@@ -87,7 +96,12 @@ class iox_sub_test : public Test
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
     cpp2c_Subscriber m_subscriber;
     iox_sub_t m_sut = &m_subscriber;
+
+    ConditionVariableData m_condVar;
+    WaitSetMock* m_waitSet = new WaitSetMock{&m_condVar};
 };
+
+iox_sub_t iox_sub_test::m_triggerCallbackLatestArgument = nullptr;
 
 TEST_F(iox_sub_test, initialStateNotSubscribed)
 {
@@ -244,4 +258,53 @@ TEST_F(iox_sub_test, sendingTooMuchLeadsToLostChunks)
     }
 
     EXPECT_TRUE(iox_sub_has_lost_chunks(m_sut));
+}
+
+TEST_F(iox_sub_test, attachingToWaitSetWorks)
+{
+    EXPECT_EQ(iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL), WaitSetResult_SUCCESS);
+    EXPECT_EQ(m_waitSet->size(), 1);
+}
+
+TEST_F(iox_sub_test, detachingFromWaitSetWorks)
+{
+    iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+    iox_sub_detach_ws(m_sut);
+    EXPECT_EQ(m_waitSet->size(), 0);
+}
+
+TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectTriggerId)
+{
+    iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
+
+    this->Subscribe(&m_portPtr);
+    m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
+
+    auto triggerVector = m_waitSet->wait();
+
+    ASSERT_EQ(triggerVector.size(), 1);
+    EXPECT_EQ(triggerVector[0].getTriggerId(), 587);
+}
+
+TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)
+{
+    iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+
+    this->Subscribe(&m_portPtr);
+    m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
+
+    auto triggerVector = m_waitSet->wait();
+
+    ASSERT_EQ(triggerVector.size(), 1);
+    triggerVector[0]();
+
+    EXPECT_EQ(m_triggerCallbackLatestArgument, m_sut);
+}
+
+TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
+{
+    iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+    iox_sub_deinit(m_sut);
+
+    EXPECT_EQ(m_waitSet->size(), 0);
 }
