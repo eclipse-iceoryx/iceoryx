@@ -101,12 +101,12 @@ const ProcessName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Process
 {
     if (!name.has_value())
     {
-        LogError() << "Cannot initialize runtime. Application name must not be empty!";
+        LogError() << "Cannot initialize runtime. Application name has not been specified!";
         std::terminate();
     }
     else if (name.value()->empty())
     {
-        LogError() << "Cannot initialize runtime. Application name has not been specified!";
+        LogError() << "Cannot initialize runtime. Application name must not be empty!";
         std::terminate();
     }
     else if (name.value()->c_str()[0] != '/')

@@ -117,7 +117,7 @@ TEST_F(PoshRuntime_test, NoAppName)
     const iox::ProcessName_t invalidAppName("");
 
     EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
-                 "Cannot initialize runtime. Application name has not been specified!");
+                 "Cannot initialize runtime. Application name must not be empty!");
 }
 
 
@@ -137,7 +137,7 @@ TEST_F(PoshRuntime_test, NoLeadingSlashAppName)
 TEST(PoshRuntime, AppNameEmpty)
 {
     EXPECT_DEATH({ iox::runtime::PoshRuntime::getInstance(); },
-                 "Cannot initialize runtime. Application name must not be empty!");
+                 "Cannot initialize runtime. Application name has not been specified!");
 }
 
 
