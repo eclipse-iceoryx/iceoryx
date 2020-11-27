@@ -41,7 +41,7 @@ int main()
 
     iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-typed-modern");
 
-    auto typedPublisher = iox::popo::TypedPublisher<Position>({"Odometry", "Position", "Vehicle"});
+    iox::popo::TypedPublisher<Position> typedPublisher({"Odometry", "Position", "Vehicle"});
     typedPublisher.offer();
 
     float_t ct = 0.0;

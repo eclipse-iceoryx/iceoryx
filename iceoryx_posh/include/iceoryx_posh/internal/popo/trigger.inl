@@ -15,6 +15,7 @@
 #ifndef IOX_POSH_POPO_TRIGGER_INL
 #define IOX_POSH_POPO_TRIGGER_INL
 
+#include <type_traits>
 namespace iox
 {
 namespace popo

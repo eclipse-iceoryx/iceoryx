@@ -381,6 +381,18 @@ The `PERFORMED_ACTION` event which is triggered whenever someone calls and
 
 #### MyTriggerClass
 
+At the moment the WaitSet does not support _Triggerable_ classes which are move 
+or copyable. This is caused by the `resetCallback` and the `hasTriggerCallback`
+which are pointing to the _Triggerable_. The callbacks inside of the WaitSet 
+would point to the wrong memory location. Therefore we have to delete move 
+and copy operations.
+```cpp
+    MyTriggerClass(const MyTriggerClass&) = delete;
+    MyTriggerClass(MyTriggerClass&&) = delete;
+    MyTriggerClass& operator=(const MyTriggerClass&) = delete;
+    MyTriggerClass& operator=(MyTriggerClass&&) = delete;
+```
+
 The class implementation of these two methods could like the following.
 ```cpp
 class MyTriggerClass

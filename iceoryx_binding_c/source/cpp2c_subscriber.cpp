@@ -25,27 +25,6 @@ cpp2c_Subscriber::~cpp2c_Subscriber()
     }
 }
 
-cpp2c_Subscriber::cpp2c_Subscriber(cpp2c_Subscriber&& rhs) noexcept
-{
-    *this = std::move(rhs);
-}
-
-cpp2c_Subscriber& cpp2c_Subscriber::operator=(cpp2c_Subscriber&& rhs) noexcept
-{
-    if (this != &rhs)
-    {
-        if (m_portData)
-        {
-            iox::popo::SubscriberPortUser(m_portData).destroy();
-        }
-
-        m_trigger = std::move(rhs.m_trigger);
-        m_portData = rhs.m_portData;
-        rhs.m_portData = nullptr;
-    }
-    return *this;
-}
-
 iox_WaitSetResult
 cpp2c_Subscriber::attachToWaitset(iox::popo::WaitSet& waitset,
                                   const iox_SubscriberEvent subscriberEvent,

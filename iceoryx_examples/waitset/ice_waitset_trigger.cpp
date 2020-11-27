@@ -31,6 +31,21 @@ enum class MyTriggerClassEvents
 class MyTriggerClass
 {
   public:
+    MyTriggerClass() = default;
+    ~MyTriggerClass() = default;
+
+    // IMPORTANT: For now the WaitSet does not support that the origin is moved
+    //            or copied. To support that we have to inform the waitset about
+    //            our new origin, otherwise the WaitSet would end up in the wrong
+    //            memory location when it calls the `hasTriggerCallback` with the
+    //            old origin (already moved) origin pointer. The same goes for
+    //            the resetCallback which is used when the WaitSet goes out of scope
+    //            and is pointing also to the old origin.
+    MyTriggerClass(const MyTriggerClass&) = delete;
+    MyTriggerClass(MyTriggerClass&&) = delete;
+    MyTriggerClass& operator=(const MyTriggerClass&) = delete;
+    MyTriggerClass& operator=(MyTriggerClass&&) = delete;
+
     // When you call this method you will trigger the ACTIVATE event
     void activate(const int activationCode) noexcept
     {

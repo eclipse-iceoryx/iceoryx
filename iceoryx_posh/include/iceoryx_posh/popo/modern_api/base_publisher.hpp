@@ -49,8 +49,8 @@ class BasePublisher : public PublisherInterface<T>
   protected:
     BasePublisher(const BasePublisher& other) = delete;
     BasePublisher& operator=(const BasePublisher&) = delete;
-    BasePublisher(BasePublisher&& rhs) = default;
-    BasePublisher& operator=(BasePublisher&& rhs) = default;
+    BasePublisher(BasePublisher&& rhs) = delete;
+    BasePublisher& operator=(BasePublisher&& rhs) = delete;
     virtual ~BasePublisher();
 
     ///

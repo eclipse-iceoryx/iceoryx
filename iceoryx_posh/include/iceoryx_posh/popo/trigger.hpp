@@ -19,6 +19,7 @@
 #include "iceoryx_posh/popo/trigger_state.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
+#include <type_traits>
 #include <typeinfo>
 
 namespace iox

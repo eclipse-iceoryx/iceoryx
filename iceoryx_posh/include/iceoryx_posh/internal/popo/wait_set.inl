@@ -27,6 +27,12 @@ WaitSet::acquireTrigger(T* const origin,
                         const uint64_t triggerId,
                         const Trigger::Callback<T> callback) noexcept
 {
+    static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
+                      && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
+                  "At the moment only non copyable and non movable origin types are supported! To implement this we "
+                  "have to notify the WaitSet when origin moves about the new pointer to origin. This could be done in "
+                  "a callback inside of Trigger.");
+
     Trigger logicalEqualTrigger(origin,
                                 m_conditionVariableDataPtr,
                                 triggerCallback,

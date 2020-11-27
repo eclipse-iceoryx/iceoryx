@@ -23,11 +23,11 @@ struct cpp2c_Subscriber
 {
     cpp2c_Subscriber() = default;
     cpp2c_Subscriber(const cpp2c_Subscriber&) = delete;
-    cpp2c_Subscriber(cpp2c_Subscriber&& rhs) noexcept;
+    cpp2c_Subscriber(cpp2c_Subscriber&& rhs) = delete;
     ~cpp2c_Subscriber();
 
     cpp2c_Subscriber& operator=(const cpp2c_Subscriber&) = delete;
-    cpp2c_Subscriber& operator=(cpp2c_Subscriber&& rhs) noexcept;
+    cpp2c_Subscriber& operator=(cpp2c_Subscriber&& rhs) = delete;
 
     iox_WaitSetResult attachToWaitset(iox::popo::WaitSet& waitset,
                                       const iox_SubscriberEvent event,

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
 #include "topic_data.hpp"
 
 #include "iceoryx_posh/popo/modern_api/publisher.hpp"
@@ -36,7 +37,7 @@ int main()
 
     iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-untyped-modern");
 
-    auto untypedPublisher = iox::popo::UntypedPublisher({"Odometry", "Position", "Vehicle"});
+    iox::popo::UntypedPublisher untypedPublisher({"Odometry", "Position", "Vehicle"});
     untypedPublisher.offer();
 
     float_t ct = 0.0;
