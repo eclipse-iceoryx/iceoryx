@@ -33,6 +33,7 @@ class iox_user_trigger_test : public Test
     void SetUp()
     {
         m_sut = iox_user_trigger_init(&m_sutStorage);
+        wasTriggerCallbackCalled = false;
     }
 
     void TearDown()
@@ -40,12 +41,20 @@ class iox_user_trigger_test : public Test
         iox_user_trigger_deinit(m_sut);
     }
 
+    static void triggerCallback(iox_user_trigger_t)
+    {
+        wasTriggerCallbackCalled = true;
+    }
+
     iox_user_trigger_storage_t m_sutStorage;
     iox_user_trigger_t m_sut;
 
     ConditionVariableData m_condVar;
     WaitSetMock m_waitSet{&m_condVar};
+    static bool wasTriggerCallbackCalled;
 };
+
+bool iox_user_trigger_test::wasTriggerCallbackCalled = false;
 
 TEST_F(iox_user_trigger_test, isNotTriggeredWhenCreated)
 {
@@ -60,7 +69,7 @@ TEST_F(iox_user_trigger_test, cannotBeTriggeredWhenNotAttached)
 
 TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
 {
-    // iox_ws_attach_condition(&m_waitSet, m_sut);
+    iox_user_trigger_attach_to_ws(m_sut, &m_waitSet, 0, NULL);
     iox_user_trigger_trigger(m_sut);
     EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
 }
@@ -73,8 +82,32 @@ TEST_F(iox_user_trigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
 
 TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInTriggered)
 {
-    // iox_ws_attach_condition(&m_waitSet, m_sut);
+    iox_user_trigger_attach_to_ws(m_sut, &m_waitSet, 0, NULL);
     iox_user_trigger_trigger(m_sut);
     iox_user_trigger_reset_trigger(m_sut);
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
+}
+
+TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectTriggerId)
+{
+    iox_user_trigger_attach_to_ws(m_sut, &m_waitSet, 88191, NULL);
+    iox_user_trigger_trigger(m_sut);
+
+    auto triggerVector = m_waitSet.wait();
+
+    ASSERT_THAT(triggerVector.size(), Eq(1));
+    EXPECT_EQ(triggerVector[0].getTriggerId(), 88191);
+}
+
+TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
+{
+    iox_user_trigger_attach_to_ws(m_sut, &m_waitSet, 0, iox_user_trigger_test::triggerCallback);
+    iox_user_trigger_trigger(m_sut);
+
+    auto triggerVector = m_waitSet.wait();
+
+    ASSERT_THAT(triggerVector.size(), Eq(1));
+    triggerVector[0]();
+
+    EXPECT_TRUE(wasTriggerCallbackCalled);
 }
