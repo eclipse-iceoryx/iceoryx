@@ -398,7 +398,7 @@ class PortIntrospection
      */
     void sendSubscriberPortsData();
 
-  private:
+  protected:
     cxx::optional<PublisherPort> m_publisherPort;
     cxx::optional<PublisherPort> m_publisherPortThroughput;
     cxx::optional<PublisherPort> m_publisherPortSubscriberPortsData;

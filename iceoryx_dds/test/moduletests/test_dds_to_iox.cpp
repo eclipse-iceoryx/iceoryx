@@ -17,7 +17,7 @@
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 
-#include "mocks/chunk_mock.hpp"
+#include "mocks/chunk_mock_dds.hpp"
 #include "mocks/google_mocks.hpp"
 #include "test.hpp"
 #include "testutils/roudi_gtest.hpp"
