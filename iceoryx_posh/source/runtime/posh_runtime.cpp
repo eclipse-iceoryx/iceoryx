@@ -48,7 +48,7 @@ void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
     }
 }
 
-PoshRuntime& PoshRuntime::defaultRuntimeFactory(const ProcessName_t& name) noexcept
+PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const ProcessName_t*> name) noexcept
 {
     static PoshRuntime instance(name);
     return instance;
@@ -57,28 +57,27 @@ PoshRuntime& PoshRuntime::defaultRuntimeFactory(const ProcessName_t& name) noexc
 // singleton access
 PoshRuntime& PoshRuntime::getInstance(const ProcessName_t& name) noexcept
 {
-    return getRuntimeFactory()(name);
+    return getInstance(cxx::make_optional<const ProcessName_t*>(&name));
 }
 
 PoshRuntime& PoshRuntime::getInstance() noexcept
 {
-    return getRuntimeFactory()(ProcessName_t("dummy"));
+    return getInstance(cxx::nullopt);
 }
 
 PoshRuntime& PoshRuntime::initRuntime(const ProcessName_t& name) noexcept
 {
+    return getInstance(cxx::make_optional<const ProcessName_t*>(&name));
+}
+
+PoshRuntime& PoshRuntime::getInstance(cxx::optional<const ProcessName_t*> name) noexcept
+{
     return getRuntimeFactory()(name);
 }
 
-ProcessName_t& PoshRuntime::defaultRuntimeInstanceName() noexcept
-{
-    static ProcessName_t defaultInstanceName = "dummy";
-    return defaultInstanceName;
-}
-
-PoshRuntime::PoshRuntime(const ProcessName_t& name, const bool doMapSharedMemoryIntoThread) noexcept
+PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool doMapSharedMemoryIntoThread) noexcept
     : m_appName(verifyInstanceName(name))
-    , m_MqInterface(MQ_ROUDI_NAME, name, PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
+    , m_MqInterface(MQ_ROUDI_NAME, *name.value(), PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface(doMapSharedMemoryIntoThread,
                      m_MqInterface.getShmTopicSize(),
                      m_MqInterface.getSegmentId(),
@@ -98,26 +97,26 @@ PoshRuntime::~PoshRuntime() noexcept
 }
 
 
-const ProcessName_t& PoshRuntime::verifyInstanceName(const ProcessName_t& name) noexcept
+const ProcessName_t& PoshRuntime::verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept
 {
-    if (name.empty())
+    if (!name.has_value())
     {
         LogError() << "Cannot initialize runtime. Application name must not be empty!";
         std::terminate();
     }
-    else if (name.compare(defaultRuntimeInstanceName()) == 0)
+    else if (name.value()->empty())
     {
         LogError() << "Cannot initialize runtime. Application name has not been specified!";
         std::terminate();
     }
-    else if (name.c_str()[0] != '/')
+    else if (name.value()->c_str()[0] != '/')
     {
-        LogError() << "Cannot initialize runtime. Application name " << name
+        LogError() << "Cannot initialize runtime. Application name " << *name.value()
                    << " does not have the required leading slash '/'";
         std::terminate();
     }
 
-    return name;
+    return *name.value();
 }
 
 ProcessName_t PoshRuntime::getInstanceName() const noexcept

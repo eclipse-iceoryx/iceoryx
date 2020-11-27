@@ -28,7 +28,7 @@ class PoshRuntimeTestAccess : public PoshRuntime
     using PoshRuntime::factory_t;
     using PoshRuntime::setRuntimeFactory;
 
-    PoshRuntimeTestAccess(const iox::ProcessName_t& s)
+    PoshRuntimeTestAccess(iox::cxx::optional<const iox::ProcessName_t*> s)
         : PoshRuntime(s)
     {
     }
@@ -43,7 +43,7 @@ class PoshRuntimeTestAccess : public PoshRuntime
 namespace
 {
 bool callbackWasCalled = false;
-PoshRuntime& testFactory(const iox::ProcessName_t&)
+PoshRuntime& testFactory(iox::cxx::optional<const iox::ProcessName_t*>)
 {
     callbackWasCalled = true;
     return *PoshRuntimeTestAccess::getTestRuntime();
@@ -117,7 +117,7 @@ TEST_F(PoshRuntime_test, NoAppName)
     const iox::ProcessName_t invalidAppName("");
 
     EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); },
-                 "Cannot initialize runtime. Application name must not be empty!");
+                 "Cannot initialize runtime. Application name has not been specified!");
 }
 
 
@@ -131,14 +131,13 @@ TEST_F(PoshRuntime_test, NoLeadingSlashAppName)
 }
 
 
-// since getInstance is a singleton and test class creates instance of Poshruntime,
-// when getInstance() is called without parameterx it reuturns extisting instance
-// To be able to test this, it needs to be the very first call to getInstance but since,
-// we have multiple tests in this binary its not possible here to test
-TEST_F(PoshRuntime_test, DISABLED_AppNameEmpty)
+// since getInstance is a singleton and test class creates instance of Poshruntime
+// when getInstance() is called without parameter, it returns existing instance
+// To be able to test this, we don't use the test fixture
+TEST(PoshRuntime, AppNameEmpty)
 {
     EXPECT_DEATH({ iox::runtime::PoshRuntime::getInstance(); },
-                 "Cannot initialize runtime. Application name has not been specified!");
+                 "Cannot initialize runtime. Application name must not be empty!");
 }
 
 

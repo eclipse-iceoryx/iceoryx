@@ -55,12 +55,20 @@ class PoshRuntime
     /// @param[in] name name that is used for registering the process with the RouDi daemon
     [[deprecated]] static PoshRuntime& getInstance(const ProcessName_t& name) noexcept;
 
+    /// @brief returns active runtime
+    ///
+    /// @return active runtime
     static PoshRuntime& getInstance() noexcept;
 
+    /// @brief creates the runtime with given name
+    ///
+    /// @param[in] name used for registering the process with the RouDi daemon
+    ///
+    /// @return active runtime
     static PoshRuntime& initRuntime(const ProcessName_t& name) noexcept;
 
     /// @brief get the name that was used to register with RouDi
-    /// @return name of the reistered application
+    /// @return name of the registered application
     ProcessName_t getInstanceName() const noexcept;
 
     /// @brief find all services that match the provided service description
@@ -170,12 +178,12 @@ class PoshRuntime
     friend class roudi::RuntimeTestInterface;
 
   protected:
-    using factory_t = PoshRuntime& (*)(const ProcessName_t&);
+    using factory_t = PoshRuntime& (*)(cxx::optional<const ProcessName_t*>);
 
     // Protected constructor for IPC setup
-    PoshRuntime(const ProcessName_t& name, const bool doMapSharedMemoryIntoThread = true) noexcept;
+    PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool doMapSharedMemoryIntoThread = true) noexcept;
 
-    static PoshRuntime& defaultRuntimeFactory(const ProcessName_t& name) noexcept;
+    static PoshRuntime& defaultRuntimeFactory(cxx::optional<const ProcessName_t*> name) noexcept;
 
     static ProcessName_t& defaultRuntimeInstanceName() noexcept;
 
@@ -189,6 +197,13 @@ class PoshRuntime
     ///
     /// @param[in] factory std::function to which the runtime factory should be set
     static void setRuntimeFactory(const factory_t& factory) noexcept;
+
+    /// @brief creates the runtime or returns the already existing one -> Singleton
+    ///
+    /// @param[in] name optional containing the name used for registering with the RouDi daemon
+    ///
+    /// @return active runtime
+    static PoshRuntime& getInstance(cxx::optional<const ProcessName_t*> name) noexcept;
 
   private:
     /// @deprecated #25
@@ -209,7 +224,7 @@ class PoshRuntime
 
     /// @brief checks the given application name for certain constraints like length(100 chars) or leading slash
     /// @todo replace length check with fixedstring when its integrated
-    const ProcessName_t& verifyInstanceName(const ProcessName_t& name) noexcept;
+    const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;
 
     const ProcessName_t m_appName;
     mutable std::mutex m_appMqRequestMutex;
