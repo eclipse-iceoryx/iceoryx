@@ -75,17 +75,17 @@ for COMPONENT in $COMPONENTS; do
 
     # Runs only tests available for the given component
 
-    case $GCOV_SCOPE in    
-        "unit" | "all")
-            [ -f ./"$COMPONENT"_moduletests ] && ./"$COMPONENT"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ModuleTestResults.xml"
-            ;;
-        "component" | "all")
-            [ -f ./"$COMPONENT"_componenttests ] && ./"$COMPONENT"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ComponenttestTestResults.xml"
-            ;;
-        "integration" | "all") 
-            [ -f ./"$COMPONENT"_integrationtests ] && ./"$COMPONENT"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_IntegrationTestResults.xml"
-            ;;
-      esac
+    if [[ "$GCOV_SCOPE" = "unit" ]] | [[ "$GCOV_SCOPE" = "all" ]]; then
+        [ -f ./"$COMPONENT"_moduletests ] && ./"$COMPONENT"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ModuleTestResults.xml"
+    fi
+
+    if [[ "$GCOV_SCOPE" = "component" ]] | [[ "$GCOV_SCOPE" = "all" ]]; then
+        [ -f ./"$COMPONENT"_componenttests ] && ./"$COMPONENT"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ComponenttestTestResults.xml"
+    fi
+
+    if [[ "$GCOV_SCOPE" = "integration" ]] | [[ "$GCOV_SCOPE" = "all" ]]; then
+        [ -f ./"$COMPONENT"_integrationtests ] && ./"$COMPONENT"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_IntegrationTestResults.xml"
+    fi
 done
 
 # do not start RouDi while the module and componenttests are running;
