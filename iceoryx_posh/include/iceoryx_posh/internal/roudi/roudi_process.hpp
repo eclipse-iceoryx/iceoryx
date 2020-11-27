@@ -23,12 +23,12 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
+#include "iceoryx_utils/cxx/list.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <csignal>
 #include <cstdint>
 #include <ctime>
-#include <list>
 
 namespace iox
 {
@@ -100,9 +100,7 @@ class ProcessManagerInterface
 class ProcessManager : public ProcessManagerInterface
 {
   public:
-    /// @todo use a fixed, stack based list once available
-    // using ProcessList_t = cxx::list<RouDiProcess, MAX_PROCESS_NUMBER>;
-    using ProcessList_t = std::list<RouDiProcess>;
+    using ProcessList_t = cxx::list<RouDiProcess, MAX_PROCESS_NUMBER>;
     using PortConfigInfo = iox::runtime::PortConfigInfo;
 
     ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
