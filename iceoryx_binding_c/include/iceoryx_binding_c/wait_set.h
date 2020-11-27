@@ -63,8 +63,10 @@ uint64_t iox_ws_wait(iox_ws_t const self,
                      const uint64_t triggerArrayCapacity,
                      uint64_t* missedElements);
 
-
+/// @brief returns the amount of acquired triggers
 uint64_t iox_ws_size(iox_ws_t const self);
+
+/// @brief returns the overall capacity of the waitset
 uint64_t iox_ws_capacity(iox_ws_t const self);
 
 #endif

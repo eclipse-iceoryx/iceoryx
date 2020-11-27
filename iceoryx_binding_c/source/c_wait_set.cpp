@@ -81,3 +81,12 @@ uint64_t iox_ws_wait(iox_ws_t const self,
     return trigger_vector_to_c_array(self->wait(), triggerArray, triggerArrayCapacity, missedElements);
 }
 
+uint64_t iox_ws_size(iox_ws_t const self)
+{
+    return self->size();
+}
+
+uint64_t iox_ws_capacity(iox_ws_t const self)
+{
+    return self->capacity();
+}
