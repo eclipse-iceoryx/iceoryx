@@ -106,6 +106,9 @@ class WaitSet
     TriggerStateVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
     TriggerStateVector createVectorWithFullfilledConditions() noexcept;
 
+    template <typename T>
+    void moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept;
+
     void removeTrigger(const Trigger& trigger) noexcept;
     void removeAllTrigger() noexcept;
 

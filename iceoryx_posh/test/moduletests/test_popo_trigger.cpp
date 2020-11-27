@@ -183,13 +183,13 @@ class Trigger_test : public Test
 
         static void callback(TriggerClass* const ptr)
         {
-            ptr->m_lastCallbackArgument = ptr;
+            m_lastCallbackArgument = ptr;
         }
 
         bool m_hasTriggered = false;
         const Trigger* m_resetCallTriggerArg = nullptr;
         ConditionVariableData* m_condVar = nullptr;
-        TriggerClass* m_lastCallbackArgument = nullptr;
+        static TriggerClass* m_lastCallbackArgument;
 
         const Trigger* m_moveCallTriggerArg = nullptr;
         void* m_moveCallNewOriginArg = nullptr;
@@ -221,6 +221,8 @@ class Trigger_test : public Test
     ConditionVariableData m_condVar;
     TriggerClass m_triggerClass;
 };
+
+Trigger_test::TriggerClass* Trigger_test::TriggerClass::m_lastCallbackArgument = nullptr;
 
 TEST_F(Trigger_test, DefaultCTorConstructsEmptyTrigger)
 {
@@ -425,5 +427,75 @@ TEST_F(Trigger_test, TriggersAreEqualWhenEqualityRequirementsAreFulfilled)
 
     EXPECT_TRUE(sut.isLogicalEqualTo(sut2));
 }
+
+TEST_F(Trigger_test, UpdateOriginLeadsToDifferentOriginParameterInCallback)
+{
+    Trigger sut = createValidTrigger();
+    TriggerClass secondTriggerClass;
+
+    sut.updateOrigin(&secondTriggerClass);
+    sut();
+
+    EXPECT_EQ(&secondTriggerClass, TriggerClass::m_lastCallbackArgument);
+}
+
+TEST_F(Trigger_test, UpdateOriginLeadsToDifferentHasTriggeredCallback)
+{
+    Trigger sut = createValidTrigger();
+    TriggerClass secondTriggerClass;
+
+    sut.updateOrigin(&secondTriggerClass);
+
+    secondTriggerClass.m_hasTriggered = false;
+    EXPECT_FALSE(sut.hasTriggered());
+    secondTriggerClass.m_hasTriggered = true;
+    EXPECT_TRUE(sut.hasTriggered());
+}
+
+TEST_F(Trigger_test, UpdateOriginDoesNotUpdateHasTriggeredIfItsNotOriginatingFromOrigin)
+{
+    TriggerClass secondTriggerClass, thirdTriggerClass;
+    Trigger sut(&m_triggerClass,
+                &m_condVar,
+                {&thirdTriggerClass, &TriggerClass::hasTriggered},
+                {&m_triggerClass, &TriggerClass::resetCall},
+                891,
+                TriggerClass::callback);
+
+    sut.updateOrigin(&secondTriggerClass);
+
+    thirdTriggerClass.m_hasTriggered = false;
+    EXPECT_FALSE(sut.hasTriggered());
+    thirdTriggerClass.m_hasTriggered = true;
+    EXPECT_TRUE(sut.hasTriggered());
+}
+
+TEST_F(Trigger_test, UpdateOriginLeadsToDifferentResetCallback)
+{
+    Trigger sut = createValidTrigger();
+    TriggerClass secondTriggerClass;
+
+    sut.updateOrigin(&secondTriggerClass);
+    sut.reset();
+
+    EXPECT_EQ(secondTriggerClass.m_resetCallTriggerArg, &sut);
+}
+
+TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin)
+{
+    TriggerClass secondTriggerClass, thirdTriggerClass;
+    Trigger sut(&m_triggerClass,
+                &m_condVar,
+                {&m_triggerClass, &TriggerClass::hasTriggered},
+                {&thirdTriggerClass, &TriggerClass::resetCall},
+                891,
+                TriggerClass::callback);
+
+    sut.updateOrigin(&secondTriggerClass);
+    sut.reset();
+
+    EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, &sut);
+}
+
 
 } // namespace internalTesting

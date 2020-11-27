@@ -96,6 +96,11 @@ class Trigger : public TriggerState
     ///       - triggerId == rhs.triggerId
     bool isLogicalEqualTo(const Trigger& rhs) const noexcept;
 
+    /// @brief sets a new origin of the trigger
+    /// @param[in] newOrigin pointer to the new origin
+    template <typename T>
+    void updateOrigin(T* const newOrigin) noexcept;
+
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
 

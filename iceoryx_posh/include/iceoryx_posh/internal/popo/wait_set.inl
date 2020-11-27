@@ -52,6 +52,18 @@ WaitSet::acquireTrigger(T* const origin,
         origin, m_conditionVariableDataPtr, triggerCallback, {this, &WaitSet::removeTrigger}, triggerId, callback));
 }
 
+template <typename T>
+inline void WaitSet::moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept
+{
+    for (auto& currentTrigger : m_triggerVector)
+    {
+        if (currentTrigger.isLogicalEqualTo(trigger))
+        {
+            currentTrigger.updateOrigin(newOrigin);
+        }
+    }
+}
+
 } // namespace popo
 } // namespace iox
 
