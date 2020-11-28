@@ -152,6 +152,15 @@ TEST_F(WaitSet_test, AcquireTriggerReturnsTriggerWithValidTriggerCallback)
     EXPECT_FALSE(trigger->hasTriggered());
 }
 
+TEST_F(WaitSet_test, AcquireSameTriggerTwiceResultsInError)
+{
+    auto trigger1 = acquireTrigger(m_sut, 0);
+    auto trigger2 = acquireTrigger(m_sut, 0);
+
+    ASSERT_TRUE(trigger2.has_error());
+    EXPECT_THAT(trigger2.get_error(), Eq(WaitSetError::TRIGGER_ALREADY_ACQUIRED));
+}
+
 TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
 {
     iox::cxx::expected<Trigger, WaitSetError> trigger =
