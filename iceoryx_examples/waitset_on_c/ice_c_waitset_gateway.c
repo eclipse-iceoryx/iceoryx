@@ -30,13 +30,13 @@
 #define NUMBER_OF_SUBSCRIBER 2
 
 iox_user_trigger_storage_t shutdowGuardStorage;
-iox_user_trigger_t shutdownGuard;
+iox_user_trigger_t shutdownTrigger;
 
 static void sigHandler(int signalValue)
 {
     (void)signalValue;
 
-    iox_user_trigger_trigger(shutdownGuard);
+    iox_user_trigger_trigger(shutdownTrigger);
 }
 
 // The callback of the trigger. Every callback must have an argument which is
@@ -59,12 +59,12 @@ int main()
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-    shutdownGuard = iox_user_trigger_init(&shutdowGuardStorage);
+    shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
 
-    // attach shutdownGuard with no callback to handle CTRL+C
-    iox_user_trigger_attach_to_ws(shutdownGuard, waitSet, 0, NULL);
+    // attach shutdownTrigger with no callback to handle CTRL+C
+    iox_user_trigger_attach_to_ws(shutdownTrigger, waitSet, 0, NULL);
 
-    //// register signal after guard condition since we are using it in the handler
+    //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
 
     // array where the subscriber are stored
@@ -98,7 +98,7 @@ int main()
         {
             iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
 
-            if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownGuard))
+            if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning = false;
@@ -119,7 +119,7 @@ int main()
     }
 
     iox_ws_deinit(waitSet);
-    iox_user_trigger_deinit(shutdownGuard);
+    iox_user_trigger_deinit(shutdownTrigger);
 
 
     return 0;

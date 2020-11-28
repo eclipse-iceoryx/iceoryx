@@ -13,7 +13,8 @@ sample has been taken and released.
 
 ## Glossary
 
- - **Listener** a class which can be triggered by a _Trigger_, for instance a _WaitSet_.
+ - **Listener** a class which listens to events. A _Trigger_ is used to notify 
+     the _Listener_ that an event occurred.
  - **Trigger** a class which can be used to trigger a listener. If a _Trigger_ goes
      out of scope it will detach itself from the listener. A _Trigger_ is
      logical equal to another _Trigger_ if they:
@@ -49,7 +50,7 @@ sample has been taken and released.
 |attach user trigger to waitset (full)|`userTrigger.attachToWaitset(myWaitSet, someTriggerId, myCallback)`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
-|check if trigger originated from some class|`trigger.doesOriginateFrom(ptrToSomeClass)`|
+|check if trigger originated from some object|`trigger.doesOriginateFrom(ptrToSomeObject)`|
 |get id of trigger|`trigger.getTriggerId()`|
 |call triggerCallback|`trigger()`|
 |acquire _TriggerOrigin|`trigger.getOrigin<OriginType>();`|
@@ -106,11 +107,11 @@ has received (`take()`). When `take()` was successful we print our message to
 the console inside of the `and_then` lambda.
 
 In our `main` function we create a _WaitSet_ after we registered at our central
-broker RouDi and attach our `shutdownGuard` to it to handle `CTRL+c` events. 
+broker RouDi and attach our `shutdownTrigger` to it to handle `CTRL+c` events. 
 ```cpp
 iox::popo::WaitSet waitset;
 
-shutdownGuard.attachToWaitset(waitset);
+shutdownTrigger.attachToWaitset(waitset);
 ```
 
 After that we create a vector of 2 subscribers, subscribe and attach them to a
@@ -133,7 +134,7 @@ starts with a call to our _WaitSet_ (`waitset.wait()`). This call we block until
 one or more events triggered the _WaitSet_. After the call returned we get a
 vector filled with all the _Triggers_ which were triggered.
 
-We iterate through this vector, if a _Trigger_ originated from the `shutdownGuard`
+We iterate through this vector, if a _Trigger_ originated from the `shutdownTrigger`
 we exit the program otherwise we just call the assigned callback by calling
 the trigger. This will then call `subscriberCallback` with the _TriggerOrigin_
 as parameter.
@@ -144,7 +145,7 @@ while (true)
 
     for (auto& trigger : triggerVector)
     {
-        if (trigger.doesOriginateFrom(&shutdownGuard))
+        if (trigger.doesOriginateFrom(&shutdownTrigger))
         {
             // CTRL+c was pressed -> exit
             return (EXIT_SUCCESS);
@@ -162,12 +163,12 @@ In our next use case we would like to divide the subscribers into two groups
 and we do not want to attach a callback to them. Instead we perform the calls on the
 subscribers directly.
 
-We again start by creating a _WaitSet_ and attach the `shutdownGuard` to handle
+We again start by creating a _WaitSet_ and attach the `shutdownTrigger` to handle
 `CTRL+c`.
 ```cpp
 iox::popo::WaitSet waitset;
 
-shutdownGuard.attachToWaitset(waitset);
+shutdownTrigger.attachToWaitset(waitset);
 ```
 
 Now we create a vector of 4 subscribers and subscribe them to our service.
@@ -199,16 +200,15 @@ for (auto i = 2; i < 4; ++i)
 
 The event loop calls `auto triggerVector = waitset.wait()` in a blocking call to
 receive a vector of all the _Triggers_ which were triggered. If the _Trigger_
-did originate from the `shutdownGuard` we terminate the program.
+did originate from the `shutdownTrigger` we terminate the program.
 ```cpp
 while (true)
 {
     auto triggerVector = waitset.wait();
 
-:W
     for (auto& trigger : triggerVector)
     {
-        if (trigger.doesOriginateFrom(&shutdownGuard))
+        if (trigger.doesOriginateFrom(&shutdownTrigger))
         {
             return (EXIT_SUCCESS);
         }
@@ -243,12 +243,12 @@ origin of a _Trigger_. We can call `trigger.doesOriginateFrom(TriggerOrigin)`
 which will return true if the trigger originates from _TriggerOrigin_ and
 otherwise false.
 
-We start this example by creating a _WaitSet_ and attaching the `shutdownGuard`
+We start this example by creating a _WaitSet_ and attaching the `shutdownTrigger`
 to handle `CTRL-c`.
 ```cpp
 iox::popo::WaitSet waitset;
 
-shutdownGuard.attachToWaitset(waitset);
+shutdownTrigger.attachToWaitset(waitset);
 ```
 
 Additionally, we create two subscriber, subscribe them to our service and attach
@@ -273,7 +273,7 @@ while (true)
 
     for (auto& trigger : triggerVector)
     {
-        if (trigger.doesOriginateFrom(&shutdownGuard))
+        if (trigger.doesOriginateFrom(&shutdownTrigger))
         {
             return (EXIT_SUCCESS);
         }
@@ -316,13 +316,13 @@ class SomeClass
 **Important** We need to reset the trigger otherwise the WaitSet would notify
 us immediately again since it is state based.
 
-We begin as always, by creating a _WaitSet_ and attaching the `shutdownGuard` to 
+We begin as always, by creating a _WaitSet_ and attaching the `shutdownTrigger` to 
 it.
 ```cpp
 iox::popo::WaitSet waitset;
 
-// attach shutdownGuard to handle CTRL+C
-shutdownGuard.attachToWaitset(waitset);
+// attach shutdownTrigger to handle CTRL+C
+shutdownTrigger.attachToWaitset(waitset);
 ```
 
 After that we require a `cyclicTrigger` to trigger our 
@@ -346,7 +346,7 @@ std::thread cyclicTriggerThread([&] {
 ```
 
 Everything is set up and we can implement the event loop. As usual we handle
-`CTRL-c` which is indicated by the `shutdownGuard`.
+`CTRL-c` which is indicated by the `shutdownTrigger`.
 ```cpp
 while (true)
 {
@@ -354,7 +354,7 @@ while (true)
 
     for (auto& trigger : triggerVector)
     {
-        if (trigger.doesOriginateFrom(&shutdownGuard))
+        if (trigger.doesOriginateFrom(&shutdownTrigger))
         {
             // CTRL+c was pressed -> exit
             keepRunning.store(false);
@@ -393,7 +393,7 @@ and copy operations.
     MyTriggerClass& operator=(MyTriggerClass&&) = delete;
 ```
 
-The class implementation of these two methods could like the following.
+The class implementation of these two methods could look like the following.
 ```cpp
 class MyTriggerClass
 {

@@ -22,11 +22,11 @@
 #include <csignal>
 #include <iostream>
 
-iox::popo::UserTrigger shutdownGuard;
+iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    shutdownGuard.trigger();
+    shutdownTrigger.trigger();
 }
 
 int main()
@@ -36,8 +36,8 @@ int main()
     iox::runtime::PoshRuntime::getInstance("/iox-ex-waitset-grouping");
     iox::popo::WaitSet waitset;
 
-    // attach shutdownGuard to handle CTRL+C
-    shutdownGuard.attachToWaitset(waitset);
+    // attach shutdownTrigger to handle CTRL+C
+    shutdownTrigger.attachToWaitset(waitset);
 
     // create subscriber and subscribe them to our service
     iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
@@ -71,7 +71,7 @@ int main()
 
         for (auto& trigger : triggerVector)
         {
-            if (trigger.doesOriginateFrom(&shutdownGuard))
+            if (trigger.doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);

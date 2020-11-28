@@ -23,13 +23,13 @@
 #include <iostream>
 
 bool killswitch = false;
-iox::popo::UserTrigger shutdownGuard;
+iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
     killswitch = true;
-    shutdownGuard.trigger(); // unblock waitsets
+    shutdownTrigger.trigger(); // unblock waitsets
 }
 
 void subscriberHandler(iox::popo::WaitSet& waitSet)
@@ -68,7 +68,7 @@ int main()
     // set up waitset
     iox::popo::WaitSet waitSet{};
     untypedSubscriber.attachToWaitset(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1);
-    shutdownGuard.attachToWaitset(waitSet, 2);
+    shutdownTrigger.attachToWaitset(waitSet, 2);
 
     // delegate handling of received data to another thread
     std::thread untypedSubscriberThread(subscriberHandler, std::ref(waitSet));

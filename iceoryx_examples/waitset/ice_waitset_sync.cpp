@@ -22,11 +22,11 @@
 #include <csignal>
 #include <iostream>
 
-iox::popo::UserTrigger shutdownGuard;
+iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    shutdownGuard.trigger();
+    shutdownTrigger.trigger();
 }
 
 class SomeClass
@@ -51,8 +51,8 @@ int main()
 
     iox::popo::WaitSet waitset;
 
-    // attach shutdownGuard to handle CTRL+C
-    shutdownGuard.attachToWaitset(waitset);
+    // attach shutdownTrigger to handle CTRL+C
+    shutdownTrigger.attachToWaitset(waitset);
 
     // create and attach the cyclicTrigger with a callback to
     // SomeClass::myCyclicRun
@@ -75,7 +75,7 @@ int main()
 
         for (auto& trigger : triggerVector)
         {
-            if (trigger.doesOriginateFrom(&shutdownGuard))
+            if (trigger.doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning.store(false);

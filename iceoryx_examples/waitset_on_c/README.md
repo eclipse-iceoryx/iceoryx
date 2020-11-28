@@ -34,15 +34,15 @@ void subscriberCallback(iox_sub_t const subscriber)
 ```
 
 After we registered our runtime we create some stack storage for our WaitSet,
-initialize it and attach a `shutdownGuard` to handle `CTRL-c`.
+initialize it and attach a `shutdownTrigger` to handle `CTRL-c`.
 ```c
 iox_runtime_register("/iox-c-ex-waitset-gateway");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownGuard = iox_user_trigger_init(&shutdowGuardStorage);
+shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
 
-iox_user_trigger_attach_to_ws(shutdownGuard, waitSet, 0, NULL);
+iox_user_trigger_attach_to_ws(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 During the next step we create 4 subscribers with `iox_sub_init`, 
@@ -81,14 +81,14 @@ while (keepRunning)
 ```
 
 The triggered Triggers are contained in the `triggerArray`. We iterate through
-it, if the `shutdownGuard` was triggered we terminate the program otherwise
+it, if the `shutdownTrigger` was triggered we terminate the program otherwise
 we call the callback with `iox_trigger_state_call(trigger)`.
 ```c
 for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
 {
     iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
 
-    if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownGuard))
+    if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownTrigger))
     {
         keepRunning = false;
     }
@@ -108,7 +108,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
 }
 
 iox_ws_deinit(waitSet);
-iox_user_trigger_deinit(shutdownGuard);
+iox_user_trigger_deinit(shutdownTrigger);
 ```
 
 ### Grouping
@@ -117,15 +117,15 @@ data of the first group and would like to print them onto the console and the
 date of the second group should be discarded.
 
 We start like in every example with creating the WaitSet and attaching the
-`shutdownGuard`.
+`shutdownTrigger`.
 ```c
 iox_runtime_register("/iox-c-ex-waitset-grouping");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownGuard = iox_user_trigger_init(&shutdowGuardStorage);
+shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
 
-iox_user_trigger_attach_to_ws(shutdownGuard, waitSet, 0, NULL);
+iox_user_trigger_attach_to_ws(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 After that we can create a list of subscribers and subscribe them to our service.
@@ -172,7 +172,7 @@ while (keepRunning)
         iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
-When we iterate through the array we handle the `shutdownGuard` first.
+When we iterate through the array we handle the `shutdownTrigger` first.
 We check if a trigger is from the first group by calling 
 `iox_trigger_state_get_trigger_id` and compare the result with `FIRST_GROUP_ID`.
 If that is the case we acquire the subscriber handle with
@@ -185,7 +185,7 @@ for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
 {
     iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
 
-    if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownGuard))
+    if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownTrigger))
     {
         keepRunning = false;
     }
@@ -218,7 +218,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
 }
 
 iox_ws_deinit(waitSet);
-iox_user_trigger_deinit(shutdownGuard);
+iox_user_trigger_deinit(shutdownTrigger);
 ```
 
 ### Individual
@@ -227,15 +227,15 @@ to have a different reaction for every subscriber which has received a sample.
 One way would be to assign every subscriber a different callback, here we look
 at a different approach.
 
-We start as usual, by creating a WaitSet and attach the `shutdownGuard` to it.
+We start as usual, by creating a WaitSet and attach the `shutdownTrigger` to it.
 ```c
 iox_runtime_register("/iox-c-ex-waitset-individual");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownGuard = iox_user_trigger_init(&shutdowGuardStorage);
+shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
 
-iox_user_trigger_attach_to_ws(shutdownGuard, waitSet, 0, NULL);
+iox_user_trigger_attach_to_ws(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 Now we create two subscriber, subscribe them to our service and attach them to
@@ -262,7 +262,7 @@ while (keepRunning)
         iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
-The `shutdownGuard` is handled as usual and
+The `shutdownTrigger` is handled as usual and
 we use `iox_trigger_state_does_originate_from_subscriber` 
 to identify the trigger that originated from a specific subscriber. If it originated
 from the first subscriber we print the received data to the console, if it 
@@ -272,7 +272,7 @@ originated from the second subscriber we discard the data.
     {
         iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
 
-        if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownGuard))
+        if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownTrigger))
         {
             keepRunning = false;
         }
@@ -303,7 +303,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
 }
 
 iox_ws_deinit(waitSet);
-iox_user_trigger_deinit(shutdownGuard);
+iox_user_trigger_deinit(shutdownTrigger);
 ```
 
 ### Sync
@@ -313,15 +313,15 @@ thread every second to signal the WaitSet that its time for the next run.
 Additionally, we attach a callback (`cyclicRun`) to this user trigger
 so that the trigger can directly call the cyclic call.
 
-We begin by creating the waitset and attach the `shutdownGuard`.
+We begin by creating the waitset and attach the `shutdownTrigger`.
 ```c
 iox_runtime_register("/iox-c-ex-waitset-sync");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownGuard = iox_user_trigger_init(&shutdowGuardStorage);
+shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
 
-iox_user_trigger_attach_to_ws(shutdownGuard, waitSet, 0, NULL);
+iox_user_trigger_attach_to_ws(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 Now we create our cyclic trigger and attach it to our waitset with a triggerId
@@ -351,14 +351,14 @@ while (keepRunning)
         iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
-The `shutdownGuard` is handled as usual and the `cyclicTrigger` is handled by
+The `shutdownTrigger` is handled as usual and the `cyclicTrigger` is handled by
 just calling the attached callback with `iox_trigger_state_call(trigger)`.
 ```c
     for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
     {
         iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
 
-        if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownGuard))
+        if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownTrigger))
         {
             // CTRL+c was pressed -> exit
             keepRunning = false;
@@ -375,5 +375,5 @@ The last thing we have to do is to cleanup all the used resources.
 ```c
     pthread_join(cyclicTriggerThread, NULL);
     iox_ws_deinit(waitSet);
-    iox_user_trigger_deinit(shutdownGuard);
+    iox_user_trigger_deinit(shutdownTrigger);
 ```

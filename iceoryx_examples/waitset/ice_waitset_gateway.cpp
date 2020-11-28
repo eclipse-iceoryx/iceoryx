@@ -22,11 +22,11 @@
 #include <csignal>
 #include <iostream>
 
-iox::popo::UserTrigger shutdownGuard;
+iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    shutdownGuard.trigger();
+    shutdownTrigger.trigger();
 }
 
 // The callback of the trigger. Every callback must have an argument which is
@@ -50,8 +50,8 @@ int main()
 
     iox::popo::WaitSet waitset;
 
-    // attach shutdownGuard to handle CTRL+C
-    shutdownGuard.attachToWaitset(waitset);
+    // attach shutdownTrigger to handle CTRL+C
+    shutdownTrigger.attachToWaitset(waitset);
 
 
     // create subscriber and subscribe them to our service
@@ -72,7 +72,7 @@ int main()
 
         for (auto& trigger : triggerVector)
         {
-            if (trigger.doesOriginateFrom(&shutdownGuard))
+            if (trigger.doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
