@@ -106,17 +106,15 @@ for COMPONENT in $COMPONENTS; do
     echo "######################## executing tests for $COMPONENT ########################"
     cd $BASE_DIR/$COMPONENT/test
 
-    case $GCOV_SCOPE in    
-        "unit" | "all")
-            execute_test $COMPONENT unit
-            ;&
-        "component" | "all")
-            execute_test $COMPONENT component
-            ;&
-        "integration" | "all")
-            execute_test $COMPONENT integration
-            ;;
-      esac
+    if [ $GCOV_SCOPE == "unit" ] || [ $GCOV_SCOPE == "all" ]; then
+        execute_test $COMPONENT unit
+    fi
+    if [ $GCOV_SCOPE == "component" ] || [ $GCOV_SCOPE == "all" ]; then
+        execute_test $COMPONENT component
+    fi    
+    if [ $GCOV_SCOPE == "integration" ] || [ $GCOV_SCOPE == "all" ]; then
+        execute_test $COMPONENT integration
+    fi        
 done
 
 # do not start RouDi while the module and componenttests are running;
