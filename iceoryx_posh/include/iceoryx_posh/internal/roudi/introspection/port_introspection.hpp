@@ -402,6 +402,8 @@ class PortIntrospection
     cxx::optional<PublisherPort> m_publisherPort;
     cxx::optional<PublisherPort> m_publisherPortThroughput;
     cxx::optional<PublisherPort> m_publisherPortSubscriberPortsData;
+
+  private:
     PortData m_portData;
 
     std::atomic<bool> m_runThread;

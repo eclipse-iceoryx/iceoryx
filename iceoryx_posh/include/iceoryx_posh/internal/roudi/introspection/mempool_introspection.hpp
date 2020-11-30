@@ -101,13 +101,13 @@ class MemPoolIntrospection
      */
     void setSnapshotInterval(unsigned int snapshotInterval_ms) noexcept;
 
-  private:
+  protected:
     MemoryManager* m_rouDiInternalMemoryManager{nullptr}; // mempool handler needs to outlive this class (!)
     SegmentManager* m_segmentManager{nullptr};
-
-    std::chrono::milliseconds m_snapShotInterval{1000};
-
     PublisherPort m_publisherPort{nullptr};
+
+  private:
+    std::chrono::milliseconds m_snapShotInterval{1000};
 
     std::atomic<RunLevel> m_runLevel{WAIT};
     std::condition_variable m_waitConditionVar;
