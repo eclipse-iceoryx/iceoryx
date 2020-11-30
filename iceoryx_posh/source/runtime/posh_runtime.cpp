@@ -55,11 +55,6 @@ PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const ProcessName_
 }
 
 // singleton access
-PoshRuntime& PoshRuntime::getInstance(const ProcessName_t& name) noexcept
-{
-    return getInstance(cxx::make_optional<const ProcessName_t*>(&name));
-}
-
 PoshRuntime& PoshRuntime::getInstance() noexcept
 {
     return getInstance(cxx::nullopt);

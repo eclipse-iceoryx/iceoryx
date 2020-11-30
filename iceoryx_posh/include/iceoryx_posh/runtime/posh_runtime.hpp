@@ -51,10 +51,6 @@ class RunnableData;
 class PoshRuntime
 {
   public:
-    /// @brief creates the runtime or return the already existing one -> Singleton
-    /// @param[in] name name that is used for registering the process with the RouDi daemon
-    [[deprecated]] static PoshRuntime& getInstance(const ProcessName_t& name) noexcept;
-
     /// @brief returns active runtime
     ///
     /// @return active runtime
