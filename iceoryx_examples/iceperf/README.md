@@ -269,7 +269,7 @@ Now we can create an object for each IPC technology that we want to evaluate and
         leaderDo(uds, numRoundtrips);
 
         std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
-        iox::runtime::PoshRuntime::getInstance(APP_NAME); // runtime for registering with the RouDi daemon
+        iox::runtime::PoshRuntime::initRuntime(APP_NAME); // runtime for registering with the RouDi daemon
         Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
         leaderDo(iceoryx, numRoundtrips);
 ```
