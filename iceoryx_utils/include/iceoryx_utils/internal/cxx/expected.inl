@@ -410,7 +410,7 @@ inline expected<ValueType, ErrorType>& expected<ValueType, ErrorType>::and_then(
 }
 
 template <typename ValueType, typename ErrorType>
-template<typename FunctionalType = ValueType, typename std::enable_if_t<has_or_else_without_error<FunctionalType>::value, int> = 0>
+template<typename FunctionalType = ValueType, typename std::enable_if_t<has_or_else_without_error<FunctionalType>::value, int>>
 inline const expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void()>& callable) const noexcept
 {
@@ -418,7 +418,7 @@ expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void()>& callabl
 }
 
 template <typename ValueType, typename ErrorType>
-template<typename FunctionalType = ValueType, typename std::enable_if_t<has_or_else_without_error<FunctionalType>::value, int> = 0>
+template<typename FunctionalType = ValueType, typename std::enable_if_t<has_or_else_without_error<FunctionalType>::value, int>>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::or_else(const cxx::function_ref<void()>& callable) noexcept
 {
