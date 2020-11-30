@@ -25,6 +25,7 @@ option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
 option(dds_gateway "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
 option(binding_c "builds the C language bindings" ON)
+option(sanitize "Build with sanitizers" OFF)
 
 # ===== Dependencies
 if(TOML_CONFIG)
@@ -42,6 +43,18 @@ if(coverage)
         message( FATAL_ERROR "You need to run gcov with gcc compiler." )
     endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif(coverage)
+
+if(sanitize)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(SANITIZE_BLACKLIST -fsanitize-blacklist=${CMAKE_CURRENT_SOURCE_DIR}/sanitizer_blacklist.txt)
+    endif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(SANITIZE_COMPILE_FLAGS -fsanitize=address ${SANITIZE_BLACKLIST} -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -O1)
+        set(SANITIZE_LINK_FLAGS "-g -fsanitize=address")
+    else(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        message( FATAL_ERROR "You need to run sanitize with gcc/clang compiler." )
+    endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+endif(sanitize)
 
 
 if(test)
@@ -127,5 +140,6 @@ message("       Build Properties")
 message("          project name..............: " ${CMAKE_PROJECT_NAME})
 message("          c compiler................: " ${CMAKE_C_COMPILER})
 message("          c++ compiler..............: " ${CMAKE_CXX_COMPILER})
+message("          c++ flags.................: " ${CMAKE_CXX_FLAGS})
 message("")
 

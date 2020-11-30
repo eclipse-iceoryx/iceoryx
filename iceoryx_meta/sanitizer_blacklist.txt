@@ -1,0 +1,9 @@
+# Suppress specific errors 
+src:iceoryx_binding_c/test/integrationtests/test_wait_set.cpp
+src:*test_wait_set.cpp
+src:*test_wait_set.cpp*
+# fun:*iox::posix::MessageQueue::receive*
+src:*message_queue.cpp*
+fun:*MessageQueue::receive*
+fun:*IpcChannel_test_sendAndReceive_Test<iox::posix::MessageQueue>::TestBody*
+

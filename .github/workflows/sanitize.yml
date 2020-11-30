@@ -1,0 +1,38 @@
+# This workflow builds & runs test cases in iceoryx
+
+name: Sanitize
+
+# Triggers the workflow on push or pull request events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:  
+  clang-sanitize:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-18.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Install iceoryx dependencies
+        # Softwares installed in ubuntu-18.04 instance
+        # https://github.com/actions/virtual-environments/blob/master/images/linux/Ubuntu1804-README.md
+        run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
+
+      - name : Checkout
+        uses: actions/checkout@v2
+
+      - name : Clang Sanitize
+        run: |
+          export CC=/usr/bin/clang
+          export CXX=/usr/bin/clang++
+          export NUM_CORES=`nproc`
+          # build tests , dont run them
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test sanitize clean -j $NUM_CORES
+          cd $GITHUB_WORKSPACE/build
+          # Run tests , continue execution on error (to get maximum failures)
+          ../tools/run_all_tests.sh continue-on-error
+    
+    
