@@ -102,12 +102,6 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(cxx::optional<const
         return *RuntimeTestInterface::t_activeRuntime;
     }
 
-    // if (nameIsNullopt)
-    //{
-    // ProcessName_t* emptyName;
-    // name.emplace(emptyName);
-    //}
-
     auto iter = RuntimeTestInterface::s_runtimes.find(*name.value());
     if (iter != RuntimeTestInterface::s_runtimes.end())
     {

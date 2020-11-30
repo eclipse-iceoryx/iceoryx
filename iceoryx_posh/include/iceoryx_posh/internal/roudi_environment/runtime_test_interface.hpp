@@ -53,7 +53,7 @@ class RuntimeTestInterface
     ///       with the same name, share the same runtime.
     ///
     ///       It is also possible to use multiple runtimes in a singlethreaded environment. There are some points to
-    ///       take care of, though.  There are some classes that call PoshRuntime::getInstance() parameter. In this
+    ///       take care of, though.  There are some classes that call PoshRuntime::getInstance(). In this
     ///       case the already created runtime is used. In the context of the roudi environment this
     ///       means that the active runtime is used. The active runtime is the one from the latest
     ///       iox::runtime::PoshRuntime::initRuntime(...) call.
