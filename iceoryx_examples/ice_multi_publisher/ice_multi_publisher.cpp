@@ -19,6 +19,7 @@
 #include <chrono>
 #include <csignal>
 #include <iostream>
+#include <string>
 
 bool killswitch = false;
 
@@ -27,30 +28,52 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-void sending()
+void send(uint32_t id, std::chrono::milliseconds delay)
 {
-    iox::runtime::PoshRuntime::getInstance("/iox-publisher");
+    // iox::capro::IdString instance{Instance" + std::to_string(id)};
 
-    iox::popo::TypedPublisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
-    myPublisher.offer();
+    // note: we consider the scenario that the instance name is only known at runtime
+    // constructing strings at runtime by appending/concatenating cxx::strings has limitations
+    // (this is more concise with compile time names, but runtime names are supported)
+    // todo: can this be done better with the current string API?
+
+    iox::capro::IdString instance{"Instance"};
+    iox::capro::IdString idStr{
+        iox::cxx::TruncateToCapacity,
+        std::to_string(id).c_str(),
+    };
+    instance.append(iox::cxx::TruncateToCapacity, idStr);
+
+    iox::popo::TypedPublisher<CounterTopic> publisher({"CounterTopic", instance, "Counter"});
+    publisher.offer();
 
     for (uint32_t counter = 0U; !killswitch; ++counter)
     {
-        myPublisher.publishCopyOf(CounterTopic{counter});
-        std::cout << "Sending: " << counter << std::endl;
+        publisher.publishCopyOf(CounterTopic{counter, id});
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::stringstream s;
+        s << instance.c_str() << " sending: " << counter << std::endl;
+        std::cout << s.str();
+
+        std::this_thread::sleep_for(delay);
     }
 
-    myPublisher.stopOffer();
+    publisher.stopOffer();
 }
 
 int main()
 {
     signal(SIGINT, sigHandler);
 
-    std::thread tx(sending);
-    tx.join();
+    iox::runtime::PoshRuntime::getInstance("/iox-publisher");
+
+    // generates two publishers which send the same topic with different instances
+    // and different sending frequencies independently
+    std::thread sender1(send, 1, std::chrono::milliseconds(500));
+    std::thread sender2(send, 2, std::chrono::milliseconds(1000));
+
+    sender1.join();
+    sender2.join();
 
     return (EXIT_SUCCESS);
 }
