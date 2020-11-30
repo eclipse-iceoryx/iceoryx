@@ -49,15 +49,15 @@ class RuntimeTestInterface
     /// @note The runtime is stored in a vector and a thread local storage.
     ///
     ///       In a multithreaded environment each thread has its own runtime. This means that for each thread
-    ///       iox::runtime::PoshRuntime::getInstance(...) must be called. Threads that call getInstance(...)
+    ///       iox::runtime::PoshRuntime::initRuntime(...) must be called. Threads that call initRuntime(...)
     ///       with the same name, share the same runtime.
     ///
     ///       It is also possible to use multiple runtimes in a singlethreaded environment. There are some points to
-    ///       take care of, though.  There are some classes that call PoshRuntime::getInstance() without a
-    ///       parameter. In this case the already created runtime is used. In the context of the roudi environment this
+    ///       take care of, though.  There are some classes that call PoshRuntime::getInstance() parameter. In this
+    ///       case the already created runtime is used. In the context of the roudi environment this
     ///       means that the active runtime is used. The active runtime is the one from the latest
-    ///       iox::runtime::PoshRuntime::getInstance(...) call with a parameter.
-    ///       Places where a getInstance() call without parameter happens are:
+    ///       iox::runtime::PoshRuntime::initRuntime(...) call.
+    ///       Places where a getInstance() call happens are:
     ///         - constructors of Publisher, Subscriber and GatewayGeneric
     ///         - FindService, OfferService and StopOfferService
     ///       This means that iox::runtime::PoshRuntime::initRuntime(...) must be called before the above classes
