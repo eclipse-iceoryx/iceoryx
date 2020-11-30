@@ -36,7 +36,10 @@ void iox_user_trigger_deinit(iox_user_trigger_t const self);
 /// @param[in] self handle to the user trigger
 /// @param[in] wait_set handle to the wait set
 /// @param[in] trigger_id any arbitrary number which is used as trigger id
-/// @param[in] trigger_callback a callback which is assigned to the trigger
+/// @param[in] trigger_callback a callback which is assigned to the trigger, NULL if no
+///             callback should be set
+/// @return if it was attached successfully it returns WaitSetResult_SUCCESS
+///         otherwise an enum which is describing the error
 ENUM iox_WaitSetResult iox_user_trigger_attach_to_ws(iox_user_trigger_t const self,
                                                      iox_ws_t const wait_set,
                                                      const uint64_t trigger_id,

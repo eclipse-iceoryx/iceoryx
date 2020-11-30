@@ -86,8 +86,9 @@ bool iox_sub_has_lost_chunks(iox_sub_t const self);
 /// @param[in] waitset handle to the waitset
 /// @param[in] event the type of the event which should be attached to the waitset
 /// @param[in] triggerId the user defined trigger id
-/// @param[in] callback a callback which is attached to the trigger
-/// @return if it is attached was successfully it return WaitSetResult_SUCCESS
+/// @param[in] callback a callback which is attached to the trigger, NULL if no
+///            callback should be set
+/// @return if it was attached successfully it returns WaitSetResult_SUCCESS
 ///         otherwise an enum which is describing the error
 ENUM iox_WaitSetResult iox_sub_attach_to_ws(iox_sub_t const self,
                                             iox_ws_t const waitset,

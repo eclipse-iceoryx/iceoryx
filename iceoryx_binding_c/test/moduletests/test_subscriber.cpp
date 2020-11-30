@@ -276,7 +276,6 @@ TEST_F(iox_sub_test, detachingFromWaitSetWorks)
 TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectTriggerId)
 {
     iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
-
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
 
@@ -289,7 +288,6 @@ TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectTriggerId)
 TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)
 {
     iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
-
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
 
@@ -297,13 +295,13 @@ TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)
 
     ASSERT_EQ(triggerVector.size(), 1);
     triggerVector[0]();
-
     EXPECT_EQ(m_triggerCallbackLatestArgument, m_sut);
 }
 
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
     iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+
     iox_sub_deinit(m_sut);
 
     EXPECT_EQ(m_waitSet->size(), 0);
