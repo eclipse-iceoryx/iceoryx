@@ -28,19 +28,39 @@ using ::testing::Return;
 #include "mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
-class ProcessIntrospectionAccess : public iox::roudi::ProcessIntrospection<MockPublisherPortUser>
+class MockPublisherPortUserIntrospection : public MockPublisherPortUser
+{
+  public:
+    using Topic = iox::roudi::ProcessIntrospectionFieldTopic;
+
+    MockPublisherPortUserIntrospection() = default;
+    MockPublisherPortUserIntrospection(iox::popo::PublisherPortData*){};
+
+    ChunkMock<Topic> m_chunk;
+
+    iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError> tryAllocateChunk(const uint32_t)
+    {
+        return iox::cxx::success<iox::mepoo::ChunkHeader*>(m_chunk.chunkHeader());
+    }
+
+    ChunkMock<Topic>* getChunk()
+    {
+        return &m_chunk;
+    }
+};
+
+class ProcessIntrospectionAccess : public iox::roudi::ProcessIntrospection<MockPublisherPortUserIntrospection>
 {
   public:
     void send()
     {
-        iox::roudi::ProcessIntrospection<MockPublisherPortUser>::send();
+        iox::roudi::ProcessIntrospection<MockPublisherPortUserIntrospection>::send();
     }
-    iox::cxx::optional<MockPublisherPortUser>& getPublisherPort()
+    iox::cxx::optional<MockPublisherPortUserIntrospection>& getPublisherPort()
     {
         return this->m_publisherPort;
     }
 };
-
 class ProcessIntrospection_test : public Test
 {
   public:
@@ -70,20 +90,16 @@ class ProcessIntrospection_test : public Test
         m_publisherPortData.~PublisherPortData();
     }
 
-    std::unique_ptr<ChunkMock<Topic>> createMemoryChunkAndSend(ProcessIntrospectionAccess& introspectionAccess)
+    ChunkMock<Topic>* createMemoryChunkAndSend(ProcessIntrospectionAccess& introspectionAccess)
     {
-        std::unique_ptr<ChunkMock<Topic>> chunk{new ChunkMock<Topic>};
-
-        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
-            .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk->chunkHeader()))));
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(1);
 
         introspectionAccess.send();
 
-        return chunk;
+        return introspectionAccess.getPublisherPort().value().getChunk();
     }
 
-    MockPublisherPortUser m_publisherPortImpl_mock;
+    MockPublisherPortUserIntrospection m_publisherPortImpl_mock;
     iox::mepoo::MemoryManager m_memoryManager;
     iox::capro::ServiceDescription m_serviceDescription;
     iox::popo::PublisherPortData m_publisherPortData{m_serviceDescription, "Foo", &m_memoryManager};
@@ -131,8 +147,6 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
 
-        // m_publisherPortImpl_mock->hasSubscribersReturn = true;
-
         // invalid removal doesn't cause problems
         introspectionAccess.removeProcess(PID);
         auto chunk1 = createMemoryChunkAndSend(introspectionAccess);
@@ -151,18 +165,16 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
         EXPECT_THAT(chunk3->sample()->m_processList.size(), Eq(0U));
 
         // if there isn't any change, no data are deliverd
-        introspectionAccess.send();
         EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(0);
+        introspectionAccess.send();
     }
     // stopOffer was called
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
-TIMING_TEST_F(ProcessIntrospection_test, thread, Repeat(5), [&] {
+TEST_F(ProcessIntrospection_test, thread)
+{
     {
-        auto chunk = new ChunkMock<Topic>;
-        auto chunk2 = chunk;
-
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
 
@@ -171,30 +183,30 @@ TIMING_TEST_F(ProcessIntrospection_test, thread, Repeat(5), [&] {
         introspectionAccess.registerPublisherPort(&m_publisherPortData);
 
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), offer()).Times(1);
-        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(2);
-        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
-            .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk->chunkHeader()))))
-            .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk2->chunkHeader()))));
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(AtLeast(1));
 
         // we use the deliverChunk call to check how often the thread calls the send method
         std::chrono::milliseconds& sendIntervalSleep =
             const_cast<std::chrono::milliseconds&>(introspectionAccess.m_sendIntervalSleep);
-        sendIntervalSleep = std::chrono::milliseconds(100);
+        sendIntervalSleep = std::chrono::milliseconds(10);
 
-        introspectionAccess.setSendInterval(30);
+        introspectionAccess.setSendInterval(10);
         introspectionAccess.run();
 
-        introspectionAccess.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
-        std::this_thread::sleep_for(std::chrono::milliseconds(15));
-        introspectionAccess.removeProcess(PID);
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        for (size_t i = 0; i < 3; ++i)
+        {
+            introspectionAccess.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
+            std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            introspectionAccess.removeProcess(PID);
+            std::this_thread::sleep_for(std::chrono::milliseconds(15));
+        }
 
         // within this time, the thread should have sent the 6 updates
         introspectionAccess.stop();
     }
     // stopOffer was called
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
-});
+}
 
 TEST_F(ProcessIntrospection_test, addRemoveRunnable)
 {
