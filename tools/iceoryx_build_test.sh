@@ -196,10 +196,18 @@ then
     cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
     cmake --build . --target install -- -j$NUM_JOBS
     echo ">>>>>>>> iceperf"
+    
     cd $BUILD_DIR/iceoryx_examples
     mkdir -p iceperf
     cd iceperf
     cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
+    cmake --build . --target install -- -j$NUM_JOBS
+
+    echo ">>>>>>>> ice_multi_publisher"
+    cd $BUILD_DIR/iceoryx_examples
+    mkdir -p ice_multi_publisher
+    cd ice_multi_publisher
+    cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/ice_multi_publisher
     cmake --build . --target install -- -j$NUM_JOBS
     echo ">>>>>> Finished building iceoryx examples <<<<<<"
 else
