@@ -71,6 +71,7 @@ set -e
 execute_test () {
     local component=$1
     local test_scope=$2
+    local test_binary=""
 
     case $test_scope in
         "unit")
