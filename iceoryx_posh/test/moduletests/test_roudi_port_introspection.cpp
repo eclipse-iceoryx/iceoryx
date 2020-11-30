@@ -28,6 +28,23 @@ using iox::mepoo::DurationNs;
 using iox::mepoo::TimePointNs;
 
 #include <cstdint>
+
+class MockPublisherPortUserIntrospection : public MockPublisherPortUser
+{
+  public:
+    using Topic = iox::roudi::PortIntrospectionFieldTopic;
+
+    MockPublisherPortUserIntrospection() = default;
+    MockPublisherPortUserIntrospection(iox::popo::PublisherPortData*){};
+
+    ChunkMock<Topic> m_chunk;
+
+    iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError> tryAllocateChunk(const uint32_t)
+    {
+        return iox::cxx::success<iox::mepoo::ChunkHeader*>(m_chunk.chunkHeader());
+    }
+};
+
 template <typename PublisherPort, typename SubscriberPort>
 class PortIntrospectionAccess : public iox::roudi::PortIntrospection<PublisherPort, SubscriberPort>
 {
@@ -54,8 +71,6 @@ class PortIntrospection_test : public Test
 {
   public:
     PortIntrospection_test()
-    // : m_introspectionAccess(
-    //     static_cast<PortIntrospectionAccess<MockPublisherPortUser, MockSubscriberPortUser>&>(*m_introspection))
     {
     }
 
@@ -130,7 +145,7 @@ class PortIntrospection_test : public Test
     iox::popo::PublisherPortData m_publisherPortDataThroughput{m_serviceDescription, "Foo", &m_memoryManager};
     iox::popo::PublisherPortData m_publisherPortDataSubscriberData{m_serviceDescription, "Foo", &m_memoryManager};
 
-    PortIntrospectionAccess<MockPublisherPortUser, MockSubscriberPortUser> m_introspectionAccess;
+    PortIntrospectionAccess<MockPublisherPortUserIntrospection, MockSubscriberPortUser> m_introspectionAccess;
 };
 
 
@@ -140,8 +155,9 @@ TEST_F(PortIntrospection_test, registerPublisherPort)
     iox::popo::PublisherPortData m_publisherPortDataThroughput{m_serviceDescription, "Foo", &m_memoryManager};
     iox::popo::PublisherPortData m_publisherPortDataSubscriberData{m_serviceDescription, "Foo", &m_memoryManager};
 
-    auto introspection = std::unique_ptr<iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>>(
-        new iox::roudi::PortIntrospection<MockPublisherPortUser, MockSubscriberPortUser>);
+    auto introspection =
+        std::unique_ptr<iox::roudi::PortIntrospection<MockPublisherPortUserIntrospection, MockSubscriberPortUser>>(
+            new iox::roudi::PortIntrospection<MockPublisherPortUserIntrospection, MockSubscriberPortUser>);
 
     EXPECT_THAT(introspection->registerPublisherPort(&m_publisherPortDataPortGeneric,
                                                      &m_publisherPortDataThroughput,
@@ -161,34 +177,28 @@ TEST_F(PortIntrospection_test, registerPublisherPort)
 
 TEST_F(PortIntrospection_test, sendPortData_EmptyList)
 {
-    using Topic = iox::roudi::PortIntrospectionFieldTopic;
-
-    auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
-
-    EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk->chunkHeader()))));
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(1);
 
     m_introspectionAccess.sendPortData();
 
-    EXPECT_THAT(chunk->sample()->m_publisherList.size(), Eq(0));
-    EXPECT_THAT(chunk->sample()->m_subscriberList.size(), Eq(0));
+    EXPECT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_publisherList.size(), Eq(0));
+    EXPECT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_subscriberList.size(), Eq(0));
 }
 
 
 TEST_F(PortIntrospection_test, sendThroughputData_EmptyList)
 {
     /// @todo #252 re-add port throughput for v1.0?
-    using Topic = iox::roudi::PortThroughputIntrospectionFieldTopic;
+    // using Topic = iox::roudi::PortThroughputIntrospectionFieldTopic;
 
-    auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
+    // auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
 
-    EXPECT_CALL(m_introspectionAccess.getPublisherPortThroughput().value(), tryAllocateChunk(_))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk->chunkHeader()))));
-    EXPECT_CALL(m_introspectionAccess.getPublisherPortThroughput().value(), sendChunk(_)).Times(1);
+    // EXPECT_CALL(m_introspectionAccess.getPublisherPortThroughput().value(), tryAllocateChunk(_))
+    //     .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk->chunkHeader()))));
+    // EXPECT_CALL(m_introspectionAccess.getPublisherPortThroughput().value(), sendChunk(_)).Times(1);
 
-    m_introspectionAccess.sendThroughputData();
-    EXPECT_THAT(chunk->sample()->m_throughputList.size(), Eq(0));
+    // m_introspectionAccess.sendThroughputData();
+    // EXPECT_THAT(chunk->sample()->m_throughputList.size(), Eq(0));
 }
 
 TEST_F(PortIntrospection_test, sendData_OnePublisher)
@@ -207,7 +217,7 @@ TEST_F(PortIntrospection_test, sendData_OnePublisher)
     // auto portDataTopic = std::unique_ptr<PortDataChunk>(new PortDataChunk);
     // auto throughputTopic = std::unique_ptr<ThroughputChunk>(new ThroughputChunk);
 
-    // MockPublisherPortUser publisherPort;
+    // MockPublisherPortUserIntrospection publisherPort;
     // std::string publisherPortName("name");
 
     // PortData expectedPublisherPortData;
@@ -219,7 +229,7 @@ TEST_F(PortIntrospection_test, sendData_OnePublisher)
     // constexpr uint64_t ExpectedUniqueID{1337};
     // constexpr double NsPerSecond{1000000000.};
     // constexpr uint64_t durationNs{100000000};
-    // MockPublisherPortUser::Throughput expectedThroughput;
+    // MockPublisherPortUserIntrospection::Throughput expectedThroughput;
     // expectedThroughput.payloadSize = 73;
     // expectedThroughput.chunkSize = 128;
     // expectedThroughput.sequenceNumber = 13;
@@ -284,14 +294,7 @@ TEST_F(PortIntrospection_test, sendData_OnePublisher)
 
 TEST_F(PortIntrospection_test, addAndRemovePublisher)
 {
-    using Topic = iox::roudi::PortIntrospectionFieldTopic;
     using PortData = iox::roudi::PublisherPortData;
-
-    // auto chunk = std::unique_ptr<ChunkMock<Topic>>(new ChunkMock<Topic>);
-    auto chunk = new ChunkMock<Topic>;
-    auto chunk2 = chunk;
-    auto chunk3 = chunk;
-    auto chunk4 = chunk;
 
     iox::cxx::string<100> name1("name1");
     iox::cxx::string<100> name2("name2");
@@ -318,11 +321,6 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
         expected2.m_caproServiceID, expected2.m_caproInstanceID, expected2.m_caproEventMethodID);
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(4);
-    EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk2->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk3->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk4->chunkHeader()))));
 
     // test adding of ports
     // remark: duplicate publisher port insertions are not possible
@@ -335,11 +333,11 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     m_introspectionAccess.sendPortData();
 
-    auto sample = chunk->sample();
+    auto sample = m_introspectionAccess.getPublisherPort().value().m_chunk.sample();
 
     {
-        ASSERT_THAT(chunk->sample()->m_publisherList.size(), Eq(2));
-        ASSERT_THAT(chunk->sample()->m_subscriberList.size(), Eq(0));
+        ASSERT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_publisherList.size(), Eq(2));
+        ASSERT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_subscriberList.size(), Eq(0));
 
         auto& publisherInfo1 = sample->m_publisherList[0];
         auto& publisherInfo2 = sample->m_publisherList[1];
@@ -367,8 +365,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     m_introspectionAccess.sendPortData();
 
     {
-        ASSERT_THAT(chunk->sample()->m_publisherList.size(), Eq(1));
-        ASSERT_THAT(chunk->sample()->m_subscriberList.size(), Eq(0));
+        ASSERT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_publisherList.size(), Eq(1));
+        ASSERT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_subscriberList.size(), Eq(0));
 
         EXPECT_THAT(comparePortData(sample->m_publisherList[0], expected2), Eq(true));
     }
@@ -397,13 +395,7 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
 TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 {
-    using Topic = iox::roudi::PortIntrospectionFieldTopic;
     using PortData = iox::roudi::SubscriberPortData;
-
-    auto chunk = new ChunkMock<Topic>;
-    auto chunk2 = chunk;
-    auto chunk3 = chunk;
-    auto chunk4 = chunk;
 
     iox::cxx::string<100> name1("name1");
     iox::cxx::string<100> name2("name2");
@@ -432,11 +424,6 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
         expected2.m_caproServiceID, expected2.m_caproInstanceID, expected2.m_caproEventMethodID);
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(4);
-    EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk2->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk3->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk4->chunkHeader()))));
 
     // test adding of ports
     // remark: duplicate subscriber insertions are possible but will not be transmitted via send
@@ -451,7 +438,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 
     m_introspectionAccess.sendPortData();
 
-    auto sample = chunk->sample();
+    auto sample = m_introspectionAccess.getPublisherPort().value().m_chunk.sample();
 
     {
         ASSERT_THAT(sample->m_publisherList.size(), Eq(0));
@@ -516,20 +503,8 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 
 TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
 {
-    using Topic = iox::roudi::PortIntrospectionFieldTopic;
     using SubscriberPortData = iox::roudi::SubscriberPortData;
     using PublisherPortData = iox::roudi::PublisherPortData;
-
-    auto chunk = new ChunkMock<Topic>;
-    auto chunk1 = chunk;
-    auto chunk2 = chunk;
-    auto chunk3 = chunk;
-    auto chunk4 = chunk;
-    auto chunk5 = chunk;
-    auto chunk6 = chunk;
-    auto chunk7 = chunk;
-    auto chunk8 = chunk;
-    auto chunk9 = chunk;
 
     std::string nameSubscriber("subscriber");
     std::string namePublisher("publisher");
@@ -554,17 +529,6 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
                                            expectedPublisher.m_caproEventMethodID);
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(10);
-    EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk1->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk2->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk3->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk4->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk5->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk6->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk7->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk8->chunkHeader()))))
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk9->chunkHeader()))));
 
     // test adding of publisher or subscriber port of same service to establish a connection (requires same service id)
     iox::popo::SubscriberPortData recData1{
@@ -575,7 +539,7 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
 
     m_introspectionAccess.sendPortData();
 
-    auto sample = chunk->sample();
+    auto sample = m_introspectionAccess.getPublisherPort().value().m_chunk.sample();
 
     {
         // expect unconnected publisher or subscriber (service is equal but m_publisherIndex == -1 in subscriber)
