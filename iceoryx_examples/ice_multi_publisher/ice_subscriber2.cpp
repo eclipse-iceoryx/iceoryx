@@ -22,52 +22,54 @@
 #include <csignal>
 #include <iostream>
 
-iox::popo::GuardCondition shutdownGuard;
+bool killswitch = false;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    shutdownGuard.trigger();
+    killswitch = true;
 }
 
-void receiving()
+void receive()
 {
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
+    iox::popo::TypedSubscriber<CounterTopic> subscriber({"CounterTopic", iox::capro::AnyInstanceString, "Counter"});
 
-
-    iox::popo::TypedSubscriber<CounterTopic> mySubscriber({"Radar", "FrontLeft", "Counter"});
-    iox::popo::WaitSet waitset;
-    waitset.attachCondition(shutdownGuard);
-    waitset.attachCondition(mySubscriber);
-
-    mySubscriber.subscribe();
-
-    while (true)
+    subscriber.subscribe();
+    uint64_t maxNumSamples = 2;
+    while (!killswitch)
     {
-        auto triggeredConditions = waitset.wait();
+#if 0        
+//todo: requires the queue resize feature to be merged
+        subscriber.unsubscribe();                             // unsubscribe and resubscribe
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // we will probably miss some data while unsubscribed
+        // we can (re)subscribe with differing maximum number of samples
+        maxNumSamples = maxNumSamples % 4 + 1; // cycles between last 1 to 4 samples
+        subscriber.subscribe(maxNumSamples);
+        std::cout << "Subscribe with max number of samples " << maxNumSamples << std::endl;
+#endif
+        std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        for (auto& condition : triggeredConditions)
+        bool hasData = true;
+        do
         {
-            if (condition == &mySubscriber)
-            {
-                mySubscriber.take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-                    std::cout << "Received: " << sample->counter << std::endl;
-                });
-            }
-            else if (condition == &shutdownGuard)
-            {
-                mySubscriber.unsubscribe();
-                return;
-            }
-        }
+            subscriber.take()
+                .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+                    std::cout << "Received: " << *sample.get() << std::endl;
+                })
+                .if_empty([&] { hasData = false; })
+                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
+        } while (hasData);
+        std::cout << "Waiting for data ... " << std::endl;
     }
+    subscriber.unsubscribe();
 }
 
 int main()
 {
     signal(SIGINT, sigHandler);
+    iox::runtime::PoshRuntime::getInstance("/iox-subscriber2");
 
-    std::thread rx(receiving);
-    rx.join();
+    std::thread receiver(receive);
+    receiver.join();
 
     return (EXIT_SUCCESS);
 }

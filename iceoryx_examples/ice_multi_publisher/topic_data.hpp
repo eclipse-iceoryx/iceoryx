@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_EXAMPLES_WAITSET_TOPIC_DATA_HPP
-#define IOX_EXAMPLES_WAITSET_TOPIC_DATA_HPP
+#ifndef IOX_EXAMPLES_MULTI_PUBLISHER_TOPIC_DATA_HPP
+#define IOX_EXAMPLES_MULTI_PUBLISHER_TOPIC_DATA_HPP
 
 #include <cstdint>
+#include <ostream>
 
 struct CounterTopic
 {
@@ -23,4 +24,10 @@ struct CounterTopic
     uint32_t id;
 };
 
-#endif // IOX_EXAMPLES_WAITSET_TOPIC_DATA_HPP
+std::ostream& operator<<(std::ostream& s, const CounterTopic& topic)
+{
+    s << "id " << topic.id << " counter " << topic.counter;
+    return s;
+}
+
+#endif // IOX_EXAMPLES_MULTI_PUBLISHER_TOPIC_DATA_HPP

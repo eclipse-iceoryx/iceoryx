@@ -22,52 +22,48 @@
 #include <csignal>
 #include <iostream>
 
-iox::popo::GuardCondition shutdownGuard;
+bool killswitch = false;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
-    shutdownGuard.trigger();
+    killswitch = true;
 }
 
-void receiving()
+void receive()
 {
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
+    iox::popo::TypedSubscriber<CounterTopic> subscriber({"CounterTopic", iox::capro::AnyInstanceString, "Counter"});
 
+    subscriber.subscribe();
 
-    iox::popo::TypedSubscriber<CounterTopic> mySubscriber({"Radar", "FrontLeft", "Counter"});
-    iox::popo::WaitSet waitset;
-    waitset.attachCondition(shutdownGuard);
-    waitset.attachCondition(mySubscriber);
-
-    mySubscriber.subscribe();
-
-    while (true)
+    while (!killswitch)
     {
-        auto triggeredConditions = waitset.wait();
+        // todo: use waitset after rework instead of polling
+        std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        for (auto& condition : triggeredConditions)
+        bool hasData = true;
+        do
         {
-            if (condition == &mySubscriber)
-            {
-                mySubscriber.take().and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-                    std::cout << "Received: " << sample->counter << std::endl;
-                });
-            }
-            else if (condition == &shutdownGuard)
-            {
-                mySubscriber.unsubscribe();
-                return;
-            }
-        }
+            // todo: we probably want operator& for samples as well, only get is awkward
+            // todo: some kind of way to take all samples and apply a function to them? (takeAll)
+            subscriber.take()
+                .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+                    std::cout << "Received: " << *sample.get() << std::endl;
+                })
+                .if_empty([&] { hasData = false; })
+                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
+        } while (hasData);
+        std::cout << "Waiting for data ... " << std::endl;
     }
+    subscriber.unsubscribe();
 }
 
 int main()
 {
     signal(SIGINT, sigHandler);
+    iox::runtime::PoshRuntime::getInstance("/iox-subscriber1");
 
-    std::thread rx(receiving);
-    rx.join();
+    std::thread receiver(receive);
+    receiver.join();
 
     return (EXIT_SUCCESS);
 }
