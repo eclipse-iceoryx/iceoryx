@@ -110,6 +110,10 @@ class ProcessIntrospection
      */
     void setSendInterval(unsigned int interval_ms);
 
+  protected:
+    cxx::optional<PublisherPort> m_publisherPort;
+    void send();
+
   private:
     /// @todo use a fixed, stack based list once available
     // using ProcessList_t = cxx::list<ProcessIntrospectionData, MAX_PROCESS_NUMBER>;
@@ -117,17 +121,12 @@ class ProcessIntrospection
     ProcessList_t m_processList;
     bool m_processListNewData{true}; // true because we want to have a valid field, even with an empty list
 
-    cxx::optional<PublisherPort> m_publisherPort;
-
     std::atomic<bool> m_runThread;
     std::thread m_thread;
     std::mutex m_mutex;
 
     unsigned int m_sendIntervalCount{10};
     const std::chrono::milliseconds m_sendIntervalSleep{100};
-
-  private:
-    void send();
 };
 
 /**

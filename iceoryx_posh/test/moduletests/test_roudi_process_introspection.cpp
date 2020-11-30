@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "test.hpp"
+#include "testutils/timing_test.hpp"
 
 using namespace ::testing;
 using ::testing::Return;
@@ -27,10 +28,22 @@ using ::testing::Return;
 #include "mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
+class ProcessIntrospectionAccess : public iox::roudi::ProcessIntrospection<MockPublisherPortUser>
+{
+  public:
+    void send()
+    {
+        iox::roudi::ProcessIntrospection<MockPublisherPortUser>::send();
+    }
+    iox::cxx::optional<MockPublisherPortUser>& getPublisherPort()
+    {
+        return this->m_publisherPort;
+    }
+};
+
 class ProcessIntrospection_test : public Test
 {
   public:
-    using ProcessIntrospection = iox::roudi::ProcessIntrospection<MockPublisherPortUser>;
     using Topic = iox::roudi::ProcessIntrospectionFieldTopic;
 
     ProcessIntrospection_test()
@@ -57,13 +70,15 @@ class ProcessIntrospection_test : public Test
         m_publisherPortData.~PublisherPortData();
     }
 
-    std::unique_ptr<ChunkMock<Topic>> createMemoryChunkAndSend(ProcessIntrospection& introspection)
+    std::unique_ptr<ChunkMock<Topic>> createMemoryChunkAndSend(ProcessIntrospectionAccess& introspectionAccess)
     {
         std::unique_ptr<ChunkMock<Topic>> chunk{new ChunkMock<Topic>};
 
-        EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(1);
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
+            .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk->chunkHeader()))));
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(1);
 
-        introspection.send();
+        introspectionAccess.send();
 
         return chunk;
     }
@@ -76,28 +91,32 @@ class ProcessIntrospection_test : public Test
 
 TEST_F(ProcessIntrospection_test, CTOR)
 {
-    ProcessIntrospection m_introspection;
-    EXPECT_CALL(m_publisherPortImpl_mock, stopOffer()).Times(1);
+    {
+        ProcessIntrospectionAccess introspectionAccess;
+        EXPECT_THAT(introspectionAccess.getPublisherPort().has_value(), Eq(false));
+    }
 }
 
 TEST_F(ProcessIntrospection_test, registerPublisherPort)
 {
     {
-        ProcessIntrospection m_introspection;
-        m_introspection.registerPublisherPort(&m_publisherPortData);
+        ProcessIntrospectionAccess introspectionAccess;
+        introspectionAccess.registerPublisherPort(&m_publisherPortData);
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), stopOffer()).Times(1);
     }
-    // stopOffer was called
+
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
 TEST_F(ProcessIntrospection_test, send)
 {
     {
-        ProcessIntrospection m_introspection;
-        m_introspection.registerPublisherPort(&m_publisherPortData);
+        ProcessIntrospectionAccess introspectionAccess;
+        introspectionAccess.registerPublisherPort(&m_publisherPortData);
 
-        auto chunk = createMemoryChunkAndSend(m_introspection);
+        auto chunk = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk->sample()->m_processList.size(), Eq(0U));
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), stopOffer()).Times(1);
     }
     // stopOffer was called
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
@@ -106,8 +125,8 @@ TEST_F(ProcessIntrospection_test, send)
 TEST_F(ProcessIntrospection_test, addRemoveProcess)
 {
     {
-        ProcessIntrospection m_introspection;
-        m_introspection.registerPublisherPort(&m_publisherPortData);
+        ProcessIntrospectionAccess introspectionAccess;
+        introspectionAccess.registerPublisherPort(&m_publisherPortData);
 
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
@@ -115,81 +134,74 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
         // m_publisherPortImpl_mock->hasSubscribersReturn = true;
 
         // invalid removal doesn't cause problems
-        m_introspection.removeProcess(PID);
-        auto chunk1 = createMemoryChunkAndSend(m_introspection);
+        introspectionAccess.removeProcess(PID);
+        auto chunk1 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk1->sample()->m_processList.size(), Eq(0U));
 
         // a new process should be sent
-        m_introspection.addProcess(PID, iox::cxx::string<100>(PROCESS_NAME));
-        auto chunk2 = createMemoryChunkAndSend(m_introspection);
+        introspectionAccess.addProcess(PID, iox::cxx::string<100>(PROCESS_NAME));
+        auto chunk2 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk2->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk2->sample()->m_processList[0].m_pid, Eq(PID));
         EXPECT_THAT(iox::cxx::string<100>(PROCESS_NAME) == chunk2->sample()->m_processList[0].m_name, Eq(true));
 
         // list should be empty after removal
-        m_introspection.removeProcess(PID);
-        auto chunk3 = createMemoryChunkAndSend(m_introspection);
+        introspectionAccess.removeProcess(PID);
+        auto chunk3 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk3->sample()->m_processList.size(), Eq(0U));
 
         // if there isn't any change, no data are deliverd
-        m_introspection.send();
+        introspectionAccess.send();
         EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(0);
     }
     // stopOffer was called
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
-TEST_F(ProcessIntrospection_test, thread)
-{
+TIMING_TEST_F(ProcessIntrospection_test, thread, Repeat(5), [&] {
     {
-        ChunkMock<Topic> chunk;
+        auto chunk = new ChunkMock<Topic>;
+        auto chunk2 = chunk;
 
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
 
-        ProcessIntrospection m_introspection;
+        ProcessIntrospectionAccess introspectionAccess;
 
-        m_introspection.registerPublisherPort(&m_publisherPortData);
+        introspectionAccess.registerPublisherPort(&m_publisherPortData);
+
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), offer()).Times(1);
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(2);
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
+            .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk->chunkHeader()))))
+            .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk2->chunkHeader()))));
 
         // we use the deliverChunk call to check how often the thread calls the send method
         std::chrono::milliseconds& sendIntervalSleep =
-            const_cast<std::chrono::milliseconds&>(m_introspection.m_sendIntervalSleep);
-        sendIntervalSleep = std::chrono::milliseconds(10);
+            const_cast<std::chrono::milliseconds&>(introspectionAccess.m_sendIntervalSleep);
+        sendIntervalSleep = std::chrono::milliseconds(100);
 
-        m_introspection.setSendInterval(10);
-        m_introspection.run();
+        introspectionAccess.setSendInterval(30);
+        introspectionAccess.run();
 
-        for (size_t i = 0; i < 3; ++i)
-        {
-            m_introspection.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
-            std::this_thread::sleep_for(std::chrono::milliseconds(15));
-            m_introspection.removeProcess(PID);
-            std::this_thread::sleep_for(std::chrono::milliseconds(15));
-        }
+        introspectionAccess.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
+        std::this_thread::sleep_for(std::chrono::milliseconds(15));
+        introspectionAccess.removeProcess(PID);
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
         // within this time, the thread should have sent the 6 updates
-        m_introspection.stop();
-
-        for (size_t i = 0; i < 3; ++i)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(15));
-            m_introspection.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
-            std::this_thread::sleep_for(std::chrono::milliseconds(15));
-            m_introspection.removeProcess(PID);
-        }
-        // if the thread doesn't stop, we have 12 runs after the sleep period
-        EXPECT_CALL(m_publisherPortImpl_mock, offer()).Times(1);
-        EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(AtLeast(4));
+        introspectionAccess.stop();
     }
     // stopOffer was called
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
-}
+});
 
 TEST_F(ProcessIntrospection_test, addRemoveRunnable)
 {
     {
-        ProcessIntrospection m_introspection;
+        ProcessIntrospectionAccess introspectionAccess;
 
-        m_introspection.registerPublisherPort(&m_publisherPortData);
+        introspectionAccess.registerPublisherPort(&m_publisherPortData);
 
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
@@ -198,49 +210,49 @@ TEST_F(ProcessIntrospection_test, addRemoveRunnable)
         const char RUNNABLE_3[] = "the_hitman";
 
         // invalid removal of unknown runnable of unknown process
-        m_introspection.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
-        auto chunk1 = createMemoryChunkAndSend(m_introspection);
+        introspectionAccess.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
+        auto chunk1 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk1->sample()->m_processList.size(), Eq(0U));
 
         // a new process
-        m_introspection.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
+        introspectionAccess.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
 
         // invalid removal of unknown runnable of known process
-        m_introspection.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
-        auto chunk2 = createMemoryChunkAndSend(m_introspection);
+        introspectionAccess.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
+        auto chunk2 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk2->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk2->sample()->m_processList[0].m_runnables.size(), Eq(0U));
 
         // add a runnable
-        m_introspection.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
-        auto chunk3 = createMemoryChunkAndSend(m_introspection);
+        introspectionAccess.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
+        auto chunk3 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk3->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk3->sample()->m_processList[0].m_runnables.size(), Eq(1U));
 
         // add it again, must be ignored
-        m_introspection.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
-        auto chunk4 = createMemoryChunkAndSend(m_introspection);
+        introspectionAccess.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
+        auto chunk4 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk4->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk4->sample()->m_processList[0].m_runnables.size(), Eq(1U));
 
         // add some more
-        m_introspection.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_2));
-        m_introspection.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_3));
-        auto chunk5 = createMemoryChunkAndSend(m_introspection);
+        introspectionAccess.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_2));
+        introspectionAccess.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_3));
+        auto chunk5 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk5->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk5->sample()->m_processList[0].m_runnables.size(), Eq(3U));
 
         // remove some runnables
-        m_introspection.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
-        m_introspection.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_3));
-        auto chunk6 = createMemoryChunkAndSend(m_introspection);
+        introspectionAccess.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
+        introspectionAccess.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_3));
+        auto chunk6 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk6->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk6->sample()->m_processList[0].m_runnables.size(), Eq(1U));
         EXPECT_THAT(strcmp(RUNNABLE_2, chunk6->sample()->m_processList[0].m_runnables[0].c_str()), Eq(0));
 
         // remove last runnable list empty again
-        m_introspection.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_2));
-        auto chunk7 = createMemoryChunkAndSend(m_introspection);
+        introspectionAccess.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_2));
+        auto chunk7 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk7->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk7->sample()->m_processList[0].m_runnables.size(), Eq(0U));
     }
