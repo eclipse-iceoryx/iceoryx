@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,28 +29,50 @@ namespace iox
 {
 namespace runtime
 {
-std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+PoshRuntime::factory_t& PoshRuntime::getRuntimeFactory() noexcept
+{
+    static factory_t runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+    return runtimeFactory;
+}
 
+void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
+{
+    if (factory)
+    {
+        PoshRuntime::getRuntimeFactory() = factory;
+    }
+    else
+    {
+        LogFatal() << "Cannot set runtime factory. Passed factory must not be empty!";
+        errorHandler(Error::kPOSH__RUNTIME_FACTORY_IS_NOT_SET);
+    }
+}
 
-PoshRuntime& PoshRuntime::defaultRuntimeFactory(const std::string& name) noexcept
+PoshRuntime& PoshRuntime::defaultRuntimeFactory(const ProcessName_t& name) noexcept
 {
     static PoshRuntime instance(name);
     return instance;
 }
 
 // singleton access
-PoshRuntime& PoshRuntime::getInstance(const std::string& name) noexcept
+PoshRuntime& PoshRuntime::getInstance(const ProcessName_t& name) noexcept
 {
-    return PoshRuntime::s_runtimeFactory(name);
+    return getRuntimeFactory()(name);
 }
 
-PoshRuntime::PoshRuntime(const std::string& name, const bool doMapSharedMemoryIntoThread) noexcept
+ProcessName_t& PoshRuntime::defaultRuntimeInstanceName() noexcept
+{
+    static ProcessName_t defaultInstanceName = "dummy";
+    return defaultInstanceName;
+}
+
+PoshRuntime::PoshRuntime(const ProcessName_t& name, const bool doMapSharedMemoryIntoThread) noexcept
     : m_appName(verifyInstanceName(name))
     , m_MqInterface(MQ_ROUDI_NAME, name, PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface(doMapSharedMemoryIntoThread,
                      m_MqInterface.getShmTopicSize(),
-                     m_MqInterface.getSegmentManagerAddr(),
-                     m_MqInterface.getSegmentId())
+                     m_MqInterface.getSegmentId(),
+                     m_MqInterface.getSegmentManagerAddressOffset())
     , m_applicationPort(getMiddlewareApplication())
 {
     m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC, posix::Timer::CatchUpPolicy::IMMEDIATE);
@@ -66,34 +88,29 @@ PoshRuntime::~PoshRuntime() noexcept
 }
 
 
-const std::string& PoshRuntime::verifyInstanceName(const std::string& name) noexcept
+const ProcessName_t& PoshRuntime::verifyInstanceName(const ProcessName_t& name) noexcept
 {
     if (name.empty())
     {
         LogError() << "Cannot initialize runtime. Application name must not be empty!";
         std::terminate();
     }
-    else if (name.compare(DEFAULT_RUNTIME_INSTANCE_NAME) == 0)
+    else if (name.compare(defaultRuntimeInstanceName()) == 0)
     {
         LogError() << "Cannot initialize runtime. Application name has not been specified!";
         std::terminate();
     }
-    else if (name.front() != '/')
+    else if (name.c_str()[0] != '/')
     {
         LogError() << "Cannot initialize runtime. Application name " << name
                    << " does not have the required leading slash '/'";
-        std::terminate();
-    }
-    else if (name.length() > MAX_PROCESS_NAME_LENGTH)
-    {
-        LogError() << "Application name has more than 100 characters, including null termination!";
         std::terminate();
     }
 
     return name;
 }
 
-std::string PoshRuntime::getInstanceName() const noexcept
+ProcessName_t PoshRuntime::getInstanceName() const noexcept
 {
     return m_appName;
 }
@@ -162,7 +179,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
         }
         return nullptr;
     }
-    return maybePublisher.get_value();
+    return maybePublisher.value();
 }
 
 cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
@@ -241,7 +258,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
         }
         return nullptr;
     }
-    return maybeSubscriber.get_value();
+    return maybeSubscriber.value();
 }
 
 cxx::expected<SubscriberPortUserType::MemberType_t*, MqMessageErrorType>
@@ -316,7 +333,7 @@ RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProper
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_RUNNABLE) << m_appName
-               << static_cast<std::string>(runnableProperty);
+               << static_cast<cxx::Serialization>(runnableProperty).toString();
 
     MqMessage receiveBuffer;
 
@@ -485,7 +502,7 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
         }
         return nullptr;
     }
-    return maybeConditionVariable.get_value();
+    return maybeConditionVariable.value();
 }
 
 bool PoshRuntime::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept

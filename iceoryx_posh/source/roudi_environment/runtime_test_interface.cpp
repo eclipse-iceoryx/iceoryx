@@ -28,13 +28,13 @@ std::atomic<uint64_t> RuntimeTestInterface::s_currentRouDiContext{0};
 
 std::mutex RuntimeTestInterface::s_runtimeAccessMutex;
 
-std::map<std::string, PoshRuntime*> RuntimeTestInterface::s_runtimes;
+std::map<ProcessName_t, PoshRuntime*> RuntimeTestInterface::s_runtimes;
 
 RuntimeTestInterface::RuntimeTestInterface()
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
 
-    PoshRuntime::s_runtimeFactory = RuntimeTestInterface::runtimeFactoryGetInstance;
+    PoshRuntime::setRuntimeFactory(RuntimeTestInterface::runtimeFactoryGetInstance);
 }
 
 RuntimeTestInterface::~RuntimeTestInterface()
@@ -45,7 +45,7 @@ RuntimeTestInterface::~RuntimeTestInterface()
         cleanupRuntimes();
 
         std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
-        PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+        PoshRuntime::setRuntimeFactory(PoshRuntime::defaultRuntimeFactory);
     }
 }
 
@@ -71,18 +71,18 @@ void RuntimeTestInterface::cleanupRuntimes()
     RuntimeTestInterface::s_currentRouDiContext.operator++(std::memory_order_relaxed);
 }
 
-void RuntimeTestInterface::eraseRuntime(const std::string& f_name)
+void RuntimeTestInterface::eraseRuntime(const ProcessName_t& name)
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
-    auto iter = RuntimeTestInterface::s_runtimes.find(f_name);
+    auto iter = RuntimeTestInterface::s_runtimes.find(name);
     if (iter != RuntimeTestInterface::s_runtimes.end())
     {
         delete iter->second;
-        RuntimeTestInterface::s_runtimes.erase(f_name);
+        RuntimeTestInterface::s_runtimes.erase(name);
     }
 }
 
-PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(const std::string& f_name)
+PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(const ProcessName_t& name)
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
 
@@ -93,7 +93,7 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(const std::string& 
         RuntimeTestInterface::t_activeRuntime = nullptr;
     }
 
-    bool isDefaultName{f_name.compare(runtime::DEFAULT_RUNTIME_INSTANCE_NAME) == 0};
+    bool isDefaultName{name.compare(PoshRuntime::defaultRuntimeInstanceName()) == 0};
     bool invalidGetRuntimeAccess{RuntimeTestInterface::t_activeRuntime == nullptr && isDefaultName};
     cxx::Expects(!invalidGetRuntimeAccess);
 
@@ -102,15 +102,15 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(const std::string& 
         return *RuntimeTestInterface::t_activeRuntime;
     }
 
-    auto iter = RuntimeTestInterface::s_runtimes.find(f_name);
+    auto iter = RuntimeTestInterface::s_runtimes.find(name);
     if (iter != RuntimeTestInterface::s_runtimes.end())
     {
         RuntimeTestInterface::t_activeRuntime = iter->second;
     }
     else
     {
-        auto runtimeImpl = new runtime::PoshRuntime(f_name, false);
-        RuntimeTestInterface::s_runtimes.insert({f_name, runtimeImpl});
+        auto runtimeImpl = new runtime::PoshRuntime(name, false);
+        RuntimeTestInterface::s_runtimes.insert({name, runtimeImpl});
 
         RuntimeTestInterface::t_activeRuntime = runtimeImpl;
     }

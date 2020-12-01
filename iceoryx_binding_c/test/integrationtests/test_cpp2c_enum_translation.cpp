@@ -62,10 +62,6 @@ TEST(cpp2c_enum_translation_test, AllocationResult)
 
 TEST(cpp2c_enum_translation_test, WaitSetResult)
 {
-    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::CONDITION_VARIABLE_ALREADY_SET),
-              WaitSetResult_CONDITION_VARIABLE_ALREADY_SET);
-    EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::CONDITION_VARIABLE_ATTACH_FAILED),
-              WaitSetResult_CONDITION_VARIABLE_ATTACH_FAILED);
     EXPECT_EQ(cpp2c::WaitSetResult(iox::popo::WaitSetError::CONDITION_VECTOR_OVERFLOW),
               WaitSetResult_CONDITION_VECTOR_OVERFLOW);
 

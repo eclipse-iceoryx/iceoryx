@@ -60,8 +60,8 @@ TEST_F(TypedMemPool_test, GetOneObject)
 {
     auto object = sut.createObject(1, 223);
     ASSERT_THAT(object.has_error(), Eq(false));
-    EXPECT_THAT(object.get_value()->a, Eq(1));
-    EXPECT_THAT(object.get_value()->b, Eq(223));
+    EXPECT_THAT(object.value()->a, Eq(1));
+    EXPECT_THAT(object.value()->b, Eq(223));
 }
 
 TEST_F(TypedMemPool_test, ReleaseChunkWhenGoingOutOfScope)

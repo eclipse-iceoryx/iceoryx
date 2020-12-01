@@ -25,61 +25,6 @@ inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const cap
 {
 }
 
-template <typename base_subscriber_t>
-inline uid_t UntypedSubscriberImpl<base_subscriber_t>::getUid() const noexcept
-{
-    return base_subscriber_t::getUid();
-}
-
-template <typename base_subscriber_t>
-inline capro::ServiceDescription UntypedSubscriberImpl<base_subscriber_t>::getServiceDescription() const noexcept
-{
-    return base_subscriber_t::getServiceDescription();
-}
-
-template <typename base_subscriber_t>
-inline void UntypedSubscriberImpl<base_subscriber_t>::subscribe(const uint64_t queueCapacity) noexcept
-{
-    base_subscriber_t::subscribe(queueCapacity);
-}
-
-template <typename base_subscriber_t>
-inline SubscribeState UntypedSubscriberImpl<base_subscriber_t>::getSubscriptionState() const noexcept
-{
-    return base_subscriber_t::getSubscriptionState();
-}
-
-template <typename base_subscriber_t>
-inline void UntypedSubscriberImpl<base_subscriber_t>::unsubscribe() noexcept
-{
-    return base_subscriber_t::unsubscribe();
-}
-
-template <typename base_subscriber_t>
-inline bool UntypedSubscriberImpl<base_subscriber_t>::hasNewSamples() const noexcept
-{
-    return base_subscriber_t::hasNewSamples();
-}
-
-template <typename base_subscriber_t>
-inline bool UntypedSubscriberImpl<base_subscriber_t>::hasMissedSamples() noexcept
-{
-    return base_subscriber_t::hasMissedSamples();
-}
-
-template <typename base_subscriber_t>
-inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError>
-UntypedSubscriberImpl<base_subscriber_t>::take() noexcept
-{
-    return base_subscriber_t::take();
-}
-
-template <typename base_subscriber_t>
-inline void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedSamples() noexcept
-{
-    base_subscriber_t::releaseQueuedSamples();
-}
-
 } // namespace popo
 } // namespace iox
 

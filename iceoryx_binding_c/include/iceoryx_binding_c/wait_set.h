@@ -35,6 +35,12 @@ iox_ws_t iox_ws_init(iox_ws_storage_t* self);
 /// @param[in] self the handle which should be deinitialized
 void iox_ws_deinit(iox_ws_t const self);
 
+/// @brief Verifies if a given condition is attached to the WaitSet self
+/// @param[in] self the handle to the WaitSet
+/// @param[in] condition condition where you would like to know if its contained in self
+/// @return true if condition is contained in self, otherwise false
+bool iox_ws_is_condition_attached(iox_ws_t const self, iox_cond_t const condition);
+
 /// @brief Attach a condition to your wait set. If you would like to destroy the condition
 ///         you have to detach it first from the wait set.
 /// @param[in] self handle to the wait set
@@ -46,9 +52,7 @@ ENUM iox_WaitSetResult iox_ws_attach_condition(iox_ws_t const self, iox_cond_t c
 /// @brief detaches a condition.
 /// @param[in] self handle to the wait set
 /// @param[in] condition the condition you would like to detach
-/// @return true if the condition could be detached, otherwise false for instance when the
-///         condition was not attached before
-bool iox_ws_detach_condition(iox_ws_t const self, iox_cond_t const condition);
+void iox_ws_detach_condition(iox_ws_t const self, iox_cond_t const condition);
 
 /// @brief detaches all conditions
 /// @param[in] self handle to the wait set

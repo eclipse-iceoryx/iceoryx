@@ -34,9 +34,22 @@ void ConditionVariableWaiter::reset() noexcept
                                 nullptr,
                                 ErrorLevel::FATAL);
                })
-               .get_value())
+               .value())
     {
     }
+}
+
+bool ConditionVariableWaiter::wasNotified() const noexcept
+{
+    auto result = getMembers()->m_semaphore.getValue();
+    if (result.has_error())
+    {
+        errorHandler(
+            Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAS_TRIGGERED, nullptr, ErrorLevel::FATAL);
+        return false;
+    }
+
+    return *result != 0;
 }
 
 void ConditionVariableWaiter::wait() noexcept

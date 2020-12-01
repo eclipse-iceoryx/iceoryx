@@ -47,9 +47,9 @@ int main()
         // API Usage #1
         //  * Loaned sample can be held until ready to publish
         auto result = untypedPublisher.loan(128);
-        if(!result.has_error())
+        if (!result.has_error())
         {
-            auto& sample = result.get_value();
+            auto& sample = result.value();
             // In the untyped API, the returned sample is a void pointer, therefore the data must be constructed
             // in place.
             new (sample.get()) Position(ct, ct, ct);

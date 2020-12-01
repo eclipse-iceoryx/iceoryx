@@ -41,12 +41,11 @@ cxx::vector<runtime::RunnableData*, MAX_RUNNABLE_NUMBER> PortPool::getRunnableDa
 }
 
 cxx::expected<popo::InterfacePortData*, PortPoolError>
-PortPool::addInterfacePort(const std::string& applicationName, const capro::Interfaces interface) noexcept
+PortPool::addInterfacePort(const ProcessName_t& applicationName, const capro::Interfaces interface) noexcept
 {
     if (m_portPoolData->m_interfacePortMembers.hasFreeSpace())
     {
-        auto interfacePortData = m_portPoolData->m_interfacePortMembers.insert(
-            iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName), interface);
+        auto interfacePortData = m_portPoolData->m_interfacePortMembers.insert(applicationName, interface);
         return cxx::success<popo::InterfacePortData*>(interfacePortData);
     }
     else
@@ -57,12 +56,11 @@ PortPool::addInterfacePort(const std::string& applicationName, const capro::Inte
 }
 
 cxx::expected<popo::ApplicationPortData*, PortPoolError>
-PortPool::addApplicationPort(const std::string& applicationName) noexcept
+PortPool::addApplicationPort(const ProcessName_t& applicationName) noexcept
 {
     if (m_portPoolData->m_applicationPortMembers.hasFreeSpace())
     {
-        auto applicationPortData = m_portPoolData->m_applicationPortMembers.insert(
-            iox::cxx::string<100>(iox::cxx::TruncateToCapacity, applicationName));
+        auto applicationPortData = m_portPoolData->m_applicationPortMembers.insert(applicationName);
         return cxx::success<popo::ApplicationPortData*>(applicationPortData);
     }
     else

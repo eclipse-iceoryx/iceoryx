@@ -296,23 +296,25 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 {
     using PortData = iox::roudi::PublisherPortData;
 
-    iox::cxx::string<100> name1("name1");
-    iox::cxx::string<100> name2("name2");
+    const iox::ProcessName_t processName1("name1");
+    const iox::ProcessName_t processName2("name2");
+    const iox::RunnableName_t runnableName1("4");
+    const iox::RunnableName_t runnableName2("jkl");
 
     // prepare expected outputs
     PortData expected1;
-    expected1.m_name = name1;
+    expected1.m_name = processName1;
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
-    expected1.m_runnable = iox::cxx::string<100>("4");
+    expected1.m_runnable = runnableName1;
 
     PortData expected2;
-    expected2.m_name = name2;
+    expected2.m_name = processName2;
     expected2.m_caproInstanceID = "abc";
     expected2.m_caproServiceID = "def";
     expected2.m_caproEventMethodID = "ghi";
-    expected2.m_runnable = iox::cxx::string<100>("jkl");
+    expected2.m_runnable = runnableName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -326,10 +328,10 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     // remark: duplicate publisher port insertions are not possible
     iox::popo::PublisherPortData portData1{m_serviceDescription, "Foo", &m_memoryManager};
     iox::popo::PublisherPortData portData2{m_serviceDescription, "Foo", &m_memoryManager};
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, name1, service1, "4"), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, name1, service1, "4"), Eq(false));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, name2, service2, "jkl"), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, name2, service2, "jkl"), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, "4"), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, "4"), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, "jkl"), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, "jkl"), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -359,8 +361,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     // test removal of ports
 
-    EXPECT_THAT(m_introspectionAccess.removePublisher(name1, service1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.removePublisher(name1, service1), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(processName1, service1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(processName1, service1), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -371,8 +373,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
         EXPECT_THAT(comparePortData(sample->m_publisherList[0], expected2), Eq(true));
     }
 
-    EXPECT_THAT(m_introspectionAccess.removePublisher(name2, service2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.removePublisher(name2, service2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -381,7 +383,7 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
         ASSERT_THAT(sample->m_subscriberList.size(), Eq(0));
     }
 
-    EXPECT_THAT(m_introspectionAccess.removePublisher(name2, service2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removePublisher(processName2, service2), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -397,25 +399,27 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 {
     using PortData = iox::roudi::SubscriberPortData;
 
-    iox::cxx::string<100> name1("name1");
-    iox::cxx::string<100> name2("name2");
+    const iox::ProcessName_t processName1("name1");
+    const iox::ProcessName_t processName2("name2");
+    const iox::RunnableName_t runnableName1("4");
+    const iox::RunnableName_t runnableName2("7");
 
     // prepare expected outputs
     PortData expected1;
-    expected1.m_name = name1;
+    expected1.m_name = processName1;
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
     expected1.m_publisherIndex = -1;
-    expected1.m_runnable = iox::cxx::string<100>("4");
+    expected1.m_runnable = runnableName1;
 
     PortData expected2;
-    expected2.m_name = name2;
+    expected2.m_name = processName2;
     expected2.m_caproInstanceID = "4";
     expected2.m_caproServiceID = "5";
     expected2.m_caproEventMethodID = "6";
     expected2.m_publisherIndex = -1;
-    expected2.m_runnable = iox::cxx::string<100>("7");
+    expected2.m_runnable = runnableName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -431,10 +435,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
         m_serviceDescription, "Foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
     iox::popo::SubscriberPortData recData2{
         m_serviceDescription, "Foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, name1, service1, "4"), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, name1, service1, "4"), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, name2, service2, "7"), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, name2, service2, "7"), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, "4"), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, "4"), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, "7"), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, "7"), Eq(true));
 
     m_introspectionAccess.sendPortData();
 
@@ -464,8 +468,8 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 
     // test removal of ports
 
-    EXPECT_THAT(m_introspectionAccess.removeSubscriber(name1, service1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.removeSubscriber(name1, service1), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removeSubscriber(processName1, service1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.removeSubscriber(processName1, service1), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -478,8 +482,8 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
         EXPECT_THAT(comparePortData(publisherInfo, expected2), Eq(true));
     }
 
-    EXPECT_THAT(m_introspectionAccess.removeSubscriber(name2, service2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.removeSubscriber(name2, service2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removeSubscriber(processName2, service2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.removeSubscriber(processName2, service2), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -488,7 +492,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
         ASSERT_THAT(sample->m_subscriberList.size(), Eq(0));
     }
 
-    EXPECT_THAT(m_introspectionAccess.removeSubscriber(name2, service2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.removeSubscriber(processName2, service2), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -506,19 +510,19 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     using SubscriberPortData = iox::roudi::SubscriberPortData;
     using PublisherPortData = iox::roudi::PublisherPortData;
 
-    std::string nameSubscriber("subscriber");
-    std::string namePublisher("publisher");
+    const iox::ProcessName_t nameSubscriber("subscriber");
+    const iox::ProcessName_t namePublisher("publisher");
 
     // prepare expected outputs
     SubscriberPortData expectedSubscriber;
-    expectedSubscriber.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, nameSubscriber.c_str());
+    expectedSubscriber.m_name = nameSubscriber;
     expectedSubscriber.m_caproInstanceID = "1";
     expectedSubscriber.m_caproServiceID = "2";
     expectedSubscriber.m_caproEventMethodID = "3";
     expectedSubscriber.m_publisherIndex = -1;
 
     PublisherPortData expectedPublisher;
-    expectedPublisher.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, namePublisher.c_str());
+    expectedPublisher.m_name = namePublisher;
     expectedPublisher.m_caproInstanceID = "1";
     expectedPublisher.m_caproServiceID = "2";
     expectedPublisher.m_caproEventMethodID = "3";

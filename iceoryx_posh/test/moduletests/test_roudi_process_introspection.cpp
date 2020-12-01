@@ -153,11 +153,11 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
         EXPECT_THAT(chunk1->sample()->m_processList.size(), Eq(0U));
 
         // a new process should be sent
-        introspectionAccess.addProcess(PID, iox::cxx::string<100>(PROCESS_NAME));
+        introspectionAccess.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
         auto chunk2 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk2->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk2->sample()->m_processList[0].m_pid, Eq(PID));
-        EXPECT_THAT(iox::cxx::string<100>(PROCESS_NAME) == chunk2->sample()->m_processList[0].m_name, Eq(true));
+        EXPECT_THAT(iox::ProcessName_t(PROCESS_NAME) == chunk2->sample()->m_processList[0].m_name, Eq(true));
 
         // list should be empty after removal
         introspectionAccess.removeProcess(PID);

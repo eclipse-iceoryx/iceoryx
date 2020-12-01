@@ -53,11 +53,12 @@ report a bug or propose a new feature, please raise an issue before raising a pu
 track. Please make sure you have:
 
 1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
-2. All branches have the following naming format: `iox-#123-this-is-a-branch`
-3. All commits have the following naming format: `iox-#123 commit text`
-4. All commits have been signed with `git commit -s`
-5. You open your pull request towards the base branch `staging`
-6. Link the pull request to the according Github issue and set the label accordingly
+1. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
+1. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
+1. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
+1. All commits have been signed with `git commit -s`
+1. You open your pull request towards the base branch `staging`
+1. Link the pull request to the according Github issue and set the label accordingly
 
 ## Coding style
 
@@ -75,7 +76,7 @@ codebase follows these rules, things are work in progress.
     without heap)
 2) **No exception are allowed**, all function and methods need to have `noexcept` in their signature
 3) **No undefined behavior**, zero-cost abstract is not feasible in high safety environments
-4) **Use C++11**, however we try to introduce C++14 as fast as possible
+4) **Use C++14**
 5) **[Rule of Five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))**, if there is a non-default
     destructor needed, the rule of five has to be applied
 6) **[STL](https://en.wikipedia.org/wiki/Standard_Template_Library)**, we aim to be compatible towards the STL, but

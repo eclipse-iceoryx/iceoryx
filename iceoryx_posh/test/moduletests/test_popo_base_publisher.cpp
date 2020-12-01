@@ -123,7 +123,7 @@ TEST_F(BasePublisherTest, LoanReturnsAllocatedTypedSampleOnSuccess)
     auto result = sut.loan(sizeof(DummyData));
     // ===== Verify ===== //
     // The memory location of the sample should be the same as the chunk payload.
-    EXPECT_EQ(chunk->payload(), result.get_value().get());
+    EXPECT_EQ(chunk->payload(), result.value().get());
     // ===== Cleanup ===== //
     iox::cxx::alignedFree(chunk);
 }
@@ -138,7 +138,7 @@ TEST_F(BasePublisherTest, LoanedSamplesContainPointerToChunkHeader)
     // ===== Test ===== //
     auto result = sut.loan(sizeof(DummyData));
     // ===== Verify ===== //
-    EXPECT_EQ(chunk, result.get_value().getHeader());
+    EXPECT_EQ(chunk, result.value().getHeader());
     // ===== Cleanup ===== //
     iox::cxx::alignedFree(chunk);
 }
@@ -252,4 +252,3 @@ TEST_F(BasePublisherTest, DestroysUnderlyingPortOnDestruction)
 {
     EXPECT_CALL(sut.getMockedPort(), destroy).Times(1);
 }
-

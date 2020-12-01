@@ -129,13 +129,13 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotPublisherFirst)
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData({1, 1, 1}, 1, "/guiseppe", m_payloadMemoryManager, "runnable", PortConfigInfo())
-            .get_value());
+            .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
     // no doDiscovery() at this position is intentional
 
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).get_value());
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
 
@@ -156,7 +156,7 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotPublisherFirst)
 TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotSubscriberFirst)
 {
     SubscriberPortUser subscriber(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).get_value());
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber);
     subscriber.subscribe();
     // no doDiscovery() at this position is intentional
@@ -164,7 +164,7 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotSubscriberFirst)
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData({1, 1, 1}, 1, "/guiseppe", m_payloadMemoryManager, "runnable", PortConfigInfo())
-            .get_value());
+            .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
 
@@ -185,7 +185,7 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotSubscriberFirst)
 TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotSubscriberFirstWithDiscovery)
 {
     SubscriberPortUser subscriber1(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).get_value());
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber1);
     subscriber1.subscribe(true);
     m_portManager->doDiscovery();
@@ -193,7 +193,7 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotSubscriberFirstWithDisco
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData({1, 1, 1}, 1, "/guiseppe", m_payloadMemoryManager, "runnable", PortConfigInfo())
-            .get_value());
+            .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
 
@@ -214,7 +214,7 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotSubscriberFirstWithDisco
 TEST_F(PortManager_test, DISABLED_doDiscovery_rightOrdering)
 {
     SubscriberPortUser subscriber1(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).get_value());
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber1);
     subscriber1.subscribe(true);
     m_portManager->doDiscovery();
@@ -222,12 +222,12 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_rightOrdering)
     PublisherPortUser publisher(
         m_portManager
             ->acquirePublisherPortData({1, 1, 1}, 1, "/guiseppe", m_payloadMemoryManager, "runnable", PortConfigInfo())
-            .get_value());
+            .value());
     ASSERT_TRUE(publisher);
     publisher.offer();
 
     SubscriberPortUser subscriber2(
-        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/ingnatz", "runnable", PortConfigInfo()).get_value());
+        m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/ingnatz", "runnable", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber2);
     subscriber2.subscribe(true);
     m_portManager->doDiscovery();
@@ -264,14 +264,14 @@ TEST_F(PortManager_test, PublisherSubscriberOverflow)
             m_portManager->acquirePublisherPortData(getUniqueSD(), 1, p1, m_payloadMemoryManager, r1, PortConfigInfo());
 
         ASSERT_FALSE(sen.has_error());
-        avaPublisher1[i] = sen.get_value();
+        avaPublisher1[i] = sen.value();
     }
 
     for (unsigned int i = 0; i < subForP1; i++)
     {
         auto rec = m_portManager->acquireSubscriberPortData(getUniqueSD(), 1, p1, r1, PortConfigInfo());
         ASSERT_THAT(rec.has_error(), Eq(false));
-        avaSubscriber1[i] = rec.get_value();
+        avaSubscriber1[i] = rec.value();
     }
 
     { // test if overflow errors get hit
@@ -363,15 +363,13 @@ TEST_F(PortManager_test, DISABLED_PortDestroy)
     // two processes p1 and p2 each with a publisher and subscriber that match to the other process
     auto publisherData1 =
         m_portManager->acquirePublisherPortData(cap1, 1, p1, m_payloadMemoryManager, "runnable", PortConfigInfo())
-            .get_value();
-    auto subscriberData1 =
-        m_portManager->acquireSubscriberPortData(cap2, 1, p1, "runnable", PortConfigInfo()).get_value();
+            .value();
+    auto subscriberData1 = m_portManager->acquireSubscriberPortData(cap2, 1, p1, "runnable", PortConfigInfo()).value();
 
     auto publisherData2 =
         m_portManager->acquirePublisherPortData(cap2, 1, p2, m_payloadMemoryManager, "runnable", PortConfigInfo())
-            .get_value();
-    auto subscriberData2 =
-        m_portManager->acquireSubscriberPortData(cap1, 1, p2, "runnable", PortConfigInfo()).get_value();
+            .value();
+    auto subscriberData2 = m_portManager->acquireSubscriberPortData(cap1, 1, p2, "runnable", PortConfigInfo()).value();
 
     // let them connect
     {
@@ -423,8 +421,8 @@ TEST_F(PortManager_test, DISABLED_PortDestroy)
     // re-create the ports of process p2
     publisherData2 =
         m_portManager->acquirePublisherPortData(cap2, 1, p2, m_payloadMemoryManager, "runnable", PortConfigInfo())
-            .get_value();
-    subscriberData2 = m_portManager->acquireSubscriberPortData(cap1, 1, p2, "runnable", PortConfigInfo()).get_value();
+            .value();
+    subscriberData2 = m_portManager->acquireSubscriberPortData(cap1, 1, p2, "runnable", PortConfigInfo()).value();
 
     // let them connect
     {

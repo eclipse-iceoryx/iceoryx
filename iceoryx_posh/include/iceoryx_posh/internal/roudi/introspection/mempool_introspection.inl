@@ -137,7 +137,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::send() 
         auto maybeChunkHeader = m_publisherPort.tryAllocateChunk(sizeof(MemPoolIntrospectionInfoContainer));
         if (!maybeChunkHeader.has_error())
         {
-            auto sample = static_cast<MemPoolIntrospectionInfoContainer*>(maybeChunkHeader.get_value()->payload());
+            auto sample = static_cast<MemPoolIntrospectionInfoContainer*>(maybeChunkHeader.value()->payload());
             new (sample) MemPoolIntrospectionInfoContainer;
 
             if (sample->emplace_back())
@@ -178,7 +178,7 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::send() 
                 LogWarn() << "Mempool Introspection Container full, Mempool Introspection Data not updated!";
             }
 
-            m_publisherPort.sendChunk(maybeChunkHeader.get_value());
+            m_publisherPort.sendChunk(maybeChunkHeader.value());
         }
     }
 }

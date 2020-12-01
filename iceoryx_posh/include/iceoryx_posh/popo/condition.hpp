@@ -14,20 +14,30 @@
 #ifndef IOX_POSH_POPO_CONDITION_HPP
 #define IOX_POSH_POPO_CONDITION_HPP
 
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include <atomic>
 
 namespace iox
 {
 namespace popo
 {
+struct ConditionVariableData;
 class WaitSet;
 /// @brief Base class representing a generic condition that can be stored in a WaitSet
 class Condition
 {
   public:
     Condition() noexcept = default;
+
+    /// @brief Removes the condition from the WaitSet safely but does not detach it.
+    ///        This means unsetConditionVariable is not called since this falls
+    ///        in the responsibility of the class dtor of the derived class.
     virtual ~Condition() noexcept;
-    Condition(const Condition& rhs) noexcept;
+
+    /// @brief copy and move operations are deleted since the WaitSet stores
+    ///        pointers to conditions. If we would allow copy and move it would
+    ///        be possible that the waitset contains dangling pointers after a
+    ///        condition was copied or moved.
+    Condition(const Condition& rhs) noexcept = delete;
     Condition(Condition&& rhs) = delete;
     Condition& operator=(const Condition& rhs) = delete;
     Condition& operator=(Condition&& rhs) = delete;
@@ -39,17 +49,14 @@ class Condition
 
   protected:
     friend class WaitSet;
-    /// @brief User interface for specific attach of condition variable
-    virtual bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept = 0;
-    /// @brief User interface for specific detach of condition variable
-    virtual bool unsetConditionVariable() noexcept = 0;
+    virtual void setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept = 0;
+    virtual void unsetConditionVariable() noexcept = 0;
 
-    /// @brief Called by a WaitSet to announce the condition variable pointer that usually lives in shared memory
-    bool attachConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept;
-    /// @brief Called when removing the condition from a WaitSet
-    bool detachConditionVariable() noexcept;
+    void attachConditionVariable(WaitSet* const waitSet,
+                                 ConditionVariableData* const conditionVariableDataPtr) noexcept;
+    void detachConditionVariable() noexcept;
 
-    std::atomic_bool m_conditionVariableAttached{false};
+    WaitSet* m_waitSet{nullptr};
 };
 
 } // namespace popo

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/unix_domain_socket.hpp"
+#include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"
 #include "iceoryx_utils/platform/mqueue.hpp"
@@ -330,9 +332,9 @@ class MqRuntimeInterface
     /// @return true if communication was successful, otherwise false
     bool sendMessageToRouDi(const MqMessage& msg) noexcept;
 
-    /// @brief get the adress of the segment manager
-    /// @return address as string
-    std::string getSegmentManagerAddr() const noexcept;
+    /// @brief get the adress offset of the segment manager
+    /// @return address offset as RelativePointer::offset_t
+    RelativePointer::offset_t getSegmentManagerAddressOffset() const noexcept;
 
     /// @brief get the size of the management shared memory object
     /// @return size in bytes
@@ -359,7 +361,7 @@ class MqRuntimeInterface
 
   private:
     std::string m_appName;
-    std::string m_segmentManager;
+    cxx::optional<RelativePointer::offset_t> m_segmentManagerAddressOffset;
     MqInterfaceCreator m_AppMqInterface;
     MqInterfaceUser m_RoudiMqInterface;
     size_t m_shmTopicSize{0u};

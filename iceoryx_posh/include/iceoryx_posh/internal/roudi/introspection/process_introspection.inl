@@ -189,7 +189,7 @@ void ProcessIntrospection<PublisherPort>::send()
         auto maybeChunkHeader = m_publisherPort->tryAllocateChunk(sizeof(ProcessIntrospectionFieldTopic));
         if (!maybeChunkHeader.has_error())
         {
-            auto sample = static_cast<ProcessIntrospectionFieldTopic*>(maybeChunkHeader.get_value()->payload());
+            auto sample = static_cast<ProcessIntrospectionFieldTopic*>(maybeChunkHeader.value()->payload());
             new (sample) ProcessIntrospectionFieldTopic;
 
             for (auto& intrData : m_processList)
@@ -198,7 +198,7 @@ void ProcessIntrospection<PublisherPort>::send()
             }
             m_processListNewData = false;
 
-            m_publisherPort->sendChunk(maybeChunkHeader.get_value());
+            m_publisherPort->sendChunk(maybeChunkHeader.value());
         }
     }
 }

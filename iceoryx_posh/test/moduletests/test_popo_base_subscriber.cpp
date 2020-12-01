@@ -33,62 +33,18 @@ template <typename T, typename port_t>
 class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
 {
   public:
-    StubbedBaseSubscriber(iox::capro::ServiceDescription)
-        : iox::popo::BaseSubscriber<T, port_t>::BaseSubscriber()
-    {
-    }
-    uid_t getUid() const noexcept
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::getUid();
-    }
-    iox::capro::ServiceDescription getServiceDescription() const noexcept
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::getServiceDescription();
-    }
-    void subscribe(const uint64_t queueCapacity = iox::MAX_SUBSCRIBER_QUEUE_CAPACITY) noexcept
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::subscribe(queueCapacity);
-    }
-    iox::SubscribeState getSubscriptionState() const noexcept
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::getSubscriptionState();
-    }
-    void unsubscribe() noexcept
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::unsubscribe();
-    }
-    bool hasNewSamples() const noexcept
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::hasNewSamples();
-    }
-    bool hasMissedSamples() noexcept
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::hasMissedSamples();
-    }
-    iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError> take() noexcept
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::take();
-    }
-    iox::cxx::optional<iox::cxx::unique_ptr<iox::mepoo::ChunkHeader>> receiveHeader() noexcept
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::receiveHeader();
-    }
-    void releaseQueuedSamples() noexcept
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::releaseQueuedSamples();
-    }
-    bool setConditionVariable(iox::popo::ConditionVariableData* const conditionVariableDataPtr) noexcept override
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::setConditionVariable(conditionVariableDataPtr);
-    }
-    bool unsetConditionVariable() noexcept override
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::unsetConditionVariable();
-    }
-    virtual bool hasTriggered() const noexcept override
-    {
-        return iox::popo::BaseSubscriber<T, port_t>::hasTriggered();
-    }
+    using iox::popo::BaseSubscriber<T, port_t>::getServiceDescription;
+    using iox::popo::BaseSubscriber<T, port_t>::getSubscriptionState;
+    using iox::popo::BaseSubscriber<T, port_t>::getUid;
+    using iox::popo::BaseSubscriber<T, port_t>::hasMissedSamples;
+    using iox::popo::BaseSubscriber<T, port_t>::hasNewSamples;
+    using iox::popo::BaseSubscriber<T, port_t>::hasTriggered;
+    using iox::popo::BaseSubscriber<T, port_t>::releaseQueuedSamples;
+    using iox::popo::BaseSubscriber<T, port_t>::setConditionVariable;
+    using iox::popo::BaseSubscriber<T, port_t>::subscribe;
+    using iox::popo::BaseSubscriber<T, port_t>::take;
+    using iox::popo::BaseSubscriber<T, port_t>::unsetConditionVariable;
+    using iox::popo::BaseSubscriber<T, port_t>::unsubscribe;
     port_t& getMockedPort()
     {
         return iox::popo::BaseSubscriber<T, port_t>::m_port;
@@ -115,7 +71,7 @@ class BaseSubscriberTest : public Test
     }
 
   protected:
-    TestBaseSubscriber sut{{"", "", ""}};
+    TestBaseSubscriber sut{};
 };
 
 TEST_F(BaseSubscriberTest, SubscribeCallForwardedToUnderlyingSubscriberPort)
@@ -170,9 +126,9 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksWrappedInSample)
     auto result = sut.take();
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
-    EXPECT_EQ(true, result.get_value().has_value());
+    EXPECT_EQ(true, result.value().has_value());
     EXPECT_EQ(reinterpret_cast<DummyData*>(chunk->payload()),
-              result.get_value().value().get()); // Checks they point to the same memory location.
+              result.value().value().get()); // Checks they point to the same memory location.
     // ===== Cleanup ===== //
 }
 
@@ -216,7 +172,7 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsEmptyOptionalIfUnderlyingPortReturnsEmp
     auto result = sut.take();
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
-    EXPECT_EQ(false, result.get_value().has_value());
+    EXPECT_EQ(false, result.value().has_value());
     // ===== Cleanup ===== //
 }
 

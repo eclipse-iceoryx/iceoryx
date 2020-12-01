@@ -68,7 +68,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
         errorHandler(
             Error::kPORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONPORTSERVICE, nullptr, iox::ErrorLevel::SEVERE);
     }
-    auto portGeneric = maybePublisher.get_value();
+    auto portGeneric = maybePublisher.value();
 
     maybePublisher = acquirePublisherPortData(IntrospectionPortThroughputService,
                                               1,
@@ -83,7 +83,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                      nullptr,
                      iox::ErrorLevel::SEVERE);
     }
-    auto portThroughput = maybePublisher.get_value();
+    auto portThroughput = maybePublisher.value();
 
     maybePublisher = acquirePublisherPortData(IntrospectionSubscriberPortChangingDataService,
                                               1,
@@ -98,7 +98,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                      nullptr,
                      iox::ErrorLevel::SEVERE);
     }
-    auto subscriberPortsData = maybePublisher.get_value();
+    auto subscriberPortsData = maybePublisher.value();
 
     m_portIntrospection.registerPublisherPort(portGeneric, portThroughput, subscriberPortsData);
     m_portIntrospection.run();
@@ -567,7 +567,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
         service, historyCapacity, payloadMemoryManager, processName, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
-        m_portIntrospection.addPublisher(maybePublisherPortData.get_value(), processName, service, runnable);
+        m_portIntrospection.addPublisher(maybePublisherPortData.value(), processName, service, runnable);
     }
 
     return maybePublisherPortData;
@@ -584,7 +584,7 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
         m_portPool->addSubscriberPort(service, historyRequest, processName, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
-        m_portIntrospection.addSubscriber(maybeSubscriberPortData.get_value(), processName, service, runnable);
+        m_portIntrospection.addSubscriber(maybeSubscriberPortData.value(), processName, service, runnable);
     }
 
     return maybeSubscriberPortData;
@@ -599,7 +599,7 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
     auto result = m_portPool->addInterfacePort(processName, interface);
     if (!result.has_error())
     {
-        return result.get_value();
+        return result.value();
     }
     else
     {
@@ -613,7 +613,7 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const Process
     auto result = m_portPool->addApplicationPort(processName);
     if (!result.has_error())
     {
-        return result.get_value();
+        return result.value();
     }
     else
     {
@@ -641,7 +641,7 @@ runtime::RunnableData* PortManager::acquireRunnableData(const ProcessName_t& pro
     auto result = m_portPool->addRunnableData(process, runnable, 0);
     if (!result.has_error())
     {
-        return result.get_value();
+        return result.value();
     }
     else
     {

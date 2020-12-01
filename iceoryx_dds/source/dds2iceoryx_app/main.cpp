@@ -48,7 +48,7 @@ class ShutdownManager
     ShutdownManager() = default;
 };
 iox::posix::Semaphore ShutdownManager::s_semaphore =
-    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).get_value();
+    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 std::atomic_bool ShutdownManager::s_shutdownRequested{false};
 
 int main()

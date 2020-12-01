@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 #include "iceoryx_posh/internal/runtime/runnable_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 
 #include <atomic>
 #include <map>
@@ -44,20 +45,17 @@ namespace runtime
 class Runnable;
 class RunnableData;
 
-constexpr char DEFAULT_RUNTIME_INSTANCE_NAME[] = "dummy";
-
-
 /// @brief The runtime that is needed for each application to communicate with the RouDi daemon
 class PoshRuntime
 {
   public:
     /// @brief creates the runtime or return the already existing one -> Singleton
     /// @param[in] name name that is used for registering the process with the RouDi daemon
-    static PoshRuntime& getInstance(const std::string& name = DEFAULT_RUNTIME_INSTANCE_NAME) noexcept;
+    static PoshRuntime& getInstance(const ProcessName_t& name = defaultRuntimeInstanceName()) noexcept;
 
     /// @brief get the name that was used to register with RouDi
     /// @return name of the reistered application
-    std::string getInstanceName() const noexcept;
+    ProcessName_t getInstanceName() const noexcept;
 
     /// @brief find all services that match the provided service description
     /// @param[in] serviceDescription service to search for
@@ -143,11 +141,25 @@ class PoshRuntime
     friend class roudi::RuntimeTestInterface;
 
   protected:
-    // Protected constructor for IPC setup
-    PoshRuntime(const std::string& name, const bool doMapSharedMemoryIntoThread = true) noexcept;
+    using factory_t = PoshRuntime& (*)(const ProcessName_t&);
 
-    static std::function<PoshRuntime&(const std::string& name)> s_runtimeFactory; // = DefaultRuntimeFactory;
-    static PoshRuntime& defaultRuntimeFactory(const std::string& name) noexcept;
+    // Protected constructor for IPC setup
+    PoshRuntime(const ProcessName_t& name, const bool doMapSharedMemoryIntoThread = true) noexcept;
+
+    static PoshRuntime& defaultRuntimeFactory(const ProcessName_t& name) noexcept;
+
+    static ProcessName_t& defaultRuntimeInstanceName() noexcept;
+
+    /// @brief gets current runtime factory. If the runtime factory is not yet initialized it is set to
+    /// defaultRuntimeFactory.
+    ///
+    /// @return current runtime factory
+    static factory_t& getRuntimeFactory() noexcept;
+
+    /// @brief sets runtime factory, terminates if given factory is empty
+    ///
+    /// @param[in] factory std::function to which the runtime factory should be set
+    static void setRuntimeFactory(const factory_t& factory) noexcept;
 
   private:
     cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
@@ -161,9 +173,9 @@ class PoshRuntime
 
     /// @brief checks the given application name for certain constraints like length(100 chars) or leading slash
     /// @todo replace length check with fixedstring when its integrated
-    const std::string& verifyInstanceName(const std::string& name) noexcept;
+    const ProcessName_t& verifyInstanceName(const ProcessName_t& name) noexcept;
 
-    const std::string m_appName;
+    const ProcessName_t m_appName;
     mutable std::mutex m_appMqRequestMutex;
 
     // Message queue interface for POSIX IPC from RouDi

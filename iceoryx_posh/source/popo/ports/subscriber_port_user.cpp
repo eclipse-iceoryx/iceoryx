@@ -104,14 +104,14 @@ bool SubscriberPortUser::hasLostChunksSinceLastCall() noexcept
     return m_chunkReceiver.hasOverflown();
 }
 
-bool SubscriberPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
+void SubscriberPortUser::setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept
 {
-    return m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
+    m_chunkReceiver.setConditionVariable(conditionVariableDataPtr);
 }
 
-bool SubscriberPortUser::unsetConditionVariable() noexcept
+void SubscriberPortUser::unsetConditionVariable() noexcept
 {
-    return m_chunkReceiver.unsetConditionVariable();
+    m_chunkReceiver.unsetConditionVariable();
 }
 
 bool SubscriberPortUser::isConditionVariableSet() noexcept

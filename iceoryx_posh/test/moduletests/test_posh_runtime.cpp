@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,35 @@
 using namespace ::testing;
 using namespace iox::runtime;
 using iox::roudi::RouDiEnvironment;
+
+class PoshRuntimeTestAccess : public PoshRuntime
+{
+  public:
+    using PoshRuntime::factory_t;
+    using PoshRuntime::setRuntimeFactory;
+
+    PoshRuntimeTestAccess(const iox::ProcessName_t& s)
+        : PoshRuntime(s)
+    {
+    }
+
+    static PoshRuntimeTestAccess*& getTestRuntime()
+    {
+        static PoshRuntimeTestAccess* testRuntime = nullptr;
+        return testRuntime;
+    }
+};
+
+namespace
+{
+bool callbackWasCalled = false;
+PoshRuntime& testFactory(const iox::ProcessName_t&)
+{
+    callbackWasCalled = true;
+    return *PoshRuntimeTestAccess::getTestRuntime();
+}
+} // namespace
+
 class PoshRuntime_test : public Test
 {
   public:
@@ -34,6 +63,7 @@ class PoshRuntime_test : public Test
 
     virtual void SetUp()
     {
+        callbackWasCalled = false;
         internal::CaptureStdout();
     };
 
@@ -42,7 +72,7 @@ class PoshRuntime_test : public Test
         std::string output = internal::GetCapturedStdout();
         if (Test::HasFailure())
         {
-            std::cout << output << std::endl;
+           std::cout << output << std::endl;
         }
     };
 
@@ -51,13 +81,13 @@ class PoshRuntime_test : public Test
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
-    const iox::cxx::string<100> m_runtimeName{"/publisher"};
+    const iox::ProcessName_t m_runtimeName{"/publisher"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::getInstance(m_runtimeName)};
     MqMessage m_sendBuffer;
     MqMessage m_receiveBuffer;
-    const iox::cxx::string<100> m_runnableName{"testRunnable"};
-    const iox::cxx::string<100> m_invalidRunnableName{"invalidRunnable,"};
+    const iox::RunnableName_t m_runnableName{"testRunnable"};
+    const iox::RunnableName_t m_invalidRunnableName{"invalidRunnable,"};
     static bool m_errorHandlerCalled;
 };
 
@@ -66,34 +96,25 @@ bool PoshRuntime_test::m_errorHandlerCalled{false};
 
 TEST_F(PoshRuntime_test, ValidAppName)
 {
-    std::string appName("/valid_name");
+    iox::ProcessName_t appName("/valid_name");
 
     EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(appName); });
 }
 
-
-TEST_F(PoshRuntime_test, AppNameLength_OutOfLimit)
-{
-    std::string tooLongName(iox::MAX_PROCESS_NAME_LENGTH, 's');
-    tooLongName.insert(0, 1, '/');
-
-    EXPECT_DEATH({ PoshRuntime::getInstance(tooLongName); },
-                 "Application name has more than 100 characters, including null termination!");
-}
-
-
 TEST_F(PoshRuntime_test, MaxAppNameLength)
 {
-    std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH - 1, 's');
-    maxValidName.insert(0, 1, '/');
+    std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH, 's');
+    maxValidName.front() = '/';
 
-    EXPECT_NO_FATAL_FAILURE({ PoshRuntime::getInstance(maxValidName); });
+    auto& runtime = PoshRuntime::getInstance(iox::ProcessName_t(iox::cxx::TruncateToCapacity, maxValidName));
+
+    EXPECT_THAT(maxValidName, StrEq(runtime.getInstanceName().c_str()));
 }
 
 
 TEST_F(PoshRuntime_test, NoAppName)
 {
-    const std::string invalidAppName("");
+    const iox::ProcessName_t invalidAppName("");
 
     EXPECT_DEATH({ PoshRuntime::getInstance(invalidAppName); },
                  "Cannot initialize runtime. Application name must not be empty!");
@@ -102,7 +123,7 @@ TEST_F(PoshRuntime_test, NoAppName)
 
 TEST_F(PoshRuntime_test, NoLeadingSlashAppName)
 {
-    const std::string invalidAppName = "invalidname";
+    const iox::ProcessName_t invalidAppName = "invalidname";
 
     EXPECT_DEATH(
         { PoshRuntime::getInstance(invalidAppName); },
@@ -123,7 +144,7 @@ TEST_F(PoshRuntime_test, DISABLED_AppNameEmpty)
 
 TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 {
-    const std::string appname = "/app";
+    const iox::ProcessName_t appname = "/app";
 
     auto& sut = PoshRuntime::getInstance(appname);
 
@@ -401,3 +422,18 @@ TEST_F(PoshRuntime_test, CreateRunnableReturnValue)
     /// @todo I am passing runnableDeviceIdentifier as 1, but it returns 0, is this expected?
     // EXPECT_EQ(runnableDeviceIdentifier, runableData->m_runnableDeviceIdentifier);
 }
+
+TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
+{
+    PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
+    PoshRuntimeTestAccess::getInstance("/instance");
+
+    EXPECT_TRUE(callbackWasCalled);
+}
+
+TEST_F(PoshRuntime_test, SetEmptyRuntimeFactoryFails)
+{
+    EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
+                 "Cannot set runtime factory. Passed factory must not be empty!");
+}
+

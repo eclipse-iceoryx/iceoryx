@@ -89,7 +89,7 @@ inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubs
     }
     else
     {
-        auto optionalHeader = result.get_value();
+        auto optionalHeader = result.value();
         if (optionalHeader.has_value())
         {
             auto header = optionalHeader.value();
@@ -111,16 +111,16 @@ inline void BaseSubscriber<T, port_t>::releaseQueuedSamples() noexcept
 }
 
 template <typename T, typename port_t>
-inline bool
+inline void
 BaseSubscriber<T, port_t>::setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept
 {
-    return m_port.setConditionVariable(conditionVariableDataPtr);
+    m_port.setConditionVariable(conditionVariableDataPtr);
 }
 
 template <typename T, typename port_t>
-inline bool BaseSubscriber<T, port_t>::unsetConditionVariable() noexcept
+inline void BaseSubscriber<T, port_t>::unsetConditionVariable() noexcept
 {
-    return m_port.unsetConditionVariable();
+    m_port.unsetConditionVariable();
 }
 
 template <typename T, typename port_t>

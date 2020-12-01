@@ -68,9 +68,9 @@ class PortIntrospection
             PublisherInfo() = default;
 
             PublisherInfo(typename PublisherPort::MemberType_t* portData,
-                          const std::string& name,
+                          const ProcessName_t& name,
                           const capro::ServiceDescription& service,
-                          const std::string& runnable)
+                          const RunnableName_t& runnable)
                 : portData(portData)
                 , name(name)
                 , service(service)
@@ -79,9 +79,9 @@ class PortIntrospection
             }
 
             typename PublisherPort::MemberType_t* portData{nullptr};
-            std::string name;
+            ProcessName_t name;
             capro::ServiceDescription service;
-            std::string runnable;
+            RunnableName_t runnable;
 
             using TimePointNs = mepoo::TimePointNs;
             using DurationNs = mepoo::DurationNs;
@@ -100,9 +100,9 @@ class PortIntrospection
             }
 
             SubscriberInfo(typename SubscriberPort::MemberType_t* const portData,
-                           const std::string& name,
+                           const ProcessName_t& name,
                            const capro::ServiceDescription& service,
-                           const std::string& runnable)
+                           const RunnableName_t& runnable)
                 : portData(portData)
                 , name(name)
                 , service(service)
@@ -111,9 +111,9 @@ class PortIntrospection
             }
 
             typename SubscriberPort::MemberType_t* portData{nullptr};
-            std::string name;
+            ProcessName_t name;
             capro::ServiceDescription service;
-            std::string runnable;
+            RunnableName_t runnable;
         };
 
         struct ConnectionInfo
@@ -123,9 +123,9 @@ class PortIntrospection
             }
 
             ConnectionInfo(typename SubscriberPort::MemberType_t* const portData,
-                           const std::string& name,
+                           const ProcessName_t& name,
                            const capro::ServiceDescription& service,
-                           const std::string& runnable)
+                           const RunnableName_t& runnable)
                 : subscriberInfo(portData, name, service, runnable)
                 , state(ConnectionState::DEFAULT)
             {
@@ -162,9 +162,9 @@ class PortIntrospection
          * @return returns false if the port could not be added and true otherwise
          */
         bool addPublisher(typename PublisherPort::MemberType_t* port,
-                          const std::string& name,
+                          const ProcessName_t& name,
                           const capro::ServiceDescription& service,
-                          const std::string& runnable);
+                          const RunnableName_t& runnable);
 
 
         /*!
@@ -179,9 +179,9 @@ class PortIntrospection
          * @return returns false if the port could not be added and true otherwise
          */
         bool addSubscriber(typename SubscriberPort::MemberType_t* const portData,
-                           const std::string& name,
+                           const ProcessName_t& name,
                            const capro::ServiceDescription& service,
-                           const std::string& runnable);
+                           const RunnableName_t& runnable);
 
         /*!
          * @brief remove a publisher port from introspection
@@ -192,7 +192,7 @@ class PortIntrospection
          * @return returns false if the port could not be removed (since it did not exist)
          *              and true otherwise
          */
-        bool removePublisher(const std::string& name, const capro::ServiceDescription& service);
+        bool removePublisher(const ProcessName_t& name, const capro::ServiceDescription& service);
 
         /*!
          * @brief remove a subscriber port from introspection
@@ -203,7 +203,7 @@ class PortIntrospection
          * @return returns false if the port could not be removed (since it did not exist)
          *              and true otherwise
          */
-        bool removeSubscriber(const std::string& name, const capro::ServiceDescription& service);
+        bool removeSubscriber(const ProcessName_t& name, const capro::ServiceDescription& service);
 
         /*!
          * @brief update the state of any connection identified by the capro id of a given message
@@ -257,11 +257,12 @@ class PortIntrospection
         using ConnectionContainer = FixedSizeContainer<ConnectionInfo, MAX_SUBSCRIBERS>;
 
         // index publisher and connections by capro Ids
-        std::map<std::string, typename PublisherContainer::Index_t> m_publisherMap;
+        std::map<capro::ServiceDescription, typename PublisherContainer::Index_t> m_publisherMap;
 
         // TODO: replace inner map wih more approriate structure if possible
-        // inner map maps from port names to indices in the ConnectionContainer
-        std::map<std::string, std::map<std::string, typename ConnectionContainer::Index_t>> m_connectionMap;
+        // inner map maps from process names to indices in the ConnectionContainer
+        std::map<capro::ServiceDescription, std::map<ProcessName_t, typename ConnectionContainer::Index_t>>
+            m_connectionMap;
 
         // Rationale: we avoid allocating the objects on the heap but can still use a map
         // to locate/remove them fast(er)
@@ -299,9 +300,9 @@ class PortIntrospection
      * @return returns false if the port could not be added and true otherwise
      */
     bool addPublisher(typename PublisherPort::MemberType_t* port,
-                      const std::string& name,
+                      const ProcessName_t& name,
                       const capro::ServiceDescription& service,
-                      const std::string& runnable);
+                      const RunnableName_t& runnable);
 
     /*!
      * @brief add a subscriber port to be tracked by introspection
@@ -315,9 +316,9 @@ class PortIntrospection
      * @return returns false if the port could not be added and true otherwise
      */
     bool addSubscriber(typename SubscriberPort::MemberType_t* const portData,
-                       const std::string& name,
+                       const ProcessName_t& name,
                        const capro::ServiceDescription& service,
-                       const std::string& runnable);
+                       const RunnableName_t& runnable);
 
 
     /*!
@@ -329,7 +330,7 @@ class PortIntrospection
      * @return returns false if the port could not be removed (since it did not exist)
      *              and true otherwise
      */
-    bool removePublisher(const std::string& name, const capro::ServiceDescription& service);
+    bool removePublisher(const ProcessName_t& name, const capro::ServiceDescription& service);
 
     /*!
      * @brief remove a subscriber port from introspection
@@ -340,7 +341,7 @@ class PortIntrospection
      * @return returns false if the port could not be removed (since it did not exist)
      *              and true otherwise
      */
-    bool removeSubscriber(const std::string& name, const capro::ServiceDescription& service);
+    bool removeSubscriber(const ProcessName_t& name, const capro::ServiceDescription& service);
 
     /*!
      * @brief report a capro message to introspection (since this could change the state of active connections)

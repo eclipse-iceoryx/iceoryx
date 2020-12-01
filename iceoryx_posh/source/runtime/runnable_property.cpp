@@ -27,17 +27,17 @@ RunnableProperty::RunnableProperty(const iox::RunnableName_t& name, const uint64
 {
 }
 
-RunnableProperty::RunnableProperty(const std::string& serialized) noexcept
+RunnableProperty::RunnableProperty(const cxx::Serialization& serialized) noexcept
 {
-    if (!cxx::Serialization(serialized).extract(m_name, m_runnableDeviceIdentifier))
+    if (!serialized.extract(m_name, m_runnableDeviceIdentifier))
     {
         LogError() << "unable to create RunnableProperty from serialized string " << serialized;
     }
 }
 
-RunnableProperty::operator std::string() const noexcept
+RunnableProperty::operator cxx::Serialization() const noexcept
 {
-    return cxx::Serialization::create(m_name, m_runnableDeviceIdentifier).toString();
+    return cxx::Serialization::create(m_name, m_runnableDeviceIdentifier);
 }
 } // namespace runtime
 } // namespace iox
