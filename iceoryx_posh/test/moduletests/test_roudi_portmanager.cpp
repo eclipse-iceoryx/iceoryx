@@ -124,7 +124,7 @@ class PortManager_test : public Test
 };
 
 
-TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotPublisherFirst)
+TEST_F(PortManager_test, doDiscovery_singleShotPublisherFirst)
 {
     PublisherPortUser publisher(
         m_portManager
@@ -141,19 +141,11 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotPublisherFirst)
 
     m_portManager->doDiscovery();
 
-    /// @todo #252 fix re-add receive handler before release 1.0?
-    // ASSERT_THAT(publisher.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
-    // auto it = publisher.getMembers()->m_subscriberHandler.m_subscriberVector.begin();
-
-    // is the correct subscriber in the subscriber list
-    // EXPECT_THAT(iox::popo::SubscriberPortUser(*it).getMembers()->m_processName,
-    // Eq(subscriber1.getMembers()->m_processName));
-
-    // is the subscriber connected
-    // EXPECT_TRUE(subscriber1.isSubscribed());
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotSubscriberFirst)
+TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirst)
 {
     SubscriberPortUser subscriber(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
@@ -170,24 +162,16 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotSubscriberFirst)
 
     m_portManager->doDiscovery();
 
-    /// @todo #252 re-add subscriber handler for v1.0?
-    // ASSERT_THAT(publisher.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
-    // auto it = publisher.getMembers()->m_subscriberHandler.m_subscriberVector.begin();
-
-    // is the correct subscriber in the subscriber list
-    // EXPECT_THAT(iox::popo::SubscriberPortUser(*it).getMembers()->m_processName,
-    // Eq(subscriber1.getMembers()->m_processName));
-
-    // is the subscriber connected
-    // EXPECT_TRUE(subscriber1.isSubscribed());
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotSubscriberFirstWithDiscovery)
+TEST_F(PortManager_test, doDiscovery_singleShotSubscriberFirstWithDiscovery)
 {
-    SubscriberPortUser subscriber1(
+    SubscriberPortUser subscriber(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
-    ASSERT_TRUE(subscriber1);
-    subscriber1.subscribe(true);
+    ASSERT_TRUE(subscriber);
+    subscriber.subscribe();
     m_portManager->doDiscovery();
 
     PublisherPortUser publisher(
@@ -199,24 +183,17 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_singleShotSubscriberFirstWithDisco
 
     m_portManager->doDiscovery();
 
-    /// @todo #252 re-add subscriber handler for v1.0?
-    // ASSERT_THAT(publisher.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
-    // auto it = publisher.getMembers()->m_subscriberHandler.m_subscriberVector.begin();
-
-    // is the correct subscriber in the subscriber list
-    // EXPECT_THAT(iox::popo::SubscriberPortUser(*it).getMembers()->m_processName,
-    // Eq(subscriber1.getMembers()->m_processName));
-
-    // is the subscriber connected
-    // EXPECT_TRUE(subscriber1.isSubscribed());
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
-TEST_F(PortManager_test, DISABLED_doDiscovery_rightOrdering)
+TEST_F(PortManager_test, doDiscovery_rightOrdering)
 {
     SubscriberPortUser subscriber1(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/schlomo", "runnable", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber1);
-    subscriber1.subscribe(true);
+    subscriber1.subscribe();
+
     m_portManager->doDiscovery();
 
     PublisherPortUser publisher(
@@ -229,23 +206,13 @@ TEST_F(PortManager_test, DISABLED_doDiscovery_rightOrdering)
     SubscriberPortUser subscriber2(
         m_portManager->acquireSubscriberPortData({1, 1, 1}, 1, "/ingnatz", "runnable", PortConfigInfo()).value());
     ASSERT_TRUE(subscriber2);
-    subscriber2.subscribe(true);
+    subscriber2.subscribe();
+
     m_portManager->doDiscovery();
 
-    /// @todo #252 re-add subscriber handler for v1.0?
-    // check if all subscribers are subscribed
-    // ASSERT_THAT(publisher.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(2u));
-    // auto it = publisher.getMembers()->m_subscriberHandler.m_subscriberVector.begin();
-
-    // check if the subscribers are in the right order
-    // EXPECT_THAT(iox::popo::SubscriberPortUser(*it).getMembers()->m_processName,
-    // Eq(subscriber1.getMembers()->m_processName)); it++;
-    // EXPECT_THAT(iox::popo::SubscriberPortUser(*it).getMembers()->m_processName,
-    // Eq(subscriber2.getMembers()->m_processName));
-
-    // check if the subscribers know that they are subscribed
-    // EXPECT_TRUE(subscriber1.isSubscribed());
-    // EXPECT_TRUE(subscriber2.isSubscribed());
+    ASSERT_TRUE(publisher.hasSubscribers());
+    EXPECT_THAT(subscriber1.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+    EXPECT_THAT(subscriber2.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
 }
 
 TEST_F(PortManager_test, PublisherSubscriberOverflow)
@@ -294,7 +261,7 @@ TEST_F(PortManager_test, PublisherSubscriberOverflow)
     }
 }
 
-TEST_F(PortManager_test, DISABLED_InterfaceAndApplicationsOverflow)
+TEST_F(PortManager_test, InterfaceAndApplicationsOverflow)
 {
     // overflow of interface and applications
     std::string itf = "/itf";
@@ -353,7 +320,7 @@ TEST_F(PortManager_test, DISABLED_InterfaceAndApplicationsOverflow)
     }
 }
 
-TEST_F(PortManager_test, DISABLED_PortDestroy)
+TEST_F(PortManager_test, PortDestroy)
 {
     iox::ProcessName_t p1 = "/myProcess1";
     iox::ProcessName_t p2 = "/myProcess2";
@@ -378,23 +345,21 @@ TEST_F(PortManager_test, DISABLED_PortDestroy)
         publisher1.offer();
         SubscriberPortUser subscriber1(subscriberData1);
         ASSERT_TRUE(subscriber1);
-        subscriber1.subscribe(true);
+        subscriber1.subscribe();
 
         PublisherPortUser publisher2(publisherData2);
         ASSERT_TRUE(publisher2);
         publisher2.offer();
         SubscriberPortUser subscriber2(subscriberData2);
         ASSERT_TRUE(subscriber2);
-        subscriber2.subscribe(true);
+        subscriber2.subscribe();
 
         m_portManager->doDiscovery();
 
-        /// @todo #252 re-add subscriber handler for v1.0?
-        // ASSERT_THAT(publisher1.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
-        // EXPECT_TRUE(subscriber1.isSubscribed());
-
-        // ASSERT_THAT(publisher2.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
-        // EXPECT_TRUE(subscriber1.isSubscribed());
+        ASSERT_TRUE(publisher1.hasSubscribers());
+        ASSERT_TRUE(publisher2.hasSubscribers());
+        EXPECT_THAT(subscriber1.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+        EXPECT_THAT(subscriber2.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
     }
 
     // destroy the ports of process p2 and check if states of ports in p1 changed as expected
@@ -413,9 +378,11 @@ TEST_F(PortManager_test, DISABLED_PortDestroy)
 
         m_portManager->doDiscovery();
 
-        /// @todo #252 re-add subscriber handler for v1.0?
-        // ASSERT_THAT(publisher1.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(0u));
-        // EXPECT_FALSE(subscriber1.isSubscribed());
+        ASSERT_FALSE(publisher1.hasSubscribers());
+        if (std::is_same<iox::build::CommunicationPolicy, iox::build::OneToManyPolicy>::value)
+        {
+            EXPECT_THAT(subscriber1.getSubscriptionState(), Eq(iox::SubscribeState::WAIT_FOR_OFFER));
+        }
     }
 
     // re-create the ports of process p2
@@ -436,16 +403,14 @@ TEST_F(PortManager_test, DISABLED_PortDestroy)
         publisher2.offer();
         SubscriberPortUser subscriber2(subscriberData2);
         ASSERT_TRUE(subscriber2);
-        subscriber2.subscribe(true);
+        subscriber2.subscribe();
 
         m_portManager->doDiscovery();
 
-        /// @todo #252 re-add subscriber handler for v1.0?
-        // ASSERT_THAT(publisher1.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
-        // EXPECT_TRUE(subscriber1.isSubscribed());
-
-        // ASSERT_THAT(publisher2.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(1u));
-        // EXPECT_TRUE(subscriber1.isSubscribed());
+        ASSERT_TRUE(publisher1.hasSubscribers());
+        ASSERT_TRUE(publisher2.hasSubscribers());
+        EXPECT_THAT(subscriber1.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
+        EXPECT_THAT(subscriber2.getSubscriptionState(), Eq(iox::SubscribeState::SUBSCRIBED));
     }
 
     // cleanup process p2 and check if states of ports in p1 changed  as expected
@@ -456,8 +421,10 @@ TEST_F(PortManager_test, DISABLED_PortDestroy)
         SubscriberPortUser subscriber1(subscriberData1);
         ASSERT_TRUE(subscriber1);
 
-        /// @todo #252 re-add subscriber handler for v1.0?
-        // ASSERT_THAT(publisher1.getMembers()->m_subscriberHandler.m_subscriberVector.size(), Eq(0u));
-        // EXPECT_FALSE(subscriber1.isSubscribed());
+        ASSERT_FALSE(publisher1.hasSubscribers());
+        if (std::is_same<iox::build::CommunicationPolicy, iox::build::OneToManyPolicy>::value)
+        {
+            EXPECT_THAT(subscriber1.getSubscriptionState(), Eq(iox::SubscribeState::WAIT_FOR_OFFER));
+        }
     }
 }
