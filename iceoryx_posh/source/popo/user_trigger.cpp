@@ -23,9 +23,6 @@ cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet& waitset,
                                                   const uint64_t triggerId,
                                                   const Trigger::Callback<UserTrigger> callback) noexcept
 {
-    m_trigger.reset();
-    m_trigger = Trigger();
-
     return waitset
         .acquireTrigger(
             this, {this, &UserTrigger::hasTriggered}, {this, &UserTrigger::unsetTrigger}, triggerId, callback)
