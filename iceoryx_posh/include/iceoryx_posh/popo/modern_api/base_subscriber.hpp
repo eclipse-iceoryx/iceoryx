@@ -34,6 +34,13 @@ enum class SubscriberEvent
     HAS_NEW_SAMPLES
 };
 
+/// @brief base class for all types of subscriber
+/// @param[in] T the sample type
+/// @param[in] Subscriber type of the child which is inheriting from BaseSubscriber. This type is required for the
+/// TriggerCallback since a trigger provides a pointer to the originating class as parameter for the callback. If we
+/// wouldn't have the type the user would have to cast it correctly via dynamic_cast or reinterpret_cast which can be
+/// error prone.
+/// @param[in] port_t type of the underlying port, required for testing
 template <typename T, typename Subscriber, typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
@@ -100,12 +107,21 @@ class BaseSubscriber
     ///
     void releaseQueuedSamples() noexcept;
 
-
+    /// @brief attaches a WaitSet to the subscriber
+    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
+    /// @param[in] subscriberEvent the event which should be attached
+    /// @param[in] triggerId the trigger id
+    /// @param[in] callback callback which is attached to the trigger and which can be called
+    ///            later by the user
+    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
+    ///            the error
     cxx::expected<WaitSetError> attachTo(WaitSet& waitset,
                                          const SubscriberEvent subscriberEvent,
                                          const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
                                          const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
 
+    /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
+    /// @param[in] subscriberEvent the event which should be detached
     void detachOf(const SubscriberEvent subscriberEvent) noexcept;
 
   protected:

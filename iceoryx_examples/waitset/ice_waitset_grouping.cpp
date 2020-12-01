@@ -52,7 +52,7 @@ int main()
     constexpr uint64_t FIRST_GROUP_ID = 123;
     constexpr uint64_t SECOND_GROUP_ID = 456;
 
-    // attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
+    // attach the first two subscribers to waitset with a triggerid of FIRST_GROUP_ID
     for (auto i = 0; i < 2; ++i)
     {
         subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);

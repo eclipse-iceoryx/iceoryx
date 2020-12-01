@@ -28,7 +28,7 @@ class iox_runnable_test : public RouDi_GTest
   public:
     void SetUp()
     {
-        iox_runtime_register(m_processName.c_str());
+        iox_runtime_init(m_processName.c_str());
         m_sut = iox_runnable_create(m_runnableName.c_str());
     }
 

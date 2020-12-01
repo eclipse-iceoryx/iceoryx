@@ -30,14 +30,13 @@ iox::popo::UserTrigger shutdownTrigger;
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
-    killswitch = true;
     shutdownTrigger.trigger(); // unblock waitsets
 }
 
 void subscriberHandler(iox::popo::WaitSet& waitSet)
 {
     // run until interrupted
-    while (!killswitch)
+    while (true)
     {
         auto triggerVector = waitSet.wait();
         for (auto& trigger : triggerVector)
@@ -52,6 +51,10 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
                     })
                     .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
                     .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+            }
+            else if (trigger.doesOriginateFrom(&shutdownTrigger))
+            {
+                return;
             }
         }
     }

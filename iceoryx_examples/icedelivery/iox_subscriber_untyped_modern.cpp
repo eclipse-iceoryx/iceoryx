@@ -40,15 +40,22 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
         auto triggerVector = waitSet.wait();
         for (auto& trigger : triggerVector)
         {
-            auto untypedSubscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
-            untypedSubscriber->take()
-                .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation) {
-                    auto position = reinterpret_cast<const Position*>(allocation->get());
-                    std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
-                              << std::endl;
-                })
-                .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
-                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+            if (trigger.getTriggerId() == 1)
+            {
+                auto untypedSubscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+                untypedSubscriber->take()
+                    .and_then([](iox::cxx::optional<iox::popo::Sample<const void>>& allocation) {
+                        auto position = reinterpret_cast<const Position*>(allocation->get());
+                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
+                                  << std::endl;
+                    })
+                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
+            }
+            else if (trigger.doesOriginateFrom(&shutdownTrigger))
+            {
+                return;
+            }
         }
     }
 }

@@ -59,13 +59,13 @@ class TriggerState
 
     /// @brief returns the pointer to the origin.
     /// @return If T equals the origin type and the TriggerState is not empty it returns the pointer to the origin.
-    /// Otherwise it returns nullptr. If the type is wrong it prints an additional FATAL error message.
+    /// Otherwise it returns nullptr. If the type is wrong it prints an additional warning error message.
     template <typename T>
     T* getOrigin() noexcept;
 
     /// @brief returns the pointer to the origin.
     /// @return If T equals the origin type and the TriggerState is not empty it returns the pointer to the origin.
-    /// Otherwise it returns nullptr. If the type is wrong it prints an additional FATAL error message.
+    /// Otherwise it returns nullptr.
     template <typename T>
     const T* getOrigin() const noexcept;
 

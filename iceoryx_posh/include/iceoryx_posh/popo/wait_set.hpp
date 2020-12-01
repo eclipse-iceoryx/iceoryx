@@ -94,23 +94,23 @@ class WaitSet
     /// @brief Returns the amount of stored Trigger inside of the WaitSet
     uint64_t size() const noexcept;
 
-    /// @brief Returns to capacity
-    uint64_t capacity() const noexcept;
+    /// @brief returns the maximum amount of triggers which can be acquired from a waitset
+    uint64_t triggerCapacity() const noexcept;
 
   protected:
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
-    TriggerStateVector waitAndReturnFulfilledConditions(const units::Duration& timeout) noexcept;
+    TriggerStateVector waitAndReturnFulfilledTriggers(const units::Duration& timeout) noexcept;
     template <typename WaitFunction>
-    TriggerStateVector waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept;
-    TriggerStateVector createVectorWithFullfilledConditions() noexcept;
+    TriggerStateVector waitAndReturnFulfilledTriggers(const WaitFunction& wait) noexcept;
+    TriggerStateVector createVectorWithTriggeredTriggers() noexcept;
 
     template <typename T>
     void moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept;
 
     void removeTrigger(const Trigger& trigger) noexcept;
-    void removeAllTrigger() noexcept;
+    void removeAllTriggers() noexcept;
 
   private:
     TriggerVector m_triggerVector;

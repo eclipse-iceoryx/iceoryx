@@ -161,6 +161,15 @@ TEST_F(WaitSet_test, AcquireSameTriggerTwiceResultsInError)
     EXPECT_THAT(trigger2.get_error(), Eq(WaitSetError::TRIGGER_ALREADY_ACQUIRED));
 }
 
+TEST_F(WaitSet_test, AcquireSameTriggerWithNonNullIdTwiceResultsInError)
+{
+    auto trigger1 = acquireTrigger(m_sut, 121);
+    auto trigger2 = acquireTrigger(m_sut, 121);
+
+    ASSERT_TRUE(trigger2.has_error());
+    EXPECT_THAT(trigger2.get_error(), Eq(WaitSetError::TRIGGER_ALREADY_ACQUIRED));
+}
+
 TEST_F(WaitSet_test, ResetCallbackIsCalledWhenWaitsetGoesOutOfScope)
 {
     iox::cxx::expected<Trigger, WaitSetError> trigger =
@@ -399,7 +408,7 @@ TEST_F(WaitSet_test, InitialWaitSetHasSizeZero)
 
 TEST_F(WaitSet_test, WaitSetCapacity)
 {
-    EXPECT_EQ(m_sut.capacity(), iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
+    EXPECT_EQ(m_sut.triggerCapacity(), iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
 }
 
 TEST_F(WaitSet_test, OneAcquireTriggerIncreasesSizeByOne)

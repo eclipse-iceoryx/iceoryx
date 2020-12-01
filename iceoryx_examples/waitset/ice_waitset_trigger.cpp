@@ -79,10 +79,17 @@ class MyTriggerClass
     }
 
     // reset PERFORMED_ACTION and ACTIVATE event
-    void reset() noexcept
+    void reset(const MyTriggerClassEvents event) noexcept
     {
-        m_hasPerformedAction = false;
-        m_isActivated = false;
+        switch (event)
+        {
+        case MyTriggerClassEvents::PERFORMED_ACTION:
+            m_hasPerformedAction = false;
+            break;
+        case MyTriggerClassEvents::ACTIVATE:
+            m_isActivated = false;
+            break;
+        }
     }
 
     // This method attaches an event of the class to a waitset.
@@ -178,14 +185,14 @@ void eventLoop()
             if (triggerState.getTriggerId() == ACTIVATE_ID)
             {
                 // reset MyTriggerClass instance state
-                triggerState.getOrigin<MyTriggerClass>()->reset();
+                triggerState.getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
                 // call the callback attached to the trigger
                 triggerState();
             }
             else if (triggerState.getTriggerId() == ACTION_ID)
             {
                 // reset MyTriggerClass instance state
-                triggerState.getOrigin<MyTriggerClass>()->reset();
+                triggerState.getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
                 // call the callback attached to the trigger
                 triggerState();
             }

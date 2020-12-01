@@ -36,17 +36,17 @@ void subscriberCallback(iox_sub_t const subscriber)
 After we registered our runtime we create some stack storage for our WaitSet,
 initialize it and attach a `shutdownTrigger` to handle `CTRL-c`.
 ```c
-iox_runtime_register("/iox-c-ex-waitset-gateway");
+iox_runtime_init("/iox-c-ex-waitset-gateway");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
+shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
 iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 During the next step we create 4 subscribers with `iox_sub_init`, 
-subscribe them to our service
+subscribe them to our topic
 and attach the event `SubscriberEvent_HAS_NEW_SAMPLES` to the WaitSet with
 the `subscriberCallback`.
 ```c
@@ -119,16 +119,16 @@ date of the second group should be discarded.
 We start like in every example with creating the WaitSet and attaching the
 `shutdownTrigger`.
 ```c
-iox_runtime_register("/iox-c-ex-waitset-grouping");
+iox_runtime_init("/iox-c-ex-waitset-grouping");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
+shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
 iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
 ```
 
-After that we can create a list of subscribers and subscribe them to our service.
+After that we can create a list of subscribers and subscribe them to our topic.
 ```c
 iox_sub_storage_t subscriberStorage[NUMBER_OF_SUBSCRIBER];
 iox_sub_t subscriber[NUMBER_OF_SUBSCRIBER];
@@ -229,16 +229,16 @@ at a different approach.
 
 We start as usual, by creating a WaitSet and attach the `shutdownTrigger` to it.
 ```c
-iox_runtime_register("/iox-c-ex-waitset-individual");
+iox_runtime_init("/iox-c-ex-waitset-individual");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
+shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
 iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
 ```
 
-Now we create two subscriber, subscribe them to our service and attach them to
+Now we create two subscriber, subscribe them to our topic and attach them to
 the waitset without a callback and with the same trigger id.
 ```c
 uint64_t historyRequest = 1U;
@@ -315,11 +315,11 @@ so that the trigger can directly call the cyclic call.
 
 We begin by creating the waitset and attach the `shutdownTrigger`.
 ```c
-iox_runtime_register("/iox-c-ex-waitset-sync");
+iox_runtime_init("/iox-c-ex-waitset-sync");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
+shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
 iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
 ```

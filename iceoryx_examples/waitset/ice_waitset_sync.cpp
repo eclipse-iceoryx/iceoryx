@@ -69,7 +69,7 @@ int main()
     });
 
     // event loop
-    while (true)
+    while (keepRunning.load())
     {
         auto triggerVector = waitset.wait();
 
@@ -79,8 +79,6 @@ int main()
             {
                 // CTRL+c was pressed -> exit
                 keepRunning.store(false);
-                cyclicTriggerThread.join();
-                return (EXIT_SUCCESS);
             }
             else
             {
@@ -93,6 +91,5 @@ int main()
     }
 
     cyclicTriggerThread.join();
-
     return (EXIT_SUCCESS);
 }

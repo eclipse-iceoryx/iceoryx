@@ -86,7 +86,7 @@ uint64_t iox_ws_size(iox_ws_t const self)
     return self->size();
 }
 
-uint64_t iox_ws_capacity(iox_ws_t const self)
+uint64_t iox_ws_trigger_capacity(iox_ws_t const self)
 {
-    return self->capacity();
+    return self->triggerCapacity();
 }

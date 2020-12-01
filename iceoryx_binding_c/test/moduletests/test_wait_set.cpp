@@ -71,7 +71,7 @@ class iox_ws_test : public Test
 
 TEST_F(iox_ws_test, CapacityIsCorrect)
 {
-    EXPECT_EQ(iox_ws_capacity(m_sut), MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
+    EXPECT_EQ(iox_ws_trigger_capacity(m_sut), MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
 }
 
 TEST_F(iox_ws_test, SizeIsZeroWhenConstructed)
@@ -93,7 +93,7 @@ TEST_F(iox_ws_test, SizeEqualsCapacityWhenMaximumIsAttached)
         EXPECT_EQ(iox_user_trigger_attach_to_waitset(m_userTrigger[i], m_sut, 0, NULL),
                   iox_WaitSetResult::WaitSetResult_SUCCESS);
     }
-    EXPECT_EQ(iox_ws_size(m_sut), iox_ws_capacity(m_sut));
+    EXPECT_EQ(iox_ws_size(m_sut), iox_ws_trigger_capacity(m_sut));
 }
 
 TEST_F(iox_ws_test, SizeDecreasesWhenAttachedObjectIsDeinitialized)

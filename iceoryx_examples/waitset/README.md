@@ -2,14 +2,13 @@
 
 The WaitSet is a set where you can attach Trigger to signal a wide variety
 of events to one single listener. The typical approach is that one creates a
-WaitSet attaches multiple subscriber or other Trigger to it and then wait till
-one or many of the attach classes signal an event. If that happens one receives
+WaitSet attaches multiple subscribers or other Triggers to it and then wait till
+one or many of the attached entities signal an event. If that happens one receives
 a list of all the Triggers which were triggered and the program can act accordingly.
 
 The WaitSet is state based which means that it will trigger until the state which
-caused the trigger changed. For instance, when the subscriber reports to the WaitSet
-that a new sample has been received, the WaitSet will notify the user until the
-sample has been taken and released.
+caused the trigger changed. This can be performed by a registered callback or 
+directly.
 
 ## Glossary
 
@@ -54,7 +53,7 @@ sample has been taken and released.
 |get id of trigger|`trigger.getTriggerId()`|
 |call triggerCallback|`trigger()`|
 |acquire _TriggerOrigin|`trigger.getOrigin<OriginType>();`|
-|check if 2 trigger are logical equal|`trigger.isLogicalEqualTo(anotherTrigger)`|
+|check if 2 triggers are logical equal|`trigger.isLogicalEqualTo(anotherTrigger)`|
 
 ## Use cases
 This example consists of 5 use cases.
@@ -83,7 +82,7 @@ logic and is explained in detail in the [icedelivery example](../icedelivery/).
 
 ### Gateway
 
-We have a list of subscribers which can be subscribed to any arbitrary service
+We have a list of subscribers which can be subscribed to any arbitrary topic
 and everytime we received a sample we would like to send the bytestream to a socket,
 write it into a file or print it to the console. But whatever we choose to do
 we perform the same task for all the subscribers.
@@ -130,7 +129,7 @@ for (auto i = 0; i < subscriberVector.capacity(); ++i)
 ```
 
 Now our system is prepared and ready to work. We enter the event loop which 
-starts with a call to our _WaitSet_ (`waitset.wait()`). This call we block until
+starts with a call to our _WaitSet_ (`waitset.wait()`). This call will block until
 one or more events triggered the _WaitSet_. After the call returned we get a
 vector filled with all the _Triggers_ which were triggered.
 
@@ -171,7 +170,7 @@ iox::popo::WaitSet waitset;
 shutdownTrigger.attachTo(waitset);
 ```
 
-Now we create a vector of 4 subscribers and subscribe them to our service.
+Now we create a vector of 4 subscribers and subscribe them to our topic.
 ```cpp
 iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
 for (auto i = 0; i < 4; ++i)
@@ -251,7 +250,7 @@ iox::popo::WaitSet waitset;
 shutdownTrigger.attachTo(waitset);
 ```
 
-Additionally, we create two subscriber, subscribe them to our service and attach
+Additionally, we create two subscribers, subscribe them to our topic and attach
 them to the waitset to let them inform us whenever they receive a new sample.
 ```cpp
 iox::popo::TypedSubscriber<CounterTopic> subscriber1({"Radar", "FrontLeft", "Counter"});
@@ -317,7 +316,8 @@ class SomeClass
 us immediately again since it is state based.
 
 We begin as always, by creating a _WaitSet_ and attaching the `shutdownTrigger` to 
-it.
+it. In this case we do not set a trigger id when calling `attachTo` which means 
+the default trigger id  `Trigger::INVALID_TRIGGER_ID` is set.
 ```cpp
 iox::popo::WaitSet waitset;
 
@@ -374,14 +374,15 @@ The `cyclicTrigger` callback is called in the else part.
 
 ### Trigger
 In this example we describe how you would implement a _Triggerable_ class which 
-can be attached to a _WaitSet_. Our class in this example we be called 
+can be attached to a _WaitSet_. Our class in this example will we be called 
 `MyTriggerClass` and it signals the _WaitSet_ two events. 
-The `PERFORMED_ACTION` event which is triggered whenever someone calls and
-`ACTIVATE` which is triggered when `activate` is called with an `activationCode`.
+The `PERFORMED_ACTION` event which is triggered whenever the method `performAction`
+is called and the 
+`ACTIVATE` event which is triggered when `activate` is called with an `activationCode`.
 
 #### MyTriggerClass
 
-At the moment the WaitSet does not support _Triggerable_ classes which are move 
+At the moment the WaitSet does not support _Triggerable_ classes which are movable 
 or copyable. This is caused by the `resetCallback` and the `hasTriggerCallback`
 which are pointing to the _Triggerable_. The callbacks inside of the WaitSet 
 would point to the wrong memory location. Therefore we have to delete move 
@@ -516,12 +517,12 @@ void eventLoop()
         {
             if (triggerState.getTriggerId() == ACTIVATE_ID)
             {
-                triggerState.getOrigin<MyTriggerClass>()->reset();
+                triggerState.getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
                 triggerState();
             }
             else if (triggerState.getTriggerId() == ACTION_ID)
             {
-                triggerState.getOrigin<MyTriggerClass>()->reset();
+                triggerState.getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
                 triggerState();
             }
         }

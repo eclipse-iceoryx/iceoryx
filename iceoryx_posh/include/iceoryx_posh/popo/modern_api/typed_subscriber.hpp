@@ -24,7 +24,7 @@ namespace popo
 template <typename T, template <typename, typename, typename> class base_subscriber_t = BaseSubscriber>
 class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, iox::SubscriberPortUserType>
 {
-    using SubscriberParent = base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, iox::SubscriberPortUserType>;
+    using BaseSubscriber = base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, iox::SubscriberPortUserType>;
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
 
   public:
@@ -35,18 +35,18 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
     virtual ~TypedSubscriber() = default;
 
-    using SubscriberParent::attachTo;
-    using SubscriberParent::detachOf;
-    using SubscriberParent::getServiceDescription;
-    using SubscriberParent::getSubscriptionState;
-    using SubscriberParent::getUid;
-    using SubscriberParent::hasMissedSamples;
-    using SubscriberParent::hasNewSamples;
-    using SubscriberParent::releaseQueuedSamples;
-    using SubscriberParent::subscribe;
-    using SubscriberParent::take;
-    using SubscriberParent::unsetTrigger;
-    using SubscriberParent::unsubscribe;
+    using BaseSubscriber::attachTo;
+    using BaseSubscriber::detachOf;
+    using BaseSubscriber::getServiceDescription;
+    using BaseSubscriber::getSubscriptionState;
+    using BaseSubscriber::getUid;
+    using BaseSubscriber::hasMissedSamples;
+    using BaseSubscriber::hasNewSamples;
+    using BaseSubscriber::releaseQueuedSamples;
+    using BaseSubscriber::subscribe;
+    using BaseSubscriber::take;
+    using BaseSubscriber::unsetTrigger;
+    using BaseSubscriber::unsubscribe;
 };
 
 } // namespace popo

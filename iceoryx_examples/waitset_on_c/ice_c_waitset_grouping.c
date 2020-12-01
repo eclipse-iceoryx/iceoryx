@@ -29,7 +29,7 @@
 #define NUMBER_OF_TRIGGER 5
 #define NUMBER_OF_SUBSCRIBER 4
 
-iox_user_trigger_storage_t shutdowGuardStorage;
+iox_user_trigger_storage_t shutdownTriggerStorage;
 iox_user_trigger_t shutdownTrigger;
 
 static void sigHandler(int signalValue)
@@ -41,11 +41,11 @@ static void sigHandler(int signalValue)
 
 int main()
 {
-    iox_runtime_register("/iox-c-ex-waitset-grouping");
+    iox_runtime_init("/iox-c-ex-waitset-grouping");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-    shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
+    shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
     // attach shutdownTrigger with no callback to handle CTRL+C
     iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);

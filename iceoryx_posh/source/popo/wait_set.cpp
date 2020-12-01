@@ -32,7 +32,7 @@ WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noe
 
 WaitSet::~WaitSet() noexcept
 {
-    removeAllTrigger();
+    removeAllTriggers();
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
@@ -49,7 +49,7 @@ void WaitSet::removeTrigger(const Trigger& trigger) noexcept
     }
 }
 
-void WaitSet::removeAllTrigger() noexcept
+void WaitSet::removeAllTriggers() noexcept
 {
     for (auto& trigger : m_triggerVector)
     {
@@ -61,54 +61,54 @@ void WaitSet::removeAllTrigger() noexcept
 
 typename WaitSet::TriggerStateVector WaitSet::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnFulfilledConditions([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
+    return waitAndReturnFulfilledTriggers([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
 }
 
 typename WaitSet::TriggerStateVector WaitSet::wait() noexcept
 {
-    return waitAndReturnFulfilledConditions([this] {
+    return waitAndReturnFulfilledTriggers([this] {
         m_conditionVariableWaiter.wait();
         return false;
     });
 }
 
-typename WaitSet::TriggerStateVector WaitSet::createVectorWithFullfilledConditions() noexcept
+typename WaitSet::TriggerStateVector WaitSet::createVectorWithTriggeredTriggers() noexcept
 {
-    TriggerStateVector conditions;
+    TriggerStateVector triggers;
     for (auto& currentTrigger : m_triggerVector)
     {
         if (currentTrigger.hasTriggered())
         {
             // We do not need to verify if push_back was successful since
-            // m_conditionVector and conditions are having the same type, a
+            // m_conditionVector and triggers are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            conditions.push_back(currentTrigger);
+            triggers.push_back(currentTrigger);
         }
     }
 
-    return conditions;
+    return triggers;
 }
 
 template <typename WaitFunction>
-typename WaitSet::TriggerStateVector WaitSet::waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept
+typename WaitSet::TriggerStateVector WaitSet::waitAndReturnFulfilledTriggers(const WaitFunction& wait) noexcept
 {
-    WaitSet::TriggerStateVector conditions;
+    WaitSet::TriggerStateVector triggers;
 
     /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
     m_conditionVariableWaiter.reset();
-    conditions = createVectorWithFullfilledConditions();
+    triggers = createVectorWithTriggeredTriggers();
 
-    // It is possible that after the reset call and before the createVectorWithFullfilledConditions call
-    // another trigger came in. Then createVectorWithFullfilledConditions would have already handled it.
-    // But this would lead to an empty conditions vector in the next run if no other trigger
+    // It is possible that after the reset call and before the createVectorWithTriggeredTriggers call
+    // another trigger came in. Then createVectorWithTriggeredTriggers would have already handled it.
+    // But this would lead to an empty triggers vector in the next run if no other trigger
     // came in.
-    if (!conditions.empty())
+    if (!triggers.empty())
     {
-        return conditions;
+        return triggers;
     }
 
-    return (wait()) ? conditions : createVectorWithFullfilledConditions();
+    return (wait()) ? triggers : createVectorWithTriggeredTriggers();
 }
 
 uint64_t WaitSet::size() const noexcept
@@ -116,7 +116,7 @@ uint64_t WaitSet::size() const noexcept
     return m_triggerVector.size();
 }
 
-uint64_t WaitSet::capacity() const noexcept
+uint64_t WaitSet::triggerCapacity() const noexcept
 {
     return m_triggerVector.capacity();
 }

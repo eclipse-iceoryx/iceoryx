@@ -80,7 +80,7 @@ TEST_F(iox_user_trigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
-TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInTriggered)
+TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInNotTriggered)
 {
     iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 0, NULL);
     iox_user_trigger_trigger(m_sut);

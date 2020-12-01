@@ -37,9 +37,12 @@ WaitSet::acquireTrigger(T* const origin,
                                 m_conditionVariableDataPtr,
                                 triggerCallback,
                                 cxx::MethodCallback<void, const Trigger&>(),
-                                0,
+                                triggerId,
                                 Trigger::Callback<T>());
 
+    // it is not allowed to have to logical equal trigger in the same waitset
+    // otherwise when we call removeTrigger(Trigger) we do not know which trigger
+    // we should remove if the trigger is attached multiple times.
     for (auto& currentTrigger : m_triggerVector)
     {
         if (currentTrigger.isLogicalEqualTo(logicalEqualTrigger))

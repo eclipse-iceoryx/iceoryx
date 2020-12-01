@@ -497,5 +497,125 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
     EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, &sut);
 }
 
+TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)
+{
+    Trigger sut1(&m_triggerClass,
+                 &m_condVar,
+                 {&m_triggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 8911,
+                 TriggerClass::callback);
+
+    EXPECT_TRUE(sut1.isLogicalEqualTo(sut1));
+}
+
+TEST_F(Trigger_test, TwoTriggersAreLogicalEqualIfRequirementsAreFullfilled)
+{
+    Trigger sut1(&m_triggerClass,
+                 &m_condVar,
+                 {&m_triggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 891,
+                 TriggerClass::callback);
+
+    Trigger sut2(&m_triggerClass,
+                 &m_condVar,
+                 {&m_triggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 891,
+                 TriggerClass::callback);
+
+
+    EXPECT_TRUE(sut1.isLogicalEqualTo(sut2));
+    EXPECT_TRUE(sut2.isLogicalEqualTo(sut1));
+}
+
+TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfTriggerIdDiffers)
+{
+    Trigger sut1(&m_triggerClass,
+                 &m_condVar,
+                 {&m_triggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 2891,
+                 TriggerClass::callback);
+
+    Trigger sut2(&m_triggerClass,
+                 &m_condVar,
+                 {&m_triggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 3891,
+                 TriggerClass::callback);
+
+
+    EXPECT_FALSE(sut1.isLogicalEqualTo(sut2));
+    EXPECT_FALSE(sut2.isLogicalEqualTo(sut1));
+}
+
+TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfHasTriggeredCallbackDiffers)
+{
+    TriggerClass secondTriggerClass;
+    Trigger sut1(&m_triggerClass,
+                 &m_condVar,
+                 {&m_triggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 4891,
+                 TriggerClass::callback);
+
+    Trigger sut2(&m_triggerClass,
+                 &m_condVar,
+                 {&secondTriggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 4891,
+                 TriggerClass::callback);
+
+
+    EXPECT_FALSE(sut1.isLogicalEqualTo(sut2));
+    EXPECT_FALSE(sut2.isLogicalEqualTo(sut1));
+}
+
+TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfConditionVariableDiffers)
+{
+    ConditionVariableData condVar2;
+    Trigger sut1(&m_triggerClass,
+                 &m_condVar,
+                 {&m_triggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 4891,
+                 TriggerClass::callback);
+
+    Trigger sut2(&m_triggerClass,
+                 &condVar2,
+                 {&m_triggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 4891,
+                 TriggerClass::callback);
+
+
+    EXPECT_FALSE(sut1.isLogicalEqualTo(sut2));
+    EXPECT_FALSE(sut2.isLogicalEqualTo(sut1));
+}
+
+TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfOriginDiffers)
+{
+    TriggerClass secondTriggerClass;
+    Trigger sut1(&m_triggerClass,
+                 &m_condVar,
+                 {&m_triggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 4891,
+                 TriggerClass::callback);
+
+    Trigger sut2(&secondTriggerClass,
+                 &m_condVar,
+                 {&m_triggerClass, &TriggerClass::hasTriggered},
+                 {&m_triggerClass, &TriggerClass::resetCall},
+                 4891,
+                 TriggerClass::callback);
+
+
+    EXPECT_FALSE(sut1.isLogicalEqualTo(sut2));
+    EXPECT_FALSE(sut2.isLogicalEqualTo(sut1));
+}
+
 
 } // namespace internalTesting

@@ -21,7 +21,7 @@ namespace popo
 {
 template <template <typename, typename, typename> class base_subscriber_t>
 inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service)
-    : SubscriberParent(service)
+    : BaseSubscriber(service)
 {
 }
 

@@ -50,8 +50,6 @@ inline T* TriggerState::getOrigin() noexcept
 {
     if (m_originTypeHash != typeid(T).hash_code())
     {
-        LogFatal() << "Runtime type check failed! Cannot cast underlying type to anything but to the correct one. "
-                      "Segmentation Fault will most likely occure soon.";
         return nullptr;
     }
 
