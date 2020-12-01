@@ -39,7 +39,7 @@ int main()
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-typed-modern");
+    iox::runtime::PoshRuntime::initRuntime("/iox-ex-publisher-typed-modern");
 
     auto typedPublisher = iox::popo::TypedPublisher<Position>({"Odometry", "Position", "Vehicle"});
     typedPublisher.offer();

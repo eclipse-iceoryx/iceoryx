@@ -143,13 +143,11 @@ class Mepoo_IntegrationTest : public Test
 
         iox::capro::ServiceDescription m_service_description{99, 1, 20};
 
-        auto& senderRuntime = iox::runtime::PoshRuntime::getInstance("/sender");
-        publisherPort.emplace(
-            iox::popo::PublisherPortUser(senderRuntime.getMiddlewarePublisher(m_service_description)));
+        auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("/sender");
+        publisherPort = iox::popo::PublisherPortUser(senderRuntime.getMiddlewarePublisher(m_service_description));
 
-        auto& receiverRuntime = iox::runtime::PoshRuntime::getInstance("/receiver");
-        subscriberPort.emplace(
-            iox::popo::SubscriberPortUser(receiverRuntime.getMiddlewareSubscriber(m_service_description)));
+        auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("/receiver");
+        subscriberPort = iox::popo::SubscriberPortUser(receiverRuntime.getMiddlewareSubscriber(m_service_description));
     }
 
     void SetUpRouDiOnly(MemPoolInfoContainer& memPoolTestContainer,

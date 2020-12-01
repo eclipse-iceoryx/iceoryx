@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
     leaderDo(uds, numRoundtrips);
 
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
-    iox::runtime::PoshRuntime::getInstance(APP_NAME); // runtime for registering with the RouDi daemon
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME); // runtime for registering with the RouDi daemon
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
     leaderDo(iceoryx, numRoundtrips);
 
