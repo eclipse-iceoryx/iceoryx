@@ -217,6 +217,42 @@ TEST_F(BaseSubscriberTest, UnsetConditionVariableCallForwardedToUnderlyingSubscr
     // ===== Cleanup ===== //
 }
 
+TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFromOriginalWaitset)
+{
+    // ===== Setup ===== //
+    iox::popo::ConditionVariableData condVar;
+    WaitSetMock* waitSet = new WaitSetMock(&condVar);
+    WaitSetMock* waitSet2 = new WaitSetMock(&condVar);
+    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
+    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    // ===== Test ===== //
+    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
+    EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
+    sut.attachTo(*waitSet2, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    // ===== Verify ===== //
+    EXPECT_EQ(waitSet->size(), 0);
+    EXPECT_EQ(waitSet2->size(), 1);
+    // ===== Cleanup ===== //
+    EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
+    delete waitSet;
+}
+
+TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
+{
+    // ===== Setup ===== //
+    iox::popo::ConditionVariableData condVar;
+    WaitSetMock* waitSet = new WaitSetMock(&condVar);
+    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
+    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    // ===== Test ===== //
+    EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
+    sut.detachOf(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    // ===== Verify ===== //
+    EXPECT_EQ(waitSet->size(), 0);
+    // ===== Cleanup ===== //
+    delete waitSet;
+}
+
 TEST_F(BaseSubscriberTest, HasTriggeredCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //

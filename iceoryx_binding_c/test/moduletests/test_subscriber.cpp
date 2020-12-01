@@ -267,6 +267,17 @@ TEST_F(iox_sub_test, attachingToWaitSetWorks)
     EXPECT_EQ(m_waitSet->size(), 1);
 }
 
+TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
+{
+    WaitSetMock m_waitSet2{&m_condVar};
+    iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+
+    EXPECT_EQ(iox_sub_attach_to_waitset(m_sut, &m_waitSet2, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL),
+              WaitSetResult_SUCCESS);
+    EXPECT_EQ(m_waitSet->size(), 0);
+    EXPECT_EQ(m_waitSet2.size(), 1);
+}
+
 TEST_F(iox_sub_test, detachingFromWaitSetWorks)
 {
     iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
