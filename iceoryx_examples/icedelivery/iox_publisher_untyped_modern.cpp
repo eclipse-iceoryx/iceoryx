@@ -35,7 +35,7 @@ int main()
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-untyped-modern");
+    iox::runtime::PoshRuntime::initRuntime("/iox-ex-publisher-untyped-modern");
 
     iox::popo::UntypedPublisher untypedPublisher({"Odometry", "Position", "Vehicle"});
     untypedPublisher.offer();

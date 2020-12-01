@@ -43,26 +43,26 @@ class RuntimeTestInterface
 
     static std::map<ProcessName_t, runtime::PoshRuntime*> s_runtimes;
 
-    /// This is a replacement for the PoshRuntime::GetInstance factory method
-    /// @param [in] name ist the name of the runtime
+    /// This is a replacement for the PoshRuntime::getInstance factory method
+    /// @param [in] name is an optional containing the name of the runtime
     /// @return a reference to a PoshRuntime
     /// @note The runtime is stored in a vector and a thread local storage.
     ///
     ///       In a multithreaded environment each thread has its own runtime. This means that for each thread
-    ///       iox::runtime::PoshRuntime::GetInstance(...) must be called. Threads that call GetInstance(...)
+    ///       iox::runtime::PoshRuntime::initRuntime(...) must be called. Threads that call initRuntime(...)
     ///       with the same name, share the same runtime.
     ///
     ///       It is also possible to use multiple runtimes in a singlethreaded environment. There are some points to
-    ///       take care of, though.  There are some classes that call PoshRuntime::GetInstance() without a
-    ///       parameter. In this case the already created runtime is used. In the context of the roudi environment this
+    ///       take care of, though.  There are some classes that call PoshRuntime::getInstance(). In this
+    ///       case the already created runtime is used. In the context of the roudi environment this
     ///       means that the active runtime is used. The active runtime is the one from the latest
-    ///       iox::runtime::PoshRuntimeImp::GetInstance(...) call with a parameter.
-    ///       Places where a GetInstance() call without parameter happens are:
+    ///       iox::runtime::PoshRuntime::initRuntime(...) call.
+    ///       Places where a getInstance() call happens are:
     ///         - constructors of Publisher, Subscriber and GatewayGeneric
     ///         - FindService, OfferService and StopOfferService
-    ///       This means that iox::runtime::PoshRuntimeImp::GetInstance(...) must be called before the above classes
+    ///       This means that iox::runtime::PoshRuntime::initRuntime(...) must be called before the above classes
     ///       are created or functions are called, to make the correct runtime active.
-    static runtime::PoshRuntime& runtimeFactoryGetInstance(const ProcessName_t& name);
+    static runtime::PoshRuntime& runtimeFactoryGetInstance(cxx::optional<const ProcessName_t*> name);
 
   public:
     RuntimeTestInterface(RuntimeTestInterface&& rhs);
