@@ -33,7 +33,7 @@ int main()
 {
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-waitset-grouping");
+    iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-grouping");
     iox::popo::WaitSet waitset;
 
     // attach shutdownTrigger to handle CTRL+C
