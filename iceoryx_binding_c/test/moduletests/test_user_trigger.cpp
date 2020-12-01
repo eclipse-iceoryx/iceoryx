@@ -61,10 +61,10 @@ TEST_F(iox_user_trigger_test, isNotTriggeredWhenCreated)
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
 }
 
-TEST_F(iox_user_trigger_test, cannotBeTriggeredWhenNotAttached)
+TEST_F(iox_user_trigger_test, canBeTriggeredWhenNotAttached)
 {
     iox_user_trigger_trigger(m_sut);
-    EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
+    EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
 }
 
 TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
