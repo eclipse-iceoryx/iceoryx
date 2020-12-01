@@ -71,6 +71,12 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::dispatchCaProMes
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
+    else if ((capro::CaproMessageType::OFFER == caProMessage.m_type)
+             && (SubscribeState::NOT_SUBSCRIBED == currentSubscriptionState))
+    {
+        // No state change
+        return cxx::nullopt_t();
+    }
     else if ((capro::CaproMessageType::ACK == caProMessage.m_type)
              || (capro::CaproMessageType::NACK == caProMessage.m_type)
              || (capro::CaproMessageType::STOP_OFFER == caProMessage.m_type))

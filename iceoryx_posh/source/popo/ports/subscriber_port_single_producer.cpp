@@ -119,6 +119,13 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMe
 
         return cxx::nullopt_t();
     }
+    else if (((capro::CaproMessageType::OFFER == caProMessage.m_type)
+              || (capro::CaproMessageType::STOP_OFFER == caProMessage.m_type))
+             && (SubscribeState::NOT_SUBSCRIBED == currentSubscriptionState))
+    {
+        // No state change
+        return cxx::nullopt_t();
+    }
     else
     {
         errorHandler(Error::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::SEVERE);
