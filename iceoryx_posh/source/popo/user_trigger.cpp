@@ -19,9 +19,9 @@ namespace iox
 {
 namespace popo
 {
-cxx::expected<WaitSetError> UserTrigger::attachToWaitset(WaitSet& waitset,
-                                                         const uint64_t triggerId,
-                                                         const Trigger::Callback<UserTrigger> callback) noexcept
+cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet& waitset,
+                                                  const uint64_t triggerId,
+                                                  const Trigger::Callback<UserTrigger> callback) noexcept
 {
     m_trigger.reset();
     m_trigger = Trigger();
@@ -32,7 +32,7 @@ cxx::expected<WaitSetError> UserTrigger::attachToWaitset(WaitSet& waitset,
         .and_then([this](Trigger& trigger) { m_trigger = std::move(trigger); });
 }
 
-void UserTrigger::detachWaitset() noexcept
+void UserTrigger::detach() noexcept
 {
     unsetTrigger(m_trigger);
 }

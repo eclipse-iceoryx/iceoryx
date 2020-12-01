@@ -53,12 +53,12 @@ class MockSubscriberPortUser
     MOCK_METHOD0(unsetConditionVariable, bool());
     MOCK_METHOD0(destroy, bool());
     MOCK_METHOD4(
-        attachToWaitset,
+        attachTo,
         iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet&,
                                                     const iox::popo::SubscriberEvent,
                                                     const uint64_t,
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
-    MOCK_METHOD0(detachWaitset, void());
+    MOCK_METHOD1(detachOf, void(const iox::popo::SubscriberEvent));
 };
 
 template <typename T, typename Child, typename Port>
@@ -78,10 +78,10 @@ class MockBaseSubscriber
     MOCK_METHOD0(releaseQueuedSamples, void());
     MOCK_METHOD1(unsetTrigger, bool(const iox::popo::Trigger&));
     MOCK_METHOD4(
-        attachToWaitset,
+        attachTo,
         iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet&,
                                                     const iox::popo::SubscriberEvent,
                                                     const uint64_t,
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
-    MOCK_METHOD0(detachWaitset, void());
+    MOCK_METHOD1(detachOf, void(const iox::popo::SubscriberEvent));
 };

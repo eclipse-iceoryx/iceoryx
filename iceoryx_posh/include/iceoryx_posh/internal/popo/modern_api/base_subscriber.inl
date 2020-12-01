@@ -15,8 +15,6 @@
 #ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 #define IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
-
 namespace iox
 {
 namespace popo
@@ -142,10 +140,10 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
 
 template <typename T, typename Subscriber, typename port_t>
 inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::attachToWaitset(WaitSet& waitset,
-                                                       const SubscriberEvent subscriberEvent,
-                                                       const uint64_t triggerId,
-                                                       const Trigger::Callback<Subscriber> callback) noexcept
+BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet& waitset,
+                                                const SubscriberEvent subscriberEvent,
+                                                const uint64_t triggerId,
+                                                const Trigger::Callback<Subscriber> callback) noexcept
 {
     using SelfType = BaseSubscriber<T, Subscriber, port_t>;
     Subscriber* self = reinterpret_cast<Subscriber*>(this);
@@ -165,8 +163,10 @@ BaseSubscriber<T, Subscriber, port_t>::attachToWaitset(WaitSet& waitset,
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::detachWaitset() noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::detachOf(const SubscriberEvent subscriberEvent) noexcept
 {
+    static_cast<void>(subscriberEvent);
+
     m_trigger.reset();
 }
 

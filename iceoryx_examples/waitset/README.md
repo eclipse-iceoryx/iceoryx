@@ -44,10 +44,10 @@ sample has been taken and released.
 
 | task | call |
 |:-----|:-----|
-|attach subscriber to waitset (simple)|`subscriber.attachToWaitset(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
-|attach subscriber to waitset (full)|`subscriber.attachToWaitset(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someTriggerId, myCallback);`|
-|attach user trigger to waitset (simple)|`userTrigger.attachToWaitset(myWaitSet)`|
-|attach user trigger to waitset (full)|`userTrigger.attachToWaitset(myWaitSet, someTriggerId, myCallback)`|
+|attach subscriber to waitset (simple)|`subscriber.attachTo(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
+|attach subscriber to waitset (full)|`subscriber.attachTo(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someTriggerId, myCallback);`|
+|attach user trigger to waitset (simple)|`userTrigger.attachTo(myWaitSet)`|
+|attach user trigger to waitset (full)|`userTrigger.attachTo(myWaitSet, someTriggerId, myCallback)`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
 |check if trigger originated from some object|`trigger.doesOriginateFrom(ptrToSomeObject)`|
@@ -111,7 +111,7 @@ broker RouDi and attach our `shutdownTrigger` to it to handle `CTRL+c` events.
 ```cpp
 iox::popo::WaitSet waitset;
 
-shutdownTrigger.attachToWaitset(waitset);
+shutdownTrigger.attachTo(waitset);
 ```
 
 After that we create a vector of 2 subscribers, subscribe and attach them to a
@@ -125,7 +125,7 @@ for (auto i = 0; i < subscriberVector.capacity(); ++i)
     auto& subscriber = subscriberVector.back();
 
     subscriber.subscribe();
-    subscriber.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1, subscriberCallback);
+    subscriber.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1, subscriberCallback);
 }
 ```
 
@@ -168,7 +168,7 @@ We again start by creating a _WaitSet_ and attach the `shutdownTrigger` to handl
 ```cpp
 iox::popo::WaitSet waitset;
 
-shutdownTrigger.attachToWaitset(waitset);
+shutdownTrigger.attachTo(waitset);
 ```
 
 Now we create a vector of 4 subscribers and subscribe them to our service.
@@ -189,12 +189,12 @@ to the second group.
 ```cpp
 for (auto i = 0; i < 2; ++i)
 {
-    subscriberVector[i].attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
+    subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
 }
 
 for (auto i = 2; i < 4; ++i)
 {
-    subscriberVector[i].attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
+    subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
 }
 ```
 
@@ -248,7 +248,7 @@ to handle `CTRL-c`.
 ```cpp
 iox::popo::WaitSet waitset;
 
-shutdownTrigger.attachToWaitset(waitset);
+shutdownTrigger.attachTo(waitset);
 ```
 
 Additionally, we create two subscriber, subscribe them to our service and attach
@@ -260,8 +260,8 @@ iox::popo::TypedSubscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Cou
 subscriber1.subscribe();
 subscriber2.subscribe();
 
-subscriber1.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
-subscriber2.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+subscriber1.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+subscriber2.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
 ```
 
 With that set up we enter the event loop and handle the program termination
@@ -322,7 +322,7 @@ it.
 iox::popo::WaitSet waitset;
 
 // attach shutdownTrigger to handle CTRL+C
-shutdownTrigger.attachToWaitset(waitset);
+shutdownTrigger.attachTo(waitset);
 ```
 
 After that we require a `cyclicTrigger` to trigger our 
@@ -330,7 +330,7 @@ After that we require a `cyclicTrigger` to trigger our
 triggerId `0` and the callback `SomeClass::cyclicRun`
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
-cyclicTrigger.attachToWaitset(waitset, 0, SomeClass::cyclicRun);
+cyclicTrigger.attachTo(waitset, 0, SomeClass::cyclicRun);
 ```
 
 The next thing we need is something which will trigger our `cyclicTrigger`
@@ -431,7 +431,7 @@ the two const methods `hasPerformedAction` and `isActivated`.
     }
 ```
 
-The method `attachToWaitset` attaches our class to a WaitSet but the user has
+The method `attachTo` attaches our class to a WaitSet but the user has
 to specify which event they would like to attach. Additionally, they can
 set a `triggerId` and a `callback`.
 
@@ -447,7 +447,7 @@ have to be provided.
  
 ```cpp
     iox::cxx::expected<iox::popo::WaitSetError>
-    attachToWaitset(iox::popo::WaitSet& waitset,
+    attachTo(iox::popo::WaitSet& waitset,
                     const MyTriggerClassEvents event,
                     const uint64_t triggerId,
                     const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
@@ -540,8 +540,8 @@ triggerClass.emplace();
 After that we can attach both `triggerClass` events to the waitset and provide
 also a callback for them.
 ```cpp
-    triggerClass->attachToWaitset(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
-    triggerClass->attachToWaitset(
+    triggerClass->attachTo(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
+    triggerClass->attachTo(
         *waitset, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
 ```
 

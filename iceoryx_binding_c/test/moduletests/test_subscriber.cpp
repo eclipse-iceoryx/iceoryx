@@ -262,20 +262,21 @@ TEST_F(iox_sub_test, sendingTooMuchLeadsToLostChunks)
 
 TEST_F(iox_sub_test, attachingToWaitSetWorks)
 {
-    EXPECT_EQ(iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL), WaitSetResult_SUCCESS);
+    EXPECT_EQ(iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL),
+              WaitSetResult_SUCCESS);
     EXPECT_EQ(m_waitSet->size(), 1);
 }
 
 TEST_F(iox_sub_test, detachingFromWaitSetWorks)
 {
-    iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
-    iox_sub_detach_ws(m_sut);
+    iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+    iox_sub_detach_of(m_sut, SubscriberEvent_HAS_NEW_SAMPLES);
     EXPECT_EQ(m_waitSet->size(), 0);
 }
 
 TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectTriggerId)
 {
-    iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
+    iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
 
@@ -287,7 +288,7 @@ TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectTriggerId)
 
 TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)
 {
-    iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+    iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
 
@@ -300,7 +301,7 @@ TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)
 
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
-    iox_sub_attach_to_ws(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+    iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
 
     iox_sub_deinit(m_sut);
 

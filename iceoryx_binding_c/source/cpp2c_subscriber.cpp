@@ -25,11 +25,10 @@ cpp2c_Subscriber::~cpp2c_Subscriber()
     }
 }
 
-iox_WaitSetResult
-cpp2c_Subscriber::attachToWaitset(iox::popo::WaitSet& waitset,
-                                  const iox_SubscriberEvent subscriberEvent,
-                                  const uint64_t triggerId,
-                                  const iox::popo::Trigger::Callback<cpp2c_Subscriber> callback) noexcept
+iox_WaitSetResult cpp2c_Subscriber::attachTo(iox::popo::WaitSet& waitset,
+                                             const iox_SubscriberEvent subscriberEvent,
+                                             const uint64_t triggerId,
+                                             const iox::popo::Trigger::Callback<cpp2c_Subscriber> callback) noexcept
 {
     static_cast<void>(subscriberEvent);
 
@@ -48,8 +47,10 @@ cpp2c_Subscriber::attachToWaitset(iox::popo::WaitSet& waitset,
     return (result.has_error()) ? cpp2c::WaitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
-void cpp2c_Subscriber::detachWaitset() noexcept
+void cpp2c_Subscriber::detachOf(const iox_SubscriberEvent subscriberEvent) noexcept
 {
+    static_cast<void>(subscriberEvent);
+
     m_trigger.reset();
 }
 

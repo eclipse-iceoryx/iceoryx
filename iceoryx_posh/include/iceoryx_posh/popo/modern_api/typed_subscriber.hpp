@@ -35,8 +35,8 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
     virtual ~TypedSubscriber() = default;
 
-    using SubscriberParent::attachToWaitset;
-    using SubscriberParent::detachWaitset;
+    using SubscriberParent::attachTo;
+    using SubscriberParent::detachOf;
     using SubscriberParent::getServiceDescription;
     using SubscriberParent::getSubscriptionState;
     using SubscriberParent::getUid;

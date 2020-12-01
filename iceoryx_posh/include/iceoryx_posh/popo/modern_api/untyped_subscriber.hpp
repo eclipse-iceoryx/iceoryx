@@ -44,8 +44,8 @@ class UntypedSubscriberImpl
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
     virtual ~UntypedSubscriberImpl() = default;
 
-    using SubscriberParent::attachToWaitset;
-    using SubscriberParent::detachWaitset;
+    using SubscriberParent::attachTo;
+    using SubscriberParent::detachOf;
     using SubscriberParent::getServiceDescription;
     using SubscriberParent::getSubscriptionState;
     using SubscriberParent::getUid;

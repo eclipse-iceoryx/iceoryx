@@ -51,7 +51,7 @@ int main()
     iox::popo::WaitSet waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    shutdownTrigger.attachToWaitset(waitset);
+    shutdownTrigger.attachTo(waitset);
 
 
     // create subscriber and subscribe them to our service
@@ -62,7 +62,7 @@ int main()
         auto& subscriber = subscriberVector.back();
 
         subscriber.subscribe();
-        subscriber.attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1, subscriberCallback);
+        subscriber.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1, subscriberCallback);
     }
 
     // event loop

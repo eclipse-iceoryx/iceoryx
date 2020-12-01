@@ -89,10 +89,10 @@ class MyTriggerClass
     // The event is choosen by the event parameter. Additionally, you can
     // set a triggerId to group multiple instances and a custom callback.
     iox::cxx::expected<iox::popo::WaitSetError>
-    attachToWaitset(iox::popo::WaitSet& waitset,
-                    const MyTriggerClassEvents event,
-                    const uint64_t triggerId,
-                    const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
+    attachTo(iox::popo::WaitSet& waitset,
+             const MyTriggerClassEvents event,
+             const uint64_t triggerId,
+             const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
     {
         switch (event)
         {
@@ -203,9 +203,8 @@ int main()
     triggerClass.emplace();
 
     // attach both events to a waitset and assign a callback
-    triggerClass->attachToWaitset(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
-    triggerClass->attachToWaitset(
-        *waitset, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
+    triggerClass->attachTo(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
+    triggerClass->attachTo(*waitset, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
 
     // start the event loop which is handling the events
     std::thread eventLoopThread(eventLoop);

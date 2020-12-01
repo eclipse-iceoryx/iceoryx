@@ -42,12 +42,12 @@ class UserTrigger
     /// @param[in] callback optional parameter, the callback of the trigger
     /// @param[in] if the trigger could not be attached to the given waitset the expected contains the error, otherwise
     /// the expected signals success
-    cxx::expected<WaitSetError> attachToWaitset(WaitSet& waitset,
-                                                const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                                                const Trigger::Callback<UserTrigger> callback = nullptr) noexcept;
+    cxx::expected<WaitSetError> attachTo(WaitSet& waitset,
+                                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
+                                         const Trigger::Callback<UserTrigger> callback = nullptr) noexcept;
 
     /// @brief detaches the UserTrigger from the waitset. If it was not attached to a waitset nothing happens.
-    void detachWaitset() noexcept;
+    void detach() noexcept;
 
     /// @brief If it is attached it will trigger otherwise it will do nothing
     void trigger() noexcept;

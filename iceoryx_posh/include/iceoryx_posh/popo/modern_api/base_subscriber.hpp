@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/modern_api/sample.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -100,12 +101,12 @@ class BaseSubscriber
     void releaseQueuedSamples() noexcept;
 
 
-    cxx::expected<WaitSetError> attachToWaitset(WaitSet& waitset,
-                                                const SubscriberEvent subscriberEvent,
-                                                const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                                                const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
+    cxx::expected<WaitSetError> attachTo(WaitSet& waitset,
+                                         const SubscriberEvent subscriberEvent,
+                                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
+                                         const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
 
-    void detachWaitset() noexcept;
+    void detachOf(const SubscriberEvent subscriberEvent) noexcept;
 
   protected:
     BaseSubscriber() noexcept; // Required for testing.

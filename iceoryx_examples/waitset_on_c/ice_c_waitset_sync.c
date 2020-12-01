@@ -79,7 +79,7 @@ int main()
     shutdownTrigger = iox_user_trigger_init(&shutdowGuardStorage);
 
     // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_user_trigger_attach_to_ws(shutdownTrigger, waitSet, 0, NULL);
+    iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
 
     //// register signal after shutdownTrigger since we are using it in the handler
     signal(SIGINT, sigHandler);
@@ -88,7 +88,7 @@ int main()
     // create and attach the cyclicTrigger with a callback to
     // myCyclicRun
     cyclicTrigger = iox_user_trigger_init(&cyclicTriggerStorage);
-    iox_user_trigger_attach_to_ws(cyclicTrigger, waitSet, 0, cyclicRun);
+    iox_user_trigger_attach_to_waitset(cyclicTrigger, waitSet, 0, cyclicRun);
 
     // start a thread which triggers cyclicTrigger every second
 #if !defined(_WIN32)

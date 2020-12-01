@@ -38,8 +38,8 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
   public:
     using SubscriberParent = iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>;
 
-    using SubscriberParent::attachToWaitset;
-    using SubscriberParent::detachWaitset;
+    using SubscriberParent::attachTo;
+    using SubscriberParent::detachOf;
     using SubscriberParent::getServiceDescription;
     using SubscriberParent::getSubscriptionState;
     using SubscriberParent::getUid;
@@ -198,7 +198,7 @@ TEST_F(BaseSubscriberTest, SetConditionVariableCallForwardedToUnderlyingSubscrib
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     // ===== Test ===== //
-    sut.attachToWaitset(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -209,7 +209,7 @@ TEST_F(BaseSubscriberTest, UnsetConditionVariableCallForwardedToUnderlyingSubscr
     iox::popo::ConditionVariableData condVar;
     WaitSetMock* waitSet = new WaitSetMock(&condVar);
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.attachToWaitset(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
     delete waitSet;

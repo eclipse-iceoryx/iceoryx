@@ -90,15 +90,16 @@ bool iox_sub_has_lost_chunks(iox_sub_t const self);
 ///            callback should be set
 /// @return if it was attached successfully it returns WaitSetResult_SUCCESS
 ///         otherwise an enum which is describing the error
-ENUM iox_WaitSetResult iox_sub_attach_to_ws(iox_sub_t const self,
-                                            iox_ws_t const waitset,
-                                            const ENUM iox_SubscriberEvent event,
-                                            const uint64_t triggerId,
-                                            void (*callback)(iox_sub_t));
+ENUM iox_WaitSetResult iox_sub_attach_to_waitset(iox_sub_t const self,
+                                                 iox_ws_t const waitset,
+                                                 const ENUM iox_SubscriberEvent event,
+                                                 const uint64_t triggerId,
+                                                 void (*callback)(iox_sub_t));
 
 /// @brief detaches the subscriber from a waitset
 /// @param[in] self handle to the subscriber
-void iox_sub_detach_ws(iox_sub_t const self);
+/// @param[in] event the type of the event which should be detached
+void iox_sub_detach_of(iox_sub_t const self, const ENUM iox_SubscriberEvent event);
 
 
 #endif

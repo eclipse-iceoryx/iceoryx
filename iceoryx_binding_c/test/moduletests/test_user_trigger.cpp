@@ -69,7 +69,7 @@ TEST_F(iox_user_trigger_test, cannotBeTriggeredWhenNotAttached)
 
 TEST_F(iox_user_trigger_test, canBeTriggeredWhenAttached)
 {
-    iox_user_trigger_attach_to_ws(m_sut, &m_waitSet, 0, NULL);
+    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 0, NULL);
     iox_user_trigger_trigger(m_sut);
     EXPECT_TRUE(iox_user_trigger_has_triggered(m_sut));
 }
@@ -82,7 +82,7 @@ TEST_F(iox_user_trigger_test, resetTriggerWhenNotTriggeredIsNotTriggered)
 
 TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInTriggered)
 {
-    iox_user_trigger_attach_to_ws(m_sut, &m_waitSet, 0, NULL);
+    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 0, NULL);
     iox_user_trigger_trigger(m_sut);
     iox_user_trigger_reset_trigger(m_sut);
     EXPECT_FALSE(iox_user_trigger_has_triggered(m_sut));
@@ -90,7 +90,7 @@ TEST_F(iox_user_trigger_test, resetTriggerWhenTriggeredIsResultsInTriggered)
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectTriggerId)
 {
-    iox_user_trigger_attach_to_ws(m_sut, &m_waitSet, 88191, NULL);
+    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 88191, NULL);
     iox_user_trigger_trigger(m_sut);
 
     auto triggerVector = m_waitSet.wait();
@@ -101,7 +101,7 @@ TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectTriggerId)
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
 {
-    iox_user_trigger_attach_to_ws(m_sut, &m_waitSet, 0, iox_user_trigger_test::triggerCallback);
+    iox_user_trigger_attach_to_waitset(m_sut, &m_waitSet, 0, iox_user_trigger_test::triggerCallback);
     iox_user_trigger_trigger(m_sut);
 
     auto triggerVector = m_waitSet.wait();

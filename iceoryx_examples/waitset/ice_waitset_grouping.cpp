@@ -37,7 +37,7 @@ int main()
     iox::popo::WaitSet waitset;
 
     // attach shutdownTrigger to handle CTRL+C
-    shutdownTrigger.attachToWaitset(waitset);
+    shutdownTrigger.attachTo(waitset);
 
     // create subscriber and subscribe them to our service
     iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
@@ -55,13 +55,13 @@ int main()
     // attach the first two subscriber to waitset with a triggerid of FIRST_GROUP_ID
     for (auto i = 0; i < 2; ++i)
     {
-        subscriberVector[i].attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
+        subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
     }
 
     // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
     for (auto i = 2; i < 4; ++i)
     {
-        subscriberVector[i].attachToWaitset(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
+        subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
     }
 
     // event loop

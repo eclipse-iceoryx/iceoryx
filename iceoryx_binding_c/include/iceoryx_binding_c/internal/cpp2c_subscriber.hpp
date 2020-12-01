@@ -29,12 +29,12 @@ struct cpp2c_Subscriber
     cpp2c_Subscriber& operator=(const cpp2c_Subscriber&) = delete;
     cpp2c_Subscriber& operator=(cpp2c_Subscriber&& rhs) = delete;
 
-    iox_WaitSetResult attachToWaitset(iox::popo::WaitSet& waitset,
-                                      const iox_SubscriberEvent event,
-                                      const uint64_t triggerId,
-                                      const iox::popo::Trigger::Callback<cpp2c_Subscriber> callback = nullptr) noexcept;
+    iox_WaitSetResult attachTo(iox::popo::WaitSet& waitset,
+                               const iox_SubscriberEvent event,
+                               const uint64_t triggerId,
+                               const iox::popo::Trigger::Callback<cpp2c_Subscriber> callback = nullptr) noexcept;
 
-    void detachWaitset() noexcept;
+    void detachOf(const iox_SubscriberEvent event) noexcept;
 
     void unsetTrigger(const iox::popo::Trigger& trigger) noexcept;
 
