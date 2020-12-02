@@ -30,7 +30,7 @@ jobs:
           export CXX=/usr/bin/clang++
           export NUM_CORES=`nproc`
           # build tests , dont run them
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test sanitize clean -j $NUM_CORES
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test with-dds-gateway sanitize clean -j $NUM_CORES
           cd $GITHUB_WORKSPACE/build
           # Run tests , continue execution on error (to get maximum failures)
           ../tools/run_all_tests.sh continue-on-error

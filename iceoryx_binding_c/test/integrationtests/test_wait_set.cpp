@@ -50,6 +50,7 @@ class iox_ws_test : public Test
         iox_guard_cond_deinit(m_guardCond);
         for (auto s : m_subscriber)
         {
+            delete s->m_portData;
             delete s;
         }
     }
@@ -111,6 +112,7 @@ TEST_F(iox_ws_test, AttachSingleConditionToOtherWaitsetResultsInDetachFromOrigin
 
     EXPECT_FALSE(iox_ws_is_condition_attached(m_sut, subscriber));
     EXPECT_TRUE(iox_ws_is_condition_attached(sut2, subscriber));
+    delete sut2;
 }
 
 TEST_F(iox_ws_test, DetachAttachedConditionIsSuccessful)
@@ -280,4 +282,3 @@ TIMING_TEST_F(iox_ws_test, WaitWritesMissedElementsIntoArrayWhenTriggered, Repea
 
     TIMING_TEST_EXPECT_TRUE(missedElements == 1U);
 });
-

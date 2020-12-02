@@ -140,6 +140,5 @@ message("       Build Properties")
 message("          project name..............: " ${CMAKE_PROJECT_NAME})
 message("          c compiler................: " ${CMAKE_C_COMPILER})
 message("          c++ compiler..............: " ${CMAKE_CXX_COMPILER})
-message("          c++ flags.................: " ${CMAKE_CXX_FLAGS})
 message("")
 
