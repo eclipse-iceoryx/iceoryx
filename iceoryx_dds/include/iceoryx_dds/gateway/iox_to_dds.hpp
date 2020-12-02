@@ -18,7 +18,7 @@
 #include "iceoryx_dds/dds/dds_types.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
-#include "iceoryx_posh/popo/subscriber.hpp"
+#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
 
 namespace iox
 {
@@ -27,7 +27,7 @@ namespace dds
 ///
 /// @brief DDS Gateway implementation for the iceoryx to DDS direction.
 ///
-template <typename channel_t = gw::Channel<popo::Subscriber, dds::data_writer_t>,
+template <typename channel_t = gw::Channel<popo::UntypedSubscriber, dds::data_writer_t>,
           typename gateway_t = gw::GatewayGeneric<channel_t>>
 class Iceoryx2DDSGateway : public gateway_t
 {

@@ -59,21 +59,19 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
     auto publisher = channel.getIceoryxTerminal();
     auto reader = channel.getExternalTerminal();
 
-    reader->peekNextSize().and_then([&](uint64_t size) {
-        // reserve a chunk for the sample
-        m_reservedChunk = publisher->allocateChunk(static_cast<uint32_t>(size));
-        // read sample into reserved chunk
-        auto buffer = static_cast<uint8_t*>(m_reservedChunk);
-        reader->takeNext(buffer, size)
-            .and_then([&]() {
-                // publish chunk
-                publisher->sendChunk(buffer);
-            })
-            .or_else([&](DataReaderError err) {
-                LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
-                          << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
+    while (reader->hasNewSamples())
+    {
+        reader->peekNextSize().and_then([&](uint32_t size) {
+            publisher->loan(size).and_then([&](popo::Sample<void>& sample) {
+                reader->takeNext(static_cast<uint8_t*>(sample.get()), size)
+                    .and_then([&]() { sample.publish(); })
+                    .or_else([&](DataReaderError err) {
+                        LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
+                                  << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
+                    });
             });
-    });
+        });
+    }
 }
 
 // ======================================== Private ======================================== //

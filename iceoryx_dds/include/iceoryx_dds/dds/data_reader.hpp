@@ -48,7 +48,13 @@ class DataReader
     /// @brief peekNextSize Get the size of the next sample if one is available.
     /// @return The size of the next sample if one is available.
     ///
-    virtual iox::cxx::optional<uint64_t> peekNextSize() = 0;
+    virtual iox::cxx::optional<uint32_t> peekNextSize() = 0;
+
+    ///
+    /// @brief hasNewSamples Checks if new samples ready to take.
+    /// @return True if new samples available.
+    ///
+    virtual bool hasNewSamples() = 0;
 
     ///
     /// @brief take Take the next available sample from the DDS data space.
