@@ -1,10 +1,12 @@
 # Suppress specific errors 
 # Suppressing issues this way isnt working at the moment !
-src:iceoryx_binding_c/test/integrationtests/test_wait_set.cpp
-src:*test_wait_set.cpp
-src:*test_wait_set.cpp*
-# fun:*iox::posix::MessageQueue::receive*
-src:*message_queue.cpp*
+src:/iceoryx_utils/source/posix_wrapper/unix_domain_socket.cpp
+src:*unix_domain_socket.cpp
+fun:*timedReceive*
+fun:*iox::posix::UnixDomainSocket::timedReceive*
+fun:*iox::posix::MessageQueue::receive*
 fun:*MessageQueue::receive*
+src:iceoryx_utils/source/posix_wrapper/message_queue.cpp
+src:*message_queue.cpp*
 fun:*IpcChannel_test_sendAndReceive_Test<iox::posix::MessageQueue>::TestBody*
 
