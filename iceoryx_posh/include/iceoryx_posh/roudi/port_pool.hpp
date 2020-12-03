@@ -26,7 +26,7 @@
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
-#include "iceoryx_posh/internal/runtime/runnable_data.hpp"
+#include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 
 namespace iox

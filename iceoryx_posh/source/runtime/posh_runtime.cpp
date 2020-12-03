@@ -18,7 +18,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
-#include "iceoryx_posh/runtime/runnable.hpp"
+#include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"

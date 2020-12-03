@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/runtime/runnable_property.hpp"
+#include "iceoryx_posh/internal/runtime/node_property.hpp"
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/cxx/serialization.hpp"

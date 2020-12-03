@@ -13,15 +13,15 @@
 // limitations under the License.
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/runtime/runnable_data.hpp"
+#include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_posh/runtime/runnable.hpp"
+#include "iceoryx_posh/runtime/node.hpp"
 
 using namespace iox;
 using namespace iox::runtime;
 
 extern "C" {
-#include "iceoryx_binding_c/runnable.h"
+#include "iceoryx_binding_c/node.h"
 }
 
 class NodeBindingExtension : public iox::runtime::Node

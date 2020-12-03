@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/runtime/runnable.hpp"
+#include "iceoryx_posh/runtime/node.hpp"
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/runtime/runnable_data.hpp"
-#include "iceoryx_posh/internal/runtime/runnable_property.hpp"
+#include "iceoryx_posh/internal/runtime/node_data.hpp"
+#include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 namespace iox

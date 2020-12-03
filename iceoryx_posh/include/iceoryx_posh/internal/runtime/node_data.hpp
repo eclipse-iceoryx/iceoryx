@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP
-#define IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP
+#ifndef IOX_POSH_RUNTIME_NODE_DATA_HPP
+#define IOX_POSH_RUNTIME_NODE_DATA_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
@@ -45,4 +45,4 @@ class NodeData
 } // namespace runtime
 } // namespace iox
 
-#endif // IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP
+#endif // IOX_POSH_RUNTIME_NODE_DATA_HPP

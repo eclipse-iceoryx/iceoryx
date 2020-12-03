@@ -19,7 +19,7 @@ using namespace iox;
 using namespace iox::runtime;
 
 extern "C" {
-#include "iceoryx_binding_c/runnable.h"
+#include "iceoryx_binding_c/node.h"
 #include "iceoryx_binding_c/runtime.h"
 }
 

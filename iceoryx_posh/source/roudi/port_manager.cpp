@@ -16,7 +16,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
-#include "iceoryx_posh/runtime/runnable.hpp"
+#include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 

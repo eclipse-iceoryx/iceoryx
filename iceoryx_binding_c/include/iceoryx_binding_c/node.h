@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_RUNNABLE_H
-#define IOX_BINDING_C_RUNNABLE_H
+#ifndef IOX_BINDING_C_NODE_H
+#define IOX_BINDING_C_NODE_H
 
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
