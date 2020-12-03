@@ -21,18 +21,18 @@ IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
     : m_readPosition(Index(Capacity))
     , m_writePosition(Index(Capacity))
 {
-    for (uint64_t i = 0u; i < Capacity; ++i)
+    for (uint64_t i = 0U; i < Capacity; ++i)
     {
-        m_cells[i].store(Index(0), std::memory_order_relaxed);
+        m_cells[i].store(Index(0U), std::memory_order_relaxed);
     }
 }
 
 template <uint64_t Capacity, typename ValueType>
 IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t) noexcept
-    : m_readPosition(Index(0u))
+    : m_readPosition(Index(0U))
     , m_writePosition(Index(Capacity))
 {
-    for (uint64_t i = 0u; i < Capacity; ++i)
+    for (uint64_t i = 0U; i < Capacity; ++i)
     {
         m_cells[i].store(Index(i), std::memory_order_relaxed);
     }
@@ -102,7 +102,7 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
             // help with the update
             // (note that we do not care if it fails, then a retry or another push will handle it)
 
-            Index newWritePosition(writePosition + 1);
+            Index newWritePosition(writePosition + 1U);
             m_writePosition.compare_exchange_strong(
                 writePosition, newWritePosition, std::memory_order_relaxed, std::memory_order_relaxed);
         }
@@ -116,7 +116,7 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
 
     } while (NotPublished);
 
-    Index newWritePosition(writePosition + 1);
+    Index newWritePosition(writePosition + 1U);
 
     // if this compare-exchange fails it is no problem, this only delays the update of m_writePosition
     // for other pushes which are able to do them on their own (if writePositionRequiresUpdate above is true)
@@ -160,7 +160,7 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
         if (cellIsValidToRead)
         {
             // case (1)
-            Index newReadPosition(readPosition + 1);
+            Index newReadPosition(readPosition + 1U);
             ownershipGained = m_readPosition.compare_exchange_weak(
                 readPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
         }
@@ -208,7 +208,7 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
 
     if (isFull)
     {
-        Index newReadPosition(readPosition + 1);
+        Index newReadPosition(readPosition + 1U);
         auto ownershipGained = m_readPosition.compare_exchange_strong(
             readPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
 
@@ -237,12 +237,6 @@ bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(uint64_t requiredSize, 
     auto writePosition = m_writePosition.load(std::memory_order_relaxed);
     auto readPosition = m_readPosition.load(std::memory_order_relaxed);
 
-    // note: In principle it should be possible to load this just before the value
-    // is required in a successful return.
-    // However, doing this leads to failure of some stress tests for unkwown reasons
-    // This suggests that there is an issue which is not understood and needs to be investigated.
-    auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
-
     // if readPosition + n = readPosition for some n>=0, the queue contains n elements
     // at this instant (!) but slightly later may contain more or less elements
     // while the m_readPosition and m_writePosition can grow during this operation,
@@ -264,7 +258,8 @@ bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(uint64_t requiredSize, 
     // delta is positive, therefore the conversion is fine (it surely fits into uint64_t)
     if (static_cast<uint64_t>(delta) >= requiredSize)
     {
-        Index newReadPosition(readPosition + 1);
+        auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
+        Index newReadPosition(readPosition + 1U);
         auto ownershipGained = m_readPosition.compare_exchange_strong(
             readPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
         if (ownershipGained)

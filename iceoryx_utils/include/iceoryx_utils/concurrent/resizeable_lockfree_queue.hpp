@@ -96,6 +96,14 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     //    This could e.g. be to store them in a container.
     // 2) The second overload discards removed elements.
 
+    /// @note setCapacity is lockfree, but if an application crashes during setCapacity it
+    ///       currently may prevent other applications from setting the capacity (they will not block though).
+    ///       This is not a problem if for example there is only one application calling setCapacity or
+    ///       setCapacity is only called from vital applications (which if they crash will lead to system shutdown)
+    ///       and there is only one (non-vital, i.e. allowed to crash) application reading the data via pop.
+    ///       The reader application may also call setCapacity, since if it crashes there is no one reading
+    ///       the data and the capacity can be considered meaningless.
+
     /// @brief      Set the capacity to some value.
     /// @param[in]  newCapacity capacity to be set
     /// @param[in]  removeHandler is a function taking an element which specifies
