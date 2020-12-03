@@ -38,18 +38,6 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::capacity() const noe
 
 
 template <typename ElementType, uint64_t MaxCapacity>
-template <typename ContainerType, typename>
-bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t newCapacity,
-                                                                    ContainerType& removedElements) noexcept
-{
-    //@todo: preferably the signature should be void(ElementType&) but this leads to a compile error
-    //       reason for change is to reflect the fact that the elements may be changed
-    //       by the removeHandler (main use case is move)
-    auto removeHandler = [&](const ElementType& value) { removedElements.emplace_back(std::move(value)); };
-    return setCapacity(newCapacity, removeHandler);
-}
-
-template <typename ElementType, uint64_t MaxCapacity>
 bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t newCapacity) noexcept
 {
     auto removeHandler = [](const ElementType&) {};

@@ -276,7 +276,10 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
 {
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+
     iox::cxx::vector<int, MAX_CAP> removedElements;
+    using element_t = typename TestFixture::Queue::element_t;
+    auto removeHandler = [&](const element_t& value) { removedElements.emplace_back(std::move(value)); };
 
     uint64_t cap = MAX_CAP / 2;
 
@@ -298,7 +301,7 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
 
     auto cap3 = cap2 - cap; // roughly a quarter of max
 
-    EXPECT_TRUE(q.setCapacity(cap3, removedElements));
+    EXPECT_TRUE(q.setCapacity(cap3, removeHandler));
     EXPECT_EQ(q.capacity(), cap3);
     EXPECT_EQ(q.size(), cap3);
 

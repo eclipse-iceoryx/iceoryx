@@ -133,16 +133,6 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     bool setCapacity(uint64_t newCapacity, Function&& removeHandler) noexcept;
 
     /// @brief Set the capacity to a new capacity between 0 and MaxCapacity, if the capacity is reduced
-    /// it may be necessary to remove the least recent elements.
-    /// @param[in] newCapacity new capacity to be set, if it is larger than MaxCapacity the call fails
-    /// @param[out] removedElements container were potentially removed elements can be stored.
-    /// @return true setting if the new capacity was successful, false otherwise (newCapacity > MaxCapacity)
-    /// @note threadsafe, lockfree but multiple concurrent calls may have no effect
-    template <typename ContainerType = iox::cxx::vector<ElementType, MaxCapacity>,
-              typename = typename std::enable_if<!cxx::is_invocable<ContainerType, ElementType>::value>::type>
-    bool setCapacity(uint64_t newCapacity, ContainerType& removedElements) noexcept;
-
-    /// @brief Set the capacity to a new capacity between 0 and MaxCapacity, if the capacity is reduced
     /// it may be necessary to remove the least recent elements which are then discarded.
     /// @param[in] newCapacity new capacity to be set, if it is larger than MaxCapacity the call fails
     /// @return true setting if the new capacity was successful, false otherwise (newCapacity > MaxCapacity)

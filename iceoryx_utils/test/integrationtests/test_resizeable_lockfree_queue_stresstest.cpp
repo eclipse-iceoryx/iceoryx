@@ -319,6 +319,8 @@ void changeCapacity(Queue& queue,
     int32_t d = -1;
     numChanges = 0;
 
+    auto removeHandler = [&](const Queue::element_t& value) { items.emplace_back(std::move(value)); };
+
     while (run)
     {
         // go forward and backward in the capacities array to select the next capacity
@@ -334,7 +336,7 @@ void changeCapacity(Queue& queue,
             d = -1;
         }
 
-        if (queue.setCapacity(capacities[k], items))
+        if (queue.setCapacity(capacities[k], removeHandler))
         {
             ++numChanges;
         }
