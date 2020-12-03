@@ -73,6 +73,8 @@ class TriggerState
     /// @return true if the callback was called, otherwise false
     bool operator()() const noexcept;
 
+    friend class Trigger;
+
   protected:
     void* m_origin = nullptr;
     uint64_t m_originTypeHash = 0U;

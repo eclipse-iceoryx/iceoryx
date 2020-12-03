@@ -28,7 +28,7 @@ Trigger::~Trigger()
 
 bool Trigger::hasTriggered() const noexcept
 {
-    return (isValid() && m_hasTriggeredCallback) ? m_hasTriggeredCallback().value() : false;
+    return (isValid()) ? m_hasTriggeredCallback().value() : false;
 }
 
 void Trigger::reset() noexcept
@@ -46,18 +46,15 @@ void Trigger::reset() noexcept
     invalidate();
 }
 
-void Trigger::invalidate() noexcept
+TriggerState Trigger::getTriggerState() const noexcept
 {
-    m_conditionVariableDataPtr = nullptr;
-    m_origin = nullptr;
+    return m_triggerState;
 }
 
-void Trigger::trigger() noexcept
+void Trigger::invalidate() noexcept
 {
-    if (isValid())
-    {
-        ConditionVariableSignaler(m_conditionVariableDataPtr).notifyOne();
-    }
+    m_triggerState.m_origin = nullptr;
+    m_hasTriggeredCallback = cxx::ConstMethodCallback<bool>();
 }
 
 Trigger::operator bool() const noexcept
@@ -67,19 +64,14 @@ Trigger::operator bool() const noexcept
 
 bool Trigger::isValid() const noexcept
 {
-    return m_origin != nullptr && m_conditionVariableDataPtr != nullptr && m_hasTriggeredCallback;
-}
-
-ConditionVariableData* Trigger::getConditionVariableData() noexcept
-{
-    return m_conditionVariableDataPtr;
+    return m_triggerState.m_origin && m_hasTriggeredCallback;
 }
 
 bool Trigger::isLogicalEqualTo(const Trigger& rhs) const noexcept
 {
-    return (isValid() && rhs.isValid() && m_origin == rhs.m_origin
+    return (isValid() && rhs.isValid() && m_triggerState.m_origin == rhs.m_triggerState.m_origin
             && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback
-            && m_conditionVariableDataPtr == rhs.m_conditionVariableDataPtr && m_triggerId == rhs.m_triggerId);
+            && m_triggerState.m_triggerId == rhs.m_triggerState.m_triggerId);
 }
 
 Trigger::Trigger(Trigger&& rhs) noexcept
@@ -94,27 +86,14 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
         reset();
 
         // TriggerState
-        m_origin = rhs.m_origin;
-        m_originTypeHash = rhs.m_originTypeHash;
-        m_triggerId = rhs.m_triggerId;
-        m_callbackPtr = rhs.m_callbackPtr;
-        m_callback = rhs.m_callback;
+        m_triggerState = std::move(rhs.m_triggerState);
 
         // Trigger
-        m_conditionVariableDataPtr = rhs.m_conditionVariableDataPtr;
         m_resetCallback = rhs.m_resetCallback;
         m_hasTriggeredCallback = rhs.m_hasTriggeredCallback;
         m_uniqueId = rhs.m_uniqueId;
 
-        rhs.m_origin = nullptr;
-        rhs.m_originTypeHash = 0U;
-        rhs.m_triggerId = Trigger::INVALID_TRIGGER_ID;
-        rhs.m_callbackPtr = decltype(m_callbackPtr)();
-        rhs.m_callback = decltype(m_callback)();
-
-        rhs.m_conditionVariableDataPtr = nullptr;
-        rhs.m_resetCallback = decltype(m_resetCallback)();
-        rhs.m_hasTriggeredCallback = decltype(m_hasTriggeredCallback)();
+        rhs.invalidate();
     }
     return *this;
 }

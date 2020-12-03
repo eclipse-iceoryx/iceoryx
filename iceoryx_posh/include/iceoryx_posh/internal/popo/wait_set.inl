@@ -33,12 +33,8 @@ WaitSet::acquireTrigger(T* const origin,
                   "have to notify the WaitSet when origin moves about the new pointer to origin. This could be done in "
                   "a callback inside of Trigger.");
 
-    Trigger logicalEqualTrigger(origin,
-                                m_conditionVariableDataPtr,
-                                triggerCallback,
-                                cxx::MethodCallback<void, uint64_t>(),
-                                triggerId,
-                                Trigger::Callback<T>());
+    Trigger logicalEqualTrigger(
+        origin, triggerCallback, cxx::MethodCallback<void, uint64_t>(), triggerId, Trigger::Callback<T>());
 
     // it is not allowed to have to logical equal trigger in the same waitset
     // otherwise when we call removeTrigger(Trigger) we do not know which trigger
@@ -51,8 +47,7 @@ WaitSet::acquireTrigger(T* const origin,
         }
     }
 
-    if (!m_triggerVector.emplace_back(
-            origin, m_conditionVariableDataPtr, triggerCallback, invalidationCallback, triggerId, callback))
+    if (!m_triggerVector.emplace_back(origin, triggerCallback, invalidationCallback, triggerId, callback))
     {
         return cxx::error<WaitSetError>(WaitSetError::TRIGGER_VECTOR_OVERFLOW);
     }

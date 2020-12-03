@@ -22,13 +22,11 @@ namespace popo
 {
 template <typename T>
 inline Trigger::Trigger(T* const origin,
-                        ConditionVariableData* conditionVariableDataPtr,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t triggerId,
                         const Callback<T> callback) noexcept
-    : TriggerState(origin, triggerId, callback)
-    , m_conditionVariableDataPtr(conditionVariableDataPtr)
+    : m_triggerState(origin, triggerId, callback)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_resetCallback(resetCallback)
     , m_uniqueId(uniqueIdCounter.fetch_add(1U))
@@ -38,19 +36,19 @@ inline Trigger::Trigger(T* const origin,
 template <typename T>
 inline void Trigger::updateOrigin(T* const newOrigin) noexcept
 {
-    if (newOrigin != m_origin)
+    if (newOrigin != m_triggerState.m_origin)
     {
-        if (m_hasTriggeredCallback && m_hasTriggeredCallback.getClassPointer<T>() == m_origin)
+        if (m_hasTriggeredCallback && m_hasTriggeredCallback.getClassPointer<T>() == m_triggerState.m_origin)
         {
             m_hasTriggeredCallback.setClassPointer(newOrigin);
         }
 
-        if (m_resetCallback && m_resetCallback.getClassPointer<T>() == m_origin)
+        if (m_resetCallback && m_resetCallback.getClassPointer<T>() == m_triggerState.m_origin)
         {
             m_resetCallback.setClassPointer(newOrigin);
         }
 
-        m_origin = newOrigin;
+        m_triggerState.m_origin = newOrigin;
     }
 }
 

@@ -83,7 +83,7 @@ typename WaitSet::TriggerStateVector WaitSet::createVectorWithTriggeredTriggers(
             // m_conditionVector and triggers are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            triggers.push_back(currentTrigger);
+            triggers.push_back(currentTrigger.getTriggerState());
         }
     }
 

@@ -31,10 +31,11 @@ namespace popo
 ///      event. Multiple Trigger can share a common ConditionVariableData pointer
 ///      so that multiple Trigger can signal a single instance.
 ///
-class Trigger : public TriggerState
+class Trigger
 {
   public:
-    using TriggerState::INVALID_TRIGGER_ID;
+    static constexpr uint64_t INVALID_TRIGGER_ID = std::numeric_limits<uint64_t>::max();
+
     template <typename T>
     using Callback = TriggerState::Callback<T>;
 
@@ -54,7 +55,6 @@ class Trigger : public TriggerState
     /// @param[in] callback function pointer of type void(*)(T * const) to a callback which can be called by the
     /// trigger.
     Trigger(T* const origin,
-            ConditionVariableData* conditionVariableDataPtr,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
             const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t triggerId,
@@ -71,15 +71,11 @@ class Trigger : public TriggerState
     /// @brief returns true if the Trigger is valid otherwise false
     ///        A trigger is valid when:
     ///         - origin != nullptr
-    ///         - conditionVariableDataPtr != nullptr
     ///         - hasTriggeredCallback is set
     explicit operator bool() const noexcept;
 
     /// @brief returns true if the trigger is valid otherwise false
     bool isValid() const noexcept;
-
-    /// @brief if the Trigger is valid it triggers the trigger otherwise it does nothing
-    void trigger() noexcept;
 
     /// @brief returns the result of the provided hasTriggeredCallback
     bool hasTriggered() const noexcept;
@@ -93,12 +89,8 @@ class Trigger : public TriggerState
     /// @brief returns the internal unique id of the trigger
     uint64_t getUniqueId() const noexcept;
 
-    /// @brief returns the pointer to the underlying condition variable data
-    ConditionVariableData* getConditionVariableData() noexcept;
-
     /// @brief returns true if the Triggers are logical equal otherwise false. Two Triggers are logical equal when
     ///       - origin == rhs.origin
-    ///       - conditionVariableDataPtr == rhs.conditionVariableDataPtr
     ///       - hasTriggeredCallback == rhs.hasTriggeredCallback
     ///       - triggerId == rhs.triggerId
     bool isLogicalEqualTo(const Trigger& rhs) const noexcept;
@@ -108,8 +100,12 @@ class Trigger : public TriggerState
     template <typename T>
     void updateOrigin(T* const newOrigin) noexcept;
 
+    /// @brief returns the TriggerState
+    TriggerState getTriggerState() const noexcept;
+
   private:
-    ConditionVariableData* m_conditionVariableDataPtr = nullptr;
+    TriggerState m_triggerState;
+
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;
     uint64_t m_uniqueId = 0U;
