@@ -229,7 +229,83 @@ Furthermore, the `Publisher` and `Subscriber` have access to the `ChunkHeader` a
 # Open Issues
 
 - the design was done with the intention to have a custom header of arbitrary size, if the size is limited to e.g. 32 bytes, some things could be simplified
-- untyped API and C bindings
+- typed publisher/subscriber API proposal
+```
+// publisher
+auto pub = iox::popo::TypedPublisher<MyPayload, MyHeader>(serviceDescription);
+pub.loan()
+    .and_then([&](auto& sample) {
+        sample.getHeader()->customHeader<MyHeader>().data = 42;
+        sample->a = 42;
+        sample->b = 13;
+        sample.publish();
+    })
+    .or_else([](iox::popo::AllocationError) {
+        // Do something with error.
+    });
+
+// subscriber
+auto sub = iox::popo::TypedSubscriber<MyPayload, MyHeader>(serviceDescription);
+sub->take()
+    .and_then([](auto& sample){
+        std::cout << "Custom header data: " << sample.getHeader()->customHeader<MyHeader>().data << std::endl;
+        std::cout << "Payload data: " << static_cast<const MyPayload*>(sample->get()).data << std::endl;
+    });
+```
+    - the publisher/subscriber would have a default parameter for the custom header to be source compatible with our current API
+    - the drawback is that the user could use the wrong custom header. Maybe `Sample` also needs an additional template parameter
+    - additionally, a `ChunkHeaderHook` could be used on the publisher side
+```
+template <typename CustomHeader>
+class MyChunkHeaderHook : public ChunkHeaderHook
+{
+  public:
+    void deliveryHook(ChunkHeader& chunkHeader) override
+    {
+        chunkHeader.customHeader<CustomHeader>().timestamp = myTimeProvider::now();
+    }
+};
+
+auto customHeaderHook = MyChunkHeaderHook<MyHeader>();
+auto pub = iox::popo::TypedPublisher<MyPayload>(serviceDescription, customHeaderHook);
+```
+        - it has to be decided if it's a good idea to give the user easy write access to the `ChunkHeader` or just to the `CustomHeader`
+- untyped publisher/subscriber API proposal
+```
+// publisher option 1
+auto pub = iox::popo::UntypedPublisher<MyHeader>(serviceDescription);
+
+// publisher option 2
+auto customHeaderSize = sizeOf(MyHeader);
+auto pub = iox::popo::UntypedPublisher(serviceDescription, customHeaderSize);
+
+auto payloadSize = sizeof(MyPayload);
+auto payloadAlignment = alignof(MyPayload);
+pub.loan(payloadSize, payloadAlignment)
+    .and_then([&](auto& sample) {
+        sample.getHeader()->customHeader<MyHeader>().data = 42;
+        auto payload = new (sample.get()) MyPayload();
+        payload->data = 73;
+        sample.publish();
+    })
+    .or_else([](iox::popo::AllocationError) {
+        // Do something with error.
+    });
+
+// subscriber option 1
+auto pub = iox::popo::UntypedPublisher<MyHeader>(serviceDescription);
+
+// subscriber option 2
+auto customHeaderSize = sizeOf(MyHeader);
+auto pub = iox::popo::UntypedSubscriber(serviceDescription, customHeaderSize);
+sub->take()
+    .and_then([](auto& sample){
+        std::cout << "Custom header data: " << sample.getHeader()->customHeader<MyHeader>().data << std::endl;
+        std::cout << "Payload data: " << static_cast<const MyPayload*>(sample->get()).data << std::endl;
+    });
+```
+    - option 1 has the benefit to catch a wrong alignment of the custom header and would be necessary if we make the `Sample` aware of the custom header
+- C bindings
     - PoC is needed
 - user defined sequence number
     - this can probably be done by a `ChunkHeaderHook`
