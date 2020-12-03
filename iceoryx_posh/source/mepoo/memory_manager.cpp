@@ -178,7 +178,7 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
         printMemPoolVector();
         std::cerr << "\nCould not find a fitting mempool for a chunk of size " << adjustedSize << std::endl;
 
-        errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE);
+        errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE, nullptr, ErrorLevel::SEVERE);
         return SharedChunk(nullptr);
     }
     else if (chunk == nullptr)
@@ -186,6 +186,7 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
         std::cerr << "MemoryManager: unable to acquire a chunk with a payload size of " << f_size << std::endl;
         std::cerr << "The following mempools are available:" << std::endl;
         printMemPoolVector();
+        errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS, nullptr, ErrorLevel::MODERATE);
         return SharedChunk(nullptr);
     }
     else
