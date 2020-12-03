@@ -67,36 +67,10 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     /// @return the maximum capacity
     static constexpr uint64_t maxCapacity() noexcept;
 
-    /// @brief tries to insert value in FIFO order, copies the value internally
-    /// @param[in] value to be inserted
-    /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
-    /// @note threadsafe, lockfree
-    /// bool tryPush(ElementType&& value) noexcept;
-    /// bool tryPush(const ElementType& value) noexcept;
-    using Base::tryPush;
-
-    /// @brief tries to remove value in FIFO order
-    /// @return value if removal was successful, empty optional otherwise
-    /// @note threadsafe, lockfree
-    /// iox::cxx::optional<ElementType> pop() noexcept;
-    using Base::pop;
-
-    /// @brief check whether the queue is empty
-    /// @return true iff the queue is empty
-    /// @note that if the queue is used concurrently it might
-    /// not be empty anymore after the call
-    ///  (but it was at some point during the call)
-    /// @note threadsafe, lockfree
-    /// bool empty() const noexcept;
     using Base::empty;
-
-    /// @brief get the number of stored elements in the queue
-    /// @return number of stored elements in the queue
-    /// @note that this will not be perfectly in sync with the actual number of contained elements
-    /// during concurrent operation but will always be at most capacity
-    /// @note threadsafe, lockfree
-    /// uint64_t size() const noexcept;
+    using Base::pop;
     using Base::size;
+    using Base::tryPush;
 
     /// @brief returns the current capacity of the queue
     /// @return the current capacity
@@ -117,11 +91,10 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     /// @note threadsafe, lockfree
     iox::cxx::optional<ElementType> push(ElementType&& value) noexcept;
 
-    // multiple overloads to set the capacity
+    // overloads to set the capacity
     // 1) The most general one allows providing a removeHandler to specify remove behavior.
-    // 2) The overload where a container is provided can be used if the removed elements are to be stored.
-    //    The container must satisfy certain requirements, such as providing push_back.
-    // 3) The final overload discards removed elements.
+    //    This could e.g. be to store them in a container.
+    // 2) The second overload discards removed elements.
 
     /// @brief      Set the capacity to some value.
     /// @param[in]  newCapacity capacity to be set
@@ -142,17 +115,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
   private:
     using BufferIndex = typename Base::BufferIndex;
     std::atomic<uint64_t> m_capacity{MaxCapacity};
-
-    // we also sync m_capacity with this flag
     std::atomic_flag m_resizeInProgress{false};
-
-    // Remark: The vector m_unusedIndices is protected by the atomic flag, but this also means dying during a resize
-    // will prevent further resizes (This is not a problem for the use case were only the dying receiver itself requests
-    // the resize.)
-    // I.e. resize is lockfree, but not in a useful and robust way as it assumes that a concurrent resize will
-    // always eventually complete (which is true when the application does not die and the relevant thread is scheduled
-    // eventually. The latter is the case for any OS and mandatory for a Realtime OS.
-
     iox::cxx::vector<BufferIndex, MaxCapacity> m_unusedIndices;
 
     /// @brief      Increase the capacity by some value.
@@ -164,16 +127,17 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
 
     /// @brief      Decrease the capacity by some value.
     /// @param[in]  toDecrease value by which the capacity is to be decreased
-    /// @param[in]  removedHandler is a function taking an index which specifies
-    ///             what to do with removed element at this index (e.g. store in a container or discard it).
+    /// @param[in]  removedHandler is a function  which specifies what to do with removed elements
+    ///             (e.g. store in a container or discard it).
     /// @return     value by which the capacity was actually decreased.
     /// @note       If decrementing cannot be carried out (because the capacity is already 0),
     ///             this value will be smaller than toDecrease.
     template <typename Function>
     uint64_t decreaseCapacity(uint64_t toDecrease, Function&& removeHandler) noexcept;
 
-    /// @brief      try to get a used index
-    /// @note the underlying strategy can change later, there are several reasonable alternatives
+    /// @brief       Try to get a used index if available.
+    /// @param[out]  index index obtained in the successful case
+    /// @return      true if an index was obtained, false otherwise
     bool tryGetUsedIndex(BufferIndex& index) noexcept;
 
     template <typename T>

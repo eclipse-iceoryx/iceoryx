@@ -319,7 +319,7 @@ void changeCapacity(Queue& queue,
     int32_t d = -1;
     numChanges = 0;
 
-    auto removeHandler = [&](const Queue::element_t& value) { items.emplace_back(std::move(value)); };
+    auto removeHandler = [&](const typename Queue::element_t& value) { items.emplace_back(std::move(value)); };
 
     while (run)
     {

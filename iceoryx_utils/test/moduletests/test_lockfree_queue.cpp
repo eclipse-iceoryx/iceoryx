@@ -174,8 +174,9 @@ TYPED_TEST_CASE(LockFreeQueueTest, TestConfigs);
 
 TEST(LockFreeQueueTest, capacityIsConsistent)
 {
-    IntegerQueue<37> q;
-    EXPECT_EQ(q.capacity(), 37);
+    constexpr uint64_t CAPACITY{37};
+    IntegerQueue<CAPACITY> q;
+    EXPECT_EQ(q.capacity(), CAPACITY);
 }
 
 TYPED_TEST(LockFreeQueueTest, constructedQueueIsEmpty)

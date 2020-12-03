@@ -54,6 +54,12 @@ bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t new
         return false;
     }
 
+    /// @note The vector m_unusedIndices is protected by the atomic flag, but this also means dying during a resize
+    /// will prevent further resizes. This is not a problem for the use case were only the dying receiver itself
+    /// requests the resize. I.e. resize is lockfree, but it assumes that a concurrent resize will always
+    /// eventually complete (which is true when the application does not die and the relevant thread is
+    /// scheduled eventually. The latter is the case for any OS and mandatory for a Realtime OS.
+
     if (m_resizeInProgress.test_and_set(std::memory_order_acquire))
     {
         // at most one resize can be in progress at any time
@@ -88,7 +94,7 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::increaseCapacity(uin
 {
     // we can be sure this is not called concurrently due to the m_resizeInProgress flag
     //(this must be ensured as the vector is modified)
-    uint64_t increased = 0;
+    uint64_t increased = 0U;
     while (increased < toIncrease)
     {
         if (m_unusedIndices.empty())
@@ -97,7 +103,7 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::increaseCapacity(uin
             return increased;
         }
         ++increased;
-        m_capacity.fetch_add(1);
+        m_capacity.fetch_add(1U);
         Base::m_freeIndices.push(m_unusedIndices.back());
         m_unusedIndices.pop_back();
     }
@@ -110,7 +116,7 @@ template <typename Function>
 uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(uint64_t toDecrease,
                                                                              Function&& removeHandler) noexcept
 {
-    uint64_t decreased = 0;
+    uint64_t decreased = 0U;
     while (decreased < toDecrease)
     {
         BufferIndex index;
@@ -123,7 +129,7 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(uin
 
             m_unusedIndices.push_back(index);
             ++decreased;
-            if (m_capacity.fetch_sub(1) == 1)
+            if (m_capacity.fetch_sub(1U) == 1U)
             {
                 // we reached capacity 0 and cannot further decrease it
                 return decreased;
@@ -146,7 +152,7 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(uin
             m_unusedIndices.push_back(index);
 
             ++decreased;
-            if (m_capacity.fetch_sub(1) == 1)
+            if (m_capacity.fetch_sub(1U) == 1U)
             {
                 // we reached capacity 0 and cannot further decrease it
                 return decreased;
@@ -165,7 +171,7 @@ bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::tryGetUsedIndex(BufferIn
     // instead of a variation of popIfFull (which will never work then)
 
     auto cap = capacity();
-    if (cap == 0)
+    if (cap == 0U)
     {
         // this should in principle return false for a zero capacity queue unless capacity changed inbetween
         //(therefore we call the method)
