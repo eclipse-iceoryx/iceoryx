@@ -21,24 +21,24 @@ namespace iox
 namespace runtime
 {
 /// @brief helper struct which is convertable to string and constructable from a string
-///         which is required to send the createRunnable request over the message queue
-struct RunnableProperty
+///         which is required to send the createNode request over the message queue
+struct NodeProperty
 {
     /// @brief constructor
-    /// @param[in] name name of the runnable
-    /// @param[in] runnableDeviceIdentifier identifier of the device on which the runnable will run
-    RunnableProperty(const iox::RunnableName_t& name, const uint64_t runnableDeviceIdentifier) noexcept;
+    /// @param[in] name name of the node
+    /// @param[in] nodeDeviceIdentifier identifier of the device on which the node will run
+    NodeProperty(const iox::NodeName_t& name, const uint64_t nodeDeviceIdentifier) noexcept;
 
-    /// @brief serialization constructor, used by the message queue message to create RunnableProperty
+    /// @brief serialization constructor, used by the message queue message to create NodeProperty
     ///         from a received message
     /// @param[in] serialized raw serialized string where all the values are stored
-    RunnableProperty(const cxx::Serialization& serialized) noexcept;
+    NodeProperty(const cxx::Serialization& serialized) noexcept;
 
-    /// @brief serialization of the runnable properties
+    /// @brief serialization of the node properties
     operator cxx::Serialization() const noexcept;
 
-    iox::RunnableName_t m_name;
-    uint64_t m_runnableDeviceIdentifier;
+    iox::NodeName_t m_name;
+    uint64_t m_nodeDeviceIdentifier;
 };
 } // namespace runtime
 } // namespace iox

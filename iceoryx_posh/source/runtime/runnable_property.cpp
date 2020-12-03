@@ -21,23 +21,23 @@ namespace iox
 {
 namespace runtime
 {
-RunnableProperty::RunnableProperty(const iox::RunnableName_t& name, const uint64_t runnableDeviceIdentifier) noexcept
+NodeProperty::NodeProperty(const iox::NodeName_t& name, const uint64_t nodeDeviceIdentifier) noexcept
     : m_name(name)
-    , m_runnableDeviceIdentifier(runnableDeviceIdentifier)
+    , m_nodeDeviceIdentifier(nodeDeviceIdentifier)
 {
 }
 
-RunnableProperty::RunnableProperty(const cxx::Serialization& serialized) noexcept
+NodeProperty::NodeProperty(const cxx::Serialization& serialized) noexcept
 {
-    if (!serialized.extract(m_name, m_runnableDeviceIdentifier))
+    if (!serialized.extract(m_name, m_nodeDeviceIdentifier))
     {
-        LogError() << "unable to create RunnableProperty from serialized string " << serialized;
+        LogError() << "unable to create NodeProperty from serialized string " << serialized;
     }
 }
 
-RunnableProperty::operator cxx::Serialization() const noexcept
+NodeProperty::operator cxx::Serialization() const noexcept
 {
-    return cxx::Serialization::create(m_name, m_runnableDeviceIdentifier);
+    return cxx::Serialization::create(m_name, m_nodeDeviceIdentifier);
 }
 } // namespace runtime
 } // namespace iox

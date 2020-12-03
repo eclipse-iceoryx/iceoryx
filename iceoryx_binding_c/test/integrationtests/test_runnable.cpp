@@ -23,71 +23,71 @@ extern "C" {
 #include "iceoryx_binding_c/runtime.h"
 }
 
-class iox_runnable_test : public RouDi_GTest
+class iox_node_test : public RouDi_GTest
 {
   public:
     void SetUp()
     {
         iox_runtime_register(m_processName.c_str());
-        m_sut = iox_runnable_create(m_runnableName.c_str());
+        m_sut = iox_node_create(m_nodeName.c_str());
     }
 
     void TearDown()
     {
-        iox_runnable_destroy(m_sut);
+        iox_node_destroy(m_sut);
     }
 
-    std::string m_runnableName = "hypnotoadIsWatchingUs";
+    std::string m_nodeName = "hypnotoadIsWatchingUs";
     std::string m_processName = "/stoepselWillMarrySoon";
 
-    iox_runnable_t m_sut;
+    iox_node_t m_sut;
 };
 
-TEST_F(iox_runnable_test, createdRunnableHasCorrectRunnableName)
+TEST_F(iox_node_test, createdNodeHasCorrectNodeName)
 {
     char name[100];
-    ASSERT_EQ(iox_runnable_get_name(m_sut, name, 100), m_runnableName.size());
-    EXPECT_EQ(std::string(name), m_runnableName);
+    ASSERT_EQ(iox_node_get_name(m_sut, name, 100), m_nodeName.size());
+    EXPECT_EQ(std::string(name), m_nodeName);
 }
 
-TEST_F(iox_runnable_test, getRunnableNameBufferIsNullptr)
+TEST_F(iox_node_test, getNodeNameBufferIsNullptr)
 {
-    auto nameLength = iox_runnable_get_name(m_sut, nullptr, 100);
+    auto nameLength = iox_node_get_name(m_sut, nullptr, 100);
 
     ASSERT_THAT(nameLength, Eq(0U));
 }
 
-TEST_F(iox_runnable_test, getRunnableNameBufferIsLessThanRunnableNameLength)
+TEST_F(iox_node_test, getNodeNameBufferIsLessThanNodeNameLength)
 {
-    constexpr uint64_t RUNNABLE_NAME_BUFFER_LENGTH{10};
-    char truncatedRunnableName[RUNNABLE_NAME_BUFFER_LENGTH];
-    for (auto& c : truncatedRunnableName)
+    constexpr uint64_t NODE_NAME_BUFFER_LENGTH{10};
+    char truncatedNodeName[NODE_NAME_BUFFER_LENGTH];
+    for (auto& c : truncatedNodeName)
     {
         c = '#';
     }
-    auto nameLength = iox_runnable_get_name(m_sut, truncatedRunnableName, RUNNABLE_NAME_BUFFER_LENGTH);
+    auto nameLength = iox_node_get_name(m_sut, truncatedNodeName, NODE_NAME_BUFFER_LENGTH);
 
-    std::string expectedRunnableName = "hypnotoad";
+    std::string expectedNodeName = "hypnotoad";
 
-    ASSERT_THAT(nameLength, Eq(m_runnableName.size()));
-    EXPECT_THAT(truncatedRunnableName, StrEq(expectedRunnableName));
+    ASSERT_THAT(nameLength, Eq(m_nodeName.size()));
+    EXPECT_THAT(truncatedNodeName, StrEq(expectedNodeName));
 }
 
-TEST_F(iox_runnable_test, createdRunnableHasCorrectProcessName)
+TEST_F(iox_node_test, createdNodeHasCorrectProcessName)
 {
     char name[100];
-    ASSERT_EQ(iox_runnable_get_process_name(m_sut, name, 100), m_processName.size());
+    ASSERT_EQ(iox_node_get_process_name(m_sut, name, 100), m_processName.size());
     EXPECT_EQ(std::string(name), m_processName);
 }
 
-TEST_F(iox_runnable_test, getRunnableProcessNameBufferIsNullptr)
+TEST_F(iox_node_test, getNodeProcessNameBufferIsNullptr)
 {
-    auto nameLength = iox_runnable_get_process_name(m_sut, nullptr, 100);
+    auto nameLength = iox_node_get_process_name(m_sut, nullptr, 100);
 
     ASSERT_THAT(nameLength, Eq(0U));
 }
 
-TEST_F(iox_runnable_test, getRunnableProcessNameBufferIsLessThanRunnableProcessNameLength)
+TEST_F(iox_node_test, getNodeProcessNameBufferIsLessThanNodeProcessNameLength)
 {
     constexpr uint64_t PROCESS_NAME_BUFFER_LENGTH{10};
     char truncatedProcessName[PROCESS_NAME_BUFFER_LENGTH];
@@ -95,7 +95,7 @@ TEST_F(iox_runnable_test, getRunnableProcessNameBufferIsLessThanRunnableProcessN
     {
         c = '#';
     }
-    auto nameLength = iox_runnable_get_process_name(m_sut, truncatedProcessName, PROCESS_NAME_BUFFER_LENGTH);
+    auto nameLength = iox_node_get_process_name(m_sut, truncatedProcessName, PROCESS_NAME_BUFFER_LENGTH);
 
     std::string expectedProcessName = "/stoepsel";
 

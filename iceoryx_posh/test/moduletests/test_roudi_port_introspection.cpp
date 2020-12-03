@@ -96,7 +96,7 @@ class PortIntrospection_test : public Test
             return false;
         if (a.m_senderIndex != b.m_senderIndex)
             return false;
-        if (a.m_runnable != b.m_runnable)
+        if (a.m_node != b.m_node)
             return false;
 
         return true;
@@ -115,7 +115,7 @@ class PortIntrospection_test : public Test
             return false;
         if (a.m_caproEventMethodID != b.m_caproEventMethodID)
             return false;
-        if (a.m_runnable != b.m_runnable)
+        if (a.m_node != b.m_node)
             return false;
 
         return true;
@@ -310,8 +310,8 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
 
     const iox::ProcessName_t processName1("name1");
     const iox::ProcessName_t processName2("name2");
-    const iox::RunnableName_t runnableName1("4");
-    const iox::RunnableName_t runnableName2("jkl");
+    const iox::NodeName_t nodeName1("4");
+    const iox::NodeName_t nodeName2("jkl");
 
     // prepare expected outputs
     PortData expected1;
@@ -319,14 +319,14 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
-    expected1.m_runnable = runnableName1;
+    expected1.m_node = nodeName1;
 
     PortData expected2;
     expected2.m_name = processName2;
     expected2.m_caproInstanceID = "abc";
     expected2.m_caproServiceID = "def";
     expected2.m_caproEventMethodID = "ghi";
-    expected2.m_runnable = runnableName2;
+    expected2.m_node = nodeName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -339,10 +339,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
     // remark: duplicate sender port insertions are not possible
 
     iox::popo::SenderPortData portData1, portData2;
-    EXPECT_THAT(m_introspection->addSender(&portData1, processName1, service1, runnableName1), Eq(true));
-    EXPECT_THAT(m_introspection->addSender(&portData1, processName1, service1, runnableName1), Eq(false));
-    EXPECT_THAT(m_introspection->addSender(&portData2, processName2, service2, runnableName2), Eq(true));
-    EXPECT_THAT(m_introspection->addSender(&portData2, processName2, service2, runnableName2), Eq(false));
+    EXPECT_THAT(m_introspection->addSender(&portData1, processName1, service1, nodeName1), Eq(true));
+    EXPECT_THAT(m_introspection->addSender(&portData1, processName1, service1, nodeName1), Eq(false));
+    EXPECT_THAT(m_introspection->addSender(&portData2, processName2, service2, nodeName2), Eq(true));
+    EXPECT_THAT(m_introspection->addSender(&portData2, processName2, service2, nodeName2), Eq(false));
 
     mockPort1->getUniqueIDReturn = 1;
     mockPort2->getUniqueIDReturn = 2;
@@ -422,8 +422,8 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
 
     const iox::ProcessName_t processName1("name1");
     const iox::ProcessName_t processName2("name2");
-    const iox::RunnableName_t runnableName1("4");
-    const iox::RunnableName_t runnableName2("7");
+    const iox::NodeName_t nodeName1("4");
+    const iox::NodeName_t nodeName2("7");
 
     // prepare expected outputs
     PortData expected1;
@@ -432,7 +432,7 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
     expected1.m_senderIndex = -1;
-    expected1.m_runnable = runnableName1;
+    expected1.m_node = nodeName1;
 
     PortData expected2;
     expected2.m_name = processName2;
@@ -440,7 +440,7 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
     expected2.m_caproServiceID = "5";
     expected2.m_caproEventMethodID = "6";
     expected2.m_senderIndex = -1;
-    expected2.m_runnable = runnableName2;
+    expected2.m_node = nodeName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -453,10 +453,10 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
     // remark: duplicate receiver insertions are possible but will not be transmitted via send
     iox::popo::ReceiverPortData recData1;
     iox::popo::ReceiverPortData recData2;
-    EXPECT_THAT(m_introspection->addReceiver(&recData1, processName1, service1, runnableName1), Eq(true));
-    EXPECT_THAT(m_introspection->addReceiver(&recData1, processName1, service1, runnableName1), Eq(true));
-    EXPECT_THAT(m_introspection->addReceiver(&recData2, processName2, service2, runnableName2), Eq(true));
-    EXPECT_THAT(m_introspection->addReceiver(&recData2, processName2, service2, runnableName2), Eq(true));
+    EXPECT_THAT(m_introspection->addReceiver(&recData1, processName1, service1, nodeName1), Eq(true));
+    EXPECT_THAT(m_introspection->addReceiver(&recData1, processName1, service1, nodeName1), Eq(true));
+    EXPECT_THAT(m_introspection->addReceiver(&recData2, processName2, service2, nodeName2), Eq(true));
+    EXPECT_THAT(m_introspection->addReceiver(&recData2, processName2, service2, nodeName2), Eq(true));
 
     m_introspectionAccess.sendPortData();
 

@@ -65,20 +65,20 @@ class ProcessIntrospection
     void removeProcess(int f_pid);
 
     /*!
-     * @brief This function is used to add a runnable to the process introspection
+     * @brief This function is used to add a node to the process introspection
      *
      * @param f_processName is the name of the proces
-     * @param f_runnableName is the name of the runnable to add
+     * @param f_nodeName is the name of the node to add
      */
-    void addRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable);
+    void addNode(const ProcessName_t& f_process, const NodeName_t& f_node);
 
     /*!
-     * @brief This function is used to remove a runnable to the process introspection
+     * @brief This function is used to remove a node to the process introspection
      *
      * @param f_processName is the name of the proces
-     * @param f_runnableName is the name of the runnable to remove
+     * @param f_nodeName is the name of the node to remove
      */
-    void removeRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable);
+    void removeNode(const ProcessName_t& f_process, const NodeName_t& f_node);
 
     /*!
      * @brief This functions registers the POSH sender port which is used

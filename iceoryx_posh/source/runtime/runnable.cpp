@@ -23,17 +23,17 @@ namespace iox
 {
 namespace runtime
 {
-Runnable::Runnable(RunnableData* const data) noexcept
+Node::Node(NodeData* const data) noexcept
     : m_data(data)
 {
 }
 
-Runnable::Runnable(const RunnableName_t& runnableName) noexcept
-    : Runnable(PoshRuntime::getInstance().createRunnable(RunnableProperty(runnableName, 0u)))
+Node::Node(const NodeName_t& nodeName) noexcept
+    : Node(PoshRuntime::getInstance().createNode(NodeProperty(nodeName, 0u)))
 {
 }
 
-Runnable::~Runnable() noexcept
+Node::~Node() noexcept
 {
     if (m_data)
     {
@@ -41,12 +41,12 @@ Runnable::~Runnable() noexcept
     }
 }
 
-Runnable::Runnable(Runnable&& rhs) noexcept
+Node::Node(Node&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-Runnable& Runnable::operator=(Runnable&& rhs) noexcept
+Node& Node::operator=(Node&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -57,12 +57,12 @@ Runnable& Runnable::operator=(Runnable&& rhs) noexcept
     return *this;
 }
 
-RunnableName_t Runnable::getRunnableName() const noexcept
+NodeName_t Node::getNodeName() const noexcept
 {
-    return m_data->m_runnable;
+    return m_data->m_node;
 }
 
-ProcessName_t Runnable::getProcessName() const noexcept
+ProcessName_t Node::getProcessName() const noexcept
 {
     return m_data->m_process;
 }

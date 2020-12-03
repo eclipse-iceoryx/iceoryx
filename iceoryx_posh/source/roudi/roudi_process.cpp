@@ -481,7 +481,7 @@ void ProcessManager::findServiceForProcess(const ProcessName_t& name, const capr
 
 void ProcessManager::addInterfaceForProcess(const ProcessName_t& name,
                                             capro::Interfaces interface,
-                                            const RunnableName_t& runnable) noexcept
+                                            const NodeName_t& node) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
@@ -489,7 +489,7 @@ void ProcessManager::addInterfaceForProcess(const ProcessName_t& name,
     if (nullptr != process)
     {
         // create a ReceiverPort
-        popo::InterfacePortData* port = m_portManager.acquireInterfacePortData(interface, name, runnable);
+        popo::InterfacePortData* port = m_portManager.acquireInterfacePortData(interface, name, node);
 
         // send ReceiverPort to app as a serialized relative pointer
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, port);
@@ -550,32 +550,30 @@ void ProcessManager::addApplicationForProcess(const ProcessName_t& name) noexcep
     }
 }
 
-void ProcessManager::addRunnableForProcess(const ProcessName_t& processName,
-                                           const RunnableName_t& runnableName) noexcept
+void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const NodeName_t& nodeName) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
     RouDiProcess* process = getProcessFromList(processName);
     if (nullptr != process)
     {
-        runtime::RunnableData* runnable =
-            m_portManager.acquireRunnableData(ProcessName_t(cxx::TruncateToCapacity, processName),
-                                              RunnableName_t(cxx::TruncateToCapacity, runnableName));
+        runtime::NodeData* node = m_portManager.acquireNodeData(ProcessName_t(cxx::TruncateToCapacity, processName),
+                                                                NodeName_t(cxx::TruncateToCapacity, nodeName));
 
-        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, runnable);
+        auto offset = RelativePointer::getOffset(m_mgmtSegmentId, node);
 
         runtime::MqMessage sendBuffer;
-        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_RUNNABLE_ACK)
-                   << std::to_string(offset) << std::to_string(m_mgmtSegmentId);
+        sendBuffer << runtime::mqMessageTypeToString(runtime::MqMessageType::CREATE_NODE_ACK) << std::to_string(offset)
+                   << std::to_string(m_mgmtSegmentId);
 
         process->sendToMQ(sendBuffer);
-        m_processIntrospection->addRunnable(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
-                                            RunnableName_t(cxx::TruncateToCapacity, runnableName.c_str()));
-        LogDebug() << "Created new runnable " << runnableName << " for application " << processName;
+        m_processIntrospection->addNode(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
+                                        NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
+        LogDebug() << "Created new node " << nodeName << " for application " << processName;
     }
     else
     {
-        LogWarn() << "Unknown application " << processName << " requested a runnable.";
+        LogWarn() << "Unknown application " << processName << " requested a node.";
     }
 }
 
@@ -597,7 +595,7 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const ProcessName_t& name)
 /// @deprecated #25
 void ProcessManager::addReceiverForProcess(const ProcessName_t& name,
                                            const capro::ServiceDescription& service,
-                                           const RunnableName_t& runnable,
+                                           const NodeName_t& node,
                                            const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -615,7 +613,7 @@ void ProcessManager::addReceiverForProcess(const ProcessName_t& name,
         /// specific attribute (to allow efficient and well encapsulated lookup)
 
         ReceiverPortType::MemberType_t* receiver =
-            m_portManager.acquireReceiverPortData(service, name, runnable, portConfigInfo);
+            m_portManager.acquireReceiverPortData(service, name, node, portConfigInfo);
 
         // send ReceiverPort to app as a serialized relative pointer
         auto offset = RelativePointer::getOffset(m_mgmtSegmentId, receiver);
@@ -636,7 +634,7 @@ void ProcessManager::addReceiverForProcess(const ProcessName_t& name,
 /// @deprecated #25
 void ProcessManager::addSenderForProcess(const ProcessName_t& name,
                                          const capro::ServiceDescription& service,
-                                         const RunnableName_t& runnable,
+                                         const NodeName_t& node,
                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -646,7 +644,7 @@ void ProcessManager::addSenderForProcess(const ProcessName_t& name,
     {
         // create a SenderPort
         auto maybeSender = m_portManager.acquireSenderPortData(
-            service, name, process->getPayloadMemoryManager(), runnable, portConfigInfo);
+            service, name, process->getPayloadMemoryManager(), node, portConfigInfo);
 
         if (!maybeSender.has_error())
         {
@@ -681,7 +679,7 @@ void ProcessManager::addSenderForProcess(const ProcessName_t& name,
 void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
                                              const capro::ServiceDescription& service,
                                              const uint64_t& historyRequest,
-                                             const RunnableName_t& runnable,
+                                             const NodeName_t& node,
                                              const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -691,7 +689,7 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
     {
         // create a SubscriberPort
         auto maybeSubscriber =
-            m_portManager.acquireSubscriberPortData(service, historyRequest, name, runnable, portConfigInfo);
+            m_portManager.acquireSubscriberPortData(service, historyRequest, name, node, portConfigInfo);
 
         if (!maybeSubscriber.has_error())
         {
@@ -723,7 +721,7 @@ void ProcessManager::addSubscriberForProcess(const ProcessName_t& name,
 void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
                                             const capro::ServiceDescription& service,
                                             const uint64_t& historyCapacity,
-                                            const RunnableName_t& runnable,
+                                            const NodeName_t& node,
                                             const PortConfigInfo& portConfigInfo) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
@@ -733,7 +731,7 @@ void ProcessManager::addPublisherForProcess(const ProcessName_t& name,
     {
         // create a PublisherPort
         auto maybePublisher = m_portManager.acquirePublisherPortData(
-            service, historyCapacity, name, process->getPayloadMemoryManager(), runnable, portConfigInfo);
+            service, historyCapacity, name, process->getPayloadMemoryManager(), node, portConfigInfo);
 
         if (!maybePublisher.has_error())
         {

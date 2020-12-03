@@ -225,7 +225,7 @@ TEST_F(PortManager_test, doDiscovery_rightOrdering)
 TEST_F(PortManager_test, SenderReceiverOverflow)
 {
     iox::ProcessName_t p1 = "/test1";
-    iox::RunnableName_t r1 = "run1";
+    iox::NodeName_t n1 = "node1";
     decltype(iox::MAX_PUBLISHERS) pubForP1 = iox::MAX_PUBLISHERS;
     decltype(iox::MAX_SUBSCRIBERS) subForP1 = iox::MAX_SUBSCRIBERS;
     std::vector<iox::popo::SenderPortData*> avaSender1(pubForP1);
@@ -234,14 +234,14 @@ TEST_F(PortManager_test, SenderReceiverOverflow)
 
     for (unsigned int i = 0; i < pubForP1; i++)
     {
-        auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(), p1, m_payloadMemoryManager, r1);
+        auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(), p1, m_payloadMemoryManager, n1);
         ASSERT_FALSE(sen.has_error());
         avaSender1[i] = sen.value();
     }
 
     for (unsigned int i = 0; i < subForP1; i++)
     {
-        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), p1, r1);
+        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), p1, n1);
         ASSERT_THAT(rec, Ne(nullptr));
         avaReceiver1[i] = rec;
     }
@@ -253,12 +253,12 @@ TEST_F(PortManager_test, SenderReceiverOverflow)
             [&errorHandlerCalled](const iox::Error error [[gnu::unused]],
                                   const std::function<void()>,
                                   const iox::ErrorLevel) { errorHandlerCalled = true; });
-        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), p1, r1);
+        auto rec = m_shmManager->acquireReceiverPortData(getUniqueSD(), p1, n1);
         EXPECT_TRUE(errorHandlerCalled);
         EXPECT_THAT(rec, Eq(nullptr));
 
         errorHandlerCalled = false;
-        auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(), p1, m_payloadMemoryManager, r1);
+        auto sen = m_shmManager->acquireSenderPortData(getUniqueSD(), p1, m_payloadMemoryManager, n1);
         EXPECT_TRUE(errorHandlerCalled);
         ASSERT_TRUE(sen.has_error());
         EXPECT_THAT(sen.get_error(), Eq(PortPoolError::SENDER_PORT_LIST_FULL));

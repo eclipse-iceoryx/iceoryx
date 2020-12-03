@@ -18,12 +18,10 @@ namespace iox
 {
 namespace runtime
 {
-RunnableData::RunnableData(const ProcessName_t& process,
-                           const RunnableName_t& runnable,
-                           const uint64_t runnableDeviceIdentifier) noexcept
+NodeData::NodeData(const ProcessName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept
     : m_process(process)
-    , m_runnable(runnable)
-    , m_runnableDeviceIdentifier(runnableDeviceIdentifier)
+    , m_node(node)
+    , m_nodeDeviceIdentifier(nodeDeviceIdentifier)
 {
 }
 } // namespace runtime

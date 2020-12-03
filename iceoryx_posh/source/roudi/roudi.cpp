@@ -195,7 +195,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
 
             m_prcMgr.addSenderForProcess(processName,
                                          service,
-                                         RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
+                                         NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
                                          iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -216,7 +216,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
 
             m_prcMgr.addReceiverForProcess(processName,
                                            service,
-                                           RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
+                                           NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
                                            iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -236,7 +236,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             m_prcMgr.addPublisherForProcess(processName,
                                             service,
                                             std::stoull(message.getElementAtIndex(3)),
-                                            RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
+                                            NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
                                             iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -256,7 +256,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             m_prcMgr.addSubscriberForProcess(processName,
                                              service,
                                              std::stoull(message.getElementAtIndex(3)),
-                                             RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
+                                             NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
                                              iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -289,7 +289,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
                 StringToCaProInterface(capro::IdString(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
 
             m_prcMgr.addInterfaceForProcess(
-                processName, interface, RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
+                processName, interface, NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
         }
         break;
     }
@@ -306,17 +306,17 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-    case runtime::MqMessageType::CREATE_RUNNABLE:
+    case runtime::MqMessageType::CREATE_NODE:
     {
         if (message.getNumberOfElements() != 3)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_RUNNABLE\" from \"" << processName
+            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_NODE\" from \"" << processName
                        << "\"received!";
         }
         else
         {
-            runtime::RunnableProperty runnableProperty(cxx::Serialization(message.getElementAtIndex(2)));
-            m_prcMgr.addRunnableForProcess(processName, runnableProperty.m_name);
+            runtime::NodeProperty nodeProperty(cxx::Serialization(message.getElementAtIndex(2)));
+            m_prcMgr.addNodeForProcess(processName, nodeProperty.m_name);
         }
         break;
     }
