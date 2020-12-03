@@ -51,8 +51,8 @@ class IndexQueueTest : public ::testing::Test
 
 TEST(LockFreeQueueTest, capacityIsConsistent)
 {
-    IndexQueue<37> q;
-    EXPECT_EQ(q.capacity(), 37);
+    IndexQueue<37U> q;
+    EXPECT_EQ(q.capacity(), 37U);
 }
 
 typedef ::testing::Types<IndexQueue<1>, IndexQueue<10>, IndexQueue<1000>> TestQueues;
@@ -108,7 +108,7 @@ TYPED_TEST(IndexQueueTest, IndicesAreIncreasingWhenConstructedFull)
     Queue& q = this->fullQueue;
     EXPECT_FALSE(q.empty());
 
-    index_t expected{0};
+    index_t expected{0U};
     auto index = q.pop();
     while (index.has_value())
     {
@@ -168,9 +168,9 @@ TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
     using index_t = typename TestFixture::index_t;
 
     auto capacity = q.capacity();
-    index_t expected{0};
+    index_t expected{0U};
 
-    for (uint64_t i = 0; i < capacity; ++i)
+    for (uint64_t i = 0U; i < capacity; ++i)
     {
         auto index = this->fullQueue.pop();
         EXPECT_EQ(index.value(), expected++);
@@ -178,7 +178,7 @@ TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
     }
 
     expected = 0;
-    for (uint64_t i = 0; i < capacity; ++i)
+    for (uint64_t i = 0U; i < capacity; ++i)
     {
         auto popped = q.pop();
         ASSERT_TRUE(popped.has_value());
@@ -207,7 +207,7 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsOldestElementWhenQueueIsFull)
 
     auto index = q.popIfFull();
     EXPECT_TRUE(index.has_value());
-    EXPECT_EQ(index.value(), 0);
+    EXPECT_EQ(index.value(), 0U);
 }
 
 TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsNotFull)
@@ -223,19 +223,19 @@ TYPED_TEST(IndexQueueTest, popIfFullReturnsNothingWhenQueueIsNotFull)
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastReturnsNothingIfQueueIsEmpty)
 {
     auto& q = this->queue;
-    EXPECT_FALSE(q.popIfSizeIsAtLeast(1).has_value());
+    EXPECT_FALSE(q.popIfSizeIsAtLeast(1U).has_value());
 }
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsIndexIfQueueIsFull)
 {
     auto& q = this->fullQueue;
-    EXPECT_TRUE(q.popIfSizeIsAtLeast(0).has_value());
+    EXPECT_TRUE(q.popIfSizeIsAtLeast(0U).has_value());
 }
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsNothingIfQueueIsEmpty)
 {
     auto& q = this->queue;
-    EXPECT_FALSE(q.popIfSizeIsAtLeast(0).has_value());
+    EXPECT_FALSE(q.popIfSizeIsAtLeast(0U).has_value());
 }
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsIndexIfQueueContainsOneElement)
@@ -245,7 +245,7 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsIndexIfQueueContainsOneE
     ASSERT_TRUE(index.has_value());
     q.push(*index);
 
-    index = q.popIfSizeIsAtLeast(0u);
+    index = q.popIfSizeIsAtLeast(0U);
     ASSERT_TRUE(index.has_value());
 }
 
@@ -253,21 +253,12 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastOneReturnsIndexIfQueueContainsOneEl
 {
     auto& q = this->queue;
     using index_t = typename TestFixture::index_t;
-    auto index = this->fullQueue.pop();
-    ASSERT_TRUE(index.has_value());
 
-    // we want to get the last index (to push it into q)
-    auto index1 = this->fullQueue.pop();
-    while (index1.has_value())
-    {
-        index = std::move(index1);
-        index1 = this->fullQueue.pop();
-    }
+    // we can only push indices up to capacity - 1
+    const index_t expectedIndex{q.capacity() - 1};
+    q.push(expectedIndex);
 
-    index_t expectedIndex = *index;
-    q.push(*index);
-
-    index = q.popIfSizeIsAtLeast(1);
+    const auto index = q.popIfSizeIsAtLeast(1U);
     ASSERT_TRUE(index.has_value());
     EXPECT_EQ(*index, expectedIndex);
 }
@@ -275,26 +266,24 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastOneReturnsIndexIfQueueContainsOneEl
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastTwoReturnsNothingIfQueueContainsOneElement)
 {
     auto& q = this->queue;
-    auto index = this->fullQueue.pop();
-    ASSERT_TRUE(index.has_value());
-    q.push(*index);
-    index = q.popIfSizeIsAtLeast(2);
+    q.push(0U);
+    const auto index = q.popIfSizeIsAtLeast(2U);
     ASSERT_FALSE(index.has_value());
 }
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastCapacityReturnsIndexIfQueueIsFull)
 {
-    auto c = this->fullQueue.capacity();
-    auto index = this->fullQueue.popIfSizeIsAtLeast(c);
+    const auto c = this->fullQueue.capacity();
+    const auto index = this->fullQueue.popIfSizeIsAtLeast(c);
     ASSERT_TRUE(index.has_value());
-    EXPECT_EQ(*index, 0);
+    EXPECT_EQ(*index, 0U);
 }
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastCapacityReturnsNothingIfQueueIsNotFull)
 {
-    auto c = this->fullQueue.capacity();
+    const auto CAP = this->fullQueue.capacity();
     this->fullQueue.pop();
-    auto index = this->fullQueue.popIfSizeIsAtLeast(c);
+    const auto index = this->fullQueue.popIfSizeIsAtLeast(CAP);
     ASSERT_FALSE(index.has_value());
 }
 
