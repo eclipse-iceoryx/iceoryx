@@ -36,7 +36,7 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     virtual ~TypedSubscriber() = default;
 
     using BaseSubscriber::attachTo;
-    using BaseSubscriber::detachOf;
+    using BaseSubscriber::detachEvent;
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;

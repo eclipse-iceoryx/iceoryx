@@ -122,7 +122,7 @@ class BaseSubscriber
 
     /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
     /// @param[in] subscriberEvent the event which should be detached
-    void detachOf(const SubscriberEvent subscriberEvent) noexcept;
+    void detachEvent(const SubscriberEvent subscriberEvent) noexcept;
 
   protected:
     BaseSubscriber() noexcept; // Required for testing.

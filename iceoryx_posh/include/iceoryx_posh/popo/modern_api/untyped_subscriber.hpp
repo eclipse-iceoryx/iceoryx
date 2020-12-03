@@ -45,7 +45,7 @@ class UntypedSubscriberImpl
     virtual ~UntypedSubscriberImpl() = default;
 
     using BaseSubscriber::attachTo;
-    using BaseSubscriber::detachOf;
+    using BaseSubscriber::detachEvent;
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;

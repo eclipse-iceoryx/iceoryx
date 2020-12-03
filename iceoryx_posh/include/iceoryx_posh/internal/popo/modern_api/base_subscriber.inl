@@ -163,7 +163,7 @@ BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet& waitset,
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::detachOf(const SubscriberEvent subscriberEvent) noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::detachEvent(const SubscriberEvent subscriberEvent) noexcept
 {
     static_cast<void>(subscriberEvent);
 

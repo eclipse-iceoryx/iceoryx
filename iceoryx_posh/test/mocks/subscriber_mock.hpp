@@ -58,7 +58,7 @@ class MockSubscriberPortUser
                                                     const iox::popo::SubscriberEvent,
                                                     const uint64_t,
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
-    MOCK_METHOD1(detachOf, void(const iox::popo::SubscriberEvent));
+    MOCK_METHOD1(detachEvent, void(const iox::popo::SubscriberEvent));
 };
 
 template <typename T, typename Child, typename Port>
@@ -83,5 +83,5 @@ class MockBaseSubscriber
                                                     const iox::popo::SubscriberEvent,
                                                     const uint64_t,
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
-    MOCK_METHOD1(detachOf, void(const iox::popo::SubscriberEvent));
+    MOCK_METHOD1(detachEvent, void(const iox::popo::SubscriberEvent));
 };

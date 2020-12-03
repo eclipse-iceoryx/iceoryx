@@ -281,7 +281,7 @@ TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 TEST_F(iox_sub_test, detachingFromWaitSetWorks)
 {
     iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
-    iox_sub_detach_of(m_sut, SubscriberEvent_HAS_NEW_SAMPLES);
+    iox_sub_detach_event(m_sut, SubscriberEvent_HAS_NEW_SAMPLES);
     EXPECT_EQ(m_waitSet->size(), 0);
 }
 

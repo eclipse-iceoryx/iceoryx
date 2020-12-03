@@ -39,7 +39,7 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
     using SubscriberParent = iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>;
 
     using SubscriberParent::attachTo;
-    using SubscriberParent::detachOf;
+    using SubscriberParent::detachEvent;
     using SubscriberParent::getServiceDescription;
     using SubscriberParent::getSubscriptionState;
     using SubscriberParent::getUid;
@@ -246,7 +246,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
     sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
-    sut.detachOf(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.detachEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0);
     // ===== Cleanup ===== //

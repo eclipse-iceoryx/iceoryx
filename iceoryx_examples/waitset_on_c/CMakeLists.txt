@@ -26,52 +26,52 @@ if ( NOT ICEORYX_CXX_STANDARD )
 endif ( NOT ICEORYX_CXX_STANDARD )
 
 add_executable(iox-ex-c-waitset-publisher ./ice_c_waitset_publisher.c)
-set_source_files_properties(./ice_c_waitset_publisher.c PROPERTIES LANGUAGE C)
 target_link_libraries(iox-ex-c-waitset-publisher
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
-set_target_properties(iox-ex-c-waitset-publisher PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-)
 
 add_executable(iox-ex-c-waitset-gateway ./ice_c_waitset_gateway.c)
-set_source_files_properties(./ice_c_waitset_gateway.c PROPERTIES LANGUAGE C)
 target_link_libraries(iox-ex-c-waitset-gateway
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
-set_target_properties(iox-ex-c-waitset-gateway PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-)
 
 add_executable(iox-ex-c-waitset-grouping ./ice_c_waitset_grouping.c)
-set_source_files_properties(./ice_c_waitset_grouping.c PROPERTIES LANGUAGE C)
 target_link_libraries(iox-ex-c-waitset-grouping
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
-set_target_properties(iox-ex-c-waitset-grouping PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-)
 
 add_executable(iox-ex-c-waitset-individual ./ice_c_waitset_individual.c)
-set_source_files_properties(./ice_c_waitset_individual.c PROPERTIES LANGUAGE C)
 target_link_libraries(iox-ex-c-waitset-individual
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
-set_target_properties(iox-ex-c-waitset-individual PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-)
 
 add_executable(iox-ex-c-waitset-sync ./ice_c_waitset_sync.c)
-set_source_files_properties(./ice_c_waitset_sync.c PROPERTIES LANGUAGE C)
 target_link_libraries(iox-ex-c-waitset-sync
     iceoryx_posh::iceoryx_posh
     iceoryx_binding_c::iceoryx_binding_c
 )
-set_target_properties(iox-ex-c-waitset-sync PROPERTIES
+
+set_source_files_properties(
+    ./ice_c_waitset_sync.c 
+    ./ice_c_waitset_individual.c
+    ./ice_c_waitset_grouping.c
+    ./ice_c_waitset_gateway.c
+    ./ice_c_waitset_publisher.c
+  PROPERTIES 
+    LANGUAGE C
+)
+
+set_target_properties(
+    iox-ex-c-waitset-sync 
+    iox-ex-c-waitset-individual
+    iox-ex-c-waitset-grouping 
+    iox-ex-c-waitset-gateway
+    iox-ex-c-waitset-publisher 
+  PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 

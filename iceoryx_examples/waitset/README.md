@@ -1,7 +1,7 @@
 # WaitSet
 
 The WaitSet is a set where you can attach Trigger to signal a wide variety
-of events to one single listener. The typical approach is that one creates a
+of events to one single notifyable. The typical approach is that one creates a
 WaitSet attaches multiple subscribers or other Triggers to it and then wait till
 one or many of the attached entities signal an event. If that happens one receives
 a list of all the Triggers which were triggered and the program can act accordingly.
@@ -12,19 +12,19 @@ directly.
 
 ## Glossary
 
- - **Listener** a class which listens to events. A _Trigger_ is used to notify 
-     the _Listener_ that an event occurred.
- - **Trigger** a class which can be used to trigger a listener. If a _Trigger_ goes
-     out of scope it will detach itself from the listener. A _Trigger_ is
+ - **Notifyable** is a class which listens to events. A _Trigger_ is used to notify 
+     the _Notifyable_ that an event occurred.
+ - **Trigger** a class which can be used to trigger a _Notifyable_. If a _Trigger_ goes
+     out of scope it will detach itself from the _Notifyable_. A _Trigger_ is
      logical equal to another _Trigger_ if they:
-     - are attached to the same _Listener_ (or in other words they are using the 
+     - are attached to the same _Notifyable_ (or in other words they are using the 
        same `ConditionVariable`)
      - they have the same _TriggerOrigin_
      - they have the same callback to verify that they were triggered 
        (`hasTriggerCallback`)
      - they have the same _TriggerId_
  - **Triggerable** a class which has attached a _Trigger_ to itself to trigger
-     certain events to a _Listener_.
+     certain events to a _Notifyable_.
  - **TriggerCallback** a callback attached to a _Trigger_. It must have the 
      following signature `void ( TriggerOrigin )`. Any free function and static
      class method is allowed. You have to ensure the lifetime of that callback.
@@ -33,7 +33,7 @@ directly.
      restrictions and the user can choose any arbitrary `uint64_t`.
  - **TriggerOrigin** the pointer to the class where the trigger originated from, short
      pointer to the _Triggerable_.
- - **WaitSet** a _Listener_ which manages a set of _Triggers_ which can be acquired by 
+ - **WaitSet** a _Notifyable_ which manages a set of _Triggers_ which can be acquired by 
      the user. The _Waitset_ listens 
      to the whole set of _Triggers_ and if one or more _Trigger_ are triggered it will notify
      the user. If a _WaitSet_ goes out of scope all attached _Triggers_ will be
@@ -374,7 +374,7 @@ The `cyclicTrigger` callback is called in the else part.
 
 ### Trigger
 In this example we describe how you would implement a _Triggerable_ class which 
-can be attached to a _WaitSet_. Our class in this example will we be called 
+can be attached to a _WaitSet_. Our class in this example will be called 
 `MyTriggerClass` and it signals the _WaitSet_ two events. 
 The `PERFORMED_ACTION` event which is triggered whenever the method `performAction`
 is called and the 

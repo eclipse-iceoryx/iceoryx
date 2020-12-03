@@ -115,8 +115,8 @@ iox_WaitSetResult iox_sub_attach_to_waitset(iox_sub_t const self,
     return self->attachTo(*waitset, event, triggerId, callback);
 }
 
-void iox_sub_detach_of(iox_sub_t const self, const iox_SubscriberEvent event)
+void iox_sub_detach_event(iox_sub_t const self, const iox_SubscriberEvent event)
 {
-    return self->detachOf(event);
+    return self->detachEvent(event);
 }
 

@@ -34,7 +34,7 @@ struct cpp2c_Subscriber
                                const uint64_t triggerId,
                                const iox::popo::Trigger::Callback<cpp2c_Subscriber> callback = nullptr) noexcept;
 
-    void detachOf(const iox_SubscriberEvent event) noexcept;
+    void detachEvent(const iox_SubscriberEvent event) noexcept;
 
     void unsetTrigger(const iox::popo::Trigger& trigger) noexcept;
 

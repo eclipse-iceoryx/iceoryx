@@ -99,7 +99,7 @@ ENUM iox_WaitSetResult iox_sub_attach_to_waitset(iox_sub_t const self,
 /// @brief detaches the subscriber from a waitset
 /// @param[in] self handle to the subscriber
 /// @param[in] event the type of the event which should be detached
-void iox_sub_detach_of(iox_sub_t const self, const ENUM iox_SubscriberEvent event);
+void iox_sub_detach_event(iox_sub_t const self, const ENUM iox_SubscriberEvent event);
 
 
 #endif
