@@ -67,7 +67,7 @@ class ConstMethodCallback
     template <typename... MethodArguments>
     expected<ReturnValue, MethodCallbackError> operator()(MethodArguments&&... args) const noexcept;
 
-    /// @brief Comparision operator. Two ConstMethodCallbacks are equal if they have the
+    /// @brief Comparison operator. Two ConstMethodCallbacks are equal if they have the
     ///        same class pointer and method pointer
     bool operator==(const ConstMethodCallback& rhs) const noexcept;
 
@@ -132,7 +132,7 @@ class MethodCallback
     template <typename... MethodArguments>
     expected<ReturnValue, MethodCallbackError> operator()(MethodArguments&&... args) noexcept;
 
-    /// @brief Comparision operator. Two MethodCallbacks are equal if they have the
+    /// @brief Comparison operator. Two MethodCallbacks are equal if they have the
     ///        same class pointer and method pointer
     bool operator==(const MethodCallback& rhs) const noexcept;
 
