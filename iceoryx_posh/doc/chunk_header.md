@@ -235,7 +235,7 @@ Furthermore, the `Publisher` and `Subscriber` have access to the `ChunkHeader` a
 auto pub = iox::popo::TypedPublisher<MyPayload, MyHeader>(serviceDescription);
 pub.loan()
     .and_then([&](auto& sample) {
-        sample.getHeader()->customHeader<MyHeader>().data = 42;
+        sample.getHeader()->customHeader<MyHeader>()->data = 42;
         sample->a = 42;
         sample->b = 13;
         sample.publish();
@@ -248,8 +248,8 @@ pub.loan()
 auto sub = iox::popo::TypedSubscriber<MyPayload, MyHeader>(serviceDescription);
 sub->take()
     .and_then([](auto& sample){
-        std::cout << "Custom header data: " << sample.getHeader()->customHeader<MyHeader>().data << std::endl;
-        std::cout << "Payload data: " << static_cast<const MyPayload*>(sample->get()).data << std::endl;
+        std::cout << "Custom header data: " << sample.getHeader()->customHeader<MyHeader>()->data << std::endl;
+        std::cout << "Payload data: " << static_cast<const MyPayload*>(sample->get())->data << std::endl;
     });
 ```
     - the publisher/subscriber would have a default parameter for the custom header to be source compatible with our current API
@@ -283,7 +283,7 @@ auto payloadSize = sizeof(MyPayload);
 auto payloadAlignment = alignof(MyPayload);
 pub.loan(payloadSize, payloadAlignment)
     .and_then([&](auto& sample) {
-        sample.getHeader()->customHeader<MyHeader>().data = 42;
+        sample.getHeader()->customHeader<MyHeader>()->data = 42;
         auto payload = new (sample.get()) MyPayload();
         payload->data = 73;
         sample.publish();
@@ -300,8 +300,8 @@ auto customHeaderSize = sizeOf(MyHeader);
 auto pub = iox::popo::UntypedSubscriber(serviceDescription, customHeaderSize);
 sub->take()
     .and_then([](auto& sample){
-        std::cout << "Custom header data: " << sample.getHeader()->customHeader<MyHeader>().data << std::endl;
-        std::cout << "Payload data: " << static_cast<const MyPayload*>(sample->get()).data << std::endl;
+        std::cout << "Custom header data: " << sample.getHeader()->customHeader<MyHeader>()->data << std::endl;
+        std::cout << "Payload data: " << static_cast<const MyPayload*>(sample->get())->data << std::endl;
     });
 ```
     - option 1 has the benefit to catch a wrong alignment of the custom header and would be necessary if we make the `Sample` aware of the custom header
@@ -319,5 +319,9 @@ sub->take()
     - shall we change this back to just specifying the full chunk size?
     - shall we add an option to specify the custom header size and the payload alignment?
 - is it necessary to store a flag in `ChunkHeader` if a custom extension is used?
+    - we could maintain a list of known header IDs or ranges of IDs similar to `IANA` https://tools.ietf.org/id/draft-cotton-tsvwg-iana-ports-00.html#privateports
+    - the IDs could be stored in the `ChunkHeader` and everything with an ID larger than `0xC000` is free to use
+    - to make this somewhat save, the `ChunkHeaderHook` must be mandatory with e.g. a `virtual uint16_t getId() = 0;` method which will be called in the `ChunkSender`
 - do we want to store the version of the custom extension in the `ChunkHeader`, similarly to `m_chunkHeaderVersion`
 - for record&replay the custom header is totally opaque, which might lead to problems if e.g. a timestamp is stored in the custom header and needs to be updated for the replay
+    - if we maintain a list of known custom header IDs and also store the custom header version, a record&replay framework could implement the required conversions
