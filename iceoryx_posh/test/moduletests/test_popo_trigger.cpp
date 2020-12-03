@@ -285,6 +285,15 @@ TEST_F(Trigger_test, ResetInvalidatesTrigger)
     EXPECT_FALSE(static_cast<bool>(sut));
 }
 
+TEST_F(Trigger_test, InvalidateInvalidatesTrigger)
+{
+    Trigger sut = createValidTrigger();
+    sut.invalidate();
+
+    EXPECT_FALSE(sut.isValid());
+    EXPECT_FALSE(static_cast<bool>(sut));
+}
+
 TEST_F(Trigger_test, ResetCallsResetcallbackWithCorrectTriggerOrigin)
 {
     Trigger sut = createValidTrigger();

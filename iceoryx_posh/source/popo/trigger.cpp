@@ -31,21 +31,25 @@ bool Trigger::hasTriggered() const noexcept
 
 void Trigger::reset() noexcept
 {
-    if (!isValid() || m_resetCallbackWasCalled)
+    if (!isValid())
     {
         return;
     }
 
     if (m_resetCallback)
     {
-        // It is possible that the reset call calls itself again therefore
-        // we have to indicate that it is already running
-        // This can happen when the waitset goes out of scope.
-        // 1. The WaitSet calls the origin to invalidate his trigger when removing the trigger
-        // 2. The origin resets the trigger which removes it from the waitset
-        // 3. The WaitSet remove calls again the origin reset
-        m_resetCallbackWasCalled = true;
         m_resetCallback(*this);
+    }
+
+    m_conditionVariableDataPtr = nullptr;
+    m_origin = nullptr;
+}
+
+void Trigger::invalidate() noexcept
+{
+    if (!isValid())
+    {
+        return;
     }
 
     m_conditionVariableDataPtr = nullptr;
@@ -104,8 +108,6 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
         m_conditionVariableDataPtr = rhs.m_conditionVariableDataPtr;
         m_resetCallback = rhs.m_resetCallback;
         m_hasTriggeredCallback = rhs.m_hasTriggeredCallback;
-        m_resetCallbackWasCalled = rhs.m_resetCallbackWasCalled;
-
 
         rhs.m_origin = nullptr;
         rhs.m_originTypeHash = 0U;

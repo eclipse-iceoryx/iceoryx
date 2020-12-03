@@ -65,7 +65,7 @@ class WaitSet_test : public Test
     void resetCallback(const Trigger& trigger)
     {
         m_resetTriggerId = trigger.getTriggerId();
-        const_cast<Trigger&>(trigger).reset();
+        const_cast<Trigger&>(trigger).invalidate();
     }
 
     static void triggerCallback1(WaitSet_test* const waitset)

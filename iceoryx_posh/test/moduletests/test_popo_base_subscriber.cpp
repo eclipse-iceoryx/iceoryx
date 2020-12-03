@@ -45,10 +45,10 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
     using SubscriberParent::getUid;
     using SubscriberParent::hasMissedSamples;
     using SubscriberParent::hasNewSamples;
+    using SubscriberParent::invalidateTrigger;
     using SubscriberParent::releaseQueuedSamples;
     using SubscriberParent::subscribe;
     using SubscriberParent::take;
-    using SubscriberParent::unsetTrigger;
     using SubscriberParent::unsubscribe;
     port_t& getMockedPort()
     {
@@ -227,13 +227,11 @@ TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFrom
     sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
     sut.attachTo(*waitSet2, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0);
     EXPECT_EQ(waitSet2->size(), 1);
     // ===== Cleanup ===== //
-    EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
     delete waitSet;
 }
 

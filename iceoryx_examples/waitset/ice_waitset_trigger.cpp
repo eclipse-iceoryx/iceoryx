@@ -110,7 +110,7 @@ class MyTriggerClass
                                 // trigger calls this method to ask if it was triggered
                                 {this, &MyTriggerClass::hasPerformedAction},
                                 // method which will be called when the waitset goes out of scope
-                                {this, &MyTriggerClass::unsetTrigger},
+                                {this, &MyTriggerClass::invalidateTrigger},
                                 triggerId,
                                 callback)
                 // assigning the acquired trigger from the waitset to m_actionTrigger
@@ -123,7 +123,7 @@ class MyTriggerClass
                                 // trigger calls this method to ask if it was triggered
                                 {this, &MyTriggerClass::isActivated},
                                 // method which will be called when the waitset goes out of scope
-                                {this, &MyTriggerClass::unsetTrigger},
+                                {this, &MyTriggerClass::invalidateTrigger},
                                 triggerId,
                                 callback)
                 // assigning the acquired trigger from the waitset to m_activateTrigger
@@ -136,15 +136,15 @@ class MyTriggerClass
 
     // we offer the waitset a method to invalidate trigger if it goes
     // out of scope
-    void unsetTrigger(const iox::popo::Trigger& trigger)
+    void invalidateTrigger(const iox::popo::Trigger& trigger)
     {
         if (trigger.isLogicalEqualTo(m_actionTrigger))
         {
-            m_actionTrigger.reset();
+            m_actionTrigger.invalidate();
         }
         else if (trigger.isLogicalEqualTo(m_activateTrigger))
         {
-            m_activateTrigger.reset();
+            m_activateTrigger.invalidate();
         }
     }
 

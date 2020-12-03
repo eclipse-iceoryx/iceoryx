@@ -42,10 +42,10 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     using BaseSubscriber::getUid;
     using BaseSubscriber::hasMissedSamples;
     using BaseSubscriber::hasNewSamples;
+    using BaseSubscriber::invalidateTrigger;
     using BaseSubscriber::releaseQueuedSamples;
     using BaseSubscriber::subscribe;
     using BaseSubscriber::take;
-    using BaseSubscriber::unsetTrigger;
     using BaseSubscriber::unsubscribe;
 };
 

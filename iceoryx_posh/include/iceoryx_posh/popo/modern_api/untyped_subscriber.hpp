@@ -51,10 +51,10 @@ class UntypedSubscriberImpl
     using BaseSubscriber::getUid;
     using BaseSubscriber::hasMissedSamples;
     using BaseSubscriber::hasNewSamples;
+    using BaseSubscriber::invalidateTrigger;
     using BaseSubscriber::releaseQueuedSamples;
     using BaseSubscriber::subscribe;
     using BaseSubscriber::take;
-    using BaseSubscriber::unsetTrigger;
     using BaseSubscriber::unsubscribe;
 };
 

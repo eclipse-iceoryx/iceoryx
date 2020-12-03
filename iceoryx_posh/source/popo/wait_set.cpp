@@ -42,8 +42,8 @@ void WaitSet::removeTrigger(const Trigger& trigger) noexcept
     {
         if (currentTrigger.isLogicalEqualTo(trigger))
         {
+            currentTrigger.invalidate();
             m_triggerVector.erase(&currentTrigger);
-            currentTrigger.reset();
             return;
         }
     }

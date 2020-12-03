@@ -114,12 +114,12 @@ inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedSamples() noexce
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::unsetTrigger(const Trigger& trigger) noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const Trigger& trigger) noexcept
 {
     if (trigger.isLogicalEqualTo(m_trigger))
     {
         m_port.unsetConditionVariable();
-        m_trigger.reset();
+        m_trigger.invalidate();
     }
 }
 
@@ -153,7 +153,7 @@ BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet& waitset,
     return waitset
         .acquireTrigger(self,
                         {this, &BaseSubscriber<T, Subscriber, port_t>::hasNewSamples},
-                        {this, &SelfType::unsetTrigger},
+                        {this, &SelfType::invalidateTrigger},
                         triggerId,
                         callback)
         .and_then([this](Trigger& trigger) {
@@ -168,6 +168,7 @@ inline void BaseSubscriber<T, Subscriber, port_t>::detachEvent(const SubscriberE
     static_cast<void>(subscriberEvent);
 
     m_trigger.reset();
+    m_port.unsetConditionVariable();
 }
 
 

@@ -87,6 +87,9 @@ class Trigger : public TriggerState
     /// @brief resets and by that invalidates the Trigger
     void reset() noexcept;
 
+    /// @brief invalidates the Trigger without calling the reset callback
+    void invalidate() noexcept;
+
     /// @brief returns the pointer to the underlying condition variable data
     ConditionVariableData* getConditionVariableData() noexcept;
 
@@ -107,7 +110,6 @@ class Trigger : public TriggerState
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, const Trigger&> m_resetCallback;
-    bool m_resetCallbackWasCalled{false};
 };
 
 
