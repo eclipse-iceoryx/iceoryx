@@ -80,7 +80,7 @@ class Trigger
     /// @brief returns the result of the provided hasTriggeredCallback
     bool hasTriggered() const noexcept;
 
-    /// @brief resets and by that invalidates the Trigger
+    /// @brief resets and invalidates the Trigger
     void reset() noexcept;
 
     /// @brief invalidates the Trigger without calling the reset callback
