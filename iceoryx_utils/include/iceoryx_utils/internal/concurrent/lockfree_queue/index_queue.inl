@@ -200,9 +200,9 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
     // unfortunately it seems impossible in this design to check this condition without loading
     // write posiion and read position (which causes more contention)
 
-    auto writePosition = m_writePosition.load(std::memory_order_relaxed);
+    const auto writePosition = m_writePosition.load(std::memory_order_relaxed);
     auto readPosition = m_readPosition.load(std::memory_order_relaxed);
-    auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
+    const auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
 
     auto isFull = writePosition.getIndex() == readPosition.getIndex() && readPosition.isOneCycleBehind(writePosition);
 
@@ -224,7 +224,7 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(uint64_t requiredSize, ValueType& index) noexcept
+bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t requiredSize, ValueType& index) noexcept
 {
     if (requiredSize == 0)
     {
@@ -234,7 +234,7 @@ bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(uint64_t requiredSize, 
     // which to load first is up to discussion, for correctness it should make no difference
     // but for performance it might
     // note that without sync mechanisms (such as seq_cst), reordering is possible
-    auto writePosition = m_writePosition.load(std::memory_order_relaxed);
+    const auto writePosition = m_writePosition.load(std::memory_order_relaxed);
     auto readPosition = m_readPosition.load(std::memory_order_relaxed);
 
     // if readPosition + n = readPosition for some n>=0, the queue contains n elements
@@ -242,7 +242,7 @@ bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(uint64_t requiredSize, 
     // while the m_readPosition and m_writePosition can grow during this operation,
     // we detect this for readPosition with compare_exchange and for writePosition it does not matter,
     // the queue will contain even more elements then ( > n)
-    int64_t delta = writePosition - readPosition;
+    const int64_t delta = writePosition - readPosition;
 
     // delta < 0 can actually happen (atomic values may not be up to date, i.e. detect writePosition as smaller than
     // readPosition leading to negative delta)
@@ -295,7 +295,7 @@ cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfFull() noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(uint64_t size) noexcept
+cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t size) noexcept
 {
     ValueType value;
     if (popIfSizeIsAtLeast(size, value))
@@ -308,8 +308,8 @@ cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(uin
 template <uint64_t Capacity, typename ValueType>
 bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 {
-    auto readPosition = m_readPosition.load(std::memory_order_relaxed);
-    auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
+    const auto readPosition = m_readPosition.load(std::memory_order_relaxed);
+    const auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
 
     // if m_readPosition is ahead by one cycle compared to the value stored at head,
     // the queue was empty at the time of the loads above (but might not be anymore!)
@@ -318,7 +318,7 @@ bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 
 template <uint64_t Capacity, typename ValueType>
 typename IndexQueue<Capacity, ValueType>::Index
-IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, std::memory_order memoryOrder) const
+IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, const std::memory_order memoryOrder) const
 {
     return m_cells[position.getIndex()].load(memoryOrder);
 }

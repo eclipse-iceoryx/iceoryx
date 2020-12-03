@@ -19,7 +19,7 @@ namespace iox
 namespace concurrent
 {
 template <typename ElementType, uint64_t MaxCapacity>
-ResizeableLockFreeQueue<ElementType, MaxCapacity>::ResizeableLockFreeQueue(uint64_t initialCapacity) noexcept
+ResizeableLockFreeQueue<ElementType, MaxCapacity>::ResizeableLockFreeQueue(const uint64_t initialCapacity) noexcept
 {
     setCapacity(initialCapacity);
 }
@@ -38,7 +38,7 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::capacity() const noe
 
 
 template <typename ElementType, uint64_t MaxCapacity>
-bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t newCapacity) noexcept
+bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(const uint64_t newCapacity) noexcept
 {
     auto removeHandler = [](const ElementType&) {};
     return setCapacity(newCapacity, removeHandler);
@@ -46,7 +46,7 @@ bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t new
 
 template <typename ElementType, uint64_t MaxCapacity>
 template <typename Function, typename>
-bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t newCapacity,
+bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(const uint64_t newCapacity,
                                                                     Function&& removeHandler) noexcept
 {
     if (newCapacity > MAX_CAPACITY)
@@ -90,7 +90,7 @@ bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::setCapacity(uint64_t new
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
-uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::increaseCapacity(uint64_t toIncrease) noexcept
+uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::increaseCapacity(const uint64_t toIncrease) noexcept
 {
     // we can be sure this is not called concurrently due to the m_resizeInProgress flag
     //(this must be ensured as the vector is modified)
@@ -113,7 +113,7 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::increaseCapacity(uin
 
 template <typename ElementType, uint64_t MaxCapacity>
 template <typename Function>
-uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(uint64_t toDecrease,
+uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(const uint64_t toDecrease,
                                                                              Function&& removeHandler) noexcept
 {
     uint64_t decreased = 0U;
@@ -165,12 +165,12 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(uin
 template <typename ElementType, uint64_t MaxCapacity>
 bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::tryGetUsedIndex(BufferIndex& index) noexcept
 {
-    // note: we have a problem here if we lose an index entirely, since the queue
-    // can then never be full again (or, more generally contain capacity indices)
-    // to lessen this problem, we could use a regular pop if we fail to often here
-    // instead of a variation of popIfFull (which will never work then)
+    /// @note: we have a problem here if we lose an index entirely, since the queue
+    /// can then never be full again (or, more generally contain capacity indices)
+    /// to lessen this problem, we could use a regular pop if we fail to often here
+    /// instead of a variation of popIfFull (which will never work then)
 
-    auto cap = capacity();
+    const auto cap = capacity();
     if (cap == 0U)
     {
         // this should in principle return false for a zero capacity queue unless capacity changed inbetween

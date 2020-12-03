@@ -61,7 +61,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     ResizeableLockFreeQueue& operator=(const ResizeableLockFreeQueue&) = delete;
     ResizeableLockFreeQueue& operator=(ResizeableLockFreeQueue&&) = delete;
 
-    ResizeableLockFreeQueue(uint64_t initialCapacity) noexcept;
+    ResizeableLockFreeQueue(const uint64_t initialCapacity) noexcept;
 
     /// @brief returns the maximum capacity of the queue
     /// @return the maximum capacity
@@ -111,14 +111,14 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     /// @return     true if the capacity was successfully set, false otherwise
     template <typename Function,
               typename = typename std::enable_if<cxx::is_invocable<Function, ElementType>::value>::type>
-    bool setCapacity(uint64_t newCapacity, Function&& removeHandler) noexcept;
+    bool setCapacity(const uint64_t newCapacity, Function&& removeHandler) noexcept;
 
     /// @brief Set the capacity to a new capacity between 0 and MaxCapacity, if the capacity is reduced
     /// it may be necessary to remove the least recent elements which are then discarded.
     /// @param[in] newCapacity new capacity to be set, if it is larger than MaxCapacity the call fails
     /// @return true setting if the new capacity was successful, false otherwise (newCapacity > MaxCapacity)
     /// @note threadsafe, lockfree but multiple concurrent calls may have no effect
-    bool setCapacity(uint64_t newCapacity) noexcept;
+    bool setCapacity(const uint64_t newCapacity) noexcept;
 
   private:
     using BufferIndex = typename Base::BufferIndex;
@@ -131,7 +131,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     /// @return     value by which the capacity was actually increased
     /// @note       If incrementing cannot be carried out (because the MaxCapacity was reached),
     ///             this value will be smaller than toIncrease.
-    uint64_t increaseCapacity(uint64_t toIncrease) noexcept;
+    uint64_t increaseCapacity(const uint64_t toIncrease) noexcept;
 
     /// @brief      Decrease the capacity by some value.
     /// @param[in]  toDecrease value by which the capacity is to be decreased
@@ -141,7 +141,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     /// @note       If decrementing cannot be carried out (because the capacity is already 0),
     ///             this value will be smaller than toDecrease.
     template <typename Function>
-    uint64_t decreaseCapacity(uint64_t toDecrease, Function&& removeHandler) noexcept;
+    uint64_t decreaseCapacity(const uint64_t toDecrease, Function&& removeHandler) noexcept;
 
     /// @brief       Try to get a used index if available.
     /// @param[out]  index index obtained in the successful case
