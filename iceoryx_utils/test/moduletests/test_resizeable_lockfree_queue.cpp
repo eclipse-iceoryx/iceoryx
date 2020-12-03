@@ -138,11 +138,43 @@ TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOne)
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
 
+    uint64_t element = 0U;
+    while (q.tryPush(element))
+    {
+        ++element;
+    }
+
     auto i = MAX_CAP;
     while (i > 0U)
     {
         EXPECT_TRUE(q.setCapacity(--i));
         ASSERT_EQ(q.capacity(), i);
+        ASSERT_EQ(q.size(), i);
+    }
+}
+
+TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOneWithHandler)
+{
+    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+    iox::cxx::vector<int, MAX_CAP> removedElements;
+    using element_t = typename TestFixture::Queue::element_t;
+    auto removeHandler = [&](const element_t& value) { removedElements.emplace_back(std::move(value)); };
+
+    auto& q = this->queue;
+
+    uint64_t element = 0U;
+    while (q.tryPush(element))
+    {
+        ++element;
+    }
+
+    auto i = MAX_CAP;
+    while (i > 0U)
+    {
+        EXPECT_TRUE(q.setCapacity(--i, removeHandler));
+        ASSERT_EQ(q.capacity(), i);
+        ASSERT_EQ(q.size(), i);
+        EXPECT_EQ(removedElements.size(), MAX_CAP - i);
     }
 }
 
@@ -159,6 +191,24 @@ TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOne)
     }
 }
 
+TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOneWithHandler)
+{
+    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+    iox::cxx::vector<int, MAX_CAP> removedElements;
+    using element_t = typename TestFixture::Queue::element_t;
+    auto removeHandler = [&](const element_t& value) { removedElements.emplace_back(std::move(value)); };
+
+    typename TestFixture::Queue q(0U);
+    EXPECT_EQ(q.capacity(), 0U);
+
+    for (uint64_t i = 0U; i < MAX_CAP;)
+    {
+        EXPECT_TRUE(q.setCapacity(++i, removeHandler));
+        ASSERT_EQ(q.capacity(), i);
+        EXPECT_EQ(removedElements.size(), 0U);
+    }
+}
+
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZero)
 {
     auto& q = this->queue;
@@ -166,11 +216,37 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZero)
     EXPECT_EQ(q.capacity(), 0U);
 }
 
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToZeroWithHandler)
+{
+    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+    iox::cxx::vector<int, MAX_CAP> removedElements;
+    using element_t = typename TestFixture::Queue::element_t;
+    auto removeHandler = [&](const element_t& value) { removedElements.emplace_back(std::move(value)); };
+
+    auto& q = this->queue;
+    EXPECT_TRUE(q.setCapacity(0U, removeHandler));
+    EXPECT_EQ(q.capacity(), 0U);
+    EXPECT_EQ(removedElements.size(), 0U);
+}
+
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOne)
 {
     auto& q = this->queue;
     EXPECT_TRUE(q.setCapacity(1U));
     EXPECT_EQ(q.capacity(), 1U);
+}
+
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToOneWithHandler)
+{
+    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+    iox::cxx::vector<int, MAX_CAP> removedElements;
+    using element_t = typename TestFixture::Queue::element_t;
+    auto removeHandler = [&](const element_t& value) { removedElements.emplace_back(std::move(value)); };
+
+    auto& q = this->queue;
+    EXPECT_TRUE(q.setCapacity(1U, removeHandler));
+    EXPECT_EQ(q.capacity(), 1U);
+    EXPECT_EQ(removedElements.size(), 0U);
 }
 
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacity)
@@ -181,6 +257,20 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacity)
     EXPECT_EQ(q.capacity(), MAX_CAP);
 }
 
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToMaxCapacityWithHandler)
+{
+    typename TestFixture::Queue q(0U);
+    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+
+    iox::cxx::vector<int, MAX_CAP> removedElements;
+    using element_t = typename TestFixture::Queue::element_t;
+    auto removeHandler = [&](const element_t& value) { removedElements.emplace_back(std::move(value)); };
+
+    EXPECT_TRUE(q.setCapacity(MAX_CAP, removeHandler));
+    EXPECT_EQ(q.capacity(), MAX_CAP);
+    EXPECT_EQ(removedElements.size(), 0U);
+}
+
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillIt)
 {
     auto& q = this->queue;
@@ -188,6 +278,31 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillIt)
     constexpr auto NEW_CAP = MAX_CAP / 2U;
     EXPECT_EQ(q.setCapacity(NEW_CAP), true);
     EXPECT_EQ(q.capacity(), NEW_CAP);
+
+    uint64_t element = 0U;
+    while (q.tryPush(element))
+    {
+        ++element;
+    }
+
+    EXPECT_EQ(q.capacity(), NEW_CAP);
+    EXPECT_EQ(q.size(), NEW_CAP);
+    EXPECT_EQ(element, NEW_CAP);
+}
+
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityToHalfOfMaxCapacityAndFillItWithHandler)
+{
+    auto& q = this->queue;
+    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+    constexpr auto NEW_CAP = MAX_CAP / 2U;
+
+    iox::cxx::vector<int, MAX_CAP> removedElements;
+    using element_t = typename TestFixture::Queue::element_t;
+    auto removeHandler = [&](const element_t& value) { removedElements.emplace_back(std::move(value)); };
+
+    EXPECT_EQ(q.setCapacity(NEW_CAP, removeHandler), true);
+    EXPECT_EQ(q.capacity(), NEW_CAP);
+    EXPECT_EQ(removedElements.size(), 0U);
 
     uint64_t element = 0U;
     while (q.tryPush(element))
@@ -231,6 +346,43 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCap
     }
 }
 
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityFromHalfOfMaxCapacityToMaxCapacityWithHandler)
+{
+    auto& q = this->queue;
+    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+    constexpr auto NEW_CAP = MAX_CAP / 2U;
+
+    iox::cxx::vector<int, MAX_CAP> removedElements;
+    using element_t = typename TestFixture::Queue::element_t;
+    auto removeHandler = [&](const element_t& value) { removedElements.emplace_back(std::move(value)); };
+
+    q.setCapacity(NEW_CAP);
+
+    uint64_t element = 0U;
+    while (q.tryPush(element))
+    {
+        ++element;
+    }
+
+    EXPECT_EQ(q.setCapacity(MAX_CAP, removeHandler), true);
+    EXPECT_EQ(q.capacity(), MAX_CAP);
+    EXPECT_EQ(q.size(), NEW_CAP);
+    EXPECT_EQ(removedElements.size(), 0U);
+
+    while (q.tryPush(element))
+    {
+        ++element;
+    }
+
+    // we want to find all elements we pushed
+    for (element = 0U; element < MAX_CAP; ++element)
+    {
+        const auto result = q.pop();
+        ASSERT_TRUE(result.has_value());
+        EXPECT_EQ(result.value(), element);
+    }
+}
+
 TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacity)
 {
     auto& q = this->queue;
@@ -257,10 +409,96 @@ TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacit
     }
 }
 
+TYPED_TEST(ResizeableLockFreeQueueTest, setCapacityOfFullQueueToHalfOfMaxCapacityWithHandler)
+{
+    auto& q = this->queue;
+    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+    constexpr auto NEW_CAP = MAX_CAP / 2U;
+
+    iox::cxx::vector<int, MAX_CAP> removedElements;
+    using element_t = typename TestFixture::Queue::element_t;
+    auto removeHandler = [&](const element_t& value) { removedElements.emplace_back(std::move(value)); };
+
+    uint64_t element = 0U;
+    while (q.tryPush(element))
+    {
+        ++element;
+    };
+
+    EXPECT_TRUE(q.setCapacity(NEW_CAP, removeHandler));
+    EXPECT_EQ(q.capacity(), NEW_CAP);
+    EXPECT_EQ(q.size(), NEW_CAP);
+    EXPECT_EQ(removedElements.size(), MAX_CAP / 2 + MAX_CAP % 2U);
+
+    // the least recent values are removed due to the capacity being decreased
+    // how many elements remain depends on whether MAX_CAP is divisable by 2
+    for (element = NEW_CAP + MAX_CAP % 2U; element < MAX_CAP; ++element)
+    {
+        auto result = q.pop();
+        ASSERT_TRUE(result.has_value());
+        EXPECT_EQ(result.value(), element);
+    }
+}
+
 // note this is one of the most general cases and necessary to test:
 // decreasing the capacity starting with a partially filled queue and checking whether the last values
 // remain (and the others are removed)
 TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
+{
+    auto& q = this->queue;
+    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
+
+    const auto CAP = MAX_CAP / 2U;
+
+    q.setCapacity(CAP);
+
+    uint64_t element = 0U;
+    while (q.tryPush(element++))
+        ;
+
+    const auto CAP2 = CAP + MAX_CAP / 4U; // roughly 3 quarters of max (integer division)
+    q.setCapacity(CAP2);
+
+    // queue is now partially filled with elements (neither full nor empty)
+    // decrease the capacity
+    // verify that the test was set up correctly
+
+    EXPECT_EQ(q.capacity(), CAP2);
+    EXPECT_EQ(q.size(), CAP);
+
+    // decrease the capacity of the partially filled queue again
+
+    const auto CAP3 = CAP2 - CAP; // roughly a quarter of max
+
+    EXPECT_TRUE(q.setCapacity(CAP3));
+    EXPECT_EQ(q.capacity(), CAP3);
+    EXPECT_EQ(q.size(), CAP3);
+
+    // are the remaining elements correct? (i.e. we did not remove too many elements)
+    for (element = CAP - CAP3; element < CAP; ++element)
+    {
+        auto result = q.pop();
+        ASSERT_TRUE(result.has_value());
+        EXPECT_EQ(result.value(), element);
+    }
+
+    // refill to verify the capacity can really be used
+
+    element = 0U;
+    while (q.tryPush(element++))
+        ;
+
+    for (element = 0U; element < CAP3; ++element)
+    {
+        auto result = q.pop();
+        ASSERT_TRUE(result.has_value());
+        EXPECT_EQ(result.value(), element);
+    }
+
+    EXPECT_EQ(q.size(), 0U);
+}
+
+TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueWithHandler)
 {
     auto& q = this->queue;
     constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
