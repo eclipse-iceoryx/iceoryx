@@ -75,7 +75,7 @@ class PortManager_test : public Test
         m_roudiMemoryManager->createAndAnnounceMemory();
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 
-        auto user = iox::posix::PosixGroup::getGroupOfCurrentProcess().getName();
+        auto user = iox::posix::PosixUser::getUserOfCurrentProcess().getName();
         m_payloadMemoryManager =
             m_roudiMemoryManager->segmentManager().value()->getSegmentInformationForUser(user).m_memoryManager;
 
