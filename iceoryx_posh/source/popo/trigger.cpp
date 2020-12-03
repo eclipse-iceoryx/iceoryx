@@ -53,7 +53,6 @@ TriggerState Trigger::getTriggerState() const noexcept
 
 void Trigger::invalidate() noexcept
 {
-    m_triggerState.m_origin = nullptr;
     m_hasTriggeredCallback = cxx::ConstMethodCallback<bool>();
 }
 
@@ -64,7 +63,7 @@ Trigger::operator bool() const noexcept
 
 bool Trigger::isValid() const noexcept
 {
-    return m_triggerState.m_origin && m_hasTriggeredCallback;
+    return static_cast<bool>(m_hasTriggeredCallback);
 }
 
 bool Trigger::isLogicalEqualTo(const Trigger& rhs) const noexcept

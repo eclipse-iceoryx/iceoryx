@@ -98,7 +98,7 @@ TEST_F(Trigger_test, TriggerWithValidOriginIsValid)
     EXPECT_TRUE(static_cast<bool>(sut));
 }
 
-TEST_F(Trigger_test, TriggerWithInvalidOriginIsValid)
+TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
 {
     uint64_t triggerId = 0U;
     Trigger sut(static_cast<TriggerClass*>(nullptr),
@@ -107,8 +107,8 @@ TEST_F(Trigger_test, TriggerWithInvalidOriginIsValid)
                 triggerId,
                 TriggerClass::callback);
 
-    EXPECT_FALSE(sut.isValid());
-    EXPECT_FALSE(static_cast<bool>(sut));
+    EXPECT_TRUE(sut.isValid());
+    EXPECT_TRUE(static_cast<bool>(sut));
 }
 
 TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackIsInvalid)
@@ -122,6 +122,19 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackIsInvalid)
 
     EXPECT_FALSE(sut.isValid());
     EXPECT_FALSE(static_cast<bool>(sut));
+}
+
+TEST_F(Trigger_test, TriggerWithEmptyResetCallIsValid)
+{
+    uint64_t triggerId = 0U;
+    Trigger sut(&m_triggerClass,
+                {&m_triggerClass, &TriggerClass::hasTriggered},
+                cxx::MethodCallback<void, uint64_t>(),
+                triggerId,
+                TriggerClass::callback);
+
+    EXPECT_TRUE(sut.isValid());
+    EXPECT_TRUE(static_cast<bool>(sut));
 }
 
 TEST_F(Trigger_test, ResetInvalidatesTrigger)
@@ -148,19 +161,6 @@ TEST_F(Trigger_test, ResetCallsResetcallbackWithCorrectTriggerOrigin)
     sut.reset();
 
     EXPECT_EQ(m_triggerClass.m_resetCallTriggerArg, sut.getUniqueId());
-}
-
-TEST_F(Trigger_test, TriggerWithEmptyResetCallIsValid)
-{
-    uint64_t triggerId = 0U;
-    Trigger sut(&m_triggerClass,
-                {&m_triggerClass, &TriggerClass::hasTriggered},
-                cxx::MethodCallback<void, uint64_t>(),
-                triggerId,
-                TriggerClass::callback);
-
-    EXPECT_TRUE(sut.isValid());
-    EXPECT_TRUE(static_cast<bool>(sut));
 }
 
 TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
@@ -251,6 +251,19 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
     sut.reset();
 
     EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, sut.getUniqueId());
+}
+
+TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfTriggerState)
+{
+    TriggerClass secondTriggerClass;
+    Trigger sut(&m_triggerClass,
+                {&m_triggerClass, &TriggerClass::hasTriggered},
+                {&m_triggerClass, &TriggerClass::resetCall},
+                891,
+                TriggerClass::callback);
+
+    sut.updateOrigin(&secondTriggerClass);
+    EXPECT_TRUE(sut.getTriggerState().doesOriginateFrom(&secondTriggerClass));
 }
 
 /// Two triggers are equal when they have the same:
