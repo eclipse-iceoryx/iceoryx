@@ -56,17 +56,15 @@ For back calculation from the payload pointer to the `ChunkHeader` pointer, the 
 1. No custom header and alignment doesn't exceed the `ChunkHeader` alignment
 
 ```
-  sizeof(ChunkHeader)     m_payloadSize
-|-------------------->|------------------->|
-|                     |                    |
-+=====================+====================+==================================+
-|                     |                    |                                  |
-|     ChunkHeader     |      Payload       |  Padding                         |
-|                     |                    |                                  |
-+=====================+====================+==================================+
-|                     |                                                       |
-|   m_payloadOffset   |                                                       |
-|-------------------->|                                                       |
+ sizeof(ChunkHeader)    m_payloadSize
+|------------------>|--------------------->|
+|                   |                      |
++===================+======================+==================================+
+|  ChunkHeader  ¦   |       Payload        |  Padding                         |
++===================+======================+==================================+
+|                   |                                                         |
+|  m_payloadOffset  |                                                         |
+|------------------>|                                                         |
 |                                m_chunkSize                                  |
 |---------------------------------------------------------------------------->|
 ```
@@ -74,14 +72,12 @@ For back calculation from the payload pointer to the `ChunkHeader` pointer, the 
 2. No custom header and alignment exceeds the `ChunkHeader` alignment
 
 ```
-  sizeof(ChunkHeader)            back-offset    m_payloadSize
-|-------------------->|                |<---|------------------->|
-|                     |                |    |                    |
-+=====================+=====================+====================+============+
-|                     |                .    |                    |            |
-|     ChunkHeader     |                .    |      Payload       |  Padding   |
-|                     |                .    |                    |            |
-+=====================+=====================+====================+============+
+ sizeof(ChunkHeader)             back-offset    m_payloadSize
+|------------------>|                  |<---|------------------->|
+|                   |                  |    |                    |
++===================+=======================+====================+============+
+|    ChunkHeader    |                  ¦    |      Payload       |  Padding   |
++===================+=======================+====================+============+
 |                                           |                                 |
 |           m_payloadOffset                 |                                 |
 |------------------------------------------>|                                 |
@@ -95,14 +91,12 @@ Depending on the address of the chunk there is the chance that `ChunkHeader` is 
 3. Custom header is used
 
 ```
-  sizeof(ChunkHeader)            back-offset    m_payloadSize
-|-------------------->|                |<---|------------------->|
-|                     |                |    |                    |
-+=====================+=====================+====================+============+
-|                     |   Custom    |  .    |                    |            |
-|     ChunkHeader     | ChunkHeader |  .    |      Payload       |  Padding   |
-|                     |  Extension  |  .    |                    |            |
-+=====================+=====================+====================+============+
+ sizeof(ChunkHeader)             back-offset    m_payloadSize
+|------------------>|                  |<---|------------------->|
+|                   |                  |    |                    |
++===================+===============+=======+====================+============+
+|    ChunkHeader    | Custom Header |  ¦    |      Payload       |  Padding   |
++===================+===============+=======+====================+============+
 |                                           |                                 |
 |           m_payloadOffset                 |                                 |
 |------------------------------------------>|                                 |
@@ -149,20 +143,55 @@ chunkSize = sizeof(chunkHeader) + payloadSize;
 
 2. No custom header and payload alignment exceeds the `ChunkHeader` alignment
 
-Worst case scenario is when a part of the `ChunkHeader` crosses the payload alignment boundary, so that the payload must be aligned to the next boundary.
+Worst case scenario is when a part of the `ChunkHeader` crosses the payload alignment boundary, so that the payload must be aligned to the next boundary. Currently this is not possible, since the size equals the alignment of the `ChunkHeader`. This might change if more member are added to the `ChunkHeader` or the alignment is reduced. The following drawing demonstrates this scenario.
+
 ```
-sizeLeftOfThePayloandAlignmentBoundary = sizeof(chunkHeader) - alignof(chunkHeader);
-chunkSize = sizeLeftOfThePayloandAlignmentBoundary + payloadAlignment + payloadSize;
+                               ┌ back-offset
+    +===============+==========|+===============================+
+    |  ChunkHeader  |         ¦🢓|           Payload             |
+    +===============+===========+===============================+
+
+⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥ <- ChunkHeader alignment boundaries
+⊥               ⊥               ⊥               ⊥ <- payload alignment boundaries
+    <-----------|--------------->
+    pre payload     payload     |------------------------------->
+     alignment     alignment             payload size
+     overhang
+```
+
+The following formula is used to calculate the required chunk size.
+
+```
+prePayloadAlignmentOverhang = sizeof(chunkHeader) - alignof(chunkHeader);
+chunkSize = prePayloadAlignmentOverhang + payloadAlignment + payloadSize;
 ```
 
 3. Custom header is used
 
 Similar to case 2, but in this case it is the `back-offset` which might cross the payload alignment boundary.
+
+```
+                                               ┌ back-offset with same alignment
+                                               | as payloadOffset
+    +===============+===========+==============|+===============================+
+    |  ChunkHeader  | CustomHdr |             ¦🢓|            Payload            |
+    +===============+===========+===============+===============================+
+
+                            ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ ⊥ <- payloadOffset alignment boundaries
+⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥   ⊥ <- ChunkHeader alignment boundaries
+⊥               ⊥               ⊥               ⊥ <- payload alignment boundaries
+    <---------------------------|--------------->
+       pre payload alignment        payload     |------------------------------->
+            overhang               alignment             payload size
+```
+
+The following formula is used to calculate the required chunk size.
+
 ```
 headerSize = sizeof(chunkHeader) + sizeof(customHeader)
-sizeLeftOfThePayloandAlignmentBoundary = align(headerSize, alignof(payloadOffset));
+prePayloadAlignmentOverhang = align(headerSize, alignof(payloadOffset));
 maxAlignment = max(alignof(payloadOffset), payloadAlignment);
-chunkSize = sizeLeftOfThePayloandAlignmentBoundary + maxAlignment + payloadSize;
+chunkSize = prePayloadAlignmentOverhang + maxAlignment + payloadSize;
 ```
 
 ### Accessing Chunk Header Extension
