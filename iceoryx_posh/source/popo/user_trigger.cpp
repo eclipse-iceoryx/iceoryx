@@ -26,7 +26,7 @@ cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet& waitset,
     return waitset
         .acquireTrigger(
             this, {this, &UserTrigger::hasTriggered}, {this, &UserTrigger::invalidateTrigger}, triggerId, callback)
-        .and_then([this](Trigger& trigger) { m_trigger = std::move(trigger); });
+        .and_then([this](TriggerHandle& trigger) { m_trigger = std::move(trigger); });
 }
 
 void UserTrigger::detach() noexcept
@@ -53,9 +53,12 @@ void UserTrigger::resetTrigger() noexcept
     m_wasTriggered.store(false, std::memory_order_relaxed);
 }
 
-void UserTrigger::invalidateTrigger(const Trigger&) noexcept
+void UserTrigger::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
 {
-    m_trigger.invalidate();
+    if (uniqueTriggerId == m_trigger.getUniqueId())
+    {
+        m_trigger.invalidate();
+    }
 }
 
 } // namespace popo

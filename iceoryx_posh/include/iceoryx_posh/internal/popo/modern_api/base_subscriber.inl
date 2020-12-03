@@ -114,9 +114,9 @@ inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedSamples() noexce
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const Trigger& trigger) noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
 {
-    if (trigger.isLogicalEqualTo(m_trigger))
+    if (m_trigger.getUniqueId() == uniqueTriggerId)
     {
         m_port.unsetConditionVariable();
         m_trigger.invalidate();
@@ -156,7 +156,7 @@ BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet& waitset,
                         {this, &SelfType::invalidateTrigger},
                         triggerId,
                         callback)
-        .and_then([this](Trigger& trigger) {
+        .and_then([this](TriggerHandle& trigger) {
             m_trigger = std::move(trigger);
             m_port.setConditionVariable(m_trigger.getConditionVariableData());
         });

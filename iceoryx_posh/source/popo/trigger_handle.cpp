@@ -41,8 +41,10 @@ TriggerHandle& TriggerHandle::operator=(TriggerHandle&& rhs) noexcept
 
         m_conditionVariableDataPtr = std::move(rhs.m_conditionVariableDataPtr);
         m_resetCallback = std::move(rhs.m_resetCallback);
+        m_uniqueTriggerId = rhs.m_uniqueTriggerId;
 
         rhs.m_conditionVariableDataPtr = nullptr;
+        rhs.m_uniqueTriggerId = 0U;
     }
     return *this;
 }
@@ -95,6 +97,10 @@ ConditionVariableData* TriggerHandle::getConditionVariableData() noexcept
     return m_conditionVariableDataPtr;
 }
 
+uint64_t TriggerHandle::getUniqueId() const noexcept
+{
+    return m_uniqueTriggerId;
+}
 
 } // namespace popo
 } // namespace iox

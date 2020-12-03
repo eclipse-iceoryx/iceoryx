@@ -36,10 +36,10 @@ iox_WaitSetResult cpp2c_Subscriber::attachTo(iox::popo::WaitSet& waitset,
         waitset
             .acquireTrigger(this,
                             {this, &cpp2c_Subscriber::hasNewSamples},
-                            {this, &cpp2c_Subscriber::unsetTrigger},
+                            {this, &cpp2c_Subscriber::invalidateTrigger},
                             triggerId,
                             callback)
-            .and_then([this](iox::popo::Trigger& trigger) {
+            .and_then([this](iox::popo::TriggerHandle& trigger) {
                 m_trigger = std::move(trigger);
                 iox::popo::SubscriberPortUser(m_portData).setConditionVariable(m_trigger.getConditionVariableData());
             }));
@@ -54,9 +54,9 @@ void cpp2c_Subscriber::detachEvent(const iox_SubscriberEvent subscriberEvent) no
     m_trigger.reset();
 }
 
-void cpp2c_Subscriber::unsetTrigger(const iox::popo::Trigger& trigger) noexcept
+void cpp2c_Subscriber::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
 {
-    if (trigger.isLogicalEqualTo(m_trigger))
+    if (m_trigger.getUniqueId() == uniqueTriggerId)
     {
         iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
         m_trigger.reset();

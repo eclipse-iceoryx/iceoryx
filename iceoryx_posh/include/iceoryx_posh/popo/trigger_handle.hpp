@@ -26,6 +26,7 @@ namespace popo
 class TriggerHandle
 {
   public:
+    TriggerHandle() = default;
     TriggerHandle(ConditionVariableData* const conditionVariableDataPtr,
                   const cxx::MethodCallback<void, uint64_t> resetCallback,
                   const uint64_t uniqueTriggerId) noexcept;
@@ -42,6 +43,7 @@ class TriggerHandle
     void trigger() noexcept;
     void reset() noexcept;
     void invalidate() noexcept;
+    uint64_t getUniqueId() const noexcept;
 
     ConditionVariableData* getConditionVariableData() noexcept;
 

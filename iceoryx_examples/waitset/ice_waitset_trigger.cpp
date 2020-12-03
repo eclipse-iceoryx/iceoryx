@@ -114,7 +114,7 @@ class MyTriggerClass
                                 triggerId,
                                 callback)
                 // assigning the acquired trigger from the waitset to m_actionTrigger
-                .and_then([this](iox::popo::Trigger& trigger) { m_actionTrigger = std::move(trigger); });
+                .and_then([this](iox::popo::TriggerHandle& trigger) { m_actionTrigger = std::move(trigger); });
         }
         case MyTriggerClassEvents::ACTIVATE:
         {
@@ -127,7 +127,7 @@ class MyTriggerClass
                                 triggerId,
                                 callback)
                 // assigning the acquired trigger from the waitset to m_activateTrigger
-                .and_then([this](iox::popo::Trigger& trigger) { m_activateTrigger = std::move(trigger); });
+                .and_then([this](iox::popo::TriggerHandle& trigger) { m_activateTrigger = std::move(trigger); });
         }
         }
 
@@ -136,13 +136,13 @@ class MyTriggerClass
 
     // we offer the waitset a method to invalidate trigger if it goes
     // out of scope
-    void invalidateTrigger(const iox::popo::Trigger& trigger)
+    void invalidateTrigger(const uint64_t uniqueTriggerId)
     {
-        if (trigger.isLogicalEqualTo(m_actionTrigger))
+        if (m_actionTrigger.getUniqueId() == uniqueTriggerId)
         {
             m_actionTrigger.invalidate();
         }
-        else if (trigger.isLogicalEqualTo(m_activateTrigger))
+        else if (m_activateTrigger.getUniqueId() == uniqueTriggerId)
         {
             m_activateTrigger.invalidate();
         }
@@ -158,8 +158,8 @@ class MyTriggerClass
     bool m_hasPerformedAction = false;
     bool m_isActivated = false;
 
-    iox::popo::Trigger m_actionTrigger;
-    iox::popo::Trigger m_activateTrigger;
+    iox::popo::TriggerHandle m_actionTrigger;
+    iox::popo::TriggerHandle m_activateTrigger;
 };
 
 iox::cxx::optional<iox::popo::WaitSet> waitset;

@@ -36,11 +36,11 @@ WaitSet::~WaitSet() noexcept
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-void WaitSet::removeTrigger(const Trigger& trigger) noexcept
+void WaitSet::removeTrigger(const uint64_t uniqueTriggerId) noexcept
 {
     for (auto& currentTrigger : m_triggerVector)
     {
-        if (currentTrigger.isLogicalEqualTo(trigger))
+        if (currentTrigger.getUniqueId() == uniqueTriggerId)
         {
             currentTrigger.invalidate();
             m_triggerVector.erase(&currentTrigger);

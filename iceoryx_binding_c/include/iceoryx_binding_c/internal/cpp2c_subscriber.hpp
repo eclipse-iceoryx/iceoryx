@@ -36,12 +36,12 @@ struct cpp2c_Subscriber
 
     void detachEvent(const iox_SubscriberEvent event) noexcept;
 
-    void unsetTrigger(const iox::popo::Trigger& trigger) noexcept;
+    void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
     bool hasNewSamples() const noexcept;
 
 
     iox::popo::SubscriberPortData* m_portData{nullptr};
-    iox::popo::Trigger m_trigger;
+    iox::popo::TriggerHandle m_trigger;
 };
 #endif

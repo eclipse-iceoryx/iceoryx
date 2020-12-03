@@ -20,10 +20,10 @@ namespace iox
 namespace popo
 {
 template <typename T>
-inline cxx::expected<Trigger, WaitSetError>
+inline cxx::expected<TriggerHandle, WaitSetError>
 WaitSet::acquireTrigger(T* const origin,
                         const cxx::ConstMethodCallback<bool>& triggerCallback,
-                        const cxx::MethodCallback<void, const Trigger&>& invalidationCallback,
+                        const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
                         const uint64_t triggerId,
                         const Trigger::Callback<T> callback) noexcept
 {
@@ -36,7 +36,7 @@ WaitSet::acquireTrigger(T* const origin,
     Trigger logicalEqualTrigger(origin,
                                 m_conditionVariableDataPtr,
                                 triggerCallback,
-                                cxx::MethodCallback<void, const Trigger&>(),
+                                cxx::MethodCallback<void, uint64_t>(),
                                 triggerId,
                                 Trigger::Callback<T>());
 
@@ -57,8 +57,8 @@ WaitSet::acquireTrigger(T* const origin,
         return cxx::error<WaitSetError>(WaitSetError::TRIGGER_VECTOR_OVERFLOW);
     }
 
-    return iox::cxx::success<Trigger>(Trigger(
-        origin, m_conditionVariableDataPtr, triggerCallback, {this, &WaitSet::removeTrigger}, triggerId, callback));
+    return iox::cxx::success<TriggerHandle>(TriggerHandle(
+        m_conditionVariableDataPtr, {this, &WaitSet::removeTrigger}, m_triggerVector.back().getUniqueId()));
 }
 
 template <typename T>

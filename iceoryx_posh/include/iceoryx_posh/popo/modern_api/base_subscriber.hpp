@@ -128,7 +128,7 @@ class BaseSubscriber
     BaseSubscriber() noexcept; // Required for testing.
     BaseSubscriber(const capro::ServiceDescription& service) noexcept;
 
-    void invalidateTrigger(const Trigger& trigger) noexcept;
+    void invalidateTrigger(const uint64_t trigger) noexcept;
 
   private:
     ///
@@ -152,7 +152,7 @@ class BaseSubscriber
   protected:
     port_t m_port{nullptr};
     SubscriberSampleDeleter m_sampleDeleter{m_port};
-    Trigger m_trigger;
+    TriggerHandle m_trigger;
 };
 
 } // namespace popo

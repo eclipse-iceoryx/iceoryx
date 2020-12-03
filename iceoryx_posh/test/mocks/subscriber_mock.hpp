@@ -76,7 +76,7 @@ class MockBaseSubscriber
     MOCK_METHOD0_T(take,
                    iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError>());
     MOCK_METHOD0(releaseQueuedSamples, void());
-    MOCK_METHOD1(invalidateTrigger, bool(const iox::popo::Trigger&));
+    MOCK_METHOD1(invalidateTrigger, bool(const uint64_t));
     MOCK_METHOD4(
         attachTo,
         iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet&,

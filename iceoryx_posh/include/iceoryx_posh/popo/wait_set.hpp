@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
+#include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -75,10 +76,10 @@ class WaitSet
     /// @return returns the newly created trigger if the WaitSet has space left otherwise it returns
     /// WaitSetError::TRIGGER_VECTOR_OVERFLOW
     template <typename T>
-    cxx::expected<Trigger, WaitSetError>
+    cxx::expected<TriggerHandle, WaitSetError>
     acquireTrigger(T* const origin,
                    const cxx::ConstMethodCallback<bool>& triggerCallback,
-                   const cxx::MethodCallback<void, const Trigger&>& invalidationCallback,
+                   const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
                    const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
                    const Trigger::Callback<T> callback = nullptr) noexcept;
 
@@ -109,7 +110,7 @@ class WaitSet
     template <typename T>
     void moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept;
 
-    void removeTrigger(const Trigger& trigger) noexcept;
+    void removeTrigger(const uint64_t triggerId) noexcept;
     void removeAllTriggers() noexcept;
 
   private:

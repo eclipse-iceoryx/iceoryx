@@ -31,7 +31,7 @@ void* originValue;
 uint64_t triggerIdValue = 0U;
 TriggerState::Callback<void> callbackValue = nullptr;
 cxx::ConstMethodCallback<bool> hasTriggerCallbackValue;
-cxx::MethodCallback<void, const Trigger&> resetCallbackValue;
+cxx::MethodCallback<void, uint64_t> resetCallbackValue;
 ConditionVariableData conditionVariableDataValue;
 
 int triggerCallbackValueSetter = 0;
@@ -176,9 +176,9 @@ class Trigger_test : public Test
             return m_hasTriggered;
         }
 
-        void resetCall(const Trigger& trigger)
+        void resetCall(const uint64_t trigger)
         {
-            m_resetCallTriggerArg = &trigger;
+            m_resetCallTriggerArg = trigger;
         }
 
         static void callback(TriggerClass* const ptr)
@@ -187,7 +187,7 @@ class Trigger_test : public Test
         }
 
         bool m_hasTriggered = false;
-        const Trigger* m_resetCallTriggerArg = nullptr;
+        uint64_t m_resetCallTriggerArg = 0U;
         ConditionVariableData* m_condVar = nullptr;
         static TriggerClass* m_lastCallbackArgument;
 
@@ -299,7 +299,7 @@ TEST_F(Trigger_test, ResetCallsResetcallbackWithCorrectTriggerOrigin)
     Trigger sut = createValidTrigger();
     sut.reset();
 
-    EXPECT_EQ(m_triggerClass.m_resetCallTriggerArg, &sut);
+    EXPECT_EQ(m_triggerClass.m_resetCallTriggerArg, sut.getUniqueId());
 }
 
 TEST_F(Trigger_test, TriggerWithEmptyResetCallIsValid)
@@ -308,7 +308,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallIsValid)
     Trigger sut(&m_triggerClass,
                 &m_condVar,
                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                cxx::MethodCallback<void, const Trigger&>(),
+                cxx::MethodCallback<void, uint64_t>(),
                 triggerId,
                 TriggerClass::callback);
 
@@ -322,7 +322,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
     Trigger sut(&m_triggerClass,
                 &m_condVar,
                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                cxx::MethodCallback<void, const Trigger&>(),
+                cxx::MethodCallback<void, uint64_t>(),
                 triggerId,
                 TriggerClass::callback);
 
@@ -487,7 +487,7 @@ TEST_F(Trigger_test, UpdateOriginLeadsToDifferentResetCallback)
     sut.updateOrigin(&secondTriggerClass);
     sut.reset();
 
-    EXPECT_EQ(secondTriggerClass.m_resetCallTriggerArg, &sut);
+    EXPECT_EQ(secondTriggerClass.m_resetCallTriggerArg, sut.getUniqueId());
 }
 
 TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin)
@@ -503,7 +503,7 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
     sut.updateOrigin(&secondTriggerClass);
     sut.reset();
 
-    EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, &sut);
+    EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, sut.getUniqueId());
 }
 
 TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)

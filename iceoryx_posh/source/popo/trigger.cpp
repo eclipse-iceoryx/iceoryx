@@ -40,7 +40,7 @@ void Trigger::reset() noexcept
 
     if (m_resetCallback)
     {
-        m_resetCallback(*this);
+        m_resetCallback(m_uniqueId);
     }
 
     invalidate();
@@ -104,6 +104,7 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
         m_conditionVariableDataPtr = rhs.m_conditionVariableDataPtr;
         m_resetCallback = rhs.m_resetCallback;
         m_hasTriggeredCallback = rhs.m_hasTriggeredCallback;
+        m_uniqueId = rhs.m_uniqueId;
 
         rhs.m_origin = nullptr;
         rhs.m_originTypeHash = 0U;

@@ -56,7 +56,7 @@ class Trigger : public TriggerState
     Trigger(T* const origin,
             ConditionVariableData* conditionVariableDataPtr,
             const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-            const cxx::MethodCallback<void, const Trigger&>& resetCallback,
+            const cxx::MethodCallback<void, uint64_t>& resetCallback,
             const uint64_t triggerId,
             const Callback<T> callback) noexcept;
 
@@ -111,7 +111,7 @@ class Trigger : public TriggerState
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
-    cxx::MethodCallback<void, const Trigger&> m_resetCallback;
+    cxx::MethodCallback<void, uint64_t> m_resetCallback;
     uint64_t m_uniqueId = 0U;
 
     static std::atomic<uint64_t> uniqueIdCounter; // = 0U;

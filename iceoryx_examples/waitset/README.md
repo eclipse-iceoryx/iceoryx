@@ -460,10 +460,10 @@ have to be provided.
             return waitset
                 .acquireTrigger(this,
                                 {this, &MyTriggerClass::hasPerformedAction},
-                                {this, &MyTriggerClass::unsetTrigger},
+                                {this, &MyTriggerClass::invalidateTrigger},
                                 triggerId,
                                 callback)
-                .and_then([this](iox::popo::Trigger& trigger) { 
+                .and_then([this](iox::popo::TriggerHandle& trigger) { 
                     m_actionTrigger = std::move(trigger); });
         }
 ```
@@ -476,27 +476,27 @@ for the trigger.
             return waitset
                 .acquireTrigger(this,
                                 {this, &MyTriggerClass::isActivated},
-                                {this, &MyTriggerClass::unsetTrigger},
+                                {this, &MyTriggerClass::invalidateTrigger},
                                 triggerId,
                                 callback)
-                .and_then([this](iox::popo::Trigger& trigger) { 
+                .and_then([this](iox::popo::TriggerHandle& trigger) { 
                     m_activateTrigger = std::move(trigger); });
         }
 ```
 
-The next thing on our checklist is the `unsetTrigger` method used by the WaitSet
+The next thing on our checklist is the `invalidateTrigger` method used by the WaitSet
 to reset the _Trigger_ when it goes out of scope. Therefore we look up the
 correct trigger first by calling `isLogicalEqualTo` and then `reset` it.
 ```cpp
-    void unsetTrigger(const iox::popo::Trigger& trigger)
+    void invalidateTrigger(const uint64_t uniqueTriggerId)
     {
-        if (trigger.isLogicalEqualTo(m_actionTrigger))
+        if (m_actionTrigger.getUniqueId() == uniqueTriggerId)
         {
-            m_actionTrigger.reset();
+            m_actionTrigger.invalidate();
         }
-        else if (trigger.isLogicalEqualTo(m_activateTrigger))
+        else if (m_activateTrigger.getUniqueId() == uniqueTriggerId)
         {
-            m_activateTrigger.reset();
+            m_activateTrigger.invalidate();
         }
     }
 ```

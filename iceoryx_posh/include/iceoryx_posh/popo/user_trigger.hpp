@@ -60,10 +60,10 @@ class UserTrigger
     void resetTrigger() noexcept;
 
   private:
-    void invalidateTrigger(const Trigger&) noexcept;
+    void invalidateTrigger(const uint64_t uniqueTriggerId) noexcept;
 
   private:
-    Trigger m_trigger;
+    TriggerHandle m_trigger;
     std::atomic_bool m_wasTriggered{false};
 };
 
