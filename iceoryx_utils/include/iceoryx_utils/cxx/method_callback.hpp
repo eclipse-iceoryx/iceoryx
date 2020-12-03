@@ -64,7 +64,8 @@ class ConstMethodCallback
     /// @param[in] args... arguments which will be perfectly forwarded to the method
     /// @return If ConstMethodCallback is valid the return value of the method, otherwise
     ///         an error.
-    expected<ReturnValue, MethodCallbackError> operator()(Args&&... args) const noexcept;
+    template <typename... MethodArguments>
+    expected<ReturnValue, MethodCallbackError> operator()(MethodArguments&&... args) const noexcept;
 
     /// @brief Comparision operator. Two ConstMethodCallbacks are equal if they have the
     ///        same class pointer and method pointer
@@ -128,7 +129,8 @@ class MethodCallback
     /// @param[in] args... arguments which will be perfectly forwarded to the method
     /// @return If MethodCallback is valid the return value of the method, otherwise
     ///         an error.
-    expected<ReturnValue, MethodCallbackError> operator()(Args&&... args) noexcept;
+    template <typename... MethodArguments>
+    expected<ReturnValue, MethodCallbackError> operator()(MethodArguments&&... args) noexcept;
 
     /// @brief Comparision operator. Two MethodCallbacks are equal if they have the
     ///        same class pointer and method pointer

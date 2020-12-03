@@ -31,6 +31,7 @@ inline Trigger::Trigger(T* const origin,
     , m_conditionVariableDataPtr(conditionVariableDataPtr)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_resetCallback(resetCallback)
+    , m_uniqueId(uniqueIdCounter.fetch_add(1U))
 {
 }
 

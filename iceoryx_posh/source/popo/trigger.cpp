@@ -19,6 +19,8 @@ namespace iox
 {
 namespace popo
 {
+std::atomic<uint64_t> Trigger::uniqueIdCounter{0U};
+
 Trigger::~Trigger()
 {
     reset();
@@ -41,17 +43,11 @@ void Trigger::reset() noexcept
         m_resetCallback(*this);
     }
 
-    m_conditionVariableDataPtr = nullptr;
-    m_origin = nullptr;
+    invalidate();
 }
 
 void Trigger::invalidate() noexcept
 {
-    if (!isValid())
-    {
-        return;
-    }
-
     m_conditionVariableDataPtr = nullptr;
     m_origin = nullptr;
 }
@@ -121,6 +117,12 @@ Trigger& Trigger::operator=(Trigger&& rhs) noexcept
     }
     return *this;
 }
+
+uint64_t Trigger::getUniqueId() const noexcept
+{
+    return m_uniqueId;
+}
+
 
 } // namespace popo
 } // namespace iox

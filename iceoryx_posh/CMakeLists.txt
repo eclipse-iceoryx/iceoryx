@@ -109,6 +109,7 @@ add_library(iceoryx_posh
     source/popo/building_blocks/typed_unique_id.cpp
     source/popo/user_trigger.cpp
     source/popo/trigger.cpp
+    source/popo/trigger_handle.cpp
     source/popo/trigger_state.cpp
     source/popo/wait_set.cpp
     source/version/version_info.cpp

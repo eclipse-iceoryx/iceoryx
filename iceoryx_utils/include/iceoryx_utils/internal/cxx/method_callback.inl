@@ -45,18 +45,18 @@ struct ReturnSuccess<void>
 
 template <typename ReturnValue, typename ClassType, typename... Args>
 ReturnValue
-constMethodCallbackCaller(void* classPtr, ReturnValue (GenericClass::*methodPtr)(Args...) const, Args... args)
+constMethodCallbackCaller(void* classPtr, ReturnValue (GenericClass::*methodPtr)(Args...) const, Args&&... args)
 {
     return ((*reinterpret_cast<ClassType*>(classPtr))
-            .*reinterpret_cast<ReturnValue (ClassType::*)(Args...) const>(methodPtr))(args...);
+            .*reinterpret_cast<ReturnValue (ClassType::*)(Args...) const>(methodPtr))(std::forward<Args>(args)...);
 }
 
 
 template <typename ReturnValue, typename ClassType, typename... Args>
-ReturnValue methodCallbackCaller(void* classPtr, ReturnValue (GenericClass::*methodPtr)(Args...), Args... args)
+ReturnValue methodCallbackCaller(void* classPtr, ReturnValue (GenericClass::*methodPtr)(Args...), Args&&... args)
 {
     return ((*reinterpret_cast<ClassType*>(classPtr))
-            .*reinterpret_cast<ReturnValue (ClassType::*)(Args...)>(methodPtr))(args...);
+            .*reinterpret_cast<ReturnValue (ClassType::*)(Args...)>(methodPtr))(std::forward<Args>(args)...);
 }
 } // namespace internal
 
@@ -95,15 +95,17 @@ ConstMethodCallback<ReturnValue, Args...>::operator=(ConstMethodCallback&& rhs) 
 }
 
 template <typename ReturnValue, typename... Args>
+template <typename... MethodArguments>
 inline expected<ReturnValue, MethodCallbackError>
-ConstMethodCallback<ReturnValue, Args...>::operator()(Args&&... args) const noexcept
+ConstMethodCallback<ReturnValue, Args...>::operator()(MethodArguments&&... args) const noexcept
 {
     if (!isValid())
     {
         return error<MethodCallbackError>(MethodCallbackError::UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR);
     }
 
-    return internal::ReturnSuccess<ReturnValue>::call(m_callback, m_classPtr, m_methodPtr, std::forward<Args>(args)...);
+    return internal::ReturnSuccess<ReturnValue>::call(
+        m_callback, m_classPtr, m_methodPtr, std::forward<MethodArguments>(args)...);
 }
 
 template <typename ReturnValue, typename... Args>
@@ -177,15 +179,17 @@ MethodCallback<ReturnValue, Args...>::operator=(MethodCallback&& rhs) noexcept
 }
 
 template <typename ReturnValue, typename... Args>
+template <typename... MethodArguments>
 inline expected<ReturnValue, MethodCallbackError>
-MethodCallback<ReturnValue, Args...>::operator()(Args&&... args) noexcept
+MethodCallback<ReturnValue, Args...>::operator()(MethodArguments&&... args) noexcept
 {
     if (!isValid())
     {
         return error<MethodCallbackError>(MethodCallbackError::UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR);
     }
 
-    return internal::ReturnSuccess<ReturnValue>::call(m_callback, m_classPtr, m_methodPtr, args...);
+    return internal::ReturnSuccess<ReturnValue>::call(
+        m_callback, m_classPtr, m_methodPtr, std::forward<MethodArguments>(args)...);
 }
 
 template <typename ReturnValue, typename... Args>

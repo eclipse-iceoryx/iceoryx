@@ -90,6 +90,9 @@ class Trigger : public TriggerState
     /// @brief invalidates the Trigger without calling the reset callback
     void invalidate() noexcept;
 
+    /// @brief returns the internal unique id of the trigger
+    uint64_t getUniqueId() const noexcept;
+
     /// @brief returns the pointer to the underlying condition variable data
     ConditionVariableData* getConditionVariableData() noexcept;
 
@@ -107,9 +110,11 @@ class Trigger : public TriggerState
 
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
-
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, const Trigger&> m_resetCallback;
+    uint64_t m_uniqueId = 0U;
+
+    static std::atomic<uint64_t> uniqueIdCounter; // = 0U;
 };
 
 
