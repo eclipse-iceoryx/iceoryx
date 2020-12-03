@@ -97,18 +97,16 @@ TEST_F(TriggerHandle_test, triggerNotifiesConditionVariable)
     std::atomic_int stage{0};
 
     std::thread t([&] {
-        while (stage.load() != 1)
-            ;
-
-        m_sut.trigger();
-        stage.store(2);
-        m_sut.trigger();
+        ConditionVariableWaiter(&m_condVar).wait();
+        stage.store(1);
     });
 
-    stage.store(1);
-    ConditionVariableWaiter(&m_condVar).timedWait(100_ms);
-    ConditionVariableWaiter(&m_condVar).timedWait(100_ms);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    EXPECT_EQ(stage.load(), 0);
+    m_sut.trigger();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    EXPECT_EQ(stage.load(), 1);
 
-    EXPECT_EQ(stage.load(), 2);
     t.join();
 }
+
