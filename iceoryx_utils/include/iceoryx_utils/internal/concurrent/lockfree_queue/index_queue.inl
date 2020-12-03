@@ -228,10 +228,9 @@ bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t required
 {
     if (requiredSize == 0)
     {
-        return false;
+        return pop(index);
     }
-
-    // which to load first is up to discussion, for correctness it should make no difference
+    // which to load first should make no difference for correctness
     // but for performance it might
     // note that without sync mechanisms (such as seq_cst), reordering is possible
     const auto writePosition = m_writePosition.load(std::memory_order_relaxed);

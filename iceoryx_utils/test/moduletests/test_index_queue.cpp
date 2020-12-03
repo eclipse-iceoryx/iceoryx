@@ -226,10 +226,10 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastReturnsNothingIfQueueIsEmpty)
     EXPECT_FALSE(q.popIfSizeIsAtLeast(1).has_value());
 }
 
-TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsNothingIfQueueIsFull)
+TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsIndexIfQueueIsFull)
 {
     auto& q = this->fullQueue;
-    EXPECT_FALSE(q.popIfSizeIsAtLeast(0).has_value());
+    EXPECT_TRUE(q.popIfSizeIsAtLeast(0).has_value());
 }
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsNothingIfQueueIsEmpty)
@@ -238,7 +238,7 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsNothingIfQueueIsEmpty)
     EXPECT_FALSE(q.popIfSizeIsAtLeast(0).has_value());
 }
 
-TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsNothingIfQueueContainsOneElement)
+TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsIndexIfQueueContainsOneElement)
 {
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
@@ -246,7 +246,7 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsNothingIfQueueContainsOn
     q.push(*index);
 
     index = q.popIfSizeIsAtLeast(0u);
-    ASSERT_FALSE(index.has_value());
+    ASSERT_TRUE(index.has_value());
 }
 
 TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastOneReturnsIndexIfQueueContainsOneElement)

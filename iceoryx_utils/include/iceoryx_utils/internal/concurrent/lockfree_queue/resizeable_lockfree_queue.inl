@@ -167,17 +167,10 @@ bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::tryGetUsedIndex(BufferIn
 {
     /// @note: we have a problem here if we lose an index entirely, since the queue
     /// can then never be full again (or, more generally contain capacity indices)
-    /// to lessen this problem, we could use a regular pop if we fail to often here
+    /// to lessen this problem, we could use a regular pop if we fail too often here
     /// instead of a variation of popIfFull (which will never work then)
 
-    const auto cap = capacity();
-    if (cap == 0U)
-    {
-        // this should in principle return false for a zero capacity queue unless capacity changed inbetween
-        //(therefore we call the method)
-        return Base::m_usedIndices.pop(index);
-    }
-    return Base::m_usedIndices.popIfSizeIsAtLeast(cap, index);
+    return Base::m_usedIndices.popIfSizeIsAtLeast(capacity(), index);
 }
 
 template <typename ElementType, uint64_t MaxCapacity>

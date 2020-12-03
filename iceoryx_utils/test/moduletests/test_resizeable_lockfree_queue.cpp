@@ -146,15 +146,6 @@ TYPED_TEST(ResizeableLockFreeQueueTest, decreaseCapacityToZeroOneByOne)
     }
 }
 
-TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacity)
-{
-    typename TestFixture::Queue q(0U);
-    constexpr auto MAX_CAP = TestFixture::Queue::MAX_CAPACITY;
-    EXPECT_EQ(q.capacity(), 0U);
-    EXPECT_TRUE(q.setCapacity(MAX_CAP));
-    EXPECT_EQ(q.capacity(), MAX_CAP);
-}
-
 TYPED_TEST(ResizeableLockFreeQueueTest, increaseToMaxCapacityOneByOne)
 {
     typename TestFixture::Queue q(0U);
