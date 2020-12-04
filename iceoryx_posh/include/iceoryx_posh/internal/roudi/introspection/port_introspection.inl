@@ -44,9 +44,9 @@ void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(const capro
 
 template <typename PublisherPort, typename SubscriberPort>
 bool PortIntrospection<PublisherPort, SubscriberPort>::registerPublisherPort(
-    typename PublisherPort::MemberType_t* publisherPortGeneric,
-    typename PublisherPort::MemberType_t* publisherPortThroughput,
-    typename PublisherPort::MemberType_t* publisherPortSubscriberPortsData)
+    typename PublisherPort::MemberType_t* const publisherPortGeneric,
+    typename PublisherPort::MemberType_t* const publisherPortThroughput,
+    typename PublisherPort::MemberType_t* const publisherPortSubscriberPortsData)
 {
     if (m_publisherPort || m_publisherPortThroughput || m_publisherPortSubscriberPortsData)
     {
@@ -206,7 +206,7 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateConnectio
 
 template <typename PublisherPort, typename SubscriberPort>
 bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
-    typename PublisherPort::MemberType_t* port,
+    typename PublisherPort::MemberType_t* const port,
     const ProcessName_t& name,
     const capro::ServiceDescription& service,
     const RunnableName_t& runnable)
@@ -215,11 +215,15 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
 
     auto iter = m_publisherMap.find(service);
     if (iter != m_publisherMap.end())
+    {
         return false;
+    }
 
     auto index = m_publisherContainer.add(PublisherInfo(port, name, service, runnable));
     if (index < 0)
+    {
         return false;
+    }
 
     m_publisherMap.insert(std::make_pair(service, index));
 
@@ -247,7 +251,7 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
 
 template <typename PublisherPort, typename SubscriberPort>
 bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubscriber(
-    typename SubscriberPort::MemberType_t* portData,
+    typename SubscriberPort::MemberType_t* const portData,
     const ProcessName_t& name,
     const capro::ServiceDescription& service,
     const RunnableName_t& runnable)
@@ -297,7 +301,9 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher
 
     auto iter = m_publisherMap.find(service);
     if (iter == m_publisherMap.end())
+    {
         return false;
+    }
 
     auto m_publisherIndex = iter->second;
     auto& publisher = m_publisherContainer[m_publisherIndex];
@@ -421,7 +427,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(Po
 
     std::lock_guard<std::mutex> lock(m_mutex); // we need to lock the internal data structs
 
-    int index = 0;
+    uint32_t index{0};
     for (auto& pair : m_publisherMap)
     {
         auto m_publisherIndex = pair.second;
@@ -531,7 +537,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::setNew(bool val
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t* port,
+bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t* const port,
                                                                     const ProcessName_t& name,
                                                                     const capro::ServiceDescription& service,
                                                                     const RunnableName_t& runnable)
@@ -540,10 +546,11 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename Pub
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename SubscriberPort::MemberType_t* portData,
-                                                                     const ProcessName_t& name,
-                                                                     const capro::ServiceDescription& service,
-                                                                     const RunnableName_t& runnable)
+bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(
+    typename SubscriberPort::MemberType_t* const portData,
+    const ProcessName_t& name,
+    const capro::ServiceDescription& service,
+    const RunnableName_t& runnable)
 {
     return m_portData.addSubscriber(portData, name, service, runnable);
 }

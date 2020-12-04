@@ -67,7 +67,7 @@ class PortIntrospection
         {
             PublisherInfo() = default;
 
-            PublisherInfo(typename PublisherPort::MemberType_t* portData,
+            PublisherInfo(typename PublisherPort::MemberType_t* const portData,
                           const ProcessName_t& name,
                           const capro::ServiceDescription& service,
                           const RunnableName_t& runnable)
@@ -161,7 +161,7 @@ class PortIntrospection
          *
          * @return returns false if the port could not be added and true otherwise
          */
-        bool addPublisher(typename PublisherPort::MemberType_t* port,
+        bool addPublisher(typename PublisherPort::MemberType_t* const port,
                           const ProcessName_t& name,
                           const capro::ServiceDescription& service,
                           const RunnableName_t& runnable);
@@ -299,7 +299,7 @@ class PortIntrospection
      *
      * @return returns false if the port could not be added and true otherwise
      */
-    bool addPublisher(typename PublisherPort::MemberType_t* port,
+    bool addPublisher(typename PublisherPort::MemberType_t* const port,
                       const ProcessName_t& name,
                       const capro::ServiceDescription& service,
                       const RunnableName_t& runnable);
@@ -358,9 +358,9 @@ class PortIntrospection
      *
      * @return true if registration was successful, false otherwise
      */
-    bool registerPublisherPort(typename PublisherPort::MemberType_t* publisherPortGeneric,
-                               typename PublisherPort::MemberType_t* publisherPortThroughput,
-                               typename PublisherPort::MemberType_t* publisherPortSubscriberPortsData);
+    bool registerPublisherPort(typename PublisherPort::MemberType_t* const publisherPortGeneric,
+                               typename PublisherPort::MemberType_t* const publisherPortThroughput,
+                               typename PublisherPort::MemberType_t* const publisherPortSubscriberPortsData);
 
     /*!
      * @brief set the time interval used to send new introspection data
