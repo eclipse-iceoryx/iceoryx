@@ -19,10 +19,14 @@
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
+#include <mutex>
+
 namespace iox
 {
 namespace popo
 {
+/// @brief TriggerHandle is threadsafe without restrictions in a single process.
+///        Not qualified for inter process usage.
 class TriggerHandle
 {
   public:
@@ -70,6 +74,7 @@ class TriggerHandle
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;
     uint64_t m_uniqueTriggerId = 0U;
+    mutable std::recursive_mutex m_mutex;
 };
 } // namespace popo
 } // namespace iox

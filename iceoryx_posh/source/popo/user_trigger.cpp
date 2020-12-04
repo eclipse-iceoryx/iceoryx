@@ -37,10 +37,7 @@ void UserTrigger::detach() noexcept
 void UserTrigger::trigger() noexcept
 {
     m_wasTriggered.store(true, std::memory_order_relaxed);
-    if (m_trigger)
-    {
-        m_trigger.trigger();
-    }
+    m_trigger.trigger();
 }
 
 bool UserTrigger::hasTriggered() const noexcept

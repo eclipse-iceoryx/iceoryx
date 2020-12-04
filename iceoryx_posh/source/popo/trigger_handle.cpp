@@ -35,6 +35,10 @@ TriggerHandle::TriggerHandle(TriggerHandle&& rhs) noexcept
 
 TriggerHandle& TriggerHandle::operator=(TriggerHandle&& rhs) noexcept
 {
+    std::lock(m_mutex, rhs.m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex, std::adopt_lock);
+    std::lock_guard<std::recursive_mutex> lockRhs(rhs.m_mutex, std::adopt_lock);
+
     if (this != &rhs)
     {
         reset();
@@ -43,8 +47,7 @@ TriggerHandle& TriggerHandle::operator=(TriggerHandle&& rhs) noexcept
         m_resetCallback = std::move(rhs.m_resetCallback);
         m_uniqueTriggerId = rhs.m_uniqueTriggerId;
 
-        rhs.m_conditionVariableDataPtr = nullptr;
-        rhs.m_uniqueTriggerId = 0U;
+        rhs.invalidate();
     }
     return *this;
 }
@@ -61,11 +64,13 @@ TriggerHandle::operator bool() const noexcept
 
 bool TriggerHandle::isValid() const noexcept
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     return m_conditionVariableDataPtr != nullptr;
 }
 
 void TriggerHandle::trigger() noexcept
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     if (isValid())
     {
         ConditionVariableSignaler(m_conditionVariableDataPtr).notifyOne();
@@ -74,31 +79,34 @@ void TriggerHandle::trigger() noexcept
 
 void TriggerHandle::reset() noexcept
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     if (!isValid())
     {
         return;
     }
 
-    if (m_resetCallback)
-    {
-        m_resetCallback(m_uniqueTriggerId);
-    }
+    m_resetCallback(m_uniqueTriggerId);
 
     invalidate();
 }
 
 void TriggerHandle::invalidate() noexcept
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     m_conditionVariableDataPtr = nullptr;
+    m_resetCallback = cxx::MethodCallback<void, uint64_t>();
+    m_uniqueTriggerId = 0U;
 }
 
 ConditionVariableData* TriggerHandle::getConditionVariableData() noexcept
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     return m_conditionVariableDataPtr;
 }
 
 uint64_t TriggerHandle::getUniqueId() const noexcept
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     return m_uniqueTriggerId;
 }
 
