@@ -85,17 +85,6 @@ void receiver()
                     })
                     .if_empty([&] { hasMoreSamples = false; });
             } while (hasMoreSamples);
-
-            // while (subscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
-            //     if (maybeSample.has_value())
-            //     {
-            //         auto sample = static_cast<const TransmissionData_t*>(rawSample);
-            //         consoleOutput(std::string("Receiving : " + std::to_string(sample->counter)));
-            //     }
-            // }))
-            // {
-            //     // loop as long as there are samples to take
-            // }
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));

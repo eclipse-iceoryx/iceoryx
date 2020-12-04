@@ -237,10 +237,8 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
         initMemPoolInfo(index, memPoolInfo);
         return memPoolInfo;
     }));
-    EXPECT_CALL(introspectionAccess.getPublisherPort(), hasSubscribers).Times(AtLeast(4));
-
     // we use the hasSubscribers call to check how often the thread calls the send method
-    // mock->hasSubscribersReturn = false;
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), hasSubscribers).Times(AtLeast(4));
 
     using namespace iox::units::duration_literals;
     iox::units::Duration snapshotInterval(100_ms);
