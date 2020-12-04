@@ -52,13 +52,7 @@ void producePeriodic(Queue& queue, const int id, CountArray& producedCount, std:
     Data d(id, 0U);
     while (run.load(std::memory_order_relaxed))
     {
-        bool pushed{false};
-        do
-        {
-            pushed = queue.tryPush(d);
-        } while (!pushed && run.load(std::memory_order_relaxed));
-
-        if (pushed)
+        if (queue.tryPush(d))
         {
             producedCount[d.count].fetch_add(1U, std::memory_order_relaxed);
             d.count = (d.count + 1U) % n;
