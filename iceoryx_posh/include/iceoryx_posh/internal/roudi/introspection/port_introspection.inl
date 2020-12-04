@@ -480,43 +480,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(Po
 template <typename PublisherPort, typename SubscriberPort>
 void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic)
 {
-    /// @todo #252 re-add port throughput for v1.0?
-    auto& m_throughputList = topic.m_throughputList;
-
-    std::lock_guard<std::mutex> lock(m_mutex); // we need to lock the internal data structs
-
-    int index = 0;
-    for (auto& pair : m_publisherMap)
-    {
-        auto m_publisherIndex = pair.second;
-        if (m_publisherIndex >= 0)
-        {
-            auto& publisherInfo = m_publisherContainer[m_publisherIndex];
-            PortThroughputData throughputData;
-
-            PublisherPort port(publisherInfo.portData);
-            // auto introData = port.getThroughput();
-            throughputData.m_publisherPortID = static_cast<uint64_t>(port.getUniqueID());
-            throughputData.m_sampleSize = 0; // introData.payloadSize;
-            throughputData.m_chunkSize = 0;  // introData.chunkSize;
-            // using Minutes_t = std::chrono::duration<double, std::ratio<60>>;
-            // Minutes_t deltaTime = introData.currentDeliveryTimestamp - publisherInfo.m_sequenceNumberTimestamp;
-            // auto minutes = deltaTime.count();
-            throughputData.m_chunksPerMinute = 0;
-            // if (minutes != 0)
-            //{
-            // throughputData.m_chunksPerMinute = (introData.sequenceNumber - publisherInfo.m_sequenceNumber) /
-            // minutes;
-            //}
-            // auto sendInterval = introData.currentDeliveryTimestamp - introData.lastDeliveryTimestamp;
-            // throughputData.m_lastSendIntervalInNanoseconds = sendInterval.count();
-            m_throughputList.emplace_back(throughputData);
-            publisherInfo.index = index++;
-
-            // publisherInfo.m_sequenceNumberTimestamp = introData.currentDeliveryTimestamp;
-            // publisherInfo.m_sequenceNumber = introData.sequenceNumber;
-        }
-    }
+    /// @todo #402 re-add port throughput
 }
 
 template <typename PublisherPort, typename SubscriberPort>
@@ -537,11 +501,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(
                 if (subscriberInfo.portData != nullptr)
                 {
                     SubscriberPort port(subscriberInfo.portData);
-                    // subscriberData.fifoCapacity = port.getDeliveryFiFoCapacity();
-                    // subscriberData.fifoSize = port.getDeliveryFiFoSize();
                     subscriberData.subscriptionState = port.getSubscriptionState();
-                    // subscriberData.sampleSendCallbackActive = port.AreCallbackReferencesSet();
-                    // subscriberData.propagationScope = port.getCaProServiceDescription().getScope();
                 }
                 else
                 {
