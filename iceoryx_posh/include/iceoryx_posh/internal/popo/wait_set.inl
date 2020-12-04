@@ -33,7 +33,7 @@ WaitSet::acquireTrigger(T* const origin,
                   "have to notify the WaitSet when origin moves about the new pointer to origin. This could be done in "
                   "a callback inside of Trigger.");
 
-    Trigger logicalEqualTrigger(
+    Trigger possibleLogicallyEqualTrigger(
         origin, triggerCallback, cxx::MethodCallback<void, uint64_t>(), triggerId, Trigger::Callback<T>());
 
     // it is not allowed to have to logical equal trigger in the same waitset
@@ -41,7 +41,7 @@ WaitSet::acquireTrigger(T* const origin,
     // we should remove if the trigger is attached multiple times.
     for (auto& currentTrigger : m_triggerVector)
     {
-        if (currentTrigger.isLogicalEqualTo(logicalEqualTrigger))
+        if (currentTrigger.isLogicalEqualTo(possibleLogicallyEqualTrigger))
         {
             return cxx::error<WaitSetError>(WaitSetError::TRIGGER_ALREADY_ACQUIRED);
         }

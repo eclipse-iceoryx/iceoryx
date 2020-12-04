@@ -22,7 +22,6 @@
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
-#include <mutex>
 
 namespace iox
 {
@@ -48,7 +47,7 @@ class WaitSet
     using TriggerStateVector = cxx::vector<TriggerState, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET>;
 
     WaitSet() noexcept;
-    virtual ~WaitSet() noexcept;
+    ~WaitSet() noexcept;
 
     /// @brief all the Trigger have a pointer pointing to this waitset for cleanup
     ///        calls, therefore the WaitSet cannot be moved
@@ -62,7 +61,7 @@ class WaitSet
     ///        trigger that it was triggered via the triggerCallback. If the WaitSet goes out of scope
     ///        before the class does it calls the invalidationCallback to invalidate the Trigger inside
     ///        of the class
-    ///        You cannot acquire an already logical equal acquired trigger. This means if you acquire a trigger
+    ///        You cannot acquire an already logically equal acquired trigger. This means if you acquire a trigger
     ///        twice with the same: origin, triggerCallback and triggerId this method will return
     ///        TRIGGER_ALREADY_ACQUIRED
     /// @param[in] origin the pointer to the class which will attach the trigger
@@ -102,15 +101,15 @@ class WaitSet
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
-    TriggerStateVector waitAndReturnFulfilledTriggers(const units::Duration& timeout) noexcept;
+    TriggerStateVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
     template <typename WaitFunction>
-    TriggerStateVector waitAndReturnFulfilledTriggers(const WaitFunction& wait) noexcept;
+    TriggerStateVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
     TriggerStateVector createVectorWithTriggeredTriggers() noexcept;
 
     template <typename T>
     void moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept;
 
-    void removeTrigger(const uint64_t triggerId) noexcept;
+    void removeTrigger(const uint64_t uniqueTriggerId) noexcept;
     void removeAllTriggers() noexcept;
 
   private:

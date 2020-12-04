@@ -61,12 +61,12 @@ void WaitSet::removeAllTriggers() noexcept
 
 typename WaitSet::TriggerStateVector WaitSet::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnFulfilledTriggers([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
+    return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
 }
 
 typename WaitSet::TriggerStateVector WaitSet::wait() noexcept
 {
-    return waitAndReturnFulfilledTriggers([this] {
+    return waitAndReturnTriggeredTriggers([this] {
         m_conditionVariableWaiter.wait();
         return false;
     });
@@ -91,7 +91,7 @@ typename WaitSet::TriggerStateVector WaitSet::createVectorWithTriggeredTriggers(
 }
 
 template <typename WaitFunction>
-typename WaitSet::TriggerStateVector WaitSet::waitAndReturnFulfilledTriggers(const WaitFunction& wait) noexcept
+typename WaitSet::TriggerStateVector WaitSet::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
     WaitSet::TriggerStateVector triggers;
 

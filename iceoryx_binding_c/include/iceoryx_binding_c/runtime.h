@@ -17,7 +17,7 @@
 
 #include "internal/c2cpp_binding.h"
 
-/// @brief registers a new posh runtime with a given name
+/// @brief initializes a new posh runtime with a given name
 /// @param[in] name name of the posh runtime
 void iox_runtime_init(const char* const name);
 

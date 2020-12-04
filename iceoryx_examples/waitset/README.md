@@ -31,8 +31,8 @@ to a _Triggerable_ while another thread may trigger the _TriggerHandle_.
  - **Triggerable** a class which has attached a _TriggerHandle_ to itself to signal
      certain events to a _Notifyable_.
  - **TriggerCallback** a callback attached to a _TriggerState_. It must have the 
-     following signature `void ( TriggerOrigin )`. Any free function and static
-     class method is allowed. You have to ensure the lifetime of that callback.
+     following signature `void ( TriggerOrigin )`. Any free function, static
+     class method and non capturing lambda is allowed. You have to ensure the lifetime of that callback.
      This can become important when you would like to use lambdas.
  - **TriggerHandle** a threadsafe class which can be used to trigger a _Notifyable_. 
      If a _TriggerHandle_ goes out of scope it will detach itself from the _Notifyable_. A _TriggerHandle_ is
@@ -43,12 +43,14 @@ to a _Triggerable_ while another thread may trigger the _TriggerHandle_.
      - they have the same callback to verify that they were triggered 
        (`hasTriggerCallback`)
      - they have the same _TriggerId_
- - **TriggerId** a id which identifies the trigger. It does not follow any 
-     restrictions and the user can choose any arbitrary `uint64_t`.
+ - **TriggerId** an id which identifies the trigger. It does not need to be unique 
+ -   or follow any restrictions. The user can choose any arbitrary `uint64_t`. Assigning 
+ -   the same _TriggerId_ to multiple _Triggers_ can be useful when you would like to 
+ -   group _Triggers_.
  - **TriggerOrigin** the pointer to the class where the trigger originated from, short
      pointer to the _Triggerable_.
  - **TriggerState** a class which corresponds with _Triggers_ and is used to inform 
-     the user with _Trigger_ were activated. You can use the _TriggerState_ to acquire 
+     the user which _Trigger_ were activated. You can use the _TriggerState_ to acquire 
      the _TriggerId_, call the _TriggerCallback_ or acquire the _TriggerOrigin_.
  - **WaitSet** a _Notifyable_ which manages a set of _Triggers_ which can be acquired by 
      the user. The _Waitset_ listens 
@@ -106,7 +108,7 @@ and everytime we received a sample we would like to send the bytestream to a soc
 write it into a file or print it to the console. But whatever we choose to do
 we perform the same task for all the subscribers.
 
-Lets start by implementing our callback which prints the subscriber pointer, the
+Let's start by implementing our callback which prints the subscriber pointer, the
 payload size and the payload pointer to the console.
 ```cpp
 void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
@@ -316,7 +318,7 @@ corresponding subscriber. If so we act.
 ```
 
 ### Sync
-Lets say we have `SomeClass` and would like to execute a cyclic static call 
+Let's say we have `SomeClass` and would like to execute a cyclic static call 
 `cyclicRun`
 in that class every second. We could execute any arbitrary algorithm in there
 but for now we just print `activation callback`. The class could look like
