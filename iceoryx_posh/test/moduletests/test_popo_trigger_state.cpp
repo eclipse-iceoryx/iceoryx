@@ -57,8 +57,6 @@ TEST_F(TriggerState_test, defaultCTorConstructsEmptyTriggerState)
 
     EXPECT_EQ(sut.getTriggerId(), TriggerState::INVALID_TRIGGER_ID);
     EXPECT_EQ(sut.doesOriginateFrom(&bla), false);
-    EXPECT_EQ(sut.getOrigin<void>(), nullptr);
-    EXPECT_EQ(const_cast<const TriggerState&>(sut).getOrigin<void>(), nullptr);
     EXPECT_EQ(sut(), false);
 }
 
@@ -78,9 +76,41 @@ TEST_F(TriggerState_test, getOriginReturnsCorrectOriginWhenHavingCorrectType)
     EXPECT_EQ(m_sut.getOrigin<TriggerOriginTest>(), &m_origin);
 }
 
+TEST_F(TriggerState_test, constGetOriginReturnsCorrectOriginWhenHavingCorrectType)
+{
+    EXPECT_EQ(const_cast<const TriggerState&>(m_sut).getOrigin<TriggerOriginTest>(), &m_origin);
+}
+
 TEST_F(TriggerState_test, getOriginReturnsNullptrWithWrongType)
 {
-    EXPECT_EQ(m_sut.getOrigin<int>(), nullptr);
+    auto errorHandlerCalled{false};
+    iox::Error errorHandlerType;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerType = error;
+            errorHandlerCalled = true;
+        });
+
+    m_sut.getOrigin<int>();
+
+    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
+}
+
+TEST_F(TriggerState_test, constGetOriginReturnsNullptrWithWrongType)
+{
+    auto errorHandlerCalled{false};
+    iox::Error errorHandlerType;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
+            errorHandlerType = error;
+            errorHandlerCalled = true;
+        });
+
+    const_cast<TriggerState&>(m_sut).getOrigin<int>();
+
+    EXPECT_TRUE(errorHandlerCalled);
+    EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
 TEST_F(TriggerState_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallback)

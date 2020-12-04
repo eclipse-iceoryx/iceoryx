@@ -50,6 +50,7 @@ inline T* TriggerState::getOrigin() noexcept
 {
     if (m_originTypeHash != typeid(T).hash_code())
     {
+        errorHandler(Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN, nullptr, iox::ErrorLevel::MODERATE);
         return nullptr;
     }
 

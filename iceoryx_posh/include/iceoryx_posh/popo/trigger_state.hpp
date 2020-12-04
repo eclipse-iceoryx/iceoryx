@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 
 #include <cstdint>
 #include <limits>
@@ -58,14 +59,16 @@ class TriggerState
     bool doesOriginateFrom(T* const origin) const noexcept;
 
     /// @brief returns the pointer to the origin.
-    /// @return If T equals the origin type and the TriggerState is not empty it returns the pointer to the origin.
-    /// Otherwise it returns nullptr. If the type is wrong it prints an additional warning error message.
+    /// @return If T equals the origin type it returns the pointer to the origin.
+    /// Otherwise it calls the errorHandler with a moderate error of
+    /// kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
     template <typename T>
     T* getOrigin() noexcept;
 
     /// @brief returns the pointer to the origin.
-    /// @return If T equals the origin type and the TriggerState is not empty it returns the pointer to the origin.
-    /// Otherwise it returns nullptr.
+    /// @return If T equals the origin type it returns the pointer to the origin.
+    /// Otherwise it calls the errorHandler with a moderate error of
+    /// kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
     template <typename T>
     const T* getOrigin() const noexcept;
 
