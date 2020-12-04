@@ -56,11 +56,13 @@ class ProcessIntrospectionAccess : public iox::roudi::ProcessIntrospection<MockP
     {
         iox::roudi::ProcessIntrospection<MockPublisherPortUserIntrospection>::send();
     }
+
     iox::cxx::optional<MockPublisherPortUserIntrospection>& getPublisherPort()
     {
         return this->m_publisherPort;
     }
 };
+
 class ProcessIntrospection_test : public Test
 {
   public:
@@ -77,7 +79,6 @@ class ProcessIntrospection_test : public Test
     virtual void SetUp()
     {
         internal::CaptureStdout();
-        // m_publisherPortData.PublisherPortData(m_serviceDescription, "Foo", &m_memoryManager);
     }
 
     virtual void TearDown()
@@ -87,7 +88,6 @@ class ProcessIntrospection_test : public Test
         {
             std::cout << output << std::endl;
         }
-        m_publisherPortData.~PublisherPortData();
     }
 
     ChunkMock<Topic>* createMemoryChunkAndSend(ProcessIntrospectionAccess& introspectionAccess)
@@ -99,7 +99,6 @@ class ProcessIntrospection_test : public Test
         return introspectionAccess.getPublisherPort().value().getChunk();
     }
 
-    MockPublisherPortUserIntrospection m_publisherPortImpl_mock;
     iox::mepoo::MemoryManager m_memoryManager;
     iox::capro::ServiceDescription m_serviceDescription;
     iox::popo::PublisherPortData m_publisherPortData{m_serviceDescription, "Foo", &m_memoryManager};
@@ -165,7 +164,7 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
         EXPECT_THAT(chunk3->sample()->m_processList.size(), Eq(0U));
 
         // if there isn't any change, no data are deliverd
-        EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(0);
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(0);
         introspectionAccess.send();
     }
     // stopOffer was called
