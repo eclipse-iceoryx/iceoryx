@@ -47,12 +47,13 @@ class iox_sub_test : public Test
     {
         m_mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
         m_memoryManager.configureMemoryManager(m_mempoolconf, &m_memoryAllocator, &m_memoryAllocator);
-        m_subscriber.m_portData = &m_portPtr;
+        m_subscriber->m_portData = &m_portPtr;
     }
 
     ~iox_sub_test()
     {
         delete m_waitSet;
+        delete m_subscriber;
     }
 
     void SetUp()
@@ -94,8 +95,8 @@ class iox_sub_test : public Test
     iox::popo::SubscriberPortData m_portPtr{
         TEST_SERVICE_DESCRIPTION, "myApp", iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
-    cpp2c_Subscriber m_subscriber;
-    iox_sub_t m_sut = &m_subscriber;
+    cpp2c_Subscriber* m_subscriber = new cpp2c_Subscriber;
+    iox_sub_t m_sut = m_subscriber;
 
     ConditionVariableData m_condVar;
     WaitSetMock* m_waitSet = new WaitSetMock{&m_condVar};
@@ -317,4 +318,5 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
     iox_sub_deinit(m_sut);
 
     EXPECT_EQ(m_waitSet->size(), 0);
+    m_subscriber = nullptr;
 }
