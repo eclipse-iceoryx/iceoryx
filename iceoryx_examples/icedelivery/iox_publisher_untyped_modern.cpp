@@ -58,7 +58,7 @@ int main()
 
         // API Usage #2
         // * Loan sample and provide logic to use it immediately via a lambda
-        untypedPublisher.loan(sizeof(Position)).and_then([&](iox::popo::Sample<void>& sample) {
+        untypedPublisher.loan(sizeof(Position)).and_then([&](auto& sample) {
             new (sample.get()) Position(ct, ct, ct);
             sample.publish();
         });

@@ -129,7 +129,7 @@ void PortManager::handlePublisherPorts() noexcept
     {
         PublisherPortRouDiType publisherPort(publisherPortData);
 
-        publisherPort.tryGetCaProMessage().and_then([&](capro::CaproMessage caproMessage) {
+        publisherPort.tryGetCaProMessage().and_then([&](auto caproMessage) {
             m_portIntrospection.reportMessage(caproMessage);
 
             if ((capro::CaproMessageType::OFFER == caproMessage.m_type)
@@ -167,7 +167,7 @@ void PortManager::handleSubscriberPorts() noexcept
     {
         SubscriberPortType subscriberPort(subscriberPortData);
 
-        subscriberPort.tryGetCaProMessage().and_then([&](capro::CaproMessage caproMessage) {
+        subscriberPort.tryGetCaProMessage().and_then([&](auto caproMessage) {
             m_portIntrospection.reportMessage(caproMessage);
 
             if ((capro::CaproMessageType::SUB == caproMessage.m_type)
@@ -470,7 +470,7 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
     publisherPortUser.stopOffer();
 
     // process STOP_OFFER for this publisher in RouDi and distribute it
-    publisherPortRoudi.tryGetCaProMessage().and_then([&](capro::CaproMessage caproMessage) {
+    publisherPortRoudi.tryGetCaProMessage().and_then([&](auto caproMessage) {
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::STOP_OFFER);
 
         m_portIntrospection.reportMessage(caproMessage);
@@ -498,7 +498,7 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     subscriberPortUser.unsubscribe();
 
     // process UNSUB for this subscriber in RouDi and distribute it
-    subscriberPortRoudi.tryGetCaProMessage().and_then([&](capro::CaproMessage caproMessage) {
+    subscriberPortRoudi.tryGetCaProMessage().and_then([&](auto caproMessage) {
         cxx::Ensures(caproMessage.m_type == capro::CaproMessageType::UNSUB);
 
         m_portIntrospection.reportMessage(caproMessage);
@@ -551,7 +551,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
-            [&](const ProcessName_t& usedByProcess) {
+            [&](const auto& usedByProcess) {
                 LogWarn()
                     << "Process '" << processName
                     << "' violates the communication policy by requesting a PublisherPort which is already used by '"

@@ -114,7 +114,7 @@ template <typename channel_t, typename gateway_t>
 cxx::expected<channel_t, gw::GatewayError>
 Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service) noexcept
 {
-    return this->addChannel(service).and_then([](channel_t channel) {
+    return this->addChannel(service).and_then([](auto channel) {
         auto subscriber = channel.getIceoryxTerminal();
         auto dataWriter = channel.getExternalTerminal();
         subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);

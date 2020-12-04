@@ -478,7 +478,8 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(Po
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic)
+void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortThroughputIntrospectionTopic& topic
+                                                                              [[gnu::unused]])
 {
     /// @todo #402 re-add port throughput
 }

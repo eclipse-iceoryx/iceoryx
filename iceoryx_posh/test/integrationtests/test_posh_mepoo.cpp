@@ -301,7 +301,7 @@ class Mepoo_IntegrationTest : public Test
 
         for (int idx = 0; idx < times; ++idx)
         {
-            publisherPort->tryAllocateChunk(topicSize).and_then([&](iox::mepoo::ChunkHeader* sample) {
+            publisherPort->tryAllocateChunk(topicSize).and_then([&](auto sample) {
                 new (sample->payload()) Topic;
                 sample->m_info.m_payloadSize = topicSize;
                 publisherPort->sendChunk(sample);

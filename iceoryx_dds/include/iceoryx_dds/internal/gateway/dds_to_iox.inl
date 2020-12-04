@@ -61,8 +61,8 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
 
     while (reader->hasNewSamples())
     {
-        reader->peekNextSize().and_then([&](uint32_t size) {
-            publisher->loan(size).and_then([&](popo::Sample<void>& sample) {
+        reader->peekNextSize().and_then([&](auto size) {
+            publisher->loan(size).and_then([&](auto& sample) {
                 reader->takeNext(static_cast<uint8_t*>(sample.get()), size)
                     .and_then([&]() { sample.publish(); })
                     .or_else([&](DataReaderError err) {
@@ -79,7 +79,7 @@ template <typename channel_t, typename gateway_t>
 cxx::expected<channel_t, gw::GatewayError>
 DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service) noexcept
 {
-    return this->addChannel(service).and_then([&service](channel_t channel) {
+    return this->addChannel(service).and_then([&service](auto channel) {
         auto publisher = channel.getIceoryxTerminal();
         auto reader = channel.getExternalTerminal();
         publisher->offer();

@@ -69,7 +69,7 @@ void Iceoryx::shutdown() noexcept
 
 void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    m_publisher.loan(payloadSizeInBytes).and_then([&](iox::popo::Sample<void>& sample) {
+    m_publisher.loan(payloadSizeInBytes).and_then([&](auto& sample) {
         auto sendSample = static_cast<PerfTopic*>(sample.get());
         sendSample->payloadSize = payloadSizeInBytes;
         sendSample->run = runFlag;
@@ -88,18 +88,6 @@ PerfTopic Iceoryx::receivePerfTopic() noexcept
             receivedSample = static_cast<const PerfTopic*>(sample.get());
         });
     } while (!receivedSample);
-
-
-    // while (!m_subscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
-    //     if (maybeSample.has_value())
-    //     {
-    //         receivedSample = *(static_cast<const PerfTopic*>(maybeSample.value().get()));
-    //     }
-    // }))
-    // {
-    //     // poll as fast as possible
-    // }
-
 
     return *receivedSample;
 }

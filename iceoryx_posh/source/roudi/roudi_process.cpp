@@ -688,7 +688,7 @@ void ProcessManager::addConditionVariableForProcess(const ProcessName_t& process
     {
         // Try to create a condition variable
         m_portManager.acquireConditionVariableData()
-            .and_then([&](popo::ConditionVariableData* condVar) {
+            .and_then([&](auto condVar) {
                 auto offset = RelativePointer::getOffset(m_mgmtSegmentId, condVar);
 
                 runtime::MqMessage sendBuffer;
