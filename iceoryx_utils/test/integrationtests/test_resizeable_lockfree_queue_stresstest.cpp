@@ -20,6 +20,7 @@
 
 using namespace ::testing;
 
+#include <array>
 #include <atomic>
 #include <list>
 #include <numeric>
@@ -40,167 +41,7 @@ struct Data
 
     int id{0};
     size_t count{0};
-
-    void print()
-    {
-        std::stringstream s;
-        s << "data id " << id << " count " << count << std::endl;
-        std::cout << s.str();
-    }
 };
-
-template <typename Queue>
-void produce(Queue& queue, int id, int iterations)
-{
-    Data d(id, 0);
-    for (int i = 0; i < iterations; ++i)
-    {
-        d.count++;
-        while (!queue.tryPush(d))
-        {
-        }
-    }
-}
-
-template <typename Queue>
-void consume(Queue& queue, std::atomic<bool>& run, size_t expectedFinalCount, int maxId, bool& testResult)
-{
-    bool error = false;
-
-    std::vector<size_t> lastCount(maxId + 1, 0);
-
-    while (run || !queue.empty())
-    {
-        auto popped = queue.pop();
-        if (popped.has_value())
-        {
-            auto& value = popped.value();
-            if (lastCount[value.id] + 1 != value.count)
-            {
-                error = true;
-            }
-
-            lastCount[value.id] = value.count;
-        }
-    }
-
-    for (int i = 1; i <= maxId; ++i)
-    {
-        if (lastCount[i] != expectedFinalCount)
-        {
-            error = true;
-        }
-    }
-
-    testResult = !error;
-}
-
-/// remark: a possible rework could try to avoid storing the popped values for check with multiple consumers
-/// since this would allow us to run the test much longer (currently we will exhaust memory
-/// by using the list), but this rework is somewhat nontrivial
-template <typename Queue>
-void consumeAndStore(Queue& queue, std::atomic<bool>& run, std::list<Data>& consumed)
-{
-    while (run || !queue.empty())
-    {
-        auto popped = queue.pop();
-        if (popped.has_value())
-        {
-            consumed.push_back(popped.value());
-        }
-    }
-}
-
-std::list<Data> filter(std::list<Data>& list, int id)
-{
-    std::list<Data> filtered;
-
-    for (auto& data : list)
-    {
-        if (data.id == id)
-        {
-            filtered.push_back(data);
-        }
-    }
-
-    return filtered;
-}
-
-bool isStrictlyMonotonous(std::list<Data>& list)
-{
-    auto iter = list.begin();
-    if (iter == list.end())
-    {
-        return true;
-    }
-
-    size_t prev = iter->count;
-    iter++;
-
-    while (iter != list.end())
-    {
-        if (prev >= iter->count)
-        {
-            return false;
-        }
-        prev = iter->count;
-        iter++;
-    }
-
-    return true;
-}
-
-bool isComplete(std::list<Data>& list1, std::list<Data>& list2, size_t finalCount)
-{
-    std::vector<int> count(finalCount + 1);
-    for (auto& data : list1)
-    {
-        count[data.count]++;
-    }
-
-    for (auto& data : list2)
-    {
-        count[data.count]++;
-    }
-
-    for (size_t i = 1; i <= finalCount; ++i)
-    {
-        if (count[i] != 1)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool checkTwoConsumerResult(std::list<Data>& consumed1,
-                            std::list<Data>& consumed2,
-                            size_t expectedFinalCount,
-                            int maxId)
-{
-    std::vector<std::list<Data>> consumed(maxId + 1);
-
-    for (int id = 1; id <= maxId; ++id)
-    {
-        auto filtered1 = filter(consumed1, id);
-        auto filtered2 = filter(consumed2, id);
-
-        if (!isStrictlyMonotonous(filtered1) || !isStrictlyMonotonous(filtered2))
-        {
-            std::cout << "id " << id << " not strictly monotonous" << std::endl;
-            return false;
-        }
-
-        if (!isComplete(filtered1, filtered2, expectedFinalCount))
-        {
-            std::cout << "id " << id << " incomplete" << std::endl;
-            return false;
-        }
-    }
-
-    return true;
-}
 
 // alternates between push and pop
 template <typename Queue>
@@ -380,6 +221,8 @@ class ResizeableLockFreeQueueStressTest : public ::testing::Test
 
     using Queue = typename Config::QueueType;
     Queue sut;
+
+    const std::chrono::seconds runtime{5};
 };
 
 template <typename ElementType, uint64_t Capacity_, uint64_t DynamicCapacity_ = Capacity_>
@@ -424,7 +267,7 @@ typedef ::testing::
     Types<Full1, Full2, Full3, Full4, AlmostFull1, AlmostFull2, AlmostFull3, HalfFull1, HalfFull2, HalfFull3>
         TestConfigs;
 */
-typedef ::testing::Types<HalfFull<Data, 100>> TestConfigs;
+typedef ::testing::Types<HalfFull2> TestConfigs;
 
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
@@ -432,103 +275,105 @@ typedef ::testing::Types<HalfFull<Data, 100>> TestConfigs;
 TYPED_TEST_CASE(ResizeableLockFreeQueueStressTest, TestConfigs);
 #pragma GCC diagnostic pop
 
-///@brief Tests concurrent operation of one prodcuer and one consumer
-/// The producer pushes a fixed number of data elements which the consumer pops and checks.
-/// The order of popped elements and completeness (no data loss) is checked.
-TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_singleProducerSingleConsumer)
+using CountArray = std::vector<std::atomic<uint64_t>>;
+
+template <typename Queue>
+void produce(Queue& queue, const int id, CountArray& producedCount, std::atomic_bool& run)
 {
-    using Queue = typename TestFixture::Queue;
+    const auto n = producedCount.size();
+    Data d(id, 0U);
+    while (run.load(std::memory_order_relaxed))
+    {
+        bool pushed{true};
+        while (!queue.tryPush(d) && run)
+        {
+            if (run.load(std::memory_order_relaxed) == false)
+            {
+                pushed = false;
+                break;
+            }
+        }
 
-    auto& queue = this->sut;
-    std::atomic<bool> run{true};
-    bool testResult;
-    int iterations = 10000000;
-
-    std::thread consumer(consume<Queue>, std::ref(queue), std::ref(run), iterations, 1, std::ref(testResult));
-    std::thread producer(produce<Queue>, std::ref(queue), 1, iterations);
-
-    producer.join();
-
-    run = false;
-    consumer.join();
-
-    EXPECT_EQ(testResult, true);
+        if (pushed)
+        {
+            producedCount[d.count].fetch_add(1U, std::memory_order_relaxed);
+            d.count = (d.count + 1U) % n;
+        }
+    }
 }
 
-///@brief Tests concurrent operation of multiple prodcuers and one consumer.
-/// The producers push a fixed number of data elements which the consumer pops and checks.
-/// The order of popped elements and completeness (no data loss) is checked.
-TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerSingleConsumer)
+template <typename Queue>
+void consume(Queue& queue, CountArray& consumedCount, std::atomic_bool& run)
+{
+    while (run.load(std::memory_order_relaxed) || !queue.empty())
+    {
+        const auto popped = queue.pop();
+        if (popped.has_value())
+        {
+            const auto& value = popped.value();
+            consumedCount[value.count].fetch_add(1U, std::memory_order_relaxed);
+        }
+    }
+}
+
+///@brief Tests concurrent operation of multiple producers and consumers
+///       with respect to completeness of the data, i.e. nothing is lost.
+TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerCompleteness)
 {
     using Queue = typename TestFixture::Queue;
-
     auto& queue = this->sut;
-    std::atomic<bool> run{true};
-    bool testResult;
-    int iterations = 1000000;
-    int numProducers = 8;
+
+    std::atomic_bool run{true};
+
+    const int numProducers{4};
+    const int numConsumers{4};
+
+    // the producers will only send items with a count 0<=count<cycleLength
+    // and wrap around modulo this cycleLength (bounded to be able to count arrived data in an array)
+    // unfortunately we cannot really check out of order arrival this way, since
+    // the sent counts are not monotonic themselves due to the wraparound
+
+    const int cycleLength{1000};
+    CountArray producedCount(cycleLength);
+    CountArray consumedCount(cycleLength);
+
+    // cannot be done with the vector ctor for atomics
+    for (int i = 0; i < cycleLength; ++i)
+    {
+        producedCount[i].store(0, std::memory_order_relaxed);
+        consumedCount[i].store(0, std::memory_order_relaxed);
+    }
 
     std::vector<std::thread> producers;
-
-    std::thread consumer(
-        consume<Queue>, std::ref(queue), std::ref(run), iterations, numProducers, std::ref(testResult));
+    std::vector<std::thread> consumers;
 
     for (int id = 1; id <= numProducers; ++id)
     {
-        producers.emplace_back(produce<Queue>, std::ref(queue), id, iterations);
+        producers.emplace_back(produce<Queue>, std::ref(queue), id, std::ref(producedCount), std::ref(run));
     }
+
+    for (int id = 1; id <= numConsumers; ++id)
+    {
+        consumers.emplace_back(consume<Queue>, std::ref(queue), std::ref(consumedCount), std::ref(run));
+    }
+
+    std::this_thread::sleep_for(std::chrono::seconds(this->runtime));
+    run = false;
 
     for (auto& producer : producers)
     {
         producer.join();
     }
-
-    run = false;
-    consumer.join();
-
-    EXPECT_EQ(testResult, true);
-}
-
-///@brief Tests concurrent operation of multiple producers and two consumers.
-/// The producers push a fixed number of data elements which the consumers pop and store for checks
-/// after the threads finish their operation.
-/// The order of popped elements and completeness (no data loss) is checked.
-/// Note: it gets complicated if we want to check for data completeness (i.e. no data loss)
-/// with multiple consumers > 2, so for now we just do this for 2 consumers.
-/// This is especially the case for many producers/iterations since we need to store intermediate
-/// states from the consumers to check later (which can get quite large).
-TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerTwoConsumer)
-{
-    using Queue = typename TestFixture::Queue;
-
-    auto& queue = this->sut;
-    std::atomic<bool> run{true};
-    int iterations = 1000000;
-    int numProducers = 4;
-
-    std::vector<std::thread> producers;
-
-    // the lists will get quite large  (in total they hold all produced elements,
-    // i.e. iterations * numProducers
-    std::list<Data> consumed1;
-    std::list<Data> consumed2;
-    std::thread consumer1(consumeAndStore<Queue>, std::ref(queue), std::ref(run), std::ref(consumed1));
-    std::thread consumer2(consumeAndStore<Queue>, std::ref(queue), std::ref(run), std::ref(consumed2));
-
-    for (int id = 1; id <= numProducers; ++id)
+    for (auto& consumer : consumers)
     {
-        producers.emplace_back(produce<Queue>, std::ref(queue), id, iterations);
+        consumer.join();
     }
 
-    for (auto& producer : producers)
+    // verify counts
+    for (int i = 0; i < cycleLength; ++i)
     {
-        producer.join();
+        EXPECT_EQ(producedCount[i], consumedCount[i]);
     }
-    run = false;
-    consumer1.join();
-    consumer2.join();
-
-    EXPECT_EQ(checkTwoConsumerResult(consumed1, consumed2, iterations, numProducers), true);
 }
 
 ///@brief Tests concurrent operation of multiple hybrid producer/consumer threads.
@@ -538,7 +383,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerTwoConsumer)
 /// data item back into the queue.
 /// Finally it is checked whether the queue still contains all elements it was initialized with
 ///(likely in a different order).
-TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer)
+TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiConsumer)
 {
     using Queue = typename TestFixture::Queue;
 
@@ -607,7 +452,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_timedMultiProducerMultiCo
 /// aggregated over the queue and the local lists of each thread
 /// all elements occur exactly as often as there are threads + 1 (i.e. nothing was lost, the +1 is
 /// due to the initial values in the queue itself).
-TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer0verflow)
+TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiConsumer0verflow)
 {
     using Queue = typename TestFixture::Queue;
 
@@ -659,26 +504,19 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_timedMultiProducerMultiCo
 
     std::vector<int> count(capacity, 0);
     auto popped = q.pop();
-    std::cout << "queue: ";
     while (popped.has_value())
     {
-        std::cout << popped.value().count << " ";
         count[popped.value().count]++;
         popped = q.pop();
     }
-    std::cout << std::endl;
 
     // check the local lists
-    int id = 1;
     for (auto& items : itemVec)
     {
-        std::cout << "thread " << id++ << ": ";
         for (auto& item : items)
         {
-            std::cout << item.count << " ";
             count[item.count]++;
         }
-        std::cout << std::endl;
     }
 
     // we expect at least one overflow in the test (since the queue is full in the beginning)
@@ -693,20 +531,19 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_timedMultiProducerMultiCo
         // the extra one is for the initially full queue
         if (count[i] != numThreads + 1)
         {
-            std::cout << "found " << i << " " << count[i] << " times instead of " << numThreads + 1 << std::endl;
             testResult = false;
-            // break;
+            break;
         }
     }
 
     EXPECT_EQ(testResult, true);
 }
 
-// As the test before, but with an additional thread that periodically changes the capacity
-// again it is checked that nothing is lost or created by accident.
-// Remark: the tests are getting quite complicated but the complex setup is unavoidable
-// in order to test the general case under load.
-TYPED_TEST(ResizeableLockFreeQueueStressTest, timedMultiProducerMultiConsumer0verflowWithCapacityChange)
+/// @brief As the test before, but with an additional thread that periodically changes the capacity
+/// again it is checked that nothing is lost or created by accident.
+/// @note the tests are getting quite complicated but the complex setup is unavoidable
+/// in order to test the general case under load.
+TYPED_TEST(ResizeableLockFreeQueueStressTest, hybridMultiProducerMultiConsumer0verflowWithCapacityChange)
 {
     using Queue = typename TestFixture::Queue;
 
@@ -725,16 +562,11 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, timedMultiProducerMultiConsumer0ve
     // define capacities to cycle between
     std::vector<uint64_t> capacities;
     auto maxCapacity = q.maxCapacity();
-    // std::cout << "capacities: ";
     for (uint64_t c = 1; c < maxCapacity; c *= 2)
     {
-        // std::cout << c << " ";
         capacities.push_back(c);
     }
     capacities.push_back(maxCapacity);
-    std::cout << std::endl;
-
-    std::cout << "initial capacity: " << capacity << std::endl;
 
     // fill the queue
     Data d;
@@ -781,30 +613,22 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, timedMultiProducerMultiConsumer0ve
 
     std::vector<int> count(capacity, 0);
     auto popped = q.pop();
-    // std::cout << "queue: ";
     while (popped.has_value())
     {
         // std::cout << popped.value().count << " ";
         count[popped.value().count]++;
         popped = q.pop();
     }
-    // std::cout << std::endl;
 
     // check the local lists
     id = 1;
     for (auto& items : itemVec)
     {
-        // std::cout << "thread " << id++ << ": ";
         for (auto& item : items)
         {
-            // std::cout << item.count << " ";
             count[item.count]++;
         }
-        // std::cout << std::endl;
     }
-
-    std::cout << "capacity changes : " << numChanges << std::endl;
-    std::cout << "final capacity : " << q.capacity() << std::endl;
 
     // we expect at least one overflow in the test (since the queue is full in the beginning)
     // we cannot expect one overflow in each thread due to thread scheduling
@@ -819,7 +643,6 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, timedMultiProducerMultiConsumer0ve
         // the extra one is for the initially full queue
         if (count[i] != numThreads + 1)
         {
-            // std::cout << "found " << i << " " << count[i] << " times instead of " << numThreads + 1 << std::endl;
             testResult = false;
             break;
         }
