@@ -43,6 +43,87 @@ struct Data
     size_t count{0};
 };
 
+using CountArray = std::vector<std::atomic<uint64_t>>;
+
+template <typename Queue>
+void producePeriodic(Queue& queue, const int id, CountArray& producedCount, std::atomic_bool& run)
+{
+    const auto n = producedCount.size();
+    Data d(id, 0U);
+    while (run.load(std::memory_order_relaxed))
+    {
+        bool pushed{true};
+        while (!queue.tryPush(d))
+        {
+            if (run.load(std::memory_order_relaxed) == false)
+            {
+                pushed = false;
+                break;
+            }
+        }
+
+        if (pushed)
+        {
+            producedCount[d.count].fetch_add(1U, std::memory_order_relaxed);
+            d.count = (d.count + 1U) % n;
+        }
+    }
+}
+
+template <typename Queue>
+void consume(Queue& queue, CountArray& consumedCount, std::atomic_bool& run)
+{
+    while (run.load(std::memory_order_relaxed) || !queue.empty())
+    {
+        const auto popped = queue.pop();
+        if (popped.has_value())
+        {
+            const auto& value = popped.value();
+            consumedCount[value.count].fetch_add(1U, std::memory_order_relaxed);
+        }
+    }
+}
+
+template <typename Queue>
+void produceMonotonic(Queue& queue, const int id, std::atomic_bool& run)
+{
+    Data d(id, 1U);
+    while (run.load(std::memory_order_relaxed))
+    {
+        while (!queue.tryPush(d) && run.load(std::memory_order_relaxed))
+        {
+        }
+        ++d.count;
+    }
+}
+
+template <typename Queue>
+void consumeAndCheckOrder(Queue& queue, const int maxId, std::atomic_bool& run, std::atomic_bool& orderOk)
+{
+    // note that the producers start sending with count 1,
+    // hence setting last count to 0 does not lead to false negative checks
+    std::vector<uint64_t> lastCount(maxId + 1, 0U);
+
+    while (run.load(std::memory_order_relaxed) || !queue.empty())
+    {
+        const auto popped = queue.pop();
+        if (popped.has_value())
+        {
+            const auto& value = popped.value();
+            const auto& count = lastCount[value.id];
+
+            if (count >= value.count)
+            {
+                // last count received with this id is equal or larger,
+                // which should not be the case if the counts are monotonic
+                // and indicates an error
+                orderOk.store(false, std::memory_order_relaxed);
+            }
+            lastCount[value.id] = value.count;
+        }
+    }
+}
+
 // alternates between push and pop
 template <typename Queue>
 void work(Queue& queue, int id, std::atomic<bool>& run)
@@ -222,7 +303,7 @@ class ResizeableLockFreeQueueStressTest : public ::testing::Test
     using Queue = typename Config::QueueType;
     Queue sut;
 
-    const std::chrono::seconds runtime{5};
+    std::chrono::seconds runtime{3};
 };
 
 template <typename ElementType, uint64_t Capacity_, uint64_t DynamicCapacity_ = Capacity_>
@@ -232,6 +313,7 @@ struct Config
     static constexpr uint64_t DynamicCapacity = DynamicCapacity_;
     static_assert(DynamicCapacity <= Capacity, "DynamicCapacity can be at most Capacity");
 
+
     using QueueType = iox::concurrent::ResizeableLockFreeQueue<ElementType, Capacity>;
 };
 
@@ -239,15 +321,15 @@ template <typename ElementType, uint64_t Capacity>
 using Full = Config<ElementType, Capacity>;
 
 template <typename ElementType, uint64_t Capacity>
-using AlmostFull = Config<ElementType, Capacity, (Capacity > 1) ? (Capacity - 1) : Capacity>;
+using AlmostFull = Config<ElementType, Capacity, (Capacity > 1U) ? (Capacity - 1U) : Capacity>;
 
 template <typename ElementType, uint64_t Capacity>
-using HalfFull = Config<ElementType, Capacity, (Capacity > 1) ? (Capacity / 2) : Capacity>;
+using HalfFull = Config<ElementType, Capacity, (Capacity > 1U) ? (Capacity / 2U) : Capacity>;
 
 // test different queue sizes with full and reduced dynamic capacity
-constexpr uint64_t Small = 10;
-constexpr uint64_t Medium = 1000;
-constexpr uint64_t Large = 1000000;
+constexpr uint64_t Small = 10U;
+constexpr uint64_t Medium = 1000U;
+constexpr uint64_t Large = 1000000U;
 
 using Full1 = Full<Data, 1>;
 using Full2 = Full<Data, Small>;
@@ -262,6 +344,10 @@ using HalfFull1 = HalfFull<Data, Small>;
 using HalfFull2 = HalfFull<Data, Medium>;
 using HalfFull3 = HalfFull<Data, Large>;
 
+/// @todo these should be activated but each test takes a lot of time, occupying the CI servers
+/// need separate stress test targets and policy to run them on CI,
+/// currently only activate one suitable general configuration
+/// for this reason some less important tests are disabled for now
 /*
 typedef ::testing::
     Types<Full1, Full2, Full3, Full4, AlmostFull1, AlmostFull2, AlmostFull3, HalfFull1, HalfFull2, HalfFull3>
@@ -275,46 +361,6 @@ typedef ::testing::Types<HalfFull2> TestConfigs;
 TYPED_TEST_CASE(ResizeableLockFreeQueueStressTest, TestConfigs);
 #pragma GCC diagnostic pop
 
-using CountArray = std::vector<std::atomic<uint64_t>>;
-
-template <typename Queue>
-void produce(Queue& queue, const int id, CountArray& producedCount, std::atomic_bool& run)
-{
-    const auto n = producedCount.size();
-    Data d(id, 0U);
-    while (run.load(std::memory_order_relaxed))
-    {
-        bool pushed{true};
-        while (!queue.tryPush(d) && run)
-        {
-            if (run.load(std::memory_order_relaxed) == false)
-            {
-                pushed = false;
-                break;
-            }
-        }
-
-        if (pushed)
-        {
-            producedCount[d.count].fetch_add(1U, std::memory_order_relaxed);
-            d.count = (d.count + 1U) % n;
-        }
-    }
-}
-
-template <typename Queue>
-void consume(Queue& queue, CountArray& consumedCount, std::atomic_bool& run)
-{
-    while (run.load(std::memory_order_relaxed) || !queue.empty())
-    {
-        const auto popped = queue.pop();
-        if (popped.has_value())
-        {
-            const auto& value = popped.value();
-            consumedCount[value.count].fetch_add(1U, std::memory_order_relaxed);
-        }
-    }
-}
 
 ///@brief Tests concurrent operation of multiple producers and consumers
 ///       with respect to completeness of the data, i.e. nothing is lost.
@@ -347,12 +393,12 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerComplete
     std::vector<std::thread> producers;
     std::vector<std::thread> consumers;
 
-    for (int id = 1; id <= numProducers; ++id)
+    for (int id = 0; id < numProducers; ++id)
     {
-        producers.emplace_back(produce<Queue>, std::ref(queue), id, std::ref(producedCount), std::ref(run));
+        producers.emplace_back(producePeriodic<Queue>, std::ref(queue), id, std::ref(producedCount), std::ref(run));
     }
 
-    for (int id = 1; id <= numConsumers; ++id)
+    for (int id = 0; id < numConsumers; ++id)
     {
         consumers.emplace_back(consume<Queue>, std::ref(queue), std::ref(consumedCount), std::ref(run));
     }
@@ -376,6 +422,53 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerComplete
     }
 }
 
+
+/// @brief Tests concurrent operation of multiple producers and consumers
+///       with respect to order of the data (monotonic, FIFO).
+/// @note this cannot be done easily together with completeness and limited memory
+TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerOrder)
+{
+    using Queue = typename TestFixture::Queue;
+    auto& queue = this->sut;
+
+    std::atomic_bool run{true};
+
+    const int numProducers{4};
+    const int numConsumers{4};
+
+    // need only one variable, any consumer that detects an error will set it to false
+    // and no consumer will ever set it to true again
+    std::atomic_bool orderOk{true};
+
+    std::vector<std::thread> producers;
+    std::vector<std::thread> consumers;
+
+    for (int id = 0; id < numProducers; ++id)
+    {
+        producers.emplace_back(produceMonotonic<Queue>, std::ref(queue), id, std::ref(run));
+    }
+
+    for (int id = 0; id < numConsumers; ++id)
+    {
+        consumers.emplace_back(
+            consumeAndCheckOrder<Queue>, std::ref(queue), numProducers - 1, std::ref(run), std::ref(orderOk));
+    }
+
+    std::this_thread::sleep_for(std::chrono::seconds(this->runtime));
+    run = false;
+
+    for (auto& producer : producers)
+    {
+        producer.join();
+    }
+    for (auto& consumer : consumers)
+    {
+        consumer.join();
+    }
+
+    EXPECT_TRUE(orderOk.load(std::memory_order_relaxed));
+}
+
 ///@brief Tests concurrent operation of multiple hybrid producer/consumer threads.
 /// The tests initializes a queue full of distinct (unique) elements
 /// and each thread alternates between pop and push, only pushing what he has previously popped.
@@ -388,8 +481,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
     using Queue = typename TestFixture::Queue;
 
     auto& q = this->sut;
-    std::chrono::seconds runtime(10);
-    int numThreads = 32;
+    const int numThreads = 32;
 
     auto capacity = q.capacity();
 
@@ -411,8 +503,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
         threads.emplace_back(work<Queue>, std::ref(q), id, std::ref(run));
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(runtime));
-
+    std::this_thread::sleep_for(std::chrono::seconds(this->runtime));
     run = false;
 
     for (auto& thread : threads)
@@ -458,9 +549,9 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
 
     auto& q = this->sut;
     std::chrono::seconds runtime(10);
-    int numThreads = 32;
-    double popProbability = 0.45; // tends to overflow
-    auto capacity = q.capacity();
+    const int numThreads = 32;
+    const double popProbability = 0.45; // tends to overflow
+    const auto capacity = q.capacity();
 
     std::atomic<bool> run{true};
 
@@ -548,10 +639,9 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, hybridMultiProducerMultiConsumer0v
     using Queue = typename TestFixture::Queue;
 
     auto& q = this->sut;
-    std::chrono::seconds runtime(30);
-    int numThreads = 32;
-    double popProbability = 0.45; // tends to overflow
-    auto capacity = q.capacity();
+    const int numThreads = 32;
+    const double popProbability = 0.45; // tends to overflow
+    const auto capacity = q.capacity();
 
     std::atomic<bool> run{true};
 
@@ -599,7 +689,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, hybridMultiProducerMultiConsumer0v
                          std::ref(capacities),
                          std::ref(numChanges));
 
-    std::this_thread::sleep_for(std::chrono::seconds(runtime));
+    std::this_thread::sleep_for(std::chrono::seconds(this->runtime));
 
     run = false;
 
@@ -615,7 +705,6 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, hybridMultiProducerMultiConsumer0v
     auto popped = q.pop();
     while (popped.has_value())
     {
-        // std::cout << popped.value().count << " ";
         count[popped.value().count]++;
         popped = q.pop();
     }
@@ -632,7 +721,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, hybridMultiProducerMultiConsumer0v
 
     // we expect at least one overflow in the test (since the queue is full in the beginning)
     // we cannot expect one overflow in each thread due to thread scheduling
-    auto numOverflows = std::accumulate(overflowCount.begin(), overflowCount.end(), 0LL);
+    const auto numOverflows = std::accumulate(overflowCount.begin(), overflowCount.end(), 0LL);
     EXPECT_GT(numOverflows, 0LL);
     EXPECT_GT(numChanges, 0LL);
 
