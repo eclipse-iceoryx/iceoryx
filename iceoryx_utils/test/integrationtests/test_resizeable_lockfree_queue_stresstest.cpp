@@ -52,15 +52,11 @@ void producePeriodic(Queue& queue, const int id, CountArray& producedCount, std:
     Data d(id, 0U);
     while (run.load(std::memory_order_relaxed))
     {
-        bool pushed{true};
-        while (!queue.tryPush(d))
+        bool pushed{false};
+        do
         {
-            if (run.load(std::memory_order_relaxed) == false)
-            {
-                pushed = false;
-                break;
-            }
-        }
+            pushed = queue.tryPush(d);
+        } while (!pushed && run.load(std::memory_order_relaxed));
 
         if (pushed)
         {
@@ -73,6 +69,7 @@ void producePeriodic(Queue& queue, const int id, CountArray& producedCount, std:
 template <typename Queue>
 void consume(Queue& queue, CountArray& consumedCount, std::atomic_bool& run)
 {
+    // stop only when we are not supposed to run anymore AND the queue is empty
     while (run.load(std::memory_order_relaxed) || !queue.empty())
     {
         const auto popped = queue.pop();
@@ -413,6 +410,17 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerComplete
     for (auto& consumer : consumers)
     {
         consumer.join();
+    }
+
+    // necessary to avoid missing a produced value on consumer side
+    while (!queue.empty())
+    {
+        const auto popped = queue.pop();
+        if (popped.has_value())
+        {
+            const auto& value = popped.value();
+            consumedCount[value.count].fetch_add(1U, std::memory_order_relaxed);
+        }
     }
 
     // verify counts
