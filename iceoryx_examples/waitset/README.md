@@ -2,20 +2,40 @@
 
 The WaitSet is a set where you can attach Trigger to signal a wide variety
 of events to one single notifyable. The typical approach is that one creates a
-WaitSet attaches multiple subscribers or other Triggers to it and then wait till
+WaitSet attaches multiple subscribers or other _Triggerables_ to it and then wait till
 one or many of the attached entities signal an event. If that happens one receives
-a list of all the Triggers which were triggered and the program can act accordingly.
+a list of _TriggerStates_ which are corresponding to all the Triggers which were 
+triggered and the program can act accordingly.
 
 The WaitSet is state based which means that it will trigger until the state which
 caused the trigger changed. This can be performed by a registered callback or 
 directly.
 
+## Threadsafety
+The WaitSet is **not** threadsafe! 
+- It is **not** allowed to attach or detach _Triggerable_
+   classes with methods like `attachTo` or `detachEvent` when another thread is waiting
+   for events with `wait`.
+
+The _TriggerHandle_ is threadsafe! Therefore you are allowed to attach/detach a _TriggerHandle_
+to a _Triggerable_ while another thread may trigger the _TriggerHandle_.
+
 ## Glossary
 
- - **Notifyable** is a class which listens to events. A _Trigger_ is used to notify 
-     the _Notifyable_ that an event occurred.
- - **Trigger** a class which can be used to trigger a _Notifyable_. If a _Trigger_ goes
-     out of scope it will detach itself from the _Notifyable_. A _Trigger_ is
+ - **Notifyable** is a class which listens to events. A _TriggerHandle_ which corresponds to a _Trigger_ 
+     is used to notify the _Notifyable_ that an event occurred.
+ - **Trigger** a class which is used by the _Notifyable_ to acquire the information which events were 
+     signalled. It corresponds to a _TriggerHandle_. If the _Notifyable_ goes out of scope the corresponding
+     _TriggerHandle_ will be invalidated and if the _Triggerable_ goes out of scope the corresponding
+     _Trigger_ will be invalidated.
+ - **Triggerable** a class which has attached a _TriggerHandle_ to itself to signal
+     certain events to a _Notifyable_.
+ - **TriggerCallback** a callback attached to a _TriggerState_. It must have the 
+     following signature `void ( TriggerOrigin )`. Any free function and static
+     class method is allowed. You have to ensure the lifetime of that callback.
+     This can become important when you would like to use lambdas.
+ - **TriggerHandle** a threadsafe class which can be used to trigger a _Notifyable_. 
+     If a _TriggerHandle_ goes out of scope it will detach itself from the _Notifyable_. A _TriggerHandle_ is
      logical equal to another _Trigger_ if they:
      - are attached to the same _Notifyable_ (or in other words they are using the 
        same `ConditionVariable`)
@@ -23,16 +43,13 @@ directly.
      - they have the same callback to verify that they were triggered 
        (`hasTriggerCallback`)
      - they have the same _TriggerId_
- - **Triggerable** a class which has attached a _Trigger_ to itself to trigger
-     certain events to a _Notifyable_.
- - **TriggerCallback** a callback attached to a _Trigger_. It must have the 
-     following signature `void ( TriggerOrigin )`. Any free function and static
-     class method is allowed. You have to ensure the lifetime of that callback.
-     This can become important when you would like to use lambdas.
  - **TriggerId** a id which identifies the trigger. It does not follow any 
      restrictions and the user can choose any arbitrary `uint64_t`.
  - **TriggerOrigin** the pointer to the class where the trigger originated from, short
      pointer to the _Triggerable_.
+ - **TriggerState** a class which corresponds with _Triggers_ and is used to inform 
+     the user with _Trigger_ were activated. You can use the _TriggerState_ to acquire 
+     the _TriggerId_, call the _TriggerCallback_ or acquire the _TriggerOrigin_.
  - **WaitSet** a _Notifyable_ which manages a set of _Triggers_ which can be acquired by 
      the user. The _Waitset_ listens 
      to the whole set of _Triggers_ and if one or more _Trigger_ are triggered it will notify
@@ -45,8 +62,10 @@ directly.
 |:-----|:-----|
 |attach subscriber to waitset (simple)|`subscriber.attachTo(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
 |attach subscriber to waitset (full)|`subscriber.attachTo(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someTriggerId, myCallback);`|
+|detach subscriber event|`subscriber.detachEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
 |attach user trigger to waitset (simple)|`userTrigger.attachTo(myWaitSet)`|
 |attach user trigger to waitset (full)|`userTrigger.attachTo(myWaitSet, someTriggerId, myCallback)`|
+|detach user trigger|`userTrigger.detach()`|
 |wait for triggers           |`auto triggerVector = myWaitSet.wait();`  |
 |wait for triggers with timeout |`auto triggerVector = myWaitSet.timedWait(1_s);`  |
 |check if trigger originated from some object|`trigger.doesOriginateFrom(ptrToSomeObject)`|
