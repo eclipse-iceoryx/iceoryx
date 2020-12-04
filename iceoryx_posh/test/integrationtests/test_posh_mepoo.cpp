@@ -80,9 +80,7 @@ class Mepoo_IntegrationTest : public Test
     virtual void TearDown()
     {
         publisherPort->stopOffer();
-        delete publisherPort;
         subscriberPort->unsubscribe();
-        delete subscriberPort;
 
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -147,11 +145,10 @@ class Mepoo_IntegrationTest : public Test
         iox::capro::ServiceDescription m_service_description{99, 1, 20};
 
         auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("/sender");
-        publisherPort = new iox::popo::PublisherPortUser(senderRuntime.getMiddlewarePublisher(m_service_description));
+        publisherPort.emplace(senderRuntime.getMiddlewarePublisher(m_service_description));
 
         auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("/receiver");
-        subscriberPort =
-            new iox::popo::SubscriberPortUser(receiverRuntime.getMiddlewareSubscriber(m_service_description));
+        subscriberPort.emplace(receiverRuntime.getMiddlewareSubscriber(m_service_description));
     }
 
     void SetUpRouDiOnly(MemPoolInfoContainer& memPoolTestContainer,
@@ -332,8 +329,8 @@ class Mepoo_IntegrationTest : public Test
 
     MePooConfig memconf;
 
-    iox::popo::PublisherPortUser* publisherPort{nullptr};
-    iox::popo::SubscriberPortUser* subscriberPort{nullptr};
+    iox::cxx::optional<iox::popo::PublisherPortUser> publisherPort;
+    iox::cxx::optional<iox::popo::SubscriberPortUser> subscriberPort;
 
     iox::cxx::optional<RouDiEnvironment> m_roudiEnv;
 };
@@ -384,7 +381,7 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
     constexpr int samplesize3 = 2048;
     const int repetition3 = 1;
     auto errorHandlerCalled{false};
-    iox::Error receivedError;
+    iox::Error receivedError{iox::Error::kNO_ERROR};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
@@ -406,7 +403,7 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     constexpr int samplesize1 = 200;
     const int repetition1 = 2 * DefaultNumChunks;
     auto errorHandlerCalled{false};
-    iox::Error receivedError;
+    iox::Error receivedError{iox::Error::kNO_ERROR};
     auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
         [&errorHandlerCalled,
          &receivedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
