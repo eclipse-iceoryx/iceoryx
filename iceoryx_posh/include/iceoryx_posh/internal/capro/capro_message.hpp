@@ -21,7 +21,6 @@ namespace iox
 namespace popo
 {
 struct SubscriberPortData;
-using ReceiverPortData = SubscriberPortData;
 } // namespace popo
 
 namespace capro
@@ -74,13 +73,13 @@ class CaproMessage
     CaproMessage(CaproMessageType f_type,
                  const ServiceDescription& f_serviceDescription,
                  CaproMessageSubType f_subType = CaproMessageSubType::NOSUBTYPE,
-                 popo::ReceiverPortData* f_requestPort = nullptr) noexcept;
+                 popo::SubscriberPortData* f_requestPort = nullptr) noexcept;
 
     CaproMessageType m_type{CaproMessageType::NOTYPE};
     CaproMessageSubType m_subType{CaproMessageSubType::NOSUBTYPE};
     ServiceDescription m_serviceDescription;
     /// @brief Null-Pointer for request-port with no specific type
-    popo::ReceiverPortData* m_requestPort{nullptr};
+    popo::SubscriberPortData* m_requestPort{nullptr};
     void* m_chunkQueueData{nullptr};
     uint64_t m_historyCapacity{0u};
 };

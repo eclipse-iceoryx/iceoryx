@@ -21,7 +21,7 @@ namespace capro
 CaproMessage::CaproMessage(CaproMessageType f_type,
                            const ServiceDescription& f_serviceDescription,
                            CaproMessageSubType f_subType,
-                           popo::ReceiverPortData* f_requestPort) noexcept
+                           popo::SubscriberPortData* f_requestPort) noexcept
     : m_type(f_type)
     , m_subType(f_subType)
     , m_serviceDescription(f_serviceDescription)
