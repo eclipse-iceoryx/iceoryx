@@ -101,7 +101,7 @@ class Trigger
     void updateOrigin(T* const newOrigin) noexcept;
 
     /// @brief returns the TriggerState
-    TriggerState getTriggerState() const noexcept;
+    const TriggerState& getTriggerState() const noexcept;
 
   private:
     TriggerState m_triggerState;

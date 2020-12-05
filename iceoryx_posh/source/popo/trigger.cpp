@@ -46,7 +46,7 @@ void Trigger::reset() noexcept
     invalidate();
 }
 
-TriggerState Trigger::getTriggerState() const noexcept
+const TriggerState& Trigger::getTriggerState() const noexcept
 {
     return m_triggerState;
 }
