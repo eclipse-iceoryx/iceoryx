@@ -40,7 +40,7 @@ class UserTrigger
     /// @param[in] waitset reference to the waitset to which the UserTrigger should be attached
     /// @param[in] triggerId optional parameter, the id of the trigger
     /// @param[in] callback optional parameter, the callback of the trigger
-    /// @param[in] if the trigger could not be attached to the given waitset the expected contains the error, otherwise
+    /// @return if the trigger could not be attached to the given waitset the expected contains the error, otherwise
     /// the expected signals success
     cxx::expected<WaitSetError> attachTo(WaitSet& waitset,
                                          const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,

@@ -56,16 +56,16 @@ class WaitSet
     WaitSet& operator=(const WaitSet& rhs) = delete;
     WaitSet& operator=(WaitSet&& rhs) = delete;
 
-    /// @brief Acquires a trigger from the waitset  The trigger is then attached to a class, the origin,
-    ///        which triggers the Trigger if a specific event happens. The class must then signal the
+    /// @brief Acquires a trigger from the waitset  The trigger is then attached to an object, the origin,
+    ///        which triggers the Trigger if a specific event happens. The object must then signal the
     ///        trigger that it was triggered via the triggerCallback. If the WaitSet goes out of scope
-    ///        before the class does it calls the invalidationCallback to invalidate the Trigger inside
-    ///        of the class
+    ///        before the object does it calls the invalidationCallback to invalidate the Trigger inside
+    ///        of the object
     ///        You cannot acquire an already logically equal acquired trigger. This means if you acquire a trigger
     ///        twice with the same: origin, triggerCallback and triggerId this method will return
     ///        TRIGGER_ALREADY_ACQUIRED
-    /// @param[in] origin the pointer to the class which will attach the trigger
-    /// @param[in] triggerCallback a method from the class which will signal the Trigger that it was triggered
+    /// @param[in] origin the pointer to the object which will attach the trigger
+    /// @param[in] triggerCallback a method from the object which will signal the Trigger that it was triggered
     /// @param[in] invalidationCallback callback which will be called in the destructor of the waitset, important when
     /// the waitset goes out of scope before the origin does.
     /// @param[in] triggerId an arbitrary id to identify the trigger later when a list of triggers is returned via wait

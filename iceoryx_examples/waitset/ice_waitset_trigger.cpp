@@ -61,7 +61,7 @@ class MyTriggerClass
         m_actionTrigger.trigger();
     }
 
-    int getActivationCode() const noexcept
+    uint64_t getActivationCode() const noexcept
     {
         return m_activationCode;
     }
@@ -154,7 +154,7 @@ class MyTriggerClass
     }
 
   private:
-    int m_activationCode = 0;
+    uint64_t m_activationCode = 0U;
     bool m_hasPerformedAction = false;
     bool m_isActivated = false;
 
@@ -165,8 +165,8 @@ class MyTriggerClass
 iox::cxx::optional<iox::popo::WaitSet> waitset;
 iox::cxx::optional<MyTriggerClass> triggerClass;
 
-constexpr uint64_t ACTIVATE_ID = 0;
-constexpr uint64_t ACTION_ID = 1;
+constexpr uint64_t ACTIVATE_ID = 0U;
+constexpr uint64_t ACTION_ID = 1U;
 
 void callOnActivate(MyTriggerClass* const triggerClassPtr)
 {

@@ -134,7 +134,7 @@ inline ConstMethodCallback<ReturnValue, Args...>::operator bool() const noexcept
 
 template <typename ReturnValue, typename... Args>
 template <typename ClassType>
-inline void ConstMethodCallback<ReturnValue, Args...>::setClassPointer(ClassType* const classPtr) noexcept
+inline void ConstMethodCallback<ReturnValue, Args...>::setObjectPointer(ClassType* const classPtr) noexcept
 {
     m_classPtr = classPtr;
 }
@@ -218,7 +218,7 @@ inline MethodCallback<ReturnValue, Args...>::operator bool() const noexcept
 
 template <typename ReturnValue, typename... Args>
 template <typename ClassType>
-inline void MethodCallback<ReturnValue, Args...>::setClassPointer(ClassType* const classPtr) noexcept
+inline void MethodCallback<ReturnValue, Args...>::setObjectPointer(ClassType* const classPtr) noexcept
 {
     m_classPtr = classPtr;
 }

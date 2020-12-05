@@ -87,7 +87,7 @@ class ConstMethodCallback
     ///        on a different class.
     /// @param[in] classPtr class pointer
     template <typename ClassType>
-    void setClassPointer(ClassType* const classPtr) noexcept;
+    void setObjectPointer(ClassType* const classPtr) noexcept;
 
     /// @brief Returns classPtr
     template <typename ClassType>
@@ -152,7 +152,7 @@ class MethodCallback
     ///        on a different class.
     /// @param[in] classPtr class pointer
     template <typename ClassType>
-    void setClassPointer(ClassType* const classPtr) noexcept;
+    void setObjectPointer(ClassType* const classPtr) noexcept;
 
     /// @brief Returns classPtr
     template <typename ClassType>

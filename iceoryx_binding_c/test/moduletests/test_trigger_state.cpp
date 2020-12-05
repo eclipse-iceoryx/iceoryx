@@ -97,7 +97,8 @@ UserTrigger* iox_trigger_state_test::m_lastTriggerCallbackArgument = nullptr;
 
 TEST_F(iox_trigger_state_test, triggerStateHasCorrectId)
 {
-    m_userTrigger.attachTo(m_waitSet, 123, nullptr);
+    constexpr uint64_t ARBITRARY_TRIGGER_ID = 123;
+    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -108,7 +109,8 @@ TEST_F(iox_trigger_state_test, triggerStateHasCorrectId)
 
 TEST_F(iox_trigger_state_test, triggerOriginIsUserTriggerPointerWhenItsOriginatingFromThem)
 {
-    m_userTrigger.attachTo(m_waitSet, 123, nullptr);
+    constexpr uint64_t ARBITRARY_TRIGGER_ID = 124;
+    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -118,9 +120,10 @@ TEST_F(iox_trigger_state_test, triggerOriginIsUserTriggerPointerWhenItsOriginati
 
 TEST_F(iox_trigger_state_test, triggerOriginIsNotUserTriggerPointerWhenItsNotOriginatingFromThem)
 {
+    constexpr uint64_t CHUNK_SIZE = 100;
     iox_sub_attach_to_waitset(m_subscriberHandle, &m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
+    m_chunkPusher.tryPush(m_memoryManager.getChunk(CHUNK_SIZE));
 
     auto triggerStateVector = m_waitSet.wait();
 
@@ -129,9 +132,10 @@ TEST_F(iox_trigger_state_test, triggerOriginIsNotUserTriggerPointerWhenItsNotOri
 
 TEST_F(iox_trigger_state_test, triggerOriginIsSubscriberPointerWhenItsOriginatingFromThem)
 {
+    constexpr uint64_t CHUNK_SIZE = 100;
     iox_sub_attach_to_waitset(m_subscriberHandle, &m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
+    m_chunkPusher.tryPush(m_memoryManager.getChunk(CHUNK_SIZE));
 
     auto triggerStateVector = m_waitSet.wait();
 
@@ -140,7 +144,8 @@ TEST_F(iox_trigger_state_test, triggerOriginIsSubscriberPointerWhenItsOriginatin
 
 TEST_F(iox_trigger_state_test, triggerOriginIsNotSubscriberPointerWhenItsOriginatingFromThem)
 {
-    m_userTrigger.attachTo(m_waitSet, 123, nullptr);
+    constexpr uint64_t ARBITRARY_TRIGGER_ID = 8921;
+    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -151,7 +156,8 @@ TEST_F(iox_trigger_state_test, triggerOriginIsNotSubscriberPointerWhenItsOrigina
 
 TEST_F(iox_trigger_state_test, getOriginReturnsPointerToUserTriggerWhenOriginatingFromThem)
 {
-    m_userTrigger.attachTo(m_waitSet, 123, nullptr);
+    constexpr uint64_t ARBITRARY_TRIGGER_ID = 89121;
+    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, nullptr);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -161,9 +167,10 @@ TEST_F(iox_trigger_state_test, getOriginReturnsPointerToUserTriggerWhenOriginati
 
 TEST_F(iox_trigger_state_test, getOriginReturnsNullptrUserTriggerWhenNotOriginatingFromThem)
 {
+    constexpr uint64_t CHUNK_SIZE = 100;
     iox_sub_attach_to_waitset(m_subscriberHandle, &m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
+    m_chunkPusher.tryPush(m_memoryManager.getChunk(CHUNK_SIZE));
 
     auto triggerStateVector = m_waitSet.wait();
 
@@ -173,9 +180,10 @@ TEST_F(iox_trigger_state_test, getOriginReturnsNullptrUserTriggerWhenNotOriginat
 
 TEST_F(iox_trigger_state_test, getOriginReturnsPointerToSubscriberWhenOriginatingFromThem)
 {
+    constexpr uint64_t CHUNK_SIZE = 100;
     iox_sub_attach_to_waitset(m_subscriberHandle, &m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
     this->Subscribe(&m_portPtr);
-    m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
+    m_chunkPusher.tryPush(m_memoryManager.getChunk(CHUNK_SIZE));
 
     auto triggerStateVector = m_waitSet.wait();
 
@@ -184,7 +192,8 @@ TEST_F(iox_trigger_state_test, getOriginReturnsPointerToSubscriberWhenOriginatin
 
 TEST_F(iox_trigger_state_test, getOriginReturnsNullptrSubscriberWhenNotOriginatingFromThem)
 {
-    m_userTrigger.attachTo(m_waitSet, 123, iox_trigger_state_test::triggerCallback);
+    constexpr uint64_t ARBITRARY_TRIGGER_ID = 891121;
+    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, iox_trigger_state_test::triggerCallback);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -194,7 +203,8 @@ TEST_F(iox_trigger_state_test, getOriginReturnsNullptrSubscriberWhenNotOriginati
 
 TEST_F(iox_trigger_state_test, callbackCanBeCalledOnce)
 {
-    m_userTrigger.attachTo(m_waitSet, 123, iox_trigger_state_test::triggerCallback);
+    constexpr uint64_t ARBITRARY_TRIGGER_ID = 80;
+    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, iox_trigger_state_test::triggerCallback);
     m_userTrigger.trigger();
 
     auto triggerStateVector = m_waitSet.wait();
@@ -205,7 +215,8 @@ TEST_F(iox_trigger_state_test, callbackCanBeCalledOnce)
 
 TEST_F(iox_trigger_state_test, callbackCanBeCalledMultipleTimes)
 {
-    m_userTrigger.attachTo(m_waitSet, 123, iox_trigger_state_test::triggerCallback);
+    constexpr uint64_t ARBITRARY_TRIGGER_ID = 180;
+    m_userTrigger.attachTo(m_waitSet, ARBITRARY_TRIGGER_ID, iox_trigger_state_test::triggerCallback);
     m_userTrigger.trigger();
     auto triggerStateVector = m_waitSet.wait();
 

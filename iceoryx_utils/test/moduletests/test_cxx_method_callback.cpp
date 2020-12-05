@@ -101,7 +101,7 @@ TEST_F(MethodCallback_test, GetClassPointerReturnsValidMethodCallbackClass)
 TEST_F(MethodCallback_test, AssignNonNullptrClassPtrLeadsToValidMethodCallback)
 {
     MethodCallback<void> sut(static_cast<TestClass*>(nullptr), &TestClass::voidVoidMethod);
-    sut.setClassPointer(&m_testClass);
+    sut.setObjectPointer(&m_testClass);
     EXPECT_TRUE(static_cast<bool>(sut));
     EXPECT_TRUE(sut.isValid());
 }
@@ -109,7 +109,7 @@ TEST_F(MethodCallback_test, AssignNonNullptrClassPtrLeadsToValidMethodCallback)
 TEST_F(MethodCallback_test, AssignNonNullptrClassPtrLeadsToValidConstMethodCallback)
 {
     ConstMethodCallback<void> sut(static_cast<TestClass*>(nullptr), &TestClass::constVoidVoidMethod);
-    sut.setClassPointer(&m_testClass);
+    sut.setObjectPointer(&m_testClass);
     EXPECT_TRUE(static_cast<bool>(sut));
     EXPECT_TRUE(sut.isValid());
 }
@@ -117,7 +117,7 @@ TEST_F(MethodCallback_test, AssignNonNullptrClassPtrLeadsToValidConstMethodCallb
 TEST_F(MethodCallback_test, AssignNullptrClassPtrLeadsToInvalidMethodCallback)
 {
     MethodCallback<void> sut(&m_testClass, &TestClass::voidVoidMethod);
-    sut.setClassPointer(static_cast<TestClass*>(nullptr));
+    sut.setObjectPointer(static_cast<TestClass*>(nullptr));
     EXPECT_FALSE(static_cast<bool>(sut));
     EXPECT_FALSE(sut.isValid());
 }
@@ -125,7 +125,7 @@ TEST_F(MethodCallback_test, AssignNullptrClassPtrLeadsToInvalidMethodCallback)
 TEST_F(MethodCallback_test, AssignNullptrClassPtrLeadsToInvalidConstMethodCallback)
 {
     ConstMethodCallback<void> sut(&m_testClass, &TestClass::constVoidVoidMethod);
-    sut.setClassPointer(static_cast<TestClass*>(nullptr));
+    sut.setObjectPointer(static_cast<TestClass*>(nullptr));
     EXPECT_FALSE(static_cast<bool>(sut));
     EXPECT_FALSE(sut.isValid());
 }

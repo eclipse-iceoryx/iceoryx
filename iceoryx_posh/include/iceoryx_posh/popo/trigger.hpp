@@ -46,8 +46,6 @@ class Trigger
     /// @brief Creates a Trigger
     /// @param[in] origin pointer to the class where the signal originates from, if its set to nullptr the Trigger is in
     /// a defined but invalid state
-    /// @param[in] conditionVariableDataPtr pointer to the condition variable data, if its set to nullptr the Trigger is
-    /// in a defined but invalid state
     /// @param[in] hasTriggeredCallback callback to a method which informs the trigger if it was triggered or not. If an
     /// empty callback is set the trigger is in a defined but invalid state.
     /// @param[in] resetCallback callback which is called when the trigger goes out of scope.
