@@ -87,17 +87,29 @@ class PortIntrospection_test : public Test
         auto nameB = std::string(b.m_name);
 
         if (nameA.compare(nameB) != 0)
+        {
             return false;
+        }
         if (a.m_caproInstanceID != b.m_caproInstanceID)
+        {
             return false;
+        }
         if (a.m_caproServiceID != b.m_caproServiceID)
+        {
             return false;
+        }
         if (a.m_caproEventMethodID != b.m_caproEventMethodID)
+        {
             return false;
+        }
         if (a.m_senderIndex != b.m_senderIndex)
+        {
             return false;
+        }
         if (a.m_node != b.m_node)
+        {
             return false;
+        }
 
         return true;
     }
@@ -108,15 +120,25 @@ class PortIntrospection_test : public Test
         auto nameB = std::string(b.m_name);
 
         if (nameA.compare(nameB) != 0)
+        {
             return false;
+        }
         if (a.m_caproInstanceID != b.m_caproInstanceID)
+        {
             return false;
+        }
         if (a.m_caproServiceID != b.m_caproServiceID)
+        {
             return false;
+        }
         if (a.m_caproEventMethodID != b.m_caproEventMethodID)
+        {
             return false;
+        }
         if (a.m_node != b.m_node)
+        {
             return false;
+        }
 
         return true;
     }

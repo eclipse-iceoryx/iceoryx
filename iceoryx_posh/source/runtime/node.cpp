@@ -29,7 +29,7 @@ Node::Node(NodeData* const data) noexcept
 }
 
 Node::Node(const NodeName_t& nodeName) noexcept
-    : Node(PoshRuntime::getInstance().createNode(NodeProperty(nodeName, 0u)))
+    : Node(PoshRuntime::getInstance().createNode(NodeProperty(nodeName, 0U)))
 {
 }
 
