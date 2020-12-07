@@ -17,8 +17,8 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
-#include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
+#include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
@@ -483,7 +483,7 @@ NodeData* PoshRuntime::createNode(const NodeProperty& nodeProperty) noexcept
         }
     }
 
-    LogError() << "Create node got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    LogError() << "Got wrong response from RouDi while creating node:'" << receiveBuffer.getMessage() << "'";
     errorHandler(
         Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
