@@ -32,8 +32,8 @@ class Publisher_t
   public:
     /// @brief Constructor
     /// @param[in] service Information on service , service, instance, event Id
-    /// @param[in] runnableName optional name of the runnable the publisher belongs to
-    Publisher_t(const capro::ServiceDescription& service, const RunnableName_t& runnableName = "") noexcept;
+    /// @param[in] nodeName optional name of the node the publisher belongs to
+    Publisher_t(const capro::ServiceDescription& service, const NodeName_t& nodeName = "") noexcept;
 
     Publisher_t& operator=(const Publisher_t& other) = delete;
     Publisher_t(const Publisher_t& other) = delete;
@@ -103,8 +103,8 @@ class Publisher_t
 class Publisher : public Publisher_t<iox::popo::SenderPort>
 {
   public:
-    Publisher(const capro::ServiceDescription& service, const RunnableName_t& runnableName = "") noexcept
-        : Publisher_t<iox::popo::SenderPort>(service, runnableName)
+    Publisher(const capro::ServiceDescription& service, const NodeName_t& nodeName = "") noexcept
+        : Publisher_t<iox::popo::SenderPort>(service, nodeName)
     {
     }
 };

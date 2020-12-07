@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_RUNTIME_RUNNABLE_HPP
-#define IOX_POSH_RUNTIME_RUNNABLE_HPP
+#ifndef IOX_POSH_RUNTIME_NODE_HPP
+#define IOX_POSH_RUNTIME_NODE_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -21,44 +21,44 @@ namespace iox
 {
 namespace runtime
 {
-class RunnableData;
+class NodeData;
 
-/// @brief class which represents a runnable
-class Runnable
+/// @brief class which represents a node
+class Node
 {
   public:
-    /// @brief constructor which requires the name of the runnable
-    /// @param[in] runnableName name of the runnable
-    Runnable(const RunnableName_t& runnableName) noexcept;
+    /// @brief constructor which requires the name of the node
+    /// @param[in] nodeName name of the node
+    Node(const NodeName_t& nodeName) noexcept;
 
     /// @brief destructor
-    ~Runnable() noexcept;
+    ~Node() noexcept;
 
-    Runnable(const Runnable&) = delete;
-    Runnable& operator=(const Runnable&) = delete;
+    Node(const Node&) = delete;
+    Node& operator=(const Node&) = delete;
 
     /// @brief move constructor
     /// @param[in] rhs source object
-    Runnable(Runnable&& rhs) noexcept;
+    Node(Node&& rhs) noexcept;
 
     /// @brief move assignment operator
     /// @param[in] rhs source object, where to move from
-    Runnable& operator=(Runnable&& rhs) noexcept;
+    Node& operator=(Node&& rhs) noexcept;
 
-    /// @brief returns the name of the runnable
-    /// @return string which contains the runnable name
-    RunnableName_t getRunnableName() const noexcept;
+    /// @brief returns the name of the node
+    /// @return string which contains the node name
+    NodeName_t getNodeName() const noexcept;
 
     /// @brief returns the name of the process
     /// @return string which contains the process name
     ProcessName_t getProcessName() const noexcept;
 
   protected:
-    Runnable(RunnableData* const data) noexcept;
+    Node(NodeData* const data) noexcept;
 
-    RunnableData* m_data = nullptr;
+    NodeData* m_data = nullptr;
 };
 } // namespace runtime
 } // namespace iox
 
-#endif // IOX_POSH_RUNTIME_RUNNABLE_HPP
+#endif // IOX_POSH_RUNTIME_NODE_HPP

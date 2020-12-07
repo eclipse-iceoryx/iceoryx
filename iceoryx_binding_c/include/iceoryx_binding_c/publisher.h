@@ -22,7 +22,7 @@
 /// @brief publisher handle
 typedef struct cpp2c_Publisher* iox_pub_t;
 
-/// @brief creates a publisher handle in the default runtime runnable
+/// @brief creates a publisher handle in the default runtime node
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_pub_storage_t)
 /// @param[in] service serviceString
 /// @param[in] instance instanceString

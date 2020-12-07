@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP
-#define IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP
+#ifndef IOX_POSH_RUNTIME_NODE_DATA_HPP
+#define IOX_POSH_RUNTIME_NODE_DATA_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
@@ -22,29 +22,27 @@ namespace iox
 {
 namespace runtime
 {
-/// @brief struct which contains all the members of an object of type Runnable
-class RunnableData
+/// @brief struct which contains all the members of an object of type Node
+class NodeData
 {
   public:
     /// @brief constructor
-    /// @param[in] name name of the runnable
-    /// @param[in] runnableDeviceIdentifier identifier of the device on which the runnable will run
-    RunnableData(const ProcessName_t& process,
-                 const RunnableName_t& runnable,
-                 const uint64_t runnableDeviceIdentifier) noexcept;
+    /// @param[in] name name of the node
+    /// @param[in] nodeDeviceIdentifier identifier of the device on which the node will run
+    NodeData(const ProcessName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept;
 
-    RunnableData(const RunnableData&) = delete;
-    RunnableData(RunnableData&&) = delete;
-    RunnableData& operator=(const RunnableData&) = delete;
-    RunnableData& operator=(RunnableData&&) = delete;
+    NodeData(const NodeData&) = delete;
+    NodeData(NodeData&&) = delete;
+    NodeData& operator=(const NodeData&) = delete;
+    NodeData& operator=(NodeData&&) = delete;
 
 
     ProcessName_t m_process;
-    RunnableName_t m_runnable;
-    uint64_t m_runnableDeviceIdentifier;
+    NodeName_t m_node;
+    uint64_t m_nodeDeviceIdentifier;
     std::atomic_bool m_toBeDestroyed{false};
 };
 } // namespace runtime
 } // namespace iox
 
-#endif // IOX_POSH_RUNTIME_RUNNABLE_DATA_HPP
+#endif // IOX_POSH_RUNTIME_NODE_DATA_HPP

@@ -51,7 +51,7 @@ add_library(${PROJECT_NAME}
     source/c_condition.cpp
     source/c_guard_condition.cpp
     source/c_publisher.cpp
-    source/c_runnable.cpp
+    source/c_node.cpp
     source/c_runtime.cpp
     source/c_subscriber.cpp
     source/c_wait_set.cpp

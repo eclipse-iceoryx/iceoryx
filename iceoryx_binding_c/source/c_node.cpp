@@ -13,26 +13,26 @@
 // limitations under the License.
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/runtime/runnable_data.hpp"
+#include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_posh/runtime/runnable.hpp"
+#include "iceoryx_posh/runtime/node.hpp"
 
 using namespace iox;
 using namespace iox::runtime;
 
 extern "C" {
-#include "iceoryx_binding_c/runnable.h"
+#include "iceoryx_binding_c/node.h"
 }
 
-class RunnableBindingExtension : public iox::runtime::Runnable
+class NodeBindingExtension : public iox::runtime::Node
 {
   public:
-    RunnableBindingExtension(RunnableData* const data)
-        : Runnable(data)
+    NodeBindingExtension(NodeData* const data)
+        : Node(data)
     {
     }
 
-    ~RunnableBindingExtension()
+    ~NodeBindingExtension()
     {
         m_data = nullptr;
     }
@@ -43,39 +43,38 @@ class RunnableBindingExtension : public iox::runtime::Runnable
     }
 };
 
-iox_runnable_t iox_runnable_create(const char* const runnableName)
+iox_node_t iox_node_create(const char* const nodeName)
 {
-    return PoshRuntime::getInstance().createRunnable(
-        RunnableProperty(RunnableName_t(iox::cxx::TruncateToCapacity, runnableName), 0u));
+    return PoshRuntime::getInstance().createNode(NodeProperty(NodeName_t(iox::cxx::TruncateToCapacity, nodeName), 0u));
 }
 
-void iox_runnable_destroy(iox_runnable_t const self)
+void iox_node_destroy(iox_node_t const self)
 {
-    RunnableBindingExtension(self).destroy();
+    NodeBindingExtension(self).destroy();
 }
 
-uint64_t iox_runnable_get_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity)
+uint64_t iox_node_get_name(iox_node_t const self, char* const name, const uint64_t nameCapacity)
 {
     if (name == nullptr)
     {
         return 0U;
     }
 
-    auto nameAsString = RunnableBindingExtension(self).getRunnableName();
+    auto nameAsString = NodeBindingExtension(self).getNodeName();
     strncpy(name, nameAsString.c_str(), nameCapacity);
     name[nameCapacity - 1U] = '\0'; // strncpy doesn't add a null-termination if destination is smaller than source
 
     return nameAsString.size();
 }
 
-uint64_t iox_runnable_get_process_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity)
+uint64_t iox_node_get_process_name(iox_node_t const self, char* const name, const uint64_t nameCapacity)
 {
     if (name == nullptr)
     {
         return 0U;
     }
 
-    auto nameAsString = RunnableBindingExtension(self).getProcessName();
+    auto nameAsString = NodeBindingExtension(self).getProcessName();
     strncpy(name, nameAsString.c_str(), nameCapacity);
     name[nameCapacity - 1U] = '\0'; // strncpy doesn't add a null-termination if destination is smaller than source
 
