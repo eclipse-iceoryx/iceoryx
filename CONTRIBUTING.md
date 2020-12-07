@@ -8,27 +8,17 @@ In domains like automotive, robotics or gaming, a huge amount of data must be
 transferred between different parts of the system. If these parts are actually
 different processes on a POSIX based operating system like Linux, this huge
 amount of data has to be transferred via an inter-process-communication (IPC)
-mechanism.
-
-* https://projects.eclipse.org/projects/technology.iceoryx
+mechanism. Find more infos on the [Eclipse site](https://projects.eclipse.org/projects/technology.iceoryx).
 
 ## Developer resources
 
 Information regarding source code management, builds, coding standards, and
-more.
-
-* https://projects.eclipse.org/projects/technology.iceoryx/developer
-
-The project maintains the following source code repositories
-
-* https://github.com/eclipse/iceoryx
+more can be found on the [Eclipse site](https://projects.eclipse.org/projects/technology.iceoryx/developer).
 
 ## Eclipse Contributor Agreement
 
 Before your contribution can be accepted by the project team, contributors must
-electronically sign the Eclipse Contributor Agreement (ECA).
-
-* http://www.eclipse.org/legal/ECA.php
+electronically sign the Eclipse Contributor Agreement ([ECA](http://www.eclipse.org/legal/ECA.php)).
 
 Commits that are provided by non-committers must have a Signed-off-by field in
 the footer indicating that the author is aware of the terms by which the
@@ -36,8 +26,7 @@ contribution has been provided to the project. The non-committer must
 additionally have an Eclipse Foundation account and must have a signed Eclipse
 Contributor Agreement (ECA) on file.
 
-For more information, please see the Eclipse Committer Handbook:
-https://www.eclipse.org/projects/handbook/#resources-commit
+For more information, please see the [Eclipse Committer Handbook](https://www.eclipse.org/projects/handbook/#resources-commit).
 
 ## Contact
 
@@ -48,9 +37,15 @@ Contact the project developers via the project's "dev" list.
 ## Feature request and bugs
 
 We love pull requests! The next sections try to cover most of the relevant questions. For larger contributions or
-architectural changes, we'd kindly ask you to get in touch with one of the maintainers beforehand. If you would like to
-report a bug or propose a new feature, please raise an issue before raising a pull request. This makes it easier to
-track. Please make sure you have:
+architectural changes, we'd kindly ask you to follow this list:
+
+1. Raise the proposed changes during a [developer meetup](https://github.com/eclipse/iceoryx/wiki/Developer-meetup)
+1. Create a design document and raise it in a separate pull request beforehand
+
+If you would like to report a bug or propose a new feature, please raise an issue before raising a pull request.
+This makes it easier to track the work-in-progress. If you have troubles getting an issue assigned to you please contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
+
+Please make sure you have:
 
 1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
 1. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
@@ -294,3 +289,8 @@ This quality level is meant for all targets that need tier 1 support in ROS2.
 
 * Warnings in Helix QAC addressed
 * Code coverage according to [MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage) available
+
+## Training material recommended for contributors
+
+* Effective C++ by Scott Meyers
+* [Unit Testing and the Arrange, Act and Assert (AAA) Pattern](https://medium.com/@pjbgf/title-testing-code-ocd-and-the-aaa-pattern-df453975ab80) by Paulo Gomes

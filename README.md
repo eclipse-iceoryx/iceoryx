@@ -109,6 +109,6 @@ Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md]
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
 
-## Maintainers
+## Governance & maintainers
 
-An up to date list of the maintainers can be found at the [Eclipse project page](https://projects.eclipse.org/projects/technology.iceoryx/who).
+Please have a look at the [GOVERNANCE.md](./GOVERNANCE.md).
