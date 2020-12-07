@@ -195,7 +195,7 @@ set_target_properties(iceoryx_platform PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${SANITIZER_COMPILER_FLAGS})
 
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
@@ -204,9 +204,9 @@ if(PERFORM_CLANG_TIDY)
 endif(PERFORM_CLANG_TIDY)
 
 
-target_link_libraries(iceoryx_utils PUBLIC iceoryx_utils::iceoryx_platform ${SANITIZE_LINK_FLAGS})
+target_link_libraries(iceoryx_utils PUBLIC iceoryx_utils::iceoryx_platform ${SANITIZER_LINKER_FLAGS})
 
-target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${SANITIZE_COMPILE_FLAGS})
+target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${SANITIZER_COMPILER_FLAGS})
 
 # TODO: Make ICEORYX::UTILS private???
 target_include_directories(iceoryx_utils

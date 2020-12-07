@@ -24,15 +24,48 @@ jobs:
       - name : Checkout
         uses: actions/checkout@v2
 
-      - name : Clang Sanitize
+      - name: Build
         run: |
-          export CC=/usr/bin/clang
-          export CXX=/usr/bin/clang++
           export NUM_CORES=`nproc`
           # build tests , dont run them
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test with-dds-gateway sanitize clean -j $NUM_CORES
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clang build-test with-dds-gateway sanitize clean -j $NUM_CORES
+                    
+      - name : Run tests
+        run: |
           cd $GITHUB_WORKSPACE/build
-          # Run tests , continue execution on error (to get maximum failures)
-          ../tools/run_all_tests.sh continue-on-error
+          ../tools/run_all_tests.sh
+          
+ # This job builds & runs iceoryx tests (with sanitizer) in macos-10.15
+  clang-sanitize-macos:
+    runs-on: macos-10.15
+    # Softwares installed in macos-10.15 instance
+    # https://github.com/actions/virtual-environments/blob/master/images/macos/macos-10.15-Readme.md
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name : Checkout
+        uses: actions/checkout@v2
+
+      - name: Build ncurses from source
+      # tinfo library which is required by iceoryx_introspection isn't available in mac
+        run: |
+          cd $GITHUB_WORKSPACE
+          mkdir -p build
+          cd build
+          git clone https://github.com/mirror/ncurses.git
+          cd ncurses
+          git checkout v6.2
+          ./configure  --prefix=$GITHUB_WORKSPACE/build/install/prefix/ --exec-prefix=$GITHUB_WORKSPACE/build/install/prefix/ --with-termlib
+          make
+          make install
+
+      - name: Build
+        run: $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test sanitize clean
+
+      - name: Run tests
+        run: |
+          cd $GITHUB_WORKSPACE/build
+          ../tools/run_all_tests.sh disable-timing-tests
+        
     
     

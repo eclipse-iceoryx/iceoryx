@@ -136,14 +136,16 @@ target_include_directories(iceoryx_posh
     source/version
     source/runtime
 )
-target_link_libraries(iceoryx_posh
+target_link_libraries(iceoryx_posh 
     PUBLIC
     iceoryx_utils::iceoryx_utils
+    #@todo - Is it required to link sanitizer libs here (Its already linked against iceoryx_utils)
+    ${SANITIZER_LINKER_FLAGS}        
     PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
-target_compile_options(iceoryx_posh PRIVATE ${ICEORYX_WARNINGS} ${SANITIZE_COMPILE_FLAGS})
+target_compile_options(iceoryx_posh PRIVATE ${ICEORYX_WARNINGS} ${SANITIZER_COMPILER_FLAGS})
 
 if(LINUX)
     target_link_libraries(iceoryx_posh PRIVATE rt )
@@ -177,13 +179,15 @@ target_include_directories(iceoryx_posh_gateway
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
-target_link_libraries(iceoryx_posh_gateway
+target_link_libraries(iceoryx_posh_gateway 
     PUBLIC
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
+    #@todo - Is it required to link sanitizer libs here (Its already linked against iceoryx_utils)
+    ${SANITIZER_LINKER_FLAGS}    
 )
 
-target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS} ${SANITIZE_COMPILE_FLAGS})
+target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS} ${SANITIZER_COMPILER_FLAGS})
 
 #
 ########## posh roudi lib ##########
@@ -234,6 +238,7 @@ target_include_directories(iceoryx_posh_roudi PRIVATE
 target_link_libraries(iceoryx_posh_roudi
     PUBLIC
     ${PROJECT_NAMESPACE}::iceoryx_posh     # because of roudi.hpp
+    ${SANITIZER_LINKER_FLAGS}    
     PRIVATE
     iceoryx_utils::iceoryx_utils
 )
@@ -242,7 +247,7 @@ if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
-target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${SANITIZE_COMPILE_FLAGS})
+target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${SANITIZER_COMPILER_FLAGS})
 
 if(TOML_CONFIG)
     if ( NOT cpptoml_FOUND )
@@ -282,9 +287,10 @@ if(TOML_CONFIG)
     target_link_libraries(iceoryx_posh_config PRIVATE
         iceoryx_utils::iceoryx_utils
         cpptoml
+        ${SANITIZER_LINKER_FLAGS}
     )
 
-    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${SANITIZE_COMPILE_FLAGS})
+    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${SANITIZER_COMPILER_FLAGS})
 
     #
     ######### posh roudi daemon ##########

@@ -122,6 +122,12 @@ while (( "$#" )); do
         SANITIZE_FLAG="ON"
         shift 1
     ;;
+    "clang")
+        echo "Build with clang compiler"
+        export CC=$(which clang)
+        export CXX=$(which clang++)
+        shift 1
+    ;;
     "help")
         echo "Build script for iceoryx."
         echo "By default, iceoryx, the dds gateway and the examples are built."
@@ -143,6 +149,7 @@ while (( "$#" )); do
         echo "    build-test            Builds the tests (doesn't run)"
         echo "    skip-introspection    Skips building iceoryx introspection"
         echo "    one-to-many           Restricts to 1:n communication only"
+        echo "    clang                 Build with clang compiler (should be installed already)"
         echo "    sanitize              Build with sanitizers"
         echo "    help                  Prints this help"
         echo ""
