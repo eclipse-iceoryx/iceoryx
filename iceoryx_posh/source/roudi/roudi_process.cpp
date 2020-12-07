@@ -569,11 +569,11 @@ void ProcessManager::addNodeForProcess(const ProcessName_t& processName, const N
         process->sendToMQ(sendBuffer);
         m_processIntrospection->addNode(ProcessName_t(cxx::TruncateToCapacity, processName.c_str()),
                                         NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
-        LogDebug() << "Created new node " << nodeName << " for application " << processName;
+        LogDebug() << "Created new node " << nodeName << " for process " << processName;
     }
     else
     {
-        LogWarn() << "Unknown application " << processName << " requested a node.";
+        LogWarn() << "Unknown process " << processName << " requested a node.";
     }
 }
 

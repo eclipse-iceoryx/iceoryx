@@ -164,7 +164,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 6)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::REG\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::REG\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -185,7 +185,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 5)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_SENDER\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_SENDER\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -206,7 +206,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 5)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_RECEIVER\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_RECEIVER\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -225,7 +225,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 6)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_PUBLISHER\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_PUBLISHER\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -245,7 +245,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 6)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_SUBSCRIBER\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_SUBSCRIBER\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -265,7 +265,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 2)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_CONDITION_VARIABLE\" from \""
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_CONDITION_VARIABLE\" from \""
                        << processName << "\"received!";
             errorHandler(
                 Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::MODERATE);
@@ -280,7 +280,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 4)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_INTERFACE\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_INTERFACE\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -297,7 +297,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 2)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_APPLICATION\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_APPLICATION\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -310,7 +310,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 3)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_NODE\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_NODE\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -324,7 +324,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 3)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::FIND_SERVICE\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::FIND_SERVICE\" from \"" << processName
                        << "\"received!";
         }
         else
