@@ -167,7 +167,7 @@ set_target_properties(iceoryx_utils PROPERTIES
 
 if(LINUX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/linux/)
-    target_link_libraries(iceoryx_utils PRIVATE rt acl atomic ${CODE_COVERAGE_LIBS})
+    target_link_libraries(iceoryx_utils PRIVATE acl atomic ${CODE_COVERAGE_LIBS})
 elseif(QNX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/platform/qnx/)
 elseif(APPLE)
@@ -196,6 +196,12 @@ set_target_properties(iceoryx_platform PROPERTIES
 )
 
 target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS})
+
+target_link_libraries(iceoryx_platform 
+    PUBLIC 
+    rt 
+    pthread
+)
 
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
