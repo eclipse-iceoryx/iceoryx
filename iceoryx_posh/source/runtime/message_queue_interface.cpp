@@ -414,25 +414,25 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
         // wait for MqMessageType::REG_ACK from RouDi for 1 seconds
         if (m_AppMqInterface.timedReceive(1_s, receiveBuffer))
         {
-            std::string cmd = receiveBuffer.getElementAtIndex(0);
+            std::string cmd = receiveBuffer.getElementAtIndex(0U);
 
             if (stringToMqMessageType(cmd.c_str()) == MqMessageType::REG_ACK)
             {
-                constexpr uint32_t REGISTER_ACK_PARAMETERS = 5;
+                constexpr uint32_t REGISTER_ACK_PARAMETERS = 5U;
                 if (receiveBuffer.getNumberOfElements() != REGISTER_ACK_PARAMETERS)
                 {
                     errorHandler(Error::kMQ_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
                 }
 
                 // read out the shared memory base address and save it
-                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), m_shmTopicSize);
-                RelativePointer::offset_t offset;
-                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), offset);
+                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), m_shmTopicSize);
+                RelativePointer::offset_t offset{0U};
+                iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), offset);
                 m_segmentManagerAddressOffset.emplace(offset);
 
-                int64_t receivedTimestamp;
-                cxx::convert::fromString(receiveBuffer.getElementAtIndex(3).c_str(), receivedTimestamp);
-                cxx::convert::fromString(receiveBuffer.getElementAtIndex(4).c_str(), m_segmentId);
+                int64_t receivedTimestamp{0U};
+                cxx::convert::fromString(receiveBuffer.getElementAtIndex(3U).c_str(), receivedTimestamp);
+                cxx::convert::fromString(receiveBuffer.getElementAtIndex(4U).c_str(), m_segmentId);
                 if (transmissionTimestamp == receivedTimestamp)
                 {
                     return RegAckResult::SUCCESS;

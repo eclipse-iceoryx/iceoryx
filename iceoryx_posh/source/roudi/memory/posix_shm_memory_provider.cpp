@@ -33,7 +33,7 @@ void sigbusHandler(int32_t) noexcept
         "memory. Please make sure that enough memory is available. For this, consider also the memory which is "
         "required for the [/iceoryx_mgmt] segment. Please refer to share/doc/iceoryx/FAQ.md in your release delivery.";
     size_t len = strlen(msg);
-    write(STDERR_FILENO, msg, len);
+    size_t count [[gnu::unused]] = write(STDERR_FILENO, msg, len);
     _exit(EXIT_FAILURE);
 }
 } // namespace

@@ -28,7 +28,7 @@ namespace roudi
 {
 capro::Interfaces StringToCaProInterface(const capro::IdString& str) noexcept
 {
-    int32_t i;
+    int32_t i{0};
     cxx::convert::fromString(str.c_str(), i);
     if (i >= static_cast<int32_t>(capro::Interfaces::INTERFACE_END))
     {
