@@ -1,6 +1,6 @@
 # Eclipse iceoryx governance
 
-Eclipse iceoryx is governed by its maintainers under the umbrella of [OpenADx](https://openadx.eclipse.org/).
+Eclipse iceoryx is governed democratically by its maintainers under the umbrella of [OpenADx](https://openadx.eclipse.org/).
 This document describes the processes additionally to the [Eclipse process](https://www.eclipse.org/projects/handbook/).
 
 ## Maintainers
@@ -56,8 +56,8 @@ Time: 17:00 CET
 
 ## Agenda
 
-1. Introduction of new participations, 42 mins
-2. Other agenda points?, 8 mins
+1. General: Introduction of new participations, 42 mins
+2. General: Are there other agenda points?, 8 mins
 3. Agenda point 1, 4 mins
 4. Agenda point 2, 4 mins
 
