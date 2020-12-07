@@ -22,11 +22,11 @@ Bi-weekly every Thursday for 1 hour. Everyone is welcome to join.
 ### Topics
 
 * Propse features
-  * Present and discuss a design document
+  * E.g. present and discuss a design document
 * Discuss pull requests without going into details
   * E.g. a small demo
 * Steer direction of Eclipse iceoryx
-  * Go over the milestone list and move the issues between the three prio's
+  * E.g. go over the milestone list and move the issues between the three prio's
 * Raise and answer questions
 * Discuss tooling and infrastructure
 * All others topics related to iceoryx one can think of
