@@ -85,9 +85,9 @@ ConstMethodCallback<ReturnValue, Args...>::operator=(ConstMethodCallback&& rhs) 
 {
     if (this != &rhs)
     {
-        m_objectPtr = rhs.m_objectPtr;
-        m_methodPtr = rhs.m_methodPtr;
-        m_callback = rhs.m_callback;
+        m_objectPtr = std::move(rhs.m_objectPtr);
+        m_methodPtr = std::move(rhs.m_methodPtr);
+        m_callback = std::move(rhs.m_callback);
 
         rhs.m_objectPtr = nullptr;
     }
@@ -182,9 +182,9 @@ MethodCallback<ReturnValue, Args...>::operator=(MethodCallback&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        m_objectPtr = rhs.m_objectPtr;
-        m_methodPtr = rhs.m_methodPtr;
-        m_callback = rhs.m_callback;
+        m_objectPtr = std::move(rhs.m_objectPtr);
+        m_methodPtr = std::move(rhs.m_methodPtr);
+        m_callback = std::move(rhs.m_callback);
 
         rhs.m_objectPtr = nullptr;
     }

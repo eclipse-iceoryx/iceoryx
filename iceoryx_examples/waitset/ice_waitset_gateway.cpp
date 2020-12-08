@@ -43,6 +43,8 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber)
 
 int main()
 {
+    constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
+
     signal(SIGINT, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-gateway");
@@ -55,8 +57,8 @@ int main()
 
 
     // create subscriber and subscribe them to our service
-    iox::cxx::vector<iox::popo::UntypedSubscriber, 2> subscriberVector;
-    for (auto i = 0; i < subscriberVector.capacity(); ++i)
+    iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
+    for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();

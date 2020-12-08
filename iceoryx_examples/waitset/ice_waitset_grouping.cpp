@@ -31,6 +31,8 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 int main()
 {
+    constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
+
     signal(SIGINT, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-grouping");
@@ -40,8 +42,8 @@ int main()
     shutdownTrigger.attachTo(waitset);
 
     // create subscriber and subscribe them to our service
-    iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
-    for (auto i = 0; i < 4; ++i)
+    iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
+    for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
         auto& subscriber = subscriberVector.back();
@@ -53,13 +55,13 @@ int main()
     constexpr uint64_t SECOND_GROUP_ID = 456;
 
     // attach the first two subscribers to waitset with a triggerid of FIRST_GROUP_ID
-    for (auto i = 0; i < 2; ++i)
+    for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
     {
         subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
     }
 
     // attach the remaining subscribers to waitset with a triggerid of SECOND_GROUP_ID
-    for (auto i = 2; i < 4; ++i)
+    for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
     }

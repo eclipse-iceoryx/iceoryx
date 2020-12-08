@@ -219,7 +219,7 @@ int main()
     // start a thread which will trigger a event every second
     std::thread triggerThread([&] {
         int activationCode = 1;
-        while (true)
+        for (auto i = 0; i < 10; ++i)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
             triggerClass->activate(activationCode++);

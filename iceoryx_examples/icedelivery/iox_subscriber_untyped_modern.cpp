@@ -40,7 +40,11 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
         auto triggerVector = waitSet.wait();
         for (auto& trigger : triggerVector)
         {
-            if (trigger.getTriggerId() == 1)
+            if (trigger.doesOriginateFrom(&shutdownTrigger))
+            {
+                return;
+            }
+            else
             {
                 auto untypedSubscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
                 untypedSubscriber->take()
@@ -51,10 +55,6 @@ void subscriberHandler(iox::popo::WaitSet& waitSet)
                     })
                     .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
                     .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
-            }
-            else if (trigger.doesOriginateFrom(&shutdownTrigger))
-            {
-                return;
             }
         }
     }
@@ -74,8 +74,8 @@ int main()
 
     // set up waitset
     iox::popo::WaitSet waitSet{};
-    untypedSubscriber.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1);
-    shutdownTrigger.attachTo(waitSet, 2);
+    untypedSubscriber.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    shutdownTrigger.attachTo(waitSet);
 
     // delegate handling of received data to another thread
     std::thread untypedSubscriberThread(subscriberHandler, std::ref(waitSet));

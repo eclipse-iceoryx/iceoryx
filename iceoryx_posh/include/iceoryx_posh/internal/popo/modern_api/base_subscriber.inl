@@ -145,7 +145,6 @@ BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet& waitset,
                                                 const uint64_t triggerId,
                                                 const Trigger::Callback<Subscriber> callback) noexcept
 {
-    using SelfType = BaseSubscriber<T, Subscriber, port_t>;
     Subscriber* self = reinterpret_cast<Subscriber*>(this);
 
     return waitset

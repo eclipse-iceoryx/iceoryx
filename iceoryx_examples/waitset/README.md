@@ -145,8 +145,8 @@ After that we create a vector of 2 subscribers, subscribe and attach them to a
 _WaitSet_ with the event `HAS_NEW_SAMPLES` and the `subscriberCallback`. Everytime one 
 of the subscribers is receiving a new sample it will trigger the _WaitSet_.
 ```cpp
-iox::cxx::vector<iox::popo::UntypedSubscriber, 2> subscriberVector;
-for (auto i = 0; i < subscriberVector.capacity(); ++i)
+iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
+for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
@@ -200,8 +200,8 @@ shutdownTrigger.attachTo(waitset);
 
 Now we create a vector of 4 subscribers and subscribe them to our topic.
 ```cpp
-iox::cxx::vector<iox::popo::UntypedSubscriber, 4> subscriberVector;
-for (auto i = 0; i < 4; ++i)
+iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
+for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
     auto& subscriber = subscriberVector.back();
@@ -214,12 +214,12 @@ After that we define our two groups with the ids `FIRST_GROUP_ID` and `SECOND_GR
 and attach the first two subscribers to the first group and the remaining subscribers
 to the second group.
 ```cpp
-for (auto i = 0; i < 2; ++i)
+for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
 {
     subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
 }
 
-for (auto i = 2; i < 4; ++i)
+for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
 }
@@ -584,7 +584,7 @@ lines.
 ```cpp
     std::thread triggerThread([&] {
         int activationCode = 1;
-        while (true)
+        for (auto i = 0; i < 10; ++i)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
             triggerClass->activate(activationCode++);

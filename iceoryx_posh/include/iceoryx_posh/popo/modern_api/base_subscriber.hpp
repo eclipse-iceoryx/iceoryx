@@ -45,6 +45,8 @@ template <typename T, typename Subscriber, typename port_t = iox::SubscriberPort
 class BaseSubscriber
 {
   protected:
+    using SelfType = BaseSubscriber<T, Subscriber, port_t>;
+
     BaseSubscriber(const BaseSubscriber& other) = delete;
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
     BaseSubscriber(BaseSubscriber&& rhs) = delete;
@@ -110,7 +112,8 @@ class BaseSubscriber
     /// @brief attaches a WaitSet to the subscriber
     /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
     /// @param[in] subscriberEvent the event which should be attached
-    /// @param[in] triggerId the trigger id
+    /// @param[in] triggerId a custom uint64_t which can be set by the user with no restriction. could be used to either
+    ///            identify a trigger uniquely or to group multiple triggers together when they share the same triggerId
     /// @param[in] callback callback which is attached to the trigger and which can be called
     ///            later by the user
     /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
