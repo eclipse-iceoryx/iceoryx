@@ -29,7 +29,8 @@ class IceOryxRouDiApp : public RouDiApp
     IceOryxRouDiApp(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& roudiConfig) noexcept;
 
     /// @brief starts the execution of the RouDi daemon
-    void run() noexcept override;
+    /// @return Return code for programm execution
+    uint8_t run() noexcept override;
 };
 
 } // namespace roudi

@@ -28,7 +28,7 @@ IceOryxRouDiApp::IceOryxRouDiApp(const config::CmdLineParser& cmdLineParser, con
 {
 }
 
-void IceOryxRouDiApp::run() noexcept
+uint8_t IceOryxRouDiApp::run() noexcept
 {
     if (m_run)
     {
@@ -46,6 +46,7 @@ void IceOryxRouDiApp::run() noexcept
                                                                                    m_processKillDelay});
         waitForSignal();
     }
+    return EXIT_SUCCESS;
 }
 } // namespace roudi
 } // namespace iox

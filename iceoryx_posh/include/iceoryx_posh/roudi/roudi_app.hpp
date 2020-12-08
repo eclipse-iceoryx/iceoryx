@@ -53,7 +53,8 @@ class RouDiApp
     virtual ~RouDiApp() noexcept {};
 
     /// @brief interface to start the execution of the RouDi daemon
-    virtual void run() noexcept = 0;
+    /// @return Return code for programm execution
+    virtual uint8_t run() noexcept = 0;
 
   protected:
     /// @brief this is needed for the child classes for custom CmdLineParser

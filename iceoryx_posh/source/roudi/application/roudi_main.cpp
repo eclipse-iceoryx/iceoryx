@@ -40,7 +40,5 @@ int main(int argc, char* argv[])
     /// @todo Add debug print about used RouDi params e.g. TOML file
     IceOryxRouDiApp roudi(cmdLineParser, roudiConfig);
 
-    roudi.run();
-
-    return 0;
+    return roudi.run();
 }
