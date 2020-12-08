@@ -266,7 +266,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 }
 
 void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
-                                         const std::function<WaitSet::TriggerStateVector()>& waitCall)
+                                         const std::function<WaitSet::TriggerInfoVector()>& waitCall)
 {
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
     for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
@@ -295,7 +295,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsTheOneTriggeredCondition)
 }
 
 void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
-    WaitSet_test* test, const std::function<WaitSet::TriggerStateVector()>& waitCall)
+    WaitSet_test* test, const std::function<WaitSet::TriggerInfoVector()>& waitCall)
 {
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
     for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
@@ -329,7 +329,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenMultipleAreTrigger
 
 
 void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
-                                                         const std::function<WaitSet::TriggerStateVector()>& waitCall)
+                                                         const std::function<WaitSet::TriggerInfoVector()>& waitCall)
 {
     iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET> trigger;
     for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
@@ -362,7 +362,7 @@ TEST_F(WaitSet_test, TimedWaitReturnsAllTriggeredConditionWhenAllAreTriggered)
 }
 
 void WaitReturnsTriggersWithCorrectCallbacks(WaitSet_test* test,
-                                             const std::function<WaitSet::TriggerStateVector()>& waitCall)
+                                             const std::function<WaitSet::TriggerInfoVector()>& waitCall)
 {
     auto trigger1 = test->acquireTrigger(test->m_sut, 1, WaitSet_test::triggerCallback1);
     auto trigger2 = test->acquireTrigger(test->m_sut, 2, WaitSet_test::triggerCallback2);

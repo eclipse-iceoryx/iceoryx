@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_TRIGGER_STATE_INL
-#define IOX_POSH_POPO_TRIGGER_STATE_INL
+#ifndef IOX_POSH_POPO_TRIGGER_INFO_INL
+#define IOX_POSH_POPO_TRIGGER_INFO_INL
 
 namespace iox
 {
 namespace popo
 {
 template <typename T>
-inline void myCallback(void* const triggerOrigin, TriggerState::Callback<void> callbackPtr) noexcept
+inline void myCallback(void* const triggerOrigin, TriggerInfo::Callback<void> callbackPtr) noexcept
 {
-    (*reinterpret_cast<TriggerState::Callback<T>>(callbackPtr))(reinterpret_cast<T*>(triggerOrigin));
+    (*reinterpret_cast<TriggerInfo::Callback<T>>(callbackPtr))(reinterpret_cast<T*>(triggerOrigin));
 }
 
 template <typename T>
-inline TriggerState::TriggerState(T* const triggerOrigin, const uint64_t triggerId, const Callback<T> callback) noexcept
+inline TriggerInfo::TriggerInfo(T* const triggerOrigin, const uint64_t triggerId, const Callback<T> callback) noexcept
     : m_triggerOrigin(triggerOrigin)
     , m_triggerOriginTypeHash(typeid(T).hash_code())
     , m_triggerId(triggerId)
@@ -36,7 +36,7 @@ inline TriggerState::TriggerState(T* const triggerOrigin, const uint64_t trigger
 }
 
 template <typename T>
-inline bool TriggerState::doesOriginateFrom(T* const triggerOrigin) const noexcept
+inline bool TriggerInfo::doesOriginateFrom(T* const triggerOrigin) const noexcept
 {
     if (m_triggerOrigin == nullptr)
     {
@@ -46,7 +46,7 @@ inline bool TriggerState::doesOriginateFrom(T* const triggerOrigin) const noexce
 }
 
 template <typename T>
-inline T* TriggerState::getOrigin() noexcept
+inline T* TriggerInfo::getOrigin() noexcept
 {
     if (m_triggerOriginTypeHash != typeid(T).hash_code())
     {
@@ -58,9 +58,9 @@ inline T* TriggerState::getOrigin() noexcept
 }
 
 template <typename T>
-inline const T* TriggerState::getOrigin() const noexcept
+inline const T* TriggerInfo::getOrigin() const noexcept
 {
-    return const_cast<const T*>(const_cast<TriggerState*>(this)->getOrigin<T>());
+    return const_cast<const T*>(const_cast<TriggerInfo*>(this)->getOrigin<T>());
 }
 } // namespace popo
 } // namespace iox

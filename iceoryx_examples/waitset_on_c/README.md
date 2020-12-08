@@ -70,31 +70,31 @@ uint64_t missedElements = 0U;
 uint64_t numberOfTriggeredConditions = 0U;
 
 // array where all trigger from iox_ws_wait will be stored
-iox_trigger_state_storage_t triggerArray[NUMBER_OF_TRIGGER];
+iox_trigger_info_storage_t triggerArray[NUMBER_OF_TRIGGER];
 
 // event loop
 bool keepRunning = true;
 while (keepRunning)
 {
     numberOfTriggeredConditions =
-        iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
 The triggered Triggers are contained in the `triggerArray`. We iterate through
 it, if the `shutdownTrigger` was triggered we terminate the program otherwise
-we call the callback with `iox_trigger_state_call(trigger)`.
+we call the callback with `iox_trigger_info_call(trigger)`.
 ```c
 for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
 {
-    iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
+    iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
 
-    if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownTrigger))
+    if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
     {
         keepRunning = false;
     }
     else
     {
-        iox_trigger_state_call(trigger);
+        iox_trigger_info_call(trigger);
     }
 }
 ```
@@ -169,29 +169,29 @@ bool keepRunning = true;
 while (keepRunning)
 {
     numberOfTriggeredConditions =
-        iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
 When we iterate through the array we handle the `shutdownTrigger` first.
 We check if a trigger is from the first group by calling 
-`iox_trigger_state_get_trigger_id` and compare the result with `FIRST_GROUP_ID`.
+`iox_trigger_info_get_trigger_id` and compare the result with `FIRST_GROUP_ID`.
 If that is the case we acquire the subscriber handle with
-`iox_trigger_state_get_subscriber_origin`. This allows us to receive the new
+`iox_trigger_info_get_subscriber_origin`. This allows us to receive the new
 sample and to print the result to the console.
 The second group is handled in the same way. But we do not print the new samples
 to screen, we just discard them.
 ```c
 for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
 {
-    iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
+    iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
 
-    if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownTrigger))
+    if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
     {
         keepRunning = false;
     }
-    else if (iox_trigger_state_get_trigger_id(trigger) == FIRST_GROUP_ID)
+    else if (iox_trigger_info_get_trigger_id(trigger) == FIRST_GROUP_ID)
     {
-        iox_sub_t subscriber = iox_trigger_state_get_subscriber_origin(trigger);
+        iox_sub_t subscriber = iox_trigger_info_get_subscriber_origin(trigger);
         const void* chunk;
         if (iox_sub_get_chunk(subscriber, &chunk))
         {
@@ -200,10 +200,10 @@ for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
             iox_sub_release_chunk(subscriber, chunk);
         }
     }
-    else if (iox_trigger_state_get_trigger_id(trigger) == SECOND_GROUP_ID)
+    else if (iox_trigger_info_get_trigger_id(trigger) == SECOND_GROUP_ID)
     {
         printf("dismiss data\n");
-        iox_sub_t subscriber = iox_trigger_state_get_subscriber_origin(trigger);
+        iox_sub_t subscriber = iox_trigger_info_get_subscriber_origin(trigger);
         iox_sub_release_queued_chunks(subscriber);
     }
 }
@@ -259,24 +259,24 @@ bool keepRunning = true;
 while (keepRunning)
 {
     numberOfTriggeredConditions =
-        iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
 The `shutdownTrigger` is handled as usual and
-we use `iox_trigger_state_does_originate_from_subscriber` 
+we use `iox_trigger_info_does_originate_from_subscriber` 
 to identify the trigger that originated from a specific subscriber. If it originated
 from the first subscriber we print the received data to the console, if it 
 originated from the second subscriber we discard the data.
 ```c
     for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
     {
-        iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
+        iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
 
-        if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownTrigger))
+        if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
         {
             keepRunning = false;
         }
-        else if (iox_trigger_state_does_originate_from_subscriber(trigger, subscriber[0]))
+        else if (iox_trigger_info_does_originate_from_subscriber(trigger, subscriber[0]))
         {
             const void* chunk;
             if (iox_sub_get_chunk(subscriber[0], &chunk))
@@ -286,7 +286,7 @@ originated from the second subscriber we discard the data.
                 iox_sub_release_chunk(subscriber[0], chunk);
             }
         }
-        else if (iox_trigger_state_does_originate_from_subscriber(trigger, subscriber[1]))
+        else if (iox_trigger_info_does_originate_from_subscriber(trigger, subscriber[1]))
         {
             iox_sub_release_queued_chunks(subscriber[1]);
             printf("subscriber 2 received something - dont care\n");
@@ -348,17 +348,17 @@ triggered Triggers in an array.
 while (keepRunning)
 {
     numberOfTriggeredConditions =
-        iox_ws_wait(waitSet, (iox_trigger_state_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
 The `shutdownTrigger` is handled as usual and the `cyclicTrigger` is handled by
-just calling the attached callback with `iox_trigger_state_call(trigger)`.
+just calling the attached callback with `iox_trigger_info_call(trigger)`.
 ```c
     for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
     {
-        iox_trigger_state_t trigger = (iox_trigger_state_t) & (triggerArray[i]);
+        iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
 
-        if (iox_trigger_state_does_originate_from_user_trigger(trigger, shutdownTrigger))
+        if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
         {
             // CTRL+c was pressed -> exit
             keepRunning = false;
@@ -366,7 +366,7 @@ just calling the attached callback with `iox_trigger_state_call(trigger)`.
         else
         {
             // call myCyclicRun
-            iox_trigger_state_call(trigger);
+            iox_trigger_info_call(trigger);
         }
     }
 ```

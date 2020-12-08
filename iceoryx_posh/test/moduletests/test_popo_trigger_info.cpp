@@ -14,7 +14,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
-#include "iceoryx_posh/popo/trigger_state.hpp"
+#include "iceoryx_posh/popo/trigger_info.hpp"
 
 #include "test.hpp"
 #include <thread>
@@ -23,7 +23,7 @@ using namespace iox;
 using namespace iox::popo;
 using namespace ::testing;
 
-class TriggerState_test : public Test
+class TriggerInfo_test : public Test
 {
   public:
     class TriggerOriginTest
@@ -37,51 +37,51 @@ class TriggerState_test : public Test
         TriggerOriginTest* m_callbackOrigin = nullptr;
     };
 
-    TriggerState_test()
+    TriggerInfo_test()
     {
     }
 
-    ~TriggerState_test()
+    ~TriggerInfo_test()
     {
     }
 
     TriggerOriginTest m_origin;
     TriggerOriginTest m_falseOrigin;
-    TriggerState m_sut{&m_origin, 1478, TriggerOriginTest::callback};
+    TriggerInfo m_sut{&m_origin, 1478, TriggerOriginTest::callback};
 };
 
-TEST_F(TriggerState_test, defaultCTorConstructsEmptyTriggerState)
+TEST_F(TriggerInfo_test, defaultCTorConstructsEmptyTriggerInfo)
 {
     int bla;
-    TriggerState sut;
+    TriggerInfo sut;
 
-    EXPECT_EQ(sut.getTriggerId(), TriggerState::INVALID_TRIGGER_ID);
+    EXPECT_EQ(sut.getTriggerId(), TriggerInfo::INVALID_TRIGGER_ID);
     EXPECT_EQ(sut.doesOriginateFrom(&bla), false);
     EXPECT_EQ(sut(), false);
 }
 
-TEST_F(TriggerState_test, getTriggerIdReturnsValidTriggerId)
+TEST_F(TriggerInfo_test, getTriggerIdReturnsValidTriggerId)
 {
     EXPECT_EQ(m_sut.getTriggerId(), 1478);
 }
 
-TEST_F(TriggerState_test, doesOriginateFromStatesOriginCorrectly)
+TEST_F(TriggerInfo_test, doesOriginateFromStatesOriginCorrectly)
 {
     EXPECT_EQ(m_sut.doesOriginateFrom(&m_origin), true);
     EXPECT_EQ(m_sut.doesOriginateFrom(&m_falseOrigin), false);
 }
 
-TEST_F(TriggerState_test, getOriginReturnsCorrectOriginWhenHavingCorrectType)
+TEST_F(TriggerInfo_test, getOriginReturnsCorrectOriginWhenHavingCorrectType)
 {
     EXPECT_EQ(m_sut.getOrigin<TriggerOriginTest>(), &m_origin);
 }
 
-TEST_F(TriggerState_test, constGetOriginReturnsCorrectOriginWhenHavingCorrectType)
+TEST_F(TriggerInfo_test, constGetOriginReturnsCorrectOriginWhenHavingCorrectType)
 {
-    EXPECT_EQ(const_cast<const TriggerState&>(m_sut).getOrigin<TriggerOriginTest>(), &m_origin);
+    EXPECT_EQ(const_cast<const TriggerInfo&>(m_sut).getOrigin<TriggerOriginTest>(), &m_origin);
 }
 
-TEST_F(TriggerState_test, getOriginReturnsNullptrWithWrongType)
+TEST_F(TriggerInfo_test, getOriginReturnsNullptrWithWrongType)
 {
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
@@ -97,7 +97,7 @@ TEST_F(TriggerState_test, getOriginReturnsNullptrWithWrongType)
     EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
-TEST_F(TriggerState_test, constGetOriginReturnsNullptrWithWrongType)
+TEST_F(TriggerInfo_test, constGetOriginReturnsNullptrWithWrongType)
 {
     auto errorHandlerCalled{false};
     iox::Error errorHandlerType;
@@ -107,20 +107,20 @@ TEST_F(TriggerState_test, constGetOriginReturnsNullptrWithWrongType)
             errorHandlerCalled = true;
         });
 
-    const_cast<TriggerState&>(m_sut).getOrigin<int>();
+    const_cast<TriggerInfo&>(m_sut).getOrigin<int>();
 
     EXPECT_TRUE(errorHandlerCalled);
     EXPECT_EQ(errorHandlerType, iox::Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN);
 }
 
-TEST_F(TriggerState_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallback)
+TEST_F(TriggerInfo_test, triggerCallbackReturnsTrueAndCallsCallbackWithSettedCallback)
 {
     EXPECT_TRUE(m_sut());
     EXPECT_EQ(m_origin.m_callbackOrigin, &m_origin);
 }
 
-TEST_F(TriggerState_test, triggerCallbackReturnsFalseWithUnsetCallback)
+TEST_F(TriggerInfo_test, triggerCallbackReturnsFalseWithUnsetCallback)
 {
-    m_sut = TriggerState{&m_origin, 9, TriggerState::Callback<TriggerOriginTest>()};
+    m_sut = TriggerInfo{&m_origin, 9, TriggerInfo::Callback<TriggerOriginTest>()};
     EXPECT_FALSE(m_sut());
 }

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_POSH_POPO_TRIGGER_STATE_HPP
-#define IOX_POSH_POPO_TRIGGER_STATE_HPP
+#ifndef IOX_POSH_POPO_TRIGGER_INFO_HPP
+#define IOX_POSH_POPO_TRIGGER_INFO_HPP
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
@@ -26,34 +26,34 @@ namespace iox
 {
 namespace popo
 {
-/// @brief TriggerState holds the state of a trigger like the pointer to the triggerOrigin,
+/// @brief TriggerInfo holds the state of a trigger like the pointer to the triggerOrigin,
 ///        the trigger id and the callback.
-class TriggerState
+class TriggerInfo
 {
   public:
     static constexpr uint64_t INVALID_TRIGGER_ID = std::numeric_limits<uint64_t>::max();
     template <typename T>
     using Callback = void (*)(T* const);
 
-    /// @brief constructs an empty TriggerState
-    TriggerState() = default;
-    virtual ~TriggerState() = default;
+    /// @brief constructs an empty TriggerInfo
+    TriggerInfo() = default;
+    virtual ~TriggerInfo() = default;
 
-    /// @brief constructs a TriggerState object
-    /// @param[in] triggerOrigin the triggerOrigin of the TriggerState
+    /// @brief constructs a TriggerInfo object
+    /// @param[in] triggerOrigin the triggerOrigin of the TriggerInfo
     /// @param[in] triggerId id of the trigger
     /// @param[in] callback the callback of the trigger
     template <typename T>
-    TriggerState(T* const triggerOrigin, const uint64_t triggerId, const Callback<T> callback) noexcept;
+    TriggerInfo(T* const triggerOrigin, const uint64_t triggerId, const Callback<T> callback) noexcept;
 
     /// @brief returns the trigger id
-    /// @return the empty TriggerState always returns INVALID_TRIGGER_ID, otherwise the actual triggerId is returned
+    /// @return the empty TriggerInfo always returns INVALID_TRIGGER_ID, otherwise the actual triggerId is returned
     /// which can also be INVALID_TRIGGER_ID
     uint64_t getTriggerId() const noexcept;
 
     /// @brief confirms the triggerOrigin
     /// @param[in] triggerOrigin the possible triggerOrigin
-    /// @return true if the address is equal to the triggerOrigin, otherwise false. The empty TriggerState returns
+    /// @return true if the address is equal to the triggerOrigin, otherwise false. The empty TriggerInfo returns
     /// always false.
     template <typename T>
     bool doesOriginateFrom(T* const triggerOrigin) const noexcept;
@@ -90,6 +90,6 @@ class TriggerState
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/trigger_state.inl"
+#include "iceoryx_posh/internal/popo/trigger_info.inl"
 
 #endif

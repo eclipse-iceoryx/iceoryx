@@ -59,12 +59,12 @@ void WaitSet::removeAllTriggers() noexcept
     m_triggerVector.clear();
 }
 
-typename WaitSet::TriggerStateVector WaitSet::timedWait(const units::Duration timeout) noexcept
+typename WaitSet::TriggerInfoVector WaitSet::timedWait(const units::Duration timeout) noexcept
 {
     return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
 }
 
-typename WaitSet::TriggerStateVector WaitSet::wait() noexcept
+typename WaitSet::TriggerInfoVector WaitSet::wait() noexcept
 {
     return waitAndReturnTriggeredTriggers([this] {
         m_conditionVariableWaiter.wait();
@@ -72,9 +72,9 @@ typename WaitSet::TriggerStateVector WaitSet::wait() noexcept
     });
 }
 
-typename WaitSet::TriggerStateVector WaitSet::createVectorWithTriggeredTriggers() noexcept
+typename WaitSet::TriggerInfoVector WaitSet::createVectorWithTriggeredTriggers() noexcept
 {
-    TriggerStateVector triggers;
+    TriggerInfoVector triggers;
     for (auto& currentTrigger : m_triggerVector)
     {
         if (currentTrigger.hasTriggered())
@@ -83,7 +83,7 @@ typename WaitSet::TriggerStateVector WaitSet::createVectorWithTriggeredTriggers(
             // m_conditionVector and triggers are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            triggers.push_back(currentTrigger.getTriggerState());
+            triggers.push_back(currentTrigger.getTriggerInfo());
         }
     }
 
@@ -91,9 +91,9 @@ typename WaitSet::TriggerStateVector WaitSet::createVectorWithTriggeredTriggers(
 }
 
 template <typename WaitFunction>
-typename WaitSet::TriggerStateVector WaitSet::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
+typename WaitSet::TriggerInfoVector WaitSet::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
-    WaitSet::TriggerStateVector triggers;
+    WaitSet::TriggerInfoVector triggers;
 
     /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
     m_conditionVariableWaiter.reset();

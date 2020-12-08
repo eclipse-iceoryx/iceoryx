@@ -14,7 +14,7 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
-#include "iceoryx_posh/popo/trigger_state.hpp"
+#include "iceoryx_posh/popo/trigger_info.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
@@ -42,10 +42,10 @@ TEST(iox_types_test, UserTriggerStorageSizeFits)
     EXPECT_THAT(alignof(UserTrigger), Le(alignof(iox_user_trigger_storage_t)));
 }
 
-TEST(iox_types_test, TriggerStateStorageSizeFits)
+TEST(iox_types_test, TriggerInfoStorageSizeFits)
 {
-    EXPECT_THAT(sizeof(TriggerState), Eq(sizeof(iox_trigger_state_storage_t)));
-    EXPECT_THAT(alignof(TriggerState), Le(alignof(iox_trigger_state_storage_t)));
+    EXPECT_THAT(sizeof(TriggerInfo), Eq(sizeof(iox_trigger_info_storage_t)));
+    EXPECT_THAT(alignof(TriggerInfo), Le(alignof(iox_trigger_info_storage_t)));
 }
 
 TEST(iox_types_test, cpp2c_SubscriberStorageSizeFits)

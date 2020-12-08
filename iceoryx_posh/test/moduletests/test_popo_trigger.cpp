@@ -253,7 +253,7 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
     EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, sut.getUniqueId());
 }
 
-TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfTriggerState)
+TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfTriggerInfo)
 {
     TriggerClass secondTriggerClass;
     Trigger sut(&m_triggerClass,
@@ -263,7 +263,7 @@ TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfTriggerState)
                 TriggerClass::callback);
 
     sut.updateOrigin(&secondTriggerClass);
-    EXPECT_TRUE(sut.getTriggerState().doesOriginateFrom(&secondTriggerClass));
+    EXPECT_TRUE(sut.getTriggerInfo().doesOriginateFrom(&secondTriggerClass));
 }
 
 /// Two triggers are equal when they have the same:

@@ -16,7 +16,7 @@
 #define IOX_POSH_POPO_TRIGGER_HPP
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
-#include "iceoryx_posh/popo/trigger_state.hpp"
+#include "iceoryx_posh/popo/trigger_info.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 
 #include <type_traits>
@@ -37,7 +37,7 @@ class Trigger
     static constexpr uint64_t INVALID_TRIGGER_ID = std::numeric_limits<uint64_t>::max();
 
     template <typename T>
-    using Callback = TriggerState::Callback<T>;
+    using Callback = TriggerInfo::Callback<T>;
 
     /// @brief Creates an empty Trigger
     Trigger() noexcept = default;
@@ -98,11 +98,11 @@ class Trigger
     template <typename T>
     void updateOrigin(T* const newOrigin) noexcept;
 
-    /// @brief returns the TriggerState
-    const TriggerState& getTriggerState() const noexcept;
+    /// @brief returns the TriggerInfo
+    const TriggerInfo& getTriggerInfo() const noexcept;
 
   private:
-    TriggerState m_triggerState;
+    TriggerInfo m_triggerInfo;
 
     cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
     cxx::MethodCallback<void, uint64_t> m_resetCallback;

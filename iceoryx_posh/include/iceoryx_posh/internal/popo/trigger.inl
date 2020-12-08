@@ -26,7 +26,7 @@ inline Trigger::Trigger(T* const triggerOrigin,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t triggerId,
                         const Callback<T> callback) noexcept
-    : m_triggerState(triggerOrigin, triggerId, callback)
+    : m_triggerInfo(triggerOrigin, triggerId, callback)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_resetCallback(resetCallback)
     , m_uniqueId(uniqueIdCounter.fetch_add(1U))
@@ -36,19 +36,19 @@ inline Trigger::Trigger(T* const triggerOrigin,
 template <typename T>
 inline void Trigger::updateOrigin(T* const newOrigin) noexcept
 {
-    if (newOrigin != m_triggerState.m_triggerOrigin)
+    if (newOrigin != m_triggerInfo.m_triggerOrigin)
     {
-        if (m_hasTriggeredCallback && m_hasTriggeredCallback.getObjectPointer<T>() == m_triggerState.m_triggerOrigin)
+        if (m_hasTriggeredCallback && m_hasTriggeredCallback.getObjectPointer<T>() == m_triggerInfo.m_triggerOrigin)
         {
             m_hasTriggeredCallback.setCallback(*newOrigin, m_hasTriggeredCallback.getMethodPointer<T>());
         }
 
-        if (m_resetCallback && m_resetCallback.getObjectPointer<T>() == m_triggerState.m_triggerOrigin)
+        if (m_resetCallback && m_resetCallback.getObjectPointer<T>() == m_triggerInfo.m_triggerOrigin)
         {
             m_resetCallback.setCallback(*newOrigin, m_resetCallback.getMethodPointer<T>());
         }
 
-        m_triggerState.m_triggerOrigin = newOrigin;
+        m_triggerInfo.m_triggerOrigin = newOrigin;
     }
 }
 

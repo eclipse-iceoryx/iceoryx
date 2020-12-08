@@ -63,7 +63,7 @@ class iox_ws_test : public Test
     iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_TRIGGERS_PER_WAITSET + 1];
     cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET + 1> m_userTrigger;
 
-    iox_trigger_state_storage_t m_triggerStateStorage[MAX_NUMBER_OF_TRIGGERS_PER_WAITSET];
+    iox_trigger_info_storage_t m_triggerStateStorage[MAX_NUMBER_OF_TRIGGERS_PER_WAITSET];
     uint64_t m_missedElements = 0U;
     uint64_t m_numberOfTriggeredConditions = 0U;
     timespec m_timeout{0, 0};
@@ -110,7 +110,7 @@ TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsOneWhenOneWasTriggered)
 
     EXPECT_EQ(
         iox_ws_wait(
-            m_sut, (iox_trigger_state_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements),
+            m_sut, (iox_trigger_info_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements),
         1);
 }
 
@@ -124,7 +124,7 @@ TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsCorrectWhenMultipleWereTriggere
 
     EXPECT_EQ(
         iox_ws_wait(
-            m_sut, (iox_trigger_state_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements),
+            m_sut, (iox_trigger_info_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements),
         10);
 }
 
@@ -138,7 +138,7 @@ TEST_F(iox_ws_test, NumberOfTriggeredConditionsIsCorrectWhenAllWereTriggered)
 
     EXPECT_EQ(
         iox_ws_wait(
-            m_sut, (iox_trigger_state_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements),
+            m_sut, (iox_trigger_info_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements),
         MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
 }
 
@@ -148,12 +148,12 @@ TEST_F(iox_ws_test, SingleTriggerCaseWaitReturnsCorrectTrigger)
     iox_user_trigger_trigger(m_userTrigger[0]);
 
     iox_ws_wait(
-        m_sut, (iox_trigger_state_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
+        m_sut, (iox_trigger_info_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
 
-    iox_trigger_state_t triggerState = (iox_trigger_state_t)&m_triggerStateStorage[0];
+    iox_trigger_info_t triggerState = (iox_trigger_info_t)&m_triggerStateStorage[0];
 
-    EXPECT_EQ(iox_trigger_state_get_trigger_id(triggerState), 5678);
-    EXPECT_TRUE(iox_trigger_state_does_originate_from_user_trigger(triggerState, m_userTrigger[0]));
+    EXPECT_EQ(iox_trigger_info_get_trigger_id(triggerState), 5678);
+    EXPECT_TRUE(iox_trigger_info_does_originate_from_user_trigger(triggerState, m_userTrigger[0]));
 }
 
 TEST_F(iox_ws_test, MultiTriggerCaseWaitReturnsCorrectTrigger)
@@ -165,13 +165,13 @@ TEST_F(iox_ws_test, MultiTriggerCaseWaitReturnsCorrectTrigger)
     }
 
     iox_ws_wait(
-        m_sut, (iox_trigger_state_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
+        m_sut, (iox_trigger_info_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
 
     for (uint64_t i = 0U; i < 8; ++i)
     {
-        iox_trigger_state_t triggerState = (iox_trigger_state_t)&m_triggerStateStorage[i];
-        EXPECT_EQ(iox_trigger_state_get_trigger_id(triggerState), 1337 + i);
-        EXPECT_TRUE(iox_trigger_state_does_originate_from_user_trigger(triggerState, m_userTrigger[i]));
+        iox_trigger_info_t triggerState = (iox_trigger_info_t)&m_triggerStateStorage[i];
+        EXPECT_EQ(iox_trigger_info_get_trigger_id(triggerState), 1337 + i);
+        EXPECT_TRUE(iox_trigger_info_does_originate_from_user_trigger(triggerState, m_userTrigger[i]));
     }
 }
 
@@ -184,13 +184,13 @@ TEST_F(iox_ws_test, MaxTriggerCaseWaitReturnsCorrectTrigger)
     }
 
     iox_ws_wait(
-        m_sut, (iox_trigger_state_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
+        m_sut, (iox_trigger_info_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
 
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        iox_trigger_state_t triggerState = (iox_trigger_state_t)&m_triggerStateStorage[i];
-        EXPECT_EQ(iox_trigger_state_get_trigger_id(triggerState), 42 * i + 1);
-        EXPECT_TRUE(iox_trigger_state_does_originate_from_user_trigger(triggerState, m_userTrigger[i]));
+        iox_trigger_info_t triggerState = (iox_trigger_info_t)&m_triggerStateStorage[i];
+        EXPECT_EQ(iox_trigger_info_get_trigger_id(triggerState), 42 * i + 1);
+        EXPECT_TRUE(iox_trigger_info_does_originate_from_user_trigger(triggerState, m_userTrigger[i]));
     }
 }
 
@@ -201,7 +201,7 @@ TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsOneWhenOneWasTriggered
 
     EXPECT_EQ(iox_ws_timed_wait(m_sut,
                                 m_timeout,
-                                (iox_trigger_state_t)m_triggerStateStorage,
+                                (iox_trigger_info_t)m_triggerStateStorage,
                                 MAX_NUMBER_OF_TRIGGERS_PER_WAITSET,
                                 &m_missedElements),
               1);
@@ -217,7 +217,7 @@ TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsCorrectWhenMultipleWer
 
     EXPECT_EQ(iox_ws_timed_wait(m_sut,
                                 m_timeout,
-                                (iox_trigger_state_t)m_triggerStateStorage,
+                                (iox_trigger_info_t)m_triggerStateStorage,
                                 MAX_NUMBER_OF_TRIGGERS_PER_WAITSET,
                                 &m_missedElements),
               10);
@@ -233,7 +233,7 @@ TEST_F(iox_ws_test, TimedWaitNumberOfTriggeredConditionsIsCorrectWhenAllWereTrig
 
     EXPECT_EQ(iox_ws_timed_wait(m_sut,
                                 m_timeout,
-                                (iox_trigger_state_t)m_triggerStateStorage,
+                                (iox_trigger_info_t)m_triggerStateStorage,
                                 MAX_NUMBER_OF_TRIGGERS_PER_WAITSET,
                                 &m_missedElements),
               MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
@@ -246,14 +246,14 @@ TEST_F(iox_ws_test, SingleTriggerCaseTimedWaitReturnsCorrectTrigger)
 
     iox_ws_timed_wait(m_sut,
                       m_timeout,
-                      (iox_trigger_state_t)m_triggerStateStorage,
+                      (iox_trigger_info_t)m_triggerStateStorage,
                       MAX_NUMBER_OF_TRIGGERS_PER_WAITSET,
                       &m_missedElements);
 
-    iox_trigger_state_t triggerState = (iox_trigger_state_t)&m_triggerStateStorage[0];
+    iox_trigger_info_t triggerState = (iox_trigger_info_t)&m_triggerStateStorage[0];
 
-    EXPECT_EQ(iox_trigger_state_get_trigger_id(triggerState), 5678);
-    EXPECT_TRUE(iox_trigger_state_does_originate_from_user_trigger(triggerState, m_userTrigger[0]));
+    EXPECT_EQ(iox_trigger_info_get_trigger_id(triggerState), 5678);
+    EXPECT_TRUE(iox_trigger_info_does_originate_from_user_trigger(triggerState, m_userTrigger[0]));
 }
 
 TEST_F(iox_ws_test, MultiTriggerCaseTimedWaitReturnsCorrectTrigger)
@@ -266,15 +266,15 @@ TEST_F(iox_ws_test, MultiTriggerCaseTimedWaitReturnsCorrectTrigger)
 
     iox_ws_timed_wait(m_sut,
                       m_timeout,
-                      (iox_trigger_state_t)m_triggerStateStorage,
+                      (iox_trigger_info_t)m_triggerStateStorage,
                       MAX_NUMBER_OF_TRIGGERS_PER_WAITSET,
                       &m_missedElements);
 
     for (uint64_t i = 0U; i < 8; ++i)
     {
-        iox_trigger_state_t triggerState = (iox_trigger_state_t)&m_triggerStateStorage[i];
-        EXPECT_EQ(iox_trigger_state_get_trigger_id(triggerState), 1337 + i);
-        EXPECT_TRUE(iox_trigger_state_does_originate_from_user_trigger(triggerState, m_userTrigger[i]));
+        iox_trigger_info_t triggerState = (iox_trigger_info_t)&m_triggerStateStorage[i];
+        EXPECT_EQ(iox_trigger_info_get_trigger_id(triggerState), 1337 + i);
+        EXPECT_TRUE(iox_trigger_info_does_originate_from_user_trigger(triggerState, m_userTrigger[i]));
     }
 }
 
@@ -288,15 +288,15 @@ TEST_F(iox_ws_test, MaxTriggerCaseTimedWaitReturnsCorrectTrigger)
 
     iox_ws_timed_wait(m_sut,
                       m_timeout,
-                      (iox_trigger_state_t)m_triggerStateStorage,
+                      (iox_trigger_info_t)m_triggerStateStorage,
                       MAX_NUMBER_OF_TRIGGERS_PER_WAITSET,
                       &m_missedElements);
 
     for (uint64_t i = 0U; i < MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        iox_trigger_state_t triggerState = (iox_trigger_state_t)&m_triggerStateStorage[i];
-        EXPECT_EQ(iox_trigger_state_get_trigger_id(triggerState), 42 * i + 1);
-        EXPECT_TRUE(iox_trigger_state_does_originate_from_user_trigger(triggerState, m_userTrigger[i]));
+        iox_trigger_info_t triggerState = (iox_trigger_info_t)&m_triggerStateStorage[i];
+        EXPECT_EQ(iox_trigger_info_get_trigger_id(triggerState), 42 * i + 1);
+        EXPECT_TRUE(iox_trigger_info_does_originate_from_user_trigger(triggerState, m_userTrigger[i]));
     }
 }
 
@@ -309,7 +309,7 @@ TEST_F(iox_ws_test, MissedElementsIsZeroWhenNothingWasMissed)
     }
 
     iox_ws_wait(
-        m_sut, (iox_trigger_state_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
+        m_sut, (iox_trigger_info_t)m_triggerStateStorage, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET, &m_missedElements);
 
     EXPECT_EQ(m_missedElements, 0U);
 }
@@ -322,7 +322,7 @@ TEST_F(iox_ws_test, MissedElementsIsCorrectWhenSomethingWasMissed)
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    iox_ws_wait(m_sut, (iox_trigger_state_t)m_triggerStateStorage, 8, &m_missedElements);
+    iox_ws_wait(m_sut, (iox_trigger_info_t)m_triggerStateStorage, 8, &m_missedElements);
 
     EXPECT_EQ(m_missedElements, 4U);
 }
@@ -335,7 +335,7 @@ TEST_F(iox_ws_test, MissedElementsIsCorrectWhenAllWereMissed)
         iox_user_trigger_trigger(m_userTrigger[i]);
     }
 
-    iox_ws_wait(m_sut, (iox_trigger_state_t)m_triggerStateStorage, 0, &m_missedElements);
+    iox_ws_wait(m_sut, (iox_trigger_info_t)m_triggerStateStorage, 0, &m_missedElements);
 
     EXPECT_EQ(m_missedElements, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET);
 }

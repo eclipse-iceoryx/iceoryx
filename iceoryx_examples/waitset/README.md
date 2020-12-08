@@ -4,7 +4,7 @@ The WaitSet is a set where you can attach Trigger to signal a wide variety
 of events to one single notifyable. The typical approach is that one creates a
 WaitSet attaches multiple subscribers or other _Triggerables_ to it and then wait till
 one or many of the attached entities signal an event. If that happens one receives
-a list of _TriggerStates_ which are corresponding to all the Triggers which were 
+a list of _TriggerInfos_ which are corresponding to all the Triggers which were 
 triggered and the program can act accordingly.
 
 The WaitSet is state based which means that it will trigger until the state which
@@ -30,7 +30,7 @@ to a _Triggerable_ while another thread may trigger the _TriggerHandle_.
      _Trigger_ will be invalidated.
  - **Triggerable** a class which has attached a _TriggerHandle_ to itself to signal
      certain events to a _Notifyable_.
- - **TriggerCallback** a callback attached to a _TriggerState_. It must have the 
+ - **TriggerCallback** a callback attached to a _TriggerInfo_. It must have the 
      following signature `void ( TriggerOrigin )`. Any free function, static
      class method and non capturing lambda is allowed. You have to ensure the lifetime of that callback.
      This can become important when you would like to use lambdas.
@@ -49,8 +49,8 @@ to a _Triggerable_ while another thread may trigger the _TriggerHandle_.
  -   group _Triggers_.
  - **TriggerOrigin** the pointer to the class where the trigger originated from, short
      pointer to the _Triggerable_.
- - **TriggerState** a class which corresponds with _Triggers_ and is used to inform 
-     the user which _Trigger_ were activated. You can use the _TriggerState_ to acquire 
+ - **TriggerInfo** a class which corresponds with _Triggers_ and is used to inform 
+     the user which _Trigger_ were activated. You can use the _TriggerInfo_ to acquire 
      the _TriggerId_, call the _TriggerCallback_ or acquire the _TriggerOrigin_.
  - **WaitSet** a _Notifyable_ which manages a set of _Triggers_ which can be acquired by 
      the user. The _Waitset_ listens 
@@ -60,9 +60,9 @@ to a _Triggerable_ while another thread may trigger the _TriggerHandle_.
 
 ## Quick Overview
 A **Notifyable** like the **WaitSet** manages **Trigger**s and hands out **TriggerHandle**s to **Triggerable** objects 
-who can store them. When returning from `wait()` the user gets a vector of **TriggerStates**
+who can store them. When returning from `wait()` the user gets a vector of **TriggerInfos**
 associated with triggered **Trigger**s of the **WaitSet**. The **TriggerOrigin**, **TriggerId** and **TriggerCallback**
-are stored inside of the **TriggerState** and can be acquired by the user.
+are stored inside of the **TriggerInfo** and can be acquired by the user.
 
 
 ## Reference

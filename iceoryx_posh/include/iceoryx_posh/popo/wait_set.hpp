@@ -44,7 +44,7 @@ class WaitSet
 {
   public:
     using TriggerVector = cxx::vector<Trigger, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET>;
-    using TriggerStateVector = cxx::vector<TriggerState, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET>;
+    using TriggerInfoVector = cxx::vector<TriggerInfo, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET>;
 
     WaitSet() noexcept;
     ~WaitSet() noexcept;
@@ -84,12 +84,12 @@ class WaitSet
 
     /// @brief Blocking wait with time limit till one or more of the triggers are triggered
     /// @param[in] timeout How long shall we waite for a trigger
-    /// @return TriggerStateVector of TriggerStates that have been triggered
-    TriggerStateVector timedWait(const units::Duration timeout) noexcept;
+    /// @return TriggerInfoVector of TriggerInfos that have been triggered
+    TriggerInfoVector timedWait(const units::Duration timeout) noexcept;
 
     /// @brief Blocking wait till one or more of the triggers are triggered
-    /// @return TriggerStateVector of TriggerStates that have been triggered
-    TriggerStateVector wait() noexcept;
+    /// @return TriggerInfoVector of TriggerInfos that have been triggered
+    TriggerInfoVector wait() noexcept;
 
     /// @brief Returns the amount of stored Trigger inside of the WaitSet
     uint64_t size() const noexcept;
@@ -101,10 +101,10 @@ class WaitSet
     explicit WaitSet(cxx::not_null<ConditionVariableData* const>) noexcept;
 
   private:
-    TriggerStateVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
+    TriggerInfoVector waitAndReturnTriggeredTriggers(const units::Duration& timeout) noexcept;
     template <typename WaitFunction>
-    TriggerStateVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
-    TriggerStateVector createVectorWithTriggeredTriggers() noexcept;
+    TriggerInfoVector waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept;
+    TriggerInfoVector createVectorWithTriggeredTriggers() noexcept;
 
     template <typename T>
     void moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept;
