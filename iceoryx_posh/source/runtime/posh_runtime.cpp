@@ -468,43 +468,6 @@ RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProper
     return nullptr;
 }
 
-cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& serviceDescription,
-                                              InstanceContainer& instanceContainer) noexcept
-{
-    MqMessage sendBuffer;
-    sendBuffer << mqMessageTypeToString(MqMessageType::FIND_SERVICE) << m_appName
-               << static_cast<cxx::Serialization>(serviceDescription).toString();
-
-    MqMessage requestResponse;
-
-    if (!sendRequestToRouDi(sendBuffer, requestResponse))
-    {
-        LogError() << "Could not send FIND_SERVICE request to RouDi\n";
-        errorHandler(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<Error>(Error::kMQ_INTERFACE__REG_UNABLE_TO_WRITE_TO_ROUDI_MQ);
-    }
-
-    uint32_t numberOfElements = requestResponse.getNumberOfElements();
-    uint32_t capacity = static_cast<uint32_t>(instanceContainer.capacity());
-
-    // Limit the instances (max value is the capacity of instanceContainer)
-    uint32_t numberOfInstances = ((numberOfElements > capacity) ? capacity : numberOfElements);
-    for (uint32_t i = 0; i < numberOfInstances; ++i)
-    {
-        IdString instance(iox::cxx::TruncateToCapacity, requestResponse.getElementAtIndex(i).c_str());
-        instanceContainer.push_back(instance);
-    }
-
-    if (numberOfElements > capacity)
-    {
-        LogWarn() << numberOfElements << " instances found for service \"" << serviceDescription.getServiceIDString()
-                  << "\" which is more than supported number of instances(" << MAX_NUMBER_OF_INSTANCES << "\n";
-        errorHandler(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<Error>(Error::kPOSH__SERVICE_DISCOVERY_INSTANCE_CONTAINER_OVERFLOW);
-    }
-    return {cxx::success<>()};
-}
-
 cxx::expected<InstanceContainer, Error>
 PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) noexcept
 {
