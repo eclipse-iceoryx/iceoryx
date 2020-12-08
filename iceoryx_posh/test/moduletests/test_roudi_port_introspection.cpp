@@ -137,11 +137,16 @@ class PortIntrospection_test : public Test
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 
+    const iox::ProcessName_t genericProcessName{"genericProcess"};
+
     iox::mepoo::MemoryManager m_memoryManager;
     iox::capro::ServiceDescription m_serviceDescription;
-    iox::popo::PublisherPortData m_publisherPortDataPortGeneric{m_serviceDescription, "Foo", &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataThroughput{m_serviceDescription, "Foo", &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataSubscriberData{m_serviceDescription, "Foo", &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataPortGeneric{
+        m_serviceDescription, genericProcessName, &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataThroughput{
+        m_serviceDescription, genericProcessName, &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataSubscriberData{
+        m_serviceDescription, genericProcessName, &m_memoryManager};
 
     PortIntrospectionAccess<MockPublisherPortUserIntrospection, MockSubscriberPortUser> m_introspectionAccess;
 };
@@ -149,9 +154,12 @@ class PortIntrospection_test : public Test
 
 TEST_F(PortIntrospection_test, registerPublisherPort)
 {
-    iox::popo::PublisherPortData m_publisherPortDataPortGeneric{m_serviceDescription, "Foo", &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataThroughput{m_serviceDescription, "Foo", &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataSubscriberData{m_serviceDescription, "Foo", &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataPortGeneric{
+        m_serviceDescription, genericProcessName, &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataThroughput{
+        m_serviceDescription, genericProcessName, &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataSubscriberData{
+        m_serviceDescription, genericProcessName, &m_memoryManager};
 
     auto introspection =
         std::unique_ptr<iox::roudi::PortIntrospection<MockPublisherPortUserIntrospection, MockSubscriberPortUser>>(
@@ -162,9 +170,12 @@ TEST_F(PortIntrospection_test, registerPublisherPort)
                                                      &m_publisherPortDataSubscriberData),
                 Eq(true));
 
-    iox::popo::PublisherPortData m_publisherPortDataPortGeneric2{m_serviceDescription, "Foo", &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataThroughput2{m_serviceDescription, "Foo", &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataSubscriberData2{m_serviceDescription, "Foo", &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataPortGeneric2{
+        m_serviceDescription, genericProcessName, &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataThroughput2{
+        m_serviceDescription, genericProcessName, &m_memoryManager};
+    iox::popo::PublisherPortData m_publisherPortDataSubscriberData2{
+        m_serviceDescription, genericProcessName, &m_memoryManager};
 
     EXPECT_THAT(introspection->registerPublisherPort(&m_publisherPortDataPortGeneric2,
                                                      &m_publisherPortDataThroughput2,
@@ -189,10 +200,10 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 {
     using PortData = iox::roudi::PublisherPortData;
 
-    const iox::ProcessName_t processName1("name1");
-    const iox::ProcessName_t processName2("name2");
-    const iox::RunnableName_t runnableName1("4");
-    const iox::RunnableName_t runnableName2("jkl");
+    const iox::ProcessName_t processName1{"name1"};
+    const iox::ProcessName_t processName2{"name2"};
+    const iox::RunnableName_t runnableName1{"4"};
+    const iox::RunnableName_t runnableName2{"jkl"};
 
     // prepare expected outputs
     PortData expected1;
@@ -219,12 +230,12 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     // test adding of ports
     // remark: duplicate publisher port insertions are not possible
-    iox::popo::PublisherPortData portData1{m_serviceDescription, "Foo", &m_memoryManager};
-    iox::popo::PublisherPortData portData2{m_serviceDescription, "Foo", &m_memoryManager};
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, "4"), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, "4"), Eq(false));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, "jkl"), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, "jkl"), Eq(false));
+    iox::popo::PublisherPortData portData1{m_serviceDescription, processName1, &m_memoryManager};
+    iox::popo::PublisherPortData portData2{m_serviceDescription, processName2, &m_memoryManager};
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, runnableName1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, runnableName1), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, runnableName2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, runnableName2), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -292,10 +303,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 {
     using PortData = iox::roudi::SubscriberPortData;
 
-    const iox::ProcessName_t processName1("name1");
-    const iox::ProcessName_t processName2("name2");
-    const iox::RunnableName_t runnableName1("4");
-    const iox::RunnableName_t runnableName2("7");
+    const iox::ProcessName_t processName1{"name1"};
+    const iox::ProcessName_t processName2{"name2"};
+    const iox::RunnableName_t runnableName1{"4"};
+    const iox::RunnableName_t runnableName2{"7"};
 
     // prepare expected outputs
     PortData expected1;
@@ -325,13 +336,13 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     // test adding of ports
     // remark: duplicate subscriber insertions are possible but will not be transmitted via send
     iox::popo::SubscriberPortData recData1{
-        m_serviceDescription, "Foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
+        m_serviceDescription, processName1, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
     iox::popo::SubscriberPortData recData2{
-        m_serviceDescription, "Foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, "4"), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, "4"), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, "7"), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, "7"), Eq(true));
+        m_serviceDescription, processName2, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, runnableName1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, runnableName1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, runnableName2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, runnableName2), Eq(true));
 
     m_introspectionAccess.sendPortData();
 
@@ -403,8 +414,9 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     using SubscriberPortData = iox::roudi::SubscriberPortData;
     using PublisherPortData = iox::roudi::PublisherPortData;
 
-    const iox::ProcessName_t nameSubscriber("subscriber");
-    const iox::ProcessName_t namePublisher("publisher");
+    const iox::ProcessName_t nameSubscriber{"subscriber"};
+    const iox::ProcessName_t namePublisher{"publisher"};
+    const iox::RunnableName_t runnableName{""};
 
     // prepare expected outputs
     SubscriberPortData expectedSubscriber;
@@ -429,10 +441,10 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
 
     // test adding of publisher or subscriber port of same service to establish a connection (requires same service id)
     iox::popo::SubscriberPortData recData1{
-        m_serviceDescription, "Foo", iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, nameSubscriber, service, ""), Eq(true));
-    iox::popo::PublisherPortData publisherPortData{m_serviceDescription, "Foo", &m_memoryManager};
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&publisherPortData, namePublisher, service, ""), Eq(true));
+        m_serviceDescription, nameSubscriber, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, nameSubscriber, service, runnableName), Eq(true));
+    iox::popo::PublisherPortData publisherPortData{m_serviceDescription, namePublisher, &m_memoryManager};
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&publisherPortData, namePublisher, service, runnableName), Eq(true));
 
     m_introspectionAccess.sendPortData();
 
