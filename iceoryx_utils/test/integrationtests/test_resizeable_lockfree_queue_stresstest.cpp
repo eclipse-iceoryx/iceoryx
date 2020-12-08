@@ -33,20 +33,20 @@ namespace
 {
 struct Data
 {
-    Data(int id = 0, size_t count = 0)
+    Data(int32_t id = 0, uint64_t count = 0)
         : id(id)
         , count(count)
     {
     }
 
-    int id{0};
-    size_t count{0};
+    uint32_t id{0};
+    uint64_t count{0};
 };
 
 using CountArray = std::vector<std::atomic<uint64_t>>;
 
 template <typename Queue>
-void producePeriodic(Queue& queue, const int id, CountArray& producedCount, std::atomic_bool& run)
+void producePeriodic(Queue& queue, const int32_t id, CountArray& producedCount, std::atomic_bool& run)
 {
     const auto n = producedCount.size();
     Data d(id, 0U);
@@ -76,7 +76,7 @@ void consume(Queue& queue, CountArray& consumedCount, std::atomic_bool& run)
 }
 
 template <typename Queue>
-void produceMonotonic(Queue& queue, const int id, std::atomic_bool& run)
+void produceMonotonic(Queue& queue, const int32_t id, std::atomic_bool& run)
 {
     Data d(id, 1U);
     while (run.load(std::memory_order_relaxed))
@@ -89,11 +89,12 @@ void produceMonotonic(Queue& queue, const int id, std::atomic_bool& run)
 }
 
 template <typename Queue>
-void consumeAndCheckOrder(Queue& queue, const int maxId, std::atomic_bool& run, std::atomic_bool& orderOk)
+void consumeAndCheckOrder(Queue& queue, const int32_t maxId, std::atomic_bool& run, std::atomic_bool& orderOk)
 {
     // note that the producers start sending with count 1,
     // hence setting last count to 0 does not lead to false negative checks
     std::vector<uint64_t> lastCount(maxId + 1, 0U);
+    const auto numCounts = lastCount.size();
 
     while (run.load(std::memory_order_relaxed) || !queue.empty())
     {
@@ -101,23 +102,33 @@ void consumeAndCheckOrder(Queue& queue, const int maxId, std::atomic_bool& run, 
         if (popped.has_value())
         {
             const auto& value = popped.value();
-            const auto& count = lastCount[value.id];
 
-            if (count >= value.count)
+            if (value.id >= 0 && value.id < numCounts)
             {
-                // last count received with this id is equal or larger,
-                // which should not be the case if the counts are monotonic
-                // and indicates an error
+                const auto& count = lastCount[value.id];
+                if (count >= value.count)
+                {
+                    // last count received with this id is equal or larger,
+                    // which should not be the case if the counts are monotonic
+                    // and indicates an error
+                    orderOk.store(false, std::memory_order_relaxed);
+                }
+                lastCount[value.id] = value.count;
+            }
+            else
+            {
+                // the id is invalid (out of range)
+                // which means the queue has corrupted the data somehow
+                // and the test should fail
                 orderOk.store(false, std::memory_order_relaxed);
             }
-            lastCount[value.id] = value.count;
         }
     }
 }
 
 // alternates between push and pop
 template <typename Queue>
-void work(Queue& queue, int id, std::atomic<bool>& run)
+void work(Queue& queue, int32_t id, std::atomic<bool>& run)
 {
     // technically one element suffices if we alternate,
     // but if we want to test other push/pop patterns a list is useful
@@ -139,7 +150,6 @@ void work(Queue& queue, int id, std::atomic<bool>& run)
         {
             // try a push (we know the list is not empty since doPop is false)
             auto value = poppedValues.front();
-            value.id = id;
             if (queue.tryPush(value))
             {
                 poppedValues.pop_front();
@@ -162,7 +172,7 @@ void work(Queue& queue, int id, std::atomic<bool>& run)
 // popProbability essentially controls whether the queue tends to be full or empty on average
 template <typename Queue>
 void randomWork(Queue& queue,
-                int id,
+                int32_t id,
                 std::atomic<bool>& run,
                 uint64_t numItems,
                 int& overflowCount,
@@ -227,12 +237,20 @@ void changeCapacity(Queue& queue,
                     std::vector<uint64_t>& capacities,
                     uint64_t& numChanges)
 {
-    int32_t n = capacities.size();
-    int32_t k = n;
-    int32_t d = -1;
-    numChanges = 0;
+    const int32_t n = capacities.size(); // number of different capacities
+    int32_t k = n;                       // index of current capacity to be used
+    int32_t d = -1;                      // increment delta of the index k, will be 1 or -1
+    numChanges = 0;                      // number of capacity changes performed
 
-    auto removeHandler = [&](const typename Queue::element_t& value) { items.emplace_back(std::move(value)); };
+    // capacities will contain a number of pre generated capacities to switch between,
+    // ordered from lowest to highest
+    // starting with the highest (at capacities[k], k=n-1) a new capacity is set,
+    // preserving potentially removed elements in items
+    // afterwards k is decremented (k+=d with d=-1) and the next capacity is set, this continues until k=0
+    // when k=0, the order is reversed (d=1) and we increase the capacities until we reach k=n-1 again
+    // this continues until the thread is stopped
+
+    auto removeHandler = [&](const auto& value) { items.emplace_back(std::move(value)); };
 
     while (run)
     {
@@ -377,8 +395,8 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerComplete
     // cannot be done with the vector ctor for atomics
     for (int i = 0; i < cycleLength; ++i)
     {
-        producedCount[i].store(0, std::memory_order_relaxed);
-        consumedCount[i].store(0, std::memory_order_relaxed);
+        producedCount[i].store(0U, std::memory_order_relaxed);
+        consumedCount[i].store(0U, std::memory_order_relaxed);
     }
 
     std::vector<std::thread> producers;
@@ -407,14 +425,10 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, multiProducerMultiConsumerComplete
     }
 
     // necessary to avoid missing a produced value on consumer side
-    while (!queue.empty())
+    while (const auto popped = queue.pop())
     {
-        const auto popped = queue.pop();
-        if (popped.has_value())
-        {
-            const auto& value = popped.value();
-            consumedCount[value.count].fetch_add(1U, std::memory_order_relaxed);
-        }
+        const auto& value = popped.value();
+        consumedCount[value.count].fetch_add(1U, std::memory_order_relaxed);
     }
 
     // verify counts
@@ -592,14 +606,21 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
         thread.join();
     }
 
+    // we expect at least one overflow in the test (since the queue is full in the beginning)
+    // we cannot expect one overflow in each thread due to thread scheduling
+    auto numOverflows = std::accumulate(overflowCount.begin(), overflowCount.end(), 0LL);
+    EXPECT_GT(numOverflows, 0LL);
+
     // check whether all elements are there, but there is no specific ordering we can expect
     // items are either in the local lists or the queue, in total we expect each count numThreads times
+    // and for each count each id exactly once
 
-    std::vector<int> count(capacity, 0);
+    std::vector<std::vector<int>> count(capacity, std::vector<int>(numThreads, 0));
     auto popped = q.pop();
     while (popped.has_value())
     {
-        count[popped.value().count]++;
+        const auto& value = popped.value();
+        count[value.count][value.id]++;
         popped = q.pop();
     }
 
@@ -608,24 +629,22 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
     {
         for (auto& item : items)
         {
-            count[item.count]++;
+            count[item.count][item.id]++;
         }
     }
-
-    // we expect at least one overflow in the test (since the queue is full in the beginning)
-    // we cannot expect one overflow in each thread due to thread scheduling
-    auto numOverflows = std::accumulate(overflowCount.begin(), overflowCount.end(), 0LL);
-    EXPECT_GT(numOverflows, 0LL);
 
     bool testResult = true;
     for (size_t i = 0; i < capacity; ++i)
     {
         // we expect each data item exactly numThreads + 1 times,
         // the extra one is for the initially full queue
-        if (count[i] != numThreads + 1)
+        for (int j = 0; j < numThreads; ++j)
         {
-            testResult = false;
-            break;
+            if (count[i][j] != 1)
+            {
+                testResult = false;
+                break;
+            }
         }
     }
 
@@ -700,42 +719,46 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, hybridMultiProducerMultiConsumer0v
         thread.join();
     }
 
-    // check whether all elements are there, but there is no specific ordering we can expect
-    // items are either in the local lists or the queue, in total we expect each count numThreads times
-
-    std::vector<int> count(capacity, 0);
-    auto popped = q.pop();
-    while (popped.has_value())
-    {
-        count[popped.value().count]++;
-        popped = q.pop();
-    }
-
-    // check the local lists
-    id = 1;
-    for (auto& items : itemVec)
-    {
-        for (auto& item : items)
-        {
-            count[item.count]++;
-        }
-    }
-
     // we expect at least one overflow in the test (since the queue is full in the beginning)
     // we cannot expect one overflow in each thread due to thread scheduling
     const auto numOverflows = std::accumulate(overflowCount.begin(), overflowCount.end(), 0LL);
     EXPECT_GT(numOverflows, 0LL);
     EXPECT_GT(numChanges, 0LL);
 
+    // check whether all elements are there, but there is no specific ordering we can expect
+    // items are either in the local lists or the queue, in total we expect each count numThreads times
+    // and for each count each id exactly once
+
+    std::vector<std::vector<int>> count(capacity, std::vector<int>(numThreads, 0));
+    auto popped = q.pop();
+    while (popped.has_value())
+    {
+        const auto& value = popped.value();
+        count[value.count][value.id]++;
+        popped = q.pop();
+    }
+
+    // check the local lists
+    for (auto& items : itemVec)
+    {
+        for (auto& item : items)
+        {
+            count[item.count][item.id]++;
+        }
+    }
+
     bool testResult = true;
     for (size_t i = 0; i < capacity; ++i)
     {
         // we expect each data item exactly numThreads + 1 times,
         // the extra one is for the initially full queue
-        if (count[i] != numThreads + 1)
+        for (int j = 0; j < numThreads; ++j)
         {
-            testResult = false;
-            break;
+            if (count[i][j] != 1)
+            {
+                testResult = false;
+                break;
+            }
         }
     }
 
