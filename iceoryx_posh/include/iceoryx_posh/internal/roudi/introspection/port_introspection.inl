@@ -102,7 +102,8 @@ void PortIntrospection<SenderPort, ReceiverPort>::run()
     });
 
     // set thread name
-    pthread_setname_np(m_thread.native_handle(), "PortIntr");
+    cxx::string<16> threadName{"PortIntr"};
+    pthread_setname_np(m_thread.native_handle(), threadName.c_str());
 }
 
 template <typename SenderPort, typename ReceiverPort>

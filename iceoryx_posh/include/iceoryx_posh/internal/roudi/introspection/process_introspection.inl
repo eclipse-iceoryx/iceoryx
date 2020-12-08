@@ -174,7 +174,8 @@ void ProcessIntrospection<SenderPort>::run()
     });
 
     // set thread name
-    pthread_setname_np(m_thread.native_handle(), "ProcessIntr");
+    cxx::string<16> threadName{"ProcessIntr"};
+    pthread_setname_np(m_thread.native_handle(), threadName.c_str());
 }
 
 template <typename SenderPort>

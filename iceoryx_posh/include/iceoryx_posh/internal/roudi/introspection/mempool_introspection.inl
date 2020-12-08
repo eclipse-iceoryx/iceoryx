@@ -30,9 +30,8 @@ MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::MemPoolIntrospe
 {
     m_senderPort.activate(); // corresponds to offer
 
-    /// @todo create a wrapper function which takes care of the 16 character limitation of the thread name
-    // set thread name
-    pthread_setname_np(m_thread.native_handle(), "MemPoolIntr");
+    cxx::string<16> threadName{"MemPoolIntr"};
+    pthread_setname_np(m_thread.native_handle(), threadName.c_str());
 }
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>
