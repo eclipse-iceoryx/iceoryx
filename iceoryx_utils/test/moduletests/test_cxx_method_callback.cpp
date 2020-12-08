@@ -198,7 +198,7 @@ TEST_F(MethodCallback_test, InvalidConstCallbackCalledWillReturnError)
 
     auto result = sut();
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(result.get_error(), MethodCallbackError::UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR);
+    EXPECT_EQ(result.get_error(), MethodCallbackError::UNINITIALIZED_CALLBACK);
 }
 
 TEST_F(MethodCallback_test, InvalidCallbackCalledWillReturnError)
@@ -207,7 +207,7 @@ TEST_F(MethodCallback_test, InvalidCallbackCalledWillReturnError)
 
     auto result = sut();
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(result.get_error(), MethodCallbackError::UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR);
+    EXPECT_EQ(result.get_error(), MethodCallbackError::UNINITIALIZED_CALLBACK);
 }
 
 TEST_F(MethodCallback_test, ValidConstCallbackReturnsValue)

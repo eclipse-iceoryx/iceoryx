@@ -102,7 +102,7 @@ ConstMethodCallback<ReturnValue, Args...>::operator()(MethodArguments&&... args)
 {
     if (!isValid())
     {
-        return error<MethodCallbackError>(MethodCallbackError::UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR);
+        return error<MethodCallbackError>(MethodCallbackError::UNINITIALIZED_CALLBACK);
     }
 
     return internal::ReturnSuccess<ReturnValue>::call(
@@ -199,7 +199,7 @@ MethodCallback<ReturnValue, Args...>::operator()(MethodArguments&&... args) noex
 {
     if (!isValid())
     {
-        return error<MethodCallbackError>(MethodCallbackError::UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR);
+        return error<MethodCallbackError>(MethodCallbackError::UNINITIALIZED_CALLBACK);
     }
 
     return internal::ReturnSuccess<ReturnValue>::call(

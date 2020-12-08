@@ -32,7 +32,7 @@ class GenericClass
 
 enum class MethodCallbackError
 {
-    UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR
+    UNINITIALIZED_CALLBACK
 };
 
 template <typename ReturnValue, typename... Args>
@@ -64,7 +64,7 @@ class ConstMethodCallback
     ConstMethodCallback& operator=(ConstMethodCallback&& rhs) noexcept;
 
     /// @brief Calls the method if the ConstMethodCallback is valid, otherwise it
-    ///         will return MethodCallbackError::UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR
+    ///         will return MethodCallbackError::UNINITIALIZED_CALLBACK
     /// @param[in] args... arguments which will be perfectly forwarded to the method
     /// @return If ConstMethodCallback is valid the return value of the method, otherwise
     ///         an error.
@@ -137,7 +137,7 @@ class MethodCallback
     MethodCallback& operator=(MethodCallback&& rhs) noexcept;
 
     /// @brief Calls the method if the MethodCallback is valid, otherwise it
-    ///         will return MethodCallbackError::UNABLE_TO_CALL_METHOD_ON_NULLPTR_CLASS_PTR
+    ///         will return MethodCallbackError::UNINITIALIZED_CALLBACK
     /// @param[in] args... arguments which will be perfectly forwarded to the method
     /// @return If MethodCallback is valid the return value of the method, otherwise
     ///         an error.
