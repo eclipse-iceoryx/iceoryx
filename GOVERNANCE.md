@@ -26,7 +26,9 @@ Bi-weekly every Thursday for 1 hour. Everyone is welcome to join.
 * Discuss pull requests without going into details
   * E.g. a small demo
 * Steer direction of Eclipse iceoryx
+  * Go over the current release board under Projects
   * E.g. go over the milestone list and move the issues between the three prio's
+  * In case of disagreement a vote is casted amongst the attendees
 * Raise and answer questions
 * Discuss tooling and infrastructure
 * All others topics related to iceoryx one can think of
@@ -46,6 +48,8 @@ If you have points that you want to discuss, please send your points to the [mai
 #### Minutes template
 
 ```
+# Eclipse iceoryx developer meetup
+
 Date: 1st January 1900
 Time: 17:00 CET
 

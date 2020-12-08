@@ -46,7 +46,10 @@ or
 * Create a design document and raise it in a separate pull request beforehand
 
 If you would like to report a bug or propose a new feature, please raise an issue before raising a pull request.
-This makes it easier to track the work-in-progress. If you have troubles getting an issue assigned to you please contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
+Please have a quick search upfront if a similar issue already exists. An
+[release board](https://github.com/eclipse/iceoryx/projects) is used to prioritise the issues for a specific release.
+This makes it easier to track the work-in-progress. If you have troubles getting an issue assigned to you please
+contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
 
 Please make sure you have:
 
