@@ -697,30 +697,24 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            const MemPoolIntrospectionInfoContainer* mempoolSample{nullptr};
+            bool hasMoreSamples{true};
 
-            while (!mempoolSample)
+            do
             {
-                memPoolSubscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
-                    if (maybeSample.has_value())
-                    {
-                        const MemPoolIntrospectionInfoContainer* mempoolSample =
-                            static_cast<const MemPoolIntrospectionInfoContainer*>(maybeSample->get());
-
-                        if (mempoolSample->empty())
+                memPoolSubscriber.take()
+                    .and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& sample) {
+                        const MemPoolIntrospectionInfoContainer* receivedSample =
+                            static_cast<const MemPoolIntrospectionInfoContainer*>(sample->get());
+                        for (const auto& i : *receivedSample)
                         {
-                            prettyPrint("Waiting for mempool introspection data ...\n");
+                            printMemPoolInfo(i);
                         }
-                        else
-                        {
-                            for (const auto& i : *mempoolSample)
-                            {
-                                printMemPoolInfo(i);
-                            }
-                        }
-                    }
-                });
-            }
+                    })
+                    .if_empty([&] {
+                        hasMoreSamples = false;
+                        prettyPrint("Waiting for mempool introspection data ...\n");
+                    });
+            } while (!hasMoreSamples);
         }
 
         // print process information
