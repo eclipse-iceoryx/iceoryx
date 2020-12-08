@@ -300,3 +300,8 @@ This quality level is meant for all targets that need tier 1 support in ROS2.
 
 * Effective C++ by Scott Meyers
 * [Unit Testing and the Arrange, Act and Assert (AAA) Pattern](https://medium.com/@pjbgf/title-testing-code-ocd-and-the-aaa-pattern-df453975ab80) by Paulo Gomes
+* The C++ Standard Library by Nicolai M. Josuttis
+* Modern C++ Programming with Test-Driven Development: Code Better, Sleep Better by Jeff Langr
+* Modern C++ Design: Generic Programming and Design Patterns by Andrei Alexandrescu
+* Exceptional C++ by Herb Sutter
+* C++ Concurrency in Action by Anthony Williams
