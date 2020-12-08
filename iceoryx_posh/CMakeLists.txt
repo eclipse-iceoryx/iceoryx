@@ -206,6 +206,7 @@ add_library(iceoryx_posh_roudi
     source/roudi/roudi_lock.cpp
     source/roudi/roudi_process.cpp
     source/roudi/service_registry.cpp
+    source/roudi/iceoryx_roudi_components.cpp
 )
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_posh_roudi ALIAS iceoryx_posh_roudi)
