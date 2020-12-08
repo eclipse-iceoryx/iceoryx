@@ -66,8 +66,6 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
         return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE);
     }
 
-    /// @todo the SIGBUS handler could maybe be moved to the RouDiMemoryManager
-
     // register signal handler for SIGBUS
     struct sigaction oldAct;
     struct sigaction newAct;
