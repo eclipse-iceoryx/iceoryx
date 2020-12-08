@@ -36,12 +36,6 @@ class RouDiApp
     /// @brief Method passed to the OS signal handler
     static void roudiSigHandler(int32_t signal) noexcept;
 
-    /// @deprecated Please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
-    [[deprecated]] static RouDiConfig_t generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept;
-
-    /// @deprecated Please port to RouDiApp(const CmdLineParser&, const RouDiConfig_T&)
-    [[deprecated]] RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept;
-
     /// @brief C'tor with command line parser, which has already parsed the command line parameters
     /// @param[in] cmdLineParser reference to a command line parser object
     /// @param[in] config the configuration to use

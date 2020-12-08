@@ -87,13 +87,6 @@ void RouDiApp::registerSigHandler() noexcept
     }
 }
 
-RouDiApp::RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept
-    : RouDiApp(config)
-{
-    parseCmdLineArguments(argc, argv);
-    init();
-}
-
 RouDiApp::RouDiApp(const config::CmdLineParser& cmdLineParser, const RouDiConfig_t& config) noexcept
     : RouDiApp(config)
 {
@@ -127,22 +120,6 @@ bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
     return true;
 }
 
-RouDiConfig_t RouDiApp::generateConfigFromMePooConfig(const mepoo::MePooConfig* mePooConfig) noexcept
-{
-    RouDiConfig_t defaultConfig;
-    defaultConfig.setDefaults();
-    if (mePooConfig)
-    {
-        defaultConfig.m_sharedMemorySegments.front().m_mempoolConfig.m_mempoolConfig.clear();
-        for (auto entry : *mePooConfig->getMemPoolConfig())
-        {
-            defaultConfig.m_sharedMemorySegments.front().m_mempoolConfig.m_mempoolConfig.push_back({entry});
-        }
-    }
-
-    return defaultConfig;
-}
-
 void RouDiApp::init() noexcept
 {
     // be silent if not running
@@ -172,17 +149,6 @@ void RouDiApp::setCmdLineParserResults(const config::CmdLineParser& cmdLineParse
     {
         popo::internal::setUniqueRouDiId(*uniqueId);
     }
-}
-
-void RouDiApp::parseCmdLineArguments(int argc,
-                                     char* argv[],
-                                     config::CmdLineParser::CmdLineArgumentParsingMode cmdLineParsingMode
-                                     [[gnu::unused]]) noexcept
-{
-    /// @todo Remove this from RouDi once the deprecated c'tors taking argc and argv have been removed
-    config::CmdLineParser cmdLineParser;
-    cmdLineParser.parse(argc, argv);
-    setCmdLineParserResults(cmdLineParser);
 }
 
 
