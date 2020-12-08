@@ -27,9 +27,9 @@ uint64_t TriggerState::getTriggerId() const noexcept
 
 bool TriggerState::operator()() const noexcept
 {
-    if (m_origin != nullptr && m_callbackPtr != nullptr)
+    if (m_triggerOrigin != nullptr && m_callbackPtr != nullptr)
     {
-        m_callback(m_origin, m_callbackPtr);
+        m_callback(m_triggerOrigin, m_callbackPtr);
         return true;
     }
     return false;

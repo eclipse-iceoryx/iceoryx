@@ -58,6 +58,13 @@ to a _Triggerable_ while another thread may trigger the _TriggerHandle_.
      the user. If a _WaitSet_ goes out of scope all attached _Triggers_ will be
      invalidated.
 
+## Quick Overview
+A **Notifyable** like the **WaitSet** manages **Trigger**s and hands out **TriggerHandle**s to **Triggerable** objects 
+who can store them. When returning from `wait()` the user gets a vector of **TriggerStates**
+associated with triggered **Trigger**s of the **WaitSet**. The **TriggerOrigin**, **TriggerId** and **TriggerCallback**
+are stored inside of the **TriggerState** and can be acquired by the user.
+
+
 ## Reference
 
 | task | call |

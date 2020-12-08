@@ -68,7 +68,7 @@ bool Trigger::isValid() const noexcept
 
 bool Trigger::isLogicalEqualTo(const Trigger& rhs) const noexcept
 {
-    return (isValid() && rhs.isValid() && m_triggerState.m_origin == rhs.m_triggerState.m_origin
+    return (isValid() && rhs.isValid() && m_triggerState.m_triggerOrigin == rhs.m_triggerState.m_triggerOrigin
             && m_hasTriggeredCallback == rhs.m_hasTriggeredCallback
             && m_triggerState.m_triggerId == rhs.m_triggerState.m_triggerId);
 }

@@ -20,15 +20,15 @@ namespace iox
 namespace popo
 {
 template <typename T>
-inline void myCallback(void* const origin, TriggerState::Callback<void> callbackPtr) noexcept
+inline void myCallback(void* const triggerOrigin, TriggerState::Callback<void> callbackPtr) noexcept
 {
-    (*reinterpret_cast<TriggerState::Callback<T>>(callbackPtr))(reinterpret_cast<T*>(origin));
+    (*reinterpret_cast<TriggerState::Callback<T>>(callbackPtr))(reinterpret_cast<T*>(triggerOrigin));
 }
 
 template <typename T>
-inline TriggerState::TriggerState(T* const origin, const uint64_t triggerId, const Callback<T> callback) noexcept
-    : m_origin(origin)
-    , m_originTypeHash(typeid(T).hash_code())
+inline TriggerState::TriggerState(T* const triggerOrigin, const uint64_t triggerId, const Callback<T> callback) noexcept
+    : m_triggerOrigin(triggerOrigin)
+    , m_triggerOriginTypeHash(typeid(T).hash_code())
     , m_triggerId(triggerId)
     , m_callbackPtr(reinterpret_cast<Callback<void>>(callback))
     , m_callback(myCallback<T>)
@@ -36,25 +36,25 @@ inline TriggerState::TriggerState(T* const origin, const uint64_t triggerId, con
 }
 
 template <typename T>
-inline bool TriggerState::doesOriginateFrom(T* const origin) const noexcept
+inline bool TriggerState::doesOriginateFrom(T* const triggerOrigin) const noexcept
 {
-    if (m_origin == nullptr)
+    if (m_triggerOrigin == nullptr)
     {
         return false;
     }
-    return m_origin == origin;
+    return m_triggerOrigin == triggerOrigin;
 }
 
 template <typename T>
 inline T* TriggerState::getOrigin() noexcept
 {
-    if (m_originTypeHash != typeid(T).hash_code())
+    if (m_triggerOriginTypeHash != typeid(T).hash_code())
     {
         errorHandler(Error::kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN, nullptr, iox::ErrorLevel::MODERATE);
         return nullptr;
     }
 
-    return static_cast<T*>(m_origin);
+    return static_cast<T*>(m_triggerOrigin);
 }
 
 template <typename T>

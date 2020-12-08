@@ -21,12 +21,12 @@ namespace iox
 namespace popo
 {
 template <typename T>
-inline Trigger::Trigger(T* const origin,
+inline Trigger::Trigger(T* const triggerOrigin,
                         const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
                         const cxx::MethodCallback<void, uint64_t>& resetCallback,
                         const uint64_t triggerId,
                         const Callback<T> callback) noexcept
-    : m_triggerState(origin, triggerId, callback)
+    : m_triggerState(triggerOrigin, triggerId, callback)
     , m_hasTriggeredCallback(hasTriggeredCallback)
     , m_resetCallback(resetCallback)
     , m_uniqueId(uniqueIdCounter.fetch_add(1U))
@@ -36,19 +36,19 @@ inline Trigger::Trigger(T* const origin,
 template <typename T>
 inline void Trigger::updateOrigin(T* const newOrigin) noexcept
 {
-    if (newOrigin != m_triggerState.m_origin)
+    if (newOrigin != m_triggerState.m_triggerOrigin)
     {
-        if (m_hasTriggeredCallback && m_hasTriggeredCallback.getClassPointer<T>() == m_triggerState.m_origin)
+        if (m_hasTriggeredCallback && m_hasTriggeredCallback.getClassPointer<T>() == m_triggerState.m_triggerOrigin)
         {
             m_hasTriggeredCallback.setObjectPointer(newOrigin);
         }
 
-        if (m_resetCallback && m_resetCallback.getClassPointer<T>() == m_triggerState.m_origin)
+        if (m_resetCallback && m_resetCallback.getClassPointer<T>() == m_triggerState.m_triggerOrigin)
         {
             m_resetCallback.setObjectPointer(newOrigin);
         }
 
-        m_triggerState.m_origin = newOrigin;
+        m_triggerState.m_triggerOrigin = newOrigin;
     }
 }
 

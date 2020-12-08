@@ -26,8 +26,8 @@ namespace iox
 {
 namespace popo
 {
-/// @brief TriggerState holds the state of a trigger and is the base class
-///        for trigger.
+/// @brief TriggerState holds the state of a trigger like the pointer to the triggerOrigin,
+///        the trigger id and the callback.
 class TriggerState
 {
   public:
@@ -40,33 +40,33 @@ class TriggerState
     virtual ~TriggerState() = default;
 
     /// @brief constructs a TriggerState object
-    /// @param[in] origin pointer to the origin of the TriggerState
+    /// @param[in] triggerOrigin the triggerOrigin of the TriggerState
     /// @param[in] triggerId id of the trigger
     /// @param[in] callback the callback of the trigger
     template <typename T>
-    TriggerState(T* const origin, const uint64_t triggerId, const Callback<T> callback) noexcept;
+    TriggerState(T* const triggerOrigin, const uint64_t triggerId, const Callback<T> callback) noexcept;
 
     /// @brief returns the trigger id
     /// @return the empty TriggerState always returns INVALID_TRIGGER_ID, otherwise the actual triggerId is returned
     /// which can also be INVALID_TRIGGER_ID
     uint64_t getTriggerId() const noexcept;
 
-    /// @brief confirms the origin
-    /// @param[in] origin the possible origin
-    /// @return true if the address is equal to the origin, otherwise false. The empty TriggerState returns always
-    /// false.
+    /// @brief confirms the triggerOrigin
+    /// @param[in] triggerOrigin the possible triggerOrigin
+    /// @return true if the address is equal to the triggerOrigin, otherwise false. The empty TriggerState returns
+    /// always false.
     template <typename T>
-    bool doesOriginateFrom(T* const origin) const noexcept;
+    bool doesOriginateFrom(T* const triggerOrigin) const noexcept;
 
-    /// @brief returns the pointer to the origin.
-    /// @return If T equals the origin type it returns the pointer to the origin.
+    /// @brief returns the pointer to the triggerOrigin.
+    /// @return If T equals the Triggerable type it returns the triggerOrigin.
     /// Otherwise it calls the errorHandler with a moderate error of
     /// kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
     template <typename T>
     T* getOrigin() noexcept;
 
-    /// @brief returns the pointer to the origin.
-    /// @return If T equals the origin type it returns the pointer to the origin.
+    /// @brief returns the pointer to the triggerOrigin.
+    /// @return If T equals the Triggerable type it returns the triggerOrigin.
     /// Otherwise it calls the errorHandler with a moderate error of
     /// kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
     template <typename T>
@@ -79,8 +79,8 @@ class TriggerState
     friend class Trigger;
 
   protected:
-    void* m_origin = nullptr;
-    uint64_t m_originTypeHash = 0U;
+    void* m_triggerOrigin = nullptr;
+    uint64_t m_triggerOriginTypeHash = 0U;
     uint64_t m_triggerId = INVALID_TRIGGER_ID;
 
     Callback<void> m_callbackPtr = nullptr;

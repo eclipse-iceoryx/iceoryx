@@ -63,7 +63,7 @@ ReturnValue methodCallbackCaller(void* classPtr, ReturnValue (GenericClass::*met
 
 template <typename ReturnValue, typename... Args>
 template <typename ClassType>
-inline ConstMethodCallback<ReturnValue, Args...>::ConstMethodCallback(ClassType* const classPtr,
+inline ConstMethodCallback<ReturnValue, Args...>::ConstMethodCallback(ClassType* classPtr,
                                                                       ReturnValue (ClassType::*methodPtr)(Args...)
                                                                           const) noexcept
     : m_classPtr(classPtr)

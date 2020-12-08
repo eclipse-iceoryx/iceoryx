@@ -17,6 +17,7 @@
 
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {

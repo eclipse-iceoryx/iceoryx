@@ -26,7 +26,11 @@ namespace iox
 namespace popo
 {
 /// @brief TriggerHandle is threadsafe without restrictions in a single process.
-///        Not qualified for inter process usage.
+///        Not qualified for inter process usage. The TriggerHandle is generated
+///        by a Notifyable like the WaitSet and handed out to the user when they
+///        acquire a trigger. The TriggerHandle corresponds with an internal Trigger
+///        and is used to signal an event via the trigger method. When it goes
+///        out of scope it cleans up the corresponding trigger in the Notifyable.
 class TriggerHandle
 {
   public:
