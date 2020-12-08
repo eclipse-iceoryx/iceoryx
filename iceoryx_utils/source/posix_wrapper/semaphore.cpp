@@ -34,7 +34,7 @@ Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
     if (this != &rhs)
     {
         closeHandle();
-        strncpy(m_name, rhs.m_name, m_nameSize);
+        m_name = std::move(rhs.m_name);
         m_isInitialized = std::move(rhs.m_isInitialized);
         m_isCreated = std::move(rhs.m_isCreated);
         m_isNamedSemaphore = std::move(rhs.m_isNamedSemaphore);
@@ -70,7 +70,7 @@ void Semaphore::closeHandle() noexcept
             close();
             if (m_isCreated)
             {
-                unlink(m_name);
+                unlink(m_name.c_str());
             }
         }
         else
@@ -181,17 +181,6 @@ iox_sem_t* Semaphore::getHandle() noexcept
     return m_handlePtr;
 }
 
-bool Semaphore::hasSemaphoreNameOverflow(const char* name) noexcept
-{
-    if (strlen(name) >= m_nameSize)
-    {
-        std::cerr << "Semaphore name: '" << name << "' is too long. ";
-        std::cerr << "Maximum allowed characters are " << m_nameSize << std::endl;
-        return true;
-    }
-    return false;
-}
-
 Semaphore::Semaphore(CreateUnnamedSingleProcessSemaphore_t, const unsigned int value) noexcept
     : m_isNamedSemaphore(false)
 {
@@ -239,14 +228,13 @@ Semaphore::Semaphore(CreateUnnamedSharedMemorySemaphore_t, iox_sem_t* handle, co
 Semaphore::Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) noexcept
     : m_isCreated(false)
 {
-    if (hasSemaphoreNameOverflow(name))
+    if (m_name.unsafe_assign(name) == false)
     {
         m_isInitialized = false;
         m_errorValue = SemaphoreError::NAME_TOO_LONG;
         return;
     }
 
-    strncpy(m_name, name, m_nameSize);
     if (open(oflag))
     {
         m_isInitialized = true;
@@ -260,14 +248,13 @@ Semaphore::Semaphore(OpenNamedSemaphore_t, const char* name, const int oflag) no
 
 Semaphore::Semaphore(CreateNamedSemaphore_t, const char* name, const mode_t mode, const unsigned int value) noexcept
 {
-    if (hasSemaphoreNameOverflow(name))
+    if (m_name.unsafe_assign(name) == false)
     {
         m_isInitialized = false;
         m_errorValue = SemaphoreError::NAME_TOO_LONG;
         return;
     }
 
-    strncpy(m_name, name, m_nameSize);
     if (open(O_CREAT | O_EXCL, mode, value))
     {
         m_isInitialized = true;
@@ -301,7 +288,7 @@ bool Semaphore::open(const int oflag) noexcept
                                                      cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                                      {reinterpret_cast<iox_sem_t*>(SEM_FAILED)},
                                                      {},
-                                                     m_name,
+                                                     m_name.c_str(),
                                                      oflag));
 
     if (!success)
@@ -317,7 +304,7 @@ bool Semaphore::open(const int oflag, const mode_t mode, const unsigned int valu
                                                      cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                                      {reinterpret_cast<iox_sem_t*>(SEM_FAILED)},
                                                      {},
-                                                     m_name,
+                                                     m_name.c_str(),
                                                      oflag,
                                                      mode,
                                                      value));

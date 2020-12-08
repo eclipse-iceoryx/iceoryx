@@ -48,7 +48,7 @@ class ShutdownManager
     ShutdownManager() = default;
 };
 iox::posix::Semaphore ShutdownManager::s_semaphore =
-    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).get_value();
+    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 std::atomic_bool ShutdownManager::s_shutdownRequested{false};
 
 int main()
@@ -58,7 +58,7 @@ int main()
     signal(SIGTERM, ShutdownManager::scheduleShutdown);
 
     // Start application
-    iox::runtime::PoshRuntime::getInstance("/iox-gw-dds2iceoryx");
+    iox::runtime::PoshRuntime::initRuntime("/iox-gw-dds2iceoryx");
 
     iox::dds::DDS2IceoryxGateway<> gw;
 

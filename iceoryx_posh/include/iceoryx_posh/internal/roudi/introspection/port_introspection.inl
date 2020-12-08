@@ -169,12 +169,11 @@ template <typename SenderPort, typename ReceiverPort>
 bool PortIntrospection<SenderPort, ReceiverPort>::PortData::updateConnectionState(const capro::CaproMessage& message)
 {
     const capro::ServiceDescription& service = message.m_serviceDescription;
-    std::string serviceId = static_cast<cxx::Serialization>(service).toString();
     capro::CaproMessageType messageType = message.m_type;
 
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto iter = m_connectionMap.find(serviceId);
+    auto iter = m_connectionMap.find(service);
     if (iter == m_connectionMap.end())
     {
         return false; // no corresponding capro Id ...
@@ -185,10 +184,9 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::updateConnectionStat
     for (auto& pair : map)
     {
         auto& connection = m_connectionContainer[pair.second];
-        auto receiverServiceId = static_cast<cxx::Serialization>(connection.receiverInfo.service).toString();
-        if (serviceId == receiverServiceId)
+        if (service == connection.receiverInfo.service)
         {
-            // should always be true if its in the map stored at this serviceId
+            // should always be true if its in the map stored at this service key
             connection.state = getNextState(connection.state, messageType);
         }
     }
@@ -199,38 +197,34 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::updateConnectionStat
 
 template <typename SenderPort, typename ReceiverPort>
 bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addSender(typename SenderPort::MemberType_t* port,
-                                                                      const std::string& name,
+                                                                      const ProcessName_t& name,
                                                                       const capro::ServiceDescription& service,
-                                                                      const std::string& runnable)
+                                                                      const NodeName_t& node)
 {
-    std::string serviceId = static_cast<cxx::Serialization>(service).toString();
-
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto iter = m_senderMap.find(serviceId);
+    auto iter = m_senderMap.find(service);
     if (iter != m_senderMap.end())
         return false;
 
-    auto index = m_senderContainer.add(SenderInfo(port, name, service, runnable));
+    auto index = m_senderContainer.add(SenderInfo(port, name, service, node));
     if (index < 0)
         return false;
 
-    m_senderMap.insert(std::make_pair(serviceId, index));
+    m_senderMap.insert(std::make_pair(service, index));
 
     // connect sender to all receivers with the same Id
     SenderInfo* sender = m_senderContainer.get(index);
 
     // find corresponding receivers
-    auto connIter = m_connectionMap.find(serviceId);
+    auto connIter = m_connectionMap.find(service);
     if (connIter != m_connectionMap.end())
     {
         auto& map = connIter->second;
         for (auto& pair : map)
         {
             auto& connection = m_connectionContainer[pair.second];
-            // TODO: maybe save the service string instead for efficiency
-            auto receiverServiceId = static_cast<cxx::Serialization>(connection.receiverInfo.service).toString();
-            if (serviceId == receiverServiceId)
+            if (service == connection.receiverInfo.service)
             {
                 connection.senderInfo = sender;
             }
@@ -243,32 +237,30 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addSender(typename S
 
 template <typename SenderPort, typename ReceiverPort>
 bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addReceiver(typename ReceiverPort::MemberType_t* portData,
-                                                                        const std::string& name,
+                                                                        const ProcessName_t& name,
                                                                         const capro::ServiceDescription& service,
-                                                                        const std::string& runnable)
+                                                                        const NodeName_t& node)
 {
-    std::string serviceId = static_cast<cxx::Serialization>(service).toString();
-
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto index = m_connectionContainer.add(ConnectionInfo(portData, name, service, runnable));
+    auto index = m_connectionContainer.add(ConnectionInfo(portData, name, service, node));
     if (index < 0)
     {
         return false;
     }
 
-    auto iter = m_connectionMap.find(serviceId);
+    auto iter = m_connectionMap.find(service);
 
     if (iter == m_connectionMap.end())
     {
-        // serviceId is new, create new map
-        std::map<std::string, typename ConnectionContainer::Index_t> map;
+        // service is new, create new map
+        std::map<ProcessName_t, typename ConnectionContainer::Index_t> map;
         map.insert(std::make_pair(name, index));
-        m_connectionMap.insert(std::make_pair(serviceId, map));
+        m_connectionMap.insert(std::make_pair(service, map));
     }
     else
     {
-        // serviceId exists, add new entry
+        // service exists, add new entry
         // TODO: check existence of key (name)
         auto& map = iter->second;
         map.insert(std::make_pair(name, index));
@@ -276,7 +268,7 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addReceiver(typename
 
     auto& connection = m_connectionContainer[index];
 
-    auto sendIter = m_senderMap.find(serviceId);
+    auto sendIter = m_senderMap.find(service);
     if (sendIter != m_senderMap.end())
     {
         auto sender = m_senderContainer.get(sendIter->second);
@@ -287,14 +279,12 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addReceiver(typename
 }
 
 template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeSender(const std::string& name [[gnu::unused]],
+bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeSender(const ProcessName_t& name [[gnu::unused]],
                                                                          const capro::ServiceDescription& service)
 {
-    std::string serviceId = static_cast<cxx::Serialization>(service).toString();
-
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto iter = m_senderMap.find(serviceId);
+    auto iter = m_senderMap.find(service);
     if (iter == m_senderMap.end())
         return false;
 
@@ -317,14 +307,12 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeSender(const s
 }
 
 template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeReceiver(const std::string& name,
+bool PortIntrospection<SenderPort, ReceiverPort>::PortData::removeReceiver(const ProcessName_t& name,
                                                                            const capro::ServiceDescription& service)
 {
-    std::string serviceId = static_cast<cxx::Serialization>(service).toString();
-
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto iter = m_connectionMap.find(serviceId);
+    auto iter = m_connectionMap.find(service);
     if (iter == m_connectionMap.end())
     {
         return false; // not found and therefore not removed
@@ -433,8 +421,8 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
             SenderPort port(senderInfo.portData);
             senderData.m_senderPortID = static_cast<uint64_t>(port.getUniqueID());
             senderData.m_sourceInterface = senderInfo.service.getSourceInterface();
-            senderData.m_name = cxx::string<100>(cxx::TruncateToCapacity, senderInfo.name.c_str());
-            senderData.m_runnable = cxx::string<100>(cxx::TruncateToCapacity, senderInfo.runnable.c_str());
+            senderData.m_name = senderInfo.name;
+            senderData.m_node = senderInfo.node;
 
             senderData.m_caproInstanceID = senderInfo.service.getInstanceIDString();
             senderData.m_caproServiceID = senderInfo.service.getServiceIDString();
@@ -458,8 +446,8 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
                 bool connected = connection.isConnected();
                 auto& receiverInfo = connection.receiverInfo;
 
-                receiverData.m_name = cxx::string<100>(cxx::TruncateToCapacity, receiverInfo.name.c_str());
-                receiverData.m_runnable = cxx::string<100>(cxx::TruncateToCapacity, receiverInfo.runnable.c_str());
+                receiverData.m_name = receiverInfo.name;
+                receiverData.m_node = receiverInfo.node;
 
                 receiverData.m_caproInstanceID = receiverInfo.service.getInstanceIDString();
                 receiverData.m_caproServiceID = receiverInfo.service.getServiceIDString();
@@ -571,31 +559,31 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::setNew(bool value)
 
 template <typename SenderPort, typename ReceiverPort>
 bool PortIntrospection<SenderPort, ReceiverPort>::addSender(typename SenderPort::MemberType_t* port,
-                                                            const std::string& name,
+                                                            const ProcessName_t& name,
                                                             const capro::ServiceDescription& service,
-                                                            const std::string& runnable)
+                                                            const NodeName_t& node)
 {
-    return m_portData.addSender(port, name, service, runnable);
+    return m_portData.addSender(port, name, service, node);
 }
 
 template <typename SenderPort, typename ReceiverPort>
 bool PortIntrospection<SenderPort, ReceiverPort>::addReceiver(typename ReceiverPort::MemberType_t* portData,
-                                                              const std::string& name,
+                                                              const ProcessName_t& name,
                                                               const capro::ServiceDescription& service,
-                                                              const std::string& runnable)
+                                                              const NodeName_t& node)
 {
-    return m_portData.addReceiver(portData, name, service, runnable);
+    return m_portData.addReceiver(portData, name, service, node);
 }
 
 template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::removeSender(const std::string& name,
+bool PortIntrospection<SenderPort, ReceiverPort>::removeSender(const ProcessName_t& name,
                                                                const capro::ServiceDescription& service)
 {
     return m_portData.removeSender(name, service);
 }
 
 template <typename SenderPort, typename ReceiverPort>
-bool PortIntrospection<SenderPort, ReceiverPort>::removeReceiver(const std::string& name,
+bool PortIntrospection<SenderPort, ReceiverPort>::removeReceiver(const ProcessName_t& name,
                                                                  const capro::ServiceDescription& service)
 {
     return m_portData.removeReceiver(name, service);

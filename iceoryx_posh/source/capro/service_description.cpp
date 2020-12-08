@@ -228,15 +228,6 @@ ServiceDescription::operator cxx::Serialization() const
                                       interface);
 }
 
-std::string ServiceDescription::getServiceString() const noexcept
-{
-    std::stringstream l_strStream;
-    l_strStream << "Service_" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << m_serviceID << "_"
-                << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << m_eventID << "_" << std::uppercase
-                << std::setfill('0') << std::setw(4) << std::hex << m_instanceID;
-    return l_strStream.str();
-}
-
 uint16_t ServiceDescription::getInstanceID() const noexcept
 {
     return m_instanceID;

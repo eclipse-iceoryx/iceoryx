@@ -87,17 +87,29 @@ class PortIntrospection_test : public Test
         auto nameB = std::string(b.m_name);
 
         if (nameA.compare(nameB) != 0)
+        {
             return false;
+        }
         if (a.m_caproInstanceID != b.m_caproInstanceID)
+        {
             return false;
+        }
         if (a.m_caproServiceID != b.m_caproServiceID)
+        {
             return false;
+        }
         if (a.m_caproEventMethodID != b.m_caproEventMethodID)
+        {
             return false;
+        }
         if (a.m_senderIndex != b.m_senderIndex)
+        {
             return false;
-        if (a.m_runnable != b.m_runnable)
+        }
+        if (a.m_node != b.m_node)
+        {
             return false;
+        }
 
         return true;
     }
@@ -108,15 +120,25 @@ class PortIntrospection_test : public Test
         auto nameB = std::string(b.m_name);
 
         if (nameA.compare(nameB) != 0)
+        {
             return false;
+        }
         if (a.m_caproInstanceID != b.m_caproInstanceID)
+        {
             return false;
+        }
         if (a.m_caproServiceID != b.m_caproServiceID)
+        {
             return false;
+        }
         if (a.m_caproEventMethodID != b.m_caproEventMethodID)
+        {
             return false;
-        if (a.m_runnable != b.m_runnable)
+        }
+        if (a.m_node != b.m_node)
+        {
             return false;
+        }
 
         return true;
     }
@@ -215,10 +237,10 @@ TEST_F(PortIntrospection_test, sendData_OneSender)
 
     SenderPort_MOCK senderPort;
     auto mockSenderPort = senderPort.details;
-    std::string senderPortName("name");
+    const iox::ProcessName_t senderProcessName("name");
 
     PortData expectedSenderPortData;
-    expectedSenderPortData.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, senderPortName.c_str());
+    expectedSenderPortData.m_name = senderProcessName;
     expectedSenderPortData.m_caproInstanceID = "1";
     expectedSenderPortData.m_caproServiceID = "2";
     expectedSenderPortData.m_caproEventMethodID = "3";
@@ -247,7 +269,7 @@ TEST_F(PortIntrospection_test, sendData_OneSender)
     senderPortData.m_throughputReadCache = expectedThroughput;
     senderPortData.m_processName = expectedSenderPortData.m_name;
 
-    EXPECT_THAT(m_introspection->addSender(&senderPortData, senderPortName, service, ""), Eq(true));
+    EXPECT_THAT(m_introspection->addSender(&senderPortData, senderProcessName, service, ""), Eq(true));
 
     SenderPort_MOCK::globalDetails = std::make_shared<SenderPort_MOCK::mock_t>();
     SenderPort_MOCK::globalDetails->reserveSampleReturn = throughputTopic->chunkHeader();
@@ -308,23 +330,25 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
     auto mockPort1 = port1.details;
     auto mockPort2 = port2.details;
 
-    iox::cxx::string<100> name1("name1");
-    iox::cxx::string<100> name2("name2");
+    const iox::ProcessName_t processName1("name1");
+    const iox::ProcessName_t processName2("name2");
+    const iox::NodeName_t nodeName1("4");
+    const iox::NodeName_t nodeName2("jkl");
 
     // prepare expected outputs
     PortData expected1;
-    expected1.m_name = name1;
+    expected1.m_name = processName1;
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
-    expected1.m_runnable = iox::cxx::string<100>("4");
+    expected1.m_node = nodeName1;
 
     PortData expected2;
-    expected2.m_name = name2;
+    expected2.m_name = processName2;
     expected2.m_caproInstanceID = "abc";
     expected2.m_caproServiceID = "def";
     expected2.m_caproEventMethodID = "ghi";
-    expected2.m_runnable = iox::cxx::string<100>("jkl");
+    expected2.m_node = nodeName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -337,10 +361,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
     // remark: duplicate sender port insertions are not possible
 
     iox::popo::SenderPortData portData1, portData2;
-    EXPECT_THAT(m_introspection->addSender(&portData1, name1, service1, "4"), Eq(true));
-    EXPECT_THAT(m_introspection->addSender(&portData1, name1, service1, "4"), Eq(false));
-    EXPECT_THAT(m_introspection->addSender(&portData2, name2, service2, "jkl"), Eq(true));
-    EXPECT_THAT(m_introspection->addSender(&portData2, name2, service2, "jkl"), Eq(false));
+    EXPECT_THAT(m_introspection->addSender(&portData1, processName1, service1, nodeName1), Eq(true));
+    EXPECT_THAT(m_introspection->addSender(&portData1, processName1, service1, nodeName1), Eq(false));
+    EXPECT_THAT(m_introspection->addSender(&portData2, processName2, service2, nodeName2), Eq(true));
+    EXPECT_THAT(m_introspection->addSender(&portData2, processName2, service2, nodeName2), Eq(false));
 
     mockPort1->getUniqueIDReturn = 1;
     mockPort2->getUniqueIDReturn = 2;
@@ -373,8 +397,8 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
 
     // test removal of ports
 
-    EXPECT_THAT(m_introspection->removeSender(name1, service1), Eq(true));
-    EXPECT_THAT(m_introspection->removeSender(name1, service1), Eq(false));
+    EXPECT_THAT(m_introspection->removeSender(processName1, service1), Eq(true));
+    EXPECT_THAT(m_introspection->removeSender(processName1, service1), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -385,8 +409,8 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
         EXPECT_THAT(comparePortData(sample->m_senderList[0], expected2), Eq(true));
     }
 
-    EXPECT_THAT(m_introspection->removeSender(name2, service2), Eq(true));
-    EXPECT_THAT(m_introspection->removeSender(name2, service2), Eq(false));
+    EXPECT_THAT(m_introspection->removeSender(processName2, service2), Eq(true));
+    EXPECT_THAT(m_introspection->removeSender(processName2, service2), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -395,7 +419,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSender)
         ASSERT_THAT(sample->m_receiverList.size(), Eq(0));
     }
 
-    EXPECT_THAT(m_introspection->removeSender(name2, service2), Eq(false));
+    EXPECT_THAT(m_introspection->removeSender(processName2, service2), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -418,25 +442,27 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
 
     m_senderPortImpl_mock->reserveSampleReturn = chunk->chunkHeader();
 
-    iox::cxx::string<100> name1("name1");
-    iox::cxx::string<100> name2("name2");
+    const iox::ProcessName_t processName1("name1");
+    const iox::ProcessName_t processName2("name2");
+    const iox::NodeName_t nodeName1("4");
+    const iox::NodeName_t nodeName2("7");
 
     // prepare expected outputs
     PortData expected1;
-    expected1.m_name = name1;
+    expected1.m_name = processName1;
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
     expected1.m_senderIndex = -1;
-    expected1.m_runnable = iox::cxx::string<100>("4");
+    expected1.m_node = nodeName1;
 
     PortData expected2;
-    expected2.m_name = name2;
+    expected2.m_name = processName2;
     expected2.m_caproInstanceID = "4";
     expected2.m_caproServiceID = "5";
     expected2.m_caproEventMethodID = "6";
     expected2.m_senderIndex = -1;
-    expected2.m_runnable = iox::cxx::string<100>("7");
+    expected2.m_node = nodeName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -449,10 +475,10 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
     // remark: duplicate receiver insertions are possible but will not be transmitted via send
     iox::popo::ReceiverPortData recData1;
     iox::popo::ReceiverPortData recData2;
-    EXPECT_THAT(m_introspection->addReceiver(&recData1, name1, service1, "4"), Eq(true));
-    EXPECT_THAT(m_introspection->addReceiver(&recData1, name1, service1, "4"), Eq(true));
-    EXPECT_THAT(m_introspection->addReceiver(&recData2, name2, service2, "7"), Eq(true));
-    EXPECT_THAT(m_introspection->addReceiver(&recData2, name2, service2, "7"), Eq(true));
+    EXPECT_THAT(m_introspection->addReceiver(&recData1, processName1, service1, nodeName1), Eq(true));
+    EXPECT_THAT(m_introspection->addReceiver(&recData1, processName1, service1, nodeName1), Eq(true));
+    EXPECT_THAT(m_introspection->addReceiver(&recData2, processName2, service2, nodeName2), Eq(true));
+    EXPECT_THAT(m_introspection->addReceiver(&recData2, processName2, service2, nodeName2), Eq(true));
 
     m_introspectionAccess.sendPortData();
 
@@ -482,8 +508,8 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
 
     // test removal of ports
 
-    EXPECT_THAT(m_introspection->removeReceiver(name1, service1), Eq(true));
-    EXPECT_THAT(m_introspection->removeReceiver(name1, service1), Eq(false));
+    EXPECT_THAT(m_introspection->removeReceiver(processName1, service1), Eq(true));
+    EXPECT_THAT(m_introspection->removeReceiver(processName1, service1), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -496,8 +522,8 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
         EXPECT_THAT(comparePortData(senderInfo, expected2), Eq(true));
     }
 
-    EXPECT_THAT(m_introspection->removeReceiver(name2, service2), Eq(true));
-    EXPECT_THAT(m_introspection->removeReceiver(name2, service2), Eq(false));
+    EXPECT_THAT(m_introspection->removeReceiver(processName2, service2), Eq(true));
+    EXPECT_THAT(m_introspection->removeReceiver(processName2, service2), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -506,7 +532,7 @@ TEST_F(PortIntrospection_test, addAndRemoveReceiver)
         ASSERT_THAT(sample->m_receiverList.size(), Eq(0));
     }
 
-    EXPECT_THAT(m_introspection->removeReceiver(name2, service2), Eq(false));
+    EXPECT_THAT(m_introspection->removeReceiver(processName2, service2), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -531,19 +557,19 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
 
     m_senderPortImpl_mock->reserveSampleReturn = chunk->chunkHeader();
 
-    std::string nameReceiver("receiver");
-    std::string nameSender("sender");
+    const iox::ProcessName_t receiverProcessName("receiver");
+    const iox::ProcessName_t senderProcessName("sender");
 
     // prepare expected outputs
     ReceiverPortData expectedReceiver;
-    expectedReceiver.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, nameReceiver.c_str());
+    expectedReceiver.m_name = receiverProcessName;
     expectedReceiver.m_caproInstanceID = "1";
     expectedReceiver.m_caproServiceID = "2";
     expectedReceiver.m_caproEventMethodID = "3";
     expectedReceiver.m_senderIndex = -1;
 
     SenderPortData expectedSender;
-    expectedSender.m_name = iox::cxx::string<100>(iox::cxx::TruncateToCapacity, nameSender.c_str());
+    expectedSender.m_name = senderProcessName;
     expectedSender.m_caproInstanceID = "1";
     expectedSender.m_caproServiceID = "2";
     expectedSender.m_caproEventMethodID = "3";
@@ -555,9 +581,9 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     // test adding of sender and receiver port of same service to establish a connection (requires same service id)
     m_senderPortImpl.details = m_senderPortImpl_mock;
     iox::popo::ReceiverPortData recData1;
-    EXPECT_THAT(m_introspection->addReceiver(&recData1, nameReceiver, service, ""), Eq(true));
+    EXPECT_THAT(m_introspection->addReceiver(&recData1, receiverProcessName, service, ""), Eq(true));
     iox::popo::SenderPortData senderPortData;
-    EXPECT_THAT(m_introspection->addSender(&senderPortData, nameSender, service, ""), Eq(true));
+    EXPECT_THAT(m_introspection->addSender(&senderPortData, senderProcessName, service, ""), Eq(true));
 
     m_senderPortImpl_mock->getUniqueIDReturn = 42;
 

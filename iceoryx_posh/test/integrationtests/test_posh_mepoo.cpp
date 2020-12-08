@@ -143,10 +143,10 @@ class Mepoo_IntegrationTest : public Test
 
         iox::capro::ServiceDescription m_service_description{99, 1, 20};
 
-        auto& senderRuntime = iox::runtime::PoshRuntime::getInstance("/sender");
+        auto& senderRuntime = iox::runtime::PoshRuntime::initRuntime("/sender");
         senderPort = iox::popo::SenderPort(senderRuntime.getMiddlewareSender(m_service_description));
 
-        auto& receiverRuntime = iox::runtime::PoshRuntime::getInstance("/receiver");
+        auto& receiverRuntime = iox::runtime::PoshRuntime::initRuntime("/receiver");
         receiverPort = iox::popo::ReceiverPort(receiverRuntime.getMiddlewareReceiver(m_service_description));
     }
 
@@ -445,7 +445,7 @@ TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5)
     auto stop = Timer::now();
 
     // Calc the difference
-    iox::units::Duration timediff = stop.get_value() - start.get_value();
+    iox::units::Duration timediff = stop.value() - start.value();
 
     PrintTiming(timediff);
 
@@ -470,7 +470,7 @@ TEST_F(Mepoo_IntegrationTest, DISABLED_MempoolCreationTime2GBConfig)
     auto stop = Timer::now();
 
     // Calc the difference
-    iox::units::Duration timediff = stop.get_value() - start.get_value();
+    iox::units::Duration timediff = stop.value() - start.value();
 
     PrintTiming(timediff);
 

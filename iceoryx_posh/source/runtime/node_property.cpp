@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/runtime/runnable_property.hpp"
+#include "iceoryx_posh/internal/runtime/node_property.hpp"
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_utils/cxx/serialization.hpp"
@@ -21,23 +21,23 @@ namespace iox
 {
 namespace runtime
 {
-RunnableProperty::RunnableProperty(const iox::RunnableName_t& name, const uint64_t runnableDeviceIdentifier) noexcept
+NodeProperty::NodeProperty(const iox::NodeName_t& name, const uint64_t nodeDeviceIdentifier) noexcept
     : m_name(name)
-    , m_runnableDeviceIdentifier(runnableDeviceIdentifier)
+    , m_nodeDeviceIdentifier(nodeDeviceIdentifier)
 {
 }
 
-RunnableProperty::RunnableProperty(const std::string& serialized) noexcept
+NodeProperty::NodeProperty(const cxx::Serialization& serialized) noexcept
 {
-    if (!cxx::Serialization(serialized).extract(m_name, m_runnableDeviceIdentifier))
+    if (!serialized.extract(m_name, m_nodeDeviceIdentifier))
     {
-        LogError() << "unable to create RunnableProperty from serialized string " << serialized;
+        LogError() << "unable to create NodeProperty from serialized string " << serialized;
     }
 }
 
-RunnableProperty::operator std::string() const noexcept
+NodeProperty::operator cxx::Serialization() const noexcept
 {
-    return cxx::Serialization::create(m_name, m_runnableDeviceIdentifier).toString();
+    return cxx::Serialization::create(m_name, m_nodeDeviceIdentifier);
 }
 } // namespace runtime
 } // namespace iox

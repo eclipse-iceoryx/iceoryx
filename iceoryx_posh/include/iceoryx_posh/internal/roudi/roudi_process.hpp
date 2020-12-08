@@ -23,12 +23,12 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
+#include "iceoryx_utils/cxx/list.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <csignal>
 #include <cstdint>
 #include <ctime>
-#include <list>
 
 namespace iox
 {
@@ -100,9 +100,7 @@ class ProcessManagerInterface
 class ProcessManager : public ProcessManagerInterface
 {
   public:
-    /// @todo use a fixed, stack based list once available
-    // using ProcessList_t = cxx::list<RouDiProcess, MAX_PROCESS_NUMBER>;
-    using ProcessList_t = std::list<RouDiProcess>;
+    using ProcessList_t = cxx::list<RouDiProcess, MAX_PROCESS_NUMBER>;
     using PortConfigInfo = iox::runtime::PortConfigInfo;
 
     ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
@@ -140,36 +138,35 @@ class ProcessManager : public ProcessManagerInterface
 
     void findServiceForProcess(const ProcessName_t& name, const capro::ServiceDescription& service) noexcept;
 
-    void addInterfaceForProcess(const ProcessName_t& name,
-                                capro::Interfaces interface,
-                                const RunnableName_t& runnable) noexcept;
+    void
+    addInterfaceForProcess(const ProcessName_t& name, capro::Interfaces interface, const NodeName_t& node) noexcept;
 
     void addApplicationForProcess(const ProcessName_t& name) noexcept;
 
-    void addRunnableForProcess(const ProcessName_t& process, const RunnableName_t& runnable) noexcept;
+    void addNodeForProcess(const ProcessName_t& process, const NodeName_t& node) noexcept;
 
     /// @deprecated #25
     void addReceiverForProcess(const ProcessName_t& name,
                                const capro::ServiceDescription& service,
-                               const RunnableName_t& runnable,
+                               const NodeName_t& node,
                                const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @deprecated #25
     void addSenderForProcess(const ProcessName_t& name,
                              const capro::ServiceDescription& service,
-                             const RunnableName_t& runnable,
+                             const NodeName_t& node,
                              const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addSubscriberForProcess(const ProcessName_t& name,
                                  const capro::ServiceDescription& service,
                                  const uint64_t& historyRequest,
-                                 const RunnableName_t& runnable,
+                                 const NodeName_t& node,
                                  const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addPublisherForProcess(const ProcessName_t& name,
                                 const capro::ServiceDescription& service,
                                 const uint64_t& historyCapacity,
-                                const RunnableName_t& runnable,
+                                const NodeName_t& node,
                                 const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addConditionVariableForProcess(const ProcessName_t& processName) noexcept;

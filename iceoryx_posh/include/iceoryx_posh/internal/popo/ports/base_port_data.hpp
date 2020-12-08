@@ -24,11 +24,6 @@
 
 namespace iox
 {
-namespace runtime
-{
-class RunnableData;
-}
-
 namespace popo
 {
 /// @brief Defines different base port data
@@ -41,7 +36,6 @@ struct BasePortData
     /// @param[in] serviceDescription creates the service service description
     /// @param[in] portType Type of port to be created
     /// @param[in] processName Name of the process
-    /// @param[in] runnable The runnable where this port is attached to
     BasePortData(const capro::ServiceDescription& serviceDescription, const ProcessName_t& processName) noexcept;
 
     BasePortData(const BasePortData&) = delete;

@@ -12,18 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/runtime/runnable_data.hpp"
+#include "iceoryx_posh/internal/runtime/node_data.hpp"
 
 namespace iox
 {
 namespace runtime
 {
-RunnableData::RunnableData(const ProcessName_t& process,
-                           const RunnableName_t& runnable,
-                           const uint64_t runnableDeviceIdentifier) noexcept
+NodeData::NodeData(const ProcessName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept
     : m_process(process)
-    , m_runnable(runnable)
-    , m_runnableDeviceIdentifier(runnableDeviceIdentifier)
+    , m_node(node)
+    , m_nodeDeviceIdentifier(nodeDeviceIdentifier)
 {
 }
 } // namespace runtime

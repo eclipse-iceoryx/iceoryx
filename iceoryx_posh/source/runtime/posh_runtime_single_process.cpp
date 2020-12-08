@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,15 +19,25 @@ namespace runtime
 {
 constexpr bool DO_NOT_MAP_SHARED_MEMORY_INTO_THREAD{false};
 
-PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const std::string& name) noexcept
-    : PoshRuntime(name, DO_NOT_MAP_SHARED_MEMORY_INTO_THREAD)
+PoshRuntime*& getSingleProcessRuntime()
 {
-    auto currentFactory = PoshRuntime::s_runtimeFactory.target<PoshRuntime& (*)(const std::string&)>();
+    static PoshRuntime* singleProcessRuntime = nullptr;
+    return singleProcessRuntime;
+}
+
+PoshRuntime& singleProcessRuntimeFactory(cxx::optional<const ProcessName_t*>)
+{
+    return *getSingleProcessRuntime();
+}
+
+PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const ProcessName_t& name) noexcept
+    : PoshRuntime(cxx::make_optional<const ProcessName_t*>(&name), DO_NOT_MAP_SHARED_MEMORY_INTO_THREAD)
+{
+    auto currentFactory = PoshRuntime::getRuntimeFactory();
     if (currentFactory != nullptr && *currentFactory == PoshRuntime::defaultRuntimeFactory)
     {
-        PoshRuntime::s_runtimeFactory = [&](const std::string&) -> PoshRuntime& {
-            return *static_cast<PoshRuntime*>(this);
-        };
+        getSingleProcessRuntime() = this;
+        PoshRuntime::setRuntimeFactory(singleProcessRuntimeFactory);
     }
     else
     {
@@ -39,7 +49,7 @@ PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const std::string& name) noex
 
 PoshRuntimeSingleProcess::~PoshRuntimeSingleProcess()
 {
-    PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+    PoshRuntime::setRuntimeFactory(PoshRuntime::defaultRuntimeFactory);
 }
 
 } // namespace runtime

@@ -39,7 +39,7 @@ int main()
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-typed-modern");
+    iox::runtime::PoshRuntime::initRuntime("/iox-ex-publisher-typed-modern");
 
     auto typedPublisher = iox::popo::TypedPublisher<Position>({"Odometry", "Position", "Vehicle"});
     typedPublisher.offer();
@@ -56,7 +56,7 @@ int main()
         auto result = typedPublisher.loan();
         if (!result.has_error())
         {
-            auto& sample = result.get_value();
+            auto& sample = result.value();
             sample->x = ct;
             sample->y = ct;
             sample->z = ct;
@@ -66,15 +66,17 @@ int main()
         // API Usage #2
         //  * Retrieve a sample and provide the logic to immediately populate and publish it via a lambda.
         //
-        typedPublisher.loan().and_then([&](iox::popo::Sample<Position>& sample) {
-            auto allocation = sample.get();
-            // Do some stuff leading to eventually generating the data in the samples loaned memory...
-            new (allocation) Position(ct, ct, ct);
-            // ...then publish the sample
-            sample.publish();
-        }).or_else([](iox::popo::AllocationError){
-            // Do something with error.
-        });
+        typedPublisher.loan()
+            .and_then([&](iox::popo::Sample<Position>& sample) {
+                auto allocation = sample.get();
+                // Do some stuff leading to eventually generating the data in the samples loaned memory...
+                new (allocation) Position(ct, ct, ct);
+                // ...then publish the sample
+                sample.publish();
+            })
+            .or_else([](iox::popo::AllocationError) {
+                // Do something with error.
+            });
 
 
         // API Usage #3

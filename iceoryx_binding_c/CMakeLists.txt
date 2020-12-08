@@ -51,7 +51,7 @@ add_library(${PROJECT_NAME}
     source/c_condition.cpp
     source/c_guard_condition.cpp
     source/c_publisher.cpp
-    source/c_runnable.cpp
+    source/c_node.cpp
     source/c_runtime.cpp
     source/c_subscriber.cpp
     source/c_wait_set.cpp
@@ -60,7 +60,11 @@ add_library(${PROJECT_NAME}
 )
 add_library(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC

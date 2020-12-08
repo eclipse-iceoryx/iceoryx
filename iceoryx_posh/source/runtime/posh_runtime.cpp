@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
+#include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
-#include "iceoryx_posh/runtime/runnable.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
 #include "iceoryx_utils/internal/relocatable_pointer/relative_ptr.hpp"
 #include "iceoryx_utils/posix_wrapper/timer.hpp"
@@ -29,28 +29,54 @@ namespace iox
 {
 namespace runtime
 {
-std::function<PoshRuntime&(const std::string& name)> PoshRuntime::s_runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+PoshRuntime::factory_t& PoshRuntime::getRuntimeFactory() noexcept
+{
+    static factory_t runtimeFactory = PoshRuntime::defaultRuntimeFactory;
+    return runtimeFactory;
+}
 
+void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
+{
+    if (factory)
+    {
+        PoshRuntime::getRuntimeFactory() = factory;
+    }
+    else
+    {
+        LogFatal() << "Cannot set runtime factory. Passed factory must not be empty!";
+        errorHandler(Error::kPOSH__RUNTIME_FACTORY_IS_NOT_SET);
+    }
+}
 
-PoshRuntime& PoshRuntime::defaultRuntimeFactory(const std::string& name) noexcept
+PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const ProcessName_t*> name) noexcept
 {
     static PoshRuntime instance(name);
     return instance;
 }
 
 // singleton access
-PoshRuntime& PoshRuntime::getInstance(const std::string& name) noexcept
+PoshRuntime& PoshRuntime::getInstance() noexcept
 {
-    return PoshRuntime::s_runtimeFactory(name);
+    return getInstance(cxx::nullopt);
 }
 
-PoshRuntime::PoshRuntime(const std::string& name, const bool doMapSharedMemoryIntoThread) noexcept
+PoshRuntime& PoshRuntime::initRuntime(const ProcessName_t& name) noexcept
+{
+    return getInstance(cxx::make_optional<const ProcessName_t*>(&name));
+}
+
+PoshRuntime& PoshRuntime::getInstance(cxx::optional<const ProcessName_t*> name) noexcept
+{
+    return getRuntimeFactory()(name);
+}
+
+PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool doMapSharedMemoryIntoThread) noexcept
     : m_appName(verifyInstanceName(name))
-    , m_MqInterface(MQ_ROUDI_NAME, name, PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
+    , m_MqInterface(MQ_ROUDI_NAME, *name.value(), PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface(doMapSharedMemoryIntoThread,
                      m_MqInterface.getShmTopicSize(),
-                     m_MqInterface.getSegmentManagerAddr(),
-                     m_MqInterface.getSegmentId())
+                     m_MqInterface.getSegmentId(),
+                     m_MqInterface.getSegmentManagerAddressOffset())
     , m_applicationPort(getMiddlewareApplication())
 {
     m_keepAliveTimer.start(posix::Timer::RunMode::PERIODIC, posix::Timer::CatchUpPolicy::IMMEDIATE);
@@ -66,34 +92,29 @@ PoshRuntime::~PoshRuntime() noexcept
 }
 
 
-const std::string& PoshRuntime::verifyInstanceName(const std::string& name) noexcept
+const ProcessName_t& PoshRuntime::verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept
 {
-    if (name.empty())
-    {
-        LogError() << "Cannot initialize runtime. Application name must not be empty!";
-        std::terminate();
-    }
-    else if (name.compare(DEFAULT_RUNTIME_INSTANCE_NAME) == 0)
+    if (!name.has_value())
     {
         LogError() << "Cannot initialize runtime. Application name has not been specified!";
         std::terminate();
     }
-    else if (name.front() != '/')
+    else if (name.value()->empty())
     {
-        LogError() << "Cannot initialize runtime. Application name " << name
+        LogError() << "Cannot initialize runtime. Application name must not be empty!";
+        std::terminate();
+    }
+    else if (name.value()->c_str()[0] != '/')
+    {
+        LogError() << "Cannot initialize runtime. Application name " << *name.value()
                    << " does not have the required leading slash '/'";
         std::terminate();
     }
-    else if (name.length() > MAX_PROCESS_NAME_LENGTH)
-    {
-        LogError() << "Application name has more than 100 characters, including null termination!";
-        std::terminate();
-    }
 
-    return name;
+    return *name.value();
 }
 
-std::string PoshRuntime::getInstanceName() const noexcept
+ProcessName_t PoshRuntime::getInstanceName() const noexcept
 {
     return m_appName;
 }
@@ -123,12 +144,12 @@ const std::atomic<uint64_t>* PoshRuntime::getServiceRegistryChangeCounter() noex
 
 /// @deprecated #25
 SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::ServiceDescription& service,
-                                                               const RunnableName_t& runnableName,
+                                                               const NodeName_t& nodeName,
                                                                const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SENDER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << runnableName
+               << static_cast<cxx::Serialization>(service).toString() << nodeName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto requestedSenderPort = requestSenderFromRoudi(sendBuffer);
@@ -155,7 +176,7 @@ SenderPortType::MemberType_t* PoshRuntime::getMiddlewareSender(const capro::Serv
         }
         return nullptr;
     }
-    return requestedSenderPort.get_value();
+    return requestedSenderPort.value();
 }
 
 /// @deprecated #25
@@ -205,12 +226,12 @@ PoshRuntime::requestSenderFromRoudi(const MqMessage& sendBuffer) noexcept
 
 /// @deprecated #25
 ReceiverPortType::MemberType_t* PoshRuntime::getMiddlewareReceiver(const capro::ServiceDescription& service,
-                                                                   const RunnableName_t& runnableName,
+                                                                   const NodeName_t& nodeName,
                                                                    const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_RECEIVER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << runnableName
+               << static_cast<cxx::Serialization>(service).toString() << nodeName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     return requestReceiverFromRoudi(sendBuffer);
@@ -250,12 +271,12 @@ ReceiverPortType::MemberType_t* PoshRuntime::requestReceiverFromRoudi(const MqMe
 
 PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const capro::ServiceDescription& service,
                                                                          const uint64_t& historyCapacity,
-                                                                         const RunnableName_t& runnableName,
+                                                                         const NodeName_t& nodeName,
                                                                          const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_PUBLISHER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyCapacity) << runnableName
+               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyCapacity) << nodeName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
@@ -289,7 +310,7 @@ PublisherPortUserType::MemberType_t* PoshRuntime::getMiddlewarePublisher(const c
         }
         return nullptr;
     }
-    return maybePublisher.get_value();
+    return maybePublisher.value();
 }
 
 cxx::expected<PublisherPortUserType::MemberType_t*, MqMessageErrorType>
@@ -333,12 +354,12 @@ PoshRuntime::requestPublisherFromRoudi(const MqMessage& sendBuffer) noexcept
 SubscriberPortUserType::MemberType_t*
 PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
                                      const uint64_t& historyRequest,
-                                     const RunnableName_t& runnableName,
+                                     const NodeName_t& nodeName,
                                      const PortConfigInfo& portConfigInfo) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_SUBSCRIBER) << m_appName
-               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyRequest) << runnableName
+               << static_cast<cxx::Serialization>(service).toString() << std::to_string(historyRequest) << nodeName
                << static_cast<cxx::Serialization>(portConfigInfo).toString();
 
     auto maybeSubscriber = requestSubscriberFromRoudi(sendBuffer);
@@ -368,7 +389,7 @@ PoshRuntime::getMiddlewareSubscriber(const capro::ServiceDescription& service,
         }
         return nullptr;
     }
-    return maybeSubscriber.get_value();
+    return maybeSubscriber.value();
 }
 
 cxx::expected<SubscriberPortUserType::MemberType_t*, MqMessageErrorType>
@@ -410,11 +431,11 @@ PoshRuntime::requestSubscriberFromRoudi(const MqMessage& sendBuffer) noexcept
 }
 
 popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interfaces interface,
-                                                             const RunnableName_t& runnableName) noexcept
+                                                             const NodeName_t& nodeName) noexcept
 {
     MqMessage sendBuffer;
     sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_INTERFACE) << m_appName
-               << static_cast<uint32_t>(interface) << runnableName;
+               << static_cast<uint32_t>(interface) << nodeName;
 
     MqMessage receiveBuffer;
 
@@ -439,11 +460,11 @@ popo::InterfacePortData* PoshRuntime::getMiddlewareInterface(const capro::Interf
     return nullptr;
 }
 
-RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProperty) noexcept
+NodeData* PoshRuntime::createNode(const NodeProperty& nodeProperty) noexcept
 {
     MqMessage sendBuffer;
-    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_RUNNABLE) << m_appName
-               << static_cast<std::string>(runnableProperty);
+    sendBuffer << mqMessageTypeToString(MqMessageType::CREATE_NODE) << m_appName
+               << static_cast<cxx::Serialization>(nodeProperty).toString();
 
     MqMessage receiveBuffer;
 
@@ -451,20 +472,20 @@ RunnableData* PoshRuntime::createRunnable(const RunnableProperty& runnableProper
     {
         std::string mqMessage = receiveBuffer.getElementAtIndex(0);
 
-        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_RUNNABLE_ACK)
+        if (stringToMqMessageType(mqMessage.c_str()) == MqMessageType::CREATE_NODE_ACK)
         {
             RelativePointer::id_t segmentId;
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2).c_str(), segmentId);
             RelativePointer::offset_t offset;
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1).c_str(), offset);
             auto ptr = RelativePointer::getPtr(segmentId, offset);
-            return reinterpret_cast<RunnableData*>(ptr);
+            return reinterpret_cast<NodeData*>(ptr);
         }
     }
 
-    LogError() << "Create runnable got wrong response from message queue :'" << receiveBuffer.getMessage() << "'";
+    LogError() << "Got wrong response from RouDi while creating node:'" << receiveBuffer.getMessage() << "'";
     errorHandler(
-        Error::kPOSH__RUNTIME_ROUDI_CREATE_RUNNABLE_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
+        Error::kPOSH__RUNTIME_ROUDI_CREATE_NODE_WRONG_MESSAGE_QUEUE_RESPONSE, nullptr, iox::ErrorLevel::SEVERE);
     return nullptr;
 }
 
@@ -612,7 +633,7 @@ popo::ConditionVariableData* PoshRuntime::getMiddlewareConditionVariable() noexc
         }
         return nullptr;
     }
-    return maybeConditionVariable.get_value();
+    return maybeConditionVariable.value();
 }
 
 bool PoshRuntime::sendRequestToRouDi(const MqMessage& msg, MqMessage& answer) noexcept

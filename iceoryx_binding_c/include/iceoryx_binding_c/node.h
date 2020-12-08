@@ -12,36 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_RUNNABLE_H
-#define IOX_BINDING_C_RUNNABLE_H
+#ifndef IOX_BINDING_C_NODE_H
+#define IOX_BINDING_C_NODE_H
 
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
 
-typedef CLASS RunnableData* iox_runnable_t;
+typedef CLASS NodeData* iox_node_t;
 
-/// @brief creates a runnable in the shared memory
-/// @param[in] runnableName name of the runnable
-/// @return handle to the runnable
-iox_runnable_t iox_runnable_create(const char* const runnableName);
+/// @brief creates a node in the shared memory
+/// @param[in] nodeName name of the node
+/// @return handle to the node
+iox_node_t iox_node_create(const char* const nodeName);
 
-/// @brief removes a runnable from the shared memory
-/// @param[in] self handle to the runnable
-void iox_runnable_destroy(iox_runnable_t const self);
+/// @brief removes a node from the shared memory
+/// @param[in] self handle to the node
+void iox_node_destroy(iox_node_t const self);
 
-/// @brief acquires the name of the runnable
-/// @param[in] self handle to the runnable
+/// @brief acquires the name of the node
+/// @param[in] self handle to the node
 /// @param[in] name pointer to a memory location where the name can be written to
 /// @param[in] nameCapacity size of the memory location where the name is written to
-/// @return the actual length of the runnable name, if the return value is greater
-///         then nameCapacity the name is truncated
-uint64_t iox_runnable_get_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity);
+/// @return the actual length of the node name, if the return value is greater
+///         then nameCapacity the name is truncated.
+///         If name is a nullptr, 0 will be returned.
+uint64_t iox_node_get_name(iox_node_t const self, char* const name, const uint64_t nameCapacity);
 
-/// @brief acquires the name of the process in which the runnable is stored
-/// @param[in] self handle to the runnable
+/// @brief acquires the name of the process in which the node is stored
+/// @param[in] self handle to the node
 /// @param[in] name pointer to a memory location where the name can be written to
 /// @param[in] nameCapacity size of the memory location where the name is written to
 /// @return the actual length of the process name, if the return value is greater
-///         then nameCapacity the name is truncated
-uint64_t iox_runnable_get_process_name(iox_runnable_t const self, char* const name, const uint64_t nameCapacity);
+///         then nameCapacity the name is truncated.
+///         If name is a nullptr, 0 will be returned.
+uint64_t iox_node_get_process_name(iox_node_t const self, char* const name, const uint64_t nameCapacity);
 
 #endif

@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
                                                                  parseResult);
                 std::terminate();
             })
-            .get_value();
+            .value();
     /// @todo Add debug print about used RouDi params e.g. TOML file
     IceOryxRouDiApp roudi(cmdLineParser, roudiConfig);
 

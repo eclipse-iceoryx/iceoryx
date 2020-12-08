@@ -282,11 +282,11 @@ TEST_F(Timer_test, TimeUntilExpirationFailsWithoutCallback)
 TIMING_TEST_F(Timer_test, TimeUntilExpirationWithCallback, Repeat(5), [&] {
     Timer sut(TIMEOUT, [] {});
     sut.start(Timer::RunMode::PERIODIC, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT);
-    int timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
+    int timeUntilExpiration = sut.timeUntilExpiration().value().milliSeconds<int>();
     TIMING_TEST_EXPECT_TRUE(timeUntilExpiration > 2 * TIMEOUT.milliSeconds<int>() / 3);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * TIMEOUT.milliSeconds<int>() / 3));
-    timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
+    timeUntilExpiration = sut.timeUntilExpiration().value().milliSeconds<int>();
     TIMING_TEST_EXPECT_TRUE(1 <= timeUntilExpiration && timeUntilExpiration <= TIMEOUT.milliSeconds<int>() / 3);
 });
 
@@ -294,7 +294,7 @@ TIMING_TEST_F(Timer_test, TimeUntilExpirationZeroAfterCallbackOnceCalled, Repeat
     Timer sut(TIMEOUT, [] {});
     sut.start(Timer::RunMode::ONCE, Timer::CatchUpPolicy::SKIP_TO_NEXT_BEAT);
     std::this_thread::sleep_for(std::chrono::milliseconds(10 * TIMEOUT.milliSeconds<int>()));
-    int timeUntilExpiration = sut.timeUntilExpiration().get_value().milliSeconds<int>();
+    int timeUntilExpiration = sut.timeUntilExpiration().value().milliSeconds<int>();
     TIMING_TEST_EXPECT_TRUE(timeUntilExpiration == 0);
 });
 

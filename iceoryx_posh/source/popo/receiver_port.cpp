@@ -294,7 +294,7 @@ posix::Semaphore* ReceiverPort::GetShmSemaphore()
             return nullptr;
         }
     }
-    return &getMembers()->m_shmSemaphore.get_value();
+    return &getMembers()->m_shmSemaphore.value();
 }
 
 bool ReceiverPort::deliver(mepoo::SharedChunk f_chunk_p) noexcept

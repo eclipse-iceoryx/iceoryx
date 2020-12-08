@@ -31,7 +31,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 void receiving()
 {
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-waitset");
+    iox::runtime::PoshRuntime::initRuntime("/iox-ex-subscriber-waitset");
 
 
     iox::popo::TypedSubscriber<CounterTopic> mySubscriber({"Radar", "FrontLeft", "Counter"});

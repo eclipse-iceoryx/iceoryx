@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
-#include "iceoryx_posh/internal/runtime/runnable_property.hpp"
+#include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 
 #include <atomic>
 #include <map>
@@ -43,23 +44,28 @@ class RuntimeTestInterface;
 
 namespace runtime
 {
-class Runnable;
-class RunnableData;
-
-constexpr char DEFAULT_RUNTIME_INSTANCE_NAME[] = "dummy";
-
+class Node;
+class NodeData;
 
 /// @brief The runtime that is needed for each application to communicate with the RouDi daemon
 class PoshRuntime
 {
   public:
-    /// @brief creates the runtime or return the already existing one -> Singleton
-    /// @param[in] name name that is used for registering the process with the RouDi daemon
-    static PoshRuntime& getInstance(const std::string& name = DEFAULT_RUNTIME_INSTANCE_NAME) noexcept;
+    /// @brief returns active runtime
+    ///
+    /// @return active runtime
+    static PoshRuntime& getInstance() noexcept;
+
+    /// @brief creates the runtime with given name
+    ///
+    /// @param[in] name used for registering the process with the RouDi daemon
+    ///
+    /// @return active runtime
+    static PoshRuntime& initRuntime(const ProcessName_t& name) noexcept;
 
     /// @brief get the name that was used to register with RouDi
-    /// @return name of the reistered application
-    std::string getInstanceName() const noexcept;
+    /// @return name of the registered application
+    ProcessName_t getInstanceName() const noexcept;
 
     /// @brief find all services that match the provided service description
     /// @param[in] serviceDescription service to search for
@@ -81,58 +87,58 @@ class PoshRuntime
     /// @deprecated #25
     /// @brief request the RouDi daemon to create a sender port
     /// @param[in] serviceDescription service description for the new sender port
-    /// @param[in] runnableName name of the runnable where the sender should belong to
+    /// @param[in] nodeName name of the node where the sender should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created sender port data
     SenderPortType::MemberType_t* getMiddlewareSender(const capro::ServiceDescription& service,
-                                                      const RunnableName_t& runnableName = "",
+                                                      const NodeName_t& nodeName = "",
                                                       const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @deprecated #25
     /// @brief request the RouDi daemon to create a receiver port
     /// @param[in] serviceDescription service description for the new receiver port
-    /// @param[in] runnableName name of the runnable where the receiver should belong to
+    /// @param[in] nodeName name of the node where the receiver should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created receiver port data
     ReceiverPortType::MemberType_t*
     getMiddlewareReceiver(const capro::ServiceDescription& service,
-                          const RunnableName_t& runnableName = "",
+                          const NodeName_t& nodeName = "",
                           const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a publisher port
     /// @param[in] serviceDescription service description for the new publisher port
     /// @param[in] historyCapacity history capacity of a publisher
-    /// @param[in] runnableName name of the runnable where the publisher should belong to
+    /// @param[in] nodeName name of the node where the publisher should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (i.e. what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created publisher port user
     PublisherPortUserType::MemberType_t*
     getMiddlewarePublisher(const capro::ServiceDescription& service,
                            const uint64_t& historyCapacity = 0U,
-                           const RunnableName_t& runnableName = "",
+                           const NodeName_t& nodeName = "",
                            const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create a subscriber port
     /// @param[in] serviceDescription service description for the new subscriber port
     /// @param[in] historyRequest history requested by a subscriber
-    /// @param[in] runnableName name of the runnable where the subscriber should belong to
+    /// @param[in] nodeName name of the node where the subscriber should belong to
     /// @param[in] portConfigInfo configuration information for the port
     /// (what type of port is requested, device where its payload memory is located on etc.)
     /// @return pointer to a created subscriber port data
     SubscriberPortUserType::MemberType_t*
     getMiddlewareSubscriber(const capro::ServiceDescription& service,
                             const uint64_t& historyRequest = 0U,
-                            const RunnableName_t& runnableName = "",
+                            const NodeName_t& nodeName = "",
                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     /// @brief request the RouDi daemon to create an interface port
     /// @param[in] interface interface to create
-    /// @param[in] runnableName name of the runnable where the interface should belong to
+    /// @param[in] nodeName name of the node where the interface should belong to
     /// @return pointer to a created interface port data
     popo::InterfacePortData* getMiddlewareInterface(const capro::Interfaces interface,
-                                                    const RunnableName_t& runnableName = "") noexcept;
+                                                    const NodeName_t& nodeName = "") noexcept;
 
     /// @brief request the RouDi daemon to create an application port
     /// @return pointer to a created application port data
@@ -142,10 +148,10 @@ class PoshRuntime
     /// @return pointer to a created condition variable data
     popo::ConditionVariableData* getMiddlewareConditionVariable() noexcept;
 
-    /// @brief request the RouDi daemon to create a runnable
-    /// @param[in] runnableProperty class which contains all properties which the runnable should have
-    /// @return pointer to the data of the runnable
-    RunnableData* createRunnable(const RunnableProperty& runnableProperty) noexcept;
+    /// @brief request the RouDi daemon to create a node
+    /// @param[in] nodeProperty class which contains all properties which the node should have
+    /// @return pointer to the data of the node
+    NodeData* createNode(const NodeProperty& nodeProperty) noexcept;
 
     /// @brief requests the serviceRegistryChangeCounter from the shared memory
     /// @return pointer to the serviceRegistryChangeCounter
@@ -168,11 +174,32 @@ class PoshRuntime
     friend class roudi::RuntimeTestInterface;
 
   protected:
-    // Protected constructor for IPC setup
-    PoshRuntime(const std::string& name, const bool doMapSharedMemoryIntoThread = true) noexcept;
+    using factory_t = PoshRuntime& (*)(cxx::optional<const ProcessName_t*>);
 
-    static std::function<PoshRuntime&(const std::string& name)> s_runtimeFactory; // = DefaultRuntimeFactory;
-    static PoshRuntime& defaultRuntimeFactory(const std::string& name) noexcept;
+    // Protected constructor for IPC setup
+    PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool doMapSharedMemoryIntoThread = true) noexcept;
+
+    static PoshRuntime& defaultRuntimeFactory(cxx::optional<const ProcessName_t*> name) noexcept;
+
+    static ProcessName_t& defaultRuntimeInstanceName() noexcept;
+
+    /// @brief gets current runtime factory. If the runtime factory is not yet initialized it is set to
+    /// defaultRuntimeFactory.
+    ///
+    /// @return current runtime factory
+    static factory_t& getRuntimeFactory() noexcept;
+
+    /// @brief sets runtime factory, terminates if given factory is empty
+    ///
+    /// @param[in] factory std::function to which the runtime factory should be set
+    static void setRuntimeFactory(const factory_t& factory) noexcept;
+
+    /// @brief creates the runtime or returns the already existing one -> Singleton
+    ///
+    /// @param[in] name optional containing the name used for registering with the RouDi daemon
+    ///
+    /// @return active runtime
+    static PoshRuntime& getInstance(cxx::optional<const ProcessName_t*> name) noexcept;
 
   private:
     /// @deprecated #25
@@ -193,9 +220,9 @@ class PoshRuntime
 
     /// @brief checks the given application name for certain constraints like length(100 chars) or leading slash
     /// @todo replace length check with fixedstring when its integrated
-    const std::string& verifyInstanceName(const std::string& name) noexcept;
+    const ProcessName_t& verifyInstanceName(cxx::optional<const ProcessName_t*> name) noexcept;
 
-    const std::string m_appName;
+    const ProcessName_t m_appName;
     mutable std::mutex m_appMqRequestMutex;
 
     // Message queue interface for POSIX IPC from RouDi

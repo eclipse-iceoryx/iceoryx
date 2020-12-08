@@ -95,7 +95,7 @@ GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription
         }
         else
         {
-            auto channel = result.get_value();
+            auto channel = result.value();
             m_channels->push_back(channel);
             return cxx::success<channel_t>(channel);
         }
