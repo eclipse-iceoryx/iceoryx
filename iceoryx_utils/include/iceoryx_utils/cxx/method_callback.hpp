@@ -99,13 +99,12 @@ class ConstMethodCallback
 
     /// @brief Returns cond method pointer
     template <typename ClassType>
-    ConstMethodPointer<ClassType> getMethodPointer() const noexcept;
+    auto getMethodPointer() const noexcept -> ConstMethodPointer<ClassType>;
 
   private:
     const void* m_objectPtr{nullptr};
     ConstMethodPointer<internal::GenericClass> m_methodPtr{nullptr};
-    cxx::function_ref<ReturnValue(const void*, ReturnValue (internal::GenericClass::*)(Args...) const, Args...)>
-        m_callback;
+    cxx::function_ref<ReturnValue(const void*, ConstMethodPointer<internal::GenericClass>, Args...)> m_callback;
 };
 
 template <typename ReturnValue, typename... Args>
@@ -172,12 +171,12 @@ class MethodCallback
 
     /// @brief Returns cond method pointer
     template <typename ClassType>
-    MethodPointer<ClassType> getMethodPointer() const noexcept;
+    auto getMethodPointer() const noexcept -> MethodPointer<ClassType>;
 
   private:
     void* m_objectPtr{nullptr};
     MethodPointer<internal::GenericClass> m_methodPtr{nullptr};
-    cxx::function_ref<ReturnValue(void*, ReturnValue (internal::GenericClass::*)(Args...), Args...)> m_callback;
+    cxx::function_ref<ReturnValue(void*, MethodPointer<internal::GenericClass>, Args...)> m_callback;
 };
 
 } // namespace cxx
