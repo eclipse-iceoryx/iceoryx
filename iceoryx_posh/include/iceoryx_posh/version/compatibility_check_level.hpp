@@ -14,6 +14,8 @@
 #ifndef IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP
 #define IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP
 
+#include "iceoryx_utils/log/logstream.hpp"
+
 namespace iox
 {
 namespace version
@@ -27,6 +29,32 @@ enum class CompatibilityCheckLevel
     COMMIT_ID,
     BUILD_DATE
 };
+
+inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const version::CompatibilityCheckLevel& level)
+{
+    switch (level)
+    {
+    case CompatibilityCheckLevel::OFF:
+        logstream << "OFF";
+        break;
+    case CompatibilityCheckLevel::MAJOR:
+        logstream << "MAJOR";
+        break;
+    case CompatibilityCheckLevel::MINOR:
+        logstream << "MINOR";
+        break;
+    case CompatibilityCheckLevel::PATCH:
+        logstream << "PATCH";
+        break;
+    case CompatibilityCheckLevel::COMMIT_ID:
+        logstream << "COMMIT_ID";
+        break;
+    case CompatibilityCheckLevel::BUILD_DATE:
+        logstream << "BUILD_DATE";
+        break;
+    }
+    return logstream;
+}
 
 } // namespace version
 } // namespace iox

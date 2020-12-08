@@ -238,5 +238,29 @@ units::Duration CmdLineParser::getProcessKillDelay() const noexcept
     return m_processKillDelay;
 }
 
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode)
+{
+    switch (mode)
+    {
+    case MonitoringMode::OFF:
+        logstream << "OFF";
+        break;
+    case MonitoringMode::ON:
+        logstream << "ON";
+        break;
+    }
+    return logstream;
+}
+
+void CmdLineParser::printParams() noexcept
+{
+    LogVerbose() << "Command line parameters are..";
+    LogVerbose() << "Log level: " << m_logLevel;
+    LogVerbose() << "Monitoring mode: " << m_monitoringMode;
+    LogVerbose() << "Compatibility check level: " << m_compatibilityCheckLevel;
+    LogVerbose() << "Unique RouDi ID: " << m_uniqueRouDiId.value();
+    LogVerbose() << "Process kill delay: " << m_processKillDelay.seconds<uint64_t>() << " ms" ;
+}
+
 } // namespace config
 } // namespace iox

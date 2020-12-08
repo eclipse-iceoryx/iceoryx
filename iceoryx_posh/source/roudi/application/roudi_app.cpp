@@ -65,19 +65,22 @@ void RouDiApp::registerSigHandler() noexcept
     sigemptyset(&act.sa_mask);
     act.sa_handler = roudiSigHandler;
     act.sa_flags = 0;
-    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGINT, &act, nullptr).hasErrors())
+    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGINT, &act, nullptr)
+            .hasErrors())
     {
         LogFatal() << "Calling sigaction() failed";
         errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
     }
 
-    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGTERM, &act, nullptr).hasErrors())
+    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGTERM, &act, nullptr)
+            .hasErrors())
     {
         LogFatal() << "Calling sigaction() failed";
         errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
     }
 
-    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGHUP, &act, nullptr).hasErrors())
+    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGHUP, &act, nullptr)
+            .hasErrors())
     {
         LogFatal() << "Calling sigaction() failed";
         errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
@@ -181,6 +184,7 @@ void RouDiApp::parseCmdLineArguments(int argc,
     cmdLineParser.parse(argc, argv);
     setCmdLineParserResults(cmdLineParser);
 }
+
 
 } // namespace roudi
 } // namespace iox

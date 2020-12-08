@@ -77,5 +77,12 @@ ConfigFilePathString_t CmdLineParserConfigFileOption::getConfigFilePath() const
 {
     return m_customConfigFilePath;
 }
+
+void CmdLineParserConfigFileOption::printParams() noexcept
+{
+    CmdLineParser::printParams();
+    LogVerbose() << "Config file used is: " << m_customConfigFilePath;
+}
+
 } // namespace config
 } // namespace iox

@@ -37,6 +37,8 @@ enum class MonitoringMode
     OFF
 };
 
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode);
+
 class CmdLineParser
 {
   public:
@@ -60,6 +62,8 @@ class CmdLineParser
     virtual void parse(int argc,
                        char* argv[],
                        const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
+
+    void printParams() noexcept;
 
     bool getRun() const noexcept;
     iox::log::LogLevel getLogLevel() const noexcept;

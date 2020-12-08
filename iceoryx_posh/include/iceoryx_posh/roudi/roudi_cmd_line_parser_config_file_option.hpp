@@ -40,6 +40,8 @@ class CmdLineParserConfigFileOption : public CmdLineParser
 
     ConfigFilePathString_t getConfigFilePath() const;
 
+    void printParams() noexcept;
+
   protected:
     ConfigFilePathString_t m_customConfigFilePath;
 };
