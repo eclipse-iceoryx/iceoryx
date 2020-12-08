@@ -146,7 +146,7 @@ inline void ConstMethodCallback<ReturnValue, Args...>::setCallback(const ClassTy
 
 template <typename ReturnValue, typename... Args>
 template <typename ClassType>
-inline const ClassType* ConstMethodCallback<ReturnValue, Args...>::getClassPointer() const noexcept
+inline const ClassType* ConstMethodCallback<ReturnValue, Args...>::getObjectPointer() const noexcept
 {
     return reinterpret_cast<const ClassType*>(m_objectPtr);
 }
@@ -243,7 +243,7 @@ inline void MethodCallback<ReturnValue, Args...>::setCallback(ClassType& objectR
 
 template <typename ReturnValue, typename... Args>
 template <typename ClassType>
-inline ClassType* MethodCallback<ReturnValue, Args...>::getClassPointer() const noexcept
+inline ClassType* MethodCallback<ReturnValue, Args...>::getObjectPointer() const noexcept
 {
     return reinterpret_cast<ClassType*>(m_objectPtr);
 }

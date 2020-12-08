@@ -199,7 +199,7 @@ template <typename SenderPort, typename ReceiverPort>
 bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addSender(typename SenderPort::MemberType_t* port,
                                                                       const ProcessName_t& name,
                                                                       const capro::ServiceDescription& service,
-                                                                      const RunnableName_t& runnable)
+                                                                      const NodeName_t& node)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -207,7 +207,7 @@ bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addSender(typename S
     if (iter != m_senderMap.end())
         return false;
 
-    auto index = m_senderContainer.add(SenderInfo(port, name, service, runnable));
+    auto index = m_senderContainer.add(SenderInfo(port, name, service, node));
     if (index < 0)
         return false;
 
@@ -239,11 +239,11 @@ template <typename SenderPort, typename ReceiverPort>
 bool PortIntrospection<SenderPort, ReceiverPort>::PortData::addReceiver(typename ReceiverPort::MemberType_t* portData,
                                                                         const ProcessName_t& name,
                                                                         const capro::ServiceDescription& service,
-                                                                        const RunnableName_t& runnable)
+                                                                        const NodeName_t& node)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto index = m_connectionContainer.add(ConnectionInfo(portData, name, service, runnable));
+    auto index = m_connectionContainer.add(ConnectionInfo(portData, name, service, node));
     if (index < 0)
     {
         return false;
@@ -422,7 +422,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
             senderData.m_senderPortID = static_cast<uint64_t>(port.getUniqueID());
             senderData.m_sourceInterface = senderInfo.service.getSourceInterface();
             senderData.m_name = senderInfo.name;
-            senderData.m_runnable = senderInfo.runnable;
+            senderData.m_node = senderInfo.node;
 
             senderData.m_caproInstanceID = senderInfo.service.getInstanceIDString();
             senderData.m_caproServiceID = senderInfo.service.getServiceIDString();
@@ -447,7 +447,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::PortData::prepareTopic(PortInt
                 auto& receiverInfo = connection.receiverInfo;
 
                 receiverData.m_name = receiverInfo.name;
-                receiverData.m_runnable = receiverInfo.runnable;
+                receiverData.m_node = receiverInfo.node;
 
                 receiverData.m_caproInstanceID = receiverInfo.service.getInstanceIDString();
                 receiverData.m_caproServiceID = receiverInfo.service.getServiceIDString();
@@ -561,18 +561,18 @@ template <typename SenderPort, typename ReceiverPort>
 bool PortIntrospection<SenderPort, ReceiverPort>::addSender(typename SenderPort::MemberType_t* port,
                                                             const ProcessName_t& name,
                                                             const capro::ServiceDescription& service,
-                                                            const RunnableName_t& runnable)
+                                                            const NodeName_t& node)
 {
-    return m_portData.addSender(port, name, service, runnable);
+    return m_portData.addSender(port, name, service, node);
 }
 
 template <typename SenderPort, typename ReceiverPort>
 bool PortIntrospection<SenderPort, ReceiverPort>::addReceiver(typename ReceiverPort::MemberType_t* portData,
                                                               const ProcessName_t& name,
                                                               const capro::ServiceDescription& service,
-                                                              const RunnableName_t& runnable)
+                                                              const NodeName_t& node)
 {
-    return m_portData.addReceiver(portData, name, service, runnable);
+    return m_portData.addReceiver(portData, name, service, node);
 }
 
 template <typename SenderPort, typename ReceiverPort>

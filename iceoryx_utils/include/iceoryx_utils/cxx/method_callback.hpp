@@ -95,7 +95,7 @@ class ConstMethodCallback
 
     /// @brief Returns object pointer
     template <typename ClassType>
-    const ClassType* getClassPointer() const noexcept;
+    const ClassType* getObjectPointer() const noexcept;
 
     /// @brief Returns cond method pointer
     template <typename ClassType>
@@ -168,7 +168,7 @@ class MethodCallback
 
     /// @brief Returns objectRef
     template <typename ClassType>
-    ClassType* getClassPointer() const noexcept;
+    ClassType* getObjectPointer() const noexcept;
 
     /// @brief Returns cond method pointer
     template <typename ClassType>

@@ -23,7 +23,7 @@
 typedef struct cpp2c_Subscriber* iox_sub_t;
 typedef CLASS WaitSet* iox_ws_t;
 
-/// @brief initialize subscriber handle in the default runtime runnable
+/// @brief initialize subscriber handle in the default runtime node
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)
 /// @param[in] service serviceString
 /// @param[in] instance instanceString

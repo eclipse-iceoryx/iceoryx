@@ -118,9 +118,9 @@ add_library(iceoryx_posh
     source/runtime/port_config_info.cpp
     source/runtime/posh_runtime.cpp
     source/runtime/posh_runtime_single_process.cpp
-    source/runtime/runnable.cpp
-    source/runtime/runnable_data.cpp
-    source/runtime/runnable_property.cpp
+    source/runtime/node.cpp
+    source/runtime/node_data.cpp
+    source/runtime/node_property.cpp
     source/runtime/shared_memory_user.cpp
 )
 

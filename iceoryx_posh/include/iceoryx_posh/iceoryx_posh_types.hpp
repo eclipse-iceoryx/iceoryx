@@ -144,9 +144,9 @@ constexpr uint32_t MAX_PROCESS_NUMBER = 300U;
 /// instances)
 constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50U;
 
-// Runnables
-constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000U;
-constexpr uint32_t MAX_RUNNABLE_PER_PROCESS = 50U;
+// Nodes
+constexpr uint32_t MAX_NODE_NUMBER = 1000U;
+constexpr uint32_t MAX_NODE_PER_PROCESS = 50U;
 
 #if defined(__APPLE__)
 /// @note on macOS the process name length needs to be decreased since the process name is used for the unix domain
@@ -157,8 +157,7 @@ constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 98U;
 constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100U;
 #endif
 
-static_assert(MAX_PROCESS_NUMBER * MAX_RUNNABLE_PER_PROCESS > MAX_RUNNABLE_NUMBER,
-              "Invalid configuration for runnables");
+static_assert(MAX_PROCESS_NUMBER * MAX_NODE_PER_PROCESS > MAX_NODE_NUMBER, "Invalid configuration for nodes");
 
 enum class SubscribeState : uint32_t
 {
@@ -194,7 +193,7 @@ struct DefaultChunkQueueConfig
 // alias for cxx::string
 using ConfigFilePathString_t = cxx::string<1024>;
 using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
-using RunnableName_t = cxx::string<100>;
+using NodeName_t = cxx::string<100>;
 
 namespace runtime
 {

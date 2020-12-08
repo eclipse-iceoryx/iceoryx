@@ -38,12 +38,12 @@ inline void Trigger::updateOrigin(T* const newOrigin) noexcept
 {
     if (newOrigin != m_triggerState.m_triggerOrigin)
     {
-        if (m_hasTriggeredCallback && m_hasTriggeredCallback.getClassPointer<T>() == m_triggerState.m_triggerOrigin)
+        if (m_hasTriggeredCallback && m_hasTriggeredCallback.getObjectPointer<T>() == m_triggerState.m_triggerOrigin)
         {
             m_hasTriggeredCallback.setCallback(*newOrigin, m_hasTriggeredCallback.getMethodPointer<T>());
         }
 
-        if (m_resetCallback && m_resetCallback.getClassPointer<T>() == m_triggerState.m_triggerOrigin)
+        if (m_resetCallback && m_resetCallback.getObjectPointer<T>() == m_triggerState.m_triggerOrigin)
         {
             m_resetCallback.setCallback(*newOrigin, m_resetCallback.getMethodPointer<T>());
         }

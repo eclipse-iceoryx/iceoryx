@@ -98,16 +98,16 @@ TEST_F(MethodCallback_test, NonDefaultConstMethodCallbackCtorCreatesValidCallbac
     EXPECT_TRUE(sut.isValid());
 }
 
-TEST_F(MethodCallback_test, GetClassPointerReturnsValidConstMethodCallbackClass)
+TEST_F(MethodCallback_test, GetObjectPointerReturnsValidConstMethodCallbackClass)
 {
     ConstMethodCallback<void> sut(m_testClass, &TestClass::constVoidVoidMethod);
-    EXPECT_EQ(sut.getClassPointer<TestClass>(), &m_testClass);
+    EXPECT_EQ(sut.getObjectPointer<TestClass>(), &m_testClass);
 }
 
-TEST_F(MethodCallback_test, GetClassPointerReturnsValidMethodCallbackClass)
+TEST_F(MethodCallback_test, GetObjectPointerReturnsValidMethodCallbackClass)
 {
     MethodCallback<void> sut(m_testClass, &TestClass::voidVoidMethod);
-    EXPECT_EQ(sut.getClassPointer<TestClass>(), &m_testClass);
+    EXPECT_EQ(sut.getObjectPointer<TestClass>(), &m_testClass);
 }
 
 TEST_F(MethodCallback_test, GetMethodPointerReturnsValidConstMethodCallbackClass)

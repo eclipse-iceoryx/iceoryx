@@ -50,7 +50,7 @@ add_library(${PROJECT_NAME}
     STATIC
     source/c_user_trigger.cpp
     source/c_publisher.cpp
-    source/c_runnable.cpp
+    source/c_node.cpp
     source/c_runtime.cpp
     source/c_subscriber.cpp
     source/c_trigger_state.cpp

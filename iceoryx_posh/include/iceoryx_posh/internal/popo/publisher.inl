@@ -25,8 +25,8 @@ inline Publisher_t<SenderPortType>::Publisher_t() noexcept
 
 template <typename SenderPortType>
 inline Publisher_t<SenderPortType>::Publisher_t(const capro::ServiceDescription& service,
-                                                const RunnableName_t& runnableName) noexcept
-    : m_sender(runtime::PoshRuntime::getInstance().getMiddlewareSender(service, runnableName))
+                                                const NodeName_t& nodeName) noexcept
+    : m_sender(runtime::PoshRuntime::getInstance().getMiddlewareSender(service, nodeName))
 {
 }
 
