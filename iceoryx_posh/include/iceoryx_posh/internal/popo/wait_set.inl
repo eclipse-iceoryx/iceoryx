@@ -53,7 +53,7 @@ WaitSet::acquireTrigger(T* const origin,
     }
 
     return iox::cxx::success<TriggerHandle>(TriggerHandle(
-        m_conditionVariableDataPtr, {this, &WaitSet::removeTrigger}, m_triggerVector.back().getUniqueId()));
+        m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, m_triggerVector.back().getUniqueId()));
 }
 
 template <typename T>

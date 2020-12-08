@@ -69,8 +69,8 @@ class Trigger_test : public Test
     Trigger createValidTrigger(const uint64_t triggerId = 0)
     {
         return Trigger(&m_triggerClass,
-                       {&m_triggerClass, &TriggerClass::hasTriggered},
-                       {&m_triggerClass, &TriggerClass::resetCall},
+                       {m_triggerClass, &TriggerClass::hasTriggered},
+                       {m_triggerClass, &TriggerClass::resetCall},
                        triggerId,
                        TriggerClass::callback);
     }
@@ -102,8 +102,8 @@ TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
 {
     uint64_t triggerId = 0U;
     Trigger sut(static_cast<TriggerClass*>(nullptr),
-                {&m_triggerClass, &TriggerClass::hasTriggered},
-                {&m_triggerClass, &TriggerClass::resetCall},
+                {m_triggerClass, &TriggerClass::hasTriggered},
+                {m_triggerClass, &TriggerClass::resetCall},
                 triggerId,
                 TriggerClass::callback);
 
@@ -116,7 +116,7 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackIsInvalid)
     uint64_t triggerId = 0U;
     Trigger sut(&m_triggerClass,
                 cxx::ConstMethodCallback<bool>(),
-                {&m_triggerClass, &TriggerClass::resetCall},
+                {m_triggerClass, &TriggerClass::resetCall},
                 triggerId,
                 TriggerClass::callback);
 
@@ -128,7 +128,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallIsValid)
 {
     uint64_t triggerId = 0U;
     Trigger sut(&m_triggerClass,
-                {&m_triggerClass, &TriggerClass::hasTriggered},
+                {m_triggerClass, &TriggerClass::hasTriggered},
                 cxx::MethodCallback<void, uint64_t>(),
                 triggerId,
                 TriggerClass::callback);
@@ -167,7 +167,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
 {
     uint64_t triggerId = 0U;
     Trigger sut(&m_triggerClass,
-                {&m_triggerClass, &TriggerClass::hasTriggered},
+                {m_triggerClass, &TriggerClass::hasTriggered},
                 cxx::MethodCallback<void, uint64_t>(),
                 triggerId,
                 TriggerClass::callback);
@@ -214,8 +214,8 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateHasTriggeredIfItsNotOriginatingFro
 {
     TriggerClass secondTriggerClass, thirdTriggerClass;
     Trigger sut(&m_triggerClass,
-                {&thirdTriggerClass, &TriggerClass::hasTriggered},
-                {&m_triggerClass, &TriggerClass::resetCall},
+                {thirdTriggerClass, &TriggerClass::hasTriggered},
+                {m_triggerClass, &TriggerClass::resetCall},
                 891,
                 TriggerClass::callback);
 
@@ -242,8 +242,8 @@ TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin
 {
     TriggerClass secondTriggerClass, thirdTriggerClass;
     Trigger sut(&m_triggerClass,
-                {&m_triggerClass, &TriggerClass::hasTriggered},
-                {&thirdTriggerClass, &TriggerClass::resetCall},
+                {m_triggerClass, &TriggerClass::hasTriggered},
+                {thirdTriggerClass, &TriggerClass::resetCall},
                 891,
                 TriggerClass::callback);
 
@@ -257,8 +257,8 @@ TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfTriggerState)
 {
     TriggerClass secondTriggerClass;
     Trigger sut(&m_triggerClass,
-                {&m_triggerClass, &TriggerClass::hasTriggered},
-                {&m_triggerClass, &TriggerClass::resetCall},
+                {m_triggerClass, &TriggerClass::hasTriggered},
+                {m_triggerClass, &TriggerClass::resetCall},
                 891,
                 TriggerClass::callback);
 
@@ -272,8 +272,8 @@ TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfTriggerState)
 TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)
 {
     Trigger sut1(&m_triggerClass,
-                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                 {&m_triggerClass, &TriggerClass::resetCall},
+                 {m_triggerClass, &TriggerClass::hasTriggered},
+                 {m_triggerClass, &TriggerClass::resetCall},
                  8911,
                  TriggerClass::callback);
 
@@ -283,14 +283,14 @@ TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)
 TEST_F(Trigger_test, TwoTriggersAreLogicalEqualIfRequirementsAreFullfilled)
 {
     Trigger sut1(&m_triggerClass,
-                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                 {&m_triggerClass, &TriggerClass::resetCall},
+                 {m_triggerClass, &TriggerClass::hasTriggered},
+                 {m_triggerClass, &TriggerClass::resetCall},
                  891,
                  TriggerClass::callback);
 
     Trigger sut2(&m_triggerClass,
-                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                 {&m_triggerClass, &TriggerClass::resetCall},
+                 {m_triggerClass, &TriggerClass::hasTriggered},
+                 {m_triggerClass, &TriggerClass::resetCall},
                  891,
                  TriggerClass::callback);
 
@@ -302,14 +302,14 @@ TEST_F(Trigger_test, TwoTriggersAreLogicalEqualIfRequirementsAreFullfilled)
 TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfTriggerIdDiffers)
 {
     Trigger sut1(&m_triggerClass,
-                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                 {&m_triggerClass, &TriggerClass::resetCall},
+                 {m_triggerClass, &TriggerClass::hasTriggered},
+                 {m_triggerClass, &TriggerClass::resetCall},
                  2891,
                  TriggerClass::callback);
 
     Trigger sut2(&m_triggerClass,
-                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                 {&m_triggerClass, &TriggerClass::resetCall},
+                 {m_triggerClass, &TriggerClass::hasTriggered},
+                 {m_triggerClass, &TriggerClass::resetCall},
                  3891,
                  TriggerClass::callback);
 
@@ -322,14 +322,14 @@ TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfHasTriggeredCallbackDiffers)
 {
     TriggerClass secondTriggerClass;
     Trigger sut1(&m_triggerClass,
-                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                 {&m_triggerClass, &TriggerClass::resetCall},
+                 {m_triggerClass, &TriggerClass::hasTriggered},
+                 {m_triggerClass, &TriggerClass::resetCall},
                  4891,
                  TriggerClass::callback);
 
     Trigger sut2(&m_triggerClass,
-                 {&secondTriggerClass, &TriggerClass::hasTriggered},
-                 {&m_triggerClass, &TriggerClass::resetCall},
+                 {secondTriggerClass, &TriggerClass::hasTriggered},
+                 {m_triggerClass, &TriggerClass::resetCall},
                  4891,
                  TriggerClass::callback);
 
@@ -342,14 +342,14 @@ TEST_F(Trigger_test, TwoTriggersAreNotLogicalEqualIfOriginDiffers)
 {
     TriggerClass secondTriggerClass;
     Trigger sut1(&m_triggerClass,
-                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                 {&m_triggerClass, &TriggerClass::resetCall},
+                 {m_triggerClass, &TriggerClass::hasTriggered},
+                 {m_triggerClass, &TriggerClass::resetCall},
                  4891,
                  TriggerClass::callback);
 
     Trigger sut2(&secondTriggerClass,
-                 {&m_triggerClass, &TriggerClass::hasTriggered},
-                 {&m_triggerClass, &TriggerClass::resetCall},
+                 {m_triggerClass, &TriggerClass::hasTriggered},
+                 {m_triggerClass, &TriggerClass::resetCall},
                  4891,
                  TriggerClass::callback);
 

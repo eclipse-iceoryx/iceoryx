@@ -25,7 +25,7 @@ cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet& waitset,
 {
     return waitset
         .acquireTrigger(
-            this, {this, &UserTrigger::hasTriggered}, {this, &UserTrigger::invalidateTrigger}, triggerId, callback)
+            this, {*this, &UserTrigger::hasTriggered}, {*this, &UserTrigger::invalidateTrigger}, triggerId, callback)
         .and_then([this](TriggerHandle& trigger) { m_trigger = std::move(trigger); });
 }
 

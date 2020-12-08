@@ -108,9 +108,9 @@ class MyTriggerClass
             return waitset
                 .acquireTrigger(this,
                                 // trigger calls this method to ask if it was triggered
-                                {this, &MyTriggerClass::hasPerformedAction},
+                                {*this, &MyTriggerClass::hasPerformedAction},
                                 // method which will be called when the waitset goes out of scope
-                                {this, &MyTriggerClass::invalidateTrigger},
+                                {*this, &MyTriggerClass::invalidateTrigger},
                                 triggerId,
                                 callback)
                 // assigning the acquired trigger from the waitset to m_actionTrigger
@@ -121,9 +121,9 @@ class MyTriggerClass
             return waitset
                 .acquireTrigger(this,
                                 // trigger calls this method to ask if it was triggered
-                                {this, &MyTriggerClass::isActivated},
+                                {*this, &MyTriggerClass::isActivated},
                                 // method which will be called when the waitset goes out of scope
-                                {this, &MyTriggerClass::invalidateTrigger},
+                                {*this, &MyTriggerClass::invalidateTrigger},
                                 triggerId,
                                 callback)
                 // assigning the acquired trigger from the waitset to m_activateTrigger

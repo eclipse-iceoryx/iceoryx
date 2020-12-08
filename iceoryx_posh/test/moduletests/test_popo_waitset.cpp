@@ -47,7 +47,7 @@ class WaitSet_test : public Test
                                                           Trigger::Callback<WaitSet_test> callback = triggerCallback1)
     {
         m_triggerHandle.emplace_back(std::make_unique<expected<TriggerHandle, WaitSetError>>(waitset.acquireTrigger(
-            this, {this, &WaitSet_test::hasTriggered}, {this, &WaitSet_test::resetCallback}, triggerId, callback)));
+            this, {*this, &WaitSet_test::hasTriggered}, {*this, &WaitSet_test::resetCallback}, triggerId, callback)));
         return m_triggerHandle.back().get();
     }
 

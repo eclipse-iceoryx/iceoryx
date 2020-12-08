@@ -39,17 +39,20 @@ template <typename ReturnValue, typename... Args>
 class ConstMethodCallback
 {
   public:
+    template <typename T>
+    using ConstMethodPointer = ReturnValue (T::*)(Args...) const;
+
     ConstMethodCallback() = default;
     ConstMethodCallback(const ConstMethodCallback& rhs) = default;
     ConstMethodCallback& operator=(const ConstMethodCallback& rhs) = default;
     ~ConstMethodCallback() = default;
 
-    /// @brief Constructs a ConstMethodCallback from a pointer to a specific class
+    /// @brief Constructs a ConstMethodCallback from a pointer to a specific object
     ///        and a pointer to a method of that class.
-    /// @param[in] classPtr class pointer
+    /// @param[in] objectRef const object reference
     /// @param[in] methodPtr pointer to a const method
     template <typename ClassType>
-    ConstMethodCallback(ClassType* const classPtr, ReturnValue (ClassType::*methodPtr)(Args...) const) noexcept;
+    ConstMethodCallback(const ClassType& objectRef, ConstMethodPointer<ClassType> const methodPtr) noexcept;
 
     /// @brief Move constructor
     /// @param[in] rhs move origin
@@ -69,52 +72,60 @@ class ConstMethodCallback
     expected<ReturnValue, MethodCallbackError> operator()(MethodArguments&&... args) const noexcept;
 
     /// @brief Comparison operator. Two ConstMethodCallbacks are equal if they have the
-    ///        same class pointer and method pointer
+    ///        same object pointer and method pointer
     bool operator==(const ConstMethodCallback& rhs) const noexcept;
 
     /// @brief Inequality operator. Two ConstMethodCallback are not equal if they have
-    ///        different class or method pointer
+    ///        different object or method pointer
     bool operator!=(const ConstMethodCallback& rhs) const noexcept;
 
     /// @brief Verifies if the ConstMethodCallback is valid.
-    /// @return true if classPtr != nullptr otherwise false
+    /// @return true if objectRef != nullptr otherwise false
     explicit operator bool() const noexcept;
 
     /// @brief Verifies if the ConstMethodCallback is valid.
-    /// @return true if classPtr != nullptr otherwise false
+    /// @return true if objectRef != nullptr otherwise false
     bool isValid() const noexcept;
 
-    /// @brief Sets a new classPtr. The callback will then call the same method
-    ///        on a different class.
-    /// @param[in] classPtr class pointer
+    /// @brief Sets a new callback.
+    /// @param[in] objectRef const reference to the object
+    /// @param[in] methodPtr pointer to the method
     template <typename ClassType>
-    void setObjectPointer(ClassType* const classPtr) noexcept;
+    void setCallback(const ClassType& objectRef, ConstMethodPointer<ClassType> methodPtr) noexcept;
 
-    /// @brief Returns classPtr
+    /// @brief Returns object pointer
     template <typename ClassType>
-    ClassType* getClassPointer() const noexcept;
+    const ClassType* getClassPointer() const noexcept;
+
+    /// @brief Returns cond method pointer
+    template <typename ClassType>
+    ConstMethodPointer<ClassType> getMethodPointer() const noexcept;
 
   private:
-    void* m_classPtr{nullptr};
-    ReturnValue (internal::GenericClass::*m_methodPtr)(Args...) const;
-    cxx::function_ref<ReturnValue(void*, ReturnValue (internal::GenericClass::*)(Args...) const, Args...)> m_callback;
+    const void* m_objectPtr{nullptr};
+    ConstMethodPointer<internal::GenericClass> m_methodPtr{nullptr};
+    cxx::function_ref<ReturnValue(const void*, ReturnValue (internal::GenericClass::*)(Args...) const, Args...)>
+        m_callback;
 };
 
 template <typename ReturnValue, typename... Args>
 class MethodCallback
 {
   public:
+    template <typename T>
+    using MethodPointer = ReturnValue (T::*)(Args...);
+
     MethodCallback() = default;
     MethodCallback(const MethodCallback& rhs) = default;
     MethodCallback& operator=(const MethodCallback& rhs) = default;
     ~MethodCallback() = default;
 
-    /// @brief Constructs a MethodCallback from a pointer to a specific class
-    ///        and a pointer to a method of that class.
-    /// @param[in] classPtr class pointer
+    /// @brief Constructs a MethodCallback from a pointer to a specific object
+    ///        and a pointer to a method of that object.
+    /// @param[in] objectRef object reference
     /// @param[in] methodPtr pointer to a method
     template <typename ClassType>
-    MethodCallback(ClassType* const classPtr, ReturnValue (ClassType::*methodPtr)(Args...)) noexcept;
+    MethodCallback(ClassType& objectRef, MethodPointer<ClassType> methodPtr) noexcept;
 
     /// @brief Move constructor
     /// @param[in] rhs move origin
@@ -134,34 +145,38 @@ class MethodCallback
     expected<ReturnValue, MethodCallbackError> operator()(MethodArguments&&... args) noexcept;
 
     /// @brief Comparison operator. Two MethodCallbacks are equal if they have the
-    ///        same class pointer and method pointer
+    ///        same object pointer and method pointer
     bool operator==(const MethodCallback& rhs) const noexcept;
 
     /// @brief Inequality operator. Two MethodCallbacks are not equal if they have
-    ///        different class or method pointer
+    ///        different object or method pointer
     bool operator!=(const MethodCallback& rhs) const noexcept;
 
     /// @brief Verifies if the MethodCallback is valid.
-    /// @return true if classPtr != nullptr otherwise false
+    /// @return true if objectRef != nullptr otherwise false
     explicit operator bool() const noexcept;
 
     /// @brief Verifies if the MethodCallback is valid.
-    /// @return true if classPtr != nullptr otherwise false
+    /// @return true if objectRef != nullptr otherwise false
     bool isValid() const noexcept;
 
-    /// @brief Sets a new classPtr. The callback will then call the same method
-    ///        on a different class.
-    /// @param[in] classPtr class pointer
+    /// @brief Sets a new callback.
+    /// @param[in] objectRef const reference to the object
+    /// @param[in] methodPtr pointer to the method
     template <typename ClassType>
-    void setObjectPointer(ClassType* const classPtr) noexcept;
+    void setCallback(ClassType& objectRef, MethodPointer<ClassType> methodPtr) noexcept;
 
-    /// @brief Returns classPtr
+    /// @brief Returns objectRef
     template <typename ClassType>
     ClassType* getClassPointer() const noexcept;
 
+    /// @brief Returns cond method pointer
+    template <typename ClassType>
+    MethodPointer<ClassType> getMethodPointer() const noexcept;
+
   private:
-    void* m_classPtr{nullptr};
-    ReturnValue (internal::GenericClass::*m_methodPtr)(Args...);
+    void* m_objectPtr{nullptr};
+    MethodPointer<internal::GenericClass> m_methodPtr{nullptr};
     cxx::function_ref<ReturnValue(void*, ReturnValue (internal::GenericClass::*)(Args...), Args...)> m_callback;
 };
 

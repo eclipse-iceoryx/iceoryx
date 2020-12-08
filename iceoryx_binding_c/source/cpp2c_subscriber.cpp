@@ -35,8 +35,8 @@ iox_WaitSetResult cpp2c_Subscriber::attachTo(iox::popo::WaitSet& waitset,
     auto result = std::move(
         waitset
             .acquireTrigger(this,
-                            {this, &cpp2c_Subscriber::hasNewSamples},
-                            {this, &cpp2c_Subscriber::invalidateTrigger},
+                            {*this, &cpp2c_Subscriber::hasNewSamples},
+                            {*this, &cpp2c_Subscriber::invalidateTrigger},
                             triggerId,
                             callback)
             .and_then([this](iox::popo::TriggerHandle& trigger) {

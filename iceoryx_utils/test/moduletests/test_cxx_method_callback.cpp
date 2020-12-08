@@ -45,95 +45,103 @@ class MethodCallback_test : public Test
 
         int myMethod(int a, int b)
         {
-            return a + b;
+            return a + b + m_id;
         }
 
         int myConstMethod(int a, int b) const
         {
-            return a * b;
+            return a * b + m_id;
         }
+
+        int myMethod2(int a, int b)
+        {
+            return a + b + 2 + m_id;
+        }
+
+        int myConstMethod2(int a, int b) const
+        {
+            return a * b + 2 + m_id;
+        }
+
+        int m_id = 0;
     };
 
     TestClass m_testClass;
     TestClass m_testClass2;
 };
 
-TEST_F(MethodCallback_test, NullptrClassPtrInCtorLeadsToInvalidMethodCallback)
+TEST_F(MethodCallback_test, DefaultMethodCallbackCtorProvidesInvalidCallback)
 {
-    MethodCallback<void> sut(static_cast<TestClass*>(nullptr), &TestClass::voidVoidMethod);
+    MethodCallback<void> sut;
     EXPECT_FALSE(static_cast<bool>(sut));
     EXPECT_FALSE(sut.isValid());
 }
 
-TEST_F(MethodCallback_test, NullptrClassPtrInCtorLeadsToInvalidConstMethodCallback)
+TEST_F(MethodCallback_test, DefaultConstMethodCallbackCtorProvidesInvalidCallback)
 {
-    ConstMethodCallback<void> sut(static_cast<TestClass*>(nullptr), &TestClass::constVoidVoidMethod);
+    ConstMethodCallback<void> sut;
     EXPECT_FALSE(static_cast<bool>(sut));
     EXPECT_FALSE(sut.isValid());
 }
 
-TEST_F(MethodCallback_test, NonNullptrClassPtrInCtorLeadsToValidMethodCallback)
+TEST_F(MethodCallback_test, NonDefaultMethodCallbackCtorCreatesValidCallback)
 {
-    MethodCallback<void> sut(&m_testClass, &TestClass::voidVoidMethod);
+    MethodCallback<void> sut(m_testClass, &TestClass::voidVoidMethod);
     EXPECT_TRUE(static_cast<bool>(sut));
     EXPECT_TRUE(sut.isValid());
 }
 
-TEST_F(MethodCallback_test, NonNullptrClassPtrInCtorLeadsToValidConstMethodCallback)
+TEST_F(MethodCallback_test, NonDefaultConstMethodCallbackCtorCreatesValidCallback)
 {
-    ConstMethodCallback<void> sut(&m_testClass, &TestClass::constVoidVoidMethod);
+    ConstMethodCallback<void> sut(m_testClass, &TestClass::constVoidVoidMethod);
     EXPECT_TRUE(static_cast<bool>(sut));
     EXPECT_TRUE(sut.isValid());
 }
 
 TEST_F(MethodCallback_test, GetClassPointerReturnsValidConstMethodCallbackClass)
 {
-    ConstMethodCallback<void> sut(&m_testClass, &TestClass::constVoidVoidMethod);
+    ConstMethodCallback<void> sut(m_testClass, &TestClass::constVoidVoidMethod);
     EXPECT_EQ(sut.getClassPointer<TestClass>(), &m_testClass);
 }
 
 TEST_F(MethodCallback_test, GetClassPointerReturnsValidMethodCallbackClass)
 {
-    MethodCallback<void> sut(&m_testClass, &TestClass::voidVoidMethod);
+    MethodCallback<void> sut(m_testClass, &TestClass::voidVoidMethod);
     EXPECT_EQ(sut.getClassPointer<TestClass>(), &m_testClass);
 }
 
-TEST_F(MethodCallback_test, AssignNonNullptrClassPtrLeadsToValidMethodCallback)
+TEST_F(MethodCallback_test, GetMethodPointerReturnsValidConstMethodCallbackClass)
 {
-    MethodCallback<void> sut(static_cast<TestClass*>(nullptr), &TestClass::voidVoidMethod);
-    sut.setObjectPointer(&m_testClass);
+    ConstMethodCallback<void> sut(m_testClass, &TestClass::constVoidVoidMethod);
+    EXPECT_EQ(sut.getMethodPointer<TestClass>(), &TestClass::constVoidVoidMethod);
+}
+
+TEST_F(MethodCallback_test, GetMethodPointerReturnsValidMethodCallbackClass)
+{
+    MethodCallback<void> sut(m_testClass, &TestClass::voidVoidMethod);
+    EXPECT_EQ(sut.getMethodPointer<TestClass>(), &TestClass::voidVoidMethod);
+}
+
+TEST_F(MethodCallback_test, AssignCallbackClassPtrLeadsToValidMethodCallback)
+{
+    MethodCallback<void> sut;
+    sut.setCallback(m_testClass, &TestClass::voidVoidMethod);
     EXPECT_TRUE(static_cast<bool>(sut));
     EXPECT_TRUE(sut.isValid());
 }
 
-TEST_F(MethodCallback_test, AssignNonNullptrClassPtrLeadsToValidConstMethodCallback)
+TEST_F(MethodCallback_test, AssignCallbackClassPtrLeadsToValidConstMethodCallback)
 {
-    ConstMethodCallback<void> sut(static_cast<TestClass*>(nullptr), &TestClass::constVoidVoidMethod);
-    sut.setObjectPointer(&m_testClass);
+    ConstMethodCallback<void> sut;
+    sut.setCallback(m_testClass, &TestClass::constVoidVoidMethod);
     EXPECT_TRUE(static_cast<bool>(sut));
     EXPECT_TRUE(sut.isValid());
-}
-
-TEST_F(MethodCallback_test, AssignNullptrClassPtrLeadsToInvalidMethodCallback)
-{
-    MethodCallback<void> sut(&m_testClass, &TestClass::voidVoidMethod);
-    sut.setObjectPointer(static_cast<TestClass*>(nullptr));
-    EXPECT_FALSE(static_cast<bool>(sut));
-    EXPECT_FALSE(sut.isValid());
-}
-
-TEST_F(MethodCallback_test, AssignNullptrClassPtrLeadsToInvalidConstMethodCallback)
-{
-    ConstMethodCallback<void> sut(&m_testClass, &TestClass::constVoidVoidMethod);
-    sut.setObjectPointer(static_cast<TestClass*>(nullptr));
-    EXPECT_FALSE(static_cast<bool>(sut));
-    EXPECT_FALSE(sut.isValid());
 }
 
 TEST_F(MethodCallback_test, TwoConstCallbacksWithSameClassAndMethodAreEqual)
 {
-    ConstMethodCallback<void> sut(&m_testClass, &TestClass::constVoidVoidMethod);
-    ConstMethodCallback<void> sut2(&m_testClass, &TestClass::constVoidVoidMethod);
+    ConstMethodCallback<void> sut(m_testClass, &TestClass::constVoidVoidMethod);
+    ConstMethodCallback<void> sut2(m_testClass, &TestClass::constVoidVoidMethod);
 
     EXPECT_TRUE(sut == sut2);
     EXPECT_FALSE(sut != sut2);
@@ -141,8 +149,8 @@ TEST_F(MethodCallback_test, TwoConstCallbacksWithSameClassAndMethodAreEqual)
 
 TEST_F(MethodCallback_test, TwoCallbacksWithSameClassAndMethodAreEqual)
 {
-    MethodCallback<void> sut(&m_testClass, &TestClass::voidVoidMethod);
-    MethodCallback<void> sut2(&m_testClass, &TestClass::voidVoidMethod);
+    MethodCallback<void> sut(m_testClass, &TestClass::voidVoidMethod);
+    MethodCallback<void> sut2(m_testClass, &TestClass::voidVoidMethod);
 
     EXPECT_TRUE(sut == sut2);
     EXPECT_FALSE(sut != sut2);
@@ -150,8 +158,8 @@ TEST_F(MethodCallback_test, TwoCallbacksWithSameClassAndMethodAreEqual)
 
 TEST_F(MethodCallback_test, TwoConstCallbacksWithDifferentClassPtrAreNotEqual)
 {
-    ConstMethodCallback<void> sut(&m_testClass, &TestClass::constVoidVoidMethod);
-    ConstMethodCallback<void> sut2(&m_testClass2, &TestClass::constVoidVoidMethod);
+    ConstMethodCallback<void> sut(m_testClass, &TestClass::constVoidVoidMethod);
+    ConstMethodCallback<void> sut2(m_testClass2, &TestClass::constVoidVoidMethod);
 
     EXPECT_FALSE(sut == sut2);
     EXPECT_TRUE(sut != sut2);
@@ -159,8 +167,8 @@ TEST_F(MethodCallback_test, TwoConstCallbacksWithDifferentClassPtrAreNotEqual)
 
 TEST_F(MethodCallback_test, TwoCallbacksWithDifferentClassPtrAreNotEqual)
 {
-    MethodCallback<void> sut(&m_testClass, &TestClass::voidVoidMethod);
-    MethodCallback<void> sut2(&m_testClass2, &TestClass::voidVoidMethod);
+    MethodCallback<void> sut(m_testClass, &TestClass::voidVoidMethod);
+    MethodCallback<void> sut2(m_testClass2, &TestClass::voidVoidMethod);
 
     EXPECT_FALSE(sut == sut2);
     EXPECT_TRUE(sut != sut2);
@@ -168,8 +176,8 @@ TEST_F(MethodCallback_test, TwoCallbacksWithDifferentClassPtrAreNotEqual)
 
 TEST_F(MethodCallback_test, TwoConstCallbacksWithDifferentMethodPtrAreNotEqual)
 {
-    ConstMethodCallback<void> sut(&m_testClass, &TestClass::constVoidVoidMethod);
-    ConstMethodCallback<void> sut2(&m_testClass, &TestClass::constVoidVoidMethod2);
+    ConstMethodCallback<void> sut(m_testClass, &TestClass::constVoidVoidMethod);
+    ConstMethodCallback<void> sut2(m_testClass, &TestClass::constVoidVoidMethod2);
 
     EXPECT_FALSE(sut == sut2);
     EXPECT_TRUE(sut != sut2);
@@ -177,8 +185,8 @@ TEST_F(MethodCallback_test, TwoConstCallbacksWithDifferentMethodPtrAreNotEqual)
 
 TEST_F(MethodCallback_test, TwoCallbacksWithDifferentMethodPtrAreNotEqual)
 {
-    MethodCallback<void> sut(&m_testClass, &TestClass::voidVoidMethod);
-    MethodCallback<void> sut2(&m_testClass2, &TestClass::voidVoidMethod2);
+    MethodCallback<void> sut(m_testClass, &TestClass::voidVoidMethod);
+    MethodCallback<void> sut2(m_testClass2, &TestClass::voidVoidMethod2);
 
     EXPECT_FALSE(sut == sut2);
     EXPECT_TRUE(sut != sut2);
@@ -186,7 +194,7 @@ TEST_F(MethodCallback_test, TwoCallbacksWithDifferentMethodPtrAreNotEqual)
 
 TEST_F(MethodCallback_test, InvalidConstCallbackCalledWillReturnError)
 {
-    ConstMethodCallback<void> sut(static_cast<TestClass*>(nullptr), &TestClass::constVoidVoidMethod);
+    ConstMethodCallback<void> sut;
 
     auto result = sut();
     ASSERT_TRUE(result.has_error());
@@ -195,7 +203,7 @@ TEST_F(MethodCallback_test, InvalidConstCallbackCalledWillReturnError)
 
 TEST_F(MethodCallback_test, InvalidCallbackCalledWillReturnError)
 {
-    MethodCallback<void> sut(static_cast<TestClass*>(nullptr), &TestClass::voidVoidMethod);
+    MethodCallback<void> sut;
 
     auto result = sut();
     ASSERT_TRUE(result.has_error());
@@ -204,7 +212,7 @@ TEST_F(MethodCallback_test, InvalidCallbackCalledWillReturnError)
 
 TEST_F(MethodCallback_test, ValidConstCallbackReturnsValue)
 {
-    ConstMethodCallback<int, int, int> sut(&m_testClass, &TestClass::myConstMethod);
+    ConstMethodCallback<int, int, int> sut(m_testClass, &TestClass::myConstMethod);
 
     auto result = sut(4, 5);
     ASSERT_FALSE(result.has_error());
@@ -213,16 +221,80 @@ TEST_F(MethodCallback_test, ValidConstCallbackReturnsValue)
 
 TEST_F(MethodCallback_test, ValidCallbackReturnsValue)
 {
-    MethodCallback<int, int, int> sut(&m_testClass, &TestClass::myMethod);
+    MethodCallback<int, int, int> sut(m_testClass, &TestClass::myMethod);
 
     auto result = sut(6, 7);
     ASSERT_FALSE(result.has_error());
     EXPECT_EQ(*result, 6 + 7);
 }
 
+TEST_F(MethodCallback_test, SetNewCallbackMethodOnConstMethodCallbackReturnsValue)
+{
+    ConstMethodCallback<int, int, int> sut(m_testClass, &TestClass::myConstMethod);
+    sut.setCallback(m_testClass, &TestClass::myConstMethod2);
+
+    auto result = sut(4, 5);
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(*result, 4 * 5 + 2);
+}
+
+TEST_F(MethodCallback_test, SetNewCallbackMethodOnMethodCallbackReturnsValue)
+{
+    MethodCallback<int, int, int> sut(m_testClass, &TestClass::myMethod);
+    sut.setCallback(m_testClass, &TestClass::myMethod2);
+
+    auto result = sut(6, 7);
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(*result, 6 + 7 + 2);
+}
+
+TEST_F(MethodCallback_test, SetNewCallbackOriginOnConstMethodCallbackReturnsValue)
+{
+    ConstMethodCallback<int, int, int> sut(m_testClass, &TestClass::myConstMethod);
+    sut.setCallback(m_testClass2, &TestClass::myConstMethod);
+    m_testClass2.m_id = 567;
+
+    auto result = sut(4, 5);
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(*result, 4 * 5 + 567);
+}
+
+TEST_F(MethodCallback_test, SetNewCallbackOriginOnMethodCallbackReturnsValue)
+{
+    MethodCallback<int, int, int> sut(m_testClass, &TestClass::myMethod);
+    sut.setCallback(m_testClass2, &TestClass::myMethod);
+    m_testClass2.m_id = 5671;
+
+    auto result = sut(6, 7);
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(*result, 6 + 7 + 5671);
+}
+
+TEST_F(MethodCallback_test, SetNewCallbackFullOnConstMethodCallbackReturnsValue)
+{
+    ConstMethodCallback<int, int, int> sut(m_testClass, &TestClass::myConstMethod);
+    sut.setCallback(m_testClass2, &TestClass::myConstMethod2);
+    m_testClass2.m_id = 1567;
+
+    auto result = sut(4, 5);
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(*result, 4 * 5 + 1567 + 2);
+}
+
+TEST_F(MethodCallback_test, SetNewCallbackFullOnMethodCallbackReturnsValue)
+{
+    MethodCallback<int, int, int> sut(m_testClass, &TestClass::myMethod);
+    sut.setCallback(m_testClass2, &TestClass::myMethod2);
+    m_testClass2.m_id = 56711;
+
+    auto result = sut(6, 7);
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(*result, 6 + 7 + 56711 + 2);
+}
+
 TEST_F(MethodCallback_test, MoveCTorInvalidatesOriginForConstMethod)
 {
-    ConstMethodCallback<int, int, int> sut(&m_testClass, &TestClass::myConstMethod);
+    ConstMethodCallback<int, int, int> sut(m_testClass, &TestClass::myConstMethod);
     ConstMethodCallback<int, int, int> sut2(std::move(sut));
 
     EXPECT_TRUE(sut2.isValid());
@@ -231,7 +303,7 @@ TEST_F(MethodCallback_test, MoveCTorInvalidatesOriginForConstMethod)
 
 TEST_F(MethodCallback_test, MoveCTorInvalidatesOriginForMethod)
 {
-    MethodCallback<int, int, int> sut(&m_testClass, &TestClass::myMethod);
+    MethodCallback<int, int, int> sut(m_testClass, &TestClass::myMethod);
     MethodCallback<int, int, int> sut2(std::move(sut));
 
     EXPECT_TRUE(sut2.isValid());
@@ -240,7 +312,7 @@ TEST_F(MethodCallback_test, MoveCTorInvalidatesOriginForMethod)
 
 TEST_F(MethodCallback_test, MoveAssignmentInvalidatesOriginForConstMethod)
 {
-    ConstMethodCallback<int, int, int> sut(&m_testClass, &TestClass::myConstMethod);
+    ConstMethodCallback<int, int, int> sut(m_testClass, &TestClass::myConstMethod);
     ConstMethodCallback<int, int, int> sut2;
     sut2 = std::move(sut);
 
@@ -250,7 +322,7 @@ TEST_F(MethodCallback_test, MoveAssignmentInvalidatesOriginForConstMethod)
 
 TEST_F(MethodCallback_test, MoveAssignmentInvalidatesOriginForMethod)
 {
-    MethodCallback<int, int, int> sut(&m_testClass, &TestClass::myMethod);
+    MethodCallback<int, int, int> sut(m_testClass, &TestClass::myMethod);
     MethodCallback<int, int, int> sut2;
     sut2 = std::move(sut);
 
@@ -260,7 +332,7 @@ TEST_F(MethodCallback_test, MoveAssignmentInvalidatesOriginForMethod)
 
 TEST_F(MethodCallback_test, MoveCTorDestinationCanCallCallbackForConstMethod)
 {
-    ConstMethodCallback<int, int, int> sut(&m_testClass, &TestClass::myConstMethod);
+    ConstMethodCallback<int, int, int> sut(m_testClass, &TestClass::myConstMethod);
     ConstMethodCallback<int, int, int> sut2(std::move(sut));
 
     auto result = sut2(8, 9);
@@ -270,7 +342,7 @@ TEST_F(MethodCallback_test, MoveCTorDestinationCanCallCallbackForConstMethod)
 
 TEST_F(MethodCallback_test, MoveAssignemtnDestinationCanCallCallbackForConstMethod)
 {
-    ConstMethodCallback<int, int, int> sut(&m_testClass, &TestClass::myConstMethod);
+    ConstMethodCallback<int, int, int> sut(m_testClass, &TestClass::myConstMethod);
     ConstMethodCallback<int, int, int> sut2;
     sut2 = (std::move(sut));
 
@@ -281,7 +353,7 @@ TEST_F(MethodCallback_test, MoveAssignemtnDestinationCanCallCallbackForConstMeth
 
 TEST_F(MethodCallback_test, MoveCTorDestinationCanCallCallbackForMethod)
 {
-    MethodCallback<int, int, int> sut(&m_testClass, &TestClass::myMethod);
+    MethodCallback<int, int, int> sut(m_testClass, &TestClass::myMethod);
     MethodCallback<int, int, int> sut2(std::move(sut));
 
     auto result = sut2(12, 14);
@@ -291,7 +363,7 @@ TEST_F(MethodCallback_test, MoveCTorDestinationCanCallCallbackForMethod)
 
 TEST_F(MethodCallback_test, MoveAssignemtnDestinationCanCallCallbackForMethod)
 {
-    MethodCallback<int, int, int> sut(&m_testClass, &TestClass::myMethod);
+    MethodCallback<int, int, int> sut(m_testClass, &TestClass::myMethod);
     MethodCallback<int, int, int> sut2;
     sut2 = (std::move(sut));
 

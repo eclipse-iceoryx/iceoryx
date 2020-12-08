@@ -150,7 +150,7 @@ BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet& waitset,
 
     return waitset
         .acquireTrigger(
-            self, {this, &SelfType::hasNewSamples}, {this, &SelfType::invalidateTrigger}, triggerId, callback)
+            self, {*this, &SelfType::hasNewSamples}, {*this, &SelfType::invalidateTrigger}, triggerId, callback)
         .and_then([this](TriggerHandle& trigger) {
             m_trigger = std::move(trigger);
             m_port.setConditionVariable(m_trigger.getConditionVariableData());

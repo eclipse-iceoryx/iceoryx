@@ -487,8 +487,8 @@ have to be provided.
         {
             return waitset
                 .acquireTrigger(this,
-                                {this, &MyTriggerClass::hasPerformedAction},
-                                {this, &MyTriggerClass::invalidateTrigger},
+                                {*this, &MyTriggerClass::hasPerformedAction},
+                                {*this, &MyTriggerClass::invalidateTrigger},
                                 triggerId,
                                 callback)
                 .and_then([this](iox::popo::TriggerHandle& trigger) { 
@@ -503,8 +503,8 @@ for the trigger.
         {
             return waitset
                 .acquireTrigger(this,
-                                {this, &MyTriggerClass::isActivated},
-                                {this, &MyTriggerClass::invalidateTrigger},
+                                {*this, &MyTriggerClass::isActivated},
+                                {*this, &MyTriggerClass::invalidateTrigger},
                                 triggerId,
                                 callback)
                 .and_then([this](iox::popo::TriggerHandle& trigger) { 
