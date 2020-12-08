@@ -615,7 +615,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
     // items are either in the local lists or the queue, in total we expect each count numThreads times
     // and for each count each id exactly once
 
-    std::vector<std::vector<int>> count(capacity, std::vector<int>(numThreads, 0));
+    std::vector<std::vector<int>> count(capacity, std::vector<int>(numThreads + 1, 0));
     auto popped = q.pop();
     while (popped.has_value())
     {
@@ -638,7 +638,8 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
     {
         // we expect each data item exactly numThreads + 1 times,
         // the extra one is for the initially full queue
-        for (int j = 0; j < numThreads; ++j)
+        // and each count appears for all ids exactly ones
+        for (int j = 0; j <= numThreads; ++j)
         {
             if (count[i][j] != 1)
             {
@@ -729,7 +730,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, hybridMultiProducerMultiConsumer0v
     // items are either in the local lists or the queue, in total we expect each count numThreads times
     // and for each count each id exactly once
 
-    std::vector<std::vector<int>> count(capacity, std::vector<int>(numThreads, 0));
+    std::vector<std::vector<int>> count(capacity, std::vector<int>(numThreads + 1, 0));
     auto popped = q.pop();
     while (popped.has_value())
     {
@@ -752,7 +753,8 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, hybridMultiProducerMultiConsumer0v
     {
         // we expect each data item exactly numThreads + 1 times,
         // the extra one is for the initially full queue
-        for (int j = 0; j < numThreads; ++j)
+        // and each count appears for all ids exactly ones
+        for (int j = 0; j <= numThreads; ++j)
         {
             if (count[i][j] != 1)
             {
