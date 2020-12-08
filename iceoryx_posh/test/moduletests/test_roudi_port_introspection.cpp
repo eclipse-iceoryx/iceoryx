@@ -179,8 +179,10 @@ TEST_F(PortIntrospection_test, sendPortData_EmptyList)
 
     m_introspectionAccess.sendPortData();
 
-    EXPECT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_publisherList.size(), Eq(0));
-    EXPECT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_subscriberList.size(), Eq(0));
+    auto sample = m_introspectionAccess.getPublisherPort().value().m_chunk.sample();
+
+    EXPECT_THAT(sample->m_publisherList.size(), Eq(0));
+    EXPECT_THAT(sample->m_subscriberList.size(), Eq(0));
 }
 
 TEST_F(PortIntrospection_test, addAndRemovePublisher)
@@ -229,8 +231,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     auto sample = m_introspectionAccess.getPublisherPort().value().m_chunk.sample();
 
     {
-        ASSERT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_publisherList.size(), Eq(2));
-        ASSERT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_subscriberList.size(), Eq(0));
+        ASSERT_THAT(sample->m_publisherList.size(), Eq(2));
+        ASSERT_THAT(sample->m_subscriberList.size(), Eq(0));
 
         auto& publisherInfo1 = sample->m_publisherList[0];
         auto& publisherInfo2 = sample->m_publisherList[1];
@@ -258,8 +260,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     m_introspectionAccess.sendPortData();
 
     {
-        ASSERT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_publisherList.size(), Eq(1));
-        ASSERT_THAT(m_introspectionAccess.getPublisherPort().value().m_chunk.sample()->m_subscriberList.size(), Eq(0));
+        ASSERT_THAT(sample->m_publisherList.size(), Eq(1));
+        ASSERT_THAT(sample->m_subscriberList.size(), Eq(0));
 
         EXPECT_THAT(comparePortData(sample->m_publisherList[0], expected2), Eq(true));
     }
