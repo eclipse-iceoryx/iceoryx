@@ -49,10 +49,8 @@ template <typename PublisherPort, typename SubscriberPort>
 class PortIntrospectionAccess : public iox::roudi::PortIntrospection<PublisherPort, SubscriberPort>
 {
   public:
-    void sendPortData()
-    {
-        iox::roudi::PortIntrospection<PublisherPort, SubscriberPort>::sendPortData();
-    }
+    using iox::roudi::PortIntrospection<PublisherPort, SubscriberPort>::sendPortData;
+
     void sendThroughputData()
     {
         iox::roudi::PortIntrospection<PublisherPort, SubscriberPort>::sendThroughputData();

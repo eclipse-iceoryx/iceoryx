@@ -52,10 +52,7 @@ class MockPublisherPortUserIntrospection : public MockPublisherPortUser
 class ProcessIntrospectionAccess : public iox::roudi::ProcessIntrospection<MockPublisherPortUserIntrospection>
 {
   public:
-    void send()
-    {
-        iox::roudi::ProcessIntrospection<MockPublisherPortUserIntrospection>::send();
-    }
+    using iox::roudi::ProcessIntrospection<MockPublisherPortUserIntrospection>::send;
 
     iox::cxx::optional<MockPublisherPortUserIntrospection>& getPublisherPort()
     {
