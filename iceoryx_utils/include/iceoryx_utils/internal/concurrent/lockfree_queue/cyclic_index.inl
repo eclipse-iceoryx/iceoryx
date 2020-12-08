@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,6 +41,12 @@ ValueType CyclicIndex<CycleLength, ValueType>::getCycle() const noexcept
 }
 
 template <uint64_t CycleLength, typename ValueType>
+ValueType CyclicIndex<CycleLength, ValueType>::getValue() const noexcept
+{
+    return m_value;
+}
+
+template <uint64_t CycleLength, typename ValueType>
 CyclicIndex<CycleLength, ValueType> CyclicIndex<CycleLength, ValueType>::operator+(const ValueType value) const noexcept
 {
     // if we were at this value, we would have no overflow, i.e. when m_value is larger there is an overflow
@@ -80,6 +86,12 @@ bool CyclicIndex<CycleLength, ValueType>::isOneCycleBehind(const CyclicIndex& ot
         return otherCycle == 0;
     }
     return (thisCycle + 1 == otherCycle);
+}
+
+template <uint64_t CycleLength, typename ValueType>
+int64_t CyclicIndex<CycleLength, ValueType>::operator-(const CyclicIndex<CycleLength, ValueType>& rhs) const
+{
+    return m_value - rhs.m_value;
 }
 } // namespace concurrent
 } // namespace iox

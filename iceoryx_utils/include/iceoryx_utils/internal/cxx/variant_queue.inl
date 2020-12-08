@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        m_fifo.template emplace<concurrent::LockFreeQueue<ValueType, Capacity>>();
+        m_fifo.template emplace<concurrent::ResizeableLockFreeQueue<ValueType, Capacity>>();
         break;
     }
     default:
@@ -252,7 +252,7 @@ inline uint64_t VariantQueue<ValueType, Capacity>::size() noexcept
 
 
 template <typename ValueType, uint64_t Capacity>
-inline void VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCapacity) noexcept
+inline bool VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCapacity) noexcept
 {
     switch (m_type)
     {
@@ -260,26 +260,28 @@ inline void VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCap
     {
         /// @todo must be implemented for FiFo
         assert(false);
-        break;
+        return false;
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
         m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
             ->setCapacity(newCapacity);
-        break;
+        return true;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        /// @todo must be implemented for LockFreeQueue
-        assert(false);
-        break;
+        // we may discard elements in the queue if the size is reduced and the fifo contains too many elements
+        return m_fifo
+            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
+            ->setCapacity(newCapacity);
     }
     default:
     {
         errorHandler(Error::kVARIANT_QUEUE__UNSUPPORTED_QUEUE_TYPE);
     }
     }
+    return false;
 }
 
 template <typename ValueType, uint64_t Capacity>
