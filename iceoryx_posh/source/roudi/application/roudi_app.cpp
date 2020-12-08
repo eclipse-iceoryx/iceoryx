@@ -86,11 +86,6 @@ void RouDiApp::registerSigHandler() noexcept
     }
 }
 
-RouDiApp::RouDiApp(int argc, char* argv[], const mepoo::MePooConfig* mePooConfig) noexcept
-    : RouDiApp(argc, argv, generateConfigFromMePooConfig(mePooConfig))
-{
-}
-
 RouDiApp::RouDiApp(int argc, char* argv[], const RouDiConfig_t& config) noexcept
     : RouDiApp(config)
 {
