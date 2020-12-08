@@ -122,13 +122,7 @@ void RouDi::mqThread()
     {
         // read RouDi message queue
         runtime::MqMessage message;
-        /// @todo do we really need timedReceive? an alternative solution would be to close the message queue,
-        /// which also results in a return from mq_receive, and check the relevant errno and shutdown RouDi
-        if (!roudiMqInterface.timedReceive(m_messageQueueTimeout, message))
-        {
-            // TODO: errorHandling
-        }
-        else
+        if (roudiMqInterface.timedReceive(m_messageQueueTimeout, message))
         {
             auto cmd = runtime::stringToMqMessageType(message.getElementAtIndex(0).c_str());
             std::string processName = message.getElementAtIndex(1);
