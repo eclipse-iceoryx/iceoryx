@@ -61,7 +61,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::discover(const capro::Capr
                << ", Instance: " << msg.m_serviceDescription.getInstanceIDString()
                << ", Event: " << msg.m_serviceDescription.getEventIDString() << " }";
 
-    if (msg.m_serviceDescription.getServiceIDString() == capro::IdString(roudi::INTROSPECTION_SERVICE_ID))
+    if (msg.m_serviceDescription.getServiceIDString() == capro::IdString(roudi::INTROSPECTION_APP_NAME))
     {
         return;
     }
