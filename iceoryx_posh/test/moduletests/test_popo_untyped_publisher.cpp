@@ -44,7 +44,7 @@ class UntypedPublisherTest : public Test
 TEST_F(UntypedPublisherTest, PublishesVoidPointerViaUnderlyingPort)
 {
     // ===== Setup ===== //
-    void* chunk = iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader));
+    void* chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
     EXPECT_CALL(sut.m_port, sendChunk).Times(1); // m_port is mocked.
     // ===== Test ===== //
     sut.publish(chunk);

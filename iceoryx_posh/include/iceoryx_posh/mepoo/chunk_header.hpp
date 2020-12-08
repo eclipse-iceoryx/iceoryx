@@ -77,9 +77,6 @@ struct alignas(32) ChunkHeader
     static ChunkHeader* fromPayload(const void* const payload) noexcept;
 };
 
-/// @deprecated iox-#14 use ChunkHeader::fromPayload
-ChunkHeader* convertPayloadPointerToChunkHeader(const void* const payload) noexcept;
-
 } // namespace mepoo
 } // namespace iox
 

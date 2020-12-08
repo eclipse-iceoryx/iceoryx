@@ -122,8 +122,7 @@ TEST_F(BaseSubscriberTest, HasNewSamplesCallForwardedToUnderlyingSubscriberPort)
 TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksWrappedInSample)
 {
     // ===== Setup ===== //
-    auto chunk =
-        reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
     EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
         .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(
             const_cast<const iox::mepoo::ChunkHeader*>(chunk)))));
@@ -135,13 +134,13 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunksWrappedInSample)
     EXPECT_EQ(reinterpret_cast<DummyData*>(chunk->payload()),
               result.value().value().get()); // Checks they point to the same memory location.
     // ===== Cleanup ===== //
+    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(BaseSubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
 {
     // ===== Setup ===== //
-    auto chunk =
-        reinterpret_cast<iox::mepoo::ChunkHeader*>(iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader)));
+    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
     EXPECT_CALL(sut.getMockedPort(), tryGetChunk)
         .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<const iox::mepoo::ChunkHeader*>>(
             const_cast<const iox::mepoo::ChunkHeader*>(chunk)))));
@@ -152,6 +151,7 @@ TEST_F(BaseSubscriberTest, ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope)
     }
     // ===== Verify ===== //
     // ===== Cleanup ===== //
+    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)

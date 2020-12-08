@@ -43,10 +43,5 @@ ChunkHeader* ChunkHeader::fromPayload(const void* const payload) noexcept
     return reinterpret_cast<ChunkHeader*>(payloadAddress - *payloadOffset);
 }
 
-ChunkHeader* convertPayloadPointerToChunkHeader(const void* const payload) noexcept
-{
-    return reinterpret_cast<ChunkHeader*>(reinterpret_cast<uint64_t>(payload) - sizeof(ChunkHeader));
-}
-
 } // namespace mepoo
 } // namespace iox
