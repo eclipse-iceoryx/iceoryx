@@ -166,10 +166,6 @@ class MemPoolIntrospection_test : public Test
     MePooMemoryManager_MOCK m_rouDiInternalMemoryManager_mock;
     SegmentManagerMock m_segmentManager_mock;
     MockPublisherPortUser m_publisherPortImpl_mock;
-
-    iox::mepoo::MemoryManager m_memoryManager;
-    iox::capro::ServiceDescription m_serviceDescription;
-    iox::popo::PublisherPortData m_publisherPortData{m_serviceDescription, "Foo", &m_memoryManager};
 };
 
 TEST_F(MemPoolIntrospection_test, CTOR)
