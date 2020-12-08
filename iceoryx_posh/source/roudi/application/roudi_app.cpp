@@ -57,8 +57,6 @@ void RouDiApp::roudiSigHandler(int32_t signal) noexcept
 
 void RouDiApp::registerSigHandler() noexcept
 {
-    /// @todo smart_c all the things
-
     // Save the pointer to self
     g_RouDiApp = this;
 
@@ -67,22 +65,22 @@ void RouDiApp::registerSigHandler() noexcept
     sigemptyset(&act.sa_mask);
     act.sa_handler = roudiSigHandler;
     act.sa_flags = 0;
-    if (-1 == sigaction(SIGINT, &act, NULL))
+    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGINT, &act, nullptr).hasErrors())
     {
-        LogError() << "Calling sigaction() failed";
-        std::terminate();
+        LogFatal() << "Calling sigaction() failed";
+        errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
     }
 
-    if (-1 == sigaction(SIGTERM, &act, NULL))
+    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGTERM, &act, nullptr).hasErrors())
     {
-        LogError() << "Calling sigaction() failed";
-        std::terminate();
+        LogFatal() << "Calling sigaction() failed";
+        errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
     }
 
-    if (-1 == sigaction(SIGHUP, &act, NULL))
+    if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGHUP, &act, nullptr).hasErrors())
     {
-        LogError() << "Calling sigaction() failed";
-        std::terminate();
+        LogFatal() << "Calling sigaction() failed";
+        errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
     }
 }
 

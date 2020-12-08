@@ -78,7 +78,7 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
             .hasErrors())
     {
         LogFatal() << "Could not set signal handler for SIGBUS!";
-        std::terminate();
+        errorHandler(Error::kROUDI_MEMORY__COULD_NOT_REGISTER_SIGBUS, nullptr, ErrorLevel::FATAL);
     }
 
     // create and map a shared memory region
@@ -89,7 +89,7 @@ cxx::expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(c
             .hasErrors())
     {
         LogFatal() << "Could not reset signal handler for SIGBUS!";
-        std::terminate();
+        errorHandler(Error::kROUDI_MEMORY__COULD_NOT_UNREGISTER_SIGBUS, nullptr, ErrorLevel::FATAL);
     }
 
     if (!m_shmObject.has_value())
