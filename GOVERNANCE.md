@@ -11,6 +11,8 @@ An up to date list of the maintainers can be found at the [Eclipse project page]
 
 Bi-weekly every Thursday for 1 hour. Everyone is welcome to join.
 
+You can join by using this Zoom link: **ADD LINK HERE**
+
 ```
 08:00 PST (GMT - 8)
 16:00 GMT
@@ -28,7 +30,6 @@ Bi-weekly every Thursday for 1 hour. Everyone is welcome to join.
 * Steer direction of Eclipse iceoryx
   * Go over the current release board under Projects
   * E.g. go over the milestone list and move the issues between the three prio's
-  * In case of disagreement a vote is casted amongst the attendees
 * Raise and answer questions
 * Discuss tooling and infrastructure
 * All others topics related to iceoryx one can think of

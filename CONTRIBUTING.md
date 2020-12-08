@@ -10,11 +10,6 @@ different processes on a POSIX based operating system like Linux, this huge
 amount of data has to be transferred via an inter-process-communication (IPC)
 mechanism. Find more infos on the [Eclipse site](https://projects.eclipse.org/projects/technology.iceoryx).
 
-## Developer resources
-
-Information regarding source code management, builds, coding standards, and
-more can be found on the [Eclipse site](https://projects.eclipse.org/projects/technology.iceoryx/developer).
-
 ## Eclipse Contributor Agreement
 
 Before your contribution can be accepted by the project team, contributors must
