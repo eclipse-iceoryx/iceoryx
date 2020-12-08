@@ -21,7 +21,7 @@ Bi-weekly every Thursday for 1 hour. Everyone is welcome to join.
 
 ### Topics
 
-* Propse features
+* Propose features
   * E.g. present and discuss a design document
 * Discuss pull requests without going into details
   * E.g. a small demo
