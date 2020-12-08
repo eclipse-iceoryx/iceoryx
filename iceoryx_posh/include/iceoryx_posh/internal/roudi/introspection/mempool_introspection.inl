@@ -135,51 +135,55 @@ void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::send() 
     {
         uint32_t id = 0;
         auto maybeChunkHeader = m_publisherPort.tryAllocateChunk(sizeof(MemPoolIntrospectionInfoContainer));
-        if (!maybeChunkHeader.has_error())
+        if (maybeChunkHeader.has_error())
         {
-            auto sample = static_cast<MemPoolIntrospectionInfoContainer*>(maybeChunkHeader.value()->payload());
-            new (sample) MemPoolIntrospectionInfoContainer;
-
-            if (sample->emplace_back())
-            {
-                // RouDi's shm segment
-                auto& memPoolIntrospectionInfo = sample->back();
-                prepareIntrospectionSample(memPoolIntrospectionInfo,
-                                           posix::PosixGroup::getGroupOfCurrentProcess(),
-                                           posix::PosixGroup::getGroupOfCurrentProcess(),
-                                           id);
-                copyMemPoolInfo(*m_rouDiInternalMemoryManager, memPoolIntrospectionInfo.m_mempoolInfo);
-                ++id;
-
-                // User shm segments
-                for (auto& segment : m_segmentManager->m_segmentContainer)
-                {
-                    if (sample->emplace_back())
-                    {
-                        auto& memPoolIntrospectionInfo = sample->back();
-                        prepareIntrospectionSample(
-                            memPoolIntrospectionInfo, segment.getReaderGroup(), segment.getWriterGroup(), id);
-                        copyMemPoolInfo(segment.getMemoryManager(), memPoolIntrospectionInfo.m_mempoolInfo);
-                    }
-                    else
-                    {
-                        LogWarn()
-                            << "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
-                            << (id + 1) << " of " << m_segmentManager->m_segmentContainer.size()
-                            << " memory segments sent.";
-                        errorHandler(Error::kMEPOO__INTROSPECTION_CONTAINER_FULL, nullptr, ErrorLevel::MODERATE);
-                        break;
-                    }
-                    ++id;
-                }
-            }
-            else
-            {
-                LogWarn() << "Mempool Introspection Container full, Mempool Introspection Data not updated!";
-            }
-
-            m_publisherPort.sendChunk(maybeChunkHeader.value());
+            LogWarn() << "Cannot allocate chunk for mempool introspection!";
+            errorHandler(Error::kMEPOO__CANNOT_ALLOCATE_CHUNK, nullptr, ErrorLevel::MODERATE);
         }
+
+        auto sample = static_cast<MemPoolIntrospectionInfoContainer*>(maybeChunkHeader.value()->payload());
+        new (sample) MemPoolIntrospectionInfoContainer;
+
+        if (sample->emplace_back())
+        {
+            // RouDi's shm segment
+            auto& memPoolIntrospectionInfo = sample->back();
+            prepareIntrospectionSample(memPoolIntrospectionInfo,
+                                       posix::PosixGroup::getGroupOfCurrentProcess(),
+                                       posix::PosixGroup::getGroupOfCurrentProcess(),
+                                       id);
+            copyMemPoolInfo(*m_rouDiInternalMemoryManager, memPoolIntrospectionInfo.m_mempoolInfo);
+            ++id;
+
+            // User shm segments
+            for (auto& segment : m_segmentManager->m_segmentContainer)
+            {
+                if (sample->emplace_back())
+                {
+                    auto& memPoolIntrospectionInfo = sample->back();
+                    prepareIntrospectionSample(
+                        memPoolIntrospectionInfo, segment.getReaderGroup(), segment.getWriterGroup(), id);
+                    copyMemPoolInfo(segment.getMemoryManager(), memPoolIntrospectionInfo.m_mempoolInfo);
+                }
+                else
+                {
+                    LogWarn() << "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
+                              << (id + 1) << " of " << m_segmentManager->m_segmentContainer.size()
+                              << " memory segments sent.";
+                    errorHandler(Error::kMEPOO__INTROSPECTION_CONTAINER_FULL, nullptr, ErrorLevel::MODERATE);
+                    break;
+                }
+                ++id;
+            }
+        }
+        else
+        {
+            LogWarn() << "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
+                      << (id + 1) << " of " << m_segmentManager->m_segmentContainer.size() << " memory segments sent.";
+            errorHandler(Error::kMEPOO__INTROSPECTION_CONTAINER_FULL, nullptr, ErrorLevel::MODERATE);
+        }
+
+        m_publisherPort.sendChunk(maybeChunkHeader.value());
     }
 }
 
