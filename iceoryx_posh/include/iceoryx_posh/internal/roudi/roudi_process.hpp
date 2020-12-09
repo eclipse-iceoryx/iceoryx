@@ -136,24 +136,23 @@ class ProcessManager : public ProcessManagerInterface
 
     void findServiceForProcess(const ProcessName_t& name, const capro::ServiceDescription& service) noexcept;
 
-    void addInterfaceForProcess(const ProcessName_t& name,
-                                capro::Interfaces interface,
-                                const RunnableName_t& runnable) noexcept;
+    void
+    addInterfaceForProcess(const ProcessName_t& name, capro::Interfaces interface, const NodeName_t& node) noexcept;
 
     void addApplicationForProcess(const ProcessName_t& name) noexcept;
 
-    void addRunnableForProcess(const ProcessName_t& process, const RunnableName_t& runnable) noexcept;
+    void addNodeForProcess(const ProcessName_t& process, const NodeName_t& node) noexcept;
 
     void addSubscriberForProcess(const ProcessName_t& name,
                                  const capro::ServiceDescription& service,
                                  const uint64_t& historyRequest,
-                                 const RunnableName_t& runnable,
+                                 const NodeName_t& node,
                                  const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addPublisherForProcess(const ProcessName_t& name,
                                 const capro::ServiceDescription& service,
                                 const uint64_t& historyCapacity,
-                                const RunnableName_t& runnable,
+                                const NodeName_t& node,
                                 const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addConditionVariableForProcess(const ProcessName_t& processName) noexcept;

@@ -28,7 +28,7 @@
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_message.hpp"
-#include "iceoryx_posh/internal/runtime/runnable_data.hpp"
+#include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -66,23 +66,23 @@ class PortManager
                              const uint64_t& historyCapacity,
                              const ProcessName_t& processName,
                              mepoo::MemoryManager* payloadMemoryManager,
-                             const RunnableName_t& runnable,
+                             const NodeName_t& node,
                              const PortConfigInfo& portConfigInfo) noexcept;
 
     cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
     acquireSubscriberPortData(const capro::ServiceDescription& service,
                               const uint64_t& historyRequest,
                               const ProcessName_t& processName,
-                              const RunnableName_t& runnable,
+                              const NodeName_t& node,
                               const PortConfigInfo& portConfigInfo) noexcept;
 
     popo::InterfacePortData* acquireInterfacePortData(capro::Interfaces interface,
                                                       const ProcessName_t& processName,
-                                                      const RunnableName_t& runnable = "") noexcept;
+                                                      const NodeName_t& node = "") noexcept;
 
     popo::ApplicationPortData* acquireApplicationPortData(const ProcessName_t& processName) noexcept;
 
-    runtime::RunnableData* acquireRunnableData(const ProcessName_t& process, const RunnableName_t& runnable) noexcept;
+    runtime::NodeData* acquireNodeData(const ProcessName_t& process, const NodeName_t& node) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, PortPoolError> acquireConditionVariableData() noexcept;
 
@@ -104,7 +104,7 @@ class PortManager
 
     void handleApplications() noexcept;
 
-    void handleRunnables() noexcept;
+    void handleNodes() noexcept;
 
     bool sendToAllMatchingPublisherPorts(const capro::CaproMessage& message,
                                          SubscriberPortType& subscriberSource) noexcept;

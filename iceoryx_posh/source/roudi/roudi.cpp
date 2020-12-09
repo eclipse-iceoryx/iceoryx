@@ -15,7 +15,7 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
-#include "iceoryx_posh/internal/runtime/runnable_property.hpp"
+#include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
@@ -165,7 +165,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 6)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::REG\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::REG\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -184,7 +184,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 6)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_PUBLISHER\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_PUBLISHER\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -195,7 +195,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             m_prcMgr.addPublisherForProcess(processName,
                                             service,
                                             std::stoull(message.getElementAtIndex(3)),
-                                            RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
+                                            NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
                                             iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -204,7 +204,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 6)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_SUBSCRIBER\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_SUBSCRIBER\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -215,7 +215,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
             m_prcMgr.addSubscriberForProcess(processName,
                                              service,
                                              std::stoull(message.getElementAtIndex(3)),
-                                             RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
+                                             NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(4)),
                                              iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
@@ -224,7 +224,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 2)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_CONDITION_VARIABLE\" from \""
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_CONDITION_VARIABLE\" from \""
                        << processName << "\"received!";
             errorHandler(
                 Error::kPORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, nullptr, iox::ErrorLevel::MODERATE);
@@ -239,7 +239,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 4)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_INTERFACE\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_INTERFACE\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -248,7 +248,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
                 StringToCaProInterface(capro::IdString(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
 
             m_prcMgr.addInterfaceForProcess(
-                processName, interface, RunnableName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
+                processName, interface, NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));
         }
         break;
     }
@@ -256,7 +256,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 2)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_APPLICATION\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_APPLICATION\" from \"" << processName
                        << "\"received!";
         }
         else
@@ -265,17 +265,17 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         }
         break;
     }
-    case runtime::MqMessageType::CREATE_RUNNABLE:
+    case runtime::MqMessageType::CREATE_NODE:
     {
         if (message.getNumberOfElements() != 3)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::CREATE_RUNNABLE\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_NODE\" from \"" << processName
                        << "\"received!";
         }
         else
         {
-            runtime::RunnableProperty runnableProperty(cxx::Serialization(message.getElementAtIndex(2)));
-            m_prcMgr.addRunnableForProcess(processName, runnableProperty.m_name);
+            runtime::NodeProperty nodeProperty(cxx::Serialization(message.getElementAtIndex(2)));
+            m_prcMgr.addNodeForProcess(processName, nodeProperty.m_name);
         }
         break;
     }
@@ -283,7 +283,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
     {
         if (message.getNumberOfElements() != 3)
         {
-            LogError() << "Wrong number of parameter for \"MqMessageType::FIND_SERVICE\" from \"" << processName
+            LogError() << "Wrong number of parameters for \"MqMessageType::FIND_SERVICE\" from \"" << processName
                        << "\"received!";
         }
         else

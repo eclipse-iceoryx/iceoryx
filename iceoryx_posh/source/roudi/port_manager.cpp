@@ -16,7 +16,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
-#include "iceoryx_posh/runtime/runnable.hpp"
+#include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
 
@@ -123,7 +123,7 @@ void PortManager::doDiscovery() noexcept
 
     handleInterfaces();
 
-    handleRunnables();
+    handleNodes();
 }
 
 void PortManager::handlePublisherPorts() noexcept
@@ -317,19 +317,19 @@ void PortManager::handleApplications() noexcept
     }
 }
 
-void PortManager::handleRunnables() noexcept
+void PortManager::handleNodes() noexcept
 {
-    /// @todo we have to update the introspection but runnable information is in process introspection which is not
-    // accessible here. So currently runnables will be removed not before a process is removed
-    // m_processIntrospection->removeRunnable(ProcessName_t(process.c_str()),
-    // RunnableName_t(runnable.c_str()));
+    /// @todo we have to update the introspection but node information is in process introspection which is not
+    // accessible here. So currently nodes will be removed not before a process is removed
+    // m_processIntrospection->removeNode(ProcessName_t(process.c_str()),
+    // NodeName_t(node.c_str()));
 
-    for (auto runnableData : m_portPool->getRunnableDataList())
+    for (auto nodeData : m_portPool->getNodeDataList())
     {
-        if (runnableData->m_toBeDestroyed)
+        if (nodeData->m_toBeDestroyed)
         {
-            m_portPool->removeRunnableData(runnableData);
-            LogDebug() << "Destroyed RunnableData";
+            m_portPool->removeNodeData(nodeData);
+            LogDebug() << "Destroyed NodeData";
         }
     }
 }
@@ -454,12 +454,12 @@ void PortManager::deletePortsOfProcess(const ProcessName_t& processName) noexcep
         }
     }
 
-    for (auto runnableData : m_portPool->getRunnableDataList())
+    for (auto nodeData : m_portPool->getNodeDataList())
     {
-        if (processName == runnableData->m_process)
+        if (processName == nodeData->m_process)
         {
-            m_portPool->removeRunnableData(runnableData);
-            LogDebug() << "Deleted runnable of application " << processName;
+            m_portPool->removeNodeData(nodeData);
+            LogDebug() << "Deleted node of application " << processName;
         }
     }
 }
@@ -551,7 +551,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const uint64_t& historyCapacity,
                                       const ProcessName_t& processName,
                                       mepoo::MemoryManager* payloadMemoryManager,
-                                      const RunnableName_t& runnable,
+                                      const NodeName_t& node,
                                       const PortConfigInfo& portConfigInfo) noexcept
 {
     if (doesViolateCommunicationPolicy<iox::build::CommunicationPolicy>(service).and_then(
@@ -571,7 +571,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
         service, historyCapacity, payloadMemoryManager, processName, portConfigInfo.memoryInfo);
     if (!maybePublisherPortData.has_error())
     {
-        m_portIntrospection.addPublisher(maybePublisherPortData.value(), processName, service, runnable);
+        m_portIntrospection.addPublisher(maybePublisherPortData.value(), processName, service, node);
     }
 
     return maybePublisherPortData;
@@ -581,14 +581,14 @@ cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const uint64_t& historyRequest,
                                        const ProcessName_t& processName,
-                                       const RunnableName_t& runnable,
+                                       const NodeName_t& node,
                                        const PortConfigInfo& portConfigInfo) noexcept
 {
     auto maybeSubscriberPortData =
         m_portPool->addSubscriberPort(service, historyRequest, processName, portConfigInfo.memoryInfo);
     if (!maybeSubscriberPortData.has_error())
     {
-        m_portIntrospection.addSubscriber(maybeSubscriberPortData.value(), processName, service, runnable);
+        m_portIntrospection.addSubscriber(maybeSubscriberPortData.value(), processName, service, node);
     }
 
     return maybeSubscriberPortData;
@@ -598,7 +598,7 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
 /// @todo return a cxx::expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
                                                                const ProcessName_t& processName,
-                                                               const RunnableName_t& /*runnable*/) noexcept
+                                                               const NodeName_t& /*node*/) noexcept
 {
     auto result = m_portPool->addInterfacePort(processName, interface);
     if (!result.has_error())
@@ -639,10 +639,9 @@ void PortManager::removeEntryFromServiceRegistry(const capro::IdString& service,
 }
 
 /// @todo return a cxx::expected
-runtime::RunnableData* PortManager::acquireRunnableData(const ProcessName_t& process,
-                                                        const RunnableName_t& runnable) noexcept
+runtime::NodeData* PortManager::acquireNodeData(const ProcessName_t& process, const NodeName_t& node) noexcept
 {
-    auto result = m_portPool->addRunnableData(process, runnable, 0);
+    auto result = m_portPool->addNodeData(process, node, 0);
     if (!result.has_error())
     {
         return result.value();

@@ -56,7 +56,7 @@ struct MemPoolIntrospectionInfo
 using MemPoolIntrospectionInfoContainer = cxx::vector<MemPoolIntrospectionInfo, MAX_SHM_SEGMENTS + 1>;
 
 /// @brief publisher/subscriber port information consisting of a process name,a capro service description string
-/// and a runnable name
+/// and a node name
 const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_APP_NAME, "RouDi_ID", "Port");
 
 /// @brief container for common port data which is related to the subscriber port as well as the publisher port
@@ -66,7 +66,7 @@ struct PortData
     capro::IdString m_caproInstanceID;
     capro::IdString m_caproServiceID;
     capro::IdString m_caproEventMethodID;
-    RunnableName_t m_runnable;
+    NodeName_t m_node;
 };
 
 /// @brief container for subscriber port introspection data.
@@ -134,7 +134,7 @@ struct ProcessIntrospectionData
 {
     int m_pid{0};
     ProcessName_t m_name;
-    cxx::vector<RunnableName_t, MAX_RUNNABLE_PER_PROCESS> m_runnables;
+    cxx::vector<NodeName_t, MAX_NODE_PER_PROCESS> m_nodes;
 };
 
 /// @brief the topic for the process introspection that a user can subscribe to

@@ -70,18 +70,18 @@ class PortIntrospection
             PublisherInfo(typename PublisherPort::MemberType_t* const portData,
                           const ProcessName_t& name,
                           const capro::ServiceDescription& service,
-                          const RunnableName_t& runnable)
+                          const NodeName_t& node)
                 : portData(portData)
                 , name(name)
                 , service(service)
-                , runnable(runnable)
+                , node(node)
             {
             }
 
             typename PublisherPort::MemberType_t* portData{nullptr};
             ProcessName_t name;
             capro::ServiceDescription service;
-            RunnableName_t runnable;
+            NodeName_t node;
 
             using TimePointNs = mepoo::TimePointNs;
             using DurationNs = mepoo::DurationNs;
@@ -102,18 +102,18 @@ class PortIntrospection
             SubscriberInfo(typename SubscriberPort::MemberType_t* const portData,
                            const ProcessName_t& name,
                            const capro::ServiceDescription& service,
-                           const RunnableName_t& runnable)
+                           const NodeName_t& node)
                 : portData(portData)
                 , name(name)
                 , service(service)
-                , runnable(runnable)
+                , node(node)
             {
             }
 
             typename SubscriberPort::MemberType_t* portData{nullptr};
             ProcessName_t name;
             capro::ServiceDescription service;
-            RunnableName_t runnable;
+            NodeName_t node;
         };
 
         struct ConnectionInfo
@@ -125,8 +125,8 @@ class PortIntrospection
             ConnectionInfo(typename SubscriberPort::MemberType_t* const portData,
                            const ProcessName_t& name,
                            const capro::ServiceDescription& service,
-                           const RunnableName_t& runnable)
-                : subscriberInfo(portData, name, service, runnable)
+                           const NodeName_t& node)
+                : subscriberInfo(portData, name, service, node)
                 , state(ConnectionState::DEFAULT)
             {
             }
@@ -157,14 +157,14 @@ class PortIntrospection
          * @param[in] port to be added
          * @param[in] name of the port to be added
          * @param[in] service capro service description of the port to be added
-         * @param[in] name of the runnable the port belongs to
+         * @param[in] name of the node the port belongs to
          *
          * @return returns false if the port could not be added and true otherwise
          */
         bool addPublisher(typename PublisherPort::MemberType_t* const port,
                           const ProcessName_t& name,
                           const capro::ServiceDescription& service,
-                          const RunnableName_t& runnable);
+                          const NodeName_t& node);
 
 
         /*!
@@ -174,14 +174,14 @@ class PortIntrospection
          * @param[in] portData to be added
          * @param[in] name name of the port to be added
          * @param[in] service capro service description of the port to be added
-         * @param[in] name of the runnable the port belongs to
+         * @param[in] name of the node the port belongs to
          *
          * @return returns false if the port could not be added and true otherwise
          */
         bool addSubscriber(typename SubscriberPort::MemberType_t* const portData,
                            const ProcessName_t& name,
                            const capro::ServiceDescription& service,
-                           const RunnableName_t& runnable);
+                           const NodeName_t& node);
 
         /*!
          * @brief remove a publisher port from introspection
@@ -295,14 +295,14 @@ class PortIntrospection
      * @param[in] port to be added
      * @param[in] name of the port to be added
      * @param[in] service capro service description of the port to be added
-     * @param[in] name of the runnable the port belongs to
+     * @param[in] name of the node the port belongs to
      *
      * @return returns false if the port could not be added and true otherwise
      */
     bool addPublisher(typename PublisherPort::MemberType_t* const port,
                       const ProcessName_t& name,
                       const capro::ServiceDescription& service,
-                      const RunnableName_t& runnable);
+                      const NodeName_t& node);
 
     /*!
      * @brief add a subscriber port to be tracked by introspection
@@ -311,14 +311,14 @@ class PortIntrospection
      * @param[in] portData to be added
      * @param[in] name name of the port to be added
      * @param[in] service capro service description of the port to be added
-     * @param[in] name of the runnable the port belongs to
+     * @param[in] name of the node the port belongs to
      *
      * @return returns false if the port could not be added and true otherwise
      */
     bool addSubscriber(typename SubscriberPort::MemberType_t* const portData,
                        const ProcessName_t& name,
                        const capro::ServiceDescription& service,
-                       const RunnableName_t& runnable);
+                       const NodeName_t& node);
 
 
     /*!

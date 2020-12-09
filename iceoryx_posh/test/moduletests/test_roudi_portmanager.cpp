@@ -218,7 +218,7 @@ TEST_F(PortManager_test, doDiscovery_rightOrdering)
 TEST_F(PortManager_test, PublisherSubscriberOverflow)
 {
     iox::ProcessName_t p1 = "/test1";
-    iox::RunnableName_t r1 = "run1";
+    iox::NodeName_t r1 = "run1";
     decltype(iox::MAX_PUBLISHERS) pubForP1 = iox::MAX_PUBLISHERS;
     decltype(iox::MAX_SUBSCRIBERS) subForP1 = iox::MAX_SUBSCRIBERS;
     std::vector<iox::popo::PublisherPortData*> avaPublisher1(pubForP1);

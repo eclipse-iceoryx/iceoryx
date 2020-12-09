@@ -204,7 +204,7 @@ TEST_F(ProcessIntrospection_test, thread)
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
-TEST_F(ProcessIntrospection_test, addRemoveRunnable)
+TEST_F(ProcessIntrospection_test, addRemoveNode)
 {
     {
         ProcessIntrospectionAccess introspectionAccess;
@@ -213,12 +213,12 @@ TEST_F(ProcessIntrospection_test, addRemoveRunnable)
 
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
-        const char RUNNABLE_1[] = "the_wrecking_crew";
-        const char RUNNABLE_2[] = "the_octagon";
-        const char RUNNABLE_3[] = "the_hitman";
+        const char NODE_1[] = "the_wrecking_crew";
+        const char NODE_2[] = "the_octagon";
+        const char NODE_3[] = "the_hitman";
 
         // invalid removal of unknown runnable of unknown process
-        introspectionAccess.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
+        introspectionAccess.removeNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_1));
         auto chunk1 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk1->sample()->m_processList.size(), Eq(0U));
 
@@ -226,43 +226,43 @@ TEST_F(ProcessIntrospection_test, addRemoveRunnable)
         introspectionAccess.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
 
         // invalid removal of unknown runnable of known process
-        introspectionAccess.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
+        introspectionAccess.removeNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_1));
         auto chunk2 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk2->sample()->m_processList.size(), Eq(1U));
-        EXPECT_THAT(chunk2->sample()->m_processList[0].m_runnables.size(), Eq(0U));
+        EXPECT_THAT(chunk2->sample()->m_processList[0].m_nodes.size(), Eq(0U));
 
         // add a runnable
-        introspectionAccess.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
+        introspectionAccess.addNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_1));
         auto chunk3 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk3->sample()->m_processList.size(), Eq(1U));
-        EXPECT_THAT(chunk3->sample()->m_processList[0].m_runnables.size(), Eq(1U));
+        EXPECT_THAT(chunk3->sample()->m_processList[0].m_nodes.size(), Eq(1U));
 
         // add it again, must be ignored
-        introspectionAccess.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
+        introspectionAccess.addNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_1));
         auto chunk4 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk4->sample()->m_processList.size(), Eq(1U));
-        EXPECT_THAT(chunk4->sample()->m_processList[0].m_runnables.size(), Eq(1U));
+        EXPECT_THAT(chunk4->sample()->m_processList[0].m_nodes.size(), Eq(1U));
 
         // add some more
-        introspectionAccess.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_2));
-        introspectionAccess.addRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_3));
+        introspectionAccess.addNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_2));
+        introspectionAccess.addNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_3));
         auto chunk5 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk5->sample()->m_processList.size(), Eq(1U));
-        EXPECT_THAT(chunk5->sample()->m_processList[0].m_runnables.size(), Eq(3U));
+        EXPECT_THAT(chunk5->sample()->m_processList[0].m_nodes.size(), Eq(3U));
 
         // remove some runnables
-        introspectionAccess.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_1));
-        introspectionAccess.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_3));
+        introspectionAccess.removeNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_1));
+        introspectionAccess.removeNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_3));
         auto chunk6 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk6->sample()->m_processList.size(), Eq(1U));
-        EXPECT_THAT(chunk6->sample()->m_processList[0].m_runnables.size(), Eq(1U));
-        EXPECT_THAT(strcmp(RUNNABLE_2, chunk6->sample()->m_processList[0].m_runnables[0].c_str()), Eq(0));
+        EXPECT_THAT(chunk6->sample()->m_processList[0].m_nodes.size(), Eq(1U));
+        EXPECT_THAT(strcmp(NODE_2, chunk6->sample()->m_processList[0].m_nodes[0].c_str()), Eq(0));
 
         // remove last runnable list empty again
-        introspectionAccess.removeRunnable(iox::ProcessName_t(PROCESS_NAME), iox::RunnableName_t(RUNNABLE_2));
+        introspectionAccess.removeNode(iox::ProcessName_t(PROCESS_NAME), iox::NodeName_t(NODE_2));
         auto chunk7 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk7->sample()->m_processList.size(), Eq(1U));
-        EXPECT_THAT(chunk7->sample()->m_processList[0].m_runnables.size(), Eq(0U));
+        EXPECT_THAT(chunk7->sample()->m_processList[0].m_nodes.size(), Eq(0U));
     }
     // stopOffer was called
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));

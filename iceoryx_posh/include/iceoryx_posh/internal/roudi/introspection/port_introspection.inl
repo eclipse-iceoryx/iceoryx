@@ -209,7 +209,7 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
     typename PublisherPort::MemberType_t* const port,
     const ProcessName_t& name,
     const capro::ServiceDescription& service,
-    const RunnableName_t& runnable)
+    const NodeName_t& node)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -219,7 +219,7 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPublisher(
         return false;
     }
 
-    auto index = m_publisherContainer.add(PublisherInfo(port, name, service, runnable));
+    auto index = m_publisherContainer.add(PublisherInfo(port, name, service, node));
     if (index < 0)
     {
         return false;
@@ -254,11 +254,11 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubscriber(
     typename SubscriberPort::MemberType_t* const portData,
     const ProcessName_t& name,
     const capro::ServiceDescription& service,
-    const RunnableName_t& runnable)
+    const NodeName_t& node)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    auto index = m_connectionContainer.add(ConnectionInfo(portData, name, service, runnable));
+    auto index = m_connectionContainer.add(ConnectionInfo(portData, name, service, node));
     if (index < 0)
     {
         return false;
@@ -439,7 +439,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(Po
             publisherData.m_publisherPortID = static_cast<uint64_t>(port.getUniqueID());
             publisherData.m_sourceInterface = publisherInfo.service.getSourceInterface();
             publisherData.m_name = publisherInfo.name;
-            publisherData.m_runnable = publisherInfo.runnable;
+            publisherData.m_node = publisherInfo.node;
 
             publisherData.m_caproInstanceID = publisherInfo.service.getInstanceIDString();
             publisherData.m_caproServiceID = publisherInfo.service.getServiceIDString();
@@ -464,7 +464,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(Po
                 auto& subscriberInfo = connection.subscriberInfo;
 
                 subscriberData.m_name = subscriberInfo.name;
-                subscriberData.m_runnable = subscriberInfo.runnable;
+                subscriberData.m_node = subscriberInfo.node;
 
                 subscriberData.m_caproInstanceID = subscriberInfo.service.getInstanceIDString();
                 subscriberData.m_caproServiceID = subscriberInfo.service.getServiceIDString();
@@ -540,9 +540,9 @@ template <typename PublisherPort, typename SubscriberPort>
 bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t* const port,
                                                                     const ProcessName_t& name,
                                                                     const capro::ServiceDescription& service,
-                                                                    const RunnableName_t& runnable)
+                                                                    const NodeName_t& node)
 {
-    return m_portData.addPublisher(port, name, service, runnable);
+    return m_portData.addPublisher(port, name, service, node);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
@@ -550,9 +550,9 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(
     typename SubscriberPort::MemberType_t* const portData,
     const ProcessName_t& name,
     const capro::ServiceDescription& service,
-    const RunnableName_t& runnable)
+    const NodeName_t& node)
 {
-    return m_portData.addSubscriber(portData, name, service, runnable);
+    return m_portData.addSubscriber(portData, name, service, node);
 }
 
 template <typename PublisherPort, typename SubscriberPort>

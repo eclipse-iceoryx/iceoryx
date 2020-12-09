@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,11 +15,19 @@
 #include "test.hpp"
 
 #include "iceoryx_utils/concurrent/lockfree_queue.hpp"
+#include "iceoryx_utils/concurrent/resizeable_lockfree_queue.hpp"
+
+// We test the common functionality of LockFreeQueue and ResizableLockFreeQueue here
+// in typed tests to reduce code duplication.
+
 using namespace ::testing;
 
 namespace
 {
-// use a non-POD type for testing (just a boxed version of int)
+// use a non-POD type for testing (just a boxed version of int).
+// We use implicit conversions of int to Integer to be able use the same test structure
+// for Integer and int (primarily for tryPush).
+// This allows testing PODs and Custom Types with the same test structure.
 struct Integer
 {
     Integer(int value = 0)
@@ -36,7 +44,7 @@ struct Integer
     }
 };
 
-template <typename T>
+template <typename Config>
 class LockFreeQueueTest : public ::testing::Test
 {
   protected:
@@ -50,6 +58,8 @@ class LockFreeQueueTest : public ::testing::Test
 
     void SetUp()
     {
+        // reduce capacity before running the tests if required by config
+        setCapacity<Config>();
     }
 
     void TearDown()
@@ -66,31 +76,108 @@ class LockFreeQueueTest : public ::testing::Test
         }
     }
 
-    using Queue = T;
+    // only set Capacity if DynamicCapacity is smaller
+    // since some queue types may not even provide the option to call setCapacity
+    // this must be done at compile time
+    // (the additional template indirection via Config_ is required for SFINAE)
+    template <typename Config_>
+    typename std::enable_if<Config_::SetCapacityInitially, void>::type setCapacity()
+    {
+        queue.setCapacity(Config::DynamicCapacity);
+    }
+
+    template <typename Config_>
+    typename std::enable_if<!Config_::SetCapacityInitially, void>::type setCapacity()
+    {
+    }
+
+    using Queue = typename Config::QueueType;
     Queue queue;
 };
 
 template <size_t Capacity>
 using IntegerQueue = iox::concurrent::LockFreeQueue<Integer, Capacity>;
 
-template <size_t Capacity>
-using IntQueue = iox::concurrent::LockFreeQueue<int, Capacity>;
+// define the test configurations with varying types, capacities and dynamically reduced capacities
 
-TEST(LockFreeQueueTest, capacityIsConsistent)
+template <template <typename, uint64_t> class QueueType_,
+          typename ElementType_,
+          uint64_t Capacity_,
+          uint64_t DynamicCapacity_ = Capacity_>
+struct Config
 {
-    IntegerQueue<37> q;
-    EXPECT_EQ(q.capacity(), 37);
-}
+    static constexpr uint64_t Capacity = Capacity_;
+    static constexpr uint64_t DynamicCapacity = DynamicCapacity_;
+    static_assert(DynamicCapacity <= Capacity, "DynamicCapacity can be at most Capacity");
 
-// note that we use implicit conversions of int to Integer to be able use the same test structure
-// for Integer and int (primarily for tryPush)
-typedef ::testing::Types<IntegerQueue<1>, IntegerQueue<10>, IntQueue<10>> TestQueues;
+    using QueueType = QueueType_<ElementType_, Capacity>;
+    static constexpr bool SetCapacityInitially = DynamicCapacity < Capacity;
+};
+
+template <typename T, uint64_t C>
+using LFQueue = iox::concurrent::LockFreeQueue<T, C>;
+
+template <typename T, uint64_t C>
+using RLFQueue = iox::concurrent::ResizeableLockFreeQueue<T, C>;
+
+
+template <template <typename, uint64_t> class QueueType, typename ElementType, uint64_t Capacity>
+using Full = Config<QueueType, ElementType, Capacity>;
+
+template <template <typename, uint64_t> class QueueType, typename ElementType, uint64_t Capacity>
+using AlmostFull = Config<QueueType, ElementType, Capacity, (Capacity > 1) ? (Capacity - 1) : Capacity>;
+
+template <template <typename, uint64_t> class QueueType, typename ElementType, uint64_t Capacity>
+using HalfFull = Config<QueueType, ElementType, Capacity, (Capacity > 1) ? (Capacity / 2) : Capacity>;
+
+template <template <typename, uint64_t> class QueueType, typename ElementType, uint64_t Capacity>
+using AlmostEmpty = Config<QueueType, ElementType, Capacity, 1>;
+
+// configs of the lockfree queue without resize
+using LFFull1 = Full<LFQueue, int, 1>;
+using LFFull2 = Full<LFQueue, int, 1000>;
+using LFFull3 = Full<LFQueue, Integer, 100>;
+
+// configs of the resizeable lockfree queue
+using Full1 = Full<RLFQueue, Integer, 1>;
+using Full2 = Full<RLFQueue, Integer, 10>;
+using Full3 = Full<RLFQueue, int, 1000>;
+
+using AlmostFull1 = AlmostFull<RLFQueue, Integer, 10>;
+using AlmostFull2 = AlmostFull<RLFQueue, int, 1000>;
+
+using HalfFull1 = HalfFull<RLFQueue, Integer, 10>;
+using HalfFull2 = HalfFull<RLFQueue, int, 1000>;
+
+using AlmostEmpty1 = AlmostEmpty<RLFQueue, Integer, 10>;
+using AlmostEmpty2 = AlmostEmpty<RLFQueue, int, 1000>;
+
+typedef ::testing::Types<LFFull1,
+                         LFFull2,
+                         LFFull3,
+                         Full1,
+                         Full2,
+                         Full3,
+                         AlmostFull1,
+                         AlmostFull2,
+                         HalfFull1,
+                         HalfFull2,
+                         AlmostEmpty1,
+                         AlmostEmpty2>
+    TestConfigs;
 
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-TYPED_TEST_CASE(LockFreeQueueTest, TestQueues);
+TYPED_TEST_CASE(LockFreeQueueTest, TestConfigs);
 #pragma GCC diagnostic pop
+
+TEST(LockFreeQueueTest, capacityIsConsistent)
+{
+    constexpr uint64_t CAPACITY{37};
+    IntegerQueue<CAPACITY> q;
+    EXPECT_EQ(q.capacity(), CAPACITY);
+}
 
 TYPED_TEST(LockFreeQueueTest, constructedQueueIsEmpty)
 {

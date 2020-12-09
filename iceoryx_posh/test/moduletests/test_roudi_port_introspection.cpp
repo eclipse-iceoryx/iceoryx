@@ -100,17 +100,29 @@ class PortIntrospection_test : public Test
         auto nameB = std::string(b.m_name);
 
         if (nameA.compare(nameB) != 0)
+        {
             return false;
+        }
         if (a.m_caproInstanceID != b.m_caproInstanceID)
+        {
             return false;
+        }
         if (a.m_caproServiceID != b.m_caproServiceID)
+        {
             return false;
+        }
         if (a.m_caproEventMethodID != b.m_caproEventMethodID)
+        {
             return false;
+        }
         if (a.m_publisherIndex != b.m_publisherIndex)
+        {
             return false;
-        if (a.m_runnable != b.m_runnable)
+        }
+        if (a.m_node != b.m_node)
+        {
             return false;
+        }
 
         return true;
     }
@@ -121,15 +133,25 @@ class PortIntrospection_test : public Test
         auto nameB = std::string(b.m_name);
 
         if (nameA.compare(nameB) != 0)
+        {
             return false;
+        }
         if (a.m_caproInstanceID != b.m_caproInstanceID)
+        {
             return false;
+        }
         if (a.m_caproServiceID != b.m_caproServiceID)
+        {
             return false;
+        }
         if (a.m_caproEventMethodID != b.m_caproEventMethodID)
+        {
             return false;
-        if (a.m_runnable != b.m_runnable)
+        }
+        if (a.m_node != b.m_node)
+        {
             return false;
+        }
 
         return true;
     }
@@ -202,8 +224,8 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     const iox::ProcessName_t processName1{"name1"};
     const iox::ProcessName_t processName2{"name2"};
-    const iox::RunnableName_t runnableName1{"4"};
-    const iox::RunnableName_t runnableName2{"jkl"};
+    const iox::NodeName_t nodeName1{"4"};
+    const iox::NodeName_t nodeName2{"jkl"};
 
     // prepare expected outputs
     PortData expected1;
@@ -211,14 +233,14 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     expected1.m_caproInstanceID = "1";
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
-    expected1.m_runnable = runnableName1;
+    expected1.m_node = nodeName1;
 
     PortData expected2;
     expected2.m_name = processName2;
     expected2.m_caproInstanceID = "abc";
     expected2.m_caproServiceID = "def";
     expected2.m_caproEventMethodID = "ghi";
-    expected2.m_runnable = runnableName2;
+    expected2.m_node = nodeName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -232,10 +254,10 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     // remark: duplicate publisher port insertions are not possible
     iox::popo::PublisherPortData portData1{m_serviceDescription, processName1, &m_memoryManager};
     iox::popo::PublisherPortData portData2{m_serviceDescription, processName2, &m_memoryManager};
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, runnableName1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, runnableName1), Eq(false));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, runnableName2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, runnableName2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, nodeName1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, nodeName1), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, nodeName2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, nodeName2), Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -305,8 +327,8 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 
     const iox::ProcessName_t processName1{"name1"};
     const iox::ProcessName_t processName2{"name2"};
-    const iox::RunnableName_t runnableName1{"4"};
-    const iox::RunnableName_t runnableName2{"7"};
+    const iox::NodeName_t nodeName1{"4"};
+    const iox::NodeName_t nodeName2{"7"};
 
     // prepare expected outputs
     PortData expected1;
@@ -315,7 +337,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     expected1.m_caproServiceID = "2";
     expected1.m_caproEventMethodID = "3";
     expected1.m_publisherIndex = -1;
-    expected1.m_runnable = runnableName1;
+    expected1.m_node = nodeName1;
 
     PortData expected2;
     expected2.m_name = processName2;
@@ -323,7 +345,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     expected2.m_caproServiceID = "5";
     expected2.m_caproEventMethodID = "6";
     expected2.m_publisherIndex = -1;
-    expected2.m_runnable = runnableName2;
+    expected2.m_node = nodeName2;
 
     // prepare inputs
     iox::capro::ServiceDescription service1(
@@ -339,10 +361,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
         m_serviceDescription, processName1, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
     iox::popo::SubscriberPortData recData2{
         m_serviceDescription, processName2, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, runnableName1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, runnableName1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, runnableName2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, runnableName2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, nodeName1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, processName1, service1, nodeName1), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, nodeName2), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData2, processName2, service2, nodeName2), Eq(true));
 
     m_introspectionAccess.sendPortData();
 
@@ -416,7 +438,7 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
 
     const iox::ProcessName_t nameSubscriber{"subscriber"};
     const iox::ProcessName_t namePublisher{"publisher"};
-    const iox::RunnableName_t runnableName{""};
+    const iox::NodeName_t nodeName{""};
 
     // prepare expected outputs
     SubscriberPortData expectedSubscriber;
@@ -442,9 +464,9 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     // test adding of publisher or subscriber port of same service to establish a connection (requires same service id)
     iox::popo::SubscriberPortData recData1{
         m_serviceDescription, nameSubscriber, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
-    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, nameSubscriber, service, runnableName), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, nameSubscriber, service, nodeName), Eq(true));
     iox::popo::PublisherPortData publisherPortData{m_serviceDescription, namePublisher, &m_memoryManager};
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&publisherPortData, namePublisher, service, runnableName), Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(&publisherPortData, namePublisher, service, nodeName), Eq(true));
 
     m_introspectionAccess.sendPortData();
 

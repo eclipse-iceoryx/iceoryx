@@ -35,9 +35,9 @@ cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> PortPool::getApplica
     return m_portPoolData->m_applicationPortMembers.content();
 }
 
-cxx::vector<runtime::RunnableData*, MAX_RUNNABLE_NUMBER> PortPool::getRunnableDataList() noexcept
+cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> PortPool::getNodeDataList() noexcept
 {
-    return m_portPoolData->m_runnableMembers.content();
+    return m_portPoolData->m_nodeMembers.content();
 }
 
 cxx::expected<popo::InterfacePortData*, PortPoolError>
@@ -70,18 +70,19 @@ PortPool::addApplicationPort(const ProcessName_t& applicationName) noexcept
     }
 }
 
-cxx::expected<runtime::RunnableData*, PortPoolError> PortPool::addRunnableData(
-    const ProcessName_t& process, const RunnableName_t& runnable, const uint64_t runnableDeviceIdentifier) noexcept
+cxx::expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const ProcessName_t& process,
+                                                                       const NodeName_t& node,
+                                                                       const uint64_t nodeDeviceIdentifier) noexcept
 {
-    if (m_portPoolData->m_runnableMembers.hasFreeSpace())
+    if (m_portPoolData->m_nodeMembers.hasFreeSpace())
     {
-        auto runnableData = m_portPoolData->m_runnableMembers.insert(process, runnable, runnableDeviceIdentifier);
-        return cxx::success<runtime::RunnableData*>(runnableData);
+        auto nodeData = m_portPoolData->m_nodeMembers.insert(process, node, nodeDeviceIdentifier);
+        return cxx::success<runtime::NodeData*>(nodeData);
     }
     else
     {
-        errorHandler(Error::kPORT_POOL__RUNNABLELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::RUNNABLE_DATA_LIST_FULL);
+        errorHandler(Error::kPORT_POOL__NODELIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
+        return cxx::error<PortPoolError>(PortPoolError::NODE_DATA_LIST_FULL);
     }
 }
 
@@ -109,9 +110,9 @@ void PortPool::removeApplicationPort(popo::ApplicationPortData* const portData) 
     m_portPoolData->m_applicationPortMembers.erase(portData);
 }
 
-void PortPool::removeRunnableData(runtime::RunnableData* const runnableData) noexcept
+void PortPool::removeNodeData(runtime::NodeData* const nodeData) noexcept
 {
-    m_portPoolData->m_runnableMembers.erase(runnableData);
+    m_portPoolData->m_nodeMembers.erase(nodeData);
 }
 
 std::atomic<uint64_t>* PortPool::serviceRegistryChangeCounter() noexcept
