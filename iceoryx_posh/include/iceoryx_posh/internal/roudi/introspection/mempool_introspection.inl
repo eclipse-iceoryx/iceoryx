@@ -14,6 +14,7 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_INL
 #define IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_INL
 
+#include "iceoryx_utils/posix_wrapper/pthread.hpp"
 #include "mempool_introspection.hpp"
 
 namespace iox
@@ -30,8 +31,7 @@ MemPoolIntrospection<MemoryManager, SegmentManager, SenderPort>::MemPoolIntrospe
 {
     m_senderPort.activate(); // corresponds to offer
 
-    cxx::string<16> threadName{"MemPoolIntr"};
-    pthread_setname_np(m_thread.native_handle(), threadName.c_str());
+    posix::setThreadName(m_thread.native_handle(), "MemPoolIntr");
 }
 
 template <typename MemoryManager, typename SegmentManager, typename SenderPort>

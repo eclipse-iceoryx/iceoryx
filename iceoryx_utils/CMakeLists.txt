@@ -153,6 +153,7 @@ add_library(iceoryx_utils
     source/posix_wrapper/shared_memory_object/shared_memory.cpp
     source/posix_wrapper/system_configuration.cpp
     source/posix_wrapper/posix_access_rights.cpp
+    source/posix_wrapper/pthread.cpp
     source/units/duration.cpp
     source/relocatable_pointer/relative_ptr.cpp
 )

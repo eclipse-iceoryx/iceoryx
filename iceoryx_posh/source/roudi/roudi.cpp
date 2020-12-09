@@ -20,6 +20,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
+#include "iceoryx_utils/posix_wrapper/pthread.hpp"
 
 namespace iox
 {
@@ -51,7 +52,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
 
     // run the threads
     m_processManagementThread = std::thread(&RouDi::processThread, this);
-    pthread_setname_np(m_processManagementThread.native_handle(), "ProcessMgmt");
+    posix::setThreadName(m_processManagementThread.native_handle(), "ProcessMgmt");
 
     if (roudiStartupParameters.m_mqThreadStart == MQThreadStart::IMMEDIATE)
     {
@@ -67,7 +68,7 @@ RouDi::~RouDi()
 void RouDi::startMQThread()
 {
     m_processMQThread = std::thread(&RouDi::mqThread, this);
-    pthread_setname_np(m_processMQThread.native_handle(), "MQ-processing");
+    posix::setThreadName(m_processMQThread.native_handle(), "MQ-processing");
 }
 
 void RouDi::shutdown()

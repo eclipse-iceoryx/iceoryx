@@ -17,6 +17,7 @@
 #include "process_introspection.hpp"
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_utils/posix_wrapper/pthread.hpp"
 
 #include <chrono>
 
@@ -174,8 +175,7 @@ void ProcessIntrospection<SenderPort>::run()
     });
 
     // set thread name
-    cxx::string<16> threadName{"ProcessIntr"};
-    pthread_setname_np(m_thread.native_handle(), threadName.c_str());
+    posix::setThreadName(m_thread.native_handle(), "ProcessIntr");
 }
 
 template <typename SenderPort>

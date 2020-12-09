@@ -14,6 +14,8 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_INL
 
+#include "iceoryx_utils/posix_wrapper/pthread.hpp"
+
 namespace iox
 {
 namespace roudi
@@ -102,8 +104,7 @@ void PortIntrospection<SenderPort, ReceiverPort>::run()
     });
 
     // set thread name
-    cxx::string<16> threadName{"PortIntr"};
-    pthread_setname_np(m_thread.native_handle(), threadName.c_str());
+    posix::setThreadName(m_thread.native_handle(), "PortIntr");
 }
 
 template <typename SenderPort, typename ReceiverPort>
