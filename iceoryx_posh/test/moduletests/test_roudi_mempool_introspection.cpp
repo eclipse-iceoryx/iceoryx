@@ -33,6 +33,26 @@ using ::testing::Return;
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
+class CallChecker
+{
+  public:
+    MOCK_METHOD0(offer, void(void));
+};
+
+CallChecker& callChecker()
+{
+    static CallChecker cc;
+    return cc;
+}
+
+class MockPublisherPortUserAccess : public MockPublisherPortUser
+{
+  public:
+    void offer()
+    {
+        callChecker().offer();
+    }
+};
 
 class SegmentMock
 {
@@ -67,17 +87,17 @@ class SegmentManagerMock
 
 
 class MemPoolIntrospectionAccess
-    : public iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, MockPublisherPortUser>
+    : public iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, MockPublisherPortUserAccess>
 {
   public:
     MemPoolIntrospectionAccess(MePooMemoryManager_MOCK& memoryManager,
                                SegmentManagerMock& segmentManager,
-                               MockPublisherPortUser&& publisherPort)
-        : iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, MockPublisherPortUser>(
+                               MockPublisherPortUserAccess&& publisherPort)
+        : iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, MockPublisherPortUserAccess>(
             memoryManager, segmentManager, std::move(publisherPort))
     {
     }
-    MockPublisherPortUser& getPublisherPort()
+    MockPublisherPortUserAccess& getPublisherPort()
     {
         return this->m_publisherPort;
     }
@@ -165,23 +185,25 @@ class MemPoolIntrospection_test : public Test
 
     MePooMemoryManager_MOCK m_rouDiInternalMemoryManager_mock;
     SegmentManagerMock m_segmentManager_mock;
-    MockPublisherPortUser m_publisherPortImpl_mock;
+    MockPublisherPortUserAccess m_publisherPortImpl_mock;
 };
 
 TEST_F(MemPoolIntrospection_test, CTOR)
 {
     {
+        EXPECT_CALL(callChecker(), offer()).Times(1);
+
         MemPoolIntrospectionAccess introspectionAccess(
             m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_publisherPortImpl_mock));
 
-        // @todo how to check for offer()? EXPECT_CALL must be set before the object is created?!
-        // EXPECT_CALL(introspectionAccess->getPublisherPort(), offer()).Times(1);
         EXPECT_CALL(introspectionAccess.getPublisherPort(), stopOffer()).Times(1);
     }
 }
 
 TEST_F(MemPoolIntrospection_test, send_noSubscribers)
 {
+    EXPECT_CALL(callChecker(), offer()).Times(1);
+
     MemPoolIntrospectionAccess introspectionAccess(
         m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_publisherPortImpl_mock));
 
@@ -198,6 +220,8 @@ TEST_F(MemPoolIntrospection_test, send_noSubscribers)
 /// Should be realized as an integration test with a roudi environment and less mocking classes instead.
 TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
 {
+    EXPECT_CALL(callChecker(), offer()).Times(1);
+
     MemPoolIntrospectionAccess introspectionAccess(
         m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_publisherPortImpl_mock));
 
@@ -222,6 +246,8 @@ TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
 }
 
 TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
+    EXPECT_CALL(callChecker(), offer()).Times(1);
+
     MemPoolIntrospectionAccess introspectionAccess(
         m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_publisherPortImpl_mock));
 
