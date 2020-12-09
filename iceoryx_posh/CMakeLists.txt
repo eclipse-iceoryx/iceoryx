@@ -139,7 +139,6 @@ target_include_directories(iceoryx_posh
 target_link_libraries(iceoryx_posh 
     PUBLIC
     iceoryx_utils::iceoryx_utils
-    #@todo - Is it required to link sanitizer libs here (Its already linked against iceoryx_utils)
     ${SANITIZER_LINKER_FLAGS}        
     PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
@@ -183,7 +182,6 @@ target_link_libraries(iceoryx_posh_gateway
     PUBLIC
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
-    #@todo - Is it required to link sanitizer libs here (Its already linked against iceoryx_utils)
     ${SANITIZER_LINKER_FLAGS}    
 )
 

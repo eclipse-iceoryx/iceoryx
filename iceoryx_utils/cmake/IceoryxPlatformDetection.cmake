@@ -48,3 +48,30 @@ if(BUILD_STRICT)
         set(ICEORYX_WARNINGS ${ICEORYX_WARNINGS} -Werror)
     endif (  )
 endif(BUILD_STRICT)
+
+if(sanitize)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+        # NOTE : This works only when iceoryx is built standalone , in which case CMAKE_SOURCE_DIR point to iceoryx_meta
+        set(SANITIZE_BLACKLIST -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/sanitizer_blacklist/asan_compile_time.txt)
+    endif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+        set(SANITIZER_COMMON_COMPILER_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -O1)
+        set(SANITIZER_COMMON_LINKER_FLAGS -g)
+
+        # For using LeakSanitizer in standalone mode
+        # https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer#stand-alone-mode
+        # Using this mode was a bit unstable
+        set(LEAK_SANITIZER_COMPILER_FLAGS -fsanitize=leak)
+        set(LEAK_SANITIZER_LINKER_FLAGS -fsanitize=leak)
+
+        set(ADDRESS_SANITIZER_COMPILER_FLAGS -fsanitize=address -fsanitize-address-use-after-scope ${SANITIZE_BLACKLIST})
+        set(ADDRESS_SANITIZER_LINKER_FLAGS -fsanitize=address ${SANITIZE_BLACKLIST})
+
+        # Combine different sanitizer flags to define overall sanitization
+        set(SANITIZER_COMPILER_FLAGS ${SANITIZER_COMMON_COMPILER_FLAGS} ${ADDRESS_SANITIZER_COMPILER_FLAGS})
+        set(SANITIZER_LINKER_FLAGS ${SANITIZER_COMMON_LINKER_FLAGS} ${ADDRESS_SANITIZER_LINKER_FLAGS})
+    else(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+        message( FATAL_ERROR "You need to run sanitize with gcc/clang compiler." )
+    endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+endif(sanitize)
+
