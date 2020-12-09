@@ -18,14 +18,14 @@ namespace iox
 {
 namespace capro
 {
-CaproMessage::CaproMessage(CaproMessageType f_type,
-                           const ServiceDescription& f_serviceDescription,
-                           CaproMessageSubType f_subType,
-                           popo::SubscriberPortData* f_requestPort) noexcept
-    : m_type(f_type)
-    , m_subType(f_subType)
-    , m_serviceDescription(f_serviceDescription)
-    , m_requestPort(f_requestPort)
+CaproMessage::CaproMessage(CaproMessageType type,
+                           const ServiceDescription& serviceDescription,
+                           CaproMessageSubType subType,
+                           void* chunkQueueData) noexcept
+    : m_type(type)
+    , m_subType(subType)
+    , m_serviceDescription(serviceDescription)
+    , m_chunkQueueData(chunkQueueData)
 {
 }
 

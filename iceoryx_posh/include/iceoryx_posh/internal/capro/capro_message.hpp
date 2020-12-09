@@ -18,11 +18,6 @@
 
 namespace iox
 {
-namespace popo
-{
-struct SubscriberPortData;
-} // namespace popo
-
 namespace capro
 {
 /// @brief Enum for service message types which are used in CaPro for
@@ -66,20 +61,19 @@ class CaproMessage
     CaproMessage() = default;
 
     /// @brief C'tor for CaPro Message with type, service description
-    /// @param f_type                    Message type
-    /// @param f_serviceDescription      Service Description
-    /// @param m_requestPort(0)          No port
-    /// @return                          Nothing
-    CaproMessage(CaproMessageType f_type,
-                 const ServiceDescription& f_serviceDescription,
-                 CaproMessageSubType f_subType = CaproMessageSubType::NOSUBTYPE,
-                 popo::SubscriberPortData* f_requestPort = nullptr) noexcept;
+    /// @param type                    Message type
+    /// @param serviceDescription      Service Description
+    /// @param subType                 Message sub type
+    /// @param chunkQueueData(0)       No port
+    /// @return                        Nothing
+    CaproMessage(CaproMessageType type,
+                 const ServiceDescription& serviceDescription,
+                 CaproMessageSubType subType = CaproMessageSubType::NOSUBTYPE,
+                 void* chunkQueueData = nullptr) noexcept;
 
     CaproMessageType m_type{CaproMessageType::NOTYPE};
     CaproMessageSubType m_subType{CaproMessageSubType::NOSUBTYPE};
     ServiceDescription m_serviceDescription;
-    /// @brief Null-Pointer for request-port with no specific type
-    popo::SubscriberPortData* m_requestPort{nullptr};
     void* m_chunkQueueData{nullptr};
     uint64_t m_historyCapacity{0u};
 };
