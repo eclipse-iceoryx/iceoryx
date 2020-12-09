@@ -12,7 +12,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This job builds & runs iceoryx tests in ubuntu-18.04
-  build-test-ubuntu:
+  build-test-coverage:
     # The type of runner that the job will run on
     runs-on: ubuntu-18.04
 
@@ -31,8 +31,16 @@ jobs:
           export NUM_CORES=`nproc`
           # add flag to include coverage
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh with-dds-gateway clean strict -j $NUM_CORES -c unit
+      
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
-          file:  ./build/lcov/iceoryx_filter.info
+          file: ./build/lcov/iceoryx_filter.info
           name: iceoryx
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: lcov-report
+          path: ./build/lcov/*
+          retention-days: 10
