@@ -22,6 +22,26 @@ namespace iox
 {
 namespace roudi
 {
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemoryManagerError& error)
+{
+    switch (error)
+    {
+    case RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED:
+        logstream << "MEMORY_PROVIDER_EXHAUSTED";
+        break;
+    case RouDiMemoryManagerError::NO_MEMORY_PROVIDER_PRESENT:
+        logstream << "NO_MEMORY_PROVIDER_PRESENT";
+        break;
+    case RouDiMemoryManagerError::MEMORY_CREATION_FAILED:
+        logstream << "MEMORY_CREATION_FAILED";
+        break;
+    case RouDiMemoryManagerError::MEMORY_DESTRUCTION_FAILED:
+        logstream << "MEMORY_DESTRUCTION_FAILED";
+        break;
+    }
+    return logstream;
+}
+
 RouDiMemoryManager::~RouDiMemoryManager() noexcept
 {
     destroyMemory();

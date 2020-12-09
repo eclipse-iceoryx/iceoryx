@@ -55,6 +55,8 @@ enum class MemoryProviderError
     MEMORY_DEALLOCATION_FAILED,
     /// memory destruction failed at unmapping memory
     MEMORY_UNMAPPING_FAILED,
+    /// Setup or teardown of SIGBUS failed
+    SIGACTION_CALL_FAILED,
 };
 
 /// @brief This class creates memory which is requested by the MemoryBlocks. Once the memory is available, this is

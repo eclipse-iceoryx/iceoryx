@@ -78,9 +78,9 @@ ConfigFilePathString_t CmdLineParserConfigFileOption::getConfigFilePath() const
     return m_customConfigFilePath;
 }
 
-void CmdLineParserConfigFileOption::printParams() noexcept
+void CmdLineParserConfigFileOption::printParameters() noexcept
 {
-    CmdLineParser::printParams();
+    CmdLineParser::printParameters();
     LogVerbose() << "Config file used is: " << m_customConfigFilePath;
 }
 

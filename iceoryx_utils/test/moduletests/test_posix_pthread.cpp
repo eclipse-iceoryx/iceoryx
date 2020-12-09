@@ -31,7 +31,7 @@ class PThread_test : public Test
     void SetUp()
     {
         m_run = true;
-        m_thread = std::thread(threadFunc, this);
+        m_thread = std::thread(&PThread_test::threadFunc, this);
     }
 
     void TearDown()

@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
             })
             .value();
 
-    cmdLineParser.printParams();
+    cmdLineParser.printParameters();
 
     IceOryxRouDiApp roudi(cmdLineParser, roudiConfig);
 

@@ -70,6 +70,7 @@ void RouDiApp::registerSigHandler() noexcept
     {
         LogFatal() << "Calling sigaction() failed";
         errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
+        return;
     }
 
     if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGTERM, &act, nullptr)
@@ -77,6 +78,7 @@ void RouDiApp::registerSigHandler() noexcept
     {
         LogFatal() << "Calling sigaction() failed";
         errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
+        return;
     }
 
     if (cxx::makeSmartC(sigaction, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, SIGHUP, &act, nullptr)
@@ -84,6 +86,7 @@ void RouDiApp::registerSigHandler() noexcept
     {
         LogFatal() << "Calling sigaction() failed";
         errorHandler(Error::kROUDI_APP__COULD_NOT_REGISTER_SIGNALS, nullptr, ErrorLevel::FATAL);
+        return;
     }
 }
 

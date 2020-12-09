@@ -252,7 +252,7 @@ iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const Monitoring
     return logstream;
 }
 
-void CmdLineParser::printParams() noexcept
+void CmdLineParser::printParameters() noexcept
 {
     LogVerbose() << "Command line parameters are..";
     LogVerbose() << "Log level: " << m_logLevel;

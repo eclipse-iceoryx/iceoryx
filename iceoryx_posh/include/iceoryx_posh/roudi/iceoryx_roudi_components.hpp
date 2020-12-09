@@ -39,11 +39,12 @@ struct IceOryxRouDiComponents
     /// @brief Handles MemoryProvider and MemoryBlocks
     IceOryxRouDiMemoryManager m_rouDiMemoryManager;
 
-    /// @brief Prepare the memory and clean up old ressources
-    IceOryxRouDiMemoryManager* initRouDiMemoryManager() noexcept;
-
     /// @brief Handles the ports in shared memory
     PortManager m_portManager{initRouDiMemoryManager()};
+
+  private:
+    /// @brief Prepare the memory and clean up old ressources
+    IceOryxRouDiMemoryManager* initRouDiMemoryManager() noexcept;
 };
 } // namespace roudi
 } // namespace iox

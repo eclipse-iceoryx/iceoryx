@@ -26,7 +26,7 @@ IceOryxRouDiMemoryManager* IceOryxRouDiComponents::initRouDiMemoryManager() noex
     runtime::MqBase::cleanupOutdatedMessageQueue(MQ_ROUDI_NAME);
 
     m_rouDiMemoryManager.createAndAnnounceMemory().or_else([](RouDiMemoryManagerError error) {
-        LogFatal() << "Could not create SharedMemory! Error: " << static_cast<uint64_t>(error);
+        LogFatal() << "Could not create SharedMemory! Error: " << error;
         errorHandler(Error::kROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
     });
     return &m_rouDiMemoryManager;
