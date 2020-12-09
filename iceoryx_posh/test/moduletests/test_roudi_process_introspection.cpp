@@ -179,9 +179,8 @@ TEST_F(ProcessIntrospection_test, thread)
         introspectionAccess.registerPublisherPort(&m_publisherPortData);
 
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), offer()).Times(1);
-        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(AtLeast(1));
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(Between(4, 8));
 
-        // we use the deliverChunk call to check how often the thread calls the send method
         std::chrono::milliseconds& sendIntervalSleep =
             const_cast<std::chrono::milliseconds&>(introspectionAccess.m_sendIntervalSleep);
         sendIntervalSleep = std::chrono::milliseconds(10);
@@ -197,8 +196,17 @@ TEST_F(ProcessIntrospection_test, thread)
             std::this_thread::sleep_for(std::chrono::milliseconds(15));
         }
 
-        // within this time, the thread should have sent the 6 updates
         introspectionAccess.stop();
+
+        for (size_t i = 0; i < 3; ++i)
+        // within this time, the thread should have sent the 6 updates
+        {
+            introspectionAccess.stop();
+            std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            introspectionAccess.addProcess(PID, iox::ProcessName_t(PROCESS_NAME));
+            std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            introspectionAccess.removeProcess(PID);
+        }
     }
     // stopOffer was called
     EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
