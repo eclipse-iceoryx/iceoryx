@@ -729,8 +729,8 @@ void ProcessManager::run() noexcept
     std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.milliSeconds<int64_t>()));
 }
 
-popo::PublisherPortData* ProcessManager::addIntrospectionSenderPort(const capro::ServiceDescription& service,
-                                                                    const ProcessName_t& process_name) noexcept
+popo::PublisherPortData* ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& service,
+                                                                       const ProcessName_t& process_name) noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 

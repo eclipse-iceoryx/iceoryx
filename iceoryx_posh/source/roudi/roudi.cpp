@@ -37,12 +37,12 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
           *m_roudiMemoryInterface->introspectionMemoryManager()
                .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
           *m_roudiMemoryInterface->segmentManager().value(),
-          PublisherPortUserType(m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MQ_ROUDI_NAME)))
+          PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionMempoolService, MQ_ROUDI_NAME)))
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
     m_processIntrospection.registerPublisherPort(
-        m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, MQ_ROUDI_NAME));
+        m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, MQ_ROUDI_NAME));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
     m_mempoolIntrospection.start();
