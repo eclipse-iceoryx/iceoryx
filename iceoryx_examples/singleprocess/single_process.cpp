@@ -15,8 +15,8 @@
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
-#include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
+#include "iceoryx_posh/popo/modern_api/typed_publisher.hpp"
+#include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
 #include "iceoryx_utils/log/logmanager.hpp"
@@ -45,16 +45,14 @@ void consoleOutput(const std::string& output)
 
 void sender()
 {
-    iox::popo::UntypedPublisher publisher({"Single", "Process", "Demo"});
+    iox::popo::TypedPublisher<TransmissionData_t> publisher({"Single", "Process", "Demo"});
     publisher.offer();
 
     uint64_t counter{0};
     while (keepRunning.load())
     {
-        publisher.loan(sizeof(TransmissionData_t)).and_then([&](iox::popo::Sample<void>& sample) {
-            auto rawSample = static_cast<TransmissionData_t*>(sample.get());
-            rawSample->counter = counter++;
-            consoleOutput(std::string("Sending: " + std::to_string(rawSample->counter)));
+        publisher.loan().and_then([&](auto& sample) {
+            consoleOutput(std::string("Sending: " + std::to_string(++sample->counter)));
             sample.publish();
         });
 
@@ -64,7 +62,7 @@ void sender()
 
 void receiver()
 {
-    iox::popo::UntypedSubscriber subscriber({"Single", "Process", "Demo"});
+    iox::popo::TypedSubscriber<TransmissionData_t> subscriber({"Single", "Process", "Demo"});
 
     uint64_t cacheQueueSize = 10;
     subscriber.subscribe(cacheQueueSize);
@@ -78,9 +76,8 @@ void receiver()
             do
             {
                 subscriber.take()
-                    .and_then([&](iox::popo::Sample<const void>& sample) {
-                        auto receivedSample = static_cast<const TransmissionData_t*>(sample.get());
-                        consoleOutput(std::string("Receiving : " + std::to_string(receivedSample->counter)));
+                    .and_then([&](iox::popo::Sample<const TransmissionData_t>& sample) {
+                        consoleOutput(std::string("Receiving : " + std::to_string(sample->counter)));
                     })
                     .if_empty([&] { hasMoreSamples = false; });
             } while (hasMoreSamples);
