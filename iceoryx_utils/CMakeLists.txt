@@ -197,11 +197,13 @@ set_target_properties(iceoryx_platform PROPERTIES
 
 target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS})
 
-target_link_libraries(iceoryx_platform 
-    PUBLIC 
-    rt 
-    pthread
-)
+if(LINUX)
+    target_link_libraries(iceoryx_platform 
+        PUBLIC 
+        rt 
+        pthread
+    )
+endif(LINUX)
 
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
