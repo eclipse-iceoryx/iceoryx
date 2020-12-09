@@ -74,13 +74,12 @@ void receiver()
         if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
         {
             bool hasMoreSamples{true};
-            const TransmissionData_t* receivedSample{nullptr};
 
             do
             {
                 subscriber.take()
                     .and_then([&](iox::popo::Sample<const void>& sample) {
-                        receivedSample = static_cast<const TransmissionData_t*>(sample.get());
+                        auto receivedSample = static_cast<const TransmissionData_t*>(sample.get());
                         consoleOutput(std::string("Receiving : " + std::to_string(receivedSample->counter)));
                     })
                     .if_empty([&] { hasMoreSamples = false; });
