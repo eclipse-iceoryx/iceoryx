@@ -80,17 +80,16 @@ void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 
 PerfTopic Iceoryx::receivePerfTopic() noexcept
 {
-    bool hasMoreSamples{true};
+    bool hasReceivedSample{false};
     PerfTopic receivedSample;
 
     do
     {
-        m_subscriber.take()
-            .and_then([&](iox::popo::Sample<const void>& sample) {
-                receivedSample = *(static_cast<const PerfTopic*>(sample.get()));
-            })
-            .if_empty([&] { hasMoreSamples = false; });
-    } while (!hasMoreSamples);
+        m_subscriber.take().and_then([&](iox::popo::Sample<const void>& sample) {
+            receivedSample = *(static_cast<const PerfTopic*>(sample.get()));
+            hasReceivedSample = true;
+        });
+    } while (!hasReceivedSample);
 
     return receivedSample;
 }
