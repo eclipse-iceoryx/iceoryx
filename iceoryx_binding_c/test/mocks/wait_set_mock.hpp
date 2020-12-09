@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 #ifndef IOX_BINDING_C_MOCKS_WAITSET_MOCK_HPP
 #define IOX_BINDING_C_MOCKS_WAITSET_MOCK_HPP
+
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 class WaitSetMock : public iox::popo::WaitSet

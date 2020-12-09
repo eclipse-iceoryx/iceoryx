@@ -32,7 +32,7 @@ static void sigHandler(int signalValue)
 
 void sending()
 {
-    iox_runtime_register("/iox-c-publisher");
+    iox_runtime_init("/iox-c-publisher");
 
     uint64_t historyRequest = 0U;
     iox_pub_storage_t publisherStorage;

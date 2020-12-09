@@ -25,7 +25,7 @@ for arg in "$@"
 do 
     case "$arg" in
         "with-dds-gateway-tests")
-            COMPONENTS="utils posh dds_gateway"
+            COMPONENTS="$COMPONENTS dds_gateway"
             ;;
         "disable-timing-tests")
             GTEST_FILTER="-*.TimingTest_*"
@@ -112,10 +112,10 @@ for COMPONENT in $COMPONENTS; do
     fi
     if [ $GCOV_SCOPE == "component" ] || [ $GCOV_SCOPE == "all" ]; then
         execute_test $COMPONENT component
-    fi    
+    fi
     if [ $GCOV_SCOPE == "integration" ] || [ $GCOV_SCOPE == "all" ]; then
         execute_test $COMPONENT integration
-    fi        
+    fi
 done
 
 # do not start RouDi while the module and componenttests are running;
