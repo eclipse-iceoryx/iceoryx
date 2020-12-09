@@ -68,24 +68,54 @@ echo ">>>>>> Running Ice0ryx Tests <<<<<<"
 
 set -e
 
-for COMPONENT in $COMPONENTS; do
-    echo ""
-    echo "######################## executing moduletests & componenttests for $COMPONENT ########################"
-    cd $BASE_DIR/$COMPONENT/test
+execute_test () {
+    local component=$1
+    local test_scope=$2
+    local test_binary=""
+
+    case $test_scope in
+        "unit")
+        test_binary="$component"_moduletests
+        result_file="$component"_ModuleTestResults.xml
+        ;;
+        "component")
+        test_binary="$component"_componenttests
+        result_file="$component"_ComponenttestTestResults.xml
+        ;;
+        "integration")
+        test_binary="$component"_integrationtests
+        result_file="$component"_IntegrationTestResults.xml
+        ;;
+        *)
+        echo "Wrong scope $test_scope!"
+        ;;
+    esac
 
     # Runs only tests available for the given component
+    if [ -f ./$test_binary ]; then
+        echo "Executing $test_binary"
+        ./$test_binary --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/$result_file"
+    fi
 
-    case $GCOV_SCOPE in    
-        "unit" | "all")
-            [ -f ./"$COMPONENT"_moduletests ] && ./"$COMPONENT"_moduletests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ModuleTestResults.xml"
-            ;;
-        "component" | "all")
-            [ -f ./"$COMPONENT"_componenttests ] && ./"$COMPONENT"_componenttests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_ComponenttestTestResults.xml"
-            ;;
-        "integration" | "all") 
-            [ -f ./"$COMPONENT"_integrationtests ] && ./"$COMPONENT"_integrationtests --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/"$COMPONENT"_IntegrationTestResults.xml"
-            ;;
-      esac
+    if [ $? != 0 ]; then
+        echo "$test_scope test for $component failed!"
+    fi
+}
+
+for COMPONENT in $COMPONENTS; do
+    echo ""
+    echo "######################## executing tests for $COMPONENT ########################"
+    cd $BASE_DIR/$COMPONENT/test
+
+    if [ $GCOV_SCOPE == "unit" ] || [ $GCOV_SCOPE == "all" ]; then
+        execute_test $COMPONENT unit
+    fi
+    if [ $GCOV_SCOPE == "component" ] || [ $GCOV_SCOPE == "all" ]; then
+        execute_test $COMPONENT component
+    fi    
+    if [ $GCOV_SCOPE == "integration" ] || [ $GCOV_SCOPE == "all" ]; then
+        execute_test $COMPONENT integration
+    fi        
 done
 
 # do not start RouDi while the module and componenttests are running;

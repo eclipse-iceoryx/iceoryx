@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,6 +78,13 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T
     while (!m_freeIndices.pop(index))
     {
         // only pop the index if the queue is still full
+        // note, this leads to issues if an index is lost
+        // (only possible due to an application crash)
+        // then the queue can never be full and we may never leave if no one calls a concurrent pop
+        // A quick remedy is not to use a conditional pop such as popIfFull here, but a normal one.
+        // However, then it can happen that due to a concurrent pop it was not really necessary to
+        // evict a value (i.e. we may needlessly lose values in rare cases)
+        // Whether there is another acceptable solution needs to be explored.
         if (m_usedIndices.popIfFull(index))
         {
             evictedValue = readBufferAt(index);

@@ -1,3 +1,17 @@
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 namespace iox
 {
 namespace concurrent
@@ -7,18 +21,18 @@ IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
     : m_readPosition(Index(Capacity))
     , m_writePosition(Index(Capacity))
 {
-    for (uint64_t i = 0u; i < Capacity; ++i)
+    for (uint64_t i = 0U; i < Capacity; ++i)
     {
-        m_cells[i].store(Index(0), std::memory_order_relaxed);
+        m_cells[i].store(Index(0U), std::memory_order_relaxed);
     }
 }
 
 template <uint64_t Capacity, typename ValueType>
 IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t) noexcept
-    : m_readPosition(Index(0u))
+    : m_readPosition(Index(0U))
     , m_writePosition(Index(Capacity))
 {
-    for (uint64_t i = 0u; i < Capacity; ++i)
+    for (uint64_t i = 0U; i < Capacity; ++i)
     {
         m_cells[i].store(Index(i), std::memory_order_relaxed);
     }
@@ -88,7 +102,7 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
             // help with the update
             // (note that we do not care if it fails, then a retry or another push will handle it)
 
-            Index newWritePosition(writePosition + 1);
+            Index newWritePosition(writePosition + 1U);
             m_writePosition.compare_exchange_strong(
                 writePosition, newWritePosition, std::memory_order_relaxed, std::memory_order_relaxed);
         }
@@ -102,7 +116,7 @@ void IndexQueue<Capacity, ValueType>::push(const ValueType index) noexcept
 
     } while (NotPublished);
 
-    Index newWritePosition(writePosition + 1);
+    Index newWritePosition(writePosition + 1U);
 
     // if this compare-exchange fails it is no problem, this only delays the update of m_writePosition
     // for other pushes which are able to do them on their own (if writePositionRequiresUpdate above is true)
@@ -146,7 +160,7 @@ bool IndexQueue<Capacity, ValueType>::pop(ValueType& index) noexcept
         if (cellIsValidToRead)
         {
             // case (1)
-            Index newReadPosition(readPosition + 1);
+            Index newReadPosition(readPosition + 1U);
             ownershipGained = m_readPosition.compare_exchange_weak(
                 readPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
         }
@@ -186,15 +200,15 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
     // unfortunately it seems impossible in this design to check this condition without loading
     // write posiion and read position (which causes more contention)
 
-    auto writePosition = m_writePosition.load(std::memory_order_relaxed);
+    const auto writePosition = m_writePosition.load(std::memory_order_relaxed);
     auto readPosition = m_readPosition.load(std::memory_order_relaxed);
-    auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
+    const auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
 
     auto isFull = writePosition.getIndex() == readPosition.getIndex() && readPosition.isOneCycleBehind(writePosition);
 
     if (isFull)
     {
-        Index newReadPosition(readPosition + 1);
+        Index newReadPosition(readPosition + 1U);
         auto ownershipGained = m_readPosition.compare_exchange_strong(
             readPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
 
@@ -206,6 +220,54 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
     }
 
     // otherwise someone else has dequeued an index and the queue was not full at the start of this popIfFull
+    return false;
+}
+
+template <uint64_t Capacity, typename ValueType>
+bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t requiredSize, ValueType& index) noexcept
+{
+    if (requiredSize == 0)
+    {
+        return pop(index);
+    }
+    // which to load first should make no difference for correctness
+    // but for performance it might
+    // note that without sync mechanisms (such as seq_cst), reordering is possible
+    const auto writePosition = m_writePosition.load(std::memory_order_relaxed);
+    auto readPosition = m_readPosition.load(std::memory_order_relaxed);
+
+    // if readPosition + n = readPosition for some n>=0, the queue contains n elements
+    // at this instant (!) but slightly later may contain more or less elements
+    // while the m_readPosition and m_writePosition can grow during this operation,
+    // we detect this for readPosition with compare_exchange and for writePosition it does not matter,
+    // the queue will contain even more elements then ( > n)
+    const int64_t delta = writePosition - readPosition;
+
+    // delta < 0 can actually happen (atomic values may not be up to date, i.e. detect writePosition as smaller than
+    // readPosition leading to negative delta)
+    // since we cannot conclude that the queue is filled with requiredSize elements in this case we just return
+    //
+    // note that delta is signed and we cannot compare it to requiredSize (unsigned) when it is negative
+    // without getting unexpected results (it will be converted to large positive numbers)
+    if (delta < 0)
+    {
+        return false;
+    }
+
+    // delta is positive, therefore the conversion is fine (it surely fits into uint64_t)
+    if (static_cast<uint64_t>(delta) >= requiredSize)
+    {
+        auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
+        Index newReadPosition(readPosition + 1U);
+        auto ownershipGained = m_readPosition.compare_exchange_strong(
+            readPosition, newReadPosition, std::memory_order_relaxed, std::memory_order_relaxed);
+        if (ownershipGained)
+        {
+            index = value.getIndex();
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -232,10 +294,21 @@ cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfFull() noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
+cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t size) noexcept
+{
+    ValueType value;
+    if (popIfSizeIsAtLeast(size, value))
+    {
+        return value;
+    }
+    return cxx::nullopt;
+}
+
+template <uint64_t Capacity, typename ValueType>
 bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 {
-    auto readPosition = m_readPosition.load(std::memory_order_relaxed);
-    auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
+    const auto readPosition = m_readPosition.load(std::memory_order_relaxed);
+    const auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
 
     // if m_readPosition is ahead by one cycle compared to the value stored at head,
     // the queue was empty at the time of the loads above (but might not be anymore!)
@@ -244,7 +317,7 @@ bool IndexQueue<Capacity, ValueType>::empty() const noexcept
 
 template <uint64_t Capacity, typename ValueType>
 typename IndexQueue<Capacity, ValueType>::Index
-IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, std::memory_order memoryOrder) const
+IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, const std::memory_order memoryOrder) const
 {
     return m_cells[position.getIndex()].load(memoryOrder);
 }

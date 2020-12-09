@@ -31,7 +31,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 void receiving()
 {
     // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-subscriber-bare-metal");
+    iox::runtime::PoshRuntime::initRuntime("/iox-ex-subscriber-bare-metal");
 
     // Create a subscriber
     iox::popo::Subscriber mySubscriber({"Radar", "FrontLeft", "Counter"});
