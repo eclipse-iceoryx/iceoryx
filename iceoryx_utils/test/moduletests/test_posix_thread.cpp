@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/posix_wrapper/pthread.hpp"
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 #include "test.hpp"
 
 #include <atomic>
@@ -21,17 +21,17 @@
 using namespace ::testing;
 using namespace iox::posix;
 
-class PThread_test : public Test
+class Thread_test : public Test
 {
   public:
-    PThread_test()
+    Thread_test()
     {
     }
 
     void SetUp()
     {
         m_run = true;
-        m_thread = std::thread(&PThread_test::threadFunc, this);
+        m_thread = std::thread(&Thread_test::threadFunc, this);
     }
 
     void TearDown()
@@ -40,7 +40,7 @@ class PThread_test : public Test
         m_thread.join();
     }
 
-    ~PThread_test()
+    ~Thread_test()
     {
     }
 
@@ -55,22 +55,26 @@ class PThread_test : public Test
     std::thread m_thread;
 };
 
-TEST_F(PThread_test, LargeStringIsTruncated)
+TEST_F(Thread_test, DISABLED_LargeStringIsTruncated)
 {
+    /// @todo Renable this test, once "does not compile" tests are possible
+    #if 0
     constexpr char stringLongerThan16Chars[] =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
         "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
         "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
     char threadName[15];
 
+
     auto result = setThreadName(m_thread.native_handle(), stringLongerThan16Chars);
     pthread_getname_np(m_thread.native_handle(), threadName, 16);
 
     EXPECT_THAT(stringLongerThan16Chars, StrNe(threadName));
     EXPECT_THAT(result.has_error(), Eq(false));
+    #endif
 }
 
-TEST_F(PThread_test, SmallStringIsNotTruncated)
+TEST_F(Thread_test, SmallStringIsNotTruncated)
 {
     constexpr char stringShorterThan16Chars[] = "I'm short";
     char threadName[15];

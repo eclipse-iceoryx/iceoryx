@@ -24,12 +24,14 @@ namespace iox
 {
 namespace posix
 {
-enum class PThreadErrorType : int32_t
+enum class ThreadErrorType : int32_t
 {
     EXCEEDED_RANGE_LIMIT = 0
 };
 
-cxx::expected<PThreadErrorType> setThreadName(pthread_t thread, const char* name);
+using threadName_t = cxx::string<16>;
+
+cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const threadName_t& name);
 
 } // namespace posix
 } // namespace iox

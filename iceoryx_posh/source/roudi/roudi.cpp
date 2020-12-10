@@ -20,7 +20,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iceoryx_utils/cxx/convert.hpp"
-#include "iceoryx_utils/posix_wrapper/pthread.hpp"
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 namespace iox
 {

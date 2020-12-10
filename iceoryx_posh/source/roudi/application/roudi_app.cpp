@@ -27,7 +27,7 @@
 #include "iceoryx_utils/platform/resource.hpp"
 #include "iceoryx_utils/platform/semaphore.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_utils/posix_wrapper/pthread.hpp"
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 #include "stdio.h"
 #include <signal.h>

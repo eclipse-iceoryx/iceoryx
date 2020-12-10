@@ -12,21 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/posix_wrapper/pthread.hpp"
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 
 namespace iox
 {
 namespace posix
 {
-cxx::expected<PThreadErrorType> setThreadName(pthread_t thread, const char* name)
+cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const threadName_t& name)
 {
-    cxx::string<16> truncatedName{cxx::TruncateToCapacity, name};
-
-    if (cxx::makeSmartC(
-            pthread_setname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, truncatedName.c_str())
+    if (cxx::makeSmartC(pthread_setname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, name.c_str())
             .hasErrors())
     {
-        return cxx::error<PThreadErrorType>(PThreadErrorType::EXCEEDED_RANGE_LIMIT);
+        return cxx::error<ThreadErrorType>(ThreadErrorType::EXCEEDED_RANGE_LIMIT);
     }
     else
     {

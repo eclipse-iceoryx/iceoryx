@@ -14,7 +14,7 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_INL
 #define IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_INL
 
-#include "iceoryx_utils/posix_wrapper/pthread.hpp"
+#include "iceoryx_utils/posix_wrapper/thread.hpp"
 #include "mempool_introspection.hpp"
 
 namespace iox
