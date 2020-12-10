@@ -79,7 +79,8 @@ void receiver()
                     .and_then([&](iox::popo::Sample<const TransmissionData_t>& sample) {
                         consoleOutput(std::string("Receiving : " + std::to_string(sample->counter)));
                     })
-                    .if_empty([&] { hasMoreSamples = false; });
+                    .if_empty([&] { hasMoreSamples = false; })
+                    .or_else([](auto) { std::cout << "Error receiving sample: " << std::endl; });
             } while (hasMoreSamples);
         }
 
