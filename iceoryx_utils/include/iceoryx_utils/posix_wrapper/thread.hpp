@@ -31,6 +31,7 @@ enum class ThreadErrorType : int32_t
 using threadName_t = cxx::string<16>;
 
 cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const threadName_t& name);
+cxx::expected<ThreadErrorType> getThreadName(pthread_t thread, threadName_t& name);
 
 } // namespace posix
 } // namespace iox

@@ -31,5 +31,21 @@ cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const threadName_
     }
 }
 
+cxx::expected<ThreadErrorType> getThreadName(pthread_t thread, threadName_t& name)
+{
+    char tempName[name.capacity()];
+    if (cxx::makeSmartC(
+            pthread_getname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, tempName, name.capacity())
+            .hasErrors())
+    {
+        return cxx::error<ThreadErrorType>(ThreadErrorType::EXCEEDED_RANGE_LIMIT);
+    }
+    else
+    {
+        name.assign(tempName);
+        return cxx::success<>();
+    }
+}
+
 } // namespace posix
 } // namespace iox

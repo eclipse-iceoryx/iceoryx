@@ -20,6 +20,7 @@
 
 using namespace ::testing;
 using namespace iox::posix;
+using namespace iox::cxx;
 
 class Thread_test : public Test
 {
@@ -57,8 +58,8 @@ class Thread_test : public Test
 
 TEST_F(Thread_test, DISABLED_LargeStringIsTruncated)
 {
-    /// @todo Renable this test, once "does not compile" tests are possible
-    #if 0
+/// @todo Renable this test, once "does not compile" tests are possible
+#if 0
     constexpr char stringLongerThan16Chars[] =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
         "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
@@ -71,17 +72,18 @@ TEST_F(Thread_test, DISABLED_LargeStringIsTruncated)
 
     EXPECT_THAT(stringLongerThan16Chars, StrNe(threadName));
     EXPECT_THAT(result.has_error(), Eq(false));
-    #endif
+#endif
 }
 
 TEST_F(Thread_test, SmallStringIsNotTruncated)
 {
     constexpr char stringShorterThan16Chars[] = "I'm short";
-    char threadName[15];
+    threadName_t threadName;
 
-    auto result = setThreadName(m_thread.native_handle(), stringShorterThan16Chars);
-    pthread_getname_np(m_thread.native_handle(), threadName, 16);
+    auto setResult = setThreadName(m_thread.native_handle(), stringShorterThan16Chars);
+    auto getResult = getThreadName(m_thread.native_handle(), threadName);
 
     EXPECT_THAT(stringShorterThan16Chars, StrEq(threadName));
-    EXPECT_THAT(result.has_error(), Eq(false));
+    EXPECT_THAT(setResult.has_error(), Eq(false));
+    EXPECT_THAT(getResult.has_error(), Eq(false));
 }
