@@ -33,30 +33,19 @@ void receive()
     iox::popo::TypedSubscriber<CounterTopic> subscriber({"CounterTopic", iox::capro::AnyInstanceString, "Counter"});
 
     subscriber.subscribe();
-    uint64_t maxNumSamples = 2;
+
     while (!killswitch)
     {
-        subscriber.unsubscribe();                             // unsubscribe and resubscribe
-        std::this_thread::sleep_for(std::chrono::seconds(3)); // we will probably miss some data while unsubscribed
-
-        // we (re)subscribe with differing maximum number of samples
-        maxNumSamples = maxNumSamples % 4 + 1; // cycles between last 1 to 4 samples
-        subscriber.subscribe(maxNumSamples);
-        std::cout << "Subscribe with max number of samples " << maxNumSamples << std::endl;
-
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        bool hasData = true;
-        do
+        while (subscriber.hasNewSamples())
         {
             subscriber.take()
                 .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << "Received: " << *sample.get() << std::endl;
                 })
-                .if_empty([&] { hasData = false; })
                 .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
-        } while (hasData);
-
+        };
         std::cout << "Waiting for data ... " << std::endl;
     }
     subscriber.unsubscribe();
@@ -65,7 +54,7 @@ void receive()
 int main()
 {
     signal(SIGINT, sigHandler);
-    iox::runtime::PoshRuntime::initRuntime("/iox-subscriber2");
+    iox::runtime::PoshRuntime::initRuntime("/iox-subscriber");
 
     std::thread receiver(receive);
     receiver.join();

@@ -28,26 +28,41 @@ static void sigHandler(int sig [[gnu::unused]])
     killswitch = true;
 }
 
+constexpr uint64_t MAX_HISTORY_SIZE{4};
+constexpr uint64_t UNSUBSCRIBED_TIME_SECONDS{3};
+
 void receive()
 {
     iox::popo::TypedSubscriber<CounterTopic> subscriber({"CounterTopic", iox::capro::AnyInstanceString, "Counter"});
 
     subscriber.subscribe();
-
+    uint64_t maxNumSamples = MAX_HISTORY_SIZE - 2;
     while (!killswitch)
     {
+        // unsubscribe and resubscribe
+        subscriber.unsubscribe();
+        std::cout << "Unsubscribed ... Resubscribe in " << UNSUBSCRIBED_TIME_SECONDS << " seconds" << std::endl;
+
+        // we will probably miss some data while unsubscribed
+        std::this_thread::sleep_for(std::chrono::seconds(UNSUBSCRIBED_TIME_SECONDS));
+
+        // we (re)subscribe with differing maximum number of samples
+        // and should see at most the latest last maxNumSamples
+        maxNumSamples = maxNumSamples % MAX_HISTORY_SIZE + 1; // cycles between last 1 to MAX_HISTORY_SIZE samples
+        subscriber.subscribe(maxNumSamples);
+
+        std::cout << "Subscribe with max number of samples " << maxNumSamples << std::endl;
+
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        bool hasData = true;
-        do
+        while (subscriber.hasNewSamples())
         {
             subscriber.take()
                 .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << "Received: " << *sample.get() << std::endl;
                 })
-                .if_empty([&] { hasData = false; })
                 .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
-        } while (hasData);
+        };
         std::cout << "Waiting for data ... " << std::endl;
     }
     subscriber.unsubscribe();
@@ -56,7 +71,7 @@ void receive()
 int main()
 {
     signal(SIGINT, sigHandler);
-    iox::runtime::PoshRuntime::initRuntime("/iox-subscriber1");
+    iox::runtime::PoshRuntime::initRuntime("/iox-re-subscriber");
 
     std::thread receiver(receive);
     receiver.join();

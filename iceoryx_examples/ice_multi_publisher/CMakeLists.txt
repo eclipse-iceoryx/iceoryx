@@ -34,27 +34,27 @@ set_target_properties(iox-multi-publisher PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-add_executable(iox-subscriber1 ./ice_subscriber1.cpp)
-target_link_libraries(iox-subscriber1    
+add_executable(iox-subscriber ./ice_subscriber.cpp)
+target_link_libraries(iox-subscriber    
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-subscriber1 PROPERTIES
+set_target_properties(iox-subscriber PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
 
-add_executable(iox-subscriber2 ./ice_subscriber2.cpp)
-target_link_libraries(iox-subscriber2
+add_executable(iox-re-subscriber ./ice_re_subscriber.cpp)
+target_link_libraries(iox-re-subscriber
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-subscriber2 PROPERTIES
+set_target_properties(iox-re-subscriber PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
 
 install(
-    TARGETS iox-multi-publisher iox-subscriber1 iox-subscriber2
+    TARGETS iox-multi-publisher iox-subscriber iox-re-subscriber
     RUNTIME DESTINATION bin
 )
