@@ -172,7 +172,14 @@ SharedChunk MemoryManager::getChunk(const MaxSize_t f_size)
         }
     }
 
-    if (memPoolPointer == nullptr)
+    if (m_memPoolVector.size() == 0)
+    {
+        std::cerr << "There are no mempools available!" << std::endl;
+
+        errorHandler(Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL, nullptr, ErrorLevel::SEVERE);
+        return SharedChunk(nullptr);
+    }
+    else if (memPoolPointer == nullptr)
     {
         std::cerr << "The following mempools are available:" << std::endl;
         printMemPoolVector();

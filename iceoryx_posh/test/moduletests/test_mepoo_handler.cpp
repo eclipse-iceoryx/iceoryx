@@ -98,7 +98,18 @@ TEST_F(MemoryManager_test, getNumberOfMemPools)
 
 TEST_F(MemoryManager_test, getChunkWithNoMemPool)
 {
-    EXPECT_DEATH({ sut->getChunk(15); }, ".*");
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+
+    auto bla = sut->getChunk(15);
+    EXPECT_THAT(bla, Eq(false));
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL));
 }
 
 TEST_F(MemoryManager_test, getTooLargeChunk)
@@ -107,7 +118,19 @@ TEST_F(MemoryManager_test, getTooLargeChunk)
     mempoolconf.addMemPool({64, 10});
     mempoolconf.addMemPool({128, 10});
     sut->configureMemoryManager(mempoolconf, allocator, allocator);
-    EXPECT_DEATH({ sut->getChunk(200); }, ".*");
+
+    iox::cxx::optional<iox::Error> detectedError;
+    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
+        [&detectedError](const iox::Error error, const std::function<void()>, const iox::ErrorLevel errorLevel) {
+            detectedError.emplace(error);
+            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::SEVERE));
+        });
+
+    auto bla = sut->getChunk(200);
+    EXPECT_THAT(bla, Eq(false));
+
+    ASSERT_THAT(detectedError.has_value(), Eq(true));
+    EXPECT_THAT(detectedError.value(), Eq(iox::Error::kMEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE));
 }
 
 TEST_F(MemoryManager_test, getChunkSingleMemPoolSingleChunk)
