@@ -14,7 +14,6 @@
 
 #include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
@@ -24,7 +23,7 @@
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int sig [[gnu::unused]])
 {
     killswitch = true;
 }
@@ -37,15 +36,14 @@ void receive()
     uint64_t maxNumSamples = 2;
     while (!killswitch)
     {
-#if 0        
-//todo: requires the queue resize feature to be merged
         subscriber.unsubscribe();                             // unsubscribe and resubscribe
-        std::this_thread::sleep_for(std::chrono::seconds(1)); // we will probably miss some data while unsubscribed
-        // we can (re)subscribe with differing maximum number of samples
+        std::this_thread::sleep_for(std::chrono::seconds(3)); // we will probably miss some data while unsubscribed
+
+        // we (re)subscribe with differing maximum number of samples
         maxNumSamples = maxNumSamples % 4 + 1; // cycles between last 1 to 4 samples
         subscriber.subscribe(maxNumSamples);
         std::cout << "Subscribe with max number of samples " << maxNumSamples << std::endl;
-#endif
+
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
         bool hasData = true;
@@ -58,6 +56,7 @@ void receive()
                 .if_empty([&] { hasData = false; })
                 .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
         } while (hasData);
+
         std::cout << "Waiting for data ... " << std::endl;
     }
     subscriber.unsubscribe();
@@ -66,7 +65,7 @@ void receive()
 int main()
 {
     signal(SIGINT, sigHandler);
-    iox::runtime::PoshRuntime::getInstance("/iox-subscriber2");
+    iox::runtime::PoshRuntime::initRuntime("/iox-subscriber2");
 
     std::thread receiver(receive);
     receiver.join();

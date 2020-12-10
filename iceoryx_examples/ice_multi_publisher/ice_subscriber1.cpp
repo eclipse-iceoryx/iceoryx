@@ -14,7 +14,6 @@
 
 #include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
@@ -24,7 +23,7 @@
 
 bool killswitch = false;
 
-static void sigHandler(int f_sig [[gnu::unused]])
+static void sigHandler(int sig [[gnu::unused]])
 {
     killswitch = true;
 }
@@ -37,14 +36,11 @@ void receive()
 
     while (!killswitch)
     {
-        // todo: use waitset after rework instead of polling
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
         bool hasData = true;
         do
         {
-            // todo: we probably want operator& for samples as well, only get is awkward
-            // todo: some kind of way to take all samples and apply a function to them? (takeAll)
             subscriber.take()
                 .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
                     std::cout << "Received: " << *sample.get() << std::endl;
@@ -60,7 +56,7 @@ void receive()
 int main()
 {
     signal(SIGINT, sigHandler);
-    iox::runtime::PoshRuntime::getInstance("/iox-subscriber1");
+    iox::runtime::PoshRuntime::initRuntime("/iox-subscriber1");
 
     std::thread receiver(receive);
     receiver.join();

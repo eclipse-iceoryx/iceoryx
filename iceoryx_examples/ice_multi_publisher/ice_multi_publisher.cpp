@@ -28,21 +28,9 @@ static void sigHandler(int f_sig [[gnu::unused]])
     killswitch = true;
 }
 
-void send(uint32_t id, const char* instanceStr, std::chrono::milliseconds delay)
+void send(uint32_t id, const char* instanceName, std::chrono::milliseconds delay)
 {
-    // iox::capro::IdString instance{Instance" + std::to_string(id)};
-
-    // note: we consider the scenario that the instance name is only known at runtime
-    // constructing strings at runtime by appending/concatenating cxx::strings has limitations
-    // (this is more concise with compile time names, but runtime names are supported)
-    // todo: can this be done better with the current string API?
-
-    iox::capro::IdString instance{iox::cxx::TruncateToCapacity, instanceStr};
-    iox::capro::IdString idStr{
-        iox::cxx::TruncateToCapacity,
-        std::to_string(id).c_str(),
-    };
-    instance.append(iox::cxx::TruncateToCapacity, idStr);
+    iox::capro::IdString instance{iox::cxx::TruncateToCapacity, instanceName};
 
     iox::popo::TypedPublisher<CounterTopic> publisher({"CounterTopic", instance, "Counter"});
     publisher.offer();
@@ -67,7 +55,7 @@ int main()
 {
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::getInstance("/iox-publisher");
+    iox::runtime::PoshRuntime::initRuntime("/iox-publisher");
 
     // generates multiple publishers which send the same topic (with different or same instances)
     // and different sending frequencies independently of each other
