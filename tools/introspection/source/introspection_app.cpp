@@ -625,7 +625,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     }
 
     // process
-    SubscriberType processSubscriber(IntrospectionProcessService);
+    iox::popo::TypedSubscriber<ProcessIntrospectionFieldTopic> processSubscriber(IntrospectionProcessService);
     if (introspectionSelection.process == true)
     {
         processSubscriber.subscribe(1u);
@@ -638,9 +638,11 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     }
 
     // port
-    SubscriberType portSubscriber(IntrospectionPortService);
-    SubscriberType portThroughputSubscriber(IntrospectionPortThroughputService);
-    SubscriberType subscriberPortChangingDataSubscriber(IntrospectionSubscriberPortChangingDataService);
+    iox::popo::TypedSubscriber<PortIntrospectionFieldTopic> portSubscriber(IntrospectionPortService);
+    iox::popo::TypedSubscriber<PortThroughputIntrospectionFieldTopic> portThroughputSubscriber(
+        IntrospectionPortThroughputService);
+    iox::popo::TypedSubscriber<SubscriberPortChangingIntrospectionFieldTopic> subscriberPortChangingDataSubscriber(
+        IntrospectionPortThroughputService);
 
     if (introspectionSelection.port == true)
     {
@@ -667,10 +669,11 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     // Refresh once in case of timeout messages
     refreshTerminal();
 
-    const ProcessIntrospectionFieldTopic* typedProcessSample{nullptr};
-    const PortIntrospectionFieldTopic* typedPortSample{nullptr};
-    const PortThroughputIntrospectionFieldTopic* typedPortThroughputSample{nullptr};
-    const SubscriberPortChangingIntrospectionFieldTopic* typedSubscriberPortChangingDataSamples{nullptr};
+    cxx::optional<popo::Sample<const MemPoolIntrospectionInfoContainer>> memPoolSample;
+    cxx::optional<popo::Sample<const ProcessIntrospectionFieldTopic>> processSample;
+    cxx::optional<popo::Sample<const PortIntrospectionFieldTopic>> portSample;
+    cxx::optional<popo::Sample<const PortThroughputIntrospectionFieldTopic>> portThroughputSample;
+    cxx::optional<popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>> subscriberPortChangingDataSamples;
 
     while (true)
     {
@@ -688,103 +691,65 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            bool hasReceivedSample{false};
+            memPoolSubscriber.take().and_then(
+                [&](iox::popo::Sample<const MemPoolIntrospectionInfoContainer>& sample) {
+                     memPoolSample = sample;
+                });
 
-            do
+            if (memPoolSample)
             {
-                auto takeResult = memPoolSubscriber.take();
-
-                if (takeResult.has_error())
+                for (const auto& i : *(memPoolSample.value().get()))
                 {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds<int64_t>()));
-                    continue;
+                    printMemPoolInfo(i);
                 }
-
-                auto& maybeSample = takeResult.value();
-
-                maybeSample
-                    .and_then([&](iox::popo::Sample<const MemPoolIntrospectionInfoContainer>& sample) {
-                        for (const auto& i : *(sample.get()))
-                        {
-                            printMemPoolInfo(i);
-                        }
-                        hasReceivedSample = true;
-                    })
-                    .or_else([]() {
-                        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds<int64_t>()));
-                    });
-            } while (!hasReceivedSample);
+                printProcessIntrospectionData(processSample.value().get());
+            }
+            else
+            {
+                prettyPrint("Waiting for mempool introspection data ...\n");
+            }
         }
 
         // print process information
         if (introspectionSelection.process == true)
         {
             prettyPrint("### Processes ###\n\n", PrettyOptions::highlight);
-            if (!processSubscriber.hasNewSamples())
+            processSubscriber.take().and_then(
+                [&](iox::popo::Sample<const ProcessIntrospectionFieldTopic>& sample) { processSample = sample; });
+
+            if (processSample)
             {
-                // No new data sent, hence print the old data
-                if (typedProcessSample != nullptr)
-                {
-                    printProcessIntrospectionData(typedProcessSample);
-                }
-                else
-                {
-                    prettyPrint("Waiting for process introspection data ...\n");
-                }
+                printProcessIntrospectionData(processSample.value().get());
             }
             else
             {
-                processSubscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
-                    if (maybeSample.has_value())
-                    {
-                        typedProcessSample = static_cast<const ProcessIntrospectionFieldTopic*>(maybeSample->get());
-                        printProcessIntrospectionData(typedProcessSample);
-                    }
-                });
+                prettyPrint("Waiting for process introspection data ...\n");
             }
         }
 
         // print port information
         if (introspectionSelection.port == true)
         {
-            bool newPortSampleArrived{false};
-            bool newPortThroughputSampleeArrived{false};
-            bool newSubscriberPortChangingDataSamplesArrived{false};
+            portSubscriber.take().and_then(
+                [&](iox::popo::Sample<const PortIntrospectionFieldTopic>& sample) { portSample = sample; });
 
-            portSubscriber.take().and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
-                if (maybeSample.has_value())
-                {
-                    typedPortSample = static_cast<const PortIntrospectionFieldTopic*>(maybeSample->get());
-                    newPortSampleArrived = true;
-                }
-            });
             portThroughputSubscriber.take().and_then(
-                [&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
-                    if (maybeSample.has_value())
-                    {
-                        typedPortThroughputSample =
-                            static_cast<const PortThroughputIntrospectionFieldTopic*>(maybeSample->get());
-                        newPortThroughputSampleeArrived = true;
-                    }
-                });
-            subscriberPortChangingDataSubscriber.take().and_then(
-                [&](iox::cxx::optional<iox::popo::Sample<const void>>& maybeSample) {
-                    if (maybeSample.has_value())
-                    {
-                        typedSubscriberPortChangingDataSamples =
-                            static_cast<const SubscriberPortChangingIntrospectionFieldTopic*>(maybeSample->get());
-                        newSubscriberPortChangingDataSamplesArrived = true;
-                    }
+                [&](iox::popo::Sample<const PortThroughputIntrospectionFieldTopic>& sample) {
+                    portThroughputSample = sample;
                 });
 
-            if (typedPortSample != nullptr && typedPortThroughputSample != nullptr
-                && typedSubscriberPortChangingDataSamples != nullptr)
+            subscriberPortChangingDataSubscriber.take().and_then(
+                [&](iox::popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>& sample) {
+                    subscriberPortChangingDataSamples = sample;
+                });
+
+            if (portSample && portThroughputSample && subscriberPortChangingDataSamples)
             {
                 prettyPrint("### Connections ###\n\n", PrettyOptions::highlight);
-
-                auto composedPublisherPortData = composePublisherPortData(typedPortSample, typedPortThroughputSample);
-                auto composedSubscriberPortData =
-                    composeSubscriberPortData(typedPortSample, typedSubscriberPortChangingDataSamples);
+                auto composedPublisherPortData =
+                    composePublisherPortData(portSample.value().get(), portThroughputSample.value().get());
+                auto composedSubscriberPortData = composeSubscriberPortData(
+                    portSample.value().get(), subscriberPortChangingDataSamples.value().get());
 
                 printPortIntrospectionData(composedPublisherPortData, composedSubscriberPortData);
             }

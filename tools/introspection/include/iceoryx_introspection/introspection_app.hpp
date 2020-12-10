@@ -64,8 +64,6 @@ static const std::map<PrettyOptions, uint32_t> prettyMap = {
 class IntrospectionApp
 {
   public:
-    using SubscriberType = iox::popo::UntypedSubscriber;
-
     /// @brief constructor to create a introspection
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
