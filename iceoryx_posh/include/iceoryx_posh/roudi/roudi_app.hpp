@@ -74,13 +74,12 @@ class RouDiApp
     bool m_run{true};
     RouDiConfig_t m_config;
 
-    posix::Semaphore m_semaphore = std::move(posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0u)
-                                                 .or_else([](posix::SemaphoreError&) {
-                                                     std::cerr << "Unable to create the semaphore for RouDi"
-                                                               << std::endl;
-                                                     std::terminate();
-                                                 })
-                                                 .value());
+    posix::Semaphore m_semaphore =
+        std::move(posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0u)
+                      .or_else([](posix::SemaphoreError&) {
+                          errorHandler(Error::kROUDI_APP__FAILED_TO_CREATE_SEMAPHORE, nullptr, ErrorLevel::FATAL);
+                      })
+                      .value());
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     units::Duration m_processKillDelay{PROCESS_DEFAULT_KILL_DELAY};
 
