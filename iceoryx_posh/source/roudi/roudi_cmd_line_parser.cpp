@@ -243,10 +243,10 @@ iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const Monitoring
     switch (mode)
     {
     case MonitoringMode::OFF:
-        logstream << "OFF";
+        logstream << "MonitoringMode::OFF";
         break;
     case MonitoringMode::ON:
-        logstream << "ON";
+        logstream << "MonitoringMode::ON";
         break;
     }
     return logstream;
