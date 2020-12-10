@@ -64,7 +64,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                                                    1,
                                                    MQ_ROUDI_NAME,
                                                    introspectionMemoryManager,
-                                                   INTROSPECTION_APP_NAME,
+                                                   INTROSPECTION_SERVICE_ID,
                                                    PortConfigInfo());
     if (maybePublisher.has_error())
     {
@@ -78,7 +78,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                                               1,
                                               MQ_ROUDI_NAME,
                                               introspectionMemoryManager,
-                                              INTROSPECTION_APP_NAME,
+                                              INTROSPECTION_SERVICE_ID,
                                               PortConfigInfo());
     if (maybePublisher.has_error())
     {
@@ -93,7 +93,7 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
                                               1,
                                               MQ_ROUDI_NAME,
                                               introspectionMemoryManager,
-                                              INTROSPECTION_APP_NAME,
+                                              INTROSPECTION_SERVICE_ID,
                                               PortConfigInfo());
     if (maybePublisher.has_error())
     {

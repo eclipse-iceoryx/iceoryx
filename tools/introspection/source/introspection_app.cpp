@@ -604,7 +604,7 @@ std::vector<ComposedSubscriberPortData> IntrospectionApp::composeSubscriberPortD
 void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodMs,
                                         const IntrospectionSelection introspectionSelection)
 {
-    iox::runtime::PoshRuntime::initRuntime(iox::roudi::INTROSPECTION_MQ_NAME);
+    iox::runtime::PoshRuntime::initRuntime(iox::roudi::INTROSPECTION_APP_NAME);
 
     using namespace iox::roudi;
 

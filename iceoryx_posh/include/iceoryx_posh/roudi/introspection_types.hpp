@@ -23,9 +23,9 @@ namespace iox
 {
 namespace roudi
 {
-constexpr const char INTROSPECTION_APP_NAME[] = "Introspection";
-constexpr const char INTROSPECTION_MQ_NAME[] = "/introspection";
-const capro::ServiceDescription IntrospectionMempoolService(INTROSPECTION_APP_NAME, "RouDi_ID", "MemPool");
+constexpr const char INTROSPECTION_SERVICE_ID[] = "Introspection";
+constexpr const char INTROSPECTION_APP_NAME[] = "/introspection";
+const capro::ServiceDescription IntrospectionMempoolService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "MemPool");
 constexpr int MAX_GROUP_NAME_LENGTH = 32;
 
 /// @brief struct for the storage of mempool usage information.
@@ -57,7 +57,7 @@ using MemPoolIntrospectionInfoContainer = cxx::vector<MemPoolIntrospectionInfo, 
 
 /// @brief publisher/subscriber port information consisting of a process name,a capro service description string
 /// and a node name
-const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_APP_NAME, "RouDi_ID", "Port");
+const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Port");
 
 /// @brief container for common port data which is related to the subscriber port as well as the publisher port
 struct PortData
@@ -92,7 +92,7 @@ struct PortIntrospectionFieldTopic
 };
 
 const capro::ServiceDescription
-    IntrospectionPortThroughputService(INTROSPECTION_APP_NAME, "RouDi_ID", "PortThroughput");
+    IntrospectionPortThroughputService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "PortThroughput");
 
 struct PortThroughputData
 {
@@ -111,7 +111,7 @@ struct PortThroughputIntrospectionFieldTopic
 };
 
 const capro::ServiceDescription
-    IntrospectionSubscriberPortChangingDataService(INTROSPECTION_APP_NAME, "RouDi_ID", "SubscriberPortsData");
+    IntrospectionSubscriberPortChangingDataService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "SubscriberPortsData");
 
 struct SubscriberPortChangingData
 {
@@ -127,7 +127,7 @@ struct SubscriberPortChangingIntrospectionFieldTopic
     cxx::vector<SubscriberPortChangingData, MAX_SUBSCRIBERS> subscriberPortChangingDataList;
 };
 
-const capro::ServiceDescription IntrospectionProcessService(INTROSPECTION_APP_NAME, "RouDi_ID", "Process");
+const capro::ServiceDescription IntrospectionProcessService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Process");
 
 struct ProcessIntrospectionData
 {
