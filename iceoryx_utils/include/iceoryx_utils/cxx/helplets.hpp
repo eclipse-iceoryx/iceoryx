@@ -58,6 +58,7 @@ struct not_null
     {
         Expects(t != nullptr);
     }
+
     constexpr operator T() const
     {
         return value;

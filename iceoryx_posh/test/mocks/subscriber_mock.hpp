@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_posh/popo/modern_api/sample.hpp"
+#include "iceoryx_posh/popo/trigger.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 
@@ -49,12 +51,19 @@ class MockSubscriberPortUser
     MOCK_CONST_METHOD0(hasNewChunks, bool());
     MOCK_METHOD0(hasLostChunksSinceLastCall, bool());
     MOCK_METHOD1(setConditionVariable, bool(iox::popo::ConditionVariableData*));
-    MOCK_METHOD0(unsetConditionVariable, bool());
     MOCK_METHOD0(isConditionVariableSet, bool());
+    MOCK_METHOD0(unsetConditionVariable, bool());
     MOCK_METHOD0(destroy, bool());
+    MOCK_METHOD4(
+        attachTo,
+        iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet&,
+                                                    const iox::popo::SubscriberEvent,
+                                                    const uint64_t,
+                                                    const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
+    MOCK_METHOD1(detachEvent, void(const iox::popo::SubscriberEvent));
 };
 
-template <typename T>
+template <typename T, typename Child, typename Port>
 class MockBaseSubscriber
 {
   public:
@@ -69,7 +78,12 @@ class MockBaseSubscriber
     MOCK_METHOD0_T(take,
                    iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError>());
     MOCK_METHOD0(releaseQueuedSamples, void());
-    MOCK_METHOD1(setConditionVariable, bool(iox::popo::ConditionVariableData*));
-    MOCK_METHOD0(unsetConditionVariable, bool(void));
-    MOCK_METHOD0(hasTriggered, bool(void));
+    MOCK_METHOD1(invalidateTrigger, bool(const uint64_t));
+    MOCK_METHOD4(
+        attachTo,
+        iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet&,
+                                                    const iox::popo::SubscriberEvent,
+                                                    const uint64_t,
+                                                    const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
+    MOCK_METHOD1(detachEvent, void(const iox::popo::SubscriberEvent));
 };

@@ -13,6 +13,7 @@
 // limitations under the License.
 #ifndef IOX_POSH_MOCKS_WAITSET_MOCK_HPP
 #define IOX_POSH_MOCKS_WAITSET_MOCK_HPP
+
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 class WaitSetMock : public iox::popo::WaitSet
