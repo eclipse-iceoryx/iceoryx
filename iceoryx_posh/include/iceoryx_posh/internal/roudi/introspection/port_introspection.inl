@@ -509,13 +509,16 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(
                 {
                     SubscriberPort port(subscriberInfo.portData);
                     subscriberData.subscriptionState = port.getSubscriptionState();
+
+                    // subscriberData.fifoCapacity = port .getDeliveryFiFoCapacity();
+                    // subscriberData.fifoSize = port.getDeliveryFiFoSize();
+                    subscriberData.propagationScope = port.getCaProServiceDescription().getScope();
                 }
                 else
                 {
                     subscriberData.fifoCapacity = 0u;
                     subscriberData.fifoSize = 0u;
                     subscriberData.subscriptionState = iox::SubscribeState::NOT_SUBSCRIBED;
-                    subscriberData.sampleSendCallbackActive = false;
                     subscriberData.propagationScope = capro::Scope::INVALID;
                 }
                 topic.subscriberPortChangingDataList.push_back(subscriberData);
