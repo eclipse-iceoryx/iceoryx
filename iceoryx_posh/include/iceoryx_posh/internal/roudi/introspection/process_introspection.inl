@@ -138,12 +138,12 @@ void ProcessIntrospection<PublisherPort>::removeNode(const ProcessName_t& f_proc
 }
 
 template <typename PublisherPort>
-void ProcessIntrospection<PublisherPort>::registerPublisherPort(typename PublisherPort::MemberType_t* publisherPort)
+void ProcessIntrospection<PublisherPort>::registerPublisherPort(PublisherPort&& publisherPort)
 {
     // we do not want to call this twice
     if (!m_publisherPort.has_value())
     {
-        m_publisherPort.emplace(publisherPort);
+        m_publisherPort.emplace(std::move(publisherPort));
     }
 }
 

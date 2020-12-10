@@ -36,16 +36,16 @@ class MockPublisherPortUserIntrospection : public MockPublisherPortUser
     MockPublisherPortUserIntrospection() = default;
     MockPublisherPortUserIntrospection(iox::popo::PublisherPortData*){};
 
-    ChunkMock<Topic> m_chunk;
+    std::unique_ptr<ChunkMock<Topic>> m_chunk{new ChunkMock<Topic>()};
 
     iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError> tryAllocateChunk(const uint32_t)
     {
-        return iox::cxx::success<iox::mepoo::ChunkHeader*>(m_chunk.chunkHeader());
+        return iox::cxx::success<iox::mepoo::ChunkHeader*>(m_chunk->chunkHeader());
     }
 
     ChunkMock<Topic>* getChunk()
     {
-        return &m_chunk;
+        return m_chunk.get();
     }
 };
 
@@ -96,9 +96,7 @@ class ProcessIntrospection_test : public Test
         return introspectionAccess.getPublisherPort().value().getChunk();
     }
 
-    iox::mepoo::MemoryManager m_memoryManager;
-    iox::capro::ServiceDescription m_serviceDescription;
-    iox::popo::PublisherPortData m_publisherPortData{m_serviceDescription, "Foo", &m_memoryManager};
+    MockPublisherPortUserIntrospection m_mockPublisherPortUserIntrospection;
 };
 
 TEST_F(ProcessIntrospection_test, CTOR)
@@ -113,32 +111,28 @@ TEST_F(ProcessIntrospection_test, registerPublisherPort)
 {
     {
         ProcessIntrospectionAccess introspectionAccess;
-        introspectionAccess.registerPublisherPort(&m_publisherPortData);
+        introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), stopOffer()).Times(1);
     }
-
-    EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
 TEST_F(ProcessIntrospection_test, send)
 {
     {
         ProcessIntrospectionAccess introspectionAccess;
-        introspectionAccess.registerPublisherPort(&m_publisherPortData);
+        introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 
         auto chunk = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk->sample()->m_processList.size(), Eq(0U));
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), stopOffer()).Times(1);
     }
-    // stopOffer was called
-    EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
 TEST_F(ProcessIntrospection_test, addRemoveProcess)
 {
     {
         ProcessIntrospectionAccess introspectionAccess;
-        introspectionAccess.registerPublisherPort(&m_publisherPortData);
+        introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
@@ -162,10 +156,9 @@ TEST_F(ProcessIntrospection_test, addRemoveProcess)
 
         // if there isn't any change, no data are deliverd
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(0);
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), stopOffer()).Times(1);
         introspectionAccess.send();
     }
-    // stopOffer was called
-    EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
 TEST_F(ProcessIntrospection_test, thread)
@@ -176,7 +169,7 @@ TEST_F(ProcessIntrospection_test, thread)
 
         ProcessIntrospectionAccess introspectionAccess;
 
-        introspectionAccess.registerPublisherPort(&m_publisherPortData);
+        introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), offer()).Times(1);
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(Between(2, 8));
@@ -208,8 +201,6 @@ TEST_F(ProcessIntrospection_test, thread)
             introspectionAccess.removeProcess(PID);
         }
     }
-    // stopOffer was called
-    EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }
 
 TEST_F(ProcessIntrospection_test, addRemoveNode)
@@ -217,7 +208,7 @@ TEST_F(ProcessIntrospection_test, addRemoveNode)
     {
         ProcessIntrospectionAccess introspectionAccess;
 
-        introspectionAccess.registerPublisherPort(&m_publisherPortData);
+        introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 
         const int PID = 42;
         const char PROCESS_NAME[] = "/chuck_norris";
@@ -271,7 +262,7 @@ TEST_F(ProcessIntrospection_test, addRemoveNode)
         auto chunk7 = createMemoryChunkAndSend(introspectionAccess);
         EXPECT_THAT(chunk7->sample()->m_processList.size(), Eq(1U));
         EXPECT_THAT(chunk7->sample()->m_processList[0].m_nodes.size(), Eq(0U));
+
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), stopOffer()).Times(1);
     }
-    // stopOffer was called
-    EXPECT_THAT(m_publisherPortData.m_offeringRequested, Eq(false));
 }

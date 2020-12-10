@@ -86,7 +86,7 @@ class ProcessIntrospection
      *
      * @param publisherPort is the publisher port for transmission
      */
-    void registerPublisherPort(typename PublisherPort::MemberType_t* publisherPort);
+    void registerPublisherPort(PublisherPort&& publisherPort);
 
     /**
      * @brief This function starts a thread which periodically sends

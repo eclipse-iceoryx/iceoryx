@@ -42,7 +42,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
     m_processIntrospection.registerPublisherPort(
-        m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, MQ_ROUDI_NAME));
+        PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, MQ_ROUDI_NAME)));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
     m_mempoolIntrospection.start();
