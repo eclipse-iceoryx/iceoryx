@@ -24,6 +24,8 @@ namespace introspection
 {
 using namespace iox::roudi;
 
+constexpr units::Duration WAIT_INTERVAL = 10_ms;
+
 enum class PrettyOptions
 {
     title,

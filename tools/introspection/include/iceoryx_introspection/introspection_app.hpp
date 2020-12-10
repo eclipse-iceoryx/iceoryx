@@ -133,7 +133,8 @@ class IntrospectionApp
     void printMemPoolInfo(const MemPoolIntrospectionInfo& introspectionInfo);
 
     /// @brief Waits till port is subscribed
-    bool waitForSubscription(SubscriberType& port);
+    template <typename Subscriber>
+    bool waitForSubscription(Subscriber& port);
 
     /// @brief Prepares the publisher port data before printing
     std::vector<ComposedPublisherPortData>

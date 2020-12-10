@@ -515,7 +515,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     }
 }
 
-bool IntrospectionApp::waitForSubscription(SubscriberType& port)
+template <typename Subscriber>
+bool IntrospectionApp::waitForSubscription(Subscriber& port)
 {
     uint32_t numberOfLoopsTillTimeout{100};
     bool subscribed{false};
@@ -523,7 +524,7 @@ bool IntrospectionApp::waitForSubscription(SubscriberType& port)
            !subscribed && numberOfLoopsTillTimeout > 0)
     {
         numberOfLoopsTillTimeout--;
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds<int64_t>()));
     }
 
     return subscribed;
@@ -619,7 +620,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     prettyPrint("### Iceoryx Introspection Client ###\n\n", PrettyOptions::title);
 
     // mempool
-    SubscriberType memPoolSubscriber(IntrospectionMempoolService);
+    iox::popo::TypedSubscriber<MemPoolIntrospectionInfoContainer> memPoolSubscriber(IntrospectionMempoolService);
     if (introspectionSelection.mempool == true)
     {
         memPoolSubscriber.subscribe(1u);
@@ -646,9 +647,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
 
     // port
     SubscriberType portSubscriber(IntrospectionPortService);
-
     SubscriberType portThroughputSubscriber(IntrospectionPortThroughputService);
-
     SubscriberType subscriberPortChangingDataSubscriber(IntrospectionSubscriberPortChangingDataService);
 
     if (introspectionSelection.port == true)
@@ -697,24 +696,32 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
         {
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
-            bool hasMoreSamples{true};
+            bool hasReceivedSample{false};
 
             do
             {
-                memPoolSubscriber.take()
-                    .and_then([&](iox::cxx::optional<iox::popo::Sample<const void>>& sample) {
-                        const MemPoolIntrospectionInfoContainer* receivedSample =
-                            static_cast<const MemPoolIntrospectionInfoContainer*>(sample->get());
-                        for (const auto& i : *receivedSample)
+                auto takeResult = memPoolSubscriber.take();
+
+                if (takeResult.has_error())
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds<int64_t>()));
+                    continue;
+                }
+
+                auto& maybeSample = takeResult.value();
+
+                maybeSample
+                    .and_then([&](iox::popo::Sample<const MemPoolIntrospectionInfoContainer>& sample) {
+                        for (const auto& i : *(sample.get()))
                         {
                             printMemPoolInfo(i);
                         }
+                        hasReceivedSample = true;
                     })
-                    .if_empty([&] {
-                        hasMoreSamples = false;
-                        prettyPrint("Waiting for mempool introspection data ...\n");
+                    .or_else([]() {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_INTERVAL.milliSeconds<int64_t>()));
                     });
-            } while (!hasMoreSamples);
+            } while (!hasReceivedSample);
         }
 
         // print process information
