@@ -299,7 +299,7 @@ class PortIntrospection
      *
      * @return returns false if the port could not be added and true otherwise
      */
-    bool addPublisher(typename PublisherPort::MemberType_t* const port,
+    bool addPublisher(PublisherPort&& port,
                       const ProcessName_t& name,
                       const capro::ServiceDescription& service,
                       const NodeName_t& node);
@@ -308,14 +308,14 @@ class PortIntrospection
      * @brief add a subscriber port to be tracked by introspection
      * multiple subscribers with the same capro id are possible as long as the names are different
      *
-     * @param[in] portData to be added
+     * @param[in] port to be added
      * @param[in] name name of the port to be added
      * @param[in] service capro service description of the port to be added
      * @param[in] name of the node the port belongs to
      *
      * @return returns false if the port could not be added and true otherwise
      */
-    bool addSubscriber(typename SubscriberPort::MemberType_t* const portData,
+    bool addSubscriber(SubscriberPort&& port,
                        const ProcessName_t& name,
                        const capro::ServiceDescription& service,
                        const NodeName_t& node);
@@ -358,9 +358,9 @@ class PortIntrospection
      *
      * @return true if registration was successful, false otherwise
      */
-    bool registerPublisherPort(typename PublisherPort::MemberType_t* const publisherPortGeneric,
-                               typename PublisherPort::MemberType_t* const publisherPortThroughput,
-                               typename PublisherPort::MemberType_t* const publisherPortSubscriberPortsData);
+    bool registerPublisherPort(PublisherPort&& publisherPortGeneric,
+                               PublisherPort&& publisherPortThroughput,
+                               PublisherPort&& publisherPortSubscriberPortsData);
 
     /*!
      * @brief set the time interval used to send new introspection data

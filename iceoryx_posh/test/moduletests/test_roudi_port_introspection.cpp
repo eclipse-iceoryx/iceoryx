@@ -79,9 +79,9 @@ class PortIntrospection_test : public Test
     virtual void SetUp()
     {
         internal::CaptureStdout();
-        ASSERT_THAT(m_introspectionAccess.registerPublisherPort(&m_publisherPortDataPortGeneric,
-                                                                &m_publisherPortDataThroughput,
-                                                                &m_publisherPortDataSubscriberData),
+        ASSERT_THAT(m_introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection),
+                                                                std::move(m_mockPublisherPortUserIntrospection),
+                                                                std::move(m_mockPublisherPortUserIntrospection)),
                     Eq(true));
     }
 
@@ -159,16 +159,8 @@ class PortIntrospection_test : public Test
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
 
-    const iox::ProcessName_t genericProcessName{"genericProcess"};
-
-    iox::mepoo::MemoryManager m_memoryManager;
-    iox::capro::ServiceDescription m_serviceDescription;
-    iox::popo::PublisherPortData m_publisherPortDataPortGeneric{
-        m_serviceDescription, genericProcessName, &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataThroughput{
-        m_serviceDescription, genericProcessName, &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataSubscriberData{
-        m_serviceDescription, genericProcessName, &m_memoryManager};
+    MockPublisherPortUserIntrospection m_mockPublisherPortUserIntrospection;
+    MockPublisherPortUserIntrospection m_mockPublisherPortUserIntrospection2;
 
     PortIntrospectionAccess<MockPublisherPortUserIntrospection, MockSubscriberPortUser> m_introspectionAccess;
 };
@@ -176,32 +168,18 @@ class PortIntrospection_test : public Test
 
 TEST_F(PortIntrospection_test, registerPublisherPort)
 {
-    iox::popo::PublisherPortData m_publisherPortDataPortGeneric{
-        m_serviceDescription, genericProcessName, &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataThroughput{
-        m_serviceDescription, genericProcessName, &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataSubscriberData{
-        m_serviceDescription, genericProcessName, &m_memoryManager};
-
     auto introspection =
         std::unique_ptr<iox::roudi::PortIntrospection<MockPublisherPortUserIntrospection, MockSubscriberPortUser>>(
             new iox::roudi::PortIntrospection<MockPublisherPortUserIntrospection, MockSubscriberPortUser>);
 
-    EXPECT_THAT(introspection->registerPublisherPort(&m_publisherPortDataPortGeneric,
-                                                     &m_publisherPortDataThroughput,
-                                                     &m_publisherPortDataSubscriberData),
+    EXPECT_THAT(introspection->registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection),
+                                                     std::move(m_mockPublisherPortUserIntrospection),
+                                                     std::move(m_mockPublisherPortUserIntrospection)),
                 Eq(true));
 
-    iox::popo::PublisherPortData m_publisherPortDataPortGeneric2{
-        m_serviceDescription, genericProcessName, &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataThroughput2{
-        m_serviceDescription, genericProcessName, &m_memoryManager};
-    iox::popo::PublisherPortData m_publisherPortDataSubscriberData2{
-        m_serviceDescription, genericProcessName, &m_memoryManager};
-
-    EXPECT_THAT(introspection->registerPublisherPort(&m_publisherPortDataPortGeneric2,
-                                                     &m_publisherPortDataThroughput2,
-                                                     &m_publisherPortDataSubscriberData2),
+    EXPECT_THAT(introspection->registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection2),
+                                                     std::move(m_mockPublisherPortUserIntrospection2),
+                                                     std::move(m_mockPublisherPortUserIntrospection2)),
                 Eq(false));
 }
 
@@ -252,12 +230,18 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
 
     // test adding of ports
     // remark: duplicate publisher port insertions are not possible
-    iox::popo::PublisherPortData portData1{m_serviceDescription, processName1, &m_memoryManager};
-    iox::popo::PublisherPortData portData2{m_serviceDescription, processName2, &m_memoryManager};
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, nodeName1), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData1, processName1, service1, nodeName1), Eq(false));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, nodeName2), Eq(true));
-    EXPECT_THAT(m_introspectionAccess.addPublisher(&portData2, processName2, service2, nodeName2), Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(
+                    std::move(m_mockPublisherPortUserIntrospection), processName1, service1, nodeName1),
+                Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(
+                    std::move(m_mockPublisherPortUserIntrospection), processName1, service1, nodeName1),
+                Eq(false));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(
+                    std::move(m_mockPublisherPortUserIntrospection2), processName2, service2, nodeName2),
+                Eq(true));
+    EXPECT_THAT(m_introspectionAccess.addPublisher(
+                    std::move(m_mockPublisherPortUserIntrospection2), processName2, service2, nodeName2),
+                Eq(false));
 
     m_introspectionAccess.sendPortData();
 
@@ -461,8 +445,8 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(10);
 
-    // test adding of publisher or subscriber port of same service to establish a connection (requires same service id)
-    iox::popo::SubscriberPortData recData1{
+    // test adding of publisher or subscriber port of same service to establish a connection (requires same service
+    id) iox::popo::SubscriberPortData recData1{
         m_serviceDescription, nameSubscriber, iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer};
     EXPECT_THAT(m_introspectionAccess.addSubscriber(&recData1, nameSubscriber, service, nodeName), Eq(true));
     iox::popo::PublisherPortData publisherPortData{m_serviceDescription, namePublisher, &m_memoryManager};
@@ -596,9 +580,10 @@ TEST_F(PortIntrospection_test, reportMessageToEstablishConnection)
     m_introspectionAccess.sendPortData();
 
     {
-        // expect connected publisher or subscriber, since there was a SUB followed by ACK followed by another message
-        // (SUB)
-        expectedSubscriber.m_publisherIndex = 0;
+        // expect connected publisher or subscriber, since there was a SUB followed by ACK followed by another
+        message
+            // (SUB)
+            expectedSubscriber.m_publisherIndex = 0;
 
         ASSERT_THAT(sample->m_publisherList.size(), Eq(1));
         ASSERT_THAT(sample->m_subscriberList.size(), Eq(1));
@@ -642,10 +627,11 @@ TEST_F(PortIntrospection_test, DISABLED_thread)
     // we use the deliverChunk call to check how often the thread calls the send method
     m_introspectionAccess.setSendInterval(10);
     m_introspectionAccess.run();
-    /// @todo this time can be reduced when the sleep mechanism of the port introspection thread is replace by a trigger
-    /// queue
-    std::this_thread::sleep_for(std::chrono::milliseconds(555)); // within this time, the thread should have run 6 times
-    m_introspectionAccess.stop();
+    /// @todo this time can be reduced when the sleep mechanism of the port introspection thread is replace by a
+    trigger
+        /// queue
+        std::this_thread::sleep_for(std::chrono::milliseconds(555)); // within this time, the thread should have run 6
+    times m_introspectionAccess.stop();
     std::this_thread::sleep_for(
         std::chrono::milliseconds(555)); // if the thread doesn't stop, we have 12 runs after the sleep period
 }

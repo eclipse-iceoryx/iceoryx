@@ -44,18 +44,18 @@ void PortIntrospection<PublisherPort, SubscriberPort>::reportMessage(const capro
 
 template <typename PublisherPort, typename SubscriberPort>
 bool PortIntrospection<PublisherPort, SubscriberPort>::registerPublisherPort(
-    typename PublisherPort::MemberType_t* const publisherPortGeneric,
-    typename PublisherPort::MemberType_t* const publisherPortThroughput,
-    typename PublisherPort::MemberType_t* const publisherPortSubscriberPortsData)
+    PublisherPort&& publisherPortGeneric,
+    PublisherPort&& publisherPortThroughput,
+    PublisherPort&& publisherPortSubscriberPortsData)
 {
     if (m_publisherPort || m_publisherPortThroughput || m_publisherPortSubscriberPortsData)
     {
         return false;
     }
 
-    m_publisherPort.emplace(publisherPortGeneric);
-    m_publisherPortThroughput.emplace(publisherPortThroughput);
-    m_publisherPortSubscriberPortsData.emplace(publisherPortSubscriberPortsData);
+    m_publisherPort.emplace(std::move(publisherPortGeneric));
+    m_publisherPortThroughput.emplace(std::move(publisherPortThroughput));
+    m_publisherPortSubscriberPortsData.emplace(std::move(publisherPortSubscriberPortsData));
 
     return true;
 }
@@ -540,22 +540,21 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::setNew(bool val
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t* const port,
+bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(PublisherPort&& port,
                                                                     const ProcessName_t& name,
                                                                     const capro::ServiceDescription& service,
                                                                     const NodeName_t& node)
 {
-    return m_portData.addPublisher(port, name, service, node);
+    return m_portData.addPublisher(std::move(port), name, service, node);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(
-    typename SubscriberPort::MemberType_t* const portData,
-    const ProcessName_t& name,
-    const capro::ServiceDescription& service,
-    const NodeName_t& node)
+bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(SubscriberPort&& port,
+                                                                     const ProcessName_t& name,
+                                                                     const capro::ServiceDescription& service,
+                                                                     const NodeName_t& node)
 {
-    return m_portData.addSubscriber(portData, name, service, node);
+    return m_portData.addSubscriber(std::move(port), name, service, node);
 }
 
 template <typename PublisherPort, typename SubscriberPort>
