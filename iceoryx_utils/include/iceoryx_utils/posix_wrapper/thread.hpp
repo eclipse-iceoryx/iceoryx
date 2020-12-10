@@ -17,8 +17,7 @@
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/smart_c.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
-
-#include <pthread.h>
+#include "iceoryx_utils/platform/pthread.hpp"
 
 namespace iox
 {
