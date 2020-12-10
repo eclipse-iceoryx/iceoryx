@@ -44,3 +44,14 @@ jobs:
           name: lcov-report
           path: ./build/lcov/*
           retention-days: 10
+
+      - name: Download code coverage results
+        uses: actions/download-artifact@v2
+        id: download
+        with:
+          name: 'lcov-report'
+          path: ./artifacts
+
+      - name: 'Echo download path'
+        run: ls -R  
+        run: echo ${{steps.download.outputs.download-path}}
