@@ -304,7 +304,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     constexpr int32_t isFieldWidth{6};
     constexpr int32_t subscriptionStateWidth{14};
     constexpr int32_t fifoWidth{17};
-    constexpr int32_t callbackActiveWidth{8};
     constexpr int32_t scopeWidth{12};
     constexpr int32_t interfaceSourceWidth{8};
 
@@ -369,7 +368,8 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     {
         std::string m_sampleSize{std::to_string(publisherPort.throughputData->m_sampleSize)};
         std::string m_chunkSize{std::to_string(publisherPort.throughputData->m_chunkSize)};
-        std::string m_chunksPerMinute{std::to_string(publisherPort.throughputData->m_chunksPerMinute)};
+        // std::string m_chunksPerMinute{std::to_string(publisherPort.throughputData->m_chunksPerMinute)};
+        std::string m_chunksPerMinute{"n/a"};
         std::string sendInterval{
             std::to_string(publisherPort.throughputData->m_lastSendIntervalInNanoseconds / 1000000)};
 
@@ -409,7 +409,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", eventWidth, "Event");
     wprintw(pad, " %*s |", subscriptionStateWidth, "Subscription");
     wprintw(pad, " %*s |", fifoWidth, "FiFo");
-    wprintw(pad, " %*s |", callbackActiveWidth, "Callback");
     wprintw(pad, " %*s |", scopeWidth, "Propagation");
     wprintw(pad, " %*s\n", processUsedWidth, "used by process");
 
@@ -418,7 +417,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", eventWidth, "");
     wprintw(pad, " %*s |", subscriptionStateWidth, "State");
     wprintw(pad, " %*s |", fifoWidth, "size / capacity");
-    wprintw(pad, " %*s |", callbackActiveWidth, "");
     wprintw(pad, " %*s |", scopeWidth, "scope");
     wprintw(pad, " %*s\n", processUsedWidth, "   ^--- connected to publisher port process");
 
@@ -479,11 +477,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             }
             wprintw(pad,
                     " %s |",
-                    printEntry(callbackActiveWidth,
-                               (subscriber.subscriberPortChangingData->sampleSendCallbackActive) ? "X" : "")
-                        .c_str());
-            wprintw(pad,
-                    " %s |",
                     printEntry(scopeWidth,
                                std::string(capro::ScopeTypeString[static_cast<std::underlying_type<capro::Scope>::type>(
                                    subscriber.subscriberPortChangingData->propagationScope)]))
@@ -498,7 +491,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         wprintw(pad, " %*s |", eventWidth, "");
         wprintw(pad, " %*s |", subscriptionStateWidth, "");
         wprintw(pad, " %*s |", fifoWidth, "");
-        wprintw(pad, " %*s |", callbackActiveWidth, "");
         wprintw(pad, " %*s |", scopeWidth, "");
         wprintw(pad, "    ^--- ");
 

@@ -119,7 +119,6 @@ struct SubscriberPortChangingData
     uint64_t fifoSize{0};
     uint64_t fifoCapacity{0};
     iox::SubscribeState subscriptionState{iox::SubscribeState::NOT_SUBSCRIBED};
-    bool sampleSendCallbackActive{false};
     capro::Scope propagationScope{capro::Scope::INVALID};
 };
 
