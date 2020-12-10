@@ -223,7 +223,8 @@ MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
     , m_AppMqInterface(appName)
     , m_RoudiMqInterface(roudiName)
 {
-    if (!m_AppMqInterface.isInitialized()) {
+    if (!m_AppMqInterface.isInitialized())
+    {
         errorHandler(Error::kMQ_INTERFACE__UNABLE_TO_CREATE_APPLICATION_MQ);
         return;
     }
@@ -410,6 +411,7 @@ MqRuntimeInterface::RegAckResult MqRuntimeInterface::waitForRegAck(int64_t trans
     size_t retryCounter = 0;
     while (retryCounter++ < MAX_RETRY_COUNT)
     {
+        using namespace units::duration_literals;
         MqMessage receiveBuffer;
         // wait for MqMessageType::REG_ACK from RouDi for 1 seconds
         if (m_AppMqInterface.timedReceive(1_s, receiveBuffer))

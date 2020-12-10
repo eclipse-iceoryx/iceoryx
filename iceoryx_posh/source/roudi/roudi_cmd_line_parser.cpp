@@ -96,11 +96,11 @@ void CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMo
         {
             if (strcmp(optarg, "on") == 0)
             {
-                m_monitoringMode = MonitoringMode::ON;
+                m_monitoringMode = roudi::MonitoringMode::ON;
             }
             else if (strcmp(optarg, "off") == 0)
             {
-                m_monitoringMode = MonitoringMode::OFF;
+                m_monitoringMode = roudi::MonitoringMode::OFF;
             }
             else
             {
@@ -218,7 +218,7 @@ iox::log::LogLevel CmdLineParser::getLogLevel() const noexcept
 {
     return m_logLevel;
 }
-MonitoringMode CmdLineParser::getMonitoringMode() const noexcept
+roudi::MonitoringMode CmdLineParser::getMonitoringMode() const noexcept
 {
     return m_monitoringMode;
 }
@@ -236,20 +236,6 @@ cxx::optional<uint16_t> CmdLineParser::getUniqueRouDiId() const noexcept
 units::Duration CmdLineParser::getProcessKillDelay() const noexcept
 {
     return m_processKillDelay;
-}
-
-iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode)
-{
-    switch (mode)
-    {
-    case MonitoringMode::OFF:
-        logstream << "MonitoringMode::OFF";
-        break;
-    case MonitoringMode::ON:
-        logstream << "MonitoringMode::ON";
-        break;
-    }
-    return logstream;
 }
 
 void CmdLineParser::printParameters() noexcept

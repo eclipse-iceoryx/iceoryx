@@ -56,7 +56,7 @@ void CmdLineParserConfigFileOption::parse(int argc,
             break;
         case 'c':
         {
-            m_customConfigFilePath = ConfigFilePathString_t(cxx::TruncateToCapacity, optarg);
+            m_customConfigFilePath = roudi::ConfigFilePathString_t(cxx::TruncateToCapacity, optarg);
             break;
         }
         default:
@@ -73,7 +73,7 @@ void CmdLineParserConfigFileOption::parse(int argc,
         }
     }
 }
-ConfigFilePathString_t CmdLineParserConfigFileOption::getConfigFilePath() const
+roudi::ConfigFilePathString_t CmdLineParserConfigFileOption::getConfigFilePath() const
 {
     return m_customConfigFilePath;
 }

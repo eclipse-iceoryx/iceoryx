@@ -24,7 +24,7 @@ using namespace ::testing;
 
 using namespace iox::roudi;
 
-static const ShmNameString SHM_NAME = ShmNameString("/FuManchu");
+static const ShmNameString TEST_SHM_NAME = ShmNameString("/FuManchu");
 
 class PosixShmMemoryProvider_Test : public Test
 {
@@ -33,7 +33,7 @@ class PosixShmMemoryProvider_Test : public Test
     {
         /// @note just is case a test left something behind, cleanup the shm by creating a new one with "mine" ownership
         iox::posix::SharedMemoryObject::create(
-            SHM_NAME.c_str(), 1024, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
+            TEST_SHM_NAME.c_str(), 1024, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine, nullptr);
     }
 
     void TearDown() override
@@ -43,7 +43,7 @@ class PosixShmMemoryProvider_Test : public Test
     bool shmExists()
     {
         return iox::posix::SharedMemoryObject::create(
-                   SHM_NAME.c_str(), 8, iox::posix::AccessMode::readOnly, iox::posix::OwnerShip::openExisting, nullptr)
+                   TEST_SHM_NAME.c_str(), 8, iox::posix::AccessMode::readOnly, iox::posix::OwnerShip::openExisting, nullptr)
             .has_value();
     }
 
@@ -53,7 +53,7 @@ class PosixShmMemoryProvider_Test : public Test
 
 TEST_F(PosixShmMemoryProvider_Test, CreateMemory)
 {
-    PosixShmMemoryProvider sut(SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
+    PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
     sut.addMemoryBlock(&memoryBlock1);
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{8};
@@ -69,7 +69,7 @@ TEST_F(PosixShmMemoryProvider_Test, CreateMemory)
 
 TEST_F(PosixShmMemoryProvider_Test, DestroyMemory)
 {
-    PosixShmMemoryProvider sut(SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
+    PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
     sut.addMemoryBlock(&memoryBlock1);
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{8};
@@ -87,7 +87,7 @@ TEST_F(PosixShmMemoryProvider_Test, DestroyMemory)
 
 TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize)
 {
-    PosixShmMemoryProvider sut(SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
+    PosixShmMemoryProvider sut(TEST_SHM_NAME, iox::posix::AccessMode::readWrite, iox::posix::OwnerShip::mine);
     sut.addMemoryBlock(&memoryBlock1);
     uint64_t MEMORY_SIZE{16};
     uint64_t MEMORY_ALIGNMENT{iox::posix::pageSize().value_or(iox::posix::MaxPageSize) + 8};

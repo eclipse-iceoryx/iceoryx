@@ -25,7 +25,7 @@ iox::config::TomlGatewayConfigParser::parse()
 }
 
 iox::cxx::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>
-iox::config::TomlGatewayConfigParser::parse(const ConfigFilePathString_t& path)
+iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t& path)
 {
     iox::config::GatewayConfig config;
 

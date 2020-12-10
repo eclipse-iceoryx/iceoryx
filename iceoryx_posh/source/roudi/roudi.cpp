@@ -352,7 +352,7 @@ bool RouDi::registerProcess(const ProcessName_t& name,
                             const uint64_t sessionId,
                             const version::VersionInfo& versionInfo)
 {
-    bool monitorProcess = (m_monitoringMode == config::MonitoringMode::ON);
+    bool monitorProcess = (m_monitoringMode == roudi::MonitoringMode::ON);
     return m_prcMgr.registerProcess(name, pid, user, monitorProcess, transmissionTimestamp, sessionId, versionInfo);
 }
 

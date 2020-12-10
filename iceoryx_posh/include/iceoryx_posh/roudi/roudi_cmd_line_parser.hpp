@@ -25,20 +25,6 @@ namespace iox
 {
 namespace config
 {
-/// @brief Controls process alive monitoring. Upon timeout, a monitored process is removed
-/// and its resources are made available. The process can then start and register itself again.
-/// Contrarily, unmonitored processes can be restarted but registration will fail.
-/// Once Runlevel Management is extended, it will detect absent processes. Those processes can register again.
-/// ON - all processes are monitored
-/// OFF - no process is monitored
-enum class MonitoringMode
-{
-    ON,
-    OFF
-};
-
-iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode);
-
 class CmdLineParser
 {
   public:
@@ -67,7 +53,7 @@ class CmdLineParser
 
     bool getRun() const noexcept;
     iox::log::LogLevel getLogLevel() const noexcept;
-    MonitoringMode getMonitoringMode() const noexcept;
+    roudi::MonitoringMode getMonitoringMode() const noexcept;
     version::CompatibilityCheckLevel getCompatibilityCheckLevel() const noexcept;
     cxx::optional<uint16_t> getUniqueRouDiId() const noexcept;
     units::Duration getProcessKillDelay() const noexcept;
@@ -75,10 +61,10 @@ class CmdLineParser
   protected:
     bool m_run{true};
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
-    MonitoringMode m_monitoringMode{MonitoringMode::ON};
+    roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     cxx::optional<uint16_t> m_uniqueRouDiId;
-    units::Duration m_processKillDelay{PROCESS_DEFAULT_KILL_DELAY};
+    units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
 };
 
 } // namespace config

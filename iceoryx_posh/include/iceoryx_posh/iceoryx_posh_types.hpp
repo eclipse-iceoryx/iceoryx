@@ -20,6 +20,7 @@
 #include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
+#include "iceoryx_utils/log/logstream.hpp"
 
 #include <cstdint>
 
@@ -54,8 +55,6 @@ using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
 using SubscriberPortType = iox::build::CommunicationPolicy;
 
-constexpr char MQ_ROUDI_NAME[] = "/roudi";
-
 /// @brief The socket is created in the current path if no absolute path is given hence
 ///      we need an absolut path so that every application knows where our sockets can
 ///      be found.
@@ -64,20 +63,6 @@ using IpcChannelType = iox::posix::UnixDomainSocket;
 #else
 using IpcChannelType = iox::posix::MessageQueue;
 #endif
-
-/// shared memmory segment for the iceoryx managment data
-constexpr char SHM_NAME[] = "/iceoryx_mgmt";
-
-// Make the user-defined literal operators accessible
-using namespace units::duration_literals;
-
-// Timeout
-constexpr units::Duration PROCESS_DEFAULT_KILL_DELAY = 45_s;
-constexpr units::Duration PROCESS_TERMINATED_CHECK_INTERVAL = 250_ms;
-constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
-constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
-constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * DISCOVERY_INTERVAL;         // > DISCOVERY_INTERVAL
-constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
 
 /// @todo remove MAX_RECEIVERS_PER_SENDERPORT when the new port building blocks are used
 constexpr uint32_t MAX_RECEIVERS_PER_SENDERPORT = build::IOX_MAX_SUBSCRIBERS_PER_PUBLISHER;
@@ -191,15 +176,61 @@ struct DefaultChunkQueueConfig
 };
 
 // alias for cxx::string
-using ConfigFilePathString_t = cxx::string<1024>;
 using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
 using NodeName_t = cxx::string<100>;
+
+/// @todo Move everything in this namespace to iceoryx_roudi_types.hpp once we move RouDi to a separate CMake target
+namespace roudi
+{
+using ConfigFilePathString_t = cxx::string<1024>;
+
+constexpr char MQ_ROUDI_NAME[] = "/roudi";
+
+/// shared memmory segment for the iceoryx managment data
+constexpr char SHM_NAME[] = "/iceoryx_mgmt";
+
+// Timeout
+using namespace units::duration_literals;
+constexpr units::Duration PROCESS_DEFAULT_KILL_DELAY = 45_s;
+constexpr units::Duration PROCESS_TERMINATED_CHECK_INTERVAL = 250_ms;
+constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
+constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
+
+/// @brief Controls process alive monitoring. Upon timeout, a monitored process is removed
+/// and its resources are made available. The process can then start and register itself again.
+/// Contrarily, unmonitored processes can be restarted but registration will fail.
+/// Once Runlevel Management is extended, it will detect absent processes. Those processes can register again.
+/// ON - all processes are monitored
+/// OFF - no process is monitored
+enum class MonitoringMode
+{
+    ON,
+    OFF
+};
+
+inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode)
+{
+    switch (mode)
+    {
+    case MonitoringMode::OFF:
+        logstream << "MonitoringMode::OFF";
+        break;
+    case MonitoringMode::ON:
+        logstream << "MonitoringMode::ON";
+        break;
+    }
+    return logstream;
+}
+
+} // namespace roudi
 
 namespace runtime
 {
 // alias for IdString
 using IdString = iox::capro::IdString;
 using InstanceContainer = iox::cxx::vector<IdString, MAX_NUMBER_OF_INSTANCES>;
+constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * roudi::DISCOVERY_INTERVAL;  // > DISCOVERY_INTERVAL
+constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
 } // namespace runtime
 
 } // namespace iox

@@ -70,7 +70,7 @@ class RouDiApp
     bool waitForSignal() const noexcept;
 
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
-    config::MonitoringMode m_monitoringMode{config::MonitoringMode::ON};
+    roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
     bool m_run{true};
     RouDiConfig_t m_config;
 
@@ -81,7 +81,7 @@ class RouDiApp
                       })
                       .value());
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
-    units::Duration m_processKillDelay{PROCESS_DEFAULT_KILL_DELAY};
+    units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
 
   private:
     bool checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept;

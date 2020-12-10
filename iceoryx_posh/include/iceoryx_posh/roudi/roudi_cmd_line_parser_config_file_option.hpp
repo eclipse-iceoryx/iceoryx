@@ -38,12 +38,12 @@ class CmdLineParserConfigFileOption : public CmdLineParser
                char* argv[],
                const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept override;
 
-    ConfigFilePathString_t getConfigFilePath() const;
+    roudi::ConfigFilePathString_t getConfigFilePath() const;
 
     void printParameters() noexcept;
 
   protected:
-    ConfigFilePathString_t m_customConfigFilePath;
+    roudi::ConfigFilePathString_t m_customConfigFilePath;
 };
 
 } // namespace config

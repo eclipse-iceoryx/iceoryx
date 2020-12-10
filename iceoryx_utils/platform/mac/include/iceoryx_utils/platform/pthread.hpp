@@ -21,4 +21,9 @@ inline int pthread_setname_np(pthread_t, const char* name)
     return pthread_setname_np(name);
 }
 
+inline int pthread_getname_np(pthread_t thread, char* name, size_t len)
+{
+    return pthread_getname_np(name);
+}
+
 #endif // IOX_UTILS_MAC_PLATFORM_PTHREAD_HPP
