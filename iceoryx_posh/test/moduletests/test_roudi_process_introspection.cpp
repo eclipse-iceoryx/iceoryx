@@ -179,7 +179,7 @@ TEST_F(ProcessIntrospection_test, thread)
         introspectionAccess.registerPublisherPort(&m_publisherPortData);
 
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), offer()).Times(1);
-        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(Between(4, 8));
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(Between(2, 8));
 
         std::chrono::milliseconds& sendIntervalSleep =
             const_cast<std::chrono::milliseconds&>(introspectionAccess.m_sendIntervalSleep);
