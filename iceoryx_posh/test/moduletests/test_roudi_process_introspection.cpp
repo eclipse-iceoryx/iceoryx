@@ -161,6 +161,11 @@ TEST_F(ProcessIntrospection_test, thread)
 
         introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_))
+            .WillRepeatedly(
+                Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
+                    m_chunk.get()->chunkHeader())));
+        EXPECT_CALL(introspectionAccess.getPublisherPort().value(), hasSubscribers()).WillRepeatedly(Return(true));
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), offer()).Times(1);
         EXPECT_CALL(introspectionAccess.getPublisherPort().value(), sendChunk(_)).Times(Between(2, 8));
 
