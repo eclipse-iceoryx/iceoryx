@@ -540,7 +540,7 @@ void PortIntrospection<PublisherPort, SubscriberPort>::PortData::setNew(bool val
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(PublisherPort&& port,
+bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(typename PublisherPort::MemberType_t* port,
                                                                     const ProcessName_t& name,
                                                                     const capro::ServiceDescription& service,
                                                                     const NodeName_t& node)
@@ -549,7 +549,7 @@ bool PortIntrospection<PublisherPort, SubscriberPort>::addPublisher(PublisherPor
 }
 
 template <typename PublisherPort, typename SubscriberPort>
-bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(SubscriberPort&& port,
+bool PortIntrospection<PublisherPort, SubscriberPort>::addSubscriber(typename SubscriberPort::MemberType_t* port,
                                                                      const ProcessName_t& name,
                                                                      const capro::ServiceDescription& service,
                                                                      const NodeName_t& node)

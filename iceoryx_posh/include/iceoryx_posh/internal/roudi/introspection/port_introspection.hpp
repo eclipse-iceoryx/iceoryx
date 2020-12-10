@@ -299,7 +299,7 @@ class PortIntrospection
      *
      * @return returns false if the port could not be added and true otherwise
      */
-    bool addPublisher(PublisherPort&& port,
+    bool addPublisher(typename PublisherPort::MemberType_t* port,
                       const ProcessName_t& name,
                       const capro::ServiceDescription& service,
                       const NodeName_t& node);
@@ -315,7 +315,7 @@ class PortIntrospection
      *
      * @return returns false if the port could not be added and true otherwise
      */
-    bool addSubscriber(SubscriberPort&& port,
+    bool addSubscriber(typename SubscriberPort::MemberType_t* port,
                        const ProcessName_t& name,
                        const capro::ServiceDescription& service,
                        const NodeName_t& node);

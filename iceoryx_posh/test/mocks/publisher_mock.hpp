@@ -29,7 +29,7 @@ class MockPublisherPortUser
     MockPublisherPortUser(std::nullptr_t)
     {
     }
-    MockPublisherPortUser(iox::popo::PublisherPortData*){};
+    MockPublisherPortUser(MemberType_t*){};
 
     MockPublisherPortUser(const MockPublisherPortUser& rhs [[gnu::unused]]){};
     MockPublisherPortUser(MockPublisherPortUser&& rhs [[gnu::unused]]){};
