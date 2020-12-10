@@ -108,4 +108,9 @@ TEST_F(RouDiMemoryManager_Test, AddMemoryProviderExceedsCapacity)
     ASSERT_THAT(expectError.has_error(), Eq(true));
     EXPECT_THAT(expectError.get_error(), Eq(RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED));
 }
+
+TEST_F(RouDiMemoryManager_Test, StreamOperatorTranslationIsCorrect)
+{
+    /// @todo
+}
 #endif
