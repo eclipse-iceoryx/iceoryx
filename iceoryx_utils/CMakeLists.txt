@@ -195,7 +195,7 @@ set_target_properties(iceoryx_platform PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-target_link_libraries(iceoryx_platform PUBLIC ${ICEORYX_SANITIZER_FLAGS})
+target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
 
 target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
@@ -206,7 +206,11 @@ if(PERFORM_CLANG_TIDY)
 endif(PERFORM_CLANG_TIDY)
 
 
-target_link_libraries(iceoryx_utils PUBLIC iceoryx_utils::iceoryx_platform ${ICEORYX_SANITIZER_FLAGS})
+target_link_libraries(iceoryx_utils 
+    PUBLIC 
+    iceoryx_utils::iceoryx_platform 
+    PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS})
 
 target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 

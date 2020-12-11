@@ -155,8 +155,8 @@ target_include_directories(iceoryx_posh
 target_link_libraries(iceoryx_posh 
     PUBLIC
     iceoryx_utils::iceoryx_utils
-    ${ICEORYX_SANITIZER_FLAGS}        
     PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS}
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
@@ -198,6 +198,7 @@ target_link_libraries(iceoryx_posh_gateway
     PUBLIC
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
+    PRIVATE
     ${ICEORYX_SANITIZER_FLAGS}    
 )
 
@@ -252,8 +253,8 @@ target_include_directories(iceoryx_posh_roudi PRIVATE
 target_link_libraries(iceoryx_posh_roudi
     PUBLIC
     ${PROJECT_NAMESPACE}::iceoryx_posh     # because of roudi.hpp
-    ${ICEORYX_SANITIZER_FLAGS}    
     PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS}    
     iceoryx_utils::iceoryx_utils
 )
 

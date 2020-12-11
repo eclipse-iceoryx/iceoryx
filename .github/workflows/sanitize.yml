@@ -28,7 +28,7 @@ jobs:
         run: |
           export NUM_CORES=`nproc`
           # build tests , dont run them
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clang build-test with-dds-gateway sanitize clean -j $NUM_CORES
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clang build-test with-dds-gateway strict sanitize clean -j $NUM_CORES
                     
       - name : Run tests
         run: |
