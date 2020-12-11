@@ -29,10 +29,12 @@ using ::testing::_;
 class MockSubscriberPortUser
 {
   public:
+    using MemberType_t = iox::popo::SubscriberPortData;
     MockSubscriberPortUser() = default;
     MockSubscriberPortUser(std::nullptr_t)
     {
     }
+    MockSubscriberPortUser(iox::popo::SubscriberPortData*){};
     iox::capro::ServiceDescription getCaProServiceDescription() const noexcept
     {
         return getServiceDescription();

@@ -14,7 +14,7 @@
 
 #include "mocks/chunk_mock.hpp"
 #include "mocks/mepoo_memory_manager_mock.hpp"
-#include "mocks/senderport_mock.hpp"
+#include "mocks/publisher_mock.hpp"
 #include "test.hpp"
 #include "testutils/timing_test.hpp"
 
@@ -33,6 +33,26 @@ using ::testing::Return;
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
+class CallChecker
+{
+  public:
+    MOCK_METHOD0(offer, void(void));
+};
+
+CallChecker& callChecker()
+{
+    static CallChecker cc;
+    return cc;
+}
+
+class MockPublisherPortUserAccess : public MockPublisherPortUser
+{
+  public:
+    void offer()
+    {
+        callChecker().offer();
+    }
+};
 
 class SegmentMock
 {
@@ -65,13 +85,29 @@ class SegmentManagerMock
     iox::cxx::vector<SegmentMock, iox::MAX_SHM_SEGMENTS> m_segmentContainer;
 };
 
+
+class MemPoolIntrospectionAccess
+    : public iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, MockPublisherPortUserAccess>
+{
+  public:
+    MemPoolIntrospectionAccess(MePooMemoryManager_MOCK& memoryManager,
+                               SegmentManagerMock& segmentManager,
+                               MockPublisherPortUserAccess&& publisherPort)
+        : iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, MockPublisherPortUserAccess>(
+            memoryManager, segmentManager, std::move(publisherPort))
+    {
+    }
+    MockPublisherPortUserAccess& getPublisherPort()
+    {
+        return this->m_publisherPort;
+    }
+};
+
 class MemPoolIntrospection_test : public Test
 {
   public:
     using MemPoolInfoContainer = iox::roudi::MemPoolInfoContainer;
     using MemPoolInfo = iox::mepoo::MemPoolInfo;
-    using MemPoolIntrospection =
-        iox::roudi::MemPoolIntrospection<MePooMemoryManager_MOCK, SegmentManagerMock, SenderPort_MOCK>;
     using Topic = iox::roudi::MemPoolIntrospectionInfoContainer;
 
     MemPoolIntrospection_test()
@@ -149,36 +185,34 @@ class MemPoolIntrospection_test : public Test
 
     MePooMemoryManager_MOCK m_rouDiInternalMemoryManager_mock;
     SegmentManagerMock m_segmentManager_mock;
-    SenderPort_MOCK m_senderPortImpl_mock;
+    MockPublisherPortUserAccess m_publisherPortImpl_mock;
 };
 
 TEST_F(MemPoolIntrospection_test, CTOR)
 {
-    auto mock = m_senderPortImpl_mock.details;
-
     {
-        MemPoolIntrospection m_introspection(
-            m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_senderPortImpl_mock));
-    }
+        EXPECT_CALL(callChecker(), offer()).Times(1);
 
-    EXPECT_THAT(mock->activate, Eq(1));
-    EXPECT_THAT(mock->deactivate, Eq(1));
+        MemPoolIntrospectionAccess introspectionAccess(
+            m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_publisherPortImpl_mock));
+
+        EXPECT_CALL(introspectionAccess.getPublisherPort(), stopOffer()).Times(1);
+    }
 }
 
 TEST_F(MemPoolIntrospection_test, send_noSubscribers)
 {
-    auto mock = m_senderPortImpl_mock.details;
-    MemPoolIntrospection m_introspection(
-        m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_senderPortImpl_mock));
+    EXPECT_CALL(callChecker(), offer()).Times(1);
+
+    MemPoolIntrospectionAccess introspectionAccess(
+        m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_publisherPortImpl_mock));
 
     MemPoolInfoContainer memPoolInfoContainer;
     initMemPoolInfoContainer(memPoolInfoContainer);
 
-    mock->hasSubscribersReturn = false;
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), tryAllocateChunk(_)).Times(0);
 
-    m_introspection.send();
-
-    EXPECT_THAT(mock->reserveChunk, Eq(0));
+    introspectionAccess.send();
 }
 
 /// @todo test with multiple segments and also test the mempool info from RouDiInternalMemoryManager
@@ -186,8 +220,10 @@ TEST_F(MemPoolIntrospection_test, send_noSubscribers)
 /// Should be realized as an integration test with a roudi environment and less mocking classes instead.
 TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
 {
-    MemPoolIntrospection m_introspection(
-        m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_senderPortImpl_mock));
+    EXPECT_CALL(callChecker(), offer()).Times(1);
+
+    MemPoolIntrospectionAccess introspectionAccess(
+        m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_publisherPortImpl_mock));
 
     MemPoolInfoContainer memPoolInfoContainer;
     MemPoolInfo memPoolInfo{0, 0, 0, 0};
@@ -199,46 +235,42 @@ TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
             return memPoolInfo;
         }));
 
-    auto mock = m_senderPortImpl_mock.details;
     ChunkMock<Topic> chunk;
-    mock->hasSubscribersReturn = true;
-    mock->reserveSampleReturn = chunk.chunkHeader();
     const auto& sample = chunk.sample();
 
-    m_introspection.send(); /// @todo expect call to MemPoolHandler::getMemPoolInfo
+    introspectionAccess.send(); /// @todo expect call to MemPoolHandler::getMemPoolInfo
 
-    EXPECT_THAT(mock->deliverChunk, Eq(1));
+    EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(1);
     ASSERT_EQ(sample->size(), 1u);
     EXPECT_THAT(compareMemPoolInfo(memPoolInfoContainer, chunk.sample()->front().m_mempoolInfo), Eq(true));
 }
 
 TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
-    auto mock = m_senderPortImpl_mock.details;
-    MemPoolIntrospection m_introspection(
-        m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_senderPortImpl_mock));
+    EXPECT_CALL(callChecker(), offer()).Times(1);
+
+    MemPoolIntrospectionAccess introspectionAccess(
+        m_rouDiInternalMemoryManager_mock, m_segmentManager_mock, std::move(m_publisherPortImpl_mock));
 
     MemPoolInfoContainer memPoolInfoContainer;
     MemPoolInfo memPoolInfo(0, 0, 0, 0);
     initMemPoolInfoContainer(memPoolInfoContainer);
+
     EXPECT_CALL(m_rouDiInternalMemoryManager_mock, getMemPoolInfo(_)).WillRepeatedly(Invoke([&](uint32_t index) {
         initMemPoolInfo(index, memPoolInfo);
         return memPoolInfo;
     }));
-
     // we use the hasSubscribers call to check how often the thread calls the send method
-    mock->hasSubscribersReturn = false;
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), hasSubscribers).Times(AtLeast(4));
 
     using namespace iox::units::duration_literals;
     iox::units::Duration snapshotInterval(100_ms);
 
-    m_introspection.setSnapshotInterval(snapshotInterval.milliSeconds<uint64_t>());
-    m_introspection.start();
+    introspectionAccess.setSnapshotInterval(snapshotInterval.milliSeconds<uint64_t>());
+    introspectionAccess.start();
     std::this_thread::sleep_for(std::chrono::milliseconds(
         6 * snapshotInterval.milliSeconds<uint64_t>())); // within this time, the thread should have run 6 times
-    m_introspection.wait();
+    introspectionAccess.wait();
     std::this_thread::sleep_for(std::chrono::milliseconds(
         6 * snapshotInterval.milliSeconds<uint64_t>())); // the thread should sleep, if not, we have 12 runs
-    m_introspection.terminate();
-
-    TIMING_TEST_EXPECT_TRUE(4 <= mock->hasSubscribers && mock->hasSubscribers <= 8);
+    introspectionAccess.terminate();
 });

@@ -92,7 +92,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
         for (size_t i = 0; i < ITERATIONS; i++)
         {
             m_chunkSender.tryAllocate(sizeof(DummySample), iox::UniquePortId())
-                .and_then([&](iox::mepoo::ChunkHeader* chunkHeader) {
+                .and_then([&](auto chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
@@ -123,7 +123,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
             ASSERT_FALSE(m_popper.hasOverflown());
 
             m_popper.tryPop()
-                .and_then([&](SharedChunk& chunk) {
+                .and_then([&](auto& chunk) {
                     auto dummySample = *reinterpret_cast<DummySample*>(chunk.getPayload());
                     // Check if monotonically increasing
                     EXPECT_THAT(dummySample.m_dummy, Eq(forwardCounter));

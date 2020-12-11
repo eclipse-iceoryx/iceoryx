@@ -31,12 +31,9 @@ template <typename>
 class TypedUniqueId;
 struct BasePortData;
 
-class SenderPort;   /// @deprecated #25
-class ReceiverPort; /// @deprecated #25
-
-class PublisherPortUser;
 class PublisherPortRouDi;
-
+class PublisherPortUser;
+class SubscriberPortRouDi;
 class SubscriberPortUser;
 } // namespace popo
 namespace posix
@@ -45,10 +42,9 @@ class UnixDomainSocket;
 class MessageQueue;
 } // namespace posix
 
-using SenderPortType = iox::popo::SenderPort;     /// @deprecated #25
-using ReceiverPortType = iox::popo::ReceiverPort; /// @deprecated #25
 using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
 using PublisherPortUserType = iox::popo::PublisherPortUser;
+using SubscriberPortRouDiType = iox::popo::SubscriberPortRouDi;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
@@ -94,6 +90,11 @@ constexpr uint32_t MAX_SUBSCRIBERS = build::IOX_MAX_SUBSCRIBERS;
 constexpr uint32_t MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY =
     build::IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
 constexpr uint32_t MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
+// Introspection is using the following publisherPorts, which reduced the number of ports available for the user
+// 1x publisherPort mempool introspection
+// 1x publisherPort process introspection
+// 3x publisherPort port introspection
+constexpr uint32_t PUBLISHERS_RESERVED_FOR_INTROSPECTION = 5;
 /// With MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY we couple the maximum number of
 /// chunks a user is allowed to hold with the maximum queue capacity. This allows that a polling user can replace all
 /// the held chunks in one execution with all new ones from a completely filled queue. Or the other way round, when we
