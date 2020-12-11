@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Apex.AI. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,13 +32,14 @@ class Thread_test : public Test
     void SetUp()
     {
         m_run = true;
-        m_thread = std::thread(&Thread_test::threadFunc, this);
+        m_thread = new std::thread(&Thread_test::threadFunc, this);
     }
 
     void TearDown()
     {
         m_run = false;
-        m_thread.join();
+        m_thread->join();
+        delete m_thread;
     }
 
     ~Thread_test()
@@ -47,13 +48,13 @@ class Thread_test : public Test
 
     void threadFunc()
     {
-        while (!m_run)
+        while (m_run)
         {
         }
     };
 
     std::atomic_bool m_run{true};
-    std::thread m_thread;
+    std::thread* m_thread;
 };
 
 TEST_F(Thread_test, DISABLED_LargeStringIsTruncated)
@@ -64,26 +65,20 @@ TEST_F(Thread_test, DISABLED_LargeStringIsTruncated)
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
         "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
         "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
-    char threadName[15];
 
-
-    auto result = setThreadName(m_thread.native_handle(), stringLongerThan16Chars);
-    pthread_getname_np(m_thread.native_handle(), threadName, 16);
-
-    EXPECT_THAT(stringLongerThan16Chars, StrNe(threadName));
-    EXPECT_THAT(result.has_error(), Eq(false));
+    auto setResult = setThreadName(m_thread->native_handle(), stringLongerThan16Chars);
 #endif
 }
 
 TEST_F(Thread_test, SmallStringIsNotTruncated)
 {
     char stringShorterThan16Chars[] = "I'm short";
-    threadName_t threadName;
+    ThreadName_t threadName;
 
-    auto setResult = setThreadName(m_thread.native_handle(), stringShorterThan16Chars);
-    auto getResult = getThreadName(m_thread.native_handle(), threadName);
+    auto setResult = setThreadName(m_thread->native_handle(), stringShorterThan16Chars);
+    auto getResult = getThreadName(m_thread->native_handle());
 
-    EXPECT_THAT(stringShorterThan16Chars, StrEq(threadName));
     EXPECT_THAT(setResult.has_error(), Eq(false));
     EXPECT_THAT(getResult.has_error(), Eq(false));
+    EXPECT_THAT(stringShorterThan16Chars, StrEq(getResult.value()));
 }

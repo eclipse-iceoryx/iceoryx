@@ -28,10 +28,10 @@ enum class ThreadErrorType : int32_t
     EXCEEDED_RANGE_LIMIT = 0
 };
 
-using threadName_t = cxx::string<16>;
+using ThreadName_t = cxx::string<16>;
 
-cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const threadName_t& name);
-cxx::expected<ThreadErrorType> getThreadName(pthread_t thread, threadName_t& name);
+cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const ThreadName_t& name);
+cxx::expected<ThreadName_t, ThreadErrorType> getThreadName(pthread_t thread);
 
 } // namespace posix
 } // namespace iox

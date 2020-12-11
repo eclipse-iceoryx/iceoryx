@@ -18,7 +18,7 @@ namespace iox
 {
 namespace posix
 {
-cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const threadName_t& name)
+cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const ThreadName_t& name)
 {
     if (cxx::makeSmartC(pthread_setname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, name.c_str())
             .hasErrors())
@@ -31,20 +31,24 @@ cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const threadName_
     }
 }
 
-cxx::expected<ThreadErrorType> getThreadName(pthread_t thread, threadName_t& name)
+cxx::expected<ThreadName_t, ThreadErrorType> getThreadName(pthread_t thread)
 {
     constexpr uint8_t maxCharCountThreadName = 17;
     char tempName[maxCharCountThreadName];
-    if (cxx::makeSmartC(
-            pthread_getname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, tempName, maxCharCountThreadName)
+    if (cxx::makeSmartC(pthread_getname_np,
+                        cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
+                        {0},
+                        {},
+                        thread,
+                        tempName,
+                        maxCharCountThreadName)
             .hasErrors())
     {
         return cxx::error<ThreadErrorType>(ThreadErrorType::EXCEEDED_RANGE_LIMIT);
     }
     else
     {
-        name.assign(tempName);
-        return cxx::success<>();
+        return cxx::success<ThreadName_t>(tempName);
     }
 }
 
