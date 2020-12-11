@@ -33,10 +33,10 @@ cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const threadName_
 
 cxx::expected<ThreadErrorType> getThreadName(pthread_t thread, threadName_t& name)
 {
-    constexpr uint64_t size = name.capacity();
-    char tempName[size];
+    constexpr uint8_t maxCharCountThreadName = 17;
+    char tempName[maxCharCountThreadName];
     if (cxx::makeSmartC(
-            pthread_getname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, tempName, size)
+            pthread_getname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, tempName, maxCharCountThreadName)
             .hasErrors())
     {
         return cxx::error<ThreadErrorType>(ThreadErrorType::EXCEEDED_RANGE_LIMIT);

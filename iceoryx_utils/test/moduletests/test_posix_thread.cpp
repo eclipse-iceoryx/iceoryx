@@ -77,7 +77,7 @@ TEST_F(Thread_test, DISABLED_LargeStringIsTruncated)
 
 TEST_F(Thread_test, SmallStringIsNotTruncated)
 {
-    constexpr char stringShorterThan16Chars[] = "I'm short";
+    char stringShorterThan16Chars[] = "I'm short";
     threadName_t threadName;
 
     auto setResult = setThreadName(m_thread.native_handle(), stringShorterThan16Chars);
