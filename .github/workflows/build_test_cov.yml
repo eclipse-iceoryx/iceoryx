@@ -53,5 +53,6 @@ jobs:
           path: ./artifacts
 
       - name: 'Echo download path'
-        run: ls -R  
-        run: echo ${{steps.download.outputs.download-path}}
+        run: |
+          ls -R  
+          echo ${{steps.download.outputs.download-path}}
