@@ -26,7 +26,7 @@
 #include "iceoryx_posh/internal/popo/receiver_port.hpp"
 #include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
-#include "iceoryx_posh/internal/runtime/runnable_data.hpp"
+#include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 
 namespace iox
@@ -45,7 +45,7 @@ enum class PortPoolError : uint8_t
     SUBSCRIBER_PORT_LIST_FULL,
     INTERFACE_PORT_LIST_FULL,
     APPLICATION_PORT_LIST_FULL,
-    RUNNABLE_DATA_LIST_FULL,
+    NODE_DATA_LIST_FULL,
     CONDITION_VARIABLE_LIST_FULL,
 };
 
@@ -67,7 +67,7 @@ class PortPool
     cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
     cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;
     cxx::vector<popo::ApplicationPortData*, MAX_PROCESS_NUMBER> getApplicationPortDataList() noexcept;
-    cxx::vector<runtime::RunnableData*, MAX_RUNNABLE_NUMBER> getRunnableDataList() noexcept;
+    cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> getNodeDataList() noexcept;
 
     /// @deprecated #25
     cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
@@ -113,8 +113,8 @@ class PortPool
     cxx::expected<popo::ApplicationPortData*, PortPoolError>
     addApplicationPort(const ProcessName_t& applicationName) noexcept;
 
-    cxx::expected<runtime::RunnableData*, PortPoolError> addRunnableData(
-        const ProcessName_t& process, const RunnableName_t& runnable, const uint64_t runnableDeviceIdentifier) noexcept;
+    cxx::expected<runtime::NodeData*, PortPoolError>
+    addNodeData(const ProcessName_t& process, const NodeName_t& node, const uint64_t nodeDeviceIdentifier) noexcept;
 
     cxx::expected<popo::ConditionVariableData*, PortPoolError> addConditionVariableData() noexcept;
 
@@ -126,7 +126,7 @@ class PortPool
     void removeSubscriberPort(SubscriberPortType::MemberType_t* const portData) noexcept;
     void removeInterfacePort(popo::InterfacePortData* const portData) noexcept;
     void removeApplicationPort(popo::ApplicationPortData* const portData) noexcept;
-    void removeRunnableData(runtime::RunnableData* const runnableData) noexcept;
+    void removeNodeData(runtime::NodeData* const nodeData) noexcept;
     void removeConditionVariableData(popo::ConditionVariableData* const conditionVariableData) noexcept;
 
     std::atomic<uint64_t>* serviceRegistryChangeCounter() noexcept;

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,14 +26,14 @@ namespace iox
 {
 namespace concurrent
 {
-// remark: configuration of capacity at runtime is an upcoming feature
-
 /// @brief implements a lock free queue (i.e. container with FIFO order) of elements of type T
-/// with Capacity
+/// with a fixed Capacity
 template <typename ElementType, uint64_t Capacity>
 class LockFreeQueue
 {
   public:
+    using element_t = ElementType;
+
     /// @brief creates and initalizes an empty LockFreeQueue
     LockFreeQueue() noexcept;
 
@@ -48,54 +48,56 @@ class LockFreeQueue
     LockFreeQueue& operator=(LockFreeQueue&&) = delete;
 
     /// @brief returns the capacity of the queue
-    /// threadsafe, lockfree
+    /// @note threadsafe, lockfree
     constexpr uint64_t capacity() const noexcept;
 
     /// @brief tries to insert value in FIFO order, moves the value internally
     /// @param value to be inserted
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
-    /// threadsafe, lockfree
+    /// @note threadsafe, lockfree
     bool tryPush(ElementType&& value) noexcept;
 
     /// @brief tries to insert value in FIFO order, copies the value internally
     /// @param value to be inserted
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
-    /// threadsafe, lockfree
+    /// @note threadsafe, lockfree
     bool tryPush(const ElementType& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
     /// @param value to be inserted is copied into the queue
     /// @return removed value if an overflow occured, empty optional otherwise
-    /// threadsafe, lockfree
+    /// @note threadsafe, lockfree
     iox::cxx::optional<ElementType> push(const ElementType& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
     /// @param value to be inserted is moved into the queue if possible
     /// @return removed value if an overflow occured, empty optional otherwise
-    /// threadsafe, lockfree
+    /// @note threadsafe, lockfree
     iox::cxx::optional<ElementType> push(ElementType&& value) noexcept;
 
     /// @brief tries to remove value in FIFO order
     /// @return value if removal was successful, empty optional otherwise
-    /// threadsafe, lockfree
+    /// @note threadsafe, lockfree
     iox::cxx::optional<ElementType> pop() noexcept;
 
     /// @brief check whether the queue is empty
     /// @return true iff the queue is empty
-    /// note that if the queue is used concurrently it might
+    /// @note that if the queue is used concurrently it might
     /// not be empty anymore after the call
     ///  (but it was at some point during the call)
+    /// @note threadsafe, lockfree
     bool empty() const noexcept;
 
     /// @brief get the number of stored elements in the queue
     /// @return number of stored elements in the queue
-    /// note that this will not be perfectly in sync with the actual number of contained elements
+    /// @note that this will not be perfectly in sync with the actual number of contained elements
     /// during concurrent operation but will always be at most capacity
+    /// @note threadsafe, lockfree
     uint64_t size() const noexcept;
 
-  private:
+  protected:
     using Queue = IndexQueue<Capacity>;
     using BufferIndex = typename Queue::value_t;
 

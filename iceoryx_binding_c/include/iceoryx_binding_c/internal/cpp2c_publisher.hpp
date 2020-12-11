@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,14 @@
 
 struct cpp2c_Publisher
 {
+    cpp2c_Publisher() = default;
+    cpp2c_Publisher(const cpp2c_Publisher&) = delete;
+    cpp2c_Publisher(cpp2c_Publisher&& rhs) noexcept;
+    ~cpp2c_Publisher();
+
+    cpp2c_Publisher& operator=(const cpp2c_Publisher&) = delete;
+    cpp2c_Publisher& operator=(cpp2c_Publisher&& rhs) noexcept;
+
     iox::popo::PublisherPortData* m_portData{nullptr};
 };
 

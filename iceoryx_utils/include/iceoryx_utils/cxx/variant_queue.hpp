@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 #ifndef IOX_UTILS_CXX_VARIANT_QUEUE_HPP
 #define IOX_UTILS_CXX_VARIANT_QUEUE_HPP
 
-#include "iceoryx_utils/concurrent/lockfree_queue.hpp"
+#include "iceoryx_utils/concurrent/resizeable_lockfree_queue.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/variant.hpp"
@@ -40,6 +40,10 @@ enum class VariantQueueTypes : uint64_t
     FiFo_MultiProducerSingleConsumer = 2,
     SoFi_MultiProducerSingleConsumer = 3
 };
+
+// remark: we need to consider to support the non-resizable queue as well
+//         since it should have performance benefits if resize is not actually needed
+//         for now we just use the most general variant, which allows resizing
 
 /// @brief error which can occur in the VariantQueue
 enum class VariantQueueError
@@ -72,7 +76,7 @@ class VariantQueue
   public:
     using fifo_t = variant<concurrent::FiFo<ValueType, Capacity>,
                            concurrent::SoFi<ValueType, Capacity>,
-                           concurrent::LockFreeQueue<ValueType, Capacity>>;
+                           concurrent::ResizeableLockFreeQueue<ValueType, Capacity>>;
 
     /// @brief Constructor of a VariantQueue
     /// @param[in] type type of the underlying queue
@@ -103,10 +107,13 @@ class VariantQueue
 
     /// @brief set the capacity of the queue
     /// @param[in] newCapacity valid values are 0 < newCapacity < MAX_SUBSCRIBER_QUEUE_CAPACITY
+    /// @return true if setting the new capacity succeeded, false otherwise
     /// @pre it is important that no pop or push calls occur during
     ///         this call
+    /// @note depending on the internal queue used, concurrent pushes and pops are possible
+    ///       (for FiFo_MultiProducerSingleConsumer and SoFi_MultiProducerSingleConsumer)
     /// @concurrent not thread safe
-    void setCapacity(const uint64_t newCapacity) noexcept;
+    bool setCapacity(const uint64_t newCapacity) noexcept;
 
     /// @brief get the capacity of the queue.
     /// @return queue size

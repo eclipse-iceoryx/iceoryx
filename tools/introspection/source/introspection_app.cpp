@@ -606,7 +606,7 @@ IntrospectionApp::composeReceiverPortData(const PortIntrospectionFieldTopic* por
 void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodMs,
                                         const IntrospectionSelection introspectionSelection)
 {
-    iox::runtime::PoshRuntime::getInstance(iox::roudi::INTROSPECTION_MQ_APP_NAME);
+    iox::runtime::PoshRuntime::initRuntime(iox::roudi::INTROSPECTION_MQ_APP_NAME);
 
     using namespace iox::roudi;
 

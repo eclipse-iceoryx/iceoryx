@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/popo/modern_api/untyped_publisher.hpp"
 #include "topic_data.hpp"
 
 #include "iceoryx_posh/popo/modern_api/publisher.hpp"
@@ -34,9 +35,9 @@ int main()
     // Register sigHandler for SIGINT
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::getInstance("/iox-ex-publisher-untyped-modern");
+    iox::runtime::PoshRuntime::initRuntime("/iox-ex-publisher-untyped-modern");
 
-    auto untypedPublisher = iox::popo::UntypedPublisher({"Odometry", "Position", "Vehicle"});
+    iox::popo::UntypedPublisher untypedPublisher({"Odometry", "Position", "Vehicle"});
     untypedPublisher.offer();
 
     float_t ct = 0.0;

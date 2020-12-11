@@ -49,8 +49,8 @@ class Subscriber_t
 
     /// @brief Constructor
     /// @param[in] service Information on service , service, instance, event Id
-    /// @param[in] runnableName optional name of the runnable the subscriber belongs to
-    explicit Subscriber_t(const capro::ServiceDescription& service, const RunnableName_t& runnableName = "") noexcept;
+    /// @param[in] nodeName optional name of the node the subscriber belongs to
+    explicit Subscriber_t(const capro::ServiceDescription& service, const NodeName_t& nodeName = "") noexcept;
 
     /// @brief Destructor for event receiver
     virtual ~Subscriber_t() noexcept;
@@ -173,8 +173,8 @@ class Subscriber_t
 class Subscriber : public Subscriber_t<iox::popo::ReceiverPort>
 {
   public:
-    Subscriber(const capro::ServiceDescription& service, const RunnableName_t& runnableName = "") noexcept
-        : Subscriber_t<iox::popo::ReceiverPort>(service, runnableName)
+    Subscriber(const capro::ServiceDescription& service, const NodeName_t& nodeName = "") noexcept
+        : Subscriber_t<iox::popo::ReceiverPort>(service, nodeName)
     {
     }
 };

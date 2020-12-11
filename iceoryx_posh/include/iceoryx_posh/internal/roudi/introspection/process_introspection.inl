@@ -71,7 +71,7 @@ void ProcessIntrospection<SenderPort>::removeProcess(int f_pid)
 }
 
 template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::addRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable)
+void ProcessIntrospection<SenderPort>::addNode(const ProcessName_t& f_process, const NodeName_t& f_node)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -82,31 +82,29 @@ void ProcessIntrospection<SenderPort>::addRunnable(const ProcessName_t& f_proces
         {
             processFound = true;
             bool alreadyInList = false;
-            for (auto it_runnable = it_process->m_runnables.begin(); it_runnable != it_process->m_runnables.end();
-                 ++it_runnable)
+            for (auto it_node = it_process->m_nodes.begin(); it_node != it_process->m_nodes.end(); ++it_node)
             {
-                if (*it_runnable == f_runnable)
+                if (*it_node == f_node)
                 {
-                    LogWarn() << "Runnable " << f_runnable.c_str() << " already registered";
+                    LogWarn() << "Node " << f_node.c_str() << " already registered";
                     alreadyInList = true;
                 }
             }
             if (!alreadyInList)
             {
-                it_process->m_runnables.emplace_back(f_runnable);
+                it_process->m_nodes.emplace_back(f_node);
             }
         }
     }
     if (!processFound)
     {
-        LogWarn() << "Trying to register runnable " << f_runnable.c_str()
-                  << " but the related process is not registered";
+        LogWarn() << "Trying to register node " << f_node.c_str() << " but the related process is not registered";
     }
     m_processListNewData = true;
 }
 
 template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::removeRunnable(const ProcessName_t& f_process, const RunnableName_t& f_runnable)
+void ProcessIntrospection<SenderPort>::removeNode(const ProcessName_t& f_process, const NodeName_t& f_node)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -117,25 +115,24 @@ void ProcessIntrospection<SenderPort>::removeRunnable(const ProcessName_t& f_pro
         {
             processFound = true;
             bool removedFromList = false;
-            for (auto it_runnable = it_process->m_runnables.begin(); it_runnable != it_process->m_runnables.end();
-                 ++it_runnable)
+            for (auto it_node = it_process->m_nodes.begin(); it_node != it_process->m_nodes.end(); ++it_node)
             {
-                if (*it_runnable == f_runnable)
+                if (*it_node == f_node)
                 {
-                    it_process->m_runnables.erase(it_runnable);
+                    it_process->m_nodes.erase(it_node);
                     removedFromList = true;
                     break;
                 }
             }
             if (!removedFromList)
             {
-                LogWarn() << "Trying to remove runnable " << f_runnable.c_str() << " but it was not registered";
+                LogWarn() << "Trying to remove node " << f_node.c_str() << " but it was not registered";
             }
         }
     }
     if (!processFound)
     {
-        LogWarn() << "Trying to remove runnable " << f_runnable.c_str() << " but the related process is not registered";
+        LogWarn() << "Trying to remove node " << f_node.c_str() << " but the related process is not registered";
     }
     m_processListNewData = true;
 }

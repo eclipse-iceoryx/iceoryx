@@ -60,7 +60,7 @@ for arg in "$@"
 do 
     case "$arg" in
         "with-dds-gateway-tests")
-            COMPONENTS="utils posh dds_gateway"
+            COMPONENTS="$COMPONENTS dds_gateway"
             ;;
         "disable-timing-tests")
             GTEST_FILTER="-*.TimingTest_*"
@@ -152,6 +152,40 @@ execute_test () {
 
 set_sanitizer_options
 
+execute_test () {
+    local component=$1
+    local test_scope=$2
+    local test_binary=""
+
+    case $test_scope in
+        "unit")
+        test_binary="$component"_moduletests
+        result_file="$component"_ModuleTestResults.xml
+        ;;
+        "component")
+        test_binary="$component"_componenttests
+        result_file="$component"_ComponenttestTestResults.xml
+        ;;
+        "integration")
+        test_binary="$component"_integrationtests
+        result_file="$component"_IntegrationTestResults.xml
+        ;;
+        *)
+        echo "Wrong scope $test_scope!"
+        ;;
+    esac
+
+    # Runs only tests available for the given component
+    if [ -f ./$test_binary ]; then
+        echo "Executing $test_binary"
+        ./$test_binary --gtest_filter="${GTEST_FILTER}" --gtest_output="xml:$TEST_RESULTS_DIR/$result_file"
+    fi
+
+    if [ $? != 0 ]; then
+        echo "$test_scope test for $component failed!"
+    fi
+}
+
 for COMPONENT in $COMPONENTS; do
     echo ""
     echo "######################## executing tests for $COMPONENT ########################"
@@ -162,10 +196,10 @@ for COMPONENT in $COMPONENTS; do
     fi
     if [ $GCOV_SCOPE == "component" ] || [ $GCOV_SCOPE == "all" ]; then
         execute_test $COMPONENT component
-    fi    
+    fi
     if [ $GCOV_SCOPE == "integration" ] || [ $GCOV_SCOPE == "all" ]; then
         execute_test $COMPONENT integration
-    fi        
+    fi
 done
 
 # do not start RouDi while the module and componenttests are running;

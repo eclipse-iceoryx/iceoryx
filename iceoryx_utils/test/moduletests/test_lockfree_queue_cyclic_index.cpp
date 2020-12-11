@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,6 +66,7 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, defaultConstructedIndexIsZero)
 
     EXPECT_EQ(index.getIndex(), 0);
     EXPECT_EQ(index.getCycle(), 0);
+    EXPECT_EQ(index.getValue(), 0);
 }
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitIndexConstructionWithZeroWorks)
@@ -76,13 +77,22 @@ TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitIndexConstructionWithZeroWorks)
         Index index(0, 0);
         EXPECT_EQ(index.getIndex(), 0);
         EXPECT_EQ(index.getCycle(), 0);
+        EXPECT_EQ(index.getValue(), 0);
     }
 
     {
         Index index(0);
         EXPECT_EQ(index.getIndex(), 0);
         EXPECT_EQ(index.getCycle(), 0);
+        EXPECT_EQ(index.getValue(), 0);
     }
+}
+
+TYPED_TEST(LockFreeQueueCyclicIndexTest, getValueReturnsValueIndexWasConstructedWith)
+{
+    using Index = typename TestFixture::Index;
+    Index index(73);
+    EXPECT_EQ(index.getValue(), 73);
 }
 
 TYPED_TEST(LockFreeQueueCyclicIndexTest, explicitConstructionWorks)
