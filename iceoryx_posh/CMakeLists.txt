@@ -25,7 +25,7 @@ option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 include(cmake/iceoryxversions.cmake)
 include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
-include(IceoryxPlatformDetection)
+include(IceoryxPlatform)
 
 include(cmake/iceoryx_posh_deployment.cmake)
 

@@ -3,7 +3,7 @@ file (STRINGS "../VERSION" iceoryx_utils_VERSION)
 project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatformDetection.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
 if( clang-tidy )
     find_program(
@@ -238,7 +238,7 @@ setup_install_directories_and_export_package(
 install(
     FILES
         cmake/IceoryxPackageHelper.cmake
-        cmake/IceoryxPlatformDetection.cmake
+        cmake/IceoryxPlatform.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
