@@ -98,18 +98,6 @@ TYPED_TEST(IpcChannel_test, createBadName)
     EXPECT_TRUE(serverResult.has_error());
 }
 
-TYPED_TEST(IpcChannel_test, createNameExceedsLimits)
-{
-    constexpr uint64_t TOO_LONG_STRING_SIZE{4096};
-    std::string tooLongName(TOO_LONG_STRING_SIZE, 's');
-    tooLongName.front() = '/';
-
-    auto serverResult =
-        TestFixture::IpcChannelType::create(tooLongName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
-    ASSERT_TRUE(serverResult.has_error());
-    EXPECT_THAT(serverResult.get_error(), Eq(iox::posix::IpcChannelError::INVALID_CHANNEL_NAME));
-}
-
 TYPED_TEST(IpcChannel_test, createAgain)
 {
     // if there is a leftover from a crashed channel, we can create a new one. This is simulated by creating twice

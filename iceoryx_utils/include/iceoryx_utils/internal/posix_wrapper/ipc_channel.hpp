@@ -14,8 +14,18 @@
 #ifndef IOX_UTILS_POSIX_WRAPPER_IPC_CHANNEL_HPP
 #define IOX_UTILS_POSIX_WRAPPER_IPC_CHANNEL_HPP
 
+#include "iceoryx_utils/cxx/string.hpp"
+
+
 namespace iox
 {
+#if defined(__APPLE__)
+constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 98U;
+#else
+constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 100U;
+#endif
+
+using ProcessName_t = cxx::string<MAX_IPC_CHANNEL_NAME_LENGTH>;
 namespace posix
 {
 enum class IpcChannelError : uint8_t

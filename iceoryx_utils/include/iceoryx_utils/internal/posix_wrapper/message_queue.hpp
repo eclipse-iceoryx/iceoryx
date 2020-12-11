@@ -22,7 +22,6 @@
 #include "iceoryx_utils/platform/mqueue.hpp"
 #include "iceoryx_utils/platform/stat.hpp"
 
-
 #include <iostream>
 
 namespace iox
@@ -67,7 +66,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
     ~MessageQueue();
 
-    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const std::string& name);
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const ProcessName_t& name);
 
     /// close and remove message queue.
     cxx::expected<IpcChannelError> destroy();
@@ -93,21 +92,21 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     cxx::expected<bool, IpcChannelError> isOutdated();
 
   private:
-    MessageQueue(const std::string& name,
+    MessageQueue(const ProcessName_t& name,
                  const IpcChannelMode mode,
                  const IpcChannelSide channelSide,
                  const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                  const uint64_t maxMsgNumber = 10u);
     cxx::expected<int32_t, IpcChannelError>
-    open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
+    open(const ProcessName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
 
     cxx::expected<IpcChannelError> close();
     cxx::expected<IpcChannelError> unlink();
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const;
-    static cxx::error<IpcChannelError> createErrorFromErrnum(const std::string& name, const int32_t errnum);
+    static cxx::error<IpcChannelError> createErrorFromErrnum(const ProcessName_t& name, const int32_t errnum);
 
   private:
-    std::string m_name;
+    ProcessName_t m_name;
     struct mq_attr m_attributes;
     mqd_t m_mqDescriptor = INVALID_DESCRIPTOR;
     IpcChannelSide m_channelSide;

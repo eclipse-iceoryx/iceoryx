@@ -32,7 +32,7 @@ MessageQueue::MessageQueue()
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-MessageQueue::MessageQueue(const std::string& name,
+MessageQueue::MessageQueue(const ProcessName_t& name,
                            const IpcChannelMode mode,
                            const IpcChannelSide channelSide,
                            const size_t maxMsgSize,
@@ -119,9 +119,9 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other)
     return *this;
 }
 
-cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const std::string& name)
+cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const ProcessName_t& name)
 {
-    if (name.size() < SHORTEST_VALID_QUEUE_NAME || name.at(0) != '/')
+    if (name.size() < SHORTEST_VALID_QUEUE_NAME || name.c_str()[0] != '/')
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -209,9 +209,9 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
 }
 
 cxx::expected<int32_t, IpcChannelError>
-MessageQueue::open(const std::string& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
+MessageQueue::open(const ProcessName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
 {
-    if (name.size() < SHORTEST_VALID_QUEUE_NAME || name.at(0) != '/')
+    if (name.size() < SHORTEST_VALID_QUEUE_NAME || name.c_str()[0] != '/')
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -366,7 +366,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int32_t er
     return createErrorFromErrnum(m_name, errnum);
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const std::string& name, const int32_t errnum)
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const ProcessName_t& name, const int32_t errnum)
 {
     switch (errnum)
     {
