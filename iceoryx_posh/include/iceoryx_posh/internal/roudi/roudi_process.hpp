@@ -15,8 +15,6 @@
 #define IOX_POSH_ROUDI_ROUDI_PROCESS_HPP
 
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
@@ -145,18 +143,6 @@ class ProcessManager : public ProcessManagerInterface
 
     void addNodeForProcess(const ProcessName_t& process, const NodeName_t& node) noexcept;
 
-    /// @deprecated #25
-    void addReceiverForProcess(const ProcessName_t& name,
-                               const capro::ServiceDescription& service,
-                               const NodeName_t& node,
-                               const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
-
-    /// @deprecated #25
-    void addSenderForProcess(const ProcessName_t& name,
-                             const capro::ServiceDescription& service,
-                             const NodeName_t& node,
-                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
-
     void addSubscriberForProcess(const ProcessName_t& name,
                                  const capro::ServiceDescription& service,
                                  const uint64_t& historyRequest,
@@ -175,8 +161,8 @@ class ProcessManager : public ProcessManagerInterface
 
     void run() noexcept;
 
-    SenderPortType addIntrospectionSenderPort(const capro::ServiceDescription& service,
-                                              const ProcessName_t& process_name) noexcept;
+    popo::PublisherPortData* addIntrospectionPublisherPort(const capro::ServiceDescription& service,
+                                                           const ProcessName_t& process_name) noexcept;
 
     /// @brief Notify the application that it sent an unsupported message
     void sendMessageNotSupportedToRuntime(const ProcessName_t& name) noexcept;
@@ -251,7 +237,7 @@ class ProcessManager : public ProcessManagerInterface
 
     ProcessIntrospectionType* m_processIntrospection{nullptr};
 
-    // this is currently used for the internal sender/receiver ports
+    // this is currently used for the internal publisher/subscriber ports
     mepoo::MemoryManager* m_memoryManagerOfCurrentProcess{nullptr};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel;
 };

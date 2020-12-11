@@ -28,7 +28,7 @@ namespace iox
 {
 namespace roudi
 {
-template <typename MemoryManager, typename SegmentManager, typename SenderPort>
+template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
 class MemPoolIntrospection;
 }
 
@@ -95,7 +95,7 @@ class SegmentManager
     bool createSegment(const SegmentConfig::SegmentEntry& f_segmentEntry);
 
   private:
-    template <typename MemoryManger, typename SegmentManager, typename SenderPort>
+    template <typename MemoryManger, typename SegmentManager, typename PublisherPort>
     friend class roudi::MemPoolIntrospection;
 
     posix::Allocator* m_managementAllocator;

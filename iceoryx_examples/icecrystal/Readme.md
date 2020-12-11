@@ -2,9 +2,10 @@
 
 ## Introduction
 
-This example teaches you how to make use of the introspection for debugging purposes. With the introspection you can 
+This example teaches you how to make use of the introspection for debugging purposes. With the introspection you can
 look into the machine room of RouDi. The introspection shows live information about the memory usage and all
-registered processes. Additionally, it shows the sender and receiver ports that are created inside the shared memory.
+registered processes. Additionally, it shows the publisher and subscriber ports that are created inside the shared
+memory.
 
 ## Run icecrystal
 
@@ -28,9 +29,9 @@ The counter can differ depending on startup of the applications.
 ### RouDi application
 
     Reserving 99683360 bytes in the shared memory [/iceoryx_mgmt]
-    [ Reserving shared memory successful ] 
+    [ Reserving shared memory successful ]
     Reserving 410709312 bytes in the shared memory [/username]
-    [ Reserving shared memory successful ] 
+    [ Reserving shared memory successful ]
 
 ### Publisher application
 
@@ -61,7 +62,7 @@ The introspection can be started with several command line arguments.
 
     --mempool         Subscribe to mempool introspection data.
 
-The memory pool view will show all available shared memory segments and their respective owner. Additionally, the 
+The memory pool view will show all available shared memory segments and their respective owner. Additionally, the
 maximum number of available chunks, the number of currently used chunks as well as the minimal value of free chunks
 are visible. This can be handy for stress tests to find out if your memory configuration is valid.
 
@@ -71,11 +72,11 @@ The process view will show you the processes (incl. PID), which are currently re
 
     --port            Subscribe to port introspection data.
 
-The port view shows both sender and receiver ports that are created by RouDi in the shared memory. Their respective
+The port view shows both publisher and subscriber ports that are created by RouDi in the shared memory. Their respective
 service description (service, instance, event) is shown to identify them uniquely. The columns `Process` and
 `used by process` display to which process the ports belong and how they are currently connected. Size in bytes of
 both sample size and chunk size (sample size + meta data) and statistical data of `Chunks [/Minute]` is provided as
-well. When a sender port instantly provides data to a subscriber with the `subscribe()` call, the `Field` column is
+well. When a publisher port instantly provides data to a subscriber with the `subscribe()` call, the `Field` column is
 ticked. The service discovery protocol allows you to define the `Propagation scope` of the data. This can enable
 data forwarding to other machines e.g. over network or just consume them internally. When a `Callback` is
 registered on subscriber side, the box is ticked accordingly. `FiFo size / capacity` shows the consumption of chunks

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #define IOX_POSH_POPO_UNTYPED_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -24,10 +25,18 @@ namespace iox
 {
 namespace popo
 {
-template <typename base_subscriber_t = BaseSubscriber<void>>
-class UntypedSubscriberImpl : public base_subscriber_t
+class Void
+{
+};
+
+template <template <typename, typename, typename> class base_subscriber_t = BaseSubscriber>
+class UntypedSubscriberImpl
+    : public base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, iox::SubscriberPortUserType>
 {
   public:
+    using BaseSubscriber =
+        base_subscriber_t<void, UntypedSubscriberImpl<base_subscriber_t>, iox::SubscriberPortUserType>;
+
     UntypedSubscriberImpl(const capro::ServiceDescription& service);
     UntypedSubscriberImpl(const UntypedSubscriberImpl& other) = delete;
     UntypedSubscriberImpl& operator=(const UntypedSubscriberImpl&) = delete;
@@ -35,18 +44,18 @@ class UntypedSubscriberImpl : public base_subscriber_t
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
     virtual ~UntypedSubscriberImpl() = default;
 
-    using base_subscriber_t::getServiceDescription;
-    using base_subscriber_t::getSubscriptionState;
-    using base_subscriber_t::getUid;
-    using base_subscriber_t::hasMissedSamples;
-    using base_subscriber_t::hasNewSamples;
-    using base_subscriber_t::hasTriggered;
-    using base_subscriber_t::releaseQueuedSamples;
-    using base_subscriber_t::setConditionVariable;
-    using base_subscriber_t::subscribe;
-    using base_subscriber_t::take;
-    using base_subscriber_t::unsetConditionVariable;
-    using base_subscriber_t::unsubscribe;
+    using BaseSubscriber::attachTo;
+    using BaseSubscriber::detachEvent;
+    using BaseSubscriber::getServiceDescription;
+    using BaseSubscriber::getSubscriptionState;
+    using BaseSubscriber::getUid;
+    using BaseSubscriber::hasMissedSamples;
+    using BaseSubscriber::hasNewSamples;
+    using BaseSubscriber::invalidateTrigger;
+    using BaseSubscriber::releaseQueuedSamples;
+    using BaseSubscriber::subscribe;
+    using BaseSubscriber::take;
+    using BaseSubscriber::unsubscribe;
 };
 
 using UntypedSubscriber = UntypedSubscriberImpl<>;

@@ -34,15 +34,16 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_roudiMemoryInterface(&roudiMemoryInterface)
     , m_portManager(&portManager)
     , m_prcMgr(*m_roudiMemoryInterface, portManager, roudiStartupParameters.m_compatibilityCheckLevel)
-    , m_mempoolIntrospection(*m_roudiMemoryInterface->introspectionMemoryManager()
-                                  .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
-                             *m_roudiMemoryInterface->segmentManager().value(),
-                             m_prcMgr.addIntrospectionSenderPort(IntrospectionMempoolService, MQ_ROUDI_NAME))
+    , m_mempoolIntrospection(
+          *m_roudiMemoryInterface->introspectionMemoryManager()
+               .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
+          *m_roudiMemoryInterface->segmentManager().value(),
+          PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionMempoolService, MQ_ROUDI_NAME)))
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
-    m_processIntrospection.registerSenderPort(
-        m_prcMgr.addIntrospectionSenderPort(IntrospectionProcessService, MQ_ROUDI_NAME));
+    m_processIntrospection.registerPublisherPort(
+        PublisherPortUserType(m_prcMgr.addIntrospectionPublisherPort(IntrospectionProcessService, MQ_ROUDI_NAME)));
     m_prcMgr.initIntrospection(&m_processIntrospection);
     m_processIntrospection.run();
     m_mempoolIntrospection.start();
@@ -171,48 +172,6 @@ void RouDi::processMessage(const runtime::MqMessage& message,
 
             registerProcess(
                 processName, pid, {userId}, transmissionTimestamp, getUniqueSessionIdForProcess(), versionInfo);
-        }
-        break;
-    }
-
-    /// @deprecated #25
-    case runtime::MqMessageType::CREATE_SENDER:
-    {
-        if (message.getNumberOfElements() != 5)
-        {
-            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_SENDER\" from \"" << processName
-                       << "\"received!";
-        }
-        else
-        {
-            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
-
-            m_prcMgr.addSenderForProcess(processName,
-                                         service,
-                                         NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
-                                         iox::runtime::PortConfigInfo(portConfigInfoSerialization));
-        }
-        break;
-    }
-
-    /// @deprecated #25
-    case runtime::MqMessageType::CREATE_RECEIVER:
-    {
-        if (message.getNumberOfElements() != 5)
-        {
-            LogError() << "Wrong number of parameters for \"MqMessageType::CREATE_RECEIVER\" from \"" << processName
-                       << "\"received!";
-        }
-        else
-        {
-            capro::ServiceDescription service(cxx::Serialization(message.getElementAtIndex(2)));
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
-
-            m_prcMgr.addReceiverForProcess(processName,
-                                           service,
-                                           NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)),
-                                           iox::runtime::PortConfigInfo(portConfigInfoSerialization));
         }
         break;
     }

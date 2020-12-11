@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
 // limitations under the License.
 
 
+#include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 using namespace iox;
@@ -105,3 +105,18 @@ bool iox_sub_has_lost_chunks(iox_sub_t const self)
 {
     return SubscriberPortUser(self->m_portData).hasLostChunksSinceLastCall();
 }
+
+iox_WaitSetResult iox_sub_attach_to_waitset(iox_sub_t const self,
+                                            iox_ws_t const waitset,
+                                            const iox_SubscriberEvent event,
+                                            const uint64_t triggerId,
+                                            void (*callback)(iox_sub_t))
+{
+    return self->attachTo(*waitset, event, triggerId, callback);
+}
+
+void iox_sub_detach_event(iox_sub_t const self, const iox_SubscriberEvent event)
+{
+    return self->detachEvent(event);
+}
+

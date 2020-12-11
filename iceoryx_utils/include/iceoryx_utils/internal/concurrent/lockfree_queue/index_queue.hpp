@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,12 @@ namespace iox
 {
 namespace concurrent
 {
+template <typename ElementType, uint64_t Capacity>
+class LockFreeQueue;
+
+template <typename ElementType, uint64_t Capacity>
+class ResizeableLockFreeQueue;
+
 /// @brief lockfree queue capable of storing indices 0,1,... Capacity-1
 template <uint64_t Capacity, typename ValueType = uint64_t>
 class IndexQueue
@@ -85,17 +91,19 @@ class IndexQueue
     /// @return index if the queue was full, nullopt otherwise
     cxx::optional<ValueType> popIfFull() noexcept;
 
-    /// @brief pop an index from the queue in FIFO order if the queue not empty
-    /// @param index that was obtained, undefined if false is returned
-    /// @return true if an index was obtained, false otherwise
-    bool pop(ValueType& index) noexcept;
-
-    /// @brief pop an index from the queue in FIFO order if the queue is full
-    /// @param index that was obtained, undefined if false is returned
-    /// @return true if an index was obtained, false otherwise
-    bool popIfFull(ValueType& index) noexcept;
+    /// @brief pop an index from the queue in FIFO order if the queue contains
+    ///        at least  a specified number number of elements
+    /// @param size the number of elements needed to successfully perform the pop
+    /// @return index if the queue contains size elements, nullopt otherwise
+    cxx::optional<ValueType> popIfSizeIsAtLeast(uint64_t size) noexcept;
 
   private:
+    template <typename ElementType, uint64_t Cap>
+    friend class LockFreeQueue;
+
+    template <typename ElementType, uint64_t Cap>
+    friend class ResizeableLockFreeQueue;
+
     // remark: a compile time check whether Index is actually lock free would be nice
     // note: there is a way  with is_always_lock_free in c++17 (which we cannot use here)
     using Index = CyclicIndex<Capacity>;
@@ -110,7 +118,27 @@ class IndexQueue
     std::atomic<Index> m_readPosition;
     std::atomic<Index> m_writePosition;
 
+    /// @brief load the value from m_cells at a position with a given memory order
+    /// @param position position to load the value from
+    /// @param memoryOrder memory order to load the value with
+    /// @return value at position
     Index loadvalueAt(const Index& position, std::memory_order memoryOrder = std::memory_order_relaxed) const;
+
+    /// @brief pop an index from the queue in FIFO order if the queue not empty
+    /// @param index that was obtained, undefined if false is returned
+    /// @return true if an index was obtained, false otherwise
+    bool pop(ValueType& index) noexcept;
+
+    /// @brief pop an index from the queue in FIFO order if the queue contains at least minSize indices
+    /// @param minSize minimum number of indices required in the queue to successfully obtain the first index
+    /// @param index that was obtained, undefined if false is returned
+    /// @return true if an index was obtained, false otherwise
+    bool popIfSizeIsAtLeast(uint64_t minSize, ValueType& index) noexcept;
+
+    /// @brief pop an index from the queue in FIFO order if the queue is full
+    /// @param index that was obtained, undefined if false is returned
+    /// @return true if an index was obtained, false otherwise
+    bool popIfFull(ValueType& index) noexcept;
 };
 } // namespace concurrent
 } // namespace iox

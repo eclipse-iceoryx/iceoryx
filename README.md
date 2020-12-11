@@ -91,6 +91,8 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 | iceoryx_utils                           | 1    | 4                     |                                     |
 | iceoryx_introspection                   | 5    | 5                     |                                     |
 
+Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
+
 ## Contribute
 
 Please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) for a quick read-up about what to consider if you want to contribute.
@@ -107,8 +109,6 @@ Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md]
 | [iceoryx-rs](https://github.com/elBoberido/iceoryx-rs) | Experimental Rust wrapper for iceoryx | Rust |
 | [IceRay](https://github.com/elBoberido/iceray) | An iceoryx instrospection client written in Rust | Rust |
 
-Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
+## Governance & maintainers
 
-## Maintainers
-
-An up to date list of the maintainers can be found at the [Eclipse project page](https://projects.eclipse.org/projects/technology.iceoryx/who).
+Please have a look at the [GOVERNANCE.md](./GOVERNANCE.md).

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename base_subscriber_t>
+template <typename T, template <typename, typename, typename> class base_subscriber_t>
 inline TypedSubscriber<T, base_subscriber_t>::TypedSubscriber(const capro::ServiceDescription& service)
-    : base_subscriber_t(service)
+    : BaseSubscriber(service)
 {
 }
 

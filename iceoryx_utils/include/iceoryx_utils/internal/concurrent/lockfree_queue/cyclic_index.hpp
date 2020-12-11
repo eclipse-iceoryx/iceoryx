@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,11 +60,24 @@ class CyclicIndex
 
     ValueType getCycle() const noexcept;
 
+    ValueType getValue() const noexcept;
+
     CyclicIndex operator+(const ValueType value) const noexcept;
 
     CyclicIndex next() const noexcept;
 
     bool isOneCycleBehind(const CyclicIndex& other) const noexcept;
+
+    /// @note The difference will be negative if lhs < rhs (lhs is this) and
+    /// its absolute value fits into an int64_t, otherwise it
+    /// will be positive and follow the rules of modular arithmetic of unsigned types
+    /// This is intended and includes the case were rhs is "very close to 0" and
+    /// and lhs is "close" to the MAX of uint64_t (MAX=2^64-1). Here close means that
+    /// the real absolute difference would be larger than 2^63.
+    /// This is excactly the right behaviour to deal with a (theoretically possible)
+    /// overflow of lhs and can be seen as lhs being interpreted as MAX + its actual value.
+    /// In this case, lhs - rhs is positive even though lhs < rhs.
+    int64_t operator-(const CyclicIndex<CycleLength, ValueType>& rhs) const;
 
   private:
     ValueType m_value{0};
