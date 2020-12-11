@@ -692,9 +692,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
             prettyPrint("### MemPool Status ###\n\n", PrettyOptions::highlight);
 
             memPoolSubscriber.take().and_then(
-                [&](iox::popo::Sample<const MemPoolIntrospectionInfoContainer>& sample) {
-                     memPoolSample = sample;
-                });
+                [&](iox::popo::Sample<const MemPoolIntrospectionInfoContainer>& sample) { memPoolSample = sample; });
 
             if (memPoolSample)
             {
@@ -702,7 +700,6 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
                 {
                     printMemPoolInfo(i);
                 }
-                printProcessIntrospectionData(processSample.value().get());
             }
             else
             {
