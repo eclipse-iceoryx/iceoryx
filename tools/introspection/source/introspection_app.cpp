@@ -460,14 +460,12 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
                         .c_str());
             if (currentLine == 0)
             {
+                std::string fifoSize{"n/a"};     // std::to_string(subscriber.subscriberPortChangingData->fifoSize))
+                std::string fifoCapacity{"n/a"}; // std::to_string(subscriber.subscriberPortChangingData->fifoCapacity))
                 wprintw(pad,
                         " %s / %s |",
-                        printEntry(((fifoWidth / 2) - 1), "n/a"),
-                        printEntry(((fifoWidth / 2) - 1), "n/a"));
-                // printEntry(((fifoWidth / 2) - 1),
-                //      std::to_string(subscriber.subscriberPortChangingData->fifoSize)).c_str(),
-                // printEntry(((fifoWidth / 2) - 1),
-                //      std::to_string(subscriber.subscriberPortChangingData->fifoCapacity)).c_str());
+                        printEntry(((fifoWidth / 2) - 1), fifoSize).c_str(),
+                        printEntry(((fifoWidth / 2) - 1), fifoCapacity).c_str());
             }
             else
             {
@@ -640,7 +638,7 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriodM
     iox::popo::TypedSubscriber<PortThroughputIntrospectionFieldTopic> portThroughputSubscriber(
         IntrospectionPortThroughputService);
     iox::popo::TypedSubscriber<SubscriberPortChangingIntrospectionFieldTopic> subscriberPortChangingDataSubscriber(
-        IntrospectionPortThroughputService);
+        IntrospectionSubscriberPortChangingDataService);
 
     if (introspectionSelection.port == true)
     {
