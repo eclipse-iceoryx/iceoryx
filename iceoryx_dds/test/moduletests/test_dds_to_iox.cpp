@@ -90,6 +90,7 @@ TEST_F(DDS2IceoryxGatewayTest, ImmediatelyConnectsConfiguredDataReaders)
     gw.loadConfiguration(config);
 }
 
+/// @ todo #376
 #if 0
 TEST_F(DDS2IceoryxGatewayTest, PublishesMemoryChunksContainingSamplesToNetwork)
 {
