@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>iceoryx_integration_test</name>
+  <version>0.1.0</version>
+  <description>TODO: Package description</description>
+  <maintainer email="dietrich.kroenke@apex.ai">dietrich.kroenke</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <build_depend>iceoryx_posh</build_depend>
+  <build_depend>iceoryx_binding_c</build_depend>
+  <build_depend>iceoryx_introspection</build_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
