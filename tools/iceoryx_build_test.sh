@@ -180,28 +180,22 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=OFF -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dbinding_c=ON -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=ON -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dbinding_c=ON -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
 if [ "$COV_FLAG" == "OFF" ]
 then
-    echo ">>>>>> Start building iceoryx examples <<<<<<"
+    echo ">>>>>> Starting Out-of-tree build <<<<<<"
     cd $BUILD_DIR
-    mkdir -p iceoryx_examples
+    mkdir -p out_of_tree_build
     echo ">>>>>>>> icedelivery"
     cd $BUILD_DIR/iceoryx_examples
     mkdir -p icedelivery
     cd icedelivery
     cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
     cmake --build . --target install -- -j$NUM_JOBS
-    echo ">>>>>>>> iceperf"
-    cd $BUILD_DIR/iceoryx_examples
-    mkdir -p iceperf
-    cd iceperf
-    cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
-    cmake --build . --target install -- -j$NUM_JOBS
-    echo ">>>>>> Finished building iceoryx examples <<<<<<"
+    echo ">>>>>> Finished Out-of-tree build  <<<<<<"
 else
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial #make an initial scan to cover also files with no coverage
 fi
