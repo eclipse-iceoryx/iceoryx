@@ -301,7 +301,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     constexpr int32_t chunkSizeWidth{12};
     constexpr int32_t chunksWidth{12};
     constexpr int32_t intervalWidth{19};
-    constexpr int32_t isFieldWidth{6};
     constexpr int32_t subscriptionStateWidth{14};
     constexpr int32_t fifoWidth{17};
     constexpr int32_t scopeWidth{12};
@@ -317,7 +316,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", chunkSizeWidth, "Chunk Size");
     wprintw(pad, " %*s |", chunksWidth, "Chunks");
     wprintw(pad, " %*s |", intervalWidth, "Last Send Interval");
-    wprintw(pad, " %*s |", isFieldWidth, "Field");
     wprintw(pad, " %*s\n", interfaceSourceWidth, "Src. Itf.");
 
     wprintw(pad, " %*s |", serviceWidth, "");
@@ -328,7 +326,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
     wprintw(pad, " %*s |", chunkSizeWidth, "[Byte]");
     wprintw(pad, " %*s |", chunksWidth, "[/Minute]");
     wprintw(pad, " %*s |", intervalWidth, "[Milliseconds]");
-    wprintw(pad, " %*s |", isFieldWidth, "");
     wprintw(pad, " %*s\n", interfaceSourceWidth, "");
 
     wprintw(pad, "---------------------------------------------------------------------------------------------------");
@@ -366,12 +363,15 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
 
     for (auto& publisherPort : publisherPortData)
     {
-        std::string m_sampleSize{std::to_string(publisherPort.throughputData->m_sampleSize)};
-        std::string m_chunkSize{std::to_string(publisherPort.throughputData->m_chunkSize)};
+        // std::string m_sampleSize{std::to_string(publisherPort.throughputData->m_sampleSize)};
+        // std::string m_chunkSize{std::to_string(publisherPort.throughputData->m_chunkSize)};
         // std::string m_chunksPerMinute{std::to_string(publisherPort.throughputData->m_chunksPerMinute)};
+        // std::string sendInterval{
+        //     std::to_string(publisherPort.throughputData->m_lastSendIntervalInNanoseconds / 1000000)};
+        std::string m_sampleSize{"n/a"};
+        std::string m_chunkSize{"n/a"};
         std::string m_chunksPerMinute{"n/a"};
-        std::string sendInterval{
-            std::to_string(publisherPort.throughputData->m_lastSendIntervalInNanoseconds / 1000000)};
+        std::string sendInterval{"n/a"};
 
         currentLine = 0;
         do
@@ -385,8 +385,6 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             wprintw(pad, " %s |", printEntry(chunkSizeWidth, m_chunkSize).c_str());
             wprintw(pad, " %s |", printEntry(chunksWidth, m_chunksPerMinute).c_str());
             wprintw(pad, " %s |", printEntry(intervalWidth, sendInterval).c_str());
-            wprintw(
-                pad, " %s |", printEntry(isFieldWidth, (publisherPort.throughputData->m_isField ? "X" : "")).c_str());
             wprintw(
                 pad,
                 " %s\n",
@@ -462,14 +460,14 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
                         .c_str());
             if (currentLine == 0)
             {
-                wprintw(
-                    pad,
-                    " %s / %s |",
-                    printEntry(((fifoWidth / 2) - 1), std::to_string(subscriber.subscriberPortChangingData->fifoSize))
-                        .c_str(),
-                    printEntry(((fifoWidth / 2) - 1),
-                               std::to_string(subscriber.subscriberPortChangingData->fifoCapacity))
-                        .c_str());
+                wprintw(pad,
+                        " %s / %s |",
+                        printEntry(((fifoWidth / 2) - 1), "n/a"),
+                        printEntry(((fifoWidth / 2) - 1), "n/a"));
+                // printEntry(((fifoWidth / 2) - 1),
+                //      std::to_string(subscriber.subscriberPortChangingData->fifoSize)).c_str(),
+                // printEntry(((fifoWidth / 2) - 1),
+                //      std::to_string(subscriber.subscriberPortChangingData->fifoCapacity)).c_str());
             }
             else
             {
