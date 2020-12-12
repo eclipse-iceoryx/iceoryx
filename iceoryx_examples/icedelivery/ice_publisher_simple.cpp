@@ -33,7 +33,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 void sending()
 {
     // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-publisher-simple");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-simple");
 
     // create the templateized publisher
     TypedPublisher<CounterTopic> myTypedPublisher({"Radar", "FrontRight", "Counter"});

@@ -66,7 +66,7 @@ int main()
     signal(SIGINT, sigHandler);
 
     // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-subscriber-untyped-modern");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-untyped-modern");
 
     // initialized subscribers
     iox::popo::UntypedSubscriber untypedSubscriber({"Odometry", "Position", "Vehicle"});

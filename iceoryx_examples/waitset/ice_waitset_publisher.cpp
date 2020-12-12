@@ -29,7 +29,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
 
 void sending()
 {
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-publisher-waitset");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-publisher-waitset");
 
     iox::popo::TypedPublisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
     myPublisher.offer();

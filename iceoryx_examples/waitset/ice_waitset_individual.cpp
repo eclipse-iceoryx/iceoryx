@@ -33,7 +33,7 @@ int main()
 {
     signal(SIGINT, sigHandler);
 
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-individual");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-individual");
 
     iox::popo::WaitSet waitset;
 

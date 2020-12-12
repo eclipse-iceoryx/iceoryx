@@ -96,7 +96,7 @@ int main()
                             iox::roudi::RouDi::RoudiStartupParameters{iox::config::MonitoringMode::OFF, false});
 
     // create a single process runtime for inter thread communication
-    iox::runtime::PoshRuntimeSingleProcess runtime("/singleProcessDemo");
+    iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
 
     std::thread receiverThread(receiver), senderThread(sender);
 

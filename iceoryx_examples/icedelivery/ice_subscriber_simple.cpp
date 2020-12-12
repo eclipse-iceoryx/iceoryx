@@ -39,7 +39,7 @@ void myCallback(const CounterTopic& sample)
 void receiving()
 {
     // Create the runtime for registering with the RouDi daemon
-    iox::runtime::PoshRuntime::initRuntime("/iox-ex-subscriber-simple");
+    iox::runtime::PoshRuntime::initRuntime("iox-ex-subscriber-simple");
 
     // Create the typed subscriber and provide the callback, the rest will be executed in middleware context
     TypedSubscriber<CounterTopic> myTypedSubscriber({"Radar", "FrontRight", "Counter"}, myCallback);
