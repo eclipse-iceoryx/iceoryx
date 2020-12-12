@@ -81,7 +81,7 @@ class PoshRuntime_test : public Test
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
-    const iox::ProcessName_t m_runtimeName{"/publisher"};
+    const iox::ProcessName_t m_runtimeName{"publisher"};
     RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
     MqMessage m_sendBuffer;
@@ -96,7 +96,7 @@ bool PoshRuntime_test::m_errorHandlerCalled{false};
 
 TEST_F(PoshRuntime_test, ValidAppName)
 {
-    iox::ProcessName_t appName("/valid_name");
+    iox::ProcessName_t appName("valid_name");
 
     EXPECT_NO_FATAL_FAILURE({ PoshRuntime::initRuntime(appName); });
 }
@@ -121,16 +121,6 @@ TEST_F(PoshRuntime_test, NoAppName)
 }
 
 
-TEST_F(PoshRuntime_test, NoLeadingSlashAppName)
-{
-    const iox::ProcessName_t invalidAppName = "invalidname";
-
-    EXPECT_DEATH(
-        { PoshRuntime::initRuntime(invalidAppName); },
-        "Cannot initialize runtime. Application name invalidname does not have the required leading slash '/'");
-}
-
-
 // since getInstance is a singleton and test class creates instance of Poshruntime
 // when getInstance() is called without parameter, it returns existing instance
 // To be able to test this, we don't use the test fixture
@@ -143,7 +133,7 @@ TEST(PoshRuntime, AppNameEmpty)
 
 TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 {
-    const iox::ProcessName_t appname = "/app";
+    const iox::ProcessName_t appname = "app";
 
     auto& sut = PoshRuntime::initRuntime(appname);
 
@@ -526,7 +516,7 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
 TEST_F(PoshRuntime_test, SetValidRuntimeFactorySucceeds)
 {
     PoshRuntimeTestAccess::setRuntimeFactory(testFactory);
-    PoshRuntimeTestAccess::initRuntime("/instance");
+    PoshRuntimeTestAccess::initRuntime("instance");
 
     EXPECT_TRUE(callbackWasCalled);
 }
