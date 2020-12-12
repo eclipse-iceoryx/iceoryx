@@ -103,13 +103,12 @@ TEST_F(PoshRuntime_test, ValidAppName)
 
 TEST_F(PoshRuntime_test, MaxAppNameLength)
 {
-    std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH + 1, 's');
+    std::string maxValidName(iox::MAX_PROCESS_NAME_LENGTH, 's');
 
     auto& runtime = PoshRuntime::initRuntime(iox::ProcessName_t(iox::cxx::TruncateToCapacity, maxValidName));
 
     EXPECT_THAT(maxValidName, StrEq(runtime.getInstanceName().c_str()));
 }
-
 
 TEST_F(PoshRuntime_test, NoAppName)
 {

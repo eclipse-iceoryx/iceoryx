@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "test_roudi_service_discovery.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 class RoudiFindService_test : public RouDiServiceDiscoveryTest
 {
@@ -25,8 +26,8 @@ class RoudiFindService_test : public RouDiServiceDiscoveryTest
     {
     }
 
-    iox::runtime::PoshRuntime* senderRuntime{&iox::runtime::PoshRuntime::initRuntime("/sender")};
-    iox::runtime::PoshRuntime* receiverRuntime{&iox::runtime::PoshRuntime::initRuntime("/receiver")};
+    iox::runtime::PoshRuntime* senderRuntime{&iox::runtime::PoshRuntime::initRuntime("sender")};
+    iox::runtime::PoshRuntime* receiverRuntime{&iox::runtime::PoshRuntime::initRuntime("receiver")};
 };
 
 TEST_F(RoudiFindService_test, OfferSingleMethodServiceSingleInstance)
