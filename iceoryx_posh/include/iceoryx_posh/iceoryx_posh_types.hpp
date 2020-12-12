@@ -54,7 +54,7 @@ using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
 using SubscriberPortType = iox::build::CommunicationPolicy;
 
-constexpr char MQ_ROUDI_NAME[] = "/roudi";
+constexpr char MQ_ROUDI_NAME[] = "roudi";
 
 /// @brief The socket is created in the current path if no absolute path is given hence
 ///      we need an absolut path so that every application knows where our sockets can
