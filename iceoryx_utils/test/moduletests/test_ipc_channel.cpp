@@ -30,9 +30,9 @@ using IpcChannelTypes = Types<UnixDomainSocket>;
 using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket>;
 #endif
 
-constexpr char goodName[] = "/channel_test";
-constexpr char anotherGoodName[] = "/horst";
-constexpr char theUnknown[] = "/WhoeverYouAre";
+constexpr char goodName[] = "channel_test";
+constexpr char anotherGoodName[] = "horst";
+constexpr char theUnknown[] = "WhoeverYouAre";
 constexpr char badName[] = "skdhnskähug";
 
 template <typename T>
@@ -90,12 +90,6 @@ TYPED_TEST(IpcChannel_test, createNoName)
     auto serverResult = TestFixture::IpcChannelType::create("", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_TRUE(serverResult.has_error());
     ASSERT_THAT(serverResult.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
-}
-
-TYPED_TEST(IpcChannel_test, createBadName)
-{
-    auto serverResult = TestFixture::IpcChannelType::create(badName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
-    EXPECT_TRUE(serverResult.has_error());
 }
 
 TYPED_TEST(IpcChannel_test, createAgain)

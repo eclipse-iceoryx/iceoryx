@@ -104,6 +104,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     cxx::expected<IpcChannelError> unlink();
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const;
     static cxx::error<IpcChannelError> createErrorFromErrnum(const ProcessName_t& name, const int32_t errnum);
+    static cxx::expected<ProcessName_t, IpcChannelError> isNameValid(const ProcessName_t& name) noexcept;
 
   private:
     ProcessName_t m_name;

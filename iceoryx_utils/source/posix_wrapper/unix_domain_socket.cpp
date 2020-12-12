@@ -535,8 +535,7 @@ cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int32_
 
 bool UnixDomainSocket::isNameValid(const ProcessName_t& name) noexcept
 {
-    return !(name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME
-             || name.c_str()[0] != '/');
+    return !(name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME);
 }
 
 
