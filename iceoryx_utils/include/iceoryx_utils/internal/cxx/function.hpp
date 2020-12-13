@@ -15,16 +15,26 @@
 #ifndef IOX_UTILS_FUNCTION_HPP
 #define IOX_UTILS_FUNCTION_HPP
 
+
+// replace later when the error in function_ref is found
+#if 0
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#else
+#include "iceoryx_utils/internal/cxx/function_ref_alternative.hpp"
+#endif
+
 #include "iceoryx_utils/cxx/type_traits.hpp"
 #include "iceoryx_utils/internal/cxx/storage.hpp"
 
+#include <iostream>
 #include <type_traits>
 #include <utility>
 
 namespace iox
 {
 namespace cxx
+{
+namespace detail
 {
 template <typename ReturnType, typename... Args>
 using signature = ReturnType(Args...);
@@ -80,12 +90,15 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     };
 
   public:
+    using signature_t = signature<ReturnType, Args...>;
+
     storable_function() = default;
 
+    // todo: need is_invocable_r (has_signature does not work) to let compilation fail for non-invocable types
     /// @brief construct from functor (including lambda)
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
-                                                     && has_signature<Functor, ReturnType, Args...>::value,
+                                                 /*&& is_invocable_r<ReturnType, Functor, Args...>::value*/,
                                                  void>::type>
     storable_function(const Functor& functor) noexcept
     {
@@ -95,7 +108,12 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     /// @brief construct from function pointer (including static functions)
     storable_function(ReturnType (*function)(Args...)) noexcept
     {
+        std::cout << "from fptr" << std::endl;
         // no need to store anything else (m_storage is not needed here)
+
+        // major todo: storing this function pointer and calling it later will not work
+        // with the iceoryx function_ref, why?
+        // use an alternative and investiagte later
         m_function = function;
         m_storedObj = nullptr;
     }
@@ -170,7 +188,10 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     // todo: think about constness, calling it may change the stored object
     ReturnType operator()(Args... args)
     {
-        return m_function(std::forward<Args>(args)...);
+        std::cout << "invoke" << std::endl;
+        auto r = m_function(std::forward<Args>(args)...);
+        std::cout << "invoked" << std::endl;
+        return r;
     }
 
     /// @brief indicates whether a function was stored
@@ -196,7 +217,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
-                                                     && has_signature<Functor, ReturnType, Args...>::value,
+                                                 /*&& is_invocable_r<ReturnType, Functor, Args...>::value*/,
                                                  void>::type>
     void storeFunctor(const Functor& functor) noexcept
     {
@@ -276,11 +297,11 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     }
 };
 
+} // namespace detail
 // exposed to the user, to set the storage type (and reorder template arguments)
 // the storage type must precede the (required) variadic arguments in the internal one
-
 template <typename Signature, uint64_t Bytes = 128>
-using function = storable_function<static_storage<Bytes>, Signature>;
+using function = detail::storable_function<static_storage<Bytes>, Signature>;
 
 } // namespace cxx
 } // namespace iox

@@ -15,16 +15,41 @@
 #include "iceoryx_utils/internal/cxx/function.hpp"
 #include "test.hpp"
 
+#include <iostream>
+
 using namespace ::testing;
 using namespace iox::cxx;
 
-namespace {
-
-
-template<typename T>
+namespace
+{
+using std::cout;
+using std::endl;
+template <typename T>
 using fixed_size_function = iox::cxx::function<T, 128>;
-using signature = int(int);
+using signature = int32_t(int32_t);
 using test_function = fixed_size_function<signature>;
+
+class Functor
+{
+  public:
+    Functor(int32_t state)
+        : m_state(state)
+    {
+    }
+
+    int32_t operator()(int32_t n)
+    {
+        m_state += n;
+        return m_state;
+    }
+
+    int32_t m_state{0};
+};
+
+int32_t freeFunction(int32_t n)
+{
+    return n + 1;
+};
 
 
 class function_test : public Test
@@ -37,12 +62,52 @@ class function_test : public Test
     void TearDown() override
     {
     }
+
+    static int32_t staticFunction(int32_t n)
+    {
+        return n + 1;
+    }
 };
 
-TEST_F(function_test, DefaultCtorCreatesNoCallable)
+TEST_F(function_test, DefaultConstructionCreatesNoCallable)
 {
     test_function sut;
-    EXPECT_FALSE(sut);
+    EXPECT_FALSE(sut.operator bool());
 }
 
+TEST_F(function_test, ConstructionFromFunctorIsCallable)
+{
+    Functor f(73);
+    test_function sut(f);
+    EXPECT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), f(1));
 }
+
+TEST_F(function_test, ConstructionFromLambdaIsCallable)
+{
+    int32_t capture = 37;
+    auto lambda = [state = capture](int32_t n) { return state + n; };
+    test_function sut(lambda);
+
+    EXPECT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), lambda(1));
+}
+
+TEST_F(function_test, ConstructionFromFreeFunctionIsCallable)
+{
+    test_function sut(freeFunction);
+
+    EXPECT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), freeFunction(1));
+}
+
+TEST_F(function_test, ConstructionFromStaticFunctionIsCallable)
+{
+    // is essentially a free function but we test the case to be sure
+    test_function sut(staticFunction);
+
+    EXPECT_TRUE(sut.operator bool());
+    EXPECT_EQ(sut(1), staticFunction(1));
+}
+
+} // namespace
