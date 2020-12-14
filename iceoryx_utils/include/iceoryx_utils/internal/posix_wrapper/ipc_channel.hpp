@@ -20,7 +20,7 @@
 namespace iox
 {
 #if defined(__APPLE__)
-constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 98U;
+constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 98U;
 #else
 constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 100U;
 #endif
