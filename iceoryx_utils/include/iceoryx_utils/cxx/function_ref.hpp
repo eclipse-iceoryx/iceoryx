@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,9 +71,16 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @brief Creates a function_ref with a callable whose lifetime has to be longer than function_ref
     /// @param[in] callable that is not a function_ref
     template <typename CallableType,
-              typename = std::enable_if_t<not_same<CallableType, function_ref>::value>,
-              typename = std::enable_if_t<is_invocable<CallableType, ArgTypes...>::value>>
+              typename = std::enable_if_t<!is_function_pointer<CallableType>::value
+                                          && not_same<CallableType, function_ref>::value
+                                          && is_invocable<CallableType, ArgTypes...>::value>>
     function_ref(CallableType&& callable) noexcept;
+
+    /// @brief Creates a function_ref from a function pointer
+    /// @param[in] function function pointer to function we want to reference
+    /// @note this overload is needed, the general implementation is
+    /// using std::adressof and will not work properly for function pointers
+    function_ref(ReturnType (*function)(ArgTypes...));
 
     function_ref(function_ref&& rhs) noexcept;
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -61,6 +61,20 @@ struct has_signature<Callable,
                          std::is_convertible<typename std::result_of<Callable(ArgTypes...)>::type, ReturnType>::value,
                          void>::type> : std::true_type
 {
+};
+
+///
+/// @brief Check whteher T is a function pointer with arbitrary signature
+///
+template <typename T>
+struct is_function_pointer
+{
+    static constexpr bool value = false;
+};
+template <typename ReturnType, typename... ArgTypes>
+struct is_function_pointer<ReturnType (*)(ArgTypes...)>
+{
+    static constexpr bool value = true;
 };
 
 ///

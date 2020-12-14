@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref() noexcept
 }
 
 template <class ReturnType, class... ArgTypes>
-template <typename CallableType, typename, typename>
+template <typename CallableType, typename>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
     : m_pointerToCallable(reinterpret_cast<void*>(std::addressof(callable)))
     , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
@@ -32,6 +32,21 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callab
             std::forward<ArgTypes>(args)...);
     })
 {
+}
+
+template <class ReturnType, class... ArgTypes>
+inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (*function)(ArgTypes...))
+{
+    ///@note the cast is not portable but works and is legal on POSIX
+    ///@todo we should consider storing the target in a portable way (e.g. a union)
+    m_pointerToCallable = reinterpret_cast<void*>(function);
+
+    ///@note the lambda does not capture and is convertible to a function pointer
+    ///      as required by the C++ standard
+    m_functionPointer = [](void* target, ArgTypes... args) -> ReturnType {
+        auto f = reinterpret_cast<ReturnType (*)(ArgTypes...)>(target);
+        return f(std::forward<ArgTypes>(args)...);
+    };
 }
 
 template <class ReturnType, class... ArgTypes>
