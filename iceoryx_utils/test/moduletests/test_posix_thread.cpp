@@ -73,7 +73,6 @@ TEST_F(Thread_test, DISABLED_LargeStringIsTruncated)
 TEST_F(Thread_test, SmallStringIsNotTruncated)
 {
     char stringShorterThan16Chars[] = "I'm short";
-    ThreadName_t threadName;
 
     auto setResult = setThreadName(m_thread->native_handle(), stringShorterThan16Chars);
     auto getResult = getThreadName(m_thread->native_handle());
