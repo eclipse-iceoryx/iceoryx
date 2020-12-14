@@ -201,9 +201,10 @@ cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
 # Dont build examples when coverage or sanitization is enabled
-if [ "$COV_FLAG" == "ON" ] || [ "$SANITIZE_FLAG" == "ON" ]
-then
-    echo ">>>>>> Skip building iceoryx examples <<<<<<"
+if [ "$SANITIZE_FLAG" == "ON" ]; then
+    echo ">>>>>> skip Out-of-tree build <<<<<<"
+elif [ "$COV_FLAG" == "ON" ]; then
+    echo ">>>>>> initial gcov scan <<<<<<"
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial #make an initial scan to cover also files with no coverage
 else
     echo ">>>>>> Start building Out-of-tree build<<<<<<"
