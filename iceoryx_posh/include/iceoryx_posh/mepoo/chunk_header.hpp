@@ -34,30 +34,30 @@ struct alignas(32) ChunkHeader
     ///            - data width of members changes
     ///            - members are rearranged
     ///            - semantic meaning of a member changes
-    static constexpr uint8_t CHUNK_HEADER_VERSION{1};
+    static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
 
     /// @deprecated iox-#14
     ChunkInfo m_info;
 
     /// @brief The size of the whole chunk, including the header
-    uint32_t m_chunkSize{0};
+    uint32_t m_chunkSize{0U};
 
     /// @brief Used to detect incompatibilities for record&replay functionality
     uint8_t m_chunkHeaderVersion{CHUNK_HEADER_VERSION};
 
     /// @brief Currently not used and set to `0`
-    uint8_t m_reserved1{0};
-    uint8_t m_reserved2{0};
-    uint8_t m_reserved3{0};
+    uint8_t m_reserved1{0U};
+    uint8_t m_reserved2{0U};
+    uint8_t m_reserved3{0U};
 
     /// @brief The unique identifier of the publisher the chunk was sent from
     UniquePortId m_originId{popo::CreateInvalidId};
 
     /// @brief a serial number for the sent chunks
-    uint64_t m_sequenceNumber{0};
+    uint64_t m_sequenceNumber{0U};
 
     /// @brief The size of the chunk occupied by the payload
-    uint32_t m_payloadSize{0};
+    uint32_t m_payloadSize{0U};
 
     /// @brief The offset of the payload relative to the begin of the chunk
     uint32_t m_payloadOffset{sizeof(ChunkHeader)};
