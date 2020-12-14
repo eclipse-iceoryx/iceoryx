@@ -136,15 +136,15 @@ void PortManager::handlePublisherPorts() noexcept
         PublisherPortRouDiType publisherPort(publisherPortData);
 
         publisherPort.tryGetCaProMessage().and_then([&](auto caproMessage) {
-            m_portIntrospection.reportMessage(caproMessage);
-
-            if ((capro::CaproMessageType::OFFER == caproMessage.m_type)
-                || (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type))
+            if (capro::CaproMessageType::OFFER == caproMessage.m_type)
             {
                 addEntryToServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
                                           caproMessage.m_serviceDescription.getInstanceIDString());
-
-                sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
+            }
+            else if (capro::CaproMessageType::STOP_OFFER == caproMessage.m_type)
+            {
+                removeEntryFromServiceRegistry(caproMessage.m_serviceDescription.getServiceIDString(),
+                                               caproMessage.m_serviceDescription.getInstanceIDString());
             }
             else
             {
@@ -154,6 +154,8 @@ void PortManager::handlePublisherPorts() noexcept
                              iox::ErrorLevel::MODERATE);
             }
 
+            m_portIntrospection.reportMessage(caproMessage);
+            sendToAllMatchingSubscriberPorts(caproMessage, publisherPort);
             // forward to interfaces
             sendToAllMatchingInterfacePorts(caproMessage);
         });
@@ -174,8 +176,6 @@ void PortManager::handleSubscriberPorts() noexcept
         SubscriberPortType subscriberPort(subscriberPortData);
 
         subscriberPort.tryGetCaProMessage().and_then([&](auto caproMessage) {
-            m_portIntrospection.reportMessage(caproMessage);
-
             if ((capro::CaproMessageType::SUB == caproMessage.m_type)
                 || (capro::CaproMessageType::UNSUB == caproMessage.m_type))
             {
@@ -196,6 +196,8 @@ void PortManager::handleSubscriberPorts() noexcept
                              nullptr,
                              iox::ErrorLevel::MODERATE);
             }
+
+            m_portIntrospection.reportMessage(caproMessage);
         });
 
         // check if we have to destroy this subscriber port
@@ -484,9 +486,10 @@ void PortManager::destroyPublisherPort(PublisherPortRouDiType::MemberType_t* con
                                        caproMessage.m_serviceDescription.getInstanceIDString());
         sendToAllMatchingSubscriberPorts(caproMessage, publisherPortRoudi);
         sendToAllMatchingInterfacePorts(caproMessage);
-
-        m_portIntrospection.removePublisher(publisherPortRoudi.getProcessName(), caproMessage.m_serviceDescription);
     });
+
+    m_portIntrospection.removePublisher(publisherPortRoudi.getProcessName(),
+                                        publisherPortRoudi.getCaProServiceDescription());
 
     // delete publisher port from list after STOP_OFFER was processed
     m_portPool->removePublisherPort(publisherPortData);
@@ -509,10 +512,10 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
 
         m_portIntrospection.reportMessage(caproMessage);
         sendToAllMatchingPublisherPorts(caproMessage, subscriberPortRoudi);
-
-        m_portIntrospection.removeSubscriber(subscriberPortRoudi.getProcessName(), caproMessage.m_serviceDescription);
     });
 
+    m_portIntrospection.removeSubscriber(subscriberPortRoudi.getProcessName(),
+                                         subscriberPortRoudi.getCaProServiceDescription());
     // delete subscriber port from list after UNSUB was processed
     m_portPool->removeSubscriberPort(subscriberPortData);
 
