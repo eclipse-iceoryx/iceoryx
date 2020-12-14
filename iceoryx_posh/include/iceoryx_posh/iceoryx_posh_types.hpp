@@ -194,7 +194,6 @@ constexpr char SHM_NAME[] = "/iceoryx_mgmt";
 using namespace units::duration_literals;
 constexpr units::Duration PROCESS_DEFAULT_KILL_DELAY = 45_s;
 constexpr units::Duration PROCESS_TERMINATED_CHECK_INTERVAL = 250_ms;
-constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
 constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
 
 /// @brief Controls process alive monitoring. Upon timeout, a monitored process is removed
@@ -209,20 +208,7 @@ enum class MonitoringMode
     OFF
 };
 
-inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode)
-{
-    switch (mode)
-    {
-    case MonitoringMode::OFF:
-        logstream << "MonitoringMode::OFF";
-        break;
-    case MonitoringMode::ON:
-        logstream << "MonitoringMode::ON";
-        break;
-    }
-    return logstream;
-}
-
+iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const MonitoringMode& mode);
 } // namespace roudi
 
 namespace runtime
@@ -230,10 +216,14 @@ namespace runtime
 // alias for IdString
 using IdString = iox::capro::IdString;
 using InstanceContainer = iox::cxx::vector<IdString, MAX_NUMBER_OF_INSTANCES>;
+using namespace units::duration_literals;
+constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
 constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * roudi::DISCOVERY_INTERVAL;  // > DISCOVERY_INTERVAL
 constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
 } // namespace runtime
 
 } // namespace iox
+
+#include "iceoryx_posh/iceoryx_posh_types.inl"
 
 #endif // IOX_POSH_ICEORYX_POSH_TYPES_HPP
