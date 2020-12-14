@@ -434,7 +434,6 @@ cxx::expected<ProcessName_t, IpcChannelError> MessageQueue::isNameValid(const Pr
     }
     else if (name.c_str()[0] != '/')
     {
-        std::clog << "Adding leading slash in name for Message Queue. Name is maybe truncated." << std::endl;
         return cxx::success<ProcessName_t>(ProcessName_t("/").append(iox::cxx::TruncateToCapacity, name));
     }
     else
