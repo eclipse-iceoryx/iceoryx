@@ -61,23 +61,35 @@ TEST_F(Thread_test, DISABLED_LargeStringIsTruncated)
 {
 /// @todo Renable this test, once "does not compile" tests are possible
 #if 0
-    constexpr char stringLongerThan16Chars[] =
+    constexpr char stringLongerThanThreadNameCapacitiy[] =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
         "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
         "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
-    auto setResult = setThreadName(m_thread->native_handle(), stringLongerThan16Chars);
+    auto setResult = setThreadName(m_thread->native_handle(), stringLongerThanThreadNameCapacitiy);
 #endif
 }
 
-TEST_F(Thread_test, SmallStringIsNotTruncated)
+TEST_F(Thread_test, ThreadNameCapacityIsNotTruncated)
 {
-    char stringShorterThan16Chars[] = "I'm short";
+    ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
 
-    auto setResult = setThreadName(m_thread->native_handle(), stringShorterThan16Chars);
+    auto setResult = setThreadName(m_thread->native_handle(), stringEqualToThreadNameCapacitiy);
     auto getResult = getThreadName(m_thread->native_handle());
 
     EXPECT_THAT(setResult.has_error(), Eq(false));
     EXPECT_THAT(getResult.has_error(), Eq(false));
-    EXPECT_THAT(stringShorterThan16Chars, StrEq(getResult.value()));
+    EXPECT_THAT(getResult.value(), StrEq(stringEqualToThreadNameCapacitiy));
+}
+
+TEST_F(Thread_test, SmallStringIsNotTruncated)
+{
+    char stringShorterThanThreadNameCapacitiy[] = "I'm short";
+
+    auto setResult = setThreadName(m_thread->native_handle(), stringShorterThanThreadNameCapacitiy);
+    auto getResult = getThreadName(m_thread->native_handle());
+
+    EXPECT_THAT(setResult.has_error(), Eq(false));
+    EXPECT_THAT(getResult.has_error(), Eq(false));
+    EXPECT_THAT(getResult.value(), StrEq(stringShorterThanThreadNameCapacitiy));
 }

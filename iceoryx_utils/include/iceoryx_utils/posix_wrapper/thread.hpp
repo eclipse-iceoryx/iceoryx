@@ -28,7 +28,7 @@ enum class ThreadErrorType : int32_t
     EXCEEDED_RANGE_LIMIT = 0
 };
 
-using ThreadName_t = cxx::string<16>;
+using ThreadName_t = cxx::string<15>;
 
 cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const ThreadName_t& name);
 cxx::expected<ThreadName_t, ThreadErrorType> getThreadName(pthread_t thread);

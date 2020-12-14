@@ -33,7 +33,7 @@ cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const ThreadName_
 
 cxx::expected<ThreadName_t, ThreadErrorType> getThreadName(pthread_t thread)
 {
-    constexpr uint8_t maxCharCountThreadName = 17;
+    constexpr uint8_t maxCharCountThreadName = 16;
     char tempName[maxCharCountThreadName];
     if (cxx::makeSmartC(pthread_getname_np,
                         cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
@@ -48,7 +48,7 @@ cxx::expected<ThreadName_t, ThreadErrorType> getThreadName(pthread_t thread)
     }
     else
     {
-        return cxx::success<ThreadName_t>(tempName);
+        return cxx::success<ThreadName_t>(cxx::TruncateToCapacity, tempName);
     }
 }
 
