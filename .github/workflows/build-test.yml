@@ -65,13 +65,6 @@ jobs:
           cd $GITHUB_WORKSPACE/build
           ../tools/run_all_tests.sh
 
-      - name : Build sources (clang)
-        run: |
-          export CC=/usr/bin/clang
-          export CXX=/usr/bin/clang++
-          export NUM_CORES=`nproc`
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh build-test with-dds-gateway clean strict -j $NUM_CORES
-
  # This job builds & runs iceoryx tests in macos-10.15
   macos-build-script:
     runs-on: macos-10.15

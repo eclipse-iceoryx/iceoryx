@@ -23,7 +23,7 @@ find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
 include(IceoryxPackageHelper)
-include(IceoryxPlatformDetection)
+include(IceoryxPlatform)
 
 #
 ########## set variables for export ##########
