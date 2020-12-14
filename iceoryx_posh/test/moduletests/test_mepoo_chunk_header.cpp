@@ -83,3 +83,8 @@ TEST_F(ChunkHeader_test, FromPayloadFunctionReturnsCorrectChunkHeaderPointer)
 
     EXPECT_THAT(ChunkHeader::fromPayload(chunk.m_payload), Eq(&chunk.m_chunkHeader));
 }
+
+TEST_F(ChunkHeader_test, FromPayloadFunctionCalledWithNullptrReturnsNullptr)
+{
+    EXPECT_THAT(ChunkHeader::fromPayload(nullptr), Eq(nullptr));
+}
