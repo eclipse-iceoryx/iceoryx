@@ -204,8 +204,9 @@ echo ">>>>>> Finished building iceoryx package <<<<<<"
 if [ "$COV_FLAG" == "ON" ] || [ "$SANITIZE_FLAG" == "ON" ]
 then
     echo ">>>>>> Skip building iceoryx examples <<<<<<"
+    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial #make an initial scan to cover also files with no coverage
 else
-    echo ">>>>>> Start building iceoryx examples <<<<<<"
+    echo ">>>>>> Start building Out-of-tree build<<<<<<"
     cd $BUILD_DIR
     mkdir -p out_of_tree_build
     echo ">>>>>>>> icedelivery"
@@ -214,9 +215,7 @@ else
     cd icedelivery
     cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
     cmake --build . --target install -- -j$NUM_JOBS
-    echo ">>>>>> Finished Out-of-tree build  <<<<<<"
-else
-    $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial #make an initial scan to cover also files with no coverage
+    echo ">>>>>> Finished Out-of-tree build  <<<<<<" 
 fi
 
 #====================================================================================================
