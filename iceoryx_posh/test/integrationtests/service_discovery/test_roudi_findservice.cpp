@@ -31,24 +31,38 @@ class RoudiFindService_test : public RouDiServiceDiscoveryTest
 
 TEST_F(RoudiFindService_test, OfferSingleMethodServiceSingleInstance)
 {
-    senderRuntime->offerService({"service1", "instance1"});
+    auto isServiceOffered = senderRuntime->offerService({"service1", "instance1"});
     this->InterOpWait();
 
     auto instanceContainer = receiverRuntime->findService({"service1", "instance1"});
 
     ASSERT_THAT(instanceContainer.get_value().size(), Eq(1u));
     ASSERT_THAT(*instanceContainer.get_value().begin(), Eq(IdString("instance1")));
+    ASSERT_EQ(true, isServiceOffered);
 }
 
 
-///@todo #359 offereService should return bool signalling success/failure
-TEST_F(RoudiFindService_test, DISABLED_OfferServiceWithDefaultServiceDescriptionFails)
+TEST_F(RoudiFindService_test, OfferServiceWithDefaultServiceDescriptionFails)
 {
-    iox::runtime::InstanceContainer instanceContainer;
-    bool isServiceOffered;
+    auto isServiceOffered = senderRuntime->offerService(iox::capro::ServiceDescription());
+    this->InterOpWait();
 
-    ///@todo #359 offerService should not allow invalid ServiceDescriptions
-    // isServiceOffered = senderRuntime->offerService(iox::capro::ServiceDescription());
+    ASSERT_EQ(false, isServiceOffered);
+}
+
+TEST_F(RoudiFindService_test, OfferServiceWithAnyServiceIdStringDescriptionFails)
+{
+    auto isServiceOffered = senderRuntime->offerService(
+        iox::capro::ServiceDescription(iox::capro::AnyServiceString, iox::capro::AnyInstanceString));
+    this->InterOpWait();
+
+    ASSERT_EQ(false, isServiceOffered);
+}
+
+TEST_F(RoudiFindService_test, OfferServiceWithAnyServiceIdDescriptionFails)
+{
+    auto isServiceOffered =
+        senderRuntime->offerService(iox::capro::ServiceDescription(iox::capro::AnyService, iox::capro::AnyInstance));
     this->InterOpWait();
 
     ASSERT_EQ(false, isServiceOffered);

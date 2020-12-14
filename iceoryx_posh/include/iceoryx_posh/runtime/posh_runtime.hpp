@@ -73,7 +73,8 @@ class PoshRuntime
 
     /// @brief offer the provided service, sends the offer from application to RouDi daemon
     /// @param[in] serviceDescription service to offer
-    void offerService(const capro::ServiceDescription& serviceDescription) noexcept;
+    /// @return bool, if service is offered returns true else false
+    bool offerService(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief stop offering the provided service
     /// @param[in] serviceDescription of the service that shall be no more offered

@@ -507,10 +507,19 @@ PoshRuntime::findService(const capro::ServiceDescription& serviceDescription) no
 }
 
 
-void PoshRuntime::offerService(const capro::ServiceDescription& serviceDescription) noexcept
+bool PoshRuntime::offerService(const capro::ServiceDescription& serviceDescription) noexcept
 {
+    if (serviceDescription.getServiceIDString() == iox::capro::InvalidIDString
+        || serviceDescription.getServiceIDString() == IdString(iox::capro::AnyServiceString)
+        || serviceDescription.getInstanceIDString() == iox::capro::InvalidIDString
+        || serviceDescription.getInstanceIDString() == IdString(iox::capro::AnyInstanceString))
+    {
+        LogWarn() << "Invalid ServiceDescription found, could not offer this service\n";
+        return false;
+    }
     capro::CaproMessage msg(capro::CaproMessageType::OFFER, serviceDescription, capro::CaproMessageSubType::SERVICE);
     m_applicationPort.dispatchCaProMessage(msg);
+    return true;
 }
 
 void PoshRuntime::stopOfferService(const capro::ServiceDescription& serviceDescription) noexcept
