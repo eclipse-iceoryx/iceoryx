@@ -99,16 +99,12 @@ template <typename channel_t, typename gateway_t>
 inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& channel) noexcept
 {
     auto subscriber = channel.getIceoryxTerminal();
-    while (subscriber->hasNewChunks())
+    while (subscriber->hasNewSamples())
     {
-        const mepoo::ChunkHeader* header;
-        subscriber->getChunk(&header);
-        if (header->m_info.m_payloadSize > 0)
-        {
+        subscriber->take().and_then([&channel](popo::Sample<const void>& sample) {
             auto dataWriter = channel.getExternalTerminal();
-            dataWriter->write(static_cast<uint8_t*>(header->payload()), header->m_info.m_payloadSize);
-        }
-        subscriber->releaseChunk(header);
+            dataWriter->write(static_cast<const uint8_t*>(sample.get()), sample.getHeader()->m_info.m_payloadSize);
+        });
     }
 }
 
@@ -118,7 +114,7 @@ template <typename channel_t, typename gateway_t>
 cxx::expected<channel_t, gw::GatewayError>
 Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service) noexcept
 {
-    return this->addChannel(service).and_then([](channel_t channel) {
+    return this->addChannel(service).and_then([](auto channel) {
         auto subscriber = channel.getIceoryxTerminal();
         auto dataWriter = channel.getExternalTerminal();
         subscriber->subscribe(SUBSCRIBER_CACHE_SIZE);

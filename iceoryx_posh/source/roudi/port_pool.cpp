@@ -120,69 +120,6 @@ std::atomic<uint64_t>* PortPool::serviceRegistryChangeCounter() noexcept
     return &m_portPoolData->m_serviceRegistryChangeCounter;
 }
 
-/// @deprecated #25
-cxx::vector<SenderPortType::MemberType_t*, MAX_PUBLISHERS> PortPool::senderPortDataList() noexcept
-{
-    return m_portPoolData->m_senderPortMembers.content();
-}
-
-/// @deprecated #25
-cxx::vector<ReceiverPortType::MemberType_t*, MAX_SUBSCRIBERS> PortPool::receiverPortDataList() noexcept
-{
-    return m_portPoolData->m_receiverPortMembers.content();
-}
-
-/// @deprecated #25
-cxx::expected<SenderPortType::MemberType_t*, PortPoolError>
-PortPool::addSenderPort(const capro::ServiceDescription& serviceDescription,
-                        mepoo::MemoryManager* const memoryManager,
-                        const std::string& applicationName,
-                        const mepoo::MemoryInfo& memoryInfo) noexcept
-{
-    if (m_portPoolData->m_senderPortMembers.hasFreeSpace())
-    {
-        auto senderPortData =
-            m_portPoolData->m_senderPortMembers.insert(serviceDescription, memoryManager, applicationName, memoryInfo);
-        return cxx::success<SenderPortType::MemberType_t*>(senderPortData);
-    }
-    else
-    {
-        errorHandler(Error::kPORT_POOL__SENDERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::SENDER_PORT_LIST_FULL);
-    }
-}
-
-/// @deprecated #25
-cxx::expected<ReceiverPortType::MemberType_t*, PortPoolError>
-PortPool::addReceiverPort(const capro::ServiceDescription& serviceDescription,
-                          const std::string& applicationName,
-                          const mepoo::MemoryInfo& memoryInfo) noexcept
-{
-    if (m_portPoolData->m_receiverPortMembers.hasFreeSpace())
-    {
-        auto receiverPortData =
-            m_portPoolData->m_receiverPortMembers.insert(serviceDescription, applicationName, memoryInfo);
-        return cxx::success<ReceiverPortType::MemberType_t*>(receiverPortData);
-    }
-    else
-    {
-        errorHandler(Error::kPORT_POOL__RECEIVERLIST_OVERFLOW, nullptr, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::RECEIVER_PORT_LIST_FULL);
-    }
-}
-
-/// @deprecated #25
-void PortPool::removeSenderPort(SenderPortType::MemberType_t* const portData) noexcept
-{
-    m_portPoolData->m_senderPortMembers.erase(portData);
-}
-
-/// @deprecated #25
-void PortPool::removeReceiverPort(ReceiverPortType::MemberType_t* const portData) noexcept
-{
-    m_portPoolData->m_receiverPortMembers.erase(portData);
-}
-
 cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> PortPool::getPublisherPortDataList() noexcept
 {
     return m_portPoolData->m_publisherPortMembers.content();

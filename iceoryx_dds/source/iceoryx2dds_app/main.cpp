@@ -41,7 +41,8 @@ class ShutdownManager
     static iox::posix::Semaphore s_semaphore;
     ShutdownManager() = default;
 };
-iox::posix::Semaphore ShutdownManager::s_semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).value();
+iox::posix::Semaphore ShutdownManager::s_semaphore =
+    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).value();
 
 int main()
 {
@@ -55,8 +56,8 @@ int main()
     iox::dds::Iceoryx2DDSGateway<> gw;
 
     iox::config::TomlGatewayConfigParser::parse()
-        .and_then([&](iox::config::GatewayConfig config) { gw.loadConfiguration(config); })
-        .or_else([&](iox::config::TomlGatewayConfigParseError err) {
+        .and_then([&](auto config) { gw.loadConfiguration(config); })
+        .or_else([&](auto err) {
             iox::dds::LogWarn() << "[Main] Failed to parse gateway config with error: "
                                 << iox::config::TomlGatewayConfigParseErrorString[err];
             iox::dds::LogWarn() << "[Main] Using default configuration.";

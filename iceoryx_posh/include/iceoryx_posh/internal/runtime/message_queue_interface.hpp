@@ -49,10 +49,6 @@ enum class MqMessageType : int32_t
     NOTYPE = 0,
     REG, // register app
     REG_ACK,
-    CREATE_SENDER,       /// @deprecated #25
-    CREATE_SENDER_ACK,   /// @deprecated #25
-    CREATE_RECEIVER,     /// @deprecated #25
-    CREATE_RECEIVER_ACK, /// @deprecated #25
     CREATE_PUBLISHER,
     CREATE_PUBLISHER_ACK,
     CREATE_SUBSCRIBER,
@@ -82,10 +78,8 @@ enum class MqMessageErrorType : int32_t
 {
     BEGIN = -1,
     NOTYPE = 0,
-    /// A sender could not be created unique
+    /// A publisher could not be created unique
     NO_UNIQUE_CREATED,
-    /// Not enough space to create another one
-    SENDERLIST_FULL, /// @deprecated #25
     REQUEST_PUBLISHER_WRONG_MESSAGE_QUEUE_RESPONSE,
     REQUEST_SUBSCRIBER_WRONG_MESSAGE_QUEUE_RESPONSE,
     REQUEST_CONDITION_VARIABLE_WRONG_MESSAGE_QUEUE_RESPONSE,

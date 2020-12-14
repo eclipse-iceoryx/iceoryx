@@ -31,10 +31,10 @@
 /// When this is done, this (and all other) copies should be deleted, and mocks from the shaared library should be used.
 ///
 template <typename T>
-class ChunkMock
+class ChunkMockDDS
 {
   public:
-    ChunkMock(T val)
+    ChunkMockDDS(T val)
     {
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
         m_rawMemory = static_cast<uint8_t*>(memalign(Alignment, Size));
@@ -57,7 +57,7 @@ class ChunkMock
         m_value = static_cast<T*>(m_chunkHeader->payload());
     }
 
-    ~ChunkMock()
+    ~ChunkMockDDS()
     {
         if (m_chunkHeader != nullptr)
         {
@@ -80,10 +80,10 @@ class ChunkMock
         return m_value;
     }
 
-    ChunkMock(const ChunkMock&) = delete;
-    ChunkMock(ChunkMock&&) = delete;
-    ChunkMock& operator=(const ChunkMock&) = delete;
-    ChunkMock& operator=(ChunkMock&&) = delete;
+    ChunkMockDDS(const ChunkMockDDS&) = delete;
+    ChunkMockDDS(ChunkMockDDS&&) = delete;
+    ChunkMockDDS& operator=(const ChunkMockDDS&) = delete;
+    ChunkMockDDS& operator=(ChunkMockDDS&&) = delete;
 
   private:
     static constexpr size_t Size = sizeof(iox::mepoo::ChunkHeader) + sizeof(T);
