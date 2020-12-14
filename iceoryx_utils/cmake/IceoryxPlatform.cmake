@@ -49,12 +49,81 @@ if(BUILD_STRICT)
     endif (  )
 endif(BUILD_STRICT)
 
+function(iox_create_asan_compile_time_blacklist BLACKLIST_FILE_PATH)
+    # Suppressing Errors in Recompiled Code (Blacklist)
+    # (https://clang.llvm.org/docs/AddressSanitizer.html#suppressing-errors-in-recompiled-code-blacklist)
+    # More details about the syntax can be found here (https://clang.llvm.org/docs/SanitizerSpecialCaseList.html)
+    if(NOT EXISTS ${BLACKLIST_FILE_PATH})
+        file(WRITE  ${BLACKLIST_FILE_PATH} "# This file is auto-generated from iceoryx_utils/cmake/IceoryxPlatform.cmake\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "# src:*test_popo_typed_publisher.cpp*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "# fun:*TypedPublisherTest_LoansSamplesLargeEnoughForTheType_Test*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "# fun:*CanLoanSamplesAndPublishTheResultOfALambdaWithNoAdditionalArguments*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "# End of file\n")
+    endif()
+endfunction()
+
+function(iox_create_asan_runtime_blacklist BLACKLIST_FILE_PATH)
+    # Suppress errors in external libraries (https://clang.llvm.org/docs/AddressSanitizer.html#suppressing-reports-in-external-libraries)
+    # You might wonder why the below tests are listed here, instead of supresing with -fsanitize-blacklist !
+    # These errors are generated from .inl files in iceoryx_utils , hence they are compiled as part of tests not iceoryx_utils
+    # We enable sanitizer flags for core components , not in tests (mainly to avoid catching errors in test cases, at least for now)
+    # NOTE : AddressSanitizer wont generate any report for the suppressed errors. Only way to see detailed errors is to disable the entries
+    # here  & run
+    if(NOT EXISTS ${BLACKLIST_FILE_PATH})
+        file(WRITE  ${BLACKLIST_FILE_PATH} "# This file is auto-generated from iceoryx_utils/cmake/IceoryxPlatform.cmake\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "interceptor_via_fun:*TypedPublisherTest_LoansSamplesLargeEnoughForTheType_Test*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishCopiesOfProvidedValues_Test*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishTheResultOfALambdaWithNoAdditionalArguments_Test*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishTheResultOfACallableStructWithNoAdditionalArguments_Test*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishTheResultOfACallableStructWithAdditionalArguments_Test*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishTheResultOfFunctionPointerWithNoAdditionalArguments_Test*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishTheResultOfFunctionPointerWithAdditionalArguments_Test*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "#interceptor_via_fun:-[ClassName objCMethodToSuppress:]\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "#interceptor_via_lib:NameOfTheLibraryToSuppress\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "# End of file\n")
+    endif()
+endfunction()
+
+function(iox_create_lsan_runtime_blacklist BLACKLIST_FILE_PATH)
+    # Suppress known memory leaks (https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer)
+    # Below function/files contains memory leaks !
+    # LeakSanitizer wont report the problem for the entries here , however you can find the suppression report in the log
+    #
+    # e.g.
+    # Suppressions used:
+    #  count      bytes template
+    #     15     839808 test_base_port.cpp
+    #      1        103 BaseSubscriberTest_ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope_Test
+    #      1        103 BaseSubscriberTest_ReceiveReturnsAllocatedMemoryChunksWrappedInSample_Test
+    if(NOT EXISTS ${BLACKLIST_FILE_PATH})
+        file(WRITE  ${BLACKLIST_FILE_PATH} "# This file is auto-generated from iceoryx_utils/cmake/IceoryxPlatform.cmake\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "leak:libacl.so.1\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "leak:iox::posix::MessageQueue::timedReceive\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "leak:iox::posix::UnixDomainSocket::timedReceive\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "leak:iox::posix::MessageQueue::receive\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "leak:test_base_port.cpp\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "leak:BaseSubscriberTest_ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope_Test\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "leak:BaseSubscriberTest_ReceiveReturnsAllocatedMemoryChunksWrappedInSample_Test\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "leak:BaseSubscriberTest_AttachingAttachedSubscriberToNewWaitsetDetachesItFromOriginalWaitset_Test\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "leak:iox_sub_test_deinitSubscriberDetachesTriggerFromWaitSet_Test::iox_sub_test_deinitSubscriberDetachesTriggerFromWaitSet_Test\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "# End of file\n")
+    endif()
+endfunction()
+
 if(sanitize)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-        # NOTE : This works only when iceoryx is built standalone , in which case CMAKE_SOURCE_DIR point to iceoryx_meta
-        set(ICEORYX_SANITIZER_BLACKLIST -fsanitize-blacklist=${CMAKE_SOURCE_DIR}/sanitizer_blacklist/asan_compile_time.txt)
+        set(ICEORYX_SANITIZER_BLACKLIST_FILE ${CMAKE_BINARY_DIR}/sanitizer_blacklist/asan_compile_time.txt)
+        iox_create_asan_compile_time_blacklist(${ICEORYX_SANITIZER_BLACKLIST_FILE})
+
+        set(ICEORYX_SANITIZER_BLACKLIST -fsanitize-blacklist=${ICEORYX_SANITIZER_BLACKLIST_FILE})
+
+        # unset local variables , to avoid polluting global space
+        unset(ICEORYX_SANITIZER_BLACKLIST_FILE )
     endif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    
+
+    iox_create_asan_runtime_blacklist(${CMAKE_BINARY_DIR}/sanitizer_blacklist/asan_runtime.txt)
+    iox_create_lsan_runtime_blacklist(${CMAKE_BINARY_DIR}/sanitizer_blacklist/lsan_runtime.txt)
+
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls -g -O1)
 
@@ -76,4 +145,3 @@ if(sanitize)
         message( FATAL_ERROR "You need to run sanitize with gcc/clang compiler." )
     endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
 endif(sanitize)
-
