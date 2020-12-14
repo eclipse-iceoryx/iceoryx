@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
@@ -30,7 +29,7 @@ static void sigHandler(int sig [[gnu::unused]])
 
 void receive()
 {
-    iox::popo::TypedSubscriber<CounterTopic> subscriber({"CounterTopic", iox::capro::AnyInstanceString, "Counter"});
+    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
 
     subscriber.subscribe();
 

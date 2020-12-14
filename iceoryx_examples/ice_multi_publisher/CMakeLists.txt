@@ -44,17 +44,17 @@ set_target_properties(iox-subscriber PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-add_executable(iox-re-subscriber ./ice_re_subscriber.cpp)
-target_link_libraries(iox-re-subscriber
+add_executable(iox-resubscriber ./ice_resubscriber.cpp)
+target_link_libraries(iox-resubscriber
     iceoryx_posh::iceoryx_posh
 )
-set_target_properties(iox-re-subscriber PROPERTIES
+set_target_properties(iox-resubscriber PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON
 )
 
 install(
-    TARGETS iox-multi-publisher iox-subscriber iox-re-subscriber
+    TARGETS iox-multi-publisher iox-subscriber iox-resubscriber
     RUNTIME DESTINATION bin
 )

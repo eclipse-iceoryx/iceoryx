@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/popo/guard_condition.hpp"
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
@@ -28,27 +27,31 @@ static void sigHandler(int sig [[gnu::unused]])
     killswitch = true;
 }
 
-constexpr uint64_t MAX_HISTORY_SIZE{4};
-constexpr uint64_t UNSUBSCRIBED_TIME_SECONDS{3};
+// the maximum number of samples the subscriber can hold before discarding the least
+// recent sample (i.e. the capacity of the sample queue on subscriber side)
+constexpr uint64_t MAX_NUMBER_OF_SAMPLES{4U};
+
+constexpr uint64_t UNSUBSCRIBED_TIME_SECONDS{3U};
 
 void receive()
 {
-    iox::popo::TypedSubscriber<CounterTopic> subscriber({"CounterTopic", iox::capro::AnyInstanceString, "Counter"});
+    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
 
     subscriber.subscribe();
-    uint64_t maxNumSamples = MAX_HISTORY_SIZE - 2;
+    uint64_t maxNumSamples = MAX_NUMBER_OF_SAMPLES - 2U;
     while (!killswitch)
     {
         // unsubscribe and resubscribe
         subscriber.unsubscribe();
-        std::cout << "Unsubscribed ... Resubscribe in " << UNSUBSCRIBED_TIME_SECONDS << " seconds" << std::endl;
+        std::cout << "Unsubscribed ... Subscribe in " << UNSUBSCRIBED_TIME_SECONDS << " seconds" << std::endl;
 
         // we will probably miss some data while unsubscribed
         std::this_thread::sleep_for(std::chrono::seconds(UNSUBSCRIBED_TIME_SECONDS));
 
         // we (re)subscribe with differing maximum number of samples
         // and should see at most the latest last maxNumSamples
-        maxNumSamples = maxNumSamples % MAX_HISTORY_SIZE + 1; // cycles between last 1 to MAX_HISTORY_SIZE samples
+        maxNumSamples =
+            maxNumSamples % MAX_NUMBER_OF_SAMPLES + 1U; // cycles between last 1 to MAX_NUMBER_OF_SAMPLES samples
         subscriber.subscribe(maxNumSamples);
 
         std::cout << "Subscribe with max number of samples " << maxNumSamples << std::endl;
@@ -71,7 +74,7 @@ void receive()
 int main()
 {
     signal(SIGINT, sigHandler);
-    iox::runtime::PoshRuntime::initRuntime("/iox-re-subscriber");
+    iox::runtime::PoshRuntime::initRuntime("/iox-resubscriber");
 
     std::thread receiver(receive);
     receiver.join();
