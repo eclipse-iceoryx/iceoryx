@@ -49,7 +49,7 @@ class CmdLineParser
                        char* argv[],
                        const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
 
-    void printParameters() noexcept;
+    void printParameters() const noexcept;
 
     bool getRun() const noexcept;
     iox::log::LogLevel getLogLevel() const noexcept;

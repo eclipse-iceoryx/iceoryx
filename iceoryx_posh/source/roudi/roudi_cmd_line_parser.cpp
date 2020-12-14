@@ -238,7 +238,7 @@ units::Duration CmdLineParser::getProcessKillDelay() const noexcept
     return m_processKillDelay;
 }
 
-void CmdLineParser::printParameters() noexcept
+void CmdLineParser::printParameters() const noexcept
 {
     LogVerbose() << "Command line parameters are..";
     LogVerbose() << "Log level: " << m_logLevel;

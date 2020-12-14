@@ -72,7 +72,7 @@ PoshRuntime& PoshRuntime::getInstance(cxx::optional<const ProcessName_t*> name) 
 
 PoshRuntime::PoshRuntime(cxx::optional<const ProcessName_t*> name, const bool doMapSharedMemoryIntoThread) noexcept
     : m_appName(verifyInstanceName(name))
-    , m_MqInterface(roudi::MQ_ROUDI_NAME, *name.value(), roudi::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
+    , m_MqInterface(roudi::MQ_ROUDI_NAME, *name.value(), runtime::PROCESS_WAITING_FOR_ROUDI_TIMEOUT)
     , m_ShmInterface(doMapSharedMemoryIntoThread,
                      m_MqInterface.getShmTopicSize(),
                      m_MqInterface.getSegmentId(),
