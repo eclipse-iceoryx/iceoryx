@@ -52,6 +52,9 @@ inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const ver
     case CompatibilityCheckLevel::BUILD_DATE:
         logstream << "CompatibilityCheckLevel::BUILD_DATE";
         break;
+    default:
+        logstream << "CompatibilityCheckLevel::UNDEFINED";
+        break;
     }
     return logstream;
 }

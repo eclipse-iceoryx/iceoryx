@@ -18,12 +18,17 @@
 #include "iceoryx_posh/internal/roudi/roudi_lock.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 
 namespace iox
 {
 namespace roudi
 {
+enum class IceOryxRouDiComponentsError
+{
+    SHARED_MEMORY_UNAVAILABLE
+};
 struct IceOryxRouDiComponents
 {
   public:
@@ -40,11 +45,11 @@ struct IceOryxRouDiComponents
     IceOryxRouDiMemoryManager m_rouDiMemoryManager;
 
     /// @brief Handles the ports in shared memory
-    PortManager m_portManager{initRouDiMemoryManager()};
+    PortManager m_portManager{initRouDiMemoryManager().value()};
 
   private:
     /// @brief Prepare the memory and clean up old ressources
-    IceOryxRouDiMemoryManager* initRouDiMemoryManager() noexcept;
+    cxx::expected<IceOryxRouDiMemoryManager*, IceOryxRouDiComponentsError> initRouDiMemoryManager() noexcept;
 };
 } // namespace roudi
 } // namespace iox

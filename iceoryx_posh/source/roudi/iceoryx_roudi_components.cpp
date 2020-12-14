@@ -18,7 +18,8 @@ namespace iox
 {
 namespace roudi
 {
-IceOryxRouDiMemoryManager* IceOryxRouDiComponents::initRouDiMemoryManager() noexcept
+cxx::expected<IceOryxRouDiMemoryManager*, IceOryxRouDiComponentsError>
+IceOryxRouDiComponents::initRouDiMemoryManager() noexcept
 {
     // this temporary object will create a roudi mqueue and close it immediatelly
     // if there was an outdated roudi message queue, it will be cleaned up
@@ -29,7 +30,7 @@ IceOryxRouDiMemoryManager* IceOryxRouDiComponents::initRouDiMemoryManager() noex
         LogFatal() << "Could not create SharedMemory! Error: " << error;
         errorHandler(Error::kROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE, nullptr, iox::ErrorLevel::FATAL);
     });
-    return &m_rouDiMemoryManager;
+    return cxx::success<IceOryxRouDiMemoryManager*>(&m_rouDiMemoryManager);
 }
 
 } // namespace roudi

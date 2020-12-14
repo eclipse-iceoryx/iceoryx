@@ -38,6 +38,9 @@ iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemor
     case RouDiMemoryManagerError::MEMORY_DESTRUCTION_FAILED:
         logstream << "MEMORY_DESTRUCTION_FAILED";
         break;
+    default:
+        logstream << "ROUDI_MEMEMORY_ERROR_UNDEFINED";
+        break;
     }
     return logstream;
 }

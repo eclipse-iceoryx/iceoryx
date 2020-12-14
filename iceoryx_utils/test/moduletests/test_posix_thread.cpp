@@ -58,7 +58,7 @@ class Thread_test : public Test
     std::thread* m_thread;
 };
 
-TEST_F(Thread_test, DISABLED_LargeStringIsTruncated)
+TEST_F(Thread_test, DISABLED_SetWithLargeStringDoesNotCompile)
 {
 /// @todo Renable this test, once "does not compile" tests are possible
 #if 0
@@ -71,7 +71,7 @@ TEST_F(Thread_test, DISABLED_LargeStringIsTruncated)
 #endif
 }
 
-TEST_F(Thread_test, ThreadNameCapacityIsNotTruncated)
+TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
 {
     ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
 
@@ -83,7 +83,7 @@ TEST_F(Thread_test, ThreadNameCapacityIsNotTruncated)
     EXPECT_THAT(getResult.value(), StrEq(stringEqualToThreadNameCapacitiy));
 }
 
-TEST_F(Thread_test, SmallStringIsNotTruncated)
+TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 {
     char stringShorterThanThreadNameCapacitiy[] = "I'm short";
 

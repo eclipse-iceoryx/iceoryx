@@ -28,6 +28,9 @@ inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const Mon
     case MonitoringMode::ON:
         logstream << "MonitoringMode::ON";
         break;
+    default:
+        logstream << "MonitoringMode::UNDEFINED";
+        break;
     }
     return logstream;
 }
