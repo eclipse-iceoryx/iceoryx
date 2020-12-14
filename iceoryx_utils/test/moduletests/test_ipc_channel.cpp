@@ -33,7 +33,6 @@ using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket>;
 constexpr char goodName[] = "channel_test";
 constexpr char anotherGoodName[] = "horst";
 constexpr char theUnknown[] = "WhoeverYouAre";
-constexpr char badName[] = "skdhnskähug";
 
 template <typename T>
 class IpcChannel_test : public Test
