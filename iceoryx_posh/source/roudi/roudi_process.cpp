@@ -137,7 +137,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
 {
     std::lock_guard<std::mutex> lockGuard(m_mutex);
     cxx::vector<bool, MAX_PROCESS_NUMBER> processStillRunning(m_processList.size(), true);
-    uint64_t i{0};
+    uint64_t i{0U};
     bool haveAllProcessesFinished{false};
     posix::Timer finalKillTimer(processKillDelay);
 
@@ -157,8 +157,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
 
             for (auto& process : m_processList)
             {
-                if (processStillRunning[i]
-                    && !requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShutdownLog::NONE))
+                if (processStillRunning[i] && !isProcessAlive(process))
                 {
                     processStillRunning[i] = false;
                     shouldCheckProcessState = true;
@@ -185,7 +184,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     {
         // if it was killed we need to check if it really has terminated, if we can't kill it, we consider it
         // terminated
-        processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM, ShutdownLog::FULL);
+        processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM);
         ++i;
     }
 
@@ -203,7 +202,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
                 LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
                           << "' is still running after SIGTERM was sent " << processKillDelay.seconds<int>()
                           << " seconds ago. RouDi is sending SIGKILL now.";
-                processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL, ShutdownLog::FULL);
+                processStillRunning[i] = requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL);
             }
             ++i;
         }
@@ -235,9 +234,7 @@ void ProcessManager::killAllProcesses(const units::Duration processKillDelay) no
     }
 }
 
-bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process,
-                                              ShutdownPolicy shutdownPolicy,
-                                              ShutdownLog shutdownLog) noexcept
+bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process, ShutdownPolicy shutdownPolicy) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
     auto killC = iox::cxx::makeSmartC(kill,
@@ -248,36 +245,73 @@ bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process,
                                       (shutdownPolicy == ShutdownPolicy::SIG_KILL ? SIGKILL : SIGTERM));
     if (killC.hasErrors())
     {
-        if (shutdownLog == ShutdownLog::FULL)
+        switch (killC.getErrNum())
         {
-            switch (killC.getErrNum())
+        case EINVAL:
+            LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                      << "' could not be killed with "
+                      << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                      << ", because the signal sent was invalid.";
+            break;
+        case EPERM:
+            LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                      << "' could not be killed with "
+                      << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                      << ", because RouDi doesn't have the permission to send the signal to the target processes.";
+            break;
+        case ESRCH:
+            LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                      << "' could not be killed with "
+                      << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                      << ", because the target process or process group does not exist.";
+            break;
+        default:
+            LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                      << "' could not be killed with"
+                      << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                      << " for unknown reason: ’" << killC.getErrorString() << "'";
+        }
+        return false;
+    }
+    return true;
+}
+
+bool ProcessManager::isProcessAlive(const RouDiProcess& process) noexcept
+{
+    static constexpr int32_t ERROR_CODE = -1;
+    auto checkCommand = iox::cxx::makeSmartC(kill,
+                                             iox::cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
+                                             {ERROR_CODE},
+                                             {ESRCH},
+                                             static_cast<pid_t>(process.getPid()),
+                                             SIGTERM);
+
+    if (checkCommand.getErrNum() == ESRCH)
+    {
+        return false;
+    }
+    else
+    {
+        if (checkCommand.hasErrors())
+        {
+            switch (checkCommand.getErrNum())
             {
             case EINVAL:
                 LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with "
-                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                          << ", because the signal sent was invalid.";
+                          << "' could not be killed with SIGTERM, because the signal sent was invalid.";
                 break;
             case EPERM:
                 LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with "
-                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                          << ", because RouDi doesn't have the permission to send the signal to the target processes.";
-                break;
-            case ESRCH:
-                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with "
-                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                          << ", because the target process or process group does not exist.";
+                          << "' could not be killed with SIGTERM, because RouDi doesn't have the permission to send "
+                             "the signal to the target processes.";
                 break;
             default:
                 LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with"
-                          << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                          << " for unknown reason: ’" << killC.getErrorString() << "'";
+                          << "' could not be killed with SIGTERM for unknown reason: ’" << checkCommand.getErrorString()
+                          << "'";
             }
         }
-        return false;
+        return true;
     }
     return true;
 }
