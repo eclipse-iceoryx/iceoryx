@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/modern_api/base_publisher.hpp"
+#include "mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
 #include "test.hpp"
@@ -95,6 +96,7 @@ class BasePublisherTest : public Test
     }
 
   protected:
+    ChunkMock<DummyData> chunkMock;
     TestBasePublisher sut{{"", "", ""}};
 };
 
@@ -115,41 +117,35 @@ TEST_F(BasePublisherTest, LoanForwardsAllocationErrorsToCaller)
 TEST_F(BasePublisherTest, LoanReturnsAllocatedTypedSampleOnSuccess)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
     ON_CALL(sut.getMockedPort(), tryAllocateChunk)
-        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk))));
+        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     // ===== Test ===== //
     auto result = sut.loan(sizeof(DummyData));
     // ===== Verify ===== //
     // The memory location of the sample should be the same as the chunk payload.
-    EXPECT_EQ(chunk->payload(), result.value().get());
+    EXPECT_EQ(chunkMock.chunkHeader()->payload(), result.value().get());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(BasePublisherTest, LoanedSamplesContainPointerToChunkHeader)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
     ON_CALL(sut.getMockedPort(), tryAllocateChunk)
-        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk))));
+        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     // ===== Test ===== //
     auto result = sut.loan(sizeof(DummyData));
     // ===== Verify ===== //
-    EXPECT_EQ(chunk, result.value().getHeader());
+    EXPECT_EQ(chunkMock.chunkHeader(), result.value().getHeader());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(BasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOfScope)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-
     ON_CALL(sut.getMockedPort(), tryAllocateChunk)
-        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk))));
+        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
 
-    EXPECT_CALL(sut.getMockedPort(), freeChunk(chunk)).Times(AtLeast(1));
+    EXPECT_CALL(sut.getMockedPort(), freeChunk(chunkMock.chunkHeader())).Times(AtLeast(1));
 
     // ===== Test ===== //
     {
@@ -157,37 +153,30 @@ TEST_F(BasePublisherTest, LoanedSamplesAreAutomaticallyReleasedWhenOutOfScope)
     }
     // ===== Verify ===== //
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(BasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublisherPort)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-
     ON_CALL(sut.getMockedPort(), tryAllocateChunk)
-        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunk))));
+        .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     EXPECT_CALL(sut.getMockedPort(), sendChunk).Times(1);
     // ===== Test ===== //
     sut.loan(sizeof(DummyData)).and_then([](auto& sample) { sample.publish(); });
     // ===== Verify ===== //
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(BasePublisherTest, PreviousSampleReturnsSampleWhenPreviousChunkIsRetrievable)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-
     EXPECT_CALL(sut.getMockedPort(), tryGetPreviousChunk)
-        .WillOnce(Return(ByMove(iox::cxx::make_optional<iox::mepoo::ChunkHeader*>(chunk))));
+        .WillOnce(Return(ByMove(iox::cxx::make_optional<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     // ===== Test ===== //
     auto result = sut.loanPreviousSample();
     // ===== Verify ===== //
     EXPECT_EQ(true, result.has_value());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(BasePublisherTest, PreviousSampleReturnsEmptyOptionalWhenChunkNotRetrievable)
