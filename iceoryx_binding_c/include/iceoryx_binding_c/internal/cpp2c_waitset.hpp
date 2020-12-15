@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/popo/wait_set.hpp"
 
-struct cpp2c_WaitSet : public iox::popo::WaitSet<>
+class cpp2c_WaitSet : public iox::popo::WaitSet<>
 {
     using iox::popo::WaitSet<>::WaitSet;
 };
