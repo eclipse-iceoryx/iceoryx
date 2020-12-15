@@ -308,12 +308,16 @@ TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)
 
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
-    iox_sub_attach_to_waitset(
-        m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+    // malloc is used since iox_sub_deinit calls the d'tor of cpp2c_Subscriber
+    auto subscriber = new (malloc(sizeof(cpp2c_Subscriber))) cpp2c_Subscriber();
+    subscriber->m_portData = &m_portPtr;
 
-    iox_sub_deinit(m_sut);
+    iox_sub_attach_to_waitset(
+        subscriber, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+
+    iox_sub_deinit(subscriber);
 
     EXPECT_EQ(m_waitSet->size(), 0U);
-    m_subscriber.reset();
-    m_sut = nullptr;
+
+    free(subscriber);
 }
