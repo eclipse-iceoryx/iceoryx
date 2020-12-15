@@ -28,7 +28,6 @@ namespace iox
 {
 namespace posix
 {
-using MessageQueueName_t = cxx::string<MAX_IPC_CHANNEL_NAME_LENGTH + 1>;
 
 /// @brief Wrapper class for posix message queue
 ///
@@ -101,17 +100,17 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
                  const uint64_t maxMsgNumber = 10u);
 
     cxx::expected<int32_t, IpcChannelError>
-    open(const MessageQueueName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
+    open(const IpcChannelName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
 
     cxx::expected<IpcChannelError> close();
     cxx::expected<IpcChannelError> unlink();
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const;
-    static cxx::error<IpcChannelError> createErrorFromErrnum(const MessageQueueName_t& name, const int32_t errnum);
-    static cxx::expected<MessageQueueName_t, IpcChannelError>
+    static cxx::error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum);
+    static cxx::expected<IpcChannelName_t, IpcChannelError>
     sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
 
   private:
-    MessageQueueName_t m_name;
+    IpcChannelName_t m_name;
     struct mq_attr m_attributes;
     mqd_t m_mqDescriptor = INVALID_DESCRIPTOR;
     IpcChannelSide m_channelSide;

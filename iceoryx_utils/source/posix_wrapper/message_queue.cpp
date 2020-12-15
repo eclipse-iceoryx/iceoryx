@@ -40,7 +40,7 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
     : m_channelSide(channelSide)
 {
     sanitizeIpcChannelName(name)
-        .and_then([this](MessageQueueName_t& name) { m_name = std::move(name); })
+        .and_then([this](IpcChannelName_t& name) { m_name = std::move(name); })
         .or_else([this](IpcChannelError) {
             this->m_isInitialized = false;
             this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
@@ -76,22 +76,22 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
         m_attributes.mq_sendwait = 0;
 #endif
 
-        if (this->m_errorValue != IpcChannelError::INVALID_CHANNEL_NAME)
-        {
-            auto openResult = open(m_name, mode, channelSide);
+        // if (this->m_errorValue != IpcChannelError::INVALID_CHANNEL_NAME)
+        // {
+        auto openResult = open(m_name, mode, channelSide);
 
-            if (!openResult.has_error())
-            {
-                this->m_isInitialized = true;
-                this->m_errorValue = IpcChannelError::UNDEFINED;
-                this->m_mqDescriptor = openResult.value();
-            }
-            else
-            {
-                this->m_isInitialized = false;
-                this->m_errorValue = openResult.get_error();
-            }
+        if (!openResult.has_error())
+        {
+            this->m_isInitialized = true;
+            this->m_errorValue = IpcChannelError::UNDEFINED;
+            this->m_mqDescriptor = openResult.value();
         }
+        else
+        {
+            this->m_isInitialized = false;
+            this->m_errorValue = openResult.get_error();
+        }
+        //}
     }
 }
 
@@ -131,8 +131,8 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other)
 
 cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelName_t& name)
 {
-    MessageQueueName_t l_name;
-    if (sanitizeIpcChannelName(name).and_then([&](MessageQueueName_t& name) { l_name = std::move(name); }).has_error())
+    IpcChannelName_t l_name;
+    if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -220,8 +220,15 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
 }
 
 cxx::expected<int32_t, IpcChannelError>
-MessageQueue::open(const MessageQueueName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
+MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
 {
+    IpcChannelName_t l_name;
+    if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
+    {
+        return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
+
+
     int32_t openFlags = O_RDWR;
     openFlags |= (mode == IpcChannelMode::NON_BLOCKING) ? O_NONBLOCK : 0;
     if (channelSide == IpcChannelSide::SERVER)
@@ -236,7 +243,7 @@ MessageQueue::open(const MessageQueueName_t& name, const IpcChannelMode mode, co
                                   cxx::ReturnMode::PRE_DEFINED_ERROR_CODE,
                                   {ERROR_CODE},
                                   {ENOENT},
-                                  name.c_str(),
+                                  l_name.c_str(),
                                   openFlags,
                                   m_filemode,
                                   &m_attributes);
@@ -372,7 +379,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int32_t er
     return createErrorFromErrnum(m_name, errnum);
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const MessageQueueName_t& name, const int32_t errnum)
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum)
 {
     switch (errnum)
     {
@@ -420,7 +427,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const MessageQue
     }
 }
 
-cxx::expected<MessageQueueName_t, IpcChannelError>
+cxx::expected<IpcChannelName_t, IpcChannelError>
 MessageQueue::sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept
 {
     /// @todo the check for the longest valid queue name is missing
@@ -433,11 +440,11 @@ MessageQueue::sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept
     }
     else if (name.c_str()[0] != '/')
     {
-        return cxx::success<MessageQueueName_t>(MessageQueueName_t("/").append(iox::cxx::TruncateToCapacity, name));
+        return cxx::success<IpcChannelName_t>(IpcChannelName_t("/").append(iox::cxx::TruncateToCapacity, name));
     }
     else
     {
-        return cxx::success<MessageQueueName_t>(name);
+        return cxx::success<IpcChannelName_t>(name);
     }
 }
 
