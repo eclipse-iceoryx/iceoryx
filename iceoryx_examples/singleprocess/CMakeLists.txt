@@ -23,7 +23,7 @@ find_package(cpptoml REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatformDetection)
+    include(IceoryxPlatform)
 endif ( NOT ICEORYX_CXX_STANDARD )
 
 add_executable(single_process ./single_process.cpp)

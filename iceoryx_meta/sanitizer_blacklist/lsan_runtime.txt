@@ -1,0 +1,21 @@
+# Suppress known memory leaks (https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer)
+# Below function/files contains memory leaks !
+# LeakSanitizer wont report the problem for the entries here , however you can find the suppression report in the log
+#
+# e.g.
+# Suppressions used:
+#  count      bytes template
+#     15     839808 test_base_port.cpp
+#      1        103 BaseSubscriberTest_ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope_Test
+#      1        103 BaseSubscriberTest_ReceiveReturnsAllocatedMemoryChunksWrappedInSample_Test
+
+leak:libacl.so.1
+leak:iox::posix::MessageQueue::timedReceive
+leak:iox::posix::UnixDomainSocket::timedReceive
+leak:iox::posix::MessageQueue::receive
+leak:test_base_port.cpp
+leak:BaseSubscriberTest_ReceivedSamplesAreAutomaticallyDeletedWhenOutOfScope_Test
+leak:BaseSubscriberTest_ReceiveReturnsAllocatedMemoryChunksWrappedInSample_Test
+leak:BaseSubscriberTest_AttachingAttachedSubscriberToNewWaitsetDetachesItFromOriginalWaitset_Test
+leak:iox_sub_test_deinitSubscriberDetachesTriggerFromWaitSet_Test::iox_sub_test_deinitSubscriberDetachesTriggerFromWaitSet_Test
+# End of file

@@ -25,6 +25,7 @@ option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
 option(dds_gateway "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
 option(binding_c "builds the C language bindings" ON)
+option(sanitize "Build with sanitizers" OFF)
 
 # ===== Dependencies
 if(TOML_CONFIG)
@@ -42,7 +43,6 @@ if(coverage)
         message( FATAL_ERROR "You need to run gcov with gcc compiler." )
     endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif(coverage)
-
 
 if(test)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/googletest ${CMAKE_BINARY_DIR}/dependencies/googletest/prebuild)
