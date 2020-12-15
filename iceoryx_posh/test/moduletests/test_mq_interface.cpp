@@ -71,7 +71,7 @@ class CMqInterface_test : public Test
     }
 };
 
-const iox::ProcessName_t ifName = "/ifName";
+const iox::ProcessName_t ifName = "ifName";
 constexpr long maxMessages = 10;
 constexpr long messageSize = 512;
 
@@ -227,6 +227,7 @@ void CMqInterface_StringCTor()
     T base(ifName, maxMessages, messageSize);
     EXPECT_THAT(base.getInterfaceName(), Eq(ifName));
 }
+
 
 ////////////////////////////////
 // UnitTests: MqBase
