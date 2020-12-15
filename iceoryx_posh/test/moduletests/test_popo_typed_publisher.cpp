@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/modern_api/typed_publisher.hpp"
+#include "mocks/chunk_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
 #include "test.hpp"
@@ -43,6 +44,7 @@ class TypedPublisherTest : public Test
     }
 
   protected:
+    ChunkMock<DummyData> chunkMock;
     std::function<void(DummyData* const)> placeholderDeleter = [](DummyData* const) {};
     TestTypedPublisher sut{{"", "", ""}};
 };
@@ -50,8 +52,8 @@ class TypedPublisherTest : public Test
 TEST_F(TypedPublisherTest, LoansSamplesLargeEnoughForTheType)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-    auto sample = iox::popo::Sample<DummyData>({static_cast<DummyData*>(chunk->payload()), placeholderDeleter}, sut);
+    auto sample = iox::popo::Sample<DummyData>(
+        {static_cast<DummyData*>(chunkMock.chunkHeader()->payload()), placeholderDeleter}, sut);
     EXPECT_CALL(sut, loan(sizeof(DummyData)))
         .WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(sample)))));
 
@@ -60,14 +62,13 @@ TEST_F(TypedPublisherTest, LoansSamplesLargeEnoughForTheType)
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambdaWithAdditionalArguments)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-    auto sample = iox::popo::Sample<DummyData>({static_cast<DummyData*>(chunk->payload()), placeholderDeleter}, sut);
+    auto sample = iox::popo::Sample<DummyData>(
+        {static_cast<DummyData*>(chunkMock.chunkHeader()->payload()), placeholderDeleter}, sut);
     EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
@@ -80,14 +81,13 @@ TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambdaWithAdditio
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambdaWithNoAdditionalArguments)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-    auto sample = iox::popo::Sample<DummyData>({static_cast<DummyData*>(chunk->payload()), placeholderDeleter}, sut);
+    auto sample = iox::popo::Sample<DummyData>(
+        {static_cast<DummyData*>(chunkMock.chunkHeader()->payload()), placeholderDeleter}, sut);
     EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
@@ -98,7 +98,6 @@ TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfALambdaWithNoAddit
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWithNoAdditionalArguments)
@@ -112,8 +111,8 @@ TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWit
             data->val = 777;
         };
     };
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-    auto sample = iox::popo::Sample<DummyData>({static_cast<DummyData*>(chunk->payload()), placeholderDeleter}, sut);
+    auto sample = iox::popo::Sample<DummyData>(
+        {static_cast<DummyData*>(chunkMock.chunkHeader()->payload()), placeholderDeleter}, sut);
     EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
@@ -121,7 +120,6 @@ TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWit
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWithAdditionalArguments)
@@ -135,8 +133,8 @@ TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWit
             data->val = 777;
         };
     };
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-    auto sample = iox::popo::Sample<DummyData>({static_cast<DummyData*>(chunk->payload()), placeholderDeleter}, sut);
+    auto sample = iox::popo::Sample<DummyData>(
+        {static_cast<DummyData*>(chunkMock.chunkHeader()->payload()), placeholderDeleter}, sut);
     EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
@@ -144,7 +142,6 @@ TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWit
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 void freeFunctionNoAdditionalArgs(DummyData* allocation)
@@ -161,8 +158,8 @@ void freeFunctionWithAdditionalArgs(DummyData* allocation, int, float)
 TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFunctionPointerWithNoAdditionalArguments)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-    auto sample = iox::popo::Sample<DummyData>({static_cast<DummyData*>(chunk->payload()), placeholderDeleter}, sut);
+    auto sample = iox::popo::Sample<DummyData>(
+        {static_cast<DummyData*>(chunkMock.chunkHeader()->payload()), placeholderDeleter}, sut);
     EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
@@ -170,14 +167,13 @@ TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFunctionPointerWit
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFunctionPointerWithAdditionalArguments)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-    auto sample = iox::popo::Sample<DummyData>({static_cast<DummyData*>(chunk->payload()), placeholderDeleter}, sut);
+    auto sample = iox::popo::Sample<DummyData>(
+        {static_cast<DummyData*>(chunkMock.chunkHeader()->payload()), placeholderDeleter}, sut);
     EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(sample)))));
     EXPECT_CALL(sut, publishMocked).Times(1);
     // ===== Test ===== //
@@ -185,14 +181,13 @@ TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishTheResultOfFunctionPointerWit
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
 
 TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishCopiesOfProvidedValues)
 {
     // ===== Setup ===== //
-    auto chunk = new (iox::cxx::alignedAlloc(32, sizeof(iox::mepoo::ChunkHeader))) iox::mepoo::ChunkHeader();
-    auto sample = iox::popo::Sample<DummyData>({static_cast<DummyData*>(chunk->payload()), placeholderDeleter}, sut);
+    auto sample = iox::popo::Sample<DummyData>(
+        {static_cast<DummyData*>(chunkMock.chunkHeader()->payload()), placeholderDeleter}, sut);
     auto data = DummyData();
     data.val = 777;
     EXPECT_CALL(sut, loan).WillOnce(Return(ByMove(iox::cxx::success<iox::popo::Sample<DummyData>>(std::move(sample)))));
@@ -202,5 +197,4 @@ TEST_F(TypedPublisherTest, CanLoanSamplesAndPublishCopiesOfProvidedValues)
     // ===== Verify ===== //
     EXPECT_EQ(false, result.has_error());
     // ===== Cleanup ===== //
-    iox::cxx::alignedFree(chunk);
 }
