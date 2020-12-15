@@ -16,7 +16,6 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/typed_unique_id.hpp"
-#include "iceoryx_posh/mepoo/chunk_info.hpp"
 
 #include <cstdint>
 
@@ -35,9 +34,6 @@ struct alignas(32) ChunkHeader
     ///            - members are rearranged
     ///            - semantic meaning of a member changes
     static constexpr uint8_t CHUNK_HEADER_VERSION{1U};
-
-    /// @deprecated iox-#14
-    ChunkInfo m_info;
 
     /// @brief The size of the whole chunk, including the header
     uint32_t m_chunkSize{0U};
@@ -75,6 +71,10 @@ struct alignas(32) ChunkHeader
     /// @param[in] payload is the pointer to the payload of the chunk
     /// @return the pointer to the `ChunkHeader` or a `nullptr` if `payload` is a `nullptr`
     static ChunkHeader* fromPayload(const void* const payload) noexcept;
+
+    /// @brief Calculates the used size of the chunk with the ChunkHeader, custom heander and payload
+    /// @return the used size of the chunk
+    uint32_t usedSizeOfChunk();
 };
 
 } // namespace mepoo

@@ -42,7 +42,7 @@ RouDiProcess::RouDiProcess(const ProcessName_t& name,
                            const uint64_t sessionId) noexcept
     : m_pid(pid)
     , m_mq(name)
-    , m_timestamp(mepoo::BaseClock::now())
+    , m_timestamp(mepoo::BaseClock_t::now())
     , m_payloadMemoryManager(payloadMemoryManager)
     , m_isMonitored(isMonitored)
     , m_payloadSegmentId(payloadSegmentId)
@@ -70,12 +70,12 @@ uint64_t RouDiProcess::getSessionId() noexcept
     return m_sessionId.load(std::memory_order_relaxed);
 }
 
-void RouDiProcess::setTimestamp(const mepoo::TimePointNs timestamp) noexcept
+void RouDiProcess::setTimestamp(const mepoo::TimePointNs_t timestamp) noexcept
 {
     m_timestamp = timestamp;
 }
 
-mepoo::TimePointNs RouDiProcess::getTimestamp() noexcept
+mepoo::TimePointNs_t RouDiProcess::getTimestamp() noexcept
 {
     return m_timestamp;
 }
@@ -401,7 +401,7 @@ bool ProcessManager::addProcess(const ProcessName_t& name,
     m_processList.back().sendToMQ(sendBuffer);
 
     // set current timestamp again (already done in RouDiProcess's constructor
-    m_processList.back().setTimestamp(mepoo::BaseClock::now());
+    m_processList.back().setTimestamp(mepoo::BaseClock_t::now());
 
     m_processIntrospection->addProcess(pid, ProcessName_t(cxx::TruncateToCapacity, name.c_str()));
 
@@ -453,7 +453,7 @@ void ProcessManager::updateLivelinessOfProcess(const ProcessName_t& name) noexce
     if (nullptr != process)
     {
         // reset timestamp
-        process->setTimestamp(mepoo::BaseClock::now());
+        process->setTimestamp(mepoo::BaseClock_t::now());
     }
     else
     {
@@ -768,7 +768,7 @@ void ProcessManager::monitorProcesses() noexcept
 {
     std::lock_guard<std::mutex> g(m_mutex);
 
-    auto currentTimestamp = mepoo::BaseClock::now();
+    auto currentTimestamp = mepoo::BaseClock_t::now();
 
     auto processIterator = m_processList.begin();
     while (processIterator != m_processList.end())

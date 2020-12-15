@@ -196,6 +196,18 @@ using ConfigFilePathString_t = cxx::string<1024>;
 using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
 using NodeName_t = cxx::string<100>;
 
+namespace mepoo
+{
+using SequenceNumber_t = std::uint64_t;
+using BaseClock_t = std::chrono::steady_clock;
+
+// use signed integer for duration;
+// there is a bug in gcc 4.8 which leads to a wrong calcutated time
+// when sleep_until() is used with a timepoint in the past
+using DurationNs_t = std::chrono::duration<std::int64_t, std::nano>;
+using TimePointNs_t = std::chrono::time_point<BaseClock_t, DurationNs_t>;
+}
+
 namespace runtime
 {
 // alias for IdString
