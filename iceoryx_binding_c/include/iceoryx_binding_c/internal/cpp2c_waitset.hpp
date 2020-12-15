@@ -20,8 +20,7 @@
 class cpp2c_WaitSet : public iox::popo::WaitSet<>
 {
   public:
-    cpp2c_WaitSet(iox::cxx::not_null<iox::popo::ConditionVariableData* const>) noexcept;
-    ~cpp2c_WaitSet() = default;
+    using iox::popo::WaitSet<>::WaitSet;
 };
 
 #endif
