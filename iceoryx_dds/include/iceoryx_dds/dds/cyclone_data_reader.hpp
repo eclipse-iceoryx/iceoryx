@@ -32,7 +32,7 @@ class CycloneDataReader : public DataReader
 {
   public:
     CycloneDataReader() = delete;
-    CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept;
+    CycloneDataReader(IdString_t serviceId, IdString_t instanceId, IdString_t eventId) noexcept;
     virtual ~CycloneDataReader();
 
     CycloneDataReader(const CycloneDataReader&) = delete;
@@ -49,14 +49,14 @@ class CycloneDataReader : public DataReader
     iox::cxx::expected<uint64_t, DataReaderError>
     take(uint8_t* const buffer, const uint64_t& bufferSize, const iox::cxx::optional<uint64_t>& maxSamples) override;
 
-    IdString getServiceId() const noexcept override;
-    IdString getInstanceId() const noexcept override;
-    IdString getEventId() const noexcept override;
+    IdString_t getServiceId() const noexcept override;
+    IdString_t getInstanceId() const noexcept override;
+    IdString_t getEventId() const noexcept override;
 
   private:
-    IdString m_serviceId{""};
-    IdString m_instanceId{""};
-    IdString m_eventId{""};
+    IdString_t m_serviceId{""};
+    IdString_t m_instanceId{""};
+    IdString_t m_eventId{""};
 
     ::dds::sub::DataReader<Mempool::Chunk> m_impl = ::dds::core::null;
 

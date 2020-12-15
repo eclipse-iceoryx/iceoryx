@@ -31,7 +31,7 @@ class CycloneDataWriter : public iox::dds::DataWriter
 {
   public:
     CycloneDataWriter() = delete;
-    CycloneDataWriter(const IdString serviceId, const IdString instanceId, const IdString eventId);
+    CycloneDataWriter(const IdString_t serviceId, const IdString_t instanceId, const IdString_t eventId);
     virtual ~CycloneDataWriter();
     CycloneDataWriter(const CycloneDataWriter&) = delete;
     CycloneDataWriter& operator=(const CycloneDataWriter&) = delete;
@@ -41,14 +41,14 @@ class CycloneDataWriter : public iox::dds::DataWriter
 
     void connect() noexcept override;
     void write(const uint8_t* const bytes, const uint64_t size) noexcept override;
-    IdString getServiceId() const noexcept override;
-    IdString getInstanceId() const noexcept override;
-    IdString getEventId() const noexcept override;
+    IdString_t getServiceId() const noexcept override;
+    IdString_t getInstanceId() const noexcept override;
+    IdString_t getEventId() const noexcept override;
 
   private:
-    IdString m_serviceId{""};
-    IdString m_instanceId{""};
-    IdString m_eventId{""};
+    IdString_t m_serviceId{""};
+    IdString_t m_instanceId{""};
+    IdString_t m_eventId{""};
 
     ::dds::pub::Publisher m_publisher = ::dds::core::null;
     ::dds::topic::Topic<Mempool::Chunk> m_topic = ::dds::core::null;

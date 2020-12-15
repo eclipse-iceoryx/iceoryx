@@ -14,7 +14,6 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
-#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
@@ -196,11 +195,14 @@ using ConfigFilePathString_t = cxx::string<1024>;
 using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
 using NodeName_t = cxx::string<100>;
 
+namespace capro
+{
+    using IdString_t = cxx::string<100>;
+}
+
 namespace runtime
 {
-// alias for IdString
-using IdString = iox::capro::IdString;
-using InstanceContainer = iox::cxx::vector<IdString, MAX_NUMBER_OF_INSTANCES>;
+using InstanceContainer = iox::cxx::vector<capro::IdString_t, MAX_NUMBER_OF_INSTANCES>;
 } // namespace runtime
 
 namespace version

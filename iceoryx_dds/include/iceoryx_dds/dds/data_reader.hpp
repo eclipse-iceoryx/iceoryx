@@ -23,7 +23,7 @@ namespace iox
 {
 namespace dds
 {
-using IdString = iox::cxx::string<100u>;
+using IdString_t = iox::cxx::string<100u>;
 
 enum class DataReaderError : uint8_t
 {
@@ -81,19 +81,19 @@ class DataReader
     /// @brief getServiceId
     /// @return The ID of the service producing the bytes
     ///
-    virtual IdString getServiceId() const noexcept = 0;
+    virtual IdString_t getServiceId() const noexcept = 0;
 
     ///
     /// @brief getInstanceId
     /// @return The ID of the instance of the service producing the bytes
     ///
-    virtual IdString getInstanceId() const noexcept = 0;
+    virtual IdString_t getInstanceId() const noexcept = 0;
 
     ///
     /// @brief getEventId
     /// @return The ID of the event producing the data
     ///
-    virtual IdString getEventId() const noexcept = 0;
+    virtual IdString_t getEventId() const noexcept = 0;
 
   protected:
     DataReader() = default;

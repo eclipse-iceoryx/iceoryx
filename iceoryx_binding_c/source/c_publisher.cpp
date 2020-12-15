@@ -38,9 +38,9 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
     iox_pub_t me = reinterpret_cast<iox_pub_t>(self);
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
         ServiceDescription{
-            IdString(TruncateToCapacity, service),
-            IdString(TruncateToCapacity, instance),
-            IdString(TruncateToCapacity, event),
+            IdString_t(TruncateToCapacity, service),
+            IdString_t(TruncateToCapacity, instance),
+            IdString_t(TruncateToCapacity, event),
         },
         historyCapacity);
     return me;

@@ -385,7 +385,7 @@ cxx::expected<Error> PoshRuntime::findService(const capro::ServiceDescription& s
     uint32_t numberOfInstances = ((numberOfElements > capacity) ? capacity : numberOfElements);
     for (uint32_t i = 0; i < numberOfInstances; ++i)
     {
-        IdString instance(iox::cxx::TruncateToCapacity, requestResponse.getElementAtIndex(i).c_str());
+        capro::IdString_t instance(iox::cxx::TruncateToCapacity, requestResponse.getElementAtIndex(i).c_str());
         instanceContainer.push_back(instance);
     }
 

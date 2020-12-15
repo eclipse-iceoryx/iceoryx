@@ -16,7 +16,7 @@
 #include "iceoryx_dds/dds/cyclone_context.hpp"
 #include "iceoryx_dds/internal/log/logging.hpp"
 
-iox::dds::CycloneDataReader::CycloneDataReader(IdString serviceId, IdString instanceId, IdString eventId) noexcept
+iox::dds::CycloneDataReader::CycloneDataReader(IdString_t serviceId, IdString_t instanceId, IdString_t eventId) noexcept
     : m_serviceId(serviceId)
     , m_instanceId(instanceId)
     , m_eventId(eventId)
@@ -182,17 +182,17 @@ iox::cxx::expected<uint64_t, iox::dds::DataReaderError> iox::dds::CycloneDataRea
     }
 }
 
-iox::dds::IdString iox::dds::CycloneDataReader::getServiceId() const noexcept
+iox::dds::IdString_t iox::dds::CycloneDataReader::getServiceId() const noexcept
 {
     return m_serviceId;
 }
 
-iox::dds::IdString iox::dds::CycloneDataReader::getInstanceId() const noexcept
+iox::dds::IdString_t iox::dds::CycloneDataReader::getInstanceId() const noexcept
 {
     return m_instanceId;
 }
 
-iox::dds::IdString iox::dds::CycloneDataReader::getEventId() const noexcept
+iox::dds::IdString_t iox::dds::CycloneDataReader::getEventId() const noexcept
 {
     return m_eventId;
 }

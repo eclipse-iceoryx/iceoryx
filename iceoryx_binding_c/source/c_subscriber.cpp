@@ -41,9 +41,9 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
     new (self) cpp2c_Subscriber();
     iox_sub_t me = reinterpret_cast<iox_sub_t>(self);
     me->m_portData =
-        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString(TruncateToCapacity, service),
-                                                                              IdString(TruncateToCapacity, instance),
-                                                                              IdString(TruncateToCapacity, event)},
+        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
+                                                                              IdString_t(TruncateToCapacity, instance),
+                                                                              IdString_t(TruncateToCapacity, event)},
                                                            historyRequest);
 
     return me;
