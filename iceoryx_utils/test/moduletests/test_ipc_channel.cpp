@@ -33,6 +33,7 @@ using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket>;
 constexpr char goodName[] = "channel_test";
 constexpr char anotherGoodName[] = "horst";
 constexpr char theUnknown[] = "WhoeverYouAre";
+constexpr char slashName[] = "/miau";
 
 template <typename T>
 class IpcChannel_test : public Test
@@ -89,6 +90,12 @@ TYPED_TEST(IpcChannel_test, createNoName)
     auto serverResult = TestFixture::IpcChannelType::create("", IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
     EXPECT_TRUE(serverResult.has_error());
     ASSERT_THAT(serverResult.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
+}
+
+TYPED_TEST(IpcChannel_test, createWithLeadingSlash)
+{
+    auto serverResult = TestFixture::IpcChannelType::create(slashName, IpcChannelMode::BLOCKING, IpcChannelSide::SERVER);
+    EXPECT_FALSE(serverResult.has_error());  
 }
 
 TYPED_TEST(IpcChannel_test, createAgain)
