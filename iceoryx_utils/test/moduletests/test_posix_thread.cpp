@@ -58,6 +58,7 @@ class Thread_test : public Test
     std::thread* m_thread;
 };
 
+#if !defined(__APPLE__)
 TEST_F(Thread_test, DISABLED_SetWithLargeStringDoesNotCompile)
 {
 /// @todo Renable this test, once "does not compile" tests are possible
@@ -94,3 +95,4 @@ TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
     EXPECT_THAT(getResult.has_error(), Eq(false));
     EXPECT_THAT(getResult.value(), StrEq(stringShorterThanThreadNameCapacitiy));
 }
+#endif
