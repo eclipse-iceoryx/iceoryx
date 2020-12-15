@@ -46,7 +46,7 @@ struct alignas(32) ChunkHeader
 - **m_reserved1**, **m_reserved2**, **m_reserved3** are currently not used and set to `0`
 - **m_originId** is the unique identifier of the publisher the chunk was sent from
 - **m_sequenceNumber** is a serial number for the sent chunks
-- **m_payloadSize** is the size of the used payload of the chunk
+- **m_payloadSize** is the size of the chunk occupied by the payload
 - **m_payloadOffset** is the offset of the payload relative to the begin of the chunk
 
 ### Framing
@@ -325,3 +325,4 @@ sub->take()
 - do we want to store the version of the custom extension in the `ChunkHeader`, similarly to `m_chunkHeaderVersion`
 - for record&replay the custom header is totally opaque, which might lead to problems if e.g. a timestamp is stored in the custom header and needs to be updated for the replay
     - if we maintain a list of known custom header IDs and also store the custom header version, a record&replay framework could implement the required conversions
+- for record&replay it is necessary to store the alignment of the payload; decide if a uint16_t should be used of if just the alignment power should be stored in a uint8_t

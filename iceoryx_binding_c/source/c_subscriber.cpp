@@ -88,7 +88,7 @@ iox_ChunkReceiveResult iox_sub_get_chunk(iox_sub_t const self, const void** cons
 
 void iox_sub_release_chunk(iox_sub_t const self, const void* const chunk)
 {
-    SubscriberPortUser(self->m_portData).releaseChunk(convertPayloadPointerToChunkHeader(chunk));
+    SubscriberPortUser(self->m_portData).releaseChunk(ChunkHeader::fromPayload(chunk));
 }
 
 void iox_sub_release_queued_chunks(iox_sub_t const self)

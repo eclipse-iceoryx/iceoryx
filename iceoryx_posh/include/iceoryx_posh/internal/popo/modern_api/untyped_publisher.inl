@@ -28,7 +28,7 @@ inline UntypedPublisherImpl<base_publisher_t>::UntypedPublisherImpl(const capro:
 template <typename base_publisher_t>
 inline void UntypedPublisherImpl<base_publisher_t>::publish(void* allocatedMemory) noexcept
 {
-    auto header = mepoo::convertPayloadPointerToChunkHeader(allocatedMemory);
+    auto header = mepoo::ChunkHeader::fromPayload(allocatedMemory);
     base_publisher_t::m_port.sendChunk(header);
 }
 

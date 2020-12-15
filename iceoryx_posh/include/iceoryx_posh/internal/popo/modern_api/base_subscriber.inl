@@ -134,7 +134,7 @@ inline BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::Subscribe
 template <typename T, typename Subscriber, typename port_t>
 inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::operator()(T* const ptr) const
 {
-    auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
+    auto header = mepoo::ChunkHeader::fromPayload(ptr);
     m_port.get().releaseChunk(header);
 }
 
