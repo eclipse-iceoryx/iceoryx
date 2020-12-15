@@ -1,8 +1,0 @@
-# Suppressing Errors in Recompiled Code (Blacklist) 
-# (https://clang.llvm.org/docs/AddressSanitizer.html#suppressing-errors-in-recompiled-code-blacklist)
-# More details about the syntax can be found here (https://clang.llvm.org/docs/SanitizerSpecialCaseList.html)
-# src:*test_popo_typed_publisher.cpp*
-# fun:*TypedPublisherTest_LoansSamplesLargeEnoughForTheType_Test*
-# fun:*CanLoanSamplesAndPublishTheResultOfALambdaWithNoAdditionalArguments*
-# End of file
-
