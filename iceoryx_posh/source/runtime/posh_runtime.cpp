@@ -104,6 +104,11 @@ const ProcessName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Process
         LogError() << "Cannot initialize runtime. Application name must not be empty!";
         std::terminate();
     }
+    else if (name.value()->c_str()[0] == '/')
+    {
+        LogError() << "Cannot initialize runtime. Please remove leading slash from Application name " << *name.value();
+        std::terminate();
+    }
 
     return *name.value();
 }
