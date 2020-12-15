@@ -41,14 +41,14 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
                                    const uint64_t maxMsgNumber) noexcept
     : UnixDomainSocket(
         NoPathPrefix,
-        [&]() -> IpcChannelName_t {
+        [&]() -> UdsName_t {
             /// invalid names will be forwarded and handled by the other constructor
             /// separately
             if (!isNameValid(name))
             {
                 return name;
             }
-            return IpcChannelName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
+            return UdsName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
         }(),
         mode,
         channelSide,
@@ -58,7 +58,7 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
 }
 
 UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
-                                   const IpcChannelName_t& name,
+                                   const UdsName_t& name,
                                    const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
@@ -128,13 +128,13 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
     return *this;
 }
 
-cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const IpcChannelName_t& name) noexcept
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
 {
-    return unlinkIfExists(NoPathPrefix, IpcChannelName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
+    return unlinkIfExists(NoPathPrefix, UdsName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
 }
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t,
-                                                                      const IpcChannelName_t& name) noexcept
+                                                                      const UdsName_t& name) noexcept
 {
     if (!isNameValid(name))
     {
@@ -533,7 +533,7 @@ cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int32_
     }
 }
 
-bool UnixDomainSocket::isNameValid(const IpcChannelName_t& name) noexcept
+bool UnixDomainSocket::isNameValid(const UdsName_t& name) noexcept
 {
     return !(name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME);
 }
