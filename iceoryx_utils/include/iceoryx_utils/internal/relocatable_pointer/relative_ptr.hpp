@@ -234,13 +234,13 @@ class relative_ptr : public RelativePointer
 
 
     relative_ptr(const RelativePointer& other)
+        : RelativePointer(other)
     {
-        m_offset = computeOffset(other.computeRawPtr());
     }
 
     relative_ptr& operator=(const RelativePointer& other)
     {
-        m_offset = computeOffset(other.computeRawPtr());
+        RelativePointer::operator=(other);
 
         return *this;
     }
