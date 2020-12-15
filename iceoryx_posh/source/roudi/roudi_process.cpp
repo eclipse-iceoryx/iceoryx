@@ -243,34 +243,10 @@ bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process, Shutd
                                       {},
                                       static_cast<pid_t>(process.getPid()),
                                       (shutdownPolicy == ShutdownPolicy::SIG_KILL ? SIGKILL : SIGTERM));
+
     if (killC.hasErrors())
     {
-        switch (killC.getErrNum())
-        {
-        case EINVAL:
-            LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                      << "' could not be killed with "
-                      << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                      << ", because the signal sent was invalid.";
-            break;
-        case EPERM:
-            LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                      << "' could not be killed with "
-                      << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                      << ", because RouDi doesn't have the permission to send the signal to the target processes.";
-            break;
-        case ESRCH:
-            LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                      << "' could not be killed with "
-                      << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                      << ", because the target process or process group does not exist.";
-            break;
-        default:
-            LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                      << "' could not be killed with"
-                      << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                      << " for unknown reason: ’" << killC.getErrorString() << "'";
-        }
+        evaluateKillError(process, killC, shutdownPolicy);
         return false;
     }
     return true;
@@ -294,26 +270,26 @@ bool ProcessManager::isProcessAlive(const RouDiProcess& process) noexcept
     {
         if (checkCommand.hasErrors())
         {
-            switch (checkCommand.getErrNum())
-            {
-            case EINVAL:
-                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with SIGTERM, because the signal sent was invalid.";
-                break;
-            case EPERM:
-                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with SIGTERM, because RouDi doesn't have the permission to send "
-                             "the signal to the target processes.";
-                break;
-            default:
-                LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
-                          << "' could not be killed with SIGTERM for unknown reason: ’" << checkCommand.getErrorString()
-                          << "'";
-            }
+            evaluateKillError(process, checkCommand, ShutdownPolicy::SIG_TERM);
         }
         return true;
     }
     return true;
+}
+
+void ProcessManager::evaluateKillError(const RouDiProcess& process,
+                                       const iox::cxx::SmartC<int(pid_t __pid, int __sig), int32_t, pid_t, int> cmd,
+                                       ShutdownPolicy shutdownPolicy) noexcept
+{
+    if ((cmd.getErrNum() == EINVAL) || (cmd.getErrNum() == EPERM) || (cmd.getErrNum() == ESRCH))
+    {
+        LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
+                  << "' could not be killed with "
+                  << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                  << ", because the command failed with the following error: " << cmd.getErrorString()
+                  << " See 'man 2 kill' in console for more information";
+        errorHandler(Error::kPOSH__ROUDI_PROCESS_SHUTDOWN_FAILED, nullptr, ErrorLevel::SEVERE);
+    }
 }
 
 bool ProcessManager::registerProcess(const ProcessName_t& name,

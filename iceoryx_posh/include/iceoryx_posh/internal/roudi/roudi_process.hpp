@@ -22,6 +22,7 @@
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
 #include "iceoryx_utils/cxx/list.hpp"
+#include "iceoryx_utils/error_handling/error_handling.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <csignal>
@@ -216,10 +217,20 @@ class ProcessManager : public ProcessManagerInterface
     /// @param [in] shutdownPolicy Signal passed to the system to shut down the process
     /// @param [in] shutdownLog Defines the logging detail.
     /// @return Returns true if the sent signal was successful.
-    bool requestShutdownOfProcess(const RouDiProcess& process,
-                                  ShutdownPolicy shutdownPolicy) noexcept;
+    bool requestShutdownOfProcess(const RouDiProcess& process, ShutdownPolicy shutdownPolicy) noexcept;
 
+    /// @brief Evaluates with a kill SIGTERM signal to a process if he is still alive.
+    /// @param [in] process The process to check.
+    /// @return Returns true if the process is still alive, otherwise false.
     bool isProcessAlive(const RouDiProcess& process) noexcept;
+
+    /// @brief Evaluates eventual upcoming errors from kill() command in requestShutdownOfProcess and isProcessAlive.
+    /// Calls the errorhandler.
+    /// @param [in] cmd SmartC return value to evaluate
+    /// @param [in] shutdownPolicy Enum with SIGTERM or SIGKILL
+    void evaluateKillError(const RouDiProcess& process,
+                           const iox::cxx::SmartC<int(pid_t __pid, int __sig), int32_t, pid_t, int> cmd,
+                           ShutdownPolicy shutdownPolicy) noexcept;
 
     RouDiMemoryInterface& m_roudiMemoryInterface;
     PortManager& m_portManager;
