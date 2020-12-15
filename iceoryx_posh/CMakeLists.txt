@@ -105,7 +105,6 @@ add_library(iceoryx_posh
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp
     source/popo/trigger_info.cpp
-    source/popo/wait_set.cpp
     source/version/version_info.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp

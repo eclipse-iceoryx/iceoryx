@@ -19,6 +19,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -40,11 +41,14 @@ enum class WaitSetError : uint8_t
 /// The WaitSet stores Triggers and allows the user to wait till one or more of those Triggers are triggered. It works
 /// over process borders. With the creation of a WaitSet it requests a condition variable from RouDi and destroys it
 /// with the destructor. Hence the lifetime of the condition variable is bound to the lifetime of the WaitSet.
+/// @param[in] Capacity the trigger capacity of the wait set
+template <uint64_t Capacity = MAX_NUMBER_OF_TRIGGERS_PER_WAITSET>
 class WaitSet
 {
   public:
-    using TriggerVector = cxx::vector<Trigger, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET>;
-    using TriggerInfoVector = cxx::vector<TriggerInfo, MAX_NUMBER_OF_TRIGGERS_PER_WAITSET>;
+    static constexpr uint64_t CAPACITY = Capacity;
+    using TriggerVector = cxx::vector<Trigger, CAPACITY>;
+    using TriggerInfoVector = cxx::vector<TriggerInfo, CAPACITY>;
 
     WaitSet() noexcept;
     ~WaitSet() noexcept;

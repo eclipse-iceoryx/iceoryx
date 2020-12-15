@@ -139,8 +139,9 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
 }
 
 template <typename T, typename Subscriber, typename port_t>
+template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet& waitset,
+BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet<WaitSetCapacity>& waitset,
                                                 [[gnu::unused]] const SubscriberEvent subscriberEvent,
                                                 const uint64_t triggerId,
                                                 const Trigger::Callback<Subscriber> callback) noexcept
@@ -157,8 +158,11 @@ BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet& waitset,
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline cxx::expected<WaitSetError> BaseSubscriber<T, Subscriber, port_t>::attachTo(
-    WaitSet& waitset, const SubscriberEvent subscriberEvent, const Trigger::Callback<Subscriber> callback) noexcept
+template <uint64_t WaitSetCapacity>
+inline cxx::expected<WaitSetError>
+BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet<WaitSetCapacity>& waitset,
+                                                const SubscriberEvent subscriberEvent,
+                                                const Trigger::Callback<Subscriber> callback) noexcept
 {
     return attachTo(waitset, subscriberEvent, Trigger::INVALID_TRIGGER_ID, callback);
 }

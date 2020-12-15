@@ -118,7 +118,8 @@ class BaseSubscriber
     ///            later by the user
     /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
     ///            the error
-    cxx::expected<WaitSetError> attachTo(WaitSet& waitset,
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
                                          const SubscriberEvent subscriberEvent,
                                          const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
                                          const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
@@ -130,7 +131,8 @@ class BaseSubscriber
     ///            later by the user
     /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
     ///            the error
-    cxx::expected<WaitSetError> attachTo(WaitSet& waitset,
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
                                          const SubscriberEvent subscriberEvent,
                                          const Trigger::Callback<Subscriber> callback) noexcept;
 
