@@ -51,13 +51,13 @@ static uint64_t trigger_vector_to_c_array(const WaitSet<>::TriggerInfoVector& tr
 
 iox_ws_t iox_ws_init(iox_ws_storage_t* self)
 {
-    new (self) WaitSet<>();
+    new (self) cpp2c_WaitSet();
     return reinterpret_cast<iox_ws_t>(self);
 }
 
 void iox_ws_deinit(iox_ws_t const self)
 {
-    self->~WaitSet<>();
+    self->~cpp2c_WaitSet();
 }
 
 uint64_t iox_ws_timed_wait(iox_ws_t const self,
