@@ -16,7 +16,7 @@
 
 #include <pthread.h>
 
-inline int pthread_setname_np(pthread_t, const char*)
+inline int iox_pthread_setname_np(pthread_t, const char*)
 {
     // Not implemeted due to missing functionality in MacOS
     return 0;

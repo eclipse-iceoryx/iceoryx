@@ -20,7 +20,8 @@ namespace posix
 {
 cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const ThreadName_t& name)
 {
-    if (cxx::makeSmartC(pthread_setname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, name.c_str())
+    if (cxx::makeSmartC(
+            iox_pthread_setname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, name.c_str())
             .hasErrors())
     {
         return cxx::error<ThreadErrorType>(ThreadErrorType::EXCEEDED_RANGE_LIMIT);
