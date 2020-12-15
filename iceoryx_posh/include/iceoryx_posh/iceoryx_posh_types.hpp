@@ -194,6 +194,7 @@ struct DefaultChunkQueueConfig
 using ConfigFilePathString_t = cxx::string<1024>;
 using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
 using NodeName_t = cxx::string<100>;
+using ShmName_t = cxx::string<100>;
 
 namespace capro
 {
