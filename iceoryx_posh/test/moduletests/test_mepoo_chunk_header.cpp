@@ -51,7 +51,7 @@ TEST_F(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
     EXPECT_THAT(sut.m_reserved2, Eq(0U));
     EXPECT_THAT(sut.m_reserved3, Eq(0U));
 
-    EXPECT_THAT(sut.m_originId, Eq(iox::UniquePortId(iox::popo::CreateInvalidId)));
+    EXPECT_THAT(sut.m_originId, Eq(iox::UniquePortId(iox::popo::InvalidId)));
 
     EXPECT_THAT(sut.m_sequenceNumber, Eq(0U));
 

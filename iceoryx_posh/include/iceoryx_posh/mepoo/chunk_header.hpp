@@ -51,7 +51,7 @@ struct alignas(32) ChunkHeader
     uint8_t m_reserved3{0U};
 
     /// @brief The unique identifier of the publisher the chunk was sent from
-    UniquePortId m_originId{popo::CreateInvalidId};
+    UniquePortId m_originId{popo::InvalidId};
 
     /// @brief a serial number for the sent chunks
     uint64_t m_sequenceNumber{0U};
