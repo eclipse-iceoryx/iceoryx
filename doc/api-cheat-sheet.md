@@ -1,24 +1,95 @@
 # Iceoryx API Cheat Sheet
 
+This document covers the core functionality of the iceoryx middleware and is intended to get you started quickly to
+set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, 
+the basic concepts will still apply.  
 ## General
+
+To set up a collection of applications using iceoryx (an iceoryx system), the applications need to initialize a runtime and create **publishers** and **subscribers**. The publishers send data of a specific **topic** which can be received by subscribers of the same topic.
+To enable publishers to offer their topic and subscribers to subscribe to these offered topics, the middleware daemon, called **Roudi**, must be running. 
+
+For further information see the [examples](). We now briefly define the main entities of an iceoryx system before showing how they are created and used by the iceoryx API.
 
 ### Roudi
 
+The middleware daemon manages the shared memory and is responsible for the service discovery, i.e. enabling subscribers to find topics offered by publishers. It also keeps track of all applications which have initialized a runtime and are hence able to use publishers or subscribers.
+
+It can be started like this
+
+    # If installed and available in PATH environment variable
+    iox-roudi
+    # If build from scratch with script in tools
+    $ICEORYX_ROOT/build/posh/iox-roudi
+
 ### Runtime
 
+Each application which wants to use iceoryx has to instantiate its runtime, which essentially enables communication with Roudi.
+
+To do so, the following lines of code are required
+ 
+    #include "iceoryx_posh/runtime/posh_runtime.hpp"
+
+    iox::runtime::PoshRuntime::initRuntime("/some_unique_application_name");
+
+The application name must be unique among all other applications and have a leading `\`.
+
+
+### Topics
+
+A topic in iceoryx specifies some kind of data and is uniquely indetified by three string identifiers.
+
+1. ``Group`` name
+2. ``Instance`` name
+3. ``Topic`` name
+
+A triple consisting of such strings is called a ``Service Description``.
+
+Two topics are considered matching if all these three strings are elementwise-equal, i.e. group, instance and topic names are the same for both of them.
+
+This means the group and instance identifier can be ignored to create different topics. They will be needed for advanced filtering functionality in the future.
+
+The data type of the topic can be an arbitrary C++ class or struct (which supports copy behavior).
+
 ### Publisher
-link typed_subscriber.hpp andbase_subscriber.hpp for reference
+A publisher is tied to a topic and needs a Service Description to be constructed. If it is typed one needs to additionally specify the data type
+as a template parameter. Otherwise publisher is only aware of raw memory and the user has to take care that it is interpreted correctly.
+
+Once it has offered its topic, it is able to publish (send) data of the specific type. Note that it is possible to have multiple publishers for the same topic.
 
 ### Subscriber
-link typed_publisher.hpp and base_publisher.hpp for reference
+Symmetrically a subscriber also corresponds to a topic and thus needs a Service Description to be constructed. As for publishers we distinguish between typed and untyped subscribers.
+
+Once a subscriber is subscribed to some topic, it is able to receive data of the type tied to this topic. In the untyped case this is raw memory and the user must take care that it is interpreted in a way that is compatible to the data that was actually send.
+
+When multiple publishers have offered the same topic the subscriber will receive the data of all of them (but in indeterminate order between different publishers).
 
 ### Waitset
-link to document
+The easiest way to receie data is to periodically poll whether data is available. This is sufficient for simple use cases but inefficient in general, as it often leads to unnecessary latency and wake-ups without data.
+
+The ``Waitset`` can be used to relinquish control and wait for user defined conditions to become true. 
+Usually these conditions correspond to the availability of data at specific subscribers. This way we can (almost) immediately wake up when data is available and will avoid unnecessary wake-ups if no data is available.
+
+To do so it manages a set of triggers which can be activated and indicate that a corresponding condition became true which in turn will wake up a potentially waiting thread. In this way it extends a condition variable to a collection of conditions. Upon waking up it can be determined which conditions became true and caused
+the wake up. In the case that the wake up event was the availability of new data, this data can now be collected at the subscriber.
+
+For more information on how to use the Waitset see [Waitset](todo_link).
+
 
 ## API
 
-### Expected and Optional
-link to error handling for expected
+We now show how the API can be used to establish a publish-subscribe communication in an iceoryx system. Many parts of the API follow a functional programming approach and allow the user to specify functions which handle the possible cases, e.g. what should happen when data is received.
+
+This is ver flexible but requires using the monadic types ``cxx::expected`` and ``cxx::optional``, which we introduce in the following sections.
+
+We distinguish between the ``Typed API`` and the ``Untyped API``. In the Typed API the underlying data type is made apparent by typed pointers or references to some data type T (often a template parameter). this allows working with the data in an C++ idiomatic and type-safe way and should be preferred whenever possible.
+
+The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a type compatible to what was actually sent. This is required for interaction with other lower level APIs and should be used sparingly. 
+
+### Optional
+
+
+### Expected
+For more information see [error-handling.md](todo).
 
 ### Typed API
 Prio1
