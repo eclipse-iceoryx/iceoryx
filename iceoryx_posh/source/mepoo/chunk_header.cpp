@@ -35,7 +35,7 @@ ChunkHeader* ChunkHeader::fromPayload(const void* const payload) noexcept
     {
         return nullptr;
     }
-    auto payloadAddress = reinterpret_cast<uint64_t>(payload);
+    uint64_t payloadAddress = reinterpret_cast<uint64_t>(payload);
     // the payload offset is always stored in front of the payload, no matter if a custom header is used or not
     // or if the payload has a custom allignment
     using PayloadOffsetType = decltype(ChunkHeader::m_payloadOffset);

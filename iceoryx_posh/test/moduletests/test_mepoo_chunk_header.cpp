@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 
 #include "test.hpp"
 
@@ -58,6 +59,18 @@ TEST_F(ChunkHeader_test, ChunkHeaderHasInitializedMembers)
     EXPECT_THAT(sut.m_payloadSize, Eq(0U));
     // a default created ChunkHeader has always an adjacent payload
     EXPECT_THAT(sut.m_payloadOffset, Eq(sizeof(ChunkHeader)));
+}
+
+TEST_F(ChunkHeader_test, ChunkHeaderPayloadSizeIsLargeEnoughForMempoolChunk)
+{
+    using ChunkSize_t = std::result_of<decltype(&MemPool::getChunkSize)(MemPool)>::type;
+
+    auto maxChunkSize = std::numeric_limits<ChunkSize_t>::max();
+    auto maxPayloadSize = std::numeric_limits<decltype(ChunkHeader::m_payloadSize)>::max();
+
+    // the payload will never be larger than the chunk
+    // if the payload can hold at least the maximum chunk size there will never be an overflow
+    EXPECT_THAT(maxPayloadSize, Ge(maxChunkSize));
 }
 
 TEST_F(ChunkHeader_test, CustomHeaderMethodReturnsCorrectCustomHeaderPointer)
