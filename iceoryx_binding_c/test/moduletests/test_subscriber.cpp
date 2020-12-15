@@ -50,12 +50,6 @@ class iox_sub_test : public Test
         m_subscriber->m_portData = &m_portPtr;
     }
 
-    ~iox_sub_test()
-    {
-        delete m_waitSet;
-        delete m_subscriber;
-    }
-
     void SetUp()
     {
         m_triggerCallbackLatestArgument = nullptr;
@@ -95,11 +89,11 @@ class iox_sub_test : public Test
     iox::popo::SubscriberPortData m_portPtr{
         TEST_SERVICE_DESCRIPTION, "myApp", iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
     ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t> m_chunkPusher{&m_portPtr.m_chunkReceiverData};
-    cpp2c_Subscriber* m_subscriber = new cpp2c_Subscriber;
-    iox_sub_t m_sut = m_subscriber;
+    std::unique_ptr<cpp2c_Subscriber> m_subscriber{new cpp2c_Subscriber};
+    iox_sub_t m_sut = m_subscriber.get();
 
     ConditionVariableData m_condVar;
-    WaitSetMock* m_waitSet = new WaitSetMock{&m_condVar};
+    std::unique_ptr<WaitSetMock> m_waitSet{new WaitSetMock(&m_condVar)};
 };
 
 iox_sub_t iox_sub_test::m_triggerCallbackLatestArgument = nullptr;
@@ -263,60 +257,61 @@ TEST_F(iox_sub_test, sendingTooMuchLeadsToLostChunks)
 
 TEST_F(iox_sub_test, attachingToWaitSetWorks)
 {
-    EXPECT_EQ(iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL),
+    EXPECT_EQ(iox_sub_attach_to_waitset(m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL),
               WaitSetResult_SUCCESS);
-    EXPECT_EQ(m_waitSet->size(), 1);
+    EXPECT_EQ(m_waitSet->size(), 1U);
 }
 
 TEST_F(iox_sub_test, attachingToAnotherWaitsetCleansupAtOriginalWaitset)
 {
     WaitSetMock m_waitSet2{&m_condVar};
-    iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+    iox_sub_attach_to_waitset(m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
 
     EXPECT_EQ(iox_sub_attach_to_waitset(m_sut, &m_waitSet2, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL),
               WaitSetResult_SUCCESS);
-    EXPECT_EQ(m_waitSet->size(), 0);
-    EXPECT_EQ(m_waitSet2.size(), 1);
+    EXPECT_EQ(m_waitSet->size(), 0U);
+    EXPECT_EQ(m_waitSet2.size(), 1U);
 }
 
 TEST_F(iox_sub_test, detachingFromWaitSetWorks)
 {
-    iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+    iox_sub_attach_to_waitset(m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
     iox_sub_detach_event(m_sut, SubscriberEvent_HAS_NEW_SAMPLES);
-    EXPECT_EQ(m_waitSet->size(), 0);
+    EXPECT_EQ(m_waitSet->size(), 0U);
 }
 
 TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectTriggerId)
 {
-    iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
+    iox_sub_attach_to_waitset(m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 587, NULL);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
 
     auto triggerVector = m_waitSet->wait();
 
-    ASSERT_EQ(triggerVector.size(), 1);
-    EXPECT_EQ(triggerVector[0].getTriggerId(), 587);
+    ASSERT_EQ(triggerVector.size(), 1U);
+    EXPECT_EQ(triggerVector[0].getTriggerId(), 587U);
 }
 
 TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)
 {
-    iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+    iox_sub_attach_to_waitset(
+        m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
     this->Subscribe(&m_portPtr);
     m_chunkPusher.tryPush(m_memoryManager.getChunk(100));
 
     auto triggerVector = m_waitSet->wait();
 
-    ASSERT_EQ(triggerVector.size(), 1);
+    ASSERT_EQ(triggerVector.size(), 1U);
     triggerVector[0]();
     EXPECT_EQ(m_triggerCallbackLatestArgument, m_sut);
 }
 
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
-    iox_sub_attach_to_waitset(m_sut, m_waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
+    iox_sub_attach_to_waitset(
+        m_sut, m_waitSet.get(), SubscriberEvent_HAS_NEW_SAMPLES, 0, iox_sub_test::triggerCallback);
 
     iox_sub_deinit(m_sut);
 
-    EXPECT_EQ(m_waitSet->size(), 0);
-    m_subscriber = nullptr;
+    EXPECT_EQ(m_waitSet->size(), 0U);
 }

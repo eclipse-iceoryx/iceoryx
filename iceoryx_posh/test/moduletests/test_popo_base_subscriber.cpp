@@ -205,12 +205,11 @@ TEST_F(BaseSubscriberTest, UnsetConditionVariableCallForwardedToUnderlyingSubscr
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar;
-    WaitSetMock* waitSet = new WaitSetMock(&condVar);
+    std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
-    delete waitSet;
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -219,8 +218,8 @@ TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFrom
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar;
-    WaitSetMock* waitSet = new WaitSetMock(&condVar);
-    WaitSetMock* waitSet2 = new WaitSetMock(&condVar);
+    std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
+    std::unique_ptr<WaitSetMock> waitSet2{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
@@ -230,14 +229,13 @@ TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFrom
     EXPECT_EQ(waitSet->size(), 0U);
     EXPECT_EQ(waitSet2->size(), 1U);
     // ===== Cleanup ===== //
-    delete waitSet;
 }
 
 TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar;
-    WaitSetMock* waitSet = new WaitSetMock(&condVar);
+    std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
@@ -246,7 +244,6 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0U);
     // ===== Cleanup ===== //
-    delete waitSet;
 }
 
 TEST_F(BaseSubscriberTest, HasTriggeredCallForwardedToUnderlyingSubscriberPort)
