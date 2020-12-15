@@ -157,6 +157,13 @@ BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet& waitset,
 }
 
 template <typename T, typename Subscriber, typename port_t>
+inline cxx::expected<WaitSetError> BaseSubscriber<T, Subscriber, port_t>::attachTo(
+    WaitSet& waitset, const SubscriberEvent subscriberEvent, const Trigger::Callback<Subscriber> callback) noexcept
+{
+    return attachTo(waitset, subscriberEvent, Trigger::INVALID_TRIGGER_ID, callback);
+}
+
+template <typename T, typename Subscriber, typename port_t>
 inline void BaseSubscriber<T, Subscriber, port_t>::detachEvent(const SubscriberEvent subscriberEvent) noexcept
 {
     static_cast<void>(subscriberEvent);

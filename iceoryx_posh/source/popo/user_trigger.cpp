@@ -29,6 +29,12 @@ cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet& waitset,
         .and_then([this](TriggerHandle& trigger) { m_trigger = std::move(trigger); });
 }
 
+cxx::expected<WaitSetError> UserTrigger::attachTo(WaitSet& waitset,
+                                                  const Trigger::Callback<UserTrigger> callback) noexcept
+{
+    return attachTo(waitset, Trigger::INVALID_TRIGGER_ID, callback);
+}
+
 void UserTrigger::detach() noexcept
 {
     m_trigger.reset();

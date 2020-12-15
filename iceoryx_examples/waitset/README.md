@@ -152,7 +152,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     auto& subscriber = subscriberVector.back();
 
     subscriber.subscribe();
-    subscriber.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1, subscriberCallback);
+    subscriber.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, subscriberCallback);
 }
 ```
 
@@ -358,7 +358,7 @@ After that we require a `cyclicTrigger` to trigger our
 triggerId `0` and the callback `SomeClass::cyclicRun`
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
-cyclicTrigger.attachTo(waitset, 0, SomeClass::cyclicRun);
+cyclicTrigger.attachTo(waitset, SomeClass::cyclicRun);
 ```
 
 The next thing we need is something which will trigger our `cyclicTrigger`
