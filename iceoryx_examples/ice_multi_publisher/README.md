@@ -90,7 +90,7 @@ The resubscriber application periodically unsubscribes and then subscribes again
 
 ## Code walkthrough
 
-We focus on the details in which this example extends the icedelivery example and uses features not showcased there.
+We focus on the aspects in which this example extends the icedelivery example and uses features not showcased there. More details on how to setup the publish subscribe communication can be found in [icedelivery](../icedelivery/README.md). 
 
 ### The topic
 
@@ -104,222 +104,159 @@ The id is used to distinguish different publishers.
         uint32_t id;
     };
 
+We also provide ``operator<<`` to be able to display the data.
+
+    std::ostream& operator<<(std::ostream& s, const CounterTopic& topic)
+    {
+        s << "id " << topic.id << " counter " << topic.counter;
+        return s;
+    }
+
 ### Multi-Publisher application
 
+We create a publisher with the following calls. The three string arguments allow a fine-grained control
+to specify matching topics. The topic has a data type ``CounterTopic`` and a topic name 
+``Counter``. In addition it belongs to some ``Group`` and is a specific ``instance``. For subscription purposes all three identifiers must match on subscriber side. It is possible to only specify the topic name and leave set the others to some default string for all topics.
+
+If some identifier is only known at runtime (e.g. it is read from some config file), you have to create an ``IdString`` first before passing it to the ``TypedPublisher`` constructor. This is done here for ``instance``, which is created from some ``instanceName``. 
 
 
+    iox::capro::IdString instance{iox::cxx::TruncateToCapacity, instanceName};
+    iox::popo::TypedPublisher<CounterTopic> publisher({"Group", instance, "Counter"});
 
 
+After construction, we immediately offer the topic and start sending data.
 
+    publisher.offer();
 
-
-
-
-
-
-
-First off let's include the publisher and the runtime:
-
-    #include "iceoryx_posh/popo/publisher.hpp"
-    #include "iceoryx_posh/runtime/posh_runtime.hpp"
-
-You might be wondering what the publisher application is sending? It's this struct.
-
-    struct CounterTopic
+    for (uint32_t counter = 0U; !killswitch; ++counter)
     {
-        uint32_t counter;
-    };
-
-It is included by:
-
-    #include "topic_data.hpp"
-
-For the communication with RouDi a runtime object is created. The parameter of the method `initRuntime()` contains a
-unique string identifier for this publisher.
-
-    iox::runtime::PoshRuntime::initRuntime("/publisher-bare-metal");
-
-Now that RouDi knows our publisher application is exisiting, let's create a publisher instance and offer our charming struct
-to everyone:
-
-    iox::popo::Publisher myPublisher({"Radar", "FrontLeft", "Counter"});
-    myPublisher.offer();
-
-The strings inside the first parameter of the constructor of `iox::popo::Publisher` are of the type
-`capro::ServiceDescription`. `capro` stands for **ca**nionical **pro**tocol and is used to abstract different
-SoA protocols. `Radar` is the service name, `FrontLeft` an instance of the service `Radar` and the third string the
-specific event `Counter` of the instance. This service model comes from AUTOSAR. It is maybe not the best fit for
-typical publish/subscribe APIs but it allows us a matching to different technologies. The event can be compared to
-a topic in other publish/subscribe approaches. The service is not a single request/response thing but an element
-for grouping of events and/or methods that can be discovered as a service. Service and instance are like classes and
-objects in C++. So you always have a specific instance of a service during runtime. In iceoryx a publisher and
-a subscriber only match if all the three IDs match.
-
-Now comes the work mode. Data needs to be created. But hang on.. we need memory first! Let's reserve a chunk of
-shared memory:
-
-    auto sample = static_cast<CounterTopic*>(myPublisher.allocateChunk(sizeof(CounterTopic)));
-
-Yep, it's bare-metal! `allocateChunk()` returns a `void*` , that needs to be casted to `CounterTopic`.
-Then we can assign the value of `ct` to our counter in the shared memory and send the chunk out to all the subscribers.
-
-    sample->counter = ct;
-    myPublisher.sendChunk(sample);
-
-The incrementation and sending of the data is done in a loop every second till the user pressed `Ctrl-C`. It is
-captured with the signal handler and stops the loop. At the very end
-
-    myPublisher.stopOffer();
-
-is called to say goodbye to all subscribers who have subscribed so far.
-
-### Subscriber application (bare-metal)
-
-How can the subscriber application get the data the publisher application just transmitted?
-
-Similar to the publisher we need to include the runtime and the subscriber as well as the topic data header:
-
-    #include "iceoryx_posh/popo/subscriber.hpp"
-    #include "iceoryx_posh/runtime/posh_runtime.hpp"
-    #include "topic_data.hpp"
-
-To make RouDi aware of the subscriber an runtime object is created, once again with a unique identifier string:
-
-    iox::runtime::PoshRuntime::initRuntime("/subscriber-bare-metal");
-
-In the next step a subscriber object is created, matching exactly the `capro::ServiceDescription` that the publisher
-offered:
-
-    iox::popo::Subscriber mySubscriber({"Radar", "FrontLeft", "Counter"});
-
-After the creation the subscriber object subscribes to the offered data. The cache size is given as a parameter.
-Cache size in this case means how many samples the FiFo can hold that is present in the subscriber object.
-If the FiFo has an overflow, we release the oldest sample and store the newest one.
-
-    mySubscriber.subscribe(10);
-
-Again in a while-loop we do the following: First check whether our subscriber object has already been subscribed:
-
-    if (iox::popo::SubscriptionState::SUBSCRIBED == mySubscriber.getSubscriptionState())
-    {
-
-Let's jump to the else-case beforehand. In case the subscriber is not subscribed, this information is printed to the
-terminal:
-
-    else
-    {
-        std::cout << "Not subscribed" << std::endl;
+        CounterTopic data{counter, id};
+        publisher.publishCopyOf(data);
+        //...
     }
 
-In case the subscriber is subscribed a local variable that stores a `void*` is created:
+The data consists of an id (chosen to be different for each publisher to distinguish their data) and a monotonically increasing counter. This counter is send periodically and we leave the loop when Ctrl-C is pressed and stop offering.
 
-    const void * chunk = nullptr;
-
-A nested while-loop is used to pop up to the chunks from the internal FiFo.
-
-    while (mySubscriber.getChunk(&chunk))
-    {
-        // we know what we expect for the CaPro ID we provided with the subscriber c'tor. So we do a cast here
-        auto sample = static_cast<const CounterTopic*>(chunk);
-
-        std::cout << "Receiving: " << sample->counter << std::endl;
-
-        // signal the middleware that this chunk was processed and in no more accesssed by the user side
-        mySubscriber.releaseChunk(chunk);
-    }
-
-After popping the chunks from the internal FiFo the subscriber application sleeps for a second.
-
-Once the signal handler receives a `Ctrl-C` the outer while loop is exited and the subscriber object is disconnected
-by:
-
-    mySubscriber.unsubscribe();
-
-### Publisher application (simple)
-
-The simplified publisher application is an example for a high-level user API and does the same thing as the publisher
-described before. In this summary just the differences to the prior publisher application are described.
-
-Starting again with the includes, there is now an additional one:
-
-    #include "a_typed_api.hpp"
-
-The classes `TypedPublisher` and `TypedSubscriber` are defined in this file. In this section we'll take look at the `TypedPublisher`.
-
-The methods `offer()` and `stopOffer()` are called [RAII](https://en.cppreference.com/w/cpp/language/raii)-style in the
-constructor and destructor respective.
-
-    TypedPublisher(const iox::capro::ServiceDescription& id)
-        : m_publisher(id)
-    {
-        m_publisher.offer();
-    }
-
-    ~TypedPublisher()
-    {
-        m_publisher.stopOffer();
-    }
-
-Instead of instantiating an `iox::popo::Publisher` an object of the `TypedPublisher` is created on the stack:
-
-    TypedPublisher<CounterTopic> myTypedPublisher({"Radar", "FrontRight", "Counter"});
-
-The trasmitted struct `CounterTopic` has to be given as a template parameter.
-
-Another difference to the prior publisher application is the simpler `allocate()` call with the casting wrapped inside
-`TypedPublisher`. Reserving shared memory becomes much simplier:
-
-    // allocate a sample
-    auto sample = myTypedPublisher.allocate();
-    // write the data
-    sample->counter = ct;
-
-    std::cout<< "Sending: " << ct << std::endl;
-
-    // pass the ownership to the middleware for sending the sample
-    myTypedPublisher.publish(std::move(sample));
-
-Now `allocate()` returns a `std::unique_ptr<TopicType, SampleDeleter<TopicType>>` instead of a `void*` , which
-automatically frees the memory when going out of scope. For sening the sample the ownership must be transferred
-to the middleware with a move operation.
-
-### Subscriber application (simple)
-
-As with the simplified publisher application there is an additional include:
-
-    #include "a_typed_api.hpp"
-
-An instance of `TypedSubscriber` is created:
-
-    TypedSubscriber<CounterTopic> myTypedSubscriber({"Radar", "FrontRight", "Counter"}, myCallback);
-
-Additional to the `iox::capro::ServiceDescription` the second parameter is a function pointer to a callback function
-called when receiving data.
-
-In this case the received data is printed in the callback:
-
-    // the callback for processing the samples
-    void myCallback(const CounterTopic& sample)
-    {
-        std::cout << "Callback: " << sample.counter << std::endl;
-    }
-
-The constructor and destructor again automatically handle `subscribe()` and `unsubscribe()`:
-
-    TypedSubscriber(const iox::capro::ServiceDescription& id, OnReceiveCallback<TopicType> callback)
-        : m_subscriber(id)
-        , m_callback(callback)
-    {
-        m_subscriber.setReceiveHandler(std::bind(&TypedSubscriber::receiveHandler, this));
-        m_subscriber.subscribe();
-    }
-
-    ~TypedSubscriber()
-    {
-        m_subscriber.unsubscribe();
-        m_subscriber.unsetReceiveHandler();
-    }
+    publisher.stopOffer();
 
 
-## TBD
+In the main function two threads are started, each of them corresponding to a publisher.
+Notice that they have different ids but use the same ``"Instance"``. While the instance could have been a string literal in the publisher constructor, this way it is possible to choose the instance name at runtime. This could be done for the group and topic identifier as well. Finally both publishers send at different time intervals, roughly 500ms and 1000ms.
+
+    std::thread sender1(send, 1, "Instance", std::chrono::milliseconds(500));
+    std::thread sender2(send, 2, "Instance", std::chrono::milliseconds(1000));
+
+Once Ctrl+C is pressed, we leave the publisher loops and join the threads.
+
+    sender1.join();
+    sender2.join();
+
+### Subscriber application
+
+We create a subscriber via
+    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
+
+and immediately subscribe.
+    subscriber.subscribe();
+
+Notice that all identifiers match the ones provided by the two publishers.
+
+We periodically wake up
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    while (subscriber.hasNewSamples())
+
+When there are new samples we display them on the console.
+
+    subscriber.take()
+        .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+            std::cout << "Received: " << *sample.get() << std::endl;
+        })
+
+The topic is displayed by providing a defintion of ``operator<<`` which prints the id and counter to the console.
+The displayed counters are monotonically increasing for each id but between different publishers the order of data arrival is indeterminate due to concurrent sending.
+
+We also handle potential errors
+
+    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
+
+and wait for some time before looking for data again.
+
+    std::cout << "Waiting for data ... " << std::endl;
+
+When Ctrl+C is pressed we exit the loop and unsubscribe
+
+    subscriber.unsubscribe();
+
+before joining the receiver thread
+
+    receiver.join();
+
+### Resubscriber application
+
+We first define a bound for the maximum number of samples the subscriber can hold.
+
+    constexpr uint64_t MAX_NUMBER_OF_SAMPLES{4U};
+
+We also define some time period for which we will later unsubscribe.
+
+    constexpr uint64_t UNSUBSCRIBED_TIME_SECONDS{3U};
+
+We create a subscriber via
+    iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
+
+and immediately subscribe.
+    subscriber.subscribe();
+
+The topic we subscribe to is the same as for the subscriber application.
+
+We periodically unsubscribe for a specified time.
+
+    subscriber.unsubscribe();
+    std::cout << "Unsubscribed ... Subscribe in " << UNSUBSCRIBED_TIME_SECONDS << " seconds" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(UNSUBSCRIBED_TIME_SECONDS));
+
+We resubscribe and specify the maximum number of samples the subscriber is able to hold ``maxNumSamples``. 
+
+    maxNumSamples = maxNumSamples % MAX_NUMBER_OF_SAMPLES + 1U; 
+    subscriber.subscribe(maxNumSamples);
+
+This number changes cyclically from 1 up to 4. This means that in some cases we will only receive one sample, even when more were send by the two publishers.
+
+We wait for some time, check for data, and if there is any display it on the console.
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        while (subscriber.hasNewSamples())
+        {
+            subscriber.take()
+                .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+                    std::cout << "Received: " << *sample.get() << std::endl;
+                })
+                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
+        };
+        std::cout << "Waiting for data ... " << std::endl;
+
+Depending on the ``maxNumSamples`` we specified on subscription we will see the most recent data from the two publishers, but never more than ``maxNumSamples``. Stale data is silently discarded. This shows that the internal queue size on the subscriber size can be changed during operation. Note that again it is indeterminate which data we see if both publishers are sending concurrently. In particular if the subscriber can only hold one sample (``maxNumSamples=1``), we may see data with id 1 or 2.
+
+When Ctrl+C is pressed we exit the loop and unsubscribe
+
+    subscriber.unsubscribe();
+
+before joining the receiver thread
+
+    receiver.join();
+
+
+
+
+
+
+
+
+
+
+
+
 

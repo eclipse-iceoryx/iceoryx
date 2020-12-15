@@ -30,3 +30,4 @@ cd someExample
 |[iceperf](./iceperf/)                                   | A benchmark application which measures the latency of an IPC transmission between two applications. |
 |[iceperf](./iceperf/)                                   | A benchmark application which measures the latency of an IPC transmission between two applications. |
 |[singleprocess](./singleprocess/)                       | Iceoryx can also be used for inter thread communication when you would like to run everything in a single process. |
+|[ice_multi_publisher](./ice_multi_publisher/)           | Shows how multiple publishers can be used to publish on the same topic. |
