@@ -203,6 +203,14 @@ using IdString = iox::capro::IdString;
 using InstanceContainer = iox::cxx::vector<IdString, MAX_NUMBER_OF_INSTANCES>;
 } // namespace runtime
 
+namespace version
+{
+static const uint64_t COMMIT_ID_STRING_SIZE = 12u;
+using CommitIdString_t = cxx::string<COMMIT_ID_STRING_SIZE>;
+static const uint64_t BUILD_DATE_STRING_SIZE = 36u;
+using BuildDateString_t = cxx::string<BUILD_DATE_STRING_SIZE>;
+} // namespace version
+
 } // namespace iox
 
 #endif // IOX_POSH_ICEORYX_POSH_TYPES_HPP
