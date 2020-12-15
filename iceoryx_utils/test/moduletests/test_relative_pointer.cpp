@@ -213,6 +213,17 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
     }
 
     {
+        iox::relative_ptr<TypeParam> rp;
+        rp = memMap.getMappedAddress();
+        iox::RelativePointer basePointer(rp);
+        iox::relative_ptr<TypeParam> recovered(basePointer);
+
+        EXPECT_EQ(rp, recovered);
+        EXPECT_EQ(rp.getOffset(), recovered.getOffset());
+        EXPECT_EQ(rp.getId(), recovered.getId());
+    }
+
+    {
         auto offset = ShmSize / 2;
         void* adr = static_cast<uint8_t*>(memMap.getMappedAddress()) + offset;
         iox::relative_ptr<TypeParam> rp;
