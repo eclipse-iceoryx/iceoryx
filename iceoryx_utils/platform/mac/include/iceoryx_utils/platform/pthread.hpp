@@ -18,7 +18,8 @@
 
 inline int pthread_setname_np(pthread_t, const char* name)
 {
-    return pthread_setname_np(name);
+    // Not implemeted due to missing functionality in MacOS
+    return 0;
 }
 
 #endif // IOX_UTILS_MAC_PLATFORM_PTHREAD_HPP
