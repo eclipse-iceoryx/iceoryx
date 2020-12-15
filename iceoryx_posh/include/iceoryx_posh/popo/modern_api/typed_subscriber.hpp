@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,9 +21,10 @@ namespace iox
 {
 namespace popo
 {
-template <typename T, typename base_subscriber_t = BaseSubscriber<T>>
-class TypedSubscriber : public base_subscriber_t
+template <typename T, template <typename, typename, typename> class base_subscriber_t = BaseSubscriber>
+class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, iox::SubscriberPortUserType>
 {
+    using BaseSubscriber = base_subscriber_t<T, TypedSubscriber<T, base_subscriber_t>, iox::SubscriberPortUserType>;
     static_assert(!std::is_void<T>::value, "Type must not be void. Use the UntypedSubscriber for void types.");
 
   public:
@@ -34,18 +35,18 @@ class TypedSubscriber : public base_subscriber_t
     TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
     virtual ~TypedSubscriber() = default;
 
-    using base_subscriber_t::getServiceDescription;
-    using base_subscriber_t::getSubscriptionState;
-    using base_subscriber_t::getUid;
-    using base_subscriber_t::hasMissedSamples;
-    using base_subscriber_t::hasNewSamples;
-    using base_subscriber_t::hasTriggered;
-    using base_subscriber_t::releaseQueuedSamples;
-    using base_subscriber_t::setConditionVariable;
-    using base_subscriber_t::subscribe;
-    using base_subscriber_t::take;
-    using base_subscriber_t::unsetConditionVariable;
-    using base_subscriber_t::unsubscribe;
+    using BaseSubscriber::attachTo;
+    using BaseSubscriber::detachEvent;
+    using BaseSubscriber::getServiceDescription;
+    using BaseSubscriber::getSubscriptionState;
+    using BaseSubscriber::getUid;
+    using BaseSubscriber::hasMissedSamples;
+    using BaseSubscriber::hasNewSamples;
+    using BaseSubscriber::invalidateTrigger;
+    using BaseSubscriber::releaseQueuedSamples;
+    using BaseSubscriber::subscribe;
+    using BaseSubscriber::take;
+    using BaseSubscriber::unsubscribe;
 };
 
 } // namespace popo

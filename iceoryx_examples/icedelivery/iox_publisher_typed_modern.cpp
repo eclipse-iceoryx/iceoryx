@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("/iox-ex-publisher-typed-modern");
 
-    auto typedPublisher = iox::popo::TypedPublisher<Position>({"Odometry", "Position", "Vehicle"});
+    iox::popo::TypedPublisher<Position> typedPublisher({"Odometry", "Position", "Vehicle"});
     typedPublisher.offer();
 
     float_t ct = 0.0;
@@ -67,7 +67,7 @@ int main()
         //  * Retrieve a sample and provide the logic to immediately populate and publish it via a lambda.
         //
         typedPublisher.loan()
-            .and_then([&](iox::popo::Sample<Position>& sample) {
+            .and_then([&](auto& sample) {
                 auto allocation = sample.get();
                 // Do some stuff leading to eventually generating the data in the samples loaned memory...
                 new (allocation) Position(ct, ct, ct);

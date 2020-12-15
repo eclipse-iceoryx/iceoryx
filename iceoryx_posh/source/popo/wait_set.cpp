@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "iceoryx_posh/popo/wait_set.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 namespace iox
@@ -33,118 +32,93 @@ WaitSet::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noe
 
 WaitSet::~WaitSet() noexcept
 {
-    detachAllConditions();
+    removeAllTriggers();
     /// @todo Notify RouDi that the condition variable data shall be destroyed
 }
 
-cxx::expected<WaitSetError> WaitSet::attachCondition(Condition& condition) noexcept
+void WaitSet::removeTrigger(const uint64_t uniqueTriggerId) noexcept
 {
-    if (!isConditionAttached(condition))
+    for (auto& currentTrigger : m_triggerVector)
     {
-        if (!m_conditionVector.push_back(&condition))
+        if (currentTrigger.getUniqueId() == uniqueTriggerId)
         {
-            return cxx::error<WaitSetError>(WaitSetError::CONDITION_VECTOR_OVERFLOW);
-        }
-
-        condition.attachConditionVariable(this, m_conditionVariableDataPtr);
-    }
-
-    return iox::cxx::success<>();
-}
-
-void WaitSet::detachCondition(Condition& condition) noexcept
-{
-    if (!condition.isConditionVariableAttached())
-    {
-        return;
-    }
-
-    condition.detachConditionVariable();
-}
-
-void WaitSet::removeCondition(const Condition& condition) noexcept
-{
-    for (auto& currentCondition : m_conditionVector)
-    {
-        if (currentCondition == &condition)
-        {
-            m_conditionVector.erase(&currentCondition);
+            currentTrigger.invalidate();
+            m_triggerVector.erase(&currentTrigger);
             return;
         }
     }
 }
 
-void WaitSet::detachAllConditions() noexcept
+void WaitSet::removeAllTriggers() noexcept
 {
-    for (auto& currentCondition : m_conditionVector)
+    for (auto& trigger : m_triggerVector)
     {
-        currentCondition->detachConditionVariable();
+        trigger.reset();
     }
-    m_conditionVector.clear();
+
+    m_triggerVector.clear();
 }
 
-WaitSet::ConditionVector WaitSet::timedWait(const units::Duration timeout) noexcept
+typename WaitSet::TriggerInfoVector WaitSet::timedWait(const units::Duration timeout) noexcept
 {
-    return waitAndReturnFulfilledConditions([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
+    return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
 }
 
-WaitSet::ConditionVector WaitSet::wait() noexcept
+typename WaitSet::TriggerInfoVector WaitSet::wait() noexcept
 {
-    return waitAndReturnFulfilledConditions([this] {
+    return waitAndReturnTriggeredTriggers([this] {
         m_conditionVariableWaiter.wait();
         return false;
     });
 }
 
-WaitSet::ConditionVector WaitSet::createVectorWithFullfilledConditions() noexcept
+typename WaitSet::TriggerInfoVector WaitSet::createVectorWithTriggeredTriggers() noexcept
 {
-    ConditionVector conditions;
-    for (auto& currentCondition : m_conditionVector)
+    TriggerInfoVector triggers;
+    for (auto& currentTrigger : m_triggerVector)
     {
-        if (currentCondition->hasTriggered())
+        if (currentTrigger.hasTriggered())
         {
             // We do not need to verify if push_back was successful since
-            // m_conditionVector and conditions are having the same type, a
+            // m_conditionVector and triggers are having the same type, a
             // vector with the same guaranteed capacity.
             // Therefore it is guaranteed that push_back works!
-            conditions.push_back(currentCondition);
+            triggers.push_back(currentTrigger.getTriggerInfo());
         }
     }
 
-    return conditions;
+    return triggers;
 }
 
 template <typename WaitFunction>
-WaitSet::ConditionVector WaitSet::waitAndReturnFulfilledConditions(const WaitFunction& wait) noexcept
+typename WaitSet::TriggerInfoVector WaitSet::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
 {
-    WaitSet::ConditionVector conditions;
+    WaitSet::TriggerInfoVector triggers;
 
     /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
     m_conditionVariableWaiter.reset();
-    conditions = createVectorWithFullfilledConditions();
+    triggers = createVectorWithTriggeredTriggers();
 
-    // It is possible that after the reset call and before the createVectorWithFullfilledConditions call
-    // another trigger came in. Then createVectorWithFullfilledConditions would have already handled it.
-    // But this would lead to an empty conditions vector in the next run if no other trigger
+    // It is possible that after the reset call and before the createVectorWithTriggeredTriggers call
+    // another trigger came in. Then createVectorWithTriggeredTriggers would have already handled it.
+    // But this would lead to an empty triggers vector in the next run if no other trigger
     // came in.
-    if (!conditions.empty())
+    if (!triggers.empty())
     {
-        return conditions;
+        return triggers;
     }
 
-    return (wait()) ? conditions : createVectorWithFullfilledConditions();
+    return (wait()) ? triggers : createVectorWithTriggeredTriggers();
 }
 
-bool WaitSet::isConditionAttached(const Condition& condition) noexcept
+uint64_t WaitSet::size() const noexcept
 {
-    for (auto& currentCondition : m_conditionVector)
-    {
-        if (currentCondition == &condition)
-        {
-            return true;
-        }
-    }
-    return false;
+    return m_triggerVector.size();
+}
+
+uint64_t WaitSet::triggerCapacity() const noexcept
+{
+    return m_triggerVector.capacity();
 }
 
 

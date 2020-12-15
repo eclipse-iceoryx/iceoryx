@@ -83,7 +83,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
  | `IOX_MAX_PUBLISHERS` | the maximum number of publishers one `RouDi` instance can manage |
  | `IOX_MAX_SUBSCRIBERS_PER_PUBLISHER` | the maximum number of subscriber a publisher can deliver chunks to|
  | `IOX_MAX_PUBLISHER_HISTORY` | the maximum number chunks available for the publisher history |
- | `IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY` | the maximum number of chunks a sender can allocate at a given time |
+ | `IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY` | the maximum number of chunks a publisher can allocate at a given time |
  | `IOX_MAX_SUBSCRIBERS` | the maximum number of subscribers one `RouDi` instance can manage |
  | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | the maximum number of chunks a subscriber can hold at a given time |
  | `IOX_MAX_INTERFACE_NUMBER` | the maximum number for interface ports, which are used for e.g. gateways |

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_posh/popo/modern_api/typed_subscriber.hpp"
 #include "iceoryx_posh/popo/modern_api/untyped_subscriber.hpp"
-#include "iceoryx_posh/popo/guard_condition.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
@@ -24,36 +25,36 @@
 #include <iostream>
 
 bool killswitch = false;
-iox::popo::GuardCondition shutdownGuard;
+iox::popo::UserTrigger shutdownTrigger;
 
 static void sigHandler(int f_sig [[gnu::unused]])
 {
     // caught SIGINT, now exit gracefully
-    killswitch = true;
-    shutdownGuard.trigger(); // unblock waitsets
+    shutdownTrigger.trigger(); // unblock waitsets
 }
 
 void subscriberHandler(iox::popo::WaitSet& waitSet)
 {
     // run until interrupted
-    while(!killswitch)
+    while (true)
     {
-        auto triggeredConditions = waitSet.wait();
-        for(auto& condition : triggeredConditions)
+        auto triggerVector = waitSet.wait();
+        for (auto& trigger : triggerVector)
         {
-            auto subscriber = dynamic_cast<iox::popo::TypedSubscriber<Position>*>(condition);
-            if(subscriber)
+            if (trigger.doesOriginateFrom(&shutdownTrigger))
             {
+                return;
+            }
+            else
+            {
+                auto subscriber = trigger.getOrigin<iox::popo::TypedSubscriber<Position>>();
                 subscriber->take()
-                        .and_then([](iox::popo::Sample<const Position>& position){
-                            std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")" << std::endl;
-                        })
-                        .if_empty([]{
-                            std::cout << "Didn't get a value, but do something anyway." << std::endl;
-                        })
-                        .or_else([](iox::popo::ChunkReceiveError){
-                            std::cout << "Error receiving chunk." << std::endl;
-                        });
+                    .and_then([](iox::popo::Sample<const Position>& position) {
+                        std::cout << "Got value: (" << position->x << ", " << position->y << ", " << position->z << ")"
+                                  << std::endl;
+                    })
+                    .if_empty([] { std::cout << "Didn't get a value, but do something anyway." << std::endl; })
+                    .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error receiving chunk." << std::endl; });
             }
         }
     }
@@ -73,8 +74,8 @@ int main()
 
     // set up waitset
     iox::popo::WaitSet waitSet{};
-    waitSet.attachCondition(typedSubscriber);
-    waitSet.attachCondition(shutdownGuard);
+    typedSubscriber.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    shutdownTrigger.attachTo(waitSet);
 
     // delegate handling of received data to another thread
     std::thread subscriberHandlerThread(subscriberHandler, std::ref(waitSet));

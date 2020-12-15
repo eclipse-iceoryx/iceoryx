@@ -245,107 +245,6 @@ TEST_F(PoshRuntime_test, SendRequestToRouDiInvalidMessage)
     EXPECT_FALSE(successfullySent);
 }
 
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareSenderIsSuccessful)
-{
-    const auto senderPort = m_runtime->getMiddlewareSender(
-        iox::capro::ServiceDescription(99U, 1U, 20U), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
-
-    ASSERT_THAT(senderPort, Ne(nullptr));
-    EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), senderPort->m_serviceDescription);
-    EXPECT_EQ(22U, senderPort->m_memoryInfo.deviceId);
-    EXPECT_EQ(33U, senderPort->m_memoryInfo.memoryType);
-}
-
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareSenderDefaultArgs)
-{
-    const auto senderPort = m_runtime->getMiddlewareSender(iox::capro::ServiceDescription(99U, 1U, 20U));
-
-    EXPECT_EQ(0U, senderPort->m_memoryInfo.deviceId);
-    EXPECT_EQ(0U, senderPort->m_memoryInfo.memoryType);
-}
-
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareSenderSenderlistOverflow)
-{
-    auto senderlistOverflowDetected{false};
-
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&senderlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            if (error == iox::Error::kPORT_POOL__SENDERLIST_OVERFLOW)
-            {
-                senderlistOverflowDetected = true;
-            }
-        });
-
-    ///@note 5 sender ports are alloted for internal services of Roudi.
-    /// hence getServiceRegistryChangeCounter() is used
-    auto serviceCounter = m_runtime->getServiceRegistryChangeCounter();
-    auto usedSenderPort = serviceCounter->load();
-    for (; usedSenderPort < iox::MAX_PUBLISHERS; ++usedSenderPort)
-    {
-        auto senderPort = m_runtime->getMiddlewareSender(
-            iox::capro::ServiceDescription(usedSenderPort, usedSenderPort + 1U, usedSenderPort + 2U));
-        ASSERT_NE(nullptr, senderPort);
-    }
-
-    EXPECT_FALSE(senderlistOverflowDetected);
-
-    auto senderPort = m_runtime->getMiddlewareSender(
-        iox::capro::ServiceDescription(usedSenderPort, usedSenderPort + 1U, usedSenderPort + 2U));
-
-    EXPECT_EQ(nullptr, senderPort);
-    EXPECT_TRUE(senderlistOverflowDetected);
-}
-
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareReceiverIsSuccessful)
-{
-    auto receiverPort = m_runtime->getMiddlewareReceiver(
-        iox::capro::ServiceDescription(99U, 1U, 20U), m_nodeName, iox::runtime::PortConfigInfo(11U, 22U, 33U));
-
-    ASSERT_NE(nullptr, receiverPort);
-    EXPECT_EQ(iox::capro::ServiceDescription(99U, 1U, 20U), receiverPort->m_serviceDescription);
-    EXPECT_EQ(22U, receiverPort->m_memoryInfo.deviceId);
-    EXPECT_EQ(33U, receiverPort->m_memoryInfo.memoryType);
-}
-
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareReceiverDefaultArgs)
-{
-    auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(99U, 1U, 20U));
-
-    ASSERT_NE(nullptr, receiverPort);
-    EXPECT_EQ(0U, receiverPort->m_memoryInfo.deviceId);
-    EXPECT_EQ(0U, receiverPort->m_memoryInfo.memoryType);
-}
-
-/// @deprecated #25
-TEST_F(PoshRuntime_test, GetMiddlewareReceiverReceiverlistOverflow)
-{
-    auto receiverlistOverflowDetected{false};
-    auto errorHandlerGuard = iox::ErrorHandler::SetTemporaryErrorHandler(
-        [&receiverlistOverflowDetected](const iox::Error error, const std::function<void()>, const iox::ErrorLevel) {
-            receiverlistOverflowDetected = true;
-            EXPECT_THAT(error, Eq(iox::Error::kPORT_POOL__RECEIVERLIST_OVERFLOW));
-        });
-
-    uint32_t i = 0U;
-    for (; i < iox::MAX_SUBSCRIBERS; ++i)
-    {
-        auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
-        ASSERT_NE(nullptr, receiverPort);
-    }
-
-    EXPECT_FALSE(receiverlistOverflowDetected);
-
-    auto receiverPort = m_runtime->getMiddlewareReceiver(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
-
-    EXPECT_EQ(nullptr, receiverPort);
-    EXPECT_TRUE(receiverlistOverflowDetected);
-}
-
 TEST_F(PoshRuntime_test, GetMiddlewarePublisherIsSuccessful)
 {
     const auto publisherPort = m_runtime->getMiddlewarePublisher(
@@ -376,7 +275,7 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
         });
 
     uint32_t i{0U};
-    for (; i < iox::MAX_PUBLISHERS; ++i)
+    for (; i < (iox::MAX_PUBLISHERS - iox::PUBLISHERS_RESERVED_FOR_INTROSPECTION); ++i)
     {
         auto publisherPort = m_runtime->getMiddlewarePublisher(iox::capro::ServiceDescription(i, i + 1U, i + 2U));
         ASSERT_NE(nullptr, publisherPort);
@@ -536,4 +435,3 @@ TEST_F(PoshRuntime_test, SetEmptyRuntimeFactoryFails)
     EXPECT_DEATH({ PoshRuntimeTestAccess::setRuntimeFactory(PoshRuntimeTestAccess::factory_t()); },
                  "Cannot set runtime factory. Passed factory must not be empty!");
 }
-

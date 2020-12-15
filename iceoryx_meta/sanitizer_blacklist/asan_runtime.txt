@@ -1,0 +1,16 @@
+# Suppress errors in external libraries (https://clang.llvm.org/docs/AddressSanitizer.html#suppressing-reports-in-external-libraries)
+# You might wonder why the below tests are listed here, instead of supressing with -fsanitize-blacklist !
+# These errors are generated from .inl files in iceoryx_utils , hence they are compiled as part of tests not iceoryx_utils
+# We enalble sanitizersanitizer flags for core components , not in tests (mainly to avoid catching errors in test cases, atleast for now)
+# NOTE : AddressSanitizer wont generate any report for the suppressed errors. Only way to see detailed errors is to disable the entries 
+# here  & run
+
+interceptor_via_fun:*TypedPublisherTest_LoansSamplesLargeEnoughForTheType_Test*
+interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishCopiesOfProvidedValues_Test*
+interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishTheResultOfALambdaWithNoAdditionalArguments_Test*
+interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishTheResultOfACallableStructWithNoAdditionalArguments_Test*
+interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishTheResultOfACallableStructWithAdditionalArguments_Test*
+interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishTheResultOfFunctionPointerWithNoAdditionalArguments_Test*
+interceptor_via_fun:*TypedPublisherTest_CanLoanSamplesAndPublishTheResultOfFunctionPointerWithAdditionalArguments_Test*
+#interceptor_via_fun:-[ClassName objCMethodToSuppress:]
+#interceptor_via_lib:NameOfTheLibraryToSuppress

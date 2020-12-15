@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,8 +49,8 @@ class BasePublisher : public PublisherInterface<T>
   protected:
     BasePublisher(const BasePublisher& other) = delete;
     BasePublisher& operator=(const BasePublisher&) = delete;
-    BasePublisher(BasePublisher&& rhs) = default;
-    BasePublisher& operator=(BasePublisher&& rhs) = default;
+    BasePublisher(BasePublisher&& rhs) = delete;
+    BasePublisher& operator=(BasePublisher&& rhs) = delete;
     virtual ~BasePublisher();
 
     ///

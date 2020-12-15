@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,15 @@
 // limitations under the License.
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
 
 #include "mocks/subscriber_mock.hpp"
+#include "mocks/wait_set_mock.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -30,24 +33,26 @@ struct DummyData
 };
 
 template <typename T, typename port_t>
-class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, port_t>
+class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>
 {
   public:
-    using iox::popo::BaseSubscriber<T, port_t>::getServiceDescription;
-    using iox::popo::BaseSubscriber<T, port_t>::getSubscriptionState;
-    using iox::popo::BaseSubscriber<T, port_t>::getUid;
-    using iox::popo::BaseSubscriber<T, port_t>::hasMissedSamples;
-    using iox::popo::BaseSubscriber<T, port_t>::hasNewSamples;
-    using iox::popo::BaseSubscriber<T, port_t>::hasTriggered;
-    using iox::popo::BaseSubscriber<T, port_t>::releaseQueuedSamples;
-    using iox::popo::BaseSubscriber<T, port_t>::setConditionVariable;
-    using iox::popo::BaseSubscriber<T, port_t>::subscribe;
-    using iox::popo::BaseSubscriber<T, port_t>::take;
-    using iox::popo::BaseSubscriber<T, port_t>::unsetConditionVariable;
-    using iox::popo::BaseSubscriber<T, port_t>::unsubscribe;
+    using SubscriberParent = iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>;
+
+    using SubscriberParent::attachTo;
+    using SubscriberParent::detachEvent;
+    using SubscriberParent::getServiceDescription;
+    using SubscriberParent::getSubscriptionState;
+    using SubscriberParent::getUid;
+    using SubscriberParent::hasMissedSamples;
+    using SubscriberParent::hasNewSamples;
+    using SubscriberParent::invalidateTrigger;
+    using SubscriberParent::releaseQueuedSamples;
+    using SubscriberParent::subscribe;
+    using SubscriberParent::take;
+    using SubscriberParent::unsubscribe;
     port_t& getMockedPort()
     {
-        return iox::popo::BaseSubscriber<T, port_t>::m_port;
+        return SubscriberParent::m_port;
     }
 };
 
@@ -188,24 +193,62 @@ TEST_F(BaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriber
 
 TEST_F(BaseSubscriberTest, SetConditionVariableCallForwardedToUnderlyingSubscriberPort)
 {
+    iox::popo::ConditionVariableData condVar;
+    WaitSetMock waitSet(&condVar);
     // ===== Setup ===== //
-    auto conditionVariable = new iox::popo::ConditionVariableData();
-    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(conditionVariable)).Times(1);
+    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     // ===== Test ===== //
-    sut.setConditionVariable(conditionVariable);
+    sut.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Verify ===== //
     // ===== Cleanup ===== //
-    delete conditionVariable;
 }
 
 TEST_F(BaseSubscriberTest, UnsetConditionVariableCallForwardedToUnderlyingSubscriberPort)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
+    iox::popo::ConditionVariableData condVar;
+    WaitSetMock* waitSet = new WaitSetMock(&condVar);
+    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
+    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
-    sut.unsetConditionVariable();
+    EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
+    delete waitSet;
     // ===== Verify ===== //
     // ===== Cleanup ===== //
+}
+
+TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFromOriginalWaitset)
+{
+    // ===== Setup ===== //
+    iox::popo::ConditionVariableData condVar;
+    WaitSetMock* waitSet = new WaitSetMock(&condVar);
+    WaitSetMock* waitSet2 = new WaitSetMock(&condVar);
+    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
+    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    // ===== Test ===== //
+    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
+    sut.attachTo(*waitSet2, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    // ===== Verify ===== //
+    EXPECT_EQ(waitSet->size(), 0);
+    EXPECT_EQ(waitSet2->size(), 1);
+    // ===== Cleanup ===== //
+    delete waitSet;
+}
+
+TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
+{
+    // ===== Setup ===== //
+    iox::popo::ConditionVariableData condVar;
+    WaitSetMock* waitSet = new WaitSetMock(&condVar);
+    EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
+    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    // ===== Test ===== //
+    EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
+    sut.detachEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    // ===== Verify ===== //
+    EXPECT_EQ(waitSet->size(), 0);
+    // ===== Cleanup ===== //
+    delete waitSet;
 }
 
 TEST_F(BaseSubscriberTest, HasTriggeredCallForwardedToUnderlyingSubscriberPort)
@@ -213,7 +256,7 @@ TEST_F(BaseSubscriberTest, HasTriggeredCallForwardedToUnderlyingSubscriberPort)
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), hasNewChunks).Times(1);
     // ===== Test ===== //
-    sut.hasTriggered();
+    sut.hasNewSamples();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

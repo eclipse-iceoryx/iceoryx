@@ -23,7 +23,9 @@ namespace popo
 template <typename T>
 inline Sample<T>::Sample(cxx::unique_ptr<T>&& samplePtr, PublisherInterface<T>& publisher)
     : m_samplePtr(std::move(samplePtr))
-    , m_publisherRef(publisher){};
+    , m_publisherRef(publisher)
+{
+}
 
 template <typename T>
 inline Sample<T>& Sample<T>::operator=(Sample<T>&& rhs)
@@ -54,7 +56,7 @@ template <typename T>
 inline Sample<T>::Sample(std::nullptr_t) noexcept
 {
     m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
-};
+}
 
 template <typename T>
 inline T* Sample<T>::operator->() noexcept
@@ -98,13 +100,15 @@ inline void Sample<T>::release() noexcept
 
 template <typename T>
 inline Sample<const T>::Sample(cxx::unique_ptr<T>&& samplePtr) noexcept
-    : m_samplePtr(std::move(samplePtr)){};
+    : m_samplePtr(std::move(samplePtr))
+{
+}
 
 template <typename T>
 inline Sample<const T>::Sample(std::nullptr_t) noexcept
 {
     m_samplePtr = nullptr; // The pointer will take care of cleaning up resources.
-};
+}
 
 template <typename T>
 inline Sample<const T>& Sample<const T>::operator=(Sample<const T>&& rhs)

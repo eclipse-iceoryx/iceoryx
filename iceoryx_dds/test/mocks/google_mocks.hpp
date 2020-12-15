@@ -20,8 +20,8 @@
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/capro/capro_message.hpp"
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/popo/modern_api/base_publisher.hpp"
+#include "iceoryx_posh/popo/modern_api/base_subscriber.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
@@ -30,29 +30,44 @@
 using namespace ::testing;
 using ::testing::_;
 
-class MockPublisher
+template <typename T>
+class MockPublisher : public iox::popo::PublisherInterface<T>
 {
   public:
     MockPublisher(const iox::capro::ServiceDescription&){};
+    virtual ~MockPublisher() = default;
+    MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
+    MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError>(uint32_t));
+    MOCK_METHOD1_T(publishMocked, void(iox::popo::Sample<T>&&));
+    MOCK_METHOD0_T(loanPreviousSample, iox::cxx::optional<iox::popo::Sample<T>>());
     MOCK_METHOD0(offer, void(void));
-    MOCK_METHOD1(allocateChunk, void*(uint32_t));
-    MOCK_METHOD1(sendChunk, void(const void* const));
+    MOCK_METHOD0(stopOffer, void(void));
+    MOCK_CONST_METHOD0(isOffered, bool(void));
+    MOCK_CONST_METHOD0(hasSubscribers, bool(void));
+    void publish(iox::popo::Sample<T>&& sample) noexcept
+    {
+        return publishMocked(std::move(sample));
+    };
 };
 
+template <typename T>
 class MockSubscriber
 {
   public:
     MockSubscriber(const iox::capro::ServiceDescription&){};
-    MOCK_METHOD0(isDestroyed, void()); // Allows testing for destruction
-    virtual ~MockSubscriber()
-    {
-        isDestroyed();
-    }
-    MOCK_CONST_METHOD0(hasNewChunks, bool());
-    MOCK_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
-    MOCK_METHOD1(getChunk, bool(const iox::mepoo::ChunkHeader**));
-    MOCK_METHOD1(releaseChunk, bool(const void* const payload));
-    MOCK_METHOD1(subscribe, void(const uint32_t));
+    MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
+    MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
+    MOCK_METHOD1(subscribe, void(uint64_t));
+    MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
+    MOCK_METHOD0(unsubscribe, void());
+    MOCK_CONST_METHOD0(hasNewSamples, bool());
+    MOCK_METHOD0(hasMissedSamples, bool());
+    MOCK_METHOD0_T(take,
+                   iox::cxx::expected<iox::cxx::optional<iox::popo::Sample<const T>>, iox::popo::ChunkReceiveError>());
+    MOCK_METHOD0(releaseQueuedSamples, void());
+    MOCK_METHOD1(setConditionVariable, bool(iox::popo::ConditionVariableData*));
+    MOCK_METHOD0(unsetConditionVariable, bool(void));
+    MOCK_METHOD0(hasTriggered, bool(void));
 };
 
 class MockDataReader

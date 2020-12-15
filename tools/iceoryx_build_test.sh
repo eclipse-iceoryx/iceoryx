@@ -39,6 +39,7 @@ RUN_TEST=false
 INTROSPECTION_FLAG="ON"
 DDS_GATEWAY_FLAG="OFF"
 ONE_TO_MANY_ONLY_FLAG="OFF"
+SANITIZE_FLAG="OFF"
 
 while (( "$#" )); do
   case "$1" in
@@ -114,6 +115,19 @@ while (( "$#" )); do
         ONE_TO_MANY_ONLY_FLAG="ON"
         shift 1
         ;;
+    "sanitize")
+        echo "Build with sanitizers"
+        BUILD_TYPE="Debug"
+        TEST_FLAG="ON"
+        SANITIZE_FLAG="ON"
+        shift 1
+    ;;
+    "clang")
+        echo "Build with clang compiler"
+        export CC=$(which clang)
+        export CXX=$(which clang++)
+        shift 1
+    ;;
     "help")
         echo "Build script for iceoryx."
         echo "By default, iceoryx, the dds gateway and the examples are built."
@@ -135,6 +149,8 @@ while (( "$#" )); do
         echo "    build-test            Builds the tests (doesn't run)"
         echo "    skip-introspection    Skips building iceoryx introspection"
         echo "    one-to-many           Restricts to 1:n communication only"
+        echo "    clang                 Build with clang compiler (should be installed already)"
+        echo "    sanitize              Build with sanitizers"
         echo "    help                  Prints this help"
         echo ""
         echo "e.g. iceoryx_build_test.sh -b ./build-scripted clean test release"
@@ -180,12 +196,15 @@ cd $BUILD_DIR
 echo " [i] Current working directory: $(pwd)"
 
 echo ">>>>>> Start building iceoryx package <<<<<<"
-cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=ON -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dbinding_c=ON -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG $WORKSPACE/iceoryx_meta
+cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_STRICT=$STRICT_FLAG -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX -DCMAKE_EXPORT_COMPILE_COMMANDS=$QACPP_JSON -DTOML_CONFIG=on -Dtest=$TEST_FLAG -Dcoverage=$COV_FLAG -Droudi_environment=on -Dexamples=ON -Dintrospection=$INTROSPECTION_FLAG -Ddds_gateway=$DDS_GATEWAY_FLAG -Dbinding_c=ON -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG -Dsanitize=$SANITIZE_FLAG $WORKSPACE/iceoryx_meta
 cmake --build . --target install -- -j$NUM_JOBS
 echo ">>>>>> Finished building iceoryx package <<<<<<"
 
-if [ "$COV_FLAG" == "OFF" ]
+# Dont build examples when coverage or sanitization is enabled
+if [ "$COV_FLAG" == "ON" ] || [ "$SANITIZE_FLAG" == "ON" ]
 then
+    echo ">>>>>> Skip building iceoryx examples <<<<<<"
+else
     echo ">>>>>> Start building iceoryx examples <<<<<<"
     cd $BUILD_DIR
     mkdir -p iceoryx_examples
@@ -195,14 +214,18 @@ then
     cd icedelivery
     cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/icedelivery
     cmake --build . --target install -- -j$NUM_JOBS
-    echo ">>>>>>>> iceperf"
     
+    echo ">>>>>>>> iceperf"
     cd $BUILD_DIR/iceoryx_examples
     mkdir -p iceperf
     cd iceperf
     cmake -DCMAKE_PREFIX_PATH=$ICEORYX_INSTALL_PREFIX -DCMAKE_INSTALL_PREFIX=$ICEORYX_INSTALL_PREFIX $WORKSPACE/iceoryx_examples/iceperf
     cmake --build . --target install -- -j$NUM_JOBS
-else
+
+fi
+
+if [ "$COV_FLAG" == "ON" ]
+then
     $WORKSPACE/tools/gcov/lcov_generate.sh $WORKSPACE initial #make an initial scan to cover also files with no coverage
 fi
 
