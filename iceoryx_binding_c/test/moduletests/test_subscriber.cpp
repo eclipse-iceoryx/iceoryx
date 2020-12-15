@@ -314,4 +314,6 @@ TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
     iox_sub_deinit(m_sut);
 
     EXPECT_EQ(m_waitSet->size(), 0U);
+    m_subscriber.reset();
+    m_sut = nullptr;
 }
