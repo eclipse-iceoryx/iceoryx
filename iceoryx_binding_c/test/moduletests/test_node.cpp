@@ -38,7 +38,7 @@ class iox_node_test : public RouDi_GTest
     }
 
     std::string m_nodeName = "hypnotoadIsWatchingUs";
-    std::string m_processName = "/stoepselWillMarrySoon";
+    std::string m_processName = "stoepselWillMarrySoon";
 
     iox_node_t m_sut;
 };
@@ -97,7 +97,7 @@ TEST_F(iox_node_test, getNodeProcessNameBufferIsLessThanNodeProcessNameLength)
     }
     auto nameLength = iox_node_get_process_name(m_sut, truncatedProcessName, PROCESS_NAME_BUFFER_LENGTH);
 
-    std::string expectedProcessName = "/stoepsel";
+    std::string expectedProcessName = "stoepsel";
 
     ASSERT_THAT(nameLength, Eq(m_processName.size()));
     EXPECT_THAT(truncatedProcessName, StrEq(expectedProcessName));
