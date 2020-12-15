@@ -34,21 +34,21 @@ UnixDomainSocket::UnixDomainSocket() noexcept
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-UnixDomainSocket::UnixDomainSocket(const ProcessName_t& name,
+UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
                                    const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
                                    const uint64_t maxMsgNumber) noexcept
     : UnixDomainSocket(
         NoPathPrefix,
-        [&]() -> ProcessName_t {
+        [&]() -> IpcChannelName_t {
             /// invalid names will be forwarded and handled by the other constructor
             /// separately
             if (!isNameValid(name))
             {
                 return name;
             }
-            return ProcessName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
+            return IpcChannelName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name);
         }(),
         mode,
         channelSide,
@@ -58,7 +58,7 @@ UnixDomainSocket::UnixDomainSocket(const ProcessName_t& name,
 }
 
 UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
-                                   const ProcessName_t& name,
+                                   const IpcChannelName_t& name,
                                    const IpcChannelMode mode,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
@@ -128,13 +128,13 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
     return *this;
 }
 
-cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const ProcessName_t& name) noexcept
+cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const IpcChannelName_t& name) noexcept
 {
-    return unlinkIfExists(NoPathPrefix, ProcessName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
+    return unlinkIfExists(NoPathPrefix, IpcChannelName_t(PATH_PREFIX).append(iox::cxx::TruncateToCapacity, name));
 }
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t,
-                                                                      const ProcessName_t& name) noexcept
+                                                                      const IpcChannelName_t& name) noexcept
 {
     if (!isNameValid(name))
     {
@@ -533,7 +533,7 @@ cxx::error<IpcChannelError> UnixDomainSocket::createErrorFromErrnum(const int32_
     }
 }
 
-bool UnixDomainSocket::isNameValid(const ProcessName_t& name) noexcept
+bool UnixDomainSocket::isNameValid(const IpcChannelName_t& name) noexcept
 {
     return !(name.empty() || name.size() < SHORTEST_VALID_NAME || name.size() > LONGEST_VALID_NAME);
 }

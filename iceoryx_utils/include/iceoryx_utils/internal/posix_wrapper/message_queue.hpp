@@ -66,7 +66,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
     ~MessageQueue();
 
-    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const ProcessName_t& name);
+    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name);
 
     /// close and remove message queue.
     cxx::expected<IpcChannelError> destroy();
@@ -92,22 +92,22 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     cxx::expected<bool, IpcChannelError> isOutdated();
 
   private:
-    MessageQueue(const ProcessName_t& name,
+    MessageQueue(const IpcChannelName_t& name,
                  const IpcChannelMode mode,
                  const IpcChannelSide channelSide,
                  const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                  const uint64_t maxMsgNumber = 10u);
     cxx::expected<int32_t, IpcChannelError>
-    open(const ProcessName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
+    open(const IpcChannelName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
 
     cxx::expected<IpcChannelError> close();
     cxx::expected<IpcChannelError> unlink();
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const;
-    static cxx::error<IpcChannelError> createErrorFromErrnum(const ProcessName_t& name, const int32_t errnum);
-    static cxx::expected<ProcessName_t, IpcChannelError> isNameValid(const ProcessName_t& name) noexcept;
+    static cxx::error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum);
+    static cxx::expected<IpcChannelName_t, IpcChannelError> isNameValid(const IpcChannelName_t& name) noexcept;
 
   private:
-    ProcessName_t m_name;
+    IpcChannelName_t m_name;
     struct mq_attr m_attributes;
     mqd_t m_mqDescriptor = INVALID_DESCRIPTOR;
     IpcChannelSide m_channelSide;

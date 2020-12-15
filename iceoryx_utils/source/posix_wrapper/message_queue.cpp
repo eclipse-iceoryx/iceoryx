@@ -32,7 +32,7 @@ MessageQueue::MessageQueue()
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-MessageQueue::MessageQueue(const ProcessName_t& name,
+MessageQueue::MessageQueue(const IpcChannelName_t& name,
                            const IpcChannelMode mode,
                            const IpcChannelSide channelSide,
                            const size_t maxMsgSize,
@@ -40,7 +40,7 @@ MessageQueue::MessageQueue(const ProcessName_t& name,
     : m_channelSide(channelSide)
 {
     isNameValid(name)
-        .and_then([this](ProcessName_t& name) { m_name = std::move(name); })
+        .and_then([this](IpcChannelName_t& name) { m_name = std::move(name); })
         .or_else([this](IpcChannelError) {
             this->m_isInitialized = false;
             this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
@@ -125,10 +125,10 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other)
     return *this;
 }
 
-cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const ProcessName_t& name)
+cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelName_t& name)
 {
-    ProcessName_t l_name;
-    if (isNameValid(name).and_then([&](ProcessName_t& name) { l_name = std::move(name); }).has_error())
+    IpcChannelName_t l_name;
+    if (isNameValid(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -216,10 +216,10 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const
 }
 
 cxx::expected<int32_t, IpcChannelError>
-MessageQueue::open(const ProcessName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
+MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
 {
-    ProcessName_t l_name;
-    if (isNameValid(name).and_then([&](ProcessName_t& name) { l_name = std::move(name); }).has_error())
+    IpcChannelName_t l_name;
+    if (isNameValid(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -374,7 +374,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const int32_t er
     return createErrorFromErrnum(m_name, errnum);
 }
 
-cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const ProcessName_t& name, const int32_t errnum)
+cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum)
 {
     switch (errnum)
     {
@@ -422,7 +422,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const ProcessNam
     }
 }
 
-cxx::expected<ProcessName_t, IpcChannelError> MessageQueue::isNameValid(const ProcessName_t& name) noexcept
+cxx::expected<IpcChannelName_t, IpcChannelError> MessageQueue::isNameValid(const IpcChannelName_t& name) noexcept
 {
     /// @todo the check for the longest valid queue name is missing
     /// the name for the mqeue is limited by MAX_PATH
@@ -434,11 +434,11 @@ cxx::expected<ProcessName_t, IpcChannelError> MessageQueue::isNameValid(const Pr
     }
     else if (name.c_str()[0] != '/')
     {
-        return cxx::success<ProcessName_t>(ProcessName_t("/").append(iox::cxx::TruncateToCapacity, name));
+        return cxx::success<IpcChannelName_t>(IpcChannelName_t("/").append(iox::cxx::TruncateToCapacity, name));
     }
     else
     {
-        return cxx::success<ProcessName_t>(name);
+        return cxx::success<IpcChannelName_t>(name);
     }
 }
 

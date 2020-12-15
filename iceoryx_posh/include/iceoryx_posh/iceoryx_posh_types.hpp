@@ -19,6 +19,7 @@
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
+#include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 
 #include <cstdint>
@@ -149,14 +150,8 @@ constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50U;
 constexpr uint32_t MAX_NODE_NUMBER = 1000U;
 constexpr uint32_t MAX_NODE_PER_PROCESS = 50U;
 
-#if defined(__APPLE__)
-/// @note on macOS the process name length needs to be decreased since the process name is used for the unix domain
-/// socket path which has a capacity for only 103 characters. The full path consists of UnixDomainSocket::PATH_PREFIX,
-/// which is currently 5 characters and the specified process name
-constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 98U;
-#else
-constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100U;
-#endif
+constexpr uint32_t MAX_PROCESS_NAME_LENGTH = MAX_IPC_CHANNEL_NAME_LENGTH;
+
 
 static_assert(MAX_PROCESS_NUMBER * MAX_NODE_PER_PROCESS > MAX_NODE_NUMBER, "Invalid configuration for nodes");
 
@@ -193,7 +188,7 @@ struct DefaultChunkQueueConfig
 
 // alias for cxx::string
 using ConfigFilePathString_t = cxx::string<1024>;
-using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
+using ProcessName_t = IpcChannelName_t;
 using NodeName_t = cxx::string<100>;
 
 namespace runtime
