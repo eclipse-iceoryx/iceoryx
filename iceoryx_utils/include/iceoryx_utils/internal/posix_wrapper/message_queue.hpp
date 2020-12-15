@@ -28,7 +28,6 @@ namespace iox
 {
 namespace posix
 {
-
 using MessageQueueName_t = cxx::string<MAX_IPC_CHANNEL_NAME_LENGTH + 1>;
 
 /// @brief Wrapper class for posix message queue
@@ -100,14 +99,16 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
                  const IpcChannelSide channelSide,
                  const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                  const uint64_t maxMsgNumber = 10u);
+
     cxx::expected<int32_t, IpcChannelError>
-    open(const IpcChannelName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
+    open(const MessageQueueName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide);
 
     cxx::expected<IpcChannelError> close();
     cxx::expected<IpcChannelError> unlink();
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const;
-    static cxx::error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum);
-    static cxx::expected<MessageQueueName_t, IpcChannelError> sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
+    static cxx::error<IpcChannelError> createErrorFromErrnum(const MessageQueueName_t& name, const int32_t errnum);
+    static cxx::expected<MessageQueueName_t, IpcChannelError>
+    sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
 
   private:
     MessageQueueName_t m_name;
