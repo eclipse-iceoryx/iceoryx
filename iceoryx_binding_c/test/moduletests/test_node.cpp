@@ -89,7 +89,7 @@ TEST_F(iox_node_test, getNodeProcessNameBufferIsNullptr)
 
 TEST_F(iox_node_test, getNodeProcessNameBufferIsLessThanNodeProcessNameLength)
 {
-    constexpr uint64_t PROCESS_NAME_BUFFER_LENGTH{10};
+    constexpr uint64_t PROCESS_NAME_BUFFER_LENGTH{9};
     char truncatedProcessName[PROCESS_NAME_BUFFER_LENGTH];
     for (auto& c : truncatedProcessName)
     {
