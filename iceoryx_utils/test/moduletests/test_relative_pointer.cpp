@@ -536,4 +536,12 @@ TEST_F(RelativePointer_test, MemoryReMapping_SharedMemory)
     }
     EXPECT_EQ(iox::RelativePointer::unregisterPtr(1), true);
 }
+
+TEST_F(RelativePointer_test, compileTest)
+{
+    // No functional test. Tests if code compiles
+    iox::relative_ptr<void> p1;
+    iox::relative_ptr<const void> p2;
+}
+
 } // namespace
