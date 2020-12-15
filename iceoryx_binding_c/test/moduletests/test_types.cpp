@@ -42,12 +42,6 @@ TEST(iox_types_test, UserTriggerStorageSizeFits)
     EXPECT_THAT(alignof(UserTrigger), Le(alignof(iox_user_trigger_storage_t)));
 }
 
-TEST(iox_types_test, TriggerInfoStorageSizeFits)
-{
-    EXPECT_THAT(sizeof(TriggerInfo), Eq(sizeof(iox_trigger_info_storage_t)));
-    EXPECT_THAT(alignof(TriggerInfo), Le(alignof(iox_trigger_info_storage_t)));
-}
-
 TEST(iox_types_test, cpp2c_SubscriberStorageSizeFits)
 {
     EXPECT_THAT(sizeof(cpp2c_Subscriber), Eq(sizeof(iox_sub_storage_t)));
