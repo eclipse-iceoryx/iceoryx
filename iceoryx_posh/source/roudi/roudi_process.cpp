@@ -287,7 +287,7 @@ void ProcessManager::evaluateKillError(const RouDiProcess& process,
                   << "' could not be killed with "
                   << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
                   << ", because the command failed with the following error: " << cmd.getErrorString()
-                  << " See 'man 2 kill' in console for more information";
+                  << " See manpage for kill(2) or type 'man 2 kill' in console for more information";
         errorHandler(Error::kPOSH__ROUDI_PROCESS_SHUTDOWN_FAILED, nullptr, ErrorLevel::SEVERE);
     }
     else
