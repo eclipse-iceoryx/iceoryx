@@ -59,22 +59,20 @@ class Thread_test : public Test
 };
 
 #if !defined(__APPLE__)
-TEST_F(Thread_test, DISABLED_SetWithLargeStringDoesNotCompile)
+TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 {
-/// @todo Renable this test, once "does not compile" tests are possible
-#if 0
-    constexpr char stringLongerThanThreadNameCapacitiy[] =
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor "
-        "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
-        "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+    ThreadName_t emptyString = "";
 
-    setThreadName(m_thread->native_handle(), stringLongerThanThreadNameCapacitiy);
-#endif
+    setThreadName(m_thread->native_handle(), emptyString);
+    auto getResult = getThreadName(m_thread->native_handle());
+
+    EXPECT_THAT(getResult, StrEq(emptyString));
 }
 
 TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
 {
     ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
+    EXPECT_THAT(stringEqualToThreadNameCapacitiy.capacity(), Eq(stringEqualToThreadNameCapacitiy.size()));
 
     setThreadName(m_thread->native_handle(), stringEqualToThreadNameCapacitiy);
     auto getResult = getThreadName(m_thread->native_handle());
