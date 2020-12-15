@@ -279,9 +279,9 @@ void WaitReturnsTheOneTriggeredCondition(WaitSet_test* test,
 
     auto triggerVector = waitCall();
     ASSERT_THAT(triggerVector.size(), Eq(1));
-    EXPECT_THAT(triggerVector[0].getTriggerId(), 5);
-    EXPECT_TRUE(triggerVector[0].doesOriginateFrom(test));
-    EXPECT_EQ(triggerVector[0].getOrigin<WaitSet_test>(), test);
+    EXPECT_THAT(triggerVector[0]->getTriggerId(), 5);
+    EXPECT_TRUE(triggerVector[0]->doesOriginateFrom(test));
+    EXPECT_EQ(triggerVector[0]->getOrigin<WaitSet_test>(), test);
 }
 
 TEST_F(WaitSet_test, WaitReturnsTheOneTriggeredCondition)
@@ -311,9 +311,9 @@ void WaitReturnsAllTriggeredConditionWhenMultipleAreTriggered(
 
     for (uint64_t i = 0; i < 24; ++i)
     {
-        EXPECT_THAT(triggerVector[i].getTriggerId(), 100 + i);
-        EXPECT_TRUE(triggerVector[i].doesOriginateFrom(test));
-        EXPECT_EQ(triggerVector[i].getOrigin<WaitSet_test>(), test);
+        EXPECT_THAT(triggerVector[i]->getTriggerId(), 100 + i);
+        EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(test));
+        EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test>(), test);
     }
 }
 
@@ -345,9 +345,9 @@ void WaitReturnsAllTriggeredConditionWhenAllAreTriggered(WaitSet_test* test,
 
     for (uint64_t i = 0; i < iox::MAX_NUMBER_OF_TRIGGERS_PER_WAITSET; ++i)
     {
-        EXPECT_THAT(triggerVector[i].getTriggerId(), i * 3 + 2);
-        EXPECT_TRUE(triggerVector[i].doesOriginateFrom(test));
-        EXPECT_EQ(triggerVector[i].getOrigin<WaitSet_test>(), test);
+        EXPECT_THAT(triggerVector[i]->getTriggerId(), i * 3 + 2);
+        EXPECT_TRUE(triggerVector[i]->doesOriginateFrom(test));
+        EXPECT_EQ(triggerVector[i]->getOrigin<WaitSet_test>(), test);
     }
 }
 
@@ -377,11 +377,11 @@ void WaitReturnsTriggersWithCorrectCallbacks(WaitSet_test* test,
     ASSERT_THAT(triggerVector.size(), Eq(2));
 
     test->m_triggerCallbackArgument1 = nullptr;
-    triggerVector[0]();
+    (*triggerVector[0])();
     EXPECT_THAT(test->m_triggerCallbackArgument1, Eq(test));
 
     test->m_triggerCallbackArgument2 = nullptr;
-    triggerVector[1]();
+    (*triggerVector[1])();
     EXPECT_THAT(test->m_triggerCallbackArgument2, Eq(test));
 }
 

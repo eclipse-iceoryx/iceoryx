@@ -21,6 +21,7 @@
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/function_ref.hpp"
+#include "iceoryx_utils/cxx/list.hpp"
 #include "iceoryx_utils/cxx/method_callback.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
@@ -47,8 +48,8 @@ class WaitSet
 {
   public:
     static constexpr uint64_t CAPACITY = Capacity;
-    using TriggerVector = cxx::vector<Trigger, CAPACITY>;
-    using TriggerInfoVector = cxx::vector<TriggerInfo, CAPACITY>;
+    using TriggerList = cxx::list<Trigger, CAPACITY>;
+    using TriggerInfoVector = cxx::vector<const TriggerInfo*, CAPACITY>;
 
     WaitSet() noexcept;
     ~WaitSet() noexcept;
@@ -117,7 +118,7 @@ class WaitSet
     void removeAllTriggers() noexcept;
 
   private:
-    TriggerVector m_triggerVector;
+    TriggerList m_triggerList;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionVariableWaiter m_conditionVariableWaiter;
 };

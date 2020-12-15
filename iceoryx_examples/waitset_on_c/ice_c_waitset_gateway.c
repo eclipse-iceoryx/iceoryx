@@ -85,18 +85,17 @@ int main()
     uint64_t numberOfTriggeredConditions = 0U;
 
     // array where all trigger from iox_ws_wait will be stored
-    iox_trigger_info_storage_t triggerArray[NUMBER_OF_TRIGGER];
+    iox_trigger_info_t triggerArray[NUMBER_OF_TRIGGER];
 
     // event loop
     bool keepRunning = true;
     while (keepRunning)
     {
-        numberOfTriggeredConditions =
-            iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        numberOfTriggeredConditions = iox_ws_wait(waitSet, triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 
         for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
         {
-            iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
+            iox_trigger_info_t trigger = triggerArray[i];
 
             if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
             {

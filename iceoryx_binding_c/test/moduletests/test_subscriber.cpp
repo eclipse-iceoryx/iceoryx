@@ -295,7 +295,7 @@ TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectTriggerId)
     auto triggerVector = m_waitSet->wait();
 
     ASSERT_EQ(triggerVector.size(), 1);
-    EXPECT_EQ(triggerVector[0].getTriggerId(), 587);
+    EXPECT_EQ(triggerVector[0]->getTriggerId(), 587);
 }
 
 TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)
@@ -307,7 +307,7 @@ TEST_F(iox_sub_test, hasNewSamplesTriggersWaitSetWithCorrectCallback)
     auto triggerVector = m_waitSet->wait();
 
     ASSERT_EQ(triggerVector.size(), 1);
-    triggerVector[0]();
+    (*triggerVector[0])();
     EXPECT_EQ(m_triggerCallbackLatestArgument, m_sut);
 }
 

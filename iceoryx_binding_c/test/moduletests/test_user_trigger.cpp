@@ -96,7 +96,7 @@ TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectTriggerId)
     auto triggerVector = m_waitSet.wait();
 
     ASSERT_THAT(triggerVector.size(), Eq(1));
-    EXPECT_EQ(triggerVector[0].getTriggerId(), 88191);
+    EXPECT_EQ(triggerVector[0]->getTriggerId(), 88191);
 }
 
 TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
@@ -107,7 +107,7 @@ TEST_F(iox_user_trigger_test, triggeringWaitSetResultsInCorrectCallback)
     auto triggerVector = m_waitSet.wait();
 
     ASSERT_THAT(triggerVector.size(), Eq(1));
-    triggerVector[0]();
+    (*triggerVector[0])();
 
     EXPECT_TRUE(wasTriggerCallbackCalled);
 }

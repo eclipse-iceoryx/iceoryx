@@ -46,7 +46,7 @@ void iox_ws_deinit(iox_ws_t const self);
 /// @return number of elements which were written into the triggerArray
 uint64_t iox_ws_timed_wait(iox_ws_t const self,
                            struct timespec timeout,
-                           iox_trigger_info_t const triggerArray,
+                           iox_trigger_info_t* const triggerArray,
                            const uint64_t triggerArrayCapacity,
                            uint64_t* missedElements);
 
@@ -59,7 +59,7 @@ uint64_t iox_ws_timed_wait(iox_ws_t const self,
 ///             which could not be written into the array are stored here
 /// @return number of elements which were written into the triggerArray
 uint64_t iox_ws_wait(iox_ws_t const self,
-                     iox_trigger_info_t const triggerArray,
+                     iox_trigger_info_t* const triggerArray,
                      const uint64_t triggerArrayCapacity,
                      uint64_t* missedElements);
 

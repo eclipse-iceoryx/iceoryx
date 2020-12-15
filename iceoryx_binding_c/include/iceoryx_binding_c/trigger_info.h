@@ -20,7 +20,7 @@
 #include "iceoryx_binding_c/user_trigger.h"
 
 /// @brief trigger state handle
-typedef CLASS TriggerInfo* iox_trigger_info_t;
+typedef const CLASS TriggerInfo* iox_trigger_info_t;
 
 /// @brief returns the id of the trigger
 /// @param[in] self handle to trigger state

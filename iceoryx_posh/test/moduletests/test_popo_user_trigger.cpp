@@ -174,7 +174,7 @@ TEST_F(UserTrigger_test, TriggersWaitSet)
 
     auto result = m_waitSet.timedWait(1_s);
     ASSERT_THAT(result.size(), Eq(1));
-    EXPECT_THAT(result[0].getTriggerId(), 4412);
+    EXPECT_THAT(result[0]->getTriggerId(), 4412);
 }
 
 TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
@@ -196,7 +196,7 @@ TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
     auto triggerInfoVector = m_waitSet.wait();
 
     ASSERT_THAT(triggerInfoVector.size(), Eq(1));
-    triggerInfoVector[0]();
+    (*triggerInfoVector[0])();
     EXPECT_THAT(m_callbackOrigin, &sut);
 }
 
@@ -209,7 +209,7 @@ TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalledOverloadWithoutId)
     auto triggerInfoVector = m_waitSet.wait();
 
     ASSERT_THAT(triggerInfoVector.size(), Eq(1));
-    triggerInfoVector[0]();
+    (*triggerInfoVector[0])();
     EXPECT_THAT(m_callbackOrigin, &sut);
 }
 

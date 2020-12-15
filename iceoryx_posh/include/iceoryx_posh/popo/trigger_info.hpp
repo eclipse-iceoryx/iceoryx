@@ -63,14 +63,7 @@ class TriggerInfo
     /// Otherwise it calls the errorHandler with a moderate error of
     /// kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
     template <typename T>
-    T* getOrigin() noexcept;
-
-    /// @brief returns the pointer to the triggerOrigin.
-    /// @return If T equals the Triggerable type it returns the triggerOrigin.
-    /// Otherwise it calls the errorHandler with a moderate error of
-    /// kPOPO__TRIGGER_STATE_TYPE_INCONSISTENCY_IN_GET_ORIGIN and returns nullptr.
-    template <typename T>
-    const T* getOrigin() const noexcept;
+    T* getOrigin() const noexcept;
 
     /// @brief If a callback is set it executes the callback.
     /// @return true if the callback was called, otherwise false

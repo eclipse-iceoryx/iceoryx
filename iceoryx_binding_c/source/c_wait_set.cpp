@@ -24,7 +24,7 @@ extern "C" {
 }
 
 static uint64_t trigger_vector_to_c_array(const WaitSet<>::TriggerInfoVector& triggerVector,
-                                          iox_trigger_info_t const triggerArray,
+                                          iox_trigger_info_t* triggerArray,
                                           const uint64_t triggerArrayCapacity,
                                           uint64_t* missedElements)
 {
@@ -62,7 +62,7 @@ void iox_ws_deinit(iox_ws_t const self)
 
 uint64_t iox_ws_timed_wait(iox_ws_t const self,
                            struct timespec timeout,
-                           iox_trigger_info_t const triggerArray,
+                           iox_trigger_info_t* const triggerArray,
                            const uint64_t triggerArrayCapacity,
                            uint64_t* missedElements)
 {
@@ -75,7 +75,7 @@ uint64_t iox_ws_timed_wait(iox_ws_t const self,
 }
 
 uint64_t iox_ws_wait(iox_ws_t const self,
-                     iox_trigger_info_t const triggerArray,
+                     iox_trigger_info_t* const triggerArray,
                      const uint64_t triggerArrayCapacity,
                      uint64_t* missedElements)
 {

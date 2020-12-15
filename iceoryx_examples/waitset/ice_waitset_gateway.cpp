@@ -73,7 +73,7 @@ int main()
 
         for (auto& trigger : triggerVector)
         {
-            if (trigger.doesOriginateFrom(&shutdownTrigger))
+            if (trigger->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 return (EXIT_SUCCESS);
@@ -81,7 +81,7 @@ int main()
             else
             {
                 // call the callback which was assigned to the trigger
-                trigger();
+                (*trigger)();
             }
         }
 

@@ -75,7 +75,7 @@ int main()
 
         for (auto& trigger : triggerVector)
         {
-            if (trigger.doesOriginateFrom(&shutdownTrigger))
+            if (trigger->doesOriginateFrom(&shutdownTrigger))
             {
                 // CTRL+c was pressed -> exit
                 keepRunning.store(false);
@@ -83,7 +83,7 @@ int main()
             else
             {
                 // call SomeClass::myCyclicRun
-                trigger();
+                (*trigger)();
             }
         }
 

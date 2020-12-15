@@ -46,7 +46,7 @@ inline bool TriggerInfo::doesOriginateFrom(T* const triggerOrigin) const noexcep
 }
 
 template <typename T>
-inline T* TriggerInfo::getOrigin() noexcept
+inline T* TriggerInfo::getOrigin() const noexcept
 {
     if (m_triggerOriginTypeHash != typeid(T).hash_code())
     {
@@ -57,11 +57,6 @@ inline T* TriggerInfo::getOrigin() noexcept
     return static_cast<T*>(m_triggerOrigin);
 }
 
-template <typename T>
-inline const T* TriggerInfo::getOrigin() const noexcept
-{
-    return const_cast<const T*>(const_cast<TriggerInfo*>(this)->getOrigin<T>());
-}
 } // namespace popo
 } // namespace iox
 

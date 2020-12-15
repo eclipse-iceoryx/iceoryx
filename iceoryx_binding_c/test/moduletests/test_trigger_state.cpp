@@ -104,7 +104,7 @@ TEST_F(iox_trigger_info_test, triggerStateHasCorrectId)
     auto triggerStateVector = m_waitSet.wait();
 
     ASSERT_THAT(triggerStateVector.size(), Eq(1));
-    EXPECT_EQ(iox_trigger_info_get_trigger_id(&triggerStateVector[0]), 123);
+    EXPECT_EQ(iox_trigger_info_get_trigger_id(triggerStateVector[0]), 123);
 }
 
 TEST_F(iox_trigger_info_test, triggerOriginIsUserTriggerPointerWhenItsOriginatingFromThem)
@@ -115,7 +115,7 @@ TEST_F(iox_trigger_info_test, triggerOriginIsUserTriggerPointerWhenItsOriginatin
 
     auto triggerStateVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_trigger_info_does_originate_from_user_trigger(&triggerStateVector[0], &m_userTrigger), true);
+    EXPECT_EQ(iox_trigger_info_does_originate_from_user_trigger(triggerStateVector[0], &m_userTrigger), true);
 }
 
 TEST_F(iox_trigger_info_test, triggerOriginIsNotUserTriggerPointerWhenItsNotOriginatingFromThem)
@@ -127,7 +127,7 @@ TEST_F(iox_trigger_info_test, triggerOriginIsNotUserTriggerPointerWhenItsNotOrig
 
     auto triggerStateVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_trigger_info_does_originate_from_user_trigger(&triggerStateVector[0], &m_userTrigger), false);
+    EXPECT_EQ(iox_trigger_info_does_originate_from_user_trigger(triggerStateVector[0], &m_userTrigger), false);
 }
 
 TEST_F(iox_trigger_info_test, triggerOriginIsSubscriberPointerWhenItsOriginatingFromThem)
@@ -139,7 +139,7 @@ TEST_F(iox_trigger_info_test, triggerOriginIsSubscriberPointerWhenItsOriginating
 
     auto triggerStateVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_trigger_info_does_originate_from_subscriber(&triggerStateVector[0], m_subscriberHandle), true);
+    EXPECT_EQ(iox_trigger_info_does_originate_from_subscriber(triggerStateVector[0], m_subscriberHandle), true);
 }
 
 TEST_F(iox_trigger_info_test, triggerOriginIsNotSubscriberPointerWhenItsOriginatingFromThem)
@@ -150,7 +150,7 @@ TEST_F(iox_trigger_info_test, triggerOriginIsNotSubscriberPointerWhenItsOriginat
 
     auto triggerStateVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_trigger_info_does_originate_from_subscriber(&triggerStateVector[0], m_subscriberHandle), false);
+    EXPECT_EQ(iox_trigger_info_does_originate_from_subscriber(triggerStateVector[0], m_subscriberHandle), false);
 }
 
 
@@ -162,7 +162,7 @@ TEST_F(iox_trigger_info_test, getOriginReturnsPointerToUserTriggerWhenOriginatin
 
     auto triggerStateVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_trigger_info_get_user_trigger_origin(&triggerStateVector[0]), &m_userTrigger);
+    EXPECT_EQ(iox_trigger_info_get_user_trigger_origin(triggerStateVector[0]), &m_userTrigger);
 }
 
 TEST_F(iox_trigger_info_test, getOriginReturnsNullptrUserTriggerWhenNotOriginatingFromThem)
@@ -174,7 +174,7 @@ TEST_F(iox_trigger_info_test, getOriginReturnsNullptrUserTriggerWhenNotOriginati
 
     auto triggerStateVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_trigger_info_get_user_trigger_origin(&triggerStateVector[0]), nullptr);
+    EXPECT_EQ(iox_trigger_info_get_user_trigger_origin(triggerStateVector[0]), nullptr);
 }
 
 
@@ -187,7 +187,7 @@ TEST_F(iox_trigger_info_test, getOriginReturnsPointerToSubscriberWhenOriginating
 
     auto triggerStateVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_trigger_info_get_subscriber_origin(&triggerStateVector[0]), m_subscriberHandle);
+    EXPECT_EQ(iox_trigger_info_get_subscriber_origin(triggerStateVector[0]), m_subscriberHandle);
 }
 
 TEST_F(iox_trigger_info_test, getOriginReturnsNullptrSubscriberWhenNotOriginatingFromThem)
@@ -198,7 +198,7 @@ TEST_F(iox_trigger_info_test, getOriginReturnsNullptrSubscriberWhenNotOriginatin
 
     auto triggerStateVector = m_waitSet.wait();
 
-    EXPECT_EQ(iox_trigger_info_get_subscriber_origin(&triggerStateVector[0]), nullptr);
+    EXPECT_EQ(iox_trigger_info_get_subscriber_origin(triggerStateVector[0]), nullptr);
 }
 
 TEST_F(iox_trigger_info_test, callbackCanBeCalledOnce)
@@ -209,7 +209,7 @@ TEST_F(iox_trigger_info_test, callbackCanBeCalledOnce)
 
     auto triggerStateVector = m_waitSet.wait();
 
-    iox_trigger_info_call(&triggerStateVector[0]);
+    iox_trigger_info_call(triggerStateVector[0]);
     EXPECT_EQ(m_lastTriggerCallbackArgument, &m_userTrigger);
 }
 
@@ -220,13 +220,13 @@ TEST_F(iox_trigger_info_test, callbackCanBeCalledMultipleTimes)
     m_userTrigger.trigger();
     auto triggerStateVector = m_waitSet.wait();
 
-    iox_trigger_info_call(&triggerStateVector[0]);
+    iox_trigger_info_call(triggerStateVector[0]);
     m_lastTriggerCallbackArgument = nullptr;
-    iox_trigger_info_call(&triggerStateVector[0]);
+    iox_trigger_info_call(triggerStateVector[0]);
     m_lastTriggerCallbackArgument = nullptr;
-    iox_trigger_info_call(&triggerStateVector[0]);
+    iox_trigger_info_call(triggerStateVector[0]);
     m_lastTriggerCallbackArgument = nullptr;
-    iox_trigger_info_call(&triggerStateVector[0]);
+    iox_trigger_info_call(triggerStateVector[0]);
 
     EXPECT_EQ(m_lastTriggerCallbackArgument, &m_userTrigger);
 }
