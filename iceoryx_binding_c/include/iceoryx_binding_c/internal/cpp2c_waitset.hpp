@@ -19,6 +19,7 @@
 
 class cpp2c_WaitSet : public iox::popo::WaitSet<>
 {
+  public:
     using iox::popo::WaitSet<>::WaitSet;
     ~cpp2c_WaitSet() = default;
 };
