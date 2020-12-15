@@ -70,14 +70,14 @@ uint64_t missedElements = 0U;
 uint64_t numberOfTriggeredConditions = 0U;
 
 // array where all trigger from iox_ws_wait will be stored
-iox_trigger_info_storage_t triggerArray[NUMBER_OF_TRIGGER];
+iox_trigger_info_t triggerArray[NUMBER_OF_TRIGGER];
 
 // event loop
 bool keepRunning = true;
 while (keepRunning)
 {
     numberOfTriggeredConditions =
-        iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        iox_ws_wait(waitSet, triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
 The triggered Triggers are contained in the `triggerArray`. We iterate through
@@ -86,7 +86,7 @@ we call the callback with `iox_trigger_info_call(trigger)`.
 ```c
 for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
 {
-    iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
+    iox_trigger_info_t trigger = triggerArray[i];
 
     if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
     {
@@ -169,7 +169,7 @@ bool keepRunning = true;
 while (keepRunning)
 {
     numberOfTriggeredConditions =
-        iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        iox_ws_wait(waitSet, triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
 When we iterate through the array we handle the `shutdownTrigger` first.
@@ -183,7 +183,7 @@ to screen, we just discard them.
 ```c
 for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
 {
-    iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
+    iox_trigger_info_t trigger = triggerArray[i];
 
     if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
     {
@@ -259,7 +259,7 @@ bool keepRunning = true;
 while (keepRunning)
 {
     numberOfTriggeredConditions =
-        iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        iox_ws_wait(waitSet, triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
 The `shutdownTrigger` is handled as usual and
@@ -270,7 +270,7 @@ originated from the second subscriber we discard the data.
 ```c
     for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
     {
-        iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
+        iox_trigger_info_t trigger = triggerArray[i];
 
         if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
         {
@@ -348,7 +348,7 @@ triggered Triggers in an array.
 while (keepRunning)
 {
     numberOfTriggeredConditions =
-        iox_ws_wait(waitSet, (iox_trigger_info_t)triggerArray, NUMBER_OF_TRIGGER, &missedElements);
+        iox_ws_wait(waitSet, triggerArray, NUMBER_OF_TRIGGER, &missedElements);
 ```
 
 The `shutdownTrigger` is handled as usual and the `cyclicTrigger` is handled by
@@ -356,7 +356,7 @@ just calling the attached callback with `iox_trigger_info_call(trigger)`.
 ```c
     for (uint64_t i = 0U; i < numberOfTriggeredConditions; ++i)
     {
-        iox_trigger_info_t trigger = (iox_trigger_info_t) & (triggerArray[i]);
+        iox_trigger_info_t trigger = triggerArray[i];
 
         if (iox_trigger_info_does_originate_from_user_trigger(trigger, shutdownTrigger))
         {

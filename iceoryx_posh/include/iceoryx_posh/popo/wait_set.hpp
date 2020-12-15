@@ -118,6 +118,7 @@ class WaitSet
     void removeAllTriggers() noexcept;
 
   private:
+    /// needs to be a list since we return pointer to the underlying TriggerInfo class with wait
     TriggerList m_triggerList;
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionVariableWaiter m_conditionVariableWaiter;

@@ -173,7 +173,7 @@ while (true)
 
     for (auto& trigger : triggerVector)
     {
-        if (trigger.doesOriginateFrom(&shutdownTrigger))
+        if (trigger->doesOriginateFrom(&shutdownTrigger))
         {
             // CTRL+c was pressed -> exit
             return (EXIT_SUCCESS);
@@ -181,7 +181,7 @@ while (true)
         else
         {
             // call the callback which was assigned to the trigger
-            trigger();
+            (*trigger)();
         }
 // .... 
 ```
@@ -237,7 +237,7 @@ while (true)
 
     for (auto& trigger : triggerVector)
     {
-        if (trigger.doesOriginateFrom(&shutdownTrigger))
+        if (trigger->doesOriginateFrom(&shutdownTrigger))
         {
             return (EXIT_SUCCESS);
         }
@@ -247,18 +247,18 @@ The remaining part of the loop is handling the subscribers. For the first group
 we would like to print the received data to the console and for the second group
 we just dismiss the received data.
 ```cpp
-else if (trigger.getTriggerId() == FIRST_GROUP_ID)
+else if (trigger->getTriggerId() == FIRST_GROUP_ID)
 {
-    auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+    auto subscriber = trigger->getOrigin<iox::popo::UntypedSubscriber>();
     subscriber->take().and_then([&](iox::popo::Sample<const void>& sample) {
         const CounterTopic* data = reinterpret_cast<const CounterTopic*>(sample.get());
         std::cout << "received: " << std::dec << data->counter << std::endl;
     });
 }
-else if (trigger.getTriggerId() == SECOND_GROUP_ID)
+else if (trigger->getTriggerId() == SECOND_GROUP_ID)
 {
     std::cout << "dismiss data\n";
-    auto subscriber = trigger.getOrigin<iox::popo::UntypedSubscriber>();
+    auto subscriber = trigger->getOrigin<iox::popo::UntypedSubscriber>();
     subscriber->releaseQueuedSamples();
 }
 ```
@@ -302,7 +302,7 @@ while (true)
 
     for (auto& trigger : triggerVector)
     {
-        if (trigger.doesOriginateFrom(&shutdownTrigger))
+        if (trigger->doesOriginateFrom(&shutdownTrigger))
         {
             return (EXIT_SUCCESS);
         }
@@ -313,13 +313,13 @@ following number X. But for `subscriber2` we just dismiss the received samples.
 We accomplish this by asking the `trigger` if it originated from the 
 corresponding subscriber. If so we act.
 ```cpp
-        else if (trigger.doesOriginateFrom(&subscriber1))
+        else if (trigger->doesOriginateFrom(&subscriber1))
         {
             subscriber1.take().and_then([&](iox::popo::Sample<const CounterTopic>& sample) {
                 std::cout << " subscriber 1 received: " << sample->counter << std::endl;
             });
         }
-        if (trigger.doesOriginateFrom(&subscriber2))
+        if (trigger->doesOriginateFrom(&subscriber2))
         {
             subscriber2.releaseQueuedSamples();
             std::cout << "subscriber 2 received something - dont care\n";
@@ -385,7 +385,7 @@ while (true)
 
     for (auto& trigger : triggerVector)
     {
-        if (trigger.doesOriginateFrom(&shutdownTrigger))
+        if (trigger->doesOriginateFrom(&shutdownTrigger))
         {
             // CTRL+c was pressed -> exit
             keepRunning.store(false);
@@ -399,7 +399,7 @@ The `cyclicTrigger` callback is called in the else part.
         else
         {
             // call SomeClass::myCyclicRun
-            trigger();
+            (*trigger)();
         }
 ```
 
@@ -546,15 +546,15 @@ void eventLoop()
         auto triggerStateVector = waitset->wait();
         for (auto& triggerState : triggerStateVector)
         {
-            if (triggerState.getTriggerId() == ACTIVATE_ID)
+            if (triggerState->getTriggerId() == ACTIVATE_ID)
             {
-                triggerState.getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
-                triggerState();
+                triggerState->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::ACTIVATE);
+                (*triggerState)();
             }
-            else if (triggerState.getTriggerId() == ACTION_ID)
+            else if (triggerState->getTriggerId() == ACTION_ID)
             {
-                triggerState.getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
-                triggerState();
+                triggerState->getOrigin<MyTriggerClass>()->reset(MyTriggerClassEvents::PERFORMED_ACTION);
+                (*triggerState)();
             }
         }
     }
