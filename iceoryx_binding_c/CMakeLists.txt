@@ -58,6 +58,7 @@ add_library(${PROJECT_NAME}
     source/cpp2c_enum_translation.cpp
     source/cpp2c_publisher.cpp
     source/cpp2c_subscriber.cpp
+    source/cpp2c_waitset.cpp
 )
 add_library(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 

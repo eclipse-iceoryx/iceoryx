@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IOX_BINDING_C_CPP2C_WAITSET_HPP
-#define IOX_BINDING_C_CPP2C_WAITSET_HPP
+#include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
 
-#include "iceoryx_posh/popo/wait_set.hpp"
-
-class cpp2c_WaitSet : public iox::popo::WaitSet<>
+cpp2c_WaitSet::cpp2c_WaitSet(iox::cxx::not_null<iox::popo::ConditionVariableData* const> condVarData) noexcept
+    : iox::popo::WaitSet<>(condVarData)
 {
-  public:
-    cpp2c_WaitSet(iox::cxx::not_null<iox::popo::ConditionVariableData* const>) noexcept;
-    ~cpp2c_WaitSet() = default;
-};
+}
 
-#endif
