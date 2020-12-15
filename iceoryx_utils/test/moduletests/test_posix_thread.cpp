@@ -68,7 +68,7 @@ TEST_F(Thread_test, DISABLED_SetWithLargeStringDoesNotCompile)
         "incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud "
         "exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
 
-    auto setResult = setThreadName(m_thread->native_handle(), stringLongerThanThreadNameCapacitiy);
+    setThreadName(m_thread->native_handle(), stringLongerThanThreadNameCapacitiy);
 #endif
 }
 
@@ -76,23 +76,19 @@ TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
 {
     ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
 
-    auto setResult = setThreadName(m_thread->native_handle(), stringEqualToThreadNameCapacitiy);
+    setThreadName(m_thread->native_handle(), stringEqualToThreadNameCapacitiy);
     auto getResult = getThreadName(m_thread->native_handle());
 
-    EXPECT_THAT(setResult.has_error(), Eq(false));
-    EXPECT_THAT(getResult.has_error(), Eq(false));
-    EXPECT_THAT(getResult.value(), StrEq(stringEqualToThreadNameCapacitiy));
+    EXPECT_THAT(getResult, StrEq(stringEqualToThreadNameCapacitiy));
 }
 
 TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 {
     char stringShorterThanThreadNameCapacitiy[] = "I'm short";
 
-    auto setResult = setThreadName(m_thread->native_handle(), stringShorterThanThreadNameCapacitiy);
+    setThreadName(m_thread->native_handle(), stringShorterThanThreadNameCapacitiy);
     auto getResult = getThreadName(m_thread->native_handle());
 
-    EXPECT_THAT(setResult.has_error(), Eq(false));
-    EXPECT_THAT(getResult.has_error(), Eq(false));
-    EXPECT_THAT(getResult.value(), StrEq(stringShorterThanThreadNameCapacitiy));
+    EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
 }
 #endif

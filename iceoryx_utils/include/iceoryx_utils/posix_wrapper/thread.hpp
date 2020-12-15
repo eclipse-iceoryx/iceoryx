@@ -28,12 +28,12 @@ enum class ThreadErrorType : int32_t
     EXCEEDED_RANGE_LIMIT = 0
 };
 
-constexpr uint8_t MAX_THREAD_NAME_LENGTH = 16;
+constexpr uint8_t MAX_THREAD_NAME_LENGTH = 16U;
 
 using ThreadName_t = cxx::string<MAX_THREAD_NAME_LENGTH - 1>;
 
-cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const ThreadName_t& name);
-cxx::expected<ThreadName_t, ThreadErrorType> getThreadName(pthread_t thread);
+void setThreadName(pthread_t thread, const ThreadName_t& name);
+ThreadName_t getThreadName(pthread_t thread);
 
 } // namespace posix
 } // namespace iox

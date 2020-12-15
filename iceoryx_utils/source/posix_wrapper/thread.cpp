@@ -13,43 +13,39 @@
 // limitations under the License.
 
 #include "iceoryx_utils/posix_wrapper/thread.hpp"
+#include "iceoryx_utils/cxx/helplets.hpp"
 
 namespace iox
 {
 namespace posix
 {
-cxx::expected<ThreadErrorType> setThreadName(pthread_t thread, const ThreadName_t& name)
+void setThreadName(pthread_t thread, const ThreadName_t& name)
 {
-    if (cxx::makeSmartC(
-            iox_pthread_setname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, name.c_str())
-            .hasErrors())
-    {
-        return cxx::error<ThreadErrorType>(ThreadErrorType::EXCEEDED_RANGE_LIMIT);
-    }
-    else
-    {
-        return cxx::success<>();
-    }
+    auto result = cxx::makeSmartC(
+        iox_pthread_setname_np, cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE, {0}, {}, thread, name.c_str());
+
+    // String length limit is ensured through cxx::string
+    // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
+    cxx::Ensures(!result.hasErrors());
 }
 
-cxx::expected<ThreadName_t, ThreadErrorType> getThreadName(pthread_t thread)
+ThreadName_t getThreadName(pthread_t thread)
 {
     char tempName[MAX_THREAD_NAME_LENGTH];
-    if (cxx::makeSmartC(pthread_getname_np,
-                        cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
-                        {0},
-                        {},
-                        thread,
-                        tempName,
-                        MAX_THREAD_NAME_LENGTH)
-            .hasErrors())
-    {
-        return cxx::error<ThreadErrorType>(ThreadErrorType::EXCEEDED_RANGE_LIMIT);
-    }
-    else
-    {
-        return cxx::success<ThreadName_t>(cxx::TruncateToCapacity, tempName);
-    }
+
+    auto result = cxx::makeSmartC(pthread_getname_np,
+                                  cxx::ReturnMode::PRE_DEFINED_SUCCESS_CODE,
+                                  {0},
+                                  {},
+                                  thread,
+                                  tempName,
+                                  MAX_THREAD_NAME_LENGTH);
+
+    // String length limit is ensured through MAX_THREAD_NAME_LENGTH
+    // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
+    cxx::Ensures(!result.hasErrors());
+
+    return ThreadName_t(cxx::TruncateToCapacity, tempName);
 }
 
 } // namespace posix
