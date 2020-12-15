@@ -9,7 +9,7 @@ find_package(Threads REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_utils::iceoryx_utils CXX_STANDARD)
 if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatformDetection)
+    include(IceoryxPlatform)
 endif ( NOT ICEORYX_CXX_STANDARD )
 
 add_executable(iox-bm-optional-and-expected ./benchmark_optional_and_expected.cpp)

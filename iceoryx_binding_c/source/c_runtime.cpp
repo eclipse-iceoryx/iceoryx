@@ -21,7 +21,7 @@ extern "C" {
 #include "iceoryx_binding_c/runtime.h"
 }
 
-void iox_runtime_register(const char* const name)
+void iox_runtime_init(const char* const name)
 {
     if (name == nullptr)
     {

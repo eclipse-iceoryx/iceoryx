@@ -13,11 +13,14 @@
 // limitations under the License.
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "test.hpp"
@@ -37,6 +40,7 @@ const iox::ProcessName_t APP_NAME_FOR_INTERFACE_PORTS = {"InterfacePort"};
 const iox::ProcessName_t APP_NAME_EMPTY = {""};
 
 typedef BasePort* CreatePort();
+iox::mepoo::MemoryManager m_memoryManager;
 
 BasePort* CreateCaProPort()
 {
@@ -46,14 +50,20 @@ BasePort* CreateCaProPort()
 
 BasePort* CreateSenderPort()
 {
-    SenderPortData* senderPortData = new SenderPortData(SERVICE_DESCRIPTION_VALID, nullptr, APP_NAME_FOR_SENDER_PORTS);
-    return new SenderPort(senderPortData);
+    PublisherPortData* publisherPortData =
+        new PublisherPortData(SERVICE_DESCRIPTION_VALID, APP_NAME_FOR_SENDER_PORTS, &m_memoryManager, 1);
+    return new PublisherPortUser(publisherPortData);
 }
 
 BasePort* CreateReceiverPort()
 {
-    ReceiverPortData* receiverPortData = new ReceiverPortData(SERVICE_DESCRIPTION_VALID, APP_NAME_FOR_RECEIVER_PORTS);
-    return new ReceiverPort(receiverPortData);
+    SubscriberPortData* subscriberPortData =
+        new SubscriberPortData(SERVICE_DESCRIPTION_VALID,
+                               APP_NAME_FOR_RECEIVER_PORTS,
+                               iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                               1,
+                               iox::mepoo::MemoryInfo());
+    return new SubscriberPortUser(subscriberPortData);
 }
 
 BasePort* CreateInterfacePort()

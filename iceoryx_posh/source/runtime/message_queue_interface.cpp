@@ -87,7 +87,7 @@ bool MqBase::receive(MqMessage& answer) const noexcept
 bool MqBase::timedReceive(const units::Duration timeout, MqMessage& answer) const noexcept
 {
     return !m_mq.timedReceive(timeout)
-                .and_then([&answer](std::string& message) { MqBase::setMessageFromString(message.c_str(), answer); })
+                .and_then([&answer](auto& message) { MqBase::setMessageFromString(message.c_str(), answer); })
                 .has_error()
            && answer.isValid();
 }
@@ -160,7 +160,7 @@ bool MqBase::openMessageQueue(const posix::IpcChannelSide channelSide) noexcept
     m_channelSide = channelSide;
     IpcChannelType::create(
         m_interfaceName, posix::IpcChannelMode::BLOCKING, m_channelSide, m_maxMessageSize, m_maxMessages)
-        .and_then([this](IpcChannelType& mq) { this->m_mq = std::move(mq); });
+        .and_then([this](auto& mq) { this->m_mq = std::move(mq); });
 
     return m_mq.isInitialized();
 }
@@ -223,7 +223,8 @@ MqRuntimeInterface::MqRuntimeInterface(const std::string& roudiName,
     , m_AppMqInterface(appName)
     , m_RoudiMqInterface(roudiName)
 {
-    if (!m_AppMqInterface.isInitialized()) {
+    if (!m_AppMqInterface.isInitialized())
+    {
         errorHandler(Error::kMQ_INTERFACE__UNABLE_TO_CREATE_APPLICATION_MQ);
         return;
     }

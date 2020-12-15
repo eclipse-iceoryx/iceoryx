@@ -24,24 +24,24 @@ namespace iox
 {
 namespace roudi
 {
-template <typename SenderPort>
-ProcessIntrospection<SenderPort>::ProcessIntrospection()
+template <typename PublisherPort>
+ProcessIntrospection<PublisherPort>::ProcessIntrospection()
     : m_runThread(false)
 {
 }
 
-template <typename SenderPort>
-ProcessIntrospection<SenderPort>::~ProcessIntrospection()
+template <typename PublisherPort>
+ProcessIntrospection<PublisherPort>::~ProcessIntrospection()
 {
     stop();
-    if (m_senderPort)
+    if (m_publisherPort.has_value())
     {
-        m_senderPort.deactivate(); // stop offer
+        m_publisherPort->stopOffer();
     }
 }
 
-template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::addProcess(int f_pid, const ProcessName_t& f_name)
+template <typename PublisherPort>
+void ProcessIntrospection<PublisherPort>::addProcess(int f_pid, const ProcessName_t& f_name)
 {
     ProcessIntrospectionData procIntrData;
     procIntrData.m_pid = f_pid;
@@ -54,8 +54,8 @@ void ProcessIntrospection<SenderPort>::addProcess(int f_pid, const ProcessName_t
     }
 }
 
-template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::removeProcess(int f_pid)
+template <typename PublisherPort>
+void ProcessIntrospection<PublisherPort>::removeProcess(int f_pid)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -70,8 +70,8 @@ void ProcessIntrospection<SenderPort>::removeProcess(int f_pid)
     m_processListNewData = true;
 }
 
-template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::addNode(const ProcessName_t& f_process, const NodeName_t& f_node)
+template <typename PublisherPort>
+void ProcessIntrospection<PublisherPort>::addNode(const ProcessName_t& f_process, const NodeName_t& f_node)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -103,8 +103,8 @@ void ProcessIntrospection<SenderPort>::addNode(const ProcessName_t& f_process, c
     m_processListNewData = true;
 }
 
-template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::removeNode(const ProcessName_t& f_process, const NodeName_t& f_node)
+template <typename PublisherPort>
+void ProcessIntrospection<PublisherPort>::removeNode(const ProcessName_t& f_process, const NodeName_t& f_node)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
 
@@ -137,26 +137,25 @@ void ProcessIntrospection<SenderPort>::removeNode(const ProcessName_t& f_process
     m_processListNewData = true;
 }
 
-template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::registerSenderPort(SenderPort&& f_senderPort)
+template <typename PublisherPort>
+void ProcessIntrospection<PublisherPort>::registerPublisherPort(PublisherPort&& publisherPort)
 {
     // we do not want to call this twice
-    if (!m_senderPort)
+    if (!m_publisherPort.has_value())
     {
-        m_senderPort = std::move(f_senderPort);
-        m_senderPort.enableDoDeliverOnSubscription();
+        m_publisherPort.emplace(std::move(publisherPort));
     }
 }
 
-template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::run()
+template <typename PublisherPort>
+void ProcessIntrospection<PublisherPort>::run()
 {
     // TODO: error handling for non debug builds
-    cxx::Expects(m_senderPort);
+    cxx::Expects(m_publisherPort.has_value());
 
     // this is a field, there needs to be a sample before activate is called
     send();
-    m_senderPort.activate(); // corresponds to offer
+    m_publisherPort->offer();
 
     m_runThread = true;
     static uint32_t ct = 0;
@@ -177,28 +176,31 @@ void ProcessIntrospection<SenderPort>::run()
     pthread_setname_np(m_thread.native_handle(), "ProcessIntr");
 }
 
-template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::send()
+template <typename PublisherPort>
+void ProcessIntrospection<PublisherPort>::send()
 {
     std::lock_guard<std::mutex> guard(m_mutex);
     if (m_processListNewData)
     {
-        auto chunkHeader = m_senderPort.reserveChunk(sizeof(ProcessIntrospectionFieldTopic));
-        auto sample = static_cast<ProcessIntrospectionFieldTopic*>(chunkHeader->payload());
-        new (sample) ProcessIntrospectionFieldTopic;
-
-        for (auto& intrData : m_processList)
+        auto maybeChunkHeader = m_publisherPort->tryAllocateChunk(sizeof(ProcessIntrospectionFieldTopic));
+        if (!maybeChunkHeader.has_error())
         {
-            sample->m_processList.emplace_back(intrData);
-        }
-        m_processListNewData = false;
+            auto sample = static_cast<ProcessIntrospectionFieldTopic*>(maybeChunkHeader.value()->payload());
+            new (sample) ProcessIntrospectionFieldTopic;
 
-        m_senderPort.deliverChunk(chunkHeader);
+            for (auto& intrData : m_processList)
+            {
+                sample->m_processList.emplace_back(intrData);
+            }
+            m_processListNewData = false;
+
+            m_publisherPort->sendChunk(maybeChunkHeader.value());
+        }
     }
 }
 
-template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::stop()
+template <typename PublisherPort>
+void ProcessIntrospection<PublisherPort>::stop()
 {
     m_runThread = false;
     if (m_thread.joinable())
@@ -207,8 +209,8 @@ void ProcessIntrospection<SenderPort>::stop()
     }
 }
 
-template <typename SenderPort>
-void ProcessIntrospection<SenderPort>::setSendInterval(unsigned int interval_ms)
+template <typename PublisherPort>
+void ProcessIntrospection<PublisherPort>::setSendInterval(unsigned int interval_ms)
 {
     if (std::chrono::milliseconds(interval_ms) >= m_sendIntervalSleep)
     {

@@ -15,7 +15,7 @@
 #define IOX_POSH_ROUDI_INTROSPECTION_PROCESS_INTROSPECTION_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_utils/cxx/list.hpp"
 
@@ -35,7 +35,7 @@ namespace roudi
  *        The class tracks the adding and removal of processes and sends it to
  *        the introspection client if subscribed.
  */
-template <typename SenderPort>
+template <typename PublisherPort>
 class ProcessIntrospection
 {
   public:
@@ -81,19 +81,19 @@ class ProcessIntrospection
     void removeNode(const ProcessName_t& f_process, const NodeName_t& f_node);
 
     /*!
-     * @brief This functions registers the POSH sender port which is used
+     * @brief This functions registers the POSH publisher port which is used
      *        to send the data to the instrospcetion client
      *
-     * @param f_senderPort is the sender port for transmission
+     * @param publisherPort is the publisher port for transmission
      */
-    void registerSenderPort(SenderPort&& f_senderPort);
+    void registerPublisherPort(PublisherPort&& publisherPort);
 
     /**
      * @brief This function starts a thread which periodically sends
      *        the introspection data to the client. The send interval
      *        can be set by @ref setSendInterval "setSendInterval(...)".
-     *        Before this function is called, the sender port hast to be
-     *        registerd with @ref registerSenderPort "registerSenderPort()".
+     *        Before this function is called, the publisher port hast to be
+     *        registerd with @ref registerPublisherPort "registerPublisherPort()".
      */
     void run();
     /**
@@ -110,12 +110,14 @@ class ProcessIntrospection
      */
     void setSendInterval(unsigned int interval_ms);
 
+  protected:
+    cxx::optional<PublisherPort> m_publisherPort;
+    void send();
+
   private:
     using ProcessList_t = cxx::list<ProcessIntrospectionData, MAX_PROCESS_NUMBER>;
     ProcessList_t m_processList;
     bool m_processListNewData{true}; // true because we want to have a valid field, even with an empty list
-
-    SenderPort m_senderPort{nullptr};
 
     std::atomic<bool> m_runThread;
     std::thread m_thread;
@@ -123,16 +125,13 @@ class ProcessIntrospection
 
     unsigned int m_sendIntervalCount{10};
     const std::chrono::milliseconds m_sendIntervalSleep{100};
-
-  private:
-    void send();
 };
 
 /**
  * @brief typedef for the templated process introspection class that is used by RouDi for the
  * actual process introspection functionality.
  */
-using ProcessIntrospectionType = ProcessIntrospection<SenderPortType>;
+using ProcessIntrospectionType = ProcessIntrospection<PublisherPortUserType>;
 
 } // namespace roudi
 } // namespace iox

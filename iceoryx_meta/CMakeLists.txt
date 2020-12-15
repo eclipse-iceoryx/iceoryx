@@ -1,4 +1,4 @@
-# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+# Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ option(examples "build with iceoryx examples" ON)
 option(introspection "builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
 option(dds_gateway "builds the iceoryx dds gateway - enables internode communication via dds" OFF)
 option(binding_c "builds the C language bindings" ON)
+option(sanitize "Build with sanitizers" OFF)
 
 # ===== Dependencies
 if(TOML_CONFIG)
@@ -42,7 +43,6 @@ if(coverage)
         message( FATAL_ERROR "You need to run gcov with gcc compiler." )
     endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif(coverage)
-
 
 if(test)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/googletest ${CMAKE_BINARY_DIR}/dependencies/googletest/prebuild)
@@ -73,7 +73,7 @@ if(examples)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery)
     if(binding_c)
         add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icedelivery_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icedelivery_on_c)
-        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/icecallback_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/icecallback_on_c)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/waitset_on_c ${CMAKE_BINARY_DIR}/iceoryx_examples/waitset_on_c)
     endif(binding_c)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/iceperf ${CMAKE_BINARY_DIR}/iceoryx_examples/iceperf)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_examples/waitset ${CMAKE_BINARY_DIR}/iceoryx_examples/waitset)
@@ -90,7 +90,7 @@ if (test)
         COMMAND ./utils/test/utils_integrationtests --gtest_filter=-*.TimingTest_*
         COMMAND ./utils/test/utils_componenttests --gtest_filter=-*.TimingTest_*
         if (binding_c)
-            COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=-*.TimingTest_*
+            COMMAND ./binding_c/test/binding_c_moduletests --gtest_filter=-*.TimingTest_*
         endif(binding_c)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
@@ -104,7 +104,7 @@ if (test)
         COMMAND ./utils/test/utils_integrationtests --gtest_filter=*.TimingTest_*
         COMMAND ./utils/test/utils_componenttests --gtest_filter=*.TimingTest_*
         if (binding_c)
-            COMMAND ./binding_c/test/binding_c_integrationtests --gtest_filter=*.TimingTest_*
+            COMMAND ./binding_c/test/binding_c_moduletests --gtest_filter=*.TimingTest_*
         endif(binding_c)
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM

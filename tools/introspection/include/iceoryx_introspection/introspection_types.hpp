@@ -24,6 +24,8 @@ namespace introspection
 {
 using namespace iox::roudi;
 
+constexpr units::Duration WAIT_INTERVAL = 10_ms;
+
 enum class PrettyOptions
 {
     title,
@@ -41,30 +43,30 @@ struct IntrospectionSelection
 };
 
 /// @note this contains just pointer to the real data, therefore pay attention to the lifetime of the original data
-struct ComposedSenderPortData
+struct ComposedPublisherPortData
 {
-    ComposedSenderPortData(const SenderPortData& portData, const PortThroughputData& throughputData)
+    ComposedPublisherPortData(const PublisherPortData& portData, const PortThroughputData& throughputData)
         : portData(&portData)
         , throughputData(&throughputData)
     {
     }
-    const SenderPortData* portData;
+    const PublisherPortData* portData;
     const PortThroughputData* throughputData;
 };
 
-struct ComposedReceiverPortData
+struct ComposedSubscriberPortData
 {
-    ComposedReceiverPortData(const ReceiverPortData& portData,
-                             const SenderPortData* correspondingSenderPortData,
-                             const ReceiverPortChangingData& receiverPortChangingData)
+    ComposedSubscriberPortData(const SubscriberPortData& portData,
+                               const PublisherPortData* correspondingPublisherPortData,
+                               const SubscriberPortChangingData& subscriberPortChangingData)
         : portData(&portData)
-        , correspondingSenderPort(correspondingSenderPortData)
-        , receiverPortChangingData(&receiverPortChangingData)
+        , correspondingPublisherPort(correspondingPublisherPortData)
+        , subscriberPortChangingData(&subscriberPortChangingData)
     {
     }
-    const ReceiverPortData* portData;
-    const SenderPortData* correspondingSenderPort;
-    const ReceiverPortChangingData* receiverPortChangingData;
+    const SubscriberPortData* portData;
+    const PublisherPortData* correspondingPublisherPort;
+    const SubscriberPortChangingData* subscriberPortChangingData;
 };
 
 } // namespace introspection

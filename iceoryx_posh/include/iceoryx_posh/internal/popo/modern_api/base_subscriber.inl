@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,72 +15,75 @@
 #ifndef IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 #define IOX_POSH_POPO_BASE_SUBSCRIBER_INL
 
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
-
 namespace iox
 {
 namespace popo
 {
 // ============================== BaseSubscriber ============================== //
 
-template <typename T, typename port_t>
-inline BaseSubscriber<T, port_t>::BaseSubscriber(const capro::ServiceDescription& service)
+template <typename T, typename Subscriber, typename port_t>
+inline BaseSubscriber<T, Subscriber, port_t>::BaseSubscriber() noexcept
+{
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline BaseSubscriber<T, Subscriber, port_t>::BaseSubscriber(const capro::ServiceDescription& service) noexcept
     : m_port(iox::runtime::PoshRuntime::getInstance().getMiddlewareSubscriber(service))
 {
 }
 
-template <typename T, typename port_t>
-inline BaseSubscriber<T, port_t>::~BaseSubscriber()
+template <typename T, typename Subscriber, typename port_t>
+inline BaseSubscriber<T, Subscriber, port_t>::~BaseSubscriber()
 {
     m_port.destroy();
 }
 
-
-template <typename T, typename port_t>
-inline uid_t BaseSubscriber<T, port_t>::getUid() const noexcept
+template <typename T, typename Subscriber, typename port_t>
+inline uid_t BaseSubscriber<T, Subscriber, port_t>::getUid() const noexcept
 {
     return m_port.getUniqueID();
 }
 
-template <typename T, typename port_t>
+template <typename T, typename Subscriber, typename port_t>
 inline capro::ServiceDescription /// todo #25 make this a reference.
-BaseSubscriber<T, port_t>::getServiceDescription() const noexcept
+BaseSubscriber<T, Subscriber, port_t>::getServiceDescription() const noexcept
 {
     return m_port.getCaProServiceDescription();
 }
 
-template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::subscribe(const uint64_t queueCapacity) noexcept
+template <typename T, typename Subscriber, typename port_t>
+inline void BaseSubscriber<T, Subscriber, port_t>::subscribe(const uint64_t queueCapacity) noexcept
 {
     m_port.subscribe(queueCapacity);
 }
 
-template <typename T, typename port_t>
-inline SubscribeState BaseSubscriber<T, port_t>::getSubscriptionState() const noexcept
+template <typename T, typename Subscriber, typename port_t>
+inline SubscribeState BaseSubscriber<T, Subscriber, port_t>::getSubscriptionState() const noexcept
 {
     return m_port.getSubscriptionState();
 }
 
-template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::unsubscribe() noexcept
+template <typename T, typename Subscriber, typename port_t>
+inline void BaseSubscriber<T, Subscriber, port_t>::unsubscribe() noexcept
 {
     m_port.unsubscribe();
 }
 
-template <typename T, typename port_t>
-inline bool BaseSubscriber<T, port_t>::hasNewSamples() const noexcept
+template <typename T, typename Subscriber, typename port_t>
+inline bool BaseSubscriber<T, Subscriber, port_t>::hasNewSamples() const noexcept
 {
     return m_port.hasNewChunks();
 }
 
-template <typename T, typename port_t>
-inline bool BaseSubscriber<T, port_t>::hasMissedSamples() noexcept
+template <typename T, typename Subscriber, typename port_t>
+inline bool BaseSubscriber<T, Subscriber, port_t>::hasMissedSamples() noexcept
 {
     return m_port.hasLostChunksSinceLastCall();
 }
 
-template <typename T, typename port_t>
-inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubscriber<T, port_t>::take() noexcept
+template <typename T, typename Subscriber, typename port_t>
+inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError>
+BaseSubscriber<T, Subscriber, port_t>::take() noexcept
 {
     auto result = m_port.tryGetChunk();
     if (result.has_error())
@@ -104,45 +107,64 @@ inline cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> BaseSubs
     }
 }
 
-template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::releaseQueuedSamples() noexcept
+template <typename T, typename Subscriber, typename port_t>
+inline void BaseSubscriber<T, Subscriber, port_t>::releaseQueuedSamples() noexcept
 {
     m_port.releaseQueuedChunks();
 }
 
-template <typename T, typename port_t>
-inline void
-BaseSubscriber<T, port_t>::setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept
+template <typename T, typename Subscriber, typename port_t>
+inline void BaseSubscriber<T, Subscriber, port_t>::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept
 {
-    m_port.setConditionVariable(conditionVariableDataPtr);
-}
-
-template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::unsetConditionVariable() noexcept
-{
-    m_port.unsetConditionVariable();
-}
-
-template <typename T, typename port_t>
-inline bool BaseSubscriber<T, port_t>::hasTriggered() const noexcept
-{
-    return m_port.hasNewChunks();
+    if (m_trigger.getUniqueId() == uniqueTriggerId)
+    {
+        m_port.unsetConditionVariable();
+        m_trigger.invalidate();
+    }
 }
 
 // ============================== Sample Deleter ============================== //
 
-template <typename T, typename port_t>
-inline BaseSubscriber<T, port_t>::SubscriberSampleDeleter::SubscriberSampleDeleter(port_t& port)
+template <typename T, typename Subscriber, typename port_t>
+inline BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::SubscriberSampleDeleter(port_t& port)
     : m_port(std::ref(port))
 {
 }
 
-template <typename T, typename port_t>
-inline void BaseSubscriber<T, port_t>::SubscriberSampleDeleter::operator()(T* const ptr) const
+template <typename T, typename Subscriber, typename port_t>
+inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::operator()(T* const ptr) const
 {
     auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
     m_port.get().releaseChunk(header);
 }
+
+template <typename T, typename Subscriber, typename port_t>
+inline cxx::expected<WaitSetError>
+BaseSubscriber<T, Subscriber, port_t>::attachTo(WaitSet& waitset,
+                                                [[gnu::unused]] const SubscriberEvent subscriberEvent,
+                                                const uint64_t triggerId,
+                                                const Trigger::Callback<Subscriber> callback) noexcept
+{
+    Subscriber* self = reinterpret_cast<Subscriber*>(this);
+
+    return waitset
+        .acquireTrigger(
+            self, {*this, &SelfType::hasNewSamples}, {*this, &SelfType::invalidateTrigger}, triggerId, callback)
+        .and_then([this](TriggerHandle& trigger) {
+            m_trigger = std::move(trigger);
+            m_port.setConditionVariable(m_trigger.getConditionVariableData());
+        });
+}
+
+template <typename T, typename Subscriber, typename port_t>
+inline void BaseSubscriber<T, Subscriber, port_t>::detachEvent(const SubscriberEvent subscriberEvent) noexcept
+{
+    static_cast<void>(subscriberEvent);
+
+    m_trigger.reset();
+    m_port.unsetConditionVariable();
+}
+
 
 } // namespace popo
 } // namespace iox

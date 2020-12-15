@@ -170,7 +170,7 @@ TEST_F(BasePublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublisherPort)
         .WillByDefault(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>())));
     EXPECT_CALL(sut.getMockedPort(), sendChunk).Times(1);
     // ===== Test ===== //
-    sut.loan(sizeof(DummyData)).and_then([](iox::popo::Sample<DummyData>& sample) { sample.publish(); });
+    sut.loan(sizeof(DummyData)).and_then([](auto& sample) { sample.publish(); });
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
