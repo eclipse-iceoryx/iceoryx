@@ -28,6 +28,9 @@ namespace iox
 {
 namespace posix
 {
+
+using MessageQueueName_t = cxx::string<MAX_IPC_CHANNEL_NAME_LENGTH + 1>;
+
 /// @brief Wrapper class for posix message queue
 ///
 /// @tparam NON_BLOCKING specifies the type of message queue. A non-blocking message queue will immediately return from
@@ -104,10 +107,10 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     cxx::expected<IpcChannelError> unlink();
     cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const;
     static cxx::error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum);
-    static cxx::expected<IpcChannelName_t, IpcChannelError> isNameValid(const IpcChannelName_t& name) noexcept;
+    static cxx::expected<MessageQueueName_t, IpcChannelError> sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
 
   private:
-    IpcChannelName_t m_name;
+    MessageQueueName_t m_name;
     struct mq_attr m_attributes;
     mqd_t m_mqDescriptor = INVALID_DESCRIPTOR;
     IpcChannelSide m_channelSide;

@@ -39,8 +39,8 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
                            const uint64_t maxMsgNumber)
     : m_channelSide(channelSide)
 {
-    isNameValid(name)
-        .and_then([this](IpcChannelName_t& name) { m_name = std::move(name); })
+    sanitizeIpcChannelName(name)
+        .and_then([this](MessageQueueName_t& name) { m_name = std::move(name); })
         .or_else([this](IpcChannelError) {
             this->m_isInitialized = false;
             this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
@@ -128,7 +128,7 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other)
 cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelName_t& name)
 {
     IpcChannelName_t l_name;
-    if (isNameValid(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
+    if (sanitizeIpcChannelName(name).and_then([&](MessageQueueName_t& name) { l_name = std::move(name); }).has_error())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -219,7 +219,7 @@ cxx::expected<int32_t, IpcChannelError>
 MessageQueue::open(const IpcChannelName_t& name, const IpcChannelMode mode, const IpcChannelSide channelSide)
 {
     IpcChannelName_t l_name;
-    if (isNameValid(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
+    if (sanitizeIpcChannelName(name).and_then([&](MessageQueueName_t& name) { l_name = std::move(name); }).has_error())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -422,7 +422,8 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannel
     }
 }
 
-cxx::expected<IpcChannelName_t, IpcChannelError> MessageQueue::isNameValid(const IpcChannelName_t& name) noexcept
+cxx::expected<MessageQueueName_t, IpcChannelError>
+MessageQueue::sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept
 {
     /// @todo the check for the longest valid queue name is missing
     /// the name for the mqeue is limited by MAX_PATH
@@ -434,11 +435,11 @@ cxx::expected<IpcChannelName_t, IpcChannelError> MessageQueue::isNameValid(const
     }
     else if (name.c_str()[0] != '/')
     {
-        return cxx::success<IpcChannelName_t>(IpcChannelName_t("/").append(iox::cxx::TruncateToCapacity, name));
+        return cxx::success<MessageQueueName_t>(MessageQueueName_t("/").append(iox::cxx::TruncateToCapacity, name));
     }
     else
     {
-        return cxx::success<IpcChannelName_t>(name);
+        return cxx::success<MessageQueueName_t>(name);
     }
 }
 
