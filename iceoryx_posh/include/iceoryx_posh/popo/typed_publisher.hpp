@@ -15,8 +15,8 @@
 #ifndef IOX_POSH_POPO_TYPED_PUBLISHER_HPP
 #define IOX_POSH_POPO_TYPED_PUBLISHER_HPP
 
-#include "iceoryx_posh/popo/modern_api/base_publisher.hpp"
-#include "iceoryx_posh/popo/modern_api/sample.hpp"
+#include "iceoryx_posh/popo/base_publisher.hpp"
+#include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_utils/cxx/type_traits.hpp"
 
 namespace iox
@@ -66,6 +66,6 @@ class TypedPublisher : public base_publisher_t
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/modern_api/typed_publisher.inl"
+#include "iceoryx_posh/internal/popo/typed_publisher.inl"
 
 #endif // IOX_POSH_POPO_TYPED_PUBLISHER_HPP

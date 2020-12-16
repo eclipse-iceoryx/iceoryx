@@ -106,6 +106,6 @@ class Sample<const T>
 } // namespace popo
 } // namespace iox
 
-#include "iceoryx_posh/internal/popo/modern_api/sample.inl"
+#include "iceoryx_posh/internal/popo/sample.inl"
 
 #endif // IOX_POSH_POPO_SAMPLE_HPP
