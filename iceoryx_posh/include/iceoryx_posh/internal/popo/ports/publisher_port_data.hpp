@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "iceoryx_posh/popo/publisher_options.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -35,8 +36,7 @@ struct PublisherPortData : public BasePortData
     PublisherPortData(const capro::ServiceDescription& serviceDescription,
                       const ProcessName_t& processName,
                       mepoo::MemoryManager* const memoryManager,
-                      const uint64_t historyCapacity = 0u,
-                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
+                      const PublisherOptions& publisherOptions = PublisherOptions()) noexcept;
 
     using ChunkQueueData_t = SubscriberPortData::ChunkQueueData_t;
     using ChunkDistributorData_t =

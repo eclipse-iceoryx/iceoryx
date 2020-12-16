@@ -64,7 +64,9 @@ BasePortData* createPortData()
 template <>
 PublisherPortData* createPortData()
 {
-    return new PublisherPortData(SERVICE_DESCRIPTION_VALID, APP_NAME_FOR_PUBLISHER_PORTS, &m_memoryManager, 1);
+    PublisherOptions options;
+    options.historyCapacity = 1U;
+    return new PublisherPortData(SERVICE_DESCRIPTION_VALID, APP_NAME_FOR_PUBLISHER_PORTS, &m_memoryManager, options);
 }
 template <>
 SubscriberPortData* createPortData()

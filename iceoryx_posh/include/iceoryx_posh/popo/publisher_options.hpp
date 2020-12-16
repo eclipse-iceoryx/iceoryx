@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#ifndef IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
+#define IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
+
+#include "iceoryx_posh/mepoo/memory_info.hpp"
+
+#include <cstdint>
 
 namespace iox
 {
 namespace popo
 {
-PublisherPortData::PublisherPortData(const capro::ServiceDescription& serviceDescription,
-                                     const ProcessName_t& processName,
-                                     mepoo::MemoryManager* const memoryManager,
-                                     const PublisherOptions& publisherOptions) noexcept
-    : BasePortData(serviceDescription, processName)
-    , m_chunkSenderData(memoryManager, publisherOptions.historyCapacity, publisherOptions.memoryInfo)
+struct PublisherOptions
 {
-}
+    uint64_t historyCapacity{0};
+    mepoo::MemoryInfo memoryInfo;
+};
 
 } // namespace popo
 } // namespace iox
+#endif // IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ template <typename base_publisher_t = BasePublisher<void>>
 class UntypedPublisherImpl : public base_publisher_t
 {
   public:
-    UntypedPublisherImpl(const capro::ServiceDescription& service);
+    UntypedPublisherImpl(const capro::ServiceDescription& service,
+                         const PublisherOptions& publisherOptions = PublisherOptions());
     UntypedPublisherImpl(const UntypedPublisherImpl& other) = delete;
     UntypedPublisherImpl& operator=(const UntypedPublisherImpl&) = delete;
     UntypedPublisherImpl(UntypedPublisherImpl&& rhs) = default;

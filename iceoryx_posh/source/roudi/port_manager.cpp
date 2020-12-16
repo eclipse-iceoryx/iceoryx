@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
@@ -595,8 +596,8 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
     }
 
     // we can create a new port
-    auto maybePublisherPortData = m_portPool->addPublisherPort(
-        service, historyCapacity, payloadMemoryManager, processName, portConfigInfo.memoryInfo);
+    auto options = popo::PublisherOptions{historyCapacity, portConfigInfo.memoryInfo};
+    auto maybePublisherPortData = m_portPool->addPublisherPort(service, payloadMemoryManager, processName, options);
     if (!maybePublisherPortData.has_error())
     {
         m_portIntrospection.addPublisher(maybePublisherPortData.value(), processName, service, node);
@@ -653,7 +654,8 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const Process
     }
 }
 
-void PortManager::addEntryToServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept
+void PortManager::addEntryToServiceRegistry(const capro::IdString_t& service,
+                                            const capro::IdString_t& instance) noexcept
 {
     m_serviceRegistry.add(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);

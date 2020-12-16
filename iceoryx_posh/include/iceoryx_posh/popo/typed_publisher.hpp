@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,8 @@ class TypedPublisher : public base_publisher_t
     static_assert(std::is_default_constructible<T>::value, "The TypedPublisher requires default-constructable types.");
 
   public:
-    TypedPublisher(const capro::ServiceDescription& service);
+    TypedPublisher(const capro::ServiceDescription& service,
+                   const PublisherOptions& publisherOptions = PublisherOptions());
     TypedPublisher(const TypedPublisher& other) = delete;
     TypedPublisher& operator=(const TypedPublisher&) = delete;
     TypedPublisher(TypedPublisher&& rhs) = default;
