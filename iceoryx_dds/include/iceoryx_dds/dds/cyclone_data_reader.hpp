@@ -32,7 +32,9 @@ class CycloneDataReader : public DataReader
 {
   public:
     CycloneDataReader() = delete;
-    CycloneDataReader(IdString_t serviceId, IdString_t instanceId, IdString_t eventId) noexcept;
+    CycloneDataReader(const capro::IdString_t serviceId,
+                      const capro::IdString_t instanceId,
+                      const capro::IdString_t eventId) noexcept;
     virtual ~CycloneDataReader();
 
     CycloneDataReader(const CycloneDataReader&) = delete;
@@ -49,14 +51,14 @@ class CycloneDataReader : public DataReader
     iox::cxx::expected<uint64_t, DataReaderError>
     take(uint8_t* const buffer, const uint64_t& bufferSize, const iox::cxx::optional<uint64_t>& maxSamples) override;
 
-    IdString_t getServiceId() const noexcept override;
-    IdString_t getInstanceId() const noexcept override;
-    IdString_t getEventId() const noexcept override;
+    capro::IdString_t getServiceId() const noexcept override;
+    capro::IdString_t getInstanceId() const noexcept override;
+    capro::IdString_t getEventId() const noexcept override;
 
   private:
-    IdString_t m_serviceId{""};
-    IdString_t m_instanceId{""};
-    IdString_t m_eventId{""};
+    capro::IdString_t m_serviceId{""};
+    capro::IdString_t m_instanceId{""};
+    capro::IdString_t m_eventId{""};
 
     ::dds::sub::DataReader<Mempool::Chunk> m_impl = ::dds::core::null;
 

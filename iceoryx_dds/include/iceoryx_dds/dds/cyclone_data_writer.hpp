@@ -31,7 +31,9 @@ class CycloneDataWriter : public iox::dds::DataWriter
 {
   public:
     CycloneDataWriter() = delete;
-    CycloneDataWriter(const IdString_t serviceId, const IdString_t instanceId, const IdString_t eventId);
+    CycloneDataWriter(const capro::IdString_t serviceId,
+                      const capro::IdString_t instanceId,
+                      const capro::IdString_t eventId) noexcept;
     virtual ~CycloneDataWriter();
     CycloneDataWriter(const CycloneDataWriter&) = delete;
     CycloneDataWriter& operator=(const CycloneDataWriter&) = delete;
@@ -41,14 +43,14 @@ class CycloneDataWriter : public iox::dds::DataWriter
 
     void connect() noexcept override;
     void write(const uint8_t* const bytes, const uint64_t size) noexcept override;
-    IdString_t getServiceId() const noexcept override;
-    IdString_t getInstanceId() const noexcept override;
-    IdString_t getEventId() const noexcept override;
+    capro::IdString_t getServiceId() const noexcept override;
+    capro::IdString_t getInstanceId() const noexcept override;
+    capro::IdString_t getEventId() const noexcept override;
 
   private:
-    IdString_t m_serviceId{""};
-    IdString_t m_instanceId{""};
-    IdString_t m_eventId{""};
+    capro::IdString_t m_serviceId{""};
+    capro::IdString_t m_instanceId{""};
+    capro::IdString_t m_eventId{""};
 
     ::dds::pub::Publisher m_publisher = ::dds::core::null;
     ::dds::topic::Topic<Mempool::Chunk> m_topic = ::dds::core::null;
