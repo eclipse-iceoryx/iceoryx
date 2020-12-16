@@ -32,7 +32,7 @@ The counters can differ depending on startup of the applications.
 
     Reserving 84783040 bytes in the shared memory [/iceoryx_mgmt]
     [ Reserving shared memory successful ] 
-    Reserving 149655680 bytes in the shared memory [/apex]
+    Reserving 149655680 bytes in the shared memory [/user]
     [ Reserving shared memory successful ] 
     RouDi is ready for clients
 
@@ -155,9 +155,11 @@ Once Ctrl+C is pressed, we leave the publisher loops and join the threads.
 ### Subscriber application
 
 We create a subscriber via
+
     iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
 
 and immediately subscribe.
+
     subscriber.subscribe();
 
 Notice that all identifiers match the ones provided by the two publishers.
@@ -204,9 +206,11 @@ We also define some time period for which we will later unsubscribe.
     constexpr uint64_t UNSUBSCRIBED_TIME_SECONDS{3U};
 
 We create a subscriber via
+
     iox::popo::TypedSubscriber<CounterTopic> subscriber({"Group", "Instance", "Counter"});
 
 and immediately subscribe.
+
     subscriber.subscribe();
 
 The topic we subscribe to is the same as for the subscriber application.
@@ -228,17 +232,16 @@ We wait for some time, check for data, and if there is any display it on the con
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        while (subscriber.hasNewSamples())
-        {
-            subscriber.take()
-                .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
-                    std::cout << "Received: " << *sample.get() << std::endl;
-                })
-                .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
-        };
-        std::cout << "Waiting for data ... " << std::endl;
+    while (subscriber.hasNewSamples())
+    {
+        subscriber.take()
+            .and_then([](iox::popo::Sample<const CounterTopic>& sample) {
+                         std::cout << "Received: " << *sample.get() << std::endl; })
+            .or_else([](iox::popo::ChunkReceiveError) { std::cout << "Error while receiving." << std::endl; });
+    };
+    std::cout << "Waiting for data ... " << std::endl;
 
-Depending on the ``maxNumSamples`` we specified on subscription we will see the most recent data from the two publishers, but never more than ``maxNumSamples``. Stale data is silently discarded. This shows that the internal queue size on the subscriber size can be changed during operation. Note that again it is indeterminate which data we see if both publishers are sending concurrently. In particular if the subscriber can only hold one sample (``maxNumSamples=1``), we may see data with id 1 or 2.
+Depending on the ``maxNumSamples`` we specified on subscription we will see the most recent data from the two publishers, but never more than ``maxNumSamples``. Stale data is silently discarded. This shows that the internal queue size on the subscriber size can be changed during operation. Note that again it is indeterminate which data we see if both publishers are sending concurrently. In particular, if the subscriber can only hold one sample (``maxNumSamples=1``), we may see data with id 1 or 2.
 
 When Ctrl+C is pressed we exit the loop and unsubscribe
 
