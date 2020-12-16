@@ -81,7 +81,7 @@ bool iox_sub_has_new_chunks(iox_sub_t const self);
 /// @return true if there are lost chunks otherwise false
 bool iox_sub_has_lost_chunks(iox_sub_t const self);
 
-/// @brief attaches the subscriber to a waitset
+/// @brief enables an event of the subscriber by attaching it to a waitset
 /// @param[in] self handle to the subscriber
 /// @param[in] waitset handle to the waitset
 /// @param[in] event the type of the event which should be attached to the waitset
@@ -90,16 +90,16 @@ bool iox_sub_has_lost_chunks(iox_sub_t const self);
 ///            callback should be set
 /// @return if it was attached successfully it returns WaitSetResult_SUCCESS
 ///         otherwise an enum which is describing the error
-ENUM iox_WaitSetResult iox_sub_attach_event(iox_sub_t const self,
+ENUM iox_WaitSetResult iox_sub_enable_event(iox_sub_t const self,
                                             iox_ws_t const waitset,
                                             const ENUM iox_SubscriberEvent event,
                                             const uint64_t eventId,
                                             void (*callback)(iox_sub_t));
 
-/// @brief detaches the subscriber from a waitset
+/// @brief disables an event of the subscriber
 /// @param[in] self handle to the subscriber
 /// @param[in] event the type of the event which should be detached
-void iox_sub_detach_event(iox_sub_t const self, const ENUM iox_SubscriberEvent event);
+void iox_sub_disable_event(iox_sub_t const self, const ENUM iox_SubscriberEvent event);
 
 
 #endif

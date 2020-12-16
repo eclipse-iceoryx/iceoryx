@@ -141,7 +141,7 @@ inline void BaseSubscriber<T, Subscriber, port_t>::SubscriberSampleDeleter::oper
 template <typename T, typename Subscriber, typename port_t>
 template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::attachEvent(WaitSet<WaitSetCapacity>& waitset,
+BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
                                                    [[gnu::unused]] const SubscriberEvent subscriberEvent,
                                                    const uint64_t eventId,
                                                    const EventInfo::Callback<Subscriber> callback) noexcept
@@ -160,15 +160,15 @@ BaseSubscriber<T, Subscriber, port_t>::attachEvent(WaitSet<WaitSetCapacity>& wai
 template <typename T, typename Subscriber, typename port_t>
 template <uint64_t WaitSetCapacity>
 inline cxx::expected<WaitSetError>
-BaseSubscriber<T, Subscriber, port_t>::attachEvent(WaitSet<WaitSetCapacity>& waitset,
+BaseSubscriber<T, Subscriber, port_t>::enableEvent(WaitSet<WaitSetCapacity>& waitset,
                                                    const SubscriberEvent subscriberEvent,
                                                    const EventInfo::Callback<Subscriber> callback) noexcept
 {
-    return attachEvent(waitset, subscriberEvent, EventInfo::INVALID_ID, callback);
+    return enableEvent(waitset, subscriberEvent, EventInfo::INVALID_ID, callback);
 }
 
 template <typename T, typename Subscriber, typename port_t>
-inline void BaseSubscriber<T, Subscriber, port_t>::detachEvent(const SubscriberEvent subscriberEvent) noexcept
+inline void BaseSubscriber<T, Subscriber, port_t>::disableEvent(const SubscriberEvent subscriberEvent) noexcept
 {
     static_cast<void>(subscriberEvent);
 

@@ -69,9 +69,9 @@ are stored inside of the **EventInfo** and can be acquired by the user.
 
 | task | call |
 |:-----|:-----|
-|enable subscriber event (simple)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
-|enable subscriber event (full)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someEventId, myCallback);`|
-|disable subscriber event|`subscriber.detachEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
+|enable subscriber event (simple)|`subscriber.enableEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
+|enable subscriber event (full)|`subscriber.enableEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someEventId, myCallback);`|
+|disable subscriber event|`subscriber.disableEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
 |attach user trigger to waitset (simple)|`userTrigger.enableTriggerEvent(myWaitSet)`|
 |attach user trigger to waitset (full)|`userTrigger.enableTriggerEvent(myWaitSet, someEventId, myCallback)`|
 |disable user trigger event|`userTrigger.disableTriggerEvent()`|
@@ -153,7 +153,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     auto& subscriber = subscriberVector.back();
 
     subscriber.subscribe();
-    subscriber.attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, subscriberCallback);
+    subscriber.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, subscriberCallback);
 }
 ```
 
@@ -218,12 +218,12 @@ to the second group.
 ```cpp
 for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
 {
-    subscriberVector[i].attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
+    subscriberVector[i].enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
 }
 
 for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    subscriberVector[i].attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
+    subscriberVector[i].enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
 }
 ```
 
@@ -289,8 +289,8 @@ iox::popo::TypedSubscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Cou
 subscriber1.subscribe();
 subscriber2.subscribe();
 
-subscriber1.attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
-subscriber2.attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+subscriber1.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+subscriber2.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
 ```
 
 With that set up we enter the event loop and handle the program termination
@@ -361,7 +361,7 @@ After that we require a `cyclicTrigger` to trigger our
 eventId `0` and the callback `SomeClass::cyclicRun`
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
-cyclicTrigger.attachEvent(waitset, SomeClass::cyclicRun);
+cyclicTrigger.enableEvent(waitset, SomeClass::cyclicRun);
 ```
 
 The next thing we need is something which will trigger our `cyclicTrigger`
@@ -479,7 +479,7 @@ have to be provided.
  
 ```cpp
     iox::cxx::expected<iox::popo::WaitSetError>
-    attachEvent(iox::popo::WaitSet<>& waitset,
+    enableEvent(iox::popo::WaitSet<>& waitset,
                     const MyTriggerClassEvents event,
                     const uint64_t eventId,
                     const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
@@ -572,8 +572,8 @@ triggerClass.emplace();
 After that we can attach both `triggerClass` events to the waitset and provide
 also a callback for them.
 ```cpp
-    triggerClass->attachEvent(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
-    triggerClass->attachEvent(
+    triggerClass->enableEvent(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
+    triggerClass->enableEvent(
         *waitset, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
 ```
 

@@ -26,7 +26,7 @@ cpp2c_Subscriber::~cpp2c_Subscriber()
 }
 
 iox_WaitSetResult
-cpp2c_Subscriber::attachEvent(iox::popo::WaitSet<>& waitset,
+cpp2c_Subscriber::enableEvent(iox::popo::WaitSet<>& waitset,
                               const iox_SubscriberEvent subscriberEvent,
                               const uint64_t eventId,
                               const iox::popo::EventInfo::Callback<cpp2c_Subscriber> callback) noexcept
@@ -48,7 +48,7 @@ cpp2c_Subscriber::attachEvent(iox::popo::WaitSet<>& waitset,
     return (result.has_error()) ? cpp2c::WaitSetResult(result.get_error()) : iox_WaitSetResult::WaitSetResult_SUCCESS;
 }
 
-void cpp2c_Subscriber::detachEvent(const iox_SubscriberEvent subscriberEvent) noexcept
+void cpp2c_Subscriber::disableEvent(const iox_SubscriberEvent subscriberEvent) noexcept
 {
     static_cast<void>(subscriberEvent);
 

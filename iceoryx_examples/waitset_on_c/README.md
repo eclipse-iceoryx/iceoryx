@@ -58,7 +58,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
     iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
 
     iox_sub_subscribe(subscriber, 256);
-    iox_sub_attach_event(subscriber, waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 1, subscriberCallback);
+    iox_sub_enable_event(subscriber, waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 1, subscriberCallback);
 }
 ```
 
@@ -153,12 +153,12 @@ const uint64_t SECOND_GROUP_ID = 456;
 
 for (uint64_t i = 0U; i < 2U; ++i)
 {
-    iox_sub_attach_event(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, FIRST_GROUP_ID, NULL);
+    iox_sub_enable_event(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, FIRST_GROUP_ID, NULL);
 }
 
 for (uint64_t i = 2U; i < 4U; ++i)
 {
-    iox_sub_attach_event(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, SECOND_GROUP_ID, NULL);
+    iox_sub_enable_event(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, SECOND_GROUP_ID, NULL);
 }
 ```
 
@@ -248,8 +248,8 @@ subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Cou
 iox_sub_subscribe(subscriber[0], 256);
 iox_sub_subscribe(subscriber[1], 256);
 
-iox_sub_attach_event(subscriber[0], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
-iox_sub_attach_event(subscriber[1], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+iox_sub_enable_event(subscriber[0], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+iox_sub_enable_event(subscriber[1], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
 ```
 
 We are ready to start the event loop. We begin with acquiring the array of all

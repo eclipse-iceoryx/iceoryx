@@ -47,8 +47,8 @@ int main()
     subscriber1.subscribe();
     subscriber2.subscribe();
 
-    subscriber1.attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
-    subscriber2.attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    subscriber1.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    subscriber2.enableEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
 
     // event loop
     while (true)

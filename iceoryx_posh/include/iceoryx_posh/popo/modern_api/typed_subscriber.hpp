@@ -35,8 +35,8 @@ class TypedSubscriber : public base_subscriber_t<T, TypedSubscriber<T, base_subs
     TypedSubscriber& operator=(TypedSubscriber&& rhs) = delete;
     virtual ~TypedSubscriber() = default;
 
-    using BaseSubscriber::attachEvent;
-    using BaseSubscriber::detachEvent;
+    using BaseSubscriber::disableEvent;
+    using BaseSubscriber::enableEvent;
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;
     using BaseSubscriber::getUid;

@@ -65,8 +65,8 @@ int main()
     iox_sub_subscribe(subscriber[0], 256);
     iox_sub_subscribe(subscriber[1], 256);
 
-    iox_sub_attach_event(subscriber[0], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
-    iox_sub_attach_event(subscriber[1], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+    iox_sub_enable_event(subscriber[0], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+    iox_sub_enable_event(subscriber[1], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
 
 
     uint64_t missedElements = 0U;
