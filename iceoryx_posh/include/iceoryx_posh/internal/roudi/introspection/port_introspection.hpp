@@ -86,7 +86,7 @@ class PortIntrospection
             using TimePointNs_t = mepoo::TimePointNs_t;
             using DurationNs_t = mepoo::DurationNs_t;
             TimePointNs_t m_sequenceNumberTimestamp {DurationNs_t(0)};
-            mepoo::SequenceNumber_t m_sequenceNumber{0};
+            mepoo::SequenceNumber_t m_sequenceNumber{0U};
 
             // map from indices to object pointers
             std::map<int, ConnectionInfo*> connectionMap;
