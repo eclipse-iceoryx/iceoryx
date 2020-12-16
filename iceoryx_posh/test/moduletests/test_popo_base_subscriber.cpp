@@ -189,7 +189,7 @@ TEST_F(BaseSubscriberTest, ClearReceiveBufferCallForwardedToUnderlyingSubscriber
     // ===== Cleanup ===== //
 }
 
-TEST_F(BaseSubscriberTest, SetConditionVariableCallForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, AttachToWaitsetForwardedToUnderlyingSubscriberPort)
 {
     iox::popo::ConditionVariableData condVar;
     WaitSetMock waitSet(&condVar);
@@ -201,7 +201,7 @@ TEST_F(BaseSubscriberTest, SetConditionVariableCallForwardedToUnderlyingSubscrib
     // ===== Cleanup ===== //
 }
 
-TEST_F(BaseSubscriberTest, UnsetConditionVariableCallForwardedToUnderlyingSubscriberPort)
+TEST_F(BaseSubscriberTest, WaitSetUnsetConditionVariableWhenGoingOutOfScope)
 {
     // ===== Setup ===== //
     iox::popo::ConditionVariableData condVar;

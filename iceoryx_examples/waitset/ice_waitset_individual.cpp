@@ -35,7 +35,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-individual");
 
-    iox::popo::WaitSet waitset;
+    iox::popo::WaitSet<> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
     shutdownTrigger.attachTo(waitset);
