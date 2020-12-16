@@ -62,7 +62,7 @@ inline cxx::expected<Sample<T>, AllocationError> BasePublisher<T, port_t>::loan(
 template <typename T, typename port_t>
 inline void BasePublisher<T, port_t>::publish(Sample<T>&& sample) noexcept
 {
-    auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void* const>(sample.get()));
+    auto header = mepoo::ChunkHeader::fromPayload(sample.get());
     m_port.sendChunk(header);
     sample.release(); // Must release ownership of the sample as the publisher port takes it when publishing.
 }
@@ -119,7 +119,7 @@ inline BasePublisher<T, port_t>::PublisherSampleDeleter::PublisherSampleDeleter(
 template <typename T, typename port_t>
 inline void BasePublisher<T, port_t>::PublisherSampleDeleter::operator()(T* const ptr) const
 {
-    auto header = mepoo::convertPayloadPointerToChunkHeader(reinterpret_cast<void*>(ptr));
+    auto header = mepoo::ChunkHeader::fromPayload(ptr);
     m_port.get().freeChunk(header);
 }
 

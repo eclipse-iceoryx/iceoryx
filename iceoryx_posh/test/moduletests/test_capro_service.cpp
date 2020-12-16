@@ -31,9 +31,9 @@ class ServiceDescription_test : public Test
     uint16_t testAnyServiceID = iox::capro::AnyService;
     uint16_t testAnyEventID = iox::capro::AnyEvent;
     uint16_t testAnyInstanceID = iox::capro::AnyInstance;
-    IdString service1{"Service"};
-    IdString instance1{"Instance"};
-    IdString event1{"Event"};
+    IdString_t service1{"Service"};
+    IdString_t instance1{"Instance"};
+    IdString_t event1{"Event"};
 
     ServiceDescription csd1 = ServiceDescription(1, 2, 3);
     ServiceDescription csd1Eq = ServiceDescription(testAnyServiceID, 2, 3);
@@ -114,9 +114,9 @@ TEST_F(ServiceDescription_test, CtorNoParams)
 
 TEST_F(ServiceDescription_test, CtorIDStrings)
 {
-    IdString testService("Service");
-    IdString testInstance("Instance");
-    IdString testEvent("Event");
+    IdString_t testService("Service");
+    IdString_t testInstance("Instance");
+    IdString_t testEvent("Event");
     ServiceDescription::ClassHash testHash = {1, 2, 3, 4};
     ServiceDescription csd = ServiceDescription(testService, testInstance, testEvent, testHash);
 

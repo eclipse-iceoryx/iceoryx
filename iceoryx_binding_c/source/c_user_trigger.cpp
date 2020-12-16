@@ -14,6 +14,7 @@
 
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 
 using namespace iox;

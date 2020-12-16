@@ -36,7 +36,7 @@ inline TypedUniqueId<T>::TypedUniqueId() noexcept
 }
 
 template <typename T>
-inline TypedUniqueId<T>::TypedUniqueId(CreateInvalidId_t) noexcept
+inline TypedUniqueId<T>::TypedUniqueId(InvalidId_t) noexcept
     /// we have to cast INVALID_UNIQUE_ID with static_cast<uint64_t> otherwise it will not link
     /// with gcc-7.x - gcc-10.x. Who knows why?!
     : ThisType(cxx::newtype::internal::ProtectedConstructor, static_cast<uint64_t>(INVALID_UNIQUE_ID))
@@ -46,7 +46,7 @@ inline TypedUniqueId<T>::TypedUniqueId(CreateInvalidId_t) noexcept
 template <typename T>
 inline bool TypedUniqueId<T>::isValid() const noexcept
 {
-    return TypedUniqueId<T>(CreateInvalidId) != *this;
+    return TypedUniqueId<T>(InvalidId) != *this;
 }
 } // namespace popo
 } // namespace iox

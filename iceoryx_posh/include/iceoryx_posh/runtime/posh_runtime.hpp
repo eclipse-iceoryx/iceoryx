@@ -200,7 +200,7 @@ class PoshRuntime
     popo::ApplicationPort m_applicationPort;
 
     void sendKeepAlive() noexcept;
-    static_assert(PROCESS_KEEP_ALIVE_INTERVAL > DISCOVERY_INTERVAL, "Keep alive interval too small");
+    static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
 
     /// @note the m_keepAliveTimer should always be the last member, so that it will be the first member to be detroyed
     iox::posix::Timer m_keepAliveTimer{PROCESS_KEEP_ALIVE_INTERVAL, [&]() { this->sendKeepAlive(); }};

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,6 +108,10 @@ namespace iox
     error(PORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTIONCHANGINGDATASERVICE) \
     error(PORT_MANAGER__NO_PUBLISHER_PORT_FOR_INTROSPECTION_SENDER_PORT) \
     error(ROUDI_COMPONENTS__SHARED_MEMORY_UNAVAILABLE) \
+    error(ROUDI_MEMORY__COULD_NOT_REGISTER_SIGBUS) \
+    error(ROUDI_MEMORY__COULD_NOT_UNREGISTER_SIGBUS) \
+    error(ROUDI_APP__COULD_NOT_REGISTER_SIGNALS) \
+    error(ROUDI_APP__FAILED_TO_CREATE_SEMAPHORE) \
     error(MQ_UNKNOWN_MSG) \
     error(MQ_INVALID_MSG) \
     error(MQ_INTERFACE__UNABLE_TO_CREATE_APPLICATION_MQ) \

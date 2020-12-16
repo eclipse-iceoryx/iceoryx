@@ -36,7 +36,7 @@ int main()
     signal(SIGINT, sigHandler);
 
     iox::runtime::PoshRuntime::initRuntime("/iox-ex-waitset-grouping");
-    iox::popo::WaitSet waitset;
+    iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + 1> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
     shutdownTrigger.attachTo(waitset);
