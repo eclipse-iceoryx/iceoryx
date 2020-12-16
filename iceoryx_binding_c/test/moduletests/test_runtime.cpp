@@ -84,10 +84,10 @@ TEST_F(BindingC_Runtime_test, GetInstanceNameIsNullptr)
 TEST_F(BindingC_Runtime_test, GetInstanceNameLengthIsLessThanAppNameLength)
 {
     constexpr char ACTUAL_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chucky";
-    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chucky";
+    constexpr char EXPECTED_APP_NAME[iox::MAX_PROCESS_NAME_LENGTH + 1] = "chuck";
     iox_runtime_init(ACTUAL_APP_NAME);
 
-    constexpr uint64_t APP_NAME_BUFFER_LENGTH{7};
+    constexpr uint64_t APP_NAME_BUFFER_LENGTH{6};
     char truncatedAppName[APP_NAME_BUFFER_LENGTH];
     for (auto& c : truncatedAppName)
     {

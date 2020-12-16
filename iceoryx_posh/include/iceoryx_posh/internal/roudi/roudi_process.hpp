@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -226,8 +226,10 @@ class ProcessManager : public ProcessManagerInterface
 
     /// @brief Evaluates eventual upcoming errors from kill() command in requestShutdownOfProcess and isProcessAlive.
     /// Calls the errorhandler.
-    /// @param [in] cmd SmartC return value to evaluate
-    /// @param [in] shutdownPolicy Enum with SIGTERM or SIGKILL
+    /// @param [in] process process where the kill command was run on
+    /// @param [in] errnum errorcode of the killcommand
+    /// @param [in] errorString errorstring of the killcommand
+    /// @param [in] shutdownPolicy enum which tells what termination command was used (e.g. SIGTERM)
     void evaluateKillError(const RouDiProcess& process,
                            const int32_t& errnum,
                            const char* errorString,

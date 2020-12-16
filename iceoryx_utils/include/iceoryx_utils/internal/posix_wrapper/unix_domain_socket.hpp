@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const IpcChannelMode mode,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
-                     const uint64_t maxMsgNumber = 10u) noexcept;
+                     const uint64_t maxMsgNumber = 10U) noexcept;
 
     /// @brief c'tor
     /// @param NoPathPrefix signalling that this constructor does not add a path prefix
@@ -144,7 +144,7 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
   private:
     UdsName_t m_name;
     IpcChannelSide m_channelSide;
-    int m_sockfd{INVALID_FD};
+    int32_t m_sockfd{INVALID_FD};
     struct sockaddr_un m_sockAddr;
     size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
 };
