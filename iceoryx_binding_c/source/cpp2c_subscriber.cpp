@@ -59,7 +59,7 @@ void cpp2c_Subscriber::invalidateTrigger(const uint64_t uniqueTriggerId) noexcep
     if (m_trigger.getUniqueId() == uniqueTriggerId)
     {
         iox::popo::SubscriberPortUser(m_portData).unsetConditionVariable();
-        m_trigger.reset();
+        m_trigger.invalidate();
     }
 }
 
