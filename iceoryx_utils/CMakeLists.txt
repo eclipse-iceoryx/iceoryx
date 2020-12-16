@@ -3,7 +3,7 @@ file (STRINGS "../VERSION" iceoryx_utils_VERSION)
 project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatformDetection.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
 if( clang-tidy )
     find_program(
@@ -196,7 +196,9 @@ set_target_properties(iceoryx_platform PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS})
+target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
+
+target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(LINUX)
     target_link_libraries(iceoryx_platform 
@@ -213,9 +215,13 @@ if(PERFORM_CLANG_TIDY)
 endif(PERFORM_CLANG_TIDY)
 
 
-target_link_libraries(iceoryx_utils PUBLIC iceoryx_utils::iceoryx_platform)
+target_link_libraries(iceoryx_utils 
+    PUBLIC 
+    iceoryx_utils::iceoryx_platform 
+    PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS})
 
-target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 # TODO: Make ICEORYX::UTILS private???
 target_include_directories(iceoryx_utils
@@ -245,7 +251,7 @@ setup_install_directories_and_export_package(
 install(
     FILES
         cmake/IceoryxPackageHelper.cmake
-        cmake/IceoryxPlatformDetection.cmake
+        cmake/IceoryxPlatform.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 

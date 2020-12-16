@@ -24,7 +24,8 @@ using namespace ::testing;
 
 using namespace iox::roudi;
 
-static const ShmNameString TEST_SHM_NAME = ShmNameString("/FuManchu");
+using iox::ShmName_t;
+static const ShmName_t TEST_SHM_NAME = ShmName_t("/FuManchu");
 
 class PosixShmMemoryProvider_Test : public Test
 {
@@ -42,8 +43,11 @@ class PosixShmMemoryProvider_Test : public Test
 
     bool shmExists()
     {
-        return iox::posix::SharedMemoryObject::create(
-                   TEST_SHM_NAME.c_str(), 8, iox::posix::AccessMode::readOnly, iox::posix::OwnerShip::openExisting, nullptr)
+        return iox::posix::SharedMemoryObject::create(TEST_SHM_NAME.c_str(),
+                                                      8,
+                                                      iox::posix::AccessMode::readOnly,
+                                                      iox::posix::OwnerShip::openExisting,
+                                                      nullptr)
             .has_value();
     }
 

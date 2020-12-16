@@ -26,7 +26,7 @@ namespace iox
 {
 namespace roudi
 {
-capro::Interfaces StringToCaProInterface(const capro::IdString& str) noexcept
+capro::Interfaces StringToCaProInterface(const capro::IdString_t& str) noexcept
 {
     int32_t i{0};
     cxx::convert::fromString(str.c_str(), i);
@@ -630,14 +630,14 @@ popo::ApplicationPortData* PortManager::acquireApplicationPortData(const Process
     }
 }
 
-void PortManager::addEntryToServiceRegistry(const capro::IdString& service, const capro::IdString& instance) noexcept
+void PortManager::addEntryToServiceRegistry(const capro::IdString_t& service, const capro::IdString_t& instance) noexcept
 {
     m_serviceRegistry.add(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);
 }
 
-void PortManager::removeEntryFromServiceRegistry(const capro::IdString& service,
-                                                 const capro::IdString& instance) noexcept
+void PortManager::removeEntryFromServiceRegistry(const capro::IdString_t& service,
+                                                 const capro::IdString_t& instance) noexcept
 {
     m_serviceRegistry.remove(service, instance);
     m_portPool->serviceRegistryChangeCounter()->fetch_add(1, std::memory_order_relaxed);

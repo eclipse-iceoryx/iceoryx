@@ -14,7 +14,6 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
-#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/variant_queue.hpp"
@@ -179,6 +178,12 @@ struct DefaultChunkQueueConfig
 // alias for cxx::string
 using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
 using NodeName_t = cxx::string<100>;
+using ShmName_t = cxx::string<128>;
+
+namespace capro
+{
+using IdString_t = cxx::string<100>;
+}
 
 /// @todo Move everything in this namespace to iceoryx_roudi_types.hpp once we move RouDi to a separate CMake target
 namespace roudi
@@ -213,14 +218,20 @@ iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const Monitoring
 
 namespace runtime
 {
-// alias for IdString
-using IdString = iox::capro::IdString;
-using InstanceContainer = iox::cxx::vector<IdString, MAX_NUMBER_OF_INSTANCES>;
+using InstanceContainer = iox::cxx::vector<capro::IdString_t, MAX_NUMBER_OF_INSTANCES>;
 using namespace units::duration_literals;
 constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
 constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * roudi::DISCOVERY_INTERVAL;  // > DISCOVERY_INTERVAL
 constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_INTERVAL; // > PROCESS_KEEP_ALIVE_INTERVAL
 } // namespace runtime
+
+namespace version
+{
+static const uint64_t COMMIT_ID_STRING_SIZE = 12u;
+using CommitIdString_t = cxx::string<COMMIT_ID_STRING_SIZE>;
+static const uint64_t BUILD_DATE_STRING_SIZE = 36u;
+using BuildDateString_t = cxx::string<BUILD_DATE_STRING_SIZE>;
+} // namespace version
 
 } // namespace iox
 

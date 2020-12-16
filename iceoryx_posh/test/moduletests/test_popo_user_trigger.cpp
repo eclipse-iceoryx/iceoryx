@@ -31,7 +31,20 @@ class UserTrigger_test : public Test
     ConditionVariableData m_condVar2;
     WaitSetMock m_waitSet{&m_condVar};
     WaitSetMock m_waitSet2{&m_condVar2};
+
+    void SetUp()
+    {
+        m_callbackOrigin = nullptr;
+    }
+
+    static UserTrigger* m_callbackOrigin;
+    static void callback(UserTrigger* origin)
+    {
+        m_callbackOrigin = origin;
+    }
 };
+
+UserTrigger* UserTrigger_test::m_callbackOrigin = nullptr;
 
 TEST_F(UserTrigger_test, isNotTriggeredWhenCreated)
 {
@@ -172,5 +185,31 @@ TEST_F(UserTrigger_test, DetachingFromAttachedWaitsetCleansUp)
     sut.detach();
 
     EXPECT_EQ(m_waitSet.size(), 0);
+}
+
+TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalled)
+{
+    UserTrigger sut;
+    sut.attachTo(m_waitSet, 123, UserTrigger_test::callback);
+    sut.trigger();
+
+    auto triggerInfoVector = m_waitSet.wait();
+
+    ASSERT_THAT(triggerInfoVector.size(), Eq(1));
+    triggerInfoVector[0]();
+    EXPECT_THAT(m_callbackOrigin, &sut);
+}
+
+TEST_F(UserTrigger_test, UserTriggerCallbackCanBeCalledOverloadWithoutId)
+{
+    UserTrigger sut;
+    sut.attachTo(m_waitSet, UserTrigger_test::callback);
+    sut.trigger();
+
+    auto triggerInfoVector = m_waitSet.wait();
+
+    ASSERT_THAT(triggerInfoVector.size(), Eq(1));
+    triggerInfoVector[0]();
+    EXPECT_THAT(m_callbackOrigin, &sut);
 }
 

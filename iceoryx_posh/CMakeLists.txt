@@ -25,7 +25,7 @@ option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
 include(cmake/iceoryxversions.cmake)
 include(cmake/install_help_and_config.cmake)
 include(IceoryxPackageHelper)
-include(IceoryxPlatformDetection)
+include(IceoryxPlatform)
 
 include(cmake/iceoryx_posh_deployment.cmake)
 
@@ -105,7 +105,6 @@ add_library(iceoryx_posh
     source/popo/trigger.cpp
     source/popo/trigger_handle.cpp
     source/popo/trigger_info.cpp
-    source/popo/wait_set.cpp
     source/version/version_info.cpp
     source/runtime/message_queue_interface.cpp
     source/runtime/message_queue_message.cpp
@@ -146,14 +145,15 @@ target_include_directories(iceoryx_posh
     source/version
     source/runtime
 )
-target_link_libraries(iceoryx_posh
+target_link_libraries(iceoryx_posh 
     PUBLIC
     iceoryx_utils::iceoryx_utils
     PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS}
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
-target_compile_options(iceoryx_posh PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iceoryx_posh PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(LINUX)
     target_link_libraries(iceoryx_posh PRIVATE rt )
@@ -187,13 +187,15 @@ target_include_directories(iceoryx_posh_gateway
     $<INSTALL_INTERFACE:include/${PREFIX}>
 )
 
-target_link_libraries(iceoryx_posh_gateway
+target_link_libraries(iceoryx_posh_gateway 
     PUBLIC
     iceoryx_utils::iceoryx_utils
     iceoryx_posh::iceoryx_posh
+    PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS}    
 )
 
-target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iceoryx_posh_gateway PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 #
 ########## posh roudi lib ##########
@@ -246,6 +248,7 @@ target_link_libraries(iceoryx_posh_roudi
     PUBLIC
     ${PROJECT_NAMESPACE}::iceoryx_posh     # because of roudi.hpp
     PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS}    
     iceoryx_utils::iceoryx_utils
 )
 
@@ -253,7 +256,7 @@ if(CMAKE_SYSTEM_NAME MATCHES QNX)
     target_link_libraries(iceoryx_posh_roudi PRIVATE socket)
 endif(CMAKE_SYSTEM_NAME MATCHES QNX)
 
-target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iceoryx_posh_roudi PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(TOML_CONFIG)
     if ( NOT cpptoml_FOUND )
@@ -293,9 +296,10 @@ if(TOML_CONFIG)
     target_link_libraries(iceoryx_posh_config PRIVATE
         iceoryx_utils::iceoryx_utils
         cpptoml
+        ${ICEORYX_SANITIZER_FLAGS}
     )
 
-    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS})
+    target_compile_options(iceoryx_posh_config PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
     #
     ######### posh roudi daemon ##########

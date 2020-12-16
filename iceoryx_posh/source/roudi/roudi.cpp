@@ -240,7 +240,7 @@ void RouDi::processMessage(const runtime::MqMessage& message,
         else
         {
             capro::Interfaces interface =
-                StringToCaProInterface(capro::IdString(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
+                StringToCaProInterface(capro::IdString_t(cxx::TruncateToCapacity, message.getElementAtIndex(2)));
 
             m_prcMgr.addInterfaceForProcess(
                 processName, interface, NodeName_t(cxx::TruncateToCapacity, message.getElementAtIndex(3)));

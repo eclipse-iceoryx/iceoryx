@@ -32,7 +32,7 @@ static void sigHandler(int f_sig [[gnu::unused]])
     shutdownTrigger.trigger(); // unblock waitsets
 }
 
-void subscriberHandler(iox::popo::WaitSet& waitSet)
+void subscriberHandler(iox::popo::WaitSet<>& waitSet)
 {
     // run until interrupted
     while (!killswitch)
@@ -73,7 +73,7 @@ int main()
     untypedSubscriber.subscribe();
 
     // set up waitset
-    iox::popo::WaitSet waitSet{};
+    iox::popo::WaitSet<> waitSet;
     untypedSubscriber.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     shutdownTrigger.attachTo(waitSet);
 

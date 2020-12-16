@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,20 +11,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef IOX_BINDING_C_MOCKS_WAITSET_MOCK_HPP
-#define IOX_BINDING_C_MOCKS_WAITSET_MOCK_HPP
+#ifndef IOX_POSH_MEPOO_CHUNK_HEADER_INL
+#define IOX_POSH_MEPOO_CHUNK_HEADER_INL
 
-#include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
-
-class WaitSetMock : public cpp2c_WaitSet
+namespace iox
 {
-  public:
-    WaitSetMock(iox::popo::ConditionVariableData* condVarDataPtr) noexcept
-        : cpp2c_WaitSet(condVarDataPtr)
-    {
-    }
-};
+namespace mepoo
+{
+template <typename T>
+T* ChunkHeader::customHeader() const noexcept
+{
+    // the CustomHeader is always located relative to "this" in this way
+    return reinterpret_cast<T*>(reinterpret_cast<uint64_t>(this) + sizeof(ChunkHeader));
+}
+} // namespace mepoo
+} // namespace iox
 
-
-#endif
+#endif // IOX_POSH_MEPOO_CHUNK_HEADER_INL

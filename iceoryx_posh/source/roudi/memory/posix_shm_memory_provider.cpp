@@ -38,7 +38,7 @@ void sigbusHandler(int32_t) noexcept
 }
 } // namespace
 
-PosixShmMemoryProvider::PosixShmMemoryProvider(const ShmNameString& shmName,
+PosixShmMemoryProvider::PosixShmMemoryProvider(const ShmName_t& shmName,
                                                const posix::AccessMode accessMode,
                                                const posix::OwnerShip ownership) noexcept
     : m_shmName(shmName)
