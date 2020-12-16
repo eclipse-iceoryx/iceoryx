@@ -49,7 +49,7 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-sync");
     std::atomic_bool keepRunning{true};
 
-    iox::popo::WaitSet waitset;
+    iox::popo::WaitSet<> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
     shutdownTrigger.attachTo(waitset);
@@ -57,7 +57,7 @@ int main()
     // create and attach the cyclicTrigger with a callback to
     // SomeClass::myCyclicRun
     iox::popo::UserTrigger cyclicTrigger;
-    cyclicTrigger.attachTo(waitset, 0, SomeClass::cyclicRun);
+    cyclicTrigger.attachTo(waitset, SomeClass::cyclicRun);
 
     // start a thread which triggers cyclicTrigger every second
     std::thread cyclicTriggerThread([&] {

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ void CmdLineParserConfigFileOption::parse(int argc,
             break;
         case 'c':
         {
-            m_customConfigFilePath = ConfigFilePathString_t(cxx::TruncateToCapacity, optarg);
+            m_customConfigFilePath = roudi::ConfigFilePathString_t(cxx::TruncateToCapacity, optarg);
             break;
         }
         default:
@@ -73,9 +73,16 @@ void CmdLineParserConfigFileOption::parse(int argc,
         }
     }
 }
-ConfigFilePathString_t CmdLineParserConfigFileOption::getConfigFilePath() const
+roudi::ConfigFilePathString_t CmdLineParserConfigFileOption::getConfigFilePath() const
 {
     return m_customConfigFilePath;
 }
+
+void CmdLineParserConfigFileOption::printParameters() noexcept
+{
+    CmdLineParser::printParameters();
+    LogVerbose() << "Config file used is: " << m_customConfigFilePath;
+}
+
 } // namespace config
 } // namespace iox

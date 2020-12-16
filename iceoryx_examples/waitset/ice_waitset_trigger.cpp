@@ -96,7 +96,7 @@ class MyTriggerClass
     // The event is choosen by the event parameter. Additionally, you can
     // set a triggerId to group multiple instances and a custom callback.
     iox::cxx::expected<iox::popo::WaitSetError>
-    attachTo(iox::popo::WaitSet& waitset,
+    attachTo(iox::popo::WaitSet<>& waitset,
              const MyTriggerClassEvents event,
              const uint64_t triggerId,
              const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
@@ -162,7 +162,7 @@ class MyTriggerClass
     iox::popo::TriggerHandle m_activateTrigger;
 };
 
-iox::cxx::optional<iox::popo::WaitSet> waitset;
+iox::cxx::optional<iox::popo::WaitSet<>> waitset;
 iox::cxx::optional<MyTriggerClass> triggerClass;
 
 constexpr uint64_t ACTIVATE_ID = 0U;

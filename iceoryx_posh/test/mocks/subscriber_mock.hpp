@@ -56,7 +56,7 @@ class MockSubscriberPortUser
     MOCK_METHOD0(destroy, bool());
     MOCK_METHOD4(
         attachTo,
-        iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet&,
+        iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet<>&,
                                                     const iox::popo::SubscriberEvent,
                                                     const uint64_t,
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));
@@ -81,7 +81,7 @@ class MockBaseSubscriber
     MOCK_METHOD1(invalidateTrigger, bool(const uint64_t));
     MOCK_METHOD4(
         attachTo,
-        iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet&,
+        iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet<>&,
                                                     const iox::popo::SubscriberEvent,
                                                     const uint64_t,
                                                     const iox::popo::Trigger::Callback<MockSubscriberPortUser>));

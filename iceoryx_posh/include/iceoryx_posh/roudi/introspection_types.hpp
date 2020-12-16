@@ -63,9 +63,9 @@ const capro::ServiceDescription IntrospectionPortService(INTROSPECTION_SERVICE_I
 struct PortData
 {
     ProcessName_t m_name;
-    capro::IdString m_caproInstanceID;
-    capro::IdString m_caproServiceID;
-    capro::IdString m_caproEventMethodID;
+    capro::IdString_t m_caproInstanceID;
+    capro::IdString_t m_caproServiceID;
+    capro::IdString_t m_caproEventMethodID;
     NodeName_t m_node;
 };
 

@@ -19,13 +19,129 @@ namespace iox
 {
 namespace popo
 {
+template <uint64_t Capacity>
+inline WaitSet<Capacity>::WaitSet() noexcept
+    : WaitSet(runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
+{
+}
+
+template <uint64_t Capacity>
+inline WaitSet<Capacity>::WaitSet(cxx::not_null<ConditionVariableData* const> condVarDataPtr) noexcept
+    : m_conditionVariableDataPtr(condVarDataPtr)
+    , m_conditionVariableWaiter(m_conditionVariableDataPtr)
+{
+}
+
+template <uint64_t Capacity>
+inline WaitSet<Capacity>::~WaitSet() noexcept
+{
+    removeAllTriggers();
+    /// @todo Notify RouDi that the condition variable data shall be destroyed
+}
+
+template <uint64_t Capacity>
+inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noexcept
+{
+    for (auto& currentTrigger : m_triggerVector)
+    {
+        if (currentTrigger.getUniqueId() == uniqueTriggerId)
+        {
+            currentTrigger.invalidate();
+            m_triggerVector.erase(&currentTrigger);
+            return;
+        }
+    }
+}
+
+template <uint64_t Capacity>
+inline void WaitSet<Capacity>::removeAllTriggers() noexcept
+{
+    for (auto& trigger : m_triggerVector)
+    {
+        trigger.reset();
+    }
+
+    m_triggerVector.clear();
+}
+
+template <uint64_t Capacity>
+inline typename WaitSet<Capacity>::TriggerInfoVector
+WaitSet<Capacity>::timedWait(const units::Duration timeout) noexcept
+{
+    return waitAndReturnTriggeredTriggers([this, timeout] { return !m_conditionVariableWaiter.timedWait(timeout); });
+}
+
+template <uint64_t Capacity>
+inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::wait() noexcept
+{
+    return waitAndReturnTriggeredTriggers([this] {
+        m_conditionVariableWaiter.wait();
+        return false;
+    });
+}
+
+template <uint64_t Capacity>
+inline typename WaitSet<Capacity>::TriggerInfoVector WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
+{
+    TriggerInfoVector triggers;
+    for (auto& currentTrigger : m_triggerVector)
+    {
+        if (currentTrigger.hasTriggered())
+        {
+            // We do not need to verify if push_back was successful since
+            // m_conditionVector and triggers are having the same type, a
+            // vector with the same guaranteed capacity.
+            // Therefore it is guaranteed that push_back works!
+            triggers.push_back(currentTrigger.getTriggerInfo());
+        }
+    }
+
+    return triggers;
+}
+
+template <uint64_t Capacity>
+template <typename WaitFunction>
+inline typename WaitSet<Capacity>::TriggerInfoVector
+WaitSet<Capacity>::waitAndReturnTriggeredTriggers(const WaitFunction& wait) noexcept
+{
+    WaitSet::TriggerInfoVector triggers;
+
+    /// Inbetween here and last wait someone could have set the trigger to true, hence reset it.
+    m_conditionVariableWaiter.reset();
+    triggers = createVectorWithTriggeredTriggers();
+
+    // It is possible that after the reset call and before the createVectorWithTriggeredTriggers call
+    // another trigger came in. Then createVectorWithTriggeredTriggers would have already handled it.
+    // But this would lead to an empty triggers vector in the next run if no other trigger
+    // came in.
+    if (!triggers.empty())
+    {
+        return triggers;
+    }
+
+    return (wait()) ? triggers : createVectorWithTriggeredTriggers();
+}
+
+template <uint64_t Capacity>
+inline uint64_t WaitSet<Capacity>::size() const noexcept
+{
+    return m_triggerVector.size();
+}
+
+template <uint64_t Capacity>
+inline uint64_t WaitSet<Capacity>::triggerCapacity() const noexcept
+{
+    return m_triggerVector.capacity();
+}
+
+template <uint64_t Capacity>
 template <typename T>
 inline cxx::expected<TriggerHandle, WaitSetError>
-WaitSet::acquireTrigger(T* const origin,
-                        const cxx::ConstMethodCallback<bool>& triggerCallback,
-                        const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
-                        const uint64_t triggerId,
-                        const Trigger::Callback<T> callback) noexcept
+WaitSet<Capacity>::acquireTrigger(T* const origin,
+                                  const cxx::ConstMethodCallback<bool>& triggerCallback,
+                                  const cxx::MethodCallback<void, uint64_t>& invalidationCallback,
+                                  const uint64_t triggerId,
+                                  const Trigger::Callback<T> callback) noexcept
 {
     static_assert(!std::is_copy_constructible<T>::value && !std::is_copy_assignable<T>::value
                       && !std::is_move_assignable<T>::value && !std::is_move_constructible<T>::value,
@@ -56,8 +172,9 @@ WaitSet::acquireTrigger(T* const origin,
         m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, m_triggerVector.back().getUniqueId()));
 }
 
+template <uint64_t Capacity>
 template <typename T>
-inline void WaitSet::moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept
+inline void WaitSet<Capacity>::moveOriginOfTrigger(const Trigger& trigger, T* const newOrigin) noexcept
 {
     for (auto& currentTrigger : m_triggerVector)
     {

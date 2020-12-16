@@ -49,8 +49,7 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-ex-waitset-gateway");
 
-
-    iox::popo::WaitSet waitset;
+    iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + 1> waitset;
 
     // attach shutdownTrigger to handle CTRL+C
     shutdownTrigger.attachTo(waitset);
@@ -64,7 +63,7 @@ int main()
         auto& subscriber = subscriberVector.back();
 
         subscriber.subscribe();
-        subscriber.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, 1, subscriberCallback);
+        subscriber.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, subscriberCallback);
     }
 
     // event loop
