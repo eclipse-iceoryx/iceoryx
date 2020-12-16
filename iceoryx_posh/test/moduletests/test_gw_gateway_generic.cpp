@@ -15,12 +15,14 @@
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_utils/internal/units/duration.hpp"
 
 #include "test.hpp"
 
 #include "stubs/stub_gateway_generic.hpp"
 
 using namespace ::testing;
+using namespace iox::units::duration_literals;
 using ::testing::_;
 
 // ======================================== Helpers ======================================== //

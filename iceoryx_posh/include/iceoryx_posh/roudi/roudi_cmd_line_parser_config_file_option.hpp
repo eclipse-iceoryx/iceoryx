@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,10 +38,12 @@ class CmdLineParserConfigFileOption : public CmdLineParser
                char* argv[],
                const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept override;
 
-    ConfigFilePathString_t getConfigFilePath() const;
+    roudi::ConfigFilePathString_t getConfigFilePath() const;
+
+    void printParameters() noexcept;
 
   protected:
-    ConfigFilePathString_t m_customConfigFilePath;
+    roudi::ConfigFilePathString_t m_customConfigFilePath;
 };
 
 } // namespace config
