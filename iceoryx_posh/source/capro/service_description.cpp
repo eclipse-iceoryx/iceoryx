@@ -289,6 +289,12 @@ Interfaces ServiceDescription::getSourceInterface() const noexcept
     return m_interfaceSource;
 }
 
+bool ServiceDescription::isValid() const noexcept
+{
+    return !(m_serviceString == iox::capro::InvalidIDString || m_serviceID == iox::capro::AnyService
+             || m_instanceString == iox::capro::InvalidIDString || m_instanceID == iox::capro::AnyInstance);
+}
+
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept
 {
     return (first.getServiceID() == second.getServiceID());

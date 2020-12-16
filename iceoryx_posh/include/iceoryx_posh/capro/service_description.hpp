@@ -148,6 +148,9 @@ class ServiceDescription
     /// @brief Returns the scope of a ServiceDescription
     Scope getScope() noexcept;
 
+    ///@brief Returns true for valid ServiceDescription
+    bool isValid() const noexcept;
+
     ///@{
     /// Getters for the integer and string IDs
     uint16_t getInstanceID() const noexcept;
