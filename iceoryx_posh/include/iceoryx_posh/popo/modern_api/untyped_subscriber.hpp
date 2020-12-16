@@ -44,7 +44,7 @@ class UntypedSubscriberImpl
     UntypedSubscriberImpl& operator=(UntypedSubscriberImpl&& rhs) = delete;
     virtual ~UntypedSubscriberImpl() = default;
 
-    using BaseSubscriber::attachTo;
+    using BaseSubscriber::attachEvent;
     using BaseSubscriber::detachEvent;
     using BaseSubscriber::getServiceDescription;
     using BaseSubscriber::getSubscriptionState;

@@ -39,7 +39,7 @@ class StubbedBaseSubscriber : public iox::popo::BaseSubscriber<T, StubbedBaseSub
   public:
     using SubscriberParent = iox::popo::BaseSubscriber<T, StubbedBaseSubscriber<T, port_t>, port_t>;
 
-    using SubscriberParent::attachTo;
+    using SubscriberParent::attachEvent;
     using SubscriberParent::detachEvent;
     using SubscriberParent::getServiceDescription;
     using SubscriberParent::getSubscriptionState;
@@ -196,7 +196,7 @@ TEST_F(BaseSubscriberTest, AttachToWaitsetForwardedToUnderlyingSubscriberPort)
     // ===== Setup ===== //
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
     // ===== Test ===== //
-    sut.attachTo(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.attachEvent(waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -207,7 +207,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetConditionVariableWhenGoingOutOfScope)
     iox::popo::ConditionVariableData condVar;
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.attachEvent(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
     // ===== Verify ===== //
@@ -221,10 +221,10 @@ TEST_F(BaseSubscriberTest, AttachingAttachedSubscriberToNewWaitsetDetachesItFrom
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     std::unique_ptr<WaitSetMock> waitSet2{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.attachEvent(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.attachTo(*waitSet2, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.attachEvent(*waitSet2, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Verify ===== //
     EXPECT_EQ(waitSet->size(), 0U);
     EXPECT_EQ(waitSet2->size(), 1U);
@@ -237,7 +237,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedEventCleansup)
     iox::popo::ConditionVariableData condVar;
     std::unique_ptr<WaitSetMock> waitSet{new WaitSetMock(&condVar)};
     EXPECT_CALL(sut.getMockedPort(), setConditionVariable(&condVar)).Times(1);
-    sut.attachTo(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+    sut.attachEvent(*waitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
     // ===== Test ===== //
     EXPECT_CALL(sut.getMockedPort(), unsetConditionVariable).Times(1);
     sut.detachEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);

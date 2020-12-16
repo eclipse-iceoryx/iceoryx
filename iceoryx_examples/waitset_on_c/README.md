@@ -42,7 +42,7 @@ iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
 shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
-iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
+iox_user_trigger_attach_to(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 During the next step we create 4 subscribers with `iox_sub_init`, 
@@ -58,7 +58,7 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBER; ++i)
     iox_sub_t subscriber = iox_sub_init(&(subscriberStorage[i]), "Radar", "FrontLeft", "Counter", historyRequest);
 
     iox_sub_subscribe(subscriber, 256);
-    iox_sub_attach_to_waitset(subscriber, waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 1, subscriberCallback);
+    iox_sub_attach_event(subscriber, waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 1, subscriberCallback);
 }
 ```
 
@@ -125,7 +125,7 @@ iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
 shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
-iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
+iox_user_trigger_attach_to(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 After that we can create a list of subscribers and subscribe them to our topic.
@@ -153,12 +153,12 @@ const uint64_t SECOND_GROUP_ID = 456;
 
 for (uint64_t i = 0U; i < 2U; ++i)
 {
-    iox_sub_attach_to_waitset(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, FIRST_GROUP_ID, NULL);
+    iox_sub_attach_event(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, FIRST_GROUP_ID, NULL);
 }
 
 for (uint64_t i = 2U; i < 4U; ++i)
 {
-    iox_sub_attach_to_waitset(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, SECOND_GROUP_ID, NULL);
+    iox_sub_attach_event(subscriber[i], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, SECOND_GROUP_ID, NULL);
 }
 ```
 
@@ -235,7 +235,7 @@ iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
 shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
-iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
+iox_user_trigger_attach_to(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 Now we create two subscriber, subscribe them to our topic and attach them to
@@ -248,8 +248,8 @@ subscriber[1] = iox_sub_init(&(subscriberStorage[1]), "Radar", "FrontLeft", "Cou
 iox_sub_subscribe(subscriber[0], 256);
 iox_sub_subscribe(subscriber[1], 256);
 
-iox_sub_attach_to_waitset(subscriber[0], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
-iox_sub_attach_to_waitset(subscriber[1], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+iox_sub_attach_event(subscriber[0], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
+iox_sub_attach_event(subscriber[1], waitSet, SubscriberEvent_HAS_NEW_SAMPLES, 0, NULL);
 ```
 
 We are ready to start the event loop. We begin with acquiring the array of all
@@ -321,14 +321,14 @@ iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
 shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
 
-iox_user_trigger_attach_to_waitset(shutdownTrigger, waitSet, 0, NULL);
+iox_user_trigger_attach_to(shutdownTrigger, waitSet, 0, NULL);
 ```
 
 Now we create our cyclic trigger and attach it to our waitset with a triggerId
 of `0` and the callback `cyclicRun`.
 ```c
 cyclicTrigger = iox_user_trigger_init(&cyclicTriggerStorage);
-iox_user_trigger_attach_to_waitset(cyclicTrigger, waitSet, 0, cyclicRun);
+iox_user_trigger_attach_to(cyclicTrigger, waitSet, 0, cyclicRun);
 ```
 
 The thread which will trigger the `cyclicTrigger` every second is started in

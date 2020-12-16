@@ -119,10 +119,10 @@ class BaseSubscriber
     /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
     ///            the error
     template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                         const SubscriberEvent subscriberEvent,
-                                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
-                                         const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
+    cxx::expected<WaitSetError> attachEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const SubscriberEvent subscriberEvent,
+                                            const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
+                                            const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
 
     /// @brief attaches a WaitSet to the subscriber
     /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
@@ -132,9 +132,9 @@ class BaseSubscriber
     /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
     ///            the error
     template <uint64_t WaitSetCapacity>
-    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
-                                         const SubscriberEvent subscriberEvent,
-                                         const Trigger::Callback<Subscriber> callback) noexcept;
+    cxx::expected<WaitSetError> attachEvent(WaitSet<WaitSetCapacity>& waitset,
+                                            const SubscriberEvent subscriberEvent,
+                                            const Trigger::Callback<Subscriber> callback) noexcept;
 
     /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
     /// @param[in] subscriberEvent the event which should be detached

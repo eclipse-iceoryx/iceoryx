@@ -50,10 +50,10 @@ void iox_user_trigger_reset_trigger(iox_user_trigger_t const self)
     self->resetTrigger();
 }
 
-iox_WaitSetResult iox_user_trigger_attach_to_waitset(iox_user_trigger_t const self,
-                                                     iox_ws_t const wait_set,
-                                                     const uint64_t trigger_id,
-                                                     void (*trigger_callback)(iox_user_trigger_t))
+iox_WaitSetResult iox_user_trigger_attach_to(iox_user_trigger_t const self,
+                                             iox_ws_t const wait_set,
+                                             const uint64_t trigger_id,
+                                             void (*trigger_callback)(iox_user_trigger_t))
 {
     auto result = self->attachTo(*wait_set, trigger_id, trigger_callback);
     if (!result.has_error())

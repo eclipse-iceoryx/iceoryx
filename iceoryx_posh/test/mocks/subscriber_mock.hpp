@@ -55,7 +55,7 @@ class MockSubscriberPortUser
     MOCK_METHOD0(unsetConditionVariable, bool());
     MOCK_METHOD0(destroy, bool());
     MOCK_METHOD4(
-        attachTo,
+        attachEvent,
         iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet<>&,
                                                     const iox::popo::SubscriberEvent,
                                                     const uint64_t,
@@ -80,7 +80,7 @@ class MockBaseSubscriber
     MOCK_METHOD0(releaseQueuedSamples, void());
     MOCK_METHOD1(invalidateTrigger, bool(const uint64_t));
     MOCK_METHOD4(
-        attachTo,
+        attachEvent,
         iox::cxx::expected<iox::popo::WaitSetError>(iox::popo::WaitSet<>&,
                                                     const iox::popo::SubscriberEvent,
                                                     const uint64_t,

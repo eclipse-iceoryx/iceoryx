@@ -14,7 +14,7 @@ directly.
 ## Threadsafety
 The WaitSet is **not** threadsafe! 
 - It is **not** allowed to attach or detach _Triggerable_
-   classes with methods like `attachTo` or `detachEvent` when another thread is waiting
+   classes with methods like `attachTo`, `attachEvent` or `detachEvent` when another thread is waiting
    for events with `wait`.
 
 The _TriggerHandle_ is threadsafe! Therefore you are allowed to attach/detach a _TriggerHandle_
@@ -69,8 +69,8 @@ are stored inside of the **TriggerInfo** and can be acquired by the user.
 
 | task | call |
 |:-----|:-----|
-|attach subscriber to waitset (simple)|`subscriber.attachTo(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
-|attach subscriber to waitset (full)|`subscriber.attachTo(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someTriggerId, myCallback);`|
+|attach subscriber to waitset (simple)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
+|attach subscriber to waitset (full)|`subscriber.attachEvent(myWaitSet, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, someTriggerId, myCallback);`|
 |detach subscriber event|`subscriber.detachEvent(iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);`|
 |attach user trigger to waitset (simple)|`userTrigger.attachTo(myWaitSet)`|
 |attach user trigger to waitset (full)|`userTrigger.attachTo(myWaitSet, someTriggerId, myCallback)`|
@@ -153,7 +153,7 @@ for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS; ++i)
     auto& subscriber = subscriberVector.back();
 
     subscriber.subscribe();
-    subscriber.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, subscriberCallback);
+    subscriber.attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, subscriberCallback);
 }
 ```
 
@@ -218,12 +218,12 @@ to the second group.
 ```cpp
 for (auto i = 0; i < NUMBER_OF_SUBSCRIBERS / 2; ++i)
 {
-    subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
+    subscriberVector[i].attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, FIRST_GROUP_ID);
 }
 
 for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
-    subscriberVector[i].attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
+    subscriberVector[i].attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES, SECOND_GROUP_ID);
 }
 ```
 
@@ -289,8 +289,8 @@ iox::popo::TypedSubscriber<CounterTopic> subscriber2({"Radar", "FrontLeft", "Cou
 subscriber1.subscribe();
 subscriber2.subscribe();
 
-subscriber1.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
-subscriber2.attachTo(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+subscriber1.attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
+subscriber2.attachEvent(waitset, iox::popo::SubscriberEvent::HAS_NEW_SAMPLES);
 ```
 
 With that set up we enter the event loop and handle the program termination
@@ -361,7 +361,7 @@ After that we require a `cyclicTrigger` to trigger our
 triggerId `0` and the callback `SomeClass::cyclicRun`
 ```cpp
 iox::popo::UserTrigger cyclicTrigger;
-cyclicTrigger.attachTo(waitset, SomeClass::cyclicRun);
+cyclicTrigger.attachEvent(waitset, SomeClass::cyclicRun);
 ```
 
 The next thing we need is something which will trigger our `cyclicTrigger`
@@ -479,7 +479,7 @@ have to be provided.
  
 ```cpp
     iox::cxx::expected<iox::popo::WaitSetError>
-    attachTo(iox::popo::WaitSet<>& waitset,
+    attachEvent(iox::popo::WaitSet<>& waitset,
                     const MyTriggerClassEvents event,
                     const uint64_t triggerId,
                     const iox::popo::Trigger::Callback<MyTriggerClass> callback) noexcept
@@ -572,8 +572,8 @@ triggerClass.emplace();
 After that we can attach both `triggerClass` events to the waitset and provide
 also a callback for them.
 ```cpp
-    triggerClass->attachTo(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
-    triggerClass->attachTo(
+    triggerClass->attachEvent(*waitset, MyTriggerClassEvents::ACTIVATE, ACTIVATE_ID, callOnActivate);
+    triggerClass->attachEvent(
         *waitset, MyTriggerClassEvents::PERFORMED_ACTION, ACTION_ID, MyTriggerClass::callOnAction);
 ```
 
