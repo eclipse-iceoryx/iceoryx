@@ -221,6 +221,11 @@ TYPED_TEST(relativeptrtests, AssignmentOperatorTests)
         EXPECT_EQ(rp, recovered);
         EXPECT_EQ(rp.getOffset(), recovered.getOffset());
         EXPECT_EQ(rp.getId(), recovered.getId());
+
+        recovered = basePointer;
+        EXPECT_EQ(rp, recovered);
+        EXPECT_EQ(rp.getOffset(), recovered.getOffset());
+        EXPECT_EQ(rp.getId(), recovered.getId());
     }
 
     {

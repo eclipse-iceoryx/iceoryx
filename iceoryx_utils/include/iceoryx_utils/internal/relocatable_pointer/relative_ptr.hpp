@@ -240,7 +240,7 @@ class relative_ptr : public RelativePointer
 
     relative_ptr& operator=(const RelativePointer& other)
     {
-        *this = other;
+        RelativePointer::operator=(other);
 
         return *this;
     }
