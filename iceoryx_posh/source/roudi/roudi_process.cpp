@@ -246,7 +246,7 @@ bool ProcessManager::requestShutdownOfProcess(const RouDiProcess& process, Shutd
 
     if (killC.hasErrors())
     {
-        evaluateKillError(process, killC, shutdownPolicy);
+        evaluateKillError(process, killC.getErrNum(), killC.getErrorString(), shutdownPolicy);
         return false;
     }
     return true;
@@ -270,7 +270,8 @@ bool ProcessManager::isProcessAlive(const RouDiProcess& process) noexcept
     {
         if (checkCommand.hasErrors())
         {
-            evaluateKillError(process, checkCommand, ShutdownPolicy::SIG_TERM);
+            evaluateKillError(
+                process, checkCommand.getErrNum(), checkCommand.getErrorString(), ShutdownPolicy::SIG_TERM);
         }
         return true;
     }
@@ -278,15 +279,16 @@ bool ProcessManager::isProcessAlive(const RouDiProcess& process) noexcept
 }
 
 void ProcessManager::evaluateKillError(const RouDiProcess& process,
-                                       const iox::cxx::SmartC<int(pid_t __pid, int __sig), int32_t, pid_t, int> cmd,
+                                       const int32_t& errnum,
+                                       const char* errorString,
                                        ShutdownPolicy shutdownPolicy) noexcept
 {
-    if ((cmd.getErrNum() == EINVAL) || (cmd.getErrNum() == EPERM) || (cmd.getErrNum() == ESRCH))
+    if ((errnum == EINVAL) || (errnum == EPERM) || (errnum == ESRCH))
     {
         LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
                   << "' could not be killed with "
                   << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                  << ", because the command failed with the following error: " << cmd.getErrorString()
+                  << ", because the command failed with the following error: " << errorString
                   << " See manpage for kill(2) or type 'man 2 kill' in console for more information";
         errorHandler(Error::kPOSH__ROUDI_PROCESS_SHUTDOWN_FAILED, nullptr, ErrorLevel::SEVERE);
     }
@@ -295,7 +297,7 @@ void ProcessManager::evaluateKillError(const RouDiProcess& process,
         LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
                   << "' could not be killed with"
                   << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM") << " for unknown reason: ’"
-                  << cmd.getErrorString() << "'";
+                  << errorString << "'";
         errorHandler(Error::kPOSH__ROUDI_PROCESS_SHUTDOWN_FAILED, nullptr, ErrorLevel::SEVERE);
     }
 }

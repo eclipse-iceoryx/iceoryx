@@ -229,7 +229,8 @@ class ProcessManager : public ProcessManagerInterface
     /// @param [in] cmd SmartC return value to evaluate
     /// @param [in] shutdownPolicy Enum with SIGTERM or SIGKILL
     void evaluateKillError(const RouDiProcess& process,
-                           const iox::cxx::SmartC<int(pid_t __pid, int __sig), int32_t, pid_t, int> cmd,
+                           const int32_t& errnum,
+                           const char* errorString,
                            ShutdownPolicy shutdownPolicy) noexcept;
 
     RouDiMemoryInterface& m_roudiMemoryInterface;
