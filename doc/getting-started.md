@@ -1,4 +1,4 @@
-# Iceoryx API Cheat Sheet
+# Getting started with iceoryx
 
 This document covers the core functionality of the ``iceoryx`` middleware and is intended to quickly get started to set up iceoryx applications. It is no in-depth API documentation and while the API is still subject to changes, the basic concepts will still apply.  
 ## General
@@ -50,6 +50,8 @@ This means the group and instance identifier can be ignored to create different 
 
 The data type of the topic can be an arbitrary C++ class or struct (which supports copy behavior).
 
+TODO: Add Autosar terminology mapping.
+
 ### Publisher
 A publisher is tied to a topic and needs a Service Description to be constructed. If it is typed one needs to additionally specify the data type
 as a template parameter. Otherwise publisher is only aware of raw memory and the user has to take care that it is interpreted correctly.
@@ -86,7 +88,9 @@ We distinguish between the ``Typed API`` and the ``Untyped API``. In the Typed A
 The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a type compatible to what was actually sent. This is required for interaction with other lower level APIs and should be used sparingly.
 For further information see the respective header files.
 
-We now describe the how to use the API in iceoryx applications. We will ommit namespaces in several places to keep the code concise. In most cases it can be assumed that we are using namespace ``iox::cxx``. 
+TODO mention C API (can only link)
+
+We now describe the how to use the API in iceoryx applications. We will ommit namespaces in several places to keep the code concise. In most cases it can be assumed that we are using namespace ``iox::cxx``. We also will use ``auto`` sparingly to clearly show which types are involved, but in many cases automatic type deduction is possible and can shorten the code.
 
 ### Optional
 
@@ -142,6 +146,7 @@ Prio2
 
 ### C API
 Prio3
+will link to example
 
 ## Examples
 
