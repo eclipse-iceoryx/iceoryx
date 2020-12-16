@@ -240,7 +240,7 @@ class relative_ptr : public RelativePointer
 
     relative_ptr& operator=(const RelativePointer& other)
     {
-        RelativePointer::operator=(other);
+        *this = other;
 
         return *this;
     }
@@ -253,8 +253,8 @@ class relative_ptr : public RelativePointer
         return *this;
     }
 
-    template <typename SFINAE = T>
-    typename std::enable_if<!std::is_void<SFINAE>::value, SFINAE&>::type operator*()
+    template <typename U = T>
+    typename std::enable_if<!std::is_void<U>::value, U&>::type operator*()
     {
         return *get();
     }
@@ -264,8 +264,8 @@ class relative_ptr : public RelativePointer
         return get();
     }
 
-    template <typename SFINAE = T>
-    typename std::enable_if<!std::is_void<SFINAE>::value, const SFINAE&>::type operator*() const
+    template <typename U = T>
+    typename std::enable_if<!std::is_void<U>::value, const U&>::type operator*() const
     {
         return *get();
     }
