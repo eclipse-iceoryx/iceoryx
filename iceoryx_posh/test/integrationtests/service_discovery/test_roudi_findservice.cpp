@@ -25,8 +25,8 @@ class RoudiFindService_test : public RouDiServiceDiscoveryTest
     {
     }
 
-    iox::runtime::PoshRuntime* senderRuntime{&iox::runtime::PoshRuntime::getInstance("/sender")};
-    iox::runtime::PoshRuntime* receiverRuntime{&iox::runtime::PoshRuntime::getInstance("/receiver")};
+    iox::runtime::PoshRuntime* senderRuntime{&iox::runtime::PoshRuntime::initRuntime("/sender")};
+    iox::runtime::PoshRuntime* receiverRuntime{&iox::runtime::PoshRuntime::initRuntime("/receiver")};
 };
 
 TEST_F(RoudiFindService_test, OfferSingleMethodServiceSingleInstance)

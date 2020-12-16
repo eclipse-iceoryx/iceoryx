@@ -98,12 +98,10 @@ class ClientPortUser : public BasePort
     bool hasLostResponsesSinceLastCall() noexcept;
 
     /// @brief set a condition variable (via its pointer) to the client
-    /// @return true if attachment worked, otherwise false
-    bool setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
+    void setConditionVariable(ConditionVariableData* conditionVariableDataPtr) noexcept;
 
     /// @brief unset a condition variable from the client
-    /// @return true if detachment worked, otherwise false
-    bool unsetConditionVariable() noexcept;
+    void unsetConditionVariable() noexcept;
 
     /// @brief check if there's a condition variable set
     /// @return true if a condition variable attached, otherwise false

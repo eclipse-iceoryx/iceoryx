@@ -19,6 +19,7 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
+#include "iceoryx_utils/cxx/string.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
@@ -27,7 +28,7 @@ namespace iox
 {
 namespace roudi
 {
-template <typename MemoryManager, typename SegmentManager, typename SenderPort>
+template <typename MemoryManager, typename SegmentManager, typename PublisherPort>
 class MemPoolIntrospection;
 }
 
@@ -49,7 +50,9 @@ class SegmentManager
     struct SegmentMapping
     {
       public:
-        SegmentMapping(const std::string& sharedMemoryName,
+        using string_t = cxx::string<128>;
+
+        SegmentMapping(const string_t& sharedMemoryName,
                        void* startAddress,
                        uint64_t size,
                        bool isWritable,
@@ -65,7 +68,7 @@ class SegmentManager
         {
         }
 
-        std::string m_sharedMemoryName{""};
+        string_t m_sharedMemoryName{""};
         void* m_startAddress{nullptr};
         uint64_t m_size{0};
         bool m_isWritable{false};
@@ -92,7 +95,7 @@ class SegmentManager
     bool createSegment(const SegmentConfig::SegmentEntry& f_segmentEntry);
 
   private:
-    template <typename MemoryManger, typename SegmentManager, typename SenderPort>
+    template <typename MemoryManger, typename SegmentManager, typename PublisherPort>
     friend class roudi::MemPoolIntrospection;
 
     posix::Allocator* m_managementAllocator;

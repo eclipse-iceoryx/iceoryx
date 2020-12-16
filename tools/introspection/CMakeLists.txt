@@ -6,7 +6,7 @@ find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
 include(IceoryxPackageHelper)
-include(IceoryxPlatformDetection)
+include(IceoryxPlatform)
 
 # cmake doesn't find ncurses under QNX; let the compiler complain if the header is missing
 if(NOT QNX)
@@ -36,12 +36,18 @@ set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
 )
 
 add_library(iceoryx_introspection
-            source/iceoryx_introspection_app.cpp
-            source/introspection_app.cpp
-    )
-set_property(TARGET iceoryx_introspection PROPERTY CXX_STANDARD 11)
+    source/iceoryx_introspection_app.cpp
+    source/introspection_app.cpp
+)
 
 add_library(${PROJECT_NAMESPACE}::iceoryx_introspection ALIAS iceoryx_introspection)
+
+set_target_properties(iceoryx_introspection PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
 
 target_include_directories(iceoryx_introspection
     PUBLIC
@@ -69,12 +75,14 @@ endif()
 
 target_link_libraries(iceoryx_introspection ${LIB_TINFO})
 
-set_target_properties(iceoryx_introspection
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
-
 add_executable(iox-introspection-client source/introspection_main.cpp)
-set_property(TARGET iox-introspection-client PROPERTY CXX_STANDARD 11)
+
+set_target_properties(iox-introspection-client PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
 
 target_link_libraries(iox-introspection-client
     PRIVATE

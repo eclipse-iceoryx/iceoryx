@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,87 +26,18 @@ namespace iox
 {
 namespace concurrent
 {
+template <typename ElementType, uint64_t Capacity>
+class LockFreeQueue;
+
+template <typename ElementType, uint64_t Capacity>
+class ResizeableLockFreeQueue;
+
 /// @brief lockfree queue capable of storing indices 0,1,... Capacity-1
 template <uint64_t Capacity, typename ValueType = uint64_t>
 class IndexQueue
 {
   public:
     static_assert(std::is_unsigned<ValueType>::value, "ValueType must be an unsigned integral type");
-
-    class UniqueIndex
-    {
-      public:
-        using value_t = ValueType;
-
-        // remark: for some reason, using nullopt_t instead with an alias and constructing a constexpr static is not
-        // possible
-        struct invalid_t
-        {
-        };
-
-        static constexpr invalid_t invalid{};
-
-        friend class IndexQueue<Capacity, ValueType>;
-
-        /// @brief only an invalid index can be constructed by anyone other than the IndexQueue itself
-        UniqueIndex(invalid_t) noexcept
-            : m_value(cxx::nullopt_t{})
-        {
-        }
-
-        // no copies
-        UniqueIndex(const UniqueIndex&) = delete;
-        UniqueIndex& operator=(const UniqueIndex&) = delete;
-
-        // only move
-        UniqueIndex(UniqueIndex&&) = default;
-        UniqueIndex& operator=(UniqueIndex&&) = default;
-
-        /// @brief returns whether it contains valid index
-        /// @return true if the index is valid, false otherwise
-        bool isValid()
-        {
-            return m_value.has_value();
-        }
-
-        /// @brief converts to a reference to the underlying value if it is valid, undefined behaviour otherwise
-        /// this allows using it as the underlying type in certain circumstances (without copying)
-        /// @return reference to the underlying value
-        operator const ValueType&() const
-        {
-            return m_value.value();
-        }
-
-        /// @brief releases the underlying value if it is valid, undefined behaviour otherwise
-        /// this means we have to check isValid() before or otherwise be sure it holds a value,
-        //  the object is invalid after the release call
-        /// @return the underlying value
-        ValueType release()
-        {
-            ValueType value = std::move(m_value.value());
-            m_value.reset();
-            return value;
-        }
-
-        /// @brief returns a reference to the underlying value if it is valid, undefined behaviour otherwise
-        /// @return reference to the underlying value
-        ValueType& operator*()
-        {
-            return m_value.value();
-        }
-
-      private:
-        // valid construction is made private and only accessible by the IndexQueue
-        // (that is also a reason why we use a nested class)
-        UniqueIndex(ValueType value) noexcept
-            : m_value(std::move(value))
-        {
-        }
-
-        // composition is preferred here to inheritance to control the (minimal) interface,
-        // we use the optional to benefit from its move behaviour
-        iox::cxx::optional<ValueType> m_value;
-    };
 
     using value_t = ValueType;
 
@@ -145,38 +76,39 @@ class IndexQueue
     /// (but it was at some point during the call)
     bool empty() const noexcept;
 
-    // The advantage of the UniqueIndex interface is that it prevents us from returning
-    // an index multiple times by design, i.e. it enforces that only indices popped from
-    // an IndexQueue can be returned.
-    // This works by preventing copies and construction of UniqueIndex outside of the IndexQueue.
-    // In particular, the user is free to get and copy the raw index, but he *cannot* construct a new
-    // UniqueIndex from it.
-
     /// @brief push index into the queue in FIFO order
-    /// always succeeds if the UniqueIndex to be pushed is popped from another equallysized
-    /// IndexQueue (and should only be used this way)
-    /// threadsafe, lockfree
-    /// @param index to be pushed, any index can only be pushed once by design
-    void push(UniqueIndex& index) noexcept;
+    /// @param index to be pushed
+    /// note that do the way it is supposed to be used
+    /// we cannot overflow (the number of indices available is bounded
+    /// and the capacity is large enough to hold them all)
+    void push(const ValueType index) noexcept;
 
-    /// @brief tries to remove index in FIFO order
-    /// threadsafe, lockfree
-    /// @return valid UniqueIndex if removal was successful (i.e. queue was not empty),
-    /// invalid UnqiueIndex otherwise
-    UniqueIndex pop() noexcept;
+    /// @brief pop an index from the queue in FIFO order if the queue not empty
+    /// @return index if the queue was is empty, nullopt oterwise
+    cxx::optional<ValueType> pop() noexcept;
 
-    /// @brief tries to remove index in FIFO order iff the queue is full
-    /// threadsafe, lockfree
-    /// @return valid UniqueIndex if removal was successful (i.e. queue was full),
-    /// invalid UniqueIndex otherwise
-    UniqueIndex popIfFull() noexcept;
+    /// @brief pop an index from the queue in FIFO order if the queue is full
+    /// @return index if the queue was full, nullopt otherwise
+    cxx::optional<ValueType> popIfFull() noexcept;
+
+    /// @brief pop an index from the queue in FIFO order if the queue contains
+    ///        at least  a specified number number of elements
+    /// @param size the number of elements needed to successfully perform the pop
+    /// @return index if the queue contains size elements, nullopt otherwise
+    cxx::optional<ValueType> popIfSizeIsAtLeast(uint64_t size) noexcept;
 
   private:
+    template <typename ElementType, uint64_t Cap>
+    friend class LockFreeQueue;
+
+    template <typename ElementType, uint64_t Cap>
+    friend class ResizeableLockFreeQueue;
+
     // remark: a compile time check whether Index is actually lock free would be nice
     // note: there is a way  with is_always_lock_free in c++17 (which we cannot use here)
     using Index = CyclicIndex<Capacity>;
-
     using Cell = std::atomic<Index>;
+
     ///    this member has to be initialized explicitly in the constructor since
     ///    the default atomic constructor does not call the default constructor of the
     ///    underlying class.
@@ -186,19 +118,27 @@ class IndexQueue
     std::atomic<Index> m_readPosition;
     std::atomic<Index> m_writePosition;
 
-  private:
-    // internal raw value (ValueType) interface
+    /// @brief load the value from m_cells at a position with a given memory order
+    /// @param position position to load the value from
+    /// @param memoryOrder memory order to load the value with
+    /// @return value at position
+    Index loadvalueAt(const Index& position, std::memory_order memoryOrder = std::memory_order_relaxed) const;
 
-    // push index into the queue in FIFO order
-    void push(const ValueType index) noexcept;
-
-    // tries to remove index in FIFO order, succeeds if the queue is not empty
+    /// @brief pop an index from the queue in FIFO order if the queue not empty
+    /// @param index that was obtained, undefined if false is returned
+    /// @return true if an index was obtained, false otherwise
     bool pop(ValueType& index) noexcept;
 
-    // tries to remove index in FIFO order if the queue is full
-    bool popIfFull(ValueType& index) noexcept;
+    /// @brief pop an index from the queue in FIFO order if the queue contains at least minSize indices
+    /// @param minSize minimum number of indices required in the queue to successfully obtain the first index
+    /// @param index that was obtained, undefined if false is returned
+    /// @return true if an index was obtained, false otherwise
+    bool popIfSizeIsAtLeast(uint64_t minSize, ValueType& index) noexcept;
 
-    Index loadvalueAt(const Index& position, std::memory_order memoryOrder = std::memory_order_relaxed) const;
+    /// @brief pop an index from the queue in FIFO order if the queue is full
+    /// @param index that was obtained, undefined if false is returned
+    /// @return true if an index was obtained, false otherwise
+    bool popIfFull(ValueType& index) noexcept;
 };
 } // namespace concurrent
 } // namespace iox

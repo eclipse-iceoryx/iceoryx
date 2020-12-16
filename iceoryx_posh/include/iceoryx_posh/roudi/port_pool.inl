@@ -18,11 +18,11 @@ namespace iox
 {
 namespace roudi
 {
-template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
+template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                             const uint64_t& historyRequest,
-                                                             const ProcessName_t& applicationName,
-                                                             const mepoo::MemoryInfo& memoryInfo) noexcept
+                                                                    const uint64_t& historyRequest,
+                                                                    const ProcessName_t& applicationName,
+                                                                    const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
                                                           applicationName,
@@ -31,11 +31,11 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
                                                           memoryInfo);
 }
 
-template <typename T, cxx::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
+template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
 inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro::ServiceDescription& serviceDescription,
-                                                             const uint64_t& historyRequest,
-                                                             const ProcessName_t& applicationName,
-                                                             const mepoo::MemoryInfo& memoryInfo) noexcept
+                                                                    const uint64_t& historyRequest,
+                                                                    const ProcessName_t& applicationName,
+                                                                    const mepoo::MemoryInfo& memoryInfo) noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.insert(serviceDescription,
                                                           applicationName,

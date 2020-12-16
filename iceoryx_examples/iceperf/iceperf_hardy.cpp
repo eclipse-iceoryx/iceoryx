@@ -13,8 +13,6 @@
 // limitations under the License.
 
 #include "iceoryx.hpp"
-#include "iceoryx_posh/popo/publisher.hpp"
-#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "mq.hpp"
 #include "topic_data.hpp"
@@ -50,7 +48,7 @@ int main()
     followerDo(uds);
 
     std::cout << std::endl << "******      ICEORYX       ********" << std::endl;
-    iox::runtime::PoshRuntime::getInstance(APP_NAME); // runtime for registering with the RouDi daemon
+    iox::runtime::PoshRuntime::initRuntime(APP_NAME); // runtime for registering with the RouDi daemon
     Iceoryx iceoryx(PUBLISHER, SUBSCRIBER);
     followerDo(iceoryx);
 

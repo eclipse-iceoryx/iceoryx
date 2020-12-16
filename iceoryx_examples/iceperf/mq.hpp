@@ -18,7 +18,6 @@
 
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/design_pattern/creation.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
 #include "iceoryx_utils/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_utils/internal/units/duration.hpp"
 #include "iceoryx_utils/platform/fcntl.hpp"

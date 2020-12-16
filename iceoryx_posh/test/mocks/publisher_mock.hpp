@@ -24,10 +24,28 @@ using ::testing::_;
 class MockPublisherPortUser
 {
   public:
+    using MemberType_t = iox::popo::PublisherPortData;
     MockPublisherPortUser() = default;
     MockPublisherPortUser(std::nullptr_t)
     {
     }
+    MockPublisherPortUser(MemberType_t*){};
+
+    MockPublisherPortUser(const MockPublisherPortUser& rhs [[gnu::unused]]){};
+    MockPublisherPortUser(MockPublisherPortUser&& rhs [[gnu::unused]]){};
+    MockPublisherPortUser& operator=(const MockPublisherPortUser& rhs [[gnu::unused]])
+    {
+        return *this;
+    };
+    MockPublisherPortUser& operator=(MockPublisherPortUser&& rhs [[gnu::unused]])
+    {
+        return *this;
+    };
+    iox::capro::ServiceDescription getCaProServiceDescription() const noexcept
+    {
+        return getServiceDescription();
+    }
+    MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD1(tryAllocateChunk,
                  iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(const uint32_t));
     MOCK_METHOD1(freeChunk, void(iox::mepoo::ChunkHeader* const));
@@ -37,6 +55,17 @@ class MockPublisherPortUser
     MOCK_METHOD0(stopOffer, void());
     MOCK_CONST_METHOD0(isOffered, bool());
     MOCK_CONST_METHOD0(hasSubscribers, bool());
+
+    operator bool() const
+    {
+        return true;
+    }
+
+    iox::UniquePortId getUniqueID()
+    {
+        return iox::UniquePortId();
+    };
+    MOCK_METHOD0(destroy, void());
 };
 
 template <typename T>
@@ -45,6 +74,7 @@ class MockBasePublisher : public iox::popo::PublisherInterface<T>
   public:
     MockBasePublisher(const iox::capro::ServiceDescription&){};
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
+    MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD1_T(loan, iox::cxx::expected<iox::popo::Sample<T>, iox::popo::AllocationError>(uint32_t));
     MOCK_METHOD1_T(publishMocked, void(iox::popo::Sample<T>&&));
     MOCK_METHOD0_T(loanPreviousSample, iox::cxx::optional<iox::popo::Sample<T>>());

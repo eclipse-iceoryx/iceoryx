@@ -161,12 +161,6 @@ TEST_F(ServiceDescription_test, operatorAssign)
     EXPECT_TRUE(csdNew == csd1);
 }
 
-TEST_F(ServiceDescription_test, getServiceString)
-{
-    EXPECT_THAT(csd1.getServiceString(), StrEq("Service_0001_0002_0003"));
-    EXPECT_THAT(csd2.getServiceString(), StrEq("Service_0001_FFFF_0003"));
-}
-
 TEST_F(ServiceDescription_test, CreateServiceOnlyDescription)
 {
     ServiceDescription desc1(1u, 2u);

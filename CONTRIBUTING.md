@@ -8,27 +8,12 @@ In domains like automotive, robotics or gaming, a huge amount of data must be
 transferred between different parts of the system. If these parts are actually
 different processes on a POSIX based operating system like Linux, this huge
 amount of data has to be transferred via an inter-process-communication (IPC)
-mechanism.
-
-* https://projects.eclipse.org/projects/technology.iceoryx
-
-## Developer resources
-
-Information regarding source code management, builds, coding standards, and
-more.
-
-* https://projects.eclipse.org/projects/technology.iceoryx/developer
-
-The project maintains the following source code repositories
-
-* https://github.com/eclipse/iceoryx
+mechanism. Find more infos on the [Eclipse site](https://projects.eclipse.org/projects/technology.iceoryx).
 
 ## Eclipse Contributor Agreement
 
 Before your contribution can be accepted by the project team, contributors must
-electronically sign the Eclipse Contributor Agreement (ECA).
-
-* http://www.eclipse.org/legal/ECA.php
+electronically sign the Eclipse Contributor Agreement ([ECA](http://www.eclipse.org/legal/ECA.php)).
 
 Commits that are provided by non-committers must have a Signed-off-by field in
 the footer indicating that the author is aware of the terms by which the
@@ -36,8 +21,7 @@ contribution has been provided to the project. The non-committer must
 additionally have an Eclipse Foundation account and must have a signed Eclipse
 Contributor Agreement (ECA) on file.
 
-For more information, please see the Eclipse Committer Handbook:
-https://www.eclipse.org/projects/handbook/#resources-commit
+For more information, please see the [Eclipse Committer Handbook](https://www.eclipse.org/projects/handbook/#resources-commit).
 
 ## Contact
 
@@ -48,16 +32,29 @@ Contact the project developers via the project's "dev" list.
 ## Feature request and bugs
 
 We love pull requests! The next sections try to cover most of the relevant questions. For larger contributions or
-architectural changes, we'd kindly ask you to get in touch with one of the maintainers beforehand. If you would like to
-report a bug or propose a new feature, please raise an issue before raising a pull request. This makes it easier to
-track. Please make sure you have:
+architectural changes, we'd kindly ask you to either:
+
+* Raise the proposed changes during a [developer meetup](https://github.com/eclipse/iceoryx/wiki/Developer-meetup)
+
+or
+
+* Create a design document and raise it in a separate pull request beforehand
+
+If you would like to report a bug or propose a new feature, please raise an issue before raising a pull request.
+Please have a quick search upfront if a similar issue already exists. An
+[release board](https://github.com/eclipse/iceoryx/projects) is used to prioritise the issues for a specific release.
+This makes it easier to track the work-in-progress. If you have troubles getting an issue assigned to you please
+contact the maintainers via [Gitter](https://gitter.im/eclipse/iceoryx).
+
+Please make sure you have:
 
 1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
-2. All branches have the following naming format: `iox-#123-this-is-a-branch`
-3. All commits have the following naming format: `iox-#123 commit text`
-4. All commits have been signed with `git commit -s`
-5. You open your pull request towards the base branch `staging`
-6. Link the pull request to the according Github issue and set the label accordingly
+1. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
+1. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
+1. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
+1. All commits have been signed with `git commit -s`
+1. You open your pull request towards the base branch `staging`
+1. Link the pull request to the according Github issue and set the label accordingly
 
 ## Coding style
 
@@ -75,7 +72,7 @@ codebase follows these rules, things are work in progress.
     without heap)
 2) **No exception are allowed**, all function and methods need to have `noexcept` in their signature
 3) **No undefined behavior**, zero-cost abstract is not feasible in high safety environments
-4) **Use C++11**, however we try to introduce C++14 as fast as possible
+4) **Use C++14**
 5) **[Rule of Five](https://en.wikipedia.org/wiki/Rule_of_three_(C%2B%2B_programming))**, if there is a non-default
     destructor needed, the rule of five has to be applied
 6) **[STL](https://en.wikipedia.org/wiki/Standard_Template_Library)**, we aim to be compatible towards the STL, but
@@ -83,6 +80,8 @@ codebase follows these rules, things are work in progress.
     does return a bool)
 7) **Always use `iox::log::Logger`**, instead of `printf()`
 8) **Always use `iox::ErrorHandler()`**, instead of the direct STL calls
+
+See [error-handling.md](./doc/error-handling.md) for additional information about logging and error handling. 
 
 ### Naming conventions
 
@@ -216,7 +215,8 @@ requests. We're planning to introduce continuos integration checks in the near f
 
 Each source file needs to have this header:
 
-    // Copyright (c) [year] by [Name of author]. All rights reserved.
+```
+    // Copyright (c) [DATE] by [INITIAL COPYRIGHT OWNER] [OTHER COPYRIGHT OWNERS]. All rights reserved.
     //
     // Licensed under the Apache License, Version 2.0 (the "License");
     // you may not use this file except in compliance with the License.
@@ -229,6 +229,26 @@ Each source file needs to have this header:
     // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     // See the License for the specific language governing permissions and
     // limitations under the License.
+```
+Note: `DATE` is either a year or a range of years with the first and last years of the range separated by a comma. So for example: "2004" or "2000, 2004". The first year is when the contents of the file were first created and the last year is when the contents were last modified.
+
+Example:
+
+```
+    // Copyright (c) 2018, 2020 by ACME Corp, Globex. All rights reserved.
+    //
+    // Licensed under the Apache License, Version 2.0 (the "License");
+    // you may not use this file except in compliance with the License.
+    // You may obtain a copy of the License at
+    //
+    //     http://www.apache.org/licenses/LICENSE-2.0
+    //
+    // Unless required by applicable law or agreed to in writing, software
+    // distributed under the License is distributed on an "AS IS" BASIS,
+    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    // See the License for the specific language governing permissions and
+    // limitations under the License.
+```
 
 ## Quality levels
 
@@ -270,3 +290,13 @@ This quality level is meant for all targets that need tier 1 support in ROS2.
 
 * Warnings in Helix QAC addressed
 * Code coverage according to [MC/DC](https://en.wikipedia.org/wiki/Modified_condition/decision_coverage) available
+
+## Training material recommended for contributors
+
+* Effective C++ by Scott Meyers
+* [Unit Testing and the Arrange, Act and Assert (AAA) Pattern](https://medium.com/@pjbgf/title-testing-code-ocd-and-the-aaa-pattern-df453975ab80) by Paulo Gomes
+* The C++ Standard Library by Nicolai M. Josuttis
+* Modern C++ Programming with Test-Driven Development: Code Better, Sleep Better by Jeff Langr
+* Modern C++ Design: Generic Programming and Design Patterns by Andrei Alexandrescu
+* Exceptional C++ by Herb Sutter
+* C++ Concurrency in Action by Anthony Williams

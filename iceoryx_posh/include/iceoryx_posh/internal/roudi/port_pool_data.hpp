@@ -20,9 +20,7 @@
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
-#include "iceoryx_posh/internal/runtime/runnable_data.hpp"
+#include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/vector.hpp"
 
@@ -54,13 +52,8 @@ struct PortPoolData
 {
     FixedPositionContainer<popo::InterfacePortData, MAX_INTERFACE_NUMBER> m_interfacePortMembers;
     FixedPositionContainer<popo::ApplicationPortData, MAX_PROCESS_NUMBER> m_applicationPortMembers;
-    FixedPositionContainer<runtime::RunnableData, MAX_RUNNABLE_NUMBER> m_runnableMembers;
+    FixedPositionContainer<runtime::NodeData, MAX_NODE_NUMBER> m_nodeMembers;
     FixedPositionContainer<popo::ConditionVariableData, MAX_NUMBER_OF_CONDITION_VARIABLES> m_conditionVariableMembers;
-
-    /// @deprecated #25
-    FixedPositionContainer<iox::popo::SenderPortData, MAX_PUBLISHERS> m_senderPortMembers;
-    /// @deprecated #25
-    FixedPositionContainer<iox::popo::ReceiverPortData, MAX_SUBSCRIBERS> m_receiverPortMembers;
 
     FixedPositionContainer<iox::popo::PublisherPortData, MAX_PUBLISHERS> m_publisherPortMembers;
     FixedPositionContainer<iox::popo::SubscriberPortData, MAX_SUBSCRIBERS> m_subscriberPortMembers;

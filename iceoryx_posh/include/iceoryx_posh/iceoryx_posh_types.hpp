@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,12 +31,9 @@ template <typename>
 class TypedUniqueId;
 struct BasePortData;
 
-class SenderPort;   /// @deprecated #25
-class ReceiverPort; /// @deprecated #25
-
-class PublisherPortUser;
 class PublisherPortRouDi;
-
+class PublisherPortUser;
+class SubscriberPortRouDi;
 class SubscriberPortUser;
 } // namespace popo
 namespace posix
@@ -45,10 +42,9 @@ class UnixDomainSocket;
 class MessageQueue;
 } // namespace posix
 
-using SenderPortType = iox::popo::SenderPort;     /// @deprecated #25
-using ReceiverPortType = iox::popo::ReceiverPort; /// @deprecated #25
 using PublisherPortRouDiType = iox::popo::PublisherPortRouDi;
 using PublisherPortUserType = iox::popo::PublisherPortUser;
+using SubscriberPortRouDiType = iox::popo::SubscriberPortRouDi;
 using SubscriberPortUserType = iox::popo::SubscriberPortUser;
 using UniquePortId = popo::TypedUniqueId<popo::BasePortData>;
 
@@ -72,6 +68,8 @@ constexpr char SHM_NAME[] = "/iceoryx_mgmt";
 using namespace units::duration_literals;
 
 // Timeout
+constexpr units::Duration PROCESS_DEFAULT_KILL_DELAY = 45_s;
+constexpr units::Duration PROCESS_TERMINATED_CHECK_INTERVAL = 250_ms;
 constexpr units::Duration PROCESS_WAITING_FOR_ROUDI_TIMEOUT = 60_s;
 constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;
 constexpr units::Duration PROCESS_KEEP_ALIVE_INTERVAL = 3 * DISCOVERY_INTERVAL;         // > DISCOVERY_INTERVAL
@@ -92,6 +90,11 @@ constexpr uint32_t MAX_SUBSCRIBERS = build::IOX_MAX_SUBSCRIBERS;
 constexpr uint32_t MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY =
     build::IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
 constexpr uint32_t MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY;
+// Introspection is using the following publisherPorts, which reduced the number of ports available for the user
+// 1x publisherPort mempool introspection
+// 1x publisherPort process introspection
+// 3x publisherPort port introspection
+constexpr uint32_t PUBLISHERS_RESERVED_FOR_INTROSPECTION = 5;
 /// With MAX_SUBSCRIBER_QUEUE_CAPACITY = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY we couple the maximum number of
 /// chunks a user is allowed to hold with the maximum queue capacity. This allows that a polling user can replace all
 /// the held chunks in one execution with all new ones from a completely filled queue. Or the other way round, when we
@@ -115,7 +118,7 @@ constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESS
 constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
-constexpr uint32_t MAX_NUMBER_OF_CONDITIONS_PER_WAITSET = 128U;
+constexpr uint32_t MAX_NUMBER_OF_TRIGGERS_PER_WAITSET = 128U;
 //--------- Communication Resources End---------------------
 
 constexpr uint32_t MAX_APPLICATION_CAPRO_FIFO_SIZE = 128U;
@@ -142,13 +145,20 @@ constexpr uint32_t MAX_PROCESS_NUMBER = 300U;
 /// instances)
 constexpr uint32_t MAX_NUMBER_OF_INSTANCES = 50U;
 
-// Runnables
-constexpr uint32_t MAX_RUNNABLE_NUMBER = 1000U;
-constexpr uint32_t MAX_RUNNABLE_PER_PROCESS = 50U;
+// Nodes
+constexpr uint32_t MAX_NODE_NUMBER = 1000U;
+constexpr uint32_t MAX_NODE_PER_PROCESS = 50U;
 
+#if defined(__APPLE__)
+/// @note on macOS the process name length needs to be decreased since the process name is used for the unix domain
+/// socket path which has a capacity for only 103 characters. The full path consists of UnixDomainSocket::PATH_PREFIX,
+/// which is currently 5 characters and the specified process name
+constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 98U;
+#else
 constexpr uint32_t MAX_PROCESS_NAME_LENGTH = 100U;
-static_assert(MAX_PROCESS_NUMBER * MAX_RUNNABLE_PER_PROCESS > MAX_RUNNABLE_NUMBER,
-              "Invalid configuration for runnables");
+#endif
+
+static_assert(MAX_PROCESS_NUMBER * MAX_NODE_PER_PROCESS > MAX_NODE_NUMBER, "Invalid configuration for nodes");
 
 enum class SubscribeState : uint32_t
 {
@@ -183,8 +193,8 @@ struct DefaultChunkQueueConfig
 
 // alias for cxx::string
 using ConfigFilePathString_t = cxx::string<1024>;
-using ProcessName_t = cxx::string<100>;
-using RunnableName_t = cxx::string<100>;
+using ProcessName_t = cxx::string<MAX_PROCESS_NAME_LENGTH>;
+using NodeName_t = cxx::string<100>;
 
 namespace runtime
 {

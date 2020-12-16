@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_binding_c/enums.h"
 
 using namespace iox;
 using namespace iox::popo;
@@ -66,14 +67,13 @@ iox_WaitSetResult WaitSetResult(const iox::popo::WaitSetError value)
 {
     switch (value)
     {
-    case WaitSetError::CONDITION_VARIABLE_ALREADY_SET:
-        return WaitSetResult_CONDITION_VARIABLE_ALREADY_SET;
-    case WaitSetError::CONDITION_VARIABLE_ATTACH_FAILED:
-        return WaitSetResult_CONDITION_VARIABLE_ATTACH_FAILED;
-    case WaitSetError::CONDITION_VECTOR_OVERFLOW:
-        return WaitSetResult_CONDITION_VECTOR_OVERFLOW;
+    case WaitSetError::TRIGGER_VECTOR_OVERFLOW:
+        return WaitSetResult_TRIGGER_VECTOR_OVERFLOW;
+    case WaitSetError::TRIGGER_ALREADY_ACQUIRED:
+        return WaitSetResult_TRIGGER_ALREADY_ACQUIRED;
     default:
         return WaitSetResult_UNDEFINED_ERROR;
     }
 }
+
 } // namespace cpp2c

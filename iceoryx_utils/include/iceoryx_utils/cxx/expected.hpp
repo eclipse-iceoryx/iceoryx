@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -101,6 +101,17 @@ struct error
 template <typename... T>
 class expected;
 
+template <typename... T>
+struct is_optional : std::false_type
+{
+};
+
+template <typename T>
+struct is_optional<iox::cxx::optional<T>> : std::true_type
+{
+};
+
+
 /// @brief expected implementation from the C++20 proposal with C++11. The interface
 ///         is inspired by the proposal but it has changes since we are not allowed to
 ///         throw an exception.
@@ -122,7 +133,7 @@ class expected;
 ///             std::cerr << "Error Occured\n";
 ///             /// perform some action
 ///         }).and_then([](cxx::expected<int, float> & result){
-///             std::cout << "Success, got " << result.get_value() << std::endl;
+///             std::cout << "Success, got " << result.value() << std::endl;
 ///             /// perform some action
 ///         });
 ///     }
@@ -244,7 +255,7 @@ class expected<ErrorType>
     ///         std::cout << "error occured : " << result.get_error() << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_error(const cxx::function_ref<void(expected&)>& callable) const noexcept;
+    [[deprecated]] const expected& on_error(const cxx::function_ref<void(expected&)>& callable) const noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -255,7 +266,7 @@ class expected<ErrorType>
     ///         std::cout << "error occured : " << result.get_error() << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_error(const cxx::function_ref<void(expected&)>& callable) noexcept;
+    [[deprecated]] expected& on_error(const cxx::function_ref<void(expected&)>& callable) noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called and
     ///         a reference to the ErrorType is given as an argument to the callable
@@ -266,7 +277,7 @@ class expected<ErrorType>
     ///         std::cout << "error occured : " << error << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_error(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept;
+    [[deprecated]] const expected& on_error(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept;
     const expected& or_else(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called and
@@ -278,7 +289,7 @@ class expected<ErrorType>
     ///         std::cout << "error occured : " << error << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_error(const cxx::function_ref<void(ErrorType&)>& callable) noexcept;
+    [[deprecated]] expected& on_error(const cxx::function_ref<void(ErrorType&)>& callable) noexcept;
     expected& or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called
@@ -289,7 +300,7 @@ class expected<ErrorType>
     ///         std::cout << "error occured " << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_error(const cxx::function_ref<void()>& callable) const noexcept;
+    [[deprecated]] const expected& on_error(const cxx::function_ref<void()>& callable) const noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called
     /// @param[in] callable callable which will be called if the expected contains an error
@@ -299,7 +310,7 @@ class expected<ErrorType>
     ///         std::cout << "error occured " << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_error(const cxx::function_ref<void()>& callable) noexcept;
+    [[deprecated]] expected& on_error(const cxx::function_ref<void()>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -310,7 +321,7 @@ class expected<ErrorType>
     ///         std::cout << "we are successful" << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_success(const cxx::function_ref<void(expected&)>& callable) const noexcept;
+    [[deprecated]] const expected& on_success(const cxx::function_ref<void(expected&)>& callable) const noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -321,7 +332,7 @@ class expected<ErrorType>
     ///         std::cout << "we are successful" << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_success(const cxx::function_ref<void(expected&)>& callable) noexcept;
+    [[deprecated]] expected& on_success(const cxx::function_ref<void(expected&)>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -332,7 +343,7 @@ class expected<ErrorType>
     ///         std::cout << "we are successful!" << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_success(const cxx::function_ref<void()>& callable) const noexcept;
+    [[deprecated]] const expected& on_success(const cxx::function_ref<void()>& callable) const noexcept;
     const expected& and_then(const cxx::function_ref<void()>& callable) const noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
@@ -344,7 +355,7 @@ class expected<ErrorType>
     ///         std::cout << "we are successful!" << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_success(const cxx::function_ref<void()>& callable) noexcept;
+    [[deprecated]] expected& on_success(const cxx::function_ref<void()>& callable) noexcept;
     expected& and_then(const cxx::function_ref<void()>& callable) noexcept;
 
   private:
@@ -450,33 +461,70 @@ class expected<ValueType, ErrorType>
 
     /// @brief  returns a reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
+    /// @deprecated replaced by ValueType& value() & noexcept;
     /// @return reference to the internally contained value
-    ValueType& get_value() & noexcept;
+    [[gnu::deprecated]] ValueType& get_value() & noexcept;
+
+    /// @brief  returns a const reference to the contained success value, if the expected
+    ///         does not contain a success value this is undefined behavior
+    /// @deprecated replaced by const ValueType& value() const& noexcept
+    /// @return const reference to the internally contained value
+    [[gnu::deprecated]] const ValueType& get_value() const& noexcept;
+
+    /// @brief  returns a reference to the contained success value, if the expected
+    ///         does not contain a success value this is undefined behavior
+    /// @deprecated replaced by ValueType&& value() && noexcept
+    /// @return rvalue reference to the internally contained value
+    [[gnu::deprecated]] ValueType&& get_value() && noexcept;
+
+    /// @brief  returns a const rvalue reference to the contained success value, if the expected
+    ///         does not contain a success value this is undefined behavior
+    /// @deprecated replaced by const ValueType&& value() const&& noexcept
+    /// @return const rvalue reference to the internally contained value
+    [[gnu::deprecated]] const ValueType&& get_value() const&& noexcept;
+
+    /// @brief  returns a copy of the contained success value if the expected does
+    ///         contain a success value, otherwise it returns a copy of value
+    /// @deprecated replaced by ValueType value_or(const ValueType& value) const noexcept
+    /// @return copy of the internally contained value or copy of value
+    [[gnu::deprecated]] ValueType get_value_or(const ValueType& value) const noexcept;
+
+    /// @brief  returns a copy of the contained success value if the expected does
+    ///         contain a success value, otherwise it returns a copy of value
+    /// @deprecated replaced by ValueType value_or(const ValueType& value) noexcept
+    /// @return copy of the internally contained value or copy of value
+    [[gnu::deprecated]] ValueType get_value_or(const ValueType& value) noexcept;
+
+    /// @brief  returns a reference to the contained success value, if the expected
+    ///         does not contain a success value this is undefined behavior
+    /// @return reference to the internally contained value
+    ValueType& value() & noexcept;
 
     /// @brief  returns a const reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
     /// @return const reference to the internally contained value
-    const ValueType& get_value() const& noexcept;
+    const ValueType& value() const& noexcept;
 
     /// @brief  returns a reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
     /// @return rvalue reference to the internally contained value
-    ValueType&& get_value() && noexcept;
+    ValueType&& value() && noexcept;
 
     /// @brief  returns a const rvalue reference to the contained success value, if the expected
     ///         does not contain a success value this is undefined behavior
     /// @return const rvalue reference to the internally contained value
-    const ValueType&& get_value() const&& noexcept;
+    const ValueType&& value() const&& noexcept;
 
     /// @brief  returns a copy of the contained success value if the expected does
     ///         contain a success value, otherwise it returns a copy of value
     /// @return copy of the internally contained value or copy of value
-    ValueType get_value_or(const ValueType& value) const noexcept;
+    ValueType value_or(const ValueType& value) const noexcept;
 
     /// @brief  returns a copy of the contained success value if the expected does
     ///         contain a success value, otherwise it returns a copy of value
     /// @return copy of the internally contained value or copy of value
-    ValueType get_value_or(const ValueType& value) noexcept;
+    ValueType value_or(const ValueType& value) noexcept;
+
 
     /// @brief dereferencing operator which returns a reference to the contained
     ///         success value. if the expected contains an error the behavior is
@@ -555,7 +603,7 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "error occured : " << result.get_error() << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_error(const cxx::function_ref<void(expected&)>& callable) const noexcept;
+    [[deprecated]] const expected& on_error(const cxx::function_ref<void(expected&)>& callable) const noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -566,7 +614,7 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "error occured : " << result.get_error() << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_error(const cxx::function_ref<void(expected&)>& callable) noexcept;
+    [[deprecated]] expected& on_error(const cxx::function_ref<void(expected&)>& callable) noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called and
     ///         a reference to the ErrorType is given as an argument to the callable
@@ -577,7 +625,7 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "error occured : " << error << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_error(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept;
+    [[deprecated]] const expected& on_error(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept;
     const expected& or_else(const cxx::function_ref<void(ErrorType&)>& callable) const noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called and
@@ -589,7 +637,7 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "error occured : " << error << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_error(const cxx::function_ref<void(ErrorType&)>& callable) noexcept;
+    [[deprecated]] expected& on_error(const cxx::function_ref<void(ErrorType&)>& callable) noexcept;
     expected& or_else(const cxx::function_ref<void(ErrorType&)>& callable) noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called
@@ -600,7 +648,7 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "error occured " << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_error(const cxx::function_ref<void()>& callable) const noexcept;
+    [[deprecated]] const expected& on_error(const cxx::function_ref<void()>& callable) const noexcept;
 
     /// @brief  if the expected does contain an error the given callable is called
     /// @param[in] callable callable which will be called if the expected contains an error
@@ -610,7 +658,7 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "error occured " << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_error(const cxx::function_ref<void()>& callable) noexcept;
+    [[deprecated]] expected& on_error(const cxx::function_ref<void()>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -618,10 +666,10 @@ class expected<ValueType, ErrorType>
     /// @return const reference to the expected itself
     /// @code
     ///     someExpected.on_success([](cxx::expected<int, float> & result){
-    ///         std::cout << "we have a result : " << result.get_value() << std::endl;
+    ///         std::cout << "we have a result : " << result.value() << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_success(const cxx::function_ref<void(expected&)>& callable) const noexcept;
+    [[deprecated]] const expected& on_success(const cxx::function_ref<void(expected&)>& callable) const noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -629,10 +677,10 @@ class expected<ValueType, ErrorType>
     /// @return reference to the expected itself
     /// @code
     ///     someExpected.on_success([](cxx::expected<int, float> & result){
-    ///         std::cout << "we have a result : " << result.get_value() << std::endl;
+    ///         std::cout << "we have a result : " << result.value() << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_success(const cxx::function_ref<void(expected&)>& callable) noexcept;
+    [[deprecated]] expected& on_success(const cxx::function_ref<void(expected&)>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the result is given as an argument to the callable
@@ -643,7 +691,7 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "we have a result : " << result << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_success(const cxx::function_ref<void(ValueType&)>& callable) const noexcept;
+    [[deprecated]] const expected& on_success(const cxx::function_ref<void(ValueType&)>& callable) const noexcept;
     const expected& and_then(const cxx::function_ref<void(ValueType&)>& callable) const noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
@@ -655,8 +703,36 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "we have a result : " << result << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_success(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
+    [[deprecated]] expected& on_success(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
     expected& and_then(const cxx::function_ref<void(ValueType&)>& callable) noexcept;
+
+    ///
+    /// @brief if the expected contains a success value and its type is a non-empty optional, retrieve the value from
+    ///         the optional and provide it as the argument to the provided callable
+    /// @param[in] callable the callable to be called with the contents of the optional
+    /// @return reference to the expected
+    /// @code
+    ///     anExpectedOptional.and_then([](int& value){
+    ///         std::cout << "the optional contains the value: " << result << std::endl;
+    ///     })
+    /// @endcode
+    ///
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    const expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const noexcept;
+
+    ///
+    /// @brief if the expected contains a success value and its type is a non-empty optional, retrieve the value from
+    ///         the optional and provide it as the argument to the provided callable
+    /// @param[in] callable the callable to be called with the contents of the optional
+    /// @return reference to the expected
+    /// @code
+    ///     anExpectedOptional.and_then([](int& value){
+    ///         std::cout << "the optional contains the value: " << result << std::endl;
+    ///     })
+    /// @endcode
+    ///
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    expected& and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -667,7 +743,7 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "we are successful!" << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] const expected& on_success(const cxx::function_ref<void()>& callable) const noexcept;
+    [[deprecated]] const expected& on_success(const cxx::function_ref<void()>& callable) const noexcept;
 
     /// @brief  if the expected does contain a success value the given callable is called and
     ///         a reference to the expected is given as an argument to the callable
@@ -678,7 +754,39 @@ class expected<ValueType, ErrorType>
     ///         std::cout << "we are successful!" << std::endl;
     ///     })
     /// @endcode
-    [[gnu::deprecated]] expected& on_success(const cxx::function_ref<void()>& callable) noexcept;
+    [[deprecated]] expected& on_success(const cxx::function_ref<void()>& callable) noexcept;
+
+    ///
+    /// @brief if the expected contains a success value and its type is an empty optional, calls the provided callable
+    /// @param[in] callable the callable to be called if the contained optional is empty
+    /// @return reference to the expected
+    /// @code
+    ///     anExpectedOptional.and_then([](SomeType& value){
+    ///             std::cout << "we got something in the optional: " << value << std::endl;
+    ///         })
+    ///         .if_empty([](){
+    ///             std::cout << "the optional was empty, but do something anyway!" << result << std::endl;
+    ///         })
+    /// @endcode
+    ///
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    const expected& if_empty(const cxx::function_ref<void()>& callable) const noexcept;
+
+    ///
+    /// @brief if the expected contains a success value and its type is an empty optional, calls the provided callable
+    /// @param[in] callable the callable to be called if the contained optional is empty
+    /// @return reference to the expected
+    /// @code
+    ///     anExpectedOptional.and_then([](SomeType& value){
+    ///             std::cout << "we got something in the optional: " << value << std::endl;
+    ///         })
+    ///         .if_empty([](){
+    ///             std::cout << "the optional was empty, but do something anyway!" << result << std::endl;
+    ///         })
+    /// @endcode
+    ///
+    template <typename Optional = ValueType, typename std::enable_if<is_optional<Optional>::value, int>::type = 0>
+    expected& if_empty(const cxx::function_ref<void()>& callable) noexcept;
 
     optional<ValueType> to_optional() const noexcept;
 
@@ -689,6 +797,14 @@ class expected<ValueType, ErrorType>
     variant<ValueType, ErrorType> m_store;
     bool m_hasError;
 };
+
+template <typename ErrorType>
+class expected<void, ErrorType> : public expected<ErrorType>
+{
+  public:
+    using expected<ErrorType>::expected;
+};
+
 
 } // namespace cxx
 } // namespace iox

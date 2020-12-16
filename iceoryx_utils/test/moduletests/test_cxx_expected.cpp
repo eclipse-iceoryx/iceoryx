@@ -18,6 +18,15 @@
 using namespace ::testing;
 using namespace iox::cxx;
 
+class MockCallables
+{
+  public:
+    MockCallables() = default;
+    MOCK_METHOD0(onSuccess, void());
+    MOCK_METHOD0(onEmpty, void());
+    MOCK_METHOD0(onError, void());
+};
+
 class expected_test : public Test
 {
   public:
@@ -49,7 +58,7 @@ TEST_F(expected_test, CreateWithValue)
 {
     auto sut = expected<int, float>::create_value(123);
     ASSERT_THAT(sut.has_error(), Eq(false));
-    EXPECT_THAT(sut.get_value(), Eq(123));
+    EXPECT_THAT(sut.value(), Eq(123));
 }
 
 TEST_F(expected_test, CreateWitherror)
@@ -63,7 +72,7 @@ TEST_F(expected_test, CreateValue)
 {
     auto sut = expected<Test, int>::create_value(12, 222);
     ASSERT_THAT(sut.has_error(), Eq(false));
-    EXPECT_THAT(sut.get_value().m_a, Eq(12));
+    EXPECT_THAT(sut.value().m_a, Eq(12));
 }
 
 TEST_F(expected_test, CreateError)
@@ -73,28 +82,56 @@ TEST_F(expected_test, CreateError)
     EXPECT_THAT(sut.get_error().m_b, Eq(212));
 }
 
+TEST_F(expected_test, BoolOperatorError)
+{
+    auto sut = expected<int, Test>::create_error(123, 321);
+    ASSERT_THAT(sut.operator bool(), Eq(false));
+    EXPECT_THAT(sut.get_error().m_b, Eq(321));
+}
+
+TEST_F(expected_test, BoolOperatorValue)
+{
+    auto sut = expected<Test, int>::create_value(123, 321);
+
+    ASSERT_THAT(sut.operator bool(), Eq(true));
+    EXPECT_THAT(sut.value().m_a, Eq(123));
+}
+
+TEST_F(expected_test, BoolOperatorExpectedErrorType)
+{
+    auto sut = expected<float>::create_error(5.8f);
+    ASSERT_THAT(sut.operator bool(), Eq(false));
+    ASSERT_THAT(sut.get_error(), Eq(5.8f));
+}
+
+TEST_F(expected_test, BoolOperatorExpectedErrorTypeValue)
+{
+    auto sut = expected<float>::create_value();
+    ASSERT_THAT(sut.operator bool(), Eq(true));
+}
+
 TEST_F(expected_test, GetValueOrWithError)
 {
     auto sut = expected<int, float>::create_error(16523.12f);
-    EXPECT_THAT(sut.get_value_or(90), Eq(90));
+    EXPECT_THAT(sut.value_or(90), Eq(90));
 }
 
 TEST_F(expected_test, GetValueOrWithSuccess)
 {
     auto sut = expected<int, float>::create_value(165);
-    EXPECT_THAT(sut.get_value_or(90), Eq(165));
+    EXPECT_THAT(sut.value_or(90), Eq(165));
 }
 
 TEST_F(expected_test, ConstGetValueOrWithError)
 {
     auto sut = expected<int, float>::create_error(1652.12f);
-    EXPECT_THAT(sut.get_value_or(15), Eq(15));
+    EXPECT_THAT(sut.value_or(15), Eq(15));
 }
 
 TEST_F(expected_test, ConstGetValueOrWithSuccess)
 {
     auto sut = expected<int, float>::create_value(652);
-    EXPECT_THAT(sut.get_value_or(15), Eq(652));
+    EXPECT_THAT(sut.value_or(15), Eq(652));
 }
 
 TEST_F(expected_test, ArrowOperator)
@@ -148,7 +185,7 @@ TEST_F(expected_test, CreateFromSuccessType)
 {
     expected<int, float> sut{success<int>(55)};
     ASSERT_THAT(sut.has_error(), Eq(false));
-    EXPECT_THAT(sut.get_value(), Eq(55));
+    EXPECT_THAT(sut.value(), Eq(55));
 }
 
 TEST_F(expected_test, VoidCreateFromErrorType)
@@ -247,4 +284,52 @@ TEST_F(expected_test, ExpectedWithErrorConvertsToNullopt)
     expected<int, float> sut{error<float>(47.11f)};
     optional<int> value = sut.to_optional();
     ASSERT_THAT(value.has_value(), Eq(false));
+}
+
+TEST_F(expected_test, AndThenUnpacksOptionalWhenNonEmptyOptionalValue)
+{
+    auto sut = expected<iox::cxx::optional<int>, float>::create_value(123);
+    MockCallables mocks{};
+    EXPECT_CALL(mocks, onSuccess).Times(1);
+
+    sut.and_then([&mocks](int& val) {
+        mocks.onSuccess();
+        ASSERT_THAT(val, Eq(123));
+    });
+}
+
+TEST_F(expected_test, AndThenNotCalledWhenEmptyOptionalValue)
+{
+    auto sut = expected<iox::cxx::optional<int>, float>::create_value(iox::cxx::nullopt);
+    MockCallables mocks{};
+    EXPECT_CALL(mocks, onSuccess).Times(0);
+
+    sut.and_then([&mocks](int&) { mocks.onSuccess(); });
+}
+
+TEST_F(expected_test, IfEmptyCalledWhenEmptyOptionalValue)
+{
+    auto sut = expected<iox::cxx::optional<int>, float>::create_value(iox::cxx::nullopt);
+    MockCallables mocks{};
+    EXPECT_CALL(mocks, onEmpty).Times(1);
+
+    sut.if_empty([&mocks]() { mocks.onEmpty(); });
+}
+
+TEST_F(expected_test, IfEmptyNotCalledWhenValueTypeIsNonEmptyOptionalValue)
+{
+    auto sut = expected<iox::cxx::optional<int>, float>::create_value(123);
+    MockCallables mocks{};
+    EXPECT_CALL(mocks, onEmpty).Times(0);
+
+    sut.if_empty([&mocks]() { mocks.onEmpty(); });
+}
+
+TEST_F(expected_test, IfEmptyNotCalledWhenErrorOccurs)
+{
+    auto sut = expected<iox::cxx::optional<int>, float>::create_error(42.42);
+    MockCallables mocks{};
+    EXPECT_CALL(mocks, onEmpty).Times(0);
+
+    sut.if_empty([&mocks]() { mocks.onEmpty(); });
 }

@@ -115,7 +115,7 @@ inline expected<ValueType, ErrorType> expected<ValueType, ErrorType>::create_err
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::operator bool() const noexcept
 {
-    return m_hasError;
+    return !m_hasError;
 }
 
 template <typename ValueType, typename ErrorType>
@@ -187,6 +187,47 @@ template <typename ValueType, typename ErrorType>
 inline ValueType expected<ValueType, ErrorType>::get_value_or(const ValueType& value) const noexcept
 {
     return const_cast<expected*>(this)->get_value_or(value);
+}
+
+template <typename ValueType, typename ErrorType>
+    inline ValueType&& expected<ValueType, ErrorType>::value() && noexcept
+{
+    return std::move(*m_store.template get_at_index<0>());
+}
+
+template <typename ValueType, typename ErrorType>
+inline const ValueType& expected<ValueType, ErrorType>::value() const& noexcept
+{
+    return *m_store.template get_at_index<0>();
+}
+
+template <typename ValueType, typename ErrorType>
+inline const ValueType&& expected<ValueType, ErrorType>::value() const&& noexcept
+{
+    return std::move(*m_store.template get_at_index<0>());
+}
+
+template <typename ValueType, typename ErrorType>
+    inline ValueType& expected<ValueType, ErrorType>::value() & noexcept
+{
+    return *m_store.template get_at_index<0>();
+}
+
+template <typename ValueType, typename ErrorType>
+inline ValueType expected<ValueType, ErrorType>::value_or(const ValueType& value) noexcept
+{
+    if (this->has_error())
+    {
+        return value;
+    }
+
+    return *m_store.template get_at_index<0>();
+}
+
+template <typename ValueType, typename ErrorType>
+inline ValueType expected<ValueType, ErrorType>::value_or(const ValueType& value) const noexcept
+{
+    return const_cast<expected*>(this)->value_or(value);
 }
 
 template <typename ValueType, typename ErrorType>
@@ -321,7 +362,7 @@ expected<ValueType, ErrorType>::on_success(const cxx::function_ref<void(ValueTyp
 {
     if (!this->has_error())
     {
-        callable(get_value());
+        callable(value());
     }
 
     return *this;
@@ -340,11 +381,63 @@ expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(ValueType&
 {
     if (!this->has_error())
     {
-        callable(get_value());
+        callable(value());
     }
 
     return *this;
 }
+
+template <typename ValueType, typename ErrorType>
+template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+inline const expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) const
+    noexcept
+{
+    return const_cast<expected*>(this)->and_then(callable);
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+inline expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::and_then(const cxx::function_ref<void(typename Optional::type&)>& callable) noexcept
+{
+    if (!this->has_error())
+    {
+        auto& optional = value();
+        if (optional.has_value())
+        {
+            callable(optional.value());
+        }
+    }
+
+    return *this;
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+inline const expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) const noexcept
+{
+    return const_cast<expected*>(this)->if_empty(callable);
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename Optional, typename std::enable_if<is_optional<Optional>::value, int>::type>
+inline expected<ValueType, ErrorType>&
+expected<ValueType, ErrorType>::if_empty(const cxx::function_ref<void(void)>& callable) noexcept
+{
+    if (!this->has_error())
+    {
+        auto& optional = value();
+        if (!optional.has_value())
+        {
+            callable();
+        }
+    }
+
+    return *this;
+}
+
 
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
@@ -388,7 +481,7 @@ inline optional<ValueType> expected<ValueType, ErrorType>::to_optional() const n
     optional<ValueType> returnValue;
     if (!this->has_error())
     {
-        returnValue.emplace(this->get_value());
+        returnValue.emplace(this->value());
     }
     return returnValue;
 }
@@ -497,7 +590,7 @@ inline expected<ErrorType> expected<ErrorType>::create_error(Targs&&... args) no
 template <typename ErrorType>
 inline expected<ErrorType>::operator bool() const noexcept
 {
-    return m_hasError;
+    return !m_hasError;
 }
 
 template <typename ErrorType>

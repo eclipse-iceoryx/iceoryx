@@ -15,21 +15,18 @@
 #define IOX_POSH_ROUDI_ROUDI_PROCESS_HPP
 
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/internal/runtime/message_queue_interface.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
-#include "iceoryx_utils/fixed_string/string100.hpp"
+#include "iceoryx_utils/cxx/list.hpp"
 #include "iceoryx_utils/posix_wrapper/posix_access_rights.hpp"
 
 #include <csignal>
 #include <cstdint>
 #include <ctime>
-#include <list>
 
 namespace iox
 {
@@ -101,9 +98,7 @@ class ProcessManagerInterface
 class ProcessManager : public ProcessManagerInterface
 {
   public:
-    /// @todo use a fixed, stack based list once available
-    // using ProcessList_t = cxx::list<RouDiProcess, MAX_PROCESS_NUMBER>;
-    using ProcessList_t = std::list<RouDiProcess>;
+    using ProcessList_t = cxx::list<RouDiProcess, MAX_PROCESS_NUMBER>;
     using PortConfigInfo = iox::runtime::PortConfigInfo;
 
     ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
@@ -131,42 +126,33 @@ class ProcessManager : public ProcessManagerInterface
                          const uint64_t sessionId,
                          const version::VersionInfo& versionInfo) noexcept;
 
-    void killAllProcesses() noexcept;
+    /// @brief Kills all registered processes. First try with a SIGTERM and if they have not terminated after
+    /// processKillDelay they are killed with SIGKILL. If RouDi doesn't have sufficient rights to kill the process, the
+    /// process is considered killed.
+    /// @param [in] processKillDelay Amount of time RouDi will wait before killing
+    void killAllProcesses(const units::Duration processKillDelay) noexcept;
 
     void updateLivelinessOfProcess(const ProcessName_t& name) noexcept;
 
     void findServiceForProcess(const ProcessName_t& name, const capro::ServiceDescription& service) noexcept;
 
-    void addInterfaceForProcess(const ProcessName_t& name,
-                                capro::Interfaces interface,
-                                const RunnableName_t& runnable) noexcept;
+    void
+    addInterfaceForProcess(const ProcessName_t& name, capro::Interfaces interface, const NodeName_t& node) noexcept;
 
     void addApplicationForProcess(const ProcessName_t& name) noexcept;
 
-    void addRunnableForProcess(const ProcessName_t& process, const RunnableName_t& runnable) noexcept;
-
-    /// @deprecated #25
-    void addReceiverForProcess(const ProcessName_t& name,
-                               const capro::ServiceDescription& service,
-                               const RunnableName_t& runnable,
-                               const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
-
-    /// @deprecated #25
-    void addSenderForProcess(const ProcessName_t& name,
-                             const capro::ServiceDescription& service,
-                             const RunnableName_t& runnable,
-                             const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
+    void addNodeForProcess(const ProcessName_t& process, const NodeName_t& node) noexcept;
 
     void addSubscriberForProcess(const ProcessName_t& name,
                                  const capro::ServiceDescription& service,
                                  const uint64_t& historyRequest,
-                                 const RunnableName_t& runnable,
+                                 const NodeName_t& node,
                                  const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addPublisherForProcess(const ProcessName_t& name,
                                 const capro::ServiceDescription& service,
                                 const uint64_t& historyCapacity,
-                                const RunnableName_t& runnable,
+                                const NodeName_t& node,
                                 const PortConfigInfo& portConfigInfo = PortConfigInfo()) noexcept;
 
     void addConditionVariableForProcess(const ProcessName_t& processName) noexcept;
@@ -175,8 +161,8 @@ class ProcessManager : public ProcessManagerInterface
 
     void run() noexcept;
 
-    SenderPortType addIntrospectionSenderPort(const capro::ServiceDescription& service,
-                                              const ProcessName_t& process_name) noexcept;
+    popo::PublisherPortData* addIntrospectionPublisherPort(const capro::ServiceDescription& service,
+                                                           const ProcessName_t& process_name) noexcept;
 
     /// @brief Notify the application that it sent an unsupported message
     void sendMessageNotSupportedToRuntime(const ProcessName_t& name) noexcept;
@@ -206,7 +192,40 @@ class ProcessManager : public ProcessManagerInterface
                     const uint64_t sessionId,
                     const version::VersionInfo& versionInfo) noexcept;
 
+    /// @brief Removes the process from the managed client process list, identified by its id.
+    /// @param [in] name The process name which should be removed.
+    /// @return Returns true if the process was found and removed from the internal list.
     bool removeProcess(const ProcessName_t& name) noexcept;
+
+    /// @brief Removes the given process from the managed client process list without taking the list's lock!
+    /// @param [in] lockGuard This method has to be called within a lock guard context. Providing this lock guard
+    ///                       ensures it can't be called without a lock guard in place. The lock guard is the one
+    ///                       associated with the process list.
+    /// @param [in] processIter The process which should be removed.
+    /// @return Returns true if the process was found and removed from the internal list.
+    bool removeProcess(const std::lock_guard<std::mutex>& lockGuard, ProcessList_t::iterator& processIter) noexcept;
+
+    enum class ShutdownPolicy
+    {
+        SIG_TERM,
+        SIG_KILL
+    };
+
+    enum class ShutdownLog
+    {
+        NONE,
+        FULL
+    };
+
+    /// @brief Shuts down the given process in m_processList with the given signal.
+    /// @param [in] process The process to shut down.
+    /// @param [in] shutdownPolicy Signal passed to the system to shut down the process
+    /// @param [in] shutdownLog Defines the logging detail.
+    /// @return Returns true if the sent signal was successful.
+    bool requestShutdownOfProcess(const RouDiProcess& process,
+                                  ShutdownPolicy shutdownPolicy,
+                                  ShutdownLog shutdownLog) noexcept;
+
     RouDiMemoryInterface& m_roudiMemoryInterface;
     PortManager& m_portManager;
     mepoo::SegmentManager<>* m_segmentManager{nullptr};
@@ -218,7 +237,7 @@ class ProcessManager : public ProcessManagerInterface
 
     ProcessIntrospectionType* m_processIntrospection{nullptr};
 
-    // this is currently used for the internal sender/receiver ports
+    // this is currently used for the internal publisher/subscriber ports
     mepoo::MemoryManager* m_memoryManagerOfCurrentProcess{nullptr};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel;
 };

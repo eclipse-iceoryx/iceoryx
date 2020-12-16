@@ -15,6 +15,7 @@
 #include "iceoryx.hpp"
 
 #include <chrono>
+#include <thread>
 
 Iceoryx::Iceoryx(const iox::capro::IdString& publisherName, const iox::capro::IdString& subscriberName) noexcept
     : m_publisher({"Comedians", publisherName, "Duo"})
@@ -38,7 +39,7 @@ void Iceoryx::init() noexcept
     m_subscriber.subscribe();
 
     std::cout << "Waiting till subscribed ... " << std::endl << std::flush;
-    while (m_subscriber.getSubscriptionState() != iox::popo::SubscriptionState::SUBSCRIBED)
+    while (m_subscriber.getSubscriptionState() != iox::SubscribeState::SUBSCRIBED)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -68,24 +69,27 @@ void Iceoryx::shutdown() noexcept
 
 void Iceoryx::sendPerfTopic(uint32_t payloadSizeInBytes, bool runFlag) noexcept
 {
-    auto sendSample = static_cast<PerfTopic*>(m_publisher.allocateChunk(payloadSizeInBytes, true));
-    sendSample->payloadSize = payloadSizeInBytes;
-    sendSample->run = runFlag;
-    sendSample->subPackets = 1;
-
-    m_publisher.sendChunk(sendSample);
+    m_publisher.loan(payloadSizeInBytes).and_then([&](auto& sample) {
+        auto sendSample = static_cast<PerfTopic*>(sample.get());
+        sendSample->payloadSize = payloadSizeInBytes;
+        sendSample->run = runFlag;
+        sendSample->subPackets = 1;
+        sample.publish();
+    });
 }
 
 PerfTopic Iceoryx::receivePerfTopic() noexcept
 {
-    const void* receivedChunk;
-    while (!m_subscriber.getChunk(&receivedChunk))
-    {
-        // poll as fast as possible
-    }
+    bool hasReceivedSample{false};
+    PerfTopic receivedSample;
 
-    auto receivedSample = *(static_cast<const PerfTopic*>(receivedChunk));
-    m_subscriber.releaseChunk(receivedChunk);
+    do
+    {
+        m_subscriber.take().and_then([&](iox::popo::Sample<const void>& sample) {
+            receivedSample = *(static_cast<const PerfTopic*>(sample.get()));
+            hasReceivedSample = true;
+        });
+    } while (!hasReceivedSample);
 
     return receivedSample;
 }

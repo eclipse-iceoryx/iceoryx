@@ -23,7 +23,9 @@ struct CounterTopic
 
 struct Position
 {
-    Position(double x, double y, double z)
+    Position() noexcept
+    {}
+    Position(double x, double y, double z) noexcept
         : x(x)
         , y(y)
         , z(z){};

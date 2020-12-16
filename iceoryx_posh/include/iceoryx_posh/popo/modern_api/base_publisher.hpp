@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,15 +49,21 @@ class BasePublisher : public PublisherInterface<T>
   protected:
     BasePublisher(const BasePublisher& other) = delete;
     BasePublisher& operator=(const BasePublisher&) = delete;
-    BasePublisher(BasePublisher&& rhs) = default;
-    BasePublisher& operator=(BasePublisher&& rhs) = default;
-    ~BasePublisher() = default;
+    BasePublisher(BasePublisher&& rhs) = delete;
+    BasePublisher& operator=(BasePublisher&& rhs) = delete;
+    virtual ~BasePublisher();
 
     ///
     /// @brief uid Get the UID of the publisher.
     /// @return The publisher's UID.
     ///
     uid_t getUid() const noexcept;
+
+    ///
+    /// @brief getServiceDescription Get the service description of the publisher.
+    /// @return The service description.
+    ///
+    capro::ServiceDescription getServiceDescription() const noexcept;
 
     ///
     /// @brief loan Get a sample from loaned shared memory.
@@ -69,7 +75,7 @@ class BasePublisher : public PublisherInterface<T>
     cxx::expected<Sample<T>, AllocationError> loan(const uint32_t size) noexcept;
 
     ///
-    /// @brief publish Publish the given sample.
+    /// @brief publish Publishes the given sample and then releases its loan.
     /// @param sample The sample to publish.
     ///
     void publish(Sample<T>&& sample) noexcept override;
@@ -103,12 +109,13 @@ class BasePublisher : public PublisherInterface<T>
     bool hasSubscribers() const noexcept;
 
   protected:
+    BasePublisher() = default; // Required for testing.
     BasePublisher(const capro::ServiceDescription& service);
 
   private:
     ///
     /// @brief The PublisherSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
-    /// underlying memory chunk via a publishers publisher port.
+    /// underlying memory chunk via the publisher port.
     /// Each publisher should create its own instance of this deleter struct to work with its specific port.
     ///
     /// @note As this deleter is coupled to the Publisher implementation, it should only be used within the publisher

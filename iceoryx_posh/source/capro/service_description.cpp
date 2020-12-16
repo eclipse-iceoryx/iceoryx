@@ -10,7 +10,7 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License
+// limitations under the License.
 
 #include "iceoryx_posh/capro/service_description.hpp"
 
@@ -226,15 +226,6 @@ ServiceDescription::operator cxx::Serialization() const
                                       m_hasServiceOnlyDescription,
                                       scope,
                                       interface);
-}
-
-std::string ServiceDescription::getServiceString() const noexcept
-{
-    std::stringstream l_strStream;
-    l_strStream << "Service_" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << m_serviceID << "_"
-                << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << m_eventID << "_" << std::uppercase
-                << std::setfill('0') << std::setw(4) << std::hex << m_instanceID;
-    return l_strStream.str();
 }
 
 uint16_t ServiceDescription::getInstanceID() const noexcept

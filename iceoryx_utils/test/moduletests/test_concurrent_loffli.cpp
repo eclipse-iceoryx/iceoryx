@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iceoryx_utils/internal/concurrent/locked_loffli.hpp"
 #include "iceoryx_utils/internal/concurrent/loffli.hpp"
 #include "test.hpp"
 
@@ -24,7 +23,7 @@ using namespace ::testing;
 
 
 constexpr uint32_t Size{4};
-using LoFFLiTestSubjects = Types<iox::concurrent::LoFFLi, iox::concurrent::LockedLoFFLi>;
+using LoFFLiTestSubjects = Types<iox::concurrent::LoFFLi>;
 /// we require TYPED_TEST since we support gtest 1.8 for our safety targets
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

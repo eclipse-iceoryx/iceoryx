@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,85 +13,138 @@
 // limitations under the License.
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/ports/application_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
-#include "iceoryx_posh/internal/popo/receiver_port.hpp"
-#include "iceoryx_posh/internal/popo/sender_port.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_utils/cxx/generic_raii.hpp"
 #include "iceoryx_utils/cxx/helplets.hpp"
 #include "test.hpp"
 
-
 using namespace ::testing;
 using namespace iox::capro;
 using namespace iox::popo;
-using CString100 = iox::cxx::CString100;
 
+const iox::capro::ServiceDescription SERVICE_DESCRIPTION_VALID("Radar", "FrontRight", "ChuckNorrisDetected");
+const iox::capro::ServiceDescription SERVICE_DESCRIPTION_EMPTY(0, 0, 0);
+const iox::ProcessName_t APP_NAME_EMPTY = {""};
+const iox::ProcessName_t APP_NAME_FOR_PUBLISHER_PORTS = {"PublisherPort"};
+const iox::ProcessName_t APP_NAME_FOR_SUBSCRIBER_PORTS = {"SubscriberPort"};
+const iox::ProcessName_t APP_NAME_FOR_INTERFACE_PORTS = {"InterfacePort"};
+const iox::ProcessName_t APP_NAME_FOR_APPLICATION_PORTS = {"AppPort"};
 
-const iox::capro::ServiceDescription m_servicedesc("Radar", "FrontRight", "ChuckNorrisDetected");
-const iox::capro::ServiceDescription m_emptyservicedesc(0, 0, 0);
-CString100 m_receiverportname = {"RecPort"};
-CString100 m_senderportname = {"SendPort"};
-iox::ProcessName_t m_applicationportname = {"AppPort"};
-iox::ProcessName_t m_interfaceportname = {"InterfacePort"};
-CString100 m_emptyappname = {""};
-typedef BasePort* CreatePort();
+iox::mepoo::MemoryManager m_memoryManager;
+std::vector<iox::UniquePortId> uniquePortIds;
 
-BasePort* CreateCaProPort()
+using PortDataTypes =
+    Types<BasePortData, PublisherPortData, SubscriberPortData, InterfacePortData, ApplicationPortData>;
+
+/// we require TYPED_TEST since we support gtest 1.8 for our safety targets
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+TYPED_TEST_CASE(BasePort_test, PortDataTypes);
+#pragma GCC diagnostic pop
+
+// port data factories
+
+template <typename T>
+T* createPortData()
 {
-    BasePortData* basePortData = new BasePortData();
-    return new BasePort(basePortData);
+    return nullptr;
+}
+template <>
+BasePortData* createPortData()
+{
+    return new BasePortData();
+}
+template <>
+PublisherPortData* createPortData()
+{
+    return new PublisherPortData(SERVICE_DESCRIPTION_VALID, APP_NAME_FOR_PUBLISHER_PORTS, &m_memoryManager, 1);
+}
+template <>
+SubscriberPortData* createPortData()
+{
+    return new SubscriberPortData(SERVICE_DESCRIPTION_VALID,
+                                  APP_NAME_FOR_SUBSCRIBER_PORTS,
+                                  iox::cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
+                                  1,
+                                  iox::mepoo::MemoryInfo());
+}
+template <>
+InterfacePortData* createPortData()
+{
+    return new InterfacePortData(APP_NAME_FOR_INTERFACE_PORTS, iox::capro::Interfaces::INTERNAL);
+}
+template <>
+ApplicationPortData* createPortData()
+{
+    return new ApplicationPortData(APP_NAME_FOR_APPLICATION_PORTS);
 }
 
-BasePort* CreateSenderPort()
+// expected ServiceDescription factories
+
+template <typename T>
+const ServiceDescription& expectedServiceDescription()
 {
-    SenderPortData* senderPortData = new SenderPortData(m_servicedesc, nullptr, "SendPort");
-    return new SenderPort(senderPortData);
+    return SERVICE_DESCRIPTION_EMPTY;
+}
+template <>
+const ServiceDescription& expectedServiceDescription<PublisherPortData>()
+{
+    return SERVICE_DESCRIPTION_VALID;
+}
+template <>
+const ServiceDescription& expectedServiceDescription<SubscriberPortData>()
+{
+    return SERVICE_DESCRIPTION_VALID;
 }
 
-BasePort* CreateReceiverPort()
+// expected ProcessName factories
+
+template <typename T>
+const iox::ProcessName_t& expectedProcessName()
 {
-    ReceiverPortData* receiverPortData = new ReceiverPortData(m_servicedesc, "RecPort");
-    return new ReceiverPort(receiverPortData);
+    return APP_NAME_EMPTY;
+}
+template <>
+const iox::ProcessName_t& expectedProcessName<PublisherPortData>()
+{
+    return APP_NAME_FOR_PUBLISHER_PORTS;
+}
+template <>
+const iox::ProcessName_t& expectedProcessName<SubscriberPortData>()
+{
+    return APP_NAME_FOR_SUBSCRIBER_PORTS;
+}
+template <>
+const iox::ProcessName_t& expectedProcessName<InterfacePortData>()
+{
+    return APP_NAME_FOR_INTERFACE_PORTS;
+}
+template <>
+const iox::ProcessName_t& expectedProcessName<ApplicationPortData>()
+{
+    return APP_NAME_FOR_APPLICATION_PORTS;
 }
 
-BasePort* CreateInterfacePort()
-{
-    InterfacePortData* interfacePortData = new InterfacePortData("InterfacePort", iox::capro::Interfaces::INTERNAL);
-    return new InterfacePort(interfacePortData);
-}
-
-BasePort* CreateApplicationPort()
-{
-    ApplicationPortData* applicationPortData = new ApplicationPortData("AppPort");
-    return new ApplicationPort(applicationPortData);
-}
-
-class BasePorttest : public Test
+template <typename PortData>
+class BasePort_test : public Test
 {
   public:
-    BasePort sut;
-    void SetUp(){};
-    void TearDown(){};
-};
+    using PortData_t = PortData;
 
-class BasePortParamtest : public TestWithParam<CreatePort*>
-{
-    friend class BasePort;
-
-  protected:
-    BasePortParamtest()
-        : sut((*GetParam())())
-    {
-    }
-    ~BasePortParamtest()
-    {
-        uniquePortIds.emplace_back(sut->getUniqueID());
-        delete sut;
-    }
     virtual void SetUp()
     {
+        for (auto& id : uniquePortIds)
+        {
+            EXPECT_THAT(this->sut.getUniqueID(), Ne(id));
+        }
+        uniquePortIds.emplace_back(sut.getUniqueID());
     }
 
     virtual void TearDown()
@@ -100,84 +153,19 @@ class BasePortParamtest : public TestWithParam<CreatePort*>
 
     iox::cxx::GenericRAII m_uniqueRouDiId{[] { iox::popo::internal::setUniqueRouDiId(0); },
                                           [] { iox::popo::internal::unsetUniqueRouDiId(); }};
-    BasePort* sut;
-    static std::vector<iox::UniquePortId> uniquePortIds;
+
+    std::unique_ptr<PortData> sutData{createPortData<PortData>()};
+    BasePort sut{sutData.get()};
 };
-std::vector<iox::UniquePortId> BasePortParamtest::uniquePortIds;
 
-TEST_P(BasePortParamtest, getUniqueID)
+TYPED_TEST(BasePort_test, getCaProServiceDescription)
 {
-    for (auto& id : uniquePortIds)
-    {
-        EXPECT_THAT(sut->getUniqueID(), Ne(id));
-    }
+    using PortData_t = typename TestFixture::PortData_t;
+    EXPECT_THAT(this->sut.getCaProServiceDescription(), Eq(expectedServiceDescription<PortData_t>()));
 }
 
-TEST_P(BasePortParamtest, getCaProServiceDescription)
+TYPED_TEST(BasePort_test, getApplicationname)
 {
-    if (this->GetParam() == CreateCaProPort)
-    {
-        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(m_emptyservicedesc));
-    }
-    else if (this->GetParam() == CreateReceiverPort)
-    {
-        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(m_servicedesc));
-    }
-    else if (this->GetParam() == CreateSenderPort)
-    {
-        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(m_servicedesc));
-    }
-    else if (this->GetParam() == CreateInterfacePort)
-    {
-        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(m_emptyservicedesc));
-    }
-    else if (this->GetParam() == CreateApplicationPort)
-    {
-        EXPECT_THAT(sut->getCaProServiceDescription(), Eq(m_emptyservicedesc));
-    }
-    else
-    {
-        // We should not be here
-        std::cout << "CaPro ServiceDescriptiontest test failed!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    using PortData_t = typename TestFixture::PortData_t;
+    EXPECT_THAT(this->sut.getProcessName(), Eq(expectedProcessName<PortData_t>()));
 }
-
-TEST_P(BasePortParamtest, getApplicationname)
-{
-    if (this->GetParam() == CreateCaProPort)
-    {
-        EXPECT_THAT(sut->getProcessName(), Eq(m_emptyappname));
-    }
-    else if (this->GetParam() == CreateReceiverPort)
-    {
-        EXPECT_THAT(sut->getProcessName(), Eq(m_receiverportname));
-    }
-    else if (this->GetParam() == CreateSenderPort)
-    {
-        EXPECT_THAT(sut->getProcessName(), Eq(m_senderportname));
-    }
-    else if (this->GetParam() == CreateInterfacePort)
-    {
-        EXPECT_THAT(sut->getProcessName(), Eq(m_interfaceportname));
-    }
-    else if (this->GetParam() == CreateApplicationPort)
-    {
-        EXPECT_THAT(sut->getProcessName(), Eq(m_applicationportname));
-    }
-    else
-    {
-        // We should not be here
-        std::cout << "CaPro Applicationname test failed!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-}
-
-/// we require INSTANTIATE_TEST_CASE since we support gtest 1.8 for our safety targets
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-INSTANTIATE_TEST_CASE_P(
-    CaPro,
-    BasePortParamtest,
-    Values(&CreateCaProPort, &CreateReceiverPort, &CreateSenderPort, &CreateInterfacePort, &CreateApplicationPort));
-#pragma GCC diagnostic pop

@@ -3,7 +3,7 @@ file (STRINGS "../VERSION" iceoryx_utils_VERSION)
 project(iceoryx_utils VERSION ${iceoryx_utils_VERSION})
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatformDetection.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
 if( clang-tidy )
     find_program(
@@ -130,7 +130,6 @@ setup_package_name_and_create_files(
 add_library(iceoryx_utils
     source/concurrent/active_object.cpp
     source/concurrent/loffli.cpp
-    source/concurrent/locked_loffli.cpp
     source/cxx/helplets.cpp
     source/cxx/generic_raii.cpp
     source/error_handling/error_handling.cpp
@@ -141,7 +140,6 @@ add_library(iceoryx_utils
     source/log/logging_internal.cpp
     source/log/logmanager.cpp
     source/log/logstream.cpp
-    source/log/ac3log_shim/simplelogger.cpp
     source/posix_wrapper/access_control.cpp
     source/posix_wrapper/mutex.cpp
     source/posix_wrapper/semaphore.cpp
@@ -197,7 +195,9 @@ set_target_properties(iceoryx_platform PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
 
-target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS})
+target_link_libraries(iceoryx_platform PRIVATE ${ICEORYX_SANITIZER_FLAGS})
+
+target_compile_options(iceoryx_platform PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 if(PERFORM_CLANG_TIDY)
     set_target_properties(
@@ -206,9 +206,13 @@ if(PERFORM_CLANG_TIDY)
 endif(PERFORM_CLANG_TIDY)
 
 
-target_link_libraries(iceoryx_utils PUBLIC iceoryx_utils::iceoryx_platform)
+target_link_libraries(iceoryx_utils 
+    PUBLIC 
+    iceoryx_utils::iceoryx_platform 
+    PRIVATE
+    ${ICEORYX_SANITIZER_FLAGS})
 
-target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS})
+target_compile_options(iceoryx_utils PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
 # TODO: Make ICEORYX::UTILS private???
 target_include_directories(iceoryx_utils
@@ -238,7 +242,7 @@ setup_install_directories_and_export_package(
 install(
     FILES
         cmake/IceoryxPackageHelper.cmake
-        cmake/IceoryxPlatformDetection.cmake
+        cmake/IceoryxPlatform.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
 

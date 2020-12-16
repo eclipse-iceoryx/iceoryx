@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,59 +19,10 @@ namespace iox
 {
 namespace popo
 {
-template <typename base_subscriber_t>
-UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service)
-    : base_subscriber_t(service)
+template <template <typename, typename, typename> class base_subscriber_t>
+inline UntypedSubscriberImpl<base_subscriber_t>::UntypedSubscriberImpl(const capro::ServiceDescription& service)
+    : BaseSubscriber(service)
 {
-}
-
-template <typename base_subscriber_t>
-inline uid_t UntypedSubscriberImpl<base_subscriber_t>::getUid() const noexcept
-{
-    return base_subscriber_t::getUid();
-}
-
-template <typename base_subscriber_t>
-inline capro::ServiceDescription UntypedSubscriberImpl<base_subscriber_t>::getServiceDescription() const noexcept
-{
-    return base_subscriber_t::getServiceDescription();
-}
-
-template <typename base_subscriber_t>
-inline void UntypedSubscriberImpl<base_subscriber_t>::subscribe(const uint64_t queueCapacity) noexcept
-{
-    base_subscriber_t::subscribe(queueCapacity);
-}
-
-template <typename base_subscriber_t>
-inline SubscribeState UntypedSubscriberImpl<base_subscriber_t>::getSubscriptionState() const noexcept
-{
-    return base_subscriber_t::getSubscriptionState();
-}
-
-template <typename base_subscriber_t>
-inline void UntypedSubscriberImpl<base_subscriber_t>::unsubscribe() noexcept
-{
-    return base_subscriber_t::unsubscribe();
-}
-
-template <typename base_subscriber_t>
-inline bool UntypedSubscriberImpl<base_subscriber_t>::hasNewSamples() const noexcept
-{
-    return base_subscriber_t::hasNewSamples();
-}
-
-template <typename base_subscriber_t>
-inline cxx::expected<cxx::optional<Sample<const void>>, ChunkReceiveError>
-UntypedSubscriberImpl<base_subscriber_t>::receive() noexcept
-{
-    return base_subscriber_t::receive();
-}
-
-template <typename base_subscriber_t>
-inline void UntypedSubscriberImpl<base_subscriber_t>::releaseQueuedSamples() noexcept
-{
-    base_subscriber_t::releaseQueuedSamples();
 }
 
 } // namespace popo

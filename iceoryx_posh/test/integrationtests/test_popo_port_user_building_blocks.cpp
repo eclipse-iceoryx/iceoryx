@@ -74,7 +74,7 @@ class PortUser_IntegrationTest : public Test
             std::stringstream publisherAppName;
             publisherAppName << TEST_PUBLISHER_APP_NAME << i;
 
-            iox::cxx::string<100> processName(TruncateToCapacity, publisherAppName.str().c_str());
+            iox::ProcessName_t processName(TruncateToCapacity, publisherAppName.str().c_str());
 
             m_publisherPortDataVector.emplace_back(TEST_SERVICE_DESCRIPTION, processName, &m_memoryManager);
             m_publisherPortUserVector.emplace_back(&m_publisherPortDataVector.back());
@@ -211,7 +211,7 @@ class PortUser_IntegrationTest : public Test
                         }
                     }
                 })
-                .or_else([](ChunkReceiveError error) {
+                .or_else([](auto error) {
                     // Errors shall never occur
                     FAIL() << "Error in tryGetChunk(): " << static_cast<uint32_t>(error);
                 });
@@ -285,14 +285,14 @@ class PortUser_IntegrationTest : public Test
         for (size_t i = 0; i < ITERATIONS; i++)
         {
             publisherPortUser.tryAllocateChunk(sizeof(DummySample))
-                .and_then([&](ChunkHeader* chunkHeader) {
+                .and_then([&](auto chunkHeader) {
                     auto sample = chunkHeader->payload();
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
                     publisherPortUser.sendChunk(chunkHeader);
                     m_sendCounter++;
                 })
-                .or_else([](AllocationError error) {
+                .or_else([](auto error) {
                     // Errors shall never occur
                     FAIL() << "Error in tryAllocateChunk(): " << static_cast<uint32_t>(error);
                 });

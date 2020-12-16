@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 using namespace ::testing;
 using ::testing::_;
 
-using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber<void>>;
+using TestUntypedSubscriber = iox::popo::UntypedSubscriberImpl<MockBaseSubscriber>;
 
 class UntypedSubscriberTest : public Test
 {
@@ -76,7 +76,7 @@ TEST_F(UntypedSubscriberTest, SubscribesViaBaseSubscriber)
     // ===== Setup ===== //
     EXPECT_CALL(sut, subscribe).Times(1);
     // ===== Test ===== //
-    sut.subscribe();
+    sut.subscribe(1);
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -101,14 +101,23 @@ TEST_F(UntypedSubscriberTest, ChecksForNewSamplesViaBaseSubscriber)
     // ===== Cleanup ===== //
 }
 
+TEST_F(UntypedSubscriberTest, ChecksForMissedSamplesViaBaseSubscriber)
+{
+    // ===== Setup ===== //
+    EXPECT_CALL(sut, hasMissedSamples).Times(1);
+    // ===== Test ===== //
+    sut.hasMissedSamples();
+    // ===== Verify ===== //
+    // ===== Cleanup ===== //
+}
+
 TEST_F(UntypedSubscriberTest, ReceivesSamplesViaBaseSubscriber)
 {
     // ===== Setup ===== //
-    EXPECT_CALL(sut, receive)
-        .Times(1)
-        .WillOnce(Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const void>>>())));
+    EXPECT_CALL(sut, take).Times(1).WillOnce(
+        Return(ByMove(iox::cxx::success<iox::cxx::optional<iox::popo::Sample<const void>>>())));
     // ===== Test ===== //
-    sut.receive();
+    sut.take();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }
@@ -119,38 +128,6 @@ TEST_F(UntypedSubscriberTest, ReleasesQueuedSamplesViaBaseSubscriber)
     EXPECT_CALL(sut, releaseQueuedSamples).Times(1);
     // ===== Test ===== //
     sut.releaseQueuedSamples();
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(UntypedSubscriberTest, SetsConditionVariableViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    auto conditionVariable = new iox::popo::ConditionVariableData();
-    EXPECT_CALL(sut, setConditionVariable).Times(1);
-    // ===== Test ===== //
-    sut.setConditionVariable(conditionVariable);
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-    delete conditionVariable;
-}
-
-TEST_F(UntypedSubscriberTest, UnsetsConditionVariableViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    EXPECT_CALL(sut, unsetConditionVariable).Times(1);
-    // ===== Test ===== //
-    sut.unsetConditionVariable();
-    // ===== Verify ===== //
-    // ===== Cleanup ===== //
-}
-
-TEST_F(UntypedSubscriberTest, ChecksIfConditionIsTriggeredViaBaseSubscriber)
-{
-    // ===== Setup ===== //
-    EXPECT_CALL(sut, hasTriggered).Times(1);
-    // ===== Test ===== //
-    sut.hasTriggered();
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

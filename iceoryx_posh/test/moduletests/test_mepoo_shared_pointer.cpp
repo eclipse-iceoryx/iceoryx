@@ -144,8 +144,8 @@ class SharedPointer_Test : public Test
     ChunkManagement* chunkManagement4 = GetChunkManagement(memoryChunk4);
     SharedChunk chunk4{chunkManagement4};
 
-    SharedPointer<int> sut = SharedPointer<int>::create(chunk, 42).get_value();
-    SharedPointer<TestClass> sutComplex = SharedPointer<TestClass>::create(chunk2, 1337, 851).get_value();
+    SharedPointer<int> sut = SharedPointer<int>::create(chunk, 42).value();
+    SharedPointer<TestClass> sutComplex = SharedPointer<TestClass>::create(chunk2, 1337, 851).value();
 };
 
 SharedPointer_Test::counter_t SharedPointer_Test::TestClass::counter;
@@ -191,7 +191,7 @@ TEST_F(SharedPointer_Test, StarOperator)
 TEST_F(SharedPointer_Test, CopyConstructor)
 {
     {
-        auto sut3 = SharedPointer<TestClass>::create(chunk3, 313, 1313).get_value();
+        auto sut3 = SharedPointer<TestClass>::create(chunk3, 313, 1313).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
         {
             SharedPointer<TestClass> sut4(sut3);
@@ -213,7 +213,7 @@ TEST_F(SharedPointer_Test, CopyConstructor)
 TEST_F(SharedPointer_Test, MoveConstructor)
 {
     {
-        auto sut3 = SharedPointer<TestClass>::create(chunk3, 15, 25).get_value();
+        auto sut3 = SharedPointer<TestClass>::create(chunk3, 15, 25).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
         {
             SharedPointer<TestClass> sut4(std::move(sut3));
@@ -235,10 +235,10 @@ TEST_F(SharedPointer_Test, MoveConstructor)
 TEST_F(SharedPointer_Test, CopyAssignment)
 {
     {
-        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).get_value();
+        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
 
-        auto sut4 = SharedPointer<TestClass>::create(chunk4, 3, 4).get_value();
+        auto sut4 = SharedPointer<TestClass>::create(chunk4, 3, 4).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(3));
 
         EXPECT_THAT(TestClass::counter.dtor, Eq(0));
@@ -253,10 +253,10 @@ TEST_F(SharedPointer_Test, CopyAssignment)
 TEST_F(SharedPointer_Test, MoveAssignment)
 {
     {
-        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).get_value();
+        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
 
-        auto sut4 = SharedPointer<TestClass>::create(chunk4, 3, 4).get_value();
+        auto sut4 = SharedPointer<TestClass>::create(chunk4, 3, 4).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(3));
 
         EXPECT_THAT(TestClass::counter.dtor, Eq(0));
@@ -272,7 +272,7 @@ TEST_F(SharedPointer_Test, MoveAssignment)
 TEST_F(SharedPointer_Test, CopyToEmpty)
 {
     {
-        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).get_value();
+        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
 
         auto sut4 = SharedPointer<TestClass>();
@@ -290,7 +290,7 @@ TEST_F(SharedPointer_Test, CopyToEmpty)
 TEST_F(SharedPointer_Test, CopyFromEmpty)
 {
     {
-        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).get_value();
+        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
 
         auto sut4 = SharedPointer<TestClass>();
@@ -306,7 +306,7 @@ TEST_F(SharedPointer_Test, CopyFromEmpty)
 TEST_F(SharedPointer_Test, MoveToEmpty)
 {
     {
-        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).get_value();
+        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
 
         auto sut4 = SharedPointer<TestClass>();
@@ -324,7 +324,7 @@ TEST_F(SharedPointer_Test, MoveToEmpty)
 TEST_F(SharedPointer_Test, MoveFromEmpty)
 {
     {
-        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).get_value();
+        auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
         EXPECT_THAT(TestClass::counter.ctor, Eq(2)); // sutComplex is 1
 
         auto sut4 = SharedPointer<TestClass>();
@@ -344,6 +344,6 @@ TEST_F(SharedPointer_Test, DefaultCTorProvidesInvalidSharedPointer)
 
 TEST_F(SharedPointer_Test, SharedPointerWithContentIsValid)
 {
-    auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).get_value();
+    auto sut3 = SharedPointer<TestClass>::create(chunk3, 1, 2).value();
     EXPECT_THAT(static_cast<bool>(sut3), Eq(true));
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,9 @@
 
 /// @brief Subscriber handle
 typedef struct cpp2c_Subscriber* iox_sub_t;
+typedef CLASS cpp2c_WaitSet* iox_ws_t;
 
-/// @brief initialize subscriber handle in the default runtime runnable
+/// @brief initialize subscriber handle in the default runtime node
 /// @param[in] self pointer to preallocated memory of size = sizeof(iox_sub_storage_t)
 /// @param[in] service serviceString
 /// @param[in] instance instanceString
@@ -79,5 +80,26 @@ bool iox_sub_has_new_chunks(iox_sub_t const self);
 /// @param[in] self handle to the subscriber
 /// @return true if there are lost chunks otherwise false
 bool iox_sub_has_lost_chunks(iox_sub_t const self);
+
+/// @brief attaches the subscriber to a waitset
+/// @param[in] self handle to the subscriber
+/// @param[in] waitset handle to the waitset
+/// @param[in] event the type of the event which should be attached to the waitset
+/// @param[in] triggerId the user defined trigger id
+/// @param[in] callback a callback which is attached to the trigger, NULL if no
+///            callback should be set
+/// @return if it was attached successfully it returns WaitSetResult_SUCCESS
+///         otherwise an enum which is describing the error
+ENUM iox_WaitSetResult iox_sub_attach_to_waitset(iox_sub_t const self,
+                                                 iox_ws_t const waitset,
+                                                 const ENUM iox_SubscriberEvent event,
+                                                 const uint64_t triggerId,
+                                                 void (*callback)(iox_sub_t));
+
+/// @brief detaches the subscriber from a waitset
+/// @param[in] self handle to the subscriber
+/// @param[in] event the type of the event which should be detached
+void iox_sub_detach_event(iox_sub_t const self, const ENUM iox_SubscriberEvent event);
+
 
 #endif

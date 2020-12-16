@@ -10,7 +10,7 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License
+// limitations under the License.
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_waiter.hpp"
 #include "iceoryx_utils/error_handling/error_handling.hpp"
@@ -34,9 +34,22 @@ void ConditionVariableWaiter::reset() noexcept
                                 nullptr,
                                 ErrorLevel::FATAL);
                })
-               .get_value())
+               .value())
     {
     }
+}
+
+bool ConditionVariableWaiter::wasNotified() const noexcept
+{
+    auto result = getMembers()->m_semaphore.getValue();
+    if (result.has_error())
+    {
+        errorHandler(
+            Error::kPOPO__CONDITION_VARIABLE_WAITER_SEMAPHORE_CORRUPTED_IN_WAS_TRIGGERED, nullptr, ErrorLevel::FATAL);
+        return false;
+    }
+
+    return *result != 0;
 }
 
 void ConditionVariableWaiter::wait() noexcept

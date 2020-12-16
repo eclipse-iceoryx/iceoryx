@@ -37,8 +37,9 @@ RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig,
     : RouDiEnvironment(BaseCTor::BASE, uniqueRouDiId)
 {
     m_roudiComponents = std::unique_ptr<IceOryxRouDiComponents>(new IceOryxRouDiComponents(roudiConfig));
-    m_roudiApp = std::unique_ptr<RouDi>(
-        new RouDi(m_roudiComponents->m_rouDiMemoryManager, m_roudiComponents->m_portManager, monitoringMode, false));
+    m_roudiApp = std::unique_ptr<RouDi>(new RouDi(m_roudiComponents->m_rouDiMemoryManager,
+                                                  m_roudiComponents->m_portManager,
+                                                  RouDi::RoudiStartupParameters{monitoringMode, false}));
 }
 
 RouDiEnvironment::~RouDiEnvironment()
@@ -60,7 +61,7 @@ void RouDiEnvironment::InterOpWait()
     std::this_thread::sleep_for(m_interOpWaitingTime);
 }
 
-void RouDiEnvironment::CleanupAppResources(const std::string& name)
+void RouDiEnvironment::CleanupAppResources(const ProcessName_t& name)
 {
     m_runtimes.eraseRuntime(name);
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 #define IOX_POSH_POPO_BASE_SUBSCRIBER_HPP
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
-#include "iceoryx_posh/popo/condition.hpp"
 #include "iceoryx_posh/popo/modern_api/sample.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_utils/cxx/expected.hpp"
 #include "iceoryx_utils/cxx/optional.hpp"
 #include "iceoryx_utils/cxx/unique_ptr.hpp"
@@ -28,15 +29,29 @@ namespace popo
 {
 using uid_t = UniquePortId;
 
-template <typename T, typename port_t = iox::SubscriberPortUserType>
-class BaseSubscriber : public Condition
+enum class SubscriberEvent
 {
-  public:
+    HAS_NEW_SAMPLES
+};
+
+/// @brief base class for all types of subscriber
+/// @param[in] T the sample type
+/// @param[in] Subscriber type of the child which is inheriting from BaseSubscriber. This type is required for the
+/// TriggerCallback since a trigger provides a pointer to the originating class as parameter for the callback. If we
+/// wouldn't have the type the user would have to cast it correctly via dynamic_cast or reinterpret_cast which can be
+/// error prone.
+/// @param[in] port_t type of the underlying port, required for testing
+template <typename T, typename Subscriber, typename port_t = iox::SubscriberPortUserType>
+class BaseSubscriber
+{
+  protected:
+    using SelfType = BaseSubscriber<T, Subscriber, port_t>;
+
     BaseSubscriber(const BaseSubscriber& other) = delete;
     BaseSubscriber& operator=(const BaseSubscriber&) = delete;
     BaseSubscriber(BaseSubscriber&& rhs) = delete;
     BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
-    ~BaseSubscriber() = default;
+    virtual ~BaseSubscriber();
 
     ///
     /// @brief uid Get the unique ID of the subscriber.
@@ -76,29 +91,65 @@ class BaseSubscriber : public Condition
     bool hasNewSamples() const noexcept;
 
     ///
-    /// @brief receive Receive the next sample if available.
-    /// @return
-    /// @details Sample is automatically released when it goes out of scope.
+    /// @brief hasMissedSamples Check if samples have been missed since the last hasMissedSamples() call.
+    /// @return True if samples have been missed.
+    /// @details Samples may be missed due to overflowing receive queue.
     ///
-    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> receive() noexcept;
+    bool hasMissedSamples() noexcept;
 
     ///
-    /// @brief releaseQueuedSamples Releases any queued unread samples.
+    /// @brief take Take the a sample from the top of the receive queue.
+    /// @return An expected containing populated optional if there is a sample available, otherwise empty.
+    /// @details The memory loan for the sample is automatically released when it goes out of scope.
+    ///
+    cxx::expected<cxx::optional<Sample<const T>>, ChunkReceiveError> take() noexcept;
+
+    ///
+    /// @brief releaseQueuedSamples Releases any unread queued samples.
     ///
     void releaseQueuedSamples() noexcept;
 
-    // Condition overrides
-    virtual bool setConditionVariable(ConditionVariableData* const conditionVariableDataPtr) noexcept override;
-    virtual bool unsetConditionVariable() noexcept override;
-    virtual bool hasTriggered() const noexcept override;
+    /// @brief attaches a WaitSet to the subscriber
+    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
+    /// @param[in] subscriberEvent the event which should be attached
+    /// @param[in] triggerId a custom uint64_t which can be set by the user with no restriction. could be used to either
+    ///            identify a trigger uniquely or to group multiple triggers together when they share the same triggerId
+    /// @param[in] callback callback which is attached to the trigger and which can be called
+    ///            later by the user
+    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
+    ///            the error
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
+                                         const SubscriberEvent subscriberEvent,
+                                         const uint64_t triggerId = Trigger::INVALID_TRIGGER_ID,
+                                         const Trigger::Callback<Subscriber> callback = nullptr) noexcept;
+
+    /// @brief attaches a WaitSet to the subscriber
+    /// @param[in] waitset reference to the waitset to which the subscriber should be attached to
+    /// @param[in] subscriberEvent the event which should be attached
+    /// @param[in] callback callback which is attached to the trigger and which can be called
+    ///            later by the user
+    /// @return success if the subscriber is attached otherwise an WaitSetError enum which describes
+    ///            the error
+    template <uint64_t WaitSetCapacity>
+    cxx::expected<WaitSetError> attachTo(WaitSet<WaitSetCapacity>& waitset,
+                                         const SubscriberEvent subscriberEvent,
+                                         const Trigger::Callback<Subscriber> callback) noexcept;
+
+    /// @brief detaches a specified event from the subscriber, if the event was not attached nothing happens
+    /// @param[in] subscriberEvent the event which should be detached
+    void detachEvent(const SubscriberEvent subscriberEvent) noexcept;
 
   protected:
-    BaseSubscriber(const capro::ServiceDescription& service);
+    BaseSubscriber() noexcept; // Required for testing.
+    BaseSubscriber(const capro::ServiceDescription& service) noexcept;
+
+    void invalidateTrigger(const uint64_t trigger) noexcept;
 
   private:
     ///
     /// @brief The SubscriberSampleDeleter struct is a custom deleter in functor form which releases loans to a sample's
-    /// underlying memory chunk via a subscriber's subscriber port.
+    /// underlying memory chunk via the subscriber port.
     /// Each subscriber should create its own instance of this deleter struct to work with its specific port.
     ///
     /// @note As this deleter is coupled to the Subscriber implementation, it should only be used within the subscriber
@@ -117,6 +168,7 @@ class BaseSubscriber : public Condition
   protected:
     port_t m_port{nullptr};
     SubscriberSampleDeleter m_sampleDeleter{m_port};
+    TriggerHandle m_trigger;
 };
 
 } // namespace popo

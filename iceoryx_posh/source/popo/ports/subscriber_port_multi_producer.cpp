@@ -10,7 +10,7 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License
+// limitations under the License.
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
 
@@ -70,6 +70,12 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::dispatchCaProMes
         caproMessage.m_historyCapacity = getMembers()->m_historyRequest;
 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
+    }
+    else if ((capro::CaproMessageType::OFFER == caProMessage.m_type)
+             && (SubscribeState::NOT_SUBSCRIBED == currentSubscriptionState))
+    {
+        // No state change
+        return cxx::nullopt_t();
     }
     else if ((capro::CaproMessageType::ACK == caProMessage.m_type)
              || (capro::CaproMessageType::NACK == caProMessage.m_type)

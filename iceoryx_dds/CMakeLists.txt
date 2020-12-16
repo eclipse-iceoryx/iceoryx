@@ -24,7 +24,7 @@ find_package(iceoryx_posh REQUIRED)
 find_package(iceoryx_utils REQUIRED)
 
 include(IceoryxPackageHelper)
-include(IceoryxPlatformDetection)
+include(IceoryxPlatform)
 
 #
 ########## set variables for export ##########
@@ -43,7 +43,7 @@ option(USE_CYCLONE_DDS "Bind to CycloneDDS implementation" on)
 if(USE_CYCLONE_DDS)
     message(INFO " Using CycloneDDS stack")
     find_package(CycloneDDS CONFIG REQUIRED)
-    find_package(CycloneDDS_CXX_API CONFIG REQUIRED)
+    find_package(CycloneDDS-CXX CONFIG REQUIRED)
 endif()
 
 #
@@ -55,7 +55,11 @@ add_library(iceoryx_dds
 )
 add_library(${PROJECT_NAMESPACE}::iceoryx_dds ALIAS iceoryx_dds)
 
-target_compile_options(iceoryx_dds PUBLIC -std=c++11)
+set_target_properties(iceoryx_utils PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_STANDARD ${ICEORYX_CXX_STANDARD}
+    POSITION_INDEPENDENT_CODE ON
+)
 
 target_include_directories(iceoryx_dds
     PUBLIC
@@ -102,7 +106,7 @@ if(USE_CYCLONE_DDS)
     )
     target_link_libraries(iceoryx_dds
         PUBLIC
-        CycloneDDS_CXX_API::ddscxx
+        CycloneDDS-CXX::ddscxx
         ${IDLPP_GENERATE_DIR}/libiceoryx_dds_messages.a
     )
 endif()

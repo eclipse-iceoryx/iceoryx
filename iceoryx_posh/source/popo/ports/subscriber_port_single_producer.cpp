@@ -10,7 +10,7 @@
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
-// limitations under the License
+// limitations under the License.
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 
@@ -117,6 +117,13 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMe
             errorHandler(Error::kPOPO__CAPRO_PROTOCOL_ERROR, nullptr, ErrorLevel::MODERATE);
         }
 
+        return cxx::nullopt_t();
+    }
+    else if (((capro::CaproMessageType::OFFER == caProMessage.m_type)
+              || (capro::CaproMessageType::STOP_OFFER == caProMessage.m_type))
+             && (SubscribeState::NOT_SUBSCRIBED == currentSubscriptionState))
+    {
+        // No state change
         return cxx::nullopt_t();
     }
     else
