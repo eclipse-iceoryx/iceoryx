@@ -88,7 +88,7 @@ We distinguish between the ``Typed API`` and the ``Untyped API``. In the Typed A
 The Untyped API provides opaque (i.e. void) pointers to data, which is flexible and efficient but also requires that the user takes care to interpret received data correctly, i.e. as a type compatible to what was actually sent. This is required for interaction with other lower level APIs and should be used sparingly.
 For further information see the respective header files.
 
-TODO mention C API (can only link)
+There also is a plain [C API](todo), which can be used if C++ is not an option.
 
 We now describe the how to use the API in iceoryx applications. We will ommit namespaces in several places to keep the code concise. In most cases it can be assumed that we are using namespace ``iox::cxx``. We also will use ``auto`` sparingly to clearly show which types are involved, but in many cases automatic type deduction is possible and can shorten the code.
 
@@ -117,8 +117,8 @@ Note that getting the value if there is no value is undefined behavior, so it mu
 We can achieve the same with the functional approach by providing a function for both cases.
 
 ```
-result.and_then([](int& value) {//do something with the value})
-      .or_else([]() {//handle the case that there is no value});
+result.and_then([](int& value) { /*do something with the value*/ })
+      .or_else([]() { /*handle the case that there is no value*/ });
 ```
 Notice that we get the value by reference, so if a copy is desired it has to be created explicitly in th e lambda or function we pass.
 
@@ -129,31 +129,65 @@ result = 37;
 ```
 If it is default initialized it is automatically set to its null value of type ``iox::cxx::nullopt_t``;
 This can be also done directly by using the constant ``iox::cxx::nullopt``
+
 ```
 result = nullopt;
-``` 
- 
-
+```
 
 ### Expected
-For more information see [error-handling.md](todo).
+``cxx::expected<T, E>`` generalizes ``cxx::optional`` by admitting a value of another type ``T`` instead of no value at all, i.e. it contains either a value of type ``T`` or ``E`` (roughly the either monad). This is usually used to pass a value of type or an error that may have occurred, i.e. ``E`` is the error type. For more information on how it is used for error handling see [error-handling.md](todo).
 
-### Typed API
-Prio1
+Assume we have ``E`` as an error type, then we can create a value
+```
+cxx::expected<int, E> result(iox::cxx::success<int>(73));
+```
 
-### Untyped API
-Prio2
+and use the value or handle a potential error
+```
+if (!result.has_error())
+{
+    auto value = result.value();
+    // do something with the value
+}
+else
+{
+    auto error = result.get_error();
+    // handle the error
+}
+```
 
-### C API
-Prio3
-will link to example
+Should we need an error value we set
+```
+result = iox::cxx::error<E>(errorCode);
+```
+which assumes that E can be constructed from an ``errorCode``.
+
+We again can employ a functional approach like this
+```
+auto handleValue = [](int& value) { /*do something with the value*/ };
+auto handleError = [](E& value) { /*handle the error*/ };
+result.and_then(handleValue).or_else(handleError);
+```
+
+There are more convenience functions such as ``value_or`` which provides the value or an alternative specified by the user. These can be found in ``expected.hpp``.
+
+
+## Using the API
+
+### Initializing the runtime
+
+
+### Creating a publisher
+
+
+### Sending data
+
+### Creating a subscriber
+
+
+### receiving data
+
 
 ## Examples
 
-### Building the examples
-
-### Use Case1
-
-### Use Case2
-
-...
+Examples of the main use cases and instructions on how to build and run them can be found in [examples](../iceoryx_examples/README.md).
